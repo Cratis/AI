@@ -1,9 +1,6 @@
 ---
 name: scaffold-feature
-description: >
-  Use this skill when asked to create a new feature, section, or page that
-  does not yet exist in a Cratis-based project. Sets up the folder, composition
-  page, routing, and navigation entry before any slices are added.
+description: Use this skill when asked to create a new feature, section, or page that does not yet exist in a Cratis-based project. Sets up the folder, composition page, routing, and navigation entry before any slices are added.
 ---
 
 Scaffold a brand-new feature folder with routing and navigation — ready for slices.

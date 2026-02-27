@@ -1,9 +1,6 @@
 ---
 name: write-documentation
-description: >
-  Use this skill when asked to write or update documentation for a feature,
-  component, or concept in a Cratis-based project. Produces DocFX-compatible
-  Markdown with correct TOC entries and optional Mermaid diagrams.
+description: Use this skill when asked to write or update documentation for a feature, component, or concept in a Cratis-based project. Produces DocFX-compatible Markdown with correct TOC entries and optional Mermaid diagrams.
 ---
 
 Write DocFX documentation for a feature, component, or concept.

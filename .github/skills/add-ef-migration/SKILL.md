@@ -1,8 +1,6 @@
 ---
 name: add-ef-migration
-description: >
-  Use this skill when asked to add a database table, column, relationship,
-  or other schema change via Entity Framework Core in a Cratis-based project.
+description: Use this skill when asked to add a database table, column, relationship, or other schema change via Entity Framework Core in a Cratis-based project.
 ---
 
 Add or update an Entity Framework Core schema change with a migration.

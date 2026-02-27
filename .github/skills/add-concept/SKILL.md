@@ -1,9 +1,6 @@
 ---
 name: add-concept
-description: >
-  Use this skill when asked to create a strongly-typed domain identifier or
-  value (such as ProjectId, AuthorName, InvoiceNumber) in a Cratis-based project.
-  Produces a ConceptAs<T> record with the correct conversions and sentinel values.
+description: Use this skill when asked to create a strongly-typed domain identifier or value (such as ProjectId, AuthorName, InvoiceNumber) in a Cratis-based project. Produces a ConceptAs<T> record with the correct conversions and sentinel values.
 ---
 
 Create a strongly-typed Concept that wraps a primitive domain value.

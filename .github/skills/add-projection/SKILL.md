@@ -1,9 +1,6 @@
 ---
 name: add-projection
-description: >
-  Use this skill when asked to add a Chronicle projection or reactor to a
-  Cratis-based project. Enforces the AutoMap-first rule and Chronicle-specific
-  join semantics.
+description: Use this skill when asked to add a Chronicle projection or reactor to a Cratis-based project. Enforces the AutoMap-first rule and Chronicle-specific join semantics.
 ---
 
 Add a Chronicle **projection** (populates a read model from events) or **reactor** (triggers automation from events).
