@@ -1,9 +1,6 @@
 ---
 name: review-performance
-description: >
-  Use this skill when asked to check for performance issues, inefficiencies, or
-  scalability problems in a Cratis-based project. Covers Chronicle projections,
-  MongoDB query patterns, .NET allocations, and React render overhead.
+description: Use this skill when asked to check for performance issues, inefficiencies, or scalability problems in a Cratis-based project. Covers Chronicle projections, MongoDB query patterns, .NET allocations, and React render overhead.
 ---
 
 Perform a focused performance review of changed code.

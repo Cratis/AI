@@ -1,8 +1,6 @@
 ---
 name: add-business-rule
-description: >
-  Use this skill when asked to add a validation rule, business rule, or
-  uniqueness constraint to an existing command in a Cratis-based project.
+description: Use this skill when asked to add a validation rule, business rule, or uniqueness constraint to an existing command in a Cratis-based project.
 ---
 
 Add a business rule or event-store constraint to an existing command.

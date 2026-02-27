@@ -1,9 +1,6 @@
 ---
 name: review-code
-description: >
-  Use this skill when asked to review, check, or validate code in a
-  Cratis-based project. Produces a structured review report with blocking issues
-  and suggestions, checked against all project architecture and style standards.
+description: Use this skill when asked to review, check, or validate code in a Cratis-based project. Produces a structured review report with blocking issues and suggestions, checked against all project architecture and style standards.
 ---
 
 Review changed code against all Cratis project standards and produce a structured report.

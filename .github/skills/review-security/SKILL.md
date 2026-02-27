@@ -1,9 +1,6 @@
 ---
 name: review-security
-description: >
-  Use this skill when asked to perform a security review or security audit of
-  code in a Cratis-based project. Checks for injection, auth/authz, data
-  exposure, secrets, and event-sourcing-specific vulnerabilities.
+description: Use this skill when asked to perform a security review or security audit of code in a Cratis-based project. Checks for injection, auth/authz, data exposure, secrets, and event-sourcing-specific vulnerabilities.
 ---
 
 Perform a structured security review of changed code.

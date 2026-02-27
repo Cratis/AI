@@ -1,9 +1,6 @@
 ---
 name: new-vertical-slice
-description: >
-  Use this skill when asked to implement a new feature, command, query, slice, or
-  screen in a Cratis-based project. Guides the full end-to-end workflow:
-  C# backend → specs → dotnet build → React frontend → quality gates.
+description: Use this skill when asked to implement a new feature, command, query, slice, or screen in a Cratis-based project. Guides the full end-to-end workflow: C# backend → specs → dotnet build → React frontend → quality gates.
 ---
 
 Implement a complete vertical slice following this EXACT order. Never skip steps or work on multiple slices in parallel.

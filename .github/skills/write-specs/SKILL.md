@@ -1,9 +1,6 @@
 ---
 name: write-specs
-description: >
-  Use this skill when asked to write tests, specs, or test coverage for a
-  command, query, or slice in a Cratis-based project. Produces BDD-style
-  integration specs using xUnit and Cratis.Specifications.
+description: Use this skill when asked to write tests, specs, or test coverage for a command, query, or slice in a Cratis-based project. Produces BDD-style integration specs using xUnit and Cratis.Specifications.
 ---
 
 Write comprehensive BDD integration specs for a vertical slice command or query.
