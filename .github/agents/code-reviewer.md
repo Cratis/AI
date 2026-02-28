@@ -43,7 +43,7 @@ Review every changed file. For each issue found:
 ## C# Architecture checklist
 
 - [ ] Each slice lives in its own file under `Features/<Feature>/<Slice>.cs`
-- [ ] Slice class has one method only (`Handle()`, `Define()`, `On()`, etc.)
+- [ ] Each artifact type has a single responsibility (commands return events, reactors react, projections project)
 - [ ] No shared state between commands
 - [ ] No service locator (`IServiceProvider` not injected)
 - [ ] No explicit singleton registration when `[Singleton]` attribute suffices
@@ -54,13 +54,14 @@ Review every changed file. For each issue found:
 - [ ] `record` type, not `class`
 - [ ] No properties with setters (immutable)
 - [ ] `Handle()` method is the single entry point
-- [ ] No `return` statement from `Handle()` — events are appended to Chronicle, not returned directly
+- [ ] `Handle()` **returns** the event(s) — never calls `IEventLog` directly
 - [ ] Namespace matches folder path: `<NamespaceRoot>.<Feature>.<Slice>`
 
 ## C# Read Models & Projections checklist
 
 - [ ] Read model is a `record` type with all required props
-- [ ] Projection uses `.AutoMap()` before any `.From<>()` call (Chronicle requirement)
+- [ ] Preferred: projection uses model-bound attributes (`[FromEvent<T>]`, `[Key]`, etc.) directly on the read model — no separate projection class needed
+- [ ] If using fluent `IProjectionFor<T>`: `.AutoMap()` MUST appear before any `.From<>()` call
 - [ ] Projection does NOT join on the read model — joins are on Chronicle events only
 - [ ] No `ToList()`, `ToArray()`, or mutation of public-API collection returns
 

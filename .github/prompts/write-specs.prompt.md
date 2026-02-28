@@ -21,7 +21,7 @@ Write a spec class for **each meaningful outcome**:
 
 1. **Happy path** — command succeeds, expected event is appended, sequence number advanced.
 2. **Each validation failure** — one spec per validation rule.
-3. **Each business rule violation** — one spec per `RulesFor<,>` condition.
+3. **Each business rule violation** — one spec per condition in `Handle()` that inspects a ReadModel argument (DCB pattern).
 4. **Each constraint violation** — one spec per `IConstraint` (e.g. uniqueness).
 
 ### Structure
@@ -46,13 +46,15 @@ public class and_<scenario>(context context) : Given<context>(context)
 {
     public class context(ChronicleOutOfProcessFixture fixture) : given.an_http_client(fixture)
     {
-        public CommandResult<Guid> Result;
+        public CommandResult<object>? Result;
+
+        async Task Establish() { /* optional: seed events */ }
 
         async Task Because()
         {
-            Result = await Client.ExecuteCommand<RegisterProject, Guid>(
+            Result = await Client.ExecuteCommand<<Command>>(
                 "/api/<feature>/<action>",
-                new RegisterProject(...));
+                new <Command>(...));
         }
     }
 
@@ -62,7 +64,7 @@ public class and_<scenario>(context context) : Given<context>(context)
 
 ### Assertions
 
-Use `ShouldBeFalse()`, `ShouldBeTrue()`, `ShouldEqual()`, `ShouldHaveAppendedEvent<T>()`, `ShouldHaveTailSequenceNumber()` — never raw `Assert.*`.
+Use `ShouldBeFalse()`, `ShouldBeTrue()`, `ShouldEqual()`, `ShouldHaveTailSequenceNumber()` — never raw `Assert.*`.
 
 ## Validation
 

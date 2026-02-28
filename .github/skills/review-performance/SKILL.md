@@ -7,7 +7,7 @@ Perform a focused performance review of changed code.
 
 ## Chronicle / Event Sourcing
 
-- [ ] Projections use `.AutoMap()` — avoids manual mapping cost
+- [ ] Projections use AutoMap (on by default) — avoids manual mapping cost
 - [ ] Projections do NOT join on the read model (forces full re-read)
 - [ ] Reactors do NOT re-query the event log inside `On()` — use event data directly
 - [ ] No eager loading of entire event sequences without paging/filtering

@@ -23,18 +23,17 @@ Place ALL backend artifacts in a single file: `Features/<Feature>/<Slice>.cs`
 
 File creation order within the slice:
 1. Concept types (if new strongly-typed IDs are needed — see `add-concept` skill)
-2. Validation attributes on command properties
-3. Command `record` with `Handle()` method
-4. Business rules class `<Command>Rules` (if needed)
-5. Event `record` (immutable — no setters)
-6. Read model `record`
-7. Projection class (`.AutoMap()` MUST come before any `.From<>()`)
-8. Slice class (the class that has `Handle()` called by the framework)
+2. Command `record` with `Handle()` method and optional validation attributes
+   - If a business rule depends on Chronicle event-sourced state, add the relevant read model as a parameter to `Handle()` — see `add-business-rule` skill (DCB pattern)
+3. Constraint class `<Name>Constraint` (if needed)
+5. Event `record` with `[EventType]` (no arguments, no mutable properties)
+6. Read model `record` with `[ReadModel]` and model-bound projection attributes (`[FromEvent<T>]`, `[Key]`, etc.)
+   - Use fluent `IProjectionFor<T>` only when model-bound attributes don't fit
 
 **Critical rules:**
 - Commands are `record` types with a `Handle()` method directly on them — DO NOT create separate handler classes
-- Events are `record` types with no mutable properties
-- Projection: `.AutoMap()` must be the first call before `.From<>()`
+- Events use `[EventType]` with NO arguments — never pass a GUID or string
+- Projection: prefer model-bound attributes on the read model; if using `IProjectionFor<T>`, AutoMap is on by default — just call `.From<>()` directly
 - Namespace must be `<NamespaceRoot>.<Feature>.<Slice>` (drop `.Features.` segment)
 - Copyright header on every file: `// Copyright (c) Cratis. All rights reserved. // Licensed under the MIT license. See LICENSE file in the project root for full license information.`
 
@@ -47,7 +46,7 @@ Run `dotnet build`. Fix ALL errors and warnings before proceeding. This generate
 For each command, write specs covering:
 - Happy path — command succeeds, correct event appended
 - Each validation failure (one spec per rule)
-- Each business rule violation
+- Each business rule violation (one spec per DCB condition in `Handle()` that inspects a read model)
 - Each constraint violation
 
 See `write-specs` skill for the complete spec structure.

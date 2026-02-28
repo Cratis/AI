@@ -81,14 +81,14 @@ public class and_name_already_exists(context context) : Given<context>(context)
     public class context(ChronicleOutOfProcessFixture fixture) : given.an_http_client(fixture)
     {
         public const string ProjectName = "My Project";
-        public CommandResult<Guid> Result;
+        public CommandResult Result = null!;
 
-        Task Establish() =>
-            EventStore.EventLog.Append(ProjectId.New(), new ProjectRegistered(ProjectName));
+        async Task Establish() =>
+            await EventStore.EventLog.Append(ProjectId.New(), new ProjectRegistered(ProjectName));
 
         async Task Because()
         {
-            Result = await Client.ExecuteCommand<RegisterProject, Guid>(
+            Result = await Client.ExecuteCommand<RegisterProject>(
                 "/api/projects/register",
                 new RegisterProject(ProjectName));
         }
@@ -105,7 +105,7 @@ For each command, write specs for **all meaningful outcomes**:
 
 1. **Happy path** — command succeeds, correct events are appended.
 2. **Validation failures** — each validation rule that can fail.
-3. **Business rule violations** — each `RulesFor<,>` condition.
+3. **Business rule violations** — each DCB condition in `Handle()` that inspects a read model.
 4. **Constraint violations** — each `IConstraint` that may be triggered (e.g. uniqueness).
 
 ### Naming conventions

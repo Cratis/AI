@@ -5,47 +5,78 @@ description: Use this skill when asked to add a Chronicle projection or reactor 
 
 Add a Chronicle **projection** (populates a read model from events) or **reactor** (triggers automation from events).
 
-## Projection
+## Projection — Model-Bound (preferred)
+
+Put projection metadata directly on the read model using attributes. No separate class needed.
+
+```csharp
+[ReadModel]
+[FromEvent<SomeEventHappened>]              // auto-maps all matching property names
+public record <ReadModelName>(
+    [Key] <IdType> Id,                      // marks the primary key
+    <PropType> <PropName>)                  // auto-mapped from SomeEventHappened
+{
+    public static ISubject<IEnumerable<<ReadModelName>>> All(IMongoCollection<<ReadModelName>> collection) =>
+        collection.Observe();
+}
+```
+
+**Attribute reference:**
+| Attribute | Purpose |
+|-----------|---------|
+| `[FromEvent<T>]` | Auto-maps all matching property names (equivalent to `.AutoMap().From<T>()`) |
+| `[FromEvent<T>(key: nameof(T.Prop))]` | Same, but uses `Prop` as the read model key instead of EventSourceId |
+| `[Key]` | Marks the primary key property |
+| `[SetFrom<T>(nameof(T.Prop))]` | Explicitly maps one property from event T |
+| `[AddFrom<T>(nameof(T.Prop))]` | Adds event property value to the read model property |
+| `[SubtractFrom<T>(nameof(T.Prop))]` | Subtracts event property value |
+| `[ChildrenFrom<T>(key: nameof(T.Prop))]` | Projects into a nested child collection |
+| `[Join<T>(on: nameof(Prop), eventPropertyName: nameof(T.EProp))]` | Joins data from a related event |
+| `[RemovedWith<T>]` | Marks the instance as removed when event T is appended |
+
+**Critical rules:**
+- Joins must be on Chronicle **events** — NEVER join on a read model type
+- If property names between event and read model match, `[FromEvent<T>]` alone is sufficient
+- Child types also support all attributes recursively
+
+## Projection — Fluent (use for complex cases)
+
+Use `IProjectionFor<T>` when projection logic is too complex for attributes.
 
 ```csharp
 public class <Name>Projection : IProjectionFor<<ReadModel>>
 {
-    public ProjectionId Identifier => "<stable-guid>";
-
     public void Define(IProjectionBuilderFor<<ReadModel>> builder) =>
         builder
-            .AutoMap()                             // ← ALWAYS first — never move this
-            .From<SomeEventHappened>(builder =>
-                builder
-                    .UsingKey(e => e.SomeId)
-                    .Set(m => m.Property).To(e => e.Property))
+            .From<SomeEventHappened>(b =>
+                b.UsingKey(e => e.SomeId))
             .RemovedWith<SomeThingRemoved>();
 }
 ```
 
 **Critical rules:**
-- `.AutoMap()` MUST be the very first call — before any `.From<>()`
+- AutoMap is on by default — just call `.From<>()` directly. Only call `.AutoMap()` if you previously used `.NoAutoMap()`.
 - Joins are on Chronicle **events** only — NEVER join on the read model
-- Use `.RemovedWith<TEvent>()` for delete/removal events
-- The `Identifier` GUID must be stable — never change it after first deployment (changing it forces a full projection rebuild)
-- Read model must be a `record` type
+- There is NO `Identifier` / `ProjectionId` property — do not add one
 
 ## Reactor
 
-```csharp
-public class <Name>Reactor : IReactorFor<SomeEventHappened>
-{
-    public <Name>Reactor(IDependency dependency) => ...;
+Reactors implement `IReactor` (a marker interface). Methods are discovered by convention: the method's first parameter type determines which event it handles.
 
-    public Task On(SomeEventHappened @event, EventContext context) =>
+```csharp
+public class <Name>Reactor(<Dependencies>) : IReactor
+{
+    public Task <DescriptiveName>(<EventType> @event, EventContext context) =>
         _dependency.DoSomethingWith(@event);
 }
 ```
 
 **Critical rules:**
+- `IReactor` has **no methods** — it is a marker interface only
+- Method names can be anything descriptive — event dispatch is by parameter type
 - Reactors MUST be idempotent — they may be called more than once for the same event
 - Do not query the read model back inside the reactor — use event data directly
-- If the reactor appends new events, use a separate outbox to avoid feedback loops
+- If the reactor needs to produce new events, trigger a command via `ICommandPipeline`
 
 ## When to use which
 
@@ -61,4 +92,4 @@ Run `dotnet build`. Fix all errors before completing.
 
 ---
 
-For the full projection builder API reference (`.AutoMap()`, `.From<>()`, `.Children<>()`, `.Join<>()`, `.RemovedWith<>()`), see [references/CHRONICLE-API.md](references/CHRONICLE-API.md).
+For the full model-bound projection attribute reference and fluent builder API, see [references/CHRONICLE-API.md](references/CHRONICLE-API.md).

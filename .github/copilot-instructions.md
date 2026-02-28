@@ -1,5 +1,19 @@
 # GitHub Copilot Instructions
 
+## Project Philosophy
+
+Cratis builds tools for event-sourced systems with a focus on **ease of use**, **productivity**, and **maintainability**. Every rule in these instructions serves one or more of these core values:
+
+- **Lovable APIs** — APIs should be pleasant to use. Provide sane defaults, make them flexible, extensible, and overridable. If an API feels awkward, it is wrong.
+- **Easy to do things right, hard to do things wrong** — Convention over configuration. Artifact discovery by naming. Minimal boilerplate. The framework should guide developers into the pit of success.
+- **Events are facts** — Immutable records of things that happened. Never nullable, never ambiguous, never multipurpose. If you find yourself adding a nullable property to an event, you need a second event.
+- **High cohesion through vertical slices** — Everything for a behavior lives together: backend, frontend, specs. Navigate by feature, not by technical layer. A developer working on "author registration" should never need to jump between `Commands/`, `Handlers/`, and `Events/` folders.
+- **Full-stack type safety** — Shared models flow from C# through proxy generation to TypeScript. End-to-end typing without manual synchronization.
+- **Specialization over reuse** — Build focused, purpose-specific projections and read models rather than reusing one model across conflicting scenarios. Dedicated models are easier to maintain, perform better, and never break unrelated features.
+- **Consistency is king** — When in doubt, follow the established pattern. Consistency across the codebase trumps local optimization. A slightly less elegant solution that matches the rest of the codebase is better than a clever one that stands out.
+
+When these instructions don't explicitly cover a situation, apply these values to make a judgment call.
+
 ## General
 
 - Make only high confidence suggestions when reviewing code changes.
@@ -31,7 +45,6 @@
 
 ## C# Instructions
 
-- Write clear and concise comments for each function.
 - Prefer `var` over explicit types when declaring variables.
 - Do not add unnecessary comments or documentation.
 - Use `using` directives for namespaces at the top of the file.
@@ -40,8 +53,8 @@
 - Remove unused `using` directives.
 - Use file-scoped namespace declarations.
 - Use single-line using directives.
-- For types that does not have an implementation, don't add a body (e.g., `public interface IMyInterface;`).
-- Prefer using `record` types for immutable data structures.
+- For types that do not have an implementation, don't add a body (e.g., `public interface IMyInterface;`).
+- Prefer using `record` types for immutable data structures (events, commands, read models, concepts).
 - Use expression-bodied members for simple methods and properties.
 - Use `async` and `await` for asynchronous programming.
 - Use `Task` and `Task<T>` for asynchronous methods.
@@ -52,6 +65,20 @@
 - Favor collection initializers and object initializers.
 - Use string interpolation instead of string.Format or concatenation.
 - Favor primary constructors for all types.
+
+## Chronicle & Arc Key Conventions
+
+These conventions exist because the frameworks rely on convention-based discovery. Breaking them doesn't just violate style — it breaks runtime behavior.
+
+- `[EventType]` takes **no arguments** — the type name is used automatically. Adding a GUID or string argument is a common mistake from other frameworks; Chronicle does not use it.
+- `[Command]` records define `Handle()` directly on the record — never create separate handler classes. The framework discovers `Handle()` by convention; a separate class breaks that discovery.
+- `[ReadModel]` records define static query methods directly on the record. The proxy generator creates TypeScript hooks from these methods automatically.
+- Prefer `ConceptAs<T>` over raw primitives in all domain models, commands, events, and queries. This prevents accidental mix-ups (passing a `UserId` where an `AuthorId` was expected) and makes APIs self-documenting.
+- Use model-bound projection attributes (`[FromEvent<T>]`, `[SetFrom<T>]`, etc.) when possible; fall back to `IProjectionFor<T>` for complex cases.
+- For fluent projections, AutoMap is on by default — just call `.From<>()` directly.
+- Projections join **events**, never read models. This is fundamental to event sourcing: projections rebuild state from the event stream, not from other projections.
+- `IReactor` is a marker interface — method dispatch is by first-parameter event type, method name is descriptive.
+- All backend artifacts for a vertical slice go in a **single `.cs` file**. This keeps cohesion high and makes the scope of a slice immediately visible.
 
 ## TypeScript / Frontend Instructions
 
@@ -128,15 +155,15 @@
   - Convert between them using: `nativeEvent as unknown as React.MouseEvent`.
   - Use `e.preventDefault?.()` instead of `(e as any).preventDefault?.()`.
 
-## Testing
+## Detailed Guides
 
-- Follow the following guides:
-   - [C# specifics](./instructions/csharp.instructions.md)
+These guides contain the full rules, examples, and rationale for each topic. The sections above are the global defaults; the guides go deeper into each area:
+   - [C# Conventions](./instructions/csharp.instructions.md)
    - [How to Write Specs](./instructions/specs.instructions.md)
    - [How to Write C# Specs](./instructions/specs.csharp.instructions.md)
    - [How to Write TypeScript Specs](./instructions/specs.typescript.instructions.md)
-   - [How to Write Entity Framework Core Specs](./instructions/efcore.specs.instructions.md)
-   - [Concepts](./instructions/concepts.instructions.md)
+   - [Entity Framework Core Specs](./instructions/efcore.specs.instructions.md)
+   - [Concepts (ConceptAs)](./instructions/concepts.instructions.md)
    - [Documentation](./instructions/documentation.instructions.md)
    - [Pull Requests](./instructions/pull-requests.instructions.md)
    - [Vertical Slices](./instructions/vertical-slices.instructions.md)

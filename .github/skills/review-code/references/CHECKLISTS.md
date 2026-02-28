@@ -18,7 +18,7 @@
 - [ ] `Handle()` is the single public entry point
 - [ ] No unnecessary constructors — primary constructor only
 - [ ] Validation attributes on properties (`[Required]`, `[MaxLength]`, etc.) for simple rules
-- [ ] Complex/async validation in a `<Command>RulesFor<,>` class (separate class, same file)
+- [ ] Business rules that depend on Chronicle state use a read model parameter in `Handle()` (DCB pattern)
 
 ## C# Events
 
@@ -30,7 +30,7 @@
 ## C# Read Models & Projections
 
 - [ ] Read model is a `record` type
-- [ ] Projection uses `.AutoMap()` before any `.From<>()` call
+- [ ] Projection: AutoMap is on by default — `.AutoMap()` only needed after `.NoAutoMap()`
 - [ ] No joins on the read model — joins are on Chronicle events only
 - [ ] `ProjectionId` is a stable GUID string — never changes after first deployment
 - [ ] No `ToList()`, `ToArray()`, or mutable collection exposed from public API
