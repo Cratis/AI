@@ -80,3 +80,7 @@ Use Cratis.Specifications helpers — never raw `Assert.*`:
 ## After writing
 
 Run `dotnet test`. Fix all failures before completing.
+
+---
+
+For full worked examples of each spec type (happy path, validation, business rule, constraint), see [references/EXAMPLES.md](references/EXAMPLES.md).
