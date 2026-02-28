@@ -59,3 +59,7 @@ Fix:
 ```
 
 End with a concise summary of what passed and what must change.
+
+---
+
+For the full expanded checklists across all categories, see [references/CHECKLISTS.md](references/CHECKLISTS.md).

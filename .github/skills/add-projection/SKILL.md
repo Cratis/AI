@@ -58,3 +58,7 @@ public class <Name>Reactor : IReactorFor<SomeEventHappened>
 ## After creating
 
 Run `dotnet build`. Fix all errors before completing.
+
+---
+
+For the full projection builder API reference (`.AutoMap()`, `.From<>()`, `.Children<>()`, `.Join<>()`, `.RemovedWith<>()`), see [references/CHRONICLE-API.md](references/CHRONICLE-API.md).

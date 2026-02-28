@@ -93,3 +93,7 @@ All must pass before the slice is considered done:
 - `dotnet test` — zero failures
 - `yarn lint` — zero errors
 - `npx tsc -b` — zero errors
+
+---
+
+For complete code patterns for all 4 slice types and frontend examples, see [references/PATTERNS.md](references/PATTERNS.md).
