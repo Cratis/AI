@@ -18,44 +18,57 @@ I need to add a **Chronicle projection** (read model population) or **reactor** 
 
 Follow `.github/instructions/vertical-slices.instructions.md` — projection section.
 
-```csharp
-public class ProjectionName : IProjectionFor<ReadModel>
-{
-    public ProjectionId Identifier => "<stable-guid>";
+**Preferred — model-bound:** Place attributes directly on the read model record, no separate class needed.
 
+```csharp
+[ReadModel]
+[FromEvent<ProjectRegistered>]
+public record Project(
+    [Key] ProjectId Id,
+    ProjectName Name)
+{
+    public static ISubject<IEnumerable<Project>> AllProjects(IMongoCollection<Project> collection) =>
+        collection.Observe();
+}
+```
+
+**Alternative — fluent `IProjectionFor<T>:`** Use for complex joins, children, or conditionals.
+
+```csharp
+public class ProjectProjection : IProjectionFor<ReadModel>
+{
     public void Define(IProjectionBuilderFor<ReadModel> builder) =>
         builder
-            .AutoMap()                          // ← ALWAYS first
-            .From<ProjectRegistered>(builder =>
-                builder
-                    .UsingKey(e => e.ProjectId)
-                    .Set(m => m.Name).To(e => e.Name))
+            .From<ProjectRegistered>(b =>
+                b.UsingKey(e => e.ProjectId)
+                 .Set(m => m.Name).To(e => e.Name))
             .RemovedWith<ProjectRemoved>();
 }
 ```
 
 **Critical rules:**
-- `.AutoMap()` MUST appear before any `.From<>()` call
+- AutoMap is on by default — just call `.From<>()` directly
 - Joins are on Chronicle **events**, never on the read model
 - Use `.RemovedWith<TEvent>()` for soft-delete events
-- Projection ID MUST be a stable GUID string — never change it after first deployment
+- **There is NO `ProjectionId Identifier` property — do not add one**
 
 ## Reactor rules (mandatory)
 
 ```csharp
-public class AutomationName : IReactorFor<ProjectRegistered>
+public class AutomationName(IDependency dependency) : IReactor
 {
-    public AutomationName(IDependency dependency) => ...
-
-    public Task On(ProjectRegistered @event, EventContext context) =>
+    // Method name is arbitrary — dispatch is by first-parameter type
+    public Task HandleProjectRegistered(ProjectRegistered @event, EventContext context) =>
         dependency.DoSomethingWith(@event);
 }
 ```
 
 **Critical rules:**
+- `IReactor` is a **marker interface** — no methods to implement
+- Event dispatch is by first-parameter type; method name can be anything descriptive
+- `EventContext` is optional — omit if event metadata is not needed
 - Reactors MUST be idempotent — they may be called more than once for the same event
-- If the reactor appends new events, use a separate event log / outbox to avoid infinite loops
-- Do not call the read model back inside the reactor — use the event data directly
+- Do not use the read model inside the reactor — use the event data directly
 
 ## After creating the file
 

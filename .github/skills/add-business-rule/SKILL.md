@@ -7,56 +7,88 @@ Add a business rule or event-store constraint to an existing command.
 
 ## Choose the right mechanism
 
-| Scenario                                           | Use                    |
-|----------------------------------------------------|------------------------|
-| Uniqueness that must survive concurrent writes     | `IConstraint`          |
-| Complex validation reading from read models        | `RulesFor<,>`          |
-| Async lookup or cross-aggregate validation         | `RulesFor<,>`          |
-| Simple sync invariant (format, range, required)    | Model validation attrs |
+| Scenario                                           | Use                                           |
+|----------------------------------------------------|-----------------------------------------------|
+| Uniqueness that must survive concurrent writes     | `IConstraint`                                 |
+| Rule requiring Chronicle event-sourced state       | ReadModel as `Handle()` parameter (DCB)       |
+| Simple sync invariant (format, range, required)    | `CommandValidator<T>`                         |
 
-## Business Rules (`RulesFor<,>`)
+## Business Rules via DCB (ReadModel as argument)
 
-Place the class **in the same slice file** as the command it validates.
+Use when the rule depends on **Chronicle event-sourced state** (e.g. current count, accumulated value).
+This is the DCB (Dynamic Consistency Boundary) pattern: add a **read model parameter** to the `Handle()` method.
+The framework fetches and injects the current read model snapshot before `Handle()` runs.
+
+The read model must already exist in the slice (decorated with `[ReadModel]` and a model-bound projection).
+If it doesn't, add it first — see the `new-vertical-slice` skill.
 
 ```csharp
-public class <Command>Rules(<Dependencies>) :
-    RulesFor<<Command>Rules, <Command>>
+[Command]
+public record <Command>(<KeyProperty> <Key>, ...)
 {
-    public override async Task Define(<Command> command, IRulesBuilder<<Command>Rules> rules)
+    /// <summary>...</summary>
+    public <Event> Handle(<ReadModel> <readModelParam>)
     {
-        var nameExists = await _collection
-            .Find(p => p.Name == command.Name)
-            .AnyAsync();
+        if (<readModelParam>.<StateProperty> <violatesRule>)
+            throw new <ViolationException>(<meaningful message>);
 
-        rules.RuleFor(r => r.NameMustBeUnique)
-             .Must(() => !nameExists)
-             .WithMessage($"A project named '{command.Name}' already exists.");
+        return new <Event>(...);
     }
-
-    /// <summary>Indicates whether the name is unique.</summary>
-    public bool NameMustBeUnique { get; private set; }
 }
 ```
 
-**Naming:**
-- Class: `<CommandName>Rules`
-- Properties: descriptive predicates — `NameMustBeUnique`, `UserMustBeActive`, `QuotaNotExceeded`
+**Example — limit items in cart to 3:**
+
+```csharp
+[Command]
+public record AddItemToCart(CartId CartId, ItemId ItemId)
+{
+    /// <summary>Adds the item; throws if the cart already holds 3 items.</summary>
+    public ItemAddedToCart Handle(CartSummary cart)
+    {
+        if (cart.ItemCount >= 3)
+            throw new CartIsFullException(CartId);
+
+        return new ItemAddedToCart(ItemId);
+    }
+}
+```
+
+**Key rules:**
+- The read model parameter type must match a `[ReadModel]`-decorated type in the same feature.
+- The framework resolves the instance using the same event-source key as the command.
+- Throw a **custom exception** (never a built-in one) to signal violation — the framework converts it to an error result.
+- One parameter per logical read model; if you need multiple reads, use multiple parameters.
 
 ## Event-Store Constraints (`IConstraint`)
 
 Enforced by Chronicle at append time. Use for uniqueness that must hold across concurrent writes.
 
 ```csharp
-public class Unique<SomeProperty> : IUniqueEventTypeConstraint<<EventType>>
+public class Unique<PropertyName> : IConstraint
 {
-    public ConstraintName Name => "Unique<SomeProperty>";
-
-    public EventSourceId GetEventSourceId(<EventType> @event) =>
-        @event.Property.ToString().ToLowerInvariant();
+    public void Define(IConstraintBuilder builder) =>
+        builder.Unique(unique =>
+            unique
+                .On<<EventType>>(e => e.<UniqueProperty>)
+                .RemovedWith<<RemovedEventType>>());  // omit if there is no remove event
 }
 ```
 
-Register the constraint in the Chronicle configuration or slice builder.
+**Example — unique project name:**
+
+```csharp
+public class UniqueProjectName : IConstraint
+{
+    public void Define(IConstraintBuilder builder) =>
+        builder.Unique(unique =>
+            unique
+                .On<ProjectRegistered>(e => e.Name)
+                .RemovedWith<ProjectRemoved>());
+}
+```
+
+Constraints are discovered and enforced automatically — no registration or attribute on the command needed.
 
 ## After adding
 

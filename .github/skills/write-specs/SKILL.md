@@ -23,7 +23,7 @@ Write one spec class for **each** of:
 
 1. **Happy path** — command succeeds, expected event is appended, sequence number advanced
 2. **Each validation failure** — one `and_` class per `[Required]`, `[MaxLength]`, etc. rule
-3. **Each business rule violation** — one `and_` class per `RulesFor<,>` condition
+3. **Each business rule violation** — one `and_` class per DCB condition in `Handle()` that inspects a read model
 4. **Each constraint violation** — one `and_` class per `IConstraint`
 
 ## C# spec structure
@@ -42,13 +42,13 @@ public class and_<scenario>(context context) : Given<context>(context)
 {
     public class context(ChronicleOutOfProcessFixture fixture) : given.an_http_client(fixture)
     {
-        public CommandResult<Guid> Result;
+        public CommandResult<object>? Result;
 
         async Task Because()
         {
-            Result = await Client.ExecuteCommand<MyCommand, Guid>(
+            Result = await Client.ExecuteCommand<<Command>>(
                 "/api/<feature>/<action>",
-                new MyCommand(...));
+                new <Command>(...));
         }
     }
 
@@ -56,11 +56,11 @@ public class and_<scenario>(context context) : Given<context>(context)
 }
 ```
 
-For scenarios that require pre-existing state, add an `Establish()` method before `Because()`:
+For scenarios that require pre-existing state, add an `async Task Establish()` before `Because()`:
 
 ```csharp
-Task Establish() =>
-    EventStore.EventLog.Append(SomeId.New(), new SomeEvent(...));
+async Task Establish() =>
+    await EventStore.EventLog.Append(SomeId.New(), new SomeEvent(...));
 ```
 
 ## Naming conventions
@@ -74,8 +74,7 @@ Task Establish() =>
 Use Cratis.Specifications helpers — never raw `Assert.*`:
 - `Context.Result.IsSuccess.ShouldBeTrue()`
 - `Context.Result.IsSuccess.ShouldBeFalse()`
-- `Context.ShouldHaveAppendedEvent<MyEvent>()`
-- `Context.ShouldHaveTailSequenceNumber(EventSequenceNumber.First)`
+- `Context.ShouldHaveTailSequenceNumber(EventSequenceNumber.First)` — checks the event log tail
 
 ## After writing
 

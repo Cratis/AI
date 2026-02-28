@@ -1,6 +1,6 @@
 ---
 agent: agent
-description: Add a business rule (RulesFor) or event-store constraint (IConstraint) to an existing command.
+description: Add a business rule (DCB ReadModel argument) or event-store constraint (IConstraint) to an existing command.
 ---
 
 # Add a Business Rule or Constraint
@@ -11,40 +11,34 @@ I need to enforce a new rule on an existing command in a Cratis-based project.
 
 - **Command** — name of the existing command, e.g. `RegisterProject`
 - **Rule type** — one of:
-  - **Business rule** (`RulesFor<,>`) — validated in-process; can read from read models or any async source
+  - **Business rule (DCB)** — add a read model parameter to `Handle()`; the framework fetches and injects the current state before the method runs
   - **Event-store constraint** (`IConstraint`) — enforced by Chronicle at the event-log level; typically uniqueness
 - **Rule description** — what must be true for the command to succeed, e.g. "project name must be unique across tenant"
 
-## Business Rules (`RulesFor<,>`)
+## Business Rules via DCB (ReadModel as argument)
 
-Business rules live **in the same slice file** as the command they validate.
-They run after model validation and before the `Handle()` method.
+Business rules that depend on Chronicle event-sourced state are expressed by adding a **read model parameter** to the `Handle()` method.
+The framework resolves the read model instance (using the same event-source key as the command) and injects it before `Handle()` runs.
 
 ```csharp
-public class RegisterProjectRules(IMongoCollection<Project> projects) :
-    RulesFor<RegisterProjectRules, RegisterProject>
+[Command]
+public record AddItemToCart(CartId CartId, ItemId ItemId)
 {
-    public override async Task Define(RegisterProject command, IRulesBuilder<RegisterProjectRules> rules)
+    /// <summary>Adds the item; throws if the cart already holds 3 items.</summary>
+    public ItemAddedToCart Handle(CartSummary cart)
     {
-        var nameExists = await projects
-            .Find(p => p.Name == command.Name)
-            .AnyAsync();
+        if (cart.ItemCount >= 3)
+            throw new CartIsFullException(CartId);
 
-        rules.RuleFor(r => r.NameMustBeUnique)
-             .Must(() => !nameExists)
-             .WithMessage($"A project named '{command.Name}' already exists.");
+        return new ItemAddedToCart(ItemId);
     }
-
-    /// <summary>Indicates whether the project name is unique.</summary>
-    public bool NameMustBeUnique { get; private set; }
 }
 ```
 
-### Naming conventions
-
-- Class name: `<CommandName>Rules`
-- Property names: descriptive predicates — `NameMustBeUnique`, `UserMustBeActive`, `QuotaNotExceeded`
-- Message: user-readable, includes the offending value where helpful
+**Rules:**
+- The read model parameter type must be a `[ReadModel]`-decorated type in the same feature.
+- Throw a **custom exception** (never a built-in one) to signal a violation — the framework converts it to a failed `CommandResult`.
+- Multiple read model parameters are allowed if the decision requires more than one projection.
 
 ## Event-Store Constraints (`IConstraint`)
 
@@ -52,33 +46,33 @@ Constraints are enforced by Chronicle when the event is appended.
 Use when the uniqueness or validity guarantee must survive concurrent writes across multiple instances.
 
 ```csharp
-public class UniqueProjectName : IUniqueEventTypeConstraint<ProjectRegistered>
+public class UniqueProjectName : IConstraint
 {
-    public ConstraintName Name => "UniqueProjectName";
-
-    public EventSourceId GetEventSourceId(ProjectRegistered @event) =>
-        @event.Name.ToLowerInvariant();
+    public void Define(IConstraintBuilder builder) =>
+        builder.Unique(unique =>
+            unique
+                .On<ProjectRegistered>(e => e.Name)
+                .RemovedWith<ProjectRemoved>());
 }
 ```
 
-Register the constraint in the slice's projection or aggregator using the Chronicle builder API.
+Constraints are discovered and enforced automatically — no registration required.
 
 ### When to use constraints vs business rules
 
 | Scenario | Use |
 |----------|-----|
 | Uniqueness that must survive concurrent writes | `IConstraint` |
-| Complex validation that reads from multiple sources | `RulesFor<,>` |
-| Async lookup against a read model | `RulesFor<,>` |
-| Simple synchronous invariant (format, range) | Model validation (`[Required]`, `[MaxLength]`, etc.) |
+| Rule requiring Chronicle event-sourced state | ReadModel parameter in `Handle()` (DCB) |
+| Simple synchronous invariant (format, range) | `CommandValidator<T>` |
 
 ## Checklist
 
 - [ ] Rule is placed in the same slice file as the command
-- [ ] `RulesFor<,>` class is named `<CommandName>Rules`
-- [ ] Each rule property is a descriptive predicate (`bool NameMustBeUnique`)
+- [ ] ReadModel parameter type is a `[ReadModel]`-decorated type in the same feature
+- [ ] Custom exception type (never built-in) is thrown to signal a violation
 - [ ] Error messages are user-readable and include relevant context
-- [ ] Constraint (if used) is registered in the Chronicle configuration
+- [ ] Constraints are auto-discovered — no registration needed
 - [ ] Spec added for the failure case — see `write-specs.prompt.md`
 - [ ] `dotnet build` passes with zero errors
 - [ ] `dotnet test` passes with zero failures

@@ -28,15 +28,14 @@ Follow `.github/instructions/vertical-slices.instructions.md` exactly.
 
 For a **State Change** slice, produce (in this order):
 1. Concept types (if new strongly-typed IDs are needed)
-2. Command `record` with validation and business rules
-3. Event `record` (no properties with setters)
-4. Read model `record`
-5. Projection (`.AutoMap()` before `.From<>()`)
-6. Slice class with `Handle()` method
+2. Command `record` with `Handle()` method, validation, and business rules
+3. Event `record` with `[EventType]` attribute (no arguments)
+4. Read model `record` with `[ReadModel]` and model-bound projection attributes (`[FromEvent<T>]`, `[Key]`, etc.)
+   - Use fluent `IProjectionFor<T>` only when model-bound attributes don't fit
 
 For a **State View** slice, produce:
-1. Query class with `Define()` method
-2. Read model `record` (if not already present)
+1. Read model `record` with `[ReadModel]`, model-bound projection attributes (`[FromEvent<T>]`, `[Key]`, etc.), and a static query method
+   - Use fluent `IProjectionFor<T>` only when model-bound attributes don't fit
 
 Run `dotnet build` after creating the `.cs` file. Fix all errors before proceeding.
 

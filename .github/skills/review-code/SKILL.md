@@ -10,7 +10,7 @@ Review changed code against all Cratis project standards and produce a structure
 - [ ] Each slice: single file `Features/<Feature>/<Slice>.cs` with all backend artifacts
 - [ ] Commands: `record` type with `Handle()` directly on them — no separate handler classes
 - [ ] Events: `record` type, no mutable properties
-- [ ] Projections: `.AutoMap()` is the first call before any `.From<>()`
+- [ ] Projections: AutoMap is on by default — `.AutoMap()` only needed after `.NoAutoMap()`
 - [ ] No service locator (`IServiceProvider` not injected)
 - [ ] Namespace matches folder: `<NamespaceRoot>.<Feature>.<Slice>`
 
