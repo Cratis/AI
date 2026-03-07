@@ -24,7 +24,12 @@ The framework resolves the read model instance (using the same event-source key 
 [Command]
 public record AddItemToCart(CartId CartId, ItemId ItemId)
 {
-    /// <summary>Adds the item; throws if the cart already holds 3 items.</summary>
+    /// <summary>
+    /// Adds the item; throws if the cart already holds 3 items.
+    /// </summary>
+    /// <param name="cart">The current cart summary.</param>
+    /// <returns>The <see cref="ItemAddedToCart"/> event.</returns>
+    /// <exception cref="CartIsFull">Thrown when the cart already contains the maximum number of items.</exception>
     public ItemAddedToCart Handle(CartSummary cart)
     {
         if (cart.ItemCount >= 3)

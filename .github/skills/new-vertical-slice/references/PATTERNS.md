@@ -10,48 +10,78 @@ namespace MyApp.Projects.Registration;
 
 // ─── Concepts ───────────────────────────────────────────────────────────────
 
-/// <summary>Represents the unique identifier of a project.</summary>
+/// <summary>
+/// Represents the unique identifier of a project.
+/// </summary>
 public record ProjectId(Guid Value) : ConceptAs<Guid>(Value)
 {
-    /// <summary>Gets a sentinel value for an unset identifier.</summary>
+    /// <summary>
+    /// Gets a sentinel value for an unset identifier.
+    /// </summary>
     public static readonly ProjectId NotSet = new(Guid.Empty);
 
-    /// <summary>Implicitly converts a <see cref="Guid"/> to a <see cref="ProjectId"/>.</summary>
+    /// <summary>
+    /// Implicitly converts a <see cref="Guid"/> to a <see cref="ProjectId"/>.
+    /// </summary>
+    /// <param name="value">The <see cref="Guid"/> to convert.</param>
     public static implicit operator ProjectId(Guid value) => new(value);
 
-    /// <summary>Implicitly converts a <see cref="ProjectId"/> to an <see cref="EventSourceId"/>.</summary>
+    /// <summary>
+    /// Implicitly converts a <see cref="ProjectId"/> to an <see cref="EventSourceId"/>.
+    /// </summary>
+    /// <param name="id">The <see cref="ProjectId"/> to convert.</param>
     public static implicit operator EventSourceId(ProjectId id) => new(id.Value.ToString());
 
-    /// <summary>Creates a new <see cref="ProjectId"/> with a unique value.</summary>
+    /// <summary>
+    /// Creates a new <see cref="ProjectId"/> with a unique value.
+    /// </summary>
+    /// <returns>A new <see cref="ProjectId"/>.</returns>
     public static ProjectId New() => new(Guid.NewGuid());
 }
 
-/// <summary>Represents the name of a project.</summary>
+/// <summary>
+/// Represents the name of a project.
+/// </summary>
 public record ProjectName(string Value) : ConceptAs<string>(Value)
 {
-    /// <summary>Gets a sentinel value for an unset name.</summary>
+    /// <summary>
+    /// Gets a sentinel value for an unset name.
+    /// </summary>
     public static readonly ProjectName NotSet = new(string.Empty);
 
-    /// <summary>Implicitly converts a <see cref="string"/> to a <see cref="ProjectName"/>.</summary>
+    /// <summary>
+    /// Implicitly converts a <see cref="string"/> to a <see cref="ProjectName"/>.
+    /// </summary>
+    /// <param name="value">The string to convert.</param>
     public static implicit operator ProjectName(string value) => new(value);
 
-    /// <summary>Implicitly extracts the underlying <see cref="string"/> value.</summary>
+    /// <summary>
+    /// Implicitly extracts the underlying <see cref="string"/> value.
+    /// </summary>
+    /// <param name="name">The <see cref="ProjectName"/> to convert.</param>
     public static implicit operator string(ProjectName name) => name.Value;
 }
 
 // ─── Command ────────────────────────────────────────────────────────────────
 
-/// <summary>Command to register a new project.</summary>
+/// <summary>
+/// Command to register a new project.
+/// </summary>
 [Command]
 public record RegisterProject(ProjectId ProjectId, ProjectName Name)
 {
-    /// <summary>Produces a <see cref="ProjectRegistered"/> event.</summary>
+    /// <summary>
+    /// Produces a <see cref="ProjectRegistered"/> event.
+    /// </summary>
+    /// <returns>The <see cref="ProjectRegistered"/> event.</returns>
     public ProjectRegistered Handle() => new(Name);
 }
 
 // ─── Constraint ─────────────────────────────────────────────────────────────
 
-/// <summary>Prevents two projects from being registered with the same name.</summary>
+/// <summary>
+/// Prevents two projects from being registered with the same name.
+/// </summary>
 public class UniqueProjectNameConstraint : IConstraint
 {
     /// <inheritdoc/>
@@ -61,7 +91,9 @@ public class UniqueProjectNameConstraint : IConstraint
 
 // ─── Event ──────────────────────────────────────────────────────────────────
 
-/// <summary>Raised when a new project has been successfully registered.</summary>
+/// <summary>
+/// Raised when a new project has been successfully registered.
+/// </summary>
 [EventType]
 public record ProjectRegistered(ProjectName Name);
 ```
@@ -86,14 +118,20 @@ namespace MyApp.Projects.Listing;
 
 // ─── Read Model (model-bound projection — no separate class needed) ──────────
 
-/// <summary>Represents a project in the listing read model.</summary>
+/// <summary>
+/// Represents a project in the listing read model.
+/// </summary>
 [ReadModel]
 [FromEvent<Registration.ProjectRegistered>]
 public record Project(
     [Key] ProjectId Id,
     ProjectName Name)
 {
-    /// <summary>Observes all projects in the collection.</summary>
+    /// <summary>
+    /// Observes all projects in the collection.
+    /// </summary>
+    /// <param name="collection">The <see cref="IMongoCollection{Project}"/> to observe.</param>
+    /// <returns>An observable subject of all projects.</returns>
     public static ISubject<IEnumerable<Project>> AllProjects(IMongoCollection<Project> collection) =>
         collection.Observe();
 }
@@ -131,10 +169,17 @@ public class ProjectProjection : IProjectionFor<Project>
 
 namespace MyApp.Projects.Notifications;
 
-/// <summary>Sends a notification when a project is registered.</summary>
+/// <summary>
+/// Sends a notification when a project is registered.
+/// </summary>
+/// <param name="notifications">The notification service.</param>
 public class ProjectRegisteredNotifier(INotificationService notifications) : IReactor
 {
-    /// <summary>Reacts to <see cref="Registration.ProjectRegistered"/> events.</summary>
+    /// <summary>
+    /// Reacts to <see cref="Registration.ProjectRegistered"/> events.
+    /// </summary>
+    /// <param name="event">The event.</param>
+    /// <param name="context">The event context.</param>
     public async Task ProjectRegistered(Registration.ProjectRegistered @event, EventContext context) =>
         await notifications.Notify($"Project '{@event.Name}' was registered.");
 }
@@ -157,23 +202,38 @@ public class ProjectRegisteredNotifier(INotificationService notifications) : IRe
 
 namespace MyApp.Projects.StockKeeping;
 
-/// <summary>Reacts to reservation events and decreases stock accordingly.</summary>
+/// <summary>
+/// Reacts to reservation events and decreases stock accordingly.
+/// </summary>
+/// <param name="stockKeeper">The stock keeper service.</param>
+/// <param name="commandPipeline">The command pipeline for executing commands.</param>
 public class StockKeeping(IStockKeeper stockKeeper, ICommandPipeline commandPipeline) : IReactor
 {
-    /// <summary>Handles a <see cref="BookReserved"/> event.</summary>
+    /// <summary>
+    /// Handles a <see cref="BookReserved"/> event.
+    /// </summary>
+    /// <param name="event">The event.</param>
+    /// <param name="context">The event context.</param>
     public async Task BookReserved(BookReserved @event, EventContext context) =>
         await commandPipeline.Execute(new DecreaseStock(@event.Isbn, await stockKeeper.GetStock(@event.Isbn)));
 }
 
-/// <summary>Command to decrease available stock of a book.</summary>
+/// <summary>
+/// Command to decrease available stock of a book.
+/// </summary>
 [Command]
 public record DecreaseStock(ISBN Isbn, BookStock StockBeforeDecrease)
 {
-    /// <summary>Produces a <see cref="StockDecreased"/> event.</summary>
+    /// <summary>
+    /// Produces a <see cref="StockDecreased"/> event.
+    /// </summary>
+    /// <returns>The <see cref="StockDecreased"/> event.</returns>
     public StockDecreased Handle() => new(Isbn, StockBeforeDecrease);
 }
 
-/// <summary>Raised when the available stock of a book has decreased.</summary>
+/// <summary>
+/// Raised when the available stock of a book has decreased.
+/// </summary>
 [EventType]
 public record StockDecreased(ISBN Isbn, BookStock StockBeforeDecrease);
 ```

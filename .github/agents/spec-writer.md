@@ -9,6 +9,7 @@ model: claude-sonnet-4-5
 tools:
   - githubRepo
   - codeSearch
+  - usages
   - terminalLastCommand
 ---
 
@@ -139,6 +140,26 @@ result.should.be.true;
 result.should.equal("expected");
 array.should.have.lengthOf(3);
 object.should.deep.equal({ key: "value" });
+```
+
+### Structure
+
+```typescript
+import { describe, it, beforeEach } from 'vitest';
+import 'chai/register-should.js';
+
+describe("when <behavior>", () => {
+    let result: SomeType;
+
+    beforeEach(() => {
+        // Arrange + Act
+        result = doSomething();
+    });
+
+    it("should_<expected>", () => {
+        result.should.equal(expected);
+    });
+});
 ```
 
 ---

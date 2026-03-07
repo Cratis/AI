@@ -10,6 +10,8 @@ model: claude-sonnet-4-5
 tools:
   - githubRepo
   - codeSearch
+  - usages
+  - rename
   - terminalLastCommand
 ---
 
@@ -22,6 +24,7 @@ Always read and follow:
 - `.github/instructions/vertical-slices.instructions.md`
 - `.github/instructions/csharp.instructions.md`
 - `.github/instructions/concepts.instructions.md`
+- `.github/instructions/efcore.instructions.md`
 - `.github/copilot-instructions.md`
 
 ---

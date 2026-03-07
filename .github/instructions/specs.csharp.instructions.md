@@ -235,6 +235,11 @@ public class and_name_already_exists(context context) : Given<context>(context)
 | `Context.ShouldHaveTailSequenceNumber(n)` | Verify event log tail (First = sequence 0) |
 | `Context.ShouldHaveAppendedEvent<TEvent>(seq, eventSourceId, validator)` | Verify specific event was appended |
 
+## Formatting
+
+- Don't break long `should_` method lines — prefer one-line lambda assertions.
+- Don't add blank lines between multiple `should_` methods.
+
 ## Entity Framework Core Specs
 
 - Use SQLite in-memory database for specs involving `DbContext`.

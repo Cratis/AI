@@ -1,9 +1,11 @@
 ---
 name: add-projection
-description: Use this skill when asked to add a Chronicle projection or reactor to a Cratis-based project. Enforces the AutoMap-first rule and Chronicle-specific join semantics.
+description: Use this skill when asked to add a Chronicle projection to a Cratis-based project. Enforces the AutoMap-first rule and Chronicle-specific join semantics.
 ---
 
-Add a Chronicle **projection** (populates a read model from events) or **reactor** (triggers automation from events).
+Add a Chronicle **projection** that populates a read model from events.
+
+> For **reactors** (automation / translation), see the `add-reactor` skill instead.
 
 ## Projection — Model-Bound (preferred)
 
@@ -58,33 +60,6 @@ public class <Name>Projection : IProjectionFor<<ReadModel>>
 - AutoMap is on by default — just call `.From<>()` directly. Only call `.AutoMap()` if you previously used `.NoAutoMap()`.
 - Joins are on Chronicle **events** only — NEVER join on the read model
 - There is NO `Identifier` / `ProjectionId` property — do not add one
-
-## Reactor
-
-Reactors implement `IReactor` (a marker interface). Methods are discovered by convention: the method's first parameter type determines which event it handles.
-
-```csharp
-public class <Name>Reactor(<Dependencies>) : IReactor
-{
-    public Task <DescriptiveName>(<EventType> @event, EventContext context) =>
-        _dependency.DoSomethingWith(@event);
-}
-```
-
-**Critical rules:**
-- `IReactor` has **no methods** — it is a marker interface only
-- Method names can be anything descriptive — event dispatch is by parameter type
-- Reactors MUST be idempotent — they may be called more than once for the same event
-- Do not query the read model back inside the reactor — use event data directly
-- If the reactor needs to produce new events, trigger a command via `ICommandPipeline`
-
-## When to use which
-
-| Need                                    | Use         |
-|-----------------------------------------|-------------|
-| Populate a queryable read model         | Projection  |
-| Trigger side effects / automation       | Reactor     |
-| Both                                    | Both        |
 
 ## After creating
 

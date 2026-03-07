@@ -16,6 +16,8 @@ When these instructions don't explicitly cover a situation, apply these values t
 
 ## General
 
+- Always use American English spelling in all code, comments, and documentation (e.g. "color" not "colour", "behavior" not "behaviour").
+- Write clear and concise comments for each function.
 - Make only high confidence suggestions when reviewing code changes.
 - Always use the latest version C#, currently C# 13 features.
 - Never change global.json unless explicitly asked to.
@@ -80,6 +82,17 @@ These conventions exist because the frameworks rely on convention-based discover
 - `IReactor` is a marker interface — method dispatch is by first-parameter event type, method name is descriptive.
 - All backend artifacts for a vertical slice go in a **single `.cs` file**. This keeps cohesion high and makes the scope of a slice immediately visible.
 
+## Proxy Generation — Build Dependency
+
+Commands and Queries generate TypeScript proxies at build time via `dotnet build`. This creates `.ts` files that the frontend imports (hooks, execute methods, change tracking). Until the backend compiles, **no proxy files exist** and frontend code cannot reference them.
+
+**This is a hard sequencing constraint:**
+1. Backend C# code must be written and compile successfully first.
+2. `dotnet build` must complete — this generates the TypeScript proxy files.
+3. Only then can frontend React components import and use the generated proxies.
+
+**When running parallel agents or sub-agents:** backend and frontend work for the same slice **cannot** run in parallel. The backend agent must finish and `dotnet build` must succeed before the frontend agent starts. Independent slices (no shared events) can have their backends worked on in parallel, but each slice's frontend still depends on its own backend build completing first.
+
 ## TypeScript / Frontend Instructions
 
 - Prefer `const` over `let` over `var` when declaring variables.
@@ -93,6 +106,24 @@ These conventions exist because the frameworks rely on convention-based discover
 - Favor functional folder structure over technical folder structure.
   - Group files by the feature or concept they belong to, not by their technical role.
   - Avoid folders like `components/`, `hooks/`, `utils/`, `types/` at the feature level.
+
+## Development Workflow
+
+- After creating each new file, run `dotnet build` (C#) or `yarn compile` (TypeScript) immediately before proceeding to the next file. Fix all errors as they appear — never accumulate technical debt.
+- Before adding parameters to interfaces or function signatures, review all usages to ensure the new parameter is needed at every call site.
+- When modifying imports, audit all occurrences — verify additions are used and removals don't break other files.
+- Never use placeholder or temporary types — use proper types from the start.
+- Review each file for lint compliance before moving on.
+- The user may keep Storybook running — do not try to stop it, suggest stopping it, or start your own instance.
+
+## XML Documentation
+
+- All **public** types, methods, properties, and operators **must** have XML doc comments.
+- Always use **multiline** `<summary>` tags — opening and closing tags on their own lines. Never single-line.
+- Every method or operator with parameters must include `<param name="...">` for each parameter.
+- Every non-void method or operator must include `<returns>`.
+- Every method that throws must document the exception with `<exception cref="...">` tags.
+- Use `<see cref="..."/>` and `<paramref name="..."/>` to cross-reference types and parameters.
 
 ## Exceptions
 
@@ -148,12 +179,32 @@ These conventions exist because the frameworks rely on convention-based discover
 - For generic React components:
   - Use `unknown` as default generic parameter instead of `any`.
   - Example: `<TCommand = unknown>` not `<TCommand = any>`.
+- For Storybook files:
+  - Use `React.ComponentType<Record<string, never>>` for components with no props.
+  - Always use `as unknown as` when converting component imports to avoid type mismatch errors.
+  - Properly type story args instead of using `any`.
 - For event handlers:
   - Be careful with React.MouseEvent vs DOM MouseEvent - they are different types.
   - React synthetic events: `React.MouseEvent<Element, MouseEvent>`.
   - DOM native events: `MouseEvent`.
   - Convert between them using: `nativeEvent as unknown as React.MouseEvent`.
   - Use `e.preventDefault?.()` instead of `(e as any).preventDefault?.()`.
+- For library objects (PIXI, etc.):
+  - Use proper library types when available.
+  - Use specific property types: `{ canvas?: HTMLCanvasElement }` instead of `any`.
+- When working with external libraries that have strict generic constraints:
+  - Import necessary types (e.g., `Command` from `@cratis/arc/commands`).
+  - Use type assertions through `unknown` to satisfy constraints: `props.command as unknown as Constructor<Command<...>>`.
+  - Extract tuple results explicitly rather than destructuring when type assertions are needed.
+- For function parameter types that may be unknown:
+  - Add type guards: `if (typeof accessor !== 'function') return ''`.
+  - Type parameters with fallbacks: `function<T = unknown>(accessor: ((obj: T) => unknown) | unknown)`.
+- For arrays and collections accessed from `unknown` types:
+  - Cast to proper array type: `((obj as Record<string, unknown>).items || []) as string[]`.
+  - Type array elements when iterating: `array.forEach((item: string) => ...)`.
+- For generic type parameters:
+  - Ensure proper type conversions: `String(value)` when string operations are needed.
+  - Use explicit Date parameter types: `new Date(value as string | number | Date)`.
 
 ## Detailed Guides
 
@@ -162,6 +213,7 @@ These guides contain the full rules, examples, and rationale for each topic. The
    - [How to Write Specs](./instructions/specs.instructions.md)
    - [How to Write C# Specs](./instructions/specs.csharp.instructions.md)
    - [How to Write TypeScript Specs](./instructions/specs.typescript.instructions.md)
+   - [Entity Framework Core](./instructions/efcore.instructions.md)
    - [Entity Framework Core Specs](./instructions/efcore.specs.instructions.md)
    - [Concepts (ConceptAs)](./instructions/concepts.instructions.md)
    - [Documentation](./instructions/documentation.instructions.md)
@@ -169,6 +221,9 @@ These guides contain the full rules, examples, and rationale for each topic. The
    - [Vertical Slices](./instructions/vertical-slices.instructions.md)
    - [TypeScript Conventions](./instructions/typescript.instructions.md)
    - [React Components](./instructions/components.instructions.md)
+   - [Dialogs](./instructions/dialogs.instructions.md)
+   - [Reactors](./instructions/reactors.instructions.md)
+   - [Orleans](./instructions/orleans.instructions.md)
 
 ## Header
 

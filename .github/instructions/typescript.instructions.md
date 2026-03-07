@@ -47,9 +47,35 @@ Each type gets its own file because it makes the codebase navigable — finding 
 
 ## Localised Strings
 
-All user-visible text must come from translation files. This is not optional even for English-only deployments — it centralizes copy, enables future localization, and makes it possible to audit all user-facing text in one place.
+All user-visible text **must** come from translation files — never hard-code UI strings directly in component code. This is not optional even for English-only deployments — it centralizes copy, enables future localization, and makes it possible to audit all user-facing text in one place.
+
+### Structure
+
+```
+Source/Core/
+  Strings.ts                    ← re-exports the default (English) JSON
+  Locales/
+    en/
+      translation.json          ← all English strings, organized by feature/component
+```
+
+`translation.json` is a nested JSON object whose top-level keys group strings by feature or component (e.g. `projects`, `eventModeling`, `chat`). Add new keys under the appropriate existing group, or add a new top-level group if the feature is new.
+
+### Importing
+
+Import the strings object using the `Strings` path alias (configured in `tsconfig.json`):
 
 ```ts
+import strings from 'Strings';
+```
+
+Do **not** use relative paths such as `'../../Strings'` or `'../Strings'`.
+
+### Usage
+
+Access strings directly through the nested object — TypeScript infers the full type from the JSON file:
+
+```tsx
 import strings from 'Strings';
 
 export const MyComponent = () => (
@@ -57,9 +83,24 @@ export const MyComponent = () => (
 );
 ```
 
-- Import via the `Strings` path alias (configured in `tsconfig.json`), not relative paths.
-- Add new keys to `Source/Core/Locales/en/translation.json` under the appropriate group.
-- Only constant, non-localised values are allowed as raw strings (CSS class names, `key` props, identifiers).
+For attribute strings (e.g. `title`, `placeholder`, `aria-label`):
+
+```tsx
+<div title={strings.eventModeling.grid.detailPanel.event}>
+    ...
+</div>
+```
+
+### Adding New Strings
+
+1. Add the key to `Source/Core/Locales/en/translation.json` under the appropriate group.
+2. TypeScript picks up the new key automatically from `Strings.ts` (no regeneration step).
+3. Use the key via `strings.<group>.<key>` in the component.
+
+### Rules
+
+- **Never** use plain string literals for user-visible text in JSX or attribute props. This includes `label`, `header`, `placeholder`, `title`, `aria-label`, `emptyMessage`, and any visible text nodes.
+- Only constant, non-localised values are allowed as raw strings (CSS class names, `key` props, internal identifiers).
 
 ## Arc Frontend Patterns
 

@@ -22,15 +22,15 @@ Specs mirror the source structure and read like a sentence when you trace the pa
 ```
 for_<TypeUnderTest>/
 ├── given/
-│   ├── all_dependencies.cs           ← common DI/mock setup
-│   └── a_<descriptive_name>.cs       ← reusable context inheriting Specification
-├── when_<behavior>/                   ← folder for behaviors with multiple outcomes
-│   ├── given/                         ← behavior-specific context (optional)
-│   │   └── a_<specific_setup>.cs
-│   ├── and_<condition>.cs             ← individual spec file
-│   ├── with_<data_state>.cs
-│   └── without_<requirement>.cs
-└── when_<simple_behavior>.cs          ← single file for single-outcome behaviors
+│   ├── all_dependencies           ← common DI/mock setup
+│   └── a_<descriptive_name>       ← reusable context
+├── when_<behavior>/               ← folder for behaviors with multiple outcomes
+│   ├── given/                     ← behavior-specific context (optional)
+│   │   └── a_<specific_setup>
+│   ├── and_<condition>            ← individual spec file
+│   ├── with_<data_state>
+│   └── without_<requirement>
+└── when_<simple_behavior>         ← single file for single-outcome behaviors
 ```
 
 **Naming conventions — read them as English sentences:**
@@ -39,7 +39,7 @@ for_<TypeUnderTest>/
 | Unit folder | `for_<ClassName>` | "For the Changeset..." |
 | Behavior folder | `when_<action>` | "...when adding changes..." |
 | Spec file | Descriptive preposition | "...and there are differences" |
-| Assertion | `should_<expected_result>` | "...it should return true" |
+| Assertion | `should <expected result>` | "...it should return true" |
 
 **Allowed prepositions for spec file/class names:**
 - `and_*` — additional conditions or compound scenarios
@@ -70,7 +70,7 @@ The goal is to cover *decisions and transformations* — code where bugs hide. S
 Each distinct outcome deserves its own spec file. This keeps specs small, focused, and independently verifiable. When a spec fails, you immediately know *which* outcome broke — no debugging through a multi-assertion file.
 
 - When a behavior has multiple outcomes, create a `when_<behavior>/` folder with separate files for each outcome.
-- For simple behaviors with a single outcome, use a single file: `when_<behavior>.cs`.
+- For simple behaviors with a single outcome, use a single file: `when_<behavior>`.
 - Never write a single file that tests an entire class.
 
 ## Reusable Context
@@ -80,12 +80,12 @@ Contexts capture the "given" part of a specification — the world as it exists 
 - Place in `given/` folder within the unit folder.
 - Name with `a_` or `an_` prefix (e.g. `an_observer`, `a_command_pipeline`). This reads naturally: "given an observer, when handling..."
 - More specific contexts can use descriptive names (e.g. `two_queries`, `existing_query`).
-- Shared fields must be `protected` and follow `_camelCase` naming — specs inherit them.
-- Use `Establish()` for setup — **never** `Because()` in reusable contexts. `Because()` is the single action under test and belongs only in the concrete spec.
-- Contexts can inherit from other contexts to build layered setups: `all_dependencies → a_reactor_handler → when_handling`.
+- Context properties must be accessible to the specs that use them — see language-specific instructions for the exact access modifiers and naming conventions.
+- Use the setup phase for context initialization — **never** put the action under test in a reusable context. The action under test belongs only in the concrete spec.
+- Contexts can build on each other in layers: `all_dependencies → a_reactor_handler → when_handling`.
 - Consider creating `all_dependencies` as a root context that mocks all common dependencies. This avoids duplicating mock creation across unrelated specs.
 
 ## Formatting
 
-- Don't break long `should_` method lines — prefer one-line lambda assertions.
-- Don't add blank lines between multiple `should_` methods.
+- Keep assertions concise — prefer single-line assertions where the logic is readable.
+- Don't add blank lines between related assertions for the same behavior.
