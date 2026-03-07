@@ -52,6 +52,11 @@
 - [ ] No postfixes on class names: `Async`, `Impl`, `Service`, `Manager`, `Helper`
 - [ ] No regions (`#region`)
 - [ ] No built-in exception types: `InvalidOperationException`, `ArgumentException`, etc.
+- [ ] All public types, methods, and properties have multiline XML doc comments
+- [ ] `<summary>` tags always multiline — never `/// <summary>Text</summary>` on one line
+- [ ] Methods with parameters include `<param name="...">` for each parameter
+- [ ] Non-void methods include `<returns>` documentation
+- [ ] Methods that throw include `<exception cref="...">` documentation
 - [ ] Custom exceptions derive from `Exception`, XML doc starts with "The exception that is thrown when …"
 - [ ] Copyright header on every file
 - [ ] No trailing whitespace or missing newlines at end of file

@@ -10,6 +10,7 @@ model: claude-sonnet-4-5
 tools:
   - githubRepo
   - codeSearch
+  - usages
   - terminalLastCommand
 ---
 
@@ -98,6 +99,15 @@ A slice is **not done** until:
 - [ ] Code review by `code-reviewer` finds no blocking issues
 - [ ] Security review by `security-reviewer` finds no vulnerabilities
 - [ ] PR description follows the pull request template
+
+---
+
+## Session management
+
+For large features with many slices, use these techniques to keep context manageable:
+- **`/compact`** after completing each phase to free context space. Add focus notes: `/compact focus on remaining slices and unresolved issues`.
+- **`/fork`** before exploring an alternative design approach, so the original plan is preserved.
+- The **Explore subagent** automatically handles codebase research on a fast model — let it work rather than doing manual searches.
 
 ---
 

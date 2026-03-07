@@ -40,14 +40,20 @@ public record <ConceptName>(<UnderlyingType> Value) : ConceptAs<<UnderlyingType>
 ## Add when backed by Guid
 
 ```csharp
-    /// <summary>Creates a new <ConceptName> with a unique value.</summary>
+    /// <summary>
+    /// Creates a new <ConceptName> with a unique value.
+    /// </summary>
+    /// <returns>A new <ConceptName>.</returns>
     public static <ConceptName> New() => new(Guid.NewGuid());
 ```
 
 ## Add when used as an event-source ID
 
 ```csharp
-    /// <summary>Implicitly converts a <ConceptName> to an <see cref="EventSourceId"/>.</summary>
+    /// <summary>
+    /// Implicitly converts a <ConceptName> to an <see cref="EventSourceId"/>.
+    /// </summary>
+    /// <param name="id">The <ConceptName> to convert.</param>
     public static implicit operator EventSourceId(<ConceptName> id) => new(id.Value.ToString());
 ```
 

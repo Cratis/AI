@@ -9,6 +9,8 @@ model: claude-sonnet-4-5
 tools:
   - githubRepo
   - codeSearch
+  - usages
+  - rename
   - terminalLastCommand
 ---
 
@@ -20,6 +22,7 @@ Your responsibility is to implement the **React/TypeScript frontend** for a vert
 Always read and follow:
 - `.github/instructions/vertical-slices.instructions.md`
 - `.github/instructions/components.instructions.md`
+- `.github/instructions/dialogs.instructions.md`
 - `.github/instructions/typescript.instructions.md`
 - `.github/copilot-instructions.md` (TypeScript type safety section)
 
@@ -107,40 +110,32 @@ export const Listing = () => {
 
 ## Dialog patterns
 
+Use this whenever the dialog executes a Cratis Arc command on confirm. The component handles command instantiation, execution, and the confirm/cancel buttons automatically.
+
 ### Command-based dialog — use `CommandDialog` from `@cratis/components/CommandDialog`
 
 ```tsx
-import { useState } from 'react';
 import { DialogProps, DialogResult } from '@cratis/arc.react/dialogs';
 import { CommandDialog } from '@cratis/components/CommandDialog';
-import { InputText } from 'primereact/inputtext';
+import { InputTextField } from '@cratis/components/CommandForm';
 import { RegisterProject } from './Registration';
+import strings from 'Strings';
 
 export const AddProject = ({ closeDialog }: DialogProps) => {
-    const [name, setName] = useState('');
-
     return (
-        <CommandDialog
+        <CommandDialog<RegisterProject>
             command={RegisterProject}
-            visible
-            header="Add Project"
-            width='32rem'
-            confirmLabel="Add"
-            cancelLabel="Cancel"
-            onBeforeExecute={(values) => {
-                values.name = name;
-                return values;
-            }}
+            title={strings.projects.dialog.title}
+            okLabel={strings.projects.addProject}
+            cancelLabel={strings.projects.dialog.cancel}
             onConfirm={() => closeDialog(DialogResult.Ok)}
             onCancel={() => closeDialog(DialogResult.Cancelled)}
         >
-            <CommandDialog.Fields>
-                <InputText
-                    value={name}
-                    onChange={event => setName(event.target.value)}
-                    autoFocus
-                />
-            </CommandDialog.Fields>
+            <InputTextField<RegisterProject>
+                value={instance => instance.name}
+                title={strings.projects.dialog.nameLabel}
+                placeholder={strings.projects.dialog.namePlaceholder}
+            />
         </CommandDialog>
     );
 };
@@ -148,11 +143,15 @@ export const AddProject = ({ closeDialog }: DialogProps) => {
 
 ### Non-command dialog — use `Dialog` from `@cratis/components/Dialogs`
 
+Use this for dialogs that collect data and return it without executing a command (e.g. confirmation prompts, pure data-entry dialogs).
+`Dialog` defaults to OK + Cancel buttons. Use `isValid` to control confirm button state, `okLabel`/`cancelLabel` to customise button text.
+
 ```tsx
 import { useState } from 'react';
 import { DialogProps, DialogResult } from '@cratis/arc.react/dialogs';
 import { Dialog } from '@cratis/components/Dialogs';
 import { InputText } from 'primereact/inputtext';
+import strings from 'Strings';
 
 export const AddProject = ({ closeDialog }: DialogProps<{ name: string }>) => {
     const [name, setName] = useState('');
@@ -160,8 +159,10 @@ export const AddProject = ({ closeDialog }: DialogProps<{ name: string }>) => {
 
     return (
         <Dialog
-            title="Add Project"
+            title={strings.projects.dialog.title}
             width='32rem'
+            okLabel={strings.projects.addProject}
+            cancelLabel={strings.projects.dialog.cancel}
             isValid={isValid}
             onConfirm={() => closeDialog(DialogResult.Ok, { name })}
             onCancel={() => closeDialog(DialogResult.Cancelled)}
@@ -169,6 +170,7 @@ export const AddProject = ({ closeDialog }: DialogProps<{ name: string }>) => {
             <InputText
                 value={name}
                 onChange={event => setName(event.target.value)}
+                placeholder={strings.projects.dialog.namePlaceholder}
                 autoFocus
             />
         </Dialog>
@@ -214,6 +216,17 @@ export const Projects = () => {
 
 ---
 
+## Browser verification (optional)
+
+If the workspace has `workbench.browser.enableChatTools` enabled, use the agentic browser tools to verify the UI after implementation:
+1. Open the app page in the integrated browser.
+2. Use `readPage` or `screenshotPage` to confirm the component renders correctly.
+3. Use `clickElement` or `typeInPage` to test interactive elements.
+
+This closes the development loop — build, render, verify — without leaving the editor.
+
+---
+
 ## Completion checklist
 
 Before handing back to the planner:
@@ -221,7 +234,7 @@ Before handing back to the planner:
 - [ ] `yarn lint` passes with zero errors
 - [ ] `npx tsc -b` passes with zero errors
 - [ ] Components are in the correct slice folder
-- [ ] No hard-coded user-visible strings (use a `Strings` constant file / i18n)
+- [ ] No hard-coded user-visible strings — all UI text comes from `strings` imported from `'Strings'`
 - [ ] No hard-coded hex/rgb colour values — PrimeReact CSS variables used throughout
 - [ ] All variable/parameter names are fully descriptive (no abbreviations)
 - [ ] No `any` types — `unknown` with type guards where needed

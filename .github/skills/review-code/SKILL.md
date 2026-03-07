@@ -22,6 +22,10 @@ Review changed code against all Cratis project standards and produce a structure
 - [ ] `var` preferred over explicit types
 - [ ] No postfixes: `Async`, `Impl`, `Service` on class names
 - [ ] No regions
+- [ ] All public types, methods, and properties have multiline XML doc comments
+- [ ] `<summary>` tags always multiline — never `/// <summary>Text</summary>` on one line
+- [ ] Methods with parameters include `<param name="...">` for each
+- [ ] Non-void methods include `<returns>`
 - [ ] Custom exception types only — never `InvalidOperationException`, `ArgumentException`, etc.
 - [ ] Exception XML docs start with "The exception that is thrown when …"
 - [ ] Copyright header on every file

@@ -9,6 +9,8 @@ model: claude-sonnet-4-5
 tools:
   - githubRepo
   - codeSearch
+  - usages
+  - rename
   - terminalLastCommand
 ---
 
@@ -25,6 +27,7 @@ Always check against:
 - `.github/instructions/specs.typescript.instructions.md`
 - `.github/instructions/typescript.instructions.md`
 - `.github/instructions/components.instructions.md`
+- `.github/instructions/dialogs.instructions.md`
 - `.github/instructions/concepts.instructions.md`
 - `.github/instructions/efcore.specs.instructions.md`
 
@@ -37,6 +40,8 @@ Review every changed file. For each issue found:
 - Quote the **problematic code**
 - Explain **why it violates the standard**
 - Provide the **corrected code**
+
+When checking for unused code, missing references, or naming consistency, prefer the **`usages`** tool over grep — it uses LSP for precise, language-aware results. Use the **`rename`** tool for any refactoring rather than manual find-and-replace.
 
 ---
 
@@ -80,6 +85,10 @@ Review every changed file. For each issue found:
 - [ ] No postfixes: `Async`, `Impl`, `Service` on class names
 - [ ] No regions
 - [ ] Copyright header present on every file
+- [ ] All public types, methods, and properties have multiline XML doc comments
+- [ ] `<summary>` tags are always multiline — never `/// <summary>Text</summary>` on one line
+- [ ] Methods with parameters have `<param name="...">` for each parameter
+- [ ] Non-void methods have `<returns>` documentation
 - [ ] Custom exception types only (no `InvalidOperationException`, `ArgumentException`, etc.)
 - [ ] All custom exception XML docs start with "The exception that is thrown when …"
 
@@ -120,6 +129,17 @@ Review every changed file. For each issue found:
 - [ ] `Dialog` from `@cratis/components/Dialogs` used for data-only dialogs
 - [ ] Never imports `Dialog` directly from `primereact/dialog`
 - [ ] No monolithic components — decomposed into smaller, focused sub-components
+
+---
+
+## Specs checklist
+
+- [ ] Every state-change command has specs
+- [ ] Happy path covered
+- [ ] All validation rules covered
+- [ ] All constraint violations covered
+- [ ] No specs for simple property getters or constructor pass-throughs
+- [ ] Chai fluent interface used in TypeScript specs (not `expect()`)
 
 ---
 

@@ -26,7 +26,11 @@ If it doesn't, add it first — see the `new-vertical-slice` skill.
 [Command]
 public record <Command>(<KeyProperty> <Key>, ...)
 {
-    /// <summary>...</summary>
+    /// <summary>
+    /// Handles the command.
+    /// </summary>
+    /// <param name="readModelParam">The current state.</param>
+    /// <returns>The resulting event.</returns>
     public <Event> Handle(<ReadModel> <readModelParam>)
     {
         if (<readModelParam>.<StateProperty> <violatesRule>)
@@ -43,7 +47,12 @@ public record <Command>(<KeyProperty> <Key>, ...)
 [Command]
 public record AddItemToCart(CartId CartId, ItemId ItemId)
 {
-    /// <summary>Adds the item; throws if the cart already holds 3 items.</summary>
+    /// <summary>
+    /// Adds the item; throws if the cart already holds 3 items.
+    /// </summary>
+    /// <param name="cart">The current cart summary.</param>
+    /// <returns>The <see cref="ItemAddedToCart"/> event.</returns>
+    /// <exception cref="CartIsFull">Thrown when the cart already contains the maximum number of items.</exception>
     public ItemAddedToCart Handle(CartSummary cart)
     {
         if (cart.ItemCount >= 3)

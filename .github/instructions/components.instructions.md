@@ -38,9 +38,9 @@ Consistent styling comes from discipline: static styles in CSS files, dynamic va
 - The composition root's CSS only contains layout/grid rules for positioning children — it should not style the children themselves.
 - Use inline `style` props **only** for runtime-dynamic values (pixel positions, computed sizes).
 - Use **PrimeReact CSS variables** for all colors, backgrounds, borders. This ensures the application respects theming and dark/light mode switches:
-  - `var(--surface-0)` through `var(--surface-900)`, `var(--surface-card)`, `var(--surface-border)`
-  - `var(--text-color)`, `var(--text-color-secondary)`, `var(--primary-color)`
-  - Never hard-code hex or `rgb()` for UI chrome — it will break when themes change.
+  - `var(--surface-0)` through `var(--surface-900)`, `var(--surface-card)`, `var(--surface-border)`, `var(--surface-ground)`
+  - `var(--text-color)`, `var(--text-color-secondary)`, `var(--primary-color)`, `var(--primary-color-text)`, `var(--highlight-bg)`
+  - Never hard-code hex or `rgb()` for UI chrome — it will break when themes change. Only hard-code colors that are intentionally theme-independent (e.g. brand-specific accent dots, traffic-light indicators).
 - Name CSS classes with a BEM-like prefix matching the component name.
 
 ## Props
@@ -53,12 +53,44 @@ Props are a component's public API. They should be clear, minimal, and well-docu
 
 ## Dialogs
 
-The Cratis dialog wrappers handle command execution, validation timing, loading states, and footer buttons consistently. Using PrimeReact's raw `Dialog` bypasses all of this and leads to inconsistent UX.
+See [dialogs.instructions.md](./dialogs.instructions.md) for the full dialog guide.
 
-- **Never** import `Dialog` from `primereact/dialog`.
-- For command-executing dialogs: use `CommandDialog` from `@cratis/components/CommandDialog`.
-- For data-collection dialogs: use `Dialog` from `@cratis/components/Dialogs`.
-- Do not render manual `<Button>` components for dialog actions — the dialog components handle footers.
+**Summary:** Never import `Dialog` from `primereact/dialog`. Use `CommandDialog` from `@cratis/components/CommandDialog` for command-executing dialogs and `Dialog` from `@cratis/components/Dialogs` for data-collection dialogs. Do not render manual `<Button>` components for dialog actions — the dialog components handle footers.
+
+## Icons
+
+Follow these rules when working with SVG icons:
+
+- **Distinguish icons from status/interactive components.** A pure SVG icon is a simple presentational element. A component that wraps an icon with interactive behavior (e.g. a dropdown, tooltip, or complex state) is a _component_, not an icon — name it accordingly (e.g. `SliceStatus`, not `SliceStatusIcon`).
+- **Store each SVG as a separate `.svg` file** inside the icon's folder. Do not embed SVG markup directly in `.tsx` files.
+  - Import SVG files with the `?raw` suffix to get the raw SVG string: `import iconSvg from './Icon.svg?raw';`
+  - Render inline using `dangerouslySetInnerHTML={{ __html: iconSvg }}` so that CSS `currentColor` is honored.
+- **Use subfolders for grouping related icons or complex components.**
+  - A folder named `SliceStatus/` groups the four status SVG files together with the interactive `SliceStatus` component that uses them.
+  - Simple, standalone icons may live directly in the `icons/` root if they have no related siblings.
+- **Every icon folder must have an `index.ts`** that re-exports the public API, keeping import paths for consumers stable.
+- **Barrel-export all icons through `icons/index.ts`** so consumers import from the `icons` path alias, not from deep paths.
+
+**Example structure:**
+```
+icons/
+  SliceStatus/
+    NotStarted.svg         ← raw SVG file
+    InProgress.svg         ← raw SVG file
+    ReadyForReview.svg     ← raw SVG file
+    Done.svg               ← raw SVG file
+    SliceStatus.tsx        ← interactive component using the SVG files
+    SliceStatus.css
+    index.ts
+  CogWheelIcon/
+    CogWheel.svg           ← raw SVG file
+    CogWheelIcon.tsx       ← thin wrapper component
+    CogWheelIcon.css
+    index.ts
+  WireframeIcon.tsx        ← simple component with no SVG (stays at root)
+  WireframeIcon.css
+  index.ts                 ← re-exports everything
+```
 
 ## Storybook
 

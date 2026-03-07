@@ -414,6 +414,10 @@ Work **slice-by-slice** in this exact order. The sequence matters — TypeScript
 5. **Composition** — Register in the feature's composition page
 6. **Routes** — Add/update routing if needed
 
+### Sub-agent coordination
+
+When parallel agents or sub-agents are used, steps 1–3 are a **hard prerequisite** for step 4. Backend and frontend for the same slice cannot run in parallel — the frontend agent must wait for `dotnet build` to complete. Independent slices (no shared event types) can have their backend phases worked on in parallel, but each slice's frontend still depends on its own build completing first.
+
 ---
 
 ## Integration Specs

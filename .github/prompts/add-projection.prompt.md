@@ -1,18 +1,18 @@
 ---
 agent: agent
-description: Add a Chronicle projection or reactor to an existing read model or automation slice.
+description: Add a Chronicle projection to an existing read model slice.
 ---
 
-# Add a Projection or Reactor
+# Add a Projection
 
-I need to add a **Chronicle projection** (read model population) or **reactor** (automation) to the project.
+I need to add a **Chronicle projection** that populates a read model from events.
+
+> For **reactors** (automation / translation), use the `add-reactor` prompt instead.
 
 ## Inputs
 
-- **Type**: `Projection` or `Reactor`
-- **Events to react to** — list the event types (e.g. `ProjectRegistered`, `ProjectRemoved`)
-- **Read model** (for projections) — paste the `record` type or describe the shape you want
-- **Purpose** (for reactors) — describe the side-effect or automation to perform
+- **Events to project from** — list the event types (e.g. `ProjectRegistered`, `ProjectRemoved`)
+- **Read model** — paste the `record` type or describe the shape you want
 
 ## Projection rules (mandatory)
 
@@ -51,24 +51,6 @@ public class ProjectProjection : IProjectionFor<ReadModel>
 - Joins are on Chronicle **events**, never on the read model
 - Use `.RemovedWith<TEvent>()` for soft-delete events
 - **There is NO `ProjectionId Identifier` property — do not add one**
-
-## Reactor rules (mandatory)
-
-```csharp
-public class AutomationName(IDependency dependency) : IReactor
-{
-    // Method name is arbitrary — dispatch is by first-parameter type
-    public Task HandleProjectRegistered(ProjectRegistered @event, EventContext context) =>
-        dependency.DoSomethingWith(@event);
-}
-```
-
-**Critical rules:**
-- `IReactor` is a **marker interface** — no methods to implement
-- Event dispatch is by first-parameter type; method name can be anything descriptive
-- `EventContext` is optional — omit if event metadata is not needed
-- Reactors MUST be idempotent — they may be called more than once for the same event
-- Do not use the read model inside the reactor — use the event data directly
 
 ## After creating the file
 

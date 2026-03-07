@@ -56,6 +56,49 @@ Embrace the type system — it is the first line of defense against null-related
 - Add `!` operator where nullability warnings occur and you are certain the value is non-null.
 - Use `is not null` checks before dereferencing potentially null values.
 
+## XML Documentation
+
+XML doc comments are the public API's first impression. They must be multiline — never cram `<summary>` onto a single line. Every public type, method, property, and operator must have XML docs.
+
+- Always use **multiline** `<summary>` tags — opening and closing tags on their own lines:
+  ```csharp
+  /// <summary>
+  /// Represents the unique identifier of a project.
+  /// </summary>
+  ```
+- **Never** use single-line summaries:
+  ```csharp
+  // ❌ Wrong
+  /// <summary>Represents the unique identifier of a project.</summary>
+  ```
+- Every method or operator with parameters **must** include `<param name="...">` for each parameter.
+- Every method or operator that returns a value (non-void) **must** include `<returns>`.
+- Every method that throws must document the exception with `<exception cref="...">` tags.
+- Use `<see cref="..."/>` and `<paramref name="..."/>` to cross-reference types and parameters.
+- Keep summaries concise and purposeful — only document when it adds understanding beyond the name itself.
+
+Example:
+
+```csharp
+/// <summary>
+/// Represents an instance of <see cref="ICommandFilters"/>.
+/// </summary>
+/// <param name="filters">The collection of <see cref="ICommandFilter"/> to use for filtering commands.</param>
+[Singleton]
+public class CommandFilters(IInstancesOf<ICommandFilter> filters) : ICommandFilters
+{
+    /// <summary>
+    /// Filters the command execution through all registered command filters.
+    /// </summary>
+    /// <param name="context">The <see cref="CommandContext"/> to filter.</param>
+    /// <returns>A <see cref="CommandResult"/> representing the aggregated filter outcome.</returns>
+    public async Task<CommandResult> OnExecution(CommandContext context)
+    {
+        // ...
+    }
+}
+```
+
 ## Exceptions
 
 Every exception type in the codebase should communicate *what went wrong* in domain terms. Built-in types like `InvalidOperationException` tell you nothing about the problem — a custom `AuthorAlreadyRegistered` tells you everything.
