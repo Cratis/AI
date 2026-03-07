@@ -48,7 +48,7 @@ When these instructions don't explicitly cover a situation, apply these values t
 ## C# Instructions
 
 - Prefer `var` over explicit types when declaring variables.
-- Do not add unnecessary comments or documentation.
+- Do not add unnecessary inline code comments.
 - Use `using` directives for namespaces at the top of the file.
 - Sort the `using` directives alphabetically.
 - Use namespaces that match the folder structure.

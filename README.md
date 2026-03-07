@@ -15,7 +15,7 @@ Shared GitHub Copilot configuration used across all Cratis repositories and proj
 │   ├── concepts.instructions.md     ← ConceptAs<T> rules         (*.cs)
 │   ├── vertical-slices.instructions.md ← Slice architecture     (Features/**/*)
 │   ├── reactors.instructions.md     ← Chronicle reactor rules    (*.cs)
-│   ├── efcore.instructions.md       ← Entity Framework Core      (*.cs)
+│   ├── efcore.instructions.md       ← Entity Framework Core      (*Context*.cs, Database/**, Migrations/**)
 │   ├── efcore.specs.instructions.md ← EF Core specs              (for_*/when_*)
 │   ├── orleans.instructions.md      ← Orleans grain rules        (*.cs)
 │   ├── specs.instructions.md        ← General spec conventions   (for_*/when_*)
