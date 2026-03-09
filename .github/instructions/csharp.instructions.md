@@ -131,6 +131,15 @@ The framework discovers and wires dependencies by convention. Explicit registrat
 - Use `async`/`await` for asynchronous programming.
 - Use `Task` and `Task<T>` for asynchronous methods.
 
+## File Header
+
+Every C# file must start with:
+
+```csharp
+// Copyright (c) Cratis. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+```
+
 ## Chronicle & Arc — Key API Types
 
 These are the building blocks. Each type has a specific role in the vertical slice architecture — using the right type in the right place means the framework handles discovery, wiring, and proxy generation automatically.
