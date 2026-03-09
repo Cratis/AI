@@ -146,6 +146,22 @@ For attribute strings (e.g. `title`, `placeholder`, `aria-label`):
 - **Never** use plain string literals for user-visible text in JSX or attribute props. This includes `label`, `header`, `placeholder`, `title`, `aria-label`, `emptyMessage`, and any visible text nodes.
 - Only constant, non-localised values are allowed as raw strings (CSS class names, `key` props, internal identifiers).
 
+## File Header
+
+Every TypeScript file must start with:
+
+```typescript
+// Copyright (c) Cratis. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+```
+
+## Generated Files
+
+**Never edit generated files.** Files produced by the proxy generator (`dotnet build`), code scaffolding tools, or any other automated tool must not be modified by hand — in any language. Generated files are overwritten on the next build, so hand-edits are silently lost and create false confidence that a fix is in place.
+
+- If the generated output is wrong, fix the **source** (the C# record, the template, or the generator configuration) and rebuild.
+- Generated TypeScript proxy files (commands, queries, observable queries) are always regenerated from C# sources. Never edit them directly.
+
 ## Arc Frontend Patterns
 
 Arc's proxy generator bridges C# and TypeScript automatically — every `[Command]` and `[ReadModel]` becomes a TypeScript class with `.use()` hooks, `.execute()` methods, and change tracking. This is the foundation of full-stack type safety: change a C# record and the TypeScript proxy updates on the next `dotnet build`.
