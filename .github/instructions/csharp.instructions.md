@@ -152,3 +152,9 @@ These are the building blocks. Each type has a specific role in the vertical sli
 | `EventContext` | Event metadata: `Occurred`, `SequenceNumber`, `CorrelationId`, `EventSourceId`, etc. |
 | `ISubject<T>` | Observable query return type — enables real-time WebSocket push |
 | `IMongoCollection<T>` | MongoDB collection — use `.Observe()` for reactive queries |
+
+**Key conventions:**
+- Prefer `ConceptAs<T>` over raw primitives in all domain models, commands, events, and queries — prevents accidental mix-ups and makes APIs self-documenting. See [concepts.instructions.md](./concepts.instructions.md) for details.
+- Projections join **events**, never read models — projections rebuild state from the event stream, not from other projections.
+- For fluent projections, AutoMap is on by default — just call `.From<EventType>()` without manually mapping every property.
+- Use model-bound projection attributes (`[FromEvent<T>]`, `[SetFrom<T>]`, etc.) when possible; fall back to `IProjectionFor<T>` for complex cases.
