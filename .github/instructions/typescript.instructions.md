@@ -142,3 +142,46 @@ Wraps multiple command-using components, aggregating their `hasChanges` state an
 ### CommandForm
 
 Declarative form component with built-in field types, validation timing (`validateOn: blur|change|both`), and automatic server-side validation feedback.
+
+## Variables and Naming
+
+- Prefer `const` over `let` over `var` when declaring variables.
+- Never use shortened or abbreviated names for variables, parameters, or properties.
+  - Use full descriptive names: `deltaX` not `dx`, `index` not `idx`, `event` not `e`, `previous` not `prev`, `direction` not `dir`, `position` not `pos`, `contextMenu` not `ctx`/`ctxMenu`.
+  - The only acceptable short names are well-established domain terms (e.g. `id`, `url`, `min`, `max`).
+
+## Imports and Compilation
+
+- Never leave unused import statements in the code.
+- Always ensure that the code compiles without warnings — use `yarn compile` to verify (successful runs produce no output).
+- Review each file for lint compliance before finalizing.
+- Never use placeholder or temporary types — use proper types from the start.
+
+## Folder Structure
+
+- Do not prefix a file, component, type, or symbol with the name of its containing folder or the concept it belongs to. Instead, use folder structure to provide that context.
+- Favor functional folder structure over technical folder structure.
+  - Group files by the feature or concept they belong to, not by their technical role.
+  - Avoid folders like `components/`, `hooks/`, `utils/`, `types/` at the feature level.
+
+## Advanced Type Safety
+
+Additional patterns for common tricky scenarios:
+
+**Storybook:**
+- Use `React.ComponentType<Record<string, never>>` for components with no props.
+- Always use `as unknown as` when converting component imports to avoid type mismatch errors.
+- Properly type story args — never use `any`.
+
+**External libraries with strict generic constraints:**
+- Import necessary types (e.g. `Command` from `@cratis/arc/commands`) rather than asserting to `any`.
+- Use type assertions through `unknown`: `props.command as unknown as Constructor<Command<...>>`.
+- Extract tuple results explicitly rather than destructuring when type assertions are needed.
+- Use proper library types when available; use specific property types (e.g. `{ canvas?: HTMLCanvasElement }`) over `any`.
+
+**Dynamic and generic types:**
+- Add type guards for unknown function parameters: `if (typeof accessor !== 'function') return ''`.
+- Type parameters with fallbacks: `function<T = unknown>(accessor: ((obj: T) => unknown) | unknown)`.
+- Cast arrays from `unknown` explicitly: `((obj as Record<string, unknown>).items || []) as string[]`.
+- Use `String(value)` for string conversions in generic contexts.
+- Use explicit Date parameter types: `new Date(value as string | number | Date)`.
