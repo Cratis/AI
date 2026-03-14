@@ -11,7 +11,75 @@ on:
       - ".github/prompts/**"
   workflow_dispatch:
 
+# This repository is the canonical source for Copilot instructions.
+# All pushes to main — whether direct commits or sync-merge commits — must
+# propagate to every other Cratis repository.  The sync-commit skip guard
+# that exists in the Cratis/Workflows reusable workflow is intentionally
+# omitted here; it is only needed in *target* repos to prevent them from
+# re-propagating back after receiving a sync PR (infinite-loop prevention).
+#
+# Required secret: PAT_WORKFLOWS
+#   Classic PAT:      repo + workflow scopes
+#   Fine-grained PAT: Contents (read/write), Pull requests (read/write),
+#                     Workflows (read/write)
+
+permissions:
+  contents: read
+
 jobs:
+  get-repos:
+    runs-on: ubuntu-latest
+    if: ${{ github.repository_owner == 'Cratis' }}
+    outputs:
+      repos: ${{ steps.list-repos.outputs.repos }}
+    steps:
+      - name: Get all Cratis repositories
+        id: list-repos
+        env:
+          GH_TOKEN: ${{ secrets.PAT_WORKFLOWS }}
+          SOURCE_REPO: ${{ github.repository }}
+        run: |
+          source_name="${SOURCE_REPO##*/}"
+
+          # List all non-archived repos in the Cratis org (assumes < 1000 repos),
+          # excluding this repo and a fixed ignore list:
+          #   cratis.github.io — static site, no .github/ Copilot folder
+          #   Workflows        — workflow helpers repo, not a product repo
+          # The result is a compact JSON array used as the matrix.
+          #
+          # NOTE: No sync-commit check here — this is the canonical source repo
+          # and must always propagate, even when the triggering commit is a sync
+          # merge.  Loop prevention is handled by the target repos' own
+          # propagation workflows (they skip on sync commits).
+          repos=$(gh repo list Cratis --limit 1000 --json name,isArchived \
+            | jq -c --arg src "$source_name" \
+            '[.[] | select(.isArchived == false) | .name
+              | select(. != $src)
+              | select(. != "cratis.github.io")
+              | select(. != "Workflows")]')
+          echo "repos=$repos" >> "$GITHUB_OUTPUT"
+
   propagate:
-    uses: Cratis/Workflows/.github/workflows/propagate-copilot-instructions.yml@main
-    secrets: inherit
+    needs: get-repos
+    if: ${{ needs.get-repos.outputs.repos != '[]' }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        repo: ${{ fromJson(needs.get-repos.outputs.repos) }}
+      fail-fast: false
+
+    steps:
+      - name: Checkout Workflows repository
+        uses: actions/checkout@v4
+        with:
+          repository: Cratis/Workflows
+          ref: main
+          token: ${{ secrets.PAT_WORKFLOWS }}
+
+      - name: Propagate Copilot instructions to ${{ matrix.repo }}
+        env:
+          GH_TOKEN: ${{ secrets.PAT_WORKFLOWS }}
+          SOURCE_REPO: ${{ github.repository }}
+          TARGET_REPO: ${{ matrix.repo }}
+        run: |
+          bash .github/scripts/propagate-copilot-instructions.sh
