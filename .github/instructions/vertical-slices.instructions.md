@@ -31,6 +31,19 @@ These are non-negotiable because the frameworks rely on them for convention-base
 
 ---
 
+## Proxy Generation — Build Dependency
+
+Commands and Queries generate TypeScript proxies at build time via `dotnet build`. This creates `.ts` files that the frontend imports (hooks, execute methods, change tracking). Until the backend compiles, **no proxy files exist** and frontend code cannot reference them.
+
+**This is a hard sequencing constraint:**
+1. Backend C# code must be written and compile successfully first.
+2. `dotnet build` must complete — this generates the TypeScript proxy files.
+3. Only then can frontend React components import and use the generated proxies.
+
+**When running parallel agents or sub-agents:** backend and frontend work for the same slice **cannot** run in parallel. The backend agent must finish and `dotnet build` must succeed before the frontend agent starts. Independent slices (no shared events) can have their backends worked on in parallel, but each slice's frontend still depends on its own backend build completing first.
+
+---
+
 ## Slice Types
 
 | Type | Purpose | What It Contains |
