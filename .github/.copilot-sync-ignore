@@ -1,0 +1,6 @@
+# Files and folders excluded from Copilot instruction propagation to other repos.
+# Patterns are matched against paths relative to .github/ (or with .github/ prefix).
+# Supports glob syntax: * matches within a directory, ** matches across directories.
+
+# Agent configurations are repository-specific and must not be propagated.
+agents/**
