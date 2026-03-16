@@ -1,0 +1,8 @@
+# Files and directories excluded from Copilot instruction propagation.
+# Patterns follow gitignore-style glob rules.
+# Lines starting with # are comments.
+# Patterns without a .github/ prefix get one prepended automatically.
+
+# Agent definition files are repository-specific and confidential —
+# they must not be propagated to other repositories.
+agents/**

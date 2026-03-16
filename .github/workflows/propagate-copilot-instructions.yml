@@ -1,4 +1,15 @@
 name: Propagate Copilot Instructions
+# Propagates Copilot instruction files to all other Cratis repositories.
+#
+# Requires a PAT stored as the PAT_WORKFLOWS organisation secret with:
+#   Classic PAT:       repo + workflow scopes
+#   Fine-grained PAT:  Contents (read/write) + Pull requests (read/write)
+#                      + Workflows (read/write)
+#                      for ALL repositories in the Cratis organisation
+#
+# Files excluded from propagation are listed in .github/.copilot-sync-ignore.
+# Agent definition files (.github/agents/**) are excluded there because they
+# are repository-specific and confidential.
 
 on:
   push:
@@ -6,10 +17,10 @@ on:
     paths:
       - ".github/copilot-instructions.md"
       - ".github/instructions/**"
-      - ".github/agents/**"
       - ".github/skills/**"
       - ".github/prompts/**"
       - ".github/hooks/**"
+      - ".github/.copilot-sync-ignore"
   workflow_dispatch:
 
 jobs:
