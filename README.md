@@ -31,6 +31,9 @@ Shared GitHub Copilot configuration used across all Cratis repositories and proj
 │   ├── code-reviewer.md             ← Quality gate
 │   ├── security-reviewer.md         ← Security gate
 │   └── performance-reviewer.md      ← Performance gate
+├── hooks/                           ← Agent lifecycle hooks
+│   ├── agent-stop.md                ← Release build on session end  (agentStop)
+│   └── pre-commit.md                ← Run specs before git commit   (preToolUse)
 ├── skills/                          ← Reusable multi-step workflows
 │   ├── new-vertical-slice/          ← End-to-end slice creation
 │   ├── scaffold-feature/            ← New feature scaffolding
@@ -63,6 +66,7 @@ Shared GitHub Copilot configuration used across all Cratis repositories and proj
 - **Agents** are invokable from the chat agent picker or via `@agent-name`. The planner orchestrates multi-step work by delegating to specialist agents.
 - **Skills** are multi-step workflows the agent can invoke when it recognizes a matching request (e.g. "add a projection for Authors").
 - **Prompts** are slash commands (e.g. `/add-concept`) for quick, single-turn tasks.
+- **Hooks** are lifecycle callbacks that fire automatically at specific points in the agent session (e.g. `agentStop` fires when the agent finishes, `preToolUse` fires before a tool call).
 
 ## Recommended VS Code settings
 
@@ -120,9 +124,10 @@ VS Code 1.110+ supports generating customization files from conversation context
 
 ## Updating this repo
 
-When adding new instruction files, skills, or agents:
+When adding new instruction files, skills, agents, or hooks:
 1. Add the file in the appropriate folder.
 2. If it is an instruction file, set the `applyTo` glob in the YAML front matter.
-3. Update `copilot-instructions.md` "Detailed Guides" section to reference it.
-4. Update relevant agents if they should read the new file.
-5. Update this README to reflect the new artifact.
+3. If it is a hook, set the `on:` lifecycle event in the YAML front matter (`agentStop`, `preToolUse`, etc.).
+4. Update `copilot-instructions.md` "Detailed Guides" section to reference it.
+5. Update relevant agents if they should read the new file.
+6. Update this README to reflect the new artifact.
