@@ -1,7 +1,0 @@
-# Files and patterns excluded from cross-repository Copilot instruction propagation.
-# Patterns use glob syntax; .github/ prefix is added automatically if omitted.
-# Lines starting with # are comments.
-
-# Agent definition files are repository-specific and must NOT be propagated
-# to other repositories — each repo defines its own agents.
-agents/**
