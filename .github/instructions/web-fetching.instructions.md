@@ -1,5 +1,6 @@
 ---
 description: "Use when fetching data from the web, CI logs, artifact URLs, signed URLs, Azure Blob URLs, or simple API/text responses. Prefer curl in the terminal over webpage fetch tools for raw data retrieval."
+excludeAgent: "code-review"
 ---
 
 # Web Fetching

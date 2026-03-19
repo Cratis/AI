@@ -132,96 +132,12 @@ Never hardcode a provider (e.g. `UseSqlite` or `UseNpgsql`) in application code.
 
 Migrations live exclusively in the **`Database`** project, never in `Core` or `Infrastructure`.
 
-### Organisation
+- Folder per entity category with versioned files using `v{major}_{minor}_{patch}.cs` naming.
+- Always reference table names from `WellKnownTables` constants — never use magic strings.
+- Always use Cratis Arc column helpers (`StringColumn`, `GuidColumn`, `NumberColumn<T>`, `DateTimeOffsetColumn`) — never raw `table.Column<T>()` — to ensure cross-database compatibility.
+- Apply migrations via `ApplyAllMigrations(connectionString)` — never use `dotnet ef database update`.
 
-Each entity category has its own folder with versioned migration files:
-
-```
-Database/
-├── Missions/
-│   ├── v1_0_0.cs
-│   └── v1_1_0.cs
-├── Users/
-│   └── v1_0_0.cs
-└── WellKnownTables.cs
-```
-
-### Naming
-
-Version files using the pattern `v{major}_{minor}_{patch}.cs` and place them inside a namespace matching their folder:
-
-```csharp
-namespace Database.Missions;
-
-public class v1_0_0 : Migration
-{
-    protected override void Up(MigrationBuilder migrationBuilder) { ... }
-    protected override void Down(MigrationBuilder migrationBuilder) { ... }
-}
-```
-
-The migration ID is composed as `{folder}_{ClassName}` (e.g. `Missions_v1_0_0`).
-
-### Cross-Database Column Helpers
-
-Always use the Cratis Arc `MigrationBuilder` extension helpers to define columns. These abstract over PostgreSQL and SQLite type differences:
-
-| Helper | Use for |
-|--------|---------|
-| `table.StringColumn(migrationBuilder)` | Text / varchar columns |
-| `table.GuidColumn(migrationBuilder)` | UUID / GUID columns |
-| `table.NumberColumn<T>(migrationBuilder)` | Integer, long, or numeric columns |
-| `table.DateTimeOffsetColumn(migrationBuilder)` | Timestamps with timezone |
-
-Never use raw EF `table.Column<string>()` etc. — the helpers ensure cross-database compatibility.
-
-```csharp
-// ✅ Cross-database migration
-migrationBuilder.CreateTable(
-    name: WellKnownTables.Missions,
-    columns: table => new
-    {
-        Id = table.StringColumn(migrationBuilder, nullable: false),
-        Title = table.StringColumn(migrationBuilder, maxLength: 200, nullable: false),
-        ResourceId = table.NumberColumn<int>(migrationBuilder, nullable: true),
-        DispatchTime = table.DateTimeOffsetColumn(migrationBuilder),
-        UrgencyId = table.GuidColumn(migrationBuilder)
-    },
-    constraints: table =>
-    {
-        table.PrimaryKey("PK_Missions", x => x.Id);
-        table.ForeignKey("FK_Missions_Urgency", x => x.UrgencyId,
-            WellKnownTables.MissionUrgencies, "Id", onDelete: ReferentialAction.SetNull);
-    });
-```
-
-### Table Names — WellKnownTables
-
-Always reference table names from `WellKnownTables` constants. Never use magic strings directly in migrations.
-
-```csharp
-// ❌ Magic string
-migrationBuilder.CreateTable(name: "Missions", ...);
-
-// ✅ Constant
-migrationBuilder.CreateTable(name: WellKnownTables.Missions, ...);
-```
-
-Add new table names to `Database/WellKnownTables.cs` before writing the migration.
-
-### Applying Migrations
-
-Migrations are applied via a custom runner from the `Database` project (not `dotnet ef database update`):
-
-```csharp
-// ASP.NET mode
-await app.ApplyAllMigrations(connectionString);
-
-// MAUI / IServiceProvider mode
-await services.ApplyAllMigrations(connectionString);
-```
-
-The runner discovers all `Migration` subclasses from the `Database` assembly, checks the EF history table, and applies pending migrations in version order within a transaction. Both PostgreSQL and SQLite are supported through the same runner.
+→ For step-by-step migration creation, invoke the **`add-ef-migration`** skill.
 
 ## Auto-Discovery
 
