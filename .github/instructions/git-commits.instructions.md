@@ -1,6 +1,5 @@
 ---
 applyTo: "**/*"
-excludeAgent: "code-review"
 ---
 
 # How to Write Git Commits

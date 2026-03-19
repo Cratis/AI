@@ -47,5 +47,3 @@ The project's voice is **direct, practical, and opinionated**. Write like an exp
 - Always end generated markdown with a single trailing newline in the file content itself.
 - Never use shell commands to modify files after writing them.
 - Run `verify-markdown.sh` in the Documentation folder after writing to validate links and formatting.
-
-→ For step-by-step documentation writing using the Diátaxis framework, invoke the **`write-documentation`** skill.
