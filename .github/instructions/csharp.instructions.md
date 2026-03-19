@@ -159,3 +159,5 @@ These are the building blocks. Each type has a specific role in the vertical sli
 - Projections join **events**, never read models — projections rebuild state from the event stream, not from other projections.
 - For fluent projections, AutoMap is on by default — just call `.From<EventType>()` without manually mapping every property.
 - Use model-bound projection attributes (`[FromEvent<T>]`, `[SetFrom<T>]`, etc.) when possible; fall back to `IProjectionFor<T>` for complex cases.
+
+→ For step-by-step guidance on C# conventions and patterns, invoke the **`cratis-csharp-standards`** skill.
