@@ -119,3 +119,5 @@ Every component folder with sub-components, hooks, or non-trivial architecture *
 - How to extend — steps for common modifications
 
 **Keep READMEs current** — update in the same commit when changing architecture, layout, or state structure.
+
+→ For step-by-step guidance on building a React page with data tables, dialogs, and queries, invoke the **`cratis-react-page`** skill.
