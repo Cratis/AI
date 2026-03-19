@@ -50,54 +50,5 @@ public Task MethodName(TEvent @event, EventContext context)
 | **Automation** | Reacts to events, makes decisions, triggers side effects |
 | **Translation** | Adapts events from one slice/system by triggering commands in another |
 
-### Automation Example
-
-```csharp
-public class ProjectRegisteredNotifier(INotificationService notifications) : IReactor
-{
-    /// <summary>
-    /// Sends a notification when a project is registered.
-    /// </summary>
-    /// <param name="event">The event.</param>
-    /// <param name="context">The event context.</param>
-    public async Task ProjectRegistered(ProjectRegistered @event, EventContext context) =>
-        await notifications.Notify($"Project '{@event.Name}' was registered.");
-}
-```
-
-### Translation Example
-
-```csharp
-public class StockKeeping(IStockKeeper stockKeeper, ICommandPipeline commandPipeline) : IReactor
-{
-    /// <summary>
-    /// Reacts to a book reservation by decreasing stock.
-    /// </summary>
-    /// <param name="event">The event.</param>
-    /// <param name="context">The event context.</param>
-    public async Task BookReserved(BookReserved @event, EventContext context) =>
-        await commandPipeline.Execute(new DecreaseStock(@event.Isbn, await stockKeeper.GetStock(@event.Isbn)));
-}
-```
-
-## Testing Reactors
-
-Reactor specs follow the same BDD-style pattern as other specs. Use `IReactorInvoker` and `ReactorHandler` from the test infrastructure:
-
-```csharp
-// given/all_dependencies.cs
-public class all_dependencies : Specification
-{
-    protected IEventStore _eventStore;
-    protected IReactorInvoker _reactorInvoker;
-}
-
-// given/a_reactor_handler.cs
-public class a_reactor_handler : all_dependencies
-{
-    protected ReactorHandler _handler;
-    void Establish() => _handler = new(_eventStore, _reactorInvoker);
-}
-```
-
-See `specs.csharp.instructions.md` for full spec patterns.
+→ For step-by-step reactor creation, invoke the **`add-reactor`** skill.
+→ For writing reactor specs, invoke the **`cratis-specs-csharp`** skill.

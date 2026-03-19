@@ -1,4 +1,5 @@
 ---
+excludeAgent: "code-review"
 ---
 
 # RTK (Rust Token Killer) - Token-Optimized Commands
