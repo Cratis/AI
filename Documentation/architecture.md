@@ -23,6 +23,7 @@ See also: [Instructions](./instructions.md) · [Skills](./skills.md) · [Agents]
 │   ├── add-ef-migration/SKILL.md
 │   └── ...
 ├── agents/                        ← Specialist personas
+│   ├── orchestrator.md            ← Top-level team orchestrator
 │   ├── coordinator.md             ← General-purpose coordinator
 │   ├── planner.md                 ← Vertical slice planner
 │   ├── backend-developer.md

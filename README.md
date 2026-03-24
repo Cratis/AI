@@ -24,6 +24,8 @@ Shared GitHub Copilot configuration used across all Cratis repositories and proj
 │   ├── documentation.instructions.md  ← Diátaxis docs           (Documentation/**/*.md)
 │   └── pull-requests.instructions.md   ← PR conventions
 ├── agents/                          ← Custom chat agents
+│   ├── orchestrator.md              ← Top-level team orchestrator
+│   ├── coordinator.md               ← Decomposes cross-cutting work
 │   ├── planner.md                   ← Decomposes work into tasks
 │   ├── backend-developer.md         ← C# vertical slice specialist
 │   ├── frontend-developer.md        ← React/TypeScript specialist
