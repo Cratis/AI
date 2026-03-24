@@ -10,6 +10,7 @@ This folder documents how the Cratis AI configuration is organized, the conventi
 | [Instructions](./instructions.md) | What instruction files are, when they load, and how to write focused ones |
 | [Skills](./skills.md) | What skills are, how they differ from instructions, and how to create new ones |
 | [Agents](./agents.md) | The team of agents, their roles, and the coordinator pattern for parallel work |
+| [Using the Orchestrator](./orchestrator.md) | How to use the orchestrator to coordinate multiple agents as a team |
 | [Instructions vs Skills](./instructions-vs-skills.md) | The clear distinction between "what/when" (instructions) and "how" (skills) |
 
 ## Quick orientation

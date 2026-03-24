@@ -10,7 +10,8 @@ See also: [Architecture Overview](./architecture.md) · [Instructions vs Skills]
 
 | Agent | Role | When to use |
 |---|---|---|
-| `coordinator` | General-purpose coordinator — decomposes goals, assigns agents, tracks progress | Cross-cutting work spanning multiple concerns or multiple slices |
+| `orchestrator` | Top-level team orchestrator — assembles the team, sequences work, enforces quality gates | Any goal spanning implementation + documentation + review, or multiple independent workstreams |
+| `coordinator` | General-purpose coordinator — decomposes goals, assigns agents, tracks progress | Cross-cutting implementation work spanning multiple concerns or multiple slices |
 | `planner` | Vertical slice planner — sequences and parallelises slice implementation | Implementing one or more complete vertical slices end-to-end |
 | `backend-developer` | C# slice files — commands, events, validators, projections, reactors | Writing backend code for a specific slice |
 | `frontend-developer` | React/TypeScript — components, composition pages, routing | Writing frontend code for a specific slice |
@@ -21,9 +22,30 @@ See also: [Architecture Overview](./architecture.md) · [Instructions vs Skills]
 
 ---
 
+## The Orchestrator
+
+The `orchestrator` agent is the **top-level team manager** — the entry point when multiple agents need to work together as a team. Use it when:
+
+- The goal spans implementation **and** documentation **and** review
+- Multiple independent workstreams need to run in parallel
+- You're unsure which combination of agents is needed
+- The work involves non-implementation concerns alongside implementation
+
+The orchestrator:
+1. Classifies every concern in the goal (implementation, docs, testing, review)
+2. Maps each concern to the right agent or sub-orchestrator
+3. Identifies cross-stream dependencies
+4. Groups independent streams into parallel phases
+5. Delegates in phase order and tracks overall progress
+6. Enforces quality gates before declaring success
+
+See [Using the Orchestrator](./orchestrator.md) for a full guide.
+
+---
+
 ## The Coordinator
 
-The `coordinator` agent is the **entry point for complex, multi-concern work**. Use it when:
+The `coordinator` agent is the **entry point for complex, multi-concern implementation work**. Use it when:
 
 - The request spans both backend and frontend
 - Multiple slices need to be implemented
@@ -37,14 +59,14 @@ The coordinator:
 4. Assigns each task to the right specialist
 5. Outputs a markdown checklist with phase structure
 
-### When to use the Coordinator vs the Planner
+### When to use the Orchestrator vs the Coordinator vs the Planner
 
-| Use `coordinator` when… | Use `planner` when… |
-|---|---|
-| Work spans multiple concerns (backend + docs + review) | The entire goal is one or more vertical slices |
-| You need infrastructure changes + slice implementation | You need a slice from command to React component |
-| You need a mix of C# and TypeScript work with reviews | You have a clear feature name and slice name |
-| You're not sure what type of work is involved | You know exactly which slices to build |
+| Use `orchestrator` when… | Use `coordinator` when… | Use `planner` when… |
+|---|---|---|
+| Goal spans implementation + docs + review | Goal is implementation only | Goal is one or more vertical slices |
+| Multiple independent workstreams | Work crosses multiple concerns | Clear feature and slice names known |
+| Involves non-implementation tasks | Infrastructure + slice implementation | Slice type is known |
+| Unsure what combination of agents is needed | Mix of C# and TypeScript with reviews | Full slice pipeline needed |
 
 ---
 
@@ -72,7 +94,7 @@ When an agent completes its work and needs to hand off to another:
 
 1. State **what was done** — files created or modified, build status, test results.
 2. State **what the next agent needs to know** — feature name, namespace, any deviations from the plan.
-3. Name **which agent to hand back to** (usually the coordinator or planner).
+3. Name **which agent to hand back to** (usually the orchestrator, coordinator, or planner).
 4. Confirm the **completion checklist** is fully satisfied before handing off.
 
 ---
@@ -100,7 +122,7 @@ Optional gates (add when relevant):
 4. Specify the instruction files the agent always reads.
 5. Define the inputs it expects, its process, and its completion checklist.
 6. Add the agent to the roster table in this file.
-7. Update the coordinator's agent table if the new agent should be delegated to.
+7. Update the orchestrator's and coordinator's agent tables if the new agent should be delegated to.
 
 ---
 
