@@ -49,6 +49,7 @@ When these instructions don't explicitly cover a situation, apply these values t
 ## Detailed Guides
 
 These guides contain the full rules, examples, and rationale for each topic. The sections above are the global defaults; the guides go deeper into each area:
+   - [Code Quality](./instructions/code-quality.instructions.md)
    - [C# Conventions](./instructions/csharp.instructions.md)
    - [How to Write Specs](./instructions/specs.instructions.md)
    - [How to Write C# Specs](./instructions/specs.csharp.instructions.md)
