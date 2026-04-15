@@ -1,1 +1,1 @@
-../ai-dev/rules/general.md
+../.ai/rules/general.md
