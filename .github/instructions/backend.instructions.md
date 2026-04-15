@@ -1,1 +1,0 @@
-../../ai-dev/rules/backend.md
