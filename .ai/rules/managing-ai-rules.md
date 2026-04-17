@@ -98,6 +98,14 @@ Symlink targets use **relative paths** from the symlink's location to the canoni
 | `.github/copilot-instructions.md` | `../.ai/rules/` |
 | `.claude/CLAUDE.md` | `../.ai/rules/` |
 
+## Propagation and symlinks
+
+The cross-repository propagation workflow reads `.github/instructions/` and `.github/copilot-instructions.md` via the GitHub API. Because the GitHub API returns symlink blob content verbatim (the raw target path string), a naïve script would push path strings instead of actual rule content to target repositories.
+
+The propagation script in this repository handles this correctly: when it encounters a symlink (Git mode `120000`) in the source tree, it resolves the target path and substitutes the real file's SHA before propagating. This means **symlinks work as expected** — target repositories receive the actual instruction content, not path strings.
+
+Both `.claude/` and `.github/instructions/` therefore use symlinks consistently. There is no need to maintain real file copies anywhere.
+
 ## Shared workflows
 
 Workflow files intended to be synced to other repositories live in `.ai/workflows/`. They follow the same symlink pattern — the propagate workflow copies `.ai/workflows/` content to target repositories.
