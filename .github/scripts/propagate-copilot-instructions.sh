@@ -53,7 +53,11 @@ fi
 # Include mode so that symlinks (mode "120000") can be detected and resolved.
 copilot_files=$(echo "$source_tree_raw" | jq -c \
   '[.tree[] | select(.type == "blob") |
-   select(.path | test("^\\.github/(copilot-instructions\\.md$|instructions/|agents/|skills/|prompts/|hooks/)")) |
+   select(
+     (.path | test("^\\.github/(copilot-instructions\\.md$|instructions/|agents/|skills/|prompts/|hooks/)"))
+     or (.path | test("^\\.ai/"))
+     or (.path | test("^\\.claude/"))
+   ) |
    {path: .path, sha: .sha, mode: .mode}]' 2>/dev/null || true)
 
 if [ -z "$copilot_files" ] || [ "$copilot_files" = "[]" ]; then
