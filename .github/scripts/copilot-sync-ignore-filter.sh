@@ -33,7 +33,9 @@ _apply_copilot_sync_ignore() {
   #   *   → [^/]*       (match within a single directory)
   #   ?   → [^/]        (match a single character)
   #   .   → \.          (literal dot)
-  # Patterns without a .github/ prefix get one prepended automatically.
+  # Patterns without an explicit root prefix default to .github/ for backward
+  # compatibility. Use .ai/ or .claude/ prefixes explicitly to target those
+  # propagated folders.
   local combined_regex=""
   local pattern regex
   while IFS= read -r pattern || [ -n "$pattern" ]; do
@@ -41,8 +43,10 @@ _apply_copilot_sync_ignore() {
     [ -z "$pattern" ] && continue
     [[ "$pattern" == \#* ]] && continue
 
-    # Normalize: ensure .github/ prefix
-    [[ "$pattern" != .github/* ]] && pattern=".github/${pattern}"
+    # Normalize: default unscoped patterns to .github/ for backward compatibility.
+    if [[ "$pattern" != .github/* && "$pattern" != .ai/* && "$pattern" != .claude/* ]]; then
+      pattern=".github/${pattern}"
+    fi
 
     # Convert glob → regex (order matters: ** before *)
     regex=$(printf '%s' "$pattern" \
