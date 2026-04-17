@@ -106,7 +106,7 @@ resolve_symlinks_in_files() {
     blob_resp=$(gh api "repos/${source_repo}/git/blobs/${file_sha}" \
       2>/dev/null || true)
     if [ -z "$blob_resp" ]; then
-      echo "::warning::Could not read symlink blob for ${file_path} — skipping"
+      echo "::warning::Could not read symlink blob for ${file_path} — skipping" >&2
       continue
     fi
 
@@ -116,7 +116,7 @@ resolve_symlinks_in_files() {
       | tr -d '\n')
 
     if [ -z "$symlink_target" ]; then
-      echo "::warning::Empty symlink target for ${file_path} — skipping"
+      echo "::warning::Empty symlink target for ${file_path} — skipping" >&2
       continue
     fi
 
@@ -135,11 +135,11 @@ EOF
       2>/dev/null | head -1 || true)
 
     if [ -z "$real_sha" ]; then
-      echo "::warning::Symlink ${file_path} -> ${symlink_target} resolves to ${resolved_path} but no matching file found in source tree — skipping"
+      echo "::warning::Symlink ${file_path} -> ${symlink_target} resolves to ${resolved_path} but no matching file found in source tree — skipping" >&2
       continue
     fi
 
-    echo "  Resolved symlink: ${file_path} -> ${resolved_path}"
+    echo "  Resolved symlink: ${file_path} -> ${resolved_path}" >&2
     resolved=$(echo "$resolved" | jq -c \
       --arg p "$file_path" --arg s "$real_sha" \
       '. + [{path: $p, sha: $s}]')
