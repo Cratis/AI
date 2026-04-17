@@ -4,11 +4,7 @@ applyTo: "**/*"
 
 # Managing AI Rules and Instructions
 
-`.ai/rules/` is the **single source of truth** for all AI assistant rules in this repository. Rules are written once in `.ai/rules/` and then surfaced to each AI tool. When asked to add, rename, or update a rule, always work in `.ai/rules/` first.
-
-> **Important**: `.github/instructions/` and `.github/copilot-instructions.md` must contain **real file copies**, not symlinks. The cross-repository propagation workflow reads these files via the GitHub API, which returns the raw symlink path string rather than the resolved content. Symlinks would result in target repositories receiving path strings as their AI instructions.
->
-> `.claude/` files use symlinks because the Claude code agent reads them from disk where the OS resolves symlinks automatically.
+`.ai/rules/` is the **single source of truth** for all AI assistant rules in this repository. Rules are written once and surfaced to each AI tool through symlinks. When asked to add, rename, or update a rule, always work in `.ai/rules/` — never edit the symlinks directly.
 
 ## Folder structure
 
@@ -20,9 +16,9 @@ applyTo: "**/*"
 └── agents/         ← agent definitions
 
 .github/
-├── copilot-instructions.md   ← real file copy of .ai/rules/general.md
+├── copilot-instructions.md   ← symlink → ../.ai/rules/general.md
 └── instructions/
-    └── <name>.instructions.md  ← real file copies of .ai/rules/<name>.md
+    └── <name>.instructions.md  ← symlinks → ../../.ai/rules/<name>.md
 
 .claude/
 ├── CLAUDE.md                 ← symlink → ../.ai/rules/general.md
@@ -52,10 +48,11 @@ Use `applyTo: "**/*"` (and omit `paths`) for rules that apply to all files.
 
 1. **Create the canonical file** in `.ai/rules/<name>.md` with the appropriate frontmatter and content.
 
-2. **Copy to `.github/instructions/`** — do not use a symlink, copy the actual file content:
+2. **Create the Copilot symlink** in `.github/instructions/`:
 
    ```bash
-   cp .ai/rules/<name>.md .github/instructions/<name>.instructions.md
+   cd .github/instructions
+   ln -s ../../.ai/rules/<name>.md <name>.instructions.md
    ```
 
 3. **Create the Claude symlink** in `.claude/rules/`:
@@ -65,49 +62,49 @@ Use `applyTo: "**/*"` (and omit `paths`) for rules that apply to all files.
    ln -s ../../.ai/rules/<name>.md <name>.md
    ```
 
-4. If the rule applies to all files globally (like `general.md`), update the top-level files:
-   - Copy `.ai/rules/general.md` content to `.github/copilot-instructions.md` (real file)
-   - Update the `.claude/CLAUDE.md` symlink: `ln -sf ../.ai/rules/general.md .claude/CLAUDE.md`
+4. If the rule applies to all files globally (like `general.md`), update the top-level symlinks:
+   - `.github/copilot-instructions.md` → `../.ai/rules/general.md`
+   - `.claude/CLAUDE.md` → `../.ai/rules/general.md`
 
 ## Updating an existing rule
 
-1. Edit the canonical file in `.ai/rules/<name>.md`.
-2. Copy the updated content to `.github/instructions/<name>.instructions.md`:
-
-   ```bash
-   cp .ai/rules/<name>.md .github/instructions/<name>.instructions.md
-   ```
-
-The `.claude/rules/` symlinks automatically reflect the change in step 1 — no further action needed there.
+Edit the canonical file in `.ai/rules/<name>.md`. The symlinks in `.github/instructions/` and `.claude/rules/` automatically reflect the change — nothing else needs to be touched.
 
 ## Renaming a rule
 
 1. Rename the file in `.ai/rules/`.
-2. Update the `.github/instructions/` copy:
+2. Remove the old symlinks and recreate them pointing to the new filename:
 
    ```bash
-   rm .github/instructions/<old-name>.instructions.md
-   cp .ai/rules/<new-name>.md .github/instructions/<new-name>.instructions.md
-   ```
+   # In .github/instructions/
+   rm <old-name>.instructions.md
+   ln -s ../../.ai/rules/<new-name>.md <new-name>.instructions.md
 
-3. Update the `.claude/rules/` symlink:
-
-   ```bash
    # In .claude/rules/
    rm <old-name>.md
    ln -s ../../.ai/rules/<new-name>.md <new-name>.md
    ```
 
-4. Update any cross-references within other rule files that link to the renamed file by path.
+3. Update any cross-references within other rule files that link to the renamed file by path.
 
-## Path conventions
+## Symlink path conventions
 
-| Location | Type | Source |
-|---|---|---|
-| `.github/instructions/<name>.instructions.md` | Real file copy | `.ai/rules/<name>.md` |
-| `.github/copilot-instructions.md` | Real file copy | `.ai/rules/general.md` |
-| `.claude/rules/<name>.md` | Symlink | `../../.ai/rules/<name>.md` |
-| `.claude/CLAUDE.md` | Symlink | `../.ai/rules/general.md` |
+Symlink targets use **relative paths** from the symlink's location to the canonical file:
+
+| Symlink location | Target prefix |
+|---|---|
+| `.github/instructions/` | `../../.ai/rules/` |
+| `.claude/rules/` | `../../.ai/rules/` |
+| `.github/copilot-instructions.md` | `../.ai/rules/` |
+| `.claude/CLAUDE.md` | `../.ai/rules/` |
+
+## Propagation and symlinks
+
+The cross-repository propagation workflow reads `.github/instructions/` and `.github/copilot-instructions.md` via the GitHub API. Because the GitHub API returns symlink blob content verbatim (the raw target path string), a naïve script would push path strings instead of actual rule content to target repositories.
+
+The propagation script in this repository handles this correctly: when it encounters a symlink (Git mode `120000`) in the source tree, it resolves the target path and substitutes the real file's SHA before propagating. This means **symlinks work as expected** — target repositories receive the actual instruction content, not path strings.
+
+Both `.claude/` and `.github/instructions/` therefore use symlinks consistently. There is no need to maintain real file copies anywhere.
 
 ## Shared workflows
 

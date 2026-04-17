@@ -1,5 +1,13 @@
 name: Propagate Copilot Instructions
 
+# Propagates Copilot instruction changes to all other Cratis repositories.
+# Unlike most repos in the organization this workflow runs its propagation
+# script locally (from .github/scripts/) rather than delegating to the
+# reusable workflow in Cratis/Workflows.  This is because .github/instructions/
+# files here are Git symlinks pointing into .ai/rules/, and the local script
+# resolves those symlinks before propagating so target repos receive the real
+# instruction content rather than bare path strings.
+
 on:
   push:
     branches: ["main"]
@@ -14,9 +22,74 @@ on:
       - ".github/hooks/**"
   workflow_dispatch:
 
+env:
+  # Repositories to skip when propagating Copilot instructions.
+  REPOS_TO_IGNORE: '["Workflows","cratis.github.io","StudioIssues"]'
+
+permissions:
+  contents: read
+
 jobs:
+  get-repos:
+    runs-on: ubuntu-latest
+    if: ${{ github.repository_owner == 'Cratis' }}
+    outputs:
+      repos: ${{ steps.list-repos.outputs.repos }}
+
+    steps:
+      - name: Get all Cratis repositories
+        id: list-repos
+        env:
+          GH_TOKEN: ${{ secrets.PAT_WORKFLOWS }}
+          SOURCE_REPO: ${{ github.repository }}
+          HEAD_SHA: ${{ github.sha }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          source_name="${SOURCE_REPO##*/}"
+
+          # Skip propagation when the triggering commit is itself a Copilot sync
+          # commit to prevent a repo from re-propagating content it just received.
+          # Manual triggers (workflow_dispatch) always proceed.
+          actual_event=$(gh api "repos/${SOURCE_REPO}/actions/runs/${GITHUB_RUN_ID}" \
+            --jq '.event' 2>/dev/null || true)
+          if [ -z "$actual_event" ]; then
+            actual_event="${EVENT_NAME:-push}"
+          fi
+
+          if [ "$actual_event" != "workflow_dispatch" ]; then
+            commit_msg=$(gh api "repos/${SOURCE_REPO}/git/commits/${HEAD_SHA}" \
+              --jq '.message' 2>/dev/null || true)
+            if echo "$commit_msg" | grep -qiE '^Sync Copilot instructions from'; then
+              echo "ℹ Skipping propagation: the triggering commit is a Copilot sync commit — no further propagation needed."
+              echo "repos=[]" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          fi
+
+          repos=$(gh repo list Cratis --limit 1000 --json name,isArchived \
+            | jq -c --arg src "$source_name" --argjson ignore "$REPOS_TO_IGNORE" \
+            '[.[] | select(.isArchived == false) | .name
+              | select(. != $src)
+              | select(. as $n | ($ignore | index($n)) == null)]')
+          echo "repos=$repos" >> "$GITHUB_OUTPUT"
+
   propagate:
-    uses: Cratis/Workflows/.github/workflows/propagate-copilot-instructions.yml@main
-    with:
-      event_name: ${{ github.event_name }}
-    secrets: inherit
+    needs: get-repos
+    if: ${{ needs.get-repos.outputs.repos != '[]' }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        repo: ${{ fromJson(needs.get-repos.outputs.repos) }}
+      fail-fast: false
+
+    steps:
+      - name: Checkout AI repository
+        uses: actions/checkout@v4
+
+      - name: Propagate Copilot instructions to ${{ matrix.repo }}
+        env:
+          GH_TOKEN: ${{ secrets.PAT_WORKFLOWS }}
+          SOURCE_REPO: ${{ github.repository }}
+          TARGET_REPO: ${{ matrix.repo }}
+        run: |
+          bash .github/scripts/propagate-copilot-instructions.sh
