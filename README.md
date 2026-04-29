@@ -181,12 +181,67 @@ VS Code 1.110+ supports generating customization files from conversation context
 - `/create-prompt` — Generate a reusable prompt
 - `/create-agent` — Create a specialized agent persona
 
+## Recommended VS Code settings
+
+These settings enhance the AI-assisted development experience for Cratis projects. Add them to your `.vscode/settings.json` or user settings:
+
+```jsonc
+{
+    // Ensure instruction files are loaded during code generation
+    "github.copilot.chat.codeGeneration.useInstructionFiles": true,
+
+    // AI co-author attribution — records AI contributions in git commits
+    "git.addAICoAuthor": "chatAndAgent",
+
+    // Terminal sandboxing — safer agent-driven terminal operations
+    "chat.tools.terminal.sandbox.enabled": true,
+
+    // Agentic browser tools — let agents verify frontend changes in-browser
+    // Enable when working on React components to let agents test UI
+    "workbench.browser.enableChatTools": true,
+
+    // Collapsible terminal output — reduces chat clutter during multi-step builds
+    "chat.tools.terminal.simpleCollapsible": true,
+
+    // OS notifications — get notified when agent needs confirmation
+    "chat.notifyWindowOnConfirmation": "always"
+}
+```
+
 ## Updating this repo
 
-When adding new instruction files, skills, agents, or hooks:
-1. Add the file in the appropriate folder.
-2. If it is an instruction file, set the `applyTo` glob in the YAML front matter.
-3. If it is a hook, set the `on:` lifecycle event in the YAML front matter (`agentStop`, `preToolUse`, etc.).
-4. Update `copilot-instructions.md` "Detailed Guides" section to reference it.
-5. Update relevant agents if they should read the new file.
-6. Update this README to reflect the new artifact.
+All canonical content lives in `.ai/`. Never edit files under `.github/` or `.claude/` directly — they are all symlinks.
+
+### Adding a new rule/instruction file
+
+1. Create the file in `.ai/rules/<name>.md` with YAML front matter:
+   ```yaml
+   ---
+   applyTo: "**/*.cs"   # for GitHub Copilot
+   paths:               # for Claude Code (omit for global rules)
+     - "**/*.cs"
+   ---
+   ```
+2. Create the GitHub Copilot symlink (note the required `.instructions.md` suffix):
+   ```bash
+   cd .github/instructions
+   ln -s ../../.ai/rules/<name>.md <name>.instructions.md
+   ```
+3. Create the Claude Code symlink:
+   ```bash
+   cd .claude/rules
+   ln -s ../../.ai/rules/<name>.md <name>.md
+   ```
+4. Update the `general.md` "Detailed Guides" section to reference the new file.
+5. Update this README table.
+
+### Adding a new skill, agent, prompt, or hook
+
+1. Add the file or folder directly in the appropriate `.ai/` subfolder (`skills/`, `agents/`, `prompts/`, `hooks/`).
+2. The `.github/` and `.claude/` folder symlinks pick it up automatically — no further changes needed.
+
+### Renaming or removing artifacts
+
+1. Rename or delete the file in `.ai/`.
+2. Update the individual symlinks in `.github/instructions/` and `.claude/rules/` for rules (these are per-file symlinks due to the `.instructions.md` suffix requirement).
+3. For agents, prompts, skills, and hooks the folder-level symlinks resolve automatically.
