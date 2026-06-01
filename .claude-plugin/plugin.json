@@ -1,0 +1,11 @@
+{
+  "name": "cratis-ai",
+  "description": "Cratis AI shared agent customizations for GitHub Copilot and Claude Code",
+  "version": "1.0.0",
+  "author": {
+    "name": "Cratis"
+  },
+  "skills": ".ai/skills",
+  "agents": ".ai/agents",
+  "hooks": ".ai/hooks"
+}

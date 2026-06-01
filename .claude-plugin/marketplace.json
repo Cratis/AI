@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "cratis-ai-plugins",
+  "version": "1.0.0",
+  "description": "Cratis AI plugins for Claude Code and VS Code agent mode",
+  "owner": {
+    "name": "Cratis"
+  },
+  "plugins": [
+    {
+      "name": "cratis-ai",
+      "description": "Cratis AI shared agent customizations for Cratis-based repositories",
+      "version": "1.0.0",
+      "source": ".",
+      "category": "development"
+    }
+  ]
+}

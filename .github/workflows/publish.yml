@@ -1,0 +1,55 @@
+name: Publish Plugins
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate plugin manifests
+        shell: bash
+        run: |
+          set -euo pipefail
+          jq -e '.name == "cratis-ai"' plugin.json >/dev/null
+          jq -e '.name == "cratis-ai"' .claude-plugin/plugin.json >/dev/null
+          jq -e '.plugins | length == 1' .claude-plugin/marketplace.json >/dev/null
+
+      - name: Build plugin artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/cratis-ai
+          cp -R .ai out/cratis-ai/
+          cp README.md LICENSE plugin.json out/cratis-ai/
+          mkdir -p out/cratis-ai/.claude-plugin
+          cp .claude-plugin/plugin.json out/cratis-ai/.claude-plugin/plugin.json
+          cp .claude-plugin/marketplace.json out/cratis-ai/.claude-plugin/marketplace.json
+          tar -czf out/cratis-ai-plugin.tgz -C out cratis-ai
+          (cd out && zip -rq cratis-ai-plugin.zip cratis-ai)
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: cratis-ai-plugin
+          path: |
+            out/cratis-ai-plugin.tgz
+            out/cratis-ai-plugin.zip
+            .claude-plugin/marketplace.json
+
+      - name: Attach assets to release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            out/cratis-ai-plugin.tgz
+            out/cratis-ai-plugin.zip
+            .claude-plugin/marketplace.json

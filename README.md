@@ -119,6 +119,17 @@ Quick-invoke prompt templates (slash commands in Copilot, prompt files in Claude
 
 `new-vertical-slice`, `scaffold-feature`, `add-concept`, `add-projection`, `add-reactor`, `add-business-rule`, `add-ef-migration`, `review-pr`, `write-documentation`, `write-specs`
 
+## Plugin packaging and publishing
+
+This repository is also packaged as an agent plugin with the idiomatic plugin name `cratis-ai`.
+
+- `plugin.json` - Copilot/VS Code agent plugin manifest.
+- `.claude-plugin/plugin.json` - Claude-format plugin manifest.
+- `.claude-plugin/marketplace.json` - Marketplace descriptor that lists `cratis-ai`.
+- `.github/workflows/publish.yml` - Builds `cratis-ai-plugin.tgz` and `cratis-ai-plugin.zip`, then uploads them as workflow/release artifacts together with the marketplace manifest.
+
+This keeps the plugin consumable for both Claude Code plugin marketplaces and VS Code agent plugin marketplaces.
+
 ## How it works
 
 - **Rules/Instructions** are attached automatically based on the file-glob patterns in their YAML front matter. When you open a `.cs` file, `csharp.md` is loaded; when you edit inside `Features/`, `vertical-slices.md` is loaded; and so on. GitHub Copilot reads these from `.github/instructions/` (where each file carries the required `.instructions.md` suffix); Claude Code reads them from `.claude/rules/`.
