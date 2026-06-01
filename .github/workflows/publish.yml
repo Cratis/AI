@@ -106,3 +106,35 @@ jobs:
             out/${{ env.PLUGIN_NAME }}-plugin.tgz
             out/${{ env.PLUGIN_NAME }}-plugin.zip
             .claude-plugin/marketplace.json
+
+      - name: Publish to VS Code Copilot marketplace
+        shell: bash
+        env:
+          COPILOT_MARKETPLACE_PUBLISH_URL: ${{ secrets.COPILOT_MARKETPLACE_PUBLISH_URL }}
+          COPILOT_MARKETPLACE_TOKEN: ${{ secrets.COPILOT_MARKETPLACE_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "$COPILOT_MARKETPLACE_PUBLISH_URL"
+          test -n "$COPILOT_MARKETPLACE_TOKEN"
+          auth_token="$COPILOT_MARKETPLACE_TOKEN"
+          curl -fsSL \
+            -X POST "$COPILOT_MARKETPLACE_PUBLISH_URL" \
+            -H "X-Marketplace-Token: $auth_token" \
+            -F "plugin=@out/$PLUGIN_NAME-plugin.tgz;type=application/gzip" \
+            -F "version=${{ needs.release.outputs.version }}"
+
+      - name: Publish to Claude marketplace
+        shell: bash
+        env:
+          CLAUDE_MARKETPLACE_PUBLISH_URL: ${{ secrets.CLAUDE_MARKETPLACE_PUBLISH_URL }}
+          CLAUDE_MARKETPLACE_TOKEN: ${{ secrets.CLAUDE_MARKETPLACE_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "$CLAUDE_MARKETPLACE_PUBLISH_URL"
+          test -n "$CLAUDE_MARKETPLACE_TOKEN"
+          auth_token="$CLAUDE_MARKETPLACE_TOKEN"
+          curl -fsSL \
+            -X POST "$CLAUDE_MARKETPLACE_PUBLISH_URL" \
+            -H "X-Marketplace-Token: $auth_token" \
+            -F "plugin=@out/$PLUGIN_NAME-plugin.zip;type=application/zip" \
+            -F "version=${{ needs.release.outputs.version }}"

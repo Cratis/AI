@@ -11,26 +11,36 @@ The workflow at `.github/workflows/publish.yml` currently:
 3. Builds `cratis-plugin.tgz` and `cratis-plugin.zip`
 4. Uploads both files as workflow artifacts
 5. Attaches both files (and marketplace metadata) to the generated GitHub release tag (`v<version>`)
-
-No additional token is required for these steps beyond the repository-provided `GITHUB_TOKEN`.
+6. Publishes to the VS Code Copilot marketplace endpoint
+7. Publishes to the Claude marketplace endpoint
 
 ## Credentials needed for marketplace publishing
 
-Marketplace publication requires separate credentials per marketplace. Store these as **GitHub Actions repository secrets**:
+Marketplace publication requires separate credentials and publish endpoints per marketplace. Store these as **GitHub Actions repository secrets**:
 
 - Repository secrets UI: https://github.com/Cratis/AI/settings/secrets/actions
 - GitHub docs for Actions secrets: https://docs.github.com/actions/security-guides/using-secrets-in-github-actions
 
-### VS Code Marketplace / Visual Studio Marketplace
+### VS Code Copilot marketplace
 
-If you automate publishing there, create a publisher and Personal Access Token (PAT), then save it as a repository secret (for example `VSCE_PAT`).
+Configure:
+
+- `COPILOT_MARKETPLACE_PUBLISH_URL` - The marketplace publish API endpoint URL
+- `COPILOT_MARKETPLACE_TOKEN` - The token for that endpoint
+
+The publish workflow sends `cratis-plugin.tgz` with a multipart request (`plugin` + `version` fields) to this endpoint.
 
 - Publishing guide: https://code.visualstudio.com/api/working-with-extensions/publishing-extension
 - Create/manage PAT: https://learn.microsoft.com/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate
 
 ### Claude plugin marketplace
 
-If you automate publishing there, create the marketplace/publisher token in the Claude platform and store it as a repository secret (for example `CLAUDE_MARKETPLACE_TOKEN`).
+Configure:
+
+- `CLAUDE_MARKETPLACE_PUBLISH_URL` - The marketplace publish API endpoint URL
+- `CLAUDE_MARKETPLACE_TOKEN` - The token for that endpoint
+
+The publish workflow sends `cratis-plugin.zip` with a multipart request (`plugin` + `version` fields) to this endpoint.
 
 - Claude Code plugins documentation: https://docs.anthropic.com/en/docs/claude-code/plugins
 
@@ -43,4 +53,4 @@ If you automate publishing there, create the marketplace/publisher token in the 
 2. Create/rotate marketplace credentials
 3. Store credentials in repository secrets
 4. Trigger the publish workflow (manual or merged PR flow) and confirm release assets are attached
-5. Publish to each marketplace using its official publish flow
+5. Confirm both marketplace publish calls succeed
