@@ -6,10 +6,11 @@ This page describes what must be configured before publishing `cratis` plugin ar
 
 The workflow at `.github/workflows/publish.yml` currently:
 
-1. Validates plugin manifests
-2. Builds `cratis-plugin.tgz` and `cratis-plugin.zip`
-3. Uploads both files as workflow artifacts
-4. Attaches both files to the published GitHub release
+1. Runs the repository standard release flow using `cratis/release-action@v1` to determine the release version and whether publishing should happen
+2. Validates plugin manifests
+3. Builds `cratis-plugin.tgz` and `cratis-plugin.zip`
+4. Uploads both files as workflow artifacts
+5. Attaches both files (and marketplace metadata) to the generated GitHub release tag (`v<version>`)
 
 No additional token is required for these steps beyond the repository-provided `GITHUB_TOKEN`.
 
@@ -41,5 +42,5 @@ If you automate publishing there, create the marketplace/publisher token in the 
    - `.claude-plugin/marketplace.json`
 2. Create/rotate marketplace credentials
 3. Store credentials in repository secrets
-4. Publish a GitHub release and confirm artifacts are attached
+4. Trigger the publish workflow (manual or merged PR flow) and confirm release assets are attached
 5. Publish to each marketplace using its official publish flow

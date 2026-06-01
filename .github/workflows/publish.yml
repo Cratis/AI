@@ -1,18 +1,67 @@
 name: Publish Plugin
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
-  release:
-    types: [published]
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release'
+        required: true
+        default: '0.0.0'
+        type: string
+      release-notes:
+        description: 'Release notes'
+        required: true
+        default: 'No release notes'
+        type: string
+      logLevel:
+        description: 'Log level'
+        required: true
+        default: 'warning'
+        type: choice
+        options:
+          - info
+          - warning
+          - debug
+  pull_request:
+    types: [closed]
+    branches:
+      - '**'
+    paths:
+      - '**'
 
 permissions:
   contents: write
+  deployments: write
+  id-token: write
+
+env:
+  PLUGIN_NAME: cratis
 
 jobs:
-  publish:
+  release:
     runs-on: ubuntu-latest
-    env:
-      PLUGIN_NAME: cratis
+    outputs:
+      version: ${{ steps.release.outputs.version }}
+      publish: ${{ steps.release.outputs.should-publish }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Release
+        id: release
+        uses: cratis/release-action@v1
+        with:
+          version: ${{ github.event.inputs.version }}
+          release-notes: ${{ github.event.inputs.release-notes }}
+
+  publish:
+    if: needs.release.outputs.publish == 'true'
+    runs-on: ubuntu-latest
+    needs: [release]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -24,7 +73,7 @@ jobs:
           test -f LICENSE
           jq -e --arg plugin_name "$PLUGIN_NAME" '.name == $plugin_name' plugin.json
           jq -e --arg plugin_name "$PLUGIN_NAME" '.name == $plugin_name' .claude-plugin/plugin.json
-          jq -e '.plugins | length == 1' .claude-plugin/marketplace.json
+          jq -e --arg plugin_name "$PLUGIN_NAME" '.name == $plugin_name and (.plugins | length == 1) and .plugins[0].name == $plugin_name' .claude-plugin/marketplace.json
 
       - name: Build plugin artifacts
         shell: bash
@@ -42,16 +91,17 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: cratis-ai-plugin
+          name: plugin-artifacts
           path: |
             out/${{ env.PLUGIN_NAME }}-plugin.tgz
             out/${{ env.PLUGIN_NAME }}-plugin.zip
             .claude-plugin/marketplace.json
+          if-no-files-found: error
 
       - name: Attach assets to release
-        if: github.event_name == 'release'
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: v${{ needs.release.outputs.version }}
           files: |
             out/${{ env.PLUGIN_NAME }}-plugin.tgz
             out/${{ env.PLUGIN_NAME }}-plugin.zip

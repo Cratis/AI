@@ -126,7 +126,7 @@ This repository is also packaged as an agent plugin named `cratis`.
 - `plugin.json` - Root plugin manifest.
 - `.claude-plugin/plugin.json` - Claude-format plugin manifest.
 - `.claude-plugin/marketplace.json` - Marketplace descriptor that lists `cratis`.
-- `.github/workflows/publish.yml` - Builds `cratis-plugin.tgz` and `cratis-plugin.zip`, then uploads them as workflow/release artifacts together with the marketplace manifest.
+- `.github/workflows/publish.yml` - Uses `cratis/release-action@v1` for automated version/release handling, then builds `cratis-plugin.tgz` and `cratis-plugin.zip` and attaches them (plus marketplace metadata) to the generated release.
 
 This keeps the plugin consumable for both Claude Code plugin marketplaces and VS Code agent plugin marketplaces.
 
