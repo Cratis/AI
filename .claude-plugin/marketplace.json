@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
-  "name": "cratis-ai-plugins",
+  "name": "cratis-ai",
   "version": "1.0.0",
   "description": "Cratis AI plugins for Claude Code and VS Code agent mode",
   "owner": {

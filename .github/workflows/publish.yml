@@ -1,4 +1,4 @@
-name: Publish Plugins
+name: Publish Plugin
 
 on:
   release:
@@ -11,6 +11,8 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    env:
+      PLUGIN_NAME: cratis-ai
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -19,30 +21,31 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          jq -e '.name == "cratis-ai"' plugin.json >/dev/null
-          jq -e '.name == "cratis-ai"' .claude-plugin/plugin.json >/dev/null
-          jq -e '.plugins | length == 1' .claude-plugin/marketplace.json >/dev/null
+          test -f LICENSE
+          jq -e --arg plugin_name "$PLUGIN_NAME" '.name == $plugin_name' plugin.json
+          jq -e --arg plugin_name "$PLUGIN_NAME" '.name == $plugin_name' .claude-plugin/plugin.json
+          jq -e '.plugins | length == 1' .claude-plugin/marketplace.json
 
       - name: Build plugin artifacts
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p out/cratis-ai
-          cp -R .ai out/cratis-ai/
-          cp README.md LICENSE plugin.json out/cratis-ai/
-          mkdir -p out/cratis-ai/.claude-plugin
-          cp .claude-plugin/plugin.json out/cratis-ai/.claude-plugin/plugin.json
-          cp .claude-plugin/marketplace.json out/cratis-ai/.claude-plugin/marketplace.json
-          tar -czf out/cratis-ai-plugin.tgz -C out cratis-ai
-          (cd out && zip -rq cratis-ai-plugin.zip cratis-ai)
+          mkdir -p "out/$PLUGIN_NAME"
+          cp -R .ai "out/$PLUGIN_NAME/"
+          cp README.md LICENSE plugin.json "out/$PLUGIN_NAME/"
+          mkdir -p "out/$PLUGIN_NAME/.claude-plugin"
+          cp .claude-plugin/plugin.json "out/$PLUGIN_NAME/.claude-plugin/plugin.json"
+          cp .claude-plugin/marketplace.json "out/$PLUGIN_NAME/.claude-plugin/marketplace.json"
+          tar -czf "out/$PLUGIN_NAME-plugin.tgz" -C out "$PLUGIN_NAME"
+          (cd out && zip -rq "$PLUGIN_NAME-plugin.zip" "$PLUGIN_NAME")
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: cratis-ai-plugin
           path: |
-            out/cratis-ai-plugin.tgz
-            out/cratis-ai-plugin.zip
+            out/${{ env.PLUGIN_NAME }}-plugin.tgz
+            out/${{ env.PLUGIN_NAME }}-plugin.zip
             .claude-plugin/marketplace.json
 
       - name: Attach assets to release
@@ -50,6 +53,6 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            out/cratis-ai-plugin.tgz
-            out/cratis-ai-plugin.zip
+            out/${{ env.PLUGIN_NAME }}-plugin.tgz
+            out/${{ env.PLUGIN_NAME }}-plugin.zip
             .claude-plugin/marketplace.json
