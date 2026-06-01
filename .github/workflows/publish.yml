@@ -114,12 +114,16 @@ jobs:
           COPILOT_MARKETPLACE_TOKEN: ${{ secrets.COPILOT_MARKETPLACE_TOKEN }}
         run: |
           set -euo pipefail
-          test -n "$COPILOT_MARKETPLACE_PUBLISH_URL"
-          test -n "$COPILOT_MARKETPLACE_TOKEN"
-          auth_token="$COPILOT_MARKETPLACE_TOKEN"
-          curl -fsSL \
+          test -n "$COPILOT_MARKETPLACE_PUBLISH_URL" || { echo "COPILOT_MARKETPLACE_PUBLISH_URL is not set"; exit 1; }
+          test -n "$COPILOT_MARKETPLACE_TOKEN" || { echo "COPILOT_MARKETPLACE_TOKEN is not set"; exit 1; }
+          umask 077
+          header_file="$(mktemp)"
+          trap 'rm -f "$header_file"' EXIT
+          chmod 600 "$header_file"
+          printf 'X-Marketplace-Token: %s\n' "$COPILOT_MARKETPLACE_TOKEN" > "$header_file"
+          curl -sS -L --fail-with-body \
             -X POST "$COPILOT_MARKETPLACE_PUBLISH_URL" \
-            -H "X-Marketplace-Token: $auth_token" \
+            -H @"$header_file" \
             -F "plugin=@out/$PLUGIN_NAME-plugin.tgz;type=application/gzip" \
             -F "version=${{ needs.release.outputs.version }}"
 
@@ -130,11 +134,15 @@ jobs:
           CLAUDE_MARKETPLACE_TOKEN: ${{ secrets.CLAUDE_MARKETPLACE_TOKEN }}
         run: |
           set -euo pipefail
-          test -n "$CLAUDE_MARKETPLACE_PUBLISH_URL"
-          test -n "$CLAUDE_MARKETPLACE_TOKEN"
-          auth_token="$CLAUDE_MARKETPLACE_TOKEN"
-          curl -fsSL \
+          test -n "$CLAUDE_MARKETPLACE_PUBLISH_URL" || { echo "CLAUDE_MARKETPLACE_PUBLISH_URL is not set"; exit 1; }
+          test -n "$CLAUDE_MARKETPLACE_TOKEN" || { echo "CLAUDE_MARKETPLACE_TOKEN is not set"; exit 1; }
+          umask 077
+          header_file="$(mktemp)"
+          trap 'rm -f "$header_file"' EXIT
+          chmod 600 "$header_file"
+          printf 'X-Marketplace-Token: %s\n' "$CLAUDE_MARKETPLACE_TOKEN" > "$header_file"
+          curl -sS -L --fail-with-body \
             -X POST "$CLAUDE_MARKETPLACE_PUBLISH_URL" \
-            -H "X-Marketplace-Token: $auth_token" \
+            -H @"$header_file" \
             -F "plugin=@out/$PLUGIN_NAME-plugin.zip;type=application/zip" \
             -F "version=${{ needs.release.outputs.version }}"
