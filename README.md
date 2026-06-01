@@ -121,12 +121,12 @@ Quick-invoke prompt templates (slash commands in Copilot, prompt files in Claude
 
 ## Plugin packaging and publishing
 
-This repository is also packaged as an agent plugin with the idiomatic plugin name `cratis-ai`.
+This repository is also packaged as an agent plugin named `cratis`.
 
-- `plugin.json` - Copilot/VS Code agent plugin manifest.
+- `plugin.json` - Root plugin manifest.
 - `.claude-plugin/plugin.json` - Claude-format plugin manifest.
-- `.claude-plugin/marketplace.json` - Marketplace descriptor that lists `cratis-ai`.
-- `.github/workflows/publish.yml` - Builds `cratis-ai-plugin.tgz` and `cratis-ai-plugin.zip`, then uploads them as workflow/release artifacts together with the marketplace manifest.
+- `.claude-plugin/marketplace.json` - Marketplace descriptor that lists `cratis`.
+- `.github/workflows/publish.yml` - Builds `cratis-plugin.tgz` and `cratis-plugin.zip`, then uploads them as workflow/release artifacts together with the marketplace manifest.
 
 This keeps the plugin consumable for both Claude Code plugin marketplaces and VS Code agent plugin marketplaces.
 

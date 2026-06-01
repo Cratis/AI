@@ -12,6 +12,7 @@ This folder documents how the Cratis AI configuration is organized, the conventi
 | [Agents](./agents.md) | The team of agents, their roles, and the coordinator pattern for parallel work |
 | [Using the Orchestrator](./orchestrator.md) | How to use the orchestrator to coordinate multiple agents as a team |
 | [Instructions vs Skills](./instructions-vs-skills.md) | The clear distinction between "what/when" (instructions) and "how" (skills) |
+| [Marketplace Release Setup](./marketplace-release-setup.md) | Credentials, repository secrets, and release prerequisites for marketplace publishing |
 
 ## Quick orientation
 
