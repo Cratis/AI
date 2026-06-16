@@ -10,7 +10,7 @@ Write comprehensive BDD integration specs for a vertical slice command or query.
 Specs live **in the same slice folder** as the `.cs` file:
 
 ```
-Features/<Feature>/<Slice>/
+<Feature>/<Slice>/
 ├── <Slice>.cs
 └── when_<verb_phrase>/
     ├── and_<happy_scenario>.cs
