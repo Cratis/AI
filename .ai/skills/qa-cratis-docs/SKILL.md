@@ -23,7 +23,7 @@ Then **Read the PNG** to evaluate it. Crop/zoom with the `sharp` already in `nod
 node -e "require('sharp')('/tmp/es-dark.png').extract({left:300,top:600,width:900,height:500}).resize({width:1400}).toFile('/tmp/crop.png')"
 ```
 
-Build the page list from `web/src/generated/topics.json` + the site-level slugs. **The bar is aspire.dev** (`~/src/repos/aspire.dev/src/frontend`) — study its `site.css`/`mermaid.css` for the depth cues (gradient glows, framed diagrams, lifted cards) that `cratis.css` is built from.
+Build the page list from `web/src/generated/topics.json` + the site-level slugs. **The bar is aspire.dev** — study its frontend `site.css`/`mermaid.css` for the depth cues (gradient glows, framed diagrams, lifted cards) that `cratis.css` is built from.
 
 ## What to check on each page
 

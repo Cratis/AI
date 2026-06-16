@@ -256,7 +256,7 @@ When the toolbar is on the **right side** of the screen, fan out to the left:
 Render separate `Toolbar` instances to create distinct groups:
 
 ```tsx
-<div className='flex flex-col gap-2'>
+<div className='flex flex-column gap-2'>
     <Toolbar>
         <ToolbarButton icon='pi pi-arrow-up-left' tooltip='Select' />
         <ToolbarButton icon='pi pi-pencil' tooltip='Draw' />
