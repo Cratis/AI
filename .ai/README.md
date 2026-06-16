@@ -25,9 +25,13 @@ Every rule is one of: **Framework contract** (enforced by Arc/Chronicle source/a
 
 Each adapter resolves to its canonical `.ai/` file. It may be a **symlink** or a **path-reference file** (a small file whose body is the relative target path) — both forms are accepted; what matters is that it resolves to the right canonical file.
 
-- **GitHub Copilot** — `.github/copilot-instructions.md` → `.ai/rules/general.md`; `.github/instructions/*.instructions.md` → `.ai/rules/*`; `.github/{agents,prompts,skills,hooks}` are folder symlinks.
-- **Claude Code** — `.claude/CLAUDE.md` → `.ai/rules/general.md`; `.claude/rules/*` → `.ai/rules/*`; `.claude/{agents,prompts,skills,hooks}` are folder symlinks.
+Each tool has its own conventions, so adapters differ by surface (see `rules/managing-ai-rules.md` for the full table):
+
+- **GitHub Copilot** — `copilot-instructions.md` + `instructions/<n>.instructions.md` (rules); `agents/<n>.agent.md` (per-file, `.agent.md` suffix); `prompts/` + `skills/` (folder symlinks); hooks as `.github/hooks/*.json`.
+- **Claude Code** — `CLAUDE.md` + `rules/<n>.md` (rules); `commands/<n>.md` (slash commands, from `.ai/prompts`); `agents/` + `skills/` (folder symlinks); hooks in `.claude/settings.json`.
 - **Codex** — root `AGENTS.md` → `.ai/rules/general.md`; `.agents/skills` → `.ai/skills`.
+
+`.ai/hooks/*.md` are **lifecycle guidance**, not wired hooks (markdown isn't a hook format for either tool); enforce them via each tool's real hook mechanism above.
 
 ## Scoped rule frontmatter
 

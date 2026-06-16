@@ -19,31 +19,45 @@ applyTo: "**/*"
 ├── hooks/                       ← agent lifecycle hooks
 └── workflows/                   ← shared CI workflow files
 
-.github/                         ← GitHub Copilot integration (adapters only — do NOT edit)
+.github/                         ← GitHub Copilot adapters (do NOT edit)
 ├── copilot-instructions.md      ← path-reference → ../.ai/rules/general.md
 ├── instructions/
-│   └── <name>.instructions.md   ← path-reference file (or symlink) → ../../.ai/rules/<name>.md
-├── agents/                      ← symlink → ../.ai/agents
-├── prompts/                     ← symlink → ../.ai/prompts
-├── skills/                      ← symlink → ../.ai/skills
-└── hooks/                       ← symlink → ../.ai/hooks
+│   └── <name>.instructions.md   ← per-file adapter → ../../.ai/rules/<name>.md   (Copilot needs the .instructions.md suffix)
+├── agents/
+│   └── <name>.agent.md          ← per-file symlink → ../../.ai/agents/<name>.md   (Copilot needs the .agent.md suffix)
+├── prompts/                     ← folder symlink → ../.ai/prompts                (Copilot reads *.prompt.md)
+└── skills/                      ← folder symlink → ../.ai/skills
 
-.claude/                         ← Claude Code integration (symlinks only — do NOT edit)
+.claude/                         ← Claude Code adapters (do NOT edit)
 ├── CLAUDE.md                    ← symlink → ../.ai/rules/general.md
 ├── rules/
-│   └── <name>.md                ← symlinks → ../../.ai/rules/<name>.md
-├── agents/                      ← symlink → ../.ai/agents
-├── prompts/                     ← symlink → ../.ai/prompts
-├── skills/                      ← symlink → ../.ai/skills
-└── hooks/                       ← symlink → ../.ai/hooks
+│   └── <name>.md                ← per-file symlink → ../../.ai/rules/<name>.md
+├── agents/                      ← folder symlink → ../.ai/agents                 (Claude reads <name>.md)
+├── commands/
+│   └── <name>.md                ← per-file symlink → ../../.ai/prompts/<name>.prompt.md   (Claude slash commands)
+└── skills/                      ← folder symlink → ../.ai/skills
+                                    (hooks: Claude wires them in .claude/settings.json — no folder adapter)
 
-.agents/                         ← Codex integration (adapters only — do NOT edit)
-└── skills/                      ← symlink → ../.ai/skills
+.agents/                         ← Codex adapters (do NOT edit)
+└── skills/                      ← folder symlink → ../.ai/skills
 
 AGENTS.md                        ← Codex root instructions → .ai/rules/general.md
 ```
 
-Note: `agents/`, `prompts/`, `skills/`, and `hooks/` are **folder-level** symlinks — adding, renaming, or removing files inside `.ai/` is immediately visible to every tool (Codex's `.agents/skills` included). Only `rules/` uses individual per-file adapters (because GitHub Copilot requires the `.instructions.md` suffix — a rename at the adapter level). In this repo those Copilot adapters are **path-reference files** (a small file whose body is the relative target path); a symlink works too. The validator (`hooks/scripts/validate-ai-setup.sh`) accepts either form as long as it resolves to the right rule.
+**Each tool has its own conventions, so adapters differ by surface** (verified against each tool's docs):
+
+| Surface | Copilot | Claude Code | Codex |
+|---|---|---|---|
+| Root instructions | `copilot-instructions.md` → `general.md` | `CLAUDE.md` → `general.md` | `AGENTS.md` → `general.md` |
+| Scoped rules | `instructions/<n>.instructions.md` (per-file) | `rules/<n>.md` (per-file) | — |
+| Agents | `agents/<n>.agent.md` (per-file, `.agent.md` suffix) | `agents/` (folder symlink, `<n>.md`) | — |
+| Prompts / commands | `prompts/` (folder symlink, `*.prompt.md`) | `commands/<n>.md` (per-file) | — |
+| Skills | `skills/` (folder symlink) | `skills/` (folder symlink) | `.agents/skills/` (folder symlink) |
+| Hooks | `.github/hooks/*.json` | `.claude/settings.json` | — |
+
+Folder symlinks (skills both sides, Copilot prompts, Claude agents) pick up additions/renames automatically. The per-file adapters (rules, Copilot agents, Claude commands) are needed because the tool requires a different filename suffix/location than the canonical source — so a new rule/agent/prompt needs its matching per-file adapter created (see below). The validator (`hooks/scripts/validate-ai-setup.sh`) checks each adapter resolves to the right canonical file (symlink or path-reference file are both accepted).
+
+> **Hooks are not folder adapters.** Markdown is not a hook format for either tool — `.ai/hooks/*.md` are *lifecycle guidance*. Enforce them per tool: Claude via `.claude/settings.json` (`Stop`, `PreToolUse`, …); Copilot via `.github/hooks/*.json` (`sessionStart`/`sessionEnd`/`userPromptSubmitted`).
 
 ## Rule file format
 
@@ -94,7 +108,20 @@ Edit the canonical file in `.ai/rules/<name>.md`. **Do not touch anything in `.g
 
 ## Updating agents, prompts, skills, or hooks
 
-Add, edit, or remove files directly inside the relevant `.ai/` subfolder (`agents/`, `prompts/`, `skills/`, `hooks/`). The folder-level symlinks in `.github/` and `.claude/` pick up the changes automatically — no further steps needed. **Never create or edit these files inside `.github/` or `.claude/` directly.**
+Always edit the canonical file in the relevant `.ai/` subfolder — never the adapters. Whether you need a new adapter depends on the surface:
+
+- **Skills** (`.ai/skills/<n>/SKILL.md`) — folder symlinks on all three sides pick up new/renamed skills automatically. No adapter step.
+- **Agents** (`.ai/agents/<n>.md`) — Claude's `.claude/agents` folder symlink is automatic, but **Copilot needs a per-file `.agent.md` adapter**:
+  ```bash
+  ln -s ../../.ai/agents/<n>.md .github/agents/<n>.agent.md
+  ```
+- **Prompts** (`.ai/prompts/<n>.prompt.md`) — Copilot's `.github/prompts` folder symlink is automatic, but **Claude needs a per-file command adapter**:
+  ```bash
+  ln -s ../../.ai/prompts/<n>.prompt.md .claude/commands/<n>.md
+  ```
+- **Hooks** (`.ai/hooks/*.md`) — these are *guidance*, not wired hooks. To enforce, add the real artifact per tool (Claude `.claude/settings.json`; Copilot `.github/hooks/*.json`).
+
+Run `hooks/scripts/validate-ai-setup.sh` after adding an agent or prompt to confirm its adapter resolves.
 
 ## Renaming a rule
 
@@ -121,10 +148,12 @@ An adapter's target (the symlink target, or the path-reference file's body) uses
 |---|---|
 | `.github/instructions/<name>.instructions.md` | `../../.ai/rules/<name>.md` |
 | `.claude/rules/<name>.md` | `../../.ai/rules/<name>.md` |
+| `.github/agents/<name>.agent.md` | `../../.ai/agents/<name>.md` |
+| `.claude/commands/<name>.md` | `../../.ai/prompts/<name>.prompt.md` |
 | `.github/copilot-instructions.md` | `../.ai/rules/general.md` |
 | `.claude/CLAUDE.md` | `../.ai/rules/general.md` |
 | `AGENTS.md` (repo root, Codex) | `.ai/rules/general.md` |
-| `.agents/skills` (Codex) | `../.ai/skills` |
+| `.agents/skills`, `.github/prompts`, `.github/skills`, `.claude/agents`, `.claude/skills` (folder symlinks) | the matching `.ai/<sub>` folder |
 
 ## Propagation and adapters
 
