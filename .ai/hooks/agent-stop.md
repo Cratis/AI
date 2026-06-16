@@ -1,8 +1,10 @@
 ---
-on: agentStop
+lifecycle: session-stop
 ---
 
 # Agent Stop — Build, Specs, and Corpus Validation
+
+> **This is lifecycle guidance, not a wired tool hook.** Markdown is not a hook format for Copilot or Claude Code. To *enforce* it, wire it per tool to run the repo's build/test command — Claude Code: a `Stop` hook in `.claude/settings.json`; GitHub Copilot: a `sessionEnd` entry in a `.github/hooks/*.json` file. The steps below are what that hook (or the agent) should do.
 
 When the agent finishes a session, verify the work against **fresh signals** before stopping — never against self-assessment. Pick the path that matches the repository.
 

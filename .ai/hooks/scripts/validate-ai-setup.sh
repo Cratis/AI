@@ -1,9 +1,13 @@
 #!/usr/bin/env bash
-# Validates the AI corpus in this repo: structural integrity (frontmatter), adapter
-# health (GitHub path-references, Claude/Codex symlinks), and a set of content drift
-# guards. Structural/adapter/Codex checks are FATAL; content drift guards are WARNINGS
-# (heuristic — they surface likely regressions without blocking). Portable: needs only
-# bash + grep + sed (no ripgrep). Run from anywhere; it cd's to the repo root.
+# Validates the AI corpus in this repo: structural integrity (frontmatter) and adapter
+# health for each tool's actual conventions —
+#   Copilot: .github/copilot-instructions.md, .github/instructions/<n>.instructions.md (applyTo),
+#            .github/agents/<n>.agent.md, .github/prompts (folder), .github/skills (folder)
+#   Claude:  .claude/CLAUDE.md, .claude/rules/<n>.md (paths), .claude/agents (folder),
+#            .claude/commands/<n>.md, .claude/skills (folder)   [hooks live in .claude/settings.json]
+#   Codex:   AGENTS.md, .agents/skills (folder)
+# plus a set of content drift guards. Structural/adapter/Codex checks are FATAL; drift guards are
+# WARNINGS. Portable: needs only bash + grep + sed (no ripgrep). Run from anywhere; it cd's to root.
 set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
@@ -69,11 +73,32 @@ for gh in .github/instructions/*.instructions.md; do
     [[ -f "$target" ]] || fail "$gh: adapter points at missing rule $target"
 done
 
-# ── Folder-level symlinks for agents/prompts/skills/hooks ──
-for link in .github/agents .github/prompts .github/skills .github/hooks \
-            .claude/agents .claude/prompts .claude/skills .claude/hooks; do
+# ── Folder-level symlinks each tool consumes directly (same convention both sides) ──
+#    Copilot: prompts (.github/prompts/*.prompt.md), skills (.github/skills/<n>/SKILL.md).
+#    Claude:  agents (.claude/agents/<n>.md), skills (.claude/skills/<n>/SKILL.md).
+for link in .github/prompts .github/skills .claude/agents .claude/skills; do
     if [[ ! -e "$link" ]]; then fail "missing link path: $link"
     elif [[ ! -L "$link" ]]; then fail "expected symlink but found regular path: $link"; fi
+done
+
+# ── Copilot custom-agent adapters: Copilot requires .github/agents/<name>.agent.md
+#    (the .agent.md suffix); the Claude side uses the .claude/agents folder symlink above. ──
+for agent in .ai/agents/*.md; do
+    [[ -e "$agent" ]] || continue
+    name="$(basename "$agent" .md)"
+    gh=".github/agents/$name.agent.md"; expected="../../.ai/agents/$name.md"
+    if [[ ! -e "$gh" ]]; then fail "$gh: missing Copilot agent adapter (.agent.md suffix required)"
+    elif [[ "$(adapter_target "$gh")" != "$expected" ]]; then fail "$gh: expected target '$expected'"; fi
+done
+
+# ── Claude slash-command adapters: Claude reads commands from .claude/commands/<name>.md
+#    (not .claude/prompts); the Copilot side uses the .github/prompts folder symlink. ──
+for prompt in .ai/prompts/*.prompt.md; do
+    [[ -e "$prompt" ]] || continue
+    name="$(basename "$prompt" .prompt.md)"
+    cl=".claude/commands/$name.md"; expected="../../.ai/prompts/$name.prompt.md"
+    if [[ ! -e "$cl" ]]; then fail "$cl: missing Claude command adapter"
+    elif [[ "$(adapter_target "$cl")" != "$expected" ]]; then fail "$cl: expected target '$expected'"; fi
 done
 
 # ── General-rule root adapters ──
