@@ -4,9 +4,9 @@ applyTo: "**/*"
 
 # Managing AI Rules and Instructions
 
-`.ai/` is the **single source of truth** for all AI assistant configuration in this repository — rules, agents, prompts, skills, and hooks. Everything is written once in `.ai/` and surfaced to each AI tool through symlinks.
+`.ai/` is the **single source of truth** for all AI assistant configuration in this repository — rules, agents, prompts, skills, and hooks. Everything is written once in `.ai/` and surfaced to each AI tool through adapters: folder symlinks, per-file symlinks, or small **path-reference files** whose body is the relative path to the canonical source.
 
-> **Never edit files under `.github/` or `.claude/` directly.** Both folders are composed entirely of symlinks. Any direct edit would be lost the next time the symlink target changes, and would diverge from the canonical source.
+> **Never edit files under `.github/`, `.claude/`, `.agents/`, or the root `AGENTS.md` directly.** They are all adapters. Any direct edit would be lost the next time the canonical source changes, and would diverge from it.
 
 ## Folder structure
 
@@ -19,10 +19,10 @@ applyTo: "**/*"
 ├── hooks/                       ← agent lifecycle hooks
 └── workflows/                   ← shared CI workflow files
 
-.github/                         ← GitHub Copilot integration (symlinks only — do NOT edit)
-├── copilot-instructions.md      ← symlink → ../.ai/rules/general.md
+.github/                         ← GitHub Copilot integration (adapters only — do NOT edit)
+├── copilot-instructions.md      ← path-reference → ../.ai/rules/general.md
 ├── instructions/
-│   └── <name>.instructions.md   ← symlinks → ../../.ai/rules/<name>.md
+│   └── <name>.instructions.md   ← path-reference file (or symlink) → ../../.ai/rules/<name>.md
 ├── agents/                      ← symlink → ../.ai/agents
 ├── prompts/                     ← symlink → ../.ai/prompts
 ├── skills/                      ← symlink → ../.ai/skills
@@ -36,9 +36,14 @@ applyTo: "**/*"
 ├── prompts/                     ← symlink → ../.ai/prompts
 ├── skills/                      ← symlink → ../.ai/skills
 └── hooks/                       ← symlink → ../.ai/hooks
+
+.agents/                         ← Codex integration (adapters only — do NOT edit)
+└── skills/                      ← symlink → ../.ai/skills
+
+AGENTS.md                        ← Codex root instructions → .ai/rules/general.md
 ```
 
-Note: `agents/`, `prompts/`, `skills/`, and `hooks/` are **folder-level** symlinks — adding, renaming, or removing files inside `.ai/` is immediately visible to both tools. Only `rules/` uses individual per-file symlinks (because GitHub Copilot requires the `.instructions.md` suffix, which requires renaming at the symlink level).
+Note: `agents/`, `prompts/`, `skills/`, and `hooks/` are **folder-level** symlinks — adding, renaming, or removing files inside `.ai/` is immediately visible to every tool (Codex's `.agents/skills` included). Only `rules/` uses individual per-file adapters (because GitHub Copilot requires the `.instructions.md` suffix — a rename at the adapter level). In this repo those Copilot adapters are **path-reference files** (a small file whose body is the relative target path); a symlink works too. The validator (`hooks/scripts/validate-ai-setup.sh`) accepts either form as long as it resolves to the right rule.
 
 ## Rule file format
 
@@ -62,12 +67,13 @@ Use `applyTo: "**/*"` (and omit `paths`) for rules that apply to all files.
 
 1. **Create the canonical file** in `.ai/rules/<name>.md` with the appropriate frontmatter and content.
 
-2. **Create the Copilot symlink** in `.github/instructions/`:
+2. **Create the Copilot adapter** in `.github/instructions/` — a path-reference file whose body is the relative target:
 
    ```bash
-   cd .github/instructions
-   ln -s ../../.ai/rules/<name>.md <name>.instructions.md
+   printf '%s' "../../.ai/rules/<name>.md" > .github/instructions/<name>.instructions.md
    ```
+
+   (A symlink — `ln -s ../../.ai/rules/<name>.md <name>.instructions.md` — also resolves; the repo standardizes on path-reference files.)
 
 3. **Create the Claude symlink** in `.claude/rules/`:
 
@@ -76,9 +82,11 @@ Use `applyTo: "**/*"` (and omit `paths`) for rules that apply to all files.
    ln -s ../../.ai/rules/<name>.md <name>.md
    ```
 
-4. If the rule applies to all files globally (like `general.md`), update the top-level symlinks:
+4. If the rule applies to all files globally (like `general.md`), update the top-level adapters:
    - `.github/copilot-instructions.md` → `../.ai/rules/general.md`
    - `.claude/CLAUDE.md` → `../.ai/rules/general.md`
+
+5. **Codex needs no per-rule step** — it consumes only `AGENTS.md` (→ `general.md`) and `.agents/skills` (→ `.ai/skills`), both already wired. New skills are picked up automatically through the `.agents/skills` folder symlink.
 
 ## Updating an existing rule
 
@@ -94,35 +102,35 @@ Add, edit, or remove files directly inside the relevant `.ai/` subfolder (`agent
 2. Remove the old symlinks and recreate them pointing to the new filename:
 
    ```bash
-   # In .github/instructions/
+   # In .github/instructions/ (path-reference file)
    rm <old-name>.instructions.md
-   ln -s ../../.ai/rules/<new-name>.md <new-name>.instructions.md
+   printf '%s' "../../.ai/rules/<new-name>.md" > <new-name>.instructions.md
 
-   # In .claude/rules/
+   # In .claude/rules/ (symlink)
    rm <old-name>.md
    ln -s ../../.ai/rules/<new-name>.md <new-name>.md
    ```
 
 3. Update any cross-references within other rule files that link to the renamed file by path.
 
-## Symlink path conventions
+## Adapter path conventions
 
-Symlink targets use **relative paths** from the symlink's location to the canonical file:
+An adapter's target (the symlink target, or the path-reference file's body) uses a **relative path** from the adapter's location to the canonical file:
 
-| Symlink location | Target prefix |
+| Adapter location | Target |
 |---|---|
-| `.github/instructions/` | `../../.ai/rules/` |
-| `.claude/rules/` | `../../.ai/rules/` |
-| `.github/copilot-instructions.md` | `../.ai/rules/` |
-| `.claude/CLAUDE.md` | `../.ai/rules/` |
+| `.github/instructions/<name>.instructions.md` | `../../.ai/rules/<name>.md` |
+| `.claude/rules/<name>.md` | `../../.ai/rules/<name>.md` |
+| `.github/copilot-instructions.md` | `../.ai/rules/general.md` |
+| `.claude/CLAUDE.md` | `../.ai/rules/general.md` |
+| `AGENTS.md` (repo root, Codex) | `.ai/rules/general.md` |
+| `.agents/skills` (Codex) | `../.ai/skills` |
 
-## Propagation and symlinks
+## Propagation and adapters
 
-The cross-repository propagation workflow reads `.github/instructions/` and `.github/copilot-instructions.md` via the GitHub API. Because the GitHub API returns symlink blob content verbatim (the raw target path string), a naïve script would push path strings instead of actual rule content to target repositories.
+The cross-repository propagation workflow reads `.github/instructions/` and `.github/copilot-instructions.md` via the GitHub API. A symlink's blob (Git mode `120000`) and a path-reference file's body both contain the raw relative target path, so a naïve copy would push that path string rather than the real rule content to target repositories. The propagation script resolves Git symlinks (mode `120000`) to the target file's content before propagating.
 
-The propagation script in this repository handles this correctly: when it encounters a symlink (Git mode `120000`) in the source tree, it resolves the target path and substitutes the real file's SHA before propagating. This means **symlinks work as expected** — target repositories receive the actual instruction content, not path strings.
-
-Both `.claude/` and `.github/instructions/` therefore use symlinks consistently. There is no need to maintain real file copies anywhere.
+**Note:** the `.github/instructions/` adapters in this repo are path-reference files (mode `100644`), not symlinks. Ensuring the propagation script resolves *that* form to real content too — not just symlinks — is part of the separately-managed propagation mechanism; confirm it before relying on org-wide propagation. (The corpus content itself is independent of how propagation is wired.)
 
 ## Shared workflows
 

@@ -118,3 +118,11 @@ Contexts capture the "given" part of a specification — the world as it exists 
 
 - Keep assertions concise — prefer single-line assertions where the logic is readable.
 - Don't add blank lines between related assertions for the same behavior.
+
+## Language-specific guides
+
+This file is the shared base. For the concrete patterns:
+
+- [specs.csharp.md](./specs.csharp.md) — C#: the in-process scenario family (`CommandScenario`, `EventScenario`, `ReadModelScenario`, `ReactorScenario`), `Cratis.Specifications`, NSubstitute.
+- [specs.typescript.md](./specs.typescript.md) — TypeScript framework-package specs (`given()` helper).
+- [frontend-testing.md](./frontend-testing.md) — application frontend specs (view models, React components).
