@@ -1,5 +1,6 @@
 ---
 applyTo: "**/for_*/**/*.cs, **/when_*/**/*.cs"
+profile: application
 ---
 
 # Entity Framework Core Specs

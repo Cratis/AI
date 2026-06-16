@@ -1,5 +1,6 @@
 ---
 applyTo: "**/*.tsx"
+profile: application
 paths:
   - "**/*.tsx"
 ---
