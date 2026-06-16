@@ -1,28 +1,26 @@
 ---
 applyTo: "**/for_*/**/*.cs, **/when_*/**/*.cs"
+paths:
+  - "**/for_*/**/*.cs"
+  - "**/when_*/**/*.cs"
 ---
 
 # How to Write C# Specs
 
-Extends the base [Specs Instructions](./specs.instructions.md) with C#-specific conventions.
+Extends the base [specs.md](./specs.md) (folder structure, naming, philosophy) with C#-specific conventions. Specs are **mandatory for every slice type**, including reactors.
 
-The `Cratis.Specifications` library was built to maintain the approach, structure, and syntax of Machine.Specifications (MSpec) — a BDD framework that makes specs read like a human-language specification. The `Establish → Because → should_` flow maps directly to "Given → When → Then" and keeps specs focused on *one action, one setup, one set of assertions*.
+`Cratis.Specifications` keeps the approach of Machine.Specifications (MSpec): `Establish → Because → should_` maps to "Given → When → Then" and keeps each spec focused on *one setup, one action, one set of assertions*.
 
 ## Frameworks
 
-- [xUnit](https://xunit.net/) for test execution.
-- [NSubstitute](https://nsubstitute.github.io/) for mocking — chosen for its clean API that reads naturally.
-- [Cratis.Specifications](https://github.com/Cratis/Specifications) for BDD-style specification by example.
-- Spec projects are named `<Source>.Specs` (e.g. `Infrastructure.Specs`).
+- [xUnit](https://xunit.net/) for execution.
+- [Cratis.Specifications](https://github.com/Cratis/Specifications) for BDD specification by example — the `Specification` base class discovers `Establish`/`Because`/`Destroy` by convention (no attributes).
+- [NSubstitute](https://nsubstitute.github.io/) for mocking collaborators.
+- Spec projects are named `<Source>.Specs`.
 
-## Base Class
+## BDD pattern
 
-`Specification` from `Cratis.Specifications` must be at the root of every spec's inheritance chain.
-It discovers `Establish`, `Because`, and `Destroy` methods by convention — no attributes needed.
-
-## BDD Pattern
-
-The three-phase pattern makes every spec self-explanatory: `Establish` sets up the world, `Because` performs the single action under test, and `should_*` facts verify individual outcomes. No test framework attributes are needed on `Establish` or `Because` — `Cratis.Specifications` discovers them by convention.
+`Establish` sets up the world, `Because` performs the single action under test, `should_*` facts verify individual outcomes. Any method can be `async Task`.
 
 ```csharp
 public class when_combining_parts : Specification
@@ -31,7 +29,6 @@ public class when_combining_parts : Specification
     string _result;
 
     void Establish() => _parts = ["First", "Second", "Third"];
-
     void Because() => _result = KeyHelper.Combine(_parts);
 
     [Fact] void should_combine_all_parts() => _result.ShouldEqual("First+Second+Third");
@@ -40,152 +37,127 @@ public class when_combining_parts : Specification
 
 | Method | Purpose | Notes |
 |---|---|---|
-| `void Establish()` | Setup — called before `Because()` | Each class in the chain gets its own, called base-first |
-| `void Because()` | The single action under test | Only in concrete spec files, never in reusable contexts |
-| `[Fact] void should_*()` | One assertion per fact | Use `ShouldXxx()` extension methods |
-| `void Destroy()` | Teardown after each test | |
+| `void Establish()` | setup, before `Because()` | each class in the chain has its own, run base-first — never call `base.Establish()` |
+| `void Because()` | the single action under test | only in concrete spec files, never in a reusable context |
+| `[Fact] void should_*()` | one assertion per fact | use the `ShouldXxx()` extension methods |
+| `void Destroy()` | teardown after each test | |
 
-All methods can be `async Task` when needed.
+## Lead with the in-process scenario family
 
-## Reusable Context Pattern
+For Cratis application behavior, prefer the four in-process scenario helpers over full out-of-process Chronicle host specs. They target different concerns and are additive.
 
-Layered contexts build on each other like building blocks. The base layer mocks all dependencies, the next layer creates the system under test, and each spec only adds what's unique to its scenario. This eliminates setup duplication while keeping every spec self-contained.
+| Tool | Tests | Use when |
+|---|---|---|
+| `Specification` (unit) | an isolated class with mocked collaborators | pure function / injected services to mock |
+| `CommandScenario<TCommand>` | the real Arc command pipeline — authorization + validators + `Provide()` + `Handle()` + appended events | **default for State Change slices** |
+| `EventScenario` | Chronicle-level append semantics, no command pipeline | constraint violations, raw stream sequencing/concurrency |
+| `ReadModelScenario<TReadModel>` | projection/reducer state from a sequence of events (auto-detects model-bound / fluent / reducer) | **default for State View slices** |
+| `ReactorScenario<TReactor>` | reactor handler invocation + side effects via mocked services | Automation / Translation slices |
+
+> **Out-of-process Chronicle integration specs are an advanced case** — reserve them for host wiring, real infrastructure, serialization/transport, or end-to-end boundaries the scenario helpers can't exercise. They are not the default vertical-slice test shape.
+
+**Every spec file is wrapped in `#if DEBUG … #endif`** so spec code ships only in Debug (the Debug build gate validates it; the Release build regenerates proxies).
+
+### `CommandScenario<TCommand>` — State Change default
+
+Runs authorization, validators, `Provide()` (when present), and `Handle()` in-process, and exposes the appended events.
 
 ```csharp
-// for_Changeset/given/a_changeset.cs
-namespace MyApp.Changes.for_Changeset.given;
+#if DEBUG
+namespace MyApp.Authors.Registration.when_registering_an_author;
 
-public class a_changeset : Specification
+public class and_all_information_is_valid : Specification
 {
-    protected IObjectComparer _comparer;
-    protected Changeset<object, ExpandoObject> _changeset;
+    readonly CommandScenario<RegisterAuthor> _scenario = new();
+    readonly AuthorId _id = AuthorId.New();
+    CommandResult _result;
 
-    void Establish()
-    {
-        _comparer = Substitute.For<IObjectComparer>();
-        _changeset = new(_comparer, new object(), new ExpandoObject());
-    }
+    async Task Because() => _result = await _scenario.Execute(new RegisterAuthor(_id, "Jane Austen"));
+
+    [Fact] void should_succeed() => _result.ShouldBeSuccessful();
+    [Fact] async Task should_have_appended_registered_event() =>
+        await _scenario.ShouldHaveAppendedEvent<RegisterAuthor, AuthorRegistered>(_id, e => e.Name == "Jane Austen");
 }
+#endif
 ```
 
-```csharp
-// for_Changeset/when_adding_changes/and_there_are_differences.cs
-namespace MyApp.Changes.for_Changeset.when_adding_changes;
+- `CommandScenario<TCommand>` exposes `Services` (an `IServiceCollection`), `Context`, `Execute(command)`, and `Validate(command)` — and nothing else; everything else is configured through `Services` and asserted with extension methods.
+- **Event assertions are extension methods on the scenario** (from the Chronicle testing package), keyed by **command + event** type: `await _scenario.ShouldHaveAppendedEvent<TCommand, TEvent>(eventSourceId)` or the `(eventSourceId, Func<TEvent,bool> predicate)` overload; plus `await _scenario.ShouldHaveTailSequenceNumber<TCommand>(...)`. They return `Task`, so the fact is `async Task`.
+- **`CommandResult` assertions** (Arc extensions): `ShouldBeSuccessful()`, `ShouldNotBeSuccessful()`, `ShouldBeValid()`, `ShouldHaveValidationErrors()`, `ShouldHaveValidationErrorFor(message)`, `ShouldBeAuthorized()`, `ShouldNotBeAuthorized()`, `ShouldHaveExceptions()`/`ShouldNotHaveExceptions()`.
+- **Seed prior state through `_scenario.Services`** — there is no `Given`/`Events` on `CommandScenario`. To populate the DCB read models the validator/`Provide()`/`Handle()` inject, substitute `IReadModels` and register it (`_scenario.Services.Replace(new ServiceDescriptor(typeof(IReadModels), mock))`, mocking `GetInstanceById(...)`) or register projections with `_scenario.Services.AddReadModels(...)`.
+- **Validator/`Provide()` dependencies:** register them in `_scenario.Services`; Arc testing discovers the concrete validator automatically. When several specs need different injected validator states, test rejected variants by instantiating the validator directly (per-scenario state can be order-sensitive under parallel xUnit).
+- **`Provide()`:** drive it through `CommandScenario` end-to-end; when the handler's decision is pure given provided data, also test `Handle(providedValue)` directly.
 
-public class and_there_are_differences : given.a_changeset
+#### Validation-failure assertions — non-negotiable
+
+Every unhappy-path spec asserts **both**:
+
+```csharp
+[Fact] void should_not_succeed() => _result.ShouldNotBeSuccessful();
+[Fact] void should_have_validation_errors() => _result.ShouldHaveValidationErrors();
+```
+
+`ShouldNotBeSuccessful()` alone can't tell a validation rejection from an unhandled exception. **Never assert on message strings** — they're presentation text. Authorization failures use `ShouldNotBeAuthorized()` (an unauthorized result has *no* validation errors, so `ShouldHaveValidationErrors()` would silently flip). To exercise a command that carries authorization attributes, register the identity the authorization evaluator reads into `_scenario.Services` (substitute the identity provider your app uses). **Adding `[Roles]` to an existing command breaks its happy-path AND validation-failure `.Execute()` specs** — an unauthorized result is not successful and carries no validation errors; switch those assertions to `ShouldNotBeAuthorized()`.
+
+`CommandResult` assertions (from `Cratis.Arc.Testing.Commands`; failures throw `CommandResultAssertionException`): `ShouldBeSuccessful()` (`isAuthorized && isValid && !hasExceptions`), `ShouldNotBeSuccessful()`, `ShouldBeValid()` (no validation errors — does *not* check authz/exceptions), `ShouldHaveValidationErrors()`, `ShouldHaveValidationErrorFor(message)`, `ShouldBeAuthorized()`, `ShouldNotBeAuthorized()`, `ShouldHaveExceptions()`.
+
+> **Validator-state order-sensitivity:** the command-scenario pipeline can cache enough state to make injected-validator branches order-sensitive when xUnit runs classes in parallel. Use `CommandScenario` for the valid path, test rejected state-variants by **instantiating the validator directly**, and — only for that validator-state case — put the command's specs in a **small xUnit `[Collection]`**. (This is distinct from the unique-value-collision rule below, where `[Collection]` is the *wrong* fix.)
+
+### `EventScenario` — constraints & append semantics
+
+```csharp
+readonly EventScenario _scenario = new();
+IAppendResult _result;
+
+async Task Establish() =>
+    await _scenario.Given.ForEventSource(AuthorId.New()).Events(new AuthorRegistered("Jane Austen"));
+
+async Task Because() =>
+    _result = await _scenario.EventLog.Append(AuthorId.New(), new AuthorRegistered("Jane Austen"));
+
+[Fact] void should_be_failed() => _result.ShouldBeFailed();
+[Fact] void should_violate_unique_constraint() => _result.ShouldHaveConstraintViolationFor(AuthorConstraintNames.UniqueName);
+```
+
+`IAppendResult` assertions (failures throw `AppendResultAssertionException`): `ShouldBeSuccessful()`, `ShouldBeFailed()`, `ShouldHaveConstraintViolations()`/`ShouldNotHave…`, `ShouldHaveConstraintViolationFor(name)`, `ShouldHaveConcurrencyViolations()`/`ShouldNotHave…`, `ShouldHaveErrors()`/`ShouldNotHave…`. Assert the constraint **name**, never the message.
+
+### `ReadModelScenario<TReadModel>` — State View default
+
+Drives events into the projection/reducer and asserts the resulting state. Use xUnit `Assert.*` on `_scenario.Instance`.
+
+```csharp
+ReadModelScenario<Author> _scenario = null!;
+void Establish() => _scenario = new();
+
+async Task Because() =>
+    await _scenario.Given.ForEventSource(_id).Events(new AuthorRegistered("Jane Austen"), new AuthorArchived());
+
+[Fact] void should_be_archived() => Assert.True(_scenario.Instance!.IsArchived);
+```
+
+Use the named-parameter constructor when services/initial state are needed: `new ReadModelScenario<Author>(initialState: null, serviceProvider: services)`. Pre-seed a keyed read model with `Given.ForEventSourceId(id).ReadModel(instance)` for code that calls `IReadModels.GetInstanceById`. Cross-stream projections (`UsingKey`/`UsingParentKey`) are supported — seed each contributing stream with its own `Given.ForEventSource(...)`.
+
+**Bridging `IReadModels` into a `CommandScenario`** (current harness limitation): when a command handler injects `IReadModels` directly, build a focused `ReadModelScenario<T>`, seed it via `Given.ForEventSourceId(id).ReadModel(...)`, then register its read models into the command scenario — `_scenario.Services.AddSingleton(readModelScenario.ReadModels)`. Pass `scenario.ReadModels` into code under test for keyed `GetInstanceById` reads; for non-key searches/filters, register a fake lookup or an `IMongoCollection<T>` mock in the scenario services instead.
+
+**Skip discipline:** don't pre-emptively `[Fact(Skip=...)]` a read-model assertion — assume scalar `ConceptAs<string>`, enum, and identifier properties populate correctly; if one fails, investigate the projection. Only skip on a *reproduced* harness gap, and put the specific reason in the skip message.
+
+### `ReactorScenario<TReactor>` — Automation / Translation
+
+Construct with an `IServiceProvider` of NSubstitute mocks; assert on the mocks after `Given` fires events. Import `Cratis.Chronicle.Testing.Reactors;`.
+
+```csharp
+void Establish()
 {
-    bool _result;
-
-    void Establish() =>
-        _comparer.Compare(Arg.Any<object>(), Arg.Any<ExpandoObject>(), out Arg.Any<IEnumerable<PropertyDifference>>())
-            .Returns(true);
-
-    void Because() => _result = _changeset.HasChanges;
-
-    [Fact] void should_have_changes() => _result.ShouldBeTrue();
+    _service = Substitute.For<IMyService>();
+    _scenario = new(new ServiceCollection().AddSingleton(_service).BuildServiceProvider());
 }
+async Task Because() => await _scenario.Given.ForEventSource(_id).Events(new AuthorRegistered("Jane Austen"));
+[Fact] async Task should_notify() => await _service.Received(1).Notify("Jane Austen");
 ```
 
-**Layered givens (chaining contexts):**
+## Out-of-process Chronicle integration specs (advanced)
 
-```csharp
-// given/all_dependencies.cs — mocks all deps
-public class all_dependencies : Specification
-{
-    protected IEventStore _eventStore;
-    protected IReactorInvoker _reactorInvoker;
-    void Establish() { _eventStore = Substitute.For<IEventStore>(); /* ... */ }
-}
-
-// given/a_reactor_handler.cs — builds the system under test
-public class a_reactor_handler : all_dependencies
-{
-    protected ReactorHandler _handler;
-    void Establish() => _handler = new(_eventStore, _reactorInvoker);
-}
-```
-
-## NSubstitute Patterns
-
-```csharp
-// Create substitutes
-_service = Substitute.For<IMyService>();
-
-// Setup returns
-_service.GetValue(Arg.Any<string>()).Returns("result");
-_service.ProcessAsync(Arg.Any<int>()).Returns(Task.FromResult(42));
-
-// Argument matchers
-Arg.Is<Request>(r => r.Id == expectedId && r.Name == expectedName)
-
-// Verify received calls
-_service.Received(1).DoSomething(Arg.Any<string>());
-_service.DidNotReceive().DoSomethingElse(Arg.Any<int>());
-
-// Capture arguments
-_service.When(s => s.Add(Arg.Any<IDictionary<string, string>>()))
-    .Do(info => _captured = info.Arg<IDictionary<string, string>>());
-
-// Throw exceptions
-_handler.Handle(Arg.Any<CommandContext>()).Throws(new Exception("fail"));
-```
-
-## Assertion Extension Methods
-
-From `Cratis.Specifications`:
-
-| Method | Usage |
-|---|---|
-| `.ShouldEqual(expected)` | `_result.ShouldEqual(42)` |
-| `.ShouldBeTrue()` | `_flag.ShouldBeTrue()` |
-| `.ShouldBeFalse()` | `_flag.ShouldBeFalse()` |
-| `.ShouldBeNull()` | `_error.ShouldBeNull()` |
-| `.ShouldNotBeNull()` | `_value.ShouldNotBeNull()` |
-| `.ShouldBeEmpty()` | `_list.ShouldBeEmpty()` |
-| `.ShouldNotBeEmpty()` | `_list.ShouldNotBeEmpty()` |
-| `.ShouldContain(item)` | `_list.ShouldContain(expected)` |
-| `.ShouldNotContain(item)` | `_list.ShouldNotContain(excluded)` |
-| `.ShouldContainOnly(items)` | `_list.ShouldContainOnly(expectedItems)` |
-| `.ShouldBeOfExactType<T>()` | `_obj.ShouldBeOfExactType<PropertiesChanged<ExpandoObject>>()` |
-| `.ShouldBeGreaterThan(n)` | `_count.ShouldBeGreaterThan(0)` |
-| `.ShouldBeLessThan(n)` | `_count.ShouldBeLessThan(100)` |
-
-**Catching exceptions:**
-
-```csharp
-async Task Because() => _error = await Catch.Exception(_sut.DoSomething);
-
-[Fact] void should_not_fail() => _error.ShouldBeNull();
-```
-
-## Using Statements
-
-- Common usings are provided globally in `GlobalUsings.Specs.cs` (`Xunit`, `NSubstitute`, `Cratis.Specifications`, etc.) — don't duplicate them.
-- Don't add a using statement for the namespace of the system under test.
-
-## Properties — What NOT to Spec
-
-Simple properties are compiler-verified — the type system already guarantees they work. Writing specs for them adds maintenance cost without catching real bugs. Save spec effort for code where errors actually hide: business logic, coordination between dependencies, and complex transformations.
-
-```csharp
-// ❌ Do NOT write specs for these
-public string TableName => tableName;                         // Returns constructor parameter
-public Key Key => key;                                        // Returns field
-public IEnumerable<Property> Properties => mapper.Properties; // Simple delegation
-
-// ✅ Only write specs for complex business logic in properties
-public decimal TotalCost => Items.Sum(i => i.Cost * i.Quantity * (1 + i.TaxRate));
-```
-
----
-
-## Chronicle Integration Specs
-
-Integration specs are the highest-value specs in the project. They test a complete vertical slice — from HTTP request through command handling, event appending, constraint checking, and projection — against a real Chronicle event store. If one of these passes, the entire stack works.
-
-They live under `when_<behavior>/` folders directly inside the slice folder — **no `for_` folder**, because there's no isolated unit under test. The "unit" is the entire slice.
-
-### Structure
+Reserve these for the host/transport boundary the scenario helpers can't reach. They test a complete slice — HTTP request → command → append → constraint → projection — against a real Chronicle store, and live under `when_<behavior>/` directly inside the slice folder (no `for_` folder; the "unit" is the whole slice).
 
 ```csharp
 using context = MyApp.Authors.Registration.when_registering.and_name_already_exists.context;
@@ -200,50 +172,91 @@ public class and_name_already_exists(context context) : Given<context>(context)
         public const string AuthorName = "John Doe";
         public CommandResult<object>? Result;
 
-        async Task Establish() =>
-            await EventStore.EventLog.Append(AuthorId.New(), new AuthorRegistered(AuthorName));
-
-        async Task Because()
-        {
-            Result = await Client.ExecuteCommand<RegisterAuthor>(
-                "/api/authors/register",
-                new RegisterAuthor(AuthorName));
-        }
+        async Task Establish() => await EventStore.EventLog.Append(AuthorId.New(), new AuthorRegistered(AuthorName));
+        async Task Because() => Result = await Client.ExecuteCommand<RegisterAuthor>("/api/authors/register", new RegisterAuthor(AuthorName));
     }
 
-    [Fact] void should_not_be_successful() => Context.Result.IsSuccess.ShouldBeFalse();
+    [Fact] void should_not_be_successful() => Context.Result!.IsSuccess.ShouldBeFalse();
     [Fact] void should_have_appended_only_one_event() => Context.ShouldHaveTailSequenceNumber(EventSequenceNumber.First);
 }
 ```
 
-### Key Rules
+- `ExecuteCommand<TCommand>(url, cmd)` returns `CommandResult<object>?`; `ExecuteCommand<TCommand, TResult>(url, cmd)` returns `CommandResult<TResult>?`.
+- Helpers: `Context.ShouldHaveTailSequenceNumber(n)` (First = 0), `Context.ShouldHaveAppendedEvent<TEvent>(seq, eventSourceId, validator)`.
 
-- `context` is an inner public class inheriting from `given.an_http_client(fixture)`.
-- Use `async Task Establish()` to seed the event store with preconditions.
-- Use `async Task Because()` to execute the command under test.
-- `ExecuteCommand<TCommand>(url, cmd)` returns `CommandResult<object>?` (single type parameter).
-- `ExecuteCommand<TCommand, TResult>(url, cmd)` returns `CommandResult<TResult>?` (two type parameters for typed response).
-- Declare `Result` initialized with `null!` to satisfy nullable analysis.
-- Add a `using context = ...` alias at the top of each spec file.
+**Async reactor follow-ups** — when a reactor fires after the command and appends further events, collect them: start the collector **before** the triggering act with `_collector = StartCollectingAppends()`, then `await _collector.WaitForCount(2, TimeSpan.FromSeconds(10))`, assert via `_collector.ShouldHaveEvent<TEvent>(e => ...)`, and `_collector.Dispose()` in `Destroy()`. (`IEventAppendCollection` from the Chronicle testing API.)
 
-### Integration Assertion Helpers
+## Reusable layered contexts
 
-| Assertion | Purpose |
-|---|---|
-| `Context.Result.IsSuccess.ShouldBeTrue()` | Command succeeded |
-| `Context.Result.IsSuccess.ShouldBeFalse()` | Command failed (validation, constraint, etc.) |
-| `Context.ShouldHaveTailSequenceNumber(n)` | Verify event log tail (First = sequence 0) |
-| `Context.ShouldHaveAppendedEvent<TEvent>(seq, eventSourceId, validator)` | Verify specific event was appended |
+Layered contexts (`all_dependencies → a_<sut> → when_*`) capture shared setup base-first: the base mocks dependencies, the next builds the system under test, each spec adds only what's unique.
 
-## Formatting
+```csharp
+// given/all_dependencies.cs — mocks all deps
+public class all_dependencies : Specification
+{
+    protected IEventStore _eventStore;
+    void Establish() => _eventStore = Substitute.For<IEventStore>();
+}
 
-- Don't break long `should_` method lines — prefer one-line lambda assertions.
-- Don't add blank lines between multiple `should_` methods.
+// given/a_reactor_handler.cs — builds the system under test
+public class a_reactor_handler : all_dependencies
+{
+    protected ReactorHandler _handler;
+    void Establish() => _handler = new(_eventStore);
+}
+```
 
-## Entity Framework Core Specs
+Put the action under test only in the concrete spec's `Because()`, never in a reusable context.
 
-- Use SQLite in-memory database for specs involving `DbContext`.
-- `SaveChanges` / `SaveChangesAsync` are virtual and can be mocked with NSubstitute.
-- `DbSet` methods are virtual — mock as needed.
-- Pass options when substituting: `Substitute.For<YourDbContext>(options)`.
-- Simulate failures by mocking `SaveChanges` to throw exceptions.
+## NSubstitute patterns
+
+```csharp
+_service.GetValue(Arg.Any<string>()).Returns("result");
+Arg.Is<Request>(r => r.Id == expectedId)            // matcher
+_service.Received(1).DoSomething(Arg.Any<string>()); // verify
+_service.DidNotReceive().DoSomethingElse(Arg.Any<int>());
+_handler.Handle(Arg.Any<CommandContext>()).Throws(new Exception("fail"));
+```
+
+Catch exceptions for a unit under test with `Catch.Exception`:
+
+```csharp
+async Task Because() => _error = await Catch.Exception(_sut.DoSomething);
+[Fact] void should_not_fail() => _error.ShouldBeNull();
+```
+
+## Assertion extension methods
+
+From `Cratis.Specifications`: `.ShouldEqual(expected)`, `.ShouldBeTrue()`, `.ShouldBeFalse()`, `.ShouldBeNull()`, `.ShouldNotBeNull()`, `.ShouldBeEmpty()`, `.ShouldNotBeEmpty()`, `.ShouldContain(item)`, `.ShouldNotContain(item)`, `.ShouldContainOnly(items)`, `.ShouldBeOfExactType<T>()`, `.ShouldBeGreaterThan(n)`, `.ShouldBeLessThan(n)`.
+
+## Conventions
+
+- **Per-test values for anything in a uniqueness check** — `$"{Guid.NewGuid():N}@example.com"`, a fresh `Guid`, or a truncated id `Guid.NewGuid().ToString("N")[..9]`. Hardcoded values cause order-dependent flakes. Do not add `[Collection(...)]` to work around *collisions* (it's the wrong fix here).
+- **Sequence numbers are zero-based** — first event = `0`, tail of two events = `1`, tail of three = `2`. Never write "tail of 1" for a single appended event; the tail of `[A]` is `0`. (A common first-pass defect.)
+- Common usings come from `GlobalUsings.Specs.cs` (`Xunit`, `NSubstitute`, `Cratis.Specifications`, …) — don't duplicate them, and don't add a using for the system-under-test namespace.
+- **`using` ordering (SA1210/SA1211):** non-aliased namespaces first, then a blank line, then `using <alias> = …` aliases sorted by alias name. Alias a command whose short name collides with a namespace segment (CS0118) — `using RegisterAuthorCmd = …` style, with a domain-meaningful alias, never a technical `Command`/`Event`/`Component` suffix.
+- Single-statement assertion lambdas use expression-body form (RCS1021) — `[Fact] void should_x() => result.ShouldEqual(...)`, not a `{ … }` block. Don't break long `should_` lines; don't add blank lines between `should_` methods.
+- A slice covering **multiple subjects** (several read models/constraints/aspects) groups its specs under `<Slice>/for_<Subject>/when_<behavior>/`.
+
+## What NOT to spec
+
+Simple properties are compiler-verified. Save spec effort for business logic, coordination between dependencies, and complex transformations.
+
+```csharp
+// ❌ Do NOT spec these
+public string TableName => tableName;                         // returns constructor parameter
+public IEnumerable<Property> Properties => mapper.Properties; // simple delegation
+
+// ✅ Spec complex business logic
+public decimal TotalCost => Items.Sum(i => i.Cost * i.Quantity * (1 + i.TaxRate));
+```
+
+Also don't spec logging or trivial getters.
+
+## See also
+
+- [specs.md](./specs.md) — folder structure, naming, BDD philosophy (the base this extends).
+- [efcore.specs.md](./efcore.specs.md) — `DbContext` specs with SQLite in-memory.
+- [vertical-slices.md](./vertical-slices.md) — what each artifact promises (the contract under spec).
+- [frontend-testing.md](./frontend-testing.md) — TypeScript/React application BDD specs.
+- skills: **write-specs**, **write-specs-events**, **write-specs-readmodels**.

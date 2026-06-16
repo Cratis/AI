@@ -4,7 +4,7 @@ applyTo: "**/*.ts,**/*.tsx"
 
 # Code Quality — TypeScript
 
-TypeScript/React-specific applications of the general [Code Quality](./code-quality.instructions.md) principles.
+TypeScript/React-specific applications of the general [Code Quality](./code-quality.md) principles.
 
 ## Composition over Inheritance
 

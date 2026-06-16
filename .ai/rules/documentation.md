@@ -8,7 +8,7 @@ Documentation exists for one audience: **developers who need to use the framewor
 
 Every page should answer: "If I were a developer encountering this concept for the first time, what would I need to understand to use it correctly?"
 
-The site is built with [DocFX](https://dotnet.github.io/docfx/) using [GitHub Flavored Markdown](https://github.github.com/gfm/). Documentation lives in the `Documentation/` folder of each product repository and is aggregated into one published site. Readers experience it as a single place — write for that whole, not for one repo in isolation.
+The site is built with [Astro Starlight](https://starlight.astro.build/). Documentation lives in the `Documentation/` folder of each product repository as [GitHub Flavored Markdown](https://github.github.com/gfm/); a converter syncs that product `.md`/`.mdx` into the Starlight site, and all repos are aggregated into one published site. Readers experience it as a single place — write for that whole, not for one repo in isolation. (For the mechanical conventions a page must follow to slot into Starlight, see [documentation-structure-and-formatting.md](./documentation-structure-and-formatting.md).)
 
 ## Every Page Is Exactly One Diátaxis Type
 
