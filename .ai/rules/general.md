@@ -1,8 +1,15 @@
-# Cratis — Application Project Instructions
+# Cratis — Project Instructions
 
-This is a vertical-slice application built on the Cratis stack: **Cratis Chronicle** (event sourcing) and **Cratis Arc** (CQRS / model-bound commands and queries) on .NET / C#. Read models persist to MongoDB or EF Core. The frontend is React + TypeScript consuming Arc-generated proxies and Cratis Components (PrimeReact-based), in MVVM style. Specs are BDD-style using **Cratis.Specifications**.
+Cratis repositories come in **two profiles**, and the rules are scoped to them. **Identify your profile first** — it decides which rules apply.
 
-> **Arc is a standalone CQRS framework — not bound to event sourcing.** Arc provides model-bound commands/queries, validation, authorization, and full-stack proxy generation, and works perfectly well **without** Chronicle (Arc.Core does not depend on Chronicle). A `[Command]` `Handle()` does not *have* to append events — it can return a response, return `void`, or do its work through injected services/repositories. The event-sourcing behavior (a returned event gets appended; `EventForEventSourceId`; "never inject `IEventLog`") comes from the **Arc + Chronicle** integration. **This application is event-sourced** — Chronicle is the default backing and the slice guidance below assumes event-sourced commands — but read the event-centric rules as the *house default for this app*, not as universal Arc laws. A non-event-sourced command (orchestration, an external call, a read-only side effect) is a legitimate Arc command.
+- **Application profile (default)** — you are *building an application on Cratis*: event-sourced CQRS with **Cratis Chronicle** + **Cratis Arc**, vertical slices, read models persisted to MongoDB/EF Core, and a React + Cratis Components (PrimeReact) frontend in MVVM. Most of this corpus targets this profile.
+- **Framework profile** — you are *contributing to a Cratis framework repository itself* (Arc, Chronicle, Fundamentals, Components, …). These are **libraries** — source generators, the Chronicle kernel (Orleans grains + storage), client SDKs, a React component library — **not** vertical-slice event-sourced apps. The application-architecture rules here **do not apply**; follow **[framework.md](./framework.md)**.
+
+**How to tell:** if the repo's own package is `Cratis.*` / `@cratis/*` and it *builds* the framework, you are in the framework profile. If it *consumes* Cratis to build a product, you are in the application profile.
+
+Profile-specific rules declare a **`profile:`** in their frontmatter (`application` or `framework`); a rule **without** one is **universal** and applies everywhere — C#/TypeScript style, code quality, specs (`Cratis.Specifications`), documentation, commits/PRs, American English. In this file, everything from **Project Layout** through the **Implementation Workflow** is *application profile* (skip to the Framework profile section if you're contributing to the framework); Philosophy, Authority, Verification, Quality Gates, and the closing sections are universal.
+
+> **Arc is a standalone CQRS framework — not bound to event sourcing.** Even within the application profile, Arc provides model-bound commands/queries, validation, authorization, and full-stack proxy generation, and works **without** Chronicle (Arc.Core does not depend on Chronicle). A `[Command]` `Handle()` does not *have* to append events — it can return a response, return `void`, or work through injected services. The event-sourcing behavior (a returned event gets appended; `EventForEventSourceId`; "never inject `IEventLog`") comes from the **Arc + Chronicle** integration. This application is event-sourced, so the slice guidance assumes event-sourced commands — read the event-centric rules as the *house default for this app*, not universal Arc laws.
 
 The framework is convention-over-configuration. **Idiomatic Cratis is the goal — not custom abstractions over it.** When something is unclear, prefer the Cratis convention; do not invent. The rules and skills under `.ai/` are the authoritative answer — if your question is not answered there, ask rather than inferring framework behavior from package internals.
 
@@ -43,6 +50,12 @@ A claim is only as good as the signal behind it — a build result, a test run, 
 - **After a fix, re-run the gate that failed.** Don't argue yourself to green.
 - **A green build is not behavioral correctness.** Compilation proves it builds, not that the slice does the right thing — that's what specs and exercising the UI are for.
 - **Report with inspectable evidence, and name what you didn't verify.**
+
+---
+
+# Application profile
+
+> The following — **Project Layout, Slice Types, Slice Naming, the Rules, and the Implementation Workflow** — applies when **building an application on Cratis**. If you are contributing to a Cratis framework repo, skip to **Framework profile** below and follow [framework.md](./framework.md).
 
 ## Project Layout (Cratis Application convention)
 
@@ -125,6 +138,16 @@ Tagged **[contract]** (framework-enforced) or **[convention]** (house default). 
 
 All gates pass before merging, opening a PR, or marking a slice complete. After pushing to a PR, monitor CI with the GitHub MCP tools (`pull_request_read` → `get_check_runs`, `get_job_logs`); investigate and fix any failure, then push again — the task is not done until CI is green or the only remaining failures are confirmed pre-existing flakes unrelated to the change.
 
+---
+
+# Framework profile
+
+> You are contributing to a Cratis framework repository (Arc, Chronicle, Fundamentals, Components, …). **The Application-profile sections above do not apply** — there are no vertical slices, model-bound `[Command]`/`[ReadModel]` artifacts, projections/read-models, or MVVM app components here; these are libraries. Follow **[framework.md](./framework.md)** for repo structure, library/API design, source generators, the Chronicle kernel, and the framework quality gates. The universal sections (below, and every `profile: universal` rule) still apply.
+
+---
+
+# Both profiles (universal)
+
 ## Definition of Done
 
 - The affected solution/project builds with zero warnings and zero errors.
@@ -135,6 +158,7 @@ All gates pass before merging, opening a PR, or marking a slice complete. After 
 
 | For | Location |
 |---|---|
+| **Contributing to a Cratis framework repo** (framework profile) | `framework.md` |
 | Slice anatomy (commands, `Provide()`, validators, events, projections, read models, reactors, constraints, compliance, cross-slice) | `vertical-slices.md` |
 | C# / TypeScript style | `csharp.md`, `typescript.md` |
 | React + Arc + Cratis Components + MVVM + dialogs | `react.md`, `components.md`, `dialogs.md` |

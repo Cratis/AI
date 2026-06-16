@@ -1,5 +1,6 @@
 ---
 applyTo: "**/*.cs"
+profile: application
 ---
 
 # Reactor Instructions

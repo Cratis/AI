@@ -77,6 +77,15 @@ Rule content here.
 
 Use `applyTo: "**/*"` (and omit `paths`) for rules that apply to all files.
 
+### Profiles (application vs framework)
+
+A Cratis repo is one of two **profiles** and the corpus serves both from this one source:
+
+- **application** — building an app *on* Cratis (event-sourced CQRS, vertical slices, MVVM frontend). The bulk of the rules.
+- **framework** — contributing to a Cratis framework repo *itself* (Arc, Chronicle, Fundamentals, Components — libraries). See `framework.md`.
+
+A profile-specific rule declares **`profile: application`** or **`profile: framework`** in its frontmatter; a rule with **no `profile:` is universal** and applies in both. `general.md` routes by profile (its application sections are clearly bannered; `framework.md` is the framework counterpart). `applyTo`/`paths` globs scope by *file type*; `profile:` scopes by *repo type* — both are needed because every repo has `.cs`/`.tsx` files. (Propagation can later filter by profile so a framework repo receives only `universal` + `framework`; until then, the `general.md` routing + per-rule banners make the AI self-select.)
+
 ## Adding a new rule
 
 1. **Create the canonical file** in `.ai/rules/<name>.md` with the appropriate frontmatter and content.

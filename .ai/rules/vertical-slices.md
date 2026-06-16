@@ -1,11 +1,14 @@
 ---
 applyTo: "**/*.cs, **/*.tsx"
+profile: application
 paths:
   - "**/*.cs"
   - "**/*.tsx"
 ---
 
 # Vertical Slice Architecture
+
+> **Application profile.** This is the architecture for *applications built on Cratis*. It does **not** apply inside a Cratis framework repo (Arc/Chronicle/Fundamentals/Components) — those are libraries; see [framework.md](./framework.md).
 
 A vertical slice owns a single behavior: the command or query, the events it produces, the projections that build read models, the React component that renders the UI, and the specs that verify it all works. Everything lives together because everything changes together. **The slice is the invariant unit** (command + events + projection + component + specs), created, renamed, and deleted as one.
 

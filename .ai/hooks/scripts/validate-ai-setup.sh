@@ -28,6 +28,10 @@ for rule in .ai/rules/*.md; do
     [[ "$rule" == ".ai/rules/general.md" ]] && continue
     if [[ "$(sed -n '1p' "$rule")" != "---" ]]; then fail "$rule: missing YAML frontmatter"; continue; fi
     grep -Eq '^applyTo:' "$rule" || fail "$rule: frontmatter must include applyTo"
+    # profile (optional) must be application|framework|universal when present (absent = universal)
+    if grep -Eq '^profile:' "$rule" && ! grep -Eq '^profile:[[:space:]]*(application|framework|universal)[[:space:]]*$' "$rule"; then
+        fail "$rule: profile must be application|framework|universal"
+    fi
 done
 
 # ── Structural: skills (name + description) ──

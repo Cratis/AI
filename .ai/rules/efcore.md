@@ -1,5 +1,6 @@
 ---
 applyTo: "**/*.cs"
+profile: application
 ---
 
 # Entity Framework Core Instructions

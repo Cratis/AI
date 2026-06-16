@@ -1,5 +1,6 @@
 ---
 applyTo: "**/for_*/**/*.{ts,tsx}"
+profile: application
 paths:
   - "**/for_*/**/*.ts"
   - "**/for_*/**/*.tsx"

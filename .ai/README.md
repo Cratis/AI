@@ -15,7 +15,11 @@ A skill may refine *how* to apply a rule, but must not contradict a non-negotiab
 
 ## Three levels of authority (content)
 
-Every rule is one of: **Framework contract** (enforced by Arc/Chronicle source/analyzers/runtime) · **Cratis Application convention** (house default for maintainability — the framework does not enforce it) · **Product policy** (belongs in a downstream app's own `.ai/`, not here). Rules state which they are; never claim "the framework requires" a convention.
+Every rule is one of: **Framework contract** (enforced by Arc/Chronicle source/analyzers/runtime) · **Cratis convention** (house default for maintainability — the framework does not enforce it) · **Product policy** (belongs in a downstream app's own `.ai/`, not here). Rules state which they are; never claim "the framework requires" a convention.
+
+## Profiles
+
+The corpus serves two repo types from one source: **application** (building *on* Cratis — event-sourced vertical slices) and **framework** (contributing to Cratis libraries — Arc/Chronicle/Fundamentals/Components, see `rules/framework.md`). A rule declares `profile: application` or `profile: framework`; rules with no `profile:` are universal. `general.md` routes by profile; `applyTo`/`paths` scope by file type, `profile:` by repo type.
 
 ## Structure
 
