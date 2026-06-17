@@ -82,6 +82,8 @@ const [result, , setPage] = MyQuery.useWithPaging(pageSize);
 // Use result.data, result.paging.totalItems, result.paging.page
 ```
 
+Write specs for the React surface (view models, helpers, component behavior) with the **write-specs-frontend** skill.
+
 ## Step 7 — Update the composition page
 
 Open `<Feature>/<Feature>.tsx` and add the new component. If a new page is introduced, also update the router and navigation.

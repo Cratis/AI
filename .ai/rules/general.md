@@ -166,6 +166,8 @@ All gates pass before merging, opening a PR, or marking a slice complete. After 
 | Spec patterns — universal `Specification` base (both profiles) | `specs.md`, `specs.csharp.md`, `specs.typescript.md` |
 | Spec patterns — the four `*Scenario` helpers (application only) | `specs.scenarios.csharp.md` |
 | Strongly-typed values (`ConceptAs<T>`, `EventSourceId<T>`) | `concepts.md` |
+| Shared term definitions (event, projection, reducer, reactor, observer, DCB, …) | `glossary.md` |
+| Diagnosing a misbehaving slice (read model stale, proxy missing, quarantine, …) | the **diagnose-slice** skill |
 | EF Core read models / migrations | `efcore.md`, `efcore.specs.md` |
 | PRs / commits | `pull-requests.md`, `git-commits.md` |
 | Event modeling / schema migration / calling commands from code / paging / cross-cutting metadata / multi-tenancy | the matching skills |

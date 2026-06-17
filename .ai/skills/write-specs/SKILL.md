@@ -68,6 +68,7 @@ public class and_name_is_unique : Specification
 - **Constraints / raw append semantics** → **write-specs-events** (`EventScenario`, `ShouldHaveConstraintViolationFor(name)`).
 - **Projections & reducers** → **write-specs-readmodels** (`ReadModelScenario<TReadModel>`).
 - **Reactors** → `ReactorScenario<TReactor>` (assert on mocked services); see `specs.scenarios.csharp.md`.
+- **React / TypeScript surface** (view models, helpers, components) → **write-specs-frontend**.
 
 ## Naming conventions
 
