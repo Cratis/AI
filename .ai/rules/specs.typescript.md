@@ -1,5 +1,8 @@
 ---
 applyTo: "**/for_*/**/*.ts, **/when_*/**/*.ts"
+paths:
+  - "**/for_*/**/*.ts"
+  - "**/when_*/**/*.ts"
 ---
 
 # How to Write TypeScript Specs

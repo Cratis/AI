@@ -1,6 +1,6 @@
 ---
 name: cratis-react-page
-description: Step-by-step guidance for building a React page in a Cratis Arc application — listing data with DataPage, toolbar actions with CommandDialog, row selection, details components, observable queries, and MVVM. Use whenever building or modifying a React page that lists or displays data, adding a table or grid, wiring up Add/Edit/Delete actions, using DataPage, CommandDialog, or any @cratis/components. Also trigger when connecting a React component to a proxy-generated query or observable query.
+description: Step-by-step guidance for building a React page in a Cratis Arc application — DataPage lists, CommandDialog toolbar actions, row selection, details components, observable queries, and MVVM. Use when building or modifying a page that lists/displays data, adding a table, wiring Add/Edit/Delete, or connecting a component to a proxy-generated query (standard or observable).
 ---
 
 ## Workflow

@@ -1,6 +1,6 @@
 ---
 name: auth-and-identity
-description: Use this skill when asked to set up authentication, authorization, or identity in a Cratis Arc project — backend, frontend, or both. Covers implementing identity providers, protecting commands/queries with authorization attributes, integrating Microsoft Identity Platform, connecting backend identity to React frontends, and local development testing with generated principals. Also covers customizing IProvideIdentityDetails for enriching identity from databases, blocking users, multi-tenant identity, user preferences, and modifying identity at runtime. Use this whenever the user mentions auth, login, roles, permissions, identity details, user context, protecting endpoints, identity provider customization, or anything related to who the user is and what they can access.
+description: Use this skill for authentication, authorization, or identity in a Cratis Arc project — backend, frontend, or both. Covers identity providers (`IProvideIdentityDetails`), protecting commands/queries with authorization attributes, Microsoft Identity Platform, connecting backend identity to React, multi-tenant identity, and local-dev generated principals. Trigger on auth, login, roles, permissions, identity details, user context, or protecting endpoints.
 ---
 
 # Auth & Identity in Cratis Arc
@@ -160,18 +160,3 @@ public class SetDepartment(IIdentityProvider identityProvider)
 - [Authorization](references/authorization.md) — `[Authorize]`, `[Roles]`, `[AllowAnonymous]`, inheritance rules, fallback policies
 - [Frontend Identity](references/frontend.md) — React `IdentityProvider`, `useIdentity()`, MVVM, core identity, role checking
 - [Local Development](references/local-development.md) — Generating principals, ModHeader, cookie fallback, dev testing
-
-### Project documentation
-
-- [Backend Identity](Documentation/backend/identity.md)
-- [Microsoft Identity](Documentation/backend/asp-net-core/microsoft-identity.md)
-- [ASP.NET Core Authorization](Documentation/backend/asp-net-core/authorization.md)
-- [Core Authentication](Documentation/backend/core/authentication.md)
-- [Core Authorization](Documentation/backend/core/authorization.md)
-- [Command Authorization](Documentation/backend/commands/model-bound/authorization.md)
-- [Query Authorization](Documentation/backend/queries/model-bound/authorization.md)
-- [Proxy Generation for Identity](Documentation/backend/proxy-generation/identity-details.md)
-- [Frontend Core Identity](Documentation/frontend/core/identity.md)
-- [Frontend React Identity](Documentation/frontend/react/identity.md)
-- [Frontend MVVM Identity](Documentation/frontend/react.mvvm/identity.md)
-- [Generating Principals for Local Dev](Documentation/general/generating-principal.md)

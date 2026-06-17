@@ -216,7 +216,7 @@ public record AccountSummary(AccountId Id, string Name, decimal Balance)
 }
 ```
 
-When the frontend uses an observable query, the query proxy type changes from `QueryFor` to `ObservableQueryFor`, and `DataPage` uses the `observableQuery` prop instead of `query`.
+When the frontend uses an observable query, the query proxy type changes from `QueryFor` to `ObservableQueryFor`. The **same `query` prop** accepts a standard or observable query — there is no separate `observableQuery` prop; `DataPage` auto-detects it and subscribes to live updates.
 
 ---
 

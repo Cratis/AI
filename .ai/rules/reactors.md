@@ -1,5 +1,7 @@
 ---
 applyTo: "**/*.cs"
+paths:
+  - "**/*.cs"
 profile: application
 ---
 
@@ -80,7 +82,19 @@ public Task<IEnumerable<ReactorSideEffect>> Handle(AnEvent @event, EventContext 
     ]);
 ```
 
-> ⚠️ **Never return `EventForEventSourceId` (or `IEnumerable<EventForEventSourceId>`) from a reactor handler.** The reactor side-effect handlers expect returned **event objects** (`TEvent`, `IEnumerable<TEvent>`, or `IEnumerable<object>` of events), not append wrappers. A `Task<IEnumerable<EventForEventSourceId>>` compiles and *looks* like a valid reactor method, but the wrappers are never appended. This is the easy-to-confuse footgun: in a command `Handle()`, `EventForEventSourceId` **is** the cross-stream mechanism; in a reactor, control the target event source through **`ReactorSideEffect`** instead.
+### Cross-stream via `EventForEventSourceId`
+
+To append a side-effect event to a **different** event source, return `EventForEventSourceId(id, @event)` (single or `IEnumerable<EventForEventSourceId>`) — the same cross-stream wrapper a command `Handle()` uses. Reach for `ReactorSideEffect` instead when you also need to set the `EventSequenceId`, stream type, source type, or `Subject`.
+
+```csharp
+public Task<IEnumerable<EventForEventSourceId>> Handle(AnEvent @event, EventContext context) =>
+    Task.FromResult<IEnumerable<EventForEventSourceId>>(
+    [
+        new EventForEventSourceId(@event.RelatedId, new SomeEvent())
+    ]);
+```
+
+> **Chronicle version note:** reactor side-effect handling of `EventForEventSourceId` wrappers ships in an upcoming Chronicle release. On earlier versions, target another event source with `ReactorSideEffect { EventSourceId = … }` instead.
 
 ## External event stores (outbox / inbox)
 
@@ -158,4 +172,4 @@ async Task Because() => await _scenario.Given.ForEventSource(_id).Events(new Pro
 [Fact] async Task should_notify() => await _notifications.Received(1).Notify("Project 'Acme' was registered.");
 ```
 
-For reactors that return side-effect events, assert the resulting appends through the scenario's event store; for non-event side effects, assert on the mocked services (as above). See [specs.csharp.md](./specs.csharp.md) for the full `*Scenario` family.
+For reactors that return side-effect events, assert the resulting appends through the scenario's event store; for non-event side effects, assert on the mocked services (as above). See [specs.scenarios.csharp.md](./specs.scenarios.csharp.md) for the full `*Scenario` family.

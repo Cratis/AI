@@ -1,5 +1,7 @@
 ---
 applyTo: "**/*.cs"
+paths:
+  - "**/*.cs"
 ---
 
 # Concepts — Strongly-Typed Domain Values

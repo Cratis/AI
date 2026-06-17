@@ -1,5 +1,8 @@
 ---
 applyTo: "**/for_*/**/*.cs, **/when_*/**/*.cs"
+paths:
+  - "**/for_*/**/*.cs"
+  - "**/when_*/**/*.cs"
 profile: application
 ---
 
@@ -10,7 +13,7 @@ profile: application
 
 EF Core specs verify database interaction logic — migrations, queries, and error handling. They use SQLite in-memory databases, which are fast, isolated, and disposable. This keeps specs independent of any real database server.
 
-These specs are for code that interacts directly with `DbContext`. For event-sourcing integration specs (testing commands against Chronicle), use the Chronicle integration spec pattern in [specs.csharp.md](./specs.csharp.md) instead.
+These specs are for code that interacts directly with `DbContext`. For event-sourcing integration specs (testing commands against Chronicle), use the Chronicle integration spec pattern in [specs.scenarios.csharp.md](./specs.scenarios.csharp.md) instead.
 
 ## Database Setup
 
