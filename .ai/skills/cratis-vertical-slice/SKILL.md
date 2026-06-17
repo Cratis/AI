@@ -1,6 +1,6 @@
 ---
 name: cratis-vertical-slice
-description: Explains how vertical feature slices are structured in a Cratis Chronicle + Arc application — folder layout, what goes in the single backend .cs file, the four slice types (State Change/View/Automation/Translation), and how features compose slices. Use when asking how vertical slices work, where to put files, how to organize a feature folder, which slice type to choose, or how the workflow from C# to TypeScript proxies to React looks. For actively building a new slice end-to-end right now, use new-vertical-slice instead.
+description: Explains how vertical feature slices are structured in a Cratis Chronicle + Arc application — folder layout, the single backend .cs file, the four slice types (State Change/View/Automation/Translation), and how features compose slices. Use when asking how slices work, where files go, or which slice type to choose. To actually build a new slice end-to-end, use new-vertical-slice instead.
 ---
 
 ## Core principle

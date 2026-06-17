@@ -165,7 +165,15 @@ Otherwise use `gh pr edit <number> --add-label "<label>"` with one of:
 | `minor` | new features, new slices, non-breaking additions |
 | `major` | breaking changes to public APIs |
 
-## Step 7 — Merge the PR
+## Step 7 — Wait for CI to pass
+
+Before merging, poll the PR checks with `pull_request_read`:
+
+- Use `method: get_check_runs` (and `get_job_logs` on any failure).
+- Merge **only** when all required checks are green. If a check fails, investigate, fix, and push again.
+- Do not merge while red unless the user explicitly accepts confirmed pre-existing flakes unrelated to the change.
+
+## Step 8 — Merge the PR
 
 Use `mcp_github_github_merge_pull_request` with:
 
@@ -173,7 +181,7 @@ Use `mcp_github_github_merge_pull_request` with:
 - `owner` / `repo`: the current repository (same as step 5)
 - `pullNumber`: the PR number returned in step 5
 
-## Step 8 — Clean up the branch
+## Step 9 — Clean up the branch
 
 ```
 git checkout main && git pull && git branch -d <branch-name> && git push origin --delete <branch-name>
@@ -213,9 +221,11 @@ git push -u origin feat/authors-registration
 # 6. Label (optional)
 gh pr edit <pr-number> --add-label "minor"
 
-# 7. Merge (via mcp_github_github_merge_pull_request)
+# 7. Wait for CI — pull_request_read get_check_runs until green
 
-# 8. Clean up (pulls main as part of the same command)
+# 8. Merge (via mcp_github_github_merge_pull_request)
+
+# 9. Clean up (pulls main as part of the same command)
 git checkout main && git pull && git branch -d feat/authors-registration && git push origin --delete feat/authors-registration
 ```
 

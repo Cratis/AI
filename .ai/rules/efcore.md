@@ -1,5 +1,7 @@
 ---
 applyTo: "**/*.cs"
+paths:
+  - "**/*.cs"
 profile: application
 ---
 

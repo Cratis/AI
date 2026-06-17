@@ -1,6 +1,6 @@
 ---
 name: new-vertical-slice
-description: Use this skill when asked to implement a new feature, command, query, slice, or screen in a Cratis-based project. Guides the full end-to-end workflow: C# backend → specs → dotnet build → React frontend → quality gates.
+description: "Use this skill when asked to implement a new feature, command, query, slice, or screen in a Cratis-based project. Guides the full end-to-end workflow: C# backend → Debug+Release build → specs → React frontend → quality gates."
 ---
 
 Implement a complete vertical slice following this EXACT order. Never skip steps or work on multiple slices in parallel.
@@ -25,7 +25,8 @@ File creation order within the slice:
 1. Concept types (if new strongly-typed IDs are needed — see `add-concept` skill)
 2. Command `record` with `Handle()` method and optional validation attributes
    - If a business rule depends on Chronicle event-sourced state, add the relevant read model as a parameter to `Handle()` — see `add-business-rule` skill (DCB pattern)
-3. Constraint class `<Name>Constraint` (if needed)
+3. `CommandValidator<T>` for command-level rejection rules (see `add-business-rule`); `ConceptValidator<T>` for value invariants
+4. Constraint class `<Name>Constraint` (if needed)
 5. Event `record` with `[EventType]` (no arguments, no mutable properties)
 6. Read model `record` with `[ReadModel]` and model-bound projection attributes (`[FromEvent<T>]`, `[Key]`, etc.)
    - Use fluent `IProjectionFor<T>` only when model-bound attributes don't fit
@@ -39,11 +40,11 @@ File creation order within the slice:
 
 ## Step 4 — Build
 
-Run `dotnet build`. Fix ALL errors and warnings before proceeding. This generates TypeScript proxies.
+Run `dotnet build` in **both** Debug and Release. Fix ALL errors and warnings before proceeding — Release regenerates the TypeScript proxies; Debug compiles `#if DEBUG` spec code.
 
-## Step 5 — Write specs (State Change slices only)
+## Step 5 — Write specs (mandatory for every slice type)
 
-For each command, write specs covering:
+Use the in-process scenario family — `CommandScenario` for State Change, `ReadModelScenario` for State View, `ReactorScenario` for Automation/Translation. For each command, write specs covering:
 - Happy path — command succeeds, correct event appended
 - Each validation failure (one spec per rule)
 - Each business rule violation (one spec per DCB condition in `Handle()` that inspects a read model)
@@ -93,7 +94,7 @@ All must pass before the slice is considered done:
 - `yarn lint` — zero errors
 - `npx tsc -b` — zero errors
 - Public-facing changes (clients, SDKs, public APIs) include associated documentation updates
-- `Documentation/verify-markdown.sh` passes when documentation is added or changed
+- `cd Documentation/web && npm run check` passes when documentation is added or changed
 
 ---
 

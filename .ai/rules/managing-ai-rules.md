@@ -1,5 +1,12 @@
 ---
-applyTo: "**/*"
+applyTo: ".ai/**,.github/**,.claude/**,.agents/**,AGENTS.md,README.md"
+paths:
+  - ".ai/**"
+  - ".github/**"
+  - ".claude/**"
+  - ".agents/**"
+  - "AGENTS.md"
+  - "README.md"
 ---
 
 # Managing AI Rules and Instructions

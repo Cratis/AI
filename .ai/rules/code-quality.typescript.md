@@ -1,5 +1,8 @@
 ---
 applyTo: "**/*.ts,**/*.tsx"
+paths:
+  - "**/*.ts"
+  - "**/*.tsx"
 ---
 
 # Code Quality — TypeScript
