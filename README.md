@@ -20,7 +20,7 @@ Everything is authored once under **`.ai/`** and surfaced to each tool through a
 .agents/ + AGENTS.md  ← Codex adapters           (AGENTS.md → general.md; .agents/skills → .ai/skills)
 ```
 
-Each tool has its own conventions, so the adapters differ by surface (rules, agents, prompts/commands, skills, hooks) — see [`.ai/rules/managing-ai-rules.md`](.ai/rules/managing-ai-rules.md) for the per-tool table. Each adapter resolves to its canonical `.ai/` file (a **symlink** or a **path-reference file** — both accepted). `.ai/rules/general.md` is the always-on root (no frontmatter); scoped rules carry `applyTo` (Copilot) and `paths` (Claude) frontmatter. `.ai/rules/general.md` is the always-on root (no frontmatter); scoped rules carry `applyTo` (Copilot) and `paths` (Claude) frontmatter.
+Each tool has its own conventions, so the adapters differ by surface (rules, agents, prompts/commands, skills, hooks) — see [`.ai/rules/managing-ai-rules.md`](.ai/rules/managing-ai-rules.md) for the per-tool table. Each adapter resolves to its canonical `.ai/` file (a **symlink** or a **path-reference file** — both accepted). `.ai/rules/general.md` is the always-on root (no frontmatter); scoped rules carry `applyTo` (Copilot) and `paths` (Claude) frontmatter.
 
 > **Do not edit anything under `.github/`, `.claude/`, `.agents/`, or root `AGENTS.md`.** They are adapters; edits are lost when the canonical source changes.
 
