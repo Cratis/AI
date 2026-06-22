@@ -105,7 +105,7 @@ Currently guarded files:
 | `orleans.instructions.md` | `"**/*.cs"` ⚠️ Orleans only | Orleans grain, storage provider, clustering conventions |
 | `pull-requests.instructions.md` | `"**/*"` | PR description and label conventions |
 | `git-commits.instructions.md` | `"**/*"` | Commit message format and staging discipline |
-| `terminal-commands.instructions.md` | `"**/*"` | RTK token-optimized terminal commands |
+| `rtk.instructions.md` | `"**/*"` | Using rtk for token-optimized commands |
 | `web-fetching.instructions.md` | `"**/*"` | Prefer `curl` for raw remote content |
 
 ---
