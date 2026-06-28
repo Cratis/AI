@@ -15,10 +15,12 @@ Everything is authored once under **`.ai/`** and surfaced to each tool through a
 ├── hooks/            ← agent lifecycle hooks (+ hooks/scripts/ validator)
 └── workflows/        ← shared CI workflow files
 
-.github/              ← GitHub Copilot adapters  (copilot-instructions.md, instructions/*.instructions.md, agents/*.agent.md, prompts/, skills/)
+.github/              ← GitHub Copilot adapters  (copilot-instructions.md, instructions/ → .ai/rules, agents/*.agent.md, prompts/, skills/)
 .claude/              ← Claude Code adapters     (CLAUDE.md, rules/*.md, agents/, commands/*.md, skills/)
 .agents/ + AGENTS.md  ← Codex adapters           (AGENTS.md → general.md; .agents/skills → .ai/skills)
 ```
+
+`.github/instructions` is a single folder symlink into `.ai/rules`, so rules are maintained in one place with no per-file adapter to add. (Trade-off: a folder symlink exposes the rules as `<name>.md`, not the `<name>.instructions.md` suffix GitHub Copilot's `applyTo` discovery expects — Claude Code and Codex still read them, and the rules remain available, but Copilot does not auto-attach them by glob.)
 
 Each tool has its own conventions, so the adapters differ by surface (rules, agents, prompts/commands, skills, hooks) — see [`.ai/rules/managing-ai-rules.md`](.ai/rules/managing-ai-rules.md) for the per-tool table. Each adapter resolves to its canonical `.ai/` file (a **symlink** or a **path-reference file** — both accepted). `.ai/rules/general.md` is the always-on root (no frontmatter); scoped rules carry `applyTo` (Copilot) and `paths` (Claude) frontmatter.
 
