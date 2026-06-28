@@ -22,6 +22,10 @@ Everything is authored once under **`.ai/`** and surfaced to each tool through a
 
 `.github/instructions` is a single folder symlink into `.ai/rules`, so rules are maintained in one place with no per-file adapter to add. (Trade-off: a folder symlink exposes the rules as `<name>.md`, not the `<name>.instructions.md` suffix GitHub Copilot's `applyTo` discovery expects — Claude Code and Codex still read them, and the rules remain available, but Copilot does not auto-attach them by glob.)
 
+### Project-specific instructions — `.agents/PROJECT.md`
+
+The corpus here is generic and shared. Projects that consume it can drop a `.agents/PROJECT.md` file at their repository root for project-local context — credentials, HTTP headers, environment endpoints. `general.md` instructs every tool to read it when present, and it wins over the shared rules on conflict. It is never propagated from this hub.
+
 Each tool has its own conventions, so the adapters differ by surface (rules, agents, prompts/commands, skills, hooks) — see [`.ai/rules/managing-ai-rules.md`](.ai/rules/managing-ai-rules.md) for the per-tool table. Each adapter resolves to its canonical `.ai/` file (a **symlink** or a **path-reference file** — both accepted). `.ai/rules/general.md` is the always-on root (no frontmatter); scoped rules carry `applyTo` (Copilot) and `paths` (Claude) frontmatter.
 
 > **Do not edit anything under `.github/`, `.claude/`, `.agents/`, or root `AGENTS.md`.** They are adapters; edits are lost when the canonical source changes.
