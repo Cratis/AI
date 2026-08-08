@@ -149,3 +149,6 @@ obj/
 artifacts/
 *.user
 .idea/
+
+# Frontend build output
+Source/*/wwwroot/
