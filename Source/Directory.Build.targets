@@ -1,0 +1,13 @@
+<Project>
+    <!--
+        Strips the inline specs (when_*/, for_*/, given/ and Specs/ folders) from Release builds. This lives in
+        Directory.Build.targets - not Directory.Build.props - because the SDK's default Compile items do not
+        exist yet when the props evaluate, which would make the removes silent no-ops.
+    -->
+    <ItemGroup Condition="'$(Configuration)' == 'Release' AND '$(DedicatedSpecsProject)' != 'true'">
+        <Compile Remove="$(MSBuildProjectDirectory)/**/when_*/**/*.cs" />
+        <Compile Remove="$(MSBuildProjectDirectory)/**/for_*/**/*.cs" />
+        <Compile Remove="$(MSBuildProjectDirectory)/**/given/**/*.cs" />
+        <Compile Remove="$(MSBuildProjectDirectory)/Specs/*.cs" />
+    </ItemGroup>
+</Project>
