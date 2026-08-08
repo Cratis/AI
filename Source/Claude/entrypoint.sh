@@ -5,32 +5,55 @@
 # Entrypoint for the Planner worker container.
 #
 # The Planner provides work through environment variables:
-#   PLANNER_REPOSITORY_URL   - HTTPS clone URL of the repository to work on (optional when code is mounted)
-#   PLANNER_BRANCH           - branch to create for the work (default: derived from the work id)
-#   PLANNER_WORK_ID          - unique id of the scheduled work item ({org}-{repo}-{issue})
+#   PLANNER_REPOSITORY_URL   - HTTPS clone URL of the repository to work on (issue work)
+#   PLANNER_REPOSITORY_URLS  - space-separated clone URLs (ad-hoc work over several repositories)
+#   PLANNER_BRANCH           - branch to create for the work
+#   PLANNER_WORK_ID          - unique id of the scheduled work item
 #   PLANNER_PROMPT           - the instructions for the agent (markdown)
 #   PLANNER_MODEL            - the model to use (e.g. opus, sonnet)
 #   PLANNER_CALLBACK_URL     - URL the container reports progress/completion to
 #   GITHUB_TOKEN             - token used for git and the GitHub CLI
 #   CLAUDE_CODE_OAUTH_TOKEN  - credential for the Claude CLI (from the configured Claude account)
 #
-# When /workspace already contains a checkout (mounted), the clone step is skipped.
-set -euo pipefail
+# The Claude session runs with stream-json input/output: the console output is the live event
+# stream the Planner tails, and lines written to the container's stdin are forwarded to the
+# session as steering messages while it works.
+set -uo pipefail
 
 log() { printf '[planner-worker] %s\n' "$*"; }
+
+STREAM_FILE=/tmp/claude-stream.jsonl
+: > "$STREAM_FILE"
 
 report() {
     local status="$1"
     local detail="${2:-}"
+    local input_tokens="${3:-0}"
+    local output_tokens="${4:-0}"
+    local cost="${5:-0}"
+    local duration="${6:-0}"
     if [[ -n "${PLANNER_CALLBACK_URL:-}" ]]; then
-        curl -fsS -X POST "${PLANNER_CALLBACK_URL}" \
-            -H 'Content-Type: application/json' \
-            -d "{\"workId\":\"${PLANNER_WORK_ID:-unknown}\",\"status\":\"${status}\",\"detail\":$(jq -Rn --arg d "$detail" '$d')}" \
+        jq -cn \
+            --arg status "$status" \
+            --arg detail "$detail" \
+            --argjson inputTokens "$input_tokens" \
+            --argjson outputTokens "$output_tokens" \
+            --argjson costUsd "$cost" \
+            --argjson durationMs "$duration" \
+            '{status: $status, detail: $detail, inputTokens: $inputTokens, outputTokens: $outputTokens, costUsd: $costUsd, durationMs: $durationMs}' |
+        curl -fsS -X POST "${PLANNER_CALLBACK_URL}" -H 'Content-Type: application/json' -d @- \
             || log "Failed to report status '${status}' to ${PLANNER_CALLBACK_URL}"
     fi
 }
 
-trap 'report failed "Worker terminated unexpectedly"' ERR
+wrap_user_message() {
+    jq -cn --arg text "$1" '{type: "user", message: {role: "user", content: [{type: "text", text: $text}]}}'
+}
+
+fail() {
+    report failed "$1"
+    exit 1
+}
 
 if [[ -n "${GITHUB_TOKEN:-}" ]]; then
     git config --global credential.helper '!f() { echo "username=x-access-token"; echo "password=${GITHUB_TOKEN}"; }; f'
@@ -38,21 +61,38 @@ if [[ -n "${GITHUB_TOKEN:-}" ]]; then
     git config --global user.email "planner@cratis.io"
 fi
 
-if [[ ! -d /workspace/.git && -n "${PLANNER_REPOSITORY_URL:-}" ]]; then
-    log "Cloning ${PLANNER_REPOSITORY_URL}"
-    git clone "${PLANNER_REPOSITORY_URL}" /workspace
+# Route the agent's shell commands through rtk - installs the hook that transparently prefixes
+# supported commands, minimizing token consumption.
+rtk init -g || log "rtk init failed - continuing without token optimization"
+
+# Clone what the work covers: one repository for issue work at the workspace root, or one folder
+# per repository for ad-hoc work.
+if [[ -n "${PLANNER_REPOSITORY_URLS:-}" ]]; then
+    for url in ${PLANNER_REPOSITORY_URLS}; do
+        name=$(basename "$url" .git)
+        if [[ ! -d "/workspace/$name/.git" ]]; then
+            log "Cloning $url"
+            git clone "$url" "/workspace/$name" || fail "Could not clone $url"
+        fi
+        if [[ -n "${PLANNER_BRANCH:-}" ]]; then
+            git -C "/workspace/$name" checkout -B "$PLANNER_BRANCH"
+        fi
+    done
+elif [[ -n "${PLANNER_REPOSITORY_URL:-}" ]]; then
+    if [[ ! -d /workspace/.git ]]; then
+        log "Cloning ${PLANNER_REPOSITORY_URL}"
+        git clone "${PLANNER_REPOSITORY_URL}" /workspace || fail "Could not clone ${PLANNER_REPOSITORY_URL}"
+    fi
+    if [[ -n "${PLANNER_BRANCH:-}" ]]; then
+        git -C /workspace checkout -B "$PLANNER_BRANCH"
+    fi
 fi
 
 cd /workspace
 
-if [[ -n "${PLANNER_BRANCH:-}" ]]; then
-    git checkout -B "${PLANNER_BRANCH}"
-fi
-
 if [[ -z "${PLANNER_PROMPT:-}" ]]; then
     log "No PLANNER_PROMPT provided - nothing to do"
-    report failed "No prompt provided"
-    exit 1
+    fail "No prompt provided"
 fi
 
 report started "Worker started"
@@ -63,22 +103,48 @@ if [[ -n "${PLANNER_MODEL:-}" ]]; then
     MODEL_ARGS+=(--model "${PLANNER_MODEL}")
 fi
 
-set +e
-claude -p "${PLANNER_PROMPT}" \
+PIPE=/tmp/claude-in
+mkfifo "$PIPE"
+
+# Feeder: the initial prompt, then every line arriving on the container's stdin becomes a
+# steering message to the running session. Killed when the session produces its result, which
+# closes the pipe and lets the CLI exit.
+{
+    wrap_user_message "$PLANNER_PROMPT"
+    while IFS= read -r line; do
+        [[ -n "$line" ]] && wrap_user_message "$line"
+    done
+} > "$PIPE" &
+FEEDER_PID=$!
+
+claude -p \
+    --input-format stream-json \
+    --output-format stream-json \
+    --verbose \
     --dangerously-skip-permissions \
-    --output-format json \
-    "${MODEL_ARGS[@]}" \
-    > /tmp/claude-result.json
-CLAUDE_EXIT=$?
-set -e
+    "${MODEL_ARGS[@]}" < "$PIPE" |
+while IFS= read -r event; do
+    printf '%s\n' "$event"
+    printf '%s\n' "$event" >> "$STREAM_FILE"
+    if [[ "$(jq -r '.type // empty' <<<"$event" 2>/dev/null)" == "result" ]]; then
+        kill "$FEEDER_PID" 2>/dev/null || true
+    fi
+done
+CLAUDE_EXIT=${PIPESTATUS[0]}
+kill "$FEEDER_PID" 2>/dev/null || true
 
-RESULT=$(jq -r '.result // empty' /tmp/claude-result.json 2>/dev/null || true)
+RESULT_EVENT=$(jq -c 'select(.type == "result")' "$STREAM_FILE" 2>/dev/null | tail -1)
+RESULT=$(jq -r '.result // empty' <<<"$RESULT_EVENT" 2>/dev/null)
+INPUT_TOKENS=$(jq -r '(.usage.input_tokens // 0) + (.usage.cache_creation_input_tokens // 0) + (.usage.cache_read_input_tokens // 0)' <<<"$RESULT_EVENT" 2>/dev/null || echo 0)
+OUTPUT_TOKENS=$(jq -r '.usage.output_tokens // 0' <<<"$RESULT_EVENT" 2>/dev/null || echo 0)
+COST=$(jq -r '.total_cost_usd // 0' <<<"$RESULT_EVENT" 2>/dev/null || echo 0)
+DURATION=$(jq -r '.duration_ms // 0' <<<"$RESULT_EVENT" 2>/dev/null || echo 0)
 
-if [[ ${CLAUDE_EXIT} -ne 0 ]]; then
+if [[ ${CLAUDE_EXIT} -ne 0 || -z "$RESULT_EVENT" ]]; then
     log "Claude CLI exited with ${CLAUDE_EXIT}"
     report failed "${RESULT:-Claude CLI exited with ${CLAUDE_EXIT}}"
-    exit "${CLAUDE_EXIT}"
+    exit 1
 fi
 
-report completed "${RESULT:-Work completed}"
+report completed "${RESULT:-Work completed}" "$INPUT_TOKENS" "$OUTPUT_TOKENS" "$COST" "$DURATION"
 log "Done"
