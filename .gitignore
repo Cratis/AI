@@ -142,3 +142,10 @@ vite.config.ts.timestamp-*
 __pycache__/
 *.py[cod]
 *$py.class
+
+# .NET
+bin/
+obj/
+artifacts/
+*.user
+.idea/
