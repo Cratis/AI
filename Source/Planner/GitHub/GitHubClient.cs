@@ -120,18 +120,8 @@ public class GitHubClient(HttpClient httpClient) : IGitHubClient
         issue["type"] is JsonObject type ? type["name"]?.GetValue<string>() ?? string.Empty : string.Empty,
         issue["user"]?["login"]?.GetValue<string>() ?? string.Empty,
         issue["created_at"]?.GetValue<DateTimeOffset>() ?? DateTimeOffset.MinValue,
-        AsAuthorAssociation(issue["author_association"]?.GetValue<string>()),
+        GitHubAuthorAssociations.Map(issue["author_association"]?.GetValue<string>()),
         issue["state"]?.GetValue<string>() == "open");
-
-    static AuthorAssociation AsAuthorAssociation(string? association) => association switch
-    {
-        "OWNER" => AuthorAssociation.Owner,
-        "MEMBER" => AuthorAssociation.Member,
-        "COLLABORATOR" => AuthorAssociation.Collaborator,
-        "CONTRIBUTOR" => AuthorAssociation.Contributor,
-        "NONE" or "FIRST_TIME_CONTRIBUTOR" or "FIRST_TIMER" => AuthorAssociation.External,
-        _ => AuthorAssociation.None
-    };
 
     async Task<JsonArray?> GetJsonArray(string route, CancellationToken cancellationToken)
     {
