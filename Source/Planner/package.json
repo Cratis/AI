@@ -1,0 +1,29 @@
+{
+    "name": "planner-app",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "scripts": {
+        "dev": "yarn g:dev",
+        "build": "yarn g:build",
+        "lint": "yarn g:lint",
+        "lint:ci": "yarn g:lint:ci",
+        "test": "yarn g:test",
+        "test:watch": "yarn g:test:watch",
+        "compile": "yarn g:compile",
+        "preview": "yarn g:preview",
+        "ci": "cd $INIT_CWD && yarn test && yarn lint:ci && yarn g:compile && yarn g:compile:specs"
+    },
+    "dependencies": {
+        "@cratis/arc": "^21.0.4",
+        "@cratis/arc.react": "^21.0.4",
+        "@cratis/arc.react.mvvm": "^20.62.4",
+        "@cratis/arc.vite": "^21.0.4",
+        "@cratis/components": "^2.6.1",
+        "@cratis/fundamentals": "^7.17.1",
+        "allotment": "^1.20.5",
+        "primeicons": "^8.0.0",
+        "primereact": "^11.0.0"
+    },
+    "packageManager": "yarn@4.17.1"
+}

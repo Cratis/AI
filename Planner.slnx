@@ -1,0 +1,10 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Source/" />
+  <Project Path="Source/Planner/Planner.csproj" />
+  <Project Path="Source/Composition/Composition.csproj" />
+</Solution>
