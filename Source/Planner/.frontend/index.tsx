@@ -8,18 +8,11 @@ import './index.css';
 import React from 'react';
 import App from './App';
 
+// Layering (dialogs, dropdown panels, tooltips) is managed by @cratis/components - no custom
+// z-index configuration here; overriding it puts dropdown panels behind dialogs.
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
-        <PrimeReactProvider value={{
-            ripple: true,
-            zIndex: {
-                modal: 10100,
-                overlay: 10000,
-                menu: 10000,
-                tooltip: 10100,
-                toast: 10200,
-            },
-        }}>
+        <PrimeReactProvider value={{ ripple: true }}>
             <App />
         </PrimeReactProvider>
     </React.StrictMode>

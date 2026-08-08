@@ -11,6 +11,7 @@ import { Issues } from '../Issues/Issues';
 import { Work } from '../Work/Work';
 import { Repositories } from '../Repositories/Repositories';
 import { ClaudeAccounts } from '../Accounts/ClaudeAccounts';
+import { Usage } from '../Accounts/Usage/UsagePage';
 
 const isDevelopment = import.meta.env.MODE === 'development';
 
@@ -25,6 +26,7 @@ function App() {
                         <Route path='/' element={<AppLayout />}>
                             <Route path='' element={<Issues />} />
                             <Route path='work' element={<Work />} />
+                            <Route path='usage' element={<Usage />} />
                             <Route path='settings/repositories' element={<Repositories />} />
                             <Route path='settings/accounts' element={<ClaudeAccounts />} />
                         </Route>

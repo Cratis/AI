@@ -12,6 +12,7 @@ interface NavigationItem {
 const navigationItems: NavigationItem[] = [
     { label: 'Issues', icon: 'pi pi-list', path: '/' },
     { label: 'Work', icon: 'pi pi-play-circle', path: '/work' },
+    { label: 'Usage', icon: 'pi pi-gauge', path: '/usage' },
     { label: 'Repositories', icon: 'pi pi-database', path: '/settings/repositories' },
     { label: 'Claude Accounts', icon: 'pi pi-user', path: '/settings/accounts' },
 ];

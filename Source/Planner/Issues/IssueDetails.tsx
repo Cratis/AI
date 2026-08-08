@@ -1,13 +1,17 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+import { useEffect, useState } from 'react';
+import MarkdownPreview from '@uiw/react-markdown-preview';
 import { Button } from 'primereact/button';
-import { Dropdown } from 'primereact/dropdown';
+import { InputTextarea } from 'primereact/inputtextarea';
 import { Tag } from 'primereact/tag';
-import { Issue } from './Listing/Listing';
+import { Dropdown } from '@cratis/components/Dropdown';
+import { Issue, IssueComment } from './Listing/Listing';
 import { IssueStatus } from './IssueStatus';
 import { ChangeIssueStatus } from './ChangingStatus/ChangingStatus';
 import { AcceptPullRequest } from './AcceptingPullRequest/AcceptingPullRequest';
+import { SetIssuePrompt } from './SettingPrompt/SettingPrompt';
 import { ScheduleWork } from '../Work/Scheduling/Scheduling';
 import { WorkPurpose } from '../Work/WorkPurpose';
 
@@ -42,6 +46,9 @@ export const statusLabel = (status: IssueStatus) =>
 
 export const IssueDetails = ({ issue }: IssueDetailsProps) => {
     const issueUrl = `https://github.com/${issue.owner}/${issue.repository}/issues/${issue.number}`;
+    const [prompt, setPrompt] = useState(issue.prompt ?? '');
+
+    useEffect(() => setPrompt(issue.prompt ?? ''), [issue.id, issue.prompt]);
 
     const changeStatus = async (status: IssueStatus) => {
         const command = new ChangeIssueStatus();
@@ -63,58 +70,40 @@ export const IssueDetails = ({ issue }: IssueDetailsProps) => {
         await command.execute();
     };
 
-    const properties = [
-        { label: 'Repository', value: `${issue.owner}/${issue.repository}` },
-        { label: 'Number', value: `#${issue.number}` },
-        { label: 'Type', value: issue.type || '-' },
-        { label: 'Created by', value: issue.createdBy },
-        { label: 'Created', value: new Date(issue.createdAt).toLocaleString() },
-        { label: 'State', value: issue.isOpen ? 'Open' : 'Closed' },
-        { label: 'Suggested model', value: issue.suggestedModel || '-' },
-    ];
+    const savePrompt = async () => {
+        const command = new SetIssuePrompt();
+        command.issue = issue.id;
+        command.prompt = prompt;
+        await command.execute();
+    };
+
+    const comments = [...(issue.comments ?? [])].sort(
+        (left, right) => new Date(left.commentedAt).getTime() - new Date(right.commentedAt).getTime());
 
     return (
-        <div className='flex h-full flex-col gap-4 overflow-auto p-4'>
+        <div className='flex h-full flex-col gap-4 overflow-auto p-4' data-color-mode='dark'>
             <h2 className='m-0 text-lg font-semibold'>{issue.title}</h2>
-            <div className='flex items-center gap-2'>
+            <div className='flex flex-wrap items-center gap-2'>
                 <Tag value={statusLabel(issue.status)} severity={statusSeverity(issue.status)} />
                 {!issue.isOpen && <Tag value='Closed' severity='danger' />}
+                {(issue.labels ?? []).map((label) => <Tag key={label} value={label} severity='secondary' />)}
             </div>
 
-            <dl className='m-0 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1'>
-                {properties.map((property) => (
-                    <div key={property.label} className='contents'>
-                        <dt className='font-medium text-[var(--text-color-secondary)]'>{property.label}</dt>
-                        <dd className='m-0'>{property.value}</dd>
-                    </div>
-                ))}
-            </dl>
+            <div className='text-sm text-[var(--text-color-secondary)]'>
+                {issue.owner}/{issue.repository}#{issue.number}
+                {' · '}{issue.type || 'No type'}
+                {' · '}opened by {issue.createdBy} on {new Date(issue.createdAt).toLocaleDateString()}
+                {issue.suggestedModel ? ` · suggested model: ${issue.suggestedModel}` : ''}
+            </div>
 
-            <div className='flex flex-col gap-2'>
-                <label className='font-medium' htmlFor='issue-status'>Status</label>
+            <div className='flex flex-wrap items-center gap-2'>
                 <Dropdown
-                    id='issue-status'
                     value={issue.status}
                     options={statusOptions}
                     onChange={(e) => changeStatus(e.value as IssueStatus)} />
-            </div>
-
-            <div className='flex flex-wrap gap-2'>
-                <Button
-                    label='Open on GitHub'
-                    icon='pi pi-external-link'
-                    outlined
-                    onClick={() => window.open(issueUrl, '_blank')} />
-                <Button
-                    label='Start investigation'
-                    icon='pi pi-search'
-                    outlined
-                    onClick={() => scheduleWork(WorkPurpose.investigation)} />
-                <Button
-                    label='Schedule implementation'
-                    icon='pi pi-bolt'
-                    outlined
-                    onClick={() => scheduleWork(WorkPurpose.implementation)} />
+                <Button label='Open on GitHub' icon='pi pi-external-link' outlined onClick={() => window.open(issueUrl, '_blank')} />
+                <Button label='Investigate' icon='pi pi-search' outlined onClick={() => scheduleWork(WorkPurpose.investigation)} />
+                <Button label='Implement' icon='pi pi-bolt' outlined onClick={() => scheduleWork(WorkPurpose.implementation)} />
             </div>
 
             {issue.pullRequestUrl &&
@@ -126,21 +115,51 @@ export const IssueDetails = ({ issue }: IssueDetailsProps) => {
                             icon='pi pi-external-link'
                             outlined
                             onClick={() => window.open(issue.pullRequestUrl, '_blank')} />
-                        <Button
-                            label='Accept'
-                            icon='pi pi-check'
-                            severity='success'
-                            onClick={acceptPullRequest} />
+                        <Button label='Accept' icon='pi pi-check' severity='success' onClick={acceptPullRequest} />
                     </div>
+                </div>}
+
+            {issue.body &&
+                <div className='rounded border border-[var(--surface-border)] p-3'>
+                    <MarkdownPreview source={issue.body} style={{ background: 'transparent' }} />
                 </div>}
 
             {issue.investigation &&
                 <div className='flex flex-col gap-2'>
                     <div className='font-medium'>Investigation</div>
-                    <pre className='m-0 max-h-96 overflow-auto whitespace-pre-wrap rounded bg-[var(--surface-card)] p-3 text-sm'>
-                        {issue.investigation}
-                    </pre>
+                    <div className='max-h-96 overflow-auto rounded border border-[var(--surface-border)] p-3'>
+                        <MarkdownPreview source={issue.investigation} style={{ background: 'transparent' }} />
+                    </div>
                 </div>}
+
+            <div className='flex flex-col gap-2'>
+                <div className='font-medium'>Instructions for the agent</div>
+                <InputTextarea
+                    value={prompt}
+                    rows={3}
+                    autoResize
+                    placeholder='Extra instructions sent along when an agent works on this issue'
+                    onChange={(e) => setPrompt(e.target.value)} />
+                <div>
+                    <Button label='Save instructions' icon='pi pi-save' size='small' outlined onClick={savePrompt} disabled={prompt === (issue.prompt ?? '')} />
+                </div>
+            </div>
+
+            <div className='flex flex-col gap-3'>
+                <div className='font-medium'>Comments ({comments.length})</div>
+                {comments.map((comment: IssueComment) => (
+                    <div key={comment.id} className='rounded border border-[var(--surface-border)]'>
+                        <div className='border-b border-[var(--surface-border)] bg-[var(--surface-card)] px-3 py-1 text-sm'>
+                            <span className='font-medium'>{comment.author}</span>
+                            <span className='text-[var(--text-color-secondary)]'> · {new Date(comment.commentedAt).toLocaleString()}</span>
+                        </div>
+                        <div className='p-3'>
+                            <MarkdownPreview source={comment.body} style={{ background: 'transparent' }} />
+                        </div>
+                    </div>
+                ))}
+                {comments.length === 0 && <div className='text-sm text-[var(--text-color-secondary)]'>No comments</div>}
+            </div>
         </div>
     );
 };

@@ -1,7 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
@@ -11,8 +11,12 @@ import { AddOrganization } from './Organizations/Adding/Adding';
 import { AddRepository } from './Adding/Adding';
 import { RemoveRepository } from './Removing/Removing';
 import { MapCodeRepository } from './MappingCodeRepository/MappingCodeRepository';
+import { AllRepositoryGroups, RepositoryGroup } from './Groups/Listing/Listing';
+import { CreateRepositoryGroup } from './Groups/Creating/Creating';
+import { ChangeRepositoryGroup } from './Groups/Changing/Changing';
+import { DeleteRepositoryGroup } from './Groups/Deleting/Deleting';
 import { CommandDialog } from '@cratis/components/CommandDialog';
-import { InputTextField } from '@cratis/components/CommandForm/fields';
+import { InputTextField, MultiSelectField } from '@cratis/components/CommandForm/fields';
 
 /**
  * The repositories settings page - manage the organizations and repositories the Planner tracks
@@ -21,13 +25,29 @@ import { InputTextField } from '@cratis/components/CommandForm/fields';
 export const Repositories = () => {
     const [organizationsResult] = AllOrganizations.use();
     const [repositoriesResult] = AllRepositories.use();
+    const [groupsResult] = AllRepositoryGroups.use();
     const [addOrganizationVisible, setAddOrganizationVisible] = useState(false);
     const [addRepositoryVisible, setAddRepositoryVisible] = useState(false);
+    const [createGroupVisible, setCreateGroupVisible] = useState(false);
     const [mapCodeFor, setMapCodeFor] = useState<Repository | undefined>(undefined);
+    const [changeGroupFor, setChangeGroupFor] = useState<RepositoryGroup | undefined>(undefined);
+
+    const repositoryOptions = useMemo(() =>
+        (repositoriesResult.data ?? []).map((repository) => ({
+            label: `${repository.owner}/${repository.name}`,
+            value: repository.id,
+        })),
+        [repositoriesResult.data]);
 
     const removeRepository = async (repository: Repository) => {
         const command = new RemoveRepository();
         command.repository = repository.id;
+        await command.execute();
+    };
+
+    const deleteGroup = async (group: RepositoryGroup) => {
+        const command = new DeleteRepositoryGroup();
+        command.group = group.id;
         await command.execute();
     };
 
@@ -75,6 +95,66 @@ export const Repositories = () => {
                         )} />
                 </DataTable>
             </div>
+
+            <div>
+                <div className='mb-2 flex items-center gap-2'>
+                    <h2 className='m-0 flex-1 text-base font-medium'>Repository groups</h2>
+                    <Button label='Create group' icon='pi pi-objects-column' size='small' outlined onClick={() => setCreateGroupVisible(true)} />
+                </div>
+                <DataTable value={groupsResult.data ?? []} dataKey='id' size='small' emptyMessage='No repository groups'>
+                    <Column field='name' header='Name' style={{ width: '14rem' }} />
+                    <Column
+                        header='Repositories'
+                        body={(group: RepositoryGroup) => group.repositories.join(', ')} />
+                    <Column
+                        style={{ width: '8rem' }}
+                        body={(group: RepositoryGroup) => (
+                            <div className='flex gap-1'>
+                                <Button icon='pi pi-pencil' rounded text tooltip='Change members' onClick={() => setChangeGroupFor(group)} />
+                                <Button icon='pi pi-trash' rounded text severity='danger' tooltip='Delete' onClick={() => deleteGroup(group)} />
+                            </div>
+                        )} />
+                </DataTable>
+            </div>
+
+            {createGroupVisible &&
+                <CommandDialog<CreateRepositoryGroup>
+                    command={CreateRepositoryGroup}
+                    visible
+                    title='Create repository group'
+                    width='34rem'
+                    okLabel='Create'
+                    cancelLabel='Cancel'
+                    initialValues={{ repositories: [] }}
+                    onConfirm={() => setCreateGroupVisible(false)}
+                    onCancel={() => setCreateGroupVisible(false)}>
+                    <InputTextField<CreateRepositoryGroup> value={(instance) => instance.name} title='Name' placeholder='Name of the group' />
+                    <MultiSelectField<CreateRepositoryGroup>
+                        value={(instance) => instance.repositories}
+                        title='Repositories'
+                        options={repositoryOptions}
+                        optionValue='value'
+                        optionLabel='label' />
+                </CommandDialog>}
+
+            {changeGroupFor &&
+                <CommandDialog<ChangeRepositoryGroup>
+                    command={ChangeRepositoryGroup}
+                    visible
+                    title={`Members of ${changeGroupFor.name}`}
+                    width='34rem'
+                    okLabel='Save'
+                    cancelLabel='Cancel'
+                    initialValues={{ group: changeGroupFor.id, repositories: [...changeGroupFor.repositories] }}
+                    onConfirm={() => setChangeGroupFor(undefined)}
+                    onCancel={() => setChangeGroupFor(undefined)}>
+                    <MultiSelectField<ChangeRepositoryGroup>
+                        value={(instance) => instance.repositories}
+                        title='Repositories'
+                        options={repositoryOptions}
+                        optionValue='value'
+                        optionLabel='label' />
+                </CommandDialog>}
 
             {addOrganizationVisible &&
                 <CommandDialog<AddOrganization>
