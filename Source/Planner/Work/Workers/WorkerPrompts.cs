@@ -23,9 +23,36 @@ public static class WorkerPrompts
     /// </summary>
     /// <param name="work">The work the prompt is for.</param>
     /// <param name="issues">The issues the work covers.</param>
+    /// <param name="groupPrompt">The group's extra instructions, when the work covers a group that has them.</param>
     /// <returns>The prompt.</returns>
-    public static string Build(WorkItem work, IReadOnlyList<ListedIssue> issues) =>
-        work.Purpose == WorkPurpose.Investigation ? BuildInvestigation(issues) : BuildImplementation(issues);
+    public static string Build(WorkItem work, IReadOnlyList<ListedIssue> issues, WorkPrompt? groupPrompt = null)
+    {
+        var prompt = work.Purpose == WorkPurpose.Investigation ? BuildInvestigation(issues) : BuildImplementation(issues);
+        if (groupPrompt?.Equals(WorkPrompt.NotSet) == false)
+        {
+            prompt = $"{prompt}\nAdditional instructions for this group of issues:\n{groupPrompt.Value}\n";
+        }
+
+        return prompt;
+    }
+
+    /// <summary>
+    /// Builds the prompt for ad-hoc work over one or more repositories.
+    /// </summary>
+    /// <param name="work">The ad-hoc work the prompt is for.</param>
+    /// <returns>The prompt.</returns>
+    public static string BuildAdHoc(WorkItem work) => new StringBuilder()
+        .AppendLine("You are doing ad-hoc work. The repositories to work with are cloned under your working directory - one folder per repository.")
+        .AppendLine()
+        .AppendLine("Task:")
+        .AppendLine(work.Prompt?.Value ?? string.Empty)
+        .AppendLine()
+        .AppendLine("Instructions:")
+        .AppendLine("- Follow the conventions of each repository. Build and run the tests of everything you touch; it must be green before you finish.")
+        .AppendLine("- Commit in logical units with clear messages. Push a branch and open a pull request with `gh pr create` for each repository you changed.")
+        .AppendLine("- If you come across bugs or limitations in upstream Cratis repositories while working, report them upstream with `gh issue create --repo <upstream>`.")
+        .AppendLine("- End your final message with a summary and the URLs of any pull requests you created.")
+        .ToString();
 
     static string BuildImplementation(IReadOnlyList<ListedIssue> issues)
     {
@@ -70,6 +97,11 @@ public static class WorkerPrompts
         foreach (var issue in issues)
         {
             prompt.AppendLine($"- {issue.Owner.Value}/{issue.Repository.Value}#{issue.Number.Value}: {issue.Title.Value}");
+            if (issue.Prompt?.Equals(WorkPrompt.NotSet) == false)
+            {
+                prompt.AppendLine($"  Additional instructions for this issue:\n  {issue.Prompt.Value.ReplaceLineEndings("\n  ")}");
+            }
+
             if (issue.Investigation?.Equals(InvestigationSummary.NotSet) == false)
             {
                 prompt.AppendLine($"  An earlier investigation produced this plan:\n  {issue.Investigation.Value.ReplaceLineEndings("\n  ")}");

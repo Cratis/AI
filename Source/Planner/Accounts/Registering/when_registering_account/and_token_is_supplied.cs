@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 #if DEBUG
+using Microsoft.Extensions.DependencyInjection;
 using Planner.Accounts.SettingToken;
 
 namespace Planner.Accounts.Registering.when_registering_account;
@@ -11,7 +12,13 @@ public class and_token_is_supplied : Specification
     CommandScenario<RegisterAccount> _scenario;
     CommandResult _result;
 
-    void Establish() => _scenario = new();
+    void Establish()
+    {
+        _scenario = new();
+        var currentUser = Substitute.For<Planner.Identity.ICurrentUser>();
+        currentUser.GetUserName().Returns(UserName.NotSet);
+        _scenario.Services.AddSingleton(currentUser);
+    }
 
     async Task Because() => _result = await _scenario.Execute(new RegisterAccount("Primary", ClaudePlan.Max20x, "sk-ant-token"));
 

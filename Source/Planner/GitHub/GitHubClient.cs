@@ -71,23 +71,32 @@ public class GitHubClient(HttpClient httpClient) : IGitHubClient
     }
 
     /// <inheritdoc/>
-    public async Task<GitHubIssueDetails?> GetIssueDetails(OrganizationName owner, RepositoryName repository, IssueNumber number, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<GitHubComment>> GetIssueComments(OrganizationName owner, RepositoryName repository, IssueNumber number, CancellationToken cancellationToken = default)
     {
-        using var response = await httpClient.GetAsync(new Uri($"repos/{owner.Value}/{repository.Value}/issues/{number.Value}", UriKind.Relative), cancellationToken);
-        if (!response.IsSuccessStatusCode)
+        var comments = new List<GitHubComment>();
+        for (var page = 1; ; page++)
         {
-            return null;
+            var response = await GetJsonArray($"repos/{owner.Value}/{repository.Value}/issues/{number.Value}/comments?per_page={PageSize}&page={page}", cancellationToken);
+            if (response is null || response.Count == 0)
+            {
+                break;
+            }
+
+            comments.AddRange(response
+                .OfType<JsonObject>()
+                .Select(comment => new GitHubComment(
+                    comment["id"]?.GetValue<long>() ?? 0L,
+                    comment["user"]?["login"]?.GetValue<string>() ?? string.Empty,
+                    comment["body"]?.GetValue<string>() ?? string.Empty,
+                    comment["created_at"]?.GetValue<DateTimeOffset>() ?? DateTimeOffset.MinValue)));
+
+            if (response.Count < PageSize)
+            {
+                break;
+            }
         }
 
-        if (JsonNode.Parse(await response.Content.ReadAsStringAsync(cancellationToken)) is not JsonObject issue)
-        {
-            return null;
-        }
-
-        return new(
-            AsIssue(issue),
-            issue["body"]?.GetValue<string>() ?? string.Empty,
-            issue["html_url"]?.GetValue<string>() ?? string.Empty);
+        return comments;
     }
 
     /// <inheritdoc/>
@@ -121,7 +130,15 @@ public class GitHubClient(HttpClient httpClient) : IGitHubClient
         issue["user"]?["login"]?.GetValue<string>() ?? string.Empty,
         issue["created_at"]?.GetValue<DateTimeOffset>() ?? DateTimeOffset.MinValue,
         GitHubAuthorAssociations.Map(issue["author_association"]?.GetValue<string>()),
-        issue["state"]?.GetValue<string>() == "open");
+        issue["state"]?.GetValue<string>() == "open",
+        issue["body"]?.GetValue<string>() ?? string.Empty,
+        ParseLabels(issue),
+        issue["comments"]?.GetValue<int>() ?? 0);
+
+    static IEnumerable<LabelName> ParseLabels(JsonObject issue) =>
+        issue["labels"] is JsonArray labels
+            ? [.. labels.OfType<JsonObject>().Select(label => new LabelName(label["name"]?.GetValue<string>() ?? string.Empty))]
+            : [];
 
     async Task<JsonArray?> GetJsonArray(string route, CancellationToken cancellationToken)
     {

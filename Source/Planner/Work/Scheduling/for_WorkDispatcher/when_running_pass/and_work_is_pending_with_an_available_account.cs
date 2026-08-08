@@ -16,7 +16,7 @@ public class and_work_is_pending_with_an_available_account : given.all_dependenc
     {
         AddAccountWithCredentials();
         _issuesData.Add(Issue("cratis-studio-1", Issues.IssueStatus.ReadyForDevelopment));
-        _workItemsData.Add(new WorkItem(_workId, WorkPurpose.Implementation, [new IssueId("cratis-studio-1")], ModelName.NotSet));
+        _workItemsData.Add(new WorkItem(_workId, WorkPurpose.Implementation, [new IssueId("cratis-studio-1")], ModelName.NotSet, UserName.NotSet));
     }
 
     async Task Because() => await _dispatcher.RunSchedulingPass();

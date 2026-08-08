@@ -17,8 +17,8 @@ public class and_the_five_hour_session_limit_is_reached : given.all_dependencies
         // Pro allows a single session per five-hour window - one completed session two hours ago uses it up.
         _issuesData.Add(Issue("cratis-studio-1", Issues.IssueStatus.None));
         _issuesData.Add(Issue("cratis-studio-2", Issues.IssueStatus.None));
-        _workItemsData.Add(new WorkItem(WorkId.New(), WorkPurpose.Implementation, [new IssueId("cratis-studio-1")], ModelName.NotSet, WorkStatus.Completed, account.Id, _now.AddHours(-2)));
-        _workItemsData.Add(new WorkItem(WorkId.New(), WorkPurpose.Implementation, [new IssueId("cratis-studio-2")], ModelName.NotSet));
+        _workItemsData.Add(new WorkItem(WorkId.New(), WorkPurpose.Implementation, [new IssueId("cratis-studio-1")], ModelName.NotSet, UserName.NotSet, WorkStatus.Completed, account.Id, _now.AddHours(-2)));
+        _workItemsData.Add(new WorkItem(WorkId.New(), WorkPurpose.Implementation, [new IssueId("cratis-studio-2")], ModelName.NotSet, UserName.NotSet));
     }
 
     async Task Because() => await _dispatcher.RunSchedulingPass();

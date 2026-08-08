@@ -27,7 +27,7 @@ public class when_external_issue_is_registered : Specification
     async Task Because() =>
         await _scenario.Given
             .ForEventSource(IssueId.From("Cratis", "StudioIssues", 12))
-            .Events(new IssueRegistered("Cratis", "StudioIssues", 12, "It is broken", "Bug", "outsider", DateTimeOffset.UnixEpoch, AuthorAssociation.External, true));
+            .Events(new IssueRegistered("Cratis", "StudioIssues", 12, "It is broken", "Bug", "outsider", DateTimeOffset.UnixEpoch, AuthorAssociation.External, true, IssueBody.NotSet, []));
 
     [Fact]
     async Task should_schedule_an_investigation_with_the_investigation_model() =>

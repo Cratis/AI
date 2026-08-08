@@ -8,6 +8,7 @@ using Planner.Work.Completing;
 using Planner.Work.Failing;
 using Planner.Work.Listing;
 using Planner.Work.Starting;
+using Planner.Work.Stopping;
 
 namespace Planner.Work.PropagatingStatus;
 
@@ -69,6 +70,21 @@ public class WorkStatusPropagation(IEventStore eventStore, ICommandPipeline comm
     /// <param name="context">The <see cref="EventContext"/>.</param>
     /// <returns>Awaitable task.</returns>
     public async Task On(WorkFailed @event, EventContext context)
+    {
+        var work = await eventStore.ReadModels.GetInstanceById<WorkItem>(context.EventSourceId);
+        foreach (var issue in work.Issues)
+        {
+            await commandPipeline.Execute(new ChangeIssueStatus(issue, IssueStatus.None));
+        }
+    }
+
+    /// <summary>
+    /// Clears the status of every covered issue when work is stopped deliberately.
+    /// </summary>
+    /// <param name="event">The <see cref="WorkStopped"/> event.</param>
+    /// <param name="context">The <see cref="EventContext"/>.</param>
+    /// <returns>Awaitable task.</returns>
+    public async Task On(WorkStopped @event, EventContext context)
     {
         var work = await eventStore.ReadModels.GetInstanceById<WorkItem>(context.EventSourceId);
         foreach (var issue in work.Issues)

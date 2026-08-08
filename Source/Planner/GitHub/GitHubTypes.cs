@@ -12,7 +12,7 @@ namespace Planner.GitHub;
 public record GitHubRepository(OrganizationName Owner, RepositoryName Name, bool IsPrivate);
 
 /// <summary>
-/// Represents the vitals of an issue as returned by the GitHub API.
+/// Represents an issue as returned by the GitHub API.
 /// </summary>
 /// <param name="Number">The issue number.</param>
 /// <param name="Title">The issue title.</param>
@@ -21,6 +21,9 @@ public record GitHubRepository(OrganizationName Owner, RepositoryName Name, bool
 /// <param name="CreatedAt">When the issue was created on GitHub.</param>
 /// <param name="AuthorAssociation">The author's association with the repository, such as <c>MEMBER</c> or <c>NONE</c>.</param>
 /// <param name="IsOpen">Whether the issue is open.</param>
+/// <param name="Body">The markdown body of the issue.</param>
+/// <param name="Labels">The labels on the issue.</param>
+/// <param name="CommentCount">The number of comments on the issue.</param>
 public record GitHubIssue(
     IssueNumber Number,
     IssueTitle Title,
@@ -28,12 +31,16 @@ public record GitHubIssue(
     UserName CreatedBy,
     DateTimeOffset CreatedAt,
     AuthorAssociation AuthorAssociation,
-    bool IsOpen);
+    bool IsOpen,
+    IssueBody Body,
+    IEnumerable<LabelName> Labels,
+    int CommentCount);
 
 /// <summary>
-/// Represents the details of an issue, including its markdown body.
+/// Represents a comment on an issue as returned by the GitHub API.
 /// </summary>
-/// <param name="Issue">The issue vitals.</param>
-/// <param name="Body">The markdown body of the issue.</param>
-/// <param name="Url">The html URL of the issue on GitHub.</param>
-public record GitHubIssueDetails(GitHubIssue Issue, string Body, string Url);
+/// <param name="Id">The identity of the comment.</param>
+/// <param name="Author">The login of the user that wrote the comment.</param>
+/// <param name="Body">The markdown body of the comment.</param>
+/// <param name="CommentedAt">When the comment was written.</param>
+public record GitHubComment(CommentId Id, UserName Author, CommentBody Body, DateTimeOffset CommentedAt);

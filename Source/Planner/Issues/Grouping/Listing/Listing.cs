@@ -4,6 +4,8 @@
 using MongoDB.Driver;
 using Planner.Issues.Grouping.Creating;
 using Planner.Issues.Grouping.Deleting;
+using Planner.Issues.Grouping.Renaming;
+using Planner.Issues.Grouping.SettingPrompt;
 
 namespace Planner.Issues.Grouping.Listing;
 
@@ -12,10 +14,16 @@ namespace Planner.Issues.Grouping.Listing;
 /// </summary>
 /// <param name="Id">The group identity.</param>
 /// <param name="Name">The display name of the group.</param>
+/// <param name="Prompt">Extra instructions attached to the group for the agent working on it.</param>
 [ReadModel]
 [FromEvent<GroupCreated>]
 [RemovedWith<GroupDeleted>]
-public record Group(GroupId Id, GroupName Name)
+public record Group(
+    GroupId Id,
+    [SetFrom<GroupRenamed>]
+    GroupName Name,
+    [SetFrom<GroupPromptSet>(nameof(GroupPromptSet.Prompt))]
+    WorkPrompt? Prompt = null)
 {
     /// <summary>
     /// Observes all groups.

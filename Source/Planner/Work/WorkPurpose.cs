@@ -12,5 +12,8 @@ public enum WorkPurpose
     Investigation = 0,
 
     /// <summary>Implement the issue(s) and open a pull request.</summary>
-    Implementation = 1
+    Implementation = 1,
+
+    /// <summary>Ad-hoc work over one or more repositories, driven by a free-form prompt.</summary>
+    AdHoc = 2
 }

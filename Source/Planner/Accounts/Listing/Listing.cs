@@ -17,6 +17,7 @@ namespace Planner.Accounts.Listing;
 /// <param name="Id">The account identity.</param>
 /// <param name="Name">The display name of the account.</param>
 /// <param name="Plan">The subscription plan of the account.</param>
+/// <param name="RegisteredBy">The login of the user that registered the account.</param>
 /// <param name="HasToken">Whether a Claude CLI token has been set for the account.</param>
 [ReadModel]
 [FromEvent<ClaudeAccountRegistered>]
@@ -26,6 +27,7 @@ public record ClaudeAccount(
     AccountName Name,
     [SetFrom<ClaudeAccountPlanChanged>]
     ClaudePlan Plan,
+    UserName RegisteredBy,
     [SetValue<ClaudeAccountTokenSet>(true)]
     bool HasToken = false)
 {

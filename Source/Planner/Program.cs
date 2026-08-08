@@ -45,6 +45,8 @@ builder.AddPlannerOrleans();
 
 builder.Services.AddGitHub(builder.Configuration);
 builder.Services.AddWorkerRuntime(builder.Configuration);
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddSingleton<Planner.Identity.ICurrentUser, Planner.Identity.CurrentUser>();
 builder.Services.Configure<SchedulingOptions>(builder.Configuration.GetSection(SchedulingOptions.SectionName));
 builder.Services.Configure<WorkerOptions>(builder.Configuration.GetSection(WorkerOptions.SectionName));
 builder.Services.AddSingleton(TimeProvider.System);

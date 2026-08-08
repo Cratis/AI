@@ -18,7 +18,7 @@ public class and_issue_is_registered : Specification
     async Task Because() =>
         await _scenario.Given
             .ForEventSource(_issueId)
-            .Events(new IssueRegistered("Cratis", "Studio", 256, "Fix the thing", "Bug", "someuser", _createdAt, AuthorAssociation.External, true));
+            .Events(new IssueRegistered("Cratis", "Studio", 256, "Fix the thing", "Bug", "someuser", _createdAt, AuthorAssociation.External, true, IssueBody.NotSet, []));
 
     [Fact] void should_hold_the_owner() => _scenario.Instance.Owner.ShouldEqual(new OrganizationName("Cratis"));
     [Fact] void should_hold_the_repository() => _scenario.Instance.Repository.ShouldEqual(new RepositoryName("Studio"));

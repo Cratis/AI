@@ -16,7 +16,8 @@ public class when_work_starts : given.a_work_item
         _workId,
         WorkPurpose.Implementation,
         [new IssueId("cratis-studio-1"), new IssueId("cratis-studio-2")],
-        ModelName.NotSet));
+        ModelName.NotSet,
+        UserName.NotSet));
 
     async Task Because() =>
         await _scenario.Given

@@ -3,8 +3,12 @@
 
 using MongoDB.Driver;
 using Planner.Issues.AssociatingPullRequest;
+using Planner.Issues.ChangingBody;
+using Planner.Issues.ChangingLabels;
 using Planner.Issues.ChangingStatus;
 using Planner.Issues.Closing;
+using Planner.Issues.Comments.Recording;
+using Planner.Issues.Comments.Removing;
 using Planner.Issues.Grouping;
 using Planner.Issues.Grouping.Creating;
 using Planner.Issues.Grouping.RemovingIssue;
@@ -13,8 +17,18 @@ using Planner.Issues.Registration;
 using Planner.Issues.Renaming;
 using Planner.Issues.Reopening;
 using Planner.Issues.Reordering;
+using Planner.Issues.SettingPrompt;
 
 namespace Planner.Issues.Listing;
+
+/// <summary>
+/// A comment on an issue as mirrored from GitHub.
+/// </summary>
+/// <param name="Id">The identity of the comment on GitHub.</param>
+/// <param name="Author">The login of the user that wrote the comment.</param>
+/// <param name="Body">The markdown body of the comment.</param>
+/// <param name="CommentedAt">When the comment was written on GitHub.</param>
+public record IssueComment(CommentId Id, UserName Author, CommentBody Body, DateTimeOffset CommentedAt);
 
 /// <summary>
 /// Read model for the issue list - the vitals of every mirrored issue together with the Planner's
@@ -39,6 +53,10 @@ namespace Planner.Issues.Listing;
 /// <param name="PullRequestRepository">The repository the pull request was opened in.</param>
 /// <param name="Investigation">The investigation summary - <see langword="null"/> until investigated.</param>
 /// <param name="SuggestedModel">The model an investigation suggested for implementing the issue.</param>
+/// <param name="Body">The markdown body of the issue.</param>
+/// <param name="Labels">The labels on the issue.</param>
+/// <param name="Prompt">Extra instructions attached to the issue for the agent working on it.</param>
+/// <param name="Comments">The comments on the issue as mirrored from GitHub.</param>
 [ReadModel]
 [FromEvent<IssueRegistered>]
 public record Issue(
@@ -76,7 +94,16 @@ public record Issue(
     [SetFrom<IssueInvestigated>(nameof(IssueInvestigated.Summary))]
     InvestigationSummary? Investigation = null,
     [SetFrom<IssueInvestigated>(nameof(IssueInvestigated.SuggestedModel))]
-    ModelName? SuggestedModel = null)
+    ModelName? SuggestedModel = null,
+    [SetFrom<IssueBodyChanged>(nameof(IssueBodyChanged.Body))]
+    IssueBody? Body = null,
+    [SetFrom<IssueLabelsChanged>(nameof(IssueLabelsChanged.Labels))]
+    IEnumerable<LabelName>? Labels = null,
+    [SetFrom<IssuePromptSet>(nameof(IssuePromptSet.Prompt))]
+    WorkPrompt? Prompt = null,
+    [ChildrenFrom<IssueCommentAdded>(key: nameof(IssueCommentAdded.Comment), identifiedBy: nameof(IssueComment.Id))]
+    [RemovedWith<IssueCommentRemoved>(key: nameof(IssueCommentRemoved.Comment))]
+    IEnumerable<IssueComment>? Comments = null)
 {
     /// <summary>
     /// Observes all issues across every tracked repository.

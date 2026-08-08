@@ -20,7 +20,7 @@ public class and_account_is_registered_with_token_and_plan_change : Specificatio
         await _scenario.Given
             .ForEventSource(_accountId)
             .Events(
-                new ClaudeAccountRegistered("Primary", ClaudePlan.Pro),
+                new ClaudeAccountRegistered("Primary", ClaudePlan.Pro, "someuser"),
                 new ClaudeAccountTokenSet("sk-ant-token"),
                 new ClaudeAccountPlanChanged(ClaudePlan.Max20x));
 

@@ -2,6 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 #if DEBUG
+using Microsoft.Extensions.DependencyInjection;
+
 namespace Planner.Work.Scheduling.when_scheduling_work;
 
 public class and_issues_are_given : Specification
@@ -9,7 +11,13 @@ public class and_issues_are_given : Specification
     CommandScenario<ScheduleWork> _scenario;
     CommandResult _result;
 
-    void Establish() => _scenario = new();
+    void Establish()
+    {
+        _scenario = new();
+        var currentUser = Substitute.For<Planner.Identity.ICurrentUser>();
+        currentUser.GetUserName().Returns(UserName.NotSet);
+        _scenario.Services.AddSingleton(currentUser);
+    }
 
     async Task Because() => _result = await _scenario.Execute(
         new ScheduleWork(WorkPurpose.Implementation, [new IssueId("cratis-studio-1")]));

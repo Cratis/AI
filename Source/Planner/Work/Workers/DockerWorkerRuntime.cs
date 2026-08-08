@@ -1,6 +1,9 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Threading.Channels;
 using Docker.DotNet;
 using Docker.DotNet.Models;
 using Microsoft.Extensions.Options;
@@ -39,8 +42,15 @@ public class DockerWorkerRuntime(IOptions<ContainerRuntimeOptions> options, ILog
             new CreateContainerParameters
             {
                 Image = job.Image,
-                Name = $"planner-work-{job.Work.Value:N}",
+                Name = ContainerNameFor(job.Work),
                 Env = [.. job.EnvironmentVariables.Select(variable => $"{variable.Key}={variable.Value}")],
+
+                // A TTY keeps the log a single raw stream, which also gives the live console a
+                // clean line-by-line feed. Stdin stays open so steering text can be sent to the
+                // running session.
+                Tty = true,
+                OpenStdin = true,
+                StdinOnce = false,
                 HostConfig = new HostConfig
                 {
                     // Lets the container reach the Planner's callback endpoint on the host from Linux
@@ -53,6 +63,81 @@ public class DockerWorkerRuntime(IOptions<ContainerRuntimeOptions> options, ILog
         await client.Containers.StartContainerAsync(response.ID, new ContainerStartParameters(), cancellationToken);
         logger.StartedWorkerContainer(response.ID, job.Work);
     }
+
+    /// <inheritdoc/>
+    public async Task Stop(WorkId work, CancellationToken cancellationToken = default)
+    {
+        using var client = CreateClient();
+        try
+        {
+            await client.Containers.RemoveContainerAsync(
+                ContainerNameFor(work),
+                new ContainerRemoveParameters { Force = true },
+                cancellationToken);
+            logger.StoppedWorkerContainer(work);
+        }
+        catch (DockerApiException exception)
+        {
+            // The container may already be gone - stopping is best effort.
+            logger.CouldNotStopWorker(exception, work);
+        }
+    }
+
+    /// <inheritdoc/>
+    public async IAsyncEnumerable<string> StreamLogs(WorkId work, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        using var client = CreateClient();
+        var channel = Channel.CreateUnbounded<string>();
+        var pump = Task.Run(
+            async () =>
+            {
+                try
+                {
+                    await client.Containers.GetContainerLogsAsync(
+                        ContainerNameFor(work),
+                        new ContainerLogsParameters
+                        {
+                            ShowStdout = true,
+                            ShowStderr = true,
+                            Follow = true,
+                            Tail = "1000"
+                        },
+                        new Progress<string>(line => channel.Writer.TryWrite(line)),
+                        cancellationToken);
+                }
+                catch (Exception exception)
+                {
+                    // The container may be gone or the client cancelled - the stream just ends.
+                    logger.LogStreamEnded(exception, work);
+                }
+                finally
+                {
+                    channel.Writer.TryComplete();
+                }
+            },
+            cancellationToken);
+
+        await foreach (var line in channel.Reader.ReadAllAsync(cancellationToken))
+        {
+            yield return line;
+        }
+
+        await pump;
+    }
+
+    /// <inheritdoc/>
+    public async Task SendInput(WorkId work, string text, CancellationToken cancellationToken = default)
+    {
+        using var client = CreateClient();
+        using var stream = await client.Containers.AttachContainerAsync(
+            ContainerNameFor(work),
+            new ContainerAttachParameters { Stream = true, Stdin = true },
+            cancellationToken);
+        var bytes = Encoding.UTF8.GetBytes($"{text}\n");
+        await stream.WriteAsync(bytes, 0, bytes.Length, cancellationToken);
+    }
+
+    static string ContainerNameFor(WorkId work) => $"planner-work-{work.Value:N}";
 
     static (string Image, string Tag) SplitImage(string image)
     {

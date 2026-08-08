@@ -68,9 +68,9 @@ public class all_dependencies : Specification
             Substitute.For<Microsoft.Extensions.Logging.ILogger<WorkDispatcher>>());
     }
 
-    protected ClaudeAccount AddAccountWithCredentials(ClaudePlan plan = ClaudePlan.Max20x)
+    protected ClaudeAccount AddAccountWithCredentials(ClaudePlan plan = ClaudePlan.Max20x, UserName? owner = null)
     {
-        var account = new ClaudeAccount(AccountId.New(), "Primary", plan, true);
+        var account = new ClaudeAccount(AccountId.New(), "Primary", plan, owner ?? UserName.NotSet, true);
         _accountsData.Add(account);
         _readModels.GetInstanceById<AccountCredentials>(Arg.Any<ReadModelKey>(), Arg.Any<ReadModelSessionId>())
             .Returns(new AccountCredentials(account.Id, "sk-ant-token"));

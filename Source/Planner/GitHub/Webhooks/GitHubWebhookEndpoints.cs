@@ -6,7 +6,11 @@ using System.Text;
 using System.Text.Json.Nodes;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
+using Planner.Issues.ChangingBody;
+using Planner.Issues.ChangingLabels;
 using Planner.Issues.Closing;
+using Planner.Issues.Comments.Recording;
+using Planner.Issues.Comments.Removing;
 using Planner.Issues.Registration;
 using Planner.Issues.Renaming;
 using Planner.Issues.Reopening;
@@ -52,6 +56,10 @@ public static class GitHubWebhookEndpoints
             {
                 case "issues":
                     await HandleIssueEvent(payload, commandPipeline, repositories);
+                    break;
+
+                case "issue_comment":
+                    await HandleIssueCommentEvent(payload, commandPipeline, repositories);
                     break;
 
                 case "repository" when payload["action"]?.GetValue<string>() == "created":
@@ -105,7 +113,9 @@ public static class GitHubWebhookEndpoints
                     issue["user"]?["login"]?.GetValue<string>() ?? string.Empty,
                     issue["created_at"]?.GetValue<DateTimeOffset>() ?? DateTimeOffset.MinValue,
                     GitHubAuthorAssociations.Map(issue["author_association"]?.GetValue<string>()),
-                    issue["state"]?.GetValue<string>() == "open"));
+                    issue["state"]?.GetValue<string>() == "open",
+                    issue["body"]?.GetValue<string>() ?? string.Empty,
+                    ParseLabels(issue)));
                 break;
 
             case "edited":
@@ -115,6 +125,15 @@ public static class GitHubWebhookEndpoints
                     await commandPipeline.Execute(new RenameIssue(issueId, newTitle));
                 }
 
+                if (payload["changes"]?["body"] is not null)
+                {
+                    await commandPipeline.Execute(new ChangeIssueBody(issueId, issue["body"]?.GetValue<string>() ?? string.Empty));
+                }
+
+                break;
+
+            case "labeled" or "unlabeled":
+                await commandPipeline.Execute(new ChangeIssueLabels(issueId, ParseLabels(issue)));
                 break;
 
             case "closed":
@@ -126,6 +145,62 @@ public static class GitHubWebhookEndpoints
                 break;
         }
     }
+
+    static async Task HandleIssueCommentEvent(JsonObject payload, ICommandPipeline commandPipeline, IMongoCollection<Repository> repositories)
+    {
+        if (payload["issue"] is not JsonObject issue ||
+            payload["comment"] is not JsonObject comment ||
+            payload["repository"] is not JsonObject repository)
+        {
+            return;
+        }
+
+        OrganizationName owner = repository["owner"]?["login"]?.GetValue<string>() ?? string.Empty;
+        RepositoryName name = repository["name"]?.GetValue<string>() ?? string.Empty;
+
+        var repositoryId = RepositoryId.From(owner, name);
+        var tracked = await repositories.CountDocumentsAsync(tracked => tracked.Id == repositoryId);
+        if (tracked == 0)
+        {
+            return;
+        }
+
+        var issueId = IssueId.From(owner, name, issue["number"]?.GetValue<int>() ?? 0);
+        CommentId commentId = comment["id"]?.GetValue<long>() ?? 0L;
+
+        switch (payload["action"]?.GetValue<string>())
+        {
+            case "created":
+                await commandPipeline.Execute(new RecordIssueComment(
+                    issueId,
+                    commentId,
+                    comment["user"]?["login"]?.GetValue<string>() ?? string.Empty,
+                    comment["body"]?.GetValue<string>() ?? string.Empty,
+                    comment["created_at"]?.GetValue<DateTimeOffset>() ?? DateTimeOffset.MinValue));
+                break;
+
+            case "edited":
+                // Child projections cannot update a comment in place - mirror an edit as the old
+                // comment removed and the comment as it now stands recorded.
+                await commandPipeline.Execute(new RemoveIssueComment(issueId, commentId));
+                await commandPipeline.Execute(new RecordIssueComment(
+                    issueId,
+                    commentId,
+                    comment["user"]?["login"]?.GetValue<string>() ?? string.Empty,
+                    comment["body"]?.GetValue<string>() ?? string.Empty,
+                    comment["created_at"]?.GetValue<DateTimeOffset>() ?? DateTimeOffset.MinValue));
+                break;
+
+            case "deleted":
+                await commandPipeline.Execute(new RemoveIssueComment(issueId, commentId));
+                break;
+        }
+    }
+
+    static IEnumerable<LabelName> ParseLabels(JsonObject issue) =>
+        issue["labels"] is JsonArray labels
+            ? [.. labels.OfType<JsonObject>().Select(label => new LabelName(label["name"]?.GetValue<string>() ?? string.Empty))]
+            : [];
 
     static bool SignatureIsValid(HttpRequest request, string body, string secret)
     {

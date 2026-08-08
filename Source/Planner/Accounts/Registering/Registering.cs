@@ -2,13 +2,15 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Planner.Accounts.SettingToken;
+using Planner.Identity;
 
 namespace Planner.Accounts.Registering;
 
 /// <summary>
 /// Command for registering a Claude account the Planner can schedule work on. Work runs through
 /// the regular Claude plan (not the API): a worker container gets the account's token and runs
-/// the Claude CLI with it.
+/// the Claude CLI with it. The account is associated with the user registering it - work that
+/// user schedules prefers their own account(s).
 /// </summary>
 /// <param name="Name">The display name of the account.</param>
 /// <param name="Plan">The subscription plan of the account.</param>
@@ -20,11 +22,12 @@ public record RegisterAccount(AccountName Name, ClaudePlan Plan, ClaudeToken? To
     /// Handles the command by opening a new account stream, appending the registration and - when a
     /// token was supplied - the token fact.
     /// </summary>
+    /// <param name="currentUser">The <see cref="ICurrentUser"/> registering the account.</param>
     /// <returns>The events for the new account.</returns>
-    public IEnumerable<EventForEventSourceId> Handle()
+    public IEnumerable<EventForEventSourceId> Handle(ICurrentUser currentUser)
     {
         var account = AccountId.New();
-        yield return new EventForEventSourceId(account, new ClaudeAccountRegistered(Name, Plan));
+        yield return new EventForEventSourceId(account, new ClaudeAccountRegistered(Name, Plan, currentUser.GetUserName()));
 
         var token = Token ?? ClaudeToken.NotSet;
         if (token != ClaudeToken.NotSet)
@@ -50,5 +53,6 @@ public class RegisterAccountValidator : CommandValidator<RegisterAccount>
 /// </summary>
 /// <param name="Name">The display name of the account.</param>
 /// <param name="Plan">The subscription plan of the account.</param>
+/// <param name="RegisteredBy">The login of the user that registered the account - <see cref="UserName.NotSet"/> when registered anonymously.</param>
 [EventType]
-public record ClaudeAccountRegistered(AccountName Name, ClaudePlan Plan);
+public record ClaudeAccountRegistered(AccountName Name, ClaudePlan Plan, UserName RegisteredBy);

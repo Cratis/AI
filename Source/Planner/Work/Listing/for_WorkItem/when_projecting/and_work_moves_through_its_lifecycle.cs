@@ -22,9 +22,9 @@ public class and_work_moves_through_its_lifecycle : Specification
         await _scenario.Given
             .ForEventSource(_workId)
             .Events(
-                new WorkScheduled(WorkPurpose.Implementation, [new IssueId("cratis-studio-1")], ModelName.NotSet),
+                new WorkScheduled(WorkPurpose.Implementation, [new IssueId("cratis-studio-1")], ModelName.NotSet, UserName.NotSet),
                 new WorkStarted(_accountId, "sonnet"),
-                new WorkCompleted("All done", 42, "https://github.com/Cratis/Studio/pull/42", "Cratis", "Studio"));
+                new WorkCompleted("All done", 42, "https://github.com/Cratis/Studio/pull/42", "Cratis", "Studio", 1000, 2000, 1.5m, 60000));
 
     [Fact] void should_be_completed() => _scenario.Instance.Status.ShouldEqual(WorkStatus.Completed);
     [Fact] void should_hold_the_account() => _scenario.Instance.Account.ShouldEqual(_accountId);

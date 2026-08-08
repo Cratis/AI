@@ -1,0 +1,39 @@
+// Copyright (c) Cratis. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+#if DEBUG
+using Microsoft.Extensions.DependencyInjection;
+using Planner.Work.Listing;
+using Planner.Work.Workers;
+
+namespace Planner.Work.Stopping.when_stopping_work;
+
+public class and_it_is_running : Specification
+{
+    static readonly WorkId _workId = WorkId.New();
+
+    IWorkerRuntime _workerRuntime;
+    CommandScenario<StopWork> _scenario;
+    CommandResult _result;
+
+    void Establish()
+    {
+        _workerRuntime = Substitute.For<IWorkerRuntime>();
+        _scenario = new();
+        _scenario.Services.AddSingleton(_workerRuntime);
+        _scenario.Given.ForEventSource(_workId).ReadModel(new WorkItem(
+            _workId,
+            WorkPurpose.Implementation,
+            [new IssueId("cratis-studio-1")],
+            ModelName.NotSet,
+            UserName.NotSet,
+            WorkStatus.Running));
+    }
+
+    async Task Because() => _result = await _scenario.Execute(new StopWork(_workId));
+
+    [Fact] void should_succeed() => _result.ShouldBeSuccessful();
+    [Fact] async Task should_stop_the_worker() => await _workerRuntime.Received(1).Stop(_workId, Arg.Any<CancellationToken>());
+    [Fact] void should_append_work_stopped() => _scenario.EventSequence.ShouldHaveAppendedEvent<WorkStopped>();
+}
+#endif

@@ -18,5 +18,8 @@ public enum WorkStatus
     Completed = 2,
 
     /// <summary>The work failed.</summary>
-    Failed = 3
+    Failed = 3,
+
+    /// <summary>The work was stopped deliberately before it finished.</summary>
+    Stopped = 4
 }

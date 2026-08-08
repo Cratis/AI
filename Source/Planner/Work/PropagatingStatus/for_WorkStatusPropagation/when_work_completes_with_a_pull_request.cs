@@ -16,12 +16,13 @@ public class when_work_completes_with_a_pull_request : given.a_work_item
         _workId,
         WorkPurpose.Implementation,
         [new IssueId("cratis-studio-1")],
-        ModelName.NotSet));
+        ModelName.NotSet,
+        UserName.NotSet));
 
     async Task Because() =>
         await _scenario.Given
             .ForEventSource(_workId)
-            .Events(new WorkCompleted("Implemented the thing", 42, "https://github.com/Cratis/Studio/pull/42", "Cratis", "Studio"));
+            .Events(new WorkCompleted("Implemented the thing", 42, "https://github.com/Cratis/Studio/pull/42", "Cratis", "Studio", TokenCount.NotSet, TokenCount.NotSet, UsageCost.NotSet, 0));
 
     [Fact]
     async Task should_associate_the_pull_request_with_the_issue() =>

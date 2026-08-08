@@ -27,7 +27,7 @@ public class when_member_issue_is_registered : Specification
     async Task Because() =>
         await _scenario.Given
             .ForEventSource(IssueId.From("Cratis", "Studio", 12))
-            .Events(new IssueRegistered("Cratis", "Studio", 12, "Improve the thing", "Feature", "insider", DateTimeOffset.UnixEpoch, AuthorAssociation.Member, true));
+            .Events(new IssueRegistered("Cratis", "Studio", 12, "Improve the thing", "Feature", "insider", DateTimeOffset.UnixEpoch, AuthorAssociation.Member, true, IssueBody.NotSet, []));
 
     [Fact]
     async Task should_not_schedule_anything() =>

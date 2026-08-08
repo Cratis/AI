@@ -9,6 +9,7 @@ using Planner.Accounts.Credentials;
 using Planner.Accounts.Listing;
 using Planner.GitHub;
 using Planner.Issues.Grouping;
+using Planner.Issues.Grouping.Listing;
 using Planner.Repositories.Listing;
 using Planner.Work.Listing;
 using Planner.Work.Starting;
@@ -57,7 +58,9 @@ public class WorkDispatcher(
         await DispatchPendingWork(cancellationToken);
     }
 
-    static bool IsGrouped(ListedIssue issue) => issue.Group is not null && issue.Group != GroupId.NotSet;
+    static bool IsGrouped(ListedIssue issue) => IsGroup(issue.Group);
+
+    static bool IsGroup(GroupId? group) => group is not null && group != GroupId.NotSet;
 
     static Task<IReadOnlyList<T>> Find<T>(IMongoCollection<T> collection, Expression<Func<T, bool>> predicate, CancellationToken cancellationToken) =>
         Find(collection, (FilterDefinition<T>)predicate, cancellationToken);
@@ -107,7 +110,7 @@ public class WorkDispatcher(
 
         foreach (var work in pending)
         {
-            var account = await FirstAccountWithCapacity(allAccounts, running, cancellationToken);
+            var account = await SelectAccount(work, allAccounts, running, cancellationToken);
             if (account is null)
             {
                 logger.NoCapacity(pending.Count);
@@ -130,9 +133,9 @@ public class WorkDispatcher(
             return false;
         }
 
-        var workIssues = work.Issues.ToList();
+        var workIssues = (work.Issues ?? []).ToList();
         var coveredIssues = await Find(issues, issue => workIssues.Contains(issue.Id), cancellationToken);
-        if (coveredIssues.Count == 0)
+        if (work.Purpose != WorkPurpose.AdHoc && coveredIssues.Count == 0)
         {
             logger.WorkWithoutIssues(work.Id);
             return false;
@@ -162,22 +165,52 @@ public class WorkDispatcher(
         AccountCredentials credentials,
         ModelName model)
     {
-        var first = coveredIssues[0];
-        var repository = await readModels.GetInstanceById<Repository>((EventSourceId)RepositoryId.From(first.Owner, first.Repository));
-        var codeOwner = repository?.CodeOwner ?? first.Owner;
-        var codeName = repository?.CodeName ?? first.Repository;
-
-        return new Dictionary<string, string>
+        var environment = new Dictionary<string, string>
         {
             ["PLANNER_WORK_ID"] = work.Id.Value.ToString(),
-            ["PLANNER_PROMPT"] = WorkerPrompts.Build(work, coveredIssues),
             ["PLANNER_MODEL"] = model.Value,
             ["PLANNER_CALLBACK_URL"] = $"{workerOptions.Value.CallbackBaseUrl.TrimEnd('/')}/api/work/{work.Id.Value}/callback",
-            ["PLANNER_REPOSITORY_URL"] = $"https://github.com/{codeOwner.Value}/{codeName.Value}.git",
             ["PLANNER_BRANCH"] = $"planner/work-{work.Id.Value:N}",
             ["CLAUDE_CODE_OAUTH_TOKEN"] = credentials.Token.Value,
             ["GITHUB_TOKEN"] = gitHubOptions.Value.Token
         };
+
+        if (work.Purpose == WorkPurpose.AdHoc)
+        {
+            var urls = new List<string>();
+            foreach (var repositoryId in work.Repositories ?? [])
+            {
+                var repository = await readModels.GetInstanceById<Repository>((EventSourceId)repositoryId);
+                if (repository is not null && repository.Owner != OrganizationName.NotSet)
+                {
+                    var owner = repository.CodeOwner ?? repository.Owner;
+                    var name = repository.CodeName ?? repository.Name;
+                    urls.Add($"https://github.com/{owner.Value}/{name.Value}.git");
+                }
+            }
+
+            environment["PLANNER_REPOSITORY_URLS"] = string.Join(' ', urls);
+            environment["PLANNER_PROMPT"] = WorkerPrompts.BuildAdHoc(work);
+            return environment;
+        }
+
+        var first = coveredIssues[0];
+        var issueRepository = await readModels.GetInstanceById<Repository>((EventSourceId)RepositoryId.From(first.Owner, first.Repository));
+        var codeOwner = issueRepository?.CodeOwner ?? first.Owner;
+        var codeName = issueRepository?.CodeName ?? first.Repository;
+
+        // When the work covers a whole group, its instructions travel with the prompt.
+        WorkPrompt? groupPrompt = null;
+        var groups = coveredIssues.Select(issue => issue.Group).Where(IsGroup).Distinct().ToList();
+        if (groups.Count == 1)
+        {
+            var group = await readModels.GetInstanceById<Group>((EventSourceId)groups[0]!);
+            groupPrompt = group?.Prompt;
+        }
+
+        environment["PLANNER_REPOSITORY_URL"] = $"https://github.com/{codeOwner.Value}/{codeName.Value}.git";
+        environment["PLANNER_PROMPT"] = WorkerPrompts.Build(work, coveredIssues, groupPrompt);
+        return environment;
     }
 
     ModelName ResolveModel(WorkItem work, IReadOnlyList<ListedIssue> coveredIssues)
@@ -192,28 +225,36 @@ public class WorkDispatcher(
             return schedulingOptions.Value.InvestigationModel;
         }
 
+        if (work.Purpose == WorkPurpose.AdHoc)
+        {
+            return schedulingOptions.Value.DefaultModel;
+        }
+
         return coveredIssues.Select(issue => issue.SuggestedModel).FirstOrDefault(suggested => suggested is not null)
             ?? new ModelName(schedulingOptions.Value.DefaultModel);
     }
 
-    async Task<ClaudeAccount?> FirstAccountWithCapacity(
+    async Task<ClaudeAccount?> SelectAccount(
+        WorkItem work,
         IReadOnlyList<ClaudeAccount> allAccounts,
         IReadOnlyList<WorkItem> running,
         CancellationToken cancellationToken)
     {
         var now = timeProvider.GetUtcNow();
+        var fiveHourCutoff = now - _fiveHours;
+        var weekCutoff = now - _oneWeek;
+        var candidates = new List<(ClaudeAccount Account, bool Owned, double FiveHourRatio, double WeekRatio)>();
+
         foreach (var account in allAccounts)
         {
-            if (running.Count(work => work.Account == account.Id) >= schedulingOptions.Value.MaxConcurrentWorkPerAccount)
+            if (running.Count(item => item.Account == account.Id) >= schedulingOptions.Value.MaxConcurrentWorkPerAccount)
             {
                 continue;
             }
 
             var limits = schedulingOptions.Value.LimitsFor(account.Plan);
-            var fiveHourCutoff = now - _fiveHours;
-            var weekCutoff = now - _oneWeek;
             var startedLastFiveHours = await workItems.CountDocumentsAsync(
-                work => work.Account == account.Id && work.StartedAt >= fiveHourCutoff,
+                item => item.Account == account.Id && item.StartedAt >= fiveHourCutoff,
                 cancellationToken: cancellationToken);
             if (startedLastFiveHours >= limits.SessionsPerFiveHours)
             {
@@ -221,16 +262,28 @@ public class WorkDispatcher(
             }
 
             var startedLastWeek = await workItems.CountDocumentsAsync(
-                work => work.Account == account.Id && work.StartedAt >= weekCutoff,
+                item => item.Account == account.Id && item.StartedAt >= weekCutoff,
                 cancellationToken: cancellationToken);
             if (startedLastWeek >= limits.SessionsPerWeek)
             {
                 continue;
             }
 
-            return account;
+            var owned = work.RequestedBy != UserName.NotSet && account.RegisteredBy == work.RequestedBy;
+            candidates.Add((
+                account,
+                owned,
+                (double)startedLastFiveHours / limits.SessionsPerFiveHours,
+                (double)startedLastWeek / limits.SessionsPerWeek));
         }
 
-        return null;
+        // Work a user scheduled prefers that user's own account(s); beyond that - and for pooled
+        // work from automation - pick the account with the most headroom left in its windows.
+        return candidates
+            .OrderByDescending(candidate => candidate.Owned)
+            .ThenBy(candidate => candidate.FiveHourRatio)
+            .ThenBy(candidate => candidate.WeekRatio)
+            .Select(candidate => candidate.Account)
+            .FirstOrDefault();
     }
 }

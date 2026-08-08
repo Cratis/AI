@@ -22,7 +22,7 @@ public class and_issue_moves_through_its_lifecycle : Specification
         await _scenario.Given
             .ForEventSource(_issueId)
             .Events(
-                new IssueRegistered("Cratis", "Studio", 256, "Fix the thing", "Bug", "someuser", DateTimeOffset.UnixEpoch, AuthorAssociation.External, true),
+                new IssueRegistered("Cratis", "Studio", 256, "Fix the thing", "Bug", "someuser", DateTimeOffset.UnixEpoch, AuthorAssociation.External, true, IssueBody.NotSet, []),
                 new IssueRenamed("Fix the thing properly"),
                 new IssueInvestigated("Implement by adding a slice", "sonnet"),
                 new IssueMarkedReadyForDevelopment(),

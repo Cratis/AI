@@ -26,14 +26,14 @@ public interface IGitHubClient
     Task<IEnumerable<GitHubIssue>> GetIssues(OrganizationName owner, RepositoryName repository, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Gets the details for a single issue, including its markdown body.
+    /// Gets all comments for an issue, paging through the full set.
     /// </summary>
     /// <param name="owner">The organization owning the repository.</param>
     /// <param name="repository">The repository the issue belongs to.</param>
     /// <param name="number">The issue number.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> for the operation.</param>
-    /// <returns>The issue details, or <see langword="null"/> when the issue does not exist.</returns>
-    Task<GitHubIssueDetails?> GetIssueDetails(OrganizationName owner, RepositoryName repository, IssueNumber number, CancellationToken cancellationToken = default);
+    /// <returns>The comments of the issue.</returns>
+    Task<IEnumerable<GitHubComment>> GetIssueComments(OrganizationName owner, RepositoryName repository, IssueNumber number, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Adds a comment to an issue.

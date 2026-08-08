@@ -23,7 +23,7 @@ public class and_issue_is_grouped_and_ungrouped : Specification
         await _scenario.Given
             .ForEventSource(_issueId)
             .Events(
-                new IssueRegistered("Cratis", "Studio", 256, "Fix the thing", "Bug", "someuser", DateTimeOffset.UnixEpoch, AuthorAssociation.Member, true),
+                new IssueRegistered("Cratis", "Studio", 256, "Fix the thing", "Bug", "someuser", DateTimeOffset.UnixEpoch, AuthorAssociation.Member, true, IssueBody.NotSet, []),
                 new IssueReordered(3.5),
                 new IssueAddedToGroup(_groupId),
                 new IssueRemovedFromGroup());

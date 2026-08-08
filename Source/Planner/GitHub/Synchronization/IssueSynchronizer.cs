@@ -2,7 +2,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using MongoDB.Driver;
+using Planner.Issues.ChangingBody;
+using Planner.Issues.ChangingLabels;
 using Planner.Issues.Closing;
+using Planner.Issues.Comments.Recording;
+using Planner.Issues.Comments.Removing;
 using Planner.Issues.Registration;
 using Planner.Issues.Renaming;
 using Planner.Issues.Reopening;
@@ -75,6 +79,12 @@ public class IssueSynchronizer(
         {
             if (!known.TryGetValue(gitHubIssue.Number, out var mirrored))
             {
+                // Closed issues that were never mirrored stay out of the Planner.
+                if (!gitHubIssue.IsOpen)
+                {
+                    continue;
+                }
+
                 await commandPipeline.Execute(new RegisterIssue(
                     owner,
                     name,
@@ -84,24 +94,84 @@ public class IssueSynchronizer(
                     gitHubIssue.CreatedBy,
                     gitHubIssue.CreatedAt,
                     gitHubIssue.AuthorAssociation,
-                    gitHubIssue.IsOpen));
+                    gitHubIssue.IsOpen,
+                    gitHubIssue.Body,
+                    gitHubIssue.Labels));
+
+                await SynchronizeComments(owner, name, gitHubIssue, [], cancellationToken);
                 continue;
             }
 
-            var issueId = IssueId.From(owner, name, gitHubIssue.Number);
-            if (mirrored.Title != gitHubIssue.Title)
-            {
-                await commandPipeline.Execute(new RenameIssue(issueId, gitHubIssue.Title));
-            }
+            await SynchronizeKnownIssue(owner, name, gitHubIssue, mirrored, cancellationToken);
+        }
+    }
 
-            if (mirrored.IsOpen && !gitHubIssue.IsOpen)
-            {
-                await commandPipeline.Execute(new CloseIssue(issueId));
-            }
-            else if (!mirrored.IsOpen && gitHubIssue.IsOpen)
-            {
-                await commandPipeline.Execute(new ReopenIssue(issueId));
-            }
+    async Task SynchronizeKnownIssue(
+        OrganizationName owner,
+        RepositoryName name,
+        GitHubIssue gitHubIssue,
+        ListedIssue mirrored,
+        CancellationToken cancellationToken)
+    {
+        var issueId = IssueId.From(owner, name, gitHubIssue.Number);
+        if (mirrored.Title != gitHubIssue.Title)
+        {
+            await commandPipeline.Execute(new RenameIssue(issueId, gitHubIssue.Title));
+        }
+
+        if (mirrored.IsOpen && !gitHubIssue.IsOpen)
+        {
+            await commandPipeline.Execute(new CloseIssue(issueId));
+        }
+        else if (!mirrored.IsOpen && gitHubIssue.IsOpen)
+        {
+            await commandPipeline.Execute(new ReopenIssue(issueId));
+        }
+
+        var mirroredBody = mirrored.Body ?? IssueBody.NotSet;
+        if (!mirroredBody.Equals(gitHubIssue.Body))
+        {
+            await commandPipeline.Execute(new ChangeIssueBody(issueId, gitHubIssue.Body));
+        }
+
+        var mirroredLabels = (mirrored.Labels ?? []).ToHashSet();
+        if (!mirroredLabels.SetEquals(gitHubIssue.Labels))
+        {
+            await commandPipeline.Execute(new ChangeIssueLabels(issueId, gitHubIssue.Labels));
+        }
+
+        var mirroredComments = (mirrored.Comments ?? []).ToList();
+        if (gitHubIssue.CommentCount != mirroredComments.Count)
+        {
+            await SynchronizeComments(owner, name, gitHubIssue, mirroredComments, cancellationToken);
+        }
+    }
+
+    async Task SynchronizeComments(
+        OrganizationName owner,
+        RepositoryName name,
+        GitHubIssue gitHubIssue,
+        List<Planner.Issues.Listing.IssueComment> mirroredComments,
+        CancellationToken cancellationToken)
+    {
+        if (gitHubIssue.CommentCount == 0 && mirroredComments.Count == 0)
+        {
+            return;
+        }
+
+        var issueId = IssueId.From(owner, name, gitHubIssue.Number);
+        var gitHubComments = (await gitHub.GetIssueComments(owner, name, gitHubIssue.Number, cancellationToken)).ToList();
+        var knownComments = mirroredComments.ToDictionary(comment => comment.Id);
+
+        foreach (var comment in gitHubComments.Where(comment => !knownComments.ContainsKey(comment.Id)))
+        {
+            await commandPipeline.Execute(new RecordIssueComment(issueId, comment.Id, comment.Author, comment.Body, comment.CommentedAt));
+        }
+
+        var currentIds = gitHubComments.Select(comment => comment.Id).ToHashSet();
+        foreach (var removed in mirroredComments.Where(comment => !currentIds.Contains(comment.Id)))
+        {
+            await commandPipeline.Execute(new RemoveIssueComment(issueId, removed.Id));
         }
     }
 }
