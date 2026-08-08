@@ -152,3 +152,6 @@ artifacts/
 
 # Frontend build output
 Source/*/wwwroot/
+
+# Playwright artifacts
+.playwright-mcp/
