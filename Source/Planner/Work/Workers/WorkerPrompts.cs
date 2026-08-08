@@ -57,8 +57,9 @@ public static class WorkerPrompts
             .AppendLine()
             .AppendLine("Instructions:")
             .AppendLine("- Use `gh issue view <number> --repo <owner>/<repo>` to read the full details and comments of each issue.")
+            .AppendLine("- For a reported bug, first try to reproduce it - follow the reported steps, or write and run a failing test that captures the reported behavior. State clearly in your plan whether you could reproduce it and how.")
             .AppendLine("- Study the codebase and produce a concrete plan for how each issue can be implemented or fixed.")
-            .AppendLine("- If you cannot determine a confident plan, ask the team for more input by commenting on the issue with `gh issue comment`.")
+            .AppendLine("- If you cannot determine a confident plan, or a bug does not reproduce, ask the team for more input by commenting on the issue with `gh issue comment`.")
             .AppendLine("- Suggest which Claude model should implement the work: `haiku` for trivial changes, `sonnet` for regular work, `opus` for hard or risky work.")
             .AppendLine($"- End your final message with a line `{SuggestedModelMarker} <model>` followed by the plan in markdown.");
         return prompt.ToString();

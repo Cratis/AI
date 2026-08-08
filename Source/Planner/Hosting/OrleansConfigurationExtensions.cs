@@ -3,6 +3,7 @@
 
 using Orleans.Configuration;
 using Orleans.Providers.MongoDB.Configuration;
+using Orleans.Serialization.Configuration;
 
 namespace Planner.Hosting;
 
@@ -41,6 +42,12 @@ public static class OrleansConfigurationExtensions
                 options.ClusterId = "planner";
                 options.ServiceId = "planner";
             });
+
+            // The Chronicle client assemblies expose serializable types Orleans' configuration
+            // analyzer cannot build codecs for. None of them ever cross a grain boundary here -
+            // the Planner's grain methods use primitives only - so skip the analysis instead of
+            // failing startup on types this silo never serializes.
+            silo.Services.Configure<TypeManifestOptions>(options => options.EnableConfigurationAnalysis = false);
 
             if (useMongoClustering)
             {
