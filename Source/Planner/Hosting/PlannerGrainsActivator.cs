@@ -16,18 +16,25 @@ public class PlannerGrainsActivator(IGrainFactory grains, ILogger<PlannerGrainsA
     /// <inheritdoc/>
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        // Give the silo and the Chronicle connection a moment to come up before first contact.
+        // Give the silo and the Chronicle connection a moment to come up before first contact,
+        // and keep retrying - under orchestrated startup the first attempts can race the
+        // infrastructure coming up.
         await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
 
-        try
+        while (!stoppingToken.IsCancellationRequested)
         {
-            await grains.GetGrain<IWorkScheduler>(0).Ensure();
-            await grains.GetGrain<GitHub.Synchronization.IGitHubSynchronizer>(0).Ensure();
-            logger.GrainsActivated();
-        }
-        catch (Exception exception)
-        {
-            logger.CouldNotActivateGrains(exception);
+            try
+            {
+                await grains.GetGrain<IWorkScheduler>(0).Ensure();
+                await grains.GetGrain<GitHub.Synchronization.IGitHubSynchronizer>(0).Ensure();
+                logger.GrainsActivated();
+                return;
+            }
+            catch (Exception exception)
+            {
+                logger.CouldNotActivateGrains(exception);
+                await Task.Delay(TimeSpan.FromSeconds(15), stoppingToken);
+            }
         }
     }
 }
