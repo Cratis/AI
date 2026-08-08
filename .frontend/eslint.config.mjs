@@ -139,6 +139,15 @@ const defaultConfig = [
         },
     },
     {
+        // Generated single-instance query proxies carry an `any` in their parameter plumbing.
+        files: [
+            '**/Repositories/Listing/Listing.ts',
+        ],
+        rules: {
+            '@typescript-eslint/no-explicit-any': 'off',
+        },
+    },
+    {
         // Barrel index files are pure re-exports and do not need a copyright header.
         files: ['**/index.ts', '**/index.tsx'],
         rules: {

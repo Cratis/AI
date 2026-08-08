@@ -49,7 +49,6 @@ public class RegisterIssueValidator : CommandValidator<RegisterIssue>
     {
         RuleFor(_ => _.Owner).NotEmpty().WithMessage("An owner is required");
         RuleFor(_ => _.Repository).NotEmpty().WithMessage("A repository is required");
-        RuleFor(_ => _.Number.Value).GreaterThan(0).WithMessage("An issue number is required");
     }
 }
 

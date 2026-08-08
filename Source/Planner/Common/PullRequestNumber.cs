@@ -20,3 +20,14 @@ public record PullRequestNumber(int Value) : ConceptAs<int>(Value)
     /// <param name="value">The value to convert from.</param>
     public static implicit operator PullRequestNumber(int value) => new(value);
 }
+
+/// <summary>
+/// Validates that a <see cref="PullRequestNumber"/> is a real pull request number wherever it appears.
+/// </summary>
+public class PullRequestNumberValidator : ConceptValidator<PullRequestNumber>
+{
+    /// <summary>
+    /// Initializes a new instance of the <see cref="PullRequestNumberValidator"/> class.
+    /// </summary>
+    public PullRequestNumberValidator() => RuleFor(_ => _.Value).GreaterThan(0).WithMessage("A pull request number is required");
+}

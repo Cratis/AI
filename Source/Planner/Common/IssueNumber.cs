@@ -20,3 +20,14 @@ public record IssueNumber(int Value) : ConceptAs<int>(Value)
     /// <param name="value">The value to convert from.</param>
     public static implicit operator IssueNumber(int value) => new(value);
 }
+
+/// <summary>
+/// Validates that an <see cref="IssueNumber"/> is a real issue number wherever it appears.
+/// </summary>
+public class IssueNumberValidator : ConceptValidator<IssueNumber>
+{
+    /// <summary>
+    /// Initializes a new instance of the <see cref="IssueNumberValidator"/> class.
+    /// </summary>
+    public IssueNumberValidator() => RuleFor(_ => _.Value).GreaterThan(0).WithMessage("An issue number is required");
+}

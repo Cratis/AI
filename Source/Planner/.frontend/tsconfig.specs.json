@@ -7,7 +7,8 @@
     },
     "include": [
         "../**/for_*/**/*.ts",
-        "../**/for_*/**/*.tsx"
+        "../**/for_*/**/*.tsx",
+        "../global.d.ts"
     ],
     "exclude": []
 }

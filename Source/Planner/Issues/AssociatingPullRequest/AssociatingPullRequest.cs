@@ -37,7 +37,6 @@ public class AssociatePullRequestValidator : CommandValidator<AssociatePullReque
     /// </summary>
     public AssociatePullRequestValidator()
     {
-        RuleFor(_ => _.Number.Value).GreaterThan(0).WithMessage("A pull request number is required");
         RuleFor(_ => _.PullRequestOwner).NotEmpty().WithMessage("The pull request owner is required");
         RuleFor(_ => _.PullRequestRepository).NotEmpty().WithMessage("The pull request repository is required");
     }
