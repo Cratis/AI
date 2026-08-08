@@ -24,7 +24,7 @@ scheduled work clone and operate on the code repository instead.
 
 ## Status flow
 
-```
+```text
 None ──▶ Ready for development ──▶ In progress ──▶ For review ──▶ (accepted / merged)
               ▲                        │ failure
               └───────── None ◀────────┘
@@ -58,9 +58,18 @@ investigations).
 
 A dispatched unit of work becomes a container from the `Source/Claude` image - locally a Docker
 container, in production a Kubernetes job. The container receives the work id, a purpose-specific
-prompt, the model, the account's Claude CLI token, a GitHub token, the repository clone URL and a
-callback URL. It clones the code repository, runs the Claude CLI, and reports back
-(`started`/`completed`/`failed`) to `POST /api/work/{workId}/callback`.
+prompt (including any issue and group instructions), the model, the account's Claude CLI token, a
+GitHub token, the clone URL(s) and a callback URL. It clones the code repository - one folder per
+repository for ad-hoc work - initializes rtk so the agent's shell commands are routed through the
+token optimizer, and runs the Claude CLI with stream-json input/output. The console output is the
+event stream the Planner tails live (`GET /api/work/{workId}/log`), text posted to
+`POST /api/work/{workId}/input` is forwarded into the session as a steering message, and the
+completion callback (`POST /api/work/{workId}/callback`) carries the session's token, cost and
+duration usage. Stopping work kills the container or Kubernetes job.
+
+Account selection prefers the requesting user's own Claude account(s); work scheduled by
+automation - webhooks, auto-investigations, the scheduler itself - draws from the pool, picking
+the account with the most headroom left in its windows.
 
 - **Implementation** work builds, tests, commits, pushes a branch and opens a pull request
   referencing the issues. Workers are instructed to report bugs they find in upstream Cratis

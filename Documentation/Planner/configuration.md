@@ -6,7 +6,7 @@ All configuration lives in `appsettings.json` and can be overridden with environ
 ## Cratis
 
 | Key | Default | Purpose |
-|---|---|---|
+| --- | --- | --- |
 | `Cratis:Chronicle:ConnectionString` | `chronicle://localhost:35000` | The Chronicle kernel the events live in |
 | `Cratis:MongoDB:Server` | `mongodb://localhost:27017` | MongoDB for the Arc read models |
 | `Cratis:MongoDB:Database` | `Planner` | The read model database name |
@@ -14,7 +14,7 @@ All configuration lives in `appsettings.json` and can be overridden with environ
 ## GitHub - `Planner:GitHub`
 
 | Key | Default | Purpose |
-|---|---|---|
+| --- | --- | --- |
 | `ApiBaseUrl` | `https://api.github.com` | GitHub REST API base URL (change for GitHub Enterprise) |
 | `Token` | *(empty)* | Token for the GitHub API - repository read, issues read/write, pull request merge, organization member read. Also handed to workers as `GITHUB_TOKEN` |
 | `WebhookSecret` | *(empty)* | The secret GitHub signs webhook deliveries with. When empty, signature validation is skipped - local development only |
@@ -25,14 +25,14 @@ Point an organization webhook at `https://<planner-host>/webhooks/github` with t
 ## Worker - `Planner:Worker`
 
 | Key | Default | Purpose |
-|---|---|---|
+| --- | --- | --- |
 | `Image` | `cratis/planner-worker:latest` | The worker container image (built from `Source/Claude`) |
 | `CallbackBaseUrl` | `http://host.docker.internal:5200` | The base URL workers report back to - must be reachable *from inside a worker container* |
 
 ## Scheduling - `Planner:Scheduling`
 
 | Key | Default | Purpose |
-|---|---|---|
+| --- | --- | --- |
 | `MaxConcurrentWorkPerAccount` | `1` | How many units of work may run concurrently per account |
 | `DefaultModel` | `sonnet` | The model for implementation work when nothing suggested one |
 | `InvestigationModel` | `opus` | The model used for investigations |
@@ -45,7 +45,7 @@ to your accounts' real experience.
 ## Container runtime - `ContainerRuntime`
 
 | Key | Default | Purpose |
-|---|---|---|
+| --- | --- | --- |
 | `Type` | `Auto` | `Auto`, `Docker` or `Kubernetes`. `Auto` picks Kubernetes when running in a cluster, otherwise the local Docker engine |
 | `DockerEndpoint` | *(auto)* | Explicit Docker daemon endpoint; defaults to `DOCKER_HOST` / the platform socket |
 | `KubernetesNamespace` | `default` | The namespace worker jobs are created in |
@@ -53,7 +53,7 @@ to your accounts' real experience.
 ## Orleans - `Orleans`
 
 | Key | Default | Purpose |
-|---|---|---|
+| --- | --- | --- |
 | `Enabled` | `true` | Co-hosts the Orleans silo (scheduler + consolidation grains) |
 | `Clustering` | `Localhost` | `Localhost` (single instance, in-memory reminders) or `MongoDB` (durable clustering and reminders for multiple instances) |
 

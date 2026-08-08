@@ -3,7 +3,7 @@
 The Planner ships as two images, published by the `planner-publish` workflow:
 
 | Image | Contents |
-|---|---|
+| --- | --- |
 | `cratis/planner` | The application - backend serving the built frontend from `wwwroot` on port 8080 |
 | `cratis/planner-worker` | The worker the Planner schedules - Claude CLI, .NET 10 SDK, Node + Yarn, GitHub CLI |
 
