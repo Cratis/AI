@@ -21,6 +21,7 @@ global using Cratis.Chronicle.Transactions;
 global using Cratis.Concepts;
 global using Cratis.Monads;
 global using Microsoft.AspNetCore.Mvc;
+global using Planner.Common;
 
 #if DEBUG
 global using Cratis.Arc.Chronicle.Testing.Commands;

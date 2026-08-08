@@ -4,6 +4,7 @@
 using System.Globalization;
 using Cratis.Arc;
 using Cratis.Arc.MongoDB;
+using Planner.GitHub;
 using Planner.Hosting;
 
 // Force invariant culture for the backend.
@@ -36,6 +37,7 @@ builder.AddCratis(
 
 builder.ConfigurePlannerTelemetry();
 
+builder.Services.AddGitHub(builder.Configuration);
 builder.Services.AddHealthChecks();
 builder.Services.AddOpenApi();
 
