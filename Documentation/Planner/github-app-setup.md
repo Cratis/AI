@@ -43,7 +43,11 @@ The manifest requests exactly what the Planner needs and nothing more:
 | `issues`, `issue_comment` | Keeping the issue mirror current |
 | `pull_request` | Keeping the pull request mirror current |
 | `repository` | Auto-tracking new repositories created in the organization |
-| `installation` | Recording when the App is installed on or removed from an account |
+
+The Planner also handles `installation` deliveries, which record when the App is installed on or
+removed from an account. That event is **not** in the manifest: GitHub delivers the installation
+lifecycle events to every App implicitly and rejects a manifest that asks for them, with
+`Default events unsupported: installation`.
 
 ## Install the App on an organization
 

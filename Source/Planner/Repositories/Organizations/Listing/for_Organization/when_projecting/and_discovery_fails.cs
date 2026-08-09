@@ -1,0 +1,29 @@
+// Copyright (c) Cratis. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+#if DEBUG
+using Planner.Repositories.Discovery;
+using Planner.Repositories.Organizations.Adding;
+
+namespace Planner.Repositories.Organizations.Listing.for_Organization.when_projecting;
+
+public class and_discovery_fails : Specification
+{
+    static readonly OrganizationId _organizationId = OrganizationId.From("Cratis");
+
+    ReadModelScenario<Organization> _scenario;
+
+    void Establish() => _scenario = new();
+
+    async Task Because() =>
+        await _scenario.Given
+            .ForEventSource(_organizationId)
+            .Events(
+                new OrganizationAdded("Cratis"),
+                new OrganizationRepositoryDiscoveryFailed("No GitHub App is configured"));
+
+    [Fact] void should_be_failed() => _scenario.Instance.DiscoveryStatus.ShouldEqual(RepositoryDiscoveryStatus.Failed);
+    [Fact] void should_carry_the_reason() => _scenario.Instance.DiscoveryFailure.ShouldEqual("No GitHub App is configured");
+    [Fact] void should_have_found_no_repositories() => _scenario.Instance.RepositoryCount.ShouldEqual(0);
+}
+#endif

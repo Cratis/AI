@@ -5,6 +5,12 @@
 
 :root {
   font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  /*
+    Everything downstream - PrimeReact's theme and the Tailwind scale alike - sizes in rem, so this
+    is the single knob for how large the whole app renders. 12px is what the Chronicle Workbench and
+    the Studio apps use; leaving it out inherits the browser's 16px and renders a third too big.
+  */
+  font-size: 12px;
   line-height: 24px;
   font-weight: 400;
 

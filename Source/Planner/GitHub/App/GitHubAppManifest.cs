@@ -12,6 +12,19 @@ namespace Planner.GitHub.App;
 public static class GitHubAppManifest
 {
     /// <summary>
+    /// The webhook events the App subscribes to.
+    /// </summary>
+    /// <remarks>
+    /// Only events an App can actually be subscribed to belong here. The installation lifecycle events
+    /// (<c>installation</c> and <c>installation_repositories</c>) are delivered to every App implicitly and
+    /// are not subscribable - listing either one makes GitHub reject the whole manifest with
+    /// <c>Default events unsupported: installation</c>, which blocks the registration entirely. The Planner
+    /// still handles the <c>installation</c> deliveries in <see cref="Webhooks.GitHubWebhookEndpoints"/>;
+    /// it just must not ask for them.
+    /// </remarks>
+    public static readonly string[] DefaultEvents = ["issues", "issue_comment", "repository", "pull_request"];
+
+    /// <summary>
     /// Builds the manifest JSON for registering the Planner as a GitHub App.
     /// </summary>
     /// <param name="callbackBaseUrl">The Planner's own publicly reachable base URL.</param>
@@ -35,7 +48,7 @@ public static class GitHubAppManifest
                 ["metadata"] = "read",
                 ["members"] = "read",
             },
-            ["default_events"] = new JsonArray("issues", "issue_comment", "repository", "installation", "pull_request"),
+            ["default_events"] = new JsonArray([.. DefaultEvents.Select(@event => (JsonNode)JsonValue.Create(@event))]),
         };
 
         return manifest.ToJsonString();
