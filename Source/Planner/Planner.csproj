@@ -18,6 +18,10 @@
         <PackageReference Include="Cratis" />
         <PackageReference Include="Cratis.Arc.Core" />
         <PackageReference Include="Cratis.Arc.MongoDB" />
+        <!-- Direct reference so the central Cratis.Chronicle pin actually applies: without it the
+             client resolves transitively through Cratis.Arc.Chronicle and central package management
+             does not pin transitives, which quietly held the client at whatever Arc referenced. -->
+        <PackageReference Include="Cratis.Chronicle" />
         <PackageReference Include="Docker.DotNet.Enhanced" />
         <PackageReference Include="KubernetesClient" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
