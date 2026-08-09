@@ -42,7 +42,7 @@ env:
     value: Kubernetes
   - name: ContainerRuntime__KubernetesNamespace
     value: planner-workers
-  - name: Orleans__Clustering
+  - name: Planner__Orleans__Clustering
     value: MongoDB
 ```
 
@@ -59,9 +59,12 @@ env:
   ```
 
 - `Planner:Worker:CallbackBaseUrl` must resolve from inside worker pods to the Planner service.
-- With `Orleans:Clustering=MongoDB`, clustering and reminders are durable in the
+- With `Planner:Orleans:Clustering=MongoDB`, clustering and reminders are durable in the
   `planner-orleans` database, so multiple replicas form one cluster and the scheduler/consolidation
-  grains keep running across restarts. A single replica can stay on `Localhost` clustering.
+  grains keep running across restarts. A single replica can stay on `Localhost` clustering, but its
+  reminders are in-memory and start over on every restart. The key deliberately sits under
+  `Planner:`, not under `Orleans:` - that section belongs to Orleans, which reads
+  `Orleans:Clustering` as the name of a clustering provider it must resolve.
 
 ## Webhooks
 

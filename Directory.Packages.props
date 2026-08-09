@@ -21,6 +21,15 @@
     <PackageVersion Include="Cratis.Chronicle.Testing" Version="16.19.2" />
     <PackageVersion Include="Cratis.Chronicle.XUnit.Integration" Version="16.19.2" />
     <!-- Microsoft Orleans -->
+    <!--
+      Orleans.Providers.MongoDB has no Orleans 10 release - 9.5.0 is the newest - and it pulls in
+      Microsoft.Orleans.Reminders 9.0.1. Microsoft.Orleans.Server no longer includes Reminders as of
+      Orleans 10, so nothing lifts that transitive reference and a 9.x Orleans.Reminders.dll lands
+      next to the 10.x Orleans.Runtime.dll. The 9.x LocalReminderService then calls a GrainService
+      constructor that no longer exists and the silo dies with a MissingMethodException. Referencing
+      Microsoft.Orleans.Reminders explicitly at 10.2.2 keeps the whole Orleans surface on 10.x.
+    -->
+    <PackageVersion Include="Microsoft.Orleans.Reminders" Version="10.2.2" />
     <PackageVersion Include="Microsoft.Orleans.Sdk" Version="10.2.2" />
     <PackageVersion Include="Microsoft.Orleans.Server" Version="10.2.2" />
     <PackageVersion Include="Microsoft.Orleans.Serialization.SystemTextJson" Version="10.2.2" />
