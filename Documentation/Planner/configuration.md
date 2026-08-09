@@ -1,7 +1,7 @@
 # Configuring the Planner
 
 All configuration lives in `appsettings.json` and can be overridden with environment variables
-(`__` as the section separator, e.g. `Planner__GitHub__Token`).
+(`__` as the section separator, e.g. `Planner__GitHubApp__AppId`).
 
 ## Cratis
 
@@ -16,11 +16,37 @@ All configuration lives in `appsettings.json` and can be overridden with environ
 | Key | Default | Purpose |
 | --- | --- | --- |
 | `ApiBaseUrl` | `https://api.github.com` | GitHub REST API base URL (change for GitHub Enterprise) |
-| `Token` | *(empty)* | Token for the GitHub API - repository read, issues read/write, pull request merge, organization member read. Also handed to workers as `GITHUB_TOKEN` |
+
+## GitHub App - `Planner:GitHubApp`
+
+The Planner authenticates with GitHub as a **GitHub App**, not a personal access token - see
+[Setting up the GitHub App](./github-app-setup.md) for the full walkthrough. Every worker
+container's `GITHUB_TOKEN` and every GitHub REST call are short-lived installation access tokens
+minted from these credentials, never a long-lived static token.
+
+| Key | Default | Purpose |
+| --- | --- | --- |
+| `AppId` | *(empty)* | The numeric App id GitHub assigned |
+| `Slug` | *(empty)* | The App's URL-friendly slug - used to build the installation URL |
+| `Name` | *(empty)* | The App's display name |
+| `PrivateKeyPem` | *(empty)* | The App's private key (PEM) - signs the JWTs the App authenticates with |
 | `WebhookSecret` | *(empty)* | The secret GitHub signs webhook deliveries with. When empty, signature validation is skipped - local development only |
 
-Point an organization webhook at `https://<planner-host>/webhooks/github` with the *Issues* and
-*Repositories* events, content type `application/json`, and the same secret.
+These are generated for you by the **Connect GitHub App** button on the *GitHub* settings page
+(the manifest-flow registration) - copy the values it displays into configuration or secrets, then
+restart the Planner. Which accounts have installed the App is tracked separately as regular
+application state (visible on the same settings page) since installations change at runtime,
+unlike these credentials.
+
+Point the App's webhook at `https://<planner-host>/webhooks/github` - the manifest already
+configures this for you when using the **Connect GitHub App** flow.
+
+## Git identity
+
+Also **not** configuration - managed on the *GitHub* settings page. One `git config user.name` /
+`user.email` pair, shared by the whole deployment, injected into every worker container as
+`PLANNER_GIT_USER_NAME` / `PLANNER_GIT_USER_EMAIL` so commits it makes carry a real identity
+instead of git's own unconfigured default.
 
 ## Worker - `Planner:Worker`
 

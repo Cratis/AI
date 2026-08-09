@@ -39,23 +39,21 @@ Open <http://localhost:9100> for the application. The Vite dev server proxies `/
 ## First steps
 
 1. Under **Claude Accounts**, register an account with a token from `claude setup-token`.
-2. Under **Repositories**, add an organization (discovers all its repositories) or a single
-   repository. The initial issue load starts immediately - it needs `Planner:GitHub:Token` set,
-   e.g. through user secrets:
-
-   ```shell
-   dotnet user-secrets set "Planner:GitHub:Token" "<token>" --project Source/Planner
-   ```
-
-3. Mark an issue **Ready for development** - the scheduler picks it up within a minute and starts
+2. Under **GitHub**, connect a GitHub App - see [Setting up the GitHub App](./github-app-setup.md).
+   The manifest flow needs a tunnel (below) so GitHub can reach your machine for the callback.
+3. Under **Repositories**, add an organization (discovers all its repositories) or a single
+   repository. The initial issue load starts immediately, authenticated through the connected App.
+4. Mark an issue **Ready for development** - the scheduler picks it up within a minute and starts
    a worker container. Follow it on the **Work** page or with `docker ps`.
 
 ## Webhooks locally
 
 GitHub cannot reach your machine directly - use a tunnel (e.g. `gh webhook forward`,
-`smee.io` or `ngrok`) pointing at `http://localhost:5200/webhooks/github`. Without webhooks the
-mirror still works through the initial load and the daily consolidation - or trigger a manual
-sync by re-adding the repository.
+`smee.io` or `ngrok`) pointing at `http://localhost:5200`. The same tunnel serves both the App's
+webhook deliveries (`/webhooks/github`) and the manifest-flow callbacks (`/github-app/created`,
+`/github-app/installed`) - see [Setting up the GitHub App](./github-app-setup.md) for the exact
+URLs to give the manifest. Without webhooks the issue mirror still works through the initial load
+and the daily consolidation - or trigger a manual sync by re-adding the repository.
 
 ## Running the backend alone
 

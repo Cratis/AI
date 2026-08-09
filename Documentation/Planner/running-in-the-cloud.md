@@ -26,10 +26,14 @@ env:
     value: chronicle://chronicle:35000
   - name: Cratis__MongoDB__Server
     value: mongodb://mongodb:27017
-  - name: Planner__GitHub__Token
-    valueFrom: { secretKeyRef: { name: planner, key: github-token } }
-  - name: Planner__GitHub__WebhookSecret
-    valueFrom: { secretKeyRef: { name: planner, key: webhook-secret } }
+  - name: Planner__GitHubApp__AppId
+    valueFrom: { secretKeyRef: { name: planner, key: github-app-id } }
+  - name: Planner__GitHubApp__Slug
+    valueFrom: { secretKeyRef: { name: planner, key: github-app-slug } }
+  - name: Planner__GitHubApp__PrivateKeyPem
+    valueFrom: { secretKeyRef: { name: planner, key: github-app-private-key } }
+  - name: Planner__GitHubApp__WebhookSecret
+    valueFrom: { secretKeyRef: { name: planner, key: github-app-webhook-secret } }
   - name: Planner__Worker__Image
     value: cratis/planner-worker:latest
   - name: Planner__Worker__CallbackBaseUrl
@@ -61,15 +65,12 @@ env:
 
 ## Webhooks
 
-Expose the Planner behind an ingress with TLS and register an **organization webhook** on GitHub:
-
-- Payload URL: `https://<planner-host>/webhooks/github`
-- Content type: `application/json`
-- Secret: the value of `Planner:GitHub:WebhookSecret`
-- Events: *Issues* and *Repositories*
-
-The repository event auto-tracks new repositories created in the organization; the daily
-consolidation backfills anything delivered while the Planner was down.
+Expose the Planner behind an ingress with TLS before connecting the GitHub App - see
+[Setting up the GitHub App](./github-app-setup.md). The App's manifest configures its own webhook
+(`https://<planner-host>/webhooks/github`, secret generated alongside the App's credentials) when
+registered through the **Connect GitHub App** flow - there is no separate organization webhook to
+register by hand. The repository event auto-tracks new repositories created in the organization;
+the daily consolidation backfills anything delivered while the Planner was down.
 
 ## Publishing
 

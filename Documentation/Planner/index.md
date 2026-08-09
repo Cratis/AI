@@ -33,6 +33,11 @@ Studio is.
   its plan on the GitHub issue and suggests the model that should implement it.
 - **Review flow** - completed work associates its pull request with the covered issues and marks
   them for review; accepting a pull request from the Planner merges it through the GitHub API.
+- **Pull request mirror** - every pull request across tracked repositories, kept current by
+  webhooks, browsable on its own page.
+- **GitHub App identity** - the Planner authenticates as a GitHub App rather than a shared
+  personal access token, so worker containers commit and interact with GitHub as a real,
+  auditable identity.
 
 ## Documents
 
@@ -40,6 +45,7 @@ Studio is.
 | --- | --- |
 | [How it works](./how-it-works.md) | The flow from GitHub issue to merged pull request |
 | [Configuration](./configuration.md) | Every configuration option and what it does |
+| [Setting up the GitHub App](./github-app-setup.md) | Connecting the GitHub App and setting the git identity |
 | [Running locally](./running-locally.md) | Running the full stack with Aspire and Docker |
 | [Running in the cloud](./running-in-the-cloud.md) | Production deployment with Kubernetes |
 
