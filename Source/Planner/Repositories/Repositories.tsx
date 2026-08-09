@@ -3,6 +3,8 @@
 
 import { useMemo, useState } from 'react';
 import { Column } from 'primereact/column';
+import { DataTable, DataTableExpandedRows, DataTableValueArray } from 'primereact/datatable';
+import { Menubar } from 'primereact/menubar';
 import { TabPanel, TabView } from 'primereact/tabview';
 import { Page } from '@cratis/components/Common';
 import { DataPage, MenuItem } from '@cratis/components/DataPage';
@@ -19,20 +21,33 @@ import { CreateRepositoryGroup } from './Groups/Creating/Creating';
 import { ChangeRepositoryGroup } from './Groups/Changing/Changing';
 import { DeleteRepositoryGroup } from './Groups/Deleting/Deleting';
 
+/** One row per (group, repository) pair - the shape a subheader-grouped, expandable DataTable needs. */
+type GroupMemberRow = {
+    key: string;
+    groupId: string;
+    group: RepositoryGroup;
+    repositoryId: string;
+    repositoryLabel: string;
+};
+
 /**
  * The repositories settings page - three tabs managing the organizations, the tracked
  * repositories (with code repository mapping) and the named repository groups.
  */
 export const Repositories = () => {
     const [repositoriesResult] = AllRepositories.use();
+    const [groupsResult] = AllRepositoryGroups.use();
     const [selectedOrganization, setSelectedOrganization] = useState<Organization | undefined>(undefined);
     const [selectedRepository, setSelectedRepository] = useState<Repository | undefined>(undefined);
-    const [selectedGroup, setSelectedGroup] = useState<RepositoryGroup | undefined>(undefined);
+    const [selectedGroupRow, setSelectedGroupRow] = useState<GroupMemberRow | undefined>(undefined);
+    const [expandedGroupRows, setExpandedGroupRows] = useState<DataTableValueArray | DataTableExpandedRows | undefined>(undefined);
     const [addOrganizationVisible, setAddOrganizationVisible] = useState(false);
     const [addRepositoryVisible, setAddRepositoryVisible] = useState(false);
     const [createGroupVisible, setCreateGroupVisible] = useState(false);
     const [mapCodeFor, setMapCodeFor] = useState<Repository | undefined>(undefined);
     const [changeGroupFor, setChangeGroupFor] = useState<RepositoryGroup | undefined>(undefined);
+
+    const selectedGroup = selectedGroupRow?.group;
 
     const repositoryOptions = useMemo(() =>
         (repositoriesResult.data ?? []).map((repository) => ({
@@ -40,6 +55,30 @@ export const Repositories = () => {
             value: repository.id,
         })),
         [repositoriesResult.data]);
+
+    const repositoriesById = useMemo(() => {
+        const map = new Map<string, Repository>();
+        (repositoriesResult.data ?? []).forEach((repository) => map.set(repository.id, repository));
+        return map;
+    }, [repositoriesResult.data]);
+
+    const groupRows = useMemo(() =>
+        (groupsResult.data ?? []).flatMap((group) =>
+            group.repositories.map((repositoryId): GroupMemberRow => {
+                const repository = repositoriesById.get(repositoryId);
+                return {
+                    key: `${group.id}-${repositoryId}`,
+                    groupId: group.id.toString(),
+                    group,
+                    repositoryId,
+                    repositoryLabel: repository ? `${repository.owner}/${repository.name}` : repositoryId,
+                };
+            })),
+        [groupsResult.data, repositoriesById]);
+
+    const groupHeaderTemplate = (row: GroupMemberRow) => (
+        <span className='font-semibold'>{row.group.name}</span>
+    );
 
     const removeRepository = async (repository: Repository) => {
         const command = new RemoveRepository();
@@ -51,6 +90,7 @@ export const Repositories = () => {
         const command = new DeleteRepositoryGroup();
         command.group = group.id;
         await command.execute();
+        setSelectedGroupRow(undefined);
     };
 
     return (
@@ -97,23 +137,35 @@ export const Repositories = () => {
                     </DataPage>
                 </TabPanel>
                 <TabPanel header='Repository groups' leftIcon='pi pi-objects-column mr-2' contentClassName='flex min-h-0 flex-1 flex-col'>
-                    <DataPage
-                        title='Repository groups'
-                        query={AllRepositoryGroups}
+                    <div className='px-0 py-2'>
+                        <Menubar
+                            model={[
+                                { label: 'Create', icon: 'pi pi-plus', command: () => setCreateGroupVisible(true) },
+                                { label: 'Change members', icon: 'pi pi-pencil', disabled: !selectedGroup, command: () => selectedGroup && setChangeGroupFor(selectedGroup) },
+                                { label: 'Delete', icon: 'pi pi-trash', disabled: !selectedGroup, command: () => selectedGroup && deleteGroup(selectedGroup) },
+                            ]} />
+                    </div>
+                    <DataTable
+                        value={groupRows}
+                        dataKey='key'
+                        selectionMode='single'
+                        selection={selectedGroupRow}
+                        onSelectionChange={(event) => setSelectedGroupRow(event.value as GroupMemberRow)}
+                        rowGroupMode='subheader'
+                        groupRowsBy='groupId'
+                        sortMode='single'
+                        sortField='groupId'
+                        sortOrder={1}
+                        rowGroupHeaderTemplate={groupHeaderTemplate}
+                        expandableRowGroups
+                        expandedRows={expandedGroupRows}
+                        onRowToggle={(event) => setExpandedGroupRows(event.data)}
+                        scrollable
+                        scrollHeight='flex'
                         emptyMessage='No repository groups'
-                        dataKey='id'
-                        selection={selectedGroup}
-                        onSelectionChange={(event) => setSelectedGroup(event.value as RepositoryGroup)}>
-                        <DataPage.MenuItems>
-                            <MenuItem label='Create' icon={() => <i className='pi pi-plus' />} disableOnUnselected={false} command={() => setCreateGroupVisible(true)} />
-                            <MenuItem label='Change members' icon={() => <i className='pi pi-pencil' />} disableOnUnselected command={() => selectedGroup && setChangeGroupFor(selectedGroup)} />
-                            <MenuItem label='Delete' icon={() => <i className='pi pi-trash' />} disableOnUnselected command={() => selectedGroup && deleteGroup(selectedGroup)} />
-                        </DataPage.MenuItems>
-                        <DataPage.Columns>
-                            <Column field='name' header='Name' style={{ width: '16rem' }} />
-                            <Column header='Repositories' body={(group: RepositoryGroup) => group.repositories.join(', ')} />
-                        </DataPage.Columns>
-                    </DataPage>
+                        style={{ height: '100%' }}>
+                        <Column field='repositoryLabel' header='Repository' />
+                    </DataTable>
                 </TabPanel>
             </TabView>
 
