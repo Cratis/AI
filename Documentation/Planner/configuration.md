@@ -76,12 +76,20 @@ to your accounts' real experience.
 | `DockerEndpoint` | *(auto)* | Explicit Docker daemon endpoint; defaults to `DOCKER_HOST` / the platform socket |
 | `KubernetesNamespace` | `default` | The namespace worker jobs are created in |
 
-## Orleans - `Orleans`
+## Orleans - `Planner:Orleans`
 
 | Key | Default | Purpose |
 | --- | --- | --- |
 | `Enabled` | `true` | Co-hosts the Orleans silo (scheduler + consolidation grains) |
 | `Clustering` | `Localhost` | `Localhost` (single instance, in-memory reminders) or `MongoDB` (durable clustering and reminders for multiple instances) |
+
+An unrecognized `Clustering` value fails startup rather than quietly falling
+back to `Localhost`.
+
+> These live under `Planner:Orleans`, **not** under `Orleans`. The `Orleans` section belongs to
+> Orleans itself, which binds it and reads `Orleans:Clustering` as the name of a registered
+> clustering *provider* - putting the Planner's own value there makes the silo fail to build with
+> `Could not find Clustering provider named 'Default'`.
 
 ## Claude accounts
 
