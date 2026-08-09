@@ -142,6 +142,7 @@ const defaultConfig = [
         // Generated single-instance query proxies carry an `any` in their parameter plumbing.
         files: [
             '**/Repositories/Listing/Listing.ts',
+            '**/GitHub/App/GitHubAppStatus.ts',
         ],
         rules: {
             '@typescript-eslint/no-explicit-any': 'off',

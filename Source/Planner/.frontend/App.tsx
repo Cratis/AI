@@ -9,7 +9,9 @@ import '@cratis/components/styles';
 import { AppLayout } from '../Layout/AppLayout';
 import { Issues } from '../Issues/Issues';
 import { Work } from '../Work/Work';
+import { PullRequests } from '../PullRequests/PullRequests';
 import { Repositories } from '../Repositories/Repositories';
+import { GitHubConfiguration } from '../GitHub/GitHubConfiguration';
 import { ClaudeAccounts } from '../Accounts/ClaudeAccounts';
 import { Usage } from '../Accounts/Usage/UsagePage';
 
@@ -26,8 +28,10 @@ function App() {
                         <Route path='/' element={<AppLayout />}>
                             <Route path='' element={<Issues />} />
                             <Route path='work' element={<Work />} />
+                            <Route path='pull-requests' element={<PullRequests />} />
                             <Route path='usage' element={<Usage />} />
                             <Route path='settings/repositories' element={<Repositories />} />
+                            <Route path='settings/github' element={<GitHubConfiguration />} />
                             <Route path='settings/accounts' element={<ClaudeAccounts />} />
                         </Route>
                     </Routes>
