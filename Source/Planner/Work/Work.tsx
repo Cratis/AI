@@ -6,7 +6,9 @@ import { Allotment } from 'allotment';
 import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
+import { Menubar } from 'primereact/menubar';
 import { Tag } from 'primereact/tag';
+import { Page } from '@cratis/components/Common';
 import { AllWork, WorkItem } from './Listing/Listing';
 import { WorkPurpose } from './WorkPurpose';
 import { WorkStatus } from './WorkStatus';
@@ -124,13 +126,22 @@ export const Work = () => {
         );
     };
 
+    const menuItems = [
+        { label: 'Ad-hoc work', icon: 'pi pi-bolt', command: () => setAdHocVisible(true) },
+        {
+            label: 'Stop',
+            icon: 'pi pi-stop-circle',
+            disabled: !selected || (selected.work.status !== WorkStatus.scheduled && selected.work.status !== WorkStatus.running),
+            command: () => selected && stop(selected.work),
+        },
+    ];
+
     return (
-        <div className='flex h-full flex-col'>
-            <div className='flex items-center gap-2 border-b border-[var(--surface-border)] px-4 py-2'>
-                <h1 className='m-0 flex-1 text-lg font-semibold'>Work</h1>
-                <Button label='Ad-hoc work' icon='pi pi-bolt' outlined onClick={() => setAdHocVisible(true)} />
+        <Page title='Work'>
+            <div className='px-4 py-2'>
+                <Menubar model={menuItems} />
             </div>
-            <div className='min-h-0 flex-1 overflow-hidden'>
+            <div className='min-h-0 flex-1 overflow-hidden px-4 pb-4'>
                 <Allotment className='h-full' proportionalLayout={false}>
                     <Allotment.Pane>
                         <DataTable
@@ -161,6 +172,6 @@ export const Work = () => {
             </div>
 
             {adHocVisible && <AdHocWorkDialog onClose={() => setAdHocVisible(false)} />}
-        </div>
+        </Page>
     );
 };

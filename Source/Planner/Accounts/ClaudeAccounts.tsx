@@ -2,18 +2,17 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import { useState } from 'react';
-import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
-import { DataTable } from 'primereact/datatable';
 import { Tag } from 'primereact/tag';
+import { DataPage, MenuItem } from '@cratis/components/DataPage';
+import { CommandDialog } from '@cratis/components/CommandDialog';
+import { DropdownField, InputTextField } from '@cratis/components/CommandForm/fields';
 import { AllAccounts, ClaudeAccount } from './Listing/Listing';
 import { ClaudePlan } from './ClaudePlan';
 import { RegisterAccount } from './Registering/Registering';
 import { SetAccountToken } from './SettingToken/SettingToken';
 import { ChangeAccountPlan } from './ChangingPlan/ChangingPlan';
 import { RemoveAccount } from './Removing/Removing';
-import { CommandDialog } from '@cratis/components/CommandDialog';
-import { DropdownField, InputTextField } from '@cratis/components/CommandForm/fields';
 
 const planOptions = [
     { label: 'Pro', value: ClaudePlan.pro },
@@ -25,10 +24,10 @@ const planLabel = (plan: ClaudePlan) => planOptions.find((option) => option.valu
 
 /**
  * The Claude accounts settings page - the accounts the Planner schedules work on, each with a
- * name, subscription plan and the Claude CLI token workers authenticate with.
+ * name, subscription plan, owning user and the Claude CLI token workers authenticate with.
  */
 export const ClaudeAccounts = () => {
-    const [accountsResult] = AllAccounts.use();
+    const [selected, setSelected] = useState<ClaudeAccount | undefined>(undefined);
     const [registerVisible, setRegisterVisible] = useState(false);
     const [tokenFor, setTokenFor] = useState<ClaudeAccount | undefined>(undefined);
     const [planFor, setPlanFor] = useState<ClaudeAccount | undefined>(undefined);
@@ -40,31 +39,32 @@ export const ClaudeAccounts = () => {
     };
 
     return (
-        <div className='flex h-full flex-col gap-4 overflow-auto p-4'>
-            <div className='flex items-center gap-2'>
-                <h1 className='m-0 flex-1 text-lg font-semibold'>Claude Accounts</h1>
-                <Button label='Register account' icon='pi pi-plus' outlined onClick={() => setRegisterVisible(true)} />
-            </div>
-
-            <DataTable value={accountsResult.data ?? []} dataKey='id' size='small' emptyMessage='No accounts registered'>
-                <Column field='name' header='Name' />
-                <Column header='Plan' body={(account: ClaudeAccount) => planLabel(account.plan)} style={{ width: '9rem' }} />
-                <Column
-                    header='Token'
-                    body={(account: ClaudeAccount) => account.hasToken
-                        ? <Tag value='Configured' severity='success' />
-                        : <Tag value='Missing' severity='danger' />}
-                    style={{ width: '9rem' }} />
-                <Column
-                    style={{ width: '12rem' }}
-                    body={(account: ClaudeAccount) => (
-                        <div className='flex gap-1'>
-                            <Button icon='pi pi-key' rounded text tooltip='Set token' onClick={() => setTokenFor(account)} />
-                            <Button icon='pi pi-sliders-h' rounded text tooltip='Change plan' onClick={() => setPlanFor(account)} />
-                            <Button icon='pi pi-trash' rounded text severity='danger' tooltip='Remove' onClick={() => removeAccount(account)} />
-                        </div>
-                    )} />
-            </DataTable>
+        <>
+            <DataPage
+                title='Claude Accounts'
+                query={AllAccounts}
+                emptyMessage='No accounts registered'
+                dataKey='id'
+                selection={selected}
+                onSelectionChange={(event) => setSelected(event.value as ClaudeAccount)}>
+                <DataPage.MenuItems>
+                    <MenuItem label='Register' icon={() => <i className='pi pi-plus' />} disableOnUnselected={false} command={() => setRegisterVisible(true)} />
+                    <MenuItem label='Set token' icon={() => <i className='pi pi-key' />} disableOnUnselected command={() => selected && setTokenFor(selected)} />
+                    <MenuItem label='Change plan' icon={() => <i className='pi pi-sliders-h' />} disableOnUnselected command={() => selected && setPlanFor(selected)} />
+                    <MenuItem label='Remove' icon={() => <i className='pi pi-trash' />} disableOnUnselected command={() => selected && removeAccount(selected)} />
+                </DataPage.MenuItems>
+                <DataPage.Columns>
+                    <Column field='name' header='Name' />
+                    <Column header='Plan' body={(account: ClaudeAccount) => planLabel(account.plan)} style={{ width: '9rem' }} />
+                    <Column field='registeredBy' header='Registered by' style={{ width: '12rem' }} />
+                    <Column
+                        header='Token'
+                        body={(account: ClaudeAccount) => account.hasToken
+                            ? <Tag value='Configured' severity='success' />
+                            : <Tag value='Missing' severity='danger' />}
+                        style={{ width: '9rem' }} />
+                </DataPage.Columns>
+            </DataPage>
 
             {registerVisible &&
                 <CommandDialog<RegisterAccount>
@@ -109,6 +109,6 @@ export const ClaudeAccounts = () => {
                     onCancel={() => setPlanFor(undefined)}>
                     <DropdownField<ChangeAccountPlan> value={(instance) => instance.plan} title='Plan' options={planOptions} optionValue='value' optionLabel='label' />
                 </CommandDialog>}
-        </div>
+        </>
     );
 };
