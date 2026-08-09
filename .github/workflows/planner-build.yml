@@ -1,0 +1,128 @@
+name: Planner Build
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_VERSION: "10.0.x"
+  NODE_VERSION: "22.x"
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - "**"
+    paths:
+      - "Source/**"
+      - "Directory.Build.props"
+      - "Directory.Packages.props"
+      - "package.json"
+      - "yarn.lock"
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Build (Release - zero warnings)
+        run: dotnet build Source/Planner/Planner.csproj --configuration Release -p:DisableProxyGenerator=true
+
+      - name: Build (Debug - specs compile)
+        run: dotnet build Source/Planner/Planner.csproj --configuration Debug -p:DisableProxyGenerator=true
+
+      - name: Run specs
+        run: dotnet test Source/Planner/Planner.csproj --configuration Debug --no-build
+
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Yarn install
+        run: corepack enable && yarn install
+
+      - name: Run specs
+        working-directory: Source/Planner
+        run: yarn test
+
+      - name: Lint
+        working-directory: Source/Planner
+        run: yarn lint:ci
+
+      - name: Compile
+        working-directory: Source/Planner
+        run: yarn g:compile && yarn g:compile:specs
+
+      - name: Build
+        working-directory: Source/Planner
+        run: yarn build
+
+      - name: Upload frontend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: planner-frontend
+          path: Source/Planner/wwwroot
+          retention-days: 7
+
+  artifacts:
+    name: Publish build artifacts
+    runs-on: ubuntu-latest
+    needs: [backend, frontend]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Yarn install
+        run: corepack enable && yarn install
+
+      - name: Build frontend
+        working-directory: Source/Planner
+        run: yarn build
+
+      - name: Publish backend
+        run: >
+          dotnet publish Source/Planner/Planner.csproj
+          --configuration Release
+          --self-contained false
+          -p:UseAppHost=false
+          -p:DisableProxyGenerator=true
+          -o Source/Planner/out
+
+      - name: Upload application artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: planner-app
+          path: Source/Planner/out
+          retention-days: 7

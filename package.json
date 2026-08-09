@@ -1,0 +1,62 @@
+{
+    "private": true,
+    "name": "planner",
+    "workspaces": [
+        "Source/Planner"
+    ],
+    "resolutions": {
+        "primereact": "10.9.8"
+    },
+    "engines": {
+        "node": ">=20.0.0"
+    },
+    "scripts": {
+        "g:dev": "cd $INIT_CWD && vite --config .frontend/vite.config.ts",
+        "g:build": "cd $INIT_CWD && vite build --config .frontend/vite.config.ts",
+        "g:lint": "cd $INIT_CWD && eslint --config $PROJECT_CWD/.frontend/eslint.config.mjs --cache --quiet --fix",
+        "g:lint:ci": "cd $INIT_CWD && eslint --config $PROJECT_CWD/.frontend/eslint.config.mjs --cache --quiet",
+        "g:test": "cd $INIT_CWD && vitest run --config .frontend/vite.config.ts",
+        "g:test:watch": "cd $INIT_CWD && vitest --watch --config .frontend/vite.config.ts",
+        "g:compile": "cd $INIT_CWD && tsc -b .frontend/tsconfig.json",
+        "g:compile:specs": "cd $INIT_CWD && tsc -p .frontend/tsconfig.specs.json",
+        "g:preview": "cd $INIT_CWD && vite preview --config .frontend/vite.config.ts"
+    },
+    "devDependencies": {
+        "@eslint/eslintrc": "3.3.6",
+        "@eslint/js": "10.0.1",
+        "@tailwindcss/vite": "4.3.3",
+        "@tony.ganchev/eslint-plugin-header": "^3.4.4",
+        "@types/chai": "5.2.3",
+        "@types/chai-as-promised": "8.0.2",
+        "@types/mocha": "10.0.10",
+        "@types/node": "26.1.2",
+        "@types/react": "19.2.18",
+        "@types/react-dom": "19.2.4",
+        "@types/sinon": "22.0.0",
+        "@types/sinon-chai": "4.0.0",
+        "@typescript-eslint/eslint-plugin": "8.66.0",
+        "@typescript-eslint/parser": "8.66.0",
+        "@vitejs/plugin-react": "6.0.5",
+        "chai": "6.2.2",
+        "chai-as-promised": "8.0.2",
+        "eslint": "10.8.0",
+        "eslint-plugin-import": "2.32.0",
+        "eslint-plugin-no-null": "1.0.2",
+        "eslint-plugin-react": "7.37.5",
+        "globals": "17.9.0",
+        "mocha": "11.8.0",
+        "prettier": "3.9.6",
+        "react": "19.2.8",
+        "react-dom": "19.2.8",
+        "react-router-dom": "7.18.2",
+        "sinon": "22.1.0",
+        "sinon-chai": "4.0.1",
+        "tailwindcss": "4.3.3",
+        "typescript": "5.9.3",
+        "typescript-eslint": "8.66.0",
+        "vite": "8.2.1",
+        "vite-tsconfig-paths": "6.1.1",
+        "vitest": "4.1.10"
+    },
+    "packageManager": "yarn@4.17.1"
+}

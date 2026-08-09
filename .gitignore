@@ -142,3 +142,16 @@ vite.config.ts.timestamp-*
 __pycache__/
 *.py[cod]
 *$py.class
+
+# .NET
+bin/
+obj/
+artifacts/
+*.user
+.idea/
+
+# Frontend build output
+Source/*/wwwroot/
+
+# Playwright artifacts
+.playwright-mcp/

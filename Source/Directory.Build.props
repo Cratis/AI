@@ -1,0 +1,51 @@
+<Project>
+    <Import Project="$(MSBuildThisFileDirectory)../Directory.Build.props" />
+
+    <PropertyGroup>
+        <!-- Nothing under Source is published as a NuGet package. -->
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+    <!--
+        Debug stays lenient so local iteration isn't interrupted by every stray warning.
+        Release is strict: PR builds (dotnet build, configuration Release) fail on any
+        warning, matching the Chronicle repo's convention.
+    -->
+    <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+        <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
+        <MSBuildTreatWarningsAsErrors>False</MSBuildTreatWarningsAsErrors>
+        <CodeAnalysisTreatWarningsAsErrors>False</CodeAnalysisTreatWarningsAsErrors>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)'=='Release'">
+        <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+        <MSBuildTreatWarningsAsErrors>True</MSBuildTreatWarningsAsErrors>
+        <CodeAnalysisTreatWarningsAsErrors>True</CodeAnalysisTreatWarningsAsErrors>
+    </PropertyGroup>
+
+    <!--
+        Inline specs live beside the code they specify (when_*/, for_*/, given/ and Specs/ folders).
+        Every project doubles as a test project in Debug; the spec files are stripped from Release builds.
+        A dedicated spec project (one that must keep its specs in Release and owns its own test packages)
+        opts out by setting <DedicatedSpecsProject>true</DedicatedSpecsProject>.
+    -->
+    <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+        <IsTestProject>true</IsTestProject>
+
+        <!-- The test SDK generates an entry point; projects with top-level statements keep their own. -->
+        <NoWarn>$(NoWarn);CS7022</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup Condition="'$(Configuration)' == 'Debug' AND '$(DedicatedSpecsProject)' != 'true'">
+        <PackageReference Include="xunit" />
+        <PackageReference Include="xunit.runner.visualstudio">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="NSubstitute" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" />
+        <PackageReference Include="Cratis.Specifications.XUnit" />
+        <PackageReference Include="Cratis.Arc.Chronicle.Testing" />
+        <PackageReference Include="Cratis.Chronicle.Testing" />
+    </ItemGroup>
+</Project>

@@ -1,0 +1,54 @@
+{
+    "extends": "../../../.frontend/tsconfig.base.json",
+    "compilerOptions": {
+        "allowImportingTsExtensions": true,
+        "paths": {
+            "Components": [
+                "../Components/index"
+            ],
+            "Components/*": [
+                "../Components/*"
+            ],
+            "Layout/*": [
+                "../Layout/*"
+            ],
+            "Issues": [
+                "../Issues/index"
+            ],
+            "Issues/*": [
+                "../Issues/*"
+            ],
+            "Repositories": [
+                "../Repositories/index"
+            ],
+            "Repositories/*": [
+                "../Repositories/*"
+            ],
+            "Accounts": [
+                "../Accounts/index"
+            ],
+            "Accounts/*": [
+                "../Accounts/*"
+            ],
+            "Work": [
+                "../Work/index"
+            ],
+            "Work/*": [
+                "../Work/*"
+            ],
+            "Strings": [
+                "../Locales/Strings"
+            ],
+            "*": [
+                "../*"
+            ]
+        }
+    },
+    "include": [
+        "../**/*.ts",
+        "../**/*.tsx"
+    ],
+    "exclude": [
+        "vite.config.ts"
+    ]
+}
