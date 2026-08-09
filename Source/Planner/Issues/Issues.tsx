@@ -249,10 +249,10 @@ export const Issues = () => {
 
     return (
         <Page title='Issues'>
-            <div className='px-4 py-2'>
+            <div className='flex shrink-0 items-center justify-between px-4 py-2'>
                 <Menubar model={menuItems} end={filters} />
             </div>
-            <div className='min-h-0 flex-1 overflow-hidden px-4 pb-4'>
+            <div className='flex min-h-0 flex-1 flex-col overflow-hidden px-4 pb-4'>
                 <Allotment className='h-full' proportionalLayout={false}>
                     <Allotment.Pane>
                         <DataTable
