@@ -9,8 +9,16 @@ import { Issue, IssueComment } from './Listing/Listing';
 import { IssueStatus } from './IssueStatus';
 import { ChangeIssueStatus } from './ChangingStatus/ChangingStatus';
 import { AcceptPullRequest } from './AcceptingPullRequest/AcceptingPullRequest';
+import { SetIssueModel } from './SettingModel/SettingModel';
 import { ScheduleWork } from '../Work/Scheduling/Scheduling';
 import { WorkPurpose } from '../Work/WorkPurpose';
+
+const modelOptions = [
+    { label: 'Automatic', value: '' },
+    { label: 'Opus', value: 'opus' },
+    { label: 'Sonnet', value: 'sonnet' },
+    { label: 'Haiku', value: 'haiku' },
+];
 
 /**
  * Props for the {@link IssueDetails} component.
@@ -64,6 +72,13 @@ export const IssueDetails = ({ issue }: IssueDetailsProps) => {
         await command.execute();
     };
 
+    const setModel = async (model: string) => {
+        const command = new SetIssueModel();
+        command.issue = issue.id;
+        command.model = model;
+        await command.execute();
+    };
+
     const comments = [...(issue.comments ?? [])].sort(
         (left, right) => new Date(left.commentedAt).getTime() - new Date(right.commentedAt).getTime());
 
@@ -88,6 +103,11 @@ export const IssueDetails = ({ issue }: IssueDetailsProps) => {
                     value={issue.status}
                     options={statusOptions}
                     onChange={(e) => changeStatus(e.value as IssueStatus)} />
+                <Dropdown
+                    value={issue.overriddenModel ?? ''}
+                    options={modelOptions}
+                    placeholder='Model'
+                    onChange={(e) => setModel(e.value as string)} />
                 <Button label='Open on GitHub' icon='pi pi-external-link' outlined onClick={() => window.open(issueUrl, '_blank')} />
                 <Button label='Investigate' icon='pi pi-search' outlined onClick={() => scheduleWork(WorkPurpose.investigation)} />
                 <Button label='Implement' icon='pi pi-bolt' outlined onClick={() => scheduleWork(WorkPurpose.implementation)} />

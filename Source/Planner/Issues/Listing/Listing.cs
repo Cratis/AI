@@ -17,6 +17,7 @@ using Planner.Issues.Registration;
 using Planner.Issues.Renaming;
 using Planner.Issues.Reopening;
 using Planner.Issues.Reordering;
+using Planner.Issues.SettingModel;
 using Planner.Issues.SettingPrompt;
 
 namespace Planner.Issues.Listing;
@@ -53,6 +54,7 @@ public record IssueComment(CommentId Id, UserName Author, CommentBody Body, Date
 /// <param name="PullRequestRepository">The repository the pull request was opened in.</param>
 /// <param name="Investigation">The investigation summary - <see langword="null"/> until investigated.</param>
 /// <param name="SuggestedModel">The model an investigation suggested for implementing the issue.</param>
+/// <param name="OverriddenModel">The model explicitly set by a user - takes precedence over <see cref="SuggestedModel"/> when set to anything other than <see cref="ModelName.NotSet"/>.</param>
 /// <param name="Body">The markdown body of the issue.</param>
 /// <param name="Labels">The labels on the issue.</param>
 /// <param name="Prompt">Extra instructions attached to the issue for the agent working on it.</param>
@@ -95,6 +97,8 @@ public record Issue(
     InvestigationSummary? Investigation = null,
     [SetFrom<IssueInvestigated>(nameof(IssueInvestigated.SuggestedModel))]
     ModelName? SuggestedModel = null,
+    [SetFrom<IssueModelOverridden>(nameof(IssueModelOverridden.Model))]
+    ModelName? OverriddenModel = null,
     [SetFrom<IssueBodyChanged>(nameof(IssueBodyChanged.Body))]
     IssueBody? Body = null,
     [SetFrom<IssueLabelsChanged>(nameof(IssueLabelsChanged.Labels))]
