@@ -48,8 +48,9 @@ public static class WorkerPrompts
         .AppendLine(work.Prompt?.Value ?? string.Empty)
         .AppendLine()
         .AppendLine("Instructions:")
-        .AppendLine("- Follow the conventions of each repository. Build and run the tests of everything you touch; it must be green before you finish.")
-        .AppendLine("- Commit in logical units with clear messages. Push a branch and open a pull request with `gh pr create` for each repository you changed.")
+        .AppendLine("- Follow the conventions and agent instructions of each repository. Keep your main context lean: delegate large exploration and reading to subagents and keep the main thread for deciding, editing and verifying.")
+        .AppendLine("- Verification has teeth: confirm every claim of done or fixed against a fresh signal - a build, a test run, observed behavior - never your own assessment. Build and run the tests of everything you touch; it must be green before you finish.")
+        .AppendLine("- Commit in logical units with clear messages. Push a branch and open a pull request with `gh pr create` for each repository you changed, describing what you verified and naming anything you did not.")
         .AppendLine("- If you come across bugs or limitations in upstream Cratis repositories while working, report them upstream with `gh issue create --repo <upstream>`.")
         .AppendLine("- End your final message with a summary and the URLs of any pull requests you created.")
         .ToString();
@@ -65,9 +66,11 @@ public static class WorkerPrompts
             .AppendLine()
             .AppendLine("Instructions:")
             .AppendLine("- Use `gh issue view <number> --repo <owner>/<repo>` to read the full details and comments of each issue.")
-            .AppendLine("- Follow the conventions of the repository. Build and run the tests; everything must be green before you finish.")
+            .AppendLine("- Follow the conventions and agent instructions of the repository. Keep your main context lean: delegate large exploration and reading to subagents and keep the main thread for deciding, editing and verifying.")
+            .AppendLine("- Verification has teeth: confirm every claim of done or fixed against a fresh signal - a build, a test run, observed behavior - never your own assessment. A green build is not behavioral correctness.")
+            .AppendLine("- Build and run the tests; everything must be green before you finish.")
             .AppendLine("- Commit in logical units with clear messages and push your branch.")
-            .AppendLine("- Open a single pull request with `gh pr create` covering the work, referencing each issue so it closes on merge.")
+            .AppendLine("- Open a single pull request with `gh pr create` covering the work, referencing each issue so it closes on merge. Include in the description what you verified - and explicitly name anything you did not verify.")
             .AppendLine("- If you come across bugs or limitations in upstream Cratis repositories while working, report them upstream with `gh issue create --repo <upstream>`.")
             .AppendLine("- End your final message with the URL of the pull request you created.");
         return prompt.ToString();
@@ -84,8 +87,9 @@ public static class WorkerPrompts
             .AppendLine()
             .AppendLine("Instructions:")
             .AppendLine("- Use `gh issue view <number> --repo <owner>/<repo>` to read the full details and comments of each issue.")
-            .AppendLine("- For a reported bug, first try to reproduce it - follow the reported steps, or write and run a failing test that captures the reported behavior. State clearly in your plan whether you could reproduce it and how.")
-            .AppendLine("- Study the codebase and produce a concrete plan for how each issue can be implemented or fixed.")
+            .AppendLine("- For a reported bug, first try to reproduce it - follow the reported steps, or write and run a failing test that captures the reported behavior. State clearly in your plan whether you could reproduce it and how - the reproduction signal is evidence, your reading of the code is not.")
+            .AppendLine("- Study the codebase and produce a concrete plan for how each issue can be implemented or fixed. Delegate large exploration to subagents to keep your main context lean.")
+            .AppendLine("- State in the plan what is settled and must not be redone, and what genuinely requires a human decision.")
             .AppendLine("- If you cannot determine a confident plan, or a bug does not reproduce, ask the team for more input by commenting on the issue with `gh issue comment`.")
             .AppendLine("- Suggest which Claude model should implement the work: `haiku` for trivial changes, `sonnet` for regular work, `opus` for hard or risky work.")
             .AppendLine($"- End your final message with a line `{SuggestedModelMarker} <model>` followed by the plan in markdown.");
