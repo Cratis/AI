@@ -12,8 +12,8 @@ namespace Planner.Hosting;
 /// </summary>
 /// <remarks>
 /// The Planner co-hosts a single silo in-process. Locally the silo uses localhost clustering with
-/// in-memory reminders; set <c>Orleans:Clustering</c> to <c>MongoDB</c> for durable clustering and
-/// reminders when running more than one instance - typically in Kubernetes.
+/// in-memory reminders; set <c>Planner:Orleans:Clustering</c> to <c>MongoDB</c> for durable
+/// clustering and reminders when running more than one instance - typically in Kubernetes.
 /// </remarks>
 public static class OrleansConfigurationExtensions
 {
@@ -23,18 +23,18 @@ public static class OrleansConfigurationExtensions
     public const string OrleansDatabaseName = "planner-orleans";
 
     /// <summary>
-    /// Adds the co-hosted Orleans silo, unless disabled through <c>Orleans:Enabled</c>.
+    /// Adds the co-hosted Orleans silo, unless disabled through <c>Planner:Orleans:Enabled</c>.
     /// </summary>
     /// <param name="builder">The <see cref="WebApplicationBuilder"/> to configure.</param>
     /// <returns>The same <see cref="WebApplicationBuilder"/> for chaining.</returns>
     public static WebApplicationBuilder AddPlannerOrleans(this WebApplicationBuilder builder)
     {
-        if (!builder.Configuration.GetValue("Orleans:Enabled", true))
+        var options = OrleansOptions.From(builder.Configuration);
+        if (!options.Enabled)
         {
             return builder;
         }
 
-        var useMongoClustering = builder.Configuration["Orleans:Clustering"] == "MongoDB";
         builder.Host.UseOrleans(silo =>
         {
             silo.Configure<ClusterOptions>(options =>
@@ -49,7 +49,7 @@ public static class OrleansConfigurationExtensions
             // failing startup on types this silo never serializes.
             silo.Services.Configure<TypeManifestOptions>(options => options.EnableConfigurationAnalysis = false);
 
-            if (useMongoClustering)
+            if (options.Clustering == ClusteringMode.MongoDB)
             {
                 var connectionString = builder.Configuration["Cratis:MongoDB:Server"] ?? "mongodb://localhost:27017";
                 silo.UseMongoDBClient(connectionString);
