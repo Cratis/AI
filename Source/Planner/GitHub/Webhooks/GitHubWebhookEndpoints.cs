@@ -1,11 +1,14 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json.Nodes;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
+using Planner.GitHub.App;
+using Planner.GitHub.App.Installations;
 using Planner.Issues.ChangingBody;
 using Planner.Issues.ChangingLabels;
 using Planner.Issues.Closing;
@@ -14,6 +17,9 @@ using Planner.Issues.Comments.Removing;
 using Planner.Issues.Registration;
 using Planner.Issues.Renaming;
 using Planner.Issues.Reopening;
+using Planner.PullRequests.Closing;
+using Planner.PullRequests.Registration;
+using Planner.PullRequests.Reopening;
 using Planner.Repositories.Adding;
 using Planner.Repositories.Listing;
 
@@ -21,8 +27,8 @@ namespace Planner.GitHub.Webhooks;
 
 /// <summary>
 /// The transport boundary GitHub webhook deliveries arrive through. Deliveries are validated
-/// against the configured secret and translated into the Planner's commands - the main mechanism
-/// keeping the issue mirror current.
+/// against the configured GitHub App secret and translated into the Planner's commands - the main
+/// mechanism keeping the issue and pull request mirrors current.
 /// </summary>
 public static class GitHubWebhookEndpoints
 {
@@ -37,7 +43,7 @@ public static class GitHubWebhookEndpoints
             HttpRequest request,
             ICommandPipeline commandPipeline,
             IMongoCollection<Repository> repositories,
-            IOptions<GitHubOptions> options) =>
+            IOptions<GitHubAppOptions> options) =>
         {
             using var reader = new StreamReader(request.Body);
             var body = await reader.ReadToEndAsync();
@@ -60,6 +66,14 @@ public static class GitHubWebhookEndpoints
 
                 case "issue_comment":
                     await HandleIssueCommentEvent(payload, commandPipeline, repositories);
+                    break;
+
+                case "pull_request":
+                    await HandlePullRequestEvent(payload, commandPipeline, repositories);
+                    break;
+
+                case "installation":
+                    await HandleInstallationEvent(payload, commandPipeline);
                     break;
 
                 case "repository" when payload["action"]?.GetValue<string>() == "created":
@@ -193,6 +207,72 @@ public static class GitHubWebhookEndpoints
 
             case "deleted":
                 await commandPipeline.Execute(new RemoveIssueComment(issueId, commentId));
+                break;
+        }
+    }
+
+    static async Task HandlePullRequestEvent(JsonObject payload, ICommandPipeline commandPipeline, IMongoCollection<Repository> repositories)
+    {
+        if (payload["pull_request"] is not JsonObject pullRequest || payload["repository"] is not JsonObject repository)
+        {
+            return;
+        }
+
+        OrganizationName owner = repository["owner"]?["login"]?.GetValue<string>() ?? string.Empty;
+        RepositoryName name = repository["name"]?.GetValue<string>() ?? string.Empty;
+
+        var repositoryId = RepositoryId.From(owner, name);
+        var tracked = await repositories.CountDocumentsAsync(tracked => tracked.Id == repositoryId);
+        if (tracked == 0)
+        {
+            return;
+        }
+
+        PullRequestNumber number = pullRequest["number"]?.GetValue<int>() ?? 0;
+        var pullRequestId = PullRequestId.From(owner, name, number);
+
+        switch (payload["action"]?.GetValue<string>())
+        {
+            case "opened":
+                await commandPipeline.Execute(new RegisterPullRequest(
+                    owner,
+                    name,
+                    number,
+                    pullRequest["title"]?.GetValue<string>() ?? string.Empty,
+                    pullRequest["user"]?["login"]?.GetValue<string>() ?? string.Empty,
+                    pullRequest["created_at"]?.GetValue<DateTimeOffset>() ?? DateTimeOffset.MinValue,
+                    pullRequest["html_url"]?.GetValue<string>() ?? string.Empty,
+                    true));
+                break;
+
+            case "closed":
+                await commandPipeline.Execute(new ClosePullRequest(pullRequestId, pullRequest["merged"]?.GetValue<bool>() ?? false));
+                break;
+
+            case "reopened":
+                await commandPipeline.Execute(new ReopenPullRequest(pullRequestId));
+                break;
+        }
+    }
+
+    static async Task HandleInstallationEvent(JsonObject payload, ICommandPipeline commandPipeline)
+    {
+        if (payload["installation"] is not JsonObject installation)
+        {
+            return;
+        }
+
+        InstallationId installationId = installation["id"]?.GetValue<long>() ?? 0L;
+
+        switch (payload["action"]?.GetValue<string>())
+        {
+            case "created":
+                OrganizationName account = installation["account"]?["login"]?.GetValue<string>() ?? string.Empty;
+                await commandPipeline.Execute(new RecordGitHubAppInstallation(installationId, account));
+                break;
+
+            case "deleted":
+                await commandPipeline.Execute(new RemoveGitHubAppInstallation(installationId));
                 break;
         }
     }

@@ -2,17 +2,21 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Net;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using Planner.GitHub.App;
 
 namespace Planner.GitHub;
 
 /// <summary>
-/// An <see cref="IGitHubClient"/> implementation on top of the GitHub REST API.
+/// An <see cref="IGitHubClient"/> implementation on top of the GitHub REST API, authenticating each
+/// request with the GitHub App installation token for the organization the request concerns.
 /// </summary>
 /// <param name="httpClient">The <see cref="HttpClient"/> to use - configured with base address and headers at registration.</param>
-public class GitHubClient(HttpClient httpClient) : IGitHubClient
+/// <param name="tokenResolver">The <see cref="IGitHubAppTokenResolver"/> resolving the installation token per organization.</param>
+public class GitHubClient(HttpClient httpClient, IGitHubAppTokenResolver tokenResolver) : IGitHubClient
 {
     const int PageSize = 100;
 
@@ -22,7 +26,7 @@ public class GitHubClient(HttpClient httpClient) : IGitHubClient
         var repositories = new List<GitHubRepository>();
         for (var page = 1; ; page++)
         {
-            var response = await GetJsonArray($"orgs/{organization.Value}/repos?per_page={PageSize}&page={page}", cancellationToken);
+            var response = await GetJsonArray(organization, $"orgs/{organization.Value}/repos?per_page={PageSize}&page={page}", cancellationToken);
             if (response is null || response.Count == 0)
             {
                 break;
@@ -50,7 +54,7 @@ public class GitHubClient(HttpClient httpClient) : IGitHubClient
         var issues = new List<GitHubIssue>();
         for (var page = 1; ; page++)
         {
-            var response = await GetJsonArray($"repos/{owner.Value}/{repository.Value}/issues?state=all&per_page={PageSize}&page={page}", cancellationToken);
+            var response = await GetJsonArray(owner, $"repos/{owner.Value}/{repository.Value}/issues?state=all&per_page={PageSize}&page={page}", cancellationToken);
             if (response is null || response.Count == 0)
             {
                 break;
@@ -76,7 +80,7 @@ public class GitHubClient(HttpClient httpClient) : IGitHubClient
         var comments = new List<GitHubComment>();
         for (var page = 1; ; page++)
         {
-            var response = await GetJsonArray($"repos/{owner.Value}/{repository.Value}/issues/{number.Value}/comments?per_page={PageSize}&page={page}", cancellationToken);
+            var response = await GetJsonArray(owner, $"repos/{owner.Value}/{repository.Value}/issues/{number.Value}/comments?per_page={PageSize}&page={page}", cancellationToken);
             if (response is null || response.Count == 0)
             {
                 break;
@@ -103,23 +107,21 @@ public class GitHubClient(HttpClient httpClient) : IGitHubClient
     public async Task AddIssueComment(OrganizationName owner, RepositoryName repository, IssueNumber number, string comment, CancellationToken cancellationToken = default)
     {
         var body = JsonSerializer.Serialize(new { body = comment });
-        using var content = new StringContent(body, Encoding.UTF8, "application/json");
-        using var response = await httpClient.PostAsync(new Uri($"repos/{owner.Value}/{repository.Value}/issues/{number.Value}/comments", UriKind.Relative), content, cancellationToken);
+        using var response = await Send(owner, HttpMethod.Post, $"repos/{owner.Value}/{repository.Value}/issues/{number.Value}/comments", new StringContent(body, Encoding.UTF8, "application/json"), cancellationToken);
         response.EnsureSuccessStatusCode();
     }
 
     /// <inheritdoc/>
     public async Task<bool> MergePullRequest(OrganizationName owner, RepositoryName repository, PullRequestNumber number, CancellationToken cancellationToken = default)
     {
-        using var content = new StringContent("{}", Encoding.UTF8, "application/json");
-        using var response = await httpClient.PutAsync(new Uri($"repos/{owner.Value}/{repository.Value}/pulls/{number.Value}/merge", UriKind.Relative), content, cancellationToken);
+        using var response = await Send(owner, HttpMethod.Put, $"repos/{owner.Value}/{repository.Value}/pulls/{number.Value}/merge", new StringContent("{}", Encoding.UTF8, "application/json"), cancellationToken);
         return response.IsSuccessStatusCode;
     }
 
     /// <inheritdoc/>
     public async Task<bool> IsOrganizationMember(OrganizationName organization, UserName user, CancellationToken cancellationToken = default)
     {
-        using var response = await httpClient.GetAsync(new Uri($"orgs/{organization.Value}/members/{user.Value}", UriKind.Relative), cancellationToken);
+        using var response = await Send(organization, HttpMethod.Get, $"orgs/{organization.Value}/members/{user.Value}", null, cancellationToken);
         return response.StatusCode == HttpStatusCode.NoContent;
     }
 
@@ -140,14 +142,22 @@ public class GitHubClient(HttpClient httpClient) : IGitHubClient
             ? [.. labels.OfType<JsonObject>().Select(label => new LabelName(label["name"]?.GetValue<string>() ?? string.Empty))]
             : [];
 
-    async Task<JsonArray?> GetJsonArray(string route, CancellationToken cancellationToken)
+    async Task<JsonArray?> GetJsonArray(OrganizationName owner, string route, CancellationToken cancellationToken)
     {
-        using var response = await httpClient.GetAsync(new Uri(route, UriKind.Relative), cancellationToken);
+        using var response = await Send(owner, HttpMethod.Get, route, null, cancellationToken);
         if (!response.IsSuccessStatusCode)
         {
             return null;
         }
 
         return JsonNode.Parse(await response.Content.ReadAsStringAsync(cancellationToken)) as JsonArray;
+    }
+
+    async Task<HttpResponseMessage> Send(OrganizationName owner, HttpMethod method, string route, HttpContent? content, CancellationToken cancellationToken)
+    {
+        var token = await tokenResolver.GetToken(owner, cancellationToken);
+        using var request = new HttpRequestMessage(method, new Uri(route, UriKind.Relative)) { Content = content };
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        return await httpClient.SendAsync(request, cancellationToken);
     }
 }

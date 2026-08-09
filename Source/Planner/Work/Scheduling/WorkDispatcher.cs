@@ -7,7 +7,9 @@ using MongoDB.Driver;
 using Planner.Accounts;
 using Planner.Accounts.Credentials;
 using Planner.Accounts.Listing;
-using Planner.GitHub;
+using Planner.GitHub.App;
+using Planner.GitHub.GitIdentity;
+using Planner.GitHub.GitIdentity.Listing;
 using Planner.Issues.Grouping;
 using Planner.Issues.Grouping.Listing;
 using Planner.Repositories.Listing;
@@ -26,13 +28,13 @@ namespace Planner.Work.Scheduling;
 /// <param name="workItems">The work item read models.</param>
 /// <param name="issues">The issue read models.</param>
 /// <param name="accounts">The account read models.</param>
-/// <param name="readModels">The <see cref="IReadModels"/> for keyed lookups (credentials, repositories).</param>
+/// <param name="readModels">The <see cref="IReadModels"/> for keyed lookups (credentials, repositories, git identity).</param>
 /// <param name="workerRuntime">The <see cref="IWorkerRuntime"/> that launches worker containers.</param>
 /// <param name="commandPipeline">The <see cref="ICommandPipeline"/> for executing commands.</param>
 /// <param name="timeProvider">The <see cref="TimeProvider"/> for usage-window calculations.</param>
 /// <param name="workerOptions">The worker configuration.</param>
 /// <param name="schedulingOptions">The scheduling boundaries.</param>
-/// <param name="gitHubOptions">The GitHub configuration - the token handed to workers.</param>
+/// <param name="gitHubAppTokenResolver">Resolves the GitHub App installation token handed to workers.</param>
 /// <param name="logger">The logger.</param>
 public class WorkDispatcher(
     IMongoCollection<WorkItem> workItems,
@@ -44,7 +46,7 @@ public class WorkDispatcher(
     TimeProvider timeProvider,
     IOptions<WorkerOptions> workerOptions,
     IOptions<SchedulingOptions> schedulingOptions,
-    IOptions<GitHubOptions> gitHubOptions,
+    IGitHubAppTokenResolver gitHubAppTokenResolver,
     ILogger<WorkDispatcher> logger) : IWorkDispatcher
 {
     static readonly TimeSpan _fiveHours = TimeSpan.FromHours(5);
@@ -61,6 +63,9 @@ public class WorkDispatcher(
     static bool IsGrouped(ListedIssue issue) => IsGroup(issue.Group);
 
     static bool IsGroup(GroupId? group) => group is not null && group != GroupId.NotSet;
+
+    static ModelName? EffectiveModel(ListedIssue issue) =>
+        issue.OverriddenModel is { } overridden && overridden != ModelName.NotSet ? overridden : issue.SuggestedModel;
 
     static Task<IReadOnlyList<T>> Find<T>(IMongoCollection<T> collection, Expression<Func<T, bool>> predicate, CancellationToken cancellationToken) =>
         Find(collection, (FilterDefinition<T>)predicate, cancellationToken);
@@ -142,7 +147,7 @@ public class WorkDispatcher(
         }
 
         var model = ResolveModel(work, coveredIssues);
-        var environment = await BuildEnvironment(work, coveredIssues, credentials, model);
+        var environment = await BuildEnvironment(work, coveredIssues, credentials, model, cancellationToken);
 
         try
         {
@@ -163,7 +168,8 @@ public class WorkDispatcher(
         WorkItem work,
         IReadOnlyList<ListedIssue> coveredIssues,
         AccountCredentials credentials,
-        ModelName model)
+        ModelName model,
+        CancellationToken cancellationToken)
     {
         var environment = new Dictionary<string, string>
         {
@@ -171,13 +177,20 @@ public class WorkDispatcher(
             ["PLANNER_MODEL"] = model.Value,
             ["PLANNER_CALLBACK_URL"] = $"{workerOptions.Value.CallbackBaseUrl.TrimEnd('/')}/api/work/{work.Id.Value}/callback",
             ["PLANNER_BRANCH"] = $"planner/work-{work.Id.Value:N}",
-            ["CLAUDE_CODE_OAUTH_TOKEN"] = credentials.Token.Value,
-            ["GITHUB_TOKEN"] = gitHubOptions.Value.Token
+            ["CLAUDE_CODE_OAUTH_TOKEN"] = credentials.Token.Value
         };
+
+        var gitIdentity = await readModels.GetInstanceById<ConfiguredGitIdentity>((EventSourceId)GitIdentityId.Default);
+        if (gitIdentity is not null)
+        {
+            environment["PLANNER_GIT_USER_NAME"] = gitIdentity.Name.Value;
+            environment["PLANNER_GIT_USER_EMAIL"] = gitIdentity.Email.Value;
+        }
 
         if (work.Purpose == WorkPurpose.AdHoc)
         {
             var urls = new List<string>();
+            OrganizationName? tokenOwner = null;
             foreach (var repositoryId in work.Repositories ?? [])
             {
                 var repository = await readModels.GetInstanceById<Repository>((EventSourceId)repositoryId);
@@ -186,11 +199,21 @@ public class WorkDispatcher(
                     var owner = repository.CodeOwner ?? repository.Owner;
                     var name = repository.CodeName ?? repository.Name;
                     urls.Add($"https://github.com/{owner.Value}/{name.Value}.git");
+
+                    // Worker containers commit through a single GITHUB_TOKEN, so ad-hoc work
+                    // spanning repositories under different installations authenticates as the
+                    // first one - a known limitation of the one-token-per-container model.
+                    tokenOwner ??= owner;
                 }
             }
 
             environment["PLANNER_REPOSITORY_URLS"] = string.Join(' ', urls);
             environment["PLANNER_PROMPT"] = WorkerPrompts.BuildAdHoc(work);
+            if (tokenOwner is not null)
+            {
+                environment["GITHUB_TOKEN"] = await gitHubAppTokenResolver.GetToken(tokenOwner, cancellationToken);
+            }
+
             return environment;
         }
 
@@ -210,6 +233,7 @@ public class WorkDispatcher(
 
         environment["PLANNER_REPOSITORY_URL"] = $"https://github.com/{codeOwner.Value}/{codeName.Value}.git";
         environment["PLANNER_PROMPT"] = WorkerPrompts.Build(work, coveredIssues, groupPrompt);
+        environment["GITHUB_TOKEN"] = await gitHubAppTokenResolver.GetToken(codeOwner, cancellationToken);
         return environment;
     }
 
@@ -230,7 +254,7 @@ public class WorkDispatcher(
             return schedulingOptions.Value.DefaultModel;
         }
 
-        return coveredIssues.Select(issue => issue.SuggestedModel).FirstOrDefault(suggested => suggested is not null)
+        return coveredIssues.Select(EffectiveModel).FirstOrDefault(model => model is not null)
             ?? new ModelName(schedulingOptions.Value.DefaultModel);
     }
 

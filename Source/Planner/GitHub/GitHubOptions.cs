@@ -5,6 +5,7 @@ namespace Planner.GitHub;
 
 /// <summary>
 /// Represents the configuration for talking to GitHub, bound from the <c>Planner:GitHub</c> configuration section.
+/// Authentication itself is configured separately - see <see cref="App.GitHubAppOptions"/>.
 /// </summary>
 public class GitHubOptions
 {
@@ -17,16 +18,4 @@ public class GitHubOptions
     /// Gets or sets the base URL of the GitHub REST API.
     /// </summary>
     public string ApiBaseUrl { get; set; } = "https://api.github.com";
-
-    /// <summary>
-    /// Gets or sets the token used to authenticate against the GitHub API - a fine-grained personal
-    /// access token or a GitHub App installation token with access to the configured repositories.
-    /// </summary>
-    public string Token { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Gets or sets the shared secret GitHub signs webhook deliveries with. When empty, signature
-    /// validation is skipped - local development only.
-    /// </summary>
-    public string WebhookSecret { get; set; } = string.Empty;
 }

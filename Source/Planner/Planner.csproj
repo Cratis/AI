@@ -21,6 +21,7 @@
         <PackageReference Include="Docker.DotNet.Enhanced" />
         <PackageReference Include="KubernetesClient" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+        <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" />
         <PackageReference Include="Microsoft.Orleans.Server" />
         <PackageReference Include="Orleans.Providers.MongoDB" />
         <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />

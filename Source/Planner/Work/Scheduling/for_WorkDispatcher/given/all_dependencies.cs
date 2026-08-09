@@ -7,7 +7,8 @@ using MongoDB.Driver;
 using Planner.Accounts;
 using Planner.Accounts.Credentials;
 using Planner.Accounts.Listing;
-using Planner.GitHub;
+using Planner.GitHub.App;
+using Planner.GitHub.GitIdentity.Listing;
 using Planner.Work.Listing;
 using Planner.Work.Workers;
 using ListedIssue = Planner.Issues.Listing.Issue;
@@ -28,6 +29,7 @@ public class all_dependencies : Specification
     protected TimeProvider _timeProvider;
     protected SchedulingOptions _schedulingOptions;
     protected WorkerOptions _workerOptions;
+    protected IGitHubAppTokenResolver _gitHubAppTokenResolver;
     protected WorkDispatcher _dispatcher;
 
     protected List<WorkItem> _workItemsData;
@@ -46,6 +48,7 @@ public class all_dependencies : Specification
 
         _readModels = Substitute.For<IReadModels>();
         _readModels.GetInstanceById<Repository>(Arg.Any<ReadModelKey>(), Arg.Any<ReadModelSessionId>()).Returns((Repository?)null);
+        _readModels.GetInstanceById<ConfiguredGitIdentity>(Arg.Any<ReadModelKey>(), Arg.Any<ReadModelSessionId>()).Returns((ConfiguredGitIdentity?)null);
         _workerRuntime = Substitute.For<IWorkerRuntime>();
         _commandPipeline = Substitute.For<ICommandPipeline>();
         _timeProvider = Substitute.For<TimeProvider>();
@@ -53,6 +56,8 @@ public class all_dependencies : Specification
 
         _schedulingOptions = new();
         _workerOptions = new();
+        _gitHubAppTokenResolver = Substitute.For<IGitHubAppTokenResolver>();
+        _gitHubAppTokenResolver.GetToken(Arg.Any<OrganizationName>(), Arg.Any<CancellationToken>()).Returns("installation-token");
 
         _dispatcher = new(
             _workItems,
@@ -64,7 +69,7 @@ public class all_dependencies : Specification
             _timeProvider,
             Options.Create(_workerOptions),
             Options.Create(_schedulingOptions),
-            Options.Create(new GitHubOptions()),
+            _gitHubAppTokenResolver,
             Substitute.For<Microsoft.Extensions.Logging.ILogger<WorkDispatcher>>());
     }
 
@@ -77,7 +82,12 @@ public class all_dependencies : Specification
         return account;
     }
 
-    protected static ListedIssue Issue(string key, Issues.IssueStatus status, Issues.Grouping.GroupId? group = null, ModelName? suggestedModel = null) =>
+    protected static ListedIssue Issue(
+        string key,
+        Issues.IssueStatus status,
+        Issues.Grouping.GroupId? group = null,
+        ModelName? suggestedModel = null,
+        ModelName? overriddenModel = null) =>
         new(
             key,
             "Cratis",
@@ -91,7 +101,8 @@ public class all_dependencies : Specification
             true,
             status,
             Group: group,
-            SuggestedModel: suggestedModel);
+            SuggestedModel: suggestedModel,
+            OverriddenModel: overriddenModel);
 
     static IMongoCollection<T> CollectionOf<T>(Func<IReadOnlyList<T>> items)
     {

@@ -12,7 +12,9 @@
 #   PLANNER_PROMPT           - the instructions for the agent (markdown)
 #   PLANNER_MODEL            - the model to use (e.g. opus, sonnet)
 #   PLANNER_CALLBACK_URL     - URL the container reports progress/completion to
-#   GITHUB_TOKEN             - token used for git and the GitHub CLI
+#   PLANNER_GIT_USER_NAME    - git config user.name for commits made in this container
+#   PLANNER_GIT_USER_EMAIL   - git config user.email for commits made in this container
+#   GITHUB_TOKEN             - a short-lived GitHub App installation token, used for git and the GitHub CLI
 #   CLAUDE_CODE_OAUTH_TOKEN  - credential for the Claude CLI (from the configured Claude account)
 #
 # The Claude session runs with stream-json input/output: the console output is the live event
@@ -57,8 +59,12 @@ fail() {
 
 if [[ -n "${GITHUB_TOKEN:-}" ]]; then
     git config --global credential.helper '!f() { echo "username=x-access-token"; echo "password=${GITHUB_TOKEN}"; }; f'
-    git config --global user.name "Cratis Planner"
-    git config --global user.email "planner@cratis.io"
+fi
+if [[ -n "${PLANNER_GIT_USER_NAME:-}" ]]; then
+    git config --global user.name "${PLANNER_GIT_USER_NAME}"
+fi
+if [[ -n "${PLANNER_GIT_USER_EMAIL:-}" ]]; then
+    git config --global user.email "${PLANNER_GIT_USER_EMAIL}"
 fi
 
 # Route the agent's shell commands through rtk - installs the hook that transparently prefixes

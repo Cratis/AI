@@ -5,6 +5,7 @@ using System.Globalization;
 using Cratis.Arc;
 using Cratis.Arc.MongoDB;
 using Planner.GitHub;
+using Planner.GitHub.App;
 using Planner.GitHub.Synchronization;
 using Planner.GitHub.Webhooks;
 using Planner.Hosting;
@@ -65,6 +66,7 @@ app.UseStaticFiles();
 app.MapHealthChecks("/health");
 app.MapWorkerCallbacks();
 app.MapGitHubWebhooks();
+app.MapGitHubAppEndpoints();
 app.UseCratis();
 app.MapOpenApi();
 
