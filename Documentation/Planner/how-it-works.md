@@ -22,6 +22,19 @@ Some issue repositories front a separate private code repository (for instance t
 `StudioIssues` for the private `Studio`). Mapping a code repository on the issues repository makes
 scheduled work clone and operate on the code repository instead.
 
+### When the initial load cannot run
+
+Every one of those mechanisms needs a GitHub App installed on the account (see
+[Setting up the GitHub App](./github-app-setup.md)). Adding an organization succeeds regardless -
+the organization is a fact the Planner records on its own - but the discovery that follows fails
+without an App, and so does the issue load for a repository.
+
+Both outcomes are recorded as facts rather than swallowed, so the **Repositories** page always says
+what happened: an organization row shows how many repositories were found, or **Discovery failed**
+with the reason; a repository row shows **Issues loaded**, or **Issue load failed** with the
+reason. The page also warns up front when no App is configured at all. Once the App is connected
+and installed, **Retry discovery** on the organization runs the whole load again.
+
 ## Status flow
 
 ```text

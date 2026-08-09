@@ -5,13 +5,18 @@ import { useMemo, useState } from 'react';
 import { Column } from 'primereact/column';
 import { DataTable, DataTableExpandedRows, DataTableValueArray } from 'primereact/datatable';
 import { Menubar } from 'primereact/menubar';
+import { Message } from 'primereact/message';
 import { TabPanel, TabView } from 'primereact/tabview';
+import { Tag } from 'primereact/tag';
 import { Page } from '@cratis/components/Common';
 import { DataPage, MenuItem } from '@cratis/components/DataPage';
 import { CommandDialog } from '@cratis/components/CommandDialog';
 import { InputTextField, MultiSelectField } from '@cratis/components/CommandForm/fields';
+import { Current as GetGitHubAppStatus } from '../GitHub/App/GitHubAppStatus';
 import { AllOrganizations, Organization } from './Organizations/Listing/Listing';
+import { RepositoryDiscoveryStatus } from './Organizations/RepositoryDiscoveryStatus';
 import { AllRepositories, Repository } from './Listing/Listing';
+import { IssueSynchronizationStatus } from './IssueSynchronizationStatus';
 import { AddOrganization } from './Organizations/Adding/Adding';
 import { AddRepository } from './Adding/Adding';
 import { RemoveRepository } from './Removing/Removing';
@@ -31,12 +36,40 @@ type GroupMemberRow = {
 };
 
 /**
+ * How discovering an organization's repositories went. Nothing about an organization is visible until
+ * its repositories load, so an organization that never got them has to say so on its own row.
+ */
+const discoveryTag = (organization: Organization) => {
+    switch (organization.discoveryStatus) {
+        case RepositoryDiscoveryStatus.discovered:
+            return <Tag value={`${organization.repositoryCount} repositories`} severity='success' />;
+        case RepositoryDiscoveryStatus.failed:
+            return <Tag value='Discovery failed' severity='danger' />;
+        default:
+            return <Tag value='Discovering…' severity='info' />;
+    }
+};
+
+/** How mirroring a repository's issues went - the same story one level down. */
+const synchronizationTag = (repository: Repository) => {
+    switch (repository.synchronizationStatus) {
+        case IssueSynchronizationStatus.synchronized:
+            return <Tag value='Issues loaded' severity='success' />;
+        case IssueSynchronizationStatus.failed:
+            return <Tag value='Issue load failed' severity='danger' />;
+        default:
+            return <Tag value='Loading issues…' severity='info' />;
+    }
+};
+
+/**
  * The repositories settings page - three tabs managing the organizations, the tracked
  * repositories (with code repository mapping) and the named repository groups.
  */
 export const Repositories = () => {
     const [repositoriesResult] = AllRepositories.use();
     const [groupsResult] = AllRepositoryGroups.use();
+    const [gitHubAppStatusResult] = GetGitHubAppStatus.use();
     const [selectedOrganization, setSelectedOrganization] = useState<Organization | undefined>(undefined);
     const [selectedRepository, setSelectedRepository] = useState<Repository | undefined>(undefined);
     const [selectedGroupRow, setSelectedGroupRow] = useState<GroupMemberRow | undefined>(undefined);
@@ -86,6 +119,14 @@ export const Repositories = () => {
         await command.execute();
     };
 
+    // Adding an organization is what triggers discovery, so adding one that is already there is the
+    // retry - the same fact appended again, putting the row back to discovering.
+    const retryDiscovery = async (organization: Organization) => {
+        const command = new AddOrganization();
+        command.name = organization.name;
+        await command.execute();
+    };
+
     const deleteGroup = async (group: RepositoryGroup) => {
         const command = new DeleteRepositoryGroup();
         command.group = group.id;
@@ -94,9 +135,16 @@ export const Repositories = () => {
     };
 
     return (
-        <Page title='Repositories' showTitle={false}>
+        <Page title='Repositories'>
+            {gitHubAppStatusResult.data && !gitHubAppStatusResult.data.isConfigured &&
+                <div className='flex shrink-0 items-center px-4 py-2'>
+                    <Message
+                        className='w-full justify-start'
+                        severity='warn'
+                        text='No GitHub App is configured, so nothing can be read from GitHub. Organizations and repositories added now will be recorded, but their repositories and issues will not load until an App is connected under Settings - GitHub.' />
+                </div>}
             <TabView
-                className='flex min-h-0 flex-1 flex-col px-4 pt-2'
+                className='flex min-h-0 flex-1 flex-col'
                 panelContainerClassName='flex min-h-0 flex-1 flex-col'>
                 <TabPanel header='Organizations' leftIcon='pi pi-building mr-2' contentClassName='flex min-h-0 flex-1 flex-col'>
                     <DataPage
@@ -108,9 +156,15 @@ export const Repositories = () => {
                         onSelectionChange={(event) => setSelectedOrganization(event.value as Organization)}>
                         <DataPage.MenuItems>
                             <MenuItem label='Add' icon={() => <i className='pi pi-plus' />} disableOnUnselected={false} command={() => setAddOrganizationVisible(true)} />
+                            <MenuItem label='Retry discovery' icon={() => <i className='pi pi-refresh' />} disableOnUnselected command={() => selectedOrganization && retryDiscovery(selectedOrganization)} />
                         </DataPage.MenuItems>
                         <DataPage.Columns>
-                            <Column field='name' header='Name' />
+                            <Column field='name' header='Name' style={{ width: '16rem' }} />
+                            <Column header='Repositories' body={discoveryTag} style={{ width: '12rem' }} />
+                            <Column
+                                header='Detail'
+                                body={(organization: Organization) =>
+                                    <span className='text-[var(--text-color-secondary)]'>{organization.discoveryFailure}</span>} />
                         </DataPage.Columns>
                     </DataPage>
                 </TabPanel>
@@ -128,16 +182,22 @@ export const Repositories = () => {
                             <MenuItem label='Remove' icon={() => <i className='pi pi-trash' />} disableOnUnselected command={() => selectedRepository && removeRepository(selectedRepository)} />
                         </DataPage.MenuItems>
                         <DataPage.Columns>
-                            <Column header='Repository' body={(repository: Repository) => `${repository.owner}/${repository.name}`} />
+                            <Column header='Repository' body={(repository: Repository) => `${repository.owner}/${repository.name}`} style={{ width: '20rem' }} />
                             <Column
                                 header='Code repository'
                                 body={(repository: Repository) =>
-                                    repository.codeOwner ? `${repository.codeOwner}/${repository.codeName}` : '-'} />
+                                    repository.codeOwner ? `${repository.codeOwner}/${repository.codeName}` : '-'}
+                                style={{ width: '20rem' }} />
+                            <Column header='Issues' body={synchronizationTag} style={{ width: '12rem' }} />
+                            <Column
+                                header='Detail'
+                                body={(repository: Repository) =>
+                                    <span className='text-[var(--text-color-secondary)]'>{repository.synchronizationFailure}</span>} />
                         </DataPage.Columns>
                     </DataPage>
                 </TabPanel>
                 <TabPanel header='Repository groups' leftIcon='pi pi-objects-column mr-2' contentClassName='flex min-h-0 flex-1 flex-col'>
-                    <div className='px-0 py-2'>
+                    <div className='flex shrink-0 items-center justify-between px-4 py-2'>
                         <Menubar
                             model={[
                                 { label: 'Create', icon: 'pi pi-plus', command: () => setCreateGroupVisible(true) },
