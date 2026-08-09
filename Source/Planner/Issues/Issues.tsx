@@ -5,7 +5,7 @@ import { DragEvent, useMemo, useState } from 'react';
 import { Allotment } from 'allotment';
 import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
-import { DataTable, DataTableRowReorderEvent } from 'primereact/datatable';
+import { DataTable, DataTableExpandedRows, DataTableRowReorderEvent, DataTableValueArray } from 'primereact/datatable';
 import { InputText } from 'primereact/inputtext';
 import { Menubar } from 'primereact/menubar';
 import { Tag } from 'primereact/tag';
@@ -63,6 +63,7 @@ export const Issues = () => {
     const [groupInstructionsFor, setGroupInstructionsFor] = useState<Group | undefined>(undefined);
     const [renameFor, setRenameFor] = useState<Group | undefined>(undefined);
     const [dragged, setDragged] = useState<Issue | undefined>(undefined);
+    const [expandedRows, setExpandedRows] = useState<DataTableValueArray | DataTableExpandedRows | undefined>(undefined);
 
     const groupsById = useMemo(() => {
         const map = new Map<string, Group>();
@@ -206,16 +207,26 @@ export const Issues = () => {
         );
     };
 
+    // These handlers stop propagation so the native drag gesture never bubbles into PrimeReact's
+    // own reorderableRows drag handlers bound on the <tr> - without it, every grouping drag also
+    // fires a row reorder, racing ReorderIssue against CreateGroup/AddIssueToGroup.
     const dragCell = (issue: IssueRow) => (
         <div
             draggable
             className='flex h-full w-full cursor-grab items-center justify-center'
             onDragStart={(event: DragEvent) => {
+                event.stopPropagation();
                 event.dataTransfer.effectAllowed = 'move';
                 setDragged(issue);
             }}
-            onDragOver={(event: DragEvent) => event.preventDefault()}
-            onDrop={() => dropOn(issue)}
+            onDragOver={(event: DragEvent) => {
+                event.preventDefault();
+                event.stopPropagation();
+            }}
+            onDrop={(event: DragEvent) => {
+                event.stopPropagation();
+                dropOn(issue);
+            }}
             title='Drag onto another issue to group them'>
             <i className='pi pi-th-large text-[var(--text-color-secondary)]' />
         </div>
@@ -224,8 +235,14 @@ export const Issues = () => {
     const issueCell = (issue: IssueRow) => (
         <div
             className='h-full w-full'
-            onDragOver={(event: DragEvent) => event.preventDefault()}
-            onDrop={() => dropOn(issue)}>
+            onDragOver={(event: DragEvent) => {
+                event.preventDefault();
+                event.stopPropagation();
+            }}
+            onDrop={(event: DragEvent) => {
+                event.stopPropagation();
+                dropOn(issue);
+            }}>
             {issue.owner}/{issue.repository}#{issue.number}
         </div>
     );
@@ -250,6 +267,9 @@ export const Issues = () => {
                             sortField='groupKey'
                             sortOrder={1}
                             rowGroupHeaderTemplate={groupHeaderTemplate}
+                            expandableRowGroups
+                            expandedRows={expandedRows}
+                            onRowToggle={(event) => setExpandedRows(event.data)}
                             reorderableRows
                             onRowReorder={onRowReorder}
                             scrollable
