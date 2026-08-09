@@ -14,12 +14,12 @@
     <PackageVersion Include="Cratis.Arc.OpenApi" Version="21.0.4" />
     <PackageVersion Include="Cratis.Arc.MongoDB" Version="21.0.4" />
     <PackageVersion Include="Cratis.Arc.Core" Version="21.0.4" />
-    <PackageVersion Include="Cratis.Chronicle" Version="16.19.2" />
-    <PackageVersion Include="Cratis.Chronicle.Aspire" Version="16.19.2" />
-    <PackageVersion Include="Cratis.Chronicle.AspNetCore" Version="16.19.2" />
-    <PackageVersion Include="Cratis.Chronicle.Contracts" Version="16.19.2" />
-    <PackageVersion Include="Cratis.Chronicle.Testing" Version="16.19.2" />
-    <PackageVersion Include="Cratis.Chronicle.XUnit.Integration" Version="16.19.2" />
+    <PackageVersion Include="Cratis.Chronicle" Version="16.19.3" />
+    <PackageVersion Include="Cratis.Chronicle.Aspire" Version="16.19.3" />
+    <PackageVersion Include="Cratis.Chronicle.AspNetCore" Version="16.19.3" />
+    <PackageVersion Include="Cratis.Chronicle.Contracts" Version="16.19.3" />
+    <PackageVersion Include="Cratis.Chronicle.Testing" Version="16.19.3" />
+    <PackageVersion Include="Cratis.Chronicle.XUnit.Integration" Version="16.19.3" />
     <!-- Microsoft Orleans -->
     <!--
       Orleans.Providers.MongoDB has no Orleans 10 release - 9.5.0 is the newest - and it pulls in
