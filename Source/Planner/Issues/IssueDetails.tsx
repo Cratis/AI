@@ -1,17 +1,14 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-import { useEffect, useState } from 'react';
 import MarkdownPreview from '@uiw/react-markdown-preview';
 import { Button } from 'primereact/button';
-import { InputTextarea } from 'primereact/inputtextarea';
 import { Tag } from 'primereact/tag';
 import { Dropdown } from '@cratis/components/Dropdown';
 import { Issue, IssueComment } from './Listing/Listing';
 import { IssueStatus } from './IssueStatus';
 import { ChangeIssueStatus } from './ChangingStatus/ChangingStatus';
 import { AcceptPullRequest } from './AcceptingPullRequest/AcceptingPullRequest';
-import { SetIssuePrompt } from './SettingPrompt/SettingPrompt';
 import { ScheduleWork } from '../Work/Scheduling/Scheduling';
 import { WorkPurpose } from '../Work/WorkPurpose';
 
@@ -46,9 +43,6 @@ export const statusLabel = (status: IssueStatus) =>
 
 export const IssueDetails = ({ issue }: IssueDetailsProps) => {
     const issueUrl = `https://github.com/${issue.owner}/${issue.repository}/issues/${issue.number}`;
-    const [prompt, setPrompt] = useState(issue.prompt ?? '');
-
-    useEffect(() => setPrompt(issue.prompt ?? ''), [issue.id, issue.prompt]);
 
     const changeStatus = async (status: IssueStatus) => {
         const command = new ChangeIssueStatus();
@@ -67,13 +61,6 @@ export const IssueDetails = ({ issue }: IssueDetailsProps) => {
     const acceptPullRequest = async () => {
         const command = new AcceptPullRequest();
         command.issue = issue.id;
-        await command.execute();
-    };
-
-    const savePrompt = async () => {
-        const command = new SetIssuePrompt();
-        command.issue = issue.id;
-        command.prompt = prompt;
         await command.execute();
     };
 
@@ -132,18 +119,11 @@ export const IssueDetails = ({ issue }: IssueDetailsProps) => {
                     </div>
                 </div>}
 
-            <div className='flex flex-col gap-2'>
-                <div className='font-medium'>Instructions for the agent</div>
-                <InputTextarea
-                    value={prompt}
-                    rows={3}
-                    autoResize
-                    placeholder='Extra instructions sent along when an agent works on this issue'
-                    onChange={(e) => setPrompt(e.target.value)} />
-                <div>
-                    <Button label='Save instructions' icon='pi pi-save' size='small' outlined onClick={savePrompt} disabled={prompt === (issue.prompt ?? '')} />
-                </div>
-            </div>
+            {issue.prompt &&
+                <div className='flex flex-col gap-2'>
+                    <div className='font-medium'>Instructions for the agent</div>
+                    <div className='rounded border border-[var(--surface-border)] p-3 text-sm'>{issue.prompt}</div>
+                </div>}
 
             <div className='flex flex-col gap-3'>
                 <div className='font-medium'>Comments ({comments.length})</div>
