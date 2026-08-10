@@ -45,6 +45,7 @@ export const workPurposeLabel = (purpose: WorkPurpose) => {
     switch (purpose) {
         case WorkPurpose.investigation: return 'Investigation';
         case WorkPurpose.adHoc: return 'Ad-hoc';
+        case WorkPurpose.alertInvestigation: return 'Alert';
         default: return 'Implementation';
     }
 };

@@ -11,6 +11,7 @@ interface NavigationItem {
 
 const navigationItems: NavigationItem[] = [
     { label: 'Issues', icon: 'pi pi-list', path: '/' },
+    { label: 'Alerts', icon: 'pi pi-bell', path: '/alerts' },
     { label: 'Pull requests', icon: 'pi pi-code', path: '/pull-requests' },
     { label: 'Work', icon: 'pi pi-play-circle', path: '/work' },
     { label: 'Usage', icon: 'pi pi-gauge', path: '/usage' },
