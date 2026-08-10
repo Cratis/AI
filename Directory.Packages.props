@@ -33,6 +33,11 @@
     <PackageVersion Include="Microsoft.Orleans.Sdk" Version="10.2.2" />
     <PackageVersion Include="Microsoft.Orleans.Server" Version="10.2.2" />
     <PackageVersion Include="Microsoft.Orleans.Serialization.SystemTextJson" Version="10.2.2" />
+    <!--
+      Used for cluster membership only. Its reminder table is a 9.x binary the 10.x reminder service
+      hangs on - see Planner.Hosting.OrleansConfigurationExtensions. Cratis Studio runs this same
+      package pair in production, membership-only, which is the arrangement proven to be stable.
+    -->
     <PackageVersion Include="Orleans.Providers.MongoDB" Version="9.5.0" />
     <!-- Containers -->
     <PackageVersion Include="Docker.DotNet.Enhanced" Version="4.3.3" />

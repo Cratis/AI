@@ -4,18 +4,22 @@
 namespace Planner.Hosting;
 
 /// <summary>
-/// Represents how the co-hosted silo discovers its cluster and where it keeps its reminders.
+/// Represents how the co-hosted silo discovers its cluster.
 /// </summary>
+/// <remarks>
+/// The mode picks the membership provider only. Reminders are always kept by Orleans' in-memory
+/// reminder service, in both modes - see <see cref="OrleansConfigurationExtensions.AddPlannerOrleans"/>
+/// for why the MongoDB reminder table is not an option.
+/// </remarks>
 public enum ClusteringMode
 {
     /// <summary>
-    /// A single silo on localhost with in-memory reminders - for local development.
+    /// A single silo on localhost - for local development.
     /// </summary>
     Localhost = 0,
 
     /// <summary>
-    /// MongoDB backed membership and reminders - for running more than one instance, and for
-    /// reminders that survive a restart.
+    /// MongoDB backed cluster membership - for running more than one instance.
     /// </summary>
     MongoDB = 1
 }
