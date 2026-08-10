@@ -13,6 +13,16 @@ import { CurrentGitIdentity } from './GitIdentity/Listing/Listing';
 import { SetGitIdentity } from './GitIdentity/Setting/Setting';
 
 /**
+ * Where GitHub's own installation picker lives. With an organization configured this goes straight
+ * to that organization's installation page, so the App lands where it belongs without the operator
+ * picking an account from a list that also contains their personal one.
+ */
+const installationUrl = (slug: string, organization: string) =>
+    organization
+        ? `https://github.com/organizations/${organization}/settings/apps/${slug}/installations`
+        : `https://github.com/apps/${slug}/installations/new`;
+
+/**
  * The GitHub settings page - connecting the GitHub App the Planner authenticates as, the accounts
  * it has been installed on, and the git identity worker containers commit as.
  */
@@ -38,7 +48,10 @@ export const GitHubConfiguration = () => {
                                 Connect a GitHub App so worker containers commit and interact with GitHub as the
                                 App&apos;s own identity, rather than a shared personal access token.
                             </p>
-                            <Button label='Connect GitHub App' icon='pi pi-github' onClick={() => window.location.assign('/github-app/start')} />
+                            <Button
+                                label={status?.organization ? `Connect GitHub App in ${status.organization}` : 'Connect GitHub App'}
+                                icon='pi pi-github'
+                                onClick={() => window.location.assign('/github-app/start')} />
                         </>}
 
                     {status?.isConfigured &&
@@ -46,12 +59,13 @@ export const GitHubConfiguration = () => {
                             <div className='flex items-center gap-2'>
                                 <Tag value='Configured' severity='success' />
                                 <span className='font-medium'>{status.name || status.slug}</span>
+                                {status.organization && <Tag value={status.organization} severity='info' />}
                             </div>
                             <Button
-                                label='Install on an organization'
+                                label={status.organization ? `Install in ${status.organization}` : 'Install on an organization'}
                                 icon='pi pi-plus'
                                 outlined
-                                onClick={() => window.open(`https://github.com/apps/${status.slug}/installations/new`, '_blank')} />
+                                onClick={() => window.open(installationUrl(status.slug, status.organization), '_blank')} />
                         </>}
 
                     <div className='flex flex-col gap-1'>
