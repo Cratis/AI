@@ -58,13 +58,20 @@ env:
       verbs: ["create"]
   ```
 
-- `Planner:Worker:CallbackBaseUrl` must resolve from inside worker pods to the Planner service.
-- With `Planner:Orleans:Clustering=MongoDB`, clustering and reminders are durable in the
-  `planner-orleans` database, so multiple replicas form one cluster and the scheduler/consolidation
-  grains keep running across restarts. A single replica can stay on `Localhost` clustering, but its
-  reminders are in-memory and start over on every restart. The key deliberately sits under
-  `Planner:`, not under `Orleans:` - that section belongs to Orleans, which reads
-  `Orleans:Clustering` as the name of a clustering provider it must resolve.
+- `Planner:Worker:CallbackBaseUrl` must resolve from inside worker pods to the Planner service. It is
+  an in-cluster address and is used for worker callbacks only - never for anything a browser has to
+  reach. The GitHub App manifest, for instance, derives its URLs from the request the operator's
+  browser arrived on (honoring `X-Forwarded-Proto` / `X-Forwarded-Host`), so the ingress must forward
+  those headers.
+- With `Planner:Orleans:Clustering=MongoDB`, cluster membership is durable in the `planner-orleans`
+  database, so multiple replicas form one cluster. Reminders are in-memory in both modes and are
+  re-registered on every start (see [Configuration](./configuration.md#orleans---plannerorleans)).
+  The key deliberately sits under `Planner:`, not under `Orleans:` - that section belongs to Orleans,
+  which reads `Orleans:Clustering` as the name of a clustering provider it must resolve.
+- Set `DOTNET_DbgEnableMiniDump=1` (and `DOTNET_DbgMiniDumpType=4`, with `DOTNET_DbgMiniDumpName`
+  pointing at a mounted path) when investigating a silent native crash. A container that dies with
+  exit 139 and no log output leaves nothing to attach a stack to otherwise; the dump is the only
+  artifact that turns one into a diagnosable failure.
 
 ## Webhooks
 
