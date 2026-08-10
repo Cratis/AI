@@ -3,9 +3,7 @@
 
 using System.Net;
 using System.Text.Json.Nodes;
-using Microsoft.Extensions.Options;
 using Planner.GitHub.App.Installations;
-using Planner.Work.Workers;
 
 namespace Planner.GitHub.App;
 
@@ -22,9 +20,12 @@ public static class GitHubAppEndpoints
     /// <returns>The same <see cref="WebApplication"/> for chaining.</returns>
     public static WebApplication MapGitHubAppEndpoints(this WebApplication app)
     {
-        app.MapGet("/github-app/start", (IOptions<WorkerOptions> workerOptions) =>
+        // The manifest is built from the origin this request came in on, never from a configured
+        // address: every URL in it is one GitHub sends the operator's browser to, and the Planner's
+        // configured worker callback URL is an in-cluster name no browser can resolve.
+        app.MapGet("/github-app/start", (HttpRequest request) =>
         {
-            var manifest = GitHubAppManifest.Build(workerOptions.Value.CallbackBaseUrl);
+            var manifest = GitHubAppManifest.Build(RequestOrigin.From(request));
             return Results.Content(SelfSubmittingManifestForm(manifest), "text/html");
         });
 
