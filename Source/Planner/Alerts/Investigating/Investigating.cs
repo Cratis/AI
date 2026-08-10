@@ -30,7 +30,6 @@ public class AlertInvestigation(ICommandPipeline commandPipeline, IOptions<Alert
     /// <param name="event">The <see cref="AlertRaised"/> event.</param>
     /// <param name="context">The <see cref="EventContext"/>.</param>
     /// <returns>Awaitable task.</returns>
-    [OnceOnly]
     public async Task On(AlertRaised @event, EventContext context)
     {
         if (!options.Value.AutoInvestigate)
@@ -40,6 +39,21 @@ public class AlertInvestigation(ICommandPipeline commandPipeline, IOptions<Alert
 
         await commandPipeline.Execute(new ScheduleAlertInvestigation(new AlertId(context.EventSourceId.Value)));
     }
+
+    /// <summary>
+    /// Does nothing when the observer is replayed - the investigations already happened.
+    /// </summary>
+    /// <param name="event">The <see cref="AlertRaised"/> event.</param>
+    /// <returns>Awaitable task.</returns>
+    /// <remarks>
+    /// This is what <c>[OnceOnly]</c> would appear to give for free, and it is not the same thing:
+    /// <c>[OnceOnly]</c> fires a handler once per event *source*, and an alert source raises again
+    /// every time a resolved condition comes back. Marking this handler would therefore leave every
+    /// recurrence uninvestigated - so replay is suppressed here instead, leaving each genuine raise
+    /// to schedule its own investigation.
+    /// </remarks>
+    [Replay]
+    public Task OnReplay(AlertRaised @event) => Task.CompletedTask;
 }
 
 /// <summary>
