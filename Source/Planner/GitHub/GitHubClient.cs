@@ -104,6 +104,20 @@ public class GitHubClient(HttpClient httpClient, IGitHubAppTokenResolver tokenRe
     }
 
     /// <inheritdoc/>
+    public async Task<GitHubCreatedIssue?> CreateIssue(OrganizationName owner, RepositoryName repository, IssueTitle title, IssueBody body, CancellationToken cancellationToken = default)
+    {
+        var payload = JsonSerializer.Serialize(new { title = title.Value, body = body.Value });
+        using var response = await Send(owner, HttpMethod.Post, $"repos/{owner.Value}/{repository.Value}/issues", new StringContent(payload, Encoding.UTF8, "application/json"), cancellationToken);
+        if (!response.IsSuccessStatusCode)
+        {
+            return null;
+        }
+
+        var created = JsonNode.Parse(await response.Content.ReadAsStringAsync(cancellationToken)) as JsonObject;
+        return new(created?["number"]?.GetValue<int>() ?? 0, created?["html_url"]?.GetValue<string>() ?? string.Empty);
+    }
+
+    /// <inheritdoc/>
     public async Task AddIssueComment(OrganizationName owner, RepositoryName repository, IssueNumber number, string comment, CancellationToken cancellationToken = default)
     {
         var body = JsonSerializer.Serialize(new { body = comment });

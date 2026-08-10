@@ -37,6 +37,13 @@ public record GitHubIssue(
     int CommentCount);
 
 /// <summary>
+/// Represents an issue just created through the GitHub API.
+/// </summary>
+/// <param name="Number">The number GitHub assigned the issue.</param>
+/// <param name="Url">The html URL of the issue.</param>
+public record GitHubCreatedIssue(IssueNumber Number, IssueUrl Url);
+
+/// <summary>
 /// Represents a comment on an issue as returned by the GitHub API.
 /// </summary>
 /// <param name="Id">The identity of the comment.</param>
