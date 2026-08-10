@@ -27,11 +27,16 @@ public static class GitHubAppManifest
     /// <summary>
     /// Builds the manifest JSON for registering the Planner as a GitHub App.
     /// </summary>
-    /// <param name="callbackBaseUrl">The Planner's own publicly reachable base URL.</param>
+    /// <param name="publicBaseUrl">
+    /// The Planner's publicly reachable base URL - resolve it from the incoming request with
+    /// <see cref="RequestOrigin.From(HttpRequest)"/>. GitHub redirects the operator's browser to the
+    /// registration and setup URLs built from it, and delivers webhooks to the hook URL, so an
+    /// address only reachable from inside the cluster breaks the whole flow.
+    /// </param>
     /// <returns>The manifest as a JSON string.</returns>
-    public static string Build(string callbackBaseUrl)
+    public static string Build(string publicBaseUrl)
     {
-        var baseUrl = callbackBaseUrl.TrimEnd('/');
+        var baseUrl = publicBaseUrl.TrimEnd('/');
         var manifest = new JsonObject
         {
             ["name"] = "Cratis Planner",

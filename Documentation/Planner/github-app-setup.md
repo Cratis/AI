@@ -28,6 +28,12 @@ deliveries.
    [Running in the cloud](./running-in-the-cloud.md)) - then restart the Planner. Credentials are
    shown once; if you lose them, delete the App on GitHub and register a new one.
 
+Every URL in the manifest - the redirect back to `/github-app/created`, the setup URL, and the
+webhook - is built from the origin **your browser** reached `/github-app/start` on. Behind a reverse
+proxy that origin comes from `X-Forwarded-Proto` and `X-Forwarded-Host`, so the ingress has to
+forward them; without them GitHub gets the Planner's internal address and sends you somewhere your
+browser cannot go.
+
 The manifest requests exactly what the Planner needs and nothing more:
 
 | Permission | Access | Used for |

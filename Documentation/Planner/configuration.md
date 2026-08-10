@@ -81,10 +81,16 @@ to your accounts' real experience.
 | Key | Default | Purpose |
 | --- | --- | --- |
 | `Enabled` | `true` | Co-hosts the Orleans silo (scheduler + consolidation grains) |
-| `Clustering` | `Localhost` | `Localhost` (single instance, in-memory reminders) or `MongoDB` (durable clustering and reminders for multiple instances) |
+| `Clustering` | `Localhost` | `Localhost` (single instance) or `MongoDB` (shared cluster membership for multiple instances) |
 
 An unrecognized `Clustering` value fails startup rather than quietly falling
 back to `Localhost`.
+
+`Clustering` picks the **membership** provider only. Reminders always come from Orleans' in-memory
+reminder service, in both modes: the MongoDB provider is a 9.x binary and its reminder table hangs
+the 10.x reminder service outright, so the Planner uses it for membership and nothing else. The
+practical consequence is that reminders do not survive a full cluster restart - which costs nothing,
+because the Planner re-registers both recurring reminders on every start.
 
 > These live under `Planner:Orleans`, **not** under `Orleans`. The `Orleans` section belongs to
 > Orleans itself, which binds it and reads `Orleans:Clustering` as the name of a registered

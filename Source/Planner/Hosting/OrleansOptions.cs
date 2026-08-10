@@ -25,7 +25,7 @@ public class OrleansOptions
     public bool Enabled { get; set; } = true;
 
     /// <summary>
-    /// Gets or sets how the silo discovers its cluster and where it keeps its reminders.
+    /// Gets or sets how the silo discovers its cluster.
     /// </summary>
     public ClusteringMode Clustering { get; set; } = ClusteringMode.Localhost;
 
