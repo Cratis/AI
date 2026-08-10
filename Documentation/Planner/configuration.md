@@ -29,6 +29,7 @@ minted from these credentials, never a long-lived static token.
 | `AppId` | *(empty)* | The numeric App id GitHub assigned |
 | `Slug` | *(empty)* | The App's URL-friendly slug - used to build the installation URL |
 | `Name` | *(empty)* | The App's display name |
+| `Organization` | `Cratis` | The organization the App is registered under and installed into. Empty registers a personal App instead |
 | `PrivateKeyPem` | *(empty)* | The App's private key (PEM) - signs the JWTs the App authenticates with |
 | `WebhookSecret` | *(empty)* | The secret GitHub signs webhook deliveries with. When empty, signature validation is skipped - local development only |
 
@@ -67,6 +68,39 @@ instead of git's own unconfigured default.
 
 The limits are deliberately conservative approximations of the Claude plan boundaries - tune them
 to your accounts' real experience.
+
+## Alerts - `Planner:Alerts`
+
+What arrives on the alert webhook and what happens to it - see [Alerts](./alerts.md).
+
+| Key | Default | Purpose |
+| --- | --- | --- |
+| `WebhookSecret` | *(empty)* | The secret alert deliveries are signed with (`X-Planner-Signature-256`). When empty, unsigned deliveries are accepted - local development only |
+| `AutoInvestigate` | `true` | Whether an agent is put on an alert the moment it arrives |
+| `Model` | `opus` | The model alerts are investigated with |
+| `DefaultSource` | `production` | The source recorded for a delivery that does not name one |
+
+## Operations - `Planner:Operations`
+
+The operational access an agent investigating an alert is given, and where operational issues are
+filed. Everything is optional; what is left empty is simply not handed to the worker, and the
+agent's prompt tells it what it can actually reach.
+
+| Key | Default | Purpose |
+| --- | --- | --- |
+| `Kubeconfig` | *(empty)* | Full kubeconfig YAML, written to `~/.kube/config` in the worker for `kubectl` and `helm` |
+| `KubernetesNamespace` | *(empty)* | The namespace made current in that kubeconfig |
+| `DockerHost` | *(empty)* | The Docker daemon the worker's `docker` CLI talks to, as a `DOCKER_HOST` value |
+| `LokiUrl` | *(empty)* | Base URL of Loki, e.g. `http://loki.studio.svc.cluster.local:3100` |
+| `LokiUsername` / `LokiPassword` | *(empty)* | Loki credentials, when it is protected |
+| `GrafanaUrl` | *(empty)* | Base URL of Grafana |
+| `GrafanaToken` | *(empty)* | Grafana API token |
+| `Repositories` | `[]` | Repositories cloned for an alert investigation, as `owner/name` - the code behind the system that alerts |
+| `IssueOwner` / `IssueRepository` | *(empty)* | The repository operational issues default to when an alert is turned into an issue |
+| `Runbook` | *(empty)* | Standing instructions appended to every alert investigation prompt |
+
+> No database credentials are handed to an agent, by design. An agent that can read a cluster and
+> its logs can explain almost any operational failure; one that can also read the data can leak it.
 
 ## Container runtime - `ContainerRuntime`
 

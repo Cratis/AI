@@ -5,7 +5,7 @@ The Planner ships as two images, published by the `planner-publish` workflow:
 | Image | Contents |
 | --- | --- |
 | `cratis/planner` | The application - backend serving the built frontend from `wwwroot` on port 8080 |
-| `cratis/planner-worker` | The worker the Planner schedules - Claude CLI, .NET 10 SDK, Node + Yarn, GitHub CLI |
+| `cratis/planner-worker` | The worker the Planner schedules - Claude CLI, .NET 10 SDK, Node + Yarn, and the GitHub, Docker and Kubernetes CLIs |
 
 ## Infrastructure
 
@@ -73,6 +73,36 @@ env:
   exit 139 and no log output leaves nothing to attach a stack to otherwise; the dump is the only
   artifact that turns one into a diagnosable failure.
 
+## Operational access for alert investigations
+
+[Alerts](./alerts.md) are investigated by an agent that needs to see the system it is investigating.
+Mount that access as secrets rather than putting it in the manifest - the kubeconfig in particular
+carries a cluster credential:
+
+```yaml
+env:
+  - name: Planner__Alerts__WebhookSecret
+    valueFrom: { secretKeyRef: { name: planner, key: alert-webhook-secret } }
+  - name: Planner__Operations__Kubeconfig
+    valueFrom: { secretKeyRef: { name: planner, key: operations-kubeconfig } }
+  - name: Planner__Operations__KubernetesNamespace
+    value: studio
+  - name: Planner__Operations__LokiUrl
+    value: http://loki.studio.svc.cluster.local:3100
+  - name: Planner__Operations__Repositories__0
+    value: Cratis/Studio
+  - name: Planner__Operations__IssueOwner
+    value: Cratis
+  - name: Planner__Operations__IssueRepository
+    value: Studio
+```
+
+Note the `__0` index - a list bound from environment variables is one variable per element.
+
+Give the kubeconfig its **own** service account, scoped to reading pods, nodes, events and logs and
+restarting workloads in the namespaces an investigation covers. Do not reuse the Planner's own
+credential: that one can create jobs, and an alert investigation has no business doing so.
+
 ## Webhooks
 
 Expose the Planner behind an ingress with TLS before connecting the GitHub App - see
@@ -81,6 +111,9 @@ Expose the Planner behind an ingress with TLS before connecting the GitHub App -
 registered through the **Connect GitHub App** flow - there is no separate organization webhook to
 register by hand. The repository event auto-tracks new repositories created in the organization;
 the daily consolidation backfills anything delivered while the Planner was down.
+
+The alert webhook (`https://<planner-host>/webhooks/alerts`) is a second, unrelated endpoint - point
+your production watchdog at it and give it the same secret you configured above.
 
 ## Publishing
 

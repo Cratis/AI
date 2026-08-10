@@ -23,6 +23,13 @@ public class GitHubAppOptions
     public string AppId { get; set; } = string.Empty;
 
     /// <summary>
+    /// Gets or sets the GitHub organization the App is registered under and installed into. An App
+    /// registered under an organization is owned by it rather than by whoever happened to click
+    /// through the registration, so it survives that person leaving. Empty registers a personal App.
+    /// </summary>
+    public string Organization { get; set; } = string.Empty;
+
+    /// <summary>
     /// Gets or sets the App's URL-friendly slug, used to build the installation URL.
     /// </summary>
     public string Slug { get; set; } = string.Empty;

@@ -6,12 +6,19 @@ identity - and what the Planner uses for every GitHub REST call (listing reposit
 issues, merging pull requests, checking organization membership) and for verifying webhook
 deliveries.
 
+## Where the App is owned
+
+`Planner:GitHubApp:Organization` (default `Cratis`) decides who owns the App. With an organization
+set, the registration goes to that organization's own App settings, so the App belongs to the
+organization rather than to whoever happened to click through the registration - and survives that
+person leaving. Set it to empty to register a personal App instead.
+
 ## Connect the App
 
 1. Open the Planner and go to **GitHub** in the sidebar.
-2. Click **Connect GitHub App**. This is a full page navigation (not an in-app action) - GitHub's
-   manifest-flow registration needs a real redirect - to `/github-app/start`, which submits a
-   generated App manifest to GitHub on your behalf.
+2. Click **Connect GitHub App in `<organization>`**. This is a full page navigation (not an in-app
+   action) - GitHub's manifest-flow registration needs a real redirect - to `/github-app/start`,
+   which submits a generated App manifest to GitHub on your behalf.
 3. Review and confirm on GitHub. You'll land back on the Planner at `/github-app/created`, which
    displays the App's credentials:
 
@@ -19,6 +26,7 @@ deliveries.
    Planner__GitHubApp__AppId=...
    Planner__GitHubApp__Slug=...
    Planner__GitHubApp__Name=...
+   Planner__GitHubApp__Organization=...
    Planner__GitHubApp__WebhookSecret=...
    Planner__GitHubApp__PrivateKeyPem=...
    ```
@@ -27,6 +35,27 @@ deliveries.
    Kubernetes secret in production (see [Configuration](./configuration.md) and
    [Running in the cloud](./running-in-the-cloud.md)) - then restart the Planner. Credentials are
    shown once; if you lose them, delete the App on GitHub and register a new one.
+
+### From a terminal instead
+
+`scripts/create-github-app.sh` drives the same flow without leaving the shell that is going to store
+the result - which is what you want when the settings are going into `user-secrets` or a Kubernetes
+secret rather than being copied off a page:
+
+```shell
+PLANNER_URL=https://planner.example.com ./scripts/create-github-app.sh
+```
+
+It opens a browser for the one step GitHub requires a human for, catches the redirect locally,
+exchanges the code, and prints the `Planner__GitHubApp__*` settings (add `OUT=github-app.env` to
+write them to a file as well - it holds the private key, so treat it as a secret). `ORG` overrides
+the organization, `APP_NAME` the name (GitHub requires App names to be globally unique, so a second
+registration needs one).
+
+The script **fetches the manifest from the running Planner** rather than carrying its own copy, so
+the permissions it asks for can never drift from the ones the Planner actually needs. That is why
+`PLANNER_URL` is required, and why it must be the Planner's publicly reachable address: GitHub
+builds the webhook and setup URLs from it.
 
 Every URL in the manifest - the redirect back to `/github-app/created`, the setup URL, and the
 webhook - is built from the origin **your browser** reached `/github-app/start` on. Behind a reverse
@@ -57,10 +86,11 @@ lifecycle events to every App implicitly and rejects a manifest that asks for th
 
 ## Install the App on an organization
 
-Once the App is configured (the status card shows **Configured**), click **Install on an
-organization**. This opens GitHub's own installation picker - choose the organization (or account)
-and which repositories the App can access. GitHub redirects back to `/github-app/installed`, which
-records the installation; it appears immediately under **Installations** on the same page.
+Once the App is configured (the status card shows **Configured**), click **Install in
+`<organization>`**. With an organization configured this goes straight to that organization's
+installation page; without one it opens GitHub's own account picker. Choose which repositories the
+App can access. GitHub redirects back to `/github-app/installed`, which records the installation; it
+appears immediately under **Installations** on the same page.
 
 The Planner supports the App being installed on more than one account - when authenticating a
 GitHub API call or a worker's `GITHUB_TOKEN`, it picks the installation matching the repository's

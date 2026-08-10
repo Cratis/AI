@@ -4,11 +4,14 @@
 #if DEBUG
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
+using NSubstitute.ReturnsExtensions;
 using Planner.Accounts;
 using Planner.Accounts.Credentials;
 using Planner.Accounts.Listing;
+using Planner.Alerts;
 using Planner.GitHub.App;
 using Planner.GitHub.GitIdentity.Listing;
+using Planner.Operations;
 using Planner.Work.Listing;
 using Planner.Work.Workers;
 using ListedIssue = Planner.Issues.Listing.Issue;
@@ -25,10 +28,13 @@ public class all_dependencies : Specification
     protected IMongoCollection<ClaudeAccount> _accounts;
     protected IReadModels _readModels;
     protected IWorkerRuntime _workerRuntime;
+    protected IWorkerEnvironment _workerEnvironment;
     protected ICommandPipeline _commandPipeline;
     protected TimeProvider _timeProvider;
     protected SchedulingOptions _schedulingOptions;
     protected WorkerOptions _workerOptions;
+    protected AlertOptions _alertOptions;
+    protected OperationsOptions _operationsOptions;
     protected IGitHubAppTokenResolver _gitHubAppTokenResolver;
     protected WorkDispatcher _dispatcher;
 
@@ -47,8 +53,8 @@ public class all_dependencies : Specification
         _accounts = CollectionOf(() => _accountsData);
 
         _readModels = Substitute.For<IReadModels>();
-        _readModels.GetInstanceById<Repository>(Arg.Any<ReadModelKey>(), Arg.Any<ReadModelSessionId>()).Returns((Repository?)null);
-        _readModels.GetInstanceById<ConfiguredGitIdentity>(Arg.Any<ReadModelKey>(), Arg.Any<ReadModelSessionId>()).Returns((ConfiguredGitIdentity?)null);
+        _readModels.GetInstanceById<Repository>(Arg.Any<ReadModelKey>(), Arg.Any<ReadModelSessionId>()).ReturnsNull();
+        _readModels.GetInstanceById<ConfiguredGitIdentity>(Arg.Any<ReadModelKey>(), Arg.Any<ReadModelSessionId>()).ReturnsNull();
         _workerRuntime = Substitute.For<IWorkerRuntime>();
         _commandPipeline = Substitute.For<ICommandPipeline>();
         _timeProvider = Substitute.For<TimeProvider>();
@@ -56,8 +62,18 @@ public class all_dependencies : Specification
 
         _schedulingOptions = new();
         _workerOptions = new();
+        _alertOptions = new();
+        _operationsOptions = new();
         _gitHubAppTokenResolver = Substitute.For<IGitHubAppTokenResolver>();
         _gitHubAppTokenResolver.GetToken(Arg.Any<OrganizationName>(), Arg.Any<CancellationToken>()).Returns("installation-token");
+
+        // The real environment builder rather than a substitute - the specs assert on what a worker
+        // container is actually handed, which is precisely what it produces.
+        _workerEnvironment = new WorkerEnvironment(
+            _readModels,
+            _gitHubAppTokenResolver,
+            Options.Create(_workerOptions),
+            Options.Create(_operationsOptions));
 
         _dispatcher = new(
             _workItems,
@@ -65,11 +81,12 @@ public class all_dependencies : Specification
             _accounts,
             _readModels,
             _workerRuntime,
+            _workerEnvironment,
             _commandPipeline,
             _timeProvider,
             Options.Create(_workerOptions),
             Options.Create(_schedulingOptions),
-            _gitHubAppTokenResolver,
+            Options.Create(_alertOptions),
             Substitute.For<Microsoft.Extensions.Logging.ILogger<WorkDispatcher>>());
     }
 

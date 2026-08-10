@@ -8,6 +8,7 @@ import { Bindings, MVVM } from '@cratis/arc.react.mvvm';
 import '@cratis/components/styles';
 import { AppLayout } from '../Layout/AppLayout';
 import { Issues } from '../Issues/Issues';
+import { Alerts } from '../Alerts/Alerts';
 import { Work } from '../Work/Work';
 import { PullRequests } from '../PullRequests/PullRequests';
 import { Repositories } from '../Repositories/Repositories';
@@ -27,6 +28,7 @@ function App() {
                     <Routes>
                         <Route path='/' element={<AppLayout />}>
                             <Route path='' element={<Issues />} />
+                            <Route path='alerts' element={<Alerts />} />
                             <Route path='work' element={<Work />} />
                             <Route path='pull-requests' element={<PullRequests />} />
                             <Route path='usage' element={<Usage />} />

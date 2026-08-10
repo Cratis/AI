@@ -3,6 +3,7 @@
 
 using System.Net;
 using System.Text.Json.Nodes;
+using Microsoft.Extensions.Options;
 using Planner.GitHub.App.Installations;
 
 namespace Planner.GitHub.App;
@@ -23,13 +24,25 @@ public static class GitHubAppEndpoints
         // The manifest is built from the origin this request came in on, never from a configured
         // address: every URL in it is one GitHub sends the operator's browser to, and the Planner's
         // configured worker callback URL is an in-cluster name no browser can resolve.
-        app.MapGet("/github-app/start", (HttpRequest request) =>
+        app.MapGet("/github-app/start", (HttpRequest request, IOptions<GitHubAppOptions> options) =>
         {
-            var manifest = GitHubAppManifest.Build(RequestOrigin.From(request));
-            return Results.Content(SelfSubmittingManifestForm(manifest), "text/html");
+            var organization = request.Query["organization"].ToString() is { Length: > 0 } requested
+                ? requested
+                : options.Value.Organization;
+            var manifest = GitHubAppManifest.Build(RequestOrigin.From(request), request.Query["name"].ToString());
+            return Results.Content(SelfSubmittingManifestForm(manifest, organization), "text/html");
         });
 
-        app.MapGet("/github-app/created", async (HttpRequest request, IHttpClientFactory httpClientFactory, CancellationToken cancellationToken) =>
+        // The manifest on its own, so scripts/create-github-app.sh can drive the registration from a
+        // terminal against exactly the permissions this Planner asks for - one definition, not two.
+        app.MapGet("/github-app/manifest", (HttpRequest request) =>
+            Results.Content(GitHubAppManifest.Build(RequestOrigin.From(request), request.Query["name"].ToString()), "application/json"));
+
+        app.MapGet("/github-app/created", async (
+            HttpRequest request,
+            IHttpClientFactory httpClientFactory,
+            IOptions<GitHubAppOptions> options,
+            CancellationToken cancellationToken) =>
         {
             var code = request.Query["code"].ToString();
             if (string.IsNullOrEmpty(code))
@@ -45,7 +58,7 @@ public static class GitHubAppEndpoints
             }
 
             var payload = JsonNode.Parse(await response.Content.ReadAsStringAsync(cancellationToken)) as JsonObject;
-            return Results.Content(CredentialsPage(payload), "text/html");
+            return Results.Content(CredentialsPage(payload, options.Value.Organization), "text/html");
         });
 
         app.MapGet("/github-app/installed", async (
@@ -69,11 +82,22 @@ public static class GitHubAppEndpoints
         return app;
     }
 
-    static string SelfSubmittingManifestForm(string manifest) => $"""
+    /// <summary>
+    /// Builds the GitHub URL a manifest is submitted to. An organization registers the App as owned
+    /// by that organization; without one GitHub creates it under the signed-in user's account.
+    /// </summary>
+    /// <param name="organization">The organization to register under, or empty for a personal App.</param>
+    /// <returns>The registration URL.</returns>
+    public static Uri RegistrationUrlFor(string organization) =>
+        string.IsNullOrWhiteSpace(organization)
+            ? new Uri("https://github.com/settings/apps/new")
+            : new Uri($"https://github.com/organizations/{Uri.EscapeDataString(organization)}/settings/apps/new");
+
+    static string SelfSubmittingManifestForm(string manifest, string organization) => $"""
         <!doctype html>
         <html>
         <body onload="document.forms[0].submit()">
-            <form method="post" action="https://github.com/settings/apps/new">
+            <form method="post" action="{WebUtility.HtmlEncode(RegistrationUrlFor(organization).ToString())}">
                 <input type="hidden" name="manifest" value="{WebUtility.HtmlEncode(manifest)}" />
             </form>
             <p>Redirecting to GitHub&hellip;</p>
@@ -81,11 +105,12 @@ public static class GitHubAppEndpoints
         </html>
         """;
 
-    static string CredentialsPage(JsonObject? payload)
+    static string CredentialsPage(JsonObject? payload, string organization)
     {
         var appId = payload?["id"]?.GetValue<long>().ToString() ?? string.Empty;
         var slug = payload?["slug"]?.GetValue<string>() ?? string.Empty;
         var name = payload?["name"]?.GetValue<string>() ?? string.Empty;
+        var owner = payload?["owner"]?["login"]?.GetValue<string>() ?? organization;
         var privateKey = payload?["pem"]?.GetValue<string>() ?? string.Empty;
         var webhookSecret = payload?["webhook_secret"]?.GetValue<string>() ?? string.Empty;
 
@@ -100,6 +125,7 @@ public static class GitHubAppEndpoints
             Planner__GitHubApp__AppId={WebUtility.HtmlEncode(appId)}
             Planner__GitHubApp__Slug={WebUtility.HtmlEncode(slug)}
             Planner__GitHubApp__Name={WebUtility.HtmlEncode(name)}
+            Planner__GitHubApp__Organization={WebUtility.HtmlEncode(owner)}
             Planner__GitHubApp__WebhookSecret={WebUtility.HtmlEncode(webhookSecret)}
             Planner__GitHubApp__PrivateKeyPem={WebUtility.HtmlEncode(privateKey)}
                 </pre>

@@ -12,6 +12,12 @@ namespace Planner.GitHub.App;
 public static class GitHubAppManifest
 {
     /// <summary>
+    /// The name the App is registered with when none is given. GitHub requires App names to be
+    /// globally unique, so a second registration has to pass a name of its own.
+    /// </summary>
+    public const string DefaultName = "Cratis Planner";
+
+    /// <summary>
     /// The webhook events the App subscribes to.
     /// </summary>
     /// <remarks>
@@ -33,13 +39,14 @@ public static class GitHubAppManifest
     /// registration and setup URLs built from it, and delivers webhooks to the hook URL, so an
     /// address only reachable from inside the cluster breaks the whole flow.
     /// </param>
+    /// <param name="name">The name to register the App with - defaults to <see cref="DefaultName"/>.</param>
     /// <returns>The manifest as a JSON string.</returns>
-    public static string Build(string publicBaseUrl)
+    public static string Build(string publicBaseUrl, string? name = null)
     {
         var baseUrl = publicBaseUrl.TrimEnd('/');
         var manifest = new JsonObject
         {
-            ["name"] = "Cratis Planner",
+            ["name"] = string.IsNullOrWhiteSpace(name) ? DefaultName : name,
             ["url"] = baseUrl,
             ["hook_attributes"] = new JsonObject { ["url"] = $"{baseUrl}/webhooks/github" },
             ["redirect_url"] = $"{baseUrl}/github-app/created",

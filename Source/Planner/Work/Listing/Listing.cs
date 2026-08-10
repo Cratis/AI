@@ -3,12 +3,14 @@
 
 using MongoDB.Driver;
 using Planner.Accounts;
+using Planner.Alerts;
 using Planner.Issues;
 using Planner.Work.Completing;
 using Planner.Work.CompletingInvestigation;
 using Planner.Work.Failing;
 using Planner.Work.Scheduling;
 using Planner.Work.SchedulingAdHoc;
+using Planner.Work.SchedulingAlertInvestigation;
 using Planner.Work.Starting;
 using Planner.Work.Stopping;
 
@@ -34,12 +36,15 @@ namespace Planner.Work.Listing;
 /// <param name="DurationMs">How long the session ran, in milliseconds - <see langword="null"/> until reported.</param>
 /// <param name="Repositories">The repositories ad-hoc work covers - <see langword="null"/> for issue work.</param>
 /// <param name="Prompt">The free-form prompt of ad-hoc work - <see langword="null"/> for issue work.</param>
+/// <param name="Alert">The alert the work investigates - <see langword="null"/> for every other purpose.</param>
 [ReadModel]
 [FromEvent<WorkScheduled>]
 [FromEvent<AdHocWorkScheduled>]
+[FromEvent<AlertInvestigationScheduled>]
 public record WorkItem(
     WorkId Id,
     [SetValue<AdHocWorkScheduled>(WorkPurpose.AdHoc)]
+    [SetValue<AlertInvestigationScheduled>(WorkPurpose.AlertInvestigation)]
     WorkPurpose Purpose,
     IEnumerable<IssueId> Issues,
     ModelName Model,
@@ -73,7 +78,8 @@ public record WorkItem(
     [SetFrom<InvestigationCompleted>(nameof(InvestigationCompleted.DurationMs))]
     long? DurationMs = null,
     IEnumerable<RepositoryId>? Repositories = null,
-    WorkPrompt? Prompt = null)
+    WorkPrompt? Prompt = null,
+    AlertId? Alert = null)
 {
     /// <summary>
     /// Observes all units of work.

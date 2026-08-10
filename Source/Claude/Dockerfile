@@ -10,6 +10,15 @@
 #   - Claude CLI (@anthropic-ai/claude-code)
 #   - rtk - the token-optimizing CLI proxy every shell command is routed through
 #
+# and the operational tooling an agent needs to investigate a running system:
+#   - GitHub CLI (gh)
+#   - Docker CLI with the buildx and compose plugins
+#   - Kubernetes CLI (kubectl) with helm and kustomize
+#
+# The operational tools ship as clients only - no daemon, no cluster. What an agent can actually
+# reach is decided entirely by the credentials the Planner hands the container (Planner:Operations),
+# so an image with kubectl in it is not an image with access in it.
+#
 # The repositories the agent works on are cloned under /workspace.
 
 # rtk publishes a static musl binary for amd64 only - build from source elsewhere.
@@ -43,6 +52,32 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
     && apt-get update \
     && apt-get install -y --no-install-recommends gh \
     && rm -rf /var/lib/apt/lists/*
+
+# Docker CLI (with buildx and compose) and Kubernetes tooling - what an agent investigating an alert
+# needs to look at a running system. Clients only: the daemon and the cluster come from whatever
+# DOCKER_HOST and kubeconfig the Planner injects, and neither is baked in here.
+ARG HELM_VERSION=v3.16.4
+# The distribution comes from the base image rather than being assumed: the .NET SDK image is
+# Ubuntu-based today, and Docker serves a separate repository per distribution - hard-coding one
+# fails the build with a Release-file error that reads like a network problem.
+RUN curl -fsSL "https://download.docker.com/linux/$(. /etc/os-release && echo $ID)/gpg" -o /usr/share/keyrings/docker.asc \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.asc] https://download.docker.com/linux/$(. /etc/os-release && echo $ID) $(. /etc/os-release && echo $VERSION_CODENAME) stable" \
+        > /etc/apt/sources.list.d/docker.list \
+    && curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key \
+        | gpg --dearmor -o /usr/share/keyrings/kubernetes-archive-keyring.gpg \
+    && echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.32/deb/ /" \
+        > /etc/apt/sources.list.d/kubernetes.list \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends \
+        docker-ce-cli \
+        docker-buildx-plugin \
+        docker-compose-plugin \
+        kubectl \
+    && rm -rf /var/lib/apt/lists/* \
+    && curl -fsSL "https://get.helm.sh/helm-${HELM_VERSION}-linux-$(dpkg --print-architecture).tar.gz" -o /tmp/helm.tar.gz \
+    && tar -xzf /tmp/helm.tar.gz -C /tmp \
+    && mv "/tmp/linux-$(dpkg --print-architecture)/helm" /usr/local/bin/helm \
+    && rm -rf /tmp/helm.tar.gz "/tmp/linux-$(dpkg --print-architecture)"
 
 # Node.js (current LTS line) + Yarn through corepack.
 ARG NODE_MAJOR=22

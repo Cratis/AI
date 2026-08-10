@@ -77,6 +77,21 @@ export const Work = () => {
                 continue;
             }
 
+            // An alert investigation covers no issue and no repository, so it needs a row of its own
+            // or the whole unit of work would be invisible on this page.
+            if (work.purpose === WorkPurpose.alertInvestigation) {
+                result.push({
+                    key: `${work.id}-alert`,
+                    workId: work.id.toString(),
+                    work,
+                    organization: 'Alert',
+                    repository: '',
+                    number: '-',
+                    title: work.alert ?? 'Alert investigation',
+                });
+                continue;
+            }
+
             for (const issueId of issues) {
                 const issue = issuesById.get(issueId);
                 result.push({

@@ -36,6 +36,17 @@ public interface IGitHubClient
     Task<IEnumerable<GitHubComment>> GetIssueComments(OrganizationName owner, RepositoryName repository, IssueNumber number, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Creates an issue in a repository.
+    /// </summary>
+    /// <param name="owner">The organization owning the repository.</param>
+    /// <param name="repository">The repository to create the issue in.</param>
+    /// <param name="title">The issue title.</param>
+    /// <param name="body">The markdown body of the issue.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> for the operation.</param>
+    /// <returns>The created issue, or <see langword="null"/> when GitHub refused to create it.</returns>
+    Task<GitHubCreatedIssue?> CreateIssue(OrganizationName owner, RepositoryName repository, IssueTitle title, IssueBody body, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Adds a comment to an issue.
     /// </summary>
     /// <param name="owner">The organization owning the repository.</param>
