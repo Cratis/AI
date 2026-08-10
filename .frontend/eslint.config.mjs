@@ -143,6 +143,7 @@ const defaultConfig = [
         files: [
             '**/Repositories/Listing/Listing.ts',
             '**/GitHub/App/GitHubAppStatus.ts',
+            '**/Operations/OperationsSettings.ts',
         ],
         rules: {
             '@typescript-eslint/no-explicit-any': 'off',

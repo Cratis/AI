@@ -15,5 +15,8 @@ public enum WorkPurpose
     Implementation = 1,
 
     /// <summary>Ad-hoc work over one or more repositories, driven by a free-form prompt.</summary>
-    AdHoc = 2
+    AdHoc = 2,
+
+    /// <summary>Investigate an alert from a running system, resolving it where the agent can.</summary>
+    AlertInvestigation = 3
 }

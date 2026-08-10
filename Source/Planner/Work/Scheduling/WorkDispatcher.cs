@@ -7,12 +7,8 @@ using MongoDB.Driver;
 using Planner.Accounts;
 using Planner.Accounts.Credentials;
 using Planner.Accounts.Listing;
-using Planner.GitHub.App;
-using Planner.GitHub.GitIdentity;
-using Planner.GitHub.GitIdentity.Listing;
+using Planner.Alerts;
 using Planner.Issues.Grouping;
-using Planner.Issues.Grouping.Listing;
-using Planner.Repositories.Listing;
 using Planner.Work.Listing;
 using Planner.Work.Starting;
 using Planner.Work.Workers;
@@ -28,13 +24,14 @@ namespace Planner.Work.Scheduling;
 /// <param name="workItems">The work item read models.</param>
 /// <param name="issues">The issue read models.</param>
 /// <param name="accounts">The account read models.</param>
-/// <param name="readModels">The <see cref="IReadModels"/> for keyed lookups (credentials, repositories, git identity).</param>
+/// <param name="readModels">The <see cref="IReadModels"/> for keyed lookups (credentials).</param>
 /// <param name="workerRuntime">The <see cref="IWorkerRuntime"/> that launches worker containers.</param>
+/// <param name="workerEnvironment">Builds the environment a worker container runs with.</param>
 /// <param name="commandPipeline">The <see cref="ICommandPipeline"/> for executing commands.</param>
 /// <param name="timeProvider">The <see cref="TimeProvider"/> for usage-window calculations.</param>
 /// <param name="workerOptions">The worker configuration.</param>
 /// <param name="schedulingOptions">The scheduling boundaries.</param>
-/// <param name="gitHubAppTokenResolver">Resolves the GitHub App installation token handed to workers.</param>
+/// <param name="alertOptions">The alert configuration - carries the model alerts are investigated with.</param>
 /// <param name="logger">The logger.</param>
 public class WorkDispatcher(
     IMongoCollection<WorkItem> workItems,
@@ -42,11 +39,12 @@ public class WorkDispatcher(
     IMongoCollection<ClaudeAccount> accounts,
     IReadModels readModels,
     IWorkerRuntime workerRuntime,
+    IWorkerEnvironment workerEnvironment,
     ICommandPipeline commandPipeline,
     TimeProvider timeProvider,
     IOptions<WorkerOptions> workerOptions,
     IOptions<SchedulingOptions> schedulingOptions,
-    IGitHubAppTokenResolver gitHubAppTokenResolver,
+    IOptions<AlertOptions> alertOptions,
     ILogger<WorkDispatcher> logger) : IWorkDispatcher
 {
     static readonly TimeSpan _fiveHours = TimeSpan.FromHours(5);
@@ -63,6 +61,15 @@ public class WorkDispatcher(
     static bool IsGrouped(ListedIssue issue) => IsGroup(issue.Group);
 
     static bool IsGroup(GroupId? group) => group is not null && group != GroupId.NotSet;
+
+    /// <summary>
+    /// Whether a unit of work is about issues at all. Ad-hoc work and alert investigations are not,
+    /// so an empty issue set is expected for them rather than a reason to refuse the dispatch.
+    /// </summary>
+    /// <param name="work">The work being dispatched.</param>
+    /// <returns><see langword="true"/> when the work covers issues.</returns>
+    static bool CoversIssues(WorkItem work) =>
+        work.Purpose is not (WorkPurpose.AdHoc or WorkPurpose.AlertInvestigation);
 
     static ModelName? EffectiveModel(ListedIssue issue) =>
         issue.OverriddenModel is { } overridden && overridden != ModelName.NotSet ? overridden : issue.SuggestedModel;
@@ -140,14 +147,14 @@ public class WorkDispatcher(
 
         var workIssues = (work.Issues ?? []).ToList();
         var coveredIssues = await Find(issues, issue => workIssues.Contains(issue.Id), cancellationToken);
-        if (work.Purpose != WorkPurpose.AdHoc && coveredIssues.Count == 0)
+        if (CoversIssues(work) && coveredIssues.Count == 0)
         {
             logger.WorkWithoutIssues(work.Id);
             return false;
         }
 
         var model = ResolveModel(work, coveredIssues);
-        var environment = await BuildEnvironment(work, coveredIssues, credentials, model, cancellationToken);
+        var environment = await workerEnvironment.Build(work, coveredIssues, credentials, model, cancellationToken);
 
         try
         {
@@ -164,79 +171,6 @@ public class WorkDispatcher(
         return true;
     }
 
-    async Task<Dictionary<string, string>> BuildEnvironment(
-        WorkItem work,
-        IReadOnlyList<ListedIssue> coveredIssues,
-        AccountCredentials credentials,
-        ModelName model,
-        CancellationToken cancellationToken)
-    {
-        var environment = new Dictionary<string, string>
-        {
-            ["PLANNER_WORK_ID"] = work.Id.Value.ToString(),
-            ["PLANNER_MODEL"] = model.Value,
-            ["PLANNER_CALLBACK_URL"] = $"{workerOptions.Value.CallbackBaseUrl.TrimEnd('/')}/api/work/{work.Id.Value}/callback",
-            ["PLANNER_BRANCH"] = $"planner/work-{work.Id.Value:N}",
-            ["CLAUDE_CODE_OAUTH_TOKEN"] = credentials.Token.Value
-        };
-
-        var gitIdentity = await readModels.GetInstanceById<ConfiguredGitIdentity>((EventSourceId)GitIdentityId.Default);
-        if (gitIdentity is not null)
-        {
-            environment["PLANNER_GIT_USER_NAME"] = gitIdentity.Name.Value;
-            environment["PLANNER_GIT_USER_EMAIL"] = gitIdentity.Email.Value;
-        }
-
-        if (work.Purpose == WorkPurpose.AdHoc)
-        {
-            var urls = new List<string>();
-            OrganizationName? tokenOwner = null;
-            foreach (var repositoryId in work.Repositories ?? [])
-            {
-                var repository = await readModels.GetInstanceById<Repository>((EventSourceId)repositoryId);
-                if (repository is not null && repository.Owner != OrganizationName.NotSet)
-                {
-                    var owner = repository.CodeOwner ?? repository.Owner;
-                    var name = repository.CodeName ?? repository.Name;
-                    urls.Add($"https://github.com/{owner.Value}/{name.Value}.git");
-
-                    // Worker containers commit through a single GITHUB_TOKEN, so ad-hoc work
-                    // spanning repositories under different installations authenticates as the
-                    // first one - a known limitation of the one-token-per-container model.
-                    tokenOwner ??= owner;
-                }
-            }
-
-            environment["PLANNER_REPOSITORY_URLS"] = string.Join(' ', urls);
-            environment["PLANNER_PROMPT"] = WorkerPrompts.BuildAdHoc(work);
-            if (tokenOwner is not null)
-            {
-                environment["GITHUB_TOKEN"] = await gitHubAppTokenResolver.GetToken(tokenOwner, cancellationToken);
-            }
-
-            return environment;
-        }
-
-        var first = coveredIssues[0];
-        var issueRepository = await readModels.GetInstanceById<Repository>((EventSourceId)RepositoryId.From(first.Owner, first.Repository));
-        var codeOwner = issueRepository?.CodeOwner ?? first.Owner;
-        var codeName = issueRepository?.CodeName ?? first.Repository;
-
-        // When the work covers a whole group, its instructions travel with the prompt.
-        WorkPrompt? groupPrompt = null;
-        var groups = coveredIssues.Select(issue => issue.Group).Where(IsGroup).Distinct().ToList();
-        if (groups.Count == 1)
-        {
-            var group = await readModels.GetInstanceById<Group>((EventSourceId)groups[0]!);
-            groupPrompt = group?.Prompt;
-        }
-
-        environment["PLANNER_REPOSITORY_URL"] = $"https://github.com/{codeOwner.Value}/{codeName.Value}.git";
-        environment["PLANNER_PROMPT"] = WorkerPrompts.Build(work, coveredIssues, groupPrompt);
-        environment["GITHUB_TOKEN"] = await gitHubAppTokenResolver.GetToken(codeOwner, cancellationToken);
-        return environment;
-    }
-
     ModelName ResolveModel(WorkItem work, IReadOnlyList<ListedIssue> coveredIssues)
     {
         if (work.Model != ModelName.NotSet)
@@ -247,6 +181,11 @@ public class WorkDispatcher(
         if (work.Purpose == WorkPurpose.Investigation)
         {
             return schedulingOptions.Value.InvestigationModel;
+        }
+
+        if (work.Purpose == WorkPurpose.AlertInvestigation)
+        {
+            return alertOptions.Value.Model;
         }
 
         if (work.Purpose == WorkPurpose.AdHoc)

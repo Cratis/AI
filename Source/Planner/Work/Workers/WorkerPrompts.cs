@@ -3,7 +3,9 @@
 
 using System.Text;
 using Planner.Issues;
+using Planner.Operations;
 using Planner.Work.Listing;
+using ListedAlert = Planner.Alerts.Listing.Alert;
 using ListedIssue = Planner.Issues.Listing.Issue;
 
 namespace Planner.Work.Workers;
@@ -17,6 +19,21 @@ public static class WorkerPrompts
     /// The marker line an investigation ends its output with to suggest the implementation model.
     /// </summary>
     public const string SuggestedModelMarker = "SUGGESTED-MODEL:";
+
+    /// <summary>
+    /// The marker line an alert investigation ends its output with to say whether it resolved the alert.
+    /// </summary>
+    public const string AlertOutcomeMarker = "ALERT-OUTCOME:";
+
+    /// <summary>
+    /// The value of <see cref="AlertOutcomeMarker"/> meaning the agent resolved the alert.
+    /// </summary>
+    public const string AlertResolvedOutcome = "resolved";
+
+    /// <summary>
+    /// The value of <see cref="AlertOutcomeMarker"/> meaning a person has to take the alert over.
+    /// </summary>
+    public const string AlertNeedsAttentionOutcome = "needs-attention";
 
     /// <summary>
     /// Builds the prompt for a unit of work.
@@ -54,6 +71,92 @@ public static class WorkerPrompts
         .AppendLine("- If you come across bugs or limitations in upstream Cratis repositories while working, report them upstream with `gh issue create --repo <upstream>`.")
         .AppendLine("- End your final message with a summary and the URLs of any pull requests you created.")
         .ToString();
+
+    /// <summary>
+    /// Builds the prompt for investigating an alert from a running system.
+    /// </summary>
+    /// <param name="alert">The alert to investigate.</param>
+    /// <param name="operations">The operational access the agent has been given.</param>
+    /// <returns>The prompt.</returns>
+    /// <remarks>
+    /// The agent is told what it can reach rather than left to discover it, because an agent that
+    /// believes it has a cluster it cannot reach spends its session failing at <c>kubectl</c> instead
+    /// of reading the alert. It is also told, in as many words, that guessing is worse than handing
+    /// the alert back: an unresolved alert with good findings is a useful outcome, and a "fix"
+    /// applied to production on a hunch is not.
+    /// </remarks>
+    public static string BuildAlertInvestigation(ListedAlert? alert, OperationsOptions operations)
+    {
+        var prompt = new StringBuilder()
+            .AppendLine("You are on call for a production system. An alert has fired and you are investigating it.")
+            .AppendLine()
+            .AppendLine("Alert:")
+            .AppendLine($"- Source: {alert?.Source.Value ?? "unknown"}")
+            .AppendLine($"- Severity: {alert?.Severity.ToString() ?? "unknown"}")
+            .AppendLine($"- Title: {alert?.Title.Value ?? "unknown"}")
+            .AppendLine($"- Seen {alert?.Occurrences ?? 1} time(s), most recently {alert?.LastObservedAt?.ToString("u") ?? "unknown"}")
+            .AppendLine("- Detail:")
+            .AppendLine(Indent(alert?.Summary.Value ?? string.Empty));
+
+        AppendAccess(prompt, operations);
+
+        prompt
+            .AppendLine()
+            .AppendLine("Instructions:")
+            .AppendLine("- Establish what is actually wrong before doing anything about it. Read the state of the running system and its logs; correlate what you find with the code you have. Delegate broad searching to subagents to keep your main context lean.")
+            .AppendLine("- Decide honestly whether this is something you can resolve. Restarting a stuck workload, clearing a full ephemeral volume, or re-rolling a deployment that failed to pull an image are the kinds of things you can. A code defect, data loss, a capacity decision, anything needing a credential you were not given, and anything you are unsure about are not.")
+            .AppendLine("- If you can resolve it: do it, then verify it against fresh signal - the workload healthy, the probe passing, the condition gone. Your own reasoning is not verification.")
+            .AppendLine("- If you cannot resolve it: change nothing. Say what is wrong, what evidence you have, and what you would do next. Handing an alert back with good findings is a good outcome; guessing at production is not.")
+            .AppendLine("- Never widen access you were given, and never disable an alert or a health check to make a symptom go away.");
+
+        if (!string.IsNullOrWhiteSpace(operations.Runbook))
+        {
+            prompt.AppendLine().AppendLine("Standing instructions for this deployment:").AppendLine(operations.Runbook);
+        }
+
+        prompt
+            .AppendLine()
+            .AppendLine($"End your final message with a line `{AlertOutcomeMarker} {AlertResolvedOutcome}` or `{AlertOutcomeMarker} {AlertNeedsAttentionOutcome}`, followed by your findings in markdown: what was wrong, what evidence you have, and what you did or would do about it.");
+        return prompt.ToString();
+    }
+
+    static void AppendAccess(StringBuilder prompt, OperationsOptions operations)
+    {
+        prompt.AppendLine().AppendLine("What you can reach:");
+        var any = false;
+
+        if (!string.IsNullOrWhiteSpace(operations.Kubeconfig))
+        {
+            var @namespace = string.IsNullOrWhiteSpace(operations.KubernetesNamespace) ? "the default namespace" : $"namespace `{operations.KubernetesNamespace}`";
+            prompt.AppendLine($"- Kubernetes, through `kubectl` with a kubeconfig already in place, working in {@namespace}.");
+            any = true;
+        }
+
+        if (!string.IsNullOrWhiteSpace(operations.DockerHost))
+        {
+            prompt.AppendLine("- A Docker daemon, through the `docker` CLI (DOCKER_HOST is set).");
+            any = true;
+        }
+
+        if (!string.IsNullOrWhiteSpace(operations.LokiUrl))
+        {
+            prompt.AppendLine("- Logs in Loki at $PLANNER_LOKI_URL - query it with `curl` against `/loki/api/v1/query_range` (credentials, when needed, are in $PLANNER_LOKI_USERNAME / $PLANNER_LOKI_PASSWORD).");
+            any = true;
+        }
+
+        if (!string.IsNullOrWhiteSpace(operations.GrafanaUrl))
+        {
+            prompt.AppendLine("- Grafana at $PLANNER_GRAFANA_URL, with an API token in $PLANNER_GRAFANA_TOKEN.");
+            any = true;
+        }
+
+        if (!any)
+        {
+            prompt.AppendLine("- Nothing. This deployment gave you no access to the running system, so you can only reason from the alert itself and any source you have. Say so in your findings rather than guessing.");
+        }
+    }
+
+    static string Indent(string value) => $"  {value.ReplaceLineEndings("\n  ")}";
 
     static string BuildImplementation(IReadOnlyList<ListedIssue> issues)
     {
