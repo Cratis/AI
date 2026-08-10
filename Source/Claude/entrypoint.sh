@@ -17,6 +17,18 @@
 #   GITHUB_TOKEN             - a short-lived GitHub App installation token, used for git and the GitHub CLI
 #   CLAUDE_CODE_OAUTH_TOKEN  - credential for the Claude CLI (from the configured Claude account)
 #
+# Alert investigations additionally get whatever operational access the deployment configured
+# (Planner:Operations). Only what is set is passed, so an absent variable means the agent genuinely
+# cannot reach that system - the prompt says as much:
+#   PLANNER_KUBECONFIG       - kubeconfig YAML, written to ~/.kube/config for kubectl and helm
+#   PLANNER_KUBE_NAMESPACE   - namespace made current in that kubeconfig
+#   DOCKER_HOST              - the Docker daemon the docker CLI talks to
+#   PLANNER_LOKI_URL         - base URL of Loki, queried with curl
+#   PLANNER_LOKI_USERNAME    - Loki credentials, when it is protected
+#   PLANNER_LOKI_PASSWORD
+#   PLANNER_GRAFANA_URL      - base URL of Grafana
+#   PLANNER_GRAFANA_TOKEN    - Grafana API token
+#
 # The Claude session runs with stream-json input/output: the console output is the live event
 # stream the Planner tails, and lines written to the container's stdin are forwarded to the
 # session as steering messages while it works.
@@ -65,6 +77,25 @@ if [[ -n "${PLANNER_GIT_USER_NAME:-}" ]]; then
 fi
 if [[ -n "${PLANNER_GIT_USER_EMAIL:-}" ]]; then
     git config --global user.email "${PLANNER_GIT_USER_EMAIL}"
+fi
+
+# Operational access, when the deployment granted any. The kubeconfig arrives as an environment
+# variable and has to land on disk where kubectl and helm look for it - written 0600 because it
+# carries a cluster credential.
+if [[ -n "${PLANNER_KUBECONFIG:-}" ]]; then
+    mkdir -p "${HOME}/.kube"
+    umask 077
+    printf '%s\n' "${PLANNER_KUBECONFIG}" > "${HOME}/.kube/config"
+    umask 022
+    if [[ -n "${PLANNER_KUBE_NAMESPACE:-}" ]]; then
+        kubectl config set-context --current --namespace "${PLANNER_KUBE_NAMESPACE}" >/dev/null 2>&1 \
+            || log "Could not set the current namespace to ${PLANNER_KUBE_NAMESPACE}"
+    fi
+    log "Kubernetes access configured"
+fi
+
+if [[ -n "${DOCKER_HOST:-}" ]]; then
+    log "Docker access configured (${DOCKER_HOST})"
 fi
 
 # Route the agent's shell commands through rtk - installs the hook that transparently prefixes
