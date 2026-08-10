@@ -31,6 +31,11 @@ Studio is.
 - **Investigations** - issues reported by people outside the organization are automatically
   investigated by an agent (using Opus), which first tries to reproduce reported bugs, comments
   its plan on the GitHub issue and suggests the model that should implement it.
+- **Alerts** - a webhook running systems report to, understanding both the Planner's own payload and
+  the Discord webhook shape operational alerting already speaks. An agent investigates each alert
+  with whatever operational access the deployment granted it, resolves what it can, and hands back
+  the rest with its findings. Alerts can be annotated, resolved, deleted, or turned into a GitHub
+  issue in one step.
 - **Review flow** - completed work associates its pull request with the covered issues and marks
   them for review; accepting a pull request from the Planner merges it through the GitHub API.
 - **Pull request mirror** - every pull request across tracked repositories, kept current by
@@ -44,6 +49,7 @@ Studio is.
 | Document | What it covers |
 | --- | --- |
 | [How it works](./how-it-works.md) | The flow from GitHub issue to merged pull request |
+| [Alerts](./alerts.md) | Taking alerts from running systems and having an agent work them |
 | [Configuration](./configuration.md) | Every configuration option and what it does |
 | [Setting up the GitHub App](./github-app-setup.md) | Connecting the GitHub App and setting the git identity |
 | [Running locally](./running-locally.md) | Running the full stack with Aspire and Docker |
@@ -55,6 +61,7 @@ Studio is.
 | --- | --- |
 | `Source/Planner` | The application - backend, frontend and specs in one project |
 | `Source/Composition` | The Aspire AppHost for running locally |
-| `Source/Claude` | The worker container image (Claude CLI + .NET 10 SDK + Node/Yarn) |
+| `Source/Claude` | The worker container image (Claude CLI + .NET 10 SDK + Node/Yarn + Docker/Kubernetes/GitHub tooling) |
+| `scripts/create-github-app.sh` | Registers the Planner's GitHub App under an organization from a terminal |
 | `.github/workflows/planner-build.yml` | PR build - quality gates and build artifacts |
 | `.github/workflows/planner-publish.yml` | Publishes the `cratis/planner` and `cratis/planner-worker` images |
