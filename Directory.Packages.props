@@ -8,17 +8,17 @@
     <PackageVersion Include="Aspire.Hosting.JavaScript" Version="13.4.6" />
     <!-- Cratis -->
     <PackageVersion Include="Cratis.Fundamentals" Version="7.17.1" />
-    <PackageVersion Include="Cratis" Version="21.1.0" />
+    <PackageVersion Include="Cratis" Version="21.3.0" />
     <PackageVersion Include="Cratis.Arc.ProxyGenerator.Build" Version="21.0.4" />
-    <PackageVersion Include="Cratis.Arc.Chronicle.Testing" Version="21.1.0" />
+    <PackageVersion Include="Cratis.Arc.Chronicle.Testing" Version="21.3.0" />
     <PackageVersion Include="Cratis.Arc.OpenApi" Version="21.0.4" />
-    <PackageVersion Include="Cratis.Arc.MongoDB" Version="21.1.0" />
-    <PackageVersion Include="Cratis.Arc.Core" Version="21.1.0" />
-    <PackageVersion Include="Cratis.Chronicle" Version="16.20.0" />
-    <PackageVersion Include="Cratis.Chronicle.Aspire" Version="16.20.0" />
+    <PackageVersion Include="Cratis.Arc.MongoDB" Version="21.3.0" />
+    <PackageVersion Include="Cratis.Arc.Core" Version="21.3.0" />
+    <PackageVersion Include="Cratis.Chronicle" Version="16.22.2" />
+    <PackageVersion Include="Cratis.Chronicle.Aspire" Version="16.22.2" />
     <PackageVersion Include="Cratis.Chronicle.AspNetCore" Version="16.19.3" />
     <PackageVersion Include="Cratis.Chronicle.Contracts" Version="16.19.3" />
-    <PackageVersion Include="Cratis.Chronicle.Testing" Version="16.20.0" />
+    <PackageVersion Include="Cratis.Chronicle.Testing" Version="16.22.2" />
     <PackageVersion Include="Cratis.Chronicle.XUnit.Integration" Version="16.19.3" />
     <!-- Microsoft Orleans -->
     <!--
