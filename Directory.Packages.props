@@ -8,17 +8,17 @@
     <PackageVersion Include="Aspire.Hosting.JavaScript" Version="13.4.6" />
     <!-- Cratis -->
     <PackageVersion Include="Cratis.Fundamentals" Version="7.17.1" />
-    <PackageVersion Include="Cratis" Version="21.3.0" />
+    <PackageVersion Include="Cratis" Version="21.9.0" />
     <PackageVersion Include="Cratis.Arc.ProxyGenerator.Build" Version="21.0.4" />
-    <PackageVersion Include="Cratis.Arc.Chronicle.Testing" Version="21.3.0" />
+    <PackageVersion Include="Cratis.Arc.Chronicle.Testing" Version="21.9.0" />
     <PackageVersion Include="Cratis.Arc.OpenApi" Version="21.0.4" />
-    <PackageVersion Include="Cratis.Arc.MongoDB" Version="21.3.0" />
-    <PackageVersion Include="Cratis.Arc.Core" Version="21.3.0" />
-    <PackageVersion Include="Cratis.Chronicle" Version="16.22.2" />
-    <PackageVersion Include="Cratis.Chronicle.Aspire" Version="16.22.2" />
+    <PackageVersion Include="Cratis.Arc.MongoDB" Version="21.9.0" />
+    <PackageVersion Include="Cratis.Arc.Core" Version="21.9.0" />
+    <PackageVersion Include="Cratis.Chronicle" Version="16.26.0" />
+    <PackageVersion Include="Cratis.Chronicle.Aspire" Version="16.26.0" />
     <PackageVersion Include="Cratis.Chronicle.AspNetCore" Version="16.19.3" />
     <PackageVersion Include="Cratis.Chronicle.Contracts" Version="16.19.3" />
-    <PackageVersion Include="Cratis.Chronicle.Testing" Version="16.22.2" />
+    <PackageVersion Include="Cratis.Chronicle.Testing" Version="16.26.0" />
     <PackageVersion Include="Cratis.Chronicle.XUnit.Integration" Version="16.19.3" />
     <!-- Microsoft Orleans -->
     <!--
@@ -43,7 +43,7 @@
     <PackageVersion Include="Docker.DotNet.Enhanced" Version="4.3.3" />
     <PackageVersion Include="KubernetesClient" Version="19.0.2" />
     <!-- Microsoft -->
-    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.11" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.10" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.10" />
     <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.10" />
@@ -62,7 +62,7 @@
     <!-- Analysis -->
     <PackageVersion Include="StyleCop.Analyzers" Version="1.2.0-beta.556" NoWarn="NU5104" />
     <PackageVersion Include="Roslynator.Analyzers" Version="4.16.0" />
-    <PackageVersion Include="Meziantou.Analyzer" Version="3.0.141" />
+    <PackageVersion Include="Meziantou.Analyzer" Version="3.0.147" />
     <!-- Compiler toolset — pinned to match the Roslyn version Cratis.Arc.Core's analyzers were built against -->
     <PackageVersion Include="Microsoft.Net.Compilers.Toolset" Version="5.6.0" />
     <!-- Testing & Specifications -->
@@ -71,7 +71,7 @@
     <PackageVersion Include="Testcontainers" Version="4.13.0" />
     <PackageVersion Include="xunit" Version="2.9.3" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
-    <PackageVersion Include="NSubstitute" Version="6.1.0" />
+    <PackageVersion Include="NSubstitute" Version="6.2.0" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.8.1" />
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.10" />
   </ItemGroup>
