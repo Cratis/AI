@@ -69,30 +69,39 @@ public class CartReducer : IReducerFor<CartState>
 
 ## Passive reducers
 
-A passive reducer is not an active observer — it computes state on demand. Useful for previews or draft calculations:
+A passive reducer is not an active observer — it computes state on demand. Useful for previews or draft calculations.
+
+**`[Passive]` goes on the read model, not on the reducer class.** `PassiveAttribute` targets `Class | Struct`, so it *compiles* on the reducer — but Chronicle only ever asks the **read-model** type (`readModelType.IsPassive()`), so a `[Passive]` on the reducer is silently ignored and the reducer stays an active observer. That is a runtime bug the compiler cannot catch.
 
 ```csharp
-[Passive]
-public class DraftOrderReducer : IReducerFor<DraftOrder> { ... }
+[ReadModel]
+[Passive]                                                       // ✅ on the read model
+public record DraftOrder(decimal Total, int LineCount);
+
+public class DraftOrderReducer : IReducerFor<DraftOrder> { ... } // ❌ never [Passive] here
 ```
 
 Call explicitly rather than subscribing automatically:
 
 ```csharp
-var state = await readModels.GetOne<DraftOrder>(orderId);
+var state = await readModels.GetInstanceById<DraftOrder>(orderId);
 ```
 
 ---
 
 ## Reading reducer state
 
-```csharp
-// Single instance
-var cart = await readModels.GetOne<CartState>(cartId);
+`IReadModels` lives in `Cratis.Chronicle.ReadModels`:
 
-// All instances
-var allCarts = await readModels.GetAll<CartState>();
+```csharp
+// Single instance — null when the source has no events yet or the model was removed
+var cart = await readModels.GetInstanceById<CartState>(cartId);
+
+// All instances (optionally bounded by an EventCount)
+var allCarts = await readModels.GetInstances<CartState>();
 ```
+
+> There is no `GetOne<T>` / `GetAll<T>`. The names are `GetInstanceById<T>` and `GetInstances<T>`.
 
 ---
 

@@ -128,9 +128,12 @@ Handles an event type. Builder methods:
 - `.UsingParentKey(e => e.PropertyOnEvent)` — sets key from parent (child projections)
 - `.Set(m => m.Target).To(e => e.Source)` — explicit property mapping
 - `.Set(m => m.Prop).ToValue(literal)` — set to constant value
-- `.Add(m => m.Counter).With(1)` — increment by fixed value
-- `.Subtract(m => m.Counter).With(1)` — decrement by fixed value
+- `.Add(m => m.Total).With(e => e.Amount)` — add an **event property**
+- `.Subtract(m => m.Total).With(e => e.Amount)` — subtract an **event property**
+- `.Increment(m => m.Counter)` / `.Decrement(m => m.Counter)` — change by a fixed 1
 - `.Count(m => m.TotalCount)` — increment count by 1
+
+> `.With(...)` takes an `Expression<Func<TEvent, TProperty>>` — an accessor onto the event, never a literal. `.Add(m => m.Counter).With(1)` does not compile. For "change by a fixed amount" use `Increment`/`Decrement` (which move by exactly 1); for any other constant, put the value on the event.
 
 ---
 

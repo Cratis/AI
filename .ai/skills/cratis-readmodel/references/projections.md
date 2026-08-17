@@ -46,9 +46,22 @@ public record LineItem(
 | `[SetFromContext<T>(nameof(...))]` | `.Set(...).ToEventContextProperty(...)` |
 | `[Increment<T>]` | counter increment |
 | `[Decrement<T>]` | counter decrement |
+| `[Count<T>]` | `.Count(...)` |
+| `[SetValue<T>(value)]` | `.Set(...).ToValue(value)` |
 | `[RemovedWith<T>]` | `.RemovedWith<T>()` |
+| `[FromAll]` | map from every event the model observes |
 | `[Passive]` | `.Passive()` |
 | `[NotRewindable]` | `.NotRewindable()` |
+
+**Attribute targets are not interchangeable** — the wrong target is a compile error (CS0592):
+
+| Target | Attributes |
+| ------ | ---------- |
+| **Class / struct only** | `[FromEvent<T>]`, `[NotRewindable]`, `[Passive]` |
+| **Property / parameter only** | `[FromAll]`, `[FromEvery]`, `[SetFrom<T>]`, `[SetFromContext<T>]`, `[SetValue<T>]`, `[AddFrom<T>]`, `[SubtractFrom<T>]`, `[Increment<T>]`, `[Decrement<T>]`, `[Count<T>]`, `[ChildrenFrom<T>]`, `[Join<T>]`, `[Nested]` |
+| **Either** | `[RemovedWith<T>]`, `[RemovedWithJoin<T>]`, `[ClearWith<T>]` |
+
+> `[Passive]` belongs on the **read model**, never on the reducer or projection class. It compiles on a class either way (`AttributeTargets.Class \| Struct`), but Chronicle only ever reads it off the read-model type — putting it on the reducer is a silent no-op, not a compile error.
 
 ---
 
@@ -61,7 +74,7 @@ public class InvoiceProjection : IProjectionFor<Invoice>
         .From<InvoiceCreated>()                              // AutoMap is on by default — matching names map automatically
         .From<InvoicePaid>(from => from
             .Set(m => m.PaidAt).ToEventContextProperty(c => c.Occurred)
-            .Set(m => m.Status).WithValue(InvoiceStatus.Paid))
+            .Set(m => m.Status).ToValue(InvoiceStatus.Paid))
         .From<LineItemAdded>(from => from
             .Add(m => m.TotalAmount).With(e => e.Price))
         .Join<CustomerRegistered>(j => j
@@ -82,10 +95,12 @@ public class InvoiceProjection : IProjectionFor<Invoice>
 | `.From<TEvent>(cb)` | Handle an event type |
 | `.AutoMap()` | On by default for every `.From<T>()` — **do not call it**; only re-enable inside a `.NoAutoMap()` scope |
 | `.Set(m => m.Prop).To(e => e.Prop)` | Explicit property mapping |
-| `.Set(m => m.Prop).WithValue(val)` | Set a constant |
+| `.Set(m => m.Prop).ToValue(val)` | Set a constant |
+| `.Set(m => m.Prop).ToEventSourceId()` | Set from the event source id |
 | `.Set(m => m.Prop).ToEventContextProperty(c => c.X)` | Map from event metadata |
-| `.Add(m => m.Prop).With(e => e.X)` | Add (numeric) |
-| `.Subtract(m => m.Prop).With(e => e.X)` | Subtract |
+| `.Add(m => m.Prop).With(e => e.X)` | Add an **event property** (numeric) |
+| `.Subtract(m => m.Prop).With(e => e.X)` | Subtract an **event property** |
+| `.Increment(m => m.Prop)` / `.Decrement(m => m.Prop)` | Change by a fixed 1 — `.With()` takes an event-property accessor, never a literal |
 | `.Count(m => m.Prop)` | Increment a counter |
 | `.Join<TEvent>(j => j.On(key).Set(...))` | Cross-stream join another event |
 | `.RemovedWith<TEvent>()` | Delete the read model on this event |
@@ -114,18 +129,20 @@ builder.UsingCompositeKey<MonthlyReport>(key => key
 
 ## Reading projected read models
 
-```csharp
-// Inject IReadModels in a controller
-[HttpGet("{id}")]
-public async Task<AccountSummary?> Get(Guid id)
-    => await readModels.GetOne<AccountSummary>(id);
+Queries are static methods on the `[ReadModel]` record — never a controller. `IReadModels` is for **command-side** reads: inject it into a command's `Provide()`/`Handle()` when a decision depends on current derived state.
 
-// Strong consistency (replay events synchronously before returning)
-var account = await readModels.GetOneWithImmediateProjection<AccountSummary>(id);
+```csharp
+// Cratis.Chronicle.ReadModels.IReadModels — injected into a command, not a controller
+public async Task<AccountSummary> Provide(IReadModels readModels)
+    => await readModels.GetInstanceById<AccountSummary>(AccountId);   // null when never created / removed
 
 // All instances
-var all = await readModels.GetAll<AccountSummary>();
+var all = await readModels.GetInstances<AccountSummary>();
 ```
+
+The key parameter is a `ReadModelKey` (an event-source id converts implicitly). Other members on `IReadModels`: `GetSnapshotsById<T>`, `Watch<T>`, `GetWatcherFor<T>`, `Release<T>`, `Materialized`, `Register`.
+
+> There is **no** `GetOne<T>` / `GetAll<T>` / `GetOneWithImmediateProjection<T>`. The names are `GetInstanceById<T>` and `GetInstances<T>`.
 
 ---
 

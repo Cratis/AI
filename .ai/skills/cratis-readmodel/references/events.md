@@ -24,35 +24,26 @@ Every event must be decorated with `[EventType]` — this makes it discoverable 
 
 ## Appending an event
 
-Inject `IEventLog` and call `Append(eventSourceId, eventInstance)`:
+**From a command, return the event — never inject `IEventLog`.** Arc's Chronicle integration appends whatever `Handle()` returns, to the event source resolved from the command. Injecting `IEventLog` into `Handle()` trips analyzer **ARCCHR0007**, which is a warning and therefore a build failure under the zero-warning gate.
 
 ```csharp
-public class OrdersController(IEventLog eventLog) : ControllerBase
+[Command]
+public record PlaceOrder(OrderId OrderId, CustomerId CustomerId, Money Total)
 {
-    [HttpPost]
-    public async Task PlaceOrder([FromBody] PlaceOrder command)
-    {
-        var result = await eventLog.Append(
-            command.OrderId,
-            new OrderPlaced(command.CustomerId, command.Total));
-
-        if (!result.IsSuccess)
-        {
-            // result.HasConcurrencyViolation — two requests raced
-            // result.HasConstraintViolations — uniqueness constraint failed
-        }
-    }
+    public OrderPlaced Handle() => new(CustomerId, Total);
 }
 ```
 
-The first argument is the **event source ID** — the identity the event belongs to (analogous to an aggregate root ID). Projections and reducers are keyed by this ID by default.
+The event source id comes from `OrderId` (it derives from `EventSourceId<T>`) — the identity the event belongs to, analogous to an aggregate root id. Projections and reducers are keyed by it by default, and it is **never** a payload property on the event.
 
-You can also append metadata that downstream reducers and reactors can filter on:
+Arc reports a failed append back through `CommandResult.validationResults` with a `reason` of `concurrencyViolation` or `constraintViolation` — you do not inspect an `AppendResult` yourself.
+
+`IEventLog.Append(eventSourceId, @event, …)` remains the low-level API for infrastructure and test code that legitimately sits outside a command — and it is where the metadata that downstream reducers and reactors filter on is set:
 
 ```csharp
 await eventLog.Append(
-    command.OrderId,
-    new OrderPlaced(command.CustomerId, command.Total),
+    orderId,
+    new OrderPlaced(customerId, total),
     eventStreamType: "fulfillment",
     eventSourceType: "order",
     tags: ["priority"]);

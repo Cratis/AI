@@ -62,7 +62,7 @@ public record AccountSummary(AccountId Id, string Name, OwnerId OwnerId, decimal
         IMongoCollection<AccountSummary> collection)
         => await collection.Find(Builders<AccountSummary>.Filter.Empty).ToListAsync();
 
-    public static async Task<AccountSummary?> GetAccount(
+    public static async Task<AccountSummary?> AccountById(
         AccountId id,
         IMongoCollection<AccountSummary> collection)
         => await collection.Find(a => a.Id == id).FirstOrDefaultAsync();
@@ -76,10 +76,12 @@ public record AccountSummary(AccountId Id, string Name, OwnerId OwnerId, decimal
 
 **Rules:**
 - `[ReadModel]` attribute is **required** for proxy generation and runtime routing
-- Static methods must be `public static` and return the record type, a collection of it, or `ISubject<T>` for real-time push
-- Do **not** return `Task<ISubject<T>>` — observable methods must return `ISubject<T>` directly
+- Query methods are `static` and non-generic, and return the record type, a collection of it (`IEnumerable<T>`, `T[]`, `IQueryable<T>`), `IAsyncEnumerable<T>`, or `ISubject<T>` / `ISubject<IEnumerable<T>>` for real-time push — each optionally wrapped in `Task<>`
+- Return `ISubject<T>` **directly** for observable queries; keep `Task<>` for the snapshot ones
+- Parameters split automatically: anything the container resolves as a service is injected, everything else becomes a query argument on the route and in the proxy
 - Use `ConceptAs<T>` wrappers for all identity fields — never raw `Guid`
 - One read model per use case — do not reuse them
+- **No controllers.** `[HttpGet]` / `[FromQuery]` / `[Route]` have no part in a query; for a custom route use `[Path("...")]` (see `references/queries.md`)
 
 ---
 
@@ -105,13 +107,13 @@ public class AccountSummaryProjection : IProjectionFor<AccountSummary>
 {
     public void Define(IProjectionBuilderFor<AccountSummary> builder) => builder
         .From<DebitAccountOpened>(from => from
-            .Set(m => m.Balance).WithValue(0m))    // Name/OwnerId map by AutoMap (matching names)
+            .Set(m => m.Balance).ToValue(0m))      // Name/OwnerId map by AutoMap (matching names)
         .From<FundsDeposited>(from => from
             .Add(m => m.Balance).With(e => e.Amount))
         .From<FundsWithdrawn>(from => from
             .Subtract(m => m.Balance).With(e => e.Amount))
         .From<DebitAccountClosed>(from => from
-            .Set(m => m.IsClosed).WithValue(true));
+            .Set(m => m.IsClosed).ToValue(true));
 }
 ```
 
@@ -178,7 +180,7 @@ public record AccountBalance(decimal Balance, DateTimeOffset LastUpdated);
 
 Query methods live **directly on the `[ReadModel]` record** as static methods (see Step 2). You do **not** need a separate controller or `IReadModels` injection.
 
-The method name becomes the TypeScript proxy class name — use descriptive names like `AllAccounts`, `GetAccount`, `ObserveAllAccounts`.
+The method name becomes the TypeScript proxy class name — use descriptive names like `AllAccounts`, `AccountById`, `ObserveAllAccounts`.
 
 ### Snapshot (one-time) queries
 
@@ -190,7 +192,7 @@ public record AccountSummary(AccountId Id, string Name, decimal Balance)
         IMongoCollection<AccountSummary> collection)
         => await collection.Find(_ => true).ToListAsync();
 
-    public static async Task<AccountSummary?> GetAccount(
+    public static async Task<AccountSummary?> AccountById(
         AccountId id,
         IMongoCollection<AccountSummary> collection)
         => await collection.Find(a => a.Id == id).FirstOrDefaultAsync();
@@ -212,9 +214,11 @@ public record AccountSummary(AccountId Id, string Name, decimal Balance)
     public static ISubject<AccountSummary> ObserveAccount(
         AccountId id,
         IMongoCollection<AccountSummary> collection)
-        => collection.Observe(a => a.Id == id);
+        => collection.ObserveById(id);
 }
 ```
+
+`Observe()` and `Observe(filter)` both return `ISubject<IEnumerable<T>>`; the single-item observers are `ObserveById(id)` and `ObserveSingle(filter)`. Match the return type to the extension you call.
 
 When the frontend uses an observable query, the query proxy type changes from `QueryFor` to `ObservableQueryFor`. The **same `query` prop** accepts a standard or observable query — there is no separate `observableQuery` prop; `DataPage` auto-detects it and subscribes to live updates.
 
