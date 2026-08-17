@@ -1,0 +1,193 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.cratis.io/factory/v1/operation-result.schema.json",
+  "title": "Cratis Factory Operation Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocolVersion",
+    "documentKind",
+    "operation",
+    "status",
+    "summary",
+    "requestHash",
+    "sideEffectsOccurred",
+    "diagnostics",
+    "nextActions",
+    "contentHash"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "protocolVersion": {
+      "const": "1"
+    },
+    "documentKind": {
+      "const": "operation-result"
+    },
+    "operation": {
+      "enum": [
+        "inspect",
+        "preflight",
+        "validate",
+        "verify",
+        "evaluate",
+        "verify-evaluation-result"
+      ]
+    },
+    "status": {
+      "enum": [
+        "success",
+        "blocked",
+        "approval-required",
+        "denied",
+        "invocation-error",
+        "invalid",
+        "integrity-error",
+        "unexpected"
+      ]
+    },
+    "summary": {
+      "$ref": "#/$defs/safeText"
+    },
+    "requestHash": {
+      "$ref": "#/$defs/contentHash"
+    },
+    "sideEffectsOccurred": {
+      "type": "boolean"
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "$ref": "https://schemas.cratis.io/factory/v1/diagnostic.schema.json"
+      },
+      "uniqueItems": true
+    },
+    "nextActions": {
+      "type": "array",
+      "items": {
+        "$ref": "https://schemas.cratis.io/factory/v1/next-action.schema.json"
+      },
+      "uniqueItems": true
+    },
+    "result": {
+      "$ref": "#/$defs/typedResult"
+    },
+    "contentHash": {
+      "$ref": "#/$defs/contentHash"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "success"
+          }
+        },
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "diagnostics": {
+            "not": {
+              "contains": {
+                "properties": {
+                  "severity": {
+                    "const": "error"
+                  }
+                },
+                "required": ["severity"]
+              }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "diagnostics": {
+            "minItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": ["blocked", "approval-required"]
+          }
+        },
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "diagnostics": {
+            "contains": {
+              "properties": {
+                "severity": {
+                  "enum": ["warning", "error"]
+                }
+              },
+              "required": ["severity"]
+            }
+          },
+          "nextActions": {
+            "minItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": ["denied", "invocation-error", "invalid", "integrity-error", "unexpected"]
+          }
+        },
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "diagnostics": {
+            "contains": {
+              "properties": {
+                "severity": {
+                  "const": "error"
+                }
+              },
+              "required": ["severity"]
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "safeText": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f\\u202a-\\u202e\\u2066-\\u2069]*$"
+    },
+    "contentHash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "typedResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schemaId", "contentHash", "value"],
+      "properties": {
+        "schemaId": {
+          "type": "string",
+          "format": "uri"
+        },
+        "contentHash": {
+          "$ref": "#/$defs/contentHash"
+        },
+        "value": true
+      }
+    }
+  }
+}

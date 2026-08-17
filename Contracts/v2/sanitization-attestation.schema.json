@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.cratis.io/factory/v2/sanitization-attestation.schema.json",
+  "title": "Cratis Factory Sanitization Attestation v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocolVersion", "documentKind", "runId", "phaseAttemptId", "harnessRequestHash", "securityDomain", "decision", "sourceArtifact", "deliveredArtifact", "sanitizer", "ruleset", "allowlistHash", "providerPolicyHash", "issuedAt", "validUntil", "authority", "contentHash"],
+  "properties": {
+    "$schema": {"const": "https://schemas.cratis.io/factory/v2/sanitization-attestation.schema.json"},
+    "protocolVersion": {"const": "2"},
+    "documentKind": {"const": "sanitization-attestation"},
+    "runId": {"type": "string", "format": "uuid"},
+    "phaseAttemptId": {"type": "string", "format": "uuid"},
+    "harnessRequestHash": {"$ref": "#/$defs/contentHash"},
+    "securityDomain": {"$ref": "#/$defs/securityDomain"},
+    "decision": {"enum": ["pass-through", "sanitized"]},
+    "sourceArtifact": {"$ref": "https://schemas.cratis.io/factory/v2/artifact-descriptor.schema.json"},
+    "deliveredArtifact": {"$ref": "https://schemas.cratis.io/factory/v2/artifact-descriptor.schema.json"},
+    "sanitizer": {"$ref": "#/$defs/versionedReference"},
+    "ruleset": {"$ref": "#/$defs/versionedReference"},
+    "allowlistHash": {"$ref": "#/$defs/contentHash"},
+    "providerPolicyHash": {"$ref": "#/$defs/contentHash"},
+    "issuedAt": {"$ref": "#/$defs/timestamp"},
+    "validUntil": {"$ref": "#/$defs/timestamp"},
+    "authority": {"$ref": "#/$defs/authority"},
+    "contentHash": {"$ref": "#/$defs/contentHash"}
+  },
+  "$defs": {
+    "identifier": {"type": "string", "maxLength": 128, "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"},
+    "version": {"type": "string", "maxLength": 32, "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "contentHash": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "securityDomain": {"type": "string", "pattern": "^security-domain:sha256:[a-f0-9]{64}$"},
+    "timestamp": {"type": "string", "format": "date-time", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"},
+    "versionedReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version", "contentHash"],
+      "properties": {"id": {"$ref": "#/$defs/identifier"}, "version": {"$ref": "#/$defs/version"}, "contentHash": {"$ref": "#/$defs/contentHash"}}
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["issuer", "keyId", "algorithm", "signature"],
+      "properties": {
+        "issuer": {"type": "string", "pattern": "^authority:sha256:[a-f0-9]{64}$"},
+        "keyId": {"type": "string", "pattern": "^key:sha256:[a-f0-9]{64}$"},
+        "algorithm": {"const": "ed25519"},
+        "signature": {"type": "string", "minLength": 86, "maxLength": 86, "pattern": "^[A-Za-z0-9_-]+$"}
+      }
+    }
+  }
+}

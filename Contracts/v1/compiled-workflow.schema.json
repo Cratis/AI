@@ -1,0 +1,482 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.cratis.io/factory/v1/compiled-workflow.schema.json",
+  "title": "Cratis Factory Compiled Workflow",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocolVersion",
+    "documentKind",
+    "compilerVersion",
+    "workflow",
+    "repositoryBinding",
+    "effectivePolicy",
+    "capabilityCatalogs",
+    "workflowInputs",
+    "orderedPhases",
+    "requiredGateIds",
+    "terminal",
+    "contentHash"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "protocolVersion": {
+      "const": "1"
+    },
+    "documentKind": {
+      "const": "compiled-workflow"
+    },
+    "compilerVersion": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "workflow": {
+      "$ref": "#/$defs/versionedReference"
+    },
+    "repositoryBinding": {
+      "$ref": "#/$defs/repositoryBinding"
+    },
+    "effectivePolicy": {
+      "$ref": "#/$defs/effectivePolicy"
+    },
+    "capabilityCatalogs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/versionedReference"
+      }
+    },
+    "workflowInputs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "schema", "binding"],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/identifier"
+          },
+          "schema": {
+            "$ref": "#/$defs/contentReference"
+          },
+          "binding": {
+            "$ref": "#/$defs/workflowInputBinding"
+          }
+        }
+      }
+    },
+    "orderedPhases": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 4096,
+      "items": {
+        "$ref": "#/$defs/compiledPhase"
+      }
+    },
+    "requiredGateIds": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/identifier"
+      },
+      "uniqueItems": true
+    },
+    "terminal": {
+      "$ref": "https://schemas.cratis.io/factory/v1/workflow.schema.json#/properties/terminal"
+    },
+    "contentHash": {
+      "$ref": "#/$defs/contentHash"
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "contentHash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "versionedReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version", "contentHash"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contentHash": {
+          "$ref": "#/$defs/contentHash"
+        }
+      }
+    },
+    "contentReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reference", "contentHash"],
+      "properties": {
+        "reference": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contentHash": {
+          "$ref": "#/$defs/contentHash"
+        }
+      }
+    },
+    "repositoryBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repositorySnapshot", "resolvedProfile"],
+      "properties": {
+        "repositorySnapshot": {
+          "$ref": "https://schemas.cratis.io/factory/v1/repository-snapshot.schema.json"
+        },
+        "resolvedProfile": {
+          "$ref": "https://schemas.cratis.io/factory/v1/resolved-profile.schema.json"
+        }
+      }
+    },
+    "effectivePolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["base", "projectManifestHash", "deniedCapabilities", "contentHash"],
+      "properties": {
+        "base": {
+          "$ref": "#/$defs/versionedReference"
+        },
+        "projectManifestHash": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/contentHash"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "deniedCapabilities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/identifier"
+          },
+          "uniqueItems": true
+        },
+        "contentHash": {
+          "$ref": "#/$defs/contentHash"
+        }
+      }
+    },
+    "workflowInputBinding": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind"],
+          "properties": {
+            "kind": {
+              "const": "request"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "value", "contentHash"],
+          "properties": {
+            "kind": {
+              "const": "preflight"
+            },
+            "value": {
+              "enum": ["repository-snapshot", "resolved-profile"]
+            },
+            "contentHash": {
+              "$ref": "#/$defs/contentHash"
+            }
+          }
+        }
+      ]
+    },
+    "agentExecution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "id",
+        "role",
+        "purpose",
+        "capability",
+        "priority",
+        "rationale",
+        "contentHash",
+        "selectedFromProfiles"
+      ],
+      "properties": {
+        "kind": {
+          "const": "agent"
+        },
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "role": {
+          "$ref": "#/$defs/identifier"
+        },
+        "purpose": {
+          "$ref": "#/$defs/identifier"
+        },
+        "capability": {
+          "$ref": "#/$defs/identifier"
+        },
+        "priority": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contentHash": {
+          "$ref": "#/$defs/contentHash"
+        },
+        "selectedFromProfiles": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "codeExecution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "capability"],
+      "properties": {
+        "kind": {
+          "const": "code"
+        },
+        "capability": {
+          "$ref": "#/$defs/identifier"
+        }
+      }
+    },
+    "humanExecution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "approval"],
+      "properties": {
+        "kind": {
+          "const": "human"
+        },
+        "approval": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["decision"],
+          "properties": {
+            "decision": {
+              "$ref": "#/$defs/identifier"
+            }
+          }
+        }
+      }
+    },
+    "capabilityGrant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "usage", "sourceId", "effect", "policyCapability", "decision"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "usage": {
+          "enum": ["agent", "gate", "phase"]
+        },
+        "sourceId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "effect": {
+          "enum": ["read", "write", "destructive"]
+        },
+        "policyCapability": {
+          "$ref": "#/$defs/identifier"
+        },
+        "decision": {
+          "const": "allow"
+        }
+      }
+    },
+    "phasePolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["writeScopes", "networkScopes", "secretScopes", "timeoutSeconds", "maxAttempts"],
+      "properties": {
+        "writeScopes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "networkScopes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "secretScopes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "timeoutSeconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 86400
+        },
+        "maxAttempts": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5
+        }
+      }
+    },
+    "compiledPhase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "ordinal",
+        "kind",
+        "needs",
+        "inputs",
+        "outputSchema",
+        "execution",
+        "policy",
+        "capabilities",
+        "gates"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "ordinal": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4095
+        },
+        "kind": {
+          "enum": ["agent", "code", "human"]
+        },
+        "needs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/identifier"
+          },
+          "uniqueItems": true
+        },
+        "inputs": {
+          "type": "array",
+          "items": {
+            "$ref": "https://schemas.cratis.io/factory/v1/workflow.schema.json#/$defs/inputBinding"
+          }
+        },
+        "outputSchema": {
+          "$ref": "#/$defs/contentReference"
+        },
+        "execution": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/agentExecution"
+            },
+            {
+              "$ref": "#/$defs/codeExecution"
+            },
+            {
+              "$ref": "#/$defs/humanExecution"
+            }
+          ]
+        },
+        "policy": {
+          "$ref": "#/$defs/phasePolicy"
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/capabilityGrant"
+          }
+        },
+        "correction": {
+          "$ref": "https://schemas.cratis.io/factory/v1/workflow.schema.json#/$defs/correction"
+        },
+        "gates": {
+          "type": "array",
+          "items": {
+            "$ref": "https://schemas.cratis.io/factory/v1/workflow.schema.json#/$defs/gate"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "agent"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "execution": {
+                "$ref": "#/$defs/agentExecution"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "code"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "execution": {
+                "$ref": "#/$defs/codeExecution"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "human"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "execution": {
+                "$ref": "#/$defs/humanExecution"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

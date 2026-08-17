@@ -1,0 +1,33 @@
+{
+  "$schema": "../../Contracts/v1/capability-catalog.schema.json",
+  "schemaVersion": "1",
+  "documentKind": "capability-catalog",
+  "id": "factory-foundation",
+  "version": "1.0.0",
+  "capabilities": [
+    {
+      "id": "read-repository",
+      "description": "Allow an agent phase to read the immutable repository snapshot bound by executable preflight.",
+      "usages": ["agent"],
+      "effect": "read",
+      "policyCapability": "read-repository"
+    },
+    {
+      "id": "factory-verify-evidence",
+      "description": "Verify that evidence references resolve inside the artifact boundary and match their declared hashes.",
+      "usages": ["gate"],
+      "effect": "read",
+      "policyCapability": "run-quality-gates",
+      "outputSchema": "../../Contracts/v1/gate-report.schema.json",
+      "allowedGateKinds": ["command"]
+    },
+    {
+      "id": "factory-verify-investigation",
+      "description": "Verify an investigation result, its budgets, immutable repository revision, evidence, and clean source workspace.",
+      "usages": ["phase"],
+      "effect": "read",
+      "policyCapability": "run-quality-gates",
+      "outputSchema": "../../Contracts/v1/gate-report.schema.json"
+    }
+  ]
+}

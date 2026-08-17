@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.cratis.io/factory/v2/artifact-provenance.schema.json",
+  "title": "Cratis Factory Artifact Provenance v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocolVersion", "documentKind", "runId", "phaseAttemptId", "securityDomain", "name", "source", "sourceArtifact", "deliveredArtifact", "artifactReceiptHash", "sanitizationAttestationHash", "contentHash"],
+  "properties": {
+    "$schema": {"const": "https://schemas.cratis.io/factory/v2/artifact-provenance.schema.json"},
+    "protocolVersion": {"const": "2"},
+    "documentKind": {"const": "artifact-provenance"},
+    "runId": {"type": "string", "format": "uuid"},
+    "phaseAttemptId": {"type": "string", "format": "uuid"},
+    "securityDomain": {"$ref": "#/$defs/securityDomain"},
+    "name": {"$ref": "#/$defs/identifier"},
+    "source": {
+      "oneOf": [
+        {"$ref": "#/$defs/requestSource"},
+        {"$ref": "#/$defs/preflightSource"},
+        {"$ref": "#/$defs/phaseOutputSource"}
+      ]
+    },
+    "sourceArtifact": {"$ref": "https://schemas.cratis.io/factory/v2/artifact-descriptor.schema.json"},
+    "deliveredArtifact": {"$ref": "https://schemas.cratis.io/factory/v2/artifact-descriptor.schema.json"},
+    "artifactReceiptHash": {"$ref": "#/$defs/contentHash"},
+    "sanitizationAttestationHash": {"$ref": "#/$defs/contentHash"},
+    "contentHash": {"$ref": "#/$defs/contentHash"}
+  },
+  "$defs": {
+    "identifier": {"type": "string", "maxLength": 128, "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"},
+    "contentHash": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "securityDomain": {"type": "string", "pattern": "^security-domain:sha256:[a-f0-9]{64}$"},
+    "requestSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "runInputSetHash", "workflowInputId", "submissionReceiptHash"],
+      "properties": {
+        "kind": {"const": "request"},
+        "runInputSetHash": {"$ref": "#/$defs/contentHash"},
+        "workflowInputId": {"$ref": "#/$defs/identifier"},
+        "submissionReceiptHash": {"$ref": "#/$defs/contentHash"}
+      }
+    },
+    "preflightSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "compiledWorkflowHash", "workflowInputId", "value", "authorityContentHash"],
+      "properties": {
+        "kind": {"const": "preflight"},
+        "compiledWorkflowHash": {"$ref": "#/$defs/contentHash"},
+        "workflowInputId": {"$ref": "#/$defs/identifier"},
+        "value": {"enum": ["repository-snapshot", "agent-context"]},
+        "authorityContentHash": {"$ref": "#/$defs/contentHash"}
+      }
+    },
+    "phaseOutputSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "producerRunId", "producerPhaseId", "producerPhaseAttemptId", "producerRequestHash", "phaseResultReceiptHash"],
+      "properties": {
+        "kind": {"const": "phase-output"},
+        "producerRunId": {"type": "string", "format": "uuid"},
+        "producerPhaseId": {"$ref": "#/$defs/identifier"},
+        "producerPhaseAttemptId": {"type": "string", "format": "uuid"},
+        "producerRequestHash": {"$ref": "#/$defs/contentHash"},
+        "phaseResultReceiptHash": {"$ref": "#/$defs/contentHash"}
+      }
+    }
+  }
+}

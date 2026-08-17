@@ -1,0 +1,45 @@
+{
+  "$schema": "../../Contracts/v1/profile.schema.json",
+  "schemaVersion": "1",
+  "documentKind": "profile",
+  "id": "framework-components",
+  "version": "1.0.0",
+  "description": "React and PrimeReact library contribution pack for Cratis Components; Chronicle and application slices are not implied.",
+  "activation": "automatic",
+  "priority": 100,
+  "repositoryModes": ["framework"],
+  "detect": {
+    "allOf": [
+      {"kind": "repository-identity", "id": "cratis-components"},
+      {"kind": "file", "pattern": "**/.storybook/main.*"}
+    ]
+  },
+  "provides": ["components-framework", "framework", "react", "repository-known", "typescript"],
+  "excludes": [],
+  "skills": ["cratis-specs-typescript", "toolbar", "stepper-command-dialog"],
+  "recommendations": {
+    "agents": [
+      {
+        "id": "repository-investigator",
+        "purposes": ["investigate"],
+        "priority": 100,
+        "rationale": "Investigates Components as a public React library, not as a consuming application."
+      },
+      {
+        "id": "repository-investigation-reviewer",
+        "purposes": ["review"],
+        "priority": 100,
+        "rationale": "Independently reviews typed investigation evidence using the resolved repository mode."
+      }
+    ],
+    "workflows": [
+      {
+        "id": "investigate-cratis-issue",
+        "purposes": ["investigate"],
+        "priority": 100,
+        "rationale": "Components framework issues can use the read-only repository workflow."
+      }
+    ]
+  },
+  "commands": {}
+}

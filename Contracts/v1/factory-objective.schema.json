@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.cratis.io/factory/v1/factory-objective.schema.json",
+  "title": "Cratis Factory Objective",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocolVersion", "objective", "targetPath", "classification", "constraints"],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "protocolVersion": {
+      "const": "1"
+    },
+    "objective": {
+      "type": "string",
+      "minLength": 1
+    },
+    "targetPath": {
+      "type": "string",
+      "minLength": 1
+    },
+    "classification": {
+      "enum": ["public", "internal", "confidential", "restricted"]
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    }
+  }
+}

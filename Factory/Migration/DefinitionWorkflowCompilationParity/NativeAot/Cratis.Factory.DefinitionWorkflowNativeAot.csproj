@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <PublishAot>true</PublishAot>
+        <PublishTrimmed>true</PublishTrimmed>
+        <TrimMode>full</TrimMode>
+        <InvariantGlobalization>true</InvariantGlobalization>
+        <AssemblyName>Cratis.Factory.DefinitionWorkflowNativeAot</AssemblyName>
+        <RootNamespace>Cratis.Factory.DefinitionWorkflowNativeAot</RootNamespace>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="../../../../Source/Factory.Core/Factory.Core.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Include="../../../../Contracts/v1/**/*.json">
+            <LogicalName>snapshot/Contracts/v1/%(RecursiveDir)%(Filename)%(Extension)</LogicalName>
+        </EmbeddedResource>
+        <EmbeddedResource Include="../../../../Contracts/v2/**/*.json">
+            <LogicalName>snapshot/Contracts/v2/%(RecursiveDir)%(Filename)%(Extension)</LogicalName>
+        </EmbeddedResource>
+        <EmbeddedResource Include="../../../Capabilities/*.json">
+            <LogicalName>snapshot/Factory/Capabilities/%(Filename)%(Extension)</LogicalName>
+        </EmbeddedResource>
+        <EmbeddedResource Include="../../../Policies/*.json">
+            <LogicalName>snapshot/Factory/Policies/%(Filename)%(Extension)</LogicalName>
+        </EmbeddedResource>
+        <EmbeddedResource Include="../../../Profiles/*.json">
+            <LogicalName>snapshot/Factory/Profiles/%(Filename)%(Extension)</LogicalName>
+        </EmbeddedResource>
+        <EmbeddedResource Include="../../../../Workflows/*.json">
+            <LogicalName>snapshot/Workflows/%(Filename)%(Extension)</LogicalName>
+        </EmbeddedResource>
+        <EmbeddedResource Include="../../../../Evaluations/Factory/*.json">
+            <LogicalName>snapshot/Evaluations/Factory/%(Filename)%(Extension)</LogicalName>
+        </EmbeddedResource>
+    </ItemGroup>
+</Project>

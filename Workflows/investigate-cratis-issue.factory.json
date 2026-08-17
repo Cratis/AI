@@ -1,0 +1,322 @@
+{
+  "$schema": "../Contracts/v1/workflow.schema.json",
+  "schemaVersion": "1",
+  "documentKind": "workflow",
+  "id": "investigate-cratis-issue",
+  "version": "1.0.0",
+  "description": "A read-only, evidence-producing investigation that exercises the factory foundations without allowing source changes or GitHub writes.",
+  "profileRequirements": {
+    "allOf": ["repository-known"]
+  },
+  "inputs": [
+    {
+      "id": "objective",
+      "schema": "../Contracts/v1/factory-objective.schema.json",
+      "source": "request"
+    },
+    {
+      "id": "repository-snapshot",
+      "schema": "../Contracts/v1/repository-snapshot.schema.json",
+      "source": "preflight",
+      "preflightValue": "repository-snapshot"
+    },
+    {
+      "id": "resolved-profile",
+      "schema": "../Contracts/v1/resolved-profile.schema.json",
+      "source": "preflight",
+      "preflightValue": "resolved-profile"
+    }
+  ],
+  "phases": [
+    {
+      "id": "accept-intent",
+      "kind": "human",
+      "description": "Confirm the objective, repository revision, data classification, and investigation scope.",
+      "needs": [],
+      "inputs": [
+        {
+          "name": "objective",
+          "source": {
+            "kind": "workflow-input",
+            "id": "objective"
+          }
+        },
+        {
+          "name": "repository-snapshot",
+          "source": {
+            "kind": "workflow-input",
+            "id": "repository-snapshot"
+          }
+        }
+      ],
+      "outputSchema": "../Contracts/v1/approval-decision.schema.json",
+      "approval": {
+        "decision": "intent-accepted"
+      },
+      "policy": {
+        "writeScopes": [],
+        "networkScopes": [],
+        "secretScopes": [],
+        "timeoutSeconds": 86400,
+        "maxAttempts": 1
+      },
+      "gates": [
+        {
+          "id": "intent-approved",
+          "kind": "approval",
+          "requiredForAcceptance": true
+        }
+      ]
+    },
+    {
+      "id": "investigate",
+      "kind": "agent",
+      "description": "Inspect, reproduce where possible, and produce a typed investigation with content-addressed evidence.",
+      "needs": ["accept-intent"],
+      "inputs": [
+        {
+          "name": "intent-decision",
+          "source": {
+            "kind": "phase-output",
+            "phaseId": "accept-intent"
+          }
+        },
+        {
+          "name": "objective",
+          "source": {
+            "kind": "workflow-input",
+            "id": "objective"
+          }
+        },
+        {
+          "name": "repository-snapshot",
+          "source": {
+            "kind": "workflow-input",
+            "id": "repository-snapshot"
+          }
+        },
+        {
+          "name": "resolved-profile",
+          "source": {
+            "kind": "workflow-input",
+            "id": "resolved-profile"
+          }
+        }
+      ],
+      "outputSchema": "../Contracts/v1/investigation-result.schema.json",
+      "role": "investigator",
+      "purpose": "investigate",
+      "capability": "read-repository",
+      "correction": {
+        "targetPhase": "investigate",
+        "triggers": ["gate-failed", "output-invalid"],
+        "maxRounds": 1
+      },
+      "policy": {
+        "writeScopes": [],
+        "networkScopes": [],
+        "secretScopes": [],
+        "timeoutSeconds": 1800,
+        "maxAttempts": 2
+      },
+      "gates": [
+        {
+          "id": "investigation-envelope-valid",
+          "kind": "schema",
+          "requiredForAcceptance": true
+        },
+        {
+          "id": "investigation-evidence-valid",
+          "kind": "command",
+          "requiredForAcceptance": true,
+          "capability": "factory-verify-evidence"
+        },
+        {
+          "id": "investigation-write-scope-valid",
+          "kind": "diff",
+          "requiredForAcceptance": true,
+          "configuration": {
+            "allow": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "verify-workspace",
+      "kind": "code",
+      "description": "Verify artifact hashes, repository references, budgets, and that the investigation did not change source.",
+      "needs": ["investigate"],
+      "inputs": [
+        {
+          "name": "investigation",
+          "source": {
+            "kind": "phase-output",
+            "phaseId": "investigate"
+          }
+        },
+        {
+          "name": "repository-snapshot",
+          "source": {
+            "kind": "workflow-input",
+            "id": "repository-snapshot"
+          }
+        }
+      ],
+      "outputSchema": "../Contracts/v1/gate-report.schema.json",
+      "capability": "factory-verify-investigation",
+      "policy": {
+        "writeScopes": [],
+        "networkScopes": [],
+        "secretScopes": [],
+        "timeoutSeconds": 300,
+        "maxAttempts": 1
+      },
+      "gates": [
+        {
+          "id": "investigation-artifacts-resolve",
+          "kind": "command",
+          "requiredForAcceptance": true,
+          "capability": "factory-verify-evidence"
+        },
+        {
+          "id": "investigation-workspace-clean",
+          "kind": "diff",
+          "requiredForAcceptance": true,
+          "configuration": {
+            "allow": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "review",
+      "kind": "agent",
+      "description": "Review the investigation against the objective and deterministic evidence without changing files.",
+      "needs": ["verify-workspace"],
+      "inputs": [
+        {
+          "name": "objective",
+          "source": {
+            "kind": "workflow-input",
+            "id": "objective"
+          }
+        },
+        {
+          "name": "investigation",
+          "source": {
+            "kind": "phase-output",
+            "phaseId": "investigate"
+          }
+        },
+        {
+          "name": "verification",
+          "source": {
+            "kind": "phase-output",
+            "phaseId": "verify-workspace"
+          }
+        }
+      ],
+      "outputSchema": "../Contracts/v1/phase-envelope.schema.json",
+      "role": "reviewer",
+      "purpose": "review",
+      "capability": "read-repository",
+      "correction": {
+        "targetPhase": "review",
+        "triggers": ["output-invalid"],
+        "maxRounds": 1
+      },
+      "policy": {
+        "writeScopes": [],
+        "networkScopes": [],
+        "secretScopes": [],
+        "timeoutSeconds": 900,
+        "maxAttempts": 2
+      },
+      "gates": [
+        {
+          "id": "review-envelope-valid",
+          "kind": "schema",
+          "requiredForAcceptance": true
+        },
+        {
+          "id": "review-write-scope-valid",
+          "kind": "diff",
+          "requiredForAcceptance": true,
+          "configuration": {
+            "allow": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "accept-result",
+      "kind": "human",
+      "description": "Accept the evidence-backed result, reject it, or request one bounded correction.",
+      "needs": ["review"],
+      "inputs": [
+        {
+          "name": "investigation",
+          "source": {
+            "kind": "phase-output",
+            "phaseId": "investigate"
+          }
+        },
+        {
+          "name": "verification",
+          "source": {
+            "kind": "phase-output",
+            "phaseId": "verify-workspace"
+          }
+        },
+        {
+          "name": "review",
+          "source": {
+            "kind": "phase-output",
+            "phaseId": "review"
+          }
+        }
+      ],
+      "outputSchema": "../Contracts/v1/approval-decision.schema.json",
+      "approval": {
+        "decision": "result-accepted"
+      },
+      "correction": {
+        "targetPhase": "investigate",
+        "triggers": ["approval-requested"],
+        "maxRounds": 1
+      },
+      "policy": {
+        "writeScopes": [],
+        "networkScopes": [],
+        "secretScopes": [],
+        "timeoutSeconds": 86400,
+        "maxAttempts": 1
+      },
+      "gates": [
+        {
+          "id": "result-approved",
+          "kind": "approval",
+          "requiredForAcceptance": true
+        }
+      ]
+    }
+  ],
+  "acceptance": {
+    "requiredGateIds": [
+      "intent-approved",
+      "investigation-envelope-valid",
+      "investigation-evidence-valid",
+      "investigation-write-scope-valid",
+      "investigation-artifacts-resolve",
+      "investigation-workspace-clean",
+      "review-envelope-valid",
+      "review-write-scope-valid",
+      "result-approved"
+    ]
+  },
+  "terminal": {
+    "successPhase": "accept-result",
+    "onFailure": "fail-run",
+    "onAttemptsExhausted": "fail-run"
+  }
+}

@@ -1,0 +1,165 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.cratis.io/factory/v1/gate-report.schema.json",
+  "title": "Cratis Factory Gate Report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocolVersion",
+    "gateId",
+    "outcome",
+    "inlineTextClassification",
+    "checks",
+    "evidence",
+    "durationMs"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "format": "uri",
+      "maxLength": 256,
+      "pattern": "^(?![\\s\\S]*[\\u0000-\\u001f\\u007f-\\u009f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])[\\s\\S]*$"
+    },
+    "protocolVersion": {
+      "const": "1"
+    },
+    "gateId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "outcome": {
+      "enum": ["pass", "fail", "blocked"]
+    },
+    "inlineTextClassification": {
+      "enum": ["public", "internal", "confidential", "restricted"]
+    },
+    "checks": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 128,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "outcome", "message"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^(?![\\s\\S]*[\\u0000-\\u001f\\u007f-\\u009f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])[\\s\\S]*$"
+          },
+          "outcome": {
+            "enum": ["pass", "fail", "blocked"]
+          },
+          "message": {
+            "type": "string",
+            "maxLength": 2000,
+            "pattern": "^(?![\\s\\S]*[\\u0000-\\u001f\\u007f-\\u009f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])[\\s\\S]*$"
+          }
+        }
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 128,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["reference", "contentHash", "classification"],
+        "properties": {
+          "reference": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512,
+            "pattern": "^artifact:sha256:[a-f0-9]{64}$"
+          },
+          "contentHash": {
+            "type": "string",
+            "pattern": "^sha256:[a-f0-9]{64}$"
+          },
+          "classification": {
+            "enum": ["public", "internal", "confidential", "restricted"]
+          }
+        }
+      }
+    },
+    "durationMs": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "outcome": {
+            "const": "pass"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "checks": {
+            "items": {
+              "properties": {
+                "outcome": {
+                  "const": "pass"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "outcome": {
+            "const": "fail"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "checks": {
+            "contains": {
+              "properties": {
+                "outcome": {
+                  "const": "fail"
+                }
+              },
+              "required": ["outcome"]
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "outcome": {
+            "const": "blocked"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "checks": {
+            "contains": {
+              "properties": {
+                "outcome": {
+                  "const": "blocked"
+                }
+              },
+              "required": ["outcome"]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

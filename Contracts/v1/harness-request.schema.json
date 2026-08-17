@@ -1,0 +1,613 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.cratis.io/factory/v1/harness-request.schema.json",
+  "title": "Cratis Factory Harness Request",
+  "description": "A phase-scoped request derived from one authority-verified compiled workflow. requestHash is the Factory canonical JSON v1 SHA-256 of this object with requestHash omitted.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocolVersion",
+    "runId",
+    "phaseAttemptId",
+    "requestHash",
+    "compiledWorkflow",
+    "phase",
+    "repositoryBinding",
+    "effectivePolicy",
+    "agent",
+    "capabilityGrants",
+    "objective",
+    "effectiveClassification",
+    "providerPolicy",
+    "workspace",
+    "executionLimits",
+    "inputs",
+    "outputSchema"
+  ],
+  "properties": {
+    "$schema": {
+      "const": "https://schemas.cratis.io/factory/v1/harness-request.schema.json"
+    },
+    "protocolVersion": {
+      "const": "1"
+    },
+    "runId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "phaseAttemptId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "requestHash": {
+      "$ref": "#/$defs/contentHash"
+    },
+    "compiledWorkflow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["compilerVersion", "workflow", "contentHash"],
+      "properties": {
+        "compilerVersion": {
+          "$ref": "#/$defs/version"
+        },
+        "workflow": {
+          "$ref": "#/$defs/versionedReference"
+        },
+        "contentHash": {
+          "$ref": "#/$defs/contentHash"
+        }
+      }
+    },
+    "phase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "ordinal", "policy"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "ordinal": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4095
+        },
+        "policy": {
+          "$ref": "#/$defs/phasePolicy"
+        }
+      }
+    },
+    "repositoryBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repositorySnapshot", "resolvedProfile"],
+      "properties": {
+        "repositorySnapshot": {
+          "$ref": "#/$defs/hashReference"
+        },
+        "resolvedProfile": {
+          "$ref": "#/$defs/resolvedComposition"
+        }
+      }
+    },
+    "effectivePolicy": {
+      "$ref": "#/$defs/effectivePolicy"
+    },
+    "agent": {
+      "$ref": "#/$defs/agentBinding"
+    },
+    "capabilityGrants": {
+      "type": "array",
+      "maxItems": 512,
+      "items": {
+        "$ref": "#/$defs/capabilityGrant"
+      },
+      "uniqueItems": true
+    },
+    "objective": {
+      "$ref": "#/$defs/objective"
+    },
+    "effectiveClassification": {
+      "$ref": "#/$defs/classification"
+    },
+    "providerPolicy": {
+      "$ref": "#/$defs/providerPolicy"
+    },
+    "workspace": {
+      "$ref": "#/$defs/workspace"
+    },
+    "executionLimits": {
+      "$ref": "#/$defs/executionLimits"
+    },
+    "inputs": {
+      "type": "array",
+      "maxItems": 64,
+      "items": {
+        "$ref": "#/$defs/inputArtifact"
+      }
+    },
+    "outputSchema": {
+      "$ref": "#/$defs/contentReference"
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$",
+      "maxLength": 128
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "maxLength": 32
+    },
+    "contentHash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "hashReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["contentHash"],
+      "properties": {
+        "contentHash": {
+          "$ref": "#/$defs/contentHash"
+        }
+      }
+    },
+    "versionedReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version", "contentHash"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "version": {
+          "$ref": "#/$defs/version"
+        },
+        "contentHash": {
+          "$ref": "#/$defs/contentHash"
+        }
+      }
+    },
+    "contentReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reference", "contentHash"],
+      "properties": {
+        "reference": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "contentHash": {
+          "$ref": "#/$defs/contentHash"
+        }
+      }
+    },
+    "skillReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "contentHash"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "contentHash": {
+          "$ref": "#/$defs/contentHash"
+        }
+      }
+    },
+    "resolvedComposition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["contentHash", "profiles", "skills", "capabilities"],
+      "properties": {
+        "contentHash": {
+          "$ref": "#/$defs/contentHash"
+        },
+        "profiles": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "items": {
+            "$ref": "#/$defs/versionedReference"
+          },
+          "uniqueItems": true
+        },
+        "skills": {
+          "type": "array",
+          "maxItems": 64,
+          "items": {
+            "$ref": "#/$defs/skillReference"
+          },
+          "uniqueItems": true
+        },
+        "capabilities": {
+          "type": "array",
+          "maxItems": 256,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "phasePolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["writeScopes", "networkScopes", "secretScopes", "timeoutSeconds", "maxAttempts"],
+      "properties": {
+        "writeScopes": {
+          "$ref": "#/$defs/scopes"
+        },
+        "networkScopes": {
+          "$ref": "#/$defs/scopes"
+        },
+        "secretScopes": {
+          "$ref": "#/$defs/scopes"
+        },
+        "timeoutSeconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 86400
+        },
+        "maxAttempts": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5
+        }
+      }
+    },
+    "scopes": {
+      "type": "array",
+      "maxItems": 64,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1024
+      },
+      "uniqueItems": true
+    },
+    "effectivePolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["base", "projectManifestHash", "deniedCapabilities", "contentHash"],
+      "properties": {
+        "base": {
+          "$ref": "#/$defs/versionedReference"
+        },
+        "projectManifestHash": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/contentHash"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "deniedCapabilities": {
+          "type": "array",
+          "maxItems": 256,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          },
+          "uniqueItems": true
+        },
+        "contentHash": {
+          "$ref": "#/$defs/contentHash"
+        }
+      }
+    },
+    "agentBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "definition",
+        "role",
+        "purpose",
+        "capability",
+        "selectedFromProfiles",
+        "harness",
+        "providerReference",
+        "model",
+        "reasoning"
+      ],
+      "properties": {
+        "definition": {
+          "$ref": "#/$defs/skillReference"
+        },
+        "role": {
+          "$ref": "#/$defs/identifier"
+        },
+        "purpose": {
+          "$ref": "#/$defs/identifier"
+        },
+        "capability": {
+          "$ref": "#/$defs/identifier"
+        },
+        "selectedFromProfiles": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          },
+          "uniqueItems": true
+        },
+        "harness": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "providerReference": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "description": "The selected provider. This value must equal providerPolicy.providerReference; semantic verification enforces the cross-field constraint."
+        },
+        "model": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "reasoning": {
+          "enum": ["low", "medium", "high", "maximum"]
+        }
+      }
+    },
+    "capabilityGrant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "usage", "sourceId", "effect", "policyCapability", "decision"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "usage": {
+          "enum": ["agent", "gate", "phase"]
+        },
+        "sourceId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "effect": {
+          "enum": ["read", "write", "destructive"]
+        },
+        "policyCapability": {
+          "$ref": "#/$defs/identifier"
+        },
+        "decision": {
+          "const": "allow"
+        }
+      }
+    },
+    "classification": {
+      "enum": ["public", "internal", "confidential", "restricted"]
+    },
+    "sanitization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "appliedRules"],
+      "properties": {
+        "status": {
+          "enum": ["not-required", "applied"]
+        },
+        "appliedRules": {
+          "type": "array",
+          "maxItems": 64,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "uniqueItems": true
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "applied"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "appliedRules": {
+                "minItems": 1
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "appliedRules": {
+                "maxItems": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    "objective": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text", "classification", "redaction"],
+      "properties": {
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000
+        },
+        "classification": {
+          "$ref": "#/$defs/classification"
+        },
+        "redaction": {
+          "$ref": "#/$defs/sanitization"
+        }
+      }
+    },
+    "providerPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "decision",
+        "providerReference",
+        "region",
+        "retentionMode",
+        "dataUse",
+        "policyHash"
+      ],
+      "properties": {
+        "decision": {
+          "const": "allow"
+        },
+        "providerReference": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "description": "The provider covered by this routing decision. This value must equal agent.providerReference; semantic verification enforces the cross-field constraint."
+        },
+        "region": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "retentionMode": {
+          "enum": ["self-hosted", "zero-retention"]
+        },
+        "dataUse": {
+          "const": "no-training"
+        },
+        "policyHash": {
+          "$ref": "#/$defs/contentHash"
+        }
+      }
+    },
+    "workspace": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository", "baseRevision", "targetPath", "checkpoint"],
+      "properties": {
+        "repository": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "baseRevision": {
+          "type": "string",
+          "pattern": "^(?:[a-f0-9]{40}|[a-f0-9]{64})$"
+        },
+        "targetPath": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "checkpoint": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    },
+    "executionLimits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "timeoutSeconds",
+        "maxTurns",
+        "maxToolCalls",
+        "maxInputTokens",
+        "maxOutputTokens",
+        "maxInputBytes",
+        "maxOutputBytes",
+        "maxMessageBytes"
+      ],
+      "properties": {
+        "timeoutSeconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 86400
+        },
+        "maxTurns": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 256
+        },
+        "maxToolCalls": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2048
+        },
+        "maxInputTokens": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2000000
+        },
+        "maxOutputTokens": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 250000
+        },
+        "maxInputBytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 268435456
+        },
+        "maxOutputBytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 67108864
+        },
+        "maxMessageBytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4194304
+        }
+      }
+    },
+    "inputArtifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "artifact", "sanitization"],
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/identifier"
+        },
+        "artifact": {
+          "$ref": "#/$defs/artifactReference"
+        },
+        "sanitization": {
+          "$ref": "#/$defs/sanitization"
+        }
+      }
+    },
+    "artifactReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "reference", "contentHash", "classification", "sizeBytes"],
+      "properties": {
+        "kind": {
+          "$ref": "#/$defs/identifier"
+        },
+        "reference": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        "contentHash": {
+          "$ref": "#/$defs/contentHash"
+        },
+        "classification": {
+          "$ref": "#/$defs/classification"
+        },
+        "sizeBytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 268435456
+        }
+      }
+    }
+  }
+}

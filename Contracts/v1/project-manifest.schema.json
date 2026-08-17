@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.cratis.io/factory/v1/project-manifest.schema.json",
+  "title": "Cratis Factory Project Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "documentKind", "profiles", "workflows", "policy"],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": "1"
+    },
+    "documentKind": {
+      "const": "project-manifest"
+    },
+    "repositoryMode": {
+      "enum": ["application", "framework", "modeling", "operations"]
+    },
+    "profiles": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["include", "exclude"],
+      "properties": {
+        "include": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "exclude": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "workflows": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "denyCapabilities"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "denyCapabilities": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+          },
+          "uniqueItems": true
+        }
+      }
+    }
+  }
+}

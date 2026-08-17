@@ -1,0 +1,44 @@
+{
+  "$schema": "../../Contracts/v1/profile.schema.json",
+  "schemaVersion": "1",
+  "documentKind": "profile",
+  "id": "framework-arc",
+  "version": "1.0.0",
+  "description": "Framework contribution pack for the Arc repository; application slice conventions are ineligible.",
+  "activation": "automatic",
+  "priority": 100,
+  "repositoryModes": ["framework"],
+  "detect": {
+    "allOf": [
+      {"kind": "repository-identity", "id": "cratis-arc"}
+    ]
+  },
+  "provides": ["arc-framework", "framework", "repository-known"],
+  "excludes": [],
+  "skills": ["cratis-specs-csharp", "cratis-specs-typescript"],
+  "recommendations": {
+    "agents": [
+      {
+        "id": "repository-investigator",
+        "purposes": ["investigate"],
+        "priority": 100,
+        "rationale": "Uses Arc framework contracts and suppresses application vertical-slice assumptions."
+      },
+      {
+        "id": "repository-investigation-reviewer",
+        "purposes": ["review"],
+        "priority": 100,
+        "rationale": "Independently reviews typed investigation evidence using the resolved repository mode."
+      }
+    ],
+    "workflows": [
+      {
+        "id": "investigate-cratis-issue",
+        "purposes": ["investigate"],
+        "priority": 100,
+        "rationale": "Arc framework issues can use the read-only repository workflow."
+      }
+    ]
+  },
+  "commands": {}
+}

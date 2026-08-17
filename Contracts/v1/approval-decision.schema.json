@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.cratis.io/factory/v1/approval-decision.schema.json",
+  "title": "Cratis Factory Approval Decision",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocolVersion",
+    "decisionId",
+    "runId",
+    "phaseAttemptId",
+    "requestHash",
+    "decision",
+    "summary",
+    "inlineTextClassification",
+    "requestedCorrection",
+    "decidedBy",
+    "decidedAt"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "format": "uri",
+      "maxLength": 256,
+      "pattern": "^(?![\\s\\S]*[\\u0000-\\u001f\\u007f-\\u009f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])[\\s\\S]*$"
+    },
+    "protocolVersion": {
+      "const": "1"
+    },
+    "decisionId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "runId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "phaseAttemptId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "requestHash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "decision": {
+      "enum": ["accepted", "correction-requested", "rejected"]
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000,
+      "pattern": "^(?![\\s\\S]*[\\u0000-\\u001f\\u007f-\\u009f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])[\\s\\S]*$"
+    },
+    "inlineTextClassification": {
+      "enum": ["public", "internal", "confidential", "restricted"]
+    },
+    "requestedCorrection": {
+      "type": ["string", "null"],
+      "maxLength": 4000,
+      "pattern": "^(?![\\s\\S]*[\\u0000-\\u0009\\u000b-\\u001f\\u007f-\\u009f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])[\\s\\S]*$",
+      "x-cratis-multiline": true
+    },
+    "decidedBy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "actorReference"],
+      "properties": {
+        "kind": {
+          "enum": ["human", "policy"]
+        },
+        "actorReference": {
+          "type": "string",
+          "pattern": "^run-actor:[a-f0-9]{64}$"
+        }
+      }
+    },
+    "decidedAt": {
+      "type": "string",
+      "format": "date-time",
+      "maxLength": 64
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "decision": {
+            "const": "correction-requested"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "requestedCorrection": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "requestedCorrection": {
+            "type": "null"
+          }
+        }
+      }
+    }
+  ]
+}

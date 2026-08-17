@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.cratis.io/factory/v2/phase-envelope.schema.json",
+  "title": "Cratis Factory Phase Result Receipt v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocolVersion", "documentKind", "runId", "phaseId", "phaseAttemptId", "harnessRequestHash", "compiledWorkflowHash", "inputProvenanceHash", "securityDomain", "status", "summary", "inlineTextClassification", "outputSchema", "outputArtifact", "artifacts", "evidence", "requiredGateResultHashes", "notesForNextPhase", "issuedAt", "authority", "contentHash"],
+  "properties": {
+    "$schema": {"const": "https://schemas.cratis.io/factory/v2/phase-envelope.schema.json"},
+    "protocolVersion": {"const": "2"},
+    "documentKind": {"const": "phase-envelope"},
+    "runId": {"type": "string", "format": "uuid"},
+    "phaseId": {"$ref": "#/$defs/identifier"},
+    "phaseAttemptId": {"type": "string", "format": "uuid"},
+    "harnessRequestHash": {"$ref": "#/$defs/contentHash"},
+    "compiledWorkflowHash": {"$ref": "#/$defs/contentHash"},
+    "inputProvenanceHash": {"$ref": "#/$defs/contentHash"},
+    "securityDomain": {"$ref": "#/$defs/securityDomain"},
+    "status": {"enum": ["success", "needs-input", "failed"]},
+    "summary": {"$ref": "#/$defs/safeText"},
+    "inlineTextClassification": {"$ref": "#/$defs/classification"},
+    "outputSchema": {"$ref": "https://schemas.cratis.io/factory/v2/artifact-descriptor.schema.json#/$defs/schemaReference"},
+    "outputArtifact": {
+      "oneOf": [
+        {"$ref": "https://schemas.cratis.io/factory/v2/artifact-descriptor.schema.json"},
+        {"type": "null"}
+      ]
+    },
+    "artifacts": {"type": "array", "maxItems": 256, "items": {"$ref": "https://schemas.cratis.io/factory/v2/artifact-descriptor.schema.json"}},
+    "evidence": {"type": "array", "maxItems": 256, "items": {"$ref": "https://schemas.cratis.io/factory/v2/artifact-descriptor.schema.json"}},
+    "requiredGateResultHashes": {"type": "array", "maxItems": 256, "uniqueItems": true, "items": {"$ref": "#/$defs/contentHash"}},
+    "notesForNextPhase": {"oneOf": [{"$ref": "https://schemas.cratis.io/factory/v2/artifact-descriptor.schema.json"}, {"type": "null"}]},
+    "issuedAt": {"$ref": "#/$defs/timestamp"},
+    "authority": {"$ref": "#/$defs/authority"},
+    "contentHash": {"$ref": "#/$defs/contentHash"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"status": {"const": "success"}}},
+      "then": {"properties": {"outputArtifact": {"$ref": "https://schemas.cratis.io/factory/v2/artifact-descriptor.schema.json"}}},
+      "else": {"properties": {"outputArtifact": {"type": "null"}}}
+    }
+  ],
+  "$defs": {
+    "identifier": {"type": "string", "maxLength": 128, "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"},
+    "contentHash": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "securityDomain": {"type": "string", "pattern": "^security-domain:sha256:[a-f0-9]{64}$"},
+    "timestamp": {"type": "string", "format": "date-time", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"},
+    "classification": {"enum": ["public", "internal", "confidential", "restricted"]},
+    "safeText": {"type": "string", "minLength": 1, "maxLength": 2000, "pattern": "^(?![\\s\\S]*[\\u0000-\\u001f\\u007f-\\u009f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])[\\s\\S]*$"},
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["issuer", "keyId", "algorithm", "signature"],
+      "properties": {
+        "issuer": {"type": "string", "pattern": "^authority:sha256:[a-f0-9]{64}$"},
+        "keyId": {"type": "string", "pattern": "^key:sha256:[a-f0-9]{64}$"},
+        "algorithm": {"const": "ed25519"},
+        "signature": {"type": "string", "minLength": 86, "maxLength": 86, "pattern": "^[A-Za-z0-9_-]+$"}
+      }
+    }
+  }
+}

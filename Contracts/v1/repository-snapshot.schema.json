@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.cratis.io/factory/v1/repository-snapshot.schema.json",
+  "title": "Cratis Factory Repository Snapshot",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocolVersion", "repository", "revision", "targetPath", "contentHash", "dirty"],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "protocolVersion": {
+      "const": "1"
+    },
+    "repository": {
+      "type": "string",
+      "minLength": 1
+    },
+    "revision": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{40,64}$"
+    },
+    "targetPath": {
+      "type": "string",
+      "minLength": 1
+    },
+    "contentHash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "dirty": {
+      "type": "boolean"
+    }
+  }
+}

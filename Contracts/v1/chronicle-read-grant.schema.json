@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.cratis.io/factory/v1/chronicle-read-grant.schema.json",
+  "title": "Cratis Factory Chronicle Read Grant",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocolVersion",
+    "grantId",
+    "runId",
+    "phaseAttemptId",
+    "requestHash",
+    "audience",
+    "environment",
+    "serverReference",
+    "eventStore",
+    "namespace",
+    "allowedCommandIds",
+    "allowedFields",
+    "maximumRecords",
+    "credentialReference",
+    "issuedAt",
+    "expiresAt",
+    "retentionHours",
+    "classification",
+    "approvedBy"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "protocolVersion": {
+      "const": "1"
+    },
+    "grantId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "runId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "phaseAttemptId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "requestHash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "audience": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "environment": {
+      "const": "development"
+    },
+    "serverReference": {
+      "type": "string",
+      "minLength": 1
+    },
+    "eventStore": {
+      "type": "string",
+      "minLength": 1
+    },
+    "namespace": {
+      "type": "string",
+      "minLength": 1
+    },
+    "allowedCommandIds": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "allowedFields": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "maximumRecords": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1000
+    },
+    "credentialReference": {
+      "type": "string",
+      "minLength": 1
+    },
+    "issuedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expiresAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "retentionHours": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 168
+    },
+    "classification": {
+      "enum": ["internal", "confidential", "restricted"]
+    },
+    "approvedBy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["subjectReference", "decisionId"],
+      "properties": {
+        "subjectReference": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "decisionId": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    }
+  }
+}

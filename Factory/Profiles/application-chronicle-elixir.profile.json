@@ -1,0 +1,45 @@
+{
+  "$schema": "../../Contracts/v1/profile.schema.json",
+  "schemaVersion": "1",
+  "documentKind": "profile",
+  "id": "application-chronicle-elixir",
+  "version": "1.0.0",
+  "description": "Composable Elixir and OTP capability pack for the idiomatic Chronicle client.",
+  "activation": "automatic",
+  "priority": 80,
+  "repositoryModes": ["application"],
+  "detect": {
+    "allOf": [
+      {"kind": "file", "pattern": "**/mix.exs"},
+      {"kind": "dependency", "ecosystem": "hex", "name": "cratis_chronicle"}
+    ]
+  },
+  "provides": ["application", "chronicle", "chronicle-client-elixir", "elixir", "repository-known"],
+  "excludes": [],
+  "skills": [],
+  "recommendations": {
+    "agents": [
+      {
+        "id": "repository-investigator",
+        "purposes": ["investigate"],
+        "priority": 100,
+        "rationale": "Investigates the Elixir Chronicle client using OTP and process-context evidence."
+      },
+      {
+        "id": "repository-investigation-reviewer",
+        "purposes": ["review"],
+        "priority": 100,
+        "rationale": "Independently reviews typed investigation evidence using the resolved repository mode."
+      }
+    ],
+    "workflows": [
+      {
+        "id": "investigate-cratis-issue",
+        "purposes": ["investigate"],
+        "priority": 100,
+        "rationale": "The Elixir client can use the harness-neutral read-only workflow."
+      }
+    ]
+  },
+  "commands": {}
+}
