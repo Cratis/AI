@@ -1,6 +1,6 @@
 ---
 name: add-cratis-docs-page
-description: Use this skill when creating a NEW Cratis documentation page under `Documentation/**` (tutorial, how-to, explanation, reference, or recipe). Handles where the file goes (which product repo), sidebar wiring (toc.yml + Diátaxis bucket), and verifying it renders. Trigger on add/create/write a new docs page, document a new feature, or add a new section to a product's docs.
+description: "DOCS MAINTAINER SKILL — for the Cratis *product* documentation site, not an application's own docs. Use this skill when creating a NEW Cratis documentation page under `Documentation/**` (tutorial, how-to, explanation, reference, or recipe). Handles where the file goes (which product repo), sidebar wiring (toc.yml + Diátaxis bucket), and verifying it renders. Trigger on add/create/write a new docs page, document a new feature, or add a new section to a product's docs."
 ---
 
 # Adding a new Cratis documentation page

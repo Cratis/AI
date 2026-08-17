@@ -1,6 +1,6 @@
 ---
 name: edit-cratis-docs
-description: Use this skill to change, fix, or improve Cratis documentation whose source is under `Documentation/**` in a product or contributing repo. Docs are split across repos (each product owns its `Documentation/` folder; the `Documentation` repo aggregates), so it finds the real source file, edits, syncs, and verifies. Trigger on edit/fix/reword a docs page, fix a broken link, or correct a code example/outdated page — for any Cratis product.
+description: "DOCS MAINTAINER SKILL — for changing the Cratis *product* documentation, not an application's own docs. Use this skill to change, fix, or improve Cratis documentation whose source is under `Documentation/**` in a product or contributing repo. Docs are split across repos (each product owns its `Documentation/` folder; the `Documentation` repo aggregates), so it finds the real source file, edits, syncs, and verifies. Trigger on edit/fix/reword a docs page, fix a broken link, or correct a code example/outdated page — for any Cratis product."
 ---
 
 # Editing a Cratis documentation page

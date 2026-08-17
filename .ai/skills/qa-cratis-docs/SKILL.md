@@ -1,6 +1,6 @@
 ---
 name: qa-cratis-docs
-description: Use this skill to visually QA rendered Cratis docs pages after changes under `Documentation/**` — screenshot headless in light AND dark, check diagrams/tables/code blocks render, and diagnose layout-shift ("flicker"/"jump"/"pop") bugs. Trigger on screenshot the docs, check how a page looks, review the docs visually, verify a diagram or table renders, or investigate a flicker/layout-shift on the docs site.
+description: "DOCS MAINTAINER SKILL — for people writing the Cratis product documentation, not for building an application on Cratis. Use this skill to visually QA rendered Cratis docs pages after changes under `Documentation/**` — screenshot headless in light AND dark, check diagrams/tables/code blocks render, and diagnose layout-shift (\"flicker\"/\"jump\"/\"pop\") bugs. Trigger on screenshot the docs, check how a page looks, review the docs visually, verify a diagram or table renders, or investigate a flicker/layout-shift on the docs site. Not applicable to an application's own README or in-repo notes."
 ---
 
 # Visual & layout QA for the docs site

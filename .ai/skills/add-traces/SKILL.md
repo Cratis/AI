@@ -1,6 +1,6 @@
 ---
 name: add-traces
-description: Use this skill when asked to add OpenTelemetry tracing to a class in a Cratis Chronicle Kernel project. Produces `*Traces.cs` companion files using the `[Span]` source-generator pattern from `Cratis.Traces`, registers `IActivitySource<T>` as a keyed DI service, and injects it into the target class.
+description: "FRAMEWORK PROFILE ONLY — for contributing to the Cratis Chronicle Kernel itself, not for application code. Use this skill when asked to add OpenTelemetry tracing to a class in a Cratis Chronicle Kernel project. Produces `*Traces.cs` companion files using the `[Span]` source-generator pattern from `Cratis.Traces`, registers `IActivitySource<T>` as a keyed DI service, and injects it into the target class. Do not use it in an application repository that consumes Cratis."
 ---
 
 # Adding Traces to a Class

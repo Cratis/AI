@@ -1,6 +1,6 @@
 ---
 name: write-documentation
-description: "Diátaxis classification and authoring guidance for Cratis docs — decide whether a page is a Tutorial, How-to, Reference, or Explanation and draft its content in that style. For WHERE a new page goes + sidebar wiring use add-cratis-docs-page; to change an existing page use edit-cratis-docs."
+description: "DOCS MAINTAINER SKILL — authoring guidance for the Cratis product documentation, not for application code. Diátaxis classification and authoring guidance for Cratis docs — decide whether a page is a Tutorial, How-to, Reference, or Explanation and draft its content in that style. For WHERE a new page goes + sidebar wiring use add-cratis-docs-page; to change an existing page use edit-cratis-docs."
 ---
 
 # Diátaxis Documentation Expert
