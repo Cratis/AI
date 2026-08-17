@@ -126,7 +126,11 @@ if grep -rnE '\.instructions\.md' .ai/rules .ai/skills .ai/agents .ai/prompts .a
         | grep -vE 'managing-ai-rules|validate-ai-setup' | grep -q .; then
     warn "'.instructions.md' cross-link leaked into canonical docs — use ./<name>.md"
 fi
+# The event-type-migrations skill is the one place where an argument-carrying
+# [EventType] is the subject matter, so exclude it by path rather than relying on
+# the wording of a comment that happens to sit on the same line.
 if grep -rnE '\[EventType\("|\[EventType\(name:|\[EventType\(id:' .ai/rules .ai/skills .ai/agents 2>/dev/null \
+        | grep -vE '^\.ai/skills/event-type-migrations/' \
         | grep -viE 'never|no arg|not allowed' | grep -q .; then
     warn "stale [EventType] argument guidance — new events take no arguments (generation: only for migrations)"
 fi
