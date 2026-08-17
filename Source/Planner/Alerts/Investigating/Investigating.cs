@@ -1,6 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.Arc.Authorization;
 using Microsoft.Extensions.Options;
 using Planner.Alerts.Raising;
 using Planner.Alerts.RecordingInvestigation;
@@ -21,8 +22,12 @@ namespace Planner.Alerts.Investigating;
 /// same problem every five minutes never queues a second investigation.
 /// </summary>
 /// <param name="commandPipeline">The <see cref="ICommandPipeline"/> for executing commands.</param>
+/// <param name="systemExecution">The <see cref="ISystemExecution"/> scheduling runs as - see <see cref="On(AlertRaised, EventContext)"/>.</param>
 /// <param name="options">The alert configuration.</param>
-public class AlertInvestigation(ICommandPipeline commandPipeline, IOptions<AlertOptions> options) : IReactor
+public class AlertInvestigation(
+    ICommandPipeline commandPipeline,
+    ISystemExecution systemExecution,
+    IOptions<AlertOptions> options) : IReactor
 {
     /// <summary>
     /// Schedules an investigation for a newly raised alert.
@@ -30,6 +35,12 @@ public class AlertInvestigation(ICommandPipeline commandPipeline, IOptions<Alert
     /// <param name="event">The <see cref="AlertRaised"/> event.</param>
     /// <param name="context">The <see cref="EventContext"/>.</param>
     /// <returns>Awaitable task.</returns>
+    /// <remarks>
+    /// <see cref="ScheduleAlertInvestigation"/> requires an authenticated operator, and a reactor has no
+    /// HTTP request behind it - so this runs inside an Arc system-execution scope, which establishes a
+    /// trusted system principal for exactly as long as the command takes. The scope is consulted only
+    /// when there is no HTTP request, so it can never relax authorization for an operator's own call.
+    /// </remarks>
     public async Task On(AlertRaised @event, EventContext context)
     {
         if (!options.Value.AutoInvestigate)
@@ -37,6 +48,7 @@ public class AlertInvestigation(ICommandPipeline commandPipeline, IOptions<Alert
             return;
         }
 
+        using var scope = systemExecution.AsSystem();
         await commandPipeline.Execute(new ScheduleAlertInvestigation(new AlertId(context.EventSourceId.Value)));
     }
 

@@ -31,7 +31,7 @@ minted from these credentials, never a long-lived static token.
 | `Name` | *(empty)* | The App's display name |
 | `Organization` | `Cratis` | The organization the App is registered under and installed into. Empty registers a personal App instead |
 | `PrivateKeyPem` | *(empty)* | The App's private key (PEM) - signs the JWTs the App authenticates with |
-| `WebhookSecret` | *(empty)* | The secret GitHub signs webhook deliveries with. When empty, signature validation is skipped - local development only |
+| `WebhookSecret` | *(empty)* | **Required.** The secret GitHub signs webhook deliveries with. Empty rejects every delivery with 401 - the endpoint is public, so it fails closed rather than open |
 
 These are generated for you by the **Connect GitHub App** button on the *GitHub* settings page
 (the manifest-flow registration) - copy the values it displays into configuration or secrets, then
@@ -48,6 +48,27 @@ Also **not** configuration - managed on the *GitHub* settings page. One `git con
 `user.email` pair, shared by the whole deployment, injected into every worker container as
 `PLANNER_GIT_USER_NAME` / `PLANNER_GIT_USER_EMAIL` so commits it makes carry a real identity
 instead of git's own unconfigured default.
+
+## Security - `Planner:Security`
+
+Who the Planner accepts as an operator. It authenticates nobody itself - it runs behind an
+authenticating reverse proxy and takes the operator's identity from what that proxy recorded on the
+request. Both keys default to trusting nobody, so an unconfigured deployment refuses every operator
+action instead of silently accepting anonymous ones. See
+[the security boundary](./running-in-the-cloud.md#the-security-boundary).
+
+| Key | Default | Purpose |
+| --- | --- | --- |
+| `ForwardedUserHeader` | *(empty)* | The request header the ingress records the operator's login in - `X-Forwarded-User` for most proxies, `X-Auth-Request-User` for oauth2-proxy. Empty trusts no header, so no request is ever recognized as an operator |
+| `AllowUnauthenticatedOperators` | `false` | Treats **every** caller as a fully privileged operator. For a developer machine with no proxy in front of it; never correct for a reachable deployment |
+
+`ForwardedUserHeader` makes the Planner trust whatever that header says, so the ingress **must
+overwrite it on every inbound request**. An ingress that adds the header while passing a
+client-supplied one through lets any caller name themselves anyone.
+
+`AllowUnauthenticatedOperators` is set to `true` in `appsettings.Development.json` so the local
+Aspire composition keeps working with no proxy. It is `false` everywhere else, and its being on is
+logged as a warning at startup.
 
 ## Worker - `Planner:Worker`
 
@@ -75,7 +96,7 @@ What arrives on the alert webhook and what happens to it - see [Alerts](./alerts
 
 | Key | Default | Purpose |
 | --- | --- | --- |
-| `WebhookSecret` | *(empty)* | The secret alert deliveries are signed with (`X-Planner-Signature-256`). When empty, unsigned deliveries are accepted - local development only |
+| `WebhookSecret` | *(empty)* | **Required.** The secret alert deliveries are signed with (`X-Planner-Signature-256`). Empty rejects every delivery with 401 - an accepted delivery schedules agent work, so it fails closed rather than open |
 | `AutoInvestigate` | `true` | Whether an agent is put on an alert the moment it arrives |
 | `Model` | `opus` | The model alerts are investigated with |
 | `DefaultSource` | `production` | The source recorded for a delivery that does not name one |

@@ -12,6 +12,9 @@
 #   PLANNER_PROMPT           - the instructions for the agent (markdown)
 #   PLANNER_MODEL            - the model to use (e.g. opus, sonnet)
 #   PLANNER_CALLBACK_URL     - URL the container reports progress/completion to
+#   PLANNER_CALLBACK_TOKEN   - bearer credential proving a callback came from this container. Issued
+#                              for this one unit of work and known to nobody else; without it the
+#                              Planner rejects the report with 401.
 #   PLANNER_GIT_USER_NAME    - git config user.name for commits made in this container
 #   PLANNER_GIT_USER_EMAIL   - git config user.email for commits made in this container
 #   GITHUB_TOKEN             - a short-lived GitHub App installation token, used for git and the GitHub CLI
@@ -47,6 +50,11 @@ report() {
     local cost="${5:-0}"
     local duration="${6:-0}"
     if [[ -n "${PLANNER_CALLBACK_URL:-}" ]]; then
+        # The token goes in a header rather than the URL so it stays out of proxy and access logs.
+        local auth=()
+        if [[ -n "${PLANNER_CALLBACK_TOKEN:-}" ]]; then
+            auth=(-H "Authorization: Bearer ${PLANNER_CALLBACK_TOKEN}")
+        fi
         jq -cn \
             --arg status "$status" \
             --arg detail "$detail" \
@@ -55,7 +63,7 @@ report() {
             --argjson costUsd "$cost" \
             --argjson durationMs "$duration" \
             '{status: $status, detail: $detail, inputTokens: $inputTokens, outputTokens: $outputTokens, costUsd: $costUsd, durationMs: $durationMs}' |
-        curl -fsS -X POST "${PLANNER_CALLBACK_URL}" -H 'Content-Type: application/json' -d @- \
+        curl -fsS -X POST "${PLANNER_CALLBACK_URL}" ${auth[@]+"${auth[@]}"} -H 'Content-Type: application/json' -d @- \
             || log "Failed to report status '${status}' to ${PLANNER_CALLBACK_URL}"
     fi
 }

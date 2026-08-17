@@ -1,6 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.Arc.Authorization;
 using Planner.Work.Listing;
 using Planner.Work.Workers;
 
@@ -10,8 +11,12 @@ namespace Planner.Work.Stopping;
 /// Command for stopping a unit of work - kills the worker container when one is running and takes
 /// scheduled work out of the queue.
 /// </summary>
+/// <remarks>
+/// Requires an authenticated operator: this kills a running agent container mid-task.
+/// </remarks>
 /// <param name="Work">The identity of the work to stop.</param>
 [Command]
+[Authorize]
 public record StopWork(WorkId Work)
 {
     /// <summary>

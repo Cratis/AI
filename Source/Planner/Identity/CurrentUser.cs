@@ -10,7 +10,10 @@ namespace Planner.Identity;
 /// <param name="httpContextAccessor">The <see cref="IHttpContextAccessor"/> for the current request.</param>
 public class CurrentUser(IHttpContextAccessor httpContextAccessor) : ICurrentUser
 {
-    static readonly string[] _claimTypes = ["preferred_username", "login", "name", System.Security.Claims.ClaimTypes.Name];
+    static readonly string[] _claimTypes = [ProxyIdentity.LoginClaimType, "login", "name", System.Security.Claims.ClaimTypes.Name];
+
+    /// <inheritdoc/>
+    public bool IsAuthenticated => httpContextAccessor.HttpContext?.User?.Identity?.IsAuthenticated == true;
 
     /// <inheritdoc/>
     public UserName GetUserName()

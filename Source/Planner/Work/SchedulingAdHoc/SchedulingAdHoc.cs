@@ -1,6 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.Arc.Authorization;
 using MongoDB.Driver;
 using Planner.Identity;
 using Planner.Repositories.Listing;
@@ -11,11 +12,16 @@ namespace Planner.Work.SchedulingAdHoc;
 /// Command for scheduling ad-hoc agent work - a free-form prompt over one or more repositories, a
 /// whole organization, or a repository group (the frontend expands a group to its repositories).
 /// </summary>
+/// <remarks>
+/// Requires an authenticated operator: an ad-hoc prompt runs unattended in a container holding a
+/// GitHub push token, so whoever writes the prompt directs that token.
+/// </remarks>
 /// <param name="Prompt">The instructions for the agent.</param>
 /// <param name="Repositories">The identities of the repositories to work with - optional when an organization is given.</param>
 /// <param name="Organization">Work with every tracked repository of this organization - optional.</param>
 /// <param name="Model">The model to use - optional; falls back to the configured default.</param>
 [Command]
+[Authorize]
 public record ScheduleAdHocWork(
     WorkPrompt Prompt,
     IEnumerable<RepositoryId>? Repositories = null,

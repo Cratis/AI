@@ -31,6 +31,15 @@ public class and_work_is_pending_with_an_available_account : given.all_dependenc
             Arg.Any<CancellationToken>());
 
     [Fact]
+    async Task should_issue_a_callback_token_for_the_work() => await _workTokens.Received(1).Issue(_workId);
+
+    [Fact]
+    async Task should_hand_the_callback_token_to_the_container() =>
+        await _workerRuntime.Received(1).Start(
+            Arg.Is<WorkerJob>(job => job.EnvironmentVariables["PLANNER_CALLBACK_TOKEN"] == _callbackToken.Value),
+            Arg.Any<CancellationToken>());
+
+    [Fact]
     async Task should_record_the_start_with_the_default_model() =>
         await _commandPipeline.Received(1).Execute(Arg.Is<StartWork>(command =>
             command.Work == _workId &&

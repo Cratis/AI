@@ -1,6 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.Arc.Authorization;
 using Planner.Accounts.SettingToken;
 using Planner.Identity;
 
@@ -12,10 +13,15 @@ namespace Planner.Accounts.Registering;
 /// the Claude CLI with it. The account is associated with the user registering it - work that
 /// user schedules prefers their own account(s).
 /// </summary>
+/// <remarks>
+/// Requires an authenticated operator: registering an account puts a live Claude credential into the
+/// Planner and gives whoever holds it the capacity to run agents.
+/// </remarks>
 /// <param name="Name">The display name of the account.</param>
 /// <param name="Plan">The subscription plan of the account.</param>
 /// <param name="Token">The Claude CLI token - optional; it can be set later.</param>
 [Command]
+[Authorize]
 public record RegisterAccount(AccountName Name, ClaudePlan Plan, ClaudeToken? Token = null)
 {
     /// <summary>

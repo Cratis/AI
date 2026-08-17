@@ -2,13 +2,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Net;
-using System.Security.Cryptography;
-using System.Text;
 using System.Text.Json.Nodes;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Planner.GitHub.App;
 using Planner.GitHub.App.Installations;
+using Planner.Identity;
 using Planner.Issues.ChangingBody;
 using Planner.Issues.ChangingLabels;
 using Planner.Issues.Closing;
@@ -32,6 +31,11 @@ namespace Planner.GitHub.Webhooks;
 /// </summary>
 public static class GitHubWebhookEndpoints
 {
+    /// <summary>
+    /// The header GitHub signs a delivery in.
+    /// </summary>
+    public const string SignatureHeader = "X-Hub-Signature-256";
+
     /// <summary>
     /// Maps the GitHub webhook endpoint.
     /// </summary>
@@ -282,23 +286,6 @@ public static class GitHubWebhookEndpoints
             ? [.. labels.OfType<JsonObject>().Select(label => new LabelName(label["name"]?.GetValue<string>() ?? string.Empty))]
             : [];
 
-    static bool SignatureIsValid(HttpRequest request, string body, string secret)
-    {
-        if (string.IsNullOrEmpty(secret))
-        {
-            // No secret configured - local development only.
-            return true;
-        }
-
-        var signature = request.Headers["X-Hub-Signature-256"].ToString();
-        if (!signature.StartsWith("sha256=", StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        var expected = HMACSHA256.HashData(Encoding.UTF8.GetBytes(secret), Encoding.UTF8.GetBytes(body));
-        return CryptographicOperations.FixedTimeEquals(
-            Convert.FromHexString(signature["sha256=".Length..]),
-            expected);
-    }
+    static bool SignatureIsValid(HttpRequest request, string body, string secret) =>
+        WebhookSignature.IsValid(request.Headers[SignatureHeader].ToString(), body, secret);
 }

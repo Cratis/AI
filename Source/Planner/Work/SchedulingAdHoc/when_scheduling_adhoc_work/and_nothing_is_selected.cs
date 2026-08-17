@@ -21,7 +21,13 @@ public class and_nothing_is_selected : Specification
         _scenario.Services.AddSingleton(Substitute.For<IMongoCollection<Repository>>());
     }
 
-    async Task Because() => _result = await _scenario.Execute(new ScheduleAdHocWork("Upgrade all dependencies"));
+    async Task Because()
+    {
+        // The command requires an authenticated operator; a spec has no HTTP request, so it runs
+        // as a trusted system actor - the same scope the production automation uses.
+        using var scope = SystemExecutionScope.Enter();
+        _result = await _scenario.Execute(new ScheduleAdHocWork("Upgrade all dependencies"));
+    }
 
     [Fact] void should_not_succeed() => _result.ShouldNotBeSuccessful();
     [Fact] void should_have_validation_errors() => _result.ShouldHaveValidationErrors();

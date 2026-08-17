@@ -9,6 +9,7 @@ using Planner.Accounts.Credentials;
 using Planner.Accounts.Listing;
 using Planner.Alerts;
 using Planner.Issues.Grouping;
+using Planner.Work.Authorizing;
 using Planner.Work.Listing;
 using Planner.Work.Starting;
 using Planner.Work.Workers;
@@ -27,6 +28,7 @@ namespace Planner.Work.Scheduling;
 /// <param name="readModels">The <see cref="IReadModels"/> for keyed lookups (credentials).</param>
 /// <param name="workerRuntime">The <see cref="IWorkerRuntime"/> that launches worker containers.</param>
 /// <param name="workerEnvironment">Builds the environment a worker container runs with.</param>
+/// <param name="workTokens">Issues the token a worker container authenticates its callbacks with.</param>
 /// <param name="commandPipeline">The <see cref="ICommandPipeline"/> for executing commands.</param>
 /// <param name="timeProvider">The <see cref="TimeProvider"/> for usage-window calculations.</param>
 /// <param name="workerOptions">The worker configuration.</param>
@@ -40,6 +42,7 @@ public class WorkDispatcher(
     IReadModels readModels,
     IWorkerRuntime workerRuntime,
     IWorkerEnvironment workerEnvironment,
+    IWorkTokens workTokens,
     ICommandPipeline commandPipeline,
     TimeProvider timeProvider,
     IOptions<WorkerOptions> workerOptions,
@@ -154,7 +157,11 @@ public class WorkDispatcher(
         }
 
         var model = ResolveModel(work, coveredIssues);
-        var environment = await workerEnvironment.Build(work, coveredIssues, credentials, model, cancellationToken);
+
+        // The container gets its callback credential before it exists, not after: the first thing it
+        // does is report that it started, and a token issued after launch would arrive too late.
+        var token = await workTokens.Issue(work.Id);
+        var environment = await workerEnvironment.Build(work, coveredIssues, credentials, model, token, cancellationToken);
 
         try
         {

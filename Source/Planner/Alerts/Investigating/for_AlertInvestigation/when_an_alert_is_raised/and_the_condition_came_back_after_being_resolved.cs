@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 #if DEBUG
+using Cratis.Arc.Authorization;
 using Cratis.Chronicle.Testing.Reactors;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -34,6 +35,7 @@ public class and_the_condition_came_back_after_being_resolved : Specification
         _commandPipeline = Substitute.For<ICommandPipeline>();
         _scenario = new(new ServiceCollection()
             .AddSingleton(_commandPipeline)
+            .AddSingleton(Substitute.For<ISystemExecution>())
             .AddSingleton(Options.Create(new AlertOptions()))
             .BuildServiceProvider());
     }

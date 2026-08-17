@@ -1,6 +1,8 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Planner.Identity;
+using Planner.Work.Authorizing;
 using Planner.Work.Completing;
 using Planner.Work.CompletingInvestigation;
 using Planner.Work.Failing;
@@ -37,6 +39,23 @@ public record WorkerInputPayload(string Text);
 /// stream. These are deliberately not Arc commands/queries - the callers are external processes
 /// with free-form payloads and a server-sent event stream.
 /// </summary>
+/// <remarks>
+/// Two different callers reach these three endpoints, so they are authenticated two different ways.
+/// <para>
+/// <c>POST /callback</c> is called by the worker container and by nothing else. It authenticates with
+/// the per-work bearer token issued when the work was dispatched (see <see cref="IWorkTokens"/>), which
+/// is the only credential that can prove a report came from the container the Planner launched. An
+/// operator session deliberately does <b>not</b> open this endpoint: nobody should be able to declare
+/// a unit of work finished, name its pull request and book its cost by hand.
+/// </para>
+/// <para>
+/// <c>POST /input</c> and <c>GET /log</c> are called by the browser and by nothing else - steering the
+/// running session and tailing its console. They authenticate as an operator, through the identity the
+/// authenticating proxy put on the request (see <see cref="ProxyIdentity"/>). The worker token
+/// deliberately does <b>not</b> open these: a container has no business steering itself, and the
+/// console stream carries whatever the agent printed, credentials included.
+/// </para>
+/// </remarks>
 public static class WorkerCallbackEndpoints
 {
     /// <summary>
@@ -49,7 +68,9 @@ public static class WorkerCallbackEndpoints
         app.MapPost("/api/work/{workId}/callback", async (
             string workId,
             WorkerCallbackPayload payload,
+            HttpRequest request,
             IEventStore eventStore,
+            IWorkTokens workTokens,
             ICommandPipeline commandPipeline) =>
         {
             if (!Guid.TryParse(workId, out var parsedWorkId))
@@ -58,6 +79,15 @@ public static class WorkerCallbackEndpoints
             }
 
             WorkId id = parsedWorkId;
+
+            // Before anything is read or reported: prove the caller is the container this work was
+            // dispatched to. Verified ahead of the work lookup so a wrong token and an unknown work
+            // id are indistinguishable to a caller probing for valid ids.
+            if (!await workTokens.IsValid(id, BearerToken.From(request)))
+            {
+                return Results.Unauthorized();
+            }
+
             var work = await eventStore.ReadModels.GetInstanceById<WorkItem>((EventSourceId)id);
             if (work is null)
             {
@@ -112,9 +142,15 @@ public static class WorkerCallbackEndpoints
         app.MapPost("/api/work/{workId}/input", async (
             string workId,
             WorkerInputPayload payload,
+            ICurrentUser currentUser,
             IWorkerRuntime workerRuntime,
             CancellationToken cancellationToken) =>
         {
+            if (!currentUser.IsAuthenticated)
+            {
+                return Results.Unauthorized();
+            }
+
             if (!Guid.TryParse(workId, out var parsedWorkId) || string.IsNullOrWhiteSpace(payload.Text))
             {
                 return Results.BadRequest();
@@ -127,9 +163,16 @@ public static class WorkerCallbackEndpoints
         app.MapGet("/api/work/{workId}/log", async (
             string workId,
             HttpResponse response,
+            ICurrentUser currentUser,
             IWorkerRuntime workerRuntime,
             CancellationToken cancellationToken) =>
         {
+            if (!currentUser.IsAuthenticated)
+            {
+                response.StatusCode = StatusCodes.Status401Unauthorized;
+                return;
+            }
+
             if (!Guid.TryParse(workId, out var parsedWorkId))
             {
                 response.StatusCode = StatusCodes.Status400BadRequest;

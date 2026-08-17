@@ -34,6 +34,8 @@ env:
     valueFrom: { secretKeyRef: { name: planner, key: github-app-private-key } }
   - name: Planner__GitHubApp__WebhookSecret
     valueFrom: { secretKeyRef: { name: planner, key: github-app-webhook-secret } }
+  - name: Planner__Security__ForwardedUserHeader
+    value: X-Auth-Request-User
   - name: Planner__Worker__Image
     value: cratis/planner-worker:latest
   - name: Planner__Worker__CallbackBaseUrl
@@ -83,6 +85,7 @@ carries a cluster credential:
 env:
   - name: Planner__Alerts__WebhookSecret
     valueFrom: { secretKeyRef: { name: planner, key: alert-webhook-secret } }
+  # Required - an empty secret rejects every delivery, so the alert webhook stays shut without it.
   - name: Planner__Operations__Kubeconfig
     valueFrom: { secretKeyRef: { name: planner, key: operations-kubeconfig } }
   - name: Planner__Operations__KubernetesNamespace
@@ -102,6 +105,73 @@ Note the `__0` index - a list bound from environment variables is one variable p
 Give the kubeconfig its **own** service account, scoped to reading pods, nodes, events and logs and
 restarting workloads in the namespaces an investigation covers. Do not reuse the Planner's own
 credential: that one can create jobs, and an alert investigation has no business doing so.
+
+## The security boundary
+
+The Planner schedules autonomous agents that hold a GitHub push token and, on alert investigations,
+whatever operational access you configured - up to a production kubeconfig. Treat every surface it
+exposes accordingly.
+
+### What the Planner enforces itself
+
+| Surface | Enforced by |
+| --- | --- |
+| `POST /api/work/{id}/callback` | A per-work bearer token, generated when the work is dispatched, injected into the container as `PLANNER_CALLBACK_TOKEN`, and verified in constant time. Rejects with 401 when absent or wrong. The token is retired when the work completes, fails or is stopped |
+| `POST /api/work/{id}/input`, `GET /api/work/{id}/log` | An authenticated operator (see below). Rejects with 401 otherwise |
+| `POST /webhooks/github`, `POST /webhooks/alerts` | HMAC-SHA256 over the raw body against the configured secret, compared in constant time. **An unconfigured secret rejects every delivery** - both fail closed |
+| `SetAccountToken`, `RegisterAccount`, `RemoveAccount`, `AcceptPullRequest`, `StopWork`, `ScheduleAdHocWork`, `ScheduleAlertInvestigation` | An authenticated operator, through Arc's `[Authorize]`. Rejects with 403 otherwise |
+
+Operator identity comes from the ingress. Configure `Planner:Security:ForwardedUserHeader` with the
+header your proxy records the authenticated login in (`X-Forwarded-User`, or `X-Auth-Request-User`
+for oauth2-proxy):
+
+```yaml
+env:
+  - name: Planner__Security__ForwardedUserHeader
+    value: X-Auth-Request-User
+```
+
+**Until you set it, no request is ever recognized as an operator** - steering, log streaming and
+every command in the table above are refused, and the Planner says so as a warning at startup. That
+is deliberate: an unconfigured deployment is closed, not open.
+
+### What the ingress must enforce
+
+The Planner cannot enforce any of this from inside. If the ingress does not, the listed consequence
+is real.
+
+| The ingress must | If it does not |
+| --- | --- |
+| **Overwrite `Planner:Security:ForwardedUserHeader` on every inbound request**, never pass a client-supplied copy through | Any caller sets the header themselves and becomes any operator they name. This is the single most important item on this list |
+| **Authenticate every route** except `/webhooks/github`, `/webhooks/alerts` and `/health` | Everything below applies |
+| **Deny or authenticate `/api`** | Every Arc command and query without `[Authorize]` is open: the whole issue, repository, pull request, group and alert surface can be read and rewritten anonymously |
+| **Deny or authenticate `/.cratis`, `/openapi`, `/scalar`** | The query streams and the full API description are readable anonymously |
+| **Authenticate `/github-app/created` and `/github-app/installed`** | The GitHub App registration return path is reachable by anyone |
+| **Terminate TLS** | The forwarded identity header, the worker callback token and every credential in transit are readable on the wire |
+| **Forward `X-Forwarded-Proto` / `X-Forwarded-Host`** | The GitHub App manifest derives its URLs from the request the operator's browser arrived on and will build unreachable ones |
+| **Keep the worker network path internal** | `Planner:Worker:CallbackBaseUrl` is an in-cluster address; workers must not have to traverse the public ingress to report |
+
+### What is still open by design
+
+These carry no `[Authorize]` because automation executes them, and they are therefore only as
+protected as the ingress in front of `/api`:
+
+- every read query (issues, work, repositories, pull requests, accounts, usage, alerts),
+- `ScheduleWork`, `StartWork`, `CompleteWork`, `FailWork` and the issue/pull-request mirror
+  commands, which the scheduler, the reactors and the webhook translators execute,
+- `ChangeAccountPlan`, and the issue-editing commands (`ChangeIssueStatus`, `SetIssuePrompt`,
+  grouping, reordering).
+
+Marking an issue **Ready for development** is what starts an agent, so an unauthenticated `/api` is
+enough to make the Planner run agents on your repositories even with everything above in place.
+**Authenticating `/api` at the ingress is not optional.**
+
+### Rotating and revoking
+
+- Worker callback tokens rotate on every dispatch and retire on every terminal event; nothing to do.
+- Webhook secrets are deployment configuration - rotate them at the sender and in the secret together.
+- Removing an operator is done at the identity provider in front of the proxy; the Planner holds no
+  user records of its own.
 
 ## Webhooks
 

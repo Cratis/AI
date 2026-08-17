@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD013 -->
+
 # Setting up the GitHub App
 
 The Planner authenticates with GitHub as a **GitHub App** rather than a shared personal access
@@ -109,10 +111,20 @@ and email work - set whatever you want commits attributed to.
 
 ## Local development
 
-The manifest flow's callbacks (`/github-app/created`, `/github-app/installed`) and the webhook
-delivery endpoint (`/webhooks/github`) all need to be reachable from GitHub, which can't reach
-`localhost` directly - see [Running locally](./running-locally.md#webhooks-locally) for tunneling
-with `ngrok`, `smee.io`, or `gh webhook forward`.
+The manifest flow's browser-return paths (`/github-app/created` and
+`/github-app/installed`) and webhook endpoint (`/webhooks/github`) must be
+reachable from GitHub, which cannot reach `localhost` directly. Do not expose
+the full unauthenticated Planner backend through `ngrok`, another public tunnel,
+or a generic port-forward. Smee and `gh webhook forward` are not substitutes for
+the reviewed ingress: forwarding webhook delivery alone does not provide safe,
+authenticated browser-return paths.
+
+Before using real GitHub App credentials, follow the
+[reviewed-ingress requirements](./running-locally.md#enabling-real-work-in-a-trusted-environment).
+The ingress must authenticate operator and browser-return surfaces, restrict
+external routes, use TLS, and require verified webhook HMAC signatures with a
+non-empty secret. There is no supported raw-tunnel recipe for the default local
+composition.
 
 ## See also
 

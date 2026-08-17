@@ -1,9 +1,8 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Security.Cryptography;
-using System.Text;
 using Microsoft.Extensions.Options;
+using Planner.Identity;
 
 namespace Planner.Alerts.Webhooks;
 
@@ -61,29 +60,8 @@ public static class AlertWebhookEndpoints
     /// </summary>
     /// <param name="request">The incoming request.</param>
     /// <param name="body">The raw body as delivered.</param>
-    /// <param name="secret">The configured shared secret - empty accepts everything.</param>
+    /// <param name="secret">The configured shared secret - empty rejects everything.</param>
     /// <returns><see langword="true"/> when the delivery is authentic.</returns>
-    static bool SignatureIsValid(HttpRequest request, string body, string secret)
-    {
-        if (string.IsNullOrEmpty(secret))
-        {
-            // No secret configured - local development only.
-            return true;
-        }
-
-        var signature = request.Headers[SignatureHeader].ToString();
-        if (!signature.StartsWith("sha256=", StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        var provided = signature["sha256=".Length..];
-        if (provided.Length != 64 || !provided.All(char.IsAsciiHexDigit))
-        {
-            return false;
-        }
-
-        var expected = HMACSHA256.HashData(Encoding.UTF8.GetBytes(secret), Encoding.UTF8.GetBytes(body));
-        return CryptographicOperations.FixedTimeEquals(Convert.FromHexString(provided), expected);
-    }
+    static bool SignatureIsValid(HttpRequest request, string body, string secret) =>
+        WebhookSignature.IsValid(request.Headers[SignatureHeader].ToString(), body, secret);
 }

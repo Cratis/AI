@@ -20,7 +20,8 @@ public class and_nothing_operational_is_configured : context
         new WorkItem(_workId, WorkPurpose.AlertInvestigation, [], ModelName.NotSet, UserName.NotSet, Alert: _alertId),
         [],
         _credentials,
-        "opus");
+        "opus",
+        _token);
 
     [Fact] void should_still_dispatch_the_work() => _result["PLANNER_PROMPT"].ShouldNotBeEmpty();
     [Fact] void should_tell_the_agent_it_can_reach_nothing() => _result["PLANNER_PROMPT"].ShouldContain("gave you no access");

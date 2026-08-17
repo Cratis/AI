@@ -12,6 +12,7 @@ using Planner.Alerts;
 using Planner.GitHub.App;
 using Planner.GitHub.GitIdentity.Listing;
 using Planner.Operations;
+using Planner.Work.Authorizing;
 using Planner.Work.Listing;
 using Planner.Work.Workers;
 using ListedIssue = Planner.Issues.Listing.Issue;
@@ -22,6 +23,7 @@ namespace Planner.Work.Scheduling.for_WorkDispatcher.given;
 public class all_dependencies : Specification
 {
     protected static readonly DateTimeOffset _now = new(2026, 8, 8, 12, 0, 0, TimeSpan.Zero);
+    protected static readonly WorkToken _callbackToken = new("callback-token");
 
     protected IMongoCollection<WorkItem> _workItems;
     protected IMongoCollection<ListedIssue> _issues;
@@ -29,6 +31,7 @@ public class all_dependencies : Specification
     protected IReadModels _readModels;
     protected IWorkerRuntime _workerRuntime;
     protected IWorkerEnvironment _workerEnvironment;
+    protected IWorkTokens _workTokens;
     protected ICommandPipeline _commandPipeline;
     protected TimeProvider _timeProvider;
     protected SchedulingOptions _schedulingOptions;
@@ -56,6 +59,8 @@ public class all_dependencies : Specification
         _readModels.GetInstanceById<Repository>(Arg.Any<ReadModelKey>(), Arg.Any<ReadModelSessionId>()).ReturnsNull();
         _readModels.GetInstanceById<ConfiguredGitIdentity>(Arg.Any<ReadModelKey>(), Arg.Any<ReadModelSessionId>()).ReturnsNull();
         _workerRuntime = Substitute.For<IWorkerRuntime>();
+        _workTokens = Substitute.For<IWorkTokens>();
+        _workTokens.Issue(Arg.Any<WorkId>()).Returns(_callbackToken);
         _commandPipeline = Substitute.For<ICommandPipeline>();
         _timeProvider = Substitute.For<TimeProvider>();
         _timeProvider.GetUtcNow().Returns(_now);
@@ -82,6 +87,7 @@ public class all_dependencies : Specification
             _readModels,
             _workerRuntime,
             _workerEnvironment,
+            _workTokens,
             _commandPipeline,
             _timeProvider,
             Options.Create(_workerOptions),

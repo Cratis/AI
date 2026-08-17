@@ -47,6 +47,11 @@ public class GitHubAppOptions
     /// <summary>
     /// Gets or sets the shared secret GitHub signs webhook deliveries with.
     /// </summary>
+    /// <remarks>
+    /// <b>Required.</b> The endpoint is public and every delivery it accepts rewrites the issue and
+    /// pull request mirrors, so an empty secret rejects every delivery rather than accepting unsigned
+    /// ones. The absence is reported as a warning at startup.
+    /// </remarks>
     public string WebhookSecret { get; set; } = string.Empty;
 
     /// <summary>

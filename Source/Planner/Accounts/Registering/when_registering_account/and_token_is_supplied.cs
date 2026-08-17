@@ -4,6 +4,7 @@
 #if DEBUG
 using Microsoft.Extensions.DependencyInjection;
 using Planner.Accounts.SettingToken;
+using Planner.Identity;
 
 namespace Planner.Accounts.Registering.when_registering_account;
 
@@ -20,7 +21,13 @@ public class and_token_is_supplied : Specification
         _scenario.Services.AddSingleton(currentUser);
     }
 
-    async Task Because() => _result = await _scenario.Execute(new RegisterAccount("Primary", ClaudePlan.Max20x, "sk-ant-token"));
+    async Task Because()
+    {
+        // The command requires an authenticated operator; a spec has no HTTP request, so it runs
+        // as a trusted system actor - the same scope the production automation uses.
+        using var scope = SystemExecutionScope.Enter();
+        _result = await _scenario.Execute(new RegisterAccount("Primary", ClaudePlan.Max20x, "sk-ant-token"));
+    }
 
     [Fact] void should_succeed() => _result.ShouldBeSuccessful();
 

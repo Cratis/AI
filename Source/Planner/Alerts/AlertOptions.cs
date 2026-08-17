@@ -17,9 +17,13 @@ public class AlertOptions
     /// <summary>
     /// Gets or sets the shared secret alert deliveries are signed with. Deliveries carry the
     /// signature as <c>X-Planner-Signature-256: sha256=&lt;hex&gt;</c> over the raw body, the same
-    /// scheme GitHub uses. Empty accepts unsigned deliveries, which is for local development only -
-    /// the endpoint is public, and an unsigned one lets anyone schedule agent work.
+    /// scheme GitHub uses.
     /// </summary>
+    /// <remarks>
+    /// <b>Required.</b> The endpoint is public and every delivery it accepts can schedule agent work,
+    /// so an empty secret rejects every delivery rather than accepting unsigned ones. The absence is
+    /// reported as a warning at startup.
+    /// </remarks>
     public string WebhookSecret { get; set; } = string.Empty;
 
     /// <summary>

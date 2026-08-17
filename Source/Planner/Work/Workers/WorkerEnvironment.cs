@@ -37,6 +37,7 @@ public class WorkerEnvironment(
         IReadOnlyList<ListedIssue> coveredIssues,
         AccountCredentials credentials,
         ModelName model,
+        WorkToken token,
         CancellationToken cancellationToken = default)
     {
         var environment = new Dictionary<string, string>
@@ -44,6 +45,7 @@ public class WorkerEnvironment(
             ["PLANNER_WORK_ID"] = work.Id.Value.ToString(),
             ["PLANNER_MODEL"] = model.Value,
             ["PLANNER_CALLBACK_URL"] = $"{workerOptions.Value.CallbackBaseUrl.TrimEnd('/')}/api/work/{work.Id.Value}/callback",
+            ["PLANNER_CALLBACK_TOKEN"] = token.Value,
             ["PLANNER_BRANCH"] = $"planner/work-{work.Id.Value:N}",
             ["CLAUDE_CODE_OAUTH_TOKEN"] = credentials.Token.Value
         };

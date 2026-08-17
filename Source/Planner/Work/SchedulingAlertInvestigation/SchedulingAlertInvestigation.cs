@@ -1,6 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.Arc.Authorization;
 using Planner.Alerts;
 using Planner.Identity;
 
@@ -11,9 +12,14 @@ namespace Planner.Work.SchedulingAlertInvestigation;
 /// wrong, and either fixes it or hands back what it found. The scheduler dispatches it to a worker
 /// container as soon as an account with capacity is available, exactly like every other unit of work.
 /// </summary>
+/// <remarks>
+/// Requires an authenticated operator. Automation schedules these too - the alert reactor does so inside
+/// an Arc system-execution scope, which is the only path that bypasses the operator requirement.
+/// </remarks>
 /// <param name="Alert">The identity of the alert to investigate.</param>
 /// <param name="Model">The model to use - optional; the scheduler falls back to the configured alert model.</param>
 [Command]
+[Authorize]
 public record ScheduleAlertInvestigation(AlertId Alert, ModelName? Model = null)
 {
     /// <summary>

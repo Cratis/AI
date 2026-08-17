@@ -27,7 +27,8 @@ public class and_operational_access_is_configured : context
         new WorkItem(_workId, WorkPurpose.AlertInvestigation, [], ModelName.NotSet, UserName.NotSet, Alert: _alertId),
         [],
         _credentials,
-        "opus");
+        "opus",
+        _token);
 
     [Fact] void should_hand_over_the_kubeconfig() => _result["PLANNER_KUBECONFIG"].ShouldEqual("apiVersion: v1\nkind: Config");
     [Fact] void should_hand_over_the_namespace() => _result["PLANNER_KUBE_NAMESPACE"].ShouldEqual("studio");

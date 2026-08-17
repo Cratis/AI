@@ -3,6 +3,7 @@
 
 #if DEBUG
 using Microsoft.Extensions.DependencyInjection;
+using Planner.Identity;
 
 namespace Planner.Work.SchedulingAlertInvestigation.when_scheduling_an_alert_investigation;
 
@@ -19,8 +20,14 @@ public class and_an_alert_is_given : Specification
         _scenario.Services.AddSingleton(currentUser);
     }
 
-    async Task Because() => _result = await _scenario.Execute(
+    async Task Because()
+    {
+        // The command requires an authenticated operator; a spec has no HTTP request, so it runs
+        // as a trusted system actor - the same scope the production automation uses.
+        using var scope = SystemExecutionScope.Enter();
+        _result = await _scenario.Execute(
         new ScheduleAlertInvestigation("studio-production-pod-loki-0-crashloopbackoff"));
+    }
 
     [Fact] void should_succeed() => _result.ShouldBeSuccessful();
 

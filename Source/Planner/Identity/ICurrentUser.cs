@@ -10,6 +10,12 @@ namespace Planner.Identity;
 public interface ICurrentUser
 {
     /// <summary>
+    /// Gets whether the current execution has an authenticated user behind it. This is the operator
+    /// gate for the transport-level endpoints Arc does not authorize for us.
+    /// </summary>
+    bool IsAuthenticated { get; }
+
+    /// <summary>
     /// Gets the login of the current user, or <see cref="UserName.NotSet"/> when the execution has
     /// no authenticated user.
     /// </summary>

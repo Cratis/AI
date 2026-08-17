@@ -11,7 +11,9 @@ using Planner.GitHub.App;
 using Planner.GitHub.Synchronization;
 using Planner.GitHub.Webhooks;
 using Planner.Hosting;
+using Planner.Identity;
 using Planner.Operations;
+using Planner.Work.Authorizing;
 using Planner.Work.Callback;
 using Planner.Work.Scheduling;
 using Planner.Work.Workers;
@@ -49,8 +51,7 @@ builder.AddPlannerOrleans();
 
 builder.Services.AddGitHub(builder.Configuration);
 builder.Services.AddWorkerRuntime(builder.Configuration);
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddSingleton<Planner.Identity.ICurrentUser, Planner.Identity.CurrentUser>();
+builder.Services.AddPlannerSecurity(builder.Configuration);
 builder.Services.Configure<SchedulingOptions>(builder.Configuration.GetSection(SchedulingOptions.SectionName));
 builder.Services.Configure<WorkerOptions>(builder.Configuration.GetSection(WorkerOptions.SectionName));
 builder.Services.Configure<AlertOptions>(builder.Configuration.GetSection(AlertOptions.SectionName));
@@ -58,6 +59,7 @@ builder.Services.Configure<OperationsOptions>(builder.Configuration.GetSection(O
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<IWorkDispatcher, WorkDispatcher>();
 builder.Services.AddSingleton<IWorkerEnvironment, WorkerEnvironment>();
+builder.Services.AddSingleton<IWorkTokens, WorkTokens>();
 builder.Services.AddSingleton<IIssueSynchronizer, IssueSynchronizer>();
 builder.Services.AddHostedService<PlannerGrainsActivator>();
 builder.Services.AddHealthChecks();
@@ -66,6 +68,7 @@ builder.Services.AddOpenApi();
 var app = builder.Build();
 
 app.UseRouting();
+app.UsePlannerSecurity();
 app.UseWebSockets();
 app.UseDefaultFiles();
 app.UseStaticFiles();

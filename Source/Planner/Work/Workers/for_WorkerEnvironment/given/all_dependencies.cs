@@ -17,6 +17,7 @@ namespace Planner.Work.Workers.for_WorkerEnvironment.given;
 public class all_dependencies : Specification
 {
     protected static readonly WorkId _workId = WorkId.New();
+    protected static readonly WorkToken _token = new("callback-token");
 
     protected IReadModels _readModels;
     protected IGitHubAppTokenResolver _gitHubAppTokenResolver;

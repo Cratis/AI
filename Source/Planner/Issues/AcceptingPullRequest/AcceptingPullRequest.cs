@@ -1,6 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.Arc.Authorization;
 using Planner.GitHub;
 using ListedIssue = Planner.Issues.Listing.Issue;
 
@@ -9,8 +10,12 @@ namespace Planner.Issues.AcceptingPullRequest;
 /// <summary>
 /// Command for accepting the pull request associated with an issue - merges it through the GitHub API.
 /// </summary>
+/// <remarks>
+/// Requires an authenticated operator: this merges agent-written code into a real repository.
+/// </remarks>
 /// <param name="Issue">The identity of the issue whose pull request is accepted.</param>
 [Command]
+[Authorize]
 public record AcceptPullRequest(IssueId Issue)
 {
     /// <summary>

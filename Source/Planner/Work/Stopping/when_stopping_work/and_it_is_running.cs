@@ -3,6 +3,7 @@
 
 #if DEBUG
 using Microsoft.Extensions.DependencyInjection;
+using Planner.Identity;
 using Planner.Work.Listing;
 using Planner.Work.Workers;
 
@@ -30,7 +31,13 @@ public class and_it_is_running : Specification
             WorkStatus.Running));
     }
 
-    async Task Because() => _result = await _scenario.Execute(new StopWork(_workId));
+    async Task Because()
+    {
+        // The command requires an authenticated operator; a spec has no HTTP request, so it runs
+        // as a trusted system actor - the same scope the production automation uses.
+        using var scope = SystemExecutionScope.Enter();
+        _result = await _scenario.Execute(new StopWork(_workId));
+    }
 
     [Fact] void should_succeed() => _result.ShouldBeSuccessful();
     [Fact] async Task should_stop_the_worker() => await _workerRuntime.Received(1).Stop(_workId, Arg.Any<CancellationToken>());

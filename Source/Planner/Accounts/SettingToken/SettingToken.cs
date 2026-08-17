@@ -1,14 +1,20 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.Arc.Authorization;
+
 namespace Planner.Accounts.SettingToken;
 
 /// <summary>
 /// Command for setting (or rotating) the Claude CLI token of an account.
 /// </summary>
+/// <remarks>
+/// Requires an authenticated operator: this writes a live Claude credential.
+/// </remarks>
 /// <param name="Account">The identity of the account.</param>
 /// <param name="Token">The token the Claude CLI authenticates with.</param>
 [Command]
+[Authorize]
 public record SetAccountToken(AccountId Account, ClaudeToken Token)
 {
     /// <summary>

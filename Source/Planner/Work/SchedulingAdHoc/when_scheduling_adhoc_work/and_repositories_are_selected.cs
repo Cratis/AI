@@ -24,8 +24,14 @@ public class and_repositories_are_selected : Specification
         _scenario.Services.AddSingleton(Substitute.For<IMongoCollection<Repository>>());
     }
 
-    async Task Because() => _result = await _scenario.Execute(
+    async Task Because()
+    {
+        // The command requires an authenticated operator; a spec has no HTTP request, so it runs
+        // as a trusted system actor - the same scope the production automation uses.
+        using var scope = SystemExecutionScope.Enter();
+        _result = await _scenario.Execute(
         new ScheduleAdHocWork("Upgrade all dependencies", [new RepositoryId("cratis-fundamentals"), new RepositoryId("cratis-chronicle")]));
+    }
 
     [Fact] void should_succeed() => _result.ShouldBeSuccessful();
 

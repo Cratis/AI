@@ -20,6 +20,7 @@ public interface IWorkerEnvironment
     /// <param name="coveredIssues">The issues the work covers - empty for anything but issue work.</param>
     /// <param name="credentials">The Claude account credentials the session authenticates with.</param>
     /// <param name="model">The resolved model the session runs.</param>
+    /// <param name="token">The token the container authenticates its callbacks with.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> for the operation.</param>
     /// <returns>The environment variables.</returns>
     Task<IReadOnlyDictionary<string, string>> Build(
@@ -27,5 +28,6 @@ public interface IWorkerEnvironment
         IReadOnlyList<ListedIssue> coveredIssues,
         AccountCredentials credentials,
         ModelName model,
+        WorkToken token,
         CancellationToken cancellationToken = default);
 }
