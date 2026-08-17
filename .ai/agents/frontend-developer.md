@@ -4,13 +4,15 @@ description: >
   Specialist for TypeScript/React frontend code within a vertical slice.
   Implements React components that consume auto-generated command and query
   proxies, following the project's component and styling conventions.
-model: claude-sonnet-4-5
+model: claude-sonnet-5
 tools:
-  - githubRepo
-  - codeSearch
-  - usages
-  - rename
-  - terminalLastCommand
+  - Read
+  - Write
+  - Edit
+  - Glob
+  - Grep
+  - Bash
+  - TodoWrite
 ---
 
 # Frontend Developer
@@ -218,12 +220,12 @@ export const Projects = () => {
 
 ## Browser verification (optional)
 
-If the workspace has `workbench.browser.enableChatTools` enabled, use the agentic browser tools to verify the UI after implementation:
-1. Open the app page in the integrated browser.
-2. Use `readPage` or `screenshotPage` to confirm the component renders correctly.
-3. Use `clickElement` or `typeInPage` to test interactive elements.
+If your harness exposes browser automation (Claude Code: the `claude-in-chrome` MCP tools; VS Code: the built-in agentic browser tools) **and** a dev server is running, verify the UI after implementation:
+1. Open the app page in the browser.
+2. Read the page or take a screenshot to confirm the component renders correctly.
+3. Drive the interactive elements — click, type, submit — to exercise the happy path and validation.
 
-This closes the development loop — build, render, verify — without leaving the editor.
+This closes the development loop — build, render, verify. If browser tooling or a dev server is unavailable, say so explicitly; **never claim UI correctness from a green build alone.**
 
 ---
 

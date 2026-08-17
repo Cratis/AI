@@ -4,8 +4,16 @@ description: >
   Implements a Cratis vertical slice end-to-end — all backend artifacts in one slice file, BDD specs
   in when_*/ folders, and the React surface (page and/or command dialog). Use for new slices and for
   non-trivial slice changes spanning backend and frontend.
-model: claude-opus-4-8
-tools: [githubRepo, codeSearch, usages, rename, terminalLastCommand]
+model: claude-opus-5
+tools:
+  - Read
+  - Write
+  - Edit
+  - Glob
+  - Grep
+  - Bash
+  - TodoWrite
+  - Skill
 ---
 
 # Slice Implementer
@@ -20,7 +28,7 @@ A new vertical slice (State Change, State View, Automation, Translation), or a n
 
 - `.ai/rules/general.md` — universal rules, layout, gates, authority model.
 - `.ai/rules/vertical-slices.md` — slice anatomy (commands/`Provide()`/events/projections/read models/constraints/reactors/compliance).
-- `.ai/rules/csharp.md`, `.ai/rules/specs.md` — C# style, spec patterns.
+- `.ai/rules/csharp.md`, `.ai/rules/specs.md`, `.ai/rules/specs.scenarios.csharp.md` — C# style, spec patterns, the four in-process `*Scenario` helpers.
 - `.ai/rules/typescript.md`, `.ai/rules/react.md`, `.ai/rules/components.md`, `.ai/rules/dialogs.md` — frontend.
 - `.ai/skills/event-modeling/SKILL.md` — pre-code event vocabulary, flow, contracts, scenarios.
 

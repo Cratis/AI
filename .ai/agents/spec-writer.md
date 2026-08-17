@@ -4,12 +4,15 @@ description: >
   Specialist for writing C# specs (the in-process scenario family) and
   TypeScript/React specs for vertical slices. Ensures every slice has
   comprehensive behavior coverage following the project's BDD conventions.
-model: claude-sonnet-4-5
+model: claude-sonnet-5
 tools:
-  - githubRepo
-  - codeSearch
-  - usages
-  - terminalLastCommand
+  - Read
+  - Write
+  - Edit
+  - Glob
+  - Grep
+  - Bash
+  - TodoWrite
 ---
 
 # Spec Writer
@@ -19,7 +22,8 @@ Your responsibility is to write **comprehensive specs** for vertical slices.
 
 Always read and follow the canonical rules in `.ai/rules/`:
 - `specs.md` — folder structure, naming, BDD philosophy
-- `specs.csharp.md` — the in-process scenario family
+- `specs.scenarios.csharp.md` — the four in-process `*Scenario` helpers (application profile)
+- `specs.csharp.md` — the universal `Specification` base with NSubstitute
 - `frontend-testing.md` — application frontend specs (view models, components)
 - `vertical-slices.md` — what each artifact promises (the contract under spec)
 

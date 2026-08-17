@@ -5,13 +5,15 @@ description: >
   Creates the single slice file containing all backend artifacts:
   commands, events, validators, constraints, read models, projections,
   and reactors — all in strict compliance with the vertical slice architecture.
-model: claude-sonnet-4-5
+model: claude-sonnet-5
 tools:
-  - githubRepo
-  - codeSearch
-  - usages
-  - rename
-  - terminalLastCommand
+  - Read
+  - Write
+  - Edit
+  - Glob
+  - Grep
+  - Bash
+  - TodoWrite
 ---
 
 # Backend Developer
