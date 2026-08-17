@@ -68,6 +68,7 @@ public class and_name_is_unique : Specification
 - **Constraints / raw append semantics** → **write-specs-events** (`EventScenario`, `ShouldHaveConstraintViolationFor(name)`).
 - **Projections & reducers** → **write-specs-readmodels** (`ReadModelScenario<TReadModel>`).
 - **Reactors** → `ReactorScenario<TReactor>` — assert on mocked services, and on the reactor's own returned side effects with `ShouldHaveProduced<T>()` / `ShouldHaveProduced<T>(predicate)` / `ShouldNotHaveProduced<T>()`; see `specs.scenarios.csharp.md`.
+  **A reactor that throws is invisible to `ReactorScenario`** — the invoker catches the exception and the scenario discards the result, so a "should not throw" spec passes against broken code. Assert the mock call or the produced side effect (which *does* go missing on a throw); when the throw itself is under test, call the handler directly with `EventContext.EmptyWithEventSourceId(id)`. Details in `specs.scenarios.csharp.md`.
 - **React / TypeScript surface** (view models, helpers, components) → **write-specs-frontend**.
 
 ## Naming conventions

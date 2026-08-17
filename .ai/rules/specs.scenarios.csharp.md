@@ -148,6 +148,18 @@ async Task Because() => await _scenario.Given.ForEventSource(_id).Events(new Aut
 
 `ShouldHaveProduced<T>()` and its `Func<T, bool>` predicate overload throw `ReactorSideEffectAssertionException` naming what *was* produced. They are populated only when no explicit `IReactorSideEffectHandlers` was passed to the constructor — with explicit handlers, assert against those instead. Inspect `_scenario.Produced` directly when an assertion helper does not fit.
 
+> **`ReactorScenario` cannot observe a reactor that throws.** `ReactorInvoker` catches every exception and returns `ReactorInvocationResult.FromException(ex)`, and `ReactorScenario.Given` **discards** that returned result. Nothing surfaces: a handler that throws on every event looks identical to one that succeeded. **Never write a "should not throw" spec against `ReactorScenario`** — it passes against broken code and is worse than no spec, because it reads as coverage.
+>
+> Assert the observable consequence instead — the mock call, or the produced side effect — which *does* go missing when the handler throws. When the throw itself is the behavior under test (a guard clause, a mapping that must reject bad input), bypass the scenario and invoke the handler directly:
+>
+> ```csharp
+> // The reactor's own method, called directly — exceptions propagate to the spec.
+> async Task Because() => _exception = await Catch.Exception(() =>
+>     _reactor.Handle(new AuthorRegistered("Jane Austen"), EventContext.EmptyWithEventSourceId(_id)));
+> ```
+>
+> `EventContext.EmptyWithEventSourceId(EventSourceId)` builds the minimal context for that direct call. This is a limitation of the Chronicle testing client, not of your reactor.
+
 ## Out-of-process Chronicle integration specs (advanced)
 
 Reserve these for the host/transport boundary the scenario helpers can't reach. They test a complete slice — HTTP request → command → append → constraint → projection — against a real Chronicle store, and live under `when_<behavior>/` directly inside the slice folder (no `for_` folder; the "unit" is the whole slice).
