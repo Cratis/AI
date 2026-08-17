@@ -1,0 +1,23 @@
+{
+  "skill_name": "cratis-software-factory",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Design a factory workflow that diagnoses why some UserProfile documents have their own ID as compliance subject while others have the intended user ID. It may inspect a development Chronicle instance but must not mutate it.",
+      "expected_output": "A read-only, PII-aware workflow that distinguishes compliance subject from read-model/event-source key, uses typed evidence, scopes Chronicle access, and requires deterministic verification rather than assuming a Subject-typed property controls projection identity.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Plan an autonomous workflow for implementing a new .NET Arc + Chronicle + React + Cratis Components vertical slice from a Screenplay proposal and opening a pull request.",
+      "expected_output": "A model-first DAG with human model acceptance, deterministic Screenplay/analyzer/build/spec/frontend gates, bounded builder/reviewer phases, code-owned Git publishing, and no production access.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Create a profile and delivery plan for an application using the real Kotlin Chronicle client without a Cratis frontend.",
+      "expected_output": "A version-aware profile grounded in the actual Kotlin Chronicle package, selecting client-specific capabilities and gates without inventing frontend or Arc.React integration.",
+      "files": []
+    }
+  ]
+}

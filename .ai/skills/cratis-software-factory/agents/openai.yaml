@@ -1,0 +1,4 @@
+interface:
+  display_name: "Cratis Software Factory"
+  short_description: "Plan and operate governed Cratis factory workflows"
+  default_prompt: "Use $cratis-software-factory to plan a gated Cratis application workflow."
