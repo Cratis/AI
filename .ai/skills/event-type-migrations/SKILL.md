@@ -25,16 +25,27 @@ Every `[EventType]` has a **generation** (starts at `1`). Each schema change inc
 Generation 1 (stored) → Migration 1→2 → Migration 2→3 → Current (Generation 3)
 ```
 
+**Chronicle keys generations by the `[EventType]` *id*, not by the C# type name.** `EventTypeAttribute(string id = "", uint generation = 1)` defaults the id to the type name — so two records named `OrderPlaced` and `OrderPlacedV1` default to two *different* ids and are, as far as Chronicle is concerned, unrelated event types. The migration chain never forms and old events are never upcast.
+
+This is the one place a `[EventType]` **must** take arguments: every generation of the same event carries the **same explicit id** and differs only by `generation`. Analyzer **CHR0037** reports it when they don't — a Warning, so a build failure under the zero-warning gate.
+
 ## Steps
 
 ### 1. Keep the prior record and bump the generation on the new one
 
-Keep the old shape available to the migration as `TPrevious`, and mark the current record's generation:
+Both records carry the **same explicit id**; only the generation differs:
 
 ```csharp
-[EventType(generation: 2)]
-public record OrderPlaced(OrderId OrderId, Currency Currency);   // generation 2 (current)
+// The prior shape, kept so the migration can name it as TPrevious.
+[EventType("OrderPlaced", generation: 1)]   // a new event takes no arguments; only migrated generations do
+public record OrderPlacedV1(OrderId OrderId);
+
+// The current shape.
+[EventType("OrderPlaced", generation: 2)]   // same id — never change it once chosen — next generation
+public record OrderPlaced(OrderId OrderId, Currency Currency);
 ```
+
+The C# type names are free to differ (`OrderPlacedV1` vs `OrderPlaced`) precisely *because* the shared id — not the type name — is what ties them together. Pick the id once, when you write the first migration, and never change it again.
 
 ### 2. Write the migration
 
@@ -63,6 +74,7 @@ For three generations, write two migrations (`1→2`, `2→3`) — each only kno
 
 | Pitfall | Why it breaks |
 |---|---|
+| Two generations without a **shared explicit** `[EventType]` id | The id defaults to the type name, so Chronicle sees two unrelated event types and the migration silently never applies — CHR0037 |
 | Editing the stored event record without bumping `generation` | Old events still carry the old schema; Chronicle won't migrate them |
 | Adding a nullable value type to handle "missing old data" | Analyzer-flagged anti-pattern; use a migration default |
 | A migration that throws on a null/missing old field | Old events may lack fields entirely — null-coalesce / default |
@@ -70,7 +82,7 @@ For three generations, write two migrations (`1→2`, `2→3`) — each only kno
 
 ## Quality gate
 
-- [ ] Build is clean.
+- [ ] Build is clean — in particular no **CHR0037**, which means every generation shares one explicit `[EventType]` id.
 - [ ] Old-generation events upcast to the current shape when replayed through a `ReadModelScenario<T>`.
 - [ ] No nullable value types introduced on `[EventType]` records.
 
