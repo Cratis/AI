@@ -108,10 +108,16 @@ composition.
 
 ## Running the backend alone
 
-The backend can run without Aspire against already-running infrastructure:
+The backend can run without Aspire against already-running infrastructure. Both
+processes stay in the foreground, so run each in its **own terminal**:
 
 ```shell
+# Terminal 1 — backend
 dotnet run --project Source/Planner
+```
+
+```shell
+# Terminal 2 — frontend
 cd Source/Planner
 yarn dev
 ```
@@ -123,11 +129,16 @@ frontend runs on port 9100.
 
 ```shell
 dotnet build Source/Planner/Planner.csproj -c Debug
-dotnet build Source/Planner/Planner.csproj -c Release
+dotnet build Source/Planner/Planner.csproj -c Release -p:CratisProxiesOutputPath=
 dotnet test Source/Planner/Planner.csproj -c Debug
 cd Source/Planner
 yarn test && yarn lint:ci && yarn compile && yarn build
 ```
 
-The Debug build compiles specifications, the Release build regenerates proxies,
-and all commands must complete without warnings or test failures.
+The **Debug** build is the one that compiles the `#if DEBUG` specification code
+and regenerates the TypeScript proxies — run it before anything that consumes
+them. The Release build is a build-only check that the code compiles with
+warnings treated as errors; the empty `CratisProxiesOutputPath` clears the
+property the proxy generator's MSBuild target is conditioned on, so that second
+build cannot re-run the generator over already-correct generated files. All
+commands must complete without warnings or test failures.
