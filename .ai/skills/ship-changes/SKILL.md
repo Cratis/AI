@@ -188,6 +188,13 @@ Otherwise use `gh pr edit <number> --add-label "<label>"` with one of:
 
 If `gh pr edit` fails on the Projects-classic GraphQL deprecation, add the label with the REST API instead: `gh api -X POST repos/<owner>/<repo>/issues/<number>/labels -f "labels[]=<label>"`. Label **before** the PR's first `verify` run where you can — a run that starts before the label lands sees no label and fails, and needs re-running.
 
+> **The same deprecation breaks `gh pr edit --body-file`, and it fails silently.** `gh pr edit` queries `repository.pullRequest.projectCards` whatever you are editing, so it can error on the deprecation *after* printing nothing useful and leave the body untouched. Always re-read the body after editing it — `gh api repos/<owner>/<repo>/pulls/<number> --jq '.body'` — and if it did not take, PATCH it directly:
+>
+> ```bash
+> printf '%s' "$(cat body.md)" | python3 -c 'import json,sys; print(json.dumps({"body": sys.stdin.read()}))' \
+>   | gh api -X PATCH repos/<owner>/<repo>/pulls/<number> --input -
+> ```
+
 ## Step 7 — Wait for CI to pass
 
 **Skip this step entirely for a documentation-only PR** — merge as soon as it is open. Its `verify` will be red for the deliberately absent version label, and that is the expected outcome, not a failure to chase.
