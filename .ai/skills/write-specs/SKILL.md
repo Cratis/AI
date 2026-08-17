@@ -61,13 +61,13 @@ public class and_name_is_unique : Specification
 - `ShouldNotBeSuccessful()` alone can't tell a validation rejection from an unhandled exception — pair it with `ShouldHaveValidationErrors()`.
 - Authorization failures use `ShouldNotBeAuthorized()` (an unauthorized result has no validation errors).
 - `CommandResult` assertions: `ShouldBeSuccessful()`, `ShouldNotBeSuccessful()`, `ShouldBeValid()`, `ShouldHaveValidationErrors()`, `ShouldHaveValidationErrorFor(message)`, `ShouldBeAuthorized()`, `ShouldNotBeAuthorized()`, `ShouldHaveExceptions()`.
-- Seed prior DCB read-model state through `_scenario.Services` (substitute `IReadModels`); there is no `Given`/`Events` on `CommandScenario`.
+- Seed prior state with **`_scenario.Given.ForEventSource(id).Events(...)`** — a Chronicle extension property on `CommandScenario` (from `Cratis.Arc.Chronicle.Testing.Commands`). Any read model the command injects for that source is materialized from those events through its own reducer or projection. `…ForEventSource(id).ReadModel(instance)` pins a materialized instance instead; substituting `IReadModels` into `_scenario.Services` is the fallback when neither fits.
 
 ## Other slice types — defer to the focused skills
 
 - **Constraints / raw append semantics** → **write-specs-events** (`EventScenario`, `ShouldHaveConstraintViolationFor(name)`).
 - **Projections & reducers** → **write-specs-readmodels** (`ReadModelScenario<TReadModel>`).
-- **Reactors** → `ReactorScenario<TReactor>` (assert on mocked services); see `specs.scenarios.csharp.md`.
+- **Reactors** → `ReactorScenario<TReactor>` — assert on mocked services, and on the reactor's own returned side effects with `ShouldHaveProduced<T>()` / `ShouldHaveProduced<T>(predicate)` / `ShouldNotHaveProduced<T>()`; see `specs.scenarios.csharp.md`.
 - **React / TypeScript surface** (view models, helpers, components) → **write-specs-frontend**.
 
 ## Naming conventions

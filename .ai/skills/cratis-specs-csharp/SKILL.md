@@ -151,7 +151,16 @@ public class and_all_information_is_valid : Specification
 #endif
 ```
 
-`CommandScenario<TCommand>` exposes only `Services`, `Context`, `Execute`, and `Validate` — event assertions are the extension methods `await _scenario.ShouldHaveAppendedEvent<TCommand, TEvent>(eventSourceId[, predicate])` and `ShouldHaveTailSequenceNumber<TCommand>(...)`. Unhappy-path specs assert **both** `ShouldNotBeSuccessful()` and `ShouldHaveValidationErrors()` (authorization uses `ShouldNotBeAuthorized()`). Seed DCB read-model state by registering it into `_scenario.Services` (substitute `IReadModels`/`GetInstanceById`, or `AddReadModels(...)`) — there is no `Given`/`Events` on a command scenario. See [specs.scenarios.csharp.md](../../rules/specs.scenarios.csharp.md) for `EventScenario`, `ReadModelScenario<T>`, and `ReactorScenario<T>` (which *do* use `Given.ForEventSource(...).Events(...)`).
+`CommandScenario<TCommand>` itself declares `Services`, `Context`, `Execute`, and `Validate`; everything Chronicle-shaped comes from `Cratis.Arc.Chronicle.Testing.Commands` as extension members. Event assertions are `await _scenario.ShouldHaveAppendedEvent<TCommand, TEvent>(eventSourceId[, predicate])` and `ShouldHaveTailSequenceNumber<TCommand>(...)`. Unhappy-path specs assert **both** `ShouldNotBeSuccessful()` and `ShouldHaveValidationErrors()` (authorization uses `ShouldNotBeAuthorized()`).
+
+**Seed prior state with `Given`** — `CommandScenario` has one, exactly like the other scenarios:
+
+```csharp
+_scenario.Given.ForEventSource(_id).Events(new AuthorRegistered("Jane Austen"));  // preferred
+_scenario.Given.ForEventSource(_id).ReadModel(new AuthorDetails(_id, "Jane Austen"));
+```
+
+`Events(...)` materializes whatever read model the command injects for that source through its own reducer or projection, so no read-model type is named. Substituting `IReadModels` into `_scenario.Services` stays available as a fallback. See [specs.scenarios.csharp.md](../../rules/specs.scenarios.csharp.md) for `EventScenario`, `ReadModelScenario<T>`, and `ReactorScenario<T>` (whose `ShouldHaveProduced<T>()` asserts a reactor's returned side effects).
 
 ## Step 6 — Out-of-process Chronicle integration spec (advanced)
 
