@@ -1,0 +1,27 @@
+<!-- Copyright (c) Cratis. All rights reserved. -->
+<!-- Licensed under the MIT license. See LICENSE file in the project root for full license information. -->
+
+<!--
+    Fixtures are content-addressed inputs: Factory/scripts/evaluate_factory.py walks each fixture
+    root and hashes what it finds. Build output has no business being in that tree.
+
+    Two defences already exist and neither is sufficient on its own. evaluate_factory.py skips
+    EXCLUDED_FIXTURE_DIRECTORIES (bin, obj, __pycache__, node_modules) so stray output cannot
+    change a tree hash, and factory-foundation.yml fails the build when a bin/ or obj/ directory
+    is merely present under Factory/Fixtures. Both of those *detect* the condition after the fact.
+    This file *prevents* it: any project built anywhere under Factory/Fixtures writes its
+    intermediate and final output into the gitignored artifacts/ tree at the repository root
+    instead of next to the fixture source.
+
+    This file must stay one level above every fixture root. MSBuild stops walking at the first
+    Directory.Build.props it finds, so putting it here also means fixture projects deliberately do
+    NOT inherit the repository-root Directory.Build.props - fixtures are inert sample input, not
+    part of the product build, and should not pick up its analyzers or target framework.
+-->
+<Project>
+    <PropertyGroup>
+        <_FixtureArtifactsRoot>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', '..', '..', 'artifacts', 'fixtures'))</_FixtureArtifactsRoot>
+        <BaseIntermediateOutputPath>$(_FixtureArtifactsRoot)$(MSBuildProjectName)\obj\</BaseIntermediateOutputPath>
+        <BaseOutputPath>$(_FixtureArtifactsRoot)$(MSBuildProjectName)\bin\</BaseOutputPath>
+    </PropertyGroup>
+</Project>
