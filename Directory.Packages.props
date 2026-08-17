@@ -8,17 +8,17 @@
     <PackageVersion Include="Aspire.Hosting.JavaScript" Version="13.4.6" />
     <!-- Cratis -->
     <PackageVersion Include="Cratis.Fundamentals" Version="7.17.1" />
-    <PackageVersion Include="Cratis" Version="21.15.0" />
+    <PackageVersion Include="Cratis" Version="21.19.0" />
     <PackageVersion Include="Cratis.Arc.ProxyGenerator.Build" Version="21.0.4" />
-    <PackageVersion Include="Cratis.Arc.Chronicle.Testing" Version="21.15.0" />
+    <PackageVersion Include="Cratis.Arc.Chronicle.Testing" Version="21.19.0" />
     <PackageVersion Include="Cratis.Arc.OpenApi" Version="21.0.4" />
-    <PackageVersion Include="Cratis.Arc.MongoDB" Version="21.15.0" />
-    <PackageVersion Include="Cratis.Arc.Core" Version="21.15.0" />
-    <PackageVersion Include="Cratis.Chronicle" Version="16.33.1" />
-    <PackageVersion Include="Cratis.Chronicle.Aspire" Version="16.33.1" />
+    <PackageVersion Include="Cratis.Arc.MongoDB" Version="21.19.0" />
+    <PackageVersion Include="Cratis.Arc.Core" Version="21.19.0" />
+    <PackageVersion Include="Cratis.Chronicle" Version="16.34.1" />
+    <PackageVersion Include="Cratis.Chronicle.Aspire" Version="16.34.1" />
     <PackageVersion Include="Cratis.Chronicle.AspNetCore" Version="16.19.3" />
     <PackageVersion Include="Cratis.Chronicle.Contracts" Version="16.19.3" />
-    <PackageVersion Include="Cratis.Chronicle.Testing" Version="16.33.1" />
+    <PackageVersion Include="Cratis.Chronicle.Testing" Version="16.34.1" />
     <PackageVersion Include="Cratis.Chronicle.XUnit.Integration" Version="16.19.3" />
     <!-- Microsoft Orleans -->
     <!--
@@ -63,8 +63,8 @@
     <PackageVersion Include="MongoDB.Driver" Version="3.10.0" />
     <!-- Analysis -->
     <PackageVersion Include="StyleCop.Analyzers" Version="1.2.0-beta.556" NoWarn="NU5104" />
-    <PackageVersion Include="Roslynator.Analyzers" Version="4.16.0" />
-    <PackageVersion Include="Meziantou.Analyzer" Version="3.0.156" />
+    <PackageVersion Include="Roslynator.Analyzers" Version="4.16.1" />
+    <PackageVersion Include="Meziantou.Analyzer" Version="3.0.159" />
     <!-- Compiler toolset — keep at or above the newest Roslyn any consumed analyzer was built
          against. The SDK's 4xx-band codestyle analyzers target Roslyn 5.9, so anything lower here
          fails the build with CS9057 and forces CI onto a pinned SDK feature band. -->
