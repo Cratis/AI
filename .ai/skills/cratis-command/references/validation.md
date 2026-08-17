@@ -49,7 +49,7 @@ Simpler but less flexible than FluentValidation. Rules are enforced server-side 
 
 ## Automatic validate endpoint
 
-For every `[HttpPost]` command, Arc registers a parallel endpoint:
+For every `[Command]`, Arc registers a parallel endpoint alongside the one it generates for execution:
 
 - Execute: `POST /api/orders/create`
 - Validate: `POST /api/orders/create/validate`
@@ -67,7 +67,7 @@ const [errors, setErrors] = useState<Record<string, string>>({});
 // Option A: validate on blur
 const handleBlur = async (field: string) => {
     const result = await command.validate();
-    const fieldError = result.validationResults.find(v => v.propertyName === field);
+    const fieldError = result.validationResults.find(v => v.members.includes(field));
     setErrors(prev => ({ ...prev, [field]: fieldError?.message ?? '' }));
 };
 
@@ -95,10 +95,12 @@ const handleSubmit = async () => {
 
 ```tsx
 const getError = (field: keyof typeof command) =>
-    result.validationResults.find(v => v.propertyName === String(field))?.message;
+    result.validationResults.find(v => v.members.includes(String(field)))?.message;
 
 <input value={command.name} onChange={...} />
 {getError('name') && <span className="error">{getError('name')}</span>}
 ```
 
-`propertyName` in the result is camelCase matching the C# property name (lowercased first letter).
+A `ValidationResult` names **`members: string[]`**, not a single `propertyName` — one result can be attributed to several members, so match with `.includes(...)`. Each member is camelCase matching the C# property name (lowercased first letter), and nested members are dotted paths.
+
+`severity` is the numeric `ValidationResultSeverity` enum (`Unknown = 0`, `Information = 1`, `Warning = 2`, `Error = 3`) — never the strings `'Error'` / `'Info'`. See `command-result.md` for the full shape and the `reason` values.

@@ -237,7 +237,7 @@ export const OpenAccountDialog = ({ closeDialog }: DialogProps) => {
             title="Open account"
             okLabel="Open"
         >
-            <InputTextField<OpenDebitAccount> value={c => c.name} label="Name" />
+            <InputTextField<OpenDebitAccount> value={c => c.name} title="Name" />
         </CommandDialog>
     );
 };
@@ -287,7 +287,7 @@ export const EditAccountDialog = ({ closeDialog, accountId, name }: EditAccountD
             initialValues={{ accountId }}
             currentValues={{ name }}
         >
-            <InputTextField<UpdateAccount> value={c => c.name} label="Name" />
+            <InputTextField<UpdateAccount> value={c => c.name} title="Name" />
         </CommandDialog>
     );
 };
