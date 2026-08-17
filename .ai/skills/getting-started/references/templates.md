@@ -80,17 +80,20 @@ await app.RunAsync();
 ```
 
 `AddCratis` extends `WebApplicationBuilder` and lives in the `Cratis` metapackage; it calls
-`AddCratisArc` and then attaches Chronicle. `UseCratis` extends `IApplicationBuilder` and takes
-no arguments.
+`AddCratisArc`, attaches Chronicle, and adds Microsoft Identity Platform authentication.
+`UseCratis` extends `IApplicationBuilder` and takes no arguments.
 
 **There is a second, different bootstrap and the two are not interchangeable.**
 `ArcApplication.CreateBuilder(args)` (package `Cratis.Arc.Core`) is the self-hosted path with no
 ASP.NET underneath; it pairs with the `ArcApplicationBuilder` overload of `AddCratisArc` and the
-`ArcApplication` overload of `UseCratisArc`. The metapackage's Chronicle attachment casts the
-underlying builder to `WebApplicationBuilder`, so `AddCratis` cannot be used from the
-self-hosted path. Templates target ASP.NET, so use the shape above; see
-[writing-correct-examples.md](../../../rules/writing-correct-examples.md) for the self-hosted
-one, and take the shape from whichever packages your project actually references.
+`ArcApplication` overload of `UseCratisArc`. `AddCratis` extends `WebApplicationBuilder`, and
+`ArcApplicationBuilder` is not one, so `AddCratis` is not in scope on the self-hosted path at
+all — reaching for it is a compile error, not a runtime failure. Attach Chronicle there with
+`AddCratisArc(configureBuilder: arc => arc.WithChronicle())`, which binds the
+`Cratis.Arc.Chronicle` overload; the metapackage ships a same-named `WithChronicle` that casts
+the underlying builder to `WebApplicationBuilder`. Templates target ASP.NET, so use the shape
+above; see [writing-correct-examples.md](../../../rules/writing-correct-examples.md) for the
+self-hosted one, and take the shape from whichever packages your project actually references.
 
 **Package references** are `Cratis` and `Cratis.Arc.MongoDB`, both `Version="*"` in the template
 source. The post-creation action resolves and pins them, which is why `--allow-scripts yes`
