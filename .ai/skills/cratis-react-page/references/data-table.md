@@ -1,62 +1,70 @@
 # Data Tables — Reference
 
-Use standalone data table components when you need a table without the built-in `DataPage` full-page chrome (e.g., embedded inside another panel or card).
+Use a standalone data table when you need a table without `DataPage`'s full-page chrome (embedded in a panel or card). Both components are what `DataPage` mounts internally, so their prop surface is the same shape.
 
-## DataTableForQuery
+Like `DataPage`, they are **declarative**: columns are PrimeReact `<Column>` **children**, not a `columns` array. There is no `columns`, `onRowSelected`, `selectedRow`, `noDataMessage`, or `queryArgs` prop.
+
+## DataTableForQuery — snapshot query
 
 ```tsx
-import { DataTableForQuery } from '@cratis/components';
-import { AllAccounts } from './queries/AllAccounts';
+import { DataTableForQuery } from '@cratis/components/DataTables';
+import { Column } from 'primereact/column';
+import { AllAccounts } from './Accounts';
 
 <DataTableForQuery
     query={AllAccounts}
-    columns={[
-        { header: 'Name', field: 'name' },
-        { header: 'Balance', field: 'balance' },
-    ]}
-    onRowSelected={(row) => setSelected(row)}
-/>
+    emptyMessage="No accounts found."
+    dataKey="id"
+    selection={selected}
+    onSelectionChange={event => setSelected(event.value)}
+>
+    <Column field="name" header="Name" />
+    <Column field="balance" header="Balance" />
+</DataTableForQuery>
 ```
 
-## DataTableForObservableQuery
+Bound to `IQueryFor<TDataType, TArguments>` via `useQueryWithPaging`. Runs in PrimeReact's `lazy` mode, so the server returns one page at a time and the paginator fetches the next.
+
+## DataTableForObservableQuery — real-time push
 
 ```tsx
-import { DataTableForObservableQuery } from '@cratis/components';
-import { AllAccountsLive } from './queries/AllAccountsLive';
+import { DataTableForObservableQuery } from '@cratis/components/DataTables';
 
 <DataTableForObservableQuery
-    query={AllAccountsLive}
-    columns={...}
-    onRowSelected={(row) => setSelected(row)}
-/>
+    query={ObserveAllAccounts}
+    emptyMessage="No accounts found."
+    onSelectionChange={event => setSelected(event.value)}
+>
+    <Column field="name" header="Name" />
+</DataTableForObservableQuery>
 ```
+
+Bound to `IObservableQueryFor<TDataType, TArguments>` via `useObservableQueryWithPaging`; re-renders whenever the read model changes server-side.
 
 ## Shared props
 
 | Prop | Type | Description |
 | --- | --- | --- |
-| `query` / `query` | Query class | Proxy query (use the appropriate component for type) |
-| `columns` | `Column<T>[]` | Column definitions (same shape as DataPage) |
-| `onRowSelected` | `(row: T) => void` | Row click callback |
-| `selectedRow` | `T \| undefined` | Externally controlled selected row |
-| `noDataMessage` | `string` | Message when no rows are returned |
-| `queryArgs` | `object` | Arguments forwarded to the query |
+| `query` | `Constructor<TQuery>` | **Required.** The proxy-generated query **class**. |
+| `emptyMessage` | `string` | **Required.** Shown when there are no rows. |
+| `children` | `ReactNode` | PrimeReact `<Column>` elements. |
+| `queryArguments` | `TArguments` | Arguments forwarded to the query. |
+| `dataKey` | `string` | Row identity field. |
+| `selection` | `TDataType` | Current selection. |
+| `onSelectionChange` | `(event: DataTableSelectionSingleChangeEvent<TDataType[]>) => void` | Selection callback; the row is `event.value`. |
+| `globalFilterFields` | `string[]` | Fields the global filter searches. |
+| `defaultFilters` | `DataTableFilterMeta` | Seeds filter state on first render. |
+| `clientFiltering` | `boolean` | Filter the fetched page in the browser. |
+| `className` / `pt` / `ptOptions` / `unstyled` | — | Pass-through to the PrimeReact `DataTable`. |
+| `paginatorPt` / `paginatorPtOptions` / `paginatorUnstyled` | — | Pass-through to the inner `Paginator`. |
 
-## Column definition
-
-```ts
-type Column<T> = {
-    header: string;
-    field: keyof T | ((row: T) => string);
-    width?: number | string;
-};
-```
-
-## When to use each component
+## Which component
 
 | Situation | Component |
 | --- | --- |
-| Full page with toolbar | `DataPage` |
-| Embedded table, standard query | `DataTableForQuery` |
-| Embedded table, real-time push | `DataTableForObservableQuery` |
-| Inline data (no query) | Custom table (out of scope) |
+| Full page with toolbar and optional details pane | `DataPage` (it picks the right table for you) |
+| Embedded table, snapshot query | `DataTableForQuery` |
+| Embedded table, observable query | `DataTableForObservableQuery` |
+| Inline data with no query | Plain PrimeReact `DataTable` |
+
+Inside `DataPage` you never choose: it reads the prototype chain (`query.prototype instanceof QueryFor`) and mounts the matching one.

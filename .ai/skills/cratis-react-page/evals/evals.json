@@ -19,14 +19,15 @@
     {
       "id": 2,
       "prompt": "I need a React page that shows a real-time list of active orders (observable query: AllOrdersLive). When clicking an order, show a detail panel on the side. There's a 'Cancel Order' action that should open a confirmation dialog. Use MVVM pattern since we have complex selection state.",
-      "expected_output": "TSX using DataPage with an observable query passed to the query prop, detailPanel prop, withViewModel from @cratis/arc.react.mvvm with @injectable() view model, and CommandDialog for cancel action.",
+      "expected_output": "TSX using DataPage with an observable query passed to the query prop, a detailsComponent, withViewModel from @cratis/arc.react.mvvm with an @injectable() view model, and CommandDialog for the cancel action.",
       "files": [],
       "assertions": [
         "Output passes the observable query to the query prop for real-time data",
         "Output uses withViewModel from @cratis/arc.react.mvvm",
         "View model class has @injectable() decorator",
-        "View model class calls makeAutoObservable(this)",
-        "Output uses detailPanel prop on DataPage",
+        "View model class does NOT call makeAutoObservable(this) — withViewModel does it",
+        "Output uses the detailsComponent prop on DataPage",
+        "Output declares columns as PrimeReact <Column> children inside <DataPage.Columns>, not a columns array prop",
         "Output uses CommandDialog for the cancel action"
       ]
     }

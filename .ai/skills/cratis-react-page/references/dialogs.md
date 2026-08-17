@@ -97,7 +97,7 @@ Then in the parent:
 const [EditAccountWrapper, showEditAccount] = useDialog(EditAccountDialog);
 
 // Pass the selected row when opening
-<DataPage onRowSelected={(row) => showEditAccount({ accountId: row.id, name: row.name })} ... />
+<DataPage onSelectionChange={event => showEditAccount({ accountId: event.value.id, name: event.value.name })} ... />
 <EditAccountWrapper />
 ```
 

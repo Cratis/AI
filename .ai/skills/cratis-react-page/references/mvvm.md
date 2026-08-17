@@ -39,15 +39,10 @@ import 'reflect-metadata';
 
 ```ts
 import { injectable } from 'tsyringe';
-import { makeAutoObservable } from 'mobx';
 
 @injectable()
 export class AccountsViewModel {
     selectedAccount?: AccountSummary = undefined;
-
-    constructor() {
-        makeAutoObservable(this);
-    }
 
     selectAccount(account: AccountSummary) {
         this.selectedAccount = account;
@@ -56,7 +51,9 @@ export class AccountsViewModel {
 ```
 
 - `@injectable()` — registers the class with tsyringe for DI
-- `makeAutoObservable(this)` — makes all fields reactive (MobX)
+- **Never call `makeAutoObservable(this)` yourself.** `withViewModel` calls `makeAutoObservable(viewModel)` on the resolved instance for you. A constructor call runs first, so the framework's call becomes a second one — and MobX's development build throws `"makeAutoObservable can only be used on objects not already made observable"`. Production silently re-annotates. Either way it is wrong.
+- **A view model must not have a superclass.** MobX rejects `makeAutoObservable` on a class with a base class, which is why Arc ships no view-model base class — only optional interfaces (`IHandleProps`, `IHandleParams`, `IHandleQueryParams`, `IViewModelDetached`), discovered by duck-typing.
+- Child components that read view-model state must be wrapped in `observer` **imported from `@cratis/arc.react.mvvm`**, not from `mobx-react` directly.
 
 ## withViewModel
 
@@ -66,14 +63,16 @@ import { withViewModel } from '@cratis/arc.react.mvvm';
 export const AccountsPage = withViewModel(AccountsViewModel, ({ viewModel }) => {
     return (
         <DataPage
+            title="Accounts"
             query={AllAccounts}
-            columns={...}
-            onRowSelected={(row) => viewModel.selectAccount(row)}
-            detailPanel={() => viewModel.selectedAccount
-                ? <AccountDetail account={viewModel.selectedAccount} />
-                : null
-            }
-        />
+            emptyMessage="No accounts found."
+            onSelectionChange={event => viewModel.selectAccount(event.value)}
+            detailsComponent={AccountDetails}
+        >
+            <DataPage.Columns>
+                <Column field="name" header="Name" />
+            </DataPage.Columns>
+        </DataPage>
     );
 });
 ```
@@ -95,13 +94,26 @@ interface DetailProps {
 export class AccountDetailViewModel implements IHandleProps<DetailProps> {
     account!: AccountSummary;
 
-    propsChanged(props: DetailProps): void {
+    handleProps(props: DetailProps): void {
         this.account = props.account;
     }
 }
 ```
 
-`propsChanged` is called whenever the parent passes new props, allowing the view model to react.
+The method is **`handleProps(props)`** — there is no `propsChanged`. It is invoked once on mount, right after construction, and again on every subsequent props change (Arc compares deeply, so an unchanged object does not re-fire).
+
+The sibling hooks follow the same naming: `IHandleParams<T>` → `handleParams(params)` (route params), `IHandleQueryParams<T>` → `handleQueryParams(queryParams)`, and `IViewModelDetached` → `detached()` on unmount. All are optional and discovered by duck-typing, so a view model implements only what it needs.
+
+Props can also arrive through the constructor with the `@props` decorator:
+
+```ts
+import { props } from '@cratis/arc.react.mvvm';
+
+@injectable()
+export class AccountDetailViewModel {
+    constructor(@props componentProps: DetailProps) { }
+}
+```
 
 ## Dependency injection in view models
 
@@ -110,13 +122,11 @@ Use tsyringe constructor injection. Cratis registers common singletons (e.g., `I
 ```ts
 @injectable()
 export class AccountsViewModel {
-    constructor(
-        private readonly _eventLog: IEventLog,
-    ) {
-        makeAutoObservable(this);
-    }
+    constructor(private readonly _accountsService: IAccountsService) { }
 }
 ```
+
+Note the empty constructor body — no `makeAutoObservable` call. Inject application services; commands and queries are used through their generated proxies, not injected.
 
 ## MVVM context
 
