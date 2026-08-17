@@ -18,9 +18,31 @@ All appends, projections, and observers are scoped to the resolved namespace. A 
 
 ## Arc tenancy integration
 
-When using Arc with Chronicle, tenancy maps to namespaces automatically: Arc's `TenantNamespaceResolver` maps the current tenant id to the Chronicle namespace and falls back to the default namespace when no tenant is set. Enable Arc tenancy in startup so the tenant context resolves before each command/query handler runs; namespace wiring is then automatic — no manual resolver registration needed.
+When using Arc with Chronicle, tenancy maps to namespaces automatically: Arc's `TenantNamespaceResolver` (`Cratis.Arc.Chronicle.Tenancy`) maps the current tenant id — from `ITenantIdAccessor` — to the Chronicle namespace and falls back to the default namespace when no tenant is set. Arc registers it as `EventStoreNamespaceResolverType` for you; enable Arc tenancy in startup so the tenant context resolves before each command/query handler runs. No manual resolver registration needed.
 
-If you need custom namespace resolution outside Arc tenancy (header, subdomain, JWT claim), Chronicle supports namespace resolvers registered in priority order; the first non-null result wins, else the default namespace is used.
+## Namespace resolvers
+
+Resolution is a **single** `IEventStoreNamespaceResolver` — `EventStoreNamespaceName Resolve()` — not a priority chain. Whichever one is configured wins; when none is, `DefaultEventStoreNamespaceResolver` returns `EventStoreNamespaceName.Default`.
+
+Chronicle ships two beyond the default:
+
+| Resolver | Resolves from |
+|---|---|
+| `DefaultEventStoreNamespaceResolver` | nothing — always the default namespace |
+| `ClaimsBasedNamespaceResolver` | a claim on the current `ClaimsPrincipal`, default claim type `"tenant_id"` |
+| `TenantNamespaceResolver` (Arc) | Arc's `ITenantIdAccessor` |
+
+`ClaimsBasedNamespaceResolver` reads `ClaimsPrincipal.Current`, so it works without an HTTP context — useful for background work and non-HTTP transports. It falls back to the default namespace when the principal is unauthenticated or the claim is absent or empty. Point it at a different claim either through its constructor argument or by setting `ChronicleOptions.ClaimsBasedNamespaceResolverClaimType`.
+
+Register a resolver instance on the builder, or its type through the client options:
+
+```csharp
+builder.WithNamespaceResolver(new ClaimsBasedNamespaceResolver());
+// or
+options.EventStoreNamespaceResolverType = typeof(ClaimsBasedNamespaceResolver);
+```
+
+Write your own for header- or subdomain-based resolution by implementing `IEventStoreNamespaceResolver` and registering it the same way.
 
 ## Observer and reactor isolation
 

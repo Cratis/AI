@@ -17,7 +17,7 @@ Perform a focused performance review of changed code.
 ## MongoDB / Read Models
 
 - [ ] Queries filter on indexed fields — no unintentional full-collection scans
-- [ ] Paged queries use `.Skip()` + `.Take()` — never load all rows
+- [ ] A query that can return many rows returns `IQueryable<T>` (or `ISubject<IEnumerable<T>>`) and lets **Arc** apply paging and sorting — flag hand-written `.Skip()` / `.Take()` / `.OrderBy()` and any hard-coded `Take(n)`, which caps the result set no matter what page the client asked for (see the **query-paging** skill)
 - [ ] No N+1 pattern — single query returns all needed data
 - [ ] Read-model records do not embed large nested collections that are never fully iterated
 
