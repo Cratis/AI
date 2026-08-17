@@ -5,7 +5,11 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  DOTNET_VERSION: "10.0.x"
+  # Pinned to the 3xx feature band on purpose. global.json asks for 10.0.0 with
+  # rollForward: latestFeature, so the highest installed 10.0 band always wins. The 4xx band
+  # ships codestyle analyzers built against Roslyn 5.9, while Directory.Build.props pins
+  # Microsoft.Net.Compilers.Toolset to 5.6 — that combination fails the build with CS9057.
+  DOTNET_VERSION: "10.0.3xx"
   NODE_VERSION: "22.x"
 
 on:
@@ -27,13 +31,14 @@ jobs:
   backend:
     name: Backend
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
@@ -49,13 +54,14 @@ jobs:
   frontend:
     name: Frontend
     runs-on: ubuntu-latest
+    timeout-minutes: 25
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -79,7 +85,7 @@ jobs:
         run: yarn build
 
       - name: Upload frontend artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: planner-frontend
           path: Source/Planner/wwwroot
@@ -88,19 +94,20 @@ jobs:
   artifacts:
     name: Publish build artifacts
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     needs: [backend, frontend]
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -121,7 +128,7 @@ jobs:
           -o Source/Planner/out
 
       - name: Upload application artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: planner-app
           path: Source/Planner/out

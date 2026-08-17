@@ -1,0 +1,30 @@
+# Cratis Software Factory foundation and its canonical adapters.
+/Contracts/ @Cratis/core
+/Documentation/Factory/ @Cratis/core
+/Evaluations/ @Cratis/core
+/Factory/ @Cratis/core
+/Workflows/ @Cratis/core
+/.ai/agents/repository-investigation-reviewer.md @Cratis/core
+/.ai/agents/repository-investigator.md @Cratis/core
+/.ai/skills/cratis-software-factory/ @Cratis/core
+/.github/agents/repository-investigation-reviewer.agent.md @Cratis/core
+/.github/agents/repository-investigator.agent.md @Cratis/core
+
+# The .NET libraries behind the Factory foundation, and their specs.
+/Source/Factory.Core/ @Cratis/core
+/Source/Factory.Core.Specs/ @Cratis/core
+
+# Build, dependency and toolchain manifests. A change here can silently alter every build in
+# the repository — Directory.Packages.props pins Microsoft.Net.Compilers.Toolset, and
+# global.json decides which SDK feature band resolves. Both have already broken main once.
+/Planner.slnx @Cratis/core
+/Directory.Build.props @Cratis/core
+/Directory.Packages.props @Cratis/core
+/Source/Directory.Build.props @Cratis/core
+/Source/Directory.Build.targets @Cratis/core
+/global.json @Cratis/core
+/.gitignore @Cratis/core
+
+# CI is the only thing standing between a bad change and main.
+/.github/workflows/ @Cratis/core
+/.github/BRANCH-PROTECTION.md @Cratis/core
