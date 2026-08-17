@@ -155,3 +155,7 @@ Source/*/wwwroot/
 
 # Playwright artifacts
 .playwright-mcp/
+
+# Per-developer hook pattern overrides and their local probe targets
+.ai/hooks/scripts/cratis-patterns.local.json
+.ai/hooks/scripts/*.probe
