@@ -51,10 +51,23 @@ public class and_all_information_is_valid : Specification
 #endif
 ```
 
-- `CommandScenario<TCommand>` exposes `Services` (an `IServiceCollection`), `Context`, `Execute(command)`, and `Validate(command)` — and nothing else; everything else is configured through `Services` and asserted with extension methods.
+- `CommandScenario<TCommand>` itself exposes `Services` (an `IServiceCollection`), `Context`, `Execute(command)`, and `Validate(command)`. Everything Chronicle-shaped arrives as **extension members** from `Cratis.Arc.Chronicle.Testing.Commands` once the `Cratis.Arc.Chronicle.Testing` package is referenced: `Given`, `EventScenario`, `EventLog`, `EventSequence`, `AppendedEvents`, and the `ShouldHave*` assertions.
 - **Event assertions are extension methods on the scenario** (from the Chronicle testing package), keyed by **command + event** type: `await _scenario.ShouldHaveAppendedEvent<TCommand, TEvent>(eventSourceId)` or the `(eventSourceId, Func<TEvent,bool> predicate)` overload; plus `await _scenario.ShouldHaveTailSequenceNumber<TCommand>(...)`. They return `Task`, so the fact is `async Task`.
 - **`CommandResult` assertions** (Arc extensions): `ShouldBeSuccessful()`, `ShouldNotBeSuccessful()`, `ShouldBeValid()`, `ShouldHaveValidationErrors()`, `ShouldHaveValidationErrorFor(message)`, `ShouldBeAuthorized()`, `ShouldNotBeAuthorized()`, `ShouldHaveExceptions()`/`ShouldNotHaveExceptions()`.
-- **Seed prior state through `_scenario.Services`** — there is no `Given`/`Events` on `CommandScenario`. To populate the DCB read models the validator/`Provide()`/`Handle()` inject, substitute `IReadModels` and register it (`_scenario.Services.Replace(new ServiceDescriptor(typeof(IReadModels), mock))`, mocking `GetInstanceById(...)`) or register projections with `_scenario.Services.AddReadModels(...)`.
+- **Seed prior state with `_scenario.Given`.** `CommandScenario` *does* have a Chronicle `Given` — an extension property returning `CommandScenarioChronicleGivenBuilder<TCommand>`:
+
+  ```csharp
+  // Seed the events that happened; any read model the command injects for this source is
+  // materialized from them through its own reducer or projection — no read model type is named.
+  _scenario.Given.ForEventSource(_id).Events(new AuthorRegistered("Jane Austen"));
+
+  // Or pin a materialized instance directly, when the test wants a specific read-model value.
+  _scenario.Given.ForEventSource(_id).ReadModel(new AuthorDetails(_id, "Jane Austen"));
+  ```
+
+  `ForEventSource(EventSourceId)` is the only entry point; it returns a builder with exactly `Events(params object[])` and `ReadModel<TReadModel>(TReadModel)`. Prefer `Events(...)` — it exercises the real projection/reducer. Substituting `IReadModels` into `_scenario.Services` remains available for cases where neither fits.
+
+  **`CommandScenario`'s `Events(...)` returns `void`, so do not `await` it** — unlike `EventScenario`'s and `ReactorScenario`'s, which return `Task` and must be awaited. Awaiting the wrong one is a compile error; forgetting to await the other two seeds nothing and the spec passes vacuously.
 - **Validator/`Provide()` dependencies:** register them in `_scenario.Services`; Arc testing discovers the concrete validator automatically. When several specs need different injected validator states, test rejected variants by instantiating the validator directly (per-scenario state can be order-sensitive under parallel xUnit).
 - **`Provide()`:** drive it through `CommandScenario` end-to-end; when the handler's decision is pure given provided data, also test `Handle(providedValue)` directly.
 
@@ -124,6 +137,16 @@ void Establish()
 async Task Because() => await _scenario.Given.ForEventSource(_id).Events(new AuthorRegistered("Jane Austen"));
 [Fact] async Task should_notify() => await _service.Received(1).Notify("Jane Austen");
 ```
+
+**Assert the reactor's *own* side effects** — the events and commands it returned — with the built-in helpers rather than by mocking the side-effect handlers. `Produced` is the flattened list, with cross-stream `EventForEventSourceId` wrappers already unwrapped:
+
+```csharp
+[Fact] void should_produce_the_activity_event() => _scenario.ShouldHaveProduced<MemberActivityRecorded>();
+[Fact] void should_target_the_right_host() => _scenario.ShouldHaveProduced<SendReminder>(r => r.Host == Host);
+[Fact] void should_not_reissue_the_invite() => _scenario.ShouldNotHaveProduced<InviteIssued>();
+```
+
+`ShouldHaveProduced<T>()` and its `Func<T, bool>` predicate overload throw `ReactorSideEffectAssertionException` naming what *was* produced. They are populated only when no explicit `IReactorSideEffectHandlers` was passed to the constructor — with explicit handlers, assert against those instead. Inspect `_scenario.Produced` directly when an assertion helper does not fit.
 
 ## Out-of-process Chronicle integration specs (advanced)
 
