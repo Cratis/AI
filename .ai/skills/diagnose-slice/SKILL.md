@@ -15,7 +15,7 @@ Symptom → likely cause → fix for the common ways a Cratis **application** sl
 | Command rejected unexpectedly | a `CommandValidator`/`ConceptValidator` rule, or `Provide()` short-circuited with `ValidationResult.Error` | `add-business-rule`, `cratis-command` |
 | Handler returns HTTP 500 instead of rejecting | threw from `Provide()`/`Handle()` for a *business* rule (that's an exception, not a rejection) | return `Result<TEvent, ValidationResult>` — `add-business-rule` |
 | Reactor's returned events never appended | returned `EventForEventSourceId` on a Chronicle version before reactor support | return event objects, or `ReactorSideEffect` for another target — `reactors.md` |
-| Projection/reactor stops processing ("quarantined") | a handler threw; the partition paused and the observer quarantined (does **not** auto-resume) | fix the handler (make it idempotent); an operator calls `ClearObserverQuarantine()` — `reactors.md` |
+| Projection/reactor stops processing ("quarantined") | a handler threw; the partition paused and the observer quarantined (does **not** auto-resume) | fix the handler (make it idempotent), then clear it: `cratis chronicle observers clear-quarantine <observer-id>` — `running-and-debugging`, `reactors.md` |
 | Duplicate side effect on replay | non-idempotent reactor without `[OnceOnly]` | mark the handler `[OnceOnly]` — `reactors.md` |
 | Chronicle analyzer warns on an event property | a nullable event property | model the optional fact as a **separate** event — `vertical-slices.md`, `event-modeling` |
 | A read model needs a field from another slice | wrong stream boundary / missing event | re-model (information completeness) — `event-modeling`; never cross-read another read model at runtime |
@@ -40,3 +40,5 @@ Symptom → likely cause → fix for the common ways a Cratis **application** sl
 ## When nothing here fits
 
 Re-read the owning rule (`vertical-slices.md`, `reactors.md`, `cratis-readmodel`), confirm the build is clean in **both Debug and Release**, and reproduce the symptom with a spec. Don't infer framework behavior from package internals — if the rules/skills don't answer it, ask.
+
+When the symptom only shows up against a **running** system — an observer that stopped, a partition stuck on a failed event, a read model that disagrees with the event stream — this table diagnoses the *code*; use the **running-and-debugging** skill to interrogate the live event store with the `cratis` CLI and see what it is actually doing.
