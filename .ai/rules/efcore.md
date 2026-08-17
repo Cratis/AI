@@ -10,9 +10,11 @@ profile: application
 > **⚠️ APPLIES ONLY TO PROJECTS USING ENTITY FRAMEWORK CORE**
 > If your project does not reference `Microsoft.EntityFrameworkCore` or any EF Core packages, **ignore this entire file**. These rules are irrelevant outside of EF Core contexts.
 
-## Project Structure
+> **What is framework, and what is app convention.** `Cratis.Arc.EntityFrameworkCore` supplies the base contexts (`ReadOnlyDbContext`, `BaseDbContext`), the cross-database column helpers, `UseDatabaseFromConnectionString`, and the DI registration extensions — those are **real API** and this rule is authoritative about them. Project layout, table-name constants, migration file naming, and how migrations are applied are **per-app decisions**; sections marked *app convention* describe one common arrangement, and a repo that does it differently is not wrong. `.agents/PROJECT.md` in the consuming repo wins over anything here. The **add-ef-migration** skill is the step-by-step counterpart to this rule and draws the same line.
 
-Responsibilities are split across three projects:
+## Project Structure *(app convention)*
+
+Many Cratis applications split EF Core across three projects. Confirm the arrangement in the repo you are in before assuming it:
 
 | Project | Responsibility |
 |---------|----------------|
@@ -20,7 +22,7 @@ Responsibilities are split across three projects:
 | `Core` | Entities and feature DbContexts (co-located with features) |
 | `Infrastructure` | DbContext registration, migration runner, cross-cutting EF setup |
 
-**Critical dependency rule**: `Database` must NEVER import from `Core`. Migrations reference only `WellKnownTables` constants (strings) and EF migration types. The dependency chain is:
+**Where that split exists, the point of it is**: `Database` must NEVER import from `Core`. A migration describes a schema at a point in time and must not drift when an entity is refactored, so migrations reference only table-name constants (strings) and EF migration types. The dependency chain is:
 
 ```
 Core → Infrastructure → Database
@@ -133,9 +135,11 @@ Never hardcode a provider (e.g. `UseSqlite` or `UseNpgsql`) in application code.
 
 ## Migrations
 
-Migrations live exclusively in the **`Database`** project, never in `Core` or `Infrastructure`.
+Hand-write migrations rather than generating them with `dotnet ef migrations add`, so the schema stays reviewable and provider-neutral.
 
-### Organization
+Where the three-project split above is in use, migrations live exclusively in the **`Database`** project, never in `Core` or `Infrastructure`. *(app convention)*
+
+### Organization *(app convention)*
 
 Each entity category has its own folder with versioned migration files:
 
@@ -149,7 +153,7 @@ Database/
 └── WellKnownTables.cs
 ```
 
-### Naming
+### Naming *(app convention)*
 
 Version files using the pattern `v{major}_{minor}_{patch}.cs` and place them inside a namespace matching their folder:
 
@@ -165,18 +169,24 @@ public class v1_0_0 : Migration
 
 The migration ID is composed as `{folder}_{ClassName}` (e.g. `Missions_v1_0_0`).
 
-### Cross-Database Column Helpers
+### Cross-Database Column Helpers — real Arc API
 
-Always use the Cratis Arc `MigrationBuilder` extension helpers to define columns. These abstract over PostgreSQL and SQLite type differences:
+Always use the `Cratis.Arc.EntityFrameworkCore` column helpers to define columns. These abstract over the type-name differences between providers, so the same migration runs on SQLite, PostgreSQL, and SQL Server. There are **two families**, for the two shapes an EF Core migration takes.
+
+**`ColumnsBuilder` extensions** — inside a `CreateTable(columns: table => new { … })`. Every one takes the `MigrationBuilder` as its second argument, because that is how the helper discovers the target provider:
 
 | Helper | Use for |
 |--------|---------|
-| `table.StringColumn(migrationBuilder)` | Text / varchar columns |
-| `table.GuidColumn(migrationBuilder)` | UUID / GUID columns |
-| `table.NumberColumn<T>(migrationBuilder)` | Integer, long, or numeric columns |
-| `table.DateTimeOffsetColumn(migrationBuilder)` | Timestamps with timezone |
+| `table.StringColumn(mb, maxLength?, nullable?, defaultValue?)` | Text / varchar columns |
+| `table.NumberColumn<T>(mb, nullable?, defaultValue?)` | Integer, long, or numeric columns |
+| `table.BoolColumn(mb, nullable?, defaultValue?)` | Booleans |
+| `table.GuidColumn(mb, nullable?)` | UUID / GUID columns |
+| `table.DateTimeOffsetColumn(mb, nullable?)` | Timestamps with timezone |
+| `table.AutoIncrementColumn(mb)` | Identity / serial columns |
 
-Never use raw EF `table.Column<string>()` etc. — the helpers ensure cross-database compatibility.
+**`MigrationBuilder` extensions** — for altering an existing table: `AddStringColumn`, `AddNumberColumn<T>`, `AddBoolColumn`, `AddGuidColumn`, `AddDateTimeOffsetColumn`, `AddAutoIncrementColumn`, plus the spatial `AddPointColumn` / `AddLineStringColumn` / `AddPolygonColumn`.
+
+Never use raw EF `table.Column<string>()` etc. — it bakes in one provider's type names.
 
 ```csharp
 // ✅ Cross-database migration
@@ -198,9 +208,9 @@ migrationBuilder.CreateTable(
     });
 ```
 
-### Table Names — WellKnownTables
+### Table Names *(app convention)*
 
-Always reference table names from `WellKnownTables` constants. Never use magic strings directly in migrations.
+Referring to a table by a shared constant rather than a magic string keeps `CreateTable`, `AddColumn`, and every later migration in agreement:
 
 ```csharp
 // ❌ Magic string
@@ -210,21 +220,26 @@ migrationBuilder.CreateTable(name: "Missions", ...);
 migrationBuilder.CreateTable(name: WellKnownTables.Missions, ...);
 ```
 
-Add new table names to `Database/WellKnownTables.cs` before writing the migration.
-
-### Applying Migrations
-
-Migrations are applied via a custom runner from the `Database` project (not `dotnet ef database update`):
+**There is no framework type for this.** Chronicle's `WellKnownTableNames` is kernel-internal (`Source/Kernel/Storage.Sql`) and not available to applications — an app declares its own class in whatever project owns migrations:
 
 ```csharp
-// ASP.NET mode
-await app.ApplyAllMigrations(connectionString);
-
-// MAUI / IServiceProvider mode
-await services.ApplyAllMigrations(connectionString);
+// Your app's own class, not something Cratis ships.
+public static class WellKnownTables
+{
+    public const string Missions = "Missions";
+}
 ```
 
-The runner discovers all `Migration` subclasses from the `Database` assembly, checks the EF history table, and applies pending migrations in version order within a transaction. Both PostgreSQL and SQLite are supported through the same runner.
+Follow whatever the repo already does; if it uses plain strings, keep using plain strings.
+
+### Applying Migrations *(app convention)*
+
+**There is no `ApplyAllMigrations` extension method in Cratis** — neither Arc nor Chronicle ships one. How migrations get applied at startup is the app's decision. The two common choices:
+
+- Call EF Core's own `context.Database.MigrateAsync()`, which is what Chronicle's kernel does internally.
+- Write a custom runner that discovers `Migration` subclasses from the migrations assembly, checks the EF history table, and applies pending migrations in version order within a transaction.
+
+Either way the same code path serves every supported provider; do not branch on provider at the call site.
 
 ## Auto-Discovery
 
