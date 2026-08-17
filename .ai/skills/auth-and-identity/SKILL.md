@@ -35,7 +35,7 @@ Frontend (React)                          Backend (ASP.NET Core)
                                       → .cratis-identity cookie (base64)
 
 Authorization:
-  [Authorize] / [Roles("Admin")] / [AllowAnonymous]
+  [Authorize] / [Roles(nameof(Role.Admin))] / [AllowAnonymous]
     └── AuthorizationEvaluator checks per command/query
 ```
 
@@ -120,13 +120,17 @@ These rules are frequently violated — always enforce them:
 ### Protecting a command with roles
 
 ```csharp
+public enum Role { Admin, Editor }
+
 [Command]
-[Roles("Admin")]
+[Roles(nameof(Role.Admin))]
 public record PromoteUser(UserId Id)
 {
     public void Handle(IUserService users) => users.Promote(Id);
 }
 ```
+
+**Never a string literal.** Analyzer **ARC0011** warns on `[Roles("Admin")]`, and a warning fails the build under the zero-warning gate. `[Authorize(Policy = "...")]` is worse than a warning — it compiles and is then never read by Arc's evaluator.
 
 ### Conditionally rendering UI based on roles
 

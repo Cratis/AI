@@ -13,56 +13,66 @@ When running locally:
 
 ## Generating a Microsoft Client Principal
 
-Azure App Service Easy Auth injects identity via the `X-MS-CLIENT-PRINCIPAL` header. You can simulate this locally with a browser extension.
+Arc deserializes the **Azure Static Web Apps** client-principal shape, not App Service Easy Auth's. The two are different schemas — Easy Auth's `auth_typ` / `name_typ` / `role_typ` envelope deserializes into an all-empty `ClientPrincipal` and gets you nothing.
+
+**All three headers are required.** `MicrosoftIdentityPlatformAuthenticationHandler` returns `AuthenticationResult.Anonymous` unless every one of them is present:
+
+| Header | Carries |
+|---|---|
+| `x-ms-client-principal` | base64 of the JSON below |
+| `x-ms-client-principal-id` | the user id — becomes the `nameidentifier` and `sub` claims |
+| `x-ms-client-principal-name` | the user name |
 
 ### Step 1: Build the Principal JSON
 
+Property names are camelCase (Arc's `JsonSerializerOptions` use an acronym-friendly camelCase policy); claim entries keep Azure's short `typ` / `val` names:
+
 ```json
 {
-    "auth_typ": "aad",
+    "identityProvider": "aad",
+    "userId": "user-unique-id",
+    "userDetails": "Jane Developer",
+    "userRoles": ["Admin", "Manager"],
     "claims": [
-        { "typ": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier", "val": "user-unique-id" },
-        { "typ": "name", "val": "Jane Developer" },
-        { "typ": "http://schemas.microsoft.com/ws/2008/06/identity/claims/role", "val": "Admin" },
-        { "typ": "http://schemas.microsoft.com/ws/2008/06/identity/claims/role", "val": "Manager" }
-    ],
-    "name_typ": "name",
-    "role_typ": "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+        { "typ": "http://schemas.microsoft.com/identity/claims/objectidentifier", "val": "user-unique-id" }
+    ]
 }
 ```
+
+`userRoles` becomes the `ClaimTypes.Role` claims the authorization evaluator matches `[Roles(...)]` against. `userDetails` becomes `ClaimTypes.Name`. Any `nameidentifier` / `sub` / identity-provider claims you put in `claims` are stripped and re-derived from the headers, so don't bother setting them.
 
 ### Step 2: Base64-Encode It
 
 **macOS / Linux terminal:**
 
 ```bash
-echo -n '{"auth_typ":"aad","claims":[{"typ":"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier","val":"user-unique-id"},{"typ":"name","val":"Jane Developer"},{"typ":"http://schemas.microsoft.com/ws/2008/06/identity/claims/role","val":"Admin"}],"name_typ":"name","role_typ":"http://schemas.microsoft.com/ws/2008/06/identity/claims/role"}' | base64
+echo -n '{"identityProvider":"aad","userId":"user-unique-id","userDetails":"Jane Developer","userRoles":["Admin","Manager"],"claims":[]}' | base64
 ```
 
 **Browser console:**
 
 ```javascript
 btoa(JSON.stringify({
-    auth_typ: "aad",
-    claims: [
-        { typ: "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier", val: "user-unique-id" },
-        { typ: "name", val: "Jane Developer" },
-        { typ: "http://schemas.microsoft.com/ws/2008/06/identity/claims/role", val: "Admin" }
-    ],
-    name_typ: "name",
-    role_typ: "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+    identityProvider: 'aad',
+    userId: 'user-unique-id',
+    userDetails: 'Jane Developer',
+    userRoles: ['Admin', 'Manager'],
+    claims: []
 }));
 ```
 
-### Step 3: Inject the Header
+### Step 3: Inject All Three Headers
 
 Use the [ModHeader](https://modheader.com/) browser extension:
 
 1. Install ModHeader for Chrome/Edge/Firefox
-2. Add a request header:
-   - **Name**: `X-MS-CLIENT-PRINCIPAL`
-   - **Value**: the base64 string from Step 2
-3. Reload the page — the backend will authenticate the user as if Azure App Service injected the header
+2. Add three request headers:
+   - `x-ms-client-principal` → the base64 string from Step 2
+   - `x-ms-client-principal-id` → `user-unique-id`
+   - `x-ms-client-principal-name` → `Jane Developer`
+3. Reload the page — the backend authenticates the user as if the platform injected the headers
+
+Setting only `x-ms-client-principal` leaves you anonymous with no error; a *present but malformed* principal fails the request instead, which is how you tell the two mistakes apart.
 
 ## Custom Identity Details in Development
 

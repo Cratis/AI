@@ -8,15 +8,32 @@ Arc uses its own authorization attributes from `Cratis.Arc.Authorization` — th
 
 | Attribute | Purpose |
 |-----------|---------|
-| `[Authorize]` | Require authentication. Optionally specify `Roles` or `Policy`. |
-| `[Roles("Admin", "Manager")]` | Convenience wrapper — user needs at least **one** of the listed roles. |
+| `[Authorize]` | Require authentication. Set `Roles` to require roles. |
+| `[Roles(nameof(Role.Admin), nameof(Role.Manager))]` | Convenience wrapper — user needs at least **one** of the listed roles. |
 | `[AllowAnonymous]` | Bypass authorization. Useful with fallback policies. |
+
+> **`AuthorizeAttribute.Policy` is inert.** Arc's `AuthorizationAttributeEvaluator` reads only `Roles` off the attribute; nothing in Arc ever reads `Policy`. `[Authorize(Policy = "...")]` compiles and then silently authorizes nobody in particular — see *Policy-based authorization* below.
+
+### Always `nameof`, never a string literal
+
+Analyzer **ARC0011** flags a string-literal `[Roles]` argument. It is a **Warning**, and under the repo's zero-warning gate a warning fails the build — so a literal is not a style preference, it breaks CI. A rename would otherwise silently desynchronize the attribute from the role definition, leaving the endpoint locked or matching a stale role.
+
+Declare roles once and reference them with `nameof`:
+
+```csharp
+public enum Role
+{
+    Admin,
+    Editor,
+    Manager
+}
+```
 
 ## On Model-Bound Commands
 
 ```csharp
 [Command]
-[Roles("Admin", "Editor")]
+[Roles(nameof(Role.Admin), nameof(Role.Editor))]
 public record DeleteArticle(ArticleId Id)
 {
     public void Handle(IArticleService articles) => articles.Delete(Id);
@@ -42,21 +59,19 @@ Authorization applies at both class and method level:
 [Authorize]
 public record DebitAccount(AccountId Id, AccountName Name, decimal Balance)
 {
-    [Roles("Admin")]
-    public static IEnumerable<DebitAccount> GetAllAccounts(
+    [Roles(nameof(Role.Admin))]
+    public static IEnumerable<DebitAccount> AllAccounts(
         IMongoCollection<DebitAccount> collection) =>
         collection.Find(_ => true).ToList();
 
-    [Roles("Manager")]
-    public static IEnumerable<DebitAccount> GetHighValueAccounts(
+    [Roles(nameof(Role.Manager))]
+    public static IEnumerable<DebitAccount> HighValueAccounts(
         IMongoCollection<DebitAccount> collection) =>
         collection.Find(a => a.Balance > 50000).ToList();
-
-    [AllowAnonymous]
-    public static int GetTotalCount(IMongoCollection<DebitAccount> collection) =>
-        (int)collection.CountDocuments(_ => true);
 }
 ```
+
+Every query method must return the read-model type or a collection of it, so a `static int GetTotalCount(...)` on this record is not a query at all — Arc will not discover it and no endpoint appears.
 
 ## Inheritance Rules
 
@@ -102,54 +117,47 @@ public record GetPublicCatalog()
 | **Default Policy** | `[Authorize]` is used without parameters |
 | **Fallback Policy** | No authorization attribute is present at all |
 
-## Policy-Based Authorization
+## Policy-Based Authorization — not supported by Arc's evaluator
 
-For complex scenarios:
+**Do not use `[Authorize(Policy = "...")]` on a `[Command]` or `[ReadModel]`.** `AuthorizeAttribute` declares a `Policy` property, but Arc's `AuthorizationAttributeEvaluator` returns only `(HasAuthorize, Roles)` — the policy name is never read, so the attribute degrades to a bare "must be authenticated" and the policy silently never runs.
+
+Express the same rules with what Arc *does* evaluate:
+
+- **Roles** — `[Roles(nameof(Role.Admin))]`, evaluated per command/query.
+- **Cross-cutting rules** — an `ICommandFilter` (see below), which sees the whole `CommandContext`.
+- **Command-specific rules** — a `CommandValidator<T>`, or a typed rejection from `Handle()`.
+
+ASP.NET Core policies still apply to *ASP.NET* endpoints (a fallback policy on the pipeline, for instance); they just do not reach Arc's model-bound artifacts through `[Authorize(Policy = …)]`.
+
+## Custom Authorization Logic in a Command
+
+`CommandContext` carries `CorrelationId`, `Type`, `Command`, `Dependencies`, `Values`, `AllowedSeverity`, `Response`, `ServiceProvider`, and `CancellationToken` — **there is no `context.User`**. Read the current principal through `ICurrentPrincipalAccessor`, which is transport-independent (HTTP request principal, or the principal from a server-side execution scope).
+
+There is also **no `CommandResult.Forbidden`**. The factory methods are `Success`, `Unauthorized`, `MissingHandler`, `Error`, `InvalidBody`, and `FromException`. Ownership checks are a business rejection, so express them as a validation result rather than an authorization one:
 
 ```csharp
 [Command]
-[Authorize(Policy = "RequireElevatedAccess")]
-public record PerformSensitiveOperation(string Data)
-{
-    public void Handle(ISensitiveService service) => service.Execute(Data);
-}
-```
-
-Define the policy in startup:
-
-```csharp
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("RequireElevatedAccess", policy =>
-        policy.RequireAssertion(context =>
-            context.User.IsInRole("Admin") ||
-            context.User.HasClaim("elevated", "true")));
-});
-```
-
-## Custom Authorization Logic in Handlers
-
-For domain-specific authorization beyond attributes:
-
-```csharp
 [Authorize]
-public record UpdateOrder(OrderId Id, string Data)
+public record UpdateOrder(OrderId Id, OrderData Data)
 {
-    public async Task<CommandResult> Handle(
-        IOrderRepository orders, CommandContext context)
+    public async Task<Result<OrderUpdated, ValidationResult>> Handle(
+        IOrderRepository orders,
+        ICurrentPrincipalAccessor principalAccessor)
     {
-        var userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userId = principalAccessor.Current?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         var order = await orders.GetById(Id);
 
         if (order.OwnerId != userId)
-            return CommandResult.Forbidden(context.CorrelationId, "Can only update own orders");
+        {
+            return ValidationResult.Error("You can only update your own orders.");
+        }
 
-        order.Update(Data);
-        await orders.Save(order);
-        return CommandResult.Success;
+        return new OrderUpdated(Data);
     }
 }
 ```
+
+Use `CommandResult.Unauthorized(context.CorrelationId)` only from an `ICommandFilter`, where you are producing the result envelope directly.
 
 ## Authorization Results
 
