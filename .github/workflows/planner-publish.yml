@@ -9,11 +9,11 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  # Pinned to the 3xx feature band on purpose. global.json asks for 10.0.0 with
-  # rollForward: latestFeature, so the highest installed 10.0 band always wins. The 4xx band
-  # ships codestyle analyzers built against Roslyn 5.9, while Directory.Build.props pins
-  # Microsoft.Net.Compilers.Toolset to 5.6 — that combination fails the build with CS9057.
-  DOTNET_VERSION: "10.0.3xx"
+  # Any 10.0 band. global.json asks for 10.0.0 with rollForward: latestFeature, so the
+  # highest installed 10.0 band always wins. Directory.Packages.props pins
+  # Microsoft.Net.Compilers.Toolset to 5.9, which matches the Roslyn version the 4xx band's
+  # codestyle analyzers are built against, so no CS9057 — do not re-pin to a feature band.
+  DOTNET_VERSION: "10.0.x"
   NODE_VERSION: "22.x"
 
 on:
