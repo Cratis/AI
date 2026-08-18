@@ -6,6 +6,8 @@
 #   Claude:  .claude/CLAUDE.md, .claude/rules/<n>.md (paths), .claude/agents (folder),
 #            .claude/commands/<n>.md, .claude/skills (folder)   [hooks live in .claude/settings.json]
 #   Codex:   AGENTS.md, .agents/skills (folder)
+#   Pi:      AGENTS.md + .agents/skills (shared with Codex), plus .pi/prompts/<n>.md,
+#            .pi/agents/<n>.md, and the real .pi/extensions/* adapter machinery
 # plus a set of content drift guards. Structural/adapter/Codex checks are FATAL; drift guards are
 # WARNINGS. Portable: needs only bash + grep + sed (no ripgrep) — the one guard that wants more
 # (validate-package-subpaths.sh: jq + node_modules) is delegated and no-ops without them.
@@ -21,6 +23,9 @@ warn() { printf 'ai-corpus warn: %s\n' "$1" >&2; }
 
 # ── Structural: required paths ──
 for p in .ai .ai/rules .ai/agents .ai/prompts .ai/skills .ai/hooks; do
+    [[ -e "$p" ]] || fail "missing required path: $p"
+done
+for p in .pi .pi/prompts .pi/agents .pi/extensions; do
     [[ -e "$p" ]] || fail "missing required path: $p"
 done
 
@@ -137,7 +142,7 @@ done
 #    single relative path. Repo-local content living beside the adapters is ignored, so this stays
 #    correct in every repository the corpus is propagated to — it asserts internal consistency of
 #    what the repo itself declares, never that a particular canonical name must exist.
-for dir in .claude/rules .claude/commands .github/agents; do
+for dir in .claude/rules .claude/commands .github/agents .pi/prompts .pi/agents; do
     [[ -d "$dir" ]] || continue
     for adapter in "$dir"/*; do
         [[ -e "$adapter" || -L "$adapter" ]] || continue
@@ -162,6 +167,31 @@ done
 #    a path-reference file satisfies it too.
 [[ -e AGENTS.md ]]                     || fail "AGENTS.md: missing or dangling Codex root adapter (-> .ai/rules/general.md)"
 [[ -L .agents/skills && -d .agents/skills ]] || fail ".agents/skills: missing or dangling Codex skills adapter (-> ../.ai/skills)"
+
+# ── Pi adapters (we claim Pi support) ──
+#    Pi natively consumes AGENTS.md (a context file) and .agents/skills (both checked above),
+#    sharing the Codex convention. The remaining surfaces are Pi-specific adapters under .pi/:
+#      prompts — .pi/prompts/<n>.md  → ../../.ai/prompts/<n>.prompt.md  (Pi slash command /<n>)
+#      agents  — .pi/agents/<n>.md   → ../../.ai/agents/<n>.md          (subagent defs the extension reads)
+#      extensions — REAL .ts files (the subagent tool + the hooks bridge), the Pi peer of the
+#                   .claude/settings.json hook wiring; they consume corpus content, never duplicate it.
+for prompt in .ai/prompts/*.prompt.md; do
+    [[ -e "$prompt" ]] || continue
+    name="$(basename "$prompt" .prompt.md)"
+    pv=".pi/prompts/$name.md"; expected="../../.ai/prompts/$name.prompt.md"
+    if [[ ! -e "$pv" ]]; then fail "$pv: missing Pi prompt adapter"
+    elif [[ "$(adapter_target "$pv")" != "$expected" ]]; then fail "$pv: expected target '$expected'"; fi
+done
+for agent in .ai/agents/*.md; do
+    [[ -e "$agent" ]] || continue
+    name="$(basename "$agent" .md)"
+    pv=".pi/agents/$name.md"; expected="../../.ai/agents/$name.md"
+    if [[ ! -e "$pv" ]]; then fail "$pv: missing Pi agent adapter"
+    elif [[ "$(adapter_target "$pv")" != "$expected" ]]; then fail "$pv: expected target '$expected'"; fi
+done
+for f in .pi/extensions/subagent/index.ts .pi/extensions/subagent/agents.ts .pi/extensions/cratis-hooks/index.ts; do
+    [[ -f "$f" ]] || fail "missing Pi extension file: $f"
+done
 
 # ── Hook files ──
 for hook in .ai/hooks/pre-commit.md .ai/hooks/agent-stop.md; do

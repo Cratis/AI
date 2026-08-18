@@ -1,10 +1,11 @@
 ---
-applyTo: ".ai/**,.github/**,.claude/**,.agents/**,AGENTS.md,README.md"
+applyTo: ".ai/**,.github/**,.claude/**,.agents/**,.pi/**,AGENTS.md,README.md"
 paths:
   - ".ai/**"
   - ".github/**"
   - ".claude/**"
   - ".agents/**"
+  - ".pi/**"
   - "AGENTS.md"
   - "README.md"
 ---
@@ -13,7 +14,7 @@ paths:
 
 `.ai/` is the **single source of truth** for all AI assistant configuration in this repository — rules, agents, prompts, skills, and hooks. Everything is written once in `.ai/` and surfaced to each AI tool through adapters: folder symlinks, per-file symlinks, or small **path-reference files** whose body is the relative path to the canonical source.
 
-> **Never edit files under `.github/`, `.claude/`, `.agents/`, or the root `AGENTS.md` directly.** They are all adapters. Any direct edit would be lost the next time the canonical source changes, and would diverge from it.
+> **Never edit files under `.github/`, `.claude/`, `.agents/`, the root `AGENTS.md`, or the symlink adapters under `.pi/` (`.pi/prompts`, `.pi/agents`) directly.** They are all adapters. Any direct edit would be lost the next time the canonical source changes, and would diverge from it. The one exception is `.pi/extensions/**`: those are **real adapter machinery** (the Pi peer of the `hooks` block in `.claude/settings.json`), maintained here — they *consume* the corpus, never duplicate its content.
 
 ## Folder structure
 
@@ -45,22 +46,33 @@ paths:
 └── skills/                      ← folder symlink → ../.ai/skills
                                     (hooks: Claude wires them in .claude/settings.json — no folder adapter)
 
-.agents/                         ← Codex adapters (do NOT edit)
-└── skills/                      ← folder symlink → ../.ai/skills
+.agents/                         ← Codex + Pi adapters (do NOT edit)
+└── skills/                      ← folder symlink → ../.ai/skills                (Codex and Pi both read this)
 
-AGENTS.md                        ← Codex root instructions → .ai/rules/general.md
+.pi/                             ← Pi (Pi coding agent) adapters
+├── prompts/
+│   └── <name>.md                ← per-file symlink → ../../.ai/prompts/<name>.prompt.md   (Pi slash command /<name>)
+├── agents/
+│   └── <name>.md                ← per-file symlink → ../../.ai/agents/<name>.md           (subagent defs; do NOT edit)
+└── extensions/                  ← REAL adapter machinery (like .claude/settings.json — NOT symlinks)
+    ├── subagent/                ← registers the `subagent` tool; normalizes corpus agents to Pi tool names
+    └── cratis-hooks/            ← bridges Pi events to .ai/hooks/scripts/* (guard-writes, pattern-scan, quality-gate)
+
+AGENTS.md                        ← Codex + Pi root instructions → .ai/rules/general.md
 ```
 
 **Each tool has its own conventions, so adapters differ by surface** (verified against each tool's docs):
 
-| Surface | Copilot | Claude Code | Codex |
-|---|---|---|---|
-| Root instructions | `copilot-instructions.md` → `general.md` | `CLAUDE.md` → `general.md` | `AGENTS.md` → `general.md` |
-| Scoped rules | `instructions/` (folder symlink → `.ai/rules`) | `rules/<n>.md` (per-file) | — |
-| Agents | `agents/<n>.agent.md` (per-file, `.agent.md` suffix) | `agents/` (folder symlink, `<n>.md`) | — |
-| Prompts / commands | `prompts/` (folder symlink, `*.prompt.md`) | `commands/<n>.md` (per-file) | — |
-| Skills | `skills/` (folder symlink) | `skills/` (folder symlink) | `.agents/skills/` (folder symlink) |
-| Hooks | `.github/hooks/*.json` | `.claude/settings.json` | — |
+| Surface | Copilot | Claude Code | Codex | Pi |
+|---|---|---|---|---|
+| Root instructions | `copilot-instructions.md` → `general.md` | `CLAUDE.md` → `general.md` | `AGENTS.md` → `general.md` | `AGENTS.md` → `general.md` (context file) |
+| Scoped rules | `instructions/` (folder symlink → `.ai/rules`) | `rules/<n>.md` (per-file) | — (read on demand via the `general.md` table) | — (read on demand via the `general.md` table) |
+| Agents | `agents/<n>.agent.md` (per-file, `.agent.md` suffix) | `agents/` (folder symlink, `<n>.md`) | — | `.pi/agents/<n>.md` (per-file) **+ the `subagent` extension** |
+| Prompts / commands | `prompts/` (folder symlink, `*.prompt.md`) | `commands/<n>.md` (per-file) | — | `.pi/prompts/<n>.md` (per-file) |
+| Skills | `skills/` (folder symlink) | `skills/` (folder symlink) | `.agents/skills/` (folder symlink) | `.agents/skills/` (folder symlink, shared with Codex) |
+| Hooks | `.github/hooks/*.json` | `.claude/settings.json` | — | `.pi/extensions/cratis-hooks/` (extension) |
+
+**Pi is a first-class target that piggybacks on the Codex convention where it can.** Pi natively discovers root instructions (`AGENTS.md` as a context file) and skills (`.agents/skills/` in the cwd and its ancestors), so those two surfaces need no Pi-specific adapter. Pi has **no built-in subagents, slash-command files, or hook format** — each is an *extension* concern — so the remaining surfaces live under `.pi/`: per-file prompt and agent symlinks, plus two real extensions. The `subagent` extension is what makes `.pi/agents/*.md` usable: it discovers them, **normalizes the Claude-shaped `tools:` list to Pi's built-in tool names** (`Read`→`read`, `Glob`→`find`, dropping `Agent`/`Skill`/`TodoWrite`, which have no Pi built-in) and keeps the `model:` id as-is (Pi's catalogue resolves `claude-sonnet-5`/`claude-opus-5`), then spawns an isolated `pi` subprocess per agent. The `cratis-hooks` extension drives the same `.ai/hooks/scripts/*` the Claude `settings.json` uses, synthesizing the Claude hook JSON on stdin: `tool_call`→guard-writes (block), `tool_result`→pattern-scan (advisory context), `agent_settled`→quality-gate (Stop equivalent, loop-guarded like `stop_hook_active`).
 
 Folder symlinks (skills both sides, Copilot prompts and instructions, Claude agents) pick up additions/renames automatically. The remaining per-file adapters (Claude rules, Copilot agents, Claude commands) are needed because the tool requires a different filename suffix/location than the canonical source — so a new agent/prompt needs its matching per-file adapter created (see below). The validator (`hooks/scripts/validate-ai-setup.sh`) checks each adapter resolves to the right canonical file (symlink or path-reference file are both accepted).
 
@@ -118,7 +130,7 @@ Those two are the **only** valid values. **There is no `profile: universal`** �
    - `.github/copilot-instructions.md` → `../.ai/rules/general.md`
    - `.claude/CLAUDE.md` → `../.ai/rules/general.md`
 
-5. **Codex needs no per-rule step** — it consumes only `AGENTS.md` (→ `general.md`) and `.agents/skills` (→ `.ai/skills`), both already wired. New skills are picked up automatically through the `.agents/skills` folder symlink.
+5. **Codex and Pi need no per-rule step** — both consume only `AGENTS.md` (→ `general.md`) and `.agents/skills` (→ `.ai/skills`), already wired; scoped rules are read on demand via the "Where to Look" table in `general.md`. New skills are picked up automatically through the `.agents/skills` folder symlink on both.
 
 ## Updating an existing rule
 
@@ -129,19 +141,23 @@ Edit the canonical file in `.ai/rules/<name>.md`. **Do not touch anything in `.g
 Always edit the canonical file in the relevant `.ai/` subfolder — never the adapters. Whether you need a new adapter depends on the surface:
 
 - **Skills** (`.ai/skills/<n>/SKILL.md`) — folder symlinks on all three sides pick up new/renamed skills automatically. No adapter step.
-- **Agents** (`.ai/agents/<n>.md`) — Claude's `.claude/agents` folder symlink is automatic, but **Copilot needs a per-file `.agent.md` adapter**:
+- **Agents** (`.ai/agents/<n>.md`) — Claude's `.claude/agents` folder symlink is automatic, but **Copilot needs a per-file `.agent.md` adapter and Pi needs a per-file `.pi/agents` adapter**:
 
   ```bash
   ln -s ../../.ai/agents/<n>.md .github/agents/<n>.agent.md
+  ln -s ../../.ai/agents/<n>.md .pi/agents/<n>.md
   ```
 
-- **Prompts** (`.ai/prompts/<n>.prompt.md`) — Copilot's `.github/prompts` folder symlink is automatic, but **Claude needs a per-file command adapter**:
+  A new Pi agent is discovered by the `subagent` extension automatically once the symlink exists — no extension change is needed, and its Claude-shaped `tools:`/`model:` are normalized at discovery.
+
+- **Prompts** (`.ai/prompts/<n>.prompt.md`) — Copilot's `.github/prompts` folder symlink is automatic, but **Claude needs a per-file command adapter and Pi needs a per-file prompt adapter** (Pi drops the `.prompt` infix so the slash command is `/<n>`):
 
   ```bash
   ln -s ../../.ai/prompts/<n>.prompt.md .claude/commands/<n>.md
+  ln -s ../../.ai/prompts/<n>.prompt.md .pi/prompts/<n>.md
   ```
 
-- **Hooks** (`.ai/hooks/*.md`) — these are *guidance*, not wired hooks. To enforce, add the real artifact per tool (Claude `.claude/settings.json`; Copilot `.github/hooks/*.json`).
+- **Hooks** (`.ai/hooks/*.md`) — these are *guidance*, not wired hooks. To enforce, add the real artifact per tool (Claude `.claude/settings.json`; Copilot `.github/hooks/*.json`; Pi `.pi/extensions/cratis-hooks/`). The Pi and Claude wirings both drive the same `.ai/hooks/scripts/*`, so a new script is enforced everywhere by referencing it from each tool's wiring — no copy of the script.
 
 **Deleting a canonical file means deleting its per-file adapter too.** The adapter is not cleaned up for you, and a stale one is an invisible break — a dangling `.claude/commands/<n>.md` is a slash command that resolves to nothing. Run `hooks/scripts/validate-ai-setup.sh` after adding *or removing* an agent, prompt, or rule: it checks that every canonical file has its adapter, and that every adapter in `.claude/rules`, `.claude/commands`, and `.github/agents` still resolves to something that exists.
 
@@ -195,8 +211,12 @@ An adapter's target (the symlink target, or the path-reference file's body) uses
 | `.claude/commands/<name>.md` | `../../.ai/prompts/<name>.prompt.md` |
 | `.github/copilot-instructions.md` | `../.ai/rules/general.md` |
 | `.claude/CLAUDE.md` | `../.ai/rules/general.md` |
-| `AGENTS.md` (repo root, Codex) | `.ai/rules/general.md` |
+| `AGENTS.md` (repo root, Codex + Pi) | `.ai/rules/general.md` |
+| `.pi/prompts/<name>.md` | `../../.ai/prompts/<name>.prompt.md` |
+| `.pi/agents/<name>.md` | `../../.ai/agents/<name>.md` |
 | `.agents/skills`, `.github/prompts`, `.github/skills`, `.claude/agents`, `.claude/skills` (folder symlinks) | the matching `.ai/<sub>` folder |
+
+`.pi/extensions/**` is **not** in this table: those are real files (adapter machinery), not symlink/path-reference adapters, so propagation copies them as content — the same treatment as `.claude/settings.json`.
 
 ## Propagation and adapters
 

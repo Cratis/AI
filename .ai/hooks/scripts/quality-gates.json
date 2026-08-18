@@ -97,7 +97,7 @@
         {
             "id": "ai-corpus",
             "description": "validate-ai-setup.sh — adapters, frontmatter and cross-links healthy",
-            "changed": [".ai/**", ".claude/**", ".github/**", "AGENTS.md"],
+            "changed": [".ai/**", ".claude/**", ".github/**", ".agents/**", ".pi/**", "AGENTS.md"],
             "excludeChanged": ["**/*.local.json"],
             "requires": { "commands": ["bash"], "paths": [".ai/hooks/scripts/validate-ai-setup.sh"] },
             "workingDirectory": ".",

@@ -7,6 +7,7 @@ on:
       - ".ai/**"
       - ".claude/**"
       - ".agents/**"
+      - ".pi/**"
       - "AGENTS.md"
       - ".github/copilot-instructions.md"
       - ".github/instructions/**"

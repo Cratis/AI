@@ -28,7 +28,7 @@ Claude application that will host the future Factory control plane.
 
 | I want to… | Use today | Status |
 | --- | --- | --- |
-| Help an agent build idiomatic Cratis software | Explore the [shared `.ai` corpus](#shared-cratis-agent-knowledge) and its Copilot, Claude Code, and Codex adapters, or [install it as a plugin](#install-the-corpus-as-a-claude-code-plugin) | **Available** |
+| Help an agent build idiomatic Cratis software | Explore the [shared `.ai` corpus](#shared-cratis-agent-knowledge) and its Copilot, Claude Code, Codex, and Pi adapters, or [install it as a plugin](#install-the-corpus-as-a-claude-code-plugin) | **Available** |
 | Inspect a Cratis repository deterministically | Read the [Factory Stage 0 evidence](#deterministic-factory-foundation); maintainers can use the temporary reference oracle | **Public entrypoint HOLD on [#67](https://github.com/Cratis/AI/issues/67)** |
 | Run current managed Claude work | Boot [Planner locally](#boot-the-current-planner-ui-safely) without credentials, then evaluate it only in a trusted environment | **Available local baseline; not Factory-secure** |
 
@@ -36,7 +36,7 @@ Claude application that will host the future Factory control plane.
 
 ### Shared Cratis agent knowledge
 
-The canonical [`.ai/`](.ai/README.md) corpus teaches GitHub Copilot, Claude Code, and Codex how to
+The canonical [`.ai/`](.ai/README.md) corpus teaches GitHub Copilot, Claude Code, Codex, and Pi how to
 work with Chronicle, Arc, .NET/C#, React, Cratis Components, vertical slices, specifications, and
 Cratis framework repositories. Rules state invariants, skills describe workflows, and agents
 provide focused roles.
@@ -59,7 +59,8 @@ project-local context; it is never propagated from this hub.
 
 .github/              GitHub Copilot adapters
 .claude/              Claude Code adapters
-.agents/ + AGENTS.md  Codex adapters
+.agents/ + AGENTS.md  Codex adapters (AGENTS.md + .agents/skills shared with Pi)
+.pi/                  Pi adapters (prompts, agents, and the subagent + hooks extensions)
 ```
 
 `.github/instructions` is currently a folder link to `.ai/rules`. That preserves one source of
@@ -68,7 +69,7 @@ auto-attached by glob. Claude Code and Codex consume their adapters, and Copilot
 the rules directly. Public marketplace packaging is planned, not released.
 
 The corpus validator checks adapter integrity, rule and skill frontmatter, and a set of content
-drift guards. Structural, adapter, and Codex failures are fatal; drift guards are warnings only. It
+drift guards. Structural, adapter, Codex, and Pi failures are fatal; drift guards are warnings only. It
 is wired as the `ai-corpus` gate in
 [the quality-gate definitions](.ai/hooks/scripts/quality-gates.json) and as the `AI corpus` job in
 [Factory Foundation CI](.github/workflows/factory-foundation.yml). Maintainers run it directly:
@@ -109,8 +110,11 @@ The `.prompt.md` suffix is what Copilot's prompt discovery keys on and what the 
 requires, so it is not currently removable.
 
 **For the whole corpus — rules, agents, and hooks — clone this repository or add it as a
-submodule**, and let each tool resolve its own adapters. Pi needs nothing extra either way: it
-reads the root `AGENTS.md` and `.agents/skills` natively.
+submodule**, and let each tool resolve its own adapters. Pi reads the root `AGENTS.md` and
+`.agents/skills` natively; the rest of its surfaces are wired under `.pi/` — per-file prompt
+(`/<name>`) and agent symlinks, plus two real extensions: `subagent` (delegates to the corpus
+agents in isolated `pi` subprocesses, normalizing their Claude-shaped tools to Pi's built-ins) and
+`cratis-hooks` (drives the same `.ai/hooks/scripts/*` enforcement Claude uses).
 
 ### Deterministic Factory foundation
 

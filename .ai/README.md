@@ -34,8 +34,9 @@ Each tool has its own conventions, so adapters differ by surface (see `rules/man
 - **GitHub Copilot** — `copilot-instructions.md` + `instructions/<n>.instructions.md` (rules); `agents/<n>.agent.md` (per-file, `.agent.md` suffix); `prompts/` + `skills/` (folder symlinks); hooks as `.github/hooks/*.json`.
 - **Claude Code** — `CLAUDE.md` + `rules/<n>.md` (rules); `commands/<n>.md` (slash commands, from `.ai/prompts`); `agents/` + `skills/` (folder symlinks); hooks in `.claude/settings.json`.
 - **Codex** — root `AGENTS.md` → `.ai/rules/general.md`; `.agents/skills` → `.ai/skills`.
+- **Pi** — root `AGENTS.md` and `.agents/skills` (shared with Codex, discovered natively); prompts as `.pi/prompts/<n>.md` (per-file symlinks, slash command `/<n>`); agents as `.pi/agents/<n>.md` (per-file symlinks) consumed by the `subagent` extension; hooks bridged by the `cratis-hooks` extension. `.pi/extensions/**` are **real** adapter machinery (the Pi peer of `.claude/settings.json`), not symlinks.
 
-`.ai/hooks/*.md` are **lifecycle guidance**, not wired hooks (markdown isn't a hook format for either tool); enforce them via each tool's real hook mechanism above.
+`.ai/hooks/*.md` are **lifecycle guidance**, not wired hooks (markdown isn't a hook format for any of these tools); enforce them via each tool's real hook mechanism above (Claude `settings.json`, Copilot `.github/hooks/*.json`, Pi `.pi/extensions/cratis-hooks/`).
 
 ## Scoped rule frontmatter
 
