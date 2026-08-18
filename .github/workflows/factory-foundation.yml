@@ -1,63 +1,16 @@
 name: Factory Foundation
 
-# The paths filter is a deliberate union of everything all three jobs guard, plus the whole
-# of .github. Over-triggering costs a few CI minutes; under-triggering lets a breaking change
-# merge with a green board, and a required status check that never runs blocks a PR forever.
+# Deliberately unfiltered triggers. A workflow skipped by a `paths:` filter creates no check run
+# at all, so a required status check of that name sits at "Expected — waiting for status" and the
+# pull request can never merge. A job skipped by an in-job `if:` does report a `skipped`
+# conclusion, which branch protection treats as passing. So the path knowledge moved out of the
+# triggers and into the `changes` job below: every check always reports, and the irrelevant ones
+# report in seconds. See .github/BRANCH-PROTECTION.md.
 on:
   push:
     branches: ["main"]
-    paths:
-      - ".agents/**"
-      - ".ai/**"
-      - ".claude/**"
-      - ".editorconfig"
-      - ".github/**"
-      - ".globalconfig"
-      - "AGENTS.md"
-      - "Contracts/**"
-      - "Directory.Build.props"
-      - "Directory.Packages.props"
-      - "Documentation/Factory/**"
-      - "Documentation/index.md"
-      - "Documentation/skills.md"
-      - "Evaluations/**"
-      - "Factory/**"
-      - "Planner.slnx"
-      - "README.md"
-      - "Source/Directory.Build.props"
-      - "Source/Directory.Build.targets"
-      - "Source/Factory.Core/**"
-      - "Source/Factory.Core.Specs/**"
-      - "Workflows/**"
-      - "global.json"
   pull_request:
     branches: ["**"]
-    # Kept verbatim in sync with the push filter above. GitHub Actions does not support YAML
-    # anchors or aliases in workflow files, so this duplication cannot be factored out.
-    paths:
-      - ".agents/**"
-      - ".ai/**"
-      - ".claude/**"
-      - ".editorconfig"
-      - ".github/**"
-      - ".globalconfig"
-      - "AGENTS.md"
-      - "Contracts/**"
-      - "Directory.Build.props"
-      - "Directory.Packages.props"
-      - "Documentation/Factory/**"
-      - "Documentation/index.md"
-      - "Documentation/skills.md"
-      - "Evaluations/**"
-      - "Factory/**"
-      - "Planner.slnx"
-      - "README.md"
-      - "Source/Directory.Build.props"
-      - "Source/Directory.Build.targets"
-      - "Source/Factory.Core/**"
-      - "Source/Factory.Core.Specs/**"
-      - "Workflows/**"
-      - "global.json"
   workflow_dispatch:
 
 env:
@@ -66,6 +19,16 @@ env:
   # Microsoft.Net.Compilers.Toolset to 5.9, which matches the Roslyn version the 4xx band's
   # codestyle analyzers are built against, so no CS9057 — do not re-pin to a feature band.
   DOTNET_VERSION: "10.0.x"
+  NODE_VERSION: "22.x"
+  # Exact patch pin, on purpose. markdownlint-cli2 is not a declared dependency of this
+  # repository (root package.json is the Planner frontend workspace and has no docs tooling in
+  # it), so the invoking workflow is the only place a version can be pinned — which is exactly
+  # what the note at the top of .markdownlint-cli2.jsonc asks for. It matters: MD060 did not
+  # exist before markdownlint v0.40, and its arrival alone moved this tree's finding count by
+  # 138 in a single silent unpinned upgrade. 0.23.2 (markdownlint 0.41.1) is the version the
+  # current zero-findings baseline was measured against. Bump it deliberately, with the
+  # resulting findings reviewed in the same pull request.
+  MARKDOWNLINT_CLI2_VERSION: "0.23.2"
 
 permissions:
   contents: read
@@ -75,10 +38,73 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # The single source of truth for what each job below cares about — the former `paths:` filters,
+  # one copy instead of the two byte-identical push/pull_request copies GitHub Actions offered no
+  # way to factor out. Always runs, so it is safe to mark required; that also closes the hole where
+  # a broken gate would let every downstream job report `skipped` (i.e. passing).
+  changes:
+    name: Factory change detection
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      # workflow_dispatch means "run everything": the filter step is skipped for it, so the raw
+      # outputs are empty and this is what turns them on.
+      foundation: ${{ steps.filter.outputs.foundation == 'true' || github.event_name == 'workflow_dispatch' }}
+      dotnet: ${{ steps.filter.outputs.dotnet == 'true' || github.event_name == 'workflow_dispatch' }}
+      corpus: ${{ steps.filter.outputs.corpus == 'true' || github.event_name == 'workflow_dispatch' }}
+      docs: ${{ steps.filter.outputs.docs == 'true' || github.event_name == 'workflow_dispatch' }}
+
+    steps:
+      # pull_request comparisons go through the REST API and need no checkout, but the push
+      # trigger above compares with git and does.
+      - name: Checkout source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Detect changed paths
+        id: filter
+        if: github.event_name != 'workflow_dispatch'
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        with:
+          filters: |
+            foundation:
+              - '.github/workflows/factory-foundation.yml'
+              - 'Contracts/**'
+              - 'Evaluations/**'
+              - 'Factory/**'
+              - 'Workflows/**'
+            dotnet:
+              - '.editorconfig'
+              - '.github/workflows/factory-foundation.yml'
+              - '.globalconfig'
+              - 'Directory.Build.props'
+              - 'Directory.Packages.props'
+              - 'Planner.slnx'
+              - 'Source/Directory.Build.props'
+              - 'Source/Directory.Build.targets'
+              - 'Source/Factory.Core/**'
+              - 'Source/Factory.Core.Specs/**'
+              - 'global.json'
+            corpus:
+              - '.agents/**'
+              - '.ai/**'
+              - '.claude/**'
+              - '.github/**'
+              - 'AGENTS.md'
+              - 'README.md'
+            docs:
+              - '.github/workflows/factory-foundation.yml'
+              - '.markdownlint-cli2.jsonc'
+              - 'Documentation/**'
+
   foundation:
     name: Deterministic Factory foundation
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    needs: changes
+    if: needs.changes.outputs.foundation == 'true'
     env:
       PYTHONDONTWRITEBYTECODE: "1"
 
@@ -155,6 +181,8 @@ jobs:
     name: Factory .NET libraries
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    needs: changes
+    if: needs.changes.outputs.dotnet == 'true'
 
     steps:
       - name: Checkout source
@@ -181,6 +209,8 @@ jobs:
     name: AI corpus
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    needs: changes
+    if: needs.changes.outputs.corpus == 'true'
 
     steps:
       - name: Checkout source
@@ -188,3 +218,41 @@ jobs:
 
       - name: Validate AI corpus
         run: bash .ai/hooks/scripts/validate-ai-setup.sh
+
+  docs:
+    name: Documentation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: changes
+    if: needs.changes.outputs.docs == 'true'
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      # yarn rather than npx: package.json pins packageManager to yarn@4, and corepack's npm shim
+      # refuses to run under that pin. planner-build.yml already standardizes on corepack.
+      - name: Enable Corepack
+        run: corepack enable
+
+      # The blocking half. No glob argument on purpose — .markdownlint-cli2.jsonc carries the
+      # globs and the ignores, so this lints exactly the 25 files the local script does.
+      - name: Lint documentation markdown
+        run: yarn dlx markdownlint-cli2@${{ env.MARKDOWNLINT_CLI2_VERSION }}
+
+      # The advisory half, and the only thing in CI that runs Documentation/verify-markdown.sh at
+      # all. It re-lints (unpinned, via its own npx) and then link-checks with linkinator, which
+      # reaches the network for the one external URL in the tree. A network round trip is not a
+      # sound blocking merge gate — a github.com rate-limit on a shared runner would fail a pull
+      # request that changed nothing — so this step is deliberately non-blocking. The accepted
+      # trade-off: broken links do not stop a merge, they only show up as a red step inside a
+      # green job, and someone has to look. Its unpinned lint is a bonus early warning that the
+      # pin above is behind. Its own summary names which half failed.
+      - name: Verify documentation links and script (advisory, non-blocking)
+        continue-on-error: true
+        run: bash Documentation/verify-markdown.sh

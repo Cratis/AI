@@ -12,34 +12,73 @@ env:
   DOTNET_VERSION: "10.0.x"
   NODE_VERSION: "22.x"
 
+# Deliberately unfiltered. A workflow skipped by a `paths:` filter creates no check run at all,
+# so a required status check of that name sits at "Expected — waiting for status" and the pull
+# request can never merge; a job skipped by an in-job `if:` reports a `skipped` conclusion, which
+# branch protection treats as passing. The former `paths:` list now lives in the `changes` job
+# below. See .github/BRANCH-PROTECTION.md.
 on:
   workflow_dispatch:
   pull_request:
     branches:
       - "**"
-    # Sorted, and deliberately covering every input the jobs below actually consume — not just
-    # Source/**. Analyzer configuration, the shared frontend config, the solution file and the SDK
-    # pin all change what these jobs do, so a PR touching only one of them must still be checked.
-    paths:
-      - ".editorconfig" # analyzer configuration; can turn a warning into an error
-      - ".frontend/**" # the shared ESLint config and tsconfig the Frontend job runs against
-      - ".globalconfig" # analyzer configuration; same reasoning as .editorconfig
-      - "Directory.Build.props"
-      - "Directory.Packages.props"
-      - "Planner.slnx"
-      - "Source/**"
-      - "global.json" # the SDK band every dotnet step below resolves
-      - "package.json"
-      - "yarn.lock"
 
 permissions:
   contents: read
 
 jobs:
+  # The single source of truth for what Backend and Frontend actually consume — the former
+  # `paths:` list, unchanged in content. Analyzer configuration, the shared frontend config, the
+  # solution file and the SDK pin all change what those jobs do, so a pull request touching only
+  # one of them must still be checked. Always runs, so it is safe to mark required; that also
+  # closes the hole where a broken gate would let every downstream job report `skipped`
+  # (i.e. passing).
+  changes:
+    name: Planner change detection
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      # workflow_dispatch means "run everything": the filter step is skipped for it, so the raw
+      # outputs are empty and this is what turns them on.
+      backend: ${{ steps.filter.outputs.backend == 'true' || github.event_name == 'workflow_dispatch' }}
+      frontend: ${{ steps.filter.outputs.frontend == 'true' || github.event_name == 'workflow_dispatch' }}
+      any: ${{ steps.filter.outputs.backend == 'true' || steps.filter.outputs.frontend == 'true' || github.event_name == 'workflow_dispatch' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Detect changed paths
+        id: filter
+        if: github.event_name != 'workflow_dispatch'
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        with:
+          filters: |
+            backend:
+              - '.editorconfig'
+              - '.github/workflows/planner-build.yml'
+              - '.globalconfig'
+              - 'Directory.Build.props'
+              - 'Directory.Packages.props'
+              - 'Planner.slnx'
+              - 'Source/**'
+              - 'global.json'
+            frontend:
+              - '.frontend/**'
+              - '.github/workflows/planner-build.yml'
+              - 'Source/**'
+              - 'package.json'
+              - 'yarn.lock'
+
   backend:
     name: Backend
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
 
     steps:
       - name: Checkout code
@@ -74,6 +113,8 @@ jobs:
     name: Frontend
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true'
 
     steps:
       - name: Checkout code
@@ -114,7 +155,12 @@ jobs:
     name: Publish build artifacts
     runs-on: ubuntu-latest
     timeout-minutes: 25
-    needs: [backend, frontend]
+    needs: [changes, backend, frontend]
+    # `!cancelled() && !failure()` is what lets this run when Backend or Frontend was *skipped*
+    # rather than successful — a plain `if:` would demand success from every dependency and skip
+    # this job with them. It builds everything it needs from a fresh checkout, so one of the two
+    # having skipped does not make it unsound; a real failure in either still stops it.
+    if: ${{ !cancelled() && !failure() && needs.changes.outputs.any == 'true' }}
 
     steps:
       - name: Checkout code
