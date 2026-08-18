@@ -46,9 +46,20 @@ and hashing are the accepted first slice. Native closed-set Draft 2020-12 schema
 validation is the accepted second slice; its private static-rebasing design
 contains the confirmed JsonSchema.Net 8.0.5 embedded-resource build failure
 without package-global state, reflection, lazy evaluation, a dependency change,
-or altered accepted semantics. The slice still does not implement repository
-discovery, workflow semantics, preflight, evaluations, a CLI, Planner
-orchestration, workers, providers, or publishing.
+or altered accepted semantics.
+
+The definition/workflow semantic compiler is the third slice. It is implemented
+but **not accepted**: `Source/Factory.Core/Definitions` carries the compiler and
+the closed 13-kind route table, `Source/Factory.Core.Specs/for_DefinitionCompiler`
+carries its specifications, and a deletion-bound differential parity harness
+still compares it against the temporary Python oracle. Frozen-tree acceptance
+has not happened, and #67, #47, and G0 remain open, so nothing downstream may
+treat this slice as authority yet. See
+[`../../Factory/DefinitionWorkflowCompilation.md`](../../Factory/DefinitionWorkflowCompilation.md).
+
+Across all three slices the native work still does not implement repository
+discovery, preflight, evaluations, a CLI, Planner orchestration, workers,
+providers, or publishing.
 
 ### P0 native authority prerequisite — planned
 

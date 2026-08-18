@@ -30,10 +30,15 @@ the raw file SHA-256 is
 Final acceptance reported 107/107 permanent schema specifications in both Debug
 and Release and 7,339 temporary differential comparisons with zero failures in
 each configuration over identical bytes. The complete `Factory.Core.Specs`
-project passed 149/149 in each configuration. Local trim and NativeAOT evidence
-is macOS arm64 only; Windows and Linux execution remain pending. Exact maximum
-work is bounded per call, while hosts remain responsible for aggregate work and
-concurrency.
+project passed 149/149 in each configuration. Build and specification evidence
+is no longer macOS-only: the `Factory .NET libraries` CI job runs the Release
+build, the Debug build, and the specs on both `ubuntu-latest` and
+`windows-latest`, and Linux has already reported green. Trim and NativeAOT
+evidence is a separate and much narrower claim, and it is still macOS arm64 only
+— it comes from a local sandbox pinned to `osx-arm64` that no workflow runs, so
+trim and NativeAOT execution on Windows and Linux does remain pending. Exact
+maximum work is bounded per call, while hosts remain responsible for aggregate
+work and concurrency.
 
 ## Loading a resource set
 

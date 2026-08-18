@@ -19,8 +19,13 @@ embedded-resource build failure without package-global state, reflection, lazy
 evaluation, a dependency change, or altered accepted semantics. The accepted
 evidence covers 63 documents, 135 cases, 24 generators, 107/107 permanent schema
 specifications in Debug and Release, and 7,339/0 temporary differential
-comparisons in each configuration. Local trim and NativeAOT evidence is macOS
-arm64 only; Windows and Linux remain pending. See
+comparisons in each configuration. Build and specification evidence is no longer
+macOS-only: the `Factory .NET libraries` CI job runs the Release build, the Debug
+build, and the specs on both `ubuntu-latest` and `windows-latest`, and Linux has
+already reported green. Trim and NativeAOT evidence is a separate and much
+narrower claim, and it is still macOS arm64 only — it comes from a local sandbox
+pinned to `osx-arm64` that no workflow runs, so trim and NativeAOT execution on
+Windows and Linux does remain pending. See
 [`SchemaValidation.md`](./SchemaValidation.md).
 
 The native definition/workflow semantic compiler is the focused #47

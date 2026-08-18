@@ -101,10 +101,22 @@ to produce; sweeping them in would fail every run, and a gate that always fails 
 The generator itself is hash-aware — it skips the write when a generated file's content is
 unchanged — so an in-sync tree survives a full rebuild with `git status` completely clean.
 
-No job was added or renamed by the dirty-tree guards, and no job has been added at any point
-since: the required list is still nine checks. One was renamed — `Shell scripts` became
-`Shell and workflow lint` when actionlint joined it — so if the ruleset is created from an older
-copy of this file, that is the one name to correct.
+No job was added or renamed by the dirty-tree guards. The required list is still nine checks, but
+two things have changed since and both matter if the ruleset is built from an older copy of this
+file. `Shell scripts` was renamed to `Shell and workflow lint` when actionlint joined it. And
+`Factory .NET libraries` is now a two-OS matrix plus an aggregate job that carries the old name —
+see below.
+
+### Why `Factory .NET libraries` is an aggregate
+
+The job is a matrix over `ubuntu-latest` and `windows-latest`, so its legs report as
+`Factory .NET libraries (ubuntu-latest)` and `Factory .NET libraries (windows-latest)`. Requiring
+the bare name against a matrix would wait forever on a status nothing reports under any more, so
+`dotnet-gate` aggregates the legs and carries the stable name. It runs
+`if: always() && needs.changes.outputs.dotnet == 'true'` and fails unless `needs.dotnet.result` is
+`success` — `always()` because a job skipped by a failed `needs:` counts as passing, which would
+invert the gate. Require the aggregate only. The two legs need not be required, and requiring them
+would have to be revisited every time a matrix dimension changed.
 
 ### Checks that must NOT be required
 

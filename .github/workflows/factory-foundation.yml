@@ -224,14 +224,37 @@ jobs:
             exit 1
           fi
 
+  # Two legs, and neither of them is the required status check — the aggregate below is. These
+  # report as `Factory .NET libraries (ubuntu-latest)` and `Factory .NET libraries
+  # (windows-latest)`; do not require either by name. See .github/BRANCH-PROTECTION.md.
   dotnet:
-    name: Factory .NET libraries
-    runs-on: ubuntu-latest
+    name: Factory .NET libraries (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     needs: changes
     if: needs.changes.outputs.dotnet == 'true'
+    strategy:
+      # Both legs always run to completion. The point of adding Windows is to learn which
+      # platforms pass, and fail-fast would cancel the surviving leg the moment the other broke —
+      # turning "Windows red, Linux green" into no evidence for either.
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
 
     steps:
+      # Before the checkout, and Windows-only: Git for Windows converts text files to CRLF on
+      # checkout unless told not to, and this repository has no .gitattributes to override it.
+      # Every fixture these specs read goes through File.ReadAllBytes into canonical JSON and a
+      # SHA-256 set identity, so a line ending the checkout invented is a byte the hash sees. The
+      # canonical parser treats CR as insignificant whitespace and the identity is computed over
+      # canonicalized bytes, so this is belt-and-braces rather than a known break — but the whole
+      # premise of Factory.Core is that content addresses itself, and a runner-image default is
+      # not the thing that should decide those bytes.
+      - name: Check out with byte-exact line endings
+        if: runner.os == 'Windows'
+        shell: bash
+        run: git config --global core.autocrlf false
+
       - name: Checkout source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
@@ -243,14 +266,63 @@ jobs:
       # Release is the strict gate: Source/Directory.Build.props turns on TreatWarningsAsErrors
       # for Release only. CratisProxiesOutputPath is cleared so the Release pass cannot re-run
       # proxy generation over already-correct generated files.
+      #
+      # `shell: bash` on all three build steps, because the runner default is PowerShell on
+      # Windows and these command lines are not shell-neutral: `-p:CratisProxiesOutputPath=` is a
+      # token ending in `=` with a deliberately empty value, which is exactly the shape a
+      # different parser is most likely to mangle. Git Bash ships on windows-latest, so pinning
+      # the shell costs nothing and makes both legs run byte-identical commands. MSBuild
+      # normalizes the forward slashes in the project path on Windows, so the paths need no
+      # change.
       - name: Build (Release - zero warnings)
+        shell: bash
         run: dotnet build Source/Factory.Core.Specs/Factory.Core.Specs.csproj --configuration Release -p:CratisProxiesOutputPath=
 
       - name: Build (Debug - specs compile)
+        shell: bash
         run: dotnet build Source/Factory.Core.Specs/Factory.Core.Specs.csproj --configuration Debug
 
       - name: Run specs
+        shell: bash
         run: dotnet test Source/Factory.Core.Specs/Factory.Core.Specs.csproj --configuration Debug --no-build
+
+  # The required status check, and the only reason this job exists. Branch protection resolves a
+  # required check by *name*, and a matrix names each check run after its leg — so requiring
+  # `Factory .NET libraries` against the matrix directly would wait forever on a status that no
+  # longer reports under that name. Aggregating here keeps one stable required name, and keeps it
+  # stable across any future change to the matrix dimensions.
+  dotnet-gate:
+    name: Factory .NET libraries
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [changes, dotnet]
+    # `always()` is load-bearing. Without it, a job whose `needs:` failed is itself reported as
+    # `skipped` — and branch protection treats `skipped` as passing, so the gate would wave
+    # through exactly the broken build it exists to catch. The change-detection condition stays
+    # alongside it so an irrelevant pull request still skips in seconds, like every other job
+    # here.
+    if: always() && needs.changes.outputs.dotnet == 'true'
+
+    steps:
+      - name: Require every matrix leg to have succeeded
+        # Through `env:` rather than interpolated into the script. A `${{ }}` inside a `run:`
+        # block is textual substitution into shell source, and this file's own actionlint gate is
+        # reason enough to keep the habit even where the value is a controlled enum.
+        env:
+          MATRIX_RESULT: ${{ needs.dotnet.result }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # A matrix job's `result` is the aggregate: `success` only when every leg succeeded,
+          # and `failure`/`cancelled` when any did not. Anything but success is a red gate.
+          echo "Factory .NET libraries matrix result: $MATRIX_RESULT"
+          if [[ "$MATRIX_RESULT" != "success" ]]; then
+            echo "At least one Factory .NET libraries matrix leg did not succeed." >&2
+            exit 1
+          fi
+
+          echo "Every matrix leg succeeded."
 
   ai-corpus:
     name: AI corpus
