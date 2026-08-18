@@ -42,4 +42,8 @@ Rules without a `profile` are universal and apply in both.
 
 Run `.ai/hooks/scripts/validate-ai-setup.sh` after changing rules, skills, agents, prompts, or adapters. It checks front matter, adapter integrity, and content-drift guards. Structural failures block; drift guards warn.
 
+### Getting the corpus into another repository
+
+There are two routes, and they do not deliver the same thing. **Cloning this repository — or adding it as a submodule — delivers everything**, because each assistant resolves its own adapters from `.ai/`; Pi needs nothing beyond the clone, reading the root `AGENTS.md` and `.agents/skills` natively. **Installing the Claude Code plugin** (`/plugin marketplace add Cratis/AI`, then `/plugin install cratis@cratis`) delivers the 45 skills and 18 slash commands and nothing else — instructions are not a plugin component type, no agents load, and hooks are deliberately excluded. The [repository README](../README.md) states the trade-off in full.
+
 See [Architecture Overview](./architecture.md) for the full picture.

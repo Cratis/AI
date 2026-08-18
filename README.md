@@ -28,7 +28,7 @@ Claude application that will host the future Factory control plane.
 
 | I want to… | Use today | Status |
 | --- | --- | --- |
-| Help an agent build idiomatic Cratis software | Explore the [shared `.ai` corpus](#shared-cratis-agent-knowledge) and its Copilot, Claude Code, and Codex adapters | **Available** |
+| Help an agent build idiomatic Cratis software | Explore the [shared `.ai` corpus](#shared-cratis-agent-knowledge) and its Copilot, Claude Code, and Codex adapters, or [install it as a plugin](#install-the-corpus-as-a-claude-code-plugin) | **Available** |
 | Inspect a Cratis repository deterministically | Read the [Factory Stage 0 evidence](#deterministic-factory-foundation); maintainers can use the temporary reference oracle | **Public entrypoint HOLD on [#67](https://github.com/Cratis/AI/issues/67)** |
 | Run current managed Claude work | Boot [Planner locally](#boot-the-current-planner-ui-safely) without credentials, then evaluate it only in a trusted environment | **Available local baseline; not Factory-secure** |
 
@@ -81,6 +81,36 @@ See [the corpus authority and adapter model](.ai/README.md) and
 [the maintenance rules](.ai/rules/managing-ai-rules.md).
 
 </details>
+
+#### Install the corpus as a Claude Code plugin
+
+A developer outside this repository can obtain the corpus without vendoring it. From inside
+Claude Code:
+
+```text
+/plugin marketplace add Cratis/AI
+/plugin install cratis@cratis
+```
+
+`marketplace add` resolves the GitHub repository directly. Distribution is git, so nothing has to
+be accepted into a public registry for these two commands to work.
+
+What loads is **45 skills and 18 slash commands**. What does not is the 35 rule files, the 12
+agents, and every hook:
+
+| Not carried | Why |
+| --- | --- |
+| `.ai/rules` — 35 files | Rules are not a plugin component type, so nothing loads them. The plugin teaches workflows; it does not carry the invariants those workflows assume. |
+| `.ai/agents` — 12 files | The plugin loaders skip per-file symlinks, which is exactly what the agent adapters are. Shipping agents would require generated real files. |
+| `.ai/hooks` | Deliberately excluded. Seven of the eight gates in [the quality-gate definitions](.ai/hooks/scripts/quality-gates.json) key on `Planner.slnx` and `Source/Planner/package.json`, so in any other repository their `requires` go unsatisfied and the `Stop` gate degrades to a no-op. [The hooks reference](.ai/hooks/README.md) documents wiring them by hand. |
+
+Slash commands keep the source filename: `/cratis:add-concept.prompt`, not `/cratis:add-concept`.
+The `.prompt.md` suffix is what Copilot's prompt discovery keys on and what the corpus validator
+requires, so it is not currently removable.
+
+**For the whole corpus — rules, agents, and hooks — clone this repository or add it as a
+submodule**, and let each tool resolve its own adapters. Pi needs nothing extra either way: it
+reads the root `AGENTS.md` and `.agents/skills` natively.
 
 ### Deterministic Factory foundation
 
