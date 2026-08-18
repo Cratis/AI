@@ -41,6 +41,7 @@ paths:
 ├── agents/                      ← folder symlink → ../.ai/agents                 (Claude reads <name>.md)
 ├── commands/
 │   └── <name>.md                ← per-file symlink → ../../.ai/prompts/<name>.prompt.md   (Claude slash commands)
+├── prompts/                     ← folder symlink → ../.ai/prompts   (legacy, inert — see note below)
 └── skills/                      ← folder symlink → ../.ai/skills
                                     (hooks: Claude wires them in .claude/settings.json — no folder adapter)
 
@@ -64,6 +65,10 @@ AGENTS.md                        ← Codex root instructions → .ai/rules/gener
 Folder symlinks (skills both sides, Copilot prompts and instructions, Claude agents) pick up additions/renames automatically. The remaining per-file adapters (Claude rules, Copilot agents, Claude commands) are needed because the tool requires a different filename suffix/location than the canonical source — so a new agent/prompt needs its matching per-file adapter created (see below). The validator (`hooks/scripts/validate-ai-setup.sh`) checks each adapter resolves to the right canonical file (symlink or path-reference file are both accepted).
 
 **Copilot suffix caveat for `.github/instructions`.** `.github/instructions` is a folder symlink into `.ai/rules` so rules are maintained in exactly one place. The trade-off: GitHub Copilot's `applyTo` discovery expects scoped instruction files to carry the `.instructions.md` suffix, and through a folder symlink the rules are exposed as `<name>.md`. Claude Code (`.claude/rules`) and Codex still consume the rules, and the content is fully available, but Copilot will not auto-attach scoped rules by glob through the folder symlink.
+
+**`.claude/prompts` is legacy and inert — deliberately unvalidated.** The repository carries a `.claude/prompts` folder symlink to `../.ai/prompts`, but it is not an adapter: Claude Code reads slash commands from `.claude/commands/<name>.md`, and `prompts/` is not a directory it consumes for anything. It is therefore intentionally left out of the folder-symlink checks in `validate-ai-setup.sh`. Asserting a path that no tool reads would turn every repository that legitimately lacks it red for no functional gain, which is exactly the kind of check the validator avoids — it asserts internal consistency of what a repo declares, never that a particular path must exist. Treat it as inert; nothing breaks if it is removed.
+
+**Plugin distribution carries real files only — never symlinks.** `.claude-plugin/plugin.json` publishes the corpus as an installable plugin, declaring `skills` and `commands` as directory paths into `.ai/`. Two constraints are load-bearing and were established by installing the plugin, not by reading the docs. The loaders **skip per-file symlinks**: pointing `commands` at `.claude/commands` — 18 valid, resolving symlinks — loads **zero** of them, and the same holds for agents. Only real files in a real directory load. And the manifest's `agents` key **shadows** the convention `agents/` folder rather than adding to it, so declaring it as an array of file paths validates clean and ships nothing; it is omitted for that reason. Consequence: skills and commands ship, the 12 agents do not, and shipping them would need generated real files rather than any adapter this repository already has.
 
 > **Hooks are not folder adapters.** Markdown is not a hook format for either tool — `.ai/hooks/*.md` are *lifecycle guidance*. Enforce them per tool: Claude via `.claude/settings.json` (`Stop`, `PreToolUse`, …); Copilot via `.github/hooks/*.json` (`sessionStart`/`sessionEnd`/`userPromptSubmitted`).
 
