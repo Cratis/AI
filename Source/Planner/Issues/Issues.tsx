@@ -11,6 +11,7 @@ import { Menubar } from 'primereact/menubar';
 import { Tag } from 'primereact/tag';
 import { Page } from '@cratis/components/Common';
 import { Dropdown } from '@cratis/components/Dropdown';
+import { useIdentity } from '@cratis/arc.react/identity';
 import { AllIssues, Issue } from './Listing/Listing';
 import { AllGroups, Group } from './Grouping/Listing/Listing';
 import { IssueStatus } from './IssueStatus';
@@ -23,8 +24,18 @@ import { RenameGroup } from './Grouping/Renaming/Renaming';
 import { IssueDetails, statusLabel } from './IssueDetails';
 import { GroupInstructionsDialog, IssueInstructionsDialog } from './InstructionsDialogs';
 import { computeNewOrder, sortIssues } from './issueOrdering';
+import { isInvolvedInIssue } from './issueInvolvement';
 import { CommandDialog } from '@cratis/components/CommandDialog';
 import { InputTextField } from '@cratis/components/CommandForm/fields';
+import { OperatorDetails } from '../Identity';
+
+/**
+ * A login that can never be a real GitHub handle - the dev-mode `AllowUnauthenticatedOperators`
+ * fallback used when no ingress has authenticated the request (see `OperatorIdentityDetailsProvider`).
+ * Mention-based matching against it always comes up empty, so the "for me" filter is unavailable
+ * rather than silently showing nothing.
+ */
+const localDevelopmentLogin = 'local';
 
 const ungrouped = 'zz-ungrouped';
 
@@ -64,6 +75,11 @@ export const Issues = () => {
     const [renameFor, setRenameFor] = useState<Group | undefined>(undefined);
     const [dragged, setDragged] = useState<Issue | undefined>(undefined);
     const [expandedRows, setExpandedRows] = useState<DataTableValueArray | DataTableExpandedRows | undefined>(undefined);
+    const [forMeFilter, setForMeFilter] = useState(false);
+
+    const identity = useIdentity<OperatorDetails>(OperatorDetails);
+    const operatorLogin = identity.details.login;
+    const canFilterForMe = identity.isSet && !!operatorLogin && operatorLogin.toLowerCase() !== localDevelopmentLogin;
 
     const groupsById = useMemo(() => {
         const map = new Map<string, Group>();
@@ -81,12 +97,13 @@ export const Issues = () => {
             if (userFilter && issue.createdBy !== userFilter) return false;
             if (statusFilter !== undefined && issue.status !== statusFilter) return false;
             if (search && !`${issue.owner}/${issue.repository}#${issue.number} ${issue.title}`.toLowerCase().includes(search.toLowerCase())) return false;
+            if (forMeFilter && canFilterForMe && !isInvolvedInIssue(operatorLogin, issue)) return false;
             return true;
         });
         const sorted = sortIssues(filtered, (issue) => new Date(issue.createdAt).getTime());
         return sorted.map((issue) =>
             Object.assign({}, issue, { groupKey: issue.group && issue.group !== '' ? issue.group : ungrouped }) as IssueRow);
-    }, [openIssues, search, repositoryFilter, userFilter, statusFilter]);
+    }, [openIssues, search, repositoryFilter, userFilter, statusFilter, forMeFilter, canFilterForMe, operatorLogin]);
 
     const repositories = useMemo(() =>
         [...new Set(openIssues.map((issue) => `${issue.owner}/${issue.repository}`))]
@@ -189,6 +206,16 @@ export const Issues = () => {
                 value={statusFilter}
                 options={statusFilterOptions}
                 onChange={(event) => setStatusFilter(event.value as IssueStatus | undefined)} />
+            <Button
+                label='For me'
+                icon='pi pi-user'
+                outlined={!forMeFilter}
+                disabled={!canFilterForMe}
+                onClick={() => setForMeFilter((current) => !current)}
+                tooltip={canFilterForMe
+                    ? 'Show only issues mentioning, commented by, or created by you'
+                    : 'Unavailable - no verified GitHub login for the current session'}
+                tooltipOptions={{ position: 'bottom' }} />
         </div>
     );
 
