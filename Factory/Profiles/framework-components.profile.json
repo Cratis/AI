@@ -10,7 +10,12 @@
   "repositoryModes": ["framework"],
   "detect": {
     "allOf": [
-      {"kind": "repository-identity", "id": "cratis-components"},
+      {
+        "anyOf": [
+          {"kind": "repository-identity", "id": "cratis-components"},
+          {"kind": "repository-package", "ecosystem": "npm", "name": "@cratis/components"}
+        ]
+      },
       {"kind": "file", "pattern": "**/.storybook/main.*"}
     ]
   },

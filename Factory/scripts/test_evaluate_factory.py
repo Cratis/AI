@@ -36,13 +36,13 @@ class FactoryEvaluationTests(unittest.TestCase):
         self.assertEqual(first, second)
         self.assertEqual("pass", first["outcome"])
         self.assertEqual(
-            {"total": 10, "passed": 10, "failed": 0, "blocked": 0},
+            {"total": 12, "passed": 12, "failed": 0, "blocked": 0},
             first["summary"],
         )
         self.assertEqual("full-executable-catalog", first["coverage"]["scope"])
-        self.assertEqual(40, first["coverage"]["catalogCaseCount"])
-        self.assertEqual(10, first["coverage"]["executableCaseCount"])
-        self.assertEqual(10, first["coverage"]["selectedCaseCount"])
+        self.assertEqual(42, first["coverage"]["catalogCaseCount"])
+        self.assertEqual(12, first["coverage"]["executableCaseCount"])
+        self.assertEqual(12, first["coverage"]["selectedCaseCount"])
         self.assertTrue(all(case["assertions"] for case in first["cases"]))
         self.assertTrue(
             all(
@@ -52,6 +52,21 @@ class FactoryEvaluationTests(unittest.TestCase):
             )
         )
         evaluate_factory.verify_evaluation_result(first, documents)
+
+    def test_every_ecosystem_fixture_on_disk_is_declared_and_executed(self) -> None:
+        """An undeclared fixture is never exercised, so its acceptance criterion is never verified."""
+        catalog = foundation_catalog()
+        ecosystems = validate_factory.ROOT / "Factory" / "Fixtures" / "Ecosystems"
+
+        on_disk = sorted(path.name for path in ecosystems.iterdir() if path.is_dir())
+        declared = sorted(Path(fixture["path"]).name for fixture in catalog["fixtures"])
+        executed = {execution["fixtureId"] for execution in catalog["executions"]}
+
+        self.assertEqual(on_disk, declared)
+        self.assertEqual(
+            sorted(fixture["id"] for fixture in catalog["fixtures"]),
+            sorted(executed),
+        )
 
     def test_one_case_selection_is_exact_and_unknown_case_fails(self) -> None:
         documents = load_documents()

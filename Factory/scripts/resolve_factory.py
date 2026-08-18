@@ -42,6 +42,8 @@ IGNORED_DIRECTORIES = {
     "node_modules",
     "obj",
 }
+EVALUATION_FIXTURE_ROOT = validate_factory.ROOT.resolve() / "Factory" / "Fixtures"
+WORKSPACE_MANIFEST_NAME = "package.json"
 MAXIMUM_FILES = 50_000
 MAXIMUM_MANIFEST_BYTES = 2_000_000
 MAXIMUM_JSON_DEPTH = 64
@@ -398,7 +400,9 @@ def _collect_evidence(repository_root: Path, target: Path) -> dict[str, Any]:
         directory_names[:] = sorted(
             name
             for name in directory_names
-            if name not in IGNORED_DIRECTORIES and not (Path(current_root) / name).is_symlink()
+            if name not in IGNORED_DIRECTORIES
+            and not (Path(current_root) / name).is_symlink()
+            and not _is_evaluation_fixture_root(Path(current_root) / name)
         )
         for file_name in sorted(file_names):
             path = Path(current_root) / file_name
@@ -419,6 +423,15 @@ def _collect_evidence(repository_root: Path, target: Path) -> dict[str, Any]:
                     warnings.append(
                         f"Could not parse {source_id}: {_safe_error_detail(error)}"
                     )
+    for path in _workspace_root_manifests(repository_root, target):
+        file_count += 1
+        if file_count > MAXIMUM_FILES:
+            raise ResolutionFailure(f"Repository target exceeds the {MAXIMUM_FILES} file discovery limit")
+        source_id = f"repository-file:{file_count:06d}"
+        try:
+            _collect_manifest(path, source_id, dependencies, [])
+        except (OSError, ValueError, RecursionError, ElementTree.ParseError) as error:
+            warnings.append(f"Could not parse {source_id}: {_safe_error_detail(error)}")
     return {
         "files": files,
         "fileSourceIds": file_source_ids,
@@ -427,6 +440,64 @@ def _collect_evidence(repository_root: Path, target: Path) -> dict[str, Any]:
         "repositoryPackages": repository_packages,
         "warnings": warnings,
     }
+
+
+def _is_evaluation_fixture_root(path: Path) -> bool:
+    """Report whether a directory is the Factory's own evaluation fixture tree.
+
+    Fixtures are synthetic repositories the Factory resolves *as* repositories during
+    evaluation. They describe other ecosystems, never the repository that ships them, so
+    they must not contribute dependency, package, or file evidence to an enclosing target.
+    """
+    try:
+        return path.resolve() == EVALUATION_FIXTURE_ROOT
+    except OSError:
+        return False
+
+
+def _workspace_root_manifests(repository_root: Path, target: Path) -> list[Path]:
+    """Return the npm workspace manifests whose installed packages the target shares.
+
+    A workspace member does not redeclare the dependencies its workspace root already
+    installs; the package manager hoists them into one shared ``node_modules``. Reading the
+    member manifest alone therefore reports peers as absent when they are installed, so the
+    root manifests that claim the target as a member are part of the target's own evidence.
+    """
+    if target == repository_root:
+        return []
+    manifests: list[Path] = []
+    for relative in reversed(target.relative_to(repository_root).parents):
+        ancestor = (repository_root / relative).resolve()
+        if not ancestor.is_relative_to(repository_root) or not target.is_relative_to(ancestor):
+            continue
+        if any(part in IGNORED_DIRECTORIES for part in ancestor.relative_to(repository_root).parts):
+            continue
+        manifest = ancestor / WORKSPACE_MANIFEST_NAME
+        if manifest.is_symlink() or not manifest.is_file():
+            continue
+        if _declares_workspace_member(manifest, target.relative_to(ancestor).as_posix()):
+            manifests.append(manifest)
+    return manifests
+
+
+def _declares_workspace_member(manifest: Path, member_relative_path: str) -> bool:
+    try:
+        if manifest.stat().st_size > MAXIMUM_MANIFEST_BYTES:
+            return False
+        document = _parse_bounded_json(manifest.read_text(encoding="utf-8"))
+    except (OSError, ValueError, RecursionError):
+        return False
+    if not isinstance(document, dict):
+        return False
+    declared = document.get("workspaces")
+    if isinstance(declared, dict):
+        declared = declared.get("packages")
+    if not isinstance(declared, list):
+        return False
+    return any(
+        isinstance(pattern, str) and _matches_path(member_relative_path, pattern)
+        for pattern in declared
+    )
 
 
 def _is_manifest(path: Path) -> bool:

@@ -620,5 +620,204 @@ class FactoryResolverTests(unittest.TestCase):
         subprocess.run(["git", "remote", "add", "upstream", upstream], cwd=repository, check=True)
 
 
+class FactoryDiscoveryScopeTests(unittest.TestCase):
+    """Specifications for which files on disk are evidence about the resolved target."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.documents = {
+            path: deepcopy(validate_factory.load_json(path))
+            for path in validate_factory.all_json_files()
+        }
+
+    def test_evaluation_fixtures_are_not_evidence_about_the_repository_that_ships_them(self) -> None:
+        with TemporaryDirectory() as temporary_directory:
+            repository = Path(temporary_directory).resolve()
+            self._write_json(
+                repository / "App" / "package.json",
+                {"name": "app", "dependencies": {"@cratis/arc.react": "21.14.3"}},
+            )
+            fixture_root = repository / "Factory" / "Fixtures"
+            self._write_json(
+                fixture_root / "Ecosystems" / "elixir" / "package.json",
+                {"name": "fixture", "dependencies": {"@cratis/chronicle": "3.1.0"}},
+            )
+
+            with mock.patch.object(resolve_factory, "EVALUATION_FIXTURE_ROOT", fixture_root):
+                collected = resolve_factory._collect_evidence(repository, repository)
+
+        names = {package["name"] for package in collected["dependencies"]}
+        self.assertIn("@cratis/arc.react", names)
+        self.assertNotIn("@cratis/chronicle", names)
+        self.assertNotIn("Factory/Fixtures/Ecosystems/elixir/package.json", collected["files"])
+
+    def test_evaluation_fixtures_are_evidence_when_resolved_as_repositories_themselves(self) -> None:
+        fixture = validate_factory.ROOT / "Factory" / "Fixtures" / "Ecosystems" / "elixir-client"
+
+        collected = resolve_factory._collect_evidence(fixture.resolve(), fixture.resolve())
+
+        self.assertIn(
+            "cratis_chronicle",
+            {package["name"] for package in collected["dependencies"]},
+        )
+
+    def test_this_repository_does_not_report_client_surfaces_that_only_its_fixtures_declare(self) -> None:
+        result = resolve_factory.resolve_repository(
+            validate_factory.ROOT,
+            ".",
+            "investigate",
+            self.documents,
+        )
+
+        for capability in (
+            "chronicle-client-elixir",
+            "chronicle-client-jvm",
+            "chronicle-client-typescript",
+        ):
+            self.assertNotIn(capability, result["capabilities"])
+
+    def test_workspace_root_dependencies_are_evidence_for_a_member_target(self) -> None:
+        with TemporaryDirectory() as temporary_directory:
+            repository = self._write_workspace(Path(temporary_directory), workspaces=["Source/App"])
+
+            result = resolve_factory.resolve_repository(
+                repository,
+                "Source/App",
+                "investigate",
+                self.documents,
+            )
+
+        self.assertIn(
+            "application-cratis-components",
+            {profile["id"] for profile in result["profiles"]},
+        )
+        self.assertEqual([], result["negativeCapabilities"])
+        self.assertEqual([], result["blockedReasons"])
+
+    def test_a_glob_workspace_pattern_claims_its_member(self) -> None:
+        with TemporaryDirectory() as temporary_directory:
+            repository = self._write_workspace(Path(temporary_directory), workspaces=["Source/*"])
+
+            result = resolve_factory.resolve_repository(
+                repository,
+                "Source/App",
+                "investigate",
+                self.documents,
+            )
+
+        self.assertEqual([], result["negativeCapabilities"])
+
+    def test_root_dependencies_are_not_hoisted_without_a_workspace_declaration(self) -> None:
+        with TemporaryDirectory() as temporary_directory:
+            repository = self._write_workspace(Path(temporary_directory), workspaces=None)
+
+            result = resolve_factory.resolve_repository(
+                repository,
+                "Source/App",
+                "investigate",
+                self.documents,
+            )
+
+        self.assertIn(
+            "required-peer-missing",
+            {item["reason"] for item in result["negativeCapabilities"]},
+        )
+
+    def test_root_dependencies_are_not_hoisted_to_a_target_the_workspace_excludes(self) -> None:
+        with TemporaryDirectory() as temporary_directory:
+            repository = self._write_workspace(Path(temporary_directory), workspaces=["Source/Other"])
+
+            result = resolve_factory.resolve_repository(
+                repository,
+                "Source/App",
+                "investigate",
+                self.documents,
+            )
+
+        self.assertIn(
+            "required-peer-missing",
+            {item["reason"] for item in result["negativeCapabilities"]},
+        )
+
+    def test_components_without_any_peer_evidence_still_reports_the_missing_peer_blocker(self) -> None:
+        fixture = validate_factory.ROOT / "Factory" / "Fixtures" / "Ecosystems" / "components-missing-peer"
+
+        result = resolve_factory.resolve_repository(fixture, ".", "investigate", self.documents)
+
+        self.assertEqual([], result["profiles"])
+        self.assertIn(
+            "required-peer-missing",
+            {item["reason"] for item in result["negativeCapabilities"]},
+        )
+
+    def test_components_framework_fixture_resolves_to_framework_mode_without_a_git_remote(self) -> None:
+        fixture = validate_factory.ROOT / "Factory" / "Fixtures" / "Ecosystems" / "components-framework"
+
+        result = resolve_factory.resolve_repository(fixture, ".", "investigate", self.documents)
+
+        self.assertEqual("framework", result["repositoryMode"])
+        self.assertIsNone(result["repositoryIdentity"])
+        self.assertEqual(["framework-components"], [profile["id"] for profile in result["profiles"]])
+        self.assertNotIn("application", result["capabilities"])
+        self.assertNotIn("cratis-react-page", {skill["id"] for skill in result["skills"]})
+
+    def test_framework_components_still_detects_from_the_canonical_git_remote(self) -> None:
+        with TemporaryDirectory() as temporary_directory:
+            repository = Path(temporary_directory).resolve()
+            (repository / ".storybook").mkdir()
+            (repository / ".storybook" / "main.ts").write_text("export default {};\n", encoding="utf-8")
+            subprocess.run(["git", "init", "--quiet"], cwd=repository, check=True)
+            subprocess.run(
+                ["git", "remote", "add", "origin", "https://github.com/Cratis/Components.git"],
+                cwd=repository,
+                check=True,
+            )
+
+            result = resolve_factory.resolve_repository(repository, ".", "investigate", self.documents)
+
+        self.assertEqual("cratis-components", result["repositoryIdentity"])
+        self.assertEqual("framework", result["repositoryMode"])
+        self.assertEqual(["framework-components"], [profile["id"] for profile in result["profiles"]])
+
+    def test_framework_components_requires_storybook_evidence_beside_its_package_identity(self) -> None:
+        with TemporaryDirectory() as temporary_directory:
+            repository = Path(temporary_directory).resolve()
+            self._write_json(repository / "package.json", {"name": "@cratis/components", "version": "0.1.8"})
+            FactoryResolverTests._write_manifest(repository, self._framework_manifest())
+
+            result = resolve_factory.resolve_repository(repository, ".", "investigate", self.documents)
+
+        self.assertEqual("framework", result["repositoryMode"])
+        self.assertEqual([], result["profiles"])
+
+    @staticmethod
+    def _framework_manifest() -> dict:
+        manifest = FactoryResolverTests._valid_manifest()
+        manifest["repositoryMode"] = "framework"
+        manifest["policy"]["denyCapabilities"] = []
+        return manifest
+
+    @classmethod
+    def _write_workspace(cls, directory: Path, *, workspaces: list[str] | None) -> Path:
+        repository = directory.resolve()
+        root_manifest: dict = {"name": "root", "private": True, "devDependencies": {"react": "19.2.8"}}
+        if workspaces is not None:
+            root_manifest["workspaces"] = workspaces
+        cls._write_json(repository / "package.json", root_manifest)
+        cls._write_json(
+            repository / "Source" / "App" / "package.json",
+            {
+                "name": "app",
+                "dependencies": {"@cratis/arc.react": "21.14.3", "@cratis/components": "0.1.8"},
+            },
+        )
+        return repository
+
+    @staticmethod
+    def _write_json(path: Path, document: dict) -> None:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(document), encoding="utf-8")
+
+
 if __name__ == "__main__":
     unittest.main()
