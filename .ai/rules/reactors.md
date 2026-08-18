@@ -34,7 +34,7 @@ public Task MethodName(TEvent @event, EventContext context)
 
 - **First parameter** — the event type. This determines which events the method subscribes to.
 - **Second parameter** — `EventContext` (optional). Omit if event metadata is not needed. A reactor method takes no more than two parameters.
-- **Return type** — `Task` or `void`, or a side-effect type (`TEvent`, `ReactorSideEffect`, or a collection of either) returned directly (sync) or wrapped in `Task<...>` (async). Prefer `Task`/async for real side effects, but synchronous returns are fully supported — there is no "always async" requirement.
+- **Return type** — `void` or `Task`, or a side-effect type: a registered event type, `EventForEventSourceId`, `EventsWithConcurrencyScopes`, or an `IEnumerable` of events / `EventForEventSourceId` — returned directly (sync) or wrapped in `Task<...>` (async). Prefer `Task`/async for real side effects, but synchronous returns are fully supported — there is no "always async" requirement. Anything else throws `InvalidReactorHandlerReturnType`; a custom side-effect type handled by your own `IReactorSideEffectHandler` must be returned as `Task<T>`.
 - **Method name** — can be anything descriptive. The name is for readability, not dispatch.
 
 ## Handling replay differently — `[Replay]`
@@ -145,19 +145,11 @@ public Task<IEnumerable<EventForEventSourceId>> Handle(AnEvent @event, EventCont
 
 > Reactor-level metadata (`ICanProvideEventSourceId`, `ICanProvideSubject`, `[EventStreamType]`, …) applies to bare `TEvent` returns. An `EventForEventSourceId` is self-describing, so its own values are used instead. You can mix bare events and `EventForEventSourceId` in a single `IEnumerable<object>` return — each is appended with its respective metadata, all in one transaction.
 
-### Cross-stream via `EventForEventSourceId`
+`EventForEventSourceId` is the **only** side-effect return type that carries its own append metadata, and it is the same cross-stream wrapper a command `Handle()` uses — verified present in Chronicle 16.34.1 and every cached release back to 16.26.0. What it cannot set is the target **event sequence**: every side-effect return is appended to the event log, so writing to the outbox or another sequence stays an explicit event-store operation rather than a return value.
 
-To append a side-effect event to a **different** event source, return `EventForEventSourceId(id, @event)` (single or `IEnumerable<EventForEventSourceId>`) — the same cross-stream wrapper a command `Handle()` uses. Reach for `ReactorSideEffect` instead when you also need to set the `EventSequenceId`, stream type, source type, or `Subject`.
+### Extending the accepted return types
 
-```csharp
-public Task<IEnumerable<EventForEventSourceId>> Handle(AnEvent @event, EventContext context) =>
-    Task.FromResult<IEnumerable<EventForEventSourceId>>(
-    [
-        new EventForEventSourceId(@event.RelatedId, new SomeEvent())
-    ]);
-```
-
-> **Chronicle version note:** reactor side-effect handling of `EventForEventSourceId` wrappers ships in an upcoming Chronicle release. On earlier versions, target another event source with `ReactorSideEffect { EventSourceId = … }` instead.
+`IReactorSideEffectHandler` is a DI extension point, not something a handler method returns. Implement it and register it to teach Chronicle a new return type; the built-in handlers (`EventResultHandler`, `EventsResultHandler`, `EventForEventSourceIdResultHandler`, `EventsForEventSourceIdResultHandler`, `MixedSideEffectsResultHandler`, `EventsWithConcurrencyScopesResultHandler`) cover everything above. A returned value no handler recognizes is **discarded with a warning**, not appended.
 
 ## External event stores (outbox / inbox)
 
