@@ -17,23 +17,29 @@ This guidance applies before any `git commit` (including `git commit -m`, `git c
 1. **Detect a git commit command** — inspect the terminal command string for `git commit ...` (treat the rtk-rewritten `rtk git commit ...` as the same thing, since the rtk hook prefixes commands). If it does not match, skip all steps below and proceed normally.
 
 2. **Identify affected projects** from the staged changes:
-   ```
+
+   ```bash
    git diff --name-only --cached
    ```
+
    Collect unique project roots using the same rules as the agent-stop guidance:
    - `.cs` files → walk up to the nearest `.csproj`.
    - `.ts` / `.tsx` files → walk up to the nearest `package.json` with a `"test"` script.
 
 3. **Run specs for each affected .NET project**:
-   ```
+
+   ```bash
    dotnet test <specs-project-path> --no-build
    ```
+
    If the specs project cannot be identified, run `dotnet test` from the repository root.
 
 4. **Run specs for each affected TypeScript project**:
-   ```
+
+   ```bash
    yarn test
    ```
+
    Run from the package root that owns the changed files.
 
 5. **If any spec fails**:

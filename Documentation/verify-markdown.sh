@@ -74,12 +74,12 @@ echo ""
 # `**` glob, because the bash that ships with macOS is 3.2 and has no globstar.
 #
 # The roots mirror the "globs" in .markdownlint-cli2.jsonc, so the two halves of this
-# script cover the same files. .ai/agents and .ai/hooks are absent from both for the same
-# reason — see the note in that config.
+# script cover the same files. Add a root here whenever a glob is added there, or the link
+# check silently stops covering what the lint check covers.
 MARKDOWN_FILES=()
 while IFS= read -r markdown_file; do
     MARKDOWN_FILES+=("$markdown_file")
-done < <(find Documentation .ai/rules .ai/skills .ai/prompts \
+done < <(find Documentation .ai/rules .ai/skills .ai/prompts .ai/agents .ai/hooks .ai/README.md \
     -type d -name node_modules -prune -o -type f -name '*.md' -print | sort)
 
 if [ ${#MARKDOWN_FILES[@]} -eq 0 ]; then

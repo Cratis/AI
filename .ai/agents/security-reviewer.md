@@ -90,7 +90,7 @@ Start with a **summary**:
 
 Then list findings grouped by category:
 
-```
+```markdown
 ### Input Validation & Injection
 
 🔴 **Critical** — `Projects/Registration/RegisterProject.cs`

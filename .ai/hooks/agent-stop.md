@@ -11,9 +11,11 @@ When the agent finishes a session, verify the work against **fresh signals** bef
 ## Pick the path for this repository
 
 - **AI corpus repo** — the changes are only under `.ai/`, `.github/`, or `.claude/` and there is no .NET solution or frontend to build (e.g. this `cratis/AI` repo). Run the AI-setup validator instead of a code build:
-  ```
+
+  ```bash
   .ai/hooks/scripts/validate-ai-setup.sh
   ```
+
   Stop only when it passes (symlinks/adapters healthy, frontmatter present, no broken cross-links). Skip the application gates below.
 
 - **Application repo** — there is a .NET solution and/or a frontend. Run the application gates below.
@@ -21,17 +23,23 @@ When the agent finishes a session, verify the work against **fresh signals** bef
 ## Application gates
 
 1. **Clean** from repository root:
-   ```
+
+   ```bash
    dotnet clean
    ```
+
 2. **Build Debug** from repository root — validates `#if DEBUG` spec code and regenerates the TypeScript proxies:
-   ```
+
+   ```bash
    dotnet build
    ```
+
 3. **Build Release** from repository root — build-only check; skip re-running proxy generation:
-   ```
+
+   ```bash
    dotnet build -c Release -p:CratisProxiesOutputPath=
    ```
+
 4. **Run specs/tests for every affected project** — use the project's test command; if you cannot isolate the affected scope, run the repository-level test command.
 5. **Frontend** (when frontend files changed) — run lint, the type/build check, and frontend tests.
 

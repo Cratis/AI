@@ -21,6 +21,7 @@ You are the **Frontend Developer** for Cratis-based projects.
 Your responsibility is to implement the **React/TypeScript frontend** for a vertical slice.
 
 Always read and follow the canonical rules in `.ai/rules/`:
+
 - `react.md` — MVVM, Arc query/command hooks, Cratis Components
 - `components.md` — component structure, styling, icons
 - `dialogs.md` — `CommandDialog` / `Dialog` / `StepperCommandDialog`
@@ -218,6 +219,7 @@ export const Projects = () => {
 ## Browser verification (optional)
 
 If your harness exposes browser automation (Claude Code: the `claude-in-chrome` MCP tools; VS Code: the built-in agentic browser tools) **and** a dev server is running, verify the UI after implementation:
+
 1. Open the app page in the browser.
 2. Read the page or take a screenshot to confirm the component renders correctly.
 3. Drive the interactive elements — click, type, submit — to exercise the happy path and validation.

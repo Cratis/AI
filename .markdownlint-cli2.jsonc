@@ -14,20 +14,22 @@
     // The .ai/ entries close the gap that mattered most: the instruction corpus is the
     // primary product of this repository — it is propagated to every other Cratis repo — and
     // until now nothing linted it at all. Adding it surfaced 262 pre-existing findings in
-    // rules/, skills/ and prompts/ that no gate had ever reported.
+    // rules/, skills/ and prompts/, then 42 more in agents/, hooks/ and .ai/README.md, that
+    // no gate had ever reported.
     //
-    // Three sub-trees of .ai/ are deliberately NOT here yet:
-    //   - .ai/agents/**   (21 findings, 12 files)
-    //   - .ai/hooks/*.md  (21 findings, 2 files)
-    //   - .ai/README.md   (clean today, but unlinted)
-    // They are excluded only because they were owned by concurrent work when this scope was
-    // widened, not because they should stay unlinted. Add the globs in the same change that
-    // clears their findings — the rule set below already fits them.
+    // The five .ai/ globs together cover **every** markdown file under .ai/ — verify with
+    // `find .ai -name '*.md'` after adding a folder. agents/ and hooks/ are recursive even
+    // though both are flat today: a non-recursive glob is how a future subfolder silently
+    // goes unlinted, which is the exact gap these entries were added to close. Nothing else
+    // under hooks/ matches — hooks/scripts/ ships .sh and .json, not markdown.
     "globs": [
         "Documentation/**/*.md",
         ".ai/rules/**/*.md",
         ".ai/skills/**/*.md",
-        ".ai/prompts/**/*.md"
+        ".ai/prompts/**/*.md",
+        ".ai/agents/**/*.md",
+        ".ai/hooks/**/*.md",
+        ".ai/README.md"
     ],
 
     // Nothing under Documentation/ or .ai/ is generated or vendored *as markdown* today, so

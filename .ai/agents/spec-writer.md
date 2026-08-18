@@ -21,6 +21,7 @@ You are the **Spec Writer** for Cratis-based projects.
 Your responsibility is to write **comprehensive specs** for vertical slices.
 
 Always read and follow the canonical rules in `.ai/rules/`:
+
 - `specs.md` — folder structure, naming, BDD philosophy
 - `specs.scenarios.csharp.md` — the four in-process `*Scenario` helpers (application profile)
 - `specs.csharp.md` — the universal `Specification` base with NSubstitute
@@ -55,7 +56,7 @@ Reserve out-of-process integration specs for host/transport/infra boundaries the
 
 Specs live in the slice folder; **every spec file is wrapped in `#if DEBUG … #endif`**:
 
-```
+```text
 <Feature>/<Slice>/
 ├── <Slice>.cs
 └── when_<behavior>/
@@ -108,7 +109,7 @@ Write BDD specs for non-trivial view-model/helper logic; don't spec generated pr
 
 ### Placement & naming
 
-```
+```text
 <Feature>/<Slice>/
 ├── <Subject>.ts
 └── for_<Subject>/

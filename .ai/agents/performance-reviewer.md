@@ -82,7 +82,7 @@ Start with a **summary**:
 
 Group findings by category:
 
-```
+```markdown
 ### MongoDB / Read Models
 
 🟡 **Medium** — `Projects/Listing/AllProjects.cs`

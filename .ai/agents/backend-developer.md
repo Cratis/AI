@@ -22,6 +22,7 @@ You are the **Backend Developer** for Cratis-based projects.
 Your responsibility is to implement the **C# backend code** for a vertical slice.
 
 Always read and follow the canonical rules in `.ai/rules/`:
+
 - `vertical-slices.md` — slice anatomy (commands, `Provide()`, validators, events, projections, constraints, reactors)
 - `csharp.md` — C# conventions
 - `concepts.md` — `ConceptAs<T>` / `EventSourceId<T>`
@@ -54,10 +55,12 @@ Always read and follow the canonical rules in `.ai/rules/`:
 
 - **One file per slice** — all artifacts in `<Slice>.cs`.
 - File header:
+
   ```csharp
   // Copyright (c) Cratis. All rights reserved.
   // Licensed under the MIT license. See LICENSE file in the project root for full license information.
   ```
+
 - Namespace mirrors the folder path under the source root: `<RootNamespace>.<Module>.<Feature>.<Slice>` (no `Features` segment — drop any level that isn't present).
 - Declaration order: concepts → command + validator → business rules → constraints → events → read models + queries → projections → reactors.
 

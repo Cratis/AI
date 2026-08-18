@@ -24,6 +24,7 @@ Always check against the canonical rules in `.ai/rules/` (and `general.md`): `ve
 ## Review approach
 
 Review every changed file. For each issue found:
+
 - State the **file and line number**
 - Quote the **problematic code**
 - Explain **why it violates the standard**
@@ -143,7 +144,7 @@ Start with a **summary**:
 
 Then list issues grouped by file:
 
-```
+```markdown
 ### <file path>
 
 **[BLOCKING]** … or **[SUGGESTION]** …
