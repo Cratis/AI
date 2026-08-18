@@ -14,6 +14,9 @@
 #   CRATIS_HOOKS_ALLOW_PROTECTED_WRITES=1
 set -euo pipefail
 
+# SCRIPTDIR, not a path relative to the caller: shellcheck resolves a plain relative `source=`
+# against the current working directory, and these hooks are linted from wherever CI happens to run.
+# shellcheck source=SCRIPTDIR/hook-lib.sh
 . "$(dirname "${BASH_SOURCE[0]}")/hook-lib.sh"
 
 [ "${CRATIS_HOOKS_ALLOW_PROTECTED_WRITES:-0}" = "1" ] && exit 0

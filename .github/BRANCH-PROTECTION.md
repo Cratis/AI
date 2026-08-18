@@ -21,7 +21,7 @@ days on a compiler-toolset/SDK mismatch that no gate was watching.
 
 ## Required status checks
 
-These are job *names*, not workflow names. All eight are safe to require: every one of them
+These are job *names*, not workflow names. All nine are safe to require: every one of them
 reports a conclusion on every pull request (see the next section for why).
 
 | Check | Workflow | Reports when irrelevant |
@@ -31,6 +31,7 @@ reports a conclusion on every pull request (see the next section for why).
 | `Factory .NET libraries` | Factory Foundation | `skipped` |
 | `AI corpus` | Factory Foundation | `skipped` |
 | `Documentation` | Factory Foundation | `skipped` |
+| `Shell scripts` | Factory Foundation | `skipped` |
 | `Planner change detection` | Planner Build | always runs (it is the gate itself) |
 | `Backend` | Planner Build | `skipped` |
 | `Frontend` | Planner Build | `skipped` |

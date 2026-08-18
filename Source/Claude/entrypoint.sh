@@ -78,6 +78,10 @@ fail() {
 }
 
 if [[ -n "${GITHUB_TOKEN:-}" ]]; then
+    # The single quotes are the security property, not an oversight: ${GITHUB_TOKEN} must reach
+    # ~/.gitconfig *unexpanded* so the shell git spawns resolves it per invocation. Expanding it
+    # here would write the installation token into the git config file in plaintext.
+    # shellcheck disable=SC2016
     git config --global credential.helper '!f() { echo "username=x-access-token"; echo "password=${GITHUB_TOKEN}"; }; f'
 fi
 if [[ -n "${PLANNER_GIT_USER_NAME:-}" ]]; then
@@ -133,7 +137,10 @@ elif [[ -n "${PLANNER_REPOSITORY_URL:-}" ]]; then
     fi
 fi
 
-cd /workspace
+# Checked, because this script runs without `set -e`: an unchecked `cd` that fails would leave the
+# agent running in the container's default directory against whatever happens to be there, and the
+# work would be reported as completed. Fail the unit of work instead.
+cd /workspace || fail "Could not enter /workspace"
 
 if [[ -z "${PLANNER_PROMPT:-}" ]]; then
     log "No PLANNER_PROMPT provided - nothing to do"

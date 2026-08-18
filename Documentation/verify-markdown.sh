@@ -13,8 +13,11 @@
 
 set -e
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+# No SCRIPT_DIR/ROOT_DIR here on purpose. This script locates the tree it checks from $PWD (the
+# `cd ..` below), never from its own path, so a pair of directory variables derived from
+# ${BASH_SOURCE[0]} were only ever dead weight — shellcheck flagged ROOT_DIR as unused. Anchoring
+# to the script's own location instead would be a real improvement, but it changes which directory
+# gets linted, so it belongs in its own change rather than riding along with a lint fix.
 
 echo "=========================================="
 echo "Markdown Verification"

@@ -29,6 +29,18 @@ env:
   # current zero-findings baseline was measured against. Bump it deliberately, with the
   # resulting findings reviewed in the same pull request.
   MARKDOWNLINT_CLI2_VERSION: "0.23.2"
+  # Exact pin for the same reason as the one above, and it is not academic here either: a
+  # shellcheck release that adds a check to the default set would turn this gate red on a pull
+  # request that changed no shell at all. ubuntu-latest ships shellcheck preinstalled, but at a
+  # version the runner image bumps on its own schedule — which is precisely the unpinned upgrade
+  # this repository has already been bitten by — so the job downloads the pinned release instead
+  # of using it. 0.11.0 is the version the current zero-findings baseline was measured against.
+  # Bump it deliberately, with the resulting findings reviewed in the same pull request.
+  SHELLCHECK_VERSION: "0.11.0"
+  # sha256 of shellcheck-v0.11.0.linux.x86_64.tar.xz, as published by the GitHub release API.
+  # The download is a tarball from a third-party release, so the pin is only worth as much as the
+  # integrity check that goes with it. Update both together.
+  SHELLCHECK_SHA256: "8c3be12b05d5c177a04c29e3c78ce89ac86f1595681cab149b65b97c4e227198"
 
 permissions:
   contents: read
@@ -56,6 +68,7 @@ jobs:
       dotnet: ${{ steps.filter.outputs.dotnet == 'true' || github.event_name == 'workflow_dispatch' }}
       corpus: ${{ steps.filter.outputs.corpus == 'true' || github.event_name == 'workflow_dispatch' }}
       docs: ${{ steps.filter.outputs.docs == 'true' || github.event_name == 'workflow_dispatch' }}
+      shell: ${{ steps.filter.outputs.shell == 'true' || github.event_name == 'workflow_dispatch' }}
 
     steps:
       # pull_request comparisons go through the REST API and need no checkout, but the push
@@ -104,6 +117,14 @@ jobs:
               - '.github/workflows/factory-foundation.yml'
               - '.markdownlint-cli2.jsonc'
               - 'Documentation/**'
+            # Every .sh in the tree, wherever it lives. The shell in this repository spans four
+            # unrelated areas — the enforcement hooks under .ai/hooks/scripts, the docs gate, the
+            # worker container entrypoint and scripts/ — and no existing filter covers more than
+            # one of them. Widening `corpus` instead would run the AI-corpus validator on a
+            # container-entrypoint change it knows nothing about, so this gets its own filter.
+            shell:
+              - '**/*.sh'
+              - '.github/workflows/factory-foundation.yml'
 
   foundation:
     name: Deterministic Factory foundation
@@ -265,3 +286,76 @@ jobs:
       - name: Verify documentation links and script (advisory, non-blocking)
         continue-on-error: true
         run: bash Documentation/verify-markdown.sh
+
+  # Blocking, unlike the link check above, and the difference is determinism. shellcheck is a
+  # static parser over files already in the checkout: no network at check time, no shared-runner
+  # rate limit, no flake to trade away. The scripts it guards also earn a hard gate — the six
+  # under .ai/hooks/scripts are propagated to every Cratis repository and run on each agent write
+  # and turn end, so a `set -e` mistake there fails open across the fleet, silently. Two such bugs
+  # (a `grep -rl` whose no-match exit killed a loop, and a bare command that made a failure report
+  # unreachable) were found here by hand before this job existed; both are ordinary shellcheck
+  # findings.
+  shell:
+    name: Shell scripts
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: changes
+    if: needs.changes.outputs.shell == 'true'
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Install pinned shellcheck
+        shell: bash
+        run: |
+          set -euo pipefail
+          url="https://github.com/koalaman/shellcheck/releases/download/v${SHELLCHECK_VERSION}/shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz"
+          curl -fsSL --retry 3 --retry-all-errors -o "$RUNNER_TEMP/shellcheck.tar.xz" "$url"
+          echo "${SHELLCHECK_SHA256}  $RUNNER_TEMP/shellcheck.tar.xz" | sha256sum --check --strict
+          tar -xJf "$RUNNER_TEMP/shellcheck.tar.xz" -C "$RUNNER_TEMP"
+          sudo install -m 0755 "$RUNNER_TEMP/shellcheck-v${SHELLCHECK_VERSION}/shellcheck" /usr/local/bin/shellcheck
+          shellcheck --version
+
+      - name: Lint shell scripts
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Selection is by shebang, not by path. shellcheck parses the sh family only and errors
+          # out with SC1071 on anything else, and Factory/Migration carries two zsh scripts that
+          # would fail the job on sight. Reading the first line keeps a new bash script anywhere in
+          # the tree covered automatically, and a new zsh one out of the way, with no list to
+          # maintain here.
+          scripts=()
+          while IFS= read -r script; do
+            case "$(head -n 1 "$script")" in
+              *zsh | *fish | *python*) continue ;;
+            esac
+            scripts+=("$script")
+          done < <(find . -name '*.sh' \
+            -not -path './.git/*' \
+            -not -path '*/node_modules/*' \
+            -not -path '*/.yarn/*' \
+            -not -path '*/bin/*' \
+            -not -path '*/obj/*' | sort)
+
+          # The filter that starts this job matches '**/*.sh', so an empty list means every shell
+          # script in the repository was deleted, not that there is nothing to check. Say so rather
+          # than reporting a green check that verified nothing.
+          if [[ ${#scripts[@]} -eq 0 ]]; then
+            echo "No sh/bash scripts found, but the change filter matched '**/*.sh'." >&2
+            echo "If the last shell script really was removed, drop this job and its filter." >&2
+            exit 1
+          fi
+
+          echo "Checking ${#scripts[@]} script(s) with $(shellcheck --version | awk '/^version:/ {print $2}'):"
+          printf '  %s\n' "${scripts[@]}"
+          echo
+
+          # -x follows `source`d files, which is what makes the three hooks that pull in
+          # hook-lib.sh check as the single program they actually are. --severity=style is the
+          # shellcheck default today; naming it pins the threshold so a future release cannot
+          # loosen this gate without the version bump above being reviewed.
+          shellcheck --external-sources --severity=style --format=gcc "${scripts[@]}"
+          echo "shellcheck: zero findings."
