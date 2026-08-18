@@ -92,7 +92,9 @@ A Cratis repo is one of two **profiles** and the corpus serves both from this on
 - **application** — building an app *on* Cratis (event-sourced CQRS, vertical slices, MVVM frontend). The bulk of the rules.
 - **framework** — contributing to a Cratis framework repo *itself* (Arc, Chronicle, Fundamentals, Components — libraries). See `framework.md`.
 
-A profile-specific rule declares **`profile: application`** or **`profile: framework`** in its frontmatter; a rule with **no `profile:` is universal** and applies in both. `general.md` routes by profile (its application sections are clearly bannered; `framework.md` is the framework counterpart). `applyTo`/`paths` globs scope by *file type*; `profile:` scopes by *repo type* — both are needed because every repo has `.cs`/`.tsx` files. (Propagation can later filter by profile so a framework repo receives only `universal` + `framework`; until then, the `general.md` routing + per-rule banners make the AI self-select.)
+A profile-specific rule declares **`profile: application`** or **`profile: framework`** in its frontmatter; a rule with **no `profile:` is universal** and applies in both. `general.md` routes by profile (its application sections are clearly bannered; `framework.md` is the framework counterpart). `applyTo`/`paths` globs scope by *file type*; `profile:` scopes by *repo type* — both are needed because every repo has `.cs`/`.tsx` files. (Propagation can later filter by profile so a framework repo receives only the untagged universal rules + `framework`; until then, the `general.md` routing + per-rule banners make the AI self-select.)
+
+Those two are the **only** valid values. **There is no `profile: universal`** — absence *is* the universal state, and a second spelling of it would let two rules encode the same fact differently. `profile:` is also **rules-only**: it must never appear on a skill, which declares its audience in the description instead (see [Skill audience markers](#skill-audience-markers)). The validator enforces both.
 
 ## Adding a new rule
 
@@ -132,7 +134,32 @@ Always edit the canonical file in the relevant `.ai/` subfolder — never the ad
   ```
 - **Hooks** (`.ai/hooks/*.md`) — these are *guidance*, not wired hooks. To enforce, add the real artifact per tool (Claude `.claude/settings.json`; Copilot `.github/hooks/*.json`).
 
-Run `hooks/scripts/validate-ai-setup.sh` after adding an agent or prompt to confirm its adapter resolves.
+**Deleting a canonical file means deleting its per-file adapter too.** The adapter is not cleaned up for you, and a stale one is an invisible break — a dangling `.claude/commands/<n>.md` is a slash command that resolves to nothing. Run `hooks/scripts/validate-ai-setup.sh` after adding *or removing* an agent, prompt, or rule: it checks that every canonical file has its adapter, and that every adapter in `.claude/rules`, `.claude/commands`, and `.github/agents` still resolves to something that exists.
+
+## Skill audience markers
+
+`profile:` is a **rules-only** key and must never appear on a skill. The Agent Skills format allows only `name`, `description`, `license`, `allowed-tools`, `metadata`, and `compatibility` at the top level of `SKILL.md`, and nothing in the toolchain reads a `profile:` off a skill in any case. Three of the four audiences below are *roles*, not repo types, so `profile:` could not express them without making one key mean two incompatible things.
+
+A skill whose audience is **not** the default declares it as an **ALL-CAPS marker at the very start of its `description`**, followed by an em dash and one clause saying who it is for and who it is not for:
+
+```yaml
+description: "DOCS MAINTAINER SKILL — for the Cratis *product* documentation, not an application's own docs. Use this skill when …"
+```
+
+**No marker means the default audience** — a developer building an application on Cratis, or contributing to a Cratis framework repository. Most skills carry no marker and should not gain one.
+
+The marker set is **closed**:
+
+| Marker | Audience |
+|---|---|
+| `FRAMEWORK PROFILE ONLY` | Contributing to a Cratis framework repository (Arc, Chronicle, Fundamentals, Components) — not application code. |
+| `DOCS MAINTAINER SKILL` | Writing the Cratis *product* documentation — not an application's own docs. |
+| `CORPUS MAINTAINER SKILL` | Maintaining this `.ai/` instruction corpus itself — not product features. |
+| `PLATFORM OPERATOR SKILL` | Building or operating the Cratis delivery platform (Software Factory, Planner/Studio) — not writing a feature in an application. |
+
+**To add an audience, add the row above and the value in `hooks/scripts/validate-ai-setup.sh` (`skill_audience_markers`) in the same commit.** The validator fails any description that opens with an ALL-CAPS run followed by an em dash unless that run is one of the four, so an invented or mistyped marker is caught — and no description may open that way for an unrelated reason. Put the marker on the **first line** of the description value; all three YAML spellings in use are handled (inline quoted, bare inline, and a value that begins on the line after `description:`).
+
+**A marker is selection-time steering, not machine-readable scoping.** The description is the only field a harness puts in front of the model when it picks a skill, so the marker's entire job is to be read *at that moment* and steer the model away from a skill whose audience it is not. Nothing filters on it: a marked skill is still installed, still listed, and still invocable everywhere. **Machine composition by repo type belongs in `Factory/Profiles/*.profile.json`** — its `skills:` array is what actually decides which skills a repository profile receives. To genuinely withhold a skill from a repo rather than merely discourage it, change the profile, not the description.
 
 ## Renaming a rule
 

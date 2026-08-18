@@ -152,7 +152,7 @@ All gates pass before merging, opening a PR, or marking a slice complete — exc
 
 # Framework profile
 
-> You are contributing to a Cratis framework repository (Arc, Chronicle, Fundamentals, Components, …). **The Application-profile sections above do not apply** — there are no vertical slices, model-bound `[Command]`/`[ReadModel]` artifacts, projections/read-models, or MVVM app components here; these are libraries. Follow **[framework.md](./framework.md)** for repo structure, library/API design, source generators, the Chronicle kernel, and the framework quality gates. The universal sections (below, and every `profile: universal` rule) still apply.
+> You are contributing to a Cratis framework repository (Arc, Chronicle, Fundamentals, Components, …). **The Application-profile sections above do not apply** — there are no vertical slices, model-bound `[Command]`/`[ReadModel]` artifacts, projections/read-models, or MVVM app components here; these are libraries. Follow **[framework.md](./framework.md)** for repo structure, library/API design, source generators, the Chronicle kernel, and the framework quality gates. The universal sections (below, and every rule that declares no `profile:`) still apply.
 
 ---
 

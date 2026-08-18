@@ -28,18 +28,43 @@ for rule in .ai/rules/*.md; do
     [[ "$rule" == ".ai/rules/general.md" ]] && continue
     if [[ "$(sed -n '1p' "$rule")" != "---" ]]; then fail "$rule: missing YAML frontmatter"; continue; fi
     grep -Eq '^applyTo:' "$rule" || fail "$rule: frontmatter must include applyTo"
-    # profile (optional) must be application|framework|universal when present (absent = universal)
-    if grep -Eq '^profile:' "$rule" && ! grep -Eq '^profile:[[:space:]]*(application|framework|universal)[[:space:]]*$' "$rule"; then
-        fail "$rule: profile must be application|framework|universal"
+    # profile (optional) must be application|framework when present. Absence IS the universal
+    # state — there is deliberately no explicit `profile: universal`, so a rule cannot encode the
+    # same fact two ways (see managing-ai-rules.md, "Profiles").
+    if grep -Eq '^profile:' "$rule" && ! grep -Eq '^profile:[[:space:]]*(application|framework)[[:space:]]*$' "$rule"; then
+        fail "$rule: profile must be application or framework (omit it for a universal rule)"
     fi
 done
 
-# ── Structural: skills (name + description) ──
+# ── Structural: skills (name + description + audience marker) ──
+#    A skill declares a non-default audience as an ALL-CAPS marker at the very start of its
+#    description, followed by an em dash. The set is CLOSED — adding an audience means adding the
+#    row in managing-ai-rules.md ("Skill audience markers") and the value here, in one commit.
+#    `profile:` is a rules-only key and must never appear on a skill (Agent Skills allows only
+#    name/description/license/allowed-tools/metadata/compatibility at the top level).
+skill_audience_markers='FRAMEWORK PROFILE ONLY|DOCS MAINTAINER SKILL|CORPUS MAINTAINER SKILL|PLATFORM OPERATOR SKILL'
+description_head() {  # first line of a skill's description value
+    # Handles all three YAML spellings in use: `description: "..."`, a bare inline value, and a
+    # value that begins on the line *after* `description:` (plain or block scalar). Quotes are
+    # stripped only at the head, so escaped inner quotes never confuse the match.
+    local p="$1" head
+    head="$(grep -m1 -E '^description:' "$p" | sed -E 's/^description:[[:space:]]*//; s/^[|>][+-]?[0-9]*[[:space:]]*$//')"
+    if [[ -z "$head" ]]; then head="$(sed -n '/^description:/,$p' "$p" | sed -n '2p')"; fi
+    printf '%s' "$head" | sed -E 's/^[[:space:]]*//; s/^["'"'"']//'
+}
 for skill in .ai/skills/*/SKILL.md; do
     [[ -e "$skill" ]] || continue
     if [[ "$(sed -n '1p' "$skill")" != "---" ]]; then fail "$skill: missing YAML frontmatter"; continue; fi
     grep -Eq '^name:' "$skill" || fail "$skill: frontmatter must include name"
-    grep -Eq '^description:' "$skill" || fail "$skill: frontmatter must include description"
+    if ! grep -Eq '^description:' "$skill"; then fail "$skill: frontmatter must include description"; continue; fi
+    if grep -Eq '^profile:' "$skill"; then
+        fail "$skill: profile: is a rules-only key — declare a skill's audience with a description marker"
+    fi
+    head="$(description_head "$skill")"
+    if printf '%s' "$head" | grep -qE '^[A-Z][A-Z0-9 ]*[A-Z][[:space:]]*—' \
+        && ! printf '%s' "$head" | grep -qE "^($skill_audience_markers)[[:space:]]*—"; then
+        fail "$skill: unknown audience marker '$(printf '%s' "$head" | sed -E 's/[[:space:]]*—.*$//')' — the closed set is: ${skill_audience_markers//|/, }"
+    fi
 done
 
 # ── Structural: prompts must be *.prompt.md with frontmatter + description ──
@@ -102,14 +127,39 @@ for prompt in .ai/prompts/*.prompt.md; do
     elif [[ "$(adapter_target "$cl")" != "$expected" ]]; then fail "$cl: expected target '$expected'"; fi
 done
 
+# ── Orphan adapters: an adapter left behind after its canonical source was deleted ──
+#    Every loop above walks the CANONICAL files and asks "does its adapter exist?", so a deleted
+#    canonical file is simply never visited and its stale adapter stays invisible. Walk the
+#    per-file adapter directories in the other direction and fail on one that no longer resolves.
+#    Only files that ARE adapters are judged: a symlink, or a regular file whose entire body is a
+#    single relative path. Repo-local content living beside the adapters is ignored, so this stays
+#    correct in every repository the corpus is propagated to — it asserts internal consistency of
+#    what the repo itself declares, never that a particular canonical name must exist.
+for dir in .claude/rules .claude/commands .github/agents; do
+    [[ -d "$dir" ]] || continue
+    for adapter in "$dir"/*; do
+        [[ -e "$adapter" || -L "$adapter" ]] || continue
+        if [[ -L "$adapter" ]]; then
+            [[ -e "$adapter" ]] || fail "$adapter: dangling adapter — '$(readlink "$adapter")' does not exist (canonical source deleted?)"
+            continue
+        fi
+        target="$(adapter_target "$adapter")"
+        # A path-reference adapter is exactly one relative-path line; anything else is content.
+        [[ "$target" == ../* && "$target" != *$'\n'* ]] || continue
+        [[ -e "$dir/$target" ]] || fail "$adapter: dangling adapter — '$target' does not exist (canonical source deleted?)"
+    done
+done
+
 # ── General-rule root adapters ──
 for f in .github/copilot-instructions.md .claude/CLAUDE.md; do
     [[ -e "$f" ]] || fail "missing general-rule adapter: $f"
 done
 
 # ── Codex adapters (we claim Codex support) ──
-[[ -L AGENTS.md || -f AGENTS.md ]] || fail "AGENTS.md: missing Codex root adapter (-> .ai/rules/general.md)"
-[[ -L .agents/skills ]]            || fail ".agents/skills: missing Codex skills adapter (-> ../.ai/skills)"
+#    -e follows a symlink, so it catches a dangling one as well as an outright missing adapter;
+#    a path-reference file satisfies it too.
+[[ -e AGENTS.md ]]                     || fail "AGENTS.md: missing or dangling Codex root adapter (-> .ai/rules/general.md)"
+[[ -L .agents/skills && -d .agents/skills ]] || fail ".agents/skills: missing or dangling Codex skills adapter (-> ../.ai/skills)"
 
 # ── Hook files ──
 for hook in .ai/hooks/pre-commit.md .ai/hooks/agent-stop.md; do
