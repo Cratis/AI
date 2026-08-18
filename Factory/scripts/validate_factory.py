@@ -140,6 +140,10 @@ def _is_contract_schema(path: Path) -> bool:
     )
 
 
+def _is_contract_instance(path: Path) -> bool:
+    return path.parent.name == "examples" and path.parent.parent in {CONTRACTS, CONTRACTS_V2}
+
+
 def validate_schema_files(documents: dict[Path, dict[str, Any]], errors: list[str]) -> None:
     schema_ids: set[str] = set()
     for path, document in documents.items():
@@ -181,7 +185,7 @@ def validate_schema_files(documents: dict[Path, dict[str, Any]], errors: list[st
 
 def validate_document_kinds(documents: dict[Path, dict[str, Any]], errors: list[str]) -> None:
     for path, document in documents.items():
-        if _is_contract_schema(path):
+        if _is_contract_schema(path) or _is_contract_instance(path):
             continue
         document_kind = document.get("documentKind")
         if document_kind not in SCHEMA_BY_DOCUMENT_KIND and document_kind not in V2_DOCUMENT_KINDS:
@@ -222,19 +226,24 @@ def validate_json_schema_documents(documents: dict[Path, dict[str, Any]], errors
     )
     format_checker = FormatChecker()
     for path, document in documents.items():
+        is_instance = _is_contract_instance(path)
         document_kind = document.get("documentKind")
-        if document_kind not in SCHEMA_BY_DOCUMENT_KIND and document_kind not in V2_DOCUMENT_KINDS:
+        if not is_instance and document_kind not in SCHEMA_BY_DOCUMENT_KIND and document_kind not in V2_DOCUMENT_KINDS:
             continue
         declared_schema = document.get("$schema")
-        if isinstance(declared_schema, str) and declared_schema in schemas_by_id:
+        if is_instance:
+            schema = schemas_by_id.get(declared_schema) if isinstance(declared_schema, str) else None
+            if schema is None:
+                errors.append(f"{path.relative_to(ROOT)}: unknown or unresolved $schema {declared_schema}")
+                continue
+        elif isinstance(declared_schema, str) and declared_schema in schemas_by_id:
             schema = schemas_by_id[declared_schema]
-            schema_name = declared_schema
         else:
             schema_name = SCHEMA_BY_DOCUMENT_KIND.get(document_kind, "")
             schema = v1_schemas_by_name.get(schema_name)
-        if schema is None:
-            errors.append(f"{path.relative_to(ROOT)}: missing canonical schema {schema_name}")
-            continue
+            if schema is None:
+                errors.append(f"{path.relative_to(ROOT)}: missing canonical schema {schema_name}")
+                continue
         validator = Draft202012Validator(schema, format_checker=format_checker, registry=registry)
         for error in sorted(validator.iter_errors(document), key=lambda item: list(item.absolute_path)):
             json_path = ".".join(str(part) for part in error.absolute_path)

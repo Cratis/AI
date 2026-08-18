@@ -10,7 +10,11 @@ static class CommittedSchemaCorpus
 
     public static IReadOnlyList<CommittedInstance> Instances { get; } =
     [
+        new("Contracts/v1/examples/approval-decision.json", $"{V1}approval-decision.schema.json"),
+        new("Contracts/v1/examples/factory-objective.json", $"{V1}factory-objective.schema.json"),
+        new("Contracts/v1/examples/gate-report.json", $"{V1}gate-report.schema.json"),
         new("Contracts/v1/examples/project-manifest.json", $"{V1}project-manifest.schema.json"),
+        new("Contracts/v1/examples/repository-snapshot.json", $"{V1}repository-snapshot.schema.json"),
         new("Contracts/v2/examples/agent-context.json", $"{V2}agent-context.schema.json"),
         new("Contracts/v2/examples/artifact-descriptor.json", $"{V2}artifact-descriptor.schema.json"),
         new("Contracts/v2/examples/artifact-provenance.json", $"{V2}artifact-provenance.schema.json"),

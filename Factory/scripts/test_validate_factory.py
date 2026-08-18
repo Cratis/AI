@@ -249,6 +249,24 @@ class FactoryValidatorTests(unittest.TestCase):
 
         self.assertTrue(any("unresolved external reference" in error for error in errors))
 
+    def test_contract_instance_with_unresolved_schema_is_rejected(self) -> None:
+        documents = load_documents()
+        instance_path = validate_factory.CONTRACTS / "examples" / "factory-objective.json"
+        documents[instance_path]["$schema"] = "https://schemas.cratis.io/factory/v1/unknown.schema.json"
+
+        errors = validate_factory.validate_documents(documents)
+
+        self.assertTrue(any("unknown or unresolved $schema" in error for error in errors))
+
+    def test_contract_instance_violating_its_schema_is_rejected(self) -> None:
+        documents = load_documents()
+        instance_path = validate_factory.CONTRACTS / "examples" / "factory-objective.json"
+        documents[instance_path]["classification"] = "top-secret"
+
+        errors = validate_factory.validate_documents(documents)
+
+        self.assertTrue(any("is not one of" in error for error in errors))
+
     def test_gate_report_cannot_pass_with_a_failing_check(self) -> None:
         documents = load_documents()
         schema = documents[validate_factory.CONTRACTS / "gate-report.schema.json"]

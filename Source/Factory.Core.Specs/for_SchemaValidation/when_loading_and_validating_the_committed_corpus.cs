@@ -38,7 +38,7 @@ public class when_loading_and_validating_the_committed_corpus : Specification
     }
 
     [Fact] void should_load_all_committed_schemas() => _schemaBytes.Count.ShouldEqual(29);
-    [Fact] void should_route_all_committed_instances_explicitly() => CommittedSchemaCorpus.Instances.Count.ShouldEqual(26);
+    [Fact] void should_route_all_committed_instances_explicitly() => CommittedSchemaCorpus.Instances.Count.ShouldEqual(30);
     [Fact] void should_accept_the_schema_resource_set() => _loadResult.Status.ShouldEqual(SchemaLoadStatus.Loaded);
     [Fact] void should_report_no_schema_diagnostics() => _loadResult.Diagnostics.ShouldBeEmpty();
     [Fact] void should_bind_the_schema_set_identity() => _loadResult.ResourceSet!.Identity.Value.ShouldEqual("sha256:0c0d49351caaf538c37ac785d03cec872f8ed6dde1a02257aef7e6f265390d99");

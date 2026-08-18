@@ -242,6 +242,36 @@ not establish who authored a schema, whether the repository is authoritative,
 whether an instance is semantically correct, whether policy approves it, or
 whether any capability may execute.
 
+## Conformance instances
+
+Every committed schema pairs with a conformance instance that proves it
+validates real data. Instances live in `Contracts/<version>/examples/`, one
+file per schema, named after the schema's own basename with the
+`.schema.json` suffix dropped (`<schema-basename>.json` — for example,
+`Contracts/v1/gate-report.schema.json` pairs with
+`Contracts/v1/examples/gate-report.json`).
+
+Every instance carries its schema's absolute `$id` as its own `$schema` value
+(`https://schemas.cratis.io/factory/<version>/<schema-basename>.schema.json`),
+never a relative path. Both the Stage 0 Python validator
+(`Factory/scripts/validate_factory.py`) and the native
+`CommittedSchemaCorpus` (`Source/Factory.Core.Specs`) route an instance to the
+schema its `$schema` names — not by `documentKind`, which most v1 schemas do
+not declare at all. An instance whose `$schema` names no committed schema is
+rejected outright; it is never silently skipped.
+
+☠️ **Never name an instance `*.schema.json`.** `CommittedSchemaCorpus.cs`
+globs `Contracts/**/*.schema.json` recursively to compute the frozen
+schema-set identity that `AcceptedDefinitionSchemas` pins:
+`AcceptedDefinitionSchemas.Identity`, `DocumentCount`, `ResourceCount`,
+`ReferenceCount`, and the thirteen frozen `DefinitionSchemaRoutes` closure
+identities all derive from that exact glob. A conformance instance whose
+filename matches that pattern joins the schema set and moves every one of
+those identities at once. This was proven by experiment: a correctly-named
+instance left the identity at
+`sha256:0c0d49351caaf538c37ac785d03cec872f8ed6dde1a02257aef7e6f265390d99`; a
+single instance misnamed `x.schema.json` moved it to `sha256:7eff6e9f...`.
+
 ## Package and migration boundary
 
 JsonSchema.Net 8.0.5 is centrally pinned as the final MIT-licensed release
