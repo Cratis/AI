@@ -82,6 +82,7 @@ logged as a warning at startup.
 | Key | Default | Purpose |
 | --- | --- | --- |
 | `MaxConcurrentWorkPerAccount` | `1` | How many units of work may run concurrently per account |
+| `MaxRunningDuration` | `1.00:00:00` (24 hours) | How long a unit of work may stay running before it is swept as presumed dead. `00:00:00` disables the sweep |
 | `DefaultModel` | `sonnet` | The model for implementation work when nothing suggested one |
 | `InvestigationModel` | `opus` | The model used for investigations |
 | `Limits:<Plan>:SessionsPerFiveHours` | 1 / 3 / 6 | Sessions per rolling five-hour window for Pro / Max5x / Max20x |
@@ -89,6 +90,23 @@ logged as a warning at startup.
 
 The limits are deliberately conservative approximations of the Claude plan boundaries - tune them
 to your accounts' real experience.
+
+### The stuck-work sweep
+
+A worker container that dies without reporting - an OOM kill, a node eviction, a crash - leaves its
+work item `Running` forever: nothing else moves it out of that state, and since
+`MaxConcurrentWorkPerAccount` defaults to `1`, one stuck item wedges its account indefinitely. Every
+scheduling pass now sweeps work that has been `Running` longer than `MaxRunningDuration`: it stops
+the worker (best effort, in case it is somehow still around) and fails the work with a reason that
+says it was swept, not that it genuinely failed.
+
+The worker runtime (Docker locally, Kubernetes in production) has no way to ask whether a container
+is still alive, so the sweep can only go on elapsed time - it cannot tell a dead container from a
+slow one. That is why the default is a generous 24 hours: an agent legitimately running for hours on
+a hard issue is normal, and failing a container that is still working would be a worse outcome than
+the bug this closes. Set `Planner:Scheduling:MaxRunningDuration` to `00:00:00` to disable the sweep
+entirely, or to a smaller value (e.g. `04:00:00`) if your workloads are reliably short and you want
+faster recovery.
 
 ## Alerts - `Planner:Alerts`
 
