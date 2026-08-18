@@ -97,14 +97,13 @@ would fire on exactly the lines someone had just fixed correctly. The check is d
 in the same direction: it would rather miss a stale line than warn about a correct one.
 
 **What it deliberately does not check.** Named imports (`import { Toaster } from '…'`) are Tier 2's
-job, below. Bare identifiers in prose are out of both tiers — naive matching runs 40–60% wrong and
-needs a curated allowlist. So a fabricated *type* that never appears in an import statement is
-invisible to the whole guard: neither tier would have caught `ReactorSideEffect`, which lived only
-in prose and in C# type positions. This tier checks module specifiers, nothing else.
+job, below; .NET types named in prose or in a C# type position are Tier 3's. This tier checks module
+specifiers, nothing else.
 
 Run it standalone, optionally over other roots, and add `CRATIS_HOOKS_SUBPATH_REPORT=1` to see every
-reference and how it resolved rather than only the failures. It ends by invoking Tier 2 over the same
-roots, so the single call site in `validate-ai-setup.sh` gets both.
+reference and how it resolved rather than only the failures. It invokes Tier 3 before its own gates
+and Tier 2 after its own work, over the same roots, so the single call site in
+`validate-ai-setup.sh` gets all three.
 
 ### Named import existence — `scripts/validate-package-imports.sh` (warn)
 
@@ -141,6 +140,81 @@ statements, nothing else.
 
 Run it standalone over any roots, and add `CRATIS_HOOKS_IMPORT_REPORT=1` to see every binding and how
 it resolved rather than only the failures.
+
+### .NET type existence — `scripts/validate-type-references.sh` (warn)
+
+Tier 3, and the only tier that reads .NET rather than TypeScript. Tiers 1 and 2 both start from an
+`import` statement, so a type the corpus names *only* in prose and in C# type positions is invisible
+to both. That is exactly how `ReactorSideEffect` survived: never a module specifier, never an import,
+told readers to return it from a reactor, shown with object-initializer syntax — and never a type in
+any Chronicle release. Someone following the corpus wrote code that does not compile.
+
+**The index.** Every `Cratis*` version pinned in `Directory.Packages.props`, plus the Cratis packages
+those pull in (`Cratis` is a metapackage), resolved against the local NuGet cache. Each package's
+`lib/**/*.xml` carries `<member name="T:Full.Namespace.TypeName">` — a complete machine-readable type
+list — and every other identifier the docs mention is kept as a second, permissive accept list, in
+the same spirit as Tier 2's "a word anywhere in the `.d.ts` closure". Names the corpus itself
+declares, and names declared in this repository's own `Source/**/*.cs`, are accepted too: a worked
+example that writes `public record AuthorRegistered(…)` before using it is not documenting a
+framework API. A curated allowlist covers the rest — see below.
+
+**Why it is narrow, and what that cost.** The naive version of this check is the reason the whole
+tier nearly did not ship. Of the **1279** distinct PascalCase names it reads across 151 corpus files,
+**599 — 47% — resolve nowhere**, because the corpus legitimately invents domain examples
+(`AuthorRegistered`, `IAuthorService`), placeholders and prose nouns. A guard that cries wolf 599
+times gets switched off, and then it protects nothing. So only two constructs are ever reported:
+
+| Construct | Why it is safe | Measured |
+|---|---|---|
+| **Attribute position** — `[Name]`, `[Name<T>]`, `[Name(…)]` inside an inline code span or a fenced `csharp` block | attribute brackets are unambiguous C#, and a markdown link cannot live inside a code span, so the syntax alone identifies an API reference; `Name` and `NameAttribute` both count | 686 occurrences, 61 distinct names |
+| **Framework-adjacent type token** — any other PascalCase token in a code span or a fenced `csharp` block that resolves nowhere **and** is a strict PascalCase-word-boundary *prefix* of a real Cratis type name | that is the fabrication signature: a half-remembered real family of names with a member coined that was never minted. `ReactorSideEffect` is a prefix of `ReactorSideEffectFailure`; `AuthorRegistered` is a prefix of nothing Cratis ships | takes the 599 unresolved down to **2** |
+
+Both remaining names — `ICommand` and `IQuery`, which do not exist — are cleared by the absence rule
+below, because the corpus's own point about them is exactly that. **Zero warnings on the real
+corpus.**
+
+**Constructs measured and rejected.** Each was extracted over the whole corpus and its unresolved
+names counted before being dropped: `new TypeName` in a fenced `csharp` block (**17** false positives —
+example events are constructed but never declared), `IInterfaceName` in a fenced `csharp` block (**17** —
+invented example services like `IOrderRepository`), the same in an inline code span (**23** —
+TypeScript interfaces and shouty prose such as `IMPORTANT`), and in bare prose (**2**, including the
+plural `IDs`). None of them survives the "precision over recall" test on its own. They are all still
+*read*; they simply have to earn a warning through framework-adjacency instead of through syntax.
+
+**Three structural exclusions, no allowlist needed.** A token is skipped when it is preceded by `.`
+(a member, not a type), when it is ALL-CAPS (`PII`, `IMPORTANT`), and when it is written as
+`<Placeholder>` — the corpus's `<Module>/<Feature>/<Slice>` idiom, distinguished from a generic
+argument list by the character before the `<`, which in C# is always an identifier character.
+
+**Same warn-only and same version rule as Tiers 1 and 2, plus one of its own.** A name is cleared
+when any line in the same file that mentions it carries a version, *or* says the thing does not
+exist — `does not exist`, `no longer`, `never use`, `removed`, `deprecated`, `there is no` and
+friends. Part of this corpus's job is naming APIs that are **not** real, and warning about a line
+whose entire point is that the type is fictional would be the most annoying false positive of all.
+The cost is stated plainly: reintroduce a fabrication into a sentence containing one of those
+phrases and the guard stays quiet.
+
+**Silent when it cannot judge.** No `Directory.Packages.props`, no local NuGet cache, or a cache
+holding none of the pinned versions: skipped without a word. It needs no `jq` and no `node_modules`,
+which is why Tier 1 invokes it *above* its own gates rather than beside the Tier 2 call — a backend-
+only repository must still get this check. It adds about 1.4 s to `validate-ai-setup.sh`.
+
+**The allowlist — `scripts/type-references-allowlist.txt`.** Thirteen entries, each with a written
+justification: ASP.NET Core and BCL attributes that live in ref packs (which ship no XML docs at
+all), Orleans and `Microsoft.Extensions.*` attributes from packages that ship none either, `[CliCommand]`
+/ `[CliExample]` from the separate `Cratis/cli` repository, the Chronicle **Kernel**'s `WellKnown`,
+and `@cratis/fundamentals`' TypeScript `JsonSerializer`. Every one was verified real before being
+listed. An entry is a small lie the guard tells itself, so prefer widening the index whenever that
+is possible, and never add a name you have not confirmed exists.
+
+**What it deliberately does not check.** TypeScript — that is Tiers 1 and 2. Members, methods and
+properties: `Provide()`, `.AutoMap()` and `EventStoreName.NotSet` are all invisible, and a fabricated
+*member* on a real type would pass. And a fabricated type that is not a prefix of any real Cratis
+name is invisible too — the adjacency filter is what buys the precision, and it is also the ceiling
+on the recall.
+
+Run it standalone over any roots, and add `CRATIS_HOOKS_TYPE_REPORT=1` to see every distinct name and
+how it resolved rather than only the failures.
 
 ## Configuration is data, not code
 
@@ -184,6 +258,7 @@ Each is an explicit, auditable opt-out — none of them is a default.
 | `CRATIS_HOOKS_GATES=<path>` | replaces the gate file |
 | `CRATIS_HOOKS_SUBPATH_REPORT=1` | prints every `@cratis/*` subpath reference and how it resolved, not only the failures |
 | `CRATIS_HOOKS_IMPORT_REPORT=1` | prints every `@cratis/*` named import binding and how it resolved, not only the failures |
+| `CRATIS_HOOKS_TYPE_REPORT=1` | prints every .NET type/attribute name the corpus mentions and how it resolved, not only the failures |
 
 ## Design constraints
 
@@ -258,7 +333,29 @@ echo "import { DataPage, Column } from '@cratis/components/DataPage';" \
 CRATIS_HOOKS_IMPORT_REPORT=1 .ai/hooks/scripts/validate-package-imports.sh
 ```
 
-Run `bash -n` on every script and `jq .` on every JSON file before committing.
+Tier 3 wants the same three runs, and its negative case is the one that motivated it. Put
+`ReactorSideEffect` back into a scratch corpus and the guard must name it; a design that misses its
+own motivating case is the wrong design.
+
+```bash
+# Negative — the confirmed fabrication, in prose and in object-initializer syntax
+mkdir -p /tmp/scratch-corpus
+printf 'A reactor may return a `ReactorSideEffect` to control where the event is appended.\n' \
+  > /tmp/scratch-corpus/drift.md
+.ai/hooks/scripts/validate-type-references.sh /tmp/scratch-corpus
+
+# Discrimination — every name real, expect silence
+printf 'Return `EventForEventSourceId`, or a `ReactorSideEffectFailure` from an `IReactor`.\n' \
+  > /tmp/scratch-corpus/drift.md
+.ai/hooks/scripts/validate-type-references.sh /tmp/scratch-corpus
+
+# Positive — the real corpus, expect silence, with the report showing how each name resolved
+CRATIS_HOOKS_TYPE_REPORT=1 .ai/hooks/scripts/validate-type-references.sh
+```
+
+Run `bash -n` on every script and `jq .` on every JSON file before committing. The hook scripts are
+kept at **zero** `shellcheck --external-sources --severity=style` findings by a blocking CI job — run
+it before committing too.
 
 ## Note on `.claude/settings.local.json`
 

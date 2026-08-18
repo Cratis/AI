@@ -26,6 +26,14 @@ cd "$root"
 warn() { printf 'ai-corpus warn: %s\n' "$1" >&2; }
 report() { [[ "${CRATIS_HOOKS_SUBPATH_REPORT:-0}" == "1" ]] && printf 'ai-corpus subpath: %s\n' "$1" >&2 || true; }
 
+# Tier 3 over the same roots: whether the .NET types the corpus names in prose and in C# positions
+# exist at all. Invoked exactly like Tier 2 at the bottom of this file — tested with -f, not -x, and
+# run through `bash`, so a checkout that lost the exec bit does not silently drop the guard — but
+# necessarily *above* the two gates below, because it reads a NuGet cache rather than node_modules
+# and must still run in a repository that has no frontend and no `jq`.
+types="$(dirname "${BASH_SOURCE[0]}")/validate-type-references.sh"
+if [[ -f "$types" ]]; then bash "$types" "$@" || true; fi
+
 command -v jq >/dev/null 2>&1 || exit 0
 [[ -d node_modules/@cratis ]] || exit 0
 
