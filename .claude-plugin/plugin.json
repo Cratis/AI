@@ -1,0 +1,30 @@
+{
+    "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+    "name": "cratis",
+    "version": "1.0.0",
+    "description": "Cratis-native agent knowledge: skills and slash commands for building event-sourced CQRS applications on Cratis Chronicle and Arc, and for contributing to the Cratis framework repositories themselves.",
+    "author": {
+        "name": "Cratis",
+        "url": "https://github.com/Cratis"
+    },
+    "homepage": "https://github.com/Cratis/AI",
+    "repository": "https://github.com/Cratis/AI",
+    "license": "MIT",
+    "keywords": [
+        "cratis",
+        "chronicle",
+        "arc",
+        "event-sourcing",
+        "cqrs",
+        "dotnet",
+        "csharp",
+        "react",
+        "vertical-slice"
+    ],
+    "skills": [
+        "./.ai/skills"
+    ],
+    "commands": [
+        "./.ai/prompts"
+    ]
+}

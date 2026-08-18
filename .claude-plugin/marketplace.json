@@ -1,0 +1,17 @@
+{
+    "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+    "name": "cratis",
+    "description": "The Cratis marketplace - agent knowledge for building on and contributing to Cratis.",
+    "owner": {
+        "name": "Cratis",
+        "url": "https://github.com/Cratis"
+    },
+    "plugins": [
+        {
+            "name": "cratis",
+            "source": "./",
+            "description": "Cratis-native agent knowledge: skills and slash commands for building event-sourced CQRS applications on Cratis Chronicle and Arc, and for contributing to the Cratis framework repositories themselves.",
+            "category": "development"
+        }
+    ]
+}
