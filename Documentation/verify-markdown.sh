@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Markdown Verification Script
-# Local developer helper: lints the Documentation tree and the .ai/ instruction corpus
-# with markdownlint-cli2 and verifies every link with linkinator. The Documentation job in
-# .github/workflows/factory-foundation.yml runs it as an advisory, non-blocking step; run
-# it yourself before pushing documentation or corpus changes.
+# Local developer helper: lints the Documentation tree, the .ai/ instruction corpus and
+# Factory/README.md with markdownlint-cli2, and verifies every link with linkinator. The
+# Documentation job in .github/workflows/factory-foundation.yml runs it as an advisory,
+# non-blocking step; run it yourself before pushing documentation or corpus changes.
 #
 # The corpus is in scope on both halves. It is this repository's primary product — it is
 # propagated to every other Cratis repo — and it is dense with relative cross-links
@@ -78,11 +78,14 @@ echo ""
 #
 # The roots mirror the "globs" in .markdownlint-cli2.jsonc, so the two halves of this
 # script cover the same files. Add a root here whenever a glob is added there, or the link
-# check silently stops covering what the lint check covers.
+# check silently stops covering what the lint check covers. Factory/README.md is the
+# most recent such addition — the one Factory-owned markdown file outside Documentation/
+# and .ai/, and until it was added neither half of this script looked at it.
 MARKDOWN_FILES=()
 while IFS= read -r markdown_file; do
     MARKDOWN_FILES+=("$markdown_file")
 done < <(find Documentation .ai/rules .ai/skills .ai/prompts .ai/agents .ai/hooks .ai/README.md \
+    Factory/README.md \
     -type d -name node_modules -prune -o -type f -name '*.md' -print | sort)
 
 if [ ${#MARKDOWN_FILES[@]} -eq 0 ]; then

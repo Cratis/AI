@@ -129,6 +129,7 @@ jobs:
               - '.github/workflows/factory-foundation.yml'
               - '.markdownlint-cli2.jsonc'
               - 'Documentation/**'
+              - 'Factory/README.md'
             # Every .sh in the tree, wherever it lives. The shell in this repository spans four
             # unrelated areas — the enforcement hooks under .ai/hooks/scripts, the docs gate, the
             # worker container entrypoint and scripts/ — and no existing filter covers more than
@@ -361,9 +362,10 @@ jobs:
 
       # The blocking half. No glob argument on purpose — .markdownlint-cli2.jsonc carries the
       # globs and the ignores, so this lints exactly what a bare local run does: the 25
-      # Documentation pages plus the 139 markdown files of the .ai/ instruction corpus, 164
-      # in total. The corpus is the repository's primary product and is propagated to every
-      # other Cratis repo, so it is linted by the same blocking gate as the docs.
+      # Documentation pages, the 155 markdown files of the .ai/ instruction corpus and
+      # Factory/README.md, 181 in total. The corpus is the repository's primary product and is
+      # propagated to every other Cratis repo, so it is linted by the same blocking gate as the
+      # docs.
       - name: Lint documentation and AI corpus markdown
         run: yarn dlx markdownlint-cli2@${{ env.MARKDOWNLINT_CLI2_VERSION }}
 

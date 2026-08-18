@@ -22,6 +22,19 @@
     // though both are flat today: a non-recursive glob is how a future subfolder silently
     // goes unlinted, which is the exact gap these entries were added to close. Nothing else
     // under hooks/ matches — hooks/scripts/ ships .sh and .json, not markdown.
+    //
+    // Factory/README.md is the one member of the Factory-owned markdown surface that lives
+    // outside both trees above. Issue #63 defines that surface as Documentation/Factory/*.md
+    // + Factory/README.md + .ai/skills/cratis-software-factory/**/*.md and requires it to
+    // stay at 0 findings — but every part of it except this file was already linted, so a
+    // defect introduced here (an MD040 fenced block with no language, for instance) passed
+    // both this linter and Documentation/verify-markdown.sh while the same defect in
+    // Documentation/Factory/index.md was caught. Listed as a single file rather than
+    // Factory/**/*.md on purpose: the other eight markdown files under Factory/ are clean
+    // today (measured — 189 files, 0 issues) but a recursive glob would also descend into
+    // Factory/Migration/*/bin and */obj, which hold .NET build output that "ignores" below
+    // does not exclude. Widening to Factory/**/*.md is a sound follow-up as long as bin/obj
+    // exclusions land in the same change.
     "globs": [
         "Documentation/**/*.md",
         ".ai/rules/**/*.md",
@@ -29,7 +42,8 @@
         ".ai/prompts/**/*.md",
         ".ai/agents/**/*.md",
         ".ai/hooks/**/*.md",
-        ".ai/README.md"
+        ".ai/README.md",
+        "Factory/README.md"
     ],
 
     // Nothing under Documentation/ or .ai/ is generated or vendored *as markdown* today, so
