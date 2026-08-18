@@ -1,0 +1,15 @@
+# Files that must never be propagated from this repository to other Cratis repositories.
+# Patterns work like .gitignore; unscoped patterns are relative to .github/.
+# See Cratis/Workflows README, "Excluding files from synchronization".
+
+# Project-local instructions. PROJECT.md is the one file that describes only THIS repository —
+# its issue tracker, endpoints, credentials, deployment recipes, and the conventions that
+# override the shared corpus here. Syncing it means the last repository to publish overwrites
+# every other repository's project-local context.
+#
+# This entry is a SECOND LINE OF DEFENSE ONLY. It stops this repository from broadcasting the
+# file; it does nothing to stop another repository broadcasting its copy into this one, because
+# .copilot-sync-ignore is read from the source repository of a propagation run. The real guard
+# is prepare-copilot-source-artifact.sh in Cratis/Workflows, which excludes .agents/PROJECT.md
+# unconditionally for every source repository.
+.agents/PROJECT.md
