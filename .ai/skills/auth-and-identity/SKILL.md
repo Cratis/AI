@@ -16,7 +16,7 @@ Identity and auth in Arc follow a cookie-first, convention-based pattern:
 ```text
 Frontend (React)                          Backend (ASP.NET Core)
 ─────────────────                         ──────────────────────
-<IdentityProvider>                        app.MapIdentityProvider()
+<Arc> → <IdentityProvider>                app.UseCratisArc()
   └── useIdentity() hook                    └── GET /.cratis/me
         │                                        │
         ├─ 1. Read .cratis-identity cookie        │
@@ -84,15 +84,15 @@ This is the minimum checklist for an application with identity. Read the referen
 
 1. **Details record**: Define a C# record for application-specific user information
 2. **Identity provider**: Implement `IProvideIdentityDetails<TDetails>` (auto-discovered, one per app)
-3. **Startup**: Call `app.MapIdentityProvider()` to register `GET /.cratis/me`
+3. **Startup**: Nothing to do — `app.UseCratisArc()` (and `app.UseCratis()`, which calls it) already maps `GET /.cratis/me`
 4. **Authentication**: Add `AddMicrosoftIdentityPlatformIdentityAuthentication()` or implement `IAuthenticationHandler`
 5. **Authorization**: Add `[Authorize]` / `[Roles]` / `[AllowAnonymous]` attributes from `Cratis.Arc.Authorization` to commands and queries
 
 ### Frontend
 
 <!-- markdownlint-disable MD029 -- one 1..9 checklist deliberately continued across the three headings; restarting each group at 1 would lose the sequence -->
-6. **Provider**: Wrap app root with `<IdentityProvider>` from `@cratis/arc.react/identity`
-7. **Hook**: Use `useIdentity<TDetails>()` to access identity anywhere in the component tree
+6. **Provider**: Nothing to do for untyped details — `<Arc>` renders an `<IdentityProvider>` itself. For typed details, nest your own `<IdentityProvider detailsType={UserDetails}>` from `@cratis/arc.react/identity` **inside** `<Arc>`
+7. **Hook**: Use `useIdentity<TDetails>()` to access identity anywhere in the component tree — always name `TDetails` explicitly, including in the `useIdentity<TDetails>(TDetails)` constructor form
 8. **Roles**: Use `identity.isInRole('Admin')` for UI-level role gating
 
 ### Proxy Generation
@@ -116,6 +116,7 @@ These rules are frequently violated — always enforce them:
 8. **Authorize at the boundary, secure by default**: express access with `[Authorize]`/`[Roles]` attributes on the command/query — **never** gate behavior with an `if (identity.IsInRole(...))` inside `Handle()`. For app-wide protection, configure a default-deny fallback policy so a target is protected unless it explicitly opts out with `[AllowAnonymous]`. Cross-cutting auth that spans many commands belongs in an `ICommandFilter`, not duplicated per handler.
 9. **Command-specific scope is validation, not an attribute**: a rule like "may only act on resources in your own organization" belongs in the `CommandValidator<T>` (inject the identity and reject with a validation error) — not in `Handle()`, and not expressible by a role attribute alone.
 10. **Read the current user from the authenticated principal**: in backend code resolve the current user from `IHttpContextAccessor.User` (the ASP.NET principal the authentication handler populates). Do not invent a bespoke `IIdentityAccessor` abstraction — that is a product-specific wrapper, not part of generic Cratis.
+11. **Always name the type argument on `useIdentity`**: `useIdentity<UserDetails>(UserDetails)`, never `useIdentity(UserDetails)`. The overload taking only default details is declared first and a bare class reference matches it, so the shorthand types `details` as the constructor and fails on the next property access. See [references/frontend.md](references/frontend.md).
 
 ---
 

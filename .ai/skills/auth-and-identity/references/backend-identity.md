@@ -22,16 +22,16 @@ The `Details` object you return can be **any shape** — it gets serialized as J
 
 ## Mapping the Endpoint
 
-In your application startup:
+`GET /.cratis/me` — the well-known route the frontend calls to get identity information — is mapped for you. `app.UseCratisArc()` calls `app.MapIdentityProvider()`, and `app.UseCratis()` calls `UseCratisArc()` in turn, so a normal startup needs nothing extra:
 
 ```csharp
 var app = builder.Build();
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapIdentityProvider();
+app.UseCratisArc();
 ```
 
-This registers `GET /.cratis/me` — the well-known route the frontend calls to get identity information.
+`app.MapIdentityProvider()` remains a public `IApplicationBuilder` extension for a host that maps Arc's endpoints piecemeal instead of through `UseCratisArc()`. Calling it as well is harmless — the mapper skips an endpoint name it has already registered — but redundant. The self-hosted `ArcApplication` path maps the same endpoint from its own `UseCratisArc()` overload.
 
 ## The Interface
 

@@ -15,21 +15,22 @@ The frontend uses a **cookie-first** approach:
 
 ### IdentityProvider Context
 
-Wrap your app root with `<IdentityProvider>`:
+`<Arc>` renders an `<IdentityProvider>` for you (forwarding its own `httpHeadersCallback`), so an app that mounts `<Arc>` needs no wrapper of its own to read identity:
 
 ```tsx
-import { IdentityProvider } from '@cratis/arc.react/identity';
+import { Arc } from '@cratis/arc.react';
 
 export const App = () => (
-    <IdentityProvider>
-        {/* your app */}
-    </IdentityProvider>
+    <Arc>
+        {/* useIdentity() works anywhere in here */}
+    </Arc>
 );
 ```
 
-For type-safe details with complex types (e.g., `Guid`), pass a `detailsType` constructor:
+`<Arc>` does not forward a `detailsType`, so for type-safe details with complex types (e.g., `Guid`) mount your own `<IdentityProvider>` **inside** `<Arc>` — the inner context wins for everything below it:
 
 ```tsx
+import { Arc } from '@cratis/arc.react';
 import { IdentityProvider } from '@cratis/arc.react/identity';
 import { Guid } from '@cratis/fundamentals';
 
@@ -40,11 +41,17 @@ class UserIdentityDetails {
 }
 
 export const App = () => (
-    <IdentityProvider detailsType={UserIdentityDetails}>
-        {/* your app */}
-    </IdentityProvider>
+    <Arc>
+        <IdentityProvider detailsType={UserIdentityDetails}>
+            {/* your app */}
+        </IdentityProvider>
+    </Arc>
 );
 ```
+
+It has to be inside `<Arc>`: `IdentityProvider` reads `apiBasePath` and `origin` off `ArcContext`, and outside `<Arc>` both fall back to empty strings. Each provider fetches `/.cratis/me` on mount, so the nested one costs one extra request on first load.
+
+`IdentityProviderProps` is exactly three props — `children`, `httpHeadersCallback`, and `detailsType`.
 
 ### `useIdentity()` Hook
 
@@ -79,18 +86,22 @@ const identity = useIdentity<UserDetails>({
 });
 ```
 
-**With a constructor for type-safe deserialization** (uses `JsonSerializer.deserializeFromInstance()` under the hood):
+**With a details constructor** — always name the type argument explicitly:
 
 ```tsx
-const identity = useIdentity(UserIdentityDetails);
+const identity = useIdentity<UserIdentityDetails>(UserIdentityDetails);
 
 // With default values:
-const identity = useIdentity(UserIdentityDetails, {
+const identity = useIdentity<UserIdentityDetails>(UserIdentityDetails, {
     userId: Guid.empty,
     firstName: '[N/A]',
     lastName: '[N/A]'
 });
 ```
+
+`useIdentity` declares `(defaultDetails?)` **before** `(type, defaultDetails?)`, and a bare class reference satisfies the inferred `TDetails` of the first overload — so omitting the type argument silently binds the wrong overload and types `details` as `typeof UserIdentityDetails`. Nothing complains at the call; the error lands on the first property access (`Property 'firstName' does not exist on type 'typeof UserIdentityDetails'`).
+
+The constructor argument only tells `useIdentity` that the second argument is the defaults. Type-safe deserialization (`JsonSerializer.deserializeFromInstance()`) comes from `detailsType` on `<IdentityProvider>`, not from this overload.
 
 ### Role Checking
 
@@ -116,7 +127,9 @@ const handleRefresh = () => identity.refresh();
 
 This calls `GET /.cratis/me` again and updates both the cookie and context.
 
-### `IIdentity<TDetails>` Shape
+### `IIdentityContext<TDetails>` Shape
+
+`useIdentity()` returns `IIdentityContext<TDetails>` — the `IIdentity<TDetails>` members plus `clearIdentity`:
 
 | Property | Type | Description |
 |----------|------|-------------|
@@ -127,6 +140,7 @@ This calls `GET /.cratis/me` again and updates both the cookie and context.
 | `isSet` | `boolean` | Whether identity has been loaded |
 | `isInRole(role)` | `(string) => boolean` | Check role membership |
 | `refresh()` | `() => Promise<IIdentity>` | Re-fetch identity from backend |
+| `clearIdentity()` | `() => void` | Drop the `.cratis-identity` cookie and reset the context — use on sign-out |
 
 ## MVVM (tsyringe)
 

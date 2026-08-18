@@ -81,18 +81,25 @@ If your `IProvideIdentityDetails<TDetails>` implementation enriches identity fro
 To test without a database, create a dev-only fallback in your identity provider:
 
 ```csharp
-public Task<UserDetails> Provide(IdentityProviderContext context)
-{
-    // In development, if the user ID is unknown, return sensible defaults
-    var details = await _readModelStore.GetOrDefault<UserDetails>(context.Id, new UserDetails
-    {
-        Department = "Engineering",
-        Title = "Developer"
-    });
+public record UserDetails(string Department, string Title);
 
-    return details;
+public class IdentityDetailsProvider(IMongoCollection<User> users) : IProvideIdentityDetails<UserDetails>
+{
+    public async Task<IdentityDetails> Provide(IdentityProviderContext context)
+    {
+        var user = await users.Find(u => u.ExternalId == context.Id.Value).FirstOrDefaultAsync();
+
+        // No record for this developer yet — fall back to sensible defaults
+        var details = user is null
+            ? new UserDetails("Engineering", "Developer")
+            : new UserDetails(user.Department, user.Title);
+
+        return new IdentityDetails(true, details);
+    }
 }
 ```
+
+`Provide` always returns `Task<IdentityDetails>` — the `IdentityDetails(bool IsUserAuthorized, object Details)` wrapper, never the details record on its own.
 
 ## Testing Without ModHeader
 

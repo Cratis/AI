@@ -119,8 +119,10 @@ These headers are automatically set by Azure Container Apps, Web Apps, and Stati
 var app = builder.Build();
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapIdentityProvider();
+app.UseCratisArc();
 ```
+
+`UseCratisArc()` maps `GET /.cratis/me` itself — see [backend-identity.md](backend-identity.md#mapping-the-endpoint).
 
 ## Combining Multiple Handlers
 
