@@ -46,7 +46,7 @@ generated or linked adapters directly. A consuming repository can add `.agents/P
 project-local context; it is never propagated from this hub.
 
 <details>
-<summary><strong>Corpus layout, adapters, and current validation debt</strong></summary>
+<summary><strong>Corpus layout, adapters, and validation</strong></summary>
 
 ```text
 .ai/                  canonical source of truth
@@ -67,13 +67,14 @@ truth, but the linked files do not have Copilot's `.instructions.md` suffix and 
 auto-attached by glob. Claude Code and Codex consume their adapters, and Copilot can still access
 the rules directly. Public marketplace packaging is planned, not released.
 
-The direct corpus validator is **not green**: seven known, pre-existing fatal failures are recorded
-in [the exact baseline](.github/factory-ai-corpus-known-failures.txt). Maintainers use the wrapper
-below; it succeeds only while the observed failures exactly equal that baseline, and fails on new,
-changed, or silently resolved entries:
+The corpus validator checks adapter integrity, rule and skill frontmatter, and a set of content
+drift guards. Structural, adapter, and Codex failures are fatal; drift guards are warnings only. It
+is wired as the `ai-corpus` gate in
+[the quality-gate definitions](.ai/hooks/scripts/quality-gates.json) and as the `AI corpus` job in
+[Factory Foundation CI](.github/workflows/factory-foundation.yml). Maintainers run it directly:
 
 ```shell
-bash .github/scripts/check-ai-corpus-baseline.sh
+bash .ai/hooks/scripts/validate-ai-setup.sh
 ```
 
 See [the corpus authority and adapter model](.ai/README.md) and
@@ -192,7 +193,7 @@ This boots the Aspire development composition and UI; it does **not** configure 
 
 | Status | Capability | Honest meaning |
 | --- | --- | --- |
-| **Available** | Shared `.ai` corpus | Canonical knowledge and adapters exist; seven known fatal validation failures remain baselined debt. |
+| **Available** | Shared `.ai` corpus | Canonical knowledge and adapters exist; the `ai-corpus` validator passes locally and in CI. |
 | **Reference oracle** | Factory Stage 0 | Deterministic semantics execute in temporary Python maintainer tooling; this is not the supported user runtime. |
 | **In progress — G0 P0** | Native `Factory.Core` | Source and specs exist and build, but the project has not reached differential parity with the Python oracle. Nothing consumes it yet. |
 | **Planned — G0 P0** | Native `Factory.Evaluations` and `Factory.Cli` | Not started; no `Source/Factory.Evaluations` or `Source/Factory.Cli` exists. [#67](https://github.com/Cratis/AI/issues/67) must reach differential parity and retire Python before G0 can pass or any public Factory release begins. |
