@@ -1,8 +1,6 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-import { ICommandResult } from '@cratis/arc/commands';
-
 /**
  * The `EventSource.readyState` value meaning the connection is closed - the server answered with
  * something that is not a usable event stream. For the work log route this only happens when the
@@ -36,26 +34,3 @@ export const steeringFailureMessage = (status: number | undefined): string =>
     status === 401
         ? 'Your session has expired - sign in again to steer the running session.'
         : 'Sending failed - the running session did not receive your message.';
-
-/**
- * Gets the problem to report for a failed command, based on the granular `CommandResult` flags -
- * checked in the order authorization, then validation, then exceptions. Never surfaces
- * `exceptionMessages`/a stack trace to the user.
- * @param result The result of executing the command.
- * @returns The problem to report, or `undefined` when the command succeeded.
- */
-export const commandFailureMessage = (result: ICommandResult): string | undefined => {
-    if (!result.isAuthorized) {
-        return 'You are not authorized to do this - sign in again and retry.';
-    }
-
-    if (!result.isValid) {
-        return result.validationResults.map((validationResult) => validationResult.message).join(' ');
-    }
-
-    if (result.hasExceptions) {
-        return 'Something went wrong. Try again.';
-    }
-
-    return undefined;
-};

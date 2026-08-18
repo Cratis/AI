@@ -25,7 +25,7 @@ import { AllRepositoryGroups, RepositoryGroup } from './Groups/Listing/Listing';
 import { CreateRepositoryGroup } from './Groups/Creating/Creating';
 import { ChangeRepositoryGroup } from './Groups/Changing/Changing';
 import { DeleteRepositoryGroup } from './Groups/Deleting/Deleting';
-import { commandFailureMessage } from './commandFeedback';
+import { commandFailureMessage } from '../Common';
 
 /** One row per (group, repository) pair - the shape a subheader-grouped, expandable DataTable needs. */
 type GroupMemberRow = {

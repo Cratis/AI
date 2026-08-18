@@ -17,7 +17,7 @@ import { ResolveAlert } from './Resolving/Resolving';
 import { DeleteAlert } from './Deleting/Deleting';
 import { ScheduleAlertInvestigation } from '../Work/SchedulingAlertInvestigation/SchedulingAlertInvestigation';
 import { Current as GetOperationsSettings } from '../Operations/OperationsSettings';
-import { commandFailureMessage } from './commandFeedback';
+import { commandFailureMessage } from '../Common';
 
 /**
  * The alerts page - what running systems have reported, what agents made of it, and the actions a

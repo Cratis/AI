@@ -11,7 +11,8 @@ import { WorkItem } from './Listing/Listing';
 import { WorkPurpose } from './WorkPurpose';
 import { WorkStatus } from './WorkStatus';
 import { StopWork } from './Stopping/Stopping';
-import { commandFailureMessage, logStreamFailureMessage, steeringFailureMessage } from './workDetailsFeedback';
+import { commandFailureMessage } from '../Common';
+import { logStreamFailureMessage, steeringFailureMessage } from './workDetailsFeedback';
 
 /**
  * Props for the {@link WorkDetails} component.

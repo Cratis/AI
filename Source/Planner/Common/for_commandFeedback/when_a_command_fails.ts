@@ -32,9 +32,9 @@ describe('when a command fails', () => {
         const result: ICommandResult = {
             ...successfulResult,
             isValid: false,
-            validationResults: [new ValidationResult(ValidationResultSeverity.Error, 'The alert no longer exists', [], undefined)],
+            validationResults: [new ValidationResult(ValidationResultSeverity.Error, 'The work has already finished', [], undefined)],
         };
-        commandFailureMessage(result)!.should.equal('The alert no longer exists');
+        commandFailureMessage(result)!.should.equal('The work has already finished');
     });
 
     it('should report a generic problem when the command threw an exception', () => {
