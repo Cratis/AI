@@ -20,9 +20,18 @@ describe('when checking involvement', () => {
         isInvolvedInIssue('octocat', { createdBy: 'octocat' }).should.be.true;
     });
 
+    it('should find a login among the assignees', () => {
+        isInvolvedInIssue('octocat', { assignees: ['octocat'] }).should.be.true;
+    });
+
+    it('should match an assignee case-insensitively', () => {
+        isInvolvedInIssue('OctoCat', { assignees: ['octocat'] }).should.be.true;
+    });
+
     it('should not find a login that is not involved', () => {
         isInvolvedInIssue('octocat', {
             createdBy: 'realuser',
+            assignees: ['anotheruser'],
             body: 'no mentions here',
             comments: [{ author: 'anotheruser', body: 'still nothing' }],
         }).should.be.false;

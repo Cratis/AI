@@ -8,6 +8,7 @@ using MongoDB.Driver;
 using Planner.GitHub.App;
 using Planner.GitHub.App.Installations;
 using Planner.Identity;
+using Planner.Issues.ChangingAssignees;
 using Planner.Issues.ChangingBody;
 using Planner.Issues.ChangingLabels;
 using Planner.Issues.Closing;
@@ -134,6 +135,15 @@ public static class GitHubWebhookEndpoints
                     issue["state"]?.GetValue<string>() == "open",
                     issue["body"]?.GetValue<string>() ?? string.Empty,
                     ParseLabels(issue)));
+
+                // IssueRegistered carries no assignees - a stored event never gains a new property.
+                // An issue opened already assigned arrives complete by following up with the fact.
+                var openedAssignees = ParseAssignees(issue);
+                if (openedAssignees.Any())
+                {
+                    await commandPipeline.Execute(new ChangeIssueAssignees(issueId, openedAssignees));
+                }
+
                 break;
 
             case "edited":
@@ -152,6 +162,21 @@ public static class GitHubWebhookEndpoints
 
             case "labeled" or "unlabeled":
                 await commandPipeline.Execute(new ChangeIssueLabels(issueId, ParseLabels(issue)));
+                break;
+
+            case "assigned":
+                await commandPipeline.Execute(new ChangeIssueAssignees(issueId, ParseAssignees(issue)));
+                break;
+
+            // The issue object is documented as post-action state, so issue.assignees should already
+            // exclude the removed user - but octokit's own unassigned fixture still lists them, and a
+            // stale payload here would silently re-apply the assignment until the daily sync healed
+            // it. Subtracting the delivery's own assignee is a no-op when GitHub already removed it
+            // and a correction when it did not, so the result is right either way.
+            case "unassigned":
+                await commandPipeline.Execute(new ChangeIssueAssignees(
+                    issueId,
+                    ParseAssignees(issue).Where(assignee => assignee != UnassignedUser(payload))));
                 break;
 
             case "closed":
@@ -284,6 +309,14 @@ public static class GitHubWebhookEndpoints
     static IEnumerable<LabelName> ParseLabels(JsonObject issue) =>
         issue["labels"] is JsonArray labels
             ? [.. labels.OfType<JsonObject>().Select(label => new LabelName(label["name"]?.GetValue<string>() ?? string.Empty))]
+            : [];
+
+    static UserName UnassignedUser(JsonObject payload) =>
+        payload["assignee"]?["login"]?.GetValue<string>() ?? string.Empty;
+
+    static IEnumerable<UserName> ParseAssignees(JsonObject issue) =>
+        issue["assignees"] is JsonArray assignees
+            ? [.. assignees.OfType<JsonObject>().Select(assignee => new UserName(assignee["login"]?.GetValue<string>() ?? string.Empty))]
             : [];
 
     static bool SignatureIsValid(HttpRequest request, string body, string secret) =>

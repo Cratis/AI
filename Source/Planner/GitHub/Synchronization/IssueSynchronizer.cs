@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using MongoDB.Driver;
+using Planner.Issues.ChangingAssignees;
 using Planner.Issues.ChangingBody;
 using Planner.Issues.ChangingLabels;
 using Planner.Issues.Closing;
@@ -98,6 +99,14 @@ public class IssueSynchronizer(
                     gitHubIssue.Body,
                     gitHubIssue.Labels));
 
+                // IssueRegistered carries no assignees - a stored event never gains a new property.
+                // An issue registered already assigned arrives complete by following up with the fact.
+                if (gitHubIssue.Assignees.Any())
+                {
+                    var newIssueId = IssueId.From(owner, name, gitHubIssue.Number);
+                    await commandPipeline.Execute(new ChangeIssueAssignees(newIssueId, gitHubIssue.Assignees));
+                }
+
                 await SynchronizeComments(owner, name, gitHubIssue, [], cancellationToken);
                 continue;
             }
@@ -138,6 +147,14 @@ public class IssueSynchronizer(
         if (!mirroredLabels.SetEquals(gitHubIssue.Labels))
         {
             await commandPipeline.Execute(new ChangeIssueLabels(issueId, gitHubIssue.Labels));
+        }
+
+        // Also heals issues that were mirrored before assignees were ingested - their Assignees
+        // start out unset, so the first sync after upgrading reconciles them from GitHub.
+        var mirroredAssignees = (mirrored.Assignees ?? []).ToHashSet();
+        if (!mirroredAssignees.SetEquals(gitHubIssue.Assignees))
+        {
+            await commandPipeline.Execute(new ChangeIssueAssignees(issueId, gitHubIssue.Assignees));
         }
 
         var mirroredComments = (mirrored.Comments ?? []).ToList();

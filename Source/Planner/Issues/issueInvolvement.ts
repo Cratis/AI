@@ -12,12 +12,14 @@ export interface InvolvableComment {
 }
 
 /**
- * The parts of an issue needed to determine mention-based involvement - who created it, its
- * markdown body, and the same shape for each of its comments. A subset of the generated `Issue`
- * read model, kept independent of the proxy for the same reason as {@link InvolvableComment}.
+ * The parts of an issue needed to determine involvement - who created it, who it is assigned to,
+ * its markdown body, and the same shape for each of its comments. A subset of the generated
+ * `Issue` read model, kept independent of the proxy for the same reason as
+ * {@link InvolvableComment}.
  */
 export interface InvolvableIssue {
     createdBy?: string;
+    assignees?: string[];
     body?: string;
     comments?: InvolvableComment[];
 }
@@ -47,13 +49,8 @@ const mentionsIn = (body: string | undefined): string[] => {
 /**
  * Determines whether a GitHub login is involved in an issue.
  *
- * "Involved" covers every place the issue text or its provenance names the login: mentioned in the
- * issue body, mentioned in a comment body, the author of a comment, or the creator of the issue.
- *
- * It deliberately does not cover GitHub assignees - the Planner does not ingest assignee data, so
- * there is nothing to check an assignee against. A "for me" filter built on this function only
- * surfaces issues the login is textually part of; an issue assigned to the login without ever
- * mentioning or commenting on it will not show up.
+ * "Involved" covers every place the issue names the login: assigned to it, mentioned in the issue
+ * body, mentioned in a comment body, the author of a comment, or the creator of the issue.
  * @param login The GitHub login to check for involvement. Comparison is case-insensitive.
  * @param issue The issue to check.
  * @returns True if the login is involved in the issue.
@@ -63,6 +60,7 @@ export const isInvolvedInIssue = (login: string, issue: InvolvableIssue): boolea
     if (!normalizedLogin) return false;
 
     if (issue.createdBy?.toLowerCase() === normalizedLogin) return true;
+    if ((issue.assignees ?? []).some((assignee) => assignee.toLowerCase() === normalizedLogin)) return true;
     if (mentionsIn(issue.body).some((mention) => mention.toLowerCase() === normalizedLogin)) return true;
 
     return (issue.comments ?? []).some((comment) =>

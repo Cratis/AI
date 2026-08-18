@@ -149,11 +149,17 @@ public class GitHubClient(HttpClient httpClient, IGitHubAppTokenResolver tokenRe
         issue["state"]?.GetValue<string>() == "open",
         issue["body"]?.GetValue<string>() ?? string.Empty,
         ParseLabels(issue),
+        ParseAssignees(issue),
         issue["comments"]?.GetValue<int>() ?? 0);
 
     static IEnumerable<LabelName> ParseLabels(JsonObject issue) =>
         issue["labels"] is JsonArray labels
             ? [.. labels.OfType<JsonObject>().Select(label => new LabelName(label["name"]?.GetValue<string>() ?? string.Empty))]
+            : [];
+
+    static IEnumerable<UserName> ParseAssignees(JsonObject issue) =>
+        issue["assignees"] is JsonArray assignees
+            ? [.. assignees.OfType<JsonObject>().Select(assignee => new UserName(assignee["login"]?.GetValue<string>() ?? string.Empty))]
             : [];
 
     async Task<JsonArray?> GetJsonArray(OrganizationName owner, string route, CancellationToken cancellationToken)

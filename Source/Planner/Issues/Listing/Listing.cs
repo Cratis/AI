@@ -3,6 +3,7 @@
 
 using MongoDB.Driver;
 using Planner.Issues.AssociatingPullRequest;
+using Planner.Issues.ChangingAssignees;
 using Planner.Issues.ChangingBody;
 using Planner.Issues.ChangingLabels;
 using Planner.Issues.ChangingStatus;
@@ -57,6 +58,7 @@ public record IssueComment(CommentId Id, UserName Author, CommentBody Body, Date
 /// <param name="OverriddenModel">The model explicitly set by a user - takes precedence over <see cref="SuggestedModel"/> when set to anything other than <see cref="ModelName.NotSet"/>.</param>
 /// <param name="Body">The markdown body of the issue.</param>
 /// <param name="Labels">The labels on the issue.</param>
+/// <param name="Assignees">The GitHub logins the issue is assigned to.</param>
 /// <param name="Prompt">Extra instructions attached to the issue for the agent working on it.</param>
 /// <param name="Comments">The comments on the issue as mirrored from GitHub.</param>
 [ReadModel]
@@ -103,6 +105,8 @@ public record Issue(
     IssueBody? Body = null,
     [SetFrom<IssueLabelsChanged>(nameof(IssueLabelsChanged.Labels))]
     IEnumerable<LabelName>? Labels = null,
+    [SetFrom<IssueAssigneesChanged>(nameof(IssueAssigneesChanged.Assignees))]
+    IEnumerable<UserName>? Assignees = null,
     [SetFrom<IssuePromptSet>(nameof(IssuePromptSet.Prompt))]
     WorkPrompt? Prompt = null,
     [ChildrenFrom<IssueCommentAdded>(key: nameof(IssueCommentAdded.Comment), identifiedBy: nameof(IssueComment.Id))]

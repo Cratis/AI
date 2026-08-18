@@ -23,6 +23,7 @@ public record GitHubRepository(OrganizationName Owner, RepositoryName Name, bool
 /// <param name="IsOpen">Whether the issue is open.</param>
 /// <param name="Body">The markdown body of the issue.</param>
 /// <param name="Labels">The labels on the issue.</param>
+/// <param name="Assignees">The GitHub logins the issue is assigned to.</param>
 /// <param name="CommentCount">The number of comments on the issue.</param>
 public record GitHubIssue(
     IssueNumber Number,
@@ -34,6 +35,7 @@ public record GitHubIssue(
     bool IsOpen,
     IssueBody Body,
     IEnumerable<LabelName> Labels,
+    IEnumerable<UserName> Assignees,
     int CommentCount);
 
 /// <summary>
