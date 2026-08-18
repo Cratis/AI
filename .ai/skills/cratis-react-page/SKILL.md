@@ -14,7 +14,7 @@ Import `DataPage` (and its `Column`/`MenuItem` helpers) from the **subpath**, no
 
 ```tsx
 import { DataPage, MenuItem } from '@cratis/components/DataPage';
-import { Column } from '@cratis/components/DataPage';
+import { Column } from 'primereact/column';
 import { CommandDialog } from '@cratis/components/CommandDialog';
 import { useDialog, DialogProps } from '@cratis/arc.react/dialogs';
 ```
@@ -27,7 +27,7 @@ import { useDialog, DialogProps } from '@cratis/arc.react/dialogs';
 
 ```tsx
 import { DataPage } from '@cratis/components/DataPage';
-import { Column } from '@cratis/components/DataPage';
+import { Column } from 'primereact/column';
 import { AllAccounts } from './AllAccounts';
 
 export const AccountsPage = () => (
@@ -68,7 +68,7 @@ export const CreateAccountDialog = ({ closeDialog }: DialogProps) => (
 
 ```tsx
 import { DataPage, MenuItem } from '@cratis/components/DataPage';
-import { Column } from '@cratis/components/DataPage';
+import { Column } from 'primereact/column';
 import { useDialog } from '@cratis/arc.react/dialogs';
 import { CreateAccountDialog } from './CreateAccountDialog';
 

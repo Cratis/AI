@@ -248,7 +248,7 @@ public record StockDecreased(ISBN Isbn, BookStock StockBeforeDecrease);
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-import { Column } from '@cratis/components/DataPage';
+import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
 import { AllProjects } from './AllProjects';
 
@@ -280,36 +280,26 @@ export const Listing = () => {
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-import { useState } from 'react';
 import { DialogProps, DialogResult } from '@cratis/arc.react/dialogs';
 import { CommandDialog } from '@cratis/components/CommandDialog';
-import { InputText } from 'primereact/inputtext';
+import { InputTextField } from '@cratis/components/CommandForm';
 import { RegisterProject } from './RegisterProject';
 
 export const AddProject = ({ closeDialog }: DialogProps) => {
-    const [name, setName] = useState('');
-
     return (
-        <CommandDialog
+        <CommandDialog<RegisterProject>
             command={RegisterProject}
-            visible
-            header="Add Project"
+            title="Add Project"
             width="32rem"
-            confirmLabel="Add"
+            okLabel="Add"
             cancelLabel="Cancel"
-            onBeforeExecute={(values) => {
-                values.name = name;
-                return values;
-            }}
             onConfirm={() => closeDialog(DialogResult.Ok)}
             onCancel={() => closeDialog(DialogResult.Cancelled)}>
-            <CommandDialog.Fields>
-                <InputText
-                    value={name}
-                    onChange={event => setName(event.target.value)}
-                    autoFocus
-                />
-            </CommandDialog.Fields>
+            <InputTextField<RegisterProject>
+                value={instance => instance.name}
+                title="Project name"
+                placeholder="Enter a name"
+            />
         </CommandDialog>
     );
 };

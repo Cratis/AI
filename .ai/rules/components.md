@@ -65,7 +65,8 @@ come from `primereact/column`.
 Columns and toolbar actions are compositional children:
 
 ```tsx
-import { DataPage, MenuItem, Column } from '@cratis/components/DataPage';
+import { DataPage, MenuItem } from '@cratis/components/DataPage';
+import { Column } from 'primereact/column';
 
 <DataPage title="Accounts" query={AllAccounts} emptyMessage="No accounts yet.">
     <DataPage.Columns>

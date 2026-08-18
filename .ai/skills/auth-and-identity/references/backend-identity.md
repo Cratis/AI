@@ -158,7 +158,7 @@ public class IdentityDetailsProvider(IMongoCollection<User> users) : IProvideIde
         {
             // Unknown user — still allow access, but with empty details
             return new IdentityDetails(true, new UserDetails(
-                UserId.Empty, "Unknown", "Unknown", string.Empty, false));
+                UserId.NotSet, "Unknown", "Unknown", string.Empty, false));
         }
 
         var details = new UserDetails(
@@ -225,7 +225,7 @@ public class IdentityDetailsProvider(ITenantService tenants) : IProvideIdentityD
         if (activeTenant is null)
         {
             return new IdentityDetails(false, new TenantUserDetails(
-                TenantId.Empty, TenantName.Empty, string.Empty, []));
+                TenantId.NotSet, TenantName.Empty, string.Empty, []));
         }
 
         var details = new TenantUserDetails(

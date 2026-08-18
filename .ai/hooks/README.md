@@ -325,7 +325,7 @@ echo "import { CommandDialog, ThisNameDoesNotExist } from '@cratis/components/Co
 .ai/hooks/scripts/validate-package-imports.sh /tmp/scratch-corpus
 
 # Discrimination — every name real, expect silence
-echo "import { DataPage, Column } from '@cratis/components/DataPage';" \
+echo "import { DataPage, MenuItem } from '@cratis/components/DataPage';" \
   > /tmp/scratch-corpus/drift.md
 .ai/hooks/scripts/validate-package-imports.sh /tmp/scratch-corpus
 
