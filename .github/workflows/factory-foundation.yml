@@ -157,8 +157,19 @@ jobs:
       PYTHONDONTWRITEBYTECODE: "1"
 
     steps:
+      # persist-credentials: false is load-bearing, not hygiene. actions/checkout persists the job
+      # token by writing includeIf.gitdir directives into .git/config that point at a temporary
+      # credential file. Trusted Git (Factory/scripts/trusted_git.py) treats *any* repository-local
+      # include/includeIf as authority-bearing and blocks executable authority, because an included
+      # file can inject config such as remote.origin.url and forge the repository identity — the
+      # exact attack test_included_local_config_cannot_supply_authority_bearing_remote_identity
+      # covers. With credentials persisted, every resolution in this job resolves to blocked and the
+      # suite fails wholesale. Nothing here fetches or pushes after the checkout, so the token is
+      # not needed; dropping it restores a clean repository without weakening the trust model.
       - name: Checkout source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
 
       - name: Setup Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
