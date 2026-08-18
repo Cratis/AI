@@ -131,6 +131,7 @@ Generated from `.ai/rules/` on disk. Every file there appears exactly once below
 | `web-fetching.md` | `"**/*"` | universal | Prefer `curl` for raw remote content |
 | `managing-ai-rules.md` | `".ai/**,.github/**,.claude/**,.agents/**,AGENTS.md,README.md"` | universal | Adding, updating, and renaming rules, skills, agents, prompts, and hooks |
 
+<!-- markdownlint-disable-next-line MD020 -- "C#" ends in a hash, which MD020 misreads as a closed-ATX heading -->
 ### C#
 
 | File | `applyTo` | Profile | Topic |

@@ -5,8 +5,6 @@
 The Factory is designed for humans, scripts, IDEs, services, and other AI
 agents. They use the same operations and versioned facts.
 
-<!-- markdownlint-disable MD013 -->
-
 | Concern   | Machine projection                                | Human projection                                             |
 | --------- | ------------------------------------------------- | ------------------------------------------------------------ |
 | Discovery | `ResolvedProfile` JSON                            | Stack explanation, selected profiles, warnings, and blockers |
@@ -15,8 +13,6 @@ agents. They use the same operations and versioned facts.
 | Decisions | bound approval facts                              | Explicit accept, reject, and correction choices              |
 | Evidence  | typed content-addressed references                | Links, summaries, and gate details                           |
 | Failure   | stable diagnostic code, location, and exit status | Actionable explanation and suggested correction              |
-
-<!-- markdownlint-enable MD013 -->
 
 Structured facts are authoritative. A UI or text command must not create hidden
 state, and an automated consumer must not scrape display strings.
@@ -58,8 +54,6 @@ The shared v1 operation boundary is defined by:
 An operation result always names the operation and request hash, declares
 whether side effects occurred, and has exactly one status:
 
-<!-- markdownlint-disable MD013 -->
-
 | Status              | Exit code | Meaning                                                                               |
 | ------------------- | --------: | ------------------------------------------------------------------------------------- |
 | `success`           |         0 | The operation completed and the optional typed result is usable.                      |
@@ -70,8 +64,6 @@ whether side effects occurred, and has exactly one status:
 | `approval-required` |         6 | A human or authorized policy decision must be bound to the request before continuing. |
 | `denied`            |         7 | Policy forbids the requested operation or capability.                                 |
 | `unexpected`        |        70 | The operation failed outside its expected domain failures.                            |
-
-<!-- markdownlint-enable MD013 -->
 
 Every non-success result has a diagnostic. Failure statuses contain an error
 diagnostic, while `blocked` and `approval-required` results must contain a next

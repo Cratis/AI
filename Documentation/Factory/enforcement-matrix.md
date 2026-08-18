@@ -1,7 +1,5 @@
 # Factory enforcement matrix
 
-<!-- markdownlint-disable MD013 -->
-
 | Invariant                                                                                                                                            | Enforcement owner                                    | Current state                                                                                                                                                     |
 | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Existing `cratis` CLI remains independent                                                                                                            | Architecture and CLI boundary                        | Enforced by repository ownership; no CLI files changed                                                                                                            |
@@ -32,8 +30,6 @@
 | Durable authenticated, ordered, idempotent events                                                                                                    | Planner Factory control plane                        | Not implemented; blocks managed execution                                                                                                                         |
 | Evaluation catalog runs executable immutable tasks                                                                                                   | Evaluation runner                                    | Implemented for ten discovery/preflight cases with immutable snapshots and authoritative rerun verification; 30 reviewed scenarios remain non-executable backlog |
 | Evaluation subsets cannot claim full release coverage                                                                                                | Evaluation result coverage contract and release gate | Implemented with exact selected/executable/catalog IDs and counts; current 10/10 is full executable coverage but only 10/40 catalog coverage                      |
-
-<!-- markdownlint-enable MD013 -->
 
 “Implemented at the contract layer” is not permission to execute. Pi and Planner
 wiring remain blocked until the runtime owner enforces the same invariant and

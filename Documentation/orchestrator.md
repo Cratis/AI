@@ -87,7 +87,7 @@ The Orchestrator always outputs a **team plan** before delegating anything. The 
 
 The Orchestrator applies the same phase rules as the Coordinator and Planner, extended to non-implementation streams:
 
-```
+```text
 Phase 1: Backend (C#)  ───────────────────────────────────┐
                                                            ▼
 Phase 2: dotnet build ← synchronisation point
@@ -100,6 +100,7 @@ Phase 5: Documentation (references the completed, reviewed implementation)
 ```
 
 **Key rules:**
+
 - Frontend and backend for the **same slice** are never parallel (frontend depends on generated proxies).
 - Independent slices (no shared events) can have their backends run in parallel.
 - Documentation of new features must wait until the implementation is reviewed.
@@ -117,6 +118,7 @@ All three agents decompose work and delegate — but at different levels:
 | `planner` | Vertical slices only — one or more slices end-to-end | `backend-developer`, `frontend-developer`, `spec-writer`, `code-reviewer` |
 
 Choose the **most specific** agent that fits the goal:
+
 - Vertical slices only → `planner`
 - Implementation across concerns → `coordinator`
 - Everything else → `orchestrator`
@@ -150,7 +152,7 @@ This makes it easy to resume an interrupted session — share the last progress 
 
 The Orchestrator enforces the following quality gate chain before declaring success:
 
-```
+```text
 code-reviewer  ──┐
                   ├──▶ both must approve
 security-reviewer ┘
@@ -159,4 +161,5 @@ security-reviewer ┘
 Both reviewers run in parallel. The goal is **not done** until both approve. If either finds blocking issues, the relevant specialist agent is re-engaged to fix them, then the reviewers run again.
 
 Optional quality gate:
+
 - `performance-reviewer` — use when the implementation touches Chronicle projections, MongoDB queries, or compute-intensive React rendering.

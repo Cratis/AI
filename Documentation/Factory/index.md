@@ -36,15 +36,11 @@ operations. The worker and Pi adapter never acquire that authority.
 
 There are three deliberately separate surfaces:
 
-<!-- markdownlint-disable MD013 -->
-
 | Surface          | Responsibility                                                                                | Owner          | Status                       |
 | ---------------- | --------------------------------------------------------------------------------------------- | -------------- | ---------------------------- |
 | `cratis`         | Stable framework/runtime commands and machine-readable capability discovery                   | CLI repository | Existing                     |
 | `cratis-factory` | Native .NET human and headless deterministic Factory experience                               | AI repository  | Planned, P0                  |
 | Planner Factory  | Managed scheduling, trusted authority, approvals, durable run state, evidence, and publishing | AI repository  | Planned, implementation hold |
-
-<!-- markdownlint-enable MD013 -->
 
 The native .NET `cratis-factory` executable will expose deterministic human and
 machine operations through `Factory.Core`; those operations require no Pi,

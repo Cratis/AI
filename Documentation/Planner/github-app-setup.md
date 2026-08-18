@@ -1,5 +1,3 @@
-<!-- markdownlint-disable MD013 -->
-
 # Setting up the GitHub App
 
 The Planner authenticates with GitHub as a **GitHub App** rather than a shared personal access

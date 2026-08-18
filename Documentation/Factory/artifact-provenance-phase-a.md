@@ -71,4 +71,3 @@ mismatch, descriptor/reference mismatch, schema-closure drift, extra context
 fields, unresolved routes, and cross-run or cross-domain substitution all fail
 closed. Public human/machine operation envelopes are intentionally deferred
 until an authority-owning command exists; Phase A adds no executable command.
-

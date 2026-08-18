@@ -75,6 +75,7 @@ Full file templates, multi-step scaffolding sequences, and detailed API usage pa
 ### ✅ Correct — Rule in instruction, detail in skill
 
 **`csharp.instructions.md`:**
+
 ```markdown
 ## Commands
 - Records decorated with `[Command]` from `Cratis.Arc.Commands.ModelBound`.
@@ -85,6 +86,7 @@ For step-by-step command creation, invoke the `cratis-command` skill.
 ```
 
 **`skills/cratis-command/SKILL.md`:**
+
 ```markdown
 # Creating a Command
 
@@ -106,6 +108,7 @@ For step-by-step command creation, invoke the `cratis-command` skill.
 ### ❌ Wrong — Detail crammed into instruction
 
 **`csharp.instructions.md`** (too much):
+
 ```markdown
 ## Commands
 

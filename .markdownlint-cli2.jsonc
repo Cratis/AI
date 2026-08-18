@@ -1,0 +1,51 @@
+// markdownlint-cli2 configuration for this repository's documentation tree.
+//
+// Version note (not a pin — a pin belongs in the invoking workflow/manifest, not here):
+// this baseline was measured against markdownlint-cli2 v0.23.2 / markdownlint v0.41.1.
+// Pinning matters: MD060 did not exist before markdownlint v0.40, and its arrival alone
+// moved this tree's finding count by 138 in a single silent `npx` upgrade. Whoever wires
+// the linter into CI should pin the version there so the baseline cannot drift under us.
+{
+    // Scope. Kept deliberately identical to the glob Documentation/verify-markdown.sh
+    // passes, so running `npx markdownlint-cli2` bare and running the script lint the
+    // same 25 files and report the same count.
+    "globs": [
+        "Documentation/**/*.md"
+    ],
+
+    // Nothing under Documentation/ is generated or vendored today, but a future docs site
+    // (Starlight lives in Documentation/web/ in the sibling docs repos) or a stray install
+    // would otherwise be swept in by the recursive glob above.
+    "ignores": [
+        "**/node_modules/**",
+        "**/.yarn/**",
+        "**/dist/**",
+        "**/Documentation/web/**"
+    ],
+
+    "config": {
+        // MD013 (line-length) off. The repository documents no maximum line length
+        // anywhere: .editorconfig has no [*.md] section and no max_line_length, and no
+        // rule under .ai/rules/ states one - so the 448 findings all came from a stock
+        // 80-column default nobody opted into. 162 of those 448 sat on GFM table rows,
+        // which cannot be wrapped at all, and four documentation files
+        // (Factory/contracts-and-interfaces.md, Factory/enforcement-matrix.md,
+        // Factory/index.md, Planner/github-app-setup.md) had already disabled the rule
+        // inline - the de facto convention. If a wrap width is ever agreed, set it here
+        // with "tables": false and "code_blocks": false rather than reverting to 80.
+        "MD013": false,
+
+        // MD060 (table-column-style) pinned to "padded" instead of the default
+        // "consistent". Measured across Documentation/: 338 of 338 table header/body rows
+        // are padded (`| cell |`) and 0 are compact, and
+        // .ai/rules/documentation-structure-and-formatting.md specifies GFM tables as
+        // "`| ... |` with a `| --- |` separator row" - padded on both counts. "consistent"
+        // inferred "compact" from the 25 unpadded `|---|---|` separator rows and then
+        // flagged the padded majority around them, which is backwards. "padded" also
+        // accepts the fully column-aligned tables in Factory/enforcement-matrix.md, which
+        // "consistent" had separately inferred as "aligned".
+        "MD060": {
+            "style": "padded"
+        }
+    }
+}

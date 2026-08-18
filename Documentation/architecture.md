@@ -8,7 +8,7 @@ See also: [Instructions](./instructions.md) · [Skills](./skills.md) · [Agents]
 
 ## Component Map
 
-```
+```text
 .github/
 ├── copilot-instructions.md        ← Global rules (apply to every file)
 ├── instructions/                  ← Scoped rules (apply by file glob)
@@ -47,6 +47,7 @@ See also: [Instructions](./instructions.md) · [Skills](./skills.md) · [Agents]
 ### Instructions load automatically
 
 When Copilot opens a file, it loads:
+
 1. `copilot-instructions.md` — always (global rules)
 2. Any `.instructions.md` whose `applyTo` glob matches the current file path
 
