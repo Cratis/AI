@@ -17,6 +17,7 @@ import { ResolveAlert } from './Resolving/Resolving';
 import { DeleteAlert } from './Deleting/Deleting';
 import { ScheduleAlertInvestigation } from '../Work/SchedulingAlertInvestigation/SchedulingAlertInvestigation';
 import { Current as GetOperationsSettings } from '../Operations/OperationsSettings';
+import { commandFailureMessage } from './commandFeedback';
 
 /**
  * The alerts page - what running systems have reported, what agents made of it, and the actions a
@@ -28,6 +29,7 @@ export const Alerts = () => {
     const [noteFor, setNoteFor] = useState<Alert | undefined>(undefined);
     const [resolveFor, setResolveFor] = useState<Alert | undefined>(undefined);
     const [convertFor, setConvertFor] = useState<Alert | undefined>(undefined);
+    const [problem, setProblem] = useState<string | undefined>(undefined);
 
     const operations = operationsResult.data;
     const hasOperationalAccess = !!operations &&
@@ -36,14 +38,19 @@ export const Alerts = () => {
     const investigate = async (alert: Alert) => {
         const command = new ScheduleAlertInvestigation();
         command.alert = alert.id;
-        await command.execute();
+        const result = await command.execute();
+        setProblem(commandFailureMessage(result));
     };
 
     const remove = async (alert: Alert) => {
         const command = new DeleteAlert();
         command.alert = alert.id;
-        await command.execute();
-        setSelected(undefined);
+        const result = await command.execute();
+        const failure = commandFailureMessage(result);
+        setProblem(failure);
+        if (!failure) {
+            setSelected(undefined);
+        }
     };
 
     return (
@@ -54,6 +61,10 @@ export const Alerts = () => {
                         className='w-full justify-start'
                         severity='warn'
                         text='No operational access is configured, so an agent investigating an alert can only reason from the alert itself - it cannot look at the running system. Set Planner:Operations to give it a cluster, a container runtime or logs.' />
+                </div>}
+            {problem &&
+                <div className='flex shrink-0 items-center px-4 py-2'>
+                    <Message className='w-full justify-start' severity='error' text={problem} />
                 </div>}
             <DataPage
                 title='Alerts'
