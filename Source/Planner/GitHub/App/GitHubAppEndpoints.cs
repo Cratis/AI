@@ -61,6 +61,23 @@ public static class GitHubAppEndpoints
             return Results.Content(CredentialsPage(payload, options.Value.Organization), "text/html");
         });
 
+        // Deliberately NOT paired with VerifiedCallerPrincipal.EstablishAsVerified() the way the
+        // webhook/callback boundaries below are. Those endpoints verify their own caller (an HMAC
+        // signature, a per-work bearer token) before establishing anything - this one has no
+        // independent credential of its own to verify: installation_id is a bare, guessable query
+        // parameter GitHub redirects the browser with, not a signed delivery. Establishing a verified
+        // caller here would just recreate today's hole - anyone who can reach this URL with any
+        // installation_id gets it recorded - under the new mechanism's name, while looking fixed.
+        // Under deny-by-default this endpoint now fails closed instead: RecordGitHubAppInstallation
+        // carries no [Authorize] of its own, so DenyByDefaultAuthorization refuses it unless
+        // UsePlannerSecurity has already put an authenticated operator principal on the request (from
+        // the authenticating proxy in front of the Planner, or ProxyIdentity's local-dev fallback -
+        // see SecurityConfigurationExtensions). That is the correct requirement: finishing GitHub App
+        // setup is an operator action reached by an operator's own browser navigating through the
+        // proxy like any other page, not a delivery from GitHub itself. Consequence: a deployment
+        // whose proxy does not authenticate this path (or that runs with AllowUnauthenticatedOperators
+        // for a reason that does not apply here) will see this redirect fail with 401 until that is
+        // fixed - the fix belongs in the proxy/deployment configuration, not in a code-level bypass.
         app.MapGet("/github-app/installed", async (
             HttpRequest request,
             ICommandPipeline commandPipeline,

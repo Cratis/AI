@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Linq.Expressions;
+using Cratis.Arc.Authorization;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Planner.Accounts;
@@ -30,6 +31,7 @@ namespace Planner.Work.Scheduling;
 /// <param name="workerEnvironment">Builds the environment a worker container runs with.</param>
 /// <param name="workTokens">Issues the token a worker container authenticates its callbacks with.</param>
 /// <param name="commandPipeline">The <see cref="ICommandPipeline"/> for executing commands.</param>
+/// <param name="systemExecution">The <see cref="ISystemExecution"/> the commands below run as - a scheduling pass has no HTTP request behind it.</param>
 /// <param name="timeProvider">The <see cref="TimeProvider"/> for usage-window calculations.</param>
 /// <param name="workerOptions">The worker configuration.</param>
 /// <param name="schedulingOptions">The scheduling boundaries.</param>
@@ -44,6 +46,7 @@ public class WorkDispatcher(
     IWorkerEnvironment workerEnvironment,
     IWorkTokens workTokens,
     ICommandPipeline commandPipeline,
+    ISystemExecution systemExecution,
     TimeProvider timeProvider,
     IOptions<WorkerOptions> workerOptions,
     IOptions<SchedulingOptions> schedulingOptions,
@@ -92,6 +95,14 @@ public class WorkDispatcher(
         var covered = openWork.SelectMany(work => work.Issues).ToHashSet();
         var ready = await Find(issues, issue => issue.Status == Issues.IssueStatus.ReadyForDevelopment && issue.IsOpen, cancellationToken);
         var candidates = ready.Where(issue => !covered.Contains(issue.Id)).ToList();
+        if (candidates.Count == 0)
+        {
+            return;
+        }
+
+        // One scope for the whole pass - scheduling every ready issue (and group) found this round
+        // is a single logical operation.
+        using var scope = systemExecution.AsSystem();
 
         foreach (var issue in candidates.Where(issue => !IsGrouped(issue)))
         {
@@ -137,8 +148,15 @@ public class WorkDispatcher(
         var stuck = openWork.Where(work =>
             work.Status == WorkStatus.Running &&
             work.StartedAt is { } startedAt &&
-            now - startedAt > maxDuration);
+            now - startedAt > maxDuration).ToList();
+        if (stuck.Count == 0)
+        {
+            return;
+        }
 
+        // One scope for the whole sweep - failing every stuck unit of work found this round is a
+        // single logical operation.
+        using var scope = systemExecution.AsSystem();
         foreach (var work in stuck)
         {
             logger.SweepingStuckWork(work.Id, maxDuration);
@@ -202,6 +220,11 @@ public class WorkDispatcher(
         // does is report that it started, and a token issued after launch would arrive too late.
         var token = await workTokens.Issue(work.Id);
         var environment = await workerEnvironment.Build(work, coveredIssues, credentials, model, token, cancellationToken);
+
+        // One scope for the whole dispatch of this unit of work - starting it (or failing it when
+        // the launch itself fails) is a single logical operation, entered only once launch is
+        // actually attempted rather than for every early-return check above.
+        using var scope = systemExecution.AsSystem();
 
         try
         {

@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 #if DEBUG
+using Cratis.Arc.Authorization;
 using Cratis.Chronicle.Testing.Reactors;
 using Microsoft.Extensions.DependencyInjection;
 using Planner.Work;
@@ -16,15 +17,18 @@ public class an_alert_investigation : Specification
 
     protected IEventStore _eventStore;
     protected ICommandPipeline _commandPipeline;
+    protected ISystemExecution _systemExecution;
     protected ReactorScenario<AlertInvestigationPropagation> _scenario;
 
     void Establish()
     {
         _eventStore = Substitute.For<IEventStore>();
         _commandPipeline = Substitute.For<ICommandPipeline>();
+        _systemExecution = Substitute.For<ISystemExecution>();
         _scenario = new(new ServiceCollection()
             .AddSingleton(_eventStore)
             .AddSingleton(_commandPipeline)
+            .AddSingleton(_systemExecution)
             .BuildServiceProvider());
 
         SetWorkItem(new WorkItem(_workId, WorkPurpose.AlertInvestigation, [], ModelName.NotSet, UserName.NotSet, Alert: _alertId));

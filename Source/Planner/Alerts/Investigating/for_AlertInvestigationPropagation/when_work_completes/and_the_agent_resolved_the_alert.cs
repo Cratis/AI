@@ -28,5 +28,7 @@ public class and_the_agent_resolved_the_alert : context
     async Task should_conclude_the_investigation_as_resolved() =>
         await _commandPipeline.Received(1).Execute(Arg.Is<ConcludeAlertInvestigation>(command =>
             command.Alert == _alertId && command.Outcome == AlertInvestigationOutcome.Resolved));
+
+    [Fact] void should_conclude_it_as_the_system() => _systemExecution.Received(1).AsSystem();
 }
 #endif

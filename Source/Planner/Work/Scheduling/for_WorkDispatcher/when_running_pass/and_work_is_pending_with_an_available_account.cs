@@ -44,5 +44,9 @@ public class and_work_is_pending_with_an_available_account : given.all_dependenc
         await _commandPipeline.Received(1).Execute(Arg.Is<StartWork>(command =>
             command.Work == _workId &&
             command.Model == new ModelName("sonnet")));
+
+    // The already-scheduled issue is covered, so nothing else in the pass enters a scope this round -
+    // the only one entered is the one guarding this dispatch.
+    [Fact] void should_dispatch_as_the_system() => _systemExecution.Received(1).AsSystem();
 }
 #endif

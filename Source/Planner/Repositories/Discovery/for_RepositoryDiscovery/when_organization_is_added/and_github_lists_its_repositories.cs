@@ -35,5 +35,9 @@ public class and_github_lists_its_repositories : given.a_reactor
 
     [Fact]
     void should_not_record_a_failure() => _scenario.ShouldNotHaveProduced<OrganizationRepositoryDiscoveryFailed>();
+
+    // A reactor has no HTTP request behind it - proves adding the discovered repositories runs
+    // inside the trusted system scope rather than relying on (nonexistent) ambient authorization.
+    [Fact] void should_discover_as_the_system() => _systemExecution.Received(1).AsSystem();
 }
 #endif

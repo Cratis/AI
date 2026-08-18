@@ -27,5 +27,10 @@ public class and_work_exceeds_the_maximum_running_duration : given.all_dependenc
     [Fact]
     async Task should_fail_the_work_as_swept() =>
         await _commandPipeline.Received(1).Execute(Arg.Is<FailWork>(command => command.Work == _workId));
+
+    // The sweep runs unattended - there is no HTTP request behind a scheduling pass, so failing the
+    // stuck work must go through the trusted system scope rather than (nonexistent) ambient
+    // authorization. Exactly one: neither of the pass's other phases has anything to do here.
+    [Fact] void should_sweep_as_the_system() => _systemExecution.Received(1).AsSystem();
 }
 #endif

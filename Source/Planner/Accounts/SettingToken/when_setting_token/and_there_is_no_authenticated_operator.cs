@@ -2,6 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 #if DEBUG
+using Planner.Identity;
+
 namespace Planner.Accounts.SettingToken.when_setting_token;
 
 /// <summary>
@@ -15,7 +17,16 @@ public class and_there_is_no_authenticated_operator : Specification
     CommandScenario<SetAccountToken> _scenario;
     CommandResult _result;
 
-    void Establish() => _scenario = new();
+    void Establish()
+    {
+        _scenario = new();
+
+        // CommandScenarioDefaultCaller establishes an authenticated caller for every scenario by
+        // default, so a command spec that never mentions authorization keeps testing the behavior it
+        // was written for. This spec's whole purpose is the opposite - proving the command refuses a
+        // caller with no principal at all - so it overrides that default back off.
+        _scenario.Services.AddSingleton(CommandScenarioDefaultCaller.NoRequestContext());
+    }
 
     async Task Because() => _result = await _scenario.Execute(new SetAccountToken(_accountId, "sk-ant-rotated"));
 

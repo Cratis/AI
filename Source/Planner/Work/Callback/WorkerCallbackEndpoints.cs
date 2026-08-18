@@ -88,6 +88,11 @@ public static class WorkerCallbackEndpoints
                 return Results.Unauthorized();
             }
 
+            // The per-work bearer token above is the container's real credential - establish the
+            // trusted principal Arc's authorization reads for the rest of this request immediately
+            // after it passes, and before any of the commands below.
+            request.HttpContext.EstablishAsVerified();
+
             var work = await eventStore.ReadModels.GetInstanceById<WorkItem>((EventSourceId)id);
             if (work is null)
             {

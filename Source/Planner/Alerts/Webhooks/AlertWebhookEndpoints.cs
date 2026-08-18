@@ -38,6 +38,11 @@ public static class AlertWebhookEndpoints
                 return Results.Unauthorized();
             }
 
+            // The HMAC check above is the caller's real credential - establish the trusted principal
+            // Arc's authorization reads for the rest of this request immediately after it passes, and
+            // before the first command below, so nothing here can execute unverified.
+            request.HttpContext.EstablishAsVerified();
+
             var command = AlertDelivery.Parse(body, options.Value.DefaultSource);
             if (command is null)
             {

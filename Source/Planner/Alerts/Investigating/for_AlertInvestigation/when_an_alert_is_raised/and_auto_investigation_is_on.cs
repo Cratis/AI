@@ -16,14 +16,16 @@ public class and_auto_investigation_is_on : Specification
     static readonly AlertId _alertId = AlertId.From("studio-production", "pod:studio/loki-0:CrashLoopBackOff");
 
     ICommandPipeline _commandPipeline;
+    ISystemExecution _systemExecution;
     ReactorScenario<AlertInvestigation> _scenario;
 
     void Establish()
     {
         _commandPipeline = Substitute.For<ICommandPipeline>();
+        _systemExecution = Substitute.For<ISystemExecution>();
         _scenario = new(new ServiceCollection()
             .AddSingleton(_commandPipeline)
-            .AddSingleton(Substitute.For<ISystemExecution>())
+            .AddSingleton(_systemExecution)
             .AddSingleton(Options.Create(new AlertOptions()))
             .BuildServiceProvider());
     }
@@ -41,5 +43,7 @@ public class and_auto_investigation_is_on : Specification
     [Fact]
     async Task should_put_an_agent_on_the_alert() =>
         await _commandPipeline.Received(1).Execute(Arg.Is<ScheduleAlertInvestigation>(command => command.Alert == _alertId));
+
+    [Fact] void should_schedule_it_as_the_system() => _systemExecution.Received(1).AsSystem();
 }
 #endif

@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 #if DEBUG
+using Cratis.Arc.Authorization;
 using Cratis.Chronicle.Testing.Reactors;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -13,13 +14,16 @@ namespace Planner.Work.AutoInvestigating.for_AutoInvestigation;
 public class when_external_issue_is_registered : Specification
 {
     ICommandPipeline _commandPipeline;
+    ISystemExecution _systemExecution;
     ReactorScenario<AutoInvestigation> _scenario;
 
     void Establish()
     {
         _commandPipeline = Substitute.For<ICommandPipeline>();
+        _systemExecution = Substitute.For<ISystemExecution>();
         _scenario = new(new ServiceCollection()
             .AddSingleton(_commandPipeline)
+            .AddSingleton(_systemExecution)
             .AddSingleton(Options.Create(new SchedulingOptions()))
             .BuildServiceProvider());
     }
@@ -35,5 +39,9 @@ public class when_external_issue_is_registered : Specification
             command.Purpose == WorkPurpose.Investigation &&
             command.Issues.Single() == new IssueId("cratis-studioissues-12") &&
             command.Model == new ModelName("opus")));
+
+    // A reactor has no HTTP request behind it - proves scheduling the investigation runs inside the
+    // trusted system scope rather than relying on (nonexistent) ambient authorization.
+    [Fact] void should_schedule_it_as_the_system() => _systemExecution.Received(1).AsSystem();
 }
 #endif

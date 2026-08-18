@@ -75,7 +75,8 @@ public class AlertInvestigation(
 /// </summary>
 /// <param name="eventStore">The <see cref="IEventStore"/> for reading the work's read model.</param>
 /// <param name="commandPipeline">The <see cref="ICommandPipeline"/> for executing commands.</param>
-public class AlertInvestigationPropagation(IEventStore eventStore, ICommandPipeline commandPipeline) : IReactor
+/// <param name="systemExecution">The <see cref="ISystemExecution"/> the commands below run as - see <see cref="AlertInvestigation"/> for why.</param>
+public class AlertInvestigationPropagation(IEventStore eventStore, ICommandPipeline commandPipeline, ISystemExecution systemExecution) : IReactor
 {
     /// <summary>
     /// Records that an agent has picked the alert up.
@@ -87,6 +88,7 @@ public class AlertInvestigationPropagation(IEventStore eventStore, ICommandPipel
     {
         if (await AlertFor(context) is { } alert)
         {
+            using var scope = systemExecution.AsSystem();
             await commandPipeline.Execute(new StartAlertInvestigation(alert, new WorkId(Guid.Parse(context.EventSourceId.Value))));
         }
     }
@@ -101,6 +103,7 @@ public class AlertInvestigationPropagation(IEventStore eventStore, ICommandPipel
     {
         if (await AlertFor(context) is { } alert)
         {
+            using var scope = systemExecution.AsSystem();
             await commandPipeline.Execute(new ConcludeAlertInvestigation(
                 alert,
                 AlertOutcomes.Read(@event.Summary.Value),
@@ -118,6 +121,7 @@ public class AlertInvestigationPropagation(IEventStore eventStore, ICommandPipel
     {
         if (await AlertFor(context) is { } alert)
         {
+            using var scope = systemExecution.AsSystem();
             await commandPipeline.Execute(new FailAlertInvestigation(alert, @event.Reason.Value));
         }
     }
@@ -133,6 +137,7 @@ public class AlertInvestigationPropagation(IEventStore eventStore, ICommandPipel
     {
         if (await AlertFor(context) is { } alert)
         {
+            using var scope = systemExecution.AsSystem();
             await commandPipeline.Execute(new FailAlertInvestigation(alert, "The investigation was stopped before it concluded"));
         }
     }

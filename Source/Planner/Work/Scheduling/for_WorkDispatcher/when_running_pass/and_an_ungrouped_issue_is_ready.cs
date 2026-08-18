@@ -16,5 +16,9 @@ public class and_an_ungrouped_issue_is_ready : given.all_dependencies
             command.Purpose == WorkPurpose.Implementation &&
             command.Issues.Single() == new IssueId("cratis-studio-1") &&
             command.Model == new ModelName("sonnet")));
+
+    // Exactly one: nothing is stuck and nothing is pending dispatch in this scenario, so the only
+    // scope entered this pass is the one guarding the schedule itself.
+    [Fact] void should_schedule_as_the_system() => _systemExecution.Received(1).AsSystem();
 }
 #endif

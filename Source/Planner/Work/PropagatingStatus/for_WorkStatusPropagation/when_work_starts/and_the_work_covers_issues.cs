@@ -33,5 +33,10 @@ public class and_the_work_covers_issues : given.a_work_item
     async Task should_put_the_second_issue_in_progress() =>
         await _commandPipeline.Received(1).Execute(Arg.Is<ChangeIssueStatus>(command =>
             command.Issue == new IssueId("cratis-studio-2") && command.Status == IssueStatus.InProgress));
+
+    // There is no HTTP request behind a reactor, and every command it executes now requires
+    // authorization by default - proves the propagation runs inside the trusted system scope rather
+    // than relying on (nonexistent) ambient authorization.
+    [Fact] void should_run_the_propagation_as_the_system() => _systemExecution.Received(1).AsSystem();
 }
 #endif

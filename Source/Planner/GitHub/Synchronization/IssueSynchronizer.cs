@@ -1,6 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.Arc.Authorization;
 using MongoDB.Driver;
 using Planner.Issues.ChangingAssignees;
 using Planner.Issues.ChangingBody;
@@ -48,12 +49,14 @@ public interface IIssueSynchronizer
 /// <param name="issues">The issue read models.</param>
 /// <param name="gitHub">The <see cref="IGitHubClient"/> for talking to GitHub.</param>
 /// <param name="commandPipeline">The <see cref="ICommandPipeline"/> for executing commands.</param>
+/// <param name="systemExecution">The <see cref="ISystemExecution"/> the commands below run as - this is a scheduled/reactor-triggered sweep with no HTTP request behind it.</param>
 /// <param name="logger">The logger.</param>
 public class IssueSynchronizer(
     IMongoCollection<Repository> repositories,
     IMongoCollection<ListedIssue> issues,
     IGitHubClient gitHub,
     ICommandPipeline commandPipeline,
+    ISystemExecution systemExecution,
     ILogger<IssueSynchronizer> logger) : IIssueSynchronizer
 {
     /// <inheritdoc/>
@@ -71,6 +74,10 @@ public class IssueSynchronizer(
     public async Task SynchronizeRepository(OrganizationName owner, RepositoryName name, CancellationToken cancellationToken = default)
     {
         logger.SynchronizingRepository(owner, name);
+
+        // One scope for the whole repository sync - every command it and its helpers below issue
+        // (new issues, renames, status, comments) belongs to this one reconciliation pass.
+        using var scope = systemExecution.AsSystem();
         var gitHubIssues = await gitHub.GetIssues(owner, name, cancellationToken);
 
         var cursor = await issues.FindAsync(issue => issue.Owner == owner && issue.Repository == name, cancellationToken: cancellationToken);

@@ -31,7 +31,7 @@ public class and_the_work_is_an_alert_investigation : given.a_work_item
             null!,
             ModelName.NotSet,
             UserName.NotSet));
-        _reactor = new(_eventStore, _commandPipeline);
+        _reactor = new(_eventStore, _commandPipeline, _systemExecution);
     }
 
     async Task Because() => _error = await Cratis.Specifications.Catch.Exception(() =>

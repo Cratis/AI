@@ -20,5 +20,7 @@ public class when_work_starts : context
     async Task should_record_that_an_agent_picked_the_alert_up() =>
         await _commandPipeline.Received(1).Execute(Arg.Is<StartAlertInvestigation>(command =>
             command.Alert == _alertId && command.Work == _workId));
+
+    [Fact] void should_record_it_as_the_system() => _systemExecution.Received(1).AsSystem();
 }
 #endif

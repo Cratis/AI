@@ -44,5 +44,7 @@ public class when_an_investigation_completes : given.a_work_item
     async Task should_not_leave_the_issue_in_progress() =>
         await _commandPipeline.DidNotReceive().Execute(Arg.Is<ChangeIssueStatus>(command =>
             command.Status == IssueStatus.InProgress));
+
+    [Fact] void should_run_the_propagation_as_the_system() => _systemExecution.Received(1).AsSystem();
 }
 #endif

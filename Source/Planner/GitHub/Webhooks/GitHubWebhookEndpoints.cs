@@ -58,6 +58,11 @@ public static class GitHubWebhookEndpoints
                 return Results.Unauthorized();
             }
 
+            // The HMAC check above is the caller's real credential - establish the trusted principal
+            // Arc's authorization reads for the rest of this request immediately after it passes, and
+            // before any of the commands the handlers below may execute.
+            request.HttpContext.EstablishAsVerified();
+
             if (JsonNode.Parse(body) is not JsonObject payload)
             {
                 return Results.BadRequest();

@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 #if DEBUG
+using Cratis.Arc.Authorization;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using NSubstitute.ReturnsExtensions;
@@ -33,6 +34,7 @@ public class all_dependencies : Specification
     protected IWorkerEnvironment _workerEnvironment;
     protected IWorkTokens _workTokens;
     protected ICommandPipeline _commandPipeline;
+    protected ISystemExecution _systemExecution;
     protected TimeProvider _timeProvider;
     protected SchedulingOptions _schedulingOptions;
     protected WorkerOptions _workerOptions;
@@ -62,6 +64,7 @@ public class all_dependencies : Specification
         _workTokens = Substitute.For<IWorkTokens>();
         _workTokens.Issue(Arg.Any<WorkId>()).Returns(_callbackToken);
         _commandPipeline = Substitute.For<ICommandPipeline>();
+        _systemExecution = Substitute.For<ISystemExecution>();
         _timeProvider = Substitute.For<TimeProvider>();
         _timeProvider.GetUtcNow().Returns(_now);
 
@@ -89,6 +92,7 @@ public class all_dependencies : Specification
             _workerEnvironment,
             _workTokens,
             _commandPipeline,
+            _systemExecution,
             _timeProvider,
             Options.Create(_workerOptions),
             Options.Create(_schedulingOptions),

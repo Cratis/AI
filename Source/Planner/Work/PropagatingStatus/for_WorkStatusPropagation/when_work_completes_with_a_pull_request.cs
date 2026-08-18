@@ -35,5 +35,7 @@ public class when_work_completes_with_a_pull_request : given.a_work_item
     async Task should_mark_the_issue_for_review() =>
         await _commandPipeline.Received(1).Execute(Arg.Is<ChangeIssueStatus>(command =>
             command.Issue == new IssueId("cratis-studio-1") && command.Status == IssueStatus.ForReview));
+
+    [Fact] void should_run_the_propagation_as_the_system() => _systemExecution.Received(1).AsSystem();
 }
 #endif
