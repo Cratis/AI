@@ -818,6 +818,21 @@ class FactoryDiscoveryScopeTests(unittest.TestCase):
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(document), encoding="utf-8")
 
+    def test_summary_exclusion_reason_reflects_why_components_was_excluded_not_a_hardcoded_peer_claim(
+        self,
+    ) -> None:
+        fixture = validate_factory.ROOT / "Factory" / "Fixtures" / "Ecosystems" / "components-framework"
+
+        result = resolve_factory.resolve_repository(fixture, ".", "investigate", self.documents)
+
+        exclusion_line = resolve_factory._summary_exclusion_line(result)
+
+        self.assertIn(
+            "application-cratis-components (repository mode framework is not one of application)",
+            exclusion_line,
+        )
+        self.assertNotIn("peers missing", exclusion_line)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1939,8 +1939,13 @@ def _summary_exclusion_line(result: dict[str, Any]) -> str:
         for evidence in result["evidence"]
     )
     if "application-cratis-components" in application_ids and components_detected:
+        components_match = next(
+            match
+            for match in result["matches"]
+            if match["profileId"] == "application-cratis-components"
+        )
         parts.append(
-            "application-cratis-components (React + Arc.React peers missing)"
+            f"application-cratis-components ({_excluded_profile_reason(components_match)})"
         )
         application_ids.remove("application-cratis-components")
 
