@@ -7,7 +7,9 @@
 #            .claude/commands/<n>.md, .claude/skills (folder)   [hooks live in .claude/settings.json]
 #   Codex:   AGENTS.md, .agents/skills (folder)
 # plus a set of content drift guards. Structural/adapter/Codex checks are FATAL; drift guards are
-# WARNINGS. Portable: needs only bash + grep + sed (no ripgrep). Run from anywhere; it cd's to root.
+# WARNINGS. Portable: needs only bash + grep + sed (no ripgrep) — the one guard that wants more
+# (validate-package-subpaths.sh: jq + node_modules) is delegated and no-ops without them.
+# Run from anywhere; it cd's to root.
 set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
@@ -192,6 +194,15 @@ if grep -rnE 'RouteAttribute|\[Route\(' .ai/rules .ai/skills .ai/agents 2>/dev/n
 fi
 if grep -rniE 'custom exception to signal|framework converts it to (an? )?(error|failed)' .ai/rules .ai/skills .ai/prompts 2>/dev/null | grep -q .; then
     warn "stale business-rule guidance — return ValidationResult/Result<,>, not a thrown exception"
+fi
+# Every guard above asserts that a string should NOT appear. The one below is the other direction:
+# it resolves each `@cratis/<pkg>/<subpath>` the corpus names against the installed package's
+# exports map. It lives in its own script because it is the only check with a dependency beyond
+# bash/grep/sed (jq) and on an installed node_modules — both of which it degrades around silently.
+# Tested with -f, not -x, and invoked through `bash`: a checkout that lost the exec bit must not
+# silently drop the guard.
+if [[ -f .ai/hooks/scripts/validate-package-subpaths.sh ]]; then
+    bash .ai/hooks/scripts/validate-package-subpaths.sh || true
 fi
 
 if [[ "$failed" -ne 0 ]]; then
