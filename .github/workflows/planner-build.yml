@@ -17,10 +17,18 @@ on:
   pull_request:
     branches:
       - "**"
+    # Sorted, and deliberately covering every input the jobs below actually consume — not just
+    # Source/**. Analyzer configuration, the shared frontend config, the solution file and the SDK
+    # pin all change what these jobs do, so a PR touching only one of them must still be checked.
     paths:
-      - "Source/**"
+      - ".editorconfig" # analyzer configuration; can turn a warning into an error
+      - ".frontend/**" # the shared ESLint config and tsconfig the Frontend job runs against
+      - ".globalconfig" # analyzer configuration; same reasoning as .editorconfig
       - "Directory.Build.props"
       - "Directory.Packages.props"
+      - "Planner.slnx"
+      - "Source/**"
+      - "global.json" # the SDK band every dotnet step below resolves
       - "package.json"
       - "yarn.lock"
 
@@ -42,14 +50,25 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
+      # CratisProxiesOutputPath is the only gate on the proxy generator: its MSBuild target is
+      # Condition="'$(CratisProxiesOutputPath)' != ''". Clearing the property makes the target
+      # no-op, so the Release pass cannot re-run generation over already-correct generated files.
       - name: Build (Release - zero warnings)
-        run: dotnet build Source/Planner/Planner.csproj --configuration Release -p:DisableProxyGenerator=true
+        run: dotnet build Source/Planner/Planner.csproj --configuration Release -p:CratisProxiesOutputPath=
 
+      # No override here on purpose: .ai/rules/general.md makes the Debug build the canonical
+      # trigger for regenerating the TypeScript proxies, so this pass must run the generator.
       - name: Build (Debug - specs compile)
-        run: dotnet build Source/Planner/Planner.csproj --configuration Debug -p:DisableProxyGenerator=true
+        run: dotnet build Source/Planner/Planner.csproj --configuration Debug
 
       - name: Run specs
         run: dotnet test Source/Planner/Planner.csproj --configuration Debug --no-build
+
+      # Placed after the specs so it cannot disturb the Debug outputs `dotnet test --no-build`
+      # consumes. Composition is the Aspire AppHost; it references Planner, never the reverse, so
+      # nothing else in this workflow compiles it.
+      - name: Build Aspire AppHost (Release - zero warnings)
+        run: dotnet build Source/Composition/Composition.csproj --configuration Release -p:CratisProxiesOutputPath=
 
   frontend:
     name: Frontend
@@ -118,14 +137,30 @@ jobs:
         working-directory: Source/Planner
         run: yarn build
 
+      # CratisProxiesOutputPath is the only gate on the proxy generator (its target is
+      # Condition="'$(CratisProxiesOutputPath)' != ''"), so clearing it keeps this publish from
+      # re-running generation over the proxies the frontend was already built against.
       - name: Publish backend
         run: >
           dotnet publish Source/Planner/Planner.csproj
           --configuration Release
           --self-contained false
           -p:UseAppHost=false
-          -p:DisableProxyGenerator=true
+          -p:CratisProxiesOutputPath=
           -o Source/Planner/out
+
+      # Build-only: proves Source/Planner/Dockerfile still builds before the change reaches main,
+      # where planner-publish.yml is the first thing that would otherwise try it. Action SHAs are
+      # copied verbatim from planner-publish.yml — keep them in sync when that file is bumped.
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+
+      - name: Build Planner image (no push)
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+        with:
+          context: Source/Planner
+          file: Source/Planner/Dockerfile
+          push: false
 
       - name: Upload application artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

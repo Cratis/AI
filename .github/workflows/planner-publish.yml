@@ -70,13 +70,16 @@ jobs:
         working-directory: Source/Planner
         run: yarn build
 
+      # CratisProxiesOutputPath is the only gate on the proxy generator: its MSBuild target is
+      # Condition="'$(CratisProxiesOutputPath)' != ''". Clearing the property makes the target
+      # no-op, so this publish cannot regenerate the proxies the frontend was just built against.
       - name: Publish backend
         run: >
           dotnet publish Source/Planner/Planner.csproj
           --configuration Release
           --self-contained false
           -p:UseAppHost=false
-          -p:DisableProxyGenerator=true
+          -p:CratisProxiesOutputPath=
           -o Source/Planner/out
 
       - name: Login to Docker Hub

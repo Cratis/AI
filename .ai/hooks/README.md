@@ -76,11 +76,13 @@ framework-profile repository (Arc, Chronicle, Fundamentals, Components — see
 [`../rules/framework.md`](../rules/framework.md)) has no vertical slices and should disable them
 in its `cratis-patterns.local.json`.
 
-**CI divergence.** `.github/workflows/planner-build.yml` builds with
-`-p:DisableProxyGenerator=true` for both configurations. The shipped Debug gate deliberately does
-*not*, because `general.md` makes the Debug build the canonical trigger for regenerating the
-TypeScript proxies the frontend phase depends on. A repository that prefers the CI form edits the
-argv array in `quality-gates.json`.
+**One property gates the proxy generator.** The generator's MSBuild target is
+`Condition="'$(CratisProxiesOutputPath)' != ''"`, so clearing that property with
+`-p:CratisProxiesOutputPath=` is the *only* way to make it no-op. There is no
+`DisableProxyGenerator` property — MSBuild silently accepts unknown `-p:` names, so passing one
+looks like it works and changes nothing. `.github/workflows/planner-build.yml` matches the shipped
+gates: Release clears the path, Debug does not, because `general.md` makes the Debug build the
+canonical trigger for regenerating the TypeScript proxies the frontend phase depends on.
 
 ## Escape hatches
 

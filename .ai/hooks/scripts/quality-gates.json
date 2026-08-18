@@ -20,10 +20,12 @@
         "",
         "Commands are pinned to .ai/rules/general.md 'Quality Gates' and .ai/hooks/agent-stop.md.",
         "Note the Release build passes -p:CratisProxiesOutputPath= per general.md so the proxy",
-        "generator does not re-run and touch already-correct generated files.",
-        "This repository's CI (.github/workflows/planner-build.yml) instead uses",
-        "-p:DisableProxyGenerator=true for both configurations; a repo that prefers the CI form",
-        "should change the argv arrays below."
+        "generator does not re-run and touch already-correct generated files. That property is the",
+        "only gate: the generator's target is Condition=\"'$(CratisProxiesOutputPath)' != ''\", and",
+        "there is no DisableProxyGenerator property — MSBuild accepts unknown -p: names silently,",
+        "so passing one looks effective and does nothing. The Debug gate deliberately omits the",
+        "override because general.md makes Debug the canonical proxy-regeneration trigger.",
+        "This repository's CI (.github/workflows/planner-build.yml) uses the same split."
     ],
     "enabled": true,
     "failFast": true,
