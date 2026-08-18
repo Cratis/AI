@@ -833,6 +833,22 @@ class FactoryDiscoveryScopeTests(unittest.TestCase):
         )
         self.assertNotIn("peers missing", exclusion_line)
 
+    def test_npm_peer_dependencies_are_not_folded_into_dependency_evidence(self) -> None:
+        with TemporaryDirectory() as temporary_directory:
+            repository = Path(temporary_directory).resolve()
+            self._write_json(
+                repository / "package.json",
+                {
+                    "name": "peers-only-library",
+                    "peerDependencies": {"@cratis/arc.react": ">=20.3.1 <22"},
+                },
+            )
+
+            collected = resolve_factory._collect_evidence(repository, repository)
+
+        names = {package["name"] for package in collected["dependencies"]}
+        self.assertNotIn("@cratis/arc.react", names)
+
 
 if __name__ == "__main__":
     unittest.main()

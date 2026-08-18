@@ -539,7 +539,9 @@ def _collect_npm(
     package_name = document.get("name")
     if isinstance(package_name, str):
         _append_package(repository_packages, "npm", package_name, str(document.get("version", "unknown")), source)
-    for section in ("dependencies", "devDependencies", "optionalDependencies", "peerDependencies"):
+    # peerDependencies are declared peers, not installed dependencies — a library
+    # declaring a peer is not thereby a consumer of it.
+    for section in ("dependencies", "devDependencies", "optionalDependencies"):
         values = document.get(section, {})
         if not isinstance(values, dict):
             continue
