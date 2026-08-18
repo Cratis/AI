@@ -41,6 +41,18 @@ env:
   # The download is a tarball from a third-party release, so the pin is only worth as much as the
   # integrity check that goes with it. Update both together.
   SHELLCHECK_SHA256: "8c3be12b05d5c177a04c29e3c78ce89ac86f1595681cab149b65b97c4e227198"
+  # Pinned for the same reason with one difference: ubuntu-latest does not preinstall actionlint,
+  # so there is no runner copy to displace. The half of the argument that bites is unchanged
+  # though — a release that adds a check would turn this gate red on a pull request that changed
+  # no workflow at all, and "whatever shipped this morning" is not a merge gate. 1.7.12 is the
+  # version the current zero-findings baseline was measured against. Bump it deliberately, with
+  # the resulting findings reviewed in the same pull request.
+  ACTIONLINT_VERSION: "1.7.12"
+  # sha256 of actionlint_1.7.12_linux_amd64.tar.gz, agreeing across the release's own
+  # actionlint_1.7.12_checksums.txt and the release API's asset digest. Same third-party-tarball
+  # reasoning as the shellcheck pin above: the version pin is only worth its integrity check.
+  # Update both together.
+  ACTIONLINT_SHA256: "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8"
 
 permissions:
   contents: read
@@ -74,7 +86,7 @@ jobs:
       # pull_request comparisons go through the REST API and need no checkout, but the push
       # trigger above compares with git and does.
       - name: Checkout source
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Detect changed paths
         id: filter
@@ -122,9 +134,17 @@ jobs:
             # worker container entrypoint and scripts/ — and no existing filter covers more than
             # one of them. Widening `corpus` instead would run the AI-corpus validator on a
             # container-entrypoint change it knows nothing about, so this gets its own filter.
+            #
+            # The two workflow entries are what make the actionlint half of that job reachable. A
+            # change that edits only a `run:` block lives entirely inside a .yml file, so a filter
+            # of '**/*.sh' alone would skip this job on precisely the pull requests able to
+            # introduce the bug it was added to catch. '.github/workflows/**' also subsumes the
+            # self-referencing factory-foundation.yml entry the other filters carry, and
+            # '.ai/workflows/**' is the copy propagated into every other Cratis repository.
             shell:
               - '**/*.sh'
-              - '.github/workflows/factory-foundation.yml'
+              - '.ai/workflows/**'
+              - '.github/workflows/**'
 
   foundation:
     name: Deterministic Factory foundation
@@ -137,10 +157,10 @@ jobs:
 
     steps:
       - name: Checkout source
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup Python
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
           python-version: "3.14"
           cache: pip
@@ -213,10 +233,10 @@ jobs:
 
     steps:
       - name: Checkout source
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
@@ -241,7 +261,7 @@ jobs:
 
     steps:
       - name: Checkout source
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Validate AI corpus
         run: bash .ai/hooks/scripts/validate-ai-setup.sh
@@ -255,10 +275,10 @@ jobs:
 
     steps:
       - name: Checkout source
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup Node
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -287,16 +307,20 @@ jobs:
         continue-on-error: true
         run: bash Documentation/verify-markdown.sh
 
-  # Blocking, unlike the link check above, and the difference is determinism. shellcheck is a
-  # static parser over files already in the checkout: no network at check time, no shared-runner
-  # rate limit, no flake to trade away. The scripts it guards also earn a hard gate — the six
-  # under .ai/hooks/scripts are propagated to every Cratis repository and run on each agent write
-  # and turn end, so a `set -e` mistake there fails open across the fleet, silently. Two such bugs
-  # (a `grep -rl` whose no-match exit killed a loop, and a bare command that made a failure report
-  # unreachable) were found here by hand before this job existed; both are ordinary shellcheck
-  # findings.
+  # Blocking, unlike the link check above, and the difference is determinism. Both linters here
+  # are static parsers over files already in the checkout: no network at check time, no
+  # shared-runner rate limit, no flake to trade away. The scripts they guard also earn a hard gate
+  # — the six under .ai/hooks/scripts are propagated to every Cratis repository and run on each
+  # agent write and turn end, so a `set -e` mistake there fails open across the fleet, silently.
+  # Two such bugs (a `grep -rl` whose no-match exit killed a loop, and a bare command that made a
+  # failure report unreachable) were found here by hand before this job existed; both are ordinary
+  # shellcheck findings.
+  #
+  # The job covers shell in both of the forms this repository writes it: standalone *.sh files,
+  # and the shell embedded in workflow `run:` blocks. It is named for both because requiring it
+  # by name is the point — see .github/BRANCH-PROTECTION.md.
   shell:
-    name: Shell scripts
+    name: Shell and workflow lint
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: changes
@@ -304,7 +328,7 @@ jobs:
 
     steps:
       - name: Checkout source
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Install pinned shellcheck
         shell: bash
@@ -316,6 +340,21 @@ jobs:
           tar -xJf "$RUNNER_TEMP/shellcheck.tar.xz" -C "$RUNNER_TEMP"
           sudo install -m 0755 "$RUNNER_TEMP/shellcheck-v${SHELLCHECK_VERSION}/shellcheck" /usr/local/bin/shellcheck
           shellcheck --version
+
+      # Ordering is a dependency, not a preference: actionlint shells out to whatever shellcheck
+      # is on PATH, so this has to land before the lint step at the bottom of the job or that step
+      # checks no `run:` block at all. Installing over /usr/local/bin the same way keeps the two
+      # linters on one story — pinned version, verified tarball, nothing inherited from the image.
+      - name: Install pinned actionlint
+        shell: bash
+        run: |
+          set -euo pipefail
+          url="https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz"
+          curl -fsSL --retry 3 --retry-all-errors -o "$RUNNER_TEMP/actionlint.tar.gz" "$url"
+          echo "${ACTIONLINT_SHA256}  $RUNNER_TEMP/actionlint.tar.gz" | sha256sum --check --strict
+          tar -xzf "$RUNNER_TEMP/actionlint.tar.gz" -C "$RUNNER_TEMP" actionlint
+          sudo install -m 0755 "$RUNNER_TEMP/actionlint" /usr/local/bin/actionlint
+          actionlint --version
 
       - name: Lint shell scripts
         shell: bash
@@ -340,12 +379,14 @@ jobs:
             -not -path '*/bin/*' \
             -not -path '*/obj/*' | sort)
 
-          # The filter that starts this job matches '**/*.sh', so an empty list means every shell
-          # script in the repository was deleted, not that there is nothing to check. Say so rather
-          # than reporting a green check that verified nothing.
+          # An empty list means every shell script in the repository was deleted, not that there
+          # is nothing to check. Say so rather than reporting a green check that verified nothing.
+          # The job can now be started by a workflow-only change too, so this deliberately does not
+          # claim which filter entry fired — only that the scripts it exists to check are gone.
           if [[ ${#scripts[@]} -eq 0 ]]; then
-            echo "No sh/bash scripts found, but the change filter matched '**/*.sh'." >&2
-            echo "If the last shell script really was removed, drop this job and its filter." >&2
+            echo "No sh/bash scripts found anywhere in the tree." >&2
+            echo "If the last one really was removed, drop this step and the '**/*.sh' entry in" >&2
+            echo "the change filter." >&2
             exit 1
           fi
 
@@ -354,8 +395,77 @@ jobs:
           echo
 
           # -x follows `source`d files, which is what makes the three hooks that pull in
-          # hook-lib.sh check as the single program they actually are. --severity=style is the
-          # shellcheck default today; naming it pins the threshold so a future release cannot
-          # loosen this gate without the version bump above being reviewed.
+          # hook-lib.sh check as the single program they actually are. And --severity=style is
+          # the shellcheck default today; naming it pins the threshold so a future release
+          # cannot loosen this gate without the version bump above being reviewed.
+          #
+          # Keep it wrapped that way. A comment line whose first word is the linter's own name is
+          # read as a directive rather than as prose, and the third line of this paragraph used
+          # to begin with exactly that — a hard SC1072/SC1073 parse error, invisible to the sweep
+          # it sits inside because that sweep only ever reads files named *.sh. The possessive
+          # spelling fails identically; only the line wrapping fixes it.
           shellcheck --external-sources --severity=style --format=gcc "${scripts[@]}"
           echo "shellcheck: zero findings."
+
+      # The gap the step above cannot close, and it is not hypothetical: the malformed directive
+      # that used to sit in that step's own comment block survived every run of it, because the
+      # sweep only ever looks at files named *.sh. The shell in this repository is written in two
+      # forms, and the second one — `run:` blocks, of which this file alone has twenty, six of them
+      # multi-line scripts — had no checker at all. actionlint runs shellcheck over each of them
+      # and adds the workflow-schema checks on top: unknown action inputs, malformed `${{ }}`
+      # expressions, invalid `needs:` references, undefined `env` and `secrets`.
+      #
+      # An explicit file list rather than actionlint's bare repository mode, for two reasons. Bare
+      # mode only discovers .github/workflows, and .ai/workflows/ is propagated into every other
+      # Cratis repository — the one place a workflow mistake travels furthest. And the list gives
+      # this step the same empty-set guard the sweep above has, instead of inferring one from a
+      # count parsed out of verbose output.
+      #
+      # The verbose log and the grep are the load-bearing part. actionlint drops its shellcheck
+      # integration *silently* when the binary is not on PATH: point it at a path that does not
+      # exist and it exits 0 having printed nothing, so a green check would prove nothing whatever
+      # about the embedded shell. Only -verbose records the fact, so the absence is asserted here
+      # rather than assumed.
+      - name: Lint workflow files
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # A command substitution, not a pipe into `while`, so `set -e` still sees find's exit
+          # status: a missing directory has to fail loudly here rather than quietly shrink the
+          # list to whatever the other directory happened to contain.
+          found="$(find .ai/workflows .github/workflows -maxdepth 1 -type f \
+            \( -name '*.yml' -o -name '*.yaml' \) | sort)"
+
+          if [[ -z "$found" ]]; then
+            echo "Neither .ai/workflows nor .github/workflows holds a workflow file." >&2
+            exit 1
+          fi
+
+          workflows=()
+          while IFS= read -r workflow; do
+            workflows+=("$workflow")
+          done <<< "$found"
+
+          echo "Checking ${#workflows[@]} workflow file(s) with $(actionlint --version | head -n 1):"
+          printf '  %s\n' "${workflows[@]}"
+          echo
+
+          # Findings go to stdout and stay visible in the log; only the verbose commentary is
+          # captured, and it is replayed if the run failed so the two halves read together.
+          log="$RUNNER_TEMP/actionlint-verbose.log"
+          status=0
+          actionlint -verbose "${workflows[@]}" 2> "$log" || status=$?
+          if [[ $status -ne 0 ]]; then
+            cat "$log" >&2
+            exit "$status"
+          fi
+
+          if grep -q 'Rule "shellcheck" was disabled' "$log"; then
+            echo 'actionlint ran with its shellcheck integration disabled, so not one run: block' >&2
+            echo 'was checked. The pinned install step above is what puts shellcheck on PATH.' >&2
+            grep 'Rule "shellcheck" was disabled' "$log" | sort -u >&2
+            exit 1
+          fi
+
+          echo "actionlint: zero findings."

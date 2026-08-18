@@ -31,7 +31,7 @@ reports a conclusion on every pull request (see the next section for why).
 | `Factory .NET libraries` | Factory Foundation | `skipped` |
 | `AI corpus` | Factory Foundation | `skipped` |
 | `Documentation` | Factory Foundation | `skipped` |
-| `Shell scripts` | Factory Foundation | `skipped` |
+| `Shell and workflow lint` | Factory Foundation | `skipped` |
 | `Planner change detection` | Planner Build | always runs (it is the gate itself) |
 | `Backend` | Planner Build | `skipped` |
 | `Frontend` | Planner Build | `skipped` |
@@ -46,6 +46,36 @@ link-checks with linkinator. That second step reaches the network, and a network
 a sound blocking merge gate, so a broken link shows up as a red step inside a green job and does
 not stop a merge. Requiring `Documentation` therefore guarantees markdown lint cleanliness, not
 link health.
+
+### What `Shell and workflow lint` gates
+
+Renamed from `Shell scripts`, because it now covers both forms in which this repository writes
+shell. The first is unchanged: every `*.sh` file in the tree, selected by shebang rather than by
+path so a new bash script anywhere is picked up and the two zsh scripts under `Factory/Migration`
+stay out of the way. The second is new: `actionlint` over every workflow file in
+`.github/workflows/` **and** `.ai/workflows/`, which runs shellcheck across each `run:` block and
+adds the workflow-schema checks — unknown action inputs, malformed `${{ }}` expressions, invalid
+`needs:` references.
+
+That second half exists because the first could never see it. A malformed `# shellcheck` directive
+sat in a `run:` block of `factory-foundation.yml` from the day the job was written: shell embedded
+in YAML is not a `*.sh` file, so nothing in CI ever parsed it. Both linters are pinned to an exact
+version with a sha256-verified download (`SHELLCHECK_VERSION`/`SHELLCHECK_SHA256` and
+`ACTIONLINT_VERSION`/`ACTIONLINT_SHA256` in `factory-foundation.yml`), and both are blocking on the
+same reasoning: a static parser over files already in the checkout has no network at check time and
+therefore no flake to trade away, unlike the link check above.
+
+One trap is worth recording, because a green check would otherwise mean nothing. actionlint shells
+out to whichever `shellcheck` is on `PATH` and **silently disables** that integration when it finds
+none — pointed at a path that does not exist it exits 0 having printed nothing at all. The job
+therefore installs the pinned shellcheck first and then asserts, against actionlint's `-verbose`
+log, that the rule was not disabled.
+
+The `shell` change filter had to widen with it. It was `**/*.sh` plus a self-reference to
+`factory-foundation.yml`, which would have skipped this job on exactly the pull requests that can
+introduce a `run:`-block bug — a change to any other workflow file. It is now `**/*.sh`,
+`.ai/workflows/**` and `.github/workflows/**`; the last of those subsumes the old self-reference.
+No other filter changed.
 
 ### What `Backend` and `Frontend` also gate
 
@@ -71,7 +101,10 @@ to produce; sweeping them in would fail every run, and a gate that always fails 
 The generator itself is hash-aware — it skips the write when a generated file's content is
 unchanged — so an in-sync tree survives a full rebuild with `git status` completely clean.
 
-No job was added or renamed by any of this, so the nine required checks above are unchanged.
+No job was added or renamed by the dirty-tree guards, and no job has been added at any point
+since: the required list is still nine checks. One was renamed — `Shell scripts` became
+`Shell and workflow lint` when actionlint joined it — so if the ruleset is created from an older
+copy of this file, that is the one name to correct.
 
 ### Checks that must NOT be required
 
@@ -139,15 +172,25 @@ Against that, a documentation-only pull request no longer spends ~15 minutes in
 
 ### Action runtimes
 
-Every action used by `planner-build.yml`, `planner-publish.yml` and `worker-image.yml` is pinned to
-a major that runs on **Node 24** — `actions/checkout@v7`, `actions/setup-dotnet@v6`,
+Every action in every workflow is pinned to a major that runs on **Node 24** —
+`actions/checkout@v7`, `actions/setup-python@v7`, `actions/setup-dotnet@v6`,
 `actions/setup-node@v7`, `actions/upload-artifact@v7`, `docker/login-action@v4`,
 `docker/setup-buildx-action@v4`, `docker/build-push-action@v7`, and `dorny/paths-filter@v4.0.3`,
 which was already there. Before that bump every job logged *Node.js 20 is deprecated … being forced
 to run on Node.js 24*. Node 24 actions need Actions Runner **v2.327.1 or later**; all jobs here run
 on `ubuntu-latest`, which is far past it, so this only becomes a constraint if a self-hosted runner
-is ever introduced. `factory-foundation.yml` still carries the Node 20 pins and needs the same bump,
-plus `actions/setup-python@v7`.
+is ever introduced.
+
+`factory-foundation.yml` was the last file still on the Node 20 pins and is now bumped with the
+rest. Two of those majors carry breaking changes worth naming, both checked against this
+repository. `actions/setup-python@v7` dropped the `pip-install` input and some end-of-life Python
+versions: the Factory job passes only `python-version: "3.14"`, `cache: pip` and
+`cache-dependency-path`, all three of which still exist in v7's `action.yml`, and 3.14 is current
+rather than end-of-life. `actions/setup-node` narrowed *automatic* package-manager caching to npm
+only in v6 — listed there as a breaking change, and carried into the v7 pinned here; the
+`package-manager-cache` input now reads "enabled when … `packageManager` … specifies npm" — while
+this repository declares `packageManager: yarn@4.17.1`. That costs nothing here because the
+`Documentation` job passes no `cache:` input at all and never had a Node cache to lose.
 
 ### Third-party action
 
