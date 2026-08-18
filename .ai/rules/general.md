@@ -193,6 +193,7 @@ All gates pass before merging, opening a PR, or marking a slice complete — exc
 - Only make high-confidence suggestions.
 - Don't change dependency manifests / lockfiles / `global.json` / NuGet config unless explicitly asked.
 - When asked to commit, push, create a PR, ship, or land changes, use the **ship-changes** skill.
+- **Never rewrite committed history — under any circumstances, on any branch, including your own.** No `rebase`, `commit --amend`, `reset --hard`, `push --force`/`--force-with-lease`, `branch -D` on unmerged work, `filter-branch`, or `gc --prune=now`, unless the human explicitly asks for that exact command in that exact message. Correct a mistake with a **new commit**, undo with `git revert`, move work with `git cherry-pick`, integrate with `git merge`. Work has already been lost in this corpus's own repository this way. See [git-commits.md](./git-commits.md#never-rewrite-history).
 
 ## General
 

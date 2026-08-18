@@ -6,6 +6,38 @@ applyTo: "**/*"
 
 Commits are the permanent record of how the codebase evolved. Each commit should tell a clear story: *what* changed and *why*. A reviewer reading `git log --oneline` should understand the arc of the work without opening any diffs.
 
+## Never rewrite history
+
+**Committed history is append-only. Never rewrite it — under any circumstances, on any branch, including your own.**
+
+These commands are **forbidden** unless the human explicitly asks for that specific command on that specific branch in that specific message:
+
+| Forbidden | Why |
+|---|---|
+| `git rebase` (any form, incl. `-i`, `--onto`, `--autosquash`) | rewrites every replayed commit; the originals become unreachable |
+| `git commit --amend` | replaces the tip commit; the original is unreachable immediately |
+| `git reset --hard`, `git reset` onto an earlier commit | discards commits and, with `--hard`, uncommitted work too |
+| `git push --force`, `git push --force-with-lease`, `git push -f` | destroys the remote's copy — the one backup that survives local loss |
+| `git branch -D` / `git branch -d` on a branch holding unmerged commits | strands those commits with no ref; `git gc` then deletes them |
+| `git checkout`/`git switch` away while another agent's commits sit only on this branch | the commits leave with the branch and the working tree silently reverts |
+| `git filter-branch`, `git filter-repo`, history-rewriting scripts | rewrites the entire history graph |
+| `git gc --prune=now`, `git reflog expire` | destroys the recovery path for anything already stranded |
+
+**This is not stylistic.** A commit can exist as an object (`git cat-file -t <sha>` succeeds) while being absent from every branch *and* from the working tree — reachable only through `git reflog`, and only until `gc` runs. Work has already been lost in this repository exactly this way: a branch checkout carried another session's commit away, the branch was deleted, and the file changes silently reverted in the tree. It was recovered from the reflog by luck, because someone asked the right question in time.
+
+### What to do instead
+
+- **Made a mistake in the last commit?** Add a new commit that corrects it. The wrong state stays in history, and that is fine — history is a record of what happened, not a curated story of what you wish had happened.
+- **Need to undo a commit?** `git revert <sha>` — it records the undo as a new commit and loses nothing.
+- **Messy commits before a PR?** Leave them. A reviewer reading a coherent series of small commits is better served than by one squashed blob, and the project does not require a linear history.
+- **Need someone else's changes?** `git merge`, never `git rebase`.
+- **Need to move a commit to another branch?** `git cherry-pick` — it copies, leaving the original reachable.
+- **Working alongside another agent or session?** Use `git worktree add` so each has its own checkout and branch. Never two sessions committing in one working tree.
+
+### Before you finish
+
+Verify your own commits are still reachable on the branch **and** that their content is still in the working tree — those are two different things. `git log --oneline -5` plus a `grep` for something the commit introduced. If a commit has gone missing, `git reflog` is the recovery tool: find the SHA, `git tag` it immediately so `gc` cannot take it, then `git cherry-pick` it back.
+
 ## Logical Grouping
 
 Every commit must be a **single logical unit of work**. Group related changes together; separate unrelated changes into distinct commits.

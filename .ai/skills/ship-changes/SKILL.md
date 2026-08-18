@@ -14,6 +14,15 @@ This skill takes local modifications from the working tree and lands them on
 project conventions for commits, PR descriptions, and labels — and leaves no
 resolved issue open behind it.
 
+> **Never rewrite history while shipping.** No `rebase`, no `commit --amend`, no
+> `reset --hard`, no `push --force` (or `--force-with-lease`), no deleting a branch that
+> still holds unmerged commits — on any branch, including your own, unless the human asks
+> for that exact command in that exact message. Correct a mistake with a **new commit**;
+> undo with `git revert`; move work with `git cherry-pick`; integrate with `git merge`.
+> Do not tidy a messy series before opening the PR — the series is the record.
+> See [git-commits.md](../../rules/git-commits.md#never-rewrite-history) for the full
+> prohibition and the recovery procedure.
+
 ## Inputs
 
 Collect the following before starting:
@@ -268,6 +277,12 @@ git checkout main && git pull && git branch -d <branch-name> && git push origin 
 
 Run all four commands in one shell invocation to avoid partial state.
 After this completes, `main` is fully up to date locally.
+
+**Only ever after the merge, and only with lowercase `-d`.** `-d` refuses to delete a
+branch holding commits that are not merged anywhere — that refusal is a safety net, not an
+obstacle. **Never reach for `-D` to force past it**: it strands those commits with no ref,
+and `git gc` then deletes them permanently. If `-d` refuses, the branch still holds work
+that exists nowhere else — stop and find out what it is.
 
 ## Full example sequence
 
