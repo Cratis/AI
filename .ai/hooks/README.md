@@ -96,14 +96,51 @@ states a requirement once and then mentions the subpath again unqualified nearby
 would fire on exactly the lines someone had just fixed correctly. The check is deliberately generous
 in the same direction: it would rather miss a stale line than warn about a correct one.
 
-**What it deliberately does not check.** Named imports (`import { Toaster } from '…'`) are out —
-barrel re-exports make that roughly 5% false-positive. Bare identifiers in prose are out — naive
-matching runs 40–60% wrong and needs a curated allowlist. So a fabricated *type* that never appears
-in an import path is invisible to it: this guard would not have caught `ReactorSideEffect`. It
-checks module specifiers, nothing else.
+**What it deliberately does not check.** Named imports (`import { Toaster } from '…'`) are Tier 2's
+job, below. Bare identifiers in prose are out of both tiers — naive matching runs 40–60% wrong and
+needs a curated allowlist. So a fabricated *type* that never appears in an import statement is
+invisible to the whole guard: neither tier would have caught `ReactorSideEffect`, which lived only
+in prose and in C# type positions. This tier checks module specifiers, nothing else.
 
 Run it standalone, optionally over other roots, and add `CRATIS_HOOKS_SUBPATH_REPORT=1` to see every
-reference and how it resolved rather than only the failures.
+reference and how it resolved rather than only the failures. It ends by invoking Tier 2 over the same
+roots, so the single call site in `validate-ai-setup.sh` gets both.
+
+### Named import existence — `scripts/validate-package-imports.sh` (warn)
+
+Tier 2, and the reason it exists is that Tier 1's answer is not the whole question: a subpath that
+resolves says nothing about the *names* imported through it. For every
+`import { A, B } from '@cratis/<pkg>/<subpath>'` in the corpus — single-line, brace-on-its-own-line,
+`import type`, `A as B` (the *imported* name is what has to exist), trailing `//` comments — it
+checks each identifier against the `.d.ts` closure of the installed package and warns about the ones
+that are not there. `Toaster`, `toastCommandResult`, `PasswordField`, `RatingField` and the rest are
+real APIs of `@cratis/components` **3.0.0** and absent from **2.6.1**; Tier 1 caught the three
+*subpaths* that moved with them, and the twelve *names* were found only by a human reading package
+internals.
+
+**Deliberately permissive, and here is the price.** A name passes when it appears as a *word
+anywhere* in the package's `.d.ts` closure — not only in an export position, not only behind the
+subpath it was imported from — and the closure follows `export … from '<other-package>'` re-exports
+one level out to another installed package. Intra-package barrels (`export * from './X'`) need no
+following, because the whole tree is read either way. That admits names the package merely
+*references* (an imported PrimeReact symbol, a name in a doc comment) and it will not notice a name
+imported from the wrong subpath of the right package. The trade is deliberate: a false warning
+trains people to ignore the guard, a missed one costs a stale line. Measured over the corpus's 85
+import statements / 134 bindings / 38 distinct *(package, name)* pairs plus a 36-pair all-valid
+probe: **zero false positives**, and it still flags all twelve of the 3.0.0 names above when they are
+written unqualified.
+
+**Same warn-only, same silence, same version rule as Tier 1.** No `jq`, no `node_modules`, a package
+this repository does not depend on, or a package that ships no `.d.ts`: skipped without a word. A
+name is cleared when any line in the same file that mentions it also carries a version — judged per
+*(file, name)*, for the same reason Tier 1 judges per *(file, reference)*.
+
+**What it deliberately does not check.** Identifiers that never appear inside an `import { … }`:
+prose mentions, JSX usages, and C# type positions are all invisible. It reads TypeScript import
+statements, nothing else.
+
+Run it standalone over any roots, and add `CRATIS_HOOKS_IMPORT_REPORT=1` to see every binding and how
+it resolved rather than only the failures.
 
 ## Configuration is data, not code
 
@@ -146,6 +183,7 @@ Each is an explicit, auditable opt-out — none of them is a default.
 | `CRATIS_HOOKS_PATTERNS=<path>` | replaces the pattern file |
 | `CRATIS_HOOKS_GATES=<path>` | replaces the gate file |
 | `CRATIS_HOOKS_SUBPATH_REPORT=1` | prints every `@cratis/*` subpath reference and how it resolved, not only the failures |
+| `CRATIS_HOOKS_IMPORT_REPORT=1` | prints every `@cratis/*` named import binding and how it resolved, not only the failures |
 
 ## Design constraints
 
@@ -198,6 +236,26 @@ echo "import x from '@cratis/components/ThisDoesNotExist';" > /tmp/scratch-corpu
 
 # Positive — expect silence, and the report to show every real reference resolving
 CRATIS_HOOKS_SUBPATH_REPORT=1 .ai/hooks/scripts/validate-package-subpaths.sh
+```
+
+Tier 2 is testable the same way, and wants a third run the subpath guard does not: a probe of names
+that all genuinely exist. A guard that warns on everything passes the negative test just as well as
+a correct one, so prove it stays quiet when it should.
+
+```bash
+# Negative — a fabricated name behind a subpath that resolves
+mkdir -p /tmp/scratch-corpus
+echo "import { CommandDialog, ThisNameDoesNotExist } from '@cratis/components/CommandDialog';" \
+  > /tmp/scratch-corpus/drift.md
+.ai/hooks/scripts/validate-package-imports.sh /tmp/scratch-corpus
+
+# Discrimination — every name real, expect silence
+echo "import { DataPage, Column } from '@cratis/components/DataPage';" \
+  > /tmp/scratch-corpus/drift.md
+.ai/hooks/scripts/validate-package-imports.sh /tmp/scratch-corpus
+
+# Positive — the real corpus, with the report showing every binding resolving
+CRATIS_HOOKS_IMPORT_REPORT=1 .ai/hooks/scripts/validate-package-imports.sh
 ```
 
 Run `bash -n` on every script and `jq .` on every JSON file before committing.

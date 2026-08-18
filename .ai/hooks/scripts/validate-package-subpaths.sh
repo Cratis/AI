@@ -86,7 +86,10 @@ printf '%s\n' "$refs" | while IFS= read -r ref; do
         # here — the extraction pass already ignores them, and they are not module specifiers.
         hits="$(grep -nE "$bounded" "$file" 2>/dev/null | grep -vF "node_modules/$ref" || true)"
         [[ -n "$hits" ]] || continue
-        if printf '%s\n' "$hits" | grep -qE "$version_re"; then
+        # A here-string, never `printf … | grep -q`: an early-exiting `grep -q` closes the pipe,
+        # `printf` dies of SIGPIPE with 141, and under `pipefail` the pipeline reports failure even
+        # though the version matched — turning a correctly-qualified line into a warning.
+        if grep -qE "$version_re" <<<"$hits"; then
             report "$ref — missing from @cratis/$pkg $version but version-qualified in $file"
             continue
         fi
@@ -94,3 +97,11 @@ printf '%s\n' "$refs" | while IFS= read -r ref; do
         warn "$file:$line: '$ref' is not in the exports map of the installed @cratis/$pkg $version — fix the reference, or mark the line with the version it needs (e.g. '(≥ 3.0.0)')"
     done
 done
+
+# Tier 2 over the same roots: a subpath that resolves says nothing about the *names* imported
+# through it. Kept in its own script — a different question, a different corpus extraction and a
+# different report variable — and invoked from here so the single call site in validate-ai-setup.sh
+# gets both. Tested with -f, not -x, and run through `bash`: a checkout that lost the exec bit must
+# not silently drop the guard.
+imports="$(dirname "${BASH_SOURCE[0]}")/validate-package-imports.sh"
+if [[ -f "$imports" ]]; then bash "$imports" "$@" || true; fi

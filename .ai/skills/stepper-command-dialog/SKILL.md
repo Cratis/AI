@@ -37,7 +37,7 @@ Run a Debug `dotnet build` to generate the `CreateProject` TypeScript proxy befo
 
 ```tsx
 import { StepperCommandDialog } from '@cratis/components/CommandDialog';
-import { StepperPanel } from '@cratis/components/CommandDialog';
+import { StepperPanel } from 'primereact/stepperpanel';
 import { InputTextField, TextAreaField, NumberField } from '@cratis/components/CommandForm/fields';
 import { DialogResult, useDialogContext } from '@cratis/arc.react/dialogs';
 import { CreateProject } from '../api/Projects/CreateProject';
