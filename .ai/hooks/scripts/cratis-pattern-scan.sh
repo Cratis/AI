@@ -17,7 +17,7 @@ set -euo pipefail
 input="$(hook_read_stdin)"
 [ -n "$input" ] || exit 0
 
-# jq is the repository's established JSON dependency (.github/scripts/*.sh). If it is not
+# jq is the repository's established JSON dependency. If it is not
 # installed the hook degrades to a silent no-op rather than breaking the session.
 hook_have jq || exit 0
 

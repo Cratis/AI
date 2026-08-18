@@ -103,7 +103,7 @@ Each is an explicit, auditable opt-out — none of them is a default.
   (macOS system bash) — no `mapfile`, no associative arrays, no GNU-only flags, `LC_ALL=C` on
   every sort and compare.
 - **Gate commands are an argv array**, executed directly. They never pass through a shell.
-- **`jq` is the only dependency**, already established by `.github/scripts/*.sh`. Every script
+- **`jq` is the only dependency.** Every script
   degrades to a silent no-op when it is missing — a hook must never break a session.
 - **Fail safe.** Malformed config, empty stdin, a missing file, a binary file, a file over 2 MB:
   all exit 0 silently.
