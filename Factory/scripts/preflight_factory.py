@@ -1063,10 +1063,13 @@ def _failure_envelope(
 
 
 def _safe_message(value: str) -> str:
-    forbidden = set(range(0x00, 0x20)) | set(range(0x7F, 0xA0)) | set(
-        range(0x202A, 0x202F)
-    ) | set(range(0x2066, 0x206A))
-    return "".join(" " if ord(character) in forbidden else character for character in value)[:1000]
+    """Replace forbidden characters; the shared character class lives in
+    operation_result.PROJECTION_CONTROL_CHARACTERS so this sanitizer cannot
+    drift from it independently again."""
+    return "".join(
+        " " if operation_result.PROJECTION_CONTROL_CHARACTERS.match(character) else character
+        for character in value
+    )[:1000]
 
 
 def _phase_execution_label(phase: dict[str, Any]) -> str:

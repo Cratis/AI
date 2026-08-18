@@ -85,8 +85,8 @@ always requires approval. A later capability broker must bind the capability
 identity to trusted implementation and effective policy before execution.
 
 Human-facing summaries, diagnostics, locations, evidence references, and actions
-reject terminal control, bidirectional-override, and line- and
-paragraph-separator characters. Inspection summary text includes the facts
+reject terminal control, bidirectional-override, zero-width format, and
+line- and paragraph-separator characters. Inspection summary text includes the facts
 required to understand the decision and next action without exposing content
 hashes as visual noise; inspection `trace` text adds evidence and request,
 result, definition, and envelope hashes. Action projections retain kind and
@@ -95,8 +95,9 @@ result values remain authoritative in the structured result and
 operation-specific text projections expose their material human facts.
 
 Before either projection is rendered, typed values are recursively checked for
-C0, C1, Unicode bidirectional-control, and Unicode line- and
-paragraph-separator (`U+2028`, `U+2029`) characters. Newlines are rejected
+C0, C1, Unicode bidirectional-control, Unicode zero-width format (`U+200B`-
+`U+200F`, `U+FEFF`), and Unicode line- and paragraph-separator (`U+2028`,
+`U+2029`) characters. Newlines are rejected
 unless the trusted result contract marks that exact field with
 `x-cratis-multiline`; that allowance admits only the newline itself, never a
 line or paragraph separator. Every such field also has a finite length. The

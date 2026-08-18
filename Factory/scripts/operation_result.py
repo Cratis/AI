@@ -64,12 +64,40 @@ _CONTRACTS = _ROOT / "Contracts" / "v1"
 _CONTENT_HASH = re.compile(r"^sha256:[a-f0-9]{64}$")
 _DIAGNOSTIC_CODE = re.compile(r"^FACTORY-[A-Z0-9]+(?:-[A-Z0-9]+)*$")
 _IDENTIFIER = re.compile(r"^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$")
-_TERMINAL_CONTROL = re.compile(
-    r"[\x00-\x1f\x7f-\x9f\u061c\u200e\u200f\u202a-\u202e\u2066-\u2069]"
+# Unicode code points beyond the C0/C1 control blocks that a Factory
+# projection must also reject: the full Bidi_Control set (U+061C,
+# U+200E-U+200F, U+202A-U+202E, U+2066-U+2069), the zero-width format
+# characters adjacent to the Bidi marks (U+200B-U+200D ZERO WIDTH
+# SPACE/NON-JOINER/JOINER) and the byte-order mark (U+FEFF ZERO WIDTH
+# NO-BREAK SPACE), and the Unicode line/paragraph separators
+# (U+2028-U+2029). The separators are general category Zl/Zp, not
+# category C, so a unicodedata.category(...).startswith("C") sweep never
+# catches them; they are named here explicitly instead. Defined once so
+# every guard in this module -- and every sanitizer elsewhere in
+# Factory/scripts that reuses PROJECTION_CONTROL_CHARACTERS below --
+# derives from this single fragment instead of maintaining an
+# independent copy that can silently drift out of sync with it.
+_NON_ASCII_PROJECTION_CONTROLS = (
+    r"\u061c\u200b-\u200f\u2028\u2029\u202a-\u202e\u2066-\u2069\ufeff"
 )
+_TERMINAL_CONTROL = re.compile(rf"[\x00-\x1f\x7f-\x9f{_NON_ASCII_PROJECTION_CONTROLS}]")
 _TYPED_VALUE_CONTROL = re.compile(
-    r"[\x00-\x09\x0b-\x1f\x7f-\x9f\u061c\u200e\u200f\u202a-\u202e\u2066-\u2069]"
+    rf"[\x00-\x09\x0b-\x1f\x7f-\x9f{_NON_ASCII_PROJECTION_CONTROLS}]"
 )
+
+# Public surface for every other Factory/scripts sanitizer (validate_factory,
+# preflight_factory, evaluate_factory, compile_factory) to build its own
+# projection-safe text helper on, instead of hand-copying the character
+# ranges above -- the drift between such a copy and this module is exactly
+# what let U+061C/U+200E/U+200F reach make_diagnostic() uncaught.
+PROJECTION_CONTROL_CHARACTERS = _TERMINAL_CONTROL
+
+# General categories that are Unicode line/paragraph separators (Zl, Zp).
+# Not part of category "C", so a category-sweep guard built on
+# unicodedata.category(...).startswith("C") -- such as
+# resolve_factory._sanitize_terminal_text -- must test membership in this
+# set explicitly to also reject U+2028/U+2029.
+LINE_AND_PARAGRAPH_SEPARATOR_CATEGORIES = frozenset({"Zl", "Zp"})
 
 
 class OperationResultError(ValueError):

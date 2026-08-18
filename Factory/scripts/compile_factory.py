@@ -11,7 +11,6 @@ from copy import deepcopy
 import heapq
 import json
 from pathlib import Path
-import re
 import sys
 from typing import Any
 
@@ -25,7 +24,10 @@ import validate_factory
 
 COMPILER_VERSION = "0.3.0"
 COMPILED_WORKFLOW_SCHEMA = "https://schemas.cratis.io/factory/v1/compiled-workflow.schema.json"
-_TERMINAL_CONTROL = re.compile(r"[\x00-\x1f\x7f-\x9f\u202a-\u202e\u2066-\u2069]")
+# The shared character class lives in
+# operation_result.PROJECTION_CONTROL_CHARACTERS so this sanitizer cannot
+# drift from it independently again.
+_TERMINAL_CONTROL = operation_result.PROJECTION_CONTROL_CHARACTERS
 
 
 class CompilationFailure(Exception):

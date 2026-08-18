@@ -130,7 +130,8 @@ outcomes, classified artifact references, approvals, usage summaries,
 pull-request outcomes, and later defect signals.
 
 Inline summaries are finite, control-safe, explicitly classified sanitized
-facts. C0, C1, Unicode bidirectional controls, and the Unicode line and
+facts. C0, C1, Unicode bidirectional controls, Unicode zero-width format
+characters (`U+200B`-`U+200F`, `U+FEFF`), and the Unicode line and
 paragraph separators `U+2028` and `U+2029` are rejected. Only fields explicitly
 marked multiline by their contract may contain bounded newlines, and that
 allowance admits only the newline itself.

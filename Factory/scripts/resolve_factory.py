@@ -1332,10 +1332,23 @@ def _validate_result(result: dict[str, Any], documents: dict[Path, dict[str, Any
 
 
 def _sanitize_terminal_text(value: str) -> str:
-    """Escape terminal and invisible control characters in one human-facing value."""
+    """Escape terminal and invisible control characters in one human-facing value.
+
+    A unicodedata.category(...).startswith("C") sweep catches every C0/C1
+    control and every Cf format character (including the zero-width and
+    Bidi_Control characters), but not the Unicode line/paragraph separators
+    U+2028/U+2029 -- those are category Zl/Zp, outside category C entirely.
+    Reject them too, using the same category set operation_result.py names
+    for every other Factory/scripts sanitizer, so this guard cannot drift
+    from that shared definition again.
+    """
     sanitized: list[str] = []
     for character in value:
-        if unicodedata.category(character).startswith("C"):
+        category = unicodedata.category(character)
+        if (
+            category.startswith("C")
+            or category in operation_result.LINE_AND_PARAGRAPH_SEPARATOR_CATEGORIES
+        ):
             codepoint = ord(character)
             sanitized.append(
                 f"\\u{codepoint:04x}" if codepoint <= 0xFFFF else f"\\U{codepoint:08x}"
