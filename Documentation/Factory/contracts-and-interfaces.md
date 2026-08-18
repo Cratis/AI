@@ -85,22 +85,24 @@ always requires approval. A later capability broker must bind the capability
 identity to trusted implementation and effective policy before execution.
 
 Human-facing summaries, diagnostics, locations, evidence references, and actions
-reject terminal control and bidirectional-override characters. Inspection
-summary text includes the facts required to understand the decision and next
-action without exposing content hashes as visual noise; inspection `trace` text
-adds evidence and request, result, definition, and envelope hashes. Action
-projections retain kind and automation, command capability and approval state,
-and side-effect state. Typed result values remain authoritative in the
-structured result and operation-specific text projections expose their material
-human facts.
+reject terminal control, bidirectional-override, and line- and
+paragraph-separator characters. Inspection summary text includes the facts
+required to understand the decision and next action without exposing content
+hashes as visual noise; inspection `trace` text adds evidence and request,
+result, definition, and envelope hashes. Action projections retain kind and
+automation, command capability and approval state, and side-effect state. Typed
+result values remain authoritative in the structured result and
+operation-specific text projections expose their material human facts.
 
 Before either projection is rendered, typed values are recursively checked for
-C0, C1, and Unicode bidirectional-control characters. Newlines are rejected
+C0, C1, Unicode bidirectional-control, and Unicode line- and
+paragraph-separator (`U+2028`, `U+2029`) characters. Newlines are rejected
 unless the trusted result contract marks that exact field with
-`x-cratis-multiline`; every such field also has a finite length. The check runs
-both when a typed result is built and when a supplied envelope is verified, so
-recomputing hashes cannot turn unsafe display text into trusted durable
-evidence.
+`x-cratis-multiline`; that allowance admits only the newline itself, never a
+line or paragraph separator. Every such field also has a finite length. The
+check runs both when a typed result is built and when a supplied envelope is
+verified, so recomputing hashes cannot turn unsafe display text into trusted
+durable evidence.
 
 ## Approval identity and durable text
 
@@ -275,10 +277,21 @@ skip-worktree, tracked links, dirty state, and concurrent changes are rejected.
 Preflight output must be standard output or outside the source repository.
 
 Inspection detail is projection-only: machine formats always contain the full
-canonical result and detail does not affect the request hash. Summary text stays
-within 24 visual lines at 80 columns for every committed ecosystem fixture.
-`explain` adds every profile match rationale and complete recovery detail;
-`trace` adds evidence and hashes.
+canonical result and detail does not affect the request hash. A bounded text
+envelope is a property of specific commands, not of every public command.
+`resolve_factory.py` at its default `--detail summary` stays within 24 visual
+lines at 80 columns for every committed ecosystem fixture — 16 to 22 measured,
+and the only such bound a test enforces. `validate_factory.py` occupies 13, and
+`compile_factory.py` 22 without a supplied plan. Two commands exceed 24 by
+design, because projecting a complete inventory is their purpose: a successful
+`preflight_factory.py` run occupies 33 visual lines, naming every phase, budget,
+and required gate, and `evaluate_factory.py` occupies 43, listing every catalog,
+executable, selected, and executed case identifier. The non-success projections
+of both stay within the envelope, at 13 to 23. The 80 columns are a soft-wrap
+assumption used to count those visual lines, not a limit on physical line width:
+the text projections perform no wrapping and do emit physical lines wider than
+80 columns. `explain` adds every profile match rationale and complete recovery
+detail; `trace` adds evidence and hashes.
 
 The preflight JSON is an `operation-result`; its typed `result.value` is the
 compiled workflow. Its text projection names the immutable revision, workflow,

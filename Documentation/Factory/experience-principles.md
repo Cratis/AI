@@ -56,9 +56,17 @@ Every failure should identify:
 
 ### Accessibility and portability
 
-Terminal output must remain readable without color and work well with screen
-readers. Planner and Studio experiences require keyboard operation, meaningful
-focus order, status text independent of color, and links to the same underlying
+Terminal output is byte-identical regardless of `NO_COLOR`, `FORCE_COLOR`,
+`CLICOLOR`, `CLICOLOR_FORCE`, `TERM`, and `COLUMNS`. It is identical whether
+standard output is a terminal, a pipe, or a file, and nothing is written to
+standard error. Every state — status, severity, blocker, next action, and
+side-effect state — is carried by a literal word or a stable code, never by
+color, weight, symbol, or any other presentation. Every line opens with the name
+of the fact it carries, so a screen reader reaches meaning without scanning, and
+no fact is conveyed by column position.
+
+Planner and Studio experiences require keyboard operation, meaningful focus
+order, status text independent of color, and links to the same underlying
 evidence. The local headless path remains fully capable when no graphical
 surface exists.
 

@@ -130,8 +130,10 @@ outcomes, classified artifact references, approvals, usage summaries,
 pull-request outcomes, and later defect signals.
 
 Inline summaries are finite, control-safe, explicitly classified sanitized
-facts. C0, C1, and Unicode bidirectional controls are rejected. Only fields
-explicitly marked multiline by their contract may contain bounded newlines.
+facts. C0, C1, Unicode bidirectional controls, and the Unicode line and
+paragraph separators `U+2028` and `U+2029` are rejected. Only fields explicitly
+marked multiline by their contract may contain bounded newlines, and that
+allowance admits only the newline itself.
 Raw command invocations, approval reasons, failure details, tool/model content,
 and phase handoff notes remain classified content-addressed artifacts. Artifact
 references are opaque `artifact:sha256:<digest>` identifiers rather than paths,
