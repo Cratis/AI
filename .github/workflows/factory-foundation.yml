@@ -310,11 +310,11 @@ jobs:
   # Blocking, unlike the link check above, and the difference is determinism. Both linters here
   # are static parsers over files already in the checkout: no network at check time, no
   # shared-runner rate limit, no flake to trade away. The scripts they guard also earn a hard gate
-  # — the six under .ai/hooks/scripts are propagated to every Cratis repository and run on each
-  # agent write and turn end, so a `set -e` mistake there fails open across the fleet, silently.
-  # Two such bugs (a `grep -rl` whose no-match exit killed a loop, and a bare command that made a
-  # failure report unreachable) were found here by hand before this job existed; both are ordinary
-  # shellcheck findings.
+  # — every script under .ai/hooks/scripts is propagated to every Cratis repository and runs on
+  # each agent write and turn end, so a `set -e` mistake there fails open across the fleet,
+  # silently. Two such bugs (a `grep -rl` whose no-match exit killed a loop, and a bare command
+  # that made a failure report unreachable) were found here by hand before this job existed; both
+  # are ordinary shellcheck findings.
   #
   # The job covers shell in both of the forms this repository writes it: standalone *.sh files,
   # and the shell embedded in workflow `run:` blocks. It is named for both because requiring it
