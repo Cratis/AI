@@ -1341,11 +1341,19 @@ def _request_hash(
     verified_result_hash: str | None,
     arguments: argparse.Namespace,
 ) -> str:
+    # Every path in the hashed request must be independent of where the repository is checked
+    # out. An absolute path makes the published request and content hashes track the working
+    # copy's location on disk, so the same commit hashes differently on two machines. The
+    # repository-relative reference keeps a document inside the repository identifiable and
+    # collapses one outside it to a location-free sentinel; content, not location, is the
+    # identity, and a verified result is already pinned by verifiedResultHash.
     return _canonical_hash(
         {
             "operation": operation,
             "catalogPath": _safe_text(
-                str((validate_factory.ROOT / arguments.catalog).resolve())
+                validate_factory._json_document_reference(
+                    validate_factory.ROOT / arguments.catalog
+                )
             ),
             "catalogHash": _canonical_hash(catalog, "Evaluation catalog") if catalog else None,
             "selectedCaseIds": (
@@ -1355,7 +1363,9 @@ def _request_hash(
             ),
             "verifiedResultHash": _safe_text(verified_result_hash) if verified_result_hash else None,
             "verifyResultPath": (
-                _safe_text(str(Path(arguments.verify_result).resolve()))
+                _safe_text(
+                    validate_factory._json_document_reference(Path(arguments.verify_result))
+                )
                 if arguments.verify_result
                 else None
             ),

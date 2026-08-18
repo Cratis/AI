@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import argparse
 from copy import deepcopy
 import json
 import os
@@ -784,6 +785,53 @@ class FactoryEvaluationTests(unittest.TestCase):
             envelope["result"]["contentHash"],
         )
 
+    def test_request_hash_is_independent_of_the_checkout_location(self) -> None:
+        catalog = foundation_catalog()
+        short_checkout = Path("/factory-checkout")
+        long_checkout = Path("/factory/checkout/at/a/considerably/longer/absolute/location")
+
+        short = request_hash_at(short_checkout, catalog=catalog)
+        long = request_hash_at(long_checkout, catalog=catalog)
+        other_catalog_path = request_hash_at(
+            short_checkout,
+            catalog=catalog,
+            catalog_path="Evaluations/Factory/other.catalog.json",
+        )
+
+        self.assertEqual(short, long)
+        self.assertNotEqual(short, other_catalog_path)
+
+    def test_request_hash_is_independent_of_the_verified_result_location(self) -> None:
+        catalog = foundation_catalog()
+        checkout = Path("/factory-checkout")
+
+        with tempfile.TemporaryDirectory() as first, tempfile.TemporaryDirectory() as second:
+            first_outside = request_hash_at(
+                checkout,
+                catalog=catalog,
+                verify_result=str(Path(first) / "evaluation.json"),
+            )
+            second_outside = request_hash_at(
+                checkout,
+                catalog=catalog,
+                verify_result=str(Path(second) / "evaluation.json"),
+            )
+        short_inside = request_hash_at(
+            checkout,
+            catalog=catalog,
+            verify_result=str(checkout / "evaluation.json"),
+        )
+        long_checkout = Path("/factory/checkout/at/a/considerably/longer/absolute/location")
+        long_inside = request_hash_at(
+            long_checkout,
+            catalog=catalog,
+            verify_result=str(long_checkout / "evaluation.json"),
+        )
+
+        self.assertEqual(first_outside, second_outside)
+        self.assertEqual(short_inside, long_inside)
+        self.assertNotEqual(short_inside, first_outside)
+
 
 def load_documents() -> dict[Path, dict]:
     return {
@@ -795,6 +843,24 @@ def load_documents() -> dict[Path, dict]:
 def foundation_catalog() -> dict:
     path = validate_factory.ROOT / "Evaluations" / "Factory" / "foundation.catalog.json"
     return deepcopy(validate_factory.load_json(path))
+
+
+def request_hash_at(
+    checkout: Path,
+    *,
+    catalog: dict,
+    catalog_path: str = "Evaluations/Factory/foundation.catalog.json",
+    verify_result: str | None = None,
+) -> str:
+    """Hash an evaluation request as if the repository were checked out at ``checkout``."""
+    arguments = argparse.Namespace(
+        catalog=catalog_path,
+        cases=None,
+        verify_result=verify_result,
+    )
+    operation = "verify-evaluation-result" if verify_result else "evaluate"
+    with mock.patch.object(validate_factory, "ROOT", checkout):
+        return evaluate_factory._request_hash(operation, catalog, None, None, arguments)
 
 
 def rehash(document: dict) -> None:
