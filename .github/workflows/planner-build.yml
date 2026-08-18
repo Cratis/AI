@@ -49,7 +49,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Detect changed paths
         id: filter
@@ -82,18 +82,55 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      # The Debug build below runs the Cratis proxy generator straight into the source tree —
+      # Planner.csproj sets CratisProxiesOutputPath to $(MSBuildThisFileDirectory) — and all 153
+      # files it emits (79 proxies plus 74 index barrels) are tracked. Without this snapshot a
+      # build that regenerated them differently would compile, test and report green against a
+      # tree nobody ever sees, then discard the diff when the runner is torn down, and the drift
+      # would reach main invisibly. factory-foundation.yml guards its Python checks the same way;
+      # this is the port of it.
+      #
+      # No --ignored, and that is the deliberate divergence from factory-foundation.yml. That job
+      # runs Python and nothing else, so --ignored buys it __pycache__ coverage for free. This one
+      # runs dotnet: bin/ and obj/ are guaranteed to appear, --ignored would sweep them in, and the
+      # guard would fail on every single run. A guard that always fails gets switched off, which is
+      # worse than no guard at all. Everything this job legitimately writes is gitignored (bin/,
+      # obj/), and everything it must not touch is tracked, so a plain --untracked-files=all is
+      # exactly the right window: a rewritten proxy shows up as a modification, a proxy for a
+      # brand-new command shows up as an untracked file, and no amount of build output can trip it.
+      - name: Snapshot the pristine checkout
+        shell: bash
+        run: git status --porcelain --untracked-files=all > "$RUNNER_TEMP/checkout-before.txt"
 
       # CratisProxiesOutputPath is the only gate on the proxy generator: its MSBuild target is
       # Condition="'$(CratisProxiesOutputPath)' != ''". Clearing the property makes the target
       # no-op, so the Release pass cannot re-run generation over already-correct generated files.
       - name: Build (Release - zero warnings)
         run: dotnet build Source/Planner/Planner.csproj --configuration Release -p:CratisProxiesOutputPath=
+
+      # A checkpoint, not a duplicate of the one at the end of the job. The comment above asserts
+      # that clearing CratisProxiesOutputPath makes the generator's target a no-op; nothing has
+      # ever verified that assertion. Checking here also keeps the two failure messages honest —
+      # if the Release pass were the thing writing files, telling someone their committed proxies
+      # are stale would send them to the wrong fix.
+      - name: Verify the Release build did not run the proxy generator
+        shell: bash
+        run: |
+          git status --porcelain --untracked-files=all > "$RUNNER_TEMP/checkout-after-release.txt"
+          if ! diff -u "$RUNNER_TEMP/checkout-before.txt" "$RUNNER_TEMP/checkout-after-release.txt"; then
+            echo "The Release build modified the source checkout." >&2
+            echo "-p:CratisProxiesOutputPath= is supposed to make the proxy generator's MSBuild" >&2
+            echo "target a no-op, so a Release pass must never write a generated file. Fix the" >&2
+            echo "override in this workflow rather than committing the diff above." >&2
+            exit 1
+          fi
 
       # No override here on purpose: .ai/rules/general.md makes the Debug build the canonical
       # trigger for regenerating the TypeScript proxies, so this pass must run the generator.
@@ -109,6 +146,24 @@ jobs:
       - name: Build Aspire AppHost (Release - zero warnings)
         run: dotnet build Source/Composition/Composition.csproj --configuration Release -p:CratisProxiesOutputPath=
 
+      - name: Verify the checks did not modify the checkout
+        shell: bash
+        run: |
+          # The generator is hash-aware: it stamps a Hash: into each generated file's header and
+          # skips the write when the content is unchanged, so a full --no-incremental Debug build
+          # over an in-sync tree leaves git status completely clean and does not even move the
+          # timestamp in the header. A diff here is real drift, never churn.
+          git status --porcelain --untracked-files=all > "$RUNNER_TEMP/checkout-after.txt"
+          if ! diff -u "$RUNNER_TEMP/checkout-before.txt" "$RUNNER_TEMP/checkout-after.txt"; then
+            echo "The Debug build regenerated proxies that differ from the committed ones." >&2
+            echo "The committed proxies are stale, and this run built and tested against the" >&2
+            echo "regenerated ones - a tree that only ever existed on this runner. Fix it at the" >&2
+            echo "source: run" >&2
+            echo "  dotnet build Source/Planner/Planner.csproj --configuration Debug" >&2
+            echo "locally and commit the regenerated files listed in the diff above." >&2
+            exit 1
+          fi
+
   frontend:
     name: Frontend
     runs-on: ubuntu-latest
@@ -118,12 +173,23 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup Node
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: ${{ env.NODE_VERSION }}
+
+      # Same guard as the Backend job and the same reasoning about --ignored, but a different
+      # exposure: this job never runs the proxy generator, so it is not watching for proxy drift.
+      # It is watching for `yarn install` rewriting yarn.lock, for a spec run rewriting a committed
+      # fixture, and for a lint that quietly fixes instead of reporting — `yarn lint:ci` maps to
+      # eslint *without* --fix, and this is what keeps it that way. Everything the job legitimately
+      # writes is gitignored: node_modules/, Source/Planner/wwwroot/, .yarn/install-state.gz,
+      # .eslintcache and .frontend/tsconfig.tsbuildinfo.
+      - name: Snapshot the pristine checkout
+        shell: bash
+        run: git status --porcelain --untracked-files=all > "$RUNNER_TEMP/checkout-before.txt"
 
       - name: Yarn install
         run: corepack enable && yarn install
@@ -144,8 +210,20 @@ jobs:
         working-directory: Source/Planner
         run: yarn build
 
+      - name: Verify the checks did not modify the checkout
+        shell: bash
+        run: |
+          git status --porcelain --untracked-files=all > "$RUNNER_TEMP/checkout-after.txt"
+          if ! diff -u "$RUNNER_TEMP/checkout-before.txt" "$RUNNER_TEMP/checkout-after.txt"; then
+            echo "The frontend checks modified the source checkout." >&2
+            echo "None of yarn install, yarn test, yarn lint:ci, yarn g:compile or yarn build is" >&2
+            echo "supposed to write a tracked file. Reproduce it locally, commit the change if it" >&2
+            echo "is genuinely correct, and otherwise stop whichever step is writing it." >&2
+            exit 1
+          fi
+
       - name: Upload frontend artifact
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: planner-frontend
           path: Source/Planner/wwwroot
@@ -164,17 +242,26 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Setup Node
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: ${{ env.NODE_VERSION }}
+
+      # The narrowest of the three guards and the one closest to something a human downloads. This
+      # job never runs the generator — the publish below clears CratisProxiesOutputPath — so the
+      # guard is here to prove exactly that, and to stop planner-app being uploaded out of a tree
+      # something modified mid-job. Its own output (Source/Planner/out, wwwroot/, bin/, obj/,
+      # node_modules/) is all gitignored, so the same comparison without --ignored applies.
+      - name: Snapshot the pristine checkout
+        shell: bash
+        run: git status --porcelain --untracked-files=all > "$RUNNER_TEMP/checkout-before.txt"
 
       - name: Yarn install
         run: corepack enable && yarn install
@@ -199,17 +286,29 @@ jobs:
       # where planner-publish.yml is the first thing that would otherwise try it. Action SHAs are
       # copied verbatim from planner-publish.yml — keep them in sync when that file is bumped.
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4
 
       - name: Build Planner image (no push)
-        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7
         with:
           context: Source/Planner
           file: Source/Planner/Dockerfile
           push: false
 
+      - name: Verify the checks did not modify the checkout
+        shell: bash
+        run: |
+          git status --porcelain --untracked-files=all > "$RUNNER_TEMP/checkout-after.txt"
+          if ! diff -u "$RUNNER_TEMP/checkout-before.txt" "$RUNNER_TEMP/checkout-after.txt"; then
+            echo "Publishing modified the source checkout, so the artifact below would not have" >&2
+            echo "been built from the committed tree. The publish clears CratisProxiesOutputPath" >&2
+            echo "precisely so it cannot regenerate proxies; if the diff above is generated code," >&2
+            echo "that override has stopped working. Fix the override, not the diff." >&2
+            exit 1
+          fi
+
       - name: Upload application artifact
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: planner-app
           path: Source/Planner/out

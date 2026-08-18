@@ -47,6 +47,32 @@ a sound blocking merge gate, so a broken link shows up as a red step inside a gr
 not stop a merge. Requiring `Documentation` therefore guarantees markdown lint cleanliness, not
 link health.
 
+### What `Backend` and `Frontend` also gate
+
+Both jobs now snapshot `git status --porcelain --untracked-files=all` right after checkout and
+compare it again at the end — the dirty-tree guard `factory-foundation.yml` already ran over its
+Python checks, ported across. `Backend` takes an extra comparison immediately after the Release
+build, so a Release pass that regenerated proxies fails as its own distinct problem instead of
+being misreported as stale committed proxies. `Publish build artifacts` carries the same guard,
+placed before the upload so a modified tree cannot be shipped as `planner-app`.
+
+It matters most on `Backend`, the only job in the repository that runs the Cratis proxy generator:
+`Planner.csproj` points `CratisProxiesOutputPath` at the project directory, so a Debug build writes
+153 tracked files (79 proxies and 74 `index.ts` barrels) into `Source/Planner`. Without the guard a
+build whose regenerated output differed from what is committed would compile, test and report green
+against a tree that only ever existed on the runner, then discard the diff at teardown. Requiring
+`Backend` therefore also guarantees that the committed proxies are the ones the C# source actually
+produces.
+
+The comparison deliberately omits `--ignored`, which is where it diverges from the Factory
+Foundation one. `bin/`, `obj/`, `node_modules/`, `Source/Planner/wwwroot/`, `Source/Planner/out`,
+`.yarn/install-state.gz`, `.eslintcache` and `*.tsbuildinfo` are gitignored output these jobs exist
+to produce; sweeping them in would fail every run, and a gate that always fails gets switched off.
+The generator itself is hash-aware — it skips the write when a generated file's content is
+unchanged — so an in-sync tree survives a full rebuild with `git status` completely clean.
+
+No job was added or renamed by any of this, so the nine required checks above are unchanged.
+
 ### Checks that must NOT be required
 
 | Check | Workflow | Why not |
@@ -110,6 +136,18 @@ pull requests that touch `Documentation/**` or `.markdownlint-cli2.jsonc`.
 Against that, a documentation-only pull request no longer spends ~15 minutes in
 `Deterministic Factory foundation` and `Factory .NET libraries`, which the old
 `Documentation/Factory/**` entry in the Factory Foundation filter used to trigger in full.
+
+### Action runtimes
+
+Every action used by `planner-build.yml`, `planner-publish.yml` and `worker-image.yml` is pinned to
+a major that runs on **Node 24** — `actions/checkout@v7`, `actions/setup-dotnet@v6`,
+`actions/setup-node@v7`, `actions/upload-artifact@v7`, `docker/login-action@v4`,
+`docker/setup-buildx-action@v4`, `docker/build-push-action@v7`, and `dorny/paths-filter@v4.0.3`,
+which was already there. Before that bump every job logged *Node.js 20 is deprecated … being forced
+to run on Node.js 24*. Node 24 actions need Actions Runner **v2.327.1 or later**; all jobs here run
+on `ubuntu-latest`, which is far past it, so this only becomes a constraint if a self-hosted runner
+is ever introduced. `factory-foundation.yml` still carries the Node 20 pins and needs the same bump,
+plus `actions/setup-python@v7`.
 
 ### Third-party action
 
