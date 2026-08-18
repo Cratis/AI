@@ -83,6 +83,7 @@ await scenario.Given
 ```
 
 **Rules:**
+
 - Call `Given` before asserting — events are processed in the order they are supplied.
 - Do not put the act-under-test inside `Given`; the `Given` call **is** the act for a read model spec.
 

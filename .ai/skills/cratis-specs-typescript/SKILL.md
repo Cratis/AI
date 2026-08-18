@@ -11,7 +11,7 @@ Same BDD philosophy as C# specs — specs describe behaviors, not implementation
 
 ## Step 1 — Create the folder structure
 
-```
+```text
 for_<ClassName>/
 ├── given/
 │   └── a_<system>.ts             ← reusable context class
@@ -23,7 +23,8 @@ for_<ClassName>/
 ```
 
 Example:
-```
+
+```text
 for_EventsCommandResponseValueHandler/
 ├── given/
 │   └── an_events_command_response_value_handler.ts
@@ -127,8 +128,8 @@ describe('when replacing route parameters', () => {
 Keep one primary behavior per spec file/folder. Do not mix orthogonal behaviors in one spec.
 
 - Good: separate folders for delta semantics:
-    - `when_items_are_added_as_delta/and_item_is_identified_by_a_guid.ts`
-    - `when_items_are_removed_as_delta/and_item_is_identified_by_a_guid.ts`
+  - `when_items_are_added_as_delta/and_item_is_identified_by_a_guid.ts`
+  - `when_items_are_removed_as_delta/and_item_is_identified_by_a_guid.ts`
 - Avoid: a single file that validates both add-delta and remove-delta behavior.
 
 This keeps failures precise and prevents unrelated behavior from becoming tangled in one spec.

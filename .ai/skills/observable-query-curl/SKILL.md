@@ -119,7 +119,7 @@ When helping the user, prefer this structure:
 
 ## Examples
 
-**Example 1 — wait for first payload**
+### Example 1 — wait for first payload
 
 User request:
 
@@ -131,7 +131,7 @@ Good response shape:
 - provide the command
 - mention `waitForFirstResultTimeout`
 
-**Example 2 — streaming JSON**
+### Example 2 — streaming JSON
 
 User request:
 
@@ -143,7 +143,7 @@ Good response shape:
 - provide `curl --no-buffer -H "Accept: text/event-stream" ...`
 - explain the `data:` frames
 
-**Example 3 — long polling**
+### Example 3 — long polling
 
 User request:
 

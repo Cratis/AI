@@ -18,6 +18,7 @@ Most features are built from a **State Change slice** paired with a **State View
 **When**: An action happens (user submits a form, a timer fires, an API is called) that changes state.
 
 **Contains**:
+
 - `[EventType]` records — the facts that occurred
 - `[Command]` record with `Handle()` — validates intent and produces events
 - `CommandValidator<T>` — input validation (FluentValidation, exported to TypeScript)
@@ -25,7 +26,7 @@ Most features are built from a **State Change slice** paired with a **State View
 
 **Example**: `Authors/Registration/Registration.cs`
 
-```
+```text
 Registration.cs
 ├── AuthorRegistered (event)
 ├── UniqueAuthorName (constraint)
@@ -42,13 +43,14 @@ Registration.cs
 **Prefer model-bound** (`[ReadModel]` + attribute-based projection) over fluent `IProjectionFor<T>` unless the mapping is too complex for attributes.
 
 **Contains**:
+
 - `[ReadModel]` record — the query-optimized data shape
 - Projection attributes (`[FromEvent<T>]`, `[SetFrom<T>]`, etc.) or `IProjectionFor<T>`
 - Static query methods on the record (DI parameters auto-resolved)
 
 **Example**: `Authors/Listing/Listing.cs`
 
-```
+```text
 Listing.cs
 ├── Author (read model record)
 ├── [FromEvent<AuthorRegistered>] (projection via attribute)
@@ -62,6 +64,7 @@ Listing.cs
 **When**: An event should trigger a side effect automatically — sending an email, calling an external API, making a decision.
 
 **Contains**:
+
 - `IReactor` implementation — dispatches on event type by first parameter
 - Optional local read models for decision state
 
@@ -80,6 +83,7 @@ public class WelcomeEmailSender(IEmailService email) : IReactor
 **When**: An event from one slice should trigger a command in another slice (event-driven integration). Keeps slices decoupled — neither knows about the other directly.
 
 **Contains**:
+
 - `IReactor` that listens to source events
 - `ICommandPipeline.Execute()` to trigger a command in another slice
 
@@ -95,7 +99,7 @@ public class StockKeeping(ICommandPipeline commandPipeline) : IReactor
 
 ## Decision guide
 
-```
+```text
 User action → State Change slice
 Data display → State View slice
 Automatic side effect → Automation slice

@@ -29,6 +29,7 @@ public record AuthorRegistered(AuthorName Name);
 ```
 
 Rules:
+
 - `[EventType]` takes **no arguments** — the type name is the identifier
 - Past tense: `ItemAddedToCart`, `UserRegistered`, `AddressChangedForPerson`
 - No nullable properties — ambiguous events need a second event
@@ -60,6 +61,7 @@ public record RegisterAuthor(AuthorName Name)
 | `void Handle()` | Side-effect only, no event |
 
 Event source resolution (in priority order):
+
 1. Parameter marked with `[Key]`
 2. Parameter whose type has implicit conversion to `EventSourceId`
 3. Implement `ICanProvideEventSourceId`

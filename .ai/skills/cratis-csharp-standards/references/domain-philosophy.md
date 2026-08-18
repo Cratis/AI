@@ -18,7 +18,7 @@ Rather than adhering purely to SOLID principles, Cratis favors the **CUPID** cha
 
 **Do not** split code by technical role (MVC-style):
 
-```
+```text
 ❌ Layered (avoid)
 Models/
   Author.cs
@@ -32,7 +32,7 @@ Events/
 
 **Do** group by feature — everything that changes together lives together:
 
-```
+```text
 ✅ Feature-cohesive (Cratis style) — feature folders live directly under the source root, no Features/ wrapper
 Authors/
   Registration/

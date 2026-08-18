@@ -84,6 +84,7 @@ Every query method must return the read-model type or a collection of it, so a `
 | Both `[Authorize]` and `[AllowAnonymous]` on same target | **Error** — throws `AmbiguousAuthorizationLevel` |
 
 Method-level always takes precedence:
+
 - Methods **without** authorization attributes inherit the class-level attribute
 - Methods **with** `[Roles(...)]` override the class-level attribute
 - Methods **with** `[AllowAnonymous]` completely bypass authorization

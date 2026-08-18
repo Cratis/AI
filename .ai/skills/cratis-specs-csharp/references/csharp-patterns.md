@@ -133,6 +133,7 @@ async Task Because() => _error = await Catch.Exception(_sut.DoSomethingThatThrow
 ## Using statements
 
 Common usings are provided globally in `GlobalUsings.Specs.cs` — do **not** add them manually:
+
 - `Xunit`
 - `NSubstitute`
 - `Cratis.Specifications`
@@ -143,7 +144,7 @@ Do **not** add a `using` for the namespace of the system under test.
 
 ## Multiple outcomes → folder
 
-```
+```text
 // Single outcome → single file
 for_MyService/when_processing.cs
 

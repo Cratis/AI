@@ -94,7 +94,13 @@ jobs:
               - '.github/**'
               - 'AGENTS.md'
               - 'README.md'
+            # `.ai/**` is here as well as under `corpus:` on purpose — the two jobs check
+            # different things about the same files. `corpus` runs validate-ai-setup.sh
+            # (frontmatter, adapters, drift); `docs` runs markdownlint, whose globs now cover
+            # .ai/rules, .ai/skills and .ai/prompts. Without this entry a corpus-only change
+            # would skip the Documentation job and go unlinted.
             docs:
+              - '.ai/**'
               - '.github/workflows/factory-foundation.yml'
               - '.markdownlint-cli2.jsonc'
               - 'Documentation/**'
@@ -241,8 +247,11 @@ jobs:
         run: corepack enable
 
       # The blocking half. No glob argument on purpose — .markdownlint-cli2.jsonc carries the
-      # globs and the ignores, so this lints exactly the 25 files the local script does.
-      - name: Lint documentation markdown
+      # globs and the ignores, so this lints exactly what a bare local run does: the 25
+      # Documentation pages plus the 139 markdown files of the .ai/ instruction corpus, 164
+      # in total. The corpus is the repository's primary product and is propagated to every
+      # other Cratis repo, so it is linted by the same blocking gate as the docs.
+      - name: Lint documentation and AI corpus markdown
         run: yarn dlx markdownlint-cli2@${{ env.MARKDOWNLINT_CLI2_VERSION }}
 
       # The advisory half, and the only thing in CI that runs Documentation/verify-markdown.sh at

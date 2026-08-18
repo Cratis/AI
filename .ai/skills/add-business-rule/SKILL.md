@@ -42,6 +42,7 @@ public record AddItemToCart(CartId CartId, ItemId ItemId)
 ```
 
 **Key rules:**
+
 - The read-model parameter type must be a `[ReadModel]` in the same slice/feature; the framework resolves the instance by the command's event-source key. To read a read model keyed differently, use `Provide()` with `IReadModels.GetInstanceById<T>((EventSourceId)key)`.
 - Return `Result<TEvent, ValidationResult>` — never throw for the rejection.
 - One parameter per logical read model; multiple reads → multiple parameters.

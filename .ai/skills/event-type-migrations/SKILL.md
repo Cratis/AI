@@ -21,7 +21,7 @@ Chronicle stores events forever. When an event's schema must change, you write a
 
 Every `[EventType]` has a **generation** (starts at `1`). Each schema change increments it. Chronicle routes stored events through the migration chain before delivering them to projections/reducers.
 
-```
+```text
 Generation 1 (stored) → Migration 1→2 → Migration 2→3 → Current (Generation 3)
 ```
 

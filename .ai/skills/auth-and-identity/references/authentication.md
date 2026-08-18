@@ -54,6 +54,7 @@ public class ApiKeyAuthenticationHandler(IApiKeyValidator validator) : IAuthenti
 ### Common Patterns
 
 **Bearer Token:**
+
 ```csharp
 public class BearerTokenAuthenticationHandler : IAuthenticationHandler
 {
@@ -73,6 +74,7 @@ public class BearerTokenAuthenticationHandler : IAuthenticationHandler
 ```
 
 **Custom Header:**
+
 ```csharp
 public class CustomHeaderAuthenticationHandler : IAuthenticationHandler
 {

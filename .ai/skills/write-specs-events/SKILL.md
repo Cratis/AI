@@ -79,6 +79,7 @@ await scenario.Given
 ```
 
 **Rules:**
+
 - Call `Given` **before** the act phase — seeded events get monotonically increasing sequence numbers.
 - Do not put the act-under-test inside `Given`; only pre-existing state goes here.
 

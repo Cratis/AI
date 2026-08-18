@@ -9,7 +9,7 @@ Write specs for a slice's React/TypeScript surface — view models, helpers, and
 
 Specs live next to the unit, snake_case so the path reads as a sentence:
 
-```
+```text
 <Slice>/
   <Subject>.ts
   for_<Subject>/

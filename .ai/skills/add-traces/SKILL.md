@@ -56,6 +56,7 @@ internal static partial class <ClassName>Traces
 ```
 
 **Rules:**
+
 - File name: `<ClassName>Traces.cs`, next to `<ClassName>.cs`.
 - Class name: `<ClassName>Traces` (partial, static, internal).
 - One `[Span]` method per traced operation.
@@ -114,6 +115,7 @@ public MyClass(
 ```
 
 > Non-grain classes constructed **manually** (e.g., in service factories) must use:
+>
 > ```csharp
 > sp.GetRequiredKeyedService<IActivitySource<MyClass>>(WellKnown.MeterName)
 > ```

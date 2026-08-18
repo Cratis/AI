@@ -6,6 +6,7 @@ description: Use this skill when asked to add a database table, column, relation
 Add or update an Entity Framework Core schema change with a hand-written migration.
 
 > **Always read the [efcore.md](../../rules/efcore.md) rule first.** It is the source of truth for project structure, base types, column helpers, and migration conventions.
+<!-- markdownlint-disable-next-line MD028 -- two deliberately separate callout boxes, not one blockquote split by a stray blank line -->
 
 > **What is framework, and what is your app's own convention.** The `Cratis.Arc.EntityFrameworkCore` package supplies the base contexts (`ReadOnlyDbContext`, `BaseDbContext`), the cross-database column helpers, `UseDatabaseFromConnectionString`, and the DI registration extensions — those are real API and this skill is authoritative about them. **Everything about project layout, table-name constants, migration file naming, and how migrations get applied is a per-app decision.** Sections marked *app convention* below describe one common arrangement; a project that does it differently is not wrong, and `.agents/PROJECT.md` in that repo wins over anything here.
 
@@ -25,7 +26,7 @@ Where that split exists, the point of it is that `Database` never imports from `
 
 Add, rename, or remove properties on the entity `record` in the **Core** project, co-located with its feature:
 
-```
+```text
 Missions/StartupPhase/
 ├── StartupPhase.cs            ← entity record
 ├── StartupPhaseDbContext.cs   ← feature DbContext
@@ -69,7 +70,7 @@ Chronicle's own read-model tables are migrated at runtime, but an application's 
 
 File layout and naming are an *app convention*. One common pattern is a version-per-file scheme mirroring the feature folders:
 
-```
+```text
 Database/
 ├── Missions/
 │   ├── v1_0_0.cs

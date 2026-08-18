@@ -1,9 +1,15 @@
 #!/bin/bash
 
 # Markdown Verification Script
-# Local developer helper: lints the Documentation tree with markdownlint-cli2 and
-# verifies every link with linkinator. No CI workflow runs this script, so run it
-# yourself before pushing documentation changes.
+# Local developer helper: lints the Documentation tree and the .ai/ instruction corpus
+# with markdownlint-cli2 and verifies every link with linkinator. The Documentation job in
+# .github/workflows/factory-foundation.yml runs it as an advisory, non-blocking step; run
+# it yourself before pushing documentation or corpus changes.
+#
+# The corpus is in scope on both halves. It is this repository's primary product — it is
+# propagated to every other Cratis repo — and it is dense with relative cross-links
+# (rules to rules, skills to rules, skills to their own references/), which is exactly
+# what the link check is good at. Adding it costs about 20 seconds and 130 extra links.
 
 set -e
 
@@ -36,8 +42,14 @@ fi
 
 # Capture the exit code instead of letting `set -e` abort the run, so the link
 # check below and the final summary still happen when linting finds problems.
+#
+# No glob argument: .markdownlint-cli2.jsonc at the repository root carries the globs,
+# which cover Documentation/ and the .ai/ corpus. Passing "Documentation/**/*.md" here
+# would be harmless (markdownlint-cli2 unions a CLI glob with the configured ones) but
+# misleading, since it would read as if this script and the pinned CI invocation linted
+# different sets. They lint exactly the same set.
 LINT_EXIT_CODE=0
-npx markdownlint-cli2 "Documentation/**/*.md" || LINT_EXIT_CODE=$?
+npx markdownlint-cli2 || LINT_EXIT_CODE=$?
 
 echo ""
 if [ $LINT_EXIT_CODE -eq 0 ]; then
@@ -60,13 +72,18 @@ echo ""
 # "scanned 0 links" and exits 0 — a check that passes without verifying anything.
 # Collect the files here and pass the explicit list instead. `find` rather than a
 # `**` glob, because the bash that ships with macOS is 3.2 and has no globstar.
+#
+# The roots mirror the "globs" in .markdownlint-cli2.jsonc, so the two halves of this
+# script cover the same files. .ai/agents and .ai/hooks are absent from both for the same
+# reason — see the note in that config.
 MARKDOWN_FILES=()
 while IFS= read -r markdown_file; do
     MARKDOWN_FILES+=("$markdown_file")
-done < <(find Documentation -type d -name node_modules -prune -o -type f -name '*.md' -print | sort)
+done < <(find Documentation .ai/rules .ai/skills .ai/prompts \
+    -type d -name node_modules -prune -o -type f -name '*.md' -print | sort)
 
 if [ ${#MARKDOWN_FILES[@]} -eq 0 ]; then
-    echo "Error: no markdown files found under Documentation/."
+    echo "Error: no markdown files found under Documentation/ or .ai/."
     exit 1
 fi
 
@@ -80,6 +97,14 @@ echo ""
 # localhost URL would skip every link in the run and pass having checked nothing.
 LOCALHOST_SKIP='^(https?:\/\/)?(localhost|127\.0\.0\.1)(:\d+)?\/?$'
 
+# The corpus also documents a dev-server URL that carries a path, which the bare-origin
+# pattern above deliberately cannot cover. Loosening that pattern to allow any path on any
+# localhost port would re-open the hole it guards against, so these are listed as anchored
+# whole-URL alternatives instead: linkinator serves the crawled markdown from its own
+# origin, and it can never serve a file at one of these paths. Add to the alternation when
+# a new dev-server URL with a path is documented.
+DEV_SERVER_PATH_SKIP='^https?:\/\/(localhost|127\.0\.0\.1):5000\/swagger\/?$'
+
 # --directory-listing lets a link to a directory resolve the way it does on
 # GitHub; without it every valid directory link is reported as a 404.
 LINK_EXIT_CODE=0
@@ -90,7 +115,8 @@ npx linkinator "${MARKDOWN_FILES[@]}" \
     --verbosity error \
     --status-code "403:ok" \
     --timeout 10000 \
-    --skip "$LOCALHOST_SKIP" || LINK_EXIT_CODE=$?
+    --skip "$LOCALHOST_SKIP" \
+    --skip "$DEV_SERVER_PATH_SKIP" || LINK_EXIT_CODE=$?
 
 echo ""
 if [ $LINK_EXIT_CODE -eq 0 ]; then

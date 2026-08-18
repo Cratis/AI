@@ -25,7 +25,7 @@ TypeScript specs follow the same BDD philosophy as C# specs — they describe be
 
 Tests live alongside source code in `for_`, `when_`, or `given_` folders:
 
-```
+```text
 for_EventsCommandResponseValueHandler/
 ├── given/
 │   └── an_events_command_response_value_handler.ts

@@ -42,6 +42,7 @@ export const Listing = withViewModel(<Entity>ListingViewModel, ({ viewModel }) =
 ```
 
 **View-model rules:**
+
 - Pure TypeScript classes — no JSX, never store React state, never call React hooks (`useIdentity`, `useNavigate`) inside one — inject the Cratis abstraction instead.
 - Fields are auto-observable (`makeAutoObservable` is applied by `withViewModel`); no `@observable` on plain assignments.
 - Inject services via the primary constructor (`@injectable` / tsyringe).

@@ -34,14 +34,14 @@ Every template takes `-n <Name>` (the name replaces the template's source name t
 
 One web project holding backend and frontend together.
 
-**Parameters**
+#### Parameters
 
 | Parameter | Values | Default |
 |---|---|---|
 | `--Framework` | `net8.0`, `net9.0`, `net10.0` | `net10.0` |
 | `--packageManager` | `yarn`, `pnpm`, `npm`, `none` | `yarn` |
 
-**Emits**
+#### Emits
 
 ```text
 MyApp.csproj  MyApp.sln  Program.cs  GlobalUsings.cs

@@ -9,7 +9,7 @@ Scaffold a brand-new feature folder with routing and navigation — ready for sl
 
 ### 1 — Feature folder
 
-```
+```text
 <Feature>/          ← directly under the app source root (or under an optional <Module>/) — no Features/ wrapper
 ├── <Feature>.tsx    ← composition page
 ├── <Feature>.css    ← feature-level styles (can be empty initially)

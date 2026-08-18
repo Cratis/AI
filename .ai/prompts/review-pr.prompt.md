@@ -21,7 +21,7 @@ Produce a structured review of a pull request against all Cratis standards.
 
 ## Output
 
-```
+```markdown
 ## Pull Request Review — #<number>
 ### Summary — <2–3 sentences>
 ### Architecture & Quality — ✅ / ⚠️ / ❌   <findings>

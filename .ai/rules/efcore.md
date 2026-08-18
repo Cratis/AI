@@ -9,6 +9,7 @@ profile: application
 
 > **⚠️ APPLIES ONLY TO PROJECTS USING ENTITY FRAMEWORK CORE**
 > If your project does not reference `Microsoft.EntityFrameworkCore` or any EF Core packages, **ignore this entire file**. These rules are irrelevant outside of EF Core contexts.
+<!-- markdownlint-disable-next-line MD028 -- two deliberately separate callout boxes, not one blockquote split by a stray blank line -->
 
 > **What is framework, and what is app convention.** `Cratis.Arc.EntityFrameworkCore` supplies the base contexts (`ReadOnlyDbContext`, `BaseDbContext`), the cross-database column helpers, `UseDatabaseFromConnectionString`, and the DI registration extensions — those are **real API** and this rule is authoritative about them. Project layout, table-name constants, migration file naming, and how migrations are applied are **per-app decisions**; sections marked *app convention* describe one common arrangement, and a repo that does it differently is not wrong. `.agents/PROJECT.md` in the consuming repo wins over anything here. The **add-ef-migration** skill is the step-by-step counterpart to this rule and draws the same line.
 
@@ -24,7 +25,7 @@ Many Cratis applications split EF Core across three projects. Confirm the arrang
 
 **Where that split exists, the point of it is**: `Database` must NEVER import from `Core`. A migration describes a schema at a point in time and must not drift when an entity is refactored, so migrations reference only table-name constants (strings) and EF migration types. The dependency chain is:
 
-```
+```text
 Core → Infrastructure → Database
 ```
 
@@ -79,7 +80,7 @@ public class StartupPhaseDbContext(DbContextOptions<StartupPhaseDbContext> optio
 
 Co-locate the DbContext file with its feature:
 
-```
+```text
 Missions/Ongoing/StartupPhase/
 ├── StartupPhase.cs
 ├── StartupPhaseDbContext.cs
@@ -143,7 +144,7 @@ Where the three-project split above is in use, migrations live exclusively in th
 
 Each entity category has its own folder with versioned migration files:
 
-```
+```text
 Database/
 ├── Missions/
 │   ├── v1_0_0.cs

@@ -70,7 +70,8 @@ Classify findings: 🔴 measurable degradation at moderate load (fix before merg
 Start with: **Review result: ✅ Approved / ⚠️ Approved with comments / ❌ Changes requested**
 
 Then list issues:
-```
+
+```markdown
 ### <file path>
 
 **[BLOCKING]** Line N: `problematic code`

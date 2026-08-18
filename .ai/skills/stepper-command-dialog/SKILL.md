@@ -8,6 +8,7 @@ description: Step-by-step guidance for building a multi-step wizard dialog (Step
 `StepperCommandDialog` organizes a single command form across multiple named steps. Users navigate with **Previous** and **Next** buttons; **Submit** only appears on the last step when every field across all steps is valid.
 
 Use this instead of `CommandDialog` when:
+
 - The form has too many fields to show at once
 - Fields can be grouped into logical stages (e.g. "Contact Info → Project Details → Summary")
 - You want guided, linear input with per-step validation feedback
@@ -86,6 +87,7 @@ const CreateProjectDialog = () => {
 ```
 
 **Rules:**
+
 - Each `StepperPanel` takes a `header` string — this is the step label shown in the wizard navigation bar
 - All `CommandForm` fields inside any `StepperPanel` are bound to the **same** command instance
 - Fields map to command properties via the `value={c => c.propertyName}` accessor

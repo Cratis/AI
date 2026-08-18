@@ -31,7 +31,7 @@ It arranges a module's commands, events, read models, and automations on a left-
 
 ## Slice type → pattern
 
-```
+```text
 %% ── State Change: Register ──────────────
 rf 01 ui <Persona>
 tf 02 cmd Register

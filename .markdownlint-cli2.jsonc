@@ -1,4 +1,5 @@
-// markdownlint-cli2 configuration for this repository's documentation tree.
+// markdownlint-cli2 configuration for this repository's markdown: the Documentation tree
+// and the .ai/ instruction corpus.
 //
 // Version note (not a pin — a pin belongs in the invoking workflow/manifest, not here):
 // this baseline was measured against markdownlint-cli2 v0.23.2 / markdownlint v0.41.1.
@@ -6,16 +7,37 @@
 // moved this tree's finding count by 138 in a single silent `npx` upgrade. Whoever wires
 // the linter into CI should pin the version there so the baseline cannot drift under us.
 {
-    // Scope. Kept deliberately identical to the glob Documentation/verify-markdown.sh
-    // passes, so running `npx markdownlint-cli2` bare and running the script lint the
-    // same 25 files and report the same count.
+    // Scope. Documentation/**/*.md is the glob Documentation/verify-markdown.sh passes, so
+    // running `markdownlint-cli2` bare and running the script still lint the same docs and
+    // report the same count for them (the script's extra glob argument is a subset of these).
+    //
+    // The .ai/ entries close the gap that mattered most: the instruction corpus is the
+    // primary product of this repository — it is propagated to every other Cratis repo — and
+    // until now nothing linted it at all. Adding it surfaced 262 pre-existing findings in
+    // rules/, skills/ and prompts/ that no gate had ever reported.
+    //
+    // Three sub-trees of .ai/ are deliberately NOT here yet:
+    //   - .ai/agents/**   (21 findings, 12 files)
+    //   - .ai/hooks/*.md  (21 findings, 2 files)
+    //   - .ai/README.md   (clean today, but unlinted)
+    // They are excluded only because they were owned by concurrent work when this scope was
+    // widened, not because they should stay unlinted. Add the globs in the same change that
+    // clears their findings — the rule set below already fits them.
     "globs": [
-        "Documentation/**/*.md"
+        "Documentation/**/*.md",
+        ".ai/rules/**/*.md",
+        ".ai/skills/**/*.md",
+        ".ai/prompts/**/*.md"
     ],
 
-    // Nothing under Documentation/ is generated or vendored today, but a future docs site
-    // (Starlight lives in Documentation/web/ in the sibling docs repos) or a stray install
-    // would otherwise be swept in by the recursive glob above.
+    // Nothing under Documentation/ or .ai/ is generated or vendored *as markdown* today, so
+    // these entries are guards rather than active exclusions. A future docs site (Starlight
+    // lives in Documentation/web/ in the sibling docs repos) or a stray install would
+    // otherwise be swept in by the recursive globs above. Note what is NOT excluded and why:
+    // .ai/skills/*/references/ and .ai/skills/skill-creator/agents/ are hand-authored
+    // markdown and are linted; .ai/skills/*/evals/ holds only evals.json, and
+    // skill-creator's assets/, eval-viewer/ and scripts/ ship .html/.py/.txt — none of them
+    // match *.md, so no exclusion is needed for them.
     "ignores": [
         "**/node_modules/**",
         "**/.yarn/**",
@@ -34,6 +56,30 @@
         // inline - the de facto convention. If a wrap width is ever agreed, set it here
         // with "tables": false and "code_blocks": false rather than reverting to 80.
         "MD013": false,
+
+        // MD024 (no-duplicate-heading) narrowed to siblings only. Reference pages in the
+        // corpus repeat a subsection name under different parents on purpose -
+        // cratis-csharp-standards/references/exceptions-logging-di.md has "### Rules" under
+        // each of "## Exceptions", "## Logging" and "## Dependency Injection", and
+        // skill-creator/agents/analyzer.md repeats Role/Inputs/Process/Guidelines for each
+        // of the two agent briefs it carries. Those are not duplicates in any meaningful
+        // sense; two headings with the same text under the *same* parent still are, and
+        // this setting keeps flagging those.
+        "MD024": {
+            "siblings_only": true
+        },
+
+        // MD041 (first-line-heading) taught to accept a skill's frontmatter `name:` as the
+        // document title, alongside the default `title:`. markdownlint already skips YAML
+        // frontmatter here (it reports line 6, the first line of the body), so this is not
+        // about frontmatter parsing: it is that an Agent Skill declares its title as
+        // `name:`, and 20 SKILL.md files open their body with prose or an H2 rather than
+        // repeating that name as an H1. Adding H1s to satisfy the rule would corrupt the
+        // skill format, and turning MD041 off would stop it catching a genuinely
+        // title-less page - so the fix is to tell it where the title actually lives.
+        "MD041": {
+            "front_matter_title": "^\\s*(title|name)\\s*[:=]"
+        },
 
         // MD060 (table-column-style) pinned to "padded" instead of the default
         // "consistent". Measured across Documentation/: 338 of 338 table header/body rows

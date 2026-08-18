@@ -8,6 +8,7 @@ Implement a complete vertical slice following this EXACT order. Never skip steps
 ## Step 1 — Identify the slice type
 
 Choose **one** of:
+
 - **State Change** — a command that mutates state and records events (most common)
 - **State View** — a query that reads from a read model
 - **Automation** — a background reactor triggered by events
@@ -22,6 +23,7 @@ Read `global.json` and existing `.cs` files under the app source root to find th
 Place ALL backend artifacts in a single file in the slice folder: `<Feature>/<Slice>/<Slice>.cs` (under the app source root; a `<Module>/` grouping above the feature is optional — there is **no** top-level `Features/` wrapper).
 
 File creation order within the slice:
+
 1. Concept types (if new strongly-typed IDs are needed — see `add-concept` skill)
 2. Command `record` with `Handle()` method and optional validation attributes
    - If a business rule depends on Chronicle event-sourced state, add the relevant read model as a parameter to `Handle()` — see `add-business-rule` skill (DCB pattern)
@@ -32,6 +34,7 @@ File creation order within the slice:
    - Use fluent `IProjectionFor<T>` only when model-bound attributes don't fit
 
 **Critical rules:**
+
 - Commands are `record` types with a `Handle()` method directly on them — DO NOT create separate handler classes
 - Events use `[EventType]` with NO arguments — never pass a GUID or string
 - Projection: prefer model-bound attributes on the read model; if using `IProjectionFor<T>`, AutoMap is on by default — just call `.From<>()` directly
@@ -45,6 +48,7 @@ Run `dotnet build` in **both** Debug and Release. Fix ALL errors and warnings be
 ## Step 5 — Write specs (mandatory for every slice type)
 
 Use the in-process scenario family — `CommandScenario` for State Change, `ReadModelScenario` for State View, `ReactorScenario` for Automation/Translation. For each command, write specs covering:
+
 - Happy path — command succeeds, correct event appended
 - Each validation failure (one spec per rule)
 - Each business rule violation (one spec per DCB condition in `Handle()` that inspects a read model)
@@ -66,6 +70,7 @@ Place `.tsx` files in the slice folder `<Feature>/<Slice>/`.
 - No `any` types — use `unknown` with type guards
 
 **Command usage:**
+
 ```tsx
 const [myCommand] = MyCommand.use();
 const handleSubmit = async () => {
@@ -76,6 +81,7 @@ const handleSubmit = async () => {
 ```
 
 **Query with paging:**
+
 ```tsx
 const pageSize = 10;
 const [result, , setPage] = MyQuery.useWithPaging(pageSize);
@@ -91,6 +97,7 @@ Open `<Feature>/<Feature>.tsx` and add the new component. If a new page is intro
 ## Step 8 — Quality gates
 
 All must pass before the slice is considered done:
+
 - `dotnet build` — zero errors/warnings
 - `dotnet test` — zero failures
 - `yarn lint` — zero errors

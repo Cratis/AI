@@ -22,6 +22,7 @@ public class CreateOrderValidator : CommandValidator<CreateOrder>
 **Why `CommandValidator<T>`?** It marks the class for automatic discovery (no DI registration needed) and allows the proxy generator to extract the rules into TypeScript for client-side pre-flight.
 
 Rules that can be extracted and run client-side:
+
 - `NotEmpty`, `NotNull`
 - `MaximumLength`, `MinimumLength`, `Length`
 - `GreaterThan`, `LessThan`, `GreaterThanOrEqualTo`, `LessThanOrEqualTo`
@@ -29,6 +30,7 @@ Rules that can be extracted and run client-side:
 - `EmailAddress`
 
 Rules that only run server-side (cannot be extracted):
+
 - Validators with injected dependencies (e.g. database uniqueness checks)
 
 ---

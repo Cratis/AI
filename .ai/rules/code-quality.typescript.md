@@ -28,6 +28,7 @@ export const SpecialButton = ({ onClick, label }: SpecialButtonProps) => (
 ```
 
 **Rules:**
+
 - Never use class inheritance for React components — compose with props, children, and hooks instead.
 - Extract repeated UI patterns into small, focused components rather than adding conditions to a shared parent.
 - Extract repeated logic into custom hooks — a hook that does two unrelated things should be two hooks.
@@ -58,6 +59,7 @@ function area(shape: Shape): number {
 ```
 
 **Rules:**
+
 - Model variation with discriminated unions rather than optional fields or string literals.
 - Design utility functions to accept an interface or generic constraint so new types can be handled by adding a new implementation, not by editing existing code.
 
@@ -66,6 +68,7 @@ function area(shape: Shape): number {
 React components have one job: render UI and delegate events. Keep data-fetching, business logic, and side effects in dedicated hooks or services — not inline in the component body.
 
 **Rules:**
+
 - Never write data-fetching or business logic directly in a component — extract it into a hook.
 - Component files (`.tsx`) must not import from infrastructure layers such as HTTP clients or storage utilities directly — go through an abstraction or a generated proxy.
 - Keep style concerns in co-located `.css` files; keep data concerns in hooks; keep rendering in the component.
@@ -75,6 +78,7 @@ React components have one job: render UI and delegate events. Keep data-fetching
 Coupling in TypeScript is often hidden in deep import paths. Barrel files and path aliases make coupling explicit and keep refactoring safe.
 
 **Rules:**
+
 - Import from barrel `index.ts` files, not from deep internal paths — this limits the blast radius of refactoring.
 - Use the configured path aliases (e.g. `Strings`, `Components`) rather than relative `../../../` chains.
 - Never import from an unrelated feature's internal files — go through that feature's public barrel export.
@@ -83,6 +87,7 @@ Coupling in TypeScript is often hidden in deep import paths. Barrel files and pa
 ## Cross-Cutting Concerns
 
 **Rules:**
+
 - Use React Error Boundaries to centralize error display — never scatter `try/catch` blocks inside component render paths.
 - Use a single top-level provider or hook for global state (e.g. authentication, theming) — never drill context down through many component layers.
 - Centralize API error handling in a shared hook or service layer — do not duplicate toast/notification logic per component.

@@ -128,7 +128,7 @@ Properties are **public** — accessed via `context.propertyName` in specs.
 
 ## Multiple outcomes — folder pattern
 
-```
+```text
 when_processing/
 ├── with_valid_input.ts     → happy path
 ├── with_empty_input.ts     → edge case
@@ -162,6 +162,7 @@ describe('when loading data', given(a_loader, context => {
 ## What NOT to spec
 
 Same as C#:
+
 - Simple property getters and setters
 - Properties that return constructor parameters directly
 - Trivial delegation

@@ -92,7 +92,7 @@ A well-built component tree is like a well-organized kitchen — every tool has 
 - Single-file component → place directly in the parent feature folder.
 - Multi-file component (sub-components, hooks, CSS) → create a folder named after the component:
 
-```
+```text
 PrototypeWindow/
   PrototypeWindow.tsx      ← composition root
   PrototypeWindow.css      ← styles for the composition
@@ -166,7 +166,8 @@ Follow these rules when working with SVG icons:
 - **Barrel-export all icons through `icons/index.ts`** so consumers import from the `icons` path alias, not from deep paths.
 
 **Example structure:**
-```
+
+```text
 icons/
   SliceStatus/
     NotStarted.svg         ← raw SVG file
@@ -188,12 +189,13 @@ icons/
 
 ## Storybook
 
-- Storybook runs at **http://localhost:6006** — never restart it.
+- Storybook runs at **<http://localhost:6006>** — never restart it.
 - Use the `click` tool to interact with Storybook for visual verification.
 
 ## Verification
 
 After every task, run both:
+
 1. `yarn lint`
 2. `npx tsc -b`
 
@@ -206,6 +208,7 @@ Every component folder with sub-components, hooks, or non-trivial architecture *
 **Before starting work:** Check for an existing README and read it first. It may contain context that changes your approach.
 
 **A README must cover:**
+
 - Component hierarchy — tree of components and what each owns
 - Architecture decisions — what was chosen and why
 - State management — where state lives, what each piece controls

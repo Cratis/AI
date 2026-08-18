@@ -24,7 +24,7 @@ Collect the following before starting:
 
 ## Step 1 — Review the working tree
 
-```
+```bash
 git status
 git diff
 ```
@@ -42,7 +42,7 @@ Branch off of current `main`. Always use a prefix:
 | `feat/` | new features, new slices, new capabilities |
 | `chore/` | build infra, tooling, docs, refactoring |
 
-```
+```bash
 git checkout -b <prefix>/<short-description>
 ```
 
@@ -63,7 +63,7 @@ Never mix unrelated changes in a single commit.
 
 Stage files explicitly — never `git add .` or `git add -A`:
 
-```
+```bash
 git add <file1> <file2>
 git diff --cached          # verify staged content before committing
 git commit -m "<message>"
@@ -71,7 +71,7 @@ git commit -m "<message>"
 
 ### Commit message format
 
-```
+```text
 <imperative summary — 72-char max, no trailing period>
 
 <optional body: WHY the change was made, context, trade-offs>
@@ -84,7 +84,7 @@ git commit -m "<message>"
 
 **Good examples:**
 
-```
+```text
 Add _PackPrivateAssemblyGlobs target for runtime-only NuGet package embedding
 
 Extend the shared client build infrastructure with a new MSBuild target.
@@ -92,7 +92,7 @@ The new PrivatePackageAssemblyGlob item type globs $(OutputPath) at pack
 time and embeds matching DLLs into lib/{tfm}/ without a nuspec dependency.
 ```
 
-```
+```text
 Fix duplicate key crash in IdentityStorage.Populate
 
 The upsert used InsertOne which threw on existing identities.
@@ -108,7 +108,7 @@ Replace with ReplaceOne using upsert: true.
 
 ## Step 4 — Push the branch
 
-```
+```bash
 git push -u origin <branch-name>
 ```
 
@@ -142,6 +142,7 @@ release notes. Include only non-empty sections.
 ```
 
 Rules:
+
 - Bullets are short, release-note ready, written for a user reading the changelog.
 - Use `# Summary` when the release-note bullets need context. The summary should
   explain what was fixed from the consumer's point of view and why the fix matters
@@ -152,7 +153,7 @@ Rules:
 
 ### Searching for a related issue
 
-```
+```text
 mcp_github_github_search_issues  query="<keywords> repo:<owner>/<repo>"
 ```
 
@@ -225,7 +226,7 @@ on a closing keyword, and this repo deliberately keeps those out of the PR body
 
 For each issue the merged PR **fully resolves**:
 
-```
+```bash
 gh issue close <N> --repo <owner>/<tracker-repo> --comment "Fixed in <owner>/<repo>#<pr-number>."
 gh issue view <N> --repo <owner>/<tracker-repo> --json number,state    # verify it is CLOSED
 ```
@@ -261,7 +262,7 @@ separate public repo (check `.agents/PROJECT.md`). Two consequences:
 
 ## Step 10 — Clean up the branch
 
-```
+```bash
 git checkout main && git pull && git branch -d <branch-name> && git push origin --delete <branch-name>
 ```
 
@@ -272,7 +273,7 @@ After this completes, `main` is fully up to date locally.
 
 An illustrative end-to-end run for a new slice (paths and numbers are placeholders — use the current repo's):
 
-```
+```bash
 # 1. Review
 git status
 git diff

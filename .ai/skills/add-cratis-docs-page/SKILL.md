@@ -38,6 +38,6 @@ The site builds its navigation from each product's `toc.yml`, regrouped into Di�
 cd Documentation/web && npm run check
 ```
 
-Must end **0 error(s)** and **0 broken** links, and your page must appear in the nav (the converter drops `toc.yml` entries whose slug doesn't match a built page — check the sync output for "broken toc entries dropped"). Preview at http://localhost:4321 (`npm run dev`); screenshot it with the `qa-cratis-docs` skill. Commit in the owning product repo (+ the site repo if you touched buckets/`astro.config`).
+Must end **0 error(s)** and **0 broken** links, and your page must appear in the nav (the converter drops `toc.yml` entries whose slug doesn't match a built page — check the sync output for "broken toc entries dropped"). Preview at <http://localhost:4321> (`npm run dev`); screenshot it with the `qa-cratis-docs` skill. Commit in the owning product repo (+ the site repo if you touched buckets/`astro.config`).
 
 → To edit an existing page instead, use `edit-cratis-docs`. The content craft — tour voice + how to use Starlight's authoring tools (`<Steps>`, `<Tabs>`, `<FullStackTabs>`, diagrams) — is the **`writing-cratis-docs`** rule. Read it before writing.

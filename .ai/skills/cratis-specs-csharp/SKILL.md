@@ -6,6 +6,7 @@ description: Step-by-step guidance for writing C# specs in Cratis with BDD Speci
 ## Core philosophy
 
 Specs are **executable documentation** — the folder tree reads like a spec sheet. Favor readability over DRY. Each spec file has:
+
 - One action under test (`Because`)
 - One setup (`Establish`)
 - One or more focused assertions (`should_*`)
@@ -30,7 +31,7 @@ Lead with the in-process **scenario family** (fast, infrastructure-free — the 
 
 ## Step 2 — Create the folder structure
 
-```
+```text
 for_<ClassName>/
 ├── given/
 │   ├── all_dependencies.cs       ← mocks all deps, inherits Specification
@@ -42,6 +43,7 @@ for_<ClassName>/
 ```
 
 Folder/file names read as English sentences:
+
 - `for_Changeset / when_adding_changes / and_there_are_differences`
 - `for_AuthorService / when_registering / and_name_already_exists`
 
@@ -68,6 +70,7 @@ public class when_combining_parts : Specification
 ```
 
 Rules:
+
 - Inherit `Specification` (from `Cratis.Specifications`)
 - `void Establish()` — setup before the action
 - `void Because()` — **one** action under test (the thing being specified)
@@ -212,4 +215,4 @@ See `references/integration-specs.md` for the full integration spec guide.
 ## Reference files
 
 - `references/csharp-patterns.md` — BDD pattern detail, NSubstitute, assertions, exception catching
-- `references/integration-specs.md` — Chronicle integration spec structure, helpers, Given<context>
+- `references/integration-specs.md` — Chronicle integration spec structure, helpers, `Given<context>`

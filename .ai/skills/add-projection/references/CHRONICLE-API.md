@@ -9,6 +9,7 @@ Apply attributes directly to read model types. No separate projection class need
 ### Class-level attributes
 
 #### `[FromEvent<T>]`
+
 Maps all properties with matching names from event `T` to the read model.
 Equivalent to `.From<T>()` in the fluent API — AutoMap is on by default, so you never call `.AutoMap()` explicitly.
 
@@ -22,6 +23,7 @@ public record Account(
 ```
 
 #### `[FromEvent<T>(key: nameof(T.PropertyName))]`
+
 Same as above, but uses the specified event property as the read model key instead of EventSourceId.
 
 ```csharp
@@ -43,12 +45,15 @@ public record Account([Key] Guid Id, string Name, decimal Balance);
 ### Property-level attributes
 
 #### `[Key]`
+
 Marks the primary key property.
 
 #### `[SetFrom<T>]` / `[SetFrom<T>(nameof(T.Prop))]`
+
 Maps a specific property from event `T`. Omit the property name if the names match.
 
 #### `[SetFrom<T>]` with multiple events
+
 Apply multiple attributes to update the same property from different events.
 
 ```csharp
@@ -58,12 +63,15 @@ string Name
 ```
 
 #### `[AddFrom<T>(nameof(T.Prop))]`
+
 Adds the event property value to the read model property (accumulates).
 
 #### `[SubtractFrom<T>(nameof(T.Prop))]`
+
 Subtracts the event property value.
 
 #### `[ChildrenFrom<T>(key: nameof(T.ChildId))]`
+
 Projects into a nested child collection. The child type also supports all attributes recursively.
 
 ```csharp
@@ -80,6 +88,7 @@ public record LineItem(
 ```
 
 #### `[Join<T>(on: nameof(Prop), eventPropertyName: nameof(T.EProp))]`
+
 Joins data from a related event (keyed by a different entity).
 
 ```csharp
@@ -90,6 +99,7 @@ string CustomerName
 ```
 
 #### `[RemovedWith<T>]`
+
 Marks the instance removed when event `T` is appended.
 
 ---

@@ -103,6 +103,7 @@ The project's voice is **direct, practical, and opinionated**. Write like an exp
 ## Diagrams
 
 Use [Mermaid](https://mermaid-js.github.io/mermaid/#/) for:
+
 - Architecture diagrams (`graph TD` or `graph LR`)
 - Sequence flows (`sequenceDiagram`)
 - State transitions (`stateDiagram-v2`)
@@ -116,6 +117,7 @@ Use [Mermaid](https://mermaid-js.github.io/mermaid/#/) for:
 ## Validation
 
 After writing, verify:
+
 - `toc.yml` is valid YAML
 - All `href` values point to files that exist (or will exist when created)
 - All Mermaid blocks are syntactically valid (balanced brackets, correct syntax)

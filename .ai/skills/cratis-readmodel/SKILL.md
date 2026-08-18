@@ -7,7 +7,7 @@ description: Step-by-step guidance for creating a Cratis Chronicle read model fr
 
 A read model is derived state built from events. The path is:
 
-```
+```text
 [EventType] records  →  [ReadModel] record + static query methods  →  projection or reducer  →  TypeScript proxy  →  React
 ```
 
@@ -39,6 +39,7 @@ public record FundsWithdrawn(Money Amount);
 ```
 
 Good event design:
+
 - One clear purpose per event — do not mix concerns.
 - **Avoid nullable properties** — Chronicle's analyzer warns on them; model an optional fact as a separate event.
 - Properties are concept-typed facts (never raw `Guid`/`string`), and never carry the event-source id.
@@ -75,6 +76,7 @@ public record AccountSummary(AccountId Id, string Name, OwnerId OwnerId, decimal
 ```
 
 **Rules:**
+
 - `[ReadModel]` attribute is **required** for proxy generation and runtime routing
 - Query methods are `static` and non-generic, and return the record type, a collection of it (`IEnumerable<T>`, `T[]`, `IQueryable<T>`), `IAsyncEnumerable<T>`, or `ISubject<T>` / `ISubject<IEnumerable<T>>` for real-time push — each optionally wrapped in `Task<>`
 - Return `ISubject<T>` **directly** for observable queries; keep `Task<>` for the snapshot ones

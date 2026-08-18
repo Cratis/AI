@@ -28,7 +28,7 @@ Cratis documentation is **not** one folder. The content lives in **each product'
 ## The loop
 
 1. **Edit** the source `.md`/`.mdx` in the owning product repo (or the site-level page in `web/src/content/docs/`).
-2. **Sync + preview:** from `Documentation/web`, `npm run dev` (runs the sync, serves http://localhost:4321). The sync also runs automatically in `predev`/`prebuild`.
+2. **Sync + preview:** from `Documentation/web`, `npm run dev` (runs the sync, serves <http://localhost:4321>). The sync also runs automatically in `predev`/`prebuild`.
 3. **Verify:** `npm run check` — the full gate. It MUST end **0 error(s)** and **0 broken** links (≈187 advisory style warnings are expected and fine). Run it after every change.
 4. Commit the change in the **product repo** (content) — the site repo only changes if you touched site-level pages, nav buckets, or the build.
 

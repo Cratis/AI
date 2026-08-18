@@ -22,7 +22,7 @@ This philosophy comes from Specification by Example and BDD (Behavior Driven Dev
 
 Specs mirror the source structure and read like a sentence when you trace the path: `for_Changeset / when_adding_changes / and_there_are_differences`. This is not accidental — the folder hierarchy *is* the specification. Every level adds context:
 
-```
+```text
 for_<TypeUnderTest>/
 ├── given/
 │   ├── all_dependencies              ← common DI/mock setup
@@ -42,6 +42,7 @@ for_<TypeUnderTest>/
 The `and_`, `with_`, `without_`, `having_`, `given_` prepositions work **both** as file names and as folder names. Use a folder when there are multiple outcomes under that condition; use a file when there is only one.
 
 **Naming conventions — read them as English sentences:**
+
 | Element | Pattern | Reads as... |
 |---|---|---|
 | Unit folder | `for_<ClassName>` | "For the Changeset..." |
@@ -50,6 +51,7 @@ The `and_`, `with_`, `without_`, `having_`, `given_` prepositions work **both** 
 | Assertion | `should <expected result>` | "...it should return true" |
 
 **Allowed prepositions for spec file/class names (and sub-folder names):**
+
 - `and_*` — additional conditions or compound scenarios
 - `with_*` / `without_*` — specific data or state present/absent
 - `having_*` — possession or state-based conditions
@@ -60,7 +62,7 @@ The `and_`, `with_`, `without_`, `having_`, `given_` prepositions work **both** 
 
 The fix is to fold the context into the `when_` folder name itself, then use preposition files/folders for the outcomes:
 
-```
+```text
 # ❌ Wrong — double when in the sentence path
 when_appending_event_with_migrations/
 └── with_a_registered_migration_when_appending_a_generation_1_event.cs
@@ -84,11 +86,13 @@ A sub-folder under `when_` is only needed when that condition has its **own** mu
 The goal is to cover *decisions and transformations* — code where bugs hide. Simple plumbing that the compiler already validates is noise.
 
 **Write specs for:**
+
 - Public methods that perform actions (behaviors)
 - Methods with branching logic or business rules
 - Methods that coordinate between dependencies
 
 **Do NOT write specs for:**
+
 - Simple auto-properties (`public string Name { get; set; }`)
 - Properties returning constructor parameters (`public Key Key => key;`)
 - Simple delegation (`public IEnumerable<Property> Properties => mapper.Properties;`)

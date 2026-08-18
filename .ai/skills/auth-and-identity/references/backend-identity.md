@@ -199,6 +199,7 @@ public class IdentityDetailsProvider(IMongoCollection<AllowedUser> allowedUsers)
 ```
 
 Use cases:
+
 - Invite-only applications (only registered users can access)
 - Disabled/suspended user accounts
 - Tenant-specific access control

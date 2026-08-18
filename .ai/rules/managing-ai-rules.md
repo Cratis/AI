@@ -17,7 +17,7 @@ paths:
 
 ## Folder structure
 
-```
+```text
 .ai/                             ← canonical source of truth (edit here)
 ├── rules/                       ← instruction/rule markdown files
 ├── agents/                      ← agent definition files
@@ -125,13 +125,17 @@ Always edit the canonical file in the relevant `.ai/` subfolder — never the ad
 
 - **Skills** (`.ai/skills/<n>/SKILL.md`) — folder symlinks on all three sides pick up new/renamed skills automatically. No adapter step.
 - **Agents** (`.ai/agents/<n>.md`) — Claude's `.claude/agents` folder symlink is automatic, but **Copilot needs a per-file `.agent.md` adapter**:
+
   ```bash
   ln -s ../../.ai/agents/<n>.md .github/agents/<n>.agent.md
   ```
+
 - **Prompts** (`.ai/prompts/<n>.prompt.md`) — Copilot's `.github/prompts` folder symlink is automatic, but **Claude needs a per-file command adapter**:
+
   ```bash
   ln -s ../../.ai/prompts/<n>.prompt.md .claude/commands/<n>.md
   ```
+
 - **Hooks** (`.ai/hooks/*.md`) — these are *guidance*, not wired hooks. To enforce, add the real artifact per tool (Claude `.claude/settings.json`; Copilot `.github/hooks/*.json`).
 
 **Deleting a canonical file means deleting its per-file adapter too.** The adapter is not cleaned up for you, and a stale one is an invisible break — a dangling `.claude/commands/<n>.md` is a slash command that resolves to nothing. Run `hooks/scripts/validate-ai-setup.sh` after adding *or removing* an agent, prompt, or rule: it checks that every canonical file has its adapter, and that every adapter in `.claude/rules`, `.claude/commands`, and `.github/agents` still resolves to something that exists.

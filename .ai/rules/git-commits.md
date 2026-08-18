@@ -29,6 +29,7 @@ Every commit must be a **single logical unit of work**. Group related changes to
 Ask: "If I needed to revert this commit, would I lose exactly one coherent change?" If reverting would undo two unrelated things, it should be two commits.
 
 Common split points:
+
 1. **Infrastructure / plumbing first** — interface additions, new types, or schema changes that later commits build on.
 2. **Core logic second** — the behavioral change that uses the new infrastructure.
 3. **Specs / tests third** — the specs that prove the behavioral change works. Specs may also be combined with the core logic commit when they are tightly coupled (e.g., a TDD red-green cycle or a bug fix with its regression test).
@@ -40,7 +41,7 @@ When a task produces both source fixes and new integration specs, prefer separat
 
 ### Format
 
-```
+```text
 <imperative summary of what this commit does>
 
 <optional body — why the change was made, context, trade-offs>
@@ -53,14 +54,14 @@ When a task produces both source fixes and new integration specs, prefer separat
 
 ### Good examples
 
-```
+```text
 Fix duplicate key crash in IdentityStorage.Populate
 
 The upsert used InsertOne which threw on existing identities.
 Replace with ReplaceOne using upsert: true.
 ```
 
-```
+```text
 Add type-safe event migration API with expression-based builders
 
 Introduce EventTypeMigration<TUpgrade, TPrevious> base class with
@@ -68,7 +69,7 @@ typed property builders for Split, Join, Rename, and DefaultValue
 operations. Migrators are discovered automatically by convention.
 ```
 
-```
+```text
 Add integration specs for observer replay on redaction
 ```
 

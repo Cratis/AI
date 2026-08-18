@@ -70,16 +70,20 @@ Embrace the type system — it is the first line of defense against null-related
 XML doc comments are the public API's first impression. They must be multiline — never cram `<summary>` onto a single line. Every public type, method, property, and operator must have XML docs.
 
 - Always use **multiline** `<summary>` tags — opening and closing tags on their own lines:
+
   ```csharp
   /// <summary>
   /// Represents the unique identifier of a project.
   /// </summary>
   ```
+
 - **Never** use single-line summaries:
+
   ```csharp
   // ❌ Wrong
   /// <summary>Represents the unique identifier of a project.</summary>
   ```
+
 - Every method or operator with parameters **must** include `<param name="...">` for each parameter.
 - Every method or operator that returns a value (non-void) **must** include `<returns>`.
 - Every method that throws must document the exception with `<exception cref="...">` tags.
@@ -156,6 +160,7 @@ public class ReactorSideEffectHandlers(IInstancesOf<IReactorSideEffectHandler> h
 ```
 
 **Rules:**
+
 - Never inject `IEnumerable<TInterface>` to enumerate implementations of an abstraction. That signature only works if every implementation is hand-registered, which defeats convention-based discovery. Use `IInstancesOf<TInterface>` instead.
 - Never write `services.AddSingleton<TInterface, Impl>()` or `services.AddTransient<TInterface, Impl>()` for a type that exists to be discovered. Mark the implementation with `[Singleton]` (for singletons) or rely on the `IFoo → Foo` convention (for transients) and remove the registration line.
 - `IInstancesOf<T>` resolves at the point of access — implementations added later in the assembly become available without touching the consumer or any composition root.
@@ -196,6 +201,7 @@ These are the building blocks. Each type has a specific role in the vertical sli
 | `IMongoCollection<T>` | MongoDB collection — use `.Observe()` for reactive queries |
 
 **Key conventions:**
+
 - Prefer `ConceptAs<T>` over raw primitives in all domain models, commands, events, and queries; derive identity concepts from `EventSourceId<T>`. See [concepts.md](./concepts.md) for details.
 - Projections join **events**, never read models — projections rebuild state from the event stream, not from other projections.
 - For fluent projections, AutoMap is on by default — call `.From<EventType>()` without `.AutoMap()` and without manually mapping every matching property.

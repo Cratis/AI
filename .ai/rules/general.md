@@ -61,6 +61,7 @@ A claim is only as good as the signal behind it — a build result, a test run, 
 
 ---
 
+<!-- markdownlint-disable-next-line MD025 -- deliberate part divider: this document is split into three top-level parts, each introduced by an H1 after a rule -->
 # Application profile
 
 > The following — **Project Layout, Slice Types, Slice Naming, the Rules, and the Implementation Workflow** — applies when **building an application on Cratis**. If you are contributing to a Cratis framework repo, skip to **Framework profile** below and follow [framework.md](./framework.md).
@@ -69,7 +70,7 @@ A claim is only as good as the signal behind it — a build result, a test run, 
 
 The framework discovers commands and read models by attributes and static methods — **the folder shape is a convention, not a requirement.** The house default keeps everything for one behavior together, with **no top-level `Features/` wrapper**: the domain hierarchy lives directly under the app source root.
 
-```
+```text
 <AppSourceRoot>/                 e.g. Source, Source/Core (app-defined)
 ├── Common/                      shared ConceptAs<T> / EventSourceId<T> types
 ├── Identity/ Components/ ...    cross-cutting / shared concerns, at the top level
@@ -150,12 +151,14 @@ All gates pass before merging, opening a PR, or marking a slice complete — exc
 
 ---
 
+<!-- markdownlint-disable-next-line MD025 -- deliberate part divider: see the note on "Application profile" above -->
 # Framework profile
 
 > You are contributing to a Cratis framework repository (Arc, Chronicle, Fundamentals, Components, …). **The Application-profile sections above do not apply** — there are no vertical slices, model-bound `[Command]`/`[ReadModel]` artifacts, projections/read-models, or MVVM app components here; these are libraries. Follow **[framework.md](./framework.md)** for repo structure, library/API design, source generators, the Chronicle kernel, and the framework quality gates. The universal sections (below, and every rule that declares no `profile:`) still apply.
 
 ---
 
+<!-- markdownlint-disable-next-line MD025 -- deliberate part divider: see the note on "Application profile" above -->
 # Both profiles (universal)
 
 ## Definition of Done

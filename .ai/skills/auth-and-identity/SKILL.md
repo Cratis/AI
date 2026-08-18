@@ -13,7 +13,7 @@ This skill covers the full auth and identity stack in a Cratis Arc application. 
 
 Identity and auth in Arc follow a cookie-first, convention-based pattern:
 
-```
+```text
 Frontend (React)                          Backend (ASP.NET Core)
 ─────────────────                         ──────────────────────
 <IdentityProvider>                        app.MapIdentityProvider()
@@ -40,6 +40,7 @@ Authorization:
 ```
 
 **Key design decisions:**
+
 - The `.cratis-identity` cookie is `HttpOnly=false` so the frontend JavaScript can read it directly — no extra HTTP call needed on page load.
 - Identity details are base64-encoded JSON in the cookie, automatically decoded by the frontend `IdentityProvider`.
 - Only one `IProvideIdentityDetails` implementation is allowed per application (auto-discovered). If none exists, a default provider grants access to everyone.
@@ -66,6 +67,7 @@ Use this decision tree to determine which reference file(s) to read based on the
 | Full-stack setup (backend + frontend) | Read all references in order |
 
 **For full-stack tasks, read in this order:**
+
 1. `references/backend-identity.md` — identity provider and startup
 2. `references/authentication.md` — how users are authenticated
 3. `references/authorization.md` — protecting commands and queries
@@ -88,6 +90,7 @@ This is the minimum checklist for an application with identity. Read the referen
 
 ### Frontend
 
+<!-- markdownlint-disable MD029 -- one 1..9 checklist deliberately continued across the three headings; restarting each group at 1 would lose the sequence -->
 6. **Provider**: Wrap app root with `<IdentityProvider>` from `@cratis/arc.react/identity`
 7. **Hook**: Use `useIdentity<TDetails>()` to access identity anywhere in the component tree
 8. **Roles**: Use `identity.isInRole('Admin')` for UI-level role gating
@@ -95,6 +98,7 @@ This is the minimum checklist for an application with identity. Read the referen
 ### Proxy Generation
 
 9. Using `IProvideIdentityDetails<TDetails>` (generic) enables automatic TypeScript type generation at `dotnet build` time — the generated types can be imported in the frontend for end-to-end type safety.
+<!-- markdownlint-enable MD029 -->
 
 ---
 

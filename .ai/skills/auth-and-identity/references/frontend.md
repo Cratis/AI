@@ -151,7 +151,7 @@ export class MyViewModel {
 }
 ```
 
-Requires the [MVVM Context](Documentation/frontend/react.mvvm/mvvm-context.md) to be set up.
+Requires the [MVVM Context](../../cratis-react-page/references/mvvm.md) to be set up.
 
 ## Vanilla TypeScript (No Framework)
 

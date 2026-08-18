@@ -76,7 +76,7 @@ The project's voice is **direct, practical, and opinionated**. Write like an exp
 ## What Every Product's Docs Must Have
 
 - A front-door **index** with a one-sentence definition and a "start here" link.
-- A **"Why <product>"** explanation page covering the problem it solves and when *not* to use it.
+- A **"Why `<product>`"** explanation page covering the problem it solves and when *not* to use it.
 - A canonical **getting-started** with a visible payoff.
 - A **threaded tutorial**.
 - A **concepts/glossary** page and an **architecture diagram**.

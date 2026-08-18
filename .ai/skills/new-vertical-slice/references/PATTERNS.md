@@ -95,6 +95,7 @@ public record ProjectRegistered(ProjectName Name);
 ```
 
 **Key rules for State Change slices:**
+
 - `[Command]` attribute marks the command record — there is no `ICommand` interface
 - `Handle()` RETURNS the event — it never calls `IEventLog` or `eventLog.Append()`
 - `[EventType]` has **no arguments** — the event type name is resolved automatically
@@ -134,6 +135,7 @@ public record Project(
 ```
 
 **Key rules for State View slices:**
+
 - The read model is decorated with `[ReadModel]` — needed for the static observable query API
 - **Model-bound projection (preferred):** Add `[FromEvent<TEvent>]` at class level for auto-mapping — no separate `IProjectionFor<T>` class needed
 - Mark the primary key property with `[Key]` from `Cratis.Chronicle.Keys`
@@ -143,6 +145,7 @@ public record Project(
 - `Observe()` returns an `ISubject<IEnumerable<T>>` for live updates; use `ObserveWithPaging(...)` for paged results
 
 **When to use fluent `IProjectionFor<T>` instead:**
+
 - Projection logic is too complex for attributes (e.g. conditional branching)
 - You prefer to separate projection definition from the read model type
 
@@ -182,6 +185,7 @@ public class ProjectRegisteredNotifier(INotificationService notifications) : IRe
 ```
 
 **Key rules:**
+
 - Reactors implement `IReactor` — a marker interface with **no methods**
 - The method name MUST match the event type name exactly (by convention)
 - Reactors MUST be idempotent — they can be called more than once per event

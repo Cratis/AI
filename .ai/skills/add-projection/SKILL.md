@@ -24,6 +24,7 @@ public record <ReadModelName>(
 ```
 
 **Attribute reference:**
+
 | Attribute | Purpose |
 |-----------|---------|
 | `[FromEvent<T>]` | Maps event `T` onto the read model; matching property names map automatically (AutoMap is on by default — never call `.AutoMap()`) |
@@ -37,6 +38,7 @@ public record <ReadModelName>(
 | `[RemovedWith<T>]` | Marks the instance as removed when event T is appended |
 
 **Critical rules:**
+
 - Joins must be on Chronicle **events** — NEVER join on a read model type
 - If property names between event and read model match, `[FromEvent<T>]` alone is sufficient
 - Child types also support all attributes recursively
@@ -57,6 +59,7 @@ public class <Name>Projection : IProjectionFor<<ReadModel>>
 ```
 
 **Critical rules:**
+
 - AutoMap is on by default — just call `.From<>()` directly. Only call `.AutoMap()` if you previously used `.NoAutoMap()`.
 - Joins are on Chronicle **events** only — NEVER join on the read model
 - There is NO `Identifier` / `ProjectionId` property — do not add one

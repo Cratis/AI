@@ -34,7 +34,7 @@ Declaration order (house style): concepts → command + validator (paired) → b
 
 A single `<Slice>.cs` therefore contains ALL of: `[Command]` records with `Handle()`, validators, constraints, `[EventType]` records, `[ReadModel]` records with static query methods, projections/reducers, reactors, and slice-specific concepts.
 
-```
+```text
 <Slice>/
 ├── <Slice>.cs          ← ALL backend artifacts in one file
 ├── <Component>.tsx     ← React component(s) for the slice
@@ -166,6 +166,7 @@ Apply authorization attributes on the `[Command]` record or query method. **[con
 - **[contract] `[EventType]` lives in its owning slice file** — referenced from other slices via `using`.
 
 **Event-design rules (what is and isn't a fact):**
+
 - **Events are not read models** — never append events for totals, counts, statuses, search indexes, or dashboards. Project those from source events into read models.
 - **Never duplicate one fact as an aggregate event *plus* a per-item fanout.** If a command fans out per item (one `RequestSentToPartner` per partner), don't also emit an aggregate event carrying the whole list. Keep the fanout as the single source of truth and project any aggregate from it; pick per-item vs. single-with-list event from how consumers read it — never both.
 - **Command rejection normally appends no event.** Validation and business-rule rejections are command results, not facts. Add a rejection/failed event only when the business must audit or react to that failure later.

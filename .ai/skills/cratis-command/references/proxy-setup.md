@@ -37,7 +37,7 @@ dotnet build
 
 The generator will write TypeScript files under the configured output path, mirroring your C# namespace hierarchy as folders:
 
-```
+```text
 Web/src/api/
   Accounts/
     OpenDebitAccount.ts     ← POST action → command proxy
@@ -61,7 +61,7 @@ Web/src/api/
 
 ## Multi-project solutions
 
-```
+```text
 MyApp.API.csproj:
   <ProjectReference Include="../MyApp.Domain/MyApp.Domain.csproj" />
   <PackageReference Include="Cratis.Arc.ProxyGenerator.Build" Version="*" />

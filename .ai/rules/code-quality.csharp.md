@@ -4,6 +4,7 @@ paths:
   - "**/*.cs"
 ---
 
+<!-- markdownlint-disable-next-line MD020 -- "C#" ends in a hash, which MD020 misreads as a closed-ATX heading -->
 # Code Quality — C#
 
 C#-specific applications of the general [Code Quality](./code-quality.md) principles.
@@ -27,6 +28,7 @@ public class ReportExporter(IExportStrategy strategy)
 ```
 
 **Rules:**
+
 - Never extend a concrete class to add or change behavior — inject a collaborator instead.
 - Use interfaces and `ConceptAs<T>` record wrappers rather than inheritance chains.
 - Inheritance is acceptable only for framework integration points with a well-defined extension mechanism (e.g. `Specification`, `Migration`, `AggregateRoot`).
@@ -58,6 +60,7 @@ public class JsonReportFormatter : IReportFormatter { ... }
 ```
 
 **Rules:**
+
 - Prefer strategy interfaces over `switch`/`if-else` chains that grow over time.
 - Use `IInstancesOf<T>` to discover all implementations by convention — no manual registration needed.
 - Design public APIs as contracts (interfaces/records) rather than concrete implementations.
@@ -67,6 +70,7 @@ public class JsonReportFormatter : IReportFormatter { ... }
 The Chronicle + Arc stack has clear layer boundaries. Violating them creates coupling that is hard to undo.
 
 **Rules:**
+
 - Domain types must not reference EF Core, MongoDB, or HTTP concepts directly.
 - Command handlers express intent in domain terms — they delegate persistence and I/O to injected collaborators.
 - Projections build read models; they must not trigger commands or produce side effects.
@@ -75,6 +79,7 @@ The Chronicle + Arc stack has clear layer boundaries. Violating them creates cou
 ## Low Coupling
 
 **Rules:**
+
 - Depend on abstractions (interfaces, records), not on concrete implementations.
 - Use constructor injection — it makes dependencies explicit and testable.
 - Avoid reaching through an object to call methods on its dependencies (`a.B.C.Do()` is a sign of tight coupling).
@@ -84,6 +89,7 @@ The Chronicle + Arc stack has clear layer boundaries. Violating them creates cou
 ## Cross-Cutting Concerns
 
 **Rules:**
+
 - Never write logging statements directly inside command handlers, projections, or domain types. Use the `[LoggerMessage]` pattern in a co-located `*Logging.cs` partial class.
 - Never perform authorization checks inside domain logic — express them as attributes or middleware applied at the boundary.
 - Never duplicate error-handling or retry logic across handlers — centralize it in a pipeline or middleware.

@@ -7,7 +7,7 @@ description: Explains how vertical feature slices are structured in a Cratis Chr
 
 A vertical slice contains **everything for a single behavior**: the command or query, the events it produces, the projections that build read models, the React component, and the specs. Everything lives together because everything changes together.
 
-One feature folder → many slices.   
+One feature folder → many slices.  
 One slice folder → one `.cs` file (all backend) + one `.tsx` file (frontend).
 
 ---
@@ -29,7 +29,7 @@ First, name the feature (a domain noun, pluralized) and identify the slice type:
 
 The feature folder lives directly under the app source root (or under an optional `<Module>/` grouping) — there is **no** top-level `Features/` wrapper.
 
-```
+```text
 <Feature>/                          ← feature root (pluralized domain noun)
 ├── <Feature>.tsx                   ← composition page
 ├── <ConceptName>.cs                ← shared ConceptAs<T> / EventSourceId<T> types for the feature
@@ -41,7 +41,8 @@ The feature folder lives directly under the app source root (or under an optiona
 ```
 
 ✅ Correct:
-```
+
+```text
 Authors/
 ├── Authors.tsx
 ├── AuthorId.cs
@@ -57,7 +58,8 @@ Authors/
 ```
 
 ❌ Wrong — never split by artifact type:
-```
+
+```text
 Authors/
 ├── Commands/RegisterAuthor.cs
 ├── Handlers/RegisterAuthorHandler.cs
@@ -79,6 +81,7 @@ All backend artifacts for one slice go in a single `<SliceName>.cs` file. File h
 ```
 
 For a **State Change** slice, the file contains:
+
 ```csharp
 [EventType]
 public record AuthorRegistered(AuthorName Name);
@@ -99,6 +102,7 @@ public record RegisterAuthor(AuthorName Name)
 ```
 
 For a **State View** slice, the file contains:
+
 ```csharp
 [ReadModel]
 [FromEvent<Registration.AuthorRegistered>]
@@ -204,4 +208,4 @@ Work in this exact sequence — TypeScript proxies are generated from C# during 
 
 - `references/slice-anatomy.md` — complete patterns for every artifact type
 - `references/slice-types.md` — when to use each slice type with decision guide
-- `references/concepts.md` — ConceptAs<T> patterns for all primitive backing types
+- `references/concepts.md` — `ConceptAs<T>` patterns for all primitive backing types

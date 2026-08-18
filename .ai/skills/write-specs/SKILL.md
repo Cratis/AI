@@ -11,7 +11,7 @@ Write comprehensive in-process BDD specs for an **event-sourced Cratis applicati
 
 Specs live **in the same slice folder** as the `.cs` file, each file wrapped in `#if DEBUG … #endif` (spec code ships only in Debug):
 
-```
+```text
 <Feature>/<Slice>/
 ├── <Slice>.cs
 └── when_<verb_phrase>/

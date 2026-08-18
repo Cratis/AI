@@ -7,7 +7,7 @@ description: Step-by-step guidance for creating a Cratis Arc command — [Comman
 
 A command represents a user action that changes state. In Cratis Arc the path is:
 
-```
+```text
 [Command] record + Handle()  →  validator  →  dotnet build  →  TypeScript proxy  →  React .use()
 ```
 
@@ -39,6 +39,7 @@ public record DebitAccountOpened(AccountName Name, OwnerId OwnerId);
 ```
 
 **Rules:**
+
 - `[Command]` attribute is **required** — it makes the type discoverable and the analyzer will warn without it
 - `Handle()` returns the event (or events) to append — Arc's Chronicle integration automatically appends them; **never inject `IEventLog` to append the primary event**
 - `[EventType]` takes **no arguments** — the identifier is generated from the type name
@@ -266,6 +267,7 @@ export const AccountsPage = () => {
 ```
 
 **How it works:**
+
 - `useDialog(OpenAccountDialog)` returns a wrapper component and a `show` function
 - `showOpenAccount()` opens the dialog; it returns a Promise that resolves when the dialog closes
 - `CommandDialog` executes the command when the user confirms; it closes automatically

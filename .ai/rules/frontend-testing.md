@@ -22,7 +22,7 @@ The quality goal is CUPID code: frontend logic that cannot be tested in isolatio
 
 Tests live next to the unit they specify:
 
-```
+```text
 <Slice>/
     <Subject>.ts
     for_<Subject>/

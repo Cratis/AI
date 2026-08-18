@@ -14,7 +14,7 @@ For simple pages, MVVM is optional — use regular hooks directly in the compone
 
 Install packages if not already present:
 
-```
+```bash
 npm install @cratis/arc.react.mvvm tsyringe reflect-metadata
 ```
 

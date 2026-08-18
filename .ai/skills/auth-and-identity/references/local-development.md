@@ -101,14 +101,14 @@ If you prefer not to install a browser extension, you can also set the cookie di
 1. Build the identity JSON matching the `.cratis-identity` cookie format
 2. Set it via browser console:
 
-```javascript
-document.cookie = '.cratis-identity=' + btoa(JSON.stringify({
-    id: 'user-id',
-    name: 'Jane Developer',
-    roles: ['Admin'],
-    details: { department: 'Engineering' }
-})) + '; path=/';
-```
+   ```javascript
+   document.cookie = '.cratis-identity=' + btoa(JSON.stringify({
+       id: 'user-id',
+       name: 'Jane Developer',
+       roles: ['Admin'],
+       details: { department: 'Engineering' }
+   })) + '; path=/';
+   ```
 
 3. Reload — the frontend will use this cookie directly without calling the backend
 

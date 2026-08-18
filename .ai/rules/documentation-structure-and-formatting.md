@@ -47,7 +47,7 @@ Write DocFX alerts in product `.md` (converted automatically) **or** Starlight d
 | `> [!WARNING]` | `:::caution` |
 | `> [!CAUTION]` | `:::danger` |
 
-```
+```markdown
 :::note
 Body of the callout.
 :::
@@ -72,10 +72,12 @@ In `.mdx` you may also use `<Aside type="tip">…</Aside>` (import from `@astroj
 ## `.mdx` specifics
 
 - Frontmatter `title` + `description`, **no body H1**, then imports:
+
   ```mdx
   import { Steps, Tabs, TabItem, Aside } from '@astrojs/starlight/components';
   import { FullStackTabs, TopicHero, SimpleCard, StackDiagram } from '@components';
   ```
+
 - Valid `<TabItem>` icons include `apple`, `linux`, `seti:c-sharp`, `seti:react`.
 - The splash front door uses `template: splash` in frontmatter.
 

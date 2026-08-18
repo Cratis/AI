@@ -88,6 +88,7 @@ const [result, perform] = AllProjects.use();
 ```
 
 Paginated queries:
+
 ```tsx
 const [result, , setPage] = AllProjects.useWithPaging(10);
 ```
@@ -131,17 +132,20 @@ All identifiers, comments, JSDoc, and string literals must use **American Englis
 Additional patterns for common tricky scenarios:
 
 **Storybook:**
+
 - Use `React.ComponentType<Record<string, never>>` for components with no props.
 - Always use `as unknown as` when converting component imports to avoid type mismatch errors.
 - Properly type story args — never use `any`.
 
 **External libraries with strict generic constraints:**
+
 - Import necessary types (e.g. `Command` from `@cratis/arc/commands`) rather than asserting to `any`.
 - Use type assertions through `unknown`: `props.command as unknown as Constructor<Command<...>>`.
 - Extract tuple results explicitly rather than destructuring when type assertions are needed.
 - Use proper library types when available; use specific property types (e.g. `{ canvas?: HTMLCanvasElement }`) over `any`.
 
 **Dynamic and generic types:**
+
 - Add type guards for unknown function parameters: `if (typeof accessor !== 'function') return ''`.
 - Type parameters with fallbacks: `function<T = unknown>(accessor: ((obj: T) => unknown) | unknown)`.
 - Cast arrays from `unknown` explicitly: `((obj as Record<string, unknown>).items || []) as string[]`.

@@ -10,6 +10,7 @@ paths:
 Extends the base [specs.md](./specs.md) (folder structure, naming, philosophy) with C#-specific conventions. This file is the **universal foundation** used in **both** profiles — the `Cratis.Specifications` pattern (`Establish → Because → should_`) with NSubstitute.
 
 > **Which spec surface?**
+>
 > - **Framework / library code** (Chronicle kernel, Arc pipeline, source generators, Fundamentals): the `Specification` base + NSubstitute in this file is the dominant mode — unit-test the classes under test in isolation. Reach for a `*Scenario` helper (in [specs.scenarios.csharp.md](./specs.scenarios.csharp.md)) **only** when testing the very engine your repo provides — Arc → `CommandScenario`, Chronicle → the event/projection/reactor scenarios. The **write-specs** skill is application-oriented, not for general framework specs.
 > - **Event-sourced applications on Cratis** (commands, projections, reducers, reactors, constraints): use this base **plus** the in-process scenario family — see **[specs.scenarios.csharp.md](./specs.scenarios.csharp.md)** (`profile: application`) and the **write-specs** skill.
 
