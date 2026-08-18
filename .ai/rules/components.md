@@ -21,14 +21,16 @@ Reach PrimeReact almost exclusively through Cratis Components wrappers. Import f
 | Dropdown | `Dropdown` | `@cratis/components/Dropdown` |
 | Command dialog | `CommandDialog` / `StepperCommandDialog` | `@cratis/components/CommandDialog` |
 | Data/confirmation dialog | `Dialog` / `ConfirmationDialog` / `BusyIndicatorDialog` | `@cratis/components/Dialogs` |
-| Command form fields | `InputTextField`, `PasswordField`, `ToggleSwitchField`, `RatingField`, … | `@cratis/components/CommandForm` |
-| Notifications (toasts) | `Toaster` / `toast` / `toastCommandResult` | `@cratis/components/Notifications` |
-| Status & display | `Tag` / `Badge` / `Chip` / `Skeleton` / `Avatar` / `ProgressBar` | `@cratis/components/Display` |
+| Command form fields | `InputTextField`, `NumberField`, `CheckboxField`, `DropdownField`, … — plus `PasswordField` / `ToggleSwitchField` / `RatingField` (**≥ 3.0.0**) | `@cratis/components/CommandForm` |
+| Notifications (toasts) | `Toaster` / `toast` / `toastCommandResult` | `@cratis/components/Notifications` (**≥ 3.0.0**) |
+| Status & display | `Tag` / `Badge` / `Chip` / `Skeleton` / `Avatar` / `ProgressBar`; `Message` / `ProgressSpinner` (**≥ 3.2.0**) | `@cratis/components/Display` (**≥ 3.0.0**) |
 | Canvas tool palette | `Toolbar` | `@cratis/components/Toolbar` |
+
+A **≥ x.y.z** marker is the first `@cratis/components` version that exports the subpath or symbol. On an older pin the import simply does not resolve — check the installed version before reaching for one.
 
 Use `Dropdown` from `@cratis/components/Dropdown` (not raw `primereact/dropdown`) — it appends to the document body and stacks correctly above overlays, avoiding the z-index issues raw PrimeReact dropdowns have inside dialogs.
 
-### Notifications — feedback for commands run outside a dialog
+### Notifications — feedback for commands run outside a dialog (≥ 3.0.0)
 
 `CommandDialog` handles success/error feedback itself. For a command executed
 **programmatically** (`command.execute()` outside a dialog), mount one
@@ -50,7 +52,11 @@ For ad-hoc notifications, call the imperative `toast.success/info/warn/error(...
 `<Column>` supports `filter` (a per-column filter menu with match modes) and
 `DataPage` / the data tables show a global search box when `globalFilterFields`
 is set. Use the `Display` components (`Tag`, `Badge`, `Skeleton`, …) for status
-indicators and loading states in tables and detail views.
+indicators and loading states in tables and detail views (**≥ 3.0.0**).
+
+The Cratis `Column` wrapper ships from **3.0.0** (`@cratis/components/DataPage`
+or `@cratis/components/DataTables`). On a 2.x pin there is no wrapper — columns
+come from `primereact/column`.
 
 ### `DataPage` — query list pages
 
@@ -106,7 +112,7 @@ Consistent styling comes from discipline: static styles in CSS files, dynamic va
 
 From `@cratis/components` **3.0.0** (PrimeReact 11), an app must do two things or the components render unstyled and PrimeReact may end up with two React contexts:
 
-1. **Install PrimeReact yourself** — it is a **peer dependency**, not bundled: `primereact@^11`, `@primereact/core@^11`, `@primereact/headless@^11`, `primeicons@^8`. Two copies of PrimeReact means two `PrimeReactProvider` contexts, which breaks overlays and `pt` silently. Delete any `resolutions`/`overrides` pin that used to work around this.
+1. **Install PrimeReact yourself** — it is a **peer dependency**, not bundled: `primereact@^11`, `@primereact/core@^11`, `@primereact/headless@^11`, `@primereact/types@^11`, `primeicons@^8` — and from **3.4.0** also `@primereact/styles@^11` and `@primeuix/themes@^3`. Two copies of PrimeReact means two `PrimeReactProvider` contexts, which breaks overlays and `pt` silently. Delete any `resolutions`/`overrides` pin that used to work around this. (Read the installed package's own `peerDependencies` rather than trusting this list — it grows across 3.x minors.)
 2. **Import the stylesheets explicitly**, in this order — components no longer import their own CSS:
 
    ```ts
@@ -114,6 +120,8 @@ From `@cratis/components` **3.0.0** (PrimeReact 11), an app must do two things o
    import '@cratis/components/styles';   // every component stylesheet, in one file
    import '@cratis/components/theme';    // optional: the license-free baseline look
    ```
+
+   Both `styles` and `theme` are **3.0.0** shapes. On a 2.x pin `@cratis/components/theme` does not exist at all, and `@cratis/components/styles` resolves to `tailwind-utilities.css` — a Tailwind utility layer, **not** the component stylesheets, which 2.x components still import themselves.
 
 PrimeReact 11 ships **zero CSS** — there is no `primereact/resources/themes/*.css`. A styled look comes from a `@primeuix/themes` preset passed through the provider (`value={{ theme: { preset: Aura } }}`, license-gated), from `@cratis/components/theme` (no license), or from your own `pt`/CSS.
 

@@ -94,7 +94,7 @@ A typed proxy class is generated per query. Pick the hook:
 
 | Hook | When |
 |---|---|
-| `<Query>.use(args?, sorting?)` | standard — returns `[result]`, re-renders on change |
+| `<Query>.use(args?, sorting?)` | standard — re-renders on change (return shape below) |
 | `<Query>.useSuspense(...)` | suspense-aware — throws while loading; wrap in `<QueryBoundary>` |
 | `<Query>.when(condition).use(args)` | conditional — only fires when `condition` is true (don't wrap a hook in `if`) |
 | `<Query>.useWithPaging(pageSize, args?, sorting?)` | server-side paging (backend returns `IQueryable<T>`) |
@@ -106,11 +106,11 @@ A typed proxy class is generated per query. Pick the hook:
 
 | Hook | Returns |
 |---|---|
-| `<Query>.use(args?, sorting?)` | `[result, perform]` |
+| `<Query>.use(args?, sorting?)` | `[result, perform, setSorting]` |
 | `<Query>.useSuspense(...)` | `[result, perform, setSorting]` |
 | `<Query>.useWithPaging(pageSize, args?, sorting?)` | `[result, perform, setSorting, setPage, setPageSize]` |
 | `<Query>.useSuspenseWithPaging(pageSize, ...)` | `[result, perform, setSorting, setPage, setPageSize]` |
-| `<ObservableQuery>.use(...)` | `[result, setSorting]` — **no `perform`** |
+| `<ObservableQuery>.use(...)` | `[result, setSorting]` — **no `perform`**; `[result]` alone when the query returns a single model, not a collection |
 | `<ObservableQuery>.useChangeStream(args?, getKey?, sorting?, isEnabled?)` | `ChangeSet<T> { added, replaced, removed }` |
 
 `result.paging` = `{ page, size, totalItems, totalPages }` (zero-based `page`). Read models returning `IQueryable<TReadModel>` get automatic server-side paging/sorting — use it whenever a list can grow.
@@ -149,11 +149,13 @@ Out-of-dialog execution branches in this order:
 const result = await command.execute();
 if (!result.isAuthorized) { redirectToLogin(); return; }
 if (!result.isValid)      { /* validationResults → inline field errors */ return; }
-if (result.hasExceptions) { toast.error('Something went wrong'); console.error(result.exceptionMessages); return; }
+if (result.hasExceptions) { toast.error({ title: 'Something went wrong' }); console.error(result.exceptionMessages); return; }
 // happy path — refresh queries, close, etc.
 ```
 
-`toastCommandResult(result, opts)` from `@cratis/components/Notifications` collapses this whole branch into one call (with a `<Toaster />` mounted) — success/not-authorized/validation/exception → the right toast, no stack traces shown.
+`toast` and `toastCommandResult` come from `@cratis/components/Notifications`, a subpath that exists from `@cratis/components` **3.0.0**. Every `toast.*` method takes an **options object** (`{ title, description, severity, … }`) — there is no bare-string overload.
+
+`toastCommandResult(result, opts)` collapses this whole branch into one call (with a `<Toaster />` mounted) — success/not-authorized/validation/exception → the right toast, no stack traces shown.
 
 ### Command helpers
 
@@ -161,7 +163,7 @@ if (result.hasExceptions) { toast.error('Something went wrong'); console.error(r
 - **`onBeforeExecute`** is a **transformer**: it receives the current values and **must return them** (mutated or not). It runs only on submit — never use it to seed required values (use `initialValues`).
 - **`initialValues`** = synchronous baseline (also drives change tracking); **`currentValues`** = reactive overlay for async/late-loading values (e.g. from a query).
 - **`asCommandFormField<P>(Component, opts)`** — wrap a custom input (rich text, address picker) so it participates in `CommandForm` with validation/error wiring.
-- **`CommandScope`** + `useCommandScope()` (`@cratis/arc.react/commands`) — aggregate state across multiple commands (and queries) on one screen; members tracked automatically (no `addCommand`); scopes nest (a child reports up to its parent); injectable as `ICommandScope` (nearest enclosing scope). Props: `setHasChanges`, `setIsPerforming`, `onBeforeExecute`, `onSuccess(cmd, result)`, `onFailed`, `onException`, `onUnauthorized`. `ICommandScope` members: `hasChanges`, `isPerforming`, `hasValidationFailures`, `hasExceptions`, `validationFailures`/`exceptions` (this scope), `aggregatedValidationFailures`/`aggregatedExceptions` (scope + children), `execute()` (runs only commands with changes), `revertChanges()`, `parent`.
+- **`CommandScope`** + `useCommandScope()` (`@cratis/arc.react/commands`) — aggregate state across multiple commands (and queries) on one screen; members register themselves — the `addCommand`/`addQuery`/`addChildScope` methods on `ICommandScope` exist but are called for you by the hooks, so don't call them by hand; scopes nest (a child reports up to its parent); injectable as `ICommandScope` (nearest enclosing scope). Props: `setHasChanges`, `setIsPerforming`, `onBeforeExecute`, `onSuccess(cmd, result)`, `onFailed`, `onException`, `onUnauthorized`. `ICommandScope` members you read: `hasChanges`, `isPerforming`, `hasValidationFailures`, `hasExceptions`, `validationFailures`/`exceptions` (this scope), `aggregatedValidationFailures`/`aggregatedExceptions` (scope + children), `execute()` (runs only commands with changes), `revertChanges()`, `parent`.
 
 ### `<Arc>` global configuration
 

@@ -223,4 +223,4 @@ Use `buttons={null}` for dialogs that contain their own internal actions (e.g. a
 | `width` | `string` | Dialog width (e.g. `'50vw'`) — replaces PrimeReact `style={{ width }}` |
 | `resizable` | `boolean` | Default `false` |
 
-`style`, `contentStyle`, and `dismissable` **are** supported. The other v10 PrimeReact Dialog props (`modal`, `dismissableMask`, `draggable`, `footer`, `onHide`) are **not** available — do not use them. (`resizable` is accepted for compatibility but is a no-op in PrimeReact 11.)
+`style` and `contentStyle` **are** supported, and so is `dismissable` from `@cratis/components` **3.0.0** onward (it does not exist on a 2.x pin). The other v10 PrimeReact Dialog props (`modal`, `dismissableMask`, `draggable`, `footer`, `onHide`) are **not** available — do not use them. (`resizable` is accepted for compatibility but is a no-op in PrimeReact 11.)
