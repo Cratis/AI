@@ -243,32 +243,31 @@ Marking an issue **Ready for development** is what starts an agent, so an unauth
 enough to make the Planner run agents on your repositories even with everything above in place.
 **Authenticating `/api` at the ingress is not optional.**
 
-### Why the app does not enforce this itself
-
-Defense in depth was attempted and does not currently work, so the ingress requirement above is
-load-bearing rather than merely preferred.
+### Defense in depth at the Arc layer
 
 Arc's default is to **allow** an artifact carrying no `[Authorize]` (`AuthorizationEvaluator`
 returns `true` when `hasAuthorize` is false), and it resolves authorization through
-`IInstancesOf<IAuthorizationAttributeEvaluator>` — so an app-supplied evaluator can flip that
-default to deny for every command and query at once, including the observable-query WebSocket
-transport that an ASP.NET fallback policy cannot reach. That evaluator was built and proven in both
-directions: it refuses an un-attributed command, allows one carrying `[Authorize]` with a principal,
-allows `[AllowAnonymous]`, and allows execution under a system scope.
+`IInstancesOf<IAuthorizationAttributeEvaluator>`. `Identity/DenyByDefaultAuthorization` supplies
+one, flipping that default to deny for every command and query at once — including the
+observable-query WebSocket transport, which an ASP.NET fallback policy cannot reach and where all
+of the read surface actually lives. A fallback policy would have looked closed while still
+streaming every issue, work item and alert to an anonymous socket.
 
-It is not adoptable. The evaluator is discovered by convention, so it is active in the spec
-assembly too, and `CommandScenario<T>` — the in-process harness every command spec uses — exposes
-exactly three members: a constructor, `Execute` and `Validate`. There is no hook for establishing a
-principal, no system-scope entry point, and no DI configuration point. Turning the default to deny
-therefore fails **60** existing specs with `Not authorized`, and nine of those fail as
-`Expected command to have validation errors, but it had none` because authorization short-circuits
-before `CommandValidator` runs. The only available fix is to add authorization setup to every
-domain spec individually, and to keep paying that on every future one — pushing a cross-cutting
-concern into tests that exist to prove domain behavior.
+It defers whenever the member **or its declaring type** carries a real `[Authorize]`, so roles are
+never masked, and `[AllowAnonymous]` is unaffected because Arc consults anonymous evaluators first.
 
-Reconsider this when Arc's testing surface grows a way to establish a principal or a system scope
-for a scenario. Until then the control lives at the ingress, and the list above is the exposure it
-is covering.
+**This does not lift the ingress requirement.** Arc forces anonymous on `/openapi`, `/.cratis/me`,
+`/.cratis/commands` and `/.cratis/queries`, the GitHub App browser routes are plain minimal-API
+outside the pipeline entirely, and `AllowUnauthenticatedOperators` still hands full operator rights
+to every caller if a deployment enables it. The list above is the exposure the ingress covers; this
+is a second layer under it, not a replacement.
+
+Two consequences worth knowing before changing anything here. Backend code that executes a command
+has no HTTP request and is refused unless it runs inside `ISystemExecution.AsSystem()`; a refused
+command returns `CommandResult.Unauthorized` rather than throwing, so a caller ignoring the result
+degrades silently. And at the webhook and worker-callback boundaries `AsSystem()` does **not** work
+— `ICurrentPrincipalOverride` no-ops while an HTTP request is in flight — so those establish a
+verified caller directly, after their own credential check and before any command.
 
 ### Rotating and revoking
 
