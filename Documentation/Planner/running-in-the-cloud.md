@@ -70,10 +70,87 @@ env:
   re-registered on every start (see [Configuration](./configuration.md#orleans---plannerorleans)).
   The key deliberately sits under `Planner:`, not under `Orleans:` - that section belongs to Orleans,
   which reads `Orleans:Clustering` as the name of a clustering provider it must resolve.
-- Set `DOTNET_DbgEnableMiniDump=1` (and `DOTNET_DbgMiniDumpType=4`, with `DOTNET_DbgMiniDumpName`
-  pointing at a mounted path) when investigating a silent native crash. A container that dies with
-  exit 139 and no log output leaves nothing to attach a stack to otherwise; the dump is the only
-  artifact that turns one into a diagnosable failure.
+- Crash dump capture is already configured in the image, but a dump only survives the container
+  that wrote it if `/dumps` is a mounted volume, which the Deployment has to supply - see
+  [Crash dumps](#crash-dumps).
+
+## Crash dumps
+
+A container that dies with exit 139 (SIGSEGV) and no log output leaves nothing to attach a stack
+to. The Planner image is therefore built to write a dump on any native crash. The variables are
+baked into `Source/Planner/Dockerfile`, so there is nothing to set in the Deployment:
+
+| Variable | Value in the image | What it does |
+| --- | --- | --- |
+| `DOTNET_DbgEnableMiniDump` | `1` | Enables core dump generation. Off by default |
+| `DOTNET_DbgMiniDumpType` | `2` (`Heap`) | Module and thread lists, all stacks, exception and handle information, and all memory except mapped module images |
+| `DOTNET_DbgMiniDumpName` | `/dumps/planner.%p.%t.dmp` | Where the dump is written. `%p` is the process id and `%t` the crash time in seconds since the epoch, so successive crashes never overwrite each other |
+| `DOTNET_EnableCrashReport` | `1` | Also writes a JSON report of the threads and stack frames of the crashing process, named after the dump with `.crashreport.json` appended |
+| `DOTNET_CreateDumpDiagnostics` | `1` | Logs what `createdump` itself did to the crashing process's console, so a dump that fails to be written says why instead of failing silently |
+
+`Heap` rather than `Full`: it keeps every stack and all memory except the mapped module images,
+which are recoverable from the image anyway, while a `Full` dump is materially more likely to
+exceed the pod's ephemeral-storage limit - and overrunning an `emptyDir` evicts the pod, deleting
+the very dump that was being written. See the .NET
+[Collect dumps on crash](https://learn.microsoft.com/en-us/dotnet/core/diagnostics/collect-dumps-crash)
+reference for the full set of variables.
+
+### The dump is worthless without a volume
+
+`/dumps` exists in the image because `createdump` opens the dump file but never creates the
+directory it lives in. It is still in the container's **writable layer**, and a container that
+exits 139 is discarded and replaced by a fresh one - so unless that path is a volume, the dump
+dies with the container that wrote it. Add to the Planner Deployment:
+
+```yaml
+spec:
+  template:
+    spec:
+      volumes:
+        - name: dumps
+          emptyDir:
+            sizeLimit: 2Gi
+      containers:
+        - name: planner
+          volumeMounts:
+            - name: dumps
+              mountPath: /dumps
+```
+
+An `emptyDir` lives as long as the **pod**, not the container. It survives the crash and restart
+that a SIGSEGV self-heals from, which is exactly the case here, but a rollout, an eviction or a
+node drain removes the pod and takes the dump with it. That is enough **provided someone collects
+the dump before the next rollout**. Use a `PersistentVolumeClaim` instead if a dump has to outlive
+the pod.
+
+Two traps:
+
+- Keep `sizeLimit` **below** the container's `resources.limits.ephemeral-storage`. A disk-backed
+  `emptyDir` counts against that limit, so a `sizeLimit` above it lets the dump breach the pod's
+  storage budget and get the pod evicted part-way through the write.
+- Do **not** set `emptyDir.medium: Memory`. A tmpfs dump counts against the pod's memory limit, so
+  a large enough dump OOM-kills the pod while writing the one artifact you needed.
+
+### Getting a dump out
+
+```bash
+kubectl exec -n studio deploy/planner -- ls -lh /dumps
+kubectl cp studio/<pod>:/dumps/planner.<pid>.<time>.dmp ./planner.dmp
+```
+
+The restarted container sees the dump too - the volume outlived the container that crashed, which
+is the whole point of mounting it.
+
+Record two more things in the same session: the image digest
+(`kubectl get pod <pod> -o jsonpath='{.status.containerStatuses[0].imageID}'`) and `dotnet --info`
+from inside the container. A `Heap` dump deliberately omits the module images, so analysis needs
+the matching binaries, and both `cratis/planner:latest` and the `aspnet:10.0` base it builds on
+float - the tag that produced this dump is not the tag you will pull next week.
+
+Read the `.crashreport.json` first. It sits next to the dump, is a few kilobytes, and lists the
+threads and their stack frames as JSON - usually enough on its own to settle whether the crash was
+managed or native, which is what decides whether opening the dump in `dotnet-dump analyze` is
+worth the effort.
 
 ## Operational access for alert investigations
 
@@ -168,10 +245,32 @@ enough to make the Planner run agents on your repositories even with everything 
 
 ### Rotating and revoking
 
-- Worker callback tokens rotate on every dispatch and retire on every terminal event; nothing to do.
+- Worker callback tokens rotate on every dispatch and retire on every terminal event; in steady
+  state there is nothing to do. The single exception is the release that introduces them - see
+  [Upgrading to verified worker callbacks](#upgrading-to-verified-worker-callbacks).
 - Webhook secrets are deployment configuration - rotate them at the sender and in the secret together.
 - Removing an operator is done at the identity provider in front of the proxy; the Planner holds no
   user records of its own.
+
+### Upgrading to verified worker callbacks
+
+The per-work bearer token on `POST /api/work/{id}/callback` is new, and it only exists for work
+that was dispatched by a Planner that knew to issue one. Work already `Running` when the upgrade
+lands has no token, so its closing callback is rejected with 401 and the item stays `Running`
+indefinitely - holding an account concurrency slot.
+`Planner:Scheduling:MaxConcurrentWorkPerAccount` defaults to `1`, so one stuck item is enough to
+wedge an account entirely.
+
+**Stop any work still `Running` from the upgrade, from the UI.** Stopping is a terminal event: it
+releases the slot and lets the next scheduled item through. Nothing is lost by doing so - the
+agent had already finished its side, and only the report back was refused.
+
+This is a one-time window, and a narrow one. The commit that added token verification (`c92167d`)
+is on the `fix/ai-platform-hardening` branch and is **not** on `main`; publishing is push-to-main,
+so no deployed image has ever run token-verifying code. Until that branch merges and publishes,
+the affected population is zero, and on the release that carries it the population is whatever
+happened to be mid-flight at the moment the new pod took over - plausibly nothing. Check rather
+than assume, but do not expect to find anything.
 
 ## Webhooks
 
