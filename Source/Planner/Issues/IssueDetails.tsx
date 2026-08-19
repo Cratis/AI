@@ -115,6 +115,8 @@ export const IssueDetails = ({ issue }: IssueDetailsProps) => {
                 {' · '}{issue.type || 'No type'}
                 {' · '}opened by {issue.createdBy} on {new Date(issue.createdAt).toLocaleDateString()}
                 {issue.suggestedModel ? ` · suggested model: ${issue.suggestedModel}` : ''}
+                {issue.milestone ? ` · milestone: ${issue.milestone}` : ''}
+                {(issue.assignees ?? []).length > 0 ? ` · assigned to ${(issue.assignees ?? []).join(', ')}` : ''}
             </div>
 
             <div className='flex flex-wrap items-center gap-2'>

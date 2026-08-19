@@ -79,6 +79,7 @@ export const Repositories = () => {
     const [createGroupVisible, setCreateGroupVisible] = useState(false);
     const [mapCodeFor, setMapCodeFor] = useState<Repository | undefined>(undefined);
     const [changeGroupFor, setChangeGroupFor] = useState<RepositoryGroup | undefined>(undefined);
+    const [syncing, setSyncing] = useState(false);
 
     const selectedGroup = selectedGroupRow?.group;
 
@@ -134,6 +135,15 @@ export const Repositories = () => {
         setSelectedGroupRow(undefined);
     };
 
+    const synchronizeNow = async () => {
+        setSyncing(true);
+        try {
+            await fetch('/api/github/synchronize', { method: 'POST' });
+        } finally {
+            setSyncing(false);
+        }
+    };
+
     return (
         <Page title='Repositories'>
             {gitHubAppStatusResult.data && !gitHubAppStatusResult.data.isConfigured &&
@@ -180,6 +190,12 @@ export const Repositories = () => {
                             <MenuItem label='Add' icon={() => <i className='pi pi-plus' />} disableOnUnselected={false} command={() => setAddRepositoryVisible(true)} />
                             <MenuItem label='Map code repository' icon={() => <i className='pi pi-code' />} disableOnUnselected command={() => selectedRepository && setMapCodeFor(selectedRepository)} />
                             <MenuItem label='Remove' icon={() => <i className='pi pi-trash' />} disableOnUnselected command={() => selectedRepository && removeRepository(selectedRepository)} />
+                            <MenuItem
+                                label={syncing ? 'Syncing…' : 'Sync now'}
+                                icon={() => <i className={syncing ? 'pi pi-spin pi-spinner' : 'pi pi-sync'} />}
+                                disableOnUnselected={false}
+                                disabled={syncing}
+                                command={() => synchronizeNow()} />
                         </DataPage.MenuItems>
                         <DataPage.Columns>
                             <Column header='Repository' body={(repository: Repository) => `${repository.owner}/${repository.name}`} style={{ width: '20rem' }} />

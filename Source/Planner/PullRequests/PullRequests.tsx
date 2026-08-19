@@ -10,7 +10,9 @@ import { AllPullRequests, OpenPullRequests, PullRequest } from './Listing/Listin
 
 const statusTag = (pullRequest: PullRequest) => {
     if (pullRequest.isOpen) {
-        return <Tag value='Open' severity='info' />;
+        return pullRequest.draft
+            ? <Tag value='Draft' severity='secondary' />
+            : <Tag value='Open' severity='info' />;
     }
 
     return pullRequest.merged
@@ -46,6 +48,20 @@ export const PullRequests = () => {
                     body={(pullRequest: PullRequest) => new Date(pullRequest.createdAt).toLocaleDateString()}
                     style={{ width: '8rem' }} />
                 <Column header='Status' body={statusTag} style={{ width: '8rem' }} />
+                <Column
+                    header='Branch'
+                    body={(pullRequest: PullRequest) => pullRequest.headBranch
+                        ? `${pullRequest.headBranch} → ${pullRequest.baseBranch}`
+                        : <span className='text-[var(--text-color-secondary)]'>-</span>}
+                    style={{ width: '14rem' }} />
+                <Column
+                    header='Labels'
+                    body={(pullRequest: PullRequest) => (
+                        <div className='flex flex-wrap gap-1'>
+                            {(pullRequest.labels ?? []).map((label) => <Tag key={label} value={label} severity='secondary' />)}
+                        </div>
+                    )}
+                    style={{ width: '12rem' }} />
                 <Column
                     style={{ width: '3rem' }}
                     body={(pullRequest: PullRequest) =>

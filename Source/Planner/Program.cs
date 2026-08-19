@@ -74,6 +74,7 @@ app.MapHealthChecks("/health");
 app.MapWorkerCallbacks();
 app.MapGitHubWebhooks();
 app.MapGitHubAppEndpoints();
+app.MapGitHubSynchronizationEndpoints();
 app.MapAlertWebhooks();
 app.UseCratis();
 app.MapOpenApi();
