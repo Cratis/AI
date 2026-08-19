@@ -10,7 +10,8 @@ interface NavigationItem {
 }
 
 const navigationItems: NavigationItem[] = [
-    { label: 'Issues', icon: 'pi pi-list', path: '/' },
+    { label: 'Dashboard', icon: 'pi pi-home', path: '/' },
+    { label: 'Issues', icon: 'pi pi-list', path: '/issues' },
     { label: 'Alerts', icon: 'pi pi-bell', path: '/alerts' },
     { label: 'Pull requests', icon: 'pi pi-code', path: '/pull-requests' },
     { label: 'Work', icon: 'pi pi-play-circle', path: '/work' },

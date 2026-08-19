@@ -7,6 +7,7 @@ import { QueryTransportMethod } from '@cratis/arc/queries';
 import { Bindings, MVVM } from '@cratis/arc.react.mvvm';
 import '@cratis/components/styles';
 import { AppLayout } from '../Layout/AppLayout';
+import { Dashboard } from '../Dashboard/Dashboard';
 import { Issues } from '../Issues/Issues';
 import { Alerts } from '../Alerts/Alerts';
 import { Work } from '../Work/Work';
@@ -27,7 +28,8 @@ function App() {
                 <BrowserRouter>
                     <Routes>
                         <Route path='/' element={<AppLayout />}>
-                            <Route path='' element={<Issues />} />
+                            <Route path='' element={<Dashboard />} />
+                            <Route path='issues' element={<Issues />} />
                             <Route path='alerts' element={<Alerts />} />
                             <Route path='work' element={<Work />} />
                             <Route path='pull-requests' element={<PullRequests />} />
