@@ -71,6 +71,15 @@ public static class WorkerCallbackEndpoints
                 return Results.NotFound();
             }
 
+            // Least privilege on the transition itself: a worker that already reported a terminal
+            // outcome cannot report a different one afterwards - whichever the Planner accepted
+            // first stands, so a compromised or malfunctioning container cannot flip a completed
+            // unit of work to failed (or the reverse) after the fact.
+            if (IsTerminal(work.Status))
+            {
+                return Results.Conflict($"Work {id.Value} already reached a terminal state ({work.Status})");
+            }
+
             switch (payload.Status)
             {
                 case "started":
@@ -199,4 +208,12 @@ public static class WorkerCallbackEndpoints
     /// <param name="context">The <see cref="HttpContext"/> of the request.</param>
     /// <returns><see langword="true"/> when a signed-in user is making the request.</returns>
     static bool RequireSignedInUser(HttpContext context) => context.User?.Identity?.IsAuthenticated == true;
+
+    /// <summary>
+    /// Whether a unit of work has already reached a state no further callback can change.
+    /// </summary>
+    /// <param name="status">The work's current status.</param>
+    /// <returns><see langword="true"/> when the status is terminal.</returns>
+    static bool IsTerminal(WorkStatus status) =>
+        status is WorkStatus.Completed or WorkStatus.Failed or WorkStatus.Stopped;
 }
