@@ -15,6 +15,7 @@ import { useObservableQuery } from '@cratis/arc.react/queries';
 import { AllIssues, Issue, OpenIssues } from './Listing/Listing';
 import { AllGroups, Group } from './Grouping/Listing/Listing';
 import { IssueStatus } from './IssueStatus';
+import { Priority } from './Priority';
 import { ReorderIssue } from './Reordering/Reordering';
 import { CreateGroup } from './Grouping/Creating/Creating';
 import { AddIssueToGroup } from './Grouping/AddingIssue/AddingIssue';
@@ -36,6 +37,27 @@ const statusFilterOptions = [
     { label: 'In progress', value: IssueStatus.inProgress },
     { label: 'For review', value: IssueStatus.forReview },
 ];
+
+const priorityFilterOptions = [
+    { label: 'Any priority', value: undefined },
+    { label: 'Critical', value: Priority.critical },
+    { label: 'High', value: Priority.high },
+    { label: 'Normal', value: Priority.normal },
+    { label: 'Low', value: Priority.low },
+    { label: 'Not set', value: Priority.notSet },
+];
+
+export const priorityLabel = (priority: Priority) => priorityFilterOptions.find((option) => option.value === priority)?.label ?? 'Not set';
+
+export const prioritySeverity = (priority: Priority) => {
+    switch (priority) {
+        case Priority.critical: return 'danger';
+        case Priority.high: return 'warning';
+        case Priority.normal: return 'info';
+        case Priority.low: return 'secondary';
+        default: return undefined;
+    }
+};
 
 const statusSeverity = (status: IssueStatus) => {
     switch (status) {
@@ -61,6 +83,7 @@ export const Issues = () => {
     const [repositoryFilter, setRepositoryFilter] = useState<string | undefined>(undefined);
     const [userFilter, setUserFilter] = useState<string | undefined>(undefined);
     const [statusFilter, setStatusFilter] = useState<IssueStatus | undefined>(undefined);
+    const [priorityFilter, setPriorityFilter] = useState<Priority | undefined>(undefined);
     const [instructionsFor, setInstructionsFor] = useState<Issue | undefined>(undefined);
     const [groupInstructionsFor, setGroupInstructionsFor] = useState<Group | undefined>(undefined);
     const [renameFor, setRenameFor] = useState<Group | undefined>(undefined);
@@ -82,6 +105,7 @@ export const Issues = () => {
             if (repositoryFilter && `${issue.owner}/${issue.repository}` !== repositoryFilter) return false;
             if (userFilter && issue.createdBy !== userFilter) return false;
             if (statusFilter !== undefined && issue.status !== statusFilter) return false;
+            if (priorityFilter !== undefined && issue.priority !== priorityFilter) return false;
             if (search && !`${issue.owner}/${issue.repository}#${issue.number} ${issue.title}`.toLowerCase().includes(search.toLowerCase())) return false;
             return true;
         });
@@ -191,6 +215,11 @@ export const Issues = () => {
                 value={statusFilter}
                 options={statusFilterOptions}
                 onChange={(event) => setStatusFilter(event.value as IssueStatus | undefined)} />
+            <Dropdown
+                placeholder='Priority'
+                value={priorityFilter}
+                options={priorityFilterOptions}
+                onChange={(event) => setPriorityFilter(event.value as Priority | undefined)} />
             <Button
                 label={showDone ? 'Hide done' : 'Show done'}
                 icon={showDone ? 'pi pi-eye-slash' : 'pi pi-eye'}
@@ -306,6 +335,12 @@ export const Issues = () => {
                                 header='Status'
                                 body={(issue: IssueRow) => <Tag value={statusLabel(issue.status)} severity={statusSeverity(issue.status)} />}
                                 style={{ width: '10rem' }} />
+                            <Column
+                                header='Priority'
+                                body={(issue: IssueRow) => issue.priority !== Priority.notSet
+                                    ? <Tag value={priorityLabel(issue.priority)} severity={prioritySeverity(issue.priority)} />
+                                    : <span className='text-[var(--text-color-secondary)]'>-</span>}
+                                style={{ width: '8rem' }} />
                             <Column
                                 style={{ width: '3rem' }}
                                 body={(issue: IssueRow) => issue.group && issue.group !== ''
