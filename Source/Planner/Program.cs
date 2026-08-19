@@ -58,6 +58,7 @@ builder.Services.Configure<OperationsOptions>(builder.Configuration.GetSection(O
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<IWorkDispatcher, WorkDispatcher>();
 builder.Services.AddSingleton<IWorkerEnvironment, WorkerEnvironment>();
+builder.Services.AddSingleton<IWorkerCallbackTokens, WorkerCallbackTokens>();
 builder.Services.AddSingleton<IIssueSynchronizer, IssueSynchronizer>();
 builder.Services.AddHostedService<PlannerGrainsActivator>();
 builder.Services.AddHealthChecks();

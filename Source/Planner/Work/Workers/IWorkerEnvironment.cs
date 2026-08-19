@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Planner.Accounts.Credentials;
+using Planner.Work.Callback;
 using Planner.Work.Listing;
 using ListedIssue = Planner.Issues.Listing.Issue;
 
@@ -20,6 +21,7 @@ public interface IWorkerEnvironment
     /// <param name="coveredIssues">The issues the work covers - empty for anything but issue work.</param>
     /// <param name="credentials">The Claude account credentials the session authenticates with.</param>
     /// <param name="model">The resolved model the session runs.</param>
+    /// <param name="callbackToken">The bearer token the container must present when it reports progress back.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> for the operation.</param>
     /// <returns>The environment variables.</returns>
     Task<IReadOnlyDictionary<string, string>> Build(
@@ -27,5 +29,6 @@ public interface IWorkerEnvironment
         IReadOnlyList<ListedIssue> coveredIssues,
         AccountCredentials credentials,
         ModelName model,
+        CallbackToken callbackToken,
         CancellationToken cancellationToken = default);
 }
