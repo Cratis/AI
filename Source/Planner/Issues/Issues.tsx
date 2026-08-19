@@ -29,6 +29,9 @@ import { GroupInstructionsDialog, IssueInstructionsDialog } from './Instructions
 import { computeNewOrder, sortIssues } from './issueOrdering';
 import { CommandDialog } from '@cratis/components/CommandDialog';
 import { InputTextField } from '@cratis/components/CommandForm/fields';
+import { Checkbox } from 'primereact/checkbox';
+import { RequestPlan } from '../Roadmap/RequestingPlan/RequestingPlan';
+import { MarkdownEditorField } from '../Common/MarkdownEditorField';
 
 const ungrouped = 'zz-ungrouped';
 
@@ -124,6 +127,8 @@ export const Issues = () => {
     const [groupInstructionsFor, setGroupInstructionsFor] = useState<Group | undefined>(undefined);
     const [renameFor, setRenameFor] = useState<Group | undefined>(undefined);
     const [dragged, setDragged] = useState<Issue | undefined>(undefined);
+    const [planSelection, setPlanSelection] = useState<string[]>([]);
+    const [planDialogVisible, setPlanDialogVisible] = useState(false);
     const [expandedRows, setExpandedRows] = useState<DataTableValueArray | DataTableExpandedRows | undefined>(undefined);
 
     const groupsById = useMemo(() => {
@@ -229,7 +234,18 @@ export const Issues = () => {
             disabled: !selectedGroup,
             command: () => selectedGroup && deleteGroup(selectedGroup),
         },
+        {
+            label: `Plan (${planSelection.length})`,
+            icon: 'pi pi-map',
+            disabled: planSelection.length === 0,
+            command: () => setPlanDialogVisible(true),
+        },
     ];
+
+    const togglePlanSelection = (issue: IssueRow) =>
+        setPlanSelection((current) => current.includes(issue.id)
+            ? current.filter((id) => id !== issue.id)
+            : [...current, issue.id]);
 
     const filters = (
         <div className='flex flex-wrap items-center gap-2'>
@@ -349,6 +365,14 @@ export const Issues = () => {
                             size='small'
                             emptyMessage='No open issues - add an organization or repository under settings'
                             style={{ height: '100%' }}>
+                            <Column
+                                header='Plan'
+                                body={(issue: IssueRow) => (
+                                    <Checkbox
+                                        checked={planSelection.includes(issue.id)}
+                                        onChange={() => togglePlanSelection(issue)} />
+                                )}
+                                style={{ width: '4rem' }} />
                             <Column rowReorder style={{ width: '3rem' }} />
                             <Column body={dragCell} style={{ width: '3rem' }} />
                             <Column header='Issue' body={issueCell} style={{ width: '14rem' }} />
@@ -412,6 +436,23 @@ export const Issues = () => {
                     onConfirm={() => setRenameFor(undefined)}
                     onCancel={() => setRenameFor(undefined)}>
                     <InputTextField<RenameGroup> value={(instance) => instance.name} title='Name' placeholder='Name of the group' />
+                </CommandDialog>}
+
+            {planDialogVisible &&
+                <CommandDialog<RequestPlan>
+                    command={RequestPlan}
+                    visible
+                    title={`Plan ${planSelection.length} issue(s)`}
+                    width='36rem'
+                    okLabel='Plan'
+                    cancelLabel='Cancel'
+                    initialValues={{ issues: planSelection, instructions: '' }}
+                    onConfirm={() => { setPlanDialogVisible(false); setPlanSelection([]); }}
+                    onCancel={() => setPlanDialogVisible(false)}>
+                    <MarkdownEditorField<RequestPlan>
+                        value={(instance) => instance.instructions}
+                        title='Extra instructions (optional)'
+                        rows={6} />
                 </CommandDialog>}
         </Page>
     );
