@@ -12,7 +12,9 @@ import { AcceptPullRequest } from './AcceptingPullRequest/AcceptingPullRequest';
 import { SetIssueModel } from './SettingModel/SettingModel';
 import { Priority } from './Priority';
 import { SetIssuePriority } from './SettingPriority/SettingPriority';
-import { priorityLabel, prioritySeverity } from './Issues';
+import { feasibilityLabel, feasibilitySeverity, kindLabel, priorityLabel, prioritySeverity } from './Issues';
+import { IssueFeasibility } from './IssueFeasibility';
+import { IssueKind } from './IssueKind';
 import { ScheduleWork } from '../Work/Scheduling/Scheduling';
 import { WorkPurpose } from '../Work/WorkPurpose';
 
@@ -106,6 +108,9 @@ export const IssueDetails = ({ issue }: IssueDetailsProps) => {
             <div className='flex flex-wrap items-center gap-2'>
                 <Tag value={statusLabel(issue.status)} severity={statusSeverity(issue.status)} />
                 {issue.priority !== Priority.notSet && <Tag value={priorityLabel(issue.priority)} severity={prioritySeverity(issue.priority)} />}
+                {issue.kind !== IssueKind.unclassified && <Tag value={kindLabel(issue.kind)} severity='secondary' />}
+                {issue.feasibility !== IssueFeasibility.unclassified &&
+                    <Tag value={feasibilityLabel(issue.feasibility)} severity={feasibilitySeverity(issue.feasibility)} />}
                 {!issue.isOpen && <Tag value='Closed' severity='danger' />}
                 {(issue.labels ?? []).map((label) => <Tag key={label} value={label} severity='secondary' />)}
             </div>
@@ -117,6 +122,7 @@ export const IssueDetails = ({ issue }: IssueDetailsProps) => {
                 {issue.suggestedModel ? ` · suggested model: ${issue.suggestedModel}` : ''}
                 {issue.milestone ? ` · milestone: ${issue.milestone}` : ''}
                 {(issue.assignees ?? []).length > 0 ? ` · assigned to ${(issue.assignees ?? []).join(', ')}` : ''}
+                {issue.area ? ` · area: ${issue.area}` : ''}
             </div>
 
             <div className='flex flex-wrap items-center gap-2'>

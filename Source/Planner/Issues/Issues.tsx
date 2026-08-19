@@ -16,6 +16,8 @@ import { AllIssues, Issue, OpenIssues } from './Listing/Listing';
 import { AllGroups, Group } from './Grouping/Listing/Listing';
 import { IssueStatus } from './IssueStatus';
 import { Priority } from './Priority';
+import { IssueKind } from './IssueKind';
+import { IssueFeasibility } from './IssueFeasibility';
 import { ReorderIssue } from './Reordering/Reordering';
 import { CreateGroup } from './Grouping/Creating/Creating';
 import { AddIssueToGroup } from './Grouping/AddingIssue/AddingIssue';
@@ -48,6 +50,40 @@ const priorityFilterOptions = [
 ];
 
 export const priorityLabel = (priority: Priority) => priorityFilterOptions.find((option) => option.value === priority)?.label ?? 'Not set';
+
+const kindLabels: Record<IssueKind, string> = {
+    [IssueKind.unclassified]: 'Unclassified',
+    [IssueKind.bug]: 'Bug',
+    [IssueKind.feature]: 'Feature',
+    [IssueKind.question]: 'Question',
+    [IssueKind.docs]: 'Docs',
+    [IssueKind.chore]: 'Chore',
+    [IssueKind.support]: 'Support',
+};
+
+export const kindLabel = (kind: IssueKind) => kindLabels[kind] ?? 'Unclassified';
+
+const feasibilityLabels: Record<IssueFeasibility, string> = {
+    [IssueFeasibility.unclassified]: 'Not classified',
+    [IssueFeasibility.agentCanDo]: 'Agent can do',
+    [IssueFeasibility.needsHumanDecision]: 'Needs a human decision',
+    [IssueFeasibility.needsMoreInformation]: 'Needs more information',
+    [IssueFeasibility.notActionable]: 'Not actionable',
+    [IssueFeasibility.duplicate]: 'Possible duplicate',
+};
+
+export const feasibilityLabel = (feasibility: IssueFeasibility) => feasibilityLabels[feasibility] ?? 'Not classified';
+
+export const feasibilitySeverity = (feasibility: IssueFeasibility) => {
+    switch (feasibility) {
+        case IssueFeasibility.agentCanDo: return 'success';
+        case IssueFeasibility.needsHumanDecision: return 'warning';
+        case IssueFeasibility.needsMoreInformation: return 'info';
+        case IssueFeasibility.notActionable: return 'secondary';
+        case IssueFeasibility.duplicate: return 'secondary';
+        default: return undefined;
+    }
+};
 
 export const prioritySeverity = (priority: Priority) => {
     switch (priority) {
@@ -341,6 +377,12 @@ export const Issues = () => {
                                     ? <Tag value={priorityLabel(issue.priority)} severity={prioritySeverity(issue.priority)} />
                                     : <span className='text-[var(--text-color-secondary)]'>-</span>}
                                 style={{ width: '8rem' }} />
+                            <Column
+                                header='Triage'
+                                body={(issue: IssueRow) => issue.feasibility !== IssueFeasibility.unclassified
+                                    ? <Tag value={feasibilityLabel(issue.feasibility)} severity={feasibilitySeverity(issue.feasibility)} />
+                                    : <span className='text-[var(--text-color-secondary)]'>-</span>}
+                                style={{ width: '11rem' }} />
                             <Column
                                 style={{ width: '3rem' }}
                                 body={(issue: IssueRow) => issue.group && issue.group !== ''

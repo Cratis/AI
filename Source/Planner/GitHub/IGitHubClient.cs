@@ -68,6 +68,17 @@ public interface IGitHubClient
     Task<bool> MergePullRequest(OrganizationName owner, RepositoryName repository, PullRequestNumber number, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Adds labels to an issue, in addition to whichever ones it already has.
+    /// </summary>
+    /// <param name="owner">The organization owning the repository.</param>
+    /// <param name="repository">The repository the issue belongs to.</param>
+    /// <param name="number">The issue number.</param>
+    /// <param name="labels">The labels to add.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> for the operation.</param>
+    /// <returns>Awaitable task.</returns>
+    Task AddLabels(OrganizationName owner, RepositoryName repository, IssueNumber number, IEnumerable<LabelName> labels, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Gets the most recent run of every workflow that has run recently in a repository - one entry
     /// per workflow, its latest conclusion. Requires the <c>actions:read</c> permission; returns an
     /// empty set rather than throwing when the installation has not been granted it, so a deployment

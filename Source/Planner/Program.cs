@@ -11,6 +11,7 @@ using Planner.GitHub.App;
 using Planner.GitHub.Synchronization;
 using Planner.GitHub.Webhooks;
 using Planner.Hosting;
+using Planner.LanguageModels;
 using Planner.Operations;
 using Planner.Work.Callback;
 using Planner.Work.Scheduling;
@@ -48,6 +49,7 @@ builder.ConfigurePlannerTelemetry();
 builder.AddPlannerOrleans();
 
 builder.Services.AddGitHub(builder.Configuration);
+builder.Services.AddLanguageModel(builder.Configuration);
 builder.Services.AddWorkerRuntime(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<Planner.Identity.ICurrentUser, Planner.Identity.CurrentUser>();
