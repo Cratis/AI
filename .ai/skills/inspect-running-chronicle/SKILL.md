@@ -1,6 +1,6 @@
 ---
 name: inspect-running-chronicle
-description: Inspect or operate a running Chronicle server with the cratis CLI — list failed partitions, read why an observer is stuck, replay a partition, browse events, event types, read models, projections and jobs. Use when a question is about the state of a live store rather than the source code: "why is this projection not updating", "what is in this event sequence", "the observer is quarantined", "did this event actually get appended". Also use when setting the CLI up for a project so agents can reach the store.
+description: Inspect or operate a running Chronicle server with the cratis CLI - list failed partitions, read why an observer is stuck, replay a partition, browse events, event types, read models, projections and jobs. Use when a question is about the state of a live store rather than the source code, when a projection will not update, when an observer is quarantined, or when checking whether an event was actually appended. Also use when setting the CLI up for a project so agents can reach the store.
 ---
 
 # Inspect a Running Chronicle
