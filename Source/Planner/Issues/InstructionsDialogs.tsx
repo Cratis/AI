@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import { CommandDialog } from '@cratis/components/CommandDialog';
-import { TextAreaField } from '@cratis/components/CommandForm/fields';
+import { MarkdownEditorField } from '../Common/MarkdownEditorField';
 import { Issue } from './Listing/Listing';
 import { Group } from './Grouping/Listing/Listing';
 import { SetIssuePrompt } from './SettingPrompt/SettingPrompt';
@@ -34,7 +34,7 @@ export const IssueInstructionsDialog = ({ issue, onClose }: IssueInstructionsDia
         initialValues={{ issue: issue.id, prompt: issue.prompt ?? '' }}
         onConfirm={onClose}
         onCancel={onClose}>
-        <TextAreaField<SetIssuePrompt>
+        <MarkdownEditorField<SetIssuePrompt>
             value={(instance) => instance.prompt}
             title='Instructions'
             placeholder='Extra instructions sent along when an agent works on this issue' />
@@ -67,7 +67,7 @@ export const GroupInstructionsDialog = ({ group, onClose }: GroupInstructionsDia
         initialValues={{ group: group.id, prompt: group.prompt ?? '' }}
         onConfirm={onClose}
         onCancel={onClose}>
-        <TextAreaField<SetGroupPrompt>
+        <MarkdownEditorField<SetGroupPrompt>
             value={(instance) => instance.prompt}
             title='Instructions'
             placeholder='Extra instructions sent along when an agent works on this group' />
