@@ -4,6 +4,7 @@
 using Microsoft.Extensions.Options;
 using Planner.Accounts.Credentials;
 using Planner.Alerts;
+using Planner.GitHub;
 using Planner.GitHub.App;
 using Planner.GitHub.GitIdentity;
 using Planner.GitHub.GitIdentity.Listing;
@@ -51,12 +52,11 @@ public class WorkerEnvironment(
             ["CLAUDE_CODE_OAUTH_TOKEN"] = credentials.Token.Value
         };
 
+        // A fresh deployment should never be stuck without a commit identity - fall back to the
+        // Planner's own AI identity rather than leaving worker commits unattributed.
         var gitIdentity = await readModels.GetInstanceById<ConfiguredGitIdentity>((EventSourceId)GitIdentityId.Default);
-        if (gitIdentity is not null)
-        {
-            environment["PLANNER_GIT_USER_NAME"] = gitIdentity.Name.Value;
-            environment["PLANNER_GIT_USER_EMAIL"] = gitIdentity.Email.Value;
-        }
+        environment["PLANNER_GIT_USER_NAME"] = gitIdentity?.Name.Value ?? AIIdentity.DefaultGitUserName.Value;
+        environment["PLANNER_GIT_USER_EMAIL"] = gitIdentity?.Email.Value ?? AIIdentity.DefaultGitUserEmail.Value;
 
         return work.Purpose switch
         {

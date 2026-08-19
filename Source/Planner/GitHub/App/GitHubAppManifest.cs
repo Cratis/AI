@@ -15,7 +15,7 @@ public static class GitHubAppManifest
     /// The name the App is registered with when none is given. GitHub requires App names to be
     /// globally unique, so a second registration has to pass a name of its own.
     /// </summary>
-    public const string DefaultName = "Cratis Planner";
+    public const string DefaultName = AIIdentity.DisplayName;
 
     /// <summary>
     /// The webhook events the App subscribes to.

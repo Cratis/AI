@@ -42,7 +42,7 @@ public record ConvertAlertToIssue(AlertId Alert, RepositoryId Repository, IssueT
             return ValidationResult.Error("That repository is not tracked by the Planner");
         }
 
-        var created = await gitHub.CreateIssue(repository.Owner, repository.Name, Title, Body);
+        var created = await gitHub.CreateIssue(repository.Owner, repository.Name, Title, $"{Body.Value}{AIIdentity.Footer()}");
         if (created is null)
         {
             return ValidationResult.Error($"GitHub would not create an issue in {repository.Owner.Value}/{repository.Name.Value}");

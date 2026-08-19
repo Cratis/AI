@@ -47,7 +47,7 @@ public class and_github_creates_it : Specification
         new OrganizationName("Cratis"),
         new RepositoryName("Studio"),
         new IssueTitle("Loki retention never applies"),
-        new IssueBody("The agent found the retention config is not read at startup."),
+        Arg.Is<IssueBody>(body => body.Value.StartsWith("The agent found the retention config is not read at startup.", StringComparison.Ordinal) && body.Value.Contains(AIIdentity.DisplayName, StringComparison.Ordinal)),
         Arg.Any<CancellationToken>());
 
     [Fact]
