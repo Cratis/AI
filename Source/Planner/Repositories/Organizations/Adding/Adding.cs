@@ -7,14 +7,18 @@ namespace Planner.Repositories.Organizations.Adding;
 /// Command for adding a GitHub organization whose repositories the Planner should track.
 /// </summary>
 /// <param name="Name">The name of the organization.</param>
+/// <param name="TrackingPolicy">
+/// Whether every repository is tracked automatically, or only ones explicitly selected after
+/// discovery - defaults to <see cref="OrganizationTrackingPolicy.All"/>, the existing behavior.
+/// </param>
 [Command]
-public record AddOrganization(OrganizationName Name)
+public record AddOrganization(OrganizationName Name, OrganizationTrackingPolicy TrackingPolicy = OrganizationTrackingPolicy.All)
 {
     /// <summary>
     /// Handles the command by opening the organization's stream and appending an <see cref="OrganizationAdded"/> event.
     /// </summary>
     /// <returns>A tuple of the organization identity (event source) and the event.</returns>
-    public (OrganizationId, OrganizationAdded) Handle() => (OrganizationId.From(Name), new(Name));
+    public (OrganizationId, OrganizationAdded) Handle() => (OrganizationId.From(Name), new(Name, TrackingPolicy));
 }
 
 /// <summary>
@@ -33,5 +37,6 @@ public class AddOrganizationValidator : CommandValidator<AddOrganization>
 /// repositories and subscribing to its webhooks.
 /// </summary>
 /// <param name="Name">The name of the organization as entered.</param>
+/// <param name="TrackingPolicy">Whether every repository is tracked automatically, or only ones explicitly selected.</param>
 [EventType]
-public record OrganizationAdded(OrganizationName Name);
+public record OrganizationAdded(OrganizationName Name, OrganizationTrackingPolicy TrackingPolicy);

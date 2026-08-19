@@ -19,7 +19,7 @@ public class and_discovery_fails : Specification
         await _scenario.Given
             .ForEventSource(_organizationId)
             .Events(
-                new OrganizationAdded("Cratis"),
+                new OrganizationAdded("Cratis", OrganizationTrackingPolicy.All),
                 new OrganizationRepositoryDiscoveryFailed("No GitHub App is configured"));
 
     [Fact] void should_be_failed() => _scenario.Instance.DiscoveryStatus.ShouldEqual(RepositoryDiscoveryStatus.Failed);

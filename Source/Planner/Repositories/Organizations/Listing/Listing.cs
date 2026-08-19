@@ -15,7 +15,8 @@ namespace Planner.Repositories.Organizations.Listing;
 /// <param name="Id">The organization identity.</param>
 /// <param name="Name">The name of the organization.</param>
 /// <param name="DiscoveryStatus">How far repository discovery got.</param>
-/// <param name="RepositoryCount">The number of repositories found - <c>0</c> until discovery succeeds.</param>
+/// <param name="TrackingPolicy">Whether every repository is tracked automatically, or only ones explicitly selected.</param>
+/// <param name="DiscoveredRepositories">The names of every repository discovery found - the pool a "Selected" organization picks from.</param>
 /// <param name="DiscoveryFailure">Why discovery failed - empty unless <see cref="DiscoveryStatus"/> is <see cref="RepositoryDiscoveryStatus.Failed"/>.</param>
 [ReadModel]
 [FromEvent<OrganizationAdded>]
@@ -26,14 +27,20 @@ public record Organization(
     [SetValue<OrganizationRepositoriesDiscovered>(RepositoryDiscoveryStatus.Discovered)]
     [SetValue<OrganizationRepositoryDiscoveryFailed>(RepositoryDiscoveryStatus.Failed)]
     RepositoryDiscoveryStatus DiscoveryStatus,
-    [SetValue<OrganizationAdded>(0)]
-    [SetFrom<OrganizationRepositoriesDiscovered>(nameof(OrganizationRepositoriesDiscovered.RepositoryCount))]
-    int RepositoryCount,
+    [SetFrom<OrganizationAdded>(nameof(OrganizationAdded.TrackingPolicy))]
+    OrganizationTrackingPolicy TrackingPolicy,
+    [SetFrom<OrganizationRepositoriesDiscovered>(nameof(OrganizationRepositoriesDiscovered.RepositoryNames))]
+    IEnumerable<string>? DiscoveredRepositories = null,
     [SetValue<OrganizationAdded>("")]
     [SetValue<OrganizationRepositoriesDiscovered>("")]
     [SetFrom<OrganizationRepositoryDiscoveryFailed>(nameof(OrganizationRepositoryDiscoveryFailed.Reason))]
-    string DiscoveryFailure)
+    string DiscoveryFailure = "")
 {
+    /// <summary>
+    /// The number of repositories discovery found - <c>0</c> until it succeeds.
+    /// </summary>
+    public int RepositoryCount => (DiscoveredRepositories ?? []).Count();
+
     /// <summary>
     /// Observes all organizations.
     /// </summary>
