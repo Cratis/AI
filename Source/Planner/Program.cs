@@ -60,6 +60,7 @@ builder.Services.AddSingleton<IWorkDispatcher, WorkDispatcher>();
 builder.Services.AddSingleton<IWorkerEnvironment, WorkerEnvironment>();
 builder.Services.AddSingleton<IWorkerCallbackTokens, WorkerCallbackTokens>();
 builder.Services.AddSingleton<IIssueSynchronizer, IssueSynchronizer>();
+builder.Services.AddSingleton<Planner.Builds.CheckingStatus.IBuildStatusChecker, Planner.Builds.CheckingStatus.BuildStatusChecker>();
 builder.Services.AddHostedService<PlannerGrainsActivator>();
 builder.Services.AddHealthChecks();
 builder.Services.AddOpenApi();
