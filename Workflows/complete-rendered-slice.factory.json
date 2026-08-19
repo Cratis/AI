@@ -1,0 +1,236 @@
+{
+  "$schema": "../Contracts/v1/workflow.schema.json",
+  "schemaVersion": "1",
+  "documentKind": "workflow",
+  "id": "complete-rendered-slice",
+  "version": "1.0.0",
+  "description": "Complete the holes a deterministic renderer left in a vertical slice, under an explicit write scope, and verify the result against the slice's own specifications.",
+  "profileRequirements": {
+    "allOf": [
+      "repository-known"
+    ]
+  },
+  "inputs": [
+    {
+      "id": "objective",
+      "schema": "../Contracts/v1/factory-objective.schema.json",
+      "source": "request"
+    },
+    {
+      "id": "repository-snapshot",
+      "schema": "../Contracts/v1/repository-snapshot.schema.json",
+      "source": "preflight",
+      "preflightValue": "repository-snapshot"
+    },
+    {
+      "id": "resolved-profile",
+      "schema": "../Contracts/v1/resolved-profile.schema.json",
+      "source": "preflight",
+      "preflightValue": "resolved-profile"
+    }
+  ],
+  "acceptance": {
+    "requiredGateIds": [
+      "intent-approved",
+      "completion-envelope-valid",
+      "completion-artifacts-resolve",
+      "completion-write-scope-valid",
+      "result-approved"
+    ]
+  },
+  "terminal": {
+    "successPhase": "accept-result",
+    "onFailure": "fail-run",
+    "onAttemptsExhausted": "fail-run"
+  },
+  "phases": [
+    {
+      "id": "accept-intent",
+      "kind": "human",
+      "description": "Confirm the slice, the holes to be filled, the repository revision, and the write scope the agent is granted.",
+      "needs": [],
+      "inputs": [
+        {
+          "name": "objective",
+          "source": {
+            "kind": "workflow-input",
+            "id": "objective"
+          }
+        },
+        {
+          "name": "repository-snapshot",
+          "source": {
+            "kind": "workflow-input",
+            "id": "repository-snapshot"
+          }
+        }
+      ],
+      "outputSchema": "../Contracts/v1/approval-decision.schema.json",
+      "approval": {
+        "decision": "intent-accepted"
+      },
+      "policy": {
+        "writeScopes": [],
+        "networkScopes": [],
+        "secretScopes": [],
+        "timeoutSeconds": 86400,
+        "maxAttempts": 1
+      },
+      "gates": [
+        {
+          "id": "intent-approved",
+          "kind": "approval",
+          "requiredForAcceptance": true
+        }
+      ]
+    },
+    {
+      "id": "complete-slice",
+      "kind": "agent",
+      "description": "Fill the marked holes in the rendered slice, changing nothing that the renderer already decided.",
+      "needs": [
+        "accept-intent"
+      ],
+      "inputs": [
+        {
+          "name": "intent-decision",
+          "source": {
+            "kind": "phase-output",
+            "phaseId": "accept-intent"
+          }
+        },
+        {
+          "name": "objective",
+          "source": {
+            "kind": "workflow-input",
+            "id": "objective"
+          }
+        },
+        {
+          "name": "repository-snapshot",
+          "source": {
+            "kind": "workflow-input",
+            "id": "repository-snapshot"
+          }
+        },
+        {
+          "name": "resolved-profile",
+          "source": {
+            "kind": "workflow-input",
+            "id": "resolved-profile"
+          }
+        }
+      ],
+      "outputSchema": "../Contracts/v1/investigation-result.schema.json",
+      "role": "slice-implementer",
+      "purpose": "implement",
+      "capability": "propose-slice-patch",
+      "correction": {
+        "targetPhase": "complete-slice",
+        "triggers": [
+          "gate-failed",
+          "output-invalid"
+        ],
+        "maxRounds": 1
+      },
+      "policy": {
+        "writeScopes": [
+          "Source/**"
+        ],
+        "networkScopes": [],
+        "secretScopes": [],
+        "timeoutSeconds": 1800,
+        "maxAttempts": 2
+      },
+      "gates": [
+        {
+          "id": "completion-envelope-valid",
+          "kind": "schema",
+          "requiredForAcceptance": true
+        }
+      ]
+    },
+    {
+      "id": "verify-completion",
+      "kind": "code",
+      "description": "Verify the agent stayed inside its write scope and that every artifact it references resolves.",
+      "needs": [
+        "complete-slice"
+      ],
+      "inputs": [
+        {
+          "name": "completion",
+          "source": {
+            "kind": "phase-output",
+            "phaseId": "complete-slice"
+          }
+        },
+        {
+          "name": "repository-snapshot",
+          "source": {
+            "kind": "workflow-input",
+            "id": "repository-snapshot"
+          }
+        }
+      ],
+      "outputSchema": "../Contracts/v1/gate-report.schema.json",
+      "capability": "factory-verify-investigation",
+      "policy": {
+        "writeScopes": [],
+        "networkScopes": [],
+        "secretScopes": [],
+        "timeoutSeconds": 300,
+        "maxAttempts": 1
+      },
+      "gates": [
+        {
+          "id": "completion-artifacts-resolve",
+          "kind": "command",
+          "requiredForAcceptance": true,
+          "capability": "factory-verify-evidence"
+        },
+        {
+          "id": "completion-write-scope-valid",
+          "kind": "command",
+          "requiredForAcceptance": true,
+          "capability": "factory-verify-evidence"
+        }
+      ]
+    },
+    {
+      "id": "accept-result",
+      "kind": "human",
+      "description": "Accept or reject the completed slice.",
+      "needs": [
+        "verify-completion"
+      ],
+      "inputs": [
+        {
+          "name": "gate-report",
+          "source": {
+            "kind": "phase-output",
+            "phaseId": "verify-completion"
+          }
+        }
+      ],
+      "outputSchema": "../Contracts/v1/approval-decision.schema.json",
+      "approval": {
+        "decision": "result-accepted"
+      },
+      "policy": {
+        "writeScopes": [],
+        "networkScopes": [],
+        "secretScopes": [],
+        "timeoutSeconds": 86400,
+        "maxAttempts": 1
+      },
+      "gates": [
+        {
+          "id": "result-approved",
+          "kind": "approval",
+          "requiredForAcceptance": true
+        }
+      ]
+    }
+  ]
+}

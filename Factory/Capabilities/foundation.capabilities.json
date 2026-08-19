@@ -8,26 +8,43 @@
     {
       "id": "read-repository",
       "description": "Allow an agent phase to read the immutable repository snapshot bound by executable preflight.",
-      "usages": ["agent"],
+      "usages": [
+        "agent"
+      ],
       "effect": "read",
       "policyCapability": "read-repository"
     },
     {
       "id": "factory-verify-evidence",
       "description": "Verify that evidence references resolve inside the artifact boundary and match their declared hashes.",
-      "usages": ["gate"],
+      "usages": [
+        "gate"
+      ],
       "effect": "read",
       "policyCapability": "run-quality-gates",
       "outputSchema": "../../Contracts/v1/gate-report.schema.json",
-      "allowedGateKinds": ["command"]
+      "allowedGateKinds": [
+        "command"
+      ]
     },
     {
       "id": "factory-verify-investigation",
       "description": "Verify an investigation result, its budgets, immutable repository revision, evidence, and clean source workspace.",
-      "usages": ["phase"],
+      "usages": [
+        "phase"
+      ],
       "effect": "read",
       "policyCapability": "run-quality-gates",
       "outputSchema": "../../Contracts/v1/gate-report.schema.json"
+    },
+    {
+      "id": "propose-slice-patch",
+      "description": "Allow an agent phase to propose source changes that complete a vertical slice, confined to the write scopes its phase declares.",
+      "usages": [
+        "agent"
+      ],
+      "effect": "write",
+      "policyCapability": "propose-source-patch"
     }
   ]
 }
