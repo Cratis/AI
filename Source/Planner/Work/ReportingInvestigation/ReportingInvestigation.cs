@@ -28,8 +28,11 @@ public class InvestigationReporting(IEventStore eventStore, ICommandPipeline com
     [OnceOnly]
     public async Task On(InvestigationCompleted @event, EventContext context)
     {
+        // The work item can be absent, and its issues unset, for the same reasons a status
+        // propagation can find nothing to propagate - neither is worth throwing over, because a
+        // throw pauses the partition and can quarantine the observer.
         var work = await eventStore.ReadModels.GetInstanceById<WorkItem>(context.EventSourceId);
-        foreach (var issueId in work.Issues)
+        foreach (var issueId in work?.Issues ?? [])
         {
             await commandPipeline.Execute(new RecordInvestigation(issueId, @event.Findings, @event.SuggestedModel));
 

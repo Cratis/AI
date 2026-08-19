@@ -8,9 +8,9 @@ using Planner.Issues.ChangingStatus;
 using Planner.Work.Listing;
 using Planner.Work.Starting;
 
-namespace Planner.Work.PropagatingStatus.for_WorkStatusPropagation;
+namespace Planner.Work.PropagatingStatus.for_WorkStatusPropagation.when_work_starts;
 
-public class when_work_starts : given.a_work_item
+public class and_the_work_covers_issues : given.a_work_item
 {
     void Establish() => SetWorkItem(new WorkItem(
         _workId,
