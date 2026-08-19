@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=1440, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="Deterministic Cratis Factory adoption walkthrough capture source.">
+  <title>Cratis Factory visual walkthrough</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --navy-950: #0b1223;
+      --navy-900: #111a31;
+      --navy-800: #182442;
+      --navy-700: #263458;
+      --indigo: #5666e8;
+      --indigo-soft: #e9ecff;
+      --teal: #12806f;
+      --teal-soft: #def5ee;
+      --amber: #a76800;
+      --amber-soft: #fff0c9;
+      --red: #a33b3b;
+      --red-soft: #ffe8e5;
+      --ink: #182033;
+      --muted: #66728b;
+      --line: #d7deea;
+      --surface: #ffffff;
+      --canvas: #f3f6fb;
+      --shadow: 0 18px 48px rgba(18, 29, 60, .11);
+    }
+    * { box-sizing: border-box; }
+    html, body { width: 1440px; height: 900px; margin: 0; overflow: hidden; }
+    body {
+      color: var(--ink);
+      background: var(--canvas);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 15px;
+      line-height: 1.4;
+      -webkit-font-smoothing: antialiased;
+    }
+    .hold-strip {
+      position: relative;
+      z-index: 2;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      color: #fff8e7;
+      background: #663b06;
+      border-bottom: 1px solid #966117;
+      font-size: 13px;
+      font-weight: 850;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .hold-strip .dot { width: 8px; height: 8px; border-radius: 50%; background: #ffcb66; box-shadow: 0 0 0 4px rgba(255, 203, 102, .14); }
+    .appbar {
+      position: relative;
+      z-index: 2;
+      height: 76px;
+      padding: 0 42px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: white;
+      background: linear-gradient(115deg, var(--navy-950), #1d2851 60%, #263267);
+      border-bottom: 1px solid #303e71;
+    }
+    .brand { display: flex; align-items: center; gap: 13px; }
+    .brand-mark {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      color: white;
+      background: linear-gradient(145deg, #7c8bff, #4154d5);
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: 10px;
+      font-weight: 900;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, .22);
+    }
+    .brand strong { display: block; font-size: 17px; letter-spacing: -.01em; }
+    .brand span { display: block; color: #aeb9de; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+    .environment { display: flex; align-items: center; gap: 9px; }
+    .stack, .react-only {
+      padding: 7px 11px;
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 750;
+      letter-spacing: .025em;
+    }
+    .stack { color: #eef0ff; background: rgba(255,255,255,.07); }
+    .react-only { color: #baf2e6; background: rgba(18,128,111,.19); border-color: rgba(96,218,190,.35); }
+    main { width: 1440px; height: 782px; }
+    .frame { display: none; width: 100%; height: 100%; padding: 27px 40px 30px; }
+    .frame.active { display: block; }
+    .frame-heading { position: relative; display: flex; align-items: end; justify-content: space-between; margin-bottom: 16px; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 6px;
+      padding: 5px 9px;
+      border: 1px solid currentColor;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: .075em;
+      text-transform: uppercase;
+    }
+    .badge.implemented { color: var(--teal); background: var(--teal-soft); }
+    .badge.planned { color: #65429e; background: #efe7ff; }
+    .badge.mixed { color: #2f5597; background: #e7effe; }
+    h1 { margin: 0; color: var(--navy-900); font-size: 29px; line-height: 1.12; letter-spacing: -.035em; }
+    .step-count { color: var(--muted); font-weight: 750; font-size: 12px; letter-spacing: .05em; text-transform: uppercase; }
+    .command {
+      min-height: 52px;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      margin-bottom: 15px;
+      padding: 0 17px;
+      color: #e9eeff;
+      background: var(--navy-900);
+      border: 1px solid #2d3a62;
+      border-radius: 11px;
+      box-shadow: 0 8px 20px rgba(17,26,49,.15);
+      font: 13px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    .command .prompt { color: #64d5b8; font-weight: 900; }
+    .panel {
+      position: relative;
+      min-width: 0;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      box-shadow: var(--shadow);
+    }
+    .panel-title {
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 0 16px;
+      background: #f8faff;
+      border-bottom: 1px solid var(--line);
+      border-radius: 13px 13px 0 0;
+      color: var(--navy-800);
+      font-size: 12px;
+      font-weight: 850;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    .panel-body { padding: 14px 16px; }
+    .success { color: var(--teal); }
+    .warning { color: var(--amber); }
+    .danger { color: var(--red); }
+    .muted { color: var(--muted); }
+    .micro { font-size: 11px; }
+    .metric { font-variant-numeric: tabular-nums; }
+    .key-values { display: grid; grid-template-columns: 150px 1fr; gap: 8px 13px; margin: 0; }
+    .key-values dt { color: var(--muted); font-size: 12px; font-weight: 650; }
+    .key-values dd { margin: 0; color: var(--navy-900); font-size: 13px; font-weight: 730; }
+    .tokens { display: flex; flex-wrap: wrap; gap: 6px; }
+    .token { padding: 4px 7px; color: #33405e; background: #edf1f8; border: 1px solid #d8dfeb; border-radius: 6px; font: 11px/1.3 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .token.good { color: #09624e; background: #e2f5ee; border-color: #bde4d9; }
+    .token.off { color: #7b4d00; background: #fff4d9; border-color: #eed398; }
+    .tabs { display: flex; gap: 6px; margin-top: 13px; padding-top: 12px; border-top: 1px solid #e6eaf1; }
+    .tab { padding: 6px 10px; color: #526079; border-radius: 6px; font-size: 11px; font-weight: 760; }
+    .tab.selected { color: #3349bd; background: var(--indigo-soft); }
+    .next-step { display: flex; align-items: center; gap: 10px; padding: 11px 14px; color: #1d4f43; background: #e8f6f1; border: 1px solid #bde4d8; border-radius: 9px; font-size: 12px; font-weight: 760; }
+    .number {
+      position: absolute;
+      z-index: 4;
+      width: 29px;
+      height: 29px;
+      display: grid;
+      place-items: center;
+      color: white;
+      background: var(--indigo);
+      border: 3px solid white;
+      border-radius: 50%;
+      box-shadow: 0 5px 14px rgba(47,63,160,.35);
+      font-size: 12px;
+      font-weight: 900;
+    }
+    .inspect-layout { display: grid; grid-template-columns: 1.28fr .72fr; gap: 15px; height: 526px; }
+    .inspect-summary { height: 100%; }
+    .inspect-summary .panel-body { display: grid; grid-template-rows: auto 1fr auto; height: calc(100% - 44px); }
+    .inspect-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 13px 0; }
+    .subpanel { padding: 12px; background: #f8faff; border: 1px solid #e2e7f0; border-radius: 9px; }
+    .subpanel h2 { margin: 0 0 7px; color: var(--muted); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+    .truth-panel { display: grid; grid-template-rows: 1fr auto; gap: 14px; }
+    .truth-note { padding: 17px; color: #f0f5ff; background: linear-gradient(145deg, #17213c, #222f57); border-color: #2c3b6a; }
+    .truth-note h2 { margin: 0 0 10px; font-size: 17px; }
+    .truth-note p { color: #bdc8e5; font-size: 12px; }
+    .truth-list { list-style: none; margin: 12px 0 0; padding: 0; }
+    .truth-list li { display: flex; gap: 9px; margin: 9px 0; font-size: 12px; }
+    .truth-list li::before { content: "✓"; color: #64d5b8; font-weight: 900; }
+    .preflight-layout { display: grid; grid-template-columns: .86fr 1.5fr .74fr; gap: 14px; height: 524px; }
+    .authority-banner { margin-bottom: 12px; padding: 10px 12px; color: #1a5d4d; background: #e6f6f0; border: 1px solid #bde5d8; border-radius: 8px; font-size: 12px; font-weight: 800; }
+    .timeline { margin: 0; padding: 0; list-style: none; }
+    .timeline li { position: relative; min-height: 76px; padding: 0 0 14px 41px; }
+    .timeline li:not(:last-child)::after { content: ""; position: absolute; left: 14px; top: 28px; bottom: 0; width: 2px; background: #d9dfeb; }
+    .timeline .node { position: absolute; left: 0; top: 0; width: 30px; height: 30px; display: grid; place-items: center; color: white; background: var(--indigo); border-radius: 50%; font-size: 11px; font-weight: 900; }
+    .timeline strong { display: block; color: var(--navy-900); font-size: 13px; }
+    .timeline span { display: block; margin-top: 3px; color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
+    .gate-list { list-style: none; margin: 0; padding: 0; }
+    .gate-list li { display: flex; align-items: center; gap: 8px; padding: 9px 0; border-bottom: 1px solid #e8ecf3; color: #2f3b55; font-size: 12px; font-weight: 700; }
+    .gate-list li::before { content: "✓"; width: 20px; height: 20px; display: grid; place-items: center; color: var(--teal); background: var(--teal-soft); border-radius: 50%; font-size: 11px; }
+    .hash { display: block; margin-top: 12px; padding: 8px 9px; overflow: hidden; color: #526079; background: #f1f4f9; border-radius: 6px; font: 10px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; text-overflow: ellipsis; white-space: nowrap; }
+    .preview-lock { padding: 13px; color: #7a4b00; background: var(--amber-soft); border: 1px solid #e5c276; border-radius: 9px; font-size: 12px; font-weight: 760; }
+    .run-layout { display: grid; grid-template-columns: 1.45fr .82fr; gap: 15px; height: 528px; }
+    .blocked-banner { margin-bottom: 12px; padding: 12px 14px; color: #8c2d2d; background: var(--red-soft); border: 1px solid #efbab5; border-radius: 9px; font-weight: 850; }
+    .run-steps { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-top: 13px; }
+    .run-step { min-height: 141px; padding: 11px; border: 1px solid #dce2ec; border-radius: 9px; background: #f8faff; }
+    .run-step .index { width: 25px; height: 25px; display: grid; place-items: center; margin-bottom: 9px; color: white; background: #7b88a4; border-radius: 7px; font-size: 10px; font-weight: 900; }
+    .run-step.ready .index { background: var(--teal); }
+    .run-step.blocker { background: #fff9e9; border-color: #ead397; }
+    .run-step.blocker .index { background: var(--amber); }
+    .run-step strong { display: block; color: var(--navy-900); font-size: 11px; line-height: 1.25; }
+    .run-step span { display: block; margin-top: 8px; color: var(--muted); font-size: 9px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+    .context-stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; margin: 12px 0; }
+    .stat { padding: 10px 5px; text-align: center; background: #f6f8fc; border: 1px solid #e0e5ee; border-radius: 8px; }
+    .stat strong { display: block; color: var(--navy-900); font-size: 18px; line-height: 1.1; }
+    .stat span { color: var(--muted); font-size: 8px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
+    .access-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+    .access { padding: 11px; border-radius: 8px; font-size: 10px; }
+    .access strong { display: block; margin-bottom: 7px; font-size: 10px; text-transform: uppercase; }
+    .access ul { margin: 0; padding-left: 15px; }
+    .access li { margin: 4px 0; }
+    .access.yes { color: #155648; background: #e6f6f0; border: 1px solid #bde5d8; }
+    .access.no { color: #7f3838; background: #fff0ee; border: 1px solid #f0c5c1; }
+    .legal-next { margin-top: 10px; padding: 10px; color: #634100; background: #fff4d7; border: 1px solid #ead092; border-radius: 8px; font-size: 11px; font-weight: 780; }
+    .studio-layout { display: grid; grid-template-columns: .78fr 1.35fr .86fr; gap: 14px; height: 525px; }
+    .intent-card { padding: 15px; background: linear-gradient(150deg, #182442, #25345f); border-color: #334474; color: white; }
+    .intent-card h2 { margin: 0 0 12px; color: #aeb9de; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+    .intent-card blockquote { margin: 0 0 14px; font-size: 18px; font-weight: 760; line-height: 1.3; }
+    .immutable { padding: 9px; overflow: hidden; color: #b9c5e7; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12); border-radius: 7px; font: 10px/1.3 ui-monospace, SFMono-Regular, monospace; text-overflow: ellipsis; white-space: nowrap; }
+    .proposal-list { margin: 0; padding: 0; list-style: none; }
+    .proposal-list li { display: grid; grid-template-columns: 34px 1fr; gap: 10px; padding: 10px 0; border-bottom: 1px solid #e7ebf2; }
+    .proposal-list .proposal-icon { width: 30px; height: 30px; display: grid; place-items: center; color: #3e52c7; background: var(--indigo-soft); border-radius: 8px; font-size: 11px; font-weight: 900; }
+    .proposal-list strong { display: block; font-size: 12px; }
+    .proposal-list span { color: var(--muted); font-size: 10px; }
+    .review-item { display: flex; align-items: center; justify-content: space-between; gap: 9px; padding: 8px 0; border-bottom: 1px solid #e7ebf2; font-size: 11px; font-weight: 700; }
+    .review-state { flex: 0 0 auto; padding: 3px 6px; border-radius: 999px; font-size: 8px; font-weight: 900; text-transform: uppercase; }
+    .review-state.pass { color: #12604e; background: #dff5ed; }
+    .review-state.required { color: #7a4b00; background: #fff0c9; }
+    .review-state.open { color: #903c3c; background: #ffe7e3; }
+    .approval-summary { margin-top: 10px; padding: 11px; color: #34415e; background: #f5f7fb; border-radius: 8px; font-size: 10px; }
+    .approval-summary div { display: flex; justify-content: space-between; gap: 8px; margin: 5px 0; }
+    .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-top: 10px; }
+    button { padding: 9px; color: #8390a9; background: #edf1f6; border: 1px solid #d4dbe7; border-radius: 7px; font: 10px/1.2 inherit; font-weight: 800; }
+    .controls button:first-child { grid-column: 1 / -1; }
+    .concept-note { margin: 8px 0 0; color: var(--muted); font-size: 9px; text-align: center; }
+    .machine-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; height: 524px; }
+    .transport-tabs { display: flex; gap: 5px; padding: 11px 14px 0; }
+    .transport-tab { padding: 7px 10px; color: #5a6680; background: #eef1f7; border-radius: 7px 7px 0 0; font-size: 10px; font-weight: 850; }
+    .transport-tab.selected { color: #fff; background: var(--indigo); }
+    .endpoint { margin: 11px 14px 0; padding: 10px 12px; color: #eaf0ff; background: #1a2440; border-radius: 8px; font: 12px/1.4 ui-monospace, SFMono-Regular, monospace; }
+    .method { color: #69d4b9; font-weight: 900; }
+    pre {
+      height: 403px;
+      margin: 10px 14px 14px;
+      padding: 14px;
+      overflow: hidden;
+      color: #dce5ff;
+      background: var(--navy-950);
+      border: 1px solid #293657;
+      border-radius: 9px;
+      font: 11px/1.48 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      white-space: pre-wrap;
+    }
+    .json-key { color: #9db0ff; }
+    .json-string { color: #76dfc2; }
+    .json-bool { color: #ffc86d; }
+    .contract-footer { position: absolute; left: 16px; right: 16px; bottom: 12px; display: flex; justify-content: space-between; gap: 12px; padding: 10px 12px; color: #44516c; background: #eef2f8; border-radius: 7px; font-size: 10px; font-weight: 750; }
+  </style>
+</head>
+<body>
+  <div class="hold-strip"><span class="dot" aria-hidden="true"></span>G0 / G1 HOLD · No agent dispatch authorized</div>
+  <header class="appbar">
+    <div class="brand"><div class="brand-mark" aria-hidden="true">CF</div><div><strong>Cratis Factory</strong><span>Visual adoption walkthrough</span></div></div>
+    <div class="environment"><span class="stack">.NET · Arc · Chronicle · React · Components</span><span class="react-only">React only · no Angular profile</span></div>
+  </header>
+  <main>
+    <section class="frame" data-frame="inspect" aria-labelledby="inspect-title">
+      <div class="frame-heading">
+        <div><span class="badge implemented">Implemented foundation</span><h1 id="inspect-title">Understand this repository before involving a model</h1></div>
+        <span class="step-count">01 · Inspect</span>
+      </div>
+      <div class="command"><span class="prompt">$</span> python3 AI/Factory/scripts/resolve_factory.py --repository . --purpose investigate --format text</div>
+      <div class="inspect-layout">
+        <article class="panel inspect-summary">
+          <div class="panel-title"><span>Inspect · <span class="success">success</span></span><span class="micro muted">deterministic resolver</span></div>
+          <div class="panel-body">
+            <dl class="key-values">
+              <dt>Target</dt><dd>.</dd>
+              <dt>Repository mode</dt><dd>application</dd>
+              <dt>Detected stack</dt><dd>.NET · Arc · Chronicle · React · Components</dd>
+              <dt>Frontend</dt><dd>React</dd>
+            </dl>
+            <div class="inspect-grid">
+              <div class="subpanel"><h2>Selected profiles</h2><div class="tokens"><span class="token good">application-arc-dotnet</span><span class="token good">application-arc-react</span><span class="token good">application-chronicle-dotnet</span><span class="token good">application-cratis-components</span></div></div>
+              <div class="subpanel"><h2>Deliberately not inferred</h2><div class="tokens"><span class="token off">Angular</span><span class="token off">TypeScript Chronicle client</span><span class="token off">JVM Chronicle client</span><span class="token off">Elixir Chronicle client</span></div></div>
+              <div class="subpanel"><h2>Selected specialist</h2><dl class="key-values"><dt>Agent</dt><dd>repository-investigator</dd><dt>Workflow</dt><dd>investigate-cratis-issue</dd></dl></div>
+              <div class="subpanel"><h2>Effects</h2><dl class="key-values"><dt>Side effects</dt><dd>no</dd><dt>Next</dt><dd>Review immutable preflight</dd></dl></div>
+            </div>
+            <div class="tabs"><span class="tab selected">Summary</span><span class="tab">Explain every decision</span><span class="tab">Trace evidence &amp; hashes</span></div>
+          </div>
+          <span class="number" style="left: -13px; top: 72px;">1</span><span class="number" style="right: 21px; top: 171px;">2</span>
+        </article>
+        <aside class="truth-panel">
+          <div class="panel truth-note">
+            <h2>Inspect before execute</h2>
+            <p>The current foundation derives one typed result and projects it for both humans and machines.</p>
+            <ul class="truth-list"><li>No provider or model contacted</li><li>No network used</li><li>No source mutation</li><li>Selections and exclusions stay explainable</li></ul>
+            <span class="number" style="right: -12px; top: 25px;">3</span>
+          </div>
+          <div class="next-step"><span aria-hidden="true">→</span> Next: inspect the exact immutable preflight plan.</div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="frame" data-frame="preflight" aria-labelledby="preflight-title">
+      <div class="frame-heading"><div><span class="badge implemented">Implemented foundation</span><h1 id="preflight-title">Preview the exact plan and authority boundary</h1></div><span class="step-count">02 · Preflight</span></div>
+      <div class="command"><span class="prompt">$</span> python3 AI/Factory/scripts/preflight_factory.py --repository . --format text</div>
+      <div class="preflight-layout">
+        <article class="panel">
+          <div class="panel-title"><span>Preflight · <span class="success">success</span></span></div>
+          <div class="panel-body">
+            <div class="authority-banner">Exact plan compiled without model execution</div>
+            <dl class="key-values"><dt>Revision</dt><dd>exact · clean</dd><dt>Workflow</dt><dd>investigate-cratis-issue v1.0.0</dd><dt>Policy</dt><dd>local-development</dd><dt>Write / network / secret</dt><dd>none / none / none</dd><dt>Side effects</dt><dd>no</dd></dl>
+            <span class="hash">canonical-plan: sha256:6c7b…f918</span>
+          </div>
+          <span class="number" style="left: -13px; top: 78px;">1</span>
+        </article>
+        <article class="panel">
+          <div class="panel-title"><span>Ordered phase plan</span><span class="micro muted">authority before execution</span></div>
+          <div class="panel-body">
+            <ol class="timeline">
+              <li><span class="node">1</span><strong>Accept intent</strong><span>Human</span></li>
+              <li><span class="node">2</span><strong>Investigate</strong><span>repository-investigator</span></li>
+              <li><span class="node">3</span><strong>Verify workspace</strong><span>Deterministic code</span></li>
+              <li><span class="node">4</span><strong>Independent review</strong><span>repository-investigation-reviewer</span></li>
+              <li><span class="node">5</span><strong>Accept result</strong><span>Human</span></li>
+            </ol>
+          </div>
+          <span class="number" style="right: 18px; top: 81px;">2</span>
+        </article>
+        <aside class="panel">
+          <div class="panel-title"><span>Required gates</span></div>
+          <div class="panel-body">
+            <ul class="gate-list"><li>Exact authority</li><li>Typed envelope</li><li>Evidence integrity</li><li>Clean workspace</li><li>Independent review</li></ul>
+            <div class="preview-lock">Preview only. Run remains unavailable while G0 / G1 is HOLD.</div>
+          </div>
+          <span class="number" style="right: -12px; bottom: 90px;">3</span>
+        </aside>
+      </div>
+    </section>
+
+    <section class="frame" data-frame="run" aria-labelledby="run-title">
+      <div class="frame-heading"><div><span class="badge planned">Planned concept · G1 HOLD</span><h1 id="run-title">A bounded agent phase inside a code-owned workflow</h1></div><span class="step-count">03 · Run</span></div>
+      <div class="command"><span class="prompt">!</span> CONCEPT RUN · NOT CREATED</div>
+      <div class="run-layout">
+        <article class="panel">
+          <div class="panel-title"><span>Workflow attempt</span><span class="warning">planned concept</span></div>
+          <div class="panel-body">
+            <div class="blocked-banner">BLOCKED — dispatch authority is not complete</div>
+            <div class="run-steps">
+              <div class="run-step ready"><span class="index">1</span><strong>Accept intent</strong><span>Ready</span></div>
+              <div class="run-step ready"><span class="index">2</span><strong>Materialize exact context</strong><span>#64 accepted contract</span></div>
+              <div class="run-step blocker"><span class="index">3</span><strong>Authorize provider route</strong><span>#65 planned · blocking</span></div>
+              <div class="run-step blocker"><span class="index">4</span><strong>Issue repository broker</strong><span>#66 planned · blocking</span></div>
+              <div class="run-step"><span class="index">5</span><strong>Investigate</strong><span>Not dispatched</span></div>
+              <div class="run-step"><span class="index">6</span><strong>Verify · review · accept</strong><span>Waiting</span></div>
+            </div>
+            <div class="context-stats"><div class="stat"><strong>29</strong><span>Schemas</span></div><div class="stat"><strong>55</strong><span>Documents</span></div><div class="stat"><strong>19/19</strong><span>Focused</span></div><div class="stat"><strong>256/256</strong><span>Full tests</span></div><div class="stat"><strong>10/10</strong><span>Evaluation</span></div></div>
+            <p class="micro muted">Issue #64 Phase A: independent review <strong class="success">ACCEPT</strong>. These contracts are necessary but do not authorize dispatch.</p>
+          </div>
+          <span class="number" style="left: -13px; top: 82px;">1</span><span class="number" style="right: 190px; top: 165px;">2</span>
+        </article>
+        <aside class="panel">
+          <div class="panel-title"><span>Agent boundary</span><span class="micro warning">not active</span></div>
+          <div class="panel-body">
+            <div class="access-columns"><div class="access yes"><strong>Receives</strong><ul><li>Source-bound inputs</li><li>Sanitizer attestation</li><li>Phase budgets</li><li>Typed result schema</li></ul></div><div class="access no"><strong>Does not receive</strong><ul><li>Ambient repository</li><li>Credentials</li><li>Global read/search</li><li>Write or network</li><li>Production authority</li></ul></div></div>
+            <div class="legal-next">Next legal action: complete #65 provider/privacy authority, then #66 repository broker.</div>
+          </div>
+          <span class="number" style="right: -12px; top: 64px;">3</span>
+        </aside>
+      </div>
+    </section>
+
+    <section class="frame" data-frame="studio" aria-labelledby="studio-title">
+      <div class="frame-heading"><div><span class="badge planned">Planned Studio concept</span><h1 id="studio-title">Review intent, model, evidence, and approval in one place</h1></div><span class="step-count">04 · Studio</span></div>
+      <div class="command"><span class="prompt">◈</span> ChangeProposal · concept preview · Golden stack · Not runnable while HOLD</div>
+      <div class="studio-layout">
+        <article class="panel intent-card">
+          <h2>Intent</h2><blockquote>Add customer communication-preference behavior</blockquote><p class="micro">The accepted model—not chat prose—becomes the durable basis for deterministic rendering.</p><div class="immutable">screenplay:sha256:92d8…model-revision</div>
+          <span class="number" style="left: -13px; top: 92px;">1</span>
+        </article>
+        <article class="panel">
+          <div class="panel-title"><span>Proposed model</span><span class="micro warning">concept only</span></div>
+          <div class="panel-body"><ul class="proposal-list">
+            <li><span class="proposal-icon">01</span><div><strong>Intent and command</strong><span>Capture the customer’s communication preference.</span></div></li>
+            <li><span class="proposal-icon">02</span><div><strong>Domain event and subject semantics</strong><span>Make stream identity explicit; do not infer PII safety.</span></div></li>
+            <li><span class="proposal-icon">03</span><div><strong>Read-model projection</strong><span>Define explicit propagation and projection behavior.</span></div></li>
+            <li><span class="proposal-icon">04</span><div><strong>Arc backend</strong><span>Model-bound command/query and generated-client boundary.</span></div></li>
+            <li><span class="proposal-icon">05</span><div><strong>React + Components interaction</strong><span>Generated proxy, accessible UI behavior, and evidence.</span></div></li>
+          </ul></div>
+          <span class="number" style="right: 16px; top: 95px;">2</span>
+        </article>
+        <aside class="panel">
+          <div class="panel-title"><span>Review &amp; approval</span></div>
+          <div class="panel-body">
+            <div class="review-item"><span>Screenplay compiles</span><span class="review-state pass">Pass</span></div><div class="review-item"><span>Subject / PII reviewed</span><span class="review-state required">Required</span></div><div class="review-item"><span>Stage provenance</span><span class="review-state pass">Bound</span></div><div class="review-item"><span>Specifications + React</span><span class="review-state required">Required</span></div><div class="review-item"><span>Unresolved decisions</span><span class="review-state open">1 open</span></div>
+            <div class="approval-summary"><div><span>Approval effect</span><strong>Advance only</strong></div><div><span>Source write</span><strong>None</strong></div><div><span>Reversible</span><strong>Yes</strong></div><div><span>Evidence</span><strong>5 classified refs</strong></div></div>
+            <div class="controls" aria-label="Disabled concept controls"><button disabled>Request correction</button><button disabled>Reject</button><button disabled>Accept proposal</button></div>
+            <p class="concept-note">Concept controls are intentionally disabled.</p>
+          </div>
+          <span class="number" style="right: -12px; bottom: 59px;">3</span>
+        </aside>
+      </div>
+    </section>
+
+    <section class="frame" data-frame="machine" aria-labelledby="machine-title">
+      <div class="frame-heading"><div><span class="badge mixed">Contract implemented · API/MCP transport planned</span><h1 id="machine-title">Machines consume facts—not terminal prose</h1></div><span class="step-count">05 · Machine contract</span></div>
+      <div class="machine-layout">
+        <article class="panel">
+          <div class="transport-tabs"><span class="transport-tab selected">API</span><span class="transport-tab">MCP</span><span class="transport-tab">Headless CLI</span></div>
+          <div class="endpoint"><span class="method">POST</span> /factory/v1/inspect</div>
+          <pre>{
+  <span class="json-key">"repositoryReference"</span>: {
+    <span class="json-key">"kind"</span>: <span class="json-string">"opaque"</span>,
+    <span class="json-key">"value"</span>: <span class="json-string">"repo_01J…"</span>
+  },
+  <span class="json-key">"purpose"</span>: <span class="json-string">"investigate"</span>,
+  <span class="json-key">"targetPath"</span>: <span class="json-string">"."</span>
+}</pre>
+          <span class="number" style="left: -13px; top: 82px;">1</span>
+        </article>
+        <article class="panel">
+          <div class="panel-title"><span>Typed operation-result</span><span class="success">200 · success</span></div>
+          <pre>{
+  <span class="json-key">"operation"</span>: <span class="json-string">"inspect"</span>,
+  <span class="json-key">"status"</span>: <span class="json-string">"success"</span>,
+  <span class="json-key">"sideEffectsOccurred"</span>: <span class="json-bool">false</span>,
+  <span class="json-key">"result"</span>: {
+    <span class="json-key">"schemaId"</span>: <span class="json-string">"resolved-profile"</span>,
+    <span class="json-key">"contentHash"</span>: <span class="json-string">"sha256:canonical…"</span>,
+    <span class="json-key">"value"</span>: {
+      <span class="json-key">"repositoryMode"</span>: <span class="json-string">"application"</span>,
+      <span class="json-key">"capabilities"</span>: [
+        <span class="json-string">"arc"</span>, <span class="json-string">"chronicle"</span>, <span class="json-string">"react"</span>,
+        <span class="json-string">"cratis-components"</span>
+      ]
+    }
+  },
+  <span class="json-key">"diagnostics"</span>: [],
+  <span class="json-key">"nextActions"</span>: []
+}</pre>
+          <div class="contract-footer"><span>Stable statuses · exits · hashes · actions</span><span>Transport does not grant authority</span></div>
+          <span class="number" style="right: -12px; top: 81px;">2</span><span class="number" style="right: 164px; bottom: -13px;">3</span>
+        </article>
+      </div>
+    </section>
+  </main>
+  <script>
+    (() => {
+      const allowed = new Set(['inspect', 'preflight', 'run', 'studio', 'machine']);
+      const requested = new URLSearchParams(location.search).get('frame');
+      const frame = allowed.has(requested) ? requested : 'inspect';
+      document.querySelector(`[data-frame="${frame}"]`).classList.add('active');
+      document.title = `Cratis Factory — ${frame}`;
+    })();
+  </script>
+</body>
+</html>
