@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Planner.GitHub;
+using Planner.Issues.ChangingStatus;
 using ListedIssue = Planner.Issues.Listing.Issue;
 
 namespace Planner.Issues.AcceptingPullRequest;
@@ -43,3 +44,25 @@ public record AcceptPullRequest(IssueId Issue)
 /// <param name="Number">The number of the merged pull request.</param>
 [EventType]
 public record PullRequestMerged(PullRequestNumber Number);
+
+/// <summary>
+/// Reacts to a merge accepted through the Planner by clearing the issue's Planner status - it is no
+/// longer for review, whether or not GitHub's own "Closes #N" convention also closes it. The
+/// bookkeeping every merge needs, regardless of whether a person or the auto-merge classification
+/// (<see cref="ClassifyingForAutoMerge.AutoMergeClassification"/>) accepted it.
+/// </summary>
+/// <param name="commandPipeline">The <see cref="ICommandPipeline"/> for executing commands.</param>
+public class PostMergeBookkeeping(ICommandPipeline commandPipeline) : IReactor
+{
+    /// <summary>
+    /// Clears the status of the issue whose pull request was just merged.
+    /// </summary>
+    /// <param name="event">The <see cref="PullRequestMerged"/> event.</param>
+    /// <param name="context">The <see cref="EventContext"/>.</param>
+    /// <returns>Awaitable task.</returns>
+    public async Task On(PullRequestMerged @event, EventContext context)
+    {
+        var issueId = new IssueId(context.EventSourceId.Value);
+        await commandPipeline.Execute(new ChangeIssueStatus(issueId, IssueStatus.None));
+    }
+}
