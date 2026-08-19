@@ -18,6 +18,7 @@ using Planner.Issues.Renaming;
 using Planner.Issues.Reopening;
 using Planner.Issues.Reordering;
 using Planner.Issues.SettingModel;
+using Planner.Issues.SettingPriority;
 using Planner.Issues.SettingPrompt;
 
 namespace Planner.Issues.Listing;
@@ -58,6 +59,7 @@ public record IssueComment(CommentId Id, UserName Author, CommentBody Body, Date
 /// <param name="Body">The markdown body of the issue.</param>
 /// <param name="Labels">The labels on the issue.</param>
 /// <param name="Prompt">Extra instructions attached to the issue for the agent working on it.</param>
+/// <param name="Priority">How urgently the issue should be worked on - explicit, set by a person.</param>
 /// <param name="Comments">The comments on the issue as mirrored from GitHub.</param>
 [ReadModel]
 [FromEvent<IssueRegistered>]
@@ -105,6 +107,8 @@ public record Issue(
     IEnumerable<LabelName>? Labels = null,
     [SetFrom<IssuePromptSet>(nameof(IssuePromptSet.Prompt))]
     WorkPrompt? Prompt = null,
+    [SetFrom<IssuePrioritySet>(nameof(IssuePrioritySet.Priority))]
+    Priority Priority = Priority.NotSet,
     [ChildrenFrom<IssueCommentAdded>(key: nameof(IssueCommentAdded.Comment), identifiedBy: nameof(IssueComment.Id))]
     [RemovedWith<IssueCommentRemoved>(key: nameof(IssueCommentRemoved.Comment))]
     IEnumerable<IssueComment>? Comments = null)

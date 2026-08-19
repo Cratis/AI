@@ -10,8 +10,19 @@ import { IssueStatus } from './IssueStatus';
 import { ChangeIssueStatus } from './ChangingStatus/ChangingStatus';
 import { AcceptPullRequest } from './AcceptingPullRequest/AcceptingPullRequest';
 import { SetIssueModel } from './SettingModel/SettingModel';
+import { Priority } from './Priority';
+import { SetIssuePriority } from './SettingPriority/SettingPriority';
+import { priorityLabel, prioritySeverity } from './Issues';
 import { ScheduleWork } from '../Work/Scheduling/Scheduling';
 import { WorkPurpose } from '../Work/WorkPurpose';
+
+const priorityOptions = [
+    { label: 'Not set', value: Priority.notSet },
+    { label: 'Critical', value: Priority.critical },
+    { label: 'High', value: Priority.high },
+    { label: 'Normal', value: Priority.normal },
+    { label: 'Low', value: Priority.low },
+];
 
 const modelOptions = [
     { label: 'Automatic', value: '' },
@@ -79,6 +90,13 @@ export const IssueDetails = ({ issue }: IssueDetailsProps) => {
         await command.execute();
     };
 
+    const setPriority = async (priority: Priority) => {
+        const command = new SetIssuePriority();
+        command.issue = issue.id;
+        command.priority = priority;
+        await command.execute();
+    };
+
     const comments = [...(issue.comments ?? [])].sort(
         (left, right) => new Date(left.commentedAt).getTime() - new Date(right.commentedAt).getTime());
 
@@ -87,6 +105,7 @@ export const IssueDetails = ({ issue }: IssueDetailsProps) => {
             <h2 className='m-0 text-lg font-semibold'>{issue.title}</h2>
             <div className='flex flex-wrap items-center gap-2'>
                 <Tag value={statusLabel(issue.status)} severity={statusSeverity(issue.status)} />
+                {issue.priority !== Priority.notSet && <Tag value={priorityLabel(issue.priority)} severity={prioritySeverity(issue.priority)} />}
                 {!issue.isOpen && <Tag value='Closed' severity='danger' />}
                 {(issue.labels ?? []).map((label) => <Tag key={label} value={label} severity='secondary' />)}
             </div>
@@ -108,6 +127,11 @@ export const IssueDetails = ({ issue }: IssueDetailsProps) => {
                     options={modelOptions}
                     placeholder='Model'
                     onChange={(e) => setModel(e.value as string)} />
+                <Dropdown
+                    value={issue.priority}
+                    options={priorityOptions}
+                    placeholder='Priority'
+                    onChange={(e) => setPriority(e.value as Priority)} />
                 <Button label='Open on GitHub' icon='pi pi-external-link' outlined onClick={() => window.open(issueUrl, '_blank')} />
                 <Button label='Investigate' icon='pi pi-search' outlined onClick={() => scheduleWork(WorkPurpose.investigation)} />
                 <Button label='Implement' icon='pi pi-bolt' outlined onClick={() => scheduleWork(WorkPurpose.implementation)} />
