@@ -77,6 +77,38 @@ public class WorkDispatcher(
     static ModelName? EffectiveModel(ListedIssue issue) =>
         issue.OverriddenModel is { } overridden && overridden != ModelName.NotSet ? overridden : issue.SuggestedModel;
 
+    /// <summary>
+    /// The highest explicit priority among a unit of work's covered issues. Work that covers no
+    /// issues (ad-hoc, alert investigations) is treated as <see cref="Issues.Priority.Normal"/> so it
+    /// competes on equal footing rather than always losing to any issue with a priority set at all.
+    /// </summary>
+    /// <param name="work">The unit of work to weigh.</param>
+    /// <param name="issuesById">The covered issues, keyed by identity.</param>
+    /// <returns>The effective <see cref="Issues.Priority"/>.</returns>
+    static Issues.Priority EffectivePriority(WorkItem work, Dictionary<IssueId, ListedIssue> issuesById)
+    {
+        var covered = (work.Issues ?? []).Where(issuesById.ContainsKey).ToList();
+        return covered.Count == 0 ? Issues.Priority.Normal : covered.Max(issue => issuesById[issue].Priority);
+    }
+
+    /// <summary>
+    /// The lowest manual sort order among a unit of work's covered issues - the tie-breaker once
+    /// priority is equal. Work with no ordered issue sorts last among its priority tier.
+    /// </summary>
+    /// <param name="work">The unit of work to weigh.</param>
+    /// <param name="issuesById">The covered issues, keyed by identity.</param>
+    /// <returns>The effective sort order.</returns>
+    static double EffectiveOrder(WorkItem work, Dictionary<IssueId, ListedIssue> issuesById)
+    {
+        var orders = (work.Issues ?? [])
+            .Where(issuesById.ContainsKey)
+            .Select(issue => issuesById[issue].Order)
+            .Where(order => order is not null)
+            .Select(order => order!.Value)
+            .ToList();
+        return orders.Count == 0 ? double.MaxValue : orders.Min();
+    }
+
     static Task<IReadOnlyList<T>> Find<T>(IMongoCollection<T> collection, Expression<Func<T, bool>> predicate, CancellationToken cancellationToken) =>
         Find(collection, (FilterDefinition<T>)predicate, cancellationToken);
 
@@ -122,8 +154,9 @@ public class WorkDispatcher(
 
         var allAccounts = await Find(accounts, account => account.HasToken, cancellationToken);
         var running = (await Find(workItems, work => work.Status == WorkStatus.Running, cancellationToken)).ToList();
+        var ordered = await OrderByPriority(pending, cancellationToken);
 
-        foreach (var work in pending)
+        foreach (var work in ordered)
         {
             var account = await SelectAccount(work, allAccounts, running, cancellationToken);
             if (account is null)
@@ -137,6 +170,26 @@ public class WorkDispatcher(
                 running.Add(work with { Account = account.Id, Status = WorkStatus.Running, StartedAt = timeProvider.GetUtcNow() });
             }
         }
+    }
+
+    /// <summary>
+    /// Orders pending work by the highest priority among the issues it covers - a group inherits the
+    /// highest priority of its members this way, since it covers all of them - falling back to the
+    /// covered issues' manual sort order, and finally to the order the work was found in.
+    /// </summary>
+    /// <param name="pending">The scheduled work waiting for capacity.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> for the operation.</param>
+    /// <returns>The work, ordered highest priority first.</returns>
+    async Task<IReadOnlyList<WorkItem>> OrderByPriority(IReadOnlyList<WorkItem> pending, CancellationToken cancellationToken)
+    {
+        var coveredIssueIds = pending.SelectMany(work => work.Issues ?? []).ToHashSet();
+        var issuesById = coveredIssueIds.Count == 0
+            ? []
+            : (await Find(issues, issue => coveredIssueIds.Contains(issue.Id), cancellationToken)).ToDictionary(issue => issue.Id);
+
+        return [.. pending
+            .OrderByDescending(work => EffectivePriority(work, issuesById))
+            .ThenBy(work => EffectiveOrder(work, issuesById))];
     }
 
     async Task<bool> Dispatch(WorkItem work, ClaudeAccount account, CancellationToken cancellationToken)

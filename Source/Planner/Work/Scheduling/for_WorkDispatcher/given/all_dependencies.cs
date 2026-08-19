@@ -109,7 +109,9 @@ public class all_dependencies : Specification
         Issues.IssueStatus status,
         Issues.Grouping.GroupId? group = null,
         ModelName? suggestedModel = null,
-        ModelName? overriddenModel = null) =>
+        ModelName? overriddenModel = null,
+        Issues.Priority priority = Issues.Priority.NotSet,
+        Issues.SortOrder? order = null) =>
         new(
             key,
             "Cratis",
@@ -122,9 +124,11 @@ public class all_dependencies : Specification
             AuthorAssociation.Member,
             true,
             status,
+            Order: order,
             Group: group,
             SuggestedModel: suggestedModel,
-            OverriddenModel: overriddenModel);
+            OverriddenModel: overriddenModel,
+            Priority: priority);
 
     static IMongoCollection<T> CollectionOf<T>(Func<IReadOnlyList<T>> items)
     {
