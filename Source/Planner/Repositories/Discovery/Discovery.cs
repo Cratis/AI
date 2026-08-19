@@ -31,12 +31,19 @@ public class RepositoryDiscovery(IGitHubClient gitHub, ICommandPipeline commandP
         try
         {
             var repositories = (await gitHub.GetOrganizationRepositories(@event.Name)).ToList();
-            foreach (var repository in repositories)
+
+            // "All" tracks every repository automatically, now and later (repository.created keys
+            // off the same policy); "Selected" only discovers what is there, for a person to pick
+            // from - nothing is added until TrackDiscoveredRepositories says which ones.
+            if (@event.TrackingPolicy == Organizations.OrganizationTrackingPolicy.All)
             {
-                await commandPipeline.Execute(new AddRepository(repository.Owner, repository.Name));
+                foreach (var repository in repositories)
+                {
+                    await commandPipeline.Execute(new AddRepository(repository.Owner, repository.Name));
+                }
             }
 
-            return new OrganizationRepositoriesDiscovered(repositories.Count);
+            return new OrganizationRepositoriesDiscovered(repositories.Select(repository => repository.Name.Value));
         }
         catch (Exception exception)
         {
@@ -47,11 +54,13 @@ public class RepositoryDiscovery(IGitHubClient gitHub, ICommandPipeline commandP
 }
 
 /// <summary>
-/// Event raised when every repository of an organization has been discovered on GitHub and added.
+/// Event raised when every repository of an organization has been discovered on GitHub - added
+/// automatically when the organization tracks <see cref="Organizations.OrganizationTrackingPolicy.All"/>,
+/// otherwise offered up for a person to pick from.
 /// </summary>
-/// <param name="RepositoryCount">The number of repositories that were found.</param>
+/// <param name="RepositoryNames">The names of the repositories that were found.</param>
 [EventType]
-public record OrganizationRepositoriesDiscovered(int RepositoryCount);
+public record OrganizationRepositoriesDiscovered(IEnumerable<string> RepositoryNames);
 
 /// <summary>
 /// Event raised when the repositories of an organization could not be discovered on GitHub - typically
