@@ -8,7 +8,7 @@ import { Tag } from 'primereact/tag';
 import { DataPage, MenuItem } from '@cratis/components/DataPage';
 import { CommandDialog } from '@cratis/components/CommandDialog';
 import { TextAreaField } from '@cratis/components/CommandForm/fields';
-import { AllAlerts, Alert } from './Listing/Listing';
+import { ActiveAlerts, AllAlerts, Alert } from './Listing/Listing';
 import { AlertStatus } from './AlertStatus';
 import { AlertDetails, alertSeverityLabel, alertSeveritySeverity, alertStatusLabel, alertStatusSeverity } from './AlertDetails';
 import { ConvertToIssueDialog } from './ConvertToIssueDialog';
@@ -24,6 +24,7 @@ import { Current as GetOperationsSettings } from '../Operations/OperationsSettin
  */
 export const Alerts = () => {
     const [operationsResult] = GetOperationsSettings.use();
+    const [showDone, setShowDone] = useState(false);
     const [selected, setSelected] = useState<Alert | undefined>(undefined);
     const [noteFor, setNoteFor] = useState<Alert | undefined>(undefined);
     const [resolveFor, setResolveFor] = useState<Alert | undefined>(undefined);
@@ -57,13 +58,17 @@ export const Alerts = () => {
                 </div>}
             <DataPage
                 title='Alerts'
-                query={AllAlerts}
+                query={(showDone ? AllAlerts : ActiveAlerts) as unknown as typeof AllAlerts}
                 emptyMessage='Nothing has been reported'
                 dataKey='id'
                 selection={selected}
                 onSelectionChange={(event) => setSelected(event.value as Alert)}
                 detailsComponent={AlertDetails}>
                 <DataPage.MenuItems>
+                    <MenuItem
+                        label={showDone ? 'Hide done' : 'Show done'}
+                        icon={() => <i className={showDone ? 'pi pi-eye-slash' : 'pi pi-eye'} />}
+                        command={() => setShowDone((current) => !current)} />
                     <MenuItem
                         label='Investigate'
                         icon={() => <i className='pi pi-search' />}
