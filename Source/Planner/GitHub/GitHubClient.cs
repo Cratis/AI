@@ -134,6 +134,14 @@ public class GitHubClient(HttpClient httpClient, IGitHubAppTokenResolver tokenRe
     }
 
     /// <inheritdoc/>
+    public async Task AddLabels(OrganizationName owner, RepositoryName repository, IssueNumber number, IEnumerable<LabelName> labels, CancellationToken cancellationToken = default)
+    {
+        var payload = JsonSerializer.Serialize(new { labels = labels.Select(label => label.Value).ToArray() });
+        using var response = await Send(owner, HttpMethod.Post, $"repos/{owner.Value}/{repository.Value}/issues/{number.Value}/labels", new StringContent(payload, Encoding.UTF8, "application/json"), cancellationToken);
+        response.EnsureSuccessStatusCode();
+    }
+
+    /// <inheritdoc/>
     public async Task<IEnumerable<GitHubWorkflowRun>> GetLatestWorkflowRuns(OrganizationName owner, RepositoryName repository, CancellationToken cancellationToken = default)
     {
         using var response = await Send(owner, HttpMethod.Get, $"repos/{owner.Value}/{repository.Value}/actions/runs?per_page={PageSize}", null, cancellationToken);

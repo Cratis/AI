@@ -8,6 +8,7 @@ using Planner.Issues.ChangingBody;
 using Planner.Issues.ChangingLabels;
 using Planner.Issues.ChangingMilestone;
 using Planner.Issues.ChangingStatus;
+using Planner.Issues.Classifying;
 using Planner.Issues.Closing;
 using Planner.Issues.Comments.Recording;
 using Planner.Issues.Comments.Removing;
@@ -64,6 +65,11 @@ public record IssueComment(CommentId Id, UserName Author, CommentBody Body, Date
 /// <param name="Priority">How urgently the issue should be worked on - explicit, set by a person.</param>
 /// <param name="Assignees">The logins of the users the issue is assigned to on GitHub.</param>
 /// <param name="Milestone">The milestone the issue is attached to on GitHub - <see cref="MilestoneName.NotSet"/> for none.</param>
+/// <param name="Kind">What kind of issue triage classified this as.</param>
+/// <param name="Feasibility">Whether triage judged an agent can act on it.</param>
+/// <param name="SuggestedPriority">The priority triage suggests - overridden by an explicit <see cref="Priority"/>.</param>
+/// <param name="SuggestedLabels">The labels triage suggested.</param>
+/// <param name="Area">The affected area, as triage classified it.</param>
 /// <param name="Comments">The comments on the issue as mirrored from GitHub.</param>
 [ReadModel]
 [FromEvent<IssueRegistered>]
@@ -117,6 +123,16 @@ public record Issue(
     IEnumerable<UserName>? Assignees = null,
     [SetFrom<IssueMilestoneChanged>(nameof(IssueMilestoneChanged.Milestone))]
     MilestoneName? Milestone = null,
+    [SetFrom<IssueClassified>(nameof(IssueClassified.Kind))]
+    IssueKind Kind = IssueKind.Unclassified,
+    [SetFrom<IssueClassified>(nameof(IssueClassified.Feasibility))]
+    IssueFeasibility Feasibility = IssueFeasibility.Unclassified,
+    [SetFrom<IssueClassified>(nameof(IssueClassified.SuggestedPriority))]
+    Priority? SuggestedPriority = null,
+    [SetFrom<IssueClassified>(nameof(IssueClassified.SuggestedLabels))]
+    IEnumerable<LabelName>? SuggestedLabels = null,
+    [SetFrom<IssueClassified>(nameof(IssueClassified.Area))]
+    IssueArea? Area = null,
     [ChildrenFrom<IssueCommentAdded>(key: nameof(IssueCommentAdded.Comment), identifiedBy: nameof(IssueComment.Id))]
     [RemovedWith<IssueCommentRemoved>(key: nameof(IssueCommentRemoved.Comment))]
     IEnumerable<IssueComment>? Comments = null)
