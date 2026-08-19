@@ -85,10 +85,20 @@ public record Alert(
     IEnumerable<AlertNoteEntry>? Notes = null)
 {
     /// <summary>
-    /// Observes every alert on the board.
+    /// Observes every alert on the board, resolved ones included - the history view behind the
+    /// "Show done" toggle. <see cref="ActiveAlerts"/> is what the default view uses.
     /// </summary>
     /// <param name="collection">The MongoDB collection holding the alerts.</param>
     /// <returns>An observable of all alerts.</returns>
     public static ISubject<IEnumerable<Alert>> AllAlerts(IMongoCollection<Alert> collection) =>
         collection.Observe();
+
+    /// <summary>
+    /// Observes the alerts that are not resolved yet - the default view, so a resolved alert
+    /// disappears from the board the moment it is resolved.
+    /// </summary>
+    /// <param name="collection">The MongoDB collection holding the alerts.</param>
+    /// <returns>An observable of the active alerts.</returns>
+    public static ISubject<IEnumerable<Alert>> ActiveAlerts(IMongoCollection<Alert> collection) =>
+        collection.Observe(alert => alert.Status != AlertStatus.Resolved);
 }

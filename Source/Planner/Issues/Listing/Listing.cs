@@ -110,10 +110,21 @@ public record Issue(
     IEnumerable<IssueComment>? Comments = null)
 {
     /// <summary>
-    /// Observes all issues across every tracked repository.
+    /// Observes all issues across every tracked repository, open and closed alike - the history
+    /// view behind the "Show done" toggle. <see cref="OpenIssues"/> is what every default view uses.
     /// </summary>
     /// <param name="collection">The MongoDB collection holding the issues.</param>
     /// <returns>An observable of all issues.</returns>
     public static ISubject<IEnumerable<Issue>> AllIssues(IMongoCollection<Issue> collection) =>
         collection.Observe();
+
+    /// <summary>
+    /// Observes the issues that are still open on GitHub - the default view everywhere, so a
+    /// closed issue disappears the moment the mirror learns about it instead of relying on the
+    /// browser to filter rows it never needed to receive.
+    /// </summary>
+    /// <param name="collection">The MongoDB collection holding the issues.</param>
+    /// <returns>An observable of the open issues.</returns>
+    public static ISubject<IEnumerable<Issue>> OpenIssues(IMongoCollection<Issue> collection) =>
+        collection.Observe(issue => issue.IsOpen);
 }
