@@ -181,6 +181,17 @@ _head_sha_resp=$(gh api "repos/Cratis/${repo}/git/ref/heads/${default_branch}" \
 head_sha=$(extract_sha "$_head_sha_resp" '.object.sha')
 if [ -z "$head_sha" ]; then
   head_sha_api_error=$(cat "$head_sha_error" 2>/dev/null || true)
+
+  # A repository with no commits has nothing to propagate onto: there is no HEAD,
+  # no base tree, and no branch to update. That is a state of the target, not a
+  # failure of this run, so it is reported and skipped rather than failing the
+  # matrix - which is what `cratis.no` did on run 32255505376.
+  if echo "$head_sha_api_error" | grep -q 'Git Repository is empty'; then
+    echo "::notice::Skipping ${repo} - the repository has no commits yet, so there is nothing to propagate onto"
+    rm -f "$head_sha_error"
+    exit 0
+  fi
+
   echo "::error::Could not get HEAD SHA for ${repo} (${default_branch} branch not found)"
   [ -n "$head_sha_api_error" ] && echo "  API error: $head_sha_api_error"
   rm -f "$head_sha_error"
@@ -243,6 +254,47 @@ fi
 new_tree_json=$(jq -n --arg base_tree "$tree_sha" \
   '{"base_tree": $base_tree, "tree": []}')
 
+# ----------------------------------------------------------------
+# 4a. Clear ancestor paths that exist in the target as a file
+#
+# A target may carry a path like `.github/agents` as a symlink blob (mode
+# 120000, pointing at `../.ai/agents`) where this repository has a real
+# directory with files under it. Writing `.github/agents/foo.md` then asks one
+# tree POST to both change that path from blob to tree and add children beneath
+# it, which the API refuses with `GitRPC::BadObjectState (HTTP 422)` - the
+# failure that left seven repositories behind on run 32255505376.
+#
+# Deleting the colliding entry in the same POST (`sha: null`) resolves it: the
+# blob is removed from the base tree before its replacement directory's children
+# are added. Only ancestors that genuinely collide are touched, so a target that
+# already has a real directory there is left completely alone.
+# ----------------------------------------------------------------
+colliding_ancestors=$(echo "$copilot_files" \
+  | jq -r '[.[] | .path] | .[]' 2>/dev/null \
+  | awk -F/ '{ p=""; for (i=1; i<NF; i++) { p = (i==1 ? $i : p "/" $i); print p } }' \
+  | LC_ALL=C sort -u \
+  | while IFS= read -r ancestor; do
+      [ -z "$ancestor" ] && continue
+      ancestor_type=$(echo "$subtree" | jq -r \
+        --arg p "$ancestor" \
+        '.tree[] | select(.path == $p) | .type // empty' 2>/dev/null || true)
+      # Present, but not a directory - a file (or symlink) standing where a
+      # directory has to be.
+      if [ -n "$ancestor_type" ] && [ "$ancestor_type" != "tree" ]; then
+        echo "$ancestor"
+      fi
+    done)
+
+if [ -n "$colliding_ancestors" ]; then
+  while IFS= read -r ancestor; do
+    [ -z "$ancestor" ] && continue
+    echo "  Clearing '${ancestor}' in ${repo} - it is a file where this repository has a directory"
+    new_tree_json=$(echo "$new_tree_json" | jq \
+      --arg p "$ancestor" \
+      '.tree += [{path: $p, mode: "100644", type: "blob", sha: null}]')
+  done <<< "$colliding_ancestors"
+fi
+
 while IFS=' ' read -r src_path src_sha; do
   [ -z "$src_path" ] && continue
 
@@ -295,10 +347,27 @@ done <<< "$(echo "$copilot_files" | jq -r '.[] | .path + " " + .sha' 2>/dev/null
 # 5. Create new tree and commit
 # ----------------------------------------------------------------
 new_tree_error=$(mktemp)
-_new_tree_resp=$(echo "$new_tree_json" | \
-  gh api -X POST "repos/Cratis/${repo}/git/trees" \
-  --input - 2>"$new_tree_error" || true)
-new_tree_sha=$(extract_sha "$_new_tree_resp")
+new_tree_sha=""
+
+# Retried because a 5xx here is the API having a bad moment, not a bad request -
+# `Chronicle.Elixir` lost a whole propagation to a single 502 on run 32255505376.
+# Only server errors are retried: a 422 is a real disagreement about the tree and
+# retrying it just fails three times more slowly.
+for attempt in 1 2 3; do
+  _new_tree_resp=$(echo "$new_tree_json" | \
+    gh api -X POST "repos/Cratis/${repo}/git/trees" \
+    --input - 2>"$new_tree_error" || true)
+  new_tree_sha=$(extract_sha "$_new_tree_resp")
+  [ -n "$new_tree_sha" ] && break
+
+  if ! grep -qE 'HTTP (50[0-9]|429)' "$new_tree_error" 2>/dev/null; then
+    break
+  fi
+  if [ "$attempt" -lt 3 ]; then
+    echo "  Tree creation for ${repo} hit a transient error, retrying (attempt ${attempt} of 3)" >&2
+    sleep $((attempt * 5))
+  fi
+done
 
 if [ -z "$new_tree_sha" ]; then
   new_tree_api_error=$(cat "$new_tree_error" 2>/dev/null || true)
