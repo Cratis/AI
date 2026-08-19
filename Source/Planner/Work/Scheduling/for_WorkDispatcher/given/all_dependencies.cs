@@ -12,6 +12,7 @@ using Planner.Alerts;
 using Planner.GitHub.App;
 using Planner.GitHub.GitIdentity.Listing;
 using Planner.Operations;
+using Planner.Work.Callback;
 using Planner.Work.Listing;
 using Planner.Work.Workers;
 using ListedIssue = Planner.Issues.Listing.Issue;
@@ -36,6 +37,7 @@ public class all_dependencies : Specification
     protected AlertOptions _alertOptions;
     protected OperationsOptions _operationsOptions;
     protected IGitHubAppTokenResolver _gitHubAppTokenResolver;
+    protected IWorkerCallbackTokens _callbackTokens;
     protected WorkDispatcher _dispatcher;
 
     protected List<WorkItem> _workItemsData;
@@ -66,6 +68,8 @@ public class all_dependencies : Specification
         _operationsOptions = new();
         _gitHubAppTokenResolver = Substitute.For<IGitHubAppTokenResolver>();
         _gitHubAppTokenResolver.GetToken(Arg.Any<OrganizationName>(), Arg.Any<CancellationToken>()).Returns("installation-token");
+        _callbackTokens = Substitute.For<IWorkerCallbackTokens>();
+        _callbackTokens.Issue(Arg.Any<WorkId>()).Returns(_ => CallbackToken.New());
 
         // The real environment builder rather than a substitute - the specs assert on what a worker
         // container is actually handed, which is precisely what it produces.
@@ -82,6 +86,7 @@ public class all_dependencies : Specification
             _readModels,
             _workerRuntime,
             _workerEnvironment,
+            _callbackTokens,
             _commandPipeline,
             _timeProvider,
             Options.Create(_workerOptions),
