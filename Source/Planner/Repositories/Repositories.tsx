@@ -25,6 +25,7 @@ import { AllRepositoryGroups, RepositoryGroup } from './Groups/Listing/Listing';
 import { CreateRepositoryGroup } from './Groups/Creating/Creating';
 import { ChangeRepositoryGroup } from './Groups/Changing/Changing';
 import { DeleteRepositoryGroup } from './Groups/Deleting/Deleting';
+import { commandFailureMessage } from '../Common/commandFeedback';
 
 /** One row per (group, repository) pair - the shape a subheader-grouped, expandable DataTable needs. */
 type GroupMemberRow = {
@@ -80,6 +81,7 @@ export const Repositories = () => {
     const [mapCodeFor, setMapCodeFor] = useState<Repository | undefined>(undefined);
     const [changeGroupFor, setChangeGroupFor] = useState<RepositoryGroup | undefined>(undefined);
     const [syncing, setSyncing] = useState(false);
+    const [problem, setProblem] = useState<string | undefined>(undefined);
 
     const selectedGroup = selectedGroupRow?.group;
 
@@ -117,7 +119,8 @@ export const Repositories = () => {
     const removeRepository = async (repository: Repository) => {
         const command = new RemoveRepository();
         command.repository = repository.id;
-        await command.execute();
+        const result = await command.execute();
+        setProblem(commandFailureMessage(result));
     };
 
     // Adding an organization is what triggers discovery, so adding one that is already there is the
@@ -125,14 +128,19 @@ export const Repositories = () => {
     const retryDiscovery = async (organization: Organization) => {
         const command = new AddOrganization();
         command.name = organization.name;
-        await command.execute();
+        const result = await command.execute();
+        setProblem(commandFailureMessage(result));
     };
 
     const deleteGroup = async (group: RepositoryGroup) => {
         const command = new DeleteRepositoryGroup();
         command.group = group.id;
-        await command.execute();
-        setSelectedGroupRow(undefined);
+        const result = await command.execute();
+        const failure = commandFailureMessage(result);
+        setProblem(failure);
+        if (!failure) {
+            setSelectedGroupRow(undefined);
+        }
     };
 
     const synchronizeNow = async () => {
@@ -152,6 +160,10 @@ export const Repositories = () => {
                         className='w-full justify-start'
                         severity='warn'
                         text='No GitHub App is configured, so nothing can be read from GitHub. Organizations and repositories added now will be recorded, but their repositories and issues will not load until an App is connected under Settings - GitHub.' />
+                </div>}
+            {problem &&
+                <div className='flex shrink-0 items-center px-4 py-2'>
+                    <Message className='w-full justify-start' severity='error' text={problem} />
                 </div>}
             <TabView
                 className='flex min-h-0 flex-1 flex-col'

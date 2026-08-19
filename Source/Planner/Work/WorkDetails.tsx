@@ -5,11 +5,14 @@ import { useEffect, useRef, useState } from 'react';
 import MarkdownPreview from '@uiw/react-markdown-preview';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
+import { Message } from 'primereact/message';
 import { Tag } from 'primereact/tag';
 import { WorkItem } from './Listing/Listing';
 import { WorkPurpose } from './WorkPurpose';
 import { WorkStatus } from './WorkStatus';
 import { StopWork } from './Stopping/Stopping';
+import { commandFailureMessage } from '../Common/commandFeedback';
+import { logStreamFailureMessage, steeringFailureMessage } from './workDetailsFeedback';
 
 /**
  * Props for the {@link WorkDetails} component.
@@ -53,14 +56,20 @@ export const workPurposeLabel = (purpose: WorkPurpose) => {
 export const WorkDetails = ({ work }: WorkDetailsProps) => {
     const [lines, setLines] = useState<string[]>([]);
     const [steer, setSteer] = useState('');
+    const [problem, setProblem] = useState<string | undefined>(undefined);
     const consoleRef = useRef<HTMLPreElement>(null);
     const active = work.status === WorkStatus.running;
 
     useEffect(() => {
         setLines([]);
+        setProblem(undefined);
         const source = new EventSource(`/api/work/${work.id}/log`);
         source.onmessage = (event) => setLines((current) => [...current.slice(-2000), event.data as string]);
-        source.onerror = () => source.close();
+        source.onerror = () => {
+            const message = logStreamFailureMessage(source.readyState);
+            if (message) setProblem(message);
+            source.close();
+        };
         return () => source.close();
     }, [work.id]);
 
@@ -71,17 +80,27 @@ export const WorkDetails = ({ work }: WorkDetailsProps) => {
     const stop = async () => {
         const command = new StopWork();
         command.work = work.id;
-        await command.execute();
+        const result = await command.execute();
+        setProblem(commandFailureMessage(result));
     };
 
     const sendSteering = async () => {
         if (!steer.trim()) return;
-        await fetch(`/api/work/${work.id}/input`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text: steer }),
-        });
-        setSteer('');
+        try {
+            const response = await fetch(`/api/work/${work.id}/input`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: steer }),
+            });
+            if (!response.ok) {
+                setProblem(steeringFailureMessage(response.status));
+                return;
+            }
+            setProblem(undefined);
+            setSteer('');
+        } catch {
+            setProblem(steeringFailureMessage(undefined));
+        }
     };
 
     const usage = (work.inputTokens ?? 0) + (work.outputTokens ?? 0);
@@ -94,6 +113,8 @@ export const WorkDetails = ({ work }: WorkDetailsProps) => {
                 {(work.status === WorkStatus.scheduled || work.status === WorkStatus.running) &&
                     <Button label='Stop' icon='pi pi-stop-circle' severity='danger' size='small' outlined onClick={stop} />}
             </div>
+
+            {problem && <Message className='w-full justify-start' severity='error' text={problem} />}
 
             <div className='text-sm text-[var(--text-color-secondary)]'>
                 Model: {work.model || 'auto'}
