@@ -25,6 +25,8 @@ using Planner.PullRequests.Reopening;
 using Planner.PullRequests.UpdatingDetails;
 using Planner.Repositories.Adding;
 using Planner.Repositories.Listing;
+using Planner.Repositories.Organizations;
+using OrganizationListing = Planner.Repositories.Organizations.Listing.Organization;
 
 namespace Planner.GitHub.Webhooks;
 
@@ -46,6 +48,7 @@ public static class GitHubWebhookEndpoints
             HttpRequest request,
             ICommandPipeline commandPipeline,
             IMongoCollection<Repository> repositories,
+            IMongoCollection<OrganizationListing> organizations,
             IOptions<GitHubAppOptions> options) =>
         {
             using var reader = new StreamReader(request.Body);
@@ -83,8 +86,11 @@ public static class GitHubWebhookEndpoints
                     var repository = payload["repository"] as JsonObject;
                     var owner = repository?["owner"]?["login"]?.GetValue<string>();
                     var name = repository?["name"]?.GetValue<string>();
-                    if (owner is not null && name is not null)
+                    if (owner is not null && name is not null && await TracksAllRepositories(organizations, owner))
                     {
+                        // Only an organization tracked as "All" grows automatically - one tracked as
+                        // "Selected" only gets the repositories a person explicitly picked, and a new
+                        // repository showing up later is not an implicit opt-in.
                         await commandPipeline.Execute(new AddRepository(owner, name));
                     }
 
@@ -95,6 +101,17 @@ public static class GitHubWebhookEndpoints
         });
 
         return app;
+    }
+
+    static async Task<bool> TracksAllRepositories(IMongoCollection<OrganizationListing> organizations, string owner)
+    {
+        var organizationId = OrganizationId.From(owner);
+        var cursor = await organizations.FindAsync(organization => organization.Id == organizationId);
+        var organization = await cursor.FirstOrDefaultAsync();
+
+        // An organization the Planner does not track as such (a repository created under an account
+        // whose owner was never added) has no policy to honor - default to the existing behavior.
+        return organization is null || organization.TrackingPolicy == OrganizationTrackingPolicy.All;
     }
 
     static async Task HandleIssueEvent(JsonObject payload, ICommandPipeline commandPipeline, IMongoCollection<Repository> repositories)
