@@ -14,9 +14,85 @@ on:
       - ".github/hooks/**"
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   propagate:
     uses: Cratis/Workflows/.github/workflows/propagate-copilot-instructions.yml@main
     with:
       event_name: ${{ github.event_name }}
     secrets: inherit
+
+  # The fan-out is a matrix with fail-fast disabled, so one target failing leaves
+  # the other 33 to finish - which is right, but it means a partial failure is
+  # only visible to someone who opens the run and reads 34 job results. Run
+  # 32255505376 propagated to 29 repositories and failed on 7, and the corpus in
+  # those 7 went stale without anyone being told.
+  #
+  # This job says which repositories are behind, by name, in the run summary and
+  # in the log. It reads the conclusions of this same run's matrix jobs through
+  # the Actions API - the caller cannot see them any other way, since a reusable
+  # workflow reports one aggregate result to its caller.
+  report-fan-out:
+    needs: propagate
+    if: ${{ always() && github.repository_owner == 'Cratis' }}
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+    steps:
+      - name: Report which repositories received the corpus
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+
+          # `propagate (<repo>)` is the matrix job name; the reusable workflow
+          # prefixes it, so match on the suffix rather than anchoring the whole
+          # string. Paginated because a 34-way matrix plus its parents exceeds
+          # the default page size.
+          jobs_json=$(gh api --paginate \
+            "repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/jobs?per_page=100" \
+            --jq '[.jobs[] | select(.name | test("propagate \\(")) | {
+                    repo: (.name | capture("propagate \\((?<r>[^)]+)\\)").r),
+                    conclusion: .conclusion
+                  }]' | jq -sc 'add // []')
+
+          total=$(echo "$jobs_json" | jq 'length')
+          if [ "$total" -eq 0 ]; then
+            # No matrix jobs at all: the fan-out was skipped because nothing
+            # needed propagating. That is a normal outcome, not a failure.
+            echo "No propagation targets ran - nothing to report."
+            echo "No propagation targets ran for this change." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          succeeded=$(echo "$jobs_json" | jq '[.[] | select(.conclusion == "success")] | length')
+          behind=$(echo "$jobs_json" | jq -r '[.[] | select(.conclusion != "success") | .repo] | sort | .[]')
+
+          {
+            echo "## Corpus propagation"
+            echo
+            echo "${succeeded} of ${total} repositories received the corpus."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ -z "$behind" ]; then
+            echo "All ${total} repositories received the corpus."
+            exit 0
+          fi
+
+          {
+            echo
+            echo "### These repositories are now behind"
+            echo
+            while IFS= read -r repo; do
+              [ -n "$repo" ] && echo "- ${repo}"
+            done <<< "$behind"
+            echo
+            echo "They kept the corpus they already had. Their agents are working from"
+            echo "older rules until this is resolved and propagation runs again."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          echo "::error::Propagation reached ${succeeded} of ${total} repositories. Behind: $(echo "$behind" | tr '\n' ' ')"
+          exit 1
