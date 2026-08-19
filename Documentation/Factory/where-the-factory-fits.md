@@ -191,6 +191,54 @@ rather than a synthetic head-to-head that no shipping path would ever run.
 The cheap variant should still come first: it needs no credentials, no organization, and no
 network, and its result determines whether the end-to-end run is worth arranging.
 
+## Measured by running it: the blocker is one named component
+
+The section above said a generation experiment would need four things built: a write-capable
+workflow, a code-output evaluation kind, the harness-to-agent wiring, and a rubric. Building
+the first of those turned the estimate into a measurement, and it is smaller than it looked.
+
+`Workflows/complete-rendered-slice.factory.json` and the `propose-slice-patch` capability were
+added as **definitions only** --- no script changed. Almost everything they need already
+existed and was unused: the workflow schema accepts write scopes, the capability schema already
+admits `effect: "write"`, compiler and preflight already propagate and report scopes per phase,
+and `local-development.policy.json` already allows `propose-source-patch`.
+
+Chased end to end against a fixture repository, the chain gets all the way to compilation:
+
+| Step | Result |
+|---|---|
+| `resolve_factory.py --purpose implement-vertical-slice` | **success** --- route: agent `slice-implementer`, workflow `complete-rendered-slice` |
+| `preflight_factory.py` with `writeScopes: ["Source/**"]` | **blocked**, with the message below |
+| the same phase with `writeScopes: []` | **success** --- authoritative compiled plan |
+
+> Phase complete-slice requests writeScopes, but Stage 0 has no trusted scope-to-capability
+> policy evaluator; non-empty scopes remain blocked
+
+That is a deliberate boundary (`compile_factory.py:555-565`) with its own specification
+(`test_preflight_factory.py:250`), not an oversight. Toggling the scope empty and back isolates
+it exactly: **everything in the chain works except granting write.**
+
+So the blocker for #54 is **one named component --- a trusted scope-to-capability policy
+evaluator** --- and not the worker host or the .NET port that the issue's declared dependencies
+point at. That is a materially different piece of work to scope.
+
+### Three things only running the tools revealed
+
+- **The Factory cannot preflight its own repository.** Executable preflight rejects git mode
+  `120000`, and this repository carries **102 tracked symlinks** --- the corpus adapters from
+  `3f3f151`. Any experiment must run against a repository without symlinked corpus adapters, or
+  preflight has to learn about them first.
+- **Profiles with `activation: "explicit"` need a `.cratis/factory.json`** opting them in, which
+  is how a consuming project would do it. `cratis-dotnet-react` --- the full-stack profile, and
+  the only one recommending `slice-implementer` --- is one of these.
+- **A workflow is only reachable when a profile recommends it for a purpose that an agent also
+  serves.** The purpose vocabulary is real and already populated: `implement-vertical-slice`
+  existed with `slice-implementer` behind it, so the workflow adopted that rather than inventing
+  a purpose.
+
+The resolver's diagnostics named the missing piece at every step rather than failing vaguely,
+which is the only reason this was traceable without reading the compiler first.
+
 ## Not verified
 
 - Nothing here was executed. Studio and Stage were read, never built or run. The augmenter's
