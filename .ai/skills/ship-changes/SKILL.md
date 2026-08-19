@@ -219,9 +219,20 @@ Otherwise, before merging, poll the PR checks with `pull_request_read`:
 
 Use `mcp_github_github_merge_pull_request` with:
 
-- `merge_method`: `merge`
+- `merge_method`: **`merge`** — a real merge commit, always
 - `owner` / `repo`: the current repository (same as step 5)
 - `pullNumber`: the PR number returned in step 5
+
+**`merge_method` is `merge` and nothing else. Never `squash`, never `rebase`** — and the same
+applies if you reach for the CLI instead: `gh pr merge --merge`, never `gh pr merge --squash` or
+`--rebase`. Squashing is a **history rewrite** (`.ai/rules/git-commits.md#never-rewrite-history`):
+it replaces the branch's commits with one new commit, and because step 10 deletes the branch
+immediately afterwards, nothing is left pointing at the originals. It does not feel like a rewrite
+— it looks like an integration step, and the tidier result looks like an improvement — which is
+precisely why it is the easiest way to break the rule by accident.
+
+If the repository's settings permit only squash or rebase merges, **stop and ask the human.** That
+is a setting to change, not a reason to squash.
 
 ## Step 9 — Close the related issues
 
@@ -317,7 +328,8 @@ gh pr edit <pr-number> --add-label "minor"
 
 # 7. Wait for CI — pull_request_read get_check_runs until green
 
-# 8. Merge (via mcp_github_github_merge_pull_request)
+# 8. Merge (via mcp_github_github_merge_pull_request, merge_method: merge)
+#    CLI equivalent: gh pr merge <pr-number> --merge   # NEVER --squash / --rebase
 
 # 9. Close the issues the PR resolves, and verify
 gh issue close <issue-number> --comment "Fixed in #<pr-number>."
