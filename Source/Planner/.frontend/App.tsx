@@ -15,6 +15,7 @@ import { Alerts } from '../Alerts/Alerts';
 import { Work } from '../Work/Work';
 import { PullRequests } from '../PullRequests/PullRequests';
 import { FailedBuilds } from '../Builds/FailedBuilds';
+import { WeeklyDigests } from '../WeeklyDigests/WeeklyDigests';
 import { Repositories } from '../Repositories/Repositories';
 import { GitHubConfiguration } from '../GitHub/GitHubConfiguration';
 import { ClaudeAccounts } from '../Accounts/ClaudeAccounts';
@@ -39,6 +40,7 @@ function App() {
                             <Route path='work' element={<Work />} />
                             <Route path='pull-requests' element={<PullRequests />} />
                             <Route path='failed-builds' element={<FailedBuilds />} />
+                            <Route path='weekly-digest' element={<WeeklyDigests />} />
                             <Route path='usage' element={<Usage />} />
                             <Route path='settings/repositories' element={<Repositories />} />
                             <Route path='settings/github' element={<GitHubConfiguration />} />

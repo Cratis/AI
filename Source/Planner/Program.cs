@@ -13,6 +13,9 @@ using Planner.GitHub.Webhooks;
 using Planner.Hosting;
 using Planner.LanguageModels;
 using Planner.Operations;
+using Planner.WeeklyDigests;
+using Planner.WeeklyDigests.Publishing;
+using Planner.WeeklyDigests.Webhooks;
 using Planner.Work.Callback;
 using Planner.Work.Scheduling;
 using Planner.Work.Workers;
@@ -56,6 +59,8 @@ builder.Services.AddSingleton<Planner.Identity.ICurrentUser, Planner.Identity.Cu
 builder.Services.Configure<SchedulingOptions>(builder.Configuration.GetSection(SchedulingOptions.SectionName));
 builder.Services.Configure<WorkerOptions>(builder.Configuration.GetSection(WorkerOptions.SectionName));
 builder.Services.Configure<AlertOptions>(builder.Configuration.GetSection(AlertOptions.SectionName));
+builder.Services.Configure<WeeklyDigestOptions>(builder.Configuration.GetSection(WeeklyDigestOptions.SectionName));
+builder.Services.AddHttpClient<IWeeklyDigestPublisher, WeeklyDigestPublisher>();
 builder.Services.Configure<OperationsOptions>(builder.Configuration.GetSection(OperationsOptions.SectionName));
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<IWorkDispatcher, WorkDispatcher>();
@@ -79,6 +84,7 @@ app.MapGitHubWebhooks();
 app.MapGitHubAppEndpoints();
 app.MapGitHubSynchronizationEndpoints();
 app.MapAlertWebhooks();
+app.MapWeeklyDigestWebhooks();
 app.UseCratis();
 app.MapOpenApi();
 
