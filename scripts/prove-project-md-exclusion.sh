@@ -47,18 +47,44 @@ if [ ! -f "$FILTER" ]; then
     echo "      pass the path to a Cratis/Workflows checkout as the first argument" >&2
     exit 2
 fi
+if [ ! -f "${WORKFLOWS_ROOT}/.github/scripts/prepare-copilot-source-artifact.sh" ]; then
+    echo "FAIL: cannot find prepare-copilot-source-artifact.sh under ${WORKFLOWS_ROOT}" >&2
+    exit 2
+fi
 if ! command -v jq >/dev/null 2>&1; then
     echo "FAIL: jq is required" >&2
     exit 2
 fi
 
-# The selector from prepare-copilot-source-artifact.sh. Kept in one place so the two cases below
-# cannot drift apart, and so a reader can see exactly what is being tested.
+# The selector is EXTRACTED FROM the real prepare-copilot-source-artifact.sh rather than copied
+# into this file. An earlier version of this script inlined its own transcription of the jq
+# filter, which made it test the transcription instead of the shipped code: it went on reporting
+# NOT GUARDED after the upstream fix had already landed, because the copy here still lacked the
+# exclusion. A harness that can pass or fail independently of the code it audits is worse than no
+# harness, so the filter text is now read from the artifact script at run time.
+ARTIFACT_SCRIPT="${WORKFLOWS_ROOT}/.github/scripts/prepare-copilot-source-artifact.sh"
+
 select_copilot_files() {
-    jq -c '[.tree[] | select(.type=="blob") |
-        select(.path | test("^(AGENTS\\.md$|\\.agents(/|$)|\\.github/(copilot-instructions\\.md$|instructions(/|$)|agents(/|$)|skills(/|$)|prompts(/|$)|hooks(/|$))|\\.ai/|\\.claude/)")) |
-        select(.path != ".claude/settings.local.json") |
-        {path: .path, sha: .sha, mode: .mode}]'
+    if [ -z "${SELECTOR_JQ:-}" ]; then
+        echo "FAIL: could not extract the selector from ${ARTIFACT_SCRIPT}" >&2
+        exit 2
+    fi
+    jq -c "$SELECTOR_JQ"
+}
+
+# Pull the jq program out of the `copilot_files=$(echo "$source_tree_raw" | jq -c '...')`
+# assignment: everything between the first single quote after `jq -c` and the closing quote.
+extract_selector() {
+    python3 - "$ARTIFACT_SCRIPT" <<'PYTHON'
+import re
+import sys
+
+source = open(sys.argv[1], encoding="utf-8").read()
+match = re.search(r"copilot_files=\$\(echo \"\$source_tree_raw\" \| jq -c \\\n\s*'(.*?)'", source, re.S)
+if not match:
+    sys.exit(1)
+sys.stdout.write(match.group(1))
+PYTHON
 }
 
 # Runs one case through the real filter and prints whether PROJECT.md survived.
@@ -107,7 +133,15 @@ run_case() {
     CASE_KEPT="$kept"
 }
 
-echo "Proving the PROJECT.md exclusion against ${FILTER}"
+SELECTOR_JQ="$(extract_selector)" || {
+    echo "FAIL: could not extract the selector from ${ARTIFACT_SCRIPT}" >&2
+    echo "      its shape changed; update extract_selector rather than re-inlining a copy" >&2
+    exit 2
+}
+
+echo "Proving the PROJECT.md exclusion against ${WORKFLOWS_ROOT}"
+echo "  selector read live from prepare-copilot-source-artifact.sh"
+echo "  ignore filter: ${FILTER}"
 echo
 
 echo "CASE 1 - a source repository with NO .copilot-sync-ignore of its own."
@@ -139,11 +173,14 @@ RESULT: NOT GUARDED.
 
 A source repository with no .copilot-sync-ignore of its own still broadcasts its
 .agents/PROJECT.md to every other repository. The per-source ignore file is the only
-defense, and nine repositories in the fleet do not have one.
+defense, and repositories without one are exposed.
 
-Fix, per the EXECUTION BRIEF (E1) in PLAN.md: exclude .agents/PROJECT.md in
+Fix: exclude .agents/PROJECT.md in the selector in
 Cratis/Workflows/.github/scripts/prepare-copilot-source-artifact.sh, alongside the existing
 .claude/settings.local.json exclusion, then re-run this harness and expect RESULT: GUARDED.
+
+If you believe the fix is already applied, check that the checkout being tested is current:
+this harness reads the selector from that checkout, so a stale clone reports a stale answer.
 MESSAGE
     exit 1
 fi
