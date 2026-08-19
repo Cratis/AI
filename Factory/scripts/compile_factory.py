@@ -8,6 +8,8 @@ from __future__ import annotations
 
 import argparse
 from copy import deepcopy
+from fnmatch import fnmatchcase
+from functools import lru_cache
 import heapq
 import json
 from pathlib import Path
@@ -23,6 +25,10 @@ import validate_factory
 
 
 COMPILER_VERSION = "0.3.0"
+WRITE_EFFECTS = frozenset({"write", "destructive"})
+MAXIMUM_WRITE_SCOPE_SEGMENTS = 64
+_UNSAFE_SCOPE_SEGMENTS = frozenset({"", ".", ".."})
+_SCOPE_WILDCARDS = "*?["
 COMPILED_WORKFLOW_SCHEMA = "https://schemas.cratis.io/factory/v1/compiled-workflow.schema.json"
 # The shared character class lives in
 # operation_result.PROJECTION_CONTROL_CHARACTERS so this sanitizer cannot
@@ -184,7 +190,13 @@ def compile_documents(
     phases_by_id = {phase["id"]: phase for phase in workflow["phases"]}
     for ordinal, phase_id in enumerate(_topological_order(workflow["phases"])):
         phase = phases_by_id[phase_id]
-        _validate_stage_zero_phase_scopes(phase)
+        grants = _capability_grants(
+            phase,
+            capabilities,
+            policy,
+            set(effective_policy["deniedCapabilities"]),
+        )
+        _evaluate_phase_scopes(phase, grants, policy)
         compiled_phase: dict[str, Any] = {
             "id": phase_id,
             "ordinal": ordinal,
@@ -194,12 +206,7 @@ def compile_documents(
             "outputSchema": _schema_reference(workflow_path, phase["outputSchema"], documents),
             "execution": _execution(profiles, phase),
             "policy": deepcopy(phase["policy"]),
-            "capabilities": _capability_grants(
-                phase,
-                capabilities,
-                policy,
-                set(effective_policy["deniedCapabilities"]),
-            ),
+            "capabilities": grants,
             "gates": deepcopy(phase["gates"]),
         }
         if "correction" in phase:
@@ -552,7 +559,106 @@ def required_policy_capabilities(
     )
 
 
+def _evaluate_phase_scopes(
+    phase: dict[str, Any],
+    grants: list[dict[str, str]],
+    policy: dict[str, Any],
+) -> None:
+    """Decide whether a phase's requested scopes are permitted by the policy it compiles under."""
+    unsupported = [
+        name for name in ("networkScopes", "secretScopes") if phase["policy"][name]
+    ]
+    if unsupported:
+        raise CompilationFailure(
+            [
+                f"Phase {phase['id']} requests {', '.join(unsupported)}, but policy "
+                f"{policy['id']} declares no network or secret vocabulary to evaluate them against"
+            ]
+        )
+    write_scopes = phase["policy"]["writeScopes"]
+    if not write_scopes:
+        return
+    if not any(grant["effect"] in WRITE_EFFECTS for grant in grants):
+        raise CompilationFailure(
+            [
+                f"Phase {phase['id']} requests writeScopes, but holds no granted capability "
+                "whose effect permits writing"
+            ]
+        )
+    for scope in sorted(write_scopes):
+        defect = _write_scope_defect(scope)
+        if defect is not None:
+            raise CompilationFailure(
+                [f"Phase {phase['id']} declares an unusable write scope: {defect}"]
+            )
+        intersected = sorted(
+            pattern
+            for pattern in policy["protectedPaths"]
+            if _globs_can_intersect(_scope_segments(scope), _scope_segments(pattern))
+        )
+        if intersected:
+            raise CompilationFailure(
+                [
+                    f"Phase {phase['id']} write scope {scope} can reach policy "
+                    f"{policy['id']} protected path {intersected[0]}"
+                ]
+            )
+
+
+def _write_scope_defect(scope: str) -> str | None:
+    if not scope:
+        return "an empty write scope names no repository path"
+    if _TERMINAL_CONTROL.search(scope):
+        return "a write scope cannot contain control characters"
+    if "\\" in scope:
+        return f"write scope {scope} must separate segments with forward slashes"
+    if ":" in scope:
+        return f"write scope {scope} cannot carry a drive or scheme separator"
+    if scope.startswith("~"):
+        return f"write scope {scope} cannot be resolved against a home directory"
+    if scope.startswith("/"):
+        return f"write scope {scope} must be repository-relative"
+    segments = _scope_segments(scope)
+    if any(segment in _UNSAFE_SCOPE_SEGMENTS for segment in segments):
+        return f"write scope {scope} must be a normalized repository-relative path"
+    if len(segments) > MAXIMUM_WRITE_SCOPE_SEGMENTS:
+        return f"write scope {scope} exceeds {MAXIMUM_WRITE_SCOPE_SEGMENTS} path segments"
+    return None
+
+
+def _scope_segments(pattern: str) -> tuple[str, ...]:
+    return tuple(segment.casefold() for segment in pattern.split("/"))
+
+
+@lru_cache(maxsize=4096)
+def _globs_can_intersect(left: tuple[str, ...], right: tuple[str, ...]) -> bool:
+    if not left or not right:
+        return all(segment == "**" for segment in left + right)
+    if left[0] == "**" or right[0] == "**":
+        return (
+            _globs_can_intersect(left[1:], right)
+            or _globs_can_intersect(left, right[1:])
+            or _globs_can_intersect(left[1:], right[1:])
+        )
+    if not _segments_can_intersect(left[0], right[0]):
+        return False
+    return _globs_can_intersect(left[1:], right[1:])
+
+
+def _segments_can_intersect(left: str, right: str) -> bool:
+    left_is_pattern = any(wildcard in left for wildcard in _SCOPE_WILDCARDS)
+    right_is_pattern = any(wildcard in right for wildcard in _SCOPE_WILDCARDS)
+    if left_is_pattern and right_is_pattern:
+        return True
+    if left_is_pattern:
+        return fnmatchcase(right, left)
+    if right_is_pattern:
+        return fnmatchcase(left, right)
+    return left == right
+
+
 def _validate_stage_zero_phase_scopes(phase: dict[str, Any]) -> None:
+    """Definition-level parity check; the compile path uses the policy-aware evaluator above."""
     unsupported = [
         name
         for name in ("writeScopes", "networkScopes", "secretScopes")

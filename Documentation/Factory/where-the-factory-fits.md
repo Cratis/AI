@@ -208,19 +208,54 @@ Chased end to end against a fixture repository, the chain gets all the way to co
 | Step | Result |
 |---|---|
 | `resolve_factory.py --purpose implement-vertical-slice` | **success** --- route: agent `slice-implementer`, workflow `complete-rendered-slice` |
-| `preflight_factory.py` with `writeScopes: ["Source/**"]` | **blocked**, with the message below |
+| `preflight_factory.py` with `writeScopes: ["Source/**"]` | **blocked** at the time of writing |
 | the same phase with `writeScopes: []` | **success** --- authoritative compiled plan |
 
 > Phase complete-slice requests writeScopes, but Stage 0 has no trusted scope-to-capability
 > policy evaluator; non-empty scopes remain blocked
 
-That is a deliberate boundary (`compile_factory.py:555-565`) with its own specification
-(`test_preflight_factory.py:250`), not an oversight. Toggling the scope empty and back isolates
-it exactly: **everything in the chain works except granting write.**
+That was a deliberate boundary, not an oversight. Toggling the scope empty and back isolated it
+exactly: **everything in the chain worked except granting write.**
 
-So the blocker for #54 is **one named component --- a trusted scope-to-capability policy
+So the blocker for #54 was **one named component --- a trusted scope-to-capability policy
 evaluator** --- and not the worker host or the .NET port that the issue's declared dependencies
-point at. That is a materially different piece of work to scope.
+point at. **That component now exists**; the section below records what it decides.
+
+## The scope evaluator, and what it decides
+
+`compile_factory._evaluate_phase_scopes` replaces the blanket refusal on the compile path. It
+runs **after** capability grants are resolved, so it can judge a requested scope against the
+capabilities the phase actually holds under the policy it compiles with.
+
+A non-empty `writeScopes` is permitted only when **all** of the following hold.
+
+1. **Some granted capability may write.** At least one grant has `effect` of `write` or
+   `destructive`. A phase holding only read-effect capabilities cannot receive write scope, and
+   a capability whose `policyCapability` does not resolve to `allow` never becomes a grant at
+   all --- so it cannot carry scope either.
+2. **Every scope is a usable repository-relative path.** Absolute paths, `..` traversal, `~`
+   home references, drive or scheme separators, backslash separators, empty or non-normalized
+   segments, control characters, and paths beyond 64 segments are each refused with the reason
+   named. This runs before any glob comparison, so a traversal can never be normalized *into*
+   an allowed answer.
+3. **No scope can reach a protected path.** Refusal is by **glob intersection**, not by prefix
+   or literal equality: a scope is refused when some path could match both it and one of the
+   policy's `protectedPaths`. `.ai/**` and `Factory/**` are refused for the obvious reason, and
+   so are `*/**`, `.a?/**`, and `.AI/**`, which reach a protected path only through a wildcard
+   or a case difference. Comparison is case-insensitive because the case-preserving,
+   case-insensitive filesystems this runs on would otherwise honor `.AI/**` as `.ai/**`.
+   A scope that merely *looks* adjacent, such as `.aiAdjacent/**`, is allowed.
+
+`networkScopes` and `secretScopes` stay refused, now for a stated reason rather than a blanket
+one: the policy schema defines no network or secret vocabulary to evaluate them against. Adding
+that vocabulary is a policy-schema change, not a compiler change.
+
+Two guards sit in front of this one and are worth not confusing with it. `validate_factory`
+already refuses a repository-wide agent write scope (`.`, `**`, `**/*`) as a workflow-authoring
+error, so those never reach the evaluator. And because the evaluator runs inside
+`compile_documents`, it also runs during `verify_compiled_workflow_integrity`'s deterministic
+recompilation --- so a compiled plan whose scope was edited after the fact fails verification
+rather than being honored.
 
 ### Three things only running the tools revealed
 
@@ -248,6 +283,10 @@ which is the only reason this was traceable without reading the compiler first.
   shipping path references it for code generation**; Stage's own host interprets the model at
   runtime instead. Whether Studio's use of it is a primary path or an experiment was not
   established.
-- The Factory's Python suite was run (311 pass); no .NET build or test was attempted.
+- The Factory's Python suite was run (311 pass at the time; 324 after the scope evaluator
+  landed); no .NET build or test was attempted.
+- The scope evaluator decides what a plan may *request*. Nothing yet **enforces** that an
+  executing agent writes only inside its granted scope --- that belongs to the worker host,
+  which is still on hold.
 - No claim here rests on documentation badges or marketing copy, after an earlier session drew
   a wrong conclusion about Studio's maturity that way.

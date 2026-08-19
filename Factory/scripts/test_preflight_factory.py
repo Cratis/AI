@@ -235,7 +235,7 @@ class FactoryPreflightTests(unittest.TestCase):
                 with self.assertRaises(compile_factory.CompilationFailure):
                     compile_factory.verify_compiled_workflow(tampered, documents)
 
-    def test_non_empty_phase_scopes_stay_blocked_without_a_trusted_policy_evaluator(self) -> None:
+    def test_network_and_secret_scopes_stay_blocked_with_no_policy_vocabulary_to_evaluate(self) -> None:
         documents = load_documents()
         workflow = documents[
             validate_factory.ROOT / "Workflows" / "investigate-cratis-issue.factory.json"
@@ -247,7 +247,239 @@ class FactoryPreflightTests(unittest.TestCase):
         with self.assertRaises(compile_factory.CompilationFailure) as context:
             compile_resolved(documents, resolved_profile)
 
-        self.assertTrue(any("scope-to-capability policy evaluator" in error for error in context.exception.errors))
+        self.assertTrue(
+            any(
+                "declares no network or secret vocabulary" in error
+                for error in context.exception.errors
+            )
+        )
+
+    def test_write_scope_inside_no_protected_path_compiles_into_an_authoritative_plan(self) -> None:
+        documents = load_documents()
+        resolved_profile = resolve_slice_fixture(documents)
+
+        compiled = compile_factory.compile_documents(
+            documents,
+            "complete-rendered-slice",
+            resolved_profile,
+            repository_snapshot(resolved_profile),
+            "local-development",
+        )
+
+        completion = next(
+            phase for phase in compiled["orderedPhases"] if phase["id"] == "complete-slice"
+        )
+        self.assertEqual(["Source/**"], completion["policy"]["writeScopes"])
+        self.assertIn(
+            {
+                "id": "propose-slice-patch",
+                "usage": "agent",
+                "sourceId": "complete-slice",
+                "effect": "write",
+                "policyCapability": "propose-source-patch",
+                "decision": "allow",
+            },
+            completion["capabilities"],
+        )
+        compile_factory.verify_compiled_workflow_integrity(compiled, documents)
+
+    def test_write_scope_reaching_a_protected_path_is_refused_however_it_is_spelled(self) -> None:
+        workflow_path = validate_factory.ROOT / "Workflows" / "complete-rendered-slice.factory.json"
+
+        for scope, protected in (
+            (".ai/**", ".ai/**"),
+            ("Factory/**", "Factory/Capabilities/**"),
+            ("Workflows/**", "Workflows/**"),
+            ("Contracts/v1/policy.schema.json", "Contracts/**"),
+            (".cratis/factory.json", ".cratis/factory.json"),
+            (".git/config", ".git/**"),
+            ("*/**", ".ai/**"),
+            (".a?/**", ".ai/**"),
+            (".AI/**", ".ai/**"),
+            ("Evaluations/results.json", "Evaluations/**"),
+            (".github/workflows/ci.yml", ".github/workflows/**"),
+            ("Source/**", None),
+            ("Source/Accounts/Register/**", None),
+            (".aiAdjacent/**", None),
+        ):
+            with self.subTest(scope=scope):
+                scoped = load_documents()
+                phase = next(
+                    candidate
+                    for candidate in scoped[workflow_path]["phases"]
+                    if candidate["id"] == "complete-slice"
+                )
+                phase["policy"]["writeScopes"] = [scope]
+                resolved_profile = resolve_slice_fixture(scoped)
+
+                if protected is None:
+                    compile_factory.compile_documents(
+                        scoped,
+                        "complete-rendered-slice",
+                        resolved_profile,
+                        repository_snapshot(resolved_profile),
+                        "local-development",
+                    )
+                    continue
+
+                with self.assertRaises(compile_factory.CompilationFailure) as context:
+                    compile_factory.compile_documents(
+                        scoped,
+                        "complete-rendered-slice",
+                        resolved_profile,
+                        repository_snapshot(resolved_profile),
+                        "local-development",
+                    )
+
+                self.assertIn(
+                    f"Phase complete-slice write scope {scope} can reach policy "
+                    f"local-development protected path {protected}",
+                    context.exception.errors,
+                )
+
+    def test_repository_wide_write_scope_is_refused_by_workflow_validation_before_evaluation(self) -> None:
+        workflow_path = validate_factory.ROOT / "Workflows" / "complete-rendered-slice.factory.json"
+
+        for scope in ("**", "**/*", "."):
+            with self.subTest(scope=scope):
+                scoped = load_documents()
+                phase = next(
+                    candidate
+                    for candidate in scoped[workflow_path]["phases"]
+                    if candidate["id"] == "complete-slice"
+                )
+                phase["policy"]["writeScopes"] = [scope]
+                resolved_profile = resolve_slice_fixture(scoped)
+
+                with self.assertRaises(compile_factory.CompilationFailure) as context:
+                    compile_factory.compile_documents(
+                        scoped,
+                        "complete-rendered-slice",
+                        resolved_profile,
+                        repository_snapshot(resolved_profile),
+                        "local-development",
+                    )
+
+                self.assertTrue(
+                    any(
+                        "agent phases cannot receive repository-wide write scope" in error
+                        for error in context.exception.errors
+                    ),
+                    context.exception.errors,
+                )
+
+    def test_write_scope_that_escapes_the_repository_is_refused_before_any_glob_comparison(self) -> None:
+        workflow_path = validate_factory.ROOT / "Workflows" / "complete-rendered-slice.factory.json"
+
+        for scope, reason in (
+            ("../secrets/**", "must be a normalized repository-relative path"),
+            ("Source/../.ai/**", "must be a normalized repository-relative path"),
+            ("Source/", "must be a normalized repository-relative path"),
+            ("Source//nested", "must be a normalized repository-relative path"),
+            ("/etc/passwd", "must be repository-relative"),
+            ("C:/Windows", "cannot carry a drive or scheme separator"),
+            ("~/.ssh/**", "cannot be resolved against a home directory"),
+            (".ai\\rules", "must separate segments with forward slashes"),
+            ("Source/\tinjected", "cannot contain control characters"),
+            (f"Source/{chr(0x202e)}injected", "cannot contain control characters"),
+            (f"Source/{chr(0x2028)}injected", "cannot contain control characters"),
+            (f"Source/{chr(0xfeff)}injected", "cannot contain control characters"),
+            ("", "names no repository path"),
+            ("/".join(["nested"] * 65), "exceeds 64 path segments"),
+        ):
+            with self.subTest(scope=scope):
+                scoped = load_documents()
+                phase = next(
+                    candidate
+                    for candidate in scoped[workflow_path]["phases"]
+                    if candidate["id"] == "complete-slice"
+                )
+                phase["policy"]["writeScopes"] = [scope]
+                resolved_profile = resolve_slice_fixture(scoped)
+
+                with self.assertRaises(compile_factory.CompilationFailure) as context:
+                    compile_factory.compile_documents(
+                        scoped,
+                        "complete-rendered-slice",
+                        resolved_profile,
+                        repository_snapshot(resolved_profile),
+                        "local-development",
+                    )
+
+                self.assertTrue(
+                    any(
+                        error.startswith("Phase complete-slice declares an unusable write scope")
+                        and reason in error
+                        for error in context.exception.errors
+                    ),
+                    context.exception.errors,
+                )
+
+    def test_write_scope_is_refused_when_no_granted_capability_may_write(self) -> None:
+        catalog_path = (
+            validate_factory.ROOT / "Factory" / "Capabilities" / "foundation.capabilities.json"
+        )
+
+        for label, mutate in (
+            (
+                "read-effect capability",
+                lambda capability: capability.__setitem__("effect", "read"),
+            ),
+            (
+                "denied policy capability",
+                lambda capability: capability.__setitem__("policyCapability", "deploy"),
+            ),
+        ):
+            with self.subTest(capability=label):
+                scoped = load_documents()
+                capability = next(
+                    candidate
+                    for candidate in scoped[catalog_path]["capabilities"]
+                    if candidate["id"] == "propose-slice-patch"
+                )
+                mutate(capability)
+                resolved_profile = resolve_slice_fixture(scoped)
+
+                with self.assertRaises(compile_factory.CompilationFailure) as context:
+                    compile_factory.compile_documents(
+                        scoped,
+                        "complete-rendered-slice",
+                        resolved_profile,
+                        repository_snapshot(resolved_profile),
+                        "local-development",
+                    )
+
+                self.assertTrue(
+                    any(
+                        "holds no granted capability whose effect permits writing" in error
+                        or "resolves to deny" in error
+                        for error in context.exception.errors
+                    ),
+                    context.exception.errors,
+                )
+
+    def test_scope_evaluation_survives_recompilation_so_a_tampered_scope_cannot_be_authorized(self) -> None:
+        documents = load_documents()
+        resolved_profile = resolve_slice_fixture(documents)
+        compiled = compile_factory.compile_documents(
+            documents,
+            "complete-rendered-slice",
+            resolved_profile,
+            repository_snapshot(resolved_profile),
+            "local-development",
+        )
+
+        tampered = deepcopy(compiled)
+        completion = next(
+            phase for phase in tampered["orderedPhases"] if phase["id"] == "complete-slice"
+        )
+        completion["policy"]["writeScopes"] = [".ai/**"]
+        tampered["contentHash"] = canonical_json.content_hash(
+            {key: value for key, value in tampered.items() if key != "contentHash"}
+        )
+
+        with self.assertRaises(compile_factory.CompilationFailure):
+            compile_factory.verify_compiled_workflow_integrity(tampered, documents)
 
     def test_tampered_nested_resolution_hash_is_rejected(self) -> None:
         documents = load_documents()
@@ -458,6 +690,39 @@ def load_documents() -> dict[Path, dict]:
 def resolve_golden(documents: dict[Path, dict]) -> dict:
     repository = validate_factory.ROOT / "Factory" / "Fixtures" / "Ecosystems" / "golden-stack"
     return resolve_factory.resolve_repository(repository, ".", "investigate", documents)
+
+
+def resolve_slice_fixture(documents: dict[Path, dict]) -> dict:
+    """Resolve the golden stack opted in to the slice-completion profile and workflow."""
+    source = validate_factory.ROOT / "Factory" / "Fixtures" / "Ecosystems" / "golden-stack"
+    with tempfile.TemporaryDirectory() as temporary:
+        repository = Path(temporary) / "repository"
+        shutil.copytree(source, repository)
+        manifest_directory = repository / ".cratis"
+        manifest_directory.mkdir()
+        manifest = {
+            "$schema": "https://schemas.cratis.io/factory/v1/project-manifest.schema.json",
+            "schemaVersion": "1",
+            "documentKind": "project-manifest",
+            "repositoryMode": "application",
+            "profiles": {
+                "include": ["cratis-dotnet-react"],
+                "exclude": [],
+            },
+            "workflows": {
+                "complete-rendered-slice": "1.0.0",
+            },
+            "policy": {
+                "id": "local-development",
+                "denyCapabilities": [],
+            },
+        }
+        (manifest_directory / "factory.json").write_text(
+            canonical_json.canonical_json(manifest), encoding="utf-8"
+        )
+        return resolve_factory.resolve_repository(
+            repository, ".", "implement-vertical-slice", documents
+        )
 
 
 def repository_snapshot(resolved_profile: dict) -> dict:
