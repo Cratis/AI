@@ -12,24 +12,36 @@ namespace Planner.Work.SchedulingAdHoc;
 /// whole organization, or a repository group (the frontend expands a group to its repositories).
 /// </summary>
 /// <param name="Prompt">The instructions for the agent.</param>
-/// <param name="Repositories">The identities of the repositories to work with - optional when an organization is given.</param>
+/// <param name="Repositories">The identities of the repositories to work with - optional when an organization or <see cref="AllRepositories"/> is given.</param>
 /// <param name="Organization">Work with every tracked repository of this organization - optional.</param>
+/// <param name="AllRepositories">Work with every repository the Planner tracks, across every organization.</param>
 /// <param name="Model">The model to use - optional; falls back to the configured default.</param>
 [Command]
 public record ScheduleAdHocWork(
     WorkPrompt Prompt,
     IEnumerable<RepositoryId>? Repositories = null,
     OrganizationName? Organization = null,
+    bool AllRepositories = false,
     ModelName? Model = null)
 {
     /// <summary>
-    /// Resolves the repositories the work covers - the explicitly selected ones plus, when an
+    /// Resolves the repositories the work covers - every tracked repository when
+    /// <see cref="AllRepositories"/> is set, otherwise the explicitly selected ones plus, when an
     /// organization is given, every tracked repository of that organization.
     /// </summary>
     /// <param name="repositories">The repository read models.</param>
     /// <returns>The resolved repository identities, or a validation error when nothing resolves.</returns>
     public async Task<Result<IReadOnlyList<RepositoryId>, ValidationResult>> Provide(IMongoCollection<Repository> repositories)
     {
+        if (AllRepositories)
+        {
+            var everyCursor = await repositories.FindAsync(FilterDefinition<Repository>.Empty);
+            var every = (await everyCursor.ToListAsync()).Select(repository => repository.Id).Distinct().ToList();
+            return every.Count == 0
+                ? ValidationResult.Error("No repositories are tracked yet")
+                : every;
+        }
+
         var resolved = (Repositories ?? []).ToList();
         var organization = Organization ?? OrganizationName.NotSet;
         if (organization != OrganizationName.NotSet)
@@ -41,7 +53,7 @@ public record ScheduleAdHocWork(
         resolved = [.. resolved.Distinct()];
         if (resolved.Count == 0)
         {
-            return ValidationResult.Error("Select at least one repository or an organization with tracked repositories");
+            return ValidationResult.Error("Select at least one repository, an organization, or all repositories");
         }
 
         return resolved;
