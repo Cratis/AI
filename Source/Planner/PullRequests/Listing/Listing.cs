@@ -5,6 +5,7 @@ using MongoDB.Driver;
 using Planner.PullRequests.Closing;
 using Planner.PullRequests.Registration;
 using Planner.PullRequests.Reopening;
+using Planner.PullRequests.UpdatingDetails;
 
 namespace Planner.PullRequests.Listing;
 
@@ -22,6 +23,11 @@ namespace Planner.PullRequests.Listing;
 /// <param name="Url">The URL of the pull request on GitHub.</param>
 /// <param name="IsOpen">Whether the pull request is currently open.</param>
 /// <param name="Merged">Whether the pull request was merged - <see langword="null"/> until it closes.</param>
+/// <param name="Body">The markdown body of the pull request.</param>
+/// <param name="Labels">The labels on the pull request.</param>
+/// <param name="Draft">Whether the pull request is a draft - <see langword="null"/> until a detail update reports it.</param>
+/// <param name="HeadBranch">The branch the pull request merges from.</param>
+/// <param name="BaseBranch">The branch the pull request merges into.</param>
 [ReadModel]
 [FromEvent<PullRequestRegistered>]
 public record PullRequest(
@@ -37,7 +43,17 @@ public record PullRequest(
     [SetValue<PullRequestReopened>(true)]
     bool IsOpen,
     [SetFrom<PullRequestClosed>(nameof(PullRequestClosed.Merged))]
-    bool? Merged = null)
+    bool? Merged = null,
+    [SetFrom<PullRequestDetailsChanged>(nameof(PullRequestDetailsChanged.Body))]
+    PullRequestBody? Body = null,
+    [SetFrom<PullRequestDetailsChanged>(nameof(PullRequestDetailsChanged.Labels))]
+    IEnumerable<LabelName>? Labels = null,
+    [SetFrom<PullRequestDetailsChanged>(nameof(PullRequestDetailsChanged.Draft))]
+    bool? Draft = null,
+    [SetFrom<PullRequestDetailsChanged>(nameof(PullRequestDetailsChanged.HeadBranch))]
+    BranchName? HeadBranch = null,
+    [SetFrom<PullRequestDetailsChanged>(nameof(PullRequestDetailsChanged.BaseBranch))]
+    BranchName? BaseBranch = null)
 {
     /// <summary>
     /// Observes every pull request mirrored across every tracked repository, open, merged and

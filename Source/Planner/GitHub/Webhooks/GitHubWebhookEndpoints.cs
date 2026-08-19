@@ -9,8 +9,10 @@ using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Planner.GitHub.App;
 using Planner.GitHub.App.Installations;
+using Planner.Issues.ChangingAssignees;
 using Planner.Issues.ChangingBody;
 using Planner.Issues.ChangingLabels;
+using Planner.Issues.ChangingMilestone;
 using Planner.Issues.Closing;
 using Planner.Issues.Comments.Recording;
 using Planner.Issues.Comments.Removing;
@@ -20,6 +22,7 @@ using Planner.Issues.Reopening;
 using Planner.PullRequests.Closing;
 using Planner.PullRequests.Registration;
 using Planner.PullRequests.Reopening;
+using Planner.PullRequests.UpdatingDetails;
 using Planner.Repositories.Adding;
 using Planner.Repositories.Listing;
 
@@ -158,6 +161,13 @@ public static class GitHubWebhookEndpoints
                 await commandPipeline.Execute(new ReopenIssue(issueId));
                 break;
         }
+
+        // Every issue webhook delivery carries the issue's current assignees and milestone,
+        // regardless of which action triggered it - so this mirrors them without needing a
+        // dedicated case (and without needing the assigned/unassigned/milestoned/demilestoned
+        // event subscriptions, which are actions of the already-subscribed "issues" event).
+        await commandPipeline.Execute(new ChangeIssueAssignees(issueId, ParseAssignees(issue)));
+        await commandPipeline.Execute(new ChangeIssueMilestone(issueId, ParseMilestone(issue)));
     }
 
     static async Task HandleIssueCommentEvent(JsonObject payload, ICommandPipeline commandPipeline, IMongoCollection<Repository> repositories)
@@ -253,6 +263,17 @@ public static class GitHubWebhookEndpoints
                 await commandPipeline.Execute(new ReopenPullRequest(pullRequestId));
                 break;
         }
+
+        // Every pull request webhook delivery carries the current body, labels, draft state and
+        // branches, regardless of which action triggered it - covers edited/labeled/unlabeled/
+        // synchronize/ready_for_review/converted_to_draft without a dedicated case for each.
+        await commandPipeline.Execute(new UpdatePullRequestDetails(
+            pullRequestId,
+            pullRequest["body"]?.GetValue<string>() ?? string.Empty,
+            ParseLabels(pullRequest),
+            pullRequest["draft"]?.GetValue<bool>() ?? false,
+            pullRequest["head"]?["ref"]?.GetValue<string>() ?? string.Empty,
+            pullRequest["base"]?["ref"]?.GetValue<string>() ?? string.Empty));
     }
 
     static async Task HandleInstallationEvent(JsonObject payload, ICommandPipeline commandPipeline)
@@ -277,10 +298,18 @@ public static class GitHubWebhookEndpoints
         }
     }
 
-    static IEnumerable<LabelName> ParseLabels(JsonObject issue) =>
-        issue["labels"] is JsonArray labels
+    static IEnumerable<LabelName> ParseLabels(JsonObject issueOrPullRequest) =>
+        issueOrPullRequest["labels"] is JsonArray labels
             ? [.. labels.OfType<JsonObject>().Select(label => new LabelName(label["name"]?.GetValue<string>() ?? string.Empty))]
             : [];
+
+    static IEnumerable<UserName> ParseAssignees(JsonObject issue) =>
+        issue["assignees"] is JsonArray assignees
+            ? [.. assignees.OfType<JsonObject>().Select(assignee => new UserName(assignee["login"]?.GetValue<string>() ?? string.Empty))]
+            : [];
+
+    static MilestoneName ParseMilestone(JsonObject issue) =>
+        issue["milestone"] is JsonObject milestone ? milestone["title"]?.GetValue<string>() ?? string.Empty : MilestoneName.NotSet;
 
     static bool SignatureIsValid(HttpRequest request, string body, string secret)
     {

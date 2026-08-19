@@ -3,8 +3,10 @@
 
 using MongoDB.Driver;
 using Planner.Issues.AssociatingPullRequest;
+using Planner.Issues.ChangingAssignees;
 using Planner.Issues.ChangingBody;
 using Planner.Issues.ChangingLabels;
+using Planner.Issues.ChangingMilestone;
 using Planner.Issues.ChangingStatus;
 using Planner.Issues.Closing;
 using Planner.Issues.Comments.Recording;
@@ -60,6 +62,8 @@ public record IssueComment(CommentId Id, UserName Author, CommentBody Body, Date
 /// <param name="Labels">The labels on the issue.</param>
 /// <param name="Prompt">Extra instructions attached to the issue for the agent working on it.</param>
 /// <param name="Priority">How urgently the issue should be worked on - explicit, set by a person.</param>
+/// <param name="Assignees">The logins of the users the issue is assigned to on GitHub.</param>
+/// <param name="Milestone">The milestone the issue is attached to on GitHub - <see cref="MilestoneName.NotSet"/> for none.</param>
 /// <param name="Comments">The comments on the issue as mirrored from GitHub.</param>
 [ReadModel]
 [FromEvent<IssueRegistered>]
@@ -109,6 +113,10 @@ public record Issue(
     WorkPrompt? Prompt = null,
     [SetFrom<IssuePrioritySet>(nameof(IssuePrioritySet.Priority))]
     Priority Priority = Priority.NotSet,
+    [SetFrom<IssueAssigneesChanged>(nameof(IssueAssigneesChanged.Assignees))]
+    IEnumerable<UserName>? Assignees = null,
+    [SetFrom<IssueMilestoneChanged>(nameof(IssueMilestoneChanged.Milestone))]
+    MilestoneName? Milestone = null,
     [ChildrenFrom<IssueCommentAdded>(key: nameof(IssueCommentAdded.Comment), identifiedBy: nameof(IssueComment.Id))]
     [RemovedWith<IssueCommentRemoved>(key: nameof(IssueCommentRemoved.Comment))]
     IEnumerable<IssueComment>? Comments = null)
