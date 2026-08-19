@@ -3,7 +3,8 @@
 
 import { useMemo } from 'react';
 import { CommandDialog } from '@cratis/components/CommandDialog';
-import { DropdownField, InputTextField, TextAreaField } from '@cratis/components/CommandForm/fields';
+import { DropdownField, InputTextField } from '@cratis/components/CommandForm/fields';
+import { MarkdownEditorField } from '../Common/MarkdownEditorField';
 import { Alert } from './Listing/Listing';
 import { ConvertAlertToIssue } from './ConvertingToIssue/ConvertingToIssue';
 import { AllRepositories } from '../Repositories/Listing/Listing';
@@ -86,7 +87,7 @@ export const ConvertToIssueDialog = ({ alert, onClose }: ConvertToIssueDialogPro
                 optionLabel='label'
                 placeholder='Pick a tracked repository' />
             <InputTextField<ConvertAlertToIssue> value={(instance) => instance.title} title='Title' />
-            <TextAreaField<ConvertAlertToIssue> value={(instance) => instance.body} title='Description' rows={16} />
+            <MarkdownEditorField<ConvertAlertToIssue> value={(instance) => instance.body} title='Description' rows={16} />
         </CommandDialog>
     );
 };

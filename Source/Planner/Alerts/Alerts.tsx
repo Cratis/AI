@@ -7,7 +7,7 @@ import { Message } from 'primereact/message';
 import { Tag } from 'primereact/tag';
 import { DataPage, MenuItem } from '@cratis/components/DataPage';
 import { CommandDialog } from '@cratis/components/CommandDialog';
-import { TextAreaField } from '@cratis/components/CommandForm/fields';
+import { MarkdownEditorField } from '../Common/MarkdownEditorField';
 import { ActiveAlerts, AllAlerts, Alert } from './Listing/Listing';
 import { AlertStatus } from './AlertStatus';
 import { AlertDetails, alertSeverityLabel, alertSeveritySeverity, alertStatusLabel, alertStatusSeverity } from './AlertDetails';
@@ -131,7 +131,7 @@ export const Alerts = () => {
                     initialValues={{ alert: noteFor.id, text: '' }}
                     onConfirm={() => setNoteFor(undefined)}
                     onCancel={() => setNoteFor(undefined)}>
-                    <TextAreaField<AddAlertNote>
+                    <MarkdownEditorField<AddAlertNote>
                         value={(instance) => instance.text}
                         title='Note'
                         rows={6}
@@ -152,7 +152,7 @@ export const Alerts = () => {
                     }}
                     onConfirm={() => setResolveFor(undefined)}
                     onCancel={() => setResolveFor(undefined)}>
-                    <TextAreaField<ResolveAlert>
+                    <MarkdownEditorField<ResolveAlert>
                         value={(instance) => instance.resolution}
                         title='Resolution'
                         rows={6}

@@ -4,7 +4,8 @@
 import { useMemo, useState } from 'react';
 import { MultiSelect } from 'primereact/multiselect';
 import { CommandDialog } from '@cratis/components/CommandDialog';
-import { DropdownField, MultiSelectField, TextAreaField } from '@cratis/components/CommandForm/fields';
+import { CheckboxField, DropdownField, MultiSelectField } from '@cratis/components/CommandForm/fields';
+import { MarkdownEditorField } from '../Common/MarkdownEditorField';
 import { ScheduleAdHocWork } from './SchedulingAdHoc/SchedulingAdHoc';
 import { AllRepositories } from '../Repositories/Listing/Listing';
 import { AllOrganizations } from '../Repositories/Organizations/Listing/Listing';
@@ -69,17 +70,21 @@ export const AdHocWorkDialog = ({ onClose }: AdHocWorkDialogProps) => {
             width='40rem'
             okLabel='Schedule'
             cancelLabel='Cancel'
-            initialValues={{ repositories: [], organization: '', model: '' }}
+            initialValues={{ repositories: [], organization: '', allRepositories: false, model: '' }}
             onBeforeExecute={expandGroups}
             onConfirm={onClose}
             onCancel={onClose}>
-            <TextAreaField<ScheduleAdHocWork>
+            <MarkdownEditorField<ScheduleAdHocWork>
                 value={(instance) => instance.prompt}
                 title='What should the agent do?'
-                placeholder='The instructions for the agent' />
+                placeholder='The instructions for the agent'
+                rows={10} />
+            <CheckboxField<ScheduleAdHocWork>
+                value={(instance) => instance.allRepositories}
+                label='All repositories the Planner tracks' />
             <MultiSelectField<ScheduleAdHocWork>
                 value={(instance) => instance.repositories}
-                title='Repositories'
+                title='Repositories (ignored when "All repositories" is checked)'
                 options={repositoryOptions}
                 optionValue='value'
                 optionLabel='label' />
@@ -96,7 +101,7 @@ export const AdHocWorkDialog = ({ onClose }: AdHocWorkDialogProps) => {
             </div>
             <DropdownField<ScheduleAdHocWork>
                 value={(instance) => instance.organization}
-                title='Organization'
+                title='Organization (ignored when "All repositories" is checked)'
                 options={organizationOptions}
                 optionValue='value'
                 optionLabel='label' />
