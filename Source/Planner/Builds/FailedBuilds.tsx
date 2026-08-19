@@ -3,6 +3,7 @@
 
 import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
+import { Tag } from 'primereact/tag';
 import { DataPage } from '@cratis/components/DataPage';
 import { FailedBuilds as FailedBuildsQuery, BuildStatus } from './Listing/Listing';
 import { ScheduleAdHocWork } from '../Work/SchedulingAdHoc/SchedulingAdHoc';
@@ -34,6 +35,18 @@ export const FailedBuilds = () => (
                 header='Last run'
                 body={(build: BuildStatus) => new Date(build.ranAt).toLocaleString()}
                 style={{ width: '14rem' }} />
+            <Column
+                header='Diagnosis'
+                body={(build: BuildStatus) => build.diagnosis
+                    ? (
+                        <div className='flex items-center gap-2'>
+                            {build.fixable !== undefined &&
+                                <Tag value={build.fixable ? 'Fixable' : 'Needs a person'} severity={build.fixable ? 'success' : 'warning'} />}
+                            <span>{build.diagnosis}</span>
+                        </div>
+                    )
+                    : <span className='text-[var(--text-color-secondary)]'>Not analyzed</span>}
+                style={{ width: '22rem' }} />
             <Column
                 style={{ width: '10rem' }}
                 body={(build: BuildStatus) => (
