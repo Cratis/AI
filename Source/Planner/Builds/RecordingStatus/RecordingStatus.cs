@@ -1,6 +1,8 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Planner.Builds.Listing;
+
 namespace Planner.Builds.RecordingStatus;
 
 /// <summary>
@@ -30,10 +32,18 @@ public record RecordBuildStatus(
     public EventSourceId GetEventSourceId() => BuildWorkflowId.From(Owner, Repository, Workflow);
 
     /// <summary>
-    /// Handles the command by appending a <see cref="BuildStatusRecorded"/> event.
+    /// Handles the command by appending a <see cref="BuildStatusRecorded"/> event - flagging whether
+    /// this is the moment the workflow started failing, so a reactor can analyze it once per failure
+    /// rather than once per daily check while it stays red.
     /// </summary>
+    /// <param name="current">The workflow's current read model, when it has run before.</param>
     /// <returns>The event.</returns>
-    public BuildStatusRecorded Handle() => new(Owner, Repository, Workflow, Conclusion, RunUrl, RanAt);
+    public BuildStatusRecorded Handle(BuildStatus? current)
+    {
+        var wasAlreadyFailing = current?.Conclusion == BuildConclusion.Failure;
+        var isNewFailure = Conclusion == BuildConclusion.Failure && !wasAlreadyFailing;
+        return new(Owner, Repository, Workflow, Conclusion, RunUrl, RanAt, isNewFailure);
+    }
 }
 
 /// <summary>
@@ -45,6 +55,7 @@ public record RecordBuildStatus(
 /// <param name="Conclusion">How the most recent run concluded.</param>
 /// <param name="RunUrl">The html URL of the most recent run.</param>
 /// <param name="RanAt">When the most recent run finished.</param>
+/// <param name="IsNewFailure">Whether this is the moment the workflow started failing, rather than a repeat of an already-known failure.</param>
 [EventType]
 public record BuildStatusRecorded(
     OrganizationName Owner,
@@ -52,4 +63,5 @@ public record BuildStatusRecorded(
     WorkflowName Workflow,
     BuildConclusion Conclusion,
     BuildRunUrl RunUrl,
-    DateTimeOffset RanAt);
+    DateTimeOffset RanAt,
+    bool IsNewFailure);

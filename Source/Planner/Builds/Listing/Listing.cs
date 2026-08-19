@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using MongoDB.Driver;
+using Planner.Builds.RecordingDiagnosis;
 using Planner.Builds.RecordingStatus;
 
 namespace Planner.Builds.Listing;
@@ -17,6 +18,8 @@ namespace Planner.Builds.Listing;
 /// <param name="Conclusion">How the most recent run concluded.</param>
 /// <param name="RunUrl">The html URL of the most recent run.</param>
 /// <param name="RanAt">When the most recent run finished.</param>
+/// <param name="Diagnosis">What the language model made of the failure - <see langword="null"/> until analyzed.</param>
+/// <param name="Fixable">Whether the language model judged an agent could plausibly fix it.</param>
 [ReadModel]
 [FromEvent<BuildStatusRecorded>]
 public record BuildStatus(
@@ -26,7 +29,11 @@ public record BuildStatus(
     WorkflowName Workflow,
     BuildConclusion Conclusion,
     BuildRunUrl RunUrl,
-    DateTimeOffset RanAt)
+    DateTimeOffset RanAt,
+    [SetFrom<BuildDiagnosisRecorded>(nameof(BuildDiagnosisRecorded.Diagnosis))]
+    BuildDiagnosis? Diagnosis = null,
+    [SetFrom<BuildDiagnosisRecorded>(nameof(BuildDiagnosisRecorded.Fixable))]
+    bool? Fixable = null)
 {
     /// <summary>
     /// Observes every workflow the daily consolidation has checked, whatever it last concluded.

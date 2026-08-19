@@ -18,7 +18,7 @@ public class and_a_status_is_recorded : Specification
     async Task Because() =>
         await _scenario.Given
             .ForEventSource(_id)
-            .Events(new BuildStatusRecorded("Cratis", "Studio", "Update Packages", BuildConclusion.Failure, "https://github.com/Cratis/Studio/actions/runs/1", _ranAt));
+            .Events(new BuildStatusRecorded("Cratis", "Studio", "Update Packages", BuildConclusion.Failure, "https://github.com/Cratis/Studio/actions/runs/1", _ranAt, true));
 
     [Fact] void should_hold_the_conclusion() => _scenario.Instance.Conclusion.ShouldEqual(BuildConclusion.Failure);
     [Fact] void should_hold_the_run_url() => _scenario.Instance.RunUrl.ShouldEqual(new BuildRunUrl("https://github.com/Cratis/Studio/actions/runs/1"));

@@ -18,8 +18,8 @@ public class and_it_recovers : Specification
         await _scenario.Given
             .ForEventSource(_id)
             .Events(
-                new BuildStatusRecorded("Cratis", "Studio", "Update Packages", BuildConclusion.Failure, "https://github.com/Cratis/Studio/actions/runs/1", DateTimeOffset.UnixEpoch),
-                new BuildStatusRecorded("Cratis", "Studio", "Update Packages", BuildConclusion.Success, "https://github.com/Cratis/Studio/actions/runs/2", DateTimeOffset.UnixEpoch.AddDays(1)));
+                new BuildStatusRecorded("Cratis", "Studio", "Update Packages", BuildConclusion.Failure, "https://github.com/Cratis/Studio/actions/runs/1", DateTimeOffset.UnixEpoch, true),
+                new BuildStatusRecorded("Cratis", "Studio", "Update Packages", BuildConclusion.Success, "https://github.com/Cratis/Studio/actions/runs/2", DateTimeOffset.UnixEpoch.AddDays(1), false));
 
     [Fact] void should_hold_the_latest_conclusion() => _scenario.Instance.Conclusion.ShouldEqual(BuildConclusion.Success);
     [Fact] void should_hold_the_latest_run_url() => _scenario.Instance.RunUrl.ShouldEqual(new BuildRunUrl("https://github.com/Cratis/Studio/actions/runs/2"));
