@@ -82,10 +82,20 @@ public record WorkItem(
     AlertId? Alert = null)
 {
     /// <summary>
-    /// Observes all units of work.
+    /// Observes all units of work, finished ones included - the history view behind the "Show done"
+    /// toggle. <see cref="ActiveWork"/> is what the default view uses.
     /// </summary>
     /// <param name="collection">The MongoDB collection holding the work items.</param>
     /// <returns>An observable of all work.</returns>
     public static ISubject<IEnumerable<WorkItem>> AllWork(IMongoCollection<WorkItem> collection) =>
         collection.Observe();
+
+    /// <summary>
+    /// Observes the units of work that have not reached a terminal state yet - the default view, so
+    /// completed, failed and stopped work disappears from the board once it is done.
+    /// </summary>
+    /// <param name="collection">The MongoDB collection holding the work items.</param>
+    /// <returns>An observable of the active work.</returns>
+    public static ISubject<IEnumerable<WorkItem>> ActiveWork(IMongoCollection<WorkItem> collection) =>
+        collection.Observe(work => work.Status == WorkStatus.Scheduled || work.Status == WorkStatus.Running);
 }

@@ -9,7 +9,8 @@ import { DataTable } from 'primereact/datatable';
 import { Menubar } from 'primereact/menubar';
 import { Tag } from 'primereact/tag';
 import { Page } from '@cratis/components/Common';
-import { AllWork, WorkItem } from './Listing/Listing';
+import { useObservableQuery } from '@cratis/arc.react/queries';
+import { ActiveWork, AllWork, WorkItem } from './Listing/Listing';
 import { WorkPurpose } from './WorkPurpose';
 import { WorkStatus } from './WorkStatus';
 import { StopWork } from './Stopping/Stopping';
@@ -33,7 +34,8 @@ interface WorkRow {
  * issues (or repositories) it covers, a live console with steering, and ad-hoc scheduling.
  */
 export const Work = () => {
-    const [workResult] = AllWork.use();
+    const [showDone, setShowDone] = useState(false);
+    const [workResult] = useObservableQuery<WorkItem[], AllWork | ActiveWork>(showDone ? AllWork : ActiveWork);
     const [issuesResult] = AllIssues.use();
     const [groupsResult] = AllGroups.use();
     const [selected, setSelected] = useState<WorkRow | undefined>(undefined);
@@ -143,6 +145,7 @@ export const Work = () => {
 
     const menuItems = [
         { label: 'Ad-hoc work', icon: 'pi pi-bolt', command: () => setAdHocVisible(true) },
+        { label: showDone ? 'Hide done' : 'Show done', icon: showDone ? 'pi pi-eye-slash' : 'pi pi-eye', command: () => setShowDone((current) => !current) },
         {
             label: 'Stop',
             icon: 'pi pi-stop-circle',

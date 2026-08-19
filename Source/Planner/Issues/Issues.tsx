@@ -11,7 +11,8 @@ import { Menubar } from 'primereact/menubar';
 import { Tag } from 'primereact/tag';
 import { Page } from '@cratis/components/Common';
 import { Dropdown } from '@cratis/components/Dropdown';
-import { AllIssues, Issue } from './Listing/Listing';
+import { useObservableQuery } from '@cratis/arc.react/queries';
+import { AllIssues, Issue, OpenIssues } from './Listing/Listing';
 import { AllGroups, Group } from './Grouping/Listing/Listing';
 import { IssueStatus } from './IssueStatus';
 import { ReorderIssue } from './Reordering/Reordering';
@@ -52,7 +53,8 @@ type IssueRow = Issue & { groupKey: string };
  * ordering, drag-onto-row grouping and a resizable detail pane rendering the full issue.
  */
 export const Issues = () => {
-    const [issuesResult] = AllIssues.use();
+    const [showDone, setShowDone] = useState(false);
+    const [issuesResult] = useObservableQuery<Issue[], AllIssues | OpenIssues>(showDone ? AllIssues : OpenIssues);
     const [groupsResult] = AllGroups.use();
     const [selected, setSelected] = useState<Issue | undefined>(undefined);
     const [search, setSearch] = useState('');
@@ -71,9 +73,9 @@ export const Issues = () => {
         return map;
     }, [groupsResult.data]);
 
-    const openIssues = useMemo(
-        () => (issuesResult.data ?? []).filter((issue) => issue.isOpen),
-        [issuesResult.data]);
+    // The query already returns only what should be visible - open issues by default, everything
+    // (open and closed) once "Show done" is on - so nothing is filtered here anymore.
+    const openIssues = useMemo(() => issuesResult.data ?? [], [issuesResult.data]);
 
     const rows = useMemo(() => {
         const filtered = openIssues.filter((issue) => {
@@ -189,6 +191,11 @@ export const Issues = () => {
                 value={statusFilter}
                 options={statusFilterOptions}
                 onChange={(event) => setStatusFilter(event.value as IssueStatus | undefined)} />
+            <Button
+                label={showDone ? 'Hide done' : 'Show done'}
+                icon={showDone ? 'pi pi-eye-slash' : 'pi pi-eye'}
+                text
+                onClick={() => setShowDone((current) => !current)} />
         </div>
     );
 

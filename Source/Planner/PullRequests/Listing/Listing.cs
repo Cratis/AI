@@ -40,10 +40,21 @@ public record PullRequest(
     bool? Merged = null)
 {
     /// <summary>
-    /// Observes every pull request mirrored across every tracked repository.
+    /// Observes every pull request mirrored across every tracked repository, open, merged and
+    /// closed alike - the history view behind the "Show done" toggle. <see cref="OpenPullRequests"/>
+    /// is what the default view uses.
     /// </summary>
     /// <param name="collection">The MongoDB collection holding the pull requests.</param>
     /// <returns>An observable of every pull request.</returns>
     public static ISubject<IEnumerable<PullRequest>> AllPullRequests(IMongoCollection<PullRequest> collection) =>
         collection.Observe();
+
+    /// <summary>
+    /// Observes the pull requests that are still open on GitHub - the default view, so a merged or
+    /// closed pull request disappears the moment the mirror learns about it.
+    /// </summary>
+    /// <param name="collection">The MongoDB collection holding the pull requests.</param>
+    /// <returns>An observable of the open pull requests.</returns>
+    public static ISubject<IEnumerable<PullRequest>> OpenPullRequests(IMongoCollection<PullRequest> collection) =>
+        collection.Observe(pullRequest => pullRequest.IsOpen);
 }
