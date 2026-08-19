@@ -1,6 +1,8 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Planner.Builds;
+
 namespace Planner.GitHub;
 
 /// <summary>
@@ -51,3 +53,12 @@ public record GitHubCreatedIssue(IssueNumber Number, IssueUrl Url);
 /// <param name="Body">The markdown body of the comment.</param>
 /// <param name="CommentedAt">When the comment was written.</param>
 public record GitHubComment(CommentId Id, UserName Author, CommentBody Body, DateTimeOffset CommentedAt);
+
+/// <summary>
+/// Represents the most recent run of a workflow as returned by the GitHub Actions API.
+/// </summary>
+/// <param name="Workflow">The workflow's name.</param>
+/// <param name="Conclusion">How the run concluded - <see cref="BuildConclusion.Unknown"/> for a run still in progress.</param>
+/// <param name="RunUrl">The html URL of the run.</param>
+/// <param name="RanAt">When the run finished, or was last updated while still running.</param>
+public record GitHubWorkflowRun(WorkflowName Workflow, BuildConclusion Conclusion, BuildRunUrl RunUrl, DateTimeOffset RanAt);
