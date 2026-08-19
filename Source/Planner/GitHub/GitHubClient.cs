@@ -133,6 +133,22 @@ public class GitHubClient(HttpClient httpClient, IGitHubAppTokenResolver tokenRe
     }
 
     /// <inheritdoc/>
+    public async Task AssignIssue(OrganizationName owner, RepositoryName repository, IssueNumber number, UserName assignee, CancellationToken cancellationToken = default)
+    {
+        var payload = JsonSerializer.Serialize(new { assignees = new[] { assignee.Value } });
+        using var response = await Send(owner, HttpMethod.Post, $"repos/{owner.Value}/{repository.Value}/issues/{number.Value}/assignees", new StringContent(payload, Encoding.UTF8, "application/json"), cancellationToken);
+        response.EnsureSuccessStatusCode();
+    }
+
+    /// <inheritdoc/>
+    public async Task UnassignIssue(OrganizationName owner, RepositoryName repository, IssueNumber number, UserName assignee, CancellationToken cancellationToken = default)
+    {
+        var payload = JsonSerializer.Serialize(new { assignees = new[] { assignee.Value } });
+        using var response = await Send(owner, HttpMethod.Delete, $"repos/{owner.Value}/{repository.Value}/issues/{number.Value}/assignees", new StringContent(payload, Encoding.UTF8, "application/json"), cancellationToken);
+        response.EnsureSuccessStatusCode();
+    }
+
+    /// <inheritdoc/>
     public async Task<bool> IsOrganizationMember(OrganizationName organization, UserName user, CancellationToken cancellationToken = default)
     {
         using var response = await Send(organization, HttpMethod.Get, $"orgs/{organization.Value}/members/{user.Value}", null, cancellationToken);

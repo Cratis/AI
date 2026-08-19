@@ -1,6 +1,8 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Planner.GitHub;
+
 namespace Planner.GitHub.App;
 
 /// <summary>
@@ -48,6 +50,14 @@ public class GitHubAppOptions
     /// Gets or sets the shared secret GitHub signs webhook deliveries with.
     /// </summary>
     public string WebhookSecret { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the login of the machine user account issues are assigned to while an agent works
+    /// on them. GitHub does not allow assigning issues to an App itself, only to a user account - set
+    /// this to a dedicated account's login (e.g. a bot account named after <see cref="AIIdentity.DisplayName"/>)
+    /// to enable assignment; leave empty to skip it entirely.
+    /// </summary>
+    public string AIUserLogin { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets whether the App has been configured with the minimum required to authenticate.

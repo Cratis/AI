@@ -68,6 +68,28 @@ public interface IGitHubClient
     Task<bool> MergePullRequest(OrganizationName owner, RepositoryName repository, PullRequestNumber number, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Assigns a user to an issue, in addition to whoever is already assigned.
+    /// </summary>
+    /// <param name="owner">The organization owning the repository.</param>
+    /// <param name="repository">The repository the issue belongs to.</param>
+    /// <param name="number">The issue number.</param>
+    /// <param name="assignee">The login of the user to assign.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> for the operation.</param>
+    /// <returns>Awaitable task.</returns>
+    Task AssignIssue(OrganizationName owner, RepositoryName repository, IssueNumber number, UserName assignee, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Removes a user's assignment from an issue.
+    /// </summary>
+    /// <param name="owner">The organization owning the repository.</param>
+    /// <param name="repository">The repository the issue belongs to.</param>
+    /// <param name="number">The issue number.</param>
+    /// <param name="assignee">The login of the user to unassign.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> for the operation.</param>
+    /// <returns>Awaitable task.</returns>
+    Task UnassignIssue(OrganizationName owner, RepositoryName repository, IssueNumber number, UserName assignee, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Checks whether a user is a member of an organization.
     /// </summary>
     /// <param name="organization">The organization to check membership in.</param>
