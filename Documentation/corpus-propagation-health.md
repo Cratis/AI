@@ -119,11 +119,12 @@ by a wide margin, not `AI`.
 
 ### Structural risks found in the mechanism
 
-1. **Mesh topology with no declared authority.** 21 repos have written the corpus into
+1. **Mesh topology with no declared ownership.** 21 repos have written the corpus into
    others. If two sources publish different content, last writer wins, silently. Nothing
-   declares `Cratis/AI` as canonical or makes a non-canonical source a build error. This is
-   the most serious structural finding: the corpus is the specification of the AI developer,
-   and 21 repositories can rewrite it.
+   records which repository owns which part of the corpus. This is the most serious
+   structural finding --- the corpus is the specification of the AI developer, and 21
+   repositories can rewrite it. Note the fix is **ownership**, not centralization; see
+   proposal C, which was decided against sole authority on the authorship numbers.
 2. **Sync commits suppress onward propagation** (reusable workflow, the
    `^Sync Copilot instructions from` guard). Sound in itself — it stops infinite fan-out —
    but combined with the mesh it means a repo can hold content that never travels further.
@@ -143,9 +144,22 @@ Not built. Requires ratification before any work starts.
 - **B. One scheduled reporter job in `Cratis/AI`.** Daily: read each repo's manifest via
   the API, compare to canonical `main`, and write a single issue (or update one) listing
   repos more than N commits behind. Cheap, needs no downstream change beyond A.
-- **C. Declare canonical authority.** Make `Cratis/AI` the only permitted source and have
-  the reusable workflow refuse to propagate from anywhere else, or at minimum annotate the
-  run when the source is not `Cratis/AI`. Addresses risk 1.
+- **C. Declare authority per path, not per repository — DECIDED.** The tempting version of
+  this, making `Cratis/AI` the only permitted source, was rejected on the evidence. `Chronicle`
+  authored **237** corpus-modifying syncs against this repository's **91**, and `Components`,
+  `Arc` and `Fundamentals` add 68 more. Sole authority would declare the majority of real
+  authorship illegitimate and route it through a repository whose maintainers are not the
+  people writing those rules. It would be enforcement against the grain of how the work
+  actually happens, and the predictable result is that people work around it.
+  What the mesh actually lacks is not a single owner but **a statement of who owns what**.
+  A rule about Chronicle belongs to Chronicle; the shared corpus belongs here. So the
+  mechanism should record, per path, which repository is authoritative, and annotate --- not
+  refuse --- a sync whose source is not the owner of the paths it changes. That preserves the
+  mesh's real benefit, which is that a maintainer fixes a rule where they found it, while
+  making an unexpected rewrite visible instead of silent.
+  **Enforcement should wait for visibility.** Ship A and B, watch who actually writes what for
+  a few weeks against real data, and only then decide whether anything needs to be refused
+  outright. Nothing here is urgent enough to justify guessing.
 - **D. Fail loudly on partial fan-out.** Add a summary job that consumes the matrix results
   and fails the run when any target was not updated. Addresses risk 3.
 
