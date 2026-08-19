@@ -49,8 +49,10 @@ public static class WorkerCallbackEndpoints
         app.MapPost("/api/work/{workId}/callback", async (
             string workId,
             WorkerCallbackPayload payload,
+            HttpRequest request,
             IEventStore eventStore,
-            ICommandPipeline commandPipeline) =>
+            ICommandPipeline commandPipeline,
+            IWorkerCallbackTokens callbackTokens) =>
         {
             if (!Guid.TryParse(workId, out var parsedWorkId))
             {
@@ -58,6 +60,11 @@ public static class WorkerCallbackEndpoints
             }
 
             WorkId id = parsedWorkId;
+            if (!callbackTokens.Validate(id, BearerToken(request)))
+            {
+                return Results.Unauthorized();
+            }
+
             var work = await eventStore.ReadModels.GetInstanceById<WorkItem>((EventSourceId)id);
             if (work is null)
             {
@@ -80,6 +87,7 @@ public static class WorkerCallbackEndpoints
                         payload.OutputTokens,
                         payload.CostUsd,
                         payload.DurationMs));
+                    callbackTokens.Revoke(id);
                     break;
 
                 case "completed":
@@ -95,11 +103,13 @@ public static class WorkerCallbackEndpoints
                         payload.OutputTokens,
                         payload.CostUsd,
                         payload.DurationMs));
+                    callbackTokens.Revoke(id);
                     break;
 
                 case "failed":
                     var reason = string.IsNullOrWhiteSpace(payload.Detail) ? "The worker reported a failure" : payload.Detail;
                     await commandPipeline.Execute(new FailWork(id, reason));
+                    callbackTokens.Revoke(id);
                     break;
 
                 default:
@@ -112,9 +122,15 @@ public static class WorkerCallbackEndpoints
         app.MapPost("/api/work/{workId}/input", async (
             string workId,
             WorkerInputPayload payload,
+            HttpContext context,
             IWorkerRuntime workerRuntime,
             CancellationToken cancellationToken) =>
         {
+            if (!RequireSignedInUser(context))
+            {
+                return Results.Unauthorized();
+            }
+
             if (!Guid.TryParse(workId, out var parsedWorkId) || string.IsNullOrWhiteSpace(payload.Text))
             {
                 return Results.BadRequest();
@@ -127,9 +143,16 @@ public static class WorkerCallbackEndpoints
         app.MapGet("/api/work/{workId}/log", async (
             string workId,
             HttpResponse response,
+            HttpContext context,
             IWorkerRuntime workerRuntime,
             CancellationToken cancellationToken) =>
         {
+            if (!RequireSignedInUser(context))
+            {
+                response.StatusCode = StatusCodes.Status401Unauthorized;
+                return;
+            }
+
             if (!Guid.TryParse(workId, out var parsedWorkId))
             {
                 response.StatusCode = StatusCodes.Status400BadRequest;
@@ -156,4 +179,24 @@ public static class WorkerCallbackEndpoints
 
         return app;
     }
+
+    /// <summary>
+    /// Extracts the bearer token from a worker container's callback request.
+    /// </summary>
+    /// <param name="request">The <see cref="HttpRequest"/> to read the header from.</param>
+    /// <returns>The presented token, or <see langword="null"/> when none was given.</returns>
+    static string? BearerToken(HttpRequest request)
+    {
+        var header = request.Headers.Authorization.ToString();
+        return header.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase) ? header["Bearer ".Length..].Trim() : null;
+    }
+
+    /// <summary>
+    /// Whether the request carries an authenticated user - these two endpoints are steered and
+    /// tailed from the Work page in the browser, not by the worker container, so they authenticate
+    /// like the rest of the application rather than with the worker's callback token.
+    /// </summary>
+    /// <param name="context">The <see cref="HttpContext"/> of the request.</param>
+    /// <returns><see langword="true"/> when a signed-in user is making the request.</returns>
+    static bool RequireSignedInUser(HttpContext context) => context.User?.Identity?.IsAuthenticated == true;
 }

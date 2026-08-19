@@ -1,6 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Planner.Work.Callback;
 using Planner.Work.Listing;
 using Planner.Work.Workers;
 
@@ -20,8 +21,9 @@ public record StopWork(WorkId Work)
     /// </summary>
     /// <param name="work">The work's read model - resolved by the command's event source id.</param>
     /// <param name="workerRuntime">The <see cref="IWorkerRuntime"/> to stop the worker through.</param>
+    /// <param name="callbackTokens">Revokes the stopped worker's callback token so it cannot report anything further.</param>
     /// <returns>The <see cref="WorkStopped"/> event, or a validation error.</returns>
-    public async Task<Result<WorkStopped, ValidationResult>> Handle(WorkItem? work, IWorkerRuntime workerRuntime)
+    public async Task<Result<WorkStopped, ValidationResult>> Handle(WorkItem? work, IWorkerRuntime workerRuntime, IWorkerCallbackTokens callbackTokens)
     {
         if (work is null)
         {
@@ -38,6 +40,7 @@ public record StopWork(WorkId Work)
             await workerRuntime.Stop(Work);
         }
 
+        callbackTokens.Revoke(Work);
         return new WorkStopped();
     }
 }

@@ -3,6 +3,7 @@
 
 #if DEBUG
 using Microsoft.Extensions.DependencyInjection;
+using Planner.Work.Callback;
 using Planner.Work.Listing;
 using Planner.Work.Workers;
 
@@ -13,14 +14,17 @@ public class and_it_is_running : Specification
     static readonly WorkId _workId = WorkId.New();
 
     IWorkerRuntime _workerRuntime;
+    IWorkerCallbackTokens _callbackTokens;
     CommandScenario<StopWork> _scenario;
     CommandResult _result;
 
     void Establish()
     {
         _workerRuntime = Substitute.For<IWorkerRuntime>();
+        _callbackTokens = Substitute.For<IWorkerCallbackTokens>();
         _scenario = new();
         _scenario.Services.AddSingleton(_workerRuntime);
+        _scenario.Services.AddSingleton(_callbackTokens);
         _scenario.Given.ForEventSource(_workId).ReadModel(new WorkItem(
             _workId,
             WorkPurpose.Implementation,
@@ -34,6 +38,7 @@ public class and_it_is_running : Specification
 
     [Fact] void should_succeed() => _result.ShouldBeSuccessful();
     [Fact] async Task should_stop_the_worker() => await _workerRuntime.Received(1).Stop(_workId, Arg.Any<CancellationToken>());
+    [Fact] void should_revoke_the_callback_token() => _callbackTokens.Received(1).Revoke(_workId);
     [Fact] void should_append_work_stopped() => _scenario.EventSequence.ShouldHaveAppendedEvent<WorkStopped>();
 }
 #endif

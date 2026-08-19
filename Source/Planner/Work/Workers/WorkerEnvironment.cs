@@ -11,6 +11,7 @@ using Planner.Issues.Grouping;
 using Planner.Issues.Grouping.Listing;
 using Planner.Operations;
 using Planner.Repositories.Listing;
+using Planner.Work.Callback;
 using Planner.Work.Listing;
 using ListedAlert = Planner.Alerts.Listing.Alert;
 using ListedIssue = Planner.Issues.Listing.Issue;
@@ -37,6 +38,7 @@ public class WorkerEnvironment(
         IReadOnlyList<ListedIssue> coveredIssues,
         AccountCredentials credentials,
         ModelName model,
+        CallbackToken callbackToken,
         CancellationToken cancellationToken = default)
     {
         var environment = new Dictionary<string, string>
@@ -44,6 +46,7 @@ public class WorkerEnvironment(
             ["PLANNER_WORK_ID"] = work.Id.Value.ToString(),
             ["PLANNER_MODEL"] = model.Value,
             ["PLANNER_CALLBACK_URL"] = $"{workerOptions.Value.CallbackBaseUrl.TrimEnd('/')}/api/work/{work.Id.Value}/callback",
+            ["PLANNER_CALLBACK_TOKEN"] = callbackToken.Value,
             ["PLANNER_BRANCH"] = $"planner/work-{work.Id.Value:N}",
             ["CLAUDE_CODE_OAUTH_TOKEN"] = credentials.Token.Value
         };
