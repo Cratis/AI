@@ -5,6 +5,7 @@
 using Planner.GitHub;
 using Planner.GitHub.App;
 using Planner.Repositories.Adding;
+using Planner.Repositories.Organizations;
 using Planner.Repositories.Organizations.Adding;
 
 namespace Planner.Repositories.Discovery.for_RepositoryDiscovery.when_organization_is_added;
@@ -16,7 +17,7 @@ public class and_no_github_app_is_configured : given.a_reactor
             .Returns<IEnumerable<GitHubRepository>>(_ => throw new GitHubAppNotConfigured());
 
     async Task Because() =>
-        await _scenario.Given.ForEventSource(OrganizationId.From("Cratis")).Events(new OrganizationAdded("Cratis"));
+        await _scenario.Given.ForEventSource(OrganizationId.From("Cratis")).Events(new OrganizationAdded("Cratis", OrganizationTrackingPolicy.All));
 
     [Fact]
     void should_record_that_the_discovery_failed() =>

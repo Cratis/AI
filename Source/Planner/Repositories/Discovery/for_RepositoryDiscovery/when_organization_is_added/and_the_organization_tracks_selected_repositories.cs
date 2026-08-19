@@ -9,7 +9,7 @@ using Planner.Repositories.Organizations.Adding;
 
 namespace Planner.Repositories.Discovery.for_RepositoryDiscovery.when_organization_is_added;
 
-public class and_github_lists_its_repositories : given.a_reactor
+public class and_the_organization_tracks_selected_repositories : given.a_reactor
 {
     void Establish() =>
         _gitHub.GetOrganizationRepositories(new OrganizationName("Cratis"), Arg.Any<CancellationToken>())
@@ -20,21 +20,14 @@ public class and_github_lists_its_repositories : given.a_reactor
             ]);
 
     async Task Because() =>
-        await _scenario.Given.ForEventSource(OrganizationId.From("Cratis")).Events(new OrganizationAdded("Cratis", OrganizationTrackingPolicy.All));
+        await _scenario.Given.ForEventSource(OrganizationId.From("Cratis")).Events(new OrganizationAdded("Cratis", OrganizationTrackingPolicy.Selected));
 
     [Fact]
-    async Task should_add_the_first_repository() =>
-        await _commandPipeline.Received(1).Execute(Arg.Is<AddRepository>(command => command.Name == new RepositoryName("Studio")));
+    async Task should_not_add_any_repository_automatically() =>
+        await _commandPipeline.DidNotReceive().Execute(Arg.Any<AddRepository>());
 
     [Fact]
-    async Task should_add_the_second_repository() =>
-        await _commandPipeline.Received(1).Execute(Arg.Is<AddRepository>(command => command.Name == new RepositoryName("Chronicle")));
-
-    [Fact]
-    void should_record_how_many_repositories_were_found() =>
+    void should_still_record_what_was_discovered() =>
         _scenario.ShouldHaveProduced<OrganizationRepositoriesDiscovered>(@event => @event.RepositoryNames.Count() == 2);
-
-    [Fact]
-    void should_not_record_a_failure() => _scenario.ShouldNotHaveProduced<OrganizationRepositoryDiscoveryFailed>();
 }
 #endif

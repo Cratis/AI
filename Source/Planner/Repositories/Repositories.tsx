@@ -11,10 +11,12 @@ import { Tag } from 'primereact/tag';
 import { Page } from '@cratis/components/Common';
 import { DataPage, MenuItem } from '@cratis/components/DataPage';
 import { CommandDialog } from '@cratis/components/CommandDialog';
-import { InputTextField, MultiSelectField } from '@cratis/components/CommandForm/fields';
+import { DropdownField, InputTextField, MultiSelectField } from '@cratis/components/CommandForm/fields';
 import { Current as GetGitHubAppStatus } from '../GitHub/App/GitHubAppStatus';
 import { AllOrganizations, Organization } from './Organizations/Listing/Listing';
 import { RepositoryDiscoveryStatus } from './Organizations/RepositoryDiscoveryStatus';
+import { OrganizationTrackingPolicy } from './Organizations/OrganizationTrackingPolicy';
+import { TrackDiscoveredRepositories } from './TrackingDiscovered/TrackingDiscovered';
 import { AllRepositories, Repository } from './Listing/Listing';
 import { IssueSynchronizationStatus } from './IssueSynchronizationStatus';
 import { AddOrganization } from './Organizations/Adding/Adding';
@@ -40,6 +42,14 @@ type GroupMemberRow = {
  * How discovering an organization's repositories went. Nothing about an organization is visible until
  * its repositories load, so an organization that never got them has to say so on its own row.
  */
+const trackingPolicyOptions = [
+    { label: 'All repositories', value: OrganizationTrackingPolicy.all },
+    { label: 'Selected repositories', value: OrganizationTrackingPolicy.selected },
+];
+
+const trackingPolicyLabel = (organization: Organization) =>
+    organization.trackingPolicy === OrganizationTrackingPolicy.selected ? 'Selected' : 'All';
+
 const discoveryTag = (organization: Organization) => {
     switch (organization.discoveryStatus) {
         case RepositoryDiscoveryStatus.discovered:
@@ -76,6 +86,7 @@ export const Repositories = () => {
     const [selectedGroupRow, setSelectedGroupRow] = useState<GroupMemberRow | undefined>(undefined);
     const [expandedGroupRows, setExpandedGroupRows] = useState<DataTableValueArray | DataTableExpandedRows | undefined>(undefined);
     const [addOrganizationVisible, setAddOrganizationVisible] = useState(false);
+    const [trackFor, setTrackFor] = useState<Organization | undefined>(undefined);
     const [addRepositoryVisible, setAddRepositoryVisible] = useState(false);
     const [createGroupVisible, setCreateGroupVisible] = useState(false);
     const [mapCodeFor, setMapCodeFor] = useState<Repository | undefined>(undefined);
@@ -179,9 +190,15 @@ export const Repositories = () => {
                         <DataPage.MenuItems>
                             <MenuItem label='Add' icon={() => <i className='pi pi-plus' />} disableOnUnselected={false} command={() => setAddOrganizationVisible(true)} />
                             <MenuItem label='Retry discovery' icon={() => <i className='pi pi-refresh' />} disableOnUnselected command={() => selectedOrganization && retryDiscovery(selectedOrganization)} />
+                            <MenuItem
+                                label='Track repositories'
+                                icon={() => <i className='pi pi-check-square' />}
+                                disableOnUnselected
+                                command={() => selectedOrganization && setTrackFor(selectedOrganization)} />
                         </DataPage.MenuItems>
                         <DataPage.Columns>
                             <Column field='name' header='Name' style={{ width: '16rem' }} />
+                            <Column header='Tracking' body={trackingPolicyLabel} style={{ width: '10rem' }} />
                             <Column header='Repositories' body={discoveryTag} style={{ width: '12rem' }} />
                             <Column
                                 header='Detail'
@@ -265,9 +282,35 @@ export const Repositories = () => {
                     width='30rem'
                     okLabel='Add'
                     cancelLabel='Cancel'
+                    initialValues={{ trackingPolicy: OrganizationTrackingPolicy.all }}
                     onConfirm={() => setAddOrganizationVisible(false)}
                     onCancel={() => setAddOrganizationVisible(false)}>
                     <InputTextField<AddOrganization> value={(instance) => instance.name} title='Name' placeholder='The GitHub organization name' />
+                    <DropdownField<AddOrganization>
+                        value={(instance) => instance.trackingPolicy}
+                        title='Track'
+                        options={trackingPolicyOptions}
+                        optionValue='value'
+                        optionLabel='label' />
+                </CommandDialog>}
+
+            {trackFor &&
+                <CommandDialog<TrackDiscoveredRepositories>
+                    command={TrackDiscoveredRepositories}
+                    visible
+                    title={`Track repositories for ${trackFor.name}`}
+                    width='30rem'
+                    okLabel='Track'
+                    cancelLabel='Cancel'
+                    initialValues={{ organization: trackFor.name, names: [] }}
+                    onConfirm={() => setTrackFor(undefined)}
+                    onCancel={() => setTrackFor(undefined)}>
+                    <MultiSelectField<TrackDiscoveredRepositories>
+                        value={(instance) => instance.names}
+                        title='Repositories'
+                        options={(trackFor.discoveredRepositories ?? []).map((name) => ({ label: name, value: name }))}
+                        optionValue='value'
+                        optionLabel='label' />
                 </CommandDialog>}
 
             {addRepositoryVisible &&

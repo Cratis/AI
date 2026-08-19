@@ -19,8 +19,8 @@ public class and_repositories_are_discovered : Specification
         await _scenario.Given
             .ForEventSource(_organizationId)
             .Events(
-                new OrganizationAdded("Cratis"),
-                new OrganizationRepositoriesDiscovered(7));
+                new OrganizationAdded("Cratis", OrganizationTrackingPolicy.All),
+                new OrganizationRepositoriesDiscovered(["Studio", "Chronicle", "Arc", "Fundamentals", "Components", "cli", "AI"]));
 
     [Fact] void should_hold_the_name() => _scenario.Instance.Name.ShouldEqual(new OrganizationName("Cratis"));
     [Fact] void should_be_discovered() => _scenario.Instance.DiscoveryStatus.ShouldEqual(RepositoryDiscoveryStatus.Discovered);
