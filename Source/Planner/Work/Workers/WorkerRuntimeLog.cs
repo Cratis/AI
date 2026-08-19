@@ -25,4 +25,7 @@ internal static partial class WorkerRuntimeLog
 
     [LoggerMessage(LogLevel.Debug, "Log stream for work {WorkId} ended")]
     internal static partial void LogStreamEnded(this ILogger logger, Exception exception, WorkId workId);
+
+    [LoggerMessage(LogLevel.Debug, "Could not delete worker secret '{SecretName}' - it may already be gone")]
+    internal static partial void CouldNotDeleteWorkerSecret(this ILogger logger, Exception exception, string secretName);
 }

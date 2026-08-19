@@ -215,7 +215,9 @@ public class WorkDispatcher(
 
         try
         {
-            await workerRuntime.Start(new WorkerJob(work.Id, workerOptions.Value.Image, environment), cancellationToken);
+            await workerRuntime.Start(
+                new WorkerJob(work.Id, workerOptions.Value.Image, environment.Variables, environment.Secrets),
+                cancellationToken);
         }
         catch (Exception exception)
         {
