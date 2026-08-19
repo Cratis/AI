@@ -34,7 +34,7 @@ public class WorkerEnvironment(
     IOptions<OperationsOptions> operationsOptions) : IWorkerEnvironment
 {
     /// <inheritdoc/>
-    public async Task<IReadOnlyDictionary<string, string>> Build(
+    public async Task<WorkerEnvironmentResult> Build(
         WorkItem work,
         IReadOnlyList<ListedIssue> coveredIssues,
         AccountCredentials credentials,
@@ -47,8 +47,13 @@ public class WorkerEnvironment(
             ["PLANNER_WORK_ID"] = work.Id.Value.ToString(),
             ["PLANNER_MODEL"] = model.Value,
             ["PLANNER_CALLBACK_URL"] = $"{workerOptions.Value.CallbackBaseUrl.TrimEnd('/')}/api/work/{work.Id.Value}/callback",
+            ["PLANNER_BRANCH"] = $"planner/work-{work.Id.Value:N}"
+        };
+
+        // Everything that authenticates goes here instead of onto the container specification.
+        var secrets = new Dictionary<string, string>
+        {
             ["PLANNER_CALLBACK_TOKEN"] = callbackToken.Value,
-            ["PLANNER_BRANCH"] = $"planner/work-{work.Id.Value:N}",
             ["CLAUDE_CODE_OAUTH_TOKEN"] = credentials.Token.Value
         };
 
@@ -60,37 +65,45 @@ public class WorkerEnvironment(
 
         return work.Purpose switch
         {
-            WorkPurpose.AdHoc => await BuildAdHoc(work, environment, cancellationToken),
-            WorkPurpose.AlertInvestigation => await BuildAlertInvestigation(work, environment, cancellationToken),
-            _ => await BuildForIssues(work, coveredIssues, environment, cancellationToken)
+            WorkPurpose.AdHoc => await BuildAdHoc(work, environment, secrets, cancellationToken),
+            WorkPurpose.AlertInvestigation => await BuildAlertInvestigation(work, environment, secrets, cancellationToken),
+            _ => await BuildForIssues(work, coveredIssues, environment, secrets, cancellationToken)
         };
     }
 
-    static void AddOperationalAccess(Dictionary<string, string> environment, OperationsOptions operations)
+    static void AddOperationalAccess(
+        Dictionary<string, string> environment,
+        Dictionary<string, string> secrets,
+        OperationsOptions operations)
     {
-        Add("PLANNER_KUBECONFIG", operations.Kubeconfig);
-        Add("PLANNER_KUBE_NAMESPACE", operations.KubernetesNamespace);
-        Add("DOCKER_HOST", operations.DockerHost);
-        Add("PLANNER_LOKI_URL", operations.LokiUrl);
-        Add("PLANNER_LOKI_USERNAME", operations.LokiUsername);
-        Add("PLANNER_LOKI_PASSWORD", operations.LokiPassword);
-        Add("PLANNER_GRAFANA_URL", operations.GrafanaUrl);
-        Add("PLANNER_GRAFANA_TOKEN", operations.GrafanaToken);
+        // Endpoints and namespaces say where to look; only the four below say who you are.
+        Add(environment, "PLANNER_KUBE_NAMESPACE", operations.KubernetesNamespace);
+        Add(environment, "DOCKER_HOST", operations.DockerHost);
+        Add(environment, "PLANNER_LOKI_URL", operations.LokiUrl);
+        Add(environment, "PLANNER_GRAFANA_URL", operations.GrafanaUrl);
 
-        void Add(string name, string value)
+        // The kubeconfig carries a cluster credential, and the Loki username identifies the account
+        // its password unlocks - both belong with the secrets rather than beside them.
+        Add(secrets, "PLANNER_KUBECONFIG", operations.Kubeconfig);
+        Add(secrets, "PLANNER_LOKI_USERNAME", operations.LokiUsername);
+        Add(secrets, "PLANNER_LOKI_PASSWORD", operations.LokiPassword);
+        Add(secrets, "PLANNER_GRAFANA_TOKEN", operations.GrafanaToken);
+
+        static void Add(Dictionary<string, string> target, string name, string value)
         {
             if (!string.IsNullOrWhiteSpace(value))
             {
-                environment[name] = value;
+                target[name] = value;
             }
         }
     }
 
     static bool IsGroup(GroupId? group) => group is not null && group != GroupId.NotSet;
 
-    async Task<IReadOnlyDictionary<string, string>> BuildAdHoc(
+    async Task<WorkerEnvironmentResult> BuildAdHoc(
         WorkItem work,
         Dictionary<string, string> environment,
+        Dictionary<string, string> secrets,
         CancellationToken cancellationToken)
     {
         var urls = new List<string>();
@@ -115,15 +128,16 @@ public class WorkerEnvironment(
         environment["PLANNER_PROMPT"] = WorkerPrompts.BuildAdHoc(work);
         if (tokenOwner is not null)
         {
-            environment["GITHUB_TOKEN"] = await gitHubAppTokenResolver.GetToken(tokenOwner, cancellationToken);
+            secrets["GITHUB_TOKEN"] = await gitHubAppTokenResolver.GetToken(tokenOwner, cancellationToken);
         }
 
-        return environment;
+        return new(environment, secrets);
     }
 
-    async Task<IReadOnlyDictionary<string, string>> BuildAlertInvestigation(
+    async Task<WorkerEnvironmentResult> BuildAlertInvestigation(
         WorkItem work,
         Dictionary<string, string> environment,
+        Dictionary<string, string> secrets,
         CancellationToken cancellationToken)
     {
         var operations = operationsOptions.Value;
@@ -153,18 +167,19 @@ public class WorkerEnvironment(
 
         if (tokenOwner is not null)
         {
-            environment["GITHUB_TOKEN"] = await gitHubAppTokenResolver.GetToken(tokenOwner, cancellationToken);
+            secrets["GITHUB_TOKEN"] = await gitHubAppTokenResolver.GetToken(tokenOwner, cancellationToken);
         }
 
         environment["PLANNER_PROMPT"] = WorkerPrompts.BuildAlertInvestigation(alert, operations);
-        AddOperationalAccess(environment, operations);
-        return environment;
+        AddOperationalAccess(environment, secrets, operations);
+        return new(environment, secrets);
     }
 
-    async Task<IReadOnlyDictionary<string, string>> BuildForIssues(
+    async Task<WorkerEnvironmentResult> BuildForIssues(
         WorkItem work,
         IReadOnlyList<ListedIssue> coveredIssues,
         Dictionary<string, string> environment,
+        Dictionary<string, string> secrets,
         CancellationToken cancellationToken)
     {
         var first = coveredIssues[0];
@@ -183,7 +198,7 @@ public class WorkerEnvironment(
 
         environment["PLANNER_REPOSITORY_URL"] = $"https://github.com/{codeOwner.Value}/{codeName.Value}.git";
         environment["PLANNER_PROMPT"] = WorkerPrompts.Build(work, coveredIssues, groupPrompt);
-        environment["GITHUB_TOKEN"] = await gitHubAppTokenResolver.GetToken(codeOwner, cancellationToken);
-        return environment;
+        secrets["GITHUB_TOKEN"] = await gitHubAppTokenResolver.GetToken(codeOwner, cancellationToken);
+        return new(environment, secrets);
     }
 }

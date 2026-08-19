@@ -27,7 +27,12 @@ public class and_work_is_pending_with_an_available_account : given.all_dependenc
             Arg.Is<WorkerJob>(job =>
                 job.Work == _workId &&
                 job.EnvironmentVariables.ContainsKey("PLANNER_PROMPT") &&
-                job.EnvironmentVariables["CLAUDE_CODE_OAUTH_TOKEN"] == "sk-ant-token"),
+                job.Secrets["CLAUDE_CODE_OAUTH_TOKEN"] == "sk-ant-token" &&
+
+                // The credentials must not also travel on the container specification, which is
+                // what `kubectl get job -o yaml` and `docker inspect` read back.
+                !job.EnvironmentVariables.ContainsKey("CLAUDE_CODE_OAUTH_TOKEN") &&
+                !job.EnvironmentVariables.ContainsKey("PLANNER_CALLBACK_TOKEN")),
             Arg.Any<CancellationToken>());
 
     [Fact]

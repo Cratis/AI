@@ -24,7 +24,7 @@ public class and_a_callback_token_is_given : context
         true,
         IssueStatus.ReadyForDevelopment);
 
-    IReadOnlyDictionary<string, string> _result;
+    WorkerEnvironmentResult _result;
 
     void Establish() => BuildEnvironmentBuilder();
 
@@ -35,6 +35,10 @@ public class and_a_callback_token_is_given : context
         "sonnet",
         _callbackToken);
 
-    [Fact] void should_hand_the_worker_its_callback_token() => _result["PLANNER_CALLBACK_TOKEN"].ShouldEqual(_callbackToken.Value);
+    [Fact] void should_hand_the_worker_its_callback_token() => _result.Secrets["PLANNER_CALLBACK_TOKEN"].ShouldEqual(_callbackToken.Value);
+
+    // The token authenticates the worker, so it must not also sit on the container specification -
+    // that is what `kubectl get job -o yaml` and `docker inspect` read back.
+    [Fact] void should_keep_it_off_the_container_specification() => _result.Variables.ContainsKey("PLANNER_CALLBACK_TOKEN").ShouldBeFalse();
 }
 #endif

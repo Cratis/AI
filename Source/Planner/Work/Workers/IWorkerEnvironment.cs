@@ -23,8 +23,8 @@ public interface IWorkerEnvironment
     /// <param name="model">The resolved model the session runs.</param>
     /// <param name="callbackToken">The bearer token the container must present when it reports progress back.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> for the operation.</param>
-    /// <returns>The environment variables.</returns>
-    Task<IReadOnlyDictionary<string, string>> Build(
+    /// <returns>The configuration and the credentials, kept apart because they travel differently.</returns>
+    Task<WorkerEnvironmentResult> Build(
         WorkItem work,
         IReadOnlyList<ListedIssue> coveredIssues,
         AccountCredentials credentials,
