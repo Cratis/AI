@@ -1,0 +1,280 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.cratis.io/factory/v1/profile.schema.json",
+  "title": "Cratis Factory Capability Profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "documentKind",
+    "id",
+    "version",
+    "description",
+    "activation",
+    "priority",
+    "repositoryModes",
+    "detect",
+    "provides",
+    "excludes",
+    "skills",
+    "recommendations",
+    "commands"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": "1"
+    },
+    "documentKind": {
+      "const": "profile"
+    },
+    "id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1
+    },
+    "activation": {
+      "enum": ["automatic", "explicit"]
+    },
+    "priority": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "repositoryModes": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": ["application", "framework", "modeling", "operations", "unknown"]
+      }
+    },
+    "detect": {
+      "$ref": "#/$defs/conditionGroup"
+    },
+    "provides": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/identifier"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "excludes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/identifier"
+      },
+      "uniqueItems": true
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/identifier"
+      },
+      "uniqueItems": true
+    },
+    "recommendations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["agents", "workflows"],
+      "properties": {
+        "agents": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/recommendation"
+          }
+        },
+        "workflows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/recommendation"
+          }
+        }
+      }
+    },
+    "commands": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["argv", "workingDirectory", "effect", "captures"],
+        "properties": {
+          "argv": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1
+          },
+          "workingDirectory": {
+            "type": "string",
+            "minLength": 1
+          },
+          "effect": {
+            "enum": ["read", "write", "destructive"]
+          },
+          "captures": {
+            "enum": ["json", "jsonl", "text"]
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "conditionGroup": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["allOf"],
+          "properties": {
+            "allOf": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/condition"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["anyOf"],
+          "properties": {
+            "anyOf": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/condition"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "condition": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/conditionGroup"
+        },
+        {
+          "$ref": "#/$defs/filePredicate"
+        },
+        {
+          "$ref": "#/$defs/dependencyPredicate"
+        },
+        {
+          "$ref": "#/$defs/repositoryPackagePredicate"
+        },
+        {
+          "$ref": "#/$defs/repositoryIdentityPredicate"
+        }
+      ]
+    },
+    "filePredicate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "pattern"],
+      "properties": {
+        "kind": {
+          "const": "file"
+        },
+        "pattern": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "dependencyPredicate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "ecosystem", "name"],
+      "properties": {
+        "kind": {
+          "const": "dependency"
+        },
+        "ecosystem": {
+          "$ref": "#/$defs/ecosystem"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "repositoryPackagePredicate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "ecosystem", "name"],
+      "properties": {
+        "kind": {
+          "const": "repository-package"
+        },
+        "ecosystem": {
+          "$ref": "#/$defs/ecosystem"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "repositoryIdentityPredicate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "id"],
+      "properties": {
+        "kind": {
+          "const": "repository-identity"
+        },
+        "id": {
+          "$ref": "#/$defs/identifier"
+        }
+      }
+    },
+    "ecosystem": {
+      "enum": ["hex", "maven", "npm", "nuget"]
+    },
+    "recommendation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "purposes", "priority", "rationale"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "purposes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "priority": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

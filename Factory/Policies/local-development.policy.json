@@ -1,0 +1,42 @@
+{
+  "$schema": "../../Contracts/v1/policy.schema.json",
+  "schemaVersion": "1",
+  "documentKind": "policy",
+  "id": "local-development",
+  "version": "1.0.0",
+  "defaultDecision": "deny",
+  "protectedPaths": [
+    ".git/**",
+    ".ai/**",
+    ".cratis/factory.json",
+    ".github/workflows/**",
+    "Contracts/**",
+    "Evaluations/**",
+    "Factory/Capabilities/**",
+    "Factory/Policies/**",
+    "Factory/Profiles/**",
+    "Factory/scripts/**",
+    "Workflows/**"
+  ],
+  "deniedCratisCommands": [
+    ["context", "set"],
+    ["context", "set-value"],
+    ["init"],
+    ["llm", "clear"],
+    ["llm", "use"],
+    ["update"]
+  ],
+  "capabilities": {
+    "read-repository": "allow",
+    "propose-model-patch": "allow",
+    "propose-source-patch": "allow",
+    "run-quality-gates": "allow",
+    "create-pull-request": "approval",
+    "merge-pull-request": "deny",
+    "read-development-chronicle": "approval",
+    "mutate-development-chronicle": "deny",
+    "read-production": "deny",
+    "mutate-production": "deny",
+    "deploy": "deny"
+  }
+}

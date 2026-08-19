@@ -1,0 +1,266 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.cratis.io/factory/v1/evaluation-result.schema.json",
+  "title": "Cratis Factory Deterministic Evaluation Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocolVersion",
+    "runnerVersion",
+    "catalog",
+    "coverage",
+    "outcome",
+    "summary",
+    "cases",
+    "contentHash"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "protocolVersion": {
+      "const": "1"
+    },
+    "runnerVersion": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "catalog": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "contentHash"],
+      "properties": {
+        "version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "contentHash": {
+          "$ref": "#/$defs/contentHash"
+        }
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scope",
+        "catalogCaseCount",
+        "catalogCaseIds",
+        "executableCaseCount",
+        "executableCaseIds",
+        "selectedCaseCount",
+        "selectedCaseIds"
+      ],
+      "properties": {
+        "scope": {
+          "enum": ["full-catalog", "full-executable-catalog", "selected-executable-cases"]
+        },
+        "catalogCaseCount": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "catalogCaseIds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "executableCaseCount": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "executableCaseIds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "selectedCaseCount": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "selectedCaseIds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        }
+      }
+    },
+    "outcome": {
+      "enum": ["pass", "fail", "blocked"]
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["total", "passed", "failed", "blocked"],
+      "properties": {
+        "total": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "passed": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "failed": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "blocked": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      }
+    },
+    "cases": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/caseResult"
+      }
+    },
+    "contentHash": {
+      "$ref": "#/$defs/contentHash"
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "contentHash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "caseResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "caseId",
+        "executionId",
+        "executionHash",
+        "fixtureId",
+        "fixtureTreeHash",
+        "operation",
+        "operationHash",
+        "outcome",
+        "assertions"
+      ],
+      "properties": {
+        "caseId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "executionId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "executionHash": {
+          "$ref": "#/$defs/contentHash"
+        },
+        "fixtureId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "fixtureTreeHash": {
+          "$ref": "#/$defs/contentHash"
+        },
+        "operation": {
+          "enum": ["resolve", "preflight"]
+        },
+        "operationHash": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/contentHash"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "outcome": {
+          "enum": ["pass", "fail", "blocked"]
+        },
+        "assertions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/assertionResult"
+          }
+        }
+      }
+    },
+    "assertionResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "path",
+        "operator",
+        "expected",
+        "actual",
+        "actualAvailable",
+        "outcome",
+        "diagnosticCode"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "operator": {
+          "enum": ["equals", "contains", "not-contains", "project-contains", "project-set-equals"]
+        },
+        "expected": {
+          "$ref": "#/$defs/canonicalValue"
+        },
+        "actual": {
+          "$ref": "#/$defs/canonicalValue"
+        },
+        "actualAvailable": {
+          "type": "boolean"
+        },
+        "outcome": {
+          "enum": ["pass", "fail", "blocked"]
+        },
+        "diagnosticCode": {
+          "$ref": "#/$defs/identifier"
+        }
+      }
+    },
+    "canonicalValue": {
+      "oneOf": [
+        { "type": "null" },
+        { "type": "boolean" },
+        {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        { "type": "string" },
+        {
+          "type": "array",
+          "items": { "$ref": "#/$defs/canonicalValue" }
+        },
+        {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/canonicalValue" }
+        }
+      ]
+    }
+  }
+}

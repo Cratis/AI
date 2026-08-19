@@ -1,0 +1,37 @@
+{
+  "$schema": "https://schemas.cratis.io/factory/v1/gate-report.schema.json",
+  "protocolVersion": "1",
+  "gateId": "investigation-workspace-clean",
+  "outcome": "pass",
+  "inlineTextClassification": "internal",
+  "checks": [
+    {
+      "name": "tracked-files-unchanged",
+      "outcome": "pass",
+      "message": "No tracked file differs from the revision recorded in the repository snapshot."
+    },
+    {
+      "name": "untracked-files-absent",
+      "outcome": "pass",
+      "message": "The worktree reported no untracked files."
+    },
+    {
+      "name": "revision-unchanged",
+      "outcome": "pass",
+      "message": "HEAD still resolves to 9d1b7f4c2a8e5063b1f47ca20d38e6915c704ab2."
+    }
+  ],
+  "evidence": [
+    {
+      "reference": "artifact:sha256:c459b1104a059e2017042c595d08622827737fcde8d300f124c4cf78cf28adc8",
+      "contentHash": "sha256:c459b1104a059e2017042c595d08622827737fcde8d300f124c4cf78cf28adc8",
+      "classification": "internal"
+    },
+    {
+      "reference": "artifact:sha256:456f99ba539cfbee63d6ec8201576a39fba4243ae42a0f87cb98269a524e5739",
+      "contentHash": "sha256:456f99ba539cfbee63d6ec8201576a39fba4243ae42a0f87cb98269a524e5739",
+      "classification": "internal"
+    }
+  ],
+  "durationMs": 412
+}

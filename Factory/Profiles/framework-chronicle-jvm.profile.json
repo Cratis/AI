@@ -1,0 +1,50 @@
+{
+  "$schema": "../../Contracts/v1/profile.schema.json",
+  "schemaVersion": "1",
+  "documentKind": "profile",
+  "id": "framework-chronicle-jvm",
+  "version": "1.0.0",
+  "description": "Framework contribution pack for the shared idiomatic Kotlin and Java Chronicle client.",
+  "activation": "automatic",
+  "priority": 100,
+  "repositoryModes": ["framework"],
+  "detect": {
+    "allOf": [
+      {"kind": "repository-identity", "id": "cratis-chronicle-jvm"},
+      {
+        "anyOf": [
+          {"kind": "file", "pattern": "**/*.kt"},
+          {"kind": "file", "pattern": "**/*.java"}
+        ]
+      }
+    ]
+  },
+  "provides": ["chronicle-client-framework", "chronicle-client-jvm", "framework", "jvm", "repository-known"],
+  "excludes": [],
+  "skills": [],
+  "recommendations": {
+    "agents": [
+      {
+        "id": "repository-investigator",
+        "purposes": ["investigate"],
+        "priority": 100,
+        "rationale": "Investigates the authoritative shared Kotlin and Java SDK without selecting the retired prototype."
+      },
+      {
+        "id": "repository-investigation-reviewer",
+        "purposes": ["review"],
+        "priority": 100,
+        "rationale": "Independently reviews typed investigation evidence using the resolved repository mode."
+      }
+    ],
+    "workflows": [
+      {
+        "id": "investigate-cratis-issue",
+        "purposes": ["investigate"],
+        "priority": 100,
+        "rationale": "The JVM client framework can use the read-only repository workflow."
+      }
+    ]
+  },
+  "commands": {}
+}

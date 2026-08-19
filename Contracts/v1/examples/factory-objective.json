@@ -1,0 +1,13 @@
+{
+  "$schema": "https://schemas.cratis.io/factory/v1/factory-objective.schema.json",
+  "protocolVersion": "1",
+  "objective": "Investigate why the Author read model observer stays quarantined after a replay, and report the root cause with evidence.",
+  "targetPath": "Source/Kernel",
+  "classification": "internal",
+  "constraints": [
+    "Investigate only; do not change source, specs, or configuration.",
+    "Read nothing outside the target path.",
+    "Cite every finding as a repository-relative path with a line range.",
+    "Run no command that mutates the worktree, the index, or Git history."
+  ]
+}

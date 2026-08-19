@@ -1,0 +1,8 @@
+{
+  "name": "@cratis/components",
+  "version": "0.1.8",
+  "peerDependencies": {
+    "@cratis/arc.react": ">=20.3.1 <22",
+    "react": "^19.0.0"
+  }
+}

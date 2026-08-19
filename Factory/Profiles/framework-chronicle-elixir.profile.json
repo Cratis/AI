@@ -1,0 +1,45 @@
+{
+  "$schema": "../../Contracts/v1/profile.schema.json",
+  "schemaVersion": "1",
+  "documentKind": "profile",
+  "id": "framework-chronicle-elixir",
+  "version": "1.0.0",
+  "description": "Framework contribution pack for the idiomatic Chronicle Elixir and OTP client.",
+  "activation": "automatic",
+  "priority": 100,
+  "repositoryModes": ["framework"],
+  "detect": {
+    "allOf": [
+      {"kind": "repository-identity", "id": "cratis-chronicle-elixir"},
+      {"kind": "file", "pattern": "**/mix.exs"}
+    ]
+  },
+  "provides": ["chronicle-client-elixir", "chronicle-client-framework", "elixir", "framework", "repository-known"],
+  "excludes": [],
+  "skills": [],
+  "recommendations": {
+    "agents": [
+      {
+        "id": "repository-investigator",
+        "purposes": ["investigate"],
+        "priority": 100,
+        "rationale": "Investigates Elixir SDK behavior using OTP and process-context semantics."
+      },
+      {
+        "id": "repository-investigation-reviewer",
+        "purposes": ["review"],
+        "priority": 100,
+        "rationale": "Independently reviews typed investigation evidence using the resolved repository mode."
+      }
+    ],
+    "workflows": [
+      {
+        "id": "investigate-cratis-issue",
+        "purposes": ["investigate"],
+        "priority": 100,
+        "rationale": "The Elixir client framework can use the read-only repository workflow."
+      }
+    ]
+  },
+  "commands": {}
+}

@@ -1,0 +1,8 @@
+{
+  "name": "factory-arc-react-mvvm-fixture",
+  "private": true,
+  "dependencies": {
+    "@cratis/arc.react.mvvm": "21.14.3",
+    "react": "19.2.8"
+  }
+}

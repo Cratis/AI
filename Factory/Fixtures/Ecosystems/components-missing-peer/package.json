@@ -1,0 +1,7 @@
+{
+  "name": "factory-components-missing-peer-fixture",
+  "private": true,
+  "dependencies": {
+    "@cratis/components": "0.1.8"
+  }
+}

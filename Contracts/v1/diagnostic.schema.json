@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.cratis.io/factory/v1/diagnostic.schema.json",
+  "title": "Cratis Factory Diagnostic",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocolVersion",
+    "code",
+    "severity",
+    "message",
+    "locations",
+    "evidence",
+    "retry",
+    "relatedActionIds"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "protocolVersion": {
+      "const": "1"
+    },
+    "code": {
+      "type": "string",
+      "pattern": "^FACTORY-[A-Z0-9]+(?:-[A-Z0-9]+)*$"
+    },
+    "severity": {
+      "enum": ["information", "warning", "error"]
+    },
+    "message": {
+      "$ref": "#/$defs/safeText"
+    },
+    "locations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/location"
+      },
+      "uniqueItems": true
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/evidenceReference"
+      },
+      "uniqueItems": true
+    },
+    "retry": {
+      "$ref": "#/$defs/retryGuidance"
+    },
+    "relatedActionIds": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/identifier"
+      },
+      "uniqueItems": true
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "contentHash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "location": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "reference"],
+      "properties": {
+        "kind": {
+          "enum": ["argument", "artifact", "document", "json-pointer", "operation", "phase", "repository"]
+        },
+        "reference": {
+          "$ref": "#/$defs/safeText"
+        },
+        "pointer": {
+          "type": "string",
+          "pattern": "^(?:/(?:[^~/]|~0|~1)*)*$"
+        },
+        "line": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "column": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      }
+    },
+    "evidenceReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reference", "contentHash", "classification"],
+      "properties": {
+        "reference": {
+          "$ref": "#/$defs/safeText"
+        },
+        "contentHash": {
+          "$ref": "#/$defs/contentHash"
+        },
+        "classification": {
+          "enum": ["public", "internal", "confidential", "restricted"]
+        }
+      }
+    },
+    "retryGuidance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["disposition", "reason"],
+      "properties": {
+        "disposition": {
+          "enum": ["not-retryable", "retry-after-correction", "retry-immediately", "retry-later"]
+        },
+        "reason": {
+          "$ref": "#/$defs/safeText"
+        },
+        "retryAfterSeconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 86400
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "disposition": {
+                "const": "retry-later"
+              }
+            },
+            "required": ["disposition"]
+          },
+          "then": {
+            "required": ["retryAfterSeconds"]
+          },
+          "else": {
+            "not": {
+              "required": ["retryAfterSeconds"]
+            }
+          }
+        }
+      ]
+    },
+    "safeText": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f\\u202a-\\u202e\\u2066-\\u2069]*$"
+    }
+  }
+}

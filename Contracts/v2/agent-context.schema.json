@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.cratis.io/factory/v2/agent-context.schema.json",
+  "title": "Cratis Factory Allowlisted Agent Context v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocolVersion", "documentKind", "sourceResolvedProfileHash", "repository", "composition", "route", "generator", "allowlistHash", "contentHash"],
+  "properties": {
+    "$schema": {"const": "https://schemas.cratis.io/factory/v2/agent-context.schema.json"},
+    "protocolVersion": {"const": "2"},
+    "documentKind": {"const": "agent-context"},
+    "sourceResolvedProfileHash": {"$ref": "#/$defs/contentHash"},
+    "repository": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode"],
+      "properties": {"mode": {"enum": ["application", "framework", "modeling", "operations"]}}
+    },
+    "composition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["profiles", "skills", "capabilities"],
+      "properties": {
+        "profiles": {"type": "array", "maxItems": 64, "uniqueItems": true, "items": {"$ref": "#/$defs/versionedReference"}},
+        "skills": {"type": "array", "maxItems": 64, "uniqueItems": true, "items": {"$ref": "#/$defs/contentReference"}},
+        "capabilities": {"type": "array", "maxItems": 256, "uniqueItems": true, "items": {"$ref": "#/$defs/identifier"}}
+      }
+    },
+    "route": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["workflow", "phaseId", "purpose", "agent"],
+      "properties": {
+        "workflow": {"$ref": "#/$defs/versionedReference"},
+        "phaseId": {"$ref": "#/$defs/identifier"},
+        "purpose": {"$ref": "#/$defs/identifier"},
+        "agent": {"$ref": "#/$defs/contentReference"}
+      }
+    },
+    "generator": {"$ref": "#/$defs/versionedReference"},
+    "allowlistHash": {"$ref": "#/$defs/contentHash"},
+    "contentHash": {"$ref": "#/$defs/contentHash"}
+  },
+  "$defs": {
+    "identifier": {"type": "string", "maxLength": 128, "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"},
+    "version": {"type": "string", "maxLength": 32, "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "contentHash": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "contentReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "contentHash"],
+      "properties": {"id": {"$ref": "#/$defs/identifier"}, "contentHash": {"$ref": "#/$defs/contentHash"}}
+    },
+    "versionedReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version", "contentHash"],
+      "properties": {"id": {"$ref": "#/$defs/identifier"}, "version": {"$ref": "#/$defs/version"}, "contentHash": {"$ref": "#/$defs/contentHash"}}
+    }
+  }
+}

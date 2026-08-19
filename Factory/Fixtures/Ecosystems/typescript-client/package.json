@@ -1,0 +1,7 @@
+{
+  "name": "factory-typescript-client-fixture",
+  "private": true,
+  "dependencies": {
+    "@cratis/chronicle": "3.1.0"
+  }
+}

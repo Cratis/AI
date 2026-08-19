@@ -5,6 +5,8 @@
     <Platform Name="x86" />
   </Configurations>
   <Folder Name="/Source/" />
+  <Project Path="Source/Factory.Core/Factory.Core.csproj" />
+  <Project Path="Source/Factory.Core.Specs/Factory.Core.Specs.csproj" />
   <Project Path="Source/Planner/Planner.csproj" />
   <Project Path="Source/Composition/Composition.csproj" />
 </Solution>

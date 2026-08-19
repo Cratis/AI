@@ -1,0 +1,11 @@
+{
+  "name": "factory-workspace-monorepo-fixture",
+  "private": true,
+  "workspaces": [
+    "Source/App"
+  ],
+  "devDependencies": {
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  }
+}

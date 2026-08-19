@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <AssemblyName>Cratis.Factory.SchemaValidationParity</AssemblyName>
+        <RootNamespace>Cratis.Factory.SchemaValidationParity</RootNamespace>
+        <IsPackable>false</IsPackable>
+        <IsPublishable>false</IsPublishable>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="../../../Source/Factory.Core/Factory.Core.csproj" />
+    </ItemGroup>
+</Project>

@@ -1,0 +1,9 @@
+{
+  "$schema": "https://schemas.cratis.io/factory/v1/repository-snapshot.schema.json",
+  "protocolVersion": "1",
+  "repository": "cratis-chronicle",
+  "revision": "9d1b7f4c2a8e5063b1f47ca20d38e6915c704ab2",
+  "targetPath": "Source/Kernel",
+  "contentHash": "sha256:fe9894431c6bc52ba8b7ce3c43d168619252268481e87cfd20a2bc5031923f83",
+  "dirty": false
+}

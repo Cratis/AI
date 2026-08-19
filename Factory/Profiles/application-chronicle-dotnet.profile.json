@@ -1,0 +1,52 @@
+{
+  "$schema": "../../Contracts/v1/profile.schema.json",
+  "schemaVersion": "1",
+  "documentKind": "profile",
+  "id": "application-chronicle-dotnet",
+  "version": "1.0.0",
+  "description": "Composable application capability pack for the idiomatic .NET Chronicle client.",
+  "activation": "automatic",
+  "priority": 80,
+  "repositoryModes": ["application"],
+  "detect": {
+    "allOf": [
+      {"kind": "file", "pattern": "**/*.csproj"},
+      {
+        "anyOf": [
+          {"kind": "dependency", "ecosystem": "nuget", "name": "Cratis.Chronicle"},
+          {"kind": "dependency", "ecosystem": "nuget", "name": "Cratis.Chronicle.AspNetCore"},
+          {"kind": "dependency", "ecosystem": "nuget", "name": "Cratis.Arc.Chronicle"},
+          {"kind": "dependency", "ecosystem": "nuget", "name": "Cratis"}
+        ]
+      }
+    ]
+  },
+  "provides": ["application", "chronicle", "chronicle-client-dotnet", "dotnet", "repository-known"],
+  "excludes": [],
+  "skills": ["event-modeling", "multi-tenancy", "cratis-specs-csharp"],
+  "recommendations": {
+    "agents": [
+      {
+        "id": "repository-investigator",
+        "purposes": ["investigate"],
+        "priority": 100,
+        "rationale": "Investigates Chronicle evidence, identity, tenancy, and PII without mutating runtime state."
+      },
+      {
+        "id": "repository-investigation-reviewer",
+        "purposes": ["review"],
+        "priority": 100,
+        "rationale": "Independently reviews typed investigation evidence using the resolved repository mode."
+      }
+    ],
+    "workflows": [
+      {
+        "id": "investigate-cratis-issue",
+        "purposes": ["investigate"],
+        "priority": 100,
+        "rationale": "The .NET Chronicle client can be investigated through the read-only workflow."
+      }
+    ]
+  },
+  "commands": {}
+}

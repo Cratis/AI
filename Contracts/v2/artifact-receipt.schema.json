@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.cratis.io/factory/v2/artifact-receipt.schema.json",
+  "title": "Cratis Factory Artifact Receipt v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocolVersion", "documentKind", "runId", "securityDomain", "artifact", "store", "immutable", "issuedAt", "retentionUntil", "authority", "contentHash"],
+  "properties": {
+    "$schema": {"const": "https://schemas.cratis.io/factory/v2/artifact-receipt.schema.json"},
+    "protocolVersion": {"const": "2"},
+    "documentKind": {"const": "artifact-receipt"},
+    "runId": {"type": "string", "format": "uuid"},
+    "securityDomain": {"$ref": "#/$defs/securityDomain"},
+    "artifact": {"$ref": "https://schemas.cratis.io/factory/v2/artifact-descriptor.schema.json"},
+    "store": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "generation"],
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "generation": {"type": "string", "format": "uuid"}
+      }
+    },
+    "immutable": {"const": true},
+    "issuedAt": {"$ref": "#/$defs/timestamp"},
+    "retentionUntil": {"$ref": "#/$defs/timestamp"},
+    "authority": {"$ref": "#/$defs/authority"},
+    "contentHash": {"$ref": "#/$defs/contentHash"}
+  },
+  "$defs": {
+    "identifier": {"type": "string", "maxLength": 128, "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"},
+    "contentHash": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "securityDomain": {"type": "string", "pattern": "^security-domain:sha256:[a-f0-9]{64}$"},
+    "timestamp": {"type": "string", "format": "date-time", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"},
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["issuer", "keyId", "algorithm", "signature"],
+      "properties": {
+        "issuer": {"type": "string", "pattern": "^authority:sha256:[a-f0-9]{64}$"},
+        "keyId": {"type": "string", "pattern": "^key:sha256:[a-f0-9]{64}$"},
+        "algorithm": {"const": "ed25519"},
+        "signature": {"type": "string", "minLength": 86, "maxLength": 86, "pattern": "^[A-Za-z0-9_-]+$"}
+      }
+    }
+  }
+}

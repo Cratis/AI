@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.cratis.io/factory/v1/definition-validation-result.schema.json",
+  "title": "Cratis Factory Definition Validation Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "protocolVersion",
+    "outcome",
+    "counts",
+    "errors"
+  ],
+  "properties": {
+    "$schema": {
+      "const": "https://schemas.cratis.io/factory/v1/definition-validation-result.schema.json"
+    },
+    "protocolVersion": {
+      "const": "1"
+    },
+    "outcome": {
+      "enum": ["valid", "invalid"]
+    },
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "documents",
+        "schemas",
+        "workflows",
+        "profiles",
+        "policies",
+        "capabilityCatalogs",
+        "evaluationCatalogs"
+      ],
+      "properties": {
+        "documents": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "schemas": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "workflows": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "profiles": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "policies": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "capabilityCatalogs": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "evaluationCatalogs": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      }
+    },
+    "errors": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/safeText"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "outcome": {
+            "const": "valid"
+          }
+        },
+        "required": ["outcome"]
+      },
+      "then": {
+        "properties": {
+          "errors": {
+            "maxItems": 0
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "errors": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "safeText": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f\\u202a-\\u202e\\u2066-\\u2069]*$"
+    }
+  }
+}

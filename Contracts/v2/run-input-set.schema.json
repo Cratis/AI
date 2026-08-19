@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.cratis.io/factory/v2/run-input-set.schema.json",
+  "title": "Cratis Factory Run Input Set v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocolVersion", "documentKind", "runId", "compiledWorkflowHash", "securityDomain", "inputs", "submittedBy", "submittedAt", "authority", "contentHash"],
+  "properties": {
+    "$schema": {"const": "https://schemas.cratis.io/factory/v2/run-input-set.schema.json"},
+    "protocolVersion": {"const": "2"},
+    "documentKind": {"const": "run-input-set"},
+    "runId": {"type": "string", "format": "uuid"},
+    "compiledWorkflowHash": {"$ref": "#/$defs/contentHash"},
+    "securityDomain": {"$ref": "#/$defs/securityDomain"},
+    "inputs": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "artifact", "artifactReceiptHash", "submissionReceiptHash"],
+        "properties": {
+          "id": {"$ref": "#/$defs/identifier"},
+          "artifact": {"$ref": "https://schemas.cratis.io/factory/v2/artifact-descriptor.schema.json"},
+          "artifactReceiptHash": {"$ref": "#/$defs/contentHash"},
+          "submissionReceiptHash": {"$ref": "#/$defs/contentHash"}
+        }
+      }
+    },
+    "submittedBy": {"type": "string", "pattern": "^run-actor:sha256:[a-f0-9]{64}$"},
+    "submittedAt": {"$ref": "#/$defs/timestamp"},
+    "authority": {"$ref": "#/$defs/authority"},
+    "contentHash": {"$ref": "#/$defs/contentHash"}
+  },
+  "$defs": {
+    "identifier": {"type": "string", "maxLength": 128, "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"},
+    "contentHash": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "securityDomain": {"type": "string", "pattern": "^security-domain:sha256:[a-f0-9]{64}$"},
+    "timestamp": {"type": "string", "format": "date-time", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"},
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["issuer", "keyId", "algorithm", "signature"],
+      "properties": {
+        "issuer": {"type": "string", "pattern": "^authority:sha256:[a-f0-9]{64}$"},
+        "keyId": {"type": "string", "pattern": "^key:sha256:[a-f0-9]{64}$"},
+        "algorithm": {"const": "ed25519"},
+        "signature": {"type": "string", "minLength": 86, "maxLength": 86, "pattern": "^[A-Za-z0-9_-]+$"}
+      }
+    }
+  }
+}
