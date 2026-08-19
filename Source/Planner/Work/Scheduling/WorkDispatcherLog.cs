@@ -24,4 +24,7 @@ internal static partial class WorkDispatcherLog
 
     [LoggerMessage(LogLevel.Error, "Scheduling pass failed")]
     internal static partial void SchedulingPassFailed(this ILogger logger, Exception exception);
+
+    [LoggerMessage(LogLevel.Warning, "Work {Work} has been running longer than the maximum of {MaxDuration} without reporting - sweeping it as presumed dead")]
+    internal static partial void SweepingStuckWork(this ILogger logger, WorkId work, TimeSpan maxDuration);
 }

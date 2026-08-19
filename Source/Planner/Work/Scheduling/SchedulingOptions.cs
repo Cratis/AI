@@ -23,6 +23,20 @@ public class SchedulingOptions
     public int MaxConcurrentWorkPerAccount { get; set; } = 1;
 
     /// <summary>
+    /// Gets or sets how long a unit of work may stay running before the scheduler treats its worker
+    /// as dead and fails it. This is the only way a container that dies without reporting - an OOM
+    /// kill, a node eviction, a crash - ever releases the concurrency slot it holds: nothing else
+    /// ever moves a stuck item out of the running state, and <see cref="MaxConcurrentWorkPerAccount"/>
+    /// defaults to <c>1</c>, so one such item wedges its account indefinitely. The worker runtime
+    /// exposes no way to ask whether a container is still alive, so this sweep can only go on
+    /// duration - which makes the default deliberately generous: an agent legitimately running for
+    /// hours on a hard issue is normal, and failing a container that is still working is worse than
+    /// leaving a dead one queued a while longer. <see cref="TimeSpan.Zero"/> disables the sweep
+    /// entirely.
+    /// </summary>
+    public TimeSpan MaxRunningDuration { get; set; } = TimeSpan.FromHours(24);
+
+    /// <summary>
     /// Gets or sets the model used for implementation work when neither the work nor an
     /// investigation suggested one.
     /// </summary>

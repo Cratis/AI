@@ -57,6 +57,7 @@ public class WorkDispatcher(
     public async Task RunSchedulingPass(CancellationToken cancellationToken = default)
     {
         var openWork = await Find(workItems, work => work.Status == WorkStatus.Scheduled || work.Status == WorkStatus.Running, cancellationToken);
+        await SweepStuckWork(openWork, cancellationToken);
         await ScheduleReadyIssues(openWork, cancellationToken);
         await DispatchPendingWork(cancellationToken);
     }
@@ -141,6 +142,51 @@ public class WorkDispatcher(
                 var model = members.Select(member => member.SuggestedModel).FirstOrDefault(suggested => suggested is not null);
                 await commandPipeline.Execute(new ScheduleWork(WorkPurpose.Implementation, members.Select(member => member.Id), model));
             }
+        }
+    }
+
+    /// <summary>
+    /// Fails any unit of work that has been running longer than
+    /// <see cref="SchedulingOptions.MaxRunningDuration"/> without reporting - the only recovery for a
+    /// worker container that died without reporting (an OOM kill, a node eviction, a crash) rather
+    /// than a human noticing and stopping it by hand. There is no way to ask the worker runtime
+    /// whether a container is still alive, so this is duration-only - see
+    /// <see cref="SchedulingOptions.MaxRunningDuration"/> for why the default is deliberately
+    /// generous. A zero or negative duration disables the sweep entirely.
+    /// </summary>
+    /// <param name="openWork">The currently scheduled and running work.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> for the operation.</param>
+    /// <returns>Awaitable task.</returns>
+    async Task SweepStuckWork(IReadOnlyList<WorkItem> openWork, CancellationToken cancellationToken)
+    {
+        var maxDuration = schedulingOptions.Value.MaxRunningDuration;
+        if (maxDuration <= TimeSpan.Zero)
+        {
+            return;
+        }
+
+        var now = timeProvider.GetUtcNow();
+        var stuck = openWork.Where(work =>
+            work.Status == WorkStatus.Running &&
+            work.StartedAt is { } startedAt &&
+            now - startedAt > maxDuration);
+
+        foreach (var work in stuck)
+        {
+            logger.SweepingStuckWork(work.Id, maxDuration);
+
+            // Best effort - if the container is genuinely still alive despite the deadline, this
+            // makes sure it actually stops rather than being orphaned while its work item is failed.
+            await workerRuntime.Stop(work.Id, cancellationToken);
+
+            // Every other terminal path retires the per-work callback token explicitly - the launch
+            // failure below, the callback endpoint and StopWork all do. A swept item is terminal too,
+            // so its token goes with it rather than staying valid until it ages out.
+            callbackTokens.Revoke(work.Id);
+
+            await commandPipeline.Execute(new Failing.FailWork(
+                work.Id,
+                $"Swept after running longer than the configured maximum of {maxDuration} without reporting - presumed dead rather than genuinely failed."));
         }
     }
 
