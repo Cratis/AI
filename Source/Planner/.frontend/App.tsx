@@ -5,9 +5,11 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { Arc } from '@cratis/arc.react';
 import { QueryTransportMethod } from '@cratis/arc/queries';
 import { Bindings, MVVM } from '@cratis/arc.react.mvvm';
+import { IdentityProvider } from '@cratis/arc.react/identity';
 import '@cratis/components/styles';
 import { AppLayout } from '../Layout/AppLayout';
 import { Dashboard } from '../Dashboard/Dashboard';
+import { Inbox } from '../Inbox/Inbox';
 import { Issues } from '../Issues/Issues';
 import { Alerts } from '../Alerts/Alerts';
 import { Work } from '../Work/Work';
@@ -25,11 +27,13 @@ Bindings.initialize();
 function App() {
     return (
         <Arc development={isDevelopment} queryTransportMethod={QueryTransportMethod.WebSocket}>
+            <IdentityProvider>
             <MVVM>
                 <BrowserRouter>
                     <Routes>
                         <Route path='/' element={<AppLayout />}>
                             <Route path='' element={<Dashboard />} />
+                            <Route path='inbox' element={<Inbox />} />
                             <Route path='issues' element={<Issues />} />
                             <Route path='alerts' element={<Alerts />} />
                             <Route path='work' element={<Work />} />
@@ -43,6 +47,7 @@ function App() {
                     </Routes>
                 </BrowserRouter>
             </MVVM>
+            </IdentityProvider>
         </Arc>
     );
 }
