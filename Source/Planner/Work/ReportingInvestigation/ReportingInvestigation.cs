@@ -40,7 +40,7 @@ public class InvestigationReporting(IEventStore eventStore, ICommandPipeline com
                     issue.Owner,
                     issue.Repository,
                     issue.Number,
-                    $"## Investigation\n\n{@event.Findings.Value}\n\n_Suggested model for implementation: `{@event.SuggestedModel.Value}`_");
+                    $"## Investigation\n\n{@event.Findings.Value}\n\n_Suggested model for implementation: `{@event.SuggestedModel.Value}`_{AIIdentity.Footer()}");
             }
         }
     }
