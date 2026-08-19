@@ -22,6 +22,8 @@ import { IssueSynchronizationStatus } from './IssueSynchronizationStatus';
 import { AddOrganization } from './Organizations/Adding/Adding';
 import { AddRepository } from './Adding/Adding';
 import { RemoveRepository } from './Removing/Removing';
+import { ReviewGatePolicy } from './ReviewGatePolicy';
+import { SetReviewGatePolicy } from './SettingReviewGatePolicy/SettingReviewGatePolicy';
 import { MapCodeRepository } from './MappingCodeRepository/MappingCodeRepository';
 import { AllRepositoryGroups, RepositoryGroup } from './Groups/Listing/Listing';
 import { CreateRepositoryGroup } from './Groups/Creating/Creating';
@@ -134,6 +136,14 @@ export const Repositories = () => {
         setProblem(commandFailureMessage(result));
     };
 
+    const toggleReviewGate = async (repository: Repository) => {
+        const command = new SetReviewGatePolicy();
+        command.repository = repository.id;
+        command.policy = repository.reviewGatePolicy === ReviewGatePolicy.auto ? ReviewGatePolicy.human : ReviewGatePolicy.auto;
+        const result = await command.execute();
+        setProblem(commandFailureMessage(result));
+    };
+
     // Adding an organization is what triggers discovery, so adding one that is already there is the
     // retry - the same fact appended again, putting the row back to discovering.
     const retryDiscovery = async (organization: Organization) => {
@@ -225,6 +235,11 @@ export const Repositories = () => {
                                 disableOnUnselected={false}
                                 disabled={syncing}
                                 command={() => synchronizeNow()} />
+                            <MenuItem
+                                label='Toggle review gate'
+                                icon={() => <i className='pi pi-shield' />}
+                                disableOnUnselected
+                                command={() => selectedRepository && toggleReviewGate(selectedRepository)} />
                         </DataPage.MenuItems>
                         <DataPage.Columns>
                             <Column header='Repository' body={(repository: Repository) => `${repository.owner}/${repository.name}`} style={{ width: '20rem' }} />
@@ -234,6 +249,14 @@ export const Repositories = () => {
                                     repository.codeOwner ? `${repository.codeOwner}/${repository.codeName}` : '-'}
                                 style={{ width: '20rem' }} />
                             <Column header='Issues' body={synchronizationTag} style={{ width: '12rem' }} />
+                            <Column
+                                header='Review gate'
+                                body={(repository: Repository) => (
+                                    <Tag
+                                        value={repository.reviewGatePolicy === ReviewGatePolicy.auto ? 'Auto' : 'Human'}
+                                        severity={repository.reviewGatePolicy === ReviewGatePolicy.auto ? 'success' : 'secondary'} />
+                                )}
+                                style={{ width: '8rem' }} />
                             <Column
                                 header='Detail'
                                 body={(repository: Repository) =>

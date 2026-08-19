@@ -6,6 +6,7 @@ using Planner.GitHub.Synchronization;
 using Planner.Repositories.Adding;
 using Planner.Repositories.MappingCodeRepository;
 using Planner.Repositories.Removing;
+using Planner.Repositories.SettingReviewGatePolicy;
 
 namespace Planner.Repositories.Listing;
 
@@ -20,6 +21,7 @@ namespace Planner.Repositories.Listing;
 /// <param name="CodeName">The name of the mapped code repository - <see langword="null"/> when the code lives in the repository itself.</param>
 /// <param name="SynchronizationStatus">How far the initial load of the repository's issues got.</param>
 /// <param name="SynchronizationFailure">Why the initial load failed - empty unless <see cref="SynchronizationStatus"/> is <see cref="IssueSynchronizationStatus.Failed"/>.</param>
+/// <param name="ReviewGatePolicy">Whether a pull request always waits for a person, or an agent may merge one on its own - defaults to <see cref="Planner.Repositories.ReviewGatePolicy.Human"/>.</param>
 [ReadModel]
 [FromEvent<RepositoryAdded>]
 [FromEvent<CodeRepositoryMapped>]
@@ -37,7 +39,9 @@ public record Repository(
     [SetValue<RepositoryAdded>("")]
     [SetValue<RepositoryIssuesSynchronized>("")]
     [SetFrom<RepositoryIssueSynchronizationFailed>(nameof(RepositoryIssueSynchronizationFailed.Reason))]
-    string SynchronizationFailure)
+    string SynchronizationFailure,
+    [SetFrom<ReviewGatePolicySet>(nameof(ReviewGatePolicySet.Policy))]
+    Planner.Repositories.ReviewGatePolicy ReviewGatePolicy = Planner.Repositories.ReviewGatePolicy.Human)
 {
     /// <summary>
     /// Observes all tracked repositories.
