@@ -6,6 +6,8 @@ using Cratis.Chronicle.Testing.Reactors;
 using Microsoft.Extensions.DependencyInjection;
 using Planner.Work;
 using Planner.Work.Listing;
+using Cratis.Arc.Authorization;
+using Planner.Identity;
 
 namespace Planner.Alerts.Investigating.for_AlertInvestigationPropagation.given;
 
@@ -25,6 +27,7 @@ public class an_alert_investigation : Specification
         _scenario = new(new ServiceCollection()
             .AddSingleton(_eventStore)
             .AddSingleton(_commandPipeline)
+            .AddSingleton(SystemExecutionScope.ForSpecs())
             .BuildServiceProvider());
 
         SetWorkItem(new WorkItem(_workId, WorkPurpose.AlertInvestigation, [], ModelName.NotSet, UserName.NotSet, Alert: _alertId));

@@ -1,6 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.Arc.Authorization;
 using Planner.GitHub;
 using Planner.Repositories.Adding;
 using Planner.Repositories.Organizations.Adding;
@@ -12,8 +13,13 @@ namespace Planner.Repositories.Discovery;
 /// </summary>
 /// <param name="gitHub">The <see cref="IGitHubClient"/> for talking to GitHub.</param>
 /// <param name="commandPipeline">The <see cref="ICommandPipeline"/> for executing commands.</param>
+/// <param name="systemExecution">The <see cref="ISystemExecution"/> the commands below run as - a reactor has no HTTP request behind it.</param>
 /// <param name="logger">The logger.</param>
-public class RepositoryDiscovery(IGitHubClient gitHub, ICommandPipeline commandPipeline, ILogger<RepositoryDiscovery> logger) : IReactor
+public class RepositoryDiscovery(
+    IGitHubClient gitHub,
+    ICommandPipeline commandPipeline,
+    ISystemExecution systemExecution,
+    ILogger<RepositoryDiscovery> logger) : IReactor
 {
     /// <summary>
     /// Discovers and adds all repositories of the added organization, recording the outcome either way.
@@ -37,6 +43,9 @@ public class RepositoryDiscovery(IGitHubClient gitHub, ICommandPipeline commandP
             // from - nothing is added until TrackDiscoveredRepositories says which ones.
             if (@event.TrackingPolicy == Organizations.OrganizationTrackingPolicy.All)
             {
+                // One scope for the whole discovery - adding every repository found for this
+                // organization is a single logical operation.
+                using var scope = systemExecution.AsSystem();
                 foreach (var repository in repositories)
                 {
                     await commandPipeline.Execute(new AddRepository(repository.Owner, repository.Name));

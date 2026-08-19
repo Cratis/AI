@@ -1,6 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.Arc.Authorization;
 using Microsoft.Extensions.Options;
 using Planner.Alerts.AutoConvertingToIssue;
 using Planner.Alerts.Listing;
@@ -22,11 +23,13 @@ namespace Planner.Alerts.EscalationReporting;
 /// <param name="commandPipeline">The <see cref="ICommandPipeline"/> for executing commands.</param>
 /// <param name="gitHub">The <see cref="IGitHubClient"/> for commenting on an already-filed issue.</param>
 /// <param name="options">The operations configuration - carries the default issue repository.</param>
+/// <param name="systemExecution">The <see cref="ISystemExecution"/> the commands below run as - there is no HTTP request behind this.</param>
 public class AlertEscalationReporting(
     IEventStore eventStore,
     ICommandPipeline commandPipeline,
     IGitHubClient gitHub,
-    IOptions<OperationsOptions> options) : IReactor
+    IOptions<OperationsOptions> options,
+    ISystemExecution systemExecution) : IReactor
 {
     /// <summary>
     /// Files the alert as an issue, or comments on the one already filed for it.
@@ -59,6 +62,9 @@ public class AlertEscalationReporting(
                 $"This alert recurred and still needs attention:\n\n{@event.Findings.Value}{AIIdentity.Footer()}");
             return;
         }
+
+        // A reactor has no HTTP request behind it - filing the issue runs as the system.
+        using var scope = systemExecution.AsSystem();
 
         await commandPipeline.Execute(new AutoConvertAlertToIssue(
             alertId,

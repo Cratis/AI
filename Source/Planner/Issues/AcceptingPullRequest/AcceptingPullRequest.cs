@@ -1,6 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.Arc.Authorization;
 using Planner.GitHub;
 using Planner.Issues.ChangingStatus;
 using ListedIssue = Planner.Issues.Listing.Issue;
@@ -52,7 +53,8 @@ public record PullRequestMerged(PullRequestNumber Number);
 /// (<see cref="ClassifyingForAutoMerge.AutoMergeClassification"/>) accepted it.
 /// </summary>
 /// <param name="commandPipeline">The <see cref="ICommandPipeline"/> for executing commands.</param>
-public class PostMergeBookkeeping(ICommandPipeline commandPipeline) : IReactor
+/// <param name="systemExecution">The <see cref="ISystemExecution"/> the commands below run as - there is no HTTP request behind this.</param>
+public class PostMergeBookkeeping(ICommandPipeline commandPipeline, ISystemExecution systemExecution) : IReactor
 {
     /// <summary>
     /// Clears the status of the issue whose pull request was just merged.
@@ -63,6 +65,10 @@ public class PostMergeBookkeeping(ICommandPipeline commandPipeline) : IReactor
     public async Task On(PullRequestMerged @event, EventContext context)
     {
         var issueId = new IssueId(context.EventSourceId.Value);
+
+        // A reactor has no HTTP request behind it - the bookkeeping runs as the system.
+        using var scope = systemExecution.AsSystem();
+
         await commandPipeline.Execute(new ChangeIssueStatus(issueId, IssueStatus.None));
     }
 }

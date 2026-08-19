@@ -1,6 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.Arc.Authorization;
 using MongoDB.Driver;
 using Planner.Issues.ChangingBody;
 using Planner.Issues.ChangingLabels;
@@ -47,12 +48,14 @@ public interface IIssueSynchronizer
 /// <param name="issues">The issue read models.</param>
 /// <param name="gitHub">The <see cref="IGitHubClient"/> for talking to GitHub.</param>
 /// <param name="commandPipeline">The <see cref="ICommandPipeline"/> for executing commands.</param>
+/// <param name="systemExecution">The <see cref="ISystemExecution"/> the commands below run as - there is no HTTP request behind this.</param>
 /// <param name="logger">The logger.</param>
 public class IssueSynchronizer(
     IMongoCollection<Repository> repositories,
     IMongoCollection<ListedIssue> issues,
     IGitHubClient gitHub,
     ICommandPipeline commandPipeline,
+    ISystemExecution systemExecution,
     ILogger<IssueSynchronizer> logger) : IIssueSynchronizer
 {
     /// <inheritdoc/>
@@ -69,6 +72,10 @@ public class IssueSynchronizer(
     /// <inheritdoc/>
     public async Task SynchronizeRepository(OrganizationName owner, RepositoryName name, CancellationToken cancellationToken = default)
     {
+        // One scope for the whole repository pass - the synchronizer runs from a reminder, with no
+        // operator and no HTTP request behind it.
+        using var scope = systemExecution.AsSystem();
+
         logger.SynchronizingRepository(owner, name);
         var gitHubIssues = await gitHub.GetIssues(owner, name, cancellationToken);
 

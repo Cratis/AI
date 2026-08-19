@@ -9,6 +9,7 @@ using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Planner.GitHub.App;
 using Planner.GitHub.App.Installations;
+using Planner.Identity;
 using Planner.Issues.ChangingAssignees;
 using Planner.Issues.ChangingBody;
 using Planner.Issues.ChangingLabels;
@@ -58,6 +59,11 @@ public static class GitHubWebhookEndpoints
             {
                 return Results.Unauthorized();
             }
+
+            // The HMAC check above is the caller's real credential - establish the trusted principal
+            // Arc's authorization reads for the rest of this request immediately after it passes, and
+            // before any of the commands the handlers below may execute.
+            request.HttpContext.EstablishAsVerified();
 
             if (JsonNode.Parse(body) is not JsonObject payload)
             {

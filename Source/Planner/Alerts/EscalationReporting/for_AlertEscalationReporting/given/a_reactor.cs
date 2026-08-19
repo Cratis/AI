@@ -7,6 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Planner.GitHub;
 using Planner.Operations;
+using Cratis.Arc.Authorization;
+using Planner.Identity;
 
 namespace Planner.Alerts.EscalationReporting.for_AlertEscalationReporting.given;
 
@@ -33,6 +35,7 @@ public class a_reactor : Specification
             .AddSingleton(_commandPipeline)
             .AddSingleton(_gitHub)
             .AddSingleton<IOptions<OperationsOptions>>(Options.Create(_options))
+            .AddSingleton(SystemExecutionScope.ForSpecs())
             .BuildServiceProvider());
     }
 

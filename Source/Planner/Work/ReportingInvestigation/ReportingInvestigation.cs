@@ -1,6 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.Arc.Authorization;
 using Planner.GitHub;
 using Planner.Issues.RecordingInvestigation;
 using Planner.Work.CompletingInvestigation;
@@ -16,7 +17,8 @@ namespace Planner.Work.ReportingInvestigation;
 /// <param name="eventStore">The <see cref="IEventStore"/> for reading the covered issues' read models by key.</param>
 /// <param name="commandPipeline">The <see cref="ICommandPipeline"/> for executing commands.</param>
 /// <param name="gitHub">The <see cref="IGitHubClient"/> for commenting on the GitHub issues.</param>
-public class InvestigationReporting(IEventStore eventStore, ICommandPipeline commandPipeline, IGitHubClient gitHub) : IReactor
+/// <param name="systemExecution">The <see cref="ISystemExecution"/> the commands below run as - there is no HTTP request behind this.</param>
+public class InvestigationReporting(IEventStore eventStore, ICommandPipeline commandPipeline, IGitHubClient gitHub, ISystemExecution systemExecution) : IReactor
 {
     /// <summary>
     /// Records the findings on the covered issues and comments on the original GitHub issues.
@@ -32,6 +34,11 @@ public class InvestigationReporting(IEventStore eventStore, ICommandPipeline com
         // propagation can find nothing to propagate - neither is worth throwing over, because a
         // throw pauses the partition and can quarantine the observer.
         var work = await eventStore.ReadModels.GetInstanceById<WorkItem>(context.EventSourceId);
+
+        // One scope for the whole reporting pass - recording the findings on every covered issue is
+        // a single logical operation.
+        using var scope = systemExecution.AsSystem();
+
         foreach (var issueId in work?.Issues ?? [])
         {
             await commandPipeline.Execute(new RecordInvestigation(issueId, @event.Findings, @event.SuggestedModel));

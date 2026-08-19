@@ -37,6 +37,27 @@ internal static class SystemExecutionScope
     internal static IDisposable Enter(ClaimsPrincipal principal) =>
         new SystemExecution(new CurrentPrincipalAccessor(new NoHttpRequest())).As(principal);
 
+    /// <summary>
+    /// A real <see cref="ISystemExecution"/> for a reactor spec to register, rather than a substitute.
+    /// </summary>
+    /// <returns>The <see cref="ISystemExecution"/> to register into the scenario's services.</returns>
+    /// <remarks>
+    /// A substitute would return <see langword="null"/> from <see cref="ISystemExecution.AsSystem"/> and
+    /// make every <c>using var scope = systemExecution.AsSystem()</c> in the reactor a no-op, so the spec
+    /// would pass whether or not the reactor actually established a principal - which is precisely the
+    /// thing worth proving. The real one, over an accessor reporting no HTTP request, enters the same
+    /// scope production does when a reactor runs off a timer or an event.
+    /// </remarks>
+    internal static ISystemExecution ForSpecs() =>
+        new SystemExecution(new CurrentPrincipalAccessor(new NoHttpRequest()));
+
+    /// <summary>
+    /// An <see cref="IHttpRequestContextAccessor"/> reporting no HTTP request in progress - for a spec
+    /// that needs to read the ambient principal the same way Arc's own authorization would.
+    /// </summary>
+    /// <returns>The accessor.</returns>
+    internal static IHttpRequestContextAccessor NoRequestContextAccessor() => new NoHttpRequest();
+
     sealed class NoHttpRequest : IHttpRequestContextAccessor
     {
         public IHttpRequestContext? Current { get; set; }

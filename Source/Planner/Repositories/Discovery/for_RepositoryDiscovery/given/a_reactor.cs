@@ -4,6 +4,7 @@
 #if DEBUG
 using Cratis.Chronicle.Testing.Reactors;
 using Planner.GitHub;
+using Planner.Identity;
 
 namespace Planner.Repositories.Discovery.for_RepositoryDiscovery.given;
 
@@ -20,7 +21,8 @@ public class a_reactor : Specification
 
         _scenario = new(services => services
             .AddSingleton(_gitHub)
-            .AddSingleton(_commandPipeline));
+            .AddSingleton(_commandPipeline)
+            .AddSingleton(SystemExecutionScope.ForSpecs()));
     }
 }
 #endif

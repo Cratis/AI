@@ -1,6 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.Arc.Authorization;
 using Planner.GitHub;
 using Planner.Issues.Classifying;
 using Planner.Issues.Registration;
@@ -18,7 +19,8 @@ namespace Planner.Issues.Triaging;
 /// <param name="gitHub">The <see cref="IGitHubClient"/> for commenting and applying labels.</param>
 /// <param name="commandPipeline">The <see cref="ICommandPipeline"/> for executing commands.</param>
 /// <param name="languageModel">The <see cref="ILanguageModel"/> the classification is asked from.</param>
-public class IssueTriage(IGitHubClient gitHub, ICommandPipeline commandPipeline, ILanguageModel languageModel) : IReactor
+/// <param name="systemExecution">The <see cref="ISystemExecution"/> the commands below run as - there is no HTTP request behind this.</param>
+public class IssueTriage(IGitHubClient gitHub, ICommandPipeline commandPipeline, ILanguageModel languageModel, ISystemExecution systemExecution) : IReactor
 {
     /// <summary>
     /// Acknowledges and classifies a newly registered issue. Runs once per issue - an external,
@@ -56,6 +58,10 @@ public class IssueTriage(IGitHubClient gitHub, ICommandPipeline commandPipeline,
         }
 
         var issueId = new IssueId(context.EventSourceId.Value);
+
+        // A reactor has no HTTP request behind it - the triage classification runs as the system.
+        using var scope = systemExecution.AsSystem();
+
         await commandPipeline.Execute(new ClassifyIssue(
             issueId,
             classification.Kind,

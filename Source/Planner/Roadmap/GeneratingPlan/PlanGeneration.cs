@@ -1,6 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.Arc.Authorization;
 using Planner.GitHub;
 using Planner.LanguageModels;
 using Planner.Roadmap.RequestingPlan;
@@ -17,7 +18,8 @@ namespace Planner.Roadmap.GeneratingPlan;
 /// <param name="commandPipeline">The <see cref="ICommandPipeline"/> for executing commands.</param>
 /// <param name="languageModel">The <see cref="ILanguageModel"/> the plan is generated with.</param>
 /// <param name="gitHub">The <see cref="IGitHubClient"/> for posting the plan back to GitHub.</param>
-public class PlanGeneration(IEventStore eventStore, ICommandPipeline commandPipeline, ILanguageModel languageModel, IGitHubClient gitHub) : IReactor
+/// <param name="systemExecution">The <see cref="ISystemExecution"/> the commands below run as - there is no HTTP request behind this.</param>
+public class PlanGeneration(IEventStore eventStore, ICommandPipeline commandPipeline, ILanguageModel languageModel, IGitHubClient gitHub, ISystemExecution systemExecution) : IReactor
 {
     /// <summary>
     /// Generates the plan for a newly requested set of issues.
@@ -42,6 +44,9 @@ public class PlanGeneration(IEventStore eventStore, ICommandPipeline commandPipe
 
         if (issues.Count == 0)
         {
+            // One scope for the whole generation - each branch below ends in a command, and a
+            // reactor has no HTTP request behind it.
+            using var failureScope = systemExecution.AsSystem();
             await commandPipeline.Execute(new FailPlanGeneration(planId, "None of the selected issues could be found"));
             return;
         }
@@ -49,10 +54,12 @@ public class PlanGeneration(IEventStore eventStore, ICommandPipeline commandPipe
         var result = await languageModel.Complete(PlanPrompts.Build(issues, @event.Instructions.Value));
         if (!result.Succeeded)
         {
+            using var resultFailureScope = systemExecution.AsSystem();
             await commandPipeline.Execute(new FailPlanGeneration(planId, result.FailureReason));
             return;
         }
 
+        using var scope = systemExecution.AsSystem();
         await commandPipeline.Execute(new GeneratePlan(planId, result.Text));
 
         foreach (var issue in issues)

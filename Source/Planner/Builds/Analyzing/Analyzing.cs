@@ -1,6 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.Arc.Authorization;
 using Planner.Builds.RecordingDiagnosis;
 using Planner.Builds.RecordingStatus;
 using Planner.LanguageModels;
@@ -18,7 +19,8 @@ namespace Planner.Builds.Analyzing;
 /// </summary>
 /// <param name="commandPipeline">The <see cref="ICommandPipeline"/> for executing commands.</param>
 /// <param name="languageModel">The <see cref="ILanguageModel"/> the assessment is asked from.</param>
-public class BuildFailureAnalysis(ICommandPipeline commandPipeline, ILanguageModel languageModel) : IReactor
+/// <param name="systemExecution">The <see cref="ISystemExecution"/> the commands below run as - there is no HTTP request behind this.</param>
+public class BuildFailureAnalysis(ICommandPipeline commandPipeline, ILanguageModel languageModel, ISystemExecution systemExecution) : IReactor
 {
     /// <summary>
     /// Assesses a newly failing build.
@@ -47,6 +49,11 @@ public class BuildFailureAnalysis(ICommandPipeline commandPipeline, ILanguageMod
         }
 
         var workflowId = new BuildWorkflowId(context.EventSourceId.Value);
+
+        // One scope for the whole analysis - recording the diagnosis and scheduling the fix are one
+        // logical operation, and a reactor has no HTTP request behind it.
+        using var scope = systemExecution.AsSystem();
+
         await commandPipeline.Execute(new RecordBuildDiagnosis(workflowId, assessment.Diagnosis, assessment.Fixable));
 
         if (assessment.Fixable)

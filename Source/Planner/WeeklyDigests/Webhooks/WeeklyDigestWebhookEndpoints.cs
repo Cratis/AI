@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Microsoft.Extensions.Options;
+using Planner.Identity;
 using Planner.WeeklyDigests.Receiving;
 
 namespace Planner.WeeklyDigests.Webhooks;
@@ -27,6 +28,11 @@ public static class WeeklyDigestWebhookEndpoints
             {
                 return Results.Unauthorized();
             }
+
+            // The bearer token above is the caller's real credential - establish the trusted principal
+            // Arc's authorization reads for the rest of this request immediately after it passes, and
+            // before the command below.
+            request.HttpContext.EstablishAsVerified();
 
             using var reader = new StreamReader(request.Body);
             var body = await reader.ReadToEndAsync();

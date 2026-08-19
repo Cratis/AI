@@ -6,6 +6,7 @@ using Planner.Accounts;
 using Planner.Issues.ChangingStatus;
 using Planner.Work.Listing;
 using Planner.Work.Starting;
+using Cratis.Arc.Authorization;
 
 namespace Planner.Work.PropagatingStatus.for_WorkStatusPropagation.when_work_starts;
 
@@ -31,7 +32,7 @@ public class and_the_work_is_an_alert_investigation : given.a_work_item
             null!,
             ModelName.NotSet,
             UserName.NotSet));
-        _reactor = new(_eventStore, _commandPipeline);
+        _reactor = new(_eventStore, _commandPipeline, Substitute.For<ISystemExecution>());
     }
 
     async Task Because() => _error = await Cratis.Specifications.Catch.Exception(() =>

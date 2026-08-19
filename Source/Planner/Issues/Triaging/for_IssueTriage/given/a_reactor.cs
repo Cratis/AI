@@ -6,6 +6,7 @@ using Cratis.Chronicle.Testing.Reactors;
 using Microsoft.Extensions.DependencyInjection;
 using Planner.GitHub;
 using Planner.LanguageModels;
+using Planner.Identity;
 
 namespace Planner.Issues.Triaging.for_IssueTriage.given;
 
@@ -28,7 +29,8 @@ public class a_reactor : Specification
         _scenario = new(services => services
             .AddSingleton(_gitHub)
             .AddSingleton(_commandPipeline)
-            .AddSingleton(_languageModel));
+            .AddSingleton(_languageModel)
+            .AddSingleton(SystemExecutionScope.ForSpecs()));
     }
 }
 #endif
