@@ -1,0 +1,41 @@
+{
+  "protocolVersion": "2",
+  "algorithm": "rfc8785-json-sha256-v1",
+  "vectors": [
+    {
+      "id": "agent-context",
+      "fixture": "Contracts/v2/examples/agent-context.json",
+      "canonicalHash": "sha256:495f7f50dd08e5d1dbdf36693c2402014e9f621a98ba769ca7876ae5a7371dbf"
+    },
+    {
+      "id": "artifact-descriptor",
+      "fixture": "Contracts/v2/examples/artifact-descriptor.json",
+      "canonicalHash": "sha256:1dc0ca9afb4ec6656b0674d7ada81f361b2624dcf9c3319ab5bbf528cf4c1807"
+    },
+    {
+      "id": "artifact-provenance",
+      "fixture": "Contracts/v2/examples/artifact-provenance.json",
+      "canonicalHash": "sha256:b12a8bacd3f4453b873d46529406569d7d5500ee5b6ae9deb06ddb34f6a1f0b3"
+    },
+    {
+      "id": "artifact-receipt",
+      "fixture": "Contracts/v2/examples/artifact-receipt.json",
+      "canonicalHash": "sha256:b82feecabd164b45af52f26363c6c8c54ab3afd959143c7946705951d6c840cb"
+    },
+    {
+      "id": "phase-envelope",
+      "fixture": "Contracts/v2/examples/phase-envelope.json",
+      "canonicalHash": "sha256:3f3e6279810728a52f5dffa8f8758a30125e0f6da86f5ad5b27a0cb35bf67f22"
+    },
+    {
+      "id": "run-input-set",
+      "fixture": "Contracts/v2/examples/run-input-set.json",
+      "canonicalHash": "sha256:36db5875fa41f3a03eefec36e036a490ef44d5f0e1c83efdce44150551db8441"
+    },
+    {
+      "id": "sanitization-attestation",
+      "fixture": "Contracts/v2/examples/sanitization-attestation.json",
+      "canonicalHash": "sha256:6985afffb212a87ec4a4293ba38e8bbd7f4598a516d39b358c03a05f76a96a3f"
+    }
+  ]
+}

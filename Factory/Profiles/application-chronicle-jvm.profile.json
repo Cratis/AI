@@ -1,0 +1,51 @@
+{
+  "$schema": "../../Contracts/v1/profile.schema.json",
+  "schemaVersion": "1",
+  "documentKind": "profile",
+  "id": "application-chronicle-jvm",
+  "version": "1.0.0",
+  "description": "Composable Kotlin or Java capability pack for the idiomatic Chronicle JVM client.",
+  "activation": "automatic",
+  "priority": 80,
+  "repositoryModes": ["application"],
+  "detect": {
+    "allOf": [
+      {
+        "anyOf": [
+          {"kind": "file", "pattern": "**/pom.xml"},
+          {"kind": "file", "pattern": "**/*.gradle"},
+          {"kind": "file", "pattern": "**/*.gradle.kts"}
+        ]
+      },
+      {"kind": "dependency", "ecosystem": "maven", "name": "io.cratis:chronicle"}
+    ]
+  },
+  "provides": ["application", "chronicle", "chronicle-client-jvm", "jvm", "repository-known"],
+  "excludes": [],
+  "skills": [],
+  "recommendations": {
+    "agents": [
+      {
+        "id": "repository-investigator",
+        "purposes": ["investigate"],
+        "priority": 100,
+        "rationale": "Investigates the shared Kotlin and Java Chronicle artifact using detected source-language evidence."
+      },
+      {
+        "id": "repository-investigation-reviewer",
+        "purposes": ["review"],
+        "priority": 100,
+        "rationale": "Independently reviews typed investigation evidence using the resolved repository mode."
+      }
+    ],
+    "workflows": [
+      {
+        "id": "investigate-cratis-issue",
+        "purposes": ["investigate"],
+        "priority": 100,
+        "rationale": "The JVM client can use the harness-neutral read-only workflow."
+      }
+    ]
+  },
+  "commands": {}
+}

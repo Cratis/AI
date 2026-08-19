@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.cratis.io/factory/v1/capability-catalog.schema.json",
+  "title": "Cratis Factory Capability Catalog",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "documentKind", "id", "version", "capabilities"],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": "1"
+    },
+    "documentKind": {
+      "const": "capability-catalog"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "capabilities": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "description", "usages", "effect", "policyCapability"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "usages": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "enum": ["agent", "gate", "phase"]
+            }
+          },
+          "effect": {
+            "enum": ["read", "write", "destructive"]
+          },
+          "policyCapability": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+          },
+          "outputSchema": {
+            "type": "string",
+            "pattern": "^\\.\\./\\.\\./Contracts/v1/[a-z][a-z0-9-]*\\.schema\\.json$"
+          },
+          "allowedGateKinds": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "enum": ["command"]
+            }
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "usages": {
+                  "contains": {
+                    "enum": ["gate", "phase"]
+                  }
+                }
+              }
+            },
+            "then": {
+              "required": ["outputSchema"]
+            }
+          }
+        ]
+      }
+    }
+  }
+}

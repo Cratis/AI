@@ -1,0 +1,51 @@
+{
+  "$schema": "../../Contracts/v1/profile.schema.json",
+  "schemaVersion": "1",
+  "documentKind": "profile",
+  "id": "application-cratis-components",
+  "version": "1.0.0",
+  "description": "Composable React consumer pack for Cratis Components with explicit Arc.React peer evidence.",
+  "activation": "automatic",
+  "priority": 90,
+  "repositoryModes": ["application"],
+  "detect": {
+    "allOf": [
+      {"kind": "dependency", "ecosystem": "npm", "name": "react"},
+      {
+        "anyOf": [
+          {"kind": "dependency", "ecosystem": "npm", "name": "@cratis/arc.react"},
+          {"kind": "dependency", "ecosystem": "npm", "name": "@cratis/arc.react.mvvm"}
+        ]
+      },
+      {"kind": "dependency", "ecosystem": "npm", "name": "@cratis/components"}
+    ]
+  },
+  "provides": ["application", "arc-react", "cratis-components", "react", "repository-known", "typescript"],
+  "excludes": [],
+  "skills": ["cratis-react-page", "toolbar", "stepper-command-dialog"],
+  "recommendations": {
+    "agents": [
+      {
+        "id": "repository-investigator",
+        "purposes": ["investigate"],
+        "priority": 100,
+        "rationale": "Investigates Components consumption against public React and Arc proxy contracts."
+      },
+      {
+        "id": "repository-investigation-reviewer",
+        "purposes": ["review"],
+        "priority": 100,
+        "rationale": "Independently reviews typed investigation evidence using the resolved repository mode."
+      }
+    ],
+    "workflows": [
+      {
+        "id": "investigate-cratis-issue",
+        "purposes": ["investigate"],
+        "priority": 100,
+        "rationale": "The Components consumer can use the read-only repository workflow."
+      }
+    ]
+  },
+  "commands": {}
+}

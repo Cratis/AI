@@ -1,0 +1,55 @@
+{
+  "$schema": "../../Contracts/v1/profile.schema.json",
+  "schemaVersion": "1",
+  "documentKind": "profile",
+  "id": "application-arc-dotnet",
+  "version": "1.0.0",
+  "description": "Composable application capability pack for .NET applications consuming Arc without implying Chronicle.",
+  "activation": "automatic",
+  "priority": 80,
+  "repositoryModes": ["application"],
+  "detect": {
+    "allOf": [
+      {
+        "kind": "file",
+        "pattern": "**/*.csproj"
+      },
+      {
+        "anyOf": [
+          {"kind": "dependency", "ecosystem": "nuget", "name": "Cratis.Arc.Core"},
+          {"kind": "dependency", "ecosystem": "nuget", "name": "Cratis.Arc"},
+          {"kind": "dependency", "ecosystem": "nuget", "name": "Cratis.Arc.Chronicle"},
+          {"kind": "dependency", "ecosystem": "nuget", "name": "Cratis"}
+        ]
+      }
+    ]
+  },
+  "provides": ["application", "arc", "arc-dotnet", "dotnet", "repository-known"],
+  "excludes": [],
+  "skills": ["cratis-command", "cratis-readmodel", "cratis-specs-csharp"],
+  "recommendations": {
+    "agents": [
+      {
+        "id": "repository-investigator",
+        "purposes": ["investigate"],
+        "priority": 100,
+        "rationale": "Investigates Arc application behavior without assuming Chronicle is installed."
+      },
+      {
+        "id": "repository-investigation-reviewer",
+        "purposes": ["review"],
+        "priority": 100,
+        "rationale": "Independently reviews typed investigation evidence using the resolved repository mode."
+      }
+    ],
+    "workflows": [
+      {
+        "id": "investigate-cratis-issue",
+        "purposes": ["investigate"],
+        "priority": 100,
+        "rationale": "The repository is known and can use the read-only evidence workflow."
+      }
+    ]
+  },
+  "commands": {}
+}

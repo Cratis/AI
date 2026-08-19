@@ -1,0 +1,236 @@
+{
+  "$schema": "../../Contracts/v1/profile.schema.json",
+  "schemaVersion": "1",
+  "documentKind": "profile",
+  "id": "cratis-dotnet-react",
+  "version": "1.0.0",
+  "description": "First-class Cratis application profile for .NET, Arc, Chronicle, React, and Cratis Components.",
+  "activation": "explicit",
+  "priority": 100,
+  "repositoryModes": ["application"],
+  "detect": {
+    "allOf": [
+      {
+        "kind": "file",
+        "pattern": "**/*.csproj"
+      },
+      {
+        "anyOf": [
+          {
+            "kind": "dependency",
+            "ecosystem": "nuget",
+            "name": "Cratis.Arc.Core"
+          },
+          {
+            "kind": "dependency",
+            "ecosystem": "nuget",
+            "name": "Cratis.Arc"
+          },
+          {
+            "kind": "dependency",
+            "ecosystem": "nuget",
+            "name": "Cratis.Arc.Chronicle"
+          },
+          {
+            "kind": "dependency",
+            "ecosystem": "nuget",
+            "name": "Cratis"
+          }
+        ]
+      },
+      {
+        "anyOf": [
+          {
+            "kind": "dependency",
+            "ecosystem": "nuget",
+            "name": "Cratis.Chronicle"
+          },
+          {
+            "kind": "dependency",
+            "ecosystem": "nuget",
+            "name": "Cratis.Chronicle.AspNetCore"
+          },
+          {
+            "kind": "dependency",
+            "ecosystem": "nuget",
+            "name": "Cratis.Arc.Chronicle"
+          },
+          {
+            "kind": "dependency",
+            "ecosystem": "nuget",
+            "name": "Cratis"
+          }
+        ]
+      },
+      {
+        "kind": "dependency",
+        "ecosystem": "npm",
+        "name": "react"
+      },
+      {
+        "kind": "dependency",
+        "ecosystem": "npm",
+        "name": "@cratis/arc.react"
+      },
+      {
+        "kind": "dependency",
+        "ecosystem": "npm",
+        "name": "@cratis/components"
+      }
+    ]
+  },
+  "provides": [
+    "application",
+    "arc",
+    "chronicle",
+    "components",
+    "dotnet",
+    "react",
+    "repository-known",
+    "screenplay"
+  ],
+  "excludes": [],
+  "skills": [
+    "cratis-command",
+    "cratis-readmodel",
+    "cratis-specs-csharp",
+    "cratis-specs-typescript",
+    "cratis-vertical-slice",
+    "event-modeling",
+    "new-vertical-slice"
+  ],
+  "recommendations": {
+    "agents": [
+      {
+        "id": "repository-investigator",
+        "purposes": ["investigate"],
+        "priority": 100,
+        "rationale": "Performs a read-only, repository-mode-aware investigation and produces typed evidence."
+      },
+      {
+        "id": "repository-investigation-reviewer",
+        "purposes": ["review"],
+        "priority": 100,
+        "rationale": "Independently reviews typed investigation evidence using the resolved repository mode."
+      },
+      {
+        "id": "planner",
+        "purposes": ["model", "plan"],
+        "priority": 80,
+        "rationale": "Plans an application change after repository investigation and intent acceptance."
+      },
+      {
+        "id": "slice-implementer",
+        "purposes": ["implement-vertical-slice"],
+        "priority": 100,
+        "rationale": "Owns coherent backend, specifications, generated proxies, and React artifacts for one approved slice."
+      },
+      {
+        "id": "backend-developer",
+        "purposes": ["implement-backend"],
+        "priority": 90,
+        "rationale": "Handles focused Arc, Chronicle, and .NET implementation work outside a complete vertical slice."
+      },
+      {
+        "id": "frontend-developer",
+        "purposes": ["implement-frontend"],
+        "priority": 90,
+        "rationale": "Handles React, MVVM, generated proxy, and Cratis Components behavior."
+      },
+      {
+        "id": "spec-writer",
+        "purposes": ["specify", "verify"],
+        "priority": 90,
+        "rationale": "Adds framework-idiomatic behavioral specifications for the approved change."
+      },
+      {
+        "id": "code-reviewer",
+        "purposes": ["review-code"],
+        "priority": 100,
+        "rationale": "Provides an independent read-only review after deterministic gates pass."
+      },
+      {
+        "id": "security-reviewer",
+        "purposes": ["review-pii", "review-security", "review-runtime-access"],
+        "priority": 100,
+        "rationale": "Reviews capability scope, PII, identity, tenancy, credentials, and operational risk."
+      }
+    ],
+    "workflows": [
+      {
+        "id": "complete-rendered-slice",
+        "purposes": ["implement-vertical-slice"],
+        "priority": 100,
+        "rationale": "The full Cratis stack is present, so an agent can complete a rendered slice and be judged against the slice's own specifications."
+      },
+      {
+        "id": "investigate-cratis-issue",
+        "purposes": ["investigate"],
+        "priority": 100,
+        "rationale": "The first evidence-gated workflow is read-only and suitable for diagnosing application issues safely."
+      }
+    ]
+  },
+  "commands": {
+    "cli-capabilities": {
+      "argv": ["cratis", "llm-context", "-o", "json-compact"],
+      "workingDirectory": ".",
+      "effect": "read",
+      "captures": "json"
+    },
+    "cli-version": {
+      "argv": ["cratis", "version", "-o", "json-compact"],
+      "workingDirectory": ".",
+      "effect": "read",
+      "captures": "json"
+    },
+    "screenplay-validate": {
+      "argv": ["cratis", "screenplay", "validate", ".", "-o", "json-compact"],
+      "workingDirectory": ".",
+      "effect": "read",
+      "captures": "json"
+    },
+    "backend-restore": {
+      "argv": ["dotnet", "restore"],
+      "workingDirectory": ".",
+      "effect": "write",
+      "captures": "text"
+    },
+    "backend-build-debug": {
+      "argv": ["dotnet", "build", "--configuration", "Debug", "--no-restore"],
+      "workingDirectory": ".",
+      "effect": "write",
+      "captures": "text"
+    },
+    "backend-build-release": {
+      "argv": ["dotnet", "build", "--configuration", "Release", "--no-restore"],
+      "workingDirectory": ".",
+      "effect": "write",
+      "captures": "text"
+    },
+    "backend-specifications": {
+      "argv": ["dotnet", "test", "--configuration", "Debug", "--no-build"],
+      "workingDirectory": ".",
+      "effect": "write",
+      "captures": "text"
+    },
+    "frontend-lint": {
+      "argv": ["yarn", "g:lint:ci"],
+      "workingDirectory": ".",
+      "effect": "write",
+      "captures": "text"
+    },
+    "frontend-compile": {
+      "argv": ["yarn", "g:compile"],
+      "workingDirectory": ".",
+      "effect": "write",
+      "captures": "text"
+    },
+    "frontend-specifications": {
+      "argv": ["yarn", "g:test"],
+      "workingDirectory": ".",
+      "effect": "write",
+      "captures": "text"
+    }
+  }
+}

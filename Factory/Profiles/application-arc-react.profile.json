@@ -1,0 +1,51 @@
+{
+  "$schema": "../../Contracts/v1/profile.schema.json",
+  "schemaVersion": "1",
+  "documentKind": "profile",
+  "id": "application-arc-react",
+  "version": "1.0.0",
+  "description": "Composable React application capability pack activated only by React and Arc.React dependencies.",
+  "activation": "automatic",
+  "priority": 80,
+  "repositoryModes": ["application"],
+  "detect": {
+    "allOf": [
+      {"kind": "file", "pattern": "**/package.json"},
+      {"kind": "dependency", "ecosystem": "npm", "name": "react"},
+      {
+        "anyOf": [
+          {"kind": "dependency", "ecosystem": "npm", "name": "@cratis/arc.react"},
+          {"kind": "dependency", "ecosystem": "npm", "name": "@cratis/arc.react.mvvm"}
+        ]
+      }
+    ]
+  },
+  "provides": ["application", "arc-react", "react", "repository-known", "typescript"],
+  "excludes": [],
+  "skills": ["cratis-react-page", "cratis-specs-typescript"],
+  "recommendations": {
+    "agents": [
+      {
+        "id": "repository-investigator",
+        "purposes": ["investigate"],
+        "priority": 100,
+        "rationale": "Investigates React and Arc.React behavior without assuming generated proxies or Components."
+      },
+      {
+        "id": "repository-investigation-reviewer",
+        "purposes": ["review"],
+        "priority": 100,
+        "rationale": "Independently reviews typed investigation evidence using the resolved repository mode."
+      }
+    ],
+    "workflows": [
+      {
+        "id": "investigate-cratis-issue",
+        "purposes": ["investigate"],
+        "priority": 100,
+        "rationale": "The Arc.React surface can use the read-only repository workflow."
+      }
+    ]
+  },
+  "commands": {}
+}

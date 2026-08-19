@@ -1,0 +1,471 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.cratis.io/factory/v1/harness-event.schema.json",
+  "title": "Cratis Factory Harness Event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocolVersion",
+    "eventId",
+    "runId",
+    "phaseAttemptId",
+    "sequence",
+    "type",
+    "occurredAt",
+    "traceId",
+    "data"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "format": "uri",
+      "maxLength": 256,
+      "pattern": "^(?![\\s\\S]*[\\u0000-\\u001f\\u007f-\\u009f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])[\\s\\S]*$"
+    },
+    "protocolVersion": {
+      "const": "1"
+    },
+    "eventId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "runId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "phaseAttemptId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "sequence": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "type": {
+      "enum": [
+        "session-started",
+        "session-resumed",
+        "message-progressed",
+        "tool-requested",
+        "tool-started",
+        "tool-completed",
+        "approval-requested",
+        "approval-resolved",
+        "artifact-produced",
+        "checkpoint-produced",
+        "usage-reported",
+        "phase-completed",
+        "phase-failed",
+        "phase-cancelled"
+      ]
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time",
+      "maxLength": 64
+    },
+    "traceId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^(?![\\s\\S]*[\\u0000-\\u001f\\u007f-\\u009f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])[\\s\\S]*$"
+    },
+    "data": {
+      "type": "object"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "enum": ["session-started", "session-resumed"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/sessionData"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "message-progressed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/messageData"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "enum": ["tool-requested", "tool-started"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/toolData"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "tool-completed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/toolCompletedData"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "approval-requested"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/approvalRequestedData"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "approval-resolved"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/approvalResolvedData"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "enum": ["artifact-produced", "checkpoint-produced"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/artifactData"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "usage-reported"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/usageData"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "phase-completed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/phaseCompletedData"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "phase-failed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/failureData"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "phase-cancelled"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "#/$defs/cancellationData"
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "maxLength": 128,
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "contentHash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "artifactReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reference", "contentHash", "classification"],
+      "properties": {
+        "reference": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "pattern": "^artifact:sha256:[a-f0-9]{64}$"
+        },
+        "contentHash": {
+          "$ref": "#/$defs/contentHash"
+        },
+        "classification": {
+          "enum": ["public", "internal", "confidential", "restricted"]
+        }
+      }
+    },
+    "sessionData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sessionId", "harness", "harnessVersion"],
+      "properties": {
+        "sessionId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^(?![\\s\\S]*[\\u0000-\\u001f\\u007f-\\u009f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])[\\s\\S]*$"
+        },
+        "harness": {
+          "$ref": "#/$defs/identifier"
+        },
+        "harnessVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^(?![\\s\\S]*[\\u0000-\\u001f\\u007f-\\u009f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])[\\s\\S]*$"
+        }
+      }
+    },
+    "messageData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["messageId", "role", "content", "complete"],
+      "properties": {
+        "messageId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^(?![\\s\\S]*[\\u0000-\\u001f\\u007f-\\u009f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])[\\s\\S]*$"
+        },
+        "role": {
+          "enum": ["assistant", "tool"]
+        },
+        "content": {
+          "$ref": "#/$defs/artifactReference"
+        },
+        "complete": {
+          "type": "boolean"
+        }
+      }
+    },
+    "toolData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["toolCallId", "capabilityId", "arguments"],
+      "properties": {
+        "toolCallId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^(?![\\s\\S]*[\\u0000-\\u001f\\u007f-\\u009f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])[\\s\\S]*$"
+        },
+        "capabilityId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "arguments": {
+          "$ref": "#/$defs/artifactReference"
+        }
+      }
+    },
+    "toolCompletedData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["toolCallId", "capabilityId", "outcome", "result"],
+      "properties": {
+        "toolCallId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^(?![\\s\\S]*[\\u0000-\\u001f\\u007f-\\u009f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])[\\s\\S]*$"
+        },
+        "capabilityId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "outcome": {
+          "enum": ["succeeded", "failed", "denied"]
+        },
+        "result": {
+          "$ref": "#/$defs/artifactReference"
+        }
+      }
+    },
+    "approvalRequestedData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requestHash", "capabilityId", "reasonReference"],
+      "properties": {
+        "requestHash": {
+          "$ref": "#/$defs/contentHash"
+        },
+        "capabilityId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "reasonReference": {
+          "$ref": "#/$defs/artifactReference"
+        }
+      }
+    },
+    "approvalResolvedData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requestHash", "decisionReference"],
+      "properties": {
+        "requestHash": {
+          "$ref": "#/$defs/contentHash"
+        },
+        "decisionReference": {
+          "$ref": "#/$defs/artifactReference"
+        }
+      }
+    },
+    "artifactData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "artifact"],
+      "properties": {
+        "kind": {
+          "$ref": "#/$defs/identifier"
+        },
+        "artifact": {
+          "$ref": "#/$defs/artifactReference"
+        }
+      }
+    },
+    "usageData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["inputTokens", "outputTokens", "toolCalls"],
+      "properties": {
+        "inputTokens": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "outputTokens": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "toolCalls": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      }
+    },
+    "phaseCompletedData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["result"],
+      "properties": {
+        "result": {
+          "$ref": "#/$defs/artifactReference"
+        }
+      }
+    },
+    "failureData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "detail", "retryable"],
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/identifier"
+        },
+        "detail": {
+          "$ref": "#/$defs/artifactReference"
+        },
+        "retryable": {
+          "type": "boolean"
+        }
+      }
+    },
+    "cancellationData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reasonCode"],
+      "properties": {
+        "reasonCode": {
+          "$ref": "#/$defs/identifier"
+        }
+      }
+    }
+  }
+}

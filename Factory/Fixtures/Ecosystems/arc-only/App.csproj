@@ -1,0 +1,7 @@
+<!-- Copyright (c) Cratis. All rights reserved. -->
+<!-- Licensed under the MIT license. See LICENSE file in the project root for full license information. -->
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <PackageReference Include="Cratis.Arc.Core" Version="21.14.3" />
+  </ItemGroup>
+</Project>

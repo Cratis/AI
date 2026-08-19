@@ -1,0 +1,17 @@
+{
+  "$schema": "https://schemas.cratis.io/factory/v1/approval-decision.schema.json",
+  "protocolVersion": "1",
+  "decisionId": "8f2a4c61-5d3b-4e7a-9c18-2b6d0f4a7e35",
+  "runId": "3c7e1b90-6a24-4f5d-8b03-e91c5a7d2f48",
+  "phaseAttemptId": "b514d0a7-9e63-4c28-a7f1-06d38b52c9e4",
+  "requestHash": "sha256:c04a97e6b1d8532f7ae0164cb93d75820fe6a1c47d93b0582ea641fc37d90b16",
+  "decision": "accepted",
+  "summary": "The bounded read-only investigation of the quarantined Author read model observer under Source/Kernel is accepted; no correction is requested.",
+  "inlineTextClassification": "internal",
+  "requestedCorrection": null,
+  "decidedBy": {
+    "kind": "human",
+    "actorReference": "run-actor:7b3c9e5142ad806f1c47b2e93085da6c14f7be209d3a5c8016e4fb72d905ac38"
+  },
+  "decidedAt": "2026-08-18T09:14:32Z"
+}

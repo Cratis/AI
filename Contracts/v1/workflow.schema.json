@@ -1,0 +1,401 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.cratis.io/factory/v1/workflow.schema.json",
+  "title": "Cratis Factory Workflow",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "documentKind",
+    "id",
+    "version",
+    "description",
+    "profileRequirements",
+    "inputs",
+    "phases",
+    "acceptance",
+    "terminal"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": "1"
+    },
+    "documentKind": {
+      "const": "workflow"
+    },
+    "id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1
+    },
+    "profileRequirements": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["allOf"],
+      "properties": {
+        "allOf": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/identifier"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      }
+    },
+    "inputs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/workflowInput"
+      },
+      "minItems": 1
+    },
+    "phases": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 4096,
+      "items": {
+        "$ref": "#/$defs/phase"
+      }
+    },
+    "acceptance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requiredGateIds"],
+      "properties": {
+        "requiredGateIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/identifier"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      }
+    },
+    "terminal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["successPhase", "onFailure", "onAttemptsExhausted"],
+      "properties": {
+        "successPhase": {
+          "$ref": "#/$defs/identifier"
+        },
+        "onFailure": {
+          "const": "fail-run"
+        },
+        "onAttemptsExhausted": {
+          "const": "fail-run"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "schemaReference": {
+      "type": "string",
+      "pattern": "^\\.\\./Contracts/v1/[a-z][a-z0-9-]*\\.schema\\.json$"
+    },
+    "workflowInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "schema", "source"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "schema": {
+          "$ref": "#/$defs/schemaReference"
+        },
+        "source": {
+          "enum": ["request", "preflight"]
+        },
+        "preflightValue": {
+          "enum": ["repository-snapshot", "resolved-profile"]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "source": {
+                "const": "preflight"
+              }
+            }
+          },
+          "then": {
+            "required": ["preflightValue"]
+          },
+          "else": {
+            "not": {
+              "required": ["preflightValue"]
+            }
+          }
+        }
+      ]
+    },
+    "inputBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "source"],
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/identifier"
+        },
+        "source": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["kind", "id"],
+              "properties": {
+                "kind": {
+                  "const": "workflow-input"
+                },
+                "id": {
+                  "$ref": "#/$defs/identifier"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["kind", "phaseId"],
+              "properties": {
+                "kind": {
+                  "const": "phase-output"
+                },
+                "phaseId": {
+                  "$ref": "#/$defs/identifier"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "correction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["targetPhase", "triggers", "maxRounds"],
+      "properties": {
+        "targetPhase": {
+          "$ref": "#/$defs/identifier"
+        },
+        "triggers": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": ["approval-requested", "gate-failed", "output-invalid"]
+          }
+        },
+        "maxRounds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3
+        }
+      }
+    },
+    "phase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "description",
+        "needs",
+        "inputs",
+        "outputSchema",
+        "policy",
+        "gates"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "kind": {
+          "enum": ["agent", "code", "human"]
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "needs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/identifier"
+          },
+          "uniqueItems": true
+        },
+        "inputs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/inputBinding"
+          }
+        },
+        "outputSchema": {
+          "$ref": "#/$defs/schemaReference"
+        },
+        "role": {
+          "$ref": "#/$defs/identifier"
+        },
+        "purpose": {
+          "$ref": "#/$defs/identifier"
+        },
+        "capability": {
+          "$ref": "#/$defs/identifier"
+        },
+        "approval": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["decision"],
+          "properties": {
+            "decision": {
+              "$ref": "#/$defs/identifier"
+            }
+          }
+        },
+        "correction": {
+          "$ref": "#/$defs/correction"
+        },
+        "policy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "writeScopes",
+            "networkScopes",
+            "secretScopes",
+            "timeoutSeconds",
+            "maxAttempts"
+          ],
+          "properties": {
+            "writeScopes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "uniqueItems": true
+            },
+            "networkScopes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "uniqueItems": true
+            },
+            "secretScopes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "uniqueItems": true
+            },
+            "timeoutSeconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 86400
+            },
+            "maxAttempts": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 5
+            }
+          }
+        },
+        "gates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/gate"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "agent"
+              }
+            }
+          },
+          "then": {
+            "required": ["role", "purpose", "capability"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "code"
+              }
+            }
+          },
+          "then": {
+            "required": ["capability"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "human"
+              }
+            }
+          },
+          "then": {
+            "required": ["approval"]
+          }
+        }
+      ]
+    },
+    "gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "requiredForAcceptance"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "kind": {
+          "enum": ["approval", "command", "diff", "schema"]
+        },
+        "requiredForAcceptance": {
+          "type": "boolean"
+        },
+        "capability": {
+          "$ref": "#/$defs/identifier"
+        },
+        "configuration": {
+          "type": "object"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "command"
+              }
+            }
+          },
+          "then": {
+            "required": ["capability"]
+          }
+        }
+      ]
+    }
+  }
+}

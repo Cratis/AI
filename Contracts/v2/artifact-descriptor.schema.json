@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.cratis.io/factory/v2/artifact-descriptor.schema.json",
+  "title": "Cratis Factory Artifact Descriptor v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocolVersion", "documentKind", "kind", "reference", "contentHash", "sizeBytes", "mediaType", "schema", "classification"],
+  "properties": {
+    "$schema": {"const": "https://schemas.cratis.io/factory/v2/artifact-descriptor.schema.json"},
+    "protocolVersion": {"const": "2"},
+    "documentKind": {"const": "artifact-descriptor"},
+    "kind": {"$ref": "#/$defs/identifier"},
+    "reference": {"$ref": "#/$defs/artifactReference"},
+    "contentHash": {"$ref": "#/$defs/contentHash"},
+    "sizeBytes": {"type": "integer", "minimum": 0, "maximum": 268435456},
+    "mediaType": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-z0-9][a-z0-9.+-]*/[a-z0-9][a-z0-9.+-]*$"},
+    "schema": {"$ref": "#/$defs/schemaReference"},
+    "classification": {"$ref": "#/$defs/classification"}
+  },
+  "$defs": {
+    "identifier": {"type": "string", "maxLength": 128, "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"},
+    "contentHash": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "artifactReference": {"type": "string", "pattern": "^artifact:sha256:[a-f0-9]{64}$"},
+    "classification": {"enum": ["public", "internal", "confidential", "restricted"]},
+    "schemaReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "contentHash"],
+      "properties": {
+        "id": {"type": "string", "format": "uri", "maxLength": 256, "pattern": "^https://schemas\\.cratis\\.io/factory/v[12]/[a-z][a-z0-9-]*\\.schema\\.json$"},
+        "contentHash": {"$ref": "#/$defs/contentHash"}
+      }
+    }
+  }
+}

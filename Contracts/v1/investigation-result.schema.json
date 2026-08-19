@@ -1,0 +1,202 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.cratis.io/factory/v1/investigation-result.schema.json",
+  "title": "Cratis Factory Investigation Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocolVersion",
+    "envelope",
+    "outcome",
+    "summary",
+    "inlineTextClassification",
+    "evidence",
+    "plan",
+    "settledDecisions",
+    "openDecisions",
+    "risks",
+    "recommendedEffort"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "format": "uri",
+      "maxLength": 256,
+      "pattern": "^(?![\\s\\S]*[\\u0000-\\u001f\\u007f-\\u009f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])[\\s\\S]*$"
+    },
+    "protocolVersion": {
+      "const": "1"
+    },
+    "envelope": {
+      "$ref": "https://schemas.cratis.io/factory/v1/phase-envelope.schema.json"
+    },
+    "outcome": {
+      "enum": ["reproduced", "not-reproduced", "not-applicable", "inconclusive"]
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000,
+      "pattern": "^(?![\\s\\S]*[\\u0000-\\u001f\\u007f-\\u009f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])[\\s\\S]*$"
+    },
+    "inlineTextClassification": {
+      "enum": ["public", "internal", "confidential", "restricted"]
+    },
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 128,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "commandReference", "exitCode", "artifact"],
+        "properties": {
+          "kind": {
+            "enum": ["build", "diagnostic", "reproduction", "specification", "source"]
+          },
+          "commandReference": {
+            "$ref": "#/$defs/artifactReference"
+          },
+          "exitCode": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "artifact": {
+            "$ref": "#/$defs/artifactReference"
+          }
+        }
+      }
+    },
+    "plan": {
+      "type": "array",
+      "maxItems": 64,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["order", "change", "likelyFiles"],
+        "properties": {
+          "order": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "change": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000,
+            "pattern": "^(?![\\s\\S]*[\\u0000-\\u001f\\u007f-\\u009f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])[\\s\\S]*$"
+          },
+          "likelyFiles": {
+            "type": "array",
+            "maxItems": 128,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512,
+              "pattern": "^(?!\\.\\.(?:/|$))(?!.*\\/\\.\\.(?:/|$))(?:[A-Za-z0-9._-]+/)*[A-Za-z0-9._-]+$"
+            },
+            "uniqueItems": true
+          }
+        }
+      }
+    },
+    "settledDecisions": {
+      "type": "array",
+      "maxItems": 128,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 2000,
+        "pattern": "^(?![\\s\\S]*[\\u0000-\\u001f\\u007f-\\u009f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])[\\s\\S]*$"
+      }
+    },
+    "openDecisions": {
+      "type": "array",
+      "maxItems": 128,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 2000,
+        "pattern": "^(?![\\s\\S]*[\\u0000-\\u001f\\u007f-\\u009f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])[\\s\\S]*$"
+      }
+    },
+    "risks": {
+      "type": "array",
+      "maxItems": 128,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["severity", "description"],
+        "properties": {
+          "severity": {
+            "enum": ["low", "medium", "high"]
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000,
+            "pattern": "^(?![\\s\\S]*[\\u0000-\\u001f\\u007f-\\u009f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])[\\s\\S]*$"
+          }
+        }
+      }
+    },
+    "recommendedEffort": {
+      "enum": ["small", "normal", "complex", "high-risk"]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "outcome": {
+            "const": "reproduced"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "evidence": {
+            "contains": {
+              "properties": {
+                "kind": {
+                  "const": "reproduction"
+                }
+              },
+              "required": ["kind"]
+            }
+          },
+          "envelope": {
+            "properties": {
+              "status": {
+                "const": "success"
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "artifactReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reference", "contentHash", "classification"],
+      "properties": {
+        "reference": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "pattern": "^artifact:sha256:[a-f0-9]{64}$"
+        },
+        "contentHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "classification": {
+          "enum": ["public", "internal", "confidential", "restricted"]
+        }
+      }
+    }
+  }
+}

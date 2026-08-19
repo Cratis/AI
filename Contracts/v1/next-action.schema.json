@@ -1,0 +1,296 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.cratis.io/factory/v1/next-action.schema.json",
+  "title": "Cratis Factory Next Action",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/retryOperation"
+    },
+    {
+      "$ref": "#/$defs/correctInput"
+    },
+    {
+      "$ref": "#/$defs/supplyInput"
+    },
+    {
+      "$ref": "#/$defs/selectOption"
+    },
+    {
+      "$ref": "#/$defs/runCommand"
+    },
+    {
+      "$ref": "#/$defs/inspectDetails"
+    },
+    {
+      "$ref": "#/$defs/contactMaintainer"
+    }
+  ],
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "operation": {
+      "enum": [
+        "inspect",
+        "preflight",
+        "validate",
+        "verify",
+        "evaluate",
+        "verify-evaluation-result"
+      ]
+    },
+    "base": {
+      "type": "object",
+      "required": ["protocolVersion", "id", "kind", "title", "description", "automation"],
+      "properties": {
+        "$schema": {
+          "type": "string"
+        },
+        "protocolVersion": {
+          "const": "1"
+        },
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "kind": {
+          "enum": [
+            "contact-maintainer",
+            "correct-input",
+            "inspect-details",
+            "retry-operation",
+            "run-command",
+            "select-option",
+            "supply-input"
+          ]
+        },
+        "title": {
+          "$ref": "#/$defs/safeText"
+        },
+        "description": {
+          "$ref": "#/$defs/safeText"
+        },
+        "automation": {
+          "enum": ["safe", "requires-confirmation", "human-only"]
+        }
+      }
+    },
+    "retryOperation": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/base"
+        },
+        {
+          "type": "object",
+          "required": ["operation"],
+          "properties": {
+            "kind": {
+              "const": "retry-operation"
+            },
+            "operation": {
+              "$ref": "#/$defs/operation"
+            },
+            "retryAfterSeconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 86400
+            },
+            "automation": {
+              "enum": ["safe", "requires-confirmation"]
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "correctInput": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/base"
+        },
+        {
+          "type": "object",
+          "required": ["location", "expected"],
+          "properties": {
+            "kind": {
+              "const": "correct-input"
+            },
+            "location": {
+              "$ref": "https://schemas.cratis.io/factory/v1/diagnostic.schema.json#/$defs/location"
+            },
+            "expected": {
+              "$ref": "#/$defs/safeText"
+            },
+            "automation": {
+              "enum": ["requires-confirmation", "human-only"]
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "supplyInput": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/base"
+        },
+        {
+          "type": "object",
+          "required": ["inputId", "expected"],
+          "properties": {
+            "kind": {
+              "const": "supply-input"
+            },
+            "inputId": {
+              "$ref": "#/$defs/identifier"
+            },
+            "expected": {
+              "$ref": "#/$defs/safeText"
+            },
+            "automation": {
+              "enum": ["requires-confirmation", "human-only"]
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "selectOption": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/base"
+        },
+        {
+          "type": "object",
+          "required": ["inputId", "options"],
+          "properties": {
+            "kind": {
+              "const": "select-option"
+            },
+            "inputId": {
+              "$ref": "#/$defs/identifier"
+            },
+            "options": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["id", "label", "description"],
+                "properties": {
+                  "id": {
+                    "$ref": "#/$defs/identifier"
+                  },
+                  "label": {
+                    "$ref": "#/$defs/safeText"
+                  },
+                  "description": {
+                    "$ref": "#/$defs/safeText"
+                  }
+                }
+              }
+            },
+            "automation": {
+              "enum": ["requires-confirmation", "human-only"]
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "runCommand": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/base"
+        },
+        {
+          "type": "object",
+          "required": ["capabilityId", "argv", "workingDirectory", "declaredEffect", "requiresApproval"],
+          "properties": {
+            "kind": {
+              "const": "run-command"
+            },
+            "capabilityId": {
+              "$ref": "#/$defs/identifier"
+            },
+            "argv": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/safeText"
+              }
+            },
+            "workingDirectory": {
+              "$ref": "#/$defs/safeText"
+            },
+            "declaredEffect": {
+              "enum": ["read", "write", "destructive"]
+            },
+            "requiresApproval": {
+              "const": true
+            },
+            "automation": {
+              "enum": ["requires-confirmation", "human-only"]
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "inspectDetails": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/base"
+        },
+        {
+          "type": "object",
+          "required": ["operation", "detailLevel"],
+          "properties": {
+            "kind": {
+              "const": "inspect-details"
+            },
+            "operation": {
+              "$ref": "#/$defs/operation"
+            },
+            "detailLevel": {
+              "enum": ["explain", "trace"]
+            },
+            "automation": {
+              "const": "safe"
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "contactMaintainer": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/base"
+        },
+        {
+          "type": "object",
+          "required": ["reference"],
+          "properties": {
+            "kind": {
+              "const": "contact-maintainer"
+            },
+            "reference": {
+              "$ref": "#/$defs/safeText"
+            },
+            "automation": {
+              "const": "human-only"
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "safeText": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f\\u202a-\\u202e\\u2066-\\u2069]*$"
+    }
+  }
+}

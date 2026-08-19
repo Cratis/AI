@@ -1,0 +1,8 @@
+{
+  "name": "factory-workspace-monorepo-app-fixture",
+  "private": true,
+  "dependencies": {
+    "@cratis/arc.react": "21.14.3",
+    "@cratis/components": "0.1.8"
+  }
+}

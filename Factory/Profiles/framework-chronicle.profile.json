@@ -1,0 +1,44 @@
+{
+  "$schema": "../../Contracts/v1/profile.schema.json",
+  "schemaVersion": "1",
+  "documentKind": "profile",
+  "id": "framework-chronicle",
+  "version": "1.0.0",
+  "description": "Kernel and .NET SDK contribution pack for Chronicle server, storage, contracts, and client libraries.",
+  "activation": "automatic",
+  "priority": 100,
+  "repositoryModes": ["framework"],
+  "detect": {
+    "allOf": [
+      {"kind": "repository-identity", "id": "cratis-chronicle"}
+    ]
+  },
+  "provides": ["chronicle-framework", "dotnet", "framework", "repository-known"],
+  "excludes": [],
+  "skills": ["cratis-specs-csharp"],
+  "recommendations": {
+    "agents": [
+      {
+        "id": "repository-investigator",
+        "purposes": ["investigate"],
+        "priority": 100,
+        "rationale": "Investigates the Chronicle kernel and SDKs without using application slice conventions."
+      },
+      {
+        "id": "repository-investigation-reviewer",
+        "purposes": ["review"],
+        "priority": 100,
+        "rationale": "Independently reviews typed investigation evidence using the resolved repository mode."
+      }
+    ],
+    "workflows": [
+      {
+        "id": "investigate-cratis-issue",
+        "purposes": ["investigate"],
+        "priority": 100,
+        "rationale": "Chronicle framework issues can use the read-only repository workflow."
+      }
+    ]
+  },
+  "commands": {}
+}

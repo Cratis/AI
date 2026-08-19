@@ -1,0 +1,45 @@
+{
+  "$schema": "../../Contracts/v1/profile.schema.json",
+  "schemaVersion": "1",
+  "documentKind": "profile",
+  "id": "application-chronicle-typescript",
+  "version": "1.0.0",
+  "description": "Composable Node and TypeScript capability pack for the idiomatic Chronicle client; it does not imply React.",
+  "activation": "automatic",
+  "priority": 80,
+  "repositoryModes": ["application"],
+  "detect": {
+    "allOf": [
+      {"kind": "file", "pattern": "**/package.json"},
+      {"kind": "dependency", "ecosystem": "npm", "name": "@cratis/chronicle"}
+    ]
+  },
+  "provides": ["application", "chronicle", "chronicle-client-typescript", "node", "repository-known", "typescript"],
+  "excludes": [],
+  "skills": ["cratis-specs-typescript"],
+  "recommendations": {
+    "agents": [
+      {
+        "id": "repository-investigator",
+        "purposes": ["investigate"],
+        "priority": 100,
+        "rationale": "Investigates the TypeScript Chronicle client without inventing a frontend capability."
+      },
+      {
+        "id": "repository-investigation-reviewer",
+        "purposes": ["review"],
+        "priority": 100,
+        "rationale": "Independently reviews typed investigation evidence using the resolved repository mode."
+      }
+    ],
+    "workflows": [
+      {
+        "id": "investigate-cratis-issue",
+        "purposes": ["investigate"],
+        "priority": 100,
+        "rationale": "The TypeScript client can use the harness-neutral read-only workflow."
+      }
+    ]
+  },
+  "commands": {}
+}

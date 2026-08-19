@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <AssemblyName>Cratis.Factory.DefinitionWorkflowCompilationParity</AssemblyName>
+        <RootNamespace>Cratis.Factory.DefinitionWorkflowCompilationParity</RootNamespace>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="../../../Source/Factory.Core.Specs/Factory.Core.Specs.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Remove="NativeAot/**" />
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="../../Design/DefinitionWorkflowCompilation/v1/corpus.json" Link="Snapshot/corpus.json" CopyToOutputDirectory="PreserveNewest" />
+        <None Include="../../../Contracts/v1/**/*.json" Link="Snapshot/Contracts/v1/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+        <None Include="../../../Contracts/v2/**/*.json" Link="Snapshot/Contracts/v2/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+        <None Include="../../Capabilities/*.json" Link="Snapshot/Factory/Capabilities/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+        <None Include="../../Policies/*.json" Link="Snapshot/Factory/Policies/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+        <None Include="../../Profiles/*.json" Link="Snapshot/Factory/Profiles/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+        <None Include="../../../Workflows/*.json" Link="Snapshot/Workflows/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+        <None Include="../../../Evaluations/Factory/*.json" Link="Snapshot/Evaluations/Factory/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+        <None Include="../../../Factory/scripts/canonical_json.py" Link="Oracle/canonical_json.py" CopyToOutputDirectory="PreserveNewest" />
+        <None Include="../../../Factory/scripts/validate_factory.py" Link="Oracle/validate_factory.py" CopyToOutputDirectory="PreserveNewest" />
+        <None Include="../../../Factory/scripts/compile_factory.py" Link="Oracle/compile_factory.py" CopyToOutputDirectory="PreserveNewest" />
+        <None Include="stage0_adapter.py" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+</Project>

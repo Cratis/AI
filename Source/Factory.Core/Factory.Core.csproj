@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <DedicatedSpecsProject>true</DedicatedSpecsProject>
+        <IsTestProject>false</IsTestProject>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <IsAotCompatible>true</IsAotCompatible>
+        <AssemblyName>Cratis.Factory.Core</AssemblyName>
+        <RootNamespace>Cratis.Factory</RootNamespace>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="JsonSchema.Net" />
+    </ItemGroup>
+</Project>

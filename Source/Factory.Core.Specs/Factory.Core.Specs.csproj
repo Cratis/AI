@@ -1,0 +1,53 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <DedicatedSpecsProject>true</DedicatedSpecsProject>
+        <IsTestProject>true</IsTestProject>
+        <AssemblyName>Cratis.Factory.Core.Specs</AssemblyName>
+        <RootNamespace>Cratis.Factory</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Cratis.Specifications" />
+        <PackageReference Include="Cratis.Specifications.XUnit" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" />
+        <PackageReference Include="xunit" />
+        <PackageReference Include="xunit.runner.visualstudio">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="../Factory.Core/Factory.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="../../Factory/Fixtures/Contracts/v1/canonical-json-vectors.json"
+              Link="Fixtures/canonical-json-vectors.json"
+              CopyToOutputDirectory="PreserveNewest" />
+        <None Include="../../Factory/Fixtures/Contracts/v1/schema-validation-vectors.json"
+              Link="Fixtures/schema-validation-vectors.json"
+              CopyToOutputDirectory="PreserveNewest" />
+        <None Include="../../Contracts/v1/**/*.json"
+              Link="RepositoryCorpus/Contracts/v1/%(RecursiveDir)%(Filename)%(Extension)"
+              CopyToOutputDirectory="PreserveNewest" />
+        <None Include="../../Contracts/v2/**/*.json"
+              Link="RepositoryCorpus/Contracts/v2/%(RecursiveDir)%(Filename)%(Extension)"
+              CopyToOutputDirectory="PreserveNewest" />
+        <None Include="../../Factory/Capabilities/*.json"
+              Link="RepositoryCorpus/Factory/Capabilities/%(Filename)%(Extension)"
+              CopyToOutputDirectory="PreserveNewest" />
+        <None Include="../../Factory/Policies/*.json"
+              Link="RepositoryCorpus/Factory/Policies/%(Filename)%(Extension)"
+              CopyToOutputDirectory="PreserveNewest" />
+        <None Include="../../Factory/Profiles/*.json"
+              Link="RepositoryCorpus/Factory/Profiles/%(Filename)%(Extension)"
+              CopyToOutputDirectory="PreserveNewest" />
+        <None Include="../../Workflows/*.json"
+              Link="RepositoryCorpus/Workflows/%(Filename)%(Extension)"
+              CopyToOutputDirectory="PreserveNewest" />
+        <None Include="../../Evaluations/Factory/*.json"
+              Link="RepositoryCorpus/Evaluations/Factory/%(Filename)%(Extension)"
+              CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+</Project>

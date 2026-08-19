@@ -1,0 +1,243 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.cratis.io/factory/v1/resolved-profile.schema.json",
+  "title": "Cratis Factory Resolved Profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocolVersion",
+    "targetPath",
+    "purpose",
+    "repositoryMode",
+    "repositoryIdentity",
+    "contentHash",
+    "evidence",
+    "matches",
+    "profiles",
+    "capabilities",
+    "negativeCapabilities",
+    "skills",
+    "agents",
+    "workflows",
+    "warnings",
+    "blockedReasons"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "protocolVersion": {
+      "const": "1"
+    },
+    "targetPath": {
+      "type": "string",
+      "minLength": 1
+    },
+    "purpose": {
+      "$ref": "#/$defs/identifier"
+    },
+    "repositoryMode": {
+      "enum": ["application", "framework", "modeling", "operations", "unknown"]
+    },
+    "repositoryIdentity": {
+      "type": ["string", "null"]
+    },
+    "contentHash": {
+      "$ref": "#/$defs/contentHash"
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "source", "value"],
+        "properties": {
+          "kind": {
+            "enum": ["dependency", "file", "manifest", "override", "repository", "repository-package"]
+          },
+          "source": {
+            "type": "string",
+            "minLength": 1
+          },
+          "value": {
+            "type": "string",
+            "minLength": 1
+          },
+          "ecosystem": {
+            "enum": ["hex", "maven", "npm", "nuget"]
+          },
+          "version": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "matches": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["profileId", "matched", "reasons"],
+        "properties": {
+          "profileId": {
+            "$ref": "#/$defs/identifier"
+          },
+          "matched": {
+            "type": "boolean"
+          },
+          "reasons": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "profiles": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/versionedReference"
+      }
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/identifier"
+      },
+      "uniqueItems": true
+    },
+    "negativeCapabilities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "reason", "requiredBy", "evidence"],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/identifier"
+          },
+          "reason": {
+            "enum": [
+              "explicitly-denied",
+              "low-level-contracts-only",
+              "mode-incompatible",
+              "not-detected",
+              "required-peer-missing",
+              "version-incompatible"
+            ]
+          },
+          "requiredBy": {
+            "$ref": "#/$defs/identifier"
+          },
+          "evidence": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/contentReference"
+      }
+    },
+    "agents": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/rankedReference"
+      }
+    },
+    "workflows": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/rankedReference"
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "blockedReasons": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "contentHash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "versionedReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version", "contentHash"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contentHash": {
+          "$ref": "#/$defs/contentHash"
+        }
+      }
+    },
+    "contentReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "contentHash"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "contentHash": {
+          "$ref": "#/$defs/contentHash"
+        }
+      }
+    },
+    "rankedReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "purpose", "priority", "rationale", "contentHash"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "purpose": {
+          "$ref": "#/$defs/identifier"
+        },
+        "priority": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contentHash": {
+          "$ref": "#/$defs/contentHash"
+        }
+      }
+    }
+  }
+}

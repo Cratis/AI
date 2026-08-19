@@ -1,0 +1,19 @@
+{
+  "$schema": "https://schemas.cratis.io/factory/v1/project-manifest.schema.json",
+  "schemaVersion": "1",
+  "documentKind": "project-manifest",
+  "profiles": {
+    "include": ["cratis-dotnet-react"],
+    "exclude": []
+  },
+  "workflows": {
+    "investigate-cratis-issue": "1.0.0"
+  },
+  "policy": {
+    "id": "local-development",
+    "denyCapabilities": [
+      "create-pull-request",
+      "read-development-chronicle"
+    ]
+  }
+}
