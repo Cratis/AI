@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Orleans.Runtime;
+using Planner.Builds.CheckingStatus;
 
 namespace Planner.GitHub.Synchronization;
 
@@ -9,8 +10,12 @@ namespace Planner.GitHub.Synchronization;
 /// The consolidation grain - synchronizes all tracked repositories on a daily reminder and on demand.
 /// </summary>
 /// <param name="synchronizer">The <see cref="IIssueSynchronizer"/> doing the work.</param>
+/// <param name="buildStatusChecker">The <see cref="IBuildStatusChecker"/> recording each repository's build status.</param>
 /// <param name="logger">The logger.</param>
-public class GitHubSynchronizerGrain(IIssueSynchronizer synchronizer, ILogger<GitHubSynchronizerGrain> logger) : Grain, IGitHubSynchronizer, IRemindable
+public class GitHubSynchronizerGrain(
+    IIssueSynchronizer synchronizer,
+    IBuildStatusChecker buildStatusChecker,
+    ILogger<GitHubSynchronizerGrain> logger) : Grain, IGitHubSynchronizer, IRemindable
 {
     /// <summary>
     /// The name of the recurring consolidation reminder.
@@ -32,6 +37,7 @@ public class GitHubSynchronizerGrain(IIssueSynchronizer synchronizer, ILogger<Gi
         try
         {
             await synchronizer.SynchronizeAll();
+            await buildStatusChecker.CheckAll();
         }
         catch (Exception exception)
         {

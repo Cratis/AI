@@ -15,6 +15,7 @@ import { alertStatusLabel, alertStatusSeverity } from '../Alerts/AlertDetails';
 import { ActiveWork } from '../Work/Listing/Listing';
 import { WorkStatus } from '../Work/WorkStatus';
 import { workPurposeLabel, workStatusLabel, workStatusSeverity } from '../Work/WorkDetails';
+import { FailedBuilds } from '../Builds/Listing/Listing';
 
 /** One summary card: a count, a label, where it links to, and the severity it is shown with. */
 interface Card {
@@ -44,11 +45,13 @@ export const Dashboard = () => {
     const [pullRequestsResult] = OpenPullRequests.use();
     const [alertsResult] = ActiveAlerts.use();
     const [workResult] = ActiveWork.use();
+    const [failedBuildsResult] = FailedBuilds.use();
 
     const issues = issuesResult.data ?? [];
     const pullRequests = pullRequestsResult.data ?? [];
     const alerts = alertsResult.data ?? [];
     const work = workResult.data ?? [];
+    const failedBuilds = failedBuildsResult.data ?? [];
 
     const forReview = useMemo(() => issues.filter((issue) => issue.status === IssueStatus.forReview), [issues]);
     const readyForDevelopment = useMemo(() => issues.filter((issue) => issue.status === IssueStatus.readyForDevelopment), [issues]);
@@ -58,6 +61,7 @@ export const Dashboard = () => {
     const cards: Card[] = [
         { key: 'for-review', count: forReview.length, label: 'For review', to: '/issues', severity: forReview.length > 0 ? 'success' : 'secondary' },
         { key: 'needs-attention', count: needsAttention.length, label: 'Alerts needing attention', to: '/alerts', severity: needsAttention.length > 0 ? 'danger' : 'secondary' },
+        { key: 'failed-builds', count: failedBuilds.length, label: 'Failed builds', to: '/failed-builds', severity: failedBuilds.length > 0 ? 'danger' : 'secondary' },
         { key: 'running', count: running.length, label: 'Agent running now', to: '/work', severity: running.length > 0 ? 'warning' : 'secondary' },
         { key: 'ready', count: readyForDevelopment.length, label: 'Ready for development', to: '/issues', severity: 'info' },
         { key: 'open-prs', count: pullRequests.length, label: 'Open pull requests', to: '/pull-requests', severity: 'info' },

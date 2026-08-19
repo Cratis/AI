@@ -6,6 +6,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using Planner.Builds;
 using Planner.GitHub.App;
 
 namespace Planner.GitHub;
@@ -133,6 +134,40 @@ public class GitHubClient(HttpClient httpClient, IGitHubAppTokenResolver tokenRe
     }
 
     /// <inheritdoc/>
+    public async Task<IEnumerable<GitHubWorkflowRun>> GetLatestWorkflowRuns(OrganizationName owner, RepositoryName repository, CancellationToken cancellationToken = default)
+    {
+        using var response = await Send(owner, HttpMethod.Get, $"repos/{owner.Value}/{repository.Value}/actions/runs?per_page={PageSize}", null, cancellationToken);
+        if (!response.IsSuccessStatusCode)
+        {
+            // Most commonly: the installation has not been granted actions:read yet.
+            return [];
+        }
+
+        var body = JsonNode.Parse(await response.Content.ReadAsStringAsync(cancellationToken)) as JsonObject;
+        var runs = body?["workflow_runs"] as JsonArray ?? [];
+
+        // GitHub returns runs newest-first across every workflow - keep only the first (most recent)
+        // one seen per workflow name.
+        var latestByWorkflow = new Dictionary<string, GitHubWorkflowRun>();
+        foreach (var run in runs.OfType<JsonObject>())
+        {
+            var name = run["name"]?.GetValue<string>() ?? run["workflow_id"]?.ToString() ?? string.Empty;
+            if (string.IsNullOrEmpty(name) || latestByWorkflow.ContainsKey(name))
+            {
+                continue;
+            }
+
+            latestByWorkflow[name] = new GitHubWorkflowRun(
+                name,
+                ConclusionFrom(run["conclusion"]?.GetValue<string>()),
+                run["html_url"]?.GetValue<string>() ?? string.Empty,
+                run["updated_at"]?.GetValue<DateTimeOffset>() ?? DateTimeOffset.UtcNow);
+        }
+
+        return latestByWorkflow.Values;
+    }
+
+    /// <inheritdoc/>
     public async Task AssignIssue(OrganizationName owner, RepositoryName repository, IssueNumber number, UserName assignee, CancellationToken cancellationToken = default)
     {
         var payload = JsonSerializer.Serialize(new { assignees = new[] { assignee.Value } });
@@ -171,6 +206,14 @@ public class GitHubClient(HttpClient httpClient, IGitHubAppTokenResolver tokenRe
         issue["labels"] is JsonArray labels
             ? [.. labels.OfType<JsonObject>().Select(label => new LabelName(label["name"]?.GetValue<string>() ?? string.Empty))]
             : [];
+
+    static BuildConclusion ConclusionFrom(string? conclusion) => conclusion switch
+    {
+        "success" => BuildConclusion.Success,
+        "failure" or "timed_out" or "action_required" or "startup_failure" => BuildConclusion.Failure,
+        "cancelled" => BuildConclusion.Cancelled,
+        _ => BuildConclusion.Unknown
+    };
 
     async Task<JsonArray?> GetJsonArray(OrganizationName owner, string route, CancellationToken cancellationToken)
     {

@@ -15,6 +15,7 @@ const navigationItems: NavigationItem[] = [
     { label: 'Alerts', icon: 'pi pi-bell', path: '/alerts' },
     { label: 'Pull requests', icon: 'pi pi-code', path: '/pull-requests' },
     { label: 'Work', icon: 'pi pi-play-circle', path: '/work' },
+    { label: 'Failed builds', icon: 'pi pi-exclamation-triangle', path: '/failed-builds' },
     { label: 'Usage', icon: 'pi pi-gauge', path: '/usage' },
     { label: 'Repositories', icon: 'pi pi-database', path: '/settings/repositories' },
     { label: 'GitHub', icon: 'pi pi-github', path: '/settings/github' },

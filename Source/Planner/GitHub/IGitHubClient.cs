@@ -68,6 +68,18 @@ public interface IGitHubClient
     Task<bool> MergePullRequest(OrganizationName owner, RepositoryName repository, PullRequestNumber number, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Gets the most recent run of every workflow that has run recently in a repository - one entry
+    /// per workflow, its latest conclusion. Requires the <c>actions:read</c> permission; returns an
+    /// empty set rather than throwing when the installation has not been granted it, so a deployment
+    /// that has not accepted the permission yet degrades to "nothing checked" instead of failing.
+    /// </summary>
+    /// <param name="owner">The organization owning the repository.</param>
+    /// <param name="repository">The repository to check.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> for the operation.</param>
+    /// <returns>The most recent run per workflow.</returns>
+    Task<IEnumerable<GitHubWorkflowRun>> GetLatestWorkflowRuns(OrganizationName owner, RepositoryName repository, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Assigns a user to an issue, in addition to whoever is already assigned.
     /// </summary>
     /// <param name="owner">The organization owning the repository.</param>

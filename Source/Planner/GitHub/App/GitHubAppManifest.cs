@@ -59,6 +59,7 @@ public static class GitHubAppManifest
                 ["pull_requests"] = "write",
                 ["metadata"] = "read",
                 ["members"] = "read",
+                ["actions"] = "read",
             },
             ["default_events"] = new JsonArray([.. DefaultEvents.Select(@event => (JsonNode)JsonValue.Create(@event))]),
         };
