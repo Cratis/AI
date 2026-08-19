@@ -25,6 +25,7 @@ public class and_a_conclusion_is_given : Specification
             @event.Repository == new RepositoryName("Studio") &&
             @event.Workflow == new WorkflowName("Update Packages") &&
             @event.Conclusion == BuildConclusion.Failure &&
-            @event.RanAt == _ranAt);
+            @event.RanAt == _ranAt &&
+            @event.IsNewFailure);
 }
 #endif
