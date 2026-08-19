@@ -71,14 +71,36 @@ investigations).
 
 A dispatched unit of work becomes a container from the `Source/Claude` image - locally a Docker
 container, in production a Kubernetes job. The container receives the work id, a purpose-specific
-prompt (including any issue and group instructions), the model, the account's Claude CLI token, a
-GitHub token, the clone URL(s) and a callback URL. It clones the code repository - one folder per
-repository for ad-hoc work - initializes rtk so the agent's shell commands are routed through the
+prompt (including any issue and group instructions), the model, the clone URL(s) and a callback
+URL. It clones the code repository - one folder per repository for ad-hoc work - initializes rtk
+so the agent's shell commands are routed through the
 token optimizer, and runs the Claude CLI with stream-json input/output. The console output is the
 event stream the Planner tails live (`GET /api/work/{workId}/log`), text posted to
 `POST /api/work/{workId}/input` is forwarded into the session as a steering message, and the
 completion callback (`POST /api/work/{workId}/callback`) carries the session's token, cost and
 duration usage. Stopping work kills the container or Kubernetes job.
+
+### How credentials reach a worker
+
+The account's Claude CLI token, the GitHub installation token, the per-work callback token and any
+operational credentials an alert investigation was granted **do not travel as environment
+variables**. Anything on the container specification is readable by whoever can read the
+specification (`kubectl get job -o yaml` in the worker namespace, or `docker inspect` on the
+host), and it outlives the container, because the specification does.
+
+They are delivered out of band instead, and both runtimes land on the same contract: a file of
+shell assignments at `/run/planner-secrets/secrets.env`, named to the entrypoint by
+`PLANNER_SECRETS_FILE`, which the entrypoint sources and then deletes.
+
+- **Kubernetes** creates a per-job `Secret` and mounts it read-only at mode `0400`. The secret is
+  owner-referenced to the Job, so it is garbage-collected with it.
+- **Docker** creates the container, copies the file onto a `tmpfs` mount, and only then starts it -
+  so the credentials never touch the container's writable layer. A readiness marker is written
+  after the file, and the entrypoint waits for that marker rather than for the file, so it cannot
+  read a half-extracted credential.
+
+Only non-secret configuration - the model, the callback URL, the branch, endpoints and namespaces -
+remains on the container specification.
 
 Account selection prefers the requesting user's own Claude account(s); work scheduled by
 automation - webhooks, auto-investigations, the scheduler itself - draws from the pool, picking

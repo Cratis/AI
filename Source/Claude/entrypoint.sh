@@ -12,24 +12,30 @@
 #   PLANNER_PROMPT           - the instructions for the agent (markdown)
 #   PLANNER_MODEL            - the model to use (e.g. opus, sonnet)
 #   PLANNER_CALLBACK_URL     - URL the container reports progress/completion to
+#   PLANNER_GIT_USER_NAME    - git config user.name for commits made in this container
+#   PLANNER_GIT_USER_EMAIL   - git config user.email for commits made in this container
+#
+# Credentials do NOT arrive as environment variables - anything on the container specification is
+# readable with `kubectl get job -o yaml` or `docker inspect`, and outlives the container. They
+# arrive as a file of shell assignments this script sources, named by PLANNER_SECRETS_FILE
+# (Kubernetes mounts a Secret; Docker copies the file onto a tmpfs). From that file:
 #   PLANNER_CALLBACK_TOKEN   - bearer credential proving a callback came from this container. Issued
 #                              for this one unit of work and known to nobody else; without it the
 #                              Planner rejects the report with 401.
-#   PLANNER_GIT_USER_NAME    - git config user.name for commits made in this container
-#   PLANNER_GIT_USER_EMAIL   - git config user.email for commits made in this container
 #   GITHUB_TOKEN             - a short-lived GitHub App installation token, used for git and the GitHub CLI
 #   CLAUDE_CODE_OAUTH_TOKEN  - credential for the Claude CLI (from the configured Claude account)
 #
 # Alert investigations additionally get whatever operational access the deployment configured
 # (Planner:Operations). Only what is set is passed, so an absent variable means the agent genuinely
 # cannot reach that system - the prompt says as much:
-#   PLANNER_KUBECONFIG       - kubeconfig YAML, written to ~/.kube/config for kubectl and helm
 #   PLANNER_KUBE_NAMESPACE   - namespace made current in that kubeconfig
 #   DOCKER_HOST              - the Docker daemon the docker CLI talks to
 #   PLANNER_LOKI_URL         - base URL of Loki, queried with curl
+#   PLANNER_GRAFANA_URL      - base URL of Grafana
+# and, from the secrets file:
+#   PLANNER_KUBECONFIG       - kubeconfig YAML, written to ~/.kube/config for kubectl and helm
 #   PLANNER_LOKI_USERNAME    - Loki credentials, when it is protected
 #   PLANNER_LOKI_PASSWORD
-#   PLANNER_GRAFANA_URL      - base URL of Grafana
 #   PLANNER_GRAFANA_TOKEN    - Grafana API token
 #
 # The Claude session runs with stream-json input/output: the console output is the live event
@@ -38,6 +44,38 @@
 set -uo pipefail
 
 log() { printf '[planner-worker] %s\n' "$*"; }
+
+# Load the credentials before anything needs them. The Docker runtime copies the file in after the
+# container is created, so it can still be arriving; the readiness marker is written last and is
+# what proves the file is complete rather than half-extracted.
+load_secrets() {
+    local file="${PLANNER_SECRETS_FILE:-}"
+    [[ -n "$file" ]] || { log "No secrets file configured - running without credentials"; return; }
+
+    local ready="${file%/*}/secrets.ready"
+    local waited=0
+    while [[ ! -f "$ready" && $waited -lt 30 ]]; do
+        sleep 0.1
+        waited=$((waited + 1))
+    done
+
+    if [[ ! -f "$ready" ]]; then
+        log "Secrets file did not arrive at ${file} - running without credentials"
+        return
+    fi
+
+    set -a
+    # shellcheck source=/dev/null
+    . "$file"
+    set +a
+
+    # The file has been read into the environment of this process and its children; removing it
+    # keeps it out of reach of anything the agent later runs that reads the filesystem.
+    rm -f "$file" "$ready"
+    log "Credentials loaded"
+}
+
+load_secrets
 
 STREAM_FILE=/tmp/claude-stream.jsonl
 : > "$STREAM_FILE"

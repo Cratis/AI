@@ -16,18 +16,25 @@ namespace Planner.Work.Workers;
 /// <param name="logger">The logger.</param>
 public class KubernetesWorkerRuntime(IOptions<ContainerRuntimeOptions> options, ILogger<KubernetesWorkerRuntime> logger) : IWorkerRuntime
 {
-    /// <inheritdoc/>
-    public async Task Start(WorkerJob job, CancellationToken cancellationToken = default)
-    {
-        using var client = CreateClient();
+    const string SecretVolumeName = "planner-secrets";
 
+    static Dictionary<string, string> ManagedByPlanner => new() { ["app.kubernetes.io/managed-by"] = "cratis-planner" };
+
+    /// <summary>
+    /// Builds the Job specification for a worker - the object that ends up in
+    /// <c>kubectl get job -o yaml</c>, and therefore the one that must carry no credential.
+    /// </summary>
+    /// <param name="job">The worker job to describe.</param>
+    /// <returns>The Job specification.</returns>
+    public static V1Job BuildJobSpecification(WorkerJob job)
+    {
         var name = JobNameFor(job.Work);
-        var kubernetesJob = new V1Job
+        return new V1Job
         {
             Metadata = new V1ObjectMeta
             {
                 Name = name,
-                Labels = new Dictionary<string, string> { ["app.kubernetes.io/managed-by"] = "cratis-planner" }
+                Labels = ManagedByPlanner
             },
             Spec = new V1JobSpec
             {
@@ -38,21 +45,88 @@ public class KubernetesWorkerRuntime(IOptions<ContainerRuntimeOptions> options, 
                     Spec = new V1PodSpec
                     {
                         RestartPolicy = "Never",
+                        Volumes =
+                        [
+                            new V1Volume
+                            {
+                                Name = SecretVolumeName,
+
+                                // 0400 through the mount: the file is delivered readable only by the
+                                // container's user, without the entrypoint having to fix it up.
+                                Secret = new V1SecretVolumeSource { SecretName = name, DefaultMode = 256 }
+                            }
+                        ],
                         Containers =
                         [
                             new V1Container
                             {
                                 Name = "worker",
                                 Image = job.Image,
-                                Env = [.. job.EnvironmentVariables.Select(variable => new V1EnvVar { Name = variable.Key, Value = variable.Value })]
+
+                                // Only non-secret configuration goes on the specification. The
+                                // credentials arrive through the mount below, so `kubectl get job
+                                // -o yaml` shows a volume reference rather than a token.
+                                Env =
+                                [
+                                    .. job.EnvironmentVariables.Select(variable => new V1EnvVar { Name = variable.Key, Value = variable.Value }),
+                                    new V1EnvVar { Name = WorkerSecrets.PathVariableName, Value = WorkerSecrets.Path }
+                                ],
+                                VolumeMounts =
+                                [
+                                    new V1VolumeMount
+                                    {
+                                        Name = SecretVolumeName,
+                                        MountPath = WorkerSecrets.Directory,
+                                        ReadOnlyProperty = true
+                                    }
+                                ]
                             }
                         ]
                     }
                 }
             }
         };
+    }
 
-        await client.BatchV1.CreateNamespacedJobAsync(kubernetesJob, options.Value.KubernetesNamespace, cancellationToken: cancellationToken);
+    /// <inheritdoc/>
+    public async Task Start(WorkerJob job, CancellationToken cancellationToken = default)
+    {
+        using var client = CreateClient();
+
+        var name = JobNameFor(job.Work);
+
+        // The secret is created before the job so the pod never starts against a missing mount, and
+        // it is adopted by the job afterwards so Kubernetes garbage-collects it with the job rather
+        // than leaving the credentials behind.
+        var secret = await client.CoreV1.CreateNamespacedSecretAsync(
+            new V1Secret
+            {
+                Metadata = new V1ObjectMeta
+                {
+                    Name = name,
+                    Labels = ManagedByPlanner
+                },
+                Type = "Opaque",
+                StringData = new Dictionary<string, string> { [WorkerSecrets.FileName] = WorkerSecrets.Render(job.Secrets) }
+            },
+            options.Value.KubernetesNamespace,
+            cancellationToken: cancellationToken);
+
+        var kubernetesJob = BuildJobSpecification(job);
+
+        try
+        {
+            var created = await client.BatchV1.CreateNamespacedJobAsync(kubernetesJob, options.Value.KubernetesNamespace, cancellationToken: cancellationToken);
+            await AdoptSecret(client, secret, created, cancellationToken);
+        }
+        catch (Exception)
+        {
+            // Nothing owns the secret yet, so a failed job creation would strand it with the
+            // credentials in it.
+            await DeleteSecret(client, name, cancellationToken);
+            throw;
+        }
+
         logger.CreatedKubernetesJob(name, job.Work);
     }
 
@@ -74,6 +148,10 @@ public class KubernetesWorkerRuntime(IOptions<ContainerRuntimeOptions> options, 
             // The job may already be gone - stopping is best effort.
             logger.CouldNotStopWorker(exception, work);
         }
+
+        // Owner references clean this up with the job, but only when the job was actually adopted -
+        // deleting it here too means a stop always takes the credentials with it.
+        await DeleteSecret(client, JobNameFor(work), cancellationToken);
     }
 
     /// <inheritdoc/>
@@ -141,6 +219,41 @@ public class KubernetesWorkerRuntime(IOptions<ContainerRuntimeOptions> options, 
     }
 
     static string JobNameFor(WorkId work) => $"planner-work-{work.Value:N}";
+
+    async Task AdoptSecret(Kubernetes client, V1Secret secret, V1Job job, CancellationToken cancellationToken)
+    {
+        secret.Metadata.OwnerReferences =
+        [
+            new V1OwnerReference
+            {
+                ApiVersion = "batch/v1",
+                Kind = "Job",
+                Name = job.Metadata.Name,
+                Uid = job.Metadata.Uid,
+                BlockOwnerDeletion = true
+            }
+        ];
+
+        await client.CoreV1.ReplaceNamespacedSecretAsync(
+            secret,
+            secret.Metadata.Name,
+            options.Value.KubernetesNamespace,
+            cancellationToken: cancellationToken);
+    }
+
+    async Task DeleteSecret(Kubernetes client, string name, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await client.CoreV1.DeleteNamespacedSecretAsync(name, options.Value.KubernetesNamespace, cancellationToken: cancellationToken);
+        }
+        catch (Exception exception)
+        {
+            // Already gone, or garbage-collected with the job - either way the credentials are not
+            // left behind, which is the only thing this guarantees.
+            logger.CouldNotDeleteWorkerSecret(exception, name);
+        }
+    }
 
     Kubernetes CreateClient()
     {

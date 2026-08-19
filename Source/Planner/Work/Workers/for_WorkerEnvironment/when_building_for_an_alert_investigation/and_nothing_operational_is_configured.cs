@@ -12,7 +12,7 @@ public class and_nothing_operational_is_configured : context
 {
     static readonly AlertId _alertId = AlertId.From("studio-production", "pod:studio/loki-0:CrashLoopBackOff");
 
-    IReadOnlyDictionary<string, string> _result;
+    WorkerEnvironmentResult _result;
 
     void Establish() => BuildEnvironmentBuilder();
 
@@ -23,9 +23,9 @@ public class and_nothing_operational_is_configured : context
         "opus",
         _token);
 
-    [Fact] void should_still_dispatch_the_work() => _result["PLANNER_PROMPT"].ShouldNotBeEmpty();
-    [Fact] void should_tell_the_agent_it_can_reach_nothing() => _result["PLANNER_PROMPT"].ShouldContain("gave you no access");
-    [Fact] void should_clone_nothing() => _result.ContainsKey("PLANNER_REPOSITORY_URLS").ShouldBeFalse();
-    [Fact] void should_hand_over_no_credentials_it_does_not_have() => _result.ContainsKey("PLANNER_KUBECONFIG").ShouldBeFalse();
+    [Fact] void should_still_dispatch_the_work() => _result.Variables["PLANNER_PROMPT"].ShouldNotBeEmpty();
+    [Fact] void should_tell_the_agent_it_can_reach_nothing() => _result.Variables["PLANNER_PROMPT"].ShouldContain("gave you no access");
+    [Fact] void should_clone_nothing() => _result.Variables.ContainsKey("PLANNER_REPOSITORY_URLS").ShouldBeFalse();
+    [Fact] void should_hand_over_no_credentials_it_does_not_have() => _result.Secrets.ContainsKey("PLANNER_KUBECONFIG").ShouldBeFalse();
 }
 #endif
