@@ -158,6 +158,12 @@
     ],
     "workflows": [
       {
+        "id": "complete-rendered-slice",
+        "purposes": ["implement-vertical-slice"],
+        "priority": 100,
+        "rationale": "The full Cratis stack is present, so an agent can complete a rendered slice and be judged against the slice's own specifications."
+      },
+      {
         "id": "investigate-cratis-issue",
         "purposes": ["investigate"],
         "priority": 100,
