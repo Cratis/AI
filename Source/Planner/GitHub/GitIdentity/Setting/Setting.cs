@@ -37,7 +37,15 @@ public class SetGitIdentityValidator : CommandValidator<SetGitIdentity>
     public SetGitIdentityValidator()
     {
         RuleFor(_ => _.Name).NotEmpty().WithMessage("A git user name is required");
+        RuleFor(_ => _.Name)
+            .Must(name => name.Contains("(AI)", StringComparison.OrdinalIgnoreCase) || name.EndsWith("[bot]", StringComparison.OrdinalIgnoreCase))
+            .When(_ => !string.IsNullOrEmpty(_.Name.Value))
+            .WithMessage("The git identity should make clear this is an AI agent, e.g. 'Stagehand (AI)'");
         RuleFor(_ => _.Email).NotEmpty().WithMessage("A git user email is required");
+        RuleFor(_ => _.Email)
+            .Must(email => email.EndsWith("@users.noreply.github.com", StringComparison.OrdinalIgnoreCase))
+            .When(_ => !string.IsNullOrEmpty(_.Email.Value))
+            .WithMessage("Use a noreply GitHub email so the identity can never receive mail meant for a person");
     }
 }
 

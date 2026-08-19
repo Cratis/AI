@@ -108,11 +108,11 @@ export const GitHubConfiguration = () => {
                     width='30rem'
                     okLabel='Save'
                     cancelLabel='Cancel'
-                    initialValues={{ name: identity?.name ?? '', email: identity?.email ?? '' }}
+                    initialValues={{ name: identity?.name ?? 'Stagehand (AI)', email: identity?.email ?? 'stagehand-ai@users.noreply.github.com' }}
                     onConfirm={() => setEditIdentityVisible(false)}
                     onCancel={() => setEditIdentityVisible(false)}>
-                    <InputTextField<SetGitIdentity> value={(instance) => instance.name} title='Name' placeholder='e.g. Cratis Planner' />
-                    <InputTextField<SetGitIdentity> value={(instance) => instance.email} title='Email' placeholder='e.g. planner@example.com' />
+                    <InputTextField<SetGitIdentity> value={(instance) => instance.name} title='Name' placeholder='e.g. Stagehand (AI)' />
+                    <InputTextField<SetGitIdentity> value={(instance) => instance.email} title='Email' placeholder='e.g. stagehand-ai@users.noreply.github.com' />
                 </CommandDialog>}
         </Page>
     );

@@ -11,14 +11,14 @@ public class and_information_is_valid : Specification
 
     void Establish() => _scenario = new();
 
-    async Task Because() => _result = await _scenario.Execute(new SetGitIdentity("Cratis Planner", "planner@cratis.io"));
+    async Task Because() => _result = await _scenario.Execute(new SetGitIdentity("Stagehand (AI)", "stagehand-ai@users.noreply.github.com"));
 
     [Fact] void should_succeed() => _result.ShouldBeSuccessful();
 
     [Fact]
     void should_append_git_identity_set() => _scenario.EventSequence.ShouldHaveAppendedEvent<GitIdentitySet>(
         @event =>
-            @event.Name == new GitUserName("Cratis Planner") &&
-            @event.Email == new GitUserEmail("planner@cratis.io"));
+            @event.Name == new GitUserName("Stagehand (AI)") &&
+            @event.Email == new GitUserEmail("stagehand-ai@users.noreply.github.com"));
 }
 #endif
