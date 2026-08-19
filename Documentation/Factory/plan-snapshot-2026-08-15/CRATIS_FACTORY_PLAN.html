@@ -1,0 +1,1136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="The complete Cratis Factory product, architecture, security, tooling, evaluation, and delivery plan.">
+  <title>Cratis Factory — Complete Plan</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f5f7fb;
+      --surface: #ffffff;
+      --surface-soft: #edf2f8;
+      --text: #172033;
+      --muted: #536078;
+      --line: #c8d1e0;
+      --accent: #4159d8;
+      --accent-dark: #26398f;
+      --accent-soft: #e8ecff;
+      --good: #126b45;
+      --good-soft: #dff6e9;
+      --active: #875500;
+      --active-soft: #fff0c9;
+      --planned: #5c3b95;
+      --planned-soft: #eee5ff;
+      --risk: #a02d2d;
+      --risk-soft: #ffe5e5;
+      --shadow: 0 12px 30px rgba(24, 38, 71, .08);
+      --radius: 14px;
+      --content: 1180px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0e1420;
+        --surface: #171f2f;
+        --surface-soft: #202a3c;
+        --text: #eef3ff;
+        --muted: #b8c2d8;
+        --line: #39465e;
+        --accent: #93a4ff;
+        --accent-dark: #c1c9ff;
+        --accent-soft: #273260;
+        --good: #7ce0ae;
+        --good-soft: #173b2d;
+        --active: #ffd376;
+        --active-soft: #473819;
+        --planned: #d1b6ff;
+        --planned-soft: #382753;
+        --risk: #ff9a9a;
+        --risk-soft: #4d2528;
+        --shadow: 0 12px 30px rgba(0, 0, 0, .28);
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.65;
+    }
+    a { color: var(--accent-dark); text-underline-offset: .2em; }
+    a:hover { text-decoration-thickness: .15em; }
+    a:focus-visible, summary:focus-visible {
+      outline: 3px solid var(--accent);
+      outline-offset: 3px;
+      border-radius: 3px;
+    }
+    .skip-link {
+      position: absolute;
+      left: 1rem;
+      top: -5rem;
+      z-index: 10;
+      padding: .7rem 1rem;
+      background: var(--surface);
+      color: var(--text);
+      border: 2px solid var(--accent);
+      border-radius: .5rem;
+    }
+    .skip-link:focus { top: 1rem; }
+    header {
+      color: #fff;
+      background: linear-gradient(125deg, #19245c 0%, #4159d8 55%, #6935a9 100%);
+      padding: 4.5rem max(1.25rem, calc((100vw - var(--content)) / 2)) 3.5rem;
+    }
+    header p { color: #e9ecff; max-width: 72ch; }
+    header .eyebrow { color: #cbd3ff; }
+    h1, h2, h3, h4 { line-height: 1.2; text-wrap: balance; }
+    h1 { font-size: clamp(2.6rem, 7vw, 5.4rem); margin: .15rem 0 .8rem; letter-spacing: -.045em; }
+    h2 { font-size: clamp(1.75rem, 4vw, 2.6rem); margin: 0 0 1rem; letter-spacing: -.025em; }
+    h3 { font-size: 1.25rem; margin: 1.8rem 0 .55rem; }
+    h4 { font-size: 1.05rem; margin: 1.2rem 0 .35rem; }
+    p { margin: .55rem 0 1rem; }
+    ul, ol { padding-left: 1.35rem; }
+    li + li { margin-top: .3rem; }
+    code {
+      padding: .12em .35em;
+      background: var(--surface-soft);
+      border-radius: .3rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: .92em;
+    }
+    pre {
+      margin: 1rem 0;
+      padding: 1.2rem;
+      overflow-x: auto;
+      white-space: pre;
+      background: #10182a;
+      color: #edf2ff;
+      border: 1px solid #394866;
+      border-radius: 12px;
+      line-height: 1.45;
+      font-size: .9rem;
+    }
+    blockquote {
+      margin: 1.3rem 0;
+      padding: .9rem 1.2rem;
+      border-left: 5px solid var(--accent);
+      background: var(--accent-soft);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      font-size: 1.08rem;
+    }
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      background: color-mix(in srgb, var(--surface) 94%, transparent);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(12px);
+    }
+    nav ul {
+      display: flex;
+      gap: .3rem;
+      max-width: var(--content);
+      margin: 0 auto;
+      padding: .65rem 1rem;
+      overflow-x: auto;
+      list-style: none;
+    }
+    nav li { margin: 0; flex: 0 0 auto; }
+    nav a {
+      display: block;
+      padding: .42rem .65rem;
+      color: var(--text);
+      text-decoration: none;
+      border-radius: .45rem;
+      font-size: .9rem;
+      font-weight: 650;
+    }
+    nav a:hover { background: var(--surface-soft); }
+    main { max-width: var(--content); margin: 0 auto; padding: 2rem 1.25rem 5rem; }
+    section {
+      scroll-margin-top: 5rem;
+      margin: 1.25rem 0;
+      padding: clamp(1.3rem, 3vw, 2.5rem);
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    section section {
+      margin: 1rem 0;
+      padding: 1.1rem;
+      background: var(--surface-soft);
+      box-shadow: none;
+    }
+    .eyebrow {
+      margin: 0 0 .35rem;
+      color: var(--accent-dark);
+      font-size: .76rem;
+      font-weight: 800;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+    .lead { font-size: clamp(1.05rem, 2.3vw, 1.3rem); }
+    .meta { color: var(--muted); font-size: .92rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 1rem; }
+    .card {
+      padding: 1rem;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: var(--surface-soft);
+    }
+    .card h3, .card h4 { margin-top: 0; }
+    .status {
+      display: inline-block;
+      margin: 0 .3rem .3rem 0;
+      padding: .18rem .55rem;
+      border: 1px solid currentColor;
+      border-radius: 999px;
+      font-size: .76rem;
+      font-weight: 800;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+    }
+    .accepted { color: var(--good); background: var(--good-soft); }
+    .active { color: var(--active); background: var(--active-soft); }
+    .planned { color: var(--planned); background: var(--planned-soft); }
+    .blocked { color: var(--risk); background: var(--risk-soft); }
+    .callout {
+      margin: 1rem 0;
+      padding: 1rem 1.1rem;
+      border: 1px solid var(--line);
+      border-left: 5px solid var(--accent);
+      border-radius: 10px;
+      background: var(--surface-soft);
+    }
+    .callout.good { border-left-color: var(--good); }
+    .callout.warn { border-left-color: var(--active); }
+    .table-wrap { overflow-x: auto; margin: 1rem 0; }
+    table { width: 100%; border-collapse: collapse; font-size: .94rem; }
+    caption { padding: .4rem 0 .7rem; text-align: left; font-weight: 750; }
+    th, td { padding: .65rem .75rem; border: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { background: var(--surface-soft); }
+    dt { margin-top: .75rem; font-weight: 800; }
+    dd { margin-left: 0; color: var(--muted); }
+    .pipeline {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .6rem;
+      align-items: center;
+      margin: 1rem 0;
+    }
+    .pipeline span {
+      padding: .55rem .75rem;
+      border: 1px solid var(--line);
+      border-radius: .5rem;
+      background: var(--surface-soft);
+      font-weight: 700;
+    }
+    .pipeline b { color: var(--muted); }
+    details {
+      margin: .8rem 0;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--surface-soft);
+    }
+    summary { cursor: pointer; padding: .8rem 1rem; font-weight: 750; }
+    details > div { padding: 0 1rem 1rem; }
+    footer { max-width: var(--content); margin: 0 auto; padding: 0 1.25rem 3rem; color: var(--muted); }
+    .back { text-align: right; font-size: .9rem; }
+
+    .visual-hero {
+      position: relative;
+      margin: 1.25rem 0 1.6rem;
+      overflow: hidden;
+      color: #eef3ff;
+      background: #10182a;
+      border: 1px solid #394866;
+      border-radius: 14px;
+    }
+    .visual-hero img,
+    .walkthrough-slide img,
+    .walkthrough-gif img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .visual-hero figcaption {
+      padding: .85rem 1rem;
+      color: #dce4fa;
+      background: #10182a;
+      font-size: .9rem;
+    }
+    .concept-label {
+      display: inline-block;
+      margin-right: .5rem;
+      padding: .18rem .5rem;
+      color: #f4eaff;
+      background: #593b83;
+      border: 1px solid #a987d5;
+      border-radius: 999px;
+      font-size: .7rem;
+      font-weight: 850;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .adoption-path {
+      counter-reset: adoption;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
+      gap: .75rem;
+      margin: 1rem 0 1.4rem;
+    }
+    .adoption-path article {
+      counter-increment: adoption;
+      position: relative;
+      padding: 1rem .9rem .9rem 3.15rem;
+      background: var(--surface-soft);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+    }
+    .adoption-path article::before {
+      content: counter(adoption, decimal-leading-zero);
+      position: absolute;
+      left: .8rem;
+      top: .9rem;
+      width: 1.85rem;
+      height: 1.85rem;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      background: var(--accent);
+      border-radius: 50%;
+      font-size: .7rem;
+      font-weight: 900;
+    }
+    .adoption-path h3 { margin: 0 0 .35rem; font-size: 1rem; }
+    .adoption-path p { margin: 0; color: var(--muted); font-size: .83rem; }
+    .walkthrough-note {
+      margin: 1rem 0;
+      padding: .85rem 1rem;
+      color: var(--muted);
+      background: var(--surface-soft);
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      font-size: .9rem;
+    }
+    .walkthrough-gallery { margin: 1rem 0 1.4rem; }
+    .walkthrough-gallery:focus-visible,
+    .walkthrough-button:focus-visible {
+      outline: 3px solid var(--accent);
+      outline-offset: 3px;
+    }
+    .walkthrough-controls {
+      display: none;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: .55rem;
+      margin-bottom: .85rem;
+      padding: .75rem;
+      background: var(--surface-soft);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+    }
+    .walkthrough-enhanced .walkthrough-controls { display: flex; }
+    .walkthrough-button {
+      appearance: none;
+      min-width: 5.5rem;
+      padding: .55rem .8rem;
+      color: var(--text);
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: .45rem;
+      font: inherit;
+      font-weight: 750;
+      cursor: pointer;
+    }
+    .walkthrough-button:hover:not(:disabled) { background: var(--accent-soft); }
+    .walkthrough-button:disabled { cursor: not-allowed; opacity: .55; }
+    .walkthrough-position { margin-left: auto; color: var(--muted); font-size: .85rem; font-weight: 750; }
+    .walkthrough-slide {
+      margin: 0 0 1.25rem;
+      overflow: hidden;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+    }
+    .walkthrough-slide[hidden] { display: none; }
+    .walkthrough-slide > a { display: block; background: #e9edf5; }
+    .walkthrough-slide figcaption { padding: 1rem 1.1rem 1.05rem; }
+    .walkthrough-slide figcaption > p { margin-top: .35rem; color: var(--muted); }
+    .walkthrough-callouts {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: .65rem;
+      margin: .85rem 0 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: visual-callout;
+    }
+    .walkthrough-callouts li {
+      counter-increment: visual-callout;
+      position: relative;
+      margin: 0;
+      padding: .7rem .75rem .7rem 2.65rem;
+      background: var(--surface-soft);
+      border-radius: 8px;
+      font-size: .82rem;
+    }
+    .walkthrough-callouts li::before {
+      content: counter(visual-callout);
+      position: absolute;
+      left: .65rem;
+      top: .65rem;
+      width: 1.45rem;
+      height: 1.45rem;
+      display: grid;
+      place-items: center;
+      color: white;
+      background: var(--accent);
+      border-radius: 50%;
+      font-size: .7rem;
+      font-weight: 900;
+    }
+    .walkthrough-transcript { margin: .8rem 0 0; }
+    .walkthrough-transcript li { padding-left: .3rem; }
+    .walkthrough-gif { padding-bottom: .2rem; }
+    .walkthrough-gif p { color: var(--muted); }
+    .walkthrough-gif a[download] { display: inline-block; margin-top: .75rem; font-weight: 750; }
+
+    @media (max-width: 680px) {
+      header { padding-top: 3.3rem; }
+      main { padding-inline: .75rem; }
+      section { padding: 1.1rem; }
+      .walkthrough-callouts { grid-template-columns: 1fr; }
+      .walkthrough-position { flex-basis: 100%; margin-left: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+    @media print {
+      :root { color-scheme: light; --bg: #fff; --surface: #fff; --surface-soft: #f4f4f4; --text: #000; --muted: #333; --line: #aaa; }
+      nav, .skip-link, .back, .walkthrough-controls { display: none !important; }
+      header { color: #000; background: #fff; padding: 1rem 0; border-bottom: 2px solid #000; }
+      header p, header .eyebrow { color: #222; }
+      main { max-width: none; padding: 0; }
+      section { break-inside: avoid; box-shadow: none; border: 0; border-bottom: 1px solid #aaa; padding: 1rem 0; }
+      a { color: #000; }
+      a[href^="http"]::after { content: " (" attr(href) ")"; font-size: .75em; overflow-wrap: anywhere; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to the plan</a>
+
+  <header id="top">
+    <p class="eyebrow">Product, architecture, security, and delivery plan</p>
+    <h1>Cratis Factory</h1>
+    <p class="lead">A governed, Cratis-native software factory that turns intent into typed, reviewable, verified work while keeping authority, policy, and side effects in deterministic code.</p>
+    <p>Canonical planning document · Updated 15 August 2026 · Local visual bundle · no external network assets</p>
+  </header>
+
+  <nav aria-label="Document sections">
+    <ul>
+      <li><a href="#executive-summary">Summary</a></li>
+      <li><a href="#status">Status</a></li>
+      <li><a href="#architecture">Architecture</a></li>
+      <li><a href="#visual-walkthrough">Visual walkthrough</a></li>
+      <li><a href="#experience">Experience</a></li>
+      <li><a href="#ecosystem">Ecosystem</a></li>
+      <li><a href="#tooling">Tooling</a></li>
+      <li><a href="#security">Security</a></li>
+      <li><a href="#contracts">Contracts</a></li>
+      <li><a href="#evaluations">Evaluations</a></li>
+      <li><a href="#roadmap">Roadmap</a></li>
+      <li><a href="#issues">Issues</a></li>
+      <li><a href="#end-state">End state</a></li>
+    </ul>
+  </nav>
+
+  <main id="main-content">
+    <section id="executive-summary" aria-labelledby="executive-summary-heading">
+      <p class="eyebrow">North star</p>
+      <h2 id="executive-summary-heading">What the Factory is</h2>
+      <p class="lead">Cratis Factory is not a customized coding chatbot. It is a governed software factory that understands the actual Cratis ecosystem, converts intent into typed work, delegates bounded reasoning to agents, verifies results with deterministic tools, and gives humans and machines the same trustworthy account of what happened.</p>
+      <blockquote>Probabilistic agents propose and reason. Deterministic Cratis-owned code decides what is allowed, invokes tools, verifies results, records evidence, and performs side effects.</blockquote>
+      <div class="callout warn" role="status" aria-label="G0 and G1 release decision">
+        <h3>G0 / G1 decision: HOLD</h3>
+        <p><strong>No Pi, worker, provider, or repository-broker execution—and no public release—is authorized</strong> until issue #64 Phase B, issues #65 and #66, historical and multi-harness baselines, and the required usability and accessibility gates have all passed.</p>
+      </div>
+      <p>A developer should eventually be able to install <code>cratis-factory</code>, point it at a repository, and have it discover the repository type, detect products and versions, select specialist profiles and workflows, show an exact preflight plan, execute inside a protected environment, collect evidence, request meaningful human approvals, correct failures, and publish only through trusted code.</p>
+      <div class="grid">
+        <div class="card">
+          <h3>Human surfaces</h3>
+          <p>Terminal, Studio, review screens, approval flows, explanations, and recovery guidance.</p>
+        </div>
+        <div class="card">
+          <h3>Machine surfaces</h3>
+          <p>CLI JSON/JSONL, versioned API, MCP, Planner events, typed results, and stable diagnostics.</p>
+        </div>
+        <div class="card">
+          <h3>Shared semantics</h3>
+          <p>Every interface consumes the same contracts, policy decisions, evidence, and operation results.</p>
+        </div>
+      </div>
+      <h3>Why it is necessary</h3>
+      <p>Generic coding agents do not reliably know Arc model-bound commands and read models, Chronicle event and projection semantics, client-specific APIs, generated-proxy boundaries, Components conventions, Screenplay and Stage, analyzer availability, version trains, or the distinction between applications and framework repositories. That knowledge must be versioned and testable rather than left to model memory.</p>
+      <p>Prompt instructions are also not an authorization system. The runtime needs code-enforced answers for what files may be read, which provider may receive them, which policy applies, whether the bytes were scanned and sanitized, which side effects are legal, and what evidence proves an operation occurred.</p>
+    </section>
+
+    <section id="status" aria-labelledby="status-heading">
+      <p class="eyebrow">Reality check</p>
+      <h2 id="status-heading">Current status and legend</h2>
+      <p>This document distinguishes accepted foundations from active work and future intent. “Planned” is not presented as implemented.</p>
+      <div class="grid" aria-label="Status legend">
+        <div class="card"><span class="status accepted">Accepted</span><p>Implemented, independently reviewed, and accepted with recorded evidence.</p></div>
+        <div class="card"><span class="status active">Active</span><p>Implementation is underway or its prerequisites are being established.</p></div>
+        <div class="card"><span class="status planned">Planned</span><p>Architecturally intended, but not yet available as a product capability.</p></div>
+        <div class="card"><span class="status blocked">Gated</span><p>Must not proceed until explicit promotion criteria are satisfied.</p></div>
+      </div>
+
+      <h3>Accepted deterministic foundation</h3>
+      <ul>
+        <li>Repository discovery, profile resolution, workflow compilation, and preflight without model calls.</li>
+        <li>Fourteen composable profiles spanning applications, framework repositories, and the golden aggregate.</li>
+        <li>Summary, explain, and trace views with typed human/machine result parity.</li>
+        <li>Trusted Git handling, clean revision requirements, path-opaque diagnostics, policy-aware routing, and hardened output publication.</li>
+        <li>Evaluation catalog, executable cases, CI, pinned dependencies, schema validation, and clean-checkout checks.</li>
+      </ul>
+
+      <div class="callout good">
+        <h3>Issue #64, Phase A — accepted</h3>
+        <p><span class="status accepted">Accepted</span> Provenance-bound phase-input contract foundations are complete and independently accepted.</p>
+        <ul>
+          <li><strong>29 schemas</strong> and <strong>55 documents</strong> validate.</li>
+          <li><strong>19/19 focused tests</strong> pass.</li>
+          <li><strong>256/256 full tests</strong> pass.</li>
+          <li>The evaluator reports <strong>10/10</strong>, including authority verification.</li>
+          <li>Independent review verdict: <strong>ACCEPT</strong>.</li>
+        </ul>
+        <p><a href="https://github.com/Cratis/AI/issues/64">Track provenance-bound phase inputs in issue #64</a>.</p>
+      </div>
+      <div class="callout warn">
+        <h3>Issue #64, Phase B — planned</h3>
+        <p><span class="status planned">Planned</span> The compiler will emit exact per-phase input contracts, workflows will use minimal agent context instead of the full resolved profile, harness requests will carry provenance-bound inputs, and v1 requests will be rejected for dispatch. This is not implemented yet.</p>
+      </div>
+
+      <h3>Not available yet</h3>
+      <ul>
+        <li>End-to-end executable investigation workflow and Pi worker.</li>
+        <li>Repository capability broker, trusted sanitizer, trusted artifact store, and provider authorization service.</li>
+        <li>Planner runtime, public API/MCP server, Studio Factory UI, trusted PR publisher, and installable signed binary.</li>
+        <li>Complete implementation agents, fixtures, and compatibility intelligence for every Chronicle client.</li>
+        <li>Required multi-harness historical baselines, usability evidence, and accessibility-study evidence.</li>
+      </ul>
+    </section>
+
+    <section id="principles" aria-labelledby="principles-heading">
+      <p class="eyebrow">Operating doctrine</p>
+      <h2 id="principles-heading">Design principles</h2>
+      <div class="grid">
+        <div class="card"><h3>Deterministic before probabilistic</h3><p>Code owns discovery, policy, compilation, approvals, gates, evidence, and side effects. Models reason within those decisions.</p></div>
+        <div class="card"><h3>Inspect before execute</h3><p>Users can see what was detected, selected, rejected, blocked, and recommended before a provider is contacted or source is changed.</p></div>
+        <div class="card"><h3>One semantic result</h3><p>Human text and machine JSON are projections of one typed operation result, never separate implementations.</p></div>
+        <div class="card"><h3>Progressive disclosure</h3><p><code>summary</code> is decision-oriented, <code>explain</code> exposes selection reasoning, and <code>trace</code> exposes hashes and audit evidence.</p></div>
+        <div class="card"><h3>Truthful side effects</h3><p>Results report what actually changed, including partial publication, cleanup failure, link hazards, and race detection.</p></div>
+        <div class="card"><h3>Fail closed</h3><p>Missing, expired, unknown, mismatched, or revoked authority blocks execution; it never becomes an implicit allow.</p></div>
+      </div>
+      <h3>Integrity is not authority</h3>
+      <p>A hash proves bytes have not changed. It does not prove who created them, whether the issuer was trusted, whether the object belongs to this run, whether its provider was authorized, or whether required scanning occurred. The design therefore treats integrity, provenance, authority, policy, and evidence as distinct concepts.</p>
+      <h3>Harness independence</h3>
+      <p>Cratis knowledge belongs in harness-neutral contracts, profiles, agents, skills, and workflows. Pi, Codex, Copilot, or a future runner may adapt to those semantics; no harness becomes the source of truth.</p>
+    </section>
+
+    <section id="architecture" aria-labelledby="architecture-heading">
+      <p class="eyebrow">System shape</p>
+      <h2 id="architecture-heading">Architecture and ownership</h2>
+      <pre aria-label="Cratis Factory architecture diagram">Human terminal       CI / automation       Other AI agents       Studio
+       \                    |                    |                  /
+        \                   |                    |                 /
+                  cratis-factory interfaces
+             CLI / JSON / JSONL / API / MCP
+                              |
+                 Deterministic Factory core
+        discovery - policy - compiler - preflight - evaluator
+                              |
+              Planner / execution control plane
+        runs - phases - attempts - approvals - evidence - replay
+                              |
+                 Protected capability broker
+       artifacts - repository reads - tools - provider authority
+                              |
+       +----------------------+------------------------+
+       |                      |                        |
+  Pi adapter            Other harnesses        Deterministic tools
+ bounded reasoning      bounded reasoning      cratis / Screenplay /
+                                               Stage / builds / tests</pre>
+
+      <div class="grid">
+        <div class="card"><h3>Factory core</h3><p>Owns the local and headless experience: contracts, discovery, profiles, policy evaluation, workflow compilation, preflight, typed results, and evaluations.</p></div>
+        <div class="card"><h3>Planner</h3><p>Owns durable runs, phases, attempts, leases, idempotency, approvals, corrections, cancellations, replay prevention, and evidence references.</p></div>
+        <div class="card"><h3>Studio</h3><p>Owns visual intent, proposal, evidence, review, correction, and approval experiences while consuming shared contracts.</p></div>
+        <div class="card"><h3>Capability broker</h3><p>Owns repository and artifact access, bounded reads, scanning, sanitization, quotas, and grant enforcement.</p></div>
+        <div class="card"><h3>Harness adapters</h3><p>Run bounded reasoning sessions. Pi is the first candidate, but adapters cannot make policy or publish changes.</p></div>
+        <div class="card"><h3>Trusted tools</h3><p>The Cratis CLI, Screenplay, Stage, builds, tests, analyzers, Git, browsers, and publishers perform verifiable operations.</p></div>
+      </div>
+
+      <h3>Repository ownership</h3>
+      <p>The Factory belongs in <code>Cratis/AI</code>. AI owns contracts, profiles, workflows, agents, skills, resolver/compiler logic, preflight, evaluations, harness-neutral runtime contracts, adapters, policy contracts, and eventual distribution.</p>
+      <p>The existing <code>cratis</code> CLI remains the deterministic Cratis capability plane. It should not acquire Pi, provider, session, agent, or Planner responsibilities. A future <code>cratis factory</code> command could be a forwarding shim, not an embedded runtime.</p>
+    </section>
+
+    <section id="visual-walkthrough" aria-labelledby="visual-walkthrough-heading">
+      <p class="eyebrow">See the adoption path</p>
+      <h2 id="visual-walkthrough-heading">Visual walkthrough: from inspection to governed delivery</h2>
+      <p class="lead">These visuals show how the accepted deterministic foundation should be used today, where execution is deliberately blocked, and how the planned Studio and transport experiences fit later.</p>
+      <div class="callout warn" role="note">
+        <h3>Conceptual product direction—not shipping application screens</h3>
+        <p>The screenshots are deterministic design mockups for explaining the intended experience. Only the features labelled <span class="status accepted">Implemented foundation</span> or <span class="status active">Contract implemented</span> exist in the current foundation. Agent dispatch and Studio remain planned and gated while G0 / G1 is <strong>HOLD</strong>.</p>
+      </div>
+
+      <figure class="visual-hero">
+        <img src="CRATIS_FACTORY_PLAN.assets/00-governed-factory-concept.png" width="1672" height="941" alt="Conceptual illustration of a governed Cratis Factory: developer intent enters a protected factory, deterministic policy and evidence surround bounded agent reasoning, and verified outputs leave through controlled tooling.">
+        <figcaption><span class="concept-label">Conceptual illustration</span>A visual metaphor for the ownership boundary. It is not a screenshot of an implemented product interface.</figcaption>
+      </figure>
+
+      <h3>How a team adopts it</h3>
+      <div class="adoption-path">
+        <article><h3>Inspect</h3><p><span class="status accepted">Implemented</span> Learn what the repository actually is before a model is involved.</p></article>
+        <article><h3>Preflight</h3><p><span class="status accepted">Implemented</span> Review the exact workflow, authority, gates, and expected effects.</p></article>
+        <article><h3>Run</h3><p><span class="status blocked">Gated</span> Dispatch stays blocked until #65 and #66 establish missing authority.</p></article>
+        <article><h3>Review in Studio</h3><p><span class="status planned">Planned</span> Review intent, models, evidence, corrections, and approvals together.</p></article>
+        <article><h3>Integrate machines</h3><p><span class="status active">Mixed</span> Typed result contracts exist; API and MCP transports are planned.</p></article>
+      </div>
+
+      <p class="walkthrough-note"><strong>Reading the frames:</strong> numbered dots in each image map to the numbered annotations beneath it. With JavaScript enabled, use Previous, Next, Play, Pause, Left/Right Arrow, or Space. Nothing plays automatically, and reduced-motion preferences disable timed playback. Without JavaScript, all five annotated figures remain visible.</p>
+
+      <div class="walkthrough-gallery" id="adoption-slideshow" aria-label="Five-step Cratis Factory adoption walkthrough">
+        <div class="walkthrough-controls" aria-label="Slideshow controls">
+          <button class="walkthrough-button" type="button" data-walkthrough-action="previous">Previous</button>
+          <button class="walkthrough-button" type="button" data-walkthrough-action="next">Next</button>
+          <button class="walkthrough-button" type="button" data-walkthrough-action="play">Play</button>
+          <button class="walkthrough-button" type="button" data-walkthrough-action="pause" disabled>Pause</button>
+          <span class="walkthrough-position" data-walkthrough-position aria-live="polite">Showing all five static frames</span>
+        </div>
+
+        <figure class="walkthrough-slide" data-walkthrough-slide>
+          <a href="CRATIS_FACTORY_PLAN.assets/01-inspect.png"><img src="CRATIS_FACTORY_PLAN.assets/01-inspect.png" width="1440" height="900" loading="lazy" alt="Implemented-foundation inspection mockup. A successful deterministic repository result selects Arc .NET, Arc React, Chronicle .NET, and Cratis Components profiles; rejects unsupported inferences; and states that no model, provider, network, or source mutation was involved."></a>
+          <figcaption>
+            <strong>1. Inspect—implemented foundation.</strong>
+            <p>Start here. The resolver turns repository evidence into one typed, explainable selection before any probabilistic work is considered.</p>
+            <ol class="walkthrough-callouts"><li><strong>Repository truth.</strong> Mode, target, detected golden stack, and React frontend come from evidence.</li><li><strong>Positive and negative routing.</strong> Profiles are selected explicitly; Angular and unrelated Chronicle clients are not inferred.</li><li><strong>Safe boundary.</strong> Inspection contacts no provider or model, uses no network, and mutates no source.</li></ol>
+          </figcaption>
+        </figure>
+
+        <figure class="walkthrough-slide" data-walkthrough-slide>
+          <a href="CRATIS_FACTORY_PLAN.assets/02-preflight.png"><img src="CRATIS_FACTORY_PLAN.assets/02-preflight.png" width="1440" height="900" loading="lazy" alt="Implemented-foundation preflight mockup. It binds an exact clean revision, versioned workflow, local-development policy, phase timeline, required gates, no write, network, secret access, or side effects, and says run is unavailable while HOLD remains."></a>
+          <figcaption>
+            <strong>2. Preflight—implemented foundation.</strong>
+            <p>Review an immutable plan that binds the repository, workflow, people, deterministic tools, policy, gates, and expected effects.</p>
+            <ol class="walkthrough-callouts"><li><strong>Exact authority.</strong> A clean revision, pinned workflow, effective policy, and no side effects are visible together.</li><li><strong>Ordered ownership.</strong> Human, agent, deterministic verification, independent review, and acceptance responsibilities are explicit.</li><li><strong>Honest gate.</strong> The canonical plan is previewable, but execution remains unavailable while G0 / G1 is HOLD.</li></ol>
+          </figcaption>
+        </figure>
+
+        <figure class="walkthrough-slide" data-walkthrough-slide>
+          <a href="CRATIS_FACTORY_PLAN.assets/03-run-blocked.png"><img src="CRATIS_FACTORY_PLAN.assets/03-run-blocked.png" width="1440" height="900" loading="lazy" alt="Planned run concept, explicitly blocked and not created. The phase timeline shows accepted issue 64 contracts, planned blocking provider authority in issue 65, planned blocking repository broker in issue 66, and an agent that has not been dispatched."></a>
+          <figcaption>
+            <strong>3. Run—planned concept, blocked by G1 HOLD.</strong>
+            <p>This is the intended bounded execution shape, not an available run screen. Accepted provenance contracts are necessary but do not authorize dispatch.</p>
+            <ol class="walkthrough-callouts"><li><strong>Block, do not bluff.</strong> The workflow declares that provider and repository authority are incomplete.</li><li><strong>Evidence in context.</strong> #64 validation and review evidence is visible without being promoted into execution authority.</li><li><strong>Least privilege.</strong> The future agent receives bounded, attested inputs—not ambient files, credentials, global tools, writes, or network.</li></ol>
+          </figcaption>
+        </figure>
+
+        <figure class="walkthrough-slide" data-walkthrough-slide>
+          <a href="CRATIS_FACTORY_PLAN.assets/04-studio-concept.png"><img src="CRATIS_FACTORY_PLAN.assets/04-studio-concept.png" width="1440" height="900" loading="lazy" alt="Planned Studio concept, not runnable while HOLD. It shows an intent for customer communication preferences, an immutable Screenplay model, proposed event, projection, Arc and React Components work, review evidence, an unresolved decision, and disabled approval controls."></a>
+          <figcaption>
+            <strong>4. Studio—planned concept.</strong>
+            <p>The future visual review surface brings intent, an immutable model revision, deterministic evidence, unresolved decisions, and approval scope into one place.</p>
+            <ol class="walkthrough-callouts"><li><strong>Intent is durable.</strong> The change begins as a human-readable objective bound to an immutable Screenplay revision.</li><li><strong>Golden-stack proposal.</strong> Domain, Chronicle, Arc, generated-client, React, Components, specification, and accessibility concerns stay connected.</li><li><strong>Approval is scoped.</strong> Concept controls are disabled; the shown future approval advances workflow only and writes no source.</li></ol>
+          </figcaption>
+        </figure>
+
+        <figure class="walkthrough-slide" data-walkthrough-slide>
+          <a href="CRATIS_FACTORY_PLAN.assets/05-machine.png"><img src="CRATIS_FACTORY_PLAN.assets/05-machine.png" width="1440" height="900" loading="lazy" alt="Machine-contract mockup. A planned API transport sends an opaque repository reference and receives the implemented typed operation-result semantics: inspect success, no side effects, a canonical resolved-profile result, capabilities, diagnostics, and next actions."></a>
+          <figcaption>
+            <strong>5. Machine integration—contract implemented, transports planned.</strong>
+            <p>Headless clients consume the same typed facts as humans. They never scrape terminal prose or gain authority merely by choosing a transport.</p>
+            <ol class="walkthrough-callouts"><li><strong>Opaque request.</strong> API, MCP, and headless CLI remain projections over shared operations, without raw repository identity.</li><li><strong>Typed result.</strong> Stable status, side-effect truth, schema ID, canonical hash, diagnostics, and next actions are explicit.</li><li><strong>Transport is not trust.</strong> Using an API or MCP endpoint does not grant repository, provider, or publishing authority.</li></ol>
+          </figcaption>
+        </figure>
+      </div>
+
+      <h3>Static walkthrough transcript</h3>
+      <ol class="walkthrough-transcript">
+        <li><strong>Inspect:</strong> deterministic repository evidence selects the golden .NET, Arc, Chronicle, React, and Components stack; no model is involved.</li>
+        <li><strong>Preflight:</strong> the developer reviews an exact clean revision, pinned workflow, policy, phase ownership, gates, and zero side effects.</li>
+        <li><strong>Run blocked:</strong> #64 contract evidence is accepted, but dispatch waits for #65 provider/privacy authority and #66 repository-broker authority.</li>
+        <li><strong>Studio concept:</strong> a future review surface connects intent, immutable Screenplay modeling, golden-stack implications, evidence, unresolved decisions, and narrowly scoped approval.</li>
+        <li><strong>Machine contract:</strong> typed requests and operation results serve headless clients; API and MCP remain planned transports and do not create authority.</li>
+      </ol>
+
+      <details class="walkthrough-gif">
+        <summary>Optional animated adoption tour and download</summary>
+        <div>
+          <p>The GIF is a secondary convenience: five frames at two seconds each, with no infinite loop. The annotated static figures and transcript above are the authoritative accessible walkthrough.</p>
+          <img src="CRATIS_FACTORY_PLAN.assets/adoption-tour.gif" width="1440" height="900" loading="lazy" alt="Ten-second, non-looping animation of five conceptual Cratis Factory screens: implemented inspection, implemented preflight, a blocked planned run, planned Studio review, and implemented contract semantics over a planned machine transport.">
+          <a href="CRATIS_FACTORY_PLAN.assets/adoption-tour.gif" download>Download adoption-tour.gif</a>
+        </div>
+      </details>
+      <p class="back"><a href="#top">Back to top</a></p>
+    </section>
+
+    <section id="experience" aria-labelledby="experience-heading">
+      <p class="eyebrow">How it should be used</p>
+      <h2 id="experience-heading">Human and machine experience</h2>
+
+      <h3>Developer journey</h3>
+      <ol>
+        <li><strong>Install:</strong> obtain a signed standalone executable with checksum, SBOM, provenance, atomic update, and rollback.</li>
+        <li><strong>Inspect:</strong> point Factory at a repository and receive detected products, clients, versions, repository mode, selected profiles, exclusions, ambiguity, and next action.</li>
+        <li><strong>Narrow:</strong> optionally add <code>.cratis/factory.json</code> to restrict profiles, pin workflow versions, or deny capabilities. The manifest can narrow authority, never invent or expand it.</li>
+        <li><strong>Preflight:</strong> bind the exact clean Git revision, target, policy, workflow, agents, capabilities, budgets, gates, approvals, inputs, outputs, and expected side effects—without a model or mutation.</li>
+        <li><strong>Run:</strong> prepare a protected workspace, verify receipts, resolve provider authority, prepare a bounded read bundle, execute declared phases, record typed events, and run deterministic gates.</li>
+        <li><strong>Review and correct:</strong> inspect schemas, build/test evidence, independent reviews, browser evidence, costs, privacy classification, and proposed changes. Repairable failures create bounded new attempts.</li>
+        <li><strong>Approve and publish:</strong> allow trusted code—not the agent—to checkpoint, commit, create a branch, or open a pull request under explicit authority.</li>
+        <li><strong>Resume:</strong> recover safely across worker crashes, restarts, delayed approvals, provider outages, or lease expiration.</li>
+      </ol>
+
+      <h3>Preflight binds</h3>
+      <div class="grid">
+        <div class="card"><h4>Repository</h4><p>Exact clean revision, target path, repository mode, and resolved profile composition.</p></div>
+        <div class="card"><h4>Authority</h4><p>Baseline/effective policy, capability grants, provider requirements, and approvals.</p></div>
+        <div class="card"><h4>Workflow</h4><p>Exact workflow ID, version, hash, phases, selected agents, budgets, gates, and schemas.</p></div>
+        <div class="card"><h4>Effects</h4><p>Expected reads, writes, network use, artifacts, mutations, and publishing actions.</p></div>
+      </div>
+
+      <h3>Machine protocol</h3>
+      <p>Machines receive versioned requests, canonical JSON results, ordered JSONL events, stable operation names, diagnostic codes, explicit capability grants, artifact references, idempotency keys, and replay rules. They never parse prose to determine whether to retry, request approval, or stop.</p>
+      <div class="table-wrap">
+        <table>
+          <caption>Stable operation statuses</caption>
+          <thead><tr><th scope="col">Status</th><th scope="col">Exit</th><th scope="col">Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>success</code></td><td>0</td><td>Operation completed.</td></tr>
+            <tr><td><code>invocation-error</code></td><td>2</td><td>Caller used the interface incorrectly.</td></tr>
+            <tr><td><code>blocked</code></td><td>3</td><td>Required state or authority is unavailable.</td></tr>
+            <tr><td><code>invalid</code></td><td>4</td><td>Input or definition is invalid.</td></tr>
+            <tr><td><code>integrity-error</code></td><td>5</td><td>Integrity, provenance, or deterministic verification failed.</td></tr>
+            <tr><td><code>approval-required</code></td><td>6</td><td>A human decision is required.</td></tr>
+            <tr><td><code>denied</code></td><td>7</td><td>Policy forbids the operation.</td></tr>
+            <tr><td><code>unexpected</code></td><td>70</td><td>Internal failure reported without leaking private details.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Interfaces</h3>
+      <dl>
+        <dt>CLI</dt><dd>Shell and local-agent interface for inspection, preflight, run control, status, events, approval, cancellation, explanation, and verification. Final public command syntax is not frozen.</dd>
+        <dt>API</dt><dd>Authenticated, tenant-aware, idempotent, versioned, event-and-receipt-based integration for Planner, Studio, and services. Raw filesystem paths are excluded.</dd>
+        <dt>MCP</dt><dd>A transport over the same operations: inspect, explain resolution, preflight, get status/evidence, propose an approval, and read authorized bundle chunks. It is not a second policy engine.</dd>
+        <dt>Studio</dt><dd>A visual projection of the same contracts and events, never a terminal-output scraper.</dd>
+        <dt>Other agents</dt><dd>Codex, Copilot, Pi, and other clients can inspect repositories, request workflows, consume typed blockers, follow next actions, and submit typed results.</dd>
+      </dl>
+    </section>
+
+    <section id="ecosystem" aria-labelledby="ecosystem-heading">
+      <p class="eyebrow">Cratis intelligence</p>
+      <h2 id="ecosystem-heading">Ecosystem discovery and specialization</h2>
+      <p>Resolution composes purpose, repository mode, Cratis products, language ecosystem, Chronicle client, React/UI surfaces, package versions, analyzers, target path, policy, and manifest narrowing. It learns what is present and what must not be inferred.</p>
+
+      <h3>Current profile coverage</h3>
+      <div class="grid">
+        <div class="card">
+          <h4>Application profiles</h4>
+          <ul><li>Arc .NET</li><li>Arc React</li><li>Chronicle .NET</li><li>Cratis Components consumption</li><li>Chronicle TypeScript</li><li>Chronicle JVM</li><li>Chronicle Elixir</li></ul>
+        </div>
+        <div class="card">
+          <h4>Framework profiles</h4>
+          <ul><li>Arc</li><li>Components</li><li>Chronicle</li><li>Chronicle TypeScript client</li><li>Chronicle JVM client</li><li>Chronicle Elixir client</li></ul>
+        </div>
+        <div class="card">
+          <h4>Golden aggregate</h4>
+          <p>Explicit Cratis .NET + React stack combining the core patterns and dependency barriers needed for a complete vertical slice.</p>
+        </div>
+      </div>
+
+      <h3>Negative knowledge</h3>
+      <ul>
+        <li>React only; do not invent Angular support.</li>
+        <li>Arc.Core does not imply Chronicle.</li>
+        <li>Components has no direct Chronicle dependency.</li>
+        <li>React alone does not imply Cratis Components.</li>
+        <li>Arc.React.MVVM does not imply a backend, Chronicle, Components, Screenplay, or generated proxies.</li>
+        <li>A runtime package does not prove its analyzer is enabled.</li>
+        <li>Placeholder source versions such as <code>1.0.0</code> may not be published package versions.</li>
+        <li>Generated <code>obj</code>, <code>bin</code>, and <code>dist</code> manifests are not product truth.</li>
+        <li>Framework repositories must not receive application vertical-slice conventions.</li>
+        <li>A passing build does not prove UI behavior.</li>
+        <li>A property named or typed <code>Subject</code> is not automatically safe identity metadata.</li>
+      </ul>
+
+      <section id="arc-integration" aria-labelledby="arc-integration-heading">
+        <h3 id="arc-integration-heading">Arc integration</h3>
+        <p>Factory knowledge covers model-bound <code>[Command]</code> classes and <code>Handle()</code>, optional <code>Provide()</code> flows, model-bound <code>[ReadModel]</code> query methods, query return shapes, Concepts, validation, AOT query metadata, proxy generation, analyzers, authorization roles, React query/command integration, MVVM, Vite metadata, and generated-file boundaries.</p>
+        <p>For consuming applications, proxy generation is a workflow dependency: Debug builds may generate output at a configured path; generated files carry a marker and must not be edited; frontend work may depend on backend generation; Release should avoid a second unwanted generation pass; and generated APIs use the React packages.</p>
+      </section>
+
+      <section id="chronicle-integration" aria-labelledby="chronicle-integration-heading">
+        <h3 id="chronicle-integration-heading">Chronicle integration</h3>
+        <p>Knowledge covers events, event types, event sources and Subjects, aggregates, projections, reactors, reducers, event migrations, tenancy, event-log access, once-only behavior, read models, client-specific APIs, and privacy-sensitive identity handling.</p>
+        <p>Profiles exist for .NET, TypeScript, JVM, and Elixir. Non-.NET profiles are primarily discovery profiles today; specialist agents, native specifications, compatibility matrices, real fixtures, and packaging gates remain planned.</p>
+        <p>A Chronicle <code>Subject</code> is a domain or event-stream identifier. It is not automatically a safe telemetry identity, approval actor, read-model subject rule, or privacy-safe user reference. Durable Factory approvals use opaque run-scoped actor references.</p>
+      </section>
+
+      <section id="components-integration" aria-labelledby="components-integration-heading">
+        <h3 id="components-integration-heading">Cratis Components integration</h3>
+        <p>Components is recognized as a React framework library through <code>@cratis/components</code>, React peers, PrimeReact, Arc React, Storybook, component source layout, Vitest/BDD tests, public subpath exports, and styling tokens. Framework-library workflows are used in the Components repository.</p>
+        <p>Planned specialists include component development, Arc integration review, TypeScript BDD, Storybook visual/accessibility review, packaging/public API review, ESLint plugin development, documentation contracts, and performance for Pixi, DataTables, and other large surfaces.</p>
+      </section>
+
+      <section id="screenplay-stage" aria-labelledby="screenplay-stage-heading">
+        <h3 id="screenplay-stage-heading">Screenplay and Stage</h3>
+        <p>Screenplay provides a model-first structure for intent; Stage renders accepted models deterministically. Agents help discover and propose intent, but the accepted proposal compiles into deterministic artifacts and gates.</p>
+        <div class="pipeline" aria-label="Golden Screenplay and Stage workflow">
+          <span>Intent</span><b aria-hidden="true">→</b><span>Collaborative modeling</span><b aria-hidden="true">→</b><span>Screenplay proposal</span><b aria-hidden="true">→</b><span>Validation</span><b aria-hidden="true">→</b><span>Human acceptance</span><b aria-hidden="true">→</b><span>Stage rendering</span><b aria-hidden="true">→</b><span>Implementation</span><b aria-hidden="true">→</b><span>Verification</span><b aria-hidden="true">→</b><span>PR proposal</span>
+        </div>
+      </section>
+    </section>
+
+    <section id="tooling" aria-labelledby="tooling-heading">
+      <p class="eyebrow">Integration model</p>
+      <h2 id="tooling-heading">Tools, harnesses, Planner, and Studio</h2>
+
+      <h3>Pi as a bounded reasoning adapter</h3>
+      <p>Pi is useful for a composable coding-agent loop and programmatic sessions, but it does not own Factory authority. Its ordinary filesystem, search, shell, network, extension, discovery, and binary-acquisition surfaces are too broad for the governed runtime.</p>
+      <p>A future <code>factory-pi</code> adapter will create an in-memory session, disable default broad tools, use a strict resource loader, deliver only authorized classified artifacts, expose only broker-backed tools, emit typed events, and submit a typed phase result.</p>
+      <pre aria-label="Permitted Pi adapter tools">factory.bundle.metadata
+factory.bundle.search
+factory.bundle.readChunk
+factory.result.submit</pre>
+      <p>There is no general file read, recursive search, shell, or repository-global search. The preferred strategy is to compose upstream Pi first and fork only if measured security or isolation requirements cannot be met through supported seams.</p>
+
+      <h3>Planner control plane</h3>
+      <p>Planner will own runs, workflow instances, phases, attempts, leases, idempotency, corrections, approvals, cancellation, replay prevention, evidence and artifact references, provider authorization, broker grants, deletion obligations, and worker recovery.</p>
+      <details>
+        <summary>Representative durable events</summary>
+        <div>
+          <p>Run requested; preflight accepted; phase scheduled; attempt created; provider authorization requested, resolved, or revoked; repository bundle requested, prepared, or denied; artifact sanitized; agent session started; gate completed; approval requested, accepted, or denied; correction requested; phase result accepted or rejected; replay rejected; deletion requested, confirmed, or overdue; run completed, cancelled, or failed.</p>
+          <p>Planner stores sanitized facts and opaque references—not raw prompts, transcripts, secrets, or source bytes.</p>
+        </div>
+      </details>
+
+      <h3>Studio experience</h3>
+      <p>Studio will show intent, detected ecosystem, selected and excluded profiles, Screenplay proposals, the phase graph, current attempt, model/provider choice, region and privacy policy, bundle scope, classification, budgets, evidence, gate results, proposed diff, approval scope, side-effect preview, and recovery choices.</p>
+      <p>Accessibility is a product requirement: keyboard-complete flows, correct focus management, meaningful screen-reader status, no color-only meaning, no hidden essential information, understandable approvals, and concrete next actions. Headless clients remain equally capable.</p>
+
+      <h3>Deterministic tool composition</h3>
+      <div class="table-wrap">
+        <table>
+          <caption>Tool integrations selected from repository evidence</caption>
+          <thead><tr><th scope="col">Area</th><th scope="col">Tools and gates</th><th scope="col">Why</th></tr></thead>
+          <tbody>
+            <tr><td>.NET / Arc</td><td><code>dotnet build</code>, <code>dotnet test</code>, Arc and Chronicle analyzers, proxy generation, package inspection, public API checks</td><td>Compile, verify framework conventions, and produce generated clients deterministically.</td></tr>
+            <tr><td>React / Components</td><td>Immutable Yarn install, TypeScript, ESLint, Vitest, Storybook, interaction/browser tests, accessibility, visual regression, tarball consumer smoke</td><td>Compilation alone does not prove package shape, interactions, visuals, or accessibility.</td></tr>
+            <tr><td>Chronicle clients</td><td>Client-native builds/tests, package-manager verification, version resolution, integration fixtures</td><td>Each language needs native evidence and real API compatibility.</td></tr>
+            <tr><td>Cratis CLI</td><td>Existing deterministic commands, capability metadata, declared effects and confirmations</td><td>Expose stable domain capabilities without embedding an agent runtime.</td></tr>
+            <tr><td>Git</td><td>Attested executable, minimal environment, neutralized configuration and helpers, clean exact revision, no followed links</td><td>Treat Git configuration, hooks, credentials, replacements, and paths as authority boundaries.</td></tr>
+            <tr><td>Browser / UI</td><td>Behavioral automation, keyboard/focus tests, accessibility, screen evidence, generated-proxy compatibility</td><td>Verify visible behavior and user paths rather than only source shape.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="security" aria-labelledby="security-heading">
+      <p class="eyebrow">Governance</p>
+      <h2 id="security-heading">Security, privacy, and capability boundaries</h2>
+      <p>A provider call or repository read requires trusted authority bound to the exact run, phase, attempt, inputs, policy, and audience. Valid JSON and valid hashes are necessary but insufficient.</p>
+
+      <h3>Provider and privacy authorization</h3>
+      <p>A signed routing authorization will bind the run, phase attempt, harness request, tenant reference, purpose, effective classification, data categories, provider, model, endpoint class, region, retention, deletion deadline, training and product-improvement terms, human review, secondary use, abuse monitoring, effective policy, approval, validity window, nonce, issuer, key, and signature.</p>
+      <p>Before every dispatch, the worker verifies signature and trust root, policy revision, audience, tenant/run/attempt/request equality, time and revocation, exact route and classification, data-use settings, and remaining quotas. Provider failover can select only another already-authorized route.</p>
+      <p>Operational readiness also requires DPA and subprocessor review, residency and transfer decisions, training and review terms, abuse-log handling, backup retention, deletion evidence, incident notification, lawful basis, erasure/DSAR processes, and tenant-specific restrictions.</p>
+
+      <h3>Repository capability broker</h3>
+      <p><code>read-repository</code> will mean access to an immutable, bounded bundle—not permission for a model to search the workspace. Intended operations are <code>PrepareReadBundle</code>, <code>GetBundleMetadata</code>, <code>SearchBundle</code>, <code>ReadBundleChunk</code>, and <code>CloseBundle</code>.</p>
+      <p>A signed grant binds the exact revision/tree, enumerated files or immutable manifest, scanner and policy rules, classification ceiling, transformations, quotas, exclusions, validity, revocation, run/phase/request, issuer, and signature.</p>
+      <p>The broker rejects absolute paths, traversal, escaping symlinks, submodule indirection, special files, mutable references, <code>.git</code>, credentials, oversized content, unsupported binaries, archive bombs, and hash mismatches. Scanning happens before any model-visible byte. A request for more data triggers a new policy decision; it cannot widen an existing bundle.</p>
+
+      <h3>Implemented Stage-0 controls</h3>
+      <ul>
+        <li>No model calls, network calls, or agent source mutation.</li>
+        <li>Write, network, and secret scopes blocked; repository read is explicit.</li>
+        <li>Trusted Git boundary and clean-revision preflight.</li>
+        <li>Output hard-link and symlink protection; clone-independent semantic request hashes.</li>
+        <li>Path-opaque errors and redaction of unsafe dependency references and sensitive synthetic package identifiers.</li>
+        <li>C0/C1 and bidirectional control rejection; bounded durable text.</li>
+        <li>Classified artifact references rather than raw failure prose; opaque run-scoped approval actors.</li>
+        <li>Exact side-effect reporting, typed policy denial, exact workflow pinning, agent/provider coherence, and JavaScript-safe numeric limits.</li>
+      </ul>
+
+      <h3>Promotion gates for live agent execution</h3>
+      <ul>
+        <li>Provenance-bound inputs in issue #64 are dispatch-ready.</li>
+        <li>Provider authority in issue #65 is accepted and operational trust roots exist.</li>
+        <li>The repository broker in issue #66 is accepted.</li>
+        <li>Strict harness tools, run authority, and replay prevention are implemented.</li>
+        <li>Prompt-injection, privacy, secret-leakage, and historical baseline evaluations pass.</li>
+      </ul>
+    </section>
+
+    <section id="contracts" aria-labelledby="contracts-heading">
+      <p class="eyebrow">Typed foundation</p>
+      <h2 id="contracts-heading">Contracts, artifacts, provenance, and context</h2>
+
+      <h3>Stable v1 foundation</h3>
+      <p>Contracts cover objectives, repository snapshots, profiles and resolved profiles, workflows, policies, capabilities, compiled workflows, harness requests and events, phase envelopes, investigation results, gate reports, approvals, Chronicle read grants, diagnostics, next actions, operation results, and evaluation catalogs/results.</p>
+
+      <h3>Accepted v2 Phase-A primitives</h3>
+      <ul>
+        <li><strong>Artifact descriptor:</strong> opaque content-addressed reference, hash, size, media type, exact schema and schema-closure hash, and classification.</li>
+        <li><strong>Artifact receipt:</strong> descriptor, security domain, immutable generation, retention, issuer/key, signature, and receipt hash—without paths, URLs, customer names, or credentials.</li>
+        <li><strong>Sanitization attestation:</strong> source and delivered artifacts, ruleset, sanitizer version/hash, output schema, classification transition, attempt, audience, expiry, issuer, and signature.</li>
+        <li><strong>Artifact provenance and run input set:</strong> bind authorized inputs to the exact run and attempt.</li>
+        <li><strong>Server-issued phase envelope:</strong> carries authority chosen by trusted control-plane code.</li>
+        <li><strong>Minimal agent context:</strong> exposes only allowlisted, workflow-relevant identifiers and hashes.</li>
+        <li><strong>Canonical example chain:</strong> seven related documents prove the contract relationships and integrity verification.</li>
+      </ul>
+      <p>JSON artifacts use canonical JSON for hashing; other media types hash exact stored bytes. Even pass-through sanitization requires a trusted attestation.</p>
+
+      <h3>Agent context allowlist</h3>
+      <p>The agent receives the resolved-profile hash; repository mode and target; selected profile IDs, versions, and hashes; selected skill IDs and hashes; capability IDs; workflow ID, version, and hash; phase purpose; agent-definition hash; and generator/allowlist hashes.</p>
+      <p>It does not receive raw resolver evidence, match/rejection reasons, warnings, manifest content, remotes, repository identity, arbitrary prose, or package-version details unless a separately authorized artifact is required for the task.</p>
+    </section>
+
+    <section id="evaluations" aria-labelledby="evaluations-heading">
+      <p class="eyebrow">Evidence over impressions</p>
+      <h2 id="evaluations-heading">Evaluation, CI, and governance</h2>
+      <p>The Factory is evaluated as a system. A response looking plausible is not evidence that discovery, authority, repository access, Cratis semantics, or side effects were correct.</p>
+
+      <h3>Current evidence</h3>
+      <ul>
+        <li>40 reviewed catalog cases, with 10 executable deterministic cases.</li>
+        <li>Evaluator result: 10/10, with authoritative operation reruns and authority verification.</li>
+        <li>Exact fixture hashes, type-aware JSON assertions, clean-checkout fixtures, and symlink/TOCTOU protections.</li>
+        <li>Honest coverage reporting: 10 executable cases do not imply all 40 catalog cases or agent execution are complete.</li>
+        <li>Issue #64 Phase A: 19/19 focused and 256/256 full tests, independently accepted.</li>
+      </ul>
+
+      <h3>Evaluation classes</h3>
+      <div class="grid">
+        <div class="card"><h4>Ecosystem intelligence</h4><p>Product/client detection, profile composition, versions, repository mode, negative selection, and no invented Angular or Chronicle implications.</p></div>
+        <div class="card"><h4>Security</h4><p>Traversal, links, submodules, special files, secrets, PII, prompt injection, substitution, replay, authorization tampering, expiry, revocation, and quota bypass.</p></div>
+        <div class="card"><h4>Agent quality</h4><p>Correct Cratis APIs and patterns, event modeling, Arc/Chronicle semantics, React/Components use, tests, review findings, and correction effectiveness.</p></div>
+        <div class="card"><h4>Multi-harness</h4><p>Run the same tasks through Pi, single-agent baselines, supported harnesses/providers, and historical stable revisions.</p></div>
+        <div class="card"><h4>Human studies</h4><p>Time to understand and verify, approval comprehension, correction, recovery, trust, abandonment, keyboard access, and screen-reader accessibility.</p></div>
+      </div>
+
+      <h3>CI and change governance</h3>
+      <p>The foundation includes dedicated GitHub Actions, pinned Python dependency closure, schema validation, unit tests, evaluation with authoritative verification, Python compilation, diff checking, fixture-output rejection, AI-corpus drift detection, CODEOWNERS, documentation validation, and clean-checkout verification.</p>
+      <p>Seven inherited AI-corpus failures remain explicitly baselined debt in issue #63. Security-sensitive slices use separate implementation and adversarial review, reproduce findings, fix high-severity issues, re-review, run full and clean-copy gates, and update the owning issue with exact evidence.</p>
+    </section>
+
+    <section id="distribution" aria-labelledby="distribution-heading">
+      <p class="eyebrow">Delivery</p>
+      <h2 id="distribution-heading">Installation, distribution, and install.md</h2>
+      <p><span class="status planned">Planned</span> The target is a signed standalone <code>cratis-factory</code> executable with OS/architecture assets, immutable releases, SHA-256 manifests, SBOM, build provenance, atomic installation/update, rollback, offline documentation, and readiness diagnostics.</p>
+      <p>The current implementation remains a development foundation in the AI repository: Python scripts, pinned dependencies, JSON Schemas, fixtures, tests, documentation, and GitHub Actions. It is not yet a finished installable product.</p>
+      <h3>install.md boundary</h3>
+      <p>An <code>install.md</code> pilot can serve as a public onboarding guide, ordered MCP-readable instructions, and a way to measure onboarding friction. It cannot be the source of truth, binary distribution mechanism, policy authority, success verifier, private-repository index, prompt/evidence sink, or mandatory hosted dependency. The pilot uses only public content and an immutable public fixture; AI remains canonical and generates hosted and static forms.</p>
+    </section>
+
+    <section id="roadmap" aria-labelledby="roadmap-heading">
+      <p class="eyebrow">Sequenced delivery</p>
+      <h2 id="roadmap-heading">Roadmap and promotion gates</h2>
+
+      <div class="grid">
+        <div class="card">
+          <span class="status accepted">Accepted</span>
+          <h3>Stage 0 — deterministic foundation</h3>
+          <p>Contracts, resolver, compiler, preflight, evaluations, trusted Git, policy-aware results, privacy protections, and Phase-A provenance contracts. No model execution.</p>
+        </div>
+        <div class="card">
+          <span class="status accepted">Phase A accepted</span><span class="status planned">Phase B planned</span>
+          <h3>Stage 1A — provenance (#64)</h3>
+          <p>Phase A has passed all recorded gates. Phase B will connect exact provenance-bound inputs to compiler, workflow, and dispatch behavior.</p>
+        </div>
+        <div class="card">
+          <span class="status planned">Planned</span>
+          <h3>Stage 1B — provider authority (#65)</h3>
+          <p>Build signed routing authorization, policy vectors, trust-root operation, deletion evidence, and legal/provider readiness before any real provider call.</p>
+        </div>
+        <div class="card">
+          <span class="status planned">Planned</span>
+          <h3>Stage 1C — repository broker (#66)</h3>
+          <p>Begin with fixture-only exact-file bundles, no globbing/model/network, bounded chunks, and deterministic scanner fixtures; add bundle search later.</p>
+        </div>
+        <div class="card">
+          <span class="status blocked">Gated</span>
+          <h3>Stage 1D — Pi shadow pilot</h3>
+          <p>Read-only investigation in a disposable workspace, network off, default broad Pi tools disabled, no production Chronicle data, no publishing, full audit, and a kill switch.</p>
+        </div>
+        <div class="card">
+          <span class="status planned">Planned</span>
+          <h3>Stage 2 — golden stack</h3>
+          <p>A .NET + Arc + Chronicle + React + Components path from intent and Screenplay through deterministic Stage output, implementation, tests, proxies, UI, reviews, and PR proposal.</p>
+        </div>
+        <div class="card">
+          <span class="status planned">Planned</span>
+          <h3>Stage 3 — Planner and Studio</h3>
+          <p>Durable runs and resume, managed workers, evidence and costs, approvals, proposal/diff review, and multi-agent corrections.</p>
+        </div>
+        <div class="card">
+          <span class="status planned">Planned</span>
+          <h3>Stage 4 — bounded writes and expansion</h3>
+          <p>Trusted commit/PR creation, more workflows, JVM/Elixir/TypeScript specialists, framework maintenance, packaging/releases, and much later narrowly governed deployment authority.</p>
+        </div>
+      </div>
+
+      <h3>Public release gates</h3>
+      <ul>
+        <li>Signed installation, update, and rollback work in clean environments.</li>
+        <li>Compatibility and historical baseline evidence are recorded.</li>
+        <li>A five-developer study passes, including developers unfamiliar with Cratis, novice/expert paths, approval comprehension, failure recovery, and keyboard-only use.</li>
+        <li>Accessibility evidence, incident procedures, deletion procedures, and legal/provider approval exist.</li>
+        <li>No release-gating P0 or P1 issue remains open.</li>
+      </ul>
+    </section>
+
+    <section id="current-vs-planned" aria-labelledby="current-vs-planned-heading">
+      <p class="eyebrow">Scope boundary</p>
+      <h2 id="current-vs-planned-heading">Current versus planned capability</h2>
+      <div class="table-wrap">
+        <table>
+          <caption>Product capability snapshot</caption>
+          <thead><tr><th scope="col">Capability</th><th scope="col">Today</th><th scope="col">Target</th></tr></thead>
+          <tbody>
+            <tr><td>Repository understanding</td><td>Deterministic discovery, 14 profiles, summary/explain/trace.</td><td>Broader fixtures, version matrices, and client-specialist packs.</td></tr>
+            <tr><td>Workflow planning</td><td>Compilation and no-model preflight.</td><td>Durable execution, corrections, approvals, and replay-safe resume.</td></tr>
+            <tr><td>Agent execution</td><td>Not enabled.</td><td>Strict broker-backed Pi and other adapters.</td></tr>
+            <tr><td>Provenance</td><td>Issue #64 Phase A accepted; v2 primitives and verification established.</td><td>Phase B dispatch integration and rejection of legacy authority.</td></tr>
+            <tr><td>Repository access</td><td>Explicit deterministic read capability and hardened Git inspection.</td><td>Signed immutable read bundles with scanning, sanitization, and quotas.</td></tr>
+            <tr><td>Provider access</td><td>No model/provider calls.</td><td>Signed provider/privacy authorizations verified before each dispatch.</td></tr>
+            <tr><td>Publishing</td><td>No agent commits or PRs.</td><td>Explicitly approved trusted publisher with truthful side-effect receipts.</td></tr>
+            <tr><td>Interfaces</td><td>Development CLI/scripts and typed operation contracts.</td><td>Standalone CLI, API, MCP, Planner, and Studio using shared semantics.</td></tr>
+            <tr><td>Distribution</td><td>Repository-based Python foundation.</td><td>Signed standalone executable, SBOM, provenance, update, and rollback.</td></tr>
+            <tr><td>Evidence</td><td>10/10 executable evaluator cases; focused/full test gates and CI.</td><td>Security, multi-harness, historical, usability, and accessibility baselines.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="issues" aria-labelledby="issues-heading">
+      <p class="eyebrow">Program map</p>
+      <h2 id="issues-heading">Issues and workstreams</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Foundation</h3>
+          <ul>
+            <li><a href="https://github.com/Cratis/AI/issues/47">#47 — deterministic compiler and preflight</a></li>
+            <li><a href="https://github.com/Cratis/AI/issues/48">#48 — ecosystem discovery and routing</a></li>
+            <li><a href="https://github.com/Cratis/AI/issues/49">#49 — contracts and evaluations</a></li>
+            <li><a href="https://github.com/Cratis/AI/issues/50">#50 — ecosystem intelligence</a></li>
+            <li><a href="https://github.com/Cratis/AI/issues/60">#60 — human and machine experience</a></li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Runtime and security</h3>
+          <ul>
+            <li><a href="https://github.com/Cratis/AI/issues/51">#51 — worker and Pi adapter boundary</a></li>
+            <li><a href="https://github.com/Cratis/AI/issues/52">#52 — security, policy, PII, and evidence</a></li>
+            <li><a href="https://github.com/Cratis/AI/issues/64">#64 — provenance-bound phase inputs</a></li>
+            <li><a href="https://github.com/Cratis/AI/issues/65">#65 — provider and privacy authority</a></li>
+            <li><a href="https://github.com/Cratis/AI/issues/66">#66 — scoped repository broker</a></li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Product stages</h3>
+          <ul>
+            <li><a href="https://github.com/Cratis/AI/issues/54">#54 — read-only Pi pilot</a></li>
+            <li><a href="https://github.com/Cratis/AI/issues/55">#55 — golden Cratis stack</a></li>
+            <li><a href="https://github.com/Cratis/AI/issues/56">#56 — managed dual harness</a></li>
+            <li><a href="https://github.com/Cratis/AI/issues/53">#53 — Planner control plane</a></li>
+            <li><a href="https://github.com/Cratis/AI/issues/57">#57 — Studio proposals and review</a></li>
+            <li><a href="https://github.com/Cratis/AI/issues/58">#58 — bounded expansion</a></li>
+            <li><a href="https://github.com/Cratis/AI/issues/62">#62 — signed standalone distribution</a></li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Program</h3>
+          <ul>
+            <li><a href="https://github.com/Cratis/AI/issues/59">#59 — overall epic</a></li>
+            <li><a href="https://github.com/Cratis/AI/issues/61">#61 — optional install.md pilot</a></li>
+            <li><a href="https://github.com/Cratis/AI/issues/63">#63 — inherited documentation/corpus debt</a></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="end-state" aria-labelledby="end-state-heading">
+      <p class="eyebrow">Strategic outcome</p>
+      <h2 id="end-state-heading">The compounding advantage</h2>
+      <p>The moat is not the number of agents. It is the combination of Cratis ecosystem intelligence, Screenplay semantics, deterministic Stage rendering, Arc and Chronicle analyzers, real build/test/runtime evidence, versioned workflows and contracts, governed artifact/provider authority, human-understandable control, harness independence, and evaluations drawn from real Cratis repositories.</p>
+      <p>Knowledge learned once can improve CLI and Studio users, Pi and other harnesses, CI, Java/Kotlin and Elixir clients, React applications, and framework maintainers without being trapped inside one prompt or model.</p>
+      <blockquote>A developer describes intent at the level they naturally understand. Cratis Factory discovers the real system, selects the right specialists, models the change, produces deterministic artifacts, implements and verifies it in a governed environment, explains every decision, and asks the human only for decisions that genuinely require human authority.</blockquote>
+      <p class="back"><a href="#top">Back to top</a></p>
+    </section>
+  </main>
+
+  <footer>
+    <p><strong>Cratis Factory plan.</strong> This document intentionally labels planned capabilities and does not imply that agent execution, provider access, repository brokerage, publishing, or public distribution is available before its promotion gates pass.</p>
+  </footer>
+  <script>
+    (() => {
+      const gallery = document.querySelector('#adoption-slideshow');
+      if (!gallery) return;
+      const slides = [...gallery.querySelectorAll('[data-walkthrough-slide]')];
+      const button = action => gallery.querySelector(`[data-walkthrough-action="${action}"]`);
+      const position = gallery.querySelector('[data-walkthrough-position]');
+      const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      let index = 0;
+      let timer;
+      const show = next => {
+        index = (next + slides.length) % slides.length;
+        slides.forEach((slide, item) => { slide.hidden = item !== index; });
+        position.textContent = `Slide ${index + 1} of ${slides.length}: ${slides[index].querySelector('figcaption strong').textContent}`;
+      };
+      const pause = () => {
+        clearInterval(timer);
+        timer = undefined;
+        button('play').disabled = reduceMotion;
+        button('pause').disabled = true;
+      };
+      const play = () => {
+        if (reduceMotion || timer) return;
+        button('play').disabled = true;
+        button('pause').disabled = false;
+        timer = setInterval(() => {
+          if (index === slides.length - 1) return pause();
+          show(index + 1);
+        }, 2000);
+      };
+      gallery.classList.add('walkthrough-enhanced');
+      gallery.tabIndex = 0;
+      button('previous').addEventListener('click', () => { pause(); show(index - 1); });
+      button('next').addEventListener('click', () => { pause(); show(index + 1); });
+      button('play').addEventListener('click', play);
+      button('pause').addEventListener('click', pause);
+      gallery.addEventListener('keydown', event => {
+        if (event.target.matches('button, a')) return;
+        if (event.key === 'ArrowLeft') { event.preventDefault(); pause(); show(index - 1); }
+        if (event.key === 'ArrowRight') { event.preventDefault(); pause(); show(index + 1); }
+        if (event.key === ' ') { event.preventDefault(); timer ? pause() : play(); }
+      });
+      if (reduceMotion) {
+        button('play').disabled = true;
+        button('play').title = 'Timed playback is disabled by your reduced-motion preference';
+      }
+      show(0);
+    })();
+  </script>
+</body>
+</html>
