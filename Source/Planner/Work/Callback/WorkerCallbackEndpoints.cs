@@ -1,6 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Planner.Identity;
 using Planner.Work.Completing;
 using Planner.Work.CompletingInvestigation;
 using Planner.Work.Failing;
@@ -64,6 +65,11 @@ public static class WorkerCallbackEndpoints
             {
                 return Results.Unauthorized();
             }
+
+            // The per-work bearer token above is the container's real credential - establish the
+            // trusted principal Arc's authorization reads for the rest of this request immediately
+            // after it passes, and before any of the commands below.
+            request.HttpContext.EstablishAsVerified();
 
             var work = await eventStore.ReadModels.GetInstanceById<WorkItem>((EventSourceId)id);
             if (work is null)

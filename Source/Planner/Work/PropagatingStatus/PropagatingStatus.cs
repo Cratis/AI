@@ -1,6 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.Arc.Authorization;
 using Planner.Issues;
 using Planner.Issues.AssociatingPullRequest;
 using Planner.Issues.ChangingStatus;
@@ -21,7 +22,8 @@ namespace Planner.Work.PropagatingStatus;
 /// </summary>
 /// <param name="eventStore">The <see cref="IEventStore"/> for reading the work's read model.</param>
 /// <param name="commandPipeline">The <see cref="ICommandPipeline"/> for executing commands.</param>
-public class WorkStatusPropagation(IEventStore eventStore, ICommandPipeline commandPipeline) : IReactor
+/// <param name="systemExecution">The <see cref="ISystemExecution"/> the commands below run as - a reactor has no HTTP request behind it.</param>
+public class WorkStatusPropagation(IEventStore eventStore, ICommandPipeline commandPipeline, ISystemExecution systemExecution) : IReactor
 {
     /// <summary>
     /// Puts every covered issue in progress when work starts.
@@ -31,6 +33,7 @@ public class WorkStatusPropagation(IEventStore eventStore, ICommandPipeline comm
     /// <returns>Awaitable task.</returns>
     public async Task On(WorkStarted @event, EventContext context)
     {
+        using var scope = systemExecution.AsSystem();
         foreach (var issue in await CoveredIssues(context))
         {
             await commandPipeline.Execute(new ChangeIssueStatus(issue, IssueStatus.InProgress));
@@ -47,6 +50,7 @@ public class WorkStatusPropagation(IEventStore eventStore, ICommandPipeline comm
     public async Task On(WorkCompleted @event, EventContext context)
     {
         var hasPullRequest = @event.PullRequest != PullRequestNumber.NotSet;
+        using var scope = systemExecution.AsSystem();
         foreach (var issue in await CoveredIssues(context))
         {
             if (hasPullRequest)
@@ -71,6 +75,7 @@ public class WorkStatusPropagation(IEventStore eventStore, ICommandPipeline comm
     /// <returns>Awaitable task.</returns>
     public async Task On(WorkFailed @event, EventContext context)
     {
+        using var scope = systemExecution.AsSystem();
         foreach (var issue in await CoveredIssues(context))
         {
             await commandPipeline.Execute(new ChangeIssueStatus(issue, IssueStatus.None));
@@ -85,6 +90,7 @@ public class WorkStatusPropagation(IEventStore eventStore, ICommandPipeline comm
     /// <returns>Awaitable task.</returns>
     public async Task On(WorkStopped @event, EventContext context)
     {
+        using var scope = systemExecution.AsSystem();
         foreach (var issue in await CoveredIssues(context))
         {
             await commandPipeline.Execute(new ChangeIssueStatus(issue, IssueStatus.None));
@@ -104,6 +110,7 @@ public class WorkStatusPropagation(IEventStore eventStore, ICommandPipeline comm
     /// <returns>Awaitable task.</returns>
     public async Task On(InvestigationCompleted @event, EventContext context)
     {
+        using var scope = systemExecution.AsSystem();
         foreach (var issue in await CoveredIssues(context))
         {
             await commandPipeline.Execute(new ChangeIssueStatus(issue, IssueStatus.None));

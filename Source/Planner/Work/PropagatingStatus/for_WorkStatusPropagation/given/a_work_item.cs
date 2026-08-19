@@ -5,6 +5,8 @@
 using Cratis.Chronicle.Testing.Reactors;
 using Microsoft.Extensions.DependencyInjection;
 using Planner.Work.Listing;
+using Cratis.Arc.Authorization;
+using Planner.Identity;
 
 namespace Planner.Work.PropagatingStatus.for_WorkStatusPropagation.given;
 
@@ -23,6 +25,7 @@ public class a_work_item : Specification
         _scenario = new(new ServiceCollection()
             .AddSingleton(_eventStore)
             .AddSingleton(_commandPipeline)
+            .AddSingleton(SystemExecutionScope.ForSpecs())
             .BuildServiceProvider());
     }
 

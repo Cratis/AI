@@ -5,6 +5,7 @@
 using MongoDB.Driver;
 using Planner.GitHub;
 using Repository = Planner.Repositories.Listing.Repository;
+using Cratis.Arc.Authorization;
 
 namespace Planner.Builds.CheckingStatus.for_BuildStatusChecker.given;
 
@@ -23,7 +24,7 @@ public class all_dependencies : Specification
         _repositories = CollectionOf(() => _repositoriesData);
         _gitHub = Substitute.For<IGitHubClient>();
         _commandPipeline = Substitute.For<ICommandPipeline>();
-        _checker = new(_repositories, _gitHub, _commandPipeline, Substitute.For<Microsoft.Extensions.Logging.ILogger<BuildStatusChecker>>());
+        _checker = new(_repositories, _gitHub, _commandPipeline, Substitute.For<ISystemExecution>(), Substitute.For<Microsoft.Extensions.Logging.ILogger<BuildStatusChecker>>());
     }
 
     static IMongoCollection<T> CollectionOf<T>(Func<IReadOnlyList<T>> items)

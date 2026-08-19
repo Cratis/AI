@@ -7,6 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Planner.Issues.Registration;
 using Planner.Work.Scheduling;
+using Cratis.Arc.Authorization;
+using Planner.Identity;
 
 namespace Planner.Work.AutoInvestigating.for_AutoInvestigation;
 
@@ -21,6 +23,7 @@ public class when_member_issue_is_registered : Specification
         _scenario = new(new ServiceCollection()
             .AddSingleton(_commandPipeline)
             .AddSingleton(Options.Create(new SchedulingOptions()))
+            .AddSingleton(SystemExecutionScope.ForSpecs())
             .BuildServiceProvider());
     }
 

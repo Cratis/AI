@@ -1,6 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.Arc.Authorization;
 using Planner.Issues.AcceptingPullRequest;
 using Planner.Issues.AssociatingPullRequest;
 using Planner.LanguageModels;
@@ -19,7 +20,8 @@ namespace Planner.Issues.ClassifyingForAutoMerge;
 /// <param name="eventStore">The <see cref="IEventStore"/> for reading the issue and repository read models.</param>
 /// <param name="commandPipeline">The <see cref="ICommandPipeline"/> for executing commands.</param>
 /// <param name="languageModel">The <see cref="ILanguageModel"/> the classification is asked from.</param>
-public class AutoMergeClassification(IEventStore eventStore, ICommandPipeline commandPipeline, ILanguageModel languageModel) : IReactor
+/// <param name="systemExecution">The <see cref="ISystemExecution"/> the commands below run as - there is no HTTP request behind this.</param>
+public class AutoMergeClassification(IEventStore eventStore, ICommandPipeline commandPipeline, ILanguageModel languageModel, ISystemExecution systemExecution) : IReactor
 {
     /// <summary>
     /// Classifies a newly associated pull request and merges it when the repository allows auto-merge
@@ -56,6 +58,9 @@ public class AutoMergeClassification(IEventStore eventStore, ICommandPipeline co
         {
             return;
         }
+
+        // A reactor has no HTTP request behind it - accepting the pull request runs as the system.
+        using var scope = systemExecution.AsSystem();
 
         await commandPipeline.Execute(new AcceptPullRequest(issueId));
     }

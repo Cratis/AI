@@ -9,6 +9,8 @@ using Planner.GitHub;
 using Planner.GitHub.App;
 using Planner.Work.Listing;
 using ListedIssue = Planner.Issues.Listing.Issue;
+using Cratis.Arc.Authorization;
+using Planner.Identity;
 
 namespace Planner.Work.AssigningAIIdentity.for_AIIdentityAssignment.given;
 
@@ -32,6 +34,7 @@ public class a_reactor : Specification
             .AddSingleton(_eventStore)
             .AddSingleton(_gitHub)
             .AddSingleton<IOptions<GitHubAppOptions>>(Options.Create(_options))
+            .AddSingleton(SystemExecutionScope.ForSpecs())
             .BuildServiceProvider());
     }
 

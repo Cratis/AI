@@ -1,6 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.Arc.Authorization;
 using Planner.LanguageModels;
 using Planner.WeeklyDigests.ExtractingThemes;
 using Planner.WeeklyDigests.GeneratingDescription;
@@ -18,7 +19,8 @@ namespace Planner.WeeklyDigests.Analyzing;
 /// </summary>
 /// <param name="commandPipeline">The <see cref="ICommandPipeline"/> for executing commands.</param>
 /// <param name="languageModel">The <see cref="ILanguageModel"/> the extraction is asked from.</param>
-public class WeeklyDigestAnalysis(ICommandPipeline commandPipeline, ILanguageModel languageModel) : IReactor
+/// <param name="systemExecution">The <see cref="ISystemExecution"/> the commands below run as - there is no HTTP request behind this.</param>
+public class WeeklyDigestAnalysis(ICommandPipeline commandPipeline, ILanguageModel languageModel, ISystemExecution systemExecution) : IReactor
 {
     /// <summary>
     /// Extracts themes and a description from a newly received weekly digest.
@@ -42,6 +44,11 @@ public class WeeklyDigestAnalysis(ICommandPipeline commandPipeline, ILanguageMod
         }
 
         var id = new WeeklyDigestId(Guid.Parse(context.EventSourceId.Value));
+
+        // One scope for both commands - extracting themes and generating the description are one
+        // logical analysis, and a reactor has no HTTP request behind it.
+        using var scope = systemExecution.AsSystem();
+
         await commandPipeline.Execute(new ExtractWeeklyDigestThemes(id, extraction.Themes));
         await commandPipeline.Execute(new GenerateWeeklyDigestDescription(id, extraction.Description));
     }

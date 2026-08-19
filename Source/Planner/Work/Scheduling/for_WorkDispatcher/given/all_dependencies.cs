@@ -17,6 +17,7 @@ using Planner.Work.Listing;
 using Planner.Work.Workers;
 using ListedIssue = Planner.Issues.Listing.Issue;
 using Repository = Planner.Repositories.Listing.Repository;
+using Cratis.Arc.Authorization;
 
 namespace Planner.Work.Scheduling.for_WorkDispatcher.given;
 
@@ -88,6 +89,7 @@ public class all_dependencies : Specification
             _workerEnvironment,
             _callbackTokens,
             _commandPipeline,
+            Substitute.For<ISystemExecution>(),
             _timeProvider,
             Options.Create(_workerOptions),
             Options.Create(_schedulingOptions),

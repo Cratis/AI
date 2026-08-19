@@ -1,6 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.Arc.Authorization;
 using Microsoft.Extensions.Options;
 using Planner.Alerts.Raising;
 using Planner.Alerts.RecordingInvestigation;
@@ -22,7 +23,8 @@ namespace Planner.Alerts.Investigating;
 /// </summary>
 /// <param name="commandPipeline">The <see cref="ICommandPipeline"/> for executing commands.</param>
 /// <param name="options">The alert configuration.</param>
-public class AlertInvestigation(ICommandPipeline commandPipeline, IOptions<AlertOptions> options) : IReactor
+/// <param name="systemExecution">The <see cref="ISystemExecution"/> the commands below run as - there is no HTTP request behind this.</param>
+public class AlertInvestigation(ICommandPipeline commandPipeline, IOptions<AlertOptions> options, ISystemExecution systemExecution) : IReactor
 {
     /// <summary>
     /// Schedules an investigation for a newly raised alert.
@@ -37,6 +39,8 @@ public class AlertInvestigation(ICommandPipeline commandPipeline, IOptions<Alert
             return;
         }
 
+        // A reactor has no HTTP request behind it - the command below runs as the system.
+        using var scope = systemExecution.AsSystem();
         await commandPipeline.Execute(new ScheduleAlertInvestigation(new AlertId(context.EventSourceId.Value)));
     }
 
@@ -63,7 +67,8 @@ public class AlertInvestigation(ICommandPipeline commandPipeline, IOptions<Alert
 /// </summary>
 /// <param name="eventStore">The <see cref="IEventStore"/> for reading the work's read model.</param>
 /// <param name="commandPipeline">The <see cref="ICommandPipeline"/> for executing commands.</param>
-public class AlertInvestigationPropagation(IEventStore eventStore, ICommandPipeline commandPipeline) : IReactor
+/// <param name="systemExecution">The <see cref="ISystemExecution"/> the commands below run as - there is no HTTP request behind this.</param>
+public class AlertInvestigationPropagation(IEventStore eventStore, ICommandPipeline commandPipeline, ISystemExecution systemExecution) : IReactor
 {
     /// <summary>
     /// Records that an agent has picked the alert up.
@@ -75,6 +80,8 @@ public class AlertInvestigationPropagation(IEventStore eventStore, ICommandPipel
     {
         if (await AlertFor(context) is { } alert)
         {
+            // A reactor has no HTTP request behind it - the command below runs as the system.
+            using var scope = systemExecution.AsSystem();
             await commandPipeline.Execute(new StartAlertInvestigation(alert, new WorkId(Guid.Parse(context.EventSourceId.Value))));
         }
     }
@@ -89,6 +96,8 @@ public class AlertInvestigationPropagation(IEventStore eventStore, ICommandPipel
     {
         if (await AlertFor(context) is { } alert)
         {
+            // A reactor has no HTTP request behind it - the command below runs as the system.
+            using var scope = systemExecution.AsSystem();
             await commandPipeline.Execute(new ConcludeAlertInvestigation(
                 alert,
                 AlertOutcomes.Read(@event.Summary.Value),
@@ -106,6 +115,8 @@ public class AlertInvestigationPropagation(IEventStore eventStore, ICommandPipel
     {
         if (await AlertFor(context) is { } alert)
         {
+            // A reactor has no HTTP request behind it - the command below runs as the system.
+            using var scope = systemExecution.AsSystem();
             await commandPipeline.Execute(new FailAlertInvestigation(alert, @event.Reason.Value));
         }
     }
@@ -121,6 +132,8 @@ public class AlertInvestigationPropagation(IEventStore eventStore, ICommandPipel
     {
         if (await AlertFor(context) is { } alert)
         {
+            // A reactor has no HTTP request behind it - the command below runs as the system.
+            using var scope = systemExecution.AsSystem();
             await commandPipeline.Execute(new FailAlertInvestigation(alert, "The investigation was stopped before it concluded"));
         }
     }

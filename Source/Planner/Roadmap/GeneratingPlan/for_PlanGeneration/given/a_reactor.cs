@@ -7,6 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Planner.GitHub;
 using Planner.LanguageModels;
 using ListedIssue = Planner.Issues.Listing.Issue;
+using Cratis.Arc.Authorization;
+using Planner.Identity;
 
 namespace Planner.Roadmap.GeneratingPlan.for_PlanGeneration.given;
 
@@ -33,6 +35,7 @@ public class a_reactor : Specification
             .AddSingleton(_commandPipeline)
             .AddSingleton(_languageModel)
             .AddSingleton(_gitHub)
+            .AddSingleton(SystemExecutionScope.ForSpecs())
             .BuildServiceProvider());
     }
 

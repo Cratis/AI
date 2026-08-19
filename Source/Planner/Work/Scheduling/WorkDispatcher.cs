@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Linq.Expressions;
+using Cratis.Arc.Authorization;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Planner.Accounts;
@@ -30,6 +31,7 @@ namespace Planner.Work.Scheduling;
 /// <param name="workerEnvironment">Builds the environment a worker container runs with.</param>
 /// <param name="callbackTokens">Issues the bearer token a launched worker's callbacks authenticate with.</param>
 /// <param name="commandPipeline">The <see cref="ICommandPipeline"/> for executing commands.</param>
+/// <param name="systemExecution">The <see cref="ISystemExecution"/> the commands below run as - the dispatcher runs on a timer, with no HTTP request behind it.</param>
 /// <param name="timeProvider">The <see cref="TimeProvider"/> for usage-window calculations.</param>
 /// <param name="workerOptions">The worker configuration.</param>
 /// <param name="schedulingOptions">The scheduling boundaries.</param>
@@ -44,6 +46,7 @@ public class WorkDispatcher(
     IWorkerEnvironment workerEnvironment,
     IWorkerCallbackTokens callbackTokens,
     ICommandPipeline commandPipeline,
+    ISystemExecution systemExecution,
     TimeProvider timeProvider,
     IOptions<WorkerOptions> workerOptions,
     IOptions<SchedulingOptions> schedulingOptions,
@@ -56,6 +59,12 @@ public class WorkDispatcher(
     /// <inheritdoc/>
     public async Task RunSchedulingPass(CancellationToken cancellationToken = default)
     {
+        // One scope for the whole pass. Everything below - sweeping dead work, scheduling ready
+        // issues, dispatching pending work - is the scheduler acting on its own, on a timer, with no
+        // operator and no HTTP request behind it. Opening it here rather than in each private method
+        // keeps the commands executed from inside Dispatch's catch block covered too.
+        using var scope = systemExecution.AsSystem();
+
         var openWork = await Find(workItems, work => work.Status == WorkStatus.Scheduled || work.Status == WorkStatus.Running, cancellationToken);
         await SweepStuckWork(openWork, cancellationToken);
         await ScheduleReadyIssues(openWork, cancellationToken);

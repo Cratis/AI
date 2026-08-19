@@ -5,6 +5,7 @@
 using Cratis.Chronicle.Testing.Reactors;
 using Microsoft.Extensions.DependencyInjection;
 using Planner.Issues.ChangingStatus;
+using Planner.Identity;
 
 namespace Planner.Issues.AcceptingPullRequest.for_PostMergeBookkeeping.when_pull_request_is_merged;
 
@@ -18,7 +19,9 @@ public class and_it_was_merged : Specification
     void Establish()
     {
         _commandPipeline = Substitute.For<ICommandPipeline>();
-        _scenario = new(services => services.AddSingleton(_commandPipeline));
+        _scenario = new(services => services
+            .AddSingleton(_commandPipeline)
+            .AddSingleton(SystemExecutionScope.ForSpecs()));
     }
 
     async Task Because() =>

@@ -8,6 +8,8 @@ using Microsoft.Extensions.Options;
 using Planner.Alerts.Raising;
 using Planner.Alerts.Resolving;
 using Planner.Work.SchedulingAlertInvestigation;
+using Cratis.Arc.Authorization;
+using Planner.Identity;
 
 namespace Planner.Alerts.Investigating.for_AlertInvestigation.when_an_alert_is_raised;
 
@@ -35,6 +37,7 @@ public class and_the_condition_came_back_after_being_resolved : Specification
         _scenario = new(new ServiceCollection()
             .AddSingleton(_commandPipeline)
             .AddSingleton(Options.Create(new AlertOptions()))
+            .AddSingleton(SystemExecutionScope.ForSpecs())
             .BuildServiceProvider());
     }
 

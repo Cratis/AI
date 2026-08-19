@@ -5,6 +5,7 @@
 using Cratis.Chronicle.Testing.Reactors;
 using Microsoft.Extensions.DependencyInjection;
 using Planner.LanguageModels;
+using Planner.Identity;
 
 namespace Planner.WeeklyDigests.Analyzing.for_WeeklyDigestAnalysis.given;
 
@@ -24,7 +25,8 @@ public class a_reactor : Specification
 
         _scenario = new(services => services
             .AddSingleton(_commandPipeline)
-            .AddSingleton(_languageModel));
+            .AddSingleton(_languageModel)
+            .AddSingleton(SystemExecutionScope.ForSpecs()));
     }
 }
 #endif

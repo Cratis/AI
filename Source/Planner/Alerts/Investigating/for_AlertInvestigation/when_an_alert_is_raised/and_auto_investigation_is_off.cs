@@ -7,6 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Planner.Alerts.Raising;
 using Planner.Work.SchedulingAlertInvestigation;
+using Cratis.Arc.Authorization;
+using Planner.Identity;
 
 namespace Planner.Alerts.Investigating.for_AlertInvestigation.when_an_alert_is_raised;
 
@@ -21,6 +23,7 @@ public class and_auto_investigation_is_off : Specification
         _scenario = new(new ServiceCollection()
             .AddSingleton(_commandPipeline)
             .AddSingleton(Options.Create(new AlertOptions { AutoInvestigate = false }))
+            .AddSingleton(SystemExecutionScope.ForSpecs())
             .BuildServiceProvider());
     }
 

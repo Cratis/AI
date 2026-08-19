@@ -6,6 +6,8 @@ using Cratis.Chronicle.Testing.Reactors;
 using Microsoft.Extensions.DependencyInjection;
 using Planner.LanguageModels;
 using ListedRepository = Planner.Repositories.Listing.Repository;
+using Cratis.Arc.Authorization;
+using Planner.Identity;
 
 namespace Planner.Issues.ClassifyingForAutoMerge.for_AutoMergeClassification.given;
 
@@ -29,6 +31,7 @@ public class a_reactor : Specification
             .AddSingleton(_eventStore)
             .AddSingleton(_commandPipeline)
             .AddSingleton(_languageModel)
+            .AddSingleton(SystemExecutionScope.ForSpecs())
             .BuildServiceProvider());
     }
 

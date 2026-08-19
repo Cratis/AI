@@ -1,6 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.Arc.Authorization;
 using Microsoft.Extensions.Options;
 using Planner.Issues.Registration;
 using Planner.Work.Scheduling;
@@ -14,7 +15,8 @@ namespace Planner.Work.AutoInvestigating;
 /// </summary>
 /// <param name="commandPipeline">The <see cref="ICommandPipeline"/> for executing commands.</param>
 /// <param name="options">The scheduling options - carries the investigation model.</param>
-public class AutoInvestigation(ICommandPipeline commandPipeline, IOptions<SchedulingOptions> options) : IReactor
+/// <param name="systemExecution">The <see cref="ISystemExecution"/> the commands below run as - there is no HTTP request behind this.</param>
+public class AutoInvestigation(ICommandPipeline commandPipeline, IOptions<SchedulingOptions> options, ISystemExecution systemExecution) : IReactor
 {
     /// <summary>
     /// Schedules an investigation when the registered issue came from an external reporter.
@@ -29,6 +31,9 @@ public class AutoInvestigation(ICommandPipeline commandPipeline, IOptions<Schedu
         {
             return;
         }
+
+        // A reactor has no HTTP request behind it - scheduling the investigation runs as the system.
+        using var scope = systemExecution.AsSystem();
 
         await commandPipeline.Execute(new ScheduleWork(
             WorkPurpose.Investigation,
