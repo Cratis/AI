@@ -144,6 +144,7 @@ const defaultConfig = [
             '**/Repositories/Listing/Listing.ts',
             '**/GitHub/App/GitHubAppStatus.ts',
             '**/Operations/OperationsSettings.ts',
+            '**/Roadmap/Listing/Listing.ts',
         ],
         rules: {
             '@typescript-eslint/no-explicit-any': 'off',
