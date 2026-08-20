@@ -7,7 +7,7 @@ description: Explains how vertical feature slices are structured in a Cratis Chr
 
 A vertical slice contains **everything for a single behavior**: the command or query, the events it produces, the projections that build read models, the React component, and the specs. Everything lives together because everything changes together.
 
-One feature folder → many slices.   
+One feature folder → many slices.
 One slice folder → one `.cs` file (all backend) + one `.tsx` file (frontend).
 
 ---
@@ -64,7 +64,7 @@ Authors/
 ├── Events/AuthorRegistered.cs
 ```
 
-**Namespace rule**: the namespace mirrors the folder path under the source root — there is no `Features` segment.  
+**Namespace rule**: the namespace mirrors the folder path under the source root — there is no `Features` segment.
 `MyApp.Authors.Registration` (or `MyApp.<Module>.Authors.Registration` when a module groups the feature).
 
 ---
