@@ -150,15 +150,5 @@ artifacts/
 *.user
 .idea/
 
-# Frontend build output
-Source/*/wwwroot/
-
 # Playwright artifacts
 .playwright-mcp/
-
-# Generated TypeScript proxies for #if DEBUG spec-only commands. The proxy generator emits these
-# from a Debug build and deletes them from a Release one, where the spec types do not exist - so
-# committing them makes every Release build fail (proxy generator exit 134). Debug regenerates
-# them on demand; nothing needs them in version control.
-Source/Planner/**/for_*/**/*Command.ts
-Source/Planner/**/for_*/**/index.ts

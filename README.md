@@ -1,6 +1,8 @@
 # Cratis AI — Shared AI Assistant Configuration
 
-Shared AI-assistant configuration for building on the Cratis stack (Chronicle + Arc, .NET/C#, React + Cratis Components). It configures **GitHub Copilot**, **Claude Code**, and **Codex** with the same rules, agents, skills, prompts, and hooks — the "Cratis way" of building software, applied consistently across tools and repositories.
+Shared AI-assistant configuration for building on the Cratis stack (Chronicle + Arc, .NET/C#, React + Cratis Components). It configures **GitHub Copilot**, **Claude Code**, **Codex**, and **Pi** with the same rules, agents, skills, prompts, and hooks — the "Cratis way" of building software, applied consistently across tools and repositories.
+
+> This repository is the corpus only — it holds no application or framework source. The delivery machinery that used to live here now has its own homes: **[Stagehand](https://github.com/Cratis/Stagehand)** (the managed control plane) and **[Ensemble](https://github.com/Cratis/Ensemble)** (the governed software factory).
 
 ## Single source of truth
 
@@ -18,6 +20,7 @@ Everything is authored once under **`.ai/`** and surfaced to each tool through a
 .github/              ← GitHub Copilot adapters  (copilot-instructions.md, instructions/ → .ai/rules, agents/*.agent.md, prompts/, skills/)
 .claude/              ← Claude Code adapters     (CLAUDE.md, rules/*.md, agents/, commands/*.md, skills/)
 .agents/ + AGENTS.md  ← Codex adapters           (AGENTS.md → general.md; .agents/skills → .ai/skills)
+.pi/                  ← Pi adapters             (agents/, prompts/, skills/, extensions/ bridging the hook scripts)
 ```
 
 `.github/instructions` is a single folder symlink into `.ai/rules`, so rules are maintained in one place with no per-file adapter to add. (Trade-off: a folder symlink exposes the rules as `<name>.md`, not the `<name>.instructions.md` suffix GitHub Copilot's `applyTo` discovery expects — Claude Code and Codex still read them, and the rules remain available, but Copilot does not auto-attach them by glob.)
