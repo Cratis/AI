@@ -26,9 +26,36 @@ permissions:
   contents: read
 
 jobs:
+  # An image should not ship from a tree nobody tested. This workflow ran on 2026-08-20 for
+  # the scheduled package update's direct push to main, succeeded, and published an image
+  # from a commit whose Factory.Core specs were broken by a JsonSchema.Net major bump - there
+  # was no test step here and no build workflow runs on push, so nothing objected.
+  verify:
+    name: Verify before publishing
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Build (Debug - specs compile)
+        run: dotnet build Source/Planner/Planner.csproj --configuration Debug -p:DisableProxyGenerator=true
+
+      - name: Run Planner specs
+        run: dotnet test Source/Planner/Planner.csproj --configuration Debug --no-build
+
+      - name: Run Factory.Core specs
+        run: dotnet test Source/Factory.Core.Specs/Factory.Core.Specs.csproj --configuration Debug
+
   publish-planner:
     name: Publish Planner image
     runs-on: ubuntu-latest
+    needs: verify
 
     steps:
       - name: Checkout code

@@ -50,7 +50,17 @@
     <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.10" />
     <PackageVersion Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.22.0" />
     <!-- JSON Schema -->
-    <PackageVersion Include="JsonSchema.Net" Version="9.4.0" />
+    <!--
+      Pinned to 8.x deliberately. The 2026-08-20 scheduled update took this to 9.4.0 and broke
+      Cratis.Factory.Core's language-neutral validation vectors (195 specs -> 194 passed, 1 failed):
+      `validate-additional-properties-privacy` and `validate-anchor-invalid` stopped matching the
+      Python oracle's material results. Those are cross-language parity vectors, so a mismatch means
+      the .NET port and the oracle disagree about schema validation - the one thing Factory.Core
+      exists to guarantee. Isolated in both directions: 9.4.0 fails, 8.0.5 passes 195, and the Python
+      suite is unaffected at 330 either way. Moving to 9.x needs the vector differences understood
+      and the port reconciled first - tracked in issue 124.
+    -->
+    <PackageVersion Include="JsonSchema.Net" Version="8.0.5" />
     <!-- OpenTelemetry -->
     <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.17.0" />
     <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.17.0" />
