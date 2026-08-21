@@ -1,0 +1,170 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cratis/AI/catalog/schemas/public-skills.schema.json",
+  "title": "Cratis public skill catalog",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "defaultPolicy",
+    "runtimePayloadPolicy",
+    "audit",
+    "skills"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "defaultPolicy": {
+      "const": "deny"
+    },
+    "runtimePayloadPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["allowed", "forbidden"],
+      "properties": {
+        "allowed": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "forbidden": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "verifiedOn",
+        "currentInventoryCount",
+        "publicCandidateCount",
+        "internalSkillCount",
+        "internalSkills"
+      ],
+      "properties": {
+        "verifiedOn": { "type": "string", "format": "date" },
+        "currentInventoryCount": { "type": "integer", "minimum": 0 },
+        "publicCandidateCount": { "type": "integer", "minimum": 0 },
+        "internalSkillCount": { "type": "integer", "minimum": 0 },
+        "internalSkills": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["currentName", "reason"],
+            "properties": {
+              "currentName": { "$ref": "#/$defs/currentName" },
+              "reason": { "type": "string", "minLength": 1 }
+            }
+          }
+        }
+      }
+    },
+    "skills": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "currentName",
+          "source",
+          "proposedName",
+          "disposition",
+          "publicationStatus",
+          "includeInRuntime",
+          "products",
+          "languages",
+          "dependencies",
+          "reviewNotes"
+        ],
+        "properties": {
+          "currentName": { "$ref": "#/$defs/currentName" },
+          "source": {
+            "type": "string",
+            "pattern": "^(\\.ai/skills|skills)/[a-z0-9]+(?:-[a-z0-9]+)*$"
+          },
+          "proposedName": { "$ref": "#/$defs/publicName" },
+          "disposition": {
+            "enum": ["rename", "retain", "merge-review", "split-review"]
+          },
+          "splitTargets": {
+            "type": "array",
+            "minItems": 2,
+            "uniqueItems": true,
+            "items": { "$ref": "#/$defs/publicName" }
+          },
+          "mergeGroup": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          },
+          "publicationStatus": {
+            "enum": ["candidate", "approved", "rejected"]
+          },
+          "includeInRuntime": { "type": "boolean" },
+          "products": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "$ref": "#/$defs/catalogId" }
+          },
+          "languages": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "$ref": "#/$defs/catalogId" }
+          },
+          "dependencies": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["skills", "internalArtifacts", "externalTools"],
+            "properties": {
+              "skills": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": { "$ref": "#/$defs/currentName" }
+              },
+              "internalArtifacts": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": { "type": "string", "minLength": 1 }
+              },
+              "externalTools": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": { "type": "string", "minLength": 1 }
+              }
+            }
+          },
+          "reviewNotes": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "currentName": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "maxLength": 64
+    },
+    "publicName": {
+      "type": "string",
+      "pattern": "^cratis-[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "maxLength": 64
+    },
+    "catalogId": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    }
+  }
+}

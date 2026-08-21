@@ -1,0 +1,140 @@
+{
+  "schemaVersion": 2,
+  "defaultPolicy": "deny",
+  "distributionDecision": {
+    "state": "accepted",
+    "authorityEvidenceIds": [
+      "workflows-68",
+      "option-a-plus-authority",
+      "organization-option-a-plus-authority"
+    ],
+    "acceptedArchitecture": "option-a-plus-generated-distribution-repository",
+    "blockedActions": [
+      "mixed-source-installation",
+      "manual-distribution-authorship",
+      "materialization-before-target-approval",
+      "publication-before-release-gates"
+    ]
+  },
+  "artifacts": [
+    {
+      "id": "planned-passive-public-release",
+      "audience": "public",
+      "fixtureOnly": false,
+      "materializationAllowed": false,
+      "runtimeEligible": false,
+      "componentInventory": {
+        "skills": [
+          "cratis-application-react-specifications",
+          "cratis-application-slice-diagnostics",
+          "cratis-application-slice-specifications",
+          "cratis-application-vertical-slice",
+          "cratis-arc-authentication-authorization-and-identity",
+          "cratis-arc-command",
+          "cratis-arc-command-execution",
+          "cratis-arc-command-validation",
+          "cratis-arc-ef-core-migration",
+          "cratis-arc-observable-query-http",
+          "cratis-arc-query-paging",
+          "cratis-arc-react-feature-scaffolding",
+          "cratis-arc-react-page",
+          "cratis-chronicle-cli-operations",
+          "cratis-chronicle-event-constraints",
+          "cratis-chronicle-event-metadata",
+          "cratis-chronicle-event-modeling",
+          "cratis-chronicle-event-specifications",
+          "cratis-chronicle-event-type-migration",
+          "cratis-chronicle-multi-tenancy",
+          "cratis-chronicle-projection",
+          "cratis-chronicle-reactor",
+          "cratis-chronicle-read-model",
+          "cratis-chronicle-read-model-specifications",
+          "cratis-chronicle-reducer",
+          "cratis-code-review",
+          "cratis-components-stepper-command-dialog",
+          "cratis-components-toolbar",
+          "cratis-event-model-diagram",
+          "cratis-fundamentals-concept",
+          "cratis-fundamentals-type-discovery",
+          "cratis-performance-review",
+          "cratis-security-review",
+          "cratis-specifications-csharp",
+          "cratis-specifications-typescript"
+        ],
+        "mcp": []
+      },
+      "exactSourcePaths": [],
+      "allowedPathPatterns": [
+        "skills/<approved-target>/SKILL.md",
+        "skills/<approved-target>/references/**",
+        "skills/<approved-target>/assets/**",
+        "skills/<approved-target>/LICENSE*"
+      ],
+      "forbiddenPathPatterns": [
+        "engineering/**",
+        "**/scripts/**",
+        "**/evals/**",
+        "rules/**",
+        "agents/**",
+        "prompts/**",
+        "commands/**",
+        "hooks/**",
+        "lsp/**",
+        "tooling/**",
+        "workflows/**",
+        ".pi/**",
+        ".git/**"
+      ],
+      "requiresApprovedTargets": true,
+      "evidenceIds": [
+        "workflows-68",
+        "option-a-plus-authority",
+        "organization-option-a-plus-authority"
+      ]
+    },
+    {
+      "id": "sanitized-public-materializer-fixture",
+      "audience": "test-fixture",
+      "fixtureOnly": true,
+      "materializationAllowed": true,
+      "runtimeEligible": false,
+      "componentInventory": {
+        "skills": [
+          "cratis-example"
+        ],
+        "mcp": []
+      },
+      "exactSourcePaths": [
+        "tooling/fixtures/public-artifact/valid-source/skills/cratis-example/LICENSE",
+        "tooling/fixtures/public-artifact/valid-source/skills/cratis-example/SKILL.md",
+        "tooling/fixtures/public-artifact/valid-source/skills/cratis-example/assets/example.txt",
+        "tooling/fixtures/public-artifact/valid-source/skills/cratis-example/references/guide.md"
+      ],
+      "allowedPathPatterns": [
+        "skills/cratis-example/SKILL.md",
+        "skills/cratis-example/references/**",
+        "skills/cratis-example/assets/**",
+        "skills/cratis-example/LICENSE*"
+      ],
+      "forbiddenPathPatterns": [
+        "engineering/**",
+        "**/scripts/**",
+        "**/evals/**",
+        "rules/**",
+        "agents/**",
+        "prompts/**",
+        "commands/**",
+        "hooks/**",
+        "lsp/**",
+        "tooling/**",
+        "workflows/**",
+        ".pi/**",
+        ".git/**"
+      ],
+      "requiresApprovedTargets": false,
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    }
+  ]
+}

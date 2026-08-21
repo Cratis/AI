@@ -1,0 +1,1158 @@
+{
+  "schemaVersion": 2,
+  "claimPolicy": "verified-only",
+  "generatedBy": "tooling/generate-catalog-v2.mjs",
+  "languages": [
+    {
+      "id": "csharp",
+      "name": "C#",
+      "coverageState": "partial",
+      "claimState": "unclaimed",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "typescript",
+      "name": "TypeScript",
+      "coverageState": "partial",
+      "claimState": "unclaimed",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "react",
+      "name": "React",
+      "coverageState": "partial",
+      "claimState": "unclaimed",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "notes": "Tracked separately because component and generated-proxy workflows differ from general TypeScript."
+    },
+    {
+      "id": "shell",
+      "name": "Shell and HTTP clients",
+      "coverageState": "partial",
+      "claimState": "unclaimed",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "markdown",
+      "name": "Markdown and Mermaid",
+      "coverageState": "partial",
+      "claimState": "unclaimed",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "language-agnostic",
+      "name": "Language-agnostic modeling",
+      "coverageState": "partial",
+      "claimState": "unclaimed",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "java",
+      "name": "Java",
+      "coverageState": "gap",
+      "claimState": "unclaimed",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "notes": "Do not add a public skill until the client repository, supported version, API, and toolchain are verified."
+    },
+    {
+      "id": "kotlin",
+      "name": "Kotlin",
+      "coverageState": "gap",
+      "claimState": "unclaimed",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "notes": "Do not add a public skill until the client repository, supported version, API, and toolchain are verified."
+    },
+    {
+      "id": "elixir",
+      "name": "Elixir",
+      "coverageState": "gap",
+      "claimState": "unclaimed",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "notes": "Do not add a public skill until the client repository, supported version, API, and toolchain are verified."
+    }
+  ],
+  "products": [
+    {
+      "id": "fundamentals",
+      "name": "Cratis Fundamentals",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "capabilities": [
+        {
+          "id": "concepts",
+          "coverageState": "source-candidate",
+          "claimState": "unclaimed",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkillIds": [
+            "add-concept"
+          ],
+          "targetIds": [
+            "cratis-fundamentals-concept"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "type-discovery",
+          "coverageState": "source-candidate",
+          "claimState": "unclaimed",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkillIds": [
+            "discover-implementations"
+          ],
+          "targetIds": [
+            "cratis-fundamentals-type-discovery"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "arc",
+      "name": "Cratis Arc",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "capabilities": [
+        {
+          "id": "commands",
+          "coverageState": "source-candidate",
+          "claimState": "unclaimed",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkillIds": [
+            "cratis-command"
+          ],
+          "targetIds": [
+            "cratis-arc-command"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "command-validation",
+          "coverageState": "source-candidate",
+          "claimState": "unclaimed",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkillIds": [
+            "add-business-rule"
+          ],
+          "targetIds": [
+            "cratis-arc-command-validation",
+            "cratis-chronicle-event-constraints"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ],
+          "notes": "The current add-business-rule source will be split so this capability does not compete with Chronicle event constraints."
+        },
+        {
+          "id": "command-execution",
+          "coverageState": "source-candidate",
+          "claimState": "unclaimed",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkillIds": [
+            "call-command-from-code"
+          ],
+          "targetIds": [
+            "cratis-arc-command-execution"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "authentication-authorization-and-identity",
+          "coverageState": "partial",
+          "claimState": "unclaimed",
+          "languages": [
+            "csharp",
+            "react"
+          ],
+          "sourceSkillIds": [
+            "auth-and-identity"
+          ],
+          "targetIds": [
+            "cratis-arc-authentication-authorization-and-identity"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ],
+          "notes": "Authorization and identity-provider concerns are bundled and require trigger-boundary review."
+        },
+        {
+          "id": "queries",
+          "coverageState": "gap",
+          "claimState": "unclaimed",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkillIds": [],
+          "targetIds": [],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ],
+          "notes": "No dedicated Arc query skill exists."
+        },
+        {
+          "id": "validation",
+          "coverageState": "partial",
+          "claimState": "unclaimed",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkillIds": [
+            "add-business-rule"
+          ],
+          "targetIds": [
+            "cratis-arc-command-validation",
+            "cratis-chronicle-event-constraints"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ],
+          "notes": "Validation is present only as part of broader business-rule guidance."
+        },
+        {
+          "id": "authorization",
+          "coverageState": "partial",
+          "claimState": "unclaimed",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkillIds": [
+            "auth-and-identity"
+          ],
+          "targetIds": [
+            "cratis-arc-authentication-authorization-and-identity"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ],
+          "notes": "Authorization is present only as part of broader authentication and identity guidance."
+        }
+      ]
+    },
+    {
+      "id": "arc-react",
+      "name": "Arc for React",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "capabilities": [
+        {
+          "id": "page-composition",
+          "coverageState": "source-candidate",
+          "claimState": "unclaimed",
+          "languages": [
+            "react",
+            "typescript"
+          ],
+          "sourceSkillIds": [
+            "cratis-react-page",
+            "scaffold-feature"
+          ],
+          "targetIds": [
+            "cratis-arc-react-feature-scaffolding",
+            "cratis-arc-react-page"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "generated-command-proxies",
+          "coverageState": "partial",
+          "claimState": "unclaimed",
+          "languages": [
+            "react",
+            "typescript"
+          ],
+          "sourceSkillIds": [
+            "cratis-command",
+            "cratis-react-page"
+          ],
+          "targetIds": [
+            "cratis-arc-command",
+            "cratis-arc-react-page"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "observable-query-http",
+          "coverageState": "source-candidate",
+          "claimState": "unclaimed",
+          "languages": [
+            "shell"
+          ],
+          "sourceSkillIds": [
+            "observable-query-curl"
+          ],
+          "targetIds": [
+            "cratis-arc-observable-query-http"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "query-paging",
+          "coverageState": "source-candidate",
+          "claimState": "unclaimed",
+          "languages": [
+            "csharp",
+            "react",
+            "typescript"
+          ],
+          "sourceSkillIds": [
+            "query-paging"
+          ],
+          "targetIds": [
+            "cratis-arc-query-paging"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "react-client",
+          "coverageState": "gap",
+          "claimState": "unclaimed",
+          "languages": [
+            "react",
+            "typescript"
+          ],
+          "sourceSkillIds": [],
+          "targetIds": [],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ],
+          "notes": "No dedicated Arc React client overview exists."
+        }
+      ]
+    },
+    {
+      "id": "chronicle",
+      "name": "Cratis Chronicle",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "capabilities": [
+        {
+          "id": "event-modeling",
+          "coverageState": "source-candidate",
+          "claimState": "unclaimed",
+          "languages": [
+            "language-agnostic"
+          ],
+          "sourceSkillIds": [
+            "event-modeling"
+          ],
+          "targetIds": [
+            "cratis-chronicle-event-modeling"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "event-model-diagram",
+          "coverageState": "source-candidate",
+          "claimState": "unclaimed",
+          "languages": [
+            "markdown"
+          ],
+          "sourceSkillIds": [
+            "create-event-model"
+          ],
+          "targetIds": [
+            "cratis-event-model-diagram"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "projections",
+          "coverageState": "source-candidate",
+          "claimState": "unclaimed",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkillIds": [
+            "add-projection"
+          ],
+          "targetIds": [
+            "cratis-chronicle-projection"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "read-models",
+          "coverageState": "source-candidate",
+          "claimState": "unclaimed",
+          "languages": [
+            "csharp",
+            "typescript"
+          ],
+          "sourceSkillIds": [
+            "cratis-readmodel"
+          ],
+          "targetIds": [
+            "cratis-chronicle-read-model"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "reducers",
+          "coverageState": "source-candidate",
+          "claimState": "unclaimed",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkillIds": [
+            "add-reducer"
+          ],
+          "targetIds": [
+            "cratis-chronicle-reducer"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "reactors",
+          "coverageState": "source-candidate",
+          "claimState": "unclaimed",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkillIds": [
+            "add-reactor"
+          ],
+          "targetIds": [
+            "cratis-chronicle-reactor"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "event-constraints",
+          "coverageState": "source-candidate",
+          "claimState": "unclaimed",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkillIds": [
+            "add-business-rule"
+          ],
+          "targetIds": [
+            "cratis-arc-command-validation",
+            "cratis-chronicle-event-constraints"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ],
+          "notes": "The current add-business-rule source will be split into a focused Chronicle constraints skill."
+        },
+        {
+          "id": "event-metadata",
+          "coverageState": "source-candidate",
+          "claimState": "unclaimed",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkillIds": [
+            "cross-cutting-properties"
+          ],
+          "targetIds": [
+            "cratis-chronicle-event-metadata"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "event-type-migrations",
+          "coverageState": "source-candidate",
+          "claimState": "unclaimed",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkillIds": [
+            "event-type-migrations"
+          ],
+          "targetIds": [
+            "cratis-chronicle-event-type-migration"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "multi-tenancy",
+          "coverageState": "source-candidate",
+          "claimState": "unclaimed",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkillIds": [
+            "multi-tenancy"
+          ],
+          "targetIds": [
+            "cratis-chronicle-multi-tenancy"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "operations",
+          "coverageState": "source-candidate",
+          "claimState": "unclaimed",
+          "languages": [
+            "shell"
+          ],
+          "sourceSkillIds": [
+            "inspect-running-chronicle"
+          ],
+          "targetIds": [
+            "cratis-chronicle-cli-operations"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ],
+          "notes": "Requires security review before public approval."
+        },
+        {
+          "id": "compliance",
+          "coverageState": "gap",
+          "claimState": "unclaimed",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkillIds": [],
+          "targetIds": [],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ],
+          "notes": "No dedicated compliance skill exists."
+        },
+        {
+          "id": "csharp-client",
+          "coverageState": "gap",
+          "claimState": "unclaimed",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkillIds": [],
+          "targetIds": [],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "java-client",
+          "coverageState": "gap",
+          "claimState": "unclaimed",
+          "languages": [
+            "java"
+          ],
+          "sourceSkillIds": [],
+          "targetIds": [],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "kotlin-client",
+          "coverageState": "gap",
+          "claimState": "unclaimed",
+          "languages": [
+            "kotlin"
+          ],
+          "sourceSkillIds": [],
+          "targetIds": [],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "elixir-client",
+          "coverageState": "gap",
+          "claimState": "unclaimed",
+          "languages": [
+            "elixir"
+          ],
+          "sourceSkillIds": [],
+          "targetIds": [],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "components",
+      "name": "Cratis Components",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "capabilities": [
+        {
+          "id": "stepper-command-dialog",
+          "coverageState": "source-candidate",
+          "claimState": "unclaimed",
+          "languages": [
+            "react",
+            "typescript"
+          ],
+          "sourceSkillIds": [
+            "stepper-command-dialog"
+          ],
+          "targetIds": [
+            "cratis-components-stepper-command-dialog"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "toolbar",
+          "coverageState": "source-candidate",
+          "claimState": "unclaimed",
+          "languages": [
+            "react",
+            "typescript"
+          ],
+          "sourceSkillIds": [
+            "toolbar"
+          ],
+          "targetIds": [
+            "cratis-components-toolbar"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "pages",
+          "coverageState": "partial",
+          "claimState": "unclaimed",
+          "languages": [
+            "react",
+            "typescript"
+          ],
+          "sourceSkillIds": [
+            "cratis-react-page"
+          ],
+          "targetIds": [
+            "cratis-arc-react-page"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "dialogs",
+          "coverageState": "gap",
+          "claimState": "unclaimed",
+          "languages": [
+            "react",
+            "typescript"
+          ],
+          "sourceSkillIds": [],
+          "targetIds": [],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "forms",
+          "coverageState": "gap",
+          "claimState": "unclaimed",
+          "languages": [
+            "react",
+            "typescript"
+          ],
+          "sourceSkillIds": [],
+          "targetIds": [],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "data-page",
+          "coverageState": "partial",
+          "claimState": "unclaimed",
+          "languages": [
+            "react",
+            "typescript"
+          ],
+          "sourceSkillIds": [
+            "cratis-react-page"
+          ],
+          "targetIds": [
+            "cratis-arc-react-page"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ],
+          "notes": "Currently embedded in broader page guidance."
+        },
+        {
+          "id": "data-tables",
+          "coverageState": "gap",
+          "claimState": "unclaimed",
+          "languages": [
+            "react",
+            "typescript"
+          ],
+          "sourceSkillIds": [],
+          "targetIds": [],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cli",
+      "name": "Cratis CLI",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "capabilities": [
+        {
+          "id": "chronicle-inspection",
+          "coverageState": "partial",
+          "claimState": "unclaimed",
+          "languages": [
+            "shell"
+          ],
+          "sourceSkillIds": [
+            "inspect-running-chronicle"
+          ],
+          "targetIds": [
+            "cratis-chronicle-cli-operations"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "setup",
+          "coverageState": "gap",
+          "claimState": "unclaimed",
+          "languages": [
+            "shell"
+          ],
+          "sourceSkillIds": [],
+          "targetIds": [],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "project-generation",
+          "coverageState": "gap",
+          "claimState": "unclaimed",
+          "languages": [
+            "shell"
+          ],
+          "sourceSkillIds": [],
+          "targetIds": [],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "diagnostics",
+          "coverageState": "partial",
+          "claimState": "unclaimed",
+          "languages": [
+            "shell",
+            "csharp"
+          ],
+          "sourceSkillIds": [
+            "diagnose-slice",
+            "inspect-running-chronicle"
+          ],
+          "targetIds": [
+            "cratis-application-slice-diagnostics",
+            "cratis-chronicle-cli-operations"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "specifications",
+      "name": "Cratis.Specifications",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "capabilities": [
+        {
+          "id": "csharp-bdd",
+          "coverageState": "source-candidate",
+          "claimState": "unclaimed",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkillIds": [
+            "cratis-specs-csharp"
+          ],
+          "targetIds": [
+            "cratis-specifications-csharp"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "typescript-bdd",
+          "coverageState": "source-candidate",
+          "claimState": "unclaimed",
+          "languages": [
+            "typescript"
+          ],
+          "sourceSkillIds": [
+            "cratis-specs-typescript"
+          ],
+          "targetIds": [
+            "cratis-specifications-typescript"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "application-scenarios",
+          "coverageState": "source-candidate",
+          "claimState": "unclaimed",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkillIds": [
+            "write-specs",
+            "write-specs-events",
+            "write-specs-readmodels"
+          ],
+          "targetIds": [
+            "cratis-application-slice-specifications",
+            "cratis-chronicle-event-specifications",
+            "cratis-chronicle-read-model-specifications"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "react-specifications",
+          "coverageState": "source-candidate",
+          "claimState": "unclaimed",
+          "languages": [
+            "react",
+            "typescript"
+          ],
+          "sourceSkillIds": [
+            "write-specs-frontend"
+          ],
+          "targetIds": [
+            "cratis-application-react-specifications"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "application",
+      "name": "Cratis application architecture",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "capabilities": [
+        {
+          "id": "vertical-slices",
+          "coverageState": "source-candidate",
+          "claimState": "unclaimed",
+          "languages": [
+            "csharp",
+            "react",
+            "typescript"
+          ],
+          "sourceSkillIds": [
+            "cratis-vertical-slice",
+            "new-vertical-slice"
+          ],
+          "targetIds": [
+            "cratis-application-vertical-slice"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ],
+          "notes": "The two current skills are a merge experiment, not an approved merge."
+        },
+        {
+          "id": "feature-scaffolding",
+          "coverageState": "source-candidate",
+          "claimState": "unclaimed",
+          "languages": [
+            "csharp",
+            "react",
+            "typescript"
+          ],
+          "sourceSkillIds": [
+            "scaffold-feature"
+          ],
+          "targetIds": [
+            "cratis-arc-react-feature-scaffolding"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "slice-diagnostics",
+          "coverageState": "source-candidate",
+          "claimState": "unclaimed",
+          "languages": [
+            "csharp",
+            "typescript"
+          ],
+          "sourceSkillIds": [
+            "diagnose-slice"
+          ],
+          "targetIds": [
+            "cratis-application-slice-diagnostics"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "entity-framework-core",
+      "name": "Cratis EF Core integration",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "capabilities": [
+        {
+          "id": "migrations",
+          "coverageState": "source-candidate",
+          "claimState": "unclaimed",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkillIds": [
+            "add-ef-migration"
+          ],
+          "targetIds": [
+            "cratis-arc-ef-core-migration"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cross-product",
+      "name": "Cross-product engineering",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "capabilities": [
+        {
+          "id": "code-review",
+          "coverageState": "partial",
+          "claimState": "unclaimed",
+          "languages": [
+            "csharp",
+            "typescript"
+          ],
+          "sourceSkillIds": [
+            "review-code"
+          ],
+          "targetIds": [
+            "cratis-code-review"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ],
+          "notes": "Currently depends on the internal rule corpus."
+        },
+        {
+          "id": "performance-review",
+          "coverageState": "partial",
+          "claimState": "unclaimed",
+          "languages": [
+            "csharp",
+            "typescript"
+          ],
+          "sourceSkillIds": [
+            "review-performance"
+          ],
+          "targetIds": [
+            "cratis-performance-review"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ],
+          "notes": "Currently depends on the internal rule corpus."
+        },
+        {
+          "id": "security-review",
+          "coverageState": "partial",
+          "claimState": "unclaimed",
+          "languages": [
+            "csharp",
+            "typescript"
+          ],
+          "sourceSkillIds": [
+            "review-security"
+          ],
+          "targetIds": [
+            "cratis-security-review"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ],
+          "notes": "Currently depends on the internal rule corpus."
+        },
+        {
+          "id": "getting-started",
+          "coverageState": "gap",
+          "claimState": "unclaimed",
+          "languages": [
+            "csharp",
+            "typescript"
+          ],
+          "sourceSkillIds": [],
+          "targetIds": [],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,3900 @@
+{
+  "schemaVersion": 2,
+  "defaultPolicy": "deny",
+  "generatedBy": "tooling/generate-catalog-v2.mjs",
+  "targets": [
+    {
+      "id": "cratis-application-react-specifications",
+      "semanticName": "cratis-application-react-specifications",
+      "sourceSkillIds": [
+        "write-specs-frontend"
+      ],
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "products": [
+        "application",
+        "arc-react",
+        "specifications"
+      ],
+      "languages": [
+        "react",
+        "typescript"
+      ],
+      "capability": "Application React specifications",
+      "positiveTriggerIntent": "Use for React or TypeScript behavior in a Cratis application slice.",
+      "nearMissExclusions": [
+        "Do not use for framework package TypeScript specs.",
+        "Do not use for backend scenarios."
+      ],
+      "collisionSet": [
+        "cratis-specifications-typescript",
+        "cratis-application-slice-specifications"
+      ],
+      "dependencies": {
+        "targets": [
+          "cratis-arc-react-page",
+          "cratis-specifications-typescript"
+        ],
+        "internalArtifacts": [
+          ".ai/rules/frontend-testing.md",
+          ".ai/rules/react.md"
+        ],
+        "externalTools": [
+          "node"
+        ]
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "low",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-application-slice-diagnostics",
+      "semanticName": "cratis-application-slice-diagnostics",
+      "sourceSkillIds": [
+        "diagnose-slice"
+      ],
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "products": [
+        "application",
+        "arc",
+        "chronicle"
+      ],
+      "languages": [
+        "csharp",
+        "typescript"
+      ],
+      "capability": "Application slice diagnostics",
+      "positiveTriggerIntent": "Use when a Cratis slice misbehaves and source-level cause is unclear.",
+      "nearMissExclusions": [
+        "Do not use for direct live-store operation.",
+        "Do not use only for observable-query HTTP inspection."
+      ],
+      "collisionSet": [
+        "cratis-chronicle-cli-operations",
+        "cratis-arc-observable-query-http"
+      ],
+      "dependencies": {
+        "targets": [
+          "cratis-arc-command",
+          "cratis-chronicle-cli-operations",
+          "cratis-chronicle-projection"
+        ],
+        "internalArtifacts": [
+          ".ai/rules/components.md",
+          ".ai/rules/dialogs.md",
+          ".ai/rules/general.md",
+          ".ai/rules/reactors.md",
+          ".ai/rules/specs.scenarios.csharp.md",
+          ".ai/rules/vertical-slices.md"
+        ],
+        "externalTools": [
+          "dotnet",
+          "node"
+        ]
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "medium",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-application-slice-specifications",
+      "semanticName": "cratis-application-slice-specifications",
+      "sourceSkillIds": [
+        "write-specs"
+      ],
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "products": [
+        "application",
+        "specifications"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "capability": "Application slice specifications",
+      "positiveTriggerIntent": "Use to route event-sourced application backend behavior to the correct in-process scenario family.",
+      "nearMissExclusions": [
+        "Do not use for framework library specifications.",
+        "Do not use for frontend behavior."
+      ],
+      "collisionSet": [
+        "cratis-specifications-csharp",
+        "cratis-chronicle-event-specifications",
+        "cratis-chronicle-read-model-specifications"
+      ],
+      "dependencies": {
+        "targets": [
+          "cratis-chronicle-event-specifications",
+          "cratis-chronicle-read-model-specifications",
+          "cratis-specifications-csharp"
+        ],
+        "internalArtifacts": [
+          ".ai/rules/specs.csharp.md",
+          ".ai/rules/specs.md",
+          ".ai/rules/specs.scenarios.csharp.md",
+          ".ai/skills/write-specs/evals/**"
+        ],
+        "externalTools": [
+          "dotnet"
+        ]
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "medium",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "legacy-needs-migration",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-application-vertical-slice",
+      "semanticName": "cratis-application-vertical-slice",
+      "sourceSkillIds": [
+        "cratis-vertical-slice",
+        "new-vertical-slice"
+      ],
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "products": [
+        "application"
+      ],
+      "languages": [
+        "csharp",
+        "react",
+        "typescript"
+      ],
+      "capability": "Cratis application vertical slices",
+      "positiveTriggerIntent": "Use for vertical-slice architecture selection or end-to-end implementation after the merge experiment passes.",
+      "nearMissExclusions": [
+        "Do not use only to scaffold an empty feature shell.",
+        "Do not assume architecture explanation and implementation triggers are equivalent."
+      ],
+      "collisionSet": [
+        "cratis-arc-react-feature-scaffolding",
+        "cratis-chronicle-event-modeling"
+      ],
+      "dependencies": {
+        "targets": [
+          "cratis-application-slice-specifications",
+          "cratis-arc-react-page",
+          "cratis-chronicle-event-modeling"
+        ],
+        "internalArtifacts": [
+          ".ai/skills/cratis-vertical-slice/evals/**",
+          ".ai/skills/new-vertical-slice/evals/**",
+          "Documentation/web/**"
+        ],
+        "externalTools": [
+          "dotnet",
+          "node"
+        ]
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "high",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "legacy-needs-migration",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-arc-authentication-authorization-and-identity",
+      "semanticName": "cratis-arc-authentication-authorization-and-identity",
+      "sourceSkillIds": [
+        "auth-and-identity"
+      ],
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "products": [
+        "arc",
+        "arc-react"
+      ],
+      "languages": [
+        "csharp",
+        "react"
+      ],
+      "capability": "Arc authentication, authorization, and identity",
+      "positiveTriggerIntent": "Use for Arc identity providers, endpoint protection, roles, or frontend identity integration.",
+      "nearMissExclusions": [
+        "Do not use for isolated command validation.",
+        "Do not use for tenant namespaces alone."
+      ],
+      "collisionSet": [
+        "cratis-arc-command-validation",
+        "cratis-chronicle-multi-tenancy"
+      ],
+      "dependencies": {
+        "targets": [
+          "cratis-arc-command",
+          "cratis-arc-react-page",
+          "cratis-chronicle-multi-tenancy"
+        ],
+        "internalArtifacts": [
+          ".github/copilot-instructions.md",
+          "Documentation/frontend/react.mvvm/mvvm-context.md"
+        ],
+        "externalTools": [
+          "dotnet",
+          "node"
+        ]
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "critical",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-arc-command",
+      "semanticName": "cratis-arc-command",
+      "sourceSkillIds": [
+        "cratis-command"
+      ],
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "products": [
+        "application",
+        "arc",
+        "arc-react"
+      ],
+      "languages": [
+        "csharp",
+        "react"
+      ],
+      "capability": "Arc command definition",
+      "positiveTriggerIntent": "Use when defining an Arc command and its generated full-stack proxy workflow.",
+      "nearMissExclusions": [
+        "Do not use for a validation-only change.",
+        "Do not use only to execute an existing command."
+      ],
+      "collisionSet": [
+        "cratis-arc-command-validation",
+        "cratis-arc-command-execution"
+      ],
+      "dependencies": {
+        "targets": [
+          "cratis-arc-command-validation",
+          "cratis-chronicle-event-constraints",
+          "cratis-fundamentals-concept"
+        ],
+        "internalArtifacts": [
+          ".ai/rules/vertical-slices.md",
+          ".ai/skills/cratis-command/evals/**"
+        ],
+        "externalTools": [
+          "dotnet",
+          "node"
+        ]
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "high",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "legacy-needs-migration",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-arc-command-execution",
+      "semanticName": "cratis-arc-command-execution",
+      "sourceSkillIds": [
+        "call-command-from-code"
+      ],
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "products": [
+        "arc"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "capability": "Arc command pipeline execution",
+      "positiveTriggerIntent": "Use when backend code must execute an existing Arc command through ICommandPipeline.",
+      "nearMissExclusions": [
+        "Do not use to define a command.",
+        "Do not use for reactor design alone."
+      ],
+      "collisionSet": [
+        "cratis-arc-command",
+        "cratis-chronicle-reactor"
+      ],
+      "dependencies": {
+        "targets": [
+          "cratis-arc-command"
+        ],
+        "internalArtifacts": [
+          ".ai/rules/vertical-slices.md"
+        ],
+        "externalTools": [
+          "dotnet"
+        ]
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": true,
+        "risk": "high",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-arc-command-validation",
+      "semanticName": "cratis-arc-command-validation",
+      "sourceSkillIds": [
+        "add-business-rule"
+      ],
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "products": [
+        "application",
+        "arc"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "capability": "Arc command validation",
+      "positiveTriggerIntent": "Use when adding validation or state-dependent rejection to an existing Arc command.",
+      "nearMissExclusions": [
+        "Do not use to define a new command.",
+        "Do not use for append-time Chronicle constraints."
+      ],
+      "collisionSet": [
+        "cratis-arc-command",
+        "cratis-chronicle-event-constraints"
+      ],
+      "dependencies": {
+        "targets": [
+          "cratis-arc-command",
+          "cratis-fundamentals-concept"
+        ],
+        "internalArtifacts": [
+          ".ai/rules/vertical-slices.md",
+          ".ai/skills/add-business-rule/evals/**"
+        ],
+        "externalTools": [
+          "dotnet"
+        ]
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "high",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "legacy-needs-migration",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-arc-ef-core-migration",
+      "semanticName": "cratis-arc-ef-core-migration",
+      "sourceSkillIds": [
+        "add-ef-migration"
+      ],
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "products": [
+        "application",
+        "entity-framework-core"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "capability": "Arc EF Core migrations",
+      "positiveTriggerIntent": "Use when adding or changing an EF Core schema in a Cratis application.",
+      "nearMissExclusions": [
+        "Do not use for Chronicle read models.",
+        "Do not use for query paging."
+      ],
+      "collisionSet": [
+        "cratis-chronicle-read-model",
+        "cratis-arc-query-paging"
+      ],
+      "dependencies": {
+        "targets": [
+          "cratis-specifications-csharp"
+        ],
+        "internalArtifacts": [
+          ".ai/rules/efcore.md"
+        ],
+        "externalTools": [
+          "dotnet"
+        ]
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": true,
+        "risk": "high",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-arc-observable-query-http",
+      "semanticName": "cratis-arc-observable-query-http",
+      "sourceSkillIds": [
+        "observable-query-curl"
+      ],
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "products": [
+        "arc"
+      ],
+      "languages": [
+        "shell"
+      ],
+      "capability": "Arc observable-query HTTP diagnostics",
+      "positiveTriggerIntent": "Use when inspecting Arc observable query SSE or streaming behavior with curl or HTTP tools.",
+      "nearMissExclusions": [
+        "Do not use to implement the frontend query.",
+        "Do not use for Chronicle store recovery."
+      ],
+      "collisionSet": [
+        "cratis-application-slice-diagnostics",
+        "cratis-chronicle-cli-operations"
+      ],
+      "dependencies": {
+        "targets": [
+          "cratis-arc-query-paging",
+          "cratis-chronicle-read-model"
+        ],
+        "internalArtifacts": [],
+        "externalTools": [
+          "curl"
+        ]
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "medium",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-arc-query-paging",
+      "semanticName": "cratis-arc-query-paging",
+      "sourceSkillIds": [
+        "query-paging"
+      ],
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "products": [
+        "arc",
+        "arc-react"
+      ],
+      "languages": [
+        "csharp",
+        "react",
+        "typescript"
+      ],
+      "capability": "Arc query paging",
+      "positiveTriggerIntent": "Use when adding server-side paging and sorting to an Arc read-model query.",
+      "nearMissExclusions": [
+        "Do not use for generic query creation.",
+        "Do not use as a general performance review."
+      ],
+      "collisionSet": [
+        "cratis-chronicle-read-model",
+        "cratis-performance-review"
+      ],
+      "dependencies": {
+        "targets": [
+          "cratis-arc-react-page",
+          "cratis-chronicle-read-model"
+        ],
+        "internalArtifacts": [
+          ".ai/rules/react.md",
+          ".ai/rules/vertical-slices.md"
+        ],
+        "externalTools": [
+          "dotnet",
+          "node"
+        ]
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "medium",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-arc-react-feature-scaffolding",
+      "semanticName": "cratis-arc-react-feature-scaffolding",
+      "sourceSkillIds": [
+        "scaffold-feature"
+      ],
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "products": [
+        "application",
+        "arc-react"
+      ],
+      "languages": [
+        "csharp",
+        "react",
+        "typescript"
+      ],
+      "capability": "Arc React feature scaffolding",
+      "positiveTriggerIntent": "Use when creating an empty route, navigation entry, and feature composition shell.",
+      "nearMissExclusions": [
+        "Do not use to implement a behavior slice.",
+        "Do not use for a populated DataPage."
+      ],
+      "collisionSet": [
+        "cratis-application-vertical-slice",
+        "cratis-arc-react-page"
+      ],
+      "dependencies": {
+        "targets": [
+          "cratis-application-vertical-slice",
+          "cratis-arc-react-page"
+        ],
+        "internalArtifacts": [],
+        "externalTools": [
+          "dotnet",
+          "node"
+        ]
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "medium",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-arc-react-page",
+      "semanticName": "cratis-arc-react-page",
+      "sourceSkillIds": [
+        "cratis-react-page"
+      ],
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "products": [
+        "application",
+        "arc-react",
+        "components"
+      ],
+      "languages": [
+        "react",
+        "typescript"
+      ],
+      "capability": "Arc React pages",
+      "positiveTriggerIntent": "Use when building a DataPage or MVVM React page backed by generated Arc queries.",
+      "nearMissExclusions": [
+        "Do not use for an empty route shell.",
+        "Do not use for a multi-step wizard alone."
+      ],
+      "collisionSet": [
+        "cratis-arc-react-feature-scaffolding",
+        "cratis-components-stepper-command-dialog"
+      ],
+      "dependencies": {
+        "targets": [
+          "cratis-arc-command",
+          "cratis-arc-query-paging"
+        ],
+        "internalArtifacts": [
+          ".ai/rules/dialogs.md",
+          ".ai/rules/react.md",
+          ".ai/skills/cratis-react-page/evals/**"
+        ],
+        "externalTools": [
+          "node"
+        ]
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "medium",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "legacy-needs-migration",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-chronicle-cli-operations",
+      "semanticName": "cratis-chronicle-cli-operations",
+      "sourceSkillIds": [
+        "inspect-running-chronicle"
+      ],
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "products": [
+        "chronicle",
+        "cli"
+      ],
+      "languages": [
+        "shell"
+      ],
+      "capability": "Chronicle CLI operations",
+      "positiveTriggerIntent": "Use to inspect a running Chronicle store and, only with explicit confirmation, perform recovery operations.",
+      "nearMissExclusions": [
+        "Do not use for source-only diagnostics.",
+        "Do not mutate a store without an explicit target and confirmation."
+      ],
+      "collisionSet": [
+        "cratis-application-slice-diagnostics",
+        "cratis-arc-observable-query-http"
+      ],
+      "dependencies": {
+        "targets": [
+          "cratis-application-slice-diagnostics"
+        ],
+        "internalArtifacts": [
+          ".github/copilot-instructions.md",
+          "AGENTS.md",
+          "CHRONICLE.md",
+          "CLAUDE.md"
+        ],
+        "externalTools": [
+          "cratis-cli"
+        ]
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": true,
+        "risk": "critical",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-chronicle-event-constraints",
+      "semanticName": "cratis-chronicle-event-constraints",
+      "sourceSkillIds": [
+        "add-business-rule"
+      ],
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "products": [
+        "application",
+        "arc"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "capability": "Chronicle event constraints",
+      "positiveTriggerIntent": "Use when enforcing append-time uniqueness, concurrency, or event-store constraints.",
+      "nearMissExclusions": [
+        "Do not use for ordinary command input validation.",
+        "Do not use to create a projection."
+      ],
+      "collisionSet": [
+        "cratis-arc-command-validation",
+        "cratis-chronicle-event-specifications"
+      ],
+      "dependencies": {
+        "targets": [
+          "cratis-arc-command",
+          "cratis-fundamentals-concept"
+        ],
+        "internalArtifacts": [
+          ".ai/rules/vertical-slices.md",
+          ".ai/skills/add-business-rule/evals/**"
+        ],
+        "externalTools": [
+          "dotnet"
+        ]
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "high",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "legacy-needs-migration",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-chronicle-event-metadata",
+      "semanticName": "cratis-chronicle-event-metadata",
+      "sourceSkillIds": [
+        "cross-cutting-properties"
+      ],
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "capability": "Chronicle event metadata",
+      "positiveTriggerIntent": "Use when attaching audit, actor, tenant, or correlation metadata outside domain event payloads.",
+      "nearMissExclusions": [
+        "Do not use for domain facts.",
+        "Do not use for tenant isolation alone."
+      ],
+      "collisionSet": [
+        "cratis-chronicle-multi-tenancy"
+      ],
+      "dependencies": {
+        "targets": [
+          "cratis-chronicle-multi-tenancy"
+        ],
+        "internalArtifacts": [
+          ".ai/rules/vertical-slices.md"
+        ],
+        "externalTools": [
+          "dotnet"
+        ]
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "high",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-chronicle-event-modeling",
+      "semanticName": "cratis-chronicle-event-modeling",
+      "sourceSkillIds": [
+        "event-modeling"
+      ],
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "products": [
+        "application",
+        "chronicle"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "capability": "Chronicle event modeling",
+      "positiveTriggerIntent": "Use before implementation when commands, events, streams, read models, or reactions are unsettled.",
+      "nearMissExclusions": [
+        "Do not use only to edit a Mermaid diagram.",
+        "Do not use when the model is already accepted."
+      ],
+      "collisionSet": [
+        "cratis-event-model-diagram",
+        "cratis-application-vertical-slice"
+      ],
+      "dependencies": {
+        "targets": [
+          "cratis-event-model-diagram"
+        ],
+        "internalArtifacts": [
+          ".ai/rules/general.md",
+          ".ai/rules/vertical-slices.md",
+          ".ai/skills/ship-changes"
+        ],
+        "externalTools": []
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "high",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-chronicle-event-specifications",
+      "semanticName": "cratis-chronicle-event-specifications",
+      "sourceSkillIds": [
+        "write-specs-events"
+      ],
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "products": [
+        "application",
+        "chronicle",
+        "specifications"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "capability": "Chronicle event specifications",
+      "positiveTriggerIntent": "Use for EventScenario append, constraint, concurrency, or sequence behavior.",
+      "nearMissExclusions": [
+        "Do not use for command handling.",
+        "Do not use for read-model projection behavior."
+      ],
+      "collisionSet": [
+        "cratis-application-slice-specifications",
+        "cratis-chronicle-read-model-specifications"
+      ],
+      "dependencies": {
+        "targets": [
+          "cratis-application-slice-specifications",
+          "cratis-specifications-csharp"
+        ],
+        "internalArtifacts": [],
+        "externalTools": [
+          "dotnet"
+        ]
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "medium",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-chronicle-event-type-migration",
+      "semanticName": "cratis-chronicle-event-type-migration",
+      "sourceSkillIds": [
+        "event-type-migrations"
+      ],
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "capability": "Chronicle event type migration",
+      "positiveTriggerIntent": "Use when a stored event schema needs a new generation and migration.",
+      "nearMissExclusions": [
+        "Do not use for a new event.",
+        "Do not use for an EF Core migration."
+      ],
+      "collisionSet": [
+        "cratis-arc-ef-core-migration"
+      ],
+      "dependencies": {
+        "targets": [
+          "cratis-chronicle-read-model"
+        ],
+        "internalArtifacts": [
+          ".ai/rules/vertical-slices.md"
+        ],
+        "externalTools": [
+          "dotnet"
+        ]
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "critical",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-chronicle-multi-tenancy",
+      "semanticName": "cratis-chronicle-multi-tenancy",
+      "sourceSkillIds": [
+        "multi-tenancy"
+      ],
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "products": [
+        "arc",
+        "chronicle"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "capability": "Chronicle multi-tenancy",
+      "positiveTriggerIntent": "Use when isolating tenants through Chronicle namespaces and Arc tenant resolution.",
+      "nearMissExclusions": [
+        "Do not use for identity alone.",
+        "Do not use for event metadata alone."
+      ],
+      "collisionSet": [
+        "cratis-arc-authentication-authorization-and-identity",
+        "cratis-chronicle-event-metadata"
+      ],
+      "dependencies": {
+        "targets": [
+          "cratis-arc-authentication-authorization-and-identity"
+        ],
+        "internalArtifacts": [
+          ".ai/rules/reactors.md"
+        ],
+        "externalTools": [
+          "dotnet"
+        ]
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "critical",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-chronicle-projection",
+      "semanticName": "cratis-chronicle-projection",
+      "sourceSkillIds": [
+        "add-projection"
+      ],
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "products": [
+        "application",
+        "chronicle"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "capability": "Chronicle projections",
+      "positiveTriggerIntent": "Use when adding projection behavior to an existing Chronicle read model.",
+      "nearMissExclusions": [
+        "Do not use to create the read model itself.",
+        "Do not use when a reducer is not genuinely required."
+      ],
+      "collisionSet": [
+        "cratis-chronicle-read-model",
+        "cratis-chronicle-reducer"
+      ],
+      "dependencies": {
+        "targets": [
+          "cratis-chronicle-read-model",
+          "cratis-chronicle-read-model-specifications"
+        ],
+        "internalArtifacts": [
+          ".ai/skills/add-projection/evals/**",
+          "Documentation/events/filtering/**"
+        ],
+        "externalTools": [
+          "dotnet"
+        ]
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "high",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "legacy-needs-migration",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-chronicle-reactor",
+      "semanticName": "cratis-chronicle-reactor",
+      "sourceSkillIds": [
+        "add-reactor"
+      ],
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "products": [
+        "application",
+        "chronicle"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "capability": "Chronicle reactors",
+      "positiveTriggerIntent": "Use when implementing an automation or translation that reacts to events.",
+      "nearMissExclusions": [
+        "Do not use for projections.",
+        "Do not use for an ordinary backend command call."
+      ],
+      "collisionSet": [
+        "cratis-chronicle-projection",
+        "cratis-arc-command-execution"
+      ],
+      "dependencies": {
+        "targets": [
+          "cratis-application-slice-specifications",
+          "cratis-arc-command-execution"
+        ],
+        "internalArtifacts": [
+          ".ai/rules/reactors.md",
+          ".ai/skills/add-reactor/evals/**",
+          "Documentation/events/filtering/**"
+        ],
+        "externalTools": [
+          "dotnet"
+        ]
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": true,
+        "risk": "high",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "legacy-needs-migration",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-chronicle-read-model",
+      "semanticName": "cratis-chronicle-read-model",
+      "sourceSkillIds": [
+        "cratis-readmodel"
+      ],
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "products": [
+        "application",
+        "arc",
+        "chronicle"
+      ],
+      "languages": [
+        "csharp",
+        "typescript"
+      ],
+      "capability": "Chronicle read models",
+      "positiveTriggerIntent": "Use when creating a Chronicle read model and model-bound query surface.",
+      "nearMissExclusions": [
+        "Do not use for projection-only changes.",
+        "Do not default to a reducer."
+      ],
+      "collisionSet": [
+        "cratis-chronicle-projection",
+        "cratis-chronicle-reducer",
+        "cratis-arc-query-paging"
+      ],
+      "dependencies": {
+        "targets": [
+          "cratis-arc-query-paging",
+          "cratis-chronicle-projection",
+          "cratis-chronicle-reducer"
+        ],
+        "internalArtifacts": [
+          ".ai/skills/cratis-readmodel/evals/**",
+          "Documentation/events/filtering/**"
+        ],
+        "externalTools": [
+          "dotnet",
+          "node"
+        ]
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "high",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "legacy-needs-migration",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-chronicle-read-model-specifications",
+      "semanticName": "cratis-chronicle-read-model-specifications",
+      "sourceSkillIds": [
+        "write-specs-readmodels"
+      ],
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "products": [
+        "application",
+        "chronicle",
+        "specifications"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "capability": "Chronicle read-model specifications",
+      "positiveTriggerIntent": "Use for ReadModelScenario projection or reducer behavior.",
+      "nearMissExclusions": [
+        "Do not use for read-model creation.",
+        "Do not use for raw event append behavior."
+      ],
+      "collisionSet": [
+        "cratis-chronicle-event-specifications",
+        "cratis-chronicle-read-model"
+      ],
+      "dependencies": {
+        "targets": [
+          "cratis-application-slice-specifications",
+          "cratis-chronicle-projection",
+          "cratis-chronicle-read-model",
+          "cratis-chronicle-reducer"
+        ],
+        "internalArtifacts": [],
+        "externalTools": [
+          "dotnet"
+        ]
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "medium",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-chronicle-reducer",
+      "semanticName": "cratis-chronicle-reducer",
+      "sourceSkillIds": [
+        "add-reducer"
+      ],
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "products": [
+        "application",
+        "chronicle"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "capability": "Chronicle reducers",
+      "positiveTriggerIntent": "Use when a current-state-plus-event transition cannot be expressed as a projection.",
+      "nearMissExclusions": [
+        "Do not use for simple mapping.",
+        "Do not use before projection alternatives are exhausted."
+      ],
+      "collisionSet": [
+        "cratis-chronicle-projection",
+        "cratis-chronicle-read-model"
+      ],
+      "dependencies": {
+        "targets": [
+          "cratis-chronicle-read-model",
+          "cratis-chronicle-read-model-specifications"
+        ],
+        "internalArtifacts": [
+          ".ai/rules/specs.scenarios.csharp.md",
+          ".ai/rules/vertical-slices.md"
+        ],
+        "externalTools": [
+          "dotnet"
+        ]
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "high",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-code-review",
+      "semanticName": "cratis-code-review",
+      "sourceSkillIds": [
+        "review-code"
+      ],
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "products": [
+        "cross-product"
+      ],
+      "languages": [
+        "csharp",
+        "typescript"
+      ],
+      "capability": "Cratis code review",
+      "positiveTriggerIntent": "Use for a general correctness and maintainability review of Cratis code.",
+      "nearMissExclusions": [
+        "Do not substitute it for a focused security audit.",
+        "Do not duplicate specialist performance findings."
+      ],
+      "collisionSet": [
+        "cratis-performance-review",
+        "cratis-security-review"
+      ],
+      "dependencies": {
+        "targets": [
+          "cratis-performance-review",
+          "cratis-security-review"
+        ],
+        "internalArtifacts": [],
+        "externalTools": [
+          "dotnet",
+          "git",
+          "node"
+        ]
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "medium",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-components-stepper-command-dialog",
+      "semanticName": "cratis-components-stepper-command-dialog",
+      "sourceSkillIds": [
+        "stepper-command-dialog"
+      ],
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "products": [
+        "arc-react",
+        "components"
+      ],
+      "languages": [
+        "react",
+        "typescript"
+      ],
+      "capability": "Cratis Components stepper command dialogs",
+      "positiveTriggerIntent": "Use when a command requires a multi-step wizard dialog.",
+      "nearMissExclusions": [
+        "Do not use for an ordinary command dialog.",
+        "Do not use for a page shell."
+      ],
+      "collisionSet": [
+        "cratis-arc-command",
+        "cratis-arc-react-page"
+      ],
+      "dependencies": {
+        "targets": [
+          "cratis-arc-command",
+          "cratis-arc-react-page"
+        ],
+        "internalArtifacts": [],
+        "externalTools": [
+          "node"
+        ]
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "medium",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-components-toolbar",
+      "semanticName": "cratis-components-toolbar",
+      "sourceSkillIds": [
+        "toolbar"
+      ],
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "products": [
+        "components"
+      ],
+      "languages": [
+        "react",
+        "typescript"
+      ],
+      "capability": "Cratis Components toolbar",
+      "positiveTriggerIntent": "Use when building a canvas-style icon toolbar with active tools or fan-out controls.",
+      "nearMissExclusions": [
+        "Do not use for ordinary page actions or menus."
+      ],
+      "collisionSet": [
+        "cratis-arc-react-page"
+      ],
+      "dependencies": {
+        "targets": [
+          "cratis-arc-react-page"
+        ],
+        "internalArtifacts": [
+          ".ai/rules/components.md"
+        ],
+        "externalTools": [
+          "node"
+        ]
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "low",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-engineering-chronicle-kernel-tracing",
+      "semanticName": "cratis-engineering-chronicle-kernel-tracing",
+      "sourceSkillIds": [
+        "add-traces"
+      ],
+      "owner": "reusable Cratis engineering behavior",
+      "audience": "cratis-engineering",
+      "products": [
+        "cratis-engineering"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "capability": "Chronicle Kernel tracing maintenance",
+      "positiveTriggerIntent": "Use by Chronicle framework maintainers to add generated OpenTelemetry traces.",
+      "nearMissExclusions": [
+        "Do not use for application telemetry or generic OpenTelemetry setup."
+      ],
+      "collisionSet": [],
+      "dependencies": {
+        "targets": [],
+        "internalArtifacts": [],
+        "externalTools": []
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "high",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-engineering-csharp-conventions",
+      "semanticName": "cratis-engineering-csharp-conventions",
+      "sourceSkillIds": [
+        "cratis-csharp-standards"
+      ],
+      "owner": "reusable Cratis engineering behavior",
+      "audience": "cratis-engineering",
+      "products": [
+        "cratis-engineering"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "capability": "Cratis C# engineering conventions",
+      "positiveTriggerIntent": "Use for Cratis-maintainer C# house standards and review policy.",
+      "nearMissExclusions": [
+        "Do not expose broad engineering policy as a public product capability."
+      ],
+      "collisionSet": [
+        "cratis-code-review"
+      ],
+      "dependencies": {
+        "targets": [],
+        "internalArtifacts": [],
+        "externalTools": []
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "medium",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "legacy-needs-migration",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-engineering-docs-add-page",
+      "semanticName": "cratis-engineering-docs-add-page",
+      "sourceSkillIds": [
+        "add-cratis-docs-page"
+      ],
+      "owner": "reusable Cratis engineering behavior",
+      "audience": "cratis-engineering",
+      "products": [
+        "cratis-engineering"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "capability": "Cratis documentation page creation",
+      "positiveTriggerIntent": "Use by Cratis maintainers to add a source-owned product documentation page.",
+      "nearMissExclusions": [
+        "Do not use to edit or visually QA an existing page."
+      ],
+      "collisionSet": [
+        "cratis-engineering-docs-edit-page",
+        "cratis-engineering-docs-authoring"
+      ],
+      "dependencies": {
+        "targets": [],
+        "internalArtifacts": [],
+        "externalTools": []
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "medium",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-engineering-docs-authoring",
+      "semanticName": "cratis-engineering-docs-authoring",
+      "sourceSkillIds": [
+        "write-documentation"
+      ],
+      "owner": "reusable Cratis engineering behavior",
+      "audience": "cratis-engineering",
+      "products": [
+        "cratis-engineering"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "capability": "Cratis documentation authoring",
+      "positiveTriggerIntent": "Use by Cratis maintainers to apply Diátaxis and documentation writing guidance.",
+      "nearMissExclusions": [
+        "Do not use to choose repository placement or perform visual QA alone."
+      ],
+      "collisionSet": [
+        "cratis-engineering-docs-add-page",
+        "cratis-engineering-docs-edit-page"
+      ],
+      "dependencies": {
+        "targets": [],
+        "internalArtifacts": [],
+        "externalTools": []
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "low",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-engineering-docs-edit-page",
+      "semanticName": "cratis-engineering-docs-edit-page",
+      "sourceSkillIds": [
+        "edit-cratis-docs"
+      ],
+      "owner": "reusable Cratis engineering behavior",
+      "audience": "cratis-engineering",
+      "products": [
+        "cratis-engineering"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "capability": "Cratis documentation page editing",
+      "positiveTriggerIntent": "Use by Cratis maintainers to edit the source-owned copy of an existing documentation page.",
+      "nearMissExclusions": [
+        "Do not use to add a new page or perform visual QA."
+      ],
+      "collisionSet": [
+        "cratis-engineering-docs-add-page",
+        "cratis-engineering-docs-visual-qa"
+      ],
+      "dependencies": {
+        "targets": [],
+        "internalArtifacts": [],
+        "externalTools": []
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "medium",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-engineering-docs-visual-qa",
+      "semanticName": "cratis-engineering-docs-visual-qa",
+      "sourceSkillIds": [
+        "qa-cratis-docs"
+      ],
+      "owner": "reusable Cratis engineering behavior",
+      "audience": "cratis-engineering",
+      "products": [
+        "cratis-engineering"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "capability": "Cratis documentation visual QA",
+      "positiveTriggerIntent": "Use by Cratis maintainers to render and inspect documentation in light and dark modes.",
+      "nearMissExclusions": [
+        "Do not use for textual editing alone."
+      ],
+      "collisionSet": [
+        "cratis-engineering-docs-edit-page"
+      ],
+      "dependencies": {
+        "targets": [],
+        "internalArtifacts": [],
+        "externalTools": []
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": true,
+        "risk": "high",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-engineering-ship-changes",
+      "semanticName": "cratis-engineering-ship-changes",
+      "sourceSkillIds": [
+        "ship-changes"
+      ],
+      "owner": "reusable Cratis engineering behavior",
+      "audience": "cratis-engineering",
+      "products": [
+        "cratis-engineering"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "capability": "Cratis change shipping",
+      "positiveTriggerIntent": "Use only after an explicit request to commit, push, open, or merge a Cratis pull request.",
+      "nearMissExclusions": [
+        "Do not trigger for review, status, or local validation requests."
+      ],
+      "collisionSet": [],
+      "dependencies": {
+        "targets": [],
+        "internalArtifacts": [],
+        "externalTools": []
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": true,
+        "risk": "critical",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "legacy-needs-migration",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-event-model-diagram",
+      "semanticName": "cratis-event-model-diagram",
+      "sourceSkillIds": [
+        "create-event-model"
+      ],
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "products": [
+        "application",
+        "chronicle"
+      ],
+      "languages": [
+        "markdown"
+      ],
+      "capability": "Event-model diagrams",
+      "positiveTriggerIntent": "Use when creating or maintaining a Mermaid EventModel.md diagram for settled behavior.",
+      "nearMissExclusions": [
+        "Do not use to settle event vocabulary.",
+        "Do not use to implement a slice."
+      ],
+      "collisionSet": [
+        "cratis-chronicle-event-modeling",
+        "cratis-application-vertical-slice"
+      ],
+      "dependencies": {
+        "targets": [
+          "cratis-chronicle-event-modeling"
+        ],
+        "internalArtifacts": [
+          ".ai/rules/vertical-slices.md"
+        ],
+        "externalTools": []
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "low",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-fundamentals-concept",
+      "semanticName": "cratis-fundamentals-concept",
+      "sourceSkillIds": [
+        "add-concept"
+      ],
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "products": [
+        "fundamentals"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "capability": "Strongly typed Cratis concepts",
+      "positiveTriggerIntent": "Use when creating a ConceptAs<T> value or EventSourceId<T> identity.",
+      "nearMissExclusions": [
+        "Do not use for DTO cleanup.",
+        "Do not use for event schema migration."
+      ],
+      "collisionSet": [
+        "cratis-chronicle-event-type-migration"
+      ],
+      "dependencies": {
+        "targets": [],
+        "internalArtifacts": [],
+        "externalTools": [
+          "dotnet"
+        ]
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "medium",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-fundamentals-type-discovery",
+      "semanticName": "cratis-fundamentals-type-discovery",
+      "sourceSkillIds": [
+        "discover-implementations"
+      ],
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "products": [
+        "fundamentals"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "capability": "Cratis implementation discovery",
+      "positiveTriggerIntent": "Use when a service must enumerate all implementations through IInstancesOf<T>.",
+      "nearMissExclusions": [
+        "Do not use for normal single-service dependency injection."
+      ],
+      "collisionSet": [],
+      "dependencies": {
+        "targets": [
+          "cratis-engineering-csharp-conventions"
+        ],
+        "internalArtifacts": [],
+        "externalTools": [
+          "dotnet"
+        ]
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "medium",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-performance-review",
+      "semanticName": "cratis-performance-review",
+      "sourceSkillIds": [
+        "review-performance"
+      ],
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "products": [
+        "arc-react",
+        "chronicle",
+        "cross-product"
+      ],
+      "languages": [
+        "csharp",
+        "typescript"
+      ],
+      "capability": "Cratis performance review",
+      "positiveTriggerIntent": "Use for focused Chronicle, database, .NET, or React scalability analysis.",
+      "nearMissExclusions": [
+        "Do not use for ordinary implementation.",
+        "Do not override authoritative paging guidance."
+      ],
+      "collisionSet": [
+        "cratis-code-review",
+        "cratis-arc-query-paging"
+      ],
+      "dependencies": {
+        "targets": [
+          "cratis-code-review"
+        ],
+        "internalArtifacts": [],
+        "externalTools": [
+          "dotnet",
+          "git",
+          "node"
+        ]
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "high",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-security-review",
+      "semanticName": "cratis-security-review",
+      "sourceSkillIds": [
+        "review-security"
+      ],
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "products": [
+        "arc",
+        "chronicle",
+        "cross-product"
+      ],
+      "languages": [
+        "csharp",
+        "typescript"
+      ],
+      "capability": "Cratis security review",
+      "positiveTriggerIntent": "Use for focused authentication, authorization, data exposure, event-sourcing, and frontend security review.",
+      "nearMissExclusions": [
+        "Do not use to implement authentication.",
+        "Do not treat policy preferences as framework contracts."
+      ],
+      "collisionSet": [
+        "cratis-code-review",
+        "cratis-arc-authentication-authorization-and-identity"
+      ],
+      "dependencies": {
+        "targets": [
+          "cratis-code-review"
+        ],
+        "internalArtifacts": [],
+        "externalTools": [
+          "dotnet",
+          "git",
+          "node"
+        ]
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "critical",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-specifications-csharp",
+      "semanticName": "cratis-specifications-csharp",
+      "sourceSkillIds": [
+        "cratis-specs-csharp"
+      ],
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "products": [
+        "cross-product",
+        "specifications"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "capability": "Cratis C# specification foundations",
+      "positiveTriggerIntent": "Use for framework or library C# Specification by Example tests.",
+      "nearMissExclusions": [
+        "Do not use for application scenario routing.",
+        "Do not use for React tests."
+      ],
+      "collisionSet": [
+        "cratis-application-slice-specifications",
+        "cratis-specifications-typescript"
+      ],
+      "dependencies": {
+        "targets": [],
+        "internalArtifacts": [
+          ".ai/rules/specs.csharp.md",
+          ".ai/rules/specs.scenarios.csharp.md",
+          ".ai/skills/cratis-specs-csharp/evals/**"
+        ],
+        "externalTools": [
+          "dotnet"
+        ]
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "low",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "legacy-needs-migration",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-specifications-typescript",
+      "semanticName": "cratis-specifications-typescript",
+      "sourceSkillIds": [
+        "cratis-specs-typescript"
+      ],
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "products": [
+        "cross-product",
+        "specifications"
+      ],
+      "languages": [
+        "typescript"
+      ],
+      "capability": "Cratis TypeScript specification foundations",
+      "positiveTriggerIntent": "Use for framework or package TypeScript Specification by Example tests.",
+      "nearMissExclusions": [
+        "Do not use for React application slice behavior.",
+        "Do not use for C# scenarios."
+      ],
+      "collisionSet": [
+        "cratis-application-react-specifications",
+        "cratis-specifications-csharp"
+      ],
+      "dependencies": {
+        "targets": [],
+        "internalArtifacts": [
+          ".ai/skills/cratis-specs-typescript/evals/**"
+        ],
+        "externalTools": [
+          "node"
+        ]
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "low",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "legacy-needs-migration",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "skill-creator",
+      "semanticName": "skill-creator",
+      "sourceSkillIds": [
+        "skill-creator"
+      ],
+      "owner": "reusable Cratis engineering behavior",
+      "audience": "cratis-engineering",
+      "products": [
+        "cratis-engineering"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "capability": "Skill authoring and evaluation",
+      "positiveTriggerIntent": "Use by trusted maintainers to create, improve, and evaluate Agent Skills.",
+      "nearMissExclusions": [
+        "Do not use for an ordinary prompt or documentation edit."
+      ],
+      "collisionSet": [],
+      "dependencies": {
+        "targets": [],
+        "internalArtifacts": [],
+        "externalTools": []
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": true,
+        "risk": "critical",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    }
+  ]
+}

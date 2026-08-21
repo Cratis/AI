@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cratis/AI/catalog/schemas/ecosystem-versions.schema.json",
+  "title": "Cratis ecosystem assumptions and source registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "verifiedOn", "policy", "ecosystems"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "verifiedOn": { "type": "string", "format": "date" },
+    "policy": { "const": "official-sources-only" },
+    "ecosystems": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "status", "version", "facts", "sources"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "status": {
+            "enum": ["current", "preview", "provisional", "local-only"]
+          },
+          "version": { "type": "string", "minLength": 1 },
+          "facts": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "minLength": 1 }
+          },
+          "sources": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["url", "kind", "verifiedOn"],
+              "properties": {
+                "url": { "type": "string", "format": "uri" },
+                "kind": {
+                  "enum": ["specification", "official-documentation", "official-repository", "registry", "installed-documentation"]
+                },
+                "verifiedOn": { "type": "string", "format": "date" }
+              }
+            }
+          },
+          "localEvidence": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    }
+  }
+}

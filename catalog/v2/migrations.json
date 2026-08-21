@@ -1,0 +1,638 @@
+{
+  "schemaVersion": 2,
+  "generatedBy": "tooling/generate-catalog-v2.mjs",
+  "migrations": [
+    {
+      "id": "merge-application-vertical-slice",
+      "kind": "merge",
+      "sourceIds": [
+        "cratis-vertical-slice",
+        "new-vertical-slice"
+      ],
+      "targetIds": [
+        "cratis-application-vertical-slice"
+      ],
+      "state": "evaluation-required",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-add-concept",
+      "kind": "rename",
+      "sourceIds": [
+        "add-concept"
+      ],
+      "targetIds": [
+        "cratis-fundamentals-concept"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-add-cratis-docs-page",
+      "kind": "rename",
+      "sourceIds": [
+        "add-cratis-docs-page"
+      ],
+      "targetIds": [
+        "cratis-engineering-docs-add-page"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-add-ef-migration",
+      "kind": "rename",
+      "sourceIds": [
+        "add-ef-migration"
+      ],
+      "targetIds": [
+        "cratis-arc-ef-core-migration"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-add-projection",
+      "kind": "rename",
+      "sourceIds": [
+        "add-projection"
+      ],
+      "targetIds": [
+        "cratis-chronicle-projection"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-add-reactor",
+      "kind": "rename",
+      "sourceIds": [
+        "add-reactor"
+      ],
+      "targetIds": [
+        "cratis-chronicle-reactor"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-add-reducer",
+      "kind": "rename",
+      "sourceIds": [
+        "add-reducer"
+      ],
+      "targetIds": [
+        "cratis-chronicle-reducer"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-add-traces",
+      "kind": "rename",
+      "sourceIds": [
+        "add-traces"
+      ],
+      "targetIds": [
+        "cratis-engineering-chronicle-kernel-tracing"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-auth-and-identity",
+      "kind": "rename",
+      "sourceIds": [
+        "auth-and-identity"
+      ],
+      "targetIds": [
+        "cratis-arc-authentication-authorization-and-identity"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-call-command-from-code",
+      "kind": "rename",
+      "sourceIds": [
+        "call-command-from-code"
+      ],
+      "targetIds": [
+        "cratis-arc-command-execution"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-cratis-command",
+      "kind": "rename",
+      "sourceIds": [
+        "cratis-command"
+      ],
+      "targetIds": [
+        "cratis-arc-command"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-cratis-csharp-standards",
+      "kind": "rename",
+      "sourceIds": [
+        "cratis-csharp-standards"
+      ],
+      "targetIds": [
+        "cratis-engineering-csharp-conventions"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-cratis-react-page",
+      "kind": "rename",
+      "sourceIds": [
+        "cratis-react-page"
+      ],
+      "targetIds": [
+        "cratis-arc-react-page"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-cratis-readmodel",
+      "kind": "rename",
+      "sourceIds": [
+        "cratis-readmodel"
+      ],
+      "targetIds": [
+        "cratis-chronicle-read-model"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-cratis-specs-csharp",
+      "kind": "rename",
+      "sourceIds": [
+        "cratis-specs-csharp"
+      ],
+      "targetIds": [
+        "cratis-specifications-csharp"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-cratis-specs-typescript",
+      "kind": "rename",
+      "sourceIds": [
+        "cratis-specs-typescript"
+      ],
+      "targetIds": [
+        "cratis-specifications-typescript"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-create-event-model",
+      "kind": "rename",
+      "sourceIds": [
+        "create-event-model"
+      ],
+      "targetIds": [
+        "cratis-event-model-diagram"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-cross-cutting-properties",
+      "kind": "rename",
+      "sourceIds": [
+        "cross-cutting-properties"
+      ],
+      "targetIds": [
+        "cratis-chronicle-event-metadata"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-diagnose-slice",
+      "kind": "rename",
+      "sourceIds": [
+        "diagnose-slice"
+      ],
+      "targetIds": [
+        "cratis-application-slice-diagnostics"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-discover-implementations",
+      "kind": "rename",
+      "sourceIds": [
+        "discover-implementations"
+      ],
+      "targetIds": [
+        "cratis-fundamentals-type-discovery"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-edit-cratis-docs",
+      "kind": "rename",
+      "sourceIds": [
+        "edit-cratis-docs"
+      ],
+      "targetIds": [
+        "cratis-engineering-docs-edit-page"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-event-modeling",
+      "kind": "rename",
+      "sourceIds": [
+        "event-modeling"
+      ],
+      "targetIds": [
+        "cratis-chronicle-event-modeling"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-event-type-migrations",
+      "kind": "rename",
+      "sourceIds": [
+        "event-type-migrations"
+      ],
+      "targetIds": [
+        "cratis-chronicle-event-type-migration"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-inspect-running-chronicle",
+      "kind": "rename",
+      "sourceIds": [
+        "inspect-running-chronicle"
+      ],
+      "targetIds": [
+        "cratis-chronicle-cli-operations"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-multi-tenancy",
+      "kind": "rename",
+      "sourceIds": [
+        "multi-tenancy"
+      ],
+      "targetIds": [
+        "cratis-chronicle-multi-tenancy"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-observable-query-curl",
+      "kind": "rename",
+      "sourceIds": [
+        "observable-query-curl"
+      ],
+      "targetIds": [
+        "cratis-arc-observable-query-http"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-qa-cratis-docs",
+      "kind": "rename",
+      "sourceIds": [
+        "qa-cratis-docs"
+      ],
+      "targetIds": [
+        "cratis-engineering-docs-visual-qa"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-query-paging",
+      "kind": "rename",
+      "sourceIds": [
+        "query-paging"
+      ],
+      "targetIds": [
+        "cratis-arc-query-paging"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-review-code",
+      "kind": "rename",
+      "sourceIds": [
+        "review-code"
+      ],
+      "targetIds": [
+        "cratis-code-review"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-review-performance",
+      "kind": "rename",
+      "sourceIds": [
+        "review-performance"
+      ],
+      "targetIds": [
+        "cratis-performance-review"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-review-security",
+      "kind": "rename",
+      "sourceIds": [
+        "review-security"
+      ],
+      "targetIds": [
+        "cratis-security-review"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-scaffold-feature",
+      "kind": "rename",
+      "sourceIds": [
+        "scaffold-feature"
+      ],
+      "targetIds": [
+        "cratis-arc-react-feature-scaffolding"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-ship-changes",
+      "kind": "rename",
+      "sourceIds": [
+        "ship-changes"
+      ],
+      "targetIds": [
+        "cratis-engineering-ship-changes"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-stepper-command-dialog",
+      "kind": "rename",
+      "sourceIds": [
+        "stepper-command-dialog"
+      ],
+      "targetIds": [
+        "cratis-components-stepper-command-dialog"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-toolbar",
+      "kind": "rename",
+      "sourceIds": [
+        "toolbar"
+      ],
+      "targetIds": [
+        "cratis-components-toolbar"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-write-documentation",
+      "kind": "rename",
+      "sourceIds": [
+        "write-documentation"
+      ],
+      "targetIds": [
+        "cratis-engineering-docs-authoring"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-write-specs",
+      "kind": "rename",
+      "sourceIds": [
+        "write-specs"
+      ],
+      "targetIds": [
+        "cratis-application-slice-specifications"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-write-specs-events",
+      "kind": "rename",
+      "sourceIds": [
+        "write-specs-events"
+      ],
+      "targetIds": [
+        "cratis-chronicle-event-specifications"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-write-specs-frontend",
+      "kind": "rename",
+      "sourceIds": [
+        "write-specs-frontend"
+      ],
+      "targetIds": [
+        "cratis-application-react-specifications"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-write-specs-readmodels",
+      "kind": "rename",
+      "sourceIds": [
+        "write-specs-readmodels"
+      ],
+      "targetIds": [
+        "cratis-chronicle-read-model-specifications"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "retain-skill-creator",
+      "kind": "retain",
+      "sourceIds": [
+        "skill-creator"
+      ],
+      "targetIds": [
+        "skill-creator"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "split-add-business-rule",
+      "kind": "split",
+      "sourceIds": [
+        "add-business-rule"
+      ],
+      "targetIds": [
+        "cratis-arc-command-validation",
+        "cratis-chronicle-event-constraints"
+      ],
+      "state": "evaluation-required",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,842 @@
+{
+  "schemaVersion": 2,
+  "defaultPolicy": "deny",
+  "generatedBy": "tooling/generate-catalog-v2.mjs",
+  "sources": [
+    {
+      "id": "add-business-rule",
+      "sourcePath": ".ai/skills/add-business-rule",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        ".ai/skills/add-business-rule/SKILL.md",
+        ".ai/skills/add-business-rule/evals/evals.json"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "796ccf26f62bec707eb389ea0e3e666ab26a5d1ad7aa69c30801c3ca3b036852",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "add-concept",
+      "sourcePath": ".ai/skills/add-concept",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        ".ai/skills/add-concept/SKILL.md"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "f761a6f1f8dfc0b2a8308546bce03ae9391e756d5e6f1a236154e1dfc64cb9ba",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "add-cratis-docs-page",
+      "sourcePath": ".ai/skills/add-cratis-docs-page",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "reusable Cratis engineering behavior",
+      "audience": "cratis-engineering",
+      "bundledPaths": [
+        ".ai/skills/add-cratis-docs-page/SKILL.md"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "af8a22b279a7075c110fd6bf4197275006678699e46b154f6215784fb52b057d",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "add-ef-migration",
+      "sourcePath": ".ai/skills/add-ef-migration",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        ".ai/skills/add-ef-migration/SKILL.md"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "1b6701db62731341d6059487b6560762fc24446809eda9123bebd1d21747d91e",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "add-projection",
+      "sourcePath": ".ai/skills/add-projection",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        ".ai/skills/add-projection/SKILL.md",
+        ".ai/skills/add-projection/evals/evals.json",
+        ".ai/skills/add-projection/references/CHRONICLE-API.md"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "119882a43c05d74dbcc51cb1637fe9be70801247886265b50ec85cb7c5c415c8",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "add-reactor",
+      "sourcePath": ".ai/skills/add-reactor",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        ".ai/skills/add-reactor/SKILL.md",
+        ".ai/skills/add-reactor/evals/evals.json"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "76b3ad7d5f55f04996ae2c5d8d34ba4bb4ce324aafe0eadaa2268fb9abf32bfa",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "add-reducer",
+      "sourcePath": ".ai/skills/add-reducer",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        ".ai/skills/add-reducer/SKILL.md"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "46d0f00962aa14b40e5f1554499175908d65829fd8a2392fb460e10ee51bf103",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "add-traces",
+      "sourcePath": ".ai/skills/add-traces",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "reusable Cratis engineering behavior",
+      "audience": "cratis-engineering",
+      "bundledPaths": [
+        ".ai/skills/add-traces/SKILL.md"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "95b503d37799819abd59f1a920dd33a574d49bc74bac96127a0ac0009a95036b",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "auth-and-identity",
+      "sourcePath": ".ai/skills/auth-and-identity",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        ".ai/skills/auth-and-identity/SKILL.md",
+        ".ai/skills/auth-and-identity/references/authentication.md",
+        ".ai/skills/auth-and-identity/references/authorization.md",
+        ".ai/skills/auth-and-identity/references/backend-identity.md",
+        ".ai/skills/auth-and-identity/references/frontend.md",
+        ".ai/skills/auth-and-identity/references/local-development.md"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "16a63a628f0aad9c8daef890f49074bc1af7a086025ab4978a5c2bdc018f3ca9",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "call-command-from-code",
+      "sourcePath": ".ai/skills/call-command-from-code",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        ".ai/skills/call-command-from-code/SKILL.md"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "99b9c640ca2dca5121ff64275df8de8408dd07306e4cc9f9a511b01f32ddd203",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "cratis-command",
+      "sourcePath": ".ai/skills/cratis-command",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        ".ai/skills/cratis-command/SKILL.md",
+        ".ai/skills/cratis-command/evals/evals.json",
+        ".ai/skills/cratis-command/references/command-dialog.md",
+        ".ai/skills/cratis-command/references/command-result.md",
+        ".ai/skills/cratis-command/references/proxy-setup.md",
+        ".ai/skills/cratis-command/references/validation.md"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "05e1dda70a0871c306071677998698491186b0ca541c7ef62ddce89a787359f8",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "cratis-csharp-standards",
+      "sourcePath": ".ai/skills/cratis-csharp-standards",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "reusable Cratis engineering behavior",
+      "audience": "cratis-engineering",
+      "bundledPaths": [
+        ".ai/skills/cratis-csharp-standards/SKILL.md",
+        ".ai/skills/cratis-csharp-standards/evals/evals.json",
+        ".ai/skills/cratis-csharp-standards/references/code-style.md",
+        ".ai/skills/cratis-csharp-standards/references/domain-philosophy.md",
+        ".ai/skills/cratis-csharp-standards/references/exceptions-logging-di.md"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "87744eca811ce6c8f733a8e6fdb3f570e35e78b8e9a5eabcf2fca8339e01fb59",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "cratis-react-page",
+      "sourcePath": ".ai/skills/cratis-react-page",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        ".ai/skills/cratis-react-page/SKILL.md",
+        ".ai/skills/cratis-react-page/evals/evals.json",
+        ".ai/skills/cratis-react-page/references/data-page.md",
+        ".ai/skills/cratis-react-page/references/data-table.md",
+        ".ai/skills/cratis-react-page/references/dialogs.md",
+        ".ai/skills/cratis-react-page/references/mvvm.md"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "e785b26225b20e5bf4ad9eca1b8e713b63cc1367627f723b7d5a64313c2fddd0",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "cratis-readmodel",
+      "sourcePath": ".ai/skills/cratis-readmodel",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        ".ai/skills/cratis-readmodel/SKILL.md",
+        ".ai/skills/cratis-readmodel/evals/evals.json",
+        ".ai/skills/cratis-readmodel/references/events.md",
+        ".ai/skills/cratis-readmodel/references/projections.md",
+        ".ai/skills/cratis-readmodel/references/queries.md",
+        ".ai/skills/cratis-readmodel/references/reducers.md"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "1839efc1aec020b2a9cdd7e37abe9bb509a1d92ca5d7a126ee58c6df673ae2c7",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "cratis-specs-csharp",
+      "sourcePath": ".ai/skills/cratis-specs-csharp",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        ".ai/skills/cratis-specs-csharp/SKILL.md",
+        ".ai/skills/cratis-specs-csharp/evals/evals.json",
+        ".ai/skills/cratis-specs-csharp/references/csharp-patterns.md",
+        ".ai/skills/cratis-specs-csharp/references/integration-specs.md"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "4a88d76ffe76db7636ac2dfb5169c40fea66fb908d0f9e543630fd084e8e053b",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "cratis-specs-typescript",
+      "sourcePath": ".ai/skills/cratis-specs-typescript",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        ".ai/skills/cratis-specs-typescript/SKILL.md",
+        ".ai/skills/cratis-specs-typescript/evals/evals.json",
+        ".ai/skills/cratis-specs-typescript/references/typescript-patterns.md"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "f01196428217c00e5bdcc14ebc86d2bc9dc02c3dcad8c721ff8dfa104fb284a5",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "cratis-vertical-slice",
+      "sourcePath": ".ai/skills/cratis-vertical-slice",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        ".ai/skills/cratis-vertical-slice/SKILL.md",
+        ".ai/skills/cratis-vertical-slice/evals/evals.json",
+        ".ai/skills/cratis-vertical-slice/references/concepts.md",
+        ".ai/skills/cratis-vertical-slice/references/slice-anatomy.md",
+        ".ai/skills/cratis-vertical-slice/references/slice-types.md"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "30f1b0b313bd27c2c2b24b10b9c80ee6b2260aea60d330a42c503f93790e0256",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "create-event-model",
+      "sourcePath": ".ai/skills/create-event-model",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        ".ai/skills/create-event-model/SKILL.md"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "765fe1507b25fff781b151848cc282b726799ebad29a8c6a5ad1d6d8c9be3ec2",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "cross-cutting-properties",
+      "sourcePath": ".ai/skills/cross-cutting-properties",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        ".ai/skills/cross-cutting-properties/SKILL.md"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "e9a68b833d73d04610434902ff797f82956821a1547b02c443cf465cd3f83e34",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "diagnose-slice",
+      "sourcePath": ".ai/skills/diagnose-slice",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        ".ai/skills/diagnose-slice/SKILL.md"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "eea29363e496b7a4ed1776e3aa975b464f7e39041bd569b4ef5ea4c812e6817b",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "discover-implementations",
+      "sourcePath": ".ai/skills/discover-implementations",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        ".ai/skills/discover-implementations/SKILL.md"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "65282d7a0643185f197fd75b7009d38405f5652fb4c1cace0adc7b18029074e3",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "edit-cratis-docs",
+      "sourcePath": ".ai/skills/edit-cratis-docs",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "reusable Cratis engineering behavior",
+      "audience": "cratis-engineering",
+      "bundledPaths": [
+        ".ai/skills/edit-cratis-docs/SKILL.md"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "d07be3bed6a4cc4cc3d72548baafd211826160b168fa7a4b7e39d5c950063b07",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "event-modeling",
+      "sourcePath": ".ai/skills/event-modeling",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        ".ai/skills/event-modeling/SKILL.md"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "9ac38bc05ac0792623ef81e33337391308084514942cb812386ebccfb40f9e77",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "event-type-migrations",
+      "sourcePath": ".ai/skills/event-type-migrations",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        ".ai/skills/event-type-migrations/SKILL.md"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "4019c27bef563a3268b40670774f6ed45953bc3c2d38840d0390f6b8c314cb31",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "inspect-running-chronicle",
+      "sourcePath": ".ai/skills/inspect-running-chronicle",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        ".ai/skills/inspect-running-chronicle/SKILL.md"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "01f376b0ad6a954e204948f3ef5f433ae59acab8eb0221476d87a83eb1fd99bc",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "multi-tenancy",
+      "sourcePath": ".ai/skills/multi-tenancy",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        ".ai/skills/multi-tenancy/SKILL.md"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "159825bd29f8101c58ea1e036f7dbd9ea25762cfab7a96d8a694d339efe15603",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "new-vertical-slice",
+      "sourcePath": ".ai/skills/new-vertical-slice",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        ".ai/skills/new-vertical-slice/SKILL.md",
+        ".ai/skills/new-vertical-slice/evals/evals.json",
+        ".ai/skills/new-vertical-slice/references/PATTERNS.md"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "b430a0d3df262154bccbfdcbd441b0e82ce524f01b0905b80852420feaa6e30a",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "observable-query-curl",
+      "sourcePath": ".ai/skills/observable-query-curl",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        ".ai/skills/observable-query-curl/SKILL.md"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "bdda610b40779905a2b93c858e06e9829c2d1f7306e2a780e6c8500d17932914",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "qa-cratis-docs",
+      "sourcePath": ".ai/skills/qa-cratis-docs",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "reusable Cratis engineering behavior",
+      "audience": "cratis-engineering",
+      "bundledPaths": [
+        ".ai/skills/qa-cratis-docs/SKILL.md"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "9389b20a46871cfa8d4514397a13137b5b86158d54f02ebc919beca97adcccf3",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "query-paging",
+      "sourcePath": ".ai/skills/query-paging",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        ".ai/skills/query-paging/SKILL.md"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "16ecda1fc707ee8a816e72724b4bb78cc19d940a93b9c5087fa30395f9868d03",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "review-code",
+      "sourcePath": ".ai/skills/review-code",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        ".ai/skills/review-code/SKILL.md",
+        ".ai/skills/review-code/references/CHECKLISTS.md"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "0041df80ac5bd0d08667a9edef316129c2dbf2dd179786e67ff0331caeaa44f0",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "review-performance",
+      "sourcePath": ".ai/skills/review-performance",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        ".ai/skills/review-performance/SKILL.md"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "2915e882db90a4c20478ef701778c3c7d7f7e390997ebeb51459d6c04e8f4292",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "review-security",
+      "sourcePath": ".ai/skills/review-security",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        ".ai/skills/review-security/SKILL.md"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "c5829036d84177ba53cdacf54e01ec7cf05cb84fb4b8f07fb0305003213d0b3f",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "scaffold-feature",
+      "sourcePath": ".ai/skills/scaffold-feature",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        ".ai/skills/scaffold-feature/SKILL.md"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "a179d9a838ad3f381a3fb30ccc9702bcce3a4aa42e959638ce47aad1dcbc1ca3",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "ship-changes",
+      "sourcePath": ".ai/skills/ship-changes",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "reusable Cratis engineering behavior",
+      "audience": "cratis-engineering",
+      "bundledPaths": [
+        ".ai/skills/ship-changes/SKILL.md",
+        ".ai/skills/ship-changes/evals/evals.json"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "f8ded7a019595dca917c632b3ff782af94eca44d1023b425b5fa79d43573b3e0",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "skill-creator",
+      "sourcePath": ".ai/skills/skill-creator",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "reusable Cratis engineering behavior",
+      "audience": "cratis-engineering",
+      "bundledPaths": [
+        ".ai/skills/skill-creator/LICENSE.txt",
+        ".ai/skills/skill-creator/SKILL.md",
+        ".ai/skills/skill-creator/agents/analyzer.md",
+        ".ai/skills/skill-creator/agents/comparator.md",
+        ".ai/skills/skill-creator/agents/grader.md",
+        ".ai/skills/skill-creator/assets/eval_review.html",
+        ".ai/skills/skill-creator/eval-viewer/generate_review.py",
+        ".ai/skills/skill-creator/eval-viewer/viewer.html",
+        ".ai/skills/skill-creator/references/schemas.md",
+        ".ai/skills/skill-creator/scripts/__init__.py",
+        ".ai/skills/skill-creator/scripts/aggregate_benchmark.py",
+        ".ai/skills/skill-creator/scripts/generate_report.py",
+        ".ai/skills/skill-creator/scripts/improve_description.py",
+        ".ai/skills/skill-creator/scripts/package_skill.py",
+        ".ai/skills/skill-creator/scripts/quick_validate.py",
+        ".ai/skills/skill-creator/scripts/restructure_evals.py",
+        ".ai/skills/skill-creator/scripts/run_eval.py",
+        ".ai/skills/skill-creator/scripts/run_loop.py",
+        ".ai/skills/skill-creator/scripts/utils.py"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "73ecdb5e10b97225f0011c33caa5d83ba4d7c1fb89fb6722dde1e1f6524166ed",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "stepper-command-dialog",
+      "sourcePath": ".ai/skills/stepper-command-dialog",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        ".ai/skills/stepper-command-dialog/SKILL.md"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "a8505de6a7c4e943cc884581e6b3a3db39551299c22c8dfbea65810f081f3c4f",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "toolbar",
+      "sourcePath": ".ai/skills/toolbar",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        ".ai/skills/toolbar/SKILL.md"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "b68cf8a695c1bf6a7ba40a00285f52382b57a3aed579c7fda63c9ae6c5593c9d",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "write-documentation",
+      "sourcePath": ".ai/skills/write-documentation",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "reusable Cratis engineering behavior",
+      "audience": "cratis-engineering",
+      "bundledPaths": [
+        ".ai/skills/write-documentation/SKILL.md"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "a2275283ae6a841a007b7b2040a5b315fb889d49de5fe113f6fab99ecfbae4e7",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "write-specs",
+      "sourcePath": ".ai/skills/write-specs",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        ".ai/skills/write-specs/SKILL.md",
+        ".ai/skills/write-specs/evals/evals.json",
+        ".ai/skills/write-specs/references/EXAMPLES.md"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "ae613d7de8ae45a0b787808201e4e8646fbfe4ee67fe99c99dd25cd5820af1a4",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "write-specs-events",
+      "sourcePath": ".ai/skills/write-specs-events",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        ".ai/skills/write-specs-events/SKILL.md"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "5462345ea78f181ec70d3ac752300a99a49b38796a2fed7daaf8f805f7530366",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "write-specs-frontend",
+      "sourcePath": ".ai/skills/write-specs-frontend",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        ".ai/skills/write-specs-frontend/SKILL.md"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "1a1c99cb0de67a44edddd08ad5c95468a024afc746a33d19942e98371b66097f",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "write-specs-readmodels",
+      "sourcePath": ".ai/skills/write-specs-readmodels",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        ".ai/skills/write-specs-readmodels/SKILL.md"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "c09c30a1d433bab99ab815af2747ca0c467ca61782601d2724fd4359bde28b82",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    }
+  ]
+}

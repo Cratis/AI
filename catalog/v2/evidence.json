@@ -1,0 +1,1566 @@
+{
+  "schemaVersion": 2,
+  "asOf": "2026-08-20",
+  "generatedBy": "tooling/generate-catalog-v2.mjs",
+  "evidence": [
+    {
+      "id": "github-organization-24",
+      "officialUrl": "https://github.com/Cratis/.github/issues/24",
+      "sourceKind": "organization-authority",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "issue-state-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "workflows-68",
+      "officialUrl": "https://github.com/Cratis/Workflows/issues/68",
+      "sourceKind": "organization-authority",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-09-19",
+      "applicableVersion": "issue-state-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "ai-126",
+      "officialUrl": "https://github.com/Cratis/AI/issues/126",
+      "sourceKind": "repository-authority",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "issue-state-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "ai-127",
+      "officialUrl": "https://github.com/Cratis/AI/issues/127",
+      "sourceKind": "repository-authority",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "issue-state-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "repo-main-b795d53",
+      "officialUrl": "https://github.com/Cratis/AI/tree/b795d5307e20f7f7458a67708b4f26975e223796",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2027-08-20",
+      "applicableVersion": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "confidence": "high",
+      "immutableRevision": "b795d5307e20f7f7458a67708b4f26975e223796"
+    },
+    {
+      "id": "reevaluation-authority",
+      "officialUrl": "https://github.com/Cratis/AI",
+      "sourceKind": "local-evidence-report",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-09-19",
+      "applicableVersion": "content-digest-bound",
+      "confidence": "medium",
+      "repositoryPath": "AI-REPOSITORY-REDESIGN-REEVALUATION.md",
+      "digest": "d0e76cea34145717ae8874a252b7d4468c43ef102cb9ddc3f2241c0960aa70d5"
+    },
+    {
+      "id": "option-a-plus-authority",
+      "officialUrl": "https://github.com/Cratis/Workflows/issues/68#issuecomment-5363284054",
+      "sourceKind": "organization-authority",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2027-08-20",
+      "applicableVersion": "option-a-plus-accepted",
+      "confidence": "high"
+    },
+    {
+      "id": "organization-option-a-plus-authority",
+      "officialUrl": "https://github.com/Cratis/.github/issues/24#issuecomment-5363284173",
+      "sourceKind": "organization-authority",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2027-08-20",
+      "applicableVersion": "option-a-plus-accepted",
+      "confidence": "high"
+    },
+    {
+      "id": "agent-plugins-source-1",
+      "officialUrl": "https://agent-plugins.org/specification",
+      "sourceKind": "specification",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "1.0.0",
+      "confidence": "high"
+    },
+    {
+      "id": "agent-plugins-source-2",
+      "officialUrl": "https://agent-plugins.org/schemas",
+      "sourceKind": "specification",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "1.0.0",
+      "confidence": "high"
+    },
+    {
+      "id": "agent-plugins-source-3",
+      "officialUrl": "https://agent-plugins.org/compatible-clients",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "1.0.0",
+      "confidence": "high"
+    },
+    {
+      "id": "agent-skills-source-1",
+      "officialUrl": "https://agentskills.io/specification",
+      "sourceKind": "specification",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "unversioned-current-specification",
+      "confidence": "high"
+    },
+    {
+      "id": "agent-skills-source-2",
+      "officialUrl": "https://github.com/agentskills/agentskills/tree/main/skills-ref",
+      "sourceKind": "official-repository",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "unversioned-current-specification",
+      "confidence": "high"
+    },
+    {
+      "id": "model-context-protocol-source-1",
+      "officialUrl": "https://modelcontextprotocol.io/specification",
+      "sourceKind": "specification",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "2026-07-28",
+      "confidence": "high"
+    },
+    {
+      "id": "model-context-protocol-source-2",
+      "officialUrl": "https://modelcontextprotocol.io/specification/latest/basic/transports",
+      "sourceKind": "specification",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "2026-07-28",
+      "confidence": "high"
+    },
+    {
+      "id": "mcp-registry-source-1",
+      "officialUrl": "https://modelcontextprotocol.io/registry/about",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "preview-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "mcp-registry-source-2",
+      "officialUrl": "https://modelcontextprotocol.io/registry/quickstart",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "preview-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "mcp-registry-source-3",
+      "officialUrl": "https://modelcontextprotocol.io/registry/authentication",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "preview-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "mcp-registry-source-4",
+      "officialUrl": "https://modelcontextprotocol.io/registry/package-types",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "preview-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "mcp-registry-source-5",
+      "officialUrl": "https://modelcontextprotocol.io/registry/github-actions",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "preview-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "mcp-registry-source-6",
+      "officialUrl": "https://modelcontextprotocol.io/registry/faq",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "preview-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "github-cli-skills-source-1",
+      "officialUrl": "https://cli.github.com/manual/gh_skill",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "preview-documentation-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "github-cli-skills-source-2",
+      "officialUrl": "https://cli.github.com/manual/gh_skill_install",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "preview-documentation-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "github-cli-skills-source-3",
+      "officialUrl": "https://cli.github.com/manual/gh_skill_publish",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "preview-documentation-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "vscode-agent-plugins-source-1",
+      "officialUrl": "https://code.visualstudio.com/docs/agent-customization/agent-plugins",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "current-documentation-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "github-copilot-plugins-source-1",
+      "officialUrl": "https://docs.github.com/en/copilot/concepts/agents/about-plugins",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "copilot-cli-1.0.67-local",
+      "confidence": "high"
+    },
+    {
+      "id": "github-copilot-plugins-source-2",
+      "officialUrl": "https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-plugin-reference",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "copilot-cli-1.0.67-local",
+      "confidence": "high"
+    },
+    {
+      "id": "openai-plugins-source-1",
+      "officialUrl": "https://developers.openai.com/codex/plugins/build",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "current-documentation-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "openai-plugins-source-2",
+      "officialUrl": "https://developers.openai.com/plugins/deploy/submission",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "current-documentation-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "claude-code-plugins-source-1",
+      "officialUrl": "https://code.claude.com/docs/en/plugins-reference",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "claude-code-2.1.235-local",
+      "confidence": "high"
+    },
+    {
+      "id": "claude-code-plugins-source-2",
+      "officialUrl": "https://code.claude.com/docs/en/plugin-marketplaces",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "claude-code-2.1.235-local",
+      "confidence": "high"
+    },
+    {
+      "id": "claude-code-plugins-source-3",
+      "officialUrl": "https://code.claude.com/docs/en/plugins",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "claude-code-2.1.235-local",
+      "confidence": "high"
+    },
+    {
+      "id": "claude-code-plugins-source-4",
+      "officialUrl": "https://code.claude.com/docs/en/discover-plugins",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "claude-code-2.1.235-local",
+      "confidence": "high"
+    },
+    {
+      "id": "gemini-cli-extensions-source-1",
+      "officialUrl": "https://geminicli.com/docs/extensions/reference/",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "current-documentation-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "gemini-cli-extensions-source-2",
+      "officialUrl": "https://geminicli.com/docs/extensions/releasing/",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "current-documentation-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "gemini-cli-extensions-source-3",
+      "officialUrl": "https://geminicli.com/docs/cli/gemini-md/",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "current-documentation-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "cursor-plugins-source-1",
+      "officialUrl": "https://cursor.com/docs/plugins",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "current-documentation-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "cursor-plugins-source-2",
+      "officialUrl": "https://cursor.com/docs/reference/plugins",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "current-documentation-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "kiro-powers-source-1",
+      "officialUrl": "https://kiro.dev/docs/powers/create/",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "current-documentation-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "kiro-powers-source-2",
+      "officialUrl": "https://kiro.dev/docs/powers/installation/",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "current-documentation-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "kiro-powers-source-3",
+      "officialUrl": "https://kiro.dev/powers/submit/",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "current-documentation-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "hermes-agent-plugins-source-1",
+      "officialUrl": "https://hermes-agent.nousresearch.com/docs/developer-guide/plugins#portable-agent-plugins-v1-packages",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "agent-plugins-1.0.0-adapter",
+      "confidence": "high"
+    },
+    {
+      "id": "openclaw-bundles-source-1",
+      "officialUrl": "https://docs.openclaw.ai/plugins/bundles",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "agent-plugins-1.0.0-adapter",
+      "confidence": "high"
+    },
+    {
+      "id": "grok-bot-plugins-source-1",
+      "officialUrl": "https://agent-plugins.org/compatible-clients",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "current-documentation-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "grok-bot-plugins-source-2",
+      "officialUrl": "https://docs.x.ai/grok-bot/skills-routines-and-automations",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "current-documentation-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "nanoclaw-templates-source-1",
+      "officialUrl": "https://github.com/nanocoai/nanoclaw/blob/main/docs/templates.md",
+      "sourceKind": "official-repository",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "agent-plugins-1.0.0-templates",
+      "confidence": "high"
+    },
+    {
+      "id": "pi-packages-source-1",
+      "officialUrl": "https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/packages.md",
+      "sourceKind": "installed-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "0.84.2-installed-and-latest",
+      "confidence": "high"
+    },
+    {
+      "id": "pi-packages-source-2",
+      "officialUrl": "https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/skills.md",
+      "sourceKind": "installed-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "0.84.2-installed-and-latest",
+      "confidence": "high"
+    },
+    {
+      "id": "pi-packages-source-3",
+      "officialUrl": "https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/extensions.md",
+      "sourceKind": "installed-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "0.84.2-installed-and-latest",
+      "confidence": "high"
+    },
+    {
+      "id": "junie-extensions-source-1",
+      "officialUrl": "https://github.com/JetBrains/junie-extensions",
+      "sourceKind": "official-repository",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "official-repository-2026-08-20",
+      "confidence": "medium"
+    },
+    {
+      "id": "opencode-skills-source-1",
+      "officialUrl": "https://opencode.ai/docs/skills/",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "current-documentation-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "opencode-skills-source-2",
+      "officialUrl": "https://opencode.ai/docs/config/",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "current-documentation-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "opencode-skills-source-3",
+      "officialUrl": "https://opencode.ai/docs/rules/",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "current-documentation-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "zed-skills-source-1",
+      "officialUrl": "https://zed.dev/docs/ai/skills",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "current-documentation-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "zed-skills-source-2",
+      "officialUrl": "https://cli.github.com/manual/gh_skill_install",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "current-documentation-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "deepseek-harness-skills-source-1",
+      "officialUrl": "https://github.com/deepseek-ai/deepseek-harness",
+      "sourceKind": "official-repository",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "developer-preview-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "deepseek-harness-skills-source-2",
+      "officialUrl": "https://deepseek-harness.github.io/deepseek-harness/en/reference/subsystems/skills",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "developer-preview-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "deepseek-harness-skills-source-3",
+      "officialUrl": "https://cli.github.com/manual/gh_skill_install",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "developer-preview-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "npm-cratis-scope-source-1",
+      "officialUrl": "https://registry.npmjs.org/@cratis%2fai",
+      "sourceKind": "registry",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "registry-state-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "npm-cratis-scope-source-2",
+      "officialUrl": "https://registry.npmjs.org/@cratis%2fmcp",
+      "sourceKind": "registry",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "registry-state-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "npm-cratis-scope-source-3",
+      "officialUrl": "https://registry.npmjs.org/@cratis%2fpi",
+      "sourceKind": "registry",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "registry-state-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "npm-cratis-scope-source-4",
+      "officialUrl": "https://registry.npmjs.org/@cratis%2farc",
+      "sourceKind": "registry",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "registry-state-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "npm-cratis-scope-source-5",
+      "officialUrl": "https://registry.npmjs.org/@cratis%2fcomponents",
+      "sourceKind": "registry",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "registry-state-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "npm-cratis-scope-source-6",
+      "officialUrl": "https://docs.npmjs.com/about-organization-scopes-and-packages/",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "registry-state-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "npm-trusted-publishing-source-1",
+      "officialUrl": "https://docs.npmjs.com/trusted-publishers",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "current-documentation-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "npm-trusted-publishing-source-2",
+      "officialUrl": "https://docs.npmjs.com/generating-provenance-statements",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "current-documentation-2026-08-20",
+      "confidence": "high"
+    }
+  ],
+  "ecosystemFacts": [
+    {
+      "id": "agent-plugins-fact-1",
+      "ecosystemId": "agent-plugins",
+      "fact": "The canonical plugin is a self-contained directory with plugin.json at its root; the required schema is https://agent-plugins.org/schemas/1.0.0/plugin.schema.json.",
+      "evidenceIds": [
+        "agent-plugins-source-1",
+        "agent-plugins-source-2",
+        "agent-plugins-source-3"
+      ]
+    },
+    {
+      "id": "agent-plugins-fact-2",
+      "ecosystemId": "agent-plugins",
+      "fact": "Portable component locations are fixed at immediate-child skills/*/SKILL.md and optional root mcp.json; plugin.json cannot redirect them.",
+      "evidenceIds": [
+        "agent-plugins-source-1",
+        "agent-plugins-source-2",
+        "agent-plugins-source-3"
+      ]
+    },
+    {
+      "id": "agent-plugins-fact-3",
+      "ecosystemId": "agent-plugins",
+      "fact": "The manifest and MCP configuration are closed schemas. Unknown manifest top-level fields are reported and ignored while an otherwise valid plugin continues loading; invalid skills and MCP servers fail at their narrowest component boundary.",
+      "evidenceIds": [
+        "agent-plugins-source-1",
+        "agent-plugins-source-2",
+        "agent-plugins-source-3"
+      ]
+    },
+    {
+      "id": "agent-plugins-fact-4",
+      "ecosystemId": "agent-plugins",
+      "fact": "Package paths and resolved symlinks must remain inside the plugin root. Individual clients may impose stricter rules, including rejecting all symlinks.",
+      "evidenceIds": [
+        "agent-plugins-source-1",
+        "agent-plugins-source-2",
+        "agent-plugins-source-3"
+      ]
+    },
+    {
+      "id": "agent-plugins-fact-5",
+      "ecosystemId": "agent-plugins",
+      "fact": "Client-specific data belongs under extensions keyed by a reverse-domain namespace, with optional files in a matching top-level namespace directory.",
+      "evidenceIds": [
+        "agent-plugins-source-1",
+        "agent-plugins-source-2",
+        "agent-plugins-source-3"
+      ]
+    },
+    {
+      "id": "agent-plugins-fact-6",
+      "ecosystemId": "agent-plugins",
+      "fact": "The live compatible-client registry lists VS Code, Cursor, GitHub Copilot, ChatGPT and Codex, Kiro, Hermes Agent, OpenClaw, Grok Bot, and NanoClaw. All list Agent Skills support; MCP transport support varies by client.",
+      "evidenceIds": [
+        "agent-plugins-source-1",
+        "agent-plugins-source-2",
+        "agent-plugins-source-3"
+      ]
+    },
+    {
+      "id": "agent-skills-fact-1",
+      "ecosystemId": "agent-skills",
+      "fact": "A skill is a directory containing SKILL.md with required name and description frontmatter.",
+      "evidenceIds": [
+        "agent-skills-source-1",
+        "agent-skills-source-2"
+      ]
+    },
+    {
+      "id": "agent-skills-fact-2",
+      "ecosystemId": "agent-skills",
+      "fact": "Names are 1 to 64 lowercase ASCII letters, digits, or single hyphens, cannot start or end with a hyphen or contain consecutive hyphens, and must match the parent directory.",
+      "evidenceIds": [
+        "agent-skills-source-1",
+        "agent-skills-source-2"
+      ]
+    },
+    {
+      "id": "agent-skills-fact-3",
+      "ecosystemId": "agent-skills",
+      "fact": "Descriptions are 1 to 1024 characters and should state what the skill does and when to use it.",
+      "evidenceIds": [
+        "agent-skills-source-1",
+        "agent-skills-source-2"
+      ]
+    },
+    {
+      "id": "agent-skills-fact-4",
+      "ecosystemId": "agent-skills",
+      "fact": "Optional specification fields include license, compatibility, metadata, and experimental allowed-tools. Scripts, references, assets, and other resources are permitted by the standard.",
+      "evidenceIds": [
+        "agent-skills-source-1",
+        "agent-skills-source-2"
+      ]
+    },
+    {
+      "id": "agent-skills-fact-5",
+      "ecosystemId": "agent-skills",
+      "fact": "File references should be relative to the skill root. The official skills-ref library exposes skills-ref validate, read-properties, and to-prompt commands.",
+      "evidenceIds": [
+        "agent-skills-source-1",
+        "agent-skills-source-2"
+      ]
+    },
+    {
+      "id": "agent-skills-fact-6",
+      "ecosystemId": "agent-skills",
+      "fact": "This repository applies a stricter public payload policy than the specification by excluding scripts and evals from public runtime skills.",
+      "evidenceIds": [
+        "agent-skills-source-1",
+        "agent-skills-source-2"
+      ]
+    },
+    {
+      "id": "model-context-protocol-fact-1",
+      "ecosystemId": "model-context-protocol",
+      "fact": "The current specification version is 2026-07-28 and its authoritative TypeScript schema is under schema/2026-07-28/schema.ts in the official specification repository.",
+      "evidenceIds": [
+        "model-context-protocol-source-1",
+        "model-context-protocol-source-2"
+      ]
+    },
+    {
+      "id": "model-context-protocol-fact-2",
+      "ecosystemId": "model-context-protocol",
+      "fact": "The standard transports are stdio and Streamable HTTP. Legacy HTTP plus SSE is not a current standard transport, although Agent Plugins 1.0 retains an optional legacy sse transport entry for compatibility.",
+      "evidenceIds": [
+        "model-context-protocol-source-1",
+        "model-context-protocol-source-2"
+      ]
+    },
+    {
+      "id": "model-context-protocol-fact-3",
+      "ecosystemId": "model-context-protocol",
+      "fact": "MCP wire behavior remains separate from Agent Plugins packaging and client-native configuration.",
+      "evidenceIds": [
+        "model-context-protocol-source-1",
+        "model-context-protocol-source-2"
+      ]
+    },
+    {
+      "id": "mcp-registry-fact-1",
+      "ecosystemId": "mcp-registry",
+      "fact": "The official Registry hosts public server metadata in server.json and points to public packages or publicly reachable remote servers; it does not host package artifacts or private servers.",
+      "evidenceIds": [
+        "mcp-registry-source-1",
+        "mcp-registry-source-2",
+        "mcp-registry-source-3",
+        "mcp-registry-source-4",
+        "mcp-registry-source-5",
+        "mcp-registry-source-6"
+      ]
+    },
+    {
+      "id": "mcp-registry-fact-2",
+      "ecosystemId": "mcp-registry",
+      "fact": "Published version metadata is immutable. Updates require a new unique version and servers cannot currently be deleted or unpublished.",
+      "evidenceIds": [
+        "mcp-registry-source-1",
+        "mcp-registry-source-2",
+        "mcp-registry-source-3",
+        "mcp-registry-source-4",
+        "mcp-registry-source-5",
+        "mcp-registry-source-6"
+      ]
+    },
+    {
+      "id": "mcp-registry-fact-3",
+      "ecosystemId": "mcp-registry",
+      "fact": "Reverse-DNS names require GitHub, DNS, or HTTP namespace verification. npm packages must be public and package.json mcpName must match server.json name.",
+      "evidenceIds": [
+        "mcp-registry-source-1",
+        "mcp-registry-source-2",
+        "mcp-registry-source-3",
+        "mcp-registry-source-4",
+        "mcp-registry-source-5",
+        "mcp-registry-source-6"
+      ]
+    },
+    {
+      "id": "mcp-registry-fact-4",
+      "ecosystemId": "mcp-registry",
+      "fact": "The mcp-publisher CLI creates metadata with init and publishes it after the underlying package exists. GitHub OIDC automation is supported with id-token write permission.",
+      "evidenceIds": [
+        "mcp-registry-source-1",
+        "mcp-registry-source-2",
+        "mcp-registry-source-3",
+        "mcp-registry-source-4",
+        "mcp-registry-source-5",
+        "mcp-registry-source-6"
+      ]
+    },
+    {
+      "id": "mcp-registry-fact-5",
+      "ecosystemId": "mcp-registry",
+      "fact": "The Registry authenticates publishers and stores metadata but delegates package security scanning to package registries and downstream aggregators.",
+      "evidenceIds": [
+        "mcp-registry-source-1",
+        "mcp-registry-source-2",
+        "mcp-registry-source-3",
+        "mcp-registry-source-4",
+        "mcp-registry-source-5",
+        "mcp-registry-source-6"
+      ]
+    },
+    {
+      "id": "github-cli-skills-fact-1",
+      "ecosystemId": "github-cli-skills",
+      "fact": "gh skill provides install, list, preview, publish, search, and update commands and remains preview functionality.",
+      "evidenceIds": [
+        "github-cli-skills-source-1",
+        "github-cli-skills-source-2",
+        "github-cli-skills-source-3"
+      ]
+    },
+    {
+      "id": "github-cli-skills-fact-2",
+      "ecosystemId": "github-cli-skills",
+      "fact": "gh skill publish discovers multiple standard skill layouts, validates naming and frontmatter, can add the agent-skills topic, and can create a tagged GitHub release; --dry-run validates without publishing.",
+      "evidenceIds": [
+        "github-cli-skills-source-1",
+        "github-cli-skills-source-2",
+        "github-cli-skills-source-3"
+      ]
+    },
+    {
+      "id": "github-cli-skills-fact-3",
+      "ecosystemId": "github-cli-skills",
+      "fact": "gh skill install supports project and user scopes, defaults to the latest tagged release then default branch, injects source tracking metadata, and recursively discovers standard skills paths under repository prefixes.",
+      "evidenceIds": [
+        "github-cli-skills-source-1",
+        "github-cli-skills-source-2",
+        "github-cli-skills-source-3"
+      ]
+    },
+    {
+      "id": "github-cli-skills-fact-4",
+      "ecosystemId": "github-cli-skills",
+      "fact": "The current install documentation lists 48 agent identifiers, including GitHub Copilot, Claude Code, Cursor, Codex, Gemini CLI, Junie, OpenCode, Pi, Grok, Kiro CLI, Qwen Code, and Universal. It does not list Zed, DeepSeek Harness, Hermes Agent, OpenClaw, or NanoClaw.",
+      "evidenceIds": [
+        "github-cli-skills-source-1",
+        "github-cli-skills-source-2",
+        "github-cli-skills-source-3"
+      ]
+    },
+    {
+      "id": "github-cli-skills-fact-5",
+      "ecosystemId": "github-cli-skills",
+      "fact": "The locally installed GitHub CLI 2.71.2 does not provide gh skill, so gh skill publish --dry-run is unavailable locally.",
+      "evidenceIds": [
+        "github-cli-skills-source-1",
+        "github-cli-skills-source-2",
+        "github-cli-skills-source-3"
+      ]
+    },
+    {
+      "id": "vscode-agent-plugins-fact-1",
+      "ecosystemId": "vscode-agent-plugins",
+      "fact": "VS Code consumes root Agent Plugins 1.0 with portable skills and MCP and can also read Copilot-specific agents, commands, rules, and hooks from the com.github.copilot extension namespace.",
+      "evidenceIds": [
+        "vscode-agent-plugins-source-1"
+      ]
+    },
+    {
+      "id": "vscode-agent-plugins-fact-2",
+      "ecosystemId": "vscode-agent-plugins",
+      "fact": "Plugins can be installed from marketplaces, Git repositories, local paths, or Copilot CLI installations and enabled globally or per workspace.",
+      "evidenceIds": [
+        "vscode-agent-plugins-source-1"
+      ]
+    },
+    {
+      "id": "vscode-agent-plugins-fact-3",
+      "ecosystemId": "vscode-agent-plugins",
+      "fact": "VS Code checks for updates on request or every 24 hours when extension auto-update is enabled; npm and PyPI sourced plugins require explicit update confirmation.",
+      "evidenceIds": [
+        "vscode-agent-plugins-source-1"
+      ]
+    },
+    {
+      "id": "vscode-agent-plugins-fact-4",
+      "ecosystemId": "vscode-agent-plugins",
+      "fact": "Plugin MCP servers are implicitly trusted at installation, so executable content requires source review.",
+      "evidenceIds": [
+        "vscode-agent-plugins-source-1"
+      ]
+    },
+    {
+      "id": "github-copilot-plugins-fact-1",
+      "ecosystemId": "github-copilot-plugins",
+      "fact": "Copilot CLI native plugins support agents, skills, commands, hooks, extensions, MCP servers, and LSP servers. Declaring the Agent Plugins 1.0 schema opts into portable semantics additively.",
+      "evidenceIds": [
+        "github-copilot-plugins-source-1",
+        "github-copilot-plugins-source-2"
+      ]
+    },
+    {
+      "id": "github-copilot-plugins-fact-2",
+      "ecosystemId": "github-copilot-plugins",
+      "fact": "Direct installs accept a repository root, repository subdirectory, Git URL, or local path. Plugin installation is user-local; project scope applies to individual file or URL skill installs, not complete plugins.",
+      "evidenceIds": [
+        "github-copilot-plugins-source-1",
+        "github-copilot-plugins-source-2"
+      ]
+    },
+    {
+      "id": "github-copilot-plugins-fact-3",
+      "ecosystemId": "github-copilot-plugins",
+      "fact": "Self-hosted marketplaces use marketplace.json, commonly at .github/plugin/marketplace.json. Git and URL sources can pin a full 40-character commit SHA.",
+      "evidenceIds": [
+        "github-copilot-plugins-source-1",
+        "github-copilot-plugins-source-2"
+      ]
+    },
+    {
+      "id": "github-copilot-plugins-fact-4",
+      "ecosystemId": "github-copilot-plugins",
+      "fact": "No current public external-submission path to the built-in awesome-copilot marketplace is documented in the CLI plugin reference.",
+      "evidenceIds": [
+        "github-copilot-plugins-source-1",
+        "github-copilot-plugins-source-2"
+      ]
+    },
+    {
+      "id": "openai-plugins-fact-1",
+      "ecosystemId": "openai-plugins",
+      "fact": "The native OpenAI and Codex manifest is .codex-plugin/plugin.json; native plugins may contain root skills, MCP mappings or bundled MCP configuration, hooks, and assets.",
+      "evidenceIds": [
+        "openai-plugins-source-1",
+        "openai-plugins-source-2"
+      ]
+    },
+    {
+      "id": "openai-plugins-fact-2",
+      "ecosystemId": "openai-plugins",
+      "fact": "Native manifest paths start with ./, resolve from the plugin root, and must remain within it. Plugin hooks are not trusted automatically and require review.",
+      "evidenceIds": [
+        "openai-plugins-source-1",
+        "openai-plugins-source-2"
+      ]
+    },
+    {
+      "id": "openai-plugins-fact-3",
+      "ecosystemId": "openai-plugins",
+      "fact": "Repository marketplaces use .agents/plugins/marketplace.json and are separate from the universal public directory.",
+      "evidenceIds": [
+        "openai-plugins-source-1",
+        "openai-plugins-source-2"
+      ]
+    },
+    {
+      "id": "openai-plugins-fact-4",
+      "ecosystemId": "openai-plugins",
+      "fact": "Public submission requires Apps Management write access, verified publisher identity, public legal and support URLs, and review through the submission portal. MCP submissions require accurate tool annotations and scans; submissions require at least five positive and three negative tests.",
+      "evidenceIds": [
+        "openai-plugins-source-1",
+        "openai-plugins-source-2"
+      ]
+    },
+    {
+      "id": "openai-plugins-fact-5",
+      "ecosystemId": "openai-plugins",
+      "fact": "Public listing supports skills-only, MCP-only, and skills-plus-MCP plugins.",
+      "evidenceIds": [
+        "openai-plugins-source-1",
+        "openai-plugins-source-2"
+      ]
+    },
+    {
+      "id": "claude-code-plugins-fact-1",
+      "ecosystemId": "claude-code-plugins",
+      "fact": "Claude Code plugins may provide skills, commands, agents, workflows, hooks, MCP servers, LSP servers, and other Claude-native components. The optional manifest is .claude-plugin/plugin.json and name is required when present.",
+      "evidenceIds": [
+        "claude-code-plugins-source-1",
+        "claude-code-plugins-source-2",
+        "claude-code-plugins-source-3",
+        "claude-code-plugins-source-4"
+      ]
+    },
+    {
+      "id": "claude-code-plugins-fact-2",
+      "ecosystemId": "claude-code-plugins",
+      "fact": "Validation uses claude plugin validate, with --strict treating warnings as errors.",
+      "evidenceIds": [
+        "claude-code-plugins-source-1",
+        "claude-code-plugins-source-2",
+        "claude-code-plugins-source-3",
+        "claude-code-plugins-source-4"
+      ]
+    },
+    {
+      "id": "claude-code-plugins-fact-3",
+      "ecosystemId": "claude-code-plugins",
+      "fact": "Installation scopes are user, project, local, and managed. Marketplace installs are cached and versioned by manifest version, source revision, archive SHA-256, or content hash depending on source type.",
+      "evidenceIds": [
+        "claude-code-plugins-source-1",
+        "claude-code-plugins-source-2",
+        "claude-code-plugins-source-3",
+        "claude-code-plugins-source-4"
+      ]
+    },
+    {
+      "id": "claude-code-plugins-fact-4",
+      "ecosystemId": "claude-code-plugins",
+      "fact": "Anthropic now documents a reviewed public community marketplace and submission forms. Approved community plugins are pinned to commit SHAs and catalog synchronization is automated after review.",
+      "evidenceIds": [
+        "claude-code-plugins-source-1",
+        "claude-code-plugins-source-2",
+        "claude-code-plugins-source-3",
+        "claude-code-plugins-source-4"
+      ]
+    },
+    {
+      "id": "claude-code-plugins-fact-5",
+      "ecosystemId": "claude-code-plugins",
+      "fact": "Plugins and marketplaces can execute arbitrary code with user privileges and must be treated as highly trusted.",
+      "evidenceIds": [
+        "claude-code-plugins-source-1",
+        "claude-code-plugins-source-2",
+        "claude-code-plugins-source-3",
+        "claude-code-plugins-source-4"
+      ]
+    },
+    {
+      "id": "gemini-cli-extensions-fact-1",
+      "ecosystemId": "gemini-cli-extensions",
+      "fact": "A Gemini extension requires gemini-extension.json at its root and can bundle skills, commands, hooks, subagents, policies, MCP server configuration, context, settings, and themes.",
+      "evidenceIds": [
+        "gemini-cli-extensions-source-1",
+        "gemini-cli-extensions-source-2",
+        "gemini-cli-extensions-source-3"
+      ]
+    },
+    {
+      "id": "gemini-cli-extensions-fact-2",
+      "ecosystemId": "gemini-cli-extensions",
+      "fact": "Extensions install from GitHub or local sources, update explicitly or automatically when opted in, and can be enabled at user or workspace scope.",
+      "evidenceIds": [
+        "gemini-cli-extensions-source-1",
+        "gemini-cli-extensions-source-2",
+        "gemini-cli-extensions-source-3"
+      ]
+    },
+    {
+      "id": "gemini-cli-extensions-fact-3",
+      "ecosystemId": "gemini-cli-extensions",
+      "fact": "Gallery discovery is automatic for a public GitHub repository with the gemini-cli-extension topic and a root manifest. The crawler runs daily after tagging.",
+      "evidenceIds": [
+        "gemini-cli-extensions-source-1",
+        "gemini-cli-extensions-source-2",
+        "gemini-cli-extensions-source-3"
+      ]
+    },
+    {
+      "id": "gemini-cli-extensions-fact-4",
+      "ecosystemId": "gemini-cli-extensions",
+      "fact": "Release archives must be self-contained with gemini-extension.json at the archive root; release tag and displayed manifest version should match.",
+      "evidenceIds": [
+        "gemini-cli-extensions-source-1",
+        "gemini-cli-extensions-source-2",
+        "gemini-cli-extensions-source-3"
+      ]
+    },
+    {
+      "id": "gemini-cli-extensions-fact-5",
+      "ecosystemId": "gemini-cli-extensions",
+      "fact": "Sensitive extension settings use declared environment variables and keychain-backed storage; undeclared sensitive environment variables are filtered.",
+      "evidenceIds": [
+        "gemini-cli-extensions-source-1",
+        "gemini-cli-extensions-source-2",
+        "gemini-cli-extensions-source-3"
+      ]
+    },
+    {
+      "id": "cursor-plugins-fact-1",
+      "ecosystemId": "cursor-plugins",
+      "fact": "Cursor loads root Agent Plugins without changes for portable skills and MCP. Cursor-native plugins use .cursor-plugin/plugin.json for skills, MCP, rules, agents, commands, hooks, and variables.",
+      "evidenceIds": [
+        "cursor-plugins-source-1",
+        "cursor-plugins-source-2"
+      ]
+    },
+    {
+      "id": "cursor-plugins-fact-2",
+      "ecosystemId": "cursor-plugins",
+      "fact": "Marketplace installs support project and user scope; team marketplaces add managed distribution modes and require paid Teams or Enterprise plans.",
+      "evidenceIds": [
+        "cursor-plugins-source-1",
+        "cursor-plugins-source-2"
+      ]
+    },
+    {
+      "id": "cursor-plugins-fact-3",
+      "ecosystemId": "cursor-plugins",
+      "fact": "Public plugins are distributed as open-source Git repositories, manually reviewed, and submitted through Cursor's marketplace form. Updates are also reviewed.",
+      "evidenceIds": [
+        "cursor-plugins-source-1",
+        "cursor-plugins-source-2"
+      ]
+    },
+    {
+      "id": "cursor-plugins-fact-4",
+      "ecosystemId": "cursor-plugins",
+      "fact": "Manifest paths must be relative and cannot use .. or absolute paths. Secret values stay outside the repository and are supplied through declared variables.",
+      "evidenceIds": [
+        "cursor-plugins-source-1",
+        "cursor-plugins-source-2"
+      ]
+    },
+    {
+      "id": "kiro-powers-fact-1",
+      "ecosystemId": "kiro-powers",
+      "fact": "Kiro Powers support root Agent Plugins plugin.json with optional root skills and mcp.json, alongside a legacy POWER.md format.",
+      "evidenceIds": [
+        "kiro-powers-source-1",
+        "kiro-powers-source-2",
+        "kiro-powers-source-3"
+      ]
+    },
+    {
+      "id": "kiro-powers-fact-2",
+      "ecosystemId": "kiro-powers",
+      "fact": "Powers install from the curated marketplace, public GitHub repositories, or a local folder. Repository installations require a valid plugin root and updates refresh from the remote source.",
+      "evidenceIds": [
+        "kiro-powers-source-1",
+        "kiro-powers-source-2",
+        "kiro-powers-source-3"
+      ]
+    },
+    {
+      "id": "kiro-powers-fact-3",
+      "ecosystemId": "kiro-powers",
+      "fact": "Kiro manages Agent Plugin MCP servers internally and namespaces them with the Power.",
+      "evidenceIds": [
+        "kiro-powers-source-1",
+        "kiro-powers-source-2",
+        "kiro-powers-source-3"
+      ]
+    },
+    {
+      "id": "kiro-powers-fact-4",
+      "ecosystemId": "kiro-powers",
+      "fact": "Public registry submission requires a complete tested Agent Plugin in a public GitHub repository and manual review.",
+      "evidenceIds": [
+        "kiro-powers-source-1",
+        "kiro-powers-source-2",
+        "kiro-powers-source-3"
+      ]
+    },
+    {
+      "id": "hermes-agent-plugins-fact-1",
+      "ecosystemId": "hermes-agent-plugins",
+      "fact": "Hermes installs root Agent Plugins through its normal plugin workflow and requires explicit enablement after installation.",
+      "evidenceIds": [
+        "hermes-agent-plugins-source-1"
+      ]
+    },
+    {
+      "id": "hermes-agent-plugins-fact-2",
+      "ecosystemId": "hermes-agent-plugins",
+      "fact": "It supports namespaced read-only Agent Skills plus stdio and Streamable HTTP MCP, but skips legacy SSE.",
+      "evidenceIds": [
+        "hermes-agent-plugins-source-1"
+      ]
+    },
+    {
+      "id": "hermes-agent-plugins-fact-3",
+      "ecosystemId": "hermes-agent-plugins",
+      "fact": "Hermes validates manifests, skills, MCP entries, resolved paths, and symlink containment locally and preserves narrow failure isolation.",
+      "evidenceIds": [
+        "hermes-agent-plugins-source-1"
+      ]
+    },
+    {
+      "id": "hermes-agent-plugins-fact-4",
+      "ecosystemId": "hermes-agent-plugins",
+      "fact": "Agent Plugins define no trust, permissions, provenance, or sandbox; enabling a package grants its instructions and local executables full trust.",
+      "evidenceIds": [
+        "hermes-agent-plugins-source-1"
+      ]
+    },
+    {
+      "id": "openclaw-bundles-fact-1",
+      "ecosystemId": "openclaw-bundles",
+      "fact": "OpenClaw installs Agent Plugin bundles from directories, archives, or marketplaces and supports root skills plus stdio, Streamable HTTP, and legacy SSE MCP.",
+      "evidenceIds": [
+        "openclaw-bundles-source-1"
+      ]
+    },
+    {
+      "id": "openclaw-bundles-fact-2",
+      "ecosystemId": "openclaw-bundles",
+      "fact": "It enforces strict manifests, component failure isolation, command and working-directory containment, and per-plugin data directories.",
+      "evidenceIds": [
+        "openclaw-bundles-source-1"
+      ]
+    },
+    {
+      "id": "openclaw-bundles-fact-3",
+      "ecosystemId": "openclaw-bundles",
+      "fact": "OpenClaw does not execute arbitrary in-process modules from compatible bundles, but stdio MCP subprocesses remain executable trusted content.",
+      "evidenceIds": [
+        "openclaw-bundles-source-1"
+      ]
+    },
+    {
+      "id": "openclaw-bundles-fact-4",
+      "ecosystemId": "openclaw-bundles",
+      "fact": "OpenClaw currently ignores reverse-domain client extension directories other than its supported manifest extension data.",
+      "evidenceIds": [
+        "openclaw-bundles-source-1"
+      ]
+    },
+    {
+      "id": "grok-bot-plugins-fact-1",
+      "ecosystemId": "grok-bot-plugins",
+      "fact": "The Agent Plugins registry lists Grok Bot support for Agent Skills and stdio, Streamable HTTP, and legacy SSE MCP.",
+      "evidenceIds": [
+        "grok-bot-plugins-source-1",
+        "grok-bot-plugins-source-2"
+      ]
+    },
+    {
+      "id": "grok-bot-plugins-fact-2",
+      "ecosystemId": "grok-bot-plugins",
+      "fact": "Grok Bot users discover packaged skills through Settings and may enable private skills per Bot. Skills and routines require explicit safety and approval boundaries.",
+      "evidenceIds": [
+        "grok-bot-plugins-source-1",
+        "grok-bot-plugins-source-2"
+      ]
+    },
+    {
+      "id": "grok-bot-plugins-fact-3",
+      "ecosystemId": "grok-bot-plugins",
+      "fact": "The public skills and routines page does not document repository manifest paths, update semantics, or project-specific instruction discovery.",
+      "evidenceIds": [
+        "grok-bot-plugins-source-1",
+        "grok-bot-plugins-source-2"
+      ]
+    },
+    {
+      "id": "nanoclaw-templates-fact-1",
+      "ecosystemId": "nanoclaw-templates",
+      "fact": "NanoClaw templates use Agent Plugins 1.0.0 with skills, MCP, and NanoClaw-specific extension data.",
+      "evidenceIds": [
+        "nanoclaw-templates-source-1"
+      ]
+    },
+    {
+      "id": "nanoclaw-templates-fact-2",
+      "ecosystemId": "nanoclaw-templates",
+      "fact": "Templates are stamped only from a local directory after any separate copy step. Restamping resets plugin-owned surfaces while preserving operator-owned state.",
+      "evidenceIds": [
+        "nanoclaw-templates-source-1"
+      ]
+    },
+    {
+      "id": "nanoclaw-templates-fact-3",
+      "ecosystemId": "nanoclaw-templates",
+      "fact": "NanoClaw supports stdio and HTTPS Streamable HTTP MCP and skips legacy SSE.",
+      "evidenceIds": [
+        "nanoclaw-templates-source-1"
+      ]
+    },
+    {
+      "id": "nanoclaw-templates-fact-4",
+      "ecosystemId": "nanoclaw-templates",
+      "fact": "Its validator is stricter than the standard: it rejects all symlinks and special files, enforces containment and size limits, lints secrets, and runs executable content only inside the agent container.",
+      "evidenceIds": [
+        "nanoclaw-templates-source-1"
+      ]
+    },
+    {
+      "id": "pi-packages-fact-1",
+      "ecosystemId": "pi-packages",
+      "fact": "Pi packages can declare extensions, skills, prompts, and themes through package.json or conventional directories and install from npm, Git, or local paths.",
+      "evidenceIds": [
+        "pi-packages-source-1",
+        "pi-packages-source-2",
+        "pi-packages-source-3"
+      ]
+    },
+    {
+      "id": "pi-packages-fact-2",
+      "ecosystemId": "pi-packages",
+      "fact": "User installs write ~/.pi/agent/settings.json; project installs write .pi/settings.json and load only after project trust. Pinned npm and Git versions do not float during package updates.",
+      "evidenceIds": [
+        "pi-packages-source-1",
+        "pi-packages-source-2",
+        "pi-packages-source-3"
+      ]
+    },
+    {
+      "id": "pi-packages-fact-3",
+      "ecosystemId": "pi-packages",
+      "fact": "Pi follows Agent Skills but is lenient about most violations and permits name-directory mismatch. Strict portable validation remains a Cratis responsibility.",
+      "evidenceIds": [
+        "pi-packages-source-1",
+        "pi-packages-source-2",
+        "pi-packages-source-3"
+      ]
+    },
+    {
+      "id": "pi-packages-fact-4",
+      "ecosystemId": "pi-packages",
+      "fact": "Pi packages do not natively distribute persistent AGENTS.md, custom agent definitions, MCP, or LSP. Executable extensions can implement such behavior but run with full system access.",
+      "evidenceIds": [
+        "pi-packages-source-1",
+        "pi-packages-source-2",
+        "pi-packages-source-3"
+      ]
+    },
+    {
+      "id": "pi-packages-fact-5",
+      "ecosystemId": "pi-packages",
+      "fact": "The pi-package keyword enables npm gallery discovery. The installed package requires Node 22.19.0 or newer.",
+      "evidenceIds": [
+        "pi-packages-source-1",
+        "pi-packages-source-2",
+        "pi-packages-source-3"
+      ]
+    },
+    {
+      "id": "junie-extensions-fact-1",
+      "ecosystemId": "junie-extensions",
+      "fact": "The official repository stores extensions under extensions/<name>/ with extension.json and optional skills, agents, guidelines, and mcp/.mcp.json.",
+      "evidenceIds": [
+        "junie-extensions-source-1"
+      ]
+    },
+    {
+      "id": "junie-extensions-fact-2",
+      "ecosystemId": "junie-extensions",
+      "fact": "The repository does not document a general third-party public submission, installation, update, validation, or marketplace mechanism.",
+      "evidenceIds": [
+        "junie-extensions-source-1"
+      ]
+    },
+    {
+      "id": "junie-extensions-fact-3",
+      "ecosystemId": "junie-extensions",
+      "fact": "A generated Junie wrapper remains provisional; direct Agent Skills installation is a fallback only where a supported installer target is available.",
+      "evidenceIds": [
+        "junie-extensions-source-1"
+      ]
+    },
+    {
+      "id": "opencode-skills-fact-1",
+      "ecosystemId": "opencode-skills",
+      "fact": "OpenCode discovers Agent Skills from project and user locations including .agents/skills and supports global, project, remote organization, and managed configuration layers.",
+      "evidenceIds": [
+        "opencode-skills-source-1",
+        "opencode-skills-source-2",
+        "opencode-skills-source-3"
+      ]
+    },
+    {
+      "id": "opencode-skills-fact-2",
+      "ecosystemId": "opencode-skills",
+      "fact": "OpenCode supports AGENTS.md persistent instructions, custom agents, commands, plugins and hooks, MCP, and LSP through native configuration.",
+      "evidenceIds": [
+        "opencode-skills-source-1",
+        "opencode-skills-source-2",
+        "opencode-skills-source-3"
+      ]
+    },
+    {
+      "id": "opencode-skills-fact-3",
+      "ecosystemId": "opencode-skills",
+      "fact": "An arbitrary .cratis/PROJECT.md is not discovered by name but can be referenced explicitly from instructions configuration or a project bootstrap.",
+      "evidenceIds": [
+        "opencode-skills-source-1",
+        "opencode-skills-source-2",
+        "opencode-skills-source-3"
+      ]
+    },
+    {
+      "id": "opencode-skills-fact-4",
+      "ecosystemId": "opencode-skills",
+      "fact": "No root Agent Plugins installation mechanism is documented.",
+      "evidenceIds": [
+        "opencode-skills-source-1",
+        "opencode-skills-source-2",
+        "opencode-skills-source-3"
+      ]
+    },
+    {
+      "id": "zed-skills-fact-1",
+      "ecosystemId": "zed-skills",
+      "fact": "Zed follows Agent Skills for the Zed Agent and loads user skills from ~/.agents/skills and project skills from .agents/skills in trusted worktrees.",
+      "evidenceIds": [
+        "zed-skills-source-1",
+        "zed-skills-source-2"
+      ]
+    },
+    {
+      "id": "zed-skills-fact-2",
+      "ecosystemId": "zed-skills",
+      "fact": "Zed can import a supported GitHub Markdown URL once, but it does not load remote skills at runtime or support custom search paths.",
+      "evidenceIds": [
+        "zed-skills-source-1",
+        "zed-skills-source-2"
+      ]
+    },
+    {
+      "id": "zed-skills-fact-3",
+      "ecosystemId": "zed-skills",
+      "fact": "The current gh skill install target list does not include Zed, so installation requires direct placement, a symlink, or a custom directory workflow rather than a documented native gh target.",
+      "evidenceIds": [
+        "zed-skills-source-1",
+        "zed-skills-source-2"
+      ]
+    },
+    {
+      "id": "zed-skills-fact-4",
+      "ecosystemId": "zed-skills",
+      "fact": "Project skill invocation uses the normal permission flow and skill file edits require explicit authorization.",
+      "evidenceIds": [
+        "zed-skills-source-1",
+        "zed-skills-source-2"
+      ]
+    },
+    {
+      "id": "deepseek-harness-skills-fact-1",
+      "ecosystemId": "deepseek-harness-skills",
+      "fact": "DeepSeek Harness is in developer preview and warns that compatibility-breaking changes will occur.",
+      "evidenceIds": [
+        "deepseek-harness-skills-source-1",
+        "deepseek-harness-skills-source-2",
+        "deepseek-harness-skills-source-3"
+      ]
+    },
+    {
+      "id": "deepseek-harness-skills-fact-2",
+      "ecosystemId": "deepseek-harness-skills",
+      "fact": "Its skill provider supports project .dsh/skills and .agents/skills, configured custom directories, user roots, and optional bundled providers.",
+      "evidenceIds": [
+        "deepseek-harness-skills-source-1",
+        "deepseek-harness-skills-source-2",
+        "deepseek-harness-skills-source-3"
+      ]
+    },
+    {
+      "id": "deepseek-harness-skills-fact-3",
+      "ecosystemId": "deepseek-harness-skills",
+      "fact": "Skills use kebab-case directory bundles or flat Markdown and are not discovered recursively.",
+      "evidenceIds": [
+        "deepseek-harness-skills-source-1",
+        "deepseek-harness-skills-source-2",
+        "deepseek-harness-skills-source-3"
+      ]
+    },
+    {
+      "id": "deepseek-harness-skills-fact-4",
+      "ecosystemId": "deepseek-harness-skills",
+      "fact": "The current gh skill install target list does not include DeepSeek Harness, so it is a direct-skill compatibility target rather than a supported gh target.",
+      "evidenceIds": [
+        "deepseek-harness-skills-source-1",
+        "deepseek-harness-skills-source-2",
+        "deepseek-harness-skills-source-3"
+      ]
+    },
+    {
+      "id": "npm-cratis-scope-fact-1",
+      "ecosystemId": "npm-cratis-scope",
+      "fact": "Registry lookups for @cratis/ai, @cratis/mcp, and @cratis/pi return not found, so none is currently published.",
+      "evidenceIds": [
+        "npm-cratis-scope-source-1",
+        "npm-cratis-scope-source-2",
+        "npm-cratis-scope-source-3",
+        "npm-cratis-scope-source-4",
+        "npm-cratis-scope-source-5",
+        "npm-cratis-scope-source-6"
+      ]
+    },
+    {
+      "id": "npm-cratis-scope-fact-2",
+      "ecosystemId": "npm-cratis-scope",
+      "fact": "Published @cratis packages including @cratis/arc and @cratis/components establish active organization-scope use.",
+      "evidenceIds": [
+        "npm-cratis-scope-source-1",
+        "npm-cratis-scope-source-2",
+        "npm-cratis-scope-source-3",
+        "npm-cratis-scope-source-4",
+        "npm-cratis-scope-source-5",
+        "npm-cratis-scope-source-6"
+      ]
+    },
+    {
+      "id": "npm-cratis-scope-fact-3",
+      "ecosystemId": "npm-cratis-scope",
+      "fact": "An npm organization scope is a unique namespace owned by the matching organization.",
+      "evidenceIds": [
+        "npm-cratis-scope-source-1",
+        "npm-cratis-scope-source-2",
+        "npm-cratis-scope-source-3",
+        "npm-cratis-scope-source-4",
+        "npm-cratis-scope-source-5",
+        "npm-cratis-scope-source-6"
+      ]
+    },
+    {
+      "id": "npm-cratis-scope-fact-4",
+      "ecosystemId": "npm-cratis-scope",
+      "fact": "This session is not authenticated to npm, so current-user organization membership, package creation rights, and trusted-publisher configuration were not verified.",
+      "evidenceIds": [
+        "npm-cratis-scope-source-1",
+        "npm-cratis-scope-source-2",
+        "npm-cratis-scope-source-3",
+        "npm-cratis-scope-source-4",
+        "npm-cratis-scope-source-5",
+        "npm-cratis-scope-source-6"
+      ]
+    },
+    {
+      "id": "npm-trusted-publishing-fact-1",
+      "ecosystemId": "npm-trusted-publishing",
+      "fact": "GitHub Actions trusted publishing requires npm 11.5.1 or newer, Node 22.14.0 or newer, a GitHub-hosted runner, and id-token write permission.",
+      "evidenceIds": [
+        "npm-trusted-publishing-source-1",
+        "npm-trusted-publishing-source-2"
+      ]
+    },
+    {
+      "id": "npm-trusted-publishing-fact-2",
+      "ecosystemId": "npm-trusted-publishing",
+      "fact": "Configuration binds one package to an exact case-sensitive organization or user, repository, existing workflow filename, optional GitHub environment, and allowed publish action.",
+      "evidenceIds": [
+        "npm-trusted-publishing-source-1",
+        "npm-trusted-publishing-source-2"
+      ]
+    },
+    {
+      "id": "npm-trusted-publishing-fact-3",
+      "ecosystemId": "npm-trusted-publishing",
+      "fact": "Trusted publishing uses short-lived OIDC credentials and automatically generates provenance for public packages from public repositories unless explicitly disabled.",
+      "evidenceIds": [
+        "npm-trusted-publishing-source-1",
+        "npm-trusted-publishing-source-2"
+      ]
+    },
+    {
+      "id": "npm-trusted-publishing-fact-4",
+      "ecosystemId": "npm-trusted-publishing",
+      "fact": "OIDC applies to npm publish and npm stage publish, not install, view, access, other stage commands, or npm whoami. Each package can have only one trusted publisher configuration.",
+      "evidenceIds": [
+        "npm-trusted-publishing-source-1",
+        "npm-trusted-publishing-source-2"
+      ]
+    },
+    {
+      "id": "npm-trusted-publishing-fact-5",
+      "ecosystemId": "npm-trusted-publishing",
+      "fact": "The local Node version satisfies the trusted-publishing minimum, but local npm 10.9.2 does not.",
+      "evidenceIds": [
+        "npm-trusted-publishing-source-1",
+        "npm-trusted-publishing-source-2"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1146 @@
+{
+  "schemaVersion": 1,
+  "defaultPolicy": "deny",
+  "runtimePayloadPolicy": {
+    "allowed": [
+      "skills/<approved-skill>/SKILL.md",
+      "skills/<approved-skill>/references/**",
+      "skills/<approved-skill>/assets/**",
+      "skills/<approved-skill>/LICENSE*"
+    ],
+    "forbidden": [
+      "rules/**",
+      "instructions/**",
+      "agents/**",
+      "prompts/**",
+      "commands/**",
+      "hooks/**",
+      "lsp/**",
+      "scripts/**",
+      "evals/**",
+      "tooling/**",
+      ".ai/**"
+    ]
+  },
+  "audit": {
+    "verifiedOn": "2026-08-20",
+    "currentInventoryCount": 43,
+    "publicCandidateCount": 35,
+    "internalSkillCount": 8,
+    "internalSkills": [
+      {
+        "currentName": "add-cratis-docs-page",
+        "reason": "Operates the internal multi-repository Cratis documentation workflow."
+      },
+      {
+        "currentName": "add-traces",
+        "reason": "Chronicle kernel repository tracing and package maintenance is Cratis engineering contributor guidance."
+      },
+      {
+        "currentName": "cratis-csharp-standards",
+        "reason": "Broad C# house conventions are engineering policy; public skills carry only workflow-required C# facts."
+      },
+      {
+        "currentName": "edit-cratis-docs",
+        "reason": "Operates the internal multi-repository Cratis documentation workflow."
+      },
+      {
+        "currentName": "qa-cratis-docs",
+        "reason": "Depends on internal documentation rendering and visual-QA operations."
+      },
+      {
+        "currentName": "ship-changes",
+        "reason": "Performs internal repository, pull-request, and release operations."
+      },
+      {
+        "currentName": "skill-creator",
+        "reason": "Vendored authoring and evaluation toolchain containing executable scripts."
+      },
+      {
+        "currentName": "write-documentation",
+        "reason": "Authors documentation through the internal Cratis documentation workflow."
+      }
+    ]
+  },
+  "skills": [
+    {
+      "currentName": "add-business-rule",
+      "source": ".ai/skills/add-business-rule",
+      "proposedName": "cratis-arc-command-validation",
+      "disposition": "split-review",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "arc",
+        "application"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "dependencies": {
+        "skills": [
+          "add-concept",
+          "cratis-command"
+        ],
+        "internalArtifacts": [
+          ".ai/rules/vertical-slices.md",
+          ".ai/skills/add-business-rule/evals/**"
+        ],
+        "externalTools": [
+          "dotnet"
+        ]
+      },
+      "reviewNotes": [
+        "Split command validation and state checks from Chronicle event-store uniqueness and constraints; share factual references without competing trigger intent."
+      ],
+      "splitTargets": [
+        "cratis-arc-command-validation",
+        "cratis-chronicle-event-constraints"
+      ]
+    },
+    {
+      "currentName": "add-concept",
+      "source": ".ai/skills/add-concept",
+      "proposedName": "cratis-fundamentals-concept",
+      "disposition": "rename",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "fundamentals"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "dependencies": {
+        "skills": [],
+        "internalArtifacts": [],
+        "externalTools": [
+          "dotnet"
+        ]
+      },
+      "reviewNotes": [
+        "Public version must be self-contained for ConceptAs<T> and EventSourceId<T> decisions."
+      ]
+    },
+    {
+      "currentName": "add-ef-migration",
+      "source": ".ai/skills/add-ef-migration",
+      "proposedName": "cratis-arc-ef-core-migration",
+      "disposition": "rename",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "entity-framework-core",
+        "application"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "dependencies": {
+        "skills": [
+          "cratis-specs-csharp"
+        ],
+        "internalArtifacts": [
+          ".ai/rules/efcore.md"
+        ],
+        "externalTools": [
+          "dotnet"
+        ]
+      },
+      "reviewNotes": [
+        "Keep product-specific migration setup separate from generic EF Core guidance."
+      ]
+    },
+    {
+      "currentName": "add-projection",
+      "source": ".ai/skills/add-projection",
+      "proposedName": "cratis-chronicle-projection",
+      "disposition": "rename",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "chronicle",
+        "application"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "dependencies": {
+        "skills": [
+          "cratis-readmodel",
+          "write-specs-readmodels"
+        ],
+        "internalArtifacts": [
+          ".ai/skills/add-projection/evals/**",
+          "Documentation/events/filtering/**"
+        ],
+        "externalTools": [
+          "dotnet"
+        ]
+      },
+      "reviewNotes": [
+        "Trigger intent overlaps read-model and reducer skills; retain only projection-specific admission guidance."
+      ]
+    },
+    {
+      "currentName": "add-reactor",
+      "source": ".ai/skills/add-reactor",
+      "proposedName": "cratis-chronicle-reactor",
+      "disposition": "rename",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "chronicle",
+        "application"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "dependencies": {
+        "skills": [
+          "call-command-from-code",
+          "write-specs"
+        ],
+        "internalArtifacts": [
+          ".ai/rules/reactors.md",
+          ".ai/skills/add-reactor/evals/**",
+          "Documentation/events/filtering/**"
+        ],
+        "externalTools": [
+          "dotnet"
+        ]
+      },
+      "reviewNotes": [
+        "Keep automation and translation behavior explicit and avoid command/reaction trigger collisions."
+      ]
+    },
+    {
+      "currentName": "add-reducer",
+      "source": ".ai/skills/add-reducer",
+      "proposedName": "cratis-chronicle-reducer",
+      "disposition": "rename",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "chronicle",
+        "application"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "dependencies": {
+        "skills": [
+          "cratis-readmodel",
+          "write-specs-readmodels"
+        ],
+        "internalArtifacts": [
+          ".ai/rules/specs.scenarios.csharp.md",
+          ".ai/rules/vertical-slices.md"
+        ],
+        "externalTools": [
+          "dotnet"
+        ]
+      },
+      "reviewNotes": [
+        "Preserve the last-resort admission test; do not merge with ordinary projection guidance without evaluations."
+      ]
+    },
+    {
+      "currentName": "auth-and-identity",
+      "source": ".ai/skills/auth-and-identity",
+      "proposedName": "cratis-arc-authentication-authorization-and-identity",
+      "disposition": "rename",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "arc",
+        "arc-react"
+      ],
+      "languages": [
+        "csharp",
+        "react"
+      ],
+      "dependencies": {
+        "skills": [
+          "cratis-command",
+          "cratis-react-page",
+          "multi-tenancy"
+        ],
+        "internalArtifacts": [
+          ".github/copilot-instructions.md",
+          "Documentation/frontend/react.mvvm/mvvm-context.md"
+        ],
+        "externalTools": [
+          "dotnet",
+          "node"
+        ]
+      },
+      "reviewNotes": [
+        "Broad authentication, authorization, identity-provider, frontend, and tenant intents may need future decomposition."
+      ]
+    },
+    {
+      "currentName": "call-command-from-code",
+      "source": ".ai/skills/call-command-from-code",
+      "proposedName": "cratis-arc-command-execution",
+      "disposition": "rename",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "arc"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "dependencies": {
+        "skills": [
+          "cratis-command"
+        ],
+        "internalArtifacts": [
+          ".ai/rules/vertical-slices.md"
+        ],
+        "externalTools": [
+          "dotnet"
+        ]
+      },
+      "reviewNotes": [
+        "Distinguish backend pipeline execution from defining an Arc command."
+      ]
+    },
+    {
+      "currentName": "cratis-command",
+      "source": ".ai/skills/cratis-command",
+      "proposedName": "cratis-arc-command",
+      "disposition": "rename",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "arc",
+        "arc-react",
+        "application"
+      ],
+      "languages": [
+        "csharp",
+        "react"
+      ],
+      "dependencies": {
+        "skills": [
+          "add-business-rule",
+          "add-concept"
+        ],
+        "internalArtifacts": [
+          ".ai/rules/vertical-slices.md",
+          ".ai/skills/cratis-command/evals/**"
+        ],
+        "externalTools": [
+          "dotnet",
+          "node"
+        ]
+      },
+      "reviewNotes": [
+        "The current full-stack workflow overlaps business-rule, React-page, and stepper-dialog skills; sharpen the command-definition trigger."
+      ]
+    },
+    {
+      "currentName": "cratis-react-page",
+      "source": ".ai/skills/cratis-react-page",
+      "proposedName": "cratis-arc-react-page",
+      "disposition": "rename",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "arc-react",
+        "components",
+        "application"
+      ],
+      "languages": [
+        "react",
+        "typescript"
+      ],
+      "dependencies": {
+        "skills": [
+          "cratis-command",
+          "query-paging"
+        ],
+        "internalArtifacts": [
+          ".ai/rules/dialogs.md",
+          ".ai/rules/react.md",
+          ".ai/skills/cratis-react-page/evals/**"
+        ],
+        "externalTools": [
+          "node"
+        ]
+      },
+      "reviewNotes": [
+        "Likely overlaps future Components DataPage and Arc React client capabilities; define ownership before expansion."
+      ]
+    },
+    {
+      "currentName": "cratis-readmodel",
+      "source": ".ai/skills/cratis-readmodel",
+      "proposedName": "cratis-chronicle-read-model",
+      "disposition": "rename",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "chronicle",
+        "arc",
+        "application"
+      ],
+      "languages": [
+        "csharp",
+        "typescript"
+      ],
+      "dependencies": {
+        "skills": [
+          "add-projection",
+          "add-reducer",
+          "query-paging"
+        ],
+        "internalArtifacts": [
+          ".ai/skills/cratis-readmodel/evals/**",
+          "Documentation/events/filtering/**"
+        ],
+        "externalTools": [
+          "dotnet",
+          "node"
+        ]
+      },
+      "reviewNotes": [
+        "Keep read-model creation and query surface separate from projection mechanics where trigger evaluations support it."
+      ]
+    },
+    {
+      "currentName": "cratis-specs-csharp",
+      "source": ".ai/skills/cratis-specs-csharp",
+      "proposedName": "cratis-specifications-csharp",
+      "disposition": "rename",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "specifications",
+        "cross-product"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "dependencies": {
+        "skills": [],
+        "internalArtifacts": [
+          ".ai/rules/specs.csharp.md",
+          ".ai/rules/specs.scenarios.csharp.md",
+          ".ai/skills/cratis-specs-csharp/evals/**"
+        ],
+        "externalTools": [
+          "dotnet"
+        ]
+      },
+      "reviewNotes": [
+        "Generic Specification by Example scope competes with application scenario routing; descriptions need explicit boundaries."
+      ]
+    },
+    {
+      "currentName": "cratis-specs-typescript",
+      "source": ".ai/skills/cratis-specs-typescript",
+      "proposedName": "cratis-specifications-typescript",
+      "disposition": "rename",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "specifications",
+        "cross-product"
+      ],
+      "languages": [
+        "typescript"
+      ],
+      "dependencies": {
+        "skills": [],
+        "internalArtifacts": [
+          ".ai/skills/cratis-specs-typescript/evals/**"
+        ],
+        "externalTools": [
+          "node"
+        ]
+      },
+      "reviewNotes": [
+        "Generic TypeScript specification guidance must not compete with React application behavior specs."
+      ]
+    },
+    {
+      "currentName": "cratis-vertical-slice",
+      "source": ".ai/skills/cratis-vertical-slice",
+      "proposedName": "cratis-application-vertical-slice",
+      "disposition": "merge-review",
+      "mergeGroup": "application-vertical-slice",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "application"
+      ],
+      "languages": [
+        "csharp",
+        "react",
+        "typescript"
+      ],
+      "dependencies": {
+        "skills": [
+          "event-modeling",
+          "new-vertical-slice"
+        ],
+        "internalArtifacts": [
+          ".ai/skills/cratis-vertical-slice/evals/**"
+        ],
+        "externalTools": [
+          "dotnet",
+          "node"
+        ]
+      },
+      "reviewNotes": [
+        "Evaluate consolidation with new-vertical-slice; preserve conceptual orientation through progressive references if merged."
+      ]
+    },
+    {
+      "currentName": "new-vertical-slice",
+      "source": ".ai/skills/new-vertical-slice",
+      "proposedName": "cratis-application-vertical-slice",
+      "disposition": "merge-review",
+      "mergeGroup": "application-vertical-slice",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "application"
+      ],
+      "languages": [
+        "csharp",
+        "react",
+        "typescript"
+      ],
+      "dependencies": {
+        "skills": [
+          "cratis-vertical-slice",
+          "event-modeling",
+          "write-specs",
+          "cratis-react-page"
+        ],
+        "internalArtifacts": [
+          ".ai/skills/new-vertical-slice/evals/**",
+          "Documentation/web/**"
+        ],
+        "externalTools": [
+          "dotnet",
+          "node"
+        ]
+      },
+      "reviewNotes": [
+        "Evaluate consolidation with cratis-vertical-slice; implementation orchestration must remain actionable if merged."
+      ]
+    },
+    {
+      "currentName": "create-event-model",
+      "source": ".ai/skills/create-event-model",
+      "proposedName": "cratis-event-model-diagram",
+      "disposition": "rename",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "application",
+        "chronicle"
+      ],
+      "languages": [
+        "markdown"
+      ],
+      "dependencies": {
+        "skills": [
+          "event-modeling"
+        ],
+        "internalArtifacts": [
+          ".ai/rules/vertical-slices.md"
+        ],
+        "externalTools": []
+      },
+      "reviewNotes": [
+        "Description must clearly distinguish Mermaid diagram maintenance from event-model design."
+      ]
+    },
+    {
+      "currentName": "cross-cutting-properties",
+      "source": ".ai/skills/cross-cutting-properties",
+      "proposedName": "cratis-chronicle-event-metadata",
+      "disposition": "rename",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "dependencies": {
+        "skills": [
+          "multi-tenancy"
+        ],
+        "internalArtifacts": [
+          ".ai/rules/vertical-slices.md"
+        ],
+        "externalTools": [
+          "dotnet"
+        ]
+      },
+      "reviewNotes": [
+        "Keep cross-cutting metadata distinct from domain event payload and tenant namespace isolation."
+      ]
+    },
+    {
+      "currentName": "diagnose-slice",
+      "source": ".ai/skills/diagnose-slice",
+      "proposedName": "cratis-application-slice-diagnostics",
+      "disposition": "rename",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "application",
+        "arc",
+        "chronicle"
+      ],
+      "languages": [
+        "csharp",
+        "typescript"
+      ],
+      "dependencies": {
+        "skills": [
+          "inspect-running-chronicle",
+          "add-projection",
+          "cratis-command"
+        ],
+        "internalArtifacts": [
+          ".ai/rules/general.md",
+          ".ai/rules/vertical-slices.md",
+          ".ai/rules/reactors.md",
+          ".ai/rules/components.md",
+          ".ai/rules/dialogs.md",
+          ".ai/rules/specs.scenarios.csharp.md"
+        ],
+        "externalTools": [
+          "dotnet",
+          "node"
+        ]
+      },
+      "reviewNotes": [
+        "Source diagnosis overlaps Chronicle operations; route live-store symptoms rather than duplicating operational procedures."
+      ]
+    },
+    {
+      "currentName": "discover-implementations",
+      "source": ".ai/skills/discover-implementations",
+      "proposedName": "cratis-fundamentals-type-discovery",
+      "disposition": "rename",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "fundamentals"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "dependencies": {
+        "skills": [
+          "cratis-csharp-standards"
+        ],
+        "internalArtifacts": [],
+        "externalTools": [
+          "dotnet"
+        ]
+      },
+      "reviewNotes": [
+        "Narrow public trigger to IInstancesOf<T> and implementation discovery, not generic dependency injection."
+      ]
+    },
+    {
+      "currentName": "event-modeling",
+      "source": ".ai/skills/event-modeling",
+      "proposedName": "cratis-chronicle-event-modeling",
+      "disposition": "rename",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "chronicle",
+        "application"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "dependencies": {
+        "skills": [
+          "create-event-model"
+        ],
+        "internalArtifacts": [
+          ".ai/rules/general.md",
+          ".ai/rules/vertical-slices.md",
+          ".ai/skills/ship-changes"
+        ],
+        "externalTools": []
+      },
+      "reviewNotes": [
+        "Description must distinguish domain/stream design from EventModel.md diagram editing."
+      ]
+    },
+    {
+      "currentName": "event-type-migrations",
+      "source": ".ai/skills/event-type-migrations",
+      "proposedName": "cratis-chronicle-event-type-migration",
+      "disposition": "rename",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "dependencies": {
+        "skills": [
+          "cratis-readmodel"
+        ],
+        "internalArtifacts": [
+          ".ai/rules/vertical-slices.md"
+        ],
+        "externalTools": [
+          "dotnet"
+        ]
+      },
+      "reviewNotes": [
+        "Keep schema evolution focused on generations and migrations, not generic event editing."
+      ]
+    },
+    {
+      "currentName": "inspect-running-chronicle",
+      "source": ".ai/skills/inspect-running-chronicle",
+      "proposedName": "cratis-chronicle-cli-operations",
+      "disposition": "rename",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "chronicle",
+        "cli"
+      ],
+      "languages": [
+        "shell"
+      ],
+      "dependencies": {
+        "skills": [
+          "diagnose-slice"
+        ],
+        "internalArtifacts": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          ".github/copilot-instructions.md",
+          "CHRONICLE.md"
+        ],
+        "externalTools": [
+          "cratis-cli"
+        ]
+      },
+      "reviewNotes": [
+        "Security review is required because the current workflow includes mutating replay operations and project-local connection details."
+      ]
+    },
+    {
+      "currentName": "multi-tenancy",
+      "source": ".ai/skills/multi-tenancy",
+      "proposedName": "cratis-chronicle-multi-tenancy",
+      "disposition": "rename",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "chronicle",
+        "arc"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "dependencies": {
+        "skills": [
+          "auth-and-identity"
+        ],
+        "internalArtifacts": [
+          ".ai/rules/reactors.md"
+        ],
+        "externalTools": [
+          "dotnet"
+        ]
+      },
+      "reviewNotes": [
+        "Keep Chronicle namespace isolation distinct from identity-provider and authorization setup."
+      ]
+    },
+    {
+      "currentName": "observable-query-curl",
+      "source": ".ai/skills/observable-query-curl",
+      "proposedName": "cratis-arc-observable-query-http",
+      "disposition": "rename",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "arc"
+      ],
+      "languages": [
+        "shell"
+      ],
+      "dependencies": {
+        "skills": [
+          "cratis-readmodel",
+          "query-paging"
+        ],
+        "internalArtifacts": [],
+        "externalTools": [
+          "curl"
+        ]
+      },
+      "reviewNotes": [
+        "Narrow to HTTP/SSE troubleshooting; do not compete with implementing observable queries."
+      ]
+    },
+    {
+      "currentName": "query-paging",
+      "source": ".ai/skills/query-paging",
+      "proposedName": "cratis-arc-query-paging",
+      "disposition": "rename",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "arc",
+        "arc-react"
+      ],
+      "languages": [
+        "csharp",
+        "react",
+        "typescript"
+      ],
+      "dependencies": {
+        "skills": [
+          "cratis-readmodel",
+          "cratis-react-page"
+        ],
+        "internalArtifacts": [
+          ".ai/rules/vertical-slices.md",
+          ".ai/rules/react.md"
+        ],
+        "externalTools": [
+          "dotnet",
+          "node"
+        ]
+      },
+      "reviewNotes": [
+        "A future general Arc query skill should own query creation while this remains paging-specific."
+      ]
+    },
+    {
+      "currentName": "review-code",
+      "source": ".ai/skills/review-code",
+      "proposedName": "cratis-code-review",
+      "disposition": "rename",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "cross-product"
+      ],
+      "languages": [
+        "csharp",
+        "typescript"
+      ],
+      "dependencies": {
+        "skills": [
+          "review-performance",
+          "review-security"
+        ],
+        "internalArtifacts": [],
+        "externalTools": [
+          "git",
+          "dotnet",
+          "node"
+        ]
+      },
+      "reviewNotes": [
+        "Current behavior is strongly coupled to the internal rule corpus and specialist agents; public review criteria must become self-contained."
+      ]
+    },
+    {
+      "currentName": "review-performance",
+      "source": ".ai/skills/review-performance",
+      "proposedName": "cratis-performance-review",
+      "disposition": "rename",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "cross-product",
+        "chronicle",
+        "arc-react"
+      ],
+      "languages": [
+        "csharp",
+        "typescript"
+      ],
+      "dependencies": {
+        "skills": [
+          "review-code"
+        ],
+        "internalArtifacts": [],
+        "externalTools": [
+          "git",
+          "dotnet",
+          "node"
+        ]
+      },
+      "reviewNotes": [
+        "Separate specialist performance intent from generic code review and avoid agent dependencies."
+      ]
+    },
+    {
+      "currentName": "review-security",
+      "source": ".ai/skills/review-security",
+      "proposedName": "cratis-security-review",
+      "disposition": "rename",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "cross-product",
+        "chronicle",
+        "arc"
+      ],
+      "languages": [
+        "csharp",
+        "typescript"
+      ],
+      "dependencies": {
+        "skills": [
+          "review-code"
+        ],
+        "internalArtifacts": [],
+        "externalTools": [
+          "git",
+          "dotnet",
+          "node"
+        ]
+      },
+      "reviewNotes": [
+        "Separate specialist security intent from generic review and replace internal-agent routing with portable checks."
+      ]
+    },
+    {
+      "currentName": "scaffold-feature",
+      "source": ".ai/skills/scaffold-feature",
+      "proposedName": "cratis-arc-react-feature-scaffolding",
+      "disposition": "rename",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "application",
+        "arc-react"
+      ],
+      "languages": [
+        "csharp",
+        "react",
+        "typescript"
+      ],
+      "dependencies": {
+        "skills": [
+          "cratis-vertical-slice",
+          "cratis-react-page"
+        ],
+        "internalArtifacts": [],
+        "externalTools": [
+          "dotnet",
+          "node"
+        ]
+      },
+      "reviewNotes": [
+        "Keep feature composition separate from implementing a behavior slice."
+      ]
+    },
+    {
+      "currentName": "stepper-command-dialog",
+      "source": ".ai/skills/stepper-command-dialog",
+      "proposedName": "cratis-components-stepper-command-dialog",
+      "disposition": "rename",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "components",
+        "arc-react"
+      ],
+      "languages": [
+        "react",
+        "typescript"
+      ],
+      "dependencies": {
+        "skills": [
+          "cratis-command",
+          "cratis-react-page"
+        ],
+        "internalArtifacts": [],
+        "externalTools": [
+          "node"
+        ]
+      },
+      "reviewNotes": [
+        "Potential future merge into a broader Components dialog skill should be evaluated after that capability exists."
+      ]
+    },
+    {
+      "currentName": "toolbar",
+      "source": ".ai/skills/toolbar",
+      "proposedName": "cratis-components-toolbar",
+      "disposition": "rename",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "components"
+      ],
+      "languages": [
+        "react",
+        "typescript"
+      ],
+      "dependencies": {
+        "skills": [
+          "cratis-react-page"
+        ],
+        "internalArtifacts": [
+          ".ai/rules/components.md"
+        ],
+        "externalTools": [
+          "node"
+        ]
+      },
+      "reviewNotes": [
+        "Narrow capability is suitable for publication once component API references are self-contained."
+      ]
+    },
+    {
+      "currentName": "write-specs",
+      "source": ".ai/skills/write-specs",
+      "proposedName": "cratis-application-slice-specifications",
+      "disposition": "rename",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "application",
+        "specifications"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "dependencies": {
+        "skills": [
+          "cratis-specs-csharp",
+          "write-specs-events",
+          "write-specs-readmodels"
+        ],
+        "internalArtifacts": [
+          ".ai/rules/specs.md",
+          ".ai/rules/specs.csharp.md",
+          ".ai/rules/specs.scenarios.csharp.md",
+          ".ai/skills/write-specs/evals/**"
+        ],
+        "externalTools": [
+          "dotnet"
+        ]
+      },
+      "reviewNotes": [
+        "Keep as an application-scenario router only if trigger tests distinguish it from generic C# specifications."
+      ]
+    },
+    {
+      "currentName": "write-specs-events",
+      "source": ".ai/skills/write-specs-events",
+      "proposedName": "cratis-chronicle-event-specifications",
+      "disposition": "rename",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "chronicle",
+        "specifications",
+        "application"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "dependencies": {
+        "skills": [
+          "write-specs",
+          "cratis-specs-csharp"
+        ],
+        "internalArtifacts": [],
+        "externalTools": [
+          "dotnet"
+        ]
+      },
+      "reviewNotes": [
+        "EventScenario specialization may remain separate, but duplicate scenario boilerplate should move to shared references."
+      ]
+    },
+    {
+      "currentName": "write-specs-frontend",
+      "source": ".ai/skills/write-specs-frontend",
+      "proposedName": "cratis-application-react-specifications",
+      "disposition": "rename",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "arc-react",
+        "specifications",
+        "application"
+      ],
+      "languages": [
+        "react",
+        "typescript"
+      ],
+      "dependencies": {
+        "skills": [
+          "cratis-specs-typescript",
+          "cratis-react-page"
+        ],
+        "internalArtifacts": [
+          ".ai/rules/frontend-testing.md",
+          ".ai/rules/react.md"
+        ],
+        "externalTools": [
+          "node"
+        ]
+      },
+      "reviewNotes": [
+        "Explicitly distinguish React application behavior from generic TypeScript specification style."
+      ]
+    },
+    {
+      "currentName": "write-specs-readmodels",
+      "source": ".ai/skills/write-specs-readmodels",
+      "proposedName": "cratis-chronicle-read-model-specifications",
+      "disposition": "rename",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "chronicle",
+        "specifications",
+        "application"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "dependencies": {
+        "skills": [
+          "write-specs",
+          "cratis-readmodel",
+          "add-projection",
+          "add-reducer"
+        ],
+        "internalArtifacts": [],
+        "externalTools": [
+          "dotnet"
+        ]
+      },
+      "reviewNotes": [
+        "ReadModelScenario specialization may remain separate, but duplicate scenario boilerplate should move to shared references."
+      ]
+    }
+  ]
+}
