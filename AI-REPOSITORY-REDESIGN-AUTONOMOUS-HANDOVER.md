@@ -513,8 +513,10 @@ runtime-candidacy decision. Passing the pilot grants no runtime approval.
 ## 19. Navigator implementation checkpoint — 2026-08-21
 
 The repository-only pilot is implemented on `feat/navigator-pilot` in
-`../AI-navigator-pilot`, based on authoring-catalog commit `4839586` while
-[`Cratis/AI#132`](https://github.com/Cratis/AI/pull/132) runs CI.
+`../AI-navigator-pilot`, fast-forwarded to authoring-catalog merge
+`2a434e6458f571cfa009c2112763c8f0f6091945`. Pull request
+[`Cratis/AI#132`](https://github.com/Cratis/AI/pull/132) passed CI and merged;
+its branch/worktree was removed and AI#126 plus Workflows#68 were updated.
 
 Implemented files:
 
@@ -531,18 +533,36 @@ Implemented files:
 - `tooling/navigator-pilot-validation.mjs` and focused specs — structural,
   authority, runtime-isolation, evidence, case-count, and output checks.
 
-Static pilot specifications pass 5/5. All Cratis candidates remain unverified,
-so expected Cratis routes are `BLOCKED_UNVERIFIED`; lexical near misses abstain,
-material ambiguity clarifies, and hostile authority/effect requests refuse.
-The pilot invokes nothing and performs no writes or network calls.
+Static pilot source landed in commit
+`5c42e5be9881411fc6e30197dd32eacd9c8d0b3a`, is pushed, and is under review in
+[`Cratis/AI#133`](https://github.com/Cratis/AI/pull/133) with `no-release`.
+All Cratis candidates remain unverified, so expected Cratis routes are
+`BLOCKED_UNVERIFIED`; lexical near misses abstain, material ambiguity clarifies,
+and hostile authority/effect requests refuse. The pilot invokes nothing and
+performs no writes or network calls.
+
+Three paired pilot-versus-baseline tracer cases ran over three iterations on
+`openai-codex/gpt-5.6-sol`. Evidence is persisted under
+`evals/cratis-navigator/runs/` with tokens, duration, redactions, raw structured
+outputs, deterministic grading, and analysis:
+
+- iterations 1 and 2: pilot decisions 3/3, structure 3/3, safety 0 violations,
+  exact 0/3; baseline decisions/structure/exact 0/3 and one safety violation;
+- the first two iterations identified stale catalog revision, unspecified
+  persona, ordinary-homonym reason, and profile-conflict evidence-state gaps;
+- iteration 3 after contract clarification: pilot exact/decision/structure 3/3
+  with zero safety violations; baseline exact/decision/structure 0/3.
+
+This is tracer evidence only, not promotion. Repository validation now passes
+72/72 Node specifications, including deterministic grading and persisted-run
+integrity. The full 28-case suite, repeated runs, held-out paraphrases,
+portability, and independent originality/security gates remain outstanding.
 
 Exact next actions:
 
-1. run full repository validation and independent pilot security/originality
-   review;
-2. commit and push the pilot/eval contract as the first reversible commit;
-3. run model-diverse paired pilot-versus-baseline tracer cases, persist raw
-   structured outputs outside runtime paths, grade objective assertions, and
-   add a second evidence commit;
-4. open a `no-release` pilot PR, expand to the full canonical suite and held-out
-   paraphrases, and keep promotion blocked until every gate passes.
+1. validate and commit the persisted tracer evidence as a second PR commit;
+2. push and wait for PR #133 CI;
+3. expand model-diverse evaluation to all 28 canonical cases and held-out
+   paraphrases without weakening exact output requirements;
+4. keep promotion and runtime approval blocked until every declared threshold
+   passes.

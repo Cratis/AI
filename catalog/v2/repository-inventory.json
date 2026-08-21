@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "ff01303dcae2b5729b30529d866a96b692a53f36330f99c7516fca6e08f0dc52",
+  "indexDigest": "23058c1d59a802ea4323a3e58c10006b8a733f5587323444498ea72f393a1ac8",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -259,6 +259,114 @@
       "status": "added"
     },
     {
+      "path": "evals/cratis-navigator/runs/iteration-1/N01/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-1/N01/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-1/N14/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-1/N14/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-1/P04/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-1/P04/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-1/analysis.md",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-1/grading.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-1/metadata.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-2/N01/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-2/N01/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-2/N14/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-2/N14/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-2/P04/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-2/P04/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-2/analysis.md",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-2/grading.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-2/metadata.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-3/N01/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-3/N01/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-3/N14/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-3/N14/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-3/P04/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-3/P04/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-3/analysis.md",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-3/grading.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-3/metadata.json",
+      "status": "added"
+    },
+    {
       "path": "pilots/cratis-navigator/PILOT.md",
       "status": "added"
     },
@@ -348,6 +456,10 @@
     },
     {
       "path": "tooling/generate-repository-inventory.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/grade-navigator-runs.mjs",
       "status": "added"
     },
     {
@@ -1274,8 +1386,8 @@
       "evidenceIds": [
         "ecosystem-use-cases"
       ],
-      "expectedPathCount": 3,
-      "expectedPathsDigest": "ada42b355ea01c158ff4ce5df898442b6ca777db9e9866aa351d33e17155b24e"
+      "expectedPathCount": 30,
+      "expectedPathsDigest": "fc1d07b4db55b4df0ffb1b48208932d4cb01f806e7e256f8168408d1fd3a2c02"
     },
     {
       "excludePathPatterns": [],
@@ -1436,8 +1548,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 10,
-      "expectedPathsDigest": "3387bb282f9635f3edc9e60f29eb5ea05222e200b3878d874afff226a6ce5b5b"
+      "expectedPathCount": 11,
+      "expectedPathsDigest": "67ab2b59bfa900692ba404254189831fc22cdbd4fec00dd812b8640f13472e5d"
     },
     {
       "excludePathPatterns": [],

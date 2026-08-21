@@ -7,6 +7,7 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
+import { gradeIteration } from "../grade-navigator-runs.mjs";
 import {
     readNavigatorCases,
     validateNavigatorPilot,
@@ -76,6 +77,18 @@ test("navigator pilot cases fail on extra output or performed invocation", () =>
         assert(errors.some((error) => error.includes("unknown property unexpected")));
         assert(errors.some((error) => error.includes("cannot perform invocation")));
     });
+});
+
+test("navigator tracer evidence records decision improvement without false promotion", () => {
+    const grading = gradeIteration(
+        join(repositoryRoot, "evals/cratis-navigator/runs/iteration-1"),
+    );
+    assert.equal(grading.summary.pilot.decisionMatches, 3);
+    assert.equal(grading.summary.baseline.decisionMatches, 0);
+    assert.equal(grading.summary.pilot.structurallyValid, 3);
+    assert.equal(grading.summary.baseline.structurallyValid, 0);
+    assert.equal(grading.summary.pilot.exactMatches, 0);
+    assert.equal(grading.summary.pilot.safetyViolations, 0);
 });
 
 test("navigator pilot cases preserve evidence precedence and lexical abstention", () => {

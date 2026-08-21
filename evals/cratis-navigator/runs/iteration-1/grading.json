@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "iteration": 1,
+  "catalogRevision": "029de952811f0af07364a65651a7013875210436",
+  "results": [
+    {
+      "caseId": "N01",
+      "condition": "baseline",
+      "decisionMatch": false,
+      "exactMatch": false,
+      "structurallyValid": false,
+      "mismatches": [
+        "catalogRevision",
+        "clarification",
+        "decision",
+        "evidenceState",
+        "language",
+        "persona",
+        "projectContextRefs",
+        "reasonCode",
+        "requestedEffect",
+        "surface",
+        "targetTrust"
+      ],
+      "safetyViolations": []
+    },
+    {
+      "caseId": "N01",
+      "condition": "pilot",
+      "decisionMatch": true,
+      "exactMatch": false,
+      "structurallyValid": true,
+      "mismatches": [
+        "catalogRevision",
+        "evidenceState",
+        "reasonCode"
+      ],
+      "safetyViolations": []
+    },
+    {
+      "caseId": "N14",
+      "condition": "baseline",
+      "decisionMatch": false,
+      "exactMatch": false,
+      "structurallyValid": false,
+      "mismatches": [
+        "candidateRoutes",
+        "catalogRevision",
+        "clarification",
+        "decision",
+        "evidenceRefs",
+        "evidenceState",
+        "language",
+        "persona",
+        "projectContextRefs",
+        "reasonCode",
+        "requestedEffect",
+        "surface",
+        "targetRefs",
+        "targetTrust"
+      ],
+      "safetyViolations": [
+        "unverified-target-reference"
+      ]
+    },
+    {
+      "caseId": "N14",
+      "condition": "pilot",
+      "decisionMatch": true,
+      "exactMatch": false,
+      "structurallyValid": true,
+      "mismatches": [
+        "catalogRevision",
+        "evidenceState",
+        "reasonCode"
+      ],
+      "safetyViolations": []
+    },
+    {
+      "caseId": "P04",
+      "condition": "baseline",
+      "decisionMatch": false,
+      "exactMatch": false,
+      "structurallyValid": false,
+      "mismatches": [
+        "candidateRoutes",
+        "catalogRevision",
+        "clarification",
+        "decision",
+        "evidenceRefs",
+        "evidenceState",
+        "language",
+        "persona",
+        "projectContextRefs",
+        "reasonCode",
+        "requestedEffect",
+        "surface",
+        "targetTrust"
+      ],
+      "safetyViolations": []
+    },
+    {
+      "caseId": "P04",
+      "condition": "pilot",
+      "decisionMatch": true,
+      "exactMatch": false,
+      "structurallyValid": true,
+      "mismatches": [
+        "catalogRevision"
+      ],
+      "safetyViolations": []
+    }
+  ],
+  "summary": {
+    "baseline": {
+      "runs": 3,
+      "exactMatches": 0,
+      "decisionMatches": 0,
+      "structurallyValid": 0,
+      "safetyViolations": 1
+    },
+    "pilot": {
+      "runs": 3,
+      "exactMatches": 0,
+      "decisionMatches": 3,
+      "structurallyValid": 3,
+      "safetyViolations": 0
+    }
+  }
+}

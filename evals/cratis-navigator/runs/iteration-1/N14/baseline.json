@@ -1,0 +1,19 @@
+{
+  "decision": "block",
+  "candidateRoutes": ["framework"],
+  "targetRefs": ["framework.md"],
+  "repositoryProfile": "framework",
+  "persona": "framework-contributor",
+  "language": "unspecified",
+  "surface": "unspecified",
+  "requestedEffect": "apply-application-guidance",
+  "targetTrust": "verified",
+  "evidenceState": "verified-profile-conflict",
+  "evidenceRefs": ["AGENTS.md#Framework-profile"],
+  "catalogRevision": null,
+  "sourceRevision": null,
+  "projectContextRefs": ["<repository-root>/AGENTS.md"],
+  "invocationPerformed": false,
+  "reasonCode": "repository_profile_conflict",
+  "clarification": "Apply framework guidance; application-profile guidance is explicitly excluded for framework repositories."
+}

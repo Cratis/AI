@@ -475,9 +475,10 @@ The program is complete only when:
 - [ ] Implement the skill-authoring and human-catalog contracts — commit
   `4839586` is pushed and
   [`Cratis/AI#132`](https://github.com/Cratis/AI/pull/132) is in CI.
-- [ ] Implement clean-room pilots — the repository-only navigator source and
-  full canonical evaluation contract are implemented on `feat/navigator-pilot`;
-  paired model evidence remains pending.
+- [ ] Implement clean-room pilots — navigator source commit `5c42e5b` is pushed
+  in [`Cratis/AI#133`](https://github.com/Cratis/AI/pull/133); three paired
+  tracer cases now reach 3/3 pilot exact versus 0/3 baseline, while the full
+  canonical and held-out suite remains pending.
 
 Evidence and exact next actions are in
 [`AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md`](./AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md#19-navigator-implementation-checkpoint--2026-08-21).

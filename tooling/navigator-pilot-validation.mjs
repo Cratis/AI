@@ -1,7 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-import { readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { compareOrdinal } from "./catalog-ordering.mjs";
 import {
@@ -216,7 +216,90 @@ export function validateNavigatorPilot(root = defaultRepositoryRoot) {
         !equalSets(pilotFiles, ["PILOT.md", "metadata.draft.json", "routes.draft.json"])
     )
         errors.push("Navigator pilot source inventory changed");
-    if (!equalSets(evaluationFiles, ["assertions.json", "baseline.md", "cases.jsonl"]))
+    if (
+        !equalSets(evaluationFiles, [
+            "assertions.json",
+            "baseline.md",
+            "cases.jsonl",
+            "runs",
+        ])
+    )
         errors.push("Navigator evaluation inventory changed");
+
+    const runsRoot = join(root, evaluationRoot, "runs");
+    if (!existsSync(runsRoot)) errors.push("Navigator run evidence is missing");
+    else {
+        const iterationDirectories = readdirSync(runsRoot, {
+            withFileTypes: true,
+        })
+            .filter((entry) => entry.isDirectory())
+            .map((entry) => entry.name)
+            .sort(compareOrdinal);
+        for (const iteration of iterationDirectories) {
+            const iterationRoot = join(runsRoot, iteration);
+            const files = readdirSync(iterationRoot, {
+                withFileTypes: true,
+            });
+            const rootFiles = files
+                .filter((entry) => entry.isFile())
+                .map((entry) => entry.name)
+                .sort(compareOrdinal);
+            if (
+                !equalSets(rootFiles, [
+                    "analysis.md",
+                    "grading.json",
+                    "metadata.json",
+                ])
+            )
+                errors.push(`${iteration}: run evidence root files changed`);
+            const metadataPath = join(iterationRoot, "metadata.json");
+            const gradingPath = join(iterationRoot, "grading.json");
+            if (!existsSync(metadataPath) || !existsSync(gradingPath)) continue;
+            const metadata = readCatalog(metadataPath);
+            const grading = readCatalog(gradingPath);
+            const runCaseIds = files
+                .filter((entry) => entry.isDirectory())
+                .map((entry) => entry.name)
+                .sort(compareOrdinal);
+            for (const caseId of runCaseIds) {
+                if (!caseIds.includes(caseId))
+                    errors.push(`${iteration}: unknown run case ${caseId}`);
+                const outputFiles = readdirSync(
+                    join(iterationRoot, caseId),
+                ).sort(compareOrdinal);
+                if (!equalSets(outputFiles, ["baseline.json", "pilot.json"]))
+                    errors.push(
+                        `${iteration}/${caseId}: run outputs changed`,
+                    );
+            }
+            if (metadata.runs.length !== runCaseIds.length * 2)
+                errors.push(`${iteration}: run metadata is incomplete`);
+            if (grading.results.length !== runCaseIds.length * 2)
+                errors.push(`${iteration}: grading results are incomplete`);
+            for (const path of [metadataPath, gradingPath]) {
+                const content = readFileSync(path, "utf8");
+                if (
+                    content.includes("/Volumes/") ||
+                    content.includes("/Users/")
+                )
+                    errors.push(`${iteration}: local absolute path leaked`);
+            }
+            for (const caseId of runCaseIds) {
+                for (const condition of ["baseline", "pilot"]) {
+                    const path = join(
+                        iterationRoot,
+                        caseId,
+                        `${condition}.json`,
+                    );
+                    const content = readFileSync(path, "utf8");
+                    if (
+                        content.includes("/Volumes/") ||
+                        content.includes("/Users/")
+                    )
+                        errors.push(`${iteration}: local absolute path leaked`);
+                }
+            }
+        }
+    }
     return errors;
 }
