@@ -58,6 +58,100 @@
         }
       }
     },
+    "applicability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "ids", "reason"],
+      "properties": {
+        "state": { "enum": ["applicable", "not-applicable", "unclassified"] },
+        "ids": { "$ref": "#/$defs/idArray" },
+        "reason": { "$ref": "#/$defs/nonEmptyString" }
+      }
+    },
+    "effect": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "operation",
+        "resourceBoundary",
+        "scope",
+        "dataClassifications",
+        "reversible",
+        "confirmation",
+        "authorization",
+        "evidenceIds"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "operation": { "enum": ["read", "create", "modify", "delete", "execute", "transmit", "publish"] },
+        "resourceBoundary": { "$ref": "#/$defs/nonEmptyString" },
+        "scope": { "$ref": "#/$defs/nonEmptyString" },
+        "dataClassifications": { "$ref": "#/$defs/idArray" },
+        "reversible": { "type": "boolean" },
+        "rollbackOrCompensation": { "$ref": "#/$defs/nonEmptyString" },
+        "confirmation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["required", "timing", "reason"],
+          "properties": {
+            "required": { "type": "boolean" },
+            "timing": { "enum": ["none", "before-invocation", "before-effect"] },
+            "reason": { "$ref": "#/$defs/nonEmptyString" }
+          }
+        },
+        "authorization": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["required", "authority", "evidenceIds"],
+          "properties": {
+            "required": { "type": "boolean" },
+            "authority": { "$ref": "#/$defs/nonEmptyString" },
+            "evidenceIds": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": { "$ref": "#/$defs/id" }
+            }
+          }
+        },
+        "evidenceIds": { "$ref": "#/$defs/evidenceIds" }
+      }
+    },
+    "dependencyEdge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dependencyId", "category", "strength", "reason", "missingBehavior"],
+      "properties": {
+        "dependencyId": { "$ref": "#/$defs/nonEmptyString" },
+        "category": { "enum": ["target", "tool", "internal-artifact", "project-context"] },
+        "strength": { "enum": ["hard", "soft", "optional"] },
+        "reason": { "$ref": "#/$defs/nonEmptyString" },
+        "missingBehavior": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["action", "description"],
+          "properties": {
+            "action": { "enum": ["block", "degrade", "omit", "substitute"] },
+            "description": { "$ref": "#/$defs/nonEmptyString" },
+            "substituteDependencyId": { "$ref": "#/$defs/nonEmptyString" }
+          }
+        }
+      }
+    },
+    "trustAssessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["class", "assessmentState", "effects"],
+      "properties": {
+        "class": { "enum": ["passive", "executable"] },
+        "assessmentState": { "enum": ["unclassified", "assessed"] },
+        "effects": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/effect" }
+        }
+      }
+    },
     "source": {
       "type": "object",
       "additionalProperties": false,
@@ -120,6 +214,19 @@
         "audience",
         "products",
         "languages",
+        "capabilityKind",
+        "invocation",
+        "lifecycle",
+        "architectures",
+        "personas",
+        "surfaces",
+        "repositoryProfiles",
+        "trust",
+        "dependencyClassificationState",
+        "dependencyEdges",
+        "sourceContractState",
+        "sourceContractIds",
+        "sourceAuthoritySubjects",
         "capability",
         "positiveTriggerIntent",
         "nearMissExclusions",
@@ -155,6 +262,25 @@
           "uniqueItems": true,
           "items": { "$ref": "#/$defs/id" }
         },
+        "capabilityKind": {
+          "enum": ["unclassified", "primitive", "router", "journey", "gate", "explanation", "adapter"]
+        },
+        "invocation": { "enum": ["unclassified", "user", "model", "both"] },
+        "lifecycle": { "enum": ["candidate", "experimental", "approved", "deprecated", "retired"] },
+        "architectures": { "$ref": "#/$defs/applicability" },
+        "personas": { "$ref": "#/$defs/applicability" },
+        "surfaces": { "$ref": "#/$defs/applicability" },
+        "repositoryProfiles": { "$ref": "#/$defs/applicability" },
+        "trust": { "$ref": "#/$defs/trustAssessment" },
+        "dependencyClassificationState": { "enum": ["unclassified", "classified"] },
+        "dependencyEdges": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/dependencyEdge" }
+        },
+        "sourceContractState": { "enum": ["unclassified", "classified"] },
+        "sourceContractIds": { "$ref": "#/$defs/idArray" },
+        "sourceAuthoritySubjects": { "$ref": "#/$defs/idArray" },
         "capability": { "$ref": "#/$defs/nonEmptyString" },
         "positiveTriggerIntent": { "$ref": "#/$defs/nonEmptyString" },
         "nearMissExclusions": {
@@ -244,6 +370,220 @@
           "minItems": 1,
           "uniqueItems": true,
           "items": { "$ref": "#/$defs/target" }
+        }
+      }
+    },
+    "taxonomyEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "description"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "$ref": "#/$defs/nonEmptyString" },
+        "description": { "$ref": "#/$defs/nonEmptyString" }
+      }
+    },
+    "taxonomyEntries": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/taxonomyEntry" }
+    },
+    "taxonomyCatalog": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schemaVersion", "authorityPolicy", "dimensions"],
+      "properties": {
+        "schemaVersion": { "const": 2 },
+        "authorityPolicy": { "const": "closed-explicit-identifiers" },
+        "dimensions": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "capabilityKinds",
+            "invocations",
+            "products",
+            "languages",
+            "architectures",
+            "personas",
+            "surfaces",
+            "repositoryProfiles",
+            "trustClasses",
+            "effectOperations",
+            "dataClassifications",
+            "dependencyStrengths",
+            "missingDependencyActions"
+          ],
+          "properties": {
+            "capabilityKinds": { "$ref": "#/$defs/taxonomyEntries" },
+            "invocations": { "$ref": "#/$defs/taxonomyEntries" },
+            "products": { "$ref": "#/$defs/taxonomyEntries" },
+            "languages": { "$ref": "#/$defs/taxonomyEntries" },
+            "architectures": { "$ref": "#/$defs/taxonomyEntries" },
+            "personas": { "$ref": "#/$defs/taxonomyEntries" },
+            "surfaces": { "$ref": "#/$defs/taxonomyEntries" },
+            "repositoryProfiles": { "$ref": "#/$defs/taxonomyEntries" },
+            "trustClasses": { "$ref": "#/$defs/taxonomyEntries" },
+            "effectOperations": { "$ref": "#/$defs/taxonomyEntries" },
+            "dataClassifications": { "$ref": "#/$defs/taxonomyEntries" },
+            "dependencyStrengths": { "$ref": "#/$defs/taxonomyEntries" },
+            "missingDependencyActions": { "$ref": "#/$defs/taxonomyEntries" }
+          }
+        }
+      }
+    },
+    "sourceContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "productIds",
+        "subjectKinds",
+        "owner",
+        "repositoryUrl",
+        "verificationState",
+        "distributionInputAllowed",
+        "evidenceIds"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "productIds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "subjectKinds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "owner": { "$ref": "#/$defs/nonEmptyString" },
+        "repositoryUrl": { "type": "string", "format": "uri" },
+        "verificationState": { "enum": ["unverified", "verified", "rejected"] },
+        "immutableRevision": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+        "verifiedOn": { "type": "string", "format": "date" },
+        "contentDigest": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "distributionInputAllowed": { "type": "boolean" },
+        "evidenceIds": { "$ref": "#/$defs/evidenceIds" }
+      }
+    },
+    "sourceContractsCatalog": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schemaVersion", "defaultPolicy", "contracts"],
+      "properties": {
+        "schemaVersion": { "const": 2 },
+        "defaultPolicy": { "const": "deny" },
+        "contracts": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/sourceContract" }
+        }
+      }
+    },
+    "bundle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "state",
+        "audience",
+        "rootTargetIds",
+        "selectedSoftOrOptionalTargetIds",
+        "missingCapabilityIds",
+        "publishable",
+        "evidenceIds"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "$ref": "#/$defs/nonEmptyString" },
+        "state": { "enum": ["draft", "approved", "deprecated", "retired"] },
+        "audience": { "enum": ["public", "cratis-engineering"] },
+        "rootTargetIds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "selectedSoftOrOptionalTargetIds": { "$ref": "#/$defs/idArray" },
+        "missingCapabilityIds": { "$ref": "#/$defs/idArray" },
+        "publishable": { "type": "boolean" },
+        "evidenceIds": { "$ref": "#/$defs/evidenceIds" }
+      }
+    },
+    "bundlesCatalog": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schemaVersion", "defaultPolicy", "bundles"],
+      "properties": {
+        "schemaVersion": { "const": 2 },
+        "defaultPolicy": { "const": "deny" },
+        "bundles": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/bundle" }
+        }
+      }
+    },
+    "upstreamCompanion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "upstreamUrl",
+        "immutableRevision",
+        "upstreamVersion",
+        "license",
+        "owner",
+        "supportedHosts",
+        "directInstallRoute",
+        "trust",
+        "projectWrites",
+        "externalDependencies",
+        "knownCollisionTargetIds",
+        "testedCratisVersion",
+        "reviewedOn",
+        "expiresOn",
+        "bytesIncluded",
+        "evidenceIds"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "upstreamUrl": { "type": "string", "format": "uri" },
+        "immutableRevision": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+        "upstreamVersion": { "$ref": "#/$defs/nonEmptyString" },
+        "license": { "$ref": "#/$defs/nonEmptyString" },
+        "owner": { "$ref": "#/$defs/nonEmptyString" },
+        "supportedHosts": { "$ref": "#/$defs/idArray" },
+        "directInstallRoute": { "$ref": "#/$defs/nonEmptyString" },
+        "trust": { "$ref": "#/$defs/nonEmptyString" },
+        "projectWrites": { "type": "boolean" },
+        "externalDependencies": { "$ref": "#/$defs/idArray" },
+        "knownCollisionTargetIds": { "$ref": "#/$defs/idArray" },
+        "testedCratisVersion": { "$ref": "#/$defs/nonEmptyString" },
+        "reviewedOn": { "type": "string", "format": "date" },
+        "expiresOn": { "type": "string", "format": "date" },
+        "bytesIncluded": { "const": false },
+        "evidenceIds": { "$ref": "#/$defs/evidenceIds" }
+      }
+    },
+    "upstreamCompanionsCatalog": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schemaVersion", "defaultPolicy", "companions"],
+      "properties": {
+        "schemaVersion": { "const": 2 },
+        "defaultPolicy": { "const": "direct-upstream-install-only" },
+        "companions": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/upstreamCompanion" }
         }
       }
     },

@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 2,
+  "defaultPolicy": "deny",
+  "contracts": [
+    {
+      "id": "cratis-ai-composition",
+      "productIds": ["application", "cross-product", "cratis-engineering"],
+      "subjectKinds": ["capability-composition", "approval", "evaluation", "generation"],
+      "owner": "Cratis AI maintainers",
+      "repositoryUrl": "https://github.com/Cratis/AI",
+      "verificationState": "unverified",
+      "distributionInputAllowed": false,
+      "evidenceIds": ["option-a-plus-authority"]
+    },
+    {
+      "id": "cratis-arc-source",
+      "productIds": ["arc", "arc-react", "entity-framework-core"],
+      "subjectKinds": ["api", "documentation", "examples", "versions"],
+      "owner": "Cratis Arc maintainers",
+      "repositoryUrl": "https://github.com/Cratis/Arc",
+      "verificationState": "unverified",
+      "distributionInputAllowed": false,
+      "evidenceIds": ["ecosystem-use-cases"]
+    },
+    {
+      "id": "cratis-chronicle-source",
+      "productIds": ["chronicle"],
+      "subjectKinds": ["api", "documentation", "examples", "versions"],
+      "owner": "Cratis Chronicle maintainers",
+      "repositoryUrl": "https://github.com/Cratis/Chronicle",
+      "verificationState": "unverified",
+      "distributionInputAllowed": false,
+      "evidenceIds": ["ecosystem-use-cases"]
+    },
+    {
+      "id": "cratis-components-source",
+      "productIds": ["components"],
+      "subjectKinds": ["api", "documentation", "examples", "versions"],
+      "owner": "Cratis Components maintainers",
+      "repositoryUrl": "https://github.com/Cratis/Components",
+      "verificationState": "unverified",
+      "distributionInputAllowed": false,
+      "evidenceIds": ["ecosystem-use-cases"]
+    },
+    {
+      "id": "cratis-fundamentals-source",
+      "productIds": ["fundamentals"],
+      "subjectKinds": ["api", "documentation", "examples", "versions"],
+      "owner": "Cratis Fundamentals maintainers",
+      "repositoryUrl": "https://github.com/Cratis/Fundamentals",
+      "verificationState": "unverified",
+      "distributionInputAllowed": false,
+      "evidenceIds": ["ecosystem-use-cases"]
+    },
+    {
+      "id": "cratis-specifications-source",
+      "productIds": ["specifications"],
+      "subjectKinds": ["api", "documentation", "examples", "versions"],
+      "owner": "Cratis Specifications maintainers",
+      "repositoryUrl": "https://github.com/Cratis/Specifications",
+      "verificationState": "unverified",
+      "distributionInputAllowed": false,
+      "evidenceIds": ["ecosystem-use-cases"]
+    },
+    {
+      "id": "cratis-cli-source",
+      "productIds": ["cli"],
+      "subjectKinds": ["api", "commands", "documentation", "versions"],
+      "owner": "Cratis CLI maintainers",
+      "repositoryUrl": "https://github.com/Cratis/cli",
+      "verificationState": "unverified",
+      "distributionInputAllowed": false,
+      "evidenceIds": ["ecosystem-use-cases"]
+    },
+    {
+      "id": "cratis-chronicle-kotlin-source",
+      "productIds": ["chronicle"],
+      "subjectKinds": ["kotlin-client-api", "java-client-api", "kotlin-java-client-documentation", "kotlin-java-client-examples", "kotlin-java-client-versions"],
+      "owner": "Chronicle Kotlin and Java client maintainers",
+      "repositoryUrl": "https://github.com/Cratis/Chronicle.Kotlin",
+      "verificationState": "unverified",
+      "distributionInputAllowed": false,
+      "evidenceIds": ["ecosystem-use-cases"]
+    },
+    {
+      "id": "cratis-chronicle-elixir-source",
+      "productIds": ["chronicle"],
+      "subjectKinds": ["elixir-client-api", "elixir-client-documentation", "elixir-client-examples", "elixir-client-versions"],
+      "owner": "Chronicle Elixir client maintainers",
+      "repositoryUrl": "https://github.com/Cratis/Chronicle.Elixir",
+      "verificationState": "unverified",
+      "distributionInputAllowed": false,
+      "evidenceIds": ["ecosystem-use-cases"]
+    },
+    {
+      "id": "cratis-chronicle-typescript-source",
+      "productIds": ["chronicle"],
+      "subjectKinds": ["typescript-client-api", "typescript-client-documentation", "typescript-client-examples", "typescript-client-versions"],
+      "owner": "Chronicle TypeScript client maintainers",
+      "repositoryUrl": "https://github.com/Cratis/Chronicle.TypeScript",
+      "verificationState": "unverified",
+      "distributionInputAllowed": false,
+      "evidenceIds": ["ecosystem-use-cases"]
+    },
+    {
+      "id": "cratis-chronicle-mcp-source",
+      "productIds": ["chronicle-mcp"],
+      "subjectKinds": ["tools", "schemas", "credentials", "mutations", "versions"],
+      "owner": "Chronicle.Mcp maintainers",
+      "repositoryUrl": "https://github.com/Cratis/Chronicle.Mcp",
+      "verificationState": "unverified",
+      "distributionInputAllowed": false,
+      "evidenceIds": ["ecosystem-use-cases"]
+    },
+    {
+      "id": "cratis-screenplay-source",
+      "productIds": ["screenplay"],
+      "subjectKinds": ["language", "compiler", "editor", "documentation", "versions"],
+      "owner": "Cratis Screenplay maintainers",
+      "repositoryUrl": "https://github.com/Cratis/Screenplay",
+      "verificationState": "unverified",
+      "distributionInputAllowed": false,
+      "evidenceIds": ["ecosystem-use-cases"]
+    },
+    {
+      "id": "cratis-stage-source",
+      "productIds": ["stage"],
+      "subjectKinds": ["runtime", "specifications", "workbench", "documentation", "versions"],
+      "owner": "Cratis Stage maintainers",
+      "repositoryUrl": "https://github.com/Cratis/Stage",
+      "verificationState": "unverified",
+      "distributionInputAllowed": false,
+      "evidenceIds": ["ecosystem-use-cases"]
+    },
+    {
+      "id": "cratis-studio-public-source",
+      "productIds": ["studio"],
+      "subjectKinds": ["public-onboarding", "public-support", "public-issues"],
+      "owner": "Cratis Studio public maintainers",
+      "repositoryUrl": "https://github.com/Cratis/StudioIssues",
+      "verificationState": "unverified",
+      "distributionInputAllowed": false,
+      "evidenceIds": ["ecosystem-use-cases"]
+    }
+  ]
+}

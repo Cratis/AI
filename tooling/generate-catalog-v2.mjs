@@ -13,6 +13,7 @@ import {
 } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { compareOrdinal } from "./catalog-ordering.mjs";
 import { readCatalog } from "./catalog-validation.mjs";
 
 const repositoryRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
@@ -558,7 +559,7 @@ function listFiles(root, current = root) {
                 `Source capability contains a non-regular path: ${relative(repositoryRoot, path)}`,
             );
     }
-    return files.sort();
+    return files.sort(compareOrdinal);
 }
 
 function digestFiles(paths) {
@@ -606,7 +607,7 @@ const internalNames = new Set(internalTargets.keys());
 const allSkillNames = [
     ...v1Public.skills.map((skill) => skill.currentName),
     ...internalTargets.keys(),
-].sort();
+].sort(compareOrdinal);
 const sources = allSkillNames.map((name) => {
     const path = `.ai/skills/${name}`;
     const files = listFiles(join(repositoryRoot, path));
@@ -645,7 +646,15 @@ const v1BySource = new Map(
 );
 const allTargetIds = [
     ...new Set([...targetIdsBySource.values()].flat()),
-].sort();
+].sort(compareOrdinal);
+function unclassifiedApplicability(dimension) {
+    return {
+        state: "unclassified",
+        ids: [],
+        reason: `${dimension} requires reviewed target classification.`,
+    };
+}
+
 const targets = allTargetIds.map((targetId) => {
     const profile = profiles[targetId];
     if (!profile) throw new Error(`Missing target profile: ${targetId}`);
@@ -658,10 +667,10 @@ const targets = allTargetIds.map((targetId) => {
         .filter(Boolean);
     const products = [
         ...new Set(sourceEntries.flatMap((entry) => entry.products)),
-    ].sort();
+    ].sort(compareOrdinal);
     const languages = [
         ...new Set(sourceEntries.flatMap((entry) => entry.languages)),
-    ].sort();
+    ].sort(compareOrdinal);
     const targetDependencies = [
         ...new Set(
             sourceEntries
@@ -670,19 +679,19 @@ const targets = allTargetIds.map((targetId) => {
         ),
     ]
         .filter((dependency) => dependency !== targetId)
-        .sort();
+        .sort(compareOrdinal);
     const internalArtifacts = [
         ...new Set(
             sourceEntries.flatMap(
                 (entry) => entry.dependencies.internalArtifacts,
             ),
         ),
-    ].sort();
+    ].sort(compareOrdinal);
     const externalTools = [
         ...new Set(
             sourceEntries.flatMap((entry) => entry.dependencies.externalTools),
         ),
-    ].sort();
+    ].sort(compareOrdinal);
     const hasLegacyBehaviorEvals = sourceSkillIds.some((source) =>
         existsSync(join(repositoryRoot, `.ai/skills/${source}/evals`)),
     );
@@ -694,6 +703,23 @@ const targets = allTargetIds.map((targetId) => {
         audience: publicTarget ? "public" : "cratis-engineering",
         products: publicTarget ? products : ["cratis-engineering"],
         languages: publicTarget ? languages : ["language-agnostic"],
+        capabilityKind: "unclassified",
+        invocation: "unclassified",
+        lifecycle: "candidate",
+        architectures: unclassifiedApplicability("Architecture"),
+        personas: unclassifiedApplicability("Persona"),
+        surfaces: unclassifiedApplicability("Surface"),
+        repositoryProfiles: unclassifiedApplicability("Repository profile"),
+        trust: {
+            class: "passive",
+            assessmentState: "unclassified",
+            effects: [],
+        },
+        dependencyClassificationState: "unclassified",
+        dependencyEdges: [],
+        sourceContractState: "unclassified",
+        sourceContractIds: [],
+        sourceAuthoritySubjects: [],
         capability: profile[0],
         positiveTriggerIntent: profile[1],
         nearMissExclusions: profile[2],
@@ -798,7 +824,7 @@ for (const [source, target] of internalTargets) {
         evidenceIds: ["reevaluation-authority"],
     });
 }
-migrations.sort((left, right) => left.id.localeCompare(right.id));
+migrations.sort((left, right) => compareOrdinal(left.id, right.id));
 writeJson("migrations.json", {
     schemaVersion: 2,
     generatedBy: "tooling/generate-catalog-v2.mjs",
@@ -962,6 +988,33 @@ const evidence = [
         digest: digestFile("AI-REPOSITORY-REDESIGN-REEVALUATION.md"),
     },
     {
+        id: "ecosystem-use-cases",
+        officialUrl: "https://github.com/Cratis/AI",
+        sourceKind: "local-evidence-report",
+        verifiedOn: "2026-08-20",
+        expiresOn: "2026-11-18",
+        applicableVersion: "content-digest-bound",
+        confidence: "medium",
+        repositoryPath: "AI-REPOSITORY-REDESIGN-ECOSYSTEM-USE-CASES.md",
+        digest: digestFile(
+            "AI-REPOSITORY-REDESIGN-ECOSYSTEM-USE-CASES.md",
+        ),
+    },
+    {
+        id: "third-party-skills-evaluation",
+        officialUrl: "https://github.com/Cratis/AI",
+        sourceKind: "local-evidence-report",
+        verifiedOn: "2026-08-20",
+        expiresOn: "2026-11-18",
+        applicableVersion: "content-digest-bound",
+        confidence: "medium",
+        repositoryPath:
+            "AI-REPOSITORY-REDESIGN-THIRD-PARTY-SKILLS-EVALUATION.md",
+        digest: digestFile(
+            "AI-REPOSITORY-REDESIGN-THIRD-PARTY-SKILLS-EVALUATION.md",
+        ),
+    },
+    {
         id: "option-a-plus-authority",
         officialUrl:
             "https://github.com/Cratis/Workflows/issues/68#issuecomment-5363284054",
@@ -1034,7 +1087,7 @@ const coverageProducts = v1Coverage.products.map((product) => {
                         (source) => targetIdsBySource.get(source) ?? [],
                     ),
                 ),
-            ].sort(),
+            ].sort(compareOrdinal),
             evidenceIds: ["repo-main-b795d53", "reevaluation-authority"],
         };
         if (capability.notes) record.notes = capability.notes;

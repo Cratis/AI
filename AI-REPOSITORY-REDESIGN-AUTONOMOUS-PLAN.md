@@ -468,9 +468,12 @@ The program is complete only when:
   semantic tamper check.
 - [x] Recorded the accepted architecture while retaining the unapproved-target
   materialization block.
-- [ ] Land the autonomous authority, research, and foundation delivery unit.
-- [ ] Implement the normalized Phase 1 catalog/schema extensions.
-- [ ] Implement the skill-authoring and human-catalog contracts.
+- [x] Land the autonomous authority, research, and foundation delivery unit in
+  [`Cratis/AI#130`](https://github.com/Cratis/AI/pull/130).
+- [ ] Implement the normalized Phase 1 catalog/schema extensions — active on
+  `feat/catalog-v2-capability-model`.
+- [ ] Implement the skill-authoring and human-catalog contracts in the next
+  independent delivery unit.
 
 Evidence and exact next actions are in
-[`AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md`](./AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md#15-autonomous-execution-update--2026-08-20).
+[`AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md`](./AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md#16-capability-model-checkpoint--2026-08-21).

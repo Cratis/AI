@@ -11,6 +11,7 @@ import {
     realpathSync,
 } from "node:fs";
 import { isAbsolute, join, relative, resolve, sep } from "node:path";
+import { compareOrdinal, sortedOrdinal } from "./catalog-ordering.mjs";
 import {
     defaultRepositoryRoot,
     readCatalog,
@@ -26,6 +27,10 @@ export const v2CatalogPaths = {
     evidence: "catalog/v2/evidence.json",
     productCoverage: "catalog/v2/product-coverage.json",
     repositoryInventory: "catalog/v2/repository-inventory.json",
+    taxonomy: "catalog/v2/taxonomy.json",
+    sourceContracts: "catalog/v2/source-contracts.json",
+    bundles: "catalog/v2/bundles.json",
+    upstreamCompanions: "catalog/v2/upstream-companions.json",
 };
 
 export const v2SchemaPath = "catalog/schemas/v2/catalog-v2.schema.json";
@@ -38,6 +43,10 @@ const schemaDefinitionByCatalog = {
     evidence: "evidenceCatalog",
     productCoverage: "productCoverageCatalog",
     repositoryInventory: "repositoryInventoryCatalog",
+    taxonomy: "taxonomyCatalog",
+    sourceContracts: "sourceContractsCatalog",
+    bundles: "bundlesCatalog",
+    upstreamCompanions: "upstreamCompanionsCatalog",
 };
 
 function duplicates(values) {
@@ -50,7 +59,7 @@ function duplicates(values) {
 }
 
 function sorted(values) {
-    return [...values].sort((left, right) => left.localeCompare(right));
+    return sortedOrdinal(values);
 }
 
 function equalStringSets(left, right) {
@@ -106,28 +115,94 @@ function listRegularSourceFiles(root, sourcePath) {
     return sorted(files);
 }
 
+const revisionSnapshots = new Map();
+
+function readRevisionBlobs(root, objectIds) {
+    if (objectIds.length === 0) return new Map();
+    const output = execFileSync("git", ["cat-file", "--batch"], {
+        cwd: root,
+        encoding: null,
+        input: `${objectIds.join("\n")}\n`,
+        maxBuffer: 128 * 1024 * 1024,
+        stdio: ["pipe", "pipe", "pipe"],
+    });
+    const blobs = new Map();
+    let offset = 0;
+    for (const expectedId of objectIds) {
+        const newline = output.indexOf(10, offset);
+        if (newline < 0)
+            throw new Error("Git returned an incomplete blob header");
+        const header = output.subarray(offset, newline).toString("utf8");
+        const [objectId, type, sizeText] = header.split(" ");
+        const size = Number(sizeText);
+        if (
+            objectId !== expectedId ||
+            type !== "blob" ||
+            !Number.isSafeInteger(size) ||
+            size < 0
+        ) {
+            throw new Error(`Git returned an invalid blob header: ${header}`);
+        }
+        const start = newline + 1;
+        const end = start + size;
+        if (end >= output.length || output[end] !== 10)
+            throw new Error(`Git returned an incomplete blob: ${objectId}`);
+        blobs.set(objectId, output.subarray(start, end));
+        offset = end + 1;
+    }
+    if (offset !== output.length)
+        throw new Error("Git returned unexpected trailing blob data");
+    return blobs;
+}
+
+function revisionSnapshot(root, revision) {
+    const key = `${realpathSync(root)}\0${revision}`;
+    const cached = revisionSnapshots.get(key);
+    if (cached) return cached;
+    const treeOutput = execFileSync(
+        "git",
+        ["ls-tree", "-r", "-z", revision],
+        {
+            cwd: root,
+            encoding: "utf8",
+            maxBuffer: 32 * 1024 * 1024,
+            stdio: ["ignore", "pipe", "pipe"],
+        },
+    );
+    const entries = treeOutput
+        .split("\0")
+        .filter(Boolean)
+        .map((entry) => {
+            const match = entry.match(
+                /^(?<mode>[0-7]+) blob (?<objectId>[a-f0-9]+)\t(?<path>.+)$/,
+            );
+            if (!match?.groups)
+                throw new Error(`Git returned an invalid tree entry: ${entry}`);
+            return match.groups;
+        });
+    const objectIds = [...new Set(entries.map((entry) => entry.objectId))];
+    const blobs = readRevisionBlobs(root, objectIds);
+    const files = new Map(
+        entries.map((entry) => [entry.path, blobs.get(entry.objectId)]),
+    );
+    const snapshot = { files };
+    revisionSnapshots.set(key, snapshot);
+    return snapshot;
+}
+
 function revisionSourceFiles(root, revision, sourcePath) {
     return sorted(
-        execFileSync(
-            "git",
-            ["ls-tree", "-r", "--name-only", "-z", revision, "--", sourcePath],
-            {
-                cwd: root,
-                encoding: "utf8",
-                stdio: ["ignore", "pipe", "pipe"],
-            },
-        )
-            .split("\0")
-            .filter(Boolean),
+        [...revisionSnapshot(root, revision).files.keys()].filter(
+            (path) => path.startsWith(`${sourcePath}/`),
+        ),
     );
 }
 
 function revisionFile(root, revision, path) {
-    return execFileSync("git", ["show", `${revision}:${path}`], {
-        cwd: root,
-        encoding: null,
-        stdio: ["ignore", "pipe", "pipe"],
-    });
+    const content = revisionSnapshot(root, revision).files.get(path);
+    if (!content)
+        throw new Error(`Source revision does not contain ${path}`);
+    return content;
 }
 
 export function validateSources(catalogs, root) {
@@ -226,6 +301,52 @@ function approvalFields() {
     return ["reviewer", "approvedOn", "sourceRevision", "contentDigest"];
 }
 
+function taxonomyIds(catalogs, dimension) {
+    return new Set(
+        catalogs.taxonomy.dimensions[dimension].map((entry) => entry.id),
+    );
+}
+
+export function graphHasCycle(adjacency) {
+    const nodes = new Set(adjacency.keys());
+    for (const dependencies of adjacency.values()) {
+        for (const dependency of dependencies) nodes.add(dependency);
+    }
+    const incoming = new Map([...nodes].map((node) => [node, 0]));
+    for (const dependencies of adjacency.values()) {
+        for (const dependency of dependencies)
+            incoming.set(dependency, incoming.get(dependency) + 1);
+    }
+    const pending = [...nodes].filter((node) => incoming.get(node) === 0);
+    let visited = 0;
+    while (pending.length > 0) {
+        const node = pending.pop();
+        visited += 1;
+        for (const dependency of adjacency.get(node) ?? []) {
+            const remaining = incoming.get(dependency) - 1;
+            incoming.set(dependency, remaining);
+            if (remaining === 0) pending.push(dependency);
+        }
+    }
+    return visited !== nodes.size;
+}
+
+function validateApplicability(target, field, knownIds, errors) {
+    const applicability = target[field];
+    if (applicability.state === "applicable") {
+        if (applicability.ids.length === 0)
+            errors.push(`${target.id}: applicable ${field} needs explicit ids`);
+        for (const id of applicability.ids) {
+            if (!knownIds.has(id))
+                errors.push(`${target.id}: unknown ${field} id ${id}`);
+        }
+    } else if (applicability.ids.length > 0) {
+        errors.push(
+            `${target.id}: ${field} ids require applicable state`,
+        );
+    }
+}
+
 export function validateTargets(catalogs) {
     const errors = [];
     const sourceIds = new Set(
@@ -236,10 +357,243 @@ export function validateTargets(catalogs) {
     const evidenceIds = new Set(
         catalogs.evidence.evidence.map((evidence) => evidence.id),
     );
+    const sourceContractsById = new Map(
+        catalogs.sourceContracts.contracts.map((contract) => [
+            contract.id,
+            contract,
+        ]),
+    );
+    const companionIds = new Set(
+        catalogs.upstreamCompanions.companions.map(
+            (companion) => companion.id,
+        ),
+    );
+    const productIds = taxonomyIds(catalogs, "products");
+    const languageIds = taxonomyIds(catalogs, "languages");
+    const architectureIds = taxonomyIds(catalogs, "architectures");
+    const personaIds = taxonomyIds(catalogs, "personas");
+    const surfaceIds = taxonomyIds(catalogs, "surfaces");
+    const repositoryProfileIds = taxonomyIds(
+        catalogs,
+        "repositoryProfiles",
+    );
+    const effectOperationIds = taxonomyIds(catalogs, "effectOperations");
+    const dataClassificationIds = taxonomyIds(
+        catalogs,
+        "dataClassifications",
+    );
     addDuplicateErrors(errors, "targets", targetIdList);
     for (const target of catalogs.targets.targets) {
         if (target.semanticName !== target.id)
             errors.push(`${target.id}: semanticName must equal id`);
+        for (const productId of target.products) {
+            if (!productIds.has(productId))
+                errors.push(`${target.id}: unknown product ${productId}`);
+        }
+        for (const languageId of target.languages) {
+            if (!languageIds.has(languageId))
+                errors.push(`${target.id}: unknown language ${languageId}`);
+        }
+        validateApplicability(
+            target,
+            "architectures",
+            architectureIds,
+            errors,
+        );
+        validateApplicability(target, "personas", personaIds, errors);
+        validateApplicability(target, "surfaces", surfaceIds, errors);
+        validateApplicability(
+            target,
+            "repositoryProfiles",
+            repositoryProfileIds,
+            errors,
+        );
+        if (
+            (target.trust.class === "executable") !==
+            target.security.executable
+        )
+            errors.push(
+                `${target.id}: trust class must match executable security classification`,
+            );
+        addDuplicateErrors(
+            errors,
+            `${target.id} effects`,
+            target.trust.effects.map((effect) => effect.id),
+        );
+        for (const effect of target.trust.effects) {
+            if (!effectOperationIds.has(effect.operation))
+                errors.push(
+                    `${target.id}: unknown effect operation ${effect.operation}`,
+                );
+            for (const dataClassification of effect.dataClassifications) {
+                if (!dataClassificationIds.has(dataClassification))
+                    errors.push(
+                        `${target.id}: unknown data classification ${dataClassification}`,
+                    );
+            }
+            if (
+                effect.confirmation.required ===
+                (effect.confirmation.timing === "none")
+            ) {
+                errors.push(
+                    `${target.id}: effect confirmation timing contradicts its requirement`,
+                );
+            }
+            if (effect.authorization.required) {
+                if (
+                    effect.authorization.authority === "not-required" ||
+                    effect.authorization.evidenceIds.length === 0
+                ) {
+                    errors.push(
+                        `${target.id}: required effect authorization needs authority and evidence`,
+                    );
+                }
+            } else if (
+                effect.authorization.authority !== "not-required" ||
+                effect.authorization.evidenceIds.length > 0
+            ) {
+                errors.push(
+                    `${target.id}: optional effect authorization must use not-required with no evidence`,
+                );
+            }
+            const requiresEffectConfirmation =
+                [
+                    "create",
+                    "modify",
+                    "delete",
+                    "execute",
+                    "transmit",
+                    "publish",
+                ].includes(effect.operation) ||
+                effect.dataClassifications.includes("credential");
+            if (
+                requiresEffectConfirmation &&
+                (!effect.confirmation.required ||
+                    effect.confirmation.timing === "none")
+            ) {
+                errors.push(
+                    `${target.id}: effect ${effect.id} requires explicit confirmation`,
+                );
+            }
+            if (
+                requiresEffectConfirmation &&
+                !effect.authorization.required
+            ) {
+                errors.push(
+                    `${target.id}: effect ${effect.id} requires explicit authorization`,
+                );
+            }
+            if (
+                ["delete", "transmit", "publish"].includes(
+                    effect.operation,
+                ) && effect.confirmation.timing !== "before-effect"
+            ) {
+                errors.push(
+                    `${target.id}: high-impact effect ${effect.id} requires confirmation before effect`,
+                );
+            }
+            if (effect.reversible && !effect.rollbackOrCompensation)
+                errors.push(
+                    `${target.id}: reversible effect needs rollback or compensation`,
+                );
+        }
+        if (
+            target.security.destructive &&
+            target.trust.assessmentState === "assessed" &&
+            target.trust.effects.length === 0
+        ) {
+            errors.push(
+                `${target.id}: destructive guidance requires an explicit effect assessment`,
+            );
+        }
+        if (
+            target.dependencyClassificationState === "unclassified" &&
+            target.dependencyEdges.length > 0
+        ) {
+            errors.push(
+                `${target.id}: dependency edges require classified state`,
+            );
+        }
+        if (target.dependencyClassificationState === "classified") {
+            const legacyByCategory = new Map([
+                ["target", target.dependencies.targets],
+                ["tool", target.dependencies.externalTools],
+                ["internal-artifact", target.dependencies.internalArtifacts],
+            ]);
+            for (const [category, legacyIds] of legacyByCategory) {
+                const classifiedIds = target.dependencyEdges
+                    .filter((edge) => edge.category === category)
+                    .map((edge) => edge.dependencyId);
+                if (!equalStringSets(legacyIds, classifiedIds))
+                    errors.push(
+                        `${target.id}: classified ${category} dependencies must preserve legacy membership`,
+                    );
+            }
+        }
+        if (
+            target.sourceContractState === "unclassified" &&
+            (target.sourceContractIds.length > 0 ||
+                target.sourceAuthoritySubjects.length > 0)
+        ) {
+            errors.push(
+                `${target.id}: source contracts and subjects require classified state`,
+            );
+        }
+        if (
+            target.sourceContractState === "classified" &&
+            (target.sourceContractIds.length === 0 ||
+                target.sourceAuthoritySubjects.length === 0)
+        ) {
+            errors.push(
+                `${target.id}: classified source authority needs contracts and subjects`,
+            );
+        }
+        const selectedSourceContracts = [];
+        for (const sourceContractId of target.sourceContractIds) {
+            const sourceContract = sourceContractsById.get(sourceContractId);
+            if (!sourceContract) {
+                errors.push(
+                    `${target.id}: unknown source contract ${sourceContractId}`,
+                );
+                continue;
+            }
+            selectedSourceContracts.push(sourceContract);
+            if (
+                !sourceContract.productIds.some((productId) =>
+                    target.products.includes(productId),
+                )
+            ) {
+                errors.push(
+                    `${target.id}: source contract ${sourceContractId} does not cover a target product`,
+                );
+            }
+            if (
+                target.approval.state === "approved" &&
+                (sourceContract.verificationState !== "verified" ||
+                    !sourceContract.distributionInputAllowed)
+            ) {
+                errors.push(
+                    `${target.id}: approved target needs verified distribution source contract ${sourceContractId}`,
+                );
+            }
+        }
+        if (target.sourceContractState === "classified") {
+            for (const productId of target.products) {
+                for (const subject of target.sourceAuthoritySubjects) {
+                    if (
+                        !selectedSourceContracts.some(
+                            (contract) =>
+                                contract.productIds.includes(productId) &&
+                                contract.subjectKinds.includes(subject),
+                        )
+                    ) {
+                        errors.push(
+                            `${target.id}: source authority does not cover ${productId}/${subject}`,
+                        );
+                    }
+                }
+            }
+        }
         for (const sourceId of target.sourceSkillIds) {
             if (!sourceIds.has(sourceId))
                 errors.push(`${target.id}: unknown source ${sourceId}`);
@@ -260,12 +614,113 @@ export function validateTargets(catalogs) {
                     `${target.id}: unknown target dependency ${dependency}`,
                 );
         }
+        addDuplicateErrors(
+            errors,
+            `${target.id} dependency edges`,
+            target.dependencyEdges.map(
+                (edge) => `${edge.category}:${edge.dependencyId}`,
+            ),
+        );
+        for (const edge of target.dependencyEdges) {
+            if (companionIds.has(edge.dependencyId))
+                errors.push(
+                    `${target.id}: upstream companion cannot satisfy a dependency`,
+                );
+            if (
+                edge.category === "target" &&
+                !targetIds.has(edge.dependencyId)
+            )
+                errors.push(
+                    `${target.id}: unknown dependency edge target ${edge.dependencyId}`,
+                );
+            if (edge.category === "target" && edge.dependencyId === target.id)
+                errors.push(`${target.id}: dependency edge cannot target itself`);
+            const action = edge.missingBehavior.action;
+            const validAction =
+                (edge.strength === "hard" && action === "block") ||
+                (edge.strength === "soft" &&
+                    ["degrade", "substitute"].includes(action)) ||
+                (edge.strength === "optional" && action === "omit");
+            if (!validAction)
+                errors.push(
+                    `${target.id}: ${edge.strength} dependency has invalid ${action} behavior`,
+                );
+            if (action === "substitute") {
+                const substitute =
+                    edge.missingBehavior.substituteDependencyId;
+                if (!substitute)
+                    errors.push(
+                        `${target.id}: substitute dependency needs a substitute id`,
+                    );
+                if (substitute && companionIds.has(substitute))
+                    errors.push(
+                        `${target.id}: upstream companion cannot be a dependency substitute`,
+                    );
+                if (substitute === edge.dependencyId)
+                    errors.push(
+                        `${target.id}: substitute dependency cannot select the missing dependency`,
+                    );
+                if (
+                    edge.category === "target" &&
+                    substitute &&
+                    !targetIds.has(substitute)
+                )
+                    errors.push(
+                        `${target.id}: substitute dependency needs a known target`,
+                    );
+                if (edge.category === "target" && substitute === target.id)
+                    errors.push(
+                        `${target.id}: substitute dependency cannot select itself`,
+                    );
+            } else if (edge.missingBehavior.substituteDependencyId) {
+                errors.push(
+                    `${target.id}: substitute id requires substitute behavior`,
+                );
+            }
+        }
         if (target.approval.state !== "approved" && target.includeInRuntime) {
             errors.push(
                 `${target.id}: only approved targets can enter runtime`,
             );
         }
         if (target.approval.state === "approved") {
+            if (target.capabilityKind === "unclassified")
+                errors.push(`${target.id}: approved target needs capability kind`);
+            if (target.invocation === "unclassified")
+                errors.push(`${target.id}: approved target needs invocation`);
+            if (target.lifecycle !== "approved")
+                errors.push(`${target.id}: approved target needs approved lifecycle`);
+            for (const field of [
+                "architectures",
+                "personas",
+                "surfaces",
+                "repositoryProfiles",
+            ]) {
+                if (target[field].state === "unclassified")
+                    errors.push(
+                        `${target.id}: approved target needs classified ${field}`,
+                    );
+            }
+            if (target.trust.assessmentState !== "assessed")
+                errors.push(
+                    `${target.id}: approved target needs assessed trust and effects`,
+                );
+            if (target.dependencyClassificationState !== "classified")
+                errors.push(
+                    `${target.id}: approved target needs classified dependencies`,
+                );
+            if (target.sourceContractState !== "classified")
+                errors.push(
+                    `${target.id}: approved target needs classified source contracts`,
+                );
+            if (
+                target.audience === "public" &&
+                target.dependencies.internalArtifacts.length > 0
+            ) {
+                errors.push(
+                    `${target.id}: approved public target cannot depend on internal artifacts`,
+                );
+            }
             for (const field of approvalFields(target.approval)) {
                 if (!target.approval[field])
                     errors.push(
@@ -301,10 +756,22 @@ export function validateTargets(catalogs) {
                     `${target.id}: approved target must explicitly enter runtime`,
                 );
         }
+        if (
+            target.approval.state !== "approved" &&
+            target.lifecycle === "approved"
+        ) {
+            errors.push(
+                `${target.id}: approved lifecycle requires target approval`,
+            );
+        }
         for (const evidenceId of [
             ...target.evidenceIds,
             ...target.approval.evidenceIds,
             ...target.security.evidenceIds,
+            ...target.trust.effects.flatMap((effect) => [
+                ...effect.evidenceIds,
+                ...effect.authorization.evidenceIds,
+            ]),
             ...Object.values(target.evaluations).flatMap(
                 (evaluation) => evaluation.evidenceIds,
             ),
@@ -313,6 +780,36 @@ export function validateTargets(catalogs) {
                 errors.push(`${target.id}: unknown evidence ${evidenceId}`);
         }
     }
+    const hardDependencies = new Map(
+        catalogs.targets.targets.map((target) => [
+            target.id,
+            target.dependencyEdges
+                .filter(
+                    (edge) =>
+                        edge.category === "target" && edge.strength === "hard",
+                )
+                .map((edge) => edge.dependencyId),
+        ]),
+    );
+    if (graphHasCycle(hardDependencies))
+        errors.push("hard target dependencies must form a directed acyclic graph");
+    const substitutes = new Map(
+        catalogs.targets.targets.map((target) => [
+            target.id,
+            target.dependencyEdges
+                .filter(
+                    (edge) =>
+                        edge.category === "target" &&
+                        edge.missingBehavior.action === "substitute",
+                )
+                .map(
+                    (edge) =>
+                        edge.missingBehavior.substituteDependencyId,
+                ),
+        ]),
+    );
+    if (graphHasCycle(substitutes))
+        errors.push("substitute target dependencies must not cycle");
     return errors;
 }
 
@@ -338,6 +835,23 @@ export function validateMigrations(catalogs) {
     addDuplicateErrors(errors, "migration source accounting", migratedSources);
     if (!equalStringSets(migratedSources, sourceIds))
         errors.push("migrations must account for every source exactly once");
+    const migratedTargets = catalogs.migrations.migrations.flatMap(
+        (migration) => migration.targetIds,
+    );
+    addDuplicateErrors(errors, "migration target accounting", migratedTargets);
+    if (!equalStringSets(migratedTargets, targetIds))
+        errors.push("migrations must produce every target exactly once");
+    const targetSources = new Map();
+    for (const migration of catalogs.migrations.migrations) {
+        for (const targetId of migration.targetIds)
+            targetSources.set(targetId, migration.sourceIds);
+    }
+    for (const target of catalogs.targets.targets) {
+        if (!equalStringSets(target.sourceSkillIds, targetSources.get(target.id) ?? []))
+            errors.push(
+                `${target.id}: target source skills must equal its migration inputs`,
+            );
+    }
     for (const migration of catalogs.migrations.migrations) {
         for (const sourceId of migration.sourceIds) {
             if (!sourceIds.has(sourceId))
@@ -533,6 +1047,255 @@ export function validateEvidenceAndCoverage(
     return errors;
 }
 
+export function validateTaxonomy(catalogs) {
+    const errors = [];
+    const fixedDimensions = new Map([
+        [
+            "capabilityKinds",
+            ["primitive", "router", "journey", "gate", "explanation", "adapter"],
+        ],
+        ["invocations", ["user", "model", "both"]],
+        ["trustClasses", ["passive", "executable"]],
+        [
+            "effectOperations",
+            ["read", "create", "modify", "delete", "execute", "transmit", "publish"],
+        ],
+        ["dependencyStrengths", ["hard", "soft", "optional"]],
+        [
+            "missingDependencyActions",
+            ["block", "degrade", "omit", "substitute"],
+        ],
+    ]);
+    for (const [dimension, entries] of Object.entries(
+        catalogs.taxonomy.dimensions,
+    )) {
+        const ids = entries.map((entry) => entry.id);
+        addDuplicateErrors(errors, `taxonomy ${dimension}`, ids);
+        const expected = fixedDimensions.get(dimension);
+        if (expected && !equalStringSets(ids, expected))
+            errors.push(
+                `taxonomy ${dimension} must match the closed contract`,
+            );
+    }
+    return errors;
+}
+
+export function validateSourceContracts(catalogs) {
+    const errors = [];
+    const evidenceById = new Map(
+        catalogs.evidence.evidence.map((evidence) => [evidence.id, evidence]),
+    );
+    const evidenceIds = new Set(evidenceById.keys());
+    const productIds = taxonomyIds(catalogs, "products");
+    addDuplicateErrors(
+        errors,
+        "source contracts",
+        catalogs.sourceContracts.contracts.map((contract) => contract.id),
+    );
+    const verifiedAuthority = new Map();
+    for (const contract of catalogs.sourceContracts.contracts) {
+        if (!contract.repositoryUrl.startsWith("https://"))
+            errors.push(`${contract.id}: repository URL must use HTTPS`);
+        for (const productId of contract.productIds) {
+            if (!productIds.has(productId))
+                errors.push(`${contract.id}: unknown product ${productId}`);
+            for (const subjectKind of contract.subjectKinds) {
+                if (contract.verificationState !== "verified") continue;
+                const key = `${productId}/${subjectKind}`;
+                const existing = verifiedAuthority.get(key);
+                if (existing)
+                    errors.push(
+                        `${contract.id}: verified authority overlaps ${existing} for ${key}`,
+                    );
+                verifiedAuthority.set(key, contract.id);
+            }
+        }
+        if (contract.verificationState === "verified") {
+            for (const field of [
+                "immutableRevision",
+                "verifiedOn",
+                "contentDigest",
+            ]) {
+                if (!contract[field])
+                    errors.push(
+                        `${contract.id}: verified source contract is missing ${field}`,
+                    );
+            }
+            const revisionBoundEvidence = contract.evidenceIds.some(
+                (evidenceId) => {
+                    const evidence = evidenceById.get(evidenceId);
+                    return (
+                        evidence?.officialUrl.startsWith(
+                            contract.repositoryUrl,
+                        ) &&
+                        evidence.immutableRevision ===
+                            contract.immutableRevision &&
+                        evidence.digest === contract.contentDigest
+                    );
+                },
+            );
+            if (!revisionBoundEvidence)
+                errors.push(
+                    `${contract.id}: verified source contract lacks revision-bound evidence`,
+                );
+        }
+        if (
+            contract.distributionInputAllowed &&
+            contract.verificationState !== "verified"
+        ) {
+            errors.push(
+                `${contract.id}: only verified source contracts can supply distribution input`,
+            );
+        }
+        for (const evidenceId of contract.evidenceIds) {
+            if (!evidenceIds.has(evidenceId))
+                errors.push(`${contract.id}: unknown evidence ${evidenceId}`);
+        }
+    }
+    return errors;
+}
+
+export function validateBundles(catalogs) {
+    const errors = [];
+    const evidenceIds = new Set(
+        catalogs.evidence.evidence.map((evidence) => evidence.id),
+    );
+    const targetsById = new Map(
+        catalogs.targets.targets.map((target) => [target.id, target]),
+    );
+    addDuplicateErrors(
+        errors,
+        "bundles",
+        catalogs.bundles.bundles.map((bundle) => bundle.id),
+    );
+    for (const bundle of catalogs.bundles.bundles) {
+        const selectedTargetIds = [
+            ...bundle.rootTargetIds,
+            ...bundle.selectedSoftOrOptionalTargetIds,
+        ];
+        if (new Set(selectedTargetIds).size !== selectedTargetIds.length)
+            errors.push(`${bundle.id}: target selection contains duplicates`);
+        const selectedTargets = new Set(selectedTargetIds);
+        for (const targetId of selectedTargetIds) {
+            const target = targetsById.get(targetId);
+            if (!target) {
+                errors.push(`${bundle.id}: unknown target ${targetId}`);
+                continue;
+            }
+            if (bundle.audience === "public" && target.audience !== "public")
+                errors.push(
+                    `${bundle.id}: public bundle cannot select engineering target ${targetId}`,
+                );
+        }
+        for (const targetId of selectedTargetIds) {
+            const target = targetsById.get(targetId);
+            if (target?.dependencyClassificationState !== "classified")
+                continue;
+            for (const edge of target.dependencyEdges) {
+                if (
+                    edge.category === "target" &&
+                    edge.strength === "hard" &&
+                    !selectedTargets.has(edge.dependencyId)
+                ) {
+                    errors.push(
+                        `${bundle.id}: missing hard dependency ${edge.dependencyId} for ${targetId}`,
+                    );
+                }
+            }
+        }
+        const optionalCandidates = new Set();
+        const visited = new Set();
+        const pending = [...bundle.rootTargetIds];
+        while (pending.length > 0) {
+            const targetId = pending.pop();
+            if (visited.has(targetId)) continue;
+            visited.add(targetId);
+            const target = targetsById.get(targetId);
+            if (target?.dependencyClassificationState !== "classified")
+                continue;
+            for (const edge of target.dependencyEdges) {
+                if (edge.category !== "target") continue;
+                if (edge.strength === "hard") {
+                    if (selectedTargets.has(edge.dependencyId))
+                        pending.push(edge.dependencyId);
+                } else {
+                    optionalCandidates.add(edge.dependencyId);
+                }
+            }
+        }
+        for (const targetId of bundle.selectedSoftOrOptionalTargetIds) {
+            if (!optionalCandidates.has(targetId))
+                errors.push(
+                    `${bundle.id}: selected optional target ${targetId} is not reachable from bundle roots`,
+                );
+        }
+        if (bundle.publishable) {
+            if (bundle.state !== "approved")
+                errors.push(`${bundle.id}: publishable bundle must be approved`);
+            if (bundle.missingCapabilityIds.length > 0)
+                errors.push(
+                    `${bundle.id}: publishable bundle cannot retain capability gaps`,
+                );
+            for (const targetId of [
+                ...bundle.rootTargetIds,
+                ...bundle.selectedSoftOrOptionalTargetIds,
+            ]) {
+                const target = targetsById.get(targetId);
+                if (
+                    !target ||
+                    target.approval.state !== "approved" ||
+                    !target.includeInRuntime
+                ) {
+                    errors.push(
+                        `${bundle.id}: publishable bundle contains unapproved target ${targetId}`,
+                    );
+                }
+            }
+        }
+        for (const evidenceId of bundle.evidenceIds) {
+            if (!evidenceIds.has(evidenceId))
+                errors.push(`${bundle.id}: unknown evidence ${evidenceId}`);
+        }
+    }
+    return errors;
+}
+
+export function validateUpstreamCompanions(catalogs) {
+    const errors = [];
+    const evidenceIds = new Set(
+        catalogs.evidence.evidence.map((evidence) => evidence.id),
+    );
+    const targetIds = new Set(
+        catalogs.targets.targets.map((target) => target.id),
+    );
+    addDuplicateErrors(
+        errors,
+        "upstream companions",
+        catalogs.upstreamCompanions.companions.map((companion) => companion.id),
+    );
+    for (const companion of catalogs.upstreamCompanions.companions) {
+        if (targetIds.has(companion.id))
+            errors.push(
+                `${companion.id}: companion id cannot equal a Cratis target id`,
+            );
+        if (!companion.upstreamUrl.startsWith("https://"))
+            errors.push(`${companion.id}: upstream URL must use HTTPS`);
+        if (companion.expiresOn < catalogs.evidence.asOf)
+            errors.push(`${companion.id}: companion review has expired`);
+        for (const targetId of companion.knownCollisionTargetIds) {
+            if (!targetIds.has(targetId))
+                errors.push(
+                    `${companion.id}: unknown collision target ${targetId}`,
+                );
+        }
+        for (const evidenceId of companion.evidenceIds) {
+            if (!evidenceIds.has(evidenceId))
+                errors.push(`${companion.id}: unknown evidence ${evidenceId}`);
+        }
+    }
+    return errors;
+}
+
 export function validateArtifacts(catalogs) {
     const errors = [];
     const decision = catalogs.artifacts.distributionDecision;
@@ -661,7 +1424,7 @@ function indexDigest(root, excludedPaths) {
             const separator = entry.indexOf("\t");
             return separator >= 0 && !excluded.has(entry.slice(separator + 1));
         })
-        .sort((left, right) => left.localeCompare(right));
+        .sort(compareOrdinal);
     const hash = createHash("sha256");
     for (const entry of entries) {
         hash.update(entry);
@@ -695,7 +1458,9 @@ function changesSinceBase(root, baseRevision) {
         if (!path) throw new Error("Git returned an incomplete change record");
         changes.push({ path, status });
     }
-    return changes.sort((left, right) => left.path.localeCompare(right.path));
+    return changes.sort((left, right) =>
+        compareOrdinal(left.path, right.path),
+    );
 }
 
 export function expandInventoryRecord(record, universe) {
@@ -758,6 +1523,7 @@ export function validateRepositoryInventory(catalogs, root) {
             );
     }
     const universe = [...tracked, ...inventory.admittedUntracked];
+    const universeSet = new Set(universe);
     const assignments = new Map();
     for (const record of inventory.records) {
         const paths = expandInventoryRecord(record, universe);
@@ -792,7 +1558,7 @@ export function validateRepositoryInventory(catalogs, root) {
             );
     }
     for (const path of assignments.keys()) {
-        if (!universe.includes(path))
+        if (!universeSet.has(path))
             errors.push(
                 `repository inventory expanded path outside the repository universe: ${path}`,
             );
@@ -825,10 +1591,14 @@ export function validateV2Catalogs(root = defaultRepositoryRoot) {
         );
     }
     if (errors.length > 0) return errors;
+    errors.push(...validateTaxonomy(catalogs));
     errors.push(...validateSources(catalogs, root));
     errors.push(...validateTargets(catalogs));
     errors.push(...validateMigrations(catalogs));
     errors.push(...validateEvidenceAndCoverage(catalogs));
+    errors.push(...validateSourceContracts(catalogs));
+    errors.push(...validateBundles(catalogs));
+    errors.push(...validateUpstreamCompanions(catalogs));
     errors.push(...validateArtifacts(catalogs));
     errors.push(...validateRepositoryInventory(catalogs, root));
     return errors;

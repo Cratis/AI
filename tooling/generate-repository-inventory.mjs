@@ -7,6 +7,7 @@ import { execFileSync } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { compareOrdinal, sortedOrdinal } from "./catalog-ordering.mjs";
 import { readCatalog } from "./catalog-validation.mjs";
 import { expandInventoryRecord } from "./catalog-v2-validation.mjs";
 
@@ -32,7 +33,7 @@ function gitPaths(args) {
 function pathDigest(paths) {
     return createHash("sha256")
         .update(
-            `${[...paths].sort((left, right) => left.localeCompare(right)).join("\n")}\n`,
+            `${sortedOrdinal(paths).join("\n")}\n`,
         )
         .digest("hex");
 }
@@ -44,7 +45,7 @@ function indexDigest(excludedPaths) {
             const separator = entry.indexOf("\t");
             return separator >= 0 && !excluded.has(entry.slice(separator + 1));
         })
-        .sort((left, right) => left.localeCompare(right));
+        .sort(compareOrdinal);
     const hash = createHash("sha256");
     for (const entry of entries) {
         hash.update(entry);
@@ -78,7 +79,9 @@ function changesSinceBase(baseRevision) {
         if (!path) throw new Error("Git returned an incomplete change record");
         changes.push({ path, status });
     }
-    return changes.sort((left, right) => left.path.localeCompare(right.path));
+    return changes.sort((left, right) =>
+        compareOrdinal(left.path, right.path),
+    );
 }
 
 const excludedRuntimePrefixes = [".pi/delegate/", ".pi/fusion/", ".pi/tasks/"];
@@ -93,12 +96,12 @@ const admittedUntracked = gitPaths([
         (path) =>
             !excludedRuntimePrefixes.some((prefix) => path.startsWith(prefix)),
     )
-    .sort();
+    .sort(compareOrdinal);
 const unexpectedUntracked = admittedUntracked.filter(
     (path) =>
         !(
             /^AI-REPOSITORY-REDESIGN-[A-Z0-9-]+\.md$/.test(path) ||
-            /^Documentation\/(?:phase-0-verification|public-product-architecture|skill-classification-audit|project-context-bootstrap|redesign-foundation-validation)\.md$/.test(
+            /^Documentation\/(?:capability-catalog-v2|phase-0-verification|public-product-architecture|skill-classification-audit|project-context-bootstrap|redesign-foundation-validation)\.md$/.test(
                 path,
             ) ||
             /^Documentation\/evidence\/redesign-autonomous-execution-2026-08-20\//.test(
@@ -625,6 +628,25 @@ const definitions = [
         ],
     },
     {
+        id: "capability-model-documentation",
+        sourcePathPatterns: ["Documentation/capability-catalog-v2.md"],
+        artifactType: "documentation",
+        currentOwner: repositoryOwner,
+        targetOwner: repositoryOwner,
+        runtimeEligibility: "repository-only",
+        generatedStatus: "source",
+        adapterStatus: "none",
+        dependencies: [
+            "catalog/v2/bundles.json",
+            "catalog/v2/source-contracts.json",
+            "catalog/v2/taxonomy.json",
+            "catalog/v2/upstream-companions.json",
+        ],
+        risk: "medium",
+        migrationState: "retain",
+        evidenceIds: ["option-a-plus-authority"],
+    },
+    {
         id: "catalog-v1-scaffold",
         sourcePathPatterns: [
             "catalog/ecosystem-versions.json",
@@ -646,8 +668,39 @@ const definitions = [
         evidenceIds: ["reevaluation-authority"],
     },
     {
+        id: "catalog-v2-authored-registries",
+        sourcePathPatterns: [
+            "catalog/v2/bundles.json",
+            "catalog/v2/source-contracts.json",
+            "catalog/v2/taxonomy.json",
+            "catalog/v2/upstream-companions.json",
+        ],
+        artifactType: "catalog-schema",
+        currentOwner: repositoryOwner,
+        targetOwner: repositoryOwner,
+        runtimeEligibility: "repository-only",
+        generatedStatus: "source",
+        adapterStatus: "none",
+        dependencies: [
+            "catalog/schemas/v2/catalog-v2.schema.json",
+            "tooling/catalog-v2-validation.mjs",
+        ],
+        risk: "high",
+        migrationState: "retain",
+        evidenceIds: [
+            "ecosystem-use-cases",
+            "third-party-skills-evaluation",
+        ],
+    },
+    {
         id: "catalog-v2-generated-surfaces",
         sourcePathPatterns: ["catalog/v2/**"],
+        excludePathPatterns: [
+            "catalog/v2/bundles.json",
+            "catalog/v2/source-contracts.json",
+            "catalog/v2/taxonomy.json",
+            "catalog/v2/upstream-companions.json",
+        ],
         artifactType: "catalog-schema",
         currentOwner: repositoryOwner,
         targetOwner: repositoryOwner,
