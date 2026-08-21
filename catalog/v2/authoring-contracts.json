@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 2,
+  "defaultPolicy": "deny",
+  "contracts": [
+    {
+      "id": "cratis-skill-clean-room-v1",
+      "kind": "agent-skill",
+      "state": "active",
+      "audience": ["public", "cratis-engineering"],
+      "inputPolicy": {
+        "authoritativeProductSources": "required",
+        "targetEvidence": "required",
+        "catalogMetadata": "index-only",
+        "upstreamCompanions": "metadata-only",
+        "thirdPartyBodies": "forbidden",
+        "generatedCatalogViews": "non-authoritative",
+        "runtimePayloads": "forbidden-as-input",
+        "modelMemory": "non-authoritative"
+      },
+      "outputPolicy": {
+        "mediaType": "text/markdown",
+        "relativePath": "SKILL.md",
+        "requiredFrontmatterKeys": ["name", "description"],
+        "normativeClaimsRequireEvidence": true,
+        "distinguishContractsConventionsAndPolicies": true,
+        "unresolvedClaims": "omit-or-mark-unknown",
+        "copyPolicy": "original-cratis-expression",
+        "runtimePayloadGeneration": "separate-approved-delivery-only"
+      },
+      "contentRules": {
+        "oneCapability": true,
+        "oneTriggerIntent": true,
+        "nearMissesRequired": true,
+        "collisionSetRequired": true,
+        "observableCompletionRequired": true,
+        "progressiveDisclosure": true,
+        "americanEnglish": true,
+        "projectFactsForbidden": true,
+        "privateFactsForbidden": true,
+        "scriptsForbiddenForPublicSkills": true,
+        "evalsForbiddenInRuntimePayload": true
+      },
+      "cleanRoomReview": {
+        "sourceRevisionRecorded": true,
+        "requirementLevelNotesOnly": true,
+        "phraseSimilarityReviewRequired": true,
+        "structuralSimilarityReviewRequired": true,
+        "copiedWordingForbidden": true,
+        "copiedHeadingsForbidden": true,
+        "copiedExamplesForbidden": true,
+        "copiedTemplatesForbidden": true,
+        "copiedPersonasForbidden": true,
+        "copiedScriptsForbidden": true
+      },
+      "requiredEvidenceKinds": [
+        "behavior",
+        "positive-trigger",
+        "negative-trigger",
+        "collision",
+        "security",
+        "portability",
+        "source-review"
+      ],
+      "evidenceIds": [
+        "ecosystem-use-cases",
+        "third-party-skills-evaluation"
+      ]
+    }
+  ]
+}

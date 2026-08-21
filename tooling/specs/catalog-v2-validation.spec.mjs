@@ -15,9 +15,11 @@ import {
     v2CatalogPaths,
     v2SchemaPath,
     validateArtifacts,
+    validateAuthoringContracts,
     validateBundles,
     validateEvidenceAndCoverage,
     validateMigrations,
+    validateHumanCatalogContract,
     validateRepositoryInventory,
     validateSourceContracts,
     validateSources,
@@ -104,6 +106,8 @@ test("legacy targets remain explicitly unclassified and runtime ineligible", () 
         assert.deepEqual(target.dependencyEdges, []);
         assert.equal(target.sourceContractState, "unclassified");
         assert.deepEqual(target.sourceContractIds, []);
+        assert.equal(target.authoringContractState, "unclassified");
+        assert.deepEqual(target.authoringContractIds, []);
         for (const field of [
             "architectures",
             "personas",
@@ -171,6 +175,8 @@ test("approval cannot omit revision, digest, reviewer, evaluations, or security 
         "needs assessed trust and effects",
         "needs classified dependencies",
         "needs classified source contracts",
+        "needs classified authoring contracts",
+        "needs the Cratis clean-room authoring contract",
     ]) {
         assert(errors.some((error) => error.includes(requirement)));
     }
@@ -437,6 +443,36 @@ test("upstream companions contain metadata but never upstream bytes", () => {
     assert(errors.some((error) => error.includes("expected constant false")));
 });
 
+test("the clean-room authoring contract cannot weaken its evidence or copy policy", () => {
+    const catalogs = loadCatalogs();
+    assert.deepEqual(validateAuthoringContracts(catalogs), []);
+    const contract = catalogs.authoringContracts.contracts[0];
+    contract.requiredEvidenceKinds.pop();
+    contract.outputPolicy.requiredFrontmatterKeys.push("license");
+    const errors = validateAuthoringContracts(catalogs);
+    assert(
+        errors.some((error) =>
+            error.includes("required evidence kinds must match"),
+        ),
+    );
+    assert(
+        errors.some((error) =>
+            error.includes("frontmatter must be exactly name and description"),
+        ),
+    );
+});
+
+test("the human catalog contract forbids runtime bytes and permission claims", () => {
+    const catalogs = loadCatalogs();
+    assert.deepEqual(validateHumanCatalogContract(catalogs), []);
+    const contract = catalogs.humanCatalog;
+    contract.includeRuntimePayloadBytes = true;
+    contract.disclaimer = "This catalog grants runtime permission.";
+    const errors = validateHumanCatalogContract(catalogs);
+    assert(errors.some((error) => error.includes("runtime payload bytes")));
+    assert(errors.some((error) => error.includes("deny runtime permission")));
+});
+
 test("unknown properties fail the closed catalog v2 schema", () => {
     const targets = readCatalog(
         join(defaultRepositoryRoot, v2CatalogPaths.targets),
@@ -512,6 +548,9 @@ test("all v2 catalog families reject dangling evidence", () => {
     catalogs.upstreamCompanions.companions[0].evidenceIds.push(
         "missing-evidence",
     );
+    catalogs.authoringContracts.contracts[0].evidenceIds.push(
+        "missing-evidence",
+    );
     assert(
         validateSources(catalogs, defaultRepositoryRoot).some((error) =>
             error.includes("unknown evidence missing-evidence"),
@@ -544,6 +583,11 @@ test("all v2 catalog families reject dangling evidence", () => {
     );
     assert(
         validateUpstreamCompanions(catalogs).some((error) =>
+            error.includes("unknown evidence missing-evidence"),
+        ),
+    );
+    assert(
+        validateAuthoringContracts(catalogs).some((error) =>
             error.includes("unknown evidence missing-evidence"),
         ),
     );

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "8ac6f0660e84a14a5e051db2f0b0b18a4a9bd803df86ced9a3654ac7fcf4eca9",
+  "indexDigest": "a9e337da46f169bd905260f18edcb73c90dfcb87affa28fd20b0893bce9ba7bf",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -147,11 +147,27 @@
       "status": "added"
     },
     {
+      "path": "Documentation/skill-authoring-contract.md",
+      "status": "added"
+    },
+    {
       "path": "Documentation/skill-classification-audit.md",
       "status": "added"
     },
     {
       "path": "catalog/ecosystem-versions.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/generated/human-catalog/CATALOG.md",
+      "status": "added"
+    },
+    {
+      "path": "catalog/generated/human-catalog/catalog.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/generated/human-catalog/manifest.json",
       "status": "added"
     },
     {
@@ -183,11 +199,19 @@
       "status": "added"
     },
     {
+      "path": "catalog/v2/authoring-contracts.json",
+      "status": "added"
+    },
+    {
       "path": "catalog/v2/bundles.json",
       "status": "added"
     },
     {
       "path": "catalog/v2/evidence.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/v2/human-catalog.json",
       "status": "added"
     },
     {
@@ -295,6 +319,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/generate-human-catalog.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/generate-repository-inventory.mjs",
       "status": "added"
     },
@@ -316,6 +344,10 @@
     },
     {
       "path": "tooling/specs/catalog-validation.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/human-catalog.spec.mjs",
       "status": "added"
     },
     {
@@ -1142,6 +1174,32 @@
     },
     {
       "excludePathPatterns": [],
+      "id": "skill-authoring-documentation",
+      "sourcePathPatterns": [
+        "Documentation/skill-authoring-contract.md"
+      ],
+      "artifactType": "documentation",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "catalog/v2/authoring-contracts.json",
+        "catalog/v2/human-catalog.json",
+        "tooling/generate-human-catalog.mjs"
+      ],
+      "risk": "medium",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "ecosystem-use-cases",
+        "third-party-skills-evaluation"
+      ],
+      "expectedPathCount": 1,
+      "expectedPathsDigest": "72c58a7f75edd132552b00b3bbdbe9e4b406548c3286c742e4fc21ea27c9468a"
+    },
+    {
+      "excludePathPatterns": [],
       "id": "catalog-v1-scaffold",
       "sourcePathPatterns": [
         "catalog/ecosystem-versions.json",
@@ -1172,7 +1230,9 @@
       "excludePathPatterns": [],
       "id": "catalog-v2-authored-registries",
       "sourcePathPatterns": [
+        "catalog/v2/authoring-contracts.json",
         "catalog/v2/bundles.json",
+        "catalog/v2/human-catalog.json",
         "catalog/v2/source-contracts.json",
         "catalog/v2/taxonomy.json",
         "catalog/v2/upstream-companions.json"
@@ -1193,12 +1253,14 @@
         "ecosystem-use-cases",
         "third-party-skills-evaluation"
       ],
-      "expectedPathCount": 4,
-      "expectedPathsDigest": "ec3ac58212de700f909cb30e4e3761dc16a1eed0d6a0c210fd8b625ba2761a95"
+      "expectedPathCount": 6,
+      "expectedPathsDigest": "3350efe628cafcb336a57b5c118a4789687fb83bce6c360752fd69aed5938b75"
     },
     {
       "excludePathPatterns": [
+        "catalog/v2/authoring-contracts.json",
         "catalog/v2/bundles.json",
+        "catalog/v2/human-catalog.json",
         "catalog/v2/source-contracts.json",
         "catalog/v2/taxonomy.json",
         "catalog/v2/upstream-companions.json"
@@ -1225,6 +1287,32 @@
       "generator": "tooling/generate-catalog-v2.mjs and tooling/generate-repository-inventory.mjs",
       "expectedPathCount": 7,
       "expectedPathsDigest": "e357183a0be12bfbbdea6835b9946fc8b10004c5c902cb1dd4a9d96c105a32c8"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "generated-human-catalog",
+      "sourcePathPatterns": [
+        "catalog/generated/human-catalog/**"
+      ],
+      "artifactType": "documentation",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "generated",
+      "adapterStatus": "none",
+      "dependencies": [
+        "catalog/v2/human-catalog.json",
+        "catalog/v2/targets.json",
+        "tooling/generate-human-catalog.mjs"
+      ],
+      "risk": "medium",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "option-a-plus-authority"
+      ],
+      "generator": "tooling/generate-human-catalog.mjs",
+      "expectedPathCount": 3,
+      "expectedPathsDigest": "61a75cf6c23c8f3f8ed848eed741ef65aad391f1132c9baa0f8719455757c7db"
     },
     {
       "excludePathPatterns": [],
@@ -1269,8 +1357,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 8,
-      "expectedPathsDigest": "ba097e98690b3dbb288c3b2cacc6d4ab1418572db214c07253c91863537f1958"
+      "expectedPathCount": 9,
+      "expectedPathsDigest": "ef466bcc5f8eafcf6d355a607462bb158fa37e1f1c62e93097b3af547cd72d69"
     },
     {
       "excludePathPatterns": [],
@@ -1293,8 +1381,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 5,
-      "expectedPathsDigest": "dd3f31be67af69b280aa4b2b10008d8dac30af7199aaaab3e3b0351583111c73"
+      "expectedPathCount": 6,
+      "expectedPathsDigest": "5cded27045420ef685ebe1efd9038a3f6929fe0ab7b7553b8bdc03d372c1718e"
     },
     {
       "excludePathPatterns": [],

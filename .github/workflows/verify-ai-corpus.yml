@@ -53,8 +53,9 @@ jobs:
         run: |
           set -euo pipefail
           node tooling/generate-catalog-v2.mjs
+          node tooling/generate-human-catalog.mjs
           node tooling/generate-repository-inventory.mjs
-          git diff --exit-code -- catalog/v2
+          git diff --exit-code -- catalog/v2 catalog/generated/human-catalog
 
       - name: Validate catalogs and specifications
         run: |

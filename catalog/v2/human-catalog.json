@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 2,
+  "contractVersion": 1,
+  "outputRoot": "catalog/generated/human-catalog",
+  "generatedFiles": {
+    "data": "catalog.json",
+    "markdown": "CATALOG.md",
+    "manifest": "manifest.json"
+  },
+  "includeAudiences": ["public"],
+  "includeUnapprovedTargets": true,
+  "includeRuntimePayloadBytes": false,
+  "referenceExpansion": "complete-bounded",
+  "requiredCapabilitySections": [
+    "identity",
+    "purpose",
+    "when-to-use",
+    "when-not-to-use",
+    "invocation",
+    "applicability",
+    "dependencies",
+    "trust-and-effects",
+    "evidence-and-support",
+    "related-capabilities",
+    "bundle-membership"
+  ],
+  "disclaimer": "Catalog inclusion, evaluation evidence, bundle generation, or publication does not grant runtime permission or approval.",
+  "limits": {
+    "maximumInputBytes": 16777216,
+    "maximumJsonDepth": 64,
+    "maximumItemsPerRegistry": 10000,
+    "maximumStringBytes": 1048576,
+    "maximumGeneratedFiles": 16,
+    "maximumGeneratedBytes": 16777216
+  },
+  "determinism": {
+    "timestamps": false,
+    "environmentValues": false,
+    "networkAccess": false,
+    "ordering": "ordinal",
+    "encoding": "utf-8",
+    "lineEndings": "lf",
+    "jsonIndentation": 2,
+    "terminalNewline": true
+  }
+}

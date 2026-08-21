@@ -31,6 +31,8 @@ export const v2CatalogPaths = {
     sourceContracts: "catalog/v2/source-contracts.json",
     bundles: "catalog/v2/bundles.json",
     upstreamCompanions: "catalog/v2/upstream-companions.json",
+    authoringContracts: "catalog/v2/authoring-contracts.json",
+    humanCatalog: "catalog/v2/human-catalog.json",
 };
 
 export const v2SchemaPath = "catalog/schemas/v2/catalog-v2.schema.json";
@@ -47,6 +49,8 @@ const schemaDefinitionByCatalog = {
     sourceContracts: "sourceContractsCatalog",
     bundles: "bundlesCatalog",
     upstreamCompanions: "upstreamCompanionsCatalog",
+    authoringContracts: "authoringContractsCatalog",
+    humanCatalog: "humanCatalogContract",
 };
 
 function duplicates(values) {
@@ -368,6 +372,12 @@ export function validateTargets(catalogs) {
             (companion) => companion.id,
         ),
     );
+    const authoringContractsById = new Map(
+        catalogs.authoringContracts.contracts.map((contract) => [
+            contract.id,
+            contract,
+        ]),
+    );
     const productIds = taxonomyIds(catalogs, "products");
     const languageIds = taxonomyIds(catalogs, "languages");
     const architectureIds = taxonomyIds(catalogs, "architectures");
@@ -594,6 +604,37 @@ export function validateTargets(catalogs) {
                 }
             }
         }
+        if (
+            target.authoringContractState === "unclassified" &&
+            target.authoringContractIds.length > 0
+        ) {
+            errors.push(
+                `${target.id}: authoring contracts require classified state`,
+            );
+        }
+        if (
+            target.authoringContractState === "classified" &&
+            target.authoringContractIds.length === 0
+        ) {
+            errors.push(
+                `${target.id}: classified authoring contracts cannot be empty`,
+            );
+        }
+        for (const authoringContractId of target.authoringContractIds) {
+            const authoringContract =
+                authoringContractsById.get(authoringContractId);
+            if (!authoringContract)
+                errors.push(
+                    `${target.id}: unknown authoring contract ${authoringContractId}`,
+                );
+            else if (
+                target.approval.state === "approved" &&
+                authoringContract.state !== "active"
+            )
+                errors.push(
+                    `${target.id}: approved target needs active authoring contract ${authoringContractId}`,
+                );
+        }
         for (const sourceId of target.sourceSkillIds) {
             if (!sourceIds.has(sourceId))
                 errors.push(`${target.id}: unknown source ${sourceId}`);
@@ -712,6 +753,18 @@ export function validateTargets(catalogs) {
             if (target.sourceContractState !== "classified")
                 errors.push(
                     `${target.id}: approved target needs classified source contracts`,
+                );
+            if (target.authoringContractState !== "classified")
+                errors.push(
+                    `${target.id}: approved target needs classified authoring contracts`,
+                );
+            if (
+                !target.authoringContractIds.includes(
+                    "cratis-skill-clean-room-v1",
+                )
+            )
+                errors.push(
+                    `${target.id}: approved target needs the Cratis clean-room authoring contract`,
                 );
             if (
                 target.audience === "public" &&
@@ -1168,6 +1221,29 @@ export function validateBundles(catalogs) {
         "bundles",
         catalogs.bundles.bundles.map((bundle) => bundle.id),
     );
+    const optionalCandidatesByRoot = new Map();
+    function optionalCandidatesForRoot(rootTargetId) {
+        const cached = optionalCandidatesByRoot.get(rootTargetId);
+        if (cached) return cached;
+        const optionalCandidates = new Set();
+        const visited = new Set();
+        const pending = [rootTargetId];
+        while (pending.length > 0) {
+            const targetId = pending.pop();
+            if (visited.has(targetId)) continue;
+            visited.add(targetId);
+            const target = targetsById.get(targetId);
+            if (target?.dependencyClassificationState !== "classified")
+                continue;
+            for (const edge of target.dependencyEdges) {
+                if (edge.category !== "target") continue;
+                if (edge.strength === "hard") pending.push(edge.dependencyId);
+                else optionalCandidates.add(edge.dependencyId);
+            }
+        }
+        optionalCandidatesByRoot.set(rootTargetId, optionalCandidates);
+        return optionalCandidates;
+    }
     for (const bundle of catalogs.bundles.bundles) {
         const selectedTargetIds = [
             ...bundle.rootTargetIds,
@@ -1204,24 +1280,9 @@ export function validateBundles(catalogs) {
             }
         }
         const optionalCandidates = new Set();
-        const visited = new Set();
-        const pending = [...bundle.rootTargetIds];
-        while (pending.length > 0) {
-            const targetId = pending.pop();
-            if (visited.has(targetId)) continue;
-            visited.add(targetId);
-            const target = targetsById.get(targetId);
-            if (target?.dependencyClassificationState !== "classified")
-                continue;
-            for (const edge of target.dependencyEdges) {
-                if (edge.category !== "target") continue;
-                if (edge.strength === "hard") {
-                    if (selectedTargets.has(edge.dependencyId))
-                        pending.push(edge.dependencyId);
-                } else {
-                    optionalCandidates.add(edge.dependencyId);
-                }
-            }
+        for (const rootTargetId of bundle.rootTargetIds) {
+            for (const targetId of optionalCandidatesForRoot(rootTargetId))
+                optionalCandidates.add(targetId);
         }
         for (const targetId of bundle.selectedSoftOrOptionalTargetIds) {
             if (!optionalCandidates.has(targetId))
@@ -1293,6 +1354,122 @@ export function validateUpstreamCompanions(catalogs) {
                 errors.push(`${companion.id}: unknown evidence ${evidenceId}`);
         }
     }
+    return errors;
+}
+
+export function validateAuthoringContracts(catalogs) {
+    const errors = [];
+    const evidenceIds = new Set(
+        catalogs.evidence.evidence.map((evidence) => evidence.id),
+    );
+    addDuplicateErrors(
+        errors,
+        "authoring contracts",
+        catalogs.authoringContracts.contracts.map((contract) => contract.id),
+    );
+    const activeContracts = catalogs.authoringContracts.contracts.filter(
+        (contract) => contract.state === "active",
+    );
+    if (activeContracts.length !== 1)
+        errors.push("exactly one authoring contract must be active");
+    const cleanRoom = catalogs.authoringContracts.contracts.find(
+        (contract) => contract.id === "cratis-skill-clean-room-v1",
+    );
+    if (!cleanRoom || cleanRoom.state !== "active")
+        errors.push("the Cratis clean-room skill contract must be active");
+    if (cleanRoom) {
+        if (
+            !equalStringSets(cleanRoom.outputPolicy.requiredFrontmatterKeys, [
+                "name",
+                "description",
+            ])
+        ) {
+            errors.push(
+                `${cleanRoom.id}: required frontmatter must be exactly name and description`,
+            );
+        }
+        const requiredEvidenceKinds = [
+            "behavior",
+            "positive-trigger",
+            "negative-trigger",
+            "collision",
+            "security",
+            "portability",
+            "source-review",
+        ];
+        if (
+            !equalStringSets(
+                cleanRoom.requiredEvidenceKinds,
+                requiredEvidenceKinds,
+            )
+        ) {
+            errors.push(
+                `${cleanRoom.id}: required evidence kinds must match the release gate`,
+            );
+        }
+    }
+    for (const contract of catalogs.authoringContracts.contracts) {
+        for (const evidenceId of contract.evidenceIds) {
+            if (!evidenceIds.has(evidenceId))
+                errors.push(`${contract.id}: unknown evidence ${evidenceId}`);
+        }
+    }
+    return errors;
+}
+
+function validateRelativeGeneratedPath(path, label, errors) {
+    const segments = path.split("/");
+    if (
+        isAbsolute(path) ||
+        path.includes("\\") ||
+        segments.some(
+            (segment) =>
+                segment === "" || segment === "." || segment === "..",
+        )
+    ) {
+        errors.push(`${label} must be a normalized relative path`);
+    }
+}
+
+export function validateHumanCatalogContract(catalogs) {
+    const errors = [];
+    const contract = catalogs.humanCatalog;
+    validateRelativeGeneratedPath(
+        contract.outputRoot,
+        "human catalog output root",
+        errors,
+    );
+    for (const [kind, path] of Object.entries(contract.generatedFiles))
+        validateRelativeGeneratedPath(path, `human catalog ${kind}`, errors);
+    if (!contract.outputRoot.startsWith("catalog/generated/"))
+        errors.push("human catalog output must remain under catalog/generated");
+    if (!equalStringSets(contract.includeAudiences, ["public"]))
+        errors.push("human catalog can include only public targets");
+    if (contract.includeRuntimePayloadBytes)
+        errors.push("human catalog can never include runtime payload bytes");
+    const requiredSections = [
+        "identity",
+        "purpose",
+        "when-to-use",
+        "when-not-to-use",
+        "invocation",
+        "applicability",
+        "dependencies",
+        "trust-and-effects",
+        "evidence-and-support",
+        "related-capabilities",
+        "bundle-membership",
+    ];
+    if (
+        !equalStringSets(
+            contract.requiredCapabilitySections,
+            requiredSections,
+        )
+    ) {
+        errors.push("human catalog sections must match the product contract");
+    }
+    if (!contract.disclaimer.includes("does not grant runtime permission"))
+        errors.push("human catalog disclaimer must deny runtime permission");
     return errors;
 }
 
@@ -1599,6 +1776,8 @@ export function validateV2Catalogs(root = defaultRepositoryRoot) {
     errors.push(...validateSourceContracts(catalogs));
     errors.push(...validateBundles(catalogs));
     errors.push(...validateUpstreamCompanions(catalogs));
+    errors.push(...validateAuthoringContracts(catalogs));
+    errors.push(...validateHumanCatalogContract(catalogs));
     errors.push(...validateArtifacts(catalogs));
     errors.push(...validateRepositoryInventory(catalogs, root));
     return errors;

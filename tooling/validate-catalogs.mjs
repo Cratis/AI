@@ -14,6 +14,6 @@ if (errors.length > 0) {
     process.exitCode = 1;
 } else {
     process.stdout.write(
-        "Catalog validation passed: 3 legacy catalogs, 11 v2 catalogs, and 4 schemas are valid.\n",
+        "Catalog validation passed: 3 legacy catalogs, 13 v2 catalogs, and 4 schemas are valid.\n",
     );
 }
