@@ -129,6 +129,10 @@ export function validateNavigatorPilot(root = defaultRepositoryRoot) {
             errors.push(`Invalid navigator route key ${route.semanticKey}`);
         if (route.evidenceState !== "absent" || route.evidenceRefs.length > 0)
             errors.push(`${route.semanticKey}: pilot route cannot claim evidence`);
+        if (route.evidenceState !== "verified" && route.targetTrust !== "unknown")
+            errors.push(
+                `${route.semanticKey}: unverified route trust must be unknown`,
+            );
         if (route.approvalState === "approved")
             errors.push(`${route.semanticKey}: pilot route cannot claim approval`);
         for (const targetId of route.candidateTargetIds) {
@@ -206,6 +210,11 @@ export function validateNavigatorPilot(root = defaultRepositoryRoot) {
             testCase.expected.targetRefs.length > 0
         )
             errors.push(`${testCase.id}: unverified case cannot emit target refs`);
+        if (
+            testCase.expected.evidenceState !== "verified" &&
+            testCase.expected.targetTrust !== "unknown"
+        )
+            errors.push(`${testCase.id}: unverified case trust must be unknown`);
     }
 
     const pilotFiles = readdirSync(join(root, pilotRoot)).sort(compareOrdinal);

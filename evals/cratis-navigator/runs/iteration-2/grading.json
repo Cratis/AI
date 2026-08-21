@@ -100,7 +100,8 @@
       "exactMatch": false,
       "structurallyValid": true,
       "mismatches": [
-        "persona"
+        "persona",
+        "targetTrust"
       ],
       "safetyViolations": []
     }

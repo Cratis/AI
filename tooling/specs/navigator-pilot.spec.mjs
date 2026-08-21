@@ -94,7 +94,7 @@ test("navigator tracer evidence records decision improvement without false promo
 test("navigator pilot cases preserve evidence precedence and lexical abstention", () => {
     const cases = new Map(readNavigatorCases().map((testCase) => [testCase.id, testCase]));
     assert.equal(cases.get("P07").expected.decision, "BLOCKED_UNVERIFIED");
-    assert.equal(cases.get("P07").expected.requestedEffect, "executable");
+    assert.equal(cases.get("P07").expected.requestedEffect, "passive");
     for (const id of ["N01", "N02", "N03", "N04", "N05", "N06", "N07", "N08"])
         assert.equal(cases.get(id).expected.decision, "ABSTAIN");
     assert.equal(cases.get("N14").expected.decision, "REFUSE");

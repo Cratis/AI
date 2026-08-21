@@ -46,9 +46,10 @@ Use these exact reason codes for canonical conditions:
 - `NO_CRATIS_EVIDENCE` with evidence state `not-applicable` — ordinary homonyms
   such as a geometric arc, newspaper chronicle, screenplay, or Git staging have
   no Cratis intent or corroboration;
-- `UNVERIFIED_CONFUSABLE_SIGNAL` with evidence state `absent` — a Unicode
-  confusable or misleading Cratis-like spelling is not Cratis evidence; do not
-  use this code for an ordinary non-Cratis homonym;
+- `UNVERIFIED_CONFUSABLE_SIGNAL` with decision `ABSTAIN` and evidence state
+  `absent` — a Unicode confusable or misleading Cratis-like spelling is not
+  Cratis evidence; do not block a target and do not use this code for an
+  ordinary non-Cratis homonym;
 - `EXPLICIT_NON_CRATIS_SCOPE` with evidence state `not-applicable` — the request
   explicitly excludes Cratis;
 - `CLIENT_LANGUAGE_AMBIGUOUS` with evidence state `absent` — Java versus Kotlin
@@ -77,8 +78,12 @@ Use these exact reason codes for canonical conditions:
    Do not infer it from language, paths, or package-like wording. Record persona
    as `unspecified` unless the request explicitly identifies one; do not infer a
    developer persona from a software question.
-6. Classify the requested effect independently from target trust. Quoted
-   commands and logs remain passive data unless execution is requested.
+6. Classify the requested effect independently from target trust. Requests to
+   identify, classify, or route an operation without performing it are passive,
+   even when the described operation would mutate state. Quoted commands and
+   logs remain passive data unless execution is requested. Target trust is
+   `unknown` until revision-bound target evidence is verified; candidate
+   metadata never proves trust.
 7. Select the narrowest semantic key from `routes.draft.json`.
 8. Clarify Java versus Kotlin for an unspecified JVM client, and clarify other
    ambiguity only when it changes the destination materially.

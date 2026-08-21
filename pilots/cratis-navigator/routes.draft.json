@@ -4,11 +4,16 @@
   "routes": [
     {
       "semanticKey": "arc-backend",
-      "candidateTargetIds": ["cratis-arc-command"],
-      "repositoryProfiles": ["application", "framework"],
+      "candidateTargetIds": [
+        "cratis-arc-command"
+      ],
+      "repositoryProfiles": [
+        "application",
+        "framework"
+      ],
       "language": "csharp",
       "surface": "backend",
-      "targetTrust": "passive",
+      "targetTrust": "unknown",
       "approvalState": "candidate",
       "evidenceState": "absent",
       "evidenceRefs": []
@@ -16,7 +21,9 @@
     {
       "semanticKey": "arc-chronicle-integration",
       "candidateTargetIds": [],
-      "repositoryProfiles": ["application"],
+      "repositoryProfiles": [
+        "application"
+      ],
       "language": null,
       "surface": "backend",
       "targetTrust": "unknown",
@@ -26,11 +33,15 @@
     },
     {
       "semanticKey": "arc-frontend-react-mvvm-components",
-      "candidateTargetIds": ["cratis-arc-react-page"],
-      "repositoryProfiles": ["application"],
+      "candidateTargetIds": [
+        "cratis-arc-react-page"
+      ],
+      "repositoryProfiles": [
+        "application"
+      ],
       "language": "react",
       "surface": "frontend",
-      "targetTrust": "passive",
+      "targetTrust": "unknown",
       "approvalState": "candidate",
       "evidenceState": "absent",
       "evidenceRefs": []
@@ -38,7 +49,11 @@
     {
       "semanticKey": "chronicle-client-dotnet",
       "candidateTargetIds": [],
-      "repositoryProfiles": ["application", "client", "framework"],
+      "repositoryProfiles": [
+        "application",
+        "client",
+        "framework"
+      ],
       "language": "csharp",
       "surface": "backend",
       "targetTrust": "unknown",
@@ -49,7 +64,10 @@
     {
       "semanticKey": "chronicle-client-elixir",
       "candidateTargetIds": [],
-      "repositoryProfiles": ["application", "client"],
+      "repositoryProfiles": [
+        "application",
+        "client"
+      ],
       "language": "elixir",
       "surface": "backend",
       "targetTrust": "unknown",
@@ -60,7 +78,10 @@
     {
       "semanticKey": "chronicle-client-java",
       "candidateTargetIds": [],
-      "repositoryProfiles": ["application", "client"],
+      "repositoryProfiles": [
+        "application",
+        "client"
+      ],
       "language": "java",
       "surface": "backend",
       "targetTrust": "unknown",
@@ -71,7 +92,10 @@
     {
       "semanticKey": "chronicle-client-kotlin",
       "candidateTargetIds": [],
-      "repositoryProfiles": ["application", "client"],
+      "repositoryProfiles": [
+        "application",
+        "client"
+      ],
       "language": "kotlin",
       "surface": "backend",
       "targetTrust": "unknown",
@@ -82,7 +106,10 @@
     {
       "semanticKey": "chronicle-client-typescript",
       "candidateTargetIds": [],
-      "repositoryProfiles": ["application", "client"],
+      "repositoryProfiles": [
+        "application",
+        "client"
+      ],
       "language": "typescript",
       "surface": "backend",
       "targetTrust": "unknown",
@@ -92,11 +119,16 @@
     },
     {
       "semanticKey": "cratis-cli",
-      "candidateTargetIds": ["cratis-chronicle-cli-operations"],
-      "repositoryProfiles": ["application", "framework"],
+      "candidateTargetIds": [
+        "cratis-chronicle-cli-operations"
+      ],
+      "repositoryProfiles": [
+        "application",
+        "framework"
+      ],
       "language": "shell",
       "surface": "cli",
-      "targetTrust": "passive",
+      "targetTrust": "unknown",
       "approvalState": "candidate",
       "evidenceState": "absent",
       "evidenceRefs": []
@@ -104,7 +136,10 @@
     {
       "semanticKey": "cratis-screenplay",
       "candidateTargetIds": [],
-      "repositoryProfiles": ["application", "corpus"],
+      "repositoryProfiles": [
+        "application",
+        "corpus"
+      ],
       "language": null,
       "surface": "ide",
       "targetTrust": "unknown",
@@ -115,7 +150,10 @@
     {
       "semanticKey": "cratis-stage",
       "candidateTargetIds": [],
-      "repositoryProfiles": ["application", "corpus"],
+      "repositoryProfiles": [
+        "application",
+        "corpus"
+      ],
       "language": null,
       "surface": "browser",
       "targetTrust": "unknown",
@@ -126,7 +164,10 @@
     {
       "semanticKey": "cratis-studio-public",
       "candidateTargetIds": [],
-      "repositoryProfiles": ["application", "corpus"],
+      "repositoryProfiles": [
+        "application",
+        "corpus"
+      ],
       "language": null,
       "surface": "browser",
       "targetTrust": "unknown",
@@ -137,7 +178,10 @@
     {
       "semanticKey": "cratis-workbench",
       "candidateTargetIds": [],
-      "repositoryProfiles": ["application", "framework"],
+      "repositoryProfiles": [
+        "application",
+        "framework"
+      ],
       "language": null,
       "surface": "browser",
       "targetTrust": "unknown",
@@ -148,7 +192,13 @@
     {
       "semanticKey": "product-neutral-core",
       "candidateTargetIds": [],
-      "repositoryProfiles": ["application", "client", "corpus", "framework", "unknown"],
+      "repositoryProfiles": [
+        "application",
+        "client",
+        "corpus",
+        "framework",
+        "unknown"
+      ],
       "language": null,
       "surface": null,
       "targetTrust": "unknown",
@@ -159,7 +209,10 @@
     {
       "semanticKey": "chronicle-mcp",
       "candidateTargetIds": [],
-      "repositoryProfiles": ["application", "framework"],
+      "repositoryProfiles": [
+        "application",
+        "framework"
+      ],
       "language": null,
       "surface": "mcp",
       "targetTrust": "unknown",

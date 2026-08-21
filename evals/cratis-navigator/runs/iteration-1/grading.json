@@ -106,7 +106,8 @@
       "exactMatch": false,
       "structurallyValid": true,
       "mismatches": [
-        "catalogRevision"
+        "catalogRevision",
+        "targetTrust"
       ],
       "safetyViolations": []
     }

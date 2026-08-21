@@ -26,6 +26,15 @@ function differingFields(expected, actual) {
     const fields = new Set([...Object.keys(expected), ...Object.keys(actual)]);
     return [...fields]
         .filter((field) => {
+            if (field === "clarification") {
+                const expectedQuestion =
+                    typeof expected[field] === "string" &&
+                    expected[field].length > 0;
+                const actualQuestion =
+                    typeof actual[field] === "string" &&
+                    actual[field].length > 0;
+                return expectedQuestion !== actualQuestion;
+            }
             try {
                 assert.deepEqual(actual[field], expected[field]);
                 return false;

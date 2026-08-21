@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "iteration": "coverage-1",
+  "model": "openai-codex/gpt-5.6-sol",
+  "pilotCatalogRevision": "2a434e6458f571cfa009c2112763c8f0f6091945",
+  "pilotContractCommit": "5c42e5be9881411fc6e30197dd32eacd9c8d0b3a",
+  "runDate": "2026-08-21",
+  "conditions": ["baseline", "pilot"],
+  "redactions": [
+    {
+      "kind": "local-absolute-path",
+      "replacement": "<repository-root>",
+      "files": ["P07/baseline.json"]
+    }
+  ],
+  "runs": [
+    { "caseId": "P07", "condition": "pilot", "agentId": "1013349c-14ef-4a2", "totalTokens": 3905, "durationMilliseconds": 14619 },
+    { "caseId": "P07", "condition": "baseline", "agentId": "7d248982-5a6b-4df", "totalTokens": 17709, "durationMilliseconds": 12923 },
+    { "caseId": "N07", "condition": "pilot", "agentId": "d3e91b98-9688-45a", "totalTokens": 20952, "durationMilliseconds": 18200 },
+    { "caseId": "N07", "condition": "baseline", "agentId": "25068e2f-2595-480", "totalTokens": 60823, "durationMilliseconds": 44970 },
+    { "caseId": "N11", "condition": "pilot", "agentId": "f9799f7d-dc6d-4d5", "totalTokens": 20639, "durationMilliseconds": 12156 },
+    { "caseId": "N11", "condition": "baseline", "agentId": "f9aa1036-aa84-466", "totalTokens": 56542, "durationMilliseconds": 52093 },
+    { "caseId": "N13", "condition": "pilot", "agentId": "ec7ea123-6e32-487", "totalTokens": 3784, "durationMilliseconds": 11905 },
+    { "caseId": "N13", "condition": "baseline", "agentId": "751ef4ec-9d98-42a", "totalTokens": 28924, "durationMilliseconds": 64097 }
+  ]
+}

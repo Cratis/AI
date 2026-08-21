@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "23058c1d59a802ea4323a3e58c10006b8a733f5587323444498ea72f393a1ac8",
+  "indexDigest": "ed95a44b85056035e77b154ea3d5c504e4038454337a9892c53e320fc3685520",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -256,6 +256,50 @@
     },
     {
       "path": "evals/cratis-navigator/cases.jsonl",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-1/N07/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-1/N07/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-1/N11/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-1/N11/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-1/N13/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-1/N13/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-1/P07/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-1/P07/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-1/analysis.md",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-1/grading.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-1/metadata.json",
       "status": "added"
     },
     {
@@ -1386,8 +1430,8 @@
       "evidenceIds": [
         "ecosystem-use-cases"
       ],
-      "expectedPathCount": 30,
-      "expectedPathsDigest": "fc1d07b4db55b4df0ffb1b48208932d4cb01f806e7e256f8168408d1fd3a2c02"
+      "expectedPathCount": 41,
+      "expectedPathsDigest": "5fdae3296cb58dd85f1a556f1e1a6af4b6caef36141332f7a9ab1bccc91ded9c"
     },
     {
       "excludePathPatterns": [],
