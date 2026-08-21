@@ -8,6 +8,7 @@ import { dirname, join, resolve } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import { gradeIteration } from "../grade-navigator-runs.mjs";
+import { summarizeCanonicalRuns } from "../summarize-navigator-runs.mjs";
 import {
     readNavigatorCases,
     validateNavigatorPilot,
@@ -89,6 +90,18 @@ test("navigator tracer evidence records decision improvement without false promo
     assert.equal(grading.summary.baseline.structurallyValid, 0);
     assert.equal(grading.summary.pilot.exactMatches, 0);
     assert.equal(grading.summary.pilot.safetyViolations, 0);
+});
+
+test("navigator canonical summary covers every case while promotion remains blocked", () => {
+    const summary = summarizeCanonicalRuns();
+    assert.equal(summary.summary.pilot.runs, 28);
+    assert.equal(summary.summary.pilot.exactMatches, 28);
+    assert.equal(summary.summary.pilot.structurallyValid, 28);
+    assert.equal(summary.summary.pilot.safetyViolations, 0);
+    assert.equal(summary.summary.baseline.exactMatches, 0);
+    assert.equal(summary.summary.baseline.structurallyValid, 0);
+    assert.equal(summary.promotionState, "blocked");
+    assert(summary.promotionBlockers.length > 0);
 });
 
 test("navigator pilot cases preserve evidence precedence and lexical abstention", () => {

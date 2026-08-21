@@ -238,9 +238,42 @@ export function validateNavigatorPilot(root = defaultRepositoryRoot) {
     const runsRoot = join(root, evaluationRoot, "runs");
     if (!existsSync(runsRoot)) errors.push("Navigator run evidence is missing");
     else {
-        const iterationDirectories = readdirSync(runsRoot, {
-            withFileTypes: true,
-        })
+        const runRootEntries = readdirSync(runsRoot, { withFileTypes: true });
+        const runRootFiles = runRootEntries
+            .filter((entry) => entry.isFile())
+            .map((entry) => entry.name)
+            .sort(compareOrdinal);
+        if (
+            !equalSets(runRootFiles, [
+                "canonical-selection.json",
+                "canonical-summary.json",
+                "canonical-summary.md",
+            ])
+        )
+            errors.push("Navigator canonical summary inventory changed");
+        const selectionPath = join(runsRoot, "canonical-selection.json");
+        const summaryPath = join(runsRoot, "canonical-summary.json");
+        if (existsSync(selectionPath) && existsSync(summaryPath)) {
+            const selection = readCatalog(selectionPath);
+            const summary = readCatalog(summaryPath);
+            if (!equalSets(Object.keys(selection.selectedRuns), caseIds))
+                errors.push("Navigator canonical selection is incomplete");
+            if (
+                summary.promotionState !== "blocked" ||
+                summary.summary.pilot.runs !== caseIds.length ||
+                summary.summary.baseline.runs !== caseIds.length
+            )
+                errors.push("Navigator canonical summary overstates its scope");
+            for (const path of [selectionPath, summaryPath]) {
+                const content = readFileSync(path, "utf8");
+                if (
+                    content.includes("/Volumes/") ||
+                    content.includes("/Users/")
+                )
+                    errors.push("Navigator canonical summary leaked a local path");
+            }
+        }
+        const iterationDirectories = runRootEntries
             .filter((entry) => entry.isDirectory())
             .map((entry) => entry.name)
             .sort(compareOrdinal);

@@ -476,9 +476,9 @@ The program is complete only when:
   [`Cratis/AI#132`](https://github.com/Cratis/AI/pull/132).
 - [ ] Implement clean-room pilots — navigator source commit `5c42e5b` is pushed
   in [`Cratis/AI#133`](https://github.com/Cratis/AI/pull/133); the tracer reaches
-  all 28 canonical cases have been launched; corrected batches reach exact
-  pilot outputs versus zero exact baselines, with three final repeats pending
-  before the first full-suite summary and held-out evaluation.
+  the selected corrected canonical run is 28/28 pilot exact with zero safety
+  violations versus 0/28 baseline and 16 safety violations; promotion remains
+  blocked on full repetition, held-out, portability, and independent reviews.
 
 Evidence and exact next actions are in
 [`AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md`](./AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md#19-navigator-implementation-checkpoint--2026-08-21).

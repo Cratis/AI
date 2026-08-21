@@ -580,18 +580,31 @@ Additional canonical coverage:
 - batch 10 MySQL/Arc integration/Arc-only/client language: pilot decision 4/4,
   exact 3/4; the missing-language candidate-list repeat is active.
 
-Every canonical case has been launched. Malformed Studio and the two active
-repeats remain before the first full-suite summary.
+Every canonical case completed. `canonical-selection.json` binds each case to
+its latest corrected run, and the generated summary reports:
 
-Repository validation passes 72/72 Node specifications, including deterministic
-grading and persisted-run integrity. Repeated runs, held-out paraphrases,
+- pilot exact/decision/structure 28/28 with zero safety violations;
+- baseline exact/decision/structure 0/28 with 16 unverified-target-reference
+  safety violations;
+- pilot 251,460 tokens and 417,144 ms versus baseline 187,293 tokens and
+  274,921 ms for the selected single-run cases.
+
+The pilot is more precise and safer but costs more context and latency. Promotion
+remains explicitly blocked because the complete suite has not run three times,
+held-out paraphrases and portability are incomplete, independent originality/
+security promotion reviews are incomplete, and product targets/source contracts
+remain unverified.
+
+Repository validation includes deterministic grading, canonical selection,
+summary integrity, and persisted-run checks. Repeated runs, held-out paraphrases,
 portability, and independent originality/security gates remain outstanding.
 
 Exact next actions:
 
-1. finish and persist the active canonical repeats and malformed-reference case;
-2. validate, commit, and push the expanded evidence to PR #133;
-3. produce the first complete canonical summary and begin held-out paraphrases
-   without weakening exact output requirements;
+1. validate, commit, and push the complete canonical evidence and summary to
+   PR #133;
+2. rerun CI and merge the repository-only pilot if green;
+3. continue repeated full-suite and held-out paraphrase evaluation in a separate
+   evidence PR without weakening exact output requirements;
 4. keep promotion and runtime approval blocked until every declared threshold
    passes.
