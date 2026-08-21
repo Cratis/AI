@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "a9e337da46f169bd905260f18edcb73c90dfcb87affa28fd20b0893bce9ba7bf",
+  "indexDigest": "ff01303dcae2b5729b30529d866a96b692a53f36330f99c7516fca6e08f0dc52",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -247,6 +247,30 @@
       "status": "added"
     },
     {
+      "path": "evals/cratis-navigator/assertions.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/baseline.md",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/cases.jsonl",
+      "status": "added"
+    },
+    {
+      "path": "pilots/cratis-navigator/PILOT.md",
+      "status": "added"
+    },
+    {
+      "path": "pilots/cratis-navigator/metadata.draft.json",
+      "status": "added"
+    },
+    {
+      "path": "pilots/cratis-navigator/routes.draft.json",
+      "status": "added"
+    },
+    {
       "path": "tooling/catalog-ordering.mjs",
       "status": "added"
     },
@@ -327,6 +351,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/navigator-pilot-validation.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/project-context-bootstrap.mjs",
       "status": "added"
     },
@@ -348,6 +376,10 @@
     },
     {
       "path": "tooling/specs/human-catalog.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/navigator-pilot.spec.mjs",
       "status": "added"
     },
     {
@@ -1200,6 +1232,53 @@
     },
     {
       "excludePathPatterns": [],
+      "id": "navigator-pilot-source",
+      "sourcePathPatterns": [
+        "pilots/cratis-navigator/**"
+      ],
+      "artifactType": "pilot",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "catalog/v2/authoring-contracts.json",
+        "catalog/v2/targets.json"
+      ],
+      "risk": "medium",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "ecosystem-use-cases"
+      ],
+      "expectedPathCount": 3,
+      "expectedPathsDigest": "98be24370118082e043b74ec73984aeaa0454ec4ca4e9ba719f426bf13f2976b"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "navigator-pilot-evaluations",
+      "sourcePathPatterns": [
+        "evals/cratis-navigator/**"
+      ],
+      "artifactType": "evaluation",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "pilots/cratis-navigator/**"
+      ],
+      "risk": "low",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "ecosystem-use-cases"
+      ],
+      "expectedPathCount": 3,
+      "expectedPathsDigest": "ada42b355ea01c158ff4ce5df898442b6ca777db9e9866aa351d33e17155b24e"
+    },
+    {
+      "excludePathPatterns": [],
       "id": "catalog-v1-scaffold",
       "sourcePathPatterns": [
         "catalog/ecosystem-versions.json",
@@ -1357,8 +1436,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 9,
-      "expectedPathsDigest": "ef466bcc5f8eafcf6d355a607462bb158fa37e1f1c62e93097b3af547cd72d69"
+      "expectedPathCount": 10,
+      "expectedPathsDigest": "3387bb282f9635f3edc9e60f29eb5ea05222e200b3878d874afff226a6ce5b5b"
     },
     {
       "excludePathPatterns": [],
@@ -1381,8 +1460,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 6,
-      "expectedPathsDigest": "5cded27045420ef685ebe1efd9038a3f6929fe0ab7b7553b8bdc03d372c1718e"
+      "expectedPathCount": 7,
+      "expectedPathsDigest": "38f68d859a43b55c9a8daafc4e6d5792f90828b8147ecbfc79f557f35c413cb6"
     },
     {
       "excludePathPatterns": [],

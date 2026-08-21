@@ -1,0 +1,171 @@
+{
+  "schemaVersion": 1,
+  "catalogRevision": "2a434e6458f571cfa009c2112763c8f0f6091945",
+  "routes": [
+    {
+      "semanticKey": "arc-backend",
+      "candidateTargetIds": ["cratis-arc-command"],
+      "repositoryProfiles": ["application", "framework"],
+      "language": "csharp",
+      "surface": "backend",
+      "targetTrust": "passive",
+      "approvalState": "candidate",
+      "evidenceState": "absent",
+      "evidenceRefs": []
+    },
+    {
+      "semanticKey": "arc-chronicle-integration",
+      "candidateTargetIds": [],
+      "repositoryProfiles": ["application"],
+      "language": null,
+      "surface": "backend",
+      "targetTrust": "unknown",
+      "approvalState": "missing-target",
+      "evidenceState": "absent",
+      "evidenceRefs": []
+    },
+    {
+      "semanticKey": "arc-frontend-react-mvvm-components",
+      "candidateTargetIds": ["cratis-arc-react-page"],
+      "repositoryProfiles": ["application"],
+      "language": "react",
+      "surface": "frontend",
+      "targetTrust": "passive",
+      "approvalState": "candidate",
+      "evidenceState": "absent",
+      "evidenceRefs": []
+    },
+    {
+      "semanticKey": "chronicle-client-dotnet",
+      "candidateTargetIds": [],
+      "repositoryProfiles": ["application", "client", "framework"],
+      "language": "csharp",
+      "surface": "backend",
+      "targetTrust": "unknown",
+      "approvalState": "missing-target",
+      "evidenceState": "absent",
+      "evidenceRefs": []
+    },
+    {
+      "semanticKey": "chronicle-client-elixir",
+      "candidateTargetIds": [],
+      "repositoryProfiles": ["application", "client"],
+      "language": "elixir",
+      "surface": "backend",
+      "targetTrust": "unknown",
+      "approvalState": "missing-target",
+      "evidenceState": "absent",
+      "evidenceRefs": []
+    },
+    {
+      "semanticKey": "chronicle-client-java",
+      "candidateTargetIds": [],
+      "repositoryProfiles": ["application", "client"],
+      "language": "java",
+      "surface": "backend",
+      "targetTrust": "unknown",
+      "approvalState": "missing-target",
+      "evidenceState": "absent",
+      "evidenceRefs": []
+    },
+    {
+      "semanticKey": "chronicle-client-kotlin",
+      "candidateTargetIds": [],
+      "repositoryProfiles": ["application", "client"],
+      "language": "kotlin",
+      "surface": "backend",
+      "targetTrust": "unknown",
+      "approvalState": "missing-target",
+      "evidenceState": "absent",
+      "evidenceRefs": []
+    },
+    {
+      "semanticKey": "chronicle-client-typescript",
+      "candidateTargetIds": [],
+      "repositoryProfiles": ["application", "client"],
+      "language": "typescript",
+      "surface": "backend",
+      "targetTrust": "unknown",
+      "approvalState": "missing-target",
+      "evidenceState": "absent",
+      "evidenceRefs": []
+    },
+    {
+      "semanticKey": "cratis-cli",
+      "candidateTargetIds": ["cratis-chronicle-cli-operations"],
+      "repositoryProfiles": ["application", "framework"],
+      "language": "shell",
+      "surface": "cli",
+      "targetTrust": "passive",
+      "approvalState": "candidate",
+      "evidenceState": "absent",
+      "evidenceRefs": []
+    },
+    {
+      "semanticKey": "cratis-screenplay",
+      "candidateTargetIds": [],
+      "repositoryProfiles": ["application", "corpus"],
+      "language": null,
+      "surface": "ide",
+      "targetTrust": "unknown",
+      "approvalState": "missing-target",
+      "evidenceState": "absent",
+      "evidenceRefs": []
+    },
+    {
+      "semanticKey": "cratis-stage",
+      "candidateTargetIds": [],
+      "repositoryProfiles": ["application", "corpus"],
+      "language": null,
+      "surface": "browser",
+      "targetTrust": "unknown",
+      "approvalState": "missing-target",
+      "evidenceState": "absent",
+      "evidenceRefs": []
+    },
+    {
+      "semanticKey": "cratis-studio-public",
+      "candidateTargetIds": [],
+      "repositoryProfiles": ["application", "corpus"],
+      "language": null,
+      "surface": "browser",
+      "targetTrust": "unknown",
+      "approvalState": "missing-target",
+      "evidenceState": "absent",
+      "evidenceRefs": []
+    },
+    {
+      "semanticKey": "cratis-workbench",
+      "candidateTargetIds": [],
+      "repositoryProfiles": ["application", "framework"],
+      "language": null,
+      "surface": "browser",
+      "targetTrust": "unknown",
+      "approvalState": "missing-target",
+      "evidenceState": "absent",
+      "evidenceRefs": []
+    },
+    {
+      "semanticKey": "product-neutral-core",
+      "candidateTargetIds": [],
+      "repositoryProfiles": ["application", "client", "corpus", "framework", "unknown"],
+      "language": null,
+      "surface": null,
+      "targetTrust": "unknown",
+      "approvalState": "missing-target",
+      "evidenceState": "absent",
+      "evidenceRefs": []
+    },
+    {
+      "semanticKey": "chronicle-mcp",
+      "candidateTargetIds": [],
+      "repositoryProfiles": ["application", "framework"],
+      "language": null,
+      "surface": "mcp",
+      "targetTrust": "unknown",
+      "approvalState": "missing-target",
+      "evidenceState": "absent",
+      "evidenceRefs": []
+    }
+  ]
+}

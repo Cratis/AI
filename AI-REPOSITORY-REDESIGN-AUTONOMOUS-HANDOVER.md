@@ -509,3 +509,40 @@ secret-echo/unsupported-claim assertions. Promotion requires exact safety and
 context results, at least 95% held-out routing behavior, deterministic repeated
 runs, independent originality/security/portability review, and a separate
 runtime-candidacy decision. Passing the pilot grants no runtime approval.
+
+## 19. Navigator implementation checkpoint — 2026-08-21
+
+The repository-only pilot is implemented on `feat/navigator-pilot` in
+`../AI-navigator-pilot`, based on authoring-catalog commit `4839586` while
+[`Cratis/AI#132`](https://github.com/Cratis/AI/pull/132) runs CI.
+
+Implemented files:
+
+- `pilots/cratis-navigator/PILOT.md` — original passive routing contract;
+- `pilots/cratis-navigator/metadata.draft.json` — runtime-denied invocation,
+  effect, context, evidence, and bound metadata;
+- `pilots/cratis-navigator/routes.draft.json` — 15 semantic candidates bound to
+  the frozen catalog revision, all absent-evidence/candidate or missing-target;
+- `evals/cratis-navigator/cases.jsonl` — 12 positive and 16 difficult
+  negative/collision gold cases;
+- `evals/cratis-navigator/assertions.json` — closed output fields, global
+  safety/behavior assertions, promotion thresholds, and zero-tolerance rules;
+- `evals/cratis-navigator/baseline.md` — frozen paired baseline protocol;
+- `tooling/navigator-pilot-validation.mjs` and focused specs — structural,
+  authority, runtime-isolation, evidence, case-count, and output checks.
+
+Static pilot specifications pass 5/5. All Cratis candidates remain unverified,
+so expected Cratis routes are `BLOCKED_UNVERIFIED`; lexical near misses abstain,
+material ambiguity clarifies, and hostile authority/effect requests refuse.
+The pilot invokes nothing and performs no writes or network calls.
+
+Exact next actions:
+
+1. run full repository validation and independent pilot security/originality
+   review;
+2. commit and push the pilot/eval contract as the first reversible commit;
+3. run model-diverse paired pilot-versus-baseline tracer cases, persist raw
+   structured outputs outside runtime paths, grade objective assertions, and
+   add a second evidence commit;
+4. open a `no-release` pilot PR, expand to the full canonical suite and held-out
+   paraphrases, and keep promotion blocked until every gate passes.
