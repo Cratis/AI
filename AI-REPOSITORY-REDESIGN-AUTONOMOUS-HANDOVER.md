@@ -567,16 +567,31 @@ intent abstains. Coverage batch 2 repeated those cases: pilot exact/decision/
 structure 2/2 with zero safety violations; baseline exact/decision/structure
 0/2 with two unverified-target-reference safety violations.
 
+Additional canonical coverage:
+
+- batch 3 product-neutral/frontend/integration/non-Cratis: pilot decision 4/4,
+  exact 3/4; batch 4 corrected requested-effect handling to exact 1/1;
+- batch 5 ordered clients/.NET/Workbench/MCP: pilot exact 4/4 versus baseline
+  exact 0/4 with four safety violations;
+- batch 6 Screenplay/Stage/Studio/hostile evidence: pilot decision 4/4, exact
+  3/4; batch 7 corrected profile inference to exact 1/1;
+- batch 8 ordinary homonyms: pilot decision/exact 3/4; the Visual Studio repeat
+  is active after prohibiting substring surface matches;
+- batch 10 MySQL/Arc integration/Arc-only/client language: pilot decision 4/4,
+  exact 3/4; the missing-language candidate-list repeat is active.
+
+Every canonical case has been launched. Malformed Studio and the two active
+repeats remain before the first full-suite summary.
+
 Repository validation passes 72/72 Node specifications, including deterministic
-grading and persisted-run integrity. The full 28-case suite, repeated runs,
-held-out paraphrases, portability, and independent originality/security gates
-remain outstanding.
+grading and persisted-run integrity. Repeated runs, held-out paraphrases,
+portability, and independent originality/security gates remain outstanding.
 
 Exact next actions:
 
-1. validate and commit the persisted tracer evidence as a second PR commit;
-2. push and wait for PR #133 CI;
-3. expand model-diverse evaluation to all 28 canonical cases and held-out
-   paraphrases without weakening exact output requirements;
+1. finish and persist the active canonical repeats and malformed-reference case;
+2. validate, commit, and push the expanded evidence to PR #133;
+3. produce the first complete canonical summary and begin held-out paraphrases
+   without weakening exact output requirements;
 4. keep promotion and runtime approval blocked until every declared threshold
    passes.

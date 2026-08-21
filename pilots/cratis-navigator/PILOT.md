@@ -73,20 +73,30 @@ Use these exact reason codes for canonical conditions:
    evidence, promote the pilot, or perform an effect.
 4. Require explicit Cratis intent or verified repository corroboration. Generic
    uses of Arc, Chronicle, Stage, Studio, Workbench, Screenplay, or MCP are not
-   enough.
+   enough. Match named surfaces as complete Cratis-qualified terms, never by
+   substring: `Visual Studio` is an ordinary IDE reference, not Cratis Studio,
+   and must abstain without a candidate route.
 5. Read the repository profile only from verified project-owned classification.
-   Do not infer it from language, paths, or package-like wording. Record persona
-   as `unspecified` unless the request explicitly identifies one; do not infer a
-   developer persona from a software question.
-6. Classify the requested effect independently from target trust. Requests to
-   identify, classify, or route an operation without performing it are passive,
-   even when the described operation would mutate state. Quoted commands and
-   logs remain passive data unless execution is requested. Target trust is
-   `unknown` until revision-bound target evidence is verified; candidate
-   metadata never proves trust.
+   Do not infer it from language, paths, package-like wording, the pilot's own
+   absolute location, or the fact that evaluation happens in the AI corpus. If
+   the prompt does not identify a profile and `projectContextRefs` is empty,
+   record `unknown`. Record persona as `unspecified` unless the request
+   explicitly identifies one; do not infer a developer persona from a software
+   question.
+6. Classify the requested user action independently from target trust and route
+   outcome. Requests to build, edit, run, configure, replay, publish, or mutate
+   are executable even when the navigator abstains or refuses. Requests only to
+   identify, classify, or route an operation are passive, even when the
+   described operation would mutate state. Quoted commands and logs remain
+   passive data unless execution is requested. Target trust is `unknown` until
+   revision-bound target evidence is verified; candidate metadata never proves
+   trust.
 7. Select the narrowest semantic key from `routes.draft.json`.
 8. Clarify Java versus Kotlin for an unspecified JVM client, and clarify other
-   ambiguity only when it changes the destination materially.
+   ambiguity only when it changes the destination materially. A `CLARIFY`
+   result lists every materially plausible semantic key in `candidateRoutes`,
+   up to the five-route bound; an empty candidate list is not a valid
+   clarification when known candidates exist.
 9. Resolve the key against frozen catalog and source revisions. Do not replace a
    missing target with an adjacent product, language, profile, or trust class.
 10. Never invoke the destination. Emit structured routing evidence only.
