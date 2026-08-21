@@ -253,6 +253,7 @@ export function validateNavigatorPilot(root = defaultRepositoryRoot) {
             "assertions.json",
             "baseline.md",
             "cases.jsonl",
+            "held-out-runs",
             "held-out.jsonl",
             "runs",
         ])
@@ -363,6 +364,76 @@ export function validateNavigatorPilot(root = defaultRepositoryRoot) {
                         content.includes("/Users/")
                     )
                         errors.push(`${iteration}: local absolute path leaked`);
+                }
+            }
+        }
+    }
+
+    const heldOutRunsRoot = join(root, evaluationRoot, "held-out-runs");
+    if (!existsSync(heldOutRunsRoot))
+        errors.push("Navigator held-out run evidence is missing");
+    else {
+        const passes = readdirSync(heldOutRunsRoot, { withFileTypes: true })
+            .filter((entry) => entry.isDirectory())
+            .map((entry) => entry.name)
+            .sort(compareOrdinal);
+        for (const pass of passes) {
+            const passRoot = join(heldOutRunsRoot, pass);
+            const entries = readdirSync(passRoot, { withFileTypes: true });
+            const passFiles = entries
+                .filter((entry) => entry.isFile())
+                .map((entry) => entry.name)
+                .sort(compareOrdinal);
+            if (
+                !equalSets(passFiles, [
+                    "analysis.md",
+                    "grading.json",
+                    "metadata.json",
+                ])
+            )
+                errors.push(`${pass}: held-out evidence root files changed`);
+            const metadata = readCatalog(join(passRoot, "metadata.json"));
+            const grading = readCatalog(join(passRoot, "grading.json"));
+            const heldOutCaseIds = entries
+                .filter((entry) => entry.isDirectory())
+                .map((entry) => entry.name)
+                .sort(compareOrdinal);
+            if (!equalSets(heldOutCaseIds, heldOut.map((item) => item.id)))
+                errors.push(`${pass}: held-out cases are incomplete`);
+            if (
+                metadata.suite !== "held-out" ||
+                metadata.runs.length !== heldOutCaseIds.length * 2
+            )
+                errors.push(`${pass}: held-out metadata is incomplete`);
+            if (grading.results.length !== heldOutCaseIds.length * 2)
+                errors.push(`${pass}: held-out grading is incomplete`);
+            for (const path of [
+                join(passRoot, "metadata.json"),
+                join(passRoot, "grading.json"),
+            ]) {
+                const content = readFileSync(path, "utf8");
+                if (
+                    content.includes("/Volumes/") ||
+                    content.includes("/Users/")
+                )
+                    errors.push(`${pass}: held-out local path leaked`);
+            }
+            for (const caseId of heldOutCaseIds) {
+                const outputFiles = readdirSync(join(passRoot, caseId)).sort(
+                    compareOrdinal,
+                );
+                if (!equalSets(outputFiles, ["baseline.json", "pilot.json"]))
+                    errors.push(`${pass}/${caseId}: held-out outputs changed`);
+                for (const outputFile of outputFiles) {
+                    const content = readFileSync(
+                        join(passRoot, caseId, outputFile),
+                        "utf8",
+                    );
+                    if (
+                        content.includes("/Volumes/") ||
+                        content.includes("/Users/")
+                    )
+                        errors.push(`${pass}: held-out local path leaked`);
                 }
             }
         }

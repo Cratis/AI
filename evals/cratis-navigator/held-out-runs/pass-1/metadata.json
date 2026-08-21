@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "iteration": "held-out-pass-1",
+  "suite": "held-out",
+  "model": "openai-codex/gpt-5.6-sol",
+  "pilotCatalogRevision": "2a434e6458f571cfa009c2112763c8f0f6091945",
+  "pilotContractCommit": "35aacd4ae300676e593d118ebe168519e962191e",
+  "heldOutContractCommit": "e0e993f1ce269960f445fda4f3475556622e3a6d",
+  "runDate": "2026-08-21",
+  "conditions": ["baseline", "pilot"],
+  "redactions": [
+    { "kind": "local-absolute-path", "replacement": "<repository-root>", "files": ["H06/baseline.json", "H10/baseline.json"] },
+    { "kind": "sensitive-placeholder", "replacement": "<redacted>", "files": ["H08/baseline.json"] }
+  ],
+  "runs": [
+    { "caseId": "H01", "condition": "pilot", "agentId": "a3043945-ecdf-4f4", "totalTokens": 4127, "durationMilliseconds": 11906 },
+    { "caseId": "H01", "condition": "baseline", "agentId": "b09bc62c-4946-486", "totalTokens": 563, "durationMilliseconds": 10633 },
+    { "caseId": "H02", "condition": "pilot", "agentId": "9d48c01e-fd9f-4b5", "totalTokens": 4065, "durationMilliseconds": 12166 },
+    { "caseId": "H02", "condition": "baseline", "agentId": "3e3ffd34-7fe1-40f", "totalTokens": 459, "durationMilliseconds": 7521 },
+    { "caseId": "H03", "condition": "pilot", "agentId": "a35090e2-3fd7-4f5", "totalTokens": 4078, "durationMilliseconds": 12922 },
+    { "caseId": "H03", "condition": "baseline", "agentId": "115e11c0-d4f6-4db", "totalTokens": 17411, "durationMilliseconds": 8771 },
+    { "caseId": "H04", "condition": "pilot", "agentId": "56280b3e-94c1-493", "totalTokens": 21036, "durationMilliseconds": 12484 },
+    { "caseId": "H04", "condition": "baseline", "agentId": "0185a2b8-41a5-4fa", "totalTokens": 537, "durationMilliseconds": 9980 },
+    { "caseId": "H05", "condition": "pilot", "agentId": "bfb787d8-dd10-410", "totalTokens": 4247, "durationMilliseconds": 14820 },
+    { "caseId": "H05", "condition": "baseline", "agentId": "f4df7462-1325-4ea", "totalTokens": 472, "durationMilliseconds": 8547 },
+    { "caseId": "H06", "condition": "pilot", "agentId": "c69df65d-a6bf-49e", "totalTokens": 21015, "durationMilliseconds": 12927 },
+    { "caseId": "H06", "condition": "baseline", "agentId": "4539d916-09c5-49d", "totalTokens": 473, "durationMilliseconds": 8501 },
+    { "caseId": "H07", "condition": "pilot", "agentId": "9078b332-cd09-4ca", "totalTokens": 21037, "durationMilliseconds": 12044 },
+    { "caseId": "H07", "condition": "baseline", "agentId": "431bbf55-1e05-45a", "totalTokens": 414, "durationMilliseconds": 11118 },
+    { "caseId": "H08", "condition": "pilot", "agentId": "e2f05626-7dbb-448", "totalTokens": 4273, "durationMilliseconds": 16408 },
+    { "caseId": "H08", "condition": "baseline", "agentId": "fc285b53-65c4-41b", "totalTokens": 445, "durationMilliseconds": 7511 },
+    { "caseId": "H09", "condition": "pilot", "agentId": "6da30d8a-108b-4cd", "totalTokens": 4041, "durationMilliseconds": 11499 },
+    { "caseId": "H09", "condition": "baseline", "agentId": "e429bdf3-0346-465", "totalTokens": 396, "durationMilliseconds": 5817 },
+    { "caseId": "H10", "condition": "pilot", "agentId": "5af1c105-bd20-495", "totalTokens": 4150, "durationMilliseconds": 13558 },
+    { "caseId": "H10", "condition": "baseline", "agentId": "5fdb0ed4-a9b9-44e", "totalTokens": 505, "durationMilliseconds": 9708 }
+  ]
+}

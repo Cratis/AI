@@ -628,12 +628,19 @@ invocation, and output-field gates. Promotion requires at least 95% exact held-
 out behavior, which means all 10 cases must pass, plus the still-pending full
 repetition, portability, and independent promotion reviews.
 
+Held-out pass 1 completed without changing its frozen gold set:
+
+- pilot exact/decision/structure 10/10 with zero safety violations;
+- baseline exact/decision/structure 0/10 with seven unverified-target-reference
+  safety violations;
+- local paths and sensitive placeholders were redacted before persistence;
+- the 95% held-out threshold is met for this single pass.
+
 Exact next actions:
 
-1. pass static validation and commit/push the frozen held-out contract;
-2. run one paired tool-free baseline/pilot held-out pass and persist redacted
-   outputs, timings, grading, and analysis;
-3. correct only genuine contract/gold defects transparently and rerun affected
-   cases;
-4. keep promotion blocked even if held-out behavior passes because repetition
-   and promotion reviews remain incomplete.
+1. validate, commit, and push the redacted held-out evidence to PR #134;
+2. rerun CI and merge the evidence PR if green;
+3. repeat the complete canonical and held-out suites to the declared three-run
+   threshold and run portability/originality/security promotion reviews;
+4. keep promotion blocked despite held-out success because repetition, promotion
+   reviews, and verified product target/source contracts remain incomplete.

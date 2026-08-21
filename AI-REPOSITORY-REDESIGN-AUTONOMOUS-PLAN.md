@@ -476,9 +476,9 @@ The program is complete only when:
   [`Cratis/AI#132`](https://github.com/Cratis/AI/pull/132).
 - [ ] Implement clean-room pilots — navigator pilot and 28/28 selected canonical
   evidence merged in [`Cratis/AI#133`](https://github.com/Cratis/AI/pull/133);
-  a frozen 10-case held-out suite is active on
-  `feat/navigator-held-out-evidence`, while repetition, portability, and
-  independent promotion reviews remain pending.
+  held-out pass 1 is 10/10 pilot exact versus 0/10 baseline with zero versus
+  seven safety violations; full repetition, portability, and independent
+  promotion reviews remain pending.
 
 Evidence and exact next actions are in
 [`AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md`](./AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md#20-navigator-held-out-checkpoint--2026-08-21).

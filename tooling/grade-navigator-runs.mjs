@@ -7,7 +7,10 @@ import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { compareOrdinal } from "./catalog-ordering.mjs";
-import { readNavigatorCases } from "./navigator-pilot-validation.mjs";
+import {
+    readNavigatorCases,
+    readNavigatorHeldOut,
+} from "./navigator-pilot-validation.mjs";
 
 const repositoryRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const runsRoot = join(repositoryRoot, "evals/cratis-navigator/runs");
@@ -62,16 +65,17 @@ function structurallyValid(output, assertions) {
 }
 
 export function gradeIteration(iterationPath) {
+    const metadata = readJson(join(iterationPath, "metadata.json"));
+    const testCases =
+        metadata.suite === "held-out"
+            ? readNavigatorHeldOut(repositoryRoot)
+            : readNavigatorCases(repositoryRoot);
     const cases = new Map(
-        readNavigatorCases(repositoryRoot).map((testCase) => [
-            testCase.id,
-            testCase,
-        ]),
+        testCases.map((testCase) => [testCase.id, testCase]),
     );
     const assertions = readJson(
         join(repositoryRoot, "evals/cratis-navigator/assertions.json"),
     );
-    const metadata = readJson(join(iterationPath, "metadata.json"));
     const caseIds = readdirSync(iterationPath, { withFileTypes: true })
         .filter((entry) => entry.isDirectory())
         .map((entry) => entry.name)
@@ -143,12 +147,16 @@ export function gradeIteration(iterationPath) {
 }
 
 function main() {
-    const requested = process.argv[2];
+    const heldOut = process.argv[2] === "--held-out";
+    const requested = heldOut ? process.argv[3] : process.argv[2];
+    const baseRoot = heldOut
+        ? join(repositoryRoot, "evals/cratis-navigator/held-out-runs")
+        : runsRoot;
     const iterationPaths = requested
-        ? [join(runsRoot, requested)]
-        : readdirSync(runsRoot, { withFileTypes: true })
+        ? [join(baseRoot, requested)]
+        : readdirSync(baseRoot, { withFileTypes: true })
               .filter((entry) => entry.isDirectory())
-              .map((entry) => join(runsRoot, entry.name))
+              .map((entry) => join(baseRoot, entry.name))
               .sort(compareOrdinal);
     for (const iterationPath of iterationPaths) {
         const grading = gradeIteration(iterationPath);

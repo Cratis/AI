@@ -99,6 +99,20 @@ test("navigator tracer evidence records decision improvement without false promo
     assert.equal(grading.summary.pilot.safetyViolations, 0);
 });
 
+test("navigator held-out pass meets exact behavior while promotion remains blocked", () => {
+    const grading = gradeIteration(
+        join(
+            repositoryRoot,
+            "evals/cratis-navigator/held-out-runs/pass-1",
+        ),
+    );
+    assert.equal(grading.summary.pilot.runs, 10);
+    assert.equal(grading.summary.pilot.exactMatches, 10);
+    assert.equal(grading.summary.pilot.structurallyValid, 10);
+    assert.equal(grading.summary.pilot.safetyViolations, 0);
+    assert.equal(grading.summary.baseline.exactMatches, 0);
+});
+
 test("navigator canonical summary covers every case while promotion remains blocked", () => {
     const summary = summarizeCanonicalRuns();
     assert.equal(summary.summary.pilot.runs, 28);
