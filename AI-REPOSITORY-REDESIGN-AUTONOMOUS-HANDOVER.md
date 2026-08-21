@@ -549,33 +549,35 @@ Three paired pilot-versus-baseline tracer cases ran over three iterations on
 `evals/cratis-navigator/runs/` with tokens, duration, redactions, raw structured
 outputs, deterministic grading, and analysis:
 
-- iterations 1 and 2: pilot decisions 3/3, structure 3/3, safety 0 violations,
-  exact 0/3; baseline decisions/structure/exact 0/3 and one safety violation;
+- iterations 1 and 2: pilot decisions 3/3, structure 3/3, observed output
+  violations 0, strict exact 0/3; baseline decisions/structure/exact 0/3 and
+  one observed output violation;
 - the first two iterations identified stale catalog revision, unspecified
   persona, ordinary-homonym reason, and profile-conflict evidence-state gaps;
 - iteration 3 after reason/persona clarification: pilot decision/structure 3/3,
   exact 2/3 after a later fail-closed correction made unverified target trust
   `unknown`; baseline exact/decision/structure 0/3;
-- iteration 4 after the trust correction: pilot exact/decision/structure 3/3
-  with zero safety violations; baseline exact/decision/structure 0/3 with one
-  safety violation.
+- iteration 4 after the trust correction: pilot strict exact/semantic/decision/
+  structure 3/3 with zero observed output violations; baseline exact/decision/
+  structure 0/3 with one observed output violation.
 
 This is tracer evidence only, not promotion. The first four-case coverage batch
 added passive CLI identification, Unicode confusable, Java/Kotlin ambiguity, and
-quoted destructive CLI cases. Pilot results were decision 3/4, exact 2/4,
-structure 4/4, safety 0; baseline decision 2/4, exact/structure 0/4, safety 1.
+quoted destructive CLI cases. Pilot results were decision 3/4, strict exact 1/4,
+semantic 2/4, structure 4/4, observed output violations 0; baseline decision 2/4,
+exact/structure 0/4, observed output violations 1.
 It exposed two stricter boundaries now encoded in the pilot and gold data:
 unverified target trust is `unknown`, and a confusable signal without Cratis
-intent abstains. Coverage batch 2 repeated those cases: pilot exact/decision/
-structure 2/2 with zero safety violations; baseline exact/decision/structure
-0/2 with two unverified-target-reference safety violations.
+intent abstains. Coverage batch 2 repeated those cases: pilot strict exact/
+semantic/decision/structure 2/2 with zero observed output violations; baseline
+exact/decision/structure 0/2 with two observed unverified-reference violations.
 
 Additional canonical coverage:
 
 - batch 3 product-neutral/frontend/integration/non-Cratis: pilot decision 4/4,
   exact 3/4; batch 4 corrected requested-effect handling to exact 1/1;
-- batch 5 ordered clients/.NET/Workbench/MCP: pilot exact 4/4 versus baseline
-  exact 0/4 with four safety violations;
+- batch 5 ordered clients/.NET/Workbench/MCP: pilot strict exact 4/4 versus
+  baseline exact 0/4 with four observed output violations;
 - batch 6 Screenplay/Stage/Studio/hostile evidence: pilot decision 4/4, exact
   3/4; batch 7 corrected profile inference to exact 1/1;
 - batch 8 ordinary homonyms: pilot decision/exact 3/4; the Visual Studio repeat
@@ -586,17 +588,19 @@ Additional canonical coverage:
 Every canonical case completed. `canonical-selection.json` binds each case to
 its latest corrected run, and the generated summary reports:
 
-- pilot exact/decision/structure 28/28 with zero safety violations;
-- baseline exact/decision/structure 0/28 with 16 unverified-target-reference
-  safety violations;
+- pilot strict exact 26/28, semantic/decision/structure 28/28, with zero
+  observed output violations;
+- baseline strict exact/semantic/decision/structure 0/28 with 16 observed
+  unverified-target-reference violations;
 - pilot 251,460 tokens and 417,144 ms versus baseline 187,293 tokens and
   274,921 ms for the selected single-run cases.
 
-The pilot is more precise and safer but costs more context and latency. Promotion
-remains explicitly blocked because the complete suite has not run three times,
-held-out paraphrases and portability are incomplete, independent originality/
-security promotion reviews are incomplete, and product targets/source contracts
-remain unverified.
+The pilot is more precise in persisted output and has fewer observed output
+violations, but costs more context and latency. No tool/network/write/approval
+telemetry was persisted, so absence of out-of-band effects is unverified.
+Promotion remains explicitly blocked because strict canonical and held-out
+thresholds, three full repetitions, portability, independent promotion reviews,
+and verified product target/source contracts are incomplete.
 
 Repository validation includes deterministic grading, canonical selection,
 summary integrity, and persisted-run checks. Repeated runs, held-out paraphrases,
@@ -630,17 +634,22 @@ repetition, portability, and independent promotion reviews.
 
 Held-out pass 1 completed without changing its frozen gold set:
 
-- pilot exact/decision/structure 10/10 with zero safety violations;
-- baseline exact/decision/structure 0/10 with seven unverified-target-reference
-  safety violations;
+- pilot strict exact 8/10, semantic/decision/structure 10/10, with zero observed
+  output violations;
+- baseline strict exact/semantic/decision/structure 0/10 with seven observed
+  unverified-target-reference violations;
 - local paths and sensitive placeholders were redacted before persistence;
-- the 95% held-out threshold is met for this single pass.
+- strict 80% exactness does not meet the 95% threshold; H05 and H10 differed
+  only in freeform clarification wording, but that still fails strict equality;
+- no out-of-band effect telemetry exists, so broad safety absence is unverified.
 
 Exact next actions:
 
-1. validate, commit, and push the redacted held-out evidence to PR #134;
-2. rerun CI and merge the evidence PR if green;
-3. repeat the complete canonical and held-out suites to the declared three-run
-   threshold and run portability/originality/security promotion reviews;
-4. keep promotion blocked despite held-out success because repetition, promotion
-   reviews, and verified product target/source contracts remain incomplete.
+1. commit and push the corrected strict grader, validator, claims, and held-out
+   evidence to PR #134;
+2. rerun CI and structured validation, then merge only if green;
+3. close this failed held-out round without tuning its gold and author a new
+   independent held-out round for a future promotion attempt;
+4. keep promotion blocked because strict thresholds, telemetry, repetition,
+   promotion reviews, and verified product target/source contracts remain
+   incomplete.

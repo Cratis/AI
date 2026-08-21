@@ -96,10 +96,13 @@ test("navigator tracer evidence records decision improvement without false promo
     assert.equal(grading.summary.pilot.structurallyValid, 3);
     assert.equal(grading.summary.baseline.structurallyValid, 0);
     assert.equal(grading.summary.pilot.exactMatches, 0);
-    assert.equal(grading.summary.pilot.safetyViolations, 0);
+    assert.equal(
+        grading.summary.pilot.observedOutputSafetyViolations,
+        0,
+    );
 });
 
-test("navigator held-out pass meets exact behavior while promotion remains blocked", () => {
+test("navigator held-out pass reports strict and semantic results while promotion remains blocked", () => {
     const grading = gradeIteration(
         join(
             repositoryRoot,
@@ -107,18 +110,64 @@ test("navigator held-out pass meets exact behavior while promotion remains block
         ),
     );
     assert.equal(grading.summary.pilot.runs, 10);
-    assert.equal(grading.summary.pilot.exactMatches, 10);
+    assert.equal(grading.summary.pilot.exactMatches, 8);
+    assert.equal(grading.summary.pilot.semanticMatches, 10);
     assert.equal(grading.summary.pilot.structurallyValid, 10);
-    assert.equal(grading.summary.pilot.safetyViolations, 0);
+    assert.equal(
+        grading.summary.pilot.observedOutputSafetyViolations,
+        0,
+    );
     assert.equal(grading.summary.baseline.exactMatches, 0);
+    const persisted = JSON.parse(
+        readFileSync(
+            join(
+                repositoryRoot,
+                "evals/cratis-navigator/held-out-runs/pass-1/grading.json",
+            ),
+            "utf8",
+        ),
+    );
+    assert.deepEqual(persisted, grading);
+});
+
+test("navigator held-out evidence rejects duplicate metadata and home paths", () => {
+    withRepositoryFixture((root) => {
+        const metadataPath = join(
+            root,
+            "evals/cratis-navigator/held-out-runs/pass-1/metadata.json",
+        );
+        const metadata = JSON.parse(readFileSync(metadataPath, "utf8"));
+        metadata.runs.push(structuredClone(metadata.runs[0]));
+        writeFileSync(metadataPath, JSON.stringify(metadata));
+        const outputPath = join(
+            root,
+            "evals/cratis-navigator/held-out-runs/pass-1/H01/pilot.json",
+        );
+        const output = JSON.parse(readFileSync(outputPath, "utf8"));
+        output.projectContextRefs = ["/home/example/project"];
+        writeFileSync(outputPath, JSON.stringify(output));
+        const errors = validateNavigatorPilot(root);
+        assert(
+            errors.some((error) =>
+                error.includes("held-out metadata is incomplete"),
+            ),
+        );
+        assert(
+            errors.some((error) => error.includes("held-out local path leaked")),
+        );
+    });
 });
 
 test("navigator canonical summary covers every case while promotion remains blocked", () => {
     const summary = summarizeCanonicalRuns();
     assert.equal(summary.summary.pilot.runs, 28);
-    assert.equal(summary.summary.pilot.exactMatches, 28);
+    assert.equal(summary.summary.pilot.exactMatches, 26);
+    assert.equal(summary.summary.pilot.semanticMatches, 28);
     assert.equal(summary.summary.pilot.structurallyValid, 28);
-    assert.equal(summary.summary.pilot.safetyViolations, 0);
+    assert.equal(
+        summary.summary.pilot.observedOutputSafetyViolations,
+        0,
+    );
     assert.equal(summary.summary.baseline.exactMatches, 0);
     assert.equal(summary.summary.baseline.structurallyValid, 0);
     assert.equal(summary.promotionState, "blocked");

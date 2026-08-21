@@ -27,11 +27,13 @@ function aggregate(results, condition) {
     return {
         runs: selected.length,
         exactMatches: selected.filter((result) => result.exactMatch).length,
+        semanticMatches: selected.filter((result) => result.semanticMatch).length,
         decisionMatches: selected.filter((result) => result.decisionMatch).length,
         structurallyValid: selected.filter((result) => result.structurallyValid)
             .length,
-        safetyViolations: selected.reduce(
-            (total, result) => total + result.safetyViolations.length,
+        observedOutputSafetyViolations: selected.reduce(
+            (total, result) =>
+                total + result.observedOutputSafetyViolations.length,
             0,
         ),
     };
@@ -93,12 +95,22 @@ export function summarizeCanonicalRuns() {
         promotionState: "blocked",
         promotionBlockers: [
             "three-repeat full canonical run is incomplete",
-            "held-out paraphrase threshold is unverified",
+            "held-out strict exactness threshold is not met",
             "portability evaluation is incomplete",
             "independent originality and security promotion reviews are incomplete",
             "product targets and source contracts remain unverified",
         ],
         selectedRuns: selection.selectedRuns,
+        safetyEvidence: {
+            state: "output-only",
+            unverified: [
+                "out-of-band repository writes",
+                "out-of-band network access",
+                "approval mutations",
+                "project-context precedence loss outside output",
+                "tool-side effects outside output",
+            ],
+        },
         results,
         summary: {
             baseline: {
@@ -123,10 +135,10 @@ function markdown(summary) {
         "",
         "**Promotion:** blocked",
         "",
-        "| Condition | Exact | Decision | Structurally valid | Safety violations | Tokens | Duration (ms) |",
-        "| --- | ---: | ---: | ---: | ---: | ---: | ---: |",
-        `| Pilot | ${pilot.exactMatches}/${pilot.runs} | ${pilot.decisionMatches}/${pilot.runs} | ${pilot.structurallyValid}/${pilot.runs} | ${pilot.safetyViolations} | ${pilot.totalTokens} | ${pilot.totalDurationMilliseconds} |`,
-        `| Baseline | ${baseline.exactMatches}/${baseline.runs} | ${baseline.decisionMatches}/${baseline.runs} | ${baseline.structurallyValid}/${baseline.runs} | ${baseline.safetyViolations} | ${baseline.totalTokens} | ${baseline.totalDurationMilliseconds} |`,
+        "| Condition | Strict exact | Semantic | Decision | Structurally valid | Observed output violations | Tokens | Duration (ms) |",
+        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+        `| Pilot | ${pilot.exactMatches}/${pilot.runs} | ${pilot.semanticMatches}/${pilot.runs} | ${pilot.decisionMatches}/${pilot.runs} | ${pilot.structurallyValid}/${pilot.runs} | ${pilot.observedOutputSafetyViolations} | ${pilot.totalTokens} | ${pilot.totalDurationMilliseconds} |`,
+        `| Baseline | ${baseline.exactMatches}/${baseline.runs} | ${baseline.semanticMatches}/${baseline.runs} | ${baseline.decisionMatches}/${baseline.runs} | ${baseline.structurallyValid}/${baseline.runs} | ${baseline.observedOutputSafetyViolations} | ${baseline.totalTokens} | ${baseline.totalDurationMilliseconds} |`,
         "",
         "## Promotion blockers",
         "",
@@ -138,6 +150,8 @@ function markdown(summary) {
         "`canonical-selection.json`. This summary compares one corrected pilot run",
         "per case with its paired baseline. It does not claim the repetition or",
         "held-out evidence required for promotion, and it grants no runtime approval.",
+        "Observed output violations do not prove absence of out-of-band tool, network,",
+        "repository, approval, or project-context effects; those require telemetry.",
         "",
     ];
     return lines.join("\n");

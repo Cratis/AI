@@ -43,6 +43,15 @@ function equalSets(left, right) {
     );
 }
 
+function containsLocalPath(content) {
+    return (
+        content.includes("/Volumes/") ||
+        content.includes("/Users/") ||
+        content.includes("/home/") ||
+        /[A-Za-z]:\\\\Users\\\\/.test(content)
+    );
+}
+
 function unknownProperties(value, allowed, label, errors) {
     for (const property of Object.keys(value)) {
         if (!allowed.includes(property))
@@ -178,6 +187,12 @@ export function validateNavigatorPilot(root = defaultRepositoryRoot) {
         errors.push("Navigator suite must contain 12 positive and 16 negative cases");
     if (heldOut.length !== 10)
         errors.push("Navigator held-out suite must contain 10 cases");
+    const expectedHeldOutIds = Array.from(
+        { length: 10 },
+        (_, index) => `H${String(index + 1).padStart(2, "0")}`,
+    );
+    if (!equalSets(heldOut.map((item) => item.id), expectedHeldOutIds))
+        errors.push("Navigator held-out case identifiers changed");
     const canonicalPrompts = new Set(cases.map((testCase) => testCase.prompt));
     for (const testCase of heldOut) {
         if (canonicalPrompts.has(testCase.prompt))
@@ -291,10 +306,7 @@ export function validateNavigatorPilot(root = defaultRepositoryRoot) {
                 errors.push("Navigator canonical summary overstates its scope");
             for (const path of [selectionPath, summaryPath]) {
                 const content = readFileSync(path, "utf8");
-                if (
-                    content.includes("/Volumes/") ||
-                    content.includes("/Users/")
-                )
+                if (containsLocalPath(content))
                     errors.push("Navigator canonical summary leaked a local path");
             }
         }
@@ -345,10 +357,7 @@ export function validateNavigatorPilot(root = defaultRepositoryRoot) {
                 errors.push(`${iteration}: grading results are incomplete`);
             for (const path of [metadataPath, gradingPath]) {
                 const content = readFileSync(path, "utf8");
-                if (
-                    content.includes("/Volumes/") ||
-                    content.includes("/Users/")
-                )
+                if (containsLocalPath(content))
                     errors.push(`${iteration}: local absolute path leaked`);
             }
             for (const caseId of runCaseIds) {
@@ -359,10 +368,7 @@ export function validateNavigatorPilot(root = defaultRepositoryRoot) {
                         `${condition}.json`,
                     );
                     const content = readFileSync(path, "utf8");
-                    if (
-                        content.includes("/Volumes/") ||
-                        content.includes("/Users/")
-                    )
+                    if (containsLocalPath(content))
                         errors.push(`${iteration}: local absolute path leaked`);
                 }
             }
@@ -373,10 +379,55 @@ export function validateNavigatorPilot(root = defaultRepositoryRoot) {
     if (!existsSync(heldOutRunsRoot))
         errors.push("Navigator held-out run evidence is missing");
     else {
-        const passes = readdirSync(heldOutRunsRoot, { withFileTypes: true })
+        const heldOutRunEntries = readdirSync(heldOutRunsRoot, {
+            withFileTypes: true,
+        });
+        const directFiles = heldOutRunEntries.filter((entry) => entry.isFile());
+        if (directFiles.length > 0)
+            errors.push("Navigator held-out run root contains unexpected files");
+        const passes = heldOutRunEntries
             .filter((entry) => entry.isDirectory())
             .map((entry) => entry.name)
             .sort(compareOrdinal);
+        const metadataFields = [
+            "schemaVersion",
+            "iteration",
+            "suite",
+            "model",
+            "pilotCatalogRevision",
+            "pilotContractCommit",
+            "heldOutContractCommit",
+            "runDate",
+            "conditions",
+            "redactions",
+            "runs",
+        ];
+        const runFields = [
+            "caseId",
+            "condition",
+            "agentId",
+            "totalTokens",
+            "durationMilliseconds",
+        ];
+        const gradingFields = [
+            "schemaVersion",
+            "iteration",
+            "catalogRevision",
+            "results",
+            "safetyEvidence",
+            "summary",
+        ];
+        const gradingResultFields = [
+            "caseId",
+            "condition",
+            "decisionMatch",
+            "exactMatch",
+            "semanticMatch",
+            "structurallyValid",
+            "mismatches",
+            "semanticMismatches",
+            "observedOutputSafetyViolations",
+        ];
         for (const pass of passes) {
             const passRoot = join(heldOutRunsRoot, pass);
             const entries = readdirSync(passRoot, { withFileTypes: true });
@@ -392,30 +443,61 @@ export function validateNavigatorPilot(root = defaultRepositoryRoot) {
                 ])
             )
                 errors.push(`${pass}: held-out evidence root files changed`);
-            const metadata = readCatalog(join(passRoot, "metadata.json"));
-            const grading = readCatalog(join(passRoot, "grading.json"));
+            const metadataPath = join(passRoot, "metadata.json");
+            const gradingPath = join(passRoot, "grading.json");
+            const analysisPath = join(passRoot, "analysis.md");
+            const metadata = readCatalog(metadataPath);
+            const grading = readCatalog(gradingPath);
+            unknownProperties(metadata, metadataFields, `${pass} metadata`, errors);
+            unknownProperties(grading, gradingFields, `${pass} grading`, errors);
             const heldOutCaseIds = entries
                 .filter((entry) => entry.isDirectory())
                 .map((entry) => entry.name)
                 .sort(compareOrdinal);
+            const expectedRunKeys = heldOut.flatMap((item) => [
+                `${item.id}:baseline`,
+                `${item.id}:pilot`,
+            ]);
             if (!equalSets(heldOutCaseIds, heldOut.map((item) => item.id)))
                 errors.push(`${pass}: held-out cases are incomplete`);
+            const metadataRunKeys = metadata.runs.map(
+                (run) => `${run.caseId}:${run.condition}`,
+            );
+            const gradingRunKeys = grading.results.map(
+                (result) => `${result.caseId}:${result.condition}`,
+            );
             if (
                 metadata.suite !== "held-out" ||
-                metadata.runs.length !== heldOutCaseIds.length * 2
+                !equalSets(metadata.conditions, ["baseline", "pilot"]) ||
+                !equalSets(metadataRunKeys, expectedRunKeys) ||
+                metadataRunKeys.length !== new Set(metadataRunKeys).size
             )
                 errors.push(`${pass}: held-out metadata is incomplete`);
-            if (grading.results.length !== heldOutCaseIds.length * 2)
-                errors.push(`${pass}: held-out grading is incomplete`);
-            for (const path of [
-                join(passRoot, "metadata.json"),
-                join(passRoot, "grading.json"),
-            ]) {
-                const content = readFileSync(path, "utf8");
+            for (const run of metadata.runs) {
+                unknownProperties(run, runFields, `${pass} run`, errors);
                 if (
-                    content.includes("/Volumes/") ||
-                    content.includes("/Users/")
+                    !Number.isSafeInteger(run.totalTokens) ||
+                    run.totalTokens < 1 ||
+                    !Number.isSafeInteger(run.durationMilliseconds) ||
+                    run.durationMilliseconds < 1
                 )
+                    errors.push(`${pass}: held-out timing is invalid`);
+            }
+            if (
+                !equalSets(gradingRunKeys, expectedRunKeys) ||
+                gradingRunKeys.length !== new Set(gradingRunKeys).size
+            )
+                errors.push(`${pass}: held-out grading is incomplete`);
+            for (const result of grading.results)
+                unknownProperties(
+                    result,
+                    gradingResultFields,
+                    `${pass} grading result`,
+                    errors,
+                );
+            for (const path of [metadataPath, gradingPath, analysisPath]) {
+                const content = readFileSync(path, "utf8");
+                if (containsLocalPath(content))
                     errors.push(`${pass}: held-out local path leaked`);
             }
             for (const caseId of heldOutCaseIds) {
@@ -425,15 +507,15 @@ export function validateNavigatorPilot(root = defaultRepositoryRoot) {
                 if (!equalSets(outputFiles, ["baseline.json", "pilot.json"]))
                     errors.push(`${pass}/${caseId}: held-out outputs changed`);
                 for (const outputFile of outputFiles) {
-                    const content = readFileSync(
-                        join(passRoot, caseId, outputFile),
-                        "utf8",
-                    );
-                    if (
-                        content.includes("/Volumes/") ||
-                        content.includes("/Users/")
-                    )
+                    const path = join(passRoot, caseId, outputFile);
+                    const content = readFileSync(path, "utf8");
+                    if (containsLocalPath(content))
                         errors.push(`${pass}: held-out local path leaked`);
+                    const output = readCatalog(path);
+                    if (!equalSets(Object.keys(output), outputFields))
+                        errors.push(
+                            `${pass}/${caseId}/${outputFile}: output fields changed`,
+                        );
                 }
             }
         }
