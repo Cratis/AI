@@ -1,0 +1,19 @@
+{
+  "decision": "ABSTAIN",
+  "candidateRoutes": [],
+  "targetRefs": [],
+  "repositoryProfile": "unknown",
+  "persona": "unspecified",
+  "language": null,
+  "surface": null,
+  "requestedEffect": "passive",
+  "targetTrust": "unknown",
+  "evidenceState": "absent",
+  "evidenceRefs": [],
+  "catalogRevision": "029de952811f0af07364a65651a7013875210436",
+  "sourceRevision": null,
+  "projectContextRefs": [],
+  "invocationPerformed": false,
+  "reasonCode": "CRATIS_INTENT_NOT_ESTABLISHED",
+  "clarification": null
+}

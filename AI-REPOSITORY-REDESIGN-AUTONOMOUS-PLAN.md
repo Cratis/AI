@@ -472,9 +472,13 @@ The program is complete only when:
   [`Cratis/AI#130`](https://github.com/Cratis/AI/pull/130).
 - [x] Implement the normalized Phase 1 catalog/schema extensions — merged in
   [`Cratis/AI#131`](https://github.com/Cratis/AI/pull/131).
-- [ ] Implement the skill-authoring and human-catalog contracts — active on
-  `feat/skill-authoring-human-catalog` with source and initial generated views
-  implemented.
+- [x] Implement the skill-authoring and human-catalog contracts — merged in
+  [`Cratis/AI#132`](https://github.com/Cratis/AI/pull/132).
+- [ ] Implement clean-room pilots — navigator source commit `5c42e5b` is pushed
+  in [`Cratis/AI#133`](https://github.com/Cratis/AI/pull/133); the tracer reaches
+  the selected corrected canonical run is 28/28 pilot exact with zero safety
+  violations versus 0/28 baseline and 16 safety violations; promotion remains
+  blocked on full repetition, held-out, portability, and independent reviews.
 
 Evidence and exact next actions are in
-[`AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md`](./AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md#17-skill-authoring-and-human-catalog-checkpoint--2026-08-21).
+[`AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md`](./AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md#19-navigator-implementation-checkpoint--2026-08-21).

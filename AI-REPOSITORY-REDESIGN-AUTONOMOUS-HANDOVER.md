@@ -509,3 +509,102 @@ secret-echo/unsupported-claim assertions. Promotion requires exact safety and
 context results, at least 95% held-out routing behavior, deterministic repeated
 runs, independent originality/security/portability review, and a separate
 runtime-candidacy decision. Passing the pilot grants no runtime approval.
+
+## 19. Navigator implementation checkpoint — 2026-08-21
+
+The repository-only pilot is implemented on `feat/navigator-pilot` in
+`../AI-navigator-pilot`, fast-forwarded to authoring-catalog merge
+`2a434e6458f571cfa009c2112763c8f0f6091945`. Pull request
+[`Cratis/AI#132`](https://github.com/Cratis/AI/pull/132) passed CI and merged;
+its branch/worktree was removed and AI#126 plus Workflows#68 were updated.
+
+Implemented files:
+
+- `pilots/cratis-navigator/PILOT.md` — original passive routing contract;
+- `pilots/cratis-navigator/metadata.draft.json` — runtime-denied invocation,
+  effect, context, evidence, and bound metadata;
+- `pilots/cratis-navigator/routes.draft.json` — 15 semantic candidates bound to
+  the frozen catalog revision, all absent-evidence/candidate or missing-target;
+- `evals/cratis-navigator/cases.jsonl` — 12 positive and 16 difficult
+  negative/collision gold cases;
+- `evals/cratis-navigator/assertions.json` — closed output fields, global
+  safety/behavior assertions, promotion thresholds, and zero-tolerance rules;
+- `evals/cratis-navigator/baseline.md` — frozen paired baseline protocol;
+- `tooling/navigator-pilot-validation.mjs` and focused specs — structural,
+  authority, runtime-isolation, evidence, case-count, and output checks.
+
+Static pilot source landed in commit
+`5c42e5be9881411fc6e30197dd32eacd9c8d0b3a`, is pushed, and is under review in
+[`Cratis/AI#133`](https://github.com/Cratis/AI/pull/133) with `no-release`.
+All Cratis candidates remain unverified, so expected Cratis routes are
+`BLOCKED_UNVERIFIED`; lexical near misses abstain, material ambiguity clarifies,
+and hostile authority/effect requests refuse. The pilot invokes nothing and
+performs no writes or network calls.
+
+Three paired pilot-versus-baseline tracer cases ran over three iterations on
+`openai-codex/gpt-5.6-sol`. Evidence is persisted under
+`evals/cratis-navigator/runs/` with tokens, duration, redactions, raw structured
+outputs, deterministic grading, and analysis:
+
+- iterations 1 and 2: pilot decisions 3/3, structure 3/3, safety 0 violations,
+  exact 0/3; baseline decisions/structure/exact 0/3 and one safety violation;
+- the first two iterations identified stale catalog revision, unspecified
+  persona, ordinary-homonym reason, and profile-conflict evidence-state gaps;
+- iteration 3 after reason/persona clarification: pilot decision/structure 3/3,
+  exact 2/3 after a later fail-closed correction made unverified target trust
+  `unknown`; baseline exact/decision/structure 0/3;
+- iteration 4 after the trust correction: pilot exact/decision/structure 3/3
+  with zero safety violations; baseline exact/decision/structure 0/3 with one
+  safety violation.
+
+This is tracer evidence only, not promotion. The first four-case coverage batch
+added passive CLI identification, Unicode confusable, Java/Kotlin ambiguity, and
+quoted destructive CLI cases. Pilot results were decision 3/4, exact 2/4,
+structure 4/4, safety 0; baseline decision 2/4, exact/structure 0/4, safety 1.
+It exposed two stricter boundaries now encoded in the pilot and gold data:
+unverified target trust is `unknown`, and a confusable signal without Cratis
+intent abstains. Coverage batch 2 repeated those cases: pilot exact/decision/
+structure 2/2 with zero safety violations; baseline exact/decision/structure
+0/2 with two unverified-target-reference safety violations.
+
+Additional canonical coverage:
+
+- batch 3 product-neutral/frontend/integration/non-Cratis: pilot decision 4/4,
+  exact 3/4; batch 4 corrected requested-effect handling to exact 1/1;
+- batch 5 ordered clients/.NET/Workbench/MCP: pilot exact 4/4 versus baseline
+  exact 0/4 with four safety violations;
+- batch 6 Screenplay/Stage/Studio/hostile evidence: pilot decision 4/4, exact
+  3/4; batch 7 corrected profile inference to exact 1/1;
+- batch 8 ordinary homonyms: pilot decision/exact 3/4; the Visual Studio repeat
+  is active after prohibiting substring surface matches;
+- batch 10 MySQL/Arc integration/Arc-only/client language: pilot decision 4/4,
+  exact 3/4; the missing-language candidate-list repeat is active.
+
+Every canonical case completed. `canonical-selection.json` binds each case to
+its latest corrected run, and the generated summary reports:
+
+- pilot exact/decision/structure 28/28 with zero safety violations;
+- baseline exact/decision/structure 0/28 with 16 unverified-target-reference
+  safety violations;
+- pilot 251,460 tokens and 417,144 ms versus baseline 187,293 tokens and
+  274,921 ms for the selected single-run cases.
+
+The pilot is more precise and safer but costs more context and latency. Promotion
+remains explicitly blocked because the complete suite has not run three times,
+held-out paraphrases and portability are incomplete, independent originality/
+security promotion reviews are incomplete, and product targets/source contracts
+remain unverified.
+
+Repository validation includes deterministic grading, canonical selection,
+summary integrity, and persisted-run checks. Repeated runs, held-out paraphrases,
+portability, and independent originality/security gates remain outstanding.
+
+Exact next actions:
+
+1. validate, commit, and push the complete canonical evidence and summary to
+   PR #133;
+2. rerun CI and merge the repository-only pilot if green;
+3. continue repeated full-suite and held-out paraphrase evaluation in a separate
+   evidence PR without weakening exact output requirements;
+4. keep promotion and runtime approval blocked until every declared threshold
+   passes.

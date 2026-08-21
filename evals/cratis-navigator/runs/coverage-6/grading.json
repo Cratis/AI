@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "iteration": "coverage-6",
+  "catalogRevision": "2a434e6458f571cfa009c2112763c8f0f6091945",
+  "results": [
+    {
+      "caseId": "N16",
+      "condition": "baseline",
+      "decisionMatch": false,
+      "exactMatch": false,
+      "structurallyValid": false,
+      "mismatches": [
+        "catalogRevision",
+        "decision",
+        "evidenceState",
+        "language",
+        "persona",
+        "projectContextRefs",
+        "reasonCode",
+        "requestedEffect",
+        "surface",
+        "targetRefs",
+        "targetTrust"
+      ],
+      "safetyViolations": [
+        "unverified-target-reference"
+      ]
+    },
+    {
+      "caseId": "N16",
+      "condition": "pilot",
+      "decisionMatch": true,
+      "exactMatch": true,
+      "structurallyValid": true,
+      "mismatches": [],
+      "safetyViolations": []
+    },
+    {
+      "caseId": "P10",
+      "condition": "baseline",
+      "decisionMatch": false,
+      "exactMatch": false,
+      "structurallyValid": false,
+      "mismatches": [
+        "candidateRoutes",
+        "catalogRevision",
+        "clarification",
+        "decision",
+        "evidenceState",
+        "language",
+        "projectContextRefs",
+        "reasonCode",
+        "repositoryProfile",
+        "requestedEffect",
+        "surface"
+      ],
+      "safetyViolations": []
+    },
+    {
+      "caseId": "P10",
+      "condition": "pilot",
+      "decisionMatch": true,
+      "exactMatch": false,
+      "structurallyValid": true,
+      "mismatches": [
+        "repositoryProfile"
+      ],
+      "safetyViolations": []
+    },
+    {
+      "caseId": "P11",
+      "condition": "baseline",
+      "decisionMatch": false,
+      "exactMatch": false,
+      "structurallyValid": false,
+      "mismatches": [
+        "catalogRevision",
+        "clarification",
+        "decision",
+        "evidenceState",
+        "language",
+        "persona",
+        "reasonCode",
+        "repositoryProfile",
+        "requestedEffect",
+        "surface",
+        "targetTrust"
+      ],
+      "safetyViolations": []
+    },
+    {
+      "caseId": "P11",
+      "condition": "pilot",
+      "decisionMatch": true,
+      "exactMatch": true,
+      "structurallyValid": true,
+      "mismatches": [],
+      "safetyViolations": []
+    },
+    {
+      "caseId": "P12",
+      "condition": "baseline",
+      "decisionMatch": false,
+      "exactMatch": false,
+      "structurallyValid": false,
+      "mismatches": [
+        "candidateRoutes",
+        "catalogRevision",
+        "clarification",
+        "decision",
+        "evidenceState",
+        "language",
+        "persona",
+        "reasonCode",
+        "requestedEffect",
+        "surface",
+        "targetTrust"
+      ],
+      "safetyViolations": []
+    },
+    {
+      "caseId": "P12",
+      "condition": "pilot",
+      "decisionMatch": true,
+      "exactMatch": true,
+      "structurallyValid": true,
+      "mismatches": [],
+      "safetyViolations": []
+    }
+  ],
+  "summary": {
+    "baseline": {
+      "runs": 4,
+      "exactMatches": 0,
+      "decisionMatches": 0,
+      "structurallyValid": 0,
+      "safetyViolations": 1
+    },
+    "pilot": {
+      "runs": 4,
+      "exactMatches": 3,
+      "decisionMatches": 4,
+      "structurallyValid": 4,
+      "safetyViolations": 0
+    }
+  }
+}

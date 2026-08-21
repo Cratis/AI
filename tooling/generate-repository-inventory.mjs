@@ -108,6 +108,8 @@ const unexpectedUntracked = admittedUntracked.filter(
                 path,
             ) ||
             /^catalog\//.test(path) ||
+            /^evals\//.test(path) ||
+            /^pilots\//.test(path) ||
             /^tooling\//.test(path)
         ),
 );
@@ -666,6 +668,37 @@ const definitions = [
             "ecosystem-use-cases",
             "third-party-skills-evaluation",
         ],
+    },
+    {
+        id: "navigator-pilot-source",
+        sourcePathPatterns: ["pilots/cratis-navigator/**"],
+        artifactType: "pilot",
+        currentOwner: repositoryOwner,
+        targetOwner: repositoryOwner,
+        runtimeEligibility: "repository-only",
+        generatedStatus: "source",
+        adapterStatus: "none",
+        dependencies: [
+            "catalog/v2/authoring-contracts.json",
+            "catalog/v2/targets.json",
+        ],
+        risk: "medium",
+        migrationState: "retain",
+        evidenceIds: ["ecosystem-use-cases"],
+    },
+    {
+        id: "navigator-pilot-evaluations",
+        sourcePathPatterns: ["evals/cratis-navigator/**"],
+        artifactType: "evaluation",
+        currentOwner: repositoryOwner,
+        targetOwner: repositoryOwner,
+        runtimeEligibility: "repository-only",
+        generatedStatus: "source",
+        adapterStatus: "none",
+        dependencies: ["pilots/cratis-navigator/**"],
+        risk: "low",
+        migrationState: "retain",
+        evidenceIds: ["ecosystem-use-cases"],
     },
     {
         id: "catalog-v1-scaffold",

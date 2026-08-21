@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "iteration": 4,
+  "model": "openai-codex/gpt-5.6-sol",
+  "pilotCatalogRevision": "2a434e6458f571cfa009c2112763c8f0f6091945",
+  "pilotContractCommit": "aa2ff0acb9e40f9393b270d2b900e81eef3907c1",
+  "runDate": "2026-08-21",
+  "conditions": ["baseline", "pilot"],
+  "redactions": [],
+  "runs": [
+    { "caseId": "P04", "condition": "pilot", "agentId": "5f201b07-d8bc-4e5", "totalTokens": 20870, "durationMilliseconds": 14764 },
+    { "caseId": "P04", "condition": "baseline", "agentId": "a23652e6-5b37-43d", "totalTokens": 556, "durationMilliseconds": 9923 },
+    { "caseId": "N01", "condition": "pilot", "agentId": "93d0dcdc-40ae-4c4", "totalTokens": 3839, "durationMilliseconds": 11369 },
+    { "caseId": "N01", "condition": "baseline", "agentId": "eeaad5dd-da69-445", "totalTokens": 376, "durationMilliseconds": 6198 },
+    { "caseId": "N14", "condition": "pilot", "agentId": "dc40f23d-e9d8-4b1", "totalTokens": 4241, "durationMilliseconds": 19230 },
+    { "caseId": "N14", "condition": "baseline", "agentId": "fa8d6ab2-e8e2-418", "totalTokens": 17247, "durationMilliseconds": 5390 }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "decision": "block",
+  "candidateRoutes": [],
+  "targetRefs": [],
+  "repositoryProfile": "unknown",
+  "persona": "unknown",
+  "language": "unknown",
+  "surface": "geometry",
+  "requestedEffect": "calculate",
+  "targetTrust": "unverified",
+  "evidenceState": "insufficient",
+  "evidenceRefs": [],
+  "catalogRevision": null,
+  "sourceRevision": null,
+  "projectContextRefs": ["AGENTS.md"],
+  "invocationPerformed": false,
+  "reasonCode": "NO_VERIFIED_CRATIS_DESTINATION",
+  "clarification": "Provide the arc diagram or its radius and central angle."
+}

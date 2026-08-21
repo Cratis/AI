@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "iteration": "coverage-12",
+  "model": "openai-codex/gpt-5.6-sol",
+  "pilotCatalogRevision": "2a434e6458f571cfa009c2112763c8f0f6091945",
+  "pilotContractCommit": "34ed0f8246161f0ac72f084f640f38b99f653f85",
+  "runDate": "2026-08-21",
+  "conditions": ["baseline", "pilot"],
+  "redactions": [],
+  "runs": [
+    { "caseId": "N15", "condition": "pilot", "agentId": "6b23cca5-75b0-4d1", "totalTokens": 4522, "durationMilliseconds": 23628 },
+    { "caseId": "N15", "condition": "baseline", "agentId": "5b464d29-d3d3-46c", "totalTokens": 400, "durationMilliseconds": 6707 }
+  ]
+}

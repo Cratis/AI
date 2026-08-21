@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "iteration": "coverage-11",
+  "model": "openai-codex/gpt-5.6-sol",
+  "pilotCatalogRevision": "2a434e6458f571cfa009c2112763c8f0f6091945",
+  "pilotContractCommit": "34ed0f8246161f0ac72f084f640f38b99f653f85",
+  "runDate": "2026-08-21",
+  "conditions": ["baseline", "pilot"],
+  "redactions": [
+    { "kind": "local-absolute-path", "replacement": "<repository-root>/AGENTS.md", "files": ["N12/baseline.json"] }
+  ],
+  "runs": [
+    { "caseId": "N12", "condition": "pilot", "agentId": "89e02a9d-d9be-4b6", "totalTokens": 4231, "durationMilliseconds": 14993 },
+    { "caseId": "N12", "condition": "baseline", "agentId": "39f81f85-50cb-496", "totalTokens": 17318, "durationMilliseconds": 6831 }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "decision": "block",
+  "candidateRoutes": ["cratis-command"],
+  "targetRefs": [],
+  "repositoryProfile": "application",
+  "persona": "backend",
+  "language": "C#",
+  "surface": "Arc",
+  "requestedEffect": "answer",
+  "targetTrust": "unverified",
+  "evidenceState": "insufficient",
+  "evidenceRefs": [
+    "AGENTS.md: Arc is standalone CQRS framework—not bound to event sourcing",
+    "AGENTS.md: this application is event-sourced"
+  ],
+  "catalogRevision": null,
+  "sourceRevision": null,
+  "projectContextRefs": ["<repository-root>/AGENTS.md"],
+  "invocationPerformed": false,
+  "reasonCode": "NO_VERIFIED_NON_CHRONICLE_ARC_DESTINATION",
+  "clarification": "Specify the Arc backend topic or provide a verified standalone Arc destination that excludes Chronicle."
+}

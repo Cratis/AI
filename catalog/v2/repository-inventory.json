@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "a9e337da46f169bd905260f18edcb73c90dfcb87affa28fd20b0893bce9ba7bf",
+  "indexDigest": "7509341af93dad64c22f0ad2fae534d6c3917dcb5a87c3a0eea9b98bf1b8f51b",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -247,6 +247,578 @@
       "status": "added"
     },
     {
+      "path": "evals/cratis-navigator/assertions.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/baseline.md",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/cases.jsonl",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/canonical-selection.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/canonical-summary.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/canonical-summary.md",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-1/N07/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-1/N07/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-1/N11/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-1/N11/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-1/N13/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-1/N13/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-1/P07/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-1/P07/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-1/analysis.md",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-1/grading.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-1/metadata.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-10/N06/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-10/N06/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-10/N09/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-10/N09/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-10/N10/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-10/N10/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-10/N12/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-10/N12/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-10/analysis.md",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-10/grading.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-10/metadata.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-11/N12/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-11/N12/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-11/analysis.md",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-11/grading.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-11/metadata.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-12/N15/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-12/N15/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-12/analysis.md",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-12/grading.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-12/metadata.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-2/N07/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-2/N07/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-2/N13/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-2/N13/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-2/analysis.md",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-2/grading.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-2/metadata.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-3/N08/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-3/N08/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-3/P01/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-3/P01/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-3/P05/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-3/P05/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-3/P06/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-3/P06/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-3/analysis.md",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-3/grading.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-3/metadata.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-4/N08/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-4/N08/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-4/analysis.md",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-4/grading.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-4/metadata.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-5/P02/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-5/P02/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-5/P03/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-5/P03/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-5/P08/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-5/P08/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-5/P09/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-5/P09/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-5/analysis.md",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-5/grading.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-5/metadata.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-6/N16/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-6/N16/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-6/P10/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-6/P10/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-6/P11/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-6/P11/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-6/P12/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-6/P12/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-6/analysis.md",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-6/grading.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-6/metadata.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-7/P10/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-7/P10/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-7/analysis.md",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-7/grading.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-7/metadata.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-8/N02/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-8/N02/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-8/N03/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-8/N03/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-8/N04/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-8/N04/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-8/N05/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-8/N05/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-8/analysis.md",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-8/grading.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-8/metadata.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-9/N05/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-9/N05/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-9/analysis.md",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-9/grading.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-9/metadata.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-1/N01/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-1/N01/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-1/N14/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-1/N14/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-1/P04/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-1/P04/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-1/analysis.md",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-1/grading.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-1/metadata.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-2/N01/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-2/N01/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-2/N14/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-2/N14/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-2/P04/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-2/P04/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-2/analysis.md",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-2/grading.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-2/metadata.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-3/N01/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-3/N01/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-3/N14/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-3/N14/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-3/P04/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-3/P04/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-3/analysis.md",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-3/grading.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-3/metadata.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-4/N01/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-4/N01/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-4/N14/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-4/N14/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-4/P04/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-4/P04/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-4/analysis.md",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-4/grading.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-4/metadata.json",
+      "status": "added"
+    },
+    {
+      "path": "pilots/cratis-navigator/PILOT.md",
+      "status": "added"
+    },
+    {
+      "path": "pilots/cratis-navigator/metadata.draft.json",
+      "status": "added"
+    },
+    {
+      "path": "pilots/cratis-navigator/routes.draft.json",
+      "status": "added"
+    },
+    {
       "path": "tooling/catalog-ordering.mjs",
       "status": "added"
     },
@@ -327,6 +899,14 @@
       "status": "added"
     },
     {
+      "path": "tooling/grade-navigator-runs.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/navigator-pilot-validation.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/project-context-bootstrap.mjs",
       "status": "added"
     },
@@ -351,11 +931,19 @@
       "status": "added"
     },
     {
+      "path": "tooling/specs/navigator-pilot.spec.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/specs/project-context-bootstrap.spec.mjs",
       "status": "added"
     },
     {
       "path": "tooling/specs/public-artifact-materializer.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/summarize-navigator-runs.mjs",
       "status": "added"
     },
     {
@@ -1200,6 +1788,53 @@
     },
     {
       "excludePathPatterns": [],
+      "id": "navigator-pilot-source",
+      "sourcePathPatterns": [
+        "pilots/cratis-navigator/**"
+      ],
+      "artifactType": "pilot",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "catalog/v2/authoring-contracts.json",
+        "catalog/v2/targets.json"
+      ],
+      "risk": "medium",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "ecosystem-use-cases"
+      ],
+      "expectedPathCount": 3,
+      "expectedPathsDigest": "98be24370118082e043b74ec73984aeaa0454ec4ca4e9ba719f426bf13f2976b"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "navigator-pilot-evaluations",
+      "sourcePathPatterns": [
+        "evals/cratis-navigator/**"
+      ],
+      "artifactType": "evaluation",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "pilots/cratis-navigator/**"
+      ],
+      "risk": "low",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "ecosystem-use-cases"
+      ],
+      "expectedPathCount": 140,
+      "expectedPathsDigest": "2a94e2df6732c83f90c1ed4e0bdeeea1465a0f2d898d458d1389344ac646e442"
+    },
+    {
+      "excludePathPatterns": [],
       "id": "catalog-v1-scaffold",
       "sourcePathPatterns": [
         "catalog/ecosystem-versions.json",
@@ -1357,8 +1992,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 9,
-      "expectedPathsDigest": "ef466bcc5f8eafcf6d355a607462bb158fa37e1f1c62e93097b3af547cd72d69"
+      "expectedPathCount": 12,
+      "expectedPathsDigest": "1ce7c1d4021ab22d10f0522939e6287f9c08156132d3cdca778b70adf2892336"
     },
     {
       "excludePathPatterns": [],
@@ -1381,8 +2016,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 6,
-      "expectedPathsDigest": "5cded27045420ef685ebe1efd9038a3f6929fe0ab7b7553b8bdc03d372c1718e"
+      "expectedPathCount": 7,
+      "expectedPathsDigest": "38f68d859a43b55c9a8daafc4e6d5792f90828b8147ecbfc79f557f35c413cb6"
     },
     {
       "excludePathPatterns": [],

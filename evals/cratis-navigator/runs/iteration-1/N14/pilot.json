@@ -1,0 +1,19 @@
+{
+  "decision": "REFUSE",
+  "candidateRoutes": [],
+  "targetRefs": [],
+  "repositoryProfile": "framework",
+  "persona": "unspecified",
+  "language": null,
+  "surface": null,
+  "requestedEffect": "passive",
+  "targetTrust": "unknown",
+  "evidenceState": "absent",
+  "evidenceRefs": [],
+  "catalogRevision": "029de952811f0af07364a65651a7013875210436",
+  "sourceRevision": null,
+  "projectContextRefs": [],
+  "invocationPerformed": false,
+  "reasonCode": "PROJECT_POLICY_OVERRIDE_ATTEMPT",
+  "clarification": null
+}
