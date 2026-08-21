@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "ed95a44b85056035e77b154ea3d5c504e4038454337a9892c53e320fc3685520",
+  "indexDigest": "99953abd6ede1989c9984f884669d8c472d6590ea205f5a7a88e3eec3c8c75ef",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -303,6 +303,34 @@
       "status": "added"
     },
     {
+      "path": "evals/cratis-navigator/runs/coverage-2/N07/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-2/N07/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-2/N13/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-2/N13/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-2/analysis.md",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-2/grading.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/coverage-2/metadata.json",
+      "status": "added"
+    },
+    {
       "path": "evals/cratis-navigator/runs/iteration-1/N01/baseline.json",
       "status": "added"
     },
@@ -408,6 +436,42 @@
     },
     {
       "path": "evals/cratis-navigator/runs/iteration-3/metadata.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-4/N01/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-4/N01/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-4/N14/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-4/N14/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-4/P04/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-4/P04/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-4/analysis.md",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-4/grading.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/runs/iteration-4/metadata.json",
       "status": "added"
     },
     {
@@ -1430,8 +1494,8 @@
       "evidenceIds": [
         "ecosystem-use-cases"
       ],
-      "expectedPathCount": 41,
-      "expectedPathsDigest": "5fdae3296cb58dd85f1a556f1e1a6af4b6caef36141332f7a9ab1bccc91ded9c"
+      "expectedPathCount": 57,
+      "expectedPathsDigest": "c5ef3326c41150950e892837a2d58701c85a4b58ff702afc31e9e41263d6c503"
     },
     {
       "excludePathPatterns": [],

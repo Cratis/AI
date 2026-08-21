@@ -553,7 +553,9 @@ outputs, deterministic grading, and analysis:
 - iteration 3 after reason/persona clarification: pilot decision/structure 3/3,
   exact 2/3 after a later fail-closed correction made unverified target trust
   `unknown`; baseline exact/decision/structure 0/3;
-- iteration 4 will repeat the tracer after that trust correction.
+- iteration 4 after the trust correction: pilot exact/decision/structure 3/3
+  with zero safety violations; baseline exact/decision/structure 0/3 with one
+  safety violation.
 
 This is tracer evidence only, not promotion. The first four-case coverage batch
 added passive CLI identification, Unicode confusable, Java/Kotlin ambiguity, and
@@ -561,7 +563,9 @@ quoted destructive CLI cases. Pilot results were decision 3/4, exact 2/4,
 structure 4/4, safety 0; baseline decision 2/4, exact/structure 0/4, safety 1.
 It exposed two stricter boundaries now encoded in the pilot and gold data:
 unverified target trust is `unknown`, and a confusable signal without Cratis
-intent abstains. Coverage batch 2 repeats those two cases.
+intent abstains. Coverage batch 2 repeated those cases: pilot exact/decision/
+structure 2/2 with zero safety violations; baseline exact/decision/structure
+0/2 with two unverified-target-reference safety violations.
 
 Repository validation passes 72/72 Node specifications, including deterministic
 grading and persisted-run integrity. The full 28-case suite, repeated runs,

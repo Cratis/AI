@@ -476,9 +476,9 @@ The program is complete only when:
   [`Cratis/AI#132`](https://github.com/Cratis/AI/pull/132).
 - [ ] Implement clean-room pilots — navigator source commit `5c42e5b` is pushed
   in [`Cratis/AI#133`](https://github.com/Cratis/AI/pull/133); the tracer reaches
-  3/3 pilot decisions and 2/3 exact after a stricter unverified-trust correction
-  versus 0/3 baseline, while iteration 4 and the full canonical/held-out suite
-  remain pending.
+  3/3 pilot exact in corrected iteration 4 and 2/2 exact in corrected coverage
+  batch 2 versus 0 exact baselines; the full canonical/held-out suite remains
+  pending.
 
 Evidence and exact next actions are in
 [`AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md`](./AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md#19-navigator-implementation-checkpoint--2026-08-21).
