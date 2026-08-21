@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "2cd06a70aa2ed2b425ffe6a685185aba4f6568332a38f776f1ecc9811f77494b",
+  "indexDigest": "8ac6f0660e84a14a5e051db2f0b0b18a4a9bd803df86ced9a3654ac7fcf4eca9",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -63,59 +63,11 @@
       "status": "added"
     },
     {
-      "path": "catalog/ecosystem-versions.json",
+      "path": "Documentation/capability-catalog-v2.md",
       "status": "added"
     },
     {
-      "path": "catalog/product-coverage.yml",
-      "status": "added"
-    },
-    {
-      "path": "catalog/public-skills.yml",
-      "status": "added"
-    },
-    {
-      "path": "catalog/schemas/ecosystem-versions.schema.json",
-      "status": "added"
-    },
-    {
-      "path": "catalog/schemas/product-coverage.schema.json",
-      "status": "added"
-    },
-    {
-      "path": "catalog/schemas/public-skills.schema.json",
-      "status": "added"
-    },
-    {
-      "path": "catalog/schemas/v2/catalog-v2.schema.json",
-      "status": "added"
-    },
-    {
-      "path": "catalog/v2/artifacts.json",
-      "status": "added"
-    },
-    {
-      "path": "catalog/v2/evidence.json",
-      "status": "added"
-    },
-    {
-      "path": "catalog/v2/migrations.json",
-      "status": "added"
-    },
-    {
-      "path": "catalog/v2/product-coverage.json",
-      "status": "added"
-    },
-    {
-      "path": "catalog/v2/repository-inventory.json",
-      "status": "added"
-    },
-    {
-      "path": "catalog/v2/sources.json",
-      "status": "added"
-    },
-    {
-      "path": "catalog/v2/targets.json",
+      "path": "Documentation/evidence/redesign-autonomous-execution-2026-08-20/README.md",
       "status": "added"
     },
     {
@@ -144,10 +96,6 @@
     },
     {
       "path": "Documentation/evidence/redesign-autonomous-execution-2026-08-20/ignored-paths.txt",
-      "status": "added"
-    },
-    {
-      "path": "Documentation/evidence/redesign-autonomous-execution-2026-08-20/README.md",
       "status": "added"
     },
     {
@@ -203,6 +151,82 @@
       "status": "added"
     },
     {
+      "path": "catalog/ecosystem-versions.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/product-coverage.yml",
+      "status": "added"
+    },
+    {
+      "path": "catalog/public-skills.yml",
+      "status": "added"
+    },
+    {
+      "path": "catalog/schemas/ecosystem-versions.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/schemas/product-coverage.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/schemas/public-skills.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/schemas/v2/catalog-v2.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/v2/artifacts.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/v2/bundles.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/v2/evidence.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/v2/migrations.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/v2/product-coverage.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/v2/repository-inventory.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/v2/source-contracts.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/v2/sources.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/v2/targets.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/v2/taxonomy.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/v2/upstream-companions.json",
+      "status": "added"
+    },
+    {
+      "path": "tooling/catalog-ordering.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/catalog-v2-validation.mjs",
       "status": "added"
     },
@@ -251,19 +275,19 @@
       "status": "added"
     },
     {
-      "path": "tooling/fixtures/public-artifact/valid-source/skills/cratis-example/assets/example.txt",
-      "status": "added"
-    },
-    {
       "path": "tooling/fixtures/public-artifact/valid-source/skills/cratis-example/LICENSE",
       "status": "added"
     },
     {
-      "path": "tooling/fixtures/public-artifact/valid-source/skills/cratis-example/references/guide.md",
+      "path": "tooling/fixtures/public-artifact/valid-source/skills/cratis-example/SKILL.md",
       "status": "added"
     },
     {
-      "path": "tooling/fixtures/public-artifact/valid-source/skills/cratis-example/SKILL.md",
+      "path": "tooling/fixtures/public-artifact/valid-source/skills/cratis-example/assets/example.txt",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/public-artifact/valid-source/skills/cratis-example/references/guide.md",
       "status": "added"
     },
     {
@@ -280,6 +304,10 @@
     },
     {
       "path": "tooling/public-artifact-materializer.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/catalog-ordering.spec.mjs",
       "status": "added"
     },
     {
@@ -524,7 +552,7 @@
         "ai-126"
       ],
       "expectedPathCount": 14,
-      "expectedPathsDigest": "bacd720113a371e382ce67ae40b9612a76a7fe900d80139ce70f706ea9021daf"
+      "expectedPathsDigest": "bad82a4ca327684526057da05d262423e0d6ce94e2f711c68c334f9094556cd9"
     },
     {
       "excludePathPatterns": [],
@@ -609,7 +637,7 @@
         "reevaluation-authority"
       ],
       "expectedPathCount": 62,
-      "expectedPathsDigest": "7b7ce0c400d7a6818d4b3f069b5a1fec4cdc34dced0ff2afa22f8c64f32e32a3"
+      "expectedPathsDigest": "4d6d81d603857bc6c534a7417e2e3413051118387141b76ebfefd19564de8156"
     },
     {
       "excludePathPatterns": [
@@ -642,7 +670,7 @@
         "reevaluation-authority"
       ],
       "expectedPathCount": 29,
-      "expectedPathsDigest": "913915055b0455f3768146ed7515a890ba7574da1a23a98ea70369ff1e2b343f"
+      "expectedPathsDigest": "f30f6bcc4ea06e345cb4e2d91835dc2b90719b7483b408d5ad322660dbea0f7c"
     },
     {
       "excludePathPatterns": [],
@@ -691,7 +719,7 @@
       ],
       "generator": "legacy-manual-adapter-model",
       "expectedPathCount": 57,
-      "expectedPathsDigest": "06aee74161e908fd6d22a17bfbe3d1fa331c286d337802378cf8cd6ae73c6aa8"
+      "expectedPathsDigest": "8df9cc32a0bf05818a3bdb16823d6231d4c1ca5d7b4658fc0a6841e524d0b8f0"
     },
     {
       "excludePathPatterns": [],
@@ -1022,7 +1050,7 @@
         "organization-option-a-plus-authority"
       ],
       "expectedPathCount": 16,
-      "expectedPathsDigest": "f4f99ed78267398e3e6db6eb99fcfd307d5bb7e3a55806c48b893ff9d6c42255"
+      "expectedPathsDigest": "39af5a952ad3752f64bc7a5474560c9eac0b2cd4bca09ae43d899959b7e87f93"
     },
     {
       "excludePathPatterns": [],
@@ -1088,6 +1116,32 @@
     },
     {
       "excludePathPatterns": [],
+      "id": "capability-model-documentation",
+      "sourcePathPatterns": [
+        "Documentation/capability-catalog-v2.md"
+      ],
+      "artifactType": "documentation",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "catalog/v2/bundles.json",
+        "catalog/v2/source-contracts.json",
+        "catalog/v2/taxonomy.json",
+        "catalog/v2/upstream-companions.json"
+      ],
+      "risk": "medium",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "option-a-plus-authority"
+      ],
+      "expectedPathCount": 1,
+      "expectedPathsDigest": "368dbe32574523305797d2250728c509c934c842c4e07b607d7b0ad95f400e98"
+    },
+    {
+      "excludePathPatterns": [],
       "id": "catalog-v1-scaffold",
       "sourcePathPatterns": [
         "catalog/ecosystem-versions.json",
@@ -1116,6 +1170,39 @@
     },
     {
       "excludePathPatterns": [],
+      "id": "catalog-v2-authored-registries",
+      "sourcePathPatterns": [
+        "catalog/v2/bundles.json",
+        "catalog/v2/source-contracts.json",
+        "catalog/v2/taxonomy.json",
+        "catalog/v2/upstream-companions.json"
+      ],
+      "artifactType": "catalog-schema",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "catalog/schemas/v2/catalog-v2.schema.json",
+        "tooling/catalog-v2-validation.mjs"
+      ],
+      "risk": "high",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "ecosystem-use-cases",
+        "third-party-skills-evaluation"
+      ],
+      "expectedPathCount": 4,
+      "expectedPathsDigest": "ec3ac58212de700f909cb30e4e3761dc16a1eed0d6a0c210fd8b625ba2761a95"
+    },
+    {
+      "excludePathPatterns": [
+        "catalog/v2/bundles.json",
+        "catalog/v2/source-contracts.json",
+        "catalog/v2/taxonomy.json",
+        "catalog/v2/upstream-companions.json"
+      ],
       "id": "catalog-v2-generated-surfaces",
       "sourcePathPatterns": [
         "catalog/v2/**"
@@ -1182,8 +1269,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 7,
-      "expectedPathsDigest": "5d124b5352835c22157025b12fb8620fbaec919f2f3b17a3e35dfe615e65d536"
+      "expectedPathCount": 8,
+      "expectedPathsDigest": "ba097e98690b3dbb288c3b2cacc6d4ab1418572db214c07253c91863537f1958"
     },
     {
       "excludePathPatterns": [],
@@ -1206,8 +1293,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 4,
-      "expectedPathsDigest": "47ac458d9402ffed38dbd659cf0febcf4110ee1d134d6bbc65bae321e3cb2534"
+      "expectedPathCount": 5,
+      "expectedPathsDigest": "dd3f31be67af69b280aa4b2b10008d8dac30af7199aaaab3e3b0351583111c73"
     },
     {
       "excludePathPatterns": [],
@@ -1231,7 +1318,7 @@
         "reevaluation-authority"
       ],
       "expectedPathCount": 14,
-      "expectedPathsDigest": "396592906ce042e4400f7247e956e9c75fa79283d83ac180536df429abda8d23"
+      "expectedPathsDigest": "cb002190b3cf88b3fd07c0ff21024015838a4299c67318eac3b0605f7d04f602"
     }
   ]
 }

@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 2,
+  "defaultPolicy": "direct-upstream-install-only",
+  "companions": [
+    {
+      "id": "matt-pocock-skills",
+      "upstreamUrl": "https://github.com/mattpocock/skills",
+      "immutableRevision": "0ab1b63a410a03d3627979a109c8695de27af954",
+      "upstreamVersion": "1.2.3",
+      "license": "MIT",
+      "owner": "Matt Pocock",
+      "supportedHosts": ["claude-code"],
+      "directInstallRoute": "Install selected capabilities directly from the upstream repository under the upstream support and update model.",
+      "trust": "Includes model-reachable skills and optional workflows that can write project or remote state.",
+      "projectWrites": true,
+      "externalDependencies": ["git", "github"],
+      "knownCollisionTargetIds": [
+        "cratis-application-slice-diagnostics",
+        "cratis-chronicle-event-modeling",
+        "cratis-code-review",
+        "cratis-engineering-ship-changes"
+      ],
+      "testedCratisVersion": "unverified",
+      "reviewedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "bytesIncluded": false,
+      "evidenceIds": ["third-party-skills-evaluation"]
+    },
+    {
+      "id": "pstack",
+      "upstreamUrl": "https://github.com/cursor/plugins/tree/51a96e0dd838404da19ba83dc70aa21eef71f868/pstack",
+      "immutableRevision": "51a96e0dd838404da19ba83dc70aa21eef71f868",
+      "upstreamVersion": "0.14.1",
+      "license": "MIT",
+      "owner": "Lauren Tan",
+      "supportedHosts": ["cursor"],
+      "directInstallRoute": "Install directly through the upstream Cursor plugin route in a disposable repository before broader use.",
+      "trust": "Includes skills, agents, scripts, transcript access, external dependencies, and high-trust shipping or cleanup behavior.",
+      "projectWrites": true,
+      "externalDependencies": ["bun", "cursor", "cursor-team-kit", "github", "graphite"],
+      "knownCollisionTargetIds": [
+        "cratis-application-slice-diagnostics",
+        "cratis-chronicle-event-modeling",
+        "cratis-code-review",
+        "cratis-engineering-ship-changes",
+        "cratis-performance-review",
+        "cratis-security-review"
+      ],
+      "testedCratisVersion": "unverified",
+      "reviewedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "bytesIncluded": false,
+      "evidenceIds": ["third-party-skills-evaluation"]
+    }
+  ]
+}

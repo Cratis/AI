@@ -61,6 +61,28 @@
       "digest": "d0e76cea34145717ae8874a252b7d4468c43ef102cb9ddc3f2241c0960aa70d5"
     },
     {
+      "id": "ecosystem-use-cases",
+      "officialUrl": "https://github.com/Cratis/AI",
+      "sourceKind": "local-evidence-report",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "content-digest-bound",
+      "confidence": "medium",
+      "repositoryPath": "AI-REPOSITORY-REDESIGN-ECOSYSTEM-USE-CASES.md",
+      "digest": "3b6fa1b0458eaf6c7305f68fc475e16e9ad2dd78f25cf0db3dea7bedd505f8f1"
+    },
+    {
+      "id": "third-party-skills-evaluation",
+      "officialUrl": "https://github.com/Cratis/AI",
+      "sourceKind": "local-evidence-report",
+      "verifiedOn": "2026-08-20",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "content-digest-bound",
+      "confidence": "medium",
+      "repositoryPath": "AI-REPOSITORY-REDESIGN-THIRD-PARTY-SKILLS-EVALUATION.md",
+      "digest": "cc9dcc93365dcfc2721b5aff837ace9d941db7251f68ab732b0285b063c2272c"
+    },
+    {
       "id": "option-a-plus-authority",
       "officialUrl": "https://github.com/Cratis/Workflows/issues/68#issuecomment-5363284054",
       "sourceKind": "organization-authority",

@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 2,
+  "defaultPolicy": "deny",
+  "bundles": [
+    {
+      "id": "cratis-core-review",
+      "name": "Cratis core review bundle",
+      "state": "draft",
+      "audience": "public",
+      "rootTargetIds": [
+        "cratis-chronicle-event-modeling",
+        "cratis-fundamentals-concept",
+        "cratis-fundamentals-type-discovery"
+      ],
+      "selectedSoftOrOptionalTargetIds": [],
+      "missingCapabilityIds": [],
+      "publishable": false,
+      "evidenceIds": ["ecosystem-use-cases"]
+    },
+    {
+      "id": "cratis-arc-backend-review",
+      "name": "Arc backend review bundle",
+      "state": "draft",
+      "audience": "public",
+      "rootTargetIds": [
+        "cratis-arc-authentication-authorization-and-identity",
+        "cratis-arc-command",
+        "cratis-arc-command-execution",
+        "cratis-arc-command-validation",
+        "cratis-arc-ef-core-migration",
+        "cratis-arc-query-paging"
+      ],
+      "selectedSoftOrOptionalTargetIds": [],
+      "missingCapabilityIds": ["arc-query", "arc-validation", "arc-authorization"],
+      "publishable": false,
+      "evidenceIds": ["ecosystem-use-cases"]
+    },
+    {
+      "id": "cratis-chronicle-dotnet-review",
+      "name": "Chronicle .NET review bundle",
+      "state": "draft",
+      "audience": "public",
+      "rootTargetIds": [
+        "cratis-chronicle-event-constraints",
+        "cratis-chronicle-event-metadata",
+        "cratis-chronicle-event-type-migration",
+        "cratis-chronicle-multi-tenancy",
+        "cratis-chronicle-projection",
+        "cratis-chronicle-reactor",
+        "cratis-chronicle-read-model",
+        "cratis-chronicle-reducer"
+      ],
+      "selectedSoftOrOptionalTargetIds": [],
+      "missingCapabilityIds": ["chronicle-dotnet-client", "chronicle-compliance"],
+      "publishable": false,
+      "evidenceIds": ["ecosystem-use-cases"]
+    },
+    {
+      "id": "cratis-application-full-stack-review",
+      "name": "Arc, Chronicle, React, and Components review bundle",
+      "state": "draft",
+      "audience": "public",
+      "rootTargetIds": [
+        "cratis-application-react-specifications",
+        "cratis-application-slice-diagnostics",
+        "cratis-application-slice-specifications",
+        "cratis-application-vertical-slice",
+        "cratis-arc-react-feature-scaffolding",
+        "cratis-arc-react-page",
+        "cratis-components-stepper-command-dialog",
+        "cratis-components-toolbar"
+      ],
+      "selectedSoftOrOptionalTargetIds": [],
+      "missingCapabilityIds": ["arc-react-client", "components-dialog", "components-data-page"],
+      "publishable": false,
+      "evidenceIds": ["ecosystem-use-cases"]
+    },
+    {
+      "id": "cratis-review-capabilities",
+      "name": "Cratis review capability bundle",
+      "state": "draft",
+      "audience": "public",
+      "rootTargetIds": [
+        "cratis-code-review",
+        "cratis-performance-review",
+        "cratis-security-review"
+      ],
+      "selectedSoftOrOptionalTargetIds": [],
+      "missingCapabilityIds": [],
+      "publishable": false,
+      "evidenceIds": ["third-party-skills-evaluation"]
+    },
+    {
+      "id": "cratis-engineering-review",
+      "name": "Cratis engineering review bundle",
+      "state": "draft",
+      "audience": "cratis-engineering",
+      "rootTargetIds": [
+        "cratis-engineering-chronicle-kernel-tracing",
+        "cratis-engineering-csharp-conventions",
+        "cratis-engineering-docs-add-page",
+        "cratis-engineering-docs-authoring",
+        "cratis-engineering-docs-edit-page",
+        "cratis-engineering-docs-visual-qa",
+        "cratis-engineering-ship-changes",
+        "skill-creator"
+      ],
+      "selectedSoftOrOptionalTargetIds": [],
+      "missingCapabilityIds": [],
+      "publishable": false,
+      "evidenceIds": ["option-a-plus-authority"]
+    }
+  ]
+}

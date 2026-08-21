@@ -11,14 +11,19 @@ import {
     validateSchemaVocabulary,
 } from "../catalog-validation.mjs";
 import {
+    graphHasCycle,
     v2CatalogPaths,
     v2SchemaPath,
     validateArtifacts,
+    validateBundles,
     validateEvidenceAndCoverage,
     validateMigrations,
     validateRepositoryInventory,
+    validateSourceContracts,
     validateSources,
     validateTargets,
+    validateTaxonomy,
+    validateUpstreamCompanions,
     validateV2Catalogs,
 } from "../catalog-v2-validation.mjs";
 
@@ -71,6 +76,48 @@ test("catalog v2 preserves all 43 sources while split and merge targets are inde
     );
 });
 
+test("catalog v2 exposes closed shared taxonomies without broadening targets", () => {
+    const catalogs = loadCatalogs();
+    assert.deepEqual(validateTaxonomy(catalogs), []);
+    const productIds = new Set(
+        catalogs.taxonomy.dimensions.products.map((entry) => entry.id),
+    );
+    const languageIds = new Set(
+        catalogs.taxonomy.dimensions.languages.map((entry) => entry.id),
+    );
+    for (const target of catalogs.targets.targets) {
+        assert(target.products.every((id) => productIds.has(id)));
+        assert(target.languages.every((id) => languageIds.has(id)));
+    }
+});
+
+test("legacy targets remain explicitly unclassified and runtime ineligible", () => {
+    const catalogs = loadCatalogs();
+    for (const target of catalogs.targets.targets) {
+        assert.equal(target.capabilityKind, "unclassified");
+        assert.equal(target.invocation, "unclassified");
+        assert.equal(target.lifecycle, "candidate");
+        assert.equal(target.trust.class, "passive");
+        assert.equal(target.trust.assessmentState, "unclassified");
+        assert.deepEqual(target.trust.effects, []);
+        assert.equal(target.dependencyClassificationState, "unclassified");
+        assert.deepEqual(target.dependencyEdges, []);
+        assert.equal(target.sourceContractState, "unclassified");
+        assert.deepEqual(target.sourceContractIds, []);
+        for (const field of [
+            "architectures",
+            "personas",
+            "surfaces",
+            "repositoryProfiles",
+        ]) {
+            assert.equal(target[field].state, "unclassified");
+            assert.deepEqual(target[field].ids, []);
+        }
+        assert.equal(target.approval.state, "candidate");
+        assert.equal(target.includeInRuntime, false);
+    }
+});
+
 test("source digests remain bound to the current source bytes", () => {
     const catalogs = loadCatalogs();
     catalogs.sources.sources[0].contentDigest = "0".repeat(64);
@@ -113,6 +160,20 @@ test("approval cannot omit revision, digest, reviewer, evaluations, or security 
     target.approval.state = "approved";
     target.includeInRuntime = true;
     const errors = validateTargets(catalogs);
+    for (const requirement of [
+        "needs capability kind",
+        "needs invocation",
+        "needs approved lifecycle",
+        "needs classified architectures",
+        "needs classified personas",
+        "needs classified surfaces",
+        "needs classified repositoryProfiles",
+        "needs assessed trust and effects",
+        "needs classified dependencies",
+        "needs classified source contracts",
+    ]) {
+        assert(errors.some((error) => error.includes(requirement)));
+    }
     for (const field of [
         "reviewer",
         "approvedOn",
@@ -156,6 +217,224 @@ test("duplicate target and migration ids fail semantic validation", () => {
             error.includes("duplicate id"),
         ),
     );
+});
+
+test("migration outputs remain the exact inverse of target source mappings", () => {
+    const catalogs = loadCatalogs();
+    const migration = catalogs.migrations.migrations[0];
+    const removedTarget = migration.targetIds.pop();
+    let errors = validateMigrations(catalogs);
+    assert(errors.some((error) => error.includes("produce every target exactly once")));
+
+    migration.targetIds.push(removedTarget);
+    const target = catalogs.targets.targets.find(
+        (candidate) => candidate.id === removedTarget,
+    );
+    target.sourceSkillIds = [catalogs.sources.sources[0].id];
+    errors = validateMigrations(catalogs);
+    assert(
+        errors.some((error) =>
+            error.includes("target source skills must equal its migration inputs"),
+        ),
+    );
+});
+
+test("applicability, trust, and dependency classifications fail closed", () => {
+    const catalogs = loadCatalogs();
+    const first = catalogs.targets.targets[0];
+    const second = catalogs.targets.targets[1];
+    const third = catalogs.targets.targets[2];
+    first.architectures.state = "applicable";
+    first.architectures.ids = ["missing-architecture"];
+    first.trust.class = "executable";
+    first.trust.assessmentState = "assessed";
+    first.trust.effects = [
+        {
+            id: "fixture-write",
+            operation: "modify",
+            resourceBoundary: "Fixture repository",
+            scope: "Fixture file",
+            dataClassifications: ["credential"],
+            reversible: true,
+            rollbackOrCompensation: "Restore the fixture file.",
+            confirmation: {
+                required: false,
+                timing: "none",
+                reason: "Deliberately invalid fixture.",
+            },
+            authorization: {
+                required: false,
+                authority: "not-required",
+                evidenceIds: [],
+            },
+            evidenceIds: ["reevaluation-authority"],
+        },
+    ];
+    first.dependencyClassificationState = "classified";
+    first.dependencyEdges = [
+        {
+            dependencyId: second.id,
+            category: "target",
+            strength: "hard",
+            reason: "Fixture dependency",
+            missingBehavior: {
+                action: "degrade",
+                description: "Invalid hard dependency behavior.",
+            },
+        },
+        {
+            dependencyId: third.id,
+            category: "target",
+            strength: "soft",
+            reason: "Fixture substitute",
+            missingBehavior: {
+                action: "substitute",
+                description: "Invalid no-op substitution.",
+                substituteDependencyId: third.id,
+            },
+        },
+        {
+            dependencyId: "matt-pocock-skills",
+            category: "tool",
+            strength: "optional",
+            reason: "Invalid companion dependency.",
+            missingBehavior: {
+                action: "omit",
+                description: "Omit the invalid dependency.",
+            },
+        },
+    ];
+    second.dependencyClassificationState = "classified";
+    second.dependencyEdges = [
+        {
+            dependencyId: first.id,
+            category: "target",
+            strength: "hard",
+            reason: "Fixture cycle",
+            missingBehavior: {
+                action: "block",
+                description: "Block when missing.",
+            },
+        },
+    ];
+    const errors = validateTargets(catalogs);
+    assert(errors.some((error) => error.includes("unknown architectures id")));
+    assert(errors.some((error) => error.includes("trust class must match")));
+    assert(errors.some((error) => error.includes("requires explicit confirmation")));
+    assert(errors.some((error) => error.includes("requires explicit authorization")));
+    assert(errors.some((error) => error.includes("invalid degrade behavior")));
+    assert(
+        errors.some((error) =>
+            error.includes("cannot select the missing dependency"),
+        ),
+    );
+    assert(
+        errors.some((error) =>
+            error.includes("upstream companion cannot satisfy a dependency"),
+        ),
+    );
+    assert(
+        errors.some((error) =>
+            error.includes("classified target dependencies must preserve legacy membership"),
+        ),
+    );
+    assert(errors.some((error) => error.includes("directed acyclic graph")));
+});
+
+test("dependency cycle detection handles deep graphs without recursion", () => {
+    const size = 5000;
+    const graph = new Map();
+    for (let index = 0; index < size; index += 1) {
+        graph.set(
+            `target-${index}`,
+            index + 1 < size ? [`target-${index + 1}`] : [],
+        );
+    }
+    assert.equal(graphHasCycle(graph), false);
+    graph.set(`target-${size - 1}`, ["target-0"]);
+    assert.equal(graphHasCycle(graph), true);
+});
+
+test("source contracts cannot become inputs before exact verification", () => {
+    const catalogs = loadCatalogs();
+    const contract = catalogs.sourceContracts.contracts[0];
+    contract.distributionInputAllowed = true;
+    assert(
+        validateSourceContracts(catalogs).some((error) =>
+            error.includes("only verified source contracts"),
+        ),
+    );
+    contract.verificationState = "verified";
+    let errors = validateSourceContracts(catalogs);
+    for (const field of ["immutableRevision", "verifiedOn", "contentDigest"])
+        assert(errors.some((error) => error.includes(`missing ${field}`)));
+    contract.immutableRevision = "0".repeat(40);
+    contract.verifiedOn = "2026-08-20";
+    contract.contentDigest = "0".repeat(64);
+    errors = validateSourceContracts(catalogs);
+    assert(
+        errors.some((error) =>
+            error.includes("lacks revision-bound evidence"),
+        ),
+    );
+});
+
+test("draft bundles cannot imply publication or target approval", () => {
+    const catalogs = loadCatalogs();
+    const bundle = catalogs.bundles.bundles[0];
+    const selected = new Set(bundle.rootTargetIds);
+    const outsideTarget = catalogs.targets.targets.find(
+        (target) => !selected.has(target.id),
+    );
+    const arbitraryOptionalTarget = catalogs.targets.targets.find(
+        (target) =>
+            !selected.has(target.id) && target.id !== outsideTarget.id,
+    );
+    bundle.selectedSoftOrOptionalTargetIds = [arbitraryOptionalTarget.id];
+    const rootTarget = catalogs.targets.targets.find(
+        (target) => target.id === bundle.rootTargetIds[0],
+    );
+    rootTarget.dependencyClassificationState = "classified";
+    rootTarget.dependencyEdges = [
+        {
+            dependencyId: outsideTarget.id,
+            category: "target",
+            strength: "hard",
+            reason: "Fixture hard dependency",
+            missingBehavior: {
+                action: "block",
+                description: "Block when missing.",
+            },
+        },
+    ];
+    bundle.publishable = true;
+    const errors = validateBundles(catalogs);
+    assert(errors.some((error) => error.includes("must be approved")));
+    assert(errors.some((error) => error.includes("unapproved target")));
+    assert(errors.some((error) => error.includes("missing hard dependency")));
+    assert(
+        errors.some((error) =>
+            error.includes("is not reachable from bundle roots"),
+        ),
+    );
+});
+
+test("upstream companions contain metadata but never upstream bytes", () => {
+    const catalogs = loadCatalogs();
+    assert.deepEqual(validateUpstreamCompanions(catalogs), []);
+    assert(
+        catalogs.upstreamCompanions.companions.every(
+            (companion) => companion.bytesIncluded === false,
+        ),
+    );
+    const companions = clone(catalogs.upstreamCompanions);
+    companions.companions[0].bytesIncluded = true;
+    const errors = validateAgainstSchema(
+        companions,
+        schema.$defs.upstreamCompanionsCatalog,
+        schema,
+    );
+    assert(errors.some((error) => error.includes("expected constant false")));
 });
 
 test("unknown properties fail the closed catalog v2 schema", () => {
@@ -220,12 +499,17 @@ test("local evidence reports remain bound to repository bytes", () => {
     );
 });
 
-test("sources, migrations, artifacts, and inventory reject dangling evidence", () => {
+test("all v2 catalog families reject dangling evidence", () => {
     const catalogs = loadCatalogs();
     catalogs.sources.sources[0].evidenceIds.push("missing-evidence");
     catalogs.migrations.migrations[0].evidenceIds.push("missing-evidence");
     catalogs.artifacts.artifacts[0].evidenceIds.push("missing-evidence");
     catalogs.repositoryInventory.records[0].evidenceIds.push(
+        "missing-evidence",
+    );
+    catalogs.sourceContracts.contracts[0].evidenceIds.push("missing-evidence");
+    catalogs.bundles.bundles[0].evidenceIds.push("missing-evidence");
+    catalogs.upstreamCompanions.companions[0].evidenceIds.push(
         "missing-evidence",
     );
     assert(
@@ -246,6 +530,21 @@ test("sources, migrations, artifacts, and inventory reject dangling evidence", (
     assert(
         validateRepositoryInventory(catalogs, defaultRepositoryRoot).some(
             (error) => error.includes("unknown evidence missing-evidence"),
+        ),
+    );
+    assert(
+        validateSourceContracts(catalogs).some((error) =>
+            error.includes("unknown evidence missing-evidence"),
+        ),
+    );
+    assert(
+        validateBundles(catalogs).some((error) =>
+            error.includes("unknown evidence missing-evidence"),
+        ),
+    );
+    assert(
+        validateUpstreamCompanions(catalogs).some((error) =>
+            error.includes("unknown evidence missing-evidence"),
         ),
     );
 });

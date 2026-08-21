@@ -328,3 +328,87 @@ immediate delivery order is:
 4. implement and evaluate clean-room navigator, diagnostics, review, and
    event-modeling pilots;
 5. continue through the remaining autonomous plan phases.
+
+## 16. Capability-model checkpoint — 2026-08-21
+
+### Merged foundation
+
+Pull request [`Cratis/AI#130`](https://github.com/Cratis/AI/pull/130) merged with
+merge commit `569d478efb3ad64b77ed65c4e60dfab39f97695d`. Its CI passed and the
+`no-release` label correctly produced no package or product release. AI#126 and
+Workflows#68 remain open with comments that record what landed and what remains.
+The foundation branch and worktree were removed through normal merged-branch
+cleanup; the protected dirty main worktree remains untouched.
+
+### Active isolated branch
+
+Work now continues in `../AI-capability-model` on
+`feat/catalog-v2-capability-model`, based on the merged foundation. The active
+scope is a safety-local hybrid inside catalog v2:
+
+- authored closed taxonomy;
+- authored product/client source contracts that start unverified;
+- explicit non-publishable review bundles;
+- upstream companion metadata with `bytesIncluded: false`;
+- target-local capability kind, invocation, lifecycle, applicability, trust,
+  effects, dependency classification, and source-contract fields;
+- semantic validators and regression specifications;
+- capability-model documentation.
+
+The migration deliberately uses `unclassified` for decisions that do not yet
+have reviewed evidence. It does not infer architecture, persona, surface,
+invocation, dependency strength, effects, or product authority from legacy
+names. All 43 targets remain candidates and runtime-ineligible.
+
+### Current uncommitted delivery state
+
+New authored files:
+
+- `catalog/v2/taxonomy.json`;
+- `catalog/v2/source-contracts.json`;
+- `catalog/v2/bundles.json`;
+- `catalog/v2/upstream-companions.json`;
+- `Documentation/capability-catalog-v2.md`.
+
+Modified source files include the v2 schema, generator, semantic validator,
+repository-inventory generator, validation entry point, and catalog specs.
+`tooling/catalog-ordering.mjs` and its specification now provide one
+locale-independent ordering contract.
+
+Two Fusion panels were reviewed. Their safety-local normalization, explicit
+unassessed states, deterministic generation, and bounded audit principles were
+accepted. Their proposed parallel Python toolchain, monolithic replacement
+catalog, category-prefixed IDs, v3 cutover, and bundling of the authoring/human
+catalog work into this pull request were rejected because they conflict with
+the merged Node foundation, existing v2 IDs, and the accepted reversible PR
+sequence.
+
+Independent correctness review found authorization, non-target dependency,
+migration-equivalence, source-authority proof/coverage, and optional-bundle
+reachability gaps. Independent performance review found serial Git subprocess,
+recursive cycle, quadratic membership, and locale-ordering risks. The active
+branch now addresses all of them with authorization evidence, typed target/tool/
+internal/project-context edges, inverse migration checks, product/subject source
+coverage, reachable optional selection, revision snapshot batching, iterative
+cycle detection, set membership, and ordinal ordering.
+
+Current fresh signals:
+
+- catalog validation: 3 legacy plus 11 v2 catalogs and 4 schemas passed;
+- Node specifications: 56/56 passed in about 0.34 seconds after provenance
+  batching, down from multi-second repeated subprocess validation;
+- 43 targets remain candidates; zero are approved or runtime-included;
+- 6 bundles remain draft and non-publishable;
+- all source contracts remain unverified and distribution-disabled;
+- both upstream companions retain `bytesIncluded: false`;
+- Markdown lint, primary LSP, and documentation link validation passed before
+  the latest review fixes and will be rerun at the delivery gate.
+
+Exact next actions:
+
+1. run focused security and correctness rereview over the closed review gaps;
+2. regenerate the self-excluding repository inventory and run the complete
+   validator/spec/LSP/lint/link/diff/protected-hash suite;
+3. commit and push the coherent capability-model unit, open a separate
+   `no-release` pull request, monitor CI, merge, and record the result;
+4. start the separate skill-authoring and generated human-catalog contract PR.

@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 2,
+  "authorityPolicy": "closed-explicit-identifiers",
+  "dimensions": {
+    "capabilityKinds": [
+      { "id": "primitive", "name": "Primitive", "description": "A focused foundational capability used directly or by composed workflows." },
+      { "id": "router", "name": "Router", "description": "Selects the correct narrower capability without duplicating its procedure." },
+      { "id": "journey", "name": "Journey", "description": "Composes multiple capabilities into an end-to-end user outcome." },
+      { "id": "gate", "name": "Gate", "description": "Evaluates evidence and blocks progress when required criteria fail." },
+      { "id": "explanation", "name": "Explanation", "description": "Builds understanding without performing an implementation workflow." },
+      { "id": "adapter", "name": "Adapter", "description": "Projects approved behavior into a host- or surface-specific form without creating a behavior fork." }
+    ],
+    "invocations": [
+      { "id": "user", "name": "User invoked", "description": "Runs only after explicit user selection or request." },
+      { "id": "model", "name": "Model invoked", "description": "May be selected by the model from trigger intent." },
+      { "id": "both", "name": "User or model invoked", "description": "Supports both explicit and model-selected invocation." }
+    ],
+    "products": [
+      { "id": "application", "name": "Cratis application architecture", "description": "Composition guidance for applications built on Cratis products." },
+      { "id": "arc", "name": "Cratis Arc", "description": "Arc backend commands, queries, validation, authorization, and integrations." },
+      { "id": "arc-react", "name": "Arc React", "description": "Generated Arc React clients and observable frontend behavior." },
+      { "id": "chronicle", "name": "Cratis Chronicle", "description": "Chronicle event sourcing, clients, projections, reactions, and operations." },
+      { "id": "chronicle-mcp", "name": "Chronicle MCP", "description": "Chronicle.Mcp installation, selection, safety, and interpretation guidance." },
+      { "id": "cli", "name": "Cratis CLI", "description": "Cratis CLI setup, inspection, automation, and separately authorized operations." },
+      { "id": "components", "name": "Cratis Components", "description": "Cratis React component workflows and interaction patterns." },
+      { "id": "cross-product", "name": "Cross-product", "description": "Capabilities that apply across more than one Cratis product." },
+      { "id": "cratis-engineering", "name": "Cratis engineering", "description": "Separately trusted contributor and maintainer behavior." },
+      { "id": "entity-framework-core", "name": "Entity Framework Core", "description": "Arc and application EF Core integration." },
+      { "id": "fundamentals", "name": "Cratis Fundamentals", "description": "Strongly typed concepts and implementation discovery." },
+      { "id": "screenplay", "name": "Cratis Screenplay", "description": "Model authoring, compilation, diagnostics, and editor workflows." },
+      { "id": "specifications", "name": "Cratis Specifications", "description": "Specification by Example foundations and scenario families." },
+      { "id": "stage", "name": "Cratis Stage", "description": "Model runtime, workbench, and executable specification workflows." },
+      { "id": "studio", "name": "Cratis Studio", "description": "Public Studio onboarding, modeling, support, and issue-preparation workflows." }
+    ],
+    "languages": [
+      { "id": "csharp", "name": "C#", "description": "C# and .NET-specific APIs and toolchains." },
+      { "id": "elixir", "name": "Elixir", "description": "Elixir and OTP-specific APIs and toolchains." },
+      { "id": "java", "name": "Java", "description": "Java-specific APIs and toolchains." },
+      { "id": "kotlin", "name": "Kotlin", "description": "Kotlin and coroutine-specific APIs and toolchains." },
+      { "id": "language-agnostic", "name": "Language agnostic", "description": "Conceptual behavior independent of a programming language." },
+      { "id": "markdown", "name": "Markdown and Mermaid", "description": "Markdown documents and Mermaid models." },
+      { "id": "react", "name": "React", "description": "React-specific application and component workflows." },
+      { "id": "shell", "name": "Shell and HTTP", "description": "Terminal, shell, curl, and protocol-level workflows." },
+      { "id": "typescript", "name": "TypeScript", "description": "TypeScript and Node-specific APIs and toolchains." }
+    ],
+    "architectures": [
+      { "id": "arc-chronicle", "name": "Arc plus Chronicle", "description": "Arc application surfaces composed with Chronicle event sourcing." },
+      { "id": "arc-only", "name": "Arc only", "description": "Arc behavior without Chronicle assumptions." },
+      { "id": "chronicle-only", "name": "Chronicle only", "description": "Chronicle client behavior without Arc assumptions." },
+      { "id": "code-first", "name": "Code first", "description": "Implementation starts from product source code." },
+      { "id": "mixed", "name": "Mixed", "description": "A deliberate composition of model-first and code-first behavior." },
+      { "id": "model-first", "name": "Model first", "description": "Behavior starts from an explicit model before runtime or code." },
+      { "id": "product-neutral", "name": "Product neutral", "description": "Cross-product concepts and routing." }
+    ],
+    "personas": [
+      { "id": "architect", "name": "Architect", "description": "Designs system and product boundaries." },
+      { "id": "compliance", "name": "Compliance", "description": "Evaluates audit, privacy, subject, and retention concerns." },
+      { "id": "consultant", "name": "Consultant", "description": "Works across controlled client repositories." },
+      { "id": "contributor", "name": "Contributor", "description": "Contributes to a Cratis product or client repository." },
+      { "id": "developer", "name": "Developer", "description": "Builds software with Cratis products." },
+      { "id": "domain-expert", "name": "Domain expert", "description": "Contributes domain language, facts, scenarios, and decisions." },
+      { "id": "maintainer", "name": "Maintainer", "description": "Maintains Cratis products, source, and releases." },
+      { "id": "operator", "name": "Operator", "description": "Inspects and operates running product surfaces." },
+      { "id": "product-owner", "name": "Product owner", "description": "Clarifies outcomes, scope, and acceptance behavior." },
+      { "id": "qa", "name": "QA", "description": "Designs and verifies behavioral evidence." },
+      { "id": "support", "name": "Support", "description": "Collects evidence, diagnoses, and prepares escalations." }
+    ],
+    "surfaces": [
+      { "id": "backend", "name": "Backend", "description": "Backend source and runtime behavior." },
+      { "id": "browser", "name": "Browser", "description": "Browser-first product and assistant workflows." },
+      { "id": "ci", "name": "CI", "description": "Non-interactive validation and automation." },
+      { "id": "cli", "name": "CLI", "description": "Terminal and command-line workflows." },
+      { "id": "direct-agent-skills", "name": "Direct Agent Skills", "description": "Direct standards-based skill installation and use." },
+      { "id": "frontend", "name": "Frontend", "description": "React and browser application source." },
+      { "id": "generated-artifact", "name": "Generated artifact", "description": "Generated packages, manifests, archives, or catalogs." },
+      { "id": "ide", "name": "IDE", "description": "IDE and editor assistant workflows." },
+      { "id": "mcp", "name": "MCP", "description": "Model Context Protocol tools and resources." },
+      { "id": "pi", "name": "Pi", "description": "Pi package and optional extension surfaces." }
+    ],
+    "repositoryProfiles": [
+      { "id": "application", "name": "Application", "description": "A product application consuming Cratis." },
+      { "id": "client", "name": "Client library", "description": "A Chronicle or product client-library repository." },
+      { "id": "consuming-project", "name": "Consuming project", "description": "A project that owns local context and verification facts." },
+      { "id": "corpus", "name": "Corpus", "description": "The Cratis AI authoring and evaluation repository." },
+      { "id": "framework", "name": "Framework", "description": "A Cratis framework or product repository." },
+      { "id": "product-neutral", "name": "Product neutral", "description": "No repository architecture assumption." }
+    ],
+    "trustClasses": [
+      { "id": "passive", "name": "Passive", "description": "Contains no executable package or tool implementation." },
+      { "id": "executable", "name": "Executable", "description": "Runs code with host or system permissions." }
+    ],
+    "effectOperations": [
+      { "id": "create", "name": "Create", "description": "Creates local or remote state." },
+      { "id": "delete", "name": "Delete", "description": "Deletes local or remote state." },
+      { "id": "execute", "name": "Execute", "description": "Executes code, commands, or tools." },
+      { "id": "modify", "name": "Modify", "description": "Changes existing local or remote state." },
+      { "id": "publish", "name": "Publish", "description": "Makes an artifact or record externally available." },
+      { "id": "read", "name": "Read", "description": "Reads local, remote, or live-store state." },
+      { "id": "transmit", "name": "Transmit", "description": "Sends data across a trust boundary." }
+    ],
+    "dataClassifications": [
+      { "id": "confidential", "name": "Confidential", "description": "Non-public organization or client information." },
+      { "id": "credential", "name": "Credential", "description": "Secrets, tokens, keys, or authentication material." },
+      { "id": "internal", "name": "Internal", "description": "Organization-internal but non-secret information." },
+      { "id": "operational", "name": "Operational", "description": "Runtime, environment, telemetry, or infrastructure information." },
+      { "id": "personal", "name": "Personal", "description": "Personal or compliance-subject information." },
+      { "id": "public", "name": "Public", "description": "Information approved for public disclosure." }
+    ],
+    "dependencyStrengths": [
+      { "id": "hard", "name": "Hard", "description": "Absence blocks the capability." },
+      { "id": "optional", "name": "Optional", "description": "Absence omits an explicitly optional enhancement." },
+      { "id": "soft", "name": "Soft", "description": "Absence permits disclosed degradation or substitution." }
+    ],
+    "missingDependencyActions": [
+      { "id": "block", "name": "Block", "description": "Deny execution or completion." },
+      { "id": "degrade", "name": "Degrade", "description": "Continue with an explicitly disclosed reduction." },
+      { "id": "omit", "name": "Omit", "description": "Omit optional behavior." },
+      { "id": "substitute", "name": "Substitute", "description": "Use a named approved substitute." }
+    ]
+  }
+}
