@@ -1,0 +1,28 @@
+## main...origin/main
+ M .ai/hooks/agent-stop.md
+ M .ai/hooks/pre-commit.md
+ M .ai/hooks/scripts/validate-ai-setup.sh
+ M .gitignore
+ M Documentation/index.md
+?? .pi/delegate/
+?? .pi/fusion/
+?? AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md
+?? AI-REPOSITORY-REDESIGN-AUTONOMOUS-PLAN.md
+?? AI-REPOSITORY-REDESIGN-AUTONOMOUS-PROMPT.md
+?? AI-REPOSITORY-REDESIGN-CONTINUATION-HANDOVER.md
+?? AI-REPOSITORY-REDESIGN-ECOSYSTEM-USE-CASES.md
+?? AI-REPOSITORY-REDESIGN-FIRST-SOURCE-MOVE-PROMPT.md
+?? AI-REPOSITORY-REDESIGN-HANDOVER.md
+?? AI-REPOSITORY-REDESIGN-IMPLEMENTATION-PLAN.md
+?? AI-REPOSITORY-REDESIGN-IMPLEMENTATION-PROMPT.md
+?? AI-REPOSITORY-REDESIGN-NEXT-SESSION-HANDOVER.md
+?? AI-REPOSITORY-REDESIGN-REEVALUATION-PROMPT.md
+?? AI-REPOSITORY-REDESIGN-REEVALUATION.md
+?? AI-REPOSITORY-REDESIGN-THIRD-PARTY-SKILLS-EVALUATION.md
+?? Documentation/phase-0-verification.md
+?? Documentation/project-context-bootstrap.md
+?? Documentation/public-product-architecture.md
+?? Documentation/redesign-foundation-validation.md
+?? Documentation/skill-classification-audit.md
+?? catalog/
+?? tooling/

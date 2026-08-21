@@ -1,0 +1,1237 @@
+{
+  "schemaVersion": 2,
+  "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+  "indexDigest": "2cd06a70aa2ed2b425ffe6a685185aba4f6568332a38f776f1ecc9811f77494b",
+  "indexDigestExcludedPaths": [
+    "catalog/v2/repository-inventory.json"
+  ],
+  "changesSinceBase": [
+    {
+      "path": ".github/workflows/verify-ai-corpus.yml",
+      "status": "added"
+    },
+    {
+      "path": "AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md",
+      "status": "added"
+    },
+    {
+      "path": "AI-REPOSITORY-REDESIGN-AUTONOMOUS-PLAN.md",
+      "status": "added"
+    },
+    {
+      "path": "AI-REPOSITORY-REDESIGN-AUTONOMOUS-PROMPT.md",
+      "status": "added"
+    },
+    {
+      "path": "AI-REPOSITORY-REDESIGN-CONTINUATION-HANDOVER.md",
+      "status": "added"
+    },
+    {
+      "path": "AI-REPOSITORY-REDESIGN-ECOSYSTEM-USE-CASES.md",
+      "status": "added"
+    },
+    {
+      "path": "AI-REPOSITORY-REDESIGN-FIRST-SOURCE-MOVE-PROMPT.md",
+      "status": "added"
+    },
+    {
+      "path": "AI-REPOSITORY-REDESIGN-HANDOVER.md",
+      "status": "added"
+    },
+    {
+      "path": "AI-REPOSITORY-REDESIGN-IMPLEMENTATION-PLAN.md",
+      "status": "added"
+    },
+    {
+      "path": "AI-REPOSITORY-REDESIGN-IMPLEMENTATION-PROMPT.md",
+      "status": "added"
+    },
+    {
+      "path": "AI-REPOSITORY-REDESIGN-NEXT-SESSION-HANDOVER.md",
+      "status": "added"
+    },
+    {
+      "path": "AI-REPOSITORY-REDESIGN-REEVALUATION-PROMPT.md",
+      "status": "added"
+    },
+    {
+      "path": "AI-REPOSITORY-REDESIGN-REEVALUATION.md",
+      "status": "added"
+    },
+    {
+      "path": "AI-REPOSITORY-REDESIGN-THIRD-PARTY-SKILLS-EVALUATION.md",
+      "status": "added"
+    },
+    {
+      "path": "catalog/ecosystem-versions.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/product-coverage.yml",
+      "status": "added"
+    },
+    {
+      "path": "catalog/public-skills.yml",
+      "status": "added"
+    },
+    {
+      "path": "catalog/schemas/ecosystem-versions.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/schemas/product-coverage.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/schemas/public-skills.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/schemas/v2/catalog-v2.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/v2/artifacts.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/v2/evidence.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/v2/migrations.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/v2/product-coverage.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/v2/repository-inventory.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/v2/sources.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/v2/targets.json",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/evidence/redesign-autonomous-execution-2026-08-20/authority/cratis-ai-126.json",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/evidence/redesign-autonomous-execution-2026-08-20/authority/cratis-ai-127.json",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/evidence/redesign-autonomous-execution-2026-08-20/authority/cratis-dotgithub-24.json",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/evidence/redesign-autonomous-execution-2026-08-20/authority/cratis-workflows-68.json",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/evidence/redesign-autonomous-execution-2026-08-20/branches.txt",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/evidence/redesign-autonomous-execution-2026-08-20/changed-path-sha256.tsv",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/evidence/redesign-autonomous-execution-2026-08-20/ignored-paths.txt",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/evidence/redesign-autonomous-execution-2026-08-20/README.md",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/evidence/redesign-autonomous-execution-2026-08-20/repository.tsv",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/evidence/redesign-autonomous-execution-2026-08-20/staged-diff-stat.txt",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/evidence/redesign-autonomous-execution-2026-08-20/staged-name-status.tsv",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/evidence/redesign-autonomous-execution-2026-08-20/status-short.txt",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/evidence/redesign-autonomous-execution-2026-08-20/unstaged-diff-stat.txt",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/evidence/redesign-autonomous-execution-2026-08-20/unstaged-name-status.tsv",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/evidence/redesign-autonomous-execution-2026-08-20/untracked-paths.txt",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/evidence/redesign-autonomous-execution-2026-08-20/worktrees.txt",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/phase-0-verification.md",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/project-context-bootstrap.md",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/public-product-architecture.md",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/redesign-foundation-validation.md",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/skill-classification-audit.md",
+      "status": "added"
+    },
+    {
+      "path": "tooling/catalog-v2-validation.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/catalog-validation.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/project-context/application-canonical/.cratis/PROJECT.md",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/project-context/both/.agents/PROJECT.md",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/project-context/both/.cratis/PROJECT.md",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/project-context/existing-bootstrap/.cratis/PROJECT.md",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/project-context/existing-bootstrap/AGENTS.md",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/project-context/existing-bootstrap/CLAUDE.md",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/project-context/existing-bootstrap/GEMINI.md",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/project-context/framework-legacy/.agents/PROJECT.md",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/project-context/no-context/.keep",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/public-artifact/engineering-discovery/engineering/skills/cratis-engineering-example/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/public-artifact/valid-source/skills/cratis-example/assets/example.txt",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/public-artifact/valid-source/skills/cratis-example/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/public-artifact/valid-source/skills/cratis-example/references/guide.md",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/public-artifact/valid-source/skills/cratis-example/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "tooling/generate-catalog-v2.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/generate-repository-inventory.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/project-context-bootstrap.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/public-artifact-materializer.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/catalog-v2-validation.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/catalog-validation.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/project-context-bootstrap.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/public-artifact-materializer.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/validate-catalogs.mjs",
+      "status": "added"
+    }
+  ],
+  "admittedUntracked": [],
+  "excludedRuntimePrefixes": [
+    ".pi/delegate/",
+    ".pi/fusion/",
+    ".pi/tasks/"
+  ],
+  "records": [
+    {
+      "excludePathPatterns": [],
+      "id": "root-repository-metadata",
+      "sourcePathPatterns": [
+        ".gitignore",
+        "LICENSE",
+        "README.md"
+      ],
+      "artifactType": "repository-metadata",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [],
+      "risk": "low",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "repo-main-b795d53"
+      ],
+      "expectedPathCount": 3,
+      "expectedPathsDigest": "d81915b300d7a1503c839c65817b67c8a4f6442898278a204cd1a9567fedaf79"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "root-instruction-adapter",
+      "sourcePathPatterns": [
+        "AGENTS.md"
+      ],
+      "artifactType": "adapter",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "obsolete, with deletion deferred until replacement evidence exists",
+      "runtimeEligibility": "forbidden",
+      "generatedStatus": "derived",
+      "adapterStatus": "symlink-adapter",
+      "dependencies": [
+        ".ai/rules/general.md"
+      ],
+      "risk": "high",
+      "migrationState": "retire-after-evidence",
+      "evidenceIds": [
+        "workflows-68",
+        "reevaluation-authority"
+      ],
+      "generator": "legacy-manual-adapter-model",
+      "expectedPathCount": 1,
+      "expectedPathsDigest": "954ec5dad7eaf581ad4bfa090369b244ac0120b43722ef2efff5ba89fc52046f"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "root-skill-adapter",
+      "sourcePathPatterns": [
+        ".agents/skills"
+      ],
+      "artifactType": "adapter",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "obsolete, with deletion deferred until replacement evidence exists",
+      "runtimeEligibility": "forbidden",
+      "generatedStatus": "derived",
+      "adapterStatus": "symlink-adapter",
+      "dependencies": [
+        ".ai/skills"
+      ],
+      "risk": "critical",
+      "migrationState": "retire-after-evidence",
+      "evidenceIds": [
+        "workflows-68",
+        "reevaluation-authority"
+      ],
+      "generator": "legacy-manual-adapter-model",
+      "expectedPathCount": 1,
+      "expectedPathsDigest": "c85e3e23d65d941602eda38162f5a6d9867c7f9027aa307d394bc476a3b81cfa"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "engineering-corpus-readme",
+      "sourcePathPatterns": [
+        ".ai/README.md"
+      ],
+      "artifactType": "documentation",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "reusable Cratis engineering behavior",
+      "runtimeEligibility": "forbidden",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        ".ai/**"
+      ],
+      "risk": "medium",
+      "migrationState": "classify-in-place",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "ai-126"
+      ],
+      "expectedPathCount": 1,
+      "expectedPathsDigest": "71458c1ed95ed5fcb1a3aac8e85e1561d72b928dee4d7a435f79e7a01bb95552"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "engineering-rules",
+      "sourcePathPatterns": [
+        ".ai/rules/**"
+      ],
+      "artifactType": "rule",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "reusable Cratis engineering behavior",
+      "runtimeEligibility": "forbidden",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [],
+      "risk": "high",
+      "migrationState": "classify-in-place",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "ai-126"
+      ],
+      "expectedPathCount": 35,
+      "expectedPathsDigest": "b61335ee479ba0b46f861baf40ac257abe6b0687909e655ea3f4de59cd3fbd49"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "ensemble-investigation-agents",
+      "sourcePathPatterns": [
+        ".ai/agents/repository-investigation-reviewer.md",
+        ".ai/agents/repository-investigator.md"
+      ],
+      "artifactType": "agent",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "Ensemble",
+      "runtimeEligibility": "forbidden",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [],
+      "risk": "high",
+      "migrationState": "move-deferred",
+      "evidenceIds": [
+        "reevaluation-authority"
+      ],
+      "expectedPathCount": 2,
+      "expectedPathsDigest": "92229b43938324909f5fc16a46e53a4d7597b467631d9b89024714e0c931fd29"
+    },
+    {
+      "excludePathPatterns": [
+        ".ai/agents/repository-investigation-reviewer.md",
+        ".ai/agents/repository-investigator.md"
+      ],
+      "id": "engineering-agents",
+      "sourcePathPatterns": [
+        ".ai/agents/**"
+      ],
+      "artifactType": "agent",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "reusable Cratis engineering behavior",
+      "runtimeEligibility": "forbidden",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        ".ai/rules/**"
+      ],
+      "risk": "high",
+      "migrationState": "classify-in-place",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "expectedPathCount": 10,
+      "expectedPathsDigest": "f39d68ba2a5b484ee5d6ba266adf1a3688b4222328ad2764f98bc980c0b8a587"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "engineering-prompts",
+      "sourcePathPatterns": [
+        ".ai/prompts/**"
+      ],
+      "artifactType": "prompt-command",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "reusable Cratis engineering behavior",
+      "runtimeEligibility": "forbidden",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        ".ai/rules/**",
+        ".ai/skills/**"
+      ],
+      "risk": "high",
+      "migrationState": "classify-in-place",
+      "evidenceIds": [
+        "repo-main-b795d53"
+      ],
+      "expectedPathCount": 18,
+      "expectedPathsDigest": "2622d36bc64291e7cc8e45e71f6efc062bc72fa3fd2ec6d455e2b36f32bc684d"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "engineering-hooks",
+      "sourcePathPatterns": [
+        ".ai/hooks/**"
+      ],
+      "artifactType": "hook",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "reusable Cratis engineering behavior",
+      "runtimeEligibility": "forbidden",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        ".pi/extensions/cratis-hooks/index.ts"
+      ],
+      "risk": "critical",
+      "migrationState": "move-deferred",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "ai-126"
+      ],
+      "expectedPathCount": 14,
+      "expectedPathsDigest": "bacd720113a371e382ce67ae40b9612a76a7fe900d80139ce70f706ea9021daf"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "workflows-claude-action-source",
+      "sourcePathPatterns": [
+        ".ai/workflows/**"
+      ],
+      "artifactType": "workflow",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "Workflows organization mechanics",
+      "runtimeEligibility": "forbidden",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "anthropics/claude-code-action"
+      ],
+      "risk": "critical",
+      "migrationState": "move-deferred",
+      "evidenceIds": [
+        "workflows-68",
+        "reevaluation-authority"
+      ],
+      "expectedPathCount": 1,
+      "expectedPathsDigest": "f077fce96afcd3b6b7fe950fbccd00c2324b0922f5a8ba059e2d77057b6534ba"
+    },
+    {
+      "excludePathPatterns": [
+        ".ai/skills/*/evals/**"
+      ],
+      "id": "public-skill-sources-and-resources",
+      "sourcePathPatterns": [
+        ".ai/skills/add-business-rule/**",
+        ".ai/skills/add-concept/**",
+        ".ai/skills/add-ef-migration/**",
+        ".ai/skills/add-projection/**",
+        ".ai/skills/add-reactor/**",
+        ".ai/skills/add-reducer/**",
+        ".ai/skills/auth-and-identity/**",
+        ".ai/skills/call-command-from-code/**",
+        ".ai/skills/cratis-command/**",
+        ".ai/skills/cratis-react-page/**",
+        ".ai/skills/cratis-readmodel/**",
+        ".ai/skills/cratis-specs-csharp/**",
+        ".ai/skills/cratis-specs-typescript/**",
+        ".ai/skills/cratis-vertical-slice/**",
+        ".ai/skills/create-event-model/**",
+        ".ai/skills/cross-cutting-properties/**",
+        ".ai/skills/diagnose-slice/**",
+        ".ai/skills/discover-implementations/**",
+        ".ai/skills/event-modeling/**",
+        ".ai/skills/event-type-migrations/**",
+        ".ai/skills/inspect-running-chronicle/**",
+        ".ai/skills/multi-tenancy/**",
+        ".ai/skills/new-vertical-slice/**",
+        ".ai/skills/observable-query-curl/**",
+        ".ai/skills/query-paging/**",
+        ".ai/skills/review-code/**",
+        ".ai/skills/review-performance/**",
+        ".ai/skills/review-security/**",
+        ".ai/skills/scaffold-feature/**",
+        ".ai/skills/stepper-command-dialog/**",
+        ".ai/skills/toolbar/**",
+        ".ai/skills/write-specs/**",
+        ".ai/skills/write-specs-events/**",
+        ".ai/skills/write-specs-frontend/**",
+        ".ai/skills/write-specs-readmodels/**"
+      ],
+      "artifactType": "skill-source-and-resources",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "runtimeEligibility": "candidate",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "catalog/v2/targets.json"
+      ],
+      "risk": "critical",
+      "migrationState": "blocked-by-distribution-decision",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "workflows-68",
+        "reevaluation-authority"
+      ],
+      "expectedPathCount": 62,
+      "expectedPathsDigest": "7b7ce0c400d7a6818d4b3f069b5a1fec4cdc34dced0ff2afa22f8c64f32e32a3"
+    },
+    {
+      "excludePathPatterns": [
+        ".ai/skills/*/evals/**"
+      ],
+      "id": "engineering-skill-sources-and-resources",
+      "sourcePathPatterns": [
+        ".ai/skills/add-cratis-docs-page/**",
+        ".ai/skills/add-traces/**",
+        ".ai/skills/cratis-csharp-standards/**",
+        ".ai/skills/edit-cratis-docs/**",
+        ".ai/skills/qa-cratis-docs/**",
+        ".ai/skills/ship-changes/**",
+        ".ai/skills/skill-creator/**",
+        ".ai/skills/write-documentation/**"
+      ],
+      "artifactType": "skill-source-and-resources",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "reusable Cratis engineering behavior",
+      "runtimeEligibility": "forbidden",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "catalog/v2/targets.json"
+      ],
+      "risk": "critical",
+      "migrationState": "move-deferred",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "expectedPathCount": 29,
+      "expectedPathsDigest": "913915055b0455f3768146ed7515a890ba7574da1a23a98ea70369ff1e2b343f"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "skill-evaluations",
+      "sourcePathPatterns": [
+        ".ai/skills/*/evals/**"
+      ],
+      "artifactType": "evaluation",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        ".ai/skills/**"
+      ],
+      "risk": "medium",
+      "migrationState": "move-deferred",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "expectedPathCount": 13,
+      "expectedPathsDigest": "855137350b125e41f20ab0813161a5732c9ee39b9163e9217c6bb506304aa1ae"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "claude-host-adapters",
+      "sourcePathPatterns": [
+        ".claude/**"
+      ],
+      "artifactType": "adapter",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "reusable Cratis engineering behavior",
+      "runtimeEligibility": "forbidden",
+      "generatedStatus": "derived",
+      "adapterStatus": "symlink-adapter",
+      "dependencies": [
+        ".ai/**"
+      ],
+      "risk": "high",
+      "migrationState": "retire-after-evidence",
+      "evidenceIds": [
+        "workflows-68",
+        "reevaluation-authority"
+      ],
+      "generator": "legacy-manual-adapter-model",
+      "expectedPathCount": 57,
+      "expectedPathsDigest": "06aee74161e908fd6d22a17bfbe3d1fa331c286d337802378cf8cd6ae73c6aa8"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "copilot-ensemble-agent-adapters",
+      "sourcePathPatterns": [
+        ".github/agents/repository-investigation-reviewer.agent.md",
+        ".github/agents/repository-investigator.agent.md"
+      ],
+      "artifactType": "adapter",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "Ensemble",
+      "runtimeEligibility": "forbidden",
+      "generatedStatus": "derived",
+      "adapterStatus": "path-reference",
+      "dependencies": [
+        ".ai/agents/repository-investigation-reviewer.md",
+        ".ai/agents/repository-investigator.md"
+      ],
+      "risk": "high",
+      "migrationState": "move-deferred",
+      "evidenceIds": [
+        "reevaluation-authority"
+      ],
+      "generator": "legacy-manual-adapter-model",
+      "expectedPathCount": 2,
+      "expectedPathsDigest": "018908cf124140062334f2821589cef901c30cb91a25a066f88c418f7eeb2766"
+    },
+    {
+      "excludePathPatterns": [
+        ".github/agents/repository-investigation-reviewer.agent.md",
+        ".github/agents/repository-investigator.agent.md"
+      ],
+      "id": "copilot-engineering-agent-adapters",
+      "sourcePathPatterns": [
+        ".github/agents/**"
+      ],
+      "artifactType": "adapter",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "reusable Cratis engineering behavior",
+      "runtimeEligibility": "forbidden",
+      "generatedStatus": "derived",
+      "adapterStatus": "symlink-adapter",
+      "dependencies": [
+        ".ai/agents/**"
+      ],
+      "risk": "high",
+      "migrationState": "retire-after-evidence",
+      "evidenceIds": [
+        "workflows-68"
+      ],
+      "generator": "legacy-manual-adapter-model",
+      "expectedPathCount": 10,
+      "expectedPathsDigest": "f898a31706790581b3f430e418d77ff78dccca706b2bc1e352780c33f6491b4d"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "copilot-corpus-adapters",
+      "sourcePathPatterns": [
+        ".github/copilot-instructions.md",
+        ".github/instructions",
+        ".github/prompts",
+        ".github/skills"
+      ],
+      "artifactType": "adapter",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "obsolete, with deletion deferred until replacement evidence exists",
+      "runtimeEligibility": "forbidden",
+      "generatedStatus": "derived",
+      "adapterStatus": "symlink-adapter",
+      "dependencies": [
+        ".ai/rules/**",
+        ".ai/prompts/**",
+        ".ai/skills/**"
+      ],
+      "risk": "critical",
+      "migrationState": "retire-after-evidence",
+      "evidenceIds": [
+        "workflows-68",
+        "reevaluation-authority"
+      ],
+      "generator": ".github/scripts/propagate-copilot-instructions.sh",
+      "expectedPathCount": 4,
+      "expectedPathsDigest": "34b01a4f1bff59fa82f81a3a9f91921d17b32c4078a9a49397d926d21664fac3"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "copilot-propagation-mechanics",
+      "sourcePathPatterns": [
+        ".github/scripts/**",
+        ".github/workflows/propagate-copilot-instructions.yml",
+        ".github/workflows/sync-copilot-instructions.yml"
+      ],
+      "artifactType": "propagation-script",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "Workflows organization mechanics",
+      "runtimeEligibility": "forbidden",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "Cratis/Workflows"
+      ],
+      "risk": "critical",
+      "migrationState": "retire-after-evidence",
+      "evidenceIds": [
+        "workflows-68"
+      ],
+      "expectedPathCount": 4,
+      "expectedPathsDigest": "cdbad1406a0b5040579c30532589e9614becc5ddc8a3e17a8021ed1d436cb656"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "obsolete-package-update-workflow",
+      "sourcePathPatterns": [
+        ".github/workflows/update-packages.yml"
+      ],
+      "artifactType": "workflow",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "obsolete, with deletion deferred until replacement evidence exists",
+      "runtimeEligibility": "forbidden",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [],
+      "risk": "high",
+      "migrationState": "retire-after-evidence",
+      "evidenceIds": [
+        "ai-126"
+      ],
+      "expectedPathCount": 1,
+      "expectedPathsDigest": "52e108092cd0b572e13f08ef3e67bbe58a19842c9693f59aecb8c69aaf0383f7"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "repository-validation-workflow",
+      "sourcePathPatterns": [
+        ".github/workflows/verify-ai-corpus.yml"
+      ],
+      "artifactType": "workflow",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "tooling/validate-catalogs.mjs",
+        "tooling/specs/**"
+      ],
+      "risk": "high",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "option-a-plus-authority"
+      ],
+      "expectedPathCount": 1,
+      "expectedPathsDigest": "cbb1eb65a59cd4dccc252f948c4352d7fb442a8442f59bde81094f983763e9c2"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "repository-github-metadata-and-cleanup",
+      "sourcePathPatterns": [
+        ".github/ISSUE_TEMPLATE/**",
+        ".github/pull_request_template.md",
+        ".github/workflows/cleanup-pr-artifacts.yml"
+      ],
+      "artifactType": "repository-metadata",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [],
+      "risk": "medium",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "repo-main-b795d53"
+      ],
+      "expectedPathCount": 4,
+      "expectedPathsDigest": "a1fe1a0a7af43bbf195eab58bc0cd86bb6b34f17fa3c86762ec81e34617f4791"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "pi-ensemble-agent-adapters",
+      "sourcePathPatterns": [
+        ".pi/agents/repository-investigation-reviewer.md",
+        ".pi/agents/repository-investigator.md"
+      ],
+      "artifactType": "adapter",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "Ensemble",
+      "runtimeEligibility": "forbidden",
+      "generatedStatus": "derived",
+      "adapterStatus": "symlink-adapter",
+      "dependencies": [
+        ".ai/agents/repository-investigation-reviewer.md",
+        ".ai/agents/repository-investigator.md"
+      ],
+      "risk": "high",
+      "migrationState": "move-deferred",
+      "evidenceIds": [
+        "reevaluation-authority"
+      ],
+      "generator": "legacy-manual-adapter-model",
+      "expectedPathCount": 2,
+      "expectedPathsDigest": "9943d480016084007628f58d5db9b4fdd1d238eda9564063bc5447e0e39112d9"
+    },
+    {
+      "excludePathPatterns": [
+        ".pi/agents/repository-investigation-reviewer.md",
+        ".pi/agents/repository-investigator.md"
+      ],
+      "id": "pi-engineering-agent-adapters",
+      "sourcePathPatterns": [
+        ".pi/agents/**"
+      ],
+      "artifactType": "adapter",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "reusable Cratis engineering behavior",
+      "runtimeEligibility": "forbidden",
+      "generatedStatus": "derived",
+      "adapterStatus": "symlink-adapter",
+      "dependencies": [
+        ".ai/agents/**"
+      ],
+      "risk": "high",
+      "migrationState": "retire-after-evidence",
+      "evidenceIds": [
+        "workflows-68"
+      ],
+      "generator": "legacy-manual-adapter-model",
+      "expectedPathCount": 10,
+      "expectedPathsDigest": "59159764500d1d8b3f15f7babf2bd0cded4abab3b5c35a6c7d2262fd2a12454c"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "pi-prompt-adapters",
+      "sourcePathPatterns": [
+        ".pi/prompts/**"
+      ],
+      "artifactType": "adapter",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "reusable Cratis engineering behavior",
+      "runtimeEligibility": "forbidden",
+      "generatedStatus": "derived",
+      "adapterStatus": "symlink-adapter",
+      "dependencies": [
+        ".ai/prompts/**"
+      ],
+      "risk": "high",
+      "migrationState": "retire-after-evidence",
+      "evidenceIds": [
+        "workflows-68"
+      ],
+      "generator": "legacy-manual-adapter-model",
+      "expectedPathCount": 18,
+      "expectedPathsDigest": "82b2df76091328ae3fca64d660e39af7f0bec16b79d04f4f4426a8c3f797d5ba"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "pi-hook-extension",
+      "sourcePathPatterns": [
+        ".pi/extensions/cratis-hooks/**"
+      ],
+      "artifactType": "pi-extension",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "reusable Cratis engineering behavior",
+      "runtimeEligibility": "forbidden",
+      "generatedStatus": "source",
+      "adapterStatus": "adapter",
+      "dependencies": [
+        ".ai/hooks/scripts/**"
+      ],
+      "risk": "critical",
+      "migrationState": "move-deferred",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "ai-126"
+      ],
+      "expectedPathCount": 1,
+      "expectedPathsDigest": "fa875963504a93488692cb503d2150181691dfb2f50a8cc4a6a2ff1b9a1653a0"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "pi-subagent-extension",
+      "sourcePathPatterns": [
+        ".pi/extensions/subagent/**"
+      ],
+      "artifactType": "pi-extension",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "reusable Cratis engineering behavior",
+      "runtimeEligibility": "forbidden",
+      "generatedStatus": "source",
+      "adapterStatus": "adapter",
+      "dependencies": [
+        ".pi/agents/**",
+        ".ai/agents/**"
+      ],
+      "risk": "critical",
+      "migrationState": "move-deferred",
+      "evidenceIds": [
+        "repo-main-b795d53"
+      ],
+      "expectedPathCount": 2,
+      "expectedPathsDigest": "50280f93a4994b987dc37821b2b949191d9cb6efb852c8f8658416b39e494dc5"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "autonomous-execution-evidence",
+      "sourcePathPatterns": [
+        "Documentation/evidence/redesign-autonomous-execution-2026-08-20/**"
+      ],
+      "artifactType": "documentation",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "Cratis/.github#24",
+        "Cratis/Workflows#68",
+        "Cratis/AI#126",
+        "Cratis/AI#127"
+      ],
+      "risk": "medium",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "github-organization-24",
+        "workflows-68",
+        "option-a-plus-authority",
+        "organization-option-a-plus-authority"
+      ],
+      "expectedPathCount": 16,
+      "expectedPathsDigest": "f4f99ed78267398e3e6db6eb99fcfd307d5bb7e3a55806c48b893ff9d6c42255"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "legacy-documentation",
+      "sourcePathPatterns": [
+        "Documentation/agents.md",
+        "Documentation/architecture.md",
+        "Documentation/index.md",
+        "Documentation/instructions-vs-skills.md",
+        "Documentation/instructions.md",
+        "Documentation/orchestrator.md",
+        "Documentation/skills.md",
+        "Documentation/verify-markdown.sh"
+      ],
+      "artifactType": "documentation",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "obsolete, with deletion deferred until replacement evidence exists",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        ".ai/**"
+      ],
+      "risk": "medium",
+      "migrationState": "retire-after-evidence",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "expectedPathCount": 8,
+      "expectedPathsDigest": "e2ff4c260b18e7c59146b8a48aadf114d59c06f970a8b473529baa7da667de4f"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "redesign-decision-documents",
+      "sourcePathPatterns": [
+        "AI-REPOSITORY-REDESIGN-*.md",
+        "Documentation/phase-0-verification.md",
+        "Documentation/public-product-architecture.md",
+        "Documentation/skill-classification-audit.md",
+        "Documentation/project-context-bootstrap.md",
+        "Documentation/redesign-foundation-validation.md"
+      ],
+      "artifactType": "documentation",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "Cratis/.github#24",
+        "Cratis/Workflows#68"
+      ],
+      "risk": "medium",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "github-organization-24",
+        "workflows-68",
+        "reevaluation-authority"
+      ],
+      "expectedPathCount": 18,
+      "expectedPathsDigest": "788d028de84fa9600be36a577d5f592bd762a7dd9844ea973e7ac24f0dc7e5bb"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "catalog-v1-scaffold",
+      "sourcePathPatterns": [
+        "catalog/ecosystem-versions.json",
+        "catalog/product-coverage.yml",
+        "catalog/public-skills.yml",
+        "catalog/schemas/ecosystem-versions.schema.json",
+        "catalog/schemas/product-coverage.schema.json",
+        "catalog/schemas/public-skills.schema.json"
+      ],
+      "artifactType": "catalog-schema",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "tooling/catalog-validation.mjs"
+      ],
+      "risk": "medium",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "reevaluation-authority"
+      ],
+      "expectedPathCount": 6,
+      "expectedPathsDigest": "73a48d8157df4c5c347ab0d28bf4547282556ae52113232104bae92a616f749b"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "catalog-v2-generated-surfaces",
+      "sourcePathPatterns": [
+        "catalog/v2/**"
+      ],
+      "artifactType": "catalog-schema",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "generated",
+      "adapterStatus": "none",
+      "dependencies": [
+        "tooling/generate-catalog-v2.mjs",
+        "tooling/generate-repository-inventory.mjs"
+      ],
+      "risk": "high",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "reevaluation-authority"
+      ],
+      "generator": "tooling/generate-catalog-v2.mjs and tooling/generate-repository-inventory.mjs",
+      "expectedPathCount": 7,
+      "expectedPathsDigest": "e357183a0be12bfbbdea6835b9946fc8b10004c5c902cb1dd4a9d96c105a32c8"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "catalog-v2-schema",
+      "sourcePathPatterns": [
+        "catalog/schemas/v2/**"
+      ],
+      "artifactType": "catalog-schema",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "tooling/catalog-v2-validation.mjs"
+      ],
+      "risk": "high",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "reevaluation-authority"
+      ],
+      "expectedPathCount": 1,
+      "expectedPathsDigest": "f8ea2e49bee58147fe1520c05b1e2078d4e2c9a9a71162b84c8ea364b8706b81"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "catalog-and-redesign-tooling",
+      "sourcePathPatterns": [
+        "tooling/*.mjs"
+      ],
+      "artifactType": "validation-tooling",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "catalog/**"
+      ],
+      "risk": "high",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "reevaluation-authority"
+      ],
+      "expectedPathCount": 7,
+      "expectedPathsDigest": "5d124b5352835c22157025b12fb8620fbaec919f2f3b17a3e35dfe615e65d536"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "catalog-and-materializer-specs",
+      "sourcePathPatterns": [
+        "tooling/specs/**"
+      ],
+      "artifactType": "evaluation",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "tooling/*.mjs",
+        "catalog/**"
+      ],
+      "risk": "medium",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "reevaluation-authority"
+      ],
+      "expectedPathCount": 4,
+      "expectedPathsDigest": "47ac458d9402ffed38dbd659cf0febcf4110ee1d134d6bbc65bae321e3cb2534"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "sanitized-redesign-fixtures",
+      "sourcePathPatterns": [
+        "tooling/fixtures/**"
+      ],
+      "artifactType": "test-fixture",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "tooling/public-artifact-materializer.mjs",
+        "tooling/project-context-bootstrap.mjs"
+      ],
+      "risk": "low",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "reevaluation-authority"
+      ],
+      "expectedPathCount": 14,
+      "expectedPathsDigest": "396592906ce042e4400f7247e956e9c75fa79283d83ac180536df429abda8d23"
+    }
+  ]
+}

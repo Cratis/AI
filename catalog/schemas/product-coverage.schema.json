@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cratis/AI/catalog/schemas/product-coverage.schema.json",
+  "title": "Cratis product and language coverage catalog",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "claimPolicy", "verifiedOn", "languages", "products"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "claimPolicy": { "const": "verified-only" },
+    "verifiedOn": { "type": "string", "format": "date" },
+    "languages": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "supportStatus"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "name": { "type": "string", "minLength": 1 },
+          "supportStatus": {
+            "enum": ["current-corpus", "roadmap", "verification-required"]
+          },
+          "notes": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "products": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "capabilities"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "name": { "type": "string", "minLength": 1 },
+          "capabilities": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["id", "status", "languages", "sourceSkills"],
+              "properties": {
+                "id": { "$ref": "#/$defs/id" },
+                "status": {
+                  "enum": ["candidate", "partial", "backlog", "verification-required"]
+                },
+                "languages": {
+                  "type": "array",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": { "$ref": "#/$defs/id" }
+                },
+                "sourceSkills": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": { "$ref": "#/$defs/id" }
+                },
+                "notes": { "type": "string", "minLength": 1 }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    }
+  }
+}

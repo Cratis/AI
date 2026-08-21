@@ -1,0 +1,6 @@
+ .ai/hooks/agent-stop.md                |  8 ++++
+ .ai/hooks/pre-commit.md                |  6 +++
+ .ai/hooks/scripts/validate-ai-setup.sh | 71 +++++++++++++++++++++++-----------
+ .gitignore                             |  5 +++
+ Documentation/index.md                 | 38 +++++++++++++-----
+ 5 files changed, 96 insertions(+), 32 deletions(-)

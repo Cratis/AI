@@ -1,0 +1,667 @@
+{
+  "schemaVersion": 1,
+  "claimPolicy": "verified-only",
+  "verifiedOn": "2026-08-20",
+  "languages": [
+    {
+      "id": "csharp",
+      "name": "C#",
+      "supportStatus": "current-corpus"
+    },
+    {
+      "id": "typescript",
+      "name": "TypeScript",
+      "supportStatus": "current-corpus"
+    },
+    {
+      "id": "react",
+      "name": "React",
+      "supportStatus": "current-corpus",
+      "notes": "Tracked separately because component and generated-proxy workflows differ from general TypeScript."
+    },
+    {
+      "id": "shell",
+      "name": "Shell and HTTP clients",
+      "supportStatus": "current-corpus"
+    },
+    {
+      "id": "markdown",
+      "name": "Markdown and Mermaid",
+      "supportStatus": "current-corpus"
+    },
+    {
+      "id": "language-agnostic",
+      "name": "Language-agnostic modeling",
+      "supportStatus": "current-corpus"
+    },
+    {
+      "id": "java",
+      "name": "Java",
+      "supportStatus": "verification-required",
+      "notes": "Do not add a public skill until the client repository, supported version, API, and toolchain are verified."
+    },
+    {
+      "id": "kotlin",
+      "name": "Kotlin",
+      "supportStatus": "verification-required",
+      "notes": "Do not add a public skill until the client repository, supported version, API, and toolchain are verified."
+    },
+    {
+      "id": "elixir",
+      "name": "Elixir",
+      "supportStatus": "verification-required",
+      "notes": "Do not add a public skill until the client repository, supported version, API, and toolchain are verified."
+    }
+  ],
+  "products": [
+    {
+      "id": "fundamentals",
+      "name": "Cratis Fundamentals",
+      "capabilities": [
+        {
+          "id": "concepts",
+          "status": "candidate",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkills": [
+            "add-concept"
+          ]
+        },
+        {
+          "id": "type-discovery",
+          "status": "candidate",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkills": [
+            "discover-implementations"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "arc",
+      "name": "Cratis Arc",
+      "capabilities": [
+        {
+          "id": "commands",
+          "status": "candidate",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkills": [
+            "cratis-command"
+          ]
+        },
+        {
+          "id": "command-validation",
+          "status": "candidate",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkills": [
+            "add-business-rule"
+          ],
+          "notes": "The current add-business-rule source will be split so this capability does not compete with Chronicle event constraints."
+        },
+        {
+          "id": "command-execution",
+          "status": "candidate",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkills": [
+            "call-command-from-code"
+          ]
+        },
+        {
+          "id": "authentication-authorization-and-identity",
+          "status": "partial",
+          "languages": [
+            "csharp",
+            "react"
+          ],
+          "sourceSkills": [
+            "auth-and-identity"
+          ],
+          "notes": "Authorization and identity-provider concerns are bundled and require trigger-boundary review."
+        },
+        {
+          "id": "queries",
+          "status": "backlog",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkills": [],
+          "notes": "No dedicated Arc query skill exists."
+        },
+        {
+          "id": "validation",
+          "status": "partial",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkills": [
+            "add-business-rule"
+          ],
+          "notes": "Validation is present only as part of broader business-rule guidance."
+        },
+        {
+          "id": "authorization",
+          "status": "partial",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkills": [
+            "auth-and-identity"
+          ],
+          "notes": "Authorization is present only as part of broader authentication and identity guidance."
+        }
+      ]
+    },
+    {
+      "id": "arc-react",
+      "name": "Arc for React",
+      "capabilities": [
+        {
+          "id": "page-composition",
+          "status": "candidate",
+          "languages": [
+            "react",
+            "typescript"
+          ],
+          "sourceSkills": [
+            "cratis-react-page",
+            "scaffold-feature"
+          ]
+        },
+        {
+          "id": "generated-command-proxies",
+          "status": "partial",
+          "languages": [
+            "react",
+            "typescript"
+          ],
+          "sourceSkills": [
+            "cratis-command",
+            "cratis-react-page"
+          ]
+        },
+        {
+          "id": "observable-query-http",
+          "status": "candidate",
+          "languages": [
+            "shell"
+          ],
+          "sourceSkills": [
+            "observable-query-curl"
+          ]
+        },
+        {
+          "id": "query-paging",
+          "status": "candidate",
+          "languages": [
+            "csharp",
+            "react",
+            "typescript"
+          ],
+          "sourceSkills": [
+            "query-paging"
+          ]
+        },
+        {
+          "id": "react-client",
+          "status": "backlog",
+          "languages": [
+            "react",
+            "typescript"
+          ],
+          "sourceSkills": [],
+          "notes": "No dedicated Arc React client overview exists."
+        }
+      ]
+    },
+    {
+      "id": "chronicle",
+      "name": "Cratis Chronicle",
+      "capabilities": [
+        {
+          "id": "event-modeling",
+          "status": "candidate",
+          "languages": [
+            "language-agnostic"
+          ],
+          "sourceSkills": [
+            "event-modeling"
+          ]
+        },
+        {
+          "id": "event-model-diagram",
+          "status": "candidate",
+          "languages": [
+            "markdown"
+          ],
+          "sourceSkills": [
+            "create-event-model"
+          ]
+        },
+        {
+          "id": "projections",
+          "status": "candidate",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkills": [
+            "add-projection"
+          ]
+        },
+        {
+          "id": "read-models",
+          "status": "candidate",
+          "languages": [
+            "csharp",
+            "typescript"
+          ],
+          "sourceSkills": [
+            "cratis-readmodel"
+          ]
+        },
+        {
+          "id": "reducers",
+          "status": "candidate",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkills": [
+            "add-reducer"
+          ]
+        },
+        {
+          "id": "reactors",
+          "status": "candidate",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkills": [
+            "add-reactor"
+          ]
+        },
+        {
+          "id": "event-constraints",
+          "status": "candidate",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkills": [
+            "add-business-rule"
+          ],
+          "notes": "The current add-business-rule source will be split into a focused Chronicle constraints skill."
+        },
+        {
+          "id": "event-metadata",
+          "status": "candidate",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkills": [
+            "cross-cutting-properties"
+          ]
+        },
+        {
+          "id": "event-type-migrations",
+          "status": "candidate",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkills": [
+            "event-type-migrations"
+          ]
+        },
+        {
+          "id": "multi-tenancy",
+          "status": "candidate",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkills": [
+            "multi-tenancy"
+          ]
+        },
+        {
+          "id": "operations",
+          "status": "candidate",
+          "languages": [
+            "shell"
+          ],
+          "sourceSkills": [
+            "inspect-running-chronicle"
+          ],
+          "notes": "Requires security review before public approval."
+        },
+        {
+          "id": "compliance",
+          "status": "backlog",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkills": [],
+          "notes": "No dedicated compliance skill exists."
+        },
+        {
+          "id": "csharp-client",
+          "status": "verification-required",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkills": []
+        },
+        {
+          "id": "java-client",
+          "status": "verification-required",
+          "languages": [
+            "java"
+          ],
+          "sourceSkills": []
+        },
+        {
+          "id": "kotlin-client",
+          "status": "verification-required",
+          "languages": [
+            "kotlin"
+          ],
+          "sourceSkills": []
+        },
+        {
+          "id": "elixir-client",
+          "status": "verification-required",
+          "languages": [
+            "elixir"
+          ],
+          "sourceSkills": []
+        }
+      ]
+    },
+    {
+      "id": "components",
+      "name": "Cratis Components",
+      "capabilities": [
+        {
+          "id": "stepper-command-dialog",
+          "status": "candidate",
+          "languages": [
+            "react",
+            "typescript"
+          ],
+          "sourceSkills": [
+            "stepper-command-dialog"
+          ]
+        },
+        {
+          "id": "toolbar",
+          "status": "candidate",
+          "languages": [
+            "react",
+            "typescript"
+          ],
+          "sourceSkills": [
+            "toolbar"
+          ]
+        },
+        {
+          "id": "pages",
+          "status": "partial",
+          "languages": [
+            "react",
+            "typescript"
+          ],
+          "sourceSkills": [
+            "cratis-react-page"
+          ]
+        },
+        {
+          "id": "dialogs",
+          "status": "backlog",
+          "languages": [
+            "react",
+            "typescript"
+          ],
+          "sourceSkills": []
+        },
+        {
+          "id": "forms",
+          "status": "backlog",
+          "languages": [
+            "react",
+            "typescript"
+          ],
+          "sourceSkills": []
+        },
+        {
+          "id": "data-page",
+          "status": "partial",
+          "languages": [
+            "react",
+            "typescript"
+          ],
+          "sourceSkills": [
+            "cratis-react-page"
+          ],
+          "notes": "Currently embedded in broader page guidance."
+        },
+        {
+          "id": "data-tables",
+          "status": "backlog",
+          "languages": [
+            "react",
+            "typescript"
+          ],
+          "sourceSkills": []
+        }
+      ]
+    },
+    {
+      "id": "cli",
+      "name": "Cratis CLI",
+      "capabilities": [
+        {
+          "id": "chronicle-inspection",
+          "status": "partial",
+          "languages": [
+            "shell"
+          ],
+          "sourceSkills": [
+            "inspect-running-chronicle"
+          ]
+        },
+        {
+          "id": "setup",
+          "status": "backlog",
+          "languages": [
+            "shell"
+          ],
+          "sourceSkills": []
+        },
+        {
+          "id": "project-generation",
+          "status": "backlog",
+          "languages": [
+            "shell"
+          ],
+          "sourceSkills": []
+        },
+        {
+          "id": "diagnostics",
+          "status": "partial",
+          "languages": [
+            "shell",
+            "csharp"
+          ],
+          "sourceSkills": [
+            "diagnose-slice",
+            "inspect-running-chronicle"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "specifications",
+      "name": "Cratis.Specifications",
+      "capabilities": [
+        {
+          "id": "csharp-bdd",
+          "status": "candidate",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkills": [
+            "cratis-specs-csharp"
+          ]
+        },
+        {
+          "id": "typescript-bdd",
+          "status": "candidate",
+          "languages": [
+            "typescript"
+          ],
+          "sourceSkills": [
+            "cratis-specs-typescript"
+          ]
+        },
+        {
+          "id": "application-scenarios",
+          "status": "candidate",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkills": [
+            "write-specs",
+            "write-specs-events",
+            "write-specs-readmodels"
+          ]
+        },
+        {
+          "id": "react-specifications",
+          "status": "candidate",
+          "languages": [
+            "react",
+            "typescript"
+          ],
+          "sourceSkills": [
+            "write-specs-frontend"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "application",
+      "name": "Cratis application architecture",
+      "capabilities": [
+        {
+          "id": "vertical-slices",
+          "status": "candidate",
+          "languages": [
+            "csharp",
+            "react",
+            "typescript"
+          ],
+          "sourceSkills": [
+            "cratis-vertical-slice",
+            "new-vertical-slice"
+          ],
+          "notes": "The two current skills are a merge experiment, not an approved merge."
+        },
+        {
+          "id": "feature-scaffolding",
+          "status": "candidate",
+          "languages": [
+            "csharp",
+            "react",
+            "typescript"
+          ],
+          "sourceSkills": [
+            "scaffold-feature"
+          ]
+        },
+        {
+          "id": "slice-diagnostics",
+          "status": "candidate",
+          "languages": [
+            "csharp",
+            "typescript"
+          ],
+          "sourceSkills": [
+            "diagnose-slice"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "entity-framework-core",
+      "name": "Cratis EF Core integration",
+      "capabilities": [
+        {
+          "id": "migrations",
+          "status": "candidate",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkills": [
+            "add-ef-migration"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cross-product",
+      "name": "Cross-product engineering",
+      "capabilities": [
+        {
+          "id": "code-review",
+          "status": "partial",
+          "languages": [
+            "csharp",
+            "typescript"
+          ],
+          "sourceSkills": [
+            "review-code"
+          ],
+          "notes": "Currently depends on the internal rule corpus."
+        },
+        {
+          "id": "performance-review",
+          "status": "partial",
+          "languages": [
+            "csharp",
+            "typescript"
+          ],
+          "sourceSkills": [
+            "review-performance"
+          ],
+          "notes": "Currently depends on the internal rule corpus."
+        },
+        {
+          "id": "security-review",
+          "status": "partial",
+          "languages": [
+            "csharp",
+            "typescript"
+          ],
+          "sourceSkills": [
+            "review-security"
+          ],
+          "notes": "Currently depends on the internal rule corpus."
+        },
+        {
+          "id": "getting-started",
+          "status": "backlog",
+          "languages": [
+            "csharp",
+            "typescript"
+          ],
+          "sourceSkills": []
+        }
+      ]
+    }
+  ]
+}

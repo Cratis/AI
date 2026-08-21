@@ -1,0 +1,5 @@
+M	.ai/hooks/agent-stop.md
+M	.ai/hooks/pre-commit.md
+M	.ai/hooks/scripts/validate-ai-setup.sh
+M	.gitignore
+M	Documentation/index.md
