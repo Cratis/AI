@@ -53,6 +53,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Application React specifications",
       "positiveTriggerIntent": "Use for React or TypeScript behavior in a Cratis application slice.",
       "nearMissExclusions": [
@@ -182,6 +184,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Application slice diagnostics",
       "positiveTriggerIntent": "Use when a Cratis slice misbehaves and source-level cause is unclear.",
       "nearMissExclusions": [
@@ -315,6 +319,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Application slice specifications",
       "positiveTriggerIntent": "Use to route event-sourced application backend behavior to the correct in-process scenario family.",
       "nearMissExclusions": [
@@ -448,6 +454,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Cratis application vertical slices",
       "positiveTriggerIntent": "Use for vertical-slice architecture selection or end-to-end implementation after the merge experiment passes.",
       "nearMissExclusions": [
@@ -579,6 +587,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Arc authentication, authorization, and identity",
       "positiveTriggerIntent": "Use for Arc identity providers, endpoint protection, roles, or frontend identity integration.",
       "nearMissExclusions": [
@@ -710,6 +720,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Arc command definition",
       "positiveTriggerIntent": "Use when defining an Arc command and its generated full-stack proxy workflow.",
       "nearMissExclusions": [
@@ -838,6 +850,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Arc command pipeline execution",
       "positiveTriggerIntent": "Use when backend code must execute an existing Arc command through ICommandPipeline.",
       "nearMissExclusions": [
@@ -963,6 +977,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Arc command validation",
       "positiveTriggerIntent": "Use when adding validation or state-dependent rejection to an existing Arc command.",
       "nearMissExclusions": [
@@ -1090,6 +1106,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Arc EF Core migrations",
       "positiveTriggerIntent": "Use when adding or changing an EF Core schema in a Cratis application.",
       "nearMissExclusions": [
@@ -1214,6 +1232,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Arc observable-query HTTP diagnostics",
       "positiveTriggerIntent": "Use when inspecting Arc observable query SSE or streaming behavior with curl or HTTP tools.",
       "nearMissExclusions": [
@@ -1340,6 +1360,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Arc query paging",
       "positiveTriggerIntent": "Use when adding server-side paging and sorting to an Arc read-model query.",
       "nearMissExclusions": [
@@ -1470,6 +1492,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Arc React feature scaffolding",
       "positiveTriggerIntent": "Use when creating an empty route, navigation entry, and feature composition shell.",
       "nearMissExclusions": [
@@ -1597,6 +1621,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Arc React pages",
       "positiveTriggerIntent": "Use when building a DataPage or MVVM React page backed by generated Arc queries.",
       "nearMissExclusions": [
@@ -1725,6 +1751,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Chronicle CLI operations",
       "positiveTriggerIntent": "Use to inspect a running Chronicle store and, only with explicit confirmation, perform recovery operations.",
       "nearMissExclusions": [
@@ -1853,6 +1881,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Chronicle event constraints",
       "positiveTriggerIntent": "Use when enforcing append-time uniqueness, concurrency, or event-store constraints.",
       "nearMissExclusions": [
@@ -1979,6 +2009,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Chronicle event metadata",
       "positiveTriggerIntent": "Use when attaching audit, actor, tenant, or correlation metadata outside domain event payloads.",
       "nearMissExclusions": [
@@ -2103,6 +2135,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Chronicle event modeling",
       "positiveTriggerIntent": "Use before implementation when commands, events, streams, read models, or reactions are unsettled.",
       "nearMissExclusions": [
@@ -2229,6 +2263,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Chronicle event specifications",
       "positiveTriggerIntent": "Use for EventScenario append, constraint, concurrency, or sequence behavior.",
       "nearMissExclusions": [
@@ -2352,6 +2388,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Chronicle event type migration",
       "positiveTriggerIntent": "Use when a stored event schema needs a new generation and migration.",
       "nearMissExclusions": [
@@ -2476,6 +2514,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Chronicle multi-tenancy",
       "positiveTriggerIntent": "Use when isolating tenants through Chronicle namespaces and Arc tenant resolution.",
       "nearMissExclusions": [
@@ -2601,6 +2641,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Chronicle projections",
       "positiveTriggerIntent": "Use when adding projection behavior to an existing Chronicle read model.",
       "nearMissExclusions": [
@@ -2728,6 +2770,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Chronicle reactors",
       "positiveTriggerIntent": "Use when implementing an automation or translation that reacts to events.",
       "nearMissExclusions": [
@@ -2858,6 +2902,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Chronicle read models",
       "positiveTriggerIntent": "Use when creating a Chronicle read model and model-bound query surface.",
       "nearMissExclusions": [
@@ -2989,6 +3035,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Chronicle read-model specifications",
       "positiveTriggerIntent": "Use for ReadModelScenario projection or reducer behavior.",
       "nearMissExclusions": [
@@ -3115,6 +3163,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Chronicle reducers",
       "positiveTriggerIntent": "Use when a current-state-plus-event transition cannot be expressed as a projection.",
       "nearMissExclusions": [
@@ -3242,6 +3292,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Cratis code review",
       "positiveTriggerIntent": "Use for a general correctness and maintainability review of Cratis code.",
       "nearMissExclusions": [
@@ -3369,6 +3421,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Cratis Components stepper command dialogs",
       "positiveTriggerIntent": "Use when a command requires a multi-step wizard dialog.",
       "nearMissExclusions": [
@@ -3493,6 +3547,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Cratis Components toolbar",
       "positiveTriggerIntent": "Use when building a canvas-style icon toolbar with active tools or fan-out controls.",
       "nearMissExclusions": [
@@ -3615,6 +3671,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Chronicle Kernel tracing maintenance",
       "positiveTriggerIntent": "Use by Chronicle framework maintainers to add generated OpenTelemetry traces.",
       "nearMissExclusions": [
@@ -3724,6 +3782,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Cratis C# engineering conventions",
       "positiveTriggerIntent": "Use for Cratis-maintainer C# house standards and review policy.",
       "nearMissExclusions": [
@@ -3835,6 +3895,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Cratis documentation page creation",
       "positiveTriggerIntent": "Use by Cratis maintainers to add a source-owned product documentation page.",
       "nearMissExclusions": [
@@ -3947,6 +4009,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Cratis documentation authoring",
       "positiveTriggerIntent": "Use by Cratis maintainers to apply Diátaxis and documentation writing guidance.",
       "nearMissExclusions": [
@@ -4059,6 +4123,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Cratis documentation page editing",
       "positiveTriggerIntent": "Use by Cratis maintainers to edit the source-owned copy of an existing documentation page.",
       "nearMissExclusions": [
@@ -4171,6 +4237,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Cratis documentation visual QA",
       "positiveTriggerIntent": "Use by Cratis maintainers to render and inspect documentation in light and dark modes.",
       "nearMissExclusions": [
@@ -4282,6 +4350,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Cratis change shipping",
       "positiveTriggerIntent": "Use only after an explicit request to commit, push, open, or merge a Cratis pull request.",
       "nearMissExclusions": [
@@ -4392,6 +4462,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Event-model diagrams",
       "positiveTriggerIntent": "Use when creating or maintaining a Mermaid EventModel.md diagram for settled behavior.",
       "nearMissExclusions": [
@@ -4514,6 +4586,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Strongly typed Cratis concepts",
       "positiveTriggerIntent": "Use when creating a ConceptAs<T> value or EventSourceId<T> identity.",
       "nearMissExclusions": [
@@ -4633,6 +4707,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Cratis implementation discovery",
       "positiveTriggerIntent": "Use when a service must enumerate all implementations through IInstancesOf<T>.",
       "nearMissExclusions": [
@@ -4754,6 +4830,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Cratis performance review",
       "positiveTriggerIntent": "Use for focused Chronicle, database, .NET, or React scalability analysis.",
       "nearMissExclusions": [
@@ -4881,6 +4959,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Cratis security review",
       "positiveTriggerIntent": "Use for focused authentication, authorization, data exposure, event-sourcing, and frontend security review.",
       "nearMissExclusions": [
@@ -5006,6 +5086,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Cratis C# specification foundations",
       "positiveTriggerIntent": "Use for framework or library C# Specification by Example tests.",
       "nearMissExclusions": [
@@ -5131,6 +5213,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Cratis TypeScript specification foundations",
       "positiveTriggerIntent": "Use for framework or package TypeScript Specification by Example tests.",
       "nearMissExclusions": [
@@ -5253,6 +5337,8 @@
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
       "capability": "Skill authoring and evaluation",
       "positiveTriggerIntent": "Use by trusted maintainers to create, improve, and evaluate Agent Skills.",
       "nearMissExclusions": [

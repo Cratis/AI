@@ -239,7 +239,7 @@ function assertRegularContainedSource(sourceRoot, relativePath) {
     return current;
 }
 
-function assertSafeContent(path, content) {
+export function assertSafeContent(path, content) {
     if (!Buffer.isBuffer(content))
         throw new Error(`Payload content must be a byte buffer: ${path}`);
     if (content.includes(0))

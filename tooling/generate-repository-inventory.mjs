@@ -101,7 +101,7 @@ const unexpectedUntracked = admittedUntracked.filter(
     (path) =>
         !(
             /^AI-REPOSITORY-REDESIGN-[A-Z0-9-]+\.md$/.test(path) ||
-            /^Documentation\/(?:capability-catalog-v2|phase-0-verification|public-product-architecture|skill-classification-audit|project-context-bootstrap|redesign-foundation-validation)\.md$/.test(
+            /^Documentation\/(?:capability-catalog-v2|phase-0-verification|public-product-architecture|skill-authoring-contract|skill-classification-audit|project-context-bootstrap|redesign-foundation-validation)\.md$/.test(
                 path,
             ) ||
             /^Documentation\/evidence\/redesign-autonomous-execution-2026-08-20\//.test(
@@ -647,6 +647,27 @@ const definitions = [
         evidenceIds: ["option-a-plus-authority"],
     },
     {
+        id: "skill-authoring-documentation",
+        sourcePathPatterns: ["Documentation/skill-authoring-contract.md"],
+        artifactType: "documentation",
+        currentOwner: repositoryOwner,
+        targetOwner: repositoryOwner,
+        runtimeEligibility: "repository-only",
+        generatedStatus: "source",
+        adapterStatus: "none",
+        dependencies: [
+            "catalog/v2/authoring-contracts.json",
+            "catalog/v2/human-catalog.json",
+            "tooling/generate-human-catalog.mjs",
+        ],
+        risk: "medium",
+        migrationState: "retain",
+        evidenceIds: [
+            "ecosystem-use-cases",
+            "third-party-skills-evaluation",
+        ],
+    },
+    {
         id: "catalog-v1-scaffold",
         sourcePathPatterns: [
             "catalog/ecosystem-versions.json",
@@ -670,7 +691,9 @@ const definitions = [
     {
         id: "catalog-v2-authored-registries",
         sourcePathPatterns: [
+            "catalog/v2/authoring-contracts.json",
             "catalog/v2/bundles.json",
+            "catalog/v2/human-catalog.json",
             "catalog/v2/source-contracts.json",
             "catalog/v2/taxonomy.json",
             "catalog/v2/upstream-companions.json",
@@ -696,7 +719,9 @@ const definitions = [
         id: "catalog-v2-generated-surfaces",
         sourcePathPatterns: ["catalog/v2/**"],
         excludePathPatterns: [
+            "catalog/v2/authoring-contracts.json",
             "catalog/v2/bundles.json",
+            "catalog/v2/human-catalog.json",
             "catalog/v2/source-contracts.json",
             "catalog/v2/taxonomy.json",
             "catalog/v2/upstream-companions.json",
@@ -716,6 +741,25 @@ const definitions = [
         evidenceIds: ["reevaluation-authority"],
         generator:
             "tooling/generate-catalog-v2.mjs and tooling/generate-repository-inventory.mjs",
+    },
+    {
+        id: "generated-human-catalog",
+        sourcePathPatterns: ["catalog/generated/human-catalog/**"],
+        artifactType: "documentation",
+        currentOwner: repositoryOwner,
+        targetOwner: repositoryOwner,
+        runtimeEligibility: "repository-only",
+        generatedStatus: "generated",
+        adapterStatus: "none",
+        dependencies: [
+            "catalog/v2/human-catalog.json",
+            "catalog/v2/targets.json",
+            "tooling/generate-human-catalog.mjs",
+        ],
+        risk: "medium",
+        migrationState: "retain",
+        evidenceIds: ["option-a-plus-authority"],
+        generator: "tooling/generate-human-catalog.mjs",
     },
     {
         id: "catalog-v2-schema",

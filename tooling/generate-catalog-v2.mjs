@@ -720,6 +720,8 @@ const targets = allTargetIds.map((targetId) => {
         sourceContractState: "unclassified",
         sourceContractIds: [],
         sourceAuthoritySubjects: [],
+        authoringContractState: "unclassified",
+        authoringContractIds: [],
         capability: profile[0],
         positiveTriggerIntent: profile[1],
         nearMissExclusions: profile[2],

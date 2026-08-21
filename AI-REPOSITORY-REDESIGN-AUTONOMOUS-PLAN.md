@@ -470,10 +470,11 @@ The program is complete only when:
   materialization block.
 - [x] Land the autonomous authority, research, and foundation delivery unit in
   [`Cratis/AI#130`](https://github.com/Cratis/AI/pull/130).
-- [ ] Implement the normalized Phase 1 catalog/schema extensions — active on
-  `feat/catalog-v2-capability-model`.
-- [ ] Implement the skill-authoring and human-catalog contracts in the next
-  independent delivery unit.
+- [x] Implement the normalized Phase 1 catalog/schema extensions — merged in
+  [`Cratis/AI#131`](https://github.com/Cratis/AI/pull/131).
+- [ ] Implement the skill-authoring and human-catalog contracts — active on
+  `feat/skill-authoring-human-catalog` with source and initial generated views
+  implemented.
 
 Evidence and exact next actions are in
-[`AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md`](./AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md#16-capability-model-checkpoint--2026-08-21).
+[`AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md`](./AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md#17-skill-authoring-and-human-catalog-checkpoint--2026-08-21).

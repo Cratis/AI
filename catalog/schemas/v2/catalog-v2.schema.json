@@ -227,6 +227,8 @@
         "sourceContractState",
         "sourceContractIds",
         "sourceAuthoritySubjects",
+        "authoringContractState",
+        "authoringContractIds",
         "capability",
         "positiveTriggerIntent",
         "nearMissExclusions",
@@ -281,6 +283,8 @@
         "sourceContractState": { "enum": ["unclassified", "classified"] },
         "sourceContractIds": { "$ref": "#/$defs/idArray" },
         "sourceAuthoritySubjects": { "$ref": "#/$defs/idArray" },
+        "authoringContractState": { "enum": ["unclassified", "classified"] },
+        "authoringContractIds": { "$ref": "#/$defs/idArray" },
         "capability": { "$ref": "#/$defs/nonEmptyString" },
         "positiveTriggerIntent": { "$ref": "#/$defs/nonEmptyString" },
         "nearMissExclusions": {
@@ -584,6 +588,319 @@
           "minItems": 1,
           "uniqueItems": true,
           "items": { "$ref": "#/$defs/upstreamCompanion" }
+        }
+      }
+    },
+    "authoringContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "state",
+        "audience",
+        "inputPolicy",
+        "outputPolicy",
+        "contentRules",
+        "cleanRoomReview",
+        "requiredEvidenceKinds",
+        "evidenceIds"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "kind": { "const": "agent-skill" },
+        "state": { "enum": ["draft", "active", "deprecated", "retired"] },
+        "audience": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "enum": ["public", "cratis-engineering"] }
+        },
+        "inputPolicy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "authoritativeProductSources",
+            "targetEvidence",
+            "catalogMetadata",
+            "upstreamCompanions",
+            "thirdPartyBodies",
+            "generatedCatalogViews",
+            "runtimePayloads",
+            "modelMemory"
+          ],
+          "properties": {
+            "authoritativeProductSources": { "const": "required" },
+            "targetEvidence": { "const": "required" },
+            "catalogMetadata": { "const": "index-only" },
+            "upstreamCompanions": { "const": "metadata-only" },
+            "thirdPartyBodies": { "const": "forbidden" },
+            "generatedCatalogViews": { "const": "non-authoritative" },
+            "runtimePayloads": { "const": "forbidden-as-input" },
+            "modelMemory": { "const": "non-authoritative" }
+          }
+        },
+        "outputPolicy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "mediaType",
+            "relativePath",
+            "requiredFrontmatterKeys",
+            "normativeClaimsRequireEvidence",
+            "distinguishContractsConventionsAndPolicies",
+            "unresolvedClaims",
+            "copyPolicy",
+            "runtimePayloadGeneration"
+          ],
+          "properties": {
+            "mediaType": { "const": "text/markdown" },
+            "relativePath": { "const": "SKILL.md" },
+            "requiredFrontmatterKeys": {
+              "type": "array",
+              "minItems": 2,
+              "uniqueItems": true,
+              "items": { "enum": ["name", "description", "license", "compatibility", "metadata", "allowed-tools"] }
+            },
+            "normativeClaimsRequireEvidence": { "const": true },
+            "distinguishContractsConventionsAndPolicies": { "const": true },
+            "unresolvedClaims": { "const": "omit-or-mark-unknown" },
+            "copyPolicy": { "const": "original-cratis-expression" },
+            "runtimePayloadGeneration": { "const": "separate-approved-delivery-only" }
+          }
+        },
+        "contentRules": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "oneCapability",
+            "oneTriggerIntent",
+            "nearMissesRequired",
+            "collisionSetRequired",
+            "observableCompletionRequired",
+            "progressiveDisclosure",
+            "americanEnglish",
+            "projectFactsForbidden",
+            "privateFactsForbidden",
+            "scriptsForbiddenForPublicSkills",
+            "evalsForbiddenInRuntimePayload"
+          ],
+          "properties": {
+            "oneCapability": { "const": true },
+            "oneTriggerIntent": { "const": true },
+            "nearMissesRequired": { "const": true },
+            "collisionSetRequired": { "const": true },
+            "observableCompletionRequired": { "const": true },
+            "progressiveDisclosure": { "const": true },
+            "americanEnglish": { "const": true },
+            "projectFactsForbidden": { "const": true },
+            "privateFactsForbidden": { "const": true },
+            "scriptsForbiddenForPublicSkills": { "const": true },
+            "evalsForbiddenInRuntimePayload": { "const": true }
+          }
+        },
+        "cleanRoomReview": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "sourceRevisionRecorded",
+            "requirementLevelNotesOnly",
+            "phraseSimilarityReviewRequired",
+            "structuralSimilarityReviewRequired",
+            "copiedWordingForbidden",
+            "copiedHeadingsForbidden",
+            "copiedExamplesForbidden",
+            "copiedTemplatesForbidden",
+            "copiedPersonasForbidden",
+            "copiedScriptsForbidden"
+          ],
+          "properties": {
+            "sourceRevisionRecorded": { "const": true },
+            "requirementLevelNotesOnly": { "const": true },
+            "phraseSimilarityReviewRequired": { "const": true },
+            "structuralSimilarityReviewRequired": { "const": true },
+            "copiedWordingForbidden": { "const": true },
+            "copiedHeadingsForbidden": { "const": true },
+            "copiedExamplesForbidden": { "const": true },
+            "copiedTemplatesForbidden": { "const": true },
+            "copiedPersonasForbidden": { "const": true },
+            "copiedScriptsForbidden": { "const": true }
+          }
+        },
+        "requiredEvidenceKinds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "enum": ["behavior", "positive-trigger", "negative-trigger", "collision", "security", "portability", "source-review"] }
+        },
+        "evidenceIds": { "$ref": "#/$defs/evidenceIds" }
+      }
+    },
+    "authoringContractsCatalog": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schemaVersion", "defaultPolicy", "contracts"],
+      "properties": {
+        "schemaVersion": { "const": 2 },
+        "defaultPolicy": { "const": "deny" },
+        "contracts": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/authoringContract" }
+        }
+      }
+    },
+    "humanCatalogContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "contractVersion",
+        "outputRoot",
+        "generatedFiles",
+        "includeAudiences",
+        "includeUnapprovedTargets",
+        "includeRuntimePayloadBytes",
+        "referenceExpansion",
+        "requiredCapabilitySections",
+        "disclaimer",
+        "limits",
+        "determinism"
+      ],
+      "properties": {
+        "schemaVersion": { "const": 2 },
+        "contractVersion": { "const": 1 },
+        "outputRoot": { "const": "catalog/generated/human-catalog" },
+        "generatedFiles": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["data", "markdown", "manifest"],
+          "properties": {
+            "data": { "const": "catalog.json" },
+            "markdown": { "const": "CATALOG.md" },
+            "manifest": { "const": "manifest.json" }
+          }
+        },
+        "includeAudiences": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "enum": ["public", "cratis-engineering"] }
+        },
+        "includeUnapprovedTargets": { "const": true },
+        "includeRuntimePayloadBytes": { "const": false },
+        "referenceExpansion": { "const": "complete-bounded" },
+        "requiredCapabilitySections": { "$ref": "#/$defs/idArray" },
+        "disclaimer": { "$ref": "#/$defs/nonEmptyString" },
+        "limits": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["maximumInputBytes", "maximumJsonDepth", "maximumItemsPerRegistry", "maximumStringBytes", "maximumGeneratedFiles", "maximumGeneratedBytes"],
+          "properties": {
+            "maximumInputBytes": { "type": "integer", "minimum": 1 },
+            "maximumJsonDepth": { "type": "integer", "minimum": 1 },
+            "maximumItemsPerRegistry": { "type": "integer", "minimum": 1 },
+            "maximumStringBytes": { "type": "integer", "minimum": 1 },
+            "maximumGeneratedFiles": { "type": "integer", "minimum": 3 },
+            "maximumGeneratedBytes": { "type": "integer", "minimum": 1 }
+          }
+        },
+        "determinism": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["timestamps", "environmentValues", "networkAccess", "ordering", "encoding", "lineEndings", "jsonIndentation", "terminalNewline"],
+          "properties": {
+            "timestamps": { "const": false },
+            "environmentValues": { "const": false },
+            "networkAccess": { "const": false },
+            "ordering": { "const": "ordinal" },
+            "encoding": { "const": "utf-8" },
+            "lineEndings": { "const": "lf" },
+            "jsonIndentation": { "const": 2 },
+            "terminalNewline": { "const": true }
+          }
+        }
+      }
+    },
+    "generatedHumanCapability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "semanticName", "audience", "purpose", "whenToUse", "whenNotToUse",
+        "capabilityKind", "invocation", "lifecycle", "approvalState", "runtimeEligible",
+        "products", "languages", "architectures", "personas", "surfaces", "repositoryProfiles",
+        "trust", "dependencies", "authoringContractIds", "evidenceIds", "relatedTargetIds", "bundleIds"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "semanticName": { "$ref": "#/$defs/id" },
+        "audience": { "enum": ["public", "cratis-engineering"] },
+        "purpose": { "$ref": "#/$defs/nonEmptyString" },
+        "whenToUse": { "$ref": "#/$defs/nonEmptyString" },
+        "whenNotToUse": { "$ref": "#/$defs/stringArray" },
+        "capabilityKind": { "$ref": "#/$defs/nonEmptyString" },
+        "invocation": { "$ref": "#/$defs/nonEmptyString" },
+        "lifecycle": { "$ref": "#/$defs/nonEmptyString" },
+        "approvalState": { "$ref": "#/$defs/nonEmptyString" },
+        "runtimeEligible": { "type": "boolean" },
+        "products": { "$ref": "#/$defs/idArray" },
+        "languages": { "$ref": "#/$defs/idArray" },
+        "architectures": { "$ref": "#/$defs/applicability" },
+        "personas": { "$ref": "#/$defs/applicability" },
+        "surfaces": { "$ref": "#/$defs/applicability" },
+        "repositoryProfiles": { "$ref": "#/$defs/applicability" },
+        "trust": { "$ref": "#/$defs/trustAssessment" },
+        "dependencies": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/dependencyEdge" }
+        },
+        "authoringContractIds": { "$ref": "#/$defs/idArray" },
+        "evidenceIds": { "$ref": "#/$defs/evidenceIds" },
+        "relatedTargetIds": { "$ref": "#/$defs/idArray" },
+        "bundleIds": { "$ref": "#/$defs/idArray" }
+      }
+    },
+    "generatedHumanCatalog": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schemaVersion", "contractVersion", "disclaimer", "inputDigest", "capabilities"],
+      "properties": {
+        "schemaVersion": { "const": 2 },
+        "contractVersion": { "const": 1 },
+        "disclaimer": { "$ref": "#/$defs/nonEmptyString" },
+        "inputDigest": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "capabilities": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/generatedHumanCapability" }
+        }
+      }
+    },
+    "generatedHumanCatalogManifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schemaVersion", "contractVersion", "inputDigest", "files"],
+      "properties": {
+        "schemaVersion": { "const": 2 },
+        "contractVersion": { "const": 1 },
+        "inputDigest": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "files": {
+          "type": "array",
+          "minItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "size", "sha256"],
+            "properties": {
+              "path": { "$ref": "#/$defs/path" },
+              "size": { "type": "integer", "minimum": 0 },
+              "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+            }
+          }
         }
       }
     },

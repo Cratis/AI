@@ -412,3 +412,100 @@ Exact next actions:
 3. commit and push the coherent capability-model unit, open a separate
    `no-release` pull request, monitor CI, merge, and record the result;
 4. start the separate skill-authoring and generated human-catalog contract PR.
+
+## 17. Skill-authoring and human-catalog checkpoint — 2026-08-21
+
+### Capability-model delivery
+
+Commit `695e5e97b7be6c3bdf9ab9afedd9e7974abf27fb` landed through
+[`Cratis/AI#131`](https://github.com/Cratis/AI/pull/131) with merge commit
+`029de952811f0af07364a65651a7013875210436`. CI passed and `no-release`
+correctly produced no package or product release. The local gate passed 56/56
+Node specifications, catalog validation, generation drift checks, strict JSON
+parsing, Markdown lint, links, LSP, actionlint, diff checks, and protected hash
+comparison. Final independent rereview returned `CLEAR` before commit. AI#126
+and Workflows#68 now record the partial completion. The merged branch/worktree
+was removed through normal cleanup.
+
+### Active authoring branch
+
+The next unit is active in `../AI-authoring-catalog` on
+`feat/skill-authoring-human-catalog`, fast-forwarded to merged `origin/main` at
+`029de952811f0af07364a65651a7013875210436`. It does not author or approve
+runtime skill bytes.
+
+Implemented source so far:
+
+- `catalog/v2/authoring-contracts.json` — active original-expression clean-room
+  Agent Skill contract with source/evidence, payload, similarity, and quality
+  requirements;
+- `catalog/v2/human-catalog.json` — bounded, deterministic, offline generation
+  contract that forbids runtime payload bytes and runtime-permission claims;
+- `Documentation/skill-authoring-contract.md` — human authoring workflow and
+  boundary explanation;
+- `tooling/generate-human-catalog.mjs` — bounded deterministic JSON/Markdown/
+  manifest generator with `--check`, manifest-last activation, and fault-tested
+  recovery without removing the live output directory;
+- `catalog/generated/human-catalog/` — generated metadata-only catalog for all
+  35 public targets, visibly candidate/unclassified/runtime-ineligible, with
+  engineering targets excluded from the public human surface;
+- schema, semantic validation, CI, inventory, and specification updates.
+
+Targets now carry an unclassified authoring-contract state. Approval will
+require the active `cratis-skill-clean-room-v1` contract, in addition to all
+existing source, trust, dependency, evaluation, security, and approval gates.
+Generated views are navigation only and cannot become evidence, source
+authority, authoring input, distribution input, or runtime payload.
+
+Current signals:
+
+- catalog validation: 3 legacy plus 13 v2 catalogs and 4 schemas passed;
+- Node specifications: 66/66 passed after security and interruption tests;
+- generated human catalog: 35 public targets, zero runtime-eligible, three manifested
+  files, deterministic `--check`, stale-extra-file rejection, public-audience
+  isolation, Markdown escaping, manifest-last activation, interruption, and
+  recovery specifications passed;
+- repository inventory: 39 groups over 402 tracked paths with authored and
+  generated catalog surfaces separated;
+- all target authoring-contract fields remain unclassified and approval now
+  requires the active clean-room contract;
+- no runtime skill source, package, plugin, or publication artifact exists.
+
+Exact next actions:
+
+1. run the complete generation-twice, `--check`, catalog/spec/LSP/lint/link/
+   diff/actionlint and protected-hash gates;
+2. run independent correctness, security, performance, and clean-room evidence
+   review;
+3. commit, push, open a `no-release` pull request, monitor CI, merge, and update
+   this handover;
+4. begin the separate clean-room navigator pilot and blind trigger/behavior
+   evaluation unit.
+
+## 18. Navigator pilot design checkpoint — 2026-08-21
+
+A five-model reasoning panel produced the first clean-room pilot design. The
+accepted bounded direction is one passive repository-only router that selects
+the narrowest revision-bound target and never invokes it. It preserves
+project-owned context, separates requested effect from target trust, asks at
+most one route-changing clarification, emits one route by default and at most
+five for explicitly separate tasks, and uses these fail-closed results:
+
+- `ROUTE_SIMULATED` for a verified passive destination;
+- `CLARIFY` for material route ambiguity;
+- `BLOCKED_UNVERIFIED` for absent, stale, conflicting, or malformed evidence;
+- `BLOCKED_EFFECT` for a verified executable destination because the pilot
+  cannot execute;
+- `REFUSE` for bypass, exfiltration, unsafe destruction, or self-promotion;
+- `ABSTAIN` when Cratis intent is not established.
+
+The pilot will live under repository-only `pilots/cratis-navigator/` with evals
+under `evals/cratis-navigator/`, never under a runtime skill path. The planned
+suite contains 12 positive routes, 16 difficult negatives/collisions,
+application/framework/client/corpus fixtures, model-selected and explicit-user
+conditions, baseline comparisons, held-out paraphrases, confusable terms,
+project-context precedence, and zero-tolerance write/network/invocation/
+secret-echo/unsupported-claim assertions. Promotion requires exact safety and
+context results, at least 95% held-out routing behavior, deterministic repeated
+runs, independent originality/security/portability review, and a separate
+runtime-candidacy decision. Passing the pilot grants no runtime approval.

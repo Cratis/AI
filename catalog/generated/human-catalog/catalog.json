@@ -1,0 +1,2165 @@
+{
+  "schemaVersion": 2,
+  "contractVersion": 1,
+  "disclaimer": "Catalog inclusion, evaluation evidence, bundle generation, or publication does not grant runtime permission or approval.",
+  "inputDigest": "e42bfa066a6c58d75a51d607dcb9660ea2145af6d643958eb94c200ef3d66ee6",
+  "capabilities": [
+    {
+      "id": "cratis-application-react-specifications",
+      "semanticName": "cratis-application-react-specifications",
+      "audience": "public",
+      "purpose": "Application React specifications",
+      "whenToUse": "Use for React or TypeScript behavior in a Cratis application slice.",
+      "whenNotToUse": [
+        "Do not use for backend scenarios.",
+        "Do not use for framework package TypeScript specs."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "application",
+        "arc-react",
+        "specifications"
+      ],
+      "languages": [
+        "react",
+        "typescript"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-application-slice-specifications",
+        "cratis-arc-react-page",
+        "cratis-specifications-typescript"
+      ],
+      "bundleIds": [
+        "cratis-application-full-stack-review"
+      ]
+    },
+    {
+      "id": "cratis-application-slice-diagnostics",
+      "semanticName": "cratis-application-slice-diagnostics",
+      "audience": "public",
+      "purpose": "Application slice diagnostics",
+      "whenToUse": "Use when a Cratis slice misbehaves and source-level cause is unclear.",
+      "whenNotToUse": [
+        "Do not use for direct live-store operation.",
+        "Do not use only for observable-query HTTP inspection."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "application",
+        "arc",
+        "chronicle"
+      ],
+      "languages": [
+        "csharp",
+        "typescript"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-arc-command",
+        "cratis-arc-observable-query-http",
+        "cratis-chronicle-cli-operations",
+        "cratis-chronicle-projection"
+      ],
+      "bundleIds": [
+        "cratis-application-full-stack-review"
+      ]
+    },
+    {
+      "id": "cratis-application-slice-specifications",
+      "semanticName": "cratis-application-slice-specifications",
+      "audience": "public",
+      "purpose": "Application slice specifications",
+      "whenToUse": "Use to route event-sourced application backend behavior to the correct in-process scenario family.",
+      "whenNotToUse": [
+        "Do not use for framework library specifications.",
+        "Do not use for frontend behavior."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "application",
+        "specifications"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-chronicle-event-specifications",
+        "cratis-chronicle-read-model-specifications",
+        "cratis-specifications-csharp"
+      ],
+      "bundleIds": [
+        "cratis-application-full-stack-review"
+      ]
+    },
+    {
+      "id": "cratis-application-vertical-slice",
+      "semanticName": "cratis-application-vertical-slice",
+      "audience": "public",
+      "purpose": "Cratis application vertical slices",
+      "whenToUse": "Use for vertical-slice architecture selection or end-to-end implementation after the merge experiment passes.",
+      "whenNotToUse": [
+        "Do not assume architecture explanation and implementation triggers are equivalent.",
+        "Do not use only to scaffold an empty feature shell."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "application"
+      ],
+      "languages": [
+        "csharp",
+        "react",
+        "typescript"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-application-slice-specifications",
+        "cratis-arc-react-feature-scaffolding",
+        "cratis-arc-react-page",
+        "cratis-chronicle-event-modeling"
+      ],
+      "bundleIds": [
+        "cratis-application-full-stack-review"
+      ]
+    },
+    {
+      "id": "cratis-arc-authentication-authorization-and-identity",
+      "semanticName": "cratis-arc-authentication-authorization-and-identity",
+      "audience": "public",
+      "purpose": "Arc authentication, authorization, and identity",
+      "whenToUse": "Use for Arc identity providers, endpoint protection, roles, or frontend identity integration.",
+      "whenNotToUse": [
+        "Do not use for isolated command validation.",
+        "Do not use for tenant namespaces alone."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "arc",
+        "arc-react"
+      ],
+      "languages": [
+        "csharp",
+        "react"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-arc-command",
+        "cratis-arc-command-validation",
+        "cratis-arc-react-page",
+        "cratis-chronicle-multi-tenancy"
+      ],
+      "bundleIds": [
+        "cratis-arc-backend-review"
+      ]
+    },
+    {
+      "id": "cratis-arc-command",
+      "semanticName": "cratis-arc-command",
+      "audience": "public",
+      "purpose": "Arc command definition",
+      "whenToUse": "Use when defining an Arc command and its generated full-stack proxy workflow.",
+      "whenNotToUse": [
+        "Do not use for a validation-only change.",
+        "Do not use only to execute an existing command."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "application",
+        "arc",
+        "arc-react"
+      ],
+      "languages": [
+        "csharp",
+        "react"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-arc-command-execution",
+        "cratis-arc-command-validation",
+        "cratis-chronicle-event-constraints",
+        "cratis-fundamentals-concept"
+      ],
+      "bundleIds": [
+        "cratis-arc-backend-review"
+      ]
+    },
+    {
+      "id": "cratis-arc-command-execution",
+      "semanticName": "cratis-arc-command-execution",
+      "audience": "public",
+      "purpose": "Arc command pipeline execution",
+      "whenToUse": "Use when backend code must execute an existing Arc command through ICommandPipeline.",
+      "whenNotToUse": [
+        "Do not use for reactor design alone.",
+        "Do not use to define a command."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "arc"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-arc-command",
+        "cratis-chronicle-reactor"
+      ],
+      "bundleIds": [
+        "cratis-arc-backend-review"
+      ]
+    },
+    {
+      "id": "cratis-arc-command-validation",
+      "semanticName": "cratis-arc-command-validation",
+      "audience": "public",
+      "purpose": "Arc command validation",
+      "whenToUse": "Use when adding validation or state-dependent rejection to an existing Arc command.",
+      "whenNotToUse": [
+        "Do not use for append-time Chronicle constraints.",
+        "Do not use to define a new command."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "application",
+        "arc"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-arc-command",
+        "cratis-chronicle-event-constraints",
+        "cratis-fundamentals-concept"
+      ],
+      "bundleIds": [
+        "cratis-arc-backend-review"
+      ]
+    },
+    {
+      "id": "cratis-arc-ef-core-migration",
+      "semanticName": "cratis-arc-ef-core-migration",
+      "audience": "public",
+      "purpose": "Arc EF Core migrations",
+      "whenToUse": "Use when adding or changing an EF Core schema in a Cratis application.",
+      "whenNotToUse": [
+        "Do not use for Chronicle read models.",
+        "Do not use for query paging."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "application",
+        "entity-framework-core"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-arc-query-paging",
+        "cratis-chronicle-read-model",
+        "cratis-specifications-csharp"
+      ],
+      "bundleIds": [
+        "cratis-arc-backend-review"
+      ]
+    },
+    {
+      "id": "cratis-arc-observable-query-http",
+      "semanticName": "cratis-arc-observable-query-http",
+      "audience": "public",
+      "purpose": "Arc observable-query HTTP diagnostics",
+      "whenToUse": "Use when inspecting Arc observable query SSE or streaming behavior with curl or HTTP tools.",
+      "whenNotToUse": [
+        "Do not use for Chronicle store recovery.",
+        "Do not use to implement the frontend query."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "arc"
+      ],
+      "languages": [
+        "shell"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-application-slice-diagnostics",
+        "cratis-arc-query-paging",
+        "cratis-chronicle-cli-operations",
+        "cratis-chronicle-read-model"
+      ],
+      "bundleIds": []
+    },
+    {
+      "id": "cratis-arc-query-paging",
+      "semanticName": "cratis-arc-query-paging",
+      "audience": "public",
+      "purpose": "Arc query paging",
+      "whenToUse": "Use when adding server-side paging and sorting to an Arc read-model query.",
+      "whenNotToUse": [
+        "Do not use as a general performance review.",
+        "Do not use for generic query creation."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "arc",
+        "arc-react"
+      ],
+      "languages": [
+        "csharp",
+        "react",
+        "typescript"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-arc-react-page",
+        "cratis-chronicle-read-model",
+        "cratis-performance-review"
+      ],
+      "bundleIds": [
+        "cratis-arc-backend-review"
+      ]
+    },
+    {
+      "id": "cratis-arc-react-feature-scaffolding",
+      "semanticName": "cratis-arc-react-feature-scaffolding",
+      "audience": "public",
+      "purpose": "Arc React feature scaffolding",
+      "whenToUse": "Use when creating an empty route, navigation entry, and feature composition shell.",
+      "whenNotToUse": [
+        "Do not use for a populated DataPage.",
+        "Do not use to implement a behavior slice."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "application",
+        "arc-react"
+      ],
+      "languages": [
+        "csharp",
+        "react",
+        "typescript"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-application-vertical-slice",
+        "cratis-arc-react-page"
+      ],
+      "bundleIds": [
+        "cratis-application-full-stack-review"
+      ]
+    },
+    {
+      "id": "cratis-arc-react-page",
+      "semanticName": "cratis-arc-react-page",
+      "audience": "public",
+      "purpose": "Arc React pages",
+      "whenToUse": "Use when building a DataPage or MVVM React page backed by generated Arc queries.",
+      "whenNotToUse": [
+        "Do not use for a multi-step wizard alone.",
+        "Do not use for an empty route shell."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "application",
+        "arc-react",
+        "components"
+      ],
+      "languages": [
+        "react",
+        "typescript"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-arc-command",
+        "cratis-arc-query-paging",
+        "cratis-arc-react-feature-scaffolding",
+        "cratis-components-stepper-command-dialog"
+      ],
+      "bundleIds": [
+        "cratis-application-full-stack-review"
+      ]
+    },
+    {
+      "id": "cratis-chronicle-cli-operations",
+      "semanticName": "cratis-chronicle-cli-operations",
+      "audience": "public",
+      "purpose": "Chronicle CLI operations",
+      "whenToUse": "Use to inspect a running Chronicle store and, only with explicit confirmation, perform recovery operations.",
+      "whenNotToUse": [
+        "Do not mutate a store without an explicit target and confirmation.",
+        "Do not use for source-only diagnostics."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "chronicle",
+        "cli"
+      ],
+      "languages": [
+        "shell"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-application-slice-diagnostics",
+        "cratis-arc-observable-query-http"
+      ],
+      "bundleIds": []
+    },
+    {
+      "id": "cratis-chronicle-event-constraints",
+      "semanticName": "cratis-chronicle-event-constraints",
+      "audience": "public",
+      "purpose": "Chronicle event constraints",
+      "whenToUse": "Use when enforcing append-time uniqueness, concurrency, or event-store constraints.",
+      "whenNotToUse": [
+        "Do not use for ordinary command input validation.",
+        "Do not use to create a projection."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "application",
+        "arc"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-arc-command",
+        "cratis-arc-command-validation",
+        "cratis-chronicle-event-specifications",
+        "cratis-fundamentals-concept"
+      ],
+      "bundleIds": [
+        "cratis-chronicle-dotnet-review"
+      ]
+    },
+    {
+      "id": "cratis-chronicle-event-metadata",
+      "semanticName": "cratis-chronicle-event-metadata",
+      "audience": "public",
+      "purpose": "Chronicle event metadata",
+      "whenToUse": "Use when attaching audit, actor, tenant, or correlation metadata outside domain event payloads.",
+      "whenNotToUse": [
+        "Do not use for domain facts.",
+        "Do not use for tenant isolation alone."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-chronicle-multi-tenancy"
+      ],
+      "bundleIds": [
+        "cratis-chronicle-dotnet-review"
+      ]
+    },
+    {
+      "id": "cratis-chronicle-event-modeling",
+      "semanticName": "cratis-chronicle-event-modeling",
+      "audience": "public",
+      "purpose": "Chronicle event modeling",
+      "whenToUse": "Use before implementation when commands, events, streams, read models, or reactions are unsettled.",
+      "whenNotToUse": [
+        "Do not use only to edit a Mermaid diagram.",
+        "Do not use when the model is already accepted."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "application",
+        "chronicle"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-application-vertical-slice",
+        "cratis-event-model-diagram"
+      ],
+      "bundleIds": [
+        "cratis-core-review"
+      ]
+    },
+    {
+      "id": "cratis-chronicle-event-specifications",
+      "semanticName": "cratis-chronicle-event-specifications",
+      "audience": "public",
+      "purpose": "Chronicle event specifications",
+      "whenToUse": "Use for EventScenario append, constraint, concurrency, or sequence behavior.",
+      "whenNotToUse": [
+        "Do not use for command handling.",
+        "Do not use for read-model projection behavior."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "application",
+        "chronicle",
+        "specifications"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-application-slice-specifications",
+        "cratis-chronicle-read-model-specifications",
+        "cratis-specifications-csharp"
+      ],
+      "bundleIds": []
+    },
+    {
+      "id": "cratis-chronicle-event-type-migration",
+      "semanticName": "cratis-chronicle-event-type-migration",
+      "audience": "public",
+      "purpose": "Chronicle event type migration",
+      "whenToUse": "Use when a stored event schema needs a new generation and migration.",
+      "whenNotToUse": [
+        "Do not use for a new event.",
+        "Do not use for an EF Core migration."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-arc-ef-core-migration",
+        "cratis-chronicle-read-model"
+      ],
+      "bundleIds": [
+        "cratis-chronicle-dotnet-review"
+      ]
+    },
+    {
+      "id": "cratis-chronicle-multi-tenancy",
+      "semanticName": "cratis-chronicle-multi-tenancy",
+      "audience": "public",
+      "purpose": "Chronicle multi-tenancy",
+      "whenToUse": "Use when isolating tenants through Chronicle namespaces and Arc tenant resolution.",
+      "whenNotToUse": [
+        "Do not use for event metadata alone.",
+        "Do not use for identity alone."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "arc",
+        "chronicle"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-arc-authentication-authorization-and-identity",
+        "cratis-chronicle-event-metadata"
+      ],
+      "bundleIds": [
+        "cratis-chronicle-dotnet-review"
+      ]
+    },
+    {
+      "id": "cratis-chronicle-projection",
+      "semanticName": "cratis-chronicle-projection",
+      "audience": "public",
+      "purpose": "Chronicle projections",
+      "whenToUse": "Use when adding projection behavior to an existing Chronicle read model.",
+      "whenNotToUse": [
+        "Do not use to create the read model itself.",
+        "Do not use when a reducer is not genuinely required."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "application",
+        "chronicle"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-chronicle-read-model",
+        "cratis-chronicle-read-model-specifications",
+        "cratis-chronicle-reducer"
+      ],
+      "bundleIds": [
+        "cratis-chronicle-dotnet-review"
+      ]
+    },
+    {
+      "id": "cratis-chronicle-reactor",
+      "semanticName": "cratis-chronicle-reactor",
+      "audience": "public",
+      "purpose": "Chronicle reactors",
+      "whenToUse": "Use when implementing an automation or translation that reacts to events.",
+      "whenNotToUse": [
+        "Do not use for an ordinary backend command call.",
+        "Do not use for projections."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "application",
+        "chronicle"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-application-slice-specifications",
+        "cratis-arc-command-execution",
+        "cratis-chronicle-projection"
+      ],
+      "bundleIds": [
+        "cratis-chronicle-dotnet-review"
+      ]
+    },
+    {
+      "id": "cratis-chronicle-read-model",
+      "semanticName": "cratis-chronicle-read-model",
+      "audience": "public",
+      "purpose": "Chronicle read models",
+      "whenToUse": "Use when creating a Chronicle read model and model-bound query surface.",
+      "whenNotToUse": [
+        "Do not default to a reducer.",
+        "Do not use for projection-only changes."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "application",
+        "arc",
+        "chronicle"
+      ],
+      "languages": [
+        "csharp",
+        "typescript"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-arc-query-paging",
+        "cratis-chronicle-projection",
+        "cratis-chronicle-reducer"
+      ],
+      "bundleIds": [
+        "cratis-chronicle-dotnet-review"
+      ]
+    },
+    {
+      "id": "cratis-chronicle-read-model-specifications",
+      "semanticName": "cratis-chronicle-read-model-specifications",
+      "audience": "public",
+      "purpose": "Chronicle read-model specifications",
+      "whenToUse": "Use for ReadModelScenario projection or reducer behavior.",
+      "whenNotToUse": [
+        "Do not use for raw event append behavior.",
+        "Do not use for read-model creation."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "application",
+        "chronicle",
+        "specifications"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-application-slice-specifications",
+        "cratis-chronicle-event-specifications",
+        "cratis-chronicle-projection",
+        "cratis-chronicle-read-model",
+        "cratis-chronicle-reducer"
+      ],
+      "bundleIds": []
+    },
+    {
+      "id": "cratis-chronicle-reducer",
+      "semanticName": "cratis-chronicle-reducer",
+      "audience": "public",
+      "purpose": "Chronicle reducers",
+      "whenToUse": "Use when a current-state-plus-event transition cannot be expressed as a projection.",
+      "whenNotToUse": [
+        "Do not use before projection alternatives are exhausted.",
+        "Do not use for simple mapping."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "application",
+        "chronicle"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-chronicle-projection",
+        "cratis-chronicle-read-model",
+        "cratis-chronicle-read-model-specifications"
+      ],
+      "bundleIds": [
+        "cratis-chronicle-dotnet-review"
+      ]
+    },
+    {
+      "id": "cratis-code-review",
+      "semanticName": "cratis-code-review",
+      "audience": "public",
+      "purpose": "Cratis code review",
+      "whenToUse": "Use for a general correctness and maintainability review of Cratis code.",
+      "whenNotToUse": [
+        "Do not duplicate specialist performance findings.",
+        "Do not substitute it for a focused security audit."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "cross-product"
+      ],
+      "languages": [
+        "csharp",
+        "typescript"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-performance-review",
+        "cratis-security-review"
+      ],
+      "bundleIds": [
+        "cratis-review-capabilities"
+      ]
+    },
+    {
+      "id": "cratis-components-stepper-command-dialog",
+      "semanticName": "cratis-components-stepper-command-dialog",
+      "audience": "public",
+      "purpose": "Cratis Components stepper command dialogs",
+      "whenToUse": "Use when a command requires a multi-step wizard dialog.",
+      "whenNotToUse": [
+        "Do not use for a page shell.",
+        "Do not use for an ordinary command dialog."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "arc-react",
+        "components"
+      ],
+      "languages": [
+        "react",
+        "typescript"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-arc-command",
+        "cratis-arc-react-page"
+      ],
+      "bundleIds": [
+        "cratis-application-full-stack-review"
+      ]
+    },
+    {
+      "id": "cratis-components-toolbar",
+      "semanticName": "cratis-components-toolbar",
+      "audience": "public",
+      "purpose": "Cratis Components toolbar",
+      "whenToUse": "Use when building a canvas-style icon toolbar with active tools or fan-out controls.",
+      "whenNotToUse": [
+        "Do not use for ordinary page actions or menus."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "components"
+      ],
+      "languages": [
+        "react",
+        "typescript"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-arc-react-page"
+      ],
+      "bundleIds": [
+        "cratis-application-full-stack-review"
+      ]
+    },
+    {
+      "id": "cratis-event-model-diagram",
+      "semanticName": "cratis-event-model-diagram",
+      "audience": "public",
+      "purpose": "Event-model diagrams",
+      "whenToUse": "Use when creating or maintaining a Mermaid EventModel.md diagram for settled behavior.",
+      "whenNotToUse": [
+        "Do not use to implement a slice.",
+        "Do not use to settle event vocabulary."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "application",
+        "chronicle"
+      ],
+      "languages": [
+        "markdown"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-application-vertical-slice",
+        "cratis-chronicle-event-modeling"
+      ],
+      "bundleIds": []
+    },
+    {
+      "id": "cratis-fundamentals-concept",
+      "semanticName": "cratis-fundamentals-concept",
+      "audience": "public",
+      "purpose": "Strongly typed Cratis concepts",
+      "whenToUse": "Use when creating a ConceptAs<T> value or EventSourceId<T> identity.",
+      "whenNotToUse": [
+        "Do not use for DTO cleanup.",
+        "Do not use for event schema migration."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "fundamentals"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-chronicle-event-type-migration"
+      ],
+      "bundleIds": [
+        "cratis-core-review"
+      ]
+    },
+    {
+      "id": "cratis-fundamentals-type-discovery",
+      "semanticName": "cratis-fundamentals-type-discovery",
+      "audience": "public",
+      "purpose": "Cratis implementation discovery",
+      "whenToUse": "Use when a service must enumerate all implementations through IInstancesOf<T>.",
+      "whenNotToUse": [
+        "Do not use for normal single-service dependency injection."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "fundamentals"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [],
+      "bundleIds": [
+        "cratis-core-review"
+      ]
+    },
+    {
+      "id": "cratis-performance-review",
+      "semanticName": "cratis-performance-review",
+      "audience": "public",
+      "purpose": "Cratis performance review",
+      "whenToUse": "Use for focused Chronicle, database, .NET, or React scalability analysis.",
+      "whenNotToUse": [
+        "Do not override authoritative paging guidance.",
+        "Do not use for ordinary implementation."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "arc-react",
+        "chronicle",
+        "cross-product"
+      ],
+      "languages": [
+        "csharp",
+        "typescript"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-arc-query-paging",
+        "cratis-code-review"
+      ],
+      "bundleIds": [
+        "cratis-review-capabilities"
+      ]
+    },
+    {
+      "id": "cratis-security-review",
+      "semanticName": "cratis-security-review",
+      "audience": "public",
+      "purpose": "Cratis security review",
+      "whenToUse": "Use for focused authentication, authorization, data exposure, event-sourcing, and frontend security review.",
+      "whenNotToUse": [
+        "Do not treat policy preferences as framework contracts.",
+        "Do not use to implement authentication."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "arc",
+        "chronicle",
+        "cross-product"
+      ],
+      "languages": [
+        "csharp",
+        "typescript"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-arc-authentication-authorization-and-identity",
+        "cratis-code-review"
+      ],
+      "bundleIds": [
+        "cratis-review-capabilities"
+      ]
+    },
+    {
+      "id": "cratis-specifications-csharp",
+      "semanticName": "cratis-specifications-csharp",
+      "audience": "public",
+      "purpose": "Cratis C# specification foundations",
+      "whenToUse": "Use for framework or library C# Specification by Example tests.",
+      "whenNotToUse": [
+        "Do not use for React tests.",
+        "Do not use for application scenario routing."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "cross-product",
+        "specifications"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-application-slice-specifications",
+        "cratis-specifications-typescript"
+      ],
+      "bundleIds": []
+    },
+    {
+      "id": "cratis-specifications-typescript",
+      "semanticName": "cratis-specifications-typescript",
+      "audience": "public",
+      "purpose": "Cratis TypeScript specification foundations",
+      "whenToUse": "Use for framework or package TypeScript Specification by Example tests.",
+      "whenNotToUse": [
+        "Do not use for C# scenarios.",
+        "Do not use for React application slice behavior."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "cross-product",
+        "specifications"
+      ],
+      "languages": [
+        "typescript"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-application-react-specifications",
+        "cratis-specifications-csharp"
+      ],
+      "bundleIds": []
+    }
+  ]
+}
