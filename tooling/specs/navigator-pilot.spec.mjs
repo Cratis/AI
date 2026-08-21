@@ -11,6 +11,7 @@ import { gradeIteration } from "../grade-navigator-runs.mjs";
 import { summarizeCanonicalRuns } from "../summarize-navigator-runs.mjs";
 import {
     readNavigatorCases,
+    readNavigatorHeldOut,
     validateNavigatorPilot,
 } from "../navigator-pilot-validation.mjs";
 
@@ -38,6 +39,12 @@ test("navigator pilot contract and canonical cases pass", () => {
     assert.equal(cases.length, 28);
     assert.equal(cases.filter((testCase) => testCase.kind === "positive").length, 12);
     assert.equal(cases.filter((testCase) => testCase.kind === "negative").length, 16);
+    const heldOut = readNavigatorHeldOut();
+    assert.equal(heldOut.length, 10);
+    assert.equal(
+        new Set([...cases, ...heldOut].map((testCase) => testCase.prompt)).size,
+        38,
+    );
 });
 
 test("navigator pilot cannot claim runtime or effects", () => {

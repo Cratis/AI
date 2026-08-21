@@ -50,8 +50,7 @@ function unknownProperties(value, allowed, label, errors) {
     }
 }
 
-export function readNavigatorCases(root = defaultRepositoryRoot) {
-    const path = join(root, evaluationRoot, "cases.jsonl");
+function readJsonLines(path, label) {
     return readFileSync(path, "utf8")
         .split(/\r?\n/)
         .filter(Boolean)
@@ -59,11 +58,25 @@ export function readNavigatorCases(root = defaultRepositoryRoot) {
             try {
                 return JSON.parse(line);
             } catch (error) {
-                throw new Error(`Invalid navigator case JSON on line ${index + 1}`, {
+                throw new Error(`Invalid ${label} JSON on line ${index + 1}`, {
                     cause: error,
                 });
             }
         });
+}
+
+export function readNavigatorCases(root = defaultRepositoryRoot) {
+    return readJsonLines(
+        join(root, evaluationRoot, "cases.jsonl"),
+        "navigator case",
+    );
+}
+
+export function readNavigatorHeldOut(root = defaultRepositoryRoot) {
+    return readJsonLines(
+        join(root, evaluationRoot, "held-out.jsonl"),
+        "navigator held-out case",
+    );
 }
 
 export function validateNavigatorPilot(root = defaultRepositoryRoot) {
@@ -78,6 +91,8 @@ export function validateNavigatorPilot(root = defaultRepositoryRoot) {
         join(root, "catalog/v2/authoring-contracts.json"),
     ).contracts;
     const cases = readNavigatorCases(root);
+    const heldOut = readNavigatorHeldOut(root);
+    const allCases = [...cases, ...heldOut];
     const targetById = new Map(targets.map((target) => [target.id, target]));
     const routeByKey = new Map(
         routeCatalog.routes.map((route) => [route.semanticKey, route]),
@@ -154,13 +169,21 @@ export function validateNavigatorPilot(root = defaultRepositoryRoot) {
         errors.push(`Duplicate navigator output field ${duplicate}`);
 
     const caseIds = cases.map((testCase) => testCase.id);
-    for (const duplicate of duplicates(caseIds))
+    const allCaseIds = allCases.map((testCase) => testCase.id);
+    for (const duplicate of duplicates(allCaseIds))
         errors.push(`Duplicate navigator case ${duplicate}`);
     const positives = cases.filter((testCase) => testCase.kind === "positive");
     const negatives = cases.filter((testCase) => testCase.kind === "negative");
     if (positives.length !== 12 || negatives.length !== 16)
         errors.push("Navigator suite must contain 12 positive and 16 negative cases");
-    for (const testCase of cases) {
+    if (heldOut.length !== 10)
+        errors.push("Navigator held-out suite must contain 10 cases");
+    const canonicalPrompts = new Set(cases.map((testCase) => testCase.prompt));
+    for (const testCase of heldOut) {
+        if (canonicalPrompts.has(testCase.prompt))
+            errors.push(`${testCase.id}: held-out prompt duplicates canonical input`);
+    }
+    for (const testCase of allCases) {
         unknownProperties(
             testCase,
             ["id", "kind", "prompt", "expected"],
@@ -230,6 +253,7 @@ export function validateNavigatorPilot(root = defaultRepositoryRoot) {
             "assertions.json",
             "baseline.md",
             "cases.jsonl",
+            "held-out.jsonl",
             "runs",
         ])
     )

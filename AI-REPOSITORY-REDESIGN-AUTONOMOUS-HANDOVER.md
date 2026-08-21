@@ -534,8 +534,11 @@ Implemented files:
   authority, runtime-isolation, evidence, case-count, and output checks.
 
 Static pilot source landed in commit
-`5c42e5be9881411fc6e30197dd32eacd9c8d0b3a`, is pushed, and is under review in
-[`Cratis/AI#133`](https://github.com/Cratis/AI/pull/133) with `no-release`.
+`5c42e5be9881411fc6e30197dd32eacd9c8d0b3a` and the complete canonical evidence
+landed through [`Cratis/AI#133`](https://github.com/Cratis/AI/pull/133) with
+merge commit `35aacd4ae300676e593d118ebe168519e962191e`. CI passed and
+`no-release` produced no package or product release. AI#126 and Workflows#68
+record the partial completion; the merged branch/worktree was cleaned up.
 All Cratis candidates remain unverified, so expected Cratis routes are
 `BLOCKED_UNVERIFIED`; lexical near misses abstain, material ambiguity clarifies,
 and hostile authority/effect requests refuse. The pilot invokes nothing and
@@ -601,10 +604,36 @@ portability, and independent originality/security gates remain outstanding.
 
 Exact next actions:
 
-1. validate, commit, and push the complete canonical evidence and summary to
-   PR #133;
-2. rerun CI and merge the repository-only pilot if green;
-3. continue repeated full-suite and held-out paraphrase evaluation in a separate
-   evidence PR without weakening exact output requirements;
+1. freeze and commit the held-out suite before model execution on
+   `feat/navigator-held-out-evidence` in `../AI-navigator-evidence`;
+2. run paired tool-free baseline/pilot held-out evidence without weakening exact
+   output requirements;
+3. repeat the complete canonical suite and run portability/originality/security
+   promotion reviews;
 4. keep promotion and runtime approval blocked until every declared threshold
    passes.
+
+## 20. Navigator held-out checkpoint — 2026-08-21
+
+Work continues from merged pilot main on `feat/navigator-held-out-evidence` in
+`../AI-navigator-evidence`. A 10-case held-out set is authored and will be
+committed before any model receives it. It varies casing, casual phrasing,
+Unicode confusables, explicit non-Cratis terms, quoted operations, hostile
+evidence, persona wording, and missing client language while preserving the
+closed output contract and frozen route-catalog revision.
+
+The validator requires 10 unique held-out prompts with no canonical prompt
+duplicates and applies the same route, evidence, trust, effect, context,
+invocation, and output-field gates. Promotion requires at least 95% exact held-
+out behavior, which means all 10 cases must pass, plus the still-pending full
+repetition, portability, and independent promotion reviews.
+
+Exact next actions:
+
+1. pass static validation and commit/push the frozen held-out contract;
+2. run one paired tool-free baseline/pilot held-out pass and persist redacted
+   outputs, timings, grading, and analysis;
+3. correct only genuine contract/gold defects transparently and rerun affected
+   cases;
+4. keep promotion blocked even if held-out behavior passes because repetition
+   and promotion reviews remain incomplete.
