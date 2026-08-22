@@ -58,10 +58,19 @@ test("generated repository contract keeps remote authority and production blocke
             "utf8",
         ),
     );
+    const hostedEvidence = JSON.parse(
+        readFileSync(
+            join(
+                repositoryRoot,
+                "distribution/evidence/hosted-remote-initialization-2026-08-22.json",
+            ),
+            "utf8",
+        ),
+    );
     assert.equal(contract.repository.name, "Cratis/AI.Distribution");
     assert.equal(
         contract.repository.status,
-        "CREATED_EMPTY_DEPLOY_KEY_CONFIGURED",
+        "INITIALIZED_PROTECTED_FIXTURE",
     );
     assert.equal(contract.repository.manualAuthoringAllowed, false);
     assert.equal(contract.repository.botOnlyWrites, true);
@@ -69,9 +78,10 @@ test("generated repository contract keeps remote authority and production blocke
         contract.repository.strategyIssue,
         "https://github.com/Cratis/Strategy/issues/126",
     );
+    assert.equal(contract.repository.deployKeySecret, null);
     assert.equal(
-        contract.repository.deployKeySecret,
-        "AI_DISTRIBUTION_DEPLOY_KEY",
+        contract.repository.writeCredentialState,
+        "ABSENT_PENDING_PR_RELEASE_BOT",
     );
     assert.equal(contract.productionMaterialization.enabled, false);
     assert.equal(contract.publicationEligible, false);
@@ -86,15 +96,37 @@ test("generated repository contract keeps remote authority and production blocke
         "repository metadata, topics, ownership records",
     ])
         assert(generalRules.includes(requiredDetail));
-    assert.equal(remoteState.repository.state, "CREATED_EMPTY");
+    assert.equal(
+        remoteState.repository.state,
+        "INITIALIZED_PROTECTED_FIXTURE",
+    );
     assert.equal(remoteState.repository.secretScanningEnabled, true);
     assert.equal(remoteState.repository.pushProtectionEnabled, true);
     assert.equal(
         remoteState.strategyRegistration.issue,
         "https://github.com/Cratis/Strategy/issues/126",
     );
-    assert.equal(remoteState.credential.privateKeySecretName, "AI_DISTRIBUTION_DEPLOY_KEY");
+    assert.equal(remoteState.credential.privateKeySecretName, null);
+    assert.equal(
+        remoteState.credential.state,
+        "REMOVED_AFTER_ONE_TIME_INITIALIZATION",
+    );
+    assert.equal(
+        remoteState.generatedState.generatedCommit,
+        "dd58ae38a1cad0e0c82141a98be929a5a7094a0d",
+    );
+    assert.equal(remoteState.branchProtection.enforceAdmins, true);
+    assert.equal(remoteState.branchProtection.allowForcePushes, false);
     assert.equal(remoteState.publicationEligible, false);
+    assert.equal(hostedEvidence.status, "PASS");
+    assert.equal(
+        hostedEvidence.generatedCommit,
+        remoteState.generatedState.generatedCommit,
+    );
+    assert.equal(
+        hostedEvidence.credentialLifecycle.standingWriteCredential,
+        false,
+    );
 });
 
 test("production distribution plan remains blocked without approved targets", () => {

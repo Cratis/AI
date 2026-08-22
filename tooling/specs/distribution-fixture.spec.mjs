@@ -100,7 +100,7 @@ test("distribution requirements and artifact matrix stay authority bounded", () 
     assert.equal(matrix.promotionEligible, false);
     assert.equal(
         matrix.repository.status,
-        "CREATED_EMPTY_DEPLOY_KEY_CONFIGURED",
+        "INITIALIZED_PROTECTED_FIXTURE",
     );
     const requirementIds = new Set(
         requirements.requirements.map((item) => item.id),

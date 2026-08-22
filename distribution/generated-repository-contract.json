@@ -4,13 +4,14 @@
     "name": "Cratis/AI.Distribution",
     "visibility": "PUBLIC",
     "defaultBranch": "main",
-    "status": "CREATED_EMPTY_DEPLOY_KEY_CONFIGURED",
+    "status": "INITIALIZED_PROTECTED_FIXTURE",
     "manualAuthoringAllowed": false,
     "botOnlyWrites": true,
     "url": "https://github.com/Cratis/AI.Distribution",
     "strategyIssue": "https://github.com/Cratis/Strategy/issues/126",
-    "deployKeySecret": "AI_DISTRIBUTION_DEPLOY_KEY",
-    "initializationState": "PENDING_HOSTED_GENERATED_PUSH"
+    "deployKeySecret": null,
+    "initializationState": "COMPLETE_PROTECTED",
+    "writeCredentialState": "ABSENT_PENDING_PR_RELEASE_BOT"
   },
   "localSimulation": {
     "enabled": true,

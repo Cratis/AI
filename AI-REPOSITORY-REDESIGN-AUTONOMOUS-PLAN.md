@@ -559,7 +559,8 @@ Evidence and exact next actions are in
 - [x] Register repository creation with Cratis/Strategy, create empty public
   `Cratis/AI.Distribution`, configure a repository-scoped write deploy key,
   secret scanning/push protection, and reviewed canary/npm-stage environments.
-- [ ] Initialize remote `main` from hosted generated fixture bytes, protect the
-  branch, and replace the push-only deploy key with a PR/release-capable bot
-  identity before generated update or release operations.
+- [x] Initialize remote `main` from reviewed hosted generated fixture bytes,
+  protect the branch, then remove the one-time deploy key and Actions secret.
+- [ ] Provision a repository-scoped PR/release-capable bot identity before any
+  generated update, tag, release, or publication operation.
 - [ ] Keep publication and retirement disabled until explicit approvals pass.

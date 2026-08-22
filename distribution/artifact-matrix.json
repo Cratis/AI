@@ -12,7 +12,7 @@
   },
   "repository": {
     "architecture": "OPTION_A_PLUS_GENERATED_DISTRIBUTION_REPOSITORY",
-    "status": "CREATED_EMPTY_DEPLOY_KEY_CONFIGURED",
+    "status": "INITIALIZED_PROTECTED_FIXTURE",
     "requestedName": "Cratis/AI.Distribution",
     "url": "https://github.com/Cratis/AI.Distribution",
     "strategyIssue": "https://github.com/Cratis/Strategy/issues/126"

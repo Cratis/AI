@@ -5,12 +5,14 @@
     "name": "Cratis/AI.Distribution",
     "url": "https://github.com/Cratis/AI.Distribution",
     "visibility": "PUBLIC",
-    "state": "CREATED_EMPTY",
+    "state": "INITIALIZED_PROTECTED_FIXTURE",
     "issuesEnabled": false,
     "wikiEnabled": false,
     "projectsEnabled": false,
     "secretScanningEnabled": true,
-    "pushProtectionEnabled": true
+    "pushProtectionEnabled": true,
+    "defaultBranch": "main",
+    "description": "Generated fixture-only Cratis AI distribution staging. Not a supported installation or release target."
   },
   "strategyRegistration": {
     "required": true,
@@ -18,12 +20,12 @@
     "state": "PROPOSED_INTAKE"
   },
   "credential": {
-    "kind": "REPOSITORY_SCOPED_WRITE_DEPLOY_KEY",
-    "title": "Cratis AI distribution bot",
-    "deployKeyId": 160997540,
-    "privateKeySecretRepository": "Cratis/AI",
-    "privateKeySecretName": "AI_DISTRIBUTION_DEPLOY_KEY",
-    "state": "CONFIGURED_FOR_INITIAL_GENERATED_PUSH"
+    "kind": null,
+    "title": null,
+    "deployKeyId": null,
+    "privateKeySecretRepository": null,
+    "privateKeySecretName": null,
+    "state": "REMOVED_AFTER_ONE_TIME_INITIALIZATION"
   },
   "protectedEnvironments": [
     {
@@ -42,8 +44,7 @@
     }
   ],
   "remainingBlockers": [
-    "EMPTY_REPOSITORY_HAS_NO_PROTECTED_MAIN_BRANCH",
-    "DEPLOY_KEY_CANNOT_CREATE_GENERATED_PULL_REQUESTS",
+    "NO_PR_RELEASE_CAPABLE_BOT_IDENTITY",
     "NO_APPROVED_PUBLIC_TARGETS",
     "NO_APPROVED_PRODUCT_SOURCE_CONTRACTS",
     "NO_NPM_PACKAGE_OWNERSHIP_OR_TRUSTED_PUBLISHER",
@@ -51,5 +52,21 @@
   ],
   "publicationEligible": false,
   "promotionEligible": false,
-  "legacyRetirementEligible": false
+  "legacyRetirementEligible": false,
+  "generatedState": {
+    "workflowRun": "https://github.com/Cratis/AI/actions/runs/32573752111",
+    "sourceCommit": "ca28685a9d51b8f506997dd21b951dab89a540d2",
+    "generatedCommit": "dd58ae38a1cad0e0c82141a98be929a5a7094a0d",
+    "generatedTree": "472f288d88c038ad1b72ab1eb42ea384dd1c93ea",
+    "fixtureOnly": true
+  },
+  "branchProtection": {
+    "enforceAdmins": true,
+    "requiredApprovals": 1,
+    "dismissStaleReviews": true,
+    "requireLastPushApproval": true,
+    "requireConversationResolution": true,
+    "allowForcePushes": false,
+    "allowDeletions": false
+  }
 }

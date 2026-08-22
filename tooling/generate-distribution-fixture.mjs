@@ -97,9 +97,7 @@ function assertConfiguration(requirements, matrix) {
         throw new Error(
             "Distribution fixture must remain publication and promotion ineligible",
         );
-    if (
-        matrix.repository?.status !== "CREATED_EMPTY_DEPLOY_KEY_CONFIGURED"
-    )
+    if (matrix.repository?.status !== "INITIALIZED_PROTECTED_FIXTURE")
         throw new Error("Generated repository authority gate changed");
     if (
         JSON.stringify(matrix.canonicalSource?.approvedFiles) !==
