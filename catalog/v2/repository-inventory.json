@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "c41429ef7a8033eba77e8e87556b99f44ab0986a84bd37308dcaffd6a436f72a",
+  "indexDigest": "52cf1c567553a0008dac6e2bc29fb80b00eb10510ef7aee513d78ea608858a88",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -300,6 +300,10 @@
     },
     {
       "path": "distribution/evidence/local-generated-repository-2026-08-22.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/evidence/real-documentation-engineering-canary-2026-08-22.json",
       "status": "added"
     },
     {
@@ -1599,6 +1603,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/run-engineering-docs-authoring-canary.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/run-engineering-docs-authoring-evaluation.mjs",
       "status": "added"
     },
@@ -1660,6 +1668,10 @@
     },
     {
       "path": "tooling/specs/engineering-distribution.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/engineering-docs-authoring-canary.spec.mjs",
       "status": "added"
     },
     {
@@ -2961,8 +2973,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 14,
-      "expectedPathsDigest": "774e5e3dd0c5dd3384c8c453fb164bd9e585e7a61f17e3110516dc7fe2fa1bb3"
+      "expectedPathCount": 15,
+      "expectedPathsDigest": "54d61e538447c58e49227525d6eb5c350db9c81daebb54fec46986b217bfd4c7"
     },
     {
       "excludePathPatterns": [],
@@ -2984,8 +2996,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 26,
-      "expectedPathsDigest": "da0f86f93f14e07137376c68151fb36eb6f080b02643addaf9bdaa33ea379dbe"
+      "expectedPathCount": 27,
+      "expectedPathsDigest": "6685a8e106cdf27e5d90e3e00773b2d31ac277674522912692e9be0b1b7f17bd"
     },
     {
       "excludePathPatterns": [],
@@ -3008,8 +3020,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 19,
-      "expectedPathsDigest": "b72ad0335dc9fbad4f6c66d9a57e03e0957c5fe9ef25521daf8a8b83c5eb370e"
+      "expectedPathCount": 20,
+      "expectedPathsDigest": "4173ce2ed1adbb3d98a1cfe85f7bdba65b71232acff9fdcc519e2f53c402c3cb"
     },
     {
       "excludePathPatterns": [],
