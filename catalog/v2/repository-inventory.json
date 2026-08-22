@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "3cae06dcb2cec39e2735ccfc84930d1b68ee8e9d8e50c1b3977c7d391be0984f",
+  "indexDigest": "42756b7acb6c63059b58219dd105bf72a42ed7f6067a72d324dae3087aaf691c",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -256,6 +256,26 @@
     },
     {
       "path": "evals/application-slice-diagnostics/cases.jsonl",
+      "status": "added"
+    },
+    {
+      "path": "evals/application-slice-diagnostics/profile-fixtures/N01.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/application-slice-diagnostics/profile-fixtures/N02.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/application-slice-diagnostics/profile-fixtures/N03.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/application-slice-diagnostics/profile-fixtures/N13.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/application-slice-diagnostics/profile-fixtures/manifest.json",
       "status": "added"
     },
     {
@@ -1083,13 +1103,7 @@
       "status": "added"
     }
   ],
-  "admittedUntracked": [
-    "evals/application-slice-diagnostics/profile-fixtures/N01.json",
-    "evals/application-slice-diagnostics/profile-fixtures/N02.json",
-    "evals/application-slice-diagnostics/profile-fixtures/N03.json",
-    "evals/application-slice-diagnostics/profile-fixtures/N13.json",
-    "evals/application-slice-diagnostics/profile-fixtures/manifest.json"
-  ],
+  "admittedUntracked": [],
   "excludedRuntimePrefixes": [
     ".pi/delegate/",
     ".pi/fusion/",
