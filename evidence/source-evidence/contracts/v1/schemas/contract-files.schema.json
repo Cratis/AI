@@ -1,0 +1,38 @@
+{
+  "$id": "https://cratis.io/ai/source-evidence/v1/contract-files.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "entries": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "digest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "path": {
+            "pattern": "^(policy\\.json|schemas/[a-z0-9-]+\\.schema\\.json)$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "digest"
+        ],
+        "type": "object"
+      },
+      "maxItems": 16,
+      "minItems": 1,
+      "type": "array"
+    },
+    "schemaVersion": {
+      "const": "source-evidence-contract-files/v1"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "entries"
+  ],
+  "type": "object"
+}

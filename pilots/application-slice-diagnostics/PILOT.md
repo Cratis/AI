@@ -44,8 +44,13 @@ edited. Exactly fourteen boundary/profile cases may produce a result, each bound
 to its canonical lane, disposition, reason, conclusion, and—where applicable—
 fixture digest and bundle revision. The symptom object is a redacted quotation
 of supplied input, not a pilot effect claim. Other free collections use bounded
-codes rather than prose. A later source-authority fixture phase must be a
-separate change before any remaining case or diagnosis behavior can be enabled.
+codes rather than prose. The repository now contains source-evidence contract
+v1 and an empty `CONTRACT_ONLY` registry. They define admission requirements but admit no bundle,
+claim, artifact, proof, or case. `P01`–`P08`, `N09`, and `N10` remain disabled.
+Synthetic profile fixtures are never passed as source evidence; the current
+source-evidence loader returns `NO_ADMITTED_SOURCE_EVIDENCE`. A later first-party admission phase and a separate
+case-activation change are both required before any source behavior can be
+enabled.
 
 ## Profile and lane
 

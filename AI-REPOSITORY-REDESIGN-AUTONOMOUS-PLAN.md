@@ -483,7 +483,7 @@ The program is complete only when:
   pending and structurally disabled.
 
 Evidence and exact next actions are in
-[`AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md`](./AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md#25-diagnostics-synthetic-profile-fixture-checkpoint--2026-08-22).
+[`AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md`](./AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md#26-source-evidence-contract-only-checkpoint--2026-08-22).
 
 ### 2026-08-22 — Synthetic diagnostics profile fixtures active
 
@@ -492,3 +492,12 @@ Evidence and exact next actions are in
 - [x] Enable exactly those four deterministic profile cases after fixture gates.
 - [x] Keep P01-P08/N09/N10 and all source/proof/effect behavior disabled.
 - [ ] Deliver fixture infrastructure after green PR CI.
+
+### 2026-08-22 — Source-evidence admission contract active
+
+- [x] Keep all ten source-authority cases disabled at 14/10 totals.
+- [x] Define canonical metadata-only source-evidence contract and schemas.
+- [x] Add an empty content-addressed CONTRACT_ONLY diagnostics registry.
+- [x] Add an offline read-only loader that returns no admitted evidence or proof.
+- [ ] Deliver contract infrastructure after full gates and independent review.
+- [ ] Obtain first-party product source contracts and owner authority separately.

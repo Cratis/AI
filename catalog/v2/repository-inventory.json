@@ -1103,7 +1103,26 @@
       "status": "added"
     }
   ],
-  "admittedUntracked": [],
+  "admittedUntracked": [
+    "Documentation/source-evidence-contract.md",
+    "evidence/source-evidence/contracts/v1/README.md",
+    "evidence/source-evidence/contracts/v1/contract-files.json",
+    "evidence/source-evidence/contracts/v1/policy.json",
+    "evidence/source-evidence/contracts/v1/schemas/admission.schema.json",
+    "evidence/source-evidence/contracts/v1/schemas/bundle.schema.json",
+    "evidence/source-evidence/contracts/v1/schemas/contract-files.schema.json",
+    "evidence/source-evidence/contracts/v1/schemas/owner-attestation.schema.json",
+    "evidence/source-evidence/contracts/v1/schemas/policy.schema.json",
+    "evidence/source-evidence/contracts/v1/schemas/proof.schema.json",
+    "evidence/source-evidence/contracts/v1/schemas/redaction-review.schema.json",
+    "evidence/source-evidence/contracts/v1/schemas/registry.schema.json",
+    "evidence/source-evidence/contracts/v1/schemas/revocation.schema.json",
+    "evidence/source-evidence/contracts/v1/schemas/source-verification.schema.json",
+    "evidence/source-evidence/registries/application-slice-diagnostics.v1.json",
+    "tooling/source-evidence-contract-validation.mjs",
+    "tooling/source-evidence-loader.mjs",
+    "tooling/specs/source-evidence-contract.spec.mjs"
+  ],
   "excludedRuntimePrefixes": [
     ".pi/delegate/",
     ".pi/fusion/",
@@ -1940,6 +1959,31 @@
     },
     {
       "excludePathPatterns": [],
+      "id": "source-evidence-contract-v1",
+      "sourcePathPatterns": [
+        "Documentation/source-evidence-contract.md",
+        "evidence/source-evidence/**"
+      ],
+      "artifactType": "repository-metadata",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "catalog/v2/source-contracts.json",
+        "pilots/application-slice-diagnostics/**"
+      ],
+      "risk": "high",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "ecosystem-use-cases"
+      ],
+      "expectedPathCount": 15,
+      "expectedPathsDigest": "2d63bf26dc0577403f5e54a51a906a425d3355f093065f0eaec4ee8913f1f50d"
+    },
+    {
+      "excludePathPatterns": [],
       "id": "diagnostics-pilot-source",
       "sourcePathPatterns": [
         "pilots/application-slice-diagnostics/**"
@@ -2191,8 +2235,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 13,
-      "expectedPathsDigest": "ae71f94b263d96658d954221cd388f3b540b34c89d5ff666ac134136abebda59"
+      "expectedPathCount": 15,
+      "expectedPathsDigest": "ff269dc9d29f2a73c5a6da50ab7e188da1b3ba067644fb553eedea5dbd5b56a2"
     },
     {
       "excludePathPatterns": [],
@@ -2215,8 +2259,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 8,
-      "expectedPathsDigest": "8e5e654f42e429529a9be9efe0ecb5a7be89996020d24aa27327c980625faa5e"
+      "expectedPathCount": 9,
+      "expectedPathsDigest": "4eaf40f027fa5c730763f7dad961bace120d01eef5a592861f94fff2d9659de0"
     },
     {
       "excludePathPatterns": [],

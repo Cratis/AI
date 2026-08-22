@@ -22,6 +22,18 @@
   "profileFixtureBundleRevision": "sha256:6809b3ace5e7dc1c60abe3670ddc9c330a1caeb365f3f2ce4bdc2d276bfb9828",
   "profileFixtureCaseIds": ["N01", "N02", "N03", "N13"],
   "enabledEvaluationCaseIds": ["N01", "N02", "N03", "N04", "N05", "N06", "N07", "N08", "N11", "N12", "N13", "N14", "P09", "P10"],
+  "sourceEvidence": {
+    "contractId": "cratis-source-evidence",
+    "contractVersion": 1,
+    "contractRevision": "sha256:d19468453fc3040186034db5099dd3bd9f52b2c8e6256a2f1f70e8d3a59ce62f",
+    "registryPath": "evidence/source-evidence/registries/application-slice-diagnostics.v1.json",
+    "registryRevision": "sha256:d0d7416c64624e225062bd74a543ab2f82b061cee4f522e6bd56a26fbee19e6c",
+    "mode": "contract-only",
+    "authorityState": "CONTRACT_ONLY",
+    "evidenceAcceptedCaseIds": [],
+    "enabledSourceCaseIds": [],
+    "sourceCaseActivationAllowed": false
+  },
   "maximumEvidenceFiles": 32,
   "maximumEvidenceFileBytes": 131072,
   "maximumEvidenceBytes": 2097152,

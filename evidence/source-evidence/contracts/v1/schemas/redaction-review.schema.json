@@ -1,0 +1,87 @@
+{
+  "$id": "https://cratis.io/ai/source-evidence/v1/redaction-review.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "artifactDigests": {
+      "items": {
+        "pattern": "^sha256:[0-9a-f]{64}$",
+        "type": "string"
+      },
+      "maxItems": 128,
+      "minItems": 1,
+      "type": "array"
+    },
+    "bundleRevision": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "findingCodes": {
+      "items": {
+        "maxLength": 512,
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxItems": 64,
+      "minItems": 0,
+      "type": "array"
+    },
+    "limitationCodes": {
+      "items": {
+        "maxLength": 512,
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxItems": 64,
+      "minItems": 0,
+      "type": "array"
+    },
+    "localFilesystemPathIncluded": {
+      "const": false
+    },
+    "noticeCodes": {
+      "items": {
+        "maxLength": 512,
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxItems": 64,
+      "minItems": 0,
+      "type": "array"
+    },
+    "policyVersion": {
+      "const": 1
+    },
+    "rawSourceIncluded": {
+      "const": false
+    },
+    "reviewDigest": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "sanitizedDerivativeIncluded": {
+      "const": false
+    },
+    "schemaVersion": {
+      "const": "source-redaction-review/v1"
+    },
+    "secretMaterialIncluded": {
+      "const": false
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "reviewDigest",
+    "bundleRevision",
+    "policyVersion",
+    "artifactDigests",
+    "findingCodes",
+    "noticeCodes",
+    "limitationCodes",
+    "rawSourceIncluded",
+    "sanitizedDerivativeIncluded",
+    "localFilesystemPathIncluded",
+    "secretMaterialIncluded"
+  ],
+  "type": "object"
+}

@@ -1,0 +1,184 @@
+{
+  "$id": "https://cratis.io/ai/source-evidence/v1/policy.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "admissionPolicy": {
+      "const": "deny-unless-exactly-admitted"
+    },
+    "canonicalJson": {
+      "additionalProperties": false,
+      "properties": {
+        "algorithm": {
+          "const": "sha256"
+        },
+        "arrayOrder": {
+          "const": "preserve"
+        },
+        "bom": {
+          "const": false
+        },
+        "normalization": {
+          "const": "NFC"
+        },
+        "objectKeyOrder": {
+          "const": "unicode-code-point"
+        },
+        "trailingLf": {
+          "const": true
+        },
+        "utf8": {
+          "const": true
+        }
+      },
+      "required": [
+        "algorithm",
+        "utf8",
+        "bom",
+        "normalization",
+        "objectKeyOrder",
+        "arrayOrder",
+        "trailingLf"
+      ],
+      "type": "object"
+    },
+    "contentPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "arbitraryProseAllowed": {
+          "const": false
+        },
+        "rawSourceAllowed": {
+          "const": false
+        },
+        "sanitizedDerivativesAllowed": {
+          "const": false
+        }
+      },
+      "required": [
+        "rawSourceAllowed",
+        "sanitizedDerivativesAllowed",
+        "arbitraryProseAllowed"
+      ],
+      "type": "object"
+    },
+    "contractId": {
+      "const": "cratis-source-evidence"
+    },
+    "contractVersion": {
+      "const": 1
+    },
+    "effects": {
+      "additionalProperties": false,
+      "properties": {
+        "approval": {
+          "const": false
+        },
+        "caseActivation": {
+          "const": false
+        },
+        "modelExecution": {
+          "const": false
+        },
+        "network": {
+          "const": false
+        },
+        "packaging": {
+          "const": false
+        },
+        "processExecution": {
+          "const": false
+        },
+        "promotion": {
+          "const": false
+        },
+        "publication": {
+          "const": false
+        },
+        "runtimeUse": {
+          "const": false
+        },
+        "writes": {
+          "const": false
+        }
+      },
+      "required": [
+        "modelExecution",
+        "network",
+        "processExecution",
+        "writes",
+        "runtimeUse",
+        "packaging",
+        "publication",
+        "approval",
+        "promotion",
+        "caseActivation"
+      ],
+      "type": "object"
+    },
+    "limits": {
+      "additionalProperties": false,
+      "properties": {
+        "artifacts": {
+          "const": 128
+        },
+        "claims": {
+          "const": 64
+        },
+        "depth": {
+          "const": 32
+        },
+        "files": {
+          "const": 64
+        },
+        "records": {
+          "const": 256
+        },
+        "stringBytes": {
+          "const": 8192
+        },
+        "totalBytes": {
+          "const": 2097152
+        }
+      },
+      "required": [
+        "files",
+        "records",
+        "claims",
+        "artifacts",
+        "depth",
+        "stringBytes",
+        "totalBytes"
+      ],
+      "type": "object"
+    },
+    "purpose": {
+      "const": "repository-evaluation-only"
+    },
+    "schemaVersion": {
+      "const": "source-evidence-policy/v1"
+    },
+    "sourceCaseIds": {
+      "items": {
+        "pattern": "^(P0[1-8]|N09|N10)$",
+        "type": "string"
+      },
+      "maxItems": 10,
+      "minItems": 10,
+      "type": "array"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "contractId",
+    "contractVersion",
+    "purpose",
+    "admissionPolicy",
+    "sourceCaseIds",
+    "canonicalJson",
+    "contentPolicy",
+    "effects",
+    "limits"
+  ],
+  "type": "object"
+}

@@ -1,0 +1,54 @@
+{
+  "admissionPolicy": "deny-unless-exactly-admitted",
+  "canonicalJson": {
+    "algorithm": "sha256",
+    "arrayOrder": "preserve",
+    "bom": false,
+    "normalization": "NFC",
+    "objectKeyOrder": "unicode-code-point",
+    "trailingLf": true,
+    "utf8": true
+  },
+  "contentPolicy": {
+    "arbitraryProseAllowed": false,
+    "rawSourceAllowed": false,
+    "sanitizedDerivativesAllowed": false
+  },
+  "contractId": "cratis-source-evidence",
+  "contractVersion": 1,
+  "effects": {
+    "approval": false,
+    "caseActivation": false,
+    "modelExecution": false,
+    "network": false,
+    "packaging": false,
+    "processExecution": false,
+    "promotion": false,
+    "publication": false,
+    "runtimeUse": false,
+    "writes": false
+  },
+  "limits": {
+    "artifacts": 128,
+    "claims": 64,
+    "depth": 32,
+    "files": 64,
+    "records": 256,
+    "stringBytes": 8192,
+    "totalBytes": 2097152
+  },
+  "purpose": "repository-evaluation-only",
+  "schemaVersion": "source-evidence-policy/v1",
+  "sourceCaseIds": [
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08",
+    "N09",
+    "N10"
+  ]
+}

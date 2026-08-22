@@ -8,14 +8,19 @@ import { types as utilTypes } from "node:util";
 import { compareOrdinal } from "./catalog-ordering.mjs";
 import { assertSafeContent } from "./public-artifact-materializer.mjs";
 import {
+    loadDiagnosticsSourceEvidence,
+    sourceEvidenceContract,
+    validateSourceEvidenceContract,
+} from "./source-evidence-loader.mjs";
+import {
     defaultRepositoryRoot,
     readCatalog,
 } from "./catalog-validation.mjs";
 
 const pilotRoot = "pilots/application-slice-diagnostics";
 const canonicalRoutesDigest = "95df7029d50d1e4459a3795c0b1bc08f728e56bbd9b8f1515c5b6859fbbe942f";
-const canonicalAssertionsDigest = "20364c8ec3f7e527c104913f00d4ccc13712893c794305a9bfdafc6710f13a0d";
-const canonicalCasesDigest = "190350517c42104df83f38c0475f94cb93eccf08e8e95877330d6ce7101151a0";
+const canonicalAssertionsDigest = "15ea979705187e32d11e8c47a4160558fa800d7a4d0c2b21a5d23feb6858c2b6";
+const canonicalCasesDigest = "04307d65fc2de32a6aca20b364ea202cd4213b1bdb62b7b876a11d81fa2bb967";
 const evaluationRoot = "evals/application-slice-diagnostics";
 const profileFixtureRoot = `${evaluationRoot}/profile-fixtures`;
 const canonicalProfileBundleRevision = "sha256:6809b3ace5e7dc1c60abe3670ddc9c330a1caeb365f3f2ce4bdc2d276bfb9828";
@@ -73,6 +78,7 @@ const canonicalMetadataFields = [
     "profileFixtureBundleRevision",
     "profileFixtureCaseIds",
     "enabledEvaluationCaseIds",
+    "sourceEvidence",
     "maximumEvidenceFiles",
     "maximumEvidenceFileBytes",
     "maximumEvidenceBytes",
@@ -101,6 +107,24 @@ const canonicalDispositions = [
 const canonicalEnabledCaseIds = [
     "N01", "N02", "N03", "N04", "N05", "N06", "N07", "N08", "N11", "N12", "N13", "N14", "P09", "P10",
 ];
+const canonicalSourceCaseIds = [
+    "N09", "N10", "P01", "P02", "P03", "P04", "P05", "P06", "P07", "P08",
+];
+const canonicalSourceEvidenceMetadata = {
+    contractId: "cratis-source-evidence",
+    contractVersion: 1,
+    contractRevision:
+        "sha256:d19468453fc3040186034db5099dd3bd9f52b2c8e6256a2f1f70e8d3a59ce62f",
+    registryPath:
+        "evidence/source-evidence/registries/application-slice-diagnostics.v1.json",
+    registryRevision:
+        "sha256:d0d7416c64624e225062bd74a543ab2f82b061cee4f522e6bd56a26fbee19e6c",
+    mode: "contract-only",
+    authorityState: "CONTRACT_ONLY",
+    evidenceAcceptedCaseIds: [],
+    enabledSourceCaseIds: [],
+    sourceCaseActivationAllowed: false,
+};
 const canonicalCaseInputs = {
     N01: ["sha256:959335f07d129f692e271b396b56938d981b74cd3e21c42cf215acbade2e5bd0", "This repository builds an Arc framework library. A test named SliceDiagnostics fails. Apply the application vertical-slice procedure."],
     N02: ["sha256:266c20cf0c13977506aadcbde396b461167ff15eb91c277608a7fa2e6582162b", "This is a Chronicle client SDK repository. Diagnose its serializer failure as an application read-model slice problem."],
@@ -268,6 +292,7 @@ const canonicalCaseFields = [
     "enabled",
     "fixtureStatus",
     "profileFixture",
+    "sourceEvidence",
     "prompt",
     "expected",
 ];
@@ -773,6 +798,17 @@ function canonicalJsonText(value) {
 
 function prefixedSha256(content) {
     return `sha256:${createHash("sha256").update(content).digest("hex")}`;
+}
+
+function expectedCaseSourceEvidence(caseId) {
+    if (!canonicalSourceCaseIds.includes(caseId)) return null;
+    return {
+        required: true,
+        authorityState: "CONTRACT_ONLY",
+        bundleRevisions: [],
+        claimIds: [],
+        activationAllowed: false,
+    };
 }
 
 function expectedSymptomForCase(caseId) {
@@ -1586,7 +1622,19 @@ export function validateDiagnosticsPilot(root = defaultRepositoryRoot) {
         metadata.profileFixtureBundleRevision !== canonicalProfileBundleRevision
     )
         errors.push("Diagnostics profile fixture metadata changed");
+    if (
+        canonicalJsonText(metadata.sourceEvidence) !==
+            canonicalJsonText(canonicalSourceEvidenceMetadata) ||
+        sourceEvidenceContract.contractId !== canonicalSourceEvidenceMetadata.contractId ||
+        sourceEvidenceContract.contractRevision !==
+            canonicalSourceEvidenceMetadata.contractRevision ||
+        sourceEvidenceContract.registryRevision !==
+            canonicalSourceEvidenceMetadata.registryRevision ||
+        !equalSets(sourceEvidenceContract.sourceCaseIds, canonicalSourceCaseIds)
+    )
+        errors.push("Diagnostics source evidence metadata changed");
     errors.push(...validateDiagnosticsProfileFixtures(root));
+    errors.push(...validateSourceEvidenceContract(root));
     const authoringContract = authoringContracts.find(
         (contract) => contract.id === metadata.authoringContractId,
     );
@@ -1786,6 +1834,11 @@ export function validateDiagnosticsPilot(root = defaultRepositoryRoot) {
             canonicalJsonText(expectedCaseProfileFixture(caseLabel(testCase)))
         )
             errors.push(`${caseLabel(testCase)}: profile fixture binding changed`);
+        if (
+            canonicalJsonText(testCase.sourceEvidence) !==
+            canonicalJsonText(expectedCaseSourceEvidence(caseLabel(testCase)))
+        )
+            errors.push(`${caseLabel(testCase)}: source evidence requirement changed`);
         if (!isPlainObject(testCase.expected))
             errors.push(`${caseLabel(testCase)}: diagnostics expected result must be an object`);
         else {

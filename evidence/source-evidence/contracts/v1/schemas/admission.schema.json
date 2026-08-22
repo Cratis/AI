@@ -1,0 +1,86 @@
+{
+  "$id": "https://cratis.io/ai/source-evidence/v1/admission.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "admissionRevision": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "approvalAllowed": {
+      "const": false
+    },
+    "attestationDigest": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "bundleRevision": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "caseActivationAllowed": {
+      "const": false
+    },
+    "caseIds": {
+      "items": {
+        "maxLength": 512,
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxItems": 10,
+      "minItems": 1,
+      "type": "array"
+    },
+    "effectsAllowed": {
+      "const": false
+    },
+    "networkAllowed": {
+      "const": false
+    },
+    "packagingAllowed": {
+      "const": false
+    },
+    "promotionAllowed": {
+      "const": false
+    },
+    "publicationAllowed": {
+      "const": false
+    },
+    "redactionReviewDigest": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "runtimeUseAllowed": {
+      "const": false
+    },
+    "schemaVersion": {
+      "const": "source-evidence-admission/v1"
+    },
+    "verificationDigest": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "writesAllowed": {
+      "const": false
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "admissionRevision",
+    "bundleRevision",
+    "attestationDigest",
+    "verificationDigest",
+    "redactionReviewDigest",
+    "caseIds",
+    "runtimeUseAllowed",
+    "effectsAllowed",
+    "writesAllowed",
+    "networkAllowed",
+    "packagingAllowed",
+    "publicationAllowed",
+    "approvalAllowed",
+    "promotionAllowed",
+    "caseActivationAllowed"
+  ],
+  "type": "object"
+}

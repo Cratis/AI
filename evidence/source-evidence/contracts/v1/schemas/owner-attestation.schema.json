@@ -1,0 +1,64 @@
+{
+  "$id": "https://cratis.io/ai/source-evidence/v1/owner-attestation.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "attestationDigest": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "bundleRevision": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "caseIds": {
+      "items": {
+        "maxLength": 512,
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxItems": 10,
+      "minItems": 1,
+      "type": "array"
+    },
+    "metadataRetentionAllowed": {
+      "const": true
+    },
+    "ownerPrincipalId": {
+      "maxLength": 512,
+      "minLength": 1,
+      "type": "string"
+    },
+    "repositoryEvaluationAllowed": {
+      "const": true
+    },
+    "runtimeUseAllowed": {
+      "const": false
+    },
+    "schemaVersion": {
+      "const": "source-owner-attestation/v1"
+    },
+    "sourceContractId": {
+      "maxLength": 512,
+      "minLength": 1,
+      "type": "string"
+    },
+    "sourceContractRevision": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "attestationDigest",
+    "bundleRevision",
+    "sourceContractId",
+    "sourceContractRevision",
+    "ownerPrincipalId",
+    "caseIds",
+    "repositoryEvaluationAllowed",
+    "metadataRetentionAllowed",
+    "runtimeUseAllowed"
+  ],
+  "type": "object"
+}

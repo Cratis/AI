@@ -895,3 +895,32 @@ gates pass, and final Fusion validation reported no included findings. Next:
 commit, refresh the post-commit inventory digest, push, open a no-release PR
 linked to AI#126, and wait for green CI before merge. No model run is part of
 this change.
+
+## 26. Source-evidence contract-only checkpoint — 2026-08-22
+
+Work continues on `feat/diagnostics-source-fixture-contract` in
+`../AI-diagnostics-source-fixtures`, based on profile-fixture merge
+`8422f365034fc748151124c04772a6c64bb01945`.
+
+This phase defines source-evidence contract v1 under `evidence/source-evidence/`
+without adding a source bundle, excerpt, derivative, claim, attestation,
+verification, redaction review, admission, revocation, proof, model run, or
+runtime artifact. Normative policy/schema files are canonical and digest-locked;
+the application-slice diagnostics registry is content-addressed and exactly
+`CONTRACT_ONLY` with empty admission and revocation sets.
+
+All ten source-authority cases (`P01`–`P08`, `N09`, `N10`) remain disabled and
+carry exact contract-only requirements with no bundle or claim binding. The
+offline loader returns only `NO_ADMITTED_SOURCE_EVIDENCE`, cannot activate a
+case, returns no proof, and treats synthetic profile fixtures as non-authority.
+Even future accepted repository evidence would require a separate case-
+activation revision.
+
+Current gates pass: 12/12 source-contract specifications, 28/28 focused
+diagnostics specifications, 133/133 repository Node specifications, catalog and
+stable inventory validation, syntax/LSP/structural checks, and clean diffs.
+Final Fusion review reported no implementation finding; its sole minor count
+claim was internally contradictory and disproven by both the executed Node
+summary and static `^test(` count (133). Next: commit, refresh the post-commit
+inventory digest, push, and open a no-release PR linked to AI#126. No external
+product-owner/source evidence is claimed by this change.

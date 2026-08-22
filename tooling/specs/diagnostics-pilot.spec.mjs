@@ -360,10 +360,16 @@ function withFixture(callback) {
     try {
         mkdirSync(join(root, "catalog/v2"), { recursive: true });
         mkdirSync(join(root, "evals"), { recursive: true });
+        mkdirSync(join(root, "evidence"), { recursive: true });
         mkdirSync(join(root, "pilots"), { recursive: true });
         cpSync(
             join(repositoryRoot, "catalog/v2/authoring-contracts.json"),
             join(root, "catalog/v2/authoring-contracts.json"),
+        );
+        cpSync(
+            join(repositoryRoot, "evidence/source-evidence"),
+            join(root, "evidence/source-evidence"),
+            { recursive: true },
         );
         cpSync(
             join(repositoryRoot, "evals/application-slice-diagnostics"),
@@ -559,6 +565,67 @@ test("diagnostics profile result bindings cannot be forged or swapped", () => {
             error.includes("symptom does not match the evaluated case input"),
         ),
     );
+});
+
+test("diagnostics source contract metadata cannot activate a source case", () => {
+    withFixture((root) => {
+        const metadataPath = join(
+            root,
+            "pilots/application-slice-diagnostics/metadata.draft.json",
+        );
+        const casesPath = join(
+            root,
+            "evals/application-slice-diagnostics/cases.jsonl",
+        );
+        const assertionsPath = join(
+            root,
+            "evals/application-slice-diagnostics/assertions.json",
+        );
+        const metadata = JSON.parse(readFileSync(metadataPath, "utf8"));
+        metadata.sourceEvidence.mode = "active";
+        metadata.sourceEvidence.authorityState = "EVIDENCE_ACCEPTED";
+        metadata.sourceEvidence.evidenceAcceptedCaseIds = ["P01"];
+        metadata.sourceEvidence.enabledSourceCaseIds = ["P01"];
+        metadata.sourceEvidence.sourceCaseActivationAllowed = true;
+        metadata.enabledEvaluationCaseIds.push("P01");
+        writeFileSync(metadataPath, JSON.stringify(metadata));
+        const cases = readDiagnosticsCases(root);
+        const sourceCase = cases.find((testCase) => testCase.id === "P01");
+        sourceCase.enabled = true;
+        sourceCase.fixtureStatus = "not-required";
+        sourceCase.profileFixture = structuredClone(
+            cases.find((testCase) => testCase.id === "N01").profileFixture,
+        );
+        sourceCase.sourceEvidence = {
+            required: true,
+            authorityState: "EVIDENCE_ACCEPTED",
+            bundleRevisions: [`sha256:${"a".repeat(64)}`],
+            claimIds: ["clm-forged"],
+            activationAllowed: true,
+        };
+        writeFileSync(
+            casesPath,
+            `${cases.map((testCase) => JSON.stringify(testCase)).join("\n")}\n`,
+        );
+        const assertions = JSON.parse(readFileSync(assertionsPath, "utf8"));
+        assertions.enabledCases = 15;
+        assertions.disabledCases = 9;
+        writeFileSync(assertionsPath, JSON.stringify(assertions));
+        const errors = validateDiagnosticsPilot(root);
+        assert(errors.includes("Diagnostics source evidence metadata changed"));
+        assert(
+            errors.some((error) =>
+                error.includes("P01: source evidence requirement changed"),
+            ),
+        );
+        assert(
+            errors.some((error) =>
+                error.includes("P01: profile fixture binding changed"),
+            ),
+        );
+        assert(errors.includes("Diagnostics fixture-dependent case set changed"));
+        assert(errors.includes("Diagnostics enabled-case contract changed"));
+    });
 });
 
 test("diagnostics pilot pins routes, assertions, and prompt corpus digests", () => {

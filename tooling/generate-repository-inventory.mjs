@@ -101,13 +101,14 @@ const unexpectedUntracked = admittedUntracked.filter(
     (path) =>
         !(
             /^AI-REPOSITORY-REDESIGN-[A-Z0-9-]+\.md$/.test(path) ||
-            /^Documentation\/(?:capability-catalog-v2|phase-0-verification|public-product-architecture|skill-authoring-contract|skill-classification-audit|project-context-bootstrap|redesign-foundation-validation)\.md$/.test(
+            /^Documentation\/(?:capability-catalog-v2|phase-0-verification|public-product-architecture|skill-authoring-contract|skill-classification-audit|project-context-bootstrap|redesign-foundation-validation|source-evidence-contract)\.md$/.test(
                 path,
             ) ||
             /^Documentation\/evidence\/redesign-autonomous-execution-2026-08-20\//.test(
                 path,
             ) ||
             /^catalog\//.test(path) ||
+            /^evidence\/source-evidence\//.test(path) ||
             /^evals\//.test(path) ||
             /^pilots\//.test(path) ||
             /^tooling\//.test(path)
@@ -668,6 +669,26 @@ const definitions = [
             "ecosystem-use-cases",
             "third-party-skills-evaluation",
         ],
+    },
+    {
+        id: "source-evidence-contract-v1",
+        sourcePathPatterns: [
+            "Documentation/source-evidence-contract.md",
+            "evidence/source-evidence/**",
+        ],
+        artifactType: "repository-metadata",
+        currentOwner: repositoryOwner,
+        targetOwner: repositoryOwner,
+        runtimeEligibility: "repository-only",
+        generatedStatus: "source",
+        adapterStatus: "none",
+        dependencies: [
+            "catalog/v2/source-contracts.json",
+            "pilots/application-slice-diagnostics/**",
+        ],
+        risk: "high",
+        migrationState: "retain",
+        evidenceIds: ["ecosystem-use-cases"],
     },
     {
         id: "diagnostics-pilot-source",

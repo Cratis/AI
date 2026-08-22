@@ -1,0 +1,57 @@
+{
+  "$id": "https://cratis.io/ai/source-evidence/v1/source-verification.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "artifactDigests": {
+      "items": {
+        "pattern": "^sha256:[0-9a-f]{64}$",
+        "type": "string"
+      },
+      "maxItems": 128,
+      "minItems": 1,
+      "type": "array"
+    },
+    "bundleRevision": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "commitObjectId": {
+      "maxLength": 512,
+      "minLength": 1,
+      "type": "string"
+    },
+    "receiptDigest": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "repositoryId": {
+      "maxLength": 512,
+      "minLength": 1,
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": "source-verification/v1"
+    },
+    "treeObjectId": {
+      "maxLength": 512,
+      "minLength": 1,
+      "type": "string"
+    },
+    "verificationDigest": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "verificationDigest",
+    "bundleRevision",
+    "repositoryId",
+    "commitObjectId",
+    "treeObjectId",
+    "artifactDigests",
+    "receiptDigest"
+  ],
+  "type": "object"
+}
