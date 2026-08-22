@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "1.0.0",
+  "observedAt": "2026-08-22",
+  "repository": {
+    "name": "Cratis/AI.Distribution",
+    "url": "https://github.com/Cratis/AI.Distribution",
+    "visibility": "PUBLIC",
+    "state": "CREATED_EMPTY",
+    "issuesEnabled": false,
+    "wikiEnabled": false,
+    "projectsEnabled": false,
+    "secretScanningEnabled": true,
+    "pushProtectionEnabled": true
+  },
+  "strategyRegistration": {
+    "required": true,
+    "issue": "https://github.com/Cratis/Strategy/issues/126",
+    "state": "PROPOSED_INTAKE"
+  },
+  "credential": {
+    "kind": "REPOSITORY_SCOPED_WRITE_DEPLOY_KEY",
+    "title": "Cratis AI distribution bot",
+    "deployKeyId": 160997540,
+    "privateKeySecretRepository": "Cratis/AI",
+    "privateKeySecretName": "AI_DISTRIBUTION_DEPLOY_KEY",
+    "state": "CONFIGURED_FOR_INITIAL_GENERATED_PUSH"
+  },
+  "protectedEnvironments": [
+    {
+      "repository": "Cratis/AI",
+      "name": "distribution-canary",
+      "requiredReviewer": "woksin",
+      "allowedBranch": "main",
+      "state": "CONFIGURED"
+    },
+    {
+      "repository": "Cratis/AI",
+      "name": "npm-stage",
+      "requiredReviewer": "woksin",
+      "allowedBranch": "main",
+      "state": "CONFIGURED"
+    }
+  ],
+  "remainingBlockers": [
+    "EMPTY_REPOSITORY_HAS_NO_PROTECTED_MAIN_BRANCH",
+    "DEPLOY_KEY_CANNOT_CREATE_GENERATED_PULL_REQUESTS",
+    "NO_APPROVED_PUBLIC_TARGETS",
+    "NO_APPROVED_PRODUCT_SOURCE_CONTRACTS",
+    "NO_NPM_PACKAGE_OWNERSHIP_OR_TRUSTED_PUBLISHER",
+    "NO_PRODUCTION_CANARY_OR_ROLLBACK_EVIDENCE"
+  ],
+  "publicationEligible": false,
+  "promotionEligible": false,
+  "legacyRetirementEligible": false
+}

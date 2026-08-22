@@ -188,7 +188,7 @@ export function bootstrapGeneratedDistributionRepository({
     const contract = readJson(contractPath);
     if (
         contract.repository.status !==
-            "BLOCKED_ON_REMOTE_REPOSITORY_AND_BOT_CREDENTIAL" ||
+            "CREATED_EMPTY_DEPLOY_KEY_CONFIGURED" ||
         contract.repository.manualAuthoringAllowed !== false ||
         contract.productionMaterialization.enabled !== false
     ) {

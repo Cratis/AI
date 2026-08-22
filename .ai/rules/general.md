@@ -50,6 +50,33 @@ This corpus is the shared, generic instruction set common to every Cratis reposi
 
 Default to agentic behavior: inspect local rules, skills, code, tests, and generated patterns; make conservative assumptions supported by that context; implement and verify end to end when feasible. Don't interrupt with questions the repository can answer. Ask when the answer can't be found locally, when reasonable product/domain choices differ meaningfully, when a change is risky, or when the user asked for checkpoints.
 
+## New Repository Registration
+
+Whenever you create a repository in the Cratis organization, create a linked
+issue in `Cratis/Strategy` before or immediately after repository creation. This
+is mandatory even for generated, experimental, private, or infrastructure
+repositories.
+
+The Strategy issue must include:
+
+- repository name, URL, visibility, and creation state;
+- purpose, intended users, lifecycle, and whether it is canonical, generated,
+  experimental, operational, or scheduled for retirement;
+- accountable owner and cross-repository ownership boundaries;
+- upstream/downstream dependencies and related issues, decisions, and PRs;
+- release, distribution, credential, security, privacy, compliance, and data
+  expectations;
+- requested Strategy work, including portfolio/product-family registration,
+  repository metadata, topics, ownership records, and the repository's own AI
+  rules, skills, and project context.
+
+Treat this as Strategy intake, not automatic strategic approval. Do not invent
+Strategy metadata in the new repository or copy private Strategy content into a
+public repository. Let `Cratis/Strategy` apply its own rules and skills, then
+link the resulting issue or decision back to the new repository and its owning
+implementation issue. Repository creation is not complete until the Strategy
+issue URL is recorded.
+
 ## Verification Discipline
 
 A claim is only as good as the signal behind it — a build result, a test run, a lint pass, observed app behavior — not the model's own confidence. Internal reasoning *plans* the work; external signals *confirm* it.

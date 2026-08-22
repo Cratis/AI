@@ -98,8 +98,7 @@ function assertConfiguration(requirements, matrix) {
             "Distribution fixture must remain publication and promotion ineligible",
         );
     if (
-        matrix.repository?.status !==
-        "BLOCKED_ON_BOT_REPOSITORY_AND_CREDENTIAL_AUTHORITY"
+        matrix.repository?.status !== "CREATED_EMPTY_DEPLOY_KEY_CONFIGURED"
     )
         throw new Error("Generated repository authority gate changed");
     if (

@@ -1344,3 +1344,54 @@ complete. The next required action is external: create/protect
 `Cratis/AI.Distribution`, designate the bot identity, and configure protected
 canary/npm-stage environments. Publication, production promotion, fleet rollout,
 legacy retirement, and freeze lifting remain blocked.
+
+## 36. Remote repository creation and Strategy registration — 2026-08-22
+
+Generated-repository simulation merged with green CI in Cratis/AI#143; its
+post-merge formatter output was preserved in green Cratis/AI#144. Hosted
+simulation `https://github.com/Cratis/AI/actions/runs/32572485343` passed on
+`78747e17ec1567c32a7d447fa2013eab576ffade`. The merged worktree/branches were
+removed normally, and this branch starts from formatter merge
+`f7e40726abafacbb357b28981562154123a705f2`.
+
+The maintainer clarified that GitHub CLI authority is available and established
+a new organization invariant: every newly created Cratis repository must notify
+`Cratis/Strategy` so Strategy can apply its own rules and skills to repository
+metadata and AI setup. This branch therefore:
+
+- adds the universal **New Repository Registration** rule to `general.md`, which
+  is also exposed as the root `AGENTS.md` instruction source;
+- creates Strategy intake `https://github.com/Cratis/Strategy/issues/126` with
+  purpose, users, lifecycle, ownership boundaries, dependencies, distribution,
+  release, security/privacy/data expectations, and requested Strategy metadata /
+  AI work;
+- creates empty public `https://github.com/Cratis/AI.Distribution` with no branch,
+  commit, or manually authored file;
+- enables secret scanning and push protection and disables issues, projects, and
+  wiki in the generated repository;
+- configures repository-scoped read/write deploy key `Cratis AI distribution
+  bot`, with the private key stored only as `AI_DISTRIBUTION_DEPLOY_KEY` in
+  `Cratis/AI` Actions secrets;
+- creates reviewed `distribution-canary` and `npm-stage` environments restricted
+  to `main` in `Cratis/AI`;
+- records the external state in
+  `distribution/remote-repository-state.json` and updates the matrix, rollout
+  policy, generated-repository contract, authority state, generator gates, and
+  specs;
+- adds a protected-environment workflow operation that can initialize the empty
+  remote only from deterministic generated fixture bytes using the deploy key.
+
+The deploy key can push only to `Cratis/AI.Distribution`; it cannot create pull
+requests, releases, tags, or npm publications. Fresh evidence is 188/188 full
+repository specs with focused distribution/generated-repository suites green;
+workflow YAML, catalog, stable inventory, syntax, strict JSON, LSP, structural,
+focused Markdown, and diff gates pass with unchanged legacy advisories.
+
+After merge, run the reviewed hosted initialization once, then protect `main`
+against direct
+human/bot pushes. A repository-scoped GitHub App or equivalent PR/release-capable
+bot remains required for subsequent generated update PRs and releases.
+
+Zero public targets or product-source contracts are approved. The planned public
+artifact, npm package, publication, production canary/promotion, fleet rollout,
+legacy retirement, and freeze lifting remain blocked.

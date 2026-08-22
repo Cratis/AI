@@ -555,5 +555,11 @@ Evidence and exact next actions are in
   rollback, emergency disable, audit history, and a read-only manual workflow.
 - [x] Bootstrap deterministic local bot-authored generated Git repositories and
   reject authoring content, tampering, human commits, and unapproved production
-  plans; remote repository creation remains externally blocked.
+  plans.
+- [x] Register repository creation with Cratis/Strategy, create empty public
+  `Cratis/AI.Distribution`, configure a repository-scoped write deploy key,
+  secret scanning/push protection, and reviewed canary/npm-stage environments.
+- [ ] Initialize remote `main` from hosted generated fixture bytes, protect the
+  branch, and replace the push-only deploy key with a PR/release-capable bot
+  identity before generated update or release operations.
 - [ ] Keep publication and retirement disabled until explicit approvals pass.
