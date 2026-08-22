@@ -4,8 +4,8 @@
   "audience": "cratis-engineering",
   "firstPassiveTarget": {
     "targetId": "cratis-engineering-docs-authoring",
-    "state": "EVIDENCE_PASS_OWNER_REVIEW_PENDING",
-    "reason": "Self-contained immutable source, calibration evidence, held-out routing improvement, exact run bindings, and bounded independent review pass; owner approval and install/update/rollback canary remain incomplete.",
+    "state": "FIXTURE_PACKAGE_PASS_OWNER_REVIEW_PENDING",
+    "reason": "Self-contained immutable source, calibration and held-out evidence, exact run bindings, bounded independent review, deterministic native fixture generation, and local install/update/rollback/uninstall pass; owner approval and a real repository canary remain incomplete.",
     "canonicalSourcePath": "engineering/skills/cratis-engineering-docs-authoring",
     "rawSourcePackagingAllowed": false
   },

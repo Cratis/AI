@@ -9,6 +9,7 @@ import { validateCodeReviewPilot } from "./code-review-pilot-validation.mjs";
 import { validateDomainExpertEventModelingPilot } from "./domain-expert-event-modeling-pilot-validation.mjs";
 import { validateDistributionConfiguration } from "./generate-distribution-fixture.mjs";
 import { validateEngineeringDocsAuthoring } from "./engineering-docs-authoring-validation.mjs";
+import { validateEngineeringDistributionConfiguration } from "./generate-engineering-distribution-fixture.mjs";
 
 const errors = [
     ...validateCatalogs(),
@@ -18,6 +19,7 @@ const errors = [
     ...validateDomainExpertEventModelingPilot(),
     ...validateDistributionConfiguration(),
     ...validateEngineeringDocsAuthoring(),
+    ...validateEngineeringDistributionConfiguration(),
 ];
 if (errors.length > 0) {
     process.stderr.write(

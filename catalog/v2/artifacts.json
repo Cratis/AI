@@ -146,6 +146,53 @@
       ]
     },
     {
+      "id": "sanitized-engineering-docs-authoring-fixture",
+      "audience": "test-fixture",
+      "fixtureOnly": true,
+      "materializationAllowed": true,
+      "runtimeEligible": false,
+      "componentInventory": {
+        "skills": [
+          "cratis-engineering-docs-authoring-fixture"
+        ],
+        "mcp": []
+      },
+      "exactSourcePaths": [
+        "engineering/skills/cratis-engineering-docs-authoring/LICENSE",
+        "engineering/skills/cratis-engineering-docs-authoring/SKILL.md",
+        "engineering/skills/cratis-engineering-docs-authoring/references/site-format.md"
+      ],
+      "allowedPathPatterns": [
+        "skills/cratis-engineering-docs-authoring/LICENSE",
+        "skills/cratis-engineering-docs-authoring/SKILL.md",
+        "skills/cratis-engineering-docs-authoring/references/**"
+      ],
+      "forbiddenPathPatterns": [
+        "**/scripts/**",
+        "**/evals/**",
+        "rules/**",
+        "agents/**",
+        "prompts/**",
+        "commands/**",
+        "hooks/**",
+        "lsp/**",
+        "tooling/**",
+        "workflows/**",
+        ".pi/**",
+        ".git/**",
+        ".cratis/PROJECT.md",
+        ".agents/PROJECT.md",
+        "AGENTS.md",
+        "CLAUDE.md",
+        "GEMINI.md"
+      ],
+      "requiresApprovedTargets": false,
+      "evidenceIds": [
+        "engineering-docs-authoring-source-f58bcf7",
+        "engineering-docs-authoring-evaluation-2026-08-22"
+      ]
+    },
+    {
       "id": "sanitized-public-materializer-fixture",
       "audience": "test-fixture",
       "fixtureOnly": true,
