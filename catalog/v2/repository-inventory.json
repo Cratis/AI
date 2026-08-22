@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "42756b7acb6c63059b58219dd105bf72a42ed7f6067a72d324dae3087aaf691c",
+  "indexDigest": "3d339a79814d5f7f6eea25b2d887693ce46fb75e65d6644d73c296a67d045d13",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -152,6 +152,10 @@
     },
     {
       "path": "Documentation/skill-classification-audit.md",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/source-evidence-contract.md",
       "status": "added"
     },
     {
@@ -935,6 +939,62 @@
       "status": "added"
     },
     {
+      "path": "evidence/source-evidence/contracts/v1/README.md",
+      "status": "added"
+    },
+    {
+      "path": "evidence/source-evidence/contracts/v1/contract-files.json",
+      "status": "added"
+    },
+    {
+      "path": "evidence/source-evidence/contracts/v1/policy.json",
+      "status": "added"
+    },
+    {
+      "path": "evidence/source-evidence/contracts/v1/schemas/admission.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "evidence/source-evidence/contracts/v1/schemas/bundle.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "evidence/source-evidence/contracts/v1/schemas/contract-files.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "evidence/source-evidence/contracts/v1/schemas/owner-attestation.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "evidence/source-evidence/contracts/v1/schemas/policy.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "evidence/source-evidence/contracts/v1/schemas/proof.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "evidence/source-evidence/contracts/v1/schemas/redaction-review.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "evidence/source-evidence/contracts/v1/schemas/registry.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "evidence/source-evidence/contracts/v1/schemas/revocation.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "evidence/source-evidence/contracts/v1/schemas/source-verification.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "evidence/source-evidence/registries/application-slice-diagnostics.v1.json",
+      "status": "added"
+    },
+    {
       "path": "pilots/application-slice-diagnostics/PILOT.md",
       "status": "added"
     },
@@ -1063,6 +1123,14 @@
       "status": "added"
     },
     {
+      "path": "tooling/source-evidence-contract-validation.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/source-evidence-loader.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/specs/catalog-ordering.spec.mjs",
       "status": "added"
     },
@@ -1095,6 +1163,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/specs/source-evidence-contract.spec.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/summarize-navigator-runs.mjs",
       "status": "added"
     },
@@ -1103,26 +1175,7 @@
       "status": "added"
     }
   ],
-  "admittedUntracked": [
-    "Documentation/source-evidence-contract.md",
-    "evidence/source-evidence/contracts/v1/README.md",
-    "evidence/source-evidence/contracts/v1/contract-files.json",
-    "evidence/source-evidence/contracts/v1/policy.json",
-    "evidence/source-evidence/contracts/v1/schemas/admission.schema.json",
-    "evidence/source-evidence/contracts/v1/schemas/bundle.schema.json",
-    "evidence/source-evidence/contracts/v1/schemas/contract-files.schema.json",
-    "evidence/source-evidence/contracts/v1/schemas/owner-attestation.schema.json",
-    "evidence/source-evidence/contracts/v1/schemas/policy.schema.json",
-    "evidence/source-evidence/contracts/v1/schemas/proof.schema.json",
-    "evidence/source-evidence/contracts/v1/schemas/redaction-review.schema.json",
-    "evidence/source-evidence/contracts/v1/schemas/registry.schema.json",
-    "evidence/source-evidence/contracts/v1/schemas/revocation.schema.json",
-    "evidence/source-evidence/contracts/v1/schemas/source-verification.schema.json",
-    "evidence/source-evidence/registries/application-slice-diagnostics.v1.json",
-    "tooling/source-evidence-contract-validation.mjs",
-    "tooling/source-evidence-loader.mjs",
-    "tooling/specs/source-evidence-contract.spec.mjs"
-  ],
+  "admittedUntracked": [],
   "excludedRuntimePrefixes": [
     ".pi/delegate/",
     ".pi/fusion/",
