@@ -26,7 +26,10 @@ import {
     validateDistributionFixture,
 } from "../generate-distribution-fixture.mjs";
 
-const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+const repositoryRoot = resolve(
+    dirname(fileURLToPath(import.meta.url)),
+    "../..",
+);
 function commandAvailable(command) {
     try {
         execFileSync(command, ["--version"], { stdio: "pipe" });
@@ -69,8 +72,8 @@ test("distribution requirements and artifact matrix stay authority bounded", () 
         ),
     );
     const verified = requirements.requirements
-        .filter(item => item.status.startsWith("VERIFIED"))
-        .map(item => item.id);
+        .filter((item) => item.status.startsWith("VERIFIED"))
+        .map((item) => item.id);
     assert.deepEqual(verified, [
         "agent-skills-open-standard",
         "claude-code-marketplace",
@@ -85,8 +88,11 @@ test("distribution requirements and artifact matrix stay authority bounded", () 
     ]);
     assert.deepEqual(
         requirements.requirements
-            .filter(item => item.status === "BLOCKED_NO_AUTHORITATIVE_REQUIREMENTS")
-            .map(item => item.id),
+            .filter(
+                (item) =>
+                    item.status === "BLOCKED_NO_AUTHORITATIVE_REQUIREMENTS",
+            )
+            .map((item) => item.id),
         [],
     );
     assert.equal(matrix.state, "FIXTURE_ONLY_LOCAL_STAGING");
@@ -96,20 +102,30 @@ test("distribution requirements and artifact matrix stay authority bounded", () 
         matrix.repository.status,
         "BLOCKED_ON_BOT_REPOSITORY_AND_CREDENTIAL_AUTHORITY",
     );
-    const requirementIds = new Set(requirements.requirements.map(item => item.id));
-    assert(matrix.targets.every(target => requirementIds.has(target.requirementId)));
+    const requirementIds = new Set(
+        requirements.requirements.map((item) => item.id),
+    );
+    assert(
+        matrix.targets.every((target) =>
+            requirementIds.has(target.requirementId),
+        ),
+    );
     assert(
         matrix.targets
-            .filter(target => target.state === "BLOCKED")
-            .every(target => target.outputRoot === null),
+            .filter((target) => target.state === "BLOCKED")
+            .every((target) => target.outputRoot === null),
     );
     assert.equal(localEvidence.publicationEligible, false);
     assert.equal(localEvidence.promotionEligible, false);
-    assert(localEvidence.results.every(result => result.status.startsWith("PASS")));
+    assert(
+        localEvidence.results.every((result) =>
+            result.status.startsWith("PASS"),
+        ),
+    );
 });
 
 test("distribution fixture generation is deterministic across native adapters", () => {
-    withTemporaryDirectory(root => {
+    withTemporaryDirectory((root) => {
         const firstRoot = join(root, "first");
         const secondRoot = join(root, "second");
         const first = generateDistributionFixture({
@@ -143,7 +159,7 @@ test("distribution fixture generation is deterministic across native adapters", 
 });
 
 test("generated marketplace manifests remain passive and idiomatic", () => {
-    withTemporaryDirectory(root => {
+    withTemporaryDirectory((root) => {
         const stage = join(root, "stage");
         generateDistributionFixture({ repositoryRoot, outputRoot: stage });
         const claude = readJson(
@@ -201,7 +217,7 @@ test("generated marketplace manifests remain passive and idiomatic", () => {
 });
 
 test("distribution fixture detects payload and checksum tampering", () => {
-    withTemporaryDirectory(root => {
+    withTemporaryDirectory((root) => {
         const stage = join(root, "stage");
         generateDistributionFixture({ repositoryRoot, outputRoot: stage });
         const path = join(
@@ -217,7 +233,7 @@ test("distribution fixture detects payload and checksum tampering", () => {
 });
 
 test("passive npm fixture packs installs and uninstalls without scripts", () => {
-    withTemporaryDirectory(root => {
+    withTemporaryDirectory((root) => {
         const stage = join(root, "stage");
         const smokeRoot = join(root, "smoke");
         generateDistributionFixture({ repositoryRoot, outputRoot: stage });
@@ -228,97 +244,92 @@ test("passive npm fixture packs installs and uninstalls without scripts", () => 
     });
 });
 
-test(
-    "passive Pi fixture installs lists and removes in an isolated home",
-    { skip: !piAvailable },
-    () => {
-        withTemporaryDirectory(root => {
-            const stage = join(root, "stage");
-            const isolatedHome = join(root, "home");
-            generateDistributionFixture({ repositoryRoot, outputRoot: stage });
-            mkdirSync(isolatedHome);
-            assert.deepEqual(
-                smokePiDistributionFixture(stage, isolatedHome),
-                { installed: true, removed: true },
-            );
+test("passive Pi fixture installs lists and removes in an isolated home", {
+    skip: !piAvailable,
+}, () => {
+    withTemporaryDirectory((root) => {
+        const stage = join(root, "stage");
+        const isolatedHome = join(root, "home");
+        generateDistributionFixture({ repositoryRoot, outputRoot: stage });
+        mkdirSync(isolatedHome);
+        assert.deepEqual(smokePiDistributionFixture(stage, isolatedHome), {
+            installed: true,
+            removed: true,
         });
-    },
-);
+    });
+});
 
-test(
-    "Claude fixture validates installs and removes in an isolated home",
-    { skip: !claudeAvailable },
-    () => {
-        withTemporaryDirectory(root => {
-            const stage = join(root, "stage");
-            const isolatedHome = join(root, "home");
-            generateDistributionFixture({ repositoryRoot, outputRoot: stage });
-            mkdirSync(isolatedHome);
-            assert.deepEqual(
-                smokeClaudeDistributionFixture(stage, isolatedHome),
-                { validated: true, installed: true, removed: true },
-            );
+test("Claude fixture validates installs and removes in an isolated home", {
+    skip: !claudeAvailable,
+}, () => {
+    withTemporaryDirectory((root) => {
+        const stage = join(root, "stage");
+        const isolatedHome = join(root, "home");
+        generateDistributionFixture({ repositoryRoot, outputRoot: stage });
+        mkdirSync(isolatedHome);
+        assert.deepEqual(smokeClaudeDistributionFixture(stage, isolatedHome), {
+            validated: true,
+            installed: true,
+            removed: true,
         });
-    },
-);
+    });
+});
 
-test(
-    "Copilot fixture installs and removes in an isolated home",
-    { skip: !copilotAvailable },
-    () => {
-        withTemporaryDirectory(root => {
-            const stage = join(root, "stage");
-            const isolatedHome = join(root, "home");
-            generateDistributionFixture({ repositoryRoot, outputRoot: stage });
-            mkdirSync(isolatedHome);
-            assert.deepEqual(
-                smokeCopilotDistributionFixture(stage, isolatedHome),
-                { installed: true, removed: true },
-            );
+test("Copilot fixture installs and removes in an isolated home", {
+    skip: !copilotAvailable,
+}, () => {
+    withTemporaryDirectory((root) => {
+        const stage = join(root, "stage");
+        const isolatedHome = join(root, "home");
+        generateDistributionFixture({ repositoryRoot, outputRoot: stage });
+        mkdirSync(isolatedHome);
+        assert.deepEqual(smokeCopilotDistributionFixture(stage, isolatedHome), {
+            installed: true,
+            removed: true,
         });
-    },
-);
+    });
+});
 
-test(
-    "Codex fixture marketplace adds and removes in an isolated home",
-    { skip: !codexAvailable },
-    () => {
-        withTemporaryDirectory(root => {
-            const stage = join(root, "stage");
-            const isolatedHome = join(root, "home");
-            generateDistributionFixture({ repositoryRoot, outputRoot: stage });
-            mkdirSync(isolatedHome);
-            assert.deepEqual(
-                smokeCodexDistributionFixture(stage, isolatedHome),
-                { added: true, removed: true },
-            );
+test("Codex fixture marketplace adds and removes in an isolated home", {
+    skip: !codexAvailable,
+}, () => {
+    withTemporaryDirectory((root) => {
+        const stage = join(root, "stage");
+        const isolatedHome = join(root, "home");
+        generateDistributionFixture({ repositoryRoot, outputRoot: stage });
+        mkdirSync(isolatedHome);
+        assert.deepEqual(smokeCodexDistributionFixture(stage, isolatedHome), {
+            added: true,
+            removed: true,
         });
-    },
-);
+    });
+});
 
-test(
-    "Gemini fixture links and removes in an isolated home",
-    { skip: !geminiAvailable },
-    () => {
-        withTemporaryDirectory(root => {
-            const stage = join(root, "stage");
-            const isolatedHome = join(root, "home");
-            generateDistributionFixture({ repositoryRoot, outputRoot: stage });
-            mkdirSync(isolatedHome);
-            assert.deepEqual(
-                smokeGeminiDistributionFixture(stage, isolatedHome),
-                { linked: true, removed: true },
-            );
+test("Gemini fixture links and removes in an isolated home", {
+    skip: !geminiAvailable,
+}, () => {
+    withTemporaryDirectory((root) => {
+        const stage = join(root, "stage");
+        const isolatedHome = join(root, "home");
+        generateDistributionFixture({ repositoryRoot, outputRoot: stage });
+        mkdirSync(isolatedHome);
+        assert.deepEqual(smokeGeminiDistributionFixture(stage, isolatedHome), {
+            linked: true,
+            removed: true,
         });
-    },
-);
+    });
+});
 
 test("distribution generator refuses an existing destination", () => {
-    withTemporaryDirectory(root => {
+    withTemporaryDirectory((root) => {
         const stage = join(root, "stage");
         mkdirSync(stage);
         assert.throws(
-            () => generateDistributionFixture({ repositoryRoot, outputRoot: stage }),
+            () =>
+                generateDistributionFixture({
+                    repositoryRoot,
+                    outputRoot: stage,
+                }),
             /must not exist/,
         );
     });

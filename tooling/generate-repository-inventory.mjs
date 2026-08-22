@@ -32,9 +32,7 @@ function gitPaths(args) {
 
 function pathDigest(paths) {
     return createHash("sha256")
-        .update(
-            `${sortedOrdinal(paths).join("\n")}\n`,
-        )
+        .update(`${sortedOrdinal(paths).join("\n")}\n`)
         .digest("hex");
 }
 
@@ -79,9 +77,7 @@ function changesSinceBase(baseRevision) {
         if (!path) throw new Error("Git returned an incomplete change record");
         changes.push({ path, status });
     }
-    return changes.sort((left, right) =>
-        compareOrdinal(left.path, right.path),
-    );
+    return changes.sort((left, right) => compareOrdinal(left.path, right.path));
 }
 
 const excludedRuntimePrefixes = [".pi/delegate/", ".pi/fusion/", ".pi/tasks/"];
@@ -447,16 +443,10 @@ const definitions = [
         runtimeEligibility: "repository-only",
         generatedStatus: "source",
         adapterStatus: "none",
-        dependencies: [
-            "tooling/validate-catalogs.mjs",
-            "tooling/specs/**",
-        ],
+        dependencies: ["tooling/validate-catalogs.mjs", "tooling/specs/**"],
         risk: "high",
         migrationState: "retain",
-        evidenceIds: [
-            "repo-main-b795d53",
-            "option-a-plus-authority",
-        ],
+        evidenceIds: ["repo-main-b795d53", "option-a-plus-authority"],
     },
     {
         id: "repository-github-metadata-and-cleanup",
@@ -668,10 +658,7 @@ const definitions = [
         ],
         risk: "medium",
         migrationState: "retain",
-        evidenceIds: [
-            "ecosystem-use-cases",
-            "third-party-skills-evaluation",
-        ],
+        evidenceIds: ["ecosystem-use-cases", "third-party-skills-evaluation"],
     },
     {
         id: "code-review-pilot-source",
@@ -854,10 +841,7 @@ const definitions = [
         ],
         risk: "high",
         migrationState: "retain",
-        evidenceIds: [
-            "ecosystem-use-cases",
-            "third-party-skills-evaluation",
-        ],
+        evidenceIds: ["ecosystem-use-cases", "third-party-skills-evaluation"],
     },
     {
         id: "catalog-v2-generated-surfaces",

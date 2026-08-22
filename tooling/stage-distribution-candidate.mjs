@@ -11,7 +11,9 @@ import {
     validateDistributionConfiguration,
 } from "./generate-distribution-fixture.mjs";
 
-const defaultRepositoryRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
+const defaultRepositoryRoot = resolve(
+    fileURLToPath(new URL("..", import.meta.url)),
+);
 const fixtureArtifactId = "sanitized-public-materializer-fixture";
 
 function sha256(content) {
@@ -36,12 +38,17 @@ export function stageDistributionCandidate({
     version = "0.0.0-fixture",
 } = {}) {
     if (!artifactId || !outputRoot || !candidateRecordPath)
-        throw new Error("artifactId, outputRoot, and candidateRecordPath are required");
+        throw new Error(
+            "artifactId, outputRoot, and candidateRecordPath are required",
+        );
     if (existsSync(outputRoot))
         throw new Error(`Candidate output must not exist: ${outputRoot}`);
     if (existsSync(candidateRecordPath))
-        throw new Error(`Candidate record must not exist: ${candidateRecordPath}`);
-    const configurationErrors = validateDistributionConfiguration(repositoryRoot);
+        throw new Error(
+            `Candidate record must not exist: ${candidateRecordPath}`,
+        );
+    const configurationErrors =
+        validateDistributionConfiguration(repositoryRoot);
     if (configurationErrors.length > 0)
         throw new Error(configurationErrors.join("; "));
     const artifactCatalog = readJson(
@@ -51,9 +58,10 @@ export function stageDistributionCandidate({
         join(repositoryRoot, "distribution/rollout-policy.json"),
     );
     const artifact = artifactCatalog.artifacts?.find(
-        candidate => candidate.id === artifactId,
+        (candidate) => candidate.id === artifactId,
     );
-    if (!artifact) throw new Error(`Unknown distribution artifact: ${artifactId}`);
+    if (!artifact)
+        throw new Error(`Unknown distribution artifact: ${artifactId}`);
     if (
         artifact.materializationAllowed !== true ||
         artifact.runtimeEligible !== false ||
