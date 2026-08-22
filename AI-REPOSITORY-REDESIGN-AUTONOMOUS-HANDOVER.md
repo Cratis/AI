@@ -1525,8 +1525,10 @@ manual gates:
 The public docs work merged in Documentation#60. Components#167 and
 Chronicle#3804 restored build/client-snippet gates; AuthProxy#107,
 Chronicle#3805, and Cratis/.github#26 repair the remaining rendered-link sources.
-Documentation#59 tracks the recovery run and any residual unrelated site debt.
-The AI-native brand page is live at `https://cratis.no/ai/`.
+Documentation recovery completed: full main build and deploy passed at
+`https://github.com/Cratis/Documentation/actions/runs/32577668021`, all new AI
+pages are live on cratis.io, and Documentation#59 is closed. The AI-native brand
+page is live at `https://cratis.no/ai/`.
 
 The prepared workflows deliberately cannot be used for generated PRs or npm
 staging until the focused manual issues provision their credentials/ownership.
