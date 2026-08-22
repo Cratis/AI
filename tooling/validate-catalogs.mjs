@@ -6,12 +6,14 @@ import { validateCatalogs } from "./catalog-validation.mjs";
 import { validateV2Catalogs } from "./catalog-v2-validation.mjs";
 import { validateSourceEvidenceContract } from "./source-evidence-contract-validation.mjs";
 import { validateCodeReviewPilot } from "./code-review-pilot-validation.mjs";
+import { validateDomainExpertEventModelingPilot } from "./domain-expert-event-modeling-pilot-validation.mjs";
 
 const errors = [
     ...validateCatalogs(),
     ...validateV2Catalogs(),
     ...validateSourceEvidenceContract(),
     ...validateCodeReviewPilot(),
+    ...validateDomainExpertEventModelingPilot(),
 ];
 if (errors.length > 0) {
     process.stderr.write(

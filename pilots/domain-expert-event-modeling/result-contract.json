@@ -1,0 +1,41 @@
+{
+  "fields": [
+    "schemaVersion",
+    "pilotId",
+    "evaluatedCaseId",
+    "inputBinding",
+    "outcome",
+    "outcomeReasonCode",
+    "modelStatus",
+    "glossary",
+    "streams",
+    "commands",
+    "facts",
+    "stateViews",
+    "reactions",
+    "scenarios",
+    "gaps",
+    "questions",
+    "handoff",
+    "limitations",
+    "safetyEvidence"
+  ],
+  "modelStatus": [
+    "DRAFT",
+    "NOT_PRODUCED"
+  ],
+  "outcomes": [
+    "MODEL_DRAFT",
+    "QUESTIONS_REQUIRED",
+    "INCONCLUSIVE",
+    "BLOCKED",
+    "SKIPPED",
+    "REFUSED"
+  ],
+  "pilotId": "domain-expert-event-modeling",
+  "reactionKinds": [
+    "AUTOMATION",
+    "TRANSLATION"
+  ],
+  "schemaVersion": "1.0.0"
+}

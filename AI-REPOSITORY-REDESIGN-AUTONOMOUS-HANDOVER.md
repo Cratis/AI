@@ -1154,3 +1154,47 @@ and normal branch/worktree cleanup. Then deliver one minimal Cratis domain-
 expert/event-modeling pilot and move directly to marketplace-native distribution
 work. Runtime activation, publication, promotion, product-source admission, and
 legacy retirement remain blocked.
+
+## 32. Minimal domain-expert event-modeling pilot — 2026-08-22
+
+The review pilot merged with green CI in Cratis/AI#138. AI#126 and Workflows#68
+were updated, the review branch and worktree were removed normally, and this
+branch was created from merge commit
+`de5e399cf7a2db4c564b4342edddcf489a13bfbe`.
+
+The next deliberately small delivery is implemented under
+`pilots/domain-expert-event-modeling/` and
+`evals/domain-expert-event-modeling/`:
+
+- three passive contract files;
+- nine inline clean-room synthetic cases and exact input/result bindings;
+- one bounded validator and six focused specifications;
+- catalog-validator wiring and two repository-inventory groups;
+- zero model runs, no separate fixture tree, no contract lock, and no held-out
+  or runtime evidence.
+
+The pilot is Cratis-first and domain-expert-facing. It produces only `DRAFT`
+proposals requiring owner review; distinguishes commands, past-tense facts,
+streams and subjects, state views, automations, translations, scenarios,
+traceability gaps, compliance questions, and conflicts; and refuses execution,
+mutation, publication, and third-party copying. It does not alter the candidate,
+unevaluated, `includeInRuntime: false` state of
+`cratis-chronicle-event-modeling`.
+
+The single authorized bounded Fusion review was
+`validate-e6b214091c39c332105c299ade2008c0`. It found two concrete high
+acceptance violations: P02 invented an `OrderStatus` consumer absent from its
+supplied narrative, and null model collections could still reach unsafe length
+dereferences. P02 now explicitly supplies the state view and scenario outcome;
+all result collections are normalized before semantic use, with focused null
+mutations. Per the bounded-review rule, Fusion was not rerun and no recursive
+hardening began.
+
+After fresh gates, commit the pilot, regenerate the post-commit inventory in CI
+generator order, push a no-release PR linked to AI#126, wait for green CI, merge,
+update AI#126 and Workflows#68, and remove the branch/worktree normally. Then
+begin distribution work immediately: authoritative marketplace requirements,
+artifact matrix, generated distribution staging/repository authority,
+marketplace-native adapters, install/smoke/uninstall, provenance/checksums,
+canaries, and rollback. Product-source admission, runtime activation,
+publication, promotion, and legacy retirement remain blocked.
