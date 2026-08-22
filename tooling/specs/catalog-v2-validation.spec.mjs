@@ -204,10 +204,10 @@ test("documentation authoring is classified but remains unapproved", () => {
 test("first useful public skill is bound to immutable canonical source", () => {
     const catalogs = loadCatalogs();
     const source = catalogs.sources.sources.find(
-        candidate => candidate.id === "add-concept",
+        (candidate) => candidate.id === "add-concept",
     );
     const target = catalogs.targets.targets.find(
-        candidate => candidate.id === "cratis-fundamentals-concept",
+        (candidate) => candidate.id === "cratis-fundamentals-concept",
     );
     assert.equal(source.sourcePath, "skills/cratis-fundamentals-concept");
     assert.equal(
