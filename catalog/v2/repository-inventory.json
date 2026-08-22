@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "3d339a79814d5f7f6eea25b2d887693ce46fb75e65d6644d73c296a67d045d13",
+  "indexDigest": "884f51150ed032fe647510c29736ff4c5a91422333fa3f5ddf3cc8f44623ff65",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -24,6 +24,10 @@
     },
     {
       "path": "AI-REPOSITORY-REDESIGN-CONTINUATION-HANDOVER.md",
+      "status": "added"
+    },
+    {
+      "path": "AI-REPOSITORY-REDESIGN-DELIVERY-FIRST-CONTINUATION-PROMPT.md",
       "status": "added"
     },
     {
@@ -939,6 +943,126 @@
       "status": "added"
     },
     {
+      "path": "evals/evidence-bound-code-review/assertions.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/evidence-bound-code-review/baseline.md",
+      "status": "added"
+    },
+    {
+      "path": "evals/evidence-bound-code-review/cases.jsonl",
+      "status": "added"
+    },
+    {
+      "path": "evals/evidence-bound-code-review/fixtures/envelopes/N01.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/evidence-bound-code-review/fixtures/envelopes/N02.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/evidence-bound-code-review/fixtures/envelopes/N03.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/evidence-bound-code-review/fixtures/envelopes/N04.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/evidence-bound-code-review/fixtures/envelopes/N05.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/evidence-bound-code-review/fixtures/envelopes/N06.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/evidence-bound-code-review/fixtures/envelopes/N07.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/evidence-bound-code-review/fixtures/envelopes/N08.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/evidence-bound-code-review/fixtures/envelopes/N09.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/evidence-bound-code-review/fixtures/envelopes/N10.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/evidence-bound-code-review/fixtures/envelopes/N11.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/evidence-bound-code-review/fixtures/envelopes/N12.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/evidence-bound-code-review/fixtures/envelopes/N13.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/evidence-bound-code-review/fixtures/envelopes/N14.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/evidence-bound-code-review/fixtures/envelopes/N15.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/evidence-bound-code-review/fixtures/envelopes/N16.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/evidence-bound-code-review/fixtures/envelopes/P01.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/evidence-bound-code-review/fixtures/envelopes/P02.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/evidence-bound-code-review/fixtures/envelopes/P03.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/evidence-bound-code-review/fixtures/envelopes/P04.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/evidence-bound-code-review/fixtures/envelopes/P05.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/evidence-bound-code-review/fixtures/envelopes/P06.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/evidence-bound-code-review/fixtures/envelopes/P07.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/evidence-bound-code-review/fixtures/envelopes/P08.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/evidence-bound-code-review/fixtures/envelopes/P09.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/evidence-bound-code-review/fixtures/envelopes/P10.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/evidence-bound-code-review/fixtures/manifest.json",
+      "status": "added"
+    },
+    {
       "path": "evidence/source-evidence/contracts/v1/README.md",
       "status": "added"
     },
@@ -1023,6 +1147,30 @@
       "status": "added"
     },
     {
+      "path": "pilots/evidence-bound-code-review/PILOT.md",
+      "status": "added"
+    },
+    {
+      "path": "pilots/evidence-bound-code-review/contract-lock.json",
+      "status": "added"
+    },
+    {
+      "path": "pilots/evidence-bound-code-review/metadata.draft.json",
+      "status": "added"
+    },
+    {
+      "path": "pilots/evidence-bound-code-review/result-contract.json",
+      "status": "added"
+    },
+    {
+      "path": "pilots/evidence-bound-code-review/review-envelope-contract.json",
+      "status": "added"
+    },
+    {
+      "path": "pilots/evidence-bound-code-review/routes.draft.json",
+      "status": "added"
+    },
+    {
       "path": "tooling/catalog-ordering.mjs",
       "status": "added"
     },
@@ -1032,6 +1180,10 @@
     },
     {
       "path": "tooling/catalog-validation.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/code-review-pilot-validation.mjs",
       "status": "added"
     },
     {
@@ -1140,6 +1292,10 @@
     },
     {
       "path": "tooling/specs/catalog-validation.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/code-review-pilot.spec.mjs",
       "status": "added"
     },
     {
@@ -1955,8 +2111,8 @@
         "workflows-68",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 18,
-      "expectedPathsDigest": "788d028de84fa9600be36a577d5f592bd762a7dd9844ea973e7ac24f0dc7e5bb"
+      "expectedPathCount": 19,
+      "expectedPathsDigest": "b6184ed056ae917fdea8f3bcdc37d804b0f8c37ab923afec40e65c88d6e10211"
     },
     {
       "excludePathPatterns": [],
@@ -2009,6 +2165,52 @@
       ],
       "expectedPathCount": 1,
       "expectedPathsDigest": "72c58a7f75edd132552b00b3bbdbe9e4b406548c3286c742e4fc21ea27c9468a"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "code-review-pilot-source",
+      "sourcePathPatterns": [
+        "pilots/evidence-bound-code-review/**"
+      ],
+      "artifactType": "pilot",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "catalog/v2/authoring-contracts.json"
+      ],
+      "risk": "high",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "ecosystem-use-cases"
+      ],
+      "expectedPathCount": 6,
+      "expectedPathsDigest": "3068f98ed419cf289957ed3ef997b37b21676d2f463aece2806b76cf2c99a22a"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "code-review-pilot-evaluations",
+      "sourcePathPatterns": [
+        "evals/evidence-bound-code-review/**"
+      ],
+      "artifactType": "evaluation",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "pilots/evidence-bound-code-review/**"
+      ],
+      "risk": "medium",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "ecosystem-use-cases"
+      ],
+      "expectedPathCount": 30,
+      "expectedPathsDigest": "8d5b06464dcc81ed224273f4cb3905f5d458245c5dd3522583bd29cb54c9e454"
     },
     {
       "excludePathPatterns": [],
@@ -2288,8 +2490,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 15,
-      "expectedPathsDigest": "ff269dc9d29f2a73c5a6da50ab7e188da1b3ba067644fb553eedea5dbd5b56a2"
+      "expectedPathCount": 16,
+      "expectedPathsDigest": "4ee8e90b71394d5ef2c88df2dd4128933f2b723bf40ca7d27f6a26ec975eaaf9"
     },
     {
       "excludePathPatterns": [],
@@ -2312,8 +2514,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 9,
-      "expectedPathsDigest": "4eaf40f027fa5c730763f7dad961bace120d01eef5a592861f94fff2d9659de0"
+      "expectedPathCount": 10,
+      "expectedPathsDigest": "a3943b833605ef0ae4481085c3e48134d90c03b71e16895ab6932d842347ad62"
     },
     {
       "excludePathPatterns": [],

@@ -1,0 +1,43 @@
+{
+  "allowedArtifactRoles": [
+    "REPOSITORY_INVENTORY",
+    "PACKAGE_MANIFEST",
+    "PROJECT_INSTRUCTIONS",
+    "DIFF",
+    "SOURCE_BEFORE",
+    "SOURCE_AFTER",
+    "SPEC",
+    "DOCUMENTATION",
+    "REPOSITORY_POLICY",
+    "REQUEST_SPECIFICATION",
+    "VERIFICATION_RECEIPT"
+  ],
+  "allowedScopeModes": [
+    "DIFF",
+    "EMPTY"
+  ],
+  "caseIdentity": {
+    "envelopeIdPattern": "^env-[np]\\d{2}$",
+    "envelopeIdTemplate": "env-{lowercase evaluatedCaseId}",
+    "evaluatedCaseIdPattern": "^[NP]\\d{2}$",
+    "receiptCaseIdSource": "EXTERNAL_EVALUATED_CASE_ID"
+  },
+  "id": "evidence-bound-code-review-envelope",
+  "inputAuthority": "CLEAN_ROOM_SYNTHETIC_ONLY",
+  "limits": {
+    "artifactBytes": 262144,
+    "artifacts": 64,
+    "depth": 32,
+    "envelopeBytes": 1048576,
+    "files": 32,
+    "nodes": 50000,
+    "stringBytes": 4096
+  },
+  "permissions": {
+    "ambientRead": false,
+    "network": false,
+    "tools": false,
+    "writes": false
+  },
+  "schemaVersion": "1.0.0"
+}

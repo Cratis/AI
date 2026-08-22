@@ -1,0 +1,92 @@
+{
+  "availability": "SUPPLIED",
+  "caseId": "N12",
+  "declaredEnvelopeSha256": "cb4fbb6b7b8270767895f1a81da8a68fc680c8d65e158ee0bf4c143497132224",
+  "envelope": {
+    "artifacts": [
+      {
+        "byteLength": 36,
+        "content": "{\"profile\":\"CLIENT\",\"complete\":true}",
+        "id": "A01",
+        "mediaType": "text/plain",
+        "path": "repository-inventory.json",
+        "provenance": "CLEAN_ROOM_SYNTHETIC",
+        "role": "REPOSITORY_INVENTORY",
+        "sha256": "ac432e1cbe8c35df22af42578a444532e5aedabe0b8a18ba9628373aba86125b"
+      },
+      {
+        "byteLength": 115,
+        "content": "--- a/Source/N12.cs\n+++ b/Source/N12.cs\n@@ -2,1 +2,1 @@\n-value = 1\n+dangerousToken = \"label\"; evalResult = \"text\";\n",
+        "id": "A02",
+        "mediaType": "text/x-diff",
+        "path": "Source/N12.cs.diff",
+        "provenance": "CLEAN_ROOM_SYNTHETIC",
+        "role": "DIFF",
+        "sha256": "210687c483b9cb4af7c9342c6c7a06495a74925f306f6a539dc5fc7c0a6d673b"
+      },
+      {
+        "byteLength": 30,
+        "content": "line one\nvalue = 1\nline three\n",
+        "id": "A03",
+        "mediaType": "text/plain",
+        "path": "Source/N12.cs",
+        "provenance": "CLEAN_ROOM_SYNTHETIC",
+        "role": "SOURCE_BEFORE",
+        "sha256": "b81955681005c8848437a11729bf26969c0d902206e10d302a8cb260452b6a51"
+      },
+      {
+        "byteLength": 67,
+        "content": "line one\ndangerousToken = \"label\"; evalResult = \"text\";\nline three\n",
+        "id": "A04",
+        "mediaType": "text/plain",
+        "path": "Source/N12.cs",
+        "provenance": "CLEAN_ROOM_SYNTHETIC",
+        "role": "SOURCE_AFTER",
+        "sha256": "3ae5a47243aa4bb66e12f762ad675b8e7a633c6ca05ece675d7d5dc54e2f90dd"
+      }
+    ],
+    "envelopeId": "env-n12",
+    "repository": {
+      "inventoryArtifactRef": "A01",
+      "inventoryComplete": true,
+      "opaqueId": "repo-n12",
+      "profileEvidenceRefs": [
+        "A01"
+      ]
+    },
+    "revision": {
+      "baseRevision": "git:d3d3092aa1e57ab8624797995f41cb2ef20933a6",
+      "diffArtifactRef": "A02",
+      "diffSha256": "210687c483b9cb4af7c9342c6c7a06495a74925f306f6a539dc5fc7c0a6d673b",
+      "headRevision": "git:51b94bdbe0ad63c953dbf3106f581d25b464f428",
+      "headTreeSha256": "2200b3bdee8212ad5d86d0d055f2280764091f0ec60319ee716c6f5674694cc9",
+      "vcs": "git"
+    },
+    "schemaVersion": "1.0.0",
+    "scope": {
+      "excludedPaths": [],
+      "fileSetSha256": "78519b0a23dabbcd4d925351ca8995afdff21565648fbb623cad01190350a325",
+      "files": [
+        {
+          "afterArtifactRef": "A04",
+          "afterSha256": "3ae5a47243aa4bb66e12f762ad675b8e7a633c6ca05ece675d7d5dc54e2f90dd",
+          "beforeArtifactRef": "A03",
+          "changedLineRanges": [
+            {
+              "end": 2,
+              "start": 2
+            }
+          ],
+          "path": "Source/N12.cs"
+        }
+      ],
+      "mode": "DIFF",
+      "requestedDimensions": [
+        "SECURITY"
+      ],
+      "scopeSha256": "ca528b6f1111246fb9f154c10ec4dd02ff73999f72d7ee72bd594d9da634cd08"
+    },
+    "suppliedVerificationReceiptRefs": []
+  },
+  "schemaVersion": "1.0.0"
+}

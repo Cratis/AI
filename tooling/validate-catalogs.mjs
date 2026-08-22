@@ -5,11 +5,13 @@
 import { validateCatalogs } from "./catalog-validation.mjs";
 import { validateV2Catalogs } from "./catalog-v2-validation.mjs";
 import { validateSourceEvidenceContract } from "./source-evidence-contract-validation.mjs";
+import { validateCodeReviewPilot } from "./code-review-pilot-validation.mjs";
 
 const errors = [
     ...validateCatalogs(),
     ...validateV2Catalogs(),
     ...validateSourceEvidenceContract(),
+    ...validateCodeReviewPilot(),
 ];
 if (errors.length > 0) {
     process.stderr.write(

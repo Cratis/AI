@@ -7,7 +7,13 @@
 
 ## 1. Goal
 
-Deliver a trustworthy Cratis AI product and engineering ecosystem that:
+Deliver a trustworthy Cratis AI product and engineering ecosystem. This is not a
+general-purpose software-development assistant: it is hyper-focused on the best
+possible agentic experience for teams building with Cratis tools and products.
+Generic and non-Cratis profiles exist only for routing, exclusion, portability,
+and safety-boundary evidence, never as product-scope expansion.
+
+The ecosystem:
 
 - serves Chronicle-only, Arc-only, combined, model-first, contributor, operational, and non-developer use cases;
 - treats C#, Kotlin, Java, Elixir, TypeScript, React, and language-neutral workflows as first-class where applicable;
@@ -483,7 +489,7 @@ The program is complete only when:
   pending and structurally disabled.
 
 Evidence and exact next actions are in
-[`AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md`](./AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md#26-source-evidence-contract-only-checkpoint--2026-08-22).
+[`AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md`](./AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md#30-delivery-first-course-correction--2026-08-22).
 
 ### 2026-08-22 — Synthetic diagnostics profile fixtures active
 
@@ -501,3 +507,42 @@ Evidence and exact next actions are in
 - [x] Add an offline read-only loader that returns no admitted evidence or proof.
 - [ ] Deliver contract infrastructure after full gates and independent review.
 - [ ] Obtain first-party product source contracts and owner authority separately.
+
+### 2026-08-22 — Evidence-bound review pilot active
+
+- [x] Define passive clean-room review metadata, routes, envelope/result contracts.
+- [x] Add 10 positive and 16 adversarial content-addressed cases.
+- [x] Keep model runs, tools, effects, remediation, approval, and runtime denied.
+- [ ] Complete validator mutation coverage and all repository gates.
+- [ ] Deliver only after independent review and green PR CI.
+
+### 2026-08-22 — Context-window checkpoint
+
+- [ ] Finish and merge the evidence-bound review pilot (Fusion pending).
+- [ ] Implement the domain-expert/event-modeling pilot.
+- [ ] Execute frozen repeated, held-out, portability, originality, and security gates.
+- [ ] Admit real product sources only after owner/revision/permission verification.
+- [ ] Create bot-owned generated distribution after all source targets are approved.
+- [ ] Build idiomatic marketplace-specific packages/adapters and smoke tests.
+- [ ] Canary, prove rollback, then retire legacy propagation safely.
+
+### 2026-08-22 — Review-pilot Fusion correction gate
+
+- [ ] Bind envelope and receipt identities to external evaluated case context.
+- [ ] Complete finding after-artifact/range/dimension/claim-basis checks.
+- [ ] Add valid EMPTY and nonempty receipt integration fixtures.
+- [ ] Make malformed envelope/oracle semantics crash-safe.
+- [ ] Rerun all gates and final Fusion before delivery.
+
+### 2026-08-22 — Delivery-first correction
+
+- [x] Finish the four already-known review-pilot findings only.
+- [x] Run one bounded final review and fix its two concrete high acceptance
+  violations without starting another review loop.
+- [ ] Merge the review pilot after green CI and stop hardening.
+- [ ] Deliver one minimal domain-expert/event-modeling pilot PR.
+- [ ] Verify current authoritative marketplace/package requirements.
+- [ ] Scaffold generated distribution repository or exact authority request.
+- [ ] Implement deterministic marketplace-native package/adaptor generation.
+- [ ] Add install/smoke/uninstall, provenance, checksum, canary, and rollback gates.
+- [ ] Keep publication and retirement disabled until explicit approvals pass.

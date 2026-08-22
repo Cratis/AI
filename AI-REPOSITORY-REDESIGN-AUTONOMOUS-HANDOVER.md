@@ -734,6 +734,7 @@ Do not weaken strict exactness. The honest evidence remains held-out 8/10 strict
 and 10/10 contract/decision/structure, canonical 26/28 strict and 28/28
 contract/decision/structure, with observed-output-only safety evidence and no
 promotion.
+
 ## 22. Diagnostics pilot checkpoint — 2026-08-21
 
 The second clean-room pilot is active on `feat/diagnostics-pilot` in
@@ -924,3 +925,232 @@ claim was internally contradictory and disproven by both the executed Node
 summary and static `^test(` count (133). Next: commit, refresh the post-commit
 inventory digest, push, and open a no-release PR linked to AI#126. No external
 product-owner/source evidence is claimed by this change.
+
+## 27. Evidence-bound code-review pilot checkpoint — 2026-08-22
+
+Work continues on `feat/review-pilot` in `../AI-review-pilot`, based on source-
+evidence contract merge `827af3b7a7cc3a8a3c1466164a2a2d044a8c9693`.
+
+The pilot is repository-only and `CONTRACT_ONLY`. It accepts only canonical,
+digest-bound clean-room synthetic review envelopes; has no ambient repository,
+filesystem, process, tool, network, credential, write, remediation, approval,
+publication, or effect capability; and records zero model runs.
+
+The corpus contains exactly 10 positive and 16 adversarial cases across
+application, framework, client, non-Cratis, and corpus profiles and correctness,
+security, performance, architecture, specs, and documentation dimensions.
+Fixtures and exact expected results are content-addressed. Outcomes remain
+separate: finding, no-findings, blocked, inconclusive, skipped, and refused.
+`NO_FINDINGS` is explicitly bounded and never means defect-free, verified,
+approved, or ready.
+
+Current gates pass: 18/18 focused review-pilot specifications, 151/151 total
+repository Node specifications, catalog and inventory validation, syntax/diff
+checks. Before delivery, complete LSP/structural and Fusion review, then open a
+no-release PR linked to AI#126. No model output, runtime artifact, package,
+plugin, publication, target approval, or promotion is part of this phase.
+
+## 28. Context-window continuation checkpoint — 2026-08-22
+
+The repository is **not yet a released marketplace/distribution system**. The
+merged work through PR #137 establishes harness-agnostic canonical authoring,
+closed catalogs, clean-room policy, repository-only pilots/evaluations, hardened
+Navigator evidence, diagnostics profile fixtures, and a source-evidence
+admission boundary. It deliberately grants no runtime or publication approval.
+
+Current active work:
+
+- branch: `feat/review-pilot`;
+- worktree: `/Volumes/sourcecode/repos/cratis/AI-review-pilot`;
+- base: merged main `827af3b7a7cc3a8a3c1466164a2a2d044a8c9693`;
+- pilot: passive `evidence-bound-code-review`;
+- corpus: 10 positive + 16 adversarial clean-room cases;
+- persisted model runs: zero;
+- permissions: no ambient repository/filesystem/process/tool/network/credential/
+  write/remediation/approval/publication/effect access;
+- latest gates: 18/18 focused review specs and 151/151 full repository specs,
+  catalogs, stable inventory, syntax, LSP, structural, and diff checks pass;
+- pending gate: Fusion validation
+  `validate-8c80734bbe8acea8eea98cc14417150f`.
+
+The latest correction binds every finding to exact changed synthetic evidence
+and any required synthetic authority; reconstructs exact diff hunks; rejects
+undeclared changes; binds line evidence to the scoped after artifact/ranges;
+semantically binds receipts; requires exact invalid-envelope error sets; and
+cross-binds expected results to request, repository, revision, scope, profile,
+receipts, dimensions, findings, and evidence.
+
+Exact resume actions:
+
+1. retrieve the pending Fusion result once;
+2. address only included current-state findings, rerun 18 focused/151 full gates,
+   and repeat final validation if needed;
+3. update this checkpoint, commit, regenerate and commit the post-commit
+   inventory digest, push, open a `no-release` PR linked to AI#126, and wait for
+   green CI before merge;
+4. remove the merged branch/worktree normally;
+5. implement the domain-expert/event-modeling pilot next;
+6. then run frozen repeated/held-out evaluations before any promotion;
+7. keep real product source admission blocked on first-party source contracts,
+   owner authority, immutable revisions, security/privacy/originality review;
+8. only afterward implement the bot-owned generated distribution repository,
+   per-marketplace idiomatic packaging/adapters, canaries, rollback, and legacy
+   retirement.
+
+Still absent and not to be claimed: releaseable packages, marketplace listings,
+public skill artifacts, native platform adapters/installers, distribution
+repository/release automation, target approvals, product-source admissions,
+effect telemetry, canaries, rollback evidence, and retirement authorization.
+The five protected dirty-main files remain untouched.
+
+## 29. Review-pilot final-Fusion findings — 2026-08-22
+
+Fusion validation `validate-8c80734bbe8acea8eea98cc14417150f`
+completed with four included high findings. Do not commit or open the PR until
+all are corrected and fresh gates/review pass.
+
+Required corrections:
+
+1. Bind `envelopeId` exactly to the externally evaluated/wrapper case ID and
+   validate its type/format. Receipt case identity must derive from the external
+   context, never from mutable envelope identity. Add cross-case envelope and
+   receipt replay mutations.
+2. Tighten finding validation: require `startLine <= endLine`, exact scoped
+   `afterArtifactRef` and `afterSha256`, evidence path equality, containment in
+   changed ranges, reviewed-dimension membership, allowed claim-basis values,
+   and required authority for authority-dependent claims.
+3. Add a real valid `EMPTY` envelope case whose exact result is
+   `SKIPPED / EMPTY_REVIEWABLE_SCOPE`; enforce empty files and empty diff and
+   reject every other outcome. Add a full-pilot fixture with a nonempty,
+   semantically bound verification receipt and result receipt refs.
+4. Make malformed nested envelopes and expected results fully crash-safe.
+   Invalid artifacts/files must not be used after errors; expected limitations,
+   findings, dimension results, review bindings, artifacts, ranges, and receipts
+   must be normalized/guarded before mapping or dereference. Full validation
+   must skip semantic cross-binding safely when the envelope is malformed while
+   still reporting bounded errors.
+
+Current branch/worktree remain `feat/review-pilot` and
+`/Volumes/sourcecode/repos/cratis/AI-review-pilot`. Last green pre-review gates
+were 18/18 focused and 151/151 full specs. After corrections: regenerate all
+fixture/case/manifest/lock digests as needed; update hard-coded digests; run
+focused/full/catalog/inventory/syntax/LSP/structural/diff gates; rerun Fusion;
+then commit and deliver only on no unresolved included findings.
+
+## 30. Delivery-first course correction — 2026-08-22
+
+Fresh-session prompt:
+`AI-REPOSITORY-REDESIGN-DELIVERY-FIRST-CONTINUATION-PROMPT.md`.
+
+The maintainer challenged whether review hardening had become disproportionate.
+That assessment is correct: PRs #130–#137 delivered substantial canonical
+infrastructure, but repeated adversarial validation loops reached diminishing
+returns for repository-only, runtime-disabled artifacts and delayed releasable,
+marketplace-idiomatic outputs.
+
+### Mandatory operating change
+
+Use a delivery-first, bounded-review policy from this checkpoint:
+
+1. Finish only the four concrete review-pilot findings already recorded in
+   section 29.
+2. Run the complete local gates once and one final Fusion validation.
+3. Fix only included findings that demonstrate a concrete violation of the
+   declared review-pilot contract. Do not start an unbounded review/fix loop for
+   speculative, equivalent, or runtime-irrelevant parser hardening. Record any
+   non-blocking residual risk in the handover and deliver.
+4. Merge the review pilot after green CI.
+5. Implement one minimal domain-expert/event-modeling pilot PR. Timebox it to
+   the smallest useful closed contract, corpus, validator, and specs; do not
+   repeat the prior hardening spiral.
+6. Then prioritize actual distribution deliverables:
+   - verify current marketplace/package requirements from authoritative sources;
+   - define the approved artifact/package matrix;
+   - scaffold the bot-owned generated distribution repository if repository and
+     credential authority exists, otherwise produce the exact creation/credential
+     request and continue locally with deterministic staging;
+   - generate marketplace-specific, idiomatic adapters/wrappers from approved
+     canonical sources;
+   - add pack/install/smoke/uninstall checks for each target;
+   - keep publication disabled until source/target approval gates pass;
+   - prepare canary, rollback, provenance, checksums, and legacy-retirement gates.
+
+### Work that must not consume the next session
+
+- Do not seek or synthesize real product source authority; that remains externally
+  blocked on first-party contracts and owners.
+- Do not add more general-purpose validation frameworks unless directly required
+  by a failing delivery gate.
+- Do not rerun Fusion recursively after a bounded final review unless a finding
+  is a concrete critical/high violation of an explicit acceptance criterion.
+- Do not confuse repository-only robustness with marketplace readiness.
+
+### Concrete immediate state
+
+- branch: `feat/review-pilot`;
+- worktree: `/Volumes/sourcecode/repos/cratis/AI-review-pilot`;
+- current uncommitted pilot corpus: 10 positive + 16 adversarial cases;
+- last green gates after initial corrections: 18/18 focused and 151/151 full
+  repository specifications;
+- current required fixes remain section 29 items: envelope/receipt identity,
+  finding after-artifact/range/dimension/claim-basis binding, valid EMPTY and
+  nonempty receipt integration, and malformed nested crash safety;
+- latest Fusion result: `validate-8c80734bbe8acea8eea98cc14417150f`.
+
+### Delivery sequence and stop conditions
+
+**Review pilot:** deliver when the four findings are fixed, local gates pass, one
+bounded final validation has no unresolved contract violation, and CI is green.
+
+**Event-modeling pilot:** one PR, repository-only, no model runs, no distribution;
+deliver after one bounded review and green CI.
+
+**Distribution:** begin immediately afterward. A session is not considered
+productive merely for adding validators; it must produce package-generation,
+adapter, installation, smoke-test, canary, rollback, or repository-creation
+artifacts that move toward releasable marketplace outputs.
+
+## 31. Review-pilot bounded final correction — 2026-08-22
+
+The four section 29 findings are corrected:
+
+- envelope IDs and receipt case identities bind to a required external case ID;
+- finding evidence binds ordered lines, exact scoped after artifacts and digests,
+  changed ranges, reviewed dimensions, allowed claim bases, and synthetic
+  authority;
+- N08 is the valid empty-scope integration fixture with exact
+  `SKIPPED / EMPTY_REVIEWABLE_SCOPE`, and P07 carries the nonempty bound receipt;
+- malformed nested envelopes and expected results return bounded errors without
+  reusing structurally invalid artifacts or files for semantic cross-binding.
+
+The one authorized final Fusion review was
+`validate-4640df74db889c9ada6e36d9a92bb069`. It reported two concrete high
+acceptance violations: object-valued reviewed dimensions could crash route
+construction, and correctness findings could remove authority bindings while
+regenerating internally consistent digests. Both are fixed with focused
+mutations. Per the delivery-first rule, Fusion was not rerun. No minor or
+speculative parser-hardening loop was started.
+
+Fresh post-Fusion-fix evidence is 23/23 focused review specs and 156/156 full
+repository specs, with catalog, stable inventory, syntax, strict JSON, LSP,
+structural, focused Markdown, and diff gates passing. Focused Markdown lint has
+zero findings across all changed Markdown. The broad legacy Documentation gate
+still stops at the same 230 pre-existing lint findings in 10 unrelated files and
+does not reach link checking; section 21 already recorded this baseline. Those
+unrelated files are outside this delivery-first correction and remain a
+non-blocking legacy advisory. The post-commit inventory digest still must be
+regenerated and committed.
+
+Maintainer direction is explicit: this program is not a general software-
+development assistant. Product design and distribution must optimize the Cratis
+agentic experience across Chronicle, Arc, Components, Screenplay, Stage,
+Workbench, MCP, and supported Cratis clients. `NON_CRATIS` and generic fixtures
+are routing, exclusion, portability, and safety-boundary evidence only; they do
+not broaden product scope.
+
+Remaining review-pilot delivery steps are commit, post-commit inventory refresh,
+push, no-release PR linked to AI#126, green CI, merge, authority-issue updates,
+and normal branch/worktree cleanup. Then deliver one minimal Cratis domain-
+expert/event-modeling pilot and move directly to marketplace-native distribution
+work. Runtime activation, publication, promotion, product-source admission, and
+legacy retirement remain blocked.

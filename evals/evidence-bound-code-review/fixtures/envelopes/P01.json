@@ -1,0 +1,102 @@
+{
+  "availability": "SUPPLIED",
+  "caseId": "P01",
+  "declaredEnvelopeSha256": "dd6bea8352cbdccf92626394a38b62ce2ee1f92ed4da787a6bc0e0fbcc0b444e",
+  "envelope": {
+    "artifacts": [
+      {
+        "byteLength": 41,
+        "content": "{\"profile\":\"APPLICATION\",\"complete\":true}",
+        "id": "A01",
+        "mediaType": "text/plain",
+        "path": "repository-inventory.json",
+        "provenance": "CLEAN_ROOM_SYNTHETIC",
+        "role": "REPOSITORY_INVENTORY",
+        "sha256": "4edb46bd28d04a62f6445c7b5b2c49135736ffd95d8b60917be49e6db14c7c66"
+      },
+      {
+        "byteLength": 82,
+        "content": "--- a/Source/P01.cs\n+++ b/Source/P01.cs\n@@ -2,1 +2,1 @@\n-value = 1\n+value = wrong\n",
+        "id": "A02",
+        "mediaType": "text/x-diff",
+        "path": "Source/P01.cs.diff",
+        "provenance": "CLEAN_ROOM_SYNTHETIC",
+        "role": "DIFF",
+        "sha256": "c48be0690d6530bfe6a2cbf4df5a172dc15cf00bd03ab3697210dda957a46a0d"
+      },
+      {
+        "byteLength": 30,
+        "content": "line one\nvalue = 1\nline three\n",
+        "id": "A03",
+        "mediaType": "text/plain",
+        "path": "Source/P01.cs",
+        "provenance": "CLEAN_ROOM_SYNTHETIC",
+        "role": "SOURCE_BEFORE",
+        "sha256": "b81955681005c8848437a11729bf26969c0d902206e10d302a8cb260452b6a51"
+      },
+      {
+        "byteLength": 34,
+        "content": "line one\nvalue = wrong\nline three\n",
+        "id": "A04",
+        "mediaType": "text/plain",
+        "path": "Source/P01.cs",
+        "provenance": "CLEAN_ROOM_SYNTHETIC",
+        "role": "SOURCE_AFTER",
+        "sha256": "34e8fbf052af2a3dcc5aa33a4c3a9a50fbd4c181d07c99f768c3b3477b08ffd7"
+      },
+      {
+        "byteLength": 68,
+        "content": "The changed assignment must use value = 2; value = wrong is invalid.",
+        "id": "A05",
+        "mediaType": "text/plain",
+        "path": "synthetic-requirement.txt",
+        "provenance": "CLEAN_ROOM_SYNTHETIC",
+        "role": "REQUEST_SPECIFICATION",
+        "sha256": "de2bc7cba34dcaa06de3387a87713cdbc4c74061075336c5ee4621238664cd30"
+      }
+    ],
+    "envelopeId": "env-p01",
+    "repository": {
+      "inventoryArtifactRef": "A01",
+      "inventoryComplete": true,
+      "opaqueId": "repo-p01",
+      "profileEvidenceRefs": [
+        "A01"
+      ]
+    },
+    "revision": {
+      "baseRevision": "git:e51ae0b59b76ff541c419aa8d0e142bde87b1d2c",
+      "diffArtifactRef": "A02",
+      "diffSha256": "c48be0690d6530bfe6a2cbf4df5a172dc15cf00bd03ab3697210dda957a46a0d",
+      "headRevision": "git:bd50c6855155fab4ac762f2db07887ffe6908593",
+      "headTreeSha256": "511d5bd562badb2ca05e0a903341c911a1d48c538c15186e72c19aa30da243a5",
+      "vcs": "git"
+    },
+    "schemaVersion": "1.0.0",
+    "scope": {
+      "excludedPaths": [],
+      "fileSetSha256": "3effbc2808cf8c9e1f68ed191c7f641c7bd134e63c6a19b11aedb29fa0d817b1",
+      "files": [
+        {
+          "afterArtifactRef": "A04",
+          "afterSha256": "34e8fbf052af2a3dcc5aa33a4c3a9a50fbd4c181d07c99f768c3b3477b08ffd7",
+          "beforeArtifactRef": "A03",
+          "changedLineRanges": [
+            {
+              "end": 2,
+              "start": 2
+            }
+          ],
+          "path": "Source/P01.cs"
+        }
+      ],
+      "mode": "DIFF",
+      "requestedDimensions": [
+        "CORRECTNESS"
+      ],
+      "scopeSha256": "086592da6367e61beb3ffee0e1a9b8ee10692905cc6269c1fd4aa6fc58737a3c"
+    },
+    "suppliedVerificationReceiptRefs": []
+  },
+  "schemaVersion": "1.0.0"
+}

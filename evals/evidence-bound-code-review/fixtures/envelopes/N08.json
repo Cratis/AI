@@ -1,0 +1,59 @@
+{
+  "availability": "SUPPLIED",
+  "caseId": "N08",
+  "declaredEnvelopeSha256": "c5c4aaff25b0b8b33c6be5b75aa6f31c8943e2bc13795ff00e01427931c60156",
+  "envelope": {
+    "artifacts": [
+      {
+        "byteLength": 36,
+        "content": "{\"profile\":\"CORPUS\",\"complete\":true}",
+        "id": "A01",
+        "mediaType": "text/plain",
+        "path": "repository-inventory.json",
+        "provenance": "CLEAN_ROOM_SYNTHETIC",
+        "role": "REPOSITORY_INVENTORY",
+        "sha256": "11dd41b71a53b019f2497ad2ab595a8516e341e6b1078c41278594f188418571"
+      },
+      {
+        "byteLength": 0,
+        "content": "",
+        "id": "A02",
+        "mediaType": "text/x-diff",
+        "path": "Source/N08.cs.diff",
+        "provenance": "CLEAN_ROOM_SYNTHETIC",
+        "role": "DIFF",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "envelopeId": "env-n08",
+    "repository": {
+      "inventoryArtifactRef": "A01",
+      "inventoryComplete": true,
+      "opaqueId": "repo-n08",
+      "profileEvidenceRefs": [
+        "A01"
+      ]
+    },
+    "revision": {
+      "baseRevision": "git:8d7910f6b07046f5862d65fd4a128f020f123aab",
+      "diffArtifactRef": "A02",
+      "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "headRevision": "git:24af3bf01fcd8cc40225d4a331b5808ac4bac960",
+      "headTreeSha256": "11a597353c7445c045d0043a4853e67f690faf264372ee560aa1fa770bd0f809",
+      "vcs": "git"
+    },
+    "schemaVersion": "1.0.0",
+    "scope": {
+      "excludedPaths": [],
+      "fileSetSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "files": [],
+      "mode": "EMPTY",
+      "requestedDimensions": [
+        "DOCUMENTATION"
+      ],
+      "scopeSha256": "f5abe1710a9e98ed4640defb4453117631462de600d16942ab4188dd7ad63adb"
+    },
+    "suppliedVerificationReceiptRefs": []
+  },
+  "schemaVersion": "1.0.0"
+}

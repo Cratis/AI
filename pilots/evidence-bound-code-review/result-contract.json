@@ -1,0 +1,79 @@
+{
+  "claimBases": [
+    "ARTIFACT_ONLY",
+    "ARTIFACT_AND_BOUND_AUTHORITY"
+  ],
+  "dimensions": [
+    "CORRECTNESS",
+    "SECURITY",
+    "PERFORMANCE",
+    "ARCHITECTURE",
+    "SPECS",
+    "DOCUMENTATION"
+  ],
+  "dispositions": [
+    "REPORT_HIGH_PRIORITY",
+    "REPORT_STANDARD"
+  ],
+  "emptyScopeResult": {
+    "outcome": "SKIPPED",
+    "outcomeReasonCode": "EMPTY_REVIEWABLE_SCOPE"
+  },
+  "fields": [
+    "schemaVersion",
+    "pilotId",
+    "evaluatedCaseId",
+    "requestBinding",
+    "profile",
+    "reviewBinding",
+    "dimensionResults",
+    "outcome",
+    "outcomeReasonCode",
+    "findings",
+    "suppliedVerificationReceiptRefs",
+    "limitations",
+    "safetyEvidence"
+  ],
+  "findingRequirements": {
+    "afterArtifactBinding": "EXACT_SCOPED_AFTER_REF_AND_SHA256",
+    "authorityBinding": "ALL_SUPPLIED_SYNTHETIC_AUTHORITY_WHEN_PRESENT",
+    "changedRangeContainment": true,
+    "evidencePathEqualsScopedPath": true,
+    "lineOrderRequired": true,
+    "reviewedDimensionRequired": true
+  },
+  "limits": {
+    "evidencePerFinding": 16,
+    "findings": 20,
+    "proseBytes": 1024,
+    "titleBytes": 256
+  },
+  "outcomes": [
+    "FINDING",
+    "NO_FINDINGS",
+    "BLOCKED",
+    "INCONCLUSIVE",
+    "SKIPPED",
+    "REFUSED"
+  ],
+  "pilotId": "evidence-bound-code-review",
+  "profiles": [
+    "APPLICATION",
+    "FRAMEWORK",
+    "CLIENT",
+    "NON_CRATIS",
+    "CORPUS",
+    "UNRESOLVED"
+  ],
+  "schemaVersion": "1.0.0",
+  "scopeRoles": [
+    "CHANGED",
+    "BOUND_CONTEXT"
+  ],
+  "severities": [
+    "CRITICAL",
+    "HIGH",
+    "MEDIUM",
+    "LOW"
+  ]
+}
