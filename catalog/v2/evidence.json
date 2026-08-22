@@ -457,6 +457,24 @@
       "confidence": "high"
     },
     {
+      "id": "grok-build-skills-source-1",
+      "officialUrl": "https://docs.x.ai/build/overview",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-22",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "current-documentation-2026-08-22",
+      "confidence": "high"
+    },
+    {
+      "id": "grok-build-skills-source-2",
+      "officialUrl": "https://docs.x.ai/build/features/skills-plugins-marketplaces",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-22",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "current-documentation-2026-08-22",
+      "confidence": "high"
+    },
+    {
       "id": "grok-bot-plugins-source-1",
       "officialUrl": "https://agent-plugins.org/compatible-clients",
       "sourceKind": "official-documentation",
@@ -589,6 +607,24 @@
       "verifiedOn": "2026-08-20",
       "expiresOn": "2026-11-18",
       "applicableVersion": "developer-preview-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "deepseek-model-integrations-source-1",
+      "officialUrl": "https://api-docs.deepseek.com/guides/coding_agents/",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-22",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "current-documentation-2026-08-22",
+      "confidence": "high"
+    },
+    {
+      "id": "deepseek-model-integrations-source-2",
+      "officialUrl": "https://api-docs.deepseek.com/quick_start/agent_integrations/pi_mono",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-22",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "current-documentation-2026-08-22",
       "confidence": "high"
     },
     {
@@ -1280,6 +1316,42 @@
       ]
     },
     {
+      "id": "grok-build-skills-fact-1",
+      "ecosystemId": "grok-build-skills",
+      "fact": "Grok Build is xAI's extensible coding agent and supports interactive, headless, and Agent Client Protocol operation.",
+      "evidenceIds": [
+        "grok-build-skills-source-1",
+        "grok-build-skills-source-2"
+      ]
+    },
+    {
+      "id": "grok-build-skills-fact-2",
+      "ecosystemId": "grok-build-skills",
+      "fact": "It discovers skill bundles from project .grok/skills, user ~/.grok/skills, enabled plugins, configured paths, and user ~/.agents/skills.",
+      "evidenceIds": [
+        "grok-build-skills-source-1",
+        "grok-build-skills-source-2"
+      ]
+    },
+    {
+      "id": "grok-build-skills-fact-3",
+      "ecosystemId": "grok-build-skills",
+      "fact": "Grok Build is compatible with Claude Code marketplaces, plugins, skills, MCP servers, agents, hooks, and instruction files without extra configuration.",
+      "evidenceIds": [
+        "grok-build-skills-source-1",
+        "grok-build-skills-source-2"
+      ]
+    },
+    {
+      "id": "grok-build-skills-fact-4",
+      "ecosystemId": "grok-build-skills",
+      "fact": "Generated Cratis Grok output uses passive native .grok/skills bundles and omits hooks, MCP servers, agents, and executable scripts.",
+      "evidenceIds": [
+        "grok-build-skills-source-1",
+        "grok-build-skills-source-2"
+      ]
+    },
+    {
       "id": "grok-bot-plugins-fact-1",
       "ecosystemId": "grok-bot-plugins",
       "fact": "The Agent Plugins registry lists Grok Bot support for Agent Skills and stdio, Streamable HTTP, and legacy SSE MCP.",
@@ -1526,6 +1598,33 @@
         "deepseek-harness-skills-source-1",
         "deepseek-harness-skills-source-2",
         "deepseek-harness-skills-source-3"
+      ]
+    },
+    {
+      "id": "deepseek-model-integrations-fact-1",
+      "ecosystemId": "deepseek-model-integrations",
+      "fact": "DeepSeek documents its models as providers inside existing coding-agent harnesses rather than as a separate shared-skill package format.",
+      "evidenceIds": [
+        "deepseek-model-integrations-source-1",
+        "deepseek-model-integrations-source-2"
+      ]
+    },
+    {
+      "id": "deepseek-model-integrations-fact-2",
+      "ecosystemId": "deepseek-model-integrations",
+      "fact": "Official integration guidance covers Pi, Claude Code, GitHub Copilot, OpenCode, OpenClaw, and additional third-party agents.",
+      "evidenceIds": [
+        "deepseek-model-integrations-source-1",
+        "deepseek-model-integrations-source-2"
+      ]
+    },
+    {
+      "id": "deepseek-model-integrations-fact-3",
+      "ecosystemId": "deepseek-model-integrations",
+      "fact": "A Cratis skill package remains owned by its harness adapter when DeepSeek is selected as the model; provider selection must not fork skill behavior or bytes.",
+      "evidenceIds": [
+        "deepseek-model-integrations-source-1",
+        "deepseek-model-integrations-source-2"
       ]
     },
     {

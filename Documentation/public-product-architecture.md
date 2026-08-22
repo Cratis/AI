@@ -145,6 +145,21 @@ This registry is evidence, not a compatibility promise. Actual release support
 still requires installation smoke tests against the client versions selected
 for that release.
 
+## Grok and DeepSeek adapters
+
+Grok Build is an xAI coding-agent harness with native project `.grok/skills`
+and user `~/.grok/skills` discovery. Generated distributions therefore include
+a native `grok/.grok/skills/` adapter in addition to the Claude marketplace that
+Grok can consume through its documented Claude Code compatibility.
+
+DeepSeek has two distinct roles. DeepSeek Harness is an official developer-
+preview agent harness and receives direct, non-recursive
+`deepseek/.dsh/skills/<skill-name>/SKILL.md` bundles. DeepSeek models are also
+providers inside other harnesses such as Pi, Claude Code, and GitHub Copilot;
+those use the existing harness package rather than receiving duplicated skill
+bytes under a model-specific package. DeepSeek Harness compatibility must be
+reverified while its upstream contract remains in developer preview.
+
 ## Executable capability boundary
 
 Passive skills and executable capabilities remain separate:

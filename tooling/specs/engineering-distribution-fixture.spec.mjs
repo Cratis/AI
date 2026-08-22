@@ -18,9 +18,11 @@ import { fileURLToPath } from "node:url";
 import {
     generateEngineeringDistributionFixture,
     smokeClaudeEngineeringFixture,
+    smokeDeepSeekEngineeringFixture,
     smokeCodexEngineeringFixture,
     smokeCopilotEngineeringFixture,
     smokeGeminiEngineeringFixture,
+    smokeGrokEngineeringFixture,
     smokeNpmEngineeringFixture,
     smokeNpmEngineeringUpdateRollback,
     smokePiEngineeringFixture,
@@ -127,7 +129,9 @@ test("engineering fixture generation is deterministic and non-installable", () =
             "codex",
             "copilot",
             "cursor",
+            "deepseek",
             "gemini",
+            "grok",
             "junie",
             "kiro",
             "pi",
@@ -201,6 +205,33 @@ test("engineering fixture contains one passive skill and no project context", ()
             readJson(join(stage, "gemini/gemini-extension.json")).name,
             "cratis-engineering-fixture",
         );
+        const canonicalSkill = readFileSync(
+            join(
+                stage,
+                "canonical/skills/cratis-engineering-docs-authoring/SKILL.md",
+            ),
+            "utf8",
+        );
+        assert.equal(
+            readFileSync(
+                join(
+                    stage,
+                    "deepseek/.dsh/skills/cratis-engineering-docs-authoring/SKILL.md",
+                ),
+                "utf8",
+            ),
+            canonicalSkill,
+        );
+        assert.equal(
+            readFileSync(
+                join(
+                    stage,
+                    "grok/.grok/skills/cratis-engineering-docs-authoring/SKILL.md",
+                ),
+                "utf8",
+            ),
+            canonicalSkill,
+        );
         assert.equal(
             readJson(join(stage, "kiro/plugin.json")).$schema,
             "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
@@ -238,6 +269,27 @@ test("engineering fixture detects canonical payload tampering", () => {
         assert.throws(
             () => validateEngineeringDistributionFixture(stage),
             /digest mismatch|byte parity|checksum/,
+        );
+    });
+});
+
+test("engineering Grok and DeepSeek fixtures install and remove", () => {
+    withTemporaryDirectory((root) => {
+        const stage = join(root, "stage");
+        generateEngineeringDistributionFixture({
+            repositoryRoot,
+            outputRoot: stage,
+        });
+        assert.deepEqual(
+            smokeGrokEngineeringFixture(stage, join(root, "grok-home")),
+            { installed: true, removed: true },
+        );
+        assert.deepEqual(
+            smokeDeepSeekEngineeringFixture(
+                stage,
+                join(root, "deepseek-home"),
+            ),
+            { installed: true, removed: true },
         );
     });
 });

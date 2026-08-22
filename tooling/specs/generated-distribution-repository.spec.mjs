@@ -182,7 +182,10 @@ test("generated repository verification rejects worktree tampering", () => {
         bootstrap(root);
         const generatedRoot = join(root, "generated");
         writeFileSync(
-            join(generatedRoot, "canonical/skills/cratis-example/SKILL.md"),
+            join(
+                generatedRoot,
+                "canonical/skills/cratis-fundamentals-concept/SKILL.md",
+            ),
             "tampered\n",
         );
         assert.throws(
@@ -202,12 +205,16 @@ test("generated repository verification rejects human follow-up commits", () => 
         const generatedRoot = join(root, "generated");
         const path = join(
             generatedRoot,
-            "canonical/skills/cratis-example/LICENSE",
+            "canonical/skills/cratis-fundamentals-concept/LICENSE",
         );
         writeFileSync(path, `${readFileSync(path, "utf8")}human edit\n`);
         execFileSync(
             "git",
-            ["add", "--", "canonical/skills/cratis-example/LICENSE"],
+            [
+                "add",
+                "--",
+                "canonical/skills/cratis-fundamentals-concept/LICENSE",
+            ],
             {
                 cwd: generatedRoot,
             },

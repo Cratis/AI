@@ -36,7 +36,9 @@ const generatedTargets = [
     "codex",
     "copilot",
     "cursor",
+    "deepseek",
     "gemini",
+    "grok",
     "junie",
     "kiro",
     "pi",
@@ -326,6 +328,9 @@ export function generateEngineeringDistributionFixture({
             },
         );
 
+        const deepSeekRoot = join(root, "deepseek/.dsh");
+        copyCanonical(canonicalRoot, deepSeekRoot);
+
         const geminiRoot = join(root, "gemini");
         copyCanonical(canonicalRoot, geminiRoot);
         writeJson(join(geminiRoot, "gemini-extension.json"), {
@@ -334,6 +339,9 @@ export function generateEngineeringDistributionFixture({
             description:
                 "Fixture-only passive Cratis engineering documentation skill.",
         });
+
+        const grokRoot = join(root, "grok/.grok");
+        copyCanonical(canonicalRoot, grokRoot);
 
         const kiroRoot = join(root, "kiro");
         copyCanonical(canonicalRoot, kiroRoot);
@@ -453,7 +461,9 @@ export function validateEngineeringDistributionFixture(outputRoot) {
         `codex/plugins/${pluginName}`,
         `copilot/plugins/${pluginName}`,
         `cursor/plugins/${pluginName}`,
+        "deepseek/.dsh",
         "gemini",
+        "grok/.grok",
         `junie/extensions/${pluginName}`,
         "kiro",
         "pi/package",
@@ -646,6 +656,44 @@ export function smokeNpmEngineeringUpdateRollback(
             join(installRoot, `node_modules/${packageName}`),
         ),
     };
+}
+
+function smokeDirectEngineeringSkill(
+    outputRoot,
+    temporaryRoot,
+    sourceRoot,
+    installedRoot,
+) {
+    const source = join(outputRoot, sourceRoot, `skills/${skillName}`);
+    const installed = join(temporaryRoot, installedRoot, skillName);
+    mkdirSync(dirname(installed), { recursive: true });
+    cpSync(source, installed, { recursive: true, errorOnExist: true });
+    const sourceSkill = readFileSync(join(source, "SKILL.md"));
+    const installedSkill = readFileSync(join(installed, "SKILL.md"));
+    if (!sourceSkill.equals(installedSkill))
+        throw new Error("Direct engineering skill install changed bytes");
+    rmSync(installed, { recursive: true, force: false });
+    if (existsSync(installed))
+        throw new Error("Direct engineering skill uninstall left content");
+    return { installed: true, removed: true };
+}
+
+export function smokeGrokEngineeringFixture(outputRoot, temporaryRoot) {
+    return smokeDirectEngineeringSkill(
+        outputRoot,
+        temporaryRoot,
+        "grok/.grok",
+        ".grok/skills",
+    );
+}
+
+export function smokeDeepSeekEngineeringFixture(outputRoot, temporaryRoot) {
+    return smokeDirectEngineeringSkill(
+        outputRoot,
+        temporaryRoot,
+        "deepseek/.dsh",
+        ".dsh/skills",
+    );
 }
 
 export function smokePiEngineeringFixture(

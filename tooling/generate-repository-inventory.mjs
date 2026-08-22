@@ -113,6 +113,7 @@ const unexpectedUntracked = admittedUntracked.filter(
             /^evidence\/source-evidence\//.test(path) ||
             /^evals\//.test(path) ||
             /^pilots\//.test(path) ||
+            /^skills\//.test(path) ||
             /^tooling\//.test(path)
         ),
 );
@@ -123,9 +124,12 @@ if (unexpectedUntracked.length > 0) {
 }
 const universe = [...tracked, ...admittedUntracked];
 const v2Sources = readCatalog(join(repositoryRoot, "catalog/v2/sources.json"));
-const publicSkillRoots = v2Sources.sources
-    .filter((source) => source.audience === "public")
-    .map((source) => `${source.sourcePath}/**`);
+const publicSkillRoots = [
+    ...v2Sources.sources
+        .filter((source) => source.audience === "public")
+        .map((source) => `${source.sourcePath}/**`),
+    "skills/**",
+];
 const legacyEngineeringSkillNames = [
     "add-cratis-docs-page",
     "add-traces",

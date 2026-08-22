@@ -23,10 +23,8 @@ const defaultRepositoryRoot = resolve(
     fileURLToPath(new URL("..", import.meta.url)),
 );
 const approvedFiles = [
-    "skills/cratis-example/LICENSE",
-    "skills/cratis-example/SKILL.md",
-    "skills/cratis-example/assets/example.txt",
-    "skills/cratis-example/references/guide.md",
+    "skills/cratis-fundamentals-concept/LICENSE",
+    "skills/cratis-fundamentals-concept/SKILL.md",
 ];
 const generatedTargets = [
     "canonical",
@@ -34,7 +32,9 @@ const generatedTargets = [
     "codex",
     "copilot",
     "cursor",
+    "deepseek",
     "gemini",
+    "grok",
     "junie",
     "kiro",
     "pi",
@@ -176,10 +176,7 @@ export function generateDistributionFixture({
     try {
         const canonicalRoot = join(root, "canonical");
         materializeFixtureArtifact({
-            sourceRoot: join(
-                repositoryRoot,
-                "tooling/fixtures/public-artifact/valid-source",
-            ),
+            sourceRoot: repositoryRoot,
             stageRoot: canonicalRoot,
             approvedFiles,
         });
@@ -291,6 +288,9 @@ export function generateDistributionFixture({
             },
         );
 
+        const deepSeekRoot = join(root, "deepseek/.dsh");
+        copyCanonicalSkill(canonicalRoot, deepSeekRoot);
+
         const geminiRoot = join(root, "gemini");
         copyCanonicalSkill(canonicalRoot, geminiRoot);
         writeJson(join(geminiRoot, "gemini-extension.json"), {
@@ -298,6 +298,9 @@ export function generateDistributionFixture({
             version,
             description: "Passive Cratis skills fixture.",
         });
+
+        const grokRoot = join(root, "grok/.grok");
+        copyCanonicalSkill(canonicalRoot, grokRoot);
 
         const kiroRoot = join(root, "kiro");
         copyCanonicalSkill(canonicalRoot, kiroRoot);
@@ -329,6 +332,23 @@ export function generateDistributionFixture({
             files: ["skills"],
             keywords: ["pi-package"],
             pi: { skills: ["./skills"] },
+        });
+
+        writeJson(join(root, "provider-compatibility.json"), {
+            schemaVersion: "1.0.0",
+            providers: [
+                {
+                    id: "deepseek",
+                    artifactStrategy: "USE_HARNESS_PACKAGE",
+                    supportedHarnessOutputs: [
+                        "claude",
+                        "copilot",
+                        "deepseek",
+                        "pi",
+                    ],
+                    distinctArtifactRoot: null,
+                },
+            ],
         });
 
         const canonicalManifest = approvedFiles.map((path) =>
@@ -405,7 +425,9 @@ export function validateDistributionFixture(outputRoot) {
         "codex/plugins/cratis",
         "copilot/plugins/cratis",
         "cursor/plugins/cratis",
+        "deepseek/.dsh",
         "gemini",
+        "grok/.grok",
         "junie/extensions/cratis",
         "kiro",
         "pi/package",
@@ -420,6 +442,30 @@ export function validateDistributionFixture(outputRoot) {
                 );
         }
     }
+    const providerCompatibility = readJson(
+        join(root, "provider-compatibility.json"),
+    );
+    if (
+        JSON.stringify(providerCompatibility.providers) !==
+        JSON.stringify([
+            {
+                id: "deepseek",
+                artifactStrategy: "USE_HARNESS_PACKAGE",
+                supportedHarnessOutputs: [
+                    "claude",
+                    "copilot",
+                    "deepseek",
+                    "pi",
+                ],
+                distinctArtifactRoot: null,
+            },
+        ])
+    )
+        throw new Error("Provider compatibility contract changed");
+    if (existsSync(join(root, "deepseek-provider")))
+        throw new Error(
+            "DeepSeek model provider must not receive a duplicate artifact root",
+        );
     const checksumLines = readFileSync(join(root, "SHA256SUMS"), "utf8")
         .trim()
         .split("\n");
@@ -471,7 +517,7 @@ export function smokeNpmDistributionFixture(outputRoot, temporaryRoot) {
     );
     const installedSkill = join(
         installRoot,
-        "node_modules/@cratis/ai/skills/cratis-example/SKILL.md",
+        "node_modules/@cratis/ai/skills/cratis-fundamentals-concept/SKILL.md",
     );
     if (!lstatSync(installedSkill).isFile())
         throw new Error("Installed npm fixture skill is missing");
@@ -491,7 +537,56 @@ export function smokeNpmDistributionFixture(outputRoot, temporaryRoot) {
     );
     if (existsSync(join(installRoot, "node_modules/@cratis/ai")))
         throw new Error("npm fixture uninstall left package content");
-    return { tarball, installedSkill: "skills/cratis-example/SKILL.md" };
+    return {
+        tarball,
+        installedSkill: "skills/cratis-fundamentals-concept/SKILL.md",
+    };
+}
+
+function smokeDirectSkillFixture(
+    outputRoot,
+    temporaryRoot,
+    sourceRoot,
+    installedRoot,
+) {
+    const source = join(
+        outputRoot,
+        sourceRoot,
+        "skills/cratis-fundamentals-concept",
+    );
+    const installed = join(
+        temporaryRoot,
+        installedRoot,
+        "cratis-fundamentals-concept",
+    );
+    mkdirSync(dirname(installed), { recursive: true });
+    cpSync(source, installed, { recursive: true, errorOnExist: true });
+    const sourceSkill = readFileSync(join(source, "SKILL.md"));
+    const installedSkill = readFileSync(join(installed, "SKILL.md"));
+    if (!sourceSkill.equals(installedSkill))
+        throw new Error("Direct skill install changed canonical bytes");
+    rmSync(installed, { recursive: true, force: false });
+    if (existsSync(installed))
+        throw new Error("Direct skill uninstall left installed content");
+    return { installed: true, removed: true };
+}
+
+export function smokeGrokDistributionFixture(outputRoot, temporaryRoot) {
+    return smokeDirectSkillFixture(
+        outputRoot,
+        temporaryRoot,
+        "grok/.grok",
+        ".grok/skills",
+    );
+}
+
+export function smokeDeepSeekDistributionFixture(outputRoot, temporaryRoot) {
+    return smokeDirectSkillFixture(
+        outputRoot,
+        temporaryRoot,
+        "deepseek/.dsh",
+        ".dsh/skills",
+    );
 }
 
 export function smokePiDistributionFixture(

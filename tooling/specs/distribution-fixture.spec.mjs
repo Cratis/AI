@@ -18,9 +18,11 @@ import { fileURLToPath } from "node:url";
 import {
     generateDistributionFixture,
     smokeClaudeDistributionFixture,
+    smokeDeepSeekDistributionFixture,
     smokeCodexDistributionFixture,
     smokeCopilotDistributionFixture,
     smokeGeminiDistributionFixture,
+    smokeGrokDistributionFixture,
     smokeNpmDistributionFixture,
     smokePiDistributionFixture,
     validateDistributionFixture,
@@ -81,6 +83,9 @@ test("distribution requirements and artifact matrix stay authority bounded", () 
         "github-copilot-plugin",
         "gemini-cli-extension",
         "pi-passive-package",
+        "grok-build-skills",
+        "deepseek-harness-skills",
+        "deepseek-model-provider",
         "npm-trusted-publication",
         "cursor-marketplace",
         "kiro-marketplace",
@@ -150,7 +155,9 @@ test("distribution fixture generation is deterministic across native adapters", 
             "codex",
             "copilot",
             "cursor",
+            "deepseek",
             "gemini",
+            "grok",
             "junie",
             "kiro",
             "pi",
@@ -175,6 +182,9 @@ test("generated marketplace manifests remain passive and idiomatic", () => {
             join(stage, "cursor/plugins/cratis/.cursor-plugin/plugin.json"),
         );
         const gemini = readJson(join(stage, "gemini/gemini-extension.json"));
+        const providerCompatibility = readJson(
+            join(stage, "provider-compatibility.json"),
+        );
         const kiro = readJson(join(stage, "kiro/plugin.json"));
         const junie = readJson(
             join(stage, "junie/extensions/cratis/extension.json"),
@@ -185,6 +195,51 @@ test("generated marketplace manifests remain passive and idiomatic", () => {
         assert.equal(copilot.skills, "skills/");
         assert.equal(cursor.skills, "./skills/");
         assert.equal(gemini.name, "cratis");
+        assert.deepEqual(providerCompatibility.providers, [
+            {
+                id: "deepseek",
+                artifactStrategy: "USE_HARNESS_PACKAGE",
+                supportedHarnessOutputs: [
+                    "claude",
+                    "copilot",
+                    "deepseek",
+                    "pi",
+                ],
+                distinctArtifactRoot: null,
+            },
+        ]);
+        assert.equal(
+            readFileSync(
+                join(
+                    stage,
+                    "deepseek/.dsh/skills/cratis-fundamentals-concept/SKILL.md",
+                ),
+                "utf8",
+            ),
+            readFileSync(
+                join(
+                    stage,
+                    "canonical/skills/cratis-fundamentals-concept/SKILL.md",
+                ),
+                "utf8",
+            ),
+        );
+        assert.equal(
+            readFileSync(
+                join(
+                    stage,
+                    "grok/.grok/skills/cratis-fundamentals-concept/SKILL.md",
+                ),
+                "utf8",
+            ),
+            readFileSync(
+                join(
+                    stage,
+                    "canonical/skills/cratis-fundamentals-concept/SKILL.md",
+                ),
+                "utf8",
+            ),
+        );
         assert.equal(
             kiro.$schema,
             "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
@@ -209,10 +264,16 @@ test("generated marketplace manifests remain passive and idiomatic", () => {
         assert.equal(piPackage.scripts, undefined);
         assert.equal(piPackage.dependencies, undefined);
         const skill = readFileSync(
-            join(stage, "canonical/skills/cratis-example/SKILL.md"),
+            join(
+                stage,
+                "canonical/skills/cratis-fundamentals-concept/SKILL.md",
+            ),
             "utf8",
         );
-        assert.match(skill, /^---\nname: cratis-example\ndescription: /);
+        assert.match(
+            skill,
+            /^---\nname: cratis-fundamentals-concept\ndescription: /,
+        );
     });
 });
 
@@ -222,12 +283,30 @@ test("distribution fixture detects payload and checksum tampering", () => {
         generateDistributionFixture({ repositoryRoot, outputRoot: stage });
         const path = join(
             stage,
-            "gemini/skills/cratis-example/assets/example.txt",
+            "gemini/skills/cratis-fundamentals-concept/SKILL.md",
         );
         writeFileSync(path, "tampered\n");
         assert.throws(
             () => validateDistributionFixture(stage),
             /digest mismatch|byte parity|Checksum verification/,
+        );
+    });
+});
+
+test("Grok and DeepSeek direct skill fixtures install and remove", () => {
+    withTemporaryDirectory((root) => {
+        const stage = join(root, "stage");
+        generateDistributionFixture({ repositoryRoot, outputRoot: stage });
+        assert.deepEqual(
+            smokeGrokDistributionFixture(stage, join(root, "grok-home")),
+            { installed: true, removed: true },
+        );
+        assert.deepEqual(
+            smokeDeepSeekDistributionFixture(
+                stage,
+                join(root, "deepseek-home"),
+            ),
+            { installed: true, removed: true },
         );
     });
 });
@@ -240,7 +319,10 @@ test("passive npm fixture packs installs and uninstalls without scripts", () => 
         mkdirSync(smokeRoot);
         const result = smokeNpmDistributionFixture(stage, smokeRoot);
         assert.equal(existsSync(result.tarball), true);
-        assert.equal(result.installedSkill, "skills/cratis-example/SKILL.md");
+        assert.equal(
+            result.installedSkill,
+            "skills/cratis-fundamentals-concept/SKILL.md",
+        );
     });
 });
 

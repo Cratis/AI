@@ -159,6 +159,79 @@
       ]
     },
     {
+      "id": "grok-build-skills",
+      "status": "VERIFIED",
+      "sourceUrls": [
+        "https://docs.x.ai/build/overview",
+        "https://docs.x.ai/build/features/skills-plugins-marketplaces"
+      ],
+      "requiredRoots": [
+        ".grok/skills/<skill-name>/SKILL.md"
+      ],
+      "installCommands": [
+        "Copy reviewed skills to .grok/skills or ~/.grok/skills",
+        "Use the generated Claude marketplace through Grok's Claude Code compatibility"
+      ],
+      "updateCommands": [
+        "Replace the installed skill with bytes from a newer immutable Cratis release"
+      ],
+      "uninstallCommands": [
+        "Remove the installed skill folder from .grok/skills or ~/.grok/skills"
+      ],
+      "constraints": [
+        "Grok Build is xAI's coding agent and discovers project .grok/skills, user ~/.grok/skills, configured skill paths, and enabled plugin skills.",
+        "Grok skills are folders containing SKILL.md with YAML frontmatter and may include references and assets.",
+        "Grok also supports Claude Code marketplaces, plugins, and skills without extra configuration.",
+        "Generated passive Cratis output contains skills only and does not add hooks, MCP servers, agents, or executable scripts."
+      ]
+    },
+    {
+      "id": "deepseek-harness-skills",
+      "status": "VERIFIED_DEVELOPER_PREVIEW",
+      "sourceUrls": [
+        "https://github.com/deepseek-ai/deepseek-harness",
+        "https://deepseek-harness.github.io/deepseek-harness/en/reference/subsystems/skills"
+      ],
+      "requiredRoots": [
+        ".dsh/skills/<skill-name>/SKILL.md"
+      ],
+      "installCommands": [
+        "Copy reviewed skills to <project>/.dsh/skills or the configured DeepSeek Harness user skills root"
+      ],
+      "updateCommands": [
+        "Replace the installed skill with bytes from a newer immutable Cratis release"
+      ],
+      "uninstallCommands": [
+        "Remove the installed skill folder from the DeepSeek Harness skills root"
+      ],
+      "constraints": [
+        "DeepSeek Harness is an official DeepSeek AI open-source agent harness in developer preview with expected compatibility-breaking changes.",
+        "It discovers project .dsh/skills and .agents/skills, configured custom directories, and user skill roots.",
+        "Directory bundles are direct <name>/SKILL.md children; nested recursive skill discovery is unsupported.",
+        "Generated Cratis output uses kebab-case direct bundles and must be reverified while the harness remains preview."
+      ]
+    },
+    {
+      "id": "deepseek-model-provider",
+      "status": "VERIFIED_PROVIDER_COMPATIBILITY",
+      "sourceUrls": [
+        "https://api-docs.deepseek.com/guides/coding_agents/",
+        "https://api-docs.deepseek.com/quick_start/agent_integrations/pi_mono"
+      ],
+      "requiredRoots": [],
+      "installCommands": [
+        "Install the Cratis package for the selected coding harness, then configure that harness to use DeepSeek"
+      ],
+      "updateCommands": [],
+      "uninstallCommands": [],
+      "constraints": [
+        "DeepSeek is a model provider integrated into coding harnesses rather than a distinct shared-skill package format.",
+        "Cratis skills remain harness packages; selecting DeepSeek as the model must not fork or duplicate skill payloads.",
+        "Official DeepSeek documentation covers integrations including Pi, Claude Code, GitHub Copilot, OpenCode, and OpenClaw.",
+        "No direct DeepSeek artifact output root is generated until DeepSeek publishes an official distinct harness package contract."
+      ]
+    },
+    {
       "id": "npm-trusted-publication",
       "status": "VERIFIED",
       "sourceUrls": [
