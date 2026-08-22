@@ -2,12 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import assert from "node:assert/strict";
-import {
-    mkdtempSync,
-    readFileSync,
-    rmSync,
-    writeFileSync,
-} from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { test } from "node:test";
@@ -24,7 +19,10 @@ import {
 } from "../simulate-distribution-rollout.mjs";
 import { stageDistributionCandidate } from "../stage-distribution-candidate.mjs";
 
-const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+const repositoryRoot = resolve(
+    dirname(fileURLToPath(import.meta.url)),
+    "../..",
+);
 
 function withTemporaryDirectory(callback) {
     const root = mkdtempSync(join(tmpdir(), "cratis-rollout-"));
@@ -48,11 +46,15 @@ test("rollout policy keeps production promotion and retirement blocked", () => {
     assert.equal(policy.promotion.stableEnabled, false);
     assert.equal(policy.promotion.publicationEnabled, false);
     assert.equal(policy.legacyRetirement.enabled, false);
-    assert(policy.legacyRetirement.blockedOn.includes("NO_PRODUCTION_ROLLBACK_EVIDENCE"));
+    assert(
+        policy.legacyRetirement.blockedOn.includes(
+            "NO_PRODUCTION_ROLLBACK_EVIDENCE",
+        ),
+    );
 });
 
 test("candidate staging allows only the authorized sanitized fixture", () => {
-    withTemporaryDirectory(root => {
+    withTemporaryDirectory((root) => {
         const stage = join(root, "stage");
         const recordPath = join(root, "candidate.json");
         const record = stageDistributionCandidate({
@@ -79,7 +81,7 @@ test("candidate staging allows only the authorized sanitized fixture", () => {
 });
 
 test("fixture rollout canaries promotes rolls back and emergency disables", () => {
-    withTemporaryDirectory(root => {
+    withTemporaryDirectory((root) => {
         const result = simulateDistributionCanaryRollback({
             repositoryRoot,
             simulationRoot: join(root, "simulation"),
@@ -92,7 +94,7 @@ test("fixture rollout canaries promotes rolls back and emergency disables", () =
         );
         assert.equal(result.finalState.emergencyDisabled, true);
         assert.deepEqual(
-            result.finalState.history.map(item => item.operation),
+            result.finalState.history.map((item) => item.operation),
             [
                 "STAGE_RELEASE",
                 "STAGE_RELEASE",
@@ -108,7 +110,7 @@ test("fixture rollout canaries promotes rolls back and emergency disables", () =
 });
 
 test("failed canary cannot enter fixture stable state", () => {
-    withTemporaryDirectory(root => {
+    withTemporaryDirectory((root) => {
         const rollout = join(root, "rollout");
         const candidate = join(root, "candidate");
         initializeDistributionRollout(rollout);
@@ -130,7 +132,7 @@ test("failed canary cannot enter fixture stable state", () => {
 });
 
 test("emergency disable blocks fixture promotion", () => {
-    withTemporaryDirectory(root => {
+    withTemporaryDirectory((root) => {
         const rollout = join(root, "rollout");
         const candidate = join(root, "candidate");
         initializeDistributionRollout(rollout);
@@ -149,7 +151,7 @@ test("emergency disable blocks fixture promotion", () => {
 });
 
 test("rollback requires a known noncurrent fixture release", () => {
-    withTemporaryDirectory(root => {
+    withTemporaryDirectory((root) => {
         const rollout = join(root, "rollout");
         initializeDistributionRollout(rollout);
         assert.throws(
@@ -160,7 +162,7 @@ test("rollback requires a known noncurrent fixture release", () => {
 });
 
 test("tampered candidate cannot be staged as a fixture release", () => {
-    withTemporaryDirectory(root => {
+    withTemporaryDirectory((root) => {
         const rollout = join(root, "rollout");
         const candidate = join(root, "candidate");
         initializeDistributionRollout(rollout);
@@ -177,7 +179,7 @@ test("tampered candidate cannot be staged as a fixture release", () => {
 });
 
 test("duplicate fixture release staging fails without overwriting", () => {
-    withTemporaryDirectory(root => {
+    withTemporaryDirectory((root) => {
         const rollout = join(root, "rollout");
         const candidate = join(root, "candidate");
         initializeDistributionRollout(rollout);

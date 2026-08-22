@@ -19,7 +19,9 @@ import {
     validateDistributionFixture,
 } from "./generate-distribution-fixture.mjs";
 
-const defaultRepositoryRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
+const defaultRepositoryRoot = resolve(
+    fileURLToPath(new URL("..", import.meta.url)),
+);
 
 function sha256(content) {
     return createHash("sha256").update(content).digest("hex");
@@ -116,7 +118,7 @@ export function recordFixtureCanary(
     if (
         !Array.isArray(checks) ||
         checks.length === 0 ||
-        checks.some(check => typeof check !== "string" || check.length === 0)
+        checks.some((check) => typeof check !== "string" || check.length === 0)
     ) {
         throw new Error("Canary checks must be nonempty strings");
     }
@@ -150,7 +152,9 @@ export function promoteFixtureStable(rolloutRoot, releaseId) {
     if (state.emergencyDisabled)
         throw new Error("Fixture rollout is emergency disabled");
     if (state.canaryReleaseId !== releaseId)
-        throw new Error("Only the active canary can enter fixture stable state");
+        throw new Error(
+            "Only the active canary can enter fixture stable state",
+        );
     const evidence = readJson(
         join(rolloutRoot, "canary-evidence", `${releaseId}.json`),
     );
@@ -188,8 +192,7 @@ export function simulateDistributionCanaryRollback({
     repositoryRoot = defaultRepositoryRoot,
     simulationRoot,
 } = {}) {
-    if (!simulationRoot)
-        throw new Error("simulationRoot is required");
+    if (!simulationRoot) throw new Error("simulationRoot is required");
     if (existsSync(simulationRoot))
         throw new Error(`Simulation root must not exist: ${simulationRoot}`);
     mkdirSync(simulationRoot, { recursive: false });
