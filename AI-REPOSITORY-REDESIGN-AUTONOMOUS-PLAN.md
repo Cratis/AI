@@ -578,11 +578,15 @@ Evidence and exact next actions are in
 - [x] Run frozen calibration and held-out baseline/skill evaluation: 16 bound
   model runs, held-out 32/32 skill decisions versus 28/32 baseline, and one
   bounded independent review with its high run-binding finding corrected.
-- [x] Generate deterministic fixture-only canonical, Claude, Copilot, and Pi/npm
-  packages for the first engineering target; prove byte parity, tamper rejection,
-  install/update/rollback/uninstall, and project-context preservation.
-- [ ] Obtain owner approval in AI#154 and run a real documentation-repository
-  canary before any installation eligibility.
+- [x] Generate deterministic fixture-only canonical, Claude, Codex, Copilot,
+  Cursor, Kiro, Junie, Gemini, and Pi/npm packages for the first engineering
+  target; prove byte parity, tamper rejection, install/update/rollback/uninstall,
+  and project-context preservation.
+- [x] Run a real Cratis/Documentation Pi canary with no tools: explicit and
+  implicit routing, authority block, fixture update/rollback/remove, clean
+  worktree, and project-context preservation pass after one disclosed output-
+  contract calibration failure.
+- [ ] Obtain owner approval in AI#154 before any installation eligibility.
 - [ ] Provision the repository-scoped App credentials from Workflows#72 before
   any generated update PR, tag, release, or publication operation.
 - [ ] Keep publication and retirement disabled until explicit approvals pass.

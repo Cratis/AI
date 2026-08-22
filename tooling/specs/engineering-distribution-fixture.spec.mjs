@@ -18,7 +18,9 @@ import { fileURLToPath } from "node:url";
 import {
     generateEngineeringDistributionFixture,
     smokeClaudeEngineeringFixture,
+    smokeCodexEngineeringFixture,
     smokeCopilotEngineeringFixture,
+    smokeGeminiEngineeringFixture,
     smokeNpmEngineeringFixture,
     smokeNpmEngineeringUpdateRollback,
     smokePiEngineeringFixture,
@@ -39,6 +41,8 @@ function commandAvailable(command) {
 const piAvailable = commandAvailable("pi");
 const claudeAvailable = commandAvailable("claude");
 const copilotAvailable = commandAvailable("copilot");
+const codexAvailable = commandAvailable("codex");
+const geminiAvailable = commandAvailable("gemini");
 
 function withTemporaryDirectory(callback) {
     const root = mkdtempSync(join(tmpdir(), "cratis-engineering-fixture-"));
@@ -89,7 +93,9 @@ test("engineering fixture evidence remains local and non-promoting", () => {
     );
     assert.equal(evidence.state, "ENGINEERING_FIXTURE_ONLY");
     assert.equal(evidence.targetId, "cratis-engineering-docs-authoring");
-    assert(evidence.results.every(result => result.status === "PASS"));
+    assert(
+        evidence.results.every(result => result.status.startsWith("PASS")),
+    );
     assert.equal(evidence.targetApproval, false);
     assert.equal(evidence.installationEligible, false);
     assert.equal(evidence.publicationEligible, false);
@@ -118,7 +124,12 @@ test("engineering fixture generation is deterministic and non-installable", () =
         assert.deepEqual(first.generatedTargets, [
             "canonical",
             "claude",
+            "codex",
             "copilot",
+            "cursor",
+            "gemini",
+            "junie",
+            "kiro",
             "pi",
         ]);
         for (const file of first.files) {
@@ -168,6 +179,41 @@ test("engineering fixture contains one passive skill and no project context", ()
                 manifest.files.every(file => !file.path.includes(forbidden)),
                 forbidden,
             );
+        assert.equal(
+            readJson(
+                join(
+                    stage,
+                    `codex/plugins/cratis-engineering-fixture/.codex-plugin/plugin.json`,
+                ),
+            ).skills,
+            "./skills/",
+        );
+        assert.equal(
+            readJson(
+                join(
+                    stage,
+                    `cursor/plugins/cratis-engineering-fixture/.cursor-plugin/plugin.json`,
+                ),
+            ).skills,
+            "./skills/",
+        );
+        assert.equal(
+            readJson(join(stage, "gemini/gemini-extension.json")).name,
+            "cratis-engineering-fixture",
+        );
+        assert.equal(
+            readJson(join(stage, "kiro/plugin.json")).$schema,
+            "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+        );
+        assert.equal(
+            readJson(
+                join(
+                    stage,
+                    "junie/extensions/cratis-engineering-fixture/extension.json",
+                ),
+            ).name,
+            "cratis-engineering-fixture",
+        );
         const packageJson = readJson(join(stage, "pi/package/package.json"));
         assert.equal(packageJson.private, true);
         assert.equal(packageJson.scripts, undefined);
@@ -298,6 +344,46 @@ test(
             mkdirSync(home);
             assert.deepEqual(smokeCopilotEngineeringFixture(stage, home), {
                 installed: true,
+                removed: true,
+            });
+        });
+    },
+);
+
+test(
+    "engineering Codex fixture marketplace adds and removes",
+    { skip: !codexAvailable },
+    () => {
+        withTemporaryDirectory(root => {
+            const stage = join(root, "stage");
+            const home = join(root, "home");
+            generateEngineeringDistributionFixture({
+                repositoryRoot,
+                outputRoot: stage,
+            });
+            mkdirSync(home);
+            assert.deepEqual(smokeCodexEngineeringFixture(stage, home), {
+                added: true,
+                removed: true,
+            });
+        });
+    },
+);
+
+test(
+    "engineering Gemini fixture links and removes",
+    { skip: !geminiAvailable },
+    () => {
+        withTemporaryDirectory(root => {
+            const stage = join(root, "stage");
+            const home = join(root, "home");
+            generateEngineeringDistributionFixture({
+                repositoryRoot,
+                outputRoot: stage,
+            });
+            mkdirSync(home);
+            assert.deepEqual(smokeGeminiEngineeringFixture(stage, home), {
+                linked: true,
                 removed: true,
             });
         });
