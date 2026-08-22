@@ -474,11 +474,13 @@ The program is complete only when:
   [`Cratis/AI#131`](https://github.com/Cratis/AI/pull/131).
 - [x] Implement the skill-authoring and human-catalog contracts — merged in
   [`Cratis/AI#132`](https://github.com/Cratis/AI/pull/132).
-- [ ] Implement clean-room pilots — navigator pilot merged in
-  [`Cratis/AI#133`](https://github.com/Cratis/AI/pull/133); selected canonical
-  strict exactness is 26/28 and held-out pass 1 strict exactness is 8/10, while
-  contract-shape decisions are complete. Promotion remains blocked on strict
-  thresholds, telemetry, repetition, portability, and independent reviews.
+- [ ] Implement clean-room pilots — Navigator source/canonical evidence merged in
+  [`Cratis/AI#133`](https://github.com/Cratis/AI/pull/133), and strict held-out
+  evidence corrections merged in
+  [`Cratis/AI#134`](https://github.com/Cratis/AI/pull/134). The static
+  pre-fixture diagnostics pilot is rebased onto that merge on
+  `feat/diagnostics-pilot`; source/profile fixtures and model evidence remain
+  pending and structurally disabled.
 
 Evidence and exact next actions are in
-[`AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md`](./AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md#21-navigator-final-validation-correction-checkpoint--2026-08-21).
+[`AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md`](./AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md#24-navigator-merge-and-diagnostics-rebase-checkpoint--2026-08-22).

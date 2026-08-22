@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "routes": [
+    {
+      "lane": "application-source",
+      "signals": [
+        "recorded-valid-payload-with-wrong-rendering",
+        "deterministic-projection-scenario-failure",
+        "command-response-ui-mismatch",
+        "revision-bound-source-regression"
+      ],
+      "allowedDispositions": ["SOURCE_DIAGNOSIS", "INCONCLUSIVE", "BLOCKED", "REFUSED"]
+    },
+    {
+      "lane": "chronicle-live-state",
+      "signals": [
+        "current-events",
+        "namespace-state",
+        "observer-position",
+        "failed-partition",
+        "quarantine",
+        "replay",
+        "job-state",
+        "deployed-projection-state"
+      ],
+      "allowedDispositions": ["HANDOFF", "REFUSED"]
+    },
+    {
+      "lane": "observable-query-http",
+      "signals": [
+        "http-status",
+        "response-headers",
+        "stream-framing",
+        "first-payload-timing",
+        "connection-lifetime"
+      ],
+      "allowedDispositions": ["HANDOFF", "REFUSED"]
+    },
+    {
+      "lane": "framework-source",
+      "signals": ["verified-framework-profile"],
+      "allowedDispositions": ["SKIPPED", "REFUSED"]
+    },
+    {
+      "lane": "client-source",
+      "signals": ["verified-client-profile"],
+      "allowedDispositions": ["SKIPPED", "REFUSED"]
+    },
+    {
+      "lane": "non-cratis",
+      "signals": ["verified-non-cratis-profile", "lexical-collision"],
+      "allowedDispositions": ["SKIPPED", "REFUSED"]
+    },
+    {
+      "lane": "mixed",
+      "signals": ["source-and-live-evidence-required", "source-and-http-evidence-required"],
+      "allowedDispositions": ["INCONCLUSIVE", "REFUSED"]
+    },
+    {
+      "lane": "unresolved",
+      "signals": ["unknown-profile", "conflicting-profile", "authority-missing"],
+      "allowedDispositions": ["BLOCKED", "REFUSED"]
+    }
+  ]
+}
