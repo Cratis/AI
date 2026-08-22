@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "contractVersion": 1,
   "disclaimer": "Catalog inclusion, evaluation evidence, bundle generation, or publication does not grant runtime permission or approval.",
-  "inputDigest": "e42bfa066a6c58d75a51d607dcb9660ea2145af6d643958eb94c200ef3d66ee6",
+  "inputDigest": "011c011348a80c36e3fe68ff1f85f35e2e9e164c68dd4a20e0a4ba1ecd242a46",
   "capabilities": [
     {
       "id": "cratis-application-react-specifications",

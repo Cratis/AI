@@ -93,9 +93,10 @@ test("catalog v2 exposes closed shared taxonomies without broadening targets", (
     }
 });
 
-test("legacy targets remain explicitly unclassified and runtime ineligible", () => {
+test("unreviewed targets remain explicitly unclassified and runtime ineligible", () => {
     const catalogs = loadCatalogs();
     for (const target of catalogs.targets.targets) {
+        if (target.id === "cratis-engineering-docs-authoring") continue;
         assert.equal(target.capabilityKind, "unclassified");
         assert.equal(target.invocation, "unclassified");
         assert.equal(target.lifecycle, "candidate");
@@ -120,6 +121,54 @@ test("legacy targets remain explicitly unclassified and runtime ineligible", () 
         assert.equal(target.approval.state, "candidate");
         assert.equal(target.includeInRuntime, false);
     }
+});
+
+test("documentation authoring is classified but remains unapproved", () => {
+    const catalogs = loadCatalogs();
+    const target = catalogs.targets.targets.find(
+        (candidate) => candidate.id === "cratis-engineering-docs-authoring",
+    );
+    assert.equal(target.audience, "cratis-engineering");
+    assert.equal(target.capabilityKind, "journey");
+    assert.equal(target.invocation, "both");
+    assert.deepEqual(target.architectures.ids, ["product-neutral"]);
+    assert.deepEqual(target.personas.ids, ["contributor", "maintainer"]);
+    assert.deepEqual(target.surfaces.ids, ["direct-agent-skills", "ide"]);
+    assert.deepEqual(target.repositoryProfiles.ids, [
+        "application",
+        "client",
+        "corpus",
+        "framework",
+    ]);
+    assert.equal(target.trust.class, "passive");
+    assert.equal(target.trust.assessmentState, "assessed");
+    assert.deepEqual(
+        target.trust.effects.map((effect) => effect.operation),
+        ["create", "modify"],
+    );
+    assert.equal(target.dependencyClassificationState, "classified");
+    assert.equal(target.dependencyEdges.length, 4);
+    assert.deepEqual(target.dependencies.targets, [
+        "cratis-engineering-docs-add-page",
+        "cratis-engineering-docs-edit-page",
+    ]);
+    assert.deepEqual(target.dependencies.internalArtifacts, [
+        ".ai/rules/documentation-structure-and-formatting.md",
+        ".ai/rules/writing-cratis-docs.md",
+    ]);
+    assert.equal(target.sourceContractState, "unclassified");
+    assert.equal(target.authoringContractState, "classified");
+    assert.deepEqual(target.authoringContractIds, [
+        "cratis-skill-clean-room-v1",
+    ]);
+    assert.deepEqual(target.runtimePayloadPolicy.allowed, [
+        "SKILL.md",
+        "references/**",
+        "assets/**",
+        "LICENSE*",
+    ]);
+    assert.equal(target.approval.state, "candidate");
+    assert.equal(target.includeInRuntime, false);
 });
 
 test("source digests remain bound to the current source bytes", () => {
@@ -619,7 +668,10 @@ test("the accepted Option A+ decision still blocks unapproved live targets", () 
     const catalogs = loadCatalogs();
     const decision = catalogs.artifacts.distributionDecision;
     const planned = catalogs.artifacts.artifacts.find(
-        (artifact) => !artifact.fixtureOnly,
+        (artifact) => artifact.id === "planned-passive-public-release",
+    );
+    const engineering = catalogs.artifacts.artifacts.find(
+        (artifact) => artifact.id === "planned-passive-engineering-release",
     );
     const fixture = catalogs.artifacts.artifacts.find(
         (artifact) => artifact.fixtureOnly,
@@ -631,6 +683,34 @@ test("the accepted Option A+ decision still blocks unapproved live targets", () 
     );
     assert(decision.authorityEvidenceIds.includes("option-a-plus-authority"));
     assert.equal(fixture.materializationAllowed, true);
+    assert.equal(engineering.audience, "cratis-engineering");
+    assert.equal(engineering.materializationAllowed, false);
+    assert.equal(engineering.runtimeEligible, false);
+    assert.equal(engineering.requiresApprovedTargets, true);
+    assert.equal(engineering.exactSourcePaths.length, 0);
+    assert(
+        engineering.componentInventory.skills.every((targetId) =>
+            catalogs.targets.targets.some(
+                (target) =>
+                    target.id === targetId &&
+                    target.audience === "cratis-engineering",
+            ),
+        ),
+    );
+    assert(engineering.forbiddenPathPatterns.includes("skills/**"));
+    assert(engineering.forbiddenPathPatterns.includes(".cratis/PROJECT.md"));
+    const publicTarget = catalogs.targets.targets.find(
+        (target) => target.audience === "public",
+    );
+    engineering.componentInventory.skills.push(publicTarget.id);
+    assert(
+        validateArtifacts(catalogs).some((error) =>
+            error.includes(
+                "cratis-engineering artifact cannot select public target",
+            ),
+        ),
+    );
+    engineering.componentInventory.skills.pop();
     planned.requiresApprovedTargets = false;
     planned.materializationAllowed = true;
     assert(

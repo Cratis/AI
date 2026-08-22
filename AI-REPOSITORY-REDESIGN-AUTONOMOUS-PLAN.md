@@ -569,6 +569,11 @@ Evidence and exact next actions are in
   cratis.no, and Strategy issues.
 - [x] Prepare a least-privilege, environment-gated generated-update PR workflow
   using a one-repository GitHub App token; keep it fixture-only and non-publishing.
+- [x] Define separate low-trust passive, effectful passive, and executable
+  engineering package boundaries; classify the first low-risk docs-authoring
+  target and add a distinct runtime-disabled engineering artifact.
+- [ ] Reconcile the docs-authoring target into self-contained canonical
+  engineering source before generating its first installable fixture package.
 - [ ] Provision the repository-scoped App credentials from Workflows#72 before
   any generated update PR, tag, release, or publication operation.
 - [ ] Keep publication and retirement disabled until explicit approvals pass.

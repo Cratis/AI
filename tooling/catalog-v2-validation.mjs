@@ -1482,6 +1482,12 @@ export function validateArtifacts(catalogs) {
     const targetIds = new Set(
         catalogs.targets.targets.map((target) => target.id),
     );
+    const targetAudiences = new Map(
+        catalogs.targets.targets.map((target) => [
+            target.id,
+            target.audience,
+        ]),
+    );
     const approvedTargets = new Set(
         catalogs.targets.targets
             .filter(
@@ -1541,6 +1547,13 @@ export function validateArtifacts(catalogs) {
         for (const targetId of artifact.componentInventory.skills) {
             if (!targetIds.has(targetId) && !artifact.fixtureOnly) {
                 errors.push(`${artifact.id}: unknown target ${targetId}`);
+            } else if (
+                !artifact.fixtureOnly &&
+                targetAudiences.get(targetId) !== artifact.audience
+            ) {
+                errors.push(
+                    `${artifact.id}: ${artifact.audience} artifact cannot select ${targetAudiences.get(targetId)} target ${targetId}`,
+                );
             } else if (
                 !artifact.fixtureOnly &&
                 liveEnabled &&

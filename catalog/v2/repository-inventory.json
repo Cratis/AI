@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "b7bfb88bcbfb0fc6d7a3f041865ebc0c19953dee7ea71ac82c008091c96e42e3",
+  "indexDigest": "10db39fec06c6c22d817f952b3eccc42cd815e8471f6e506c9beec355bb8044b",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -272,6 +272,10 @@
     },
     {
       "path": "distribution/artifact-matrix.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/engineering-artifact-matrix.json",
       "status": "added"
     },
     {
@@ -1424,6 +1428,10 @@
     },
     {
       "path": "tooling/specs/domain-expert-event-modeling-pilot.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/engineering-distribution.spec.mjs",
       "status": "added"
     },
     {
@@ -2672,8 +2680,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 12,
-      "expectedPathsDigest": "fe60acdc096ee26ee4092e1fd3e1b3875eea548b9eba7eb61554e1bc37354800"
+      "expectedPathCount": 13,
+      "expectedPathsDigest": "44be17dfc60356a52c190f85b2dc30ab829a0091d6f8c79d346adc819f9eda38"
     },
     {
       "excludePathPatterns": [],
@@ -2719,8 +2727,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 16,
-      "expectedPathsDigest": "c1a7af0eea7bc5a01092cb5192c69a592337b46f13a7e2d29031451001ce16c1"
+      "expectedPathCount": 17,
+      "expectedPathsDigest": "0f7fa74db962f9bcdc50b2a99c8cb92cee8a934fef62af4b4cc477573fd691e4"
     },
     {
       "excludePathPatterns": [],
