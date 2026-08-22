@@ -1,0 +1,223 @@
+{
+  "schemaVersion": "1.0.0",
+  "verifiedAt": "2026-08-22",
+  "requirements": [
+    {
+      "id": "agent-skills-open-standard",
+      "status": "VERIFIED",
+      "sourceUrls": [
+        "https://agentskills.io/specification"
+      ],
+      "requiredRoots": [
+        "skills/<skill-name>/SKILL.md"
+      ],
+      "installCommands": [],
+      "updateCommands": [],
+      "uninstallCommands": [],
+      "constraints": [
+        "Skill directory and frontmatter name must match and use lowercase letters, digits, and single hyphens.",
+        "SKILL.md requires nonempty name and description; scripts, references, and assets are optional.",
+        "Passive Cratis artifacts omit scripts and experimental allowed-tools."
+      ]
+    },
+    {
+      "id": "claude-code-marketplace",
+      "status": "VERIFIED",
+      "sourceUrls": [
+        "https://docs.anthropic.com/en/docs/claude-code/plugin-marketplaces",
+        "https://docs.anthropic.com/en/docs/claude-code/skills"
+      ],
+      "requiredRoots": [
+        ".claude-plugin/marketplace.json",
+        "plugins/cratis/.claude-plugin/plugin.json",
+        "plugins/cratis/skills/<skill-name>/SKILL.md"
+      ],
+      "installCommands": [
+        "/plugin marketplace add <repository>",
+        "/plugin install cratis@cratis"
+      ],
+      "updateCommands": [
+        "/plugin marketplace update"
+      ],
+      "uninstallCommands": [
+        "/plugin uninstall cratis@cratis"
+      ],
+      "constraints": [
+        "Marketplace and plugin names use kebab-case.",
+        "Relative plugin sources stay inside the marketplace root.",
+        "Generated passive plugins contain skills only and use strict validation."
+      ]
+    },
+    {
+      "id": "openai-codex-plugin",
+      "status": "VERIFIED",
+      "sourceUrls": [
+        "https://developers.openai.com/codex/skills",
+        "https://developers.openai.com/codex/plugins",
+        "https://developers.openai.com/plugins/build/plugins"
+      ],
+      "requiredRoots": [
+        ".agents/plugins/marketplace.json",
+        "plugins/cratis/.codex-plugin/plugin.json",
+        "plugins/cratis/skills/<skill-name>/SKILL.md"
+      ],
+      "installCommands": [
+        "codex plugin marketplace add <repository>"
+      ],
+      "updateCommands": [
+        "codex plugin marketplace upgrade cratis"
+      ],
+      "uninstallCommands": [
+        "codex plugin marketplace remove cratis"
+      ],
+      "constraints": [
+        "Plugin name is stable kebab-case and manifest paths start with ./ and remain inside the plugin root.",
+        "ChatGPT desktop performs local plugin installation and testing; Codex IDE does not support plugins.",
+        "Public submission and workspace publication remain external reviewed gates."
+      ]
+    },
+    {
+      "id": "github-copilot-plugin",
+      "status": "VERIFIED",
+      "sourceUrls": [
+        "https://docs.github.com/en/copilot/concepts/agents/about-plugins",
+        "https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/plugins-marketplace",
+        "https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-plugin-reference"
+      ],
+      "requiredRoots": [
+        ".github/plugin/marketplace.json",
+        "plugins/cratis/plugin.json",
+        "plugins/cratis/skills/<skill-name>/SKILL.md"
+      ],
+      "installCommands": [
+        "copilot plugin marketplace add <repository>",
+        "copilot plugin install cratis@cratis"
+      ],
+      "updateCommands": [
+        "copilot plugin marketplace update cratis",
+        "copilot plugin update cratis"
+      ],
+      "uninstallCommands": [
+        "copilot plugin uninstall cratis",
+        "copilot plugin marketplace remove cratis"
+      ],
+      "constraints": [
+        "plugin.json is required at the plugin root.",
+        "Marketplace plugin sources are repository-relative; strict validation stays enabled.",
+        "Release installs pin immutable full commit SHAs."
+      ]
+    },
+    {
+      "id": "gemini-cli-extension",
+      "status": "VERIFIED",
+      "sourceUrls": [
+        "https://geminicli.com/docs/extensions/reference/",
+        "https://geminicli.com/docs/extensions/releasing/"
+      ],
+      "requiredRoots": [
+        "gemini-extension.json",
+        "skills/<skill-name>/SKILL.md"
+      ],
+      "installCommands": [
+        "gemini extensions install <repository> --ref <immutable-ref>"
+      ],
+      "updateCommands": [
+        "gemini extensions update cratis"
+      ],
+      "uninstallCommands": [
+        "gemini extensions uninstall cratis"
+      ],
+      "constraints": [
+        "Extension name is lowercase letters, digits, and dashes and matches its directory.",
+        "gemini-extension.json is at the repository or release-archive root.",
+        "Manifest version matches the GitHub release tag."
+      ]
+    },
+    {
+      "id": "pi-passive-package",
+      "status": "VERIFIED_INSTALLED_DOCUMENTATION",
+      "sourceUrls": [],
+      "requiredRoots": [
+        "package.json",
+        "skills/<skill-name>/SKILL.md"
+      ],
+      "installCommands": [
+        "pi install npm:@cratis/ai@<version>",
+        "pi install git:<repository>@<immutable-ref>"
+      ],
+      "updateCommands": [
+        "pi update npm:@cratis/ai"
+      ],
+      "uninstallCommands": [
+        "pi remove npm:@cratis/ai"
+      ],
+      "constraints": [
+        "Requirements were verified against installed @earendil-works/pi-coding-agent 0.84.2 docs/packages.md.",
+        "package.json declares the pi-package keyword and pi.skills allowlist.",
+        "The passive package contains no extensions, prompts, themes, lifecycle scripts, or dependencies.",
+        "Temporary, user, project, npm, Git, filter, pin, rollback, and uninstall behavior require smoke evidence."
+      ]
+    },
+    {
+      "id": "npm-trusted-publication",
+      "status": "VERIFIED",
+      "sourceUrls": [
+        "https://docs.npmjs.com/trusted-publishers/",
+        "https://docs.npmjs.com/generating-provenance-statements/"
+      ],
+      "requiredRoots": [
+        "package.json"
+      ],
+      "installCommands": [
+        "npm install @cratis/ai@<version> --ignore-scripts"
+      ],
+      "updateCommands": [
+        "npm install @cratis/ai@<new-version> --ignore-scripts"
+      ],
+      "uninstallCommands": [
+        "npm uninstall @cratis/ai --ignore-scripts"
+      ],
+      "constraints": [
+        "Trusted publishing uses an exact GitHub-hosted workflow identity, id-token: write, Node 22.14.0 or newer, and npm 11.5.1 or newer.",
+        "repository.url exactly matches the public source repository.",
+        "Public publication uses OIDC with automatic provenance; stage-only authority is preferred before promotion."
+      ]
+    },
+    {
+      "id": "cursor-marketplace",
+      "status": "BLOCKED_NO_AUTHORITATIVE_REQUIREMENTS",
+      "sourceUrls": [],
+      "requiredRoots": [],
+      "installCommands": [],
+      "updateCommands": [],
+      "uninstallCommands": [],
+      "constraints": [
+        "Do not generate or claim a Cursor-native package until official current requirements are verified."
+      ]
+    },
+    {
+      "id": "kiro-marketplace",
+      "status": "BLOCKED_NO_AUTHORITATIVE_REQUIREMENTS",
+      "sourceUrls": [],
+      "requiredRoots": [],
+      "installCommands": [],
+      "updateCommands": [],
+      "uninstallCommands": [],
+      "constraints": [
+        "Do not generate or claim a Kiro-native package until official current requirements are verified."
+      ]
+    },
+    {
+      "id": "junie-marketplace",
+      "status": "BLOCKED_NO_AUTHORITATIVE_REQUIREMENTS",
+      "sourceUrls": [],
+      "requiredRoots": [],
+      "installCommands": [],
+      "updateCommands": [],
+      "uninstallCommands": [],
+      "constraints": [
+        "Do not generate or claim a Junie-native package until official current requirements are verified."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "schemaVersion": "1.0.0",
+  "observedAt": "2026-08-22",
+  "sourceCommit": "3d5f25538696ad546a98ef128ea925ed3c096b4b",
+  "fixtureState": "FIXTURE_ONLY_LOCAL_STAGING",
+  "host": "darwin-arm64",
+  "results": [
+    {
+      "target": "npm",
+      "version": "10.9.2",
+      "checks": [
+        "pack",
+        "install-ignore-scripts",
+        "skill-inventory",
+        "uninstall"
+      ],
+      "status": "PASS"
+    },
+    {
+      "target": "pi",
+      "version": "0.84.2",
+      "checks": [
+        "isolated-home-install",
+        "list",
+        "remove",
+        "empty-list"
+      ],
+      "status": "PASS"
+    },
+    {
+      "target": "claude-code",
+      "version": "2.1.235",
+      "checks": [
+        "strict-plugin-validation",
+        "isolated-marketplace-add",
+        "install",
+        "list",
+        "uninstall",
+        "marketplace-remove"
+      ],
+      "status": "PASS"
+    },
+    {
+      "target": "github-copilot-cli",
+      "version": "1.0.67",
+      "checks": [
+        "isolated-marketplace-add",
+        "install",
+        "list",
+        "uninstall",
+        "marketplace-remove"
+      ],
+      "status": "PASS"
+    },
+    {
+      "target": "codex-cli",
+      "version": "0.147.0",
+      "checks": [
+        "isolated-marketplace-add",
+        "list",
+        "marketplace-remove"
+      ],
+      "status": "PASS_WITH_INSTALL_NOT_SUPPORTED_BY_CLI"
+    },
+    {
+      "target": "gemini-cli",
+      "version": "0.33.1",
+      "checks": [
+        "isolated-extension-link-with-consent",
+        "installed-state",
+        "uninstall",
+        "removed-state"
+      ],
+      "status": "PASS_WITH_PROJECT_REGISTRY_WARNING"
+    }
+  ],
+  "limitations": [
+    "This is local fixture evidence, not release, marketplace, compatibility, canary, or promotion evidence.",
+    "The Codex CLI documents marketplace management while ChatGPT desktop owns local plugin installation.",
+    "The Gemini CLI emitted a transient isolated-home project-registry warning while link and uninstall completed successfully.",
+    "No Cursor, Kiro, or Junie adapter was generated because authoritative requirements remain unverified.",
+    "No real public skill, product-source authority, publication credential, or bot repository was used."
+  ],
+  "publicationEligible": false,
+  "promotionEligible": false
+}

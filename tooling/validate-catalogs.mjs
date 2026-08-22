@@ -7,6 +7,7 @@ import { validateV2Catalogs } from "./catalog-v2-validation.mjs";
 import { validateSourceEvidenceContract } from "./source-evidence-contract-validation.mjs";
 import { validateCodeReviewPilot } from "./code-review-pilot-validation.mjs";
 import { validateDomainExpertEventModelingPilot } from "./domain-expert-event-modeling-pilot-validation.mjs";
+import { validateDistributionConfiguration } from "./generate-distribution-fixture.mjs";
 
 const errors = [
     ...validateCatalogs(),
@@ -14,6 +15,7 @@ const errors = [
     ...validateSourceEvidenceContract(),
     ...validateCodeReviewPilot(),
     ...validateDomainExpertEventModelingPilot(),
+    ...validateDistributionConfiguration(),
 ];
 if (errors.length > 0) {
     process.stderr.write(

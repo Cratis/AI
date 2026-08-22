@@ -540,10 +540,15 @@ Evidence and exact next actions are in
 - [x] Run one bounded final review and fix its two concrete high acceptance
   violations without starting another review loop.
 - [x] Merge the review pilot after green CI and stop hardening (#138).
-- [ ] Deliver one minimal domain-expert/event-modeling pilot PR; implementation
-  and its single bounded review are complete, with delivery gates pending.
-- [ ] Verify current authoritative marketplace/package requirements.
-- [ ] Scaffold generated distribution repository or exact authority request.
-- [ ] Implement deterministic marketplace-native package/adaptor generation.
-- [ ] Add install/smoke/uninstall, provenance, checksum, canary, and rollback gates.
+- [x] Deliver one minimal domain-expert/event-modeling pilot PR (#139).
+- [x] Verify authoritative Agent Skills, Claude, Codex, Copilot, Gemini, Pi, and
+  npm requirements; keep Cursor, Kiro, and Junie blocked pending official facts.
+- [x] Produce the exact bot-repository/credential authority request and continue
+  deterministic fixture-only local staging.
+- [x] Generate fixture-only canonical, Claude, Codex, Copilot, Gemini, and Pi/npm
+  adapters from one approved sanitized logical tree.
+- [ ] Promote adapters beyond fixture-only after real target approval; add hosted
+  canary and rollback workflows after generated-repository authority exists.
+- [x] Add local pack/install/smoke/uninstall, provenance-record, and checksum
+  gates for the fixture-only distribution.
 - [ ] Keep publication and retirement disabled until explicit approvals pass.

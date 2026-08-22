@@ -1,0 +1,300 @@
+// Copyright (c) Cratis. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import {
+    existsSync,
+    mkdtempSync,
+    mkdirSync,
+    readFileSync,
+    rmSync,
+    writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join, resolve } from "node:path";
+import { test } from "node:test";
+import { fileURLToPath } from "node:url";
+import {
+    generateDistributionFixture,
+    smokeClaudeDistributionFixture,
+    smokeCodexDistributionFixture,
+    smokeCopilotDistributionFixture,
+    smokeGeminiDistributionFixture,
+    smokeNpmDistributionFixture,
+    smokePiDistributionFixture,
+    validateDistributionFixture,
+} from "../generate-distribution-fixture.mjs";
+
+const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+function commandAvailable(command) {
+    try {
+        execFileSync(command, ["--version"], { stdio: "pipe" });
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+const piAvailable = commandAvailable("pi");
+const claudeAvailable = commandAvailable("claude");
+const codexAvailable = commandAvailable("codex");
+const copilotAvailable = commandAvailable("copilot");
+const geminiAvailable = commandAvailable("gemini");
+
+function withTemporaryDirectory(callback) {
+    const root = mkdtempSync(join(tmpdir(), "cratis-distribution-"));
+    try {
+        return callback(root);
+    } finally {
+        rmSync(root, { recursive: true, force: true });
+    }
+}
+
+function readJson(path) {
+    return JSON.parse(readFileSync(path, "utf8"));
+}
+
+test("distribution requirements and artifact matrix stay authority bounded", () => {
+    const requirements = readJson(
+        join(repositoryRoot, "distribution/marketplace-requirements.json"),
+    );
+    const matrix = readJson(
+        join(repositoryRoot, "distribution/artifact-matrix.json"),
+    );
+    const localEvidence = readJson(
+        join(
+            repositoryRoot,
+            "distribution/evidence/local-fixture-smoke-2026-08-22.json",
+        ),
+    );
+    const verified = requirements.requirements
+        .filter(item => item.status.startsWith("VERIFIED"))
+        .map(item => item.id);
+    assert.deepEqual(verified, [
+        "agent-skills-open-standard",
+        "claude-code-marketplace",
+        "openai-codex-plugin",
+        "github-copilot-plugin",
+        "gemini-cli-extension",
+        "pi-passive-package",
+        "npm-trusted-publication",
+    ]);
+    assert.deepEqual(
+        requirements.requirements
+            .filter(item => item.status === "BLOCKED_NO_AUTHORITATIVE_REQUIREMENTS")
+            .map(item => item.id),
+        ["cursor-marketplace", "kiro-marketplace", "junie-marketplace"],
+    );
+    assert.equal(matrix.state, "FIXTURE_ONLY_LOCAL_STAGING");
+    assert.equal(matrix.publicationEligible, false);
+    assert.equal(matrix.promotionEligible, false);
+    assert.equal(
+        matrix.repository.status,
+        "BLOCKED_ON_BOT_REPOSITORY_AND_CREDENTIAL_AUTHORITY",
+    );
+    const requirementIds = new Set(requirements.requirements.map(item => item.id));
+    assert(matrix.targets.every(target => requirementIds.has(target.requirementId)));
+    assert(
+        matrix.targets
+            .filter(target => target.state === "BLOCKED")
+            .every(target => target.outputRoot === null),
+    );
+    assert.equal(localEvidence.publicationEligible, false);
+    assert.equal(localEvidence.promotionEligible, false);
+    assert(localEvidence.results.every(result => result.status.startsWith("PASS")));
+});
+
+test("distribution fixture generation is deterministic across native adapters", () => {
+    withTemporaryDirectory(root => {
+        const firstRoot = join(root, "first");
+        const secondRoot = join(root, "second");
+        const first = generateDistributionFixture({
+            repositoryRoot,
+            outputRoot: firstRoot,
+        });
+        const second = generateDistributionFixture({
+            repositoryRoot,
+            outputRoot: secondRoot,
+        });
+        assert.deepEqual(second, first);
+        for (const file of first.files) {
+            assert.deepEqual(
+                readFileSync(join(secondRoot, file.path)),
+                readFileSync(join(firstRoot, file.path)),
+            );
+        }
+        assert.deepEqual(validateDistributionFixture(firstRoot), first);
+        assert.deepEqual(first.generatedTargets, [
+            "canonical",
+            "claude",
+            "codex",
+            "copilot",
+            "gemini",
+            "pi",
+        ]);
+        for (const blocked of ["cursor", "kiro", "junie"])
+            assert.equal(existsSync(join(firstRoot, blocked)), false);
+    });
+});
+
+test("generated marketplace manifests remain passive and idiomatic", () => {
+    withTemporaryDirectory(root => {
+        const stage = join(root, "stage");
+        generateDistributionFixture({ repositoryRoot, outputRoot: stage });
+        const claude = readJson(
+            join(stage, "claude/plugins/cratis/.claude-plugin/plugin.json"),
+        );
+        const codex = readJson(
+            join(stage, "codex/plugins/cratis/.codex-plugin/plugin.json"),
+        );
+        const copilot = readJson(
+            join(stage, "copilot/plugins/cratis/plugin.json"),
+        );
+        const gemini = readJson(join(stage, "gemini/gemini-extension.json"));
+        const piPackage = readJson(join(stage, "pi/package/package.json"));
+        assert.equal(claude.name, "cratis");
+        assert.equal(codex.skills, "./skills/");
+        assert.equal(copilot.skills, "skills/");
+        assert.equal(gemini.name, "cratis");
+        for (const manifest of [claude, codex, copilot, gemini]) {
+            assert.equal(manifest.hooks, undefined);
+            assert.equal(manifest.mcpServers, undefined);
+            assert.equal(manifest.commands, undefined);
+        }
+        assert.equal(piPackage.name, "@cratis/ai");
+        assert.equal(piPackage.private, true);
+        assert.deepEqual(piPackage.pi, { skills: ["./skills"] });
+        assert.equal(piPackage.scripts, undefined);
+        assert.equal(piPackage.dependencies, undefined);
+        const skill = readFileSync(
+            join(stage, "canonical/skills/cratis-example/SKILL.md"),
+            "utf8",
+        );
+        assert.match(skill, /^---\nname: cratis-example\ndescription: /);
+    });
+});
+
+test("distribution fixture detects payload and checksum tampering", () => {
+    withTemporaryDirectory(root => {
+        const stage = join(root, "stage");
+        generateDistributionFixture({ repositoryRoot, outputRoot: stage });
+        const path = join(
+            stage,
+            "gemini/skills/cratis-example/assets/example.txt",
+        );
+        writeFileSync(path, "tampered\n");
+        assert.throws(
+            () => validateDistributionFixture(stage),
+            /digest mismatch|byte parity|Checksum verification/,
+        );
+    });
+});
+
+test("passive npm fixture packs installs and uninstalls without scripts", () => {
+    withTemporaryDirectory(root => {
+        const stage = join(root, "stage");
+        const smokeRoot = join(root, "smoke");
+        generateDistributionFixture({ repositoryRoot, outputRoot: stage });
+        mkdirSync(smokeRoot);
+        const result = smokeNpmDistributionFixture(stage, smokeRoot);
+        assert.equal(existsSync(result.tarball), true);
+        assert.equal(result.installedSkill, "skills/cratis-example/SKILL.md");
+    });
+});
+
+test(
+    "passive Pi fixture installs lists and removes in an isolated home",
+    { skip: !piAvailable },
+    () => {
+        withTemporaryDirectory(root => {
+            const stage = join(root, "stage");
+            const isolatedHome = join(root, "home");
+            generateDistributionFixture({ repositoryRoot, outputRoot: stage });
+            mkdirSync(isolatedHome);
+            assert.deepEqual(
+                smokePiDistributionFixture(stage, isolatedHome),
+                { installed: true, removed: true },
+            );
+        });
+    },
+);
+
+test(
+    "Claude fixture validates installs and removes in an isolated home",
+    { skip: !claudeAvailable },
+    () => {
+        withTemporaryDirectory(root => {
+            const stage = join(root, "stage");
+            const isolatedHome = join(root, "home");
+            generateDistributionFixture({ repositoryRoot, outputRoot: stage });
+            mkdirSync(isolatedHome);
+            assert.deepEqual(
+                smokeClaudeDistributionFixture(stage, isolatedHome),
+                { validated: true, installed: true, removed: true },
+            );
+        });
+    },
+);
+
+test(
+    "Copilot fixture installs and removes in an isolated home",
+    { skip: !copilotAvailable },
+    () => {
+        withTemporaryDirectory(root => {
+            const stage = join(root, "stage");
+            const isolatedHome = join(root, "home");
+            generateDistributionFixture({ repositoryRoot, outputRoot: stage });
+            mkdirSync(isolatedHome);
+            assert.deepEqual(
+                smokeCopilotDistributionFixture(stage, isolatedHome),
+                { installed: true, removed: true },
+            );
+        });
+    },
+);
+
+test(
+    "Codex fixture marketplace adds and removes in an isolated home",
+    { skip: !codexAvailable },
+    () => {
+        withTemporaryDirectory(root => {
+            const stage = join(root, "stage");
+            const isolatedHome = join(root, "home");
+            generateDistributionFixture({ repositoryRoot, outputRoot: stage });
+            mkdirSync(isolatedHome);
+            assert.deepEqual(
+                smokeCodexDistributionFixture(stage, isolatedHome),
+                { added: true, removed: true },
+            );
+        });
+    },
+);
+
+test(
+    "Gemini fixture links and removes in an isolated home",
+    { skip: !geminiAvailable },
+    () => {
+        withTemporaryDirectory(root => {
+            const stage = join(root, "stage");
+            const isolatedHome = join(root, "home");
+            generateDistributionFixture({ repositoryRoot, outputRoot: stage });
+            mkdirSync(isolatedHome);
+            assert.deepEqual(
+                smokeGeminiDistributionFixture(stage, isolatedHome),
+                { linked: true, removed: true },
+            );
+        });
+    },
+);
+
+test("distribution generator refuses an existing destination", () => {
+    withTemporaryDirectory(root => {
+        const stage = join(root, "stage");
+        mkdirSync(stage);
+        assert.throws(
+            () => generateDistributionFixture({ repositoryRoot, outputRoot: stage }),
+            /must not exist/,
+        );
+    });
+});
