@@ -866,3 +866,32 @@ focused diagnostics specifications, and all 115 repository Node specifications
 pass. Next actions are to commit the refreshed inventory digest, push
 `feat/diagnostics-pilot`, open a no-release PR resolving AI#126, and wait for
 green CI before merge.
+
+## 25. Diagnostics synthetic profile-fixture checkpoint — 2026-08-22
+
+Work continues on `feat/diagnostics-evidence-fixtures` in
+`../AI-diagnostics-fixtures`, based on diagnostics merge
+`e79dc51c808f9d7fd6cd680ff7555f68bd62637e`.
+
+This bounded phase adds five repository-only fixture files: one manifest and
+four clean-room synthetic profile inputs for `N01`, `N02`, `N03`, and `N13`.
+The fixtures are canonical JSON, individually SHA-256 content-addressed, and
+bound by bundle revision
+`sha256:6809b3ace5e7dc1c60abe3670ddc9c330a1caeb365f3f2ce4bdc2d276bfb9828`.
+They establish only synthetic profile routing and `N13` reproduction state;
+they carry no product/source authority, runtime evidence, third-party content,
+paths, URLs, procedures, or behavior claims.
+
+The exact enabled set is now fourteen cases. The remaining disabled set is
+exactly `P01`–`P08`, `N09`, and `N10`. Source diagnosis, facts, hypotheses,
+instrumentation, causal/fix proof, cleanup, execution, network access, writes,
+runtime approval, packaging, publication, and promotion remain structurally
+blocked. Merely editing metadata or copying a profile fixture cannot enable an
+unrelated case.
+
+Current focused fixture/diagnostics specifications pass 27/27 and all 120
+repository Node specifications pass. Catalog, inventory, syntax, LSP, and diff
+gates pass, and final Fusion validation reported no included findings. Next:
+commit, refresh the post-commit inventory digest, push, open a no-release PR
+linked to AI#126, and wait for green CI before merge. No model run is part of
+this change.

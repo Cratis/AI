@@ -1,0 +1,21 @@
+{
+  "caseId": "N01",
+  "fixtureId": "diagnostics-profile-n01-v1",
+  "provenance": {
+    "authorityScope": "profile-routing-only",
+    "containsProductSource": false,
+    "containsThirdPartyContent": false,
+    "kind": "synthetic",
+    "origin": "cratis-clean-room",
+    "productBehaviorAuthority": false,
+    "runtimeEvidence": false,
+    "sourceAuthority": false
+  },
+  "schemaVersion": "cratis.ai/diagnostics-profile-fixture/v1",
+  "signals": {
+    "cratisRelationship": "framework-source",
+    "ecosystem": "cratis",
+    "repositoryKind": "framework",
+    "reproduction": "not-required"
+  }
+}

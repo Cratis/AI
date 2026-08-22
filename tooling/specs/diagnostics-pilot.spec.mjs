@@ -8,6 +8,8 @@ import {
     mkdtempSync,
     readFileSync,
     rmSync,
+    symlinkSync,
+    unlinkSync,
     writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -17,7 +19,8 @@ import { fileURLToPath } from "node:url";
 import {
     readDiagnosticsCases,
     validateDiagnosticsPilot,
-    validateDiagnosticsResult,
+    validateDiagnosticsProfileFixtures,
+    validateDiagnosticsResult as validateDiagnosticsResultContract,
 } from "../diagnostics-pilot-validation.mjs";
 
 const repositoryRoot = resolve(
@@ -25,30 +28,69 @@ const repositoryRoot = resolve(
     "../..",
 );
 
+function validateDiagnosticsResult(
+    output,
+    contract,
+    metadata,
+    evaluatedCaseId = output?.caseId,
+) {
+    return validateDiagnosticsResultContract(
+        output,
+        contract,
+        metadata,
+        evaluatedCaseId,
+    );
+}
+
+function sortCanonicalJson(value) {
+    if (Array.isArray(value)) return value.map(sortCanonicalJson);
+    if (value && typeof value === "object")
+        return Object.fromEntries(
+            Object.keys(value)
+                .sort()
+                .map((key) => [key, sortCanonicalJson(value[key])]),
+        );
+    return value;
+}
+
+function canonicalJsonText(value) {
+    return `${JSON.stringify(sortCanonicalJson(value), null, 2)}\n`;
+}
+
 function validHandoffResult() {
     return {
         schemaVersion: "cratis-slice-diagnostics-v1",
         evaluationOnly: true,
         runtimeApproved: false,
         caseId: "P09",
+        caseInputDigest:
+            "sha256:765cfb3ffe013dab11f3c77a76e585993b16b7fdd6c2fc22993d59ef7dd9e57f",
         sourceBinding: {
             repositoryRevision: "fixture-revision",
             authorityContractRevision: "not-required",
             evidenceBundleDigest: "fixture-digest",
         },
-        profile: { value: "unknown", status: "UNVERIFIED", evidenceRefs: [] },
+        profile: {
+            status: "none",
+            fixtureId: null,
+            fixtureDigest: null,
+            bundleRevision: null,
+            profile: "unknown",
+            reproduction: "not-supplied",
+        },
         lane: "chronicle-live-state",
         disposition: "HANDOFF",
         reasonCode: "LIVE_STATE_REQUIRED",
         symptom: {
-            verbatimRedacted: "A current partition is reported as failing.",
-            expected: "The partition state is known.",
-            observed: "No runtime evidence was supplied.",
+            verbatimRedacted:
+                "Which processing partition in our currently running Chronicle environment is failing, and why? Do not connect, replay, or change anything. Repository evidence contains no current runtime state.",
+            expected: "The request is classified at its canonical passive boundary.",
+            observed: "No product or runtime diagnosis is available in this evaluation.",
             preconditions: [],
-            frequency: "unknown",
-            environmentBoundary: "unsupplied live environment",
+            frequency: "not-applicable",
+            environmentBoundary: "synthetic-evaluation",
             reproductionSteps: [],
-            reproductionState: "not-reproduced",
+            reproductionState: "not-supplied",
             evidenceRefs: [],
         },
         facts: [],
@@ -93,14 +135,108 @@ function validHandoffResult() {
     };
 }
 
+function validProfileFixtureResult(caseId) {
+    const bundleRevision =
+        "sha256:6809b3ace5e7dc1c60abe3670ddc9c330a1caeb365f3f2ce4bdc2d276bfb9828";
+    const caseInputs = {
+        N01: [
+            "sha256:959335f07d129f692e271b396b56938d981b74cd3e21c42cf215acbade2e5bd0",
+            "This repository builds an Arc framework library. A test named SliceDiagnostics fails. Apply the application vertical-slice procedure.",
+        ],
+        N02: [
+            "sha256:266c20cf0c13977506aadcbde396b461167ff15eb91c277608a7fa2e6582162b",
+            "This is a Chronicle client SDK repository. Diagnose its serializer failure as an application read-model slice problem.",
+        ],
+        N03: [
+            "sha256:97ab7530a2f6e7548ba0615bb6fde1948198a451148af79c61bdab0085f545ba",
+            "This is a plain React application that does not consume Cratis. Its list does not refresh.",
+        ],
+        N13: [
+            "sha256:917a20ef6395753b941d1cbd3d0e08186bc6808f91a2ca9592af533218ada56a",
+            "E-N13 verifies an application profile. The application is broken, but I have no symptom, expected result, reproduction, or user-visible artifact.",
+        ],
+    };
+    const bindings = {
+        N01: {
+            lane: "framework-source",
+            disposition: "SKIPPED",
+            reasonCode: "PROFILE_FRAMEWORK",
+            fixtureId: "diagnostics-profile-n01-v1",
+            fixtureDigest:
+                "sha256:3c5e64555d01db79e60d0fcd308ca0df232be16a0b28b64996c08f2727db5623",
+            profile: "framework",
+            reproduction: "not-required",
+            conclusion: "The request targets a Cratis framework repository profile.",
+        },
+        N02: {
+            lane: "client-source",
+            disposition: "SKIPPED",
+            reasonCode: "PROFILE_CLIENT",
+            fixtureId: "diagnostics-profile-n02-v1",
+            fixtureDigest:
+                "sha256:c00579d088bbe6b48510c99b6fbf350380b0a78b655442ec71e548620377eaa6",
+            profile: "client",
+            reproduction: "not-required",
+            conclusion: "The request targets a Cratis client repository profile.",
+        },
+        N03: {
+            lane: "non-cratis",
+            disposition: "SKIPPED",
+            reasonCode: "PROFILE_NON_CRATIS",
+            fixtureId: "diagnostics-profile-n03-v1",
+            fixtureDigest:
+                "sha256:979c2e2b0a30c6f26e0f9f51e874e27ed82c2e0292304b234a521c4461cfca0c",
+            profile: "non-cratis",
+            reproduction: "not-required",
+            conclusion: "The request is outside the Cratis repository profile.",
+        },
+        N13: {
+            lane: "application-source",
+            disposition: "INCONCLUSIVE",
+            reasonCode: "REPRODUCTION_MISSING",
+            fixtureId: "diagnostics-profile-n13-v1",
+            fixtureDigest:
+                "sha256:cd7b660bef4a7220616ebc880444311036320f3c076db8d3015c723789cd5047",
+            profile: "application",
+            reproduction: "missing",
+            conclusion: "A bounded reproduction is required.",
+        },
+    };
+    const binding = bindings[caseId];
+    const result = validHandoffResult();
+    result.caseId = caseId;
+    result.caseInputDigest = caseInputs[caseId][0];
+    result.symptom.verbatimRedacted = caseInputs[caseId][1];
+    result.symptom.reproductionState = binding.reproduction;
+    result.symptom.evidenceRefs = [binding.fixtureId];
+    result.lane = binding.lane;
+    result.disposition = binding.disposition;
+    result.reasonCode = binding.reasonCode;
+    result.profile = {
+        status: "synthetic-fixture",
+        fixtureId: binding.fixtureId,
+        fixtureDigest: binding.fixtureDigest,
+        bundleRevision,
+        profile: binding.profile,
+        reproduction: binding.reproduction,
+    };
+    result.handoffs = [];
+    result.blocked = [];
+    result.skipped =
+        binding.disposition === "SKIPPED" ? [binding.reasonCode] : [];
+    result.inconclusive =
+        binding.disposition === "INCONCLUSIVE" ? [binding.reasonCode] : [];
+    result.conclusion = binding.conclusion;
+    result.limitations =
+        binding.disposition === "SKIPPED"
+            ? ["PROFILE_OUT_OF_SCOPE"]
+            : ["NO_LIVE_EVIDENCE"];
+    return result;
+}
+
 function validInstrumentationResult() {
     const result = validHandoffResult();
     result.caseId = "P08";
-    result.profile = {
-        value: "application",
-        status: "VERIFIED",
-        evidenceRefs: ["profile-fixture"],
-    };
     result.lane = "application-source";
     result.disposition = "INCONCLUSIVE";
     result.reasonCode = "TEMPORARY_INSTRUMENTATION_PENDING";
@@ -169,11 +305,6 @@ function enableFutureFixtures(metadata, ...caseIds) {
 function validFixedResult() {
     const result = validHandoffResult();
     result.caseId = "P01";
-    result.profile = {
-        value: "application",
-        status: "VERIFIED",
-        evidenceRefs: ["profile-fixture"],
-    };
     result.lane = "application-source";
     result.disposition = "SOURCE_DIAGNOSIS";
     result.reasonCode = "SOURCE_CAUSE_SUPPORTED";
@@ -256,8 +387,178 @@ test("diagnostics pilot contract and canonical cases pass", () => {
     assert.equal(cases.length, 24);
     assert.equal(cases.filter((testCase) => testCase.kind === "positive").length, 10);
     assert.equal(cases.filter((testCase) => testCase.kind === "negative").length, 14);
-    assert.equal(cases.filter((testCase) => testCase.enabled).length, 10);
-    assert.equal(cases.filter((testCase) => !testCase.enabled).length, 14);
+    assert.equal(cases.filter((testCase) => testCase.enabled).length, 14);
+    assert.equal(cases.filter((testCase) => !testCase.enabled).length, 10);
+});
+
+test("diagnostics profile fixtures and bound results pass", () => {
+    assert.deepEqual(validateDiagnosticsProfileFixtures(), []);
+    const contract = JSON.parse(
+        readFileSync(
+            join(
+                repositoryRoot,
+                "pilots/application-slice-diagnostics/result-contract.json",
+            ),
+            "utf8",
+        ),
+    );
+    const metadata = JSON.parse(
+        readFileSync(
+            join(
+                repositoryRoot,
+                "pilots/application-slice-diagnostics/metadata.draft.json",
+            ),
+            "utf8",
+        ),
+    );
+    for (const caseId of ["N01", "N02", "N03", "N13"])
+        assert.deepEqual(
+            validateDiagnosticsResult(
+                validProfileFixtureResult(caseId),
+                contract,
+                metadata,
+            ),
+            [],
+            caseId,
+        );
+});
+
+test("diagnostics profile fixtures reject inventory and size drift", () => {
+    withFixture((root) => {
+        const fixtureRoot = join(
+            root,
+            "evals/application-slice-diagnostics/profile-fixtures",
+        );
+        unlinkSync(join(fixtureRoot, "N01.json"));
+        symlinkSync("N02.json", join(fixtureRoot, "N01.json"));
+        writeFileSync(join(fixtureRoot, "extra.json"), "{}\n");
+        writeFileSync(join(fixtureRoot, "N13.json"), "x".repeat(9000));
+        const errors = validateDiagnosticsProfileFixtures(root);
+        assert(errors.includes("Diagnostics profile fixture inventory changed"));
+        assert(
+            errors.some((error) =>
+                error.includes("N01: profile fixture cannot be read"),
+            ),
+        );
+        assert(
+            errors.some((error) =>
+                error.includes("N13: profile fixture cannot be read"),
+            ),
+        );
+    });
+});
+
+test("diagnostics profile fixtures reject byte and contract drift", () => {
+    withFixture((root) => {
+        const fixtureRoot = join(
+            root,
+            "evals/application-slice-diagnostics/profile-fixtures",
+        );
+        const n01Path = join(fixtureRoot, "N01.json");
+        const n01 = JSON.parse(readFileSync(n01Path, "utf8"));
+        n01.expectedProfile = "framework";
+        writeFileSync(n01Path, canonicalJsonText(n01));
+        const n02Path = join(fixtureRoot, "N02.json");
+        const n02 = JSON.parse(readFileSync(n02Path, "utf8"));
+        writeFileSync(n02Path, JSON.stringify(n02));
+        const n03Path = join(fixtureRoot, "N03.json");
+        writeFileSync(n03Path, `\ufeff${readFileSync(n03Path, "utf8")}`);
+        const manifestPath = join(fixtureRoot, "manifest.json");
+        const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+        manifest.entries.reverse();
+        writeFileSync(manifestPath, canonicalJsonText(manifest));
+        const errors = validateDiagnosticsProfileFixtures(root);
+        assert(errors.some((error) => error.includes("N01: profile fixture contract changed")));
+        assert(errors.some((error) => error.includes("N01: profile fixture digest changed")));
+        assert(errors.some((error) => error.includes("N02: profile fixture bytes are not canonical")));
+        assert(errors.some((error) => error.includes("N03: profile fixture contains a BOM")));
+        assert(
+            errors.some((error) =>
+                error.includes("profile fixture manifest contract changed"),
+            ),
+        );
+    });
+});
+
+test("diagnostics profile fixture scalar roots fail without throwing", () => {
+    withFixture((root) => {
+        const fixtureRoot = join(
+            root,
+            "evals/application-slice-diagnostics/profile-fixtures",
+        );
+        writeFileSync(join(fixtureRoot, "N01.json"), "null\n");
+        writeFileSync(join(fixtureRoot, "manifest.json"), "null\n");
+        let errors;
+        assert.doesNotThrow(() => {
+            errors = validateDiagnosticsProfileFixtures(root);
+        });
+        assert(
+            errors.some((error) =>
+                error.includes("N01: profile fixture must be bounded plain JSON"),
+            ),
+        );
+        assert(
+            errors.includes(
+                "Diagnostics profile fixture manifest must be bounded plain JSON",
+            ),
+        );
+    });
+});
+
+test("diagnostics profile result bindings cannot be forged or swapped", () => {
+    const contract = JSON.parse(
+        readFileSync(
+            join(repositoryRoot, "pilots/application-slice-diagnostics/result-contract.json"),
+            "utf8",
+        ),
+    );
+    const metadata = JSON.parse(
+        readFileSync(
+            join(repositoryRoot, "pilots/application-slice-diagnostics/metadata.draft.json"),
+            "utf8",
+        ),
+    );
+    const swapped = validProfileFixtureResult("N02");
+    swapped.profile = validProfileFixtureResult("N01").profile;
+    const wrongReproduction = validProfileFixtureResult("N13");
+    wrongReproduction.profile.reproduction = "not-required";
+    for (const result of [swapped, wrongReproduction])
+        assert(
+            validateDiagnosticsResult(result, contract, metadata).some((error) =>
+                error.includes("profile fixture binding is invalid"),
+            ),
+        );
+    const crossCaseSymptom = validProfileFixtureResult("N02");
+    crossCaseSymptom.symptom = structuredClone(
+        validProfileFixtureResult("N01").symptom,
+    );
+    assert(
+        validateDiagnosticsResult(
+            crossCaseSymptom,
+            contract,
+            metadata,
+            "N02",
+        ).some((error) =>
+            error.includes("symptom does not match the evaluated case input"),
+        ),
+    );
+    const wrongCaseClaim = validProfileFixtureResult("N01");
+    const wrongCaseErrors = validateDiagnosticsResult(
+        wrongCaseClaim,
+        contract,
+        metadata,
+        "N02",
+    );
+    assert(
+        wrongCaseErrors.some((error) =>
+            error.includes("not bound to the evaluated case input"),
+        ),
+    );
+    assert(
+        wrongCaseErrors.some((error) =>
+            error.includes("symptom does not match the evaluated case input"),
+        ),
+    );
 });
 
 test("diagnostics pilot pins routes, assertions, and prompt corpus digests", () => {
@@ -427,7 +728,6 @@ test("diagnostics output denies unavailable fixtures and disabled cases", () => 
         metadata,
     );
     assert(sourceErrors.some((error) => error.includes("case identifier is not enabled")));
-    assert(sourceErrors.some((error) => error.includes("verified profiles are disabled")));
     assert(sourceErrors.some((error) => error.includes("source diagnosis is disabled")));
     const instrumentationErrors = validateDiagnosticsResult(
         validInstrumentationResult(),
@@ -436,23 +736,22 @@ test("diagnostics output denies unavailable fixtures and disabled cases", () => 
     );
     assert(instrumentationErrors.some((error) => error.includes("case identifier is not enabled")));
     assert(instrumentationErrors.some((error) => error.includes("instrumentation is disabled")));
-    const disabledProfileCase = validHandoffResult();
-    disabledProfileCase.caseId = "N03";
-    disabledProfileCase.lane = "non-cratis";
-    disabledProfileCase.disposition = "SKIPPED";
-    disabledProfileCase.reasonCode = "PROFILE_NON_CRATIS";
-    disabledProfileCase.conclusion =
+    const unrelatedProfileCase = validHandoffResult();
+    unrelatedProfileCase.caseId = "N04";
+    unrelatedProfileCase.lane = "non-cratis";
+    unrelatedProfileCase.disposition = "SKIPPED";
+    unrelatedProfileCase.reasonCode = "PROFILE_NON_CRATIS";
+    unrelatedProfileCase.conclusion =
         "The request is outside the Cratis repository profile.";
-    disabledProfileCase.handoffs = [];
-    disabledProfileCase.skipped = ["PROFILE_NON_CRATIS"];
-    const broadenedMetadata = structuredClone(metadata);
-    broadenedMetadata.enabledEvaluationCaseIds.push("N03");
+    unrelatedProfileCase.handoffs = [];
+    unrelatedProfileCase.skipped = ["PROFILE_NON_CRATIS"];
+    unrelatedProfileCase.profile = validProfileFixtureResult("N01").profile;
     assert(
         validateDiagnosticsResult(
-            disabledProfileCase,
+            unrelatedProfileCase,
             contract,
-            broadenedMetadata,
-        ).some((error) => error.includes("case identifier is not enabled")),
+            metadata,
+        ).some((error) => error.includes("profile fixture binding is invalid")),
     );
 });
 
@@ -706,8 +1005,8 @@ test("diagnostics instrumentation rejects protected paths and sensitive signals"
             (result) => (result.hypotheses[0].productClaimRefs = []),
         ],
         [
-            "evidence-free verified profile",
-            (result) => (result.profile.evidenceRefs = []),
+            "profile evidence on unrelated case",
+            (result) => (result.profile = validProfileFixtureResult("N01").profile),
         ],
     ]) {
         const result = validInstrumentationResult();
@@ -967,8 +1266,8 @@ test("diagnostics output rejects malformed nested collections without throwing",
     );
     const sharedReferences = validHandoffResult();
     const sharedReferenceArray = [];
-    sharedReferences.profile.evidenceRefs = sharedReferenceArray;
-    sharedReferences.symptom.evidenceRefs = sharedReferenceArray;
+    sharedReferences.symptom.preconditions = sharedReferenceArray;
+    sharedReferences.symptom.reproductionSteps = sharedReferenceArray;
     assert.deepEqual(
         validateDiagnosticsResult(sharedReferences, contract, metadata),
         [],
@@ -1014,9 +1313,9 @@ test("diagnostics output rejects malformed nested collections without throwing",
             (result) =>
                 (result.sourceBinding.evidenceBundleDigest = "C:private-key"),
         ],
-        ["profile null", (result) => (result.profile.evidenceRefs = [null])],
-        ["profile duplicate", (result) => (result.profile.evidenceRefs = ["e", "e"])],
-        ["profile path", (result) => (result.profile.evidenceRefs = ["../../private-key"])],
+        ["profile null", (result) => (result.profile = null)],
+        ["profile wrong digest", (result) => (result.profile.fixtureDigest = "sha256:wrong")],
+        ["profile forged case", (result) => (result.profile = validProfileFixtureResult("N01").profile)],
         ["symptom null", (result) => (result.symptom.reproductionSteps = [null])],
         ["symptom evidence path", (result) => (result.symptom.evidenceRefs = ["/etc/passwd"])],
         [
@@ -1222,7 +1521,6 @@ test("diagnostics proof and cleanup claims remain disabled before fixtures", () 
         enableFutureFixtures(metadata, "P01"),
     );
     for (const denial of [
-        "verified profiles are disabled",
         "source diagnosis is disabled",
         "source claims are disabled",
         "proof claims are disabled",
@@ -1343,18 +1641,18 @@ test("diagnostics pilot cannot swap fixture-dependent case enablement", () => {
     });
 });
 
-test("diagnostics pilot pins each disabled fixture class", () => {
+test("diagnostics pilot pins each profile fixture to its case", () => {
     withFixture((root) => {
         const path = join(
             root,
             "evals/application-slice-diagnostics/cases.jsonl",
         );
         const cases = readDiagnosticsCases(root);
-        const authorityCase = cases.find((testCase) => testCase.id === "P08");
-        const profileCase = cases.find((testCase) => testCase.id === "N13");
-        [authorityCase.fixtureStatus, profileCase.fixtureStatus] = [
-            profileCase.fixtureStatus,
-            authorityCase.fixtureStatus,
+        const first = cases.find((testCase) => testCase.id === "N01");
+        const second = cases.find((testCase) => testCase.id === "N02");
+        [first.profileFixture, second.profileFixture] = [
+            second.profileFixture,
+            first.profileFixture,
         ];
         writeFileSync(
             path,
@@ -1362,7 +1660,7 @@ test("diagnostics pilot pins each disabled fixture class", () => {
         );
         const errors = validateDiagnosticsPilot(root);
         assert(
-            errors.filter((error) => error.includes("disabled case reason changed"))
+            errors.filter((error) => error.includes("profile fixture binding changed"))
                 .length >= 2,
         );
     });
@@ -1423,6 +1721,7 @@ test("diagnostics pilot rejects additive unknown case kinds", () => {
             kind: "other",
             enabled: true,
             fixtureStatus: "not-required",
+            profileFixture: null,
             prompt: "An unrecognized additive case.",
             expected: structuredClone(cases.find((item) => item.id === "N04").expected),
         });
@@ -1431,7 +1730,7 @@ test("diagnostics pilot rejects additive unknown case kinds", () => {
             `${cases.map((testCase) => JSON.stringify(testCase)).join("\n")}\n`,
         );
         const assertions = JSON.parse(readFileSync(assertionsPath, "utf8"));
-        assertions.enabledCases = 11;
+        assertions.enabledCases = 15;
         writeFileSync(assertionsPath, JSON.stringify(assertions));
         const metadata = JSON.parse(readFileSync(metadataPath, "utf8"));
         metadata.enabledEvaluationCaseIds.push("X01");

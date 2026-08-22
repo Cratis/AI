@@ -483,4 +483,12 @@ The program is complete only when:
   pending and structurally disabled.
 
 Evidence and exact next actions are in
-[`AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md`](./AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md#24-navigator-merge-and-diagnostics-rebase-checkpoint--2026-08-22).
+[`AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md`](./AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md#25-diagnostics-synthetic-profile-fixture-checkpoint--2026-08-22).
+
+### 2026-08-22 — Synthetic diagnostics profile fixtures active
+
+- [x] Merge the passive diagnostics pre-fixture pilot in Cratis/AI#135.
+- [x] Add content-addressed clean-room profile fixtures for N01/N02/N03/N13.
+- [x] Enable exactly those four deterministic profile cases after fixture gates.
+- [x] Keep P01-P08/N09/N10 and all source/proof/effect behavior disabled.
+- [ ] Deliver fixture infrastructure after green PR CI.

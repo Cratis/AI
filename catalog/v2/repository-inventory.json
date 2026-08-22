@@ -1083,7 +1083,13 @@
       "status": "added"
     }
   ],
-  "admittedUntracked": [],
+  "admittedUntracked": [
+    "evals/application-slice-diagnostics/profile-fixtures/N01.json",
+    "evals/application-slice-diagnostics/profile-fixtures/N02.json",
+    "evals/application-slice-diagnostics/profile-fixtures/N03.json",
+    "evals/application-slice-diagnostics/profile-fixtures/N13.json",
+    "evals/application-slice-diagnostics/profile-fixtures/manifest.json"
+  ],
   "excludedRuntimePrefixes": [
     ".pi/delegate/",
     ".pi/fusion/",
@@ -1962,8 +1968,8 @@
       "evidenceIds": [
         "ecosystem-use-cases"
       ],
-      "expectedPathCount": 3,
-      "expectedPathsDigest": "cf902f42a15873aa782f4de78587b6bb4a68836118fd3d2c0becbc413a7066d6"
+      "expectedPathCount": 8,
+      "expectedPathsDigest": "e16b8884df850eaa30bfa5c6202ddf73e33d314a770610f027459c12866dd008"
     },
     {
       "excludePathPatterns": [],

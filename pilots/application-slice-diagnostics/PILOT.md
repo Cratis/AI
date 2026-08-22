@@ -34,15 +34,18 @@ names cannot establish profile.
 
 ## Current pre-fixture phase
 
-This revision has no authority, profile, or source-evidence bundles. Therefore
-verified profiles, source diagnosis, facts, hypotheses, instrumentation requests,
-proof claims, and cleanup claims are structurally disabled even if coordinated
-metadata is edited. Only the exact ten enabled boundary cases may produce a
-result, and each is bound to its canonical lane, disposition, reason, and
-conclusion. The symptom object is a redacted quotation of supplied input, not a
-pilot effect claim. Other free collections use bounded codes rather than prose.
-A later fixture phase must add and validate revision-bound bundles before it can
-change these denials and enable the currently disabled cases.
+This revision has no product/source-authority bundles. Synthetic, content-
+addressed profile fixtures may establish only the deterministic repository
+profile and reproduction state for `N01`, `N02`, `N03`, and `N13`; they are not
+product authority, runtime evidence, or evidence about real repositories.
+Source diagnosis, facts, hypotheses, instrumentation requests, proof claims, and
+cleanup claims remain structurally disabled even if coordinated metadata is
+edited. Exactly fourteen boundary/profile cases may produce a result, each bound
+to its canonical lane, disposition, reason, conclusion, and—where applicable—
+fixture digest and bundle revision. The symptom object is a redacted quotation
+of supplied input, not a pilot effect claim. Other free collections use bounded
+codes rather than prose. A later source-authority fixture phase must be a
+separate change before any remaining case or diagnosis behavior can be enabled.
 
 ## Profile and lane
 
