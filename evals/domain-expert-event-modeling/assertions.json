@@ -1,0 +1,14 @@
+{
+  "modelRuns": 0,
+  "negativeCases": 5,
+  "positiveCases": 4,
+  "promotionBlockedOn": [
+    "NO_MODEL_RUNS",
+    "NO_HELD_OUT_EVIDENCE",
+    "NO_PRODUCT_SOURCE_AUTHORITY",
+    "NO_RUNTIME_APPROVAL"
+  ],
+  "runtimeEligible": false,
+  "schemaVersion": "1.0.0",
+  "totalCases": 9
+}

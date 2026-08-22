@@ -1,0 +1,24 @@
+{
+  "distributionEligible": false,
+  "id": "domain-expert-event-modeling",
+  "modelRunEligible": false,
+  "permissions": {
+    "approval": false,
+    "credentialAccess": false,
+    "effects": false,
+    "filesystemAccess": false,
+    "networkAccess": false,
+    "processExecution": false,
+    "publication": false,
+    "repositoryRead": false,
+    "repositoryWrite": false,
+    "toolExecution": false
+  },
+  "persistedModelRuns": 0,
+  "promotionEligible": false,
+  "publicationEligible": false,
+  "repositoryOnly": true,
+  "runtimeEligible": false,
+  "schemaVersion": "1.0.0",
+  "state": "CONTRACT_ONLY"
+}

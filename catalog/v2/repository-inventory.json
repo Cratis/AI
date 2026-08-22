@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "884f51150ed032fe647510c29736ff4c5a91422333fa3f5ddf3cc8f44623ff65",
+  "indexDigest": "e7e083b703881b694ccbf374c997dad272a8b498700379082c917101f4963a5f",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -943,6 +943,18 @@
       "status": "added"
     },
     {
+      "path": "evals/domain-expert-event-modeling/assertions.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/domain-expert-event-modeling/baseline.md",
+      "status": "added"
+    },
+    {
+      "path": "evals/domain-expert-event-modeling/cases.jsonl",
+      "status": "added"
+    },
+    {
       "path": "evals/evidence-bound-code-review/assertions.json",
       "status": "added"
     },
@@ -1147,6 +1159,18 @@
       "status": "added"
     },
     {
+      "path": "pilots/domain-expert-event-modeling/PILOT.md",
+      "status": "added"
+    },
+    {
+      "path": "pilots/domain-expert-event-modeling/metadata.draft.json",
+      "status": "added"
+    },
+    {
+      "path": "pilots/domain-expert-event-modeling/result-contract.json",
+      "status": "added"
+    },
+    {
       "path": "pilots/evidence-bound-code-review/PILOT.md",
       "status": "added"
     },
@@ -1188,6 +1212,10 @@
     },
     {
       "path": "tooling/diagnostics-pilot-validation.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/domain-expert-event-modeling-pilot-validation.mjs",
       "status": "added"
     },
     {
@@ -1300,6 +1328,10 @@
     },
     {
       "path": "tooling/specs/diagnostics-pilot.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/domain-expert-event-modeling-pilot.spec.mjs",
       "status": "added"
     },
     {
@@ -2214,6 +2246,52 @@
     },
     {
       "excludePathPatterns": [],
+      "id": "event-modeling-pilot-source",
+      "sourcePathPatterns": [
+        "pilots/domain-expert-event-modeling/**"
+      ],
+      "artifactType": "pilot",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "catalog/v2/authoring-contracts.json"
+      ],
+      "risk": "high",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "ecosystem-use-cases"
+      ],
+      "expectedPathCount": 3,
+      "expectedPathsDigest": "68224225533a308d9d0fe7a7142ecd4e4e53b54ce42cc0ecb6e7da0ba1175635"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "event-modeling-pilot-evaluations",
+      "sourcePathPatterns": [
+        "evals/domain-expert-event-modeling/**"
+      ],
+      "artifactType": "evaluation",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "pilots/domain-expert-event-modeling/**"
+      ],
+      "risk": "medium",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "ecosystem-use-cases"
+      ],
+      "expectedPathCount": 3,
+      "expectedPathsDigest": "1a45403dda8ccea3473a23efa819579809b6ad90cfadcca99f8127dca081cfa5"
+    },
+    {
+      "excludePathPatterns": [],
       "id": "source-evidence-contract-v1",
       "sourcePathPatterns": [
         "Documentation/source-evidence-contract.md",
@@ -2490,8 +2568,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 16,
-      "expectedPathsDigest": "4ee8e90b71394d5ef2c88df2dd4128933f2b723bf40ca7d27f6a26ec975eaaf9"
+      "expectedPathCount": 17,
+      "expectedPathsDigest": "274f9fe348a1b5a73bce18ea316b214a8e41496bc768f0183f16254c3071d3e5"
     },
     {
       "excludePathPatterns": [],
@@ -2514,8 +2592,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 10,
-      "expectedPathsDigest": "a3943b833605ef0ae4481085c3e48134d90c03b71e16895ab6932d842347ad62"
+      "expectedPathCount": 11,
+      "expectedPathsDigest": "0b303d8685d9c24ff545e465c65993bd06fc94393df45b3f94d7d2aa152400da"
     },
     {
       "excludePathPatterns": [],

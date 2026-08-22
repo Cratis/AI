@@ -539,8 +539,9 @@ Evidence and exact next actions are in
 - [x] Finish the four already-known review-pilot findings only.
 - [x] Run one bounded final review and fix its two concrete high acceptance
   violations without starting another review loop.
-- [ ] Merge the review pilot after green CI and stop hardening.
-- [ ] Deliver one minimal domain-expert/event-modeling pilot PR.
+- [x] Merge the review pilot after green CI and stop hardening (#138).
+- [ ] Deliver one minimal domain-expert/event-modeling pilot PR; implementation
+  and its single bounded review are complete, with delivery gates pending.
 - [ ] Verify current authoritative marketplace/package requirements.
 - [ ] Scaffold generated distribution repository or exact authority request.
 - [ ] Implement deterministic marketplace-native package/adaptor generation.
