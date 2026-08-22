@@ -1713,3 +1713,32 @@ The matrix state advances only to `REAL_CANARY_PASS_OWNER_REVIEW_PENDING`.
 AI#154 still requires a named owner approve or reject the target and its known
 calibration limitations. Target approval, general installation eligibility,
 publication, promotion, and legacy retirement remain false.
+
+## 45. Canonical documentation companion sources — 2026-08-22
+
+While AI#154 holds the owner decision for the first installable target, the two
+soft dependencies that currently cause authoring to degrade are independently
+reconciled:
+
+- `engineering/skills/cratis-engineering-docs-add-page/` owns new-page product /
+  site ownership, approved destination, ToC/site-navigation wiring, sync, dropped-
+  entry detection, and repository documentation gates;
+- `engineering/skills/cratis-engineering-docs-edit-page/` owns URL/passage-based
+  source discovery, generated-output rejection, minimal source correction, sync,
+  and owning snippet/build/lint/link gates;
+- both route content design to docs-authoring, visual work to docs-visual-QA,
+  new-versus-existing requests to each other, non-Cratis work to skip, and
+  unverified product/API behavior to block;
+- both are self-contained with one passive reference and license notice; neither
+  references legacy rules, project context, parent paths, scripts, or evals;
+- 12 exact static cases cover product/site placement, existing page, unresolved
+  ownership, visual QA, non-Cratis scope, URL and passage discovery, missing page,
+  substantial content design, and missing authority;
+- digest, inventory, frontmatter, routing, forbidden-coupling, and oracle drift
+  mutations are catalog-gated with zero model runs.
+
+These are source reconciliation artifacts only. Their catalog source identities
+still point at legacy source until immutable commits are available, and their
+target classifications/evaluations remain incomplete. Next: merge, bind each
+source to its immutable canonical revision, classify effects/profiles/dependencies,
+then freeze and run companion evaluations before fixture packaging.

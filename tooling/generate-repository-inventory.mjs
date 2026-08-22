@@ -767,6 +767,23 @@ const definitions = [
         evidenceIds: ["reevaluation-authority"],
     },
     {
+        id: "engineering-docs-companion-evaluations",
+        sourcePathPatterns: ["evals/cratis-engineering-docs-companions/**"],
+        artifactType: "evaluation",
+        currentOwner: engineeringOwner,
+        targetOwner: repositoryOwner,
+        runtimeEligibility: "repository-only",
+        generatedStatus: "source",
+        adapterStatus: "none",
+        dependencies: [
+            "engineering/skills/cratis-engineering-docs-add-page/**",
+            "engineering/skills/cratis-engineering-docs-edit-page/**",
+        ],
+        risk: "medium",
+        migrationState: "retain",
+        evidenceIds: ["reevaluation-authority"],
+    },
+    {
         id: "source-evidence-contract-v1",
         sourcePathPatterns: [
             "Documentation/source-evidence-contract.md",

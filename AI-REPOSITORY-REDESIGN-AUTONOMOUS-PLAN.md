@@ -587,6 +587,11 @@ Evidence and exact next actions are in
   worktree, and project-context preservation pass after one disclosed output-
   contract calibration failure.
 - [ ] Obtain owner approval in AI#154 before any installation eligibility.
+- [x] Reconcile the new-page placement and existing-page source-discovery
+  companion targets into self-contained canonical passive sources with exact
+  routing cases and zero model runs.
+- [ ] Bind and classify those companions at immutable revisions, then evaluate
+  them before adding them to an engineering fixture package.
 - [ ] Provision the repository-scoped App credentials from Workflows#72 before
   any generated update PR, tag, release, or publication operation.
 - [ ] Keep publication and retirement disabled until explicit approvals pass.
