@@ -4,11 +4,7 @@
 
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import {
-    existsSync,
-    readFileSync,
-    writeFileSync,
-} from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -16,7 +12,9 @@ import {
     validateDistributionFixture,
 } from "./generate-distribution-fixture.mjs";
 
-const defaultRepositoryRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
+const defaultRepositoryRoot = resolve(
+    fileURLToPath(new URL("..", import.meta.url)),
+);
 
 function sha256(content) {
     return createHash("sha256").update(content).digest("hex");
@@ -41,9 +39,12 @@ function runGit(repositoryRoot, arguments_, options = {}) {
             ...options,
         }).trim();
     } catch (error) {
-        throw new Error(`Generated repository git command failed: git ${arguments_.join(" ")}`, {
-            cause: error,
-        });
+        throw new Error(
+            `Generated repository git command failed: git ${arguments_.join(" ")}`,
+            {
+                cause: error,
+            },
+        );
     }
 }
 
@@ -51,28 +52,26 @@ function trackedFiles(repositoryRoot) {
     const output = execFileSync("git", ["ls-files", "-z"], {
         cwd: repositoryRoot,
     });
-    return output
-        .toString("utf8")
-        .split("\0")
-        .filter(Boolean)
-        .sort();
+    return output.toString("utf8").split("\0").filter(Boolean).sort();
 }
 
 export function buildApprovedDistributionPlan(
     repositoryRoot = defaultRepositoryRoot,
 ) {
     const targets = readJson(join(repositoryRoot, "catalog/v2/targets.json"));
-    const artifacts = readJson(join(repositoryRoot, "catalog/v2/artifacts.json"));
+    const artifacts = readJson(
+        join(repositoryRoot, "catalog/v2/artifacts.json"),
+    );
     const approvedTargets = targets.targets
         .filter(
-            target =>
+            (target) =>
                 target.includeInRuntime === true &&
                 target.approval?.state === "approved",
         )
-        .map(target => target.id)
+        .map((target) => target.id)
         .sort();
     const publicArtifact = artifacts.artifacts.find(
-        artifact => artifact.id === "planned-passive-public-release",
+        (artifact) => artifact.id === "planned-passive-public-release",
     );
     const ready =
         approvedTargets.length > 0 &&
@@ -86,8 +85,7 @@ export function buildApprovedDistributionPlan(
         sourceCommit: runGit(repositoryRoot, ["rev-parse", "HEAD"]),
         artifactId: publicArtifact?.id ?? null,
         approvedTargets,
-        materializationAllowed:
-            publicArtifact?.materializationAllowed === true,
+        materializationAllowed: publicArtifact?.materializationAllowed === true,
         runtimeEligible: publicArtifact?.runtimeEligible === true,
         publicationEligible: false,
         promotionEligible: false,
@@ -109,7 +107,9 @@ export function verifyGeneratedDistributionRepository(
     if (runGit(root, ["status", "--porcelain"]) !== "")
         throw new Error("Generated repository worktree is not clean");
     if (runGit(root, ["rev-list", "--count", "HEAD"]) !== "1")
-        throw new Error("Generated fixture repository must have one root commit");
+        throw new Error(
+            "Generated fixture repository must have one root commit",
+        );
     const identity = runGit(root, [
         "show",
         "-s",
@@ -128,7 +128,7 @@ export function verifyGeneratedDistributionRepository(
     }
     const manifest = readJson(join(root, "distribution-manifest.json"));
     const expectedFiles = [
-        ...manifest.files.map(file => file.path),
+        ...manifest.files.map((file) => file.path),
         "distribution-manifest.json",
     ].sort();
     if (JSON.stringify(trackedFiles(root)) !== JSON.stringify(expectedFiles))
@@ -136,7 +136,9 @@ export function verifyGeneratedDistributionRepository(
     for (const file of manifest.files) {
         const content = readFileSync(join(root, file.path));
         if (content.length !== file.size || sha256(content) !== file.sha256)
-            throw new Error(`Generated repository digest mismatch: ${file.path}`);
+            throw new Error(
+                `Generated repository digest mismatch: ${file.path}`,
+            );
     }
     const forbiddenSegments = new Set([
         "agents",
@@ -146,10 +148,8 @@ export function verifyGeneratedDistributionRepository(
         "tooling",
     ]);
     if (
-        expectedFiles.some(path =>
-            path
-                .split("/")
-                .some(segment => forbiddenSegments.has(segment)),
+        expectedFiles.some((path) =>
+            path.split("/").some((segment) => forbiddenSegments.has(segment)),
         )
     ) {
         throw new Error("Generated repository contains authoring content");
@@ -178,7 +178,9 @@ export function bootstrapGeneratedDistributionRepository({
             `Generated repository destination must not exist: ${generatedRepositoryRoot}`,
         );
     if (existsSync(recordPath))
-        throw new Error(`Generated repository record must not exist: ${recordPath}`);
+        throw new Error(
+            `Generated repository record must not exist: ${recordPath}`,
+        );
     const contractPath = join(
         repositoryRoot,
         "distribution/generated-repository-contract.json",
@@ -217,7 +219,7 @@ export function bootstrapGeneratedDistributionRepository({
         join(generatedRepositoryRoot, "distribution-manifest.json"),
     );
     const files = [
-        ...manifest.files.map(file => file.path),
+        ...manifest.files.map((file) => file.path),
         "distribution-manifest.json",
     ];
     runGit(generatedRepositoryRoot, ["add", "--", ...files]);
