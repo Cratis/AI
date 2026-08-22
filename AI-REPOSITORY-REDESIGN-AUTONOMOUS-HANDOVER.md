@@ -734,3 +734,135 @@ Do not weaken strict exactness. The honest evidence remains held-out 8/10 strict
 and 10/10 contract/decision/structure, canonical 26/28 strict and 28/28
 contract/decision/structure, with observed-output-only safety evidence and no
 promotion.
+## 22. Diagnostics pilot checkpoint — 2026-08-21
+
+The second clean-room pilot is active on `feat/diagnostics-pilot` in
+`../AI-diagnostics-pilot`, rebased onto Navigator evidence merge
+`31366ba68f5b4663d519a969cafe8bafc0df1c18`. It adapts the five-model design to
+the repository's existing pilot/eval/Node validation architecture.
+
+Implemented source:
+
+- `pilots/application-slice-diagnostics/PILOT.md` — passive evidence-first
+  profile/lane/symptom/hypothesis/instrumentation/proof contract;
+- `metadata.draft.json` — runtime denial and evidence/output bounds;
+- `symptom-routes.json` — distinct application-source, Chronicle live-state,
+  observable HTTP, framework, client, non-Cratis, mixed, and unresolved lanes;
+- `result-contract.json` — closed dispositions, lanes, reason codes, proof
+  fields, and all-false execution constants;
+- `evals/application-slice-diagnostics/cases.jsonl` — 10 positive and 14
+  difficult negative/collision cases;
+- assertions and paired tool-free baseline protocol;
+- deterministic validator and five mutation/boundary specifications;
+- explicit repository-only inventory groups.
+
+Fourteen source-diagnosis or profile-dependent cases remain disabled because
+sanitized revision-bound authority, profile, and evidence bundles do not yet
+exist. Ten lexical, handoff, refusal, authority-missing, and malformed-evidence
+cases are enabled without product fact claims.
+
+Independent correctness/security review found and the branch corrected an
+incomplete result contract, a ninth `none` lane, unconstrained lane/disposition/
+reason relationships, count-swappable fixture gating, prompt-only profile trust,
+and live/HTTP `INCONCLUSIVE` drift. The result contract now closes every root and
+nested field, proof/effect/instrumentation constant, lane/disposition/reason
+binding, path/redaction/output bound, and all-false execution value. Exact
+disabled case IDs are pinned. Fourteen focused diagnostics specifications pass.
+The pilot remains passive, unapproved, runtime-ineligible, and unable to execute,
+connect, patch, or mutate.
+
+Exact next actions:
+
+1. run complete repository validation, LSP/lint/link/security review and commit
+   the static pilot contract;
+2. create sanitized bounded authority/evidence fixtures with exact revisions,
+   paths, digests, redactions, and user-visible artifacts;
+3. enable source cases only after fixture validation, then run paired evidence;
+4. keep promotion blocked until canonical/held-out repetition, effect telemetry,
+   portability, originality/security review, and product-source verification
+   pass.
+
+## 23. Diagnostics final-review correction checkpoint — 2026-08-21
+
+Continue in `/Volumes/sourcecode/repos/cratis/AI-diagnostics-pilot` on
+`feat/diagnostics-pilot`. The pilot is committed locally and remains unpushed pending post-rebase gates.
+Repository validation and 80/80 Node specifications passed before the latest
+review. The final focused review
+`d860c6275002d205cb4636cf60d73409c` found four bypass classes. Follow-up review
+`d664c988ae915ff5d63d6aebce9182edd` then found deeper nested collection,
+instrumentation-bound, operation-claim, and proof-type bypasses. Do not commit
+or open a PR until the final rereview clears the corrections below.
+
+Current truthful state: exactly eight lanes in current data, live/HTTP currently
+HANDOFF/REFUSED-only, 10 enabled and 14 exact fixture-dependent disabled cases,
+profile-dependent cases disabled, source diagnosis/instrumentation/verified
+profiles explicitly disabled, all runtime/effect flags false, and no forbidden
+paths currently inventoried.
+
+The reviewed bypass classes are closed by narrowing this revision to a strict
+pre-fixture boundary contract:
+
+- lanes and lane/disposition sets are hard-coded, so `none` and coordinated
+  live/HTTP drift fail;
+- metadata names/canonical values and result-contract root/output/nested/reason/
+  execution schemas are hard-coded and exact; complete routes, assertions, and
+  the 24-case prompt/outcome corpus are digest-pinned; null/mistyped roots,
+  adversarial object keys, and coordinated capability fields fail without
+  throwing, and execution comparison is property-order independent;
+- only the hard-coded exact ten enabled case IDs can validate regardless of
+  caller metadata, each bound to its canonical lane, disposition, reason,
+  conclusion, and matching disposition collection; all fourteen disabled IDs
+  and their authority/profile fixture classes are individually pinned;
+- verified profiles, source diagnosis, facts, hypotheses, instrumentation,
+  proof, and cleanup claims are unconditionally rejected in this revision,
+  including scalar/malformed instrumentation; metadata edits cannot activate
+  dormant future behavior;
+- symptoms are explicitly redacted quoted input rather than effect claims;
+  authoritative conclusions are finite canonical values and redaction/
+  limitation collections use finite allowlisted codes, so prose, underscore-
+  delimited, or synonym-based effect claims cannot become accepted output;
+- every direct input, including the result contract, is descriptor-cloned into
+  a fresh null-prototype plain-JSON graph before semantic reads; Proxies and
+  inherited/own accessors or serialization hooks fail, dense/index-valid arrays
+  are length-checked before descriptors and cloned before use, property keys are
+  length-bounded before UTF-8 scans, descriptor fields and clone assignments use
+  own/null-prototype records, acyclic aliases are safely duplicated, inherited
+  built-in prototype changes are rejected, and cycles plus node/depth/UTF-16/
+  UTF-8/key-byte bounds fail before expensive allocation or serialization;
+  evidence/proof/source bindings are opaque bounded non-drive identifiers rather than paths, case IDs/prompts/
+  enablement are typed, and safe-content/output-size checks remain independent;
+- dormant instrumentation shapes are still rejected unless proposal-only,
+  bounded, non-sensitive, removable, and placed in non-generated application
+  source; POSIX/Windows absolute paths, hidden/control trees, manifests,
+  lockfiles, generated/obj/bin outputs (including `.g.i.cs` and generated
+  declaration `.d.ts` variants and Generated* directories), dependencies, C0/
+  C1 control characters, build/distribution/runtime/plugin paths all fail;
+- twenty-two focused specifications isolate schema/value/corpus broadening,
+  exact case/fixture/reason binding, malformed roots, null/adversarial cases and
+  non-boolean enablement, scalar/null collections, path-shaped bindings and
+  references, control/generated path classes, instrumentation bounds, canonical
+  conclusions, quoted symptoms, pre-fixture denials, unsafe content, and output-
+  size boundaries.
+
+Before rebase, inventory generation, catalog validation, syntax/diff checks,
+all 22 focused specifications, and all 95 repository Node specifications
+passed. Regenerate the inventory and rerun every gate after this rebase before
+pushing and opening the PR.
+
+Keep the pilot repository-only, passive, runtime-ineligible, and without source
+or profile claims until revision-bound sanitized authority/profile/evidence
+fixtures are separately added and validated.
+
+## 24. Navigator merge and diagnostics rebase checkpoint — 2026-08-22
+
+PR #134 merged with merge commit
+`31366ba68f5b4663d519a969cafe8bafc0df1c18` after green CI and final Fusion
+validation with no included findings. Navigator remains repository-only and
+promotion-blocked at 26/28 canonical strict and 8/10 held-out strict.
+
+The diagnostics commit was rebased onto that merge before its first push.
+Post-rebase inventory generation, catalog validation, syntax/diff checks, all 22
+focused diagnostics specifications, and all 115 repository Node specifications
+pass. Next actions are to commit the refreshed inventory digest, push
+`feat/diagnostics-pilot`, open a no-release PR resolving AI#126, and wait for
+green CI before merge.

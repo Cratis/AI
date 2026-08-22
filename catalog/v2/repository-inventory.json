@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "e8c4f915d7a94388e0707521d3cf099d188fc64408c8e2451d9b310a31cf243c",
+  "indexDigest": "3cae06dcb2cec39e2735ccfc84930d1b68ee8e9d8e50c1b3977c7d391be0984f",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -244,6 +244,18 @@
     },
     {
       "path": "catalog/v2/upstream-companions.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/application-slice-diagnostics/assertions.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/application-slice-diagnostics/baseline.md",
+      "status": "added"
+    },
+    {
+      "path": "evals/application-slice-diagnostics/cases.jsonl",
       "status": "added"
     },
     {
@@ -903,6 +915,22 @@
       "status": "added"
     },
     {
+      "path": "pilots/application-slice-diagnostics/PILOT.md",
+      "status": "added"
+    },
+    {
+      "path": "pilots/application-slice-diagnostics/metadata.draft.json",
+      "status": "added"
+    },
+    {
+      "path": "pilots/application-slice-diagnostics/result-contract.json",
+      "status": "added"
+    },
+    {
+      "path": "pilots/application-slice-diagnostics/symptom-routes.json",
+      "status": "added"
+    },
+    {
       "path": "pilots/cratis-navigator/PILOT.md",
       "status": "added"
     },
@@ -924,6 +952,10 @@
     },
     {
       "path": "tooling/catalog-validation.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/diagnostics-pilot-validation.mjs",
       "status": "added"
     },
     {
@@ -1020,6 +1052,10 @@
     },
     {
       "path": "tooling/specs/catalog-validation.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/diagnostics-pilot.spec.mjs",
       "status": "added"
     },
     {
@@ -1884,6 +1920,53 @@
     },
     {
       "excludePathPatterns": [],
+      "id": "diagnostics-pilot-source",
+      "sourcePathPatterns": [
+        "pilots/application-slice-diagnostics/**"
+      ],
+      "artifactType": "pilot",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "catalog/v2/authoring-contracts.json",
+        "catalog/v2/source-contracts.json"
+      ],
+      "risk": "high",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "ecosystem-use-cases"
+      ],
+      "expectedPathCount": 4,
+      "expectedPathsDigest": "03b0bd19bc08e22fbc35f690334924d5364712f32142cd1ee80d3f213a2a71c1"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "diagnostics-pilot-evaluations",
+      "sourcePathPatterns": [
+        "evals/application-slice-diagnostics/**"
+      ],
+      "artifactType": "evaluation",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "pilots/application-slice-diagnostics/**"
+      ],
+      "risk": "medium",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "ecosystem-use-cases"
+      ],
+      "expectedPathCount": 3,
+      "expectedPathsDigest": "cf902f42a15873aa782f4de78587b6bb4a68836118fd3d2c0becbc413a7066d6"
+    },
+    {
+      "excludePathPatterns": [],
       "id": "navigator-pilot-source",
       "sourcePathPatterns": [
         "pilots/cratis-navigator/**"
@@ -2088,8 +2171,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 12,
-      "expectedPathsDigest": "1ce7c1d4021ab22d10f0522939e6287f9c08156132d3cdca778b70adf2892336"
+      "expectedPathCount": 13,
+      "expectedPathsDigest": "ae71f94b263d96658d954221cd388f3b540b34c89d5ff666ac134136abebda59"
     },
     {
       "excludePathPatterns": [],
@@ -2112,8 +2195,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 7,
-      "expectedPathsDigest": "38f68d859a43b55c9a8daafc4e6d5792f90828b8147ecbfc79f557f35c413cb6"
+      "expectedPathCount": 8,
+      "expectedPathsDigest": "8e5e654f42e429529a9be9efe0ecb5a7be89996020d24aa27327c980625faa5e"
     },
     {
       "excludePathPatterns": [],
