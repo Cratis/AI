@@ -1,0 +1,14 @@
+[
+  {"caseId":"H01","decision":"PLACE_PRODUCT_PAGE","rationale":"Approved product ownership, destination, and source are provided."},
+  {"caseId":"H02","decision":"PLACE_SITE_PAGE","rationale":"The requested destination is the approved hand-authored Documentation site."},
+  {"caseId":"H03","decision":"DEFER_TO_ADD_PAGE","rationale":"A new page cannot be placed without an owning product and destination."},
+  {"caseId":"H04","decision":"LOCATE_EDIT_VERIFY","rationale":"The existing page and narrow correction support targeted editing and verification."},
+  {"caseId":"H05","decision":"DEFER_TO_VISUAL_QA","rationale":"Screenshot review and layout diagnosis require visual QA."},
+  {"caseId":"H06","decision":"LOCATE_EDIT_VERIFY","rationale":"The URL provides sufficient ownership and source-family clues for targeted editing."},
+  {"caseId":"H07","decision":"SEARCH_LOCATE_EDIT_VERIFY","rationale":"The owning source must first be found by searching the distinctive sentence."},
+  {"caseId":"H08","decision":"DEFER_TO_ADD_PAGE","rationale":"An edit cannot proceed because the requested page does not exist."},
+  {"caseId":"H09","decision":"DEFER_TO_EDIT_PAGE","rationale":"A complete strategy and document-type rewrite exceeds narrow page editing."},
+  {"caseId":"H10","decision":"BLOCK","rationale":"Updating content from memory without a first-party source or revision is unsafe."},
+  {"caseId":"H11","decision":"BLOCK","rationale":"An unrelated non-Cratis framework is outside the supported documentation scope."},
+  {"caseId":"H12","decision":"DEFER_TO_VISUAL_QA","rationale":"Capturing themes and inspecting a broken table require visual QA."}
+]

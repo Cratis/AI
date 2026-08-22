@@ -53,7 +53,7 @@ test("first engineering target is classified but cannot package raw source", () 
     assert.equal(first.includeInRuntime, false);
 });
 
-test("documentation companion sources remain reconciled but unevaluated", () => {
+test("documentation companion evidence requires corrective rerun and remains non-packageable", () => {
     const matrix = readJson("distribution/engineering-artifact-matrix.json");
     assert.deepEqual(
         matrix.companionTargets.map((target) => ({
@@ -64,12 +64,12 @@ test("documentation companion sources remain reconciled but unevaluated", () => 
         [
             {
                 targetId: "cratis-engineering-docs-add-page",
-                state: "SOURCE_RECONCILED_NOT_EVALUATED",
+                state: "EVALUATED_CORRECTIVE_RERUN_REQUIRED",
                 rawSourcePackagingAllowed: false,
             },
             {
                 targetId: "cratis-engineering-docs-edit-page",
-                state: "SOURCE_RECONCILED_NOT_EVALUATED",
+                state: "EVALUATED_CORRECTIVE_RERUN_REQUIRED",
                 rawSourcePackagingAllowed: false,
             },
         ],

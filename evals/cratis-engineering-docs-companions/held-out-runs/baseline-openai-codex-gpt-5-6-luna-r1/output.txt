@@ -1,0 +1,14 @@
+[
+  {"caseId":"H01","decision":"PLACE_PRODUCT_PAGE","rationale":"Approved product ownership, destination, metadata, and source support placement."},
+  {"caseId":"H02","decision":"PLACE_SITE_PAGE","rationale":"The page belongs in the approved hand-authored Documentation site."},
+  {"caseId":"H03","decision":"BLOCK","rationale":"Ownership and destination are unspecified, so routing cannot be verified."},
+  {"caseId":"H04","decision":"LOCATE_EDIT_VERIFY","rationale":"The existing page and narrow correction support locate, edit, and verification."},
+  {"caseId":"H05","decision":"DEFER_TO_VISUAL_QA","rationale":"Diagnosing layout shift from screenshots is visual QA work."},
+  {"caseId":"H06","decision":"LOCATE_EDIT_VERIFY","rationale":"The URL provides sufficient ownership and source-family clues for verification."},
+  {"caseId":"H07","decision":"SEARCH_LOCATE_EDIT_VERIFY","rationale":"The distinctive sentence requires searching owning sources before editing."},
+  {"caseId":"H08","decision":"DEFER_TO_ADD_PAGE","rationale":"An edit cannot proceed because the requested page does not exist."},
+  {"caseId":"H09","decision":"DEFER_TO_AUTHORING","rationale":"A complete content-strategy and document-type rewrite exceeds a narrow edit."},
+  {"caseId":"H10","decision":"BLOCK","rationale":"The requested update lacks a first-party source or revision for verification."},
+  {"caseId":"H11","decision":"DEFER_TO_AUTHORING","rationale":"An unrelated framework is outside Cratis page placement scope."},
+  {"caseId":"H12","decision":"DEFER_TO_VISUAL_QA","rationale":"Screenshot capture and broken-table inspection are visual QA tasks."}
+]

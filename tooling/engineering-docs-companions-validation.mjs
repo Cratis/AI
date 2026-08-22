@@ -55,9 +55,9 @@ const digests = {
     [`${editRoot}/references/source-discovery.md`]:
         "cd992bd3fd68c6e88211093795a987fcf72b2d294eb99ba58036fde210066fd3",
     [`${evaluationRoot}/assertions.json`]:
-        "ea4052dddcca893bc426c88e774bfa3953a146c633aad7217be273fecc6159e8",
+        "095eac6d798f817991fabd1f8dd988d32545223c7f3818a66ff8d544cb7b53a9",
     [`${evaluationRoot}/baseline.md`]:
-        "9b7fcbb46ed53828b44db3650104e855ebf31933024b109a914f0102e2aee1ad",
+        "e76e30d0349a7e178d821d05796b17b161deaf814cf77e885062320eb86e8fdf",
     [`${evaluationRoot}/cases.jsonl`]:
         "adfe988856479a8db31c8085a6c241d4c51644b6a7f681c84bcd5d14addeb6d1",
 };
@@ -218,7 +218,22 @@ export function validateEngineeringDocsCompanions(
     inventory(
         repositoryRoot,
         evaluationRoot,
-        ["assertions.json", "baseline.md", "cases.jsonl"],
+        [
+            "assertions.json",
+            "baseline.md",
+            "cases.jsonl",
+            "evaluation-plan.json",
+            "evaluation-review.json",
+            "evaluation-summary.json",
+            "frozen-prompt.md",
+            "grading.json",
+            "held-out-cases.jsonl",
+            "held-out-evaluation-plan.json",
+            "held-out-grading.json",
+            "held-out-prompt.md",
+            "held-out-runs",
+            "runs",
+        ],
         errors,
     );
     for (const [path, digest] of Object.entries(digests)) {
@@ -240,7 +255,8 @@ export function validateEngineeringDocsCompanions(
         assertions.positiveCases !== 4 ||
         assertions.negativeCases !== 8 ||
         assertions.totalCases !== 12 ||
-        assertions.modelRuns !== 0 ||
+        assertions.heldOutCases !== 12 ||
+        assertions.modelRuns !== 16 ||
         assertions.targetApproval !== false ||
         assertions.installationEligible !== false ||
         assertions.promotionEligible !== false
@@ -300,7 +316,7 @@ function main() {
         process.exitCode = 1;
     } else {
         process.stdout.write(
-            "Engineering docs companion validation passed: 12 cases, zero model runs.\n",
+            "Engineering docs companion validation passed: 12 calibration cases, 12 held-out cases, 16 model runs.\n",
         );
     }
 }

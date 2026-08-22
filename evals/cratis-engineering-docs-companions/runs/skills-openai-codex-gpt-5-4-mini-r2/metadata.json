@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "1.0.0",
+  "runId": "skills-openai-codex-gpt-5-4-mini-r2",
+  "condition": "COMPANION_SKILLS_WITH_OUTPUT_CONTRACT",
+  "provider": "openai-codex",
+  "model": "gpt-5.4-mini",
+  "repetition": 2,
+  "startedAt": "2026-08-22T22:18:41.226Z",
+  "durationMilliseconds": 10862,
+  "exitCode": 0,
+  "signal": null,
+  "toolsEnabled": false,
+  "contextFilesEnabled": false,
+  "outputSha256": "8e0871b22506be0ff0d44b432a4959cc742a683002d1f1f52458a6bdb972c561"
+}

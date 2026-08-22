@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "1.0.0",
+  "runId": "baseline-openai-codex-gpt-5-6-luna-r1",
+  "condition": "BASELINE_OUTPUT_CONTRACT_ONLY",
+  "provider": "openai-codex",
+  "model": "gpt-5.6-luna",
+  "repetition": 1,
+  "startedAt": "2026-08-22T22:18:52.088Z",
+  "durationMilliseconds": 16121,
+  "exitCode": 0,
+  "signal": null,
+  "toolsEnabled": false,
+  "contextFilesEnabled": false,
+  "outputSha256": "47bec1f44e0ecb6b209ff285de4899a6640746d384ac18c65182b6a93de400ea"
+}

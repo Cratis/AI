@@ -1759,7 +1759,54 @@
       "status": "added"
     }
   ],
-  "admittedUntracked": [],
+  "admittedUntracked": [
+    "evals/cratis-engineering-docs-companions/evaluation-plan.json",
+    "evals/cratis-engineering-docs-companions/evaluation-review.json",
+    "evals/cratis-engineering-docs-companions/evaluation-summary.json",
+    "evals/cratis-engineering-docs-companions/frozen-prompt.md",
+    "evals/cratis-engineering-docs-companions/grading.json",
+    "evals/cratis-engineering-docs-companions/held-out-cases.jsonl",
+    "evals/cratis-engineering-docs-companions/held-out-evaluation-plan.json",
+    "evals/cratis-engineering-docs-companions/held-out-grading.json",
+    "evals/cratis-engineering-docs-companions/held-out-prompt.md",
+    "evals/cratis-engineering-docs-companions/held-out-runs/baseline-openai-codex-gpt-5-4-mini-r1/metadata.json",
+    "evals/cratis-engineering-docs-companions/held-out-runs/baseline-openai-codex-gpt-5-4-mini-r1/output.txt",
+    "evals/cratis-engineering-docs-companions/held-out-runs/baseline-openai-codex-gpt-5-4-mini-r2/metadata.json",
+    "evals/cratis-engineering-docs-companions/held-out-runs/baseline-openai-codex-gpt-5-4-mini-r2/output.txt",
+    "evals/cratis-engineering-docs-companions/held-out-runs/baseline-openai-codex-gpt-5-6-luna-r1/metadata.json",
+    "evals/cratis-engineering-docs-companions/held-out-runs/baseline-openai-codex-gpt-5-6-luna-r1/output.txt",
+    "evals/cratis-engineering-docs-companions/held-out-runs/baseline-openai-codex-gpt-5-6-luna-r2/metadata.json",
+    "evals/cratis-engineering-docs-companions/held-out-runs/baseline-openai-codex-gpt-5-6-luna-r2/output.txt",
+    "evals/cratis-engineering-docs-companions/held-out-runs/manifest.json",
+    "evals/cratis-engineering-docs-companions/held-out-runs/skills-openai-codex-gpt-5-4-mini-r1/metadata.json",
+    "evals/cratis-engineering-docs-companions/held-out-runs/skills-openai-codex-gpt-5-4-mini-r1/output.txt",
+    "evals/cratis-engineering-docs-companions/held-out-runs/skills-openai-codex-gpt-5-4-mini-r2/metadata.json",
+    "evals/cratis-engineering-docs-companions/held-out-runs/skills-openai-codex-gpt-5-4-mini-r2/output.txt",
+    "evals/cratis-engineering-docs-companions/held-out-runs/skills-openai-codex-gpt-5-6-luna-r1/metadata.json",
+    "evals/cratis-engineering-docs-companions/held-out-runs/skills-openai-codex-gpt-5-6-luna-r1/output.txt",
+    "evals/cratis-engineering-docs-companions/held-out-runs/skills-openai-codex-gpt-5-6-luna-r2/metadata.json",
+    "evals/cratis-engineering-docs-companions/held-out-runs/skills-openai-codex-gpt-5-6-luna-r2/output.txt",
+    "evals/cratis-engineering-docs-companions/runs/baseline-openai-codex-gpt-5-4-mini-r1/metadata.json",
+    "evals/cratis-engineering-docs-companions/runs/baseline-openai-codex-gpt-5-4-mini-r1/output.txt",
+    "evals/cratis-engineering-docs-companions/runs/baseline-openai-codex-gpt-5-4-mini-r2/metadata.json",
+    "evals/cratis-engineering-docs-companions/runs/baseline-openai-codex-gpt-5-4-mini-r2/output.txt",
+    "evals/cratis-engineering-docs-companions/runs/baseline-openai-codex-gpt-5-6-luna-r1/metadata.json",
+    "evals/cratis-engineering-docs-companions/runs/baseline-openai-codex-gpt-5-6-luna-r1/output.txt",
+    "evals/cratis-engineering-docs-companions/runs/baseline-openai-codex-gpt-5-6-luna-r2/metadata.json",
+    "evals/cratis-engineering-docs-companions/runs/baseline-openai-codex-gpt-5-6-luna-r2/output.txt",
+    "evals/cratis-engineering-docs-companions/runs/manifest.json",
+    "evals/cratis-engineering-docs-companions/runs/skills-openai-codex-gpt-5-4-mini-r1/metadata.json",
+    "evals/cratis-engineering-docs-companions/runs/skills-openai-codex-gpt-5-4-mini-r1/output.txt",
+    "evals/cratis-engineering-docs-companions/runs/skills-openai-codex-gpt-5-4-mini-r2/metadata.json",
+    "evals/cratis-engineering-docs-companions/runs/skills-openai-codex-gpt-5-4-mini-r2/output.txt",
+    "evals/cratis-engineering-docs-companions/runs/skills-openai-codex-gpt-5-6-luna-r1/metadata.json",
+    "evals/cratis-engineering-docs-companions/runs/skills-openai-codex-gpt-5-6-luna-r1/output.txt",
+    "evals/cratis-engineering-docs-companions/runs/skills-openai-codex-gpt-5-6-luna-r2/metadata.json",
+    "evals/cratis-engineering-docs-companions/runs/skills-openai-codex-gpt-5-6-luna-r2/output.txt",
+    "tooling/grade-engineering-docs-companions-evaluation.mjs",
+    "tooling/run-engineering-docs-companions-evaluation.mjs",
+    "tooling/specs/engineering-docs-companions-evaluation.spec.mjs"
+  ],
   "excludedRuntimePrefixes": [
     ".pi/delegate/",
     ".pi/fusion/",
@@ -2759,8 +2806,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 3,
-      "expectedPathsDigest": "f22df8ce9377cac5d6d4bd522d045b2c0c19129cb88df94663f0b15ba01cb196"
+      "expectedPathCount": 46,
+      "expectedPathsDigest": "9b566ddb69b79294969745fe5819a970d3ef9ad7159cfb050bf8e437b11b76b8"
     },
     {
       "excludePathPatterns": [],
@@ -3064,8 +3111,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 28,
-      "expectedPathsDigest": "5a10668154ecfc5b6e00258e8c1b1f5830a5e358d538b05d6e3e11a5ae76f73e"
+      "expectedPathCount": 30,
+      "expectedPathsDigest": "2ecea06af372f03861cb1e52c8e2074216b38838e5bbb632421bab1e8057bada"
     },
     {
       "excludePathPatterns": [],
@@ -3088,8 +3135,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 21,
-      "expectedPathsDigest": "939db0a9b80fafe39d08a8f5daf2863ce09c21bb677442450b4e2cc38a9eaa19"
+      "expectedPathCount": 22,
+      "expectedPathsDigest": "7e7e65c53a3e09c9c916ce2c07a73e0ea5670a8f763728e4e35fc04042b87eb2"
     },
     {
       "excludePathPatterns": [],

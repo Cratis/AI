@@ -12,13 +12,13 @@
   "companionTargets": [
     {
       "targetId": "cratis-engineering-docs-add-page",
-      "state": "SOURCE_RECONCILED_NOT_EVALUATED",
+      "state": "EVALUATED_CORRECTIVE_RERUN_REQUIRED",
       "canonicalSourcePath": "engineering/skills/cratis-engineering-docs-add-page",
       "rawSourcePackagingAllowed": false
     },
     {
       "targetId": "cratis-engineering-docs-edit-page",
-      "state": "SOURCE_RECONCILED_NOT_EVALUATED",
+      "state": "EVALUATED_CORRECTIVE_RERUN_REQUIRED",
       "canonicalSourcePath": "engineering/skills/cratis-engineering-docs-edit-page",
       "rawSourcePackagingAllowed": false
     }

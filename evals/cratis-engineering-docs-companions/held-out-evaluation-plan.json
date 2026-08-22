@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "1.0.0",
+  "state": "FROZEN_COMPLETED",
+  "sourceRevision": "684d03755bacd40af95463b81b4a0c8b9f088ec1",
+  "addSourceSha256": "5dff5ee0dcc317ff77f1f2027d8857c13d599d86344ac13b498bc4aad68f1f47",
+  "addReferenceSha256": "924d9d1683cc0ab9c4b73d7a9630b662da1a45498b55ca2a51eb4753dce372f1",
+  "editSourceSha256": "efb527496bc8a6e0ed5c222fb1fd216bfb6cbc75a7fd178c636d4200e8b27fb0",
+  "editReferenceSha256": "cd992bd3fd68c6e88211093795a987fcf72b2d294eb99ba58036fde210066fd3",
+  "casesSha256": "27dcc86c99e017874d00d2331407958cfd4799b7ea27760d257066f1613fb50b",
+  "promptSha256": "a91c69af8aec81b9568e298ab77e18ed5e60d0d09f8bdc40b80c1e5d2373fc11",
+  "conditions": [
+    "BASELINE_OUTPUT_CONTRACT_ONLY",
+    "COMPANION_SKILLS_WITH_OUTPUT_CONTRACT"
+  ],
+  "models": [
+    "openai-codex/gpt-5.4-mini",
+    "openai-codex/gpt-5.6-luna"
+  ],
+  "repetitionsPerModelCondition": 2,
+  "plannedModelRuns": 8,
+  "toolsEnabled": false,
+  "contextFilesEnabled": false,
+  "networkToolsEnabled": false,
+  "targetApproval": false,
+  "installationEligible": false,
+  "promotionEligible": false
+}
