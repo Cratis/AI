@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "7509341af93dad64c22f0ad2fae534d6c3917dcb5a87c3a0eea9b98bf1b8f51b",
+  "indexDigest": "e8c4f915d7a94388e0707521d3cf099d188fc64408c8e2451d9b310a31cf243c",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -256,6 +256,102 @@
     },
     {
       "path": "evals/cratis-navigator/cases.jsonl",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/held-out-runs/pass-1/H01/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/held-out-runs/pass-1/H01/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/held-out-runs/pass-1/H02/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/held-out-runs/pass-1/H02/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/held-out-runs/pass-1/H03/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/held-out-runs/pass-1/H03/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/held-out-runs/pass-1/H04/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/held-out-runs/pass-1/H04/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/held-out-runs/pass-1/H05/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/held-out-runs/pass-1/H05/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/held-out-runs/pass-1/H06/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/held-out-runs/pass-1/H06/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/held-out-runs/pass-1/H07/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/held-out-runs/pass-1/H07/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/held-out-runs/pass-1/H08/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/held-out-runs/pass-1/H08/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/held-out-runs/pass-1/H09/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/held-out-runs/pass-1/H09/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/held-out-runs/pass-1/H10/baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/held-out-runs/pass-1/H10/pilot.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/held-out-runs/pass-1/analysis.md",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/held-out-runs/pass-1/grading.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/held-out-runs/pass-1/metadata.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-navigator/held-out.jsonl",
       "status": "added"
     },
     {
@@ -1830,8 +1926,8 @@
       "evidenceIds": [
         "ecosystem-use-cases"
       ],
-      "expectedPathCount": 140,
-      "expectedPathsDigest": "2a94e2df6732c83f90c1ed4e0bdeeea1465a0f2d898d458d1389344ac646e442"
+      "expectedPathCount": 164,
+      "expectedPathsDigest": "e493c90e0c0bd58dae7d59641fd12c1549ce1608b7080cb06a0639a8b5a4e725"
     },
     {
       "excludePathPatterns": [],

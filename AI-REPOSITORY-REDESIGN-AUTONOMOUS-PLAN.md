@@ -474,11 +474,11 @@ The program is complete only when:
   [`Cratis/AI#131`](https://github.com/Cratis/AI/pull/131).
 - [x] Implement the skill-authoring and human-catalog contracts — merged in
   [`Cratis/AI#132`](https://github.com/Cratis/AI/pull/132).
-- [ ] Implement clean-room pilots — navigator source commit `5c42e5b` is pushed
-  in [`Cratis/AI#133`](https://github.com/Cratis/AI/pull/133); the tracer reaches
-  the selected corrected canonical run is 28/28 pilot exact with zero safety
-  violations versus 0/28 baseline and 16 safety violations; promotion remains
-  blocked on full repetition, held-out, portability, and independent reviews.
+- [ ] Implement clean-room pilots — navigator pilot merged in
+  [`Cratis/AI#133`](https://github.com/Cratis/AI/pull/133); selected canonical
+  strict exactness is 26/28 and held-out pass 1 strict exactness is 8/10, while
+  contract-shape decisions are complete. Promotion remains blocked on strict
+  thresholds, telemetry, repetition, portability, and independent reviews.
 
 Evidence and exact next actions are in
-[`AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md`](./AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md#19-navigator-implementation-checkpoint--2026-08-21).
+[`AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md`](./AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md#21-navigator-final-validation-correction-checkpoint--2026-08-21).
