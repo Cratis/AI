@@ -1,11 +1,15 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "728de7a8627b12c653924002cdc8cf978407667383a5f0025a8f13e14f21ea0b",
+  "indexDigest": "56b96a4251992fcc1ae48b5a16777cdb0aef6fa41a8c18032aac092c11aaa288",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
   "changesSinceBase": [
+    {
+      "path": ".github/workflows/distribution-canary-rollback.yml",
+      "status": "added"
+    },
     {
       "path": ".github/workflows/verify-ai-corpus.yml",
       "status": "added"
@@ -259,6 +263,10 @@
       "status": "added"
     },
     {
+      "path": "distribution/evidence/local-canary-rollback-2026-08-22.json",
+      "status": "added"
+    },
+    {
       "path": "distribution/evidence/local-fixture-smoke-2026-08-22.json",
       "status": "added"
     },
@@ -268,6 +276,10 @@
     },
     {
       "path": "distribution/marketplace-requirements.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/rollout-policy.json",
       "status": "added"
     },
     {
@@ -1323,6 +1335,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/simulate-distribution-rollout.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/source-evidence-contract-validation.mjs",
       "status": "added"
     },
@@ -1355,6 +1371,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/specs/distribution-rollout.spec.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/specs/domain-expert-event-modeling-pilot.spec.mjs",
       "status": "added"
     },
@@ -1376,6 +1396,10 @@
     },
     {
       "path": "tooling/specs/source-evidence-contract.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/stage-distribution-candidate.mjs",
       "status": "added"
     },
     {
@@ -1910,6 +1934,7 @@
       "excludePathPatterns": [],
       "id": "repository-validation-workflow",
       "sourcePathPatterns": [
+        ".github/workflows/distribution-canary-rollback.yml",
         ".github/workflows/verify-ai-corpus.yml"
       ],
       "artifactType": "workflow",
@@ -1928,8 +1953,8 @@
         "repo-main-b795d53",
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 1,
-      "expectedPathsDigest": "cbb1eb65a59cd4dccc252f948c4352d7fb442a8442f59bde81094f983763e9c2"
+      "expectedPathCount": 2,
+      "expectedPathsDigest": "fd74711f49c8c23ac1ea288bbf7c16a039bcc6d2608f5f3f794a4c2b608ef738"
     },
     {
       "excludePathPatterns": [],
@@ -2593,8 +2618,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 4,
-      "expectedPathsDigest": "ca954c7f9a27be2cb174d79430848bb2772561bea90a47c7b67ac97ef88a7d98"
+      "expectedPathCount": 6,
+      "expectedPathsDigest": "fadcc1dd51593bf2e9557c4ab06719adee4876441b0ce43d7038db68ca95d685"
     },
     {
       "excludePathPatterns": [],
@@ -2616,8 +2641,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 18,
-      "expectedPathsDigest": "9ad6574268c48b91a6f5f6a8db8c32ff86abc183149f8fa5d2c6fec5aa172cc7"
+      "expectedPathCount": 20,
+      "expectedPathsDigest": "67beb4ea95016f01915c3818e904e877592606b61819946673627d667d87a117"
     },
     {
       "excludePathPatterns": [],
@@ -2640,8 +2665,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 12,
-      "expectedPathsDigest": "84801d0c3f7186b2da58a28e48259962158569c99e228044c7fb2cf9e53be79b"
+      "expectedPathCount": 13,
+      "expectedPathsDigest": "49857b600828a3be4340bf44b96e180feb5e13a23572efc384ed6aaeb1316b24"
     },
     {
       "excludePathPatterns": [],

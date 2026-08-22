@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "1.0.0",
+  "state": "FIXTURE_ONLY_ROLLOUT_SIMULATION",
+  "generatedRepository": {
+    "name": "Cratis/AI.Distribution",
+    "status": "BLOCKED_ON_BOT_REPOSITORY_AND_CREDENTIAL_AUTHORITY",
+    "botOnlyWrites": true,
+    "protectedMain": true
+  },
+  "candidate": {
+    "allowedArtifactIds": [
+      "sanitized-public-materializer-fixture"
+    ],
+    "blockedArtifactIds": [
+      "planned-passive-public-release"
+    ],
+    "requiredChecks": [
+      "exact-inventory",
+      "canonical-byte-parity",
+      "native-manifest-parse",
+      "checksums",
+      "fixture-provenance-record",
+      "pack-install-smoke-uninstall"
+    ]
+  },
+  "canary": {
+    "enabledTargets": [
+      "local-fixture-simulator"
+    ],
+    "requiredStatus": "PASS",
+    "productionTargetsEnabled": false
+  },
+  "promotion": {
+    "stableEnabled": false,
+    "publicationEnabled": false,
+    "requiresProtectedEnvironment": "distribution-canary",
+    "requiresTargetApproval": true,
+    "requiresProductSourceAuthority": true
+  },
+  "rollback": {
+    "fixtureSimulationEnabled": true,
+    "requiresKnownRelease": true,
+    "preserveAuditHistory": true,
+    "emergencyDisableSupported": true
+  },
+  "legacyRetirement": {
+    "enabled": false,
+    "blockedOn": [
+      "NO_GENERATED_REPOSITORY",
+      "NO_BOT_CREDENTIAL",
+      "NO_PRODUCTION_CANARY",
+      "NO_PRODUCTION_ROLLBACK_EVIDENCE",
+      "NO_APPROVED_PUBLIC_TARGETS",
+      "PROPAGATION_FREEZE_REMAINS_ACTIVE"
+    ]
+  }
+}

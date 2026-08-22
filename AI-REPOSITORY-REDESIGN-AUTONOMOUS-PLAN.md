@@ -547,8 +547,10 @@ Evidence and exact next actions are in
   deterministic fixture-only local staging.
 - [x] Generate fixture-only canonical, Claude, Codex, Copilot, Cursor, Kiro,
   Junie, Gemini, and Pi/npm adapters from one approved sanitized logical tree.
-- [ ] Promote adapters beyond fixture-only after real target approval; add hosted
-  canary and rollback workflows after generated-repository authority exists.
+- [ ] Promote adapters beyond fixture-only after real target approval; activate
+  hosted canary and rollback only after generated-repository authority exists.
 - [x] Add local pack/install/smoke/uninstall, provenance-record, and checksum
   gates for the fixture-only distribution.
+- [x] Add fixture-only candidate staging, canary evidence, stable-pin simulation,
+  rollback, emergency disable, audit history, and a read-only manual workflow.
 - [ ] Keep publication and retirement disabled until explicit approvals pass.
