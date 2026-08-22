@@ -1494,3 +1494,41 @@ Every remaining manual/external gate has a focused issue:
 No broad propagation is needed or allowed. Publication, real package installation,
 production promotion, fleet rollout, legacy retirement, and freeze lifting remain
 blocked until the focused issues above pass.
+
+## 39. Credential-ready update and npm verification workflows — 2026-08-22
+
+Internal adoption policy merged with green CI in Cratis/AI#149. Independent work
+that does not require the missing credentials is now complete for the two next
+manual gates:
+
+- `.github/workflows/distribution-generated-update.yml` verifies a selected
+  fixture version without credentials and, only after `distribution-canary`
+  approval plus Workflows#72 App secrets, creates a generated branch and pull
+  request in `Cratis/AI.Distribution`;
+- the GitHub App installation token is scoped to `AI.Distribution`, down-scoped
+  to contents and pull-request write, masked, one-hour limited, and automatically
+  revoked after the job;
+- the workflow validates `0.0.N-fixture`, generates that exact version, never
+  pushes `main`, and contains no force-push, self-approval, tag, release, npm, or
+  marketplace operation;
+- `distribution/update-bot-contract.json` records exact secret names,
+  installation scope, permissions, environment, forbidden operations, and the
+  Workflows#72 blocker;
+- `.github/workflows/distribution-npm-stage.yml` provides the exact future npm
+  workflow identity and verifies the private `@cratis/ai` fixture package,
+  script/dependency absence, and pack/install/uninstall lifecycle;
+- `distribution/npm-stage-contract.json` keeps ownership, trusted publisher,
+  OIDC, stage publish, public publish, publication, and promotion disabled until
+  Workflows#70 passes;
+- focused workflow specs and the full repository suite pass at 195/195.
+
+The public docs work merged in Documentation#60. Components#167 and
+Chronicle#3804 restored build/client-snippet gates; AuthProxy#107,
+Chronicle#3805, and Cratis/.github#26 repair the remaining rendered-link sources.
+Documentation#59 tracks the recovery run and any residual unrelated site debt.
+The AI-native brand page is live at `https://cratis.no/ai/`.
+
+The prepared workflows deliberately cannot be used for generated PRs or npm
+staging until the focused manual issues provision their credentials/ownership.
+No secret, App, package, release, publication, promotion, or retirement authority
+is inferred from workflow readiness.

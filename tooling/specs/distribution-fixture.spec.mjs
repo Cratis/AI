@@ -320,6 +320,40 @@ test("Gemini fixture links and removes in an isolated home", {
     });
 });
 
+test("distribution generator CLI binds the requested fixture version", () => {
+    withTemporaryDirectory((root) => {
+        const stage = join(root, "stage");
+        execFileSync(
+            process.execPath,
+            [
+                join(repositoryRoot, "tooling/generate-distribution-fixture.mjs"),
+                stage,
+                "0.0.5-fixture",
+            ],
+            { cwd: repositoryRoot, stdio: "pipe" },
+        );
+        assert.equal(
+            readJson(join(stage, "distribution-manifest.json")).version,
+            "0.0.5-fixture",
+        );
+        assert.throws(
+            () =>
+                execFileSync(
+                    process.execPath,
+                    [
+                        join(
+                            repositoryRoot,
+                            "tooling/generate-distribution-fixture.mjs",
+                        ),
+                        join(root, "invalid"),
+                        "latest",
+                    ],
+                    { cwd: repositoryRoot, stdio: "pipe" },
+                ),
+        );
+    });
+});
+
 test("distribution generator refuses an existing destination", () => {
     withTemporaryDirectory((root) => {
         const stage = join(root, "stage");

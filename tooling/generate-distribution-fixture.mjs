@@ -675,14 +675,20 @@ export function smokeGeminiDistributionFixture(
 
 function main() {
     const outputRoot = process.argv[2];
+    const version = process.argv[3] ?? "0.0.0-fixture";
     if (!outputRoot) {
         process.stderr.write(
-            "Usage: node tooling/generate-distribution-fixture.mjs <empty-output-path>\n",
+            "Usage: node tooling/generate-distribution-fixture.mjs <empty-output-path> [version]\n",
         );
         process.exitCode = 1;
         return;
     }
-    const manifest = generateDistributionFixture({ outputRoot });
+    if (!/^0\.0\.[0-9]+-fixture$/.test(version)) {
+        process.stderr.write("Fixture version must match 0.0.N-fixture\n");
+        process.exitCode = 1;
+        return;
+    }
+    const manifest = generateDistributionFixture({ outputRoot, version });
     process.stdout.write(
         `Generated fixture-only distribution: ${manifest.files.length} files across ${manifest.generatedTargets.length} targets.\n`,
     );

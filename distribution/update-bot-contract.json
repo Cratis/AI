@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "1.0.0",
+  "state": "WORKFLOW_READY_CREDENTIALS_MISSING",
+  "trackingIssue": "https://github.com/Cratis/Workflows/issues/72",
+  "githubApp": {
+    "installationScope": [
+      "Cratis/AI",
+      "Cratis/AI.Distribution"
+    ],
+    "requiredPermissions": {
+      "metadata": "read",
+      "contents": "write",
+      "pullRequests": "write"
+    },
+    "appIdSecret": "AI_DISTRIBUTION_APP_ID",
+    "privateKeySecret": "AI_DISTRIBUTION_APP_PRIVATE_KEY",
+    "configured": false
+  },
+  "workflow": {
+    "path": ".github/workflows/distribution-generated-update.yml",
+    "environment": "distribution-canary",
+    "sourceBranch": "main",
+    "targetRepository": "Cratis/AI.Distribution",
+    "targetBaseBranch": "main",
+    "directPushToBaseAllowed": false,
+    "fixturePullRequestEnabledAfterCredentialSetup": true,
+    "productionPullRequestEnabled": false
+  },
+  "forbiddenOperations": [
+    "force push",
+    "direct push to main",
+    "self approval",
+    "tag creation",
+    "release creation",
+    "npm publication",
+    "marketplace submission"
+  ],
+  "publicationEligible": false,
+  "promotionEligible": false,
+  "legacyRetirementEligible": false
+}

@@ -37,6 +37,14 @@ Future generated updates need a repository-scoped GitHub App or equivalent bot
 that can create pull requests and, only after separate approval, tags and
 releases. Human or deploy-key direct pushes are not an accepted update path.
 
+`Cratis/AI` contains a reviewed `distribution-generated-update.yml` workflow
+contract for this path. It generates and verifies fixture bytes without
+credentials, and creates a protected generated PR only when the scoped App ID and
+private key from Workflows#72 are configured. Its installation token is narrowed
+to contents and pull-request write access for `AI.Distribution` and is revoked at
+job completion. The workflow cannot push to `main`, tag, release, publish npm, or
+submit a marketplace package.
+
 ## Gates that remain closed
 
 - Zero public targets or product-source contracts are approved.
