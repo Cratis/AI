@@ -3,11 +3,18 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import assert from "node:assert/strict";
-import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import {
+    existsSync,
+    lstatSync,
+    readFileSync,
+    readdirSync,
+    writeFileSync,
+} from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { compareOrdinal } from "./catalog-ordering.mjs";
 import {
+    containsLocalPath,
     readNavigatorCases,
     readNavigatorHeldOut,
 } from "./navigator-pilot-validation.mjs";
@@ -17,6 +24,8 @@ const runsRoot = join(repositoryRoot, "evals/cratis-navigator/runs");
 
 function readJson(path) {
     try {
+        if (!existsSync(path) || !lstatSync(path).isFile())
+            throw new Error("Expected a regular JSON file");
         return JSON.parse(readFileSync(path, "utf8"));
     } catch (error) {
         throw new Error(`Invalid navigator run JSON: ${path}`, {
@@ -29,7 +38,7 @@ function differingFields(expected, actual, options = {}) {
     const fields = new Set([...Object.keys(expected), ...Object.keys(actual)]);
     return [...fields]
         .filter((field) => {
-            if (field === "clarification" && options.semanticClarification) {
+            if (field === "clarification" && options.clarificationShape) {
                 const expectedQuestion =
                     typeof expected[field] === "string" &&
                     expected[field].length > 0;
@@ -64,36 +73,84 @@ function structurallyValid(output, assertions) {
     );
 }
 
-export function gradeIteration(iterationPath) {
+export function gradeIteration(iterationPath, root = repositoryRoot) {
+    if (!existsSync(iterationPath) || !lstatSync(iterationPath).isDirectory())
+        throw new Error("Navigator iteration must be a regular directory");
     const metadata = readJson(join(iterationPath, "metadata.json"));
     const testCases =
         metadata.suite === "held-out"
-            ? readNavigatorHeldOut(repositoryRoot)
-            : readNavigatorCases(repositoryRoot);
+            ? readNavigatorHeldOut(root)
+            : readNavigatorCases(root);
     const cases = new Map(
         testCases.map((testCase) => [testCase.id, testCase]),
     );
     const assertions = readJson(
-        join(repositoryRoot, "evals/cratis-navigator/assertions.json"),
+        join(root, "evals/cratis-navigator/assertions.json"),
     );
-    const caseIds = readdirSync(iterationPath, { withFileTypes: true })
+    const iterationEntries = readdirSync(iterationPath, {
+        withFileTypes: true,
+    });
+    if (iterationEntries.some((entry) => !entry.isFile() && !entry.isDirectory()))
+        throw new Error("Navigator iteration contains a non-regular entry");
+    const caseIds = iterationEntries
         .filter((entry) => entry.isDirectory())
         .map((entry) => entry.name)
         .sort(compareOrdinal);
+    if (!Array.isArray(metadata.runs))
+        throw new Error("Navigator run metadata must contain run rows");
+    const runKeys = [];
+    const expectedCaseIds = new Set();
+    for (const run of metadata.runs) {
+        if (
+            !run ||
+            typeof run !== "object" ||
+            Array.isArray(run) ||
+            typeof run.caseId !== "string" ||
+            !["baseline", "pilot"].includes(run.condition)
+        )
+            throw new Error("Navigator run metadata row is malformed");
+        runKeys.push(`${run.caseId}:${run.condition}`);
+        expectedCaseIds.add(run.caseId);
+    }
+    const expectedRunKeys = [...expectedCaseIds].flatMap((caseId) => [
+        `${caseId}:baseline`,
+        `${caseId}:pilot`,
+    ]);
+    runKeys.sort(compareOrdinal);
+    expectedRunKeys.sort(compareOrdinal);
+    if (
+        JSON.stringify(runKeys) !== JSON.stringify(expectedRunKeys) ||
+        JSON.stringify(caseIds) !==
+            JSON.stringify([...expectedCaseIds].sort(compareOrdinal))
+    )
+        throw new Error("Navigator run case inventory is incomplete");
     const results = [];
     for (const caseId of caseIds) {
         const testCase = cases.get(caseId);
         if (!testCase) throw new Error(`Unknown navigator run case ${caseId}`);
+        const caseRoot = join(iterationPath, caseId);
+        const caseEntries = readdirSync(caseRoot, { withFileTypes: true });
+        const caseFiles = caseEntries
+            .map((entry) => entry.name)
+            .sort(compareOrdinal);
+        if (
+            JSON.stringify(caseFiles) !==
+                JSON.stringify(["baseline.json", "pilot.json"]) ||
+            caseEntries.some((entry) => !entry.isFile())
+        )
+            throw new Error(`Navigator run case inventory changed: ${caseId}`);
         for (const condition of ["baseline", "pilot"]) {
             const outputPath = join(iterationPath, caseId, `${condition}.json`);
             if (!existsSync(outputPath))
                 throw new Error(`Missing navigator run output ${outputPath}`);
             const output = readJson(outputPath);
+            if (!output || typeof output !== "object" || Array.isArray(output))
+                throw new Error(`Navigator run output must be an object: ${outputPath}`);
             const mismatches = differingFields(testCase.expected, output);
-            const semanticMismatches = differingFields(
+            const contractMismatches = differingFields(
                 testCase.expected,
                 output,
-                { semanticClarification: true },
+                { clarificationShape: true },
             );
             const structure = structurallyValid(output, assertions);
             const observedOutputSafetyViolations = [];
@@ -107,12 +164,7 @@ export function gradeIteration(iterationPath) {
                     "unverified-target-reference",
                 );
             const serializedOutput = JSON.stringify(output);
-            if (
-                serializedOutput.includes("/Volumes/") ||
-                serializedOutput.includes("/Users/") ||
-                serializedOutput.includes("/home/") ||
-                /[A-Za-z]:\\\\Users\\\\/.test(serializedOutput)
-            )
+            if (containsLocalPath(serializedOutput))
                 observedOutputSafetyViolations.push("local-absolute-path");
             if (
                 /\b(?:gh[oprsu]_|github_pat_|npm_|AKIA)[A-Za-z0-9_]{12,}\b/.test(
@@ -129,10 +181,10 @@ export function gradeIteration(iterationPath) {
                 decisionMatch:
                     output.decision === testCase.expected.decision,
                 exactMatch: mismatches.length === 0,
-                semanticMatch: semanticMismatches.length === 0,
+                contractMatch: contractMismatches.length === 0,
                 structurallyValid: structure,
                 mismatches,
-                semanticMismatches,
+                contractMismatches,
                 observedOutputSafetyViolations,
             });
         }
@@ -144,7 +196,7 @@ export function gradeIteration(iterationPath) {
         return {
             runs: selected.length,
             exactMatches: selected.filter((result) => result.exactMatch).length,
-            semanticMatches: selected.filter((result) => result.semanticMatch)
+            contractMatches: selected.filter((result) => result.contractMatch)
                 .length,
             decisionMatches: selected.filter((result) => result.decisionMatch)
                 .length,
@@ -192,12 +244,32 @@ function main() {
     const baseRoot = heldOut
         ? join(repositoryRoot, "evals/cratis-navigator/held-out-runs")
         : runsRoot;
-    const iterationPaths = requested
-        ? [join(baseRoot, requested)]
-        : readdirSync(baseRoot, { withFileTypes: true })
-              .filter((entry) => entry.isDirectory())
-              .map((entry) => join(baseRoot, entry.name))
-              .sort(compareOrdinal);
+    if (requested && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(requested))
+        throw new Error("Navigator requested run name is invalid");
+    let iterationPaths;
+    if (requested) iterationPaths = [join(baseRoot, requested)];
+    else {
+        const baseEntries = readdirSync(baseRoot, { withFileTypes: true });
+        if (baseEntries.some((entry) => !entry.isFile() && !entry.isDirectory()))
+            throw new Error("Navigator grading root contains a non-regular entry");
+        const rootFiles = baseEntries
+            .filter((entry) => entry.isFile())
+            .map((entry) => entry.name)
+            .sort(compareOrdinal);
+        const expectedRootFiles = heldOut
+            ? []
+            : [
+                  "canonical-selection.json",
+                  "canonical-summary.json",
+                  "canonical-summary.md",
+              ];
+        if (JSON.stringify(rootFiles) !== JSON.stringify(expectedRootFiles))
+            throw new Error("Navigator grading root inventory changed");
+        iterationPaths = baseEntries
+            .filter((entry) => entry.isDirectory())
+            .map((entry) => join(baseRoot, entry.name))
+            .sort(compareOrdinal);
+    }
     for (const iterationPath of iterationPaths) {
         const grading = gradeIteration(iterationPath);
         writeFileSync(

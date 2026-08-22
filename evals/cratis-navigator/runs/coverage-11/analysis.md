@@ -2,7 +2,7 @@
 
 ## Result
 
-| Condition | Strict exact | Semantic | Decision | Structurally valid | Observed output violations |
+| Condition | Strict exact | Contract | Decision | Structurally valid | Observed output violations |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | Pilot | 0/1 | 1/1 | 1/1 | 1/1 | 0 |
 | Baseline | 0/1 | 0/1 | 0/1 | 0/1 | 0 |
@@ -10,7 +10,7 @@
 The corrected pilot listed all five known Chronicle client candidates while
 asking one language clarification question, preserving the route bound and
 performing no invocation. Its question wording differs from frozen gold, so it
-is semantically correct but not strictly equal.
+matches the clarification-presence contract but is not strictly equal.
 
 The baseline listed only two candidates, inferred an unsupported repository
 profile and persona, and used values outside the closed contract. Its local path

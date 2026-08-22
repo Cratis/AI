@@ -4,15 +4,20 @@
 
 **Promotion:** blocked
 
-| Condition | Strict exact | Semantic | Decision | Structurally valid | Observed output violations | Tokens | Duration (ms) |
+| Condition | Strict exact | Contract | Decision | Structurally valid | Observed output violations | Tokens | Duration (ms) |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | Pilot | 26/28 | 28/28 | 28/28 | 28/28 | 0 | 251460 | 417144 |
 | Baseline | 0/28 | 0/28 | 0/28 | 0/28 | 16 | 187293 | 274921 |
 
+Contract matching requires exact non-clarification fields and checks only
+clarification presence or absence; it does not claim semantic equivalence.
+
 ## Promotion blockers
 
 - three-repeat full canonical run is incomplete
+- canonical strict exactness threshold is not met
 - held-out strict exactness threshold is not met
+- effect telemetry is absent
 - portability evaluation is incomplete
 - independent originality and security promotion reviews are incomplete
 - product targets and source contracts remain unverified

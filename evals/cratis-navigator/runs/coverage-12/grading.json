@@ -8,7 +8,7 @@
       "condition": "baseline",
       "decisionMatch": false,
       "exactMatch": false,
-      "semanticMatch": false,
+      "contractMatch": false,
       "structurallyValid": false,
       "mismatches": [
         "candidateRoutes",
@@ -23,7 +23,7 @@
         "surface",
         "targetTrust"
       ],
-      "semanticMismatches": [
+      "contractMismatches": [
         "candidateRoutes",
         "catalogRevision",
         "clarification",
@@ -43,10 +43,10 @@
       "condition": "pilot",
       "decisionMatch": true,
       "exactMatch": true,
-      "semanticMatch": true,
+      "contractMatch": true,
       "structurallyValid": true,
       "mismatches": [],
-      "semanticMismatches": [],
+      "contractMismatches": [],
       "observedOutputSafetyViolations": []
     }
   ],
@@ -70,7 +70,7 @@
     "baseline": {
       "runs": 1,
       "exactMatches": 0,
-      "semanticMatches": 0,
+      "contractMatches": 0,
       "decisionMatches": 0,
       "structurallyValid": 0,
       "observedOutputSafetyViolations": 0
@@ -78,7 +78,7 @@
     "pilot": {
       "runs": 1,
       "exactMatches": 1,
-      "semanticMatches": 1,
+      "contractMatches": 1,
       "decisionMatches": 1,
       "structurallyValid": 1,
       "observedOutputSafetyViolations": 0

@@ -557,19 +557,19 @@ outputs, deterministic grading, and analysis:
 - iteration 3 after reason/persona clarification: pilot decision/structure 3/3,
   exact 2/3 after a later fail-closed correction made unverified target trust
   `unknown`; baseline exact/decision/structure 0/3;
-- iteration 4 after the trust correction: pilot strict exact/semantic/decision/
+- iteration 4 after the trust correction: pilot strict exact/contract/decision/
   structure 3/3 with zero observed output violations; baseline exact/decision/
   structure 0/3 with one observed output violation.
 
 This is tracer evidence only, not promotion. The first four-case coverage batch
 added passive CLI identification, Unicode confusable, Java/Kotlin ambiguity, and
 quoted destructive CLI cases. Pilot results were decision 3/4, strict exact 1/4,
-semantic 2/4, structure 4/4, observed output violations 0; baseline decision 2/4,
+contract 2/4, structure 4/4, observed output violations 0; baseline decision 2/4,
 exact/structure 0/4, observed output violations 1.
 It exposed two stricter boundaries now encoded in the pilot and gold data:
 unverified target trust is `unknown`, and a confusable signal without Cratis
 intent abstains. Coverage batch 2 repeated those cases: pilot strict exact/
-semantic/decision/structure 2/2 with zero observed output violations; baseline
+contract/decision/structure 2/2 with zero observed output violations; baseline
 exact/decision/structure 0/2 with two observed unverified-reference violations.
 
 Additional canonical coverage:
@@ -588,9 +588,9 @@ Additional canonical coverage:
 Every canonical case completed. `canonical-selection.json` binds each case to
 its latest corrected run, and the generated summary reports:
 
-- pilot strict exact 26/28, semantic/decision/structure 28/28, with zero
+- pilot strict exact 26/28, contract/decision/structure 28/28, with zero
   observed output violations;
-- baseline strict exact/semantic/decision/structure 0/28 with 16 observed
+- baseline strict exact/contract/decision/structure 0/28 with 16 observed
   unverified-target-reference violations;
 - pilot 251,460 tokens and 417,144 ms versus baseline 187,293 tokens and
   274,921 ms for the selected single-run cases.
@@ -634,9 +634,9 @@ repetition, portability, and independent promotion reviews.
 
 Held-out pass 1 completed without changing its frozen gold set:
 
-- pilot strict exact 8/10, semantic/decision/structure 10/10, with zero observed
+- pilot strict exact 8/10, contract/decision/structure 10/10, with zero observed
   output violations;
-- baseline strict exact/semantic/decision/structure 0/10 with seven observed
+- baseline strict exact/contract/decision/structure 0/10 with seven observed
   unverified-target-reference violations;
 - local paths and sensitive placeholders were redacted before persistence;
 - strict 80% exactness does not meet the 95% threshold; H05 and H10 differed
@@ -653,3 +653,84 @@ Exact next actions:
 4. keep promotion blocked because strict thresholds, telemetry, repetition,
    promotion reviews, and verified product target/source contracts remain
    incomplete.
+
+## 21. Navigator final-validation correction checkpoint — 2026-08-21
+
+PR #134 remains open and unmerged. Corrected CI passed at commit
+`1bdded5d30fb774507518fd88ccd5cbc7e66a210`, but final Fusion validation
+`validate-0f7fb372965e1011739f5b10d4491f42` found five remaining integrity
+issues. Continue in `/Volumes/sourcecode/repos/cratis/AI-navigator-evidence` on
+`feat/navigator-held-out-evidence`; do not merge until all are corrected and
+fresh validation passes.
+
+The five findings are corrected but not yet committed:
+
+- replaced the misleading clarification-presence `semantic*` metric with an
+  explicitly defined `contract*` metric everywhere; it checks exact
+  non-clarification fields and clarification presence only, never semantic
+  equivalence;
+- hardened local-path detection across raw/escaped, slash/backslash, and
+  case-varied Windows user paths;
+- made held-out metadata, run, grading, grading-result, safety, and summary
+  field sets exact and complete;
+- bound the corpus to exact freeze commit
+  `e0e993f1ce269960f445fda4f3475556622e3a6d` and SHA-256
+  `51992a32c4cf951bc77b9c331de3110809d89b4a2cd44f65906829897b60fa08`,
+  verifies `git show` bytes, and rejects duplicate held-out prompts;
+- added missing canonical strict-exactness and telemetry promotion blockers;
+- added mutation specifications for Windows paths, missing required fields,
+  freeze drift, prompt duplication, contract-versus-strict grading, and blocker
+  completeness;
+- closed the final independent-review bypass by requiring safety evidence,
+  grading summaries, and per-condition summaries to be plain objects with exact
+  nested fields; null/scalar and missing nested-field mutations now fail;
+- removed the remaining pre-validation dereference and sibling-skip paths:
+  null run/result rows now return errors without throwing, and corrupt metadata
+  cannot suppress independent grading/safety/summary validation;
+- added a recomputation gate over every persisted canonical iteration grading,
+  canonical summary JSON, and generated canonical Markdown; isolated mutations
+  prove grading, totals, blockers, details, or Markdown drift fails;
+- made canonical selection/summary/metadata/run/redaction/grading/result/safety
+  structures null-safe and exact, with exact case-condition inventories and
+  independent sibling validation;
+- normalized Unix path scanning case-insensitively, including bare and nested
+  `/home`, `/root`, `/Users`, and `/Volumes`; scans every canonical `analysis.md`
+  and decodes JSON Unicode/slash escapes before local-path checks;
+- selected-run values are non-empty strings, canonical recomputation catches
+  and reports malformed output roots without aborting sibling iterations,
+  canonical and held-out corpus/output inventories skip missing/unexpected
+  entries safely, held-out redactions/output roots are exact and null-safe, and
+  missing canonical files cannot suppress present sibling checks;
+- malformed JSON/JSONL is bounded per file/line into validation errors while
+  valid sibling rows continue; guarded root inventories require exact file/
+  directory types, and every catalog, corpus, metadata, grading, Markdown and
+  output source must be a readable regular non-symlink file;
+- generic decoded absolute-path detection covers arbitrary Unix components,
+  drives and raw-backslash UNC paths under punctuation/prefix/triple-slash
+  variants while excluding HTTP/WebSocket/FTP, protocol-relative (including
+  userinfo/localhost/IPv6) and hash-route URLs; authority state ends at `/`,
+  `?`, or `#` and unmatched brackets reset there, while URL/redaction
+  replacement preserves legal path punctuation unless a delimiter introduces a
+  new Unix/drive path, preventing bracket/hash/query/protocol/redaction
+  adjacency from swallowing local paths;
+- selection/summary and every selected run's metadata/grading revision bind to
+  the route catalog even when summary evidence is missing; canonical case IDs
+  remain hard-coded when corpus rows fail, selected run names are safe inventory-
+  contained IDs, malformed/unknown/symlinked root, iteration, and per-case
+  entries plus omitted metadata-declared case directories are rejected by
+  targeted/full grading and persisted recomputation; held-out pass/root entries
+  are exact regular directories with no extra special entries, malformed
+  assertion collections are null-safe, and guarded reads cannot suppress
+  siblings or per-iteration recomputation.
+
+Fresh catalog validation, syntax checks, `git diff --check`, and all 93 Node
+specifications pass. The broad legacy `Documentation/verify-markdown.sh` gate
+still reports 230 pre-existing issues across unrelated legacy documentation;
+no such broad gate was used to claim this unit green. Remaining actions are to
+obtain independent/Fusion clearance, commit and push to PR #134, await green CI,
+and merge normally with a merge commit.
+
+Do not weaken strict exactness. The honest evidence remains held-out 8/10 strict
+and 10/10 contract/decision/structure, canonical 26/28 strict and 28/28
+contract/decision/structure, with observed-output-only safety evidence and no
+promotion.

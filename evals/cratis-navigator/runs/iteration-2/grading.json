@@ -8,7 +8,7 @@
       "condition": "baseline",
       "decisionMatch": false,
       "exactMatch": false,
-      "semanticMatch": false,
+      "contractMatch": false,
       "structurallyValid": false,
       "mismatches": [
         "catalogRevision",
@@ -22,7 +22,7 @@
         "surface",
         "targetTrust"
       ],
-      "semanticMismatches": [
+      "contractMismatches": [
         "catalogRevision",
         "clarification",
         "decision",
@@ -41,13 +41,13 @@
       "condition": "pilot",
       "decisionMatch": true,
       "exactMatch": false,
-      "semanticMatch": false,
+      "contractMatch": false,
       "structurallyValid": true,
       "mismatches": [
         "evidenceState",
         "reasonCode"
       ],
-      "semanticMismatches": [
+      "contractMismatches": [
         "evidenceState",
         "reasonCode"
       ],
@@ -58,7 +58,7 @@
       "condition": "baseline",
       "decisionMatch": false,
       "exactMatch": false,
-      "semanticMatch": false,
+      "contractMatch": false,
       "structurallyValid": false,
       "mismatches": [
         "candidateRoutes",
@@ -76,7 +76,7 @@
         "targetRefs",
         "targetTrust"
       ],
-      "semanticMismatches": [
+      "contractMismatches": [
         "candidateRoutes",
         "catalogRevision",
         "clarification",
@@ -101,12 +101,12 @@
       "condition": "pilot",
       "decisionMatch": true,
       "exactMatch": false,
-      "semanticMatch": false,
+      "contractMatch": false,
       "structurallyValid": true,
       "mismatches": [
         "evidenceState"
       ],
-      "semanticMismatches": [
+      "contractMismatches": [
         "evidenceState"
       ],
       "observedOutputSafetyViolations": []
@@ -116,7 +116,7 @@
       "condition": "baseline",
       "decisionMatch": false,
       "exactMatch": false,
-      "semanticMatch": false,
+      "contractMatch": false,
       "structurallyValid": false,
       "mismatches": [
         "candidateRoutes",
@@ -131,7 +131,7 @@
         "surface",
         "targetTrust"
       ],
-      "semanticMismatches": [
+      "contractMismatches": [
         "candidateRoutes",
         "catalogRevision",
         "clarification",
@@ -151,13 +151,13 @@
       "condition": "pilot",
       "decisionMatch": true,
       "exactMatch": false,
-      "semanticMatch": false,
+      "contractMatch": false,
       "structurallyValid": true,
       "mismatches": [
         "persona",
         "targetTrust"
       ],
-      "semanticMismatches": [
+      "contractMismatches": [
         "persona",
         "targetTrust"
       ],
@@ -184,7 +184,7 @@
     "baseline": {
       "runs": 3,
       "exactMatches": 0,
-      "semanticMatches": 0,
+      "contractMatches": 0,
       "decisionMatches": 0,
       "structurallyValid": 0,
       "observedOutputSafetyViolations": 1
@@ -192,7 +192,7 @@
     "pilot": {
       "runs": 3,
       "exactMatches": 0,
-      "semanticMatches": 0,
+      "contractMatches": 0,
       "decisionMatches": 3,
       "structurallyValid": 3,
       "observedOutputSafetyViolations": 0

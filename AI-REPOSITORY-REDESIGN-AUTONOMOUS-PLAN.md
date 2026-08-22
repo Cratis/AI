@@ -477,8 +477,8 @@ The program is complete only when:
 - [ ] Implement clean-room pilots — navigator pilot merged in
   [`Cratis/AI#133`](https://github.com/Cratis/AI/pull/133); selected canonical
   strict exactness is 26/28 and held-out pass 1 strict exactness is 8/10, while
-  semantic decisions are complete. Promotion remains blocked on strict
+  contract-shape decisions are complete. Promotion remains blocked on strict
   thresholds, telemetry, repetition, portability, and independent reviews.
 
 Evidence and exact next actions are in
-[`AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md`](./AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md#20-navigator-held-out-checkpoint--2026-08-21).
+[`AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md`](./AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md#21-navigator-final-validation-correction-checkpoint--2026-08-21).

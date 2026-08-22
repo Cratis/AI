@@ -8,7 +8,7 @@
       "condition": "baseline",
       "decisionMatch": false,
       "exactMatch": false,
-      "semanticMatch": false,
+      "contractMatch": false,
       "structurallyValid": false,
       "mismatches": [
         "catalogRevision",
@@ -25,7 +25,7 @@
         "targetRefs",
         "targetTrust"
       ],
-      "semanticMismatches": [
+      "contractMismatches": [
         "catalogRevision",
         "clarification",
         "decision",
@@ -49,10 +49,10 @@
       "condition": "pilot",
       "decisionMatch": true,
       "exactMatch": true,
-      "semanticMatch": true,
+      "contractMatch": true,
       "structurallyValid": true,
       "mismatches": [],
-      "semanticMismatches": [],
+      "contractMismatches": [],
       "observedOutputSafetyViolations": []
     },
     {
@@ -60,7 +60,7 @@
       "condition": "baseline",
       "decisionMatch": false,
       "exactMatch": false,
-      "semanticMatch": false,
+      "contractMatch": false,
       "structurallyValid": false,
       "mismatches": [
         "candidateRoutes",
@@ -79,7 +79,7 @@
         "targetRefs",
         "targetTrust"
       ],
-      "semanticMismatches": [
+      "contractMismatches": [
         "candidateRoutes",
         "catalogRevision",
         "decision",
@@ -105,10 +105,10 @@
       "condition": "pilot",
       "decisionMatch": true,
       "exactMatch": true,
-      "semanticMatch": true,
+      "contractMatch": true,
       "structurallyValid": true,
       "mismatches": [],
-      "semanticMismatches": [],
+      "contractMismatches": [],
       "observedOutputSafetyViolations": []
     }
   ],
@@ -132,7 +132,7 @@
     "baseline": {
       "runs": 2,
       "exactMatches": 0,
-      "semanticMatches": 0,
+      "contractMatches": 0,
       "decisionMatches": 0,
       "structurallyValid": 0,
       "observedOutputSafetyViolations": 2
@@ -140,7 +140,7 @@
     "pilot": {
       "runs": 2,
       "exactMatches": 2,
-      "semanticMatches": 2,
+      "contractMatches": 2,
       "decisionMatches": 2,
       "structurallyValid": 2,
       "observedOutputSafetyViolations": 0

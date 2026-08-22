@@ -6,6 +6,7 @@
   "pilotCatalogRevision": "2a434e6458f571cfa009c2112763c8f0f6091945",
   "pilotContractCommit": "35aacd4ae300676e593d118ebe168519e962191e",
   "heldOutContractCommit": "e0e993f1ce269960f445fda4f3475556622e3a6d",
+  "heldOutDigest": "51992a32c4cf951bc77b9c331de3110809d89b4a2cd44f65906829897b60fa08",
   "runDate": "2026-08-21",
   "conditions": ["baseline", "pilot"],
   "redactions": [

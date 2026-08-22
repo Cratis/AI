@@ -8,7 +8,7 @@
       "condition": "baseline",
       "decisionMatch": false,
       "exactMatch": false,
-      "semanticMatch": false,
+      "contractMatch": false,
       "structurallyValid": false,
       "mismatches": [
         "candidateRoutes",
@@ -27,7 +27,7 @@
         "targetRefs",
         "targetTrust"
       ],
-      "semanticMismatches": [
+      "contractMismatches": [
         "candidateRoutes",
         "catalogRevision",
         "decision",
@@ -53,10 +53,10 @@
       "condition": "pilot",
       "decisionMatch": true,
       "exactMatch": true,
-      "semanticMatch": true,
+      "contractMatch": true,
       "structurallyValid": true,
       "mismatches": [],
-      "semanticMismatches": [],
+      "contractMismatches": [],
       "observedOutputSafetyViolations": []
     },
     {
@@ -64,7 +64,7 @@
       "condition": "baseline",
       "decisionMatch": false,
       "exactMatch": false,
-      "semanticMatch": false,
+      "contractMatch": false,
       "structurallyValid": false,
       "mismatches": [
         "catalogRevision",
@@ -78,7 +78,7 @@
         "surface",
         "targetTrust"
       ],
-      "semanticMismatches": [
+      "contractMismatches": [
         "catalogRevision",
         "decision",
         "evidenceState",
@@ -97,10 +97,10 @@
       "condition": "pilot",
       "decisionMatch": true,
       "exactMatch": true,
-      "semanticMatch": true,
+      "contractMatch": true,
       "structurallyValid": true,
       "mismatches": [],
-      "semanticMismatches": [],
+      "contractMismatches": [],
       "observedOutputSafetyViolations": []
     },
     {
@@ -108,7 +108,7 @@
       "condition": "baseline",
       "decisionMatch": false,
       "exactMatch": false,
-      "semanticMatch": false,
+      "contractMatch": false,
       "structurallyValid": false,
       "mismatches": [
         "catalogRevision",
@@ -125,7 +125,7 @@
         "targetRefs",
         "targetTrust"
       ],
-      "semanticMismatches": [
+      "contractMismatches": [
         "catalogRevision",
         "clarification",
         "decision",
@@ -149,10 +149,10 @@
       "condition": "pilot",
       "decisionMatch": true,
       "exactMatch": true,
-      "semanticMatch": true,
+      "contractMatch": true,
       "structurallyValid": true,
       "mismatches": [],
-      "semanticMismatches": [],
+      "contractMismatches": [],
       "observedOutputSafetyViolations": []
     },
     {
@@ -160,7 +160,7 @@
       "condition": "baseline",
       "decisionMatch": false,
       "exactMatch": false,
-      "semanticMatch": false,
+      "contractMatch": false,
       "structurallyValid": false,
       "mismatches": [
         "candidateRoutes",
@@ -176,7 +176,7 @@
         "targetRefs",
         "targetTrust"
       ],
-      "semanticMismatches": [
+      "contractMismatches": [
         "candidateRoutes",
         "catalogRevision",
         "decision",
@@ -199,10 +199,10 @@
       "condition": "pilot",
       "decisionMatch": true,
       "exactMatch": true,
-      "semanticMatch": true,
+      "contractMatch": true,
       "structurallyValid": true,
       "mismatches": [],
-      "semanticMismatches": [],
+      "contractMismatches": [],
       "observedOutputSafetyViolations": []
     },
     {
@@ -210,7 +210,7 @@
       "condition": "baseline",
       "decisionMatch": false,
       "exactMatch": false,
-      "semanticMatch": false,
+      "contractMatch": false,
       "structurallyValid": false,
       "mismatches": [
         "candidateRoutes",
@@ -226,7 +226,7 @@
         "surface",
         "targetTrust"
       ],
-      "semanticMismatches": [
+      "contractMismatches": [
         "candidateRoutes",
         "catalogRevision",
         "decision",
@@ -246,12 +246,12 @@
       "condition": "pilot",
       "decisionMatch": true,
       "exactMatch": false,
-      "semanticMatch": true,
+      "contractMatch": true,
       "structurallyValid": true,
       "mismatches": [
         "clarification"
       ],
-      "semanticMismatches": [],
+      "contractMismatches": [],
       "observedOutputSafetyViolations": []
     },
     {
@@ -259,7 +259,7 @@
       "condition": "baseline",
       "decisionMatch": false,
       "exactMatch": false,
-      "semanticMatch": false,
+      "contractMatch": false,
       "structurallyValid": false,
       "mismatches": [
         "candidateRoutes",
@@ -277,7 +277,7 @@
         "targetRefs",
         "targetTrust"
       ],
-      "semanticMismatches": [
+      "contractMismatches": [
         "candidateRoutes",
         "catalogRevision",
         "decision",
@@ -302,10 +302,10 @@
       "condition": "pilot",
       "decisionMatch": true,
       "exactMatch": true,
-      "semanticMatch": true,
+      "contractMatch": true,
       "structurallyValid": true,
       "mismatches": [],
-      "semanticMismatches": [],
+      "contractMismatches": [],
       "observedOutputSafetyViolations": []
     },
     {
@@ -313,7 +313,7 @@
       "condition": "baseline",
       "decisionMatch": false,
       "exactMatch": false,
-      "semanticMatch": false,
+      "contractMatch": false,
       "structurallyValid": false,
       "mismatches": [
         "candidateRoutes",
@@ -331,7 +331,7 @@
         "targetRefs",
         "targetTrust"
       ],
-      "semanticMismatches": [
+      "contractMismatches": [
         "candidateRoutes",
         "catalogRevision",
         "decision",
@@ -356,10 +356,10 @@
       "condition": "pilot",
       "decisionMatch": true,
       "exactMatch": true,
-      "semanticMatch": true,
+      "contractMatch": true,
       "structurallyValid": true,
       "mismatches": [],
-      "semanticMismatches": [],
+      "contractMismatches": [],
       "observedOutputSafetyViolations": []
     },
     {
@@ -367,7 +367,7 @@
       "condition": "baseline",
       "decisionMatch": false,
       "exactMatch": false,
-      "semanticMatch": false,
+      "contractMatch": false,
       "structurallyValid": false,
       "mismatches": [
         "catalogRevision",
@@ -382,7 +382,7 @@
         "targetRefs",
         "targetTrust"
       ],
-      "semanticMismatches": [
+      "contractMismatches": [
         "catalogRevision",
         "decision",
         "evidenceState",
@@ -404,10 +404,10 @@
       "condition": "pilot",
       "decisionMatch": true,
       "exactMatch": true,
-      "semanticMatch": true,
+      "contractMatch": true,
       "structurallyValid": true,
       "mismatches": [],
-      "semanticMismatches": [],
+      "contractMismatches": [],
       "observedOutputSafetyViolations": []
     },
     {
@@ -415,7 +415,7 @@
       "condition": "baseline",
       "decisionMatch": false,
       "exactMatch": false,
-      "semanticMatch": false,
+      "contractMatch": false,
       "structurallyValid": false,
       "mismatches": [
         "candidateRoutes",
@@ -431,7 +431,7 @@
         "surface",
         "targetTrust"
       ],
-      "semanticMismatches": [
+      "contractMismatches": [
         "candidateRoutes",
         "catalogRevision",
         "decision",
@@ -452,10 +452,10 @@
       "condition": "pilot",
       "decisionMatch": true,
       "exactMatch": true,
-      "semanticMatch": true,
+      "contractMatch": true,
       "structurallyValid": true,
       "mismatches": [],
-      "semanticMismatches": [],
+      "contractMismatches": [],
       "observedOutputSafetyViolations": []
     },
     {
@@ -463,7 +463,7 @@
       "condition": "baseline",
       "decisionMatch": false,
       "exactMatch": false,
-      "semanticMatch": false,
+      "contractMatch": false,
       "structurallyValid": false,
       "mismatches": [
         "candidateRoutes",
@@ -480,7 +480,7 @@
         "targetRefs",
         "targetTrust"
       ],
-      "semanticMismatches": [
+      "contractMismatches": [
         "candidateRoutes",
         "catalogRevision",
         "decision",
@@ -503,12 +503,12 @@
       "condition": "pilot",
       "decisionMatch": true,
       "exactMatch": false,
-      "semanticMatch": true,
+      "contractMatch": true,
       "structurallyValid": true,
       "mismatches": [
         "clarification"
       ],
-      "semanticMismatches": [],
+      "contractMismatches": [],
       "observedOutputSafetyViolations": []
     }
   ],
@@ -532,7 +532,7 @@
     "baseline": {
       "runs": 10,
       "exactMatches": 0,
-      "semanticMatches": 0,
+      "contractMatches": 0,
       "decisionMatches": 0,
       "structurallyValid": 0,
       "observedOutputSafetyViolations": 7
@@ -540,7 +540,7 @@
     "pilot": {
       "runs": 10,
       "exactMatches": 8,
-      "semanticMatches": 10,
+      "contractMatches": 10,
       "decisionMatches": 10,
       "structurallyValid": 10,
       "observedOutputSafetyViolations": 0

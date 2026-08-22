@@ -2,13 +2,13 @@
 
 ## Result
 
-| Condition | Strict exact | Semantic | Decision | Structurally valid | Observed output violations |
+| Condition | Strict exact | Contract | Decision | Structurally valid | Observed output violations |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | Pilot | 1/4 | 2/4 | 3/4 | 4/4 | 0 |
 | Baseline | 0/4 | 0/4 | 2/4 | 0/4 | 1 |
 
 The pilot strictly handled passive CLI route identification. Java/Kotlin
-clarification matched semantically but used different freeform question wording
+clarification matched the presence/absence contract but used different freeform question wording
 from frozen gold. It preserved quoted destructive CLI text as passive and chose
 the correct candidate, but emitted candidate metadata trust (`passive`) before
 revision-bound evidence. The confusable Minecraft case used the right reason
