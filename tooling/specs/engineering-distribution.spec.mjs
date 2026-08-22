@@ -53,6 +53,29 @@ test("first engineering target is classified but cannot package raw source", () 
     assert.equal(first.includeInRuntime, false);
 });
 
+test("documentation companion sources remain reconciled but unevaluated", () => {
+    const matrix = readJson("distribution/engineering-artifact-matrix.json");
+    assert.deepEqual(
+        matrix.companionTargets.map(target => ({
+            targetId: target.targetId,
+            state: target.state,
+            rawSourcePackagingAllowed: target.rawSourcePackagingAllowed,
+        })),
+        [
+            {
+                targetId: "cratis-engineering-docs-add-page",
+                state: "SOURCE_RECONCILED_NOT_EVALUATED",
+                rawSourcePackagingAllowed: false,
+            },
+            {
+                targetId: "cratis-engineering-docs-edit-page",
+                state: "SOURCE_RECONCILED_NOT_EVALUATED",
+                rawSourcePackagingAllowed: false,
+            },
+        ],
+    );
+});
+
 test("effectful and executable engineering capabilities stay separate", () => {
     const matrix = readJson("distribution/engineering-artifact-matrix.json");
     const lowTrust = matrix.packageBoundaries.find(

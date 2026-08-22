@@ -9,6 +9,20 @@
     "canonicalSourcePath": "engineering/skills/cratis-engineering-docs-authoring",
     "rawSourcePackagingAllowed": false
   },
+  "companionTargets": [
+    {
+      "targetId": "cratis-engineering-docs-add-page",
+      "state": "SOURCE_RECONCILED_NOT_EVALUATED",
+      "canonicalSourcePath": "engineering/skills/cratis-engineering-docs-add-page",
+      "rawSourcePackagingAllowed": false
+    },
+    {
+      "targetId": "cratis-engineering-docs-edit-page",
+      "state": "SOURCE_RECONCILED_NOT_EVALUATED",
+      "canonicalSourcePath": "engineering/skills/cratis-engineering-docs-edit-page",
+      "rawSourcePackagingAllowed": false
+    }
+  ],
   "packageBoundaries": [
     {
       "id": "engineering-passive-low-trust",

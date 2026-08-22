@@ -42,20 +42,23 @@
     },
     {
       "id": "add-cratis-docs-page",
-      "sourcePath": ".ai/skills/add-cratis-docs-page",
+      "sourcePath": "engineering/skills/cratis-engineering-docs-add-page",
       "artifactType": "agent-skill-source",
       "currentOwner": "reusable Cratis engineering behavior",
       "targetOwner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "bundledPaths": [
-        ".ai/skills/add-cratis-docs-page/SKILL.md"
+        "engineering/skills/cratis-engineering-docs-add-page/LICENSE",
+        "engineering/skills/cratis-engineering-docs-add-page/SKILL.md",
+        "engineering/skills/cratis-engineering-docs-add-page/references/ownership-and-navigation.md"
       ],
-      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-      "contentDigest": "af8a22b279a7075c110fd6bf4197275006678699e46b154f6215784fb52b057d",
+      "sourceRevision": "684d03755bacd40af95463b81b4a0c8b9f088ec1",
+      "contentDigest": "60bb6acfc3af73b3c8d0e300f2620d74999ad8f0bc47dbaf207783225ae1f085",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "engineering-docs-add-page-source-684d037"
       ]
     },
     {
@@ -420,20 +423,23 @@
     },
     {
       "id": "edit-cratis-docs",
-      "sourcePath": ".ai/skills/edit-cratis-docs",
+      "sourcePath": "engineering/skills/cratis-engineering-docs-edit-page",
       "artifactType": "agent-skill-source",
       "currentOwner": "reusable Cratis engineering behavior",
       "targetOwner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "bundledPaths": [
-        ".ai/skills/edit-cratis-docs/SKILL.md"
+        "engineering/skills/cratis-engineering-docs-edit-page/LICENSE",
+        "engineering/skills/cratis-engineering-docs-edit-page/SKILL.md",
+        "engineering/skills/cratis-engineering-docs-edit-page/references/source-discovery.md"
       ],
-      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-      "contentDigest": "d07be3bed6a4cc4cc3d72548baafd211826160b168fa7a4b7e39d5c950063b07",
+      "sourceRevision": "684d03755bacd40af95463b81b4a0c8b9f088ec1",
+      "contentDigest": "c6b98ea12de1607871036d3f421ad3fc5e05149fcb21e7bbf83d3a613153357e",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "engineering-docs-edit-page-source-684d037"
       ]
     },
     {
