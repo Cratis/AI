@@ -20,7 +20,10 @@ import {
     verifyGeneratedDistributionRepository,
 } from "../bootstrap-generated-distribution-repository.mjs";
 
-const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+const repositoryRoot = resolve(
+    dirname(fileURLToPath(import.meta.url)),
+    "../..",
+);
 const contractPath = join(
     repositoryRoot,
     "distribution/generated-repository-contract.json",
@@ -69,7 +72,7 @@ test("production distribution plan remains blocked without approved targets", ()
 });
 
 test("local generated repository is deterministic and bot-authored", () => {
-    withTemporaryDirectory(root => {
+    withTemporaryDirectory((root) => {
         const first = bootstrap(root, "first");
         const second = bootstrap(root, "second");
         assert.equal(first.generatedCommit, second.generatedCommit);
@@ -86,7 +89,7 @@ test("local generated repository is deterministic and bot-authored", () => {
 });
 
 test("generated repository contains only manifested distribution files", () => {
-    withTemporaryDirectory(root => {
+    withTemporaryDirectory((root) => {
         bootstrap(root);
         const generatedRoot = join(root, "generated");
         const verification = verifyGeneratedDistributionRepository(
@@ -98,7 +101,7 @@ test("generated repository contains only manifested distribution files", () => {
         assert(verification.files.includes("provenance.json"));
         assert(
             verification.files.every(
-                path =>
+                (path) =>
                     !path.startsWith("tooling/") &&
                     !path.startsWith("evals/") &&
                     !path.startsWith("agents/") &&
@@ -110,7 +113,7 @@ test("generated repository contains only manifested distribution files", () => {
 });
 
 test("generated repository verification rejects worktree tampering", () => {
-    withTemporaryDirectory(root => {
+    withTemporaryDirectory((root) => {
         bootstrap(root);
         const generatedRoot = join(root, "generated");
         writeFileSync(
@@ -129,14 +132,21 @@ test("generated repository verification rejects worktree tampering", () => {
 });
 
 test("generated repository verification rejects human follow-up commits", () => {
-    withTemporaryDirectory(root => {
+    withTemporaryDirectory((root) => {
         bootstrap(root);
         const generatedRoot = join(root, "generated");
-        const path = join(generatedRoot, "canonical/skills/cratis-example/LICENSE");
+        const path = join(
+            generatedRoot,
+            "canonical/skills/cratis-example/LICENSE",
+        );
         writeFileSync(path, `${readFileSync(path, "utf8")}human edit\n`);
-        execFileSync("git", ["add", "--", "canonical/skills/cratis-example/LICENSE"], {
-            cwd: generatedRoot,
-        });
+        execFileSync(
+            "git",
+            ["add", "--", "canonical/skills/cratis-example/LICENSE"],
+            {
+                cwd: generatedRoot,
+            },
+        );
         execFileSync(
             "git",
             [
@@ -170,7 +180,7 @@ test("generated repository verification rejects human follow-up commits", () => 
 });
 
 test("generated repository bootstrap refuses existing destinations and records", () => {
-    withTemporaryDirectory(root => {
+    withTemporaryDirectory((root) => {
         const generatedRoot = join(root, "generated");
         mkdirSync(generatedRoot);
         assert.throws(
