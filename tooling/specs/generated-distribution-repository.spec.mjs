@@ -68,10 +68,7 @@ test("generated repository contract keeps remote authority and production blocke
         ),
     );
     assert.equal(contract.repository.name, "Cratis/AI.Distribution");
-    assert.equal(
-        contract.repository.status,
-        "INITIALIZED_PROTECTED_FIXTURE",
-    );
+    assert.equal(contract.repository.status, "INITIALIZED_PROTECTED_FIXTURE");
     assert.equal(contract.repository.manualAuthoringAllowed, false);
     assert.equal(contract.repository.botOnlyWrites, true);
     assert.equal(
@@ -89,6 +86,9 @@ test("generated repository contract keeps remote authority and production blocke
     assert.equal(contract.legacyRetirementEligible, false);
     assert.match(generalRules, /## New Repository Registration/);
     assert.match(generalRules, /Cratis\/Strategy/);
+    assert.match(generalRules, /## Shared AI Distribution/);
+    assert.match(generalRules, /Do not copy or synchronize shared/);
+    assert.match(generalRules, /Never patch generated distribution bytes/);
     for (const requiredDetail of [
         "repository name, URL, visibility, and creation state",
         "accountable owner",
@@ -96,10 +96,7 @@ test("generated repository contract keeps remote authority and production blocke
         "repository metadata, topics, ownership records",
     ])
         assert(generalRules.includes(requiredDetail));
-    assert.equal(
-        remoteState.repository.state,
-        "INITIALIZED_PROTECTED_FIXTURE",
-    );
+    assert.equal(remoteState.repository.state, "INITIALIZED_PROTECTED_FIXTURE");
     assert.equal(remoteState.repository.secretScanningEnabled, true);
     assert.equal(remoteState.repository.pushProtectionEnabled, true);
     assert.equal(

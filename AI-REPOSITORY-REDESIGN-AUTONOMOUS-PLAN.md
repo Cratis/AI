@@ -561,6 +561,12 @@ Evidence and exact next actions are in
   secret scanning/push protection, and reviewed canary/npm-stage environments.
 - [x] Initialize remote `main` from reviewed hosted generated fixture bytes,
   protect the branch, then remove the one-time deploy key and Actions secret.
+- [x] Define the internal maintainer workflow: no shared-folder propagation,
+  versioned generated distribution, project-owned context, canary, and rollback.
+- [x] Publish the honest AI-native brand story and prepare comprehensive cratis.io
+  setup, ecosystem, maintainer, trust, and distribution documentation.
+- [x] Record every remaining manual gate as linked AI, Workflows, Documentation,
+  cratis.no, and Strategy issues.
 - [ ] Provision a repository-scoped PR/release-capable bot identity before any
   generated update, tag, release, or publication operation.
 - [ ] Keep publication and retirement disabled until explicit approvals pass.
