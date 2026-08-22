@@ -10,6 +10,7 @@ import { validateDomainExpertEventModelingPilot } from "./domain-expert-event-mo
 import { validateDistributionConfiguration } from "./generate-distribution-fixture.mjs";
 import { validateEngineeringDocsAuthoring } from "./engineering-docs-authoring-validation.mjs";
 import { validateEngineeringDistributionConfiguration } from "./generate-engineering-distribution-fixture.mjs";
+import { validateEngineeringDocsCompanions } from "./engineering-docs-companions-validation.mjs";
 
 const errors = [
     ...validateCatalogs(),
@@ -20,6 +21,7 @@ const errors = [
     ...validateDistributionConfiguration(),
     ...validateEngineeringDocsAuthoring(),
     ...validateEngineeringDistributionConfiguration(),
+    ...validateEngineeringDocsCompanions(),
 ];
 if (errors.length > 0) {
     process.stderr.write(
