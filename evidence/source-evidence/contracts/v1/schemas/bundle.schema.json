@@ -1,0 +1,234 @@
+{
+  "$id": "https://cratis.io/ai/source-evidence/v1/bundle.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "artifacts": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "artifactId": {
+            "maxLength": 512,
+            "minLength": 1,
+            "type": "string"
+          },
+          "byteLength": {
+            "maximum": 10485760,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "displayPathApproved": {
+            "type": "boolean"
+          },
+          "locator": {
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "symbol",
+                  "lines"
+                ]
+              },
+              "value": {
+                "maxLength": 512,
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "kind",
+              "value"
+            ],
+            "type": "object"
+          },
+          "mediaType": {
+            "maxLength": 512,
+            "minLength": 1,
+            "type": "string"
+          },
+          "objectAlgorithm": {
+            "enum": [
+              "sha1",
+              "sha256"
+            ]
+          },
+          "objectId": {
+            "maxLength": 512,
+            "minLength": 1,
+            "type": "string"
+          },
+          "path": {
+            "maxLength": 512,
+            "minLength": 1,
+            "type": "string"
+          },
+          "sha256": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifactId",
+          "path",
+          "objectId",
+          "objectAlgorithm",
+          "sha256",
+          "byteLength",
+          "mediaType",
+          "locator",
+          "displayPathApproved"
+        ],
+        "type": "object"
+      },
+      "maxItems": 128,
+      "minItems": 1,
+      "type": "array"
+    },
+    "bundleRevision": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "caseIds": {
+      "items": {
+        "pattern": "^(P0[1-8]|N09|N10)$",
+        "type": "string"
+      },
+      "maxItems": 10,
+      "minItems": 1,
+      "type": "array"
+    },
+    "claims": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "assertionId": {
+            "maxLength": 512,
+            "minLength": 1,
+            "type": "string"
+          },
+          "caseId": {
+            "pattern": "^(P0[1-8]|N09|N10)$",
+            "type": "string"
+          },
+          "claimDigest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "claimId": {
+            "maxLength": 512,
+            "minLength": 1,
+            "type": "string"
+          },
+          "claimKind": {
+            "const": "diagnostic-behavior"
+          },
+          "limitationCodes": {
+            "items": {
+              "maxLength": 512,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 64,
+            "minItems": 0,
+            "type": "array"
+          },
+          "sourceArtifactIds": {
+            "items": {
+              "maxLength": 512,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 128,
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "required": [
+          "claimId",
+          "claimKind",
+          "assertionId",
+          "caseId",
+          "sourceArtifactIds",
+          "limitationCodes",
+          "claimDigest"
+        ],
+        "type": "object"
+      },
+      "maxItems": 64,
+      "minItems": 1,
+      "type": "array"
+    },
+    "productId": {
+      "maxLength": 512,
+      "minLength": 1,
+      "type": "string"
+    },
+    "repository": {
+      "additionalProperties": false,
+      "properties": {
+        "commitObjectId": {
+          "maxLength": 512,
+          "minLength": 1,
+          "type": "string"
+        },
+        "objectFormat": {
+          "enum": [
+            "sha1",
+            "sha256"
+          ]
+        },
+        "repositoryId": {
+          "maxLength": 512,
+          "minLength": 1,
+          "type": "string"
+        },
+        "treeObjectId": {
+          "maxLength": 512,
+          "minLength": 1,
+          "type": "string"
+        },
+        "vcs": {
+          "const": "git"
+        }
+      },
+      "required": [
+        "repositoryId",
+        "vcs",
+        "objectFormat",
+        "commitObjectId",
+        "treeObjectId"
+      ],
+      "type": "object"
+    },
+    "schemaVersion": {
+      "const": "source-evidence-bundle/v1"
+    },
+    "sourceContractId": {
+      "maxLength": 512,
+      "minLength": 1,
+      "type": "string"
+    },
+    "sourceContractRevision": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "sourceId": {
+      "maxLength": 512,
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "bundleRevision",
+    "sourceContractId",
+    "sourceContractRevision",
+    "sourceId",
+    "productId",
+    "repository",
+    "caseIds",
+    "artifacts",
+    "claims"
+  ],
+  "type": "object"
+}

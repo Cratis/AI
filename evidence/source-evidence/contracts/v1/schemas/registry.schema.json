@@ -1,0 +1,64 @@
+{
+  "$id": "https://cratis.io/ai/source-evidence/v1/registry.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "payload": {
+      "additionalProperties": false,
+      "properties": {
+        "admissions": {
+          "items": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "maxItems": 128,
+          "minItems": 0,
+          "type": "array"
+        },
+        "contractId": {
+          "const": "cratis-source-evidence"
+        },
+        "contractRevision": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "phase": {
+          "enum": [
+            "CONTRACT_ONLY",
+            "ACTIVE"
+          ]
+        },
+        "revocations": {
+          "items": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "maxItems": 128,
+          "minItems": 0,
+          "type": "array"
+        }
+      },
+      "required": [
+        "contractId",
+        "contractRevision",
+        "phase",
+        "admissions",
+        "revocations"
+      ],
+      "type": "object"
+    },
+    "registryRevision": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": "source-evidence-registry/v1"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "registryRevision",
+    "payload"
+  ],
+  "type": "object"
+}

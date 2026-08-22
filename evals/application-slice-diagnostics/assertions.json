@@ -14,6 +14,9 @@
     "Missing reproduction never creates invented steps.",
     "Every source fact uses an allowlisted revision-bound digest reference.",
     "Every product fact cites a verified claim identifier.",
+    "The source-evidence registry remains CONTRACT_ONLY with no admissions or revocations.",
+    "Synthetic profile fixtures never satisfy source authority.",
+    "All ten source-authority cases remain disabled and impossible to activate from contract metadata.",
     "Blocked facts never support hypotheses or conclusions.",
     "Hypotheses have predictions, discriminators, support, rejection, and status.",
     "A supported cause uniquely survives supplied discriminating evidence.",
@@ -44,6 +47,7 @@
   },
   "promotionBlockedOn": [
     "disabled canonical cases",
+    "contract-only source-evidence registry with no admissions",
     "missing authority and evidence bundles",
     "missing repeated canonical and held-out runs",
     "missing effect telemetry",

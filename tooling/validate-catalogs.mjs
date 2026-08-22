@@ -4,8 +4,13 @@
 
 import { validateCatalogs } from "./catalog-validation.mjs";
 import { validateV2Catalogs } from "./catalog-v2-validation.mjs";
+import { validateSourceEvidenceContract } from "./source-evidence-contract-validation.mjs";
 
-const errors = [...validateCatalogs(), ...validateV2Catalogs()];
+const errors = [
+    ...validateCatalogs(),
+    ...validateV2Catalogs(),
+    ...validateSourceEvidenceContract(),
+];
 if (errors.length > 0) {
     process.stderr.write(
         `Catalog validation failed with ${errors.length} error(s):\n`,

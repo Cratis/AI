@@ -1,0 +1,159 @@
+{
+  "$id": "https://cratis.io/ai/source-evidence/v1/proof.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "authorityState": {
+      "const": "EVIDENCE_ACCEPTED"
+    },
+    "bundleRevision": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "caseActivationAllowed": {
+      "const": false
+    },
+    "claims": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "artifactIds": {
+            "items": {
+              "maxLength": 512,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 128,
+            "minItems": 1,
+            "type": "array"
+          },
+          "claimDigest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "claimId": {
+            "maxLength": 512,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "claimId",
+          "claimDigest",
+          "artifactIds"
+        ],
+        "type": "object"
+      },
+      "maxItems": 64,
+      "minItems": 1,
+      "type": "array"
+    },
+    "displayAnchors": {
+      "items": {
+        "maxLength": 512,
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxItems": 128,
+      "minItems": 0,
+      "type": "array"
+    },
+    "limitationCodes": {
+      "items": {
+        "maxLength": 512,
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxItems": 64,
+      "minItems": 0,
+      "type": "array"
+    },
+    "proofSchemaVersion": {
+      "const": "source-proof/v1"
+    },
+    "redaction": {
+      "additionalProperties": false,
+      "properties": {
+        "noticeCodes": {
+          "items": {
+            "maxLength": 512,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 64,
+          "minItems": 0,
+          "type": "array"
+        },
+        "policyVersion": {
+          "const": 1
+        },
+        "reviewDigest": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "policyVersion",
+        "reviewDigest",
+        "noticeCodes"
+      ],
+      "type": "object"
+    },
+    "repositoryId": {
+      "maxLength": 512,
+      "minLength": 1,
+      "type": "string"
+    },
+    "sourceContractId": {
+      "maxLength": 512,
+      "minLength": 1,
+      "type": "string"
+    },
+    "sourceContractRevision": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "sourceRevision": {
+      "additionalProperties": false,
+      "properties": {
+        "algorithm": {
+          "enum": [
+            "sha1",
+            "sha256"
+          ]
+        },
+        "commitObjectId": {
+          "maxLength": 512,
+          "minLength": 1,
+          "type": "string"
+        },
+        "treeObjectId": {
+          "maxLength": 512,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "algorithm",
+        "commitObjectId",
+        "treeObjectId"
+      ],
+      "type": "object"
+    }
+  },
+  "required": [
+    "proofSchemaVersion",
+    "authorityState",
+    "caseActivationAllowed",
+    "sourceContractId",
+    "sourceContractRevision",
+    "repositoryId",
+    "sourceRevision",
+    "bundleRevision",
+    "claims",
+    "displayAnchors",
+    "redaction",
+    "limitationCodes"
+  ],
+  "type": "object"
+}

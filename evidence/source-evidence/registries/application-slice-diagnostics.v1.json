@@ -1,0 +1,11 @@
+{
+  "payload": {
+    "admissions": [],
+    "contractId": "cratis-source-evidence",
+    "contractRevision": "sha256:d19468453fc3040186034db5099dd3bd9f52b2c8e6256a2f1f70e8d3a59ce62f",
+    "phase": "CONTRACT_ONLY",
+    "revocations": []
+  },
+  "registryRevision": "sha256:d0d7416c64624e225062bd74a543ab2f82b061cee4f522e6bd56a26fbee19e6c",
+  "schemaVersion": "source-evidence-registry/v1"
+}

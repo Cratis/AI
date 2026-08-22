@@ -1,0 +1,34 @@
+{
+  "$id": "https://cratis.io/ai/source-evidence/v1/revocation.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "admissionRevision": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "reasonCode": {
+      "maxLength": 512,
+      "minLength": 1,
+      "type": "string"
+    },
+    "repositoryControlled": {
+      "const": true
+    },
+    "revocationRevision": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": "source-evidence-revocation/v1"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "revocationRevision",
+    "admissionRevision",
+    "reasonCode",
+    "repositoryControlled"
+  ],
+  "type": "object"
+}

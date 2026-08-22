@@ -1,0 +1,49 @@
+{
+  "entries": [
+    {
+      "digest": "sha256:15e8d1dc88c63cf7e84ff1ab48a8d788a1a1aaf1fbb17796ee77ecbbbd54d4b5",
+      "path": "policy.json"
+    },
+    {
+      "digest": "sha256:7464e14d1fd6a765b972bf65a0ce0ca14cea2ad1535a14fa9fdf54479e7299fb",
+      "path": "schemas/admission.schema.json"
+    },
+    {
+      "digest": "sha256:7fbe3718608ab7370770b434364c91bbd1cb1eedbaa9b6671fd1fe5402ca618c",
+      "path": "schemas/bundle.schema.json"
+    },
+    {
+      "digest": "sha256:336a902f18b170fc02ecfdbee5ddf4abf5606941e7ebec2927e5fb9933de4464",
+      "path": "schemas/contract-files.schema.json"
+    },
+    {
+      "digest": "sha256:6c2622d76f00054bd399e5fcd08a9713096d2eacd4b1c3a7d0b5268158e73fe0",
+      "path": "schemas/owner-attestation.schema.json"
+    },
+    {
+      "digest": "sha256:34fefa4ef66b6da42b0b5d1386277eb0d810ef34cfbcf2eacf692ef89c971c36",
+      "path": "schemas/policy.schema.json"
+    },
+    {
+      "digest": "sha256:d7099b116cf89928f2e3e6ab0dfebc8c8b3528ce84177e0fc1a7e6f194aab914",
+      "path": "schemas/proof.schema.json"
+    },
+    {
+      "digest": "sha256:2ff46cbfdd6e8b3c14d6892835f64e77b697ee081e9b1ab3f046b2d1e2e13da3",
+      "path": "schemas/redaction-review.schema.json"
+    },
+    {
+      "digest": "sha256:98980c501474f8187bd7d9e42d035147bad5d893518d024cffbf14c2140a15b6",
+      "path": "schemas/registry.schema.json"
+    },
+    {
+      "digest": "sha256:e62da81ac4ffd5516f515d016f0fa1a9cd557f00d07eeb12f5e0f3da4ac8432d",
+      "path": "schemas/revocation.schema.json"
+    },
+    {
+      "digest": "sha256:490e29604caf05ce792e7dd89393ecf9f475ad1c7e10b9600c0833bcc185552a",
+      "path": "schemas/source-verification.schema.json"
+    }
+  ],
+  "schemaVersion": "source-evidence-contract-files/v1"
+}
