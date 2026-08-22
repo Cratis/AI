@@ -1943,7 +1943,10 @@
       "status": "added"
     }
   ],
-  "admittedUntracked": [],
+  "admittedUntracked": [
+    "skills/cratis-fundamentals-concept/LICENSE",
+    "skills/cratis-fundamentals-concept/SKILL.md"
+  ],
   "excludedRuntimePrefixes": [
     ".pi/delegate/",
     ".pi/fusion/",
@@ -2230,7 +2233,8 @@
         ".ai/skills/write-specs/**",
         ".ai/skills/write-specs-events/**",
         ".ai/skills/write-specs-frontend/**",
-        ".ai/skills/write-specs-readmodels/**"
+        ".ai/skills/write-specs-readmodels/**",
+        "skills/**"
       ],
       "artifactType": "skill-source-and-resources",
       "currentOwner": "reusable Cratis engineering behavior",
@@ -2248,8 +2252,8 @@
         "workflows-68",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 62,
-      "expectedPathsDigest": "4d6d81d603857bc6c534a7417e2e3413051118387141b76ebfefd19564de8156"
+      "expectedPathCount": 64,
+      "expectedPathsDigest": "4599993447a921d5d7a2f265e95fa394647e526af0dede16d33476a70693eb7e"
     },
     {
       "excludePathPatterns": [

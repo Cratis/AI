@@ -2,12 +2,10 @@
   "schemaVersion": "1.0.0",
   "state": "FIXTURE_ONLY_LOCAL_STAGING",
   "canonicalSource": {
-    "artifactId": "sanitized-public-materializer-fixture",
+    "artifactId": "cratis-fundamentals-concept-preview",
     "approvedFiles": [
-      "skills/cratis-example/LICENSE",
-      "skills/cratis-example/SKILL.md",
-      "skills/cratis-example/assets/example.txt",
-      "skills/cratis-example/references/guide.md"
+      "skills/cratis-fundamentals-concept/LICENSE",
+      "skills/cratis-fundamentals-concept/SKILL.md"
     ]
   },
   "repository": {
@@ -77,6 +75,40 @@
         "manifest-parse",
         "canonical-byte-parity",
         "isolated-link-uninstall-when-available"
+      ]
+    },
+    {
+      "id": "grok-build",
+      "requirementId": "grok-build-skills",
+      "state": "FIXTURE_GENERATION_ENABLED",
+      "outputRoot": "grok",
+      "packageKind": "NATIVE_GROK_AGENT_SKILLS",
+      "smokeGates": [
+        "exact-skill-inventory",
+        "canonical-byte-parity",
+        "grok-inspect-when-available"
+      ]
+    },
+    {
+      "id": "deepseek-harness",
+      "requirementId": "deepseek-harness-skills",
+      "state": "FIXTURE_GENERATION_ENABLED",
+      "outputRoot": "deepseek",
+      "packageKind": "NATIVE_DEEPSEEK_HARNESS_SKILLS",
+      "smokeGates": [
+        "exact-skill-inventory",
+        "canonical-byte-parity",
+        "deepseek-harness-smoke-when-stable"
+      ]
+    },
+    {
+      "id": "deepseek-provider",
+      "requirementId": "deepseek-model-provider",
+      "state": "PROVIDER_COMPATIBILITY_NO_DISTINCT_ARTIFACT",
+      "outputRoot": null,
+      "packageKind": "MODEL_PROVIDER_USES_HARNESS_PACKAGES",
+      "smokeGates": [
+        "provider-compatibility-contract"
       ]
     },
     {

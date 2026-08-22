@@ -168,7 +168,10 @@ test("tampered candidate cannot be staged as a fixture release", () => {
         initializeDistributionRollout(rollout);
         generateDistributionFixture({ repositoryRoot, outputRoot: candidate });
         writeFileSync(
-            join(candidate, "canonical/skills/cratis-example/SKILL.md"),
+            join(
+                candidate,
+                "canonical/skills/cratis-fundamentals-concept/SKILL.md",
+            ),
             "tampered\n",
         );
         assert.throws(

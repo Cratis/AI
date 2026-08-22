@@ -600,9 +600,13 @@ Evidence and exact next actions are in
 - [x] Complete independent review of companion evidence. Trigger/routing is
   incomplete; collision evidence fails unambiguous cases; H04 remains
   bundle-versus-delegation ambiguous; operational/distribution gates stay shut.
-- [ ] Freeze and run a corrective add-only/edit-only/bundle/native-trigger
-  evaluation with predeclared thresholds and complete invocation binding before
-  any fixture packaging decision.
+- [ ] Corrective companion evaluation is deferred outside the first usable
+  release; the reviewed draft is preserved locally as do-not-run work.
+- [x] Add native passive adapters for xAI Grok Build (`.grok/skills`) and
+  DeepSeek Harness (`.dsh/skills`), plus model-provider compatibility metadata
+  so DeepSeek reuses each selected harness package instead of duplicated bytes.
+- [ ] Select a conservative passive public release allowlist and materialize the
+  first useful local release candidate; do not wait for all catalog targets.
 - [ ] Provision the repository-scoped App credentials from Workflows#72 before
   any generated update PR, tag, release, or publication operation.
 - [ ] Keep publication and retirement disabled until explicit approvals pass.

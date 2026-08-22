@@ -1818,3 +1818,33 @@ follow-up must separate add-only, edit-only, bundle-level, and native-trigger
 conditions; predeclare thresholds; bind complete invocation evidence; and rerun
 A04/A06/E02/H03/H04 boundaries. Approval, runtime inclusion, raw source
 packaging, installation, publication, and promotion remain false.
+
+## 48. Delivery pivot and Grok/DeepSeek support — 2026-08-22
+
+Maintainer direction explicitly returns the work to the original goal: useful,
+shared Cratis skills distributed idiomatically across AI coding harnesses. The
+reviewed companion follow-up is preserved separately as do-not-run work and is
+not on the first-release critical path.
+
+The first useful public payload is now the self-contained passive
+`skills/cratis-fundamentals-concept/` skill rather than the synthetic example.
+It is generated from an exact two-file allowlist and remains fixture-only until
+source binding and release approval are recorded.
+
+Native adapter coverage now also includes:
+
+- xAI Grok Build through `grok/.grok/skills/`, while retaining Grok's documented
+  ability to consume the generated Claude Code marketplace;
+- DeepSeek Harness through direct, non-recursive
+  `deepseek/.dsh/skills/<skill-name>/SKILL.md` bundles;
+- DeepSeek model-provider compatibility metadata, which points users to the
+  existing Pi, Claude, Copilot, or DeepSeek Harness package instead of creating
+  model-specific duplicate skill bytes.
+
+Both public and engineering generators enforce canonical byte parity for Grok
+and DeepSeek Harness. Direct-folder lifecycle smoke tests prove isolated install
+and removal. DeepSeek Harness remains developer preview and requires upstream
+contract reverification before a supported stable release. Publication and
+promotion remain disabled; the immediate path is canonical source binding, a
+small passive preview allowlist, one real consuming-repository canary, and the
+existing credential/owner gates.
