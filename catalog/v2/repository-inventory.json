@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "c19f083d990e2b1d147460cc5bdccc3f77062071f3c6b453d60db074bee859d6",
+  "indexDigest": "70b2f2f61cc6f6871b6588b804b0d3914d595ad6acc2233607f9c6c7f09adb43",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -12,11 +12,11 @@
     },
     {
       "path": "AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md",
-      "status": "unmerged"
+      "status": "added"
     },
     {
       "path": "AI-REPOSITORY-REDESIGN-AUTONOMOUS-PLAN.md",
-      "status": "unmerged"
+      "status": "added"
     },
     {
       "path": "AI-REPOSITORY-REDESIGN-AUTONOMOUS-PROMPT.md",
@@ -224,7 +224,7 @@
     },
     {
       "path": "catalog/v2/repository-inventory.json",
-      "status": "unmerged"
+      "status": "added"
     },
     {
       "path": "catalog/v2/source-contracts.json",
@@ -1863,8 +1863,8 @@
         "workflows-68",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 22,
-      "expectedPathsDigest": "f0cf5226bbdc40b6ec953a33e56f5be2bc34b91efec8222ed788d152e7ac32af"
+      "expectedPathCount": 18,
+      "expectedPathsDigest": "788d028de84fa9600be36a577d5f592bd762a7dd9844ea973e7ac24f0dc7e5bb"
     },
     {
       "excludePathPatterns": [],
@@ -2099,8 +2099,8 @@
         "reevaluation-authority"
       ],
       "generator": "tooling/generate-catalog-v2.mjs and tooling/generate-repository-inventory.mjs",
-      "expectedPathCount": 9,
-      "expectedPathsDigest": "775fbd55d25a4335bacfe8d7b109847d7f846891fe1a13bf262c54b9d8e5abbb"
+      "expectedPathCount": 7,
+      "expectedPathsDigest": "e357183a0be12bfbbdea6835b9946fc8b10004c5c902cb1dd4a9d96c105a32c8"
     },
     {
       "excludePathPatterns": [],

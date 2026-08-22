@@ -860,7 +860,9 @@ PR #134 merged with merge commit
 validation with no included findings. Navigator remains repository-only and
 promotion-blocked at 26/28 canonical strict and 8/10 held-out strict.
 
-The diagnostics commit was rebased onto that merge before its first push. Its
-next actions are: resolve generated inventory state, run catalog validation, all
-Node specifications, syntax/LSP/diff checks, push `feat/diagnostics-pilot`, open
-a no-release PR resolving AI#126, and wait for green CI before merge.
+The diagnostics commit was rebased onto that merge before its first push.
+Post-rebase inventory generation, catalog validation, syntax/diff checks, all 22
+focused diagnostics specifications, and all 115 repository Node specifications
+pass. Next actions are to commit the refreshed inventory digest, push
+`feat/diagnostics-pilot`, open a no-release PR resolving AI#126, and wait for
+green CI before merge.
