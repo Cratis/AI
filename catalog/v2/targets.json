@@ -4117,9 +4117,13 @@
           }
         }
       ],
-      "sourceContractState": "unclassified",
-      "sourceContractIds": [],
-      "sourceAuthoritySubjects": [],
+      "sourceContractState": "classified",
+      "sourceContractIds": [
+        "cratis-ai-composition"
+      ],
+      "sourceAuthoritySubjects": [
+        "capability-composition"
+      ],
       "authoringContractState": "classified",
       "authoringContractIds": [
         "cratis-skill-clean-room-v1"

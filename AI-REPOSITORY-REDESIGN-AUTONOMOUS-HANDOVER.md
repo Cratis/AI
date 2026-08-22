@@ -1569,3 +1569,34 @@ remove repository-relative and sibling-skill assumptions from the runtime
 payload, add behavior/trigger/collision/portability evidence, and only then
 generate a fixture package. Effectful shipping/QA/tracing and executable skill
 creation remain separate later packages and security reviews.
+
+## 41. Canonical engineering docs-authoring source — 2026-08-22
+
+The classification unit merged with green CI in Cratis/AI#151. The first target
+is now reconciled into canonical source under
+`engineering/skills/cratis-engineering-docs-authoring/`:
+
+- a self-contained `SKILL.md` with no `.ai/rules`, parent-path, project-context,
+  script, eval, or raw sibling-source dependency;
+- one passive site-format reference and a target-local MIT license notice;
+- explicit routing to add-page, edit-page, and visual-QA companion targets;
+- first-party source blocking for unverified product/API claims;
+- four complete document-type cases and five distinct near-miss/blocked cases;
+- exact source/reference/assertion/baseline/corpus digests and zero model runs;
+- inventory, static validation, malformed/drift mutations, and catalog-validator
+  integration.
+
+The `write-documentation` catalog source identity now points at that canonical
+path and immutable source commit
+`f58bcf7f5cc9fc0e11305ada3b5ecb6fa20953e9`, with dedicated repository-snapshot
+evidence. Its source authority is classified through `cratis-ai-composition` /
+`capability-composition`, while that contract remains unverified and distribution
+input remains denied. The legacy `.ai/skills/write-documentation` directory is
+inventory-only and not package input.
+
+The target remains a candidate with `includeInRuntime: false`; the engineering
+artifact still has no exact source selection and materialization/runtime remain
+disabled. Next: freeze the source/corpus, run repeated behavior/positive-negative
+trigger/collision/portability evaluation, obtain owner review, then generate the
+first fixture-only engineering package. No installation, publication, promotion,
+or retirement authority is granted by source reconciliation.

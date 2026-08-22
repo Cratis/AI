@@ -108,6 +108,7 @@ const unexpectedUntracked = admittedUntracked.filter(
             ) ||
             /^catalog\//.test(path) ||
             /^distribution\//.test(path) ||
+            /^engineering\//.test(path) ||
             /^evidence\/source-evidence\//.test(path) ||
             /^evals\//.test(path) ||
             /^pilots\//.test(path) ||
@@ -124,9 +125,19 @@ const v2Sources = readCatalog(join(repositoryRoot, "catalog/v2/sources.json"));
 const publicSkillRoots = v2Sources.sources
     .filter((source) => source.audience === "public")
     .map((source) => `${source.sourcePath}/**`);
-const engineeringSkillRoots = v2Sources.sources
-    .filter((source) => source.audience === "cratis-engineering")
-    .map((source) => `${source.sourcePath}/**`);
+const legacyEngineeringSkillNames = [
+    "add-cratis-docs-page",
+    "add-traces",
+    "cratis-csharp-standards",
+    "edit-cratis-docs",
+    "qa-cratis-docs",
+    "ship-changes",
+    "skill-creator",
+    "write-documentation",
+];
+const engineeringSkillRoots = legacyEngineeringSkillNames.map(
+    (name) => `.ai/skills/${name}/**`,
+);
 
 const definitions = [
     {
@@ -311,6 +322,23 @@ const definitions = [
         risk: "critical",
         migrationState: "move-deferred",
         evidenceIds: ["repo-main-b795d53", "reevaluation-authority"],
+    },
+    {
+        id: "engineering-canonical-target-sources",
+        sourcePathPatterns: ["engineering/skills/**"],
+        artifactType: "skill-source-and-resources",
+        currentOwner: engineeringOwner,
+        targetOwner: engineeringOwner,
+        runtimeEligibility: "candidate",
+        generatedStatus: "source",
+        adapterStatus: "none",
+        dependencies: [
+            "catalog/v2/targets.json",
+            "distribution/engineering-artifact-matrix.json",
+        ],
+        risk: "high",
+        migrationState: "retain",
+        evidenceIds: ["option-a-plus-authority", "reevaluation-authority"],
     },
     {
         id: "skill-evaluations",
@@ -719,6 +747,22 @@ const definitions = [
         risk: "medium",
         migrationState: "retain",
         evidenceIds: ["ecosystem-use-cases"],
+    },
+    {
+        id: "engineering-docs-authoring-evaluations",
+        sourcePathPatterns: ["evals/cratis-engineering-docs-authoring/**"],
+        artifactType: "evaluation",
+        currentOwner: engineeringOwner,
+        targetOwner: repositoryOwner,
+        runtimeEligibility: "repository-only",
+        generatedStatus: "source",
+        adapterStatus: "none",
+        dependencies: [
+            "engineering/skills/cratis-engineering-docs-authoring/**",
+        ],
+        risk: "medium",
+        migrationState: "retain",
+        evidenceIds: ["reevaluation-authority"],
     },
     {
         id: "source-evidence-contract-v1",

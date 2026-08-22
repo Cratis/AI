@@ -748,20 +748,23 @@
     },
     {
       "id": "write-documentation",
-      "sourcePath": ".ai/skills/write-documentation",
+      "sourcePath": "engineering/skills/cratis-engineering-docs-authoring",
       "artifactType": "agent-skill-source",
       "currentOwner": "reusable Cratis engineering behavior",
       "targetOwner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "bundledPaths": [
-        ".ai/skills/write-documentation/SKILL.md"
+        "engineering/skills/cratis-engineering-docs-authoring/LICENSE",
+        "engineering/skills/cratis-engineering-docs-authoring/SKILL.md",
+        "engineering/skills/cratis-engineering-docs-authoring/references/site-format.md"
       ],
-      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-      "contentDigest": "a2275283ae6a841a007b7b2040a5b315fb889d49de5fe113f6fab99ecfbae4e7",
+      "sourceRevision": "f58bcf7f5cc9fc0e11305ada3b5ecb6fa20953e9",
+      "contentDigest": "9e9731cdb930999784fd8b244c3df7f0b49b54479d47fd26bc624e1b81e480fa",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "engineering-docs-authoring-source-f58bcf7"
       ]
     },
     {

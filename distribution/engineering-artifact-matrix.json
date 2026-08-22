@@ -4,8 +4,9 @@
   "audience": "cratis-engineering",
   "firstPassiveTarget": {
     "targetId": "cratis-engineering-docs-authoring",
-    "state": "CLASSIFIED_NOT_APPROVED",
-    "reason": "It is the lowest-risk engineering target and has no scripts, hooks, remote operations, live-store access, or executable package implementation.",
+    "state": "SOURCE_RECONCILED_NOT_EVALUATED",
+    "reason": "The lowest-risk target now has self-contained canonical source and zero-model-run routing cases, but behavior, trigger, collision, portability, installation, and owner approval remain incomplete.",
+    "canonicalSourcePath": "engineering/skills/cratis-engineering-docs-authoring",
     "rawSourcePackagingAllowed": false
   },
   "packageBoundaries": [

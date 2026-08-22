@@ -156,7 +156,11 @@ test("documentation authoring is classified but remains unapproved", () => {
         ".ai/rules/documentation-structure-and-formatting.md",
         ".ai/rules/writing-cratis-docs.md",
     ]);
-    assert.equal(target.sourceContractState, "unclassified");
+    assert.equal(target.sourceContractState, "classified");
+    assert.deepEqual(target.sourceContractIds, ["cratis-ai-composition"]);
+    assert.deepEqual(target.sourceAuthoritySubjects, [
+        "capability-composition",
+    ]);
     assert.equal(target.authoringContractState, "classified");
     assert.deepEqual(target.authoringContractIds, [
         "cratis-skill-clean-room-v1",
@@ -167,6 +171,22 @@ test("documentation authoring is classified but remains unapproved", () => {
         "assets/**",
         "LICENSE*",
     ]);
+    const source = catalogs.sources.sources.find(
+        (candidate) => candidate.id === "write-documentation",
+    );
+    assert.equal(
+        source.sourcePath,
+        "engineering/skills/cratis-engineering-docs-authoring",
+    );
+    assert.equal(
+        source.sourceRevision,
+        "f58bcf7f5cc9fc0e11305ada3b5ecb6fa20953e9",
+    );
+    assert(
+        source.evidenceIds.includes(
+            "engineering-docs-authoring-source-f58bcf7",
+        ),
+    );
     assert.equal(target.approval.state, "candidate");
     assert.equal(target.includeInRuntime, false);
 });
@@ -555,7 +575,7 @@ test("stale and future-dated evidence fail and every fact remains evidence-bound
         ),
     );
     catalogs.evidence.evidence[0].expiresOn = "2026-08-19";
-    catalogs.evidence.evidence[1].verifiedOn = "2026-08-21";
+    catalogs.evidence.evidence[1].verifiedOn = "2026-08-23";
     const errors = validateEvidenceAndCoverage(catalogs);
     assert(errors.some((error) => error.includes("expired")));
     assert(errors.some((error) => error.includes("verified after")));
