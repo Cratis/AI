@@ -100,6 +100,7 @@ const admittedUntracked = gitPaths([
 const unexpectedUntracked = admittedUntracked.filter(
     (path) =>
         !(
+            path === ".github/workflows/distribution-canary-rollback.yml" ||
             /^AI-REPOSITORY-REDESIGN-[A-Z0-9-]+\.md$/.test(path) ||
             /^Documentation\/(?:capability-catalog-v2|phase-0-verification|public-product-architecture|skill-authoring-contract|skill-classification-audit|project-context-bootstrap|redesign-foundation-validation|source-evidence-contract)\.md$/.test(
                 path,
@@ -437,6 +438,7 @@ const definitions = [
     {
         id: "repository-validation-workflow",
         sourcePathPatterns: [
+            ".github/workflows/distribution-canary-rollback.yml",
             ".github/workflows/verify-ai-corpus.yml",
         ],
         artifactType: "workflow",

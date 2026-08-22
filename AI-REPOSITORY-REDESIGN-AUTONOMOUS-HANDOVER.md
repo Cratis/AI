@@ -1251,3 +1251,47 @@ then add generated-repository canary/rollback workflow contracts and production
 materializer wiring that remains disabled until repository/credential and target
 approval gates pass. Runtime activation, publication, promotion, fleet rollout,
 legacy retirement, and freeze lifting remain blocked.
+
+## 34. Fixture canary and rollback mechanics — 2026-08-22
+
+The marketplace distribution foundation merged with green CI in Cratis/AI#140.
+AI#126 and Workflows#68 were updated, its branch/worktree were removed normally,
+and this branch starts from merge commit
+`00828efb80ac93b274c8a3bee7c844fdea19b4fb`.
+
+The next distribution unit adds mechanics rather than more general validation:
+
+- `distribution/rollout-policy.json` defines the bot-repository, candidate,
+  canary, promotion, rollback, emergency-disable, and legacy-retirement gates;
+- `tooling/stage-distribution-candidate.mjs` wires the artifact catalog to the
+  generator and allows only `sanitized-public-materializer-fixture`; the planned
+  passive public release still fails closed;
+- `tooling/simulate-distribution-rollout.mjs` stages immutable digest-addressed
+  fixture releases, records canary evidence, advances a fixture stable pin,
+  rolls back to a known release, preserves ordered audit history, and emergency
+  disables further fixture promotion;
+- `.github/workflows/distribution-canary-rollback.yml` is a read-only manual
+  workflow that verifies candidate reproducibility or runs the fixture canary /
+  rollback simulation; it has no write, environment, credential, publish,
+  promotion, or retirement permission;
+- focused specs reject failed-canary promotion, promotion after emergency
+  disable, unknown rollback releases, tampered candidates, duplicate releases,
+  and staging of the blocked public artifact.
+
+Local evidence in
+`distribution/evidence/local-canary-rollback-2026-08-22.json` records two staged
+fixture releases, two passing fixture canaries, two fixture promotions, one
+rollback, one emergency disable, and eight ordered audit entries. This is not
+production canary or rollback evidence.
+
+Fresh evidence is 8/8 focused rollout specs and 181/181 full repository specs.
+The manual workflow YAML parses, candidate and simulation CLIs pass, and catalog,
+stable inventory, syntax, strict JSON, LSP, structural, focused Markdown, and
+diff gates pass with only the unchanged legacy advisories.
+
+Merge this unit and then continue production materializer and generated-
+repository integration as far as deterministic local contracts allow.
+Actual bot writes, protected environments, package staging/publication, approved
+public targets, fleet canaries, rollback against consuming repositories, legacy
+retirement, and freeze lifting remain blocked on external repository/credential,
+source, target, and reviewer authority.

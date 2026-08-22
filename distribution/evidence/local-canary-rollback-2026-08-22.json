@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "1.0.0",
+  "observedAt": "2026-08-22",
+  "sourceCommit": null,
+  "sourceWorktreeBase": "00828efb80ac93b274c8a3bee7c844fdea19b4fb",
+  "state": "FIXTURE_ONLY_ROLLOUT_SIMULATION",
+  "candidate": {
+    "artifactId": "sanitized-public-materializer-fixture",
+    "status": "PASS",
+    "publicationEligible": false,
+    "promotionEligible": false
+  },
+  "rollout": {
+    "stagedReleases": 2,
+    "passingCanaries": 2,
+    "fixturePromotions": 2,
+    "rollbacks": 1,
+    "emergencyDisables": 1,
+    "auditHistoryEntries": 8,
+    "finalStableIsFirstRelease": true,
+    "finalEmergencyDisabled": true,
+    "status": "PASS"
+  },
+  "negativeChecks": [
+    "planned public release staging remains blocked",
+    "failed canary cannot promote",
+    "emergency disable blocks promotion",
+    "unknown rollback release fails",
+    "tampered candidate fails",
+    "duplicate release cannot overwrite"
+  ],
+  "limitations": [
+    "This is deterministic local fixture simulation, not a production canary or rollback.",
+    "No generated repository, bot credential, protected environment, approved public target, package publication, fleet target, or legacy wrapper was used.",
+    "Stable and promotion terms in simulator state are fixture-only and do not grant production promotion eligibility."
+  ],
+  "publicationEligible": false,
+  "promotionEligible": false,
+  "legacyRetirementEligible": false
+}
