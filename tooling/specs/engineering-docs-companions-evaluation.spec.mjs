@@ -172,7 +172,9 @@ test("companion grader requires exact run metadata and immutable output hashes",
         "utf8",
     );
     assert(
-        grader.includes("Run manifest does not exactly match the frozen run matrix"),
+        grader.includes(
+            "Run manifest does not exactly match the frozen run matrix",
+        ),
     );
     assert(
         grader.includes("Run manifest does not exactly cover run directories"),
