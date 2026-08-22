@@ -1742,3 +1742,34 @@ still point at legacy source until immutable commits are available, and their
 target classifications/evaluations remain incomplete. Next: merge, bind each
 source to its immutable canonical revision, classify effects/profiles/dependencies,
 then freeze and run companion evaluations before fixture packaging.
+
+## 46. Documentation companion classification — 2026-08-22
+
+Canonical companion sources merged with green CI in Cratis/AI#157. Their
+existing catalog source identities now point to the canonical engineering paths
+at immutable revision `684d03755bacd40af95463b81b4a0c8b9f088ec1`, with one
+repository-snapshot evidence record per source. Legacy `.ai` copies remain
+inventory-only.
+
+Both companion targets are now classified as passive, user/model-invoked,
+product-neutral journeys for contributor/maintainer personas on direct-skill and
+IDE surfaces across application/client/corpus/framework repositories:
+
+- add-page has confirmed reversible create-page and modify-navigation effects;
+- edit-page has one confirmed reversible source/navigation modify effect;
+- both require repository/task-owner authorization and before-effect path
+  confirmation;
+- both soft-depend on docs-authoring and optionally depend on visual QA, with
+  explicit degrade/omit behavior when absent;
+- both use `cratis-ai-composition` / `capability-composition` source authority
+  and the clean-room authoring contract;
+- both allow only `SKILL.md`, references, assets, and licenses while scripts,
+  evals, rules, agents, prompts, hooks, tooling, workflows, and local
+  configuration remain forbidden;
+- behavior, trigger, negative-trigger, and collision evidence remain missing;
+- approval remains candidate and `includeInRuntime` remains false.
+
+The matrix records both as `SOURCE_RECONCILED_NOT_EVALUATED`; raw source
+packaging remains forbidden. Next: freeze calibration and held-out routing
+corpora for both targets, run repeated evidence, independently review it, then
+consider fixture packaging.

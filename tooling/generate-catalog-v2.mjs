@@ -43,6 +43,26 @@ const internalTargets = new Map([
 
 const sourceOverrides = new Map([
     [
+        "add-cratis-docs-page",
+        {
+            sourcePath:
+                "engineering/skills/cratis-engineering-docs-add-page",
+            sourceRevision:
+                "684d03755bacd40af95463b81b4a0c8b9f088ec1",
+            evidenceId: "engineering-docs-add-page-source-684d037",
+        },
+    ],
+    [
+        "edit-cratis-docs",
+        {
+            sourcePath:
+                "engineering/skills/cratis-engineering-docs-edit-page",
+            sourceRevision:
+                "684d03755bacd40af95463b81b4a0c8b9f088ec1",
+            evidenceId: "engineering-docs-edit-page-source-684d037",
+        },
+    ],
+    [
         "write-documentation",
         {
             sourcePath: "engineering/skills/cratis-engineering-docs-authoring",
@@ -52,7 +72,157 @@ const sourceOverrides = new Map([
     ],
 ]);
 
+function documentationEffect(id, operation, scope, rollback) {
+    return {
+        id,
+        operation,
+        resourceBoundary: "current repository worktree",
+        scope,
+        dataClassifications: ["internal", "public"],
+        reversible: true,
+        rollbackOrCompensation: rollback,
+        confirmation: {
+            required: true,
+            timing: "before-effect",
+            reason: "The repository maintainer confirms the exact documentation paths before files change.",
+        },
+        authorization: {
+            required: true,
+            authority: "Repository maintainer or task owner",
+            evidenceIds: ["ai-126"],
+        },
+        evidenceIds: ["repo-main-b795d53", "reevaluation-authority"],
+    };
+}
+
+function documentationCompanionClassification({
+    effects,
+    dependencyEdges,
+    targetDependencies,
+}) {
+    return {
+        capabilityKind: "journey",
+        invocation: "both",
+        architectures: {
+            state: "applicable",
+            ids: ["product-neutral"],
+            reason: "Documentation integration applies across Cratis products without assuming an application architecture.",
+        },
+        personas: {
+            state: "applicable",
+            ids: ["contributor", "maintainer"],
+            reason: "Contributors and maintainers integrate reviewed Cratis documentation.",
+        },
+        surfaces: {
+            state: "applicable",
+            ids: ["direct-agent-skills", "ide"],
+            reason: "The workflow is an instruction-only skill used from an agent or IDE session.",
+        },
+        repositoryProfiles: {
+            state: "applicable",
+            ids: ["application", "client", "corpus", "framework"],
+            reason: "Documentation can be owned by application, client, framework, or corpus repositories.",
+        },
+        trust: {
+            class: "passive",
+            assessmentState: "assessed",
+            effects,
+        },
+        dependencyEdges,
+        targetDependencies,
+        internalArtifacts: [],
+        sourceContractIds: ["cratis-ai-composition"],
+        sourceAuthoritySubjects: ["capability-composition"],
+        authoringContractIds: ["cratis-skill-clean-room-v1"],
+        runtimeAllowed: ["SKILL.md", "references/**", "assets/**", "LICENSE*"],
+    };
+}
+
 const engineeringClassifications = new Map([
+    [
+        "cratis-engineering-docs-add-page",
+        documentationCompanionClassification({
+            effects: [
+                documentationEffect(
+                    "create-documentation-page",
+                    "create",
+                    "one approved documentation source page",
+                    "Delete the uncommitted page or revert the dedicated documentation commit.",
+                ),
+                documentationEffect(
+                    "modify-documentation-navigation",
+                    "modify",
+                    "owning ToC and site navigation entries required for the approved page",
+                    "Restore the prior navigation bytes or revert the dedicated documentation commit.",
+                ),
+            ],
+            dependencyEdges: [
+                {
+                    dependencyId: "cratis-engineering-docs-authoring",
+                    category: "target",
+                    strength: "soft",
+                    reason: "A new page needs approved content after placement is known.",
+                    missingBehavior: {
+                        action: "degrade",
+                        description: "Place only already approved content; otherwise stop after the placement plan.",
+                    },
+                },
+                {
+                    dependencyId: "cratis-engineering-docs-visual-qa",
+                    category: "target",
+                    strength: "optional",
+                    reason: "Rendered visual review is a separate completion enhancement.",
+                    missingBehavior: {
+                        action: "omit",
+                        description: "Report visual QA as outstanding without claiming rendered quality.",
+                    },
+                },
+            ],
+            targetDependencies: [
+                "cratis-engineering-docs-authoring",
+                "cratis-engineering-docs-visual-qa",
+            ],
+        }),
+    ],
+    [
+        "cratis-engineering-docs-edit-page",
+        documentationCompanionClassification({
+            effects: [
+                documentationEffect(
+                    "modify-documentation-page",
+                    "modify",
+                    "one authoritative existing documentation source page and navigation only when its title or slug changes",
+                    "Restore the prior source/navigation bytes or revert the dedicated documentation commit.",
+                ),
+            ],
+            dependencyEdges: [
+                {
+                    dependencyId: "cratis-engineering-docs-authoring",
+                    category: "target",
+                    strength: "soft",
+                    reason: "Substantial content redesign is delegated to the authoring workflow.",
+                    missingBehavior: {
+                        action: "degrade",
+                        description: "Apply only narrow source-backed corrections; block substantial redesign.",
+                    },
+                },
+                {
+                    dependencyId: "cratis-engineering-docs-visual-qa",
+                    category: "target",
+                    strength: "optional",
+                    reason: "Rendered visual review is a separate completion enhancement.",
+                    missingBehavior: {
+                        action: "omit",
+                        description: "Report visual QA as outstanding without claiming rendered quality.",
+                    },
+                },
+            ],
+            targetDependencies: [
+                "cratis-engineering-docs-authoring",
+                "cratis-engineering-docs-visual-qa",
+            ],
+        }),
+    ],
     [
         "cratis-engineering-docs-authoring",
         {
@@ -132,61 +302,9 @@ const engineeringClassifications = new Map([
                     },
                 ],
             },
-            dependencyEdges: [
-                {
-                    dependencyId:
-                        ".ai/rules/documentation-structure-and-formatting.md",
-                    category: "internal-artifact",
-                    strength: "hard",
-                    reason: "The rule defines the site-compatible document structure.",
-                    missingBehavior: {
-                        action: "block",
-                        description:
-                            "Stop rather than inventing documentation structure.",
-                    },
-                },
-                {
-                    dependencyId: ".ai/rules/writing-cratis-docs.md",
-                    category: "internal-artifact",
-                    strength: "hard",
-                    reason: "The rule defines the Cratis documentation voice and quality bar.",
-                    missingBehavior: {
-                        action: "block",
-                        description:
-                            "Stop rather than drafting without the Cratis writing contract.",
-                    },
-                },
-                {
-                    dependencyId: "cratis-engineering-docs-add-page",
-                    category: "target",
-                    strength: "soft",
-                    reason: "New pages need repository placement and navigation wiring.",
-                    missingBehavior: {
-                        action: "degrade",
-                        description:
-                            "Draft content only and disclose that placement and navigation remain unresolved.",
-                    },
-                },
-                {
-                    dependencyId: "cratis-engineering-docs-edit-page",
-                    category: "target",
-                    strength: "soft",
-                    reason: "Existing pages need source-of-truth discovery and sync guidance.",
-                    missingBehavior: {
-                        action: "degrade",
-                        description:
-                            "Draft content only and disclose that source discovery and integration remain unresolved.",
-                    },
-                },
-            ],
-            targetDependencies: [
-                "cratis-engineering-docs-add-page",
-                "cratis-engineering-docs-edit-page",
-            ],
-            internalArtifacts: [
-                ".ai/rules/documentation-structure-and-formatting.md",
-                ".ai/rules/writing-cratis-docs.md",
-            ],
+            dependencyEdges: [],
+            targetDependencies: [],
+            internalArtifacts: [],
             sourceContractIds: ["cratis-ai-composition"],
             sourceAuthoritySubjects: ["capability-composition"],
             routingEvaluationEvidenceId:
@@ -953,7 +1071,8 @@ const targets = allTargetIds.map((targetId) => {
                     : "missing",
                 evidenceIds: [],
             },
-            positiveTrigger: engineeringClassification
+            positiveTrigger:
+                engineeringClassification?.routingEvaluationEvidenceId
                 ? {
                       status: "passing",
                       evidenceIds: [
@@ -961,7 +1080,8 @@ const targets = allTargetIds.map((targetId) => {
                       ],
                   }
                 : { status: "missing", evidenceIds: [] },
-            negativeTrigger: engineeringClassification
+            negativeTrigger:
+                engineeringClassification?.routingEvaluationEvidenceId
                 ? {
                       status: "passing",
                       evidenceIds: [
@@ -969,7 +1089,8 @@ const targets = allTargetIds.map((targetId) => {
                       ],
                   }
                 : { status: "missing", evidenceIds: [] },
-            collision: engineeringClassification
+            collision:
+                engineeringClassification?.routingEvaluationEvidenceId
                 ? {
                       status: "passing",
                       evidenceIds: [
@@ -1277,6 +1398,28 @@ const evidence = [
         applicableVersion: revision,
         confidence: "high",
         immutableRevision: revision,
+    },
+    {
+        id: "engineering-docs-add-page-source-684d037",
+        officialUrl:
+            "https://github.com/Cratis/AI/tree/684d03755bacd40af95463b81b4a0c8b9f088ec1/engineering/skills/cratis-engineering-docs-add-page",
+        sourceKind: "repository-snapshot",
+        verifiedOn: "2026-08-22",
+        expiresOn: "2027-08-22",
+        applicableVersion: "684d03755bacd40af95463b81b4a0c8b9f088ec1",
+        confidence: "high",
+        immutableRevision: "684d03755bacd40af95463b81b4a0c8b9f088ec1",
+    },
+    {
+        id: "engineering-docs-edit-page-source-684d037",
+        officialUrl:
+            "https://github.com/Cratis/AI/tree/684d03755bacd40af95463b81b4a0c8b9f088ec1/engineering/skills/cratis-engineering-docs-edit-page",
+        sourceKind: "repository-snapshot",
+        verifiedOn: "2026-08-22",
+        expiresOn: "2027-08-22",
+        applicableVersion: "684d03755bacd40af95463b81b4a0c8b9f088ec1",
+        confidence: "high",
+        immutableRevision: "684d03755bacd40af95463b81b4a0c8b9f088ec1",
     },
     {
         id: "engineering-docs-authoring-source-f58bcf7",

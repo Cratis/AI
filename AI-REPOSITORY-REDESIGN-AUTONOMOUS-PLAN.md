@@ -590,8 +590,11 @@ Evidence and exact next actions are in
 - [x] Reconcile the new-page placement and existing-page source-discovery
   companion targets into self-contained canonical passive sources with exact
   routing cases and zero model runs.
-- [ ] Bind and classify those companions at immutable revisions, then evaluate
-  them before adding them to an engineering fixture package.
+- [x] Bind and classify both companion sources at immutable revision `684d037`,
+  including profiles, confirmed reversible effects, soft authoring and optional
+  visual-QA dependencies, source/authoring contracts, and runtime exclusions.
+- [ ] Freeze and run companion calibration/held-out evaluations before adding
+  either target to an engineering fixture package.
 - [ ] Provision the repository-scoped App credentials from Workflows#72 before
   any generated update PR, tag, release, or publication operation.
 - [ ] Keep publication and retirement disabled until explicit approvals pass.

@@ -95,8 +95,13 @@ test("catalog v2 exposes closed shared taxonomies without broadening targets", (
 
 test("unreviewed targets remain explicitly unclassified and runtime ineligible", () => {
     const catalogs = loadCatalogs();
+    const classified = new Set([
+        "cratis-engineering-docs-add-page",
+        "cratis-engineering-docs-authoring",
+        "cratis-engineering-docs-edit-page",
+    ]);
     for (const target of catalogs.targets.targets) {
-        if (target.id === "cratis-engineering-docs-authoring") continue;
+        if (classified.has(target.id)) continue;
         assert.equal(target.capabilityKind, "unclassified");
         assert.equal(target.invocation, "unclassified");
         assert.equal(target.lifecycle, "candidate");
@@ -147,15 +152,9 @@ test("documentation authoring is classified but remains unapproved", () => {
         ["create", "modify"],
     );
     assert.equal(target.dependencyClassificationState, "classified");
-    assert.equal(target.dependencyEdges.length, 4);
-    assert.deepEqual(target.dependencies.targets, [
-        "cratis-engineering-docs-add-page",
-        "cratis-engineering-docs-edit-page",
-    ]);
-    assert.deepEqual(target.dependencies.internalArtifacts, [
-        ".ai/rules/documentation-structure-and-formatting.md",
-        ".ai/rules/writing-cratis-docs.md",
-    ]);
+    assert.deepEqual(target.dependencyEdges, []);
+    assert.deepEqual(target.dependencies.targets, []);
+    assert.deepEqual(target.dependencies.internalArtifacts, []);
     assert.equal(target.sourceContractState, "classified");
     assert.deepEqual(target.sourceContractIds, ["cratis-ai-composition"]);
     assert.deepEqual(target.sourceAuthoritySubjects, [
@@ -200,6 +199,87 @@ test("documentation authoring is classified but remains unapproved", () => {
     }
     assert.equal(target.approval.state, "candidate");
     assert.equal(target.includeInRuntime, false);
+});
+
+test("documentation companions are classified and bound but unevaluated", () => {
+    const catalogs = loadCatalogs();
+    const expectations = [
+        {
+            targetId: "cratis-engineering-docs-add-page",
+            sourceId: "add-cratis-docs-page",
+            sourcePath: "engineering/skills/cratis-engineering-docs-add-page",
+            evidenceId: "engineering-docs-add-page-source-684d037",
+            effects: ["create", "modify"],
+        },
+        {
+            targetId: "cratis-engineering-docs-edit-page",
+            sourceId: "edit-cratis-docs",
+            sourcePath: "engineering/skills/cratis-engineering-docs-edit-page",
+            evidenceId: "engineering-docs-edit-page-source-684d037",
+            effects: ["modify"],
+        },
+    ];
+    for (const expected of expectations) {
+        const target = catalogs.targets.targets.find(
+            candidate => candidate.id === expected.targetId,
+        );
+        const source = catalogs.sources.sources.find(
+            candidate => candidate.id === expected.sourceId,
+        );
+        assert.equal(target.capabilityKind, "journey");
+        assert.equal(target.invocation, "both");
+        assert.deepEqual(target.architectures.ids, ["product-neutral"]);
+        assert.deepEqual(target.personas.ids, ["contributor", "maintainer"]);
+        assert.deepEqual(target.surfaces.ids, ["direct-agent-skills", "ide"]);
+        assert.deepEqual(target.repositoryProfiles.ids, [
+            "application",
+            "client",
+            "corpus",
+            "framework",
+        ]);
+        assert.equal(target.trust.class, "passive");
+        assert.equal(target.trust.assessmentState, "assessed");
+        assert.deepEqual(
+            target.trust.effects.map(effect => effect.operation),
+            expected.effects,
+        );
+        assert(
+            target.trust.effects.every(
+                effect =>
+                    effect.confirmation.required === true &&
+                    effect.confirmation.timing === "before-effect" &&
+                    effect.authorization.required === true &&
+                    effect.reversible === true,
+            ),
+        );
+        assert.equal(target.dependencyClassificationState, "classified");
+        assert.deepEqual(target.dependencies.targets, [
+            "cratis-engineering-docs-authoring",
+            "cratis-engineering-docs-visual-qa",
+        ]);
+        assert.deepEqual(
+            target.dependencyEdges.map(edge => edge.strength),
+            ["soft", "optional"],
+        );
+        assert.equal(target.sourceContractState, "classified");
+        assert.deepEqual(target.sourceContractIds, ["cratis-ai-composition"]);
+        assert.equal(target.authoringContractState, "classified");
+        assert.deepEqual(target.authoringContractIds, [
+            "cratis-skill-clean-room-v1",
+        ]);
+        assert.equal(target.evaluations.behavior.status, "missing");
+        assert.equal(target.evaluations.positiveTrigger.status, "missing");
+        assert.equal(target.evaluations.negativeTrigger.status, "missing");
+        assert.equal(target.evaluations.collision.status, "missing");
+        assert.equal(target.approval.state, "candidate");
+        assert.equal(target.includeInRuntime, false);
+        assert.equal(source.sourcePath, expected.sourcePath);
+        assert.equal(
+            source.sourceRevision,
+            "684d03755bacd40af95463b81b4a0c8b9f088ec1",
+        );
+        assert(source.evidenceIds.includes(expected.evidenceId));
+    }
 });
 
 test("source digests remain bound to the current source bytes", () => {

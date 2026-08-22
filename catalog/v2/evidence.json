@@ -50,6 +50,26 @@
       "immutableRevision": "b795d5307e20f7f7458a67708b4f26975e223796"
     },
     {
+      "id": "engineering-docs-add-page-source-684d037",
+      "officialUrl": "https://github.com/Cratis/AI/tree/684d03755bacd40af95463b81b4a0c8b9f088ec1/engineering/skills/cratis-engineering-docs-add-page",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-08-22",
+      "expiresOn": "2027-08-22",
+      "applicableVersion": "684d03755bacd40af95463b81b4a0c8b9f088ec1",
+      "confidence": "high",
+      "immutableRevision": "684d03755bacd40af95463b81b4a0c8b9f088ec1"
+    },
+    {
+      "id": "engineering-docs-edit-page-source-684d037",
+      "officialUrl": "https://github.com/Cratis/AI/tree/684d03755bacd40af95463b81b4a0c8b9f088ec1/engineering/skills/cratis-engineering-docs-edit-page",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-08-22",
+      "expiresOn": "2027-08-22",
+      "applicableVersion": "684d03755bacd40af95463b81b4a0c8b9f088ec1",
+      "confidence": "high",
+      "immutableRevision": "684d03755bacd40af95463b81b4a0c8b9f088ec1"
+    },
+    {
       "id": "engineering-docs-authoring-source-f58bcf7",
       "officialUrl": "https://github.com/Cratis/AI/tree/f58bcf7f5cc9fc0e11305ada3b5ecb6fa20953e9/engineering/skills/cratis-engineering-docs-authoring",
       "sourceKind": "repository-snapshot",
