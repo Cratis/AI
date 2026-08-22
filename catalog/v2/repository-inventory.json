@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "a3768140ecb782a14a2765422ec9e8c4f524c708b91309ffcd531ab42a051565",
+  "indexDigest": "c41429ef7a8033eba77e8e87556b99f44ab0986a84bd37308dcaffd6a436f72a",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -20,6 +20,10 @@
     },
     {
       "path": ".github/workflows/distribution-npm-stage.yml",
+      "status": "added"
+    },
+    {
+      "path": ".github/workflows/engineering-distribution-fixture.yml",
       "status": "added"
     },
     {
@@ -284,6 +288,10 @@
     },
     {
       "path": "distribution/evidence/local-canary-rollback-2026-08-22.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/evidence/local-engineering-docs-authoring-fixture-2026-08-22.json",
       "status": "added"
     },
     {
@@ -1555,6 +1563,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/generate-engineering-distribution-fixture.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/generate-human-catalog.mjs",
       "status": "added"
     },
@@ -1640,6 +1652,10 @@
     },
     {
       "path": "tooling/specs/domain-expert-event-modeling-pilot.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/engineering-distribution-fixture.spec.mjs",
       "status": "added"
     },
     {
@@ -2236,6 +2252,7 @@
       "id": "repository-validation-workflow",
       "sourcePathPatterns": [
         ".github/workflows/distribution-canary-rollback.yml",
+        ".github/workflows/engineering-distribution-fixture.yml",
         ".github/workflows/distribution-generated-update.yml",
         ".github/workflows/distribution-npm-stage.yml",
         ".github/workflows/verify-ai-corpus.yml"
@@ -2256,8 +2273,8 @@
         "repo-main-b795d53",
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 4,
-      "expectedPathsDigest": "e1954180491c3afafb5bc8225878c01927f90a4b81abdd76442fbe3e5796f50f"
+      "expectedPathCount": 5,
+      "expectedPathsDigest": "5c7d3ee554ebb50633a8139a841a107e6cfc027018c5fa10b4d2ef056d6f35bf"
     },
     {
       "excludePathPatterns": [],
@@ -2944,8 +2961,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 13,
-      "expectedPathsDigest": "44be17dfc60356a52c190f85b2dc30ab829a0091d6f8c79d346adc819f9eda38"
+      "expectedPathCount": 14,
+      "expectedPathsDigest": "774e5e3dd0c5dd3384c8c453fb164bd9e585e7a61f17e3110516dc7fe2fa1bb3"
     },
     {
       "excludePathPatterns": [],
@@ -2967,8 +2984,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 25,
-      "expectedPathsDigest": "4bc92ba7360bf3781aff40a145e27e6ed0fd0852fb4110d3f270ed0936fdad06"
+      "expectedPathCount": 26,
+      "expectedPathsDigest": "da0f86f93f14e07137376c68151fb36eb6f080b02643addaf9bdaa33ea379dbe"
     },
     {
       "excludePathPatterns": [],
@@ -2991,8 +3008,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 18,
-      "expectedPathsDigest": "3128c5b6df19ce7ec2b4da18304b71502522cd7a34fc8001d7388968997ecc14"
+      "expectedPathCount": 19,
+      "expectedPathsDigest": "b72ad0335dc9fbad4f6c66d9a57e03e0957c5fe9ef25521daf8a8b83c5eb370e"
     },
     {
       "excludePathPatterns": [],
