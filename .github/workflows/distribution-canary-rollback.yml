@@ -14,6 +14,7 @@ on:
         options:
           - verify-candidate
           - simulate-canary-rollback
+          - simulate-generated-repository
 
 permissions:
   contents: read
@@ -58,10 +59,21 @@ jobs:
           node tooling/simulate-distribution-rollout.mjs \
             "$RUNNER_TEMP/distribution-rollout"
 
+      - name: Simulate the bot-owned generated repository
+        if: inputs.operation == 'simulate-generated-repository'
+        run: |
+          set -euo pipefail
+          node tooling/bootstrap-generated-distribution-repository.mjs \
+            --output "$RUNNER_TEMP/generated-distribution-repository" \
+            --record "$RUNNER_TEMP/generated-distribution-repository.json"
+          test "$(git -C "$RUNNER_TEMP/generated-distribution-repository" rev-list --count HEAD)" = "1"
+          test -z "$(git -C "$RUNNER_TEMP/generated-distribution-repository" status --porcelain)"
+
       - name: Run distribution specifications
         run: |
           node --test tooling/specs/distribution-fixture.spec.mjs
           node --test tooling/specs/distribution-rollout.spec.mjs
+          node --test tooling/specs/generated-distribution-repository.spec.mjs
 
       - name: Confirm publication remains absent
         run: |

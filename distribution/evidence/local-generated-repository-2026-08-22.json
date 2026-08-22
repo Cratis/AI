@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "1.0.0",
+  "observedAt": "2026-08-22",
+  "sourceCommit": null,
+  "sourceWorktreeBase": "0d4c0c860bab9795bd91deddbff9e7573247696d",
+  "state": "LOCAL_GENERATED_REPOSITORY_FIXTURE",
+  "repositoryName": "Cratis/AI.Distribution",
+  "remoteRepositoryStatus": "BLOCKED_ON_REMOTE_REPOSITORY_AND_BOT_CREDENTIAL",
+  "generatedCommit": "4c0c11a68f8d75a72d86495f9ae3d253821fe36f",
+  "generatedTree": "6a189e044968cce21039eed6e767073ffa4020ab",
+  "generatedFiles": 51,
+  "generatedBranch": "main",
+  "commitCount": 1,
+  "author": {
+    "name": "cratis-distribution-fixture-bot",
+    "email": "fixture-bot@invalid.example"
+  },
+  "checks": [
+    "deterministic commit and tree across independent repositories",
+    "one root commit",
+    "bot simulation author identity",
+    "clean worktree",
+    "manifest-only tracked inventory",
+    "no authoring tooling or evaluation content",
+    "tamper rejection",
+    "human follow-up commit rejection",
+    "production plan blocked with zero approved targets"
+  ],
+  "status": "PASS",
+  "limitations": [
+    "This is a local Git repository simulation, not the remote Cratis/AI.Distribution repository.",
+    "The fixture bot identity is deterministic test metadata, not a credential or organization account.",
+    "No branch protection, protected environment, GitHub App, npm trusted publisher, approved target, publication, production canary, fleet rollout, or legacy retirement is included."
+  ],
+  "publicationEligible": false,
+  "promotionEligible": false,
+  "legacyRetirementEligible": false
+}

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "e3836157dc3ac6b239b07f7cd9153dcf72065b6bf4dc4772c15bfe5b193dc1cf",
+  "indexDigest": "9b334539135d622c4b9b7ebe6bd03c20a65af02ba5a3d7496bb01592bc64dc74",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -271,7 +271,15 @@
       "status": "added"
     },
     {
+      "path": "distribution/evidence/local-generated-repository-2026-08-22.json",
+      "status": "added"
+    },
+    {
       "path": "distribution/generated-repository-authority-request.md",
+      "status": "added"
+    },
+    {
+      "path": "distribution/generated-repository-contract.json",
       "status": "added"
     },
     {
@@ -1223,6 +1231,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/bootstrap-generated-distribution-repository.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/catalog-ordering.mjs",
       "status": "added"
     },
@@ -1376,6 +1388,10 @@
     },
     {
       "path": "tooling/specs/domain-expert-event-modeling-pilot.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/generated-distribution-repository.spec.mjs",
       "status": "added"
     },
     {
@@ -2618,8 +2634,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 6,
-      "expectedPathsDigest": "fadcc1dd51593bf2e9557c4ab06719adee4876441b0ce43d7038db68ca95d685"
+      "expectedPathCount": 8,
+      "expectedPathsDigest": "63829ad1ccb62e6e2c691ac5bc34adebc2a3870b568a0c22212725faa8bbf531"
     },
     {
       "excludePathPatterns": [],
@@ -2641,8 +2657,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 20,
-      "expectedPathsDigest": "67beb4ea95016f01915c3818e904e877592606b61819946673627d667d87a117"
+      "expectedPathCount": 21,
+      "expectedPathsDigest": "44bb0ac2c5fc21f5e51e1d1cd302686ec826d78e8826597e85943257250aacd8"
     },
     {
       "excludePathPatterns": [],
@@ -2665,8 +2681,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 13,
-      "expectedPathsDigest": "49857b600828a3be4340bf44b96e180feb5e13a23572efc384ed6aaeb1316b24"
+      "expectedPathCount": 14,
+      "expectedPathsDigest": "2048a1afb804cd99dd7cff263210fbe2e8c3599e0440159bc4671a45a3a04b50"
     },
     {
       "excludePathPatterns": [],
