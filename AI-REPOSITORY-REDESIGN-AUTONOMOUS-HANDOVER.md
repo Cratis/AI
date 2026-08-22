@@ -1198,3 +1198,56 @@ artifact matrix, generated distribution staging/repository authority,
 marketplace-native adapters, install/smoke/uninstall, provenance/checksums,
 canaries, and rollback. Product-source admission, runtime activation,
 publication, promotion, and legacy retirement remain blocked.
+
+## 33. Distribution foundation and native fixture adapters — 2026-08-22
+
+The event-modeling pilot merged with green CI in Cratis/AI#139. AI#126 and
+Workflows#68 were updated, its branch/worktree were removed normally, and this
+branch starts from merge commit
+`3d5f25538696ad546a98ef128ea925ed3c096b4b`.
+
+Delivery-first distribution work is now concrete:
+
+- `distribution/marketplace-requirements.json` records current official Agent
+  Skills, Claude Code, OpenAI Codex, GitHub Copilot, Cursor, Kiro, Junie,
+  Gemini CLI, installed Pi, and npm requirements;
+- `distribution/artifact-matrix.json` maps one canonical logical tree to native
+  skills-only adapters and keeps publication/promotion false;
+- `distribution/generated-repository-authority-request.md` requests public
+  `Cratis/AI.Distribution`, bot-only writes, branch protection, protected canary
+  and npm-stage environments, package ownership, and trusted-publisher setup;
+- `tooling/generate-distribution-fixture.mjs` materializes the already approved
+  sanitized fixture, projects exact bytes into canonical, Claude, Codex,
+  Copilot, Cursor, Kiro, Junie, Gemini, and Pi/npm layouts, and emits a
+  manifest-last inventory,
+  checksums, and an explicitly non-attestation fixture provenance record;
+- focused specs prove deterministic generation, byte parity, passive manifests,
+  tamper rejection, npm pack/install/uninstall, Pi install/list/remove, Claude
+  strict validation/install/remove, Copilot install/remove, Codex marketplace
+  add/remove, and Gemini link/remove in isolated homes.
+
+Observed local fixture smoke versions are npm 10.9.2, Pi 0.84.2, Claude Code
+2.1.235, GitHub Copilot CLI 1.0.67, Codex CLI 0.147.0, and Gemini CLI 0.33.1.
+The exact outcomes and limitations are in
+`distribution/evidence/local-fixture-smoke-2026-08-22.json`. This is actual local
+fixture evidence, not compatibility, release, canary, or promotion evidence.
+
+Option A+ authorizes implementation, but no designated bot identity, generated
+repository, protected environment, npm package ownership, or trusted publisher
+is available to this worktree. Creating or publishing with personal credentials
+would violate the bot-owned boundary, so the exact authority request is the
+correct gate while deterministic local staging continues.
+
+Fresh evidence is 11/11 focused distribution specs and 173/173 full repository
+specs, including all locally available native CLI smokes. Catalog, stable
+inventory, syntax, strict JSON, LSP, structural, focused Markdown, and diff gates
+pass; the three unchanged structural advisories and 230 unrelated legacy
+Documentation lint findings remain non-blocking baselines.
+
+This foundation does not admit real product sources or approve any public target.
+`catalog/v2/artifacts.json` still blocks the planned public release and allows
+only the sanitized fixture. Next delivery: merge this foundation after green CI,
+then add generated-repository canary/rollback workflow contracts and production
+materializer wiring that remains disabled until repository/credential and target
+approval gates pass. Runtime activation, publication, promotion, fleet rollout,
+legacy retirement, and freeze lifting remain blocked.

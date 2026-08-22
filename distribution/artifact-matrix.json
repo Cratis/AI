@@ -1,0 +1,130 @@
+{
+  "schemaVersion": "1.0.0",
+  "state": "FIXTURE_ONLY_LOCAL_STAGING",
+  "canonicalSource": {
+    "artifactId": "sanitized-public-materializer-fixture",
+    "approvedFiles": [
+      "skills/cratis-example/LICENSE",
+      "skills/cratis-example/SKILL.md",
+      "skills/cratis-example/assets/example.txt",
+      "skills/cratis-example/references/guide.md"
+    ]
+  },
+  "repository": {
+    "architecture": "OPTION_A_PLUS_GENERATED_DISTRIBUTION_REPOSITORY",
+    "status": "BLOCKED_ON_BOT_REPOSITORY_AND_CREDENTIAL_AUTHORITY",
+    "requestedName": "Cratis/AI.Distribution"
+  },
+  "publicationEligible": false,
+  "promotionEligible": false,
+  "targets": [
+    {
+      "id": "canonical-agent-skills",
+      "requirementId": "agent-skills-open-standard",
+      "state": "FIXTURE_GENERATION_ENABLED",
+      "outputRoot": "canonical",
+      "packageKind": "DIRECT_AGENT_SKILLS",
+      "smokeGates": [
+        "exact-skill-inventory",
+        "frontmatter-name-parity"
+      ]
+    },
+    {
+      "id": "claude-code",
+      "requirementId": "claude-code-marketplace",
+      "state": "FIXTURE_GENERATION_ENABLED",
+      "outputRoot": "claude",
+      "packageKind": "SKILLS_ONLY_PLUGIN_MARKETPLACE",
+      "smokeGates": [
+        "manifest-parse",
+        "canonical-byte-parity",
+        "claude-plugin-validate-when-available"
+      ]
+    },
+    {
+      "id": "openai-codex",
+      "requirementId": "openai-codex-plugin",
+      "state": "FIXTURE_GENERATION_ENABLED",
+      "outputRoot": "codex",
+      "packageKind": "SKILLS_ONLY_CODEX_PLUGIN_MARKETPLACE",
+      "smokeGates": [
+        "manifest-parse",
+        "canonical-byte-parity",
+        "isolated-marketplace-add-remove-when-available"
+      ]
+    },
+    {
+      "id": "github-copilot",
+      "requirementId": "github-copilot-plugin",
+      "state": "FIXTURE_GENERATION_ENABLED",
+      "outputRoot": "copilot",
+      "packageKind": "SKILLS_ONLY_COPILOT_PLUGIN_MARKETPLACE",
+      "smokeGates": [
+        "manifest-parse",
+        "canonical-byte-parity",
+        "isolated-install-uninstall-when-available"
+      ]
+    },
+    {
+      "id": "gemini-cli",
+      "requirementId": "gemini-cli-extension",
+      "state": "FIXTURE_GENERATION_ENABLED",
+      "outputRoot": "gemini",
+      "packageKind": "SKILLS_ONLY_GEMINI_EXTENSION",
+      "smokeGates": [
+        "manifest-parse",
+        "canonical-byte-parity",
+        "isolated-link-uninstall-when-available"
+      ]
+    },
+    {
+      "id": "pi-npm",
+      "requirementId": "pi-passive-package",
+      "state": "FIXTURE_GENERATION_ENABLED",
+      "outputRoot": "pi",
+      "packageKind": "PRIVATE_PASSIVE_NPM_FIXTURE",
+      "smokeGates": [
+        "npm-pack",
+        "npm-install-ignore-scripts",
+        "package-inventory",
+        "npm-uninstall"
+      ]
+    },
+    {
+      "id": "cursor",
+      "requirementId": "cursor-marketplace",
+      "state": "FIXTURE_GENERATION_ENABLED",
+      "outputRoot": "cursor",
+      "packageKind": "SKILLS_ONLY_CURSOR_PLUGIN",
+      "smokeGates": [
+        "manifest-parse",
+        "canonical-byte-parity",
+        "local-copy-host-smoke-pending"
+      ]
+    },
+    {
+      "id": "kiro",
+      "requirementId": "kiro-marketplace",
+      "state": "FIXTURE_GENERATION_ENABLED",
+      "outputRoot": "kiro",
+      "packageKind": "SKILLS_ONLY_AGENT_PLUGIN_POWER",
+      "smokeGates": [
+        "agent-plugin-manifest-parse",
+        "canonical-byte-parity",
+        "kiro-host-smoke-pending"
+      ]
+    },
+    {
+      "id": "junie",
+      "requirementId": "junie-marketplace",
+      "state": "FIXTURE_GENERATION_ENABLED",
+      "outputRoot": "junie",
+      "packageKind": "SKILLS_ONLY_JUNIE_EXTENSION",
+      "smokeGates": [
+        "extension-manifest-parse",
+        "canonical-byte-parity",
+        "junie-host-smoke-pending"
+      ]
+    }
+  ]
+}

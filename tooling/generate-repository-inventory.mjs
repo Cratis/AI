@@ -108,6 +108,7 @@ const unexpectedUntracked = admittedUntracked.filter(
                 path,
             ) ||
             /^catalog\//.test(path) ||
+            /^distribution\//.test(path) ||
             /^evidence\/source-evidence\//.test(path) ||
             /^evals\//.test(path) ||
             /^pilots\//.test(path) ||
@@ -915,6 +916,23 @@ const definitions = [
         risk: "high",
         migrationState: "retain",
         evidenceIds: ["reevaluation-authority"],
+    },
+    {
+        id: "distribution-foundation",
+        sourcePathPatterns: ["distribution/**"],
+        artifactType: "repository-metadata",
+        currentOwner: repositoryOwner,
+        targetOwner: "Workflows organization mechanics",
+        runtimeEligibility: "repository-only",
+        generatedStatus: "source",
+        adapterStatus: "adapter",
+        dependencies: [
+            "catalog/v2/artifacts.json",
+            "tooling/public-artifact-materializer.mjs",
+        ],
+        risk: "high",
+        migrationState: "retain",
+        evidenceIds: ["option-a-plus-authority"],
     },
     {
         id: "catalog-and-redesign-tooling",
