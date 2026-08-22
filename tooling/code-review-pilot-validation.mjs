@@ -1003,7 +1003,9 @@ function validateExpectedResult(
         const reviewedDimensionValid =
             dimensionResult.reviewedDimension === null ||
             (typeof dimensionResult.reviewedDimension === "string" &&
-                supportedDimensions.includes(dimensionResult.reviewedDimension));
+                supportedDimensions.includes(
+                    dimensionResult.reviewedDimension,
+                ));
         let expectedRoute = null;
         if (dimensionResult.status === "SKIPPED")
             expectedRoute = "OUT_OF_SCOPE_REVIEW";
