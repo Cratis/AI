@@ -93,26 +93,38 @@
     {
       "id": "cursor",
       "requirementId": "cursor-marketplace",
-      "state": "BLOCKED",
-      "outputRoot": null,
-      "packageKind": null,
-      "smokeGates": []
+      "state": "FIXTURE_GENERATION_ENABLED",
+      "outputRoot": "cursor",
+      "packageKind": "SKILLS_ONLY_CURSOR_PLUGIN",
+      "smokeGates": [
+        "manifest-parse",
+        "canonical-byte-parity",
+        "local-copy-host-smoke-pending"
+      ]
     },
     {
       "id": "kiro",
       "requirementId": "kiro-marketplace",
-      "state": "BLOCKED",
-      "outputRoot": null,
-      "packageKind": null,
-      "smokeGates": []
+      "state": "FIXTURE_GENERATION_ENABLED",
+      "outputRoot": "kiro",
+      "packageKind": "SKILLS_ONLY_AGENT_PLUGIN_POWER",
+      "smokeGates": [
+        "agent-plugin-manifest-parse",
+        "canonical-byte-parity",
+        "kiro-host-smoke-pending"
+      ]
     },
     {
       "id": "junie",
       "requirementId": "junie-marketplace",
-      "state": "BLOCKED",
-      "outputRoot": null,
-      "packageKind": null,
-      "smokeGates": []
+      "state": "FIXTURE_GENERATION_ENABLED",
+      "outputRoot": "junie",
+      "packageKind": "SKILLS_ONLY_JUNIE_EXTENSION",
+      "smokeGates": [
+        "extension-manifest-parse",
+        "canonical-byte-parity",
+        "junie-host-smoke-pending"
+      ]
     }
   ]
 }

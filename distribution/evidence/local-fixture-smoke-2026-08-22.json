@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
   "observedAt": "2026-08-22",
-  "sourceCommit": "3d5f25538696ad546a98ef128ea925ed3c096b4b",
+  "sourceCommit": null,
   "fixtureState": "FIXTURE_ONLY_LOCAL_STAGING",
   "host": "darwin-arm64",
   "results": [
@@ -72,15 +72,44 @@
         "removed-state"
       ],
       "status": "PASS_WITH_PROJECT_REGISTRY_WARNING"
+    },
+    {
+      "target": "cursor",
+      "version": null,
+      "checks": [
+        "cursor-plugin-manifest",
+        "marketplace-manifest",
+        "canonical-byte-parity"
+      ],
+      "status": "PASS_STATIC_GENERATION_HOST_SMOKE_PENDING"
+    },
+    {
+      "target": "kiro",
+      "version": null,
+      "checks": [
+        "agent-plugin-1.0-manifest",
+        "canonical-byte-parity"
+      ],
+      "status": "PASS_STATIC_GENERATION_HOST_SMOKE_PENDING"
+    },
+    {
+      "target": "junie",
+      "version": null,
+      "checks": [
+        "extension-manifest",
+        "canonical-byte-parity"
+      ],
+      "status": "PASS_STATIC_GENERATION_HOST_SMOKE_PENDING"
     }
   ],
   "limitations": [
     "This is local fixture evidence, not release, marketplace, compatibility, canary, or promotion evidence.",
     "The Codex CLI documents marketplace management while ChatGPT desktop owns local plugin installation.",
     "The Gemini CLI emitted a transient isolated-home project-registry warning while link and uninstall completed successfully.",
-    "No Cursor, Kiro, or Junie adapter was generated because authoritative requirements remain unverified.",
+    "Cursor, Kiro, and Junie adapters passed static generation and canonical byte parity; host install smoke remains pending because those hosts are unavailable in this worktree.",
     "No real public skill, product-source authority, publication credential, or bot repository was used."
   ],
   "publicationEligible": false,
-  "promotionEligible": false
+  "promotionEligible": false,
+  "sourceWorktreeBase": "3d5f25538696ad546a98ef128ea925ed3c096b4b"
 }

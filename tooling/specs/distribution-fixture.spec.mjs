@@ -79,12 +79,15 @@ test("distribution requirements and artifact matrix stay authority bounded", () 
         "gemini-cli-extension",
         "pi-passive-package",
         "npm-trusted-publication",
+        "cursor-marketplace",
+        "kiro-marketplace",
+        "junie-marketplace",
     ]);
     assert.deepEqual(
         requirements.requirements
             .filter(item => item.status === "BLOCKED_NO_AUTHORITATIVE_REQUIREMENTS")
             .map(item => item.id),
-        ["cursor-marketplace", "kiro-marketplace", "junie-marketplace"],
+        [],
     );
     assert.equal(matrix.state, "FIXTURE_ONLY_LOCAL_STAGING");
     assert.equal(matrix.publicationEligible, false);
@@ -130,11 +133,12 @@ test("distribution fixture generation is deterministic across native adapters", 
             "claude",
             "codex",
             "copilot",
+            "cursor",
             "gemini",
+            "junie",
+            "kiro",
             "pi",
         ]);
-        for (const blocked of ["cursor", "kiro", "junie"])
-            assert.equal(existsSync(join(firstRoot, blocked)), false);
     });
 });
 
@@ -151,13 +155,34 @@ test("generated marketplace manifests remain passive and idiomatic", () => {
         const copilot = readJson(
             join(stage, "copilot/plugins/cratis/plugin.json"),
         );
+        const cursor = readJson(
+            join(stage, "cursor/plugins/cratis/.cursor-plugin/plugin.json"),
+        );
         const gemini = readJson(join(stage, "gemini/gemini-extension.json"));
+        const kiro = readJson(join(stage, "kiro/plugin.json"));
+        const junie = readJson(
+            join(stage, "junie/extensions/cratis/extension.json"),
+        );
         const piPackage = readJson(join(stage, "pi/package/package.json"));
         assert.equal(claude.name, "cratis");
         assert.equal(codex.skills, "./skills/");
         assert.equal(copilot.skills, "skills/");
+        assert.equal(cursor.skills, "./skills/");
         assert.equal(gemini.name, "cratis");
-        for (const manifest of [claude, codex, copilot, gemini]) {
+        assert.equal(
+            kiro.$schema,
+            "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+        );
+        assert.equal(junie.name, "cratis");
+        for (const manifest of [
+            claude,
+            codex,
+            copilot,
+            cursor,
+            gemini,
+            kiro,
+            junie,
+        ]) {
             assert.equal(manifest.hooks, undefined);
             assert.equal(manifest.mcpServers, undefined);
             assert.equal(manifest.commands, undefined);

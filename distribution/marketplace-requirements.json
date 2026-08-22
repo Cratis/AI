@@ -185,38 +185,76 @@
     },
     {
       "id": "cursor-marketplace",
-      "status": "BLOCKED_NO_AUTHORITATIVE_REQUIREMENTS",
-      "sourceUrls": [],
-      "requiredRoots": [],
-      "installCommands": [],
-      "updateCommands": [],
-      "uninstallCommands": [],
+      "status": "VERIFIED",
+      "sourceUrls": [
+        "https://cursor.com/docs/plugins",
+        "https://cursor.com/docs/reference/plugins"
+      ],
+      "requiredRoots": [
+        ".cursor-plugin/marketplace.json",
+        "plugins/cratis/.cursor-plugin/plugin.json",
+        "plugins/cratis/skills/<skill-name>/SKILL.md"
+      ],
+      "installCommands": [
+        "Cursor Customize > Install > choose project or user scope"
+      ],
+      "updateCommands": [
+        "Cursor team marketplace auto refresh or manual Refresh"
+      ],
+      "uninstallCommands": [
+        "Cursor Customize > uninstall optional plugins"
+      ],
       "constraints": [
-        "Do not generate or claim a Cursor-native package until official current requirements are verified."
+        "Cursor skills-only plugins use .cursor-plugin/plugin.json and skills/<skill-name>/SKILL.md.",
+        "Plugin names are lowercase kebab-case; manifest paths stay relative and inside the plugin.",
+        "Public marketplace submission requires an open-source repository, local testing, manual review, and review of every update."
       ]
     },
     {
       "id": "kiro-marketplace",
-      "status": "BLOCKED_NO_AUTHORITATIVE_REQUIREMENTS",
-      "sourceUrls": [],
-      "requiredRoots": [],
-      "installCommands": [],
+      "status": "VERIFIED_AGENT_PLUGIN_COMPATIBILITY",
+      "sourceUrls": [
+        "https://kiro.dev/blog/powers-supports-plugins/",
+        "https://agent-plugins.org/plugin-authors/manifest",
+        "https://agentskills.io/specification"
+      ],
+      "requiredRoots": [
+        "plugin.json",
+        "skills/<skill-name>/SKILL.md"
+      ],
+      "installCommands": [
+        "Kiro Powers panel or kiro.dev one-click install"
+      ],
       "updateCommands": [],
       "uninstallCommands": [],
       "constraints": [
-        "Do not generate or claim a Kiro-native package until official current requirements are verified."
+        "Kiro installs Agent Plugins 1.0.0 as powers.",
+        "plugin.json uses the Agent Plugins 1.0.0 schema and a valid lowercase name.",
+        "Passive Cratis powers contain skills only; credential prompts, MCP servers, scripts, and legacy POWER.md are omitted."
       ]
     },
     {
       "id": "junie-marketplace",
-      "status": "BLOCKED_NO_AUTHORITATIVE_REQUIREMENTS",
-      "sourceUrls": [],
-      "requiredRoots": [],
-      "installCommands": [],
+      "status": "VERIFIED",
+      "sourceUrls": [
+        "https://junie.jetbrains.com/docs/agent-skills.html",
+        "https://github.com/JetBrains/junie-extensions"
+      ],
+      "requiredRoots": [
+        "extensions/cratis/extension.json",
+        "extensions/cratis/skills/<skill-name>/SKILL.md"
+      ],
+      "installCommands": [
+        "Copy a reviewed skill folder to .junie/skills or ~/.junie/skills"
+      ],
       "updateCommands": [],
-      "uninstallCommands": [],
+      "uninstallCommands": [
+        "Remove the copied skill folder from its Junie skill location"
+      ],
       "constraints": [
-        "Do not generate or claim a Junie-native package until official current requirements are verified."
+        "Junie extensions use extension.json with name and description and may contain skills/<skill-name>/SKILL.md.",
+        "Junie also discovers trusted project and user .agents/skills locations.",
+        "Users must review and trust extension contents; passive Cratis output omits scripts, agents, guidelines, and MCP servers."
       ]
     }
   ]

@@ -26,7 +26,17 @@ const approvedFiles = [
     "skills/cratis-example/assets/example.txt",
     "skills/cratis-example/references/guide.md",
 ];
-const generatedTargets = ["canonical", "claude", "codex", "copilot", "gemini", "pi"];
+const generatedTargets = [
+    "canonical",
+    "claude",
+    "codex",
+    "copilot",
+    "cursor",
+    "gemini",
+    "junie",
+    "kiro",
+    "pi",
+];
 
 function sha256(content) {
     return createHash("sha256").update(content).digest("hex");
@@ -196,11 +206,49 @@ export function generateDistributionFixture({
             skills: "skills/",
         });
 
+        const cursorRoot = join(root, "cursor");
+        copyCanonicalSkill(canonicalRoot, join(cursorRoot, "plugins/cratis"));
+        writeJson(join(cursorRoot, ".cursor-plugin/marketplace.json"), {
+            name: "cratis",
+            owner: { name: "Cratis" },
+            metadata: { description: "Cratis skills-only fixture marketplace", version },
+            plugins: [{
+                name: "cratis",
+                description: "Passive Cratis skills fixture.",
+                version,
+                source: "./plugins/cratis",
+            }],
+        });
+        writeJson(join(cursorRoot, "plugins/cratis/.cursor-plugin/plugin.json"), {
+            name: "cratis",
+            version,
+            description: "Passive Cratis skills fixture.",
+            skills: "./skills/",
+        });
+
         const geminiRoot = join(root, "gemini");
         copyCanonicalSkill(canonicalRoot, geminiRoot);
         writeJson(join(geminiRoot, "gemini-extension.json"), {
             name: "cratis",
             version,
+            description: "Passive Cratis skills fixture.",
+        });
+
+        const kiroRoot = join(root, "kiro");
+        copyCanonicalSkill(canonicalRoot, kiroRoot);
+        writeJson(join(kiroRoot, "plugin.json"), {
+            $schema: "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+            name: "cratis",
+            version,
+            description: "Passive Cratis skills fixture.",
+            author: { name: "Cratis" },
+            license: "MIT",
+        });
+
+        const junieRoot = join(root, "junie/extensions/cratis");
+        copyCanonicalSkill(canonicalRoot, junieRoot);
+        writeJson(join(junieRoot, "extension.json"), {
+            name: "cratis",
             description: "Passive Cratis skills fixture.",
         });
 
@@ -276,7 +324,10 @@ export function validateDistributionFixture(outputRoot) {
         "claude/plugins/cratis",
         "codex/plugins/cratis",
         "copilot/plugins/cratis",
+        "cursor/plugins/cratis",
         "gemini",
+        "junie/extensions/cratis",
+        "kiro",
         "pi/package",
     ];
     for (const path of approvedFiles) {

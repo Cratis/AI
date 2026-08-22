@@ -541,12 +541,12 @@ Evidence and exact next actions are in
   violations without starting another review loop.
 - [x] Merge the review pilot after green CI and stop hardening (#138).
 - [x] Deliver one minimal domain-expert/event-modeling pilot PR (#139).
-- [x] Verify authoritative Agent Skills, Claude, Codex, Copilot, Gemini, Pi, and
-  npm requirements; keep Cursor, Kiro, and Junie blocked pending official facts.
+- [x] Verify authoritative Agent Skills, Claude, Codex, Copilot, Cursor, Kiro,
+  Junie, Gemini, Pi, and npm requirements.
 - [x] Produce the exact bot-repository/credential authority request and continue
   deterministic fixture-only local staging.
-- [x] Generate fixture-only canonical, Claude, Codex, Copilot, Gemini, and Pi/npm
-  adapters from one approved sanitized logical tree.
+- [x] Generate fixture-only canonical, Claude, Codex, Copilot, Cursor, Kiro,
+  Junie, Gemini, and Pi/npm adapters from one approved sanitized logical tree.
 - [ ] Promote adapters beyond fixture-only after real target approval; add hosted
   canary and rollback workflows after generated-repository authority exists.
 - [x] Add local pack/install/smoke/uninstall, provenance-record, and checksum

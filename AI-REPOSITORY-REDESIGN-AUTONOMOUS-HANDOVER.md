@@ -1209,9 +1209,8 @@ branch starts from merge commit
 Delivery-first distribution work is now concrete:
 
 - `distribution/marketplace-requirements.json` records current official Agent
-  Skills, Claude Code, OpenAI Codex, GitHub Copilot, Gemini CLI, installed Pi,
-  and npm requirements;
-- Cursor, Kiro, and Junie remain explicitly blocked rather than inferred;
+  Skills, Claude Code, OpenAI Codex, GitHub Copilot, Cursor, Kiro, Junie,
+  Gemini CLI, installed Pi, and npm requirements;
 - `distribution/artifact-matrix.json` maps one canonical logical tree to native
   skills-only adapters and keeps publication/promotion false;
 - `distribution/generated-repository-authority-request.md` requests public
@@ -1219,7 +1218,8 @@ Delivery-first distribution work is now concrete:
   and npm-stage environments, package ownership, and trusted-publisher setup;
 - `tooling/generate-distribution-fixture.mjs` materializes the already approved
   sanitized fixture, projects exact bytes into canonical, Claude, Codex,
-  Copilot, Gemini, and Pi/npm layouts, and emits a manifest-last inventory,
+  Copilot, Cursor, Kiro, Junie, Gemini, and Pi/npm layouts, and emits a
+  manifest-last inventory,
   checksums, and an explicitly non-attestation fixture provenance record;
 - focused specs prove deterministic generation, byte parity, passive manifests,
   tamper rejection, npm pack/install/uninstall, Pi install/list/remove, Claude
