@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "1.0.0",
+  "repository": {
+    "name": "Cratis/AI.Distribution",
+    "visibility": "PUBLIC",
+    "defaultBranch": "main",
+    "status": "BLOCKED_ON_REMOTE_REPOSITORY_AND_BOT_CREDENTIAL",
+    "manualAuthoringAllowed": false,
+    "botOnlyWrites": true
+  },
+  "localSimulation": {
+    "enabled": true,
+    "identity": {
+      "name": "cratis-distribution-fixture-bot",
+      "email": "fixture-bot@invalid.example"
+    },
+    "fixedCommitDate": "2000-01-01T00:00:00Z",
+    "commitMessage": "Generate fixture distribution"
+  },
+  "requiredChecks": [
+    "generated-inventory",
+    "canonical-byte-parity",
+    "native-manifests",
+    "checksums",
+    "fixture-provenance",
+    "pack-install-smoke-uninstall",
+    "canary-rollback-simulation"
+  ],
+  "protectedEnvironments": [
+    "distribution-canary",
+    "npm-stage"
+  ],
+  "forbiddenRepositoryContent": [
+    "authoring catalogs",
+    "evaluation cases",
+    "engineering rules",
+    "agents",
+    "hooks",
+    "prompts",
+    "tooling",
+    "credentials",
+    "private product sources"
+  ],
+  "productionMaterialization": {
+    "enabled": false,
+    "requiresApprovedTargets": true,
+    "requiresExactSourceCommit": true,
+    "requiresBotCredential": true,
+    "requiresProtectedRepository": true
+  },
+  "publicationEligible": false,
+  "promotionEligible": false,
+  "legacyRetirementEligible": false
+}

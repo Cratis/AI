@@ -1295,3 +1295,52 @@ Actual bot writes, protected environments, package staging/publication, approved
 public targets, fleet canaries, rollback against consuming repositories, legacy
 retirement, and freeze lifting remain blocked on external repository/credential,
 source, target, and reviewer authority.
+
+## 35. Local generated distribution repository — 2026-08-22
+
+Fixture canary/rollback mechanics merged with green CI in Cratis/AI#141; the
+post-merge formatter output was preserved separately in green Cratis/AI#142.
+Hosted read-only simulation
+`https://github.com/Cratis/AI/actions/runs/32572002783` passed on merge commit
+`1bc237935c5cb202caf6c794e159160225e789b3`. AI#126 and Workflows#68 were
+updated, and both merged branches/worktrees were removed normally. This branch
+starts from formatter merge `0d4c0c860bab9795bd91deddbff9e7573247696d`.
+
+The next independent distribution work creates a real local Git repository
+projection without crossing the missing remote-authority boundary:
+
+- `distribution/generated-repository-contract.json` defines public repository
+  identity, bot-only writes, deterministic local simulation identity, protected
+  checks/environments, forbidden authoring content, and closed production gates;
+- `tooling/bootstrap-generated-distribution-repository.mjs` generates the
+  fixture tree into an empty directory, validates it before Git initialization,
+  creates one deterministic bot-simulation root commit on `main`, and verifies
+  exact tracked inventory, clean status, author identity, digests, and absence
+  of authoring/evaluation/tooling paths;
+- the same tool emits the current production materialization plan, which remains
+  `BLOCKED_NO_APPROVED_TARGETS` with zero approved targets and the planned public
+  artifact still materialization/runtime disabled;
+- focused specs prove deterministic commit/tree identity, tamper rejection,
+  human-follow-up-commit rejection, exact generated files, and fail-closed
+  existing destinations;
+- the read-only distribution workflow gains a generated-repository simulation
+  operation.
+
+Local evidence is recorded in
+`distribution/evidence/local-generated-repository-2026-08-22.json`: one
+bot-simulation root commit, 51 generated files, deterministic commit
+`4c0c11a68f8d75a72d86495f9ae3d253821fe36f`, and tree
+`6a189e044968cce21039eed6e767073ffa4020ab`.
+
+Fresh evidence is 7/7 focused generated-repository specs and 188/188 full
+repository specs. Workflow YAML, bootstrap/plan CLIs, catalog, stable inventory,
+syntax, strict JSON, LSP, structural, focused Markdown, and diff gates pass with
+only unchanged legacy advisories.
+
+Merge and run the generated-repository simulation on hosted CI. Then all
+deterministic local work available without real product-source and
+target approvals or remote bot/repository credentials is substantially
+complete. The next required action is external: create/protect
+`Cratis/AI.Distribution`, designate the bot identity, and configure protected
+canary/npm-stage environments. Publication, production promotion, fleet rollout,
+legacy retirement, and freeze lifting remain blocked.
