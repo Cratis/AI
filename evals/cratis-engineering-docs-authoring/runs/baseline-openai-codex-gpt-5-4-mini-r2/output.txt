@@ -1,0 +1,94 @@
+[
+  {
+    "caseId": "P01",
+    "decision": "AUTHOR_CONTENT",
+    "reason": "TUTORIAL_INPUT_COMPLETE",
+    "documentType": "TUTORIAL",
+    "outline": [
+      "## What You Will Build",
+      "## Append Your First Synthetic Fact",
+      "## Observe the Fact in the System",
+      "## Next Steps"
+    ],
+    "authorityUsed": "VERIFIED_FIRST_PARTY_SOURCE"
+  },
+  {
+    "caseId": "P02",
+    "decision": "AUTHOR_CONTENT",
+    "reason": "HOW_TO_INPUT_COMPLETE",
+    "documentType": "HOW_TO",
+    "outline": [
+      "## Before You Start",
+      "## Rotate the Certificate",
+      "## Verify the New Certificate",
+      "## Handle Rollback and Expiry"
+    ],
+    "authorityUsed": "VERIFIED_FIRST_PARTY_SOURCE"
+  },
+  {
+    "caseId": "P03",
+    "decision": "AUTHOR_CONTENT",
+    "reason": "EXPLANATION_INPUT_COMPLETE",
+    "documentType": "EXPLANATION",
+    "outline": [
+      "## What Generated Contracts Are",
+      "## How They Reduce Drift",
+      "## Why Both Teams Benefit",
+      "## Tradeoffs and Limits"
+    ],
+    "authorityUsed": "VERIFIED_FIRST_PARTY_SOURCE"
+  },
+  {
+    "caseId": "P04",
+    "decision": "AUTHOR_CONTENT",
+    "reason": "REFERENCE_INPUT_COMPLETE",
+    "documentType": "REFERENCE",
+    "outline": [
+      "## Overview",
+      "## Configuration Fields",
+      "## Defaults and Types",
+      "## Example Object"
+    ],
+    "authorityUsed": "VERIFIED_FIRST_PARTY_SOURCE"
+  },
+  {
+    "caseId": "N01",
+    "decision": "DEFER_TO_ADD_PAGE",
+    "reason": "PLACEMENT_OR_NAVIGATION_UNRESOLVED",
+    "documentType": "HOW_TO",
+    "outline": [],
+    "authorityUsed": "VERIFIED_FIRST_PARTY_SOURCE"
+  },
+  {
+    "caseId": "N02",
+    "decision": "DEFER_TO_EDIT_PAGE",
+    "reason": "EXISTING_SOURCE_UNRESOLVED",
+    "documentType": null,
+    "outline": [],
+    "authorityUsed": "VERIFIED_FIRST_PARTY_SOURCE"
+  },
+  {
+    "caseId": "N03",
+    "decision": "DEFER_TO_VISUAL_QA",
+    "reason": "VISUAL_REVIEW_REQUEST",
+    "documentType": null,
+    "outline": [],
+    "authorityUsed": "VERIFIED_FIRST_PARTY_SOURCE"
+  },
+  {
+    "caseId": "N04",
+    "decision": "BLOCK",
+    "reason": "MISSING_FIRST_PARTY_PRODUCT_AUTHORITY",
+    "documentType": "HOW_TO",
+    "outline": [],
+    "authorityUsed": "NONE"
+  },
+  {
+    "caseId": "N05",
+    "decision": "SKIP",
+    "reason": "NON_CRATIS_DOCUMENTATION",
+    "documentType": "EXPLANATION",
+    "outline": [],
+    "authorityUsed": "NONE"
+  }
+]

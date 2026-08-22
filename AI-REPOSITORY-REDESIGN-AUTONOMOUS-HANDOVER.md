@@ -1600,3 +1600,43 @@ disabled. Next: freeze the source/corpus, run repeated behavior/positive-negativ
 trigger/collision/portability evaluation, obtain owner review, then generate the
 first fixture-only engineering package. No installation, publication, promotion,
 or retirement authority is granted by source reconciliation.
+
+## 42. Engineering docs-authoring evaluation evidence — 2026-08-22
+
+The canonical source unit merged with green CI in Cratis/AI#152. Evaluation then
+ran 16 frozen, tool-free model calls across baseline/skill conditions, two model
+variants, and two repetitions each, with context files, ambient skills,
+extensions, and network tools disabled.
+
+Calibration evidence is preserved honestly:
+
+- the output contract exposed reason vocabulary, so baseline routing is
+  explicitly non-diagnostic;
+- skill runs achieved 36/36 routing, outline, and authority matches;
+- some deferred/blocked outputs preserved input document type instead of
+  normalizing it to null, so strict calibration contract pass remains false;
+- the original strict grading failure remains persisted beside the revised
+  behavior/contract grading.
+
+A separate held-out pass removed expected decisions and reason-code mapping from
+the model prompt:
+
+- four skill runs: 32/32 decisions, 32/32 valid rationales, zero errors;
+- four baseline runs: 28/32 decisions;
+- recorded skill improvement: +4 decisions.
+
+Bounded Fusion review `validate-f2fa66ec52217d7edf216972982de179` verified the
+visible evidence and found one high integrity gap: metadata and output hashes
+were validated against mutable per-run metadata rather than exactly against
+immutable manifest entries. The correction now requires:
+
+- exact metadata-to-manifest object equality;
+- exact condition/model/repetition coverage;
+- every output hash to match both metadata and manifest;
+- simultaneous output/hash replacement and allowed-value metadata relabeling to
+  fail focused mutations.
+
+Per bounded review policy, Fusion was not rerun. The evaluation summary state is
+`EVIDENCE_PASS_OWNER_REVIEW_PENDING`; target approval, installation,
+materialization, publication, and promotion remain false. Next: owner review,
+then a fixture-only engineering package and install/update/rollback canary.

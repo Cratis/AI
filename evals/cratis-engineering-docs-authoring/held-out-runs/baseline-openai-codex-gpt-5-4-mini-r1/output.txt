@@ -1,0 +1,42 @@
+[
+  {
+    "caseId": "H01",
+    "decision": "AUTHOR_CONTENT",
+    "rationale": "Approved destination and verified first-party source are provided for a tutorial draft."
+  },
+  {
+    "caseId": "H02",
+    "decision": "DEFER_TO_ADD_PAGE",
+    "rationale": "This is a new page request that also needs repository ownership and navigation placement."
+  },
+  {
+    "caseId": "H03",
+    "decision": "DEFER_TO_EDIT_PAGE",
+    "rationale": "An existing published page needs updating and the source repository must be identified."
+  },
+  {
+    "caseId": "H04",
+    "decision": "DEFER_TO_VISUAL_QA",
+    "rationale": "The task is rendering, screenshotting, and diagnosing a visual layout shift."
+  },
+  {
+    "caseId": "H05",
+    "decision": "BLOCK",
+    "rationale": "It asks for a runnable example from memory without a source repository or revision."
+  },
+  {
+    "caseId": "H06",
+    "decision": "BLOCK",
+    "rationale": "The request is for unrelated non-Cratis documentation."
+  },
+  {
+    "caseId": "H07",
+    "decision": "DEFER_TO_ADD_PAGE",
+    "rationale": "It is a new page request that requires choosing ownership and sidebar placement."
+  },
+  {
+    "caseId": "H08",
+    "decision": "DEFER_TO_EDIT_PAGE",
+    "rationale": "An existing destination is given and the request is to improve that page's content."
+  }
+]

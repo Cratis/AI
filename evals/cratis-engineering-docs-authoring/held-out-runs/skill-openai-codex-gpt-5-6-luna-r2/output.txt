@@ -1,0 +1,42 @@
+[
+  {
+    "caseId": "H01",
+    "decision": "AUTHOR_CONTENT",
+    "rationale": "Owning repository, destination, document type, and first-party source are established."
+  },
+  {
+    "caseId": "H02",
+    "decision": "DEFER_TO_ADD_PAGE",
+    "rationale": "New-page ownership and navigation placement are unresolved."
+  },
+  {
+    "caseId": "H03",
+    "decision": "DEFER_TO_EDIT_PAGE",
+    "rationale": "The request changes an existing page, but its source location must be discovered."
+  },
+  {
+    "caseId": "H04",
+    "decision": "DEFER_TO_VISUAL_QA",
+    "rationale": "Rendering, screenshots, and layout diagnosis are visual QA tasks."
+  },
+  {
+    "caseId": "H05",
+    "decision": "BLOCK",
+    "rationale": "The requested API example lacks authoritative source evidence."
+  },
+  {
+    "caseId": "H06",
+    "decision": "SKIP",
+    "rationale": "The subject is unrelated to Cratis documentation."
+  },
+  {
+    "caseId": "H07",
+    "decision": "DEFER_TO_ADD_PAGE",
+    "rationale": "New-page ownership and sidebar placement are unresolved; visual verification is also separate."
+  },
+  {
+    "caseId": "H08",
+    "decision": "AUTHOR_CONTENT",
+    "rationale": "The existing destination, document type, and first-party source are established."
+  }
+]

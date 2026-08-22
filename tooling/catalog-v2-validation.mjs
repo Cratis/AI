@@ -163,16 +163,12 @@ function revisionSnapshot(root, revision) {
     const key = `${realpathSync(root)}\0${revision}`;
     const cached = revisionSnapshots.get(key);
     if (cached) return cached;
-    const treeOutput = execFileSync(
-        "git",
-        ["ls-tree", "-r", "-z", revision],
-        {
-            cwd: root,
-            encoding: "utf8",
-            maxBuffer: 32 * 1024 * 1024,
-            stdio: ["ignore", "pipe", "pipe"],
-        },
-    );
+    const treeOutput = execFileSync("git", ["ls-tree", "-r", "-z", revision], {
+        cwd: root,
+        encoding: "utf8",
+        maxBuffer: 32 * 1024 * 1024,
+        stdio: ["ignore", "pipe", "pipe"],
+    });
     const entries = treeOutput
         .split("\0")
         .filter(Boolean)
@@ -196,16 +192,15 @@ function revisionSnapshot(root, revision) {
 
 function revisionSourceFiles(root, revision, sourcePath) {
     return sorted(
-        [...revisionSnapshot(root, revision).files.keys()].filter(
-            (path) => path.startsWith(`${sourcePath}/`),
+        [...revisionSnapshot(root, revision).files.keys()].filter((path) =>
+            path.startsWith(`${sourcePath}/`),
         ),
     );
 }
 
 function revisionFile(root, revision, path) {
     const content = revisionSnapshot(root, revision).files.get(path);
-    if (!content)
-        throw new Error(`Source revision does not contain ${path}`);
+    if (!content) throw new Error(`Source revision does not contain ${path}`);
     return content;
 }
 
@@ -262,7 +257,10 @@ export function validateSources(catalogs, root) {
             }
         }
         try {
-            const currentPaths = listRegularSourceFiles(root, source.sourcePath);
+            const currentPaths = listRegularSourceFiles(
+                root,
+                source.sourcePath,
+            );
             if (!equalStringSets(currentPaths, source.bundledPaths)) {
                 errors.push(
                     `${source.id}: bundled paths do not exactly close over the source directory`,
@@ -295,7 +293,9 @@ export function validateSources(catalogs, root) {
                     `${source.id}: source revision bytes do not match the content digest`,
                 );
         } catch (error) {
-            errors.push(`${source.id}: source provenance failed: ${error.message}`);
+            errors.push(
+                `${source.id}: source provenance failed: ${error.message}`,
+            );
         }
     }
     return errors;
@@ -345,9 +345,7 @@ function validateApplicability(target, field, knownIds, errors) {
                 errors.push(`${target.id}: unknown ${field} id ${id}`);
         }
     } else if (applicability.ids.length > 0) {
-        errors.push(
-            `${target.id}: ${field} ids require applicable state`,
-        );
+        errors.push(`${target.id}: ${field} ids require applicable state`);
     }
 }
 
@@ -368,9 +366,7 @@ export function validateTargets(catalogs) {
         ]),
     );
     const companionIds = new Set(
-        catalogs.upstreamCompanions.companions.map(
-            (companion) => companion.id,
-        ),
+        catalogs.upstreamCompanions.companions.map((companion) => companion.id),
     );
     const authoringContractsById = new Map(
         catalogs.authoringContracts.contracts.map((contract) => [
@@ -383,15 +379,9 @@ export function validateTargets(catalogs) {
     const architectureIds = taxonomyIds(catalogs, "architectures");
     const personaIds = taxonomyIds(catalogs, "personas");
     const surfaceIds = taxonomyIds(catalogs, "surfaces");
-    const repositoryProfileIds = taxonomyIds(
-        catalogs,
-        "repositoryProfiles",
-    );
+    const repositoryProfileIds = taxonomyIds(catalogs, "repositoryProfiles");
     const effectOperationIds = taxonomyIds(catalogs, "effectOperations");
-    const dataClassificationIds = taxonomyIds(
-        catalogs,
-        "dataClassifications",
-    );
+    const dataClassificationIds = taxonomyIds(catalogs, "dataClassifications");
     addDuplicateErrors(errors, "targets", targetIdList);
     for (const target of catalogs.targets.targets) {
         if (target.semanticName !== target.id)
@@ -404,12 +394,7 @@ export function validateTargets(catalogs) {
             if (!languageIds.has(languageId))
                 errors.push(`${target.id}: unknown language ${languageId}`);
         }
-        validateApplicability(
-            target,
-            "architectures",
-            architectureIds,
-            errors,
-        );
+        validateApplicability(target, "architectures", architectureIds, errors);
         validateApplicability(target, "personas", personaIds, errors);
         validateApplicability(target, "surfaces", surfaceIds, errors);
         validateApplicability(
@@ -485,18 +470,14 @@ export function validateTargets(catalogs) {
                     `${target.id}: effect ${effect.id} requires explicit confirmation`,
                 );
             }
-            if (
-                requiresEffectConfirmation &&
-                !effect.authorization.required
-            ) {
+            if (requiresEffectConfirmation && !effect.authorization.required) {
                 errors.push(
                     `${target.id}: effect ${effect.id} requires explicit authorization`,
                 );
             }
             if (
-                ["delete", "transmit", "publish"].includes(
-                    effect.operation,
-                ) && effect.confirmation.timing !== "before-effect"
+                ["delete", "transmit", "publish"].includes(effect.operation) &&
+                effect.confirmation.timing !== "before-effect"
             ) {
                 errors.push(
                     `${target.id}: high-impact effect ${effect.id} requires confirmation before effect`,
@@ -667,15 +648,14 @@ export function validateTargets(catalogs) {
                 errors.push(
                     `${target.id}: upstream companion cannot satisfy a dependency`,
                 );
-            if (
-                edge.category === "target" &&
-                !targetIds.has(edge.dependencyId)
-            )
+            if (edge.category === "target" && !targetIds.has(edge.dependencyId))
                 errors.push(
                     `${target.id}: unknown dependency edge target ${edge.dependencyId}`,
                 );
             if (edge.category === "target" && edge.dependencyId === target.id)
-                errors.push(`${target.id}: dependency edge cannot target itself`);
+                errors.push(
+                    `${target.id}: dependency edge cannot target itself`,
+                );
             const action = edge.missingBehavior.action;
             const validAction =
                 (edge.strength === "hard" && action === "block") ||
@@ -687,8 +667,7 @@ export function validateTargets(catalogs) {
                     `${target.id}: ${edge.strength} dependency has invalid ${action} behavior`,
                 );
             if (action === "substitute") {
-                const substitute =
-                    edge.missingBehavior.substituteDependencyId;
+                const substitute = edge.missingBehavior.substituteDependencyId;
                 if (!substitute)
                     errors.push(
                         `${target.id}: substitute dependency needs a substitute id`,
@@ -726,11 +705,15 @@ export function validateTargets(catalogs) {
         }
         if (target.approval.state === "approved") {
             if (target.capabilityKind === "unclassified")
-                errors.push(`${target.id}: approved target needs capability kind`);
+                errors.push(
+                    `${target.id}: approved target needs capability kind`,
+                );
             if (target.invocation === "unclassified")
                 errors.push(`${target.id}: approved target needs invocation`);
             if (target.lifecycle !== "approved")
-                errors.push(`${target.id}: approved target needs approved lifecycle`);
+                errors.push(
+                    `${target.id}: approved target needs approved lifecycle`,
+                );
             for (const field of [
                 "architectures",
                 "personas",
@@ -845,7 +828,9 @@ export function validateTargets(catalogs) {
         ]),
     );
     if (graphHasCycle(hardDependencies))
-        errors.push("hard target dependencies must form a directed acyclic graph");
+        errors.push(
+            "hard target dependencies must form a directed acyclic graph",
+        );
     const substitutes = new Map(
         catalogs.targets.targets.map((target) => [
             target.id,
@@ -855,10 +840,7 @@ export function validateTargets(catalogs) {
                         edge.category === "target" &&
                         edge.missingBehavior.action === "substitute",
                 )
-                .map(
-                    (edge) =>
-                        edge.missingBehavior.substituteDependencyId,
-                ),
+                .map((edge) => edge.missingBehavior.substituteDependencyId),
         ]),
     );
     if (graphHasCycle(substitutes))
@@ -900,7 +882,12 @@ export function validateMigrations(catalogs) {
             targetSources.set(targetId, migration.sourceIds);
     }
     for (const target of catalogs.targets.targets) {
-        if (!equalStringSets(target.sourceSkillIds, targetSources.get(target.id) ?? []))
+        if (
+            !equalStringSets(
+                target.sourceSkillIds,
+                targetSources.get(target.id) ?? [],
+            )
+        )
             errors.push(
                 `${target.id}: target source skills must equal its migration inputs`,
             );
@@ -1105,13 +1092,28 @@ export function validateTaxonomy(catalogs) {
     const fixedDimensions = new Map([
         [
             "capabilityKinds",
-            ["primitive", "router", "journey", "gate", "explanation", "adapter"],
+            [
+                "primitive",
+                "router",
+                "journey",
+                "gate",
+                "explanation",
+                "adapter",
+            ],
         ],
         ["invocations", ["user", "model", "both"]],
         ["trustClasses", ["passive", "executable"]],
         [
             "effectOperations",
-            ["read", "create", "modify", "delete", "execute", "transmit", "publish"],
+            [
+                "read",
+                "create",
+                "modify",
+                "delete",
+                "execute",
+                "transmit",
+                "publish",
+            ],
         ],
         ["dependencyStrengths", ["hard", "soft", "optional"]],
         [
@@ -1126,9 +1128,7 @@ export function validateTaxonomy(catalogs) {
         addDuplicateErrors(errors, `taxonomy ${dimension}`, ids);
         const expected = fixedDimensions.get(dimension);
         if (expected && !equalStringSets(ids, expected))
-            errors.push(
-                `taxonomy ${dimension} must match the closed contract`,
-            );
+            errors.push(`taxonomy ${dimension} must match the closed contract`);
     }
     return errors;
 }
@@ -1292,7 +1292,9 @@ export function validateBundles(catalogs) {
         }
         if (bundle.publishable) {
             if (bundle.state !== "approved")
-                errors.push(`${bundle.id}: publishable bundle must be approved`);
+                errors.push(
+                    `${bundle.id}: publishable bundle must be approved`,
+                );
             if (bundle.missingCapabilityIds.length > 0)
                 errors.push(
                     `${bundle.id}: publishable bundle cannot retain capability gaps`,
@@ -1423,8 +1425,7 @@ function validateRelativeGeneratedPath(path, label, errors) {
         isAbsolute(path) ||
         path.includes("\\") ||
         segments.some(
-            (segment) =>
-                segment === "" || segment === "." || segment === "..",
+            (segment) => segment === "" || segment === "." || segment === "..",
         )
     ) {
         errors.push(`${label} must be a normalized relative path`);
@@ -1461,10 +1462,7 @@ export function validateHumanCatalogContract(catalogs) {
         "bundle-membership",
     ];
     if (
-        !equalStringSets(
-            contract.requiredCapabilitySections,
-            requiredSections,
-        )
+        !equalStringSets(contract.requiredCapabilitySections, requiredSections)
     ) {
         errors.push("human catalog sections must match the product contract");
     }
@@ -1483,10 +1481,7 @@ export function validateArtifacts(catalogs) {
         catalogs.targets.targets.map((target) => target.id),
     );
     const targetAudiences = new Map(
-        catalogs.targets.targets.map((target) => [
-            target.id,
-            target.audience,
-        ]),
+        catalogs.targets.targets.map((target) => [target.id, target.audience]),
     );
     const approvedTargets = new Set(
         catalogs.targets.targets
@@ -1648,9 +1643,7 @@ function changesSinceBase(root, baseRevision) {
         if (!path) throw new Error("Git returned an incomplete change record");
         changes.push({ path, status });
     }
-    return changes.sort((left, right) =>
-        compareOrdinal(left.path, right.path),
-    );
+    return changes.sort((left, right) => compareOrdinal(left.path, right.path));
 }
 
 export function expandInventoryRecord(record, universe) {

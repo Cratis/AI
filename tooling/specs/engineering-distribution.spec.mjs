@@ -7,7 +7,10 @@ import { dirname, join, resolve } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 
-const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+const repositoryRoot = resolve(
+    dirname(fileURLToPath(import.meta.url)),
+    "../..",
+);
 
 function readJson(path) {
     return JSON.parse(readFileSync(join(repositoryRoot, path), "utf8"));
@@ -21,10 +24,7 @@ test("engineering package matrix accounts for every engineering target once", ()
     const matrixIds = matrix.packageBoundaries
         .flatMap((boundary) => boundary.targetIds)
         .sort();
-    assert.deepEqual(
-        matrixIds,
-        targets.map((target) => target.id).sort(),
-    );
+    assert.deepEqual(matrixIds, targets.map((target) => target.id).sort());
     assert.equal(new Set(matrixIds).size, matrixIds.length);
     assert.equal(matrix.installationEligible, false);
     assert.equal(matrix.publicationEligible, false);
@@ -39,7 +39,7 @@ test("first engineering target is classified but cannot package raw source", () 
     );
     assert.equal(
         matrix.firstPassiveTarget.state,
-        "SOURCE_RECONCILED_NOT_EVALUATED",
+        "EVIDENCE_PASS_OWNER_REVIEW_PENDING",
     );
     assert.equal(
         matrix.firstPassiveTarget.canonicalSourcePath,

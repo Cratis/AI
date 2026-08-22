@@ -3,7 +3,7 @@
   "positiveCases": 4,
   "negativeCases": 5,
   "totalCases": 9,
-  "modelRuns": 0,
+  "modelRuns": 16,
   "targetApproval": false,
   "installationEligible": false,
   "promotionEligible": false

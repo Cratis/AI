@@ -187,6 +187,17 @@ test("documentation authoring is classified but remains unapproved", () => {
             "engineering-docs-authoring-source-f58bcf7",
         ),
     );
+    assert.equal(target.evaluations.behavior.status, "missing");
+    for (const evaluation of [
+        target.evaluations.positiveTrigger,
+        target.evaluations.negativeTrigger,
+        target.evaluations.collision,
+    ]) {
+        assert.equal(evaluation.status, "passing");
+        assert.deepEqual(evaluation.evidenceIds, [
+            "engineering-docs-authoring-evaluation-2026-08-22",
+        ]);
+    }
     assert.equal(target.approval.state, "candidate");
     assert.equal(target.includeInRuntime, false);
 });
@@ -206,7 +217,11 @@ test("source revisions require immutable evidence and exact revision bytes", () 
     const source = catalogs.sources.sources[0];
     source.sourceRevision = "0".repeat(40);
     const errors = validateSources(catalogs, defaultRepositoryRoot);
-    assert(errors.some((error) => error.includes("lacks matching immutable evidence")));
+    assert(
+        errors.some((error) =>
+            error.includes("lacks matching immutable evidence"),
+        ),
+    );
     assert(errors.some((error) => error.includes("source provenance failed")));
 });
 
@@ -299,7 +314,11 @@ test("migration outputs remain the exact inverse of target source mappings", () 
     const migration = catalogs.migrations.migrations[0];
     const removedTarget = migration.targetIds.pop();
     let errors = validateMigrations(catalogs);
-    assert(errors.some((error) => error.includes("produce every target exactly once")));
+    assert(
+        errors.some((error) =>
+            error.includes("produce every target exactly once"),
+        ),
+    );
 
     migration.targetIds.push(removedTarget);
     const target = catalogs.targets.targets.find(
@@ -309,7 +328,9 @@ test("migration outputs remain the exact inverse of target source mappings", () 
     errors = validateMigrations(catalogs);
     assert(
         errors.some((error) =>
-            error.includes("target source skills must equal its migration inputs"),
+            error.includes(
+                "target source skills must equal its migration inputs",
+            ),
         ),
     );
 });
@@ -395,8 +416,16 @@ test("applicability, trust, and dependency classifications fail closed", () => {
     const errors = validateTargets(catalogs);
     assert(errors.some((error) => error.includes("unknown architectures id")));
     assert(errors.some((error) => error.includes("trust class must match")));
-    assert(errors.some((error) => error.includes("requires explicit confirmation")));
-    assert(errors.some((error) => error.includes("requires explicit authorization")));
+    assert(
+        errors.some((error) =>
+            error.includes("requires explicit confirmation"),
+        ),
+    );
+    assert(
+        errors.some((error) =>
+            error.includes("requires explicit authorization"),
+        ),
+    );
     assert(errors.some((error) => error.includes("invalid degrade behavior")));
     assert(
         errors.some((error) =>
@@ -410,7 +439,9 @@ test("applicability, trust, and dependency classifications fail closed", () => {
     );
     assert(
         errors.some((error) =>
-            error.includes("classified target dependencies must preserve legacy membership"),
+            error.includes(
+                "classified target dependencies must preserve legacy membership",
+            ),
         ),
     );
     assert(errors.some((error) => error.includes("directed acyclic graph")));
@@ -448,9 +479,7 @@ test("source contracts cannot become inputs before exact verification", () => {
     contract.contentDigest = "0".repeat(64);
     errors = validateSourceContracts(catalogs);
     assert(
-        errors.some((error) =>
-            error.includes("lacks revision-bound evidence"),
-        ),
+        errors.some((error) => error.includes("lacks revision-bound evidence")),
     );
 });
 
@@ -462,8 +491,7 @@ test("draft bundles cannot imply publication or target approval", () => {
         (target) => !selected.has(target.id),
     );
     const arbitraryOptionalTarget = catalogs.targets.targets.find(
-        (target) =>
-            !selected.has(target.id) && target.id !== outsideTarget.id,
+        (target) => !selected.has(target.id) && target.id !== outsideTarget.id,
     );
     bundle.selectedSoftOrOptionalTargetIds = [arbitraryOptionalTarget.id];
     const rootTarget = catalogs.targets.targets.find(
@@ -735,7 +763,9 @@ test("the accepted Option A+ decision still blocks unapproved live targets", () 
     planned.materializationAllowed = true;
     assert(
         validateArtifacts(catalogs).some((error) =>
-            error.includes("non-fixture artifacts must require approved targets"),
+            error.includes(
+                "non-fixture artifacts must require approved targets",
+            ),
         ),
     );
     planned.requiresApprovedTargets = true;
@@ -749,7 +779,9 @@ test("the accepted Option A+ decision still blocks unapproved live targets", () 
     const runtimeErrors = validateArtifacts(catalogs);
     assert(
         runtimeErrors.some((error) =>
-            error.includes("runtime eligibility requires materialization approval"),
+            error.includes(
+                "runtime eligibility requires materialization approval",
+            ),
         ),
     );
     assert(
@@ -762,10 +794,7 @@ test("the accepted Option A+ decision still blocks unapproved live targets", () 
 test("repository inventory supports a clean tracked repository", () => {
     const inventory = clone(
         readCatalog(
-            join(
-                defaultRepositoryRoot,
-                v2CatalogPaths.repositoryInventory,
-            ),
+            join(defaultRepositoryRoot, v2CatalogPaths.repositoryInventory),
         ),
     );
     inventory.admittedUntracked = [];
@@ -783,15 +812,10 @@ test("repository inventory binds the base delta and self-excluding index digest"
     const catalogs = loadCatalogs();
     catalogs.repositoryInventory.indexDigest = "0".repeat(64);
     catalogs.repositoryInventory.changesSinceBase = [];
-    const errors = validateRepositoryInventory(
-        catalogs,
-        defaultRepositoryRoot,
-    );
+    const errors = validateRepositoryInventory(catalogs, defaultRepositoryRoot);
     assert(errors.some((error) => error.includes("index digest changed")));
     assert(
-        errors.some((error) =>
-            error.includes("base-revision changes changed"),
-        ),
+        errors.some((error) => error.includes("base-revision changes changed")),
     );
 });
 

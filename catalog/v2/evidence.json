@@ -60,6 +60,17 @@
       "immutableRevision": "f58bcf7f5cc9fc0e11305ada3b5ecb6fa20953e9"
     },
     {
+      "id": "engineering-docs-authoring-evaluation-2026-08-22",
+      "officialUrl": "https://github.com/Cratis/AI",
+      "sourceKind": "local-evidence-report",
+      "verifiedOn": "2026-08-22",
+      "expiresOn": "2026-11-20",
+      "applicableVersion": "f58bcf7f5cc9fc0e11305ada3b5ecb6fa20953e9",
+      "confidence": "high",
+      "repositoryPath": "evals/cratis-engineering-docs-authoring/evaluation-summary.json",
+      "digest": "b8a322d0f43764a0469c540f28fd57734be4f6a885f81064f55ffe06f85d5c74"
+    },
+    {
       "id": "reevaluation-authority",
       "officialUrl": "https://github.com/Cratis/AI",
       "sourceKind": "local-evidence-report",

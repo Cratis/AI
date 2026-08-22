@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "1409d589e286b5c18198590b5cc8e63e1fb389ce3ee4ff6a89bb9f6705dc9540",
+  "indexDigest": "a3768140ecb782a14a2765422ec9e8c4f524c708b91309ffcd531ab42a051565",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -376,6 +376,178 @@
     },
     {
       "path": "evals/cratis-engineering-docs-authoring/cases.jsonl",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/evaluation-plan.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/evaluation-summary.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/frozen-prompt.md",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/grading.calibration.v1.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/grading.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/held-out-cases.jsonl",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/held-out-evaluation-plan.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/held-out-grading.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/held-out-prompt.md",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/held-out-runs/baseline-openai-codex-gpt-5-4-mini-r1/metadata.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/held-out-runs/baseline-openai-codex-gpt-5-4-mini-r1/output.txt",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/held-out-runs/baseline-openai-codex-gpt-5-4-mini-r2/metadata.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/held-out-runs/baseline-openai-codex-gpt-5-4-mini-r2/output.txt",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/held-out-runs/baseline-openai-codex-gpt-5-6-luna-r1/metadata.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/held-out-runs/baseline-openai-codex-gpt-5-6-luna-r1/output.txt",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/held-out-runs/baseline-openai-codex-gpt-5-6-luna-r2/metadata.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/held-out-runs/baseline-openai-codex-gpt-5-6-luna-r2/output.txt",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/held-out-runs/manifest.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/held-out-runs/skill-openai-codex-gpt-5-4-mini-r1/metadata.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/held-out-runs/skill-openai-codex-gpt-5-4-mini-r1/output.txt",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/held-out-runs/skill-openai-codex-gpt-5-4-mini-r2/metadata.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/held-out-runs/skill-openai-codex-gpt-5-4-mini-r2/output.txt",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/held-out-runs/skill-openai-codex-gpt-5-6-luna-r1/metadata.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/held-out-runs/skill-openai-codex-gpt-5-6-luna-r1/output.txt",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/held-out-runs/skill-openai-codex-gpt-5-6-luna-r2/metadata.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/held-out-runs/skill-openai-codex-gpt-5-6-luna-r2/output.txt",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/runs/baseline-openai-codex-gpt-5-4-mini-r1/metadata.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/runs/baseline-openai-codex-gpt-5-4-mini-r1/output.txt",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/runs/baseline-openai-codex-gpt-5-4-mini-r2/metadata.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/runs/baseline-openai-codex-gpt-5-4-mini-r2/output.txt",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/runs/baseline-openai-codex-gpt-5-6-luna-r1/metadata.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/runs/baseline-openai-codex-gpt-5-6-luna-r1/output.txt",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/runs/baseline-openai-codex-gpt-5-6-luna-r2/metadata.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/runs/baseline-openai-codex-gpt-5-6-luna-r2/output.txt",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/runs/manifest.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/runs/skill-openai-codex-gpt-5-4-mini-r1/metadata.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/runs/skill-openai-codex-gpt-5-4-mini-r1/output.txt",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/runs/skill-openai-codex-gpt-5-4-mini-r2/metadata.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/runs/skill-openai-codex-gpt-5-4-mini-r2/output.txt",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/runs/skill-openai-codex-gpt-5-6-luna-r1/metadata.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/runs/skill-openai-codex-gpt-5-6-luna-r1/output.txt",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/runs/skill-openai-codex-gpt-5-6-luna-r2/metadata.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-authoring/runs/skill-openai-codex-gpt-5-6-luna-r2/output.txt",
       "status": "added"
     },
     {
@@ -1391,6 +1563,14 @@
       "status": "added"
     },
     {
+      "path": "tooling/grade-engineering-docs-authoring-evaluation.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/grade-engineering-docs-authoring-held-out.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/grade-navigator-runs.mjs",
       "status": "added"
     },
@@ -1404,6 +1584,10 @@
     },
     {
       "path": "tooling/public-artifact-materializer.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/run-engineering-docs-authoring-evaluation.mjs",
       "status": "added"
     },
     {
@@ -2478,8 +2662,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 3,
-      "expectedPathsDigest": "1b734b192768da1d94abb6d5462594ba962e14afa9b61da966a2ddd821f543d5"
+      "expectedPathCount": 46,
+      "expectedPathsDigest": "9b765494e40830c19e16c6e13c9abd31a7481af1fadee0571d886f47774a4af9"
     },
     {
       "excludePathPatterns": [],
@@ -2783,8 +2967,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 22,
-      "expectedPathsDigest": "f842e12d3ba41030e863673f9e8c4fbf37ecb0ee0f0bdcd8a0347c2b591c644c"
+      "expectedPathCount": 25,
+      "expectedPathsDigest": "4bc92ba7360bf3781aff40a145e27e6ed0fd0852fb4110d3f270ed0936fdad06"
     },
     {
       "excludePathPatterns": [],

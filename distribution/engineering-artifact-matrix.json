@@ -4,8 +4,8 @@
   "audience": "cratis-engineering",
   "firstPassiveTarget": {
     "targetId": "cratis-engineering-docs-authoring",
-    "state": "SOURCE_RECONCILED_NOT_EVALUATED",
-    "reason": "The lowest-risk target now has self-contained canonical source and zero-model-run routing cases, but behavior, trigger, collision, portability, installation, and owner approval remain incomplete.",
+    "state": "EVIDENCE_PASS_OWNER_REVIEW_PENDING",
+    "reason": "Self-contained immutable source, calibration evidence, held-out routing improvement, exact run bindings, and bounded independent review pass; owner approval and install/update/rollback canary remain incomplete.",
     "canonicalSourcePath": "engineering/skills/cratis-engineering-docs-authoring",
     "rawSourcePackagingAllowed": false
   },
