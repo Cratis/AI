@@ -1,0 +1,14 @@
+[
+  {"caseId":"A01","decision":"PLACE_PRODUCT_PAGE","reason":"PLACEMENT_INPUT_COMPLETE"},
+  {"caseId":"A02","decision":"PLACE_SITE_PAGE","reason":"SITE_PLACEMENT_INPUT_COMPLETE"},
+  {"caseId":"A03","decision":"DEFER_TO_EDIT_PAGE","reason":"PAGE_ALREADY_EXISTS"},
+  {"caseId":"A04","decision":"BLOCK","reason":"OWNERSHIP_OR_DESTINATION_UNRESOLVED"},
+  {"caseId":"A05","decision":"DEFER_TO_VISUAL_QA","reason":"VISUAL_REVIEW_REQUEST"},
+  {"caseId":"A06","decision":"BLOCK","reason":"NON_CRATIS_DOCUMENTATION"},
+  {"caseId":"E01","decision":"LOCATE_EDIT_VERIFY","reason":"EXISTING_SOURCE_IDENTIFIED"},
+  {"caseId":"E02","decision":"SEARCH_LOCATE_EDIT_VERIFY","reason":"SOURCE_SEARCH_REQUIRED"},
+  {"caseId":"E03","decision":"DEFER_TO_ADD_PAGE","reason":"PAGE_DOES_NOT_EXIST"},
+  {"caseId":"E04","decision":"DEFER_TO_AUTHORING","reason":"SUBSTANTIAL_CONTENT_DESIGN_REQUIRED"},
+  {"caseId":"E05","decision":"DEFER_TO_VISUAL_QA","reason":"VISUAL_REVIEW_REQUEST"},
+  {"caseId":"E06","decision":"BLOCK","reason":"MISSING_FIRST_PARTY_PRODUCT_AUTHORITY"}
+]

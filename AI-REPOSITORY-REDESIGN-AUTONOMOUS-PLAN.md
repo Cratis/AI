@@ -593,8 +593,16 @@ Evidence and exact next actions are in
 - [x] Bind and classify both companion sources at immutable revision `684d037`,
   including profiles, confirmed reversible effects, soft authoring and optional
   visual-QA dependencies, source/authoring contracts, and runtime exclusions.
-- [ ] Freeze and run companion calibration/held-out evaluations before adding
-  either target to an engineering fixture package.
+- [x] Freeze and run companion calibration/held-out evaluations: 16 bounded
+  no-tool runs completed across two models and two repetitions. Companion
+  routing improved calibration decisions from 39/48 to 45/48 and held-out
+  decisions from 36/48 to 45/48, with every mismatch preserved.
+- [x] Complete independent review of companion evidence. Trigger/routing is
+  incomplete; collision evidence fails unambiguous cases; H04 remains
+  bundle-versus-delegation ambiguous; operational/distribution gates stay shut.
+- [ ] Freeze and run a corrective add-only/edit-only/bundle/native-trigger
+  evaluation with predeclared thresholds and complete invocation binding before
+  any fixture packaging decision.
 - [ ] Provision the repository-scoped App credentials from Workflows#72 before
   any generated update PR, tag, release, or publication operation.
 - [ ] Keep publication and retirement disabled until explicit approvals pass.

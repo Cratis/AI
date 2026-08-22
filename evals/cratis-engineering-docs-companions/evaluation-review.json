@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "1.0.0",
+  "reviewedOn": "2026-08-22",
+  "reviewWorkflow": "fusion_validate",
+  "reviewId": "validate-29f155f4306b1b6c59de856b42bc42fa",
+  "reviewSha256": "d9238dea96e8e2bb58c26978107ab133d7936ea11abd6045d6c157cb8bd11da8",
+  "verdict": "EVALUATED_CORRECTIVE_RERUN_REQUIRED",
+  "triggerEvidence": "INCOMPLETE",
+  "collisionEvidence": "FAILED_UNAMBIGUOUS_CASES_WITH_ONE_AMBIGUOUS_ORACLE",
+  "routingEvidence": "INCOMPLETE",
+  "verified": {
+    "calibrationCompanionDecisions": "45/48",
+    "calibrationBaselineDecisions": "39/48",
+    "calibrationCompanionReasons": "47/48",
+    "calibrationBaselineReasons": "45/48",
+    "heldOutCompanionDecisions": "45/48",
+    "heldOutBaselineDecisions": "36/48",
+    "heldOutRationalePresence": "48/48"
+  },
+  "openFindings": [
+    "Missing ownership self-delegated instead of blocking in one calibration and one held-out run.",
+    "One non-Cratis calibration result blocked instead of skipping.",
+    "One edit calibration result located directly instead of searching first.",
+    "The combined-skill H04 oracle conflates bundle execution with add-skill delegation.",
+    "Forced contract injection does not evaluate native skill discovery or selection.",
+    "Historical run metadata does not bind every invoked capability restriction.",
+    "The original strict grader did not enforce the complete frozen model-condition-repetition matrix."
+  ],
+  "requiredCorrection": {
+    "separateConditions": [
+      "ADD_ONLY",
+      "EDIT_ONLY",
+      "BUNDLE_LEVEL",
+      "NATIVE_TRIGGER"
+    ],
+    "boundaryCases": [
+      "A04",
+      "A06",
+      "E02",
+      "H03",
+      "H04"
+    ],
+    "requirements": [
+      "Declare success thresholds before execution.",
+      "Bind executed arguments, runner bytes, prompt, source contracts, and allowed capabilities in run metadata.",
+      "Enforce the exact frozen run matrix in grading.",
+      "Distinguish exact reasons from held-out rationale presence.",
+      "Keep every operational and distribution gate closed."
+    ]
+  },
+  "targetApproval": false,
+  "installationEligible": false,
+  "packagingEligible": false,
+  "publicationEligible": false,
+  "promotionEligible": false
+}

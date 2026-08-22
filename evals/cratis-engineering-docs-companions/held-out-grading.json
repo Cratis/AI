@@ -1,0 +1,596 @@
+{
+  "schemaVersion": "1.0.0",
+  "evaluationPass": "held-out",
+  "sourceRevision": "684d03755bacd40af95463b81b4a0c8b9f088ec1",
+  "runCount": 8,
+  "caseCount": 12,
+  "summaries": {
+    "BASELINE_OUTPUT_CONTRACT_ONLY": {
+      "runCount": 4,
+      "decisionMatches": 36,
+      "decisionOpportunities": 48,
+      "rationalesPresent": 48,
+      "rationaleOpportunities": 48
+    },
+    "COMPANION_SKILLS_WITH_OUTPUT_CONTRACT": {
+      "runCount": 4,
+      "decisionMatches": 45,
+      "decisionOpportunities": 48,
+      "rationalesPresent": 48,
+      "rationaleOpportunities": 48
+    }
+  },
+  "runs": [
+    {
+      "runId": "baseline-openai-codex-gpt-5-4-mini-r1",
+      "condition": "BASELINE_OUTPUT_CONTRACT_ONLY",
+      "model": "openai-codex/gpt-5.4-mini",
+      "repetition": 1,
+      "caseCount": 12,
+      "decisionMatches": 9,
+      "rationalesPresent": 12,
+      "caseGrades": [
+        {
+          "caseId": "H01",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H02",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H03",
+          "decisionMatch": false,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H04",
+          "decisionMatch": false,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H05",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H06",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H07",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H08",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H09",
+          "decisionMatch": false,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H10",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H11",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H12",
+          "decisionMatch": true,
+          "rationalePresent": true
+        }
+      ]
+    },
+    {
+      "runId": "baseline-openai-codex-gpt-5-4-mini-r2",
+      "condition": "BASELINE_OUTPUT_CONTRACT_ONLY",
+      "model": "openai-codex/gpt-5.4-mini",
+      "repetition": 2,
+      "caseCount": 12,
+      "decisionMatches": 9,
+      "rationalesPresent": 12,
+      "caseGrades": [
+        {
+          "caseId": "H01",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H02",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H03",
+          "decisionMatch": false,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H04",
+          "decisionMatch": false,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H05",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H06",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H07",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H08",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H09",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H10",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H11",
+          "decisionMatch": false,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H12",
+          "decisionMatch": true,
+          "rationalePresent": true
+        }
+      ]
+    },
+    {
+      "runId": "skills-openai-codex-gpt-5-4-mini-r1",
+      "condition": "COMPANION_SKILLS_WITH_OUTPUT_CONTRACT",
+      "model": "openai-codex/gpt-5.4-mini",
+      "repetition": 1,
+      "caseCount": 12,
+      "decisionMatches": 11,
+      "rationalesPresent": 12,
+      "caseGrades": [
+        {
+          "caseId": "H01",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H02",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H03",
+          "decisionMatch": false,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H04",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H05",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H06",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H07",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H08",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H09",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H10",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H11",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H12",
+          "decisionMatch": true,
+          "rationalePresent": true
+        }
+      ]
+    },
+    {
+      "runId": "skills-openai-codex-gpt-5-4-mini-r2",
+      "condition": "COMPANION_SKILLS_WITH_OUTPUT_CONTRACT",
+      "model": "openai-codex/gpt-5.4-mini",
+      "repetition": 2,
+      "caseCount": 12,
+      "decisionMatches": 12,
+      "rationalesPresent": 12,
+      "caseGrades": [
+        {
+          "caseId": "H01",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H02",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H03",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H04",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H05",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H06",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H07",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H08",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H09",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H10",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H11",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H12",
+          "decisionMatch": true,
+          "rationalePresent": true
+        }
+      ]
+    },
+    {
+      "runId": "baseline-openai-codex-gpt-5-6-luna-r1",
+      "condition": "BASELINE_OUTPUT_CONTRACT_ONLY",
+      "model": "openai-codex/gpt-5.6-luna",
+      "repetition": 1,
+      "caseCount": 12,
+      "decisionMatches": 10,
+      "rationalesPresent": 12,
+      "caseGrades": [
+        {
+          "caseId": "H01",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H02",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H03",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H04",
+          "decisionMatch": false,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H05",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H06",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H07",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H08",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H09",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H10",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H11",
+          "decisionMatch": false,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H12",
+          "decisionMatch": true,
+          "rationalePresent": true
+        }
+      ]
+    },
+    {
+      "runId": "baseline-openai-codex-gpt-5-6-luna-r2",
+      "condition": "BASELINE_OUTPUT_CONTRACT_ONLY",
+      "model": "openai-codex/gpt-5.6-luna",
+      "repetition": 2,
+      "caseCount": 12,
+      "decisionMatches": 8,
+      "rationalesPresent": 12,
+      "caseGrades": [
+        {
+          "caseId": "H01",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H02",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H03",
+          "decisionMatch": false,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H04",
+          "decisionMatch": false,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H05",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H06",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H07",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H08",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H09",
+          "decisionMatch": false,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H10",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H11",
+          "decisionMatch": false,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H12",
+          "decisionMatch": true,
+          "rationalePresent": true
+        }
+      ]
+    },
+    {
+      "runId": "skills-openai-codex-gpt-5-6-luna-r1",
+      "condition": "COMPANION_SKILLS_WITH_OUTPUT_CONTRACT",
+      "model": "openai-codex/gpt-5.6-luna",
+      "repetition": 1,
+      "caseCount": 12,
+      "decisionMatches": 11,
+      "rationalesPresent": 12,
+      "caseGrades": [
+        {
+          "caseId": "H01",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H02",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H03",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H04",
+          "decisionMatch": false,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H05",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H06",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H07",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H08",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H09",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H10",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H11",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H12",
+          "decisionMatch": true,
+          "rationalePresent": true
+        }
+      ]
+    },
+    {
+      "runId": "skills-openai-codex-gpt-5-6-luna-r2",
+      "condition": "COMPANION_SKILLS_WITH_OUTPUT_CONTRACT",
+      "model": "openai-codex/gpt-5.6-luna",
+      "repetition": 2,
+      "caseCount": 12,
+      "decisionMatches": 11,
+      "rationalesPresent": 12,
+      "caseGrades": [
+        {
+          "caseId": "H01",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H02",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H03",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H04",
+          "decisionMatch": false,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H05",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H06",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H07",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H08",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H09",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H10",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H11",
+          "decisionMatch": true,
+          "rationalePresent": true
+        },
+        {
+          "caseId": "H12",
+          "decisionMatch": true,
+          "rationalePresent": true
+        }
+      ]
+    }
+  ],
+  "targetApproval": false,
+  "installationEligible": false,
+  "promotionEligible": false
+}

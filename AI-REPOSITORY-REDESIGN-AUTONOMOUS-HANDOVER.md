@@ -1773,3 +1773,48 @@ The matrix records both as `SOURCE_RECONCILED_NOT_EVALUATED`; raw source
 packaging remains forbidden. Next: freeze calibration and held-out routing
 corpora for both targets, run repeated evidence, independently review it, then
 consider fixture packaging.
+
+## 47. Documentation companion evaluation evidence — 2026-08-22
+
+The companion evaluation is frozen and completed at canonical source revision
+`684d03755bacd40af95463b81b4a0c8b9f088ec1`. It contains 16 no-tool model
+runs: calibration and held-out passes, each comparing an output-contract-only
+baseline with both companion skills across two models and two repetitions.
+Runs disabled tools, extensions, ambient skills, context files, prompt
+templates, themes, sessions, and network-backed context, and executed from an
+isolated temporary directory. Grading requires exact run-directory coverage,
+manifest/metadata equality, output hashes, clean exits, and exact case
+coverage.
+
+Observed evidence:
+
+- calibration baseline: 39/48 decisions and 45/48 reasons;
+- calibration companions: 45/48 decisions and 47/48 reasons;
+- held-out baseline: 36/48 decisions;
+- held-out companions: 45/48 decisions;
+- all 96 held-out rationales were present across both conditions.
+
+The evidence is intentionally not represented as perfect. Companion calibration
+mismatches were one missing-owner self-delegation instead of block, one
+conservative block instead of non-Cratis skip, and one direct locate instead of
+search-locate. Held-out mismatches were one missing-owner self-delegation and
+two direct edit executions where the oracle expected delegation to edit-page.
+The latter case is explicitly marked ambiguous because both companion skills
+were present: direct execution is coherent bundle-level behavior while the
+expected value measured per-skill delegation.
+
+Independent Fusion review `validate-29f155f4306b1b6c59de856b42bc42fa`
+classified trigger/routing evidence as incomplete and collision evidence as
+failed on unambiguous cases, with H04 remaining oracle-ambiguous. It also found
+that forced contract injection did not test native skill selection, historical
+metadata bound only tools/context restrictions rather than the complete
+invocation, the original grader did not enforce the full frozen matrix, and
+held-out rationale presence needed distinct terminology. The grader now
+enforces the exact plan matrix and held-out fields are named as presence, but
+historical metadata remains honestly limited.
+
+Both matrix entries are now `EVALUATED_CORRECTIVE_RERUN_REQUIRED`. A focused
+follow-up must separate add-only, edit-only, bundle-level, and native-trigger
+conditions; predeclare thresholds; bind complete invocation evidence; and rerun
+A04/A06/E02/H03/H04 boundaries. Approval, runtime inclusion, raw source
+packaging, installation, publication, and promotion remain false.

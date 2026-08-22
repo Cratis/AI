@@ -1,0 +1,14 @@
+[
+  {"caseId":"H01","decision":"PLACE_PRODUCT_PAGE","rationale":"Approved Chronicle ownership, destination, title, navigation, and source support product placement and wiring."},
+  {"caseId":"H02","decision":"PLACE_SITE_PAGE","rationale":"Cross-product governance belongs in the approved hand-authored Documentation site."},
+  {"caseId":"H03","decision":"BLOCK","rationale":"Ownership and destination cannot be established without repository evidence."},
+  {"caseId":"H04","decision":"LOCATE_EDIT_VERIFY","rationale":"An existing page with a narrow correction follows the edit workflow."},
+  {"caseId":"H05","decision":"DEFER_TO_VISUAL_QA","rationale":"Screenshot review and layout-shift diagnosis are visual QA tasks."},
+  {"caseId":"H06","decision":"LOCATE_EDIT_VERIFY","rationale":"The URL identifies the Arc owner and source family for an existing-page correction."},
+  {"caseId":"H07","decision":"SEARCH_LOCATE_EDIT_VERIFY","rationale":"A distinctive sentence requires searching owning sources before editing."},
+  {"caseId":"H08","decision":"DEFER_TO_ADD_PAGE","rationale":"The requested page does not exist, so page creation is the appropriate workflow."},
+  {"caseId":"H09","decision":"DEFER_TO_AUTHORING","rationale":"A complete content-strategy and document-type rewrite exceeds focused editing."},
+  {"caseId":"H10","decision":"BLOCK","rationale":"The API claim lacks an authoritative first-party source."},
+  {"caseId":"H11","decision":"SKIP","rationale":"The subject is not Cratis documentation."},
+  {"caseId":"H12","decision":"DEFER_TO_VISUAL_QA","rationale":"Capturing screenshots and inspecting rendered table problems are visual QA tasks."}
+]

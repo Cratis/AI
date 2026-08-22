@@ -4,7 +4,8 @@
   "positiveCases": 4,
   "negativeCases": 8,
   "totalCases": 12,
-  "modelRuns": 0,
+  "heldOutCases": 12,
+  "modelRuns": 16,
   "targetApproval": false,
   "installationEligible": false,
   "promotionEligible": false

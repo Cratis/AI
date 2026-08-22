@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "1.0.0",
+  "state": "EVALUATED_CORRECTIVE_RERUN_REQUIRED",
+  "sourceRevision": "684d03755bacd40af95463b81b4a0c8b9f088ec1",
+  "calibration": {
+    "caseCount": 12,
+    "runsPerCondition": 4,
+    "baselineDecisionMatches": 39,
+    "companionDecisionMatches": 45,
+    "decisionOpportunitiesPerCondition": 48,
+    "baselineReasonMatches": 45,
+    "companionReasonMatches": 47,
+    "reasonOpportunitiesPerCondition": 48,
+    "decisionImprovement": 6,
+    "companionMismatches": [
+      {
+        "caseId": "A04",
+        "observedDecision": "DEFER_TO_ADD_PAGE",
+        "expectedDecision": "BLOCK",
+        "runCount": 1
+      },
+      {
+        "caseId": "A06",
+        "observedDecision": "BLOCK",
+        "expectedDecision": "SKIP",
+        "runCount": 1
+      },
+      {
+        "caseId": "E02",
+        "observedDecision": "LOCATE_EDIT_VERIFY",
+        "expectedDecision": "SEARCH_LOCATE_EDIT_VERIFY",
+        "runCount": 1
+      }
+    ]
+  },
+  "heldOut": {
+    "caseCount": 12,
+    "runsPerCondition": 4,
+    "baselineDecisionMatches": 36,
+    "companionDecisionMatches": 45,
+    "decisionOpportunitiesPerCondition": 48,
+    "baselineRationalesPresent": 48,
+    "companionRationalesPresent": 48,
+    "rationaleOpportunitiesPerCondition": 48,
+    "decisionImprovement": 9,
+    "companionMismatches": [
+      {
+        "caseId": "H03",
+        "observedDecision": "DEFER_TO_ADD_PAGE",
+        "expectedDecision": "BLOCK",
+        "runCount": 1
+      },
+      {
+        "caseId": "H04",
+        "observedDecision": "LOCATE_EDIT_VERIFY",
+        "expectedDecision": "DEFER_TO_EDIT_PAGE",
+        "runCount": 2,
+        "oracleAmbiguity": "Both companion skills were present, so LOCATE_EDIT_VERIFY is coherent bundle-level execution while DEFER_TO_EDIT_PAGE measures add-skill delegation."
+      }
+    ]
+  },
+  "assessment": {
+    "baselineComparison": "COMPANION_IMPROVES_ROUTING",
+    "exactRouting": "NOT_PERFECT",
+    "oracleQuality": "ONE_HELD_OUT_CASE_AMBIGUOUS",
+    "nextState": "CORRECTIVE_RERUN_REQUIRED",
+    "triggerEvidence": "INCOMPLETE",
+    "collisionEvidence": "FAILED_UNAMBIGUOUS_CASES_WITH_ONE_AMBIGUOUS_ORACLE",
+    "historicalCapabilityBinding": "PARTIAL_METADATA_ONLY"
+  },
+  "targetApproval": false,
+  "installationEligible": false,
+  "packagingEligible": false,
+  "publicationEligible": false,
+  "promotionEligible": false
+}
