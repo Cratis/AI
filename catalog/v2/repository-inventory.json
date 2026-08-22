@@ -1,11 +1,15 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "6fbf651b0c5b1750a58ae716bcff05789ef3fcf9bfdaa1b4896d4a0e5e7827cc",
+  "indexDigest": "e08eb60b17c56597ee537cb5de416690645aced1da5d8a7f2ecca5d74b78a6d1",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
   "changesSinceBase": [
+    {
+      "path": ".ai/rules/general.md",
+      "status": "modified"
+    },
     {
       "path": ".github/workflows/distribution-canary-rollback.yml",
       "status": "added"
@@ -284,6 +288,10 @@
     },
     {
       "path": "distribution/marketplace-requirements.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/remote-repository-state.json",
       "status": "added"
     },
     {
@@ -2634,8 +2642,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 8,
-      "expectedPathsDigest": "63829ad1ccb62e6e2c691ac5bc34adebc2a3870b568a0c22212725faa8bbf531"
+      "expectedPathCount": 9,
+      "expectedPathsDigest": "101f31127cf2c49fda2350724cfc382eff760f6bc8f2f50ec1c792f6ebed3cc1"
     },
     {
       "excludePathPatterns": [],
