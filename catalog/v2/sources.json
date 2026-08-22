@@ -24,20 +24,22 @@
     },
     {
       "id": "add-concept",
-      "sourcePath": ".ai/skills/add-concept",
+      "sourcePath": "skills/cratis-fundamentals-concept",
       "artifactType": "agent-skill-source",
       "currentOwner": "reusable Cratis engineering behavior",
       "targetOwner": "public Cratis product capability",
       "audience": "public",
       "bundledPaths": [
-        ".ai/skills/add-concept/SKILL.md"
+        "skills/cratis-fundamentals-concept/LICENSE",
+        "skills/cratis-fundamentals-concept/SKILL.md"
       ],
-      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-      "contentDigest": "f761a6f1f8dfc0b2a8308546bce03ae9391e756d5e6f1a236154e1dfc64cb9ba",
+      "sourceRevision": "422ec8eebc198f9c25c28831a94623a3d4432fea",
+      "contentDigest": "426775e9afc2ff0adb0d8adfd7a5fdaa71c74c60726f11272a224707bf1369c6",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "public-fundamentals-concept-source-422ec8e"
       ]
     },
     {

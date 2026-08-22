@@ -201,6 +201,33 @@ test("documentation authoring is classified but remains unapproved", () => {
     assert.equal(target.includeInRuntime, false);
 });
 
+test("first useful public skill is bound to immutable canonical source", () => {
+    const catalogs = loadCatalogs();
+    const source = catalogs.sources.sources.find(
+        candidate => candidate.id === "add-concept",
+    );
+    const target = catalogs.targets.targets.find(
+        candidate => candidate.id === "cratis-fundamentals-concept",
+    );
+    assert.equal(source.sourcePath, "skills/cratis-fundamentals-concept");
+    assert.equal(
+        source.sourceRevision,
+        "422ec8eebc198f9c25c28831a94623a3d4432fea",
+    );
+    assert.deepEqual(source.bundledPaths, [
+        "skills/cratis-fundamentals-concept/LICENSE",
+        "skills/cratis-fundamentals-concept/SKILL.md",
+    ]);
+    assert(
+        source.evidenceIds.includes(
+            "public-fundamentals-concept-source-422ec8e",
+        ),
+    );
+    assert.deepEqual(target.sourceSkillIds, ["add-concept"]);
+    assert.equal(target.approval.state, "candidate");
+    assert.equal(target.includeInRuntime, false);
+});
+
 test("documentation companions are classified and bound but unevaluated", () => {
     const catalogs = loadCatalogs();
     const expectations = [

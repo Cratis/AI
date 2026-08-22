@@ -128,6 +128,7 @@ const publicSkillRoots = [
     ...v2Sources.sources
         .filter((source) => source.audience === "public")
         .map((source) => `${source.sourcePath}/**`),
+    ".ai/skills/add-concept/**",
     "skills/**",
 ];
 const legacyEngineeringSkillNames = [

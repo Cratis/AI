@@ -2205,7 +2205,7 @@
       "id": "public-skill-sources-and-resources",
       "sourcePathPatterns": [
         ".ai/skills/add-business-rule/**",
-        ".ai/skills/add-concept/**",
+        "skills/cratis-fundamentals-concept/**",
         ".ai/skills/add-ef-migration/**",
         ".ai/skills/add-projection/**",
         ".ai/skills/add-reactor/**",
@@ -2239,6 +2239,7 @@
         ".ai/skills/write-specs-events/**",
         ".ai/skills/write-specs-frontend/**",
         ".ai/skills/write-specs-readmodels/**",
+        ".ai/skills/add-concept/**",
         "skills/**"
       ],
       "artifactType": "skill-source-and-resources",

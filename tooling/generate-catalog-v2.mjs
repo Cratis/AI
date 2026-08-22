@@ -43,6 +43,14 @@ const internalTargets = new Map([
 
 const sourceOverrides = new Map([
     [
+        "add-concept",
+        {
+            sourcePath: "skills/cratis-fundamentals-concept",
+            sourceRevision: "422ec8eebc198f9c25c28831a94623a3d4432fea",
+            evidenceId: "public-fundamentals-concept-source-422ec8e",
+        },
+    ],
+    [
         "add-cratis-docs-page",
         {
             sourcePath: "engineering/skills/cratis-engineering-docs-add-page",
@@ -1397,6 +1405,17 @@ const evidence = [
         applicableVersion: revision,
         confidence: "high",
         immutableRevision: revision,
+    },
+    {
+        id: "public-fundamentals-concept-source-422ec8e",
+        officialUrl:
+            "https://github.com/Cratis/AI/tree/422ec8eebc198f9c25c28831a94623a3d4432fea/skills/cratis-fundamentals-concept",
+        sourceKind: "repository-snapshot",
+        verifiedOn: "2026-08-22",
+        expiresOn: "2027-08-22",
+        applicableVersion: "422ec8eebc198f9c25c28831a94623a3d4432fea",
+        confidence: "high",
+        immutableRevision: "422ec8eebc198f9c25c28831a94623a3d4432fea",
     },
     {
         id: "engineering-docs-add-page-source-684d037",
