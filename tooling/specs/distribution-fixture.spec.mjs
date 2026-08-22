@@ -103,10 +103,7 @@ test("distribution requirements and artifact matrix stay authority bounded", () 
     assert.equal(matrix.state, "FIXTURE_ONLY_LOCAL_STAGING");
     assert.equal(matrix.publicationEligible, false);
     assert.equal(matrix.promotionEligible, false);
-    assert.equal(
-        matrix.repository.status,
-        "INITIALIZED_PROTECTED_FIXTURE",
-    );
+    assert.equal(matrix.repository.status, "INITIALIZED_PROTECTED_FIXTURE");
     const requirementIds = new Set(
         requirements.requirements.map((item) => item.id),
     );
@@ -408,7 +405,10 @@ test("distribution generator CLI binds the requested fixture version", () => {
         execFileSync(
             process.execPath,
             [
-                join(repositoryRoot, "tooling/generate-distribution-fixture.mjs"),
+                join(
+                    repositoryRoot,
+                    "tooling/generate-distribution-fixture.mjs",
+                ),
                 stage,
                 "0.0.5-fixture",
             ],
@@ -418,20 +418,19 @@ test("distribution generator CLI binds the requested fixture version", () => {
             readJson(join(stage, "distribution-manifest.json")).version,
             "0.0.5-fixture",
         );
-        assert.throws(
-            () =>
-                execFileSync(
-                    process.execPath,
-                    [
-                        join(
-                            repositoryRoot,
-                            "tooling/generate-distribution-fixture.mjs",
-                        ),
-                        join(root, "invalid"),
-                        "latest",
-                    ],
-                    { cwd: repositoryRoot, stdio: "pipe" },
-                ),
+        assert.throws(() =>
+            execFileSync(
+                process.execPath,
+                [
+                    join(
+                        repositoryRoot,
+                        "tooling/generate-distribution-fixture.mjs",
+                    ),
+                    join(root, "invalid"),
+                    "latest",
+                ],
+                { cwd: repositoryRoot, stdio: "pipe" },
+            ),
         );
     });
 });

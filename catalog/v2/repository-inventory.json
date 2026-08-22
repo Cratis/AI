@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "53596486c904df07cc18580519cd3e88aea7c5b93762d6b02bf7e8aec78f6833",
+  "indexDigest": "147837c5795858cccd951705cc961dc70430542b4860dcf4e8d02f2fa66a1f9a",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -2205,7 +2205,7 @@
       "id": "public-skill-sources-and-resources",
       "sourcePathPatterns": [
         ".ai/skills/add-business-rule/**",
-        ".ai/skills/add-concept/**",
+        "skills/cratis-fundamentals-concept/**",
         ".ai/skills/add-ef-migration/**",
         ".ai/skills/add-projection/**",
         ".ai/skills/add-reactor/**",
@@ -2239,6 +2239,7 @@
         ".ai/skills/write-specs-events/**",
         ".ai/skills/write-specs-frontend/**",
         ".ai/skills/write-specs-readmodels/**",
+        ".ai/skills/add-concept/**",
         "skills/**"
       ],
       "artifactType": "skill-source-and-resources",

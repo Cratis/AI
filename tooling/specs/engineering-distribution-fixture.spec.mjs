@@ -285,10 +285,7 @@ test("engineering Grok and DeepSeek fixtures install and remove", () => {
             { installed: true, removed: true },
         );
         assert.deepEqual(
-            smokeDeepSeekEngineeringFixture(
-                stage,
-                join(root, "deepseek-home"),
-            ),
+            smokeDeepSeekEngineeringFixture(stage, join(root, "deepseek-home")),
             { installed: true, removed: true },
         );
     });
