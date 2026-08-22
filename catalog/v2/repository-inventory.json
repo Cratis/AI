@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "e08eb60b17c56597ee537cb5de416690645aced1da5d8a7f2ecca5d74b78a6d1",
+  "indexDigest": "a97f57eac7ff9c8c63ef32b7541d17cfcf93260303486c2ff60f8616588f890b",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -264,6 +264,10 @@
     },
     {
       "path": "distribution/artifact-matrix.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/evidence/hosted-remote-initialization-2026-08-22.json",
       "status": "added"
     },
     {
@@ -2642,8 +2646,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 9,
-      "expectedPathsDigest": "101f31127cf2c49fda2350724cfc382eff760f6bc8f2f50ec1c792f6ebed3cc1"
+      "expectedPathCount": 10,
+      "expectedPathsDigest": "bc7ff918cc405140867b95bc5ccf498d1451ca5caa6f1632c2c3934d9e3742bd"
     },
     {
       "excludePathPatterns": [],
