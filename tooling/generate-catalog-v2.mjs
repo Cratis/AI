@@ -41,6 +41,19 @@ const internalTargets = new Map([
     ["write-documentation", "cratis-engineering-docs-authoring"],
 ]);
 
+const sourceOverrides = new Map([
+    [
+        "write-documentation",
+        {
+            sourcePath:
+                "engineering/skills/cratis-engineering-docs-authoring",
+            sourceRevision:
+                "f58bcf7f5cc9fc0e11305ada3b5ecb6fa20953e9",
+            evidenceId: "engineering-docs-authoring-source-f58bcf7",
+        },
+    ],
+]);
+
 const engineeringClassifications = new Map([
     [
         "cratis-engineering-docs-authoring",
@@ -163,6 +176,8 @@ const engineeringClassifications = new Map([
                 ".ai/rules/documentation-structure-and-formatting.md",
                 ".ai/rules/writing-cratis-docs.md",
             ],
+            sourceContractIds: ["cratis-ai-composition"],
+            sourceAuthoritySubjects: ["capability-composition"],
             authoringContractIds: ["cratis-skill-clean-room-v1"],
             runtimeAllowed: ["SKILL.md", "references/**", "assets/**", "LICENSE*"],
         },
@@ -737,7 +752,9 @@ const allSkillNames = [
     ...internalTargets.keys(),
 ].sort(compareOrdinal);
 const sources = allSkillNames.map((name) => {
-    const path = `.ai/skills/${name}`;
+    const sourceOverride = sourceOverrides.get(name);
+    const path =
+        sourceOverride?.sourcePath ?? `.ai/skills/${name}`;
     const files = listFiles(join(repositoryRoot, path));
     const targetOwner = internalNames.has(name)
         ? engineeringOwner
@@ -750,10 +767,14 @@ const sources = allSkillNames.map((name) => {
         targetOwner,
         audience: internalNames.has(name) ? "cratis-engineering" : "public",
         bundledPaths: files,
-        sourceRevision: revision,
+        sourceRevision: sourceOverride?.sourceRevision ?? revision,
         contentDigest: digestFiles(files),
         publicationApproval: false,
-        evidenceIds: ["repo-main-b795d53", "reevaluation-authority"],
+        evidenceIds: [
+            "repo-main-b795d53",
+            "reevaluation-authority",
+            ...(sourceOverride ? [sourceOverride.evidenceId] : []),
+        ],
     };
 });
 writeJson("sources.json", {
@@ -857,9 +878,13 @@ const targets = allTargetIds.map((targetId) => {
             ? "classified"
             : "unclassified",
         dependencyEdges: engineeringClassification?.dependencyEdges ?? [],
-        sourceContractState: "unclassified",
-        sourceContractIds: [],
-        sourceAuthoritySubjects: [],
+        sourceContractState: engineeringClassification
+            ? "classified"
+            : "unclassified",
+        sourceContractIds:
+            engineeringClassification?.sourceContractIds ?? [],
+        sourceAuthoritySubjects:
+            engineeringClassification?.sourceAuthoritySubjects ?? [],
         authoringContractState: engineeringClassification
             ? "classified"
             : "unclassified",
@@ -1172,6 +1197,19 @@ const evidence = [
         immutableRevision: revision,
     },
     {
+        id: "engineering-docs-authoring-source-f58bcf7",
+        officialUrl:
+            "https://github.com/Cratis/AI/tree/f58bcf7f5cc9fc0e11305ada3b5ecb6fa20953e9/engineering/skills/cratis-engineering-docs-authoring",
+        sourceKind: "repository-snapshot",
+        verifiedOn: "2026-08-22",
+        expiresOn: "2027-08-22",
+        applicableVersion:
+            "f58bcf7f5cc9fc0e11305ada3b5ecb6fa20953e9",
+        confidence: "high",
+        immutableRevision:
+            "f58bcf7f5cc9fc0e11305ada3b5ecb6fa20953e9",
+    },
+    {
         id: "reevaluation-authority",
         officialUrl: "https://github.com/Cratis/AI",
         sourceKind: "local-evidence-report",
@@ -1256,7 +1294,7 @@ for (const ecosystem of v1Ecosystems.ecosystems) {
 }
 writeJson("evidence.json", {
     schemaVersion: 2,
-    asOf: "2026-08-20",
+    asOf: "2026-08-22",
     generatedBy: "tooling/generate-catalog-v2.mjs",
     evidence,
     ecosystemFacts,

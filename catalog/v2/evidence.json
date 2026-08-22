@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "asOf": "2026-08-20",
+  "asOf": "2026-08-22",
   "generatedBy": "tooling/generate-catalog-v2.mjs",
   "evidence": [
     {
@@ -48,6 +48,16 @@
       "applicableVersion": "b795d5307e20f7f7458a67708b4f26975e223796",
       "confidence": "high",
       "immutableRevision": "b795d5307e20f7f7458a67708b4f26975e223796"
+    },
+    {
+      "id": "engineering-docs-authoring-source-f58bcf7",
+      "officialUrl": "https://github.com/Cratis/AI/tree/f58bcf7f5cc9fc0e11305ada3b5ecb6fa20953e9/engineering/skills/cratis-engineering-docs-authoring",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-08-22",
+      "expiresOn": "2027-08-22",
+      "applicableVersion": "f58bcf7f5cc9fc0e11305ada3b5ecb6fa20953e9",
+      "confidence": "high",
+      "immutableRevision": "f58bcf7f5cc9fc0e11305ada3b5ecb6fa20953e9"
     },
     {
       "id": "reevaluation-authority",

@@ -37,7 +37,14 @@ test("first engineering target is classified but cannot package raw source", () 
     const first = targets.find(
         (target) => target.id === matrix.firstPassiveTarget.targetId,
     );
-    assert.equal(matrix.firstPassiveTarget.state, "CLASSIFIED_NOT_APPROVED");
+    assert.equal(
+        matrix.firstPassiveTarget.state,
+        "SOURCE_RECONCILED_NOT_EVALUATED",
+    );
+    assert.equal(
+        matrix.firstPassiveTarget.canonicalSourcePath,
+        "engineering/skills/cratis-engineering-docs-authoring",
+    );
     assert.equal(matrix.firstPassiveTarget.rawSourcePackagingAllowed, false);
     assert.equal(first.trust.class, "passive");
     assert.equal(first.trust.assessmentState, "assessed");

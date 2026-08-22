@@ -125,9 +125,19 @@ const v2Sources = readCatalog(join(repositoryRoot, "catalog/v2/sources.json"));
 const publicSkillRoots = v2Sources.sources
     .filter((source) => source.audience === "public")
     .map((source) => `${source.sourcePath}/**`);
-const engineeringSkillRoots = v2Sources.sources
-    .filter((source) => source.audience === "cratis-engineering")
-    .map((source) => `${source.sourcePath}/**`);
+const legacyEngineeringSkillNames = [
+    "add-cratis-docs-page",
+    "add-traces",
+    "cratis-csharp-standards",
+    "edit-cratis-docs",
+    "qa-cratis-docs",
+    "ship-changes",
+    "skill-creator",
+    "write-documentation",
+];
+const engineeringSkillRoots = legacyEngineeringSkillNames.map(
+    (name) => `.ai/skills/${name}/**`,
+);
 
 const definitions = [
     {

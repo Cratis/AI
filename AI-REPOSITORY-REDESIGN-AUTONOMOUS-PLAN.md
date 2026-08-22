@@ -572,8 +572,11 @@ Evidence and exact next actions are in
 - [x] Define separate low-trust passive, effectful passive, and executable
   engineering package boundaries; classify the first low-risk docs-authoring
   target and add a distinct runtime-disabled engineering artifact.
-- [ ] Reconcile the docs-authoring target into self-contained canonical
-  engineering source before generating its first installable fixture package.
+- [x] Reconcile the docs-authoring target into self-contained canonical
+  engineering source with immutable source evidence and zero-model-run routing
+  cases; raw legacy source remains non-packageable.
+- [ ] Run frozen repeated behavior/trigger/collision/portability evaluation and
+  owner review before enabling its first installable engineering fixture.
 - [ ] Provision the repository-scoped App credentials from Workflows#72 before
   any generated update PR, tag, release, or publication operation.
 - [ ] Keep publication and retirement disabled until explicit approvals pass.
