@@ -3976,41 +3976,154 @@
       "languages": [
         "language-agnostic"
       ],
-      "capabilityKind": "unclassified",
-      "invocation": "unclassified",
+      "capabilityKind": "journey",
+      "invocation": "both",
       "lifecycle": "candidate",
       "architectures": {
-        "state": "unclassified",
-        "ids": [],
-        "reason": "Architecture requires reviewed target classification."
+        "state": "applicable",
+        "ids": [
+          "product-neutral"
+        ],
+        "reason": "Documentation authoring applies across Cratis products without assuming an application architecture."
       },
       "personas": {
-        "state": "unclassified",
-        "ids": [],
-        "reason": "Persona requires reviewed target classification."
+        "state": "applicable",
+        "ids": [
+          "contributor",
+          "maintainer"
+        ],
+        "reason": "Contributors and maintainers author reviewed Cratis documentation."
       },
       "surfaces": {
-        "state": "unclassified",
-        "ids": [],
-        "reason": "Surface requires reviewed target classification."
+        "state": "applicable",
+        "ids": [
+          "direct-agent-skills",
+          "ide"
+        ],
+        "reason": "The workflow is an instruction-only skill used from an agent or IDE session."
       },
       "repositoryProfiles": {
-        "state": "unclassified",
-        "ids": [],
-        "reason": "Repository profile requires reviewed target classification."
+        "state": "applicable",
+        "ids": [
+          "application",
+          "client",
+          "corpus",
+          "framework"
+        ],
+        "reason": "Documentation can be owned by application, client, framework, or corpus repositories."
       },
       "trust": {
         "class": "passive",
-        "assessmentState": "unclassified",
-        "effects": []
+        "assessmentState": "assessed",
+        "effects": [
+          {
+            "id": "create-repository-documentation",
+            "operation": "create",
+            "resourceBoundary": "current repository worktree",
+            "scope": "Documentation source and navigation files selected by the owning repository",
+            "dataClassifications": [
+              "internal",
+              "public"
+            ],
+            "reversible": true,
+            "rollbackOrCompensation": "Delete the uncommitted page or revert the dedicated documentation commit.",
+            "confirmation": {
+              "required": true,
+              "timing": "before-effect",
+              "reason": "The repository maintainer confirms the proposed documentation paths before files are created."
+            },
+            "authorization": {
+              "required": true,
+              "authority": "Repository maintainer or task owner",
+              "evidenceIds": [
+                "ai-126"
+              ]
+            },
+            "evidenceIds": [
+              "repo-main-b795d53",
+              "reevaluation-authority"
+            ]
+          },
+          {
+            "id": "modify-repository-documentation",
+            "operation": "modify",
+            "resourceBoundary": "current repository worktree",
+            "scope": "Documentation source and navigation files selected by the owning repository",
+            "dataClassifications": [
+              "internal",
+              "public"
+            ],
+            "reversible": true,
+            "rollbackOrCompensation": "Restore the prior bytes or revert the dedicated documentation commit.",
+            "confirmation": {
+              "required": true,
+              "timing": "before-effect",
+              "reason": "The repository maintainer confirms the proposed documentation paths before existing files are changed."
+            },
+            "authorization": {
+              "required": true,
+              "authority": "Repository maintainer or task owner",
+              "evidenceIds": [
+                "ai-126"
+              ]
+            },
+            "evidenceIds": [
+              "repo-main-b795d53",
+              "reevaluation-authority"
+            ]
+          }
+        ]
       },
-      "dependencyClassificationState": "unclassified",
-      "dependencyEdges": [],
+      "dependencyClassificationState": "classified",
+      "dependencyEdges": [
+        {
+          "dependencyId": ".ai/rules/documentation-structure-and-formatting.md",
+          "category": "internal-artifact",
+          "strength": "hard",
+          "reason": "The rule defines the site-compatible document structure.",
+          "missingBehavior": {
+            "action": "block",
+            "description": "Stop rather than inventing documentation structure."
+          }
+        },
+        {
+          "dependencyId": ".ai/rules/writing-cratis-docs.md",
+          "category": "internal-artifact",
+          "strength": "hard",
+          "reason": "The rule defines the Cratis documentation voice and quality bar.",
+          "missingBehavior": {
+            "action": "block",
+            "description": "Stop rather than drafting without the Cratis writing contract."
+          }
+        },
+        {
+          "dependencyId": "cratis-engineering-docs-add-page",
+          "category": "target",
+          "strength": "soft",
+          "reason": "New pages need repository placement and navigation wiring.",
+          "missingBehavior": {
+            "action": "degrade",
+            "description": "Draft content only and disclose that placement and navigation remain unresolved."
+          }
+        },
+        {
+          "dependencyId": "cratis-engineering-docs-edit-page",
+          "category": "target",
+          "strength": "soft",
+          "reason": "Existing pages need source-of-truth discovery and sync guidance.",
+          "missingBehavior": {
+            "action": "degrade",
+            "description": "Draft content only and disclose that source discovery and integration remain unresolved."
+          }
+        }
+      ],
       "sourceContractState": "unclassified",
       "sourceContractIds": [],
       "sourceAuthoritySubjects": [],
-      "authoringContractState": "unclassified",
-      "authoringContractIds": [],
+      "authoringContractState": "classified",
+      "authoringContractIds": [
+        "cratis-skill-clean-room-v1"
+      ],
       "capability": "Cratis documentation authoring",
       "positiveTriggerIntent": "Use by Cratis maintainers to apply Diátaxis and documentation writing guidance.",
       "nearMissExclusions": [
@@ -4021,12 +4134,23 @@
         "cratis-engineering-docs-edit-page"
       ],
       "dependencies": {
-        "targets": [],
-        "internalArtifacts": [],
+        "targets": [
+          "cratis-engineering-docs-add-page",
+          "cratis-engineering-docs-edit-page"
+        ],
+        "internalArtifacts": [
+          ".ai/rules/documentation-structure-and-formatting.md",
+          ".ai/rules/writing-cratis-docs.md"
+        ],
         "externalTools": []
       },
       "runtimePayloadPolicy": {
-        "allowed": [],
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
         "forbidden": [
           "scripts/**",
           "evals/**",

@@ -965,7 +965,7 @@
       ],
       "properties": {
         "id": { "$ref": "#/$defs/id" },
-        "audience": { "enum": ["public", "test-fixture"] },
+        "audience": { "enum": ["public", "cratis-engineering", "test-fixture"] },
         "fixtureOnly": { "type": "boolean" },
         "materializationAllowed": { "type": "boolean" },
         "runtimeEligible": { "type": "boolean" },

@@ -1534,3 +1534,38 @@ The prepared workflows deliberately cannot be used for generated PRs or npm
 staging until the focused manual issues provision their credentials/ownership.
 No secret, App, package, release, publication, promotion, or retirement authority
 is inferred from workflow readiness.
+
+## 40. Engineering distribution classification — 2026-08-22
+
+The next internal-distribution unit classifies before packaging. Repository
+evidence identifies eight Cratis-engineering skill targets, but none was approved
+or installable and no engineering artifact existed.
+
+This branch adds:
+
+- `distribution/engineering-artifact-matrix.json`, which separates low-trust
+  passive skills, effectful passive skills, and executable tooling;
+- exact profile intent for application, framework, client, corpus, and
+  documentation repositories;
+- explicit exclusion of project-owned context/bootstrap files and all evals,
+  scripts, rules, agents, prompts, hooks, workflows, tooling, Pi state, and Git
+  state from the first passive package;
+- a distinct `planned-passive-engineering-release` artifact whose audience is
+  `cratis-engineering`, whose eight targets are audience-isolated from public
+  targets, and whose materialization/runtime remain disabled;
+- reviewed classification for only the lowest-risk first target,
+  `cratis-engineering-docs-authoring`: journey, user/model invoked,
+  product-neutral, contributor/maintainer, direct-skill/IDE, applicable to
+  application/client/corpus/framework repositories, passive but effect-assessed,
+  with explicit create/modify confirmation and reversible effects;
+- hard dependencies on documentation structure/writing rules, soft degraded
+  dependencies on add/edit page targets, and the clean-room authoring contract;
+- closed schema/semantic/inventory tests proving all other engineering targets
+  remain unclassified candidates and no artifact is installable.
+
+The raw `.ai/skills/write-documentation` source is explicitly not packageable.
+The next PR must reconcile it into self-contained canonical engineering source,
+remove repository-relative and sibling-skill assumptions from the runtime
+payload, add behavior/trigger/collision/portability evidence, and only then
+generate a fixture package. Effectful shipping/QA/tracing and executable skill
+creation remain separate later packages and security reviews.

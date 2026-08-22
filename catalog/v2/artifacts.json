@@ -93,6 +93,59 @@
       ]
     },
     {
+      "id": "planned-passive-engineering-release",
+      "audience": "cratis-engineering",
+      "fixtureOnly": false,
+      "materializationAllowed": false,
+      "runtimeEligible": false,
+      "componentInventory": {
+        "skills": [
+          "cratis-engineering-chronicle-kernel-tracing",
+          "cratis-engineering-csharp-conventions",
+          "cratis-engineering-docs-add-page",
+          "cratis-engineering-docs-authoring",
+          "cratis-engineering-docs-edit-page",
+          "cratis-engineering-docs-visual-qa",
+          "cratis-engineering-ship-changes",
+          "skill-creator"
+        ],
+        "mcp": []
+      },
+      "exactSourcePaths": [],
+      "allowedPathPatterns": [
+        "engineering/skills/<approved-target>/SKILL.md",
+        "engineering/skills/<approved-target>/references/**",
+        "engineering/skills/<approved-target>/assets/**",
+        "engineering/skills/<approved-target>/LICENSE*"
+      ],
+      "forbiddenPathPatterns": [
+        "skills/**",
+        "**/scripts/**",
+        "**/evals/**",
+        "rules/**",
+        "agents/**",
+        "prompts/**",
+        "commands/**",
+        "hooks/**",
+        "lsp/**",
+        "tooling/**",
+        "workflows/**",
+        ".pi/**",
+        ".git/**",
+        ".cratis/PROJECT.md",
+        ".agents/PROJECT.md",
+        "AGENTS.md",
+        "CLAUDE.md",
+        "GEMINI.md"
+      ],
+      "requiresApprovedTargets": true,
+      "evidenceIds": [
+        "workflows-68",
+        "option-a-plus-authority",
+        "organization-option-a-plus-authority"
+      ]
+    },
+    {
       "id": "sanitized-public-materializer-fixture",
       "audience": "test-fixture",
       "fixtureOnly": true,

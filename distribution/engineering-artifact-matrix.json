@@ -1,0 +1,99 @@
+{
+  "schemaVersion": "1.0.0",
+  "state": "CLASSIFICATION_IN_PROGRESS_RUNTIME_DISABLED",
+  "audience": "cratis-engineering",
+  "firstPassiveTarget": {
+    "targetId": "cratis-engineering-docs-authoring",
+    "state": "CLASSIFIED_NOT_APPROVED",
+    "reason": "It is the lowest-risk engineering target and has no scripts, hooks, remote operations, live-store access, or executable package implementation.",
+    "rawSourcePackagingAllowed": false
+  },
+  "packageBoundaries": [
+    {
+      "id": "engineering-passive-low-trust",
+      "trust": "PASSIVE",
+      "state": "PLANNED_DISABLED",
+      "targetIds": [
+        "cratis-engineering-docs-authoring",
+        "cratis-engineering-docs-add-page",
+        "cratis-engineering-docs-edit-page",
+        "cratis-engineering-csharp-conventions"
+      ],
+      "allowedPaths": [
+        "engineering/skills/<approved-target>/SKILL.md",
+        "engineering/skills/<approved-target>/references/**",
+        "engineering/skills/<approved-target>/assets/**",
+        "engineering/skills/<approved-target>/LICENSE*"
+      ]
+    },
+    {
+      "id": "engineering-passive-effectful",
+      "trust": "PASSIVE_EFFECTFUL",
+      "state": "PLANNED_DISABLED_SEPARATE_REVIEW",
+      "targetIds": [
+        "cratis-engineering-chronicle-kernel-tracing",
+        "cratis-engineering-docs-visual-qa",
+        "cratis-engineering-ship-changes"
+      ],
+      "allowedPaths": []
+    },
+    {
+      "id": "engineering-executable-tooling",
+      "trust": "EXECUTABLE",
+      "state": "PLANNED_DISABLED_SEPARATE_PACKAGE",
+      "targetIds": [
+        "skill-creator"
+      ],
+      "allowedPaths": []
+    }
+  ],
+  "profileIntent": {
+    "application": [
+      "cratis-engineering-csharp-conventions",
+      "cratis-engineering-ship-changes"
+    ],
+    "framework": [
+      "cratis-engineering-csharp-conventions",
+      "cratis-engineering-chronicle-kernel-tracing",
+      "cratis-engineering-ship-changes"
+    ],
+    "client": [
+      "cratis-engineering-csharp-conventions",
+      "cratis-engineering-ship-changes"
+    ],
+    "corpus": [
+      "cratis-engineering-ship-changes",
+      "skill-creator"
+    ],
+    "documentation": [
+      "cratis-engineering-docs-authoring",
+      "cratis-engineering-docs-add-page",
+      "cratis-engineering-docs-edit-page",
+      "cratis-engineering-docs-visual-qa",
+      "cratis-engineering-ship-changes"
+    ]
+  },
+  "projectOwnedForbiddenPaths": [
+    ".cratis/PROJECT.md",
+    ".agents/PROJECT.md",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "GEMINI.md"
+  ],
+  "alwaysForbiddenPaths": [
+    "**/evals/**",
+    "**/scripts/**",
+    "rules/**",
+    "agents/**",
+    "prompts/**",
+    "hooks/**",
+    "workflows/**",
+    "tooling/**",
+    ".pi/**",
+    ".git/**",
+    "local-configuration/**"
+  ],
+  "installationEligible": false,
+  "publicationEligible": false,
+  "promotionEligible": false
+}

@@ -41,6 +41,134 @@ const internalTargets = new Map([
     ["write-documentation", "cratis-engineering-docs-authoring"],
 ]);
 
+const engineeringClassifications = new Map([
+    [
+        "cratis-engineering-docs-authoring",
+        {
+            capabilityKind: "journey",
+            invocation: "both",
+            architectures: {
+                state: "applicable",
+                ids: ["product-neutral"],
+                reason: "Documentation authoring applies across Cratis products without assuming an application architecture.",
+            },
+            personas: {
+                state: "applicable",
+                ids: ["contributor", "maintainer"],
+                reason: "Contributors and maintainers author reviewed Cratis documentation.",
+            },
+            surfaces: {
+                state: "applicable",
+                ids: ["direct-agent-skills", "ide"],
+                reason: "The workflow is an instruction-only skill used from an agent or IDE session.",
+            },
+            repositoryProfiles: {
+                state: "applicable",
+                ids: ["application", "client", "corpus", "framework"],
+                reason: "Documentation can be owned by application, client, framework, or corpus repositories.",
+            },
+            trust: {
+                class: "passive",
+                assessmentState: "assessed",
+                effects: [
+                    {
+                        id: "create-repository-documentation",
+                        operation: "create",
+                        resourceBoundary: "current repository worktree",
+                        scope: "Documentation source and navigation files selected by the owning repository",
+                        dataClassifications: ["internal", "public"],
+                        reversible: true,
+                        rollbackOrCompensation: "Delete the uncommitted page or revert the dedicated documentation commit.",
+                        confirmation: {
+                            required: true,
+                            timing: "before-effect",
+                            reason: "The repository maintainer confirms the proposed documentation paths before files are created.",
+                        },
+                        authorization: {
+                            required: true,
+                            authority: "Repository maintainer or task owner",
+                            evidenceIds: ["ai-126"],
+                        },
+                        evidenceIds: ["repo-main-b795d53", "reevaluation-authority"],
+                    },
+                    {
+                        id: "modify-repository-documentation",
+                        operation: "modify",
+                        resourceBoundary: "current repository worktree",
+                        scope: "Documentation source and navigation files selected by the owning repository",
+                        dataClassifications: ["internal", "public"],
+                        reversible: true,
+                        rollbackOrCompensation: "Restore the prior bytes or revert the dedicated documentation commit.",
+                        confirmation: {
+                            required: true,
+                            timing: "before-effect",
+                            reason: "The repository maintainer confirms the proposed documentation paths before existing files are changed.",
+                        },
+                        authorization: {
+                            required: true,
+                            authority: "Repository maintainer or task owner",
+                            evidenceIds: ["ai-126"],
+                        },
+                        evidenceIds: ["repo-main-b795d53", "reevaluation-authority"],
+                    },
+                ],
+            },
+            dependencyEdges: [
+                {
+                    dependencyId: ".ai/rules/documentation-structure-and-formatting.md",
+                    category: "internal-artifact",
+                    strength: "hard",
+                    reason: "The rule defines the site-compatible document structure.",
+                    missingBehavior: {
+                        action: "block",
+                        description: "Stop rather than inventing documentation structure.",
+                    },
+                },
+                {
+                    dependencyId: ".ai/rules/writing-cratis-docs.md",
+                    category: "internal-artifact",
+                    strength: "hard",
+                    reason: "The rule defines the Cratis documentation voice and quality bar.",
+                    missingBehavior: {
+                        action: "block",
+                        description: "Stop rather than drafting without the Cratis writing contract.",
+                    },
+                },
+                {
+                    dependencyId: "cratis-engineering-docs-add-page",
+                    category: "target",
+                    strength: "soft",
+                    reason: "New pages need repository placement and navigation wiring.",
+                    missingBehavior: {
+                        action: "degrade",
+                        description: "Draft content only and disclose that placement and navigation remain unresolved.",
+                    },
+                },
+                {
+                    dependencyId: "cratis-engineering-docs-edit-page",
+                    category: "target",
+                    strength: "soft",
+                    reason: "Existing pages need source-of-truth discovery and sync guidance.",
+                    missingBehavior: {
+                        action: "degrade",
+                        description: "Draft content only and disclose that source discovery and integration remain unresolved.",
+                    },
+                },
+            ],
+            targetDependencies: [
+                "cratis-engineering-docs-add-page",
+                "cratis-engineering-docs-edit-page",
+            ],
+            internalArtifacts: [
+                ".ai/rules/documentation-structure-and-formatting.md",
+                ".ai/rules/writing-cratis-docs.md",
+            ],
+            authoringContractIds: ["cratis-skill-clean-room-v1"],
+            runtimeAllowed: ["SKILL.md", "references/**", "assets/**", "LICENSE*"],
+        },
+    ],
+]);
+
 const profiles = {
     "cratis-arc-command-validation": [
         "Arc command validation",
@@ -695,6 +823,7 @@ const targets = allTargetIds.map((targetId) => {
     const hasLegacyBehaviorEvals = sourceSkillIds.some((source) =>
         existsSync(join(repositoryRoot, `.ai/skills/${source}/evals`)),
     );
+    const engineeringClassification = engineeringClassifications.get(targetId);
     return {
         id: targetId,
         semanticName: targetId,
@@ -703,38 +832,58 @@ const targets = allTargetIds.map((targetId) => {
         audience: publicTarget ? "public" : "cratis-engineering",
         products: publicTarget ? products : ["cratis-engineering"],
         languages: publicTarget ? languages : ["language-agnostic"],
-        capabilityKind: "unclassified",
-        invocation: "unclassified",
+        capabilityKind:
+            engineeringClassification?.capabilityKind ?? "unclassified",
+        invocation: engineeringClassification?.invocation ?? "unclassified",
         lifecycle: "candidate",
-        architectures: unclassifiedApplicability("Architecture"),
-        personas: unclassifiedApplicability("Persona"),
-        surfaces: unclassifiedApplicability("Surface"),
-        repositoryProfiles: unclassifiedApplicability("Repository profile"),
-        trust: {
+        architectures:
+            engineeringClassification?.architectures ??
+            unclassifiedApplicability("Architecture"),
+        personas:
+            engineeringClassification?.personas ??
+            unclassifiedApplicability("Persona"),
+        surfaces:
+            engineeringClassification?.surfaces ??
+            unclassifiedApplicability("Surface"),
+        repositoryProfiles:
+            engineeringClassification?.repositoryProfiles ??
+            unclassifiedApplicability("Repository profile"),
+        trust: engineeringClassification?.trust ?? {
             class: "passive",
             assessmentState: "unclassified",
             effects: [],
         },
-        dependencyClassificationState: "unclassified",
-        dependencyEdges: [],
+        dependencyClassificationState: engineeringClassification
+            ? "classified"
+            : "unclassified",
+        dependencyEdges: engineeringClassification?.dependencyEdges ?? [],
         sourceContractState: "unclassified",
         sourceContractIds: [],
         sourceAuthoritySubjects: [],
-        authoringContractState: "unclassified",
-        authoringContractIds: [],
+        authoringContractState: engineeringClassification
+            ? "classified"
+            : "unclassified",
+        authoringContractIds:
+            engineeringClassification?.authoringContractIds ?? [],
         capability: profile[0],
         positiveTriggerIntent: profile[1],
         nearMissExclusions: profile[2],
         collisionSet: profile[3],
         dependencies: {
-            targets: targetDependencies,
-            internalArtifacts,
+            targets:
+                engineeringClassification?.targetDependencies ??
+                targetDependencies,
+            internalArtifacts:
+                engineeringClassification?.internalArtifacts ??
+                internalArtifacts,
             externalTools,
         },
         runtimePayloadPolicy: {
-            allowed: publicTarget
-                ? ["SKILL.md", "references/**", "assets/**", "LICENSE*"]
-                : [],
+            allowed:
+                engineeringClassification?.runtimeAllowed ??
+                (publicTarget
+                    ? ["SKILL.md", "references/**", "assets/**", "LICENSE*"]
+                    : []),
             forbidden: [
                 "scripts/**",
                 "evals/**",
@@ -836,6 +985,9 @@ writeJson("migrations.json", {
 const publicTargetIds = targets
     .filter((target) => target.audience === "public")
     .map((target) => target.id);
+const engineeringTargetIds = targets
+    .filter((target) => target.audience === "cratis-engineering")
+    .map((target) => target.id);
 writeJson("artifacts.json", {
     schemaVersion: 2,
     defaultPolicy: "deny",
@@ -883,6 +1035,47 @@ writeJson("artifacts.json", {
                 "workflows/**",
                 ".pi/**",
                 ".git/**",
+            ],
+            requiresApprovedTargets: true,
+            evidenceIds: [
+                "workflows-68",
+                "option-a-plus-authority",
+                "organization-option-a-plus-authority",
+            ],
+        },
+        {
+            id: "planned-passive-engineering-release",
+            audience: "cratis-engineering",
+            fixtureOnly: false,
+            materializationAllowed: false,
+            runtimeEligible: false,
+            componentInventory: { skills: engineeringTargetIds, mcp: [] },
+            exactSourcePaths: [],
+            allowedPathPatterns: [
+                "engineering/skills/<approved-target>/SKILL.md",
+                "engineering/skills/<approved-target>/references/**",
+                "engineering/skills/<approved-target>/assets/**",
+                "engineering/skills/<approved-target>/LICENSE*",
+            ],
+            forbiddenPathPatterns: [
+                "skills/**",
+                "**/scripts/**",
+                "**/evals/**",
+                "rules/**",
+                "agents/**",
+                "prompts/**",
+                "commands/**",
+                "hooks/**",
+                "lsp/**",
+                "tooling/**",
+                "workflows/**",
+                ".pi/**",
+                ".git/**",
+                ".cratis/PROJECT.md",
+                ".agents/PROJECT.md",
+                "AGENTS.md",
+                "CLAUDE.md",
+                "GEMINI.md",
             ],
             requiresApprovedTargets: true,
             evidenceIds: [
