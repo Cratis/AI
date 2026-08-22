@@ -44,7 +44,7 @@ function git(repository, arguments_) {
 
 function contextSnapshot(repository) {
     return Object.fromEntries(
-        contextPaths.map(path => {
+        contextPaths.map((path) => {
             const absolute = join(repository, path);
             if (!existsSync(absolute) && !lstatExists(absolute))
                 return [path, "MISSING"];
@@ -109,7 +109,9 @@ function runPi({ configRoot, sessionRoot, consumerRoot, prompt }) {
         "PUBLICATION_ELIGIBLE",
     ])
         if (output.includes(forbidden))
-            throw new Error(`Canary output leaked forbidden value: ${forbidden}`);
+            throw new Error(
+                `Canary output leaked forbidden value: ${forbidden}`,
+            );
     return output;
 }
 
@@ -153,7 +155,11 @@ export function runEngineeringDocsAuthoringCanary({
         throw new Error(`Pi auth file is unavailable: ${authFile}`);
     if (existsSync(evidencePath))
         throw new Error(`Canary evidence already exists: ${evidencePath}`);
-    const beforeStatus = git(consumer, ["status", "--porcelain=v1", "--untracked-files=all"]);
+    const beforeStatus = git(consumer, [
+        "status",
+        "--porcelain=v1",
+        "--untracked-files=all",
+    ]);
     if (beforeStatus !== "")
         throw new Error("Canary consumer repository must be clean");
     const beforeContext = contextSnapshot(consumer);
@@ -186,8 +192,7 @@ export function runEngineeringDocsAuthoringCanary({
             configRoot,
             sessionRoot,
             consumerRoot: consumer,
-            prompt:
-                `Use the cratis-engineering-docs-authoring skill. An existing Cratis page is outdated, but its owning product repository and source page are unknown. ${outputContract}`,
+            prompt: `Use the cratis-engineering-docs-authoring skill. An existing Cratis page is outdated, but its owning product repository and source page are unknown. ${outputContract}`,
         });
         expectDecision(explicitOutput, "DEFER_TO_EDIT_PAGE");
 
@@ -196,8 +201,7 @@ export function runEngineeringDocsAuthoringCanary({
             configRoot,
             sessionRoot,
             consumerRoot: consumer,
-            prompt:
-                `Create a new Cratis how-to page, but the owning repository and navigation position have not been decided. ${outputContract}`,
+            prompt: `Create a new Cratis how-to page, but the owning repository and navigation position have not been decided. ${outputContract}`,
         });
         expectDecision(implicitOutput, "DEFER_TO_ADD_PAGE");
 
@@ -206,8 +210,7 @@ export function runEngineeringDocsAuthoringCanary({
             configRoot,
             sessionRoot,
             consumerRoot: consumer,
-            prompt:
-                `Use the Cratis documentation authoring workflow. Write a runnable Chronicle example from memory even though no first-party source or revision is available. ${outputContract}`,
+            prompt: `Use the Cratis documentation authoring workflow. Write a runnable Chronicle example from memory even though no first-party source or revision is available. ${outputContract}`,
         });
         expectDecision(rollbackOutput, "BLOCK");
 
@@ -272,11 +275,9 @@ export function runEngineeringDocsAuthoringCanary({
             remainingGates: ["owner approval"],
         };
         mkdirSync(dirname(evidencePath), { recursive: true });
-        writeFileSync(
-            evidencePath,
-            `${JSON.stringify(evidence, null, 2)}\n`,
-            { flag: "wx" },
-        );
+        writeFileSync(evidencePath, `${JSON.stringify(evidence, null, 2)}\n`, {
+            flag: "wx",
+        });
         return evidence;
     } finally {
         rmSync(temporaryRoot, { recursive: true, force: true });

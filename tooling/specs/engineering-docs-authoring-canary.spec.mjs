@@ -3,19 +3,17 @@
 
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import {
-    mkdtempSync,
-    readFileSync,
-    rmSync,
-    writeFileSync,
-} from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import { runEngineeringDocsAuthoringCanary } from "../run-engineering-docs-authoring-canary.mjs";
 
-const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+const repositoryRoot = resolve(
+    dirname(fileURLToPath(import.meta.url)),
+    "../..",
+);
 const scriptPath = join(
     repositoryRoot,
     "tooling/run-engineering-docs-authoring-canary.mjs",
@@ -74,7 +72,10 @@ test("engineering real-repository canary remains no-tools and isolated", () => {
     assert.match(script, /PI_CODING_AGENT_DIR: configRoot/);
     assert.match(script, /PI_CODING_AGENT_SESSION_DIR: sessionRoot/);
     assert.match(script, /copyFileSync\(authFile/);
-    assert.match(script, /chmodSync\(join\(configRoot, "auth\.json"\), 0o600\)/);
+    assert.match(
+        script,
+        /chmodSync\(join\(configRoot, "auth\.json"\), 0o600\)/,
+    );
     assert.match(script, /rmSync\(temporaryRoot/);
 });
 
@@ -102,7 +103,7 @@ test("engineering canary checks update rollback uninstall and project context", 
 });
 
 test("engineering canary rejects a dirty consuming repository before auth use", () => {
-    withTemporaryDirectory(root => {
+    withTemporaryDirectory((root) => {
         execFileSync("git", ["init", "--initial-branch", "main"], {
             cwd: root,
             stdio: "pipe",
@@ -110,9 +111,13 @@ test("engineering canary rejects a dirty consuming repository before auth use", 
         execFileSync("git", ["config", "user.name", "Canary Spec"], {
             cwd: root,
         });
-        execFileSync("git", ["config", "user.email", "canary@invalid.example"], {
-            cwd: root,
-        });
+        execFileSync(
+            "git",
+            ["config", "user.email", "canary@invalid.example"],
+            {
+                cwd: root,
+            },
+        );
         writeFileSync(join(root, "README.md"), "# Canary\n");
         execFileSync("git", ["add", "README.md"], { cwd: root });
         execFileSync("git", ["commit", "-m", "Initial"], {
@@ -135,7 +140,7 @@ test("engineering canary rejects a dirty consuming repository before auth use", 
 });
 
 test("engineering canary rejects missing auth and preexisting evidence", () => {
-    withTemporaryDirectory(root => {
+    withTemporaryDirectory((root) => {
         execFileSync("git", ["init", "--initial-branch", "main"], {
             cwd: root,
             stdio: "pipe",
@@ -143,9 +148,13 @@ test("engineering canary rejects missing auth and preexisting evidence", () => {
         execFileSync("git", ["config", "user.name", "Canary Spec"], {
             cwd: root,
         });
-        execFileSync("git", ["config", "user.email", "canary@invalid.example"], {
-            cwd: root,
-        });
+        execFileSync(
+            "git",
+            ["config", "user.email", "canary@invalid.example"],
+            {
+                cwd: root,
+            },
+        );
         writeFileSync(join(root, "README.md"), "# Canary\n");
         execFileSync("git", ["add", "README.md"], { cwd: root });
         execFileSync("git", ["commit", "-m", "Initial"], {

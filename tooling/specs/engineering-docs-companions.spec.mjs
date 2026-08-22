@@ -47,8 +47,8 @@ test("engineering documentation companions and twelve cases pass", () => {
     assert.deepEqual(validateEngineeringDocsCompanions(), []);
     const cases = readCases();
     assert.equal(cases.length, 12);
-    assert.equal(cases.filter(item => item.kind === "positive").length, 4);
-    assert.equal(cases.filter(item => item.kind === "negative").length, 8);
+    assert.equal(cases.filter((item) => item.kind === "positive").length, 4);
+    assert.equal(cases.filter((item) => item.kind === "negative").length, 8);
 });
 
 test("add-page companion owns placement and routes near misses", () => {
@@ -86,7 +86,7 @@ test("edit-page companion discovers authoritative source and avoids outputs", ()
 });
 
 test("companion cases preserve new existing visual authority and scope routing", () => {
-    const cases = new Map(readCases().map(item => [item.id, item.expected]));
+    const cases = new Map(readCases().map((item) => [item.id, item.expected]));
     assert.equal(cases.get("A01").decision, "PLACE_PRODUCT_PAGE");
     assert.equal(cases.get("A02").decision, "PLACE_SITE_PAGE");
     assert.equal(cases.get("A03").decision, "DEFER_TO_EDIT_PAGE");
@@ -102,7 +102,7 @@ test("companion cases preserve new existing visual authority and scope routing",
 });
 
 test("companion validation rejects executable payload and source coupling", () => {
-    withFixture(root => {
+    withFixture((root) => {
         const skillPath = join(
             root,
             "engineering/skills/cratis-engineering-docs-add-page/SKILL.md",
@@ -130,31 +130,31 @@ test("companion validation rejects executable payload and source coupling", () =
             ),
         );
         assert(
-            errors.some(error =>
+            errors.some((error) =>
                 error.includes(
                     "engineering/skills/cratis-engineering-docs-edit-page: inventory changed",
                 ),
             ),
         );
-        assert(errors.some(error => error.includes("digest changed")));
+        assert(errors.some((error) => error.includes("digest changed")));
     });
 });
 
 test("companion validation rejects decision oracle drift", () => {
-    withFixture(root => {
+    withFixture((root) => {
         const path = join(
             root,
             "evals/cratis-engineering-docs-companions/cases.jsonl",
         );
         const cases = readCases(root);
-        cases.find(item => item.id === "A04").expected.decision =
+        cases.find((item) => item.id === "A04").expected.decision =
             "PLACE_PRODUCT_PAGE";
         writeFileSync(
             path,
-            `${cases.map(item => JSON.stringify(item)).join("\n")}\n`,
+            `${cases.map((item) => JSON.stringify(item)).join("\n")}\n`,
         );
         const errors = validateEngineeringDocsCompanions(root);
         assert(errors.includes("A04:CASE_ORACLE"));
-        assert(errors.some(error => error.includes("digest changed")));
+        assert(errors.some((error) => error.includes("digest changed")));
     });
 });

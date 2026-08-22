@@ -113,20 +113,17 @@ export function validateEngineeringDistributionConfiguration(
             join(repositoryRoot, "catalog/v2/targets.json"),
         ).targets;
         const fixture = artifacts.find(
-            artifact =>
-                artifact.id ===
-                "sanitized-engineering-docs-authoring-fixture",
+            (artifact) =>
+                artifact.id === "sanitized-engineering-docs-authoring-fixture",
         );
         const planned = artifacts.find(
-            artifact =>
-                artifact.id === "planned-passive-engineering-release",
+            (artifact) => artifact.id === "planned-passive-engineering-release",
         );
         const target = targets.find(
-            candidate =>
-                candidate.id === "cratis-engineering-docs-authoring",
+            (candidate) => candidate.id === "cratis-engineering-docs-authoring",
         );
         const expectedExactPaths = approvedFiles.map(
-            path => `engineering/${path}`,
+            (path) => `engineering/${path}`,
         );
         if (
             artifactMatrix.firstPassiveTarget.state !==
@@ -233,10 +230,7 @@ export function generateEngineeringDistributionFixture({
         );
 
         const codexRoot = join(root, "codex");
-        copyCanonical(
-            canonicalRoot,
-            join(codexRoot, `plugins/${pluginName}`),
-        );
+        copyCanonical(canonicalRoot, join(codexRoot, `plugins/${pluginName}`));
         writeJson(join(codexRoot, ".agents/plugins/marketplace.json"), {
             name: pluginName,
             interface: { displayName: "Cratis Engineering Fixture" },
@@ -256,10 +250,7 @@ export function generateEngineeringDistributionFixture({
             ],
         });
         writeJson(
-            join(
-                codexRoot,
-                `plugins/${pluginName}/.codex-plugin/plugin.json`,
-            ),
+            join(codexRoot, `plugins/${pluginName}/.codex-plugin/plugin.json`),
             {
                 name: pluginName,
                 version,
@@ -302,10 +293,7 @@ export function generateEngineeringDistributionFixture({
         });
 
         const cursorRoot = join(root, "cursor");
-        copyCanonical(
-            canonicalRoot,
-            join(cursorRoot, `plugins/${pluginName}`),
-        );
+        copyCanonical(canonicalRoot, join(cursorRoot, `plugins/${pluginName}`));
         writeJson(join(cursorRoot, ".cursor-plugin/marketplace.json"), {
             name: pluginName,
             owner: { name: "Cratis" },
@@ -360,10 +348,7 @@ export function generateEngineeringDistributionFixture({
             license: "MIT",
         });
 
-        const junieRoot = join(
-            root,
-            `junie/extensions/${pluginName}`,
-        );
+        const junieRoot = join(root, `junie/extensions/${pluginName}`);
         copyCanonical(canonicalRoot, junieRoot);
         writeJson(join(junieRoot, "extension.json"), {
             name: pluginName,
@@ -596,12 +581,7 @@ export function smokeNpmEngineeringUpdateRollback(
             const packed = JSON.parse(
                 execFileSync(
                     "npm",
-                    [
-                        "pack",
-                        "--json",
-                        "--pack-destination",
-                        packRoot,
-                    ],
+                    ["pack", "--json", "--pack-destination", packRoot],
                     {
                         cwd: join(outputRoot, "pi/package"),
                         encoding: "utf8",
@@ -623,23 +603,14 @@ export function smokeNpmEngineeringUpdateRollback(
     };
     const firstTarball = pack(firstOutputRoot, "first");
     const secondTarball = pack(secondOutputRoot, "second");
-    const install = tarball => {
+    const install = (tarball) => {
         execFileSync(
             "npm",
-            [
-                "install",
-                tarball,
-                "--ignore-scripts",
-                "--no-audit",
-                "--no-fund",
-            ],
+            ["install", tarball, "--ignore-scripts", "--no-audit", "--no-fund"],
             { cwd: installRoot, stdio: "pipe" },
         );
         return readJson(
-            join(
-                installRoot,
-                `node_modules/${packageName}/package.json`,
-            ),
+            join(installRoot, `node_modules/${packageName}/package.json`),
         ).version;
     };
     const firstVersion = install(firstTarball);
@@ -647,7 +618,9 @@ export function smokeNpmEngineeringUpdateRollback(
     const rolledBackVersion = install(firstTarball);
     for (const [path, content] of Object.entries(projectFiles))
         if (readFileSync(join(installRoot, path), "utf8") !== content)
-            throw new Error(`Engineering package changed project context: ${path}`);
+            throw new Error(
+                `Engineering package changed project context: ${path}`,
+            );
     execFileSync(
         "npm",
         [
@@ -661,7 +634,9 @@ export function smokeNpmEngineeringUpdateRollback(
     );
     for (const [path, content] of Object.entries(projectFiles))
         if (readFileSync(join(installRoot, path), "utf8") !== content)
-            throw new Error(`Engineering uninstall changed project context: ${path}`);
+            throw new Error(
+                `Engineering uninstall changed project context: ${path}`,
+            );
     return {
         firstVersion,
         secondVersion,
@@ -842,11 +817,10 @@ export function smokeGeminiEngineeringFixture(
         throw new Error(
             "Gemini engineering fixture extension was not observable",
         );
-    execFileSync(
-        geminiCommand,
-        ["extensions", "uninstall", pluginName],
-        { env: environment, stdio: "pipe" },
-    );
+    execFileSync(geminiCommand, ["extensions", "uninstall", pluginName], {
+        env: environment,
+        stdio: "pipe",
+    });
     if (existsSync(installedRoot))
         throw new Error(
             "Gemini engineering fixture uninstall left extension content",

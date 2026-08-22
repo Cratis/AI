@@ -56,7 +56,7 @@ test("first engineering target is classified but cannot package raw source", () 
 test("documentation companion sources remain reconciled but unevaluated", () => {
     const matrix = readJson("distribution/engineering-artifact-matrix.json");
     assert.deepEqual(
-        matrix.companionTargets.map(target => ({
+        matrix.companionTargets.map((target) => ({
             targetId: target.targetId,
             state: target.state,
             rawSourcePackagingAllowed: target.rawSourcePackagingAllowed,
