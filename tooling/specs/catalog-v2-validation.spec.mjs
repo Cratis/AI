@@ -221,10 +221,10 @@ test("documentation companions are classified and bound but unevaluated", () => 
     ];
     for (const expected of expectations) {
         const target = catalogs.targets.targets.find(
-            candidate => candidate.id === expected.targetId,
+            (candidate) => candidate.id === expected.targetId,
         );
         const source = catalogs.sources.sources.find(
-            candidate => candidate.id === expected.sourceId,
+            (candidate) => candidate.id === expected.sourceId,
         );
         assert.equal(target.capabilityKind, "journey");
         assert.equal(target.invocation, "both");
@@ -240,12 +240,12 @@ test("documentation companions are classified and bound but unevaluated", () => 
         assert.equal(target.trust.class, "passive");
         assert.equal(target.trust.assessmentState, "assessed");
         assert.deepEqual(
-            target.trust.effects.map(effect => effect.operation),
+            target.trust.effects.map((effect) => effect.operation),
             expected.effects,
         );
         assert(
             target.trust.effects.every(
-                effect =>
+                (effect) =>
                     effect.confirmation.required === true &&
                     effect.confirmation.timing === "before-effect" &&
                     effect.authorization.required === true &&
@@ -258,7 +258,7 @@ test("documentation companions are classified and bound but unevaluated", () => 
             "cratis-engineering-docs-visual-qa",
         ]);
         assert.deepEqual(
-            target.dependencyEdges.map(edge => edge.strength),
+            target.dependencyEdges.map((edge) => edge.strength),
             ["soft", "optional"],
         );
         assert.equal(target.sourceContractState, "classified");

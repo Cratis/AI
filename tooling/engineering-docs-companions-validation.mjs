@@ -7,7 +7,9 @@ import { lstatSync, readFileSync, readdirSync, realpathSync } from "node:fs";
 import { isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const defaultRepositoryRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
+const defaultRepositoryRoot = resolve(
+    fileURLToPath(new URL("..", import.meta.url)),
+);
 const addRoot = "engineering/skills/cratis-engineering-docs-add-page";
 const editRoot = "engineering/skills/cratis-engineering-docs-edit-page";
 const evaluationRoot = "evals/cratis-engineering-docs-companions";
@@ -69,7 +71,9 @@ function safePath(path) {
         typeof path === "string" &&
         !isAbsolute(path) &&
         !path.includes("\\") &&
-        path.split("/").every(segment => segment && segment !== "." && segment !== "..")
+        path
+            .split("/")
+            .every((segment) => segment && segment !== "." && segment !== "..")
     );
 }
 
@@ -97,10 +101,10 @@ function inventory(repositoryRoot, path, expected, errors) {
         const root = realpathSync(repositoryRoot);
         const absolute = join(root, path);
         const entries = readdirSync(absolute, { withFileTypes: true });
-        const names = entries.map(entry => entry.name).sort();
+        const names = entries.map((entry) => entry.name).sort();
         if (
             JSON.stringify(names) !== JSON.stringify([...expected].sort()) ||
-            entries.some(entry => !entry.isFile() && !entry.isDirectory())
+            entries.some((entry) => !entry.isFile() && !entry.isDirectory())
         )
             errors.push(`${path}: inventory changed`);
     } catch {
@@ -123,10 +127,13 @@ function frontmatter(markdown) {
     const match = markdown.match(/^---\n([\s\S]*?)\n---\n/);
     if (!match) return null;
     return new Map(
-        match[1].split("\n").map(line => {
+        match[1].split("\n").map((line) => {
             const separator = line.indexOf(":");
             return separator > 0
-                ? [line.slice(0, separator).trim(), line.slice(separator + 1).trim()]
+                ? [
+                      line.slice(0, separator).trim(),
+                      line.slice(separator + 1).trim(),
+                  ]
                 : ["", ""];
         }),
     );
@@ -140,9 +147,19 @@ function validateSkill(
     requiredRoutes,
     errors,
 ) {
-    inventory(repositoryRoot, root, ["LICENSE", "SKILL.md", "references"], errors);
+    inventory(
+        repositoryRoot,
+        root,
+        ["LICENSE", "SKILL.md", "references"],
+        errors,
+    );
     inventory(repositoryRoot, `${root}/references`, [reference], errors);
-    const skill = readContained(repositoryRoot, `${root}/SKILL.md`, 131072, errors);
+    const skill = readContained(
+        repositoryRoot,
+        `${root}/SKILL.md`,
+        131072,
+        errors,
+    );
     if (skill === null) return;
     const metadata = frontmatter(skill);
     if (
@@ -237,15 +254,23 @@ export function validateEngineeringDocsCompanions(
     );
     const cases = [];
     if (casesContent !== null) {
-        for (const [index, line] of casesContent.split(/\r?\n/).filter(Boolean).entries()) {
+        for (const [index, line] of casesContent
+            .split(/\r?\n/)
+            .filter(Boolean)
+            .entries()) {
             try {
                 cases.push(JSON.parse(line));
             } catch {
-                errors.push(`${evaluationRoot}/cases.jsonl:${index + 1}: invalid JSON`);
+                errors.push(
+                    `${evaluationRoot}/cases.jsonl:${index + 1}: invalid JSON`,
+                );
             }
         }
     }
-    if (JSON.stringify(cases.map(item => item?.id).sort()) !== JSON.stringify(caseIds))
+    if (
+        JSON.stringify(cases.map((item) => item?.id).sort()) !==
+        JSON.stringify(caseIds)
+    )
         errors.push("CASE_INVENTORY");
     for (const testCase of cases) {
         const expected = decisions[testCase?.id];

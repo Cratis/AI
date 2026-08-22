@@ -45,20 +45,16 @@ const sourceOverrides = new Map([
     [
         "add-cratis-docs-page",
         {
-            sourcePath:
-                "engineering/skills/cratis-engineering-docs-add-page",
-            sourceRevision:
-                "684d03755bacd40af95463b81b4a0c8b9f088ec1",
+            sourcePath: "engineering/skills/cratis-engineering-docs-add-page",
+            sourceRevision: "684d03755bacd40af95463b81b4a0c8b9f088ec1",
             evidenceId: "engineering-docs-add-page-source-684d037",
         },
     ],
     [
         "edit-cratis-docs",
         {
-            sourcePath:
-                "engineering/skills/cratis-engineering-docs-edit-page",
-            sourceRevision:
-                "684d03755bacd40af95463b81b4a0c8b9f088ec1",
+            sourcePath: "engineering/skills/cratis-engineering-docs-edit-page",
+            sourceRevision: "684d03755bacd40af95463b81b4a0c8b9f088ec1",
             evidenceId: "engineering-docs-edit-page-source-684d037",
         },
     ],
@@ -164,7 +160,8 @@ const engineeringClassifications = new Map([
                     reason: "A new page needs approved content after placement is known.",
                     missingBehavior: {
                         action: "degrade",
-                        description: "Place only already approved content; otherwise stop after the placement plan.",
+                        description:
+                            "Place only already approved content; otherwise stop after the placement plan.",
                     },
                 },
                 {
@@ -174,7 +171,8 @@ const engineeringClassifications = new Map([
                     reason: "Rendered visual review is a separate completion enhancement.",
                     missingBehavior: {
                         action: "omit",
-                        description: "Report visual QA as outstanding without claiming rendered quality.",
+                        description:
+                            "Report visual QA as outstanding without claiming rendered quality.",
                     },
                 },
             ],
@@ -203,7 +201,8 @@ const engineeringClassifications = new Map([
                     reason: "Substantial content redesign is delegated to the authoring workflow.",
                     missingBehavior: {
                         action: "degrade",
-                        description: "Apply only narrow source-backed corrections; block substantial redesign.",
+                        description:
+                            "Apply only narrow source-backed corrections; block substantial redesign.",
                     },
                 },
                 {
@@ -213,7 +212,8 @@ const engineeringClassifications = new Map([
                     reason: "Rendered visual review is a separate completion enhancement.",
                     missingBehavior: {
                         action: "omit",
-                        description: "Report visual QA as outstanding without claiming rendered quality.",
+                        description:
+                            "Report visual QA as outstanding without claiming rendered quality.",
                     },
                 },
             ],
@@ -1073,24 +1073,23 @@ const targets = allTargetIds.map((targetId) => {
             },
             positiveTrigger:
                 engineeringClassification?.routingEvaluationEvidenceId
-                ? {
-                      status: "passing",
-                      evidenceIds: [
-                          engineeringClassification.routingEvaluationEvidenceId,
-                      ],
-                  }
-                : { status: "missing", evidenceIds: [] },
+                    ? {
+                          status: "passing",
+                          evidenceIds: [
+                              engineeringClassification.routingEvaluationEvidenceId,
+                          ],
+                      }
+                    : { status: "missing", evidenceIds: [] },
             negativeTrigger:
                 engineeringClassification?.routingEvaluationEvidenceId
-                ? {
-                      status: "passing",
-                      evidenceIds: [
-                          engineeringClassification.routingEvaluationEvidenceId,
-                      ],
-                  }
-                : { status: "missing", evidenceIds: [] },
-            collision:
-                engineeringClassification?.routingEvaluationEvidenceId
+                    ? {
+                          status: "passing",
+                          evidenceIds: [
+                              engineeringClassification.routingEvaluationEvidenceId,
+                          ],
+                      }
+                    : { status: "missing", evidenceIds: [] },
+            collision: engineeringClassification?.routingEvaluationEvidenceId
                 ? {
                       status: "passing",
                       evidenceIds: [

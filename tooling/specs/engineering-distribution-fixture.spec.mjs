@@ -27,7 +27,10 @@ import {
     validateEngineeringDistributionFixture,
 } from "../generate-engineering-distribution-fixture.mjs";
 
-const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+const repositoryRoot = resolve(
+    dirname(fileURLToPath(import.meta.url)),
+    "../..",
+);
 
 function commandAvailable(command) {
     try {
@@ -67,10 +70,7 @@ test("engineering fixture workflow remains read-only and non-promoting", () => {
     );
     assert.match(workflow, /workflow_dispatch:/);
     assert.match(workflow, /permissions:\n  contents: read/);
-    assert.match(
-        workflow,
-        /0\.0\.N-engineering-fixture/,
-    );
+    assert.match(workflow, /0\.0\.N-engineering-fixture/);
     assert.match(workflow, /engineering-distribution-fixture\.spec\.mjs/);
     for (const forbidden of [
         "id-token: write",
@@ -94,7 +94,7 @@ test("engineering fixture evidence remains local and non-promoting", () => {
     assert.equal(evidence.state, "ENGINEERING_FIXTURE_ONLY");
     assert.equal(evidence.targetId, "cratis-engineering-docs-authoring");
     assert(
-        evidence.results.every(result => result.status.startsWith("PASS")),
+        evidence.results.every((result) => result.status.startsWith("PASS")),
     );
     assert.equal(evidence.targetApproval, false);
     assert.equal(evidence.installationEligible, false);
@@ -103,7 +103,7 @@ test("engineering fixture evidence remains local and non-promoting", () => {
 });
 
 test("engineering fixture generation is deterministic and non-installable", () => {
-    withTemporaryDirectory(root => {
+    withTemporaryDirectory((root) => {
         const firstRoot = join(root, "first");
         const secondRoot = join(root, "second");
         const first = generateEngineeringDistributionFixture({
@@ -138,12 +138,15 @@ test("engineering fixture generation is deterministic and non-installable", () =
                 readFileSync(join(secondRoot, file.path)),
             );
         }
-        assert.deepEqual(validateEngineeringDistributionFixture(firstRoot), first);
+        assert.deepEqual(
+            validateEngineeringDistributionFixture(firstRoot),
+            first,
+        );
     });
 });
 
 test("engineering fixture contains one passive skill and no project context", () => {
-    withTemporaryDirectory(root => {
+    withTemporaryDirectory((root) => {
         const stage = join(root, "stage");
         generateEngineeringDistributionFixture({
             repositoryRoot,
@@ -152,13 +155,10 @@ test("engineering fixture contains one passive skill and no project context", ()
         const manifest = readJson(
             join(stage, "engineering-distribution-manifest.json"),
         );
-        assert.equal(
-            manifest.skillName,
-            "cratis-engineering-docs-authoring",
-        );
+        assert.equal(manifest.skillName, "cratis-engineering-docs-authoring");
         assert(
             manifest.files.some(
-                file =>
+                (file) =>
                     file.path ===
                     "canonical/skills/cratis-engineering-docs-authoring/SKILL.md",
             ),
@@ -176,7 +176,7 @@ test("engineering fixture contains one passive skill and no project context", ()
             "/prompts/",
         ])
             assert(
-                manifest.files.every(file => !file.path.includes(forbidden)),
+                manifest.files.every((file) => !file.path.includes(forbidden)),
                 forbidden,
             );
         assert.equal(
@@ -222,7 +222,7 @@ test("engineering fixture contains one passive skill and no project context", ()
 });
 
 test("engineering fixture detects canonical payload tampering", () => {
-    withTemporaryDirectory(root => {
+    withTemporaryDirectory((root) => {
         const stage = join(root, "stage");
         generateEngineeringDistributionFixture({
             repositoryRoot,
@@ -243,7 +243,7 @@ test("engineering fixture detects canonical payload tampering", () => {
 });
 
 test("engineering npm fixture packs installs and uninstalls", () => {
-    withTemporaryDirectory(root => {
+    withTemporaryDirectory((root) => {
         const stage = join(root, "stage");
         const smokeRoot = join(root, "smoke");
         generateEngineeringDistributionFixture({
@@ -261,7 +261,7 @@ test("engineering npm fixture packs installs and uninstalls", () => {
 });
 
 test("engineering npm fixture updates rolls back and preserves project context", () => {
-    withTemporaryDirectory(root => {
+    withTemporaryDirectory((root) => {
         const first = join(root, "first");
         const second = join(root, "second");
         const smokeRoot = join(root, "smoke");
@@ -289,109 +289,99 @@ test("engineering npm fixture updates rolls back and preserves project context",
     });
 });
 
-test(
-    "engineering Pi fixture installs and removes in an isolated home",
-    { skip: !piAvailable },
-    () => {
-        withTemporaryDirectory(root => {
-            const stage = join(root, "stage");
-            const home = join(root, "home");
-            generateEngineeringDistributionFixture({
-                repositoryRoot,
-                outputRoot: stage,
-            });
-            mkdirSync(home);
-            assert.deepEqual(smokePiEngineeringFixture(stage, home), {
-                installed: true,
-                removed: true,
-            });
+test("engineering Pi fixture installs and removes in an isolated home", {
+    skip: !piAvailable,
+}, () => {
+    withTemporaryDirectory((root) => {
+        const stage = join(root, "stage");
+        const home = join(root, "home");
+        generateEngineeringDistributionFixture({
+            repositoryRoot,
+            outputRoot: stage,
         });
-    },
-);
+        mkdirSync(home);
+        assert.deepEqual(smokePiEngineeringFixture(stage, home), {
+            installed: true,
+            removed: true,
+        });
+    });
+});
 
-test(
-    "engineering Claude fixture validates installs and removes",
-    { skip: !claudeAvailable },
-    () => {
-        withTemporaryDirectory(root => {
-            const stage = join(root, "stage");
-            const home = join(root, "home");
-            generateEngineeringDistributionFixture({
-                repositoryRoot,
-                outputRoot: stage,
-            });
-            mkdirSync(home);
-            assert.deepEqual(smokeClaudeEngineeringFixture(stage, home), {
-                validated: true,
-                installed: true,
-                removed: true,
-            });
+test("engineering Claude fixture validates installs and removes", {
+    skip: !claudeAvailable,
+}, () => {
+    withTemporaryDirectory((root) => {
+        const stage = join(root, "stage");
+        const home = join(root, "home");
+        generateEngineeringDistributionFixture({
+            repositoryRoot,
+            outputRoot: stage,
         });
-    },
-);
+        mkdirSync(home);
+        assert.deepEqual(smokeClaudeEngineeringFixture(stage, home), {
+            validated: true,
+            installed: true,
+            removed: true,
+        });
+    });
+});
 
-test(
-    "engineering Copilot fixture installs and removes",
-    { skip: !copilotAvailable },
-    () => {
-        withTemporaryDirectory(root => {
-            const stage = join(root, "stage");
-            const home = join(root, "home");
-            generateEngineeringDistributionFixture({
-                repositoryRoot,
-                outputRoot: stage,
-            });
-            mkdirSync(home);
-            assert.deepEqual(smokeCopilotEngineeringFixture(stage, home), {
-                installed: true,
-                removed: true,
-            });
+test("engineering Copilot fixture installs and removes", {
+    skip: !copilotAvailable,
+}, () => {
+    withTemporaryDirectory((root) => {
+        const stage = join(root, "stage");
+        const home = join(root, "home");
+        generateEngineeringDistributionFixture({
+            repositoryRoot,
+            outputRoot: stage,
         });
-    },
-);
+        mkdirSync(home);
+        assert.deepEqual(smokeCopilotEngineeringFixture(stage, home), {
+            installed: true,
+            removed: true,
+        });
+    });
+});
 
-test(
-    "engineering Codex fixture marketplace adds and removes",
-    { skip: !codexAvailable },
-    () => {
-        withTemporaryDirectory(root => {
-            const stage = join(root, "stage");
-            const home = join(root, "home");
-            generateEngineeringDistributionFixture({
-                repositoryRoot,
-                outputRoot: stage,
-            });
-            mkdirSync(home);
-            assert.deepEqual(smokeCodexEngineeringFixture(stage, home), {
-                added: true,
-                removed: true,
-            });
+test("engineering Codex fixture marketplace adds and removes", {
+    skip: !codexAvailable,
+}, () => {
+    withTemporaryDirectory((root) => {
+        const stage = join(root, "stage");
+        const home = join(root, "home");
+        generateEngineeringDistributionFixture({
+            repositoryRoot,
+            outputRoot: stage,
         });
-    },
-);
+        mkdirSync(home);
+        assert.deepEqual(smokeCodexEngineeringFixture(stage, home), {
+            added: true,
+            removed: true,
+        });
+    });
+});
 
-test(
-    "engineering Gemini fixture links and removes",
-    { skip: !geminiAvailable },
-    () => {
-        withTemporaryDirectory(root => {
-            const stage = join(root, "stage");
-            const home = join(root, "home");
-            generateEngineeringDistributionFixture({
-                repositoryRoot,
-                outputRoot: stage,
-            });
-            mkdirSync(home);
-            assert.deepEqual(smokeGeminiEngineeringFixture(stage, home), {
-                linked: true,
-                removed: true,
-            });
+test("engineering Gemini fixture links and removes", {
+    skip: !geminiAvailable,
+}, () => {
+    withTemporaryDirectory((root) => {
+        const stage = join(root, "stage");
+        const home = join(root, "home");
+        generateEngineeringDistributionFixture({
+            repositoryRoot,
+            outputRoot: stage,
         });
-    },
-);
+        mkdirSync(home);
+        assert.deepEqual(smokeGeminiEngineeringFixture(stage, home), {
+            linked: true,
+            removed: true,
+        });
+    });
+});
 
 test("engineering fixture CLI binds version and rejects release-shaped values", () => {
-    withTemporaryDirectory(root => {
+    withTemporaryDirectory((root) => {
         const stage = join(root, "stage");
         execFileSync(
             process.execPath,
