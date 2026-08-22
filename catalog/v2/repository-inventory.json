@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "52cf1c567553a0008dac6e2bc29fb80b00eb10510ef7aee513d78ea608858a88",
+  "indexDigest": "cd5976214c0ecc403db700c3142b1c535ad841eee815935b1aa9b877f695bd95",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -335,6 +335,18 @@
       "status": "added"
     },
     {
+      "path": "engineering/skills/cratis-engineering-docs-add-page/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-docs-add-page/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-docs-add-page/references/ownership-and-navigation.md",
+      "status": "added"
+    },
+    {
       "path": "engineering/skills/cratis-engineering-docs-authoring/LICENSE",
       "status": "added"
     },
@@ -344,6 +356,18 @@
     },
     {
       "path": "engineering/skills/cratis-engineering-docs-authoring/references/site-format.md",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-docs-edit-page/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-docs-edit-page/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-docs-edit-page/references/source-discovery.md",
       "status": "added"
     },
     {
@@ -560,6 +584,18 @@
     },
     {
       "path": "evals/cratis-engineering-docs-authoring/runs/skill-openai-codex-gpt-5-6-luna-r2/output.txt",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-companions/assertions.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-companions/baseline.md",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-docs-companions/cases.jsonl",
       "status": "added"
     },
     {
@@ -1503,6 +1539,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/engineering-docs-companions-validation.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/fixtures/project-context/application-canonical/.cratis/PROJECT.md",
       "status": "added"
     },
@@ -1676,6 +1716,10 @@
     },
     {
       "path": "tooling/specs/engineering-docs-authoring.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/engineering-docs-companions.spec.mjs",
       "status": "added"
     },
     {
@@ -2078,8 +2122,8 @@
         "option-a-plus-authority",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 3,
-      "expectedPathsDigest": "ec0b98976338e1b886461bd5cefc41e0cfc19e83d2e4b219219b316cde42b1a9"
+      "expectedPathCount": 9,
+      "expectedPathsDigest": "8d3836987b9ad3075a797d6bdd086de34432c3a944bda2393b5aa44d46472009"
     },
     {
       "excludePathPatterns": [],
@@ -2696,6 +2740,30 @@
     },
     {
       "excludePathPatterns": [],
+      "id": "engineering-docs-companion-evaluations",
+      "sourcePathPatterns": [
+        "evals/cratis-engineering-docs-companions/**"
+      ],
+      "artifactType": "evaluation",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "engineering/skills/cratis-engineering-docs-add-page/**",
+        "engineering/skills/cratis-engineering-docs-edit-page/**"
+      ],
+      "risk": "medium",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "reevaluation-authority"
+      ],
+      "expectedPathCount": 3,
+      "expectedPathsDigest": "f22df8ce9377cac5d6d4bd522d045b2c0c19129cb88df94663f0b15ba01cb196"
+    },
+    {
+      "excludePathPatterns": [],
       "id": "source-evidence-contract-v1",
       "sourcePathPatterns": [
         "Documentation/source-evidence-contract.md",
@@ -2996,8 +3064,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 27,
-      "expectedPathsDigest": "6685a8e106cdf27e5d90e3e00773b2d31ac277674522912692e9be0b1b7f17bd"
+      "expectedPathCount": 28,
+      "expectedPathsDigest": "5a10668154ecfc5b6e00258e8c1b1f5830a5e358d538b05d6e3e11a5ae76f73e"
     },
     {
       "excludePathPatterns": [],
@@ -3020,8 +3088,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 20,
-      "expectedPathsDigest": "4173ce2ed1adbb3d98a1cfe85f7bdba65b71232acff9fdcc519e2f53c402c3cb"
+      "expectedPathCount": 21,
+      "expectedPathsDigest": "939db0a9b80fafe39d08a8f5daf2863ce09c21bb677442450b4e2cc38a9eaa19"
     },
     {
       "excludePathPatterns": [],
