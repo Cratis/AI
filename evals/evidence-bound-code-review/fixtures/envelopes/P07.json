@@ -1,0 +1,104 @@
+{
+  "availability": "SUPPLIED",
+  "caseId": "P07",
+  "declaredEnvelopeSha256": "3d190e22e63acd863a4e63633761cf3c7b6c1a8953c29982ca54fbeddbbd4545",
+  "envelope": {
+    "artifacts": [
+      {
+        "byteLength": 36,
+        "content": "{\"profile\":\"CORPUS\",\"complete\":true}",
+        "id": "A01",
+        "mediaType": "text/plain",
+        "path": "repository-inventory.json",
+        "provenance": "CLEAN_ROOM_SYNTHETIC",
+        "role": "REPOSITORY_INVENTORY",
+        "sha256": "11dd41b71a53b019f2497ad2ab595a8516e341e6b1078c41278594f188418571"
+      },
+      {
+        "byteLength": 78,
+        "content": "--- a/Source/P07.cs\n+++ b/Source/P07.cs\n@@ -2,1 +2,1 @@\n-value = 1\n+value = 2\n",
+        "id": "A02",
+        "mediaType": "text/x-diff",
+        "path": "Source/P07.cs.diff",
+        "provenance": "CLEAN_ROOM_SYNTHETIC",
+        "role": "DIFF",
+        "sha256": "c8ae3f919281e50260faac54184eb75959cf0e64cfcaad7f841cf1c63803d295"
+      },
+      {
+        "byteLength": 30,
+        "content": "line one\nvalue = 1\nline three\n",
+        "id": "A03",
+        "mediaType": "text/plain",
+        "path": "Source/P07.cs",
+        "provenance": "CLEAN_ROOM_SYNTHETIC",
+        "role": "SOURCE_BEFORE",
+        "sha256": "b81955681005c8848437a11729bf26969c0d902206e10d302a8cb260452b6a51"
+      },
+      {
+        "byteLength": 30,
+        "content": "line one\nvalue = 2\nline three\n",
+        "id": "A04",
+        "mediaType": "text/plain",
+        "path": "Source/P07.cs",
+        "provenance": "CLEAN_ROOM_SYNTHETIC",
+        "role": "SOURCE_AFTER",
+        "sha256": "7170af5df880564a796f528b4f17f00d349ff46ab3fd3018e4b26ee2dcfc2ca0"
+      },
+      {
+        "byteLength": 393,
+        "content": "{\n  \"caseId\": \"P07\",\n  \"diffSha256\": \"c8ae3f919281e50260faac54184eb75959cf0e64cfcaad7f841cf1c63803d295\",\n  \"dimensions\": [\n    \"DOCUMENTATION\"\n  ],\n  \"headRevision\": \"git:51ae7f5da1cf622bc3cc17401e271b15f7ee6df2\",\n  \"repositoryOpaqueId\": \"repo-p07\",\n  \"schemaVersion\": \"1.0.0\",\n  \"scopeSha256\": \"3d72455ae68673bd9a82579d53326fa697b7021ddd00a4ca2d8f1e64e23323aa\",\n  \"status\": \"SUPPLIED_ONLY\"\n}\n",
+        "id": "A05",
+        "mediaType": "application/json",
+        "path": "verification-receipt.json",
+        "provenance": "CLEAN_ROOM_SYNTHETIC",
+        "role": "VERIFICATION_RECEIPT",
+        "sha256": "85540e1bce2d1baaba9187651fff2ab7370d2e40e2253b4ca7ccd7026c6b92e0"
+      }
+    ],
+    "envelopeId": "env-p07",
+    "repository": {
+      "inventoryArtifactRef": "A01",
+      "inventoryComplete": true,
+      "opaqueId": "repo-p07",
+      "profileEvidenceRefs": [
+        "A01"
+      ]
+    },
+    "revision": {
+      "baseRevision": "git:e8796b2e0d1bfcbb08eeb63c3d065d9dbd39e2e5",
+      "diffArtifactRef": "A02",
+      "diffSha256": "c8ae3f919281e50260faac54184eb75959cf0e64cfcaad7f841cf1c63803d295",
+      "headRevision": "git:51ae7f5da1cf622bc3cc17401e271b15f7ee6df2",
+      "headTreeSha256": "362933185ccac8e5ca05ee5130f0afe99c6929dbfc4596fd22e899a5af3d11c6",
+      "vcs": "git"
+    },
+    "schemaVersion": "1.0.0",
+    "scope": {
+      "excludedPaths": [],
+      "fileSetSha256": "a388483139252cebca6892de8109f8a9f296b982ce3e5bb6a799dfb98ba5ad8f",
+      "files": [
+        {
+          "afterArtifactRef": "A04",
+          "afterSha256": "7170af5df880564a796f528b4f17f00d349ff46ab3fd3018e4b26ee2dcfc2ca0",
+          "beforeArtifactRef": "A03",
+          "changedLineRanges": [
+            {
+              "end": 2,
+              "start": 2
+            }
+          ],
+          "path": "Source/P07.cs"
+        }
+      ],
+      "mode": "DIFF",
+      "requestedDimensions": [
+        "DOCUMENTATION"
+      ],
+      "scopeSha256": "3d72455ae68673bd9a82579d53326fa697b7021ddd00a4ca2d8f1e64e23323aa"
+    },
+    "suppliedVerificationReceiptRefs": [
+      "A05"
+    ]
+  },
+  "schemaVersion": "1.0.0"
+}

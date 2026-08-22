@@ -1,0 +1,92 @@
+{
+  "availability": "SUPPLIED",
+  "caseId": "P03",
+  "declaredEnvelopeSha256": "91e66703fe6d36935eb3b500ff7e54b39c8582292e5a718b028d1fb4585832bb",
+  "envelope": {
+    "artifacts": [
+      {
+        "byteLength": 36,
+        "content": "{\"profile\":\"CLIENT\",\"complete\":true}",
+        "id": "A01",
+        "mediaType": "text/plain",
+        "path": "repository-inventory.json",
+        "provenance": "CLEAN_ROOM_SYNTHETIC",
+        "role": "REPOSITORY_INVENTORY",
+        "sha256": "ac432e1cbe8c35df22af42578a444532e5aedabe0b8a18ba9628373aba86125b"
+      },
+      {
+        "byteLength": 109,
+        "content": "--- a/Source/P03.cs\n+++ b/Source/P03.cs\n@@ -2,1 +2,1 @@\n-value = 1\n+for (item of items) JSON.parse(payload);\n",
+        "id": "A02",
+        "mediaType": "text/x-diff",
+        "path": "Source/P03.cs.diff",
+        "provenance": "CLEAN_ROOM_SYNTHETIC",
+        "role": "DIFF",
+        "sha256": "4e73ca5a8b051ed0228ba7337de539ea96e1a067b82f08c599a68b2aa01624bc"
+      },
+      {
+        "byteLength": 30,
+        "content": "line one\nvalue = 1\nline three\n",
+        "id": "A03",
+        "mediaType": "text/plain",
+        "path": "Source/P03.cs",
+        "provenance": "CLEAN_ROOM_SYNTHETIC",
+        "role": "SOURCE_BEFORE",
+        "sha256": "b81955681005c8848437a11729bf26969c0d902206e10d302a8cb260452b6a51"
+      },
+      {
+        "byteLength": 61,
+        "content": "line one\nfor (item of items) JSON.parse(payload);\nline three\n",
+        "id": "A04",
+        "mediaType": "text/plain",
+        "path": "Source/P03.cs",
+        "provenance": "CLEAN_ROOM_SYNTHETIC",
+        "role": "SOURCE_AFTER",
+        "sha256": "1acdce7364be3f429eaa6b22e684cc04c4fa9dbe4f2741d1e3f61be76c6b9622"
+      }
+    ],
+    "envelopeId": "env-p03",
+    "repository": {
+      "inventoryArtifactRef": "A01",
+      "inventoryComplete": true,
+      "opaqueId": "repo-p03",
+      "profileEvidenceRefs": [
+        "A01"
+      ]
+    },
+    "revision": {
+      "baseRevision": "git:635d5a77618974ccc899d646951264bfe73abad5",
+      "diffArtifactRef": "A02",
+      "diffSha256": "4e73ca5a8b051ed0228ba7337de539ea96e1a067b82f08c599a68b2aa01624bc",
+      "headRevision": "git:84eddc8579e2653efebdb1a363cef59d1a1e42af",
+      "headTreeSha256": "5e6be3967666c5ed0919fa34f00f72c7069cf5bedb90868b6e7b6136b8e0b91b",
+      "vcs": "git"
+    },
+    "schemaVersion": "1.0.0",
+    "scope": {
+      "excludedPaths": [],
+      "fileSetSha256": "4dd3db1dd879263836d5dda5ab14097308597f7941db1dc7492ec4642d211c6c",
+      "files": [
+        {
+          "afterArtifactRef": "A04",
+          "afterSha256": "1acdce7364be3f429eaa6b22e684cc04c4fa9dbe4f2741d1e3f61be76c6b9622",
+          "beforeArtifactRef": "A03",
+          "changedLineRanges": [
+            {
+              "end": 2,
+              "start": 2
+            }
+          ],
+          "path": "Source/P03.cs"
+        }
+      ],
+      "mode": "DIFF",
+      "requestedDimensions": [
+        "PERFORMANCE"
+      ],
+      "scopeSha256": "75e14fa83caefaf7015fe289d9b50fcb1781cee0b75445393ea681e835020a6a"
+    },
+    "suppliedVerificationReceiptRefs": []
+  },
+  "schemaVersion": "1.0.0"
+}

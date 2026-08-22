@@ -1,0 +1,27 @@
+{
+  "integrationCases": {
+    "emptyReviewableScope": "N08",
+    "nonemptyVerificationReceipt": "P07"
+  },
+  "modelRuns": 0,
+  "negativeCases": 16,
+  "positiveCases": 10,
+  "promotionBlockedOn": [
+    "NO_MODEL_RUNS",
+    "NO_HELD_OUT_EVIDENCE",
+    "NO_EFFECT_TELEMETRY",
+    "NO_ADMITTED_PRODUCT_AUTHORITY",
+    "NO_RUNTIME_APPROVAL"
+  ],
+  "requiredLimitations": [
+    "BOUND_INPUT_ONLY",
+    "EXTERNAL_REPOSITORY_CORRESPONDENCE_NOT_VERIFIED",
+    "NO_AMBIENT_REPOSITORY_ACCESS",
+    "NO_EXTERNAL_PRODUCT_AUTHORITY",
+    "NO_EFFECT_TELEMETRY",
+    "NOT_A_MERGE_OR_PROMOTION_DECISION"
+  ],
+  "runtimeEligible": false,
+  "schemaVersion": "1.0.0",
+  "totalCases": 26
+}

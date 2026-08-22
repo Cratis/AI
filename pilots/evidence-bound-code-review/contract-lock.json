@@ -1,0 +1,30 @@
+{
+  "contractRevision": "sha256:2883543d7a37a95f813ad796e4ae2a36cce260a37463a10659551837e81b65be",
+  "entries": [
+    {
+      "digest": "sha256:6f952bbb86a9f89334efdac8bb026ddc4873bacaaa6729488d0af6b9b6e2261d",
+      "path": "PILOT.md"
+    },
+    {
+      "digest": "sha256:fb7db644736ed92396181b9ad6c01848a632f004e08e0b14f7f690b33c3c85b1",
+      "path": "metadata.draft.json"
+    },
+    {
+      "digest": "sha256:d694891da9f21467c4bec9aa6bdab8b93a234d4f24c753f348d90ac5841d1658",
+      "path": "result-contract.json"
+    },
+    {
+      "digest": "sha256:e518f0959fd955cf5597ad761e0ca22fefe20fbaea7dc6e604c70a58d19bb139",
+      "path": "review-envelope-contract.json"
+    },
+    {
+      "digest": "sha256:80a559919cf0476f9f1e2bff5019ece4c553525aa3a8fb241f0113a01a16f532",
+      "path": "routes.draft.json"
+    },
+    {
+      "digest": "sha256:49f0b8689d64995c97011f4559367f23d47c456997cc80d6986a5cc9fec99a35",
+      "path": "../../evals/evidence-bound-code-review/assertions.json"
+    }
+  ],
+  "schemaVersion": "1.0.0"
+}

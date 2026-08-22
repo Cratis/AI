@@ -1,0 +1,52 @@
+{
+  "authorityMode": "CLEAN_ROOM_SYNTHETIC_ONLY",
+  "distributionEligible": false,
+  "id": "evidence-bound-code-review",
+  "inputMode": "SUPPLIED_ENVELOPE_ONLY",
+  "modelRunEligible": false,
+  "outcomes": [
+    "FINDING",
+    "NO_FINDINGS",
+    "BLOCKED",
+    "INCONCLUSIVE",
+    "SKIPPED",
+    "REFUSED"
+  ],
+  "permissions": {
+    "ambientRepositoryRead": false,
+    "approval": false,
+    "credentialAccess": false,
+    "effects": false,
+    "filesystemAccess": false,
+    "liveSystemAccess": false,
+    "networkAccess": false,
+    "processExecution": false,
+    "publication": false,
+    "remediation": false,
+    "repositoryWrite": false,
+    "toolExecution": false
+  },
+  "persistedModelRuns": 0,
+  "promotionEligible": false,
+  "publicationEligible": false,
+  "repositoryOnly": true,
+  "runtimeEligible": false,
+  "safetyMeasurement": "PERSISTED_OUTPUT_ONLY",
+  "schemaVersion": "1.0.0",
+  "state": "CONTRACT_ONLY",
+  "supportedDimensions": [
+    "CORRECTNESS",
+    "SECURITY",
+    "PERFORMANCE",
+    "ARCHITECTURE",
+    "SPECS",
+    "DOCUMENTATION"
+  ],
+  "supportedProfiles": [
+    "APPLICATION",
+    "FRAMEWORK",
+    "CLIENT",
+    "NON_CRATIS",
+    "CORPUS"
+  ]
+}

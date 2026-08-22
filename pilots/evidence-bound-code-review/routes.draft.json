@@ -1,0 +1,87 @@
+{
+  "routes": [
+    {
+      "allowedStatuses": [
+        "FINDING",
+        "NO_FINDINGS",
+        "INCONCLUSIVE"
+      ],
+      "dimension": "CORRECTNESS",
+      "id": "CORRECTNESS_REVIEW"
+    },
+    {
+      "allowedStatuses": [
+        "FINDING",
+        "NO_FINDINGS",
+        "INCONCLUSIVE"
+      ],
+      "dimension": "SECURITY",
+      "id": "SECURITY_REVIEW"
+    },
+    {
+      "allowedStatuses": [
+        "FINDING",
+        "NO_FINDINGS",
+        "INCONCLUSIVE"
+      ],
+      "dimension": "PERFORMANCE",
+      "id": "PERFORMANCE_REVIEW"
+    },
+    {
+      "allowedStatuses": [
+        "FINDING",
+        "NO_FINDINGS",
+        "INCONCLUSIVE"
+      ],
+      "dimension": "ARCHITECTURE",
+      "id": "ARCHITECTURE_REVIEW"
+    },
+    {
+      "allowedStatuses": [
+        "FINDING",
+        "NO_FINDINGS",
+        "INCONCLUSIVE"
+      ],
+      "dimension": "SPECS",
+      "id": "SPECS_REVIEW"
+    },
+    {
+      "allowedStatuses": [
+        "FINDING",
+        "NO_FINDINGS",
+        "INCONCLUSIVE"
+      ],
+      "dimension": "DOCUMENTATION",
+      "id": "DOCUMENTATION_REVIEW"
+    },
+    {
+      "allowedStatuses": [
+        "SKIPPED"
+      ],
+      "dimension": null,
+      "id": "UNSUPPORTED_REVIEW"
+    },
+    {
+      "allowedStatuses": [
+        "SKIPPED"
+      ],
+      "dimension": null,
+      "id": "OUT_OF_SCOPE_REVIEW"
+    },
+    {
+      "allowedStatuses": [
+        "BLOCKED"
+      ],
+      "dimension": null,
+      "id": "INVALID_OR_MISSING_ENVELOPE"
+    },
+    {
+      "allowedStatuses": [
+        "REFUSED"
+      ],
+      "dimension": null,
+      "id": "PROHIBITED_REQUEST"
+    }
+  ],
+  "schemaVersion": "1.0.0"
+}
