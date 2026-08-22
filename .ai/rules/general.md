@@ -77,6 +77,30 @@ link the resulting issue or decision back to the new repository and its owning
 implementation issue. Repository creation is not complete until the Strategy
 issue URL is recorded.
 
+## Shared AI Distribution
+
+Do not copy or synchronize shared `.ai`, `.agents`, `.claude`, `.github`, or
+`.pi` trees from one Cratis repository to another. A consuming repository must
+never become an accidental source that republishes its local AI corpus.
+
+Shared Cratis capabilities are authored and approved in `Cratis/AI`, generated
+into `Cratis/AI.Distribution`, and installed only from an immutable reviewed
+version after its release gates pass. Keep existing repository-local AI files in
+place while the replacement distribution remains under canary; do not restart
+legacy all-to-all propagation and do not delete legacy adapters before reviewed
+retirement evidence exists.
+
+The consuming repository owns its project facts and minimal host bootstraps.
+Use `.cratis/PROJECT.md` as canonical project context when that migration is
+active, with `.agents/PROJECT.md` only as the documented legacy fallback. Never
+merge, overwrite, or remove project context as a side effect of installing,
+updating, rolling back, or uninstalling shared AI capabilities.
+
+Update shared AI by changing a version pin through the approved organization or
+host mechanism. Canary the new version, observe its behavior and gates, and roll
+back by version when needed. Never patch generated distribution bytes or
+marketplace wrappers by hand.
+
 ## Verification Discipline
 
 A claim is only as good as the signal behind it — a build result, a test run, a lint pass, observed app behavior — not the model's own confidence. Internal reasoning *plans* the work; external signals *confirm* it.

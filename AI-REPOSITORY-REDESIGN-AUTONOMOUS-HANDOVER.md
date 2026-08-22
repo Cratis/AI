@@ -1432,3 +1432,65 @@ release authority, tags/releases; approve real product-source contracts and
 public targets; establish `@cratis/ai` package ownership/trusted publishing; and
 run production consumer canary/rollback. Publication, promotion, fleet rollout,
 legacy retirement, and freeze lifting remain blocked.
+
+## 38. Internal adoption story, public docs, and manual gates — 2026-08-22
+
+The maintainer requested the complete internal development story, an explicit
+answer on propagation, public cratis.io documentation for every ecosystem, a
+brand surface on cratis.no, and durable issues for every remaining manual gate.
+
+The internal answer is now explicit in the universal **Shared AI Distribution**
+rule:
+
+- Cratis maintainers use the repository-local rules/skills already present while
+  migration is under canary;
+- shared `.ai`, `.agents`, `.claude`, `.github`, and `.pi` trees are never copied
+  or synchronized between repositories;
+- canonical shared capability comes from `Cratis/AI` and immutable generated
+  versions from `Cratis/AI.Distribution` after release approval;
+- project facts and minimal host bootstraps remain project-owned;
+- installation/update/uninstall never merges, overwrites, or deletes project
+  context;
+- updates are pinned, canaried, observed, and rolled back by version;
+- generated distribution bytes and marketplace wrappers are never hand-edited.
+
+Public documentation work in Cratis/Documentation#60 adds:
+
+- `/ai/getting-started/` for currently available CLI/MCP setup and honest coding-
+  skills status;
+- `/ai/cratis-maintainers/` for profiles, context, skills, gates, shipping, and
+  the no-propagation internal workflow;
+- `/ai/ecosystems/` for Agent Skills, Claude, Codex, Copilot, Cursor, Kiro,
+  Junie, Gemini, Pi, and npm formats/evidence/status;
+- `/ai/trust-and-distribution/` for generated packages, project context, source /
+  target approval, canary, rollback, publication, and retirement gates;
+- refreshed `/ai/` and `/plugins/` pages and AI navigation that remove obsolete
+  folder-copy instructions.
+
+Visual QA passes on the AI landing, ecosystem matrix, maintainer workflow, trust
+page, and plugins page; dark/light themes, tables, diagrams, code blocks, cards,
+and navigation render correctly. The Astro build renders 1,059 pages and docs
+lint reports zero errors. Unrelated main-gate repairs were delivered in
+Cratis/Components#167 and Cratis/Chronicle#3804; the reviewed Kotlin Spring Boot
+client-doc exception is included in Documentation#60. Remaining unrelated docs
+baseline/link repairs are tracked in Documentation#59.
+
+The AI-native brand page and approved messaging merged in Cratis/cratis.no#4.
+It presents one canonical skill behavior across hosts, project-local facts,
+compiler/spec/CI/human gates, no propagation, reversible generated distribution,
+and honest fixture-only availability. Release-time doc and brand updates are
+tracked in Documentation#58 and cratis.no#5.
+
+Every remaining manual/external gate has a focused issue:
+
+- Workflows#72 — repository-scoped GitHub App / PR-release bot;
+- Workflows#70 — `@cratis/ai` ownership and stage-only npm trusted publishing;
+- Workflows#71 — first real consuming-repository install/update/rollback canary;
+- AI#148 — first approved product-source contract and public target;
+- AI#147 — reviewed vendor marketplace submissions;
+- Strategy#126 — generated repository portfolio metadata, ownership, and AI setup;
+- Documentation#58 and cratis.no#5 — first-release public copy updates.
+
+No broad propagation is needed or allowed. Publication, real package installation,
+production promotion, fleet rollout, legacy retirement, and freeze lifting remain
+blocked until the focused issues above pass.
