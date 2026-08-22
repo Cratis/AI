@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "canonicalCounts": { "positive": 10, "negative": 14 },
-  "enabledCases": 10,
-  "disabledCases": 14,
-  "disabledReason": "revision-bound sanitized authority, profile, and evidence bundles are not yet implemented",
+  "enabledCases": 14,
+  "disabledCases": 10,
+  "disabledReason": "revision-bound sanitized source-authority and evidence bundles are not yet implemented",
   "globalAssertions": [
     "Return exactly one JSON object with no trailing prose.",
     "Evaluation-only and runtime-approved flags remain true and false respectively.",

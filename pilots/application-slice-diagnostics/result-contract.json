@@ -6,6 +6,7 @@
     "evaluationOnly",
     "runtimeApproved",
     "caseId",
+    "caseInputDigest",
     "sourceBinding",
     "profile",
     "lane",
@@ -28,7 +29,7 @@
   ],
   "objectFields": {
     "sourceBinding": ["repositoryRevision", "authorityContractRevision", "evidenceBundleDigest"],
-    "profile": ["value", "status", "evidenceRefs"],
+    "profile": ["status", "fixtureId", "fixtureDigest", "bundleRevision", "profile", "reproduction"],
     "symptom": ["verbatimRedacted", "expected", "observed", "preconditions", "frequency", "environmentBoundary", "reproductionSteps", "reproductionState", "evidenceRefs"],
     "proof": ["userVisibleRegressionProven", "causalDiagnosisSupported", "fixProven", "failingArtifactRefs", "passingArtifactRefs", "correctionRefs", "regressionAssertionRefs", "cleanupProofRefs"],
     "cleanup": ["required", "status", "instrumentationIds", "removalProofRefs"],

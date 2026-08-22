@@ -1,0 +1,34 @@
+{
+  "bundleRevision": "sha256:6809b3ace5e7dc1c60abe3670ddc9c330a1caeb365f3f2ce4bdc2d276bfb9828",
+  "entries": [
+    {
+      "caseId": "N01",
+      "derivedProfile": "framework",
+      "filename": "N01.json",
+      "fixtureDigest": "sha256:3c5e64555d01db79e60d0fcd308ca0df232be16a0b28b64996c08f2727db5623",
+      "fixtureId": "diagnostics-profile-n01-v1"
+    },
+    {
+      "caseId": "N02",
+      "derivedProfile": "client",
+      "filename": "N02.json",
+      "fixtureDigest": "sha256:c00579d088bbe6b48510c99b6fbf350380b0a78b655442ec71e548620377eaa6",
+      "fixtureId": "diagnostics-profile-n02-v1"
+    },
+    {
+      "caseId": "N03",
+      "derivedProfile": "non-cratis",
+      "filename": "N03.json",
+      "fixtureDigest": "sha256:979c2e2b0a30c6f26e0f9f51e874e27ed82c2e0292304b234a521c4461cfca0c",
+      "fixtureId": "diagnostics-profile-n03-v1"
+    },
+    {
+      "caseId": "N13",
+      "derivedProfile": "application",
+      "filename": "N13.json",
+      "fixtureDigest": "sha256:cd7b660bef4a7220616ebc880444311036320f3c076db8d3015c723789cd5047",
+      "fixtureId": "diagnostics-profile-n13-v1"
+    }
+  ],
+  "schemaVersion": "cratis.ai/diagnostics-profile-fixture-manifest/v1"
+}

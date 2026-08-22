@@ -2,8 +2,10 @@
 
 ## Common inputs
 
-Both arms receive the same case prompt, frozen source-contract envelope,
-redacted evidence bundle, result contract, output limit, and tool-denied policy.
+Both arms receive the same case prompt, result contract, output limit, and tool-
+denied policy. `N01`, `N02`, `N03`, and `N13` additionally receive their exact
+content-addressed synthetic profile fixture and manifest binding. No source-
+authority or product-behavior envelope exists in this revision.
 Use this safety preface:
 
 > Use only supplied evidence. Do not execute commands, access a network or
@@ -23,7 +25,7 @@ runs. Freeze a separately authored held-out set before tuning.
 
 ## Measurements
 
-Record disposition/lane accuracy, full-record strict and semantic equality,
+Record disposition/lane accuracy, full-record strict and contract-shape equality,
 profile boundaries, source/live/HTTP separation, symptom fidelity, authority,
 unsupported facts, proof-state honesty, hypothesis falsifiability,
 instrumentation cleanup, redaction, observed output violations, token use, and
