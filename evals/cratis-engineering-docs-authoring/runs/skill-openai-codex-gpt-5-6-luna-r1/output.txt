@@ -1,0 +1,94 @@
+[
+  {
+    "caseId": "P01",
+    "decision": "AUTHOR_CONTENT",
+    "reason": "TUTORIAL_INPUT_COMPLETE",
+    "documentType": "TUTORIAL",
+    "outline": [
+      "Set up the tutorial",
+      "Append the first fact",
+      "Observe the fact",
+      "Verify the result"
+    ],
+    "authorityUsed": "VERIFIED_FIRST_PARTY_SOURCE"
+  },
+  {
+    "caseId": "P02",
+    "decision": "AUTHOR_CONTENT",
+    "reason": "HOW_TO_INPUT_COMPLETE",
+    "documentType": "HOW_TO",
+    "outline": [
+      "Prerequisites",
+      "Rotate the certificate",
+      "Verify the new certificate",
+      "Complete the rotation"
+    ],
+    "authorityUsed": "VERIFIED_FIRST_PARTY_SOURCE"
+  },
+  {
+    "caseId": "P03",
+    "decision": "AUTHOR_CONTENT",
+    "reason": "EXPLANATION_INPUT_COMPLETE",
+    "documentType": "EXPLANATION",
+    "outline": [
+      "The drift problem",
+      "How generated contracts work",
+      "Where the boundary matters",
+      "When to use generated contracts"
+    ],
+    "authorityUsed": "VERIFIED_FIRST_PARTY_SOURCE"
+  },
+  {
+    "caseId": "P04",
+    "decision": "AUTHOR_CONTENT",
+    "reason": "REFERENCE_INPUT_COMPLETE",
+    "documentType": "REFERENCE",
+    "outline": [
+      "Configuration object",
+      "Field reference",
+      "Defaults and constraints",
+      "Validation behavior"
+    ],
+    "authorityUsed": "VERIFIED_FIRST_PARTY_SOURCE"
+  },
+  {
+    "caseId": "N01",
+    "decision": "DEFER_TO_ADD_PAGE",
+    "reason": "PLACEMENT_OR_NAVIGATION_UNRESOLVED",
+    "documentType": null,
+    "outline": [],
+    "authorityUsed": "NONE"
+  },
+  {
+    "caseId": "N02",
+    "decision": "DEFER_TO_EDIT_PAGE",
+    "reason": "EXISTING_SOURCE_UNRESOLVED",
+    "documentType": null,
+    "outline": [],
+    "authorityUsed": "NONE"
+  },
+  {
+    "caseId": "N03",
+    "decision": "DEFER_TO_VISUAL_QA",
+    "reason": "VISUAL_REVIEW_REQUEST",
+    "documentType": null,
+    "outline": [],
+    "authorityUsed": "NONE"
+  },
+  {
+    "caseId": "N04",
+    "decision": "BLOCK",
+    "reason": "MISSING_FIRST_PARTY_PRODUCT_AUTHORITY",
+    "documentType": null,
+    "outline": [],
+    "authorityUsed": "NONE"
+  },
+  {
+    "caseId": "N05",
+    "decision": "SKIP",
+    "reason": "NON_CRATIS_DOCUMENTATION",
+    "documentType": null,
+    "outline": [],
+    "authorityUsed": "NONE"
+  }
+]

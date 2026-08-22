@@ -1,0 +1,10 @@
+[
+  {"caseId":"H01","decision":"AUTHOR_CONTENT","rationale":"Approved destination, document type, and verified first-party source are provided."},
+  {"caseId":"H02","decision":"DEFER_TO_ADD_PAGE","rationale":"Creating a new page and determining ownership and navigation require add-page handling."},
+  {"caseId":"H03","decision":"DEFER_TO_EDIT_PAGE","rationale":"An existing published page needs source verification and content updates."},
+  {"caseId":"H04","decision":"DEFER_TO_VISUAL_QA","rationale":"Rendering, screenshots, and diagnosing layout shifts are visual QA work."},
+  {"caseId":"H05","decision":"BLOCK","rationale":"A runnable example cannot be authored without a verified source repository or revision."},
+  {"caseId":"H06","decision":"SKIP","rationale":"The request concerns an unrelated non-Cratis product."},
+  {"caseId":"H07","decision":"DEFER_TO_ADD_PAGE","rationale":"Creating a page and selecting its owner and sidebar position require add-page handling."},
+  {"caseId":"H08","decision":"AUTHOR_CONTENT","rationale":"The existing destination, document type, and verified first-party source are provided."}
+]

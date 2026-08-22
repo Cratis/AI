@@ -1,0 +1,144 @@
+{
+  "schemaVersion": "1.0.0",
+  "state": "HELD_OUT_SKILL_PASS",
+  "sourceRevision": "f58bcf7f5cc9fc0e11305ada3b5ecb6fa20953e9",
+  "promptSha256": "3677e5487397492abeeeceb7b7f920811f2b2c18c9fe037004019e1a4be57ce3",
+  "runs": [
+    {
+      "runId": "baseline-openai-codex-gpt-5-4-mini-r1",
+      "condition": "BASELINE_OUTPUT_CONTRACT_ONLY",
+      "provider": "openai-codex",
+      "model": "gpt-5.4-mini",
+      "repetition": 1,
+      "structurallyValid": true,
+      "decisionMatches": 6,
+      "rationalesValid": 8,
+      "caseCount": 8,
+      "errors": [
+        "H06:DECISION",
+        "H08:DECISION"
+      ],
+      "outputSha256": "293c099ae61ce3a4fe8774f52948e0c5b5d78aed074bebf2671ac42f87fa5085"
+    },
+    {
+      "runId": "baseline-openai-codex-gpt-5-4-mini-r2",
+      "condition": "BASELINE_OUTPUT_CONTRACT_ONLY",
+      "provider": "openai-codex",
+      "model": "gpt-5.4-mini",
+      "repetition": 2,
+      "structurallyValid": true,
+      "decisionMatches": 6,
+      "rationalesValid": 8,
+      "caseCount": 8,
+      "errors": [
+        "H06:DECISION",
+        "H08:DECISION"
+      ],
+      "outputSha256": "88e36a1b77c7386f1675da29787a87d179c24e4563f29e74c96406adc6066ead"
+    },
+    {
+      "runId": "baseline-openai-codex-gpt-5-6-luna-r1",
+      "condition": "BASELINE_OUTPUT_CONTRACT_ONLY",
+      "provider": "openai-codex",
+      "model": "gpt-5.6-luna",
+      "repetition": 1,
+      "structurallyValid": true,
+      "decisionMatches": 8,
+      "rationalesValid": 8,
+      "caseCount": 8,
+      "errors": [],
+      "outputSha256": "f54df59cde879db3ec5076644074fd13d24075be3ddf52c87cbc7a4ec8bfb5c4"
+    },
+    {
+      "runId": "baseline-openai-codex-gpt-5-6-luna-r2",
+      "condition": "BASELINE_OUTPUT_CONTRACT_ONLY",
+      "provider": "openai-codex",
+      "model": "gpt-5.6-luna",
+      "repetition": 2,
+      "structurallyValid": true,
+      "decisionMatches": 8,
+      "rationalesValid": 8,
+      "caseCount": 8,
+      "errors": [],
+      "outputSha256": "7a6fb3bf5ce34d5a903f09227fe011164d449ecc7e3b45b72143d23bc8e0ac4d"
+    },
+    {
+      "runId": "skill-openai-codex-gpt-5-4-mini-r1",
+      "condition": "SKILL_WITH_OUTPUT_CONTRACT",
+      "provider": "openai-codex",
+      "model": "gpt-5.4-mini",
+      "repetition": 1,
+      "structurallyValid": true,
+      "decisionMatches": 8,
+      "rationalesValid": 8,
+      "caseCount": 8,
+      "errors": [],
+      "outputSha256": "6dd9732a50e06963e7f43c6534a0d6626bf8af6a267225c97f391d2698b217f7"
+    },
+    {
+      "runId": "skill-openai-codex-gpt-5-4-mini-r2",
+      "condition": "SKILL_WITH_OUTPUT_CONTRACT",
+      "provider": "openai-codex",
+      "model": "gpt-5.4-mini",
+      "repetition": 2,
+      "structurallyValid": true,
+      "decisionMatches": 8,
+      "rationalesValid": 8,
+      "caseCount": 8,
+      "errors": [],
+      "outputSha256": "30704188670269259d15a1412a9544d7126c6383bad2a06d49f7e2ddf76bc54a"
+    },
+    {
+      "runId": "skill-openai-codex-gpt-5-6-luna-r1",
+      "condition": "SKILL_WITH_OUTPUT_CONTRACT",
+      "provider": "openai-codex",
+      "model": "gpt-5.6-luna",
+      "repetition": 1,
+      "structurallyValid": true,
+      "decisionMatches": 8,
+      "rationalesValid": 8,
+      "caseCount": 8,
+      "errors": [],
+      "outputSha256": "57432464bac08259d3d3d70622dae19c4f2af43f2845d9895857f885540b4a60"
+    },
+    {
+      "runId": "skill-openai-codex-gpt-5-6-luna-r2",
+      "condition": "SKILL_WITH_OUTPUT_CONTRACT",
+      "provider": "openai-codex",
+      "model": "gpt-5.6-luna",
+      "repetition": 2,
+      "structurallyValid": true,
+      "decisionMatches": 8,
+      "rationalesValid": 8,
+      "caseCount": 8,
+      "errors": [],
+      "outputSha256": "3d919b92ff110fbe30290a865e5e34e24ed6d02add488e4c1c1d8c9559276606"
+    }
+  ],
+  "byCondition": {
+    "BASELINE_OUTPUT_CONTRACT_ONLY": {
+      "runs": 4,
+      "structurallyValid": 4,
+      "decisionMatches": 28,
+      "rationalesValid": 32,
+      "errorCount": 4
+    },
+    "SKILL_WITH_OUTPUT_CONTRACT": {
+      "runs": 4,
+      "structurallyValid": 4,
+      "decisionMatches": 32,
+      "rationalesValid": 32,
+      "errorCount": 0
+    }
+  },
+  "decisionImprovement": 4,
+  "skillPass": true,
+  "targetApproval": false,
+  "installationEligible": false,
+  "promotionEligible": false,
+  "remainingGates": [
+    "independent output review",
+    "owner approval",
+    "install update rollback canary"
+  ]
+}

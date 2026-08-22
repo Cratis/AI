@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "1.0.0",
+  "state": "EVIDENCE_PASS_OWNER_REVIEW_PENDING",
+  "sourceRevision": "f58bcf7f5cc9fc0e11305ada3b5ecb6fa20953e9",
+  "modelRuns": 16,
+  "calibration": {
+    "state": "SKILL_BEHAVIOR_PASS_CONTRACT_GAPS",
+    "skillRoutingMatches": 36,
+    "skillOutlineMatches": 36,
+    "skillAuthorityMatches": 36,
+    "strictDocumentTypeNormalization": false,
+    "baselineDiagnostic": "Reason vocabulary was exposed, so calibration baseline routing is non-diagnostic."
+  },
+  "heldOut": {
+    "state": "HELD_OUT_SKILL_PASS",
+    "skillDecisionMatches": 32,
+    "skillRationalesValid": 32,
+    "skillErrors": 0,
+    "baselineDecisionMatches": 28,
+    "decisionImprovement": 4
+  },
+  "independentReview": {
+    "id": "validate-f2fa66ec52217d7edf216972982de179",
+    "status": "HIGH_FINDING_CORRECTED_NO_RECURSIVE_REVIEW",
+    "finding": "Run metadata and output hashes were not exactly cross-bound to immutable manifest entries.",
+    "correction": "Validator now requires exact metadata-to-manifest equality, exact condition/model/repetition coverage, and output hashes matching both metadata and immutable manifest records; simultaneous output/hash and allowed-value relabel mutations fail."
+  },
+  "limitations": [
+    "Both model variants use one provider family.",
+    "The corpus is small, synthetic, and routing-focused.",
+    "Calibration documentType normalization remains incomplete on some deferred and blocked outputs.",
+    "Full documentation factual correctness and rendered quality are not evaluated by this corpus."
+  ],
+  "targetApproval": false,
+  "installationEligible": false,
+  "publicationEligible": false,
+  "promotionEligible": false,
+  "remainingGates": [
+    "owner approval",
+    "fixture package generation",
+    "install update rollback canary"
+  ]
+}

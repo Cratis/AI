@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "1.0.0",
+  "runId": "skill-openai-codex-gpt-5-6-luna-r1",
+  "condition": "SKILL_WITH_OUTPUT_CONTRACT",
+  "provider": "openai-codex",
+  "model": "gpt-5.6-luna",
+  "repetition": 1,
+  "startedAt": "2026-08-22T17:07:51.844Z",
+  "durationMilliseconds": 17077,
+  "exitCode": 0,
+  "signal": null,
+  "toolsEnabled": false,
+  "contextFilesEnabled": false,
+  "outputSha256": "adb423cc2ddd5307ba07e5fd71dbb5a4024eef6ba7f7ce376d10d40dbd817631"
+}

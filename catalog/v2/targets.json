@@ -4182,16 +4182,22 @@
           "evidenceIds": []
         },
         "positiveTrigger": {
-          "status": "missing",
-          "evidenceIds": []
+          "status": "passing",
+          "evidenceIds": [
+            "engineering-docs-authoring-evaluation-2026-08-22"
+          ]
         },
         "negativeTrigger": {
-          "status": "missing",
-          "evidenceIds": []
+          "status": "passing",
+          "evidenceIds": [
+            "engineering-docs-authoring-evaluation-2026-08-22"
+          ]
         },
         "collision": {
-          "status": "missing",
-          "evidenceIds": []
+          "status": "passing",
+          "evidenceIds": [
+            "engineering-docs-authoring-evaluation-2026-08-22"
+          ]
         }
       },
       "approval": {

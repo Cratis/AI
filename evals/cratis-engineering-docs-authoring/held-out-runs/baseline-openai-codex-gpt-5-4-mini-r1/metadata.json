@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "1.0.0",
+  "runId": "baseline-openai-codex-gpt-5-4-mini-r1",
+  "condition": "BASELINE_OUTPUT_CONTRACT_ONLY",
+  "provider": "openai-codex",
+  "model": "gpt-5.4-mini",
+  "repetition": 1,
+  "startedAt": "2026-08-22T17:14:43.883Z",
+  "durationMilliseconds": 14569,
+  "exitCode": 0,
+  "signal": null,
+  "toolsEnabled": false,
+  "contextFilesEnabled": false,
+  "outputSha256": "293c099ae61ce3a4fe8774f52948e0c5b5d78aed074bebf2671ac42f87fa5085"
+}

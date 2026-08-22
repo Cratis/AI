@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "1.0.0",
+  "state": "FROZEN_PENDING_RUNS",
+  "sourceRevision": "f58bcf7f5cc9fc0e11305ada3b5ecb6fa20953e9",
+  "sourceSha256": "014f2e7b55d4f1a7dd982e4e352cffc8cfa078a262056bb55b76eb2b81da0791",
+  "referenceSha256": "b50039ede61ff439f6836798ef4f6b028b8d3d5567db10d5170acb5df17b18e1",
+  "casesSha256": "837e8137f5b469a5c8857006d7c54a784c9fc02dfb0bc8381e9e4eea8c0a36c9",
+  "promptSha256": "3677e5487397492abeeeceb7b7f920811f2b2c18c9fe037004019e1a4be57ce3",
+  "conditions": [
+    "BASELINE_OUTPUT_CONTRACT_ONLY",
+    "SKILL_WITH_OUTPUT_CONTRACT"
+  ],
+  "models": [
+    "openai-codex/gpt-5.4-mini",
+    "openai-codex/gpt-5.6-luna"
+  ],
+  "repetitionsPerModelCondition": 2,
+  "plannedModelRuns": 8,
+  "toolsEnabled": false,
+  "contextFilesEnabled": false,
+  "networkToolsEnabled": false,
+  "targetApproval": false,
+  "installationEligible": false,
+  "promotionEligible": false
+}

@@ -45,10 +45,8 @@ const sourceOverrides = new Map([
     [
         "write-documentation",
         {
-            sourcePath:
-                "engineering/skills/cratis-engineering-docs-authoring",
-            sourceRevision:
-                "f58bcf7f5cc9fc0e11305ada3b5ecb6fa20953e9",
+            sourcePath: "engineering/skills/cratis-engineering-docs-authoring",
+            sourceRevision: "f58bcf7f5cc9fc0e11305ada3b5ecb6fa20953e9",
             evidenceId: "engineering-docs-authoring-source-f58bcf7",
         },
     ],
@@ -91,7 +89,8 @@ const engineeringClassifications = new Map([
                         scope: "Documentation source and navigation files selected by the owning repository",
                         dataClassifications: ["internal", "public"],
                         reversible: true,
-                        rollbackOrCompensation: "Delete the uncommitted page or revert the dedicated documentation commit.",
+                        rollbackOrCompensation:
+                            "Delete the uncommitted page or revert the dedicated documentation commit.",
                         confirmation: {
                             required: true,
                             timing: "before-effect",
@@ -102,7 +101,10 @@ const engineeringClassifications = new Map([
                             authority: "Repository maintainer or task owner",
                             evidenceIds: ["ai-126"],
                         },
-                        evidenceIds: ["repo-main-b795d53", "reevaluation-authority"],
+                        evidenceIds: [
+                            "repo-main-b795d53",
+                            "reevaluation-authority",
+                        ],
                     },
                     {
                         id: "modify-repository-documentation",
@@ -111,7 +113,8 @@ const engineeringClassifications = new Map([
                         scope: "Documentation source and navigation files selected by the owning repository",
                         dataClassifications: ["internal", "public"],
                         reversible: true,
-                        rollbackOrCompensation: "Restore the prior bytes or revert the dedicated documentation commit.",
+                        rollbackOrCompensation:
+                            "Restore the prior bytes or revert the dedicated documentation commit.",
                         confirmation: {
                             required: true,
                             timing: "before-effect",
@@ -122,19 +125,24 @@ const engineeringClassifications = new Map([
                             authority: "Repository maintainer or task owner",
                             evidenceIds: ["ai-126"],
                         },
-                        evidenceIds: ["repo-main-b795d53", "reevaluation-authority"],
+                        evidenceIds: [
+                            "repo-main-b795d53",
+                            "reevaluation-authority",
+                        ],
                     },
                 ],
             },
             dependencyEdges: [
                 {
-                    dependencyId: ".ai/rules/documentation-structure-and-formatting.md",
+                    dependencyId:
+                        ".ai/rules/documentation-structure-and-formatting.md",
                     category: "internal-artifact",
                     strength: "hard",
                     reason: "The rule defines the site-compatible document structure.",
                     missingBehavior: {
                         action: "block",
-                        description: "Stop rather than inventing documentation structure.",
+                        description:
+                            "Stop rather than inventing documentation structure.",
                     },
                 },
                 {
@@ -144,7 +152,8 @@ const engineeringClassifications = new Map([
                     reason: "The rule defines the Cratis documentation voice and quality bar.",
                     missingBehavior: {
                         action: "block",
-                        description: "Stop rather than drafting without the Cratis writing contract.",
+                        description:
+                            "Stop rather than drafting without the Cratis writing contract.",
                     },
                 },
                 {
@@ -154,7 +163,8 @@ const engineeringClassifications = new Map([
                     reason: "New pages need repository placement and navigation wiring.",
                     missingBehavior: {
                         action: "degrade",
-                        description: "Draft content only and disclose that placement and navigation remain unresolved.",
+                        description:
+                            "Draft content only and disclose that placement and navigation remain unresolved.",
                     },
                 },
                 {
@@ -164,7 +174,8 @@ const engineeringClassifications = new Map([
                     reason: "Existing pages need source-of-truth discovery and sync guidance.",
                     missingBehavior: {
                         action: "degrade",
-                        description: "Draft content only and disclose that source discovery and integration remain unresolved.",
+                        description:
+                            "Draft content only and disclose that source discovery and integration remain unresolved.",
                     },
                 },
             ],
@@ -178,8 +189,15 @@ const engineeringClassifications = new Map([
             ],
             sourceContractIds: ["cratis-ai-composition"],
             sourceAuthoritySubjects: ["capability-composition"],
+            routingEvaluationEvidenceId:
+                "engineering-docs-authoring-evaluation-2026-08-22",
             authoringContractIds: ["cratis-skill-clean-room-v1"],
-            runtimeAllowed: ["SKILL.md", "references/**", "assets/**", "LICENSE*"],
+            runtimeAllowed: [
+                "SKILL.md",
+                "references/**",
+                "assets/**",
+                "LICENSE*",
+            ],
         },
     ],
 ]);
@@ -753,8 +771,7 @@ const allSkillNames = [
 ].sort(compareOrdinal);
 const sources = allSkillNames.map((name) => {
     const sourceOverride = sourceOverrides.get(name);
-    const path =
-        sourceOverride?.sourcePath ?? `.ai/skills/${name}`;
+    const path = sourceOverride?.sourcePath ?? `.ai/skills/${name}`;
     const files = listFiles(join(repositoryRoot, path));
     const targetOwner = internalNames.has(name)
         ? engineeringOwner
@@ -793,9 +810,9 @@ function sourceRecordsForTarget(targetId) {
 const v1BySource = new Map(
     v1Public.skills.map((skill) => [skill.currentName, skill]),
 );
-const allTargetIds = [
-    ...new Set([...targetIdsBySource.values()].flat()),
-].sort(compareOrdinal);
+const allTargetIds = [...new Set([...targetIdsBySource.values()].flat())].sort(
+    compareOrdinal,
+);
 function unclassifiedApplicability(dimension) {
     return {
         state: "unclassified",
@@ -881,8 +898,7 @@ const targets = allTargetIds.map((targetId) => {
         sourceContractState: engineeringClassification
             ? "classified"
             : "unclassified",
-        sourceContractIds:
-            engineeringClassification?.sourceContractIds ?? [],
+        sourceContractIds: engineeringClassification?.sourceContractIds ?? [],
         sourceAuthoritySubjects:
             engineeringClassification?.sourceAuthoritySubjects ?? [],
         authoringContractState: engineeringClassification
@@ -937,9 +953,30 @@ const targets = allTargetIds.map((targetId) => {
                     : "missing",
                 evidenceIds: [],
             },
-            positiveTrigger: { status: "missing", evidenceIds: [] },
-            negativeTrigger: { status: "missing", evidenceIds: [] },
-            collision: { status: "missing", evidenceIds: [] },
+            positiveTrigger: engineeringClassification
+                ? {
+                      status: "passing",
+                      evidenceIds: [
+                          engineeringClassification.routingEvaluationEvidenceId,
+                      ],
+                  }
+                : { status: "missing", evidenceIds: [] },
+            negativeTrigger: engineeringClassification
+                ? {
+                      status: "passing",
+                      evidenceIds: [
+                          engineeringClassification.routingEvaluationEvidenceId,
+                      ],
+                  }
+                : { status: "missing", evidenceIds: [] },
+            collision: engineeringClassification
+                ? {
+                      status: "passing",
+                      evidenceIds: [
+                          engineeringClassification.routingEvaluationEvidenceId,
+                      ],
+                  }
+                : { status: "missing", evidenceIds: [] },
         },
         approval: { state: "candidate", evidenceIds: [] },
         evidenceIds: ["repo-main-b795d53", "reevaluation-authority"],
@@ -1203,11 +1240,22 @@ const evidence = [
         sourceKind: "repository-snapshot",
         verifiedOn: "2026-08-22",
         expiresOn: "2027-08-22",
+        applicableVersion: "f58bcf7f5cc9fc0e11305ada3b5ecb6fa20953e9",
+        confidence: "high",
+        immutableRevision: "f58bcf7f5cc9fc0e11305ada3b5ecb6fa20953e9",
+    },
+    {
+        id: "engineering-docs-authoring-evaluation-2026-08-22",
+        officialUrl: "https://github.com/Cratis/AI",
+        sourceKind: "local-evidence-report",
+        verifiedOn: "2026-08-22",
+        expiresOn: "2026-11-20",
         applicableVersion:
             "f58bcf7f5cc9fc0e11305ada3b5ecb6fa20953e9",
         confidence: "high",
-        immutableRevision:
-            "f58bcf7f5cc9fc0e11305ada3b5ecb6fa20953e9",
+        repositoryPath:
+            "evals/cratis-engineering-docs-authoring/evaluation-summary.json",
+        digest: "b8a322d0f43764a0469c540f28fd57734be4f6a885f81064f55ffe06f85d5c74",
     },
     {
         id: "reevaluation-authority",
@@ -1229,9 +1277,7 @@ const evidence = [
         applicableVersion: "content-digest-bound",
         confidence: "medium",
         repositoryPath: "AI-REPOSITORY-REDESIGN-ECOSYSTEM-USE-CASES.md",
-        digest: digestFile(
-            "AI-REPOSITORY-REDESIGN-ECOSYSTEM-USE-CASES.md",
-        ),
+        digest: digestFile("AI-REPOSITORY-REDESIGN-ECOSYSTEM-USE-CASES.md"),
     },
     {
         id: "third-party-skills-evaluation",

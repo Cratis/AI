@@ -575,8 +575,11 @@ Evidence and exact next actions are in
 - [x] Reconcile the docs-authoring target into self-contained canonical
   engineering source with immutable source evidence and zero-model-run routing
   cases; raw legacy source remains non-packageable.
-- [ ] Run frozen repeated behavior/trigger/collision/portability evaluation and
-  owner review before enabling its first installable engineering fixture.
+- [x] Run frozen calibration and held-out baseline/skill evaluation: 16 bound
+  model runs, held-out 32/32 skill decisions versus 28/32 baseline, and one
+  bounded independent review with its high run-binding finding corrected.
+- [ ] Obtain owner approval, then generate and canary the first fixture-only
+  engineering package before any installation eligibility.
 - [ ] Provision the repository-scoped App credentials from Workflows#72 before
   any generated update PR, tag, release, or publication operation.
 - [ ] Keep publication and retirement disabled until explicit approvals pass.
