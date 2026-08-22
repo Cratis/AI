@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "e7e083b703881b694ccbf374c997dad272a8b498700379082c917101f4963a5f",
+  "indexDigest": "5805f3e5f695c17a524359721f4dcbf977784a9e4b060e37da6a0446a9cbfba2",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -252,6 +252,22 @@
     },
     {
       "path": "catalog/v2/upstream-companions.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/artifact-matrix.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/evidence/local-fixture-smoke-2026-08-22.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/generated-repository-authority-request.md",
+      "status": "added"
+    },
+    {
+      "path": "distribution/marketplace-requirements.json",
       "status": "added"
     },
     {
@@ -1279,6 +1295,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/generate-distribution-fixture.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/generate-human-catalog.mjs",
       "status": "added"
     },
@@ -1328,6 +1348,10 @@
     },
     {
       "path": "tooling/specs/diagnostics-pilot.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/distribution-fixture.spec.mjs",
       "status": "added"
     },
     {
@@ -2550,6 +2574,30 @@
     },
     {
       "excludePathPatterns": [],
+      "id": "distribution-foundation",
+      "sourcePathPatterns": [
+        "distribution/**"
+      ],
+      "artifactType": "repository-metadata",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "Workflows organization mechanics",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "adapter",
+      "dependencies": [
+        "catalog/v2/artifacts.json",
+        "tooling/public-artifact-materializer.mjs"
+      ],
+      "risk": "high",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "option-a-plus-authority"
+      ],
+      "expectedPathCount": 4,
+      "expectedPathsDigest": "ca954c7f9a27be2cb174d79430848bb2772561bea90a47c7b67ac97ef88a7d98"
+    },
+    {
+      "excludePathPatterns": [],
       "id": "catalog-and-redesign-tooling",
       "sourcePathPatterns": [
         "tooling/*.mjs"
@@ -2568,8 +2616,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 17,
-      "expectedPathsDigest": "274f9fe348a1b5a73bce18ea316b214a8e41496bc768f0183f16254c3071d3e5"
+      "expectedPathCount": 18,
+      "expectedPathsDigest": "9ad6574268c48b91a6f5f6a8db8c32ff86abc183149f8fa5d2c6fec5aa172cc7"
     },
     {
       "excludePathPatterns": [],
@@ -2592,8 +2640,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 11,
-      "expectedPathsDigest": "0b303d8685d9c24ff545e465c65993bd06fc94393df45b3f94d7d2aa152400da"
+      "expectedPathCount": 12,
+      "expectedPathsDigest": "84801d0c3f7186b2da58a28e48259962158569c99e228044c7fb2cf9e53be79b"
     },
     {
       "excludePathPatterns": [],
