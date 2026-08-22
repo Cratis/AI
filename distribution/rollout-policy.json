@@ -3,9 +3,11 @@
   "state": "FIXTURE_ONLY_ROLLOUT_SIMULATION",
   "generatedRepository": {
     "name": "Cratis/AI.Distribution",
-    "status": "BLOCKED_ON_BOT_REPOSITORY_AND_CREDENTIAL_AUTHORITY",
+    "status": "CREATED_EMPTY_DEPLOY_KEY_CONFIGURED",
     "botOnlyWrites": true,
-    "protectedMain": true
+    "protectedMain": true,
+    "url": "https://github.com/Cratis/AI.Distribution",
+    "strategyIssue": "https://github.com/Cratis/Strategy/issues/126"
   },
   "candidate": {
     "allowedArtifactIds": [

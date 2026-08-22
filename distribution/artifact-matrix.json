@@ -12,8 +12,10 @@
   },
   "repository": {
     "architecture": "OPTION_A_PLUS_GENERATED_DISTRIBUTION_REPOSITORY",
-    "status": "BLOCKED_ON_BOT_REPOSITORY_AND_CREDENTIAL_AUTHORITY",
-    "requestedName": "Cratis/AI.Distribution"
+    "status": "CREATED_EMPTY_DEPLOY_KEY_CONFIGURED",
+    "requestedName": "Cratis/AI.Distribution",
+    "url": "https://github.com/Cratis/AI.Distribution",
+    "strategyIssue": "https://github.com/Cratis/Strategy/issues/126"
   },
   "publicationEligible": false,
   "promotionEligible": false,

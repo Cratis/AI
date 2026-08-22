@@ -100,7 +100,7 @@ test("distribution requirements and artifact matrix stay authority bounded", () 
     assert.equal(matrix.promotionEligible, false);
     assert.equal(
         matrix.repository.status,
-        "BLOCKED_ON_BOT_REPOSITORY_AND_CREDENTIAL_AUTHORITY",
+        "CREATED_EMPTY_DEPLOY_KEY_CONFIGURED",
     );
     const requirementIds = new Set(
         requirements.requirements.map((item) => item.id),

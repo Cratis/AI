@@ -48,17 +48,53 @@ function bootstrap(root, name = "generated") {
 
 test("generated repository contract keeps remote authority and production blocked", () => {
     const contract = JSON.parse(readFileSync(contractPath, "utf8"));
+    const generalRules = readFileSync(
+        join(repositoryRoot, ".ai/rules/general.md"),
+        "utf8",
+    );
+    const remoteState = JSON.parse(
+        readFileSync(
+            join(repositoryRoot, "distribution/remote-repository-state.json"),
+            "utf8",
+        ),
+    );
     assert.equal(contract.repository.name, "Cratis/AI.Distribution");
     assert.equal(
         contract.repository.status,
-        "BLOCKED_ON_REMOTE_REPOSITORY_AND_BOT_CREDENTIAL",
+        "CREATED_EMPTY_DEPLOY_KEY_CONFIGURED",
     );
     assert.equal(contract.repository.manualAuthoringAllowed, false);
     assert.equal(contract.repository.botOnlyWrites, true);
+    assert.equal(
+        contract.repository.strategyIssue,
+        "https://github.com/Cratis/Strategy/issues/126",
+    );
+    assert.equal(
+        contract.repository.deployKeySecret,
+        "AI_DISTRIBUTION_DEPLOY_KEY",
+    );
     assert.equal(contract.productionMaterialization.enabled, false);
     assert.equal(contract.publicationEligible, false);
     assert.equal(contract.promotionEligible, false);
     assert.equal(contract.legacyRetirementEligible, false);
+    assert.match(generalRules, /## New Repository Registration/);
+    assert.match(generalRules, /Cratis\/Strategy/);
+    for (const requiredDetail of [
+        "repository name, URL, visibility, and creation state",
+        "accountable owner",
+        "release, distribution, credential, security, privacy, compliance, and data",
+        "repository metadata, topics, ownership records",
+    ])
+        assert(generalRules.includes(requiredDetail));
+    assert.equal(remoteState.repository.state, "CREATED_EMPTY");
+    assert.equal(remoteState.repository.secretScanningEnabled, true);
+    assert.equal(remoteState.repository.pushProtectionEnabled, true);
+    assert.equal(
+        remoteState.strategyRegistration.issue,
+        "https://github.com/Cratis/Strategy/issues/126",
+    );
+    assert.equal(remoteState.credential.privateKeySecretName, "AI_DISTRIBUTION_DEPLOY_KEY");
+    assert.equal(remoteState.publicationEligible, false);
 });
 
 test("production distribution plan remains blocked without approved targets", () => {
