@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "be2539a2416c3f691ca72b66557cad3672850e167c1e00b3d9a08b8c57025cba",
+  "indexDigest": "53596486c904df07cc18580519cd3e88aea7c5b93762d6b02bf7e8aec78f6833",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -1679,6 +1679,14 @@
       "status": "added"
     },
     {
+      "path": "skills/cratis-fundamentals-concept/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-fundamentals-concept/SKILL.md",
+      "status": "added"
+    },
+    {
       "path": "tooling/bootstrap-generated-distribution-repository.mjs",
       "status": "added"
     },
@@ -1943,10 +1951,7 @@
       "status": "added"
     }
   ],
-  "admittedUntracked": [
-    "skills/cratis-fundamentals-concept/LICENSE",
-    "skills/cratis-fundamentals-concept/SKILL.md"
-  ],
+  "admittedUntracked": [],
   "excludedRuntimePrefixes": [
     ".pi/delegate/",
     ".pi/fusion/",
