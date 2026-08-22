@@ -3,7 +3,7 @@
   "state": "FIXTURE_ONLY_ROLLOUT_SIMULATION",
   "generatedRepository": {
     "name": "Cratis/AI.Distribution",
-    "status": "CREATED_EMPTY_DEPLOY_KEY_CONFIGURED",
+    "status": "INITIALIZED_PROTECTED_FIXTURE",
     "botOnlyWrites": true,
     "protectedMain": true,
     "url": "https://github.com/Cratis/AI.Distribution",

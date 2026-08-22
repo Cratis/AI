@@ -1395,3 +1395,40 @@ bot remains required for subsequent generated update PRs and releases.
 Zero public targets or product-source contracts are approved. The planned public
 artifact, npm package, publication, production canary/promotion, fleet rollout,
 legacy retirement, and freeze lifting remain blocked.
+
+## 37. Hosted remote initialization and branch protection — 2026-08-22
+
+Distribution repository authority merged with green CI in Cratis/AI#145 at
+`ca28685a9d51b8f506997dd21b951dab89a540d2`. Reviewed hosted run
+`https://github.com/Cratis/AI/actions/runs/32573752111` then initialized
+`Cratis/AI.Distribution` exclusively from generated fixture bytes.
+
+Observed remote state:
+
+- branch: `main`;
+- generated commit: `dd58ae38a1cad0e0c82141a98be929a5a7094a0d`;
+- generated tree: `472f288d88c038ad1b72ab1eb42ea384dd1c93ea`;
+- author/committer: deterministic `cratis-distribution-fixture-bot` identity;
+- root inventory: checksum, manifest, provenance, canonical skill tree, and
+  Claude/Codex/Copilot/Cursor/Gemini/Junie/Kiro/Pi native fixture roots only;
+- branch protection: administrators enforced, one approval, stale-review
+  dismissal, last-push approval, conversation resolution, no force-push, and no
+  deletion;
+- provisional public description explicitly says fixture-only and unsupported.
+
+After initialization, the one-time write deploy key was removed and
+`AI_DISTRIBUTION_DEPLOY_KEY` was deleted from `Cratis/AI` Actions secrets. The
+initialization workflow operation was removed. There is no standing distribution
+write credential and no direct-push update path.
+
+Strategy intake `Cratis/Strategy#126`, AI#126, and Workflows#68 contain the remote
+commit/protection evidence. `distribution/remote-repository-state.json`, the
+matrix, rollout policy, generated-repository contract, authority state, and
+specs now reflect initialized/protected state.
+
+Remaining blockers are narrower and external: provision a repository-scoped
+GitHub App or equivalent that can create generated update PRs and, under separate
+release authority, tags/releases; approve real product-source contracts and
+public targets; establish `@cratis/ai` package ownership/trusted publishing; and
+run production consumer canary/rollback. Publication, promotion, fleet rollout,
+legacy retirement, and freeze lifting remain blocked.

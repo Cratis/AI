@@ -119,7 +119,7 @@ The framework discovers commands and read models by attributes and static method
 Pick exactly one type per slice folder — determined by what the slice *does*.
 
 | Type | What it does | Contents |
-|---|---|---|
+| --- | --- | --- |
 | **State Change** | Accepts a command, appends events | Command + validator + event(s); optional `[Passive]` read model for command-side decisions |
 | **State View** | Projects events into a queryable read model | `[ReadModel]` + model-bound projection + static query method(s) |
 | **Automation** | Reacts to events, calls external systems / `ICommandPipeline` | Reactor only |
@@ -165,7 +165,7 @@ Tagged **[contract]** (framework-enforced) or **[convention]** (house default). 
 ## Quality Gates
 
 | Phase | Command (app-pinned) | Pass criteria |
-|---|---|---|
+| --- | --- | --- |
 | Backend | build (Debug) | zero errors, zero warnings — validates `#if DEBUG` spec code and regenerates proxies |
 | Backend | build (Release) | zero errors, zero warnings — build-only check; pass `-p:CratisProxiesOutputPath=` to skip re-running proxy generation |
 | Specs | test | zero failures |
@@ -194,7 +194,7 @@ All gates pass before merging, opening a PR, or marking a slice complete — exc
 ## Where to Look
 
 | For | Location |
-|---|---|
+| --- | --- |
 | **Contributing to a Cratis framework repo** (framework profile) | `framework.md` |
 | Slice anatomy (commands, `Provide()`, validators, events, projections, read models, reactors, constraints, compliance, cross-slice) | `vertical-slices.md` |
 | C# / TypeScript style | `csharp.md`, `typescript.md` |

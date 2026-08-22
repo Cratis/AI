@@ -187,8 +187,7 @@ export function bootstrapGeneratedDistributionRepository({
     );
     const contract = readJson(contractPath);
     if (
-        contract.repository.status !==
-            "CREATED_EMPTY_DEPLOY_KEY_CONFIGURED" ||
+        contract.repository.status !== "INITIALIZED_PROTECTED_FIXTURE" ||
         contract.repository.manualAuthoringAllowed !== false ||
         contract.productionMaterialization.enabled !== false
     ) {
