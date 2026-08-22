@@ -30,7 +30,17 @@ const approvedFiles = [
     `skills/${skillName}/SKILL.md`,
     `skills/${skillName}/references/site-format.md`,
 ];
-const generatedTargets = ["canonical", "claude", "copilot", "pi"];
+const generatedTargets = [
+    "canonical",
+    "claude",
+    "codex",
+    "copilot",
+    "cursor",
+    "gemini",
+    "junie",
+    "kiro",
+    "pi",
+];
 
 function sha256(content) {
     return createHash("sha256").update(content).digest("hex");
@@ -120,7 +130,7 @@ export function validateEngineeringDistributionConfiguration(
         );
         if (
             artifactMatrix.firstPassiveTarget.state !==
-                "FIXTURE_PACKAGE_PASS_OWNER_REVIEW_PENDING" ||
+                "REAL_CANARY_PASS_OWNER_REVIEW_PENDING" ||
             artifactMatrix.installationEligible !== false ||
             artifactMatrix.publicationEligible !== false ||
             artifactMatrix.promotionEligible !== false ||
@@ -222,6 +232,43 @@ export function generateEngineeringDistributionFixture({
             },
         );
 
+        const codexRoot = join(root, "codex");
+        copyCanonical(
+            canonicalRoot,
+            join(codexRoot, `plugins/${pluginName}`),
+        );
+        writeJson(join(codexRoot, ".agents/plugins/marketplace.json"), {
+            name: pluginName,
+            interface: { displayName: "Cratis Engineering Fixture" },
+            plugins: [
+                {
+                    name: pluginName,
+                    source: {
+                        source: "local",
+                        path: `./plugins/${pluginName}`,
+                    },
+                    policy: {
+                        installation: "AVAILABLE",
+                        authentication: "ON_INSTALL",
+                    },
+                    category: "Developer Tools",
+                },
+            ],
+        });
+        writeJson(
+            join(
+                codexRoot,
+                `plugins/${pluginName}/.codex-plugin/plugin.json`,
+            ),
+            {
+                name: pluginName,
+                version,
+                description:
+                    "Fixture-only passive Cratis engineering documentation skill.",
+                skills: "./skills/",
+            },
+        );
+
         const copilotRoot = join(root, "copilot");
         copyCanonical(
             canonicalRoot,
@@ -252,6 +299,76 @@ export function generateEngineeringDistributionFixture({
             description:
                 "Fixture-only passive Cratis engineering documentation skill.",
             skills: "skills/",
+        });
+
+        const cursorRoot = join(root, "cursor");
+        copyCanonical(
+            canonicalRoot,
+            join(cursorRoot, `plugins/${pluginName}`),
+        );
+        writeJson(join(cursorRoot, ".cursor-plugin/marketplace.json"), {
+            name: pluginName,
+            owner: { name: "Cratis" },
+            metadata: {
+                description:
+                    "Fixture-only Cratis engineering skills marketplace",
+                version,
+            },
+            plugins: [
+                {
+                    name: pluginName,
+                    description:
+                        "Fixture-only passive Cratis engineering documentation skill.",
+                    version,
+                    source: `./plugins/${pluginName}`,
+                },
+            ],
+        });
+        writeJson(
+            join(
+                cursorRoot,
+                `plugins/${pluginName}/.cursor-plugin/plugin.json`,
+            ),
+            {
+                name: pluginName,
+                version,
+                description:
+                    "Fixture-only passive Cratis engineering documentation skill.",
+                skills: "./skills/",
+            },
+        );
+
+        const geminiRoot = join(root, "gemini");
+        copyCanonical(canonicalRoot, geminiRoot);
+        writeJson(join(geminiRoot, "gemini-extension.json"), {
+            name: pluginName,
+            version,
+            description:
+                "Fixture-only passive Cratis engineering documentation skill.",
+        });
+
+        const kiroRoot = join(root, "kiro");
+        copyCanonical(canonicalRoot, kiroRoot);
+        writeJson(join(kiroRoot, "plugin.json"), {
+            $schema:
+                "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+            name: pluginName,
+            version,
+            description:
+                "Fixture-only passive Cratis engineering documentation skill.",
+            author: { name: "Cratis" },
+            license: "MIT",
+        });
+
+        const junieRoot = join(
+            root,
+            `junie/extensions/${pluginName}`,
+        );
+        copyCanonical(canonicalRoot, junieRoot);
+        writeJson(join(junieRoot, "extension.json"), {
+            name: pluginName,
+            description:
+                "Fixture-only passive Cratis engineering documentation skill.",
         });
 
         const piRoot = join(root, "pi/package");
@@ -348,7 +465,12 @@ export function validateEngineeringDistributionFixture(outputRoot) {
     }
     const targetRoots = [
         `claude/plugins/${pluginName}`,
+        `codex/plugins/${pluginName}`,
         `copilot/plugins/${pluginName}`,
+        `cursor/plugins/${pluginName}`,
+        "gemini",
+        `junie/extensions/${pluginName}`,
+        "kiro",
         "pi/package",
     ];
     for (const path of approvedFiles) {
@@ -664,6 +786,72 @@ export function smokeCopilotEngineeringFixture(
         { env: environment, stdio: "pipe" },
     );
     return { installed: true, removed: true };
+}
+
+export function smokeCodexEngineeringFixture(
+    outputRoot,
+    temporaryHome,
+    codexCommand = "codex",
+) {
+    const marketplaceRoot = join(outputRoot, "codex");
+    const environment = { ...process.env, HOME: temporaryHome };
+    execFileSync(
+        codexCommand,
+        ["plugin", "marketplace", "add", marketplaceRoot],
+        { env: environment, stdio: "pipe" },
+    );
+    const listed = execFileSync(
+        codexCommand,
+        ["plugin", "marketplace", "list"],
+        { env: environment, encoding: "utf8" },
+    );
+    if (!listed.includes(pluginName))
+        throw new Error(
+            "Codex engineering fixture marketplace was not observable",
+        );
+    execFileSync(
+        codexCommand,
+        ["plugin", "marketplace", "remove", pluginName],
+        { env: environment, stdio: "pipe" },
+    );
+    return { added: true, removed: true };
+}
+
+export function smokeGeminiEngineeringFixture(
+    outputRoot,
+    temporaryHome,
+    geminiCommand = "gemini",
+) {
+    const extensionRoot = join(outputRoot, "gemini");
+    mkdirSync(join(temporaryHome, ".gemini"), { recursive: true });
+    const environment = {
+        ...process.env,
+        HOME: temporaryHome,
+        GEMINI_API_KEY: process.env.GEMINI_API_KEY ?? "fixture-not-used",
+    };
+    execFileSync(
+        geminiCommand,
+        ["extensions", "link", extensionRoot, "--consent"],
+        { env: environment, stdio: "pipe" },
+    );
+    const installedRoot = join(
+        temporaryHome,
+        `.gemini/extensions/${pluginName}`,
+    );
+    if (!existsSync(installedRoot))
+        throw new Error(
+            "Gemini engineering fixture extension was not observable",
+        );
+    execFileSync(
+        geminiCommand,
+        ["extensions", "uninstall", pluginName],
+        { env: environment, stdio: "pipe" },
+    );
+    if (existsSync(installedRoot))
+        throw new Error(
+            "Gemini engineering fixture uninstall left extension content",
+        );
+    return { linked: true, removed: true };
 }
 
 function main() {

@@ -9,7 +9,12 @@
   "generatedTargets": [
     "canonical",
     "claude",
+    "codex",
     "copilot",
+    "cursor",
+    "gemini",
+    "junie",
+    "kiro",
     "pi"
   ],
   "results": [
@@ -62,6 +67,55 @@
         "marketplace-remove"
       ],
       "status": "PASS"
+    },
+    {
+      "target": "codex-cli",
+      "version": "0.147.0",
+      "checks": [
+        "isolated-marketplace-add",
+        "list",
+        "marketplace-remove"
+      ],
+      "status": "PASS_WITH_INSTALL_NOT_SUPPORTED_BY_CLI"
+    },
+    {
+      "target": "gemini-cli",
+      "version": "0.33.1",
+      "checks": [
+        "isolated-extension-link-with-consent",
+        "installed-state",
+        "uninstall",
+        "removed-state"
+      ],
+      "status": "PASS_WITH_PROJECT_REGISTRY_WARNING"
+    },
+    {
+      "target": "cursor",
+      "version": null,
+      "checks": [
+        "cursor-plugin-manifest",
+        "marketplace-manifest",
+        "canonical-byte-parity"
+      ],
+      "status": "PASS_STATIC_GENERATION_HOST_SMOKE_PENDING"
+    },
+    {
+      "target": "kiro",
+      "version": null,
+      "checks": [
+        "agent-plugin-1.0-manifest",
+        "canonical-byte-parity"
+      ],
+      "status": "PASS_STATIC_GENERATION_HOST_SMOKE_PENDING"
+    },
+    {
+      "target": "junie",
+      "version": null,
+      "checks": [
+        "extension-manifest",
+        "canonical-byte-parity"
+      ],
+      "status": "PASS_STATIC_GENERATION_HOST_SMOKE_PENDING"
     }
   ],
   "negativeChecks": [

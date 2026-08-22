@@ -1652,7 +1652,8 @@ mechanics are now implemented:
 - planned engineering release remains separate, approval-required,
   materialization-disabled, and runtime-disabled;
 - `tooling/generate-engineering-distribution-fixture.mjs` creates one canonical
-  tree plus strict Claude, Copilot, and private Pi/npm fixture adapters;
+  tree plus Claude, Codex, Copilot, Cursor, Kiro, Junie, Gemini, and private
+  Pi/npm fixture adapters;
 - every adapter uses exact canonical bytes; manifests, checksums, and an explicit
   non-attestation provenance record are emitted;
 - package output excludes project context/bootstraps, scripts, evals, rules,
@@ -1660,7 +1661,8 @@ mechanics are now implemented:
 - local npm fixture evidence proves pack, install, update from 0.0.1 to 0.0.2,
   rollback to 0.0.1, uninstall, and preservation of `.cratis/PROJECT.md`,
   `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md`;
-- Pi, Claude Code, and GitHub Copilot isolated install/list/remove flows pass;
+- Pi, Claude Code, GitHub Copilot, Codex, and Gemini isolated lifecycle flows
+  pass; Cursor, Kiro, and Junie manifests/byte parity pass with host smoke pending;
 - payload/digest/checksum tampering and release-shaped versions fail;
 - the read-only hosted fixture workflow has no write, OIDC, PR, publish, release,
   or promotion permission.
@@ -1670,4 +1672,44 @@ Local evidence is in
 The matrix state is `FIXTURE_PACKAGE_PASS_OWNER_REVIEW_PENDING`. AI#154 records
 the required owner decision and selection of one documentation-owning repository
 for a real canary. Target approval, installation eligibility, materialization,
+publication, promotion, and legacy retirement remain false.
+
+## 44. Real Documentation repository engineering canary — 2026-08-22
+
+The first engineering fixture package merged with green CI in Cratis/AI#155;
+hosted fixture workflow
+`https://github.com/Cratis/AI/actions/runs/32595545234` passed on main.
+
+The package generator now covers canonical, Claude, Codex, Copilot, Cursor,
+Kiro, Junie, Gemini, and Pi/npm fixture layouts. Local host lifecycle evidence
+passes for Pi, Claude Code, GitHub Copilot, Codex, and Gemini; Cursor/Kiro/Junie
+manifests and byte parity pass with host smoke pending.
+
+A real canary then ran against clean `Cratis/Documentation` revision
+`72677c19acf2aea71ab5d39138ff350c1f661fe1` using Pi 0.84.2 and
+`openai-codex/gpt-5.4-mini`:
+
+- package installed at `0.0.1-engineering-fixture`;
+- explicit existing-page routing returned `DEFER_TO_EDIT_PAGE`;
+- package updated to `0.0.2-engineering-fixture`;
+- implicit new-page routing returned `DEFER_TO_ADD_PAGE`;
+- package rolled back to `0.0.1-engineering-fixture`;
+- unverified remembered API routing returned `BLOCK`;
+- package was removed and the isolated Pi package list became empty;
+- the Documentation worktree remained clean;
+- `AGENTS.md` and all present/missing project-context/bootstrap states were
+  unchanged;
+- every model run had tools disabled and no output leaked local paths or
+  approval/publication claims.
+
+The first implicit attempt returned `NEEDS_DECISION` because the canary prompt
+did not provide a closed output vocabulary. That failure is preserved in the
+evidence; the correction supplied the six allowed decision tokens without
+revealing the expected case decision, and the rerun passed.
+
+Evidence is in
+`distribution/evidence/real-documentation-engineering-canary-2026-08-22.json`.
+The matrix state advances only to `REAL_CANARY_PASS_OWNER_REVIEW_PENDING`.
+AI#154 still requires a named owner approve or reject the target and its known
+calibration limitations. Target approval, general installation eligibility,
 publication, promotion, and legacy retirement remain false.

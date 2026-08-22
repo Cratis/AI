@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "1.0.0",
+  "observedAt": "2026-08-22T20:15:10.255Z",
+  "state": "REAL_REPOSITORY_FIXTURE_CANARY_PASS",
+  "targetId": "cratis-engineering-docs-authoring",
+  "consumerRepository": "Cratis/Documentation",
+  "consumerRevision": "72677c19acf2aea71ab5d39138ff350c1f661fe1",
+  "host": "pi",
+  "hostVersion": "0.84.2",
+  "model": "openai-codex/gpt-5.4-mini",
+  "versions": {
+    "installed": "0.0.1-engineering-fixture",
+    "updated": "0.0.2-engineering-fixture",
+    "rolledBack": "0.0.1-engineering-fixture"
+  },
+  "routing": {
+    "explicit": "DEFER_TO_EDIT_PAGE",
+    "implicit": "DEFER_TO_ADD_PAGE",
+    "authorityBlock": "BLOCK"
+  },
+  "priorAttempt": {
+    "state": "FAIL",
+    "implicitOutput": "NEEDS_DECISION",
+    "correction": "Added a closed decision-token output contract without revealing the expected case decision."
+  },
+  "worktreePreserved": true,
+  "projectContextBefore": {
+    ".cratis/PROJECT.md": "MISSING",
+    ".agents/PROJECT.md": "MISSING",
+    "AGENTS.md": "bcacc7ab860f7d5daeb94a84611fd5c6e281d1fd011f39ff70417998f92d675a",
+    "CLAUDE.md": "MISSING",
+    "GEMINI.md": "MISSING"
+  },
+  "projectContextAfter": {
+    ".cratis/PROJECT.md": "MISSING",
+    ".agents/PROJECT.md": "MISSING",
+    "AGENTS.md": "bcacc7ab860f7d5daeb94a84611fd5c6e281d1fd011f39ff70417998f92d675a",
+    "CLAUDE.md": "MISSING",
+    "GEMINI.md": "MISSING"
+  },
+  "packageRemoved": true,
+  "toolsEnabled": false,
+  "targetApproval": false,
+  "installationEligible": false,
+  "publicationEligible": false,
+  "promotionEligible": false,
+  "remainingGates": [
+    "owner approval"
+  ]
+}
