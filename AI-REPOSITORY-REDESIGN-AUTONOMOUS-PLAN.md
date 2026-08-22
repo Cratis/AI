@@ -567,6 +567,8 @@ Evidence and exact next actions are in
   setup, ecosystem, maintainer, trust, and distribution documentation.
 - [x] Record every remaining manual gate as linked AI, Workflows, Documentation,
   cratis.no, and Strategy issues.
-- [ ] Provision a repository-scoped PR/release-capable bot identity before any
-  generated update, tag, release, or publication operation.
+- [x] Prepare a least-privilege, environment-gated generated-update PR workflow
+  using a one-repository GitHub App token; keep it fixture-only and non-publishing.
+- [ ] Provision the repository-scoped App credentials from Workflows#72 before
+  any generated update PR, tag, release, or publication operation.
 - [ ] Keep publication and retirement disabled until explicit approvals pass.

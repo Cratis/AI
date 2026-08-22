@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "1.0.0",
+  "state": "PACK_VERIFY_READY_OWNER_AND_TRUST_MISSING",
+  "trackingIssue": "https://github.com/Cratis/Workflows/issues/70",
+  "package": {
+    "name": "@cratis/ai",
+    "fixturePrivate": true,
+    "lifecycleScriptsAllowed": false,
+    "dependenciesAllowed": false,
+    "publicOwnershipConfirmed": false
+  },
+  "workflow": {
+    "path": ".github/workflows/distribution-npm-stage.yml",
+    "currentOperation": "VERIFY_PRIVATE_FIXTURE",
+    "environment": "npm-stage",
+    "trustedPublisherConfigured": false,
+    "oidcEnabled": false,
+    "stagePublishEnabled": false,
+    "publicPublishEnabled": false
+  },
+  "futureStageRequirements": [
+    "approved public target and source contract",
+    "public package ownership",
+    "exact npm trusted-publisher workflow registration",
+    "Node 22.14 or newer",
+    "npm 11.5.1 or newer",
+    "npm-stage environment approval",
+    "id-token write only in the stage job",
+    "unpacked allowlist and zero lifecycle scripts",
+    "provenance and checksum verification",
+    "reject and rollback evidence"
+  ],
+  "publicationEligible": false,
+  "promotionEligible": false
+}

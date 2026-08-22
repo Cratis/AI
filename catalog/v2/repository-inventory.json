@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "c9ddf3822c2ca97a3d744204519d5940d61551d6d1cd412d8f3d187abac76d0d",
+  "indexDigest": "b7bfb88bcbfb0fc6d7a3f041865ebc0c19953dee7ea71ac82c008091c96e42e3",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -12,6 +12,14 @@
     },
     {
       "path": ".github/workflows/distribution-canary-rollback.yml",
+      "status": "added"
+    },
+    {
+      "path": ".github/workflows/distribution-generated-update.yml",
+      "status": "added"
+    },
+    {
+      "path": ".github/workflows/distribution-npm-stage.yml",
       "status": "added"
     },
     {
@@ -295,11 +303,19 @@
       "status": "added"
     },
     {
+      "path": "distribution/npm-stage-contract.json",
+      "status": "added"
+    },
+    {
       "path": "distribution/remote-repository-state.json",
       "status": "added"
     },
     {
       "path": "distribution/rollout-policy.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/update-bot-contract.json",
       "status": "added"
     },
     {
@@ -1395,7 +1411,15 @@
       "status": "added"
     },
     {
+      "path": "tooling/specs/distribution-npm-stage.spec.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/specs/distribution-rollout.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/distribution-update-workflow.spec.mjs",
       "status": "added"
     },
     {
@@ -1963,6 +1987,8 @@
       "id": "repository-validation-workflow",
       "sourcePathPatterns": [
         ".github/workflows/distribution-canary-rollback.yml",
+        ".github/workflows/distribution-generated-update.yml",
+        ".github/workflows/distribution-npm-stage.yml",
         ".github/workflows/verify-ai-corpus.yml"
       ],
       "artifactType": "workflow",
@@ -1981,8 +2007,8 @@
         "repo-main-b795d53",
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 2,
-      "expectedPathsDigest": "fd74711f49c8c23ac1ea288bbf7c16a039bcc6d2608f5f3f794a4c2b608ef738"
+      "expectedPathCount": 4,
+      "expectedPathsDigest": "e1954180491c3afafb5bc8225878c01927f90a4b81abdd76442fbe3e5796f50f"
     },
     {
       "excludePathPatterns": [],
@@ -2646,8 +2672,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 10,
-      "expectedPathsDigest": "bc7ff918cc405140867b95bc5ccf498d1451ca5caa6f1632c2c3934d9e3742bd"
+      "expectedPathCount": 12,
+      "expectedPathsDigest": "fe60acdc096ee26ee4092e1fd3e1b3875eea548b9eba7eb61554e1bc37354800"
     },
     {
       "excludePathPatterns": [],
@@ -2693,8 +2719,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 14,
-      "expectedPathsDigest": "2048a1afb804cd99dd7cff263210fbe2e8c3599e0440159bc4671a45a3a04b50"
+      "expectedPathCount": 16,
+      "expectedPathsDigest": "c1a7af0eea7bc5a01092cb5192c69a592337b46f13a7e2d29031451001ce16c1"
     },
     {
       "excludePathPatterns": [],

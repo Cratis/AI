@@ -1,0 +1,127 @@
+# Copyright (c) Cratis. All rights reserved.
+# Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+name: Prepare Generated Distribution Update
+
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: Credential-gated fixture operation
+        required: true
+        default: verify-fixture-update
+        type: choice
+        options:
+          - verify-fixture-update
+          - create-fixture-pr
+      version:
+        description: Fixture prerelease version (0.0.N-fixture)
+        required: true
+        default: 0.0.1-fixture
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: distribution-update-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify-fixture-update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out the canonical authoring repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+
+      - name: Validate the fixture version
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          [[ "$VERSION" =~ ^0\.0\.[0-9]+-fixture$ ]]
+
+      - name: Generate and verify the candidate
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          node tooling/generate-distribution-fixture.mjs \
+            "$RUNNER_TEMP/generated-distribution" "$VERSION"
+          test "$(node -p "require('$RUNNER_TEMP/generated-distribution/distribution-manifest.json').publicationEligible")" = "false"
+          node --test tooling/specs/distribution-fixture.spec.mjs
+          node --test tooling/specs/generated-distribution-repository.spec.mjs
+
+  create-fixture-pr:
+    if: inputs.operation == 'create-fixture-pr'
+    needs: verify-fixture-update
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: distribution-canary
+    steps:
+      - name: Check out the canonical authoring repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+
+      - name: Create a repository-scoped GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.AI_DISTRIBUTION_APP_ID }}
+          private-key: ${{ secrets.AI_DISTRIBUTION_APP_PRIVATE_KEY }}
+          owner: Cratis
+          repositories: AI.Distribution
+          permission-contents: write
+          permission-pull-requests: write
+
+      - name: Generate the fixture update
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          [[ "$VERSION" =~ ^0\.0\.[0-9]+-fixture$ ]]
+          node tooling/generate-distribution-fixture.mjs \
+            "$RUNNER_TEMP/generated-distribution" "$VERSION"
+
+      - name: Create the generated update pull request
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          gh auth setup-git
+          gh repo clone Cratis/AI.Distribution "$RUNNER_TEMP/AI.Distribution"
+          version_slug="${VERSION//./-}"
+          branch="generated/${version_slug}-${GITHUB_SHA:0:12}"
+          git -C "$RUNNER_TEMP/AI.Distribution" checkout -b "$branch"
+          rsync -a --delete --exclude=.git \
+            "$RUNNER_TEMP/generated-distribution/" \
+            "$RUNNER_TEMP/AI.Distribution/"
+          git -C "$RUNNER_TEMP/AI.Distribution" config \
+            user.name "cratis-distribution-fixture-bot"
+          git -C "$RUNNER_TEMP/AI.Distribution" config \
+            user.email "fixture-bot@invalid.example"
+          git -C "$RUNNER_TEMP/AI.Distribution" add -A
+          git -C "$RUNNER_TEMP/AI.Distribution" commit \
+            --message "Generate fixture distribution $VERSION"
+          git -C "$RUNNER_TEMP/AI.Distribution" push origin "$branch"
+          gh pr create \
+            --repo Cratis/AI.Distribution \
+            --base main \
+            --head "$branch" \
+            --title "Generate fixture distribution $VERSION" \
+            --body "Generated from Cratis/AI@$GITHUB_SHA. Fixture-only; publication and promotion remain disabled."
