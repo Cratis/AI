@@ -1640,3 +1640,34 @@ Per bounded review policy, Fusion was not rerun. The evaluation summary state is
 `EVIDENCE_PASS_OWNER_REVIEW_PENDING`; target approval, installation,
 materialization, publication, and promotion remain false. Next: owner review,
 then a fixture-only engineering package and install/update/rollback canary.
+
+## 43. First engineering fixture package — 2026-08-22
+
+The evaluation unit merged with green CI in Cratis/AI#153. The first engineering
+package remains unapproved, but deterministic fixture packaging and lifecycle
+mechanics are now implemented:
+
+- catalog artifact `sanitized-engineering-docs-authoring-fixture` allows exactly
+  the canonical target's `SKILL.md`, site-format reference, and license notice;
+- planned engineering release remains separate, approval-required,
+  materialization-disabled, and runtime-disabled;
+- `tooling/generate-engineering-distribution-fixture.mjs` creates one canonical
+  tree plus strict Claude, Copilot, and private Pi/npm fixture adapters;
+- every adapter uses exact canonical bytes; manifests, checksums, and an explicit
+  non-attestation provenance record are emitted;
+- package output excludes project context/bootstraps, scripts, evals, rules,
+  agents, prompts, hooks, workflows, tooling, Pi state, and Git state;
+- local npm fixture evidence proves pack, install, update from 0.0.1 to 0.0.2,
+  rollback to 0.0.1, uninstall, and preservation of `.cratis/PROJECT.md`,
+  `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md`;
+- Pi, Claude Code, and GitHub Copilot isolated install/list/remove flows pass;
+- payload/digest/checksum tampering and release-shaped versions fail;
+- the read-only hosted fixture workflow has no write, OIDC, PR, publish, release,
+  or promotion permission.
+
+Local evidence is in
+`distribution/evidence/local-engineering-docs-authoring-fixture-2026-08-22.json`.
+The matrix state is `FIXTURE_PACKAGE_PASS_OWNER_REVIEW_PENDING`. AI#154 records
+the required owner decision and selection of one documentation-owning repository
+for a real canary. Target approval, installation eligibility, materialization,
+publication, promotion, and legacy retirement remain false.

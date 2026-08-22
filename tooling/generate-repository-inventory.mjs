@@ -97,6 +97,7 @@ const unexpectedUntracked = admittedUntracked.filter(
     (path) =>
         !(
             path === ".github/workflows/distribution-canary-rollback.yml" ||
+            path === ".github/workflows/engineering-distribution-fixture.yml" ||
             path === ".github/workflows/distribution-generated-update.yml" ||
             path === ".github/workflows/distribution-npm-stage.yml" ||
             /^AI-REPOSITORY-REDESIGN-[A-Z0-9-]+\.md$/.test(path) ||
@@ -465,6 +466,7 @@ const definitions = [
         id: "repository-validation-workflow",
         sourcePathPatterns: [
             ".github/workflows/distribution-canary-rollback.yml",
+            ".github/workflows/engineering-distribution-fixture.yml",
             ".github/workflows/distribution-generated-update.yml",
             ".github/workflows/distribution-npm-stage.yml",
             ".github/workflows/verify-ai-corpus.yml",

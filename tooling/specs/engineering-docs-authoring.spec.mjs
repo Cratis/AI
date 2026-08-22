@@ -159,7 +159,10 @@ test("engineering docs evaluation evidence remains bound and non-promoting", () 
     assert.equal(heldOut.promotionEligible, false);
     assert.equal(summary.state, "EVIDENCE_PASS_OWNER_REVIEW_PENDING");
     assert.equal(summary.modelRuns, 16);
-    assert.equal(summary.independentReview.id, "validate-f2fa66ec52217d7edf216972982de179");
+    assert.equal(
+        summary.independentReview.id,
+        "validate-f2fa66ec52217d7edf216972982de179",
+    );
     assert.equal(summary.targetApproval, false);
     assert.equal(summary.installationEligible, false);
 });
@@ -181,10 +184,7 @@ test("engineering docs evaluation rejects run and grading tampering", () => {
             .update(output)
             .digest("hex");
         metadata.model = "gpt-5.6-luna";
-        writeFileSync(
-            metadataPath,
-            `${JSON.stringify(metadata, null, 2)}\n`,
-        );
+        writeFileSync(metadataPath, `${JSON.stringify(metadata, null, 2)}\n`);
         const gradingPath = join(
             root,
             "evals/cratis-engineering-docs-authoring/held-out-grading.json",

@@ -1,0 +1,84 @@
+{
+  "schemaVersion": "1.0.0",
+  "observedAt": "2026-08-22",
+  "sourceCommit": null,
+  "sourceWorktreeBase": "2cfd917d81a026db7aeb50afb7be20b9084e3e3c",
+  "state": "ENGINEERING_FIXTURE_ONLY",
+  "targetId": "cratis-engineering-docs-authoring",
+  "sourceRevision": "f58bcf7f5cc9fc0e11305ada3b5ecb6fa20953e9",
+  "generatedTargets": [
+    "canonical",
+    "claude",
+    "copilot",
+    "pi"
+  ],
+  "results": [
+    {
+      "target": "npm",
+      "version": "10.9.2",
+      "checks": [
+        "pack",
+        "install-ignore-scripts",
+        "skill-inventory",
+        "update",
+        "rollback",
+        "uninstall",
+        "project-context-preserved"
+      ],
+      "status": "PASS"
+    },
+    {
+      "target": "pi",
+      "version": "0.84.2",
+      "checks": [
+        "isolated-home-install",
+        "list",
+        "remove",
+        "empty-list"
+      ],
+      "status": "PASS"
+    },
+    {
+      "target": "claude-code",
+      "version": "2.1.235",
+      "checks": [
+        "strict-plugin-validation",
+        "isolated-marketplace-add",
+        "install",
+        "list",
+        "uninstall",
+        "marketplace-remove"
+      ],
+      "status": "PASS"
+    },
+    {
+      "target": "github-copilot-cli",
+      "version": "1.0.67",
+      "checks": [
+        "isolated-marketplace-add",
+        "install",
+        "list",
+        "uninstall",
+        "marketplace-remove"
+      ],
+      "status": "PASS"
+    }
+  ],
+  "negativeChecks": [
+    "project-owned context excluded from package",
+    "scripts, evals, agents, rules, prompts, hooks, workflows and tooling excluded",
+    "canonical byte parity across generated targets",
+    "payload and checksum tampering rejected",
+    "release-shaped version rejected",
+    "planned engineering release remains materialization and runtime disabled"
+  ],
+  "limitations": [
+    "This is local fixture evidence, not owner approval or installation eligibility.",
+    "The package contains one passive documentation-authoring target only.",
+    "No public registry, organization-level install, real repository canary, publication or promotion occurred."
+  ],
+  "targetApproval": false,
+  "installationEligible": false,
+  "publicationEligible": false,
+  "promotionEligible": false
+}

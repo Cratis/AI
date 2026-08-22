@@ -39,7 +39,7 @@ test("first engineering target is classified but cannot package raw source", () 
     );
     assert.equal(
         matrix.firstPassiveTarget.state,
-        "EVIDENCE_PASS_OWNER_REVIEW_PENDING",
+        "FIXTURE_PACKAGE_PASS_OWNER_REVIEW_PENDING",
     );
     assert.equal(
         matrix.firstPassiveTarget.canonicalSourcePath,

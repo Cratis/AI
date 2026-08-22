@@ -170,15 +170,9 @@ function validateRunSet(
         `${root}/manifest.json`,
         errors,
     )?.value;
-    const manifestRuns = Array.isArray(manifest?.runs)
-        ? manifest.runs
-        : [];
-    const runIds = manifestRuns
-        .map((run) => run?.runId)
-        .filter(Boolean);
-    const runsById = new Map(
-        manifestRuns.map((run) => [run?.runId, run]),
-    );
+    const manifestRuns = Array.isArray(manifest?.runs) ? manifest.runs : [];
+    const runIds = manifestRuns.map((run) => run?.runId).filter(Boolean);
+    const runsById = new Map(manifestRuns.map((run) => [run?.runId, run]));
     const expectedRunIdentities = [
         "BASELINE_OUTPUT_CONTRACT_ONLY/gpt-5.4-mini/1",
         "BASELINE_OUTPUT_CONTRACT_ONLY/gpt-5.4-mini/2",
@@ -190,10 +184,7 @@ function validateRunSet(
         "SKILL_WITH_OUTPUT_CONTRACT/gpt-5.6-luna/2",
     ];
     const actualRunIdentities = manifestRuns
-        .map(
-            (run) =>
-                `${run?.condition}/${run?.model}/${run?.repetition}`,
-        )
+        .map((run) => `${run?.condition}/${run?.model}/${run?.repetition}`)
         .sort();
     inventory(repositoryRoot, root, ["manifest.json", ...runIds], errors);
     if (
