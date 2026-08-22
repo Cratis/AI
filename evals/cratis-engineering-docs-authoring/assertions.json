@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "1.0.0",
+  "positiveCases": 4,
+  "negativeCases": 5,
+  "totalCases": 9,
+  "modelRuns": 0,
+  "targetApproval": false,
+  "installationEligible": false,
+  "promotionEligible": false
+}

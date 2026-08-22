@@ -8,6 +8,7 @@ import { validateSourceEvidenceContract } from "./source-evidence-contract-valid
 import { validateCodeReviewPilot } from "./code-review-pilot-validation.mjs";
 import { validateDomainExpertEventModelingPilot } from "./domain-expert-event-modeling-pilot-validation.mjs";
 import { validateDistributionConfiguration } from "./generate-distribution-fixture.mjs";
+import { validateEngineeringDocsAuthoring } from "./engineering-docs-authoring-validation.mjs";
 
 const errors = [
     ...validateCatalogs(),
@@ -16,6 +17,7 @@ const errors = [
     ...validateCodeReviewPilot(),
     ...validateDomainExpertEventModelingPilot(),
     ...validateDistributionConfiguration(),
+    ...validateEngineeringDocsAuthoring(),
 ];
 if (errors.length > 0) {
     process.stderr.write(
