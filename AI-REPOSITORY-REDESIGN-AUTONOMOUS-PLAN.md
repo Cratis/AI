@@ -619,7 +619,9 @@ Evidence and exact next actions are in
   AutoMap, path, README, and documentation guidance.
 - [x] Reconcile the public preview artifact identity and bind fixture provenance
   to immutable source revision/digest.
-- [ ] Implement approval-driven production materialization and per-profile,
-  per-harness root release assets after AI#148 and profile-owner issue #165.
+- [x] Implement fail-closed approval-driven production materialization and
+  per-profile, per-harness install roots; current catalogs reject generation.
+- [ ] Enable one approved profile after AI#148 and profile-owner issue #165,
+  then package and host immutable per-harness release assets.
 - [ ] Run the first real public consumer lifecycle canary and publish only a
   narrowly labeled Fundamentals/Chronicle C# preview.

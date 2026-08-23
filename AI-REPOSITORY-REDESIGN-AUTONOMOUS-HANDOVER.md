@@ -1899,3 +1899,35 @@ Immediate review findings corrected in this unit include:
 Production materialization, per-harness root release assets, product-owner
 approval, bot credentials, npm authority, and a real public consumer canary
 remain explicit blockers. No profile is represented as published.
+
+## 50. Approval-driven profile materialization — 2026-08-23
+
+The production release path now has a concrete fail-closed implementation:
+
+- `tooling/generate-approved-profile-release.mjs` resolves one profile and exact
+  SemVer against approved/runtime targets, accepted security, complete passing
+  evaluations, verified distribution source contracts, active authoring
+  contracts, source publication approval, and an enabled planned artifact;
+- immutable skill bytes are read with `git show` from each source revision and
+  recomputed against the catalog content digest;
+- `tooling/passive-profile-adapters.mjs` emits one install root per profile and
+  harness for Agent Skills, Claude, Codex, Copilot, Cursor, Gemini, Grok,
+  DeepSeek Harness, Kiro, Junie, and Pi;
+- profile adapter inputs are path/content/frontmatter validated, passive-only,
+  byte-parity checked, deterministically inventoried, and produce a non-private
+  Pi package with no scripts or dependencies;
+- release candidate provenance records AI commit, profile, artifact, target
+  approvals, immutable source revisions, and content digests; checksums and a
+  release manifest bind every generated file;
+- `.github/workflows/distribution-approved-profile-release.yml` verifies the
+  plan and can open only a protected, bot-authored `AI.Distribution` pull
+  request using repository-scoped App credentials; publication and promotion
+  remain separate;
+- current catalogs correctly reject generation because no profile/target/source
+  contract/artifact is approved and runtime-enabled.
+
+The generated repository stores immutable profile/version/harness roots. A
+later protected publication unit archives or publishes each harness root and
+runs exact remote lifecycle commands. Production code now exists; organizational
+approval, credentials, release-asset publication, and the real public canary
+remain blockers.

@@ -150,7 +150,7 @@ tooling.
 The first narrow public preview still requires:
 
 - owner approval and exact product authority for the Fundamentals concept skill;
-- approval-driven production materialization with immutable provenance;
+- enabling and exercising the approval-driven production materializer after target approval;
 - scoped GitHub App credentials for generated pull requests;
 - one real consumer install/update/rollback/uninstall canary;
 - an immutable release channel and published installation instructions.
