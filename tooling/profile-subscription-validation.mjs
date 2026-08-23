@@ -79,12 +79,30 @@ export function validateProfileSubscriptions(
     if (duplicates(packageNames).length)
         errors.push("Profile catalog contains duplicate package names");
     const knownProfiles = new Set(profileIds);
-    for (const profile of profiles)
+    const allowedProfileStates = new Set([
+        "approved",
+        "content-gap",
+        "owner-review-pending",
+        "planned",
+        "planned-composition",
+        "preview-source-candidate",
+    ]);
+    for (const profile of profiles) {
+        if (!allowedProfileStates.has(profile.state))
+            errors.push(
+                `${profile.id}: unknown profile state ${profile.state}`,
+            );
+        if (
+            profile.state === "approved" &&
+            (profile.availableTargets?.length ?? 0) === 0
+        )
+            errors.push(`${profile.id}: approved profile has no targets`);
         for (const dependency of profile.composes ?? [])
             if (!knownProfiles.has(dependency))
                 errors.push(
                     `${profile.id}: unknown composed profile ${dependency}`,
                 );
+    }
     if (
         profileCatalog.subscription?.projectFile !== ".cratis/ai.json" ||
         profileCatalog.subscription?.projectOwned !== true ||

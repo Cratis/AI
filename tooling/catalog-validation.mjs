@@ -188,9 +188,9 @@ export function validateAgainstSchema(
 
     if (schema.oneOf) {
         const matchingBranches = schema.oneOf.filter(
-            branch =>
-                validateAgainstSchema(value, branch, rootSchema, path).length ===
-                0,
+            (branch) =>
+                validateAgainstSchema(value, branch, rootSchema, path)
+                    .length === 0,
         );
         if (matchingBranches.length !== 1)
             errors.push(`${path}: expected exactly one matching oneOf branch`);

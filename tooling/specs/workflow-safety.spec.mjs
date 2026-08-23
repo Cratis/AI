@@ -33,6 +33,33 @@ test("verification workflow covers every release-relevant source", () => {
     }
 });
 
+test("approved profile workflow is bot-scoped and keeps publication separate", () => {
+    const workflow = readFileSync(
+        ".github/workflows/distribution-approved-profile-release.yml",
+        "utf8",
+    );
+    for (const required of [
+        "generate-approved-profile-release.mjs",
+        "fetch-depth: 0",
+        "environment: distribution-canary",
+        "repositories: AI.Distribution",
+        "permission-contents: write",
+        "permission-pull-requests: write",
+        'test ! -e "$destination"',
+        "Publication and promotion remain separate protected gates",
+    ])
+        assert(workflow.includes(required), required);
+    for (const forbidden of [
+        "force push",
+        "--force",
+        "npm publish",
+        "gh release create",
+        "git tag",
+        "secrets: inherit",
+    ])
+        assert.equal(workflow.includes(forbidden), false, forbidden);
+});
+
 test("legacy propagation workflows are inert and inherit no secrets", () => {
     for (const path of [
         ".github/workflows/propagate-copilot-instructions.yml",

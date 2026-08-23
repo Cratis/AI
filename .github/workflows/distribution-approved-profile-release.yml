@@ -1,0 +1,123 @@
+# Copyright (c) Cratis. All rights reserved.
+# Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+name: Prepare Approved Profile Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: Approved profile release operation
+        required: true
+        default: verify
+        type: choice
+        options:
+          - verify
+          - create-generated-pr
+      profile:
+        description: Approved profile id
+        required: true
+        type: string
+      version:
+        description: Exact SemVer release candidate version
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: approved-profile-${{ inputs.profile }}-${{ inputs.version }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out complete immutable history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+
+      - name: Validate catalogs and approved release plan
+        env:
+          PROFILE: ${{ inputs.profile }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          node tooling/validate-catalogs.mjs
+          node tooling/generate-approved-profile-release.mjs \
+            "$RUNNER_TEMP/approved-profile" "$PROFILE" "$VERSION"
+          test "$(node -p "require('$RUNNER_TEMP/approved-profile/release-manifest.json').publicationEligible")" = "false"
+          test "$(node -p "require('$RUNNER_TEMP/approved-profile/release-manifest.json').promotionEligible")" = "false"
+          node --test tooling/specs/approved-profile-release.spec.mjs
+
+  create-generated-pr:
+    if: inputs.operation == 'create-generated-pr'
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: distribution-canary
+    steps:
+      - name: Check out complete immutable history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+
+      - name: Create repository-scoped GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.AI_DISTRIBUTION_APP_ID }}
+          private-key: ${{ secrets.AI_DISTRIBUTION_APP_PRIVATE_KEY }}
+          owner: Cratis
+          repositories: AI.Distribution
+          permission-contents: write
+          permission-pull-requests: write
+
+      - name: Regenerate and open protected distribution pull request
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          PROFILE: ${{ inputs.profile }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          node tooling/generate-approved-profile-release.mjs \
+            "$RUNNER_TEMP/approved-profile" "$PROFILE" "$VERSION"
+          gh auth setup-git
+          gh repo clone Cratis/AI.Distribution "$RUNNER_TEMP/AI.Distribution"
+          version_slug="${VERSION//./-}"
+          branch="generated/${PROFILE}-${version_slug}-${GITHUB_SHA:0:12}"
+          destination="$RUNNER_TEMP/AI.Distribution/profiles/$PROFILE/$VERSION"
+          git -C "$RUNNER_TEMP/AI.Distribution" checkout -b "$branch"
+          test ! -e "$destination"
+          mkdir -p "$destination"
+          rsync -a --delete --exclude=.git \
+            "$RUNNER_TEMP/approved-profile/" "$destination/"
+          git -C "$RUNNER_TEMP/AI.Distribution" config \
+            user.name "cratis-distribution-release-bot"
+          git -C "$RUNNER_TEMP/AI.Distribution" config \
+            user.email "release-bot@invalid.example"
+          git -C "$RUNNER_TEMP/AI.Distribution" add -A
+          git -C "$RUNNER_TEMP/AI.Distribution" commit \
+            --message "Generate $PROFILE release candidate $VERSION"
+          git -C "$RUNNER_TEMP/AI.Distribution" push origin "$branch"
+          gh pr create \
+            --repo Cratis/AI.Distribution \
+            --base main \
+            --head "$branch" \
+            --title "Generate $PROFILE release candidate $VERSION" \
+            --body "Generated from Cratis/AI@$GITHUB_SHA. Publication and promotion remain separate protected gates."

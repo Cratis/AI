@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "ae8926bd91b01a1ac6e5d4dd1f160d240aa6ed7b9c6d5e5db8e307e453fe0690",
+  "indexDigest": "08aea5cb51746b9c1495e4ff3942185e388b51863c39e1ddb44998f1b5c9f03f",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -36,6 +36,10 @@
     },
     {
       "path": ".github/ISSUE_TEMPLATE/shared-ai-improvement.yml",
+      "status": "added"
+    },
+    {
+      "path": ".github/workflows/distribution-approved-profile-release.yml",
       "status": "added"
     },
     {
@@ -1883,6 +1887,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/generate-approved-profile-release.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/generate-catalog-v2.mjs",
       "status": "added"
     },
@@ -1923,6 +1931,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/passive-profile-adapters.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/profile-subscription-validation.mjs",
       "status": "added"
     },
@@ -1956,6 +1968,10 @@
     },
     {
       "path": "tooling/source-evidence-loader.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/approved-profile-release.spec.mjs",
       "status": "added"
     },
     {
@@ -2621,6 +2637,7 @@
       "excludePathPatterns": [],
       "id": "repository-validation-workflow",
       "sourcePathPatterns": [
+        ".github/workflows/distribution-approved-profile-release.yml",
         ".github/workflows/distribution-canary-rollback.yml",
         ".github/workflows/engineering-distribution-fixture.yml",
         ".github/workflows/distribution-generated-update.yml",
@@ -2643,8 +2660,8 @@
         "repo-main-b795d53",
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 5,
-      "expectedPathsDigest": "5c7d3ee554ebb50633a8139a841a107e6cfc027018c5fa10b4d2ef056d6f35bf"
+      "expectedPathCount": 6,
+      "expectedPathsDigest": "6e7604e8543c6f011bf0852a2b81f6d416a83ce2fcab42dbc47d4aa324d184ae"
     },
     {
       "excludePathPatterns": [],
@@ -3381,8 +3398,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 31,
-      "expectedPathsDigest": "16105f414ef18bf88bebffaaab9205aa2c08aa1ed70674a0ea13351aca956783"
+      "expectedPathCount": 33,
+      "expectedPathsDigest": "ade37b2c91e8e2421f43e484961a158e4c5d2a109a57e9865e7f66010e2952de"
     },
     {
       "excludePathPatterns": [],
@@ -3405,8 +3422,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 25,
-      "expectedPathsDigest": "136d0ecb86b88dc900ea5b606b1f428f336b14f8540bdc99c9de67276c0f32dd"
+      "expectedPathCount": 26,
+      "expectedPathsDigest": "f46889a4a04eaadb9235545a1402d44de3127378458e0a864e929bde8d426a7d"
     },
     {
       "excludePathPatterns": [],

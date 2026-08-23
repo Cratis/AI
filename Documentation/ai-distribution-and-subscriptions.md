@@ -5,9 +5,11 @@ profiles, immutable releases, and reviewed downstream updates. It does not use
 folder propagation or automatic two-way synchronization.
 
 > **Current availability:** the architecture and fixture generation exist, but
-> no supported profile package has been published yet. Commands containing
-> `1.0.0` below show the intended released workflow; do not run them until that
-> version exists in the selected channel.
+> no supported profile package has been published yet. The approval-driven
+> materializer exists but fails closed while profiles, targets, source contracts,
+> and release artifacts remain unapproved. Commands containing `1.0.0` below
+> show the intended released workflow; do not run them until that version exists
+> in the selected channel.
 
 ## Authority model
 
@@ -242,6 +244,38 @@ The same approved skill bytes are wrapped idiomatically for each host:
 Release documentation distinguishes **generated**, **statically validated**, and
 **host-tested and supported**. A generated wrapper is not automatically a
 public marketplace listing.
+
+### Released host examples
+
+Each release publishes a separate root for the selected profile and host. After
+reviewing and extracting the immutable host asset, native commands operate on
+that root. Representative examples are:
+
+```text
+# Claude Code interactive commands
+/plugin marketplace add <extracted-claude-root>
+/plugin install engineering-framework-chronicle@cratis
+
+# Codex
+codex plugin marketplace add <extracted-codex-root>
+
+# GitHub Copilot CLI
+copilot plugin marketplace add <extracted-copilot-root>
+copilot plugin install engineering-framework-chronicle@cratis
+
+# Gemini CLI local verification before remote publication
+gemini extensions link <extracted-gemini-root>
+
+# Grok Build project skills
+cp -R <extracted-grok-root>/.grok/skills .grok/
+
+# DeepSeek Harness project skills
+cp -R <extracted-deepseek-root>/.dsh/skills .dsh/
+```
+
+The final release page replaces placeholders with immutable URLs, checksums,
+tested host versions, update commands, and uninstall commands. Do not point a
+host at the multi-profile generated repository root.
 
 ## Versioning and release train
 
