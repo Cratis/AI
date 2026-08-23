@@ -4972,20 +4972,28 @@
       },
       "evaluations": {
         "behavior": {
-          "status": "missing",
-          "evidenceIds": []
+          "status": "passing",
+          "evidenceIds": [
+            "fundamentals-concept-focused-evaluation-2026-08-23"
+          ]
         },
         "positiveTrigger": {
-          "status": "missing",
-          "evidenceIds": []
+          "status": "passing",
+          "evidenceIds": [
+            "fundamentals-concept-focused-evaluation-2026-08-23"
+          ]
         },
         "negativeTrigger": {
-          "status": "missing",
-          "evidenceIds": []
+          "status": "passing",
+          "evidenceIds": [
+            "fundamentals-concept-focused-evaluation-2026-08-23"
+          ]
         },
         "collision": {
-          "status": "missing",
-          "evidenceIds": []
+          "status": "passing",
+          "evidenceIds": [
+            "fundamentals-concept-focused-evaluation-2026-08-23"
+          ]
         }
       },
       "approval": {

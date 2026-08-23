@@ -2171,7 +2171,12 @@
       "status": "added"
     }
   ],
-  "admittedUntracked": [],
+  "admittedUntracked": [
+    "evals/cratis-fundamentals-concept/focused-cases.json",
+    "evals/cratis-fundamentals-concept/focused-evaluation.json",
+    "evals/cratis-fundamentals-concept/focused-prompt.md",
+    "evals/cratis-fundamentals-concept/focused-run-output.json"
+  ],
   "excludedRuntimePrefixes": [
     ".pi/delegate/",
     ".pi/fusion/",
@@ -3185,6 +3190,29 @@
       ],
       "expectedPathCount": 46,
       "expectedPathsDigest": "9b566ddb69b79294969745fe5819a970d3ef9ad7159cfb050bf8e437b11b76b8"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "fundamentals-concept-evaluation",
+      "sourcePathPatterns": [
+        "evals/cratis-fundamentals-concept/**"
+      ],
+      "artifactType": "evaluation",
+      "currentOwner": "public Cratis product capability",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "skills/cratis-fundamentals-concept/**"
+      ],
+      "risk": "low",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "fundamentals-concept-source-review-2026-08-23"
+      ],
+      "expectedPathCount": 4,
+      "expectedPathsDigest": "3ed7c6162721eace3ca4fe155927e2b5aeb4768816a7c2cd14657295f2af24dd"
     },
     {
       "excludePathPatterns": [],

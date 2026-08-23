@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
@@ -55,6 +56,47 @@ test("source review binds exact product releases without granting approval", () 
         assert.equal(contract.verificationState, "unverified");
         assert.equal(contract.distributionInputAllowed, false);
     }
+});
+
+test("focused behavior trigger collision and security evidence passes without promotion", () => {
+    const evaluation = JSON.parse(
+        readFileSync(
+            "evals/cratis-fundamentals-concept/focused-evaluation.json",
+            "utf8",
+        ),
+    );
+    const digest = (path) =>
+        createHash("sha256").update(readFileSync(path)).digest("hex");
+    assert.equal(
+        evaluation.state,
+        "FOCUSED_EVALUATION_PASS_OWNER_APPROVAL_PENDING",
+    );
+    assert.equal(evaluation.provider, "openai-codex");
+    assert.equal(evaluation.toolsEnabled, false);
+    assert.equal(evaluation.caseCount, 12);
+    assert.equal(evaluation.decisionMatches, 12);
+    assert.equal(evaluation.rationalesPresent, 12);
+    assert.equal(evaluation.passed, true);
+    assert.equal(
+        evaluation.casesSha256,
+        digest("evals/cratis-fundamentals-concept/focused-cases.json"),
+    );
+    assert.equal(
+        evaluation.promptSha256,
+        digest("evals/cratis-fundamentals-concept/focused-prompt.md"),
+    );
+    assert.equal(
+        evaluation.skillSha256,
+        digest("skills/cratis-fundamentals-concept/SKILL.md"),
+    );
+    assert.equal(
+        evaluation.outputSha256,
+        digest("evals/cratis-fundamentals-concept/focused-run-output.json"),
+    );
+    assert.equal(evaluation.targetApproval, false);
+    assert.equal(evaluation.includeInRuntime, false);
+    assert.equal(evaluation.publicationEligible, false);
+    assert.equal(evaluation.promotionEligible, false);
 });
 
 test("Fundamentals concept skill is passive canonical Agent Skills content", () => {

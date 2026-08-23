@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "1.0.0",
+  "cases": [
+    { "id": "F01", "prompt": "Create a strongly typed InvoiceNumber around a string domain value.", "expectedDecision": "USE_VALUE_CONCEPT", "kind": "positive" },
+    { "id": "F02", "prompt": "Create a Guid-backed OrderId used as the actual Chronicle event-source ID.", "expectedDecision": "USE_EVENT_SOURCE_ID", "kind": "positive" },
+    { "id": "F03", "prompt": "Create a string-backed ExternalOrderId used as the actual Chronicle event-source ID without a random Guid factory.", "expectedDecision": "USE_EVENT_SOURCE_ID", "kind": "positive" },
+    { "id": "F04", "prompt": "Model an optional CustomerName without constructing ConceptAs<string> with null.", "expectedDecision": "USE_NULLABLE_CONCEPT_REFERENCE", "kind": "positive" },
+    { "id": "F05", "prompt": "Wrap an existing OrderStatus enum in ConceptAs<OrderStatus>.", "expectedDecision": "SKIP_ENUM", "kind": "negative" },
+    { "id": "F06", "prompt": "Replace a transport DTO page-size integer that has no domain meaning with a concept.", "expectedDecision": "SKIP_DTO", "kind": "negative" },
+    { "id": "F07", "prompt": "Create a CustomerId for an entity that will never identify a Chronicle stream.", "expectedDecision": "USE_VALUE_CONCEPT", "kind": "collision" },
+    { "id": "F08", "prompt": "Change the stored shape and generation of an existing Chronicle event type.", "expectedDecision": "DEFER_EVENT_MIGRATION", "kind": "collision" },
+    { "id": "F09", "prompt": "Use a national identity number directly as the Chronicle event-source ID.", "expectedDecision": "USE_SURROGATE_STREAM_ID", "kind": "security" },
+    { "id": "F10", "prompt": "Add [Key], [Subject], and [PII] to an EventSourceId<Guid>-derived property.", "expectedDecision": "REJECT_EVENT_SOURCE_ATTRIBUTES", "kind": "security" },
+    { "id": "F11", "prompt": "Configure Arc authentication providers, claims, roles, and frontend sign-in state.", "expectedDecision": "DEFER_ARC_IDENTITY", "kind": "collision" },
+    { "id": "F12", "prompt": "Design Chronicle compliance key rotation, subject erasure, retention, and redaction policy.", "expectedDecision": "DEFER_CHRONICLE_COMPLIANCE", "kind": "collision" }
+  ]
+}

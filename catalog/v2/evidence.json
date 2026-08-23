@@ -71,6 +71,17 @@
       "digest": "62b6770b0a354aaa7b054fa8075d742a6952c00fc98b3b8c78d4ae1e46c9390f"
     },
     {
+      "id": "fundamentals-concept-focused-evaluation-2026-08-23",
+      "officialUrl": "https://github.com/Cratis/AI/issues/148",
+      "sourceKind": "local-evidence-report",
+      "verifiedOn": "2026-08-23",
+      "expiresOn": "2026-11-21",
+      "applicableVersion": "b53caa555b9a3f05ba1462b86202fe3ccb8a9470",
+      "confidence": "medium",
+      "repositoryPath": "evals/cratis-fundamentals-concept/focused-evaluation.json",
+      "digest": "13da54b06949e4320b64ee58fde919a369bb1510ae05d8bbb2f4cf6d1c64c844"
+    },
+    {
       "id": "engineering-docs-add-page-source-684d037",
       "officialUrl": "https://github.com/Cratis/AI/tree/684d03755bacd40af95463b81b4a0c8b9f088ec1/engineering/skills/cratis-engineering-docs-add-page",
       "sourceKind": "repository-snapshot",

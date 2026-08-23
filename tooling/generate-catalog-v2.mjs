@@ -137,6 +137,10 @@ const publicClassifications = new Map([
                 "assets/**",
                 "LICENSE*",
             ],
+            behaviorEvaluationEvidenceId:
+                "fundamentals-concept-focused-evaluation-2026-08-23",
+            routingEvaluationEvidenceId:
+                "fundamentals-concept-focused-evaluation-2026-08-23",
         },
     ],
 ]);
@@ -1179,12 +1183,20 @@ const targets = allTargetIds.map((targetId) => {
             evidenceIds: [],
         },
         evaluations: {
-            behavior: {
-                status: hasLegacyBehaviorEvals
-                    ? "legacy-needs-migration"
-                    : "missing",
-                evidenceIds: [],
-            },
+            behavior: engineeringClassification
+                ?.behaviorEvaluationEvidenceId
+                ? {
+                      status: "passing",
+                      evidenceIds: [
+                          engineeringClassification.behaviorEvaluationEvidenceId,
+                      ],
+                  }
+                : {
+                      status: hasLegacyBehaviorEvals
+                          ? "legacy-needs-migration"
+                          : "missing",
+                      evidenceIds: [],
+                  },
             positiveTrigger:
                 engineeringClassification?.routingEvaluationEvidenceId
                     ? {
@@ -1539,6 +1551,20 @@ const evidence = [
             "distribution/evidence/fundamentals-concept-source-review-2026-08-23.json",
         digest: digestFile(
             "distribution/evidence/fundamentals-concept-source-review-2026-08-23.json",
+        ),
+    },
+    {
+        id: "fundamentals-concept-focused-evaluation-2026-08-23",
+        officialUrl: "https://github.com/Cratis/AI/issues/148",
+        sourceKind: "local-evidence-report",
+        verifiedOn: "2026-08-23",
+        expiresOn: "2026-11-21",
+        applicableVersion: "b53caa555b9a3f05ba1462b86202fe3ccb8a9470",
+        confidence: "medium",
+        repositoryPath:
+            "evals/cratis-fundamentals-concept/focused-evaluation.json",
+        digest: digestFile(
+            "evals/cratis-fundamentals-concept/focused-evaluation.json",
         ),
     },
     {

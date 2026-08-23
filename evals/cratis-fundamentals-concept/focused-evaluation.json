@@ -1,0 +1,129 @@
+{
+  "schemaVersion": "1.0.0",
+  "state": "FOCUSED_EVALUATION_PASS_OWNER_APPROVAL_PENDING",
+  "evaluatedOn": "2026-08-23",
+  "provider": "openai-codex",
+  "model": "gpt-5.4-mini",
+  "thinking": "low",
+  "toolsEnabled": false,
+  "sourceRevision": "b53caa555b9a3f05ba1462b86202fe3ccb8a9470",
+  "sourceContentDigest": "9e537c48a95c414709008c69ebfb616354d60992578ddd9da3d7dc7308c42caa",
+  "fundamentalsVersion": "7.18.1",
+  "chronicleVersion": "16.38.1",
+  "caseCount": 12,
+  "decisionMatches": 12,
+  "rationalesPresent": 12,
+  "casesSha256": "d339897b5534ff7c5ff288a4307b2f6eed45606209f25d3e8f0188c3d4761f52",
+  "promptSha256": "f5947c3e864eecf8d56434e89042aa434e774331840ad6123fb35bc1cf626ff7",
+  "skillSha256": "423ab2d27b08e13d3c7c3fbaf9bbc06ea1fb9a13610bdcfdf37398b12d593ec9",
+  "outputSha256": "7397618280860849d98a8abbd19353c5939443ac19cf63446f1f331abcff2bf0",
+  "compileEvidence": "PASS_ZERO_WARNINGS_ZERO_ERRORS",
+  "grades": [
+    {
+      "caseId": "F01",
+      "kind": "positive",
+      "expectedDecision": "USE_VALUE_CONCEPT",
+      "observedDecision": "USE_VALUE_CONCEPT",
+      "decisionMatch": true,
+      "rationalePresent": true
+    },
+    {
+      "caseId": "F02",
+      "kind": "positive",
+      "expectedDecision": "USE_EVENT_SOURCE_ID",
+      "observedDecision": "USE_EVENT_SOURCE_ID",
+      "decisionMatch": true,
+      "rationalePresent": true
+    },
+    {
+      "caseId": "F03",
+      "kind": "positive",
+      "expectedDecision": "USE_EVENT_SOURCE_ID",
+      "observedDecision": "USE_EVENT_SOURCE_ID",
+      "decisionMatch": true,
+      "rationalePresent": true
+    },
+    {
+      "caseId": "F04",
+      "kind": "positive",
+      "expectedDecision": "USE_NULLABLE_CONCEPT_REFERENCE",
+      "observedDecision": "USE_NULLABLE_CONCEPT_REFERENCE",
+      "decisionMatch": true,
+      "rationalePresent": true
+    },
+    {
+      "caseId": "F05",
+      "kind": "negative",
+      "expectedDecision": "SKIP_ENUM",
+      "observedDecision": "SKIP_ENUM",
+      "decisionMatch": true,
+      "rationalePresent": true
+    },
+    {
+      "caseId": "F06",
+      "kind": "negative",
+      "expectedDecision": "SKIP_DTO",
+      "observedDecision": "SKIP_DTO",
+      "decisionMatch": true,
+      "rationalePresent": true
+    },
+    {
+      "caseId": "F07",
+      "kind": "collision",
+      "expectedDecision": "USE_VALUE_CONCEPT",
+      "observedDecision": "USE_VALUE_CONCEPT",
+      "decisionMatch": true,
+      "rationalePresent": true
+    },
+    {
+      "caseId": "F08",
+      "kind": "collision",
+      "expectedDecision": "DEFER_EVENT_MIGRATION",
+      "observedDecision": "DEFER_EVENT_MIGRATION",
+      "decisionMatch": true,
+      "rationalePresent": true
+    },
+    {
+      "caseId": "F09",
+      "kind": "security",
+      "expectedDecision": "USE_SURROGATE_STREAM_ID",
+      "observedDecision": "USE_SURROGATE_STREAM_ID",
+      "decisionMatch": true,
+      "rationalePresent": true
+    },
+    {
+      "caseId": "F10",
+      "kind": "security",
+      "expectedDecision": "REJECT_EVENT_SOURCE_ATTRIBUTES",
+      "observedDecision": "REJECT_EVENT_SOURCE_ATTRIBUTES",
+      "decisionMatch": true,
+      "rationalePresent": true
+    },
+    {
+      "caseId": "F11",
+      "kind": "collision",
+      "expectedDecision": "DEFER_ARC_IDENTITY",
+      "observedDecision": "DEFER_ARC_IDENTITY",
+      "decisionMatch": true,
+      "rationalePresent": true
+    },
+    {
+      "caseId": "F12",
+      "kind": "collision",
+      "expectedDecision": "DEFER_CHRONICLE_COMPLIANCE",
+      "observedDecision": "DEFER_CHRONICLE_COMPLIANCE",
+      "decisionMatch": true,
+      "rationalePresent": true
+    }
+  ],
+  "limitations": [
+    "One bounded OpenAI model run; no baseline or repeated statistical evaluation.",
+    "Sufficient for an honestly labeled preview only when the accountable owner accepts the evidence.",
+    "Real package/host/consumer canary remains required."
+  ],
+  "targetApproval": false,
+  "includeInRuntime": false,
+  "publicationEligible": false,
+  "promotionEligible": false,
+  "passed": true
+}

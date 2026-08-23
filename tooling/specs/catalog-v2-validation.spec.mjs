@@ -248,8 +248,12 @@ test("first useful public skill is bound to immutable canonical source", () => {
     assert.deepEqual(target.security.evidenceIds, [
         "fundamentals-concept-source-review-2026-08-23",
     ]);
-    for (const evaluation of Object.values(target.evaluations))
-        assert.equal(evaluation.status, "missing");
+    for (const evaluation of Object.values(target.evaluations)) {
+        assert.equal(evaluation.status, "passing");
+        assert.deepEqual(evaluation.evidenceIds, [
+            "fundamentals-concept-focused-evaluation-2026-08-23",
+        ]);
+    }
     assert.equal(target.approval.state, "candidate");
     assert.equal(target.includeInRuntime, false);
 });

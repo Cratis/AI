@@ -1,0 +1,62 @@
+[
+  {
+    "caseId": "F01",
+    "decision": "USE_VALUE_CONCEPT",
+    "rationale": "A string InvoiceNumber has distinct domain meaning, so model it as ConceptAs<string>."
+  },
+  {
+    "caseId": "F02",
+    "decision": "USE_EVENT_SOURCE_ID",
+    "rationale": "The Guid-backed OrderId is the actual Chronicle event-source ID, so use EventSourceId<Guid>."
+  },
+  {
+    "caseId": "F03",
+    "decision": "USE_EVENT_SOURCE_ID",
+    "rationale": "It is the real Chronicle stream identity, and a string-backed EventSourceId is allowed without a Guid factory."
+  },
+  {
+    "caseId": "F04",
+    "decision": "USE_NULLABLE_CONCEPT_REFERENCE",
+    "rationale": "Optional presence should be represented with a nullable concept reference, not a null wrapped value."
+  },
+  {
+    "caseId": "F05",
+    "decision": "SKIP_ENUM",
+    "rationale": "Enums already express a closed domain concept and should not be wrapped."
+  },
+  {
+    "caseId": "F06",
+    "decision": "SKIP_DTO",
+    "rationale": "A DTO-only page-size with no domain meaning should remain primitive."
+  },
+  {
+    "caseId": "F07",
+    "decision": "USE_VALUE_CONCEPT",
+    "rationale": "An entity ID that is not a Chronicle stream identity should be modeled as a value concept."
+  },
+  {
+    "caseId": "F08",
+    "decision": "DEFER_EVENT_MIGRATION",
+    "rationale": "Changing stored shape and generation of an existing event type is an event migration concern."
+  },
+  {
+    "caseId": "F09",
+    "decision": "USE_SURROGATE_STREAM_ID",
+    "rationale": "A sensitive natural identifier should not be used directly as an event-source ID; use a random surrogate."
+  },
+  {
+    "caseId": "F10",
+    "decision": "REJECT_EVENT_SOURCE_ATTRIBUTES",
+    "rationale": "Do not place [Key], [Subject], or [PII] on an EventSourceId-derived member."
+  },
+  {
+    "caseId": "F11",
+    "decision": "DEFER_ARC_IDENTITY",
+    "rationale": "Arc authentication, claims, roles, and sign-in state are outside this concept and event-source skill."
+  },
+  {
+    "caseId": "F12",
+    "decision": "DEFER_CHRONICLE_COMPLIANCE",
+    "rationale": "Key rotation, erasure, retention, and redaction policy are Chronicle compliance concerns, not concept modeling."
+  }
+]

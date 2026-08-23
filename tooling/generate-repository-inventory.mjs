@@ -808,6 +808,22 @@ const definitions = [
         evidenceIds: ["reevaluation-authority"],
     },
     {
+        id: "fundamentals-concept-evaluation",
+        sourcePathPatterns: ["evals/cratis-fundamentals-concept/**"],
+        artifactType: "evaluation",
+        currentOwner: publicOwner,
+        targetOwner: repositoryOwner,
+        runtimeEligibility: "repository-only",
+        generatedStatus: "source",
+        adapterStatus: "none",
+        dependencies: ["skills/cratis-fundamentals-concept/**"],
+        risk: "low",
+        migrationState: "retain",
+        evidenceIds: [
+            "fundamentals-concept-source-review-2026-08-23",
+        ],
+    },
+    {
         id: "source-evidence-contract-v1",
         sourcePathPatterns: [
             "Documentation/source-evidence-contract.md",
