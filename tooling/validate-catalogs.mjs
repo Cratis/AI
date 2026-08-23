@@ -13,6 +13,7 @@ import { validateEngineeringDistributionConfiguration } from "./generate-enginee
 import { validateEngineeringDocsCompanions } from "./engineering-docs-companions-validation.mjs";
 import { validateProfileSubscriptions } from "./profile-subscription-validation.mjs";
 import { validateReleaseRequests } from "./release-request-validation.mjs";
+import { validateReleaseApprovals } from "./release-approval-validation.mjs";
 
 const errors = [
     ...validateCatalogs(),
@@ -26,6 +27,7 @@ const errors = [
     ...validateEngineeringDocsCompanions(),
     ...validateProfileSubscriptions(),
     ...validateReleaseRequests().errors,
+    ...validateReleaseApprovals(),
 ];
 if (errors.length > 0) {
     process.stderr.write(

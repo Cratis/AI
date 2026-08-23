@@ -29,6 +29,22 @@ const v1Coverage = readCatalog(
 const v1Ecosystems = readCatalog(
     join(repositoryRoot, "catalog/ecosystem-versions.json"),
 );
+const releaseApprovals = readCatalog(
+    join(repositoryRoot, "distribution/release-approvals.json"),
+);
+if (
+    releaseApprovals.schemaVersion !== "1.0.0" ||
+    releaseApprovals.defaultPolicy !== "deny"
+)
+    throw new Error("Release approval catalog contract changed");
+const targetApprovals = new Map(
+    releaseApprovals.targetApprovals.map((approval) => [
+        approval.targetId,
+        approval,
+    ]),
+);
+if (targetApprovals.size !== releaseApprovals.targetApprovals.length)
+    throw new Error("Release approval catalog contains duplicate targets");
 
 const internalTargets = new Map([
     ["add-cratis-docs-page", "cratis-engineering-docs-add-page"],
@@ -1108,6 +1124,18 @@ const targets = allTargetIds.map((targetId) => {
     const engineeringClassification =
         publicClassifications.get(targetId) ??
         engineeringClassifications.get(targetId);
+    const releaseApproval = targetApprovals.get(targetId);
+    const sourceRecord = sources.find(
+        (source) => source.id === sourceSkillIds[0],
+    );
+    if (
+        releaseApproval &&
+        (sourceSkillIds.length !== 1 ||
+            !sourceRecord ||
+            releaseApproval.sourceRevision !== sourceRecord.sourceRevision ||
+            releaseApproval.contentDigest !== sourceRecord.contentDigest)
+    )
+        throw new Error(`${targetId}: release approval source binding changed`);
     return {
         id: targetId,
         semanticName: targetId,
@@ -1123,7 +1151,7 @@ const targets = allTargetIds.map((targetId) => {
         capabilityKind:
             engineeringClassification?.capabilityKind ?? "unclassified",
         invocation: engineeringClassification?.invocation ?? "unclassified",
-        lifecycle: "candidate",
+        lifecycle: releaseApproval ? "approved" : "candidate",
         architectures:
             engineeringClassification?.architectures ??
             unclassifiedApplicability("Architecture"),
@@ -1237,13 +1265,22 @@ const targets = allTargetIds.map((targetId) => {
                   }
                 : { status: "missing", evidenceIds: [] },
         },
-        approval: { state: "candidate", evidenceIds: [] },
+        approval: releaseApproval
+            ? {
+                  state: "approved",
+                  reviewer: releaseApproval.reviewer,
+                  approvedOn: releaseApproval.approvedOn,
+                  sourceRevision: releaseApproval.sourceRevision,
+                  contentDigest: releaseApproval.contentDigest,
+                  evidenceIds: releaseApproval.evidenceIds,
+              }
+            : { state: "candidate", evidenceIds: [] },
         evidenceIds: [
             "repo-main-b795d53",
             "reevaluation-authority",
             ...(engineeringClassification?.evidenceIds ?? []),
         ],
-        includeInRuntime: false,
+        includeInRuntime: Boolean(releaseApproval),
     };
 });
 writeJson("targets.json", {
@@ -1313,6 +1350,29 @@ const publicTargetIds = targets
 const engineeringTargetIds = targets
     .filter((target) => target.audience === "cratis-engineering")
     .map((target) => target.id);
+const approvedPublicTargets = targets.filter(
+    (target) =>
+        target.audience === "public" &&
+        target.approval.state === "approved" &&
+        target.includeInRuntime,
+);
+const approvedEngineeringTargets = targets.filter(
+    (target) =>
+        target.audience === "cratis-engineering" &&
+        target.approval.state === "approved" &&
+        target.includeInRuntime,
+);
+const exactPathsForTargets = (approvedTargets) => [
+    ...new Set(
+        approvedTargets
+            .flatMap((target) => target.sourceSkillIds)
+            .flatMap(
+                (sourceId) =>
+                    sources.find((source) => source.id === sourceId)
+                        ?.bundledPaths ?? [],
+            ),
+    ),
+].sort(compareOrdinal);
 writeJson("artifacts.json", {
     schemaVersion: 2,
     defaultPolicy: "deny",
@@ -1336,10 +1396,10 @@ writeJson("artifacts.json", {
             id: "planned-passive-public-release",
             audience: "public",
             fixtureOnly: false,
-            materializationAllowed: false,
-            runtimeEligible: false,
+            materializationAllowed: approvedPublicTargets.length > 0,
+            runtimeEligible: approvedPublicTargets.length > 0,
             componentInventory: { skills: publicTargetIds, mcp: [] },
-            exactSourcePaths: [],
+            exactSourcePaths: exactPathsForTargets(approvedPublicTargets),
             allowedPathPatterns: [
                 "skills/<approved-target>/SKILL.md",
                 "skills/<approved-target>/references/**",
@@ -1372,10 +1432,12 @@ writeJson("artifacts.json", {
             id: "planned-passive-engineering-release",
             audience: "cratis-engineering",
             fixtureOnly: false,
-            materializationAllowed: false,
-            runtimeEligible: false,
+            materializationAllowed: approvedEngineeringTargets.length > 0,
+            runtimeEligible: approvedEngineeringTargets.length > 0,
             componentInventory: { skills: engineeringTargetIds, mcp: [] },
-            exactSourcePaths: [],
+            exactSourcePaths: exactPathsForTargets(
+                approvedEngineeringTargets,
+            ),
             allowedPathPatterns: [
                 "engineering/skills/<approved-target>/SKILL.md",
                 "engineering/skills/<approved-target>/references/**",
