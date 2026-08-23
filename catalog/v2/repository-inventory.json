@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "be1464a204db831fc0d13bc157cd34b35986a3635a0b58fa9c1c48b36a6270f9",
+  "indexDigest": "8532c6b9f324fbf1e362a84f9d43920381aeb03b6255e2f67ef8275fb2bcd7db",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -27,11 +27,23 @@
       "status": "modified"
     },
     {
+      "path": ".ai/rules/concepts.md",
+      "status": "modified"
+    },
+    {
       "path": ".ai/rules/general.md",
       "status": "modified"
     },
     {
       "path": ".ai/rules/managing-ai-rules.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/rules/vertical-slices.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/add-concept/SKILL.md",
       "status": "modified"
     },
     {
@@ -471,6 +483,10 @@
       "status": "added"
     },
     {
+      "path": "distribution/evidence/local-fundamentals-preview-assets-b53caa5-2026-08-23.json",
+      "status": "added"
+    },
+    {
       "path": "distribution/evidence/local-generated-repository-2026-08-22.json",
       "status": "added"
     },
@@ -480,6 +496,10 @@
     },
     {
       "path": "distribution/evidence/real-documentation-engineering-canary-2026-08-22.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/evidence/real-samples-fundamentals-preview-canary-2026-08-23.json",
       "status": "added"
     },
     {
@@ -2187,10 +2207,7 @@
       "status": "added"
     }
   ],
-  "admittedUntracked": [
-    "distribution/evidence/local-fundamentals-preview-assets-b53caa5-2026-08-23.json",
-    "distribution/evidence/real-samples-fundamentals-preview-canary-2026-08-23.json"
-  ],
+  "admittedUntracked": [],
   "excludedRuntimePrefixes": [
     ".pi/delegate/",
     ".pi/fusion/",
