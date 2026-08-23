@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "f9a0dc42b00ffcc2107b6a8ac5ccbb111f4298a7624640200a9cae400f7e5910",
+  "indexDigest": "8bb3136b8c75fd9f50b0a2b7df777d9aeb437e15cf9a24db002cb6bb90e769eb",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -440,6 +440,10 @@
     },
     {
       "path": "distribution/engineering-artifact-matrix.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/evidence/fundamentals-concept-source-review-2026-08-23.json",
       "status": "added"
     },
     {
@@ -2167,9 +2171,7 @@
       "status": "added"
     }
   ],
-  "admittedUntracked": [
-    "distribution/evidence/fundamentals-concept-source-review-2026-08-23.json"
-  ],
+  "admittedUntracked": [],
   "excludedRuntimePrefixes": [
     ".pi/delegate/",
     ".pi/fusion/",
