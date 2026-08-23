@@ -718,5 +718,8 @@ handover section 51.
   `woksin` and `einari`.
 - [ ] Complete AI#181 credentials/account/App/canary scope setup before merging
   the first release request.
+- [x] Add a deny-by-default release approval catalog and cross-validator so
+  profile, target, source-contract, artifact, and release request state can be
+  approved atomically in a release PR.
 - [ ] Add the first approved `distribution/releases/v0.1.0-preview.1.json`; its
   merge must automatically release and deploy without another Cratis approval.

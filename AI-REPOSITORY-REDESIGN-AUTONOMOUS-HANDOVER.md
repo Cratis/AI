@@ -2242,6 +2242,31 @@ controller authorization, marketplace accounts/initial listing reviews, and
 removal of redundant recurring environment reviewers. These are setup tasks,
 not per-release approvals.
 
+## 56. Data-driven release approvals — 2026-08-23
+
+`distribution/release-approvals.json` is the deny-by-default source for profile,
+target, and source-contract approvals included in a release PR. The normal
+catalog generator now applies exact target approvals from that file and enables
+planned public/engineering artifacts only when at least one approved runtime
+target exists. Approval source revision/digest must match the current immutable
+source record.
+
+`tooling/release-approval-validation.mjs` cross-checks approval records against
+generated targets, profile states, admitted source contracts, and known evidence.
+Direct edits to generated target catalogs cannot bypass the release approval
+record. Profile and source-contract approval states cannot be enabled without a
+matching reviewed record.
+
+This allows the first release PR to contain only reviewable data changes:
+
+- exact owner/source-contract admission;
+- exact profile and target approval;
+- one immutable release request.
+
+Merging that PR is both approval and release trigger. Current approval arrays
+and release request directory remain empty, so no release can happen before the
+one-time setup and explicit release PR.
+
 ## 55. Release PR is the single recurring release gate — 2026-08-23
 
 Maintainer direction replaces separate recurring publication, promotion, and
