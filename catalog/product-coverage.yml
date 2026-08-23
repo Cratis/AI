@@ -51,6 +51,12 @@
       "name": "Elixir",
       "supportStatus": "verification-required",
       "notes": "Do not add a public skill until the client repository, supported version, API, and toolchain are verified."
+    },
+    {
+      "id": "python",
+      "name": "Python",
+      "supportStatus": "verification-required",
+      "notes": "Do not add a public skill until Chronicle.Python, supported versions, APIs, async behavior, and toolchain are verified."
     }
   ],
   "products": [
@@ -379,6 +385,33 @@
             "elixir"
           ],
           "sourceSkills": []
+        },
+        {
+          "id": "typescript-client",
+          "status": "verification-required",
+          "languages": [
+            "typescript"
+          ],
+          "sourceSkills": [],
+          "notes": "Requires Chronicle.TypeScript-owned source and version evidence."
+        },
+        {
+          "id": "python-client",
+          "status": "verification-required",
+          "languages": [
+            "python"
+          ],
+          "sourceSkills": [],
+          "notes": "Requires Chronicle.Python-owned source and version evidence."
+        },
+        {
+          "id": "browser-workbench",
+          "status": "backlog",
+          "languages": [
+            "language-agnostic"
+          ],
+          "sourceSkills": [],
+          "notes": "Needs browser-first events, observers, failed partitions, read models, projected state, evidence capture, redaction, and support escalation guidance."
         }
       ]
     },
@@ -501,6 +534,15 @@
             "diagnose-slice",
             "inspect-running-chronicle"
           ]
+        },
+        {
+          "id": "terminal-workbench",
+          "status": "backlog",
+          "languages": [
+            "shell"
+          ],
+          "sourceSkills": [],
+          "notes": "Needs CLI-owned terminal Workbench discovery, read-only evidence capture, machine output, and separately confirmed recovery/administration guidance."
         }
       ]
     },
@@ -609,6 +651,153 @@
           "sourceSkills": [
             "add-ef-migration"
           ]
+        }
+      ]
+    },
+    {
+      "id": "lens",
+      "name": "Cratis Lens",
+      "capabilities": [
+        {
+          "id": "setup",
+          "status": "backlog",
+          "languages": [
+            "csharp",
+            "typescript"
+          ],
+          "sourceSkills": []
+        },
+        {
+          "id": "diagnostics-and-analysis",
+          "status": "backlog",
+          "languages": [
+            "csharp",
+            "typescript",
+            "language-agnostic"
+          ],
+          "sourceSkills": []
+        },
+        {
+          "id": "inspection-and-interpretation",
+          "status": "backlog",
+          "languages": [
+            "language-agnostic"
+          ],
+          "sourceSkills": []
+        }
+      ]
+    },
+    {
+      "id": "screenplay",
+      "name": "Cratis Screenplay",
+      "capabilities": [
+        {
+          "id": "model-authoring",
+          "status": "backlog",
+          "languages": [
+            "language-agnostic"
+          ],
+          "sourceSkills": []
+        },
+        {
+          "id": "compiler-and-diagnostics",
+          "status": "backlog",
+          "languages": [
+            "language-agnostic"
+          ],
+          "sourceSkills": []
+        },
+        {
+          "id": "editor-and-generation",
+          "status": "backlog",
+          "languages": [
+            "language-agnostic"
+          ],
+          "sourceSkills": []
+        }
+      ]
+    },
+    {
+      "id": "stage",
+      "name": "Cratis Stage",
+      "capabilities": [
+        {
+          "id": "runtime",
+          "status": "backlog",
+          "languages": [
+            "language-agnostic"
+          ],
+          "sourceSkills": []
+        },
+        {
+          "id": "executable-specifications",
+          "status": "backlog",
+          "languages": [
+            "language-agnostic"
+          ],
+          "sourceSkills": []
+        },
+        {
+          "id": "workbench-results-and-ci",
+          "status": "backlog",
+          "languages": [
+            "language-agnostic"
+          ],
+          "sourceSkills": []
+        }
+      ]
+    },
+    {
+      "id": "studio",
+      "name": "Cratis Studio",
+      "capabilities": [
+        {
+          "id": "public-onboarding-and-mcp",
+          "status": "backlog",
+          "languages": [
+            "language-agnostic"
+          ],
+          "sourceSkills": []
+        },
+        {
+          "id": "modeling-preparation",
+          "status": "backlog",
+          "languages": [
+            "language-agnostic"
+          ],
+          "sourceSkills": []
+        },
+        {
+          "id": "support-redaction-and-issue-preparation",
+          "status": "backlog",
+          "languages": [
+            "language-agnostic"
+          ],
+          "sourceSkills": [],
+          "notes": "Only public-safe behavior belongs in shared profiles; private Studio implementation remains repository-local."
+        }
+      ]
+    },
+    {
+      "id": "chronicle-mcp",
+      "name": "Chronicle MCP",
+      "capabilities": [
+        {
+          "id": "installation-and-selection",
+          "status": "backlog",
+          "languages": [
+            "language-agnostic"
+          ],
+          "sourceSkills": []
+        },
+        {
+          "id": "safe-use-and-interpretation",
+          "status": "backlog",
+          "languages": [
+            "language-agnostic"
+          ],
+          "sourceSkills": [],
+          "notes": "Cratis AI owns passive guidance; Chronicle.Mcp owns executable tools, schemas, credentials, and mutations."
         }
       ]
     },

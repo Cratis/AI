@@ -16,6 +16,7 @@
       { "id": "both", "name": "User or model invoked", "description": "Supports both explicit and model-selected invocation." }
     ],
     "products": [
+      { "id": "ai", "name": "Cratis AI", "description": "Shared Cratis AI authoring, profiles, evidence, and distribution workflows." },
       { "id": "application", "name": "Cratis application architecture", "description": "Composition guidance for applications built on Cratis products." },
       { "id": "arc", "name": "Cratis Arc", "description": "Arc backend commands, queries, validation, authorization, and integrations." },
       { "id": "arc-react", "name": "Arc React", "description": "Generated Arc React clients and observable frontend behavior." },
@@ -26,11 +27,15 @@
       { "id": "cross-product", "name": "Cross-product", "description": "Capabilities that apply across more than one Cratis product." },
       { "id": "cratis-engineering", "name": "Cratis engineering", "description": "Separately trusted contributor and maintainer behavior." },
       { "id": "entity-framework-core", "name": "Entity Framework Core", "description": "Arc and application EF Core integration." },
+      { "id": "documentation", "name": "Cratis Documentation", "description": "Cratis documentation authoring, integration, rendering, and quality workflows." },
       { "id": "fundamentals", "name": "Cratis Fundamentals", "description": "Strongly typed concepts and implementation discovery." },
+      { "id": "lens", "name": "Cratis Lens", "description": "Lens diagnostics, inspection, analysis, and interpretation workflows." },
       { "id": "screenplay", "name": "Cratis Screenplay", "description": "Model authoring, compilation, diagnostics, and editor workflows." },
       { "id": "specifications", "name": "Cratis Specifications", "description": "Specification by Example foundations and scenario families." },
       { "id": "stage", "name": "Cratis Stage", "description": "Model runtime, workbench, and executable specification workflows." },
-      { "id": "studio", "name": "Cratis Studio", "description": "Public Studio onboarding, modeling, support, and issue-preparation workflows." }
+      { "id": "stagehand", "name": "Cratis Stagehand", "description": "Public-safe Stagehand worker, scheduling, and control-plane contribution workflows." },
+      { "id": "studio", "name": "Cratis Studio", "description": "Public Studio onboarding, modeling, support, and issue-preparation workflows." },
+      { "id": "workflows", "name": "Cratis Workflows", "description": "Shared CI, release, fleet update, canary, and rollback workflows." }
     ],
     "languages": [
       { "id": "csharp", "name": "C#", "description": "C# and .NET-specific APIs and toolchains." },
@@ -39,6 +44,7 @@
       { "id": "kotlin", "name": "Kotlin", "description": "Kotlin and coroutine-specific APIs and toolchains." },
       { "id": "language-agnostic", "name": "Language agnostic", "description": "Conceptual behavior independent of a programming language." },
       { "id": "markdown", "name": "Markdown and Mermaid", "description": "Markdown documents and Mermaid models." },
+      { "id": "python", "name": "Python", "description": "Python-specific APIs, async behavior, and toolchains." },
       { "id": "react", "name": "React", "description": "React-specific application and component workflows." },
       { "id": "shell", "name": "Shell and HTTP", "description": "Terminal, shell, curl, and protocol-level workflows." },
       { "id": "typescript", "name": "TypeScript", "description": "TypeScript and Node-specific APIs and toolchains." }

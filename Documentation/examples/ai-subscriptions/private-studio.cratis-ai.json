@@ -3,7 +3,7 @@
   "channel": "cratis-engineering",
   "version": "1.0.0",
   "profiles": [
-    "engineering-chronicle"
+    "engineering-studio"
   ],
   "harnesses": [
     "claude",

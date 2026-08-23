@@ -1,9 +1,9 @@
 {
   "schemaVersion": "1.0.0",
-  "channel": "cratis-engineering",
+  "channel": "public",
   "version": "1.0.0",
   "profiles": [
-    "engineering-chronicle"
+    "public-chronicle-client-kotlin"
   ],
   "harnesses": [
     "claude",

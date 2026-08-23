@@ -2107,7 +2107,23 @@
       "status": "added"
     }
   ],
-  "admittedUntracked": [],
+  "admittedUntracked": [
+    "Documentation/adopting-cratis-ai-for-maintainers.md",
+    "Documentation/adopting-cratis-ai.md",
+    "Documentation/examples/ai-subscriptions/arc-only-application.cratis-ai.json",
+    "Documentation/examples/ai-subscriptions/arc-react-components.cratis-ai.json",
+    "Documentation/examples/ai-subscriptions/chronicle-kotlin-client.cratis-ai.json",
+    "Documentation/examples/ai-subscriptions/private-studio.cratis-ai.json",
+    "Documentation/examples/ai-subscriptions/specifications-library.cratis-ai.json",
+    "Documentation/examples/private-repository-overlay/.agents/skills/studio-local-release/SKILL.md",
+    "Documentation/examples/private-repository-overlay/.cratis/PROJECT.md",
+    "Documentation/examples/private-repository-overlay/.cratis/ai.json",
+    "Documentation/examples/private-repository-overlay/.pi/settings.json",
+    "Documentation/examples/private-repository-overlay/AGENTS.md",
+    "Documentation/examples/private-repository-overlay/README.md",
+    "Documentation/private-repository-overlays.md",
+    "Documentation/profile-reference.md"
+  ],
   "excludedRuntimePrefixes": [
     ".pi/delegate/",
     ".pi/fusion/",
@@ -2898,8 +2914,13 @@
       "id": "redesign-decision-documents",
       "sourcePathPatterns": [
         "AI-REPOSITORY-REDESIGN-*.md",
+        "Documentation/adopting-cratis-ai.md",
+        "Documentation/adopting-cratis-ai-for-maintainers.md",
         "Documentation/ai-distribution-and-subscriptions.md",
+        "Documentation/private-repository-overlays.md",
+        "Documentation/profile-reference.md",
         "Documentation/examples/ai-subscriptions/**",
+        "Documentation/examples/private-repository-overlay/**",
         "Documentation/phase-0-verification.md",
         "Documentation/public-product-architecture.md",
         "Documentation/skill-classification-audit.md",
@@ -2923,8 +2944,8 @@
         "workflows-68",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 23,
-      "expectedPathsDigest": "8bcfe69caab9977abea3ae57d37bc98ed0f47fa3b9323e3e678b5f0fa26a6760"
+      "expectedPathCount": 38,
+      "expectedPathsDigest": "bfb48a98e704ad38e22b58bfd5b137c059fd4b114fcf9dff382741e613b47964"
     },
     {
       "excludePathPatterns": [],

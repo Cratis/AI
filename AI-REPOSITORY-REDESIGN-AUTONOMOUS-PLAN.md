@@ -661,3 +661,23 @@ handover section 51.
   keep Cursor/Kiro/Junie structural and DeepSeek preview labels until reverified.
 - [ ] Keep companion corrective evaluation, broad legacy migration, publication,
   promotion, and retirement off the first-release critical path.
+
+### 2026-08-23 — Public-safe engineering adoption model
+
+- [x] Accept public-safe shared engineering packages plus private
+  repository-local overlays; do not create a confidential shared package by
+  default.
+- [x] Make `engineering-` an audience marker, require public visibility and no
+  confidential content, and keep private facts/skills under project ownership.
+- [x] Expand the profile catalog to cover Arc EF Core/React, client languages,
+  CLI/terminal Workbench, Chronicle browser Workbench, Lens, Screenplay, Stage,
+  Studio, Chronicle MCP, identity, compliance, multi-tenancy, Specifications,
+  and Arc-only/Chronicle-only/composed applications.
+- [x] Add developer, maintainer, private-overlay, and complete profile-reference
+  documentation with validated subscription and local overlay examples.
+- [x] Extend product coverage to Lens, Screenplay, Stage, Studio, Chronicle MCP,
+  TypeScript/Python clients, and Python language tracking without support claims.
+- [ ] Obtain owners and authoritative sources incrementally through AI#165;
+  retain content/authority gaps rather than synthesize product behavior.
+- [ ] Migrate the existing 39 legacy skill sources by product family after the
+  first Fundamentals release candidate is approved and canaried.
