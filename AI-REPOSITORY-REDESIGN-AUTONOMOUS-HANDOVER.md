@@ -1931,3 +1931,101 @@ later protected publication unit archives or publishes each harness root and
 runs exact remote lifecycle commands. Production code now exists; organizational
 approval, credentials, release-asset publication, and the real public canary
 remain blockers.
+
+## 51. Authoritative post-#168 delivery checkpoint — 2026-08-23
+
+This section supersedes stale unchecked historical ledger items for current
+execution state.
+
+### Repository state
+
+- canonical remote main: `ee905994f6a6278b72241a07e31c54bec84f1b41`;
+- worktree: `/Volumes/sourcecode/repos/cratis/AI-review-pilot`;
+- intentional checkpoint branch: `chore/post-168-authoritative-checkpoint`;
+- divergence from `origin/main`: `0/0` when reconciled;
+- open `Cratis/AI` pull requests: none;
+- primary `/Volumes/sourcecode/repos/cratis/AI` worktree remains on historical
+  local `main` at `b795d5307e20f7f7458a67708b4f26975e223796` and must not be reset;
+- one inherited unstaged diff in
+  `tooling/passive-profile-adapters.mjs` is formatter-only. It belongs to the
+  merged production materializer and will be preserved deliberately, not
+  discarded.
+
+Hosted main verification passed for materializer merge `0675633` at
+`https://github.com/Cratis/AI/actions/runs/32609491793` and for Pi documentation
+merge `ee90599` at
+`https://github.com/Cratis/AI/actions/runs/32609687681`.
+
+### Current statistics
+
+| Area | Current count/state |
+| --- | --- |
+| Skill source identities | 43 total: 35 public, 8 Cratis engineering |
+| Canonical sources | 1 public, 3 engineering |
+| Legacy `.ai/skills` sources | 39 remain to reconcile; none were deleted |
+| Targets | 43 candidate, 0 approved, 0 runtime-enabled |
+| Classified targets | 3 |
+| Security-accepted targets | 0 |
+| Bundles | 6 draft, 0 publishable |
+| Profiles | 5 public + 11 engineering, 0 approved |
+| Materializable artifacts | 2 fixture/preview artifacts only |
+| Runtime-eligible artifacts | 0 |
+| Supported published packages | 0 |
+
+The 39 legacy sources are useful migration inputs, not package bytes. The next
+release candidate remains `public-fundamentals` with exactly
+`cratis-fundamentals-concept`, pending AI#148 and AI#165. The next internal
+candidate remains `engineering-documentation` with docs-authoring only, pending
+AI#154; add/edit companions remain excluded.
+
+### Distribution and credentials
+
+- `Cratis/AI.Distribution` is public, initialized, secret-scanned,
+  push-protected, and has protected `main` with one required approval;
+- it still contains fixture-only generated state and is not an installation
+  target;
+- no repository or protected-environment distribution App secrets are present;
+- update-bot state is `WORKFLOW_READY_CREDENTIALS_MISSING`;
+- npm is not authenticated locally, package ownership is unconfirmed, and
+  trusted publishing is disabled;
+- publication, promotion, production canary, and legacy retirement remain
+  false.
+
+### Live external blockers
+
+- AI#148 — first public target/source approval; assigned to `einari` and
+  `woksin`;
+- AI#165 — profile owners and source authority; assigned to both;
+- AI#154 — internal docs-authoring owner approval; assigned to both;
+- Workflows#72 — repository-scoped distribution App; assigned to both;
+- Workflows#70 — npm ownership/trusted publishing; assigned to both;
+- Workflows#71 — real public consumer lifecycle canary; assigned to both;
+- AI#147 — reviewed marketplace submissions; now assigned to both;
+- Stagehand#39 was closed `NOT_PLANNED` with no implementation evidence;
+- Workflows#73 now owns the subscriber update PR controller follow-up, consistent
+  with Workflows ownership of fleet distribution, canaries, pins, and rollback.
+  It is assigned to `einari` and `woksin` and remains unimplemented.
+
+Deferred/non-critical state remains: companion corrective evaluation is outside
+the first release; Cursor/Kiro/Junie are structurally validated but await real
+host lifecycle evidence; DeepSeek Harness remains preview and must be
+reverified before stable support.
+
+### Verification and exact resume actions
+
+Fresh post-reconciliation evidence is 260/260 specs, deterministic catalog and
+inventory generation, clean catalog/profile/source/evaluation validation, clean
+corpus validation, 17 Markdown files lint-clean, 25 links passing, and clean
+diff. This includes the preserved formatter-only materializer change.
+
+Resume in this order:
+
+1. commit this checkpoint plus the formatter-only diff on the intentional branch;
+2. run the complete main verification suite and merge the checkpoint PR;
+3. verify AI#148/AI#165 for approval; do not self-grant it;
+4. if still blocked, make the smallest useful release immediately executable by
+   producing deterministic local per-harness release-asset staging from the
+   preview without calling it approved or publishable;
+5. resolve subscriber-update ownership after Stagehand#39 closure;
+6. proceed to protected App/npm/canary/publication only when the corresponding
+   external gates are actually satisfied.
