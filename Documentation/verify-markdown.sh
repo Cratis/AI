@@ -27,13 +27,14 @@ echo "Step 1: Running markdownlint..."
 echo "=========================================="
 echo ""
 
-if ! command -v npx &> /dev/null; then
+if ! command -v npx &>/dev/null; then
     echo "Error: npx is not installed. Please install Node.js and npm."
     exit 1
 fi
 
-npx markdownlint-cli2 "Documentation/**/*.md"
-LINT_EXIT_CODE=$?
+LINT_EXIT_CODE=0
+npx markdownlint-cli2 --config Documentation/.markdownlint.json \
+    "Documentation/**/*.md" || LINT_EXIT_CODE=$?
 
 echo ""
 if [ $LINT_EXIT_CODE -eq 0 ]; then
@@ -51,8 +52,10 @@ echo ""
 echo "This may take a few minutes to check all links..."
 echo ""
 
-npx linkinator "Documentation/**/*.md" --markdown --recurse --verbosity error --status-code "403:ok" --timeout 10000 --skip "^(https?:\\/\\/)?(localhost|127\\.0\\.0\\.1)(:\\d+)?(\\/|$)"
-LINK_EXIT_CODE=$?
+LINK_EXIT_CODE=0
+npx linkinator "Documentation/**/*.md" --markdown --recurse \
+    --verbosity error --status-code "403:ok" --timeout 10000 \
+    --skip "^(https?:\\/\\/)?(localhost|127\\.0\\.1)(:\\d+)?(\\/|$)" || LINK_EXIT_CODE=$?
 
 echo ""
 if [ $LINK_EXIT_CODE -eq 0 ]; then

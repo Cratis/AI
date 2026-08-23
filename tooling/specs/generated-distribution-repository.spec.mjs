@@ -81,6 +81,32 @@ test("generated repository contract keeps remote authority and production blocke
         "ABSENT_PENDING_PR_RELEASE_BOT",
     );
     assert.equal(contract.productionMaterialization.enabled, false);
+    assert.equal(
+        contract.productionMaterialization.artifactTopology,
+        "one-profile-one-harness-root-asset",
+    );
+    assert.equal(
+        contract.productionMaterialization.profileCatalog,
+        "distribution/profile-catalog.json",
+    );
+    assert.equal(
+        contract.productionMaterialization.subscriptionFile,
+        ".cratis/ai.json",
+    );
+    assert.equal(
+        contract.productionMaterialization.requiresVerifiedSourceContracts,
+        true,
+    );
+    assert.deepEqual(
+        contract.productionMaterialization.requiredLifecycleEvidence,
+        [
+            "install",
+            "update",
+            "rollback",
+            "uninstall",
+            "project context preservation",
+        ],
+    );
     assert.equal(contract.publicationEligible, false);
     assert.equal(contract.promotionEligible, false);
     assert.equal(contract.legacyRetirementEligible, false);

@@ -1,11 +1,14 @@
 {
   "schemaVersion": "1.0.0",
   "observedAt": "2026-08-22",
-  "sourceCommit": null,
-  "sourceWorktreeBase": "00828efb80ac93b274c8a3bee7c844fdea19b4fb",
+  "sourceCommit": "e9d161a70e25334bb468a33240bcf00f03f87522",
+  "sourceWorktreeBase": "e9d161a70e25334bb468a33240bcf00f03f87522",
   "state": "FIXTURE_ONLY_ROLLOUT_SIMULATION",
   "candidate": {
-    "artifactId": "sanitized-public-materializer-fixture",
+    "artifactId": "cratis-fundamentals-concept-preview",
+    "sourcePath": "skills/cratis-fundamentals-concept",
+    "manifestSha256": "3bbefa355a20afd48aca800a8c9b9057cd85550a659c687195475c4d99d55a8c",
+    "provenanceSha256": "05512cfdf85418efe524586c61362ee06b1568b13a08db33295cc90e3e035113",
     "status": "PASS",
     "publicationEligible": false,
     "promotionEligible": false

@@ -26,7 +26,7 @@ The Orchestrator does **not** write code or documentation itself. Every concrete
 Use the Orchestrator when your goal spans **more than one type of work**:
 
 | Scenario | Use |
-|---|---|
+| --- | --- |
 | Implement a feature **and** document it | `orchestrator` |
 | Implement multiple independent features in parallel | `orchestrator` |
 | Implement a feature, write specs, review, and document | `orchestrator` |
@@ -43,7 +43,7 @@ If you are unsure, use the Orchestrator — it will route you to the right sub-a
 The Orchestrator coordinates this team of specialists:
 
 | Agent | Role |
-|---|---|
+| --- | --- |
 | `coordinator` | Cross-cutting implementation — backend + frontend + reviews across multiple concerns |
 | `planner` | Vertical slice implementation — sequences backend → build → frontend → specs |
 | `backend-developer` | C# slice files — commands, events, validators, projections, reactors |
@@ -100,6 +100,7 @@ Phase 5: Documentation (references the completed, reviewed implementation)
 ```
 
 **Key rules:**
+
 - Frontend and backend for the **same slice** are never parallel (frontend depends on generated proxies).
 - Independent slices (no shared events) can have their backends run in parallel.
 - Documentation of new features must wait until the implementation is reviewed.
@@ -111,12 +112,13 @@ Phase 5: Documentation (references the completed, reviewed implementation)
 All three agents decompose work and delegate — but at different levels:
 
 | Agent | Scope | Delegates to |
-|---|---|---|
+| --- | --- | --- |
 | `orchestrator` | Any goal — implementation, docs, reviews, refactoring | `coordinator`, `planner`, `code-reviewer`, `security-reviewer`, specialist agents |
 | `coordinator` | Implementation — backend + frontend + reviews | `backend-developer`, `frontend-developer`, `spec-writer`, `code-reviewer` |
 | `planner` | Vertical slices only — one or more slices end-to-end | `backend-developer`, `frontend-developer`, `spec-writer`, `code-reviewer` |
 
 Choose the **most specific** agent that fits the goal:
+
 - Vertical slices only → `planner`
 - Implementation across concerns → `coordinator`
 - Everything else → `orchestrator`
@@ -159,4 +161,5 @@ security-reviewer ┘
 Both reviewers run in parallel. The goal is **not done** until both approve. If either finds blocking issues, the relevant specialist agent is re-engaged to fix them, then the reviewers run again.
 
 Optional quality gate:
+
 - `performance-reviewer` — use when the implementation touches Chronicle projections, MongoDB queries, or compute-intensive React rendering.

@@ -83,7 +83,13 @@ function manifestFile(root, path) {
     return { path, sha256: sha256(content), size: content.length };
 }
 
-function assertConfiguration(requirements, matrix) {
+function assertConfiguration(
+    requirements,
+    matrix,
+    artifacts,
+    sources,
+    repositoryRoot,
+) {
     if (
         requirements.schemaVersion !== "1.0.0" ||
         matrix.schemaVersion !== "1.0.0"
@@ -128,6 +134,43 @@ function assertConfiguration(requirements, matrix) {
             .some((target) => target.outputRoot !== null)
     )
         throw new Error("Blocked targets must not receive output roots");
+    const artifact = artifacts.find(
+        (candidate) => candidate.id === matrix.canonicalSource.artifactId,
+    );
+    const source = sources.find((candidate) => candidate.id === "add-concept");
+    if (
+        !artifact ||
+        artifact.fixtureOnly !== true ||
+        artifact.materializationAllowed !== true ||
+        artifact.runtimeEligible !== false ||
+        JSON.stringify(artifact.exactSourcePaths) !==
+            JSON.stringify(approvedFiles) ||
+        !source ||
+        source.sourcePath !== "skills/cratis-fundamentals-concept" ||
+        JSON.stringify(source.bundledPaths) !== JSON.stringify(approvedFiles) ||
+        !/^[0-9a-f]{40}$/.test(source.sourceRevision)
+    )
+        throw new Error("Public fixture artifact authority is inconsistent");
+    for (const path of approvedFiles) {
+        const current = readFileSync(join(repositoryRoot, path));
+        let immutable;
+        try {
+            immutable = execFileSync(
+                "git",
+                ["show", `${source.sourceRevision}:${path}`],
+                { cwd: repositoryRoot },
+            );
+        } catch (error) {
+            throw new Error(`Unable to read immutable public source: ${path}`, {
+                cause: error,
+            });
+        }
+        if (!current.equals(immutable))
+            throw new Error(
+                `Public fixture source drifted from revision: ${path}`,
+            );
+    }
+    return { artifact, source };
 }
 
 export function validateDistributionConfiguration(
@@ -140,7 +183,19 @@ export function validateDistributionConfiguration(
         const matrix = readJson(
             join(repositoryRoot, "distribution/artifact-matrix.json"),
         );
-        assertConfiguration(requirements, matrix);
+        const artifacts = readJson(
+            join(repositoryRoot, "catalog/v2/artifacts.json"),
+        ).artifacts;
+        const sources = readJson(
+            join(repositoryRoot, "catalog/v2/sources.json"),
+        ).sources;
+        assertConfiguration(
+            requirements,
+            matrix,
+            artifacts,
+            sources,
+            repositoryRoot,
+        );
         return [];
     } catch (error) {
         return [
@@ -170,7 +225,19 @@ export function generateDistributionFixture({
     );
     const requirements = readJson(requirementsPath);
     const matrix = readJson(matrixPath);
-    assertConfiguration(requirements, matrix);
+    const artifacts = readJson(
+        join(repositoryRoot, "catalog/v2/artifacts.json"),
+    ).artifacts;
+    const sources = readJson(
+        join(repositoryRoot, "catalog/v2/sources.json"),
+    ).sources;
+    const { source } = assertConfiguration(
+        requirements,
+        matrix,
+        artifacts,
+        sources,
+        repositoryRoot,
+    );
 
     mkdirSync(root, { recursive: false });
     try {
@@ -359,7 +426,9 @@ export function generateDistributionFixture({
             state: "FIXTURE_ONLY_NOT_AN_ATTESTATION",
             canonicalRepository: "Cratis/AI",
             sourceArtifactId: matrix.canonicalSource.artifactId,
-            sourceRevision: null,
+            sourceRevision: source.sourceRevision,
+            sourcePath: source.sourcePath,
+            sourceContentDigest: source.contentDigest,
             generator: "tooling/generate-distribution-fixture.mjs",
             version,
             requirementsSha256: sha256(readFileSync(requirementsPath)),

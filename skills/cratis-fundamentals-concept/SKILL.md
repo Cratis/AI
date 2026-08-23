@@ -42,7 +42,32 @@ public record <ConceptName>(<UnderlyingType> Value) : ConceptAs<<UnderlyingType>
 }
 ```
 
-## Event-source identity
+## Guid-backed event-source identity
+
+Use this template only when the underlying identity type is `Guid`.
+
+```csharp
+using Cratis.Chronicle.Events;
+
+namespace <NamespaceRoot>.<Feature>;
+
+/// <summary>
+/// Represents the identity of a <description>.
+/// </summary>
+/// <param name="Value">The underlying Guid value.</param>
+public record <ConceptName>(Guid Value) : EventSourceId<Guid>(Value)
+{
+    public static readonly <ConceptName> NotSet = new(Guid.Empty);
+    public static <ConceptName> New() => new(Guid.NewGuid());
+    public static implicit operator <ConceptName>(Guid value) => new(value);
+}
+```
+
+## Non-Guid event-source identity
+
+For string, integer, or other identity primitives, do not call `Guid.NewGuid()`.
+Expose a typed factory only when the domain has a valid way to create that
+primitive.
 
 ```csharp
 using Cratis.Chronicle.Events;
@@ -56,7 +81,6 @@ namespace <NamespaceRoot>.<Feature>;
 public record <ConceptName>(<UnderlyingType> Value) : EventSourceId<<UnderlyingType>>(Value)
 {
     public static readonly <ConceptName> NotSet = new(<emptyValue>);
-    public static <ConceptName> New() => new(Guid.NewGuid());
     public static implicit operator <ConceptName>(<UnderlyingType> value) => new(value);
 }
 ```
@@ -81,7 +105,7 @@ Place the concept with the feature that owns its meaning rather than in a generi
 - The type derives from `ConceptAs<T>` or `EventSourceId<T>` as appropriate.
 - It has a `static readonly NotSet` or semantically equivalent sentinel.
 - It has an implicit conversion from the primitive.
-- A `Guid`-backed identity has a typed `New()` factory.
+- A `Guid`-backed identity has a typed `New()` factory; non-Guid identities use only a domain-valid factory.
 - An identity does not duplicate conversions supplied by `EventSourceId<T>`.
 - The file carries the repository license header.
 - `dotnet build` passes.

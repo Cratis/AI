@@ -46,8 +46,8 @@ const sourceOverrides = new Map([
         "add-concept",
         {
             sourcePath: "skills/cratis-fundamentals-concept",
-            sourceRevision: "422ec8eebc198f9c25c28831a94623a3d4432fea",
-            evidenceId: "public-fundamentals-concept-source-422ec8e",
+            sourceRevision: "e9d161a70e25334bb468a33240bcf00f03f87522",
+            evidenceId: "public-fundamentals-concept-source-e9d161a",
         },
     ],
     [
@@ -1320,23 +1320,24 @@ writeJson("artifacts.json", {
             ],
         },
         {
-            id: "sanitized-public-materializer-fixture",
+            id: "cratis-fundamentals-concept-preview",
             audience: "test-fixture",
             fixtureOnly: true,
             materializationAllowed: true,
             runtimeEligible: false,
-            componentInventory: { skills: ["cratis-example"], mcp: [] },
+            componentInventory: {
+                skills: ["cratis-fundamentals-concept"],
+                mcp: [],
+            },
             exactSourcePaths: [
-                "tooling/fixtures/public-artifact/valid-source/skills/cratis-example/LICENSE",
-                "tooling/fixtures/public-artifact/valid-source/skills/cratis-example/SKILL.md",
-                "tooling/fixtures/public-artifact/valid-source/skills/cratis-example/assets/example.txt",
-                "tooling/fixtures/public-artifact/valid-source/skills/cratis-example/references/guide.md",
+                "skills/cratis-fundamentals-concept/LICENSE",
+                "skills/cratis-fundamentals-concept/SKILL.md",
             ],
             allowedPathPatterns: [
-                "skills/cratis-example/SKILL.md",
-                "skills/cratis-example/references/**",
-                "skills/cratis-example/assets/**",
-                "skills/cratis-example/LICENSE*",
+                "skills/cratis-fundamentals-concept/SKILL.md",
+                "skills/cratis-fundamentals-concept/references/**",
+                "skills/cratis-fundamentals-concept/assets/**",
+                "skills/cratis-fundamentals-concept/LICENSE*",
             ],
             forbiddenPathPatterns: [
                 "engineering/**",
@@ -1354,7 +1355,10 @@ writeJson("artifacts.json", {
                 ".git/**",
             ],
             requiresApprovedTargets: false,
-            evidenceIds: ["reevaluation-authority"],
+            evidenceIds: [
+                "reevaluation-authority",
+                "public-fundamentals-concept-source-e9d161a",
+            ],
         },
     ],
 });
@@ -1407,15 +1411,15 @@ const evidence = [
         immutableRevision: revision,
     },
     {
-        id: "public-fundamentals-concept-source-422ec8e",
+        id: "public-fundamentals-concept-source-e9d161a",
         officialUrl:
-            "https://github.com/Cratis/AI/tree/422ec8eebc198f9c25c28831a94623a3d4432fea/skills/cratis-fundamentals-concept",
+            "https://github.com/Cratis/AI/tree/e9d161a70e25334bb468a33240bcf00f03f87522/skills/cratis-fundamentals-concept",
         sourceKind: "repository-snapshot",
         verifiedOn: "2026-08-22",
         expiresOn: "2027-08-22",
-        applicableVersion: "422ec8eebc198f9c25c28831a94623a3d4432fea",
+        applicableVersion: "e9d161a70e25334bb468a33240bcf00f03f87522",
         confidence: "high",
-        immutableRevision: "422ec8eebc198f9c25c28831a94623a3d4432fea",
+        immutableRevision: "e9d161a70e25334bb468a33240bcf00f03f87522",
     },
     {
         id: "engineering-docs-add-page-source-684d037",

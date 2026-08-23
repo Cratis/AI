@@ -1,0 +1,180 @@
+{
+  "schemaVersion": "1.0.0",
+  "state": "DESIGNED_RELEASES_NOT_YET_PUBLISHED",
+  "sourceRepository": "https://github.com/Cratis/AI",
+  "generatedRepository": "https://github.com/Cratis/AI.Distribution",
+  "versioning": {
+    "strategy": "semver",
+    "releaseTrain": "atomic",
+    "exactPinsRequired": true,
+    "floatingVersionsAllowed": false,
+    "updateMechanism": "reviewed-pull-request"
+  },
+  "authority": {
+    "sharedBehaviorOwner": "Cratis/AI",
+    "productFactOwner": "owning Cratis product repository",
+    "projectContextOwner": "consuming repository",
+    "generatedArtifactOwner": "Cratis/AI.Distribution",
+    "directGeneratedEditsAllowed": false,
+    "automaticReverseSyncAllowed": false
+  },
+  "publicProfiles": [
+    {
+      "id": "public-fundamentals",
+      "packageName": "@cratis/ai-fundamentals",
+      "products": ["fundamentals"],
+      "state": "preview-source-candidate",
+      "availableTargets": ["cratis-fundamentals-concept"],
+      "gapSummary": "Type discovery remains a legacy candidate."
+    },
+    {
+      "id": "public-arc",
+      "packageName": "@cratis/ai-arc",
+      "products": ["arc", "arc-react"],
+      "state": "planned",
+      "availableTargets": [],
+      "gapSummary": "Commands, queries, validation, authorization, generated proxies, and React/MVVM journeys require canonical sources."
+    },
+    {
+      "id": "public-chronicle",
+      "packageName": "@cratis/ai-chronicle",
+      "products": ["chronicle"],
+      "state": "planned",
+      "availableTargets": [],
+      "gapSummary": "Core .NET, compliance, operations, and client-language journeys require canonical sources."
+    },
+    {
+      "id": "public-components",
+      "packageName": "@cratis/ai-components",
+      "products": ["components"],
+      "state": "planned",
+      "availableTargets": [],
+      "gapSummary": "Forms, dialogs, DataPage, tables, and styling journeys require canonical sources."
+    },
+    {
+      "id": "public-application",
+      "packageName": "@cratis/ai-application",
+      "products": ["fundamentals", "arc", "chronicle", "components"],
+      "state": "planned-composition",
+      "composes": [
+        "public-fundamentals",
+        "public-arc",
+        "public-chronicle",
+        "public-components"
+      ],
+      "availableTargets": [],
+      "gapSummary": "The end-to-end application profile becomes publishable only after its component profiles have approved targets."
+    }
+  ],
+  "engineeringProfiles": [
+    {
+      "id": "engineering-base",
+      "packageName": "@cratis/ai-engineering-base",
+      "repositoryKinds": ["application", "framework", "client", "documentation", "corpus"],
+      "products": [],
+      "state": "planned",
+      "gapSummary": "Universal C#/TypeScript/spec/review behavior must be reconciled into a passive profile skill."
+    },
+    {
+      "id": "engineering-application",
+      "packageName": "@cratis/ai-engineering-application",
+      "repositoryKinds": ["application"],
+      "products": ["fundamentals", "arc", "chronicle", "components"],
+      "state": "planned",
+      "composes": ["engineering-base"]
+    },
+    {
+      "id": "engineering-framework-fundamentals",
+      "packageName": "@cratis/ai-engineering-fundamentals",
+      "repositoryKinds": ["framework"],
+      "products": ["fundamentals"],
+      "state": "planned",
+      "composes": ["engineering-base"]
+    },
+    {
+      "id": "engineering-framework-arc",
+      "packageName": "@cratis/ai-engineering-arc",
+      "repositoryKinds": ["framework"],
+      "products": ["arc", "arc-react"],
+      "state": "planned",
+      "composes": ["engineering-base"]
+    },
+    {
+      "id": "engineering-framework-chronicle",
+      "packageName": "@cratis/ai-engineering-chronicle",
+      "repositoryKinds": ["framework"],
+      "products": ["chronicle"],
+      "state": "planned",
+      "composes": ["engineering-base"]
+    },
+    {
+      "id": "engineering-framework-components",
+      "packageName": "@cratis/ai-engineering-components",
+      "repositoryKinds": ["framework"],
+      "products": ["components"],
+      "state": "planned",
+      "composes": ["engineering-base"]
+    },
+    {
+      "id": "engineering-studio",
+      "packageName": "@cratis/ai-engineering-studio",
+      "repositoryKinds": ["application", "framework"],
+      "products": ["studio"],
+      "state": "content-gap",
+      "composes": ["engineering-base"]
+    },
+    {
+      "id": "engineering-stagehand",
+      "packageName": "@cratis/ai-engineering-stagehand",
+      "repositoryKinds": ["framework", "corpus"],
+      "products": ["stagehand"],
+      "state": "content-gap",
+      "composes": ["engineering-base"]
+    },
+    {
+      "id": "engineering-client",
+      "packageName": "@cratis/ai-engineering-clients",
+      "repositoryKinds": ["client"],
+      "products": ["chronicle-clients"],
+      "state": "content-gap",
+      "composes": ["engineering-base"]
+    },
+    {
+      "id": "engineering-documentation",
+      "packageName": "@cratis/ai-engineering-documentation",
+      "repositoryKinds": ["documentation"],
+      "products": ["documentation"],
+      "state": "owner-review-pending",
+      "availableTargets": ["cratis-engineering-docs-authoring"],
+      "composes": ["engineering-base"]
+    },
+    {
+      "id": "engineering-corpus",
+      "packageName": "@cratis/ai-engineering-corpus",
+      "repositoryKinds": ["corpus"],
+      "products": ["ai", "workflows"],
+      "state": "planned",
+      "composes": ["engineering-base"]
+    }
+  ],
+  "subscription": {
+    "projectFile": ".cratis/ai.json",
+    "projectOwned": true,
+    "packageWritesProjectContext": false,
+    "profileSelectionRequired": true,
+    "exactVersionRequired": true
+  },
+  "contributionFlow": {
+    "consumerRepositoriesPublishPackages": false,
+    "consumerRepositoriesPushGeneratedBytes": false,
+    "improvementPath": "source repository issue or pull request to Cratis/AI",
+    "requiredEvidence": [
+      "originating repository",
+      "immutable source revision",
+      "affected profiles and products",
+      "behavior or authority evidence",
+      "migration and compatibility impact"
+    ],
+    "downstreamDelivery": "new immutable release followed by reviewed subscriber update pull requests"
+  }
+}

@@ -193,28 +193,26 @@
       ]
     },
     {
-      "id": "sanitized-public-materializer-fixture",
+      "id": "cratis-fundamentals-concept-preview",
       "audience": "test-fixture",
       "fixtureOnly": true,
       "materializationAllowed": true,
       "runtimeEligible": false,
       "componentInventory": {
         "skills": [
-          "cratis-example"
+          "cratis-fundamentals-concept"
         ],
         "mcp": []
       },
       "exactSourcePaths": [
-        "tooling/fixtures/public-artifact/valid-source/skills/cratis-example/LICENSE",
-        "tooling/fixtures/public-artifact/valid-source/skills/cratis-example/SKILL.md",
-        "tooling/fixtures/public-artifact/valid-source/skills/cratis-example/assets/example.txt",
-        "tooling/fixtures/public-artifact/valid-source/skills/cratis-example/references/guide.md"
+        "skills/cratis-fundamentals-concept/LICENSE",
+        "skills/cratis-fundamentals-concept/SKILL.md"
       ],
       "allowedPathPatterns": [
-        "skills/cratis-example/SKILL.md",
-        "skills/cratis-example/references/**",
-        "skills/cratis-example/assets/**",
-        "skills/cratis-example/LICENSE*"
+        "skills/cratis-fundamentals-concept/SKILL.md",
+        "skills/cratis-fundamentals-concept/references/**",
+        "skills/cratis-fundamentals-concept/assets/**",
+        "skills/cratis-fundamentals-concept/LICENSE*"
       ],
       "forbiddenPathPatterns": [
         "engineering/**",
@@ -233,7 +231,8 @@
       ],
       "requiresApprovedTargets": false,
       "evidenceIds": [
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "public-fundamentals-concept-source-e9d161a"
       ]
     }
   ]

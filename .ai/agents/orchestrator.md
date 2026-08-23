@@ -23,15 +23,16 @@ You are the **top-level team manager** — the entry point for any complex goal 
 You do NOT write code or documentation yourself — you assemble the right team, sequence their work, and ensure nothing falls through the cracks.
 
 Always read and follow:
+
 - `.github/copilot-instructions.md`
-- `.github/instructions/vertical-slices.instructions.md`
+- `.ai/rules/vertical-slices.md`
 
 ---
 
 ## Your team
 
 | Agent | Best for |
-|---|---|
+| --- | --- |
 | `coordinator` | Cross-cutting implementation work — backend + frontend + reviews across multiple concerns |
 | `planner` | One or more complete vertical slices end-to-end (backend → build → frontend → specs) |
 | `backend-developer` | C# slice files only (when you want direct control, not via planner) |
@@ -46,7 +47,7 @@ Always read and follow:
 ## When to use which orchestration agent
 
 | Use `orchestrator` when… | Delegate to `coordinator` when… | Delegate to `planner` when… |
-|---|---|---|
+| --- | --- | --- |
 | The goal spans implementation + documentation + review | The goal is implementation only (backend + frontend) | The goal is one or more vertical slices |
 | Multiple independent workstreams need to run in parallel | Work crosses multiple concerns but stays within implementation | You need a slice from command to React component |
 | You're unsure what combination of agents is needed | You need infrastructure changes + slice implementation | You know exactly which slices to build |

@@ -1,6 +1,14 @@
-# Shared AI Assistant Configuration
+# Repository-local AI corpus
 
-`.ai/` is the **single source of truth** for all AI-assistant configuration — rules, agents, prompts, skills, hooks. Everything is written once here and surfaced to each tool through adapters (path-reference files or symlinks). **Never edit files under `.github/`, `.claude/`, `.agents/`, or root `AGENTS.md` directly** — they are adapters, and any direct edit is lost the next time the source changes.
+`.ai/` is the **single source of truth inside this repository** for legacy and
+repository-local rules, agents, prompts, skills, and hooks surfaced through
+adapters. It is not a package root and is never propagated wholesale.
+Canonical public and maintainer package sources live under `skills/` and
+`engineering/`; see
+[`Documentation/ai-distribution-and-subscriptions.md`](../Documentation/ai-distribution-and-subscriptions.md).
+
+**Never edit files under `.github/`, `.claude/`, `.agents/`, or root `AGENTS.md`
+directly** when they are adapters to `.ai/`; fix the local canonical source.
 
 ## Authority model
 
@@ -17,9 +25,13 @@ A skill may refine *how* to apply a rule, but must not contradict a non-negotiab
 
 Every rule is one of: **Framework contract** (enforced by Arc/Chronicle source/analyzers/runtime) · **Cratis convention** (house default for maintainability — the framework does not enforce it) · **Product policy** (belongs in a downstream app's own `.ai/`, not here). Rules state which they are; never claim "the framework requires" a convention.
 
-## Profiles
+## Local rule profiles
 
-The corpus serves two repo types from one source: **application** (building *on* Cratis — event-sourced vertical slices) and **framework** (contributing to Cratis libraries — Arc/Chronicle/Fundamentals/Components, see `rules/framework.md`). A rule declares `profile: application` or `profile: framework`; rules with no `profile:` are universal. `general.md` routes by profile; `applyTo`/`paths` scope by file type, `profile:` by repo type.
+The local corpus distinguishes **application** and **framework** rules.
+Versioned distribution uses narrower product and repository profiles from
+[`distribution/profile-catalog.json`](../distribution/profile-catalog.json),
+including Arc, Chronicle, Fundamentals, Components, Studio, Stagehand, clients,
+documentation, and corpus work.
 
 ## Structure
 
@@ -45,8 +57,13 @@ Scoped rules include both `applyTo` (Copilot matching) and `paths` (Claude match
 
 Run `.ai/hooks/scripts/validate-ai-setup.sh` after changing rules/skills/adapters — it validates frontmatter, adapter integrity (path-reference *or* symlink resolving to the right rule), resolving adapter targets, Codex adapters, and content-drift guards (warnings). Structural/adapter/Codex failures are fatal; drift guards are advisory warnings. Fix reported issues before committing.
 
-## Propagation
+## Distribution
 
-This repo is the hub that can propagate `.ai/` content to other Cratis repositories. The propagation workflow and any profile/repo-type scoping are managed separately from the corpus content itself — see `rules/managing-ai-rules.md` for how propagation interacts with adapters.
+Broad propagation and reverse synchronization are retired. Consuming
+repositories select profiles and pin exact versions; improvements return through
+issues or pull requests to `Cratis/AI`, then flow downstream in a new immutable
+release and reviewed update pull requests.
 
-See `rules/managing-ai-rules.md` for the full guide on adding, updating, and renaming rules/skills/agents/prompts/hooks.
+See `rules/managing-ai-rules.md` for local adapter maintenance and the
+[distribution guide](../Documentation/ai-distribution-and-subscriptions.md) for
+shared package behavior.

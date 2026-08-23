@@ -41,6 +41,7 @@ const supportedSchemaKeywords = new Set([
     "pattern",
     "format",
     "minimum",
+    "oneOf",
 ]);
 
 export function validateSchemaVocabulary(schema, path = "$") {
@@ -63,6 +64,15 @@ export function validateSchemaVocabulary(schema, path = "$") {
             }
         } else if (keyword === "items" && value && typeof value === "object") {
             errors.push(...validateSchemaVocabulary(value, `${path}.items`));
+        } else if (keyword === "oneOf" && Array.isArray(value)) {
+            value.forEach((child, index) => {
+                errors.push(
+                    ...validateSchemaVocabulary(
+                        child,
+                        `${path}.oneOf[${index}]`,
+                    ),
+                );
+            });
         }
     }
     return errors;
@@ -140,8 +150,24 @@ function matchesKnownPattern(value, pattern) {
             return /^(\.ai\/skills|skills)\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(
                 value,
             );
+        case "^[a-f0-9]{40}$":
+            return /^[a-f0-9]{40}$/.test(value);
+        case "^[a-f0-9]{64}$":
+            return /^[a-f0-9]{64}$/.test(value);
+        case "^(?:public|engineering)-[a-z0-9]+(?:-[a-z0-9]+)*$":
+            return /^(?:public|engineering)-[a-z0-9]+(?:-[a-z0-9]+)*$/.test(
+                value,
+            );
+        case "^public-[a-z0-9]+(?:-[a-z0-9]+)*$":
+            return /^public-[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value);
+        case "^engineering-[a-z0-9]+(?:-[a-z0-9]+)*$":
+            return /^engineering-[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value);
+        case "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-(?:0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$":
+            return /^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-(?:0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/.test(
+                value,
+            );
         default:
-            return new RegExp(pattern).test(value);
+            return false;
     }
 }
 
@@ -158,6 +184,16 @@ export function validateAgainstSchema(
         if (!referencedSchema)
             return [`${path}: unresolved schema reference ${schema.$ref}`];
         return validateAgainstSchema(value, referencedSchema, rootSchema, path);
+    }
+
+    if (schema.oneOf) {
+        const matchingBranches = schema.oneOf.filter(
+            branch =>
+                validateAgainstSchema(value, branch, rootSchema, path).length ===
+                0,
+        );
+        if (matchingBranches.length !== 1)
+            errors.push(`${path}: expected exactly one matching oneOf branch`);
     }
 
     if (Object.hasOwn(schema, "const") && value !== schema.const) {

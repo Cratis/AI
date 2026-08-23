@@ -212,7 +212,7 @@ test("first useful public skill is bound to immutable canonical source", () => {
     assert.equal(source.sourcePath, "skills/cratis-fundamentals-concept");
     assert.equal(
         source.sourceRevision,
-        "422ec8eebc198f9c25c28831a94623a3d4432fea",
+        "e9d161a70e25334bb468a33240bcf00f03f87522",
     );
     assert.deepEqual(source.bundledPaths, [
         "skills/cratis-fundamentals-concept/LICENSE",
@@ -220,7 +220,7 @@ test("first useful public skill is bound to immutable canonical source", () => {
     ]);
     assert(
         source.evidenceIds.includes(
-            "public-fundamentals-concept-source-422ec8e",
+            "public-fundamentals-concept-source-e9d161a",
         ),
     );
     assert.deepEqual(target.sourceSkillIds, ["add-concept"]);
@@ -694,10 +694,10 @@ test("unknown properties fail the closed catalog v2 schema", () => {
 
 test("unsupported JSON Schema vocabulary fails explicitly", () => {
     const unsupported = clone(schema);
-    unsupported.$defs.target.oneOf = [];
+    unsupported.$defs.target.allOf = [];
     assert(
         validateSchemaVocabulary(unsupported).some((error) =>
-            error.includes("unsupported JSON Schema keyword oneOf"),
+            error.includes("unsupported JSON Schema keyword allOf"),
         ),
     );
 });

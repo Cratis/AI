@@ -92,6 +92,42 @@ function manifestFile(root, path) {
     return { path, sha256: sha256(content), size: content.length };
 }
 
+function validateEngineeringSourceAuthority(repositoryRoot) {
+    const source = readJson(
+        join(repositoryRoot, "catalog/v2/sources.json"),
+    ).sources.find(candidate => candidate.id === "write-documentation");
+    const expectedPaths = approvedFiles.map(path => `engineering/${path}`);
+    if (
+        !source ||
+        source.sourcePath !==
+            "engineering/skills/cratis-engineering-docs-authoring" ||
+        JSON.stringify(source.bundledPaths) !== JSON.stringify(expectedPaths) ||
+        !/^[0-9a-f]{40}$/.test(source.sourceRevision)
+    )
+        throw new Error("Engineering source authority is inconsistent");
+    for (const path of expectedPaths) {
+        const current = readFileSync(join(repositoryRoot, path));
+        let immutable;
+        try {
+            immutable = execFileSync(
+                "git",
+                ["show", `${source.sourceRevision}:${path}`],
+                { cwd: repositoryRoot },
+            );
+        } catch (error) {
+            throw new Error(
+                `Unable to read immutable engineering source: ${path}`,
+                { cause: error },
+            );
+        }
+        if (!current.equals(immutable))
+            throw new Error(
+                `Engineering fixture source drifted from revision: ${path}`,
+            );
+    }
+    return source;
+}
+
 export function validateEngineeringDistributionConfiguration(
     repositoryRoot = defaultRepositoryRoot,
 ) {
@@ -127,6 +163,7 @@ export function validateEngineeringDistributionConfiguration(
         const expectedExactPaths = approvedFiles.map(
             (path) => `engineering/${path}`,
         );
+        validateEngineeringSourceAuthority(repositoryRoot);
         if (
             artifactMatrix.firstPassiveTarget.state !==
                 "REAL_CANARY_PASS_OWNER_REVIEW_PENDING" ||
@@ -186,6 +223,7 @@ export function generateEngineeringDistributionFixture({
         validateEngineeringDistributionConfiguration(repositoryRoot);
     if (configurationErrors.length > 0)
         throw new Error(configurationErrors.join("; "));
+    const source = validateEngineeringSourceAuthority(repositoryRoot);
 
     mkdirSync(root, { recursive: false });
     try {
@@ -382,8 +420,9 @@ export function generateEngineeringDistributionFixture({
             schemaVersion: "1.0.0",
             state: "ENGINEERING_FIXTURE_ONLY_NOT_AN_ATTESTATION",
             canonicalRepository: "Cratis/AI",
-            sourceRevision: "f58bcf7f5cc9fc0e11305ada3b5ecb6fa20953e9",
-            sourcePath: "engineering/skills/cratis-engineering-docs-authoring",
+            sourceRevision: source.sourceRevision,
+            sourcePath: source.sourcePath,
+            sourceContentDigest: source.contentDigest,
             evaluationSummarySha256: sha256(
                 readFileSync(evaluationSummaryPath),
             ),

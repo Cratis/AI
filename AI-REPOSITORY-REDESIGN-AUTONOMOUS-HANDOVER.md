@@ -1848,3 +1848,54 @@ contract reverification before a supported stable release. Publication and
 promotion remain disabled; the immediate path is canonical source binding, a
 small passive preview allowlist, one real consuming-repository canary, and the
 existing credential/owner gates.
+
+## 49. Profile subscriptions and release hardening — 2026-08-22
+
+A fresh public, maintainer, distribution, security, and official-host review
+rejected any claim that the repository was done or broadly usable. It found one
+canonical public skill, zero approved/runtime targets, fixture-only packages,
+stale local agents/docs, incomplete CI path triggers, an artifact authorization
+mismatch, null public source provenance, and no production per-harness release
+implementation.
+
+The long-term decision is now explicit:
+
+- `Cratis/AI` owns shared AI behavior and profile composition;
+- product repositories own product facts and immutable authority evidence;
+- consuming repositories own `.cratis/PROJECT.md`, `.cratis/ai.json`, and
+  minimal host bootstraps;
+- `Cratis/AI.Distribution` owns bot-generated immutable artifacts;
+- public and engineering profiles are product/repository-specific rather than
+  one universal corpus;
+- all profile packages share an atomic SemVer release train and exact pins;
+- updates arrive through reviewed pull requests;
+- consuming repositories contribute improvements upstream through issues/PRs,
+  never through automatic reverse sync or generated-byte publication.
+
+`distribution/profile-catalog.json` defines five public and eleven engineering
+profiles, including Fundamentals, Arc, Chronicle, Components, applications,
+Studio, Stagehand, clients, documentation, and corpus work. Project subscription
+schema/examples and a comprehensive Pi/package/profile guide now document
+project and global installation, pinning, skill filtering, update, rollback,
+bootstrap behavior, and contribution flow. Profile packages remain planned and
+unpublished; content gaps are explicit.
+
+Immediate review findings corrected in this unit include:
+
+- Guid and non-Guid `EventSourceId<T>` templates are separated;
+- artifact catalog, rollout policy, matrix, and generated preview bytes use one
+  `cratis-fundamentals-concept-preview` identity;
+- fixture generation binds immutable source revision/digest provenance;
+- release-relevant CI paths include canonical skills, engineering content,
+  distribution, evaluations, evidence, workflows, and issue templates;
+- stale planner `Features/` paths, instruction links, and performance
+  `.AutoMap()` guidance are corrected;
+- broad propagation and reverse-sync workflows are inert;
+- README and documentation now lead with profiles, generated distribution,
+  source authority, Pi, and exact subscriptions rather than legacy propagation;
+- GitHub issue #165 requires @einari and @woksin to assign named profile owners
+  and source repositories; existing manual release gates are assigned/tagged.
+
+Production materialization, per-harness root release assets, product-owner
+approval, bot credentials, npm authority, and a real public consumer canary
+remain explicit blockers. No profile is represented as published.

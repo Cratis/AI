@@ -9,7 +9,7 @@ See also: [Architecture Overview](./architecture.md) · [Instructions vs Skills]
 ## Agent roster
 
 | Agent | Role | When to use |
-|---|---|---|
+| --- | --- | --- |
 | `orchestrator` | Top-level team orchestrator — assembles the team, sequences work, enforces quality gates | Any goal spanning implementation + documentation + review, or multiple independent workstreams |
 | `coordinator` | General-purpose coordinator — decomposes goals, assigns agents, tracks progress | Cross-cutting implementation work spanning multiple concerns or multiple slices |
 | `planner` | Vertical slice planner — sequences and parallelises slice implementation | Implementing one or more complete vertical slices end-to-end |
@@ -32,6 +32,7 @@ The `orchestrator` agent is the **top-level team manager** — the entry point w
 - The work involves non-implementation concerns alongside implementation
 
 The orchestrator:
+
 1. Classifies every concern in the goal (implementation, docs, testing, review)
 2. Maps each concern to the right agent or sub-orchestrator
 3. Identifies cross-stream dependencies
@@ -53,6 +54,7 @@ The `coordinator` agent is the **entry point for complex, multi-concern implemen
 - You're unsure which specialist to call first
 
 The coordinator:
+
 1. Classifies the work into task types
 2. Identifies dependencies between tasks
 3. Groups independent tasks into parallel phases
@@ -62,7 +64,7 @@ The coordinator:
 ### When to use the Orchestrator vs the Coordinator vs the Planner
 
 | Use `orchestrator` when… | Use `coordinator` when… | Use `planner` when… |
-|---|---|---|
+| --- | --- | --- |
 | Goal spans implementation + docs + review | Goal is implementation only | Goal is one or more vertical slices |
 | Multiple independent workstreams | Work crosses multiple concerns | Clear feature and slice names known |
 | Involves non-implementation tasks | Infrastructure + slice implementation | Slice type is known |
@@ -110,6 +112,7 @@ code-reviewer  →  security-reviewer
 Both can run in parallel since they are read-only reviews. The work is **not done** until both approve.
 
 Optional gates (add when relevant):
+
 - `performance-reviewer` — for changes to projections, queries, or computationally intensive code
 
 ---
@@ -159,4 +162,5 @@ Always read and follow:
 ## Completion checklist
 - [ ] ...
 ````
+
 ```

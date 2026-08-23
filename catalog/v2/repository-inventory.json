@@ -1,14 +1,42 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "50de38f16d5d3440145c66887de5d925f56da5277ded1049323963c9d4d956bf",
+  "indexDigest": "ae8926bd91b01a1ac6e5d4dd1f160d240aa6ed7b9c6d5e5db8e307e453fe0690",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
   "changesSinceBase": [
     {
+      "path": ".ai/README.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/agents/coordinator.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/agents/orchestrator.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/agents/performance-reviewer.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/agents/planner.md",
+      "status": "modified"
+    },
+    {
       "path": ".ai/rules/general.md",
       "status": "modified"
+    },
+    {
+      "path": ".ai/rules/managing-ai-rules.md",
+      "status": "modified"
+    },
+    {
+      "path": ".github/ISSUE_TEMPLATE/shared-ai-improvement.yml",
+      "status": "added"
     },
     {
       "path": ".github/workflows/distribution-canary-rollback.yml",
@@ -25,6 +53,14 @@
     {
       "path": ".github/workflows/engineering-distribution-fixture.yml",
       "status": "added"
+    },
+    {
+      "path": ".github/workflows/propagate-copilot-instructions.yml",
+      "status": "modified"
+    },
+    {
+      "path": ".github/workflows/sync-copilot-instructions.yml",
+      "status": "modified"
     },
     {
       "path": ".github/workflows/verify-ai-corpus.yml",
@@ -85,6 +121,22 @@
     {
       "path": "AI-REPOSITORY-REDESIGN-THIRD-PARTY-SKILLS-EVALUATION.md",
       "status": "added"
+    },
+    {
+      "path": "Documentation/.markdownlint.json",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/agents.md",
+      "status": "modified"
+    },
+    {
+      "path": "Documentation/ai-distribution-and-subscriptions.md",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/architecture.md",
+      "status": "modified"
     },
     {
       "path": "Documentation/capability-catalog-v2.md",
@@ -155,6 +207,34 @@
       "status": "added"
     },
     {
+      "path": "Documentation/examples/ai-subscriptions/chronicle-framework.cratis-ai.json",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/examples/ai-subscriptions/cratis-application.cratis-ai.json",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/examples/ai-subscriptions/pi-settings.json",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/index.md",
+      "status": "modified"
+    },
+    {
+      "path": "Documentation/instructions-vs-skills.md",
+      "status": "modified"
+    },
+    {
+      "path": "Documentation/instructions.md",
+      "status": "modified"
+    },
+    {
+      "path": "Documentation/orchestrator.md",
+      "status": "modified"
+    },
+    {
       "path": "Documentation/phase-0-verification.md",
       "status": "added"
     },
@@ -179,8 +259,20 @@
       "status": "added"
     },
     {
+      "path": "Documentation/skills.md",
+      "status": "modified"
+    },
+    {
       "path": "Documentation/source-evidence-contract.md",
       "status": "added"
+    },
+    {
+      "path": "Documentation/verify-markdown.sh",
+      "status": "modified"
+    },
+    {
+      "path": "README.md",
+      "status": "modified"
     },
     {
       "path": "catalog/ecosystem-versions.json",
@@ -303,6 +395,10 @@
       "status": "added"
     },
     {
+      "path": "distribution/evidence/local-profile-fixture-smoke-2026-08-22.json",
+      "status": "added"
+    },
+    {
       "path": "distribution/evidence/real-documentation-engineering-canary-2026-08-22.json",
       "status": "added"
     },
@@ -320,6 +416,14 @@
     },
     {
       "path": "distribution/npm-stage-contract.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/profile-catalog.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/profile-subscription.schema.json",
       "status": "added"
     },
     {
@@ -1819,6 +1923,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/profile-subscription-validation.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/project-context-bootstrap.mjs",
       "status": "added"
     },
@@ -1927,6 +2035,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/specs/profile-subscription.spec.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/specs/project-context-bootstrap.spec.mjs",
       "status": "added"
     },
@@ -1935,7 +2047,15 @@
       "status": "added"
     },
     {
+      "path": "tooling/specs/public-fundamentals-concept.spec.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/specs/source-evidence-contract.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/workflow-safety.spec.mjs",
       "status": "added"
     },
     {
@@ -2546,8 +2666,8 @@
       "evidenceIds": [
         "repo-main-b795d53"
       ],
-      "expectedPathCount": 4,
-      "expectedPathsDigest": "a1fe1a0a7af43bbf195eab58bc0cd86bb6b34f17fa3c86762ec81e34617f4791"
+      "expectedPathCount": 5,
+      "expectedPathsDigest": "e0ad39f4d9537ccb38363e41c462954e371bf617f4d94ea35bad0d64333c67e3"
     },
     {
       "excludePathPatterns": [],
@@ -2707,6 +2827,7 @@
       "excludePathPatterns": [],
       "id": "legacy-documentation",
       "sourcePathPatterns": [
+        "Documentation/.markdownlint.json",
         "Documentation/agents.md",
         "Documentation/architecture.md",
         "Documentation/index.md",
@@ -2731,14 +2852,16 @@
         "repo-main-b795d53",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 8,
-      "expectedPathsDigest": "e2ff4c260b18e7c59146b8a48aadf114d59c06f970a8b473529baa7da667de4f"
+      "expectedPathCount": 9,
+      "expectedPathsDigest": "d0758546d912d30171a35f6070393c261b69cc3c18ac452b9d7cdf6f392431ec"
     },
     {
       "excludePathPatterns": [],
       "id": "redesign-decision-documents",
       "sourcePathPatterns": [
         "AI-REPOSITORY-REDESIGN-*.md",
+        "Documentation/ai-distribution-and-subscriptions.md",
+        "Documentation/examples/ai-subscriptions/**",
         "Documentation/phase-0-verification.md",
         "Documentation/public-product-architecture.md",
         "Documentation/skill-classification-audit.md",
@@ -2762,8 +2885,8 @@
         "workflows-68",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 19,
-      "expectedPathsDigest": "b6184ed056ae917fdea8f3bcdc37d804b0f8c37ab923afec40e65c88d6e10211"
+      "expectedPathCount": 23,
+      "expectedPathsDigest": "8bcfe69caab9977abea3ae57d37bc98ed0f47fa3b9323e3e678b5f0fa26a6760"
     },
     {
       "excludePathPatterns": [],
@@ -3235,8 +3358,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 15,
-      "expectedPathsDigest": "54d61e538447c58e49227525d6eb5c350db9c81daebb54fec46986b217bfd4c7"
+      "expectedPathCount": 18,
+      "expectedPathsDigest": "08ef0162524356047d9100c699f1503db69c36e4a45fe96b63ef31a90e9f77e5"
     },
     {
       "excludePathPatterns": [],
@@ -3258,8 +3381,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 30,
-      "expectedPathsDigest": "2ecea06af372f03861cb1e52c8e2074216b38838e5bbb632421bab1e8057bada"
+      "expectedPathCount": 31,
+      "expectedPathsDigest": "16105f414ef18bf88bebffaaab9205aa2c08aa1ed70674a0ea13351aca956783"
     },
     {
       "excludePathPatterns": [],
@@ -3282,8 +3405,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 22,
-      "expectedPathsDigest": "7e7e65c53a3e09c9c916ce2c07a73e0ea5670a8f763728e4e35fc04042b87eb2"
+      "expectedPathCount": 25,
+      "expectedPathsDigest": "136d0ecb86b88dc900ea5b606b1f428f336b14f8540bdc99c9de67276c0f32dd"
     },
     {
       "excludePathPatterns": [],
