@@ -649,8 +649,11 @@ handover section 51.
 - [ ] If approval is still absent, generate deterministic local immutable
   per-harness release assets from the explicitly non-publishable preview so the
   owner/canary step is executable immediately when approved.
-- [ ] Reassign subscriber-update control-plane ownership: Stagehand#39 closed
-  `NOT_PLANNED`, so no production subscriber controller currently exists.
+- [x] Reassign subscriber-update control-plane ownership after Stagehand#39
+  closed `NOT_PLANNED`: Workflows#73 now tracks the controller and manual App
+  scope decision.
+- [ ] Implement and canary the Workflows#73 subscriber update PR controller; no
+  production subscriber controller currently exists.
 - [ ] Provision Workflows#72 App credentials, Workflows#70 npm trust, and run
   Workflows#71 only after exact approvals exist.
 - [ ] Submit AI#147 marketplaces only for hosts with honest lifecycle evidence;

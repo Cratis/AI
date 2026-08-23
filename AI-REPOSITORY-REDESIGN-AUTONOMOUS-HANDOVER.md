@@ -2001,9 +2001,10 @@ AI#154; add/edit companions remain excluded.
 - Workflows#70 — npm ownership/trusted publishing; assigned to both;
 - Workflows#71 — real public consumer lifecycle canary; assigned to both;
 - AI#147 — reviewed marketplace submissions; now assigned to both;
-- Stagehand#39 was closed `NOT_PLANNED` with no implementation evidence. The
-  subscriber-update control-plane owner is therefore unresolved and must not be
-  represented as implemented.
+- Stagehand#39 was closed `NOT_PLANNED` with no implementation evidence;
+- Workflows#73 now owns the subscriber update PR controller follow-up, consistent
+  with Workflows ownership of fleet distribution, canaries, pins, and rollback.
+  It is assigned to `einari` and `woksin` and remains unimplemented.
 
 Deferred/non-critical state remains: companion corrective evaluation is outside
 the first release; Cursor/Kiro/Junie are structurally validated but await real
@@ -2012,9 +2013,10 @@ reverified before stable support.
 
 ### Verification and exact resume actions
 
-Last fresh local evidence before #167/#168 merge was 260/260 specs, clean corpus
-validation, clean Markdown lint/links, and clean LSP/multi-runner diagnostics.
-Current main must be rerun after preserving the formatting diff.
+Fresh post-reconciliation evidence is 260/260 specs, deterministic catalog and
+inventory generation, clean catalog/profile/source/evaluation validation, clean
+corpus validation, 17 Markdown files lint-clean, 25 links passing, and clean
+diff. This includes the preserved formatter-only materializer change.
 
 Resume in this order:
 
