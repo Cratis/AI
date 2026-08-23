@@ -58,6 +58,31 @@ function packageVersion(consumerRoot) {
     ).version;
 }
 
+test("hosted Fundamentals preview evidence remains short-lived and non-promoting", () => {
+    const evidence = JSON.parse(
+        readFileSync(
+            "distribution/evidence/hosted-fundamentals-preview-assets-2026-08-23.json",
+            "utf8",
+        ),
+    );
+    assert.equal(evidence.status, "PASS_APPROVAL_PENDING");
+    assert.equal(evidence.workflow.runId, 32646884884);
+    assert.equal(
+        evidence.workflow.sourceCommit,
+        "9b13e6a24b8c2505b317a00e9406dc576469b98b",
+    );
+    assert.equal(evidence.workflow.conclusion, "success");
+    assert.equal(
+        evidence.artifact.name,
+        "fundamentals-0.1.0-preview.1-approval-pending",
+    );
+    assert.equal(evidence.artifact.shortLived, true);
+    assert.equal(evidence.approvalEligible, false);
+    assert.equal(evidence.installationSupported, false);
+    assert.equal(evidence.publicationEligible, false);
+    assert.equal(evidence.promotionEligible, false);
+});
+
 test("recorded Fundamentals preview evidence is immutable and non-promoting", () => {
     const evidence = JSON.parse(
         readFileSync(

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "60fecc3e8d335d6fc73aa9d58cf5d4512693d1df8e1c8b1eae57a268a4836e65",
+  "indexDigest": "701c8a7a5bc995b3f627ba95511a31776cd5a83f47021271f3132cacac858bbe",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -380,6 +380,10 @@
     },
     {
       "path": "distribution/engineering-artifact-matrix.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/evidence/hosted-fundamentals-preview-assets-2026-08-23.json",
       "status": "added"
     },
     {
@@ -3392,8 +3396,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 19,
-      "expectedPathsDigest": "716837082abc6966269bb8d3ba526e1b6585e991ba6731e72a09cd2243047974"
+      "expectedPathCount": 20,
+      "expectedPathsDigest": "ac3380abec201b146176f63b948dec5b79cbd51d37cc0e84a58efdc1c899415f"
     },
     {
       "excludePathPatterns": [],

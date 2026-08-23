@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "1.0.0",
+  "observedAt": "2026-08-23",
+  "status": "PASS_APPROVAL_PENDING",
+  "workflow": {
+    "runId": 32646884884,
+    "url": "https://github.com/Cratis/AI/actions/runs/32646884884",
+    "sourceCommit": "9b13e6a24b8c2505b317a00e9406dc576469b98b",
+    "job": "package-preview",
+    "conclusion": "success"
+  },
+  "artifact": {
+    "id": 9495100691,
+    "name": "fundamentals-0.1.0-preview.1-approval-pending",
+    "size": 23060,
+    "expiresAt": "2026-08-30T14:54:58Z",
+    "shortLived": true
+  },
+  "profileId": "public-fundamentals",
+  "targetId": "cratis-fundamentals-concept",
+  "sourceRevision": "e9d161a70e25334bb468a33240bcf00f03f87522",
+  "sourceContentDigest": "f7f7c2c110b3ff3f1b5921ad51fffc449a448bb49aaec2626ecc4d391e9d78a1",
+  "version": "0.1.0-preview.1",
+  "gates": [
+    "complete immutable history checkout",
+    "catalog and profile validation",
+    "fixed preview source revision and digest",
+    "deterministic per-harness archive generation",
+    "npm-private Pi package",
+    "Codex installation NOT_AVAILABLE",
+    "stable version rejection",
+    "focused npm and Pi lifecycle specs",
+    "short-lived artifact upload"
+  ],
+  "limitations": [
+    "Owner and profile approval remain absent.",
+    "The artifact expires after seven days and is for review only.",
+    "No supported installation, npm publication, marketplace submission, promotion, fleet rollout, or production consumer canary occurred."
+  ],
+  "approvalEligible": false,
+  "installationSupported": false,
+  "publicationEligible": false,
+  "promotionEligible": false
+}
