@@ -1362,17 +1362,18 @@ const approvedEngineeringTargets = targets.filter(
         target.approval.state === "approved" &&
         target.includeInRuntime,
 );
-const exactPathsForTargets = (approvedTargets) => [
-    ...new Set(
-        approvedTargets
-            .flatMap((target) => target.sourceSkillIds)
-            .flatMap(
-                (sourceId) =>
-                    sources.find((source) => source.id === sourceId)
-                        ?.bundledPaths ?? [],
-            ),
-    ),
-].sort(compareOrdinal);
+const exactPathsForTargets = (approvedTargets) =>
+    [
+        ...new Set(
+            approvedTargets
+                .flatMap((target) => target.sourceSkillIds)
+                .flatMap(
+                    (sourceId) =>
+                        sources.find((source) => source.id === sourceId)
+                            ?.bundledPaths ?? [],
+                ),
+        ),
+    ].sort(compareOrdinal);
 writeJson("artifacts.json", {
     schemaVersion: 2,
     defaultPolicy: "deny",
@@ -1435,9 +1436,7 @@ writeJson("artifacts.json", {
             materializationAllowed: approvedEngineeringTargets.length > 0,
             runtimeEligible: approvedEngineeringTargets.length > 0,
             componentInventory: { skills: engineeringTargetIds, mcp: [] },
-            exactSourcePaths: exactPathsForTargets(
-                approvedEngineeringTargets,
-            ),
+            exactSourcePaths: exactPathsForTargets(approvedEngineeringTargets),
             allowedPathPatterns: [
                 "engineering/skills/<approved-target>/SKILL.md",
                 "engineering/skills/<approved-target>/references/**",
