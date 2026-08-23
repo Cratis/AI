@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "ef4147c5223eeef8407d8f3758a4643a49c1c1793dd92f73327016a1e7ea41eb",
+  "indexDigest": "08aea5cb51746b9c1495e4ff3942185e388b51863c39e1ddb44998f1b5c9f03f",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -36,6 +36,10 @@
     },
     {
       "path": ".github/ISSUE_TEMPLATE/shared-ai-improvement.yml",
+      "status": "added"
+    },
+    {
+      "path": ".github/workflows/distribution-approved-profile-release.yml",
       "status": "added"
     },
     {
@@ -1883,6 +1887,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/generate-approved-profile-release.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/generate-catalog-v2.mjs",
       "status": "added"
     },
@@ -1923,6 +1931,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/passive-profile-adapters.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/profile-subscription-validation.mjs",
       "status": "added"
     },
@@ -1956,6 +1968,10 @@
     },
     {
       "path": "tooling/source-evidence-loader.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/approved-profile-release.spec.mjs",
       "status": "added"
     },
     {
@@ -2071,12 +2087,7 @@
       "status": "added"
     }
   ],
-  "admittedUntracked": [
-    ".github/workflows/distribution-approved-profile-release.yml",
-    "tooling/generate-approved-profile-release.mjs",
-    "tooling/passive-profile-adapters.mjs",
-    "tooling/specs/approved-profile-release.spec.mjs"
-  ],
+  "admittedUntracked": [],
   "excludedRuntimePrefixes": [
     ".pi/delegate/",
     ".pi/fusion/",
