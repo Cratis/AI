@@ -10,6 +10,8 @@ const skill = readFileSync(
     "skills/cratis-fundamentals-concept/SKILL.md",
     "utf8",
 );
+const legacySkill = readFileSync(".ai/skills/add-concept/SKILL.md", "utf8");
+const conceptRule = readFileSync(".ai/rules/concepts.md", "utf8");
 
 test("source review binds exact product releases without granting approval", () => {
     const evidence = JSON.parse(
@@ -21,10 +23,7 @@ test("source review binds exact product releases without granting approval", () 
     const contracts = JSON.parse(
         readFileSync("catalog/v2/source-contracts.json", "utf8"),
     ).contracts;
-    assert.equal(
-        evidence.state,
-        "SOURCE_REVIEW_PASS_OWNER_APPROVAL_PENDING",
-    );
+    assert.equal(evidence.state, "SOURCE_REVIEW_PASS_OWNER_APPROVAL_PENDING");
     assert.equal(evidence.accountableOwner, "woksin");
     assert.equal(evidence.sharedReviewer, "einari");
     assert.equal(evidence.fundamentals.release, "7.18.1");
@@ -40,6 +39,15 @@ test("source review binds exact product releases without granting approval", () 
     assert.equal(
         evidence.compileEvidence.result,
         "PASS_ZERO_WARNINGS_ZERO_ERRORS",
+    );
+    assert.equal(evidence.compatibilityEvidence.chronicleVersion, "16.37.1");
+    assert.equal(
+        evidence.compatibilityEvidence.templateCompileResult,
+        "PASS_ZERO_WARNINGS_ZERO_ERRORS",
+    );
+    assert.equal(
+        evidence.compatibilityEvidence.eventSourceIdBlobMatches16_38_1,
+        true,
     );
     assert.equal(evidence.targetApproval, false);
     assert.equal(evidence.includeInRuntime, false);
@@ -99,6 +107,61 @@ test("focused behavior trigger collision and security evidence passes without pr
     assert.equal(evaluation.promotionEligible, false);
 });
 
+test("legacy local concept guidance no longer contradicts product authority", () => {
+    for (const content of [legacySkill, conceptRule]) {
+        assert(content.includes("IComparable"));
+        assert(content.includes("optional domain"));
+        assert(content.includes("CHR0026"));
+        assert(content.includes("CHR0034"));
+        assert.equal(
+            content.includes(
+                "Add a `static readonly NotSet` sentinel instead of using `null`",
+            ),
+            false,
+        );
+        assert.equal(
+            content.includes(
+                "Don't redeclare the `EventSourceId` / `T` / `string` conversions",
+            ),
+            false,
+        );
+    }
+});
+
+test("Samples consumer canary passes while preserving failed attempts", () => {
+    const evidence = JSON.parse(
+        readFileSync(
+            "distribution/evidence/real-samples-fundamentals-preview-canary-2026-08-23.json",
+            "utf8",
+        ),
+    );
+    assert.equal(
+        evidence.state,
+        "REAL_PUBLIC_REPOSITORY_PREVIEW_CANARY_PASS_OWNER_APPROVAL_PENDING",
+    );
+    assert.equal(
+        evidence.repositoryRevision,
+        "55e6eb168606da96136cc7f91db8adf45aac3288",
+    );
+    assert.equal(evidence.scope, "Chronicle/Backend");
+    assert.equal(evidence.consumerPackages["Cratis.Fundamentals"], "7.18.1");
+    assert.equal(evidence.consumerPackages["Cratis.Chronicle"], "16.37.1");
+    assert(evidence.results.every((result) => result.status === "PASS"));
+    assert.deepEqual(
+        evidence.preservedAttempts.map((attempt) => attempt.status),
+        [
+            "FAILED_HARNESS_CONFIGURATION",
+            "FAILED_AMBIGUOUS_CANARY_QUESTION",
+            "INCONCLUSIVE_HARNESS_SCRIPT_EXIT",
+        ],
+    );
+    assert.equal(evidence.targetApproval, false);
+    assert.equal(evidence.includeInRuntime, false);
+    assert.equal(evidence.installationSupported, false);
+    assert.equal(evidence.publicationEligible, false);
+    assert.equal(evidence.promotionEligible, false);
+});
+
 test("Fundamentals concept skill is passive canonical Agent Skills content", () => {
     assert.match(
         skill,
@@ -129,7 +192,10 @@ test("ConceptAs guidance follows the authoritative single-value contract", () =>
     ])
         assert(skill.includes(required), required);
     assert.equal(skill.includes("It has a `static readonly NotSet`"), false);
-    assert.equal(skill.includes("It has an implicit conversion from the primitive"), false);
+    assert.equal(
+        skill.includes("It has an implicit conversion from the primitive"),
+        false,
+    );
 });
 
 test("Guid and non-Guid event-source identity templates stay type-correct", () => {
@@ -146,9 +212,7 @@ test("Guid and non-Guid event-source identity templates stay type-correct", () =
         nonGuidSection,
     )?.[1];
     assert(
-        nonGuidTemplate?.includes(
-            "EventSourceId<<ComparableUnderlyingType>>",
-        ),
+        nonGuidTemplate?.includes("EventSourceId<<ComparableUnderlyingType>>"),
     );
     assert.equal(nonGuidTemplate?.includes("Guid.NewGuid()"), false);
     assert(nonGuidSection.includes("domain has an authoritative way"));

@@ -68,6 +68,13 @@
     "chronicleLatestVersion": "16.38.1",
     "source": "https://api.nuget.org/v3-flatcontainer/<package>/index.json"
   },
+  "compatibilityEvidence": {
+    "chronicleVersion": "16.37.1",
+    "releaseRevision": "476a08a937b30a1a1780176b41f16571091be42d",
+    "eventSourceIdBlobMatches16_38_1": true,
+    "templateCompileResult": "PASS_ZERO_WARNINGS_ZERO_ERRORS",
+    "purpose": "Compatibility evidence for the selected Cratis/Samples canary; the skill's declared reviewed release remains 16.38.1."
+  },
   "compileEvidence": {
     "framework": "net9.0",
     "configuration": "Release",

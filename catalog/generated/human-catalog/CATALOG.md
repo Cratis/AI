@@ -1817,6 +1817,9 @@ Use when creating a ConceptAs&lt;T&gt; value or EventSourceId&lt;T&gt; identity.
 ### Evidence and support — cratis-fundamentals-concept
 
 - Authoring contract: cratis-skill-clean-room-v1
+- Evidence: fundamentals-concept-focused-evaluation-2026-08-23
+- Evidence: fundamentals-concept-samples-canary-2026-08-23
+- Evidence: fundamentals-concept-source-review-2026-08-23
 - Evidence: reevaluation-authority
 - Evidence: repo-main-b795d53
 

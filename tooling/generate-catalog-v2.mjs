@@ -66,7 +66,12 @@ const publicClassifications = new Map([
             },
             repositoryProfiles: {
                 state: "applicable",
-                ids: ["application", "client", "consuming-project", "framework"],
+                ids: [
+                    "application",
+                    "client",
+                    "consuming-project",
+                    "framework",
+                ],
                 reason: "Concepts appear in consuming applications, framework code, and client libraries.",
             },
             trust: {
@@ -78,9 +83,14 @@ const publicClassifications = new Map([
                         operation: "modify",
                         resourceBoundary: "current repository worktree",
                         scope: "one domain concept or Chronicle event-source identity source file selected by the user",
-                        dataClassifications: ["confidential", "internal", "public"],
+                        dataClassifications: [
+                            "confidential",
+                            "internal",
+                            "public",
+                        ],
                         reversible: true,
-                        rollbackOrCompensation: "Restore the prior uncommitted file or revert the dedicated source commit.",
+                        rollbackOrCompensation:
+                            "Restore the prior uncommitted file or revert the dedicated source commit.",
                         confirmation: {
                             required: true,
                             timing: "before-effect",
@@ -102,9 +112,7 @@ const publicClassifications = new Map([
                 destructive: false,
                 risk: "low",
                 disposition: "accepted",
-                evidenceIds: [
-                    "fundamentals-concept-source-review-2026-08-23",
-                ],
+                evidenceIds: ["fundamentals-concept-source-review-2026-08-23"],
             },
             dependencyEdges: [
                 {
@@ -114,7 +122,8 @@ const publicClassifications = new Map([
                     reason: "The generated C# type must compile and its specifications must run against the verified packages.",
                     missingBehavior: {
                         action: "block",
-                        description: "Stop before claiming completion when the .NET SDK and project gates are unavailable.",
+                        description:
+                            "Stop before claiming completion when the .NET SDK and project gates are unavailable.",
                     },
                 },
             ],
@@ -141,6 +150,11 @@ const publicClassifications = new Map([
                 "fundamentals-concept-focused-evaluation-2026-08-23",
             routingEvaluationEvidenceId:
                 "fundamentals-concept-focused-evaluation-2026-08-23",
+            evidenceIds: [
+                "fundamentals-concept-source-review-2026-08-23",
+                "fundamentals-concept-focused-evaluation-2026-08-23",
+                "fundamentals-concept-samples-canary-2026-08-23",
+            ],
         },
     ],
 ]);
@@ -1183,8 +1197,7 @@ const targets = allTargetIds.map((targetId) => {
             evidenceIds: [],
         },
         evaluations: {
-            behavior: engineeringClassification
-                ?.behaviorEvaluationEvidenceId
+            behavior: engineeringClassification?.behaviorEvaluationEvidenceId
                 ? {
                       status: "passing",
                       evidenceIds: [
@@ -1225,7 +1238,11 @@ const targets = allTargetIds.map((targetId) => {
                 : { status: "missing", evidenceIds: [] },
         },
         approval: { state: "candidate", evidenceIds: [] },
-        evidenceIds: ["repo-main-b795d53", "reevaluation-authority"],
+        evidenceIds: [
+            "repo-main-b795d53",
+            "reevaluation-authority",
+            ...(engineeringClassification?.evidenceIds ?? []),
+        ],
         includeInRuntime: false,
     };
 });
@@ -1545,7 +1562,8 @@ const evidence = [
         sourceKind: "local-evidence-report",
         verifiedOn: "2026-08-23",
         expiresOn: "2026-11-21",
-        applicableVersion: "Cratis.Fundamentals@7.18.1+Cratis.Chronicle@16.38.1",
+        applicableVersion:
+            "Cratis.Fundamentals@7.18.1+Cratis.Chronicle@16.38.1",
         confidence: "high",
         repositoryPath:
             "distribution/evidence/fundamentals-concept-source-review-2026-08-23.json",
@@ -1565,6 +1583,21 @@ const evidence = [
             "evals/cratis-fundamentals-concept/focused-evaluation.json",
         digest: digestFile(
             "evals/cratis-fundamentals-concept/focused-evaluation.json",
+        ),
+    },
+    {
+        id: "fundamentals-concept-samples-canary-2026-08-23",
+        officialUrl: "https://github.com/Cratis/Samples",
+        sourceKind: "local-evidence-report",
+        verifiedOn: "2026-08-23",
+        expiresOn: "2026-11-21",
+        applicableVersion:
+            "Cratis/Samples@55e6eb168606da96136cc7f91db8adf45aac3288",
+        confidence: "high",
+        repositoryPath:
+            "distribution/evidence/real-samples-fundamentals-preview-canary-2026-08-23.json",
+        digest: digestFile(
+            "distribution/evidence/real-samples-fundamentals-preview-canary-2026-08-23.json",
         ),
     },
     {

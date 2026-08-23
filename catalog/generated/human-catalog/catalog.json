@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "contractVersion": 1,
   "disclaimer": "Catalog inclusion, evaluation evidence, bundle generation, or publication does not grant runtime permission or approval.",
-  "inputDigest": "6eb505f0f0bde4dbc5cdd42acf6855ce6f349f5170b73d0e1a4147b72de76150",
+  "inputDigest": "7ad9875de78f32313e95f9b7cf2a05e33dded58fac2bf1cd400c1413cdb5f544",
   "capabilities": [
     {
       "id": "cratis-application-react-specifications",
@@ -1910,6 +1910,9 @@
         "cratis-skill-clean-room-v1"
       ],
       "evidenceIds": [
+        "fundamentals-concept-focused-evaluation-2026-08-23",
+        "fundamentals-concept-samples-canary-2026-08-23",
+        "fundamentals-concept-source-review-2026-08-23",
         "reevaluation-authority",
         "repo-main-b795d53"
       ],

@@ -254,6 +254,11 @@ test("first useful public skill is bound to immutable canonical source", () => {
             "fundamentals-concept-focused-evaluation-2026-08-23",
         ]);
     }
+    assert.deepEqual(target.evidenceIds.slice(-3), [
+        "fundamentals-concept-source-review-2026-08-23",
+        "fundamentals-concept-focused-evaluation-2026-08-23",
+        "fundamentals-concept-samples-canary-2026-08-23",
+    ]);
     assert.equal(target.approval.state, "candidate");
     assert.equal(target.includeInRuntime, false);
 });

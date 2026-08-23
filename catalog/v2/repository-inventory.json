@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "8bb3136b8c75fd9f50b0a2b7df777d9aeb437e15cf9a24db002cb6bb90e769eb",
+  "indexDigest": "be1464a204db831fc0d13bc157cd34b35986a3635a0b58fa9c1c48b36a6270f9",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -952,6 +952,22 @@
     },
     {
       "path": "evals/cratis-engineering-docs-companions/runs/skills-openai-codex-gpt-5-6-luna-r2/output.txt",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-fundamentals-concept/focused-cases.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-fundamentals-concept/focused-evaluation.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-fundamentals-concept/focused-prompt.md",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-fundamentals-concept/focused-run-output.json",
       "status": "added"
     },
     {
@@ -2172,10 +2188,8 @@
     }
   ],
   "admittedUntracked": [
-    "evals/cratis-fundamentals-concept/focused-cases.json",
-    "evals/cratis-fundamentals-concept/focused-evaluation.json",
-    "evals/cratis-fundamentals-concept/focused-prompt.md",
-    "evals/cratis-fundamentals-concept/focused-run-output.json"
+    "distribution/evidence/local-fundamentals-preview-assets-b53caa5-2026-08-23.json",
+    "distribution/evidence/real-samples-fundamentals-preview-canary-2026-08-23.json"
   ],
   "excludedRuntimePrefixes": [
     ".pi/delegate/",
@@ -3493,8 +3507,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 21,
-      "expectedPathsDigest": "71a9ace02658773d95d6505406910e952ca190c9996ea4561d680af900746304"
+      "expectedPathCount": 23,
+      "expectedPathsDigest": "f0ca40cf3412f813bcbaef8492399940f493b944c5eed495b7b554dfb12f4432"
     },
     {
       "excludePathPatterns": [],

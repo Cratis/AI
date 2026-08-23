@@ -5002,7 +5002,10 @@
       },
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "fundamentals-concept-source-review-2026-08-23",
+        "fundamentals-concept-focused-evaluation-2026-08-23",
+        "fundamentals-concept-samples-canary-2026-08-23"
       ],
       "includeInRuntime": false
     },

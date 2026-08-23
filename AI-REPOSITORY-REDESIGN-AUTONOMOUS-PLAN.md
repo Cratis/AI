@@ -642,8 +642,8 @@ handover section 51.
 - [x] Merge fail-closed approval-driven profile materialization and per-harness
   install roots through AI#167.
 - [x] Merge corrected official Pi filter paths through AI#168.
-- [ ] Preserve the inherited formatter-only materializer diff and this
-  checkpoint in one small no-release PR; rerun all current-main gates.
+- [x] Preserve the inherited formatter-only materializer diff and checkpoint in
+  merged AI#169; rerun all current-main gates.
 - [ ] Obtain AI#148 and AI#165 approval for the one-skill
   `public-fundamentals` preview; never infer approval.
 - [x] With approval still absent, generate deterministic local immutable
@@ -681,3 +681,24 @@ handover section 51.
   retain content/authority gaps rather than synthesize product behavior.
 - [ ] Migrate the existing 39 legacy skill sources by product family after the
   first Fundamentals release candidate is approved and canaried.
+
+### 2026-08-23 — Minimal-gate product delivery tracking
+
+- [x] Record the delivery policy in parent AI#173: source owner, corrected skill,
+  focused compile/spec evidence, one canary, exact approval/release.
+- [x] Create product-family child issues AI#174–#179 for engineering/specs, Arc,
+  frontend/Components, Chronicle/operations, clients, and modeling products.
+- [x] Record `woksin` as accountable AI/profile owner and `einari` as shared
+  reviewer for the first profile.
+- [x] Reconcile `cratis-fundamentals-concept` against exact
+  Fundamentals 7.18.1 and Chronicle 16.38.1 source/tag/registry evidence.
+- [x] Compile representative value/Guid/string stream identity templates with
+  zero warnings/errors against the exact NuGet packages.
+- [x] Run one bounded OpenAI no-tool check: 12/12 positive, negative, collision,
+  and security decisions/rationales; no baseline, repetitions, or review loop.
+- [x] Classify the target and accept its passive security boundary while keeping
+  source contracts, approval, runtime, publication, and promotion false.
+- [ ] Obtain the AI#148 owner approve/reject response for exact revision
+  `b53caa5` and digest `9e537c48`; then enable only the first release candidate.
+- [ ] Run one real consumer canary and proceed to credentials/publication only
+  after it passes.

@@ -2134,3 +2134,63 @@ coverage grows to 15 products, 10 languages, and 71 capabilities; all remain
 unclaimed until authoritative source and release gates pass. Profile states are
 1 preview candidate, 19 planned source migrations, 24 content gaps, 1 authority
 gap, 6 planned compositions, and 1 owner-review pending. No new target approval or publication state is implied.
+
+## 54. Delivery-first tracking and Fundamentals authority — 2026-08-23
+
+Maintainer direction explicitly rejects perfect-accuracy gates, long evaluation
+matrices, repeated reviews, and overengineered process. The active delivery
+policy for each profile is now:
+
+1. named owner plus first-party source;
+2. corrected self-contained canonical skill;
+3. focused static/compile/spec evidence;
+4. one real package/host/consumer canary;
+5. exact version/digest approval and release.
+
+Use repeated or model-diverse evaluation only for a demonstrated routing
+ambiguity, security risk, or destructive effect. One bounded review is a ceiling
+for a coherent high-risk unit, not a default requirement.
+
+GitHub tracking is centralized in AI#173 with product-family child issues:
+
+- AI#174 — public-safe engineering base and Specifications;
+- AI#175 — Arc backend, EF Core, and identity;
+- AI#176 — Arc React and Components;
+- AI#177 — Chronicle core, compliance, tenancy, CLI, Workbench, and MCP;
+- AI#178 — language-native Chronicle clients;
+- AI#179 — Lens, Screenplay, Stage, and public Studio.
+
+AI#148 remains the first active release item. `woksin` is the accountable
+AI/profile owner and `einari` is shared responsibility/backup reviewer.
+
+The first canonical skill was reconciled against authoritative public releases:
+
+- `Cratis.Fundamentals@7.18.1`, tag revision
+  `7424cac54aa27753c182333a696e25f0263b54b5`;
+- `Cratis.Chronicle@16.38.1`, tag revision
+  `8c5c6f34abae61f8d94bbfb9f4179674409b7cd3`;
+- canonical skill revision
+  `b53caa555b9a3f05ba1462b86202fe3ccb8a9470`, digest
+  `9e537c48a95c414709008c69ebfb616354d60992578ddd9da3d7dc7308c42caa`.
+
+Corrections make `NotSet`, primitive-to-derived conversion, and `New()` optional
+domain conveniences; enforce one-value/IComparable/null/enum behavior; narrow
+`EventSourceId<T>` to actual Chronicle stream identities; document derived-type
+conversion limits, typed sentinel semantics, explicit stream selection,
+`CHR0026`, `CHR0034`, and surrogate IDs for sensitive natural identifiers; and
+label placement as an application convention.
+
+A temporary `net9.0` project compiled the value, Guid stream identity, string
+stream identity, and typed-to-untyped append conversions against both exact
+NuGet versions with zero warnings/errors. One bounded no-tool
+`openai-codex/gpt-5.4-mini` run covered 12 positive, negative, collision, and
+security cases with 12/12 decisions and rationales. No baseline, repetitions,
+Anthropic model, generalized runner framework, or recursive review was used.
+
+Evidence is in
+`distribution/evidence/fundamentals-concept-source-review-2026-08-23.json` and
+`evals/cratis-fundamentals-concept/focused-evaluation.json`. The target is now
+classified, security-accepted, and focused-evaluation passing, but source
+contracts, owner approval, runtime inclusion, publication, and promotion remain
+false. Updated 11-harness local assets at version `0.1.0-preview.2` remain
+npm-private and approval-pending.

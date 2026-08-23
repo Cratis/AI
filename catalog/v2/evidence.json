@@ -68,7 +68,7 @@
       "applicableVersion": "Cratis.Fundamentals@7.18.1+Cratis.Chronicle@16.38.1",
       "confidence": "high",
       "repositoryPath": "distribution/evidence/fundamentals-concept-source-review-2026-08-23.json",
-      "digest": "62b6770b0a354aaa7b054fa8075d742a6952c00fc98b3b8c78d4ae1e46c9390f"
+      "digest": "f8190eaa5425f5ce50e3dca36a6fd7f680de7b1e9dc46b3b015eb74cfca45707"
     },
     {
       "id": "fundamentals-concept-focused-evaluation-2026-08-23",
@@ -80,6 +80,17 @@
       "confidence": "medium",
       "repositoryPath": "evals/cratis-fundamentals-concept/focused-evaluation.json",
       "digest": "13da54b06949e4320b64ee58fde919a369bb1510ae05d8bbb2f4cf6d1c64c844"
+    },
+    {
+      "id": "fundamentals-concept-samples-canary-2026-08-23",
+      "officialUrl": "https://github.com/Cratis/Samples",
+      "sourceKind": "local-evidence-report",
+      "verifiedOn": "2026-08-23",
+      "expiresOn": "2026-11-21",
+      "applicableVersion": "Cratis/Samples@55e6eb168606da96136cc7f91db8adf45aac3288",
+      "confidence": "high",
+      "repositoryPath": "distribution/evidence/real-samples-fundamentals-preview-canary-2026-08-23.json",
+      "digest": "345fdacc6d907aa701785d4e9306959282baa2d196e81ab925626acbe3e50219"
     },
     {
       "id": "engineering-docs-add-page-source-684d037",

@@ -819,9 +819,7 @@ const definitions = [
         dependencies: ["skills/cratis-fundamentals-concept/**"],
         risk: "low",
         migrationState: "retain",
-        evidenceIds: [
-            "fundamentals-concept-source-review-2026-08-23",
-        ],
+        evidenceIds: ["fundamentals-concept-source-review-2026-08-23"],
     },
     {
         id: "source-evidence-contract-v1",
