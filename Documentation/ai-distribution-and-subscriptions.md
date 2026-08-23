@@ -113,18 +113,19 @@ The schema is
 Exact versions are mandatory. `latest`, branches, and floating ranges are not
 valid subscriptions.
 
-The repository-scoped update App discovers subscriptions from committed
-`.cratis/ai.json` files in repositories where it is installed. A new release
-opens a normal pull request changing the subscription and host-native lock or
-settings files. It never merges automatically, pushes generated corpus folders,
-or receives broad organization write access.
+Stagehand owns the subscriber update controller tracked internally as
+`Cratis/Stagehand#39`. Its repository-scoped App discovers committed `.cratis/ai.json` files only in
+repositories where it is explicitly installed. A new release opens a normal
+pull request changing the subscription and host-native lock or settings files.
+It never merges automatically, pushes generated corpus folders, or receives
+broad organization write access.
 
 ## Pi package workflow
 
 Pi is a first-class host, not a copied adapter directory. Pi packages can load
 skills from npm or Git and can be installed globally or into project settings.
-See the official [Pi package documentation](https://pi.dev/docs) and package
-gallery at [pi.dev/packages](https://pi.dev/packages). Because Pi packages and
+See the official [Pi package reference](https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/packages.md)
+and package gallery at [pi.dev/packages](https://pi.dev/packages). Because Pi packages and
 skills can execute or instruct powerful actions, Cratis public and base profile
 packages remain passive and are reviewed before publication.
 
@@ -175,8 +176,8 @@ package filter object:
     {
       "source": "npm:@cratis/ai-chronicle@1.0.0",
       "skills": [
-        "cratis-chronicle-projection",
-        "cratis-chronicle-read-model"
+        "skills/cratis-chronicle-projection",
+        "skills/cratis-chronicle-read-model"
       ],
       "extensions": []
     }
