@@ -33,6 +33,35 @@ test("verification workflow covers every release-relevant source", () => {
     }
 });
 
+test("Fundamentals preview workflow is read-only short-lived and non-publishing", () => {
+    const workflow = readFileSync(
+        ".github/workflows/distribution-fundamentals-preview-assets.yml",
+        "utf8",
+    );
+    for (const required of [
+        "permissions:\n  contents: read",
+        "fetch-depth: 0",
+        "package-fundamentals-preview-assets.mjs",
+        "PREVIEW_ASSETS_APPROVAL_PENDING",
+        "preview-assets.json').approvalEligible",
+        "preview-assets.json').publicationEligible",
+        "preview-assets.json').promotionEligible",
+        "retention-days: 7",
+        "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+    ])
+        assert(workflow.includes(required), required);
+    for (const forbidden of [
+        "id-token: write",
+        "contents: write",
+        "pull-requests: write",
+        "npm publish",
+        "gh release create",
+        "git push",
+        "secrets:",
+    ])
+        assert.equal(workflow.includes(forbidden), false, forbidden);
+});
+
 test("approved profile workflow is bot-scoped and keeps publication separate", () => {
     const workflow = readFileSync(
         ".github/workflows/distribution-approved-profile-release.yml",

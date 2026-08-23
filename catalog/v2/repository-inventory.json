@@ -2087,7 +2087,11 @@
       "status": "added"
     }
   ],
-  "admittedUntracked": [],
+  "admittedUntracked": [
+    ".github/workflows/distribution-fundamentals-preview-assets.yml",
+    "tooling/package-fundamentals-preview-assets.mjs",
+    "tooling/specs/fundamentals-preview-assets.spec.mjs"
+  ],
   "excludedRuntimePrefixes": [
     ".pi/delegate/",
     ".pi/fusion/",
@@ -2638,6 +2642,7 @@
       "id": "repository-validation-workflow",
       "sourcePathPatterns": [
         ".github/workflows/distribution-approved-profile-release.yml",
+        ".github/workflows/distribution-fundamentals-preview-assets.yml",
         ".github/workflows/distribution-canary-rollback.yml",
         ".github/workflows/engineering-distribution-fixture.yml",
         ".github/workflows/distribution-generated-update.yml",
@@ -2660,8 +2665,8 @@
         "repo-main-b795d53",
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 6,
-      "expectedPathsDigest": "6e7604e8543c6f011bf0852a2b81f6d416a83ce2fcab42dbc47d4aa324d184ae"
+      "expectedPathCount": 7,
+      "expectedPathsDigest": "5a65e77aea979995ff0ef0fe6cb46700b304da3082d03a2a742765855956c82d"
     },
     {
       "excludePathPatterns": [],
@@ -3398,8 +3403,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 33,
-      "expectedPathsDigest": "ade37b2c91e8e2421f43e484961a158e4c5d2a109a57e9865e7f66010e2952de"
+      "expectedPathCount": 34,
+      "expectedPathsDigest": "6facafe4362c2224d7689cf7a2bb63c7099affb12a0ca84435c48ee9c140fef6"
     },
     {
       "excludePathPatterns": [],
@@ -3422,8 +3427,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 26,
-      "expectedPathsDigest": "f46889a4a04eaadb9235545a1402d44de3127378458e0a864e929bde8d426a7d"
+      "expectedPathCount": 27,
+      "expectedPathsDigest": "cdd1e58ce361586db8c6c0bd849e31460e22a3c894480cf4c81ed5052e6e2c83"
     },
     {
       "excludePathPatterns": [],
