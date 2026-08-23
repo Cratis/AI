@@ -7,7 +7,10 @@ import { dirname, join, resolve } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 
-const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+const repositoryRoot = resolve(
+    dirname(fileURLToPath(import.meta.url)),
+    "../..",
+);
 const workflowPath = join(
     repositoryRoot,
     ".github/workflows/distribution-generated-update.yml",
@@ -68,9 +71,7 @@ test("generated update workflow cannot publish or bypass protected main", () => 
     const workflow = workflowText();
     assert.match(workflow, /workflow_dispatch:/);
     assert.match(workflow, /create-fixture-pr/);
-    assert(
-        workflow.includes('[[ "$VERSION" =~ ^0\\.0\\.[0-9]+-fixture$ ]]'),
-    );
+    assert(workflow.includes('[[ "$VERSION" =~ ^0\\.0\\.[0-9]+-fixture$ ]]'));
     assert.equal(
         workflow.match(/"\$RUNNER_TEMP\/generated-distribution" "\$VERSION"/g)
             ?.length,

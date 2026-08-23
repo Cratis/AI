@@ -7,9 +7,15 @@ import { dirname, join, resolve } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 
-const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+const repositoryRoot = resolve(
+    dirname(fileURLToPath(import.meta.url)),
+    "../..",
+);
 const contract = JSON.parse(
-    readFileSync(join(repositoryRoot, "distribution/npm-stage-contract.json"), "utf8"),
+    readFileSync(
+        join(repositoryRoot, "distribution/npm-stage-contract.json"),
+        "utf8",
+    ),
 );
 const workflow = readFileSync(
     join(repositoryRoot, ".github/workflows/distribution-npm-stage.yml"),
@@ -26,7 +32,8 @@ test("npm stage contract keeps ownership OIDC and publication blocked", () => {
     assert.equal(contract.workflow.stagePublishEnabled, false);
     assert.equal(contract.workflow.publicPublishEnabled, false);
     assert.equal(
-        contract.workflow.publishAutomaticallyAfterMergedReleaseRequestAndCanary,
+        contract.workflow
+            .publishAutomaticallyAfterMergedReleaseRequestAndCanary,
         true,
     );
     assert.equal(
@@ -44,7 +51,10 @@ test("npm fixture workflow verifies a private scriptless package", () => {
     assert.match(workflow, /scripts === undefined/);
     assert.match(workflow, /dependencies === undefined/);
     assert.match(workflow, /distribution-fixture\.spec\.mjs/);
-    assert.match(workflow, /"\$RUNNER_TEMP\/generated-distribution" "\$VERSION"/);
+    assert.match(
+        workflow,
+        /"\$RUNNER_TEMP\/generated-distribution" "\$VERSION"/,
+    );
 });
 
 test("npm fixture workflow cannot mint OIDC or publish", () => {
