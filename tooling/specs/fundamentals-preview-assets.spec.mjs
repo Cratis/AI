@@ -38,7 +38,9 @@ function commandAvailable(command) {
 }
 
 function assetPath(root, manifest, harness) {
-    const asset = manifest.assets.find(candidate => candidate.harness === harness);
+    const asset = manifest.assets.find(
+        (candidate) => candidate.harness === harness,
+    );
     if (!asset) throw new Error(`Missing ${harness} preview asset`);
     return join(root, asset.filename);
 }
@@ -55,8 +57,34 @@ function packageVersion(consumerRoot) {
     ).version;
 }
 
+test("recorded Fundamentals preview evidence is immutable and non-promoting", () => {
+    const evidence = JSON.parse(
+        readFileSync(
+            "distribution/evidence/local-fundamentals-preview-assets-2026-08-23.json",
+            "utf8",
+        ),
+    );
+    assert.equal(evidence.state, "PREVIEW_ASSET_STAGING_PASS_APPROVAL_PENDING");
+    assert.equal(
+        evidence.sourceCommit,
+        "7d5307a011294bebe9112d1bac39ad461c984018",
+    );
+    assert.equal(
+        evidence.sourceRevision,
+        "e9d161a70e25334bb468a33240bcf00f03f87522",
+    );
+    assert.equal(evidence.assets.length, 11);
+    assert(evidence.results.every((result) => result.status === "PASS"));
+    assert.equal(evidence.sbom.dependencies, 0);
+    assert.equal(evidence.sbom.executableComponents, 0);
+    assert.equal(evidence.approvalEligible, false);
+    assert.equal(evidence.installationSupported, false);
+    assert.equal(evidence.publicationEligible, false);
+    assert.equal(evidence.promotionEligible, false);
+});
+
 test("Fundamentals preview assets are deterministic and non-publishable", () => {
-    withTemporaryDirectory(root => {
+    withTemporaryDirectory((root) => {
         const firstRoot = join(root, "first");
         const secondRoot = join(root, "second");
         const first = packageFundamentalsPreviewAssets({
@@ -91,7 +119,10 @@ test("Fundamentals preview assets are deterministic and non-publishable", () => 
                 readFileSync(join(firstRoot, asset.filename)),
                 readFileSync(join(secondRoot, asset.filename)),
             );
-            assert(readTarGzip(readFileSync(join(firstRoot, asset.filename))).size > 0);
+            assert(
+                readTarGzip(readFileSync(join(firstRoot, asset.filename)))
+                    .size > 0,
+            );
         }
         const sbom = JSON.parse(
             readFileSync(join(firstRoot, "preview-sbom.json"), "utf8"),
@@ -99,9 +130,36 @@ test("Fundamentals preview assets are deterministic and non-publishable", () => 
         assert.equal(sbom.format, "cratis-passive-profile-sbom-v1");
         assert.deepEqual(sbom.dependencies, []);
         assert.deepEqual(sbom.executableComponents, []);
-        assert.deepEqual(sbom.components.map(component => component.name), [
-            "cratis-fundamentals-concept",
-        ]);
+        assert.deepEqual(
+            sbom.components.map((component) => component.name),
+            ["cratis-fundamentals-concept"],
+        );
+        const piFiles = readTarGzip(
+            readFileSync(assetPath(firstRoot, first, "pi")),
+        );
+        const piPackage = JSON.parse(
+            piFiles.get("package/package.json").toString("utf8"),
+        );
+        assert.equal(piPackage.name, "@cratis/ai-fundamentals");
+        assert.equal(piPackage.private, true);
+        assert.equal(piPackage.scripts, undefined);
+        assert.equal(piPackage.dependencies, undefined);
+        const codexFiles = readTarGzip(
+            readFileSync(assetPath(firstRoot, first, "codex")),
+        );
+        const codexMarketplace = JSON.parse(
+            codexFiles
+                .get(".agents/plugins/marketplace.json")
+                .toString("utf8"),
+        );
+        assert.equal(
+            codexMarketplace.plugins[0].policy.installation,
+            "NOT_AVAILABLE",
+        );
+        assert.equal(
+            codexMarketplace.plugins[0].policy.authentication,
+            undefined,
+        );
         const checksums = readFileSync(join(firstRoot, "SHA256SUMS"), "utf8");
         assert(checksums.includes("preview-assets.json"));
         assert(checksums.includes("preview-sbom.json"));
@@ -110,15 +168,20 @@ test("Fundamentals preview assets are deterministic and non-publishable", () => 
 });
 
 test("preview asset generation fails closed on current authority drift", () => {
-    withTemporaryDirectory(root => {
-        assert.throws(
-            () =>
-                packageFundamentalsPreviewAssets({
-                    outputRoot: join(root, "invalid"),
-                    version: "latest",
-                }),
-            /exact SemVer/,
-        );
+    withTemporaryDirectory((root) => {
+        for (const version of ["latest", "1.0.0", "0.1.0-rc.1"]) {
+            assert.throws(
+                () =>
+                    packageFundamentalsPreviewAssets({
+                        outputRoot: join(
+                            root,
+                            `invalid-${version.replaceAll(/[^a-z0-9]/gi, "-")}`,
+                        ),
+                        version,
+                    }),
+                /must match 0\.MINOR\.PATCH-preview\.N/,
+            );
+        }
         const existing = join(root, "existing");
         mkdirSync(existing);
         assert.throws(
@@ -133,7 +196,7 @@ test("preview asset generation fails closed on current authority drift", () => {
 });
 
 test("Pi npm preview asset updates rolls back uninstalls and preserves context", () => {
-    withTemporaryDirectory(root => {
+    withTemporaryDirectory((root) => {
         const firstRoot = join(root, "first");
         const secondRoot = join(root, "second");
         const first = packageFundamentalsPreviewAssets({
@@ -164,7 +227,7 @@ test("Pi npm preview asset updates rolls back uninstalls and preserves context",
             mkdirSync(join(consumer, path, ".."), { recursive: true });
             writeFileSync(join(consumer, path), content);
         }
-        const install = tarball =>
+        const install = (tarball) =>
             execFileSync(
                 "npm",
                 [
@@ -202,47 +265,45 @@ test("Pi npm preview asset updates rolls back uninstalls and preserves context",
     });
 });
 
-test(
-    "Pi loads and removes the extracted exact preview package in an isolated home",
-    { skip: !commandAvailable("pi") },
-    () => {
-        withTemporaryDirectory(root => {
-            const outputRoot = join(root, "assets");
-            const manifest = packageFundamentalsPreviewAssets({
-                outputRoot,
-                version: "0.1.0-preview.1",
-            });
-            const extractRoot = join(root, "extract");
-            mkdirSync(extractRoot);
-            execFileSync(
-                "tar",
-                ["-xzf", assetPath(outputRoot, manifest, "pi"), "-C", extractRoot],
-                { stdio: "pipe" },
-            );
-            const packageRoot = join(extractRoot, "package");
-            const isolatedHome = join(root, "home");
-            mkdirSync(isolatedHome);
-            const environment = { ...process.env, HOME: isolatedHome };
-            execFileSync("pi", ["install", packageRoot], {
-                env: environment,
-                stdio: "pipe",
-            });
-            assert(
-                execFileSync("pi", ["list"], {
-                    env: environment,
-                    encoding: "utf8",
-                }).includes(packageRoot),
-            );
-            execFileSync("pi", ["remove", packageRoot], {
-                env: environment,
-                stdio: "pipe",
-            });
-            assert(
-                execFileSync("pi", ["list"], {
-                    env: environment,
-                    encoding: "utf8",
-                }).includes("No packages installed"),
-            );
+test("Pi loads and removes the extracted exact preview package in an isolated home", {
+    skip: !commandAvailable("pi"),
+}, () => {
+    withTemporaryDirectory((root) => {
+        const outputRoot = join(root, "assets");
+        const manifest = packageFundamentalsPreviewAssets({
+            outputRoot,
+            version: "0.1.0-preview.1",
         });
-    },
-);
+        const extractRoot = join(root, "extract");
+        mkdirSync(extractRoot);
+        execFileSync(
+            "tar",
+            ["-xzf", assetPath(outputRoot, manifest, "pi"), "-C", extractRoot],
+            { stdio: "pipe" },
+        );
+        const packageRoot = join(extractRoot, "package");
+        const isolatedHome = join(root, "home");
+        mkdirSync(isolatedHome);
+        const environment = { ...process.env, HOME: isolatedHome };
+        execFileSync("pi", ["install", packageRoot], {
+            env: environment,
+            stdio: "pipe",
+        });
+        assert(
+            execFileSync("pi", ["list"], {
+                env: environment,
+                encoding: "utf8",
+            }).includes(packageRoot),
+        );
+        execFileSync("pi", ["remove", packageRoot], {
+            env: environment,
+            stdio: "pipe",
+        });
+        assert(
+            execFileSync("pi", ["list"], {
+                env: environment,
+                encoding: "utf8",
+            }).includes("No packages installed"),
+        );
+    });
+});

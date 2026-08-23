@@ -14,7 +14,7 @@ import {
     writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { basename, join, relative, resolve } from "node:path";
+import { join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { gunzipSync, gzipSync } from "node:zlib";
 import {
@@ -30,6 +30,10 @@ const targetId = "cratis-fundamentals-concept";
 const sourceId = "add-concept";
 const artifactId = "cratis-fundamentals-concept-preview";
 const packageName = "@cratis/ai-fundamentals";
+const requiredSourceRevision =
+    "e9d161a70e25334bb468a33240bcf00f03f87522";
+const requiredSourceContentDigest =
+    "f7f7c2c110b3ff3f1b5921ad51fffc449a448bb49aaec2626ecc4d391e9d78a1";
 
 function sha256(content) {
     return createHash("sha256").update(content).digest("hex");
@@ -50,7 +54,7 @@ function writeJson(path, value) {
 }
 
 function walkFiles(root, current = root) {
-    return readdirSync(current, { withFileTypes: true }).flatMap(entry => {
+    return readdirSync(current, { withFileTypes: true }).flatMap((entry) => {
         const path = join(current, entry.name);
         if (entry.isDirectory()) return walkFiles(root, path);
         if (!entry.isFile())
@@ -69,7 +73,11 @@ function writeOctal(header, offset, length, value) {
 
 function splitTarPath(path) {
     if (Buffer.byteLength(path) <= 100) return { name: path, prefix: "" };
-    for (let index = path.lastIndexOf("/"); index > 0; index = path.lastIndexOf("/", index - 1)) {
+    for (
+        let index = path.lastIndexOf("/");
+        index > 0;
+        index = path.lastIndexOf("/", index - 1)
+    ) {
         const prefix = path.slice(0, index);
         const name = path.slice(index + 1);
         if (Buffer.byteLength(name) <= 100 && Buffer.byteLength(prefix) <= 155)
@@ -127,7 +135,7 @@ export function readTarGzip(content) {
     let offset = 0;
     while (offset + 512 <= tar.length) {
         const header = tar.subarray(offset, offset + 512);
-        if (header.every(byte => byte === 0)) break;
+        if (header.every((byte) => byte === 0)) break;
         const expectedChecksum = parseOctal(header.subarray(148, 156));
         const checksumHeader = Buffer.from(header);
         checksumHeader.fill(0x20, 148, 156);
@@ -179,21 +187,32 @@ function loadPreviewAuthority(repositoryRoot) {
     const profiles = readJson(
         join(repositoryRoot, "distribution/profile-catalog.json"),
     );
-    const profile = profiles.publicProfiles.find(candidate => candidate.id === profileId);
-    const targets = readJson(join(repositoryRoot, "catalog/v2/targets.json")).targets;
-    const target = targets.find(candidate => candidate.id === targetId);
-    const sources = readJson(join(repositoryRoot, "catalog/v2/sources.json")).sources;
-    const source = sources.find(candidate => candidate.id === sourceId);
-    const artifacts = readJson(join(repositoryRoot, "catalog/v2/artifacts.json")).artifacts;
-    const artifact = artifacts.find(candidate => candidate.id === artifactId);
+    const profile = profiles.publicProfiles.find(
+        (candidate) => candidate.id === profileId,
+    );
+    const targets = readJson(
+        join(repositoryRoot, "catalog/v2/targets.json"),
+    ).targets;
+    const target = targets.find((candidate) => candidate.id === targetId);
+    const sources = readJson(
+        join(repositoryRoot, "catalog/v2/sources.json"),
+    ).sources;
+    const source = sources.find((candidate) => candidate.id === sourceId);
+    const artifacts = readJson(
+        join(repositoryRoot, "catalog/v2/artifacts.json"),
+    ).artifacts;
+    const artifact = artifacts.find((candidate) => candidate.id === artifactId);
     if (
         profile?.state !== "preview-source-candidate" ||
-        JSON.stringify(profile.availableTargets) !== JSON.stringify([targetId]) ||
+        JSON.stringify(profile.availableTargets) !==
+            JSON.stringify([targetId]) ||
         target?.approval?.state !== "candidate" ||
         target.includeInRuntime !== false ||
         target.sourceSkillIds.length !== 1 ||
         target.sourceSkillIds[0] !== sourceId ||
         source?.audience !== "public" ||
+        source.sourceRevision !== requiredSourceRevision ||
+        source.contentDigest !== requiredSourceContentDigest ||
         source.publicationApproval !== false ||
         artifact?.fixtureOnly !== true ||
         artifact.materializationAllowed !== true ||
@@ -205,7 +224,7 @@ function loadPreviewAuthority(repositoryRoot) {
     )
         throw new Error("Fundamentals preview authority changed");
     const contents = new Map(
-        source.bundledPaths.map(path => [
+        source.bundledPaths.map((path) => [
             path,
             execFileSync("git", ["show", `${source.sourceRevision}:${path}`], {
                 cwd: repositoryRoot,
@@ -222,7 +241,7 @@ function loadPreviewAuthority(repositoryRoot) {
         artifact,
         skill: {
             name: targetId,
-            files: source.bundledPaths.map(path => ({
+            files: source.bundledPaths.map((path) => ({
                 path: path.slice(prefix.length),
                 content: contents.get(path),
             })),
@@ -236,6 +255,10 @@ export function packageFundamentalsPreviewAssets({
     version = "0.1.0-preview.1",
 } = {}) {
     if (!outputRoot) throw new Error("outputRoot is required");
+    if (!/^0\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)-preview\.(0|[1-9][0-9]*)$/.test(version))
+        throw new Error(
+            "Preview asset version must match 0.MINOR.PATCH-preview.N",
+        );
     const root = resolve(outputRoot);
     if (existsSync(root))
         throw new Error(`Preview asset output must not exist: ${root}`);
@@ -253,6 +276,8 @@ export function packageFundamentalsPreviewAssets({
             packageName,
             description: "Cratis Fundamentals concept preview",
             skills: [authority.skill],
+            codexInstallationPolicy: "NOT_AVAILABLE",
+            piPrivate: true,
         });
         const assets = [];
         for (const harness of passiveHarnesses) {
@@ -267,9 +292,9 @@ export function packageFundamentalsPreviewAssets({
                 const archivePath = pathPrefix ? `${pathPrefix}/${path}` : path;
                 if (
                     !archiveFiles.has(archivePath) ||
-                    !archiveFiles.get(archivePath).equals(
-                        readFileSync(join(harnessRoot, path)),
-                    )
+                    !archiveFiles
+                        .get(archivePath)
+                        .equals(readFileSync(join(harnessRoot, path)))
                 )
                     throw new Error(`${harness}: archive byte parity failed`);
             }
@@ -339,7 +364,7 @@ export function packageFundamentalsPreviewAssets({
             ],
             dependencies: [],
             executableComponents: [],
-            assets: assets.map(asset => ({
+            assets: assets.map((asset) => ({
                 harness: asset.harness,
                 filename: asset.filename,
                 sha256: asset.sha256,
@@ -350,7 +375,7 @@ export function packageFundamentalsPreviewAssets({
             join(root, "SHA256SUMS"),
             `${checksumPaths
                 .map(
-                    path =>
+                    (path) =>
                         `${sha256(readFileSync(join(root, path)))}  ${path}`,
                 )
                 .join("\n")}\n`,
