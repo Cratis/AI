@@ -33,6 +33,44 @@ test("verification workflow covers every release-relevant source", () => {
     }
 });
 
+test("merged release request automatically generates canaries publishes and distributes", () => {
+    const workflow = readFileSync(
+        ".github/workflows/release-approved-ai-profiles.yml",
+        "utf8",
+    );
+    for (const required of [
+        "pull_request:",
+        "push:\n    branches: [\"main\"]",
+        "distribution/releases/*.json",
+        "release-request-validation.mjs",
+        "generate-approved-profile-release.mjs",
+        "needs: [discover, verify]",
+        "needs: [discover, verify, canary]",
+        "needs: [discover, verify, canary, distribute]",
+        "needs: [discover, distribute, publish-npm]",
+        "samples-chronicle-backend",
+        "gh release create",
+        "--draft",
+        "gh release edit \"v$VERSION\"",
+        "--draft=false",
+        "npm publish",
+        "--provenance",
+        "id-token: write",
+        "gh pr merge \"$pr_url\" --repo Cratis/AI.Distribution --auto --squash",
+        "Workflows#73",
+        "AI#147",
+    ])
+        assert(workflow.includes(required), required);
+    for (const forbidden of [
+        "NPM_TOKEN",
+        "push --force",
+        "push -f",
+        "direct push to main",
+        "secrets: inherit",
+    ])
+        assert.equal(workflow.includes(forbidden), false, forbidden);
+});
+
 test("Fundamentals preview workflow is read-only short-lived and non-publishing", () => {
     const workflow = readFileSync(
         ".github/workflows/distribution-fundamentals-preview-assets.yml",

@@ -64,7 +64,8 @@ See [`distribution/profile-catalog.json`](distribution/profile-catalog.json),
 [Profile reference](Documentation/profile-reference.md),
 [developer adoption](Documentation/adopting-cratis-ai.md),
 [maintainer adoption](Documentation/adopting-cratis-ai-for-maintainers.md), and
-[private repository overlays](Documentation/private-repository-overlays.md).
+[private repository overlays](Documentation/private-repository-overlays.md),
+and [release-on-merge](Documentation/releasing-cratis-ai.md).
 
 A consuming repository will pin profiles in project-owned `.cratis/ai.json`:
 

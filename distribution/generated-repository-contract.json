@@ -47,7 +47,8 @@
     "private product sources"
   ],
   "productionMaterialization": {
-    "enabled": false,
+    "enabled": true,
+    "activation": "merged validated release request",
     "requiresApprovedTargets": true,
     "requiresExactSourceCommit": true,
     "requiresExactSourceDigests": true,
@@ -74,6 +75,20 @@
       "uninstall",
       "project context preservation"
     ]
+  },
+  "releaseOnMerge": {
+    "workflow": ".github/workflows/release-approved-ai-profiles.yml",
+    "requestRoot": "distribution/releases",
+    "pullRequestValidationRequired": true,
+    "mergeToMainIsReleaseApproval": true,
+    "generatedDistributionAutomatic": true,
+    "githubReleaseAutomatic": true,
+    "npmTrustedPublishAutomatic": true,
+    "canaryRequiredBeforePublication": true,
+    "automaticPromotion": true,
+    "automaticRollback": true,
+    "subscriberUpdatePullRequests": true,
+    "marketplaces": "automatic-where-supported-submit-otherwise"
   },
   "publicationEligible": false,
   "promotionEligible": false,

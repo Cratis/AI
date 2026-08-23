@@ -290,6 +290,13 @@ a marketplace.
 
 ## Versioning and release train
 
+A deliberately identified release PR is the recurring human approval. It adds
+one immutable `distribution/releases/v<version>.json` request. Pull-request CI
+materializes and verifies every requested profile; merging that PR to `main`
+automatically generates distribution/GitHub assets, runs canaries, publishes npm
+through trusted OIDC, promotes or stops/rolls back, and hands subscriber updates
+to Workflows. See [Release Cratis AI](./releasing-cratis-ai.md).
+
 All profile packages use SemVer and one atomic release train. A release changes
 shared behavior only through a reviewed `Cratis/AI` commit and records:
 

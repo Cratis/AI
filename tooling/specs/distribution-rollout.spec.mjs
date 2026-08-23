@@ -43,6 +43,10 @@ test("rollout policy keeps production promotion and retirement blocked", () => {
     assert.equal(policy.state, "FIXTURE_ONLY_ROLLOUT_SIMULATION");
     assert.equal(policy.generatedRepository.botOnlyWrites, true);
     assert.equal(policy.canary.productionTargetsEnabled, false);
+    assert.equal(policy.releaseOnMergeAutomation.mergeToMainIsApproval, true);
+    assert.equal(policy.releaseOnMergeAutomation.canaryBeforePublication, true);
+    assert.equal(policy.releaseOnMergeAutomation.automaticPromotion, true);
+    assert.equal(policy.releaseOnMergeAutomation.automaticRollback, true);
     assert.equal(policy.promotion.stableEnabled, false);
     assert.equal(policy.promotion.publicationEnabled, false);
     assert.equal(policy.legacyRetirement.enabled, false);

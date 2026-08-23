@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "8532c6b9f324fbf1e362a84f9d43920381aeb03b6255e2f67ef8275fb2bcd7db",
+  "indexDigest": "602a00694c787b30c8f77a341171aa2452343228249882b0ff527ea4296d6f9f",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -77,6 +77,10 @@
     {
       "path": ".github/workflows/propagate-copilot-instructions.yml",
       "status": "modified"
+    },
+    {
+      "path": ".github/workflows/release-approved-ai-profiles.yml",
+      "status": "added"
     },
     {
       "path": ".github/workflows/sync-copilot-instructions.yml",
@@ -235,6 +239,10 @@
       "status": "added"
     },
     {
+      "path": "Documentation/examples/ai-release/v0.1.0-preview.1.json",
+      "status": "added"
+    },
+    {
       "path": "Documentation/examples/ai-subscriptions/arc-only-application.cratis-ai.json",
       "status": "added"
     },
@@ -328,6 +336,10 @@
     },
     {
       "path": "Documentation/redesign-foundation-validation.md",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/releasing-cratis-ai.md",
       "status": "added"
     },
     {
@@ -524,6 +536,14 @@
     },
     {
       "path": "distribution/profile-subscription.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/release-request.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/releases/README.md",
       "status": "added"
     },
     {
@@ -2063,6 +2083,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/release-request-validation.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/run-engineering-docs-authoring-canary.mjs",
       "status": "added"
     },
@@ -2184,6 +2208,10 @@
     },
     {
       "path": "tooling/specs/public-fundamentals-concept.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/release-request.spec.mjs",
       "status": "added"
     },
     {
@@ -2763,6 +2791,7 @@
         ".github/workflows/engineering-distribution-fixture.yml",
         ".github/workflows/distribution-generated-update.yml",
         ".github/workflows/distribution-npm-stage.yml",
+        ".github/workflows/release-approved-ai-profiles.yml",
         ".github/workflows/verify-ai-corpus.yml"
       ],
       "artifactType": "workflow",
@@ -2781,8 +2810,8 @@
         "repo-main-b795d53",
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 7,
-      "expectedPathsDigest": "5a65e77aea979995ff0ef0fe6cb46700b304da3082d03a2a742765855956c82d"
+      "expectedPathCount": 8,
+      "expectedPathsDigest": "53bf511d530ba6effa5c10f494bc2d935fa48a57b245d3772841a90d2a832494"
     },
     {
       "excludePathPatterns": [],
@@ -3003,6 +3032,8 @@
         "Documentation/ai-distribution-and-subscriptions.md",
         "Documentation/private-repository-overlays.md",
         "Documentation/profile-reference.md",
+        "Documentation/releasing-cratis-ai.md",
+        "Documentation/examples/ai-release/**",
         "Documentation/examples/ai-subscriptions/**",
         "Documentation/examples/private-repository-overlay/**",
         "Documentation/phase-0-verification.md",
@@ -3028,8 +3059,8 @@
         "workflows-68",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 38,
-      "expectedPathsDigest": "bfb48a98e704ad38e22b58bfd5b137c059fd4b114fcf9dff382741e613b47964"
+      "expectedPathCount": 40,
+      "expectedPathsDigest": "a20ce8cc2841a9a0a0208b415fc36303c4fde4f56a7219b0d4f8264049aec14f"
     },
     {
       "excludePathPatterns": [],
@@ -3524,8 +3555,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 23,
-      "expectedPathsDigest": "f0ca40cf3412f813bcbaef8492399940f493b944c5eed495b7b554dfb12f4432"
+      "expectedPathCount": 25,
+      "expectedPathsDigest": "45f156872e09afa65413297bacc455b931a534b29e6693ca50f9840acf95936d"
     },
     {
       "excludePathPatterns": [],
@@ -3547,8 +3578,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 34,
-      "expectedPathsDigest": "6facafe4362c2224d7689cf7a2bb63c7099affb12a0ca84435c48ee9c140fef6"
+      "expectedPathCount": 35,
+      "expectedPathsDigest": "99fb7b30641340e1d2709ece28ec9577bc39e93e0885227462ee28900fb84adf"
     },
     {
       "excludePathPatterns": [],
@@ -3571,8 +3602,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 27,
-      "expectedPathsDigest": "cdd1e58ce361586db8c6c0bd849e31460e22a3c894480cf4c81ed5052e6e2c83"
+      "expectedPathCount": 28,
+      "expectedPathsDigest": "be591c060279e107a6aa4fe601183712a96726cc59191bf03ae6a36c867ba8cc"
     },
     {
       "excludePathPatterns": [],

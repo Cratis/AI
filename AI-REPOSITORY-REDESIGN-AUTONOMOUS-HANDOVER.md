@@ -2194,3 +2194,95 @@ classified, security-accepted, and focused-evaluation passing, but source
 contracts, owner approval, runtime inclusion, publication, and promotion remain
 false. Updated 11-harness local assets at version `0.1.0-preview.2` remain
 npm-private and approval-pending.
+
+## 55. Release PR is the recurring release approval — 2026-08-23
+
+Maintainer direction removes separate recurring approvals for publication,
+promotion, and rollout. A deliberately identified release PR is now the single
+human release gate: merging it to `Cratis/AI/main` means generate, canary,
+release, publish, promote, and deploy exactly the immutable request.
+
+A release PR adds one append-only
+`distribution/releases/v<exact-semver>.json`. The request schema requires:
+
+- exact filename/version parity and unique profiles;
+- exactly one registered canary per profile;
+- generated distribution, GitHub release, npm publication, canary,
+  auto-promotion, auto-rollback, subscriber updates, and marketplace automation
+  all enabled;
+- every requested profile to pass the approval-driven materializer before merge.
+
+`.github/workflows/release-approved-ai-profiles.yml` runs during release PR
+validation and after merge. PR validation generates deterministic profile
+artifacts and short-lived review output. Post-merge automation:
+
+1. regenerates every root-native harness profile;
+2. packages deterministic archives and Pi npm tarballs;
+3. runs the named canary before any publication;
+4. creates a draft immutable `Cratis/AI.Distribution` release and generated index
+   PR;
+5. publishes npm packages with trusted OIDC/provenance only after canary success;
+6. promotes the GitHub release only after npm succeeds;
+7. records the Workflows#73 subscriber-update and AI#147 marketplace handoff.
+
+Canary failure prevents distribution and npm jobs from starting, so there is no
+partial publication to roll back. Distribution is drafted before npm and
+promoted only after npm succeeds. Subscriber failures restore the prior exact
+pin through Workflows#73. Marketplace updates automate where supported; only
+one-time vendor publisher/listing approval remains manual.
+
+`Documentation/releasing-cratis-ai.md` documents the release-PR workflow and
+`Documentation/examples/ai-release/v0.1.0-preview.1.json` is the copy-ready first
+request. No actual request exists yet, so current main cannot release.
+
+AI#181, assigned to `woksin` and `einari`, consolidates the unavoidable one-time
+manual setup: distribution App credentials and generated-index auto-merge
+policy, npm scope/trusted publisher, initial canary/App scope, subscriber update
+controller authorization, marketplace accounts/initial listing reviews, and
+removal of redundant recurring environment reviewers. These are setup tasks,
+not per-release approvals.
+
+## 55. Release PR is the single recurring release gate — 2026-08-23
+
+Maintainer direction replaces separate recurring publication, promotion, and
+rollout approvals with one explicit rule: merging a valid release PR to
+`Cratis/AI/main` means release and deploy exactly that immutable request.
+
+A release PR adds one append-only
+`distribution/releases/v<exact-semver>.json` containing approved profiles,
+named canaries, and mandatory automation for generated distribution, GitHub
+release, npm publication, canary, promotion, rollback, subscriber updates, and
+marketplaces. Pull-request CI resolves every profile through the existing
+approval-driven materializer; unapproved profiles or source/evidence drift block
+the merge.
+
+`.github/workflows/release-approved-ai-profiles.yml` now runs on release-request
+PRs and main merges. Before merge it generates and uploads review candidates.
+After merge it:
+
+1. regenerates root-native profile artifacts;
+2. packages deterministic harness archives and Pi npm tarballs;
+3. runs the registered canary before publication;
+4. creates an immutable `Cratis/AI.Distribution` release branch and GitHub
+   release;
+5. publishes npm packages with trusted OIDC and provenance;
+6. opens the generated distribution index PR with auto-merge;
+7. records the Workflows#73 subscriber-update and AI#147 marketplace handoff.
+
+Canary failure prevents distribution and npm jobs from running, so the current
+stable release remains unchanged. Subscriber failures must restore the prior
+exact pin through Workflows#73. Vendor marketplaces that require initial human
+publisher/listing review remain one-time manual setup; updates automate where
+the vendor supports it.
+
+The release request schema and validator require exact SemVer, version/filename
+parity, unique profiles, exactly one registered canary per profile, every
+automation flag enabled, and fully ready profile materialization plans. No
+release request exists yet, so current main remains non-publishing.
+
+AI#181, assigned to `woksin` and `einari`, consolidates unavoidable one-time
+manual setup: repository-scoped distribution App credentials, npm trusted
+publisher ownership, initial canary/App scope, subscriber update authorization,
+marketplace publisher accounts/listing review, and removal of redundant
+recurring environment approvals. These are external setup tasks, not recurring
+Cratis release decisions.

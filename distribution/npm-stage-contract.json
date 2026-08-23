@@ -11,12 +11,14 @@
   },
   "workflow": {
     "path": ".github/workflows/distribution-npm-stage.yml",
+    "productionPath": ".github/workflows/release-approved-ai-profiles.yml",
     "currentOperation": "VERIFY_PRIVATE_FIXTURE",
     "environment": "npm-stage",
     "trustedPublisherConfigured": false,
     "oidcEnabled": false,
     "stagePublishEnabled": false,
-    "publicPublishEnabled": false
+    "publicPublishEnabled": false,
+    "publishAutomaticallyAfterMergedReleaseRequestAndCanary": true
   },
   "futureStageRequirements": [
     "approved public target and source contract",
