@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "5547ecf86279e2a94ad1c79297a50323969af8a5380b84cc3a7a03b32bd7b260",
+  "indexDigest": "23b7e328d3a2de25d9dc406e9d5e8840f1a9c7a82f2561cc6dbd83a6465351b4",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -536,6 +536,10 @@
     },
     {
       "path": "distribution/profile-subscription.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/release-approvals.json",
       "status": "added"
     },
     {
@@ -2083,6 +2087,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/release-approval-validation.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/release-request-validation.mjs",
       "status": "added"
     },
@@ -2211,6 +2219,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/specs/release-approval.spec.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/specs/release-request.spec.mjs",
       "status": "added"
     },
@@ -2235,11 +2247,7 @@
       "status": "added"
     }
   ],
-  "admittedUntracked": [
-    "distribution/release-approvals.json",
-    "tooling/release-approval-validation.mjs",
-    "tooling/specs/release-approval.spec.mjs"
-  ],
+  "admittedUntracked": [],
   "excludedRuntimePrefixes": [
     ".pi/delegate/",
     ".pi/fusion/",
