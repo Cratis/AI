@@ -625,3 +625,35 @@ Evidence and exact next actions are in
   then package and host immutable per-harness release assets.
 - [ ] Run the first real public consumer lifecycle canary and publish only a
   narrowly labeled Fundamentals/Chronicle C# preview.
+
+### 2026-08-23 — Authoritative post-#168 delivery state
+
+Historical unchecked items above describe their original checkpoints and are
+not automatically current blockers. Current state and exact evidence are in
+handover section 51.
+
+- [x] Reconcile current `origin/main` at `ee905994`, worktrees, open PRs,
+  divergence, local formatting diff, live issues, credentials, profiles,
+  artifacts, and release statistics.
+- [x] Preserve all 43 legacy skill sources: 35 public and 8 engineering; record
+  that 39 remain migration inputs while 4 have canonical replacements.
+- [x] Merge profile subscriptions, first-class Pi guidance, one-way contribution,
+  broad-sync retirement, and release hardening through AI#166.
+- [x] Merge fail-closed approval-driven profile materialization and per-harness
+  install roots through AI#167.
+- [x] Merge corrected official Pi filter paths through AI#168.
+- [ ] Preserve the inherited formatter-only materializer diff and this
+  checkpoint in one small no-release PR; rerun all current-main gates.
+- [ ] Obtain AI#148 and AI#165 approval for the one-skill
+  `public-fundamentals` preview; never infer approval.
+- [ ] If approval is still absent, generate deterministic local immutable
+  per-harness release assets from the explicitly non-publishable preview so the
+  owner/canary step is executable immediately when approved.
+- [ ] Reassign subscriber-update control-plane ownership: Stagehand#39 closed
+  `NOT_PLANNED`, so no production subscriber controller currently exists.
+- [ ] Provision Workflows#72 App credentials, Workflows#70 npm trust, and run
+  Workflows#71 only after exact approvals exist.
+- [ ] Submit AI#147 marketplaces only for hosts with honest lifecycle evidence;
+  keep Cursor/Kiro/Junie structural and DeepSeek preview labels until reverified.
+- [ ] Keep companion corrective evaluation, broad legacy migration, publication,
+  promotion, and retirement off the first-release critical path.

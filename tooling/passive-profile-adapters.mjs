@@ -64,13 +64,12 @@ export function readSkillFrontmatter(content, skillName) {
         if (!line.trim()) continue;
         const match = /^([A-Za-z][A-Za-z0-9-]*):\s*(\S.*)$/.exec(line);
         if (!match || properties.has(match[1]))
-            throw new Error(`Profile skill frontmatter is invalid: ${skillName}`);
+            throw new Error(
+                `Profile skill frontmatter is invalid: ${skillName}`,
+            );
         properties.set(match[1], match[2]);
     }
-    if (
-        properties.get("name") !== skillName ||
-        !properties.get("description")
-    )
+    if (properties.get("name") !== skillName || !properties.get("description"))
         throw new Error(
             `Profile skill frontmatter name or description is invalid: ${skillName}`,
         );
