@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "asOf": "2026-08-22",
+  "asOf": "2026-08-23",
   "generatedBy": "tooling/generate-catalog-v2.mjs",
   "evidence": [
     {
@@ -50,14 +50,47 @@
       "immutableRevision": "b795d5307e20f7f7458a67708b4f26975e223796"
     },
     {
-      "id": "public-fundamentals-concept-source-e9d161a",
-      "officialUrl": "https://github.com/Cratis/AI/tree/e9d161a70e25334bb468a33240bcf00f03f87522/skills/cratis-fundamentals-concept",
+      "id": "public-fundamentals-concept-source-b53caa5",
+      "officialUrl": "https://github.com/Cratis/AI/tree/b53caa555b9a3f05ba1462b86202fe3ccb8a9470/skills/cratis-fundamentals-concept",
       "sourceKind": "repository-snapshot",
-      "verifiedOn": "2026-08-22",
-      "expiresOn": "2027-08-22",
-      "applicableVersion": "e9d161a70e25334bb468a33240bcf00f03f87522",
+      "verifiedOn": "2026-08-23",
+      "expiresOn": "2027-08-23",
+      "applicableVersion": "b53caa555b9a3f05ba1462b86202fe3ccb8a9470",
       "confidence": "high",
-      "immutableRevision": "e9d161a70e25334bb468a33240bcf00f03f87522"
+      "immutableRevision": "b53caa555b9a3f05ba1462b86202fe3ccb8a9470"
+    },
+    {
+      "id": "fundamentals-concept-source-review-2026-08-23",
+      "officialUrl": "https://github.com/Cratis/AI/issues/148",
+      "sourceKind": "local-evidence-report",
+      "verifiedOn": "2026-08-23",
+      "expiresOn": "2026-11-21",
+      "applicableVersion": "Cratis.Fundamentals@7.18.1+Cratis.Chronicle@16.38.1",
+      "confidence": "high",
+      "repositoryPath": "distribution/evidence/fundamentals-concept-source-review-2026-08-23.json",
+      "digest": "f8190eaa5425f5ce50e3dca36a6fd7f680de7b1e9dc46b3b015eb74cfca45707"
+    },
+    {
+      "id": "fundamentals-concept-focused-evaluation-2026-08-23",
+      "officialUrl": "https://github.com/Cratis/AI/issues/148",
+      "sourceKind": "local-evidence-report",
+      "verifiedOn": "2026-08-23",
+      "expiresOn": "2026-11-21",
+      "applicableVersion": "b53caa555b9a3f05ba1462b86202fe3ccb8a9470",
+      "confidence": "medium",
+      "repositoryPath": "evals/cratis-fundamentals-concept/focused-evaluation.json",
+      "digest": "13da54b06949e4320b64ee58fde919a369bb1510ae05d8bbb2f4cf6d1c64c844"
+    },
+    {
+      "id": "fundamentals-concept-samples-canary-2026-08-23",
+      "officialUrl": "https://github.com/Cratis/Samples",
+      "sourceKind": "local-evidence-report",
+      "verifiedOn": "2026-08-23",
+      "expiresOn": "2026-11-21",
+      "applicableVersion": "Cratis/Samples@55e6eb168606da96136cc7f91db8adf45aac3288",
+      "confidence": "high",
+      "repositoryPath": "distribution/evidence/real-samples-fundamentals-preview-canary-2026-08-23.json",
+      "digest": "345fdacc6d907aa701785d4e9306959282baa2d196e81ab925626acbe3e50219"
     },
     {
       "id": "engineering-docs-add-page-source-684d037",

@@ -30,7 +30,10 @@
       "repositoryUrl": "https://github.com/Cratis/Chronicle",
       "verificationState": "unverified",
       "distributionInputAllowed": false,
-      "evidenceIds": ["ecosystem-use-cases"]
+      "evidenceIds": [
+        "ecosystem-use-cases",
+        "fundamentals-concept-source-review-2026-08-23"
+      ]
     },
     {
       "id": "cratis-components-source",
@@ -50,7 +53,10 @@
       "repositoryUrl": "https://github.com/Cratis/Fundamentals",
       "verificationState": "unverified",
       "distributionInputAllowed": false,
-      "evidenceIds": ["ecosystem-use-cases"]
+      "evidenceIds": [
+        "ecosystem-use-cases",
+        "fundamentals-concept-source-review-2026-08-23"
+      ]
     },
     {
       "id": "cratis-specifications-source",

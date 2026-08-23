@@ -1,0 +1,86 @@
+{
+  "schemaVersion": "1.0.0",
+  "observedOn": "2026-08-23",
+  "state": "REAL_PUBLIC_REPOSITORY_PREVIEW_CANARY_PASS_OWNER_APPROVAL_PENDING",
+  "repository": "https://github.com/Cratis/Samples",
+  "repositoryRevision": "55e6eb168606da96136cc7f91db8adf45aac3288",
+  "scope": "Chronicle/Backend",
+  "profileId": "public-fundamentals",
+  "targetId": "cratis-fundamentals-concept",
+  "sourceRevision": "b53caa555b9a3f05ba1462b86202fe3ccb8a9470",
+  "sourceContentDigest": "9e537c48a95c414709008c69ebfb616354d60992578ddd9da3d7dc7308c42caa",
+  "packageVersion": "0.1.0-preview.2",
+  "consumerPackages": {
+    "Cratis.Fundamentals": "7.18.1",
+    "Cratis.Chronicle": "16.37.1",
+    "chronicleEventSourceIdBlobMatchesReviewed16_38_1": true,
+    "chronicle16_37_1SourceRevision": "476a08a937b30a1a1780176b41f16571091be42d"
+  },
+  "results": [
+    {
+      "gate": "isolated-pi-install-list-remove",
+      "status": "PASS"
+    },
+    {
+      "gate": "existing-consumer-concept-and-stream-identity-evidence",
+      "status": "PASS",
+      "paths": [
+        "Chronicle/Backend/TimelineEntryText.cs",
+        "Chronicle/Backend/TimelineId.cs",
+        "Chronicle/Backend/Timeline.cs",
+        "Chronicle/Backend/Backend.Specs/for_Timeline/when_recording_an_entry.cs",
+        "Chronicle/Backend/Backend.Specs/for_Timeline/when_reading_history.cs"
+      ]
+    },
+    {
+      "gate": "debug-build-zero-warnings-zero-errors",
+      "status": "PASS",
+      "logSha256": "50cb652477617c401ee509b9692cfaf841bc0b377b20541d162d77c6cc922e64"
+    },
+    {
+      "gate": "focused-specifications",
+      "status": "PASS",
+      "passed": 4,
+      "failed": 0,
+      "logSha256": "24a169df6c3c0c77e87a8dd7336dc8ec4efc5f9f4fe598b18ddad3c7302a0694"
+    },
+    {
+      "gate": "project-context-and-worktree-preservation",
+      "status": "PASS",
+      "evidence": "git diff --quiet and empty git status --porcelain after package lifecycle, build, and specs"
+    }
+  ],
+  "preservedAttempts": [
+    {
+      "attempt": 1,
+      "status": "FAILED_HARNESS_CONFIGURATION",
+      "reason": "The isolated HOME intentionally had no OpenAI OAuth credential. No model or repository gate ran."
+    },
+    {
+      "attempt": 2,
+      "status": "FAILED_AMBIGUOUS_CANARY_QUESTION",
+      "reason": "The attribute question referred to the existing clean type rather than an explicit proposal to add Key, Subject, and PII."
+    },
+    {
+      "attempt": 3,
+      "status": "INCONCLUSIVE_HARNESS_SCRIPT_EXIT",
+      "reason": "The clarified classification assertion emitted no failure, but a later redirected shell step exited without durable diagnostics; deterministic package/build/spec gates were rerun directly instead of extending the prompt loop."
+    }
+  ],
+  "relatedEvidence": {
+    "focusedBehavior": "evals/cratis-fundamentals-concept/focused-evaluation.json",
+    "sourceReview": "distribution/evidence/fundamentals-concept-source-review-2026-08-23.json",
+    "previewAssets": "distribution/evidence/local-fundamentals-preview-assets-b53caa5-2026-08-23.json"
+  },
+  "limitations": [
+    "Approval-pending local canary; no production registry installation occurred.",
+    "No source file or dependency manifest was changed.",
+    "Update and rollback must be repeated against the first published exact package.",
+    "Owner approval and source-contract distribution admission remain separate."
+  ],
+  "targetApproval": false,
+  "includeInRuntime": false,
+  "installationSupported": false,
+  "publicationEligible": false,
+  "promotionEligible": false
+}

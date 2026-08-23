@@ -1,0 +1,112 @@
+{
+  "schemaVersion": "1.0.0",
+  "reviewedOn": "2026-08-23",
+  "state": "SOURCE_REVIEW_PASS_OWNER_APPROVAL_PENDING",
+  "profileId": "public-fundamentals",
+  "targetId": "cratis-fundamentals-concept",
+  "accountableOwner": "woksin",
+  "sharedReviewer": "einari",
+  "skill": {
+    "path": "skills/cratis-fundamentals-concept/SKILL.md",
+    "sourceRevision": "b53caa555b9a3f05ba1462b86202fe3ccb8a9470",
+    "contentDigest": "9e537c48a95c414709008c69ebfb616354d60992578ddd9da3d7dc7308c42caa"
+  },
+  "fundamentals": {
+    "repository": "https://github.com/Cratis/Fundamentals",
+    "release": "7.18.1",
+    "releaseTag": "v7.18.1",
+    "releaseRevision": "7424cac54aa27753c182333a696e25f0263b54b5",
+    "reviewedMainRevision": "2c52ed2e430b0d58c498e2058b74acce1f40a936",
+    "package": "Cratis.Fundamentals",
+    "license": "MIT",
+    "reviewedPaths": [
+      "Source/DotNET/Fundamentals/Concepts/ConceptAs.cs",
+      "Documentation/csharp/concepts.md",
+      "Source/DotNET/Fundamentals.Specs/Concepts/for_ConceptAs/when_implicitly_converting.cs",
+      "Source/DotNET/Fundamentals.Specs/Concepts/for_ConceptAs/when_constructing_with_null_value.cs",
+      "Source/DotNET/Fundamentals.Specs/Concepts/for_ConceptAs/when_comparing_concepts.cs",
+      "Source/DotNET/Fundamentals/Concepts/ConceptAsTypeConverter.cs",
+      "Source/DotNET/Fundamentals/Json/ConceptAsJsonConverter.cs"
+    ],
+    "verifiedClaims": [
+      "ConceptAs<T> requires T to implement IComparable.",
+      "ConceptAs<T> wraps one non-null value and supplies concept-to-T conversion.",
+      "Primitive-to-derived-concept conversion is optional and declared by the derived type.",
+      "Extra properties are incompatible with the single-value serialization contract.",
+      "Enums should not be wrapped as concepts."
+    ]
+  },
+  "chronicle": {
+    "repository": "https://github.com/Cratis/Chronicle",
+    "release": "16.38.1",
+    "releaseTag": "v16.38.1",
+    "releaseRevision": "8c5c6f34abae61f8d94bbfb9f4179674409b7cd3",
+    "reviewedMainRevision": "c10af15e6736f39e4d25c027952ae21a241b75c6",
+    "package": "Cratis.Chronicle",
+    "license": "MIT",
+    "reviewedPaths": [
+      "Source/Clients/DotNET/Events/EventSourceId.cs",
+      "Source/Clients/DotNET/SubjectResolver.cs",
+      "Source/Clients/DotNET/EventSequences/IEventSequence.cs",
+      "Source/Clients/DotNET.CodeAnalysis/Analyzers/KeyOrSubjectOnEventSourceIdAnalyzer.cs",
+      "Source/Clients/DotNET.CodeAnalysis/Analyzers/PiiOnEventSourceIdAnalyzer.cs",
+      "Documentation/client-snippets/events/event-source-id/conversions.md",
+      "Documentation/client-snippets/events/event-source-id/typed.md",
+      "Documentation/code-analysis/index.md"
+    ],
+    "verifiedClaims": [
+      "EventSourceId<T> requires T to implement IComparable.",
+      "Base conversions do not construct an arbitrary derived domain identity.",
+      "A typed identity must be supplied to Chronicle operations to select the stream.",
+      "CHR0026 rejects Key or Subject on EventSourceId<T>-derived members.",
+      "CHR0034 rejects PII event-source identifiers; sensitive natural IDs require a surrogate stream ID.",
+      "Typed empty or zero values are specified stream IDs, not EventSourceId.Unspecified."
+    ]
+  },
+  "registryEvidence": {
+    "fundamentalsLatestVersion": "7.18.1",
+    "chronicleLatestVersion": "16.38.1",
+    "source": "https://api.nuget.org/v3-flatcontainer/<package>/index.json"
+  },
+  "compatibilityEvidence": {
+    "chronicleVersion": "16.37.1",
+    "releaseRevision": "476a08a937b30a1a1780176b41f16571091be42d",
+    "eventSourceIdBlobMatches16_38_1": true,
+    "templateCompileResult": "PASS_ZERO_WARNINGS_ZERO_ERRORS",
+    "purpose": "Compatibility evidence for the selected Cratis/Samples canary; the skill's declared reviewed release remains 16.38.1."
+  },
+  "compileEvidence": {
+    "framework": "net9.0",
+    "configuration": "Release",
+    "warningsAsErrors": true,
+    "packages": [
+      "Cratis.Fundamentals@7.18.1",
+      "Cratis.Chronicle@16.38.1"
+    ],
+    "templates": [
+      "ConceptAs<string> value with optional reverse conversion",
+      "EventSourceId<Guid> derived identity with New and Guid conversion",
+      "EventSourceId<string> derived identity with string conversion",
+      "derived typed IDs converted to untyped EventSourceId"
+    ],
+    "result": "PASS_ZERO_WARNINGS_ZERO_ERRORS"
+  },
+  "securityPrivacyOriginality": {
+    "executablePayload": false,
+    "credentials": false,
+    "privateFacts": false,
+    "personalData": false,
+    "sensitiveNaturalIdWarning": true,
+    "expression": "original Cratis skill text based on first-party product requirements",
+    "licenses": ["MIT"]
+  },
+  "knownLimitations": [
+    "Only exact package versions 7.18.1 and 16.38.1 are verified; no compatibility range is inferred.",
+    "Product/profile owner approval remains required before runtime inclusion.",
+    "Behavior, trigger, collision, portability, and real consumer canary gates remain separate."
+  ],
+  "targetApproval": false,
+  "includeInRuntime": false,
+  "publicationEligible": false,
+  "promotionEligible": false
+}

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "085b785d64098574f9e77c7c20edc302c990aab98b0226344c592898d599c3a6",
+  "indexDigest": "8532c6b9f324fbf1e362a84f9d43920381aeb03b6255e2f67ef8275fb2bcd7db",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -27,11 +27,23 @@
       "status": "modified"
     },
     {
+      "path": ".ai/rules/concepts.md",
+      "status": "modified"
+    },
+    {
       "path": ".ai/rules/general.md",
       "status": "modified"
     },
     {
       "path": ".ai/rules/managing-ai-rules.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/rules/vertical-slices.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/add-concept/SKILL.md",
       "status": "modified"
     },
     {
@@ -443,6 +455,10 @@
       "status": "added"
     },
     {
+      "path": "distribution/evidence/fundamentals-concept-source-review-2026-08-23.json",
+      "status": "added"
+    },
+    {
       "path": "distribution/evidence/hosted-fundamentals-preview-assets-2026-08-23.json",
       "status": "added"
     },
@@ -467,6 +483,10 @@
       "status": "added"
     },
     {
+      "path": "distribution/evidence/local-fundamentals-preview-assets-b53caa5-2026-08-23.json",
+      "status": "added"
+    },
+    {
       "path": "distribution/evidence/local-generated-repository-2026-08-22.json",
       "status": "added"
     },
@@ -476,6 +496,10 @@
     },
     {
       "path": "distribution/evidence/real-documentation-engineering-canary-2026-08-22.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/evidence/real-samples-fundamentals-preview-canary-2026-08-23.json",
       "status": "added"
     },
     {
@@ -948,6 +972,22 @@
     },
     {
       "path": "evals/cratis-engineering-docs-companions/runs/skills-openai-codex-gpt-5-6-luna-r2/output.txt",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-fundamentals-concept/focused-cases.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-fundamentals-concept/focused-evaluation.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-fundamentals-concept/focused-prompt.md",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-fundamentals-concept/focused-run-output.json",
       "status": "added"
     },
     {
@@ -3184,6 +3224,29 @@
     },
     {
       "excludePathPatterns": [],
+      "id": "fundamentals-concept-evaluation",
+      "sourcePathPatterns": [
+        "evals/cratis-fundamentals-concept/**"
+      ],
+      "artifactType": "evaluation",
+      "currentOwner": "public Cratis product capability",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "skills/cratis-fundamentals-concept/**"
+      ],
+      "risk": "low",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "fundamentals-concept-source-review-2026-08-23"
+      ],
+      "expectedPathCount": 4,
+      "expectedPathsDigest": "3ed7c6162721eace3ca4fe155927e2b5aeb4768816a7c2cd14657295f2af24dd"
+    },
+    {
+      "excludePathPatterns": [],
       "id": "source-evidence-contract-v1",
       "sourcePathPatterns": [
         "Documentation/source-evidence-contract.md",
@@ -3461,8 +3524,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 20,
-      "expectedPathsDigest": "ac3380abec201b146176f63b948dec5b79cbd51d37cc0e84a58efdc1c899415f"
+      "expectedPathCount": 23,
+      "expectedPathsDigest": "f0ca40cf3412f813bcbaef8492399940f493b944c5eed495b7b554dfb12f4432"
     },
     {
       "excludePathPatterns": [],

@@ -84,9 +84,9 @@ test("approved plan requires every authority security and evidence gate", () => 
     );
     target.approval = {
         state: "approved",
-        sourceRevision: "e9d161a70e25334bb468a33240bcf00f03f87522",
+        sourceRevision: "b53caa555b9a3f05ba1462b86202fe3ccb8a9470",
         contentDigest:
-            "f7f7c2c110b3ff3f1b5921ad51fffc449a448bb49aaec2626ecc4d391e9d78a1",
+            "9e537c48a95c414709008c69ebfb616354d60992578ddd9da3d7dc7308c42caa",
         reviewer: "fundamentals-owner",
         approvedOn: "2026-08-23",
         securityEvidenceId: "security-evidence",

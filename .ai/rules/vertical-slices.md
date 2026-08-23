@@ -49,7 +49,7 @@ A single `<Slice>.cs` therefore contains ALL of: `[Command]` records with `Handl
 Every domain identifier or named value is a typed record — raw `string`/`Guid`/`int` should not appear on commands, events, or read models for domain values. Primitives stay primitive only when the meaning *is* the base type (`bool`, a plain count, `DateOnly`).
 
 - **[contract] Value concepts** derive from `ConceptAs<T>`. The base provides value equality and an implicit **concept → `T`** conversion. **Add your own `T` → concept operator** when call-site ergonomics need it — the base does *not* provide that direction.
-- **[contract] Identity concepts** (event-source ids) derive from `EventSourceId<T>` with the underlying primitive (`Guid` standard). `EventSourceId<T>` already gives conversions to/from `T`, untyped `EventSourceId`, and `string`. Add `NotSet`, a typed `New()`, and a `T` → id operator.
+- **[contract] Chronicle stream identities** derive from `EventSourceId<T>` with an `IComparable` underlying primitive. Add `NotSet`, `New()`, or a `T` → derived-id operator only when the domain API justifies it; typed empty/zero values are real specified stream IDs. The base conversion surface does not construct every derived domain record automatically.
 
 ```csharp
 public record AuthorId(Guid Value) : EventSourceId<Guid>(Value)
@@ -78,7 +78,7 @@ The command carries input from the caller. `Handle()` is defined directly on the
 `Handle()` assumes the command is valid and constructs the event(s). Pick the mechanism by what the decision *is*:
 
 | Decision | Use |
-|---|---|
+| --- | --- |
 | Reusable value invariant (length, format, range) | `ConceptValidator<T>` on the concept type |
 | Command-input / cross-field / pre-handler rule (incl. injected read-model/service/identity checks) | `CommandValidator<TCommand>` with `RuleFor(...)` |
 | Handler needs fetched/computed data before it can build the event | `Provide()` — fetches the data; may validate it and short-circuit |
@@ -115,7 +115,7 @@ Use `Provide()` for IO/fetched/computed data a valid command needs (explicit-key
 Return the event(s) directly — Arc appends them; never inject `IEventLog` to append the primary event. If there is no `await`, return the value directly (no `Task<T>`/`Task.FromResult`).
 
 | Return | When |
-|---|---|
+| --- | --- |
 | `TEvent` | one event on the implicit stream |
 | `(EventSourceId, TEvent)` | command decides the event source id (tuple order doesn't matter) |
 | `(TResponse, TEvent)` | a response value plus an event |
@@ -130,7 +130,7 @@ Return the event(s) directly — Arc appends them; never inject `IEventLog` to a
 Three attributes scope an append broad→narrow, and each one *also* (only with `concurrency: true`) contributes its dimension to the server-side concurrency check:
 
 | Attribute | Meaning |
-|---|---|
+| --- | --- |
 | `[EventSourceType("...")]` | the overarching concept the event source *is* (`Account`, `Order`) |
 | `[EventStreamType("...")]` | a concrete process **within** that source type (`Onboarding`, `Transactions`) |
 | `[EventStreamId("...")]` | a marker separating **independent streams** within one stream type (`Monthly`, `2026-06`) |
@@ -166,6 +166,7 @@ Apply authorization attributes on the `[Command]` record or query method. **[con
 - **[contract] `[EventType]` lives in its owning slice file** — referenced from other slices via `using`.
 
 **Event-design rules (what is and isn't a fact):**
+
 - **Events are not read models** — never append events for totals, counts, statuses, search indexes, or dashboards. Project those from source events into read models.
 - **Never duplicate one fact as an aggregate event *plus* a per-item fanout.** If a command fans out per item (one `RequestSentToPartner` per partner), don't also emit an aggregate event carrying the whole list. Keep the fanout as the single source of truth and project any aggregate from it; pick per-item vs. single-with-list event from how consumers read it — never both.
 - **Command rejection normally appends no event.** Validation and business-rule rejections are command results, not facts. Add a rejection/failed event only when the business must audit or react to that failure later.
@@ -266,7 +267,7 @@ public Task AuthorRegistered(AuthorRegistered @event, EventContext context) => .
 The compliance **subject** is the encryption-key identity. It is resolved first-match-wins:
 
 | Priority | Mechanism |
-|---|---|
+| --- | --- |
 | 1 | `Subject` as the second tuple element returned from `Handle()` (computed in the handler) |
 | 2 | `ICanProvideSubject.GetSubject()` on the command |
 | 3 | a `Subject`-typed property on the command |

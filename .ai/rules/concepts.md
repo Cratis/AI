@@ -4,94 +4,103 @@ paths:
   - "**/*.cs"
 ---
 
-# Concepts — Strongly-Typed Domain Values
+# Concepts — Strongly Typed Domain Values
 
 ## Why
 
-A `Guid` is a `Guid` is a `Guid` — the compiler can't tell you if you accidentally passed a `UserId` where an `AuthorId` was expected. Both are `Guid`, both compile, and the bug hides until production.
+A primitive such as `Guid` or `string` does not tell the compiler whether a
+value is an `AuthorId`, `UserId`, or `InvoiceNumber`. A Cratis concept gives a
+meaningful value its own type and keeps that meaning in method signatures,
+serialization, validation, events, and read models.
 
-`ConceptAs<T>` wraps every domain value in a named type. The compiler now enforces that an `AuthorId` is not a `UserId`, method signatures become self-documenting, and code review becomes about logic rather than "is this the right ID?"
+Use a concept for a real domain value, not mechanically for every primitive in a
+DTO or framework API. An enum already represents a closed domain concept and
+does not need a `ConceptAs<T>` wrapper.
 
-Never use raw primitives (`string`, `int`, `Guid`) in domain models, commands, events, or queries.
+## Product contracts
 
-## Two kinds of concept
+- A value concept derives from `ConceptAs<T>` in `Cratis.Fundamentals`.
+- A value actually used as a Chronicle event-source/stream identity derives from
+  `EventSourceId<T>` in `Cratis.Chronicle`.
+- An arbitrary entity ID that does not identify a Chronicle stream remains a
+  value concept; do not derive it from `EventSourceId<T>` merely because its name
+  ends in `Id`.
+- Both generic bases require an underlying type implementing `IComparable`.
 
-- **Value concepts** (names, amounts, codes) derive from **`ConceptAs<T>`**.
-- **Identity concepts** — the event-source id of an entity — derive from **`EventSourceId<T>`** (with the underlying primitive, usually `Guid`). **Never** use `ConceptAs<Guid>` for an event-source identity: `EventSourceId<T>` already gives you conversions to/from `T`, to/from the untyped `EventSourceId`, and to `string`, so Chronicle resolves the key automatically without a hand-written `EventSourceId` operator.
+## Value concept rules
 
-## Rules
+- Use a positional record containing exactly one wrapped value. Fundamentals
+  serialization assumes a single-value concept; do not add extra properties.
+- `ConceptAs<T>` supplies concept → `T` conversion.
+- Add `T` → derived concept conversion only when it improves the domain API. It
+  is optional, not a framework requirement.
+- `ConceptAs<T>` rejects a null wrapped value. Use a nullable concept reference
+  such as `AuthorName?` when absence is valid.
+- `NotSet` or `Empty` is optional domain policy. Add one only when the backing
+  value is impossible or explicitly reserved in that domain. Do not assume
+  empty string, zero, or `Guid.Empty` is universally invalid.
 
-- Inherit as a positional `record` — value equality and immutability come for free.
-- The base (`ConceptAs<T>` / `EventSourceId<T>`) already provides the implicit conversion **from** the concept **to** `T`. Add your own implicit operator **from** `T` **to** the concept when call-site ergonomics need it — the base does *not* provide that direction.
-- Add a `static readonly NotSet` sentinel instead of using `null` — sentinels make "no value" explicit and avoid nullable reference type noise:
-  - `Guid` → `NotSet` backed by `Guid.Empty`
-  - `string` → `NotSet` backed by `string.Empty`
-  - `int` / `long` → `NotSet` backed by `0` / `0L`
-- **Reference the sentinel — never reconstruct it.** When you need a concept's empty/unset value — in production code **and** specs — use its `NotSet` (or equivalently named) static property. Never pass a raw `string.Empty` / `Guid.Empty` / `0` (or the underlying primitive's empty) that implicitly converts to the concept: `EventStoreName.NotSet` states intent, reads as the domain value rather than a primitive, and survives a change to the sentinel's backing value (e.g. `EventStoreName.NotSet` is `"[NotSet]"`, not `""`). If a concept you need an empty of lacks a sentinel, add one.
-- For identity concepts, add a `static New()` factory — it reads better than `new AuthorId(Guid.NewGuid())`.
-- Place concepts in the folder they belong to — never a standalone `Concepts/` folder. Slice-specific → slice file; feature-shared → feature folder; module-shared → module folder; app-wide → `Common/`.
-- One concept per file, named after the concept (e.g. `AuthorId.cs`, `AuthorName.cs`).
+```csharp
+public record AuthorName(string Value) : ConceptAs<string>(Value)
+{
+    public static implicit operator AuthorName(string value) => new(value);
+}
+```
 
-## Examples
-
-**Identity concept — derive from `EventSourceId<T>` (canonical pattern):**
+## Chronicle stream identity rules
 
 ```csharp
 public record AuthorId(Guid Value) : EventSourceId<Guid>(Value)
 {
-    public static readonly AuthorId NotSet = new(Guid.Empty);
-
     public static AuthorId New() => new(Guid.NewGuid());
     public static implicit operator AuthorId(Guid value) => new(value);
 }
 ```
 
-`EventSourceId<T>` supplies the conversions to `Guid`, `EventSourceId`, and `string` — don't redeclare them.
+- `New()`, primitive → derived ID conversion, and sentinels are optional domain
+  conveniences; `EventSourceId<T>` does not create an arbitrary derived type.
+- The exact `EventSourceId<T>` base supports conversions among its underlying
+  `T`, string, typed ID, and untyped `EventSourceId`, but those operators do not
+  construct your derived domain record from every source form.
+- String and Guid are the safest round-trip primitives. Other comparable values
+  rely on Chronicle conversion behavior and require focused verification.
+- Pass the identity explicitly to Chronicle append/read operations. Declaring an
+  `EventSourceId<T>` property does not select the stream.
+- Do not put `[Key]` or `[Subject]` on an `EventSourceId<T>`-derived member;
+  Chronicle analyzer `CHR0026` reports it.
+- Do not put `[PII]` on an event-source ID; analyzer `CHR0034` rejects it.
+  Sensitive natural identifiers use a random surrogate stream ID and a separate
+  compliance-managed value.
+- `EventSourceId.Unspecified` is the untyped string-backed sentinel. Typed empty
+  or zero values convert to real specified stream IDs and are not equivalent to
+  `Unspecified`.
 
-**String value concept:**
+## Application placement convention
 
-```csharp
-public record AuthorName(string Value) : ConceptAs<string>(Value)
-{
-    public static readonly AuthorName NotSet = new(string.Empty);
+In a Cratis application, place a concept with the feature/module that owns its
+meaning rather than in a generic `Concepts/` folder. Put genuinely cross-feature
+concepts in `Common/`. Do not introduce a top-level `Features/` wrapper.
 
-    public static implicit operator string(AuthorName name) => name.Value;
-    public static implicit operator AuthorName(string value) => new(value);
-}
-```
+This is a Cratis application convention, not a Fundamentals or Chronicle API
+contract. Framework and client repositories follow their own structure.
 
-**Int value concept:**
+## Promote a value deliberately
 
-```csharp
-public record Age(int Value) : ConceptAs<int>(Value)
-{
-    public static readonly Age NotSet = new(0);
+Promote a value when its meaning or cross-cutting characteristics must travel
+with it—for example validation, compliance classification, or a domain-specific
+format. Reuse an existing shared concept when it already owns that meaning.
 
-    public static implicit operator int(Age age) => age.Value;
-    public static implicit operator Age(int value) => new(value);
-}
-```
+## Call-site guidance
 
-## When to promote a value to its own concept
-
-Promote a value to a dedicated concept when a **cross-cutting characteristic must travel with it** — when the value must consistently carry `[PII]`, a uniqueness constraint, a compliance subject, or a validation rule, encode it as a `ConceptAs<T>` that owns that characteristic. Declared once, it removes the "forgot to annotate it on the next event" gap.
-
-**Guardrail:** don't fragment a shared concept that already owns the characteristic — if one exists, reuse it. (A reducer is *not* a reason to mint a new concept; Chronicle's PII detection is type-aware.)
-
-## Call-site rules
-
-- **Never instantiate an identity with `new <Entity>Id(someVar)` at a call site** — use the implicit `T` → id operator, `NotSet`, or `New()`.
-- Optionally pair an identity concept with a `ConceptValidator<T>` that rejects the empty value:
-
-```csharp
-public class AuthorIdValidator : ConceptValidator<AuthorId>
-{
-    public AuthorIdValidator() => RuleFor(_ => _.Value).NotEqual(Guid.Empty);
-}
-```
-
-(Casting an id to the untyped `EventSourceId` — e.g. `GetInstanceById<T>((EventSourceId)key)` — is a correct, expected idiom; the rule above is about *constructing* ids, not casting them.)
+Use the constructors, conversions, factories, or sentinels the domain type
+actually provides. Do not require `NotSet`, `New()`, or a reverse conversion on
+every concept. If a sentinel exists, reference the named sentinel rather than
+reconstructing its backing primitive.
 
 ## Geospatial values
 
-For geospatial domain values use the GeoJSON types from `Cratis.Geospatial`: `Point` (a location), `LineString` (a route/path), `Polygon` (an area). Do **not** use the removed experimental `Coordinate` type. Arc, Chronicle, and Fundamentals support these across commands, events, projections, read models, JSON, and generated TypeScript proxies (they serialize as GeoJSON). The normal event rules still apply — model absence with a separate event or a non-geospatial sentinel concept, never `Point?`.
+Use GeoJSON types from `Cratis.Geospatial`: `Point` for a location,
+`LineString` for a route, and `Polygon` for an area. Do not use the removed
+experimental `Coordinate` type. Model geospatial absence according to the
+owning domain contract; do not invent a nullable event payload that conflicts
+with Chronicle event rules.

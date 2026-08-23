@@ -1,0 +1,155 @@
+{
+  "schemaVersion": "1.0.0",
+  "observedAt": "2026-08-23",
+  "state": "PREVIEW_ASSET_STAGING_PASS_OWNER_APPROVAL_PENDING",
+  "sourceCommit": "e46ca319fb7065ac68ceee1fd669b2c90ba1d943",
+  "profileId": "public-fundamentals",
+  "artifactId": "cratis-fundamentals-concept-preview",
+  "targetId": "cratis-fundamentals-concept",
+  "sourceRevision": "b53caa555b9a3f05ba1462b86202fe3ccb8a9470",
+  "sourceContentDigest": "9e537c48a95c414709008c69ebfb616354d60992578ddd9da3d7dc7308c42caa",
+  "generatorDigest": "0717cae80258b1fccc23daae9d6979b1a6033374bc3d18636ed2a2cef313dd97",
+  "version": "0.1.0-preview.2",
+  "assets": [
+    {
+      "harness": "agent-skills",
+      "filename": "cratis-ai-public-fundamentals-0.1.0-preview.2-agent-skills.tar.gz",
+      "format": "tar+gzip",
+      "root": "harnesses/agent-skills",
+      "size": 2771,
+      "sha256": "ce994963cd103de3ef1c66e363b0a65cb1ecf28e90b5b0c467d5bec84b40fbcd"
+    },
+    {
+      "harness": "claude",
+      "filename": "cratis-ai-public-fundamentals-0.1.0-preview.2-claude.tar.gz",
+      "format": "tar+gzip",
+      "root": "harnesses/claude",
+      "size": 2987,
+      "sha256": "5ef65364764527b86f28fdab33142f4fd24e661b289470cd6fa19e27aa4d181b"
+    },
+    {
+      "harness": "codex",
+      "filename": "cratis-ai-public-fundamentals-0.1.0-preview.2-codex.tar.gz",
+      "format": "tar+gzip",
+      "root": "harnesses/codex",
+      "size": 3036,
+      "sha256": "f4e678ed5e578ae28fa69cd54fea4f3665451cb35d45dc24fdef0376d3975713"
+    },
+    {
+      "harness": "copilot",
+      "filename": "cratis-ai-public-fundamentals-0.1.0-preview.2-copilot.tar.gz",
+      "format": "tar+gzip",
+      "root": "harnesses/copilot",
+      "size": 2984,
+      "sha256": "23a80d20eab65c0efcef1fe7e614dc5b6c4982cdf739bcfa217bc97ffecb1d2e"
+    },
+    {
+      "harness": "cursor",
+      "filename": "cratis-ai-public-fundamentals-0.1.0-preview.2-cursor.tar.gz",
+      "format": "tar+gzip",
+      "root": "harnesses/cursor",
+      "size": 2981,
+      "sha256": "cd28672caaba504b6b929838cb9746a93f0524695811d67cdd08118ec364d554"
+    },
+    {
+      "harness": "deepseek",
+      "filename": "cratis-ai-public-fundamentals-0.1.0-preview.2-deepseek.tar.gz",
+      "format": "tar+gzip",
+      "root": "harnesses/deepseek",
+      "size": 2775,
+      "sha256": "a9af25961fcdefabab0e2edbfd0fe30f72b9e364aad3e41b44f90fe1b37e92d6"
+    },
+    {
+      "harness": "gemini",
+      "filename": "cratis-ai-public-fundamentals-0.1.0-preview.2-gemini.tar.gz",
+      "format": "tar+gzip",
+      "root": "harnesses/gemini",
+      "size": 2855,
+      "sha256": "ae00a7f50512f2f9264a75bcef56521168c85cfaa12b13124f8542705b95bcc8"
+    },
+    {
+      "harness": "grok",
+      "filename": "cratis-ai-public-fundamentals-0.1.0-preview.2-grok.tar.gz",
+      "format": "tar+gzip",
+      "root": "harnesses/grok",
+      "size": 2776,
+      "sha256": "6d5083b8d9386f4decc68d18830ef32303ab09ad1178386e805bdf4604558a51"
+    },
+    {
+      "harness": "junie",
+      "filename": "cratis-ai-public-fundamentals-0.1.0-preview.2-junie.tar.gz",
+      "format": "tar+gzip",
+      "root": "harnesses/junie",
+      "size": 2845,
+      "sha256": "3dc7219592d46759de43e4e6c9b3d8c064789661f166dd6aa6a9a0fa28eadc82"
+    },
+    {
+      "harness": "kiro",
+      "filename": "cratis-ai-public-fundamentals-0.1.0-preview.2-kiro.tar.gz",
+      "format": "tar+gzip",
+      "root": "harnesses/kiro",
+      "size": 2913,
+      "sha256": "09f37860437937d28da2247ec91f75c39df24929f66293fa2e93fe3bb15074ca"
+    },
+    {
+      "harness": "pi",
+      "filename": "cratis-ai-public-fundamentals-0.1.0-preview.2-pi.tgz",
+      "format": "tar+gzip",
+      "root": "harnesses/pi",
+      "size": 2931,
+      "sha256": "c8a84771a297068f93a62f2fe7614c4b11631c73ff61f8d7672b4c9cf338d7d5"
+    }
+  ],
+  "assetManifestSha256": "a30265fc95230dac473a7592925dfd4ac76472c31022ecc6f2d2412527dd67e8",
+  "sbomSha256": "39be0cb18949475bb4217c386e0955a47310b029c50c83e610c66a15fb1a154c",
+  "checksumsSha256": "0a40b6c1f57a1ef57f3f28134dd82ea2e129136ed297391ea6782a07315bf4ca",
+  "sbom": {
+    "format": "cratis-passive-profile-sbom-v1",
+    "dependencies": 0,
+    "executableComponents": 0
+  },
+  "results": [
+    {
+      "gate": "source-review-and-exact-package-compilation",
+      "status": "PASS"
+    },
+    {
+      "gate": "focused-behavior-trigger-collision-security",
+      "opportunities": 12,
+      "status": "PASS"
+    },
+    {
+      "gate": "deterministic-generation-and-archive-byte-parity",
+      "opportunities": 11,
+      "status": "PASS"
+    },
+    {
+      "gate": "pi-npm-private-install-update-rollback-uninstall-context-preservation",
+      "version": "10.9.2",
+      "status": "PASS"
+    },
+    {
+      "gate": "pi-extracted-package-install-list-remove",
+      "version": "0.84.2",
+      "status": "PASS"
+    },
+    {
+      "gate": "codex-preview-installation-not-available",
+      "status": "PASS"
+    },
+    {
+      "gate": "passive-sbom-no-dependencies-or-executables",
+      "status": "PASS"
+    }
+  ],
+  "limitations": [
+    "Accountable owner approval remains required.",
+    "Non-Pi archives have deterministic byte parity but require exact archive host installation before support claims.",
+    "Assets are npm-private approval-pending review inputs, not a supported release or marketplace submission.",
+    "Real public consumer canary remains required."
+  ],
+  "approvalEligible": false,
+  "installationSupported": false,
+  "publicationEligible": false,
+  "promotionEligible": false
+}

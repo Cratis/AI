@@ -1,90 +1,76 @@
 ---
 name: add-concept
-description: Use this skill when asked to create a strongly-typed domain identifier or value (such as ProjectId, AuthorName, InvoiceNumber) in a Cratis-based project. Produces a ConceptAs<T> record with the correct conversions and sentinel values.
+description: Use this legacy local skill name when creating a strongly typed Cratis domain value or Chronicle event-source identity. Apply the same product-authoritative rules as the canonical cratis-fundamentals-concept skill; do not use it for enums, DTO-only values, arbitrary non-stream IDs, or event migration.
 ---
 
-Create a strongly-typed Concept that wraps a primitive domain value.
+# Add a Cratis concept
 
-## Never use raw primitives in domain models
+This is the legacy repository-local entry point. The canonical package skill is
+`skills/cratis-fundamentals-concept/SKILL.md`; keep behavior aligned until legacy
+adapters retire.
 
-Replace `Guid`, `string`, `int`, etc. with a `ConceptAs<T>` record whenever the value has domain meaning.
+## Choose the base
 
-## Pick the base: value vs identity
+- Domain value or non-stream entity ID → `ConceptAs<T>` from
+  `Cratis.Fundamentals`.
+- Identity actually used as a Chronicle event-source/stream ID →
+  `EventSourceId<T>` from `Cratis.Chronicle`.
+- Enum → keep the enum.
+- DTO-only primitive without domain meaning → keep the primitive.
 
-- **Value concept** (name, amount, code) → derive from `ConceptAs<T>`.
-- **Identity concept** (an entity's event-source id) → derive from `EventSourceId<T>`. **Never** use `ConceptAs<Guid>` for an event-source id — `EventSourceId<T>` already supplies the conversions to/from `T`, to/from `EventSourceId`, and to `string`, so Chronicle resolves the key automatically.
+Both generic bases require an `IComparable` underlying type.
 
-## Value concept template
+## Value concept
+
+Use a positional record with exactly one wrapped, non-null value. Do not add
+extra properties; Fundamentals serialization assumes a single-value concept.
 
 ```csharp
-// Copyright (c) Cratis. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
-
-using Cratis.Concepts;
-
-namespace <NamespaceRoot>.<Feature>;
-
-/// <summary>
-/// Represents the <description>.
-/// </summary>
-/// <param name="Value">The underlying <type> value.</param>
-public record <ConceptName>(<UnderlyingType> Value) : ConceptAs<<UnderlyingType>>(Value)
+public record InvoiceNumber(string Value) : ConceptAs<string>(Value)
 {
-    /// <summary>
-    /// Represents an unset <ConceptName>.
-    /// </summary>
-    public static readonly <ConceptName> NotSet = new(<emptyValue>);
-
-    /// <summary>
-    /// Implicitly converts a <UnderlyingType> to a <ConceptName>.
-    /// </summary>
-    public static implicit operator <ConceptName>(<UnderlyingType> value) => new(value);
+    public static implicit operator InvoiceNumber(string value) => new(value);
 }
 ```
 
-## Identity concept template (event-source id)
+The reverse primitive → derived conversion is optional. `ConceptAs<T>` already
+provides concept → `T`. Represent absence with `InvoiceNumber?`, not a concept
+wrapping null.
+
+A `NotSet`/`Empty` sentinel is optional domain policy. Add one only when its
+backing value is explicitly reserved in the domain.
+
+## Chronicle stream identity
 
 ```csharp
-using Cratis.Chronicle.Events;
-
-namespace <NamespaceRoot>.<Feature>;
-
-/// <summary>
-/// Represents the identity of a <description>.
-/// </summary>
-/// <param name="Value">The underlying <type> value.</param>
-public record <ConceptName>(<UnderlyingType> Value) : EventSourceId<<UnderlyingType>>(Value)
+public record OrderId(Guid Value) : EventSourceId<Guid>(Value)
 {
-    public static readonly <ConceptName> NotSet = new(<emptyValue>);
-    public static <ConceptName> New() => new(Guid.NewGuid());   // when backed by Guid
-    public static implicit operator <ConceptName>(<UnderlyingType> value) => new(value);
+    public static OrderId New() => new(Guid.NewGuid());
+    public static implicit operator OrderId(Guid value) => new(value);
 }
 ```
 
-Don't redeclare the `EventSourceId` / `T` / `string` conversions — the base provides them.
+`New()`, sentinels, and primitive → derived-ID conversions are optional domain
+conveniences. Base operators do not construct every derived domain record.
+Typed empty/zero values are real specified stream IDs, not
+`EventSourceId.Unspecified`.
 
-## Empty/sentinel values
+Pass the typed ID explicitly to Chronicle append/read operations. Do not add
+`[Key]`, `[Subject]`, or `[PII]` to an `EventSourceId<T>`-derived member;
+Chronicle analyzers `CHR0026` and `CHR0034` protect those boundaries. Sensitive
+natural identifiers use a random surrogate stream ID.
 
-| Underlying type | Use             |
-|-----------------|-----------------|
-| `Guid`          | `Guid.Empty`    |
-| `string`        | `string.Empty`  |
-| `int`           | `0`             |
-| `long`          | `0L`            |
+## Placement convention
 
-## Placement rules
+In an application, place the concept with the feature/module that owns its
+meaning; use `Common/` only for genuinely cross-feature concepts. Do not create
+a top-level `Features/` wrapper. Framework and client repositories follow their
+own structure.
 
-- Do NOT create a `Concepts/` folder
-- Place the file in the folder that **semantically owns** the concept
-  - `ProjectId` → `Projects/` (the feature folder, directly under the source root — no `Features/` wrapper)
-  - Shared cross-feature concepts → `Common/`
+## Verify
 
-## Checklist
-
-- [ ] Inherits `ConceptAs<T>` (value) or `EventSourceId<T>` (identity / event-source id)
-- [ ] Has a `static readonly NotSet` (or `Empty`) sentinel
-- [ ] Has implicit conversion **from** the primitive
-- [ ] Identity concept: does **not** redeclare the `EventSourceId`/`T`/`string` conversions (the base provides them)
-- [ ] Has `New()` factory if `Guid`-backed
-- [ ] Copyright header present
-- [ ] `dotnet build` passes
+- one-value concept with an `IComparable` underlying type;
+- optional conversions, factories, and sentinels are domain-justified;
+- event-source identity represents and is passed as the actual Chronicle stream
+  ID;
+- relevant analyzers, build, and specifications pass;
+- file has the repository license header.

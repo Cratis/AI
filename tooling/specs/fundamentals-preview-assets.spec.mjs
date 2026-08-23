@@ -58,6 +58,33 @@ function packageVersion(consumerRoot) {
     ).version;
 }
 
+test("source-corrected Fundamentals preview assets remain approval-pending", () => {
+    const evidence = JSON.parse(
+        readFileSync(
+            "distribution/evidence/local-fundamentals-preview-assets-b53caa5-2026-08-23.json",
+            "utf8",
+        ),
+    );
+    assert.equal(
+        evidence.state,
+        "PREVIEW_ASSET_STAGING_PASS_OWNER_APPROVAL_PENDING",
+    );
+    assert.equal(
+        evidence.sourceRevision,
+        "b53caa555b9a3f05ba1462b86202fe3ccb8a9470",
+    );
+    assert.equal(
+        evidence.sourceContentDigest,
+        "9e537c48a95c414709008c69ebfb616354d60992578ddd9da3d7dc7308c42caa",
+    );
+    assert.equal(evidence.assets.length, 11);
+    assert(evidence.results.every((result) => result.status === "PASS"));
+    assert.equal(evidence.approvalEligible, false);
+    assert.equal(evidence.installationSupported, false);
+    assert.equal(evidence.publicationEligible, false);
+    assert.equal(evidence.promotionEligible, false);
+});
+
 test("hosted Fundamentals preview evidence remains short-lived and non-promoting", () => {
     const evidence = JSON.parse(
         readFileSync(
@@ -137,7 +164,7 @@ test("Fundamentals preview assets are deterministic and non-publishable", () => 
         assert.equal(first.targetId, "cratis-fundamentals-concept");
         assert.equal(
             first.sourceRevision,
-            "e9d161a70e25334bb468a33240bcf00f03f87522",
+            "b53caa555b9a3f05ba1462b86202fe3ccb8a9470",
         );
         assert.equal(first.assets.length, 11);
         assert.match(first.generatorDigest, /^[0-9a-f]{64}$/);
