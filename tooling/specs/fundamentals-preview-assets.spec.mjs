@@ -3,6 +3,7 @@
 
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import {
     existsSync,
     mkdirSync,
@@ -65,10 +66,20 @@ test("recorded Fundamentals preview evidence is immutable and non-promoting", ()
         ),
     );
     assert.equal(evidence.state, "PREVIEW_ASSET_STAGING_PASS_APPROVAL_PENDING");
-    assert.equal(
-        evidence.sourceCommit,
-        "7d5307a011294bebe9112d1bac39ad461c984018",
-    );
+    assert.match(evidence.sourceCommit, /^[0-9a-f]{40}$/);
+    const generatorHash = createHash("sha256");
+    for (const path of [
+        "tooling/package-fundamentals-preview-assets.mjs",
+        "tooling/passive-profile-adapters.mjs",
+    ]) {
+        generatorHash.update(path);
+        generatorHash.update("\0");
+        generatorHash.update(
+            execFileSync("git", ["show", `${evidence.sourceCommit}:${path}`]),
+        );
+        generatorHash.update("\0");
+    }
+    assert.equal(evidence.generatorDigest, generatorHash.digest("hex"));
     assert.equal(
         evidence.sourceRevision,
         "e9d161a70e25334bb468a33240bcf00f03f87522",
@@ -148,9 +159,7 @@ test("Fundamentals preview assets are deterministic and non-publishable", () => 
             readFileSync(assetPath(firstRoot, first, "codex")),
         );
         const codexMarketplace = JSON.parse(
-            codexFiles
-                .get(".agents/plugins/marketplace.json")
-                .toString("utf8"),
+            codexFiles.get(".agents/plugins/marketplace.json").toString("utf8"),
         );
         assert.equal(
             codexMarketplace.plugins[0].policy.installation,

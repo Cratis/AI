@@ -30,8 +30,7 @@ const targetId = "cratis-fundamentals-concept";
 const sourceId = "add-concept";
 const artifactId = "cratis-fundamentals-concept-preview";
 const packageName = "@cratis/ai-fundamentals";
-const requiredSourceRevision =
-    "e9d161a70e25334bb468a33240bcf00f03f87522";
+const requiredSourceRevision = "e9d161a70e25334bb468a33240bcf00f03f87522";
 const requiredSourceContentDigest =
     "f7f7c2c110b3ff3f1b5921ad51fffc449a448bb49aaec2626ecc4d391e9d78a1";
 
@@ -255,7 +254,11 @@ export function packageFundamentalsPreviewAssets({
     version = "0.1.0-preview.1",
 } = {}) {
     if (!outputRoot) throw new Error("outputRoot is required");
-    if (!/^0\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)-preview\.(0|[1-9][0-9]*)$/.test(version))
+    if (
+        !/^0\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)-preview\.(0|[1-9][0-9]*)$/.test(
+            version,
+        )
+    )
         throw new Error(
             "Preview asset version must match 0.MINOR.PATCH-preview.N",
         );
