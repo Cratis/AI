@@ -50,17 +50,21 @@ never package the repository wholesale.
 
 ## Profiles
 
-Public profile plan:
+The complete plan covers Fundamentals, Arc, Arc React, Components, Chronicle,
+language-specific Chronicle clients, identity, compliance, multi-tenancy,
+Cratis CLI, Lens, Screenplay, Stage, public Studio/MCP use, Chronicle MCP
+passive guidance, and language-agnostic/.NET/TypeScript Specifications.
 
-- `public-fundamentals`
-- `public-arc`
-- `public-chronicle`
-- `public-components`
-- `public-application`
+Composition profiles preserve Arc-only, Chronicle-only, Arc + Chronicle, React,
+full application, and Screenplay → Stage boundaries. Public-safe engineering
+profiles cover every Cratis product/repository family; private repositories add
+local overlays rather than receiving confidential shared packages.
 
-Engineering profile plan includes product-specific framework profiles plus
-application, client, documentation, Studio, Stagehand, and corpus profiles.
-See [`distribution/profile-catalog.json`](distribution/profile-catalog.json).
+See [`distribution/profile-catalog.json`](distribution/profile-catalog.json),
+[Profile reference](Documentation/profile-reference.md),
+[developer adoption](Documentation/adopting-cratis-ai.md),
+[maintainer adoption](Documentation/adopting-cratis-ai-for-maintainers.md), and
+[private repository overlays](Documentation/private-repository-overlays.md).
 
 A consuming repository will pin profiles in project-owned `.cratis/ai.json`:
 
@@ -69,7 +73,7 @@ A consuming repository will pin profiles in project-owned `.cratis/ai.json`:
   "schemaVersion": "1.0.0",
   "channel": "cratis-engineering",
   "version": "1.0.0",
-  "profiles": ["engineering-framework-chronicle"],
+  "profiles": ["engineering-chronicle"],
   "harnesses": ["claude", "codex", "copilot", "pi"],
   "updatePolicy": "reviewed-pull-request",
   "projectContext": ".cratis/PROJECT.md"

@@ -23,9 +23,11 @@ const repositoryRoot = resolve(
 const profileFiles = [
     "distribution/profile-catalog.json",
     "distribution/profile-subscription.schema.json",
+    "catalog/v2/taxonomy.json",
     "Documentation/examples/ai-subscriptions/chronicle-framework.cratis-ai.json",
     "Documentation/examples/ai-subscriptions/cratis-application.cratis-ai.json",
     "Documentation/examples/ai-subscriptions/pi-settings.json",
+    "Documentation/examples/private-repository-overlay/.cratis/ai.json",
 ];
 
 function withFixture(callback) {
@@ -55,10 +57,63 @@ test("profile catalog and project subscriptions pass", () => {
     const catalog = readJson(
         join(repositoryRoot, "distribution/profile-catalog.json"),
     );
-    assert.equal(catalog.publicProfiles.length, 5);
-    assert.equal(catalog.engineeringProfiles.length, 11);
+    assert.equal(catalog.publicProfiles.length, 32);
+    assert.equal(catalog.engineeringProfiles.length, 20);
     assert.equal(catalog.versioning.exactPinsRequired, true);
     assert.equal(catalog.authority.automaticReverseSyncAllowed, false);
+    assert.equal(
+        catalog.confidentiality.engineeringPackages,
+        "public-safe-only",
+    );
+    assert.equal(
+        catalog.confidentiality.confidentialSharedPackagesAllowed,
+        false,
+    );
+    assert(
+        catalog.engineeringProfiles.every(
+            (profile) =>
+                profile.distributionVisibility === "public" &&
+                profile.confidentialContentAllowed === false &&
+                profile.privateOverlayExpected === true,
+        ),
+    );
+    const reference = readFileSync(
+        join(repositoryRoot, "Documentation/profile-reference.md"),
+        "utf8",
+    );
+    for (const profile of [
+        ...catalog.publicProfiles,
+        ...catalog.engineeringProfiles,
+    ]) {
+        assert(reference.includes(`\`${profile.id}\``), profile.id);
+        assert(
+            reference.includes(`\`${profile.packageName}\``),
+            profile.packageName,
+        );
+    }
+});
+
+test("private repository overlay composes public-safe package and local facts", () => {
+    const root = join(
+        repositoryRoot,
+        "Documentation/examples/private-repository-overlay",
+    );
+    const subscription = readJson(join(root, ".cratis/ai.json"));
+    const piSettings = readJson(join(root, ".pi/settings.json"));
+    const agents = readFileSync(join(root, "AGENTS.md"), "utf8");
+    const project = readFileSync(join(root, ".cratis/PROJECT.md"), "utf8");
+    const localSkill = readFileSync(
+        join(root, ".agents/skills/studio-local-release/SKILL.md"),
+        "utf8",
+    );
+    assert.deepEqual(subscription.profiles, ["engineering-studio"]);
+    assert.deepEqual(piSettings.packages, [
+        "npm:@cratis/ai-engineering-studio@1.0.0",
+    ]);
+    assert(agents.includes("repository-local skills"));
+    assert(project.includes("private Studio implementation behavior"));
+    assert.match(localSkill, /^---\nname: studio-local-release\ndescription: /);
+    assert.equal(localSkill.includes("@cratis/ai-engineering-studio"), false);
 });
 
 test("profile subscription rejects floating versions and unknown profiles", () => {
@@ -108,7 +163,7 @@ test("subscription schema rejects cross-audience profiles", () => {
             "Documentation/examples/ai-subscriptions/cratis-application.cratis-ai.json",
         );
         const example = readJson(path);
-        example.profiles = ["engineering-framework-chronicle"];
+        example.profiles = ["engineering-chronicle"];
         writeJson(path, example);
         const errors = validateProfileSubscriptions(root);
         assert(
@@ -118,9 +173,7 @@ test("subscription schema rejects cross-audience profiles", () => {
         );
         assert(
             errors.some((error) =>
-                error.includes(
-                    "unknown profile engineering-framework-chronicle",
-                ),
+                error.includes("unknown profile engineering-chronicle"),
             ),
         );
     });
@@ -131,6 +184,8 @@ test("profile catalog rejects unknown composition and authority drift", () => {
         const path = join(root, "distribution/profile-catalog.json");
         const catalog = readJson(path);
         catalog.authority.automaticReverseSyncAllowed = true;
+        catalog.confidentiality.confidentialSharedPackagesAllowed = true;
+        catalog.engineeringProfiles[0].confidentialContentAllowed = true;
         catalog.engineeringProfiles[0].composes = ["engineering-missing"];
         writeJson(path, catalog);
         const errors = validateProfileSubscriptions(root);

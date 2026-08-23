@@ -4,6 +4,11 @@ Cratis AI has one controlled source for shared AI behavior, product-specific
 profiles, immutable releases, and reviewed downstream updates. It does not use
 folder propagation or automatic two-way synchronization.
 
+For step-by-step adoption, use [developer adoption](./adopting-cratis-ai.md) or
+[maintainer adoption](./adopting-cratis-ai-for-maintainers.md). Private
+repositories layer [local overlays](./private-repository-overlays.md) on the
+same public-safe shared packages.
+
 > **Current availability:** the architecture and fixture generation exist, but
 > no supported profile package has been published yet. The approval-driven
 > materializer exists but fails closed while profiles, targets, source contracts,
@@ -38,41 +43,22 @@ should not load application vertical-slice rules; a Components change should
 not load Orleans guidance; Studio and Stagehand need their own product context.
 
 The profile catalog is [`distribution/profile-catalog.json`](../distribution/profile-catalog.json).
-It defines separate public and engineering profiles.
+It defines separate public product, language-client, overlay, composition, and
+public-safe engineering profiles. See the complete
+[Profile reference](./profile-reference.md).
 
-### Public profiles
+Public coverage includes Fundamentals, Arc, Arc React, Components, Chronicle,
+Chronicle clients, identity, compliance, multi-tenancy, Cratis CLI, Lens,
+Screenplay, Stage, public Studio, Chronicle MCP guidance, and Specifications.
+Composition profiles preserve Arc-only, Chronicle-only, Arc + Chronicle, React,
+full application, and Screenplay → Stage boundaries.
 
-Public profiles help developers build with Cratis products:
-
-- `public-fundamentals`
-- `public-arc`
-- `public-chronicle`
-- `public-components`
-- `public-application`, which composes the four product profiles
-
-A repository using Chronicle without Arc subscribes only to Fundamentals and
-Chronicle. A full Arc + Chronicle + React application uses
-`public-application`.
-
-### Engineering profiles
-
-Engineering profiles add contributor behavior for Cratis-owned repositories:
-
-- `engineering-base`
-- `engineering-application`
-- `engineering-framework-fundamentals`
-- `engineering-framework-arc`
-- `engineering-framework-chronicle`
-- `engineering-framework-components`
-- `engineering-studio`
-- `engineering-stagehand`
-- `engineering-client`
-- `engineering-documentation`
-- `engineering-corpus`
-
-Profiles compose a small base rather than loading every rule and skill. Studio,
-Stagehand, client, and other content-gap profiles remain unpublished until their
-owning maintainers provide authoritative source behavior.
+Engineering profiles add public-safe contributor behavior for each Cratis
+product/repository family and compose `engineering-base`. The `engineering-`
+prefix identifies the maintainer audience, not confidentiality. Private Studio,
+Stagehand, client, customer, infrastructure, roadmap, incident, and repository
+facts remain in repository-local overlays; shared packages may not read or write
+them.
 
 ## Repository subscription
 
@@ -87,7 +73,7 @@ Chronicle framework example:
   "schemaVersion": "1.0.0",
   "channel": "cratis-engineering",
   "version": "1.0.0",
-  "profiles": ["engineering-framework-chronicle"],
+  "profiles": ["engineering-chronicle"],
   "harnesses": ["claude", "codex", "copilot", "pi"],
   "updatePolicy": "reviewed-pull-request",
   "projectContext": ".cratis/PROJECT.md"
@@ -113,9 +99,10 @@ The schema is
 Exact versions are mandatory. `latest`, branches, and floating ranges are not
 valid subscriptions.
 
-Stagehand owns the subscriber update controller tracked internally as
-`Cratis/Stagehand#39`. Its repository-scoped App discovers committed `.cratis/ai.json` files only in
-repositories where it is explicitly installed. A new release opens a normal
+Cratis/Workflows#73 tracks the subscriber update controller after the Stagehand
+proposal was closed as not planned. Its repository-scoped App will discover
+committed `.cratis/ai.json` files only in repositories where it is explicitly
+installed. A new release opens a normal
 pull request changing the subscription and host-native lock or settings files.
 It never merges automatically, pushes generated corpus folders, or receives
 broad organization write access.
@@ -255,14 +242,14 @@ that root. Representative examples are:
 ```text
 # Claude Code interactive commands
 /plugin marketplace add <extracted-claude-root>
-/plugin install engineering-framework-chronicle@cratis
+/plugin install engineering-chronicle@cratis
 
 # Codex
 codex plugin marketplace add <extracted-codex-root>
 
 # GitHub Copilot CLI
 copilot plugin marketplace add <extracted-copilot-root>
-copilot plugin install engineering-framework-chronicle@cratis
+copilot plugin install engineering-chronicle@cratis
 
 # Gemini CLI local verification before remote publication
 gemini extensions link <extracted-gemini-root>

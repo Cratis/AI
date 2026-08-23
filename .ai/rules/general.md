@@ -40,11 +40,21 @@ Where a rule is convention rather than contract, this file says so. Do not claim
 
 ## Project-Specific Instructions
 
-This corpus is the shared, generic instruction set common to every Cratis repository. Individual projects need extra context that does not belong here — credentials, HTTP headers, environment endpoints, and other local conventions ("Product policy" above).
+This corpus is the shared, generic instruction set common to every Cratis
+repository. Individual projects need extra context that does not belong here,
+such as product composition, approved environment names, directions for
+obtaining credentials, and other local conventions ("Product policy" above).
 
-- Always look for a `.agents/PROJECT.md` file at the repository root. If it exists, read it and treat its contents as additional, project-specific instructions.
-- `.agents/PROJECT.md` lives in the **consuming project** and is never part of this shared corpus — it is the designated home for anything project-local, such as the HTTP headers or credentials needed to talk to that project's APIs.
-- When its guidance conflicts with these shared instructions, the project-specific file wins for that repository.
+- Read `.cratis/PROJECT.md` as the canonical project-specific context when it
+  exists.
+- Read `.agents/PROJECT.md` only as the documented legacy fallback when
+  `.cratis/PROJECT.md` does not exist; never merge both contexts.
+- Project context may explain which approved secret mechanism or local setup to
+  use, but it must never contain credential values, tokens, keys, passwords, or
+  other secrets.
+- Project-specific guidance wins when it deliberately narrows shared behavior,
+  but it may not weaken organization security, authorization, or required
+  quality gates.
 
 ## Collaboration Default
 
@@ -90,11 +100,21 @@ place while the replacement distribution remains under canary; do not restart
 legacy all-to-all propagation and do not delete legacy adapters before reviewed
 retirement evidence exists.
 
-The consuming repository owns its project facts and minimal host bootstraps.
-Use `.cratis/PROJECT.md` as canonical project context when that migration is
-active, with `.agents/PROJECT.md` only as the documented legacy fallback. Never
-merge, overwrite, or remove project context as a side effect of installing,
-updating, rolling back, or uninstalling shared AI capabilities.
+Shared public product and `engineering-*` packages contain only public-safe
+Cratis behavior. The `engineering-` prefix identifies the maintainer audience;
+it does not imply confidential package contents or a private registry.
+
+The consuming repository owns its project facts, confidential behavior, local
+skills, and minimal host bootstraps. Use `.cratis/PROJECT.md` as canonical
+project context when that migration is active, `.agents/skills/` for private or
+repository-specific local workflows, and `.agents/PROJECT.md` only as the
+documented legacy context fallback. Never merge, overwrite, or remove these
+local files as a side effect of installing, updating, rolling back, or
+uninstalling shared AI capabilities.
+
+Keep confidential and repository-specific behavior local. Generalize and remove
+private facts before proposing a reusable improvement to `Cratis/AI`; never
+reverse-sync a private repository's AI tree or generated adapters.
 
 Update shared AI by changing a version pin through the approved organization or
 host mechanism. Canary the new version, observe its behavior and gates, and roll

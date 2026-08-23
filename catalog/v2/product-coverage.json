@@ -96,6 +96,17 @@
         "reevaluation-authority"
       ],
       "notes": "Do not add a public skill until the client repository, supported version, API, and toolchain are verified."
+    },
+    {
+      "id": "python",
+      "name": "Python",
+      "coverageState": "gap",
+      "claimState": "unclaimed",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "notes": "Do not add a public skill until Chronicle.Python, supported versions, APIs, async behavior, and toolchain are verified."
     }
   ],
   "products": [
@@ -671,6 +682,51 @@
             "repo-main-b795d53",
             "reevaluation-authority"
           ]
+        },
+        {
+          "id": "typescript-client",
+          "coverageState": "gap",
+          "claimState": "unclaimed",
+          "languages": [
+            "typescript"
+          ],
+          "sourceSkillIds": [],
+          "targetIds": [],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ],
+          "notes": "Requires Chronicle.TypeScript-owned source and version evidence."
+        },
+        {
+          "id": "python-client",
+          "coverageState": "gap",
+          "claimState": "unclaimed",
+          "languages": [
+            "python"
+          ],
+          "sourceSkillIds": [],
+          "targetIds": [],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ],
+          "notes": "Requires Chronicle.Python-owned source and version evidence."
+        },
+        {
+          "id": "browser-workbench",
+          "coverageState": "gap",
+          "claimState": "unclaimed",
+          "languages": [
+            "language-agnostic"
+          ],
+          "sourceSkillIds": [],
+          "targetIds": [],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ],
+          "notes": "Needs browser-first events, observers, failed partitions, read models, projected state, evidence capture, redaction, and support escalation guidance."
         }
       ]
     },
@@ -880,6 +936,21 @@
             "repo-main-b795d53",
             "reevaluation-authority"
           ]
+        },
+        {
+          "id": "terminal-workbench",
+          "coverageState": "gap",
+          "claimState": "unclaimed",
+          "languages": [
+            "shell"
+          ],
+          "sourceSkillIds": [],
+          "targetIds": [],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ],
+          "notes": "Needs CLI-owned terminal Workbench discovery, read-only evidence capture, machine output, and separately confirmed recovery/administration guidance."
         }
       ]
     },
@@ -1066,6 +1137,257 @@
             "repo-main-b795d53",
             "reevaluation-authority"
           ]
+        }
+      ]
+    },
+    {
+      "id": "lens",
+      "name": "Cratis Lens",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "capabilities": [
+        {
+          "id": "setup",
+          "coverageState": "gap",
+          "claimState": "unclaimed",
+          "languages": [
+            "csharp",
+            "typescript"
+          ],
+          "sourceSkillIds": [],
+          "targetIds": [],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "diagnostics-and-analysis",
+          "coverageState": "gap",
+          "claimState": "unclaimed",
+          "languages": [
+            "csharp",
+            "typescript",
+            "language-agnostic"
+          ],
+          "sourceSkillIds": [],
+          "targetIds": [],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "inspection-and-interpretation",
+          "coverageState": "gap",
+          "claimState": "unclaimed",
+          "languages": [
+            "language-agnostic"
+          ],
+          "sourceSkillIds": [],
+          "targetIds": [],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "screenplay",
+      "name": "Cratis Screenplay",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "capabilities": [
+        {
+          "id": "model-authoring",
+          "coverageState": "gap",
+          "claimState": "unclaimed",
+          "languages": [
+            "language-agnostic"
+          ],
+          "sourceSkillIds": [],
+          "targetIds": [],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "compiler-and-diagnostics",
+          "coverageState": "gap",
+          "claimState": "unclaimed",
+          "languages": [
+            "language-agnostic"
+          ],
+          "sourceSkillIds": [],
+          "targetIds": [],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "editor-and-generation",
+          "coverageState": "gap",
+          "claimState": "unclaimed",
+          "languages": [
+            "language-agnostic"
+          ],
+          "sourceSkillIds": [],
+          "targetIds": [],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "stage",
+      "name": "Cratis Stage",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "capabilities": [
+        {
+          "id": "runtime",
+          "coverageState": "gap",
+          "claimState": "unclaimed",
+          "languages": [
+            "language-agnostic"
+          ],
+          "sourceSkillIds": [],
+          "targetIds": [],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "executable-specifications",
+          "coverageState": "gap",
+          "claimState": "unclaimed",
+          "languages": [
+            "language-agnostic"
+          ],
+          "sourceSkillIds": [],
+          "targetIds": [],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "workbench-results-and-ci",
+          "coverageState": "gap",
+          "claimState": "unclaimed",
+          "languages": [
+            "language-agnostic"
+          ],
+          "sourceSkillIds": [],
+          "targetIds": [],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "studio",
+      "name": "Cratis Studio",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "capabilities": [
+        {
+          "id": "public-onboarding-and-mcp",
+          "coverageState": "gap",
+          "claimState": "unclaimed",
+          "languages": [
+            "language-agnostic"
+          ],
+          "sourceSkillIds": [],
+          "targetIds": [],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "modeling-preparation",
+          "coverageState": "gap",
+          "claimState": "unclaimed",
+          "languages": [
+            "language-agnostic"
+          ],
+          "sourceSkillIds": [],
+          "targetIds": [],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "support-redaction-and-issue-preparation",
+          "coverageState": "gap",
+          "claimState": "unclaimed",
+          "languages": [
+            "language-agnostic"
+          ],
+          "sourceSkillIds": [],
+          "targetIds": [],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ],
+          "notes": "Only public-safe behavior belongs in shared profiles; private Studio implementation remains repository-local."
+        }
+      ]
+    },
+    {
+      "id": "chronicle-mcp",
+      "name": "Chronicle MCP",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "capabilities": [
+        {
+          "id": "installation-and-selection",
+          "coverageState": "gap",
+          "claimState": "unclaimed",
+          "languages": [
+            "language-agnostic"
+          ],
+          "sourceSkillIds": [],
+          "targetIds": [],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "safe-use-and-interpretation",
+          "coverageState": "gap",
+          "claimState": "unclaimed",
+          "languages": [
+            "language-agnostic"
+          ],
+          "sourceSkillIds": [],
+          "targetIds": [],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ],
+          "notes": "Cratis AI owns passive guidance; Chronicle.Mcp owns executable tools, schemas, credentials, and mutations."
         }
       ]
     },

@@ -2084,3 +2084,53 @@ The bounded approval request on AI#148 and first-profile request on AI#165 now
 name exact revision/digest and a copy-ready approve/reject response. Workflows#73
 tracks the downstream subscriber-update controller after Stagehand#39 closed
 `NOT_PLANNED`.
+
+## 53. Public-safe engineering and private local overlays — 2026-08-23
+
+Maintainer direction accepts a simpler confidentiality model:
+
+- publish general, non-secret Cratis product and engineering behavior;
+- treat the `engineering-` prefix as an audience marker, not a confidentiality
+  or private-registry marker;
+- keep private repository architecture, deployment, roadmap, infrastructure,
+  incidents, customers, support, credentials, and exceptions in repository-local
+  AI overlays;
+- upstream only generalized public-safe behavior after removing private facts;
+- do not create a centralized confidential package or reverse-sync private AI
+  trees unless a later concrete cross-repository requirement proves necessary.
+
+`distribution/profile-catalog.json` is expanded from the first-release scaffold
+to 32 public and 20 public-safe engineering profiles. Coverage now explicitly
+includes Fundamentals, Arc, Arc React, Components, Chronicle core and .NET /
+Kotlin / Elixir / TypeScript / Python clients, Java authority gap, Arc identity,
+Chronicle compliance and multi-tenancy, Arc EF Core, Cratis CLI and terminal
+Workbench, Chronicle browser Workbench, Lens, Screenplay, Stage, public Studio,
+Chronicle MCP passive guidance, language-agnostic / .NET /
+TypeScript Specifications, Arc-only, Chronicle-only, Arc + Chronicle, React,
+full application, and Screenplay → Stage compositions.
+
+Engineering profiles cover application, every listed product/framework,
+Chronicle clients, CLI, Lens, Screenplay, Stage, Studio, Stagehand, Chronicle
+MCP, Specifications, documentation, AI, and Workflows. Every engineering profile
+is required to be public-visible, reject confidential content, compose
+`engineering-base` where applicable, and expect a repository-local overlay.
+
+Canonical adoption guidance now includes:
+
+- `Documentation/adopting-cratis-ai.md` for consuming developers;
+- `Documentation/adopting-cratis-ai-for-maintainers.md` for Cratis repositories;
+- `Documentation/private-repository-overlays.md` for private facts and skills;
+- `Documentation/profile-reference.md` for the complete product/profile map;
+- exact subscription examples for Arc-only, Arc React + Components, full
+  application, Chronicle Kotlin, Specifications, Chronicle framework, and
+  private Studio;
+- a complete non-secret private overlay example with `AGENTS.md`,
+  `.cratis/PROJECT.md`, `.cratis/ai.json`, `.agents/skills`, and Pi settings.
+
+The universal Shared AI Distribution rule now makes the public-safe/local-private
+boundary normative and resolves canonical `.cratis/PROJECT.md` versus legacy
+`.agents/PROJECT.md` precedence without permitting credential values. Product
+coverage grows to 15 products, 10 languages, and 71 capabilities; all remain
+unclaimed until authoritative source and release gates pass. Profile states are
+1 preview candidate, 19 planned source migrations, 24 content gaps, 1 authority
+gap, 6 planned compositions, and 1 owner-review pending. No new target approval or publication state is implied.

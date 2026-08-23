@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "701c8a7a5bc995b3f627ba95511a31776cd5a83f47021271f3132cacac858bbe",
+  "indexDigest": "085b785d64098574f9e77c7c20edc302c990aab98b0226344c592898d599c3a6",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -135,6 +135,14 @@
       "status": "added"
     },
     {
+      "path": "Documentation/adopting-cratis-ai-for-maintainers.md",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/adopting-cratis-ai.md",
+      "status": "added"
+    },
+    {
       "path": "Documentation/agents.md",
       "status": "modified"
     },
@@ -215,7 +223,19 @@
       "status": "added"
     },
     {
+      "path": "Documentation/examples/ai-subscriptions/arc-only-application.cratis-ai.json",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/examples/ai-subscriptions/arc-react-components.cratis-ai.json",
+      "status": "added"
+    },
+    {
       "path": "Documentation/examples/ai-subscriptions/chronicle-framework.cratis-ai.json",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/examples/ai-subscriptions/chronicle-kotlin-client.cratis-ai.json",
       "status": "added"
     },
     {
@@ -224,6 +244,38 @@
     },
     {
       "path": "Documentation/examples/ai-subscriptions/pi-settings.json",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/examples/ai-subscriptions/private-studio.cratis-ai.json",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/examples/ai-subscriptions/specifications-library.cratis-ai.json",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/examples/private-repository-overlay/.agents/skills/studio-local-release/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/examples/private-repository-overlay/.cratis/PROJECT.md",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/examples/private-repository-overlay/.cratis/ai.json",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/examples/private-repository-overlay/.pi/settings.json",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/examples/private-repository-overlay/AGENTS.md",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/examples/private-repository-overlay/README.md",
       "status": "added"
     },
     {
@@ -244,6 +296,14 @@
     },
     {
       "path": "Documentation/phase-0-verification.md",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/private-repository-overlays.md",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/profile-reference.md",
       "status": "added"
     },
     {
@@ -2898,8 +2958,13 @@
       "id": "redesign-decision-documents",
       "sourcePathPatterns": [
         "AI-REPOSITORY-REDESIGN-*.md",
+        "Documentation/adopting-cratis-ai.md",
+        "Documentation/adopting-cratis-ai-for-maintainers.md",
         "Documentation/ai-distribution-and-subscriptions.md",
+        "Documentation/private-repository-overlays.md",
+        "Documentation/profile-reference.md",
         "Documentation/examples/ai-subscriptions/**",
+        "Documentation/examples/private-repository-overlay/**",
         "Documentation/phase-0-verification.md",
         "Documentation/public-product-architecture.md",
         "Documentation/skill-classification-audit.md",
@@ -2923,8 +2988,8 @@
         "workflows-68",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 23,
-      "expectedPathsDigest": "8bcfe69caab9977abea3ae57d37bc98ed0f47fa3b9323e3e678b5f0fa26a6760"
+      "expectedPathCount": 38,
+      "expectedPathsDigest": "bfb48a98e704ad38e22b58bfd5b137c059fd4b114fcf9dff382741e613b47964"
     },
     {
       "excludePathPatterns": [],
