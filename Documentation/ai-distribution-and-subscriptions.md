@@ -289,7 +289,9 @@ node tooling/package-fundamentals-preview-assets.mjs \
 ```
 
 The output contains one root-native `tar.gz` asset per harness, an npm-compatible
-Pi `.tgz`, `preview-assets.json`, `preview-sbom.json`, and `SHA256SUMS`. It binds
+but npm-private Pi `.tgz`, `preview-assets.json`, `preview-sbom.json`, and
+`SHA256SUMS`. Stable/non-preview versions are rejected, and the Codex preview
+metadata marks installation `NOT_AVAILABLE`. It binds
 the exact immutable concept source revision and digest. The manifest state is
 `PREVIEW_ASSETS_APPROVAL_PENDING`; approval, supported installation,
 publication, and promotion are all false.

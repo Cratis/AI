@@ -646,9 +646,10 @@ handover section 51.
   checkpoint in one small no-release PR; rerun all current-main gates.
 - [ ] Obtain AI#148 and AI#165 approval for the one-skill
   `public-fundamentals` preview; never infer approval.
-- [ ] If approval is still absent, generate deterministic local immutable
-  per-harness release assets from the explicitly non-publishable preview so the
-  owner/canary step is executable immediately when approved.
+- [x] With approval still absent, generate deterministic local immutable
+  per-harness review assets from the explicitly non-publishable Fundamentals
+  preview, including Pi npm lifecycle, passive SBOM, checksums, provenance, and
+  a read-only seven-day workflow.
 - [x] Reassign subscriber-update control-plane ownership after Stagehand#39
   closed `NOT_PLANNED`: Workflows#73 now tracks the controller and manual App
   scope decision.
