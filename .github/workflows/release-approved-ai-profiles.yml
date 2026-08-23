@@ -7,14 +7,6 @@ on:
   pull_request:
     paths:
       - "distribution/releases/*.json"
-      - "distribution/profile-catalog.json"
-      - "catalog/v2/**"
-      - "skills/**"
-      - "engineering/**"
-      - "tooling/generate-approved-profile-release.mjs"
-      - "tooling/passive-profile-adapters.mjs"
-      - "tooling/release-request-validation.mjs"
-      - ".github/workflows/release-approved-ai-profiles.yml"
   push:
     branches: ["main"]
     paths:
