@@ -80,7 +80,15 @@ test("generated repository contract keeps remote authority and production blocke
         contract.repository.writeCredentialState,
         "ABSENT_PENDING_PR_RELEASE_BOT",
     );
-    assert.equal(contract.productionMaterialization.enabled, false);
+    assert.equal(contract.productionMaterialization.enabled, true);
+    assert.equal(
+        contract.productionMaterialization.activation,
+        "merged validated release request",
+    );
+    assert.equal(contract.releaseOnMerge.mergeToMainIsReleaseApproval, true);
+    assert.equal(contract.releaseOnMerge.canaryRequiredBeforePublication, true);
+    assert.equal(contract.releaseOnMerge.automaticPromotion, true);
+    assert.equal(contract.releaseOnMerge.automaticRollback, true);
     assert.equal(
         contract.productionMaterialization.artifactTopology,
         "one-profile-one-harness-root-asset",

@@ -1,0 +1,354 @@
+# Copyright (c) Cratis. All rights reserved.
+# Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+name: Release Approved AI Profiles
+
+on:
+  pull_request:
+    paths:
+      - "distribution/releases/*.json"
+      - "distribution/profile-catalog.json"
+      - "catalog/v2/**"
+      - "skills/**"
+      - "engineering/**"
+      - "tooling/generate-approved-profile-release.mjs"
+      - "tooling/passive-profile-adapters.mjs"
+      - "tooling/release-request-validation.mjs"
+      - ".github/workflows/release-approved-ai-profiles.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "distribution/releases/*.json"
+  workflow_dispatch:
+    inputs:
+      request:
+        description: Release request path under distribution/releases
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ai-release-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      request: ${{ steps.request.outputs.request }}
+      version: ${{ steps.request.outputs.version }}
+      profiles: ${{ steps.request.outputs.profiles }}
+      canaries: ${{ steps.request.outputs.canaries }}
+    steps:
+      - name: Check out complete immutable history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+
+      - name: Resolve and validate the release request
+        id: request
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_REQUEST: ${{ inputs.request }}
+          PULL_REQUEST_BASE: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            request="$INPUT_REQUEST"
+          else
+            if [ "$EVENT_NAME" = "pull_request" ]; then
+              base="$PULL_REQUEST_BASE"
+            else
+              base="$PUSH_BEFORE"
+            fi
+            mapfile -t requests < <(
+              git diff --name-only "$base" "$GITHUB_SHA" -- \
+                'distribution/releases/*.json' |
+                grep -E '^distribution/releases/v[^/]+\.json$' || true
+            )
+            test "${#requests[@]}" -eq 1
+            request="${requests[0]}"
+          fi
+          test -f "$request"
+          node tooling/validate-catalogs.mjs
+          node tooling/release-request-validation.mjs "$request" \
+            > "$RUNNER_TEMP/release-request.json"
+          version=$(node -p "require('$RUNNER_TEMP/release-request.json').version")
+          profiles=$(node -p "JSON.stringify(require('$RUNNER_TEMP/release-request.json').profiles)")
+          canaries=$(node -p "JSON.stringify(require('$RUNNER_TEMP/release-request.json').canaries)")
+          {
+            echo "request=$request"
+            echo "version=$version"
+            echo "profiles=$profiles"
+            echo "canaries=$canaries"
+          } >> "$GITHUB_OUTPUT"
+
+  verify:
+    needs: discover
+    strategy:
+      fail-fast: true
+      matrix:
+        profile: ${{ fromJSON(needs.discover.outputs.profiles) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out complete immutable history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      - name: Generate root-native profile artifacts
+        env:
+          PROFILE: ${{ matrix.profile }}
+          VERSION: ${{ needs.discover.outputs.version }}
+        run: |
+          set -euo pipefail
+          candidate="$RUNNER_TEMP/release-$PROFILE"
+          node tooling/generate-approved-profile-release.mjs \
+            "$candidate" "$PROFILE" "$VERSION"
+          mkdir -p "$candidate/assets"
+          for root in "$candidate"/harnesses/*; do
+            harness=$(basename "$root")
+            if [ "$harness" = "pi" ]; then
+              npm pack "$root" --json --pack-destination "$candidate/assets" \
+                > "$RUNNER_TEMP/npm-pack-$PROFILE.json"
+            else
+              tar --sort=name --mtime='@0' --owner=0 --group=0 --numeric-owner \
+                -czf "$candidate/assets/cratis-ai-$PROFILE-$VERSION-$harness.tar.gz" \
+                -C "$root" .
+            fi
+          done
+          sha256sum "$candidate"/assets/* > "$candidate/assets/SHA256SUMS"
+          node --test tooling/specs/approved-profile-release.spec.mjs
+
+      - name: Upload verified profile candidate
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v7.0.1
+        with:
+          name: release-${{ matrix.profile }}
+          path: ${{ runner.temp }}/release-${{ matrix.profile }}
+          if-no-files-found: error
+          retention-days: 7
+
+  canary:
+    if: github.event_name != 'pull_request'
+    needs: [discover, verify]
+    strategy:
+      fail-fast: true
+      matrix:
+        canary: ${{ fromJSON(needs.discover.outputs.canaries) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Download the exact profile candidate
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v8.0.1
+        with:
+          name: release-${{ matrix.canary.profileId }}
+          path: ${{ runner.temp }}/candidate
+
+      - name: Check out the authorized consumer
+        if: matrix.canary.canaryId == 'samples-chronicle-backend'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: Cratis/Samples
+          ref: 55e6eb168606da96136cc7f91db8adf45aac3288
+          path: consumer
+          persist-credentials: false
+
+      - name: Use Node.js 24
+        if: matrix.canary.canaryId == 'samples-chronicle-backend'
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+
+      - name: Use the consumer .NET SDK
+        if: matrix.canary.canaryId == 'samples-chronicle-backend'
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v6.0.0
+        with:
+          global-json-file: consumer/global.json
+
+      - name: Install Pi for package lifecycle validation
+        if: matrix.canary.canaryId == 'samples-chronicle-backend'
+        run: npm install --global @earendil-works/pi-coding-agent@0.84.2
+
+      - name: Run Samples Chronicle Backend canary
+        if: matrix.canary.canaryId == 'samples-chronicle-backend'
+        env:
+          PROFILE: ${{ matrix.canary.profileId }}
+        run: |
+          set -euo pipefail
+          tarball=$(find "$RUNNER_TEMP/candidate/assets" -maxdepth 1 \
+            -type f -name '*.tgz' -print -quit)
+          test -n "$tarball"
+          mkdir -p "$RUNNER_TEMP/package" "$RUNNER_TEMP/pi-home"
+          tar -xzf "$tarball" -C "$RUNNER_TEMP/package"
+          package_root="$RUNNER_TEMP/package/package"
+          HOME="$RUNNER_TEMP/pi-home" pi install "$package_root"
+          HOME="$RUNNER_TEMP/pi-home" pi list | grep -F "$package_root"
+          dotnet build consumer/Chronicle/Backend/Backend.csproj \
+            --configuration Debug --nologo
+          dotnet test consumer/Chronicle/Backend/Backend.Specs/Backend.Specs.csproj \
+            --configuration Debug --nologo
+          HOME="$RUNNER_TEMP/pi-home" pi remove "$package_root"
+          HOME="$RUNNER_TEMP/pi-home" pi list | grep -F 'No packages installed'
+          test -z "$(git -C consumer status --porcelain)"
+
+      - name: Reject unknown canary
+        if: matrix.canary.canaryId != 'samples-chronicle-backend'
+        run: |
+          echo "Unknown canary: ${{ matrix.canary.canaryId }}" >&2
+          exit 1
+
+  distribute:
+    if: github.event_name != 'pull_request'
+    needs: [discover, verify, canary]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: distribution-canary
+    steps:
+      - name: Check out release metadata
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Download every verified profile
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v8.0.1
+        with:
+          pattern: release-*
+          path: ${{ runner.temp }}/profiles
+
+      - name: Create repository-scoped distribution token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.AI_DISTRIBUTION_APP_ID }}
+          private-key: ${{ secrets.AI_DISTRIBUTION_APP_PRIVATE_KEY }}
+          owner: Cratis
+          repositories: AI.Distribution
+          permission-contents: write
+          permission-pull-requests: write
+
+      - name: Create immutable distribution release and index PR
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          REQUEST: ${{ needs.discover.outputs.request }}
+          VERSION: ${{ needs.discover.outputs.version }}
+        run: |
+          set -euo pipefail
+          gh auth setup-git
+          gh repo clone Cratis/AI.Distribution "$RUNNER_TEMP/AI.Distribution"
+          branch="generated/release-$VERSION-${GITHUB_SHA:0:12}"
+          destination="$RUNNER_TEMP/AI.Distribution/releases/$VERSION"
+          git -C "$RUNNER_TEMP/AI.Distribution" checkout -b "$branch"
+          test ! -e "$destination"
+          mkdir -p "$destination/profiles"
+          cp "$REQUEST" "$destination/release-request.json"
+          for artifact in "$RUNNER_TEMP"/profiles/release-*; do
+            profile=${artifact##*/release-}
+            cp -R "$artifact" "$destination/profiles/$profile"
+          done
+          git -C "$RUNNER_TEMP/AI.Distribution" config \
+            user.name "cratis-distribution-release-bot"
+          git -C "$RUNNER_TEMP/AI.Distribution" config \
+            user.email "release-bot@invalid.example"
+          git -C "$RUNNER_TEMP/AI.Distribution" add -A
+          git -C "$RUNNER_TEMP/AI.Distribution" commit \
+            --message "Generate Cratis AI release $VERSION"
+          git -C "$RUNNER_TEMP/AI.Distribution" push origin "$branch"
+          mapfile -t assets < <(find "$destination/profiles" -path '*/assets/*' \
+            -type f ! -name SHA256SUMS | sort)
+          gh release create "v$VERSION" "${assets[@]}" \
+            --repo Cratis/AI.Distribution \
+            --target "$branch" \
+            --draft \
+            --title "Cratis AI $VERSION" \
+            --notes "Automatically generated from approved Cratis/AI release PR at $GITHUB_SHA. Published only after npm succeeds."
+          pr_url=$(gh pr create \
+            --repo Cratis/AI.Distribution \
+            --base main \
+            --head "$branch" \
+            --title "Index Cratis AI release $VERSION" \
+            --body "Automatically generated from the merged Cratis/AI release request at $GITHUB_SHA.")
+          gh pr merge "$pr_url" --repo Cratis/AI.Distribution --auto --squash
+
+  publish-npm:
+    if: github.event_name != 'pull_request'
+    needs: [discover, verify, canary, distribute]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: npm-stage
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Download every verified profile
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v8.0.1
+        with:
+          pattern: release-*
+          path: ${{ runner.temp }}/profiles
+
+      - name: Use Node.js 24 and npm trusted publishing
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      - name: Publish exact profile packages
+        env:
+          VERSION: ${{ needs.discover.outputs.version }}
+        run: |
+          set -euo pipefail
+          npm install --global npm@11.5.1
+          if [[ "$VERSION" == *-* ]]; then tag=preview; else tag=latest; fi
+          for artifact in "$RUNNER_TEMP"/profiles/release-*; do
+            npm publish "$artifact/harnesses/pi" \
+              --access public --provenance --tag "$tag"
+          done
+
+  promote-and-follow-up:
+    if: github.event_name != 'pull_request'
+    needs: [discover, distribute, publish-npm]
+    runs-on: ubuntu-latest
+    environment: distribution-canary
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Create repository-scoped distribution token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.AI_DISTRIBUTION_APP_ID }}
+          private-key: ${{ secrets.AI_DISTRIBUTION_APP_PRIVATE_KEY }}
+          owner: Cratis
+          repositories: AI.Distribution
+          permission-contents: write
+
+      - name: Publish GitHub release and record rollout handoff
+        env:
+          DISTRIBUTION_TOKEN: ${{ steps.app-token.outputs.token }}
+          ISSUE_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.discover.outputs.version }}
+        run: |
+          set -euo pipefail
+          GH_TOKEN="$DISTRIBUTION_TOKEN" gh release edit "v$VERSION" \
+            --repo Cratis/AI.Distribution --draft=false
+          GH_TOKEN="$ISSUE_TOKEN" gh issue comment 181 --repo Cratis/AI \
+            --body "Release $VERSION generated, canaried, distributed, npm-published, and promoted automatically. Workflows#73 must fan out subscriber update PRs; AI#147 tracks marketplaces that require one-time human listing approval."

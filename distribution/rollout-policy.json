@@ -32,6 +32,14 @@
     "requiredStatus": "PASS",
     "productionTargetsEnabled": false
   },
+  "releaseOnMergeAutomation": {
+    "requestRoot": "distribution/releases",
+    "mergeToMainIsApproval": true,
+    "canaryBeforePublication": true,
+    "automaticPromotion": true,
+    "automaticRollback": true,
+    "subscriberUpdates": true
+  },
   "promotion": {
     "stableEnabled": false,
     "publicationEnabled": false,

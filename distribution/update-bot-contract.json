@@ -24,7 +24,9 @@
     "targetBaseBranch": "main",
     "directPushToBaseAllowed": false,
     "fixturePullRequestEnabledAfterCredentialSetup": true,
-    "productionPullRequestEnabled": false
+    "productionPullRequestEnabledAfterCredentialSetup": true,
+    "releaseOnMerge": true,
+    "generatedIndexAutoMergeRequired": true
   },
   "forbiddenOperations": [
     "force push",

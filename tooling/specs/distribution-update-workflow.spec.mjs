@@ -35,7 +35,12 @@ test("generated update bot contract remains credential and release gated", () =>
         pullRequests: "write",
     });
     assert.equal(contract.workflow.directPushToBaseAllowed, false);
-    assert.equal(contract.workflow.productionPullRequestEnabled, false);
+    assert.equal(
+        contract.workflow.productionPullRequestEnabledAfterCredentialSetup,
+        true,
+    );
+    assert.equal(contract.workflow.releaseOnMerge, true);
+    assert.equal(contract.workflow.generatedIndexAutoMergeRequired, true);
     assert.equal(contract.publicationEligible, false);
     assert.equal(contract.promotionEligible, false);
     assert.equal(contract.legacyRetirementEligible, false);

@@ -105,12 +105,13 @@ const unexpectedUntracked = admittedUntracked.filter(
             path === ".github/workflows/engineering-distribution-fixture.yml" ||
             path === ".github/workflows/distribution-generated-update.yml" ||
             path === ".github/workflows/distribution-npm-stage.yml" ||
+            path === ".github/workflows/release-approved-ai-profiles.yml" ||
             /^AI-REPOSITORY-REDESIGN-[A-Z0-9-]+\.md$/.test(path) ||
             path === "Documentation/.markdownlint.json" ||
-            /^Documentation\/(?:adopting-cratis-ai|adopting-cratis-ai-for-maintainers|ai-distribution-and-subscriptions|capability-catalog-v2|phase-0-verification|private-repository-overlays|profile-reference|public-product-architecture|skill-authoring-contract|skill-classification-audit|project-context-bootstrap|redesign-foundation-validation|source-evidence-contract)\.md$/.test(
+            /^Documentation\/(?:adopting-cratis-ai|adopting-cratis-ai-for-maintainers|ai-distribution-and-subscriptions|capability-catalog-v2|phase-0-verification|private-repository-overlays|profile-reference|public-product-architecture|skill-authoring-contract|skill-classification-audit|project-context-bootstrap|redesign-foundation-validation|releasing-cratis-ai|source-evidence-contract)\.md$/.test(
                 path,
             ) ||
-            /^Documentation\/examples\/(?:ai-subscriptions|private-repository-overlay)\//.test(
+            /^Documentation\/examples\/(?:ai-release|ai-subscriptions|private-repository-overlay)\//.test(
                 path,
             ) ||
             /^Documentation\/evidence\/redesign-autonomous-execution-2026-08-20\//.test(
@@ -485,6 +486,7 @@ const definitions = [
             ".github/workflows/engineering-distribution-fixture.yml",
             ".github/workflows/distribution-generated-update.yml",
             ".github/workflows/distribution-npm-stage.yml",
+            ".github/workflows/release-approved-ai-profiles.yml",
             ".github/workflows/verify-ai-corpus.yml",
         ],
         artifactType: "workflow",
@@ -658,6 +660,8 @@ const definitions = [
             "Documentation/ai-distribution-and-subscriptions.md",
             "Documentation/private-repository-overlays.md",
             "Documentation/profile-reference.md",
+            "Documentation/releasing-cratis-ai.md",
+            "Documentation/examples/ai-release/**",
             "Documentation/examples/ai-subscriptions/**",
             "Documentation/examples/private-repository-overlay/**",
             "Documentation/phase-0-verification.md",

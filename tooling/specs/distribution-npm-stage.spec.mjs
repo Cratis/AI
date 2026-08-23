@@ -25,6 +25,14 @@ test("npm stage contract keeps ownership OIDC and publication blocked", () => {
     assert.equal(contract.workflow.oidcEnabled, false);
     assert.equal(contract.workflow.stagePublishEnabled, false);
     assert.equal(contract.workflow.publicPublishEnabled, false);
+    assert.equal(
+        contract.workflow.publishAutomaticallyAfterMergedReleaseRequestAndCanary,
+        true,
+    );
+    assert.equal(
+        contract.workflow.productionPath,
+        ".github/workflows/release-approved-ai-profiles.yml",
+    );
     assert.equal(contract.publicationEligible, false);
     assert.equal(contract.promotionEligible, false);
 });

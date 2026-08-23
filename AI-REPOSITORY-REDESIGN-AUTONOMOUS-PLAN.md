@@ -700,5 +700,23 @@ handover section 51.
   source contracts, approval, runtime, publication, and promotion false.
 - [ ] Obtain the AI#148 owner approve/reject response for exact revision
   `b53caa5` and digest `9e537c48`; then enable only the first release candidate.
-- [ ] Run one real consumer canary and proceed to credentials/publication only
-  after it passes.
+- [x] Run an approval-pending Cratis/Samples Chronicle/Backend package/build/spec
+  canary; preserve failed harness attempts and keep publication blocked.
+- [ ] After owner approval, rerun the same canary against the published exact
+  package before subscriber rollout.
+
+### 2026-08-23 — Single-gate automatic release
+
+- [x] Decide that merging an explicit release PR to `main` is the recurring
+  release/publication/promotion/rollout approval.
+- [x] Add append-only exact-version release request schema, validation, canary
+  registration, and a copy-ready first-release example.
+- [x] Add PR validation and post-merge automation for generated artifacts,
+  canary-before-publication, AI.Distribution GitHub release/index, npm OIDC
+  publication, automatic promotion/rollback, and subscriber/marketplace handoff.
+- [x] Consolidate unavoidable one-time manual external setup in AI#181 and assign
+  `woksin` and `einari`.
+- [ ] Complete AI#181 credentials/account/App/canary scope setup before merging
+  the first release request.
+- [ ] Add the first approved `distribution/releases/v0.1.0-preview.1.json`; its
+  merge must automatically release and deploy without another Cratis approval.

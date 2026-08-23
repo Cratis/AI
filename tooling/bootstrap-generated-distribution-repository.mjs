@@ -189,7 +189,10 @@ export function bootstrapGeneratedDistributionRepository({
     if (
         contract.repository.status !== "INITIALIZED_PROTECTED_FIXTURE" ||
         contract.repository.manualAuthoringAllowed !== false ||
-        contract.productionMaterialization.enabled !== false
+        contract.productionMaterialization.enabled !== true ||
+        contract.productionMaterialization.activation !==
+            "merged validated release request" ||
+        contract.releaseOnMerge?.mergeToMainIsReleaseApproval !== true
     ) {
         throw new Error("Generated repository authority gate changed");
     }
