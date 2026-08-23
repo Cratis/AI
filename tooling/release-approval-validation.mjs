@@ -15,7 +15,11 @@ function readJson(root, path) {
 
 function duplicates(values) {
     const seen = new Set();
-    return [...new Set(values.filter((value) => seen.has(value) || !seen.add(value)))];
+    return [
+        ...new Set(
+            values.filter((value) => seen.has(value) || !seen.add(value)),
+        ),
+    ];
 }
 
 function completeApproval(approval) {
@@ -71,10 +75,15 @@ export function validateReleaseApprovals(
                 errors.push(`${record[key]}: incomplete ${name} approval`);
             for (const evidenceId of record.evidenceIds ?? [])
                 if (!evidenceIds.has(evidenceId))
-                    errors.push(`${record[key]}: unknown evidence ${evidenceId}`);
+                    errors.push(
+                        `${record[key]}: unknown evidence ${evidenceId}`,
+                    );
         }
     }
-    const allProfiles = [...profiles.publicProfiles, ...profiles.engineeringProfiles];
+    const allProfiles = [
+        ...profiles.publicProfiles,
+        ...profiles.engineeringProfiles,
+    ];
     const profileApprovals = new Map(
         approvals.profileApprovals.map((approval) => [
             approval.profileId,
@@ -84,10 +93,15 @@ export function validateReleaseApprovals(
     for (const profile of allProfiles) {
         const approval = profileApprovals.get(profile.id);
         if ((profile.state === "approved") !== Boolean(approval))
-            errors.push(`${profile.id}: profile approval state is inconsistent`);
+            errors.push(
+                `${profile.id}: profile approval state is inconsistent`,
+            );
     }
     const targetApprovals = new Map(
-        approvals.targetApprovals.map((approval) => [approval.targetId, approval]),
+        approvals.targetApprovals.map((approval) => [
+            approval.targetId,
+            approval,
+        ]),
     );
     for (const target of targets) {
         const approval = targetApprovals.get(target.id);
@@ -116,7 +130,9 @@ export function validateReleaseApprovals(
             contract.verificationState === "verified" &&
             contract.distributionInputAllowed === true;
         if (admitted !== Boolean(approval))
-            errors.push(`${contract.id}: source contract approval is inconsistent`);
+            errors.push(
+                `${contract.id}: source contract approval is inconsistent`,
+            );
     }
     return [...new Set(errors)].sort();
 }
