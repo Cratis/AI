@@ -27,13 +27,14 @@ function parseJson(path, errors) {
 }
 
 function repositoryInputs(repositoryRoot, errors) {
-    const read = path => parseJson(join(repositoryRoot, path), errors);
+    const read = (path) => parseJson(join(repositoryRoot, path), errors);
     const profileCatalog = read("distribution/profile-catalog.json");
     const targets = read("catalog/v2/targets.json")?.targets;
     const sources = read("catalog/v2/sources.json")?.sources;
     const sourceContracts = read("catalog/v2/source-contracts.json")?.contracts;
-    const authoringContracts = read("catalog/v2/authoring-contracts.json")
-        ?.contracts;
+    const authoringContracts = read(
+        "catalog/v2/authoring-contracts.json",
+    )?.contracts;
     const artifacts = read("catalog/v2/artifacts.json")?.artifacts;
     if (
         !profileCatalog ||
@@ -54,25 +55,16 @@ function repositoryInputs(repositoryRoot, errors) {
     };
 }
 
-export function validateReleaseRequest(
-    request,
-    relativePath,
-    inputs,
-    schema,
-) {
-    const errors = validateAgainstSchema(
-        request,
-        schema,
-        schema,
-        relativePath,
-    );
+export function validateReleaseRequest(request, relativePath, inputs, schema) {
+    const errors = validateAgainstSchema(request, schema, schema, relativePath);
     if (!request || typeof request !== "object") return { errors, plans: [] };
     if (basename(relativePath) !== `v${request.version}.json`)
         errors.push(
             `${relativePath}: filename must be v${request.version}.json`,
         );
     const knownCanaries = new Set(["samples-chronicle-backend"]);
-    const canaryProfiles = request.canaries?.map(canary => canary.profileId) ?? [];
+    const canaryProfiles =
+        request.canaries?.map((canary) => canary.profileId) ?? [];
     if (
         new Set(canaryProfiles).size !== canaryProfiles.length ||
         JSON.stringify([...new Set(canaryProfiles)].sort()) !==
@@ -83,9 +75,7 @@ export function validateReleaseRequest(
         );
     for (const canary of request.canaries ?? [])
         if (!knownCanaries.has(canary.canaryId))
-            errors.push(
-                `${relativePath}: unknown canary ${canary.canaryId}`,
-            );
+            errors.push(`${relativePath}: unknown canary ${canary.canaryId}`);
     const plans = [];
     if (!inputs) return { errors, plans };
     for (const profileId of request.profiles ?? []) {
@@ -122,9 +112,9 @@ export function validateReleaseRequests(
         ? [onlyPath]
         : existsSync(releasesRoot)
           ? readdirSync(releasesRoot)
-                .filter(name => name.endsWith(".json"))
+                .filter((name) => name.endsWith(".json"))
                 .sort()
-                .map(name => `distribution/releases/${name}`)
+                .map((name) => `distribution/releases/${name}`)
           : [];
     const requests = [];
     for (const relativePath of relativePaths) {
@@ -143,7 +133,7 @@ export function validateReleaseRequests(
         errors.push(...result.errors);
         requests.push({ relativePath, request, plans: result.plans });
     }
-    const versions = requests.map(entry => entry.request.version);
+    const versions = requests.map((entry) => entry.request.version);
     if (new Set(versions).size !== versions.length)
         errors.push("Release request versions must be unique");
     return { errors: [...new Set(errors)].sort(), requests };

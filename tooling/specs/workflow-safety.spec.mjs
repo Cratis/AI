@@ -40,7 +40,7 @@ test("merged release request automatically generates canaries publishes and dist
     );
     for (const required of [
         "pull_request:",
-        "push:\n    branches: [\"main\"]",
+        'push:\n    branches: ["main"]',
         "distribution/releases/*.json",
         "release-request-validation.mjs",
         "generate-approved-profile-release.mjs",
@@ -51,12 +51,12 @@ test("merged release request automatically generates canaries publishes and dist
         "samples-chronicle-backend",
         "gh release create",
         "--draft",
-        "gh release edit \"v$VERSION\"",
+        'gh release edit "v$VERSION"',
         "--draft=false",
         "npm publish",
         "--provenance",
         "id-token: write",
-        "gh pr merge \"$pr_url\" --repo Cratis/AI.Distribution --auto --squash",
+        'gh pr merge "$pr_url" --repo Cratis/AI.Distribution --auto --squash',
         "Workflows#73",
         "AI#147",
     ])

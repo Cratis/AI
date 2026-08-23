@@ -24,11 +24,11 @@ function approvedInputs() {
         artifacts: readJson("catalog/v2/artifacts.json").artifacts,
     });
     const profile = inputs.profileCatalog.publicProfiles.find(
-        candidate => candidate.id === "public-fundamentals",
+        (candidate) => candidate.id === "public-fundamentals",
     );
     profile.state = "approved";
     const target = inputs.targets.find(
-        candidate => candidate.id === "cratis-fundamentals-concept",
+        (candidate) => candidate.id === "cratis-fundamentals-concept",
     );
     target.approval = {
         state: "approved",
@@ -50,13 +50,13 @@ function approvedInputs() {
         "cratis-chronicle-source",
     ]) {
         const contract = inputs.sourceContracts.find(
-            candidate => candidate.id === id,
+            (candidate) => candidate.id === id,
         );
         contract.verificationState = "verified";
         contract.distributionInputAllowed = true;
     }
     const artifact = inputs.artifacts.find(
-        candidate => candidate.id === "planned-passive-public-release",
+        (candidate) => candidate.id === "planned-passive-public-release",
     );
     artifact.materializationAllowed = true;
     artifact.runtimeEligible = true;
@@ -100,16 +100,12 @@ test("release request rejects partial automation and canary drift", () => {
         schema,
     );
     assert(
-        result.errors.some(error =>
-            error.includes("expected constant true"),
-        ),
+        result.errors.some((error) => error.includes("expected constant true")),
     );
     assert(
-        result.errors.some(error =>
+        result.errors.some((error) =>
             error.includes("every profile needs exactly one named canary"),
         ),
     );
-    assert(
-        result.errors.some(error => error.includes("filename must be")),
-    );
+    assert(result.errors.some((error) => error.includes("filename must be")));
 });
