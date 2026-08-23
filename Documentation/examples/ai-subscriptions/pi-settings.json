@@ -1,0 +1,6 @@
+{
+  "packages": [
+    "npm:@cratis/ai-engineering-chronicle@1.0.0"
+  ],
+  "enableSkillCommands": true
+}

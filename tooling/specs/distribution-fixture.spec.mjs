@@ -73,6 +73,12 @@ test("distribution requirements and artifact matrix stay authority bounded", () 
             "distribution/evidence/local-fixture-smoke-2026-08-22.json",
         ),
     );
+    const currentProfileEvidence = readJson(
+        join(
+            repositoryRoot,
+            "distribution/evidence/local-profile-fixture-smoke-2026-08-22.json",
+        ),
+    );
     const verified = requirements.requirements
         .filter((item) => item.status.startsWith("VERIFIED"))
         .map((item) => item.id);
@@ -124,6 +130,26 @@ test("distribution requirements and artifact matrix stay authority bounded", () 
             result.status.startsWith("PASS"),
         ),
     );
+    assert.equal(currentProfileEvidence.status, "PASS");
+    assert.equal(
+        currentProfileEvidence.sourceCommit,
+        "e9d161a70e25334bb468a33240bcf00f03f87522",
+    );
+    assert.equal(
+        currentProfileEvidence.sourceArtifactId,
+        "cratis-fundamentals-concept-preview",
+    );
+    assert.equal(
+        currentProfileEvidence.provenanceSourceRevision,
+        currentProfileEvidence.sourceCommit,
+    );
+    assert(
+        currentProfileEvidence.results.every(
+            (result) => result.status === "PASS",
+        ),
+    );
+    assert.equal(currentProfileEvidence.publicationEligible, false);
+    assert.equal(currentProfileEvidence.promotionEligible, false);
 });
 
 test("distribution fixture generation is deterministic across native adapters", () => {
@@ -159,6 +185,29 @@ test("distribution fixture generation is deterministic across native adapters", 
             "kiro",
             "pi",
         ]);
+    });
+});
+
+test("fixture provenance binds the authorized immutable public source", () => {
+    withTemporaryDirectory((root) => {
+        const stage = join(root, "stage");
+        generateDistributionFixture({ repositoryRoot, outputRoot: stage });
+        const provenance = readJson(join(stage, "provenance.json"));
+        assert.equal(
+            provenance.sourceArtifactId,
+            "cratis-fundamentals-concept-preview",
+        );
+        assert.equal(
+            provenance.sourceRevision,
+            "e9d161a70e25334bb468a33240bcf00f03f87522",
+        );
+        assert.equal(
+            provenance.sourcePath,
+            "skills/cratis-fundamentals-concept",
+        );
+        assert.match(provenance.sourceContentDigest, /^[0-9a-f]{64}$/);
+        assert.equal(provenance.publicationEligible, false);
+        assert.equal(provenance.promotionEligible, false);
     });
 });
 

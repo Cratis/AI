@@ -95,6 +95,14 @@ test("engineering fixture evidence remains local and non-promoting", () => {
     );
     assert.equal(evidence.state, "ENGINEERING_FIXTURE_ONLY");
     assert.equal(evidence.targetId, "cratis-engineering-docs-authoring");
+    assert.equal(
+        evidence.sourceCommit,
+        "f58bcf7f5cc9fc0e11305ada3b5ecb6fa20953e9",
+    );
+    assert.equal(evidence.sourceCommit, evidence.sourceRevision);
+    assert.match(evidence.manifestSha256, /^[0-9a-f]{64}$/);
+    assert.match(evidence.provenanceSha256, /^[0-9a-f]{64}$/);
+    assert.match(evidence.sourceContentDigest, /^[0-9a-f]{64}$/);
     assert(
         evidence.results.every((result) => result.status.startsWith("PASS")),
     );
@@ -146,6 +154,16 @@ test("engineering fixture generation is deterministic and non-installable", () =
             validateEngineeringDistributionFixture(firstRoot),
             first,
         );
+        const provenance = readJson(join(firstRoot, "provenance.json"));
+        assert.equal(
+            provenance.sourceRevision,
+            "f58bcf7f5cc9fc0e11305ada3b5ecb6fa20953e9",
+        );
+        assert.equal(
+            provenance.sourcePath,
+            "engineering/skills/cratis-engineering-docs-authoring",
+        );
+        assert.match(provenance.sourceContentDigest, /^[0-9a-f]{64}$/);
     });
 });
 

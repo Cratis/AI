@@ -43,7 +43,7 @@ jobs:
         run: |
           set -euo pipefail
           node tooling/stage-distribution-candidate.mjs \
-            --artifact sanitized-public-materializer-fixture \
+            --artifact cratis-fundamentals-concept-preview \
             --output "$RUNNER_TEMP/distribution-candidate" \
             --record "$RUNNER_TEMP/distribution-candidate.json"
           node tooling/generate-distribution-fixture.mjs \

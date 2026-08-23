@@ -1,8 +1,8 @@
 {
   "schemaVersion": "1.0.0",
   "observedAt": "2026-08-22",
-  "sourceCommit": null,
-  "sourceWorktreeBase": "2cfd917d81a026db7aeb50afb7be20b9084e3e3c",
+  "sourceCommit": "f58bcf7f5cc9fc0e11305ada3b5ecb6fa20953e9",
+  "sourceWorktreeBase": "f58bcf7f5cc9fc0e11305ada3b5ecb6fa20953e9",
   "state": "ENGINEERING_FIXTURE_ONLY",
   "targetId": "cratis-engineering-docs-authoring",
   "sourceRevision": "f58bcf7f5cc9fc0e11305ada3b5ecb6fa20953e9",
@@ -12,11 +12,16 @@
     "codex",
     "copilot",
     "cursor",
+    "deepseek",
     "gemini",
+    "grok",
     "junie",
     "kiro",
     "pi"
   ],
+  "manifestSha256": "ada5ef5647151d554851e8627cafed9c19faf186d5a8b407ac20f1f945cfa97b",
+  "provenanceSha256": "0fb2a70dd661702d6e59fabaf18517d423770852c55aa0c4f26fc2ff5bdbfa7d",
+  "sourceContentDigest": "9e9731cdb930999784fd8b244c3df7f0b49b54479d47fd26bc624e1b81e480fa",
   "results": [
     {
       "target": "npm",
@@ -88,6 +93,26 @@
         "removed-state"
       ],
       "status": "PASS_WITH_PROJECT_REGISTRY_WARNING"
+    },
+    {
+      "target": "grok-build",
+      "version": null,
+      "checks": [
+        "direct-skill-install",
+        "canonical-byte-parity",
+        "remove"
+      ],
+      "status": "PASS_DIRECT_LAYOUT_HOST_SMOKE_PENDING"
+    },
+    {
+      "target": "deepseek-harness",
+      "version": null,
+      "checks": [
+        "direct-skill-install",
+        "canonical-byte-parity",
+        "remove"
+      ],
+      "status": "PASS_DIRECT_LAYOUT_HOST_SMOKE_PENDING"
     },
     {
       "target": "cursor",

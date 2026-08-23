@@ -610,3 +610,16 @@ Evidence and exact next actions are in
 - [ ] Provision the repository-scoped App credentials from Workflows#72 before
   any generated update PR, tag, release, or publication operation.
 - [ ] Keep publication and retirement disabled until explicit approvals pass.
+- [x] Re-review public, maintainer, Pi, adapter, security, documentation, and
+  distribution readiness; reject the broad done/support claim.
+- [x] Define product/repository profile subscriptions, atomic SemVer pinning,
+  project-owned `.cratis/ai.json`, Pi project/global packages, reviewed update
+  PRs, and upstream contribution without reverse sync.
+- [x] Retire active broad propagation/sync workflows and repair stale planner,
+  AutoMap, path, README, and documentation guidance.
+- [x] Reconcile the public preview artifact identity and bind fixture provenance
+  to immutable source revision/digest.
+- [ ] Implement approval-driven production materialization and per-profile,
+  per-harness root release assets after AI#148 and profile-owner issue #165.
+- [ ] Run the first real public consumer lifecycle canary and publish only a
+  narrowly labeled Fundamentals/Chronicle C# preview.

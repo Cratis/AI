@@ -51,15 +51,34 @@ test("rollout policy keeps production promotion and retirement blocked", () => {
             "NO_PRODUCTION_ROLLBACK_EVIDENCE",
         ),
     );
+    const evidence = JSON.parse(
+        readFileSync(
+            join(
+                repositoryRoot,
+                "distribution/evidence/local-canary-rollback-2026-08-22.json",
+            ),
+            "utf8",
+        ),
+    );
+    assert.equal(
+        evidence.sourceCommit,
+        "e9d161a70e25334bb468a33240bcf00f03f87522",
+    );
+    assert.equal(
+        evidence.candidate.artifactId,
+        "cratis-fundamentals-concept-preview",
+    );
+    assert.match(evidence.candidate.manifestSha256, /^[0-9a-f]{64}$/);
+    assert.match(evidence.candidate.provenanceSha256, /^[0-9a-f]{64}$/);
 });
 
-test("candidate staging allows only the authorized sanitized fixture", () => {
+test("candidate staging allows only the authorized Fundamentals preview", () => {
     withTemporaryDirectory((root) => {
         const stage = join(root, "stage");
         const recordPath = join(root, "candidate.json");
         const record = stageDistributionCandidate({
             repositoryRoot,
-            artifactId: "sanitized-public-materializer-fixture",
+            artifactId: "cratis-fundamentals-concept-preview",
             outputRoot: stage,
             candidateRecordPath: recordPath,
         });

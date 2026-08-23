@@ -50,8 +50,30 @@
     "enabled": false,
     "requiresApprovedTargets": true,
     "requiresExactSourceCommit": true,
+    "requiresExactSourceDigests": true,
+    "requiresVerifiedSourceContracts": true,
     "requiresBotCredential": true,
-    "requiresProtectedRepository": true
+    "requiresProtectedRepository": true,
+    "releaseTrain": "atomic-semver",
+    "profileCatalog": "distribution/profile-catalog.json",
+    "subscriptionFile": ".cratis/ai.json",
+    "artifactTopology": "one-profile-one-harness-root-asset",
+    "requiredProvenance": [
+      "Cratis/AI commit",
+      "product source revisions",
+      "approved target ids",
+      "profile and package inventory",
+      "content digests",
+      "generator digest",
+      "tested host versions"
+    ],
+    "requiredLifecycleEvidence": [
+      "install",
+      "update",
+      "rollback",
+      "uninstall",
+      "project context preservation"
+    ]
   },
   "publicationEligible": false,
   "promotionEligible": false,

@@ -24,7 +24,7 @@ When Copilot works on a file, it automatically loads every instruction file whos
 ### Glob scope examples
 
 | `applyTo` value | Loads when working on |
-|---|---|
+| --- | --- |
 | `"**/*"` | Every file |
 | `"**/*.cs"` | Any C# file |
 | `"**/*.ts,**/*.tsx"` | Any TypeScript file |
@@ -38,6 +38,7 @@ When Copilot works on a file, it automatically loads every instruction file whos
 Instructions should be **concise rules** — not tutorials or step-by-step guides.
 
 ✅ Good instruction content:
+
 - Naming conventions and patterns to follow
 - Hard constraints ("never do X", "always do Y")
 - Structural rules (file layout, namespace conventions)
@@ -45,6 +46,7 @@ Instructions should be **concise rules** — not tutorials or step-by-step guide
 - References to the relevant skill for detailed implementation
 
 ❌ Does NOT belong in instructions:
+
 - Step-by-step implementation walkthroughs
 - Code templates with detailed scaffolding
 - Long lists of "how to" examples
@@ -78,6 +80,7 @@ This guard exists because instruction files are loaded based on file type (e.g. 
 **Rule:** Any instruction file that applies to a specific framework, library, or technology that is not universally present in all Cratis projects MUST include this guard at the top.
 
 Currently guarded files:
+
 - `efcore.instructions.md` — Entity Framework Core
 - `efcore.specs.instructions.md` — Entity Framework Core specs
 - `orleans.instructions.md` — Microsoft Orleans
@@ -87,7 +90,7 @@ Currently guarded files:
 ## Instruction file inventory
 
 | File | `applyTo` | Topic |
-|---|---|---|
+| --- | --- | --- |
 | `copilot-instructions.md` | `"**/*"` (global) | Project philosophy, general rules, development workflow |
 | `csharp.instructions.md` | `"**/*.cs"` | C# formatting, naming, code style, XML docs |
 | `typescript.instructions.md` | `"**/*.ts,**/*.tsx"` | TypeScript type safety, enums, naming, localization |

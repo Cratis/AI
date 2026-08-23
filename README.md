@@ -1,76 +1,159 @@
-# Cratis AI — Shared AI Assistant Configuration
+# Cratis AI
 
-Shared AI-assistant configuration for building on the Cratis stack (Chronicle + Arc, .NET/C#, React + Cratis Components). It configures **GitHub Copilot**, **Claude Code**, **Codex**, and **Pi** with the same rules, agents, skills, prompts, and hooks — the "Cratis way" of building software, applied consistently across tools and repositories.
+Cratis AI is the controlled source for shared AI skills, engineering guidance,
+product profiles, and generated multi-harness packages for the Cratis ecosystem.
 
-> This repository is the corpus only — it holds no application or framework source. The delivery machinery that used to live here now has its own homes: **[Stagehand](https://github.com/Cratis/Stagehand)** (the managed control plane) and **[Ensemble](https://github.com/Cratis/Ensemble)** (the governed software factory).
+It serves two separate audiences:
 
-## Single source of truth
+- **Developers building with Cratis** receive passive public product profiles for
+  Fundamentals, Arc, Chronicle, Components, and composed applications.
+- **Cratis maintainers** receive separate engineering profiles for application,
+  framework, client, documentation, Studio, Stagehand, and corpus repositories.
 
-Everything is authored once under **`.ai/`** and surfaced to each tool through adapters — never edit the adapters directly.
+> **Current status:** distribution remains preview/fixture-only. No supported
+> public or engineering profile package has been published. Do not install this
+> mixed source repository as a runtime package.
 
-```
-.ai/                  ← canonical source of truth (edit here)
-├── rules/            ← instruction/rule files (one per topic)
-├── agents/           ← agent definitions
-├── prompts/          ← reusable prompt templates (*.prompt.md)
-├── skills/           ← multi-step skill workflows
-├── hooks/            ← agent lifecycle hooks (+ hooks/scripts/ validator)
-└── workflows/        ← shared CI workflow files
+## The architecture
 
-.github/              ← GitHub Copilot adapters  (copilot-instructions.md, instructions/ → .ai/rules, agents/*.agent.md, prompts/, skills/)
-.claude/              ← Claude Code adapters     (CLAUDE.md, rules/*.md, agents/, commands/*.md, skills/)
-.agents/ + AGENTS.md  ← Codex adapters           (AGENTS.md → general.md; .agents/skills → .ai/skills)
-.pi/                  ← Pi adapters             (agents/, prompts/, skills/, extensions/ bridging the hook scripts)
-```
+| Concern | Owner |
+| --- | --- |
+| Shared AI behavior and profile composition | `Cratis/AI` |
+| Product APIs, versions, and facts | The owning Cratis product repository |
+| Repository-specific context | The consuming repository |
+| Generated immutable packages | `Cratis/AI.Distribution` |
 
-`.github/instructions` is a single folder symlink into `.ai/rules`, so rules are maintained in one place with no per-file adapter to add. (Trade-off: a folder symlink exposes the rules as `<name>.md`, not the `<name>.instructions.md` suffix GitHub Copilot's `applyTo` discovery expects — Claude Code and Codex still read them, and the rules remain available, but Copilot does not auto-attach them by glob.)
+Canonical skill and rule behavior is reviewed here. Generated packages flow
+one way to subscribers. Improvements discovered in product repositories flow
+back through issues or pull requests to this repository; generated folders are
+never synchronized bidirectionally.
 
-### Project-specific instructions — `.agents/PROJECT.md`
+Read [Cratis AI distribution and subscriptions](Documentation/ai-distribution-and-subscriptions.md)
+for the complete source-of-truth, profile, versioning, pinning, Pi, update,
+rollback, and contribution model.
 
-The corpus here is generic and shared. Projects that consume it can drop a `.agents/PROJECT.md` file at their repository root for project-local context — credentials, HTTP headers, environment endpoints. `general.md` instructs every tool to read it when present, and it wins over the shared rules on conflict. It is never propagated from this hub.
+## Repository layout
 
-Each tool has its own conventions, so the adapters differ by surface (rules, agents, prompts/commands, skills, hooks) — see [`.ai/rules/managing-ai-rules.md`](.ai/rules/managing-ai-rules.md) for the per-tool table. Each adapter resolves to its canonical `.ai/` file (a **symlink** or a **path-reference file** — both accepted). `.ai/rules/general.md` is the always-on root (no frontmatter); scoped rules carry `applyTo` (Copilot) and `paths` (Claude) frontmatter.
-
-> **Do not edit anything under `.github/`, `.claude/`, `.agents/`, or root `AGENTS.md`.** They are adapters; edits are lost when the canonical source changes.
-
-## Where to look
-
-- **[`.ai/README.md`](.ai/README.md)** — the authority model, adapter conventions, profiles, and validation (the maintained overview).
-- **[`.ai/rules/managing-ai-rules.md`](.ai/rules/managing-ai-rules.md)** — how to add, update, rename, or remove rules/skills/agents/prompts/hooks.
-- **[`.ai/rules/general.md`](.ai/rules/general.md)** — the project operating manual; its "Where to Look" table indexes every rule.
-- Browse `.ai/rules/`, `.ai/skills/`, `.ai/agents/`, and `.ai/prompts/` directly for the current set — these folders are the inventory (no table here to drift out of date).
-
-## Validation
-
-After changing rules/skills/adapters, run the content-aware validator:
-
-```bash
-.ai/hooks/scripts/validate-ai-setup.sh
+```text
+skills/                 Canonical public skill sources
+engineering/            Canonical Cratis-maintainer skill sources
+.ai/                    Legacy corpus being reconciled into profiles
+catalog/                Sources, targets, authority, evidence, and coverage
+distribution/           Profile, artifact, rollout, and publication contracts
+tooling/                Validation and deterministic generation
+Documentation/          Architecture, contribution, and usage guidance
 ```
 
-It checks frontmatter, adapter integrity (symlink *or* path-reference resolving to the right rule), resolving adapter targets, the Codex adapters, and content-drift guards. Structural/adapter/Codex failures are fatal; drift guards are advisory warnings.
+`.ai/` remains valuable repository-local guidance but is not a publishable
+package tree. Public and engineering artifacts select exact approved files; they
+never package the repository wholesale.
 
-## Recommended VS Code settings
+## Profiles
 
-Add to `.vscode/settings.json` or user settings:
+Public profile plan:
 
-```jsonc
+- `public-fundamentals`
+- `public-arc`
+- `public-chronicle`
+- `public-components`
+- `public-application`
+
+Engineering profile plan includes product-specific framework profiles plus
+application, client, documentation, Studio, Stagehand, and corpus profiles.
+See [`distribution/profile-catalog.json`](distribution/profile-catalog.json).
+
+A consuming repository will pin profiles in project-owned `.cratis/ai.json`:
+
+```json
 {
-    // Load instruction files during code generation
-    "github.copilot.chat.codeGeneration.useInstructionFiles": true,
-    // Record AI contributions in git commits
-    "git.addAICoAuthor": "chatAndAgent",
-    // Safer agent-driven terminal operations
-    "chat.tools.terminal.sandbox.enabled": true,
-    // Let agents verify frontend changes in-browser (enable when working on React)
-    "workbench.browser.enableChatTools": true,
-    // Reduce chat clutter during multi-step builds
-    "chat.tools.terminal.simpleCollapsible": true,
-    // Notify when the agent needs confirmation
-    "chat.notifyWindowOnConfirmation": "always"
+  "schemaVersion": "1.0.0",
+  "channel": "cratis-engineering",
+  "version": "1.0.0",
+  "profiles": ["engineering-framework-chronicle"],
+  "harnesses": ["claude", "codex", "copilot", "pi"],
+  "updatePolicy": "reviewed-pull-request",
+  "projectContext": ".cratis/PROJECT.md"
 }
 ```
 
-## Propagation
+The example is illustrative until the first package is published. Floating
+versions such as `latest` are forbidden.
 
-This repo is the hub that can propagate `.ai/` content to other Cratis repositories. The propagation workflow is managed separately from the corpus content — see `.ai/rules/managing-ai-rules.md` for how it interacts with adapters.
+## Pi
+
+Pi is a first-class distribution target. Released profiles will be ordinary
+versioned Pi packages containing passive skills and references:
+
+```bash
+# User-wide maintainer base
+pi install npm:@cratis/ai-engineering-base@1.0.0
+
+# Exact project profile pin
+pi install -l npm:@cratis/ai-engineering-chronicle@1.0.0
+```
+
+Project installation writes `.pi/settings.json`; after project trust, Pi
+installs missing exact packages automatically. Pinned packages do not float.
+Update and rollback change the exact version through a reviewed pull request.
+
+These commands describe the released workflow and are not available until the
+packages exist. See the [Pi package workflow](Documentation/ai-distribution-and-subscriptions.md#pi-package-workflow).
+
+## Supported output formats
+
+The generator currently produces or models adapters for Agent Skills, Claude
+Code, Codex, GitHub Copilot, Cursor, Gemini CLI, Grok Build, DeepSeek Harness,
+Kiro, Junie, and Pi/npm.
+
+Documentation and release records distinguish:
+
+1. generated;
+2. statically validated;
+3. host-tested and supported.
+
+Adapter generation alone is not a support or marketplace-publication claim.
+
+## Contributing an improvement
+
+Use the **Propose a shared Cratis AI improvement** issue form. Include:
+
+- originating repository;
+- immutable source revision;
+- affected profiles and products;
+- first-party product authority;
+- compatibility and migration impact.
+
+Product repositories do not publish Cratis AI packages or push generated bytes.
+After canonical review, a new immutable release is generated and subscriber
+repositories receive reviewed update pull requests.
+
+## Validation
+
+Run the complete local gate after changing release-relevant content:
+
+```bash
+node tooling/generate-catalog-v2.mjs
+node tooling/generate-human-catalog.mjs
+node tooling/generate-repository-inventory.mjs
+node tooling/validate-catalogs.mjs
+node --test tooling/specs/*.spec.mjs
+.ai/hooks/scripts/validate-ai-setup.sh
+git diff --check
+```
+
+The main workflow runs for canonical skills, engineering content, catalogs,
+distribution contracts, evidence, evaluations, documentation, workflows, and
+tooling.
+
+## Current release blockers
+
+The first narrow public preview still requires:
+
+- owner approval and exact product authority for the Fundamentals concept skill;
+- approval-driven production materialization with immutable provenance;
+- scoped GitHub App credentials for generated pull requests;
+- one real consumer install/update/rollback/uninstall canary;
+- an immutable release channel and published installation instructions.
+
+Until those gates pass, this repository is a source and preview-generation
+system—not a supported installation endpoint.

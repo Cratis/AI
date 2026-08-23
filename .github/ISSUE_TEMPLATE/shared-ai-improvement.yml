@@ -1,0 +1,74 @@
+name: Propose a shared Cratis AI improvement
+description: Upstream a skill, rule, profile, or product-authority improvement from a Cratis repository.
+title: "[AI improvement]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Shared AI behavior is changed in Cratis/AI and released back to subscribers. Do not copy or publish generated package bytes from a consuming repository.
+  - type: input
+    id: source-repository
+    attributes:
+      label: Originating repository
+      description: The Cratis repository where the improvement was discovered.
+      placeholder: Cratis/Chronicle
+    validations:
+      required: true
+  - type: input
+    id: source-revision
+    attributes:
+      label: Immutable source revision
+      description: Full commit SHA containing the evidence or motivating change.
+      placeholder: 40-character commit SHA
+    validations:
+      required: true
+  - type: dropdown
+    id: audience
+    attributes:
+      label: Audience
+      options:
+        - Public developers
+        - Cratis engineering maintainers
+        - Both through separate artifacts
+    validations:
+      required: true
+  - type: input
+    id: profiles
+    attributes:
+      label: Affected profiles and products
+      description: Name every profile/product that should receive the change.
+      placeholder: engineering-framework-chronicle, public-chronicle
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem and proposed behavior
+      description: Explain the observed failure or improvement and the desired shared behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: authority
+    attributes:
+      label: Product authority and evidence
+      description: Link first-party APIs, docs, specs, tests, or owner decisions. Do not infer product facts.
+    validations:
+      required: true
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Compatibility and migration impact
+      description: Note trigger collisions, renamed behavior, supported versions, and downstream migration needs.
+    validations:
+      required: true
+  - type: checkboxes
+    id: contract
+    attributes:
+      label: Contribution contract
+      options:
+        - label: I am proposing canonical source behavior, not editing generated distribution bytes.
+          required: true
+        - label: I understand delivery flows downstream through a new immutable release and reviewed update PRs.
+          required: true

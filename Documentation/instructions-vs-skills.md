@@ -9,7 +9,7 @@ See also: [Instructions](./instructions.md) · [Skills](./skills.md)
 ## The core distinction
 
 | | Instructions | Skills |
-|---|---|---|
+| --- | --- | --- |
 | **Answers** | *What* to do and *when* it applies | *How* to do it, step by step |
 | **Loaded** | Automatically, based on file type | On demand, when explicitly invoked |
 | **Size** | Small and focused | As detailed as needed |
@@ -75,6 +75,7 @@ Full file templates, multi-step scaffolding sequences, and detailed API usage pa
 ### ✅ Correct — Rule in instruction, detail in skill
 
 **`csharp.instructions.md`:**
+
 ```markdown
 ## Commands
 - Records decorated with `[Command]` from `Cratis.Arc.Commands.ModelBound`.
@@ -85,6 +86,7 @@ For step-by-step command creation, invoke the `cratis-command` skill.
 ```
 
 **`skills/cratis-command/SKILL.md`:**
+
 ```markdown
 # Creating a Command
 
@@ -106,6 +108,7 @@ For step-by-step command creation, invoke the `cratis-command` skill.
 ### ❌ Wrong — Detail crammed into instruction
 
 **`csharp.instructions.md`** (too much):
+
 ```markdown
 ## Commands
 
@@ -143,7 +146,7 @@ This keeps instructions at the right level while making the skills discoverable.
 ## Summary
 
 | If you're writing… | Put it in… |
-|---|---|
+| --- | --- |
 | A naming rule | Instruction |
 | A "never do X" constraint | Instruction |
 | A 4-line code example showing a pattern | Instruction |

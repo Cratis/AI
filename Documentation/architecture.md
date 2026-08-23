@@ -1,6 +1,11 @@
-# Architecture Overview
+# Repository-local corpus architecture
 
-This page describes how all the components of the Cratis AI configuration fit together.
+> **Scope:** This page documents the existing repository-local Copilot-oriented
+> corpus and adapters. It is not the distribution or subscription architecture.
+> For current package profiles, Pi, pinning, generated releases, and upstream
+> contributions, see [Cratis AI distribution and subscriptions](./ai-distribution-and-subscriptions.md).
+
+This page describes how the legacy and repository-local corpus components fit together.
 
 See also: [Instructions](./instructions.md) · [Skills](./skills.md) · [Agents](./agents.md) · [Instructions vs Skills](./instructions-vs-skills.md)
 
@@ -47,6 +52,7 @@ See also: [Instructions](./instructions.md) · [Skills](./skills.md) · [Agents]
 ### Instructions load automatically
 
 When Copilot opens a file, it loads:
+
 1. `copilot-instructions.md` — always (global rules)
 2. Any `.instructions.md` whose `applyTo` glob matches the current file path
 
@@ -99,7 +105,7 @@ Instructions are loaded into every AI context window on matching files. This has
 ## File naming conventions
 
 | Artifact | Naming pattern | Example |
-|---|---|---|
+| --- | --- | --- |
 | Global instructions | `copilot-instructions.md` | `.github/copilot-instructions.md` |
 | Scoped instructions | `<topic>.instructions.md` | `csharp.instructions.md` |
 | Skills | `SKILL.md` inside a named folder | `skills/cratis-command/SKILL.md` |

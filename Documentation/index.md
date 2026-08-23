@@ -1,26 +1,47 @@
-# Cratis AI Configuration — Documentation
+# Cratis AI documentation
 
-This folder documents how the Cratis AI configuration is organized, the conventions it follows, and how its components work together.
+Cratis AI controls shared AI behavior for public Cratis developers and internal
+Cratis maintainers, then generates versioned packages for each supported
+harness. The mixed source repository is not itself an installation package.
 
-## Contents
+> **Availability:** no supported profile release is published yet. Architecture,
+> profile subscriptions, and fixture adapters are implemented; the first narrow
+> release still requires approval, production materialization, and a real
+> consumer canary.
+
+## Start here
+
+| Page | Purpose |
+| --- | --- |
+| [Distribution and subscriptions](./ai-distribution-and-subscriptions.md) | Source authority, product profiles, Pi, versioning, pinning, updates, rollback, and upstream improvements |
+| [Public product architecture](./public-product-architecture.md) | Public/engineering ownership and runtime payload boundaries |
+| [Project context bootstrap](./project-context-bootstrap.md) | Project-owned facts and minimal harness bootstraps |
+| [Skill authoring contract](./skill-authoring-contract.md) | Canonical source, evidence, and clean-room requirements |
+| [Capability catalog v2](./capability-catalog-v2.md) | Source, target, approval, trust, and coverage model |
+
+## Repository-local corpus reference
+
+The following pages explain the legacy and repository-local corpus surfaces.
+They remain useful for maintainers while content is reconciled into versioned
+profiles, but they do not describe a supported installation channel:
 
 | Page | What it covers |
-|---|---|
-| [Architecture Overview](./architecture.md) | How the overall system fits together — instructions, skills, agents, prompts, and hooks |
-| [Instructions](./instructions.md) | What instruction files are, when they load, and how to write focused ones |
-| [Skills](./skills.md) | What skills are, how they differ from instructions, and how to create new ones |
-| [Agents](./agents.md) | The team of agents, their roles, and the coordinator pattern for parallel work |
-| [Using the Orchestrator](./orchestrator.md) | How to use the orchestrator to coordinate multiple agents as a team |
-| [Instructions vs Skills](./instructions-vs-skills.md) | The clear distinction between "what/when" (instructions) and "how" (skills) |
+| --- | --- |
+| [Architecture overview](./architecture.md) | Existing instructions, skills, agents, prompts, and hooks |
+| [Instructions](./instructions.md) | Scoped instruction files and their current adapters |
+| [Skills](./skills.md) | Legacy skill inventory and authoring patterns |
+| [Agents](./agents.md) | Specialist agents and coordinator patterns |
+| [Using the orchestrator](./orchestrator.md) | Repository-local multi-agent coordination |
+| [Instructions vs skills](./instructions-vs-skills.md) | Always-on constraints versus on-demand workflows |
 
-## Quick orientation
+## Core rules
 
-The Cratis AI configuration is a **shared, reusable package** that provides GitHub Copilot with structured knowledge for developing Cratis-based projects. It consists of five types of artifacts:
-
-- **Instructions** (`.instructions.md`) — rules and constraints loaded automatically based on file context
-- **Skills** (`SKILL.md`) — detailed step-by-step implementation guides invoked on demand
-- **Agents** (`.md` in `agents/`) — specialist personas with defined roles and tools
-- **Prompts** (`.prompt.md`) — quick-invoke slash commands for single-turn tasks
-- **Hooks** (`.md` in `hooks/`) — lifecycle callbacks (pre-commit, agent-stop)
-
-See [Architecture Overview](./architecture.md) for the full picture.
+- Shared behavior is authored in `Cratis/AI`.
+- Product facts remain authoritative in the owning product repository.
+- Consuming repositories own `.cratis/PROJECT.md`, `.cratis/ai.json`, and their
+  minimal harness bootstraps.
+- `Cratis/AI.Distribution` contains bot-generated immutable artifacts only.
+- Repositories pin exact profile versions and update through reviewed pull
+  requests.
+- Improvements flow upstream through issues or pull requests; generated folders
+  are never synchronized bidirectionally.

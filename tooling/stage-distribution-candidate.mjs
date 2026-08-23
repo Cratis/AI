@@ -14,7 +14,7 @@ import {
 const defaultRepositoryRoot = resolve(
     fileURLToPath(new URL("..", import.meta.url)),
 );
-const fixtureArtifactId = "sanitized-public-materializer-fixture";
+const fixtureArtifactId = "cratis-fundamentals-concept-preview";
 
 function sha256(content) {
     return createHash("sha256").update(content).digest("hex");

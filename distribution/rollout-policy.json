@@ -11,7 +11,7 @@
   },
   "candidate": {
     "allowedArtifactIds": [
-      "sanitized-public-materializer-fixture"
+      "cratis-fundamentals-concept-preview"
     ],
     "blockedArtifactIds": [
       "planned-passive-public-release"

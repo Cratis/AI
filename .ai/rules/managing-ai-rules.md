@@ -9,9 +9,18 @@ paths:
   - "README.md"
 ---
 
-# Managing AI Rules and Instructions
+# Managing repository-local AI rules and instructions
 
-`.ai/` is the **single source of truth** for all AI assistant configuration in this repository — rules, agents, prompts, skills, and hooks. Everything is written once in `.ai/` and surfaced to each AI tool through adapters: folder symlinks, per-file symlinks, or small **path-reference files** whose body is the relative path to the canonical source.
+> **Scope:** `.ai/` is the source for the legacy and repository-local adapters in
+> this repository. It is not a package root and is never propagated wholesale.
+> Canonical public skills live under `skills/`, canonical maintainer skills live
+> under `engineering/`, and profile releases follow
+> [`Documentation/ai-distribution-and-subscriptions.md`](../../Documentation/ai-distribution-and-subscriptions.md).
+
+Within this repository, `.ai/` remains the **single source of truth** for rules,
+agents, prompts, legacy skills, and hooks surfaced through local adapters:
+folder symlinks, per-file symlinks, or small **path-reference files** whose body
+is the relative path to the canonical source.
 
 > **Never edit files under `.github/`, `.claude/`, `.agents/`, or the root `AGENTS.md` directly.** They are all adapters. Any direct edit would be lost the next time the canonical source changes, and would diverge from it.
 
@@ -53,7 +62,7 @@ AGENTS.md                        ← Codex root instructions → .ai/rules/gener
 **Each tool has its own conventions, so adapters differ by surface** (verified against each tool's docs):
 
 | Surface | Copilot | Claude Code | Codex |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Root instructions | `copilot-instructions.md` → `general.md` | `CLAUDE.md` → `general.md` | `AGENTS.md` → `general.md` |
 | Scoped rules | `instructions/` (folder symlink → `.ai/rules`) | `rules/<n>.md` (per-file) | — |
 | Agents | `agents/<n>.agent.md` (per-file, `.agent.md` suffix) | `agents/` (folder symlink, `<n>.md`) | — |
@@ -123,13 +132,17 @@ Always edit the canonical file in the relevant `.ai/` subfolder — never the ad
 
 - **Skills** (`.ai/skills/<n>/SKILL.md`) — folder symlinks on all three sides pick up new/renamed skills automatically. No adapter step.
 - **Agents** (`.ai/agents/<n>.md`) — Claude's `.claude/agents` folder symlink is automatic, but **Copilot needs a per-file `.agent.md` adapter**:
+
   ```bash
   ln -s ../../.ai/agents/<n>.md .github/agents/<n>.agent.md
   ```
+
 - **Prompts** (`.ai/prompts/<n>.prompt.md`) — Copilot's `.github/prompts` folder symlink is automatic, but **Claude needs a per-file command adapter**:
+
   ```bash
   ln -s ../../.ai/prompts/<n>.prompt.md .claude/commands/<n>.md
   ```
+
 - **Hooks** (`.ai/hooks/*.md`) — these are *guidance*, not wired hooks. To enforce, add the real artifact per tool (Claude `.claude/settings.json`; Copilot `.github/hooks/*.json`).
 
 Run `hooks/scripts/validate-ai-setup.sh` after adding an agent or prompt to confirm its adapter resolves.
@@ -152,7 +165,7 @@ Run `hooks/scripts/validate-ai-setup.sh` after adding an agent or prompt to conf
 An adapter's target (the symlink target, or the path-reference file's body) uses a **relative path** from the adapter's location to the canonical file:
 
 | Adapter location | Target |
-|---|---|
+| --- | --- |
 | `.github/instructions` (folder symlink) | `../.ai/rules` |
 | `.claude/rules/<name>.md` | `../../.ai/rules/<name>.md` |
 | `.github/agents/<name>.agent.md` | `../../.ai/agents/<name>.md` |
@@ -162,10 +175,26 @@ An adapter's target (the symlink target, or the path-reference file's body) uses
 | `AGENTS.md` (repo root, Codex) | `.ai/rules/general.md` |
 | `.agents/skills`, `.github/prompts`, `.github/skills`, `.claude/agents`, `.claude/skills` (folder symlinks) | the matching `.ai/<sub>` folder |
 
-## Propagation and adapters
+## Distribution and adapters
 
-The cross-repository propagation workflow is a broadcast sync: any Cratis repository can be the source, and changes propagate to the other repositories, including `Cratis/AI` when the source is not `Cratis/AI`. Propagation normalizes known adapter paths before broadcasting them. When the matching canonical `.ai` file exists in the source tree, an adapter path is written as the expected symlink or path-reference file, even if the source repository currently contains copied content at that adapter path. Do not materialize adapter targets into copied `.ai` content in tool-specific files; that breaks the `.ai/` source-of-truth model and causes drift between adapters and canonical corpus files.
+Cross-repository broadcast propagation and reverse synchronization are retired.
+`Cratis/AI` is the canonical merge point for shared behavior. Consuming
+repositories select profiles and exact versions in project-owned subscriptions;
+generated packages flow downstream through reviewed update pull requests.
+
+An improvement discovered elsewhere is proposed upstream with its originating
+repository, immutable revision, product authority, affected profiles, and
+compatibility impact. After review, `Cratis/AI` releases a new immutable version.
+No consuming repository publishes packages, pushes generated bytes, or writes
+changes directly back into this source tree.
+
+Local adapter symlinks and path-reference files remain an implementation detail
+inside this repository. Do not materialize their targets into copied `.ai`
+content.
 
 ## Shared workflows
 
-Workflow files intended to be synced to other repositories live in `.ai/workflows/`. They follow the same symlink pattern — the propagate workflow copies `.ai/workflows/` content to target repositories.
+Reusable workflow behavior is versioned and reviewed like other shared behavior;
+it is not synchronized from `.ai/workflows/` into consuming repositories.
+Product repositories own their workflow invocation and exact immutable workflow
+reference.

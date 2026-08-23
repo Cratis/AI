@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "1.0.0",
+  "verifiedOn": "2026-08-22",
+  "status": "PASS",
+  "sourceCommit": "e9d161a70e25334bb468a33240bcf00f03f87522",
+  "sourceArtifactId": "cratis-fundamentals-concept-preview",
+  "sourcePath": "skills/cratis-fundamentals-concept",
+  "version": "0.0.3-fixture",
+  "generatedTargets": [
+    "canonical",
+    "claude",
+    "codex",
+    "copilot",
+    "cursor",
+    "deepseek",
+    "gemini",
+    "grok",
+    "junie",
+    "kiro",
+    "pi"
+  ],
+  "manifestSha256": "3bbefa355a20afd48aca800a8c9b9057cd85550a659c687195475c4d99d55a8c",
+  "provenanceSha256": "05512cfdf85418efe524586c61362ee06b1568b13a08db33295cc90e3e035113",
+  "provenanceSourceRevision": "e9d161a70e25334bb468a33240bcf00f03f87522",
+  "results": [
+    {
+      "gate": "grok-direct-install-remove",
+      "status": "PASS"
+    },
+    {
+      "gate": "deepseek-harness-direct-install-remove",
+      "status": "PASS"
+    },
+    {
+      "gate": "npm-pack-install-uninstall",
+      "status": "PASS"
+    },
+    {
+      "gate": "pi-install-remove",
+      "status": "PASS"
+    },
+    {
+      "gate": "claude-install-remove",
+      "status": "PASS"
+    },
+    {
+      "gate": "copilot-install-remove",
+      "status": "PASS"
+    },
+    {
+      "gate": "codex-marketplace-add-remove",
+      "status": "PASS"
+    },
+    {
+      "gate": "gemini-link-remove",
+      "status": "PASS"
+    }
+  ],
+  "publicationEligible": false,
+  "promotionEligible": false
+}

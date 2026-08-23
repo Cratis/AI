@@ -11,6 +11,7 @@ import { validateDistributionConfiguration } from "./generate-distribution-fixtu
 import { validateEngineeringDocsAuthoring } from "./engineering-docs-authoring-validation.mjs";
 import { validateEngineeringDistributionConfiguration } from "./generate-engineering-distribution-fixture.mjs";
 import { validateEngineeringDocsCompanions } from "./engineering-docs-companions-validation.mjs";
+import { validateProfileSubscriptions } from "./profile-subscription-validation.mjs";
 
 const errors = [
     ...validateCatalogs(),
@@ -22,6 +23,7 @@ const errors = [
     ...validateEngineeringDocsAuthoring(),
     ...validateEngineeringDistributionConfiguration(),
     ...validateEngineeringDocsCompanions(),
+    ...validateProfileSubscriptions(),
 ];
 if (errors.length > 0) {
     process.stderr.write(
@@ -31,6 +33,6 @@ if (errors.length > 0) {
     process.exitCode = 1;
 } else {
     process.stdout.write(
-        "Catalog validation passed: 3 legacy catalogs, 13 v2 catalogs, and 4 schemas are valid.\n",
+        "Catalog validation passed: legacy, v2, source-evidence, distribution-profile, and evaluation contracts are valid.\n",
     );
 }

@@ -96,14 +96,17 @@ const admittedUntracked = gitPaths([
 const unexpectedUntracked = admittedUntracked.filter(
     (path) =>
         !(
+            /^\.github\/ISSUE_TEMPLATE\//.test(path) ||
             path === ".github/workflows/distribution-canary-rollback.yml" ||
             path === ".github/workflows/engineering-distribution-fixture.yml" ||
             path === ".github/workflows/distribution-generated-update.yml" ||
             path === ".github/workflows/distribution-npm-stage.yml" ||
             /^AI-REPOSITORY-REDESIGN-[A-Z0-9-]+\.md$/.test(path) ||
-            /^Documentation\/(?:capability-catalog-v2|phase-0-verification|public-product-architecture|skill-authoring-contract|skill-classification-audit|project-context-bootstrap|redesign-foundation-validation|source-evidence-contract)\.md$/.test(
+            path === "Documentation/.markdownlint.json" ||
+            /^Documentation\/(?:ai-distribution-and-subscriptions|capability-catalog-v2|phase-0-verification|public-product-architecture|skill-authoring-contract|skill-classification-audit|project-context-bootstrap|redesign-foundation-validation|source-evidence-contract)\.md$/.test(
                 path,
             ) ||
+            /^Documentation\/examples\/ai-subscriptions\//.test(path) ||
             /^Documentation\/evidence\/redesign-autonomous-execution-2026-08-20\//.test(
                 path,
             ) ||
@@ -617,6 +620,7 @@ const definitions = [
     {
         id: "legacy-documentation",
         sourcePathPatterns: [
+            "Documentation/.markdownlint.json",
             "Documentation/agents.md",
             "Documentation/architecture.md",
             "Documentation/index.md",
@@ -641,6 +645,8 @@ const definitions = [
         id: "redesign-decision-documents",
         sourcePathPatterns: [
             "AI-REPOSITORY-REDESIGN-*.md",
+            "Documentation/ai-distribution-and-subscriptions.md",
+            "Documentation/examples/ai-subscriptions/**",
             "Documentation/phase-0-verification.md",
             "Documentation/public-product-architecture.md",
             "Documentation/skill-classification-audit.md",

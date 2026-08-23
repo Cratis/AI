@@ -1,4 +1,9 @@
-# Skills
+# Repository-local and canonical skills
+
+> **Scope:** The inventory later on this page describes the legacy local corpus
+> and is not the released profile inventory. Canonical public skills live in
+> `skills/`, maintainer skills live in `engineering/`, and generated packages
+> follow [distribution and subscriptions](./ai-distribution-and-subscriptions.md).
 
 Skills are **detailed, step-by-step implementation guides** invoked on demand when a developer needs to perform a specific, reusable workflow. They answer *how* to do something — the exact sequence of steps, patterns, and code templates required to complete a well-defined task.
 
@@ -8,9 +13,14 @@ See also: [Architecture Overview](./architecture.md) · [Instructions vs Skills]
 
 ## How skills work
 
-A skill lives in `.github/skills/<skill-name>/SKILL.md`. It is NOT loaded automatically — it is invoked explicitly when a user asks for that workflow or when an agent determines that skill is needed.
+A local Copilot adapter exposes a legacy skill at
+`.github/skills/<skill-name>/SKILL.md`. Canonical package sources instead live
+under `skills/<skill-name>/SKILL.md` or
+`engineering/skills/<skill-name>/SKILL.md`. A skill is not fully loaded until a
+user invokes it or an agent selects it.
 
 Each skill:
+
 - Has a single, well-defined purpose
 - Provides step-by-step guidance
 - Includes code templates and examples
@@ -21,7 +31,7 @@ Each skill:
 
 ## Skill anatomy
 
-```
+```text
 .github/skills/<skill-name>/
 ├── SKILL.md            ← The skill itself (required)
 ├── references/         ← Supporting documentation (optional)
@@ -61,7 +71,7 @@ A well-formed skill file follows this structure:
 ### Implementation skills
 
 | Skill | When to invoke |
-|---|---|
+| --- | --- |
 | `cratis-command` | Creating a new command with `Handle()`, validator, `CommandDialog`, and React hook |
 | `cratis-readmodel` | Creating a read model from scratch — events, projection, query, TypeScript proxy |
 | `cratis-vertical-slice` | Understanding how vertical slice architecture works in this project |
@@ -78,7 +88,7 @@ A well-formed skill file follows this structure:
 ### Standards and review skills
 
 | Skill | When to invoke |
-|---|---|
+| --- | --- |
 | `cratis-csharp-standards` | Reference for C# coding conventions — formatting, naming, records, nullable handling |
 | `cratis-react-page` | Building a React page with `DataPage`, `CommandDialog`, observable queries |
 | `cratis-specs-csharp` | Writing C# BDD specs — `Establish`/`Because`/`should_` pattern, NSubstitute |
@@ -90,14 +100,14 @@ A well-formed skill file follows this structure:
 ### Documentation skills
 
 | Skill | When to invoke |
-|---|---|
+| --- | --- |
 | `write-documentation` | Writing DocFX documentation following the Diátaxis framework |
 | `write-specs` | Writing BDD integration specs for a command or vertical slice |
 
 ### Meta skills
 
 | Skill | When to invoke |
-|---|---|
+| --- | --- |
 | `skill-creator` | Creating a new skill, improving an existing skill, or running skill evals |
 
 ---
@@ -107,6 +117,7 @@ A well-formed skill file follows this structure:
 Many skills have a `references/` subfolder with supporting documentation pulled from Cratis Chronicle and Arc sources. These are NOT loaded automatically — a skill explicitly reads them during execution when it needs specific API details.
 
 Examples:
+
 - `add-projection/references/CHRONICLE-API.md` — Chronicle projection API reference
 - `cratis-command/references/validation.md` — CommandValidator and FluentValidation patterns
 - `auth-and-identity/references/authentication.md` — IProvideIdentityDetails implementation guide
