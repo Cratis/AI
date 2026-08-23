@@ -82,7 +82,7 @@ test("profile subscription rejects floating versions and unknown profiles", () =
 });
 
 test("subscription schema enforces exact SemVer pins", () => {
-    withFixture(root => {
+    withFixture((root) => {
         const path = join(
             root,
             "Documentation/examples/ai-subscriptions/cratis-application.cratis-ai.json",
@@ -91,7 +91,7 @@ test("subscription schema enforces exact SemVer pins", () => {
         example.version = "01.0.0";
         writeJson(path, example);
         assert(
-            validateProfileSubscriptions(root).some(error =>
+            validateProfileSubscriptions(root).some((error) =>
                 error.includes("version"),
             ),
         );
@@ -102,7 +102,7 @@ test("subscription schema enforces exact SemVer pins", () => {
 });
 
 test("subscription schema rejects cross-audience profiles", () => {
-    withFixture(root => {
+    withFixture((root) => {
         const path = join(
             root,
             "Documentation/examples/ai-subscriptions/cratis-application.cratis-ai.json",
@@ -112,13 +112,15 @@ test("subscription schema rejects cross-audience profiles", () => {
         writeJson(path, example);
         const errors = validateProfileSubscriptions(root);
         assert(
-            errors.some(error =>
+            errors.some((error) =>
                 error.includes("expected exactly one matching oneOf branch"),
             ),
         );
         assert(
-            errors.some(error =>
-                error.includes("unknown profile engineering-framework-chronicle"),
+            errors.some((error) =>
+                error.includes(
+                    "unknown profile engineering-framework-chronicle",
+                ),
             ),
         );
     });

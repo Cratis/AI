@@ -95,8 +95,8 @@ function manifestFile(root, path) {
 function validateEngineeringSourceAuthority(repositoryRoot) {
     const source = readJson(
         join(repositoryRoot, "catalog/v2/sources.json"),
-    ).sources.find(candidate => candidate.id === "write-documentation");
-    const expectedPaths = approvedFiles.map(path => `engineering/${path}`);
+    ).sources.find((candidate) => candidate.id === "write-documentation");
+    const expectedPaths = approvedFiles.map((path) => `engineering/${path}`);
     if (
         !source ||
         source.sourcePath !==
