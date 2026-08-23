@@ -2072,6 +2072,14 @@ have archive byte parity only in this unit; existing fixture host evidence
 remains separate and exact archive install evidence is still required before a
 support claim.
 
+Hosted workflow run
+`https://github.com/Cratis/AI/actions/runs/32646884884` passed on merged main
+`9b13e6a24b8c2505b317a00e9406dc576469b98b` and uploaded artifact
+`fundamentals-0.1.0-preview.1-approval-pending` (artifact `9495100691`, 23,060
+bytes) with seven-day expiry at `2026-08-30T14:54:58Z`. Durable evidence is in
+`distribution/evidence/hosted-fundamentals-preview-assets-2026-08-23.json`.
+The artifact remains short-lived review input, not an installation endpoint.
+
 The bounded approval request on AI#148 and first-profile request on AI#165 now
 name exact revision/digest and a copy-ready approve/reject response. Workflows#73
 tracks the downstream subscriber-update controller after Stagehand#39 closed
