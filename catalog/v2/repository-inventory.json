@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "c4dae4db5d3df3eb4af2423418592d2c444e86268dbc9924a1f7a9058ad03867",
+  "indexDigest": "60fecc3e8d335d6fc73aa9d58cf5d4512693d1df8e1c8b1eae57a268a4836e65",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -396,6 +396,10 @@
     },
     {
       "path": "distribution/evidence/local-fixture-smoke-2026-08-22.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/evidence/local-fundamentals-preview-assets-2026-08-23.json",
       "status": "added"
     },
     {
@@ -2099,9 +2103,7 @@
       "status": "added"
     }
   ],
-  "admittedUntracked": [
-    "distribution/evidence/local-fundamentals-preview-assets-2026-08-23.json"
-  ],
+  "admittedUntracked": [],
   "excludedRuntimePrefixes": [
     ".pi/delegate/",
     ".pi/fusion/",
