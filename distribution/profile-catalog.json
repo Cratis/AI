@@ -37,11 +37,11 @@
     {
       "id": "public-fundamentals",
       "packageName": "@cratis/ai-fundamentals",
-      "products": ["fundamentals"],
+      "products": ["fundamentals", "chronicle"],
       "languages": ["csharp"],
       "state": "preview-source-candidate",
       "availableTargets": ["cratis-fundamentals-concept"],
-      "gapSummary": "Type discovery remains a legacy candidate."
+      "gapSummary": "The first candidate combines Fundamentals value concepts with Chronicle stream identities at exact verified versions; type discovery remains a legacy candidate."
     },
     {
       "id": "public-arc",
