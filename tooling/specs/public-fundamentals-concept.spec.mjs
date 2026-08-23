@@ -10,6 +10,53 @@ const skill = readFileSync(
     "utf8",
 );
 
+test("source review binds exact product releases without granting approval", () => {
+    const evidence = JSON.parse(
+        readFileSync(
+            "distribution/evidence/fundamentals-concept-source-review-2026-08-23.json",
+            "utf8",
+        ),
+    );
+    const contracts = JSON.parse(
+        readFileSync("catalog/v2/source-contracts.json", "utf8"),
+    ).contracts;
+    assert.equal(
+        evidence.state,
+        "SOURCE_REVIEW_PASS_OWNER_APPROVAL_PENDING",
+    );
+    assert.equal(evidence.accountableOwner, "woksin");
+    assert.equal(evidence.sharedReviewer, "einari");
+    assert.equal(evidence.fundamentals.release, "7.18.1");
+    assert.equal(
+        evidence.fundamentals.releaseRevision,
+        "7424cac54aa27753c182333a696e25f0263b54b5",
+    );
+    assert.equal(evidence.chronicle.release, "16.38.1");
+    assert.equal(
+        evidence.chronicle.releaseRevision,
+        "8c5c6f34abae61f8d94bbfb9f4179674409b7cd3",
+    );
+    assert.equal(
+        evidence.compileEvidence.result,
+        "PASS_ZERO_WARNINGS_ZERO_ERRORS",
+    );
+    assert.equal(evidence.targetApproval, false);
+    assert.equal(evidence.includeInRuntime, false);
+    for (const id of [
+        "cratis-fundamentals-source",
+        "cratis-chronicle-source",
+    ]) {
+        const contract = contracts.find((candidate) => candidate.id === id);
+        assert(
+            contract.evidenceIds.includes(
+                "fundamentals-concept-source-review-2026-08-23",
+            ),
+        );
+        assert.equal(contract.verificationState, "unverified");
+        assert.equal(contract.distributionInputAllowed, false);
+    }
+});
+
 test("Fundamentals concept skill is passive canonical Agent Skills content", () => {
     assert.match(
         skill,

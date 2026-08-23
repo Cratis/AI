@@ -30,9 +30,9 @@ const targetId = "cratis-fundamentals-concept";
 const sourceId = "add-concept";
 const artifactId = "cratis-fundamentals-concept-preview";
 const packageName = "@cratis/ai-fundamentals";
-const requiredSourceRevision = "e9d161a70e25334bb468a33240bcf00f03f87522";
+const requiredSourceRevision = "b53caa555b9a3f05ba1462b86202fe3ccb8a9470";
 const requiredSourceContentDigest =
-    "f7f7c2c110b3ff3f1b5921ad51fffc449a448bb49aaec2626ecc4d391e9d78a1";
+    "9e537c48a95c414709008c69ebfb616354d60992578ddd9da3d7dc7308c42caa";
 
 function sha256(content) {
     return createHash("sha256").update(content).digest("hex");

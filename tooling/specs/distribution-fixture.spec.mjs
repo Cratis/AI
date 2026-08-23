@@ -199,7 +199,11 @@ test("fixture provenance binds the authorized immutable public source", () => {
         );
         assert.equal(
             provenance.sourceRevision,
-            "e9d161a70e25334bb468a33240bcf00f03f87522",
+            "b53caa555b9a3f05ba1462b86202fe3ccb8a9470",
+        );
+        assert.equal(
+            provenance.sourceContentDigest,
+            "9e537c48a95c414709008c69ebfb616354d60992578ddd9da3d7dc7308c42caa",
         );
         assert.equal(
             provenance.sourcePath,

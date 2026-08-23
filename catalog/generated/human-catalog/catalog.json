@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "contractVersion": 1,
   "disclaimer": "Catalog inclusion, evaluation evidence, bundle generation, or publication does not grant runtime permission or approval.",
-  "inputDigest": "935cf8eb8d422ee72efef1762948544ef6f2010796d26bceae6cf7e1054df871",
+  "inputDigest": "6eb505f0f0bde4dbc5cdd42acf6855ce6f349f5170b73d0e1a4147b72de76150",
   "capabilities": [
     {
       "id": "cratis-application-react-specifications",
@@ -1812,44 +1812,103 @@
         "Do not use for DTO cleanup.",
         "Do not use for event schema migration."
       ],
-      "capabilityKind": "unclassified",
-      "invocation": "unclassified",
+      "capabilityKind": "primitive",
+      "invocation": "both",
       "lifecycle": "candidate",
       "approvalState": "candidate",
       "runtimeEligible": false,
       "products": [
+        "chronicle",
         "fundamentals"
       ],
       "languages": [
         "csharp"
       ],
       "architectures": {
-        "state": "unclassified",
-        "ids": [],
-        "reason": "Architecture requires reviewed target classification."
+        "state": "applicable",
+        "ids": [
+          "product-neutral"
+        ],
+        "reason": "Strongly typed domain values and Chronicle stream identities apply across application and library architectures."
       },
       "personas": {
-        "state": "unclassified",
-        "ids": [],
-        "reason": "Persona requires reviewed target classification."
+        "state": "applicable",
+        "ids": [
+          "contributor",
+          "developer",
+          "maintainer"
+        ],
+        "reason": "Developers and maintainers create and review strongly typed domain values."
       },
       "surfaces": {
-        "state": "unclassified",
-        "ids": [],
-        "reason": "Surface requires reviewed target classification."
+        "state": "applicable",
+        "ids": [
+          "backend",
+          "direct-agent-skills",
+          "ide",
+          "pi"
+        ],
+        "reason": "The passive skill guides C# source changes from supported agent and IDE surfaces."
       },
       "repositoryProfiles": {
-        "state": "unclassified",
-        "ids": [],
-        "reason": "Repository profile requires reviewed target classification."
+        "state": "applicable",
+        "ids": [
+          "application",
+          "client",
+          "consuming-project",
+          "framework"
+        ],
+        "reason": "Concepts appear in consuming applications, framework code, and client libraries."
       },
       "trust": {
         "class": "passive",
-        "assessmentState": "unclassified",
-        "effects": []
+        "assessmentState": "assessed",
+        "effects": [
+          {
+            "id": "create-or-modify-concept-source",
+            "operation": "modify",
+            "resourceBoundary": "current repository worktree",
+            "scope": "one domain concept or Chronicle event-source identity source file selected by the user",
+            "dataClassifications": [
+              "confidential",
+              "internal",
+              "public"
+            ],
+            "reversible": true,
+            "confirmation": {
+              "required": true,
+              "timing": "before-effect",
+              "reason": "The repository owner confirms the target domain type and file before source changes."
+            },
+            "authorization": {
+              "required": true,
+              "authority": "Repository maintainer or task owner",
+              "evidenceIds": [
+                "ai-126"
+              ]
+            },
+            "evidenceIds": [
+              "fundamentals-concept-source-review-2026-08-23"
+            ],
+            "rollbackOrCompensation": "Restore the prior uncommitted file or revert the dedicated source commit."
+          }
+        ]
       },
-      "dependencies": [],
-      "authoringContractIds": [],
+      "dependencies": [
+        {
+          "dependencyId": "dotnet",
+          "category": "tool",
+          "strength": "hard",
+          "reason": "The generated C# type must compile and its specifications must run against the verified packages.",
+          "missingBehavior": {
+            "action": "block",
+            "description": "Stop before claiming completion when the .NET SDK and project gates are unavailable."
+          }
+        }
+      ],
+      "authoringContractIds": [
+        "cratis-skill-clean-room-v1"
+      ],
       "evidenceIds": [
         "reevaluation-authority",
         "repo-main-b795d53"

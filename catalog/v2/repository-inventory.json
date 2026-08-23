@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "085b785d64098574f9e77c7c20edc302c990aab98b0226344c592898d599c3a6",
+  "indexDigest": "f9a0dc42b00ffcc2107b6a8ac5ccbb111f4298a7624640200a9cae400f7e5910",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -2167,7 +2167,9 @@
       "status": "added"
     }
   ],
-  "admittedUntracked": [],
+  "admittedUntracked": [
+    "distribution/evidence/fundamentals-concept-source-review-2026-08-23.json"
+  ],
   "excludedRuntimePrefixes": [
     ".pi/delegate/",
     ".pi/fusion/",
@@ -3461,8 +3463,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 20,
-      "expectedPathsDigest": "ac3380abec201b146176f63b948dec5b79cbd51d37cc0e84a58efdc1c899415f"
+      "expectedPathCount": 21,
+      "expectedPathsDigest": "71a9ace02658773d95d6505406910e952ca190c9996ea4561d680af900746304"
     },
     {
       "excludePathPatterns": [],

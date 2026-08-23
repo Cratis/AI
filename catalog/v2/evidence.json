@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "asOf": "2026-08-22",
+  "asOf": "2026-08-23",
   "generatedBy": "tooling/generate-catalog-v2.mjs",
   "evidence": [
     {
@@ -50,14 +50,25 @@
       "immutableRevision": "b795d5307e20f7f7458a67708b4f26975e223796"
     },
     {
-      "id": "public-fundamentals-concept-source-e9d161a",
-      "officialUrl": "https://github.com/Cratis/AI/tree/e9d161a70e25334bb468a33240bcf00f03f87522/skills/cratis-fundamentals-concept",
+      "id": "public-fundamentals-concept-source-b53caa5",
+      "officialUrl": "https://github.com/Cratis/AI/tree/b53caa555b9a3f05ba1462b86202fe3ccb8a9470/skills/cratis-fundamentals-concept",
       "sourceKind": "repository-snapshot",
-      "verifiedOn": "2026-08-22",
-      "expiresOn": "2027-08-22",
-      "applicableVersion": "e9d161a70e25334bb468a33240bcf00f03f87522",
+      "verifiedOn": "2026-08-23",
+      "expiresOn": "2027-08-23",
+      "applicableVersion": "b53caa555b9a3f05ba1462b86202fe3ccb8a9470",
       "confidence": "high",
-      "immutableRevision": "e9d161a70e25334bb468a33240bcf00f03f87522"
+      "immutableRevision": "b53caa555b9a3f05ba1462b86202fe3ccb8a9470"
+    },
+    {
+      "id": "fundamentals-concept-source-review-2026-08-23",
+      "officialUrl": "https://github.com/Cratis/AI/issues/148",
+      "sourceKind": "local-evidence-report",
+      "verifiedOn": "2026-08-23",
+      "expiresOn": "2026-11-21",
+      "applicableVersion": "Cratis.Fundamentals@7.18.1+Cratis.Chronicle@16.38.1",
+      "confidence": "high",
+      "repositoryPath": "distribution/evidence/fundamentals-concept-source-review-2026-08-23.json",
+      "digest": "62b6770b0a354aaa7b054fa8075d742a6952c00fc98b3b8c78d4ae1e46c9390f"
     },
     {
       "id": "engineering-docs-add-page-source-684d037",

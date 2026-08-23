@@ -137,7 +137,7 @@ test("Fundamentals preview assets are deterministic and non-publishable", () => 
         assert.equal(first.targetId, "cratis-fundamentals-concept");
         assert.equal(
             first.sourceRevision,
-            "e9d161a70e25334bb468a33240bcf00f03f87522",
+            "b53caa555b9a3f05ba1462b86202fe3ccb8a9470",
         );
         assert.equal(first.assets.length, 11);
         assert.match(first.generatorDigest, /^[0-9a-f]{64}$/);

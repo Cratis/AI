@@ -41,13 +41,113 @@ const internalTargets = new Map([
     ["write-documentation", "cratis-engineering-docs-authoring"],
 ]);
 
+const publicClassifications = new Map([
+    [
+        "cratis-fundamentals-concept",
+        {
+            capabilityKind: "primitive",
+            invocation: "both",
+            products: ["chronicle", "fundamentals"],
+            languages: ["csharp"],
+            architectures: {
+                state: "applicable",
+                ids: ["product-neutral"],
+                reason: "Strongly typed domain values and Chronicle stream identities apply across application and library architectures.",
+            },
+            personas: {
+                state: "applicable",
+                ids: ["contributor", "developer", "maintainer"],
+                reason: "Developers and maintainers create and review strongly typed domain values.",
+            },
+            surfaces: {
+                state: "applicable",
+                ids: ["backend", "direct-agent-skills", "ide", "pi"],
+                reason: "The passive skill guides C# source changes from supported agent and IDE surfaces.",
+            },
+            repositoryProfiles: {
+                state: "applicable",
+                ids: ["application", "client", "consuming-project", "framework"],
+                reason: "Concepts appear in consuming applications, framework code, and client libraries.",
+            },
+            trust: {
+                class: "passive",
+                assessmentState: "assessed",
+                effects: [
+                    {
+                        id: "create-or-modify-concept-source",
+                        operation: "modify",
+                        resourceBoundary: "current repository worktree",
+                        scope: "one domain concept or Chronicle event-source identity source file selected by the user",
+                        dataClassifications: ["confidential", "internal", "public"],
+                        reversible: true,
+                        rollbackOrCompensation: "Restore the prior uncommitted file or revert the dedicated source commit.",
+                        confirmation: {
+                            required: true,
+                            timing: "before-effect",
+                            reason: "The repository owner confirms the target domain type and file before source changes.",
+                        },
+                        authorization: {
+                            required: true,
+                            authority: "Repository maintainer or task owner",
+                            evidenceIds: ["ai-126"],
+                        },
+                        evidenceIds: [
+                            "fundamentals-concept-source-review-2026-08-23",
+                        ],
+                    },
+                ],
+            },
+            security: {
+                executable: false,
+                destructive: false,
+                risk: "low",
+                disposition: "accepted",
+                evidenceIds: [
+                    "fundamentals-concept-source-review-2026-08-23",
+                ],
+            },
+            dependencyEdges: [
+                {
+                    dependencyId: "dotnet",
+                    category: "tool",
+                    strength: "hard",
+                    reason: "The generated C# type must compile and its specifications must run against the verified packages.",
+                    missingBehavior: {
+                        action: "block",
+                        description: "Stop before claiming completion when the .NET SDK and project gates are unavailable.",
+                    },
+                },
+            ],
+            targetDependencies: [],
+            internalArtifacts: [],
+            sourceContractIds: [
+                "cratis-fundamentals-source",
+                "cratis-chronicle-source",
+            ],
+            sourceAuthoritySubjects: [
+                "api",
+                "documentation",
+                "examples",
+                "versions",
+            ],
+            authoringContractIds: ["cratis-skill-clean-room-v1"],
+            runtimeAllowed: [
+                "SKILL.md",
+                "references/**",
+                "assets/**",
+                "LICENSE*",
+            ],
+        },
+    ],
+]);
+
 const sourceOverrides = new Map([
     [
         "add-concept",
         {
             sourcePath: "skills/cratis-fundamentals-concept",
-            sourceRevision: "e9d161a70e25334bb468a33240bcf00f03f87522",
-            evidenceId: "public-fundamentals-concept-source-e9d161a",
+            sourceRevision: "b53caa555b9a3f05ba1462b86202fe3ccb8a9470",
+            evidenceId: "public-fundamentals-concept-source-b53caa5",
         },
     ],
     [
@@ -987,15 +1087,21 @@ const targets = allTargetIds.map((targetId) => {
     const hasLegacyBehaviorEvals = sourceSkillIds.some((source) =>
         existsSync(join(repositoryRoot, `.ai/skills/${source}/evals`)),
     );
-    const engineeringClassification = engineeringClassifications.get(targetId);
+    const engineeringClassification =
+        publicClassifications.get(targetId) ??
+        engineeringClassifications.get(targetId);
     return {
         id: targetId,
         semanticName: targetId,
         sourceSkillIds,
         owner: publicTarget ? publicOwner : engineeringOwner,
         audience: publicTarget ? "public" : "cratis-engineering",
-        products: publicTarget ? products : ["cratis-engineering"],
-        languages: publicTarget ? languages : ["language-agnostic"],
+        products: publicTarget
+            ? (engineeringClassification?.products ?? products)
+            : ["cratis-engineering"],
+        languages: publicTarget
+            ? (engineeringClassification?.languages ?? languages)
+            : ["language-agnostic"],
         capabilityKind:
             engineeringClassification?.capabilityKind ?? "unclassified",
         invocation: engineeringClassification?.invocation ?? "unclassified",
@@ -1065,7 +1171,7 @@ const targets = allTargetIds.map((targetId) => {
                 "local-configuration/**",
             ],
         },
-        security: {
+        security: engineeringClassification?.security ?? {
             executable: false,
             destructive: profile[5],
             risk: profile[4],
@@ -1357,7 +1463,7 @@ writeJson("artifacts.json", {
             requiresApprovedTargets: false,
             evidenceIds: [
                 "reevaluation-authority",
-                "public-fundamentals-concept-source-e9d161a",
+                "public-fundamentals-concept-source-b53caa5",
             ],
         },
     ],
@@ -1411,15 +1517,29 @@ const evidence = [
         immutableRevision: revision,
     },
     {
-        id: "public-fundamentals-concept-source-e9d161a",
+        id: "public-fundamentals-concept-source-b53caa5",
         officialUrl:
-            "https://github.com/Cratis/AI/tree/e9d161a70e25334bb468a33240bcf00f03f87522/skills/cratis-fundamentals-concept",
+            "https://github.com/Cratis/AI/tree/b53caa555b9a3f05ba1462b86202fe3ccb8a9470/skills/cratis-fundamentals-concept",
         sourceKind: "repository-snapshot",
-        verifiedOn: "2026-08-22",
-        expiresOn: "2027-08-22",
-        applicableVersion: "e9d161a70e25334bb468a33240bcf00f03f87522",
+        verifiedOn: "2026-08-23",
+        expiresOn: "2027-08-23",
+        applicableVersion: "b53caa555b9a3f05ba1462b86202fe3ccb8a9470",
         confidence: "high",
-        immutableRevision: "e9d161a70e25334bb468a33240bcf00f03f87522",
+        immutableRevision: "b53caa555b9a3f05ba1462b86202fe3ccb8a9470",
+    },
+    {
+        id: "fundamentals-concept-source-review-2026-08-23",
+        officialUrl: "https://github.com/Cratis/AI/issues/148",
+        sourceKind: "local-evidence-report",
+        verifiedOn: "2026-08-23",
+        expiresOn: "2026-11-21",
+        applicableVersion: "Cratis.Fundamentals@7.18.1+Cratis.Chronicle@16.38.1",
+        confidence: "high",
+        repositoryPath:
+            "distribution/evidence/fundamentals-concept-source-review-2026-08-23.json",
+        digest: digestFile(
+            "distribution/evidence/fundamentals-concept-source-review-2026-08-23.json",
+        ),
     },
     {
         id: "engineering-docs-add-page-source-684d037",
@@ -1549,7 +1669,7 @@ for (const ecosystem of v1Ecosystems.ecosystems) {
 }
 writeJson("evidence.json", {
     schemaVersion: 2,
-    asOf: "2026-08-22",
+    asOf: "2026-08-23",
     generatedBy: "tooling/generate-catalog-v2.mjs",
     evidence,
     ecosystemFacts,

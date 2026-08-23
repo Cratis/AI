@@ -1792,31 +1792,31 @@ Use when creating a ConceptAs&lt;T&gt; value or EventSourceId&lt;T&gt; identity.
 
 ### Invocation — cratis-fundamentals-concept
 
-- Capability kind: unclassified
-- Invocation: unclassified
+- Capability kind: primitive
+- Invocation: both
 
 ### Applicability — cratis-fundamentals-concept
 
-- Products: fundamentals
+- Products: chronicle, fundamentals
 - Languages: csharp
-- Architectures: Unclassified — Architecture requires reviewed target classification.
-- Personas: Unclassified — Persona requires reviewed target classification.
-- Surfaces: Unclassified — Surface requires reviewed target classification.
-- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+- Architectures: product-neutral
+- Personas: contributor, developer, maintainer
+- Surfaces: backend, direct-agent-skills, ide, pi
+- Repository profiles: application, client, consuming-project, framework
 
 ### Dependencies — cratis-fundamentals-concept
 
-- Unclassified
+- tool:dotnet (hard; missing → block)
 
 ### Trust and effects — cratis-fundamentals-concept
 
 - Trust class: passive
-- Assessment: unclassified
-- No assessed effects
+- Assessment: assessed
+- modify current repository worktree: one domain concept or Chronicle event-source identity source file selected by the user
 
 ### Evidence and support — cratis-fundamentals-concept
 
-- Authoring contract unclassified
+- Authoring contract: cratis-skill-clean-room-v1
 - Evidence: reevaluation-authority
 - Evidence: repo-main-b795d53
 

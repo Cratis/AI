@@ -96,6 +96,7 @@ test("catalog v2 exposes closed shared taxonomies without broadening targets", (
 test("unreviewed targets remain explicitly unclassified and runtime ineligible", () => {
     const catalogs = loadCatalogs();
     const classified = new Set([
+        "cratis-fundamentals-concept",
         "cratis-engineering-docs-add-page",
         "cratis-engineering-docs-authoring",
         "cratis-engineering-docs-edit-page",
@@ -212,7 +213,7 @@ test("first useful public skill is bound to immutable canonical source", () => {
     assert.equal(source.sourcePath, "skills/cratis-fundamentals-concept");
     assert.equal(
         source.sourceRevision,
-        "e9d161a70e25334bb468a33240bcf00f03f87522",
+        "b53caa555b9a3f05ba1462b86202fe3ccb8a9470",
     );
     assert.deepEqual(source.bundledPaths, [
         "skills/cratis-fundamentals-concept/LICENSE",
@@ -220,10 +221,35 @@ test("first useful public skill is bound to immutable canonical source", () => {
     ]);
     assert(
         source.evidenceIds.includes(
-            "public-fundamentals-concept-source-e9d161a",
+            "public-fundamentals-concept-source-b53caa5",
         ),
     );
     assert.deepEqual(target.sourceSkillIds, ["add-concept"]);
+    assert.deepEqual(target.products, ["chronicle", "fundamentals"]);
+    assert.equal(target.capabilityKind, "primitive");
+    assert.equal(target.invocation, "both");
+    assert.equal(target.trust.assessmentState, "assessed");
+    assert.deepEqual(
+        target.dependencyEdges.map((edge) => [
+            edge.category,
+            edge.dependencyId,
+            edge.strength,
+        ]),
+        [["tool", "dotnet", "hard"]],
+    );
+    assert.deepEqual(target.sourceContractIds, [
+        "cratis-fundamentals-source",
+        "cratis-chronicle-source",
+    ]);
+    assert.deepEqual(target.authoringContractIds, [
+        "cratis-skill-clean-room-v1",
+    ]);
+    assert.equal(target.security.disposition, "accepted");
+    assert.deepEqual(target.security.evidenceIds, [
+        "fundamentals-concept-source-review-2026-08-23",
+    ]);
+    for (const evaluation of Object.values(target.evaluations))
+        assert.equal(evaluation.status, "missing");
     assert.equal(target.approval.state, "candidate");
     assert.equal(target.includeInRuntime, false);
 });
@@ -710,7 +736,7 @@ test("stale and future-dated evidence fail and every fact remains evidence-bound
         ),
     );
     catalogs.evidence.evidence[0].expiresOn = "2026-08-19";
-    catalogs.evidence.evidence[1].verifiedOn = "2026-08-23";
+    catalogs.evidence.evidence[1].verifiedOn = "2026-08-24";
     const errors = validateEvidenceAndCoverage(catalogs);
     assert(errors.some((error) => error.includes("expired")));
     assert(errors.some((error) => error.includes("verified after")));
