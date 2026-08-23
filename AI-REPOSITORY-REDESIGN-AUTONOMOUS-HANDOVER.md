@@ -2029,3 +2029,50 @@ Resume in this order:
 5. resolve subscriber-update ownership after Stagehand#39 closure;
 6. proceed to protected App/npm/canary/publication only when the corresponding
    external gates are actually satisfied.
+
+## 52. Approval-pending Fundamentals preview assets — 2026-08-23
+
+AI#148 and AI#165 still contain no owner approval. Rather than add generic
+validation or wait idly, the first public candidate is now staged into usable,
+short-lived review assets without crossing that authority boundary.
+
+`tooling/package-fundamentals-preview-assets.mjs`:
+
+- accepts only the exact `public-fundamentals` /
+  `cratis-fundamentals-concept-preview` candidate relationship;
+- requires target/source/profile/artifact state to remain candidate,
+  non-runtime, fixture-only, and non-publishable;
+- reads exact source bytes from immutable revision
+  `e9d161a70e25334bb468a33240bcf00f03f87522` and verifies catalog digest
+  `f7f7c2c110b3ff3f1b5921ad51fffc449a448bb49aaec2626ecc4d391e9d78a1`;
+- generates one root-native deterministic `tar.gz` per passive harness and one
+  npm-compatible Pi `.tgz` for Agent Skills, Claude, Codex, Copilot, Cursor,
+  DeepSeek Harness, Gemini, Grok, Junie, Kiro, and Pi;
+- emits `preview-assets.json`, passive `preview-sbom.json`, and `SHA256SUMS`;
+- records `PREVIEW_ASSETS_APPROVAL_PENDING` with approval, supported
+  installation, publication, and promotion all false;
+- validates tar checksums/paths, archive byte parity, deterministic generation,
+  Pi npm install/update/rollback/uninstall, extracted Pi install/list/remove,
+  and project context/subscription/settings preservation.
+
+Local evidence at
+`distribution/evidence/local-fundamentals-preview-assets-2026-08-23.json`
+records 11 assets from review-corrected implementation commit
+`9f4f8dc7cd0ede084c1d024fb6f83ad237614355`, generator digest
+`3044c0d473b5d2fcda9734547b9246c8d24f5eab9ac361453a7d5f5ea86bc867`,
+zero SBOM dependencies/executables, and all focused gates passing.
+
+The single bounded review found three high preview-boundary defects. Corrections
+now require the fixed source revision/digest, reject stable/non-preview versions,
+set the Pi package `private: true`, and mark Codex installation
+`NOT_AVAILABLE`. The read-only **Package Fundamentals Preview Assets** workflow
+verifies and uploads the corrected artifacts for seven days. It has no secrets,
+write/OIDC, publish, release, push, approval, or promotion authority. Non-Pi harness assets
+have archive byte parity only in this unit; existing fixture host evidence
+remains separate and exact archive install evidence is still required before a
+support claim.
+
+The bounded approval request on AI#148 and first-profile request on AI#165 now
+name exact revision/digest and a copy-ready approve/reject response. Workflows#73
+tracks the downstream subscriber-update controller after Stagehand#39 closed
+`NOT_PLANNED`.

@@ -143,8 +143,17 @@ export function generatePassiveProfileAdapters({
     packageName,
     description,
     skills,
+    codexInstallationPolicy = "AVAILABLE",
+    piPrivate = false,
 }) {
     assertInputs({ version, profileId, packageName, skills });
+    if (
+        !["AVAILABLE", "INSTALLED_BY_DEFAULT", "NOT_AVAILABLE"].includes(
+            codexInstallationPolicy,
+        ) ||
+        typeof piPrivate !== "boolean"
+    )
+        throw new Error("Profile adapter publication policy is invalid");
     const root = resolve(outputRoot);
     if (existsSync(root))
         throw new Error(`Profile adapter output must not exist: ${root}`);
@@ -192,8 +201,10 @@ export function generatePassiveProfileAdapters({
                     path: `./plugins/${profileId}`,
                 },
                 policy: {
-                    installation: "AVAILABLE",
-                    authentication: "ON_INSTALL",
+                    installation: codexInstallationPolicy,
+                    ...(codexInstallationPolicy === "NOT_AVAILABLE"
+                        ? {}
+                        : { authentication: "ON_INSTALL" }),
                 },
                 category: "Developer Tools",
             },
@@ -282,7 +293,7 @@ export function generatePassiveProfileAdapters({
         name: packageName,
         version,
         description,
-        private: false,
+        private: piPrivate,
         license: "MIT",
         files: ["skills"],
         keywords: ["pi-package", "cratis"],

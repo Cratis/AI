@@ -278,6 +278,29 @@ The final release page replaces placeholders with immutable URLs, checksums,
 tested host versions, update commands, and uninstall commands. Do not point a
 host at the multi-profile generated repository root.
 
+### Approval-pending Fundamentals review assets
+
+While target approval remains open, maintainers can generate deterministic,
+short-lived review assets without granting installation or publication status:
+
+```bash
+node tooling/package-fundamentals-preview-assets.mjs \
+  /tmp/fundamentals-preview 0.1.0-preview.1
+```
+
+The output contains one root-native `tar.gz` asset per harness, an npm-compatible
+but npm-private Pi `.tgz`, `preview-assets.json`, `preview-sbom.json`, and
+`SHA256SUMS`. Stable/non-preview versions are rejected, and the Codex preview
+metadata marks installation `NOT_AVAILABLE`. It binds
+the exact immutable concept source revision and digest. The manifest state is
+`PREVIEW_ASSETS_APPROVAL_PENDING`; approval, supported installation,
+publication, and promotion are all false.
+
+The read-only **Package Fundamentals Preview Assets** workflow produces the same
+assets with seven-day retention for owner review and disposable canaries. These
+assets must not be published, installed as a supported release, or submitted to
+a marketplace.
+
 ## Versioning and release train
 
 All profile packages use SemVer and one atomic release train. A release changes

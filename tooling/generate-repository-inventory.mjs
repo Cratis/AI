@@ -99,6 +99,8 @@ const unexpectedUntracked = admittedUntracked.filter(
             /^\.github\/ISSUE_TEMPLATE\//.test(path) ||
             path ===
                 ".github/workflows/distribution-approved-profile-release.yml" ||
+            path ===
+                ".github/workflows/distribution-fundamentals-preview-assets.yml" ||
             path === ".github/workflows/distribution-canary-rollback.yml" ||
             path === ".github/workflows/engineering-distribution-fixture.yml" ||
             path === ".github/workflows/distribution-generated-update.yml" ||
@@ -476,6 +478,7 @@ const definitions = [
         id: "repository-validation-workflow",
         sourcePathPatterns: [
             ".github/workflows/distribution-approved-profile-release.yml",
+            ".github/workflows/distribution-fundamentals-preview-assets.yml",
             ".github/workflows/distribution-canary-rollback.yml",
             ".github/workflows/engineering-distribution-fixture.yml",
             ".github/workflows/distribution-generated-update.yml",

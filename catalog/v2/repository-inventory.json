@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "f14c553816becff49833abe86fb717c9f510b18c5df10f506d266150c554952e",
+  "indexDigest": "60fecc3e8d335d6fc73aa9d58cf5d4512693d1df8e1c8b1eae57a268a4836e65",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -44,6 +44,10 @@
     },
     {
       "path": ".github/workflows/distribution-canary-rollback.yml",
+      "status": "added"
+    },
+    {
+      "path": ".github/workflows/distribution-fundamentals-preview-assets.yml",
       "status": "added"
     },
     {
@@ -392,6 +396,10 @@
     },
     {
       "path": "distribution/evidence/local-fixture-smoke-2026-08-22.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/evidence/local-fundamentals-preview-assets-2026-08-23.json",
       "status": "added"
     },
     {
@@ -1931,6 +1939,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/package-fundamentals-preview-assets.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/passive-profile-adapters.mjs",
       "status": "added"
     },
@@ -2036,6 +2048,10 @@
     },
     {
       "path": "tooling/specs/engineering-docs-companions.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/fundamentals-preview-assets.spec.mjs",
       "status": "added"
     },
     {
@@ -2638,6 +2654,7 @@
       "id": "repository-validation-workflow",
       "sourcePathPatterns": [
         ".github/workflows/distribution-approved-profile-release.yml",
+        ".github/workflows/distribution-fundamentals-preview-assets.yml",
         ".github/workflows/distribution-canary-rollback.yml",
         ".github/workflows/engineering-distribution-fixture.yml",
         ".github/workflows/distribution-generated-update.yml",
@@ -2660,8 +2677,8 @@
         "repo-main-b795d53",
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 6,
-      "expectedPathsDigest": "6e7604e8543c6f011bf0852a2b81f6d416a83ce2fcab42dbc47d4aa324d184ae"
+      "expectedPathCount": 7,
+      "expectedPathsDigest": "5a65e77aea979995ff0ef0fe6cb46700b304da3082d03a2a742765855956c82d"
     },
     {
       "excludePathPatterns": [],
@@ -3375,8 +3392,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 18,
-      "expectedPathsDigest": "08ef0162524356047d9100c699f1503db69c36e4a45fe96b63ef31a90e9f77e5"
+      "expectedPathCount": 19,
+      "expectedPathsDigest": "716837082abc6966269bb8d3ba526e1b6585e991ba6731e72a09cd2243047974"
     },
     {
       "excludePathPatterns": [],
@@ -3398,8 +3415,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 33,
-      "expectedPathsDigest": "ade37b2c91e8e2421f43e484961a158e4c5d2a109a57e9865e7f66010e2952de"
+      "expectedPathCount": 34,
+      "expectedPathsDigest": "6facafe4362c2224d7689cf7a2bb63c7099affb12a0ca84435c48ee9c140fef6"
     },
     {
       "excludePathPatterns": [],
@@ -3422,8 +3439,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 26,
-      "expectedPathsDigest": "f46889a4a04eaadb9235545a1402d44de3127378458e0a864e929bde8d426a7d"
+      "expectedPathCount": 27,
+      "expectedPathsDigest": "cdd1e58ce361586db8c6c0bd849e31460e22a3c894480cf4c81ed5052e6e2c83"
     },
     {
       "excludePathPatterns": [],
