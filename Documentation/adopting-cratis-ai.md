@@ -18,7 +18,10 @@ the released workflow and will fail until publication.
 | Cratis Chronicle framework repository | `engineering-chronicle` |
 | Private Studio repository | `engineering-studio` plus a private local overlay |
 
-See [Profile reference](./profile-reference.md) for the complete planned map.
+Browse the generated
+[package and capability catalog](../catalog/generated/human-catalog/CATALOG.md)
+to compare package descriptions, included skills, and availability. See
+[Profile reference](./profile-reference.md) for the complete planned map.
 
 ## 2. Add the exact subscription
 

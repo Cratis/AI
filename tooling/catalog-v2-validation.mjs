@@ -1444,8 +1444,15 @@ export function validateHumanCatalogContract(catalogs) {
         validateRelativeGeneratedPath(path, `human catalog ${kind}`, errors);
     if (!contract.outputRoot.startsWith("catalog/generated/"))
         errors.push("human catalog output must remain under catalog/generated");
-    if (!equalStringSets(contract.includeAudiences, ["public"]))
-        errors.push("human catalog can include only public targets");
+    if (
+        !equalStringSets(contract.includeAudiences, [
+            "public",
+            "cratis-engineering",
+        ])
+    )
+        errors.push(
+            "human catalog must include public and Cratis engineering targets",
+        );
     if (contract.includeRuntimePayloadBytes)
         errors.push("human catalog can never include runtime payload bytes");
     const requiredSections = [
@@ -1460,6 +1467,7 @@ export function validateHumanCatalogContract(catalogs) {
         "evidence-and-support",
         "related-capabilities",
         "bundle-membership",
+        "profile-membership",
     ];
     if (
         !equalStringSets(contract.requiredCapabilitySections, requiredSections)
