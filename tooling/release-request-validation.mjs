@@ -36,13 +36,17 @@ function repositoryInputs(repositoryRoot, errors) {
         "catalog/v2/authoring-contracts.json",
     )?.contracts;
     const artifacts = read("catalog/v2/artifacts.json")?.artifacts;
+    const releaseAutomationCapabilities = read(
+        "distribution/release-automation-capabilities.json",
+    );
     if (
         !profileCatalog ||
         !targets ||
         !sources ||
         !sourceContracts ||
         !authoringContracts ||
-        !artifacts
+        !artifacts ||
+        !releaseAutomationCapabilities
     )
         return null;
     return {
@@ -52,6 +56,7 @@ function repositoryInputs(repositoryRoot, errors) {
         sourceContracts,
         authoringContracts,
         artifacts,
+        releaseAutomationCapabilities,
     };
 }
 
@@ -62,6 +67,29 @@ export function validateReleaseRequest(request, relativePath, inputs, schema) {
         errors.push(
             `${relativePath}: filename must be v${request.version}.json`,
         );
+    const automationCapabilities = inputs?.releaseAutomationCapabilities;
+    if (
+        automationCapabilities &&
+        (request.profiles?.length ?? 0) >
+            automationCapabilities.maxProfilesPerRelease
+    )
+        errors.push(
+            `${relativePath}: release exceeds the implemented profile publication limit`,
+        );
+    if (automationCapabilities) {
+        const implemented = automationCapabilities.automation;
+        const requested = request.automation ?? {};
+        for (const [capability, value] of Object.entries(implemented))
+            if (requested[capability] !== value)
+                errors.push(
+                    `${relativePath}: automation ${capability} must match implemented value ${JSON.stringify(value)}`,
+                );
+        for (const capability of Object.keys(requested))
+            if (!Object.hasOwn(implemented, capability))
+                errors.push(
+                    `${relativePath}: automation ${capability} is not implemented`,
+                );
+    }
     const knownCanaries = new Set(["samples-chronicle-backend"]);
     const canaryProfiles =
         request.canaries?.map((canary) => canary.profileId) ?? [];
@@ -108,14 +136,13 @@ export function validateReleaseRequests(
     );
     const inputs = repositoryInputs(repositoryRoot, errors);
     const releasesRoot = join(repositoryRoot, "distribution/releases");
-    const relativePaths = onlyPath
-        ? [onlyPath]
-        : existsSync(releasesRoot)
-          ? readdirSync(releasesRoot)
-                .filter((name) => name.endsWith(".json"))
-                .sort()
-                .map((name) => `distribution/releases/${name}`)
-          : [];
+    let relativePaths = [];
+    if (onlyPath) relativePaths = [onlyPath];
+    else if (existsSync(releasesRoot))
+        relativePaths = readdirSync(releasesRoot)
+            .filter((name) => name.endsWith(".json"))
+            .sort()
+            .map((name) => `distribution/releases/${name}`);
     const requests = [];
     for (const relativePath of relativePaths) {
         if (!/^distribution\/releases\/v[^/]+\.json$/.test(relativePath)) {

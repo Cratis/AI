@@ -6,16 +6,14 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 const evaluation = JSON.parse(
-    readFileSync(
-        "distribution/apm-managed-install-evaluation.json",
-        "utf8",
-    ),
+    readFileSync("distribution/apm-managed-install-evaluation.json", "utf8"),
 );
 
 const sha256Pattern = /^[0-9a-f]{64}$/;
 
 function assertHashes(values) {
-    for (const value of Object.values(values)) assert.match(value, sha256Pattern);
+    for (const value of Object.values(values))
+        assert.match(value, sha256Pattern);
 }
 
 test("APM evaluation records a bounded optional-path decision", () => {
@@ -27,7 +25,10 @@ test("APM evaluation records a bounded optional-path decision", () => {
     assert.equal(evaluation.tool.version, "0.28.0");
     assert.equal(evaluation.tool.buildRevision, "e041462");
     assert.match(evaluation.tool.assetSha256, sha256Pattern);
-    assert.match(evaluation.decision.individualDevelopers, /native Cratis marketplace/);
+    assert.match(
+        evaluation.decision.individualDevelopers,
+        /native Cratis marketplace/,
+    );
     assert.match(evaluation.decision.managedTeams, /optional exact-lock/);
     assert.match(evaluation.decision.pi, /does not support Pi/);
     assert.match(evaluation.decision.customInstaller, /Do not build/);

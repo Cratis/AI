@@ -330,9 +330,12 @@ a marketplace.
 A deliberately identified release PR is the recurring human approval. It adds
 one immutable `distribution/releases/v<version>.json` request. Pull-request CI
 materializes and verifies every requested profile; merging that PR to `main`
-automatically generates distribution/GitHub assets, runs canaries, publishes npm
-through trusted OIDC, promotes or stops/rolls back, and hands subscriber updates
-to Workflows. See [Release Cratis AI](./releasing-cratis-ai.md).
+automatically generates distribution/GitHub assets, runs canaries, publishes one
+exact npm profile through trusted OIDC, and promotes only after publication
+succeeds. Unpublished draft state is cleaned up; an immutable npm version is
+never described as rolled back. Subscriber and marketplace delivery remain
+disabled handoffs until their separate implementation gates pass. See
+[Release Cratis AI](./releasing-cratis-ai.md).
 
 All profile packages use SemVer and one atomic release train. A release changes
 shared behavior only through a reviewed `Cratis/AI` commit and records:
@@ -343,7 +346,10 @@ shared behavior only through a reviewed `Cratis/AI` commit and records:
 - package/profile inventory;
 - tested harness versions;
 - checksums and provenance;
-- canary, update, rollback, and uninstall results.
+- canary and reinstall recovery results;
+- truthful generated/static/host-tested support status; and
+- update, rollback, and uninstall evidence when those lifecycle paths have
+  actually run for the exact release.
 
 A patch release corrects behavior without changing profile intent. A minor
 release adds backward-compatible skills or profiles. A major release removes,

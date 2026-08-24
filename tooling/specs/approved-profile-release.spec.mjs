@@ -8,6 +8,8 @@ import { join } from "node:path";
 import test from "node:test";
 import {
     buildApprovedProfileReleasePlan,
+    buildReleaseInstructions,
+    buildReleaseSupportMatrix,
     generateApprovedProfileRelease,
 } from "../generate-approved-profile-release.mjs";
 import {
@@ -60,6 +62,27 @@ test("current release request catalogs materialize candidate and release modes",
         });
         assert.equal(candidate.state, "APPROVED_PROFILE_RELEASE_CANDIDATE");
         assert.equal(candidate.publicationEligible, false);
+        assert.equal(candidate.instructionsFile, "release-instructions.md");
+        assert.equal(candidate.supportMatrixFile, "support-matrix.json");
+        const candidateSupport = readJson(
+            join(root, "candidate/support-matrix.json"),
+        );
+        assert.equal(candidateSupport.profileId, "public-fundamentals");
+        assert(
+            candidateSupport.hosts.every((host) => host.hostTested === false),
+        );
+        assert.match(
+            readFileSync(
+                join(root, "candidate/release-instructions.md"),
+                "utf8",
+            ),
+            /pi install -l npm:@cratis\/ai-fundamentals@0\.1\.0-preview\.1/,
+        );
+        assert.equal(
+            readJson(join(root, "candidate/provenance.json"))
+                .publicationEligible,
+            false,
+        );
         const release = generateApprovedProfileRelease({
             outputRoot: join(root, "release"),
             profileId: "public-fundamentals",
@@ -69,6 +92,11 @@ test("current release request catalogs materialize candidate and release modes",
         assert.equal(release.state, "APPROVED_PROFILE_RELEASE");
         assert.equal(release.publicationEligible, true);
         assert.equal(release.promotionEligible, false);
+        assert.equal(
+            readJson(join(root, "release/provenance.json"))
+                .publicationEligible,
+            true,
+        );
     });
 });
 
@@ -145,6 +173,32 @@ test("approved plan requires every authority security and evidence gate", () => 
     );
     assert.equal(plan.publicationEligible, false);
     assert.equal(plan.promotionEligible, false);
+    const support = buildReleaseSupportMatrix(plan, passiveHarnesses);
+    assert.equal(support.hosts.length, passiveHarnesses.length);
+    assert(
+        support.hosts.every(
+            (host) =>
+                host.generated === true &&
+                host.staticallyValidated === true &&
+                host.hostTested === false &&
+                host.support === "generated-not-yet-supported-by-this-release",
+        ),
+    );
+    assert.equal(
+        support.hosts.find((host) => host.harness === "pi").releaseCanary,
+        "required-before-publication",
+    );
+    const instructions = buildReleaseInstructions(plan, passiveHarnesses);
+    assert.match(
+        instructions,
+        /pi install -l npm:@cratis\/ai-fundamentals@1\.0\.0-preview\.1\+build\.7/,
+    );
+    assert.match(instructions, /sha256sum -c SHA256SUMS/);
+    assert.match(instructions, /support-matrix\.json/);
+    assert.match(
+        instructions,
+        /cratis-ai-public-fundamentals-1\.0\.0-preview\.1\+build\.7-agent-plugin\.tar\.gz/,
+    );
 
     const source = inputs.sources.find(
         (candidate) => candidate.id === "add-concept",
@@ -365,6 +419,11 @@ test("passive adapter materializer emits one install root per harness", () => {
         assert.equal(piPackage.name, "@cratis/ai-example");
         assert.equal(piPackage.version, "1.2.3-preview.1");
         assert.equal(piPackage.private, false);
+        assert.deepEqual(piPackage.repository, {
+            type: "git",
+            url: "https://github.com/Cratis/AI",
+        });
+        assert.equal(piPackage.homepage, "https://cratis.io/ai");
         assert.deepEqual(piPackage.pi, { skills: ["./skills"] });
         assert.equal(piPackage.scripts, undefined);
         assert.equal(piPackage.dependencies, undefined);

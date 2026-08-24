@@ -22,6 +22,9 @@ function approvedInputs() {
         authoringContracts: readJson("catalog/v2/authoring-contracts.json")
             .contracts,
         artifacts: readJson("catalog/v2/artifacts.json").artifacts,
+        releaseAutomationCapabilities: readJson(
+            "distribution/release-automation-capabilities.json",
+        ),
     });
     const profile = inputs.profileCatalog.publicProfiles.find(
         (candidate) => candidate.id === "public-fundamentals",
@@ -63,6 +66,23 @@ function approvedInputs() {
     return inputs;
 }
 
+test("release request example matches implemented automation exactly", () => {
+    const request = readJson(
+        "Documentation/examples/ai-release/v0.1.0-preview.1.json",
+    );
+    const capabilities = readJson(
+        "distribution/release-automation-capabilities.json",
+    );
+    assert.equal(capabilities.releaseTrigger, "merged-validated-request-on-main");
+    assert.equal(capabilities.maxProfilesPerRelease, 1);
+    assert.deepEqual(request.automation, capabilities.automation);
+    assert.equal(capabilities.automation.failureCleanup, true);
+    assert.equal(capabilities.automation.autoRollback, false);
+    assert.equal(capabilities.automation.subscriberUpdates, false);
+    assert.equal(capabilities.automation.marketplaces, "manual-handoff");
+    assert.match(capabilities.recovery.afterNpmPublication, /never claim/);
+});
+
 test("repository release request resolves the approved Fundamentals profile", () => {
     const result = validateReleaseRequests();
     assert.deepEqual(result.errors, []);
@@ -97,11 +117,38 @@ test("approved release request resolves every requested profile", () => {
     assert.equal(result.plans[0].profileId, "public-fundamentals");
 });
 
+test("release request limits publication to one profile until atomic npm publication exists", () => {
+    const request = readJson(
+        "Documentation/examples/ai-release/v0.1.0-preview.1.json",
+    );
+    request.profiles.push("public-arc");
+    request.canaries.push({
+        profileId: "public-arc",
+        canaryId: "samples-chronicle-backend",
+    });
+    const schema = readJson("distribution/release-request.schema.json");
+    const result = validateReleaseRequest(
+        request,
+        "distribution/releases/v0.1.0-preview.1.json",
+        approvedInputs(),
+        schema,
+    );
+    assert(
+        result.errors.some((error) =>
+            error.includes("implemented profile publication limit"),
+        ),
+    );
+});
+
 test("release request rejects partial automation and canary drift", () => {
     const request = readJson(
         "Documentation/examples/ai-release/v0.1.0-preview.1.json",
     );
-    request.automation.npmPublish = false;
+    request.automation.failureCleanup = false;
+    request.automation.autoRollback = true;
+    request.automation.subscriberUpdates = true;
+    request.automation.marketplaces =
+        "automatic-where-supported-submit-otherwise";
     request.canaries = [];
     const schema = readJson("distribution/release-request.schema.json");
     const result = validateReleaseRequest(
@@ -110,9 +157,18 @@ test("release request rejects partial automation and canary drift", () => {
         approvedInputs(),
         schema,
     );
-    assert(
-        result.errors.some((error) => error.includes("expected constant true")),
-    );
+    for (const capability of [
+        "failureCleanup",
+        "autoRollback",
+        "subscriberUpdates",
+        "marketplaces",
+    ])
+        assert(
+            result.errors.some((error) =>
+                error.includes(`automation ${capability} must match`),
+            ),
+            capability,
+        );
     assert(
         result.errors.some((error) =>
             error.includes("every profile needs exactly one named canary"),

@@ -87,8 +87,12 @@ test("generated repository contract keeps remote authority and production blocke
     );
     assert.equal(contract.releaseOnMerge.mergeToMainIsReleaseApproval, true);
     assert.equal(contract.releaseOnMerge.canaryRequiredBeforePublication, true);
+    assert.equal(contract.releaseOnMerge.maxProfilesPerRelease, 1);
     assert.equal(contract.releaseOnMerge.automaticPromotion, true);
-    assert.equal(contract.releaseOnMerge.automaticRollback, true);
+    assert.equal(contract.releaseOnMerge.failureCleanupBeforePublication, true);
+    assert.equal(contract.releaseOnMerge.automaticRollback, false);
+    assert.equal(contract.releaseOnMerge.subscriberUpdatePullRequests, false);
+    assert.equal(contract.releaseOnMerge.marketplaces, "manual-handoff");
     assert.equal(
         contract.productionMaterialization.artifactTopology,
         "one-profile-one-harness-root-asset",
