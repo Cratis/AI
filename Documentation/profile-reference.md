@@ -7,6 +7,10 @@ its profile and targets are explicitly approved.
 The `public-` and `engineering-` prefixes identify the subscription channel and
 audience. They do not indicate repository or package confidentiality.
 
+For a generated view with plain-language package descriptions, included skills,
+availability, trust, and evidence, browse the
+[package and capability catalog](../catalog/generated/human-catalog/CATALOG.md).
+
 ## Public product profiles
 
 | Profile | Intended package | Current state |

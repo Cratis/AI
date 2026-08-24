@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "780c644248a35b563c9b1fa8230029f52f5f208bb670b691a9f415fa58b69d24",
+  "indexDigest": "322a6e20a2ce896adfffd9ad81cfc91380cb5039fc8fcde092226ee358b14228",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -2079,6 +2079,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/profile-presentation.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/profile-subscription-validation.mjs",
       "status": "added"
     },
@@ -2204,6 +2208,10 @@
     },
     {
       "path": "tooling/specs/navigator-pilot.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/profile-presentation.spec.mjs",
       "status": "added"
     },
     {
@@ -3594,8 +3602,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 36,
-      "expectedPathsDigest": "c3b1683c170edd3175b6aeba99d7f2f098980a3da14224f3ce6f7913655470fc"
+      "expectedPathCount": 37,
+      "expectedPathsDigest": "f43ff0fcf2f616fa5d2fc55dd2602b204cac1316c7a961b40e93316a74955eaf"
     },
     {
       "excludePathPatterns": [],
@@ -3618,8 +3626,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 29,
-      "expectedPathsDigest": "20e71e982db741e9d959fb525c01485b8ae99252354f05629101857a1e80ed8b"
+      "expectedPathCount": 30,
+      "expectedPathsDigest": "d9f85d6588e18ba401b82c3ed0525886e815f7273041b6eae5497b975a6639d5"
     },
     {
       "excludePathPatterns": [],

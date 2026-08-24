@@ -17,6 +17,7 @@ import {
     generatePassiveProfileAdapters,
     readSkillFrontmatter,
 } from "./passive-profile-adapters.mjs";
+import { presentProfile } from "./profile-presentation.mjs";
 
 const defaultRepositoryRoot = resolve(
     fileURLToPath(new URL("..", import.meta.url)),
@@ -88,6 +89,7 @@ export function buildApprovedProfileReleasePlan({
     if (selectedTargets.length !== targetIds.length)
         blockers.push("PROFILE_TARGET_MISSING");
     const audience = publicProfile ? "public" : "cratis-engineering";
+    const presentation = profile ? presentProfile(profile, audience) : null;
     const sourceById = new Map(sources.map((source) => [source.id, source]));
     const sourceContractById = new Map(
         sourceContracts.map((contract) => [contract.id, contract]),
@@ -221,6 +223,8 @@ export function buildApprovedProfileReleasePlan({
             blockers.length === 0 ? "READY_FOR_BOT_MATERIALIZATION" : "BLOCKED",
         profileId,
         packageName: profile?.packageName ?? null,
+        displayName: presentation?.displayName ?? null,
+        description: presentation?.description ?? null,
         audience,
         version,
         artifactId,
@@ -312,7 +316,7 @@ export function generateApprovedProfileRelease({
             version,
             profileId,
             packageName: plan.packageName,
-            description: `Cratis AI profile ${profileId}`,
+            description: plan.description,
             skills,
         });
         const sourceCommit = execFileSync("git", ["rev-parse", "HEAD"], {
@@ -322,6 +326,7 @@ export function generateApprovedProfileRelease({
         const generatorPaths = [
             "tooling/generate-approved-profile-release.mjs",
             "tooling/passive-profile-adapters.mjs",
+            "tooling/profile-presentation.mjs",
         ];
         const generatorHash = createHash("sha256");
         for (const path of generatorPaths) {
@@ -342,6 +347,8 @@ export function generateApprovedProfileRelease({
                 versions: {},
             },
             profileId,
+            profileDisplayName: plan.displayName,
+            profileDescription: plan.description,
             version,
             artifactId: plan.artifactId,
             targets: plan.selectedSources.map(({ target, source }) => ({
@@ -367,6 +374,8 @@ export function generateApprovedProfileRelease({
                 ? "APPROVED_PROFILE_RELEASE"
                 : "APPROVED_PROFILE_RELEASE_CANDIDATE",
             profileId,
+            profileDisplayName: plan.displayName,
+            profileDescription: plan.description,
             packageName: plan.packageName,
             audience: plan.audience,
             version,

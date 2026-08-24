@@ -138,6 +138,11 @@ test("approved plan requires every authority security and evidence gate", () => 
     assert.deepEqual(plan.blockers, []);
     assert.deepEqual(plan.targetIds, ["cratis-fundamentals-concept"]);
     assert.equal(plan.packageName, "@cratis/ai-fundamentals");
+    assert.equal(plan.displayName, "Cratis Fundamentals");
+    assert.equal(
+        plan.description,
+        "Strongly typed Cratis Fundamentals concepts and Chronicle event-source identities for C# projects.",
+    );
     assert.equal(plan.publicationEligible, false);
     assert.equal(plan.promotionEligible, false);
 
@@ -277,6 +282,7 @@ test("release provenance binds generators and checksums the final manifest", () 
         "utf8",
     );
     assert(generator.includes("generatorDigest"));
+    assert(generator.includes('"tooling/profile-presentation.mjs"'));
     assert(generator.includes("testedHostVersions"));
     assert(generator.includes('state: "pending-canary"'));
     assert(

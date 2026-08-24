@@ -17,7 +17,8 @@ harness. The mixed source repository is not itself an installation package.
 | [Public product architecture](./public-product-architecture.md) | Public/engineering ownership and runtime payload boundaries |
 | [Project context bootstrap](./project-context-bootstrap.md) | Project-owned facts and minimal harness bootstraps |
 | [Skill authoring contract](./skill-authoring-contract.md) | Canonical source, evidence, and clean-room requirements |
-| [Capability catalog v2](./capability-catalog-v2.md) | Source, target, approval, trust, and coverage model |
+| [Package and capability catalog](../catalog/generated/human-catalog/CATALOG.md) | Browse public and maintainer packages, included skills, and availability |
+| [Capability catalog v2](./capability-catalog-v2.md) | Understand the source, approval, trust, and coverage model behind the generated catalog |
 
 ## Repository-local corpus reference
 

@@ -60,6 +60,10 @@ full application, and Screenplay → Stage boundaries. Public-safe engineering
 profiles cover every Cratis product/repository family; private repositories add
 local overlays rather than receiving confidential shared packages.
 
+Browse the generated [package and capability catalog](catalog/generated/human-catalog/CATALOG.md)
+to compare public and maintainer packages, see their included skills, and check
+whether they are planned, candidates, or installable.
+
 See [`distribution/profile-catalog.json`](distribution/profile-catalog.json),
 [Profile reference](Documentation/profile-reference.md),
 [developer adoption](Documentation/adopting-cratis-ai.md),

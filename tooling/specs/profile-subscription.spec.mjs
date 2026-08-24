@@ -15,6 +15,7 @@ import { dirname, join, resolve } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { validateProfileSubscriptions } from "../profile-subscription-validation.mjs";
+import { presentProfile } from "../profile-presentation.mjs";
 
 const repositoryRoot = resolve(
     dirname(fileURLToPath(import.meta.url)),
@@ -81,16 +82,26 @@ test("profile catalog and project subscriptions pass", () => {
         join(repositoryRoot, "Documentation/profile-reference.md"),
         "utf8",
     );
-    for (const profile of [
-        ...catalog.publicProfiles,
-        ...catalog.engineeringProfiles,
-    ]) {
-        assert(reference.includes(`\`${profile.id}\``), profile.id);
-        assert(
-            reference.includes(`\`${profile.packageName}\``),
-            profile.packageName,
-        );
-    }
+    for (const [audience, profiles] of [
+        ["public", catalog.publicProfiles],
+        ["cratis-engineering", catalog.engineeringProfiles],
+    ])
+        for (const profile of profiles) {
+            assert(reference.includes(`\`${profile.id}\``), profile.id);
+            assert(
+                reference.includes(`\`${profile.packageName}\``),
+                profile.packageName,
+            );
+            const presentation = presentProfile(profile, audience);
+            assert.match(presentation.displayName, /^Cratis /);
+            assert(presentation.description.length >= 40, profile.id);
+            assert(presentation.intendedFor.length >= 25, profile.id);
+            assert.equal(
+                presentation.description.includes(profile.id),
+                false,
+                profile.id,
+            );
+        }
 });
 
 test("private repository overlay composes public-safe package and local facts", () => {

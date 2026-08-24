@@ -31,7 +31,9 @@ Choose the narrowest product/repository profile:
 | Private Stagehand repository | `engineering-stagehand` plus local overlay |
 
 Every engineering profile composes `engineering-base`. A generated profile
-artifact contains only approved public-safe skills and references.
+artifact contains only approved public-safe skills and references. Browse the
+[package and capability catalog](../catalog/generated/human-catalog/CATALOG.md)
+to see each maintainer package, its included skills, and current availability.
 
 ## Prepare the repository
 

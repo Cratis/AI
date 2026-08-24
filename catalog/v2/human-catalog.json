@@ -7,7 +7,7 @@
     "markdown": "CATALOG.md",
     "manifest": "manifest.json"
   },
-  "includeAudiences": ["public"],
+  "includeAudiences": ["public", "cratis-engineering"],
   "includeUnapprovedTargets": true,
   "includeRuntimePayloadBytes": false,
   "referenceExpansion": "complete-bounded",
@@ -22,7 +22,8 @@
     "trust-and-effects",
     "evidence-and-support",
     "related-capabilities",
-    "bundle-membership"
+    "bundle-membership",
+    "profile-membership"
   ],
   "disclaimer": "Catalog inclusion, evaluation evidence, bundle generation, or publication does not grant runtime permission or approval.",
   "limits": {

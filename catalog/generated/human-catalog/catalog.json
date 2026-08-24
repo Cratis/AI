@@ -2,7 +2,1252 @@
   "schemaVersion": 2,
   "contractVersion": 1,
   "disclaimer": "Catalog inclusion, evaluation evidence, bundle generation, or publication does not grant runtime permission or approval.",
-  "inputDigest": "55acbd69ac877a465673e17fe90897bf958e534975ed4211f755d2b1e3f6f67f",
+  "inputDigest": "cc37f6524d6a81719e8c88701a67f1604d895733eab29b45f35341af40d37684",
+  "profiles": [
+    {
+      "id": "public-application",
+      "displayName": "Cratis Application Development",
+      "description": "End-to-end guidance for building Cratis applications with Arc, Chronicle, React, Components, and Specifications.",
+      "intendedFor": "Developers who use Cratis Fundamentals, Cratis Arc, Cratis Arc React, Cratis Chronicle, and Cratis Components.",
+      "audience": "public",
+      "packageName": "@cratis/ai-application",
+      "state": "planned-composition",
+      "installable": false,
+      "materialization": "composition",
+      "products": [
+        "fundamentals",
+        "arc",
+        "arc-react",
+        "chronicle",
+        "components"
+      ],
+      "languages": [
+        "csharp",
+        "react",
+        "typescript"
+      ],
+      "repositoryKinds": [],
+      "composes": [
+        "public-fundamentals",
+        "public-arc",
+        "public-arc-react",
+        "public-chronicle",
+        "public-components",
+        "public-specifications-dotnet",
+        "public-specifications-typescript"
+      ],
+      "directTargetIds": [],
+      "targetIds": [
+        "cratis-fundamentals-concept"
+      ]
+    },
+    {
+      "id": "public-application-arc-chronicle",
+      "displayName": "Cratis Arc + Chronicle Application",
+      "description": "Combined AI guidance for developers using Cratis Fundamentals, Cratis Arc, and Cratis Chronicle in one solution.",
+      "intendedFor": "Developers who use Cratis Fundamentals, Cratis Arc, and Cratis Chronicle.",
+      "audience": "public",
+      "packageName": "@cratis/ai-application-arc-chronicle",
+      "state": "planned-composition",
+      "installable": false,
+      "materialization": "composition",
+      "products": [
+        "fundamentals",
+        "arc",
+        "chronicle"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "repositoryKinds": [],
+      "composes": [
+        "public-fundamentals",
+        "public-arc",
+        "public-chronicle",
+        "public-specifications-dotnet"
+      ],
+      "directTargetIds": [],
+      "targetIds": [
+        "cratis-fundamentals-concept"
+      ]
+    },
+    {
+      "id": "public-application-arc-only",
+      "displayName": "Cratis Arc Application",
+      "description": "Combined AI guidance for developers using Cratis Fundamentals and Cratis Arc in one solution.",
+      "intendedFor": "Developers who use Cratis Fundamentals and Cratis Arc.",
+      "audience": "public",
+      "packageName": "@cratis/ai-application-arc",
+      "state": "planned-composition",
+      "installable": false,
+      "materialization": "composition",
+      "products": [
+        "fundamentals",
+        "arc"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "repositoryKinds": [],
+      "composes": [
+        "public-fundamentals",
+        "public-arc",
+        "public-specifications-dotnet"
+      ],
+      "directTargetIds": [],
+      "targetIds": [
+        "cratis-fundamentals-concept"
+      ]
+    },
+    {
+      "id": "public-application-chronicle-dotnet",
+      "displayName": "Cratis Chronicle .NET Application",
+      "description": "Combined AI guidance for developers using Cratis Fundamentals and Cratis Chronicle in one solution.",
+      "intendedFor": "Developers who use Cratis Fundamentals and Cratis Chronicle.",
+      "audience": "public",
+      "packageName": "@cratis/ai-application-chronicle-dotnet",
+      "state": "planned-composition",
+      "installable": false,
+      "materialization": "composition",
+      "products": [
+        "fundamentals",
+        "chronicle"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "repositoryKinds": [],
+      "composes": [
+        "public-fundamentals",
+        "public-chronicle",
+        "public-chronicle-client-dotnet",
+        "public-specifications-dotnet"
+      ],
+      "directTargetIds": [],
+      "targetIds": [
+        "cratis-fundamentals-concept"
+      ]
+    },
+    {
+      "id": "public-application-react",
+      "displayName": "Cratis React Application",
+      "description": "Combined AI guidance for developers using Cratis Fundamentals, Cratis Arc, Cratis Arc React, and Cratis Components in one solution.",
+      "intendedFor": "Developers who use Cratis Fundamentals, Cratis Arc, Cratis Arc React, and Cratis Components.",
+      "audience": "public",
+      "packageName": "@cratis/ai-application-react",
+      "state": "planned-composition",
+      "installable": false,
+      "materialization": "composition",
+      "products": [
+        "fundamentals",
+        "arc",
+        "arc-react",
+        "components"
+      ],
+      "languages": [
+        "csharp",
+        "react",
+        "typescript"
+      ],
+      "repositoryKinds": [],
+      "composes": [
+        "public-fundamentals",
+        "public-arc",
+        "public-arc-react",
+        "public-components",
+        "public-specifications-dotnet",
+        "public-specifications-typescript"
+      ],
+      "directTargetIds": [],
+      "targetIds": [
+        "cratis-fundamentals-concept"
+      ]
+    },
+    {
+      "id": "public-arc",
+      "displayName": "Cratis Arc",
+      "description": "AI guidance for developers building with Cratis Arc.",
+      "intendedFor": "Developers who use Cratis Arc.",
+      "audience": "public",
+      "packageName": "@cratis/ai-arc",
+      "state": "planned-source-migration",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "arc"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "repositoryKinds": [],
+      "composes": [],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "public-arc-ef-core",
+      "displayName": "Cratis Arc with EF Core",
+      "description": "AI guidance for developers building with Cratis Arc and Entity Framework Core.",
+      "intendedFor": "Developers who use Cratis Arc and Entity Framework Core.",
+      "audience": "public",
+      "packageName": "@cratis/ai-arc-ef-core",
+      "state": "planned-source-migration",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "arc",
+        "entity-framework-core"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "repositoryKinds": [],
+      "composes": [
+        "public-arc"
+      ],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "public-arc-identity",
+      "displayName": "Cratis Arc Identity",
+      "description": "AI guidance for developers building with Cratis Arc.",
+      "intendedFor": "Developers who use Cratis Arc.",
+      "audience": "public",
+      "packageName": "@cratis/ai-arc-identity",
+      "state": "planned-source-migration",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "arc"
+      ],
+      "languages": [
+        "csharp",
+        "react",
+        "typescript"
+      ],
+      "repositoryKinds": [],
+      "composes": [
+        "public-arc"
+      ],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "public-arc-react",
+      "displayName": "Cratis Arc React",
+      "description": "AI guidance for developers building with Cratis Arc React.",
+      "intendedFor": "Developers who use Cratis Arc React.",
+      "audience": "public",
+      "packageName": "@cratis/ai-arc-react",
+      "state": "planned-source-migration",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "arc-react"
+      ],
+      "languages": [
+        "react",
+        "typescript"
+      ],
+      "repositoryKinds": [],
+      "composes": [],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "public-chronicle",
+      "displayName": "Cratis Chronicle",
+      "description": "AI guidance for developers building with Cratis Chronicle.",
+      "intendedFor": "Developers who use Cratis Chronicle.",
+      "audience": "public",
+      "packageName": "@cratis/ai-chronicle",
+      "state": "planned-source-migration",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "csharp",
+        "language-agnostic"
+      ],
+      "repositoryKinds": [],
+      "composes": [],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "public-chronicle-client-dotnet",
+      "displayName": "Cratis Chronicle .NET Client",
+      "description": "AI guidance for developers building with Cratis Chronicle.",
+      "intendedFor": "Developers who use Cratis Chronicle.",
+      "audience": "public",
+      "packageName": "@cratis/ai-chronicle-dotnet",
+      "state": "content-gap",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "repositoryKinds": [],
+      "composes": [],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "public-chronicle-client-elixir",
+      "displayName": "Cratis Chronicle Elixir Client",
+      "description": "AI guidance for developers building with Cratis Chronicle.",
+      "intendedFor": "Developers who use Cratis Chronicle.",
+      "audience": "public",
+      "packageName": "@cratis/ai-chronicle-elixir",
+      "state": "content-gap",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "elixir"
+      ],
+      "repositoryKinds": [],
+      "composes": [],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "public-chronicle-client-java",
+      "displayName": "Cratis Chronicle Java Client",
+      "description": "AI guidance for developers building with Cratis Chronicle.",
+      "intendedFor": "Developers who use Cratis Chronicle.",
+      "audience": "public",
+      "packageName": "@cratis/ai-chronicle-java",
+      "state": "authority-gap",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "java"
+      ],
+      "repositoryKinds": [],
+      "composes": [],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "public-chronicle-client-kotlin",
+      "displayName": "Cratis Chronicle Kotlin Client",
+      "description": "AI guidance for developers building with Cratis Chronicle.",
+      "intendedFor": "Developers who use Cratis Chronicle.",
+      "audience": "public",
+      "packageName": "@cratis/ai-chronicle-kotlin",
+      "state": "content-gap",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "kotlin"
+      ],
+      "repositoryKinds": [],
+      "composes": [],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "public-chronicle-client-python",
+      "displayName": "Cratis Chronicle Python Client",
+      "description": "AI guidance for developers building with Cratis Chronicle.",
+      "intendedFor": "Developers who use Cratis Chronicle.",
+      "audience": "public",
+      "packageName": "@cratis/ai-chronicle-python",
+      "state": "content-gap",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "python"
+      ],
+      "repositoryKinds": [],
+      "composes": [],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "public-chronicle-client-typescript",
+      "displayName": "Cratis Chronicle TypeScript Client",
+      "description": "AI guidance for developers building with Cratis Chronicle.",
+      "intendedFor": "Developers who use Cratis Chronicle.",
+      "audience": "public",
+      "packageName": "@cratis/ai-chronicle-typescript",
+      "state": "content-gap",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "typescript"
+      ],
+      "repositoryKinds": [],
+      "composes": [],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "public-chronicle-compliance",
+      "displayName": "Cratis Chronicle Compliance",
+      "description": "AI guidance for developers building with Cratis Chronicle.",
+      "intendedFor": "Developers who use Cratis Chronicle.",
+      "audience": "public",
+      "packageName": "@cratis/ai-chronicle-compliance",
+      "state": "content-gap",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "csharp",
+        "language-agnostic"
+      ],
+      "repositoryKinds": [],
+      "composes": [
+        "public-chronicle"
+      ],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "public-chronicle-mcp",
+      "displayName": "Cratis Chronicle MCP",
+      "description": "AI guidance for developers building with Chronicle MCP.",
+      "intendedFor": "Developers who use Chronicle MCP.",
+      "audience": "public",
+      "packageName": "@cratis/ai-chronicle-mcp",
+      "state": "content-gap",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "chronicle-mcp"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "repositoryKinds": [],
+      "composes": [],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "public-chronicle-multi-tenancy",
+      "displayName": "Cratis Chronicle Multi Tenancy",
+      "description": "AI guidance for developers building with Cratis Chronicle.",
+      "intendedFor": "Developers who use Cratis Chronicle.",
+      "audience": "public",
+      "packageName": "@cratis/ai-chronicle-multi-tenancy",
+      "state": "planned-source-migration",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "csharp",
+        "language-agnostic"
+      ],
+      "repositoryKinds": [],
+      "composes": [
+        "public-chronicle"
+      ],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "public-chronicle-web-workbench",
+      "displayName": "Cratis Chronicle Web Workbench",
+      "description": "AI guidance for developers building with Cratis Chronicle.",
+      "intendedFor": "Developers who use Cratis Chronicle.",
+      "audience": "public",
+      "packageName": "@cratis/ai-chronicle-web-workbench",
+      "state": "content-gap",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "repositoryKinds": [],
+      "composes": [
+        "public-chronicle"
+      ],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "public-components",
+      "displayName": "Cratis Components",
+      "description": "AI guidance for developers building with Cratis Components.",
+      "intendedFor": "Developers who use Cratis Components.",
+      "audience": "public",
+      "packageName": "@cratis/ai-components",
+      "state": "planned-source-migration",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "components"
+      ],
+      "languages": [
+        "react",
+        "typescript"
+      ],
+      "repositoryKinds": [],
+      "composes": [],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "public-cratis-cli",
+      "displayName": "Cratis CLI",
+      "description": "AI guidance for developers building with the Cratis CLI.",
+      "intendedFor": "Developers who use the Cratis CLI.",
+      "audience": "public",
+      "packageName": "@cratis/ai-cli",
+      "state": "content-gap",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "cli"
+      ],
+      "languages": [
+        "shell"
+      ],
+      "repositoryKinds": [],
+      "composes": [],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "public-cratis-cli-terminal-workbench",
+      "displayName": "Cratis CLI Terminal Workbench",
+      "description": "AI guidance for developers building with the Cratis CLI.",
+      "intendedFor": "Developers who use the Cratis CLI.",
+      "audience": "public",
+      "packageName": "@cratis/ai-cli-workbench",
+      "state": "content-gap",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "cli"
+      ],
+      "languages": [
+        "shell"
+      ],
+      "repositoryKinds": [],
+      "composes": [
+        "public-cratis-cli"
+      ],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "public-fundamentals",
+      "displayName": "Cratis Fundamentals",
+      "description": "Strongly typed Cratis Fundamentals concepts and Chronicle event-source identities for C# projects.",
+      "intendedFor": "Developers who use Cratis Fundamentals and Cratis Chronicle.",
+      "audience": "public",
+      "packageName": "@cratis/ai-fundamentals",
+      "state": "approved",
+      "installable": true,
+      "materialization": "installable-package",
+      "products": [
+        "fundamentals",
+        "chronicle"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "repositoryKinds": [],
+      "composes": [],
+      "directTargetIds": [
+        "cratis-fundamentals-concept"
+      ],
+      "targetIds": [
+        "cratis-fundamentals-concept"
+      ]
+    },
+    {
+      "id": "public-lens",
+      "displayName": "Cratis Lens",
+      "description": "AI guidance for developers building with Cratis Lens.",
+      "intendedFor": "Developers who use Cratis Lens.",
+      "audience": "public",
+      "packageName": "@cratis/ai-lens",
+      "state": "content-gap",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "lens"
+      ],
+      "languages": [
+        "csharp",
+        "typescript",
+        "language-agnostic"
+      ],
+      "repositoryKinds": [],
+      "composes": [],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "public-modeling-screenplay-stage",
+      "displayName": "Cratis Screenplay → Stage",
+      "description": "Combined AI guidance for developers using Cratis Screenplay and Cratis Stage in one solution.",
+      "intendedFor": "Developers who use Cratis Screenplay and Cratis Stage.",
+      "audience": "public",
+      "packageName": "@cratis/ai-modeling-screenplay-stage",
+      "state": "planned-composition",
+      "installable": false,
+      "materialization": "composition",
+      "products": [
+        "screenplay",
+        "stage"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "repositoryKinds": [],
+      "composes": [
+        "public-screenplay",
+        "public-stage"
+      ],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "public-screenplay",
+      "displayName": "Cratis Screenplay",
+      "description": "AI guidance for developers building with Cratis Screenplay.",
+      "intendedFor": "Developers who use Cratis Screenplay.",
+      "audience": "public",
+      "packageName": "@cratis/ai-screenplay",
+      "state": "content-gap",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "screenplay"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "repositoryKinds": [],
+      "composes": [],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "public-specifications",
+      "displayName": "Cratis Specifications",
+      "description": "AI guidance for developers building with Cratis Specifications.",
+      "intendedFor": "Developers who use Cratis Specifications.",
+      "audience": "public",
+      "packageName": "@cratis/ai-specifications",
+      "state": "planned-source-migration",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "specifications"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "repositoryKinds": [],
+      "composes": [],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "public-specifications-dotnet",
+      "displayName": "Cratis Specifications .NET",
+      "description": "AI guidance for developers building with Cratis Specifications.",
+      "intendedFor": "Developers who use Cratis Specifications.",
+      "audience": "public",
+      "packageName": "@cratis/ai-specifications-dotnet",
+      "state": "planned-source-migration",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "specifications"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "repositoryKinds": [],
+      "composes": [
+        "public-specifications"
+      ],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "public-specifications-typescript",
+      "displayName": "Cratis Specifications TypeScript",
+      "description": "AI guidance for developers building with Cratis Specifications.",
+      "intendedFor": "Developers who use Cratis Specifications.",
+      "audience": "public",
+      "packageName": "@cratis/ai-specifications-typescript",
+      "state": "planned-source-migration",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "specifications"
+      ],
+      "languages": [
+        "typescript",
+        "react"
+      ],
+      "repositoryKinds": [],
+      "composes": [
+        "public-specifications"
+      ],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "public-stage",
+      "displayName": "Cratis Stage",
+      "description": "AI guidance for developers building with Cratis Stage.",
+      "intendedFor": "Developers who use Cratis Stage.",
+      "audience": "public",
+      "packageName": "@cratis/ai-stage",
+      "state": "content-gap",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "stage"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "repositoryKinds": [],
+      "composes": [],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "public-studio",
+      "displayName": "Cratis Studio",
+      "description": "AI guidance for developers building with Cratis Studio.",
+      "intendedFor": "Developers who use Cratis Studio.",
+      "audience": "public",
+      "packageName": "@cratis/ai-studio",
+      "state": "content-gap",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "studio"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "repositoryKinds": [],
+      "composes": [],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "engineering-ai",
+      "displayName": "Cratis AI Maintainer",
+      "description": "Public-safe contributor guidance for maintainers working on Cratis AI. Private repository details remain local.",
+      "intendedFor": "Cratis maintainers contributing to Cratis AI in corpus repositories.",
+      "audience": "cratis-engineering",
+      "packageName": "@cratis/ai-engineering-ai",
+      "state": "planned-source-migration",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "ai"
+      ],
+      "languages": [],
+      "repositoryKinds": [
+        "corpus"
+      ],
+      "composes": [
+        "engineering-base"
+      ],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "engineering-application",
+      "displayName": "Cratis Application Maintainer",
+      "description": "Public-safe contributor guidance for maintainers working on Cratis Fundamentals, Cratis Arc, Cratis Arc React, Cratis Chronicle, and Cratis Components. Private repository details remain local.",
+      "intendedFor": "Cratis maintainers contributing to Cratis Fundamentals, Cratis Arc, Cratis Arc React, Cratis Chronicle, and Cratis Components in application projects.",
+      "audience": "cratis-engineering",
+      "packageName": "@cratis/ai-engineering-application",
+      "state": "planned-source-migration",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "fundamentals",
+        "arc",
+        "arc-react",
+        "chronicle",
+        "components"
+      ],
+      "languages": [],
+      "repositoryKinds": [
+        "application"
+      ],
+      "composes": [
+        "engineering-base"
+      ],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "engineering-arc",
+      "displayName": "Cratis Arc Maintainer",
+      "description": "Public-safe contributor guidance for maintainers working on Cratis Arc. Private repository details remain local.",
+      "intendedFor": "Cratis maintainers contributing to Cratis Arc in framework projects.",
+      "audience": "cratis-engineering",
+      "packageName": "@cratis/ai-engineering-arc",
+      "state": "planned-source-migration",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "arc"
+      ],
+      "languages": [],
+      "repositoryKinds": [
+        "framework"
+      ],
+      "composes": [
+        "engineering-base"
+      ],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "engineering-arc-ef-core",
+      "displayName": "Cratis Arc EF Core Maintainer",
+      "description": "Public-safe contributor guidance for maintainers working on Cratis Arc and Entity Framework Core. Private repository details remain local.",
+      "intendedFor": "Cratis maintainers contributing to Cratis Arc and Entity Framework Core in application projects and framework projects.",
+      "audience": "cratis-engineering",
+      "packageName": "@cratis/ai-engineering-arc-ef-core",
+      "state": "planned-source-migration",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "arc",
+        "entity-framework-core"
+      ],
+      "languages": [],
+      "repositoryKinds": [
+        "application",
+        "framework"
+      ],
+      "composes": [
+        "engineering-base",
+        "engineering-arc"
+      ],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "engineering-arc-react",
+      "displayName": "Cratis Arc React Maintainer",
+      "description": "Public-safe contributor guidance for maintainers working on Cratis Arc React. Private repository details remain local.",
+      "intendedFor": "Cratis maintainers contributing to Cratis Arc React in framework projects.",
+      "audience": "cratis-engineering",
+      "packageName": "@cratis/ai-engineering-arc-react",
+      "state": "content-gap",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "arc-react"
+      ],
+      "languages": [],
+      "repositoryKinds": [
+        "framework"
+      ],
+      "composes": [
+        "engineering-base"
+      ],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "engineering-base",
+      "displayName": "Cratis Maintainer Base",
+      "description": "Public-safe shared engineering conventions for contributors across Cratis repositories.",
+      "intendedFor": "Cratis maintainers contributing to Cratis in application projects, framework projects, client projects, documentation projects, and corpus repositories.",
+      "audience": "cratis-engineering",
+      "packageName": "@cratis/ai-engineering-base",
+      "state": "planned-source-migration",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [],
+      "languages": [],
+      "repositoryKinds": [
+        "application",
+        "framework",
+        "client",
+        "documentation",
+        "corpus"
+      ],
+      "composes": [],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "engineering-chronicle",
+      "displayName": "Cratis Chronicle Maintainer",
+      "description": "Public-safe contributor guidance for maintainers working on Cratis Chronicle. Private repository details remain local.",
+      "intendedFor": "Cratis maintainers contributing to Cratis Chronicle in framework projects.",
+      "audience": "cratis-engineering",
+      "packageName": "@cratis/ai-engineering-chronicle",
+      "state": "planned-source-migration",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "chronicle"
+      ],
+      "languages": [],
+      "repositoryKinds": [
+        "framework"
+      ],
+      "composes": [
+        "engineering-base"
+      ],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "engineering-chronicle-clients",
+      "displayName": "Cratis Chronicle Clients Maintainer",
+      "description": "Public-safe contributor guidance for maintainers working on Cratis Chronicle. Private repository details remain local.",
+      "intendedFor": "Cratis maintainers contributing to Cratis Chronicle in client projects.",
+      "audience": "cratis-engineering",
+      "packageName": "@cratis/ai-engineering-chronicle-clients",
+      "state": "content-gap",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "csharp",
+        "kotlin",
+        "elixir",
+        "typescript",
+        "python"
+      ],
+      "repositoryKinds": [
+        "client"
+      ],
+      "composes": [
+        "engineering-base"
+      ],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "engineering-chronicle-mcp",
+      "displayName": "Cratis Chronicle MCP Maintainer",
+      "description": "Public-safe contributor guidance for maintainers working on Chronicle MCP. Private repository details remain local.",
+      "intendedFor": "Cratis maintainers contributing to Chronicle MCP in framework projects.",
+      "audience": "cratis-engineering",
+      "packageName": "@cratis/ai-engineering-chronicle-mcp",
+      "state": "content-gap",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "chronicle-mcp"
+      ],
+      "languages": [],
+      "repositoryKinds": [
+        "framework"
+      ],
+      "composes": [
+        "engineering-base"
+      ],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "engineering-components",
+      "displayName": "Cratis Components Maintainer",
+      "description": "Public-safe contributor guidance for maintainers working on Cratis Components. Private repository details remain local.",
+      "intendedFor": "Cratis maintainers contributing to Cratis Components in framework projects.",
+      "audience": "cratis-engineering",
+      "packageName": "@cratis/ai-engineering-components",
+      "state": "planned-source-migration",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "components"
+      ],
+      "languages": [],
+      "repositoryKinds": [
+        "framework"
+      ],
+      "composes": [
+        "engineering-base"
+      ],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "engineering-cratis-cli",
+      "displayName": "Cratis CLI Maintainer",
+      "description": "Public-safe contributor guidance for maintainers working on the Cratis CLI. Private repository details remain local.",
+      "intendedFor": "Cratis maintainers contributing to the Cratis CLI in framework projects.",
+      "audience": "cratis-engineering",
+      "packageName": "@cratis/ai-engineering-cli",
+      "state": "content-gap",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "cli"
+      ],
+      "languages": [],
+      "repositoryKinds": [
+        "framework"
+      ],
+      "composes": [
+        "engineering-base"
+      ],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "engineering-documentation",
+      "displayName": "Cratis Documentation Maintainer",
+      "description": "Public-safe documentation authoring guidance for maintainers working across Cratis product repositories.",
+      "intendedFor": "Cratis maintainers contributing to Cratis documentation in documentation projects.",
+      "audience": "cratis-engineering",
+      "packageName": "@cratis/ai-engineering-documentation",
+      "state": "owner-review-pending",
+      "installable": false,
+      "materialization": "candidate-package",
+      "products": [
+        "documentation"
+      ],
+      "languages": [],
+      "repositoryKinds": [
+        "documentation"
+      ],
+      "composes": [
+        "engineering-base"
+      ],
+      "directTargetIds": [
+        "cratis-engineering-docs-authoring"
+      ],
+      "targetIds": [
+        "cratis-engineering-docs-authoring"
+      ]
+    },
+    {
+      "id": "engineering-fundamentals",
+      "displayName": "Cratis Fundamentals Maintainer",
+      "description": "Public-safe contributor guidance for maintainers working on Cratis Fundamentals. Private repository details remain local.",
+      "intendedFor": "Cratis maintainers contributing to Cratis Fundamentals in framework projects.",
+      "audience": "cratis-engineering",
+      "packageName": "@cratis/ai-engineering-fundamentals",
+      "state": "planned-source-migration",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "fundamentals"
+      ],
+      "languages": [],
+      "repositoryKinds": [
+        "framework"
+      ],
+      "composes": [
+        "engineering-base"
+      ],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "engineering-lens",
+      "displayName": "Cratis Lens Maintainer",
+      "description": "Public-safe contributor guidance for maintainers working on Cratis Lens. Private repository details remain local.",
+      "intendedFor": "Cratis maintainers contributing to Cratis Lens in framework projects.",
+      "audience": "cratis-engineering",
+      "packageName": "@cratis/ai-engineering-lens",
+      "state": "content-gap",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "lens"
+      ],
+      "languages": [],
+      "repositoryKinds": [
+        "framework"
+      ],
+      "composes": [
+        "engineering-base"
+      ],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "engineering-screenplay",
+      "displayName": "Cratis Screenplay Maintainer",
+      "description": "Public-safe contributor guidance for maintainers working on Cratis Screenplay. Private repository details remain local.",
+      "intendedFor": "Cratis maintainers contributing to Cratis Screenplay in framework projects.",
+      "audience": "cratis-engineering",
+      "packageName": "@cratis/ai-engineering-screenplay",
+      "state": "content-gap",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "screenplay"
+      ],
+      "languages": [],
+      "repositoryKinds": [
+        "framework"
+      ],
+      "composes": [
+        "engineering-base"
+      ],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "engineering-specifications",
+      "displayName": "Cratis Specifications Maintainer",
+      "description": "Public-safe contributor guidance for maintainers working on Cratis Specifications. Private repository details remain local.",
+      "intendedFor": "Cratis maintainers contributing to Cratis Specifications in application projects, framework projects, and client projects.",
+      "audience": "cratis-engineering",
+      "packageName": "@cratis/ai-engineering-specifications",
+      "state": "planned-source-migration",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "specifications"
+      ],
+      "languages": [],
+      "repositoryKinds": [
+        "application",
+        "framework",
+        "client"
+      ],
+      "composes": [
+        "engineering-base"
+      ],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "engineering-stage",
+      "displayName": "Cratis Stage Maintainer",
+      "description": "Public-safe contributor guidance for maintainers working on Cratis Stage. Private repository details remain local.",
+      "intendedFor": "Cratis maintainers contributing to Cratis Stage in framework projects.",
+      "audience": "cratis-engineering",
+      "packageName": "@cratis/ai-engineering-stage",
+      "state": "content-gap",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "stage"
+      ],
+      "languages": [],
+      "repositoryKinds": [
+        "framework"
+      ],
+      "composes": [
+        "engineering-base"
+      ],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "engineering-stagehand",
+      "displayName": "Cratis Stagehand Maintainer",
+      "description": "Public-safe contributor guidance for maintainers working on Cratis Stagehand. Private repository details remain local.",
+      "intendedFor": "Cratis maintainers contributing to Cratis Stagehand in framework projects and corpus repositories.",
+      "audience": "cratis-engineering",
+      "packageName": "@cratis/ai-engineering-stagehand",
+      "state": "content-gap",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "stagehand"
+      ],
+      "languages": [],
+      "repositoryKinds": [
+        "framework",
+        "corpus"
+      ],
+      "composes": [
+        "engineering-base"
+      ],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "engineering-studio",
+      "displayName": "Cratis Studio Maintainer",
+      "description": "Public-safe contributor guidance for maintainers working on Cratis Studio. Private repository details remain local.",
+      "intendedFor": "Cratis maintainers contributing to Cratis Studio in application projects and framework projects.",
+      "audience": "cratis-engineering",
+      "packageName": "@cratis/ai-engineering-studio",
+      "state": "content-gap",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "studio"
+      ],
+      "languages": [],
+      "repositoryKinds": [
+        "application",
+        "framework"
+      ],
+      "composes": [
+        "engineering-base"
+      ],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "engineering-workflows",
+      "displayName": "Cratis Workflows Maintainer",
+      "description": "Public-safe contributor guidance for maintainers working on Cratis Workflows. Private repository details remain local.",
+      "intendedFor": "Cratis maintainers contributing to Cratis Workflows in corpus repositories.",
+      "audience": "cratis-engineering",
+      "packageName": "@cratis/ai-engineering-workflows",
+      "state": "content-gap",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "workflows"
+      ],
+      "languages": [],
+      "repositoryKinds": [
+        "corpus"
+      ],
+      "composes": [
+        "engineering-base"
+      ],
+      "directTargetIds": [],
+      "targetIds": []
+    }
+  ],
   "capabilities": [
     {
       "id": "cratis-application-react-specifications",
@@ -66,7 +1311,8 @@
       ],
       "bundleIds": [
         "cratis-application-full-stack-review"
-      ]
+      ],
+      "profileIds": []
     },
     {
       "id": "cratis-application-slice-diagnostics",
@@ -131,7 +1377,8 @@
       ],
       "bundleIds": [
         "cratis-application-full-stack-review"
-      ]
+      ],
+      "profileIds": []
     },
     {
       "id": "cratis-application-slice-specifications",
@@ -193,7 +1440,8 @@
       ],
       "bundleIds": [
         "cratis-application-full-stack-review"
-      ]
+      ],
+      "profileIds": []
     },
     {
       "id": "cratis-application-vertical-slice",
@@ -257,7 +1505,8 @@
       ],
       "bundleIds": [
         "cratis-application-full-stack-review"
-      ]
+      ],
+      "profileIds": []
     },
     {
       "id": "cratis-arc-authentication-authorization-and-identity",
@@ -321,7 +1570,8 @@
       ],
       "bundleIds": [
         "cratis-arc-backend-review"
-      ]
+      ],
+      "profileIds": []
     },
     {
       "id": "cratis-arc-command",
@@ -386,7 +1636,8 @@
       ],
       "bundleIds": [
         "cratis-arc-backend-review"
-      ]
+      ],
+      "profileIds": []
     },
     {
       "id": "cratis-arc-command-execution",
@@ -446,7 +1697,8 @@
       ],
       "bundleIds": [
         "cratis-arc-backend-review"
-      ]
+      ],
+      "profileIds": []
     },
     {
       "id": "cratis-arc-command-validation",
@@ -508,7 +1760,8 @@
       ],
       "bundleIds": [
         "cratis-arc-backend-review"
-      ]
+      ],
+      "profileIds": []
     },
     {
       "id": "cratis-arc-ef-core-migration",
@@ -570,7 +1823,8 @@
       ],
       "bundleIds": [
         "cratis-arc-backend-review"
-      ]
+      ],
+      "profileIds": []
     },
     {
       "id": "cratis-arc-observable-query-http",
@@ -630,7 +1884,8 @@
         "cratis-chronicle-cli-operations",
         "cratis-chronicle-read-model"
       ],
-      "bundleIds": []
+      "bundleIds": [],
+      "profileIds": []
     },
     {
       "id": "cratis-arc-query-paging",
@@ -694,7 +1949,8 @@
       ],
       "bundleIds": [
         "cratis-arc-backend-review"
-      ]
+      ],
+      "profileIds": []
     },
     {
       "id": "cratis-arc-react-feature-scaffolding",
@@ -757,7 +2013,8 @@
       ],
       "bundleIds": [
         "cratis-application-full-stack-review"
-      ]
+      ],
+      "profileIds": []
     },
     {
       "id": "cratis-arc-react-page",
@@ -822,7 +2079,8 @@
       ],
       "bundleIds": [
         "cratis-application-full-stack-review"
-      ]
+      ],
+      "profileIds": []
     },
     {
       "id": "cratis-chronicle-cli-operations",
@@ -881,7 +2139,8 @@
         "cratis-application-slice-diagnostics",
         "cratis-arc-observable-query-http"
       ],
-      "bundleIds": []
+      "bundleIds": [],
+      "profileIds": []
     },
     {
       "id": "cratis-chronicle-event-constraints",
@@ -944,7 +2203,8 @@
       ],
       "bundleIds": [
         "cratis-chronicle-dotnet-review"
-      ]
+      ],
+      "profileIds": []
     },
     {
       "id": "cratis-chronicle-event-metadata",
@@ -1003,7 +2263,8 @@
       ],
       "bundleIds": [
         "cratis-chronicle-dotnet-review"
-      ]
+      ],
+      "profileIds": []
     },
     {
       "id": "cratis-chronicle-event-modeling",
@@ -1064,7 +2325,8 @@
       ],
       "bundleIds": [
         "cratis-core-review"
-      ]
+      ],
+      "profileIds": []
     },
     {
       "id": "cratis-chronicle-event-specifications",
@@ -1125,7 +2387,8 @@
         "cratis-chronicle-read-model-specifications",
         "cratis-specifications-csharp"
       ],
-      "bundleIds": []
+      "bundleIds": [],
+      "profileIds": []
     },
     {
       "id": "cratis-chronicle-event-type-migration",
@@ -1185,7 +2448,8 @@
       ],
       "bundleIds": [
         "cratis-chronicle-dotnet-review"
-      ]
+      ],
+      "profileIds": []
     },
     {
       "id": "cratis-chronicle-multi-tenancy",
@@ -1246,7 +2510,8 @@
       ],
       "bundleIds": [
         "cratis-chronicle-dotnet-review"
-      ]
+      ],
+      "profileIds": []
     },
     {
       "id": "cratis-chronicle-projection",
@@ -1308,7 +2573,8 @@
       ],
       "bundleIds": [
         "cratis-chronicle-dotnet-review"
-      ]
+      ],
+      "profileIds": []
     },
     {
       "id": "cratis-chronicle-reactor",
@@ -1370,7 +2636,8 @@
       ],
       "bundleIds": [
         "cratis-chronicle-dotnet-review"
-      ]
+      ],
+      "profileIds": []
     },
     {
       "id": "cratis-chronicle-read-model",
@@ -1434,7 +2701,8 @@
       ],
       "bundleIds": [
         "cratis-chronicle-dotnet-review"
-      ]
+      ],
+      "profileIds": []
     },
     {
       "id": "cratis-chronicle-read-model-specifications",
@@ -1497,7 +2765,8 @@
         "cratis-chronicle-read-model",
         "cratis-chronicle-reducer"
       ],
-      "bundleIds": []
+      "bundleIds": [],
+      "profileIds": []
     },
     {
       "id": "cratis-chronicle-reducer",
@@ -1559,7 +2828,8 @@
       ],
       "bundleIds": [
         "cratis-chronicle-dotnet-review"
-      ]
+      ],
+      "profileIds": []
     },
     {
       "id": "cratis-code-review",
@@ -1620,7 +2890,8 @@
       ],
       "bundleIds": [
         "cratis-review-capabilities"
-      ]
+      ],
+      "profileIds": []
     },
     {
       "id": "cratis-components-stepper-command-dialog",
@@ -1682,7 +2953,8 @@
       ],
       "bundleIds": [
         "cratis-application-full-stack-review"
-      ]
+      ],
+      "profileIds": []
     },
     {
       "id": "cratis-components-toolbar",
@@ -1741,7 +3013,8 @@
       ],
       "bundleIds": [
         "cratis-application-full-stack-review"
-      ]
+      ],
+      "profileIds": []
     },
     {
       "id": "cratis-event-model-diagram",
@@ -1800,7 +3073,8 @@
         "cratis-application-vertical-slice",
         "cratis-chronicle-event-modeling"
       ],
-      "bundleIds": []
+      "bundleIds": [],
+      "profileIds": []
     },
     {
       "id": "cratis-fundamentals-concept",
@@ -1921,6 +3195,14 @@
       ],
       "bundleIds": [
         "cratis-core-review"
+      ],
+      "profileIds": [
+        "public-application",
+        "public-application-arc-chronicle",
+        "public-application-arc-only",
+        "public-application-chronicle-dotnet",
+        "public-application-react",
+        "public-fundamentals"
       ]
     },
     {
@@ -1974,10 +3256,13 @@
         "reevaluation-authority",
         "repo-main-b795d53"
       ],
-      "relatedTargetIds": [],
+      "relatedTargetIds": [
+        "cratis-engineering-csharp-conventions"
+      ],
       "bundleIds": [
         "cratis-core-review"
-      ]
+      ],
+      "profileIds": []
     },
     {
       "id": "cratis-performance-review",
@@ -2040,7 +3325,8 @@
       ],
       "bundleIds": [
         "cratis-review-capabilities"
-      ]
+      ],
+      "profileIds": []
     },
     {
       "id": "cratis-security-review",
@@ -2103,7 +3389,8 @@
       ],
       "bundleIds": [
         "cratis-review-capabilities"
-      ]
+      ],
+      "profileIds": []
     },
     {
       "id": "cratis-specifications-csharp",
@@ -2162,7 +3449,8 @@
         "cratis-application-slice-specifications",
         "cratis-specifications-typescript"
       ],
-      "bundleIds": []
+      "bundleIds": [],
+      "profileIds": []
     },
     {
       "id": "cratis-specifications-typescript",
@@ -2221,7 +3509,711 @@
         "cratis-application-react-specifications",
         "cratis-specifications-csharp"
       ],
-      "bundleIds": []
+      "bundleIds": [],
+      "profileIds": []
+    },
+    {
+      "id": "cratis-engineering-chronicle-kernel-tracing",
+      "semanticName": "cratis-engineering-chronicle-kernel-tracing",
+      "audience": "cratis-engineering",
+      "purpose": "Chronicle Kernel tracing maintenance",
+      "whenToUse": "Use by Chronicle framework maintainers to add generated OpenTelemetry traces.",
+      "whenNotToUse": [
+        "Do not use for application telemetry or generic OpenTelemetry setup."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "cratis-engineering"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [],
+      "bundleIds": [
+        "cratis-engineering-review"
+      ],
+      "profileIds": []
+    },
+    {
+      "id": "cratis-engineering-csharp-conventions",
+      "semanticName": "cratis-engineering-csharp-conventions",
+      "audience": "cratis-engineering",
+      "purpose": "Cratis C# engineering conventions",
+      "whenToUse": "Use for Cratis-maintainer C# house standards and review policy.",
+      "whenNotToUse": [
+        "Do not expose broad engineering policy as a public product capability."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "cratis-engineering"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-code-review"
+      ],
+      "bundleIds": [
+        "cratis-engineering-review"
+      ],
+      "profileIds": []
+    },
+    {
+      "id": "cratis-engineering-docs-add-page",
+      "semanticName": "cratis-engineering-docs-add-page",
+      "audience": "cratis-engineering",
+      "purpose": "Cratis documentation page creation",
+      "whenToUse": "Use by Cratis maintainers to add a source-owned product documentation page.",
+      "whenNotToUse": [
+        "Do not use to edit or visually QA an existing page."
+      ],
+      "capabilityKind": "journey",
+      "invocation": "both",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "cratis-engineering"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "architectures": {
+        "state": "applicable",
+        "ids": [
+          "product-neutral"
+        ],
+        "reason": "Documentation integration applies across Cratis products without assuming an application architecture."
+      },
+      "personas": {
+        "state": "applicable",
+        "ids": [
+          "contributor",
+          "maintainer"
+        ],
+        "reason": "Contributors and maintainers integrate reviewed Cratis documentation."
+      },
+      "surfaces": {
+        "state": "applicable",
+        "ids": [
+          "direct-agent-skills",
+          "ide"
+        ],
+        "reason": "The workflow is an instruction-only skill used from an agent or IDE session."
+      },
+      "repositoryProfiles": {
+        "state": "applicable",
+        "ids": [
+          "application",
+          "client",
+          "corpus",
+          "framework"
+        ],
+        "reason": "Documentation can be owned by application, client, framework, or corpus repositories."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "assessed",
+        "effects": [
+          {
+            "id": "create-documentation-page",
+            "operation": "create",
+            "resourceBoundary": "current repository worktree",
+            "scope": "one approved documentation source page",
+            "dataClassifications": [
+              "internal",
+              "public"
+            ],
+            "reversible": true,
+            "confirmation": {
+              "required": true,
+              "timing": "before-effect",
+              "reason": "The repository maintainer confirms the exact documentation paths before files change."
+            },
+            "authorization": {
+              "required": true,
+              "authority": "Repository maintainer or task owner",
+              "evidenceIds": [
+                "ai-126"
+              ]
+            },
+            "evidenceIds": [
+              "reevaluation-authority",
+              "repo-main-b795d53"
+            ],
+            "rollbackOrCompensation": "Delete the uncommitted page or revert the dedicated documentation commit."
+          },
+          {
+            "id": "modify-documentation-navigation",
+            "operation": "modify",
+            "resourceBoundary": "current repository worktree",
+            "scope": "owning ToC and site navigation entries required for the approved page",
+            "dataClassifications": [
+              "internal",
+              "public"
+            ],
+            "reversible": true,
+            "confirmation": {
+              "required": true,
+              "timing": "before-effect",
+              "reason": "The repository maintainer confirms the exact documentation paths before files change."
+            },
+            "authorization": {
+              "required": true,
+              "authority": "Repository maintainer or task owner",
+              "evidenceIds": [
+                "ai-126"
+              ]
+            },
+            "evidenceIds": [
+              "reevaluation-authority",
+              "repo-main-b795d53"
+            ],
+            "rollbackOrCompensation": "Restore the prior navigation bytes or revert the dedicated documentation commit."
+          }
+        ]
+      },
+      "dependencies": [
+        {
+          "dependencyId": "cratis-engineering-docs-authoring",
+          "category": "target",
+          "strength": "soft",
+          "reason": "A new page needs approved content after placement is known.",
+          "missingBehavior": {
+            "action": "degrade",
+            "description": "Place only already approved content; otherwise stop after the placement plan."
+          }
+        },
+        {
+          "dependencyId": "cratis-engineering-docs-visual-qa",
+          "category": "target",
+          "strength": "optional",
+          "reason": "Rendered visual review is a separate completion enhancement.",
+          "missingBehavior": {
+            "action": "omit",
+            "description": "Report visual QA as outstanding without claiming rendered quality."
+          }
+        }
+      ],
+      "authoringContractIds": [
+        "cratis-skill-clean-room-v1"
+      ],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-engineering-docs-authoring",
+        "cratis-engineering-docs-edit-page",
+        "cratis-engineering-docs-visual-qa"
+      ],
+      "bundleIds": [
+        "cratis-engineering-review"
+      ],
+      "profileIds": []
+    },
+    {
+      "id": "cratis-engineering-docs-authoring",
+      "semanticName": "cratis-engineering-docs-authoring",
+      "audience": "cratis-engineering",
+      "purpose": "Cratis documentation authoring",
+      "whenToUse": "Use by Cratis maintainers to apply Diátaxis and documentation writing guidance.",
+      "whenNotToUse": [
+        "Do not use to choose repository placement or perform visual QA alone."
+      ],
+      "capabilityKind": "journey",
+      "invocation": "both",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "cratis-engineering"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "architectures": {
+        "state": "applicable",
+        "ids": [
+          "product-neutral"
+        ],
+        "reason": "Documentation authoring applies across Cratis products without assuming an application architecture."
+      },
+      "personas": {
+        "state": "applicable",
+        "ids": [
+          "contributor",
+          "maintainer"
+        ],
+        "reason": "Contributors and maintainers author reviewed Cratis documentation."
+      },
+      "surfaces": {
+        "state": "applicable",
+        "ids": [
+          "direct-agent-skills",
+          "ide"
+        ],
+        "reason": "The workflow is an instruction-only skill used from an agent or IDE session."
+      },
+      "repositoryProfiles": {
+        "state": "applicable",
+        "ids": [
+          "application",
+          "client",
+          "corpus",
+          "framework"
+        ],
+        "reason": "Documentation can be owned by application, client, framework, or corpus repositories."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "assessed",
+        "effects": [
+          {
+            "id": "create-repository-documentation",
+            "operation": "create",
+            "resourceBoundary": "current repository worktree",
+            "scope": "Documentation source and navigation files selected by the owning repository",
+            "dataClassifications": [
+              "internal",
+              "public"
+            ],
+            "reversible": true,
+            "confirmation": {
+              "required": true,
+              "timing": "before-effect",
+              "reason": "The repository maintainer confirms the proposed documentation paths before files are created."
+            },
+            "authorization": {
+              "required": true,
+              "authority": "Repository maintainer or task owner",
+              "evidenceIds": [
+                "ai-126"
+              ]
+            },
+            "evidenceIds": [
+              "reevaluation-authority",
+              "repo-main-b795d53"
+            ],
+            "rollbackOrCompensation": "Delete the uncommitted page or revert the dedicated documentation commit."
+          },
+          {
+            "id": "modify-repository-documentation",
+            "operation": "modify",
+            "resourceBoundary": "current repository worktree",
+            "scope": "Documentation source and navigation files selected by the owning repository",
+            "dataClassifications": [
+              "internal",
+              "public"
+            ],
+            "reversible": true,
+            "confirmation": {
+              "required": true,
+              "timing": "before-effect",
+              "reason": "The repository maintainer confirms the proposed documentation paths before existing files are changed."
+            },
+            "authorization": {
+              "required": true,
+              "authority": "Repository maintainer or task owner",
+              "evidenceIds": [
+                "ai-126"
+              ]
+            },
+            "evidenceIds": [
+              "reevaluation-authority",
+              "repo-main-b795d53"
+            ],
+            "rollbackOrCompensation": "Restore the prior bytes or revert the dedicated documentation commit."
+          }
+        ]
+      },
+      "dependencies": [],
+      "authoringContractIds": [
+        "cratis-skill-clean-room-v1"
+      ],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-engineering-docs-add-page",
+        "cratis-engineering-docs-edit-page"
+      ],
+      "bundleIds": [
+        "cratis-engineering-review"
+      ],
+      "profileIds": [
+        "engineering-documentation"
+      ]
+    },
+    {
+      "id": "cratis-engineering-docs-edit-page",
+      "semanticName": "cratis-engineering-docs-edit-page",
+      "audience": "cratis-engineering",
+      "purpose": "Cratis documentation page editing",
+      "whenToUse": "Use by Cratis maintainers to edit the source-owned copy of an existing documentation page.",
+      "whenNotToUse": [
+        "Do not use to add a new page or perform visual QA."
+      ],
+      "capabilityKind": "journey",
+      "invocation": "both",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "cratis-engineering"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "architectures": {
+        "state": "applicable",
+        "ids": [
+          "product-neutral"
+        ],
+        "reason": "Documentation integration applies across Cratis products without assuming an application architecture."
+      },
+      "personas": {
+        "state": "applicable",
+        "ids": [
+          "contributor",
+          "maintainer"
+        ],
+        "reason": "Contributors and maintainers integrate reviewed Cratis documentation."
+      },
+      "surfaces": {
+        "state": "applicable",
+        "ids": [
+          "direct-agent-skills",
+          "ide"
+        ],
+        "reason": "The workflow is an instruction-only skill used from an agent or IDE session."
+      },
+      "repositoryProfiles": {
+        "state": "applicable",
+        "ids": [
+          "application",
+          "client",
+          "corpus",
+          "framework"
+        ],
+        "reason": "Documentation can be owned by application, client, framework, or corpus repositories."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "assessed",
+        "effects": [
+          {
+            "id": "modify-documentation-page",
+            "operation": "modify",
+            "resourceBoundary": "current repository worktree",
+            "scope": "one authoritative existing documentation source page and navigation only when its title or slug changes",
+            "dataClassifications": [
+              "internal",
+              "public"
+            ],
+            "reversible": true,
+            "confirmation": {
+              "required": true,
+              "timing": "before-effect",
+              "reason": "The repository maintainer confirms the exact documentation paths before files change."
+            },
+            "authorization": {
+              "required": true,
+              "authority": "Repository maintainer or task owner",
+              "evidenceIds": [
+                "ai-126"
+              ]
+            },
+            "evidenceIds": [
+              "reevaluation-authority",
+              "repo-main-b795d53"
+            ],
+            "rollbackOrCompensation": "Restore the prior source/navigation bytes or revert the dedicated documentation commit."
+          }
+        ]
+      },
+      "dependencies": [
+        {
+          "dependencyId": "cratis-engineering-docs-authoring",
+          "category": "target",
+          "strength": "soft",
+          "reason": "Substantial content redesign is delegated to the authoring workflow.",
+          "missingBehavior": {
+            "action": "degrade",
+            "description": "Apply only narrow source-backed corrections; block substantial redesign."
+          }
+        },
+        {
+          "dependencyId": "cratis-engineering-docs-visual-qa",
+          "category": "target",
+          "strength": "optional",
+          "reason": "Rendered visual review is a separate completion enhancement.",
+          "missingBehavior": {
+            "action": "omit",
+            "description": "Report visual QA as outstanding without claiming rendered quality."
+          }
+        }
+      ],
+      "authoringContractIds": [
+        "cratis-skill-clean-room-v1"
+      ],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-engineering-docs-add-page",
+        "cratis-engineering-docs-authoring",
+        "cratis-engineering-docs-visual-qa"
+      ],
+      "bundleIds": [
+        "cratis-engineering-review"
+      ],
+      "profileIds": []
+    },
+    {
+      "id": "cratis-engineering-docs-visual-qa",
+      "semanticName": "cratis-engineering-docs-visual-qa",
+      "audience": "cratis-engineering",
+      "purpose": "Cratis documentation visual QA",
+      "whenToUse": "Use by Cratis maintainers to render and inspect documentation in light and dark modes.",
+      "whenNotToUse": [
+        "Do not use for textual editing alone."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "cratis-engineering"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-engineering-docs-edit-page"
+      ],
+      "bundleIds": [
+        "cratis-engineering-review"
+      ],
+      "profileIds": []
+    },
+    {
+      "id": "cratis-engineering-ship-changes",
+      "semanticName": "cratis-engineering-ship-changes",
+      "audience": "cratis-engineering",
+      "purpose": "Cratis change shipping",
+      "whenToUse": "Use only after an explicit request to commit, push, open, or merge a Cratis pull request.",
+      "whenNotToUse": [
+        "Do not trigger for review, status, or local validation requests."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "cratis-engineering"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [],
+      "bundleIds": [
+        "cratis-engineering-review"
+      ],
+      "profileIds": []
+    },
+    {
+      "id": "skill-creator",
+      "semanticName": "skill-creator",
+      "audience": "cratis-engineering",
+      "purpose": "Skill authoring and evaluation",
+      "whenToUse": "Use by trusted maintainers to create, improve, and evaluate Agent Skills.",
+      "whenNotToUse": [
+        "Do not use for an ordinary prompt or documentation edit."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "cratis-engineering"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [],
+      "bundleIds": [
+        "cratis-engineering-review"
+      ],
+      "profileIds": []
     }
   ]
 }

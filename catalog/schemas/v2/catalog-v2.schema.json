@@ -830,7 +830,7 @@
         "id", "semanticName", "audience", "purpose", "whenToUse", "whenNotToUse",
         "capabilityKind", "invocation", "lifecycle", "approvalState", "runtimeEligible",
         "products", "languages", "architectures", "personas", "surfaces", "repositoryProfiles",
-        "trust", "dependencies", "authoringContractIds", "evidenceIds", "relatedTargetIds", "bundleIds"
+        "trust", "dependencies", "authoringContractIds", "evidenceIds", "relatedTargetIds", "bundleIds", "profileIds"
       ],
       "properties": {
         "id": { "$ref": "#/$defs/id" },
@@ -859,18 +859,51 @@
         "authoringContractIds": { "$ref": "#/$defs/idArray" },
         "evidenceIds": { "$ref": "#/$defs/evidenceIds" },
         "relatedTargetIds": { "$ref": "#/$defs/idArray" },
-        "bundleIds": { "$ref": "#/$defs/idArray" }
+        "bundleIds": { "$ref": "#/$defs/idArray" },
+        "profileIds": { "$ref": "#/$defs/idArray" }
+      }
+    },
+    "generatedHumanProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "displayName", "description", "intendedFor", "audience", "packageName",
+        "state", "installable", "materialization", "products", "languages", "repositoryKinds",
+        "composes", "directTargetIds", "targetIds"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "displayName": { "$ref": "#/$defs/nonEmptyString" },
+        "description": { "$ref": "#/$defs/nonEmptyString" },
+        "intendedFor": { "$ref": "#/$defs/nonEmptyString" },
+        "audience": { "enum": ["public", "cratis-engineering"] },
+        "packageName": { "$ref": "#/$defs/nonEmptyString" },
+        "state": { "$ref": "#/$defs/nonEmptyString" },
+        "installable": { "type": "boolean" },
+        "materialization": { "enum": ["catalog-only", "composition", "candidate-package", "installable-package"] },
+        "products": { "$ref": "#/$defs/idArray" },
+        "languages": { "$ref": "#/$defs/idArray" },
+        "repositoryKinds": { "$ref": "#/$defs/idArray" },
+        "composes": { "$ref": "#/$defs/idArray" },
+        "directTargetIds": { "$ref": "#/$defs/idArray" },
+        "targetIds": { "$ref": "#/$defs/idArray" }
       }
     },
     "generatedHumanCatalog": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["schemaVersion", "contractVersion", "disclaimer", "inputDigest", "capabilities"],
+      "required": ["schemaVersion", "contractVersion", "disclaimer", "inputDigest", "profiles", "capabilities"],
       "properties": {
         "schemaVersion": { "const": 2 },
         "contractVersion": { "const": 1 },
         "disclaimer": { "$ref": "#/$defs/nonEmptyString" },
         "inputDigest": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "profiles": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/generatedHumanProfile" }
+        },
         "capabilities": {
           "type": "array",
           "minItems": 1,
