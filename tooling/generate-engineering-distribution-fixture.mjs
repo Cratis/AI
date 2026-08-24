@@ -17,7 +17,11 @@ import {
 } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { createAgentPluginManifest } from "./passive-profile-adapters.mjs";
+import {
+    createAgentPluginManifest,
+    createClaudeMarketplace,
+    createClaudePluginManifest,
+} from "./passive-profile-adapters.mjs";
 import { materializeFixtureArtifact } from "./public-artifact-materializer.mjs";
 
 const defaultRepositoryRoot = resolve(
@@ -38,6 +42,7 @@ const generatedTargets = [
     "codex",
     "copilot",
     "cursor",
+    "deepcode",
     "deepseek",
     "gemini",
     "grok",
@@ -251,37 +256,24 @@ export function generateEngineeringDistributionFixture({
 
         const claudeRoot = join(root, "claude");
         copyCanonical(canonicalRoot, join(claudeRoot, `plugins/${pluginName}`));
-        writeJson(join(claudeRoot, ".claude-plugin/marketplace.json"), {
-            name: pluginName,
-            owner: { name: "Cratis" },
-            metadata: {
-                description:
-                    "Fixture-only Cratis engineering skills marketplace",
+        writeJson(
+            join(claudeRoot, ".claude-plugin/marketplace.json"),
+            createClaudeMarketplace({
+                name: pluginName,
                 version,
-            },
-            plugins: [
-                {
-                    name: pluginName,
-                    description:
-                        "Fixture-only passive Cratis engineering documentation skill.",
-                    version,
-                    source: `./plugins/${pluginName}`,
-                    strict: true,
-                },
-            ],
-        });
+                description: portableDescription,
+            }),
+        );
         writeJson(
             join(
                 claudeRoot,
                 `plugins/${pluginName}/.claude-plugin/plugin.json`,
             ),
-            {
+            createClaudePluginManifest({
                 name: pluginName,
                 version,
-                description:
-                    "Fixture-only passive Cratis engineering documentation skill.",
-                author: { name: "Cratis" },
-            },
+                description: portableDescription,
+            }),
         );
 
         const codexRoot = join(root, "codex");
@@ -377,6 +369,9 @@ export function generateEngineeringDistributionFixture({
             }),
         );
 
+        const deepCodeRoot = join(root, "deepcode/.deepcode");
+        copyCanonical(canonicalRoot, deepCodeRoot);
+
         const deepSeekRoot = join(root, "deepseek/.dsh");
         copyCanonical(canonicalRoot, deepSeekRoot);
 
@@ -389,8 +384,32 @@ export function generateEngineeringDistributionFixture({
                 "Fixture-only passive Cratis engineering documentation skill.",
         });
 
-        const grokRoot = join(root, "grok/.grok");
-        copyCanonical(canonicalRoot, grokRoot);
+        for (const harness of ["grok", "junie"]) {
+            const compatibleRoot = join(root, harness);
+            copyCanonical(
+                canonicalRoot,
+                join(compatibleRoot, `plugins/${pluginName}`),
+            );
+            writeJson(
+                join(compatibleRoot, ".claude-plugin/marketplace.json"),
+                createClaudeMarketplace({
+                    name: pluginName,
+                    version,
+                    description: portableDescription,
+                }),
+            );
+            writeJson(
+                join(
+                    compatibleRoot,
+                    `plugins/${pluginName}/.claude-plugin/plugin.json`,
+                ),
+                createClaudePluginManifest({
+                    name: pluginName,
+                    version,
+                    description: portableDescription,
+                }),
+            );
+        }
 
         const kiroRoot = join(root, "kiro");
         copyCanonical(canonicalRoot, kiroRoot);
@@ -402,14 +421,6 @@ export function generateEngineeringDistributionFixture({
                 description: portableDescription,
             }),
         );
-
-        const junieRoot = join(root, `junie/extensions/${pluginName}`);
-        copyCanonical(canonicalRoot, junieRoot);
-        writeJson(join(junieRoot, "extension.json"), {
-            name: pluginName,
-            description:
-                "Fixture-only passive Cratis engineering documentation skill.",
-        });
 
         const piRoot = join(root, "pi/package");
         copyCanonical(canonicalRoot, piRoot);
@@ -510,10 +521,11 @@ export function validateEngineeringDistributionFixture(outputRoot) {
         `codex/plugins/${pluginName}`,
         `copilot/plugins/${pluginName}`,
         `cursor/plugins/${pluginName}`,
+        "deepcode/.deepcode",
         "deepseek/.dsh",
         "gemini",
-        "grok/.grok",
-        `junie/extensions/${pluginName}`,
+        `grok/plugins/${pluginName}`,
+        `junie/plugins/${pluginName}`,
         "kiro",
         "pi/package",
     ];
@@ -727,12 +739,49 @@ function smokeDirectEngineeringSkill(
     return { installed: true, removed: true };
 }
 
+function smokeClaudeCompatibleEngineeringPlugin(
+    outputRoot,
+    temporaryRoot,
+    sourceRoot,
+    installedRoot,
+) {
+    const source = join(outputRoot, sourceRoot, `plugins/${pluginName}`);
+    const installed = join(temporaryRoot, installedRoot, pluginName);
+    mkdirSync(dirname(installed), { recursive: true });
+    cpSync(source, installed, { recursive: true, errorOnExist: true });
+    const sourceSkill = readFileSync(
+        join(source, `skills/${skillName}/SKILL.md`),
+    );
+    const installedSkill = readFileSync(
+        join(installed, `skills/${skillName}/SKILL.md`),
+    );
+    if (!sourceSkill.equals(installedSkill))
+        throw new Error(
+            "Claude-compatible engineering plugin install changed bytes",
+        );
+    rmSync(installed, { recursive: true, force: false });
+    if (existsSync(installed))
+        throw new Error(
+            "Claude-compatible engineering plugin uninstall left content",
+        );
+    return { installed: true, removed: true };
+}
+
 export function smokeGrokEngineeringFixture(outputRoot, temporaryRoot) {
+    return smokeClaudeCompatibleEngineeringPlugin(
+        outputRoot,
+        temporaryRoot,
+        "grok",
+        ".grok/plugins",
+    );
+}
+
+export function smokeDeepCodeEngineeringFixture(outputRoot, temporaryRoot) {
     return smokeDirectEngineeringSkill(
         outputRoot,
         temporaryRoot,
-        "grok/.grok",
-        ".grok/skills",
+        "deepcode/.deepcode",
+        ".deepcode/skills",
     );
 }
 
@@ -799,25 +848,25 @@ export function smokeClaudeEngineeringFixture(
     );
     execFileSync(
         claudeCommand,
-        ["plugin", "install", `${pluginName}@${pluginName}`],
+        ["plugin", "install", `${pluginName}@cratis`],
         { env: environment, stdio: "pipe" },
     );
     const installed = execFileSync(claudeCommand, ["plugin", "list"], {
         env: environment,
         encoding: "utf8",
     });
-    if (!installed.includes(`${pluginName}@${pluginName}`))
+    if (!installed.includes(`${pluginName}@cratis`))
         throw new Error(
             "Claude engineering fixture install was not observable",
         );
     execFileSync(
         claudeCommand,
-        ["plugin", "uninstall", `${pluginName}@${pluginName}`],
+        ["plugin", "uninstall", `${pluginName}@cratis`],
         { env: environment, stdio: "pipe" },
     );
     execFileSync(
         claudeCommand,
-        ["plugin", "marketplace", "remove", pluginName],
+        ["plugin", "marketplace", "remove", "cratis"],
         { env: environment, stdio: "pipe" },
     );
     return { validated: true, installed: true, removed: true };

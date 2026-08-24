@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "asOf": "2026-08-23",
+  "asOf": "2026-08-24",
   "generatedBy": "tooling/generate-catalog-v2.mjs",
   "evidence": [
     {
@@ -645,6 +645,15 @@
       "verifiedOn": "2026-08-20",
       "expiresOn": "2026-11-18",
       "applicableVersion": "current-documentation-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "deepseek-deepcode-skills-source-1",
+      "officialUrl": "https://api-docs.deepseek.com/quick_start/agent_integrations/deepcode",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-24",
+      "expiresOn": "2026-11-18",
+      "applicableVersion": "current-documentation-2026-08-24",
       "confidence": "high"
     },
     {
@@ -1623,6 +1632,30 @@
       "evidenceIds": [
         "zed-skills-source-1",
         "zed-skills-source-2"
+      ]
+    },
+    {
+      "id": "deepseek-deepcode-skills-fact-1",
+      "ecosystemId": "deepseek-deepcode-skills",
+      "fact": "Deep Code discovers user skills from ~/.agents/skills/<name>/SKILL.md and project skills from .deepcode/skills/<name>/SKILL.md.",
+      "evidenceIds": [
+        "deepseek-deepcode-skills-source-1"
+      ]
+    },
+    {
+      "id": "deepseek-deepcode-skills-fact-2",
+      "ecosystemId": "deepseek-deepcode-skills",
+      "fact": "Skills are selected through the slash-command picker or direct skill-name invocation.",
+      "evidenceIds": [
+        "deepseek-deepcode-skills-source-1"
+      ]
+    },
+    {
+      "id": "deepseek-deepcode-skills-fact-3",
+      "ecosystemId": "deepseek-deepcode-skills",
+      "fact": "The Deep Code contract is distinct from the developer-preview DeepSeek Harness .dsh contract.",
+      "evidenceIds": [
+        "deepseek-deepcode-skills-source-1"
       ]
     },
     {

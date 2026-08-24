@@ -388,9 +388,49 @@ test("passive adapter materializer emits one install root per harness", () => {
         const kiroPlugin = readJson(
             join(outputRoot, "harnesses/kiro/plugin.json"),
         );
+        const claudePlugin = readJson(
+            join(
+                outputRoot,
+                "harnesses/claude/plugins/public-example/.claude-plugin/plugin.json",
+            ),
+        );
+        const grokMarketplace = readJson(
+            join(
+                outputRoot,
+                "harnesses/grok/.claude-plugin/marketplace.json",
+            ),
+        );
+        const grokPlugin = readJson(
+            join(
+                outputRoot,
+                "harnesses/grok/plugins/public-example/.claude-plugin/plugin.json",
+            ),
+        );
+        const junieMarketplace = readJson(
+            join(
+                outputRoot,
+                "harnesses/junie/.claude-plugin/marketplace.json",
+            ),
+        );
+        const juniePlugin = readJson(
+            join(
+                outputRoot,
+                "harnesses/junie/plugins/public-example/.claude-plugin/plugin.json",
+            ),
+        );
         assert.deepEqual(copilotPlugin, portablePlugin);
         assert.deepEqual(cursorPlugin, portablePlugin);
         assert.deepEqual(kiroPlugin, portablePlugin);
+        assert.equal(
+            grokMarketplace.plugins[0].source,
+            "./plugins/public-example",
+        );
+        assert.equal(
+            junieMarketplace.plugins[0].source,
+            "./plugins/public-example",
+        );
+        assert.deepEqual(grokPlugin, claudePlugin);
+        assert.deepEqual(juniePlugin, claudePlugin);
         assert.equal(
             portablePlugin.$schema,
             "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
@@ -430,7 +470,16 @@ test("passive adapter materializer emits one install root per harness", () => {
             readFileSync(
                 join(
                     outputRoot,
-                    "harnesses/grok/.grok/skills/cratis-example/SKILL.md",
+                    "harnesses/grok/plugins/public-example/skills/cratis-example/SKILL.md",
+                ),
+            ).equals(skillBytes),
+            true,
+        );
+        assert.equal(
+            readFileSync(
+                join(
+                    outputRoot,
+                    "harnesses/deepcode/.deepcode/skills/cratis-example/SKILL.md",
                 ),
             ).equals(skillBytes),
             true,

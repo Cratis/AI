@@ -594,6 +594,7 @@ function validateEcosystems(registry) {
         "junie-extensions",
         "opencode-skills",
         "zed-skills",
+        "deepseek-deepcode-skills",
         "deepseek-harness-skills",
         "npm-cratis-scope",
         "npm-trusted-publishing",

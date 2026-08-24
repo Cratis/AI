@@ -18,6 +18,7 @@ import { fileURLToPath } from "node:url";
 import {
     generateEngineeringDistributionFixture,
     smokeClaudeEngineeringFixture,
+    smokeDeepCodeEngineeringFixture,
     smokeDeepSeekEngineeringFixture,
     smokeCodexEngineeringFixture,
     smokeCopilotEngineeringFixture,
@@ -138,6 +139,7 @@ test("engineering fixture generation is deterministic and non-installable", () =
             "codex",
             "copilot",
             "cursor",
+            "deepcode",
             "deepseek",
             "gemini",
             "grok",
@@ -251,7 +253,7 @@ test("engineering fixture contains one passive skill and no project context", ()
             readFileSync(
                 join(
                     stage,
-                    "deepseek/.dsh/skills/cratis-engineering-docs-authoring/SKILL.md",
+                    "deepcode/.deepcode/skills/cratis-engineering-docs-authoring/SKILL.md",
                 ),
                 "utf8",
             ),
@@ -261,7 +263,37 @@ test("engineering fixture contains one passive skill and no project context", ()
             readFileSync(
                 join(
                     stage,
-                    "grok/.grok/skills/cratis-engineering-docs-authoring/SKILL.md",
+                    "deepseek/.dsh/skills/cratis-engineering-docs-authoring/SKILL.md",
+                ),
+                "utf8",
+            ),
+            canonicalSkill,
+        );
+        const claudePlugin = readJson(
+            join(
+                stage,
+                "claude/plugins/cratis-engineering-fixture/.claude-plugin/plugin.json",
+            ),
+        );
+        const grokPlugin = readJson(
+            join(
+                stage,
+                "grok/plugins/cratis-engineering-fixture/.claude-plugin/plugin.json",
+            ),
+        );
+        const juniePlugin = readJson(
+            join(
+                stage,
+                "junie/plugins/cratis-engineering-fixture/.claude-plugin/plugin.json",
+            ),
+        );
+        assert.deepEqual(grokPlugin, claudePlugin);
+        assert.deepEqual(juniePlugin, claudePlugin);
+        assert.equal(
+            readFileSync(
+                join(
+                    stage,
+                    "grok/plugins/cratis-engineering-fixture/skills/cratis-engineering-docs-authoring/SKILL.md",
                 ),
                 "utf8",
             ),
@@ -273,12 +305,9 @@ test("engineering fixture contains one passive skill and no project context", ()
         );
         assert.equal(
             readJson(
-                join(
-                    stage,
-                    "junie/extensions/cratis-engineering-fixture/extension.json",
-                ),
-            ).name,
-            "cratis-engineering-fixture",
+                join(stage, "junie/.claude-plugin/marketplace.json"),
+            ).plugins[0].source,
+            "./plugins/cratis-engineering-fixture",
         );
         const packageJson = readJson(join(stage, "pi/package/package.json"));
         assert.equal(packageJson.private, true);
@@ -308,7 +337,7 @@ test("engineering fixture detects canonical payload tampering", () => {
     });
 });
 
-test("engineering Grok and DeepSeek fixtures install and remove", () => {
+test("engineering Grok compatibility and DeepSeek fixtures install and remove", () => {
     withTemporaryDirectory((root) => {
         const stage = join(root, "stage");
         generateEngineeringDistributionFixture({
@@ -317,6 +346,10 @@ test("engineering Grok and DeepSeek fixtures install and remove", () => {
         });
         assert.deepEqual(
             smokeGrokEngineeringFixture(stage, join(root, "grok-home")),
+            { installed: true, removed: true },
+        );
+        assert.deepEqual(
+            smokeDeepCodeEngineeringFixture(stage, join(root, "deepcode-home")),
             { installed: true, removed: true },
         );
         assert.deepEqual(
