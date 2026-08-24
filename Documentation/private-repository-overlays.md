@@ -85,7 +85,9 @@ weaken security, authorization, or required quality gates.
    fact.
 3. Remove private repository names, URLs, environments, incidents, customers,
    credentials, and unreleased examples.
-4. Open the shared-improvement issue in `Cratis/AI`.
+4. Prepare a transient no-effect shared-improvement proposal for `Cratis/AI`.
+   Create or update an issue only through a separately accepted exact repository
+   operation profile.
 5. Include the originating private repository only when its existence and link
    may be disclosed; otherwise coordinate the immutable authority evidence with
    authorized maintainers.

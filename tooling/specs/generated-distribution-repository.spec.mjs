@@ -122,8 +122,10 @@ test("generated repository contract keeps remote authority and production blocke
     assert.equal(contract.publicationEligible, false);
     assert.equal(contract.promotionEligible, false);
     assert.equal(contract.legacyRetirementEligible, false);
-    assert.match(generalRules, /## New Repository Registration/);
-    assert.match(generalRules, /Cratis\/Strategy/);
+    assert.match(generalRules, /## New Repository Strategy Intake/);
+    assert.match(generalRules, /transient,\s*no-effect Strategy intake proposal/);
+    assert.match(generalRules, /Do not create, comment on, assign, mention/);
+    assert.match(generalRules, /Repository\s+creation does not require an issue URL/);
     assert.match(generalRules, /## Shared AI Distribution/);
     assert.match(generalRules, /Do not copy or synchronize shared/);
     assert.match(generalRules, /Never patch generated distribution bytes/);
@@ -131,7 +133,7 @@ test("generated repository contract keeps remote authority and production blocke
         "repository name, URL, visibility, and creation state",
         "accountable owner",
         "release, distribution, credential, security, privacy, compliance, and data",
-        "repository metadata, topics, ownership records",
+        "requested Strategy identity, portfolio, metadata, ownership",
     ])
         assert(generalRules.includes(requiredDetail));
     assert.equal(remoteState.repository.state, "INITIALIZED_PROTECTED_FIXTURE");
