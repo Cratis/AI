@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "86ed966ed9ad5e6e1f2e4b5be2bc28c0cd0ddb6e6da27f71ed2b3b325ee138f8",
+  "indexDigest": "cbf6ce35a05a617c57d45d56632b4751d3567037d440489b26502ee8fd92d9b0",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -3590,8 +3590,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 36,
-      "expectedPathsDigest": "c3b1683c170edd3175b6aeba99d7f2f098980a3da14224f3ce6f7913655470fc"
+      "expectedPathCount": 37,
+      "expectedPathsDigest": "f43ff0fcf2f616fa5d2fc55dd2602b204cac1316c7a961b40e93316a74955eaf"
     },
     {
       "excludePathPatterns": [],
@@ -3614,8 +3614,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 29,
-      "expectedPathsDigest": "20e71e982db741e9d959fb525c01485b8ae99252354f05629101857a1e80ed8b"
+      "expectedPathCount": 30,
+      "expectedPathsDigest": "d9f85d6588e18ba401b82c3ed0525886e815f7273041b6eae5497b975a6639d5"
     },
     {
       "excludePathPatterns": [],

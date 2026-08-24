@@ -22,6 +22,7 @@ import {
 } from "./catalog-validation.mjs";
 import { v2SchemaPath } from "./catalog-v2-validation.mjs";
 import { assertSafeContent } from "./public-artifact-materializer.mjs";
+import { presentProfile } from "./profile-presentation.mjs";
 
 const repositoryRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const inputPaths = [
@@ -33,6 +34,7 @@ const inputPaths = [
     "catalog/v2/targets.json",
     "catalog/v2/taxonomy.json",
     "catalog/v2/upstream-companions.json",
+    "distribution/profile-catalog.json",
 ];
 
 function sha256(content) {
@@ -146,10 +148,76 @@ function renderList(values, fallback = "None") {
         : [`- ${markdownText(fallback)}`];
 }
 
+function compareAudienceThenId(left, right) {
+    const audienceDifference =
+        (left.audience === "public" ? 0 : 1) -
+        (right.audience === "public" ? 0 : 1);
+    return audienceDifference || compareOrdinal(left.id, right.id);
+}
+
+function renderProfile(profile) {
+    const lines = [
+        `### ${profile.displayName}`,
+        "",
+        `- **Profile ID:** \`${profile.id}\``,
+        `- **Audience:** ${profile.audience}`,
+        `- **Package:** \`${profile.packageName}\``,
+        `- **State:** ${profile.state}`,
+        `- **Installable:** ${profile.installable ? "yes" : "no"}`,
+        `- **Materialization:** ${profile.materialization}`,
+        "",
+        profile.description,
+        "",
+        `**Intended for:** ${profile.intendedFor}`,
+        "",
+        `- Products: ${profile.products.join(", ") || "shared engineering behavior"}`,
+        `- Languages: ${profile.languages.join(", ") || "language-agnostic"}`,
+        `- Repository kinds: ${profile.repositoryKinds.join(", ") || "consumer projects"}`,
+        "",
+        "#### Included capabilities",
+        "",
+        ...renderList(profile.targetIds, "No approved or candidate capabilities yet"),
+        "",
+        "#### Composed profiles",
+        "",
+        ...renderList(profile.composes),
+    ];
+    return lines;
+}
+
+function renderProfiles(profiles) {
+    return profiles.flatMap((profile, index) => [
+        ...(index === 0 ? [] : [""]),
+        ...renderProfile(profile),
+    ]);
+}
+
+function resolveProfileTargets(profileId, profilesById, cache, resolving) {
+    if (cache.has(profileId)) return cache.get(profileId);
+    if (resolving.has(profileId))
+        throw new Error(`Profile composition cycle: ${profileId}`);
+    const profile = profilesById.get(profileId);
+    if (!profile) throw new Error(`Unknown composed profile: ${profileId}`);
+    resolving.add(profileId);
+    const targets = new Set(profile.directTargetIds);
+    for (const dependency of profile.composes)
+        for (const targetId of resolveProfileTargets(
+            dependency,
+            profilesById,
+            cache,
+            resolving,
+        ))
+            targets.add(targetId);
+    resolving.delete(profileId);
+    const resolved = [...targets].sort(compareOrdinal);
+    cache.set(profileId, resolved);
+    return resolved;
+}
+
 function renderCapability(capability) {
     const sectionSuffix = ` — ${capability.id}`;
     const lines = [
-        `## ${capability.semanticName}`,
+        `### ${capability.semanticName}`,
         "",
         `- **ID:** \`${capability.id}\``,
         `- **Audience:** ${capability.audience}`,
@@ -157,24 +225,24 @@ function renderCapability(capability) {
         `- **Approval:** ${capability.approvalState}`,
         `- **Runtime eligible:** ${capability.runtimeEligible ? "yes" : "no"}`,
         "",
-        `### Purpose${sectionSuffix}`,
+        `#### Purpose${sectionSuffix}`,
         "",
         markdownText(capability.purpose),
         "",
-        `### When to use${sectionSuffix}`,
+        `#### When to use${sectionSuffix}`,
         "",
         markdownText(capability.whenToUse),
         "",
-        `### When not to use${sectionSuffix}`,
+        `#### When not to use${sectionSuffix}`,
         "",
         ...renderList(capability.whenNotToUse),
         "",
-        `### Invocation${sectionSuffix}`,
+        `#### Invocation${sectionSuffix}`,
         "",
         `- Capability kind: ${capability.capabilityKind}`,
         `- Invocation: ${capability.invocation}`,
         "",
-        `### Applicability${sectionSuffix}`,
+        `#### Applicability${sectionSuffix}`,
         "",
         `- Products: ${capability.products.join(", ")}`,
         `- Languages: ${capability.languages.join(", ")}`,
@@ -183,7 +251,7 @@ function renderCapability(capability) {
         `- Surfaces: ${applicabilityText(capability.surfaces)}`,
         `- Repository profiles: ${applicabilityText(capability.repositoryProfiles)}`,
         "",
-        `### Dependencies${sectionSuffix}`,
+        `#### Dependencies${sectionSuffix}`,
         "",
         ...renderList(
             capability.dependencies.map(
@@ -193,7 +261,7 @@ function renderCapability(capability) {
             "Unclassified",
         ),
         "",
-        `### Trust and effects${sectionSuffix}`,
+        `#### Trust and effects${sectionSuffix}`,
         "",
         `- Trust class: ${capability.trust.class}`,
         `- Assessment: ${capability.trust.assessmentState}`,
@@ -205,7 +273,7 @@ function renderCapability(capability) {
             "No assessed effects",
         ),
         "",
-        `### Evidence and support${sectionSuffix}`,
+        `#### Evidence and support${sectionSuffix}`,
         "",
         ...renderList(
             capability.authoringContractIds.map(
@@ -215,13 +283,17 @@ function renderCapability(capability) {
         ),
         ...renderList(capability.evidenceIds.map((id) => `Evidence: ${id}`)),
         "",
-        `### Related capabilities${sectionSuffix}`,
+        `#### Related capabilities${sectionSuffix}`,
         "",
         ...renderList(capability.relatedTargetIds),
         "",
-        `### Bundle membership${sectionSuffix}`,
+        `#### Bundle membership${sectionSuffix}`,
         "",
         ...renderList(capability.bundleIds),
+        "",
+        `#### Profile membership${sectionSuffix}`,
+        "",
+        ...renderList(capability.profileIds),
     ];
     return lines;
 }
@@ -287,10 +359,44 @@ export function buildHumanCatalogOutputs() {
     const { catalogs, digest, humanContract } = loadInputs();
     const targets = catalogs.get("catalog/v2/targets.json").targets;
     const bundles = catalogs.get("catalog/v2/bundles.json").bundles;
-
-    const publicTargetIds = new Set(
+    const profileCatalog = catalogs.get(
+        "distribution/profile-catalog.json",
+    );
+    const presentedProfiles = [
+        ...profileCatalog.publicProfiles.map((profile) =>
+            presentProfile(profile, "public"),
+        ),
+        ...profileCatalog.engineeringProfiles.map((profile) =>
+            presentProfile(profile, "cratis-engineering"),
+        ),
+    ];
+    const profilesById = new Map(
+        presentedProfiles.map((profile) => [profile.id, profile]),
+    );
+    const profileTargetCache = new Map();
+    const profiles = presentedProfiles
+        .map((profile) => ({
+            ...profile,
+            targetIds: resolveProfileTargets(
+                profile.id,
+                profilesById,
+                profileTargetCache,
+                new Set(),
+            ),
+        }))
+        .sort(compareAudienceThenId);
+    const profileIdsByTarget = new Map();
+    for (const profile of profiles)
+        for (const targetId of profile.targetIds) {
+            const profileIds = profileIdsByTarget.get(targetId) ?? [];
+            profileIds.push(profile.id);
+            profileIdsByTarget.set(targetId, profileIds);
+        }
+    const includedTargetIds = new Set(
         targets
-            .filter((target) => target.audience === "public")
+            .filter((target) =>
+                humanContract.includeAudiences.includes(target.audience),
+            )
             .map((target) => target.id),
     );
     const bundleIdsByTarget = new Map();
@@ -345,18 +451,22 @@ export function buildHumanCatalogOutputs() {
                     ...target.dependencies.targets,
                 ]),
             ]
-                .filter((targetId) => publicTargetIds.has(targetId))
+                .filter((targetId) => includedTargetIds.has(targetId))
                 .sort(compareOrdinal),
             bundleIds: [...(bundleIdsByTarget.get(target.id) ?? [])].sort(
                 compareOrdinal,
             ),
+            profileIds: [...(profileIdsByTarget.get(target.id) ?? [])].sort(
+                compareOrdinal,
+            ),
         }))
-        .sort((left, right) => compareOrdinal(left.id, right.id));
+        .sort(compareAudienceThenId);
     const data = {
         schemaVersion: 2,
         contractVersion: humanContract.contractVersion,
         disclaimer: humanContract.disclaimer,
         inputDigest: digest,
+        profiles,
         capabilities,
     };
     const dataErrors = validateAgainstSchema(
@@ -368,12 +478,28 @@ export function buildHumanCatalogOutputs() {
         throw new Error(`Generated human catalog is invalid: ${dataErrors.join("; ")}`);
 
     const markdownLines = [
-        "# Cratis capability catalog",
+        "# Cratis AI package and capability catalog",
         "",
         `> ${markdownText(humanContract.disclaimer)}`,
         "",
-        "This catalog is generated from reviewed catalog metadata. It is a human",
-        "navigation surface, not source authority and not an installation artifact.",
+        "This catalog is generated from reviewed catalog metadata. Use it to find",
+        "the right package and understand its skills. It is not source authority",
+        "and does not make a planned package installable.",
+        "",
+        `- Profiles: ${profiles.length}`,
+        `- Capabilities: ${capabilities.length}`,
+        `- Installable profiles: ${profiles.filter((profile) => profile.installable).length}`,
+        "",
+        "## Packages and profiles",
+        "",
+        "Profiles are the product and maintainer bundles people subscribe to.",
+        "Only profiles marked installable have completed approval.",
+        "",
+        ...renderProfiles(profiles),
+        "",
+        "## Capabilities",
+        "",
+        "Capabilities are the focused skills included by one or more profiles.",
         "",
         ...renderCapabilities(capabilities),
     ];

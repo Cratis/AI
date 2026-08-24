@@ -706,9 +706,17 @@ test("the human catalog contract forbids runtime bytes and permission claims", (
     assert.deepEqual(validateHumanCatalogContract(catalogs), []);
     const contract = catalogs.humanCatalog;
     contract.includeRuntimePayloadBytes = true;
+    contract.includeAudiences = ["public"];
+    contract.requiredCapabilitySections.pop();
     contract.disclaimer = "This catalog grants runtime permission.";
     const errors = validateHumanCatalogContract(catalogs);
     assert(errors.some((error) => error.includes("runtime payload bytes")));
+    assert(
+        errors.some((error) =>
+            error.includes("must include public and Cratis engineering"),
+        ),
+    );
+    assert(errors.some((error) => error.includes("sections must match")));
     assert(errors.some((error) => error.includes("deny runtime permission")));
 });
 

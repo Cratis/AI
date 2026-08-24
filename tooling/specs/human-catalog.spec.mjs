@@ -125,28 +125,83 @@ test("human catalog manifest remains the activation pointer on interrupted publi
     }
 });
 
-test("generated human catalog exposes every target without granting runtime", () => {
+test("generated human catalog exposes public and engineering packages and capabilities", () => {
     const catalog = readJson("catalog.json");
     const targets = JSON.parse(
         readFileSync(join(repositoryRoot, "catalog/v2/targets.json"), "utf8"),
-    ).targets.filter((target) => target.audience === "public");
+    ).targets;
+    const profileCatalog = JSON.parse(
+        readFileSync(
+            join(repositoryRoot, "distribution/profile-catalog.json"),
+            "utf8",
+        ),
+    );
+    const profiles = [
+        ...profileCatalog.publicProfiles,
+        ...profileCatalog.engineeringProfiles,
+    ];
     assert.equal(catalog.capabilities.length, targets.length);
+    assert.equal(catalog.profiles.length, profiles.length);
     assert.deepEqual(
-        catalog.capabilities.map((capability) => capability.id),
+        catalog.capabilities
+            .map((capability) => capability.id)
+            .sort(compareOrdinal),
         targets.map((target) => target.id).sort(compareOrdinal),
     );
-    const publicTargetIds = new Set(targets.map((target) => target.id));
+    const firstEngineeringCapability = catalog.capabilities.findIndex(
+        (capability) => capability.audience === "cratis-engineering",
+    );
+    assert(firstEngineeringCapability > 0);
+    assert(
+        catalog.capabilities
+            .slice(0, firstEngineeringCapability)
+            .every((capability) => capability.audience === "public"),
+    );
+    assert(
+        catalog.capabilities
+            .slice(firstEngineeringCapability)
+            .every(
+                (capability) => capability.audience === "cratis-engineering",
+            ),
+    );
+    assert.deepEqual(
+        new Set(catalog.capabilities.map((capability) => capability.audience)),
+        new Set(["public", "cratis-engineering"]),
+    );
+    assert.deepEqual(
+        new Set(catalog.profiles.map((profile) => profile.audience)),
+        new Set(["public", "cratis-engineering"]),
+    );
     assert(
         catalog.capabilities.every(
             (capability) =>
-                capability.audience === "public" &&
-                capability.approvalState === "candidate" &&
                 capability.runtimeEligible === false &&
                 capability.relatedTargetIds.every((targetId) =>
-                    publicTargetIds.has(targetId),
+                    targets.some((target) => target.id === targetId),
                 ),
         ),
     );
+    const fundamentals = catalog.profiles.find(
+        (profile) => profile.id === "public-fundamentals",
+    );
+    assert.equal(fundamentals.displayName, "Cratis Fundamentals");
+    assert.match(fundamentals.description, /Strongly typed Cratis/);
+    assert.equal(fundamentals.materialization, "candidate-package");
+    assert(fundamentals.targetIds.includes("cratis-fundamentals-concept"));
+    const engineeringDocumentation = catalog.profiles.find(
+        (profile) => profile.id === "engineering-documentation",
+    );
+    assert.match(engineeringDocumentation.description, /documentation authoring/);
+    assert(
+        engineeringDocumentation.targetIds.includes(
+            "cratis-engineering-docs-authoring",
+        ),
+    );
+    const concept = catalog.capabilities.find(
+        (capability) => capability.id === "cratis-fundamentals-concept",
+    );
+    assert(concept.profileIds.includes("public-fundamentals"));
+    assert(concept.profileIds.includes("public-application"));
     assert.match(catalog.disclaimer, /does not grant runtime permission/);
 });
 
@@ -167,8 +222,11 @@ test("human catalog manifest binds every generated product file", () => {
 
 test("human catalog Markdown separates approval and trust visibly", () => {
     const markdown = readFileSync(join(outputRoot, "CATALOG.md"), "utf8");
-    assert.match(markdown, /^# Cratis capability catalog/m);
-    assert.match(markdown, /### Trust and effects/);
+    assert.match(markdown, /^# Cratis AI package and capability catalog/m);
+    assert.match(markdown, /## Packages and profiles/);
+    assert.match(markdown, /### Cratis Fundamentals/);
+    assert.match(markdown, /## Capabilities/);
+    assert.match(markdown, /#### Trust and effects/);
     assert.match(markdown, /\*\*Approval:\*\* candidate/);
     assert.match(markdown, /\*\*Runtime eligible:\*\* no/);
     assert.match(markdown, /Unclassified —/);
