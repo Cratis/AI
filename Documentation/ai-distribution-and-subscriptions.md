@@ -107,6 +107,42 @@ pull request changing the subscription and host-native lock or settings files.
 It never merges automatically, pushes generated corpus folders, or receives
 broad organization write access.
 
+## Managed multi-tool installation
+
+Native marketplaces remain the easiest path for an individual developer. For a
+team that needs the same exact skills across several AI tools, Cratis evaluated
+Microsoft Agent Package Manager (APM) 0.28.0 as an optional managed-team path.
+
+The disposable public and engineering evaluations demonstrated:
+
+- exact Git commit and content-hash locks;
+- frozen installation on a second machine;
+- deployment to shared Agent Skills and host-native locations;
+- nonzero drift detection after an installed skill was modified;
+- repair from the lock;
+- update to a new revision and rollback to the previous revision;
+- clean uninstall; and
+- byte-for-byte preservation of `AGENTS.md`, `.cratis/PROJECT.md`, and an
+  unrelated local skill.
+
+This is promising, but it is not a supported Cratis installation path yet. APM
+is pre-1.0, does not support Pi, writes package-managed copies into host skill
+directories, and skipped organization-policy discovery in the disposable
+fixtures because they had no Git remote. Managed adoption therefore waits for
+an immutable package from `Cratis/AI.Distribution`, a real application and
+framework collision/context canary, and fail-closed organization policy.
+
+Until those gates pass:
+
+- `.cratis/ai.json` remains the Cratis profile and project-context intent;
+- Pi keeps its exact npm/Git package settings;
+- APM may not replace native marketplaces or the reviewed subscriber PR; and
+- Workflows#73 should reuse APM resolution, lock, audit, and uninstall behavior
+  if the real canary passes instead of rebuilding those features.
+
+The bounded evidence and adoption gates are recorded in
+[`distribution/apm-managed-install-evaluation.json`](../distribution/apm-managed-install-evaluation.json).
+
 ## Pi package workflow
 
 Pi is a first-class host, not a copied adapter directory. Pi packages can load
