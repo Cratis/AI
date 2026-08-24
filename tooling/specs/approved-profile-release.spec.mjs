@@ -318,6 +318,48 @@ test("passive adapter materializer emits one install root per harness", () => {
         assert.deepEqual(manifest.harnesses, passiveHarnesses);
         for (const harness of passiveHarnesses)
             assert.equal(manifest.roots[harness], `harnesses/${harness}`);
+        const portablePlugin = readJson(
+            join(outputRoot, "harnesses/agent-plugin/plugin.json"),
+        );
+        const copilotPlugin = readJson(
+            join(
+                outputRoot,
+                "harnesses/copilot/plugins/public-example/plugin.json",
+            ),
+        );
+        const cursorPlugin = readJson(
+            join(
+                outputRoot,
+                "harnesses/cursor/plugins/public-example/plugin.json",
+            ),
+        );
+        const kiroPlugin = readJson(
+            join(outputRoot, "harnesses/kiro/plugin.json"),
+        );
+        assert.deepEqual(copilotPlugin, portablePlugin);
+        assert.deepEqual(cursorPlugin, portablePlugin);
+        assert.deepEqual(kiroPlugin, portablePlugin);
+        assert.equal(
+            portablePlugin.$schema,
+            "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+        );
+        assert.equal(portablePlugin.repository, "https://github.com/Cratis/AI");
+        assert.equal(portablePlugin.homepage, "https://cratis.io/ai");
+        assert.deepEqual(portablePlugin.keywords, ["cratis", "agent-skills"]);
+        assert.deepEqual(Object.keys(portablePlugin).sort(), [
+            "$schema",
+            "author",
+            "description",
+            "homepage",
+            "keywords",
+            "license",
+            "name",
+            "repository",
+            "version",
+        ]);
+        assert.equal(portablePlugin.skills, undefined);
+        assert.equal(portablePlugin.hooks, undefined);
+        assert.equal(portablePlugin.mcpServers, undefined);
         const piPackage = readJson(
             join(outputRoot, "harnesses/pi/package.json"),
         );
