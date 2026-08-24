@@ -201,6 +201,14 @@ const sourceOverrides = new Map([
         },
     ],
     [
+        "ship-changes",
+        {
+            sourcePath: ".ai/skills/ship-changes",
+            sourceRevision: "6b5388ddc660e8c9ddae0d7aa3ef3b5581a9f979",
+            evidenceId: "engineering-ship-changes-no-effect-source-6b5388d",
+        },
+    ],
+    [
         "write-documentation",
         {
             sourcePath: "engineering/skills/cratis-engineering-docs-authoring",
@@ -1696,6 +1704,17 @@ const evidence = [
         applicableVersion: "684d03755bacd40af95463b81b4a0c8b9f088ec1",
         confidence: "high",
         immutableRevision: "684d03755bacd40af95463b81b4a0c8b9f088ec1",
+    },
+    {
+        id: "engineering-ship-changes-no-effect-source-6b5388d",
+        officialUrl:
+            "https://github.com/Cratis/AI/tree/6b5388ddc660e8c9ddae0d7aa3ef3b5581a9f979/.ai/skills/ship-changes",
+        sourceKind: "repository-snapshot",
+        verifiedOn: "2026-08-24",
+        expiresOn: "2027-08-24",
+        applicableVersion: "6b5388ddc660e8c9ddae0d7aa3ef3b5581a9f979",
+        confidence: "high",
+        immutableRevision: "6b5388ddc660e8c9ddae0d7aa3ef3b5581a9f979",
     },
     {
         id: "engineering-docs-authoring-source-f58bcf7",

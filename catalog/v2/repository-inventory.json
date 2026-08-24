@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "4a9562b7160bdfcbcf039974ba939fd3856d8950bb5ba79c48b63ca3e1c8c05e",
+  "indexDigest": "323457cf9d622d48805d4df07f8ae50ad1a1d9267ac3ea5db5363bc78f8670c1",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -27,6 +27,10 @@
       "status": "modified"
     },
     {
+      "path": ".ai/prompts/ship-changes.prompt.md",
+      "status": "modified"
+    },
+    {
       "path": ".ai/rules/concepts.md",
       "status": "modified"
     },
@@ -39,11 +43,27 @@
       "status": "modified"
     },
     {
+      "path": ".ai/rules/pull-requests.md",
+      "status": "modified"
+    },
+    {
       "path": ".ai/rules/vertical-slices.md",
       "status": "modified"
     },
     {
       "path": ".ai/skills/add-concept/SKILL.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/ship-changes/SKILL.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/ship-changes/evals/evals.json",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/workflows/claude.yml",
       "status": "modified"
     },
     {
@@ -2255,6 +2275,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/specs/work-record-containment.spec.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/specs/workflow-safety.spec.mjs",
       "status": "added"
     },
@@ -3638,8 +3662,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 31,
-      "expectedPathsDigest": "35162356e3ad539410d723d3de6c0b4c66af312fc479ba3a642a08fd6ecea4ad"
+      "expectedPathCount": 32,
+      "expectedPathsDigest": "2ded73be4583582c3eb465d41478d2615d622f90037eb234f1838abf7149d84e"
     },
     {
       "excludePathPatterns": [],
