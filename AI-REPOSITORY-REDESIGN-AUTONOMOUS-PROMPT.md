@@ -1,6 +1,8 @@
 # Prompt — Autonomous Completion of the Cratis AI Redesign
 
-Copy the complete prompt below into a fresh session.
+> **Historical record — not current execution authority.** Do not copy or run this prompt. Its blanket repository, issue, pull-request, release, and publication language predates current operation-specific authority boundaries and grants no effect. Use current repository instructions and separately accepted product/repository policies instead.
+
+The original historical prompt follows for provenance only.
 
 ```text
 Own and complete the full Cratis/AI repository redesign program autonomously.

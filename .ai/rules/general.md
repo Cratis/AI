@@ -60,32 +60,32 @@ obtaining credentials, and other local conventions ("Product policy" above).
 
 Default to agentic behavior: inspect local rules, skills, code, tests, and generated patterns; make conservative assumptions supported by that context; implement and verify end to end when feasible. Don't interrupt with questions the repository can answer. Ask when the answer can't be found locally, when reasonable product/domain choices differ meaningfully, when a change is risky, or when the user asked for checkpoints.
 
-## New Repository Registration
+## New Repository Strategy Intake
 
-Whenever you create a repository in the Cratis organization, create a linked
-issue in `Cratis/Strategy` before or immediately after repository creation. This
-is mandatory even for generated, experimental, private, or infrastructure
-repositories.
+When a repository is created in the Cratis organization, prepare one transient,
+no-effect Strategy intake proposal. Do not create, comment on, assign, mention,
+link, or otherwise mutate a GitHub issue unless a current repository profile and
+the exact operation are separately accepted. Tool access and a request to create
+the repository do not supply that issue-effect authority.
 
-The Strategy issue must include:
+The proposal should include only the bounded facts needed for Strategy triage:
 
 - repository name, URL, visibility, and creation state;
 - purpose, intended users, lifecycle, and whether it is canonical, generated,
   experimental, operational, or scheduled for retirement;
-- accountable owner and cross-repository ownership boundaries;
-- upstream/downstream dependencies and related issues, decisions, and PRs;
+- accountable owner or explicit vacancy and cross-repository boundaries;
+- upstream/downstream dependencies and current owning records;
 - release, distribution, credential, security, privacy, compliance, and data
-  expectations;
-- requested Strategy work, including portfolio/product-family registration,
-  repository metadata, topics, ownership records, and the repository's own AI
-  rules, skills, and project context.
+  expectations; and
+- requested Strategy identity, portfolio, metadata, ownership, and local AI
+  context review.
 
-Treat this as Strategy intake, not automatic strategic approval. Do not invent
-Strategy metadata in the new repository or copy private Strategy content into a
-public repository. Let `Cratis/Strategy` apply its own rules and skills, then
-link the resulting issue or decision back to the new repository and its owning
-implementation issue. Repository creation is not complete until the Strategy
-issue URL is recorded.
+First decide whether no record, an existing Strategy record, a bounded update
+proposal, a new proposal, or a sensitive human route is appropriate. Treat the
+result as Strategy intake, not strategic approval. Do not invent Strategy
+metadata or copy private Strategy content into a public repository. Repository
+creation does not require an issue URL; unresolved Strategy reconciliation is an
+explicit next action for the authorized human/owning process.
 
 ## Shared AI Distribution
 

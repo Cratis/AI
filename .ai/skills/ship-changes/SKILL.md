@@ -3,7 +3,8 @@ name: ship-changes
 description: >
   Ship staged or unstaged local changes: create a branch, make logical commits,
   push to origin, open a PR with the correct description and label, merge it,
-  close the issues it resolves, and delete the branch locally and on origin.
+  prepare no-effect dispositions for related issues, and delete the branch
+  locally and on origin.
   Use whenever the user asks to commit, push, create a PR, ship, or land changes.
 ---
 
@@ -11,8 +12,9 @@ description: >
 
 This skill takes local modifications from the working tree and lands them on
 `main` via a properly structured branch, commits, and PR — following all
-project conventions for commits, PR descriptions, and labels — and leaves no
-resolved issue open behind it.
+project conventions for commits, PR descriptions, and labels. Related issue
+comments and closure are separate effects; this shared skill prepares their
+post-merge disposition but never assumes operation authority.
 
 > **Never rewrite history while shipping.** No `rebase`, no `commit --amend`, no
 > `reset --hard`, no `push --force` (or `--force-with-lease`), no deleting a branch that
@@ -29,7 +31,7 @@ Collect the following before starting:
 
 - **Semantic label** — `patch`, `minor`, `major`, or none. Skip labeling entirely if the user says no label or omits the label. Do not ask — infer from the nature of the change or follow the user's explicit instruction.
 - **Branch name suffix** — short kebab-case description of the work, e.g. `fix/testing-orleans-runtime-assemblies`. Determine from the nature of the changes if not provided.
-- **Related GitHub issue** — search GitHub issues if the change likely relates to one; use the real number or omit the reference when none exists. Never invent or reuse example numbers. Keep the numbers you find — they are needed twice: as the `(#N)` reference in the PR bullets, and to close the issues after the merge (step 9).
+- **Related GitHub issue** — search read-only if the change likely relates to one; use the real number or omit the reference when none exists. Never invent or reuse example numbers. Record whether the change fully resolves or only partly addresses each issue so step 9 can prepare a no-effect disposition.
 
 ## Step 1 — Review the working tree
 
@@ -172,9 +174,9 @@ case search *that* one. See "When issues live in a different repository" in step
 
 If nothing relevant is found, omit the issue reference from affected bullets.
 
-For every issue you do find, record two things — both are needed in step 9:
+For every issue you do find, record two things for the no-effect step 9 disposition:
 
-- its number, and
+- its exact repository and number; and
 - whether this change **fully resolves** it or only partly addresses it.
 
 **Do not put closing keywords (`Closes #N`, `Fixes #N`) in the PR body.** The
@@ -234,51 +236,40 @@ precisely why it is the easiest way to break the rule by accident.
 If the repository's settings permit only squash or rebase merges, **stop and ask the human.** That
 is a setting to change, not a reason to squash.
 
-## Step 9 — Close the related issues
+## Step 9 — Prepare related-issue dispositions
 
-**The ship is not finished until every issue the PR resolves is verified `CLOSED`.**
-This step is mandatory whenever step 5 found issues — treat a merged PR with an
-issue still open as an incomplete ship, not a loose end to mention in passing.
+Issue closure, comments, assignment, mentions, labels, and relationship changes
+are separate notification/effect operations. A request to ship code does not
+authorize them.
 
-Referencing an issue with `(#N)` does **not** close it — GitHub only auto-closes
-on a closing keyword, and this repo deliberately keeps those out of the PR body
-(see step 5). Nothing closes these issues but this step.
+For every related issue, return one bounded post-merge disposition:
 
-For each issue the merged PR **fully resolves**:
+- **Fully resolved:** propose closure with the exact merged PR as evidence.
+- **Partly addressed:** propose one concise material-status update stating what
+  landed and what remains.
+- **Not resolved or uncertain:** propose no issue effect and state why.
 
-```bash
-gh issue close <N> --repo <owner>/<tracker-repo> --comment "Fixed in <owner>/<repo>#<pr-number>."
-gh issue view <N> --repo <owner>/<tracker-repo> --json number,state    # verify it is CLOSED
-```
-
-- **Always verify** — re-read the state after closing. `gh issue close` can no-op
-  or fail on permissions and still look like it worked; an unverified close leaves
-  the issue open and nobody notices.
-- **Close every issue in one sweep, then verify them all**, so a long list cannot
-  end with the last few silently skipped. Re-read the list you recorded in step 5
-  and account for each number explicitly.
-- **Only close what the change actually resolves.** If the PR addresses part of
-  an issue, leave it open and comment what landed and what remains:
-  `gh issue comment <N> --repo <owner>/<tracker-repo> --body "Partly addressed in #<pr-number>: <what landed>. Still open: <what remains>."`
-- Skip this step entirely when no issue was found — never close an issue you are
-  not confident the change resolves.
-- If the PR was merged but an issue close fails, say so explicitly in the final
-  report rather than leaving it silently open.
+Do not run `gh issue` mutation commands or issue-mutating MCP/API tools from this
+shared skill. Perform an issue effect only through a repository-owned adapter
+whose current profile separately activates that exact operation, expected state,
+notification behavior, read-back, and Unknown reconciliation. No such adapter is
+provided by this skill. An open related issue does not make the code shipment
+incomplete; report the pending human/owning-system disposition explicitly.
 
 ### When issues live in a different repository
 
 Some repositories are private with Issues disabled and track their issues in a
 separate public repo (check `.agents/PROJECT.md`). Two consequences:
 
-- **Every `gh issue` command needs `--repo <owner>/<tracker-repo>`.** Without it
-  `gh` resolves against the current repository and either fails or hits an
-  unrelated object.
+- Every read-only lookup and proposed disposition records the exact
+  `<owner>/<tracker-repo>#<number>`; never rely on the current checkout to infer
+  the destination.
 - **A bare `(#N)` in the PR body points at the wrong repo** — issues and pull
   requests share one number sequence per repository, so `#109` in the code repo
   links to *its* PR #109. Write the fully qualified `(<owner>/<tracker-repo>#N)`
-  in release-note bullets instead, so the reference resolves for a changelog
-  reader. Auto-closing still does not apply: keywords remain banned from the body
-  (step 5), so this step is the only thing that closes them.
+  in release-note bullets instead. Closing keywords remain banned, and any later
+  comment or closure stays behind the owning tracker repository's exact effect
+  policy.
 
 ## Step 10 — Clean up the branch
 
@@ -331,9 +322,7 @@ gh pr edit <pr-number> --add-label "minor"
 # 8. Merge (via mcp_github_github_merge_pull_request, merge_method: merge)
 #    CLI equivalent: gh pr merge <pr-number> --merge   # NEVER --squash / --rebase
 
-# 9. Close the issues the PR resolves, and verify
-gh issue close <issue-number> --comment "Fixed in #<pr-number>."
-gh issue view <issue-number> --json number,state
+# 9. Prepare no-effect dispositions for related issues; do not mutate them
 
 # 10. Clean up (pulls main as part of the same command)
 git checkout main && git pull && git branch -d feat/authors-registration && git push origin --delete feat/authors-registration
@@ -346,6 +335,6 @@ git checkout main && git pull && git branch -d feat/authors-registration && git 
 - **Never leave placeholder text** in PR bodies (`(#issue)`, `(#123)`).
 - **Never commit code that does not compile** — every commit must be a working state.
 - **Never push directly to `main`** — always go through the branch + PR flow.
-- **Never leave a resolved issue open** — a `(#N)` reference in the PR body is a link, not a close. Close it in step 9 and verify.
+- **Never assume issue-effect authority** — prepare the exact post-merge disposition in step 9; an owning repository adapter and operation profile must authorize any later comment or closure.
 - **Never put `Closes #N` / `Fixes #N` in the PR body** — the release notes are the body verbatim.
 - **Never skip branch cleanup** — delete both the local and remote branch after merging.

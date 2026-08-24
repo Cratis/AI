@@ -396,7 +396,6 @@ jobs:
     environment: distribution-canary
     permissions:
       contents: read
-      issues: write
     steps:
       - name: Create repository-scoped distribution token
         id: app-token
@@ -412,7 +411,6 @@ jobs:
       - name: Publish GitHub release and enable index merge
         env:
           DISTRIBUTION_TOKEN: ${{ steps.app-token.outputs.token }}
-          ISSUE_TOKEN: ${{ github.token }}
           VERSION: ${{ needs.discover.outputs.version }}
           PR_NUMBER: ${{ needs.distribute.outputs.pull_request }}
         run: |
@@ -429,20 +427,27 @@ jobs:
           test "$state" = "MERGED"
           GH_TOKEN="$DISTRIBUTION_TOKEN" gh release edit "v$VERSION" \
             --repo Cratis/AI.Distribution --draft=false
-          GH_TOKEN="$ISSUE_TOKEN" gh issue comment 181 --repo Cratis/AI \
-            --body "Release $VERSION generated, canaried, npm-published, and promoted. Subscriber updates remain disabled until Workflows#73 is implemented; marketplace submission remains the manual AI#147 handoff."
+          {
+            echo "## Release $VERSION promoted"
+            echo
+            echo "Generated, canaried, npm-published, and promoted."
+            echo "Subscriber updates remain disabled until Workflows#73 is implemented; marketplace submission remains the manual AI#147 handoff."
+          } >> "$GITHUB_STEP_SUMMARY"
 
   record-promotion-failure:
     if: ${{ always() && github.event_name == 'push' && needs['publish-npm'].result == 'success' && needs['promote-and-follow-up'].result == 'failure' }}
     needs: [discover, publish-npm, promote-and-follow-up]
     runs-on: ubuntu-latest
     permissions:
-      issues: write
+      contents: read
     steps:
       - name: Record irreversible partial publication
         env:
-          GH_TOKEN: ${{ github.token }}
           VERSION: ${{ needs.discover.outputs.version }}
         run: |
-          gh issue comment 181 --repo Cratis/AI \
-            --body "Release $VERSION was published to npm, but distribution promotion failed. The npm version is immutable and was not rolled back. Keep the GitHub release draft and generated index PR for explicit recovery."
+          {
+            echo "## Release $VERSION requires recovery"
+            echo
+            echo "The npm version is immutable and was not rolled back."
+            echo "Keep the GitHub release draft and generated index PR for explicit recovery."
+          } >> "$GITHUB_STEP_SUMMARY"
