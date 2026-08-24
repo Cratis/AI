@@ -1,0 +1,114 @@
+{
+  "schemaVersion": "1.0.0",
+  "observedOn": "2026-08-24",
+  "state": "OPTIONAL_MANAGED_PATH_RECOMMENDED_AFTER_DISTRIBUTION_CANARY",
+  "tool": {
+    "name": "Microsoft Agent Package Manager",
+    "repository": "https://github.com/microsoft/apm",
+    "version": "0.28.0",
+    "buildRevision": "e041462",
+    "release": "https://github.com/microsoft/apm/releases/tag/v0.28.0",
+    "asset": "apm-darwin-arm64.tar.gz",
+    "assetSha256": "9676a6e7bf2bcb3966538a7130faea14ba030baa45f678597cc3fa15c902cb0a"
+  },
+  "decision": {
+    "individualDevelopers": "Use each host's native Cratis marketplace or plugin experience.",
+    "managedTeams": "Offer APM as an optional exact-lock, multi-tool installation path after an AI.Distribution package canary.",
+    "pi": "Keep Pi's native exact npm or Git package path; APM 0.28.0 does not support Pi.",
+    "subscription": "Keep .cratis/ai.json as the Cratis profile and project-context intent contract until APM reaches a stable boundary and duplicate state can be removed safely.",
+    "customInstaller": "Do not build a custom multi-agent package resolver, hash lock, drift scanner, or uninstall ledger while APM can provide those capabilities."
+  },
+  "publicFixture": {
+    "source": "Cratis/AI/skills/cratis-fundamentals-concept",
+    "oldRevision": "422ec8eebc198f9c25c28831a94623a3d4432fea",
+    "newRevision": "0d3a566a55c996c4a972f03e9dc20464f075bf24",
+    "oldSkillSha256": "06c164b26460fb914fc3146716c6f60b445a5f9839c1cb5f6d4d92c6489532fe",
+    "newSkillSha256": "423ab2d27b08e13d3c7c3fbaf9bbc06ea1fb9a13610bdcfdf37398b12d593ec9",
+    "targets": [
+      "agent-skills",
+      "claude",
+      "codex",
+      "cursor",
+      "gemini",
+      "grok-build",
+      "kiro"
+    ],
+    "projectContextSha256": {
+      "AGENTS.md": "e225ea112b6daa6c6aa39777445624e78eee8d3841c5d06d94816c629870e0f8",
+      ".cratis/PROJECT.md": "fb832bdd9c4f2650be54b47a3f998459ece30d549d2ded031a13ee340c786142",
+      ".agents/skills/local-context/SKILL.md": "ff4d3c373c7248d9a28dd005b177e9a274224f4d741abef73cf39204faa74b3c"
+    }
+  },
+  "engineeringFixture": {
+    "source": "Cratis/AI/engineering/skills/cratis-engineering-docs-authoring",
+    "revision": "f58bcf7f5cc9fc0e11305ada3b5ecb6fa20953e9",
+    "skillSha256": "014f2e7b55d4f1a7dd982e4e352cffc8cfa078a262056bb55b76eb2b81da0791",
+    "projectContextSha256": {
+      "AGENTS.md": "885b31a3d511cd812397a3858492546215249fd1d027a5c1abbcac57d9391dcc",
+      ".cratis/PROJECT.md": "337a03a8d31986a00eb54d331f95012f441ebd0f30f1d23696f311006d84270c",
+      ".agents/skills/local-context/SKILL.md": "ff4d3c373c7248d9a28dd005b177e9a274224f4d741abef73cf39204faa74b3c"
+    }
+  },
+  "results": [
+    {
+      "gate": "release-asset-checksum",
+      "status": "PASS",
+      "detail": "The downloaded APM 0.28.0 darwin-arm64 archive matched the publisher SHA-256 file."
+    },
+    {
+      "gate": "exact-remote-install-and-lock",
+      "status": "PASS",
+      "detail": "An exact Git commit produced apm.yml and apm.lock.yaml with resolved commit, content hash, deployed-file hashes, and deployment ownership."
+    },
+    {
+      "gate": "frozen-second-machine-restore",
+      "status": "PASS",
+      "detail": "apm install --frozen reproduced the same files from the committed manifest and lock without changing the lockfile."
+    },
+    {
+      "gate": "audit-and-drift-detection",
+      "status": "PASS",
+      "detail": "apm audit --ci passed clean state, returned nonzero for a modified installed skill, and identified the exact hash drift and file."
+    },
+    {
+      "gate": "repair",
+      "status": "PASS",
+      "detail": "apm install --frozen restored the modified skill to the locked SHA-256 and the audit returned clean."
+    },
+    {
+      "gate": "update-and-rollback",
+      "status": "PASS",
+      "detail": "Changing the exact manifest revision updated the skill and lock; restoring the prior revision restored the prior skill hash and lock commit."
+    },
+    {
+      "gate": "uninstall-and-context-preservation",
+      "status": "PASS",
+      "detail": "Uninstall removed only package-owned deployments and preserved AGENTS.md, .cratis/PROJECT.md, and an unrelated local skill byte-for-byte."
+    },
+    {
+      "gate": "public-safe-engineering-fixture",
+      "status": "PASS",
+      "detail": "The engineering skill installed at its exact revision, passed audit, uninstalled cleanly, and preserved private project context."
+    }
+  ],
+  "observations": [
+    "APM deploys package-managed skill copies into shared host directories such as .agents/skills, .claude/skills, .grok/skills, and .kiro/skills.",
+    "Collision and ownership tracking preserved unrelated local skills in the evaluated fixtures; adoption still needs a real repository namespace/collision canary.",
+    "APM adds apm_modules/ to .gitignore and expects apm.yml, apm.lock.yaml, and deployed host files to be reviewed according to team policy.",
+    "A local unpacked Agent Plugin generated a deployment ledger but no reproducible dependency entry; managed adoption must use an immutable remote AI.Distribution source.",
+    "The temporary fixtures had no Git remote, so organization policy discovery warned and skipped; a real Cratis canary must fail closed on policy-fetch failure.",
+    "APM 0.28.0 is pre-1.0 and has no Pi target."
+  ],
+  "adoptionGates": [
+    "Publish an immutable APM/Agent Plugin package from Cratis/AI.Distribution rather than installing from the mixed authoring repository.",
+    "Canary reserved Cratis skill namespaces and collision behavior in one authorized application and one framework repository.",
+    "Set organization policy fetch failure to block in managed repositories.",
+    "Decide whether deployed host files are committed, ignored and regenerated, or limited to the shared .agents/skills path.",
+    "Keep Pi exact package settings aligned through the same reviewed update pull request.",
+    "Pin and review APM upgrades while it remains pre-1.0.",
+    "Simplify Workflows#73 around manifest and lock updates instead of reimplementing dependency resolution and drift detection."
+  ],
+  "installationEligible": false,
+  "publicationEligible": false,
+  "promotionEligible": false
+}

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "06ea0c5d16cf983675e461567737aa2adba073a4ec02b5235228fd6cb42b36dd",
+  "indexDigest": "7bcb78060461b0682b2b1aeba7819901d60cb5a20078f9f45101b27ff9ed728f",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -456,6 +456,10 @@
     },
     {
       "path": "catalog/v2/upstream-companions.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/apm-managed-install-evaluation.json",
       "status": "added"
     },
     {
@@ -2127,6 +2131,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/specs/apm-managed-install-evaluation.spec.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/specs/approved-profile-release.spec.mjs",
       "status": "added"
     },
@@ -3579,8 +3587,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 27,
-      "expectedPathsDigest": "07b454cd8999e30b7d151ca3d3756a9bf8492428eb0b124b4b7dd12e1ade72c2"
+      "expectedPathCount": 28,
+      "expectedPathsDigest": "31b2751669a0689d8983f58caf1d28e5a0194d429065f12d7ae3a5a5ed07efae"
     },
     {
       "excludePathPatterns": [],
@@ -3626,8 +3634,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 30,
-      "expectedPathsDigest": "d9f85d6588e18ba401b82c3ed0525886e815f7273041b6eae5497b975a6639d5"
+      "expectedPathCount": 31,
+      "expectedPathsDigest": "35162356e3ad539410d723d3de6c0b4c66af312fc479ba3a642a08fd6ecea4ad"
     },
     {
       "excludePathPatterns": [],
