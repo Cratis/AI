@@ -111,13 +111,15 @@ filters:
 
 ### Other harnesses
 
-Use the root-native artifact generated for the exact profile, version, and
-harness. Do not point a host at the mixed `Cratis/AI` source repository or the
-multi-profile distribution root.
+Use the root-native artifact generated for the exact profile and version. For
+Copilot, Cursor, Kiro, VS Code, and other compatible hosts, prefer the portable
+Agent Plugins 1.0 artifact; host marketplace wrappers point at the same plugin
+identity and skill layout. Do not point a host at the mixed `Cratis/AI` source
+repository or the multi-profile distribution root.
 
-The release page supplies exact Claude, Codex, Copilot, Cursor, Gemini, Grok,
-DeepSeek Harness, Kiro, Junie, and Agent Skills commands after each host is
-actually tested.
+The release page supplies exact Agent Plugin, Claude, Codex, Copilot, Cursor,
+Gemini, Grok, DeepSeek Harness, Kiro, Junie, and Agent Skills commands after
+each host is actually tested.
 
 ## 6. Verify adoption
 

@@ -218,14 +218,15 @@ The same approved skill bytes are wrapped idiomatically for each host:
 | Host | Generated shape |
 | --- | --- |
 | Agent Skills | `skills/<name>/SKILL.md` |
+| Agent Plugins 1.0 | Portable `plugin.json` + `skills/` package for compatible hosts |
 | Claude Code | Claude plugin and marketplace |
 | Codex | Codex plugin and marketplace |
-| GitHub Copilot | Copilot plugin and marketplace |
-| Cursor | Cursor plugin |
+| GitHub Copilot / VS Code | Copilot marketplace around the portable Agent Plugin |
+| Cursor | Cursor marketplace around the portable Agent Plugin |
 | Gemini CLI | Gemini extension |
 | Grok Build | `.grok/skills/<name>/SKILL.md` and Claude compatibility |
 | DeepSeek Harness | `.dsh/skills/<name>/SKILL.md` while upstream remains preview |
-| Kiro | Agent Plugin power |
+| Kiro | The same portable Agent Plugin installed as a Power |
 | Junie | Junie extension |
 | Pi | Versioned npm/Git Pi package |
 

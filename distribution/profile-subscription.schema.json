@@ -68,6 +68,7 @@
       "items": {
         "enum": [
           "agent-skills",
+          "agent-plugin",
           "claude",
           "codex",
           "copilot",

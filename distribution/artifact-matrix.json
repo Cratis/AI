@@ -30,6 +30,18 @@
       ]
     },
     {
+      "id": "portable-agent-plugin",
+      "requirementId": "agent-plugins-open-standard",
+      "state": "FIXTURE_GENERATION_ENABLED",
+      "outputRoot": "agent-plugin",
+      "packageKind": "PORTABLE_AGENT_PLUGIN",
+      "smokeGates": [
+        "agent-plugin-schema",
+        "exact-skill-inventory",
+        "canonical-byte-parity"
+      ]
+    },
+    {
       "id": "claude-code",
       "requirementId": "claude-code-marketplace",
       "state": "FIXTURE_GENERATION_ENABLED",
@@ -58,7 +70,7 @@
       "requirementId": "github-copilot-plugin",
       "state": "FIXTURE_GENERATION_ENABLED",
       "outputRoot": "copilot",
-      "packageKind": "SKILLS_ONLY_COPILOT_PLUGIN_MARKETPLACE",
+      "packageKind": "PORTABLE_AGENT_PLUGIN_WITH_COPILOT_MARKETPLACE",
       "smokeGates": [
         "manifest-parse",
         "canonical-byte-parity",
@@ -129,7 +141,7 @@
       "requirementId": "cursor-marketplace",
       "state": "FIXTURE_GENERATION_ENABLED",
       "outputRoot": "cursor",
-      "packageKind": "SKILLS_ONLY_CURSOR_PLUGIN",
+      "packageKind": "PORTABLE_AGENT_PLUGIN_WITH_CURSOR_MARKETPLACE",
       "smokeGates": [
         "manifest-parse",
         "canonical-byte-parity",
