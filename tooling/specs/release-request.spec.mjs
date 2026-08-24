@@ -73,7 +73,10 @@ test("release request example matches implemented automation exactly", () => {
     const capabilities = readJson(
         "distribution/release-automation-capabilities.json",
     );
-    assert.equal(capabilities.releaseTrigger, "merged-validated-request-on-main");
+    assert.equal(
+        capabilities.releaseTrigger,
+        "merged-validated-request-on-main",
+    );
     assert.equal(capabilities.maxProfilesPerRelease, 1);
     assert.deepEqual(request.automation, capabilities.automation);
     assert.equal(capabilities.automation.failureCleanup, true);

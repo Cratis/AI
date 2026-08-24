@@ -93,8 +93,7 @@ test("current release request catalogs materialize candidate and release modes",
         assert.equal(release.publicationEligible, true);
         assert.equal(release.promotionEligible, false);
         assert.equal(
-            readJson(join(root, "release/provenance.json"))
-                .publicationEligible,
+            readJson(join(root, "release/provenance.json")).publicationEligible,
             true,
         );
     });
