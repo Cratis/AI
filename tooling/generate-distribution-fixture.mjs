@@ -2,7 +2,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
     cpSync,
@@ -49,6 +49,18 @@ const generatedTargets = [
 
 function sha256(content) {
     return createHash("sha256").update(content).digest("hex");
+}
+
+function captureCommand(command, args, environment) {
+    const result = spawnSync(command, args, {
+        env: environment,
+        encoding: "utf8",
+    });
+    if (result.status !== 0)
+        throw new Error(
+            `Command failed: ${command} ${args.join(" ")}\n${result.stderr}`,
+        );
+    return `${result.stdout}${result.stderr}`;
 }
 
 function readJson(path) {
@@ -894,13 +906,30 @@ export function smokeGeminiDistributionFixture(
     const installedRoot = join(temporaryHome, ".gemini/extensions/cratis");
     if (!existsSync(installedRoot))
         throw new Error("Gemini fixture extension was not observable");
+    const skillList = captureCommand(
+        geminiCommand,
+        ["skills", "list"],
+        environment,
+    );
+    if (
+        !skillList.includes("cratis-fundamentals-concept") ||
+        !skillList.includes(realpathSync(extensionRoot))
+    )
+        throw new Error("Gemini fixture skill discovery was not observable");
     execFileSync(geminiCommand, ["extensions", "uninstall", "cratis"], {
         env: environment,
         stdio: "pipe",
     });
     if (existsSync(installedRoot))
         throw new Error("Gemini fixture uninstall left extension content");
-    return { linked: true, removed: true };
+    const removedSkills = captureCommand(
+        geminiCommand,
+        ["skills", "list"],
+        environment,
+    );
+    if (removedSkills.includes(realpathSync(extensionRoot)))
+        throw new Error("Gemini fixture uninstall left skill discovery state");
+    return { linked: true, skillDiscovered: true, removed: true };
 }
 
 function main() {

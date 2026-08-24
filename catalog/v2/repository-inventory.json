@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "d45211d730c99cf76424a2b07ab340e5d7a401d74cc5391b722b507d413caa06",
+  "indexDigest": "ebde33b8ecd2098fee2945aa33d5b2057842dc2ee101516d0f9bcb5309b76ea4",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -500,6 +500,10 @@
     },
     {
       "path": "distribution/evidence/local-fundamentals-preview-assets-b53caa5-2026-08-23.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/evidence/local-gemini-skill-discovery-2026-08-24.json",
       "status": "added"
     },
     {
@@ -3591,8 +3595,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 29,
-      "expectedPathsDigest": "c9a175f53dd77f7e7e78db56b5ce306c26d045e9d2c8883fdacdc0a123e9ac9f"
+      "expectedPathCount": 30,
+      "expectedPathsDigest": "141244529517a333eb6d5b2e8acd81d7b496edb73db8483cfea0909c147065c2"
     },
     {
       "excludePathPatterns": [],
