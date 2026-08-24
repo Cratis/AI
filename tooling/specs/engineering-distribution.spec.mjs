@@ -130,16 +130,10 @@ test("engineering artifact remains distinct from the public release", () => {
     assert.equal(publicArtifact.audience, "public");
     assert.equal(engineering.materializationAllowed, false);
     assert.equal(engineering.runtimeEligible, false);
-    assert.equal(publicArtifact.materializationAllowed, false);
-    assert.equal(publicArtifact.runtimeEligible, false);
-    assert.deepEqual(
-        new Set(engineering.componentInventory.skills),
-        new Set(
-            readJson("catalog/v2/targets.json")
-                .targets.filter(
-                    (target) => target.audience === "cratis-engineering",
-                )
-                .map((target) => target.id),
-        ),
-    );
+    assert.equal(publicArtifact.materializationAllowed, true);
+    assert.equal(publicArtifact.runtimeEligible, true);
+    assert.deepEqual(publicArtifact.componentInventory.skills, [
+        "cratis-fundamentals-concept",
+    ]);
+    assert.deepEqual(engineering.componentInventory.skills, []);
 });

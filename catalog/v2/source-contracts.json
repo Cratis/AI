@@ -28,11 +28,15 @@
       "subjectKinds": ["api", "documentation", "examples", "versions"],
       "owner": "Cratis Chronicle maintainers",
       "repositoryUrl": "https://github.com/Cratis/Chronicle",
-      "verificationState": "unverified",
-      "distributionInputAllowed": false,
+      "verificationState": "verified",
+      "distributionInputAllowed": true,
+      "immutableRevision": "8c5c6f34abae61f8d94bbfb9f4179674409b7cd3",
+      "verifiedOn": "2026-08-23",
+      "contentDigest": "039d9a9c5340f0295a3e8eeed394551acee0be08b1d3b596f0a8cc02bedb7580",
       "evidenceIds": [
         "ecosystem-use-cases",
-        "fundamentals-concept-source-review-2026-08-23"
+        "fundamentals-concept-source-review-2026-08-23",
+        "chronicle-event-source-id-16-38-1-source"
       ]
     },
     {
@@ -51,11 +55,15 @@
       "subjectKinds": ["api", "documentation", "examples", "versions"],
       "owner": "Cratis Fundamentals maintainers",
       "repositoryUrl": "https://github.com/Cratis/Fundamentals",
-      "verificationState": "unverified",
-      "distributionInputAllowed": false,
+      "verificationState": "verified",
+      "distributionInputAllowed": true,
+      "immutableRevision": "7424cac54aa27753c182333a696e25f0263b54b5",
+      "verifiedOn": "2026-08-23",
+      "contentDigest": "2451cc055ef018ff052f0d6dea5bef65bcfdcacd38c6fb86d13c490e8bc5fe1c",
       "evidenceIds": [
         "ecosystem-use-cases",
-        "fundamentals-concept-source-review-2026-08-23"
+        "fundamentals-concept-source-review-2026-08-23",
+        "fundamentals-concept-as-7-18-1-source"
       ]
     },
     {

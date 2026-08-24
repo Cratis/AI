@@ -1344,12 +1344,6 @@ writeJson("migrations.json", {
     migrations,
 });
 
-const publicTargetIds = targets
-    .filter((target) => target.audience === "public")
-    .map((target) => target.id);
-const engineeringTargetIds = targets
-    .filter((target) => target.audience === "cratis-engineering")
-    .map((target) => target.id);
 const approvedPublicTargets = targets.filter(
     (target) =>
         target.audience === "public" &&
@@ -1399,7 +1393,10 @@ writeJson("artifacts.json", {
             fixtureOnly: false,
             materializationAllowed: approvedPublicTargets.length > 0,
             runtimeEligible: approvedPublicTargets.length > 0,
-            componentInventory: { skills: publicTargetIds, mcp: [] },
+            componentInventory: {
+                skills: approvedPublicTargets.map((target) => target.id),
+                mcp: [],
+            },
             exactSourcePaths: exactPathsForTargets(approvedPublicTargets),
             allowedPathPatterns: [
                 "skills/<approved-target>/SKILL.md",
@@ -1435,7 +1432,10 @@ writeJson("artifacts.json", {
             fixtureOnly: false,
             materializationAllowed: approvedEngineeringTargets.length > 0,
             runtimeEligible: approvedEngineeringTargets.length > 0,
-            componentInventory: { skills: engineeringTargetIds, mcp: [] },
+            componentInventory: {
+                skills: approvedEngineeringTargets.map((target) => target.id),
+                mcp: [],
+            },
             exactSourcePaths: exactPathsForTargets(approvedEngineeringTargets),
             allowedPathPatterns: [
                 "engineering/skills/<approved-target>/SKILL.md",
@@ -1616,6 +1616,30 @@ const evidence = [
         applicableVersion: "b53caa555b9a3f05ba1462b86202fe3ccb8a9470",
         confidence: "high",
         immutableRevision: "b53caa555b9a3f05ba1462b86202fe3ccb8a9470",
+    },
+    {
+        id: "fundamentals-concept-as-7-18-1-source",
+        officialUrl:
+            "https://github.com/Cratis/Fundamentals/blob/7424cac54aa27753c182333a696e25f0263b54b5/Source/DotNET/Fundamentals/Concepts/ConceptAs.cs",
+        sourceKind: "repository-snapshot",
+        verifiedOn: "2026-08-23",
+        expiresOn: "2027-08-23",
+        applicableVersion: "Cratis.Fundamentals@7.18.1",
+        confidence: "high",
+        immutableRevision: "7424cac54aa27753c182333a696e25f0263b54b5",
+        digest: "2451cc055ef018ff052f0d6dea5bef65bcfdcacd38c6fb86d13c490e8bc5fe1c",
+    },
+    {
+        id: "chronicle-event-source-id-16-38-1-source",
+        officialUrl:
+            "https://github.com/Cratis/Chronicle/blob/8c5c6f34abae61f8d94bbfb9f4179674409b7cd3/Source/Clients/DotNET/Events/EventSourceId.cs",
+        sourceKind: "repository-snapshot",
+        verifiedOn: "2026-08-23",
+        expiresOn: "2027-08-23",
+        applicableVersion: "Cratis.Chronicle@16.38.1",
+        confidence: "high",
+        immutableRevision: "8c5c6f34abae61f8d94bbfb9f4179674409b7cd3",
+        digest: "039d9a9c5340f0295a3e8eeed394551acee0be08b1d3b596f0a8cc02bedb7580",
     },
     {
         id: "fundamentals-concept-source-review-2026-08-23",

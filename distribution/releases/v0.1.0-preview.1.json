@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "1.0.0",
+  "state": "release-on-merge",
+  "version": "0.1.0-preview.1",
+  "profiles": [
+    "public-fundamentals"
+  ],
+  "canaries": [
+    {
+      "profileId": "public-fundamentals",
+      "canaryId": "samples-chronicle-backend"
+    }
+  ],
+  "automation": {
+    "generatedDistribution": true,
+    "githubRelease": true,
+    "npmPublish": true,
+    "canary": true,
+    "autoPromote": true,
+    "autoRollback": true,
+    "subscriberUpdates": true,
+    "marketplaces": "automatic-where-supported-submit-otherwise"
+  }
+}

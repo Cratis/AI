@@ -125,7 +125,7 @@ test("human catalog manifest remains the activation pointer on interrupted publi
     }
 });
 
-test("generated human catalog exposes every target without granting runtime", () => {
+test("generated human catalog exposes exact approved and candidate target state", () => {
     const catalog = readJson("catalog.json");
     const targets = JSON.parse(
         readFileSync(join(repositoryRoot, "catalog/v2/targets.json"), "utf8"),
@@ -136,16 +136,24 @@ test("generated human catalog exposes every target without granting runtime", ()
         targets.map((target) => target.id).sort(compareOrdinal),
     );
     const publicTargetIds = new Set(targets.map((target) => target.id));
-    assert(
-        catalog.capabilities.every(
-            (capability) =>
-                capability.audience === "public" &&
-                capability.approvalState === "candidate" &&
-                capability.runtimeEligible === false &&
-                capability.relatedTargetIds.every((targetId) =>
-                    publicTargetIds.has(targetId),
-                ),
-        ),
+    for (const capability of catalog.capabilities) {
+        const target = targets.find(
+            (candidate) => candidate.id === capability.id,
+        );
+        assert.equal(capability.audience, "public");
+        assert.equal(capability.approvalState, target.approval.state);
+        assert.equal(capability.runtimeEligible, target.includeInRuntime);
+        assert(
+            capability.relatedTargetIds.every((targetId) =>
+                publicTargetIds.has(targetId),
+            ),
+        );
+    }
+    assert.deepEqual(
+        catalog.capabilities
+            .filter((capability) => capability.runtimeEligible)
+            .map((capability) => capability.id),
+        ["cratis-fundamentals-concept"],
     );
     assert.match(catalog.disclaimer, /does not grant runtime permission/);
 });

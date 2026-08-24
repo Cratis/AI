@@ -259,8 +259,17 @@ test("first useful public skill is bound to immutable canonical source", () => {
         "fundamentals-concept-focused-evaluation-2026-08-23",
         "fundamentals-concept-samples-canary-2026-08-23",
     ]);
-    assert.equal(target.approval.state, "candidate");
-    assert.equal(target.includeInRuntime, false);
+    assert.equal(target.approval.state, "approved");
+    assert.equal(target.approval.reviewer, "woksin");
+    assert.equal(
+        target.approval.sourceRevision,
+        "b53caa555b9a3f05ba1462b86202fe3ccb8a9470",
+    );
+    assert.equal(
+        target.approval.contentDigest,
+        "9e537c48a95c414709008c69ebfb616354d60992578ddd9da3d7dc7308c42caa",
+    );
+    assert.equal(target.includeInRuntime, true);
 });
 
 test("documentation companions are classified and bound but unevaluated", () => {
@@ -854,7 +863,7 @@ test("coverage and released claims are separate and evidence-bound", () => {
     );
 });
 
-test("the accepted Option A+ decision still blocks unapproved live targets", () => {
+test("the accepted Option A+ decision releases only explicitly approved targets", () => {
     const catalogs = loadCatalogs();
     const decision = catalogs.artifacts.distributionDecision;
     const planned = catalogs.artifacts.artifacts.find(
@@ -873,6 +882,15 @@ test("the accepted Option A+ decision still blocks unapproved live targets", () 
     );
     assert(decision.authorityEvidenceIds.includes("option-a-plus-authority"));
     assert.equal(fixture.materializationAllowed, true);
+    assert.equal(planned.materializationAllowed, true);
+    assert.equal(planned.runtimeEligible, true);
+    assert.deepEqual(planned.componentInventory.skills, [
+        "cratis-fundamentals-concept",
+    ]);
+    assert.deepEqual(planned.exactSourcePaths, [
+        "skills/cratis-fundamentals-concept/LICENSE",
+        "skills/cratis-fundamentals-concept/SKILL.md",
+    ]);
     assert.equal(engineering.audience, "cratis-engineering");
     assert.equal(engineering.materializationAllowed, false);
     assert.equal(engineering.runtimeEligible, false);
@@ -911,11 +929,18 @@ test("the accepted Option A+ decision still blocks unapproved live targets", () 
         ),
     );
     planned.requiresApprovedTargets = true;
+    const unapprovedPublicTarget = catalogs.targets.targets.find(
+        (target) =>
+            target.audience === "public" &&
+            target.approval.state !== "approved",
+    );
+    planned.componentInventory.skills.push(unapprovedPublicTarget.id);
     assert(
         validateArtifacts(catalogs).some((error) =>
             error.includes("unapproved target selected for live artifact"),
         ),
     );
+    planned.componentInventory.skills.pop();
     planned.materializationAllowed = false;
     planned.runtimeEligible = true;
     const runtimeErrors = validateArtifacts(catalogs);
@@ -924,11 +949,6 @@ test("the accepted Option A+ decision still blocks unapproved live targets", () 
             error.includes(
                 "runtime eligibility requires materialization approval",
             ),
-        ),
-    );
-    assert(
-        runtimeErrors.some((error) =>
-            error.includes("unapproved target selected for live artifact"),
         ),
     );
 });

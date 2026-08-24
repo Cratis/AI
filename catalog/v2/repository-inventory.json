@@ -2247,7 +2247,9 @@
       "status": "added"
     }
   ],
-  "admittedUntracked": [],
+  "admittedUntracked": [
+    "distribution/releases/v0.1.0-preview.1.json"
+  ],
   "excludedRuntimePrefixes": [
     ".pi/delegate/",
     ".pi/fusion/",
@@ -3567,8 +3569,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 26,
-      "expectedPathsDigest": "7dbc3ad849f66c26519b10fd20fcbd441a894064c91daf916d6c32f5227c6976"
+      "expectedPathCount": 27,
+      "expectedPathsDigest": "07b454cd8999e30b7d151ca3d3756a9bf8492428eb0b124b4b7dd12e1ade72c2"
     },
     {
       "excludePathPatterns": [],

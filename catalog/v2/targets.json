@@ -4825,7 +4825,7 @@
       ],
       "capabilityKind": "primitive",
       "invocation": "both",
-      "lifecycle": "candidate",
+      "lifecycle": "approved",
       "architectures": {
         "state": "applicable",
         "ids": [
@@ -4997,8 +4997,16 @@
         }
       },
       "approval": {
-        "state": "candidate",
-        "evidenceIds": []
+        "state": "approved",
+        "reviewer": "woksin",
+        "approvedOn": "2026-08-23",
+        "sourceRevision": "b53caa555b9a3f05ba1462b86202fe3ccb8a9470",
+        "contentDigest": "9e537c48a95c414709008c69ebfb616354d60992578ddd9da3d7dc7308c42caa",
+        "evidenceIds": [
+          "fundamentals-concept-source-review-2026-08-23",
+          "fundamentals-concept-focused-evaluation-2026-08-23",
+          "fundamentals-concept-samples-canary-2026-08-23"
+        ]
       },
       "evidenceIds": [
         "repo-main-b795d53",
@@ -5007,7 +5015,7 @@
         "fundamentals-concept-focused-evaluation-2026-08-23",
         "fundamentals-concept-samples-canary-2026-08-23"
       ],
-      "includeInRuntime": false
+      "includeInRuntime": true
     },
     {
       "id": "cratis-fundamentals-type-discovery",

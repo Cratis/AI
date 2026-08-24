@@ -63,10 +63,21 @@ function approvedInputs() {
     return inputs;
 }
 
-test("repository has no release request before owner approval", () => {
+test("repository release request resolves the approved Fundamentals profile", () => {
     const result = validateReleaseRequests();
     assert.deepEqual(result.errors, []);
-    assert.deepEqual(result.requests, []);
+    assert.equal(result.requests.length, 1);
+    assert.equal(
+        result.requests[0].relativePath,
+        "distribution/releases/v0.1.0-preview.1.json",
+    );
+    assert.deepEqual(result.requests[0].request.profiles, [
+        "public-fundamentals",
+    ]);
+    assert.equal(
+        result.requests[0].plans[0].state,
+        "READY_FOR_BOT_MATERIALIZATION",
+    );
 });
 
 test("approved release request resolves every requested profile", () => {

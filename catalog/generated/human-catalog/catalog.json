@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "contractVersion": 1,
   "disclaimer": "Catalog inclusion, evaluation evidence, bundle generation, or publication does not grant runtime permission or approval.",
-  "inputDigest": "7ad9875de78f32313e95f9b7cf2a05e33dded58fac2bf1cd400c1413cdb5f544",
+  "inputDigest": "55acbd69ac877a465673e17fe90897bf958e534975ed4211f755d2b1e3f6f67f",
   "capabilities": [
     {
       "id": "cratis-application-react-specifications",
@@ -1814,9 +1814,9 @@
       ],
       "capabilityKind": "primitive",
       "invocation": "both",
-      "lifecycle": "candidate",
-      "approvalState": "candidate",
-      "runtimeEligible": false,
+      "lifecycle": "approved",
+      "approvalState": "approved",
+      "runtimeEligible": true,
       "products": [
         "chronicle",
         "fundamentals"

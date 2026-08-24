@@ -160,12 +160,12 @@ test("generated repository contract keeps remote authority and production blocke
     );
 });
 
-test("production distribution plan remains blocked without approved targets", () => {
+test("production distribution plan selects only the approved Fundamentals target", () => {
     const plan = buildApprovedDistributionPlan(repositoryRoot);
-    assert.equal(plan.state, "BLOCKED_NO_APPROVED_TARGETS");
-    assert.deepEqual(plan.approvedTargets, []);
-    assert.equal(plan.materializationAllowed, false);
-    assert.equal(plan.runtimeEligible, false);
+    assert.equal(plan.state, "READY_FOR_BOT_MATERIALIZATION");
+    assert.deepEqual(plan.approvedTargets, ["cratis-fundamentals-concept"]);
+    assert.equal(plan.materializationAllowed, true);
+    assert.equal(plan.runtimeEligible, true);
     assert.equal(plan.publicationEligible, false);
     assert.equal(plan.promotionEligible, false);
 });

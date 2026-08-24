@@ -39,7 +39,7 @@
       "packageName": "@cratis/ai-fundamentals",
       "products": ["fundamentals", "chronicle"],
       "languages": ["csharp"],
-      "state": "preview-source-candidate",
+      "state": "approved",
       "availableTargets": ["cratis-fundamentals-concept"],
       "gapSummary": "The first candidate combines Fundamentals value concepts with Chronicle stream identities at exact verified versions; type discovery remains a legacy candidate."
     },

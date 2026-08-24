@@ -61,8 +61,11 @@ test("source review binds exact product releases without granting approval", () 
                 "fundamentals-concept-source-review-2026-08-23",
             ),
         );
-        assert.equal(contract.verificationState, "unverified");
-        assert.equal(contract.distributionInputAllowed, false);
+        assert.equal(contract.verificationState, "verified");
+        assert.equal(contract.distributionInputAllowed, true);
+        assert.match(contract.immutableRevision, /^[0-9a-f]{40}$/);
+        assert.match(contract.contentDigest, /^[0-9a-f]{64}$/);
+        assert.equal(contract.verifiedOn, "2026-08-23");
     }
 });
 

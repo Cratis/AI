@@ -1773,9 +1773,9 @@ Use when creating or maintaining a Mermaid EventModel.md diagram for settled beh
 
 - **ID:** `cratis-fundamentals-concept`
 - **Audience:** public
-- **Lifecycle:** candidate
-- **Approval:** candidate
-- **Runtime eligible:** no
+- **Lifecycle:** approved
+- **Approval:** approved
+- **Runtime eligible:** yes
 
 ### Purpose — cratis-fundamentals-concept
 

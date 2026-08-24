@@ -20,6 +20,14 @@ import {
     readTarGzip,
 } from "../package-fundamentals-preview-assets.mjs";
 
+const previewGenerationEnabled = JSON.parse(
+    readFileSync("distribution/profile-catalog.json", "utf8"),
+).publicProfiles.some(
+    (profile) =>
+        profile.id === "public-fundamentals" &&
+        profile.state === "preview-source-candidate",
+);
+
 function withTemporaryDirectory(callback) {
     const root = mkdtempSync(join(tmpdir(), "cratis-preview-assets-"));
     try {
@@ -146,7 +154,9 @@ test("recorded Fundamentals preview evidence is immutable and non-promoting", ()
     assert.equal(evidence.promotionEligible, false);
 });
 
-test("Fundamentals preview assets are deterministic and non-publishable", () => {
+test("Fundamentals preview assets are deterministic and non-publishable", {
+    skip: !previewGenerationEnabled,
+}, () => {
     withTemporaryDirectory((root) => {
         const firstRoot = join(root, "first");
         const secondRoot = join(root, "second");
@@ -228,6 +238,20 @@ test("Fundamentals preview assets are deterministic and non-publishable", () => 
     });
 });
 
+test("approved profile state disables further preview generation", () => {
+    if (previewGenerationEnabled) return;
+    withTemporaryDirectory((root) => {
+        assert.throws(
+            () =>
+                packageFundamentalsPreviewAssets({
+                    outputRoot: join(root, "approved"),
+                    version: "0.1.0-preview.2",
+                }),
+            /Fundamentals preview authority changed/,
+        );
+    });
+});
+
 test("preview asset generation fails closed on current authority drift", () => {
     withTemporaryDirectory((root) => {
         for (const version of ["latest", "1.0.0", "0.1.0-rc.1"]) {
@@ -256,7 +280,9 @@ test("preview asset generation fails closed on current authority drift", () => {
     });
 });
 
-test("Pi npm preview asset updates rolls back uninstalls and preserves context", () => {
+test("Pi npm preview asset updates rolls back uninstalls and preserves context", {
+    skip: !previewGenerationEnabled,
+}, () => {
     withTemporaryDirectory((root) => {
         const firstRoot = join(root, "first");
         const secondRoot = join(root, "second");
@@ -327,7 +353,7 @@ test("Pi npm preview asset updates rolls back uninstalls and preserves context",
 });
 
 test("Pi loads and removes the extracted exact preview package in an isolated home", {
-    skip: !commandAvailable("pi"),
+    skip: !commandAvailable("pi") || !previewGenerationEnabled,
 }, () => {
     withTemporaryDirectory((root) => {
         const outputRoot = join(root, "assets");

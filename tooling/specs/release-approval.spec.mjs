@@ -45,19 +45,33 @@ function withFixture(callback) {
     }
 }
 
-test("current release approval catalog is empty and consistent", () => {
+test("current release approval catalog selects only Fundamentals", () => {
     assert.deepEqual(validateReleaseApprovals(), []);
     const approvals = readJson("distribution/release-approvals.json");
-    assert.deepEqual(approvals.profileApprovals, []);
-    assert.deepEqual(approvals.targetApprovals, []);
-    assert.deepEqual(approvals.sourceContractApprovals, []);
+    assert.deepEqual(
+        approvals.profileApprovals.map((approval) => approval.profileId),
+        ["public-fundamentals"],
+    );
+    assert.deepEqual(
+        approvals.targetApprovals.map((approval) => approval.targetId),
+        ["cratis-fundamentals-concept"],
+    );
+    assert.deepEqual(
+        approvals.sourceContractApprovals.map(
+            (approval) => approval.contractId,
+        ),
+        ["cratis-fundamentals-source", "cratis-chronicle-source"],
+    );
 });
 
 test("profile and source admission cannot bypass release approval records", () => {
     withFixture((root) => {
         const profilesPath = join(root, "distribution/profile-catalog.json");
         const profiles = readJson(profilesPath);
-        profiles.publicProfiles[0].state = "approved";
+        const unapprovedProfile = profiles.publicProfiles.find(
+            (profile) => profile.state !== "approved",
+        );
+        unapprovedProfile.state = "approved";
         writeJson(profilesPath, profiles);
         const contractsPath = join(root, "catalog/v2/source-contracts.json");
         const contracts = readJson(contractsPath);
@@ -67,7 +81,7 @@ test("profile and source admission cannot bypass release approval records", () =
         const errors = validateReleaseApprovals(root);
         assert(
             errors.includes(
-                `${profiles.publicProfiles[0].id}: profile approval state is inconsistent`,
+                `${unapprovedProfile.id}: profile approval state is inconsistent`,
             ),
         );
         assert(
@@ -83,7 +97,7 @@ test("approval records require known evidence and complete reviewer metadata", (
         const path = join(root, "distribution/release-approvals.json");
         const approvals = readJson(path);
         approvals.targetApprovals.push({
-            targetId: "cratis-fundamentals-concept",
+            targetId: "cratis-arc-command",
             reviewer: "",
             approvedOn: "not-a-date",
             sourceRevision: "0".repeat(40),
@@ -93,18 +107,16 @@ test("approval records require known evidence and complete reviewer metadata", (
         writeJson(path, approvals);
         const errors = validateReleaseApprovals(root);
         assert(
+            errors.includes("cratis-arc-command: incomplete target approval"),
+        );
+        assert(
             errors.includes(
-                "cratis-fundamentals-concept: incomplete target approval",
+                "cratis-arc-command: unknown evidence unknown-evidence",
             ),
         );
         assert(
             errors.includes(
-                "cratis-fundamentals-concept: unknown evidence unknown-evidence",
-            ),
-        );
-        assert(
-            errors.includes(
-                "cratis-fundamentals-concept: target approval state is inconsistent",
+                "cratis-arc-command: target approval state is inconsistent",
             ),
         );
     });
