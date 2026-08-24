@@ -44,32 +44,31 @@ function repositoryInputs() {
     };
 }
 
-test("current catalogs fail closed before approved materialization", () => {
+test("current release request catalogs materialize candidate and release modes", () => {
     const plan = buildApprovedProfileReleasePlan({
         profileId: "public-fundamentals",
-        version: "1.0.0-preview.1",
+        version: "0.1.0-preview.1",
         ...repositoryInputs(),
     });
-    assert.equal(plan.state, "BLOCKED");
-    assert(plan.blockers.includes("PROFILE_NOT_APPROVED"));
-    assert(
-        plan.blockers.includes(
-            "cratis-fundamentals-concept:TARGET_NOT_RUNTIME_APPROVED",
-        ),
-    );
-    assert(plan.blockers.includes("ARTIFACT_NOT_RUNTIME_ENABLED"));
+    assert.equal(plan.state, "READY_FOR_BOT_MATERIALIZATION");
+    assert.deepEqual(plan.blockers, []);
     withTemporaryDirectory((root) => {
-        const outputRoot = join(root, "release");
-        assert.throws(
-            () =>
-                generateApprovedProfileRelease({
-                    outputRoot,
-                    profileId: "public-fundamentals",
-                    version: "1.0.0-preview.1",
-                }),
-            /Approved profile release is blocked/,
-        );
-        assert.equal(existsSync(outputRoot), false);
+        const candidate = generateApprovedProfileRelease({
+            outputRoot: join(root, "candidate"),
+            profileId: "public-fundamentals",
+            version: "0.1.0-preview.1",
+        });
+        assert.equal(candidate.state, "APPROVED_PROFILE_RELEASE_CANDIDATE");
+        assert.equal(candidate.publicationEligible, false);
+        const release = generateApprovedProfileRelease({
+            outputRoot: join(root, "release"),
+            profileId: "public-fundamentals",
+            version: "0.1.0-preview.1",
+            releaseMode: true,
+        });
+        assert.equal(release.state, "APPROVED_PROFILE_RELEASE");
+        assert.equal(release.publicationEligible, true);
+        assert.equal(release.promotionEligible, false);
     });
 });
 

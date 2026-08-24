@@ -286,6 +286,7 @@ export function generateApprovedProfileRelease({
     outputRoot,
     profileId,
     version,
+    releaseMode = false,
 } = {}) {
     if (!outputRoot || !profileId || !version)
         throw new Error("outputRoot, profileId, and version are required");
@@ -351,7 +352,7 @@ export function generateApprovedProfileRelease({
                 contentDigest: source.contentDigest,
                 approval: target.approval,
             })),
-            publicationEligible: false,
+            publicationEligible: releaseMode,
             promotionEligible: false,
         });
         const payloadFiles = walkFiles(root)
@@ -362,7 +363,9 @@ export function generateApprovedProfileRelease({
             });
         const releaseManifest = {
             schemaVersion: "1.0.0",
-            state: "APPROVED_PROFILE_RELEASE_CANDIDATE",
+            state: releaseMode
+                ? "APPROVED_PROFILE_RELEASE"
+                : "APPROVED_PROFILE_RELEASE_CANDIDATE",
             profileId,
             packageName: plan.packageName,
             audience: plan.audience,
@@ -372,7 +375,7 @@ export function generateApprovedProfileRelease({
             harnessRoots: adapterManifest.roots,
             files: payloadFiles,
             checksumFile: "SHA256SUMS",
-            publicationEligible: false,
+            publicationEligible: releaseMode,
             promotionEligible: false,
         };
         writeJson(join(root, "release-manifest.json"), releaseManifest);
@@ -395,10 +398,10 @@ export function generateApprovedProfileRelease({
 }
 
 function main() {
-    const [outputRoot, profileId, version] = process.argv.slice(2);
+    const [outputRoot, profileId, version, mode] = process.argv.slice(2);
     if (!outputRoot || !profileId || !version) {
         process.stderr.write(
-            "Usage: node tooling/generate-approved-profile-release.mjs <output> <profile-id> <exact-version>\n",
+            "Usage: node tooling/generate-approved-profile-release.mjs <output> <profile-id> <exact-version> [release]\n",
         );
         process.exitCode = 1;
         return;
@@ -407,6 +410,7 @@ function main() {
         outputRoot,
         profileId,
         version,
+        releaseMode: mode === "release",
     });
     process.stdout.write(
         `Generated approved profile release ${manifest.profileId}@${manifest.version}.\n`,

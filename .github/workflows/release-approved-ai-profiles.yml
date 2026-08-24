@@ -108,13 +108,16 @@ jobs:
 
       - name: Generate root-native profile artifacts
         env:
+          EVENT_NAME: ${{ github.event_name }}
           PROFILE: ${{ matrix.profile }}
           VERSION: ${{ needs.discover.outputs.version }}
         run: |
           set -euo pipefail
           candidate="$RUNNER_TEMP/release-$PROFILE"
+          mode=()
+          if [ "$EVENT_NAME" != "pull_request" ]; then mode=(release); fi
           node tooling/generate-approved-profile-release.mjs \
-            "$candidate" "$PROFILE" "$VERSION"
+            "$candidate" "$PROFILE" "$VERSION" "${mode[@]}"
           mkdir -p "$candidate/assets"
           for root in "$candidate"/harnesses/*; do
             harness=$(basename "$root")
