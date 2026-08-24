@@ -22,6 +22,7 @@ export const passiveHarnesses = [
     "codex",
     "copilot",
     "cursor",
+    "deepcode",
     "deepseek",
     "gemini",
     "grok",
@@ -41,6 +42,32 @@ function writeExclusive(path, content) {
 
 function writeJson(path, value) {
     writeExclusive(path, `${JSON.stringify(value, null, 2)}\n`);
+}
+
+export function createClaudeMarketplace({ name, version, description }) {
+    return {
+        name: "cratis",
+        owner: { name: "Cratis" },
+        metadata: { description, version },
+        plugins: [
+            {
+                name,
+                description,
+                version,
+                source: `./plugins/${name}`,
+                strict: true,
+            },
+        ],
+    };
+}
+
+export function createClaudePluginManifest({ name, version, description }) {
+    return {
+        name,
+        version,
+        description,
+        author: { name: "Cratis" },
+    };
 }
 
 export function createAgentPluginManifest({ name, version, description }) {
@@ -205,28 +232,13 @@ export function generatePassiveProfileAdapters({
 
     const claudeRoot = harnessRoot("claude");
     copySkills(skills, join(claudeRoot, `plugins/${profileId}`));
-    writeJson(join(claudeRoot, ".claude-plugin/marketplace.json"), {
-        name: "cratis",
-        owner: { name: "Cratis" },
-        metadata: { description, version },
-        plugins: [
-            {
-                name: profileId,
-                description,
-                version,
-                source: `./plugins/${profileId}`,
-                strict: true,
-            },
-        ],
-    });
+    writeJson(
+        join(claudeRoot, ".claude-plugin/marketplace.json"),
+        createClaudeMarketplace({ name: profileId, version, description }),
+    );
     writeJson(
         join(claudeRoot, `plugins/${profileId}/.claude-plugin/plugin.json`),
-        {
-            name: profileId,
-            version,
-            description,
-            author: { name: "Cratis" },
-        },
+        createClaudePluginManifest({ name: profileId, version, description }),
     );
 
     const codexRoot = harnessRoot("codex");
@@ -298,9 +310,9 @@ export function generatePassiveProfileAdapters({
     );
 
     const directRoots = {
+        deepcode: ".deepcode",
         deepseek: ".dsh",
         gemini: ".",
-        grok: ".grok",
         kiro: ".",
     };
     for (const [harness, destination] of Object.entries(directRoots))
@@ -315,12 +327,25 @@ export function generatePassiveProfileAdapters({
         createAgentPluginManifest({ name: profileId, version, description }),
     );
 
-    const junieRoot = join(harnessRoot("junie"), `extensions/${profileId}`);
-    copySkills(skills, junieRoot);
-    writeJson(join(junieRoot, "extension.json"), {
-        name: profileId,
-        description,
-    });
+    for (const harness of ["grok", "junie"]) {
+        const compatibleRoot = harnessRoot(harness);
+        copySkills(skills, join(compatibleRoot, `plugins/${profileId}`));
+        writeJson(
+            join(compatibleRoot, ".claude-plugin/marketplace.json"),
+            createClaudeMarketplace({ name: profileId, version, description }),
+        );
+        writeJson(
+            join(
+                compatibleRoot,
+                `plugins/${profileId}/.claude-plugin/plugin.json`,
+            ),
+            createClaudePluginManifest({
+                name: profileId,
+                version,
+                description,
+            }),
+        );
+    }
 
     const piRoot = harnessRoot("pi");
     copySkills(skills, piRoot);

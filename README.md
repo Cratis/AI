@@ -112,9 +112,10 @@ packages exist. See the [Pi package workflow](Documentation/ai-distribution-and-
 
 The generator now emits a portable Agent Plugins 1.0 package for compatible
 hosts alongside Agent Skills and native adapters for Claude Code, Codex, GitHub
-Copilot, Cursor, Gemini CLI, Grok Build, DeepSeek Harness, Kiro, Junie, and
-Pi/npm. Copilot, Cursor, Kiro, and VS Code share the same portable plugin
-identity and skill layout rather than separate skill instructions.
+Copilot, Cursor, Gemini CLI, Grok Build, Deep Code, preview DeepSeek Harness,
+Kiro, Junie, and Pi/npm. Copilot, Cursor, Kiro, and VS Code share the same
+portable plugin identity. Claude, Grok, and Junie share one Claude-compatible
+marketplace package rather than separate skill instructions.
 
 Documentation and release records distinguish:
 

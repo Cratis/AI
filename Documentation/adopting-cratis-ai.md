@@ -118,8 +118,8 @@ identity and skill layout. Do not point a host at the mixed `Cratis/AI` source
 repository or the multi-profile distribution root.
 
 The release page supplies exact Agent Plugin, Claude, Codex, Copilot, Cursor,
-Gemini, Grok, DeepSeek Harness, Kiro, Junie, and Agent Skills commands after
-each host is actually tested.
+Gemini, Grok, Deep Code, preview DeepSeek Harness, Kiro, Junie, and Agent Skills
+commands after each host is actually tested.
 
 ## 6. Verify adoption
 

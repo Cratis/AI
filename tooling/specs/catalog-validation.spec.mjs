@@ -147,5 +147,7 @@ test("ecosystem registry includes current MCP and compatible-client evidence", (
     assert.equal(byId.get("model-context-protocol").version, "2026-07-28");
     assert(byId.has("vscode-agent-plugins"));
     assert(byId.has("openclaw-bundles"));
+    assert.equal(byId.get("deepseek-deepcode-skills").status, "current");
+    assert.equal(byId.get("deepseek-harness-skills").status, "preview");
     assert(byId.has("npm-trusted-publishing"));
 });

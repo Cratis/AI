@@ -260,10 +260,11 @@ The same approved skill bytes are wrapped idiomatically for each host:
 | GitHub Copilot / VS Code | Copilot marketplace around the portable Agent Plugin |
 | Cursor | Cursor marketplace around the portable Agent Plugin |
 | Gemini CLI | Gemini extension |
-| Grok Build | `.grok/skills/<name>/SKILL.md` and Claude compatibility |
-| DeepSeek Harness | `.dsh/skills/<name>/SKILL.md` while upstream remains preview |
+| Grok Build | Claude-compatible Cratis marketplace and plugin |
+| Deep Code | `.deepcode/skills/<name>/SKILL.md` from the current official contract |
+| DeepSeek Harness | `.dsh/skills/<name>/SKILL.md` as a separately labeled preview contract |
 | Kiro | The same portable Agent Plugin installed as a Power |
-| Junie | Junie extension |
+| Junie | The same Claude-compatible Cratis marketplace and plugin |
 | Pi | Versioned npm/Git Pi package |
 
 Release documentation distinguishes **generated**, **statically validated**, and
@@ -291,10 +292,13 @@ copilot plugin install engineering-chronicle@cratis
 # Gemini CLI local verification before remote publication
 gemini extensions link <extracted-gemini-root>
 
-# Grok Build project skills
-cp -R <extracted-grok-root>/.grok/skills .grok/
+# Grok Build uses the extracted Claude-compatible marketplace
+# through Grok's Marketplace UI
 
-# DeepSeek Harness project skills
+# Deep Code project skills
+cp -R <extracted-deepcode-root>/.deepcode/skills .deepcode/
+
+# Preview DeepSeek Harness project skills
 cp -R <extracted-deepseek-root>/.dsh/skills .dsh/
 ```
 

@@ -1789,7 +1789,7 @@ for (const ecosystem of v1Ecosystems.ecosystems) {
 }
 writeJson("evidence.json", {
     schemaVersion: 2,
-    asOf: "2026-08-23",
+    asOf: "2026-08-24",
     generatedBy: "tooling/generate-catalog-v2.mjs",
     evidence,
     ecosystemFacts,
