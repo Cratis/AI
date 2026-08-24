@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "1.0.0",
+  "releaseTrigger": "merged-validated-request-on-main",
+  "maxProfilesPerRelease": 1,
+  "automation": {
+    "generatedDistribution": true,
+    "githubRelease": true,
+    "npmPublish": true,
+    "canary": true,
+    "autoPromote": true,
+    "failureCleanup": true,
+    "autoRollback": false,
+    "subscriberUpdates": false,
+    "marketplaces": "manual-handoff"
+  },
+  "recovery": {
+    "beforeNpmPublication": "Delete the draft GitHub release, close the generated index pull request, and delete its branch.",
+    "afterNpmPublication": "Keep the immutable npm package, draft release, and index pull request for explicit recovery; never claim the npm version was rolled back.",
+    "subscriberUpdates": "Disabled until Cratis/Workflows#73 is implemented and canaried.",
+    "marketplaces": "Manual publisher-account and vendor-review handoff remains tracked by Cratis/AI#147."
+  }
+}

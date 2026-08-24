@@ -11,12 +11,6 @@ on:
     branches: ["main"]
     paths:
       - "distribution/releases/*.json"
-  workflow_dispatch:
-    inputs:
-      request:
-        description: Release request path under distribution/releases
-        required: true
-        type: string
 
 permissions:
   contents: read
@@ -50,27 +44,22 @@ jobs:
         id: request
         env:
           EVENT_NAME: ${{ github.event_name }}
-          INPUT_REQUEST: ${{ inputs.request }}
           PULL_REQUEST_BASE: ${{ github.event.pull_request.base.sha }}
           PUSH_BEFORE: ${{ github.event.before }}
         run: |
           set -euo pipefail
-          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
-            request="$INPUT_REQUEST"
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            base="$PULL_REQUEST_BASE"
           else
-            if [ "$EVENT_NAME" = "pull_request" ]; then
-              base="$PULL_REQUEST_BASE"
-            else
-              base="$PUSH_BEFORE"
-            fi
-            mapfile -t requests < <(
-              git diff --name-only "$base" "$GITHUB_SHA" -- \
-                'distribution/releases/*.json' |
-                grep -E '^distribution/releases/v[^/]+\.json$' || true
-            )
-            test "${#requests[@]}" -eq 1
-            request="${requests[0]}"
+            base="$PUSH_BEFORE"
           fi
+          mapfile -t requests < <(
+            git diff --name-only "$base" "$GITHUB_SHA" -- \
+              'distribution/releases/*.json' |
+              grep -E '^distribution/releases/v[^/]+\.json$' || true
+          )
+          test "${#requests[@]}" -eq 1
+          request="${requests[0]}"
           test -f "$request"
           node tooling/validate-catalogs.mjs
           node tooling/release-request-validation.mjs "$request" \
@@ -108,13 +97,16 @@ jobs:
 
       - name: Generate root-native profile artifacts
         env:
+          EVENT_NAME: ${{ github.event_name }}
           PROFILE: ${{ matrix.profile }}
           VERSION: ${{ needs.discover.outputs.version }}
         run: |
           set -euo pipefail
           candidate="$RUNNER_TEMP/release-$PROFILE"
+          mode=()
+          if [ "$EVENT_NAME" = "push" ]; then mode=(release); fi
           node tooling/generate-approved-profile-release.mjs \
-            "$candidate" "$PROFILE" "$VERSION"
+            "$candidate" "$PROFILE" "$VERSION" "${mode[@]}"
           mkdir -p "$candidate/assets"
           for root in "$candidate"/harnesses/*; do
             harness=$(basename "$root")
@@ -127,7 +119,12 @@ jobs:
                 -C "$root" .
             fi
           done
-          sha256sum "$candidate"/assets/* > "$candidate/assets/SHA256SUMS"
+          cp "$candidate/release-instructions.md" "$candidate/assets/"
+          cp "$candidate/support-matrix.json" "$candidate/assets/"
+          (
+            cd "$candidate/assets"
+            sha256sum ./* > SHA256SUMS
+          )
           node --test tooling/specs/approved-profile-release.spec.mjs
 
       - name: Upload verified profile candidate
@@ -139,7 +136,7 @@ jobs:
           retention-days: 7
 
   canary:
-    if: github.event_name != 'pull_request'
+    if: github.event_name == 'push'
     needs: [discover, verify]
     strategy:
       fail-fast: true
@@ -175,30 +172,37 @@ jobs:
         with:
           global-json-file: consumer/global.json
 
-      - name: Install Pi for package lifecycle validation
-        if: matrix.canary.canaryId == 'samples-chronicle-backend'
-        run: npm install --global @earendil-works/pi-coding-agent@0.84.2
-
       - name: Run Samples Chronicle Backend canary
         if: matrix.canary.canaryId == 'samples-chronicle-backend'
-        env:
-          PROFILE: ${{ matrix.canary.profileId }}
         run: |
           set -euo pipefail
+          (
+            cd "$RUNNER_TEMP/candidate/assets"
+            sha256sum -c SHA256SUMS
+          )
           tarball=$(find "$RUNNER_TEMP/candidate/assets" -maxdepth 1 \
             -type f -name '*.tgz' -print -quit)
           test -n "$tarball"
           mkdir -p "$RUNNER_TEMP/package" "$RUNNER_TEMP/pi-home"
           tar -xzf "$tarball" -C "$RUNNER_TEMP/package"
           package_root="$RUNNER_TEMP/package/package"
-          HOME="$RUNNER_TEMP/pi-home" pi install "$package_root"
-          HOME="$RUNNER_TEMP/pi-home" pi list | grep -F "$package_root"
+          pi_cmd() {
+            npm exec --yes \
+              --package=@earendil-works/pi-coding-agent@0.84.2 -- \
+              pi "$@"
+          }
+          HOME="$RUNNER_TEMP/pi-home" pi_cmd install "$package_root"
+          HOME="$RUNNER_TEMP/pi-home" pi_cmd list | grep -F "$package_root"
           dotnet build consumer/Chronicle/Backend/Backend.csproj \
             --configuration Debug --nologo
           dotnet test consumer/Chronicle/Backend/Backend.Specs/Backend.Specs.csproj \
             --configuration Debug --nologo
-          HOME="$RUNNER_TEMP/pi-home" pi remove "$package_root"
-          HOME="$RUNNER_TEMP/pi-home" pi list | grep -F 'No packages installed'
+          HOME="$RUNNER_TEMP/pi-home" pi_cmd remove "$package_root"
+          HOME="$RUNNER_TEMP/pi-home" pi_cmd list | grep -F 'No packages installed'
+          HOME="$RUNNER_TEMP/pi-home" pi_cmd install "$package_root"
+          HOME="$RUNNER_TEMP/pi-home" pi_cmd list | grep -F "$package_root"
+          HOME="$RUNNER_TEMP/pi-home" pi_cmd remove "$package_root"
+          HOME="$RUNNER_TEMP/pi-home" pi_cmd list | grep -F 'No packages installed'
           test -z "$(git -C consumer status --porcelain)"
 
       - name: Reject unknown canary
@@ -208,11 +212,14 @@ jobs:
           exit 1
 
   distribute:
-    if: github.event_name != 'pull_request'
+    if: github.event_name == 'push'
     needs: [discover, verify, canary]
     runs-on: ubuntu-latest
     timeout-minutes: 20
     environment: distribution-canary
+    outputs:
+      branch: ${{ steps.distribution.outputs.branch }}
+      pull_request: ${{ steps.distribution.outputs.pull_request }}
     steps:
       - name: Check out release metadata
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -237,7 +244,8 @@ jobs:
           permission-contents: write
           permission-pull-requests: write
 
-      - name: Create immutable distribution release and index PR
+      - name: Create draft distribution release and index PR
+        id: distribution
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           REQUEST: ${{ needs.discover.outputs.request }}
@@ -248,6 +256,23 @@ jobs:
           gh repo clone Cratis/AI.Distribution "$RUNNER_TEMP/AI.Distribution"
           branch="generated/release-$VERSION-${GITHUB_SHA:0:12}"
           destination="$RUNNER_TEMP/AI.Distribution/releases/$VERSION"
+          pr_number=""
+          cleanup() {
+            status=$?
+            if [ "$status" -ne 0 ]; then
+              gh release delete "v$VERSION" --repo Cratis/AI.Distribution \
+                --yes --cleanup-tag || true
+              if [ -n "$pr_number" ]; then
+                gh pr close "$pr_number" --repo Cratis/AI.Distribution \
+                  --delete-branch || true
+              else
+                git -C "$RUNNER_TEMP/AI.Distribution" push origin \
+                  --delete "$branch" || true
+              fi
+            fi
+            exit "$status"
+          }
+          trap cleanup EXIT
           git -C "$RUNNER_TEMP/AI.Distribution" checkout -b "$branch"
           test ! -e "$destination"
           mkdir -p "$destination/profiles"
@@ -265,23 +290,37 @@ jobs:
             --message "Generate Cratis AI release $VERSION"
           git -C "$RUNNER_TEMP/AI.Distribution" push origin "$branch"
           mapfile -t assets < <(find "$destination/profiles" -path '*/assets/*' \
-            -type f ! -name SHA256SUMS | sort)
+            -type f | sort)
+          notes="$RUNNER_TEMP/release-notes.md"
+          {
+            echo "Generated from the approved Cratis/AI release request at $GITHUB_SHA."
+            echo
+            echo "The release remains draft until npm publication succeeds."
+            echo
+            find "$destination/profiles" -name release-instructions.md \
+              -type f -print0 | sort -z | xargs -0 -r cat
+          } > "$notes"
           gh release create "v$VERSION" "${assets[@]}" \
             --repo Cratis/AI.Distribution \
             --target "$branch" \
             --draft \
             --title "Cratis AI $VERSION" \
-            --notes "Automatically generated from approved Cratis/AI release PR at $GITHUB_SHA. Published only after npm succeeds."
+            --notes-file "$notes"
           pr_url=$(gh pr create \
             --repo Cratis/AI.Distribution \
             --base main \
             --head "$branch" \
             --title "Index Cratis AI release $VERSION" \
-            --body "Automatically generated from the merged Cratis/AI release request at $GITHUB_SHA.")
-          gh pr merge "$pr_url" --repo Cratis/AI.Distribution --auto --squash
+            --body "Generated from the merged Cratis/AI release request at $GITHUB_SHA. Merge only after npm publication succeeds.")
+          pr_number=${pr_url##*/}
+          {
+            echo "branch=$branch"
+            echo "pull_request=$pr_number"
+          } >> "$GITHUB_OUTPUT"
+          trap - EXIT
 
   publish-npm:
-    if: github.event_name != 'pull_request'
+    if: github.event_name == 'push'
     needs: [discover, verify, canary, distribute]
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -302,22 +341,58 @@ jobs:
           node-version: 24
           registry-url: https://registry.npmjs.org
 
-      - name: Publish exact profile packages
+      - name: Publish the exact profile package
         env:
           VERSION: ${{ needs.discover.outputs.version }}
         run: |
           set -euo pipefail
-          npm install --global npm@11.5.1
+          npm_version=$(npm --version)
+          node -e '
+            const [major, minor, patch] = process.argv[1].split(".").map(Number);
+            if (major < 11 || (major === 11 && minor < 5) ||
+                (major === 11 && minor === 5 && patch < 1)) process.exit(1);
+          ' "$npm_version"
           if [[ "$VERSION" == *-* ]]; then tag=preview; else tag=latest; fi
-          for artifact in "$RUNNER_TEMP"/profiles/release-*; do
-            npm publish "$artifact/harnesses/pi" \
-              --access public --provenance --tag "$tag"
-          done
+          mapfile -t artifacts < <(find "$RUNNER_TEMP/profiles" -maxdepth 1 \
+            -type d -name 'release-*' | sort)
+          test "${#artifacts[@]}" -eq 1
+          npm publish "${artifacts[0]}/harnesses/pi" \
+            --access public --provenance --tag "$tag"
 
-  promote-and-follow-up:
-    if: github.event_name != 'pull_request'
+  cleanup-failed-publication:
+    if: ${{ always() && github.event_name == 'push' && needs.distribute.result == 'success' && needs['publish-npm'].result == 'failure' }}
     needs: [discover, distribute, publish-npm]
     runs-on: ubuntu-latest
+    environment: distribution-canary
+    steps:
+      - name: Create repository-scoped distribution token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.AI_DISTRIBUTION_APP_ID }}
+          private-key: ${{ secrets.AI_DISTRIBUTION_APP_PRIVATE_KEY }}
+          owner: Cratis
+          repositories: AI.Distribution
+          permission-contents: write
+          permission-pull-requests: write
+
+      - name: Remove unpublished draft state
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          VERSION: ${{ needs.discover.outputs.version }}
+          PR_NUMBER: ${{ needs.distribute.outputs.pull_request }}
+        run: |
+          set -euo pipefail
+          gh release delete "v$VERSION" --repo Cratis/AI.Distribution \
+            --yes --cleanup-tag
+          gh pr close "$PR_NUMBER" --repo Cratis/AI.Distribution \
+            --delete-branch
+
+  promote-and-follow-up:
+    if: github.event_name == 'push'
+    needs: [discover, distribute, publish-npm]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
     environment: distribution-canary
     permissions:
       contents: read
@@ -332,15 +407,42 @@ jobs:
           owner: Cratis
           repositories: AI.Distribution
           permission-contents: write
+          permission-pull-requests: write
 
-      - name: Publish GitHub release and record rollout handoff
+      - name: Publish GitHub release and enable index merge
         env:
           DISTRIBUTION_TOKEN: ${{ steps.app-token.outputs.token }}
           ISSUE_TOKEN: ${{ github.token }}
           VERSION: ${{ needs.discover.outputs.version }}
+          PR_NUMBER: ${{ needs.distribute.outputs.pull_request }}
         run: |
           set -euo pipefail
+          GH_TOKEN="$DISTRIBUTION_TOKEN" gh pr merge "$PR_NUMBER" \
+            --repo Cratis/AI.Distribution --auto --merge
+          for _ in {1..60}; do
+            state=$(GH_TOKEN="$DISTRIBUTION_TOKEN" gh pr view "$PR_NUMBER" \
+              --repo Cratis/AI.Distribution --json state --jq .state)
+            if [ "$state" = "MERGED" ]; then break; fi
+            test "$state" = "OPEN"
+            sleep 10
+          done
+          test "$state" = "MERGED"
           GH_TOKEN="$DISTRIBUTION_TOKEN" gh release edit "v$VERSION" \
             --repo Cratis/AI.Distribution --draft=false
           GH_TOKEN="$ISSUE_TOKEN" gh issue comment 181 --repo Cratis/AI \
-            --body "Release $VERSION generated, canaried, distributed, npm-published, and promoted automatically. Workflows#73 must fan out subscriber update PRs; AI#147 tracks marketplaces that require one-time human listing approval."
+            --body "Release $VERSION generated, canaried, npm-published, and promoted. Subscriber updates remain disabled until Workflows#73 is implemented; marketplace submission remains the manual AI#147 handoff."
+
+  record-promotion-failure:
+    if: ${{ always() && github.event_name == 'push' && needs['publish-npm'].result == 'success' && needs['promote-and-follow-up'].result == 'failure' }}
+    needs: [discover, publish-npm, promote-and-follow-up]
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Record irreversible partial publication
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.discover.outputs.version }}
+        run: |
+          gh issue comment 181 --repo Cratis/AI \
+            --body "Release $VERSION was published to npm, but distribution promotion failed. The npm version is immutable and was not rolled back. Keep the GitHub release draft and generated index PR for explicit recovery."

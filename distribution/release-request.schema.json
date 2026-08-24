@@ -60,6 +60,7 @@
         "npmPublish",
         "canary",
         "autoPromote",
+        "failureCleanup",
         "autoRollback",
         "subscriberUpdates",
         "marketplaces"
@@ -69,11 +70,12 @@
         "githubRelease": { "const": true },
         "npmPublish": { "const": true },
         "canary": { "const": true },
-        "autoPromote": { "const": true },
-        "autoRollback": { "const": true },
-        "subscriberUpdates": { "const": true },
+        "autoPromote": { "type": "boolean" },
+        "failureCleanup": { "type": "boolean" },
+        "autoRollback": { "type": "boolean" },
+        "subscriberUpdates": { "type": "boolean" },
         "marketplaces": {
-          "const": "automatic-where-supported-submit-otherwise"
+          "enum": ["manual-handoff", "automatic-where-supported-submit-otherwise"]
         }
       }
     }

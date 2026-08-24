@@ -45,8 +45,14 @@ test("rollout policy keeps production promotion and retirement blocked", () => {
     assert.equal(policy.canary.productionTargetsEnabled, false);
     assert.equal(policy.releaseOnMergeAutomation.mergeToMainIsApproval, true);
     assert.equal(policy.releaseOnMergeAutomation.canaryBeforePublication, true);
+    assert.equal(policy.releaseOnMergeAutomation.maxProfilesPerRelease, 1);
     assert.equal(policy.releaseOnMergeAutomation.automaticPromotion, true);
-    assert.equal(policy.releaseOnMergeAutomation.automaticRollback, true);
+    assert.equal(
+        policy.releaseOnMergeAutomation.failureCleanupBeforePublication,
+        true,
+    );
+    assert.equal(policy.releaseOnMergeAutomation.automaticRollback, false);
+    assert.equal(policy.releaseOnMergeAutomation.subscriberUpdates, false);
     assert.equal(policy.promotion.stableEnabled, false);
     assert.equal(policy.promotion.publicationEnabled, false);
     assert.equal(policy.legacyRetirement.enabled, false);

@@ -85,10 +85,12 @@
     "githubReleaseAutomatic": true,
     "npmTrustedPublishAutomatic": true,
     "canaryRequiredBeforePublication": true,
+    "maxProfilesPerRelease": 1,
     "automaticPromotion": true,
-    "automaticRollback": true,
-    "subscriberUpdatePullRequests": true,
-    "marketplaces": "automatic-where-supported-submit-otherwise"
+    "failureCleanupBeforePublication": true,
+    "automaticRollback": false,
+    "subscriberUpdatePullRequests": false,
+    "marketplaces": "manual-handoff"
   },
   "publicationEligible": false,
   "promotionEligible": false,

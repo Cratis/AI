@@ -59,6 +59,79 @@ function exactSemVer(version) {
     );
 }
 
+export function buildReleaseSupportMatrix(plan, harnesses) {
+    return {
+        schemaVersion: "1.0.0",
+        profileId: plan.profileId,
+        version: plan.version,
+        definitions: {
+            generated: "The canonical approved skill bytes are present in the host package.",
+            staticallyValidated:
+                "Manifest shape, file inventory, safety boundaries, and canonical byte parity passed repository specifications.",
+            hostTested:
+                "The named host version completed install, discovery, update or reinstall, and removal evidence for this exact release.",
+        },
+        hosts: harnesses.map((harness) => ({
+            harness,
+            generated: true,
+            staticallyValidated: true,
+            hostTested: false,
+            releaseCanary:
+                harness === "pi" ? "required-before-publication" : "not-run",
+            support: "generated-not-yet-supported-by-this-release",
+        })),
+        claim: "Generation and static validation do not by themselves establish host support.",
+    };
+}
+
+export function buildReleaseInstructions(plan, harnesses) {
+    const archiveLines = harnesses
+        .filter((harness) => harness !== "pi")
+        .map(
+            (harness) =>
+                `- ${harness}: \`cratis-ai-${plan.profileId}-${plan.version}-${harness}.tar.gz\``,
+        );
+    return [
+        `# ${plan.displayName} ${plan.version}`,
+        "",
+        plan.description,
+        "",
+        "## Verify downloads",
+        "",
+        "Download `SHA256SUMS` with the selected artifacts, place them in one directory, and run:",
+        "",
+        "```bash",
+        "sha256sum -c SHA256SUMS",
+        "```",
+        "",
+        "## Pi",
+        "",
+        "Install the exact profile package in project scope:",
+        "",
+        "```bash",
+        `pi install -l npm:${plan.packageName}@${plan.version}`,
+        "pi list",
+        "```",
+        "",
+        "Remove the exact package source:",
+        "",
+        "```bash",
+        `pi remove npm:${plan.packageName}@${plan.version}`,
+        "```",
+        "",
+        "Update or roll back by changing both the project subscription and package source to another exact version, then rerun the repository gates.",
+        "",
+        "## Other hosts",
+        "",
+        "Use the root-native archive for the selected host. Review `support-matrix.json` before treating a generated wrapper as supported:",
+        "",
+        ...archiveLines,
+        "",
+        "Install, update, and remove through that host's native local-plugin or marketplace flow. Do not point a host at the mixed Cratis/AI authoring repository.",
+        "",
+    ].join("\n");
+}
+
 export function buildApprovedProfileReleasePlan({
     profileId,
     version,
@@ -290,6 +363,7 @@ export function generateApprovedProfileRelease({
     outputRoot,
     profileId,
     version,
+    releaseMode = false,
 } = {}) {
     if (!outputRoot || !profileId || !version)
         throw new Error("outputRoot, profileId, and version are required");
@@ -318,6 +392,15 @@ export function generateApprovedProfileRelease({
             description: plan.description,
             skills,
         });
+        writeJson(
+            join(root, "support-matrix.json"),
+            buildReleaseSupportMatrix(plan, adapterManifest.harnesses),
+        );
+        writeFileSync(
+            join(root, "release-instructions.md"),
+            buildReleaseInstructions(plan, adapterManifest.harnesses),
+            { flag: "wx" },
+        );
         const sourceCommit = execFileSync("git", ["rev-parse", "HEAD"], {
             cwd: repositoryRoot,
             encoding: "utf8",
@@ -358,7 +441,7 @@ export function generateApprovedProfileRelease({
                 contentDigest: source.contentDigest,
                 approval: target.approval,
             })),
-            publicationEligible: false,
+            publicationEligible: releaseMode,
             promotionEligible: false,
         });
         const payloadFiles = walkFiles(root)
@@ -369,7 +452,9 @@ export function generateApprovedProfileRelease({
             });
         const releaseManifest = {
             schemaVersion: "1.0.0",
-            state: "APPROVED_PROFILE_RELEASE_CANDIDATE",
+            state: releaseMode
+                ? "APPROVED_PROFILE_RELEASE"
+                : "APPROVED_PROFILE_RELEASE_CANDIDATE",
             profileId,
             profileDisplayName: plan.displayName,
             profileDescription: plan.description,
@@ -381,7 +466,9 @@ export function generateApprovedProfileRelease({
             harnessRoots: adapterManifest.roots,
             files: payloadFiles,
             checksumFile: "SHA256SUMS",
-            publicationEligible: false,
+            instructionsFile: "release-instructions.md",
+            supportMatrixFile: "support-matrix.json",
+            publicationEligible: releaseMode,
             promotionEligible: false,
         };
         writeJson(join(root, "release-manifest.json"), releaseManifest);
@@ -404,10 +491,10 @@ export function generateApprovedProfileRelease({
 }
 
 function main() {
-    const [outputRoot, profileId, version] = process.argv.slice(2);
+    const [outputRoot, profileId, version, mode] = process.argv.slice(2);
     if (!outputRoot || !profileId || !version) {
         process.stderr.write(
-            "Usage: node tooling/generate-approved-profile-release.mjs <output> <profile-id> <exact-version>\n",
+            "Usage: node tooling/generate-approved-profile-release.mjs <output> <profile-id> <exact-version> [release]\n",
         );
         process.exitCode = 1;
         return;
@@ -416,6 +503,7 @@ function main() {
         outputRoot,
         profileId,
         version,
+        releaseMode: mode === "release",
     });
     process.stdout.write(
         `Generated approved profile release ${manifest.profileId}@${manifest.version}.\n`,

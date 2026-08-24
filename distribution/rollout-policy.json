@@ -36,9 +36,11 @@
     "requestRoot": "distribution/releases",
     "mergeToMainIsApproval": true,
     "canaryBeforePublication": true,
+    "maxProfilesPerRelease": 1,
     "automaticPromotion": true,
-    "automaticRollback": true,
-    "subscriberUpdates": true
+    "failureCleanupBeforePublication": true,
+    "automaticRollback": false,
+    "subscriberUpdates": false
   },
   "promotion": {
     "stableEnabled": false,

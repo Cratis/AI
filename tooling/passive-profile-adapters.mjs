@@ -330,6 +330,11 @@ export function generatePassiveProfileAdapters({
         description,
         private: piPrivate,
         license: "MIT",
+        repository: {
+            type: "git",
+            url: "https://github.com/Cratis/AI",
+        },
+        homepage: "https://cratis.io/ai",
         files: ["skills"],
         keywords: ["pi-package", "cratis"],
         pi: { skills: ["./skills"] },

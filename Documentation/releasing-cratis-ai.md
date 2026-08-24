@@ -34,15 +34,24 @@ Create `distribution/releases/v<version>.json`:
     "npmPublish": true,
     "canary": true,
     "autoPromote": true,
-    "autoRollback": true,
-    "subscriberUpdates": true,
-    "marketplaces": "automatic-where-supported-submit-otherwise"
+    "failureCleanup": true,
+    "autoRollback": false,
+    "subscriberUpdates": false,
+    "marketplaces": "manual-handoff"
   }
 }
 ```
 
 The filename and `version` must match. Each profile has exactly one registered
-canary. Requests are append-only and version-unique.
+canary. Until atomic multi-package npm publication exists, one request contains
+exactly one profile. Requests are append-only and version-unique.
+
+The request may claim only automation recorded in
+[`release-automation-capabilities.json`](../distribution/release-automation-capabilities.json).
+The first preview cleans up unpublished draft state automatically, but it does
+not claim that an immutable npm version can be rolled back, and subscriber or
+marketplace automation remains disabled until its own implementation and canary
+exist.
 
 ## 3. Open the release PR
 
@@ -67,6 +76,7 @@ Review:
 - package versions;
 - generated host roots;
 - provenance, SBOM, and checksums;
+- generated lifecycle instructions and the generated/static/host-tested support matrix;
 - selected canaries;
 - release notes and known limitations.
 
@@ -82,10 +92,10 @@ After merge, `Release Approved AI Profiles` automatically:
 4. creates the immutable `Cratis/AI.Distribution` release branch and GitHub
    release;
 5. publishes profile Pi/npm packages through trusted OIDC;
-6. opens/auto-merges the generated distribution index PR when App policy allows;
-7. hands the release to Workflows#73 for subscriber update pull requests;
-8. updates marketplaces automatically where supported and records one-time
-   manual vendor submissions under AI#147.
+6. enables the generated distribution index PR for merge only after npm succeeds;
+7. publishes the draft GitHub release; and
+8. records that subscriber updates and marketplace submissions remain disabled
+   handoffs until Workflows#73 and AI#147 complete their own gates.
 
 No developer-machine token or manual `npm publish` command is part of the
 release path.
@@ -95,12 +105,14 @@ release path.
 - PR validation failure: fix the release PR; nothing was released.
 - Canary failure: publication jobs do not run; the current stable release stays
   unchanged.
-- Distribution/npm failure: the workflow fails visibly; do not advance
-  subscriber pins.
-- Subscriber failure: Workflows restores the previous exact version and leaves
-  the failed repository unmerged.
-- Marketplace failure: npm/GitHub release remains inspectable; the failed host
-  is not marked supported.
+- Distribution failure before npm: the draft release, generated index PR, and
+  branch are removed automatically.
+- npm failure: the unpublished draft release and generated index PR are removed.
+- Promotion failure after npm succeeds: npm is immutable and is **not** described
+  as rolled back. The draft release and index PR remain for explicit recovery,
+  and the failure is recorded on AI#181.
+- Subscriber and marketplace delivery are disabled for this preview and cannot
+  advance automatically.
 
 Never rewrite or reuse a release request version. Correct a released defect with
 a new SemVer version.
