@@ -152,3 +152,9 @@ artifacts/
 
 # Playwright artifacts
 .playwright-mcp/
+
+# Pi runtime state and isolated session homes
+.pi/delegate/
+.pi/fusion/
+.pi/tasks/
+.pi/*-session-*/

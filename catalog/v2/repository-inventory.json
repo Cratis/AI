@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "276df4549f61e9f6eba0fe9d217e19be13822dc38dab7158a4e5b523fa7d83a2",
+  "indexDigest": "e71b9c715c70b6f085f8f4b503b639a5f977afbbfa7248192e45907424f3c118",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -109,6 +109,10 @@
     {
       "path": ".github/workflows/verify-ai-corpus.yml",
       "status": "added"
+    },
+    {
+      "path": ".gitignore",
+      "status": "modified"
     },
     {
       "path": "AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md",
