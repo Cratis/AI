@@ -86,7 +86,7 @@
       "smokeGates": [
         "manifest-parse",
         "canonical-byte-parity",
-        "isolated-link-uninstall-when-available"
+        "isolated-link-skill-list-uninstall-gemini-0.33.1"
       ]
     },
     {

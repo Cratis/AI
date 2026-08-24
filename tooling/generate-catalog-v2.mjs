@@ -1662,6 +1662,20 @@ const evidence = [
         ),
     },
     {
+        id: "gemini-skill-discovery-2026-08-24",
+        officialUrl: "https://github.com/Cratis/AI",
+        sourceKind: "local-evidence-report",
+        verifiedOn: "2026-08-24",
+        expiresOn: "2026-11-22",
+        applicableVersion: "Gemini CLI 0.33.1",
+        confidence: "high",
+        repositoryPath:
+            "distribution/evidence/local-gemini-skill-discovery-2026-08-24.json",
+        digest: digestFile(
+            "distribution/evidence/local-gemini-skill-discovery-2026-08-24.json",
+        ),
+    },
+    {
         id: "engineering-docs-add-page-source-684d037",
         officialUrl:
             "https://github.com/Cratis/AI/tree/684d03755bacd40af95463b81b4a0c8b9f088ec1/engineering/skills/cratis-engineering-docs-add-page",

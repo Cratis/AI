@@ -136,8 +136,9 @@
     },
     {
       "id": "gemini-cli-extension",
-      "status": "VERIFIED",
+      "status": "VERIFIED_HOST_SKILL_DISCOVERY_0_33_1",
       "sourceUrls": [
+        "https://google-gemini.github.io/gemini-cli/docs/extensions/",
         "https://geminicli.com/docs/extensions/reference/",
         "https://geminicli.com/docs/extensions/releasing/"
       ],
@@ -157,7 +158,8 @@
       "constraints": [
         "Extension name is lowercase letters, digits, and dashes and matches its directory.",
         "gemini-extension.json is at the repository or release-archive root.",
-        "Manifest version matches the GitHub release tag."
+        "Manifest version matches the GitHub release tag.",
+        "Gemini CLI 0.33.1 linked the public and engineering fixtures, reported their Agent Skills in the extension list, discovered them through gemini skills list, and removed their discovery paths on uninstall."
       ]
     },
     {

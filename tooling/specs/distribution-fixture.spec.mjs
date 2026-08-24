@@ -220,6 +220,27 @@ test("fixture provenance binds the authorized immutable public source", () => {
     });
 });
 
+test("Gemini evidence binds public and engineering skill discovery", () => {
+    const evidence = readJson(
+        join(
+            repositoryRoot,
+            "distribution/evidence/local-gemini-skill-discovery-2026-08-24.json",
+        ),
+    );
+    assert.equal(evidence.state, "LOCAL_GEMINI_SKILL_DISCOVERY_PASS");
+    assert.equal(evidence.geminiCliVersion, "0.33.1");
+    assert.equal(evidence.publicFixture.skill, "cratis-fundamentals-concept");
+    assert.equal(
+        evidence.engineeringFixture.skill,
+        "cratis-engineering-docs-authoring",
+    );
+    assert(evidence.results.every((result) => result.status === "PASS"));
+    assert.equal(evidence.hostTested, true);
+    assert.equal(evidence.installationEligible, false);
+    assert.equal(evidence.publicationEligible, false);
+    assert.equal(evidence.promotionEligible, false);
+});
+
 test("generated marketplace manifests remain passive and idiomatic", () => {
     withTemporaryDirectory((root) => {
         const stage = join(root, "stage");
@@ -488,6 +509,7 @@ test("Gemini fixture links and removes in an isolated home", {
         mkdirSync(isolatedHome);
         assert.deepEqual(smokeGeminiDistributionFixture(stage, isolatedHome), {
             linked: true,
+            skillDiscovered: true,
             removed: true,
         });
     });

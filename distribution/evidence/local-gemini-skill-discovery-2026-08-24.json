@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "1.0.0",
+  "observedOn": "2026-08-24",
+  "state": "LOCAL_GEMINI_SKILL_DISCOVERY_PASS",
+  "host": "darwin-arm64",
+  "geminiCliVersion": "0.33.1",
+  "publicFixture": {
+    "extension": "cratis",
+    "skill": "cratis-fundamentals-concept",
+    "skillSha256": "423ab2d27b08e13d3c7c3fbaf9bbc06ea1fb9a13610bdcfdf37398b12d593ec9"
+  },
+  "engineeringFixture": {
+    "extension": "cratis-engineering-fixture",
+    "skill": "cratis-engineering-docs-authoring",
+    "sourceRevision": "f58bcf7f5cc9fc0e11305ada3b5ecb6fa20953e9",
+    "skillSha256": "014f2e7b55d4f1a7dd982e4e352cffc8cfa078a262056bb55b76eb2b81da0791"
+  },
+  "results": [
+    {
+      "gate": "isolated-extension-link",
+      "status": "PASS"
+    },
+    {
+      "gate": "extension-list-reports-agent-skill",
+      "status": "PASS"
+    },
+    {
+      "gate": "gemini-skills-list-discovers-extension-path",
+      "status": "PASS"
+    },
+    {
+      "gate": "extension-uninstall-removes-discovery-path",
+      "status": "PASS"
+    },
+    {
+      "gate": "public-and-engineering-canonical-byte-parity",
+      "status": "PASS"
+    }
+  ],
+  "limitations": [
+    "This is local exact-version host evidence, not a public marketplace listing or production support commitment.",
+    "No model request, network tool, script, MCP server, hook, or repository mutation was part of skill discovery.",
+    "Update and rollback against a published remote Gemini extension remain untested.",
+    "The extension was linked from a generated local fixture and removed from an isolated HOME."
+  ],
+  "hostTested": true,
+  "installationEligible": false,
+  "publicationEligible": false,
+  "promotionEligible": false
+}
