@@ -133,6 +133,7 @@ test("engineering fixture generation is deterministic and non-installable", () =
         assert.equal(first.promotionEligible, false);
         assert.deepEqual(first.generatedTargets, [
             "canonical",
+            "agent-plugin",
             "claude",
             "codex",
             "copilot",
@@ -210,15 +211,34 @@ test("engineering fixture contains one passive skill and no project context", ()
             ).skills,
             "./skills/",
         );
-        assert.equal(
-            readJson(
-                join(
-                    stage,
-                    `cursor/plugins/cratis-engineering-fixture/.cursor-plugin/plugin.json`,
-                ),
-            ).skills,
-            "./skills/",
+        const portablePlugin = readJson(
+            join(stage, "agent-plugin/plugin.json"),
         );
+        const copilotPlugin = readJson(
+            join(
+                stage,
+                "copilot/plugins/cratis-engineering-fixture/plugin.json",
+            ),
+        );
+        const cursorPlugin = readJson(
+            join(
+                stage,
+                "cursor/plugins/cratis-engineering-fixture/plugin.json",
+            ),
+        );
+        const kiroPlugin = readJson(join(stage, "kiro/plugin.json"));
+        assert.deepEqual(copilotPlugin, portablePlugin);
+        assert.deepEqual(cursorPlugin, portablePlugin);
+        assert.deepEqual(kiroPlugin, portablePlugin);
+        assert.equal(
+            portablePlugin.$schema,
+            "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+        );
+        assert.equal(
+            portablePlugin.repository,
+            "https://github.com/Cratis/AI",
+        );
+        assert.equal(portablePlugin.skills, undefined);
         assert.equal(
             readJson(join(stage, "gemini/gemini-extension.json")).name,
             "cratis-engineering-fixture",
@@ -251,7 +271,7 @@ test("engineering fixture contains one passive skill and no project context", ()
             canonicalSkill,
         );
         assert.equal(
-            readJson(join(stage, "kiro/plugin.json")).$schema,
+            kiroPlugin.$schema,
             "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
         );
         assert.equal(

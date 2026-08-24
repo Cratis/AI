@@ -17,6 +17,7 @@ import {
 } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { createAgentPluginManifest } from "./passive-profile-adapters.mjs";
 import { materializeFixtureArtifact } from "./public-artifact-materializer.mjs";
 
 const defaultRepositoryRoot = resolve(
@@ -28,6 +29,7 @@ const approvedFiles = [
 ];
 const generatedTargets = [
     "canonical",
+    "agent-plugin",
     "claude",
     "codex",
     "copilot",
@@ -248,6 +250,18 @@ export function generateDistributionFixture({
             approvedFiles,
         });
 
+        const portableDescription = "Passive Cratis skills fixture.";
+        const agentPluginRoot = join(root, "agent-plugin");
+        copyCanonicalSkill(canonicalRoot, agentPluginRoot);
+        writeJson(
+            join(agentPluginRoot, "plugin.json"),
+            createAgentPluginManifest({
+                name: "cratis",
+                version,
+                description: portableDescription,
+            }),
+        );
+
         const claudeRoot = join(root, "claude");
         copyCanonicalSkill(canonicalRoot, join(claudeRoot, "plugins/cratis"));
         writeJson(join(claudeRoot, ".claude-plugin/marketplace.json"), {
@@ -320,12 +334,14 @@ export function generateDistributionFixture({
                 },
             ],
         });
-        writeJson(join(copilotRoot, "plugins/cratis/plugin.json"), {
-            name: "cratis",
-            version,
-            description: "Passive Cratis skills fixture.",
-            skills: "skills/",
-        });
+        writeJson(
+            join(copilotRoot, "plugins/cratis/plugin.json"),
+            createAgentPluginManifest({
+                name: "cratis",
+                version,
+                description: portableDescription,
+            }),
+        );
 
         const cursorRoot = join(root, "cursor");
         copyCanonicalSkill(canonicalRoot, join(cursorRoot, "plugins/cratis"));
@@ -346,13 +362,12 @@ export function generateDistributionFixture({
             ],
         });
         writeJson(
-            join(cursorRoot, "plugins/cratis/.cursor-plugin/plugin.json"),
-            {
+            join(cursorRoot, "plugins/cratis/plugin.json"),
+            createAgentPluginManifest({
                 name: "cratis",
                 version,
-                description: "Passive Cratis skills fixture.",
-                skills: "./skills/",
-            },
+                description: portableDescription,
+            }),
         );
 
         const deepSeekRoot = join(root, "deepseek/.dsh");
@@ -371,15 +386,14 @@ export function generateDistributionFixture({
 
         const kiroRoot = join(root, "kiro");
         copyCanonicalSkill(canonicalRoot, kiroRoot);
-        writeJson(join(kiroRoot, "plugin.json"), {
-            $schema:
-                "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
-            name: "cratis",
-            version,
-            description: "Passive Cratis skills fixture.",
-            author: { name: "Cratis" },
-            license: "MIT",
-        });
+        writeJson(
+            join(kiroRoot, "plugin.json"),
+            createAgentPluginManifest({
+                name: "cratis",
+                version,
+                description: portableDescription,
+            }),
+        );
 
         const junieRoot = join(root, "junie/extensions/cratis");
         copyCanonicalSkill(canonicalRoot, junieRoot);
@@ -490,6 +504,7 @@ export function validateDistributionFixture(outputRoot) {
     }
     const canonicalRoot = join(root, "canonical");
     const targetSkillRoots = [
+        "agent-plugin",
         "claude/plugins/cratis",
         "codex/plugins/cratis",
         "copilot/plugins/cratis",

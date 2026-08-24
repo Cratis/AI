@@ -17,6 +17,7 @@ import {
 
 export const passiveHarnesses = [
     "agent-skills",
+    "agent-plugin",
     "claude",
     "codex",
     "copilot",
@@ -40,6 +41,23 @@ function writeExclusive(path, content) {
 
 function writeJson(path, value) {
     writeExclusive(path, `${JSON.stringify(value, null, 2)}\n`);
+}
+
+export function createAgentPluginManifest({ name, version, description }) {
+    return {
+        $schema: "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+        name,
+        version,
+        description,
+        author: {
+            name: "Cratis",
+            url: "https://cratis.io",
+        },
+        homepage: "https://cratis.io/ai",
+        repository: "https://github.com/Cratis/AI",
+        license: "MIT",
+        keywords: ["cratis", "agent-skills"],
+    };
 }
 
 function walkFiles(root, current = root) {
@@ -85,7 +103,7 @@ function copySkills(skills, root) {
             );
 }
 
-function assertInputs({ version, profileId, packageName, skills }) {
+function assertInputs({ version, profileId, packageName, description, skills }) {
     if (
         !/^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-(?:0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/.test(
             version,
@@ -96,6 +114,12 @@ function assertInputs({ version, profileId, packageName, skills }) {
         throw new Error("Profile id is invalid");
     if (!/^@cratis\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(packageName))
         throw new Error("Profile package name is invalid");
+    if (
+        typeof description !== "string" ||
+        description.length === 0 ||
+        description.length > 1024
+    )
+        throw new Error("Profile package description is invalid");
     if (!Array.isArray(skills) || skills.length === 0)
         throw new Error("Profile release requires at least one skill");
     const names = new Set();
@@ -146,7 +170,7 @@ export function generatePassiveProfileAdapters({
     codexInstallationPolicy = "AVAILABLE",
     piPrivate = false,
 }) {
-    assertInputs({ version, profileId, packageName, skills });
+    assertInputs({ version, profileId, packageName, description, skills });
     if (
         !["AVAILABLE", "INSTALLED_BY_DEFAULT", "NOT_AVAILABLE"].includes(
             codexInstallationPolicy,
@@ -161,6 +185,17 @@ export function generatePassiveProfileAdapters({
     const harnessRoot = (harness) => join(root, "harnesses", harness);
 
     copySkills(skills, harnessRoot("agent-skills"));
+
+    const agentPluginRoot = harnessRoot("agent-plugin");
+    copySkills(skills, agentPluginRoot);
+    writeJson(
+        join(agentPluginRoot, "plugin.json"),
+        createAgentPluginManifest({
+            name: profileId,
+            version,
+            description,
+        }),
+    );
 
     const claudeRoot = harnessRoot("claude");
     copySkills(skills, join(claudeRoot, `plugins/${profileId}`));
@@ -231,12 +266,10 @@ export function generatePassiveProfileAdapters({
             },
         ],
     });
-    writeJson(join(copilotRoot, `plugins/${profileId}/plugin.json`), {
-        name: profileId,
-        version,
-        description,
-        skills: "skills/",
-    });
+    writeJson(
+        join(copilotRoot, `plugins/${profileId}/plugin.json`),
+        createAgentPluginManifest({ name: profileId, version, description }),
+    );
 
     const cursorRoot = harnessRoot("cursor");
     copySkills(skills, join(cursorRoot, `plugins/${profileId}`));
@@ -254,8 +287,8 @@ export function generatePassiveProfileAdapters({
         ],
     });
     writeJson(
-        join(cursorRoot, `plugins/${profileId}/.cursor-plugin/plugin.json`),
-        { name: profileId, version, description, skills: "./skills/" },
+        join(cursorRoot, `plugins/${profileId}/plugin.json`),
+        createAgentPluginManifest({ name: profileId, version, description }),
     );
 
     const directRoots = {
@@ -271,14 +304,10 @@ export function generatePassiveProfileAdapters({
         version,
         description,
     });
-    writeJson(join(harnessRoot("kiro"), "plugin.json"), {
-        $schema: "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
-        name: profileId,
-        version,
-        description,
-        author: { name: "Cratis" },
-        license: "MIT",
-    });
+    writeJson(
+        join(harnessRoot("kiro"), "plugin.json"),
+        createAgentPluginManifest({ name: profileId, version, description }),
+    );
 
     const junieRoot = join(harnessRoot("junie"), `extensions/${profileId}`);
     copySkills(skills, junieRoot);

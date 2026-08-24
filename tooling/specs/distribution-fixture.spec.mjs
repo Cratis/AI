@@ -84,6 +84,7 @@ test("distribution requirements and artifact matrix stay authority bounded", () 
         .map((item) => item.id);
     assert.deepEqual(verified, [
         "agent-skills-open-standard",
+        "agent-plugins-open-standard",
         "claude-code-marketplace",
         "openai-codex-plugin",
         "github-copilot-plugin",
@@ -174,6 +175,7 @@ test("distribution fixture generation is deterministic across native adapters", 
         assert.deepEqual(validateDistributionFixture(firstRoot), first);
         assert.deepEqual(first.generatedTargets, [
             "canonical",
+            "agent-plugin",
             "claude",
             "codex",
             "copilot",
@@ -219,6 +221,7 @@ test("generated marketplace manifests remain passive and idiomatic", () => {
     withTemporaryDirectory((root) => {
         const stage = join(root, "stage");
         generateDistributionFixture({ repositoryRoot, outputRoot: stage });
+        const portable = readJson(join(stage, "agent-plugin/plugin.json"));
         const claude = readJson(
             join(stage, "claude/plugins/cratis/.claude-plugin/plugin.json"),
         );
@@ -229,7 +232,7 @@ test("generated marketplace manifests remain passive and idiomatic", () => {
             join(stage, "copilot/plugins/cratis/plugin.json"),
         );
         const cursor = readJson(
-            join(stage, "cursor/plugins/cratis/.cursor-plugin/plugin.json"),
+            join(stage, "cursor/plugins/cratis/plugin.json"),
         );
         const gemini = readJson(join(stage, "gemini/gemini-extension.json"));
         const providerCompatibility = readJson(
@@ -242,8 +245,16 @@ test("generated marketplace manifests remain passive and idiomatic", () => {
         const piPackage = readJson(join(stage, "pi/package/package.json"));
         assert.equal(claude.name, "cratis");
         assert.equal(codex.skills, "./skills/");
-        assert.equal(copilot.skills, "skills/");
-        assert.equal(cursor.skills, "./skills/");
+        assert.deepEqual(copilot, portable);
+        assert.deepEqual(cursor, portable);
+        assert.deepEqual(kiro, portable);
+        assert.equal(
+            portable.$schema,
+            "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+        );
+        assert.equal(portable.repository, "https://github.com/Cratis/AI");
+        assert.equal(portable.homepage, "https://cratis.io/ai");
+        assert.equal(portable.skills, undefined);
         assert.equal(gemini.name, "cratis");
         assert.deepEqual(providerCompatibility.providers, [
             {
@@ -296,6 +307,7 @@ test("generated marketplace manifests remain passive and idiomatic", () => {
         );
         assert.equal(junie.name, "cratis");
         for (const manifest of [
+            portable,
             claude,
             codex,
             copilot,

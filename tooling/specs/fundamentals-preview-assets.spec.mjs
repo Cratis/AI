@@ -19,6 +19,7 @@ import {
     packageFundamentalsPreviewAssets,
     readTarGzip,
 } from "../package-fundamentals-preview-assets.mjs";
+import { passiveHarnesses } from "../passive-profile-adapters.mjs";
 
 const previewGenerationEnabled = JSON.parse(
     readFileSync("distribution/profile-catalog.json", "utf8"),
@@ -176,7 +177,7 @@ test("Fundamentals preview assets are deterministic and non-publishable", {
             first.sourceRevision,
             "b53caa555b9a3f05ba1462b86202fe3ccb8a9470",
         );
-        assert.equal(first.assets.length, 11);
+        assert.equal(first.assets.length, passiveHarnesses.length);
         assert.match(first.generatorDigest, /^[0-9a-f]{64}$/);
         assert.deepEqual(first.generatorPaths, [
             "tooling/package-fundamentals-preview-assets.mjs",
@@ -234,7 +235,10 @@ test("Fundamentals preview assets are deterministic and non-publishable", {
         const checksums = readFileSync(join(firstRoot, "SHA256SUMS"), "utf8");
         assert(checksums.includes("preview-assets.json"));
         assert(checksums.includes("preview-sbom.json"));
-        assert.equal(checksums.trim().split("\n").length, 13);
+        assert.equal(
+            checksums.trim().split("\n").length,
+            passiveHarnesses.length + 2,
+        );
     });
 });
 

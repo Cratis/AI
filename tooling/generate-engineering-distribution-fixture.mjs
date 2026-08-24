@@ -17,6 +17,7 @@ import {
 } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { createAgentPluginManifest } from "./passive-profile-adapters.mjs";
 import { materializeFixtureArtifact } from "./public-artifact-materializer.mjs";
 
 const defaultRepositoryRoot = resolve(
@@ -32,6 +33,7 @@ const approvedFiles = [
 ];
 const generatedTargets = [
     "canonical",
+    "agent-plugin",
     "claude",
     "codex",
     "copilot",
@@ -234,6 +236,19 @@ export function generateEngineeringDistributionFixture({
             approvedFiles,
         });
 
+        const portableDescription =
+            "Fixture-only passive Cratis engineering documentation skill.";
+        const agentPluginRoot = join(root, "agent-plugin");
+        copyCanonical(canonicalRoot, agentPluginRoot);
+        writeJson(
+            join(agentPluginRoot, "plugin.json"),
+            createAgentPluginManifest({
+                name: pluginName,
+                version,
+                description: portableDescription,
+            }),
+        );
+
         const claudeRoot = join(root, "claude");
         copyCanonical(canonicalRoot, join(claudeRoot, `plugins/${pluginName}`));
         writeJson(join(claudeRoot, ".claude-plugin/marketplace.json"), {
@@ -324,13 +339,14 @@ export function generateEngineeringDistributionFixture({
                 },
             ],
         });
-        writeJson(join(copilotRoot, `plugins/${pluginName}/plugin.json`), {
-            name: pluginName,
-            version,
-            description:
-                "Fixture-only passive Cratis engineering documentation skill.",
-            skills: "skills/",
-        });
+        writeJson(
+            join(copilotRoot, `plugins/${pluginName}/plugin.json`),
+            createAgentPluginManifest({
+                name: pluginName,
+                version,
+                description: portableDescription,
+            }),
+        );
 
         const cursorRoot = join(root, "cursor");
         copyCanonical(canonicalRoot, join(cursorRoot, `plugins/${pluginName}`));
@@ -353,17 +369,12 @@ export function generateEngineeringDistributionFixture({
             ],
         });
         writeJson(
-            join(
-                cursorRoot,
-                `plugins/${pluginName}/.cursor-plugin/plugin.json`,
-            ),
-            {
+            join(cursorRoot, `plugins/${pluginName}/plugin.json`),
+            createAgentPluginManifest({
                 name: pluginName,
                 version,
-                description:
-                    "Fixture-only passive Cratis engineering documentation skill.",
-                skills: "./skills/",
-            },
+                description: portableDescription,
+            }),
         );
 
         const deepSeekRoot = join(root, "deepseek/.dsh");
@@ -383,16 +394,14 @@ export function generateEngineeringDistributionFixture({
 
         const kiroRoot = join(root, "kiro");
         copyCanonical(canonicalRoot, kiroRoot);
-        writeJson(join(kiroRoot, "plugin.json"), {
-            $schema:
-                "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
-            name: pluginName,
-            version,
-            description:
-                "Fixture-only passive Cratis engineering documentation skill.",
-            author: { name: "Cratis" },
-            license: "MIT",
-        });
+        writeJson(
+            join(kiroRoot, "plugin.json"),
+            createAgentPluginManifest({
+                name: pluginName,
+                version,
+                description: portableDescription,
+            }),
+        );
 
         const junieRoot = join(root, `junie/extensions/${pluginName}`);
         copyCanonical(canonicalRoot, junieRoot);
@@ -496,6 +505,7 @@ export function validateEngineeringDistributionFixture(outputRoot) {
             );
     }
     const targetRoots = [
+        "agent-plugin",
         `claude/plugins/${pluginName}`,
         `codex/plugins/${pluginName}`,
         `copilot/plugins/${pluginName}`,
