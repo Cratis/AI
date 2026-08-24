@@ -18,6 +18,7 @@ import { fileURLToPath } from "node:url";
 import {
     generateDistributionFixture,
     smokeClaudeDistributionFixture,
+    smokeDeepCodeDistributionFixture,
     smokeDeepSeekDistributionFixture,
     smokeCodexDistributionFixture,
     smokeCopilotDistributionFixture,
@@ -91,6 +92,7 @@ test("distribution requirements and artifact matrix stay authority bounded", () 
         "gemini-cli-extension",
         "pi-passive-package",
         "grok-build-skills",
+        "deepseek-deepcode-skills",
         "deepseek-harness-skills",
         "deepseek-model-provider",
         "npm-trusted-publication",
@@ -180,6 +182,7 @@ test("distribution fixture generation is deterministic across native adapters", 
             "codex",
             "copilot",
             "cursor",
+            "deepcode",
             "deepseek",
             "gemini",
             "grok",
@@ -238,9 +241,18 @@ test("generated marketplace manifests remain passive and idiomatic", () => {
         const providerCompatibility = readJson(
             join(stage, "provider-compatibility.json"),
         );
+        const grokMarketplace = readJson(
+            join(stage, "grok/.claude-plugin/marketplace.json"),
+        );
+        const grokPlugin = readJson(
+            join(stage, "grok/plugins/cratis/.claude-plugin/plugin.json"),
+        );
         const kiro = readJson(join(stage, "kiro/plugin.json"));
+        const junieMarketplace = readJson(
+            join(stage, "junie/.claude-plugin/marketplace.json"),
+        );
         const junie = readJson(
-            join(stage, "junie/extensions/cratis/extension.json"),
+            join(stage, "junie/plugins/cratis/.claude-plugin/plugin.json"),
         );
         const piPackage = readJson(join(stage, "pi/package/package.json"));
         assert.equal(claude.name, "cratis");
@@ -263,12 +275,30 @@ test("generated marketplace manifests remain passive and idiomatic", () => {
                 supportedHarnessOutputs: [
                     "claude",
                     "copilot",
+                    "deepcode",
                     "deepseek",
                     "pi",
                 ],
                 distinctArtifactRoot: null,
             },
         ]);
+        const canonicalSkill = readFileSync(
+            join(
+                stage,
+                "canonical/skills/cratis-fundamentals-concept/SKILL.md",
+            ),
+            "utf8",
+        );
+        assert.equal(
+            readFileSync(
+                join(
+                    stage,
+                    "deepcode/.deepcode/skills/cratis-fundamentals-concept/SKILL.md",
+                ),
+                "utf8",
+            ),
+            canonicalSkill,
+        );
         assert.equal(
             readFileSync(
                 join(
@@ -277,30 +307,22 @@ test("generated marketplace manifests remain passive and idiomatic", () => {
                 ),
                 "utf8",
             ),
-            readFileSync(
-                join(
-                    stage,
-                    "canonical/skills/cratis-fundamentals-concept/SKILL.md",
-                ),
-                "utf8",
-            ),
+            canonicalSkill,
         );
         assert.equal(
             readFileSync(
                 join(
                     stage,
-                    "grok/.grok/skills/cratis-fundamentals-concept/SKILL.md",
+                    "grok/plugins/cratis/skills/cratis-fundamentals-concept/SKILL.md",
                 ),
                 "utf8",
             ),
-            readFileSync(
-                join(
-                    stage,
-                    "canonical/skills/cratis-fundamentals-concept/SKILL.md",
-                ),
-                "utf8",
-            ),
+            canonicalSkill,
         );
+        assert.equal(grokMarketplace.plugins[0].source, "./plugins/cratis");
+        assert.deepEqual(grokPlugin, claude);
+        assert.equal(junieMarketplace.plugins[0].source, "./plugins/cratis");
+        assert.deepEqual(junie, claude);
         assert.equal(
             kiro.$schema,
             "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
@@ -355,12 +377,19 @@ test("distribution fixture detects payload and checksum tampering", () => {
     });
 });
 
-test("Grok and DeepSeek direct skill fixtures install and remove", () => {
+test("Grok compatibility and DeepSeek skill fixtures install and remove", () => {
     withTemporaryDirectory((root) => {
         const stage = join(root, "stage");
         generateDistributionFixture({ repositoryRoot, outputRoot: stage });
         assert.deepEqual(
             smokeGrokDistributionFixture(stage, join(root, "grok-home")),
+            { installed: true, removed: true },
+        );
+        assert.deepEqual(
+            smokeDeepCodeDistributionFixture(
+                stage,
+                join(root, "deepcode-home"),
+            ),
             { installed: true, removed: true },
         );
         assert.deepEqual(

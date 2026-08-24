@@ -94,11 +94,23 @@
       "requirementId": "grok-build-skills",
       "state": "FIXTURE_GENERATION_ENABLED",
       "outputRoot": "grok",
-      "packageKind": "NATIVE_GROK_AGENT_SKILLS",
+      "packageKind": "CLAUDE_COMPATIBLE_SKILLS_MARKETPLACE",
+      "smokeGates": [
+        "marketplace-manifest-parse",
+        "canonical-byte-parity",
+        "grok-marketplace-smoke-when-available"
+      ]
+    },
+    {
+      "id": "deepseek-deepcode",
+      "requirementId": "deepseek-deepcode-skills",
+      "state": "FIXTURE_GENERATION_ENABLED",
+      "outputRoot": "deepcode",
+      "packageKind": "NATIVE_DEEPCODE_AGENT_SKILLS",
       "smokeGates": [
         "exact-skill-inventory",
         "canonical-byte-parity",
-        "grok-inspect-when-available"
+        "direct-install-remove"
       ]
     },
     {
@@ -165,9 +177,9 @@
       "requirementId": "junie-marketplace",
       "state": "FIXTURE_GENERATION_ENABLED",
       "outputRoot": "junie",
-      "packageKind": "SKILLS_ONLY_JUNIE_EXTENSION",
+      "packageKind": "CLAUDE_COMPATIBLE_SKILLS_MARKETPLACE",
       "smokeGates": [
-        "extension-manifest-parse",
+        "marketplace-manifest-parse",
         "canonical-byte-parity",
         "junie-host-smoke-pending"
       ]

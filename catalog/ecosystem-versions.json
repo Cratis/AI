@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "verifiedOn": "2026-08-22",
+  "verifiedOn": "2026-08-24",
   "policy": "official-sources-only",
   "ecosystems": [
     {
@@ -347,6 +347,19 @@
       "sources": [
         { "url": "https://zed.dev/docs/ai/skills", "kind": "official-documentation", "verifiedOn": "2026-08-20" },
         { "url": "https://cli.github.com/manual/gh_skill_install", "kind": "official-documentation", "verifiedOn": "2026-08-20" }
+      ]
+    },
+    {
+      "id": "deepseek-deepcode-skills",
+      "status": "current",
+      "version": "current-documentation-2026-08-24",
+      "facts": [
+        "Deep Code discovers user skills from ~/.agents/skills/<name>/SKILL.md and project skills from .deepcode/skills/<name>/SKILL.md.",
+        "Skills are selected through the slash-command picker or direct skill-name invocation.",
+        "The Deep Code contract is distinct from the developer-preview DeepSeek Harness .dsh contract."
+      ],
+      "sources": [
+        { "url": "https://api-docs.deepseek.com/quick_start/agent_integrations/deepcode", "kind": "official-documentation", "verifiedOn": "2026-08-24" }
       ]
     },
     {

@@ -17,7 +17,11 @@ import {
 } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { createAgentPluginManifest } from "./passive-profile-adapters.mjs";
+import {
+    createAgentPluginManifest,
+    createClaudeMarketplace,
+    createClaudePluginManifest,
+} from "./passive-profile-adapters.mjs";
 import { materializeFixtureArtifact } from "./public-artifact-materializer.mjs";
 
 const defaultRepositoryRoot = resolve(
@@ -34,6 +38,7 @@ const generatedTargets = [
     "codex",
     "copilot",
     "cursor",
+    "deepcode",
     "deepseek",
     "gemini",
     "grok",
@@ -264,31 +269,21 @@ export function generateDistributionFixture({
 
         const claudeRoot = join(root, "claude");
         copyCanonicalSkill(canonicalRoot, join(claudeRoot, "plugins/cratis"));
-        writeJson(join(claudeRoot, ".claude-plugin/marketplace.json"), {
-            name: "cratis",
-            owner: { name: "Cratis" },
-            metadata: {
-                description: "Cratis skills-only fixture marketplace",
-                version,
-            },
-            plugins: [
-                {
-                    name: "cratis",
-                    description: "Passive Cratis skills fixture.",
-                    version,
-                    source: "./plugins/cratis",
-                    strict: true,
-                },
-            ],
-        });
         writeJson(
-            join(claudeRoot, "plugins/cratis/.claude-plugin/plugin.json"),
-            {
+            join(claudeRoot, ".claude-plugin/marketplace.json"),
+            createClaudeMarketplace({
                 name: "cratis",
                 version,
-                description: "Passive Cratis skills fixture.",
-                author: { name: "Cratis" },
-            },
+                description: portableDescription,
+            }),
+        );
+        writeJson(
+            join(claudeRoot, "plugins/cratis/.claude-plugin/plugin.json"),
+            createClaudePluginManifest({
+                name: "cratis",
+                version,
+                description: portableDescription,
+            }),
         );
 
         const codexRoot = join(root, "codex");
@@ -370,6 +365,9 @@ export function generateDistributionFixture({
             }),
         );
 
+        const deepCodeRoot = join(root, "deepcode/.deepcode");
+        copyCanonicalSkill(canonicalRoot, deepCodeRoot);
+
         const deepSeekRoot = join(root, "deepseek/.dsh");
         copyCanonicalSkill(canonicalRoot, deepSeekRoot);
 
@@ -381,8 +379,32 @@ export function generateDistributionFixture({
             description: "Passive Cratis skills fixture.",
         });
 
-        const grokRoot = join(root, "grok/.grok");
-        copyCanonicalSkill(canonicalRoot, grokRoot);
+        for (const harness of ["grok", "junie"]) {
+            const compatibleRoot = join(root, harness);
+            copyCanonicalSkill(
+                canonicalRoot,
+                join(compatibleRoot, "plugins/cratis"),
+            );
+            writeJson(
+                join(compatibleRoot, ".claude-plugin/marketplace.json"),
+                createClaudeMarketplace({
+                    name: "cratis",
+                    version,
+                    description: portableDescription,
+                }),
+            );
+            writeJson(
+                join(
+                    compatibleRoot,
+                    "plugins/cratis/.claude-plugin/plugin.json",
+                ),
+                createClaudePluginManifest({
+                    name: "cratis",
+                    version,
+                    description: portableDescription,
+                }),
+            );
+        }
 
         const kiroRoot = join(root, "kiro");
         copyCanonicalSkill(canonicalRoot, kiroRoot);
@@ -394,13 +416,6 @@ export function generateDistributionFixture({
                 description: portableDescription,
             }),
         );
-
-        const junieRoot = join(root, "junie/extensions/cratis");
-        copyCanonicalSkill(canonicalRoot, junieRoot);
-        writeJson(join(junieRoot, "extension.json"), {
-            name: "cratis",
-            description: "Passive Cratis skills fixture.",
-        });
 
         const piPackageRoot = join(root, "pi/package");
         copyCanonicalSkill(canonicalRoot, piPackageRoot);
@@ -424,6 +439,7 @@ export function generateDistributionFixture({
                     supportedHarnessOutputs: [
                         "claude",
                         "copilot",
+                        "deepcode",
                         "deepseek",
                         "pi",
                     ],
@@ -509,10 +525,11 @@ export function validateDistributionFixture(outputRoot) {
         "codex/plugins/cratis",
         "copilot/plugins/cratis",
         "cursor/plugins/cratis",
+        "deepcode/.deepcode",
         "deepseek/.dsh",
         "gemini",
-        "grok/.grok",
-        "junie/extensions/cratis",
+        "grok/plugins/cratis",
+        "junie/plugins/cratis",
         "kiro",
         "pi/package",
     ];
@@ -538,6 +555,7 @@ export function validateDistributionFixture(outputRoot) {
                 supportedHarnessOutputs: [
                     "claude",
                     "copilot",
+                    "deepcode",
                     "deepseek",
                     "pi",
                 ],
@@ -655,12 +673,45 @@ function smokeDirectSkillFixture(
     return { installed: true, removed: true };
 }
 
+function smokeClaudeCompatiblePluginFixture(
+    outputRoot,
+    temporaryRoot,
+    sourceRoot,
+    installedRoot,
+) {
+    const source = join(outputRoot, sourceRoot, "plugins/cratis");
+    const installed = join(temporaryRoot, installedRoot, "cratis");
+    mkdirSync(dirname(installed), { recursive: true });
+    cpSync(source, installed, { recursive: true, errorOnExist: true });
+    const sourceSkill = readFileSync(
+        join(source, "skills/cratis-fundamentals-concept/SKILL.md"),
+    );
+    const installedSkill = readFileSync(
+        join(installed, "skills/cratis-fundamentals-concept/SKILL.md"),
+    );
+    if (!sourceSkill.equals(installedSkill))
+        throw new Error("Claude-compatible plugin install changed canonical bytes");
+    rmSync(installed, { recursive: true, force: false });
+    if (existsSync(installed))
+        throw new Error("Claude-compatible plugin uninstall left content");
+    return { installed: true, removed: true };
+}
+
 export function smokeGrokDistributionFixture(outputRoot, temporaryRoot) {
+    return smokeClaudeCompatiblePluginFixture(
+        outputRoot,
+        temporaryRoot,
+        "grok",
+        ".grok/plugins",
+    );
+}
+
+export function smokeDeepCodeDistributionFixture(outputRoot, temporaryRoot) {
     return smokeDirectSkillFixture(
         outputRoot,
         temporaryRoot,
-        "grok/.grok",
-        ".grok/skills",
+        "deepcode/.deepcode",
+        ".deepcode/skills",
     );
 }
 
