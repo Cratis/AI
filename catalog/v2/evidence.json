@@ -93,6 +93,17 @@
       "digest": "345fdacc6d907aa701785d4e9306959282baa2d196e81ab925626acbe3e50219"
     },
     {
+      "id": "gemini-skill-discovery-2026-08-24",
+      "officialUrl": "https://github.com/Cratis/AI",
+      "sourceKind": "local-evidence-report",
+      "verifiedOn": "2026-08-24",
+      "expiresOn": "2026-11-22",
+      "applicableVersion": "Gemini CLI 0.33.1",
+      "confidence": "high",
+      "repositoryPath": "distribution/evidence/local-gemini-skill-discovery-2026-08-24.json",
+      "digest": "e9c1eaf711c93ceb1a261b299b8dc94272e351fc3afe2c32e5cc64ddb74a9587"
+    },
+    {
       "id": "engineering-docs-add-page-source-684d037",
       "officialUrl": "https://github.com/Cratis/AI/tree/684d03755bacd40af95463b81b4a0c8b9f088ec1/engineering/skills/cratis-engineering-docs-add-page",
       "sourceKind": "repository-snapshot",

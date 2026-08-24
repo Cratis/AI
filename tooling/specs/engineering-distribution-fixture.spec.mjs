@@ -492,6 +492,7 @@ test("engineering Gemini fixture links and removes", {
         mkdirSync(home);
         assert.deepEqual(smokeGeminiEngineeringFixture(stage, home), {
             linked: true,
+            skillDiscovered: true,
             removed: true,
         });
     });

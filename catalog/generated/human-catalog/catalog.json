@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "contractVersion": 1,
   "disclaimer": "Catalog inclusion, evaluation evidence, bundle generation, or publication does not grant runtime permission or approval.",
-  "inputDigest": "8d29dcca0cce41fc42d1ee73a34ff7e2687416f4887cae49cb9122245bad514a",
+  "inputDigest": "297b144769692e05b6ed74123d8a1db011bf93cb7c4a491a20ab644a0eb08547",
   "profiles": [
     {
       "id": "public-application",
