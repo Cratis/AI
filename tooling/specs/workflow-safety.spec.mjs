@@ -33,7 +33,7 @@ test("verification workflow covers every release-relevant source", () => {
     }
 });
 
-test("merged release request automatically generates canaries publishes and distributes", () => {
+test("merged release request publishes one profile with truthful cleanup and recovery", () => {
     const workflow = readFileSync(
         ".github/workflows/release-approved-ai-profiles.yml",
         "utf8",
@@ -44,25 +44,44 @@ test("merged release request automatically generates canaries publishes and dist
         "distribution/releases/*.json",
         "release-request-validation.mjs",
         "generate-approved-profile-release.mjs",
+        'if [ "$EVENT_NAME" = "push" ]; then mode=(release); fi',
+        "release-instructions.md",
+        "support-matrix.json",
+        "sha256sum -c SHA256SUMS",
         "needs: [discover, verify]",
         "needs: [discover, verify, canary]",
         "needs: [discover, verify, canary, distribute]",
         "needs: [discover, distribute, publish-npm]",
         "samples-chronicle-backend",
+        "trap cleanup EXIT",
+        'gh release delete "v$VERSION"',
+        "cleanup-failed-publication:",
+        "record-promotion-failure:",
         "gh release create",
+        "--notes-file",
         "--draft",
         'gh release edit "v$VERSION"',
         "--draft=false",
+        "npm_version=$(npm --version)",
+        "--package=@earendil-works/pi-coding-agent@0.84.2",
+        'test "${#artifacts[@]}" -eq 1',
         "npm publish",
         "--provenance",
         "id-token: write",
-        'gh pr merge "$pr_url" --repo Cratis/AI.Distribution --auto --squash',
-        "Workflows#73",
-        "AI#147",
+        'gh pr merge "$PR_NUMBER"',
+        "--repo Cratis/AI.Distribution --auto --merge",
+        'test "$state" = "MERGED"',
+        "Subscriber updates remain disabled until Workflows#73",
+        "npm version is immutable and was not rolled back",
     ])
         assert(workflow.includes(required), required);
     for (const forbidden of [
+        "workflow_dispatch:",
+        "INPUT_REQUEST",
         "NPM_TOKEN",
+        "npm install --global",
+        "! -name SHA256SUMS",
+        "--auto --squash",
         "push --force",
         "push -f",
         "direct push to main",

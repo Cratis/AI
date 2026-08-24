@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "0fac9898b905efbf9dd66cfa52252fa910ef035e84f23f150e4e7f7a3fa3622c",
+  "indexDigest": "39c0e1b82b43c60521a95a7237b989132b0f33fe6e6456cbc44de46f9cf84bf8",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -544,6 +544,10 @@
     },
     {
       "path": "distribution/release-approvals.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/release-automation-capabilities.json",
       "status": "added"
     },
     {
@@ -3583,8 +3587,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 27,
-      "expectedPathsDigest": "4125e521908692f5e040a30d2c62c8c5dfe8a79d5d0d294fb0a3dc4c28d8ac36"
+      "expectedPathCount": 28,
+      "expectedPathsDigest": "37938651506109f6e867144bb871a36874b2afd7f7566df3bf3a2b15f95505aa"
     },
     {
       "excludePathPatterns": [],

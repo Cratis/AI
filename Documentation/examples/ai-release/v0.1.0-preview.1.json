@@ -17,8 +17,9 @@
     "npmPublish": true,
     "canary": true,
     "autoPromote": true,
-    "autoRollback": true,
-    "subscriberUpdates": true,
-    "marketplaces": "automatic-where-supported-submit-otherwise"
+    "failureCleanup": true,
+    "autoRollback": false,
+    "subscriberUpdates": false,
+    "marketplaces": "manual-handoff"
   }
 }
