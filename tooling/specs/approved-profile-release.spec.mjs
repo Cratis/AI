@@ -395,10 +395,7 @@ test("passive adapter materializer emits one install root per harness", () => {
             ),
         );
         const grokMarketplace = readJson(
-            join(
-                outputRoot,
-                "harnesses/grok/.claude-plugin/marketplace.json",
-            ),
+            join(outputRoot, "harnesses/grok/.claude-plugin/marketplace.json"),
         );
         const grokPlugin = readJson(
             join(
@@ -407,10 +404,7 @@ test("passive adapter materializer emits one install root per harness", () => {
             ),
         );
         const junieMarketplace = readJson(
-            join(
-                outputRoot,
-                "harnesses/junie/.claude-plugin/marketplace.json",
-            ),
+            join(outputRoot, "harnesses/junie/.claude-plugin/marketplace.json"),
         );
         const juniePlugin = readJson(
             join(

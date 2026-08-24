@@ -304,9 +304,8 @@ test("engineering fixture contains one passive skill and no project context", ()
             "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
         );
         assert.equal(
-            readJson(
-                join(stage, "junie/.claude-plugin/marketplace.json"),
-            ).plugins[0].source,
+            readJson(join(stage, "junie/.claude-plugin/marketplace.json"))
+                .plugins[0].source,
             "./plugins/cratis-engineering-fixture",
         );
         const packageJson = readJson(join(stage, "pi/package/package.json"));

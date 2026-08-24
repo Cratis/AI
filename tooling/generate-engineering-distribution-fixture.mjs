@@ -858,11 +858,10 @@ export function smokeClaudeEngineeringFixture(
         ["plugin", "marketplace", "add", marketplaceRoot],
         { env: environment, stdio: "pipe" },
     );
-    execFileSync(
-        claudeCommand,
-        ["plugin", "install", `${pluginName}@cratis`],
-        { env: environment, stdio: "pipe" },
-    );
+    execFileSync(claudeCommand, ["plugin", "install", `${pluginName}@cratis`], {
+        env: environment,
+        stdio: "pipe",
+    });
     const installed = execFileSync(claudeCommand, ["plugin", "list"], {
         env: environment,
         encoding: "utf8",
@@ -876,11 +875,10 @@ export function smokeClaudeEngineeringFixture(
         ["plugin", "uninstall", `${pluginName}@cratis`],
         { env: environment, stdio: "pipe" },
     );
-    execFileSync(
-        claudeCommand,
-        ["plugin", "marketplace", "remove", "cratis"],
-        { env: environment, stdio: "pipe" },
-    );
+    execFileSync(claudeCommand, ["plugin", "marketplace", "remove", "cratis"], {
+        env: environment,
+        stdio: "pipe",
+    });
     return { validated: true, installed: true, removed: true };
 }
 

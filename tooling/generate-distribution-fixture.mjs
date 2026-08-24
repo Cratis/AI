@@ -702,7 +702,9 @@ function smokeClaudeCompatiblePluginFixture(
         join(installed, "skills/cratis-fundamentals-concept/SKILL.md"),
     );
     if (!sourceSkill.equals(installedSkill))
-        throw new Error("Claude-compatible plugin install changed canonical bytes");
+        throw new Error(
+            "Claude-compatible plugin install changed canonical bytes",
+        );
     rmSync(installed, { recursive: true, force: false });
     if (existsSync(installed))
         throw new Error("Claude-compatible plugin uninstall left content");
