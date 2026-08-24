@@ -145,7 +145,8 @@ export function profileIntendedFor(profile, audience) {
     if (audience === "cratis-engineering") {
         const repositoryKinds = joinNatural(
             (profile.repositoryKinds ?? []).map(
-                (kind) => `${kind} ${kind === "corpus" ? "repositories" : "projects"}`,
+                (kind) =>
+                    `${kind} ${kind === "corpus" ? "repositories" : "projects"}`,
             ),
         );
         return `Cratis maintainers contributing to ${products} in ${repositoryKinds}.`;

@@ -56,7 +56,10 @@ test("engineering profile descriptions are public-safe and audience-specific", (
         "cratis-engineering",
     );
     assert.match(presentation.description, /Public-safe contributor guidance/);
-    assert.match(presentation.description, /Private repository details remain local/);
+    assert.match(
+        presentation.description,
+        /Private repository details remain local/,
+    );
     assert.match(presentation.intendedFor, /Cratis maintainers/);
     assert.equal(presentation.materialization, "catalog-only");
 });

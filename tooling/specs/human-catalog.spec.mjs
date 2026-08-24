@@ -193,7 +193,10 @@ test("generated human catalog exposes exact public and engineering package state
     const engineeringDocumentation = catalog.profiles.find(
         (profile) => profile.id === "engineering-documentation",
     );
-    assert.match(engineeringDocumentation.description, /documentation authoring/);
+    assert.match(
+        engineeringDocumentation.description,
+        /documentation authoring/,
+    );
     assert(
         engineeringDocumentation.targetIds.includes(
             "cratis-engineering-docs-authoring",

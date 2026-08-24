@@ -16,10 +16,7 @@ import {
 import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { compareOrdinal } from "./catalog-ordering.mjs";
-import {
-    readCatalog,
-    validateAgainstSchema,
-} from "./catalog-validation.mjs";
+import { readCatalog, validateAgainstSchema } from "./catalog-validation.mjs";
 import { v2SchemaPath } from "./catalog-v2-validation.mjs";
 import { assertSafeContent } from "./public-artifact-materializer.mjs";
 import { presentProfile } from "./profile-presentation.mjs";
@@ -111,7 +108,9 @@ function assertBounded(value, limits, depth = 0) {
     }
     if (Array.isArray(value)) {
         if (value.length > limits.maximumItemsPerRegistry)
-            throw new Error("Human catalog input exceeds maximum registry size");
+            throw new Error(
+                "Human catalog input exceeds maximum registry size",
+            );
         for (const item of value) assertBounded(item, limits, depth + 1);
         return;
     }
@@ -176,7 +175,10 @@ function renderProfile(profile) {
         "",
         "#### Included capabilities",
         "",
-        ...renderList(profile.targetIds, "No approved or candidate capabilities yet"),
+        ...renderList(
+            profile.targetIds,
+            "No approved or candidate capabilities yet",
+        ),
         "",
         "#### Composed profiles",
         "",
@@ -321,7 +323,9 @@ function canonicalEffect(effect) {
         operation: effect.operation,
         resourceBoundary: effect.resourceBoundary,
         scope: effect.scope,
-        dataClassifications: [...effect.dataClassifications].sort(compareOrdinal),
+        dataClassifications: [...effect.dataClassifications].sort(
+            compareOrdinal,
+        ),
         reversible: effect.reversible,
         confirmation: {
             required: effect.confirmation.required,
@@ -359,9 +363,7 @@ export function buildHumanCatalogOutputs() {
     const { catalogs, digest, humanContract } = loadInputs();
     const targets = catalogs.get("catalog/v2/targets.json").targets;
     const bundles = catalogs.get("catalog/v2/bundles.json").bundles;
-    const profileCatalog = catalogs.get(
-        "distribution/profile-catalog.json",
-    );
+    const profileCatalog = catalogs.get("distribution/profile-catalog.json");
     const presentedProfiles = [
         ...profileCatalog.publicProfiles.map((profile) =>
             presentProfile(profile, "public"),
@@ -475,7 +477,9 @@ export function buildHumanCatalogOutputs() {
         schema,
     );
     if (dataErrors.length > 0)
-        throw new Error(`Generated human catalog is invalid: ${dataErrors.join("; ")}`);
+        throw new Error(
+            `Generated human catalog is invalid: ${dataErrors.join("; ")}`,
+        );
 
     const markdownLines = [
         "# Cratis AI package and capability catalog",
@@ -531,8 +535,13 @@ export function buildHumanCatalogOutputs() {
         schema,
     );
     if (manifestErrors.length > 0)
-        throw new Error(`Generated manifest is invalid: ${manifestErrors.join("; ")}`);
-    contents.set(humanContract.generatedFiles.manifest, Buffer.from(json(manifest)));
+        throw new Error(
+            `Generated manifest is invalid: ${manifestErrors.join("; ")}`,
+        );
+    contents.set(
+        humanContract.generatedFiles.manifest,
+        Buffer.from(json(manifest)),
+    );
     if (contents.size > humanContract.limits.maximumGeneratedFiles)
         throw new Error("Human catalog exceeds maximum generated files");
     const generatedBytes = [...contents.values()].reduce(
@@ -553,7 +562,10 @@ function currentFiles(root) {
             if (entry.isDirectory()) visit(absolutePath);
             else if (entry.isFile())
                 paths.push(relative(root, absolutePath).split(sep).join("/"));
-            else throw new Error("Generated human catalog contains a non-regular path");
+            else
+                throw new Error(
+                    "Generated human catalog contains a non-regular path",
+                );
         }
     }
     visit(root);
@@ -598,10 +610,7 @@ export function writeHumanCatalogOutputsAtomically(
             if (publishedDataFiles === options.failAfterDataFiles)
                 throw new Error("Injected failure after data publication");
         }
-        renameSync(
-            partialPaths.get(manifestPath),
-            join(root, manifestPath),
-        );
+        renameSync(partialPaths.get(manifestPath), join(root, manifestPath));
         const expectedPaths = new Set(outputs.keys());
         for (const path of currentFiles(root)) {
             if (!expectedPaths.has(path))
