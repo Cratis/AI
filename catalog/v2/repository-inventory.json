@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "cbf6ce35a05a617c57d45d56632b4751d3567037d440489b26502ee8fd92d9b0",
+  "indexDigest": "0cb3d3b4f381fe505db21b00f2e8c9dd904f6c98b6991056f96827aec615674a",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -2075,6 +2075,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/profile-presentation.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/profile-subscription-validation.mjs",
       "status": "added"
     },
@@ -2200,6 +2204,10 @@
     },
     {
       "path": "tooling/specs/navigator-pilot.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/profile-presentation.spec.mjs",
       "status": "added"
     },
     {
