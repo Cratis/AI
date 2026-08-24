@@ -234,10 +234,7 @@ test("engineering fixture contains one passive skill and no project context", ()
             portablePlugin.$schema,
             "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
         );
-        assert.equal(
-            portablePlugin.repository,
-            "https://github.com/Cratis/AI",
-        );
+        assert.equal(portablePlugin.repository, "https://github.com/Cratis/AI");
         assert.equal(portablePlugin.skills, undefined);
         assert.equal(
             readJson(join(stage, "gemini/gemini-extension.json")).name,
