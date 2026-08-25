@@ -232,8 +232,8 @@
     },
     "observations": {
       "type": "array",
-      "minItems": 150,
-      "maxItems": 150,
+      "minItems": 151,
+      "maxItems": 151,
       "uniqueItems": true,
       "items": { "$ref": "#/$defs/observation" }
     },

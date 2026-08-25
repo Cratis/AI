@@ -60,6 +60,20 @@ test("Chronicle MCP profile presentation denies tool and prompt invocation", () 
     assert.match(description, /no tool or prompt is admitted or invocable/u);
 });
 
+test("Studio profile presentation denies implementation operation admission", () => {
+    const profile = {
+        id: "public-studio",
+        packageName: "@cratis/ai-studio",
+        products: ["studio"],
+        languages: ["language-agnostic"],
+        state: "preview-source-candidate",
+        availableTargets: ["cratis-studio-mcp-safety-guidance"],
+    };
+    const description = profileDescription(profile, "public");
+    assert.match(description, /Classification-only public-safe guidance/u);
+    assert.match(description, /no implementation operation is admitted or invocable/u);
+});
+
 test("engineering profile descriptions are public-safe and audience-specific", () => {
     assert.equal(
         profileDisplayName(engineeringChronicle, "cratis-engineering"),

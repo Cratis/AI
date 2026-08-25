@@ -205,8 +205,9 @@
       "packageName": "@cratis/ai-studio",
       "products": ["studio"],
       "languages": ["language-agnostic"],
-      "state": "content-gap",
-      "gapSummary": "Public guidance is limited to public Studio onboarding, MCP use, modeling preparation, support, redaction, and issue preparation; private implementation stays local."
+      "state": "preview-source-candidate",
+      "availableTargets": ["cratis-studio-mcp-safety-guidance"],
+      "gapSummary": "Contains a classification-only public-safe MCP source candidate. No Studio MCP implementation authority or operation is admitted; onboarding, modeling, support, redaction, executable behavior, and private implementation remain gaps."
     },
     {
       "id": "public-chronicle-mcp",

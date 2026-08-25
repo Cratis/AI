@@ -60,7 +60,8 @@
           "cratis-performance-review",
           "cratis-security-review",
           "cratis-specifications-csharp",
-          "cratis-specifications-typescript"
+          "cratis-specifications-typescript",
+          "cratis-studio-mcp-safety-guidance"
         ],
         "agents": [],
         "subagents": [],

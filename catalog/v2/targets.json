@@ -5760,6 +5760,125 @@
       "includeInRuntime": false
     },
     {
+      "id": "cratis-studio-mcp-safety-guidance",
+      "semanticName": "cratis-studio-mcp-safety-guidance",
+      "sourceSkillIds": [
+        "cratis-studio-mcp-safety-guidance"
+      ],
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "products": [
+        "studio"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencyClassificationState": "unclassified",
+      "dependencyEdges": [],
+      "sourceContractState": "unclassified",
+      "sourceContractIds": [],
+      "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
+      "capability": "Studio MCP classification-only safety guidance",
+      "positiveTriggerIntent": "Use when classifying a Studio MCP request or interpreting already-redacted output without discovering or invoking an operation.",
+      "nearMissExclusions": [
+        "Do not use to discover, invoke, install, or configure Studio MCP.",
+        "Do not use private Studio implementation facts as public authority."
+      ],
+      "collisionSet": [
+        "cratis-chronicle-mcp-inspection"
+      ],
+      "dependencies": {
+        "targets": [],
+        "internalArtifacts": [],
+        "externalTools": []
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "critical",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
       "id": "skill-creator",
       "semanticName": "skill-creator",
       "sourceSkillIds": [

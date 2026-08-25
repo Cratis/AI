@@ -259,6 +259,21 @@
       ]
     },
     {
+      "id": "rename-cratis-studio-mcp-safety-guidance",
+      "kind": "retain",
+      "sourceIds": [
+        "cratis-studio-mcp-safety-guidance"
+      ],
+      "targetIds": [
+        "cratis-studio-mcp-safety-guidance"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
       "id": "rename-create-event-model",
       "kind": "rename",
       "sourceIds": [

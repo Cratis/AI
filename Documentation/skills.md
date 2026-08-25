@@ -73,6 +73,7 @@ A well-formed skill file follows this structure:
 | Skill | When to invoke |
 | --- | --- |
 | `cratis-chronicle-mcp-inspection` | Classifying a Chronicle MCP inspection request or interpreting already-redacted output without invoking a tool or prompt; its observational inventory is currently empty |
+| `cratis-studio-mcp-safety-guidance` | Classifying a Studio MCP request or interpreting already-redacted output without discovering or invoking operations; no implementation authority is admitted |
 
 ### Implementation skills
 

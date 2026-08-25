@@ -16,7 +16,6 @@ import { fileURLToPath } from "node:url";
 import {
     defaultRepositoryRoot,
     readCatalog,
-    validateAgainstSchema,
 } from "./catalog-validation.mjs";
 import { validateMcpGuidanceProductContract } from "./mcp-guidance-product-contract.mjs";
 import {

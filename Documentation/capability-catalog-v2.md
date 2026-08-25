@@ -76,7 +76,11 @@ mean emitted, supported, installable, published, promoted, or runtime eligible.*
 S6 creates no native component output and no MCP, LSP, hook, or extension
 runtime package. S7 adds one classification-only passive skill source while
 keeping its tool and prompt inventory empty, its component unprojected, and all
-MCP executable and effectful lanes non-emitting.
+MCP executable and effectful lanes non-emitting. S7b generalizes that mechanism
+without changing Chronicle output and adds a separately identified Studio
+classification catalog and passive skill. Studio begins without implementation
+authority; private implementation findings cannot enter public source or
+authorize operations.
 
 ## Target-local safety fields
 

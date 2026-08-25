@@ -49,10 +49,10 @@ test("catalog v2 schemas and semantic policy pass for the repository", () => {
     assert.deepEqual(validateV2Catalogs(), []);
 });
 
-test("catalog v2 preserves all 44 sources while split and merge targets are independent", () => {
+test("catalog v2 preserves all 45 sources while split and merge targets are independent", () => {
     const catalogs = loadCatalogs();
-    assert.equal(catalogs.sources.sources.length, 44);
-    assert.equal(catalogs.targets.targets.length, 44);
+    assert.equal(catalogs.sources.sources.length, 45);
+    assert.equal(catalogs.targets.targets.length, 45);
     const split = catalogs.migrations.migrations.find(
         (migration) => migration.kind === "split",
     );
@@ -100,6 +100,30 @@ test("Chronicle MCP guidance target is provenance-bound but remains unclassified
     assert.equal(target.capabilityKind, "unclassified");
     assert.equal(target.trust.assessmentState, "unclassified");
     assert.equal(target.sourceContractState, "unclassified");
+    assert.equal(target.includeInRuntime, false);
+    assert.equal(target.approval.state, "candidate");
+});
+
+test("Studio MCP guidance target is source-bound without implementation authority", () => {
+    const catalogs = loadCatalogs();
+    const source = catalogs.sources.sources.find(
+        (record) => record.id === "cratis-studio-mcp-safety-guidance",
+    );
+    const target = catalogs.targets.targets.find(
+        (record) => record.id === "cratis-studio-mcp-safety-guidance",
+    );
+    assert.equal(
+        source.sourceRevision,
+        "f96eab8109ec0bb2d4aed6f1e893c2402a9a161a",
+    );
+    assert(
+        source.evidenceIds.includes(
+            "studio-mcp-safety-guidance-source-f96eab8",
+        ),
+    );
+    assert.equal(target.lifecycle, "candidate");
+    assert.equal(target.sourceContractState, "unclassified");
+    assert.deepEqual(target.sourceContractIds, []);
     assert.equal(target.includeInRuntime, false);
     assert.equal(target.approval.state, "candidate");
 });
@@ -1020,7 +1044,7 @@ test("repository inventory records component and MCP guidance generation provena
     );
     const chronicleMcp = catalogs.repositoryInventory.records.find(
         (record) =>
-            record.id === "chronicle-mcp-generated-guidance-references",
+            record.id === "mcp-generated-guidance-references",
     );
     chronicleMcp.dependencies = chronicleMcp.dependencies.filter(
         (dependency) =>

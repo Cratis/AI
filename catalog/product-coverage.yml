@@ -753,11 +753,14 @@
       "capabilities": [
         {
           "id": "public-onboarding-and-mcp",
-          "status": "backlog",
+          "status": "partial",
           "languages": [
             "language-agnostic"
           ],
-          "sourceSkills": []
+          "sourceSkills": [
+            "cratis-studio-mcp-safety-guidance"
+          ],
+          "notes": "Classification-only public-safe guidance. No Studio MCP implementation authority, operation, prompt, resource, schema, transport, or invocation is admitted; private implementation remains repository-local."
         },
         {
           "id": "modeling-preparation",

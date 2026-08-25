@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generatedBy": "tooling/generate-component-catalogs.mjs",
-  "sourceDigest": "e4573702883dab007e3a506430a4ac81a51a92622b84906f47eb01d555dc94b1",
+  "sourceDigest": "4f2f3618486c60ce1c03c999c8f0a2822ef09bc2bfba02e5fc7c7ac64775869d",
   "defaultPolicy": "deny",
   "canonicalSourceRoots": [
     ".ai/agents",
@@ -57,7 +57,8 @@
     "engineering/skills/cratis-engineering-docs-authoring",
     "engineering/skills/cratis-engineering-docs-edit-page",
     "skills/cratis-chronicle-mcp-inspection",
-    "skills/cratis-fundamentals-concept"
+    "skills/cratis-fundamentals-concept",
+    "skills/cratis-studio-mcp-safety-guidance"
   ],
   "declaredEmptyKinds": [
     "subagent",
@@ -9905,6 +9906,88 @@
         "static-asset"
       ],
       "requiredCanaries": [
+        "projection-shape",
+        "semantic-identity",
+        "source-digest"
+      ],
+      "securityRequirements": {
+        "threatModel": false,
+        "securityReview": false,
+        "executableAssuranceProfile": false
+      }
+    },
+    {
+      "id": "cratis-studio-mcp-safety-guidance",
+      "kind": "skill",
+      "semanticIdentity": "cratis-studio-mcp-safety-guidance",
+      "semanticName": "Studio MCP classification-only safety guidance",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-studio-mcp-safety-guidance",
+      "canonicalSources": [
+        {
+          "path": "skills/cratis-studio-mcp-safety-guidance",
+          "digest": "f0c7591741fbbaf877d1ed0e67c9f5f388d92c3861b4693d8ca13d94cc988743",
+          "ownership": "owner",
+          "ownerComponentId": "cratis-studio-mcp-safety-guidance"
+        }
+      ],
+      "contentDigest": "615a936e6f5cddc1f41611704537747fd052619342f2d85b856fa34af956edce",
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "classification": {
+        "artifactClass": "passive-content",
+        "trust": "passive",
+        "passive": true,
+        "executable": false,
+        "effect": "guided-read"
+      },
+      "dependencies": [],
+      "hostNeutralPurpose": "Classify Studio MCP requests and interpret already-redacted output without discovering or invoking an operation",
+      "approval": {
+        "state": "modeled",
+        "evidenceIds": [
+          "studio-mcp-safety-guidance-source-f96eab8"
+        ]
+      },
+      "releaseBoundary": "public-passive",
+      "allowedProjections": [
+        {
+          "hostContract": "any-passive-host",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "passive-private-fixture",
+            "passive-public-package",
+            "provider-compatibility"
+          ]
+        },
+        {
+          "hostContract": "portable-agent-plugins-1-0",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "passive-public-package"
+          ]
+        }
+      ],
+      "forbiddenProjections": [
+        "agent",
+        "subagent",
+        "command",
+        "prompt",
+        "rule",
+        "instruction",
+        "hook",
+        "mcp",
+        "lsp",
+        "executable-host-extension",
+        "static-asset"
+      ],
+      "requiredCanaries": [
+        "classification-boundary",
+        "private-fact-exclusion",
         "projection-shape",
         "semantic-identity",
         "source-digest"
