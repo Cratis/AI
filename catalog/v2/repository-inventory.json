@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "e71b9c715c70b6f085f8f4b503b639a5f977afbbfa7248192e45907424f3c118",
+  "indexDigest": "a45ba5bf26e879e6b0b9d192f10d7bf1f7ee9abd352df5a9653cee83ba77375f",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -104,6 +104,10 @@
     },
     {
       "path": ".github/workflows/sync-copilot-instructions.yml",
+      "status": "modified"
+    },
+    {
+      "path": ".github/workflows/update-packages.yml",
       "status": "modified"
     },
     {
