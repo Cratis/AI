@@ -128,7 +128,7 @@ inferred.
 
 The 83 S0/S1 evidence IDs remain observation IDs in the authored catalog. The
 110 legacy fact IDs bind only the minimum exact observations that currently
-support each claim. The 12 legacy `localEvidence` strings remain explicit,
+support each claim. The 11 legacy `localEvidence` strings remain explicit,
 non-supporting gaps until immutable reports carry the command and transcript
 requirements. Every distribution evidence JSON file is indexed by repository
 path and SHA-256 as either supporting a named observation or inventory-only.

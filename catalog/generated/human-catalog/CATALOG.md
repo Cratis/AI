@@ -9,6 +9,23 @@ and does not make a planned package installable.
 - Profiles: 52
 - Capabilities: 43
 - Installable profiles: 0
+- Ecosystem bindings with support claims: 0
+
+## Computed ecosystem support
+
+As of 2026-08-24, technical tiers are computed from active normalized evidence; expired and future evidence cannot satisfy gates. Marketplace listing is orthogonal.
+
+- unsupported: 0
+- documented: 25
+- generated: 1
+- statically-validated: 0
+- install-tested: 0
+- behavior-tested: 0
+- lifecycle-tested: 0
+- release-tested: 0
+- supported: 0
+
+No technical tier grants runtime, publication, or promotion eligibility.
 
 ## Packages and profiles
 

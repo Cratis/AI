@@ -31,7 +31,7 @@ const expectedObservationAnchor =
 const expectedFactAnchor =
     "52a021f9b82367dbc3587b9ddc3f5e772ea9cefb65f026d6f06f1680358e2525";
 const expectedGapAnchor =
-    "92e1b11d5046b5305e349b6ccf5c62467190c716529919b0393daf720049fb96";
+    "618d4d6ce61c1ff2cc722da99cc6b0006dd676eb8fdd67bdb16ba8dfefc9c385";
 const expectedTierOrder = [
     "unsupported",
     "documented",
@@ -258,7 +258,7 @@ export function validateNormalizedEvidence(
         ) !== expectedGapAnchor
     )
         errors.push(
-            "normalized evidence must account for all 12 legacy localEvidence strings exactly",
+            "normalized evidence must account for all 11 legacy localEvidence strings exactly",
         );
 
     const legacyFacts = ecosystemVersions.ecosystems.flatMap((ecosystem) =>

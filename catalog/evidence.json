@@ -4785,13 +4785,6 @@
       "reason": "Legacy localEvidence text has no immutable command transcript or report binding and cannot satisfy a support assurance."
     },
     {
-      "id": "gemini-cli-extensions-legacy-local-gap-2",
-      "ecosystemId": "gemini-cli-extensions",
-      "value": "Installed Gemini CLI version: 0.33.1",
-      "supporting": false,
-      "reason": "Legacy localEvidence text has no immutable command transcript or report binding and cannot satisfy a support assurance."
-    },
-    {
       "id": "pi-packages-legacy-local-gap-1",
       "ecosystemId": "pi-packages",
       "value": "Installed and latest @earendil-works/pi-coding-agent version: 0.84.2",
