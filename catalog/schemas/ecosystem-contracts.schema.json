@@ -20,7 +20,7 @@
       "items": { "$ref": "#/$defs/id" }
     },
     "componentState": {
-      "enum": ["required", "optional", "supported", "unsupported", "unknown"]
+      "enum": ["required", "optional", "documented", "unsupported", "unknown"]
     },
     "manifest": {
       "type": "object",
@@ -76,7 +76,14 @@
         "id": { "$ref": "#/$defs/id" },
         "kind": { "enum": ["standard", "host", "provider", "registry", "package-ecosystem", "publication-service"] },
         "lifecycle": { "enum": ["current", "preview", "provisional", "local-only"] },
-        "reviewState": { "enum": ["verified", "verified-with-conflicts", "incomplete-evidence", "local-only"] },
+        "reviewState": {
+          "enum": [
+            "documentation-reviewed",
+            "documentation-reviewed-with-conflicts",
+            "incomplete-evidence",
+            "local-evidence-only"
+          ]
+        },
         "versions": {
           "type": "object",
           "additionalProperties": false,

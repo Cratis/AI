@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import { join } from "node:path";
+import { compareOrdinal } from "./catalog-ordering.mjs";
 import {
     defaultRepositoryRoot,
     readCatalog,
@@ -75,7 +76,7 @@ function duplicates(values) {
 }
 
 function sorted(values) {
-    return [...values].sort((left, right) => left.localeCompare(right, "en"));
+    return [...values].sort(compareOrdinal);
 }
 
 function equalSets(left, right) {

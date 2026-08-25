@@ -7,7 +7,7 @@
       "id": "agent-plugins",
       "kind": "standard",
       "lifecycle": "current",
-      "reviewState": "verified",
+      "reviewState": "documentation-reviewed",
       "versions": {
         "specification": "1.0.0",
         "client": null,
@@ -118,9 +118,9 @@
       "id": "agent-skills",
       "kind": "standard",
       "lifecycle": "current",
-      "reviewState": "verified",
+      "reviewState": "documentation-reviewed",
       "versions": {
-        "specification": "unversioned-current-specification",
+        "specification": null,
         "client": null,
         "service": null
       },
@@ -215,7 +215,7 @@
       "id": "model-context-protocol",
       "kind": "standard",
       "lifecycle": "current",
-      "reviewState": "verified",
+      "reviewState": "documentation-reviewed",
       "versions": {
         "specification": "2026-07-28",
         "client": null,
@@ -274,7 +274,7 @@
       "id": "mcp-registry",
       "kind": "registry",
       "lifecycle": "preview",
-      "reviewState": "verified",
+      "reviewState": "documentation-reviewed",
       "versions": {
         "specification": null,
         "client": null,
@@ -293,7 +293,7 @@
       ],
       "components": {
         "skills": "unsupported",
-        "mcp": "supported",
+        "mcp": "documented",
         "hooks": "unknown",
         "scripts": "unknown",
         "executableExtensions": "unknown"
@@ -492,7 +492,7 @@
       "id": "vscode-agent-plugins",
       "kind": "host",
       "lifecycle": "current",
-      "reviewState": "verified",
+      "reviewState": "documentation-reviewed",
       "versions": {
         "specification": null,
         "client": null,
@@ -511,11 +511,11 @@
         }
       ],
       "components": {
-        "skills": "supported",
-        "mcp": "supported",
-        "hooks": "supported",
+        "skills": "documented",
+        "mcp": "documented",
+        "hooks": "documented",
         "scripts": "unknown",
-        "executableExtensions": "supported"
+        "executableExtensions": "documented"
       },
       "discoveryRoots": [
         {
@@ -570,7 +570,7 @@
       "id": "github-copilot-plugins",
       "kind": "host",
       "lifecycle": "current",
-      "reviewState": "verified",
+      "reviewState": "documentation-reviewed",
       "versions": {
         "specification": null,
         "client": "1.0.67",
@@ -595,11 +595,11 @@
         }
       ],
       "components": {
-        "skills": "supported",
-        "mcp": "supported",
-        "hooks": "supported",
+        "skills": "documented",
+        "mcp": "documented",
+        "hooks": "documented",
         "scripts": "unknown",
-        "executableExtensions": "supported"
+        "executableExtensions": "documented"
       },
       "discoveryRoots": [
         {
@@ -669,7 +669,7 @@
       "id": "openai-plugins",
       "kind": "host",
       "lifecycle": "current",
-      "reviewState": "verified",
+      "reviewState": "documentation-reviewed",
       "versions": {
         "specification": null,
         "client": null,
@@ -694,11 +694,11 @@
         }
       ],
       "components": {
-        "skills": "supported",
-        "mcp": "supported",
-        "hooks": "supported",
+        "skills": "documented",
+        "mcp": "documented",
+        "hooks": "documented",
         "scripts": "unknown",
-        "executableExtensions": "supported"
+        "executableExtensions": "documented"
       },
       "discoveryRoots": [
         {
@@ -775,7 +775,7 @@
       "id": "claude-code-plugins",
       "kind": "host",
       "lifecycle": "current",
-      "reviewState": "verified",
+      "reviewState": "documentation-reviewed",
       "versions": {
         "specification": null,
         "client": "2.1.235",
@@ -801,11 +801,11 @@
         }
       ],
       "components": {
-        "skills": "supported",
-        "mcp": "supported",
-        "hooks": "supported",
-        "scripts": "supported",
-        "executableExtensions": "supported"
+        "skills": "documented",
+        "mcp": "documented",
+        "hooks": "documented",
+        "scripts": "documented",
+        "executableExtensions": "documented"
       },
       "discoveryRoots": [
         {
@@ -918,11 +918,11 @@
         }
       ],
       "components": {
-        "skills": "supported",
-        "mcp": "supported",
-        "hooks": "supported",
+        "skills": "documented",
+        "mcp": "documented",
+        "hooks": "documented",
         "scripts": "unknown",
-        "executableExtensions": "supported"
+        "executableExtensions": "documented"
       },
       "discoveryRoots": [
         {
@@ -1009,7 +1009,7 @@
       "id": "cursor-plugins",
       "kind": "host",
       "lifecycle": "current",
-      "reviewState": "verified",
+      "reviewState": "documentation-reviewed",
       "versions": {
         "specification": null,
         "client": null,
@@ -1034,11 +1034,11 @@
         }
       ],
       "components": {
-        "skills": "supported",
-        "mcp": "supported",
-        "hooks": "supported",
+        "skills": "documented",
+        "mcp": "documented",
+        "hooks": "documented",
         "scripts": "unknown",
-        "executableExtensions": "supported"
+        "executableExtensions": "documented"
       },
       "discoveryRoots": [
         {
@@ -1108,7 +1108,7 @@
       "id": "kiro-powers",
       "kind": "host",
       "lifecycle": "current",
-      "reviewState": "verified",
+      "reviewState": "documentation-reviewed",
       "versions": {
         "specification": null,
         "client": null,
@@ -1137,7 +1137,7 @@
         "mcp": "optional",
         "hooks": "unknown",
         "scripts": "unknown",
-        "executableExtensions": "supported"
+        "executableExtensions": "documented"
       },
       "discoveryRoots": [
         {
@@ -1204,7 +1204,7 @@
       "id": "hermes-agent-plugins",
       "kind": "host",
       "lifecycle": "current",
-      "reviewState": "verified",
+      "reviewState": "documentation-reviewed",
       "versions": {
         "specification": "1.0.0",
         "client": null,
@@ -1222,11 +1222,11 @@
         }
       ],
       "components": {
-        "skills": "supported",
-        "mcp": "supported",
+        "skills": "documented",
+        "mcp": "documented",
         "hooks": "unsupported",
         "scripts": "unsupported",
-        "executableExtensions": "supported"
+        "executableExtensions": "documented"
       },
       "discoveryRoots": [
         {
@@ -1281,7 +1281,7 @@
       "id": "openclaw-bundles",
       "kind": "host",
       "lifecycle": "current",
-      "reviewState": "verified",
+      "reviewState": "documentation-reviewed",
       "versions": {
         "specification": "1.0.0",
         "client": null,
@@ -1299,11 +1299,11 @@
         }
       ],
       "components": {
-        "skills": "supported",
-        "mcp": "supported",
+        "skills": "documented",
+        "mcp": "documented",
         "hooks": "unsupported",
         "scripts": "unsupported",
-        "executableExtensions": "supported"
+        "executableExtensions": "documented"
       },
       "discoveryRoots": [
         {
@@ -1358,7 +1358,7 @@
       "id": "grok-build-skills",
       "kind": "host",
       "lifecycle": "current",
-      "reviewState": "verified-with-conflicts",
+      "reviewState": "documentation-reviewed-with-conflicts",
       "versions": {
         "specification": null,
         "client": null,
@@ -1384,10 +1384,10 @@
       ],
       "components": {
         "skills": "required",
-        "mcp": "supported",
-        "hooks": "supported",
+        "mcp": "documented",
+        "hooks": "documented",
         "scripts": "unknown",
-        "executableExtensions": "supported"
+        "executableExtensions": "documented"
       },
       "discoveryRoots": [
         {
@@ -1477,8 +1477,8 @@
         }
       ],
       "components": {
-        "skills": "supported",
-        "mcp": "supported",
+        "skills": "documented",
+        "mcp": "documented",
         "hooks": "unknown",
         "scripts": "unknown",
         "executableExtensions": "unknown"
@@ -1537,7 +1537,7 @@
       "id": "nanoclaw-templates",
       "kind": "host",
       "lifecycle": "current",
-      "reviewState": "verified",
+      "reviewState": "documentation-reviewed",
       "versions": {
         "specification": "1.0.0",
         "client": null,
@@ -1555,11 +1555,11 @@
         }
       ],
       "components": {
-        "skills": "supported",
-        "mcp": "supported",
+        "skills": "documented",
+        "mcp": "documented",
         "hooks": "unknown",
         "scripts": "unknown",
-        "executableExtensions": "supported"
+        "executableExtensions": "documented"
       },
       "discoveryRoots": [
         {
@@ -1614,7 +1614,7 @@
       "id": "pi-packages",
       "kind": "package-ecosystem",
       "lifecycle": "local-only",
-      "reviewState": "local-only",
+      "reviewState": "local-evidence-only",
       "versions": {
         "specification": null,
         "client": "0.84.2",
@@ -1633,11 +1633,11 @@
         }
       ],
       "components": {
-        "skills": "supported",
+        "skills": "documented",
         "mcp": "unsupported",
         "hooks": "unknown",
-        "scripts": "supported",
-        "executableExtensions": "supported"
+        "scripts": "documented",
+        "executableExtensions": "documented"
       },
       "discoveryRoots": [
         {
@@ -1722,7 +1722,7 @@
       "id": "junie-extensions",
       "kind": "host",
       "lifecycle": "provisional",
-      "reviewState": "verified-with-conflicts",
+      "reviewState": "documentation-reviewed-with-conflicts",
       "versions": {
         "specification": null,
         "client": null,
@@ -1748,11 +1748,11 @@
         }
       ],
       "components": {
-        "skills": "supported",
-        "mcp": "supported",
+        "skills": "documented",
+        "mcp": "documented",
         "hooks": "unknown",
         "scripts": "unknown",
-        "executableExtensions": "supported"
+        "executableExtensions": "documented"
       },
       "discoveryRoots": [
         {
@@ -1811,7 +1811,7 @@
       "id": "opencode-skills",
       "kind": "host",
       "lifecycle": "current",
-      "reviewState": "verified",
+      "reviewState": "documentation-reviewed",
       "versions": {
         "specification": null,
         "client": null,
@@ -1830,11 +1830,11 @@
         }
       ],
       "components": {
-        "skills": "supported",
-        "mcp": "supported",
-        "hooks": "supported",
+        "skills": "documented",
+        "mcp": "documented",
+        "hooks": "documented",
         "scripts": "unknown",
-        "executableExtensions": "supported"
+        "executableExtensions": "documented"
       },
       "discoveryRoots": [
         {
@@ -1911,7 +1911,7 @@
       "id": "zed-skills",
       "kind": "host",
       "lifecycle": "current",
-      "reviewState": "verified-with-conflicts",
+      "reviewState": "documentation-reviewed-with-conflicts",
       "versions": {
         "specification": null,
         "client": null,
@@ -1929,7 +1929,7 @@
         }
       ],
       "components": {
-        "skills": "supported",
+        "skills": "documented",
         "mcp": "unknown",
         "hooks": "unknown",
         "scripts": "optional",
@@ -2005,7 +2005,7 @@
       "id": "deepseek-deepcode-skills",
       "kind": "host",
       "lifecycle": "current",
-      "reviewState": "verified",
+      "reviewState": "documentation-reviewed",
       "versions": {
         "specification": null,
         "client": null,
@@ -2185,7 +2185,7 @@
       "id": "deepseek-model-integrations",
       "kind": "provider",
       "lifecycle": "current",
-      "reviewState": "verified",
+      "reviewState": "documentation-reviewed",
       "versions": {
         "specification": null,
         "client": null,
@@ -2353,7 +2353,7 @@
       "id": "npm-trusted-publishing",
       "kind": "publication-service",
       "lifecycle": "current",
-      "reviewState": "verified-with-conflicts",
+      "reviewState": "documentation-reviewed-with-conflicts",
       "versions": {
         "specification": null,
         "client": "10.9.2",
