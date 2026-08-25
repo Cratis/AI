@@ -29,8 +29,12 @@ import {
     createAgentPluginManifest,
     createClaudeMarketplace,
     createClaudePluginManifest,
+    createPassiveFixtureProjection,
 } from "./passive-profile-adapters.mjs";
+import { validateProjectedRoot } from "./deterministic-release-tree.mjs";
 import { materializeFixtureArtifact } from "./public-artifact-materializer.mjs";
+import { buildReleaseAssuranceReceipt } from "./release-assurance-validation.mjs";
+import { createReleaseContext } from "./release-context.mjs";
 
 const defaultRepositoryRoot = resolve(
     fileURLToPath(new URL("..", import.meta.url)),
@@ -164,8 +168,10 @@ function assertConfiguration(
         !/^[0-9a-f]{40}$/.test(source.sourceRevision)
     )
         throw new Error("Public fixture artifact authority is inconsistent");
+    const approvedBuffers = new Map();
     for (const path of approvedFiles) {
         const current = readFileSync(join(repositoryRoot, path));
+        approvedBuffers.set(path, current);
         let immutable;
         try {
             immutable = execFileSync(
@@ -183,25 +189,18 @@ function assertConfiguration(
                 `Public fixture source drifted from revision: ${path}`,
             );
     }
-    return { artifact, source };
+    return { artifact, source, approvedBuffers };
 }
 
 export function validateDistributionConfiguration(
     repositoryRoot = defaultRepositoryRoot,
 ) {
     try {
-        const requirements = readJson(
-            join(repositoryRoot, "distribution/marketplace-requirements.json"),
-        );
-        const matrix = readJson(
-            join(repositoryRoot, "distribution/artifact-matrix.json"),
-        );
-        const artifacts = readJson(
-            join(repositoryRoot, "catalog/v2/artifacts.json"),
-        ).artifacts;
-        const sources = readJson(
-            join(repositoryRoot, "catalog/v2/sources.json"),
-        ).sources;
+        const context = createReleaseContext({ repositoryRoot });
+        const requirements = context.catalogs.marketplaceRequirements;
+        const matrix = context.catalogs.artifactMatrix;
+        const artifacts = context.catalogs.artifacts.artifacts;
+        const sources = context.catalogs.sources.sources;
         assertConfiguration(
             requirements,
             matrix,
@@ -228,23 +227,12 @@ export function generateDistributionFixture({
     const root = resolve(outputRoot);
     if (existsSync(root))
         throw new Error(`Distribution stage must not exist: ${root}`);
-    const requirementsPath = join(
-        repositoryRoot,
-        "distribution/marketplace-requirements.json",
-    );
-    const matrixPath = join(
-        repositoryRoot,
-        "distribution/artifact-matrix.json",
-    );
-    const requirements = readJson(requirementsPath);
-    const matrix = readJson(matrixPath);
-    const artifacts = readJson(
-        join(repositoryRoot, "catalog/v2/artifacts.json"),
-    ).artifacts;
-    const sources = readJson(
-        join(repositoryRoot, "catalog/v2/sources.json"),
-    ).sources;
-    const { source } = assertConfiguration(
+    const context = createReleaseContext({ repositoryRoot });
+    const requirements = context.catalogs.marketplaceRequirements;
+    const matrix = context.catalogs.artifactMatrix;
+    const artifacts = context.catalogs.artifacts.artifacts;
+    const sources = context.catalogs.sources.sources;
+    const { source, approvedBuffers } = assertConfiguration(
         requirements,
         matrix,
         artifacts,
@@ -252,13 +240,39 @@ export function generateDistributionFixture({
         repositoryRoot,
     );
 
+    const fixtureProjection = createPassiveFixtureProjection({
+        version,
+        pluginName: "cratis",
+        portableDescription: "Passive Cratis skills fixture.",
+        marketplaceDescription: "Cratis skills-only fixture marketplace",
+        codexDisplayName: "Cratis",
+        piPackageManifest: {
+            name: "@cratis/ai",
+            version,
+            description: "Private passive Cratis skills fixture.",
+            private: true,
+            license: "MIT",
+            files: ["skills"],
+            keywords: ["pi-package"],
+            pi: { skills: ["./skills"] },
+        },
+        skills: [
+            {
+                name: "cratis-fundamentals-concept",
+                files: approvedFiles.map((path) => ({
+                    path: path.split("/").slice(2).join("/"),
+                    content: approvedBuffers.get(path),
+                })),
+            },
+        ],
+    });
     mkdirSync(root, { recursive: false });
     try {
         const canonicalRoot = join(root, "canonical");
         materializeFixtureArtifact({
-            sourceRoot: repositoryRoot,
             stageRoot: canonicalRoot,
             approvedFiles,
+            approvedBuffers,
         });
 
         const portableDescription = "Passive Cratis skills fixture.";
@@ -444,6 +458,7 @@ export function generateDistributionFixture({
             pi: { skills: ["./skills"] },
         });
 
+        validateProjectedRoot(root, fixtureProjection);
         writeJson(join(root, "provider-compatibility.json"), {
             schemaVersion: "1.0.0",
             providers: [
@@ -457,6 +472,26 @@ export function generateDistributionFixture({
             ],
         });
 
+        const assuranceReceiptPath = "artifact-assurance-receipt.json";
+        writeJson(
+            join(root, assuranceReceiptPath),
+            buildReleaseAssuranceReceipt({
+                artifactClasses: [
+                    "passive-skill-package",
+                    "passive-native-metadata",
+                    "marketplace-index",
+                ],
+                assurances: [
+                    "canonical-parity",
+                    "immutable-source",
+                    "path-scanning",
+                    "secret-scanning",
+                    "sha256-inventory",
+                ],
+                releaseManifest: "distribution-manifest.json",
+                policy: context.catalogs.artifactAssurancePolicy,
+            }),
+        );
         const canonicalManifest = approvedFiles.map((path) =>
             manifestFile(canonicalRoot, path),
         );
@@ -470,9 +505,13 @@ export function generateDistributionFixture({
             sourceContentDigest: source.contentDigest,
             generator: "tooling/generate-distribution-fixture.mjs",
             version,
-            requirementsSha256: sha256(readFileSync(requirementsPath)),
-            matrixSha256: sha256(readFileSync(matrixPath)),
+            requirementsSha256: context.catalogDigests.marketplaceRequirements,
+            matrixSha256: context.catalogDigests.artifactMatrix,
             canonicalFiles: canonicalManifest,
+            assuranceReceiptPath,
+            assuranceReceiptSha256: sha256(
+                readFileSync(join(root, assuranceReceiptPath)),
+            ),
             publicationEligible: false,
             promotionEligible: false,
         });

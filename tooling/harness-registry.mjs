@@ -257,6 +257,20 @@ export const harnesses = Object.freeze(
                 ...(definition.modelProviders ?? []),
             ]),
             profileOutputRoot: definition.id,
+            profileProjectionRoots: Object.freeze([
+                Object.freeze({
+                    id: `${definition.id}-primary`,
+                    outputRoot: `harnesses/${definition.id}`,
+                    skillRoot: definition.profileSkillRoot,
+                }),
+            ]),
+            fixtureProjectionRoots: Object.freeze([
+                Object.freeze({
+                    id: `${definition.id}-primary`,
+                    outputRoot: definition.fixtureOutputRoot,
+                    skillRoot: definition.fixtureSkillRoot,
+                }),
+            ]),
         }),
     ),
 );
@@ -315,16 +329,47 @@ export function profileSkillRoot(identifier, pluginName) {
     );
 }
 
+function expandProjectionRoots(roots, pluginName) {
+    return roots.map((root) =>
+        Object.freeze({
+            id: root.id,
+            outputRoot: root.outputRoot,
+            skillRoot: expandSkillRoot(root.skillRoot, pluginName),
+        }),
+    );
+}
+
+export function profileProjectionRoots(identifier, pluginName) {
+    return expandProjectionRoots(
+        resolveHarness(identifier).profileProjectionRoots,
+        pluginName,
+    );
+}
+
+export function fixtureProjectionRoots(identifier, pluginName) {
+    return expandProjectionRoots(
+        resolveHarness(identifier).fixtureProjectionRoots,
+        pluginName,
+    );
+}
+
 export function fixtureSkillRoot(identifier, pluginName) {
-    const harness = resolveHarness(identifier);
-    const skillRoot = expandSkillRoot(harness.fixtureSkillRoot, pluginName);
-    return [harness.fixtureOutputRoot, skillRoot].filter(Boolean).join("/");
+    const roots = fixtureProjectionRoots(identifier, pluginName);
+    if (roots.length !== 1)
+        throw new Error(
+            `${identifier} has ${roots.length} declared fixture roots; use fixtureProjectionRoots()`,
+        );
+    return [roots[0].outputRoot, roots[0].skillRoot].filter(Boolean).join("/");
 }
 
 export function fixtureSkillRoots(pluginName) {
     return harnesses
         .filter((harness) => harness.id !== "agent-skills")
-        .map((harness) => fixtureSkillRoot(harness.id, pluginName));
+        .flatMap((harness) =>
+            fixtureProjectionRoots(harness.id, pluginName).map((root) =>
+                [root.outputRoot, root.skillRoot].filter(Boolean).join("/"),
+            ),
+        );
 }
 
 export function harnessOutputsForProvider(providerId) {

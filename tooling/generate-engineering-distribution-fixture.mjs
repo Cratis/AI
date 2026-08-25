@@ -29,8 +29,12 @@ import {
     createAgentPluginManifest,
     createClaudeMarketplace,
     createClaudePluginManifest,
+    createPassiveFixtureProjection,
 } from "./passive-profile-adapters.mjs";
+import { validateProjectedRoot } from "./deterministic-release-tree.mjs";
 import { materializeFixtureArtifact } from "./public-artifact-materializer.mjs";
+import { buildReleaseAssuranceReceipt } from "./release-assurance-validation.mjs";
+import { createReleaseContext } from "./release-context.mjs";
 
 const defaultRepositoryRoot = resolve(
     fileURLToPath(new URL("..", import.meta.url)),
@@ -105,10 +109,9 @@ function manifestFile(root, path) {
     return { path, sha256: sha256(content), size: content.length };
 }
 
-function validateEngineeringSourceAuthority(repositoryRoot) {
-    const source = readJson(
-        join(repositoryRoot, "catalog/v2/sources.json"),
-    ).sources.find((candidate) => candidate.id === "write-documentation");
+function validateEngineeringSourceAuthority(repositoryRoot, context) {
+    const releaseContext = context ?? createReleaseContext({ repositoryRoot });
+    const source = releaseContext.require("sources", "write-documentation");
     const expectedPaths = approvedFiles.map((path) => `engineering/${path}`);
     if (
         !source ||
@@ -118,8 +121,10 @@ function validateEngineeringSourceAuthority(repositoryRoot) {
         !/^[0-9a-f]{40}$/.test(source.sourceRevision)
     )
         throw new Error("Engineering source authority is inconsistent");
+    const approvedBuffers = new Map();
     for (const path of expectedPaths) {
         const current = readFileSync(join(repositoryRoot, path));
+        approvedBuffers.set(path.slice("engineering/".length), current);
         let immutable;
         try {
             immutable = execFileSync(
@@ -138,31 +143,26 @@ function validateEngineeringSourceAuthority(repositoryRoot) {
                 `Engineering fixture source drifted from revision: ${path}`,
             );
     }
-    return source;
+    return { source, approvedBuffers };
 }
 
 export function validateEngineeringDistributionConfiguration(
     repositoryRoot = defaultRepositoryRoot,
+    context,
 ) {
     try {
-        const artifactMatrix = readJson(
-            join(
-                repositoryRoot,
-                "distribution/engineering-artifact-matrix.json",
-            ),
-        );
+        const releaseContext =
+            context ?? createReleaseContext({ repositoryRoot });
+        const artifactMatrix =
+            releaseContext.catalogs.engineeringArtifactMatrix;
         const evaluationSummary = readJson(
             join(
                 repositoryRoot,
                 "evals/cratis-engineering-docs-authoring/evaluation-summary.json",
             ),
         );
-        const artifacts = readJson(
-            join(repositoryRoot, "catalog/v2/artifacts.json"),
-        ).artifacts;
-        const targets = readJson(
-            join(repositoryRoot, "catalog/v2/targets.json"),
-        ).targets;
+        const artifacts = releaseContext.catalogs.artifacts.artifacts;
+        const targets = releaseContext.catalogs.targets.targets;
         const fixture = artifacts.find(
             (artifact) =>
                 artifact.id === "sanitized-engineering-docs-authoring-fixture",
@@ -176,7 +176,7 @@ export function validateEngineeringDistributionConfiguration(
         const expectedExactPaths = approvedFiles.map(
             (path) => `engineering/${path}`,
         );
-        validateEngineeringSourceAuthority(repositoryRoot);
+        validateEngineeringSourceAuthority(repositoryRoot, releaseContext);
         if (
             artifactMatrix.firstPassiveTarget.state !==
                 "REAL_CANARY_PASS_OWNER_REVIEW_PENDING" ||
@@ -224,27 +224,58 @@ export function generateEngineeringDistributionFixture({
     const root = resolve(outputRoot);
     if (existsSync(root))
         throw new Error(`Engineering fixture stage must not exist: ${root}`);
-    const artifactMatrixPath = join(
-        repositoryRoot,
-        "distribution/engineering-artifact-matrix.json",
-    );
+    const context = createReleaseContext({ repositoryRoot });
     const evaluationSummaryPath = join(
         repositoryRoot,
         "evals/cratis-engineering-docs-authoring/evaluation-summary.json",
     );
-    const configurationErrors =
-        validateEngineeringDistributionConfiguration(repositoryRoot);
+    const configurationErrors = validateEngineeringDistributionConfiguration(
+        repositoryRoot,
+        context,
+    );
     if (configurationErrors.length > 0)
         throw new Error(configurationErrors.join("; "));
-    const source = validateEngineeringSourceAuthority(repositoryRoot);
+    const { source, approvedBuffers } = validateEngineeringSourceAuthority(
+        repositoryRoot,
+        context,
+    );
 
+    const fixtureProjection = createPassiveFixtureProjection({
+        version,
+        pluginName,
+        portableDescription:
+            "Fixture-only passive Cratis engineering documentation skill.",
+        marketplaceDescription:
+            "Fixture-only Cratis engineering skills marketplace",
+        codexDisplayName: "Cratis Engineering Fixture",
+        piPackageManifest: {
+            name: packageName,
+            version,
+            description:
+                "Private fixture-only Cratis engineering documentation skill.",
+            private: true,
+            license: "MIT",
+            files: ["skills"],
+            keywords: ["pi-package"],
+            pi: { skills: ["./skills"] },
+        },
+        skills: [
+            {
+                name: skillName,
+                files: approvedFiles.map((path) => ({
+                    path: path.split("/").slice(2).join("/"),
+                    content: approvedBuffers.get(path),
+                })),
+            },
+        ],
+    });
     mkdirSync(root, { recursive: false });
     try {
         const canonicalRoot = join(root, "canonical");
         materializeFixtureArtifact({
-            sourceRoot: join(repositoryRoot, "engineering"),
             stageRoot: canonicalRoot,
             approvedFiles,
+            approvedBuffers,
         });
 
         const portableDescription =
@@ -453,6 +484,27 @@ export function generateEngineeringDistributionFixture({
             pi: { skills: ["./skills"] },
         });
 
+        validateProjectedRoot(root, fixtureProjection);
+        const assuranceReceiptPath = "artifact-assurance-receipt.json";
+        writeJson(
+            join(root, assuranceReceiptPath),
+            buildReleaseAssuranceReceipt({
+                artifactClasses: [
+                    "passive-skill-package",
+                    "passive-native-metadata",
+                    "marketplace-index",
+                ],
+                assurances: [
+                    "canonical-parity",
+                    "immutable-source",
+                    "path-scanning",
+                    "secret-scanning",
+                    "sha256-inventory",
+                ],
+                releaseManifest: "engineering-distribution-manifest.json",
+                policy: context.catalogs.artifactAssurancePolicy,
+            }),
+        );
         writeJson(join(root, "provenance.json"), {
             schemaVersion: "1.0.0",
             state: "ENGINEERING_FIXTURE_ONLY_NOT_AN_ATTESTATION",
@@ -463,8 +515,13 @@ export function generateEngineeringDistributionFixture({
             evaluationSummarySha256: sha256(
                 readFileSync(evaluationSummaryPath),
             ),
-            engineeringMatrixSha256: sha256(readFileSync(artifactMatrixPath)),
+            engineeringMatrixSha256:
+                context.catalogDigests.engineeringArtifactMatrix,
             version,
+            assuranceReceiptPath,
+            assuranceReceiptSha256: sha256(
+                readFileSync(join(root, assuranceReceiptPath)),
+            ),
             installationEligible: false,
             publicationEligible: false,
             promotionEligible: false,

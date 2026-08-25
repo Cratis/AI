@@ -1,0 +1,145 @@
+{
+  "schemaVersion": 1,
+  "state": "S4_PASSIVE_GENERATION_ONLY",
+  "defaultPolicy": "deny",
+  "currentReleaseUse": "passive-only",
+  "supportGranted": false,
+  "publicationGranted": false,
+  "runtimeGranted": false,
+  "promotionGranted": false,
+  "classes": [
+    {
+      "id": "passive-skill-package",
+      "kind": "passive",
+      "assuranceProfileIds": ["passive-private-fixture-v1", "passive-public-package-v1"],
+      "generationControls": {
+        "immutableSource": "required",
+        "sha256Inventory": "required",
+        "canonicalParity": "required",
+        "secretScanning": "required",
+        "pathScanning": "required",
+        "ecosystemNativeProvenance": "when-supported"
+      },
+      "requiredAssurances": ["canonical-parity", "immutable-source", "path-scanning", "secret-scanning", "sha256-inventory"],
+      "s4EmissionAllowed": true,
+      "supportGranted": false,
+      "publicationGranted": false,
+      "runtimeGranted": false,
+      "promotionGranted": false
+    },
+    {
+      "id": "passive-native-metadata",
+      "kind": "passive",
+      "assuranceProfileIds": ["passive-private-fixture-v1", "passive-public-package-v1"],
+      "generationControls": {
+        "immutableSource": "required",
+        "sha256Inventory": "required",
+        "canonicalParity": "required",
+        "secretScanning": "required",
+        "pathScanning": "required",
+        "ecosystemNativeProvenance": "when-supported"
+      },
+      "requiredAssurances": ["canonical-parity", "immutable-source", "path-scanning", "secret-scanning", "sha256-inventory"],
+      "s4EmissionAllowed": true,
+      "supportGranted": false,
+      "publicationGranted": false,
+      "runtimeGranted": false,
+      "promotionGranted": false
+    },
+    {
+      "id": "passive-effectful-guidance",
+      "kind": "passive",
+      "assuranceProfileIds": ["passive-public-package-v1"],
+      "generationControls": {
+        "immutableSource": "required",
+        "sha256Inventory": "required",
+        "canonicalParity": "required",
+        "secretScanning": "required",
+        "pathScanning": "required",
+        "ecosystemNativeProvenance": "when-supported"
+      },
+      "requiredAssurances": ["canonical-parity", "immutable-source", "path-scanning", "secret-scanning", "sha256-inventory"],
+      "s4EmissionAllowed": false,
+      "supportGranted": false,
+      "publicationGranted": false,
+      "runtimeGranted": false,
+      "promotionGranted": false
+    },
+    {
+      "id": "local-executable-extension",
+      "kind": "executable",
+      "assuranceProfileIds": ["executable-plugin-package-v1"],
+      "generationControls": {
+        "immutableSource": "required",
+        "sha256Inventory": "required",
+        "canonicalParity": "required",
+        "secretScanning": "required",
+        "pathScanning": "required",
+        "ecosystemNativeProvenance": "when-supported"
+      },
+      "requiredAssurances": ["canary", "provenance", "sbom", "threat-model"],
+      "s4EmissionAllowed": false,
+      "supportGranted": false,
+      "publicationGranted": false,
+      "runtimeGranted": false,
+      "promotionGranted": false
+    },
+    {
+      "id": "stdio-mcp-server",
+      "kind": "executable",
+      "assuranceProfileIds": ["mcp-server-package-v1"],
+      "generationControls": {
+        "immutableSource": "required",
+        "sha256Inventory": "required",
+        "canonicalParity": "required",
+        "secretScanning": "required",
+        "pathScanning": "required",
+        "ecosystemNativeProvenance": "when-supported"
+      },
+      "requiredAssurances": ["canary", "provenance", "sbom", "threat-model"],
+      "s4EmissionAllowed": false,
+      "supportGranted": false,
+      "publicationGranted": false,
+      "runtimeGranted": false,
+      "promotionGranted": false
+    },
+    {
+      "id": "remote-mcp-server",
+      "kind": "executable",
+      "assuranceProfileIds": ["mcp-server-package-v1"],
+      "generationControls": {
+        "immutableSource": "required",
+        "sha256Inventory": "required",
+        "canonicalParity": "required",
+        "secretScanning": "required",
+        "pathScanning": "required",
+        "ecosystemNativeProvenance": "when-supported"
+      },
+      "requiredAssurances": ["canary", "provenance", "sbom", "threat-model"],
+      "s4EmissionAllowed": false,
+      "supportGranted": false,
+      "publicationGranted": false,
+      "runtimeGranted": false,
+      "promotionGranted": false
+    },
+    {
+      "id": "marketplace-index",
+      "kind": "publication",
+      "assuranceProfileIds": ["publication-metadata-v1"],
+      "generationControls": {
+        "immutableSource": "required",
+        "sha256Inventory": "required",
+        "canonicalParity": "required",
+        "secretScanning": "required",
+        "pathScanning": "required",
+        "ecosystemNativeProvenance": "when-supported"
+      },
+      "requiredAssurances": ["immutable-source", "path-scanning", "secret-scanning", "sha256-inventory"],
+      "s4EmissionAllowed": true,
+      "supportGranted": false,
+      "publicationGranted": false,
+      "runtimeGranted": false,
+      "promotionGranted": false
+    }
+  ]
+}

@@ -1091,7 +1091,7 @@ const definitions = [
     },
     {
         id: "catalog-and-redesign-tooling",
-        sourcePathPatterns: ["tooling/*.mjs"],
+        sourcePathPatterns: ["tooling/*.mjs", "tooling/benchmarks/**"],
         artifactType: "validation-tooling",
         currentOwner: repositoryOwner,
         targetOwner: repositoryOwner,

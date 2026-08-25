@@ -19,6 +19,8 @@ import { fileURLToPath } from "node:url";
 import { gunzipSync, gzipSync } from "node:zlib";
 import { passiveHarnesses } from "./harness-registry.mjs";
 import { generatePassiveProfileAdapters } from "./passive-profile-adapters.mjs";
+import { buildReleaseAssuranceReceipt } from "./release-assurance-validation.mjs";
+import { createReleaseContext } from "./release-context.mjs";
 
 const defaultRepositoryRoot = resolve(
     fileURLToPath(new URL("..", import.meta.url)),
@@ -34,16 +36,6 @@ const requiredSourceContentDigest =
 
 function sha256(content) {
     return createHash("sha256").update(content).digest("hex");
-}
-
-function readJson(path) {
-    try {
-        return JSON.parse(readFileSync(path, "utf8"));
-    } catch (error) {
-        throw new Error(`Unable to parse preview input: ${path}`, {
-            cause: error,
-        });
-    }
 }
 
 function writeJson(path, value) {
@@ -181,24 +173,11 @@ function sourceDigest(paths, contents) {
 }
 
 function loadPreviewAuthority(repositoryRoot) {
-    const profiles = readJson(
-        join(repositoryRoot, "distribution/profile-catalog.json"),
-    );
-    const profile = profiles.publicProfiles.find(
-        (candidate) => candidate.id === profileId,
-    );
-    const targets = readJson(
-        join(repositoryRoot, "catalog/v2/targets.json"),
-    ).targets;
-    const target = targets.find((candidate) => candidate.id === targetId);
-    const sources = readJson(
-        join(repositoryRoot, "catalog/v2/sources.json"),
-    ).sources;
-    const source = sources.find((candidate) => candidate.id === sourceId);
-    const artifacts = readJson(
-        join(repositoryRoot, "catalog/v2/artifacts.json"),
-    ).artifacts;
-    const artifact = artifacts.find((candidate) => candidate.id === artifactId);
+    const context = createReleaseContext({ repositoryRoot });
+    const profile = context.require("profileCatalog", profileId);
+    const target = context.require("targets", targetId);
+    const source = context.require("sources", sourceId);
+    const artifact = context.require("artifacts", artifactId);
     if (
         profile?.state !== "preview-source-candidate" ||
         JSON.stringify(profile.availableTargets) !==
@@ -232,6 +211,7 @@ function loadPreviewAuthority(repositoryRoot) {
         throw new Error("Fundamentals preview immutable source digest changed");
     const prefix = `${source.sourcePath}/`;
     return {
+        context,
         profile,
         target,
         source,
@@ -309,6 +289,31 @@ export function packageFundamentalsPreviewAssets({
                 sha256: sha256(content),
             });
         }
+        const deterministicManifestPath = "deterministic-release-manifest.json";
+        writeJson(
+            join(root, deterministicManifestPath),
+            adapterManifest.deterministicManifest,
+        );
+        const assuranceReceiptPath = "artifact-assurance-receipt.json";
+        writeJson(
+            join(root, assuranceReceiptPath),
+            buildReleaseAssuranceReceipt({
+                artifactClasses: [
+                    "passive-skill-package",
+                    "passive-native-metadata",
+                    "marketplace-index",
+                ],
+                assurances: [
+                    "canonical-parity",
+                    "immutable-source",
+                    "path-scanning",
+                    "secret-scanning",
+                    "sha256-inventory",
+                ],
+                releaseManifest: deterministicManifestPath,
+                policy: authority.context.catalogs.artifactAssurancePolicy,
+            }),
+        );
         const complianceReceiptPath = "compliance-receipts.json";
         writeJson(
             join(root, complianceReceiptPath),
@@ -322,10 +327,13 @@ export function packageFundamentalsPreviewAssets({
             encoding: "utf8",
         }).trim();
         const generatorPaths = [
+            "tooling/deterministic-release-tree.mjs",
+            "tooling/harness-registry.mjs",
             "tooling/package-fundamentals-preview-assets.mjs",
             "tooling/passive-profile-adapters.mjs",
             "tooling/portable-compliance-validation.mjs",
-            "tooling/harness-registry.mjs",
+            "tooling/release-assurance-validation.mjs",
+            "tooling/release-context.mjs",
         ];
         const generatorHash = createHash("sha256");
         for (const path of generatorPaths) {
@@ -351,6 +359,16 @@ export function packageFundamentalsPreviewAssets({
             generatorPaths,
             generatorDigest,
             assets,
+            deterministicReleaseTree: {
+                manifestPath: deterministicManifestPath,
+                manifestSha256: sha256(
+                    readFileSync(join(root, deterministicManifestPath)),
+                ),
+                assuranceReceiptPath,
+                assuranceReceiptSha256: sha256(
+                    readFileSync(join(root, assuranceReceiptPath)),
+                ),
+            },
             portableCompliance: {
                 profile: adapterManifest.compliance.profile,
                 profileDigest: adapterManifest.compliance.profileDigest,
@@ -362,6 +380,8 @@ export function packageFundamentalsPreviewAssets({
                 approvalGranted: false,
                 supportGranted: false,
                 publicationGranted: false,
+                runtimeGranted: false,
+                promotionGranted: false,
             },
             approvalEligible: false,
             installationSupported: false,

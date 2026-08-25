@@ -170,11 +170,22 @@ test("Fundamentals preview assets are deterministic and non-publishable", () => 
         assert.equal(first.assets.length, passiveHarnesses.length);
         assert.match(first.generatorDigest, /^[0-9a-f]{64}$/);
         assert.deepEqual(first.generatorPaths, [
+            "tooling/deterministic-release-tree.mjs",
+            "tooling/harness-registry.mjs",
             "tooling/package-fundamentals-preview-assets.mjs",
             "tooling/passive-profile-adapters.mjs",
             "tooling/portable-compliance-validation.mjs",
-            "tooling/harness-registry.mjs",
+            "tooling/release-assurance-validation.mjs",
+            "tooling/release-context.mjs",
         ]);
+        assert.match(
+            first.deterministicReleaseTree.manifestSha256,
+            /^[0-9a-f]{64}$/,
+        );
+        assert.match(
+            first.deterministicReleaseTree.assuranceReceiptSha256,
+            /^[0-9a-f]{64}$/,
+        );
         assert.equal(first.portableCompliance.profile, "cratis-passive-v1");
         assert.match(first.portableCompliance.profileDigest, /^[0-9a-f]{64}$/);
         assert.match(first.portableCompliance.receiptSha256, /^[0-9a-f]{64}$/);
@@ -237,9 +248,11 @@ test("Fundamentals preview assets are deterministic and non-publishable", () => 
         const checksums = readFileSync(join(firstRoot, "SHA256SUMS"), "utf8");
         assert(checksums.includes("preview-assets.json"));
         assert(checksums.includes("preview-sbom.json"));
+        assert(checksums.includes("deterministic-release-manifest.json"));
+        assert(checksums.includes("artifact-assurance-receipt.json"));
         assert.equal(
             checksums.trim().split("\n").length,
-            passiveHarnesses.length + 3,
+            passiveHarnesses.length + 5,
         );
     });
 });

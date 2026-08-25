@@ -71,6 +71,23 @@ assurance. Receipts explicitly record that no execution or network access
 occurred and that validation grants no approval, support, promotion, or
 publication state. Existing approval and release gates remain authoritative.
 
+The S4 generation foundation loads validated release catalogs once into frozen,
+ordinal ID indexes. It reads each approved source into one private logical byte
+tree, projects every registry-declared root explicitly, writes a new candidate
+exclusively in ordinal order, and then rereads and hashes every final file. The
+complete expected and actual inventories must match. Case, Unicode
+normalization, parent/file, symlink, special-file, and escape collisions fail
+the whole candidate. There is no persistent cache, changed-only mode, sampled
+validation, or network authority.
+
+`distribution/artifact-assurance-policy.json` binds the existing S1 assurance
+profiles to seven closed artifact classes. S4 emits only passive skill,
+passive native metadata, and marketplace-index material already present in the
+13 current roots. Executable extensions and local or remote MCP servers remain
+non-emitting and fail closed without SBOM, provenance, threat-model, and canary
+assurances. No Agent Plugin manifest fields are added for these repository
+controls.
+
 ## Complete gate
 
 Run the repository's full gate after changing the contract, validator,
@@ -84,6 +101,8 @@ node tooling/generate-ecosystem-artifact-coverage.mjs
 node tooling/generate-human-catalog.mjs
 node tooling/generate-repository-inventory.mjs
 node tooling/portable-compliance-validation.mjs --verify-lock
+node tooling/release-assurance-validation.mjs
+node tooling/benchmarks/release-generation.mjs 1
 node tooling/validate-catalogs.mjs
 node --test tooling/specs/*.spec.mjs
 .ai/hooks/scripts/validate-ai-setup.sh

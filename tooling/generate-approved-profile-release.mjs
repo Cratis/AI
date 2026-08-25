@@ -18,6 +18,8 @@ import {
     readSkillFrontmatter,
 } from "./passive-profile-adapters.mjs";
 import { presentProfile } from "./profile-presentation.mjs";
+import { buildReleaseAssuranceReceipt } from "./release-assurance-validation.mjs";
+import { createReleaseContext } from "./release-context.mjs";
 
 const defaultRepositoryRoot = resolve(
     fileURLToPath(new URL("..", import.meta.url)),
@@ -25,16 +27,6 @@ const defaultRepositoryRoot = resolve(
 
 function sha256(content) {
     return createHash("sha256").update(content).digest("hex");
-}
-
-function readJson(path) {
-    try {
-        return JSON.parse(readFileSync(path, "utf8"));
-    } catch (error) {
-        throw new Error(`Unable to parse release input: ${path}`, {
-            cause: error,
-        });
-    }
 }
 
 function writeJson(path, value) {
@@ -311,22 +303,15 @@ export function buildApprovedProfileReleasePlan({
 }
 
 function readRepositoryInputs(repositoryRoot) {
+    const context = createReleaseContext({ repositoryRoot });
     return {
-        profileCatalog: readJson(
-            join(repositoryRoot, "distribution/profile-catalog.json"),
-        ),
-        targets: readJson(join(repositoryRoot, "catalog/v2/targets.json"))
-            .targets,
-        sources: readJson(join(repositoryRoot, "catalog/v2/sources.json"))
-            .sources,
-        sourceContracts: readJson(
-            join(repositoryRoot, "catalog/v2/source-contracts.json"),
-        ).contracts,
-        authoringContracts: readJson(
-            join(repositoryRoot, "catalog/v2/authoring-contracts.json"),
-        ).contracts,
-        artifacts: readJson(join(repositoryRoot, "catalog/v2/artifacts.json"))
-            .artifacts,
+        context,
+        profileCatalog: context.catalogs.profileCatalog,
+        targets: context.catalogs.targets.targets,
+        sources: context.catalogs.sources.sources,
+        sourceContracts: context.catalogs.sourceContracts.contracts,
+        authoringContracts: context.catalogs.authoringContracts.contracts,
+        artifacts: context.catalogs.artifacts.artifacts,
     };
 }
 
@@ -393,6 +378,31 @@ export function generateApprovedProfileRelease({
             description: plan.description,
             skills,
         });
+        const deterministicManifestPath = "deterministic-release-manifest.json";
+        writeJson(
+            join(root, deterministicManifestPath),
+            adapterManifest.deterministicManifest,
+        );
+        const assuranceReceiptPath = "artifact-assurance-receipt.json";
+        writeJson(
+            join(root, assuranceReceiptPath),
+            buildReleaseAssuranceReceipt({
+                artifactClasses: [
+                    "passive-skill-package",
+                    "passive-native-metadata",
+                    "marketplace-index",
+                ],
+                assurances: [
+                    "canonical-parity",
+                    "immutable-source",
+                    "path-scanning",
+                    "secret-scanning",
+                    "sha256-inventory",
+                ],
+                releaseManifest: deterministicManifestPath,
+                policy: inputs.context.catalogs.artifactAssurancePolicy,
+            }),
+        );
         const complianceReceiptPath = "compliance-receipts.json";
         writeJson(
             join(root, complianceReceiptPath),
@@ -415,10 +425,14 @@ export function generateApprovedProfileRelease({
             encoding: "utf8",
         }).trim();
         const generatorPaths = [
+            "tooling/deterministic-release-tree.mjs",
             "tooling/generate-approved-profile-release.mjs",
+            "tooling/harness-registry.mjs",
             "tooling/passive-profile-adapters.mjs",
             "tooling/portable-compliance-validation.mjs",
             "tooling/profile-presentation.mjs",
+            "tooling/release-assurance-validation.mjs",
+            "tooling/release-context.mjs",
         ];
         const generatorHash = createHash("sha256");
         for (const path of generatorPaths) {
@@ -443,6 +457,16 @@ export function generateApprovedProfileRelease({
             profileDescription: plan.description,
             version,
             artifactId: plan.artifactId,
+            deterministicReleaseTree: {
+                manifestPath: deterministicManifestPath,
+                manifestSha256: sha256(
+                    readFileSync(join(root, deterministicManifestPath)),
+                ),
+                assuranceReceiptPath,
+                assuranceReceiptSha256: sha256(
+                    readFileSync(join(root, assuranceReceiptPath)),
+                ),
+            },
             portableCompliance: {
                 profile: adapterManifest.compliance.profile,
                 profileDigest: adapterManifest.compliance.profileDigest,
@@ -454,6 +478,8 @@ export function generateApprovedProfileRelease({
                 approvalGranted: false,
                 supportGranted: false,
                 publicationGranted: false,
+                runtimeGranted: false,
+                promotionGranted: false,
             },
             targets: plan.selectedSources.map(({ target, source }) => ({
                 targetId: target.id,
@@ -491,7 +517,10 @@ export function generateApprovedProfileRelease({
             instructionsFile: "release-instructions.md",
             supportMatrixFile: "support-matrix.json",
             complianceReceiptFile: complianceReceiptPath,
+            deterministicManifestFile: deterministicManifestPath,
+            assuranceReceiptFile: assuranceReceiptPath,
             publicationEligible: releaseMode,
+            runtimeEligible: false,
             promotionEligible: false,
         };
         writeJson(join(root, "release-manifest.json"), releaseManifest);

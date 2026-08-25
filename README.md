@@ -152,6 +152,7 @@ node tooling/generate-ecosystem-artifact-coverage.mjs
 node tooling/generate-human-catalog.mjs
 node tooling/generate-repository-inventory.mjs
 node tooling/portable-compliance-validation.mjs --verify-lock
+node tooling/release-assurance-validation.mjs
 node tooling/validate-catalogs.mjs
 node --test tooling/specs/*.spec.mjs
 .ai/hooks/scripts/validate-ai-setup.sh

@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cratis/AI/distribution/artifact-assurance-policy.schema.json",
+  "title": "Cratis deterministic release artifact assurance policy",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "idArray": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/id" }
+    },
+    "artifactClass": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "assuranceProfileIds",
+        "generationControls",
+        "requiredAssurances",
+        "s4EmissionAllowed",
+        "supportGranted",
+        "publicationGranted",
+        "runtimeGranted",
+        "promotionGranted"
+      ],
+      "properties": {
+        "id": {
+          "enum": [
+            "passive-skill-package",
+            "passive-native-metadata",
+            "passive-effectful-guidance",
+            "local-executable-extension",
+            "stdio-mcp-server",
+            "remote-mcp-server",
+            "marketplace-index"
+          ]
+        },
+        "kind": { "enum": ["passive", "executable", "publication"] },
+        "assuranceProfileIds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "generationControls": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "immutableSource",
+            "sha256Inventory",
+            "canonicalParity",
+            "secretScanning",
+            "pathScanning",
+            "ecosystemNativeProvenance"
+          ],
+          "properties": {
+            "immutableSource": { "enum": ["required", "not-applicable"] },
+            "sha256Inventory": { "enum": ["required", "not-applicable"] },
+            "canonicalParity": { "enum": ["required", "not-applicable"] },
+            "secretScanning": { "enum": ["required", "not-applicable"] },
+            "pathScanning": { "enum": ["required", "not-applicable"] },
+            "ecosystemNativeProvenance": { "enum": ["when-supported", "required", "not-applicable"] }
+          }
+        },
+        "requiredAssurances": { "$ref": "#/$defs/idArray" },
+        "s4EmissionAllowed": { "type": "boolean" },
+        "supportGranted": { "const": false },
+        "publicationGranted": { "const": false },
+        "runtimeGranted": { "const": false },
+        "promotionGranted": { "const": false }
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "state",
+    "defaultPolicy",
+    "currentReleaseUse",
+    "supportGranted",
+    "publicationGranted",
+    "runtimeGranted",
+    "promotionGranted",
+    "classes"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "state": { "const": "S4_PASSIVE_GENERATION_ONLY" },
+    "defaultPolicy": { "const": "deny" },
+    "currentReleaseUse": { "const": "passive-only" },
+    "supportGranted": { "const": false },
+    "publicationGranted": { "const": false },
+    "runtimeGranted": { "const": false },
+    "promotionGranted": { "const": false },
+    "classes": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/artifactClass" }
+    }
+  }
+}

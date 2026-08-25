@@ -16,6 +16,7 @@ import { validateReleaseRequests } from "./release-request-validation.mjs";
 import { validateReleaseApprovals } from "./release-approval-validation.mjs";
 import { validateEcosystemArtifactContracts } from "./ecosystem-artifact-validation.mjs";
 import { validateSupportCatalogs } from "./support-validation.mjs";
+import { validateReleaseAssurancePolicy } from "./release-assurance-validation.mjs";
 import {
     formatComplianceDiagnostics,
     validateSpecificationLock,
@@ -36,6 +37,7 @@ const errors = [
     ...validateReleaseApprovals(),
     ...validateEcosystemArtifactContracts(),
     ...validateSupportCatalogs(),
+    ...validateReleaseAssurancePolicy(),
     ...validateSpecificationLock().map((diagnostic) =>
         formatComplianceDiagnostics([diagnostic]),
     ),
