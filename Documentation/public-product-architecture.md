@@ -148,9 +148,10 @@ for that release.
 ## Grok and DeepSeek adapters
 
 Grok Build is an xAI coding-agent harness with native project `.grok/skills`
-and user `~/.grok/skills` discovery. Generated distributions therefore include
-a native `grok/.grok/skills/` adapter in addition to the Claude marketplace that
-Grok can consume through its documented Claude Code compatibility.
+and user `~/.grok/skills` discovery. The generator currently emits only the
+Claude-compatible marketplace and plugin under `grok/`, which Grok can consume
+through its documented Claude Code compatibility. A native `grok/.grok/skills/`
+projection is planned but is not emitted today.
 
 DeepSeek has two distinct roles. DeepSeek Harness is an official developer-
 preview agent harness and receives direct, non-recursive

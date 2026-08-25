@@ -15,6 +15,7 @@ import { join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { compareOrdinal } from "./catalog-ordering.mjs";
 import { readCatalog } from "./catalog-validation.mjs";
+import { artifactForbiddenPathPatterns } from "./harness-registry.mjs";
 
 const repositoryRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const outputRoot = join(repositoryRoot, "catalog/v2");
@@ -1415,21 +1416,9 @@ writeJson("artifacts.json", {
                 "skills/<approved-target>/assets/**",
                 "skills/<approved-target>/LICENSE*",
             ],
-            forbiddenPathPatterns: [
-                "engineering/**",
-                "**/scripts/**",
-                "**/evals/**",
-                "rules/**",
-                "agents/**",
-                "prompts/**",
-                "commands/**",
-                "hooks/**",
-                "lsp/**",
-                "tooling/**",
-                "workflows/**",
-                ".pi/**",
-                ".git/**",
-            ],
+            forbiddenPathPatterns: artifactForbiddenPathPatterns({
+                audience: "public",
+            }),
             requiresApprovedTargets: true,
             evidenceIds: [
                 "workflows-68",
@@ -1451,26 +1440,9 @@ writeJson("artifacts.json", {
                 "engineering/skills/<approved-target>/assets/**",
                 "engineering/skills/<approved-target>/LICENSE*",
             ],
-            forbiddenPathPatterns: [
-                "skills/**",
-                "**/scripts/**",
-                "**/evals/**",
-                "rules/**",
-                "agents/**",
-                "prompts/**",
-                "commands/**",
-                "hooks/**",
-                "lsp/**",
-                "tooling/**",
-                "workflows/**",
-                ".pi/**",
-                ".git/**",
-                ".cratis/PROJECT.md",
-                ".agents/PROJECT.md",
-                "AGENTS.md",
-                "CLAUDE.md",
-                "GEMINI.md",
-            ],
+            forbiddenPathPatterns: artifactForbiddenPathPatterns({
+                audience: "cratis-engineering",
+            }),
             requiresApprovedTargets: true,
             evidenceIds: [
                 "workflows-68",
@@ -1498,25 +1470,10 @@ writeJson("artifacts.json", {
                 "skills/cratis-engineering-docs-authoring/SKILL.md",
                 "skills/cratis-engineering-docs-authoring/references/**",
             ],
-            forbiddenPathPatterns: [
-                "**/scripts/**",
-                "**/evals/**",
-                "rules/**",
-                "agents/**",
-                "prompts/**",
-                "commands/**",
-                "hooks/**",
-                "lsp/**",
-                "tooling/**",
-                "workflows/**",
-                ".pi/**",
-                ".git/**",
-                ".cratis/PROJECT.md",
-                ".agents/PROJECT.md",
-                "AGENTS.md",
-                "CLAUDE.md",
-                "GEMINI.md",
-            ],
+            forbiddenPathPatterns: artifactForbiddenPathPatterns({
+                audience: "cratis-engineering",
+                fixture: true,
+            }),
             requiresApprovedTargets: false,
             evidenceIds: [
                 "engineering-docs-authoring-source-f58bcf7",
@@ -1543,21 +1500,9 @@ writeJson("artifacts.json", {
                 "skills/cratis-fundamentals-concept/assets/**",
                 "skills/cratis-fundamentals-concept/LICENSE*",
             ],
-            forbiddenPathPatterns: [
-                "engineering/**",
-                "**/scripts/**",
-                "**/evals/**",
-                "rules/**",
-                "agents/**",
-                "prompts/**",
-                "commands/**",
-                "hooks/**",
-                "lsp/**",
-                "tooling/**",
-                "workflows/**",
-                ".pi/**",
-                ".git/**",
-            ],
+            forbiddenPathPatterns: artifactForbiddenPathPatterns({
+                audience: "public",
+            }),
             requiresApprovedTargets: false,
             evidenceIds: [
                 "reevaluation-authority",

@@ -17,10 +17,8 @@ import { tmpdir } from "node:os";
 import { join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { gunzipSync, gzipSync } from "node:zlib";
-import {
-    generatePassiveProfileAdapters,
-    passiveHarnesses,
-} from "./passive-profile-adapters.mjs";
+import { passiveHarnesses } from "./harness-registry.mjs";
+import { generatePassiveProfileAdapters } from "./passive-profile-adapters.mjs";
 
 const defaultRepositoryRoot = resolve(
     fileURLToPath(new URL("..", import.meta.url)),
@@ -318,6 +316,7 @@ export function packageFundamentalsPreviewAssets({
         const generatorPaths = [
             "tooling/package-fundamentals-preview-assets.mjs",
             "tooling/passive-profile-adapters.mjs",
+            "tooling/harness-registry.mjs",
         ];
         const generatorHash = createHash("sha256");
         for (const path of generatorPaths) {

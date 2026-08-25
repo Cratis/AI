@@ -18,6 +18,14 @@ import {
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+    claudeCompatibleHarnesses,
+    fixtureOutputRoots,
+    fixtureSkillRoot,
+    fixtureSkillRoots,
+    harnessOutputsForProvider,
+    resolveHarness,
+} from "./harness-registry.mjs";
+import {
     createAgentPluginManifest,
     createClaudeMarketplace,
     createClaudePluginManifest,
@@ -31,21 +39,7 @@ const approvedFiles = [
     "skills/cratis-fundamentals-concept/LICENSE",
     "skills/cratis-fundamentals-concept/SKILL.md",
 ];
-const generatedTargets = [
-    "canonical",
-    "agent-plugin",
-    "claude",
-    "codex",
-    "copilot",
-    "cursor",
-    "deepcode",
-    "deepseek",
-    "gemini",
-    "grok",
-    "junie",
-    "kiro",
-    "pi",
-];
+const generatedTargets = fixtureOutputRoots;
 
 function sha256(content) {
     return createHash("sha256").update(content).digest("hex");
@@ -377,13 +371,16 @@ export function generateDistributionFixture({
             }),
         );
 
-        const deepCodeRoot = join(root, "deepcode/.deepcode");
+        const deepCodeRoot = join(root, fixtureSkillRoot("deepcode", "cratis"));
         copyCanonicalSkill(canonicalRoot, deepCodeRoot);
 
-        const deepSeekRoot = join(root, "deepseek/.dsh");
+        const deepSeekRoot = join(
+            root,
+            fixtureSkillRoot("deepseek-harness", "cratis"),
+        );
         copyCanonicalSkill(canonicalRoot, deepSeekRoot);
 
-        const geminiRoot = join(root, "gemini");
+        const geminiRoot = join(root, fixtureSkillRoot("gemini", "cratis"));
         copyCanonicalSkill(canonicalRoot, geminiRoot);
         writeJson(join(geminiRoot, "gemini-extension.json"), {
             name: "cratis",
@@ -391,8 +388,13 @@ export function generateDistributionFixture({
             description: "Passive Cratis skills fixture.",
         });
 
-        for (const harness of ["grok", "junie"]) {
-            const compatibleRoot = join(root, harness);
+        for (const harness of claudeCompatibleHarnesses.filter(
+            (harness) => harness !== "claude",
+        )) {
+            const compatibleRoot = join(
+                root,
+                resolveHarness(harness).fixtureOutputRoot,
+            );
             copyCanonicalSkill(
                 canonicalRoot,
                 join(compatibleRoot, "plugins/cratis"),
@@ -448,13 +450,8 @@ export function generateDistributionFixture({
                 {
                     id: "deepseek",
                     artifactStrategy: "USE_HARNESS_PACKAGE",
-                    supportedHarnessOutputs: [
-                        "claude",
-                        "copilot",
-                        "deepcode",
-                        "deepseek",
-                        "pi",
-                    ],
+                    supportedHarnessOutputs:
+                        harnessOutputsForProvider("deepseek"),
                     distinctArtifactRoot: null,
                 },
             ],
@@ -531,20 +528,7 @@ export function validateDistributionFixture(outputRoot) {
             );
     }
     const canonicalRoot = join(root, "canonical");
-    const targetSkillRoots = [
-        "agent-plugin",
-        "claude/plugins/cratis",
-        "codex/plugins/cratis",
-        "copilot/plugins/cratis",
-        "cursor/plugins/cratis",
-        "deepcode/.deepcode",
-        "deepseek/.dsh",
-        "gemini",
-        "grok/plugins/cratis",
-        "junie/plugins/cratis",
-        "kiro",
-        "pi/package",
-    ];
+    const targetSkillRoots = fixtureSkillRoots("cratis");
     for (const path of approvedFiles) {
         const canonical = readFileSync(join(canonicalRoot, path));
         for (const targetRoot of targetSkillRoots) {
@@ -564,13 +548,7 @@ export function validateDistributionFixture(outputRoot) {
             {
                 id: "deepseek",
                 artifactStrategy: "USE_HARNESS_PACKAGE",
-                supportedHarnessOutputs: [
-                    "claude",
-                    "copilot",
-                    "deepcode",
-                    "deepseek",
-                    "pi",
-                ],
+                supportedHarnessOutputs: harnessOutputsForProvider("deepseek"),
                 distinctArtifactRoot: null,
             },
         ])
@@ -702,7 +680,9 @@ function smokeClaudeCompatiblePluginFixture(
         join(installed, "skills/cratis-fundamentals-concept/SKILL.md"),
     );
     if (!sourceSkill.equals(installedSkill))
-        throw new Error("Claude-compatible plugin install changed canonical bytes");
+        throw new Error(
+            "Claude-compatible plugin install changed canonical bytes",
+        );
     rmSync(installed, { recursive: true, force: false });
     if (existsSync(installed))
         throw new Error("Claude-compatible plugin uninstall left content");
@@ -713,8 +693,8 @@ export function smokeGrokDistributionFixture(outputRoot, temporaryRoot) {
     return smokeClaudeCompatiblePluginFixture(
         outputRoot,
         temporaryRoot,
-        "grok",
-        ".grok/plugins",
+        resolveHarness("grok").fixtureOutputRoot,
+        resolveHarness("grok").projectSkillRoot,
     );
 }
 
@@ -722,8 +702,8 @@ export function smokeDeepCodeDistributionFixture(outputRoot, temporaryRoot) {
     return smokeDirectSkillFixture(
         outputRoot,
         temporaryRoot,
-        "deepcode/.deepcode",
-        ".deepcode/skills",
+        fixtureSkillRoot("deepcode", "cratis"),
+        resolveHarness("deepcode").projectSkillRoot,
     );
 }
 
@@ -731,8 +711,8 @@ export function smokeDeepSeekDistributionFixture(outputRoot, temporaryRoot) {
     return smokeDirectSkillFixture(
         outputRoot,
         temporaryRoot,
-        "deepseek/.dsh",
-        ".dsh/skills",
+        fixtureSkillRoot("deepseek-harness", "cratis"),
+        resolveHarness("deepseek-harness").projectSkillRoot,
     );
 }
 

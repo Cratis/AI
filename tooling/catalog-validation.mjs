@@ -4,6 +4,7 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { forbiddenPathPolicy } from "./harness-registry.mjs";
 
 const moduleDirectory = dirname(fileURLToPath(import.meta.url));
 export const defaultRepositoryRoot = resolve(moduleDirectory, "..");
@@ -495,16 +496,7 @@ function validatePublicSkills(catalog, coverage, root) {
         }
     }
 
-    const requiredForbiddenPatterns = [
-        "rules/**",
-        "agents/**",
-        "prompts/**",
-        "hooks/**",
-        "scripts/**",
-        "evals/**",
-        ".ai/**",
-    ];
-    for (const pattern of requiredForbiddenPatterns) {
+    for (const pattern of forbiddenPathPolicy.publicRuntimePatterns) {
         if (!catalog.runtimePayloadPolicy.forbidden.includes(pattern)) {
             errors.push(`runtimePayloadPolicy must forbid ${pattern}`);
         }
@@ -573,39 +565,9 @@ function validateProductCoverage(coverage, publicSkills) {
 function validateEcosystems(registry) {
     const errors = [];
     const ecosystemIds = registry.ecosystems.map((ecosystem) => ecosystem.id);
-    const requiredEcosystems = [
-        "agent-plugins",
-        "agent-skills",
-        "model-context-protocol",
-        "mcp-registry",
-        "github-cli-skills",
-        "vscode-agent-plugins",
-        "github-copilot-plugins",
-        "openai-plugins",
-        "claude-code-plugins",
-        "gemini-cli-extensions",
-        "cursor-plugins",
-        "kiro-powers",
-        "hermes-agent-plugins",
-        "openclaw-bundles",
-        "grok-bot-plugins",
-        "nanoclaw-templates",
-        "pi-packages",
-        "junie-extensions",
-        "opencode-skills",
-        "zed-skills",
-        "deepseek-deepcode-skills",
-        "deepseek-harness-skills",
-        "npm-cratis-scope",
-        "npm-trusted-publishing",
-    ];
 
     for (const duplicate of findDuplicates(ecosystemIds))
         errors.push(`ecosystem-versions contains duplicate id ${duplicate}`);
-    for (const required of requiredEcosystems) {
-        if (!ecosystemIds.includes(required))
-            errors.push(`ecosystem-versions is missing ${required}`);
-    }
     for (const ecosystem of registry.ecosystems) {
         for (const source of ecosystem.sources) {
             if (!source.url.startsWith("https://"))

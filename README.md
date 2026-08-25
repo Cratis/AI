@@ -144,6 +144,7 @@ repositories receive reviewed update pull requests.
 Run the complete local gate after changing release-relevant content:
 
 ```bash
+node tooling/harness-registry.mjs
 node tooling/generate-catalog-v2.mjs
 node tooling/generate-human-catalog.mjs
 node tooling/generate-repository-inventory.mjs

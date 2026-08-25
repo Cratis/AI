@@ -18,6 +18,14 @@ import {
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+    claudeCompatibleHarnesses,
+    fixtureOutputRoots,
+    fixtureSkillRoot,
+    fixtureSkillRoots,
+    forbiddenPathPolicy,
+    resolveHarness,
+} from "./harness-registry.mjs";
+import {
     createAgentPluginManifest,
     createClaudeMarketplace,
     createClaudePluginManifest,
@@ -35,21 +43,7 @@ const approvedFiles = [
     `skills/${skillName}/SKILL.md`,
     `skills/${skillName}/references/site-format.md`,
 ];
-const generatedTargets = [
-    "canonical",
-    "agent-plugin",
-    "claude",
-    "codex",
-    "copilot",
-    "cursor",
-    "deepcode",
-    "deepseek",
-    "gemini",
-    "grok",
-    "junie",
-    "kiro",
-    "pi",
-];
+const generatedTargets = fixtureOutputRoots;
 
 function sha256(content) {
     return createHash("sha256").update(content).digest("hex");
@@ -381,13 +375,19 @@ export function generateEngineeringDistributionFixture({
             }),
         );
 
-        const deepCodeRoot = join(root, "deepcode/.deepcode");
+        const deepCodeRoot = join(
+            root,
+            fixtureSkillRoot("deepcode", pluginName),
+        );
         copyCanonical(canonicalRoot, deepCodeRoot);
 
-        const deepSeekRoot = join(root, "deepseek/.dsh");
+        const deepSeekRoot = join(
+            root,
+            fixtureSkillRoot("deepseek-harness", pluginName),
+        );
         copyCanonical(canonicalRoot, deepSeekRoot);
 
-        const geminiRoot = join(root, "gemini");
+        const geminiRoot = join(root, fixtureSkillRoot("gemini", pluginName));
         copyCanonical(canonicalRoot, geminiRoot);
         writeJson(join(geminiRoot, "gemini-extension.json"), {
             name: pluginName,
@@ -396,8 +396,13 @@ export function generateEngineeringDistributionFixture({
                 "Fixture-only passive Cratis engineering documentation skill.",
         });
 
-        for (const harness of ["grok", "junie"]) {
-            const compatibleRoot = join(root, harness);
+        for (const harness of claudeCompatibleHarnesses.filter(
+            (harness) => harness !== "claude",
+        )) {
+            const compatibleRoot = join(
+                root,
+                resolveHarness(harness).fixtureOutputRoot,
+            );
             copyCanonical(
                 canonicalRoot,
                 join(compatibleRoot, `plugins/${pluginName}`),
@@ -527,20 +532,7 @@ export function validateEngineeringDistributionFixture(outputRoot) {
                 `Engineering fixture digest mismatch: ${file.path}`,
             );
     }
-    const targetRoots = [
-        "agent-plugin",
-        `claude/plugins/${pluginName}`,
-        `codex/plugins/${pluginName}`,
-        `copilot/plugins/${pluginName}`,
-        `cursor/plugins/${pluginName}`,
-        "deepcode/.deepcode",
-        "deepseek/.dsh",
-        "gemini",
-        `grok/plugins/${pluginName}`,
-        `junie/plugins/${pluginName}`,
-        "kiro",
-        "pi/package",
-    ];
+    const targetRoots = fixtureSkillRoots(pluginName);
     for (const path of approvedFiles) {
         const canonical = readFileSync(join(root, "canonical", path));
         for (const targetRoot of targetRoots) {
@@ -551,13 +543,7 @@ export function validateEngineeringDistributionFixture(outputRoot) {
                 );
         }
     }
-    for (const forbidden of [
-        ".cratis/PROJECT.md",
-        ".agents/PROJECT.md",
-        "AGENTS.md",
-        "CLAUDE.md",
-        "GEMINI.md",
-    ])
+    for (const forbidden of forbiddenPathPolicy.projectOwnedPaths)
         if (actualPaths.some((path) => path.endsWith(forbidden)))
             throw new Error(
                 `Engineering fixture contains project-owned path: ${forbidden}`,
@@ -783,8 +769,8 @@ export function smokeGrokEngineeringFixture(outputRoot, temporaryRoot) {
     return smokeClaudeCompatibleEngineeringPlugin(
         outputRoot,
         temporaryRoot,
-        "grok",
-        ".grok/plugins",
+        resolveHarness("grok").fixtureOutputRoot,
+        resolveHarness("grok").projectSkillRoot,
     );
 }
 
@@ -792,8 +778,8 @@ export function smokeDeepCodeEngineeringFixture(outputRoot, temporaryRoot) {
     return smokeDirectEngineeringSkill(
         outputRoot,
         temporaryRoot,
-        "deepcode/.deepcode",
-        ".deepcode/skills",
+        fixtureSkillRoot("deepcode", pluginName),
+        resolveHarness("deepcode").projectSkillRoot,
     );
 }
 
@@ -801,8 +787,8 @@ export function smokeDeepSeekEngineeringFixture(outputRoot, temporaryRoot) {
     return smokeDirectEngineeringSkill(
         outputRoot,
         temporaryRoot,
-        "deepseek/.dsh",
-        ".dsh/skills",
+        fixtureSkillRoot("deepseek-harness", pluginName),
+        resolveHarness("deepseek-harness").projectSkillRoot,
     );
 }
 
@@ -858,11 +844,10 @@ export function smokeClaudeEngineeringFixture(
         ["plugin", "marketplace", "add", marketplaceRoot],
         { env: environment, stdio: "pipe" },
     );
-    execFileSync(
-        claudeCommand,
-        ["plugin", "install", `${pluginName}@cratis`],
-        { env: environment, stdio: "pipe" },
-    );
+    execFileSync(claudeCommand, ["plugin", "install", `${pluginName}@cratis`], {
+        env: environment,
+        stdio: "pipe",
+    });
     const installed = execFileSync(claudeCommand, ["plugin", "list"], {
         env: environment,
         encoding: "utf8",
@@ -876,11 +861,10 @@ export function smokeClaudeEngineeringFixture(
         ["plugin", "uninstall", `${pluginName}@cratis`],
         { env: environment, stdio: "pipe" },
     );
-    execFileSync(
-        claudeCommand,
-        ["plugin", "marketplace", "remove", "cratis"],
-        { env: environment, stdio: "pipe" },
-    );
+    execFileSync(claudeCommand, ["plugin", "marketplace", "remove", "cratis"], {
+        env: environment,
+        stdio: "pipe",
+    });
     return { validated: true, installed: true, removed: true };
 }
 

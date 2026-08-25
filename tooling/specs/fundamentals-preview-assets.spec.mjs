@@ -19,7 +19,7 @@ import {
     packageFundamentalsPreviewAssets,
     readTarGzip,
 } from "../package-fundamentals-preview-assets.mjs";
-import { passiveHarnesses } from "../passive-profile-adapters.mjs";
+import { passiveHarnesses } from "../harness-registry.mjs";
 
 function withTemporaryDirectory(callback) {
     const root = mkdtempSync(join(tmpdir(), "cratis-preview-assets-"));
@@ -172,6 +172,7 @@ test("Fundamentals preview assets are deterministic and non-publishable", () => 
         assert.deepEqual(first.generatorPaths, [
             "tooling/package-fundamentals-preview-assets.mjs",
             "tooling/passive-profile-adapters.mjs",
+            "tooling/harness-registry.mjs",
         ]);
         assert.equal(first.approvalEligible, false);
         assert.equal(first.installationSupported, false);

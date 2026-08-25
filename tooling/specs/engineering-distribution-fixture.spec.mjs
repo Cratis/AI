@@ -8,6 +8,7 @@ import {
     mkdtempSync,
     mkdirSync,
     readFileSync,
+    readdirSync,
     rmSync,
     writeFileSync,
 } from "node:fs";
@@ -15,6 +16,10 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
+import {
+    fixtureOutputRoots,
+    forbiddenPathPolicy,
+} from "../harness-registry.mjs";
 import {
     generateEngineeringDistributionFixture,
     smokeClaudeEngineeringFixture,
@@ -132,21 +137,14 @@ test("engineering fixture generation is deterministic and non-installable", () =
         assert.equal(first.installationEligible, false);
         assert.equal(first.publicationEligible, false);
         assert.equal(first.promotionEligible, false);
-        assert.deepEqual(first.generatedTargets, [
-            "canonical",
-            "agent-plugin",
-            "claude",
-            "codex",
-            "copilot",
-            "cursor",
-            "deepcode",
-            "deepseek",
-            "gemini",
-            "grok",
-            "junie",
-            "kiro",
-            "pi",
-        ]);
+        assert.deepEqual(first.generatedTargets, fixtureOutputRoots);
+        assert.deepEqual(
+            readdirSync(firstRoot, { withFileTypes: true })
+                .filter((entry) => entry.isDirectory())
+                .map((entry) => entry.name)
+                .sort(),
+            [...fixtureOutputRoots].sort(),
+        );
         for (const file of first.files) {
             assert.deepEqual(
                 readFileSync(join(firstRoot, file.path)),
@@ -189,19 +187,15 @@ test("engineering fixture contains one passive skill and no project context", ()
             ),
         );
         for (const forbidden of [
-            ".cratis/PROJECT.md",
-            ".agents/PROJECT.md",
-            "AGENTS.md",
-            "CLAUDE.md",
-            "GEMINI.md",
-            "/scripts/",
-            "/evals/",
-            "/hooks/",
-            "/agents/",
-            "/prompts/",
+            ...forbiddenPathPolicy.projectOwnedPaths,
+            ...forbiddenPathPolicy.artifactSegments,
         ])
             assert(
-                manifest.files.every((file) => !file.path.includes(forbidden)),
+                manifest.files.every(
+                    (file) =>
+                        !file.path.endsWith(forbidden) &&
+                        !file.path.split("/").includes(forbidden),
+                ),
                 forbidden,
             );
         assert.equal(
@@ -304,9 +298,8 @@ test("engineering fixture contains one passive skill and no project context", ()
             "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
         );
         assert.equal(
-            readJson(
-                join(stage, "junie/.claude-plugin/marketplace.json"),
-            ).plugins[0].source,
+            readJson(join(stage, "junie/.claude-plugin/marketplace.json"))
+                .plugins[0].source,
             "./plugins/cratis-engineering-fixture",
         );
         const packageJson = readJson(join(stage, "pi/package/package.json"));

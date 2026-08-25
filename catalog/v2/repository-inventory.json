@@ -2299,7 +2299,11 @@
       "status": "added"
     }
   ],
-  "admittedUntracked": [],
+  "admittedUntracked": [
+    "catalog/v2/README.md",
+    "tooling/harness-registry.mjs",
+    "tooling/specs/harness-registry.spec.mjs"
+  ],
   "excludedRuntimePrefixes": [
     ".pi/delegate/",
     ".pi/fusion/",
@@ -3494,6 +3498,7 @@
         "catalog/v2/authoring-contracts.json",
         "catalog/v2/bundles.json",
         "catalog/v2/human-catalog.json",
+        "catalog/v2/README.md",
         "catalog/v2/source-contracts.json",
         "catalog/v2/taxonomy.json",
         "catalog/v2/upstream-companions.json"
@@ -3514,14 +3519,15 @@
         "ecosystem-use-cases",
         "third-party-skills-evaluation"
       ],
-      "expectedPathCount": 6,
-      "expectedPathsDigest": "3350efe628cafcb336a57b5c118a4789687fb83bce6c360752fd69aed5938b75"
+      "expectedPathCount": 7,
+      "expectedPathsDigest": "2c2d41ac4686103ad1877b1f1becd759855ed337df84eeef95ea4091b01a7f0e"
     },
     {
       "excludePathPatterns": [
         "catalog/v2/authoring-contracts.json",
         "catalog/v2/bundles.json",
         "catalog/v2/human-catalog.json",
+        "catalog/v2/README.md",
         "catalog/v2/source-contracts.json",
         "catalog/v2/taxonomy.json",
         "catalog/v2/upstream-companions.json"
@@ -3642,8 +3648,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 37,
-      "expectedPathsDigest": "f43ff0fcf2f616fa5d2fc55dd2602b204cac1316c7a961b40e93316a74955eaf"
+      "expectedPathCount": 38,
+      "expectedPathsDigest": "d7d5fb122733811ab9a4f9765c222c5fbaf16405a1cb87d17add57076f770293"
     },
     {
       "excludePathPatterns": [],
@@ -3666,8 +3672,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 32,
-      "expectedPathsDigest": "2ded73be4583582c3eb465d41478d2615d622f90037eb234f1838abf7149d84e"
+      "expectedPathCount": 33,
+      "expectedPathsDigest": "617c922369153897d2a280f00757050c5b3fe5049cfe3cd9de5b0e16b7dad2fc"
     },
     {
       "excludePathPatterns": [],

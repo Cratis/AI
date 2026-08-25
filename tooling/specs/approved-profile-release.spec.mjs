@@ -12,10 +12,8 @@ import {
     buildReleaseSupportMatrix,
     generateApprovedProfileRelease,
 } from "../generate-approved-profile-release.mjs";
-import {
-    generatePassiveProfileAdapters,
-    passiveHarnesses,
-} from "../passive-profile-adapters.mjs";
+import { passiveHarnesses, resolveHarness } from "../harness-registry.mjs";
+import { generatePassiveProfileAdapters } from "../passive-profile-adapters.mjs";
 
 function readJson(path) {
     return JSON.parse(readFileSync(path, "utf8"));
@@ -345,7 +343,10 @@ test("passive adapter materializer emits one install root per harness", () => {
         });
         assert.deepEqual(manifest.harnesses, passiveHarnesses);
         for (const harness of passiveHarnesses)
-            assert.equal(manifest.roots[harness], `harnesses/${harness}`);
+            assert.equal(
+                manifest.roots[harness],
+                `harnesses/${resolveHarness(harness).profileOutputRoot}`,
+            );
         const portablePlugin = readJson(
             join(outputRoot, "harnesses/agent-plugin/plugin.json"),
         );
@@ -371,10 +372,7 @@ test("passive adapter materializer emits one install root per harness", () => {
             ),
         );
         const grokMarketplace = readJson(
-            join(
-                outputRoot,
-                "harnesses/grok/.claude-plugin/marketplace.json",
-            ),
+            join(outputRoot, "harnesses/grok/.claude-plugin/marketplace.json"),
         );
         const grokPlugin = readJson(
             join(
@@ -383,10 +381,7 @@ test("passive adapter materializer emits one install root per harness", () => {
             ),
         );
         const junieMarketplace = readJson(
-            join(
-                outputRoot,
-                "harnesses/junie/.claude-plugin/marketplace.json",
-            ),
+            join(outputRoot, "harnesses/junie/.claude-plugin/marketplace.json"),
         );
         const juniePlugin = readJson(
             join(

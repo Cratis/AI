@@ -11,25 +11,18 @@ import {
 } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import {
+    claudeCompatibleHarnesses,
+    directProfileHarnesses,
+    passiveHarnesses,
+    profileSkillRoot,
+    resolveHarness,
+} from "./harness-registry.mjs";
+import {
     assertSafeContent,
     validatePayloadPath,
 } from "./public-artifact-materializer.mjs";
 
-export const passiveHarnesses = [
-    "agent-skills",
-    "agent-plugin",
-    "claude",
-    "codex",
-    "copilot",
-    "cursor",
-    "deepcode",
-    "deepseek",
-    "gemini",
-    "grok",
-    "junie",
-    "kiro",
-    "pi",
-];
+export { passiveHarnesses } from "./harness-registry.mjs";
 
 function sha256(content) {
     return createHash("sha256").update(content).digest("hex");
@@ -309,14 +302,11 @@ export function generatePassiveProfileAdapters({
         createAgentPluginManifest({ name: profileId, version, description }),
     );
 
-    const directRoots = {
-        deepcode: ".deepcode",
-        deepseek: ".dsh",
-        gemini: ".",
-        kiro: ".",
-    };
-    for (const [harness, destination] of Object.entries(directRoots))
-        copySkills(skills, join(harnessRoot(harness), destination));
+    for (const harness of directProfileHarnesses)
+        copySkills(
+            skills,
+            join(harnessRoot(harness), profileSkillRoot(harness, profileId)),
+        );
     writeJson(join(harnessRoot("gemini"), "gemini-extension.json"), {
         name: profileId,
         version,
@@ -327,7 +317,9 @@ export function generatePassiveProfileAdapters({
         createAgentPluginManifest({ name: profileId, version, description }),
     );
 
-    for (const harness of ["grok", "junie"]) {
+    for (const harness of claudeCompatibleHarnesses.filter(
+        (harness) => harness !== "claude",
+    )) {
         const compatibleRoot = harnessRoot(harness);
         copySkills(skills, join(compatibleRoot, `plugins/${profileId}`));
         writeJson(
@@ -394,7 +386,7 @@ export function generatePassiveProfileAdapters({
         roots: Object.fromEntries(
             passiveHarnesses.map((harness) => [
                 harness,
-                `harnesses/${harness}`,
+                `harnesses/${resolveHarness(harness).profileOutputRoot}`,
             ]),
         ),
         files: walkFiles(root)

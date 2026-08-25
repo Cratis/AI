@@ -8,6 +8,7 @@ import {
     mkdtempSync,
     mkdirSync,
     readFileSync,
+    readdirSync,
     rmSync,
     writeFileSync,
 } from "node:fs";
@@ -15,6 +16,10 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
+import {
+    fixtureOutputRoots,
+    harnessOutputsForProvider,
+} from "../harness-registry.mjs";
 import {
     generateDistributionFixture,
     smokeClaudeDistributionFixture,
@@ -83,23 +88,18 @@ test("distribution requirements and artifact matrix stay authority bounded", () 
     const verified = requirements.requirements
         .filter((item) => item.status.startsWith("VERIFIED"))
         .map((item) => item.id);
-    assert.deepEqual(verified, [
-        "agent-skills-open-standard",
-        "agent-plugins-open-standard",
-        "claude-code-marketplace",
-        "openai-codex-plugin",
-        "github-copilot-plugin",
-        "gemini-cli-extension",
-        "pi-passive-package",
-        "grok-build-skills",
-        "deepseek-deepcode-skills",
-        "deepseek-harness-skills",
-        "deepseek-model-provider",
-        "npm-trusted-publication",
-        "cursor-marketplace",
-        "kiro-marketplace",
-        "junie-marketplace",
-    ]);
+    const targetRequirementIds = new Set(
+        matrix.targets.map((target) => target.requirementId),
+    );
+    assert(
+        matrix.targets.every((target) =>
+            verified.includes(target.requirementId),
+        ),
+    );
+    assert.deepEqual(
+        verified.filter((id) => !targetRequirementIds.has(id)),
+        ["npm-trusted-publication"],
+    );
     assert.deepEqual(
         requirements.requirements
             .filter(
@@ -175,21 +175,14 @@ test("distribution fixture generation is deterministic across native adapters", 
             );
         }
         assert.deepEqual(validateDistributionFixture(firstRoot), first);
-        assert.deepEqual(first.generatedTargets, [
-            "canonical",
-            "agent-plugin",
-            "claude",
-            "codex",
-            "copilot",
-            "cursor",
-            "deepcode",
-            "deepseek",
-            "gemini",
-            "grok",
-            "junie",
-            "kiro",
-            "pi",
-        ]);
+        assert.deepEqual(first.generatedTargets, fixtureOutputRoots);
+        assert.deepEqual(
+            readdirSync(firstRoot, { withFileTypes: true })
+                .filter((entry) => entry.isDirectory())
+                .map((entry) => entry.name)
+                .sort(),
+            [...fixtureOutputRoots].sort(),
+        );
     });
 });
 
@@ -293,13 +286,7 @@ test("generated marketplace manifests remain passive and idiomatic", () => {
             {
                 id: "deepseek",
                 artifactStrategy: "USE_HARNESS_PACKAGE",
-                supportedHarnessOutputs: [
-                    "claude",
-                    "copilot",
-                    "deepcode",
-                    "deepseek",
-                    "pi",
-                ],
+                supportedHarnessOutputs: harnessOutputsForProvider("deepseek"),
                 distinctArtifactRoot: null,
             },
         ]);

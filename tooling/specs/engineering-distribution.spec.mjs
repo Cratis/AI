@@ -6,6 +6,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
+import { forbiddenPathPolicy } from "../harness-registry.mjs";
 
 const repositoryRoot = resolve(
     dirname(fileURLToPath(import.meta.url)),
@@ -96,26 +97,14 @@ test("effectful and executable engineering capabilities stay separate", () => {
 
 test("engineering distribution cannot own project context or executable payloads", () => {
     const matrix = readJson("distribution/engineering-artifact-matrix.json");
-    assert.deepEqual(matrix.projectOwnedForbiddenPaths, [
-        ".cratis/PROJECT.md",
-        ".agents/PROJECT.md",
-        "AGENTS.md",
-        "CLAUDE.md",
-        "GEMINI.md",
-    ]);
-    for (const forbidden of [
-        "**/evals/**",
-        "**/scripts/**",
-        "rules/**",
-        "agents/**",
-        "prompts/**",
-        "hooks/**",
-        "workflows/**",
-        "tooling/**",
-        ".pi/**",
-        ".git/**",
-    ])
-        assert(matrix.alwaysForbiddenPaths.includes(forbidden), forbidden);
+    assert.deepEqual(
+        matrix.projectOwnedForbiddenPaths,
+        forbiddenPathPolicy.projectOwnedPaths,
+    );
+    assert.deepEqual(
+        matrix.alwaysForbiddenPaths,
+        forbiddenPathPolicy.engineeringAlwaysPatterns,
+    );
 });
 
 test("engineering artifact remains distinct from the public release", () => {
