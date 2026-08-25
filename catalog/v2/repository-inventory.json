@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "44b64766134a1a7a680db33f7ee53762b0520f1ab4c46828b6824747381f4e31",
+  "indexDigest": "05262ab50e9f44571eda9fed7ff49625a4f50fc5b89a1ea2f18813a4f509239c",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -340,6 +340,10 @@
     },
     {
       "path": "Documentation/phase-0-verification.md",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/portable-compliance.md",
       "status": "added"
     },
     {
@@ -2067,6 +2071,70 @@
       "status": "added"
     },
     {
+      "path": "tooling/fixtures/portable-compliance/all-skill-options/plugin.json",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/portable-compliance/all-skill-options/skills/all-options/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/portable-compliance/manifest-only/plugin.json",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/portable-compliance/passive-one-skill/plugin.json",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/portable-compliance/passive-one-skill/skills/example-skill/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/portable-compliance/passive-one-skill/skills/example-skill/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/portable-compliance/passive-one-skill/skills/example-skill/assets/example.txt",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/portable-compliance/passive-one-skill/skills/example-skill/references/guide.md",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/portable-compliance/reverse-domain-extension/com.cratis.fixture/config.json",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/portable-compliance/reverse-domain-extension/plugin.json",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/portable-compliance/sibling-isolation/plugin.json",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/portable-compliance/sibling-isolation/skills/container/nested-too-deep/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/portable-compliance/sibling-isolation/skills/invalid-sibling/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/portable-compliance/sibling-isolation/skills/valid-sibling/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/portable-compliance/valid-mcp/mcp.json",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/portable-compliance/valid-mcp/plugin.json",
+      "status": "added"
+    },
+    {
       "path": "tooling/fixtures/project-context/application-canonical/.cratis/PROJECT.md",
       "status": "added"
     },
@@ -2187,6 +2255,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/portable-compliance-validation.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/profile-presentation.mjs",
       "status": "added"
     },
@@ -2232,6 +2304,30 @@
     },
     {
       "path": "tooling/source-evidence-loader.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specifications/agent-plugins/1.0.0/mcp.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specifications/agent-plugins/1.0.0/plugin.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specifications/agent-plugins/1.0.0/specification-lock.json",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specifications/agent-plugins/1.0.0/specification.snapshot",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specifications/agent-skills/current/contract.json",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specifications/agent-skills/current/specification.snapshot",
       "status": "added"
     },
     {
@@ -2328,6 +2424,10 @@
     },
     {
       "path": "tooling/specs/navigator-pilot.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/portable-compliance-validation.spec.mjs",
       "status": "added"
     },
     {
@@ -3187,6 +3287,7 @@
         "Documentation/adopting-cratis-ai-for-maintainers.md",
         "Documentation/ai-distribution-and-subscriptions.md",
         "Documentation/private-repository-overlays.md",
+        "Documentation/portable-compliance.md",
         "Documentation/profile-reference.md",
         "Documentation/releasing-cratis-ai.md",
         "Documentation/examples/ai-release/**",
@@ -3215,8 +3316,8 @@
         "workflows-68",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 40,
-      "expectedPathsDigest": "a20ce8cc2841a9a0a0208b415fc36303c4fde4f56a7219b0d4f8264049aec14f"
+      "expectedPathCount": 41,
+      "expectedPathsDigest": "d1d88655847a1f105bf3a84d37ffa9dad1efc0e97242e3e44e34e83344095fdb"
     },
     {
       "excludePathPatterns": [],
@@ -3739,6 +3840,57 @@
     },
     {
       "excludePathPatterns": [],
+      "id": "portable-agent-plugins-specification-lock",
+      "sourcePathPatterns": [
+        "tooling/specifications/agent-plugins/1.0.0/**"
+      ],
+      "artifactType": "catalog-schema",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+        "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+        "https://raw.githubusercontent.com/agentplugins/agent-plugins-spec/main/spec/1.0.0.md",
+        "tooling/portable-compliance-validation.mjs"
+      ],
+      "risk": "high",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "agent-plugins-source-1",
+        "agent-plugins-source-2"
+      ],
+      "expectedPathCount": 4,
+      "expectedPathsDigest": "9c1d9ec596137e8e15f460ef24113f9f3eaa279d341269ec41d84b94366ad341"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "portable-agent-skills-contract",
+      "sourcePathPatterns": [
+        "tooling/specifications/agent-skills/current/**"
+      ],
+      "artifactType": "catalog-schema",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "https://agentskills.io/specification",
+        "tooling/portable-compliance-validation.mjs"
+      ],
+      "risk": "high",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "agent-skills-source-1"
+      ],
+      "expectedPathCount": 2,
+      "expectedPathsDigest": "fbe976e986cea9d3109d16113a384f75a50206a585dd1674e03c9201a3977608"
+    },
+    {
+      "excludePathPatterns": [],
       "id": "catalog-and-redesign-tooling",
       "sourcePathPatterns": [
         "tooling/*.mjs"
@@ -3757,8 +3909,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 42,
-      "expectedPathsDigest": "4c63aa382a78bbb67a23e4cf036d39d16b5f13aee795eeb709b9f7774c56a5e1"
+      "expectedPathCount": 43,
+      "expectedPathsDigest": "de9ee328ee086d9c94f65fe77579a56c06f18f6cb0ddd38fc156b09f7da431ef"
     },
     {
       "excludePathPatterns": [],
@@ -3781,8 +3933,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 35,
-      "expectedPathsDigest": "8bbaf9ef4bc2b9c5f76397b0cc9d27b3e2bfdc82368d87f74d2367ca0745246a"
+      "expectedPathCount": 36,
+      "expectedPathsDigest": "5cf9d64714207ccdf9daeb69f040e5ca4f0c19cce8c90829a513f6a7dda69575"
     },
     {
       "excludePathPatterns": [],
@@ -3805,8 +3957,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 14,
-      "expectedPathsDigest": "cb002190b3cf88b3fd07c0ff21024015838a4299c67318eac3b0605f7d04f602"
+      "expectedPathCount": 30,
+      "expectedPathsDigest": "958f046fd28f06eef7aea005189936cd869b774d00453048ce7a37b49426cfc9"
     }
   ]
 }
