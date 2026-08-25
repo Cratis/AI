@@ -13,10 +13,10 @@ and does not make a planned package installable.
 
 ## Computed ecosystem support
 
-As of 2026-08-24, technical tiers are computed from active normalized evidence; expired and future evidence cannot satisfy gates. Marketplace listing is orthogonal.
+As of 2026-08-25, technical tiers are computed from active normalized evidence; expired and future evidence cannot satisfy gates. Marketplace listing is orthogonal.
 
 - unsupported: 0
-- documented: 26
+- documented: 45
 - generated: 0
 - statically-validated: 0
 - install-tested: 0
@@ -26,6 +26,51 @@ As of 2026-08-24, technical tiers are computed from active normalized evidence; 
 - supported: 0
 
 No technical tier grants runtime, publication, or promotion eligibility.
+
+## Researched host coverage
+
+This matrix reports research and serving disposition only. It is not support, publication readiness, or a promise to generate a host-native adapter.
+
+| Ecosystem | Product status | Coverage | Strategy | Serving target | Support |
+| --- | --- | --- | --- | --- | --- |
+| aider | current | fallback | rules-fallback | no output | no |
+| amazon-q-developer | retiring | migration | migration-only | no output | no |
+| amp | current | researched | canonical-agent-skills | canonical-agent-skills | no |
+| augment-auggie | current | standard-compatible | canonical-agent-skills | canonical-agent-skills | no |
+| claude-code-plugins | current | researched | native-projection-planned | claude-code | no |
+| cline | current | standard-compatible | canonical-agent-skills | canonical-agent-skills | no |
+| continue | final-read-only | no-surface | no-public-extension-surface | no output | no |
+| cursor-plugins | current | researched | native-projection-planned | cursor | no |
+| deepseek-deepcode-skills | current | researched | native-projection-planned | deepseek-deepcode | no |
+| deepseek-harness-skills | preview | researched | native-projection-planned | deepseek-harness | no |
+| devin-hosted | current | no-surface | no-public-extension-surface | no output | no |
+| factory-droid | current | native-planned | native-projection-planned | no output | no |
+| gemini-cli-extensions | current | researched | native-projection-planned | gemini-cli | no |
+| github-cli-skills | preview | standard-compatible | canonical-agent-skills | canonical-agent-skills | no |
+| github-copilot-plugins | current | researched | native-projection-planned | github-copilot | no |
+| goose | current | researched | canonical-agent-skills | canonical-agent-skills | no |
+| grok-bot-plugins | current | standard-compatible | portable-agent-plugin | portable-agent-plugin | no |
+| grok-build-skills | current | researched | native-projection-planned | grok-build | no |
+| hermes-agent-plugins | current | standard-compatible | portable-agent-plugin | portable-agent-plugin | no |
+| jetbrains-ai-assistant | current | researched | provider-inherited | no output | no |
+| junie-extensions | provisional | researched | native-projection-planned | junie | no |
+| kilo-code | current | standard-compatible | canonical-agent-skills | canonical-agent-skills | no |
+| kiro-powers | current | researched | native-projection-planned | kiro | no |
+| nanoclaw-templates | current | standard-compatible | portable-agent-plugin | portable-agent-plugin | no |
+| openai-plugins | current | researched | native-projection-planned | openai-codex | no |
+| openclaw-bundles | current | standard-compatible | portable-agent-plugin | portable-agent-plugin | no |
+| opencode-skills | current | standard-compatible | canonical-agent-skills | canonical-agent-skills | no |
+| openhands | current | standard-compatible | canonical-agent-skills | canonical-agent-skills | no |
+| pi-packages | current | researched | native-projection-planned | pi-npm | no |
+| qwen-code | current | standard-compatible | portable-agent-plugin | portable-agent-plugin | no |
+| replit-agent | current | standard-compatible | canonical-agent-skills | canonical-agent-skills | no |
+| roo-code | archived | no-surface | no-public-extension-surface | no output | no |
+| sourcegraph-cody | current | no-surface | no-public-extension-surface | no output | no |
+| tabnine | current | fallback | rules-fallback | no output | no |
+| visual-studio-copilot | current | standard-compatible | canonical-agent-skills | canonical-agent-skills | no |
+| vscode-agent-plugins | current | standard-compatible | portable-agent-plugin | portable-agent-plugin | no |
+| windsurf-devin-desktop | current | standard-compatible | canonical-agent-skills | canonical-agent-skills | no |
+| zed-skills | current | standard-compatible | canonical-agent-skills | canonical-agent-skills | no |
 
 ## Packages and profiles
 

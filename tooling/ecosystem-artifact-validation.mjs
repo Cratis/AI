@@ -28,6 +28,7 @@ export const ecosystemArtifactPaths = Object.freeze({
     evidence: "catalog/v2/evidence.json",
     marketplaceRequirements: "distribution/marketplace-requirements.json",
     artifactMatrix: "distribution/artifact-matrix.json",
+    hostAdapters: "catalog/host-adapters.json",
 });
 
 export const ecosystemArtifactSchemaPaths = Object.freeze({
@@ -36,6 +37,7 @@ export const ecosystemArtifactSchemaPaths = Object.freeze({
         "catalog/schemas/artifact-assurance-profiles.schema.json",
     bindings: "distribution/ecosystem-artifact-bindings.schema.json",
     coverage: "catalog/schemas/ecosystem-artifact-coverage.schema.json",
+    hostAdapters: "catalog/schemas/host-adapters.schema.json",
 });
 
 const generatedStrategies = new Set([
@@ -197,9 +199,9 @@ export function validateEcosystemContracts(catalogs) {
 
     for (const duplicate of duplicates(contracts.map((record) => record.id)))
         errors.push(`ecosystem contracts contain duplicate id ${duplicate}`);
-    if (contracts.length !== 26)
+    if (contracts.length !== 45)
         errors.push(
-            `ecosystem contracts must retain the 26-ecosystem S1 completeness anchor; found ${contracts.length}`,
+            `ecosystem contracts must retain the 45-ecosystem S5a completeness anchor; found ${contracts.length}`,
         );
     addClosureErrors(
         errors,
@@ -574,6 +576,100 @@ export function validateEcosystemArtifactClosure(catalogs) {
     return errors;
 }
 
+export function validateHostAdapters(catalogs) {
+    const errors = [];
+    const contractsById = new Map(
+        catalogs.ecosystemContracts.ecosystems.map((record) => [record.id, record]),
+    );
+    const bindingsById = new Map(
+        catalogs.bindings.bindings.map((record) => [record.id, record]),
+    );
+    const evidenceById = new Map(
+        catalogs.evidence.evidence.map((record) => [record.id, record]),
+    );
+    const expectedHostEcosystemIds = new Set(
+        catalogs.ecosystemContracts.ecosystems
+            .filter((record) => record.kind === "host" || record.id === "pi-packages")
+            .map((record) => record.id),
+    );
+    const actualHostEcosystemIds = new Set(
+        catalogs.hostAdapters.hosts.map((record) => record.ecosystemId),
+    );
+    addClosureErrors(
+        errors,
+        "host adapter registry",
+        actualHostEcosystemIds,
+        expectedHostEcosystemIds,
+    );
+    for (const duplicate of duplicates(
+        catalogs.hostAdapters.hosts.map((record) => record.id),
+    ))
+        errors.push(`host adapter registry contains duplicate id ${duplicate}`);
+    for (const host of catalogs.hostAdapters.hosts) {
+        const contract = contractsById.get(host.ecosystemId);
+        const binding = bindingsById.get(host.serving.artifactBindingId);
+        if (!contract) {
+            errors.push(`host adapter ${host.id} references unknown ecosystem ${host.ecosystemId}`);
+            continue;
+        }
+        if (binding?.ecosystemId !== host.ecosystemId)
+            errors.push(`host adapter ${host.id} references an unknown or foreign serving artifact binding`);
+        else if (
+            binding.targetId !== host.serving.targetId ||
+            binding.outputRoot !== host.serving.outputRoot
+        )
+            errors.push(`host adapter ${host.id} serving artifact diverges from its binding`);
+        if (host.product.clientVersion !== contract.versions.client)
+            errors.push(`host adapter ${host.id} client version diverges from its ecosystem contract`);
+        if (host.product.serviceVersion !== contract.versions.service)
+            errors.push(`host adapter ${host.id} service version diverges from its ecosystem contract`);
+        if (
+            host.product.clientVersion?.includes("documentation") ||
+            host.product.serviceVersion?.includes("documentation")
+        )
+            errors.push(`host adapter ${host.id} confuses a documentation snapshot with a product version`);
+        if (
+            (host.product.clientVersion || host.product.serviceVersion) &&
+            !host.product.versionEvidenceId
+        )
+            errors.push(`host adapter ${host.id} version lacks exact evidence`);
+        for (const evidenceId of host.officialEvidence.evidenceIds) {
+            if (!contract.officialEvidenceIds.includes(evidenceId))
+                errors.push(`host adapter ${host.id} uses non-contract evidence ${evidenceId}`);
+            if (!evidenceById.has(evidenceId))
+                errors.push(`host adapter ${host.id} references unknown evidence ${evidenceId}`);
+        }
+        if (host.officialEvidence.validThrough < catalogs.hostAdapters.asOf)
+            errors.push(`host adapter ${host.id} evidence is expired`);
+        for (const [standardName, standard] of Object.entries(host.acceptedStandards)) {
+            if (["explicit", "compatible-layout", "provider-only"].includes(standard.state) && standard.evidenceIds.length === 0)
+                errors.push(`host adapter ${host.id} ${standardName} claim lacks evidence`);
+            for (const evidenceId of standard.evidenceIds)
+                if (!host.officialEvidence.evidenceIds.includes(evidenceId))
+                    errors.push(`host adapter ${host.id} ${standardName} claim uses non-host evidence ${evidenceId}`);
+        }
+        if (host.acceptedStandards.agentPlugins.state === "explicit") {
+            if (host.acceptedStandards.agentPlugins.version !== "1.0.0")
+                errors.push(`host adapter ${host.id} must pin explicit Agent Plugins compatibility to 1.0.0`);
+            if (!contract.interfaces.includes("agent-plugin-package"))
+                errors.push(`host adapter ${host.id} claims Agent Plugins without the ecosystem interface`);
+        }
+        if (
+            host.acceptedStandards.agentSkills.state === "explicit" &&
+            !contract.interfaces.includes("agent-skill")
+        )
+            errors.push(`host adapter ${host.id} claims Agent Skills without the ecosystem interface`);
+        if (
+            ["migration-only", "evidence-gap", "no-public-extension-surface", "rules-fallback"].includes(host.strategy) &&
+            (host.serving.targetId !== null || host.serving.outputRoot !== null)
+        )
+            errors.push(`host adapter ${host.id} fabricates output for ${host.strategy}`);
+        if (host.supportDisposition.supportClaim)
+            errors.push(`host adapter ${host.id} must not claim support`);
+    }
+    return errors;
+}
+
 export function validateGeneratedEcosystemArtifactCoverage(catalogs, root) {
     const errors = [];
     const expected = generateEcosystemArtifactCoverage(root);
@@ -605,6 +701,7 @@ export function validateEcosystemArtifactSemantics(
         ...validateArtifactAssuranceProfiles(catalogs),
         ...validateEcosystemContracts(catalogs),
         ...validateEcosystemArtifactClosure(catalogs),
+        ...validateHostAdapters(catalogs),
         ...validateGeneratedEcosystemArtifactCoverage(catalogs, root),
     ];
 }

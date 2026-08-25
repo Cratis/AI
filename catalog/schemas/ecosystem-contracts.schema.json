@@ -80,7 +80,7 @@
       "properties": {
         "id": { "$ref": "#/$defs/id" },
         "kind": { "enum": ["standard", "host", "provider", "registry", "package-ecosystem", "publication-service"] },
-        "lifecycle": { "enum": ["current", "preview", "provisional", "local-only"] },
+        "lifecycle": { "enum": ["current", "preview", "provisional", "local-only", "archived", "retiring"] },
         "reviewState": {
           "enum": [
             "documentation-reviewed",
@@ -116,7 +116,9 @@
               "native-plugin",
               "npm-registry",
               "npm-trusted-publication",
-              "pi-package"
+              "pi-package",
+              "host-instructions",
+              "migration-surface"
             ]
           }
         },
@@ -181,8 +183,8 @@
     "defaultPolicy": { "const": "deny" },
     "ecosystems": {
       "type": "array",
-      "minItems": 26,
-      "maxItems": 26,
+      "minItems": 45,
+      "maxItems": 45,
       "uniqueItems": true,
       "items": { "$ref": "#/$defs/ecosystem" }
     }

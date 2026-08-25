@@ -25,6 +25,8 @@
       "required": [
         "bindingId",
         "ecosystemId",
+        "hostAdapterId",
+        "hostDisposition",
         "interfaceId",
         "requirementId",
         "targetId",
@@ -46,6 +48,8 @@
       "properties": {
         "bindingId": { "$ref": "#/$defs/id" },
         "ecosystemId": { "$ref": "#/$defs/id" },
+        "hostAdapterId": { "$ref": "#/$defs/nullableId" },
+        "hostDisposition": { "enum": ["researched", "standard-compatible", "native-planned", "fallback", "migration", "no-surface", "not-applicable"] },
         "interfaceId": { "$ref": "#/$defs/id" },
         "requirementId": { "$ref": "#/$defs/nullableId" },
         "targetId": { "$ref": "#/$defs/nullableId" },
@@ -133,8 +137,8 @@
     "supportPolicy": { "const": "Generated coverage records cataloged compatibility and generation state; they are not support claims." },
     "coverage": {
       "type": "array",
-      "minItems": 26,
-      "maxItems": 26,
+      "minItems": 45,
+      "maxItems": 45,
       "uniqueItems": true,
       "items": { "$ref": "#/$defs/coverage" }
     }

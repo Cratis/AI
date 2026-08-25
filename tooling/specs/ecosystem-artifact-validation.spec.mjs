@@ -17,6 +17,7 @@ import {
     validateEcosystemArtifactClosure,
     validateEcosystemArtifactContracts,
     validateEcosystemContracts,
+    validateHostAdapters,
 } from "../ecosystem-artifact-validation.mjs";
 import { generateEcosystemArtifactCoverage } from "../generate-ecosystem-artifact-coverage.mjs";
 
@@ -50,23 +51,23 @@ test("all new ecosystem and artifact schemas reject unknown properties", () => {
     }
 });
 
-test("ecosystem contracts preserve all 26 legacy IDs, 63 official sources, and 110 facts", () => {
+test("ecosystem contracts preserve all 45 IDs, 108 official sources, and 172 facts", () => {
     const catalogs = load();
     const contracts = catalogs.ecosystemContracts.ecosystems;
-    assert.equal(contracts.length, 26);
+    assert.equal(contracts.length, 45);
     assert.equal(
         contracts.reduce(
             (count, contract) => count + contract.officialEvidenceIds.length,
             0,
         ),
-        63,
+        108,
     );
     assert.equal(
         contracts.reduce(
             (count, contract) => count + contract.legacyFactBindings.length,
             0,
         ),
-        110,
+        172,
     );
 });
 
@@ -311,7 +312,7 @@ test("closed schemas reject additive ecosystem coverage records", () => {
     });
     hasError(
         validateAgainstSchema(mutation, bindingsSchema),
-        "must contain at most 26 items",
+        "must contain at most 45 items",
     );
 });
 
@@ -354,6 +355,73 @@ test("provider, registry, publication, and no-output records cannot fabricate ou
     }
 });
 
+test("host registry is exact, fail-closed, and rejects unsupported claims or fabricated outputs", () => {
+    const catalogs = load();
+    assert.equal(catalogs.hostAdapters.hosts.length, 38);
+    assert.deepEqual(validateHostAdapters(catalogs), []);
+
+    const deletion = clone(catalogs);
+    deletion.hostAdapters.hosts = deletion.hostAdapters.hosts.filter(
+        (record) => record.ecosystemId !== "cline",
+    );
+    hasError(validateHostAdapters(deletion), "does not account for cline");
+
+    const wrongStandard = clone(catalogs);
+    const aider = wrongStandard.hostAdapters.hosts.find(
+        (record) => record.ecosystemId === "aider",
+    );
+    aider.acceptedStandards.agentPlugins = {
+        state: "explicit",
+        version: "1.0.0",
+        evidenceIds: ["aider-source-1"],
+    };
+    hasError(
+        validateHostAdapters(wrongStandard),
+        "claims Agent Plugins without the ecosystem interface",
+    );
+
+    const fabricated = clone(catalogs);
+    const roo = fabricated.hostAdapters.hosts.find(
+        (record) => record.ecosystemId === "roo-code",
+    );
+    roo.serving.targetId = "canonical-agent-skills";
+    roo.serving.outputRoot = "canonical";
+    hasError(validateHostAdapters(fabricated), "fabricates output");
+
+    const versionType = clone(catalogs);
+    const cline = versionType.hostAdapters.hosts.find(
+        (record) => record.ecosystemId === "cline",
+    );
+    cline.product.clientVersion = "current-documentation-2026-08-25";
+    hasError(validateHostAdapters(versionType), "confuses a documentation snapshot");
+
+    const expired = clone(catalogs);
+    expired.hostAdapters.hosts.find(
+        (record) => record.ecosystemId === "cline",
+    ).officialEvidence.validThrough = "2026-08-24";
+    hasError(validateHostAdapters(expired), "evidence is expired");
+
+    const dangling = clone(catalogs);
+    dangling.hostAdapters.hosts.find(
+        (record) => record.ecosystemId === "cline",
+    ).serving.artifactBindingId = "missing-artifact-binding";
+    hasError(validateHostAdapters(dangling), "unknown or foreign serving artifact binding");
+});
+
+test("closed host schema rejects coordinated additive records", () => {
+    const catalogs = load();
+    const schema = readCatalog(
+        join(defaultRepositoryRoot, ecosystemArtifactSchemaPaths.hostAdapters),
+    );
+    const mutation = clone(catalogs.hostAdapters);
+    mutation.hosts.push({
+        ...clone(mutation.hosts[0]),
+        id: "fabricated-host-adapter",
+        ecosystemId: "fabricated-host",
+    });
+    hasError(validateAgainstSchema(mutation, schema), "must contain at most 38 items");
+});
+
 test("generated coverage is deterministic, byte-stable, and explicitly not support", () => {
     const first = `${JSON.stringify(generateEcosystemArtifactCoverage(), null, 2)}\n`;
     const second = `${JSON.stringify(generateEcosystemArtifactCoverage(), null, 2)}\n`;
@@ -363,7 +431,7 @@ test("generated coverage is deterministic, byte-stable, and explicitly not suppo
         `${JSON.stringify(readCatalog(join(defaultRepositoryRoot, ecosystemArtifactPaths.coverage)), null, 2)}\n`,
     );
     const coverage = JSON.parse(first);
-    assert.equal(coverage.coverage.length, 26);
+    assert.equal(coverage.coverage.length, 45);
     assert(coverage.coverage.every((record) => record.supportClaim === false));
     assert.match(coverage.supportPolicy, /not support claims/);
 });

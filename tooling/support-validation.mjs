@@ -27,13 +27,13 @@ export const supportPaths = Object.freeze({
 });
 
 const expectedObservationAnchor =
-    "0d82c5c7c7a08a4278fc0278a3f25421e1299cc83d20af450427948305210f69";
+    "f5992968f86a657b9af21e25d613f16043eddc40b40723af23181c8d5cec10a3";
 const expectedSourceIdentityAnchor =
-    "1392c47a15f7699c4fbfbfa6e2fe4cdbe384d8bb26eb6e1c2051380208d438d1";
+    "2f06873ea57efbdafa66f7d1bb2ee8890bbaafa797b5f8cdac4202c87cc19508";
 const expectedObservationBindingAnchor =
-    "05ff2713aebff4895d332c56438484b609beebd08583069c1134fbef0a13cc39";
+    "371843b933d2003a39b00ed21a4b8abc7e32368f70ba7eab746a56509372acac";
 const expectedFactAnchor =
-    "9583615118311347817aaae548dd0c60372c16fc7d8ab61a2cc5cd6dccb67d95";
+    "49b5065571c520b0ff3833f21a3fc67180c9a3eff476205c7bf2680d63da94f9";
 const expectedGapAnchor =
     "618d4d6ce61c1ff2cc722da99cc6b0006dd676eb8fdd67bdb16ba8dfefc9c385";
 const expectedTierOrder = [
@@ -426,7 +426,7 @@ export function validateNormalizedEvidence(
     }
     if (digestLines(observationIds) !== expectedObservationAnchor)
         errors.push(
-            "normalized evidence must preserve all 83 S0/S1 evidence IDs exactly once",
+            "normalized evidence must preserve all 128 S0-S5a evidence IDs exactly once",
         );
     if (digestLines(sourceIdentityLines(evidence.sources)) !== expectedSourceIdentityAnchor)
         errors.push(
@@ -441,7 +441,7 @@ export function validateNormalizedEvidence(
         );
     if (digestLines(factIdentityLines(evidence.legacyFacts)) !== expectedFactAnchor)
         errors.push(
-            "normalized evidence must preserve all 110 legacy fact IDs, texts, evidence bindings, and support dispositions exactly",
+            "normalized evidence must preserve all 172 ecosystem fact IDs, texts, evidence bindings, and support dispositions exactly",
         );
     if (
         digestLines(
@@ -497,9 +497,9 @@ export function validateNormalizedEvidence(
     const officialObservationIds = new Set(
         officialObservationEcosystems.keys(),
     );
-    if (officialObservationIds.size !== 63)
+    if (officialObservationIds.size !== 108)
         errors.push(
-            `legacy ecosystem source anchor must remain 63; found ${officialObservationIds.size}`,
+            `ecosystem source anchor must remain 108; found ${officialObservationIds.size}`,
         );
 
     for (const observation of evidence.observations) {

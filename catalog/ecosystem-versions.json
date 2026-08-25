@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "verifiedOn": "2026-08-24",
+  "verifiedOn": "2026-08-25",
   "policy": "official-sources-only",
   "ecosystems": [
     {
@@ -16,9 +16,21 @@
         "The live compatible-client registry lists VS Code, Cursor, GitHub Copilot, ChatGPT and Codex, Kiro, Hermes Agent, OpenClaw, Grok Bot, and NanoClaw. All list Agent Skills support; MCP transport support varies by client."
       ],
       "sources": [
-        { "url": "https://agent-plugins.org/specification", "kind": "specification", "verifiedOn": "2026-08-20" },
-        { "url": "https://agent-plugins.org/schemas", "kind": "specification", "verifiedOn": "2026-08-20" },
-        { "url": "https://agent-plugins.org/compatible-clients", "kind": "official-documentation", "verifiedOn": "2026-08-20" }
+        {
+          "url": "https://agent-plugins.org/specification",
+          "kind": "specification",
+          "verifiedOn": "2026-08-20"
+        },
+        {
+          "url": "https://agent-plugins.org/schemas",
+          "kind": "specification",
+          "verifiedOn": "2026-08-20"
+        },
+        {
+          "url": "https://agent-plugins.org/compatible-clients",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-20"
+        }
       ]
     },
     {
@@ -34,8 +46,16 @@
         "This repository applies a stricter public payload policy than the specification by excluding scripts and evals from public runtime skills."
       ],
       "sources": [
-        { "url": "https://agentskills.io/specification", "kind": "specification", "verifiedOn": "2026-08-20" },
-        { "url": "https://github.com/agentskills/agentskills/tree/main/skills-ref", "kind": "official-repository", "verifiedOn": "2026-08-20" }
+        {
+          "url": "https://agentskills.io/specification",
+          "kind": "specification",
+          "verifiedOn": "2026-08-20"
+        },
+        {
+          "url": "https://github.com/agentskills/agentskills/tree/main/skills-ref",
+          "kind": "official-repository",
+          "verifiedOn": "2026-08-20"
+        }
       ]
     },
     {
@@ -48,8 +68,16 @@
         "MCP wire behavior remains separate from Agent Plugins packaging and client-native configuration."
       ],
       "sources": [
-        { "url": "https://modelcontextprotocol.io/specification", "kind": "specification", "verifiedOn": "2026-08-20" },
-        { "url": "https://modelcontextprotocol.io/specification/latest/basic/transports", "kind": "specification", "verifiedOn": "2026-08-20" }
+        {
+          "url": "https://modelcontextprotocol.io/specification",
+          "kind": "specification",
+          "verifiedOn": "2026-08-20"
+        },
+        {
+          "url": "https://modelcontextprotocol.io/specification/latest/basic/transports",
+          "kind": "specification",
+          "verifiedOn": "2026-08-20"
+        }
       ]
     },
     {
@@ -64,12 +92,36 @@
         "The Registry authenticates publishers and stores metadata but delegates package security scanning to package registries and downstream aggregators."
       ],
       "sources": [
-        { "url": "https://modelcontextprotocol.io/registry/about", "kind": "official-documentation", "verifiedOn": "2026-08-20" },
-        { "url": "https://modelcontextprotocol.io/registry/quickstart", "kind": "official-documentation", "verifiedOn": "2026-08-20" },
-        { "url": "https://modelcontextprotocol.io/registry/authentication", "kind": "official-documentation", "verifiedOn": "2026-08-20" },
-        { "url": "https://modelcontextprotocol.io/registry/package-types", "kind": "official-documentation", "verifiedOn": "2026-08-20" },
-        { "url": "https://modelcontextprotocol.io/registry/github-actions", "kind": "official-documentation", "verifiedOn": "2026-08-20" },
-        { "url": "https://modelcontextprotocol.io/registry/faq", "kind": "official-documentation", "verifiedOn": "2026-08-20" }
+        {
+          "url": "https://modelcontextprotocol.io/registry/about",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-20"
+        },
+        {
+          "url": "https://modelcontextprotocol.io/registry/quickstart",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-20"
+        },
+        {
+          "url": "https://modelcontextprotocol.io/registry/authentication",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-20"
+        },
+        {
+          "url": "https://modelcontextprotocol.io/registry/package-types",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-20"
+        },
+        {
+          "url": "https://modelcontextprotocol.io/registry/github-actions",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-20"
+        },
+        {
+          "url": "https://modelcontextprotocol.io/registry/faq",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-20"
+        }
       ]
     },
     {
@@ -84,9 +136,21 @@
         "The locally installed GitHub CLI 2.71.2 does not provide gh skill, so gh skill publish --dry-run is unavailable locally."
       ],
       "sources": [
-        { "url": "https://cli.github.com/manual/gh_skill", "kind": "official-documentation", "verifiedOn": "2026-08-20" },
-        { "url": "https://cli.github.com/manual/gh_skill_install", "kind": "official-documentation", "verifiedOn": "2026-08-20" },
-        { "url": "https://cli.github.com/manual/gh_skill_publish", "kind": "official-documentation", "verifiedOn": "2026-08-20" }
+        {
+          "url": "https://cli.github.com/manual/gh_skill",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-20"
+        },
+        {
+          "url": "https://cli.github.com/manual/gh_skill_install",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-20"
+        },
+        {
+          "url": "https://cli.github.com/manual/gh_skill_publish",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-20"
+        }
       ],
       "localEvidence": [
         "gh version 2.71.2 (2025-04-24)",
@@ -104,22 +168,40 @@
         "Plugin MCP servers are implicitly trusted at installation, so executable content requires source review."
       ],
       "sources": [
-        { "url": "https://code.visualstudio.com/docs/agent-customization/agent-plugins", "kind": "official-documentation", "verifiedOn": "2026-08-20" }
+        {
+          "url": "https://code.visualstudio.com/docs/agent-customization/agent-plugins",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-20"
+        }
       ]
     },
     {
       "id": "github-copilot-plugins",
       "status": "current",
-      "version": "copilot-cli-1.0.67-local",
+      "version": "copilot-cli-1.0.80-registry-latest",
       "facts": [
         "Copilot CLI native plugins support agents, skills, commands, hooks, extensions, MCP servers, and LSP servers. Declaring the Agent Plugins 1.0 schema opts into portable semantics additively.",
         "Direct installs accept a repository root, repository subdirectory, Git URL, or local path. Plugin installation is user-local; project scope applies to individual file or URL skill installs, not complete plugins.",
         "Self-hosted marketplaces use marketplace.json, commonly at .github/plugin/marketplace.json. Git and URL sources can pin a full 40-character commit SHA.",
-        "No current public external-submission path to the built-in awesome-copilot marketplace is documented in the CLI plugin reference."
+        "No current public external-submission path to the built-in awesome-copilot marketplace is documented in the CLI plugin reference.",
+        "The official npm registry latest document establishes GitHub Copilot CLI client version 1.0.80."
       ],
       "sources": [
-        { "url": "https://docs.github.com/en/copilot/concepts/agents/about-plugins", "kind": "official-documentation", "verifiedOn": "2026-08-20" },
-        { "url": "https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-plugin-reference", "kind": "official-documentation", "verifiedOn": "2026-08-20" }
+        {
+          "url": "https://docs.github.com/en/copilot/concepts/agents/about-plugins",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-20"
+        },
+        {
+          "url": "https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-plugin-reference",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-20"
+        },
+        {
+          "url": "https://registry.npmjs.org/@github/copilot/latest",
+          "kind": "registry",
+          "verifiedOn": "2026-08-25"
+        }
       ],
       "localEvidence": [
         "Installed GitHub Copilot CLI version: 1.0.67"
@@ -128,35 +210,71 @@
     {
       "id": "openai-plugins",
       "status": "current",
-      "version": "current-documentation-2026-08-20",
+      "version": "codex-cli-0.149.1-registry-latest",
       "facts": [
         "The native OpenAI and Codex manifest is .codex-plugin/plugin.json; native plugins may contain root skills, MCP mappings or bundled MCP configuration, hooks, and assets.",
         "Native manifest paths start with ./, resolve from the plugin root, and must remain within it. Plugin hooks are not trusted automatically and require review.",
         "Repository marketplaces use .agents/plugins/marketplace.json and are separate from the universal public directory.",
         "Public submission requires Apps Management write access, verified publisher identity, public legal and support URLs, and review through the submission portal. MCP submissions require accurate tool annotations and scans; submissions require at least five positive and three negative tests.",
-        "Public listing supports skills-only, MCP-only, and skills-plus-MCP plugins."
+        "Public listing supports skills-only, MCP-only, and skills-plus-MCP plugins.",
+        "The official npm registry latest document establishes Codex CLI client version 0.149.1."
       ],
       "sources": [
-        { "url": "https://developers.openai.com/codex/plugins/build", "kind": "official-documentation", "verifiedOn": "2026-08-20" },
-        { "url": "https://developers.openai.com/plugins/deploy/submission", "kind": "official-documentation", "verifiedOn": "2026-08-20" }
+        {
+          "url": "https://developers.openai.com/codex/plugins/build",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-20"
+        },
+        {
+          "url": "https://developers.openai.com/plugins/deploy/submission",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-20"
+        },
+        {
+          "url": "https://registry.npmjs.org/@openai/codex/latest",
+          "kind": "registry",
+          "verifiedOn": "2026-08-25"
+        }
       ]
     },
     {
       "id": "claude-code-plugins",
       "status": "current",
-      "version": "claude-code-2.1.235-local",
+      "version": "claude-code-2.1.245-registry-latest",
       "facts": [
         "Claude Code plugins may provide skills, commands, agents, workflows, hooks, MCP servers, LSP servers, and other Claude-native components. The optional manifest is .claude-plugin/plugin.json and name is required when present.",
         "Validation uses claude plugin validate, with --strict treating warnings as errors.",
         "Installation scopes are user, project, local, and managed. Marketplace installs are cached and versioned by manifest version, source revision, archive SHA-256, or content hash depending on source type.",
         "Anthropic now documents a reviewed public community marketplace and submission forms. Approved community plugins are pinned to commit SHAs and catalog synchronization is automated after review.",
-        "Plugins and marketplaces can execute arbitrary code with user privileges and must be treated as highly trusted."
+        "Plugins and marketplaces can execute arbitrary code with user privileges and must be treated as highly trusted.",
+        "The official npm registry latest document establishes Claude Code client version 2.1.245."
       ],
       "sources": [
-        { "url": "https://code.claude.com/docs/en/plugins-reference", "kind": "official-documentation", "verifiedOn": "2026-08-20" },
-        { "url": "https://code.claude.com/docs/en/plugin-marketplaces", "kind": "official-documentation", "verifiedOn": "2026-08-20" },
-        { "url": "https://code.claude.com/docs/en/plugins", "kind": "official-documentation", "verifiedOn": "2026-08-20" },
-        { "url": "https://code.claude.com/docs/en/discover-plugins", "kind": "official-documentation", "verifiedOn": "2026-08-20" }
+        {
+          "url": "https://code.claude.com/docs/en/plugins-reference",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-20"
+        },
+        {
+          "url": "https://code.claude.com/docs/en/plugin-marketplaces",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-20"
+        },
+        {
+          "url": "https://code.claude.com/docs/en/plugins",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-20"
+        },
+        {
+          "url": "https://code.claude.com/docs/en/discover-plugins",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-20"
+        },
+        {
+          "url": "https://registry.npmjs.org/@anthropic-ai/claude-code/latest",
+          "kind": "registry",
+          "verifiedOn": "2026-08-25"
+        }
       ],
       "localEvidence": [
         "Installed Claude Code version: 2.1.235"
@@ -165,18 +283,36 @@
     {
       "id": "gemini-cli-extensions",
       "status": "current",
-      "version": "current-documentation-2026-08-20",
+      "version": "gemini-cli-0.56.0-registry-latest",
       "facts": [
         "A Gemini extension requires gemini-extension.json at its root and can bundle skills, commands, hooks, subagents, policies, MCP server configuration, context, settings, and themes.",
         "Extensions install from GitHub or local sources, update explicitly or automatically when opted in, and can be enabled at user or workspace scope.",
         "Gallery discovery is automatic for a public GitHub repository with the gemini-cli-extension topic and a root manifest. The crawler runs daily after tagging.",
         "Release archives must be self-contained with gemini-extension.json at the archive root; release tag and displayed manifest version should match.",
-        "Sensitive extension settings use declared environment variables and keychain-backed storage; undeclared sensitive environment variables are filtered."
+        "Sensitive extension settings use declared environment variables and keychain-backed storage; undeclared sensitive environment variables are filtered.",
+        "The official npm registry latest document establishes Gemini CLI client version 0.56.0."
       ],
       "sources": [
-        { "url": "https://geminicli.com/docs/extensions/reference/", "kind": "official-documentation", "verifiedOn": "2026-08-20" },
-        { "url": "https://geminicli.com/docs/extensions/releasing/", "kind": "official-documentation", "verifiedOn": "2026-08-20" },
-        { "url": "https://geminicli.com/docs/cli/gemini-md/", "kind": "official-documentation", "verifiedOn": "2026-08-20" }
+        {
+          "url": "https://geminicli.com/docs/extensions/reference/",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-20"
+        },
+        {
+          "url": "https://geminicli.com/docs/extensions/releasing/",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-20"
+        },
+        {
+          "url": "https://geminicli.com/docs/cli/gemini-md/",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-20"
+        },
+        {
+          "url": "https://registry.npmjs.org/@google/gemini-cli/latest",
+          "kind": "registry",
+          "verifiedOn": "2026-08-25"
+        }
       ],
       "localEvidence": [
         "The installed gemini --version command failed while attempting to save its project registry, so no local version or validator result was recorded."
@@ -193,8 +329,16 @@
         "Manifest paths must be relative and cannot use .. or absolute paths. Secret values stay outside the repository and are supplied through declared variables."
       ],
       "sources": [
-        { "url": "https://cursor.com/docs/plugins", "kind": "official-documentation", "verifiedOn": "2026-08-20" },
-        { "url": "https://cursor.com/docs/reference/plugins", "kind": "official-documentation", "verifiedOn": "2026-08-20" }
+        {
+          "url": "https://cursor.com/docs/plugins",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-20"
+        },
+        {
+          "url": "https://cursor.com/docs/reference/plugins",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-20"
+        }
       ]
     },
     {
@@ -208,9 +352,21 @@
         "Public registry submission requires a complete tested Agent Plugin in a public GitHub repository and manual review."
       ],
       "sources": [
-        { "url": "https://kiro.dev/docs/powers/create/", "kind": "official-documentation", "verifiedOn": "2026-08-20" },
-        { "url": "https://kiro.dev/docs/powers/installation/", "kind": "official-documentation", "verifiedOn": "2026-08-20" },
-        { "url": "https://kiro.dev/powers/submit/", "kind": "official-documentation", "verifiedOn": "2026-08-20" }
+        {
+          "url": "https://kiro.dev/docs/powers/create/",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-20"
+        },
+        {
+          "url": "https://kiro.dev/docs/powers/installation/",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-20"
+        },
+        {
+          "url": "https://kiro.dev/powers/submit/",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-20"
+        }
       ]
     },
     {
@@ -224,7 +380,11 @@
         "Agent Plugins define no trust, permissions, provenance, or sandbox; enabling a package grants its instructions and local executables full trust."
       ],
       "sources": [
-        { "url": "https://hermes-agent.nousresearch.com/docs/developer-guide/plugins#portable-agent-plugins-v1-packages", "kind": "official-documentation", "verifiedOn": "2026-08-20" }
+        {
+          "url": "https://hermes-agent.nousresearch.com/docs/developer-guide/plugins#portable-agent-plugins-v1-packages",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-20"
+        }
       ]
     },
     {
@@ -238,7 +398,11 @@
         "OpenClaw currently ignores reverse-domain client extension directories other than its supported manifest extension data."
       ],
       "sources": [
-        { "url": "https://docs.openclaw.ai/plugins/bundles", "kind": "official-documentation", "verifiedOn": "2026-08-20" }
+        {
+          "url": "https://docs.openclaw.ai/plugins/bundles",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-20"
+        }
       ]
     },
     {
@@ -252,8 +416,16 @@
         "Generated Cratis Grok output uses passive native .grok/skills bundles and omits hooks, MCP servers, agents, and executable scripts."
       ],
       "sources": [
-        { "url": "https://docs.x.ai/build/overview", "kind": "official-documentation", "verifiedOn": "2026-08-22" },
-        { "url": "https://docs.x.ai/build/features/skills-plugins-marketplaces", "kind": "official-documentation", "verifiedOn": "2026-08-22" }
+        {
+          "url": "https://docs.x.ai/build/overview",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-22"
+        },
+        {
+          "url": "https://docs.x.ai/build/features/skills-plugins-marketplaces",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-22"
+        }
       ]
     },
     {
@@ -266,8 +438,16 @@
         "The public skills and routines page does not document repository manifest paths, update semantics, or project-specific instruction discovery."
       ],
       "sources": [
-        { "url": "https://agent-plugins.org/compatible-clients", "kind": "official-documentation", "verifiedOn": "2026-08-20" },
-        { "url": "https://docs.x.ai/grok-bot/skills-routines-and-automations", "kind": "official-documentation", "verifiedOn": "2026-08-20" }
+        {
+          "url": "https://agent-plugins.org/compatible-clients",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-20"
+        },
+        {
+          "url": "https://docs.x.ai/grok-bot/skills-routines-and-automations",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-20"
+        }
       ]
     },
     {
@@ -281,24 +461,46 @@
         "Its validator is stricter than the standard: it rejects all symlinks and special files, enforces containment and size limits, lints secrets, and runs executable content only inside the agent container."
       ],
       "sources": [
-        { "url": "https://github.com/nanocoai/nanoclaw/blob/main/docs/templates.md", "kind": "official-repository", "verifiedOn": "2026-08-20" }
+        {
+          "url": "https://github.com/nanocoai/nanoclaw/blob/main/docs/templates.md",
+          "kind": "official-repository",
+          "verifiedOn": "2026-08-20"
+        }
       ]
     },
     {
       "id": "pi-packages",
-      "status": "local-only",
-      "version": "0.84.2-installed-and-latest",
+      "status": "current",
+      "version": "0.84.3-registry-latest",
       "facts": [
         "Pi packages can declare extensions, skills, prompts, and themes through package.json or conventional directories and install from npm, Git, or local paths.",
         "User installs write ~/.pi/agent/settings.json; project installs write .pi/settings.json and load only after project trust. Pinned npm and Git versions do not float during package updates.",
         "Pi follows Agent Skills but is lenient about most violations and permits name-directory mismatch. Strict portable validation remains a Cratis responsibility.",
         "Pi packages do not natively distribute persistent AGENTS.md, custom agent definitions, MCP, or LSP. Executable extensions can implement such behavior but run with full system access.",
-        "The pi-package keyword enables npm gallery discovery. The installed package requires Node 22.19.0 or newer."
+        "The pi-package keyword enables npm gallery discovery. The installed package requires Node 22.19.0 or newer.",
+        "The official npm registry latest document establishes Pi 0.84.3; this client version is separate from the pi package format."
       ],
       "sources": [
-        { "url": "https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/packages.md", "kind": "installed-documentation", "verifiedOn": "2026-08-20" },
-        { "url": "https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/skills.md", "kind": "installed-documentation", "verifiedOn": "2026-08-20" },
-        { "url": "https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/extensions.md", "kind": "installed-documentation", "verifiedOn": "2026-08-20" }
+        {
+          "url": "https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/packages.md",
+          "kind": "installed-documentation",
+          "verifiedOn": "2026-08-20"
+        },
+        {
+          "url": "https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/skills.md",
+          "kind": "installed-documentation",
+          "verifiedOn": "2026-08-20"
+        },
+        {
+          "url": "https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/extensions.md",
+          "kind": "installed-documentation",
+          "verifiedOn": "2026-08-20"
+        },
+        {
+          "url": "https://registry.npmjs.org/@earendil-works/pi-coding-agent/latest",
+          "kind": "registry",
+          "verifiedOn": "2026-08-25"
+        }
       ],
       "localEvidence": [
         "Installed and latest @earendil-works/pi-coding-agent version: 0.84.2",
@@ -315,7 +517,11 @@
         "A generated Junie wrapper remains provisional; direct Agent Skills installation is a fallback only where a supported installer target is available."
       ],
       "sources": [
-        { "url": "https://github.com/JetBrains/junie-extensions", "kind": "official-repository", "verifiedOn": "2026-08-20" }
+        {
+          "url": "https://github.com/JetBrains/junie-extensions",
+          "kind": "official-repository",
+          "verifiedOn": "2026-08-20"
+        }
       ]
     },
     {
@@ -329,9 +535,21 @@
         "No root Agent Plugins installation mechanism is documented."
       ],
       "sources": [
-        { "url": "https://opencode.ai/docs/skills/", "kind": "official-documentation", "verifiedOn": "2026-08-20" },
-        { "url": "https://opencode.ai/docs/config/", "kind": "official-documentation", "verifiedOn": "2026-08-20" },
-        { "url": "https://opencode.ai/docs/rules/", "kind": "official-documentation", "verifiedOn": "2026-08-20" }
+        {
+          "url": "https://opencode.ai/docs/skills/",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-20"
+        },
+        {
+          "url": "https://opencode.ai/docs/config/",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-20"
+        },
+        {
+          "url": "https://opencode.ai/docs/rules/",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-20"
+        }
       ]
     },
     {
@@ -345,8 +563,16 @@
         "Project skill invocation uses the normal permission flow and skill file edits require explicit authorization."
       ],
       "sources": [
-        { "url": "https://zed.dev/docs/ai/skills", "kind": "official-documentation", "verifiedOn": "2026-08-20" },
-        { "url": "https://cli.github.com/manual/gh_skill_install", "kind": "official-documentation", "verifiedOn": "2026-08-20" }
+        {
+          "url": "https://zed.dev/docs/ai/skills",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-20"
+        },
+        {
+          "url": "https://cli.github.com/manual/gh_skill_install",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-20"
+        }
       ]
     },
     {
@@ -359,7 +585,11 @@
         "The Deep Code contract is distinct from the developer-preview DeepSeek Harness .dsh contract."
       ],
       "sources": [
-        { "url": "https://api-docs.deepseek.com/quick_start/agent_integrations/deepcode", "kind": "official-documentation", "verifiedOn": "2026-08-24" }
+        {
+          "url": "https://api-docs.deepseek.com/quick_start/agent_integrations/deepcode",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-24"
+        }
       ]
     },
     {
@@ -373,9 +603,21 @@
         "The current gh skill install target list does not include DeepSeek Harness, so it is a direct-skill compatibility target rather than a supported gh target."
       ],
       "sources": [
-        { "url": "https://github.com/deepseek-ai/deepseek-harness", "kind": "official-repository", "verifiedOn": "2026-08-20" },
-        { "url": "https://deepseek-harness.github.io/deepseek-harness/en/reference/subsystems/skills", "kind": "official-documentation", "verifiedOn": "2026-08-20" },
-        { "url": "https://cli.github.com/manual/gh_skill_install", "kind": "official-documentation", "verifiedOn": "2026-08-20" }
+        {
+          "url": "https://github.com/deepseek-ai/deepseek-harness",
+          "kind": "official-repository",
+          "verifiedOn": "2026-08-20"
+        },
+        {
+          "url": "https://deepseek-harness.github.io/deepseek-harness/en/reference/subsystems/skills",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-20"
+        },
+        {
+          "url": "https://cli.github.com/manual/gh_skill_install",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-20"
+        }
       ]
     },
     {
@@ -388,8 +630,16 @@
         "A Cratis skill package remains owned by its harness adapter when DeepSeek is selected as the model; provider selection must not fork skill behavior or bytes."
       ],
       "sources": [
-        { "url": "https://api-docs.deepseek.com/guides/coding_agents/", "kind": "official-documentation", "verifiedOn": "2026-08-22" },
-        { "url": "https://api-docs.deepseek.com/quick_start/agent_integrations/pi_mono", "kind": "official-documentation", "verifiedOn": "2026-08-22" }
+        {
+          "url": "https://api-docs.deepseek.com/guides/coding_agents/",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-22"
+        },
+        {
+          "url": "https://api-docs.deepseek.com/quick_start/agent_integrations/pi_mono",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-22"
+        }
       ]
     },
     {
@@ -403,12 +653,36 @@
         "This session is not authenticated to npm, so current-user organization membership, package creation rights, and trusted-publisher configuration were not verified."
       ],
       "sources": [
-        { "url": "https://registry.npmjs.org/@cratis%2fai", "kind": "registry", "verifiedOn": "2026-08-20" },
-        { "url": "https://registry.npmjs.org/@cratis%2fmcp", "kind": "registry", "verifiedOn": "2026-08-20" },
-        { "url": "https://registry.npmjs.org/@cratis%2fpi", "kind": "registry", "verifiedOn": "2026-08-20" },
-        { "url": "https://registry.npmjs.org/@cratis%2farc", "kind": "registry", "verifiedOn": "2026-08-20" },
-        { "url": "https://registry.npmjs.org/@cratis%2fcomponents", "kind": "registry", "verifiedOn": "2026-08-20" },
-        { "url": "https://docs.npmjs.com/about-organization-scopes-and-packages/", "kind": "official-documentation", "verifiedOn": "2026-08-20" }
+        {
+          "url": "https://registry.npmjs.org/@cratis%2fai",
+          "kind": "registry",
+          "verifiedOn": "2026-08-20"
+        },
+        {
+          "url": "https://registry.npmjs.org/@cratis%2fmcp",
+          "kind": "registry",
+          "verifiedOn": "2026-08-20"
+        },
+        {
+          "url": "https://registry.npmjs.org/@cratis%2fpi",
+          "kind": "registry",
+          "verifiedOn": "2026-08-20"
+        },
+        {
+          "url": "https://registry.npmjs.org/@cratis%2farc",
+          "kind": "registry",
+          "verifiedOn": "2026-08-20"
+        },
+        {
+          "url": "https://registry.npmjs.org/@cratis%2fcomponents",
+          "kind": "registry",
+          "verifiedOn": "2026-08-20"
+        },
+        {
+          "url": "https://docs.npmjs.com/about-organization-scopes-and-packages/",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-20"
+        }
       ],
       "localEvidence": [
         "npm whoami returned ENEEDAUTH",
@@ -427,12 +701,448 @@
         "The local Node version satisfies the trusted-publishing minimum, but local npm 10.9.2 does not."
       ],
       "sources": [
-        { "url": "https://docs.npmjs.com/trusted-publishers", "kind": "official-documentation", "verifiedOn": "2026-08-20" },
-        { "url": "https://docs.npmjs.com/generating-provenance-statements", "kind": "official-documentation", "verifiedOn": "2026-08-20" }
+        {
+          "url": "https://docs.npmjs.com/trusted-publishers",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-20"
+        },
+        {
+          "url": "https://docs.npmjs.com/generating-provenance-statements",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-20"
+        }
       ],
       "localEvidence": [
         "node v23.11.1",
         "npm 10.9.2"
+      ]
+    },
+    {
+      "id": "cline",
+      "status": "current",
+      "version": "cline-3.0.24-release",
+      "facts": [
+        "Cline explicitly documents Agent Skills with SKILL.md and project and user discovery roots, and recognizes AGENTS.md as repository instructions.",
+        "Cline documents MCP configuration separately from skills and rules; executable MCP content remains host-managed and is not emitted by S5a.",
+        "The official Cline changelog establishes current product release 3.0.24; this client version is separate from standards versions."
+      ],
+      "sources": [
+        {
+          "url": "https://docs.cline.bot/customization/skills",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-25"
+        },
+        {
+          "url": "https://docs.cline.bot/features/cline-rules",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-25"
+        },
+        {
+          "url": "https://github.com/cline/cline/blob/main/apps/cli/CHANGELOG.md",
+          "kind": "official-repository",
+          "verifiedOn": "2026-08-25"
+        }
+      ]
+    },
+    {
+      "id": "roo-code",
+      "status": "archived",
+      "version": "roo-code-3.54.0-final",
+      "facts": [
+        "The official Roo Code repository is archived and read-only and states that the extension shut down on May 15, 2026.",
+        "The final Roo Code skill surface used native .roo skill roots and MCP configuration, but retirement precludes a new Cratis adapter target.",
+        "Official release evidence identifies 3.54.0 as the final Roo Code release."
+      ],
+      "sources": [
+        {
+          "url": "https://github.com/RooCodeInc/Roo-Code",
+          "kind": "official-repository",
+          "verifiedOn": "2026-08-25"
+        },
+        {
+          "url": "https://roocodeinc.github.io/Roo-Code/features/skills/",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-25"
+        }
+      ]
+    },
+    {
+      "id": "kilo-code",
+      "status": "current",
+      "version": "kilo-code-7.4.23-release",
+      "facts": [
+        "Kilo Code explicitly documents Agent Skills in project .kilo/skills and user ~/.kilo/skills roots.",
+        "Kilo Code documents rules and MCP as host-native configuration; Augment or Agent Plugins manifests are not implied.",
+        "Official release evidence identifies Kilo Code 7.4.23 as a current non-prerelease product release."
+      ],
+      "sources": [
+        {
+          "url": "https://github.com/Kilo-Org/kilocode/blob/main/packages/kilo-docs/pages/customize/skills.md",
+          "kind": "official-repository",
+          "verifiedOn": "2026-08-25"
+        },
+        {
+          "url": "https://github.com/Kilo-Org/kilocode/releases/tag/v7.4.23",
+          "kind": "official-repository",
+          "verifiedOn": "2026-08-25"
+        }
+      ]
+    },
+    {
+      "id": "goose",
+      "status": "current",
+      "version": "goose-1.47.0-release",
+      "facts": [
+        "Goose documents SKILL.md discovery under project and user .agents/skills roots but does not make an explicit Agent Skills conformance claim.",
+        "Goose extensions are MCP servers and may execute code; S5a emits no MCP or executable extension content.",
+        "Official release evidence identifies Goose 1.47.0 as a current non-prerelease release."
+      ],
+      "sources": [
+        {
+          "url": "https://goose-docs.ai/docs/guides/context-engineering/using-skills/",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-25"
+        },
+        {
+          "url": "https://github.com/block/goose/releases/tag/v1.47.0",
+          "kind": "official-repository",
+          "verifiedOn": "2026-08-25"
+        }
+      ]
+    },
+    {
+      "id": "qwen-code",
+      "status": "current",
+      "version": "qwen-code-0.22.0-registry-latest",
+      "facts": [
+        "Qwen Code explicitly supports Agent Skills and discovers native project and user .qwen skill roots.",
+        "Qwen Code explicitly accepts Agent Plugins v1 with schema version 1.0.0 and documents MCP separately.",
+        "The official npm registry latest document establishes Qwen Code client version 0.22.0; the version is not a standards version."
+      ],
+      "sources": [
+        {
+          "url": "https://github.com/QwenLM/qwen-code/blob/main/docs/users/features/skills.md",
+          "kind": "official-repository",
+          "verifiedOn": "2026-08-25"
+        },
+        {
+          "url": "https://github.com/QwenLM/qwen-code/blob/main/docs/users/features/agent-plugins.md",
+          "kind": "official-repository",
+          "verifiedOn": "2026-08-25"
+        },
+        {
+          "url": "https://registry.npmjs.org/@qwen-code/qwen-code/latest",
+          "kind": "registry",
+          "verifiedOn": "2026-08-25"
+        }
+      ]
+    },
+    {
+      "id": "windsurf-devin-desktop",
+      "status": "current",
+      "version": "current-documentation-2026-08-25",
+      "facts": [
+        "Cascade explicitly documents Agent Skills in .windsurf/skills; S5a does not invent a .devin/skills root.",
+        "Windsurf and Devin Desktop documentation recognizes AGENTS.md and documents MCP separately from skills.",
+        "The official documentation snapshot establishes current product behavior but does not establish a stable client or service version."
+      ],
+      "sources": [
+        {
+          "url": "https://docs.windsurf.com/windsurf/cascade/skills",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-25"
+        },
+        {
+          "url": "https://docs.windsurf.com/windsurf/cascade/mcp",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-25"
+        }
+      ]
+    },
+    {
+      "id": "replit-agent",
+      "status": "current",
+      "version": "current-documentation-2026-08-25",
+      "facts": [
+        "Replit Agent explicitly documents Agent Skills under .agents/skills and distinguishes skills from project-wide replit.md context.",
+        "Replit MCP connections expose external tools and services and do not authorize S5a to emit executable MCP content.",
+        "The official documentation snapshot establishes current hosted behavior but no independently versioned public client."
+      ],
+      "sources": [
+        {
+          "url": "https://docs.replit.com/learn/agent-skills",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-25"
+        },
+        {
+          "url": "https://docs.replit.com/build/connect-via-mcp",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-25"
+        }
+      ]
+    },
+    {
+      "id": "augment-auggie",
+      "status": "current",
+      "version": "current-documentation-2026-08-25",
+      "facts": [
+        "Auggie explicitly documents Agent Skills in .augment/skills and compatible .agents/skills roots and uses AGENTS.md for directory-scoped instructions.",
+        "Auggie native plugins and marketplaces are host-specific and are not Agent Plugins 1.0 packages.",
+        "Official documentation establishes plugin lifecycle commands but does not establish a stable independently versioned public package surface for S5a."
+      ],
+      "sources": [
+        {
+          "url": "https://docs.augmentcode.com/cli/skills",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-25"
+        },
+        {
+          "url": "https://docs.augmentcode.com/cli/plugins",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-25"
+        }
+      ]
+    },
+    {
+      "id": "amp",
+      "status": "current",
+      "version": "current-documentation-2026-08-25",
+      "facts": [
+        "Amp documents SKILL.md workflows under .agents/skills and AGENTS.md repository instructions without an explicit Agent Skills conformance claim.",
+        "Amp documents skill and MCP lifecycle commands, while official announcements show evolving command behavior that requires a future host canary.",
+        "The official documentation snapshot does not establish a stable client version distinct from service behavior."
+      ],
+      "sources": [
+        {
+          "url": "https://ampcode.com/manual",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-25"
+        },
+        {
+          "url": "https://ampcode.com/news/neo",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-25"
+        }
+      ]
+    },
+    {
+      "id": "factory-droid",
+      "status": "current",
+      "version": "current-documentation-2026-08-25",
+      "facts": [
+        "Factory Droid documents native .factory/skills workflows and AGENTS.md instructions; no open-standard conformance is claimed here.",
+        "Factory plugins and marketplaces are native Factory formats, not Agent Plugins 1.0 packages.",
+        "S5a records the native surface for future projection and emits no Factory adapter bytes."
+      ],
+      "sources": [
+        {
+          "url": "https://docs.factory.ai/harness/skills",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-25"
+        },
+        {
+          "url": "https://docs.factory.ai/harness/plugins",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-25"
+        }
+      ]
+    },
+    {
+      "id": "openhands",
+      "status": "current",
+      "version": "openhands-1.15.0-release",
+      "facts": [
+        "OpenHands explicitly documents Agent Skills in project .agents/skills and user ~/.openhands/skills roots and recognizes AGENTS.md.",
+        "OpenHands native plugins and MCP settings are host-specific and are not Agent Plugins 1.0 packages.",
+        "Official release evidence identifies OpenHands 1.15.0 as a current non-prerelease release."
+      ],
+      "sources": [
+        {
+          "url": "https://docs.openhands.dev/overview/skills",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-25"
+        },
+        {
+          "url": "https://github.com/OpenHands/OpenHands/releases/tag/v1.15.0",
+          "kind": "official-repository",
+          "verifiedOn": "2026-08-25"
+        }
+      ]
+    },
+    {
+      "id": "aider",
+      "status": "current",
+      "version": "aider-0.86.0-release",
+      "facts": [
+        "Aider supports convention files through explicit --read or configuration; it does not document native Agent Skills or Agent Plugins discovery.",
+        "AGENTS.md may be supplied as a conventions file, which is a rules fallback rather than standard package support.",
+        "Official release evidence identifies Aider 0.86.0 as the latest published release in the official repository."
+      ],
+      "sources": [
+        {
+          "url": "https://aider.chat/docs/usage/conventions.html",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-25"
+        },
+        {
+          "url": "https://github.com/Aider-AI/aider/releases/tag/v0.86.0",
+          "kind": "official-repository",
+          "verifiedOn": "2026-08-25"
+        }
+      ]
+    },
+    {
+      "id": "continue",
+      "status": "archived",
+      "version": "continue-2.0.0-final-read-only",
+      "facts": [
+        "Continue is no longer actively maintained and its official repository is read-only for users.",
+        "Continue 2.0.0 is the final VS Code, CLI, and JetBrains release; no new Cratis target is permitted.",
+        "Historical Continue rules and MCP surfaces are retained as research only and do not establish support."
+      ],
+      "sources": [
+        {
+          "url": "https://docs.continue.dev/index",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-25"
+        },
+        {
+          "url": "https://github.com/continuedev/continue/blob/main/README.md",
+          "kind": "official-repository",
+          "verifiedOn": "2026-08-25"
+        }
+      ]
+    },
+    {
+      "id": "amazon-q-developer",
+      "status": "retiring",
+      "version": "retiring-2027-04-30",
+      "facts": [
+        "AWS will end support for Amazon Q Developer IDE plugins on April 30, 2027.",
+        "AWS directs users to migrate to Kiro; Visual Studio and Eclipse do not receive native Kiro plugins in the documented migration path.",
+        "S5a records migration evidence only and does not create an Amazon Q package or adapter."
+      ],
+      "sources": [
+        {
+          "url": "https://aws.amazon.com/blogs/devops/amazon-q-developer-end-of-support-announcement/",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-25"
+        },
+        {
+          "url": "https://kiro.dev/docs/cli/migrating-from-q-developer/",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-25"
+        }
+      ]
+    },
+    {
+      "id": "sourcegraph-cody",
+      "status": "current",
+      "version": "current-documentation-2026-08-25",
+      "facts": [
+        "Cody documents prompts and enterprise context controls but no public Agent Skills package surface.",
+        "Cody MCP tools are enterprise-only and do not establish MCP Resources, MCP Prompts, or a third-party skills marketplace.",
+        "S5a records Cody as researched no-output and makes no support or marketplace claim."
+      ],
+      "sources": [
+        {
+          "url": "https://sourcegraph.com/docs/cody/capabilities/prompts",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-25"
+        },
+        {
+          "url": "https://sourcegraph.com/docs/cody/capabilities/agentic-context-fetching",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-25"
+        }
+      ]
+    },
+    {
+      "id": "tabnine",
+      "status": "current",
+      "version": "current-documentation-2026-08-25",
+      "facts": [
+        "Tabnine documents Markdown Guidelines but does not publish a public Agent Skills package format.",
+        "Tabnine documents MCP configuration and governance; S5a does not emit MCP configuration or executable content.",
+        "Guidelines provide a rules fallback only, with no fabricated marketplace or package output."
+      ],
+      "sources": [
+        {
+          "url": "https://docs.tabnine.com/main/getting-started/tabnine-agent/guidelines",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-25"
+        },
+        {
+          "url": "https://docs.tabnine.com/main/getting-started/tabnine-agent/mcp-intro-and-setup",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-25"
+        }
+      ]
+    },
+    {
+      "id": "jetbrains-ai-assistant",
+      "status": "current",
+      "version": "current-documentation-2026-08-25",
+      "facts": [
+        "JetBrains AI Assistant documents .aiassistant/rules and AGENTS.md for project behavior.",
+        "The .agents/skills surface is consumed only by provider agents such as Claude Agent and Codex, not by a separate JetBrains-native skill package.",
+        "S5a inherits provider behavior and creates no duplicate JetBrains artifact."
+      ],
+      "sources": [
+        {
+          "url": "https://www.jetbrains.com/help/ai-assistant/configure-project-rules.html",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-25"
+        },
+        {
+          "url": "https://www.jetbrains.com/help/ai-assistant/configure-agent-behavior.html",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-25"
+        }
+      ]
+    },
+    {
+      "id": "visual-studio-copilot",
+      "status": "current",
+      "version": "current-documentation-2026-08-25",
+      "facts": [
+        "Visual Studio GitHub Copilot explicitly documents Agent Skills discovery for repository skills.",
+        "Visual Studio instructions use .github/copilot-instructions.md; VS Code AGENTS.md behavior must not be projected onto Visual Studio without evidence.",
+        "The Visual Studio surface is served by canonical Agent Skills only and receives no duplicate Copilot plugin artifact."
+      ],
+      "sources": [
+        {
+          "url": "https://learn.microsoft.com/en-us/visualstudio/ide/copilot-agent-mode?view=visualstudio",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-25"
+        },
+        {
+          "url": "https://learn.microsoft.com/en-us/visualstudio/ide/copilot-custom-instructions?view=visualstudio",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-25"
+        }
+      ]
+    },
+    {
+      "id": "devin-hosted",
+      "status": "current",
+      "version": "current-documentation-2026-08-25",
+      "facts": [
+        "Devin explicitly documents repository SKILL.md workflows and AGENTS.md instructions.",
+        "Devin Knowledge and MCP are hosted provider features, and official evidence does not establish a stable third-party package lifecycle.",
+        "S5a monitors the hosted instruction surface without inventing an adapter or output root."
+      ],
+      "sources": [
+        {
+          "url": "https://docs.devin.ai/product-guides/skills",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-25"
+        },
+        {
+          "url": "https://docs.devin.ai/onboard-devin/agents-md",
+          "kind": "official-documentation",
+          "verifiedOn": "2026-08-25"
+        }
       ]
     }
   ]

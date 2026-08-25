@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "asOf": "2026-08-24",
+  "asOf": "2026-08-25",
   "defaultPolicy": "deny",
   "sources": [
     {
@@ -424,6 +424,231 @@
       "id": "source-npm-trusted-publishing-source-2",
       "kind": "official-documentation",
       "locator": "https://docs.npmjs.com/generating-provenance-statements"
+    },
+    {
+      "id": "source-cline-source-1",
+      "kind": "official-documentation",
+      "locator": "https://docs.cline.bot/customization/skills"
+    },
+    {
+      "id": "source-cline-source-2",
+      "kind": "official-documentation",
+      "locator": "https://docs.cline.bot/features/cline-rules"
+    },
+    {
+      "id": "source-cline-source-3",
+      "kind": "official-repository",
+      "locator": "https://github.com/cline/cline/blob/main/apps/cli/CHANGELOG.md"
+    },
+    {
+      "id": "source-roo-code-source-1",
+      "kind": "official-repository",
+      "locator": "https://github.com/RooCodeInc/Roo-Code"
+    },
+    {
+      "id": "source-roo-code-source-2",
+      "kind": "official-documentation",
+      "locator": "https://roocodeinc.github.io/Roo-Code/features/skills/"
+    },
+    {
+      "id": "source-kilo-code-source-1",
+      "kind": "official-repository",
+      "locator": "https://github.com/Kilo-Org/kilocode/blob/main/packages/kilo-docs/pages/customize/skills.md"
+    },
+    {
+      "id": "source-kilo-code-source-2",
+      "kind": "official-repository",
+      "locator": "https://github.com/Kilo-Org/kilocode/releases/tag/v7.4.23"
+    },
+    {
+      "id": "source-goose-source-1",
+      "kind": "official-documentation",
+      "locator": "https://goose-docs.ai/docs/guides/context-engineering/using-skills/"
+    },
+    {
+      "id": "source-goose-source-2",
+      "kind": "official-repository",
+      "locator": "https://github.com/block/goose/releases/tag/v1.47.0"
+    },
+    {
+      "id": "source-qwen-code-source-1",
+      "kind": "official-repository",
+      "locator": "https://github.com/QwenLM/qwen-code/blob/main/docs/users/features/skills.md"
+    },
+    {
+      "id": "source-qwen-code-source-2",
+      "kind": "official-repository",
+      "locator": "https://github.com/QwenLM/qwen-code/blob/main/docs/users/features/agent-plugins.md"
+    },
+    {
+      "id": "source-qwen-code-source-3",
+      "kind": "registry",
+      "locator": "https://registry.npmjs.org/@qwen-code/qwen-code/latest"
+    },
+    {
+      "id": "source-windsurf-devin-desktop-source-1",
+      "kind": "official-documentation",
+      "locator": "https://docs.windsurf.com/windsurf/cascade/skills"
+    },
+    {
+      "id": "source-windsurf-devin-desktop-source-2",
+      "kind": "official-documentation",
+      "locator": "https://docs.windsurf.com/windsurf/cascade/mcp"
+    },
+    {
+      "id": "source-replit-agent-source-1",
+      "kind": "official-documentation",
+      "locator": "https://docs.replit.com/learn/agent-skills"
+    },
+    {
+      "id": "source-replit-agent-source-2",
+      "kind": "official-documentation",
+      "locator": "https://docs.replit.com/build/connect-via-mcp"
+    },
+    {
+      "id": "source-augment-auggie-source-1",
+      "kind": "official-documentation",
+      "locator": "https://docs.augmentcode.com/cli/skills"
+    },
+    {
+      "id": "source-augment-auggie-source-2",
+      "kind": "official-documentation",
+      "locator": "https://docs.augmentcode.com/cli/plugins"
+    },
+    {
+      "id": "source-amp-source-1",
+      "kind": "official-documentation",
+      "locator": "https://ampcode.com/manual"
+    },
+    {
+      "id": "source-amp-source-2",
+      "kind": "official-documentation",
+      "locator": "https://ampcode.com/news/neo"
+    },
+    {
+      "id": "source-factory-droid-source-1",
+      "kind": "official-documentation",
+      "locator": "https://docs.factory.ai/harness/skills"
+    },
+    {
+      "id": "source-factory-droid-source-2",
+      "kind": "official-documentation",
+      "locator": "https://docs.factory.ai/harness/plugins"
+    },
+    {
+      "id": "source-openhands-source-1",
+      "kind": "official-documentation",
+      "locator": "https://docs.openhands.dev/overview/skills"
+    },
+    {
+      "id": "source-openhands-source-2",
+      "kind": "official-repository",
+      "locator": "https://github.com/OpenHands/OpenHands/releases/tag/v1.15.0"
+    },
+    {
+      "id": "source-aider-source-1",
+      "kind": "official-documentation",
+      "locator": "https://aider.chat/docs/usage/conventions.html"
+    },
+    {
+      "id": "source-aider-source-2",
+      "kind": "official-repository",
+      "locator": "https://github.com/Aider-AI/aider/releases/tag/v0.86.0"
+    },
+    {
+      "id": "source-continue-source-1",
+      "kind": "official-documentation",
+      "locator": "https://docs.continue.dev/index"
+    },
+    {
+      "id": "source-continue-source-2",
+      "kind": "official-repository",
+      "locator": "https://github.com/continuedev/continue/blob/main/README.md"
+    },
+    {
+      "id": "source-amazon-q-developer-source-1",
+      "kind": "official-documentation",
+      "locator": "https://aws.amazon.com/blogs/devops/amazon-q-developer-end-of-support-announcement/"
+    },
+    {
+      "id": "source-amazon-q-developer-source-2",
+      "kind": "official-documentation",
+      "locator": "https://kiro.dev/docs/cli/migrating-from-q-developer/"
+    },
+    {
+      "id": "source-sourcegraph-cody-source-1",
+      "kind": "official-documentation",
+      "locator": "https://sourcegraph.com/docs/cody/capabilities/prompts"
+    },
+    {
+      "id": "source-sourcegraph-cody-source-2",
+      "kind": "official-documentation",
+      "locator": "https://sourcegraph.com/docs/cody/capabilities/agentic-context-fetching"
+    },
+    {
+      "id": "source-tabnine-source-1",
+      "kind": "official-documentation",
+      "locator": "https://docs.tabnine.com/main/getting-started/tabnine-agent/guidelines"
+    },
+    {
+      "id": "source-tabnine-source-2",
+      "kind": "official-documentation",
+      "locator": "https://docs.tabnine.com/main/getting-started/tabnine-agent/mcp-intro-and-setup"
+    },
+    {
+      "id": "source-jetbrains-ai-assistant-source-1",
+      "kind": "official-documentation",
+      "locator": "https://www.jetbrains.com/help/ai-assistant/configure-project-rules.html"
+    },
+    {
+      "id": "source-jetbrains-ai-assistant-source-2",
+      "kind": "official-documentation",
+      "locator": "https://www.jetbrains.com/help/ai-assistant/configure-agent-behavior.html"
+    },
+    {
+      "id": "source-visual-studio-copilot-source-1",
+      "kind": "official-documentation",
+      "locator": "https://learn.microsoft.com/en-us/visualstudio/ide/copilot-agent-mode?view=visualstudio"
+    },
+    {
+      "id": "source-visual-studio-copilot-source-2",
+      "kind": "official-documentation",
+      "locator": "https://learn.microsoft.com/en-us/visualstudio/ide/copilot-custom-instructions?view=visualstudio"
+    },
+    {
+      "id": "source-devin-hosted-source-1",
+      "kind": "official-documentation",
+      "locator": "https://docs.devin.ai/product-guides/skills"
+    },
+    {
+      "id": "source-devin-hosted-source-2",
+      "kind": "official-documentation",
+      "locator": "https://docs.devin.ai/onboard-devin/agents-md"
+    },
+    {
+      "id": "source-pi-packages-source-4",
+      "kind": "registry",
+      "locator": "https://registry.npmjs.org/@earendil-works/pi-coding-agent/latest"
+    },
+    {
+      "id": "source-claude-code-plugins-source-5",
+      "kind": "registry",
+      "locator": "https://registry.npmjs.org/@anthropic-ai/claude-code/latest"
+    },
+    {
+      "id": "source-openai-plugins-source-3",
+      "kind": "registry",
+      "locator": "https://registry.npmjs.org/@openai/codex/latest"
+    },
+    {
+      "id": "source-github-copilot-plugins-source-3",
+      "kind": "registry",
+      "locator": "https://registry.npmjs.org/@github/copilot/latest"
+    },
+    {
+      "id": "source-gemini-cli-extensions-source-4",
+      "kind": "registry",
+      "locator": "https://registry.npmjs.org/@google/gemini-cli/latest"
     }
   ],
   "observations": [
@@ -3847,6 +4072,1868 @@
         "sourceKind": "official-documentation",
         "applicableVersion": "current-documentation-2026-08-20"
       }
+    },
+    {
+      "id": "cline-source-1",
+      "sourceId": "source-cline-source-1",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "cline",
+        "version": "cline-3.0.24-release"
+      },
+      "bindingIds": [
+        "cline-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "cline-fact-1"
+          ]
+        }
+      ],
+      "scope": "Official official-documentation evidence for the cline S5a contract at cline-3.0.24-release.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Documentation establishes the researched contract only; it does not prove generated artifact behavior, host installation, lifecycle, release, marketplace listing, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://docs.cline.bot/customization/skills",
+        "sourceKind": "official-documentation",
+        "applicableVersion": "cline-3.0.24-release"
+      }
+    },
+    {
+      "id": "cline-source-2",
+      "sourceId": "source-cline-source-2",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "cline",
+        "version": "cline-3.0.24-release"
+      },
+      "bindingIds": [
+        "cline-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "cline-fact-2"
+          ]
+        }
+      ],
+      "scope": "Official official-documentation evidence for the cline S5a contract at cline-3.0.24-release.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Documentation establishes the researched contract only; it does not prove generated artifact behavior, host installation, lifecycle, release, marketplace listing, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://docs.cline.bot/features/cline-rules",
+        "sourceKind": "official-documentation",
+        "applicableVersion": "cline-3.0.24-release"
+      }
+    },
+    {
+      "id": "cline-source-3",
+      "sourceId": "source-cline-source-3",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "cline",
+        "version": "cline-3.0.24-release"
+      },
+      "bindingIds": [
+        "cline-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "cline-fact-3"
+          ]
+        }
+      ],
+      "scope": "Official official-repository evidence for the cline S5a contract at cline-3.0.24-release.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Documentation establishes the researched contract only; it does not prove generated artifact behavior, host installation, lifecycle, release, marketplace listing, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/cline/cline/blob/main/apps/cli/CHANGELOG.md",
+        "sourceKind": "official-repository",
+        "applicableVersion": "cline-3.0.24-release"
+      }
+    },
+    {
+      "id": "roo-code-source-1",
+      "sourceId": "source-roo-code-source-1",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "roo-code",
+        "version": "roo-code-3.54.0-final"
+      },
+      "bindingIds": [
+        "roo-code-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "roo-code-fact-1"
+          ]
+        }
+      ],
+      "scope": "Official official-repository evidence for the roo-code S5a contract at roo-code-3.54.0-final.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Documentation establishes the researched contract only; it does not prove generated artifact behavior, host installation, lifecycle, release, marketplace listing, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/RooCodeInc/Roo-Code",
+        "sourceKind": "official-repository",
+        "applicableVersion": "roo-code-3.54.0-final"
+      }
+    },
+    {
+      "id": "roo-code-source-2",
+      "sourceId": "source-roo-code-source-2",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "roo-code",
+        "version": "roo-code-3.54.0-final"
+      },
+      "bindingIds": [
+        "roo-code-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "roo-code-fact-2",
+            "roo-code-fact-3"
+          ]
+        }
+      ],
+      "scope": "Official official-documentation evidence for the roo-code S5a contract at roo-code-3.54.0-final.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Documentation establishes the researched contract only; it does not prove generated artifact behavior, host installation, lifecycle, release, marketplace listing, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://roocodeinc.github.io/Roo-Code/features/skills/",
+        "sourceKind": "official-documentation",
+        "applicableVersion": "roo-code-3.54.0-final"
+      }
+    },
+    {
+      "id": "kilo-code-source-1",
+      "sourceId": "source-kilo-code-source-1",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "kilo-code",
+        "version": "kilo-code-7.4.23-release"
+      },
+      "bindingIds": [
+        "kilo-code-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "kilo-code-fact-1"
+          ]
+        }
+      ],
+      "scope": "Official official-repository evidence for the kilo-code S5a contract at kilo-code-7.4.23-release.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Documentation establishes the researched contract only; it does not prove generated artifact behavior, host installation, lifecycle, release, marketplace listing, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Kilo-Org/kilocode/blob/main/packages/kilo-docs/pages/customize/skills.md",
+        "sourceKind": "official-repository",
+        "applicableVersion": "kilo-code-7.4.23-release"
+      }
+    },
+    {
+      "id": "kilo-code-source-2",
+      "sourceId": "source-kilo-code-source-2",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "kilo-code",
+        "version": "kilo-code-7.4.23-release"
+      },
+      "bindingIds": [
+        "kilo-code-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "kilo-code-fact-2",
+            "kilo-code-fact-3"
+          ]
+        }
+      ],
+      "scope": "Official official-repository evidence for the kilo-code S5a contract at kilo-code-7.4.23-release.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Documentation establishes the researched contract only; it does not prove generated artifact behavior, host installation, lifecycle, release, marketplace listing, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Kilo-Org/kilocode/releases/tag/v7.4.23",
+        "sourceKind": "official-repository",
+        "applicableVersion": "kilo-code-7.4.23-release"
+      }
+    },
+    {
+      "id": "goose-source-1",
+      "sourceId": "source-goose-source-1",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "goose",
+        "version": "goose-1.47.0-release"
+      },
+      "bindingIds": [
+        "goose-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "goose-fact-1"
+          ]
+        }
+      ],
+      "scope": "Official official-documentation evidence for the goose S5a contract at goose-1.47.0-release.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Documentation establishes the researched contract only; it does not prove generated artifact behavior, host installation, lifecycle, release, marketplace listing, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://goose-docs.ai/docs/guides/context-engineering/using-skills/",
+        "sourceKind": "official-documentation",
+        "applicableVersion": "goose-1.47.0-release"
+      }
+    },
+    {
+      "id": "goose-source-2",
+      "sourceId": "source-goose-source-2",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "goose",
+        "version": "goose-1.47.0-release"
+      },
+      "bindingIds": [
+        "goose-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "goose-fact-2",
+            "goose-fact-3"
+          ]
+        }
+      ],
+      "scope": "Official official-repository evidence for the goose S5a contract at goose-1.47.0-release.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Documentation establishes the researched contract only; it does not prove generated artifact behavior, host installation, lifecycle, release, marketplace listing, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/block/goose/releases/tag/v1.47.0",
+        "sourceKind": "official-repository",
+        "applicableVersion": "goose-1.47.0-release"
+      }
+    },
+    {
+      "id": "qwen-code-source-1",
+      "sourceId": "source-qwen-code-source-1",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "qwen-code",
+        "version": "qwen-code-0.22.0-registry-latest"
+      },
+      "bindingIds": [
+        "qwen-code-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "qwen-code-fact-1"
+          ]
+        }
+      ],
+      "scope": "Official official-repository evidence for the qwen-code S5a contract at qwen-code-0.22.0-registry-latest.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Documentation establishes the researched contract only; it does not prove generated artifact behavior, host installation, lifecycle, release, marketplace listing, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/QwenLM/qwen-code/blob/main/docs/users/features/skills.md",
+        "sourceKind": "official-repository",
+        "applicableVersion": "qwen-code-0.22.0-registry-latest"
+      }
+    },
+    {
+      "id": "qwen-code-source-2",
+      "sourceId": "source-qwen-code-source-2",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "qwen-code",
+        "version": "qwen-code-0.22.0-registry-latest"
+      },
+      "bindingIds": [
+        "qwen-code-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "qwen-code-fact-2"
+          ]
+        }
+      ],
+      "scope": "Official official-repository evidence for the qwen-code S5a contract at qwen-code-0.22.0-registry-latest.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Documentation establishes the researched contract only; it does not prove generated artifact behavior, host installation, lifecycle, release, marketplace listing, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/QwenLM/qwen-code/blob/main/docs/users/features/agent-plugins.md",
+        "sourceKind": "official-repository",
+        "applicableVersion": "qwen-code-0.22.0-registry-latest"
+      }
+    },
+    {
+      "id": "qwen-code-source-3",
+      "sourceId": "source-qwen-code-source-3",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "qwen-code",
+        "version": "qwen-code-0.22.0-registry-latest"
+      },
+      "bindingIds": [
+        "qwen-code-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "qwen-code-fact-3"
+          ]
+        }
+      ],
+      "scope": "Official registry evidence for the qwen-code S5a contract at qwen-code-0.22.0-registry-latest.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Documentation establishes the researched contract only; it does not prove generated artifact behavior, host installation, lifecycle, release, marketplace listing, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://registry.npmjs.org/@qwen-code/qwen-code/latest",
+        "sourceKind": "registry",
+        "applicableVersion": "qwen-code-0.22.0-registry-latest"
+      }
+    },
+    {
+      "id": "windsurf-devin-desktop-source-1",
+      "sourceId": "source-windsurf-devin-desktop-source-1",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "windsurf-devin-desktop",
+        "version": "current-documentation-2026-08-25"
+      },
+      "bindingIds": [
+        "windsurf-devin-desktop-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "windsurf-devin-desktop-fact-1"
+          ]
+        }
+      ],
+      "scope": "Official official-documentation evidence for the windsurf-devin-desktop S5a contract at current-documentation-2026-08-25.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Documentation establishes the researched contract only; it does not prove generated artifact behavior, host installation, lifecycle, release, marketplace listing, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://docs.windsurf.com/windsurf/cascade/skills",
+        "sourceKind": "official-documentation",
+        "applicableVersion": "current-documentation-2026-08-25"
+      }
+    },
+    {
+      "id": "windsurf-devin-desktop-source-2",
+      "sourceId": "source-windsurf-devin-desktop-source-2",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "windsurf-devin-desktop",
+        "version": "current-documentation-2026-08-25"
+      },
+      "bindingIds": [
+        "windsurf-devin-desktop-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "windsurf-devin-desktop-fact-2",
+            "windsurf-devin-desktop-fact-3"
+          ]
+        }
+      ],
+      "scope": "Official official-documentation evidence for the windsurf-devin-desktop S5a contract at current-documentation-2026-08-25.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Documentation establishes the researched contract only; it does not prove generated artifact behavior, host installation, lifecycle, release, marketplace listing, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://docs.windsurf.com/windsurf/cascade/mcp",
+        "sourceKind": "official-documentation",
+        "applicableVersion": "current-documentation-2026-08-25"
+      }
+    },
+    {
+      "id": "replit-agent-source-1",
+      "sourceId": "source-replit-agent-source-1",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "replit-agent",
+        "version": "current-documentation-2026-08-25"
+      },
+      "bindingIds": [
+        "replit-agent-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "replit-agent-fact-1"
+          ]
+        }
+      ],
+      "scope": "Official official-documentation evidence for the replit-agent S5a contract at current-documentation-2026-08-25.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Documentation establishes the researched contract only; it does not prove generated artifact behavior, host installation, lifecycle, release, marketplace listing, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://docs.replit.com/learn/agent-skills",
+        "sourceKind": "official-documentation",
+        "applicableVersion": "current-documentation-2026-08-25"
+      }
+    },
+    {
+      "id": "replit-agent-source-2",
+      "sourceId": "source-replit-agent-source-2",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "replit-agent",
+        "version": "current-documentation-2026-08-25"
+      },
+      "bindingIds": [
+        "replit-agent-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "replit-agent-fact-2",
+            "replit-agent-fact-3"
+          ]
+        }
+      ],
+      "scope": "Official official-documentation evidence for the replit-agent S5a contract at current-documentation-2026-08-25.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Documentation establishes the researched contract only; it does not prove generated artifact behavior, host installation, lifecycle, release, marketplace listing, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://docs.replit.com/build/connect-via-mcp",
+        "sourceKind": "official-documentation",
+        "applicableVersion": "current-documentation-2026-08-25"
+      }
+    },
+    {
+      "id": "augment-auggie-source-1",
+      "sourceId": "source-augment-auggie-source-1",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "augment-auggie",
+        "version": "current-documentation-2026-08-25"
+      },
+      "bindingIds": [
+        "augment-auggie-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "augment-auggie-fact-1"
+          ]
+        }
+      ],
+      "scope": "Official official-documentation evidence for the augment-auggie S5a contract at current-documentation-2026-08-25.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Documentation establishes the researched contract only; it does not prove generated artifact behavior, host installation, lifecycle, release, marketplace listing, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://docs.augmentcode.com/cli/skills",
+        "sourceKind": "official-documentation",
+        "applicableVersion": "current-documentation-2026-08-25"
+      }
+    },
+    {
+      "id": "augment-auggie-source-2",
+      "sourceId": "source-augment-auggie-source-2",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "augment-auggie",
+        "version": "current-documentation-2026-08-25"
+      },
+      "bindingIds": [
+        "augment-auggie-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "augment-auggie-fact-2",
+            "augment-auggie-fact-3"
+          ]
+        }
+      ],
+      "scope": "Official official-documentation evidence for the augment-auggie S5a contract at current-documentation-2026-08-25.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Documentation establishes the researched contract only; it does not prove generated artifact behavior, host installation, lifecycle, release, marketplace listing, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://docs.augmentcode.com/cli/plugins",
+        "sourceKind": "official-documentation",
+        "applicableVersion": "current-documentation-2026-08-25"
+      }
+    },
+    {
+      "id": "amp-source-1",
+      "sourceId": "source-amp-source-1",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "amp",
+        "version": "current-documentation-2026-08-25"
+      },
+      "bindingIds": [
+        "amp-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "amp-fact-1"
+          ]
+        }
+      ],
+      "scope": "Official official-documentation evidence for the amp S5a contract at current-documentation-2026-08-25.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Documentation establishes the researched contract only; it does not prove generated artifact behavior, host installation, lifecycle, release, marketplace listing, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://ampcode.com/manual",
+        "sourceKind": "official-documentation",
+        "applicableVersion": "current-documentation-2026-08-25"
+      }
+    },
+    {
+      "id": "amp-source-2",
+      "sourceId": "source-amp-source-2",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "amp",
+        "version": "current-documentation-2026-08-25"
+      },
+      "bindingIds": [
+        "amp-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "amp-fact-2",
+            "amp-fact-3"
+          ]
+        }
+      ],
+      "scope": "Official official-documentation evidence for the amp S5a contract at current-documentation-2026-08-25.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Documentation establishes the researched contract only; it does not prove generated artifact behavior, host installation, lifecycle, release, marketplace listing, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://ampcode.com/news/neo",
+        "sourceKind": "official-documentation",
+        "applicableVersion": "current-documentation-2026-08-25"
+      }
+    },
+    {
+      "id": "factory-droid-source-1",
+      "sourceId": "source-factory-droid-source-1",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "factory-droid",
+        "version": "current-documentation-2026-08-25"
+      },
+      "bindingIds": [
+        "factory-droid-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "factory-droid-fact-1"
+          ]
+        }
+      ],
+      "scope": "Official official-documentation evidence for the factory-droid S5a contract at current-documentation-2026-08-25.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Documentation establishes the researched contract only; it does not prove generated artifact behavior, host installation, lifecycle, release, marketplace listing, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://docs.factory.ai/harness/skills",
+        "sourceKind": "official-documentation",
+        "applicableVersion": "current-documentation-2026-08-25"
+      }
+    },
+    {
+      "id": "factory-droid-source-2",
+      "sourceId": "source-factory-droid-source-2",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "factory-droid",
+        "version": "current-documentation-2026-08-25"
+      },
+      "bindingIds": [
+        "factory-droid-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "factory-droid-fact-2",
+            "factory-droid-fact-3"
+          ]
+        }
+      ],
+      "scope": "Official official-documentation evidence for the factory-droid S5a contract at current-documentation-2026-08-25.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Documentation establishes the researched contract only; it does not prove generated artifact behavior, host installation, lifecycle, release, marketplace listing, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://docs.factory.ai/harness/plugins",
+        "sourceKind": "official-documentation",
+        "applicableVersion": "current-documentation-2026-08-25"
+      }
+    },
+    {
+      "id": "openhands-source-1",
+      "sourceId": "source-openhands-source-1",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "openhands",
+        "version": "openhands-1.15.0-release"
+      },
+      "bindingIds": [
+        "openhands-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "openhands-fact-1"
+          ]
+        }
+      ],
+      "scope": "Official official-documentation evidence for the openhands S5a contract at openhands-1.15.0-release.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Documentation establishes the researched contract only; it does not prove generated artifact behavior, host installation, lifecycle, release, marketplace listing, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://docs.openhands.dev/overview/skills",
+        "sourceKind": "official-documentation",
+        "applicableVersion": "openhands-1.15.0-release"
+      }
+    },
+    {
+      "id": "openhands-source-2",
+      "sourceId": "source-openhands-source-2",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "openhands",
+        "version": "openhands-1.15.0-release"
+      },
+      "bindingIds": [
+        "openhands-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "openhands-fact-2",
+            "openhands-fact-3"
+          ]
+        }
+      ],
+      "scope": "Official official-repository evidence for the openhands S5a contract at openhands-1.15.0-release.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Documentation establishes the researched contract only; it does not prove generated artifact behavior, host installation, lifecycle, release, marketplace listing, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/OpenHands/OpenHands/releases/tag/v1.15.0",
+        "sourceKind": "official-repository",
+        "applicableVersion": "openhands-1.15.0-release"
+      }
+    },
+    {
+      "id": "aider-source-1",
+      "sourceId": "source-aider-source-1",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "aider",
+        "version": "aider-0.86.0-release"
+      },
+      "bindingIds": [
+        "aider-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "aider-fact-1"
+          ]
+        }
+      ],
+      "scope": "Official official-documentation evidence for the aider S5a contract at aider-0.86.0-release.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Documentation establishes the researched contract only; it does not prove generated artifact behavior, host installation, lifecycle, release, marketplace listing, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://aider.chat/docs/usage/conventions.html",
+        "sourceKind": "official-documentation",
+        "applicableVersion": "aider-0.86.0-release"
+      }
+    },
+    {
+      "id": "aider-source-2",
+      "sourceId": "source-aider-source-2",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "aider",
+        "version": "aider-0.86.0-release"
+      },
+      "bindingIds": [
+        "aider-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "aider-fact-2",
+            "aider-fact-3"
+          ]
+        }
+      ],
+      "scope": "Official official-repository evidence for the aider S5a contract at aider-0.86.0-release.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Documentation establishes the researched contract only; it does not prove generated artifact behavior, host installation, lifecycle, release, marketplace listing, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Aider-AI/aider/releases/tag/v0.86.0",
+        "sourceKind": "official-repository",
+        "applicableVersion": "aider-0.86.0-release"
+      }
+    },
+    {
+      "id": "continue-source-1",
+      "sourceId": "source-continue-source-1",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "continue",
+        "version": "continue-2.0.0-final-read-only"
+      },
+      "bindingIds": [
+        "continue-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "continue-fact-1"
+          ]
+        }
+      ],
+      "scope": "Official official-documentation evidence for the continue S5a contract at continue-2.0.0-final-read-only.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Documentation establishes the researched contract only; it does not prove generated artifact behavior, host installation, lifecycle, release, marketplace listing, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://docs.continue.dev/index",
+        "sourceKind": "official-documentation",
+        "applicableVersion": "continue-2.0.0-final-read-only"
+      }
+    },
+    {
+      "id": "continue-source-2",
+      "sourceId": "source-continue-source-2",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "continue",
+        "version": "continue-2.0.0-final-read-only"
+      },
+      "bindingIds": [
+        "continue-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "continue-fact-2",
+            "continue-fact-3"
+          ]
+        }
+      ],
+      "scope": "Official official-repository evidence for the continue S5a contract at continue-2.0.0-final-read-only.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Documentation establishes the researched contract only; it does not prove generated artifact behavior, host installation, lifecycle, release, marketplace listing, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/continuedev/continue/blob/main/README.md",
+        "sourceKind": "official-repository",
+        "applicableVersion": "continue-2.0.0-final-read-only"
+      }
+    },
+    {
+      "id": "amazon-q-developer-source-1",
+      "sourceId": "source-amazon-q-developer-source-1",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "amazon-q-developer",
+        "version": "retiring-2027-04-30"
+      },
+      "bindingIds": [
+        "amazon-q-developer-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "amazon-q-developer-fact-1"
+          ]
+        }
+      ],
+      "scope": "Official official-documentation evidence for the amazon-q-developer S5a contract at retiring-2027-04-30.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Documentation establishes the researched contract only; it does not prove generated artifact behavior, host installation, lifecycle, release, marketplace listing, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://aws.amazon.com/blogs/devops/amazon-q-developer-end-of-support-announcement/",
+        "sourceKind": "official-documentation",
+        "applicableVersion": "retiring-2027-04-30"
+      }
+    },
+    {
+      "id": "amazon-q-developer-source-2",
+      "sourceId": "source-amazon-q-developer-source-2",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "amazon-q-developer",
+        "version": "retiring-2027-04-30"
+      },
+      "bindingIds": [
+        "amazon-q-developer-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "amazon-q-developer-fact-2",
+            "amazon-q-developer-fact-3"
+          ]
+        }
+      ],
+      "scope": "Official official-documentation evidence for the amazon-q-developer S5a contract at retiring-2027-04-30.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Documentation establishes the researched contract only; it does not prove generated artifact behavior, host installation, lifecycle, release, marketplace listing, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://kiro.dev/docs/cli/migrating-from-q-developer/",
+        "sourceKind": "official-documentation",
+        "applicableVersion": "retiring-2027-04-30"
+      }
+    },
+    {
+      "id": "sourcegraph-cody-source-1",
+      "sourceId": "source-sourcegraph-cody-source-1",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "sourcegraph-cody",
+        "version": "current-documentation-2026-08-25"
+      },
+      "bindingIds": [
+        "sourcegraph-cody-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "sourcegraph-cody-fact-1"
+          ]
+        }
+      ],
+      "scope": "Official official-documentation evidence for the sourcegraph-cody S5a contract at current-documentation-2026-08-25.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Documentation establishes the researched contract only; it does not prove generated artifact behavior, host installation, lifecycle, release, marketplace listing, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://sourcegraph.com/docs/cody/capabilities/prompts",
+        "sourceKind": "official-documentation",
+        "applicableVersion": "current-documentation-2026-08-25"
+      }
+    },
+    {
+      "id": "sourcegraph-cody-source-2",
+      "sourceId": "source-sourcegraph-cody-source-2",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "sourcegraph-cody",
+        "version": "current-documentation-2026-08-25"
+      },
+      "bindingIds": [
+        "sourcegraph-cody-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "sourcegraph-cody-fact-2",
+            "sourcegraph-cody-fact-3"
+          ]
+        }
+      ],
+      "scope": "Official official-documentation evidence for the sourcegraph-cody S5a contract at current-documentation-2026-08-25.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Documentation establishes the researched contract only; it does not prove generated artifact behavior, host installation, lifecycle, release, marketplace listing, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://sourcegraph.com/docs/cody/capabilities/agentic-context-fetching",
+        "sourceKind": "official-documentation",
+        "applicableVersion": "current-documentation-2026-08-25"
+      }
+    },
+    {
+      "id": "tabnine-source-1",
+      "sourceId": "source-tabnine-source-1",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "tabnine",
+        "version": "current-documentation-2026-08-25"
+      },
+      "bindingIds": [
+        "tabnine-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "tabnine-fact-1"
+          ]
+        }
+      ],
+      "scope": "Official official-documentation evidence for the tabnine S5a contract at current-documentation-2026-08-25.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Documentation establishes the researched contract only; it does not prove generated artifact behavior, host installation, lifecycle, release, marketplace listing, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://docs.tabnine.com/main/getting-started/tabnine-agent/guidelines",
+        "sourceKind": "official-documentation",
+        "applicableVersion": "current-documentation-2026-08-25"
+      }
+    },
+    {
+      "id": "tabnine-source-2",
+      "sourceId": "source-tabnine-source-2",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "tabnine",
+        "version": "current-documentation-2026-08-25"
+      },
+      "bindingIds": [
+        "tabnine-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "tabnine-fact-2",
+            "tabnine-fact-3"
+          ]
+        }
+      ],
+      "scope": "Official official-documentation evidence for the tabnine S5a contract at current-documentation-2026-08-25.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Documentation establishes the researched contract only; it does not prove generated artifact behavior, host installation, lifecycle, release, marketplace listing, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://docs.tabnine.com/main/getting-started/tabnine-agent/mcp-intro-and-setup",
+        "sourceKind": "official-documentation",
+        "applicableVersion": "current-documentation-2026-08-25"
+      }
+    },
+    {
+      "id": "jetbrains-ai-assistant-source-1",
+      "sourceId": "source-jetbrains-ai-assistant-source-1",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "jetbrains-ai-assistant",
+        "version": "current-documentation-2026-08-25"
+      },
+      "bindingIds": [
+        "jetbrains-ai-assistant-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "jetbrains-ai-assistant-fact-1"
+          ]
+        }
+      ],
+      "scope": "Official official-documentation evidence for the jetbrains-ai-assistant S5a contract at current-documentation-2026-08-25.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Documentation establishes the researched contract only; it does not prove generated artifact behavior, host installation, lifecycle, release, marketplace listing, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://www.jetbrains.com/help/ai-assistant/configure-project-rules.html",
+        "sourceKind": "official-documentation",
+        "applicableVersion": "current-documentation-2026-08-25"
+      }
+    },
+    {
+      "id": "jetbrains-ai-assistant-source-2",
+      "sourceId": "source-jetbrains-ai-assistant-source-2",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "jetbrains-ai-assistant",
+        "version": "current-documentation-2026-08-25"
+      },
+      "bindingIds": [
+        "jetbrains-ai-assistant-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "jetbrains-ai-assistant-fact-2",
+            "jetbrains-ai-assistant-fact-3"
+          ]
+        }
+      ],
+      "scope": "Official official-documentation evidence for the jetbrains-ai-assistant S5a contract at current-documentation-2026-08-25.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Documentation establishes the researched contract only; it does not prove generated artifact behavior, host installation, lifecycle, release, marketplace listing, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://www.jetbrains.com/help/ai-assistant/configure-agent-behavior.html",
+        "sourceKind": "official-documentation",
+        "applicableVersion": "current-documentation-2026-08-25"
+      }
+    },
+    {
+      "id": "visual-studio-copilot-source-1",
+      "sourceId": "source-visual-studio-copilot-source-1",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "visual-studio-copilot",
+        "version": "current-documentation-2026-08-25"
+      },
+      "bindingIds": [
+        "visual-studio-copilot-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "visual-studio-copilot-fact-1"
+          ]
+        }
+      ],
+      "scope": "Official official-documentation evidence for the visual-studio-copilot S5a contract at current-documentation-2026-08-25.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Documentation establishes the researched contract only; it does not prove generated artifact behavior, host installation, lifecycle, release, marketplace listing, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://learn.microsoft.com/en-us/visualstudio/ide/copilot-agent-mode?view=visualstudio",
+        "sourceKind": "official-documentation",
+        "applicableVersion": "current-documentation-2026-08-25"
+      }
+    },
+    {
+      "id": "visual-studio-copilot-source-2",
+      "sourceId": "source-visual-studio-copilot-source-2",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "visual-studio-copilot",
+        "version": "current-documentation-2026-08-25"
+      },
+      "bindingIds": [
+        "visual-studio-copilot-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "visual-studio-copilot-fact-2",
+            "visual-studio-copilot-fact-3"
+          ]
+        }
+      ],
+      "scope": "Official official-documentation evidence for the visual-studio-copilot S5a contract at current-documentation-2026-08-25.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Documentation establishes the researched contract only; it does not prove generated artifact behavior, host installation, lifecycle, release, marketplace listing, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://learn.microsoft.com/en-us/visualstudio/ide/copilot-custom-instructions?view=visualstudio",
+        "sourceKind": "official-documentation",
+        "applicableVersion": "current-documentation-2026-08-25"
+      }
+    },
+    {
+      "id": "devin-hosted-source-1",
+      "sourceId": "source-devin-hosted-source-1",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "devin-hosted",
+        "version": "current-documentation-2026-08-25"
+      },
+      "bindingIds": [
+        "devin-hosted-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "devin-hosted-fact-1"
+          ]
+        }
+      ],
+      "scope": "Official official-documentation evidence for the devin-hosted S5a contract at current-documentation-2026-08-25.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Documentation establishes the researched contract only; it does not prove generated artifact behavior, host installation, lifecycle, release, marketplace listing, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://docs.devin.ai/product-guides/skills",
+        "sourceKind": "official-documentation",
+        "applicableVersion": "current-documentation-2026-08-25"
+      }
+    },
+    {
+      "id": "devin-hosted-source-2",
+      "sourceId": "source-devin-hosted-source-2",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "devin-hosted",
+        "version": "current-documentation-2026-08-25"
+      },
+      "bindingIds": [
+        "devin-hosted-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "devin-hosted-fact-2",
+            "devin-hosted-fact-3"
+          ]
+        }
+      ],
+      "scope": "Official official-documentation evidence for the devin-hosted S5a contract at current-documentation-2026-08-25.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Documentation establishes the researched contract only; it does not prove generated artifact behavior, host installation, lifecycle, release, marketplace listing, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://docs.devin.ai/onboard-devin/agents-md",
+        "sourceKind": "official-documentation",
+        "applicableVersion": "current-documentation-2026-08-25"
+      }
+    },
+    {
+      "id": "pi-packages-source-4",
+      "sourceId": "source-pi-packages-source-4",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "pi-packages",
+        "version": "0.84.3-registry-latest"
+      },
+      "bindingIds": [
+        "pi-packages-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "pi-packages-fact-6"
+          ]
+        }
+      ],
+      "scope": "Official registry evidence for current pi-packages client version 0.84.3-registry-latest.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Registry metadata establishes the current client package version only; it does not prove host behavior, lifecycle, release eligibility, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://registry.npmjs.org/@earendil-works/pi-coding-agent/latest",
+        "sourceKind": "registry",
+        "applicableVersion": "0.84.3-registry-latest"
+      }
+    },
+    {
+      "id": "claude-code-plugins-source-5",
+      "sourceId": "source-claude-code-plugins-source-5",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "claude-code-plugins",
+        "version": "claude-code-2.1.245-registry-latest"
+      },
+      "bindingIds": [
+        "claude-code-plugins-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "claude-code-plugins-fact-6"
+          ]
+        }
+      ],
+      "scope": "Official registry evidence for current claude-code-plugins client version claude-code-2.1.245-registry-latest.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Registry metadata establishes the current client package version only; it does not prove host behavior, lifecycle, release eligibility, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://registry.npmjs.org/@anthropic-ai/claude-code/latest",
+        "sourceKind": "registry",
+        "applicableVersion": "claude-code-2.1.245-registry-latest"
+      }
+    },
+    {
+      "id": "openai-plugins-source-3",
+      "sourceId": "source-openai-plugins-source-3",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "openai-plugins",
+        "version": "codex-cli-0.149.1-registry-latest"
+      },
+      "bindingIds": [
+        "openai-plugins-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "openai-plugins-fact-6"
+          ]
+        }
+      ],
+      "scope": "Official registry evidence for current openai-plugins client version codex-cli-0.149.1-registry-latest.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Registry metadata establishes the current client package version only; it does not prove host behavior, lifecycle, release eligibility, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://registry.npmjs.org/@openai/codex/latest",
+        "sourceKind": "registry",
+        "applicableVersion": "codex-cli-0.149.1-registry-latest"
+      }
+    },
+    {
+      "id": "github-copilot-plugins-source-3",
+      "sourceId": "source-github-copilot-plugins-source-3",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "github-copilot-plugins",
+        "version": "copilot-cli-1.0.80-registry-latest"
+      },
+      "bindingIds": [
+        "github-copilot-plugins-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "github-copilot-plugins-fact-5"
+          ]
+        }
+      ],
+      "scope": "Official registry evidence for current github-copilot-plugins client version copilot-cli-1.0.80-registry-latest.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Registry metadata establishes the current client package version only; it does not prove host behavior, lifecycle, release eligibility, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://registry.npmjs.org/@github/copilot/latest",
+        "sourceKind": "registry",
+        "applicableVersion": "copilot-cli-1.0.80-registry-latest"
+      }
+    },
+    {
+      "id": "gemini-cli-extensions-source-4",
+      "sourceId": "source-gemini-cli-extensions-source-4",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "ecosystem",
+        "id": "gemini-cli-extensions",
+        "version": "gemini-cli-0.56.0-registry-latest"
+      },
+      "bindingIds": [
+        "gemini-cli-extensions-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": [
+            "gemini-cli-extensions-fact-6"
+          ]
+        }
+      ],
+      "scope": "Official registry evidence for current gemini-cli-extensions client version gemini-cli-0.56.0-registry-latest.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Registry metadata establishes the current client package version only; it does not prove host behavior, lifecycle, release eligibility, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://registry.npmjs.org/@google/gemini-cli/latest",
+        "sourceKind": "registry",
+        "applicableVersion": "gemini-cli-0.56.0-registry-latest"
+      }
     }
   ],
   "legacyFacts": [
@@ -4855,6 +6942,564 @@
       "fact": "The local Node version satisfies the trusted-publishing minimum, but local npm 10.9.2 does not.",
       "evidenceIds": [],
       "supporting": false
+    },
+    {
+      "id": "cline-fact-1",
+      "ecosystemId": "cline",
+      "fact": "Cline explicitly documents Agent Skills with SKILL.md and project and user discovery roots, and recognizes AGENTS.md as repository instructions.",
+      "evidenceIds": [
+        "cline-source-1"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "cline-fact-2",
+      "ecosystemId": "cline",
+      "fact": "Cline documents MCP configuration separately from skills and rules; executable MCP content remains host-managed and is not emitted by S5a.",
+      "evidenceIds": [
+        "cline-source-2"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "cline-fact-3",
+      "ecosystemId": "cline",
+      "fact": "The official Cline changelog establishes current product release 3.0.24; this client version is separate from standards versions.",
+      "evidenceIds": [
+        "cline-source-3"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "roo-code-fact-1",
+      "ecosystemId": "roo-code",
+      "fact": "The official Roo Code repository is archived and read-only and states that the extension shut down on May 15, 2026.",
+      "evidenceIds": [
+        "roo-code-source-1"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "roo-code-fact-2",
+      "ecosystemId": "roo-code",
+      "fact": "The final Roo Code skill surface used native .roo skill roots and MCP configuration, but retirement precludes a new Cratis adapter target.",
+      "evidenceIds": [
+        "roo-code-source-2"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "roo-code-fact-3",
+      "ecosystemId": "roo-code",
+      "fact": "Official release evidence identifies 3.54.0 as the final Roo Code release.",
+      "evidenceIds": [
+        "roo-code-source-2"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "kilo-code-fact-1",
+      "ecosystemId": "kilo-code",
+      "fact": "Kilo Code explicitly documents Agent Skills in project .kilo/skills and user ~/.kilo/skills roots.",
+      "evidenceIds": [
+        "kilo-code-source-1"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "kilo-code-fact-2",
+      "ecosystemId": "kilo-code",
+      "fact": "Kilo Code documents rules and MCP as host-native configuration; Augment or Agent Plugins manifests are not implied.",
+      "evidenceIds": [
+        "kilo-code-source-2"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "kilo-code-fact-3",
+      "ecosystemId": "kilo-code",
+      "fact": "Official release evidence identifies Kilo Code 7.4.23 as a current non-prerelease product release.",
+      "evidenceIds": [
+        "kilo-code-source-2"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "goose-fact-1",
+      "ecosystemId": "goose",
+      "fact": "Goose documents SKILL.md discovery under project and user .agents/skills roots but does not make an explicit Agent Skills conformance claim.",
+      "evidenceIds": [
+        "goose-source-1"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "goose-fact-2",
+      "ecosystemId": "goose",
+      "fact": "Goose extensions are MCP servers and may execute code; S5a emits no MCP or executable extension content.",
+      "evidenceIds": [
+        "goose-source-2"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "goose-fact-3",
+      "ecosystemId": "goose",
+      "fact": "Official release evidence identifies Goose 1.47.0 as a current non-prerelease release.",
+      "evidenceIds": [
+        "goose-source-2"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "qwen-code-fact-1",
+      "ecosystemId": "qwen-code",
+      "fact": "Qwen Code explicitly supports Agent Skills and discovers native project and user .qwen skill roots.",
+      "evidenceIds": [
+        "qwen-code-source-1"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "qwen-code-fact-2",
+      "ecosystemId": "qwen-code",
+      "fact": "Qwen Code explicitly accepts Agent Plugins v1 with schema version 1.0.0 and documents MCP separately.",
+      "evidenceIds": [
+        "qwen-code-source-2"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "qwen-code-fact-3",
+      "ecosystemId": "qwen-code",
+      "fact": "The official npm registry latest document establishes Qwen Code client version 0.22.0; the version is not a standards version.",
+      "evidenceIds": [
+        "qwen-code-source-3"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "windsurf-devin-desktop-fact-1",
+      "ecosystemId": "windsurf-devin-desktop",
+      "fact": "Cascade explicitly documents Agent Skills in .windsurf/skills; S5a does not invent a .devin/skills root.",
+      "evidenceIds": [
+        "windsurf-devin-desktop-source-1"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "windsurf-devin-desktop-fact-2",
+      "ecosystemId": "windsurf-devin-desktop",
+      "fact": "Windsurf and Devin Desktop documentation recognizes AGENTS.md and documents MCP separately from skills.",
+      "evidenceIds": [
+        "windsurf-devin-desktop-source-2"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "windsurf-devin-desktop-fact-3",
+      "ecosystemId": "windsurf-devin-desktop",
+      "fact": "The official documentation snapshot establishes current product behavior but does not establish a stable client or service version.",
+      "evidenceIds": [
+        "windsurf-devin-desktop-source-2"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "replit-agent-fact-1",
+      "ecosystemId": "replit-agent",
+      "fact": "Replit Agent explicitly documents Agent Skills under .agents/skills and distinguishes skills from project-wide replit.md context.",
+      "evidenceIds": [
+        "replit-agent-source-1"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "replit-agent-fact-2",
+      "ecosystemId": "replit-agent",
+      "fact": "Replit MCP connections expose external tools and services and do not authorize S5a to emit executable MCP content.",
+      "evidenceIds": [
+        "replit-agent-source-2"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "replit-agent-fact-3",
+      "ecosystemId": "replit-agent",
+      "fact": "The official documentation snapshot establishes current hosted behavior but no independently versioned public client.",
+      "evidenceIds": [
+        "replit-agent-source-2"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "augment-auggie-fact-1",
+      "ecosystemId": "augment-auggie",
+      "fact": "Auggie explicitly documents Agent Skills in .augment/skills and compatible .agents/skills roots and uses AGENTS.md for directory-scoped instructions.",
+      "evidenceIds": [
+        "augment-auggie-source-1"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "augment-auggie-fact-2",
+      "ecosystemId": "augment-auggie",
+      "fact": "Auggie native plugins and marketplaces are host-specific and are not Agent Plugins 1.0 packages.",
+      "evidenceIds": [
+        "augment-auggie-source-2"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "augment-auggie-fact-3",
+      "ecosystemId": "augment-auggie",
+      "fact": "Official documentation establishes plugin lifecycle commands but does not establish a stable independently versioned public package surface for S5a.",
+      "evidenceIds": [
+        "augment-auggie-source-2"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "amp-fact-1",
+      "ecosystemId": "amp",
+      "fact": "Amp documents SKILL.md workflows under .agents/skills and AGENTS.md repository instructions without an explicit Agent Skills conformance claim.",
+      "evidenceIds": [
+        "amp-source-1"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "amp-fact-2",
+      "ecosystemId": "amp",
+      "fact": "Amp documents skill and MCP lifecycle commands, while official announcements show evolving command behavior that requires a future host canary.",
+      "evidenceIds": [
+        "amp-source-2"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "amp-fact-3",
+      "ecosystemId": "amp",
+      "fact": "The official documentation snapshot does not establish a stable client version distinct from service behavior.",
+      "evidenceIds": [
+        "amp-source-2"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "factory-droid-fact-1",
+      "ecosystemId": "factory-droid",
+      "fact": "Factory Droid documents native .factory/skills workflows and AGENTS.md instructions; no open-standard conformance is claimed here.",
+      "evidenceIds": [
+        "factory-droid-source-1"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "factory-droid-fact-2",
+      "ecosystemId": "factory-droid",
+      "fact": "Factory plugins and marketplaces are native Factory formats, not Agent Plugins 1.0 packages.",
+      "evidenceIds": [
+        "factory-droid-source-2"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "factory-droid-fact-3",
+      "ecosystemId": "factory-droid",
+      "fact": "S5a records the native surface for future projection and emits no Factory adapter bytes.",
+      "evidenceIds": [
+        "factory-droid-source-2"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "openhands-fact-1",
+      "ecosystemId": "openhands",
+      "fact": "OpenHands explicitly documents Agent Skills in project .agents/skills and user ~/.openhands/skills roots and recognizes AGENTS.md.",
+      "evidenceIds": [
+        "openhands-source-1"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "openhands-fact-2",
+      "ecosystemId": "openhands",
+      "fact": "OpenHands native plugins and MCP settings are host-specific and are not Agent Plugins 1.0 packages.",
+      "evidenceIds": [
+        "openhands-source-2"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "openhands-fact-3",
+      "ecosystemId": "openhands",
+      "fact": "Official release evidence identifies OpenHands 1.15.0 as a current non-prerelease release.",
+      "evidenceIds": [
+        "openhands-source-2"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "aider-fact-1",
+      "ecosystemId": "aider",
+      "fact": "Aider supports convention files through explicit --read or configuration; it does not document native Agent Skills or Agent Plugins discovery.",
+      "evidenceIds": [
+        "aider-source-1"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "aider-fact-2",
+      "ecosystemId": "aider",
+      "fact": "AGENTS.md may be supplied as a conventions file, which is a rules fallback rather than standard package support.",
+      "evidenceIds": [
+        "aider-source-2"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "aider-fact-3",
+      "ecosystemId": "aider",
+      "fact": "Official release evidence identifies Aider 0.86.0 as the latest published release in the official repository.",
+      "evidenceIds": [
+        "aider-source-2"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "continue-fact-1",
+      "ecosystemId": "continue",
+      "fact": "Continue is no longer actively maintained and its official repository is read-only for users.",
+      "evidenceIds": [
+        "continue-source-1"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "continue-fact-2",
+      "ecosystemId": "continue",
+      "fact": "Continue 2.0.0 is the final VS Code, CLI, and JetBrains release; no new Cratis target is permitted.",
+      "evidenceIds": [
+        "continue-source-2"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "continue-fact-3",
+      "ecosystemId": "continue",
+      "fact": "Historical Continue rules and MCP surfaces are retained as research only and do not establish support.",
+      "evidenceIds": [
+        "continue-source-2"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "amazon-q-developer-fact-1",
+      "ecosystemId": "amazon-q-developer",
+      "fact": "AWS will end support for Amazon Q Developer IDE plugins on April 30, 2027.",
+      "evidenceIds": [
+        "amazon-q-developer-source-1"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "amazon-q-developer-fact-2",
+      "ecosystemId": "amazon-q-developer",
+      "fact": "AWS directs users to migrate to Kiro; Visual Studio and Eclipse do not receive native Kiro plugins in the documented migration path.",
+      "evidenceIds": [
+        "amazon-q-developer-source-2"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "amazon-q-developer-fact-3",
+      "ecosystemId": "amazon-q-developer",
+      "fact": "S5a records migration evidence only and does not create an Amazon Q package or adapter.",
+      "evidenceIds": [
+        "amazon-q-developer-source-2"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "sourcegraph-cody-fact-1",
+      "ecosystemId": "sourcegraph-cody",
+      "fact": "Cody documents prompts and enterprise context controls but no public Agent Skills package surface.",
+      "evidenceIds": [
+        "sourcegraph-cody-source-1"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "sourcegraph-cody-fact-2",
+      "ecosystemId": "sourcegraph-cody",
+      "fact": "Cody MCP tools are enterprise-only and do not establish MCP Resources, MCP Prompts, or a third-party skills marketplace.",
+      "evidenceIds": [
+        "sourcegraph-cody-source-2"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "sourcegraph-cody-fact-3",
+      "ecosystemId": "sourcegraph-cody",
+      "fact": "S5a records Cody as researched no-output and makes no support or marketplace claim.",
+      "evidenceIds": [
+        "sourcegraph-cody-source-2"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "tabnine-fact-1",
+      "ecosystemId": "tabnine",
+      "fact": "Tabnine documents Markdown Guidelines but does not publish a public Agent Skills package format.",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "tabnine-fact-2",
+      "ecosystemId": "tabnine",
+      "fact": "Tabnine documents MCP configuration and governance; S5a does not emit MCP configuration or executable content.",
+      "evidenceIds": [
+        "tabnine-source-2"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "tabnine-fact-3",
+      "ecosystemId": "tabnine",
+      "fact": "Guidelines provide a rules fallback only, with no fabricated marketplace or package output.",
+      "evidenceIds": [
+        "tabnine-source-2"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "jetbrains-ai-assistant-fact-1",
+      "ecosystemId": "jetbrains-ai-assistant",
+      "fact": "JetBrains AI Assistant documents .aiassistant/rules and AGENTS.md for project behavior.",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "jetbrains-ai-assistant-fact-2",
+      "ecosystemId": "jetbrains-ai-assistant",
+      "fact": "The .agents/skills surface is consumed only by provider agents such as Claude Agent and Codex, not by a separate JetBrains-native skill package.",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-2"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "jetbrains-ai-assistant-fact-3",
+      "ecosystemId": "jetbrains-ai-assistant",
+      "fact": "S5a inherits provider behavior and creates no duplicate JetBrains artifact.",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-2"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "visual-studio-copilot-fact-1",
+      "ecosystemId": "visual-studio-copilot",
+      "fact": "Visual Studio GitHub Copilot explicitly documents Agent Skills discovery for repository skills.",
+      "evidenceIds": [
+        "visual-studio-copilot-source-1"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "visual-studio-copilot-fact-2",
+      "ecosystemId": "visual-studio-copilot",
+      "fact": "Visual Studio instructions use .github/copilot-instructions.md; VS Code AGENTS.md behavior must not be projected onto Visual Studio without evidence.",
+      "evidenceIds": [
+        "visual-studio-copilot-source-2"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "visual-studio-copilot-fact-3",
+      "ecosystemId": "visual-studio-copilot",
+      "fact": "The Visual Studio surface is served by canonical Agent Skills only and receives no duplicate Copilot plugin artifact.",
+      "evidenceIds": [
+        "visual-studio-copilot-source-2"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "devin-hosted-fact-1",
+      "ecosystemId": "devin-hosted",
+      "fact": "Devin explicitly documents repository SKILL.md workflows and AGENTS.md instructions.",
+      "evidenceIds": [
+        "devin-hosted-source-1"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "devin-hosted-fact-2",
+      "ecosystemId": "devin-hosted",
+      "fact": "Devin Knowledge and MCP are hosted provider features, and official evidence does not establish a stable third-party package lifecycle.",
+      "evidenceIds": [
+        "devin-hosted-source-2"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "devin-hosted-fact-3",
+      "ecosystemId": "devin-hosted",
+      "fact": "S5a monitors the hosted instruction surface without inventing an adapter or output root.",
+      "evidenceIds": [
+        "devin-hosted-source-2"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "pi-packages-fact-6",
+      "ecosystemId": "pi-packages",
+      "fact": "The official npm registry latest document establishes Pi 0.84.3; this client version is separate from the pi package format.",
+      "evidenceIds": [
+        "pi-packages-source-4"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "claude-code-plugins-fact-6",
+      "ecosystemId": "claude-code-plugins",
+      "fact": "The official npm registry latest document establishes Claude Code client version 2.1.245.",
+      "evidenceIds": [
+        "claude-code-plugins-source-5"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "openai-plugins-fact-6",
+      "ecosystemId": "openai-plugins",
+      "fact": "The official npm registry latest document establishes Codex CLI client version 0.149.1.",
+      "evidenceIds": [
+        "openai-plugins-source-3"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "github-copilot-plugins-fact-5",
+      "ecosystemId": "github-copilot-plugins",
+      "fact": "The official npm registry latest document establishes GitHub Copilot CLI client version 1.0.80.",
+      "evidenceIds": [
+        "github-copilot-plugins-source-3"
+      ],
+      "supporting": true
+    },
+    {
+      "id": "gemini-cli-extensions-fact-6",
+      "ecosystemId": "gemini-cli-extensions",
+      "fact": "The official npm registry latest document establishes Gemini CLI client version 0.56.0.",
+      "evidenceIds": [
+        "gemini-cli-extensions-source-4"
+      ],
+      "supporting": true
     }
   ],
   "legacyGaps": [

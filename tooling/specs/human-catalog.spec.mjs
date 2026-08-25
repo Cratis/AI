@@ -203,6 +203,24 @@ test("generated human catalog exposes public and engineering packages and capabi
     assert(concept.profileIds.includes("public-fundamentals"));
     assert(concept.profileIds.includes("public-application"));
     assert.match(catalog.disclaimer, /does not grant runtime permission/);
+    assert.equal(catalog.hostCoverage.length, 38);
+    assert(catalog.hostCoverage.every((record) => record.supportClaim === false));
+    assert.equal(
+        catalog.hostCoverage.find((record) => record.ecosystemId === "roo-code")
+            .coverage,
+        "no-surface",
+    );
+    assert.equal(
+        catalog.hostCoverage.find(
+            (record) => record.ecosystemId === "amazon-q-developer",
+        ).coverage,
+        "migration",
+    );
+    assert.equal(
+        catalog.hostCoverage.find((record) => record.ecosystemId === "aider")
+            .coverage,
+        "fallback",
+    );
 });
 
 test("human catalog manifest binds every generated product file", () => {
@@ -223,6 +241,10 @@ test("human catalog manifest binds every generated product file", () => {
 test("human catalog Markdown separates approval and trust visibly", () => {
     const markdown = readFileSync(join(outputRoot, "CATALOG.md"), "utf8");
     assert.match(markdown, /^# Cratis AI package and capability catalog/m);
+    assert.match(markdown, /## Researched host coverage/);
+    assert.match(markdown, /standard-compatible/);
+    assert.match(markdown, /native-planned/);
+    assert.match(markdown, /no-surface/);
     assert.match(markdown, /## Packages and profiles/);
     assert.match(markdown, /### Cratis Fundamentals/);
     assert.match(markdown, /## Capabilities/);

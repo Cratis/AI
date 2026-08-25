@@ -550,6 +550,405 @@
         "Trusted publishing is a future publication control, not an artifact output or current eligibility claim."
       ],
       "marketplaceAvailabilityClaim": false
+    },
+    {
+      "id": "cline-artifact-binding",
+      "ecosystemId": "cline",
+      "interfaceId": "agent-skill",
+      "requirementId": "agent-skills-open-standard",
+      "targetId": "canonical-agent-skills",
+      "harnessId": "agent-skills",
+      "outputRoot": "canonical",
+      "artifactClass": "passive-public-package",
+      "strategy": "compatible-source",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "cline-source-1"
+      ],
+      "generationState": "source-compatible",
+      "supportClaim": false,
+      "notes": [
+        "S5a records Cline without creating a new adapter output root."
+      ],
+      "marketplaceAvailabilityClaim": false
+    },
+    {
+      "id": "roo-code-artifact-binding",
+      "ecosystemId": "roo-code",
+      "interfaceId": "agent-skill",
+      "requirementId": null,
+      "targetId": null,
+      "harnessId": null,
+      "outputRoot": null,
+      "artifactClass": "no-artifact",
+      "strategy": "blocked",
+      "assuranceProfileId": "no-artifact-v1",
+      "evidenceIds": [
+        "roo-code-source-1"
+      ],
+      "generationState": "blocked",
+      "supportClaim": false,
+      "notes": [
+        "S5a records Roo Code without creating a new adapter output root."
+      ],
+      "marketplaceAvailabilityClaim": false
+    },
+    {
+      "id": "kilo-code-artifact-binding",
+      "ecosystemId": "kilo-code",
+      "interfaceId": "agent-skill",
+      "requirementId": "agent-skills-open-standard",
+      "targetId": "canonical-agent-skills",
+      "harnessId": "agent-skills",
+      "outputRoot": "canonical",
+      "artifactClass": "passive-public-package",
+      "strategy": "compatible-source",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "kilo-code-source-1"
+      ],
+      "generationState": "source-compatible",
+      "supportClaim": false,
+      "notes": [
+        "S5a records Kilo Code without creating a new adapter output root."
+      ],
+      "marketplaceAvailabilityClaim": false
+    },
+    {
+      "id": "goose-artifact-binding",
+      "ecosystemId": "goose",
+      "interfaceId": "agent-skill",
+      "requirementId": "agent-skills-open-standard",
+      "targetId": "canonical-agent-skills",
+      "harnessId": "agent-skills",
+      "outputRoot": "canonical",
+      "artifactClass": "passive-public-package",
+      "strategy": "compatible-source",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "goose-source-1"
+      ],
+      "generationState": "source-compatible",
+      "supportClaim": false,
+      "notes": [
+        "S5a records Goose without creating a new adapter output root."
+      ],
+      "marketplaceAvailabilityClaim": false
+    },
+    {
+      "id": "qwen-code-artifact-binding",
+      "ecosystemId": "qwen-code",
+      "interfaceId": "agent-plugin-package",
+      "requirementId": "agent-plugins-open-standard",
+      "targetId": "portable-agent-plugin",
+      "harnessId": "agent-plugin",
+      "outputRoot": "agent-plugin",
+      "artifactClass": "passive-public-package",
+      "strategy": "compatible-source",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "qwen-code-source-2"
+      ],
+      "generationState": "source-compatible",
+      "supportClaim": false,
+      "notes": [
+        "S5a records Qwen Code without creating a new adapter output root."
+      ],
+      "marketplaceAvailabilityClaim": false
+    },
+    {
+      "id": "windsurf-devin-desktop-artifact-binding",
+      "ecosystemId": "windsurf-devin-desktop",
+      "interfaceId": "agent-skill",
+      "requirementId": "agent-skills-open-standard",
+      "targetId": "canonical-agent-skills",
+      "harnessId": "agent-skills",
+      "outputRoot": "canonical",
+      "artifactClass": "passive-public-package",
+      "strategy": "compatible-source",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "windsurf-devin-desktop-source-1"
+      ],
+      "generationState": "source-compatible",
+      "supportClaim": false,
+      "notes": [
+        "S5a records Windsurf / Devin Desktop without creating a new adapter output root."
+      ],
+      "marketplaceAvailabilityClaim": false
+    },
+    {
+      "id": "replit-agent-artifact-binding",
+      "ecosystemId": "replit-agent",
+      "interfaceId": "agent-skill",
+      "requirementId": "agent-skills-open-standard",
+      "targetId": "canonical-agent-skills",
+      "harnessId": "agent-skills",
+      "outputRoot": "canonical",
+      "artifactClass": "passive-public-package",
+      "strategy": "compatible-source",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "replit-agent-source-1"
+      ],
+      "generationState": "source-compatible",
+      "supportClaim": false,
+      "notes": [
+        "S5a records Replit Agent without creating a new adapter output root."
+      ],
+      "marketplaceAvailabilityClaim": false
+    },
+    {
+      "id": "augment-auggie-artifact-binding",
+      "ecosystemId": "augment-auggie",
+      "interfaceId": "agent-skill",
+      "requirementId": "agent-skills-open-standard",
+      "targetId": "canonical-agent-skills",
+      "harnessId": "agent-skills",
+      "outputRoot": "canonical",
+      "artifactClass": "passive-public-package",
+      "strategy": "compatible-source",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "augment-auggie-source-1"
+      ],
+      "generationState": "source-compatible",
+      "supportClaim": false,
+      "notes": [
+        "S5a records Augment / Auggie without creating a new adapter output root."
+      ],
+      "marketplaceAvailabilityClaim": false
+    },
+    {
+      "id": "amp-artifact-binding",
+      "ecosystemId": "amp",
+      "interfaceId": "agent-skill",
+      "requirementId": "agent-skills-open-standard",
+      "targetId": "canonical-agent-skills",
+      "harnessId": "agent-skills",
+      "outputRoot": "canonical",
+      "artifactClass": "passive-public-package",
+      "strategy": "compatible-source",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "amp-source-1"
+      ],
+      "generationState": "source-compatible",
+      "supportClaim": false,
+      "notes": [
+        "S5a records Amp without creating a new adapter output root."
+      ],
+      "marketplaceAvailabilityClaim": false
+    },
+    {
+      "id": "factory-droid-artifact-binding",
+      "ecosystemId": "factory-droid",
+      "interfaceId": "agent-skill",
+      "requirementId": null,
+      "targetId": null,
+      "harnessId": null,
+      "outputRoot": null,
+      "artifactClass": "no-artifact",
+      "strategy": "blocked",
+      "assuranceProfileId": "no-artifact-v1",
+      "evidenceIds": [
+        "factory-droid-source-1"
+      ],
+      "generationState": "blocked",
+      "supportClaim": false,
+      "notes": [
+        "S5a records Factory Droid without creating a new adapter output root."
+      ],
+      "marketplaceAvailabilityClaim": false
+    },
+    {
+      "id": "openhands-artifact-binding",
+      "ecosystemId": "openhands",
+      "interfaceId": "agent-skill",
+      "requirementId": "agent-skills-open-standard",
+      "targetId": "canonical-agent-skills",
+      "harnessId": "agent-skills",
+      "outputRoot": "canonical",
+      "artifactClass": "passive-public-package",
+      "strategy": "compatible-source",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "openhands-source-1"
+      ],
+      "generationState": "source-compatible",
+      "supportClaim": false,
+      "notes": [
+        "S5a records OpenHands without creating a new adapter output root."
+      ],
+      "marketplaceAvailabilityClaim": false
+    },
+    {
+      "id": "aider-artifact-binding",
+      "ecosystemId": "aider",
+      "interfaceId": "host-instructions",
+      "requirementId": null,
+      "targetId": null,
+      "harnessId": null,
+      "outputRoot": null,
+      "artifactClass": "no-artifact",
+      "strategy": "no-output",
+      "assuranceProfileId": "no-artifact-v1",
+      "evidenceIds": [
+        "aider-source-1"
+      ],
+      "generationState": "no-output",
+      "supportClaim": false,
+      "notes": [
+        "S5a records Aider without creating a new adapter output root."
+      ],
+      "marketplaceAvailabilityClaim": false
+    },
+    {
+      "id": "continue-artifact-binding",
+      "ecosystemId": "continue",
+      "interfaceId": "host-instructions",
+      "requirementId": null,
+      "targetId": null,
+      "harnessId": null,
+      "outputRoot": null,
+      "artifactClass": "no-artifact",
+      "strategy": "blocked",
+      "assuranceProfileId": "no-artifact-v1",
+      "evidenceIds": [
+        "continue-source-1"
+      ],
+      "generationState": "blocked",
+      "supportClaim": false,
+      "notes": [
+        "S5a records Continue without creating a new adapter output root."
+      ],
+      "marketplaceAvailabilityClaim": false
+    },
+    {
+      "id": "amazon-q-developer-artifact-binding",
+      "ecosystemId": "amazon-q-developer",
+      "interfaceId": "migration-surface",
+      "requirementId": null,
+      "targetId": null,
+      "harnessId": null,
+      "outputRoot": null,
+      "artifactClass": "no-artifact",
+      "strategy": "blocked",
+      "assuranceProfileId": "no-artifact-v1",
+      "evidenceIds": [
+        "amazon-q-developer-source-1"
+      ],
+      "generationState": "blocked",
+      "supportClaim": false,
+      "notes": [
+        "S5a records Amazon Q Developer IDE plugins without creating a new adapter output root."
+      ],
+      "marketplaceAvailabilityClaim": false
+    },
+    {
+      "id": "sourcegraph-cody-artifact-binding",
+      "ecosystemId": "sourcegraph-cody",
+      "interfaceId": "host-instructions",
+      "requirementId": null,
+      "targetId": null,
+      "harnessId": null,
+      "outputRoot": null,
+      "artifactClass": "no-artifact",
+      "strategy": "no-output",
+      "assuranceProfileId": "no-artifact-v1",
+      "evidenceIds": [
+        "sourcegraph-cody-source-1"
+      ],
+      "generationState": "no-output",
+      "supportClaim": false,
+      "notes": [
+        "S5a records Sourcegraph Cody without creating a new adapter output root."
+      ],
+      "marketplaceAvailabilityClaim": false
+    },
+    {
+      "id": "tabnine-artifact-binding",
+      "ecosystemId": "tabnine",
+      "interfaceId": "host-instructions",
+      "requirementId": null,
+      "targetId": null,
+      "harnessId": null,
+      "outputRoot": null,
+      "artifactClass": "no-artifact",
+      "strategy": "no-output",
+      "assuranceProfileId": "no-artifact-v1",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "generationState": "no-output",
+      "supportClaim": false,
+      "notes": [
+        "S5a records Tabnine without creating a new adapter output root."
+      ],
+      "marketplaceAvailabilityClaim": false
+    },
+    {
+      "id": "jetbrains-ai-assistant-artifact-binding",
+      "ecosystemId": "jetbrains-ai-assistant",
+      "interfaceId": "agent-skill",
+      "requirementId": null,
+      "targetId": null,
+      "harnessId": null,
+      "outputRoot": null,
+      "artifactClass": "provider-compatibility",
+      "strategy": "provider-inherited",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "generationState": "provider-inherited",
+      "supportClaim": false,
+      "notes": [
+        "S5a records JetBrains AI Assistant without creating a new adapter output root."
+      ],
+      "marketplaceAvailabilityClaim": false
+    },
+    {
+      "id": "visual-studio-copilot-artifact-binding",
+      "ecosystemId": "visual-studio-copilot",
+      "interfaceId": "agent-skill",
+      "requirementId": "agent-skills-open-standard",
+      "targetId": "canonical-agent-skills",
+      "harnessId": "agent-skills",
+      "outputRoot": "canonical",
+      "artifactClass": "passive-public-package",
+      "strategy": "compatible-source",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "visual-studio-copilot-source-1"
+      ],
+      "generationState": "source-compatible",
+      "supportClaim": false,
+      "notes": [
+        "S5a records Visual Studio GitHub Copilot without creating a new adapter output root."
+      ],
+      "marketplaceAvailabilityClaim": false
+    },
+    {
+      "id": "devin-hosted-artifact-binding",
+      "ecosystemId": "devin-hosted",
+      "interfaceId": "agent-skill",
+      "requirementId": null,
+      "targetId": null,
+      "harnessId": null,
+      "outputRoot": null,
+      "artifactClass": "no-artifact",
+      "strategy": "no-output",
+      "assuranceProfileId": "no-artifact-v1",
+      "evidenceIds": [
+        "devin-hosted-source-1"
+      ],
+      "generationState": "no-output",
+      "supportClaim": false,
+      "notes": [
+        "S5a records Devin hosted without creating a new adapter output root."
+      ],
+      "marketplaceAvailabilityClaim": false
     }
   ]
 }

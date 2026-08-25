@@ -1,0 +1,5199 @@
+{
+  "schemaVersion": 1,
+  "asOf": "2026-08-25",
+  "defaultPolicy": "deny",
+  "supportPolicy": "Research and compatibility dispositions are not support claims.",
+  "hosts": [
+    {
+      "id": "aider-host-adapter",
+      "ecosystemId": "aider",
+      "product": {
+        "name": "Aider",
+        "status": "current",
+        "clientVersion": "0.86.0",
+        "serviceVersion": null,
+        "versionEvidenceId": "aider-source-2",
+        "documentationSnapshot": "2026-08-25"
+      },
+      "officialEvidence": {
+        "evidenceIds": [
+          "aider-source-1",
+          "aider-source-2"
+        ],
+        "observedOn": "2026-08-25",
+        "validThrough": "2026-11-23"
+      },
+      "acceptedStandards": {
+        "agentSkills": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "agentPlugins": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "mcp": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "agentsMd": {
+          "state": "compatible-layout",
+          "version": null,
+          "evidenceIds": [
+            "aider-source-1"
+          ]
+        }
+      },
+      "nativeDiscoveryRoots": [],
+      "manifests": [],
+      "lifecycle": {
+        "install": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "update": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "remove": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        }
+      },
+      "supportedComponentKinds": [
+        "rules"
+      ],
+      "executablePolicy": {
+        "state": "no-output",
+        "reviewRequired": false,
+        "evidenceIds": [
+          "aider-source-1"
+        ]
+      },
+      "marketplace": {
+        "state": "not-documented",
+        "evidenceIds": [],
+        "availabilityClaim": false
+      },
+      "supportDisposition": {
+        "coverage": "fallback",
+        "supportClaim": false,
+        "reason": "Aider is fallback in S5a; research coverage is not support."
+      },
+      "serving": {
+        "artifactBindingId": "aider-artifact-binding",
+        "targetId": null,
+        "outputRoot": null
+      },
+      "lifecycleCanary": {
+        "required": true,
+        "assurances": [
+          "install",
+          "update",
+          "rollback",
+          "remove",
+          "project-context-preservation",
+          "host-discovery"
+        ]
+      },
+      "frontmatterTransformations": {
+        "state": "not-applicable",
+        "dropFields": [],
+        "renameFields": {},
+        "addFields": {}
+      },
+      "strategy": "rules-fallback",
+      "notes": [
+        "No new Aider adapter root or executable content is emitted in S5a."
+      ]
+    },
+    {
+      "id": "amazon-q-developer-host-adapter",
+      "ecosystemId": "amazon-q-developer",
+      "product": {
+        "name": "Amazon Q Developer IDE plugins",
+        "status": "retiring",
+        "clientVersion": null,
+        "serviceVersion": null,
+        "versionEvidenceId": null,
+        "documentationSnapshot": "2026-08-25"
+      },
+      "officialEvidence": {
+        "evidenceIds": [
+          "amazon-q-developer-source-1",
+          "amazon-q-developer-source-2"
+        ],
+        "observedOn": "2026-08-25",
+        "validThrough": "2026-11-23"
+      },
+      "acceptedStandards": {
+        "agentSkills": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "agentPlugins": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "mcp": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "agentsMd": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        }
+      },
+      "nativeDiscoveryRoots": [],
+      "manifests": [],
+      "lifecycle": {
+        "install": {
+          "state": "migration-only",
+          "scopes": [],
+          "evidenceIds": [
+            "amazon-q-developer-source-2"
+          ]
+        },
+        "update": {
+          "state": "migration-only",
+          "scopes": [],
+          "evidenceIds": [
+            "amazon-q-developer-source-2"
+          ]
+        },
+        "remove": {
+          "state": "migration-only",
+          "scopes": [],
+          "evidenceIds": [
+            "amazon-q-developer-source-2"
+          ]
+        }
+      },
+      "supportedComponentKinds": [],
+      "executablePolicy": {
+        "state": "no-output",
+        "reviewRequired": false,
+        "evidenceIds": []
+      },
+      "marketplace": {
+        "state": "retired",
+        "evidenceIds": [
+          "amazon-q-developer-source-2"
+        ],
+        "availabilityClaim": false
+      },
+      "supportDisposition": {
+        "coverage": "migration",
+        "supportClaim": false,
+        "reason": "Amazon Q Developer IDE plugins is migration in S5a; research coverage is not support."
+      },
+      "serving": {
+        "artifactBindingId": "amazon-q-developer-artifact-binding",
+        "targetId": null,
+        "outputRoot": null
+      },
+      "lifecycleCanary": {
+        "required": false,
+        "assurances": []
+      },
+      "frontmatterTransformations": {
+        "state": "not-applicable",
+        "dropFields": [],
+        "renameFields": {},
+        "addFields": {}
+      },
+      "strategy": "migration-only",
+      "notes": [
+        "No new Amazon Q Developer IDE plugins adapter root or executable content is emitted in S5a."
+      ]
+    },
+    {
+      "id": "amp-host-adapter",
+      "ecosystemId": "amp",
+      "product": {
+        "name": "Amp",
+        "status": "current",
+        "clientVersion": null,
+        "serviceVersion": null,
+        "versionEvidenceId": null,
+        "documentationSnapshot": "2026-08-25"
+      },
+      "officialEvidence": {
+        "evidenceIds": [
+          "amp-source-1",
+          "amp-source-2"
+        ],
+        "observedOn": "2026-08-25",
+        "validThrough": "2026-11-23"
+      },
+      "acceptedStandards": {
+        "agentSkills": {
+          "state": "compatible-layout",
+          "version": null,
+          "evidenceIds": [
+            "amp-source-1"
+          ]
+        },
+        "agentPlugins": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "mcp": {
+          "state": "explicit",
+          "version": null,
+          "evidenceIds": [
+            "amp-source-2"
+          ]
+        },
+        "agentsMd": {
+          "state": "explicit",
+          "version": null,
+          "evidenceIds": [
+            "amp-source-1"
+          ]
+        }
+      },
+      "nativeDiscoveryRoots": [
+        {
+          "scope": "project",
+          "path": ".agents/skills/<skill-name>/SKILL.md",
+          "evidenceIds": [
+            "amp-source-1"
+          ]
+        }
+      ],
+      "manifests": [
+        {
+          "path": "SKILL.md",
+          "required": true,
+          "evidenceIds": [
+            "amp-source-1"
+          ]
+        }
+      ],
+      "lifecycle": {
+        "install": {
+          "state": "documented",
+          "scopes": [
+            "user",
+            "project"
+          ],
+          "evidenceIds": [
+            "amp-source-2"
+          ]
+        },
+        "update": {
+          "state": "documented",
+          "scopes": [
+            "user",
+            "project"
+          ],
+          "evidenceIds": [
+            "amp-source-2"
+          ]
+        },
+        "remove": {
+          "state": "documented",
+          "scopes": [
+            "user",
+            "project"
+          ],
+          "evidenceIds": [
+            "amp-source-2"
+          ]
+        }
+      },
+      "supportedComponentKinds": [
+        "skills",
+        "rules",
+        "mcp"
+      ],
+      "executablePolicy": {
+        "state": "passive-content-only",
+        "reviewRequired": true,
+        "evidenceIds": [
+          "amp-source-1"
+        ]
+      },
+      "marketplace": {
+        "state": "not-documented",
+        "evidenceIds": [],
+        "availabilityClaim": false
+      },
+      "supportDisposition": {
+        "coverage": "researched",
+        "supportClaim": false,
+        "reason": "Amp is researched in S5a; research coverage is not support."
+      },
+      "serving": {
+        "artifactBindingId": "amp-artifact-binding",
+        "targetId": "canonical-agent-skills",
+        "outputRoot": "canonical"
+      },
+      "lifecycleCanary": {
+        "required": true,
+        "assurances": [
+          "install",
+          "update",
+          "rollback",
+          "remove",
+          "project-context-preservation",
+          "host-discovery"
+        ]
+      },
+      "frontmatterTransformations": {
+        "state": "none",
+        "dropFields": [],
+        "renameFields": {},
+        "addFields": {}
+      },
+      "strategy": "canonical-agent-skills",
+      "notes": [
+        "No new Amp adapter root or executable content is emitted in S5a."
+      ]
+    },
+    {
+      "id": "augment-auggie-host-adapter",
+      "ecosystemId": "augment-auggie",
+      "product": {
+        "name": "Augment / Auggie",
+        "status": "current",
+        "clientVersion": null,
+        "serviceVersion": null,
+        "versionEvidenceId": null,
+        "documentationSnapshot": "2026-08-25"
+      },
+      "officialEvidence": {
+        "evidenceIds": [
+          "augment-auggie-source-1",
+          "augment-auggie-source-2"
+        ],
+        "observedOn": "2026-08-25",
+        "validThrough": "2026-11-23"
+      },
+      "acceptedStandards": {
+        "agentSkills": {
+          "state": "explicit",
+          "version": null,
+          "evidenceIds": [
+            "augment-auggie-source-1"
+          ]
+        },
+        "agentPlugins": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "mcp": {
+          "state": "explicit",
+          "version": null,
+          "evidenceIds": [
+            "augment-auggie-source-2"
+          ]
+        },
+        "agentsMd": {
+          "state": "explicit",
+          "version": null,
+          "evidenceIds": [
+            "augment-auggie-source-1"
+          ]
+        }
+      },
+      "nativeDiscoveryRoots": [
+        {
+          "scope": "project",
+          "path": ".augment/skills/<skill-name>/SKILL.md",
+          "evidenceIds": [
+            "augment-auggie-source-1"
+          ]
+        },
+        {
+          "scope": "project",
+          "path": ".agents/skills/<skill-name>/SKILL.md",
+          "evidenceIds": [
+            "augment-auggie-source-1"
+          ]
+        }
+      ],
+      "manifests": [
+        {
+          "path": "SKILL.md",
+          "required": true,
+          "evidenceIds": [
+            "augment-auggie-source-1"
+          ]
+        }
+      ],
+      "lifecycle": {
+        "install": {
+          "state": "documented",
+          "scopes": [
+            "user",
+            "project"
+          ],
+          "evidenceIds": [
+            "augment-auggie-source-2"
+          ]
+        },
+        "update": {
+          "state": "documented",
+          "scopes": [
+            "user",
+            "project"
+          ],
+          "evidenceIds": [
+            "augment-auggie-source-2"
+          ]
+        },
+        "remove": {
+          "state": "documented",
+          "scopes": [
+            "user",
+            "project"
+          ],
+          "evidenceIds": [
+            "augment-auggie-source-2"
+          ]
+        }
+      },
+      "supportedComponentKinds": [
+        "skills",
+        "rules",
+        "plugins",
+        "mcp"
+      ],
+      "executablePolicy": {
+        "state": "passive-content-only",
+        "reviewRequired": true,
+        "evidenceIds": [
+          "augment-auggie-source-1"
+        ]
+      },
+      "marketplace": {
+        "state": "self-hosted",
+        "evidenceIds": [
+          "augment-auggie-source-2"
+        ],
+        "availabilityClaim": false
+      },
+      "supportDisposition": {
+        "coverage": "standard-compatible",
+        "supportClaim": false,
+        "reason": "Augment / Auggie is standard-compatible in S5a; research coverage is not support."
+      },
+      "serving": {
+        "artifactBindingId": "augment-auggie-artifact-binding",
+        "targetId": "canonical-agent-skills",
+        "outputRoot": "canonical"
+      },
+      "lifecycleCanary": {
+        "required": true,
+        "assurances": [
+          "install",
+          "update",
+          "rollback",
+          "remove",
+          "project-context-preservation",
+          "host-discovery"
+        ]
+      },
+      "frontmatterTransformations": {
+        "state": "none",
+        "dropFields": [],
+        "renameFields": {},
+        "addFields": {}
+      },
+      "strategy": "canonical-agent-skills",
+      "notes": [
+        "No new Augment / Auggie adapter root or executable content is emitted in S5a."
+      ]
+    },
+    {
+      "id": "claude-code-plugins-host-adapter",
+      "ecosystemId": "claude-code-plugins",
+      "product": {
+        "name": "Claude Code",
+        "status": "current",
+        "clientVersion": "2.1.245",
+        "serviceVersion": null,
+        "versionEvidenceId": "claude-code-plugins-source-5",
+        "documentationSnapshot": "2026-08-25"
+      },
+      "officialEvidence": {
+        "evidenceIds": [
+          "claude-code-plugins-source-1",
+          "claude-code-plugins-source-2",
+          "claude-code-plugins-source-3",
+          "claude-code-plugins-source-4",
+          "claude-code-plugins-source-5"
+        ],
+        "observedOn": "2026-08-25",
+        "validThrough": "2026-11-23"
+      },
+      "acceptedStandards": {
+        "agentSkills": {
+          "state": "compatible-layout",
+          "version": null,
+          "evidenceIds": [
+            "claude-code-plugins-source-1"
+          ]
+        },
+        "agentPlugins": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "mcp": {
+          "state": "compatible-layout",
+          "version": null,
+          "evidenceIds": [
+            "claude-code-plugins-source-1"
+          ]
+        },
+        "agentsMd": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        }
+      },
+      "nativeDiscoveryRoots": [
+        {
+          "scope": "package",
+          "path": ".claude-plugin/plugin.json",
+          "evidenceIds": [
+            "claude-code-plugins-source-1"
+          ]
+        },
+        {
+          "scope": "marketplace",
+          "path": ".claude-plugin/marketplace.json",
+          "evidenceIds": [
+            "claude-code-plugins-source-1"
+          ]
+        }
+      ],
+      "manifests": [
+        {
+          "path": ".claude-plugin/plugin.json",
+          "required": false,
+          "evidenceIds": [
+            "claude-code-plugins-source-1"
+          ]
+        },
+        {
+          "path": ".claude-plugin/marketplace.json",
+          "required": false,
+          "evidenceIds": [
+            "claude-code-plugins-source-1"
+          ]
+        }
+      ],
+      "lifecycle": {
+        "install": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "update": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "remove": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        }
+      },
+      "supportedComponentKinds": [
+        "skills",
+        "mcp",
+        "hooks",
+        "scripts"
+      ],
+      "executablePolicy": {
+        "state": "host-can-execute",
+        "reviewRequired": true,
+        "evidenceIds": [
+          "claude-code-plugins-source-1"
+        ]
+      },
+      "marketplace": {
+        "state": "self-hosted",
+        "evidenceIds": [
+          "claude-code-plugins-source-1"
+        ],
+        "availabilityClaim": false
+      },
+      "supportDisposition": {
+        "coverage": "researched",
+        "supportClaim": false,
+        "reason": "Existing researched ecosystem binding is retained; generated coverage is not support."
+      },
+      "serving": {
+        "artifactBindingId": "claude-code-plugins-artifact-binding",
+        "targetId": "claude-code",
+        "outputRoot": "claude"
+      },
+      "lifecycleCanary": {
+        "required": true,
+        "assurances": [
+          "install",
+          "update",
+          "rollback",
+          "remove",
+          "project-context-preservation",
+          "host-discovery"
+        ]
+      },
+      "frontmatterTransformations": {
+        "state": "planned",
+        "dropFields": [],
+        "renameFields": {},
+        "addFields": {}
+      },
+      "strategy": "native-projection-planned",
+      "notes": [
+        "This S5a registry record normalizes existing evidence without changing adapter bytes or release gates."
+      ]
+    },
+    {
+      "id": "cline-host-adapter",
+      "ecosystemId": "cline",
+      "product": {
+        "name": "Cline",
+        "status": "current",
+        "clientVersion": "3.0.24",
+        "serviceVersion": null,
+        "versionEvidenceId": "cline-source-3",
+        "documentationSnapshot": "2026-08-25"
+      },
+      "officialEvidence": {
+        "evidenceIds": [
+          "cline-source-1",
+          "cline-source-2",
+          "cline-source-3"
+        ],
+        "observedOn": "2026-08-25",
+        "validThrough": "2026-11-23"
+      },
+      "acceptedStandards": {
+        "agentSkills": {
+          "state": "explicit",
+          "version": null,
+          "evidenceIds": [
+            "cline-source-1"
+          ]
+        },
+        "agentPlugins": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "mcp": {
+          "state": "explicit",
+          "version": null,
+          "evidenceIds": [
+            "cline-source-2"
+          ]
+        },
+        "agentsMd": {
+          "state": "explicit",
+          "version": null,
+          "evidenceIds": [
+            "cline-source-1"
+          ]
+        }
+      },
+      "nativeDiscoveryRoots": [
+        {
+          "scope": "project",
+          "path": ".cline/skills/<skill-name>/SKILL.md",
+          "evidenceIds": [
+            "cline-source-1"
+          ]
+        },
+        {
+          "scope": "user",
+          "path": "~/.cline/skills/<skill-name>/SKILL.md",
+          "evidenceIds": [
+            "cline-source-1"
+          ]
+        }
+      ],
+      "manifests": [
+        {
+          "path": "SKILL.md",
+          "required": true,
+          "evidenceIds": [
+            "cline-source-1"
+          ]
+        }
+      ],
+      "lifecycle": {
+        "install": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "update": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "remove": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        }
+      },
+      "supportedComponentKinds": [
+        "skills",
+        "rules",
+        "mcp"
+      ],
+      "executablePolicy": {
+        "state": "passive-content-only",
+        "reviewRequired": true,
+        "evidenceIds": [
+          "cline-source-1"
+        ]
+      },
+      "marketplace": {
+        "state": "not-documented",
+        "evidenceIds": [],
+        "availabilityClaim": false
+      },
+      "supportDisposition": {
+        "coverage": "standard-compatible",
+        "supportClaim": false,
+        "reason": "Cline is standard-compatible in S5a; research coverage is not support."
+      },
+      "serving": {
+        "artifactBindingId": "cline-artifact-binding",
+        "targetId": "canonical-agent-skills",
+        "outputRoot": "canonical"
+      },
+      "lifecycleCanary": {
+        "required": true,
+        "assurances": [
+          "install",
+          "update",
+          "rollback",
+          "remove",
+          "project-context-preservation",
+          "host-discovery"
+        ]
+      },
+      "frontmatterTransformations": {
+        "state": "none",
+        "dropFields": [],
+        "renameFields": {},
+        "addFields": {}
+      },
+      "strategy": "canonical-agent-skills",
+      "notes": [
+        "No new Cline adapter root or executable content is emitted in S5a."
+      ]
+    },
+    {
+      "id": "continue-host-adapter",
+      "ecosystemId": "continue",
+      "product": {
+        "name": "Continue",
+        "status": "final-read-only",
+        "clientVersion": "2.0.0",
+        "serviceVersion": null,
+        "versionEvidenceId": "continue-source-2",
+        "documentationSnapshot": "2026-08-25"
+      },
+      "officialEvidence": {
+        "evidenceIds": [
+          "continue-source-1",
+          "continue-source-2"
+        ],
+        "observedOn": "2026-08-25",
+        "validThrough": "2026-11-23"
+      },
+      "acceptedStandards": {
+        "agentSkills": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "agentPlugins": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "mcp": {
+          "state": "explicit",
+          "version": null,
+          "evidenceIds": [
+            "continue-source-2"
+          ]
+        },
+        "agentsMd": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        }
+      },
+      "nativeDiscoveryRoots": [],
+      "manifests": [],
+      "lifecycle": {
+        "install": {
+          "state": "retired",
+          "scopes": [],
+          "evidenceIds": [
+            "continue-source-2"
+          ]
+        },
+        "update": {
+          "state": "retired",
+          "scopes": [],
+          "evidenceIds": [
+            "continue-source-2"
+          ]
+        },
+        "remove": {
+          "state": "retired",
+          "scopes": [],
+          "evidenceIds": [
+            "continue-source-2"
+          ]
+        }
+      },
+      "supportedComponentKinds": [
+        "rules",
+        "mcp"
+      ],
+      "executablePolicy": {
+        "state": "host-can-execute",
+        "reviewRequired": true,
+        "evidenceIds": [
+          "continue-source-1"
+        ]
+      },
+      "marketplace": {
+        "state": "retired",
+        "evidenceIds": [
+          "continue-source-2"
+        ],
+        "availabilityClaim": false
+      },
+      "supportDisposition": {
+        "coverage": "no-surface",
+        "supportClaim": false,
+        "reason": "Continue is no-surface in S5a; research coverage is not support."
+      },
+      "serving": {
+        "artifactBindingId": "continue-artifact-binding",
+        "targetId": null,
+        "outputRoot": null
+      },
+      "lifecycleCanary": {
+        "required": false,
+        "assurances": []
+      },
+      "frontmatterTransformations": {
+        "state": "not-applicable",
+        "dropFields": [],
+        "renameFields": {},
+        "addFields": {}
+      },
+      "strategy": "no-public-extension-surface",
+      "notes": [
+        "No new Continue adapter root or executable content is emitted in S5a."
+      ]
+    },
+    {
+      "id": "cursor-plugins-host-adapter",
+      "ecosystemId": "cursor-plugins",
+      "product": {
+        "name": "Cursor",
+        "status": "current",
+        "clientVersion": null,
+        "serviceVersion": null,
+        "versionEvidenceId": null,
+        "documentationSnapshot": "2026-08-25"
+      },
+      "officialEvidence": {
+        "evidenceIds": [
+          "cursor-plugins-source-1",
+          "cursor-plugins-source-2"
+        ],
+        "observedOn": "2026-08-25",
+        "validThrough": "2026-11-18"
+      },
+      "acceptedStandards": {
+        "agentSkills": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "agentPlugins": {
+          "state": "explicit",
+          "version": "1.0.0",
+          "evidenceIds": [
+            "cursor-plugins-source-1"
+          ]
+        },
+        "mcp": {
+          "state": "compatible-layout",
+          "version": null,
+          "evidenceIds": [
+            "cursor-plugins-source-1"
+          ]
+        },
+        "agentsMd": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        }
+      },
+      "nativeDiscoveryRoots": [
+        {
+          "scope": "package",
+          "path": "plugin.json",
+          "evidenceIds": [
+            "cursor-plugins-source-1"
+          ]
+        },
+        {
+          "scope": "marketplace",
+          "path": ".cursor-plugin/marketplace.json",
+          "evidenceIds": [
+            "cursor-plugins-source-1"
+          ]
+        }
+      ],
+      "manifests": [
+        {
+          "path": "plugin.json",
+          "required": true,
+          "evidenceIds": [
+            "cursor-plugins-source-1"
+          ]
+        },
+        {
+          "path": ".cursor-plugin/marketplace.json",
+          "required": false,
+          "evidenceIds": [
+            "cursor-plugins-source-1"
+          ]
+        }
+      ],
+      "lifecycle": {
+        "install": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "update": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "remove": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        }
+      },
+      "supportedComponentKinds": [
+        "skills",
+        "mcp",
+        "hooks"
+      ],
+      "executablePolicy": {
+        "state": "host-can-execute",
+        "reviewRequired": true,
+        "evidenceIds": [
+          "cursor-plugins-source-1"
+        ]
+      },
+      "marketplace": {
+        "state": "self-hosted",
+        "evidenceIds": [
+          "cursor-plugins-source-1"
+        ],
+        "availabilityClaim": false
+      },
+      "supportDisposition": {
+        "coverage": "researched",
+        "supportClaim": false,
+        "reason": "Existing researched ecosystem binding is retained; generated coverage is not support."
+      },
+      "serving": {
+        "artifactBindingId": "cursor-plugins-artifact-binding",
+        "targetId": "cursor",
+        "outputRoot": "cursor"
+      },
+      "lifecycleCanary": {
+        "required": true,
+        "assurances": [
+          "install",
+          "update",
+          "rollback",
+          "remove",
+          "project-context-preservation",
+          "host-discovery"
+        ]
+      },
+      "frontmatterTransformations": {
+        "state": "planned",
+        "dropFields": [],
+        "renameFields": {},
+        "addFields": {}
+      },
+      "strategy": "native-projection-planned",
+      "notes": [
+        "This S5a registry record normalizes existing evidence without changing adapter bytes or release gates."
+      ]
+    },
+    {
+      "id": "deepseek-deepcode-skills-host-adapter",
+      "ecosystemId": "deepseek-deepcode-skills",
+      "product": {
+        "name": "DeepSeek DeepCode",
+        "status": "current",
+        "clientVersion": null,
+        "serviceVersion": null,
+        "versionEvidenceId": null,
+        "documentationSnapshot": "2026-08-25"
+      },
+      "officialEvidence": {
+        "evidenceIds": [
+          "deepseek-deepcode-skills-source-1"
+        ],
+        "observedOn": "2026-08-25",
+        "validThrough": "2026-11-18"
+      },
+      "acceptedStandards": {
+        "agentSkills": {
+          "state": "compatible-layout",
+          "version": null,
+          "evidenceIds": [
+            "deepseek-deepcode-skills-source-1"
+          ]
+        },
+        "agentPlugins": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "mcp": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "agentsMd": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        }
+      },
+      "nativeDiscoveryRoots": [
+        {
+          "scope": "project",
+          "path": ".deepcode/skills/<skill-name>/SKILL.md",
+          "evidenceIds": [
+            "deepseek-deepcode-skills-source-1"
+          ]
+        },
+        {
+          "scope": "user",
+          "path": "~/.agents/skills/<skill-name>/SKILL.md",
+          "evidenceIds": [
+            "deepseek-deepcode-skills-source-1"
+          ]
+        }
+      ],
+      "manifests": [
+        {
+          "path": "SKILL.md",
+          "required": true,
+          "evidenceIds": [
+            "deepseek-deepcode-skills-source-1"
+          ]
+        }
+      ],
+      "lifecycle": {
+        "install": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "update": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "remove": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        }
+      },
+      "supportedComponentKinds": [
+        "skills",
+        "scripts"
+      ],
+      "executablePolicy": {
+        "state": "host-can-execute",
+        "reviewRequired": true,
+        "evidenceIds": [
+          "deepseek-deepcode-skills-source-1"
+        ]
+      },
+      "marketplace": {
+        "state": "not-documented",
+        "evidenceIds": [],
+        "availabilityClaim": false
+      },
+      "supportDisposition": {
+        "coverage": "researched",
+        "supportClaim": false,
+        "reason": "Existing researched ecosystem binding is retained; generated coverage is not support."
+      },
+      "serving": {
+        "artifactBindingId": "deepseek-deepcode-skills-artifact-binding",
+        "targetId": "deepseek-deepcode",
+        "outputRoot": "deepcode"
+      },
+      "lifecycleCanary": {
+        "required": true,
+        "assurances": [
+          "install",
+          "update",
+          "rollback",
+          "remove",
+          "project-context-preservation",
+          "host-discovery"
+        ]
+      },
+      "frontmatterTransformations": {
+        "state": "planned",
+        "dropFields": [],
+        "renameFields": {},
+        "addFields": {}
+      },
+      "strategy": "native-projection-planned",
+      "notes": [
+        "This S5a registry record normalizes existing evidence without changing adapter bytes or release gates."
+      ]
+    },
+    {
+      "id": "deepseek-harness-skills-host-adapter",
+      "ecosystemId": "deepseek-harness-skills",
+      "product": {
+        "name": "DeepSeek Harness",
+        "status": "preview",
+        "clientVersion": null,
+        "serviceVersion": null,
+        "versionEvidenceId": null,
+        "documentationSnapshot": "2026-08-25"
+      },
+      "officialEvidence": {
+        "evidenceIds": [
+          "deepseek-harness-skills-source-1",
+          "deepseek-harness-skills-source-2",
+          "deepseek-harness-skills-source-3"
+        ],
+        "observedOn": "2026-08-25",
+        "validThrough": "2026-11-18"
+      },
+      "acceptedStandards": {
+        "agentSkills": {
+          "state": "compatible-layout",
+          "version": null,
+          "evidenceIds": [
+            "deepseek-harness-skills-source-1"
+          ]
+        },
+        "agentPlugins": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "mcp": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "agentsMd": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        }
+      },
+      "nativeDiscoveryRoots": [
+        {
+          "scope": "project",
+          "path": ".dsh/skills/<skill-name>/SKILL.md",
+          "evidenceIds": [
+            "deepseek-harness-skills-source-1"
+          ]
+        },
+        {
+          "scope": "project",
+          "path": ".agents/skills/<skill-name>/SKILL.md",
+          "evidenceIds": [
+            "deepseek-harness-skills-source-1"
+          ]
+        }
+      ],
+      "manifests": [
+        {
+          "path": "SKILL.md",
+          "required": true,
+          "evidenceIds": [
+            "deepseek-harness-skills-source-1"
+          ]
+        }
+      ],
+      "lifecycle": {
+        "install": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "update": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "remove": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        }
+      },
+      "supportedComponentKinds": [
+        "skills",
+        "scripts"
+      ],
+      "executablePolicy": {
+        "state": "host-can-execute",
+        "reviewRequired": true,
+        "evidenceIds": [
+          "deepseek-harness-skills-source-1"
+        ]
+      },
+      "marketplace": {
+        "state": "not-documented",
+        "evidenceIds": [],
+        "availabilityClaim": false
+      },
+      "supportDisposition": {
+        "coverage": "researched",
+        "supportClaim": false,
+        "reason": "Existing researched ecosystem binding is retained; generated coverage is not support."
+      },
+      "serving": {
+        "artifactBindingId": "deepseek-harness-skills-artifact-binding",
+        "targetId": "deepseek-harness",
+        "outputRoot": "deepseek"
+      },
+      "lifecycleCanary": {
+        "required": true,
+        "assurances": [
+          "install",
+          "update",
+          "rollback",
+          "remove",
+          "project-context-preservation",
+          "host-discovery"
+        ]
+      },
+      "frontmatterTransformations": {
+        "state": "planned",
+        "dropFields": [],
+        "renameFields": {},
+        "addFields": {}
+      },
+      "strategy": "native-projection-planned",
+      "notes": [
+        "This S5a registry record normalizes existing evidence without changing adapter bytes or release gates."
+      ]
+    },
+    {
+      "id": "devin-hosted-host-adapter",
+      "ecosystemId": "devin-hosted",
+      "product": {
+        "name": "Devin hosted",
+        "status": "current",
+        "clientVersion": null,
+        "serviceVersion": null,
+        "versionEvidenceId": null,
+        "documentationSnapshot": "2026-08-25"
+      },
+      "officialEvidence": {
+        "evidenceIds": [
+          "devin-hosted-source-1",
+          "devin-hosted-source-2"
+        ],
+        "observedOn": "2026-08-25",
+        "validThrough": "2026-11-23"
+      },
+      "acceptedStandards": {
+        "agentSkills": {
+          "state": "explicit",
+          "version": null,
+          "evidenceIds": [
+            "devin-hosted-source-1"
+          ]
+        },
+        "agentPlugins": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "mcp": {
+          "state": "provider-only",
+          "version": null,
+          "evidenceIds": [
+            "devin-hosted-source-2"
+          ]
+        },
+        "agentsMd": {
+          "state": "explicit",
+          "version": null,
+          "evidenceIds": [
+            "devin-hosted-source-1"
+          ]
+        }
+      },
+      "nativeDiscoveryRoots": [
+        {
+          "scope": "project",
+          "path": "<repository-skill>/SKILL.md",
+          "evidenceIds": [
+            "devin-hosted-source-1"
+          ]
+        },
+        {
+          "scope": "project",
+          "path": "AGENTS.md",
+          "evidenceIds": [
+            "devin-hosted-source-2"
+          ]
+        }
+      ],
+      "manifests": [
+        {
+          "path": "SKILL.md",
+          "required": true,
+          "evidenceIds": [
+            "devin-hosted-source-1"
+          ]
+        }
+      ],
+      "lifecycle": {
+        "install": {
+          "state": "provider-managed",
+          "scopes": [
+            "service"
+          ],
+          "evidenceIds": [
+            "devin-hosted-source-2"
+          ]
+        },
+        "update": {
+          "state": "provider-managed",
+          "scopes": [
+            "service"
+          ],
+          "evidenceIds": [
+            "devin-hosted-source-2"
+          ]
+        },
+        "remove": {
+          "state": "provider-managed",
+          "scopes": [
+            "service"
+          ],
+          "evidenceIds": [
+            "devin-hosted-source-2"
+          ]
+        }
+      },
+      "supportedComponentKinds": [
+        "skills",
+        "knowledge",
+        "rules",
+        "mcp"
+      ],
+      "executablePolicy": {
+        "state": "host-can-execute",
+        "reviewRequired": true,
+        "evidenceIds": [
+          "devin-hosted-source-1"
+        ]
+      },
+      "marketplace": {
+        "state": "provider-managed",
+        "evidenceIds": [
+          "devin-hosted-source-2"
+        ],
+        "availabilityClaim": false
+      },
+      "supportDisposition": {
+        "coverage": "no-surface",
+        "supportClaim": false,
+        "reason": "Devin hosted is no-surface in S5a; research coverage is not support."
+      },
+      "serving": {
+        "artifactBindingId": "devin-hosted-artifact-binding",
+        "targetId": null,
+        "outputRoot": null
+      },
+      "lifecycleCanary": {
+        "required": false,
+        "assurances": []
+      },
+      "frontmatterTransformations": {
+        "state": "not-applicable",
+        "dropFields": [],
+        "renameFields": {},
+        "addFields": {}
+      },
+      "strategy": "no-public-extension-surface",
+      "notes": [
+        "No new Devin hosted adapter root or executable content is emitted in S5a."
+      ]
+    },
+    {
+      "id": "factory-droid-host-adapter",
+      "ecosystemId": "factory-droid",
+      "product": {
+        "name": "Factory Droid",
+        "status": "current",
+        "clientVersion": null,
+        "serviceVersion": null,
+        "versionEvidenceId": null,
+        "documentationSnapshot": "2026-08-25"
+      },
+      "officialEvidence": {
+        "evidenceIds": [
+          "factory-droid-source-1",
+          "factory-droid-source-2"
+        ],
+        "observedOn": "2026-08-25",
+        "validThrough": "2026-11-23"
+      },
+      "acceptedStandards": {
+        "agentSkills": {
+          "state": "compatible-layout",
+          "version": null,
+          "evidenceIds": [
+            "factory-droid-source-1"
+          ]
+        },
+        "agentPlugins": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "mcp": {
+          "state": "explicit",
+          "version": null,
+          "evidenceIds": [
+            "factory-droid-source-2"
+          ]
+        },
+        "agentsMd": {
+          "state": "explicit",
+          "version": null,
+          "evidenceIds": [
+            "factory-droid-source-1"
+          ]
+        }
+      },
+      "nativeDiscoveryRoots": [
+        {
+          "scope": "project",
+          "path": ".factory/skills/<skill-name>/SKILL.md",
+          "evidenceIds": [
+            "factory-droid-source-1"
+          ]
+        }
+      ],
+      "manifests": [
+        {
+          "path": "SKILL.md",
+          "required": true,
+          "evidenceIds": [
+            "factory-droid-source-1"
+          ]
+        }
+      ],
+      "lifecycle": {
+        "install": {
+          "state": "documented",
+          "scopes": [
+            "user",
+            "project"
+          ],
+          "evidenceIds": [
+            "factory-droid-source-2"
+          ]
+        },
+        "update": {
+          "state": "documented",
+          "scopes": [
+            "user",
+            "project"
+          ],
+          "evidenceIds": [
+            "factory-droid-source-2"
+          ]
+        },
+        "remove": {
+          "state": "documented",
+          "scopes": [
+            "user",
+            "project"
+          ],
+          "evidenceIds": [
+            "factory-droid-source-2"
+          ]
+        }
+      },
+      "supportedComponentKinds": [
+        "skills",
+        "rules",
+        "plugins",
+        "mcp"
+      ],
+      "executablePolicy": {
+        "state": "host-can-execute",
+        "reviewRequired": true,
+        "evidenceIds": [
+          "factory-droid-source-1"
+        ]
+      },
+      "marketplace": {
+        "state": "self-hosted",
+        "evidenceIds": [
+          "factory-droid-source-2"
+        ],
+        "availabilityClaim": false
+      },
+      "supportDisposition": {
+        "coverage": "native-planned",
+        "supportClaim": false,
+        "reason": "Factory Droid is native-planned in S5a; research coverage is not support."
+      },
+      "serving": {
+        "artifactBindingId": "factory-droid-artifact-binding",
+        "targetId": null,
+        "outputRoot": null
+      },
+      "lifecycleCanary": {
+        "required": true,
+        "assurances": [
+          "install",
+          "update",
+          "rollback",
+          "remove",
+          "project-context-preservation",
+          "host-discovery"
+        ]
+      },
+      "frontmatterTransformations": {
+        "state": "planned",
+        "dropFields": [],
+        "renameFields": {},
+        "addFields": {}
+      },
+      "strategy": "native-projection-planned",
+      "notes": [
+        "No new Factory Droid adapter root or executable content is emitted in S5a."
+      ]
+    },
+    {
+      "id": "gemini-cli-extensions-host-adapter",
+      "ecosystemId": "gemini-cli-extensions",
+      "product": {
+        "name": "Gemini CLI",
+        "status": "current",
+        "clientVersion": "0.56.0",
+        "serviceVersion": null,
+        "versionEvidenceId": "gemini-cli-extensions-source-4",
+        "documentationSnapshot": "2026-08-25"
+      },
+      "officialEvidence": {
+        "evidenceIds": [
+          "gemini-cli-extensions-source-1",
+          "gemini-cli-extensions-source-2",
+          "gemini-cli-extensions-source-3",
+          "gemini-cli-extensions-source-4"
+        ],
+        "observedOn": "2026-08-25",
+        "validThrough": "2026-11-23"
+      },
+      "acceptedStandards": {
+        "agentSkills": {
+          "state": "compatible-layout",
+          "version": null,
+          "evidenceIds": [
+            "gemini-cli-extensions-source-1"
+          ]
+        },
+        "agentPlugins": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "mcp": {
+          "state": "compatible-layout",
+          "version": null,
+          "evidenceIds": [
+            "gemini-cli-extensions-source-1"
+          ]
+        },
+        "agentsMd": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        }
+      },
+      "nativeDiscoveryRoots": [
+        {
+          "scope": "package",
+          "path": "gemini-extension.json",
+          "evidenceIds": [
+            "gemini-cli-extensions-source-1"
+          ]
+        },
+        {
+          "scope": "package",
+          "path": "skills/<skill-name>/SKILL.md",
+          "evidenceIds": [
+            "gemini-cli-extensions-source-1"
+          ]
+        }
+      ],
+      "manifests": [
+        {
+          "path": "gemini-extension.json",
+          "required": true,
+          "evidenceIds": [
+            "gemini-cli-extensions-source-1"
+          ]
+        }
+      ],
+      "lifecycle": {
+        "install": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "update": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "remove": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        }
+      },
+      "supportedComponentKinds": [
+        "skills",
+        "mcp",
+        "hooks"
+      ],
+      "executablePolicy": {
+        "state": "host-can-execute",
+        "reviewRequired": true,
+        "evidenceIds": [
+          "gemini-cli-extensions-source-1"
+        ]
+      },
+      "marketplace": {
+        "state": "not-documented",
+        "evidenceIds": [],
+        "availabilityClaim": false
+      },
+      "supportDisposition": {
+        "coverage": "researched",
+        "supportClaim": false,
+        "reason": "Existing researched ecosystem binding is retained; generated coverage is not support."
+      },
+      "serving": {
+        "artifactBindingId": "gemini-cli-extensions-artifact-binding",
+        "targetId": "gemini-cli",
+        "outputRoot": "gemini"
+      },
+      "lifecycleCanary": {
+        "required": true,
+        "assurances": [
+          "install",
+          "update",
+          "rollback",
+          "remove",
+          "project-context-preservation",
+          "host-discovery"
+        ]
+      },
+      "frontmatterTransformations": {
+        "state": "planned",
+        "dropFields": [],
+        "renameFields": {},
+        "addFields": {}
+      },
+      "strategy": "native-projection-planned",
+      "notes": [
+        "This S5a registry record normalizes existing evidence without changing adapter bytes or release gates."
+      ]
+    },
+    {
+      "id": "github-cli-skills-host-adapter",
+      "ecosystemId": "github-cli-skills",
+      "product": {
+        "name": "GitHub CLI Skills",
+        "status": "preview",
+        "clientVersion": "2.71.2",
+        "serviceVersion": null,
+        "versionEvidenceId": "github-cli-skills-source-3",
+        "documentationSnapshot": "2026-08-25"
+      },
+      "officialEvidence": {
+        "evidenceIds": [
+          "github-cli-skills-source-1",
+          "github-cli-skills-source-2",
+          "github-cli-skills-source-3"
+        ],
+        "observedOn": "2026-08-25",
+        "validThrough": "2026-11-18"
+      },
+      "acceptedStandards": {
+        "agentSkills": {
+          "state": "compatible-layout",
+          "version": null,
+          "evidenceIds": [
+            "github-cli-skills-source-1"
+          ]
+        },
+        "agentPlugins": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "mcp": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "agentsMd": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        }
+      },
+      "nativeDiscoveryRoots": [
+        {
+          "scope": "project",
+          "path": "<discovered-skill-root>/SKILL.md",
+          "evidenceIds": [
+            "github-cli-skills-source-1"
+          ]
+        }
+      ],
+      "manifests": [
+        {
+          "path": "SKILL.md",
+          "required": true,
+          "evidenceIds": [
+            "github-cli-skills-source-1"
+          ]
+        }
+      ],
+      "lifecycle": {
+        "install": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "update": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "remove": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        }
+      },
+      "supportedComponentKinds": [
+        "skills",
+        "scripts"
+      ],
+      "executablePolicy": {
+        "state": "host-can-execute",
+        "reviewRequired": true,
+        "evidenceIds": [
+          "github-cli-skills-source-1"
+        ]
+      },
+      "marketplace": {
+        "state": "not-documented",
+        "evidenceIds": [],
+        "availabilityClaim": false
+      },
+      "supportDisposition": {
+        "coverage": "standard-compatible",
+        "supportClaim": false,
+        "reason": "Existing researched ecosystem binding is retained; generated coverage is not support."
+      },
+      "serving": {
+        "artifactBindingId": "github-cli-skills-artifact-binding",
+        "targetId": "canonical-agent-skills",
+        "outputRoot": "canonical"
+      },
+      "lifecycleCanary": {
+        "required": true,
+        "assurances": [
+          "install",
+          "update",
+          "rollback",
+          "remove",
+          "project-context-preservation",
+          "host-discovery"
+        ]
+      },
+      "frontmatterTransformations": {
+        "state": "none",
+        "dropFields": [],
+        "renameFields": {},
+        "addFields": {}
+      },
+      "strategy": "canonical-agent-skills",
+      "notes": [
+        "This S5a registry record normalizes existing evidence without changing adapter bytes or release gates."
+      ]
+    },
+    {
+      "id": "github-copilot-plugins-host-adapter",
+      "ecosystemId": "github-copilot-plugins",
+      "product": {
+        "name": "GitHub Copilot CLI",
+        "status": "current",
+        "clientVersion": "1.0.80",
+        "serviceVersion": null,
+        "versionEvidenceId": "github-copilot-plugins-source-3",
+        "documentationSnapshot": "2026-08-25"
+      },
+      "officialEvidence": {
+        "evidenceIds": [
+          "github-copilot-plugins-source-1",
+          "github-copilot-plugins-source-2",
+          "github-copilot-plugins-source-3"
+        ],
+        "observedOn": "2026-08-25",
+        "validThrough": "2026-11-23"
+      },
+      "acceptedStandards": {
+        "agentSkills": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "agentPlugins": {
+          "state": "explicit",
+          "version": "1.0.0",
+          "evidenceIds": [
+            "github-copilot-plugins-source-1"
+          ]
+        },
+        "mcp": {
+          "state": "compatible-layout",
+          "version": null,
+          "evidenceIds": [
+            "github-copilot-plugins-source-1"
+          ]
+        },
+        "agentsMd": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        }
+      },
+      "nativeDiscoveryRoots": [
+        {
+          "scope": "package",
+          "path": "plugin.json",
+          "evidenceIds": [
+            "github-copilot-plugins-source-1"
+          ]
+        },
+        {
+          "scope": "marketplace",
+          "path": ".github/plugin/marketplace.json",
+          "evidenceIds": [
+            "github-copilot-plugins-source-1"
+          ]
+        }
+      ],
+      "manifests": [
+        {
+          "path": "plugin.json",
+          "required": true,
+          "evidenceIds": [
+            "github-copilot-plugins-source-1"
+          ]
+        },
+        {
+          "path": ".github/plugin/marketplace.json",
+          "required": false,
+          "evidenceIds": [
+            "github-copilot-plugins-source-1"
+          ]
+        }
+      ],
+      "lifecycle": {
+        "install": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "update": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "remove": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        }
+      },
+      "supportedComponentKinds": [
+        "skills",
+        "mcp",
+        "hooks"
+      ],
+      "executablePolicy": {
+        "state": "host-can-execute",
+        "reviewRequired": true,
+        "evidenceIds": [
+          "github-copilot-plugins-source-1"
+        ]
+      },
+      "marketplace": {
+        "state": "self-hosted",
+        "evidenceIds": [
+          "github-copilot-plugins-source-1"
+        ],
+        "availabilityClaim": false
+      },
+      "supportDisposition": {
+        "coverage": "researched",
+        "supportClaim": false,
+        "reason": "Existing researched ecosystem binding is retained; generated coverage is not support."
+      },
+      "serving": {
+        "artifactBindingId": "github-copilot-plugins-artifact-binding",
+        "targetId": "github-copilot",
+        "outputRoot": "copilot"
+      },
+      "lifecycleCanary": {
+        "required": true,
+        "assurances": [
+          "install",
+          "update",
+          "rollback",
+          "remove",
+          "project-context-preservation",
+          "host-discovery"
+        ]
+      },
+      "frontmatterTransformations": {
+        "state": "planned",
+        "dropFields": [],
+        "renameFields": {},
+        "addFields": {}
+      },
+      "strategy": "native-projection-planned",
+      "notes": [
+        "This S5a registry record normalizes existing evidence without changing adapter bytes or release gates."
+      ]
+    },
+    {
+      "id": "goose-host-adapter",
+      "ecosystemId": "goose",
+      "product": {
+        "name": "Goose",
+        "status": "current",
+        "clientVersion": "1.47.0",
+        "serviceVersion": null,
+        "versionEvidenceId": "goose-source-2",
+        "documentationSnapshot": "2026-08-25"
+      },
+      "officialEvidence": {
+        "evidenceIds": [
+          "goose-source-1",
+          "goose-source-2"
+        ],
+        "observedOn": "2026-08-25",
+        "validThrough": "2026-11-23"
+      },
+      "acceptedStandards": {
+        "agentSkills": {
+          "state": "compatible-layout",
+          "version": null,
+          "evidenceIds": [
+            "goose-source-1"
+          ]
+        },
+        "agentPlugins": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "mcp": {
+          "state": "explicit",
+          "version": null,
+          "evidenceIds": [
+            "goose-source-2"
+          ]
+        },
+        "agentsMd": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        }
+      },
+      "nativeDiscoveryRoots": [
+        {
+          "scope": "project",
+          "path": ".agents/skills/<skill-name>/SKILL.md",
+          "evidenceIds": [
+            "goose-source-1"
+          ]
+        },
+        {
+          "scope": "user",
+          "path": "~/.agents/skills/<skill-name>/SKILL.md",
+          "evidenceIds": [
+            "goose-source-1"
+          ]
+        }
+      ],
+      "manifests": [
+        {
+          "path": "SKILL.md",
+          "required": true,
+          "evidenceIds": [
+            "goose-source-1"
+          ]
+        }
+      ],
+      "lifecycle": {
+        "install": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "update": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "remove": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        }
+      },
+      "supportedComponentKinds": [
+        "skills",
+        "mcp",
+        "plugins"
+      ],
+      "executablePolicy": {
+        "state": "passive-content-only",
+        "reviewRequired": true,
+        "evidenceIds": [
+          "goose-source-1"
+        ]
+      },
+      "marketplace": {
+        "state": "not-documented",
+        "evidenceIds": [],
+        "availabilityClaim": false
+      },
+      "supportDisposition": {
+        "coverage": "researched",
+        "supportClaim": false,
+        "reason": "Goose is researched in S5a; research coverage is not support."
+      },
+      "serving": {
+        "artifactBindingId": "goose-artifact-binding",
+        "targetId": "canonical-agent-skills",
+        "outputRoot": "canonical"
+      },
+      "lifecycleCanary": {
+        "required": true,
+        "assurances": [
+          "install",
+          "update",
+          "rollback",
+          "remove",
+          "project-context-preservation",
+          "host-discovery"
+        ]
+      },
+      "frontmatterTransformations": {
+        "state": "none",
+        "dropFields": [],
+        "renameFields": {},
+        "addFields": {}
+      },
+      "strategy": "canonical-agent-skills",
+      "notes": [
+        "No new Goose adapter root or executable content is emitted in S5a."
+      ]
+    },
+    {
+      "id": "grok-bot-plugins-host-adapter",
+      "ecosystemId": "grok-bot-plugins",
+      "product": {
+        "name": "Grok Bot",
+        "status": "current",
+        "clientVersion": null,
+        "serviceVersion": null,
+        "versionEvidenceId": null,
+        "documentationSnapshot": "2026-08-25"
+      },
+      "officialEvidence": {
+        "evidenceIds": [
+          "grok-bot-plugins-source-1",
+          "grok-bot-plugins-source-2"
+        ],
+        "observedOn": "2026-08-25",
+        "validThrough": "2026-11-18"
+      },
+      "acceptedStandards": {
+        "agentSkills": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "agentPlugins": {
+          "state": "explicit",
+          "version": "1.0.0",
+          "evidenceIds": [
+            "grok-bot-plugins-source-1"
+          ]
+        },
+        "mcp": {
+          "state": "compatible-layout",
+          "version": null,
+          "evidenceIds": [
+            "grok-bot-plugins-source-1"
+          ]
+        },
+        "agentsMd": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        }
+      },
+      "nativeDiscoveryRoots": [
+        {
+          "scope": "package",
+          "path": "plugin.json",
+          "evidenceIds": [
+            "grok-bot-plugins-source-1"
+          ]
+        }
+      ],
+      "manifests": [
+        {
+          "path": "plugin.json",
+          "required": true,
+          "evidenceIds": [
+            "grok-bot-plugins-source-1"
+          ]
+        }
+      ],
+      "lifecycle": {
+        "install": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "update": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "remove": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        }
+      },
+      "supportedComponentKinds": [
+        "skills",
+        "mcp"
+      ],
+      "executablePolicy": {
+        "state": "host-can-execute",
+        "reviewRequired": true,
+        "evidenceIds": [
+          "grok-bot-plugins-source-1"
+        ]
+      },
+      "marketplace": {
+        "state": "not-documented",
+        "evidenceIds": [],
+        "availabilityClaim": false
+      },
+      "supportDisposition": {
+        "coverage": "standard-compatible",
+        "supportClaim": false,
+        "reason": "Existing researched ecosystem binding is retained; generated coverage is not support."
+      },
+      "serving": {
+        "artifactBindingId": "grok-bot-plugins-artifact-binding",
+        "targetId": "portable-agent-plugin",
+        "outputRoot": "agent-plugin"
+      },
+      "lifecycleCanary": {
+        "required": true,
+        "assurances": [
+          "install",
+          "update",
+          "rollback",
+          "remove",
+          "project-context-preservation",
+          "host-discovery"
+        ]
+      },
+      "frontmatterTransformations": {
+        "state": "none",
+        "dropFields": [],
+        "renameFields": {},
+        "addFields": {}
+      },
+      "strategy": "portable-agent-plugin",
+      "notes": [
+        "This S5a registry record normalizes existing evidence without changing adapter bytes or release gates."
+      ]
+    },
+    {
+      "id": "grok-build-skills-host-adapter",
+      "ecosystemId": "grok-build-skills",
+      "product": {
+        "name": "Grok Build",
+        "status": "current",
+        "clientVersion": null,
+        "serviceVersion": null,
+        "versionEvidenceId": null,
+        "documentationSnapshot": "2026-08-25"
+      },
+      "officialEvidence": {
+        "evidenceIds": [
+          "grok-build-skills-source-1",
+          "grok-build-skills-source-2"
+        ],
+        "observedOn": "2026-08-25",
+        "validThrough": "2026-11-18"
+      },
+      "acceptedStandards": {
+        "agentSkills": {
+          "state": "compatible-layout",
+          "version": null,
+          "evidenceIds": [
+            "grok-build-skills-source-1"
+          ]
+        },
+        "agentPlugins": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "mcp": {
+          "state": "compatible-layout",
+          "version": null,
+          "evidenceIds": [
+            "grok-build-skills-source-1"
+          ]
+        },
+        "agentsMd": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        }
+      },
+      "nativeDiscoveryRoots": [
+        {
+          "scope": "project",
+          "path": ".grok/skills/<skill-name>/SKILL.md",
+          "evidenceIds": [
+            "grok-build-skills-source-1"
+          ]
+        },
+        {
+          "scope": "marketplace",
+          "path": ".claude-plugin/marketplace.json",
+          "evidenceIds": [
+            "grok-build-skills-source-1"
+          ]
+        }
+      ],
+      "manifests": [
+        {
+          "path": "SKILL.md",
+          "required": true,
+          "evidenceIds": [
+            "grok-build-skills-source-1"
+          ]
+        },
+        {
+          "path": ".claude-plugin/marketplace.json",
+          "required": false,
+          "evidenceIds": [
+            "grok-build-skills-source-1"
+          ]
+        }
+      ],
+      "lifecycle": {
+        "install": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "update": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "remove": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        }
+      },
+      "supportedComponentKinds": [
+        "skills",
+        "mcp",
+        "hooks"
+      ],
+      "executablePolicy": {
+        "state": "host-can-execute",
+        "reviewRequired": true,
+        "evidenceIds": [
+          "grok-build-skills-source-1"
+        ]
+      },
+      "marketplace": {
+        "state": "self-hosted",
+        "evidenceIds": [
+          "grok-build-skills-source-1"
+        ],
+        "availabilityClaim": false
+      },
+      "supportDisposition": {
+        "coverage": "researched",
+        "supportClaim": false,
+        "reason": "Existing researched ecosystem binding is retained; generated coverage is not support."
+      },
+      "serving": {
+        "artifactBindingId": "grok-build-skills-artifact-binding",
+        "targetId": "grok-build",
+        "outputRoot": "grok"
+      },
+      "lifecycleCanary": {
+        "required": true,
+        "assurances": [
+          "install",
+          "update",
+          "rollback",
+          "remove",
+          "project-context-preservation",
+          "host-discovery"
+        ]
+      },
+      "frontmatterTransformations": {
+        "state": "planned",
+        "dropFields": [],
+        "renameFields": {},
+        "addFields": {}
+      },
+      "strategy": "native-projection-planned",
+      "notes": [
+        "This S5a registry record normalizes existing evidence without changing adapter bytes or release gates."
+      ]
+    },
+    {
+      "id": "hermes-agent-plugins-host-adapter",
+      "ecosystemId": "hermes-agent-plugins",
+      "product": {
+        "name": "Hermes Agent",
+        "status": "current",
+        "clientVersion": null,
+        "serviceVersion": null,
+        "versionEvidenceId": null,
+        "documentationSnapshot": "2026-08-25"
+      },
+      "officialEvidence": {
+        "evidenceIds": [
+          "hermes-agent-plugins-source-1"
+        ],
+        "observedOn": "2026-08-25",
+        "validThrough": "2026-11-18"
+      },
+      "acceptedStandards": {
+        "agentSkills": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "agentPlugins": {
+          "state": "explicit",
+          "version": "1.0.0",
+          "evidenceIds": [
+            "hermes-agent-plugins-source-1"
+          ]
+        },
+        "mcp": {
+          "state": "compatible-layout",
+          "version": null,
+          "evidenceIds": [
+            "hermes-agent-plugins-source-1"
+          ]
+        },
+        "agentsMd": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        }
+      },
+      "nativeDiscoveryRoots": [
+        {
+          "scope": "package",
+          "path": "plugin.json",
+          "evidenceIds": [
+            "hermes-agent-plugins-source-1"
+          ]
+        }
+      ],
+      "manifests": [
+        {
+          "path": "plugin.json",
+          "required": true,
+          "evidenceIds": [
+            "hermes-agent-plugins-source-1"
+          ]
+        }
+      ],
+      "lifecycle": {
+        "install": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "update": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "remove": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        }
+      },
+      "supportedComponentKinds": [
+        "skills",
+        "mcp"
+      ],
+      "executablePolicy": {
+        "state": "host-can-execute",
+        "reviewRequired": true,
+        "evidenceIds": [
+          "hermes-agent-plugins-source-1"
+        ]
+      },
+      "marketplace": {
+        "state": "not-documented",
+        "evidenceIds": [],
+        "availabilityClaim": false
+      },
+      "supportDisposition": {
+        "coverage": "standard-compatible",
+        "supportClaim": false,
+        "reason": "Existing researched ecosystem binding is retained; generated coverage is not support."
+      },
+      "serving": {
+        "artifactBindingId": "hermes-agent-plugins-artifact-binding",
+        "targetId": "portable-agent-plugin",
+        "outputRoot": "agent-plugin"
+      },
+      "lifecycleCanary": {
+        "required": true,
+        "assurances": [
+          "install",
+          "update",
+          "rollback",
+          "remove",
+          "project-context-preservation",
+          "host-discovery"
+        ]
+      },
+      "frontmatterTransformations": {
+        "state": "none",
+        "dropFields": [],
+        "renameFields": {},
+        "addFields": {}
+      },
+      "strategy": "portable-agent-plugin",
+      "notes": [
+        "This S5a registry record normalizes existing evidence without changing adapter bytes or release gates."
+      ]
+    },
+    {
+      "id": "jetbrains-ai-assistant-host-adapter",
+      "ecosystemId": "jetbrains-ai-assistant",
+      "product": {
+        "name": "JetBrains AI Assistant",
+        "status": "current",
+        "clientVersion": null,
+        "serviceVersion": null,
+        "versionEvidenceId": null,
+        "documentationSnapshot": "2026-08-25"
+      },
+      "officialEvidence": {
+        "evidenceIds": [
+          "jetbrains-ai-assistant-source-1",
+          "jetbrains-ai-assistant-source-2"
+        ],
+        "observedOn": "2026-08-25",
+        "validThrough": "2026-11-23"
+      },
+      "acceptedStandards": {
+        "agentSkills": {
+          "state": "provider-only",
+          "version": null,
+          "evidenceIds": [
+            "jetbrains-ai-assistant-source-1"
+          ]
+        },
+        "agentPlugins": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "mcp": {
+          "state": "explicit",
+          "version": null,
+          "evidenceIds": [
+            "jetbrains-ai-assistant-source-2"
+          ]
+        },
+        "agentsMd": {
+          "state": "explicit",
+          "version": null,
+          "evidenceIds": [
+            "jetbrains-ai-assistant-source-1"
+          ]
+        }
+      },
+      "nativeDiscoveryRoots": [
+        {
+          "scope": "project",
+          "path": ".aiassistant/rules/",
+          "evidenceIds": [
+            "jetbrains-ai-assistant-source-1"
+          ]
+        },
+        {
+          "scope": "project",
+          "path": ".agents/skills/<skill-name>/SKILL.md",
+          "evidenceIds": [
+            "jetbrains-ai-assistant-source-2"
+          ]
+        }
+      ],
+      "manifests": [
+        {
+          "path": "SKILL.md",
+          "required": true,
+          "evidenceIds": [
+            "jetbrains-ai-assistant-source-2"
+          ]
+        }
+      ],
+      "lifecycle": {
+        "install": {
+          "state": "provider-managed",
+          "scopes": [
+            "service"
+          ],
+          "evidenceIds": [
+            "jetbrains-ai-assistant-source-2"
+          ]
+        },
+        "update": {
+          "state": "provider-managed",
+          "scopes": [
+            "service"
+          ],
+          "evidenceIds": [
+            "jetbrains-ai-assistant-source-2"
+          ]
+        },
+        "remove": {
+          "state": "provider-managed",
+          "scopes": [
+            "service"
+          ],
+          "evidenceIds": [
+            "jetbrains-ai-assistant-source-2"
+          ]
+        }
+      },
+      "supportedComponentKinds": [
+        "skills",
+        "rules",
+        "mcp"
+      ],
+      "executablePolicy": {
+        "state": "host-can-execute",
+        "reviewRequired": true,
+        "evidenceIds": [
+          "jetbrains-ai-assistant-source-1"
+        ]
+      },
+      "marketplace": {
+        "state": "provider-managed",
+        "evidenceIds": [
+          "jetbrains-ai-assistant-source-2"
+        ],
+        "availabilityClaim": false
+      },
+      "supportDisposition": {
+        "coverage": "researched",
+        "supportClaim": false,
+        "reason": "JetBrains AI Assistant is researched in S5a; research coverage is not support."
+      },
+      "serving": {
+        "artifactBindingId": "jetbrains-ai-assistant-artifact-binding",
+        "targetId": null,
+        "outputRoot": null
+      },
+      "lifecycleCanary": {
+        "required": true,
+        "assurances": [
+          "install",
+          "update",
+          "rollback",
+          "remove",
+          "project-context-preservation",
+          "host-discovery"
+        ]
+      },
+      "frontmatterTransformations": {
+        "state": "provider-managed",
+        "dropFields": [],
+        "renameFields": {},
+        "addFields": {}
+      },
+      "strategy": "provider-inherited",
+      "notes": [
+        "No new JetBrains AI Assistant adapter root or executable content is emitted in S5a."
+      ]
+    },
+    {
+      "id": "junie-extensions-host-adapter",
+      "ecosystemId": "junie-extensions",
+      "product": {
+        "name": "Junie",
+        "status": "provisional",
+        "clientVersion": null,
+        "serviceVersion": null,
+        "versionEvidenceId": null,
+        "documentationSnapshot": "2026-08-25"
+      },
+      "officialEvidence": {
+        "evidenceIds": [
+          "junie-extensions-source-1"
+        ],
+        "observedOn": "2026-08-25",
+        "validThrough": "2026-11-18"
+      },
+      "acceptedStandards": {
+        "agentSkills": {
+          "state": "compatible-layout",
+          "version": null,
+          "evidenceIds": [
+            "junie-extensions-source-1"
+          ]
+        },
+        "agentPlugins": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "mcp": {
+          "state": "compatible-layout",
+          "version": null,
+          "evidenceIds": [
+            "junie-extensions-source-1"
+          ]
+        },
+        "agentsMd": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        }
+      },
+      "nativeDiscoveryRoots": [
+        {
+          "scope": "package",
+          "path": "extensions/<name>/extension.json",
+          "evidenceIds": [
+            "junie-extensions-source-1"
+          ]
+        },
+        {
+          "scope": "marketplace",
+          "path": ".claude-plugin/marketplace.json",
+          "evidenceIds": [
+            "junie-extensions-source-1"
+          ]
+        }
+      ],
+      "manifests": [
+        {
+          "path": "extension.json",
+          "required": false,
+          "evidenceIds": [
+            "junie-extensions-source-1"
+          ]
+        },
+        {
+          "path": ".claude-plugin/marketplace.json",
+          "required": false,
+          "evidenceIds": [
+            "junie-extensions-source-1"
+          ]
+        }
+      ],
+      "lifecycle": {
+        "install": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "update": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "remove": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        }
+      },
+      "supportedComponentKinds": [
+        "skills",
+        "mcp"
+      ],
+      "executablePolicy": {
+        "state": "host-can-execute",
+        "reviewRequired": true,
+        "evidenceIds": [
+          "junie-extensions-source-1"
+        ]
+      },
+      "marketplace": {
+        "state": "self-hosted",
+        "evidenceIds": [
+          "junie-extensions-source-1"
+        ],
+        "availabilityClaim": false
+      },
+      "supportDisposition": {
+        "coverage": "researched",
+        "supportClaim": false,
+        "reason": "Existing researched ecosystem binding is retained; generated coverage is not support."
+      },
+      "serving": {
+        "artifactBindingId": "junie-extensions-artifact-binding",
+        "targetId": "junie",
+        "outputRoot": "junie"
+      },
+      "lifecycleCanary": {
+        "required": true,
+        "assurances": [
+          "install",
+          "update",
+          "rollback",
+          "remove",
+          "project-context-preservation",
+          "host-discovery"
+        ]
+      },
+      "frontmatterTransformations": {
+        "state": "planned",
+        "dropFields": [],
+        "renameFields": {},
+        "addFields": {}
+      },
+      "strategy": "native-projection-planned",
+      "notes": [
+        "This S5a registry record normalizes existing evidence without changing adapter bytes or release gates."
+      ]
+    },
+    {
+      "id": "kilo-code-host-adapter",
+      "ecosystemId": "kilo-code",
+      "product": {
+        "name": "Kilo Code",
+        "status": "current",
+        "clientVersion": "7.4.23",
+        "serviceVersion": null,
+        "versionEvidenceId": "kilo-code-source-2",
+        "documentationSnapshot": "2026-08-25"
+      },
+      "officialEvidence": {
+        "evidenceIds": [
+          "kilo-code-source-1",
+          "kilo-code-source-2"
+        ],
+        "observedOn": "2026-08-25",
+        "validThrough": "2026-11-23"
+      },
+      "acceptedStandards": {
+        "agentSkills": {
+          "state": "explicit",
+          "version": null,
+          "evidenceIds": [
+            "kilo-code-source-1"
+          ]
+        },
+        "agentPlugins": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "mcp": {
+          "state": "explicit",
+          "version": null,
+          "evidenceIds": [
+            "kilo-code-source-2"
+          ]
+        },
+        "agentsMd": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        }
+      },
+      "nativeDiscoveryRoots": [
+        {
+          "scope": "project",
+          "path": ".kilo/skills/<skill-name>/SKILL.md",
+          "evidenceIds": [
+            "kilo-code-source-1"
+          ]
+        },
+        {
+          "scope": "user",
+          "path": "~/.kilo/skills/<skill-name>/SKILL.md",
+          "evidenceIds": [
+            "kilo-code-source-1"
+          ]
+        }
+      ],
+      "manifests": [
+        {
+          "path": "SKILL.md",
+          "required": true,
+          "evidenceIds": [
+            "kilo-code-source-1"
+          ]
+        }
+      ],
+      "lifecycle": {
+        "install": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "update": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "remove": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        }
+      },
+      "supportedComponentKinds": [
+        "skills",
+        "rules",
+        "mcp"
+      ],
+      "executablePolicy": {
+        "state": "passive-content-only",
+        "reviewRequired": true,
+        "evidenceIds": [
+          "kilo-code-source-1"
+        ]
+      },
+      "marketplace": {
+        "state": "not-documented",
+        "evidenceIds": [],
+        "availabilityClaim": false
+      },
+      "supportDisposition": {
+        "coverage": "standard-compatible",
+        "supportClaim": false,
+        "reason": "Kilo Code is standard-compatible in S5a; research coverage is not support."
+      },
+      "serving": {
+        "artifactBindingId": "kilo-code-artifact-binding",
+        "targetId": "canonical-agent-skills",
+        "outputRoot": "canonical"
+      },
+      "lifecycleCanary": {
+        "required": true,
+        "assurances": [
+          "install",
+          "update",
+          "rollback",
+          "remove",
+          "project-context-preservation",
+          "host-discovery"
+        ]
+      },
+      "frontmatterTransformations": {
+        "state": "none",
+        "dropFields": [],
+        "renameFields": {},
+        "addFields": {}
+      },
+      "strategy": "canonical-agent-skills",
+      "notes": [
+        "No new Kilo Code adapter root or executable content is emitted in S5a."
+      ]
+    },
+    {
+      "id": "kiro-powers-host-adapter",
+      "ecosystemId": "kiro-powers",
+      "product": {
+        "name": "Kiro",
+        "status": "current",
+        "clientVersion": null,
+        "serviceVersion": null,
+        "versionEvidenceId": null,
+        "documentationSnapshot": "2026-08-25"
+      },
+      "officialEvidence": {
+        "evidenceIds": [
+          "kiro-powers-source-1",
+          "kiro-powers-source-2",
+          "kiro-powers-source-3"
+        ],
+        "observedOn": "2026-08-25",
+        "validThrough": "2026-11-18"
+      },
+      "acceptedStandards": {
+        "agentSkills": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "agentPlugins": {
+          "state": "explicit",
+          "version": "1.0.0",
+          "evidenceIds": [
+            "kiro-powers-source-1"
+          ]
+        },
+        "mcp": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "agentsMd": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        }
+      },
+      "nativeDiscoveryRoots": [
+        {
+          "scope": "package",
+          "path": "plugin.json",
+          "evidenceIds": [
+            "kiro-powers-source-1"
+          ]
+        }
+      ],
+      "manifests": [
+        {
+          "path": "plugin.json",
+          "required": true,
+          "evidenceIds": [
+            "kiro-powers-source-1"
+          ]
+        },
+        {
+          "path": "mcp.json",
+          "required": false,
+          "evidenceIds": [
+            "kiro-powers-source-1"
+          ]
+        }
+      ],
+      "lifecycle": {
+        "install": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "update": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "remove": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        }
+      },
+      "supportedComponentKinds": [
+        "skills",
+        "mcp"
+      ],
+      "executablePolicy": {
+        "state": "host-can-execute",
+        "reviewRequired": true,
+        "evidenceIds": [
+          "kiro-powers-source-1"
+        ]
+      },
+      "marketplace": {
+        "state": "not-documented",
+        "evidenceIds": [],
+        "availabilityClaim": false
+      },
+      "supportDisposition": {
+        "coverage": "researched",
+        "supportClaim": false,
+        "reason": "Existing researched ecosystem binding is retained; generated coverage is not support."
+      },
+      "serving": {
+        "artifactBindingId": "kiro-powers-artifact-binding",
+        "targetId": "kiro",
+        "outputRoot": "kiro"
+      },
+      "lifecycleCanary": {
+        "required": true,
+        "assurances": [
+          "install",
+          "update",
+          "rollback",
+          "remove",
+          "project-context-preservation",
+          "host-discovery"
+        ]
+      },
+      "frontmatterTransformations": {
+        "state": "planned",
+        "dropFields": [],
+        "renameFields": {},
+        "addFields": {}
+      },
+      "strategy": "native-projection-planned",
+      "notes": [
+        "This S5a registry record normalizes existing evidence without changing adapter bytes or release gates."
+      ]
+    },
+    {
+      "id": "nanoclaw-templates-host-adapter",
+      "ecosystemId": "nanoclaw-templates",
+      "product": {
+        "name": "NanoClaw",
+        "status": "current",
+        "clientVersion": null,
+        "serviceVersion": null,
+        "versionEvidenceId": null,
+        "documentationSnapshot": "2026-08-25"
+      },
+      "officialEvidence": {
+        "evidenceIds": [
+          "nanoclaw-templates-source-1"
+        ],
+        "observedOn": "2026-08-25",
+        "validThrough": "2026-11-18"
+      },
+      "acceptedStandards": {
+        "agentSkills": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "agentPlugins": {
+          "state": "explicit",
+          "version": "1.0.0",
+          "evidenceIds": [
+            "nanoclaw-templates-source-1"
+          ]
+        },
+        "mcp": {
+          "state": "compatible-layout",
+          "version": null,
+          "evidenceIds": [
+            "nanoclaw-templates-source-1"
+          ]
+        },
+        "agentsMd": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        }
+      },
+      "nativeDiscoveryRoots": [
+        {
+          "scope": "package",
+          "path": "plugin.json",
+          "evidenceIds": [
+            "nanoclaw-templates-source-1"
+          ]
+        }
+      ],
+      "manifests": [
+        {
+          "path": "plugin.json",
+          "required": true,
+          "evidenceIds": [
+            "nanoclaw-templates-source-1"
+          ]
+        }
+      ],
+      "lifecycle": {
+        "install": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "update": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "remove": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        }
+      },
+      "supportedComponentKinds": [
+        "skills",
+        "mcp"
+      ],
+      "executablePolicy": {
+        "state": "host-can-execute",
+        "reviewRequired": true,
+        "evidenceIds": [
+          "nanoclaw-templates-source-1"
+        ]
+      },
+      "marketplace": {
+        "state": "not-documented",
+        "evidenceIds": [],
+        "availabilityClaim": false
+      },
+      "supportDisposition": {
+        "coverage": "standard-compatible",
+        "supportClaim": false,
+        "reason": "Existing researched ecosystem binding is retained; generated coverage is not support."
+      },
+      "serving": {
+        "artifactBindingId": "nanoclaw-templates-artifact-binding",
+        "targetId": "portable-agent-plugin",
+        "outputRoot": "agent-plugin"
+      },
+      "lifecycleCanary": {
+        "required": true,
+        "assurances": [
+          "install",
+          "update",
+          "rollback",
+          "remove",
+          "project-context-preservation",
+          "host-discovery"
+        ]
+      },
+      "frontmatterTransformations": {
+        "state": "none",
+        "dropFields": [],
+        "renameFields": {},
+        "addFields": {}
+      },
+      "strategy": "portable-agent-plugin",
+      "notes": [
+        "This S5a registry record normalizes existing evidence without changing adapter bytes or release gates."
+      ]
+    },
+    {
+      "id": "openai-plugins-host-adapter",
+      "ecosystemId": "openai-plugins",
+      "product": {
+        "name": "OpenAI Codex",
+        "status": "current",
+        "clientVersion": "0.149.1",
+        "serviceVersion": null,
+        "versionEvidenceId": "openai-plugins-source-3",
+        "documentationSnapshot": "2026-08-25"
+      },
+      "officialEvidence": {
+        "evidenceIds": [
+          "openai-plugins-source-1",
+          "openai-plugins-source-2",
+          "openai-plugins-source-3"
+        ],
+        "observedOn": "2026-08-25",
+        "validThrough": "2026-11-23"
+      },
+      "acceptedStandards": {
+        "agentSkills": {
+          "state": "compatible-layout",
+          "version": null,
+          "evidenceIds": [
+            "openai-plugins-source-1"
+          ]
+        },
+        "agentPlugins": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "mcp": {
+          "state": "compatible-layout",
+          "version": null,
+          "evidenceIds": [
+            "openai-plugins-source-1"
+          ]
+        },
+        "agentsMd": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        }
+      },
+      "nativeDiscoveryRoots": [
+        {
+          "scope": "package",
+          "path": ".codex-plugin/plugin.json",
+          "evidenceIds": [
+            "openai-plugins-source-1"
+          ]
+        },
+        {
+          "scope": "marketplace",
+          "path": ".agents/plugins/marketplace.json",
+          "evidenceIds": [
+            "openai-plugins-source-1"
+          ]
+        }
+      ],
+      "manifests": [
+        {
+          "path": ".codex-plugin/plugin.json",
+          "required": true,
+          "evidenceIds": [
+            "openai-plugins-source-1"
+          ]
+        },
+        {
+          "path": ".agents/plugins/marketplace.json",
+          "required": false,
+          "evidenceIds": [
+            "openai-plugins-source-1"
+          ]
+        }
+      ],
+      "lifecycle": {
+        "install": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "update": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "remove": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        }
+      },
+      "supportedComponentKinds": [
+        "skills",
+        "mcp",
+        "hooks"
+      ],
+      "executablePolicy": {
+        "state": "host-can-execute",
+        "reviewRequired": true,
+        "evidenceIds": [
+          "openai-plugins-source-1"
+        ]
+      },
+      "marketplace": {
+        "state": "self-hosted",
+        "evidenceIds": [
+          "openai-plugins-source-1"
+        ],
+        "availabilityClaim": false
+      },
+      "supportDisposition": {
+        "coverage": "researched",
+        "supportClaim": false,
+        "reason": "Existing researched ecosystem binding is retained; generated coverage is not support."
+      },
+      "serving": {
+        "artifactBindingId": "openai-plugins-artifact-binding",
+        "targetId": "openai-codex",
+        "outputRoot": "codex"
+      },
+      "lifecycleCanary": {
+        "required": true,
+        "assurances": [
+          "install",
+          "update",
+          "rollback",
+          "remove",
+          "project-context-preservation",
+          "host-discovery"
+        ]
+      },
+      "frontmatterTransformations": {
+        "state": "planned",
+        "dropFields": [],
+        "renameFields": {},
+        "addFields": {}
+      },
+      "strategy": "native-projection-planned",
+      "notes": [
+        "This S5a registry record normalizes existing evidence without changing adapter bytes or release gates."
+      ]
+    },
+    {
+      "id": "openclaw-bundles-host-adapter",
+      "ecosystemId": "openclaw-bundles",
+      "product": {
+        "name": "OpenClaw",
+        "status": "current",
+        "clientVersion": null,
+        "serviceVersion": null,
+        "versionEvidenceId": null,
+        "documentationSnapshot": "2026-08-25"
+      },
+      "officialEvidence": {
+        "evidenceIds": [
+          "openclaw-bundles-source-1"
+        ],
+        "observedOn": "2026-08-25",
+        "validThrough": "2026-11-18"
+      },
+      "acceptedStandards": {
+        "agentSkills": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "agentPlugins": {
+          "state": "explicit",
+          "version": "1.0.0",
+          "evidenceIds": [
+            "openclaw-bundles-source-1"
+          ]
+        },
+        "mcp": {
+          "state": "compatible-layout",
+          "version": null,
+          "evidenceIds": [
+            "openclaw-bundles-source-1"
+          ]
+        },
+        "agentsMd": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        }
+      },
+      "nativeDiscoveryRoots": [
+        {
+          "scope": "package",
+          "path": "plugin.json",
+          "evidenceIds": [
+            "openclaw-bundles-source-1"
+          ]
+        }
+      ],
+      "manifests": [
+        {
+          "path": "plugin.json",
+          "required": true,
+          "evidenceIds": [
+            "openclaw-bundles-source-1"
+          ]
+        }
+      ],
+      "lifecycle": {
+        "install": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "update": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "remove": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        }
+      },
+      "supportedComponentKinds": [
+        "skills",
+        "mcp"
+      ],
+      "executablePolicy": {
+        "state": "host-can-execute",
+        "reviewRequired": true,
+        "evidenceIds": [
+          "openclaw-bundles-source-1"
+        ]
+      },
+      "marketplace": {
+        "state": "not-documented",
+        "evidenceIds": [],
+        "availabilityClaim": false
+      },
+      "supportDisposition": {
+        "coverage": "standard-compatible",
+        "supportClaim": false,
+        "reason": "Existing researched ecosystem binding is retained; generated coverage is not support."
+      },
+      "serving": {
+        "artifactBindingId": "openclaw-bundles-artifact-binding",
+        "targetId": "portable-agent-plugin",
+        "outputRoot": "agent-plugin"
+      },
+      "lifecycleCanary": {
+        "required": true,
+        "assurances": [
+          "install",
+          "update",
+          "rollback",
+          "remove",
+          "project-context-preservation",
+          "host-discovery"
+        ]
+      },
+      "frontmatterTransformations": {
+        "state": "none",
+        "dropFields": [],
+        "renameFields": {},
+        "addFields": {}
+      },
+      "strategy": "portable-agent-plugin",
+      "notes": [
+        "This S5a registry record normalizes existing evidence without changing adapter bytes or release gates."
+      ]
+    },
+    {
+      "id": "opencode-skills-host-adapter",
+      "ecosystemId": "opencode-skills",
+      "product": {
+        "name": "OpenCode",
+        "status": "current",
+        "clientVersion": null,
+        "serviceVersion": null,
+        "versionEvidenceId": null,
+        "documentationSnapshot": "2026-08-25"
+      },
+      "officialEvidence": {
+        "evidenceIds": [
+          "opencode-skills-source-1",
+          "opencode-skills-source-2",
+          "opencode-skills-source-3"
+        ],
+        "observedOn": "2026-08-25",
+        "validThrough": "2026-11-18"
+      },
+      "acceptedStandards": {
+        "agentSkills": {
+          "state": "compatible-layout",
+          "version": null,
+          "evidenceIds": [
+            "opencode-skills-source-1"
+          ]
+        },
+        "agentPlugins": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "mcp": {
+          "state": "compatible-layout",
+          "version": null,
+          "evidenceIds": [
+            "opencode-skills-source-1"
+          ]
+        },
+        "agentsMd": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        }
+      },
+      "nativeDiscoveryRoots": [
+        {
+          "scope": "project",
+          "path": ".agents/skills/<skill-name>/SKILL.md",
+          "evidenceIds": [
+            "opencode-skills-source-1"
+          ]
+        },
+        {
+          "scope": "user",
+          "path": "~/.agents/skills/<skill-name>/SKILL.md",
+          "evidenceIds": [
+            "opencode-skills-source-1"
+          ]
+        }
+      ],
+      "manifests": [
+        {
+          "path": "SKILL.md",
+          "required": true,
+          "evidenceIds": [
+            "opencode-skills-source-1"
+          ]
+        }
+      ],
+      "lifecycle": {
+        "install": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "update": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "remove": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        }
+      },
+      "supportedComponentKinds": [
+        "skills",
+        "mcp",
+        "hooks"
+      ],
+      "executablePolicy": {
+        "state": "host-can-execute",
+        "reviewRequired": true,
+        "evidenceIds": [
+          "opencode-skills-source-1"
+        ]
+      },
+      "marketplace": {
+        "state": "not-documented",
+        "evidenceIds": [],
+        "availabilityClaim": false
+      },
+      "supportDisposition": {
+        "coverage": "standard-compatible",
+        "supportClaim": false,
+        "reason": "Existing researched ecosystem binding is retained; generated coverage is not support."
+      },
+      "serving": {
+        "artifactBindingId": "opencode-skills-artifact-binding",
+        "targetId": "canonical-agent-skills",
+        "outputRoot": "canonical"
+      },
+      "lifecycleCanary": {
+        "required": true,
+        "assurances": [
+          "install",
+          "update",
+          "rollback",
+          "remove",
+          "project-context-preservation",
+          "host-discovery"
+        ]
+      },
+      "frontmatterTransformations": {
+        "state": "none",
+        "dropFields": [],
+        "renameFields": {},
+        "addFields": {}
+      },
+      "strategy": "canonical-agent-skills",
+      "notes": [
+        "This S5a registry record normalizes existing evidence without changing adapter bytes or release gates."
+      ]
+    },
+    {
+      "id": "openhands-host-adapter",
+      "ecosystemId": "openhands",
+      "product": {
+        "name": "OpenHands",
+        "status": "current",
+        "clientVersion": "1.15.0",
+        "serviceVersion": null,
+        "versionEvidenceId": "openhands-source-2",
+        "documentationSnapshot": "2026-08-25"
+      },
+      "officialEvidence": {
+        "evidenceIds": [
+          "openhands-source-1",
+          "openhands-source-2"
+        ],
+        "observedOn": "2026-08-25",
+        "validThrough": "2026-11-23"
+      },
+      "acceptedStandards": {
+        "agentSkills": {
+          "state": "explicit",
+          "version": null,
+          "evidenceIds": [
+            "openhands-source-1"
+          ]
+        },
+        "agentPlugins": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "mcp": {
+          "state": "explicit",
+          "version": null,
+          "evidenceIds": [
+            "openhands-source-2"
+          ]
+        },
+        "agentsMd": {
+          "state": "explicit",
+          "version": null,
+          "evidenceIds": [
+            "openhands-source-1"
+          ]
+        }
+      },
+      "nativeDiscoveryRoots": [
+        {
+          "scope": "project",
+          "path": ".agents/skills/<skill-name>/SKILL.md",
+          "evidenceIds": [
+            "openhands-source-1"
+          ]
+        },
+        {
+          "scope": "user",
+          "path": "~/.openhands/skills/<skill-name>/SKILL.md",
+          "evidenceIds": [
+            "openhands-source-1"
+          ]
+        }
+      ],
+      "manifests": [
+        {
+          "path": "SKILL.md",
+          "required": true,
+          "evidenceIds": [
+            "openhands-source-1"
+          ]
+        }
+      ],
+      "lifecycle": {
+        "install": {
+          "state": "documented",
+          "scopes": [
+            "user",
+            "project"
+          ],
+          "evidenceIds": [
+            "openhands-source-2"
+          ]
+        },
+        "update": {
+          "state": "documented",
+          "scopes": [
+            "user",
+            "project"
+          ],
+          "evidenceIds": [
+            "openhands-source-2"
+          ]
+        },
+        "remove": {
+          "state": "documented",
+          "scopes": [
+            "user",
+            "project"
+          ],
+          "evidenceIds": [
+            "openhands-source-2"
+          ]
+        }
+      },
+      "supportedComponentKinds": [
+        "skills",
+        "rules",
+        "plugins",
+        "mcp"
+      ],
+      "executablePolicy": {
+        "state": "passive-content-only",
+        "reviewRequired": true,
+        "evidenceIds": [
+          "openhands-source-1"
+        ]
+      },
+      "marketplace": {
+        "state": "official",
+        "evidenceIds": [
+          "openhands-source-2"
+        ],
+        "availabilityClaim": false
+      },
+      "supportDisposition": {
+        "coverage": "standard-compatible",
+        "supportClaim": false,
+        "reason": "OpenHands is standard-compatible in S5a; research coverage is not support."
+      },
+      "serving": {
+        "artifactBindingId": "openhands-artifact-binding",
+        "targetId": "canonical-agent-skills",
+        "outputRoot": "canonical"
+      },
+      "lifecycleCanary": {
+        "required": true,
+        "assurances": [
+          "install",
+          "update",
+          "rollback",
+          "remove",
+          "project-context-preservation",
+          "host-discovery"
+        ]
+      },
+      "frontmatterTransformations": {
+        "state": "none",
+        "dropFields": [],
+        "renameFields": {},
+        "addFields": {}
+      },
+      "strategy": "canonical-agent-skills",
+      "notes": [
+        "No new OpenHands adapter root or executable content is emitted in S5a."
+      ]
+    },
+    {
+      "id": "pi-packages-host-adapter",
+      "ecosystemId": "pi-packages",
+      "product": {
+        "name": "Pi",
+        "status": "current",
+        "clientVersion": "0.84.3",
+        "serviceVersion": null,
+        "versionEvidenceId": "pi-packages-source-4",
+        "documentationSnapshot": "2026-08-25"
+      },
+      "officialEvidence": {
+        "evidenceIds": [
+          "pi-packages-source-1",
+          "pi-packages-source-2",
+          "pi-packages-source-3",
+          "pi-packages-source-4"
+        ],
+        "observedOn": "2026-08-25",
+        "validThrough": "2026-11-23"
+      },
+      "acceptedStandards": {
+        "agentSkills": {
+          "state": "compatible-layout",
+          "version": null,
+          "evidenceIds": [
+            "pi-packages-source-1"
+          ]
+        },
+        "agentPlugins": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "mcp": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "agentsMd": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        }
+      },
+      "nativeDiscoveryRoots": [
+        {
+          "scope": "package",
+          "path": "package.json",
+          "evidenceIds": [
+            "pi-packages-source-1"
+          ]
+        },
+        {
+          "scope": "package",
+          "path": "skills/<skill-name>/SKILL.md",
+          "evidenceIds": [
+            "pi-packages-source-1"
+          ]
+        }
+      ],
+      "manifests": [
+        {
+          "path": "package.json",
+          "required": true,
+          "evidenceIds": [
+            "pi-packages-source-1"
+          ]
+        }
+      ],
+      "lifecycle": {
+        "install": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "update": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "remove": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        }
+      },
+      "supportedComponentKinds": [
+        "skills",
+        "scripts"
+      ],
+      "executablePolicy": {
+        "state": "host-can-execute",
+        "reviewRequired": true,
+        "evidenceIds": [
+          "pi-packages-source-1"
+        ]
+      },
+      "marketplace": {
+        "state": "not-documented",
+        "evidenceIds": [],
+        "availabilityClaim": false
+      },
+      "supportDisposition": {
+        "coverage": "researched",
+        "supportClaim": false,
+        "reason": "Existing researched ecosystem binding is retained; generated coverage is not support."
+      },
+      "serving": {
+        "artifactBindingId": "pi-packages-artifact-binding",
+        "targetId": "pi-npm",
+        "outputRoot": "pi"
+      },
+      "lifecycleCanary": {
+        "required": true,
+        "assurances": [
+          "install",
+          "update",
+          "rollback",
+          "remove",
+          "project-context-preservation",
+          "host-discovery"
+        ]
+      },
+      "frontmatterTransformations": {
+        "state": "planned",
+        "dropFields": [],
+        "renameFields": {},
+        "addFields": {}
+      },
+      "strategy": "native-projection-planned",
+      "notes": [
+        "This S5a registry record normalizes existing evidence without changing adapter bytes or release gates."
+      ]
+    },
+    {
+      "id": "qwen-code-host-adapter",
+      "ecosystemId": "qwen-code",
+      "product": {
+        "name": "Qwen Code",
+        "status": "current",
+        "clientVersion": "0.22.0",
+        "serviceVersion": null,
+        "versionEvidenceId": "qwen-code-source-3",
+        "documentationSnapshot": "2026-08-25"
+      },
+      "officialEvidence": {
+        "evidenceIds": [
+          "qwen-code-source-1",
+          "qwen-code-source-2",
+          "qwen-code-source-3"
+        ],
+        "observedOn": "2026-08-25",
+        "validThrough": "2026-11-23"
+      },
+      "acceptedStandards": {
+        "agentSkills": {
+          "state": "explicit",
+          "version": null,
+          "evidenceIds": [
+            "qwen-code-source-1"
+          ]
+        },
+        "agentPlugins": {
+          "state": "explicit",
+          "version": "1.0.0",
+          "evidenceIds": [
+            "qwen-code-source-2"
+          ]
+        },
+        "mcp": {
+          "state": "explicit",
+          "version": null,
+          "evidenceIds": [
+            "qwen-code-source-2"
+          ]
+        },
+        "agentsMd": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        }
+      },
+      "nativeDiscoveryRoots": [
+        {
+          "scope": "project",
+          "path": ".qwen/skills/<skill-name>/SKILL.md",
+          "evidenceIds": [
+            "qwen-code-source-1"
+          ]
+        },
+        {
+          "scope": "user",
+          "path": "~/.qwen/skills/<skill-name>/SKILL.md",
+          "evidenceIds": [
+            "qwen-code-source-1"
+          ]
+        },
+        {
+          "scope": "package",
+          "path": "plugin.json",
+          "evidenceIds": [
+            "qwen-code-source-2"
+          ]
+        }
+      ],
+      "manifests": [
+        {
+          "path": "SKILL.md",
+          "required": true,
+          "evidenceIds": [
+            "qwen-code-source-1"
+          ]
+        },
+        {
+          "path": "plugin.json",
+          "required": true,
+          "evidenceIds": [
+            "qwen-code-source-2"
+          ]
+        }
+      ],
+      "lifecycle": {
+        "install": {
+          "state": "documented",
+          "scopes": [
+            "user",
+            "project"
+          ],
+          "evidenceIds": [
+            "qwen-code-source-2"
+          ]
+        },
+        "update": {
+          "state": "documented",
+          "scopes": [
+            "user",
+            "project"
+          ],
+          "evidenceIds": [
+            "qwen-code-source-2"
+          ]
+        },
+        "remove": {
+          "state": "documented",
+          "scopes": [
+            "user",
+            "project"
+          ],
+          "evidenceIds": [
+            "qwen-code-source-2"
+          ]
+        }
+      },
+      "supportedComponentKinds": [
+        "skills",
+        "plugins",
+        "mcp"
+      ],
+      "executablePolicy": {
+        "state": "passive-content-only",
+        "reviewRequired": true,
+        "evidenceIds": [
+          "qwen-code-source-1"
+        ]
+      },
+      "marketplace": {
+        "state": "self-hosted",
+        "evidenceIds": [
+          "qwen-code-source-2"
+        ],
+        "availabilityClaim": false
+      },
+      "supportDisposition": {
+        "coverage": "standard-compatible",
+        "supportClaim": false,
+        "reason": "Qwen Code is standard-compatible in S5a; research coverage is not support."
+      },
+      "serving": {
+        "artifactBindingId": "qwen-code-artifact-binding",
+        "targetId": "portable-agent-plugin",
+        "outputRoot": "agent-plugin"
+      },
+      "lifecycleCanary": {
+        "required": true,
+        "assurances": [
+          "install",
+          "update",
+          "rollback",
+          "remove",
+          "project-context-preservation",
+          "host-discovery"
+        ]
+      },
+      "frontmatterTransformations": {
+        "state": "none",
+        "dropFields": [],
+        "renameFields": {},
+        "addFields": {}
+      },
+      "strategy": "portable-agent-plugin",
+      "notes": [
+        "No new Qwen Code adapter root or executable content is emitted in S5a."
+      ]
+    },
+    {
+      "id": "replit-agent-host-adapter",
+      "ecosystemId": "replit-agent",
+      "product": {
+        "name": "Replit Agent",
+        "status": "current",
+        "clientVersion": null,
+        "serviceVersion": null,
+        "versionEvidenceId": null,
+        "documentationSnapshot": "2026-08-25"
+      },
+      "officialEvidence": {
+        "evidenceIds": [
+          "replit-agent-source-1",
+          "replit-agent-source-2"
+        ],
+        "observedOn": "2026-08-25",
+        "validThrough": "2026-11-23"
+      },
+      "acceptedStandards": {
+        "agentSkills": {
+          "state": "explicit",
+          "version": null,
+          "evidenceIds": [
+            "replit-agent-source-1"
+          ]
+        },
+        "agentPlugins": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "mcp": {
+          "state": "explicit",
+          "version": null,
+          "evidenceIds": [
+            "replit-agent-source-2"
+          ]
+        },
+        "agentsMd": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        }
+      },
+      "nativeDiscoveryRoots": [
+        {
+          "scope": "project",
+          "path": ".agents/skills/<skill-name>/SKILL.md",
+          "evidenceIds": [
+            "replit-agent-source-1"
+          ]
+        }
+      ],
+      "manifests": [
+        {
+          "path": "SKILL.md",
+          "required": true,
+          "evidenceIds": [
+            "replit-agent-source-1"
+          ]
+        }
+      ],
+      "lifecycle": {
+        "install": {
+          "state": "provider-managed",
+          "scopes": [
+            "service"
+          ],
+          "evidenceIds": [
+            "replit-agent-source-2"
+          ]
+        },
+        "update": {
+          "state": "provider-managed",
+          "scopes": [
+            "service"
+          ],
+          "evidenceIds": [
+            "replit-agent-source-2"
+          ]
+        },
+        "remove": {
+          "state": "provider-managed",
+          "scopes": [
+            "service"
+          ],
+          "evidenceIds": [
+            "replit-agent-source-2"
+          ]
+        }
+      },
+      "supportedComponentKinds": [
+        "skills",
+        "rules",
+        "mcp"
+      ],
+      "executablePolicy": {
+        "state": "passive-content-only",
+        "reviewRequired": true,
+        "evidenceIds": [
+          "replit-agent-source-1"
+        ]
+      },
+      "marketplace": {
+        "state": "provider-managed",
+        "evidenceIds": [
+          "replit-agent-source-2"
+        ],
+        "availabilityClaim": false
+      },
+      "supportDisposition": {
+        "coverage": "standard-compatible",
+        "supportClaim": false,
+        "reason": "Replit Agent is standard-compatible in S5a; research coverage is not support."
+      },
+      "serving": {
+        "artifactBindingId": "replit-agent-artifact-binding",
+        "targetId": "canonical-agent-skills",
+        "outputRoot": "canonical"
+      },
+      "lifecycleCanary": {
+        "required": true,
+        "assurances": [
+          "install",
+          "update",
+          "rollback",
+          "remove",
+          "project-context-preservation",
+          "host-discovery"
+        ]
+      },
+      "frontmatterTransformations": {
+        "state": "none",
+        "dropFields": [],
+        "renameFields": {},
+        "addFields": {}
+      },
+      "strategy": "canonical-agent-skills",
+      "notes": [
+        "No new Replit Agent adapter root or executable content is emitted in S5a."
+      ]
+    },
+    {
+      "id": "roo-code-host-adapter",
+      "ecosystemId": "roo-code",
+      "product": {
+        "name": "Roo Code",
+        "status": "archived",
+        "clientVersion": "3.54.0",
+        "serviceVersion": null,
+        "versionEvidenceId": "roo-code-source-2",
+        "documentationSnapshot": "2026-08-25"
+      },
+      "officialEvidence": {
+        "evidenceIds": [
+          "roo-code-source-1",
+          "roo-code-source-2"
+        ],
+        "observedOn": "2026-08-25",
+        "validThrough": "2026-11-23"
+      },
+      "acceptedStandards": {
+        "agentSkills": {
+          "state": "compatible-layout",
+          "version": null,
+          "evidenceIds": [
+            "roo-code-source-1"
+          ]
+        },
+        "agentPlugins": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "mcp": {
+          "state": "explicit",
+          "version": null,
+          "evidenceIds": [
+            "roo-code-source-2"
+          ]
+        },
+        "agentsMd": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        }
+      },
+      "nativeDiscoveryRoots": [
+        {
+          "scope": "project",
+          "path": ".roo/skills/<skill-name>/SKILL.md",
+          "evidenceIds": [
+            "roo-code-source-2"
+          ]
+        }
+      ],
+      "manifests": [
+        {
+          "path": "SKILL.md",
+          "required": true,
+          "evidenceIds": [
+            "roo-code-source-2"
+          ]
+        }
+      ],
+      "lifecycle": {
+        "install": {
+          "state": "retired",
+          "scopes": [],
+          "evidenceIds": [
+            "roo-code-source-2"
+          ]
+        },
+        "update": {
+          "state": "retired",
+          "scopes": [],
+          "evidenceIds": [
+            "roo-code-source-2"
+          ]
+        },
+        "remove": {
+          "state": "retired",
+          "scopes": [],
+          "evidenceIds": [
+            "roo-code-source-2"
+          ]
+        }
+      },
+      "supportedComponentKinds": [
+        "skills",
+        "rules",
+        "mcp"
+      ],
+      "executablePolicy": {
+        "state": "host-can-execute",
+        "reviewRequired": true,
+        "evidenceIds": [
+          "roo-code-source-1"
+        ]
+      },
+      "marketplace": {
+        "state": "retired",
+        "evidenceIds": [
+          "roo-code-source-2"
+        ],
+        "availabilityClaim": false
+      },
+      "supportDisposition": {
+        "coverage": "no-surface",
+        "supportClaim": false,
+        "reason": "Roo Code is no-surface in S5a; research coverage is not support."
+      },
+      "serving": {
+        "artifactBindingId": "roo-code-artifact-binding",
+        "targetId": null,
+        "outputRoot": null
+      },
+      "lifecycleCanary": {
+        "required": false,
+        "assurances": []
+      },
+      "frontmatterTransformations": {
+        "state": "not-applicable",
+        "dropFields": [],
+        "renameFields": {},
+        "addFields": {}
+      },
+      "strategy": "no-public-extension-surface",
+      "notes": [
+        "No new Roo Code adapter root or executable content is emitted in S5a."
+      ]
+    },
+    {
+      "id": "sourcegraph-cody-host-adapter",
+      "ecosystemId": "sourcegraph-cody",
+      "product": {
+        "name": "Sourcegraph Cody",
+        "status": "current",
+        "clientVersion": null,
+        "serviceVersion": null,
+        "versionEvidenceId": null,
+        "documentationSnapshot": "2026-08-25"
+      },
+      "officialEvidence": {
+        "evidenceIds": [
+          "sourcegraph-cody-source-1",
+          "sourcegraph-cody-source-2"
+        ],
+        "observedOn": "2026-08-25",
+        "validThrough": "2026-11-23"
+      },
+      "acceptedStandards": {
+        "agentSkills": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "agentPlugins": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "mcp": {
+          "state": "provider-only",
+          "version": null,
+          "evidenceIds": [
+            "sourcegraph-cody-source-2"
+          ]
+        },
+        "agentsMd": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        }
+      },
+      "nativeDiscoveryRoots": [],
+      "manifests": [],
+      "lifecycle": {
+        "install": {
+          "state": "provider-managed",
+          "scopes": [
+            "service"
+          ],
+          "evidenceIds": [
+            "sourcegraph-cody-source-2"
+          ]
+        },
+        "update": {
+          "state": "provider-managed",
+          "scopes": [
+            "service"
+          ],
+          "evidenceIds": [
+            "sourcegraph-cody-source-2"
+          ]
+        },
+        "remove": {
+          "state": "provider-managed",
+          "scopes": [
+            "service"
+          ],
+          "evidenceIds": [
+            "sourcegraph-cody-source-2"
+          ]
+        }
+      },
+      "supportedComponentKinds": [
+        "prompts",
+        "mcp"
+      ],
+      "executablePolicy": {
+        "state": "host-can-execute",
+        "reviewRequired": true,
+        "evidenceIds": [
+          "sourcegraph-cody-source-1"
+        ]
+      },
+      "marketplace": {
+        "state": "provider-managed",
+        "evidenceIds": [
+          "sourcegraph-cody-source-2"
+        ],
+        "availabilityClaim": false
+      },
+      "supportDisposition": {
+        "coverage": "no-surface",
+        "supportClaim": false,
+        "reason": "Sourcegraph Cody is no-surface in S5a; research coverage is not support."
+      },
+      "serving": {
+        "artifactBindingId": "sourcegraph-cody-artifact-binding",
+        "targetId": null,
+        "outputRoot": null
+      },
+      "lifecycleCanary": {
+        "required": false,
+        "assurances": []
+      },
+      "frontmatterTransformations": {
+        "state": "not-applicable",
+        "dropFields": [],
+        "renameFields": {},
+        "addFields": {}
+      },
+      "strategy": "no-public-extension-surface",
+      "notes": [
+        "No new Sourcegraph Cody adapter root or executable content is emitted in S5a."
+      ]
+    },
+    {
+      "id": "tabnine-host-adapter",
+      "ecosystemId": "tabnine",
+      "product": {
+        "name": "Tabnine",
+        "status": "current",
+        "clientVersion": null,
+        "serviceVersion": null,
+        "versionEvidenceId": null,
+        "documentationSnapshot": "2026-08-25"
+      },
+      "officialEvidence": {
+        "evidenceIds": [
+          "tabnine-source-1",
+          "tabnine-source-2"
+        ],
+        "observedOn": "2026-08-25",
+        "validThrough": "2026-11-23"
+      },
+      "acceptedStandards": {
+        "agentSkills": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "agentPlugins": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "mcp": {
+          "state": "explicit",
+          "version": null,
+          "evidenceIds": [
+            "tabnine-source-2"
+          ]
+        },
+        "agentsMd": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        }
+      },
+      "nativeDiscoveryRoots": [
+        {
+          "scope": "project",
+          "path": ".tabnine/guidelines/",
+          "evidenceIds": [
+            "tabnine-source-1"
+          ]
+        }
+      ],
+      "manifests": [],
+      "lifecycle": {
+        "install": {
+          "state": "provider-managed",
+          "scopes": [
+            "service"
+          ],
+          "evidenceIds": [
+            "tabnine-source-2"
+          ]
+        },
+        "update": {
+          "state": "provider-managed",
+          "scopes": [
+            "service"
+          ],
+          "evidenceIds": [
+            "tabnine-source-2"
+          ]
+        },
+        "remove": {
+          "state": "provider-managed",
+          "scopes": [
+            "service"
+          ],
+          "evidenceIds": [
+            "tabnine-source-2"
+          ]
+        }
+      },
+      "supportedComponentKinds": [
+        "rules",
+        "mcp"
+      ],
+      "executablePolicy": {
+        "state": "host-can-execute",
+        "reviewRequired": true,
+        "evidenceIds": [
+          "tabnine-source-1"
+        ]
+      },
+      "marketplace": {
+        "state": "provider-managed",
+        "evidenceIds": [
+          "tabnine-source-2"
+        ],
+        "availabilityClaim": false
+      },
+      "supportDisposition": {
+        "coverage": "fallback",
+        "supportClaim": false,
+        "reason": "Tabnine is fallback in S5a; research coverage is not support."
+      },
+      "serving": {
+        "artifactBindingId": "tabnine-artifact-binding",
+        "targetId": null,
+        "outputRoot": null
+      },
+      "lifecycleCanary": {
+        "required": true,
+        "assurances": [
+          "install",
+          "update",
+          "rollback",
+          "remove",
+          "project-context-preservation",
+          "host-discovery"
+        ]
+      },
+      "frontmatterTransformations": {
+        "state": "not-applicable",
+        "dropFields": [],
+        "renameFields": {},
+        "addFields": {}
+      },
+      "strategy": "rules-fallback",
+      "notes": [
+        "No new Tabnine adapter root or executable content is emitted in S5a."
+      ]
+    },
+    {
+      "id": "visual-studio-copilot-host-adapter",
+      "ecosystemId": "visual-studio-copilot",
+      "product": {
+        "name": "Visual Studio GitHub Copilot",
+        "status": "current",
+        "clientVersion": null,
+        "serviceVersion": null,
+        "versionEvidenceId": null,
+        "documentationSnapshot": "2026-08-25"
+      },
+      "officialEvidence": {
+        "evidenceIds": [
+          "visual-studio-copilot-source-1",
+          "visual-studio-copilot-source-2"
+        ],
+        "observedOn": "2026-08-25",
+        "validThrough": "2026-11-23"
+      },
+      "acceptedStandards": {
+        "agentSkills": {
+          "state": "explicit",
+          "version": null,
+          "evidenceIds": [
+            "visual-studio-copilot-source-1"
+          ]
+        },
+        "agentPlugins": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "mcp": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "agentsMd": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        }
+      },
+      "nativeDiscoveryRoots": [
+        {
+          "scope": "project",
+          "path": ".github/skills/<skill-name>/SKILL.md",
+          "evidenceIds": [
+            "visual-studio-copilot-source-1"
+          ]
+        },
+        {
+          "scope": "project",
+          "path": ".github/copilot-instructions.md",
+          "evidenceIds": [
+            "visual-studio-copilot-source-2"
+          ]
+        }
+      ],
+      "manifests": [
+        {
+          "path": "SKILL.md",
+          "required": true,
+          "evidenceIds": [
+            "visual-studio-copilot-source-1"
+          ]
+        }
+      ],
+      "lifecycle": {
+        "install": {
+          "state": "provider-managed",
+          "scopes": [
+            "service"
+          ],
+          "evidenceIds": [
+            "visual-studio-copilot-source-2"
+          ]
+        },
+        "update": {
+          "state": "provider-managed",
+          "scopes": [
+            "service"
+          ],
+          "evidenceIds": [
+            "visual-studio-copilot-source-2"
+          ]
+        },
+        "remove": {
+          "state": "provider-managed",
+          "scopes": [
+            "service"
+          ],
+          "evidenceIds": [
+            "visual-studio-copilot-source-2"
+          ]
+        }
+      },
+      "supportedComponentKinds": [
+        "skills",
+        "rules"
+      ],
+      "executablePolicy": {
+        "state": "passive-content-only",
+        "reviewRequired": false,
+        "evidenceIds": [
+          "visual-studio-copilot-source-1"
+        ]
+      },
+      "marketplace": {
+        "state": "provider-managed",
+        "evidenceIds": [
+          "visual-studio-copilot-source-2"
+        ],
+        "availabilityClaim": false
+      },
+      "supportDisposition": {
+        "coverage": "standard-compatible",
+        "supportClaim": false,
+        "reason": "Visual Studio GitHub Copilot is standard-compatible in S5a; research coverage is not support."
+      },
+      "serving": {
+        "artifactBindingId": "visual-studio-copilot-artifact-binding",
+        "targetId": "canonical-agent-skills",
+        "outputRoot": "canonical"
+      },
+      "lifecycleCanary": {
+        "required": true,
+        "assurances": [
+          "install",
+          "update",
+          "rollback",
+          "remove",
+          "project-context-preservation",
+          "host-discovery"
+        ]
+      },
+      "frontmatterTransformations": {
+        "state": "none",
+        "dropFields": [],
+        "renameFields": {},
+        "addFields": {}
+      },
+      "strategy": "canonical-agent-skills",
+      "notes": [
+        "No new Visual Studio GitHub Copilot adapter root or executable content is emitted in S5a."
+      ]
+    },
+    {
+      "id": "vscode-agent-plugins-host-adapter",
+      "ecosystemId": "vscode-agent-plugins",
+      "product": {
+        "name": "Visual Studio Code Agent Plugins",
+        "status": "current",
+        "clientVersion": null,
+        "serviceVersion": null,
+        "versionEvidenceId": null,
+        "documentationSnapshot": "2026-08-25"
+      },
+      "officialEvidence": {
+        "evidenceIds": [
+          "vscode-agent-plugins-source-1"
+        ],
+        "observedOn": "2026-08-25",
+        "validThrough": "2026-11-18"
+      },
+      "acceptedStandards": {
+        "agentSkills": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "agentPlugins": {
+          "state": "explicit",
+          "version": "1.0.0",
+          "evidenceIds": [
+            "vscode-agent-plugins-source-1"
+          ]
+        },
+        "mcp": {
+          "state": "compatible-layout",
+          "version": null,
+          "evidenceIds": [
+            "vscode-agent-plugins-source-1"
+          ]
+        },
+        "agentsMd": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        }
+      },
+      "nativeDiscoveryRoots": [
+        {
+          "scope": "package",
+          "path": "plugin.json",
+          "evidenceIds": [
+            "vscode-agent-plugins-source-1"
+          ]
+        }
+      ],
+      "manifests": [
+        {
+          "path": "plugin.json",
+          "required": true,
+          "evidenceIds": [
+            "vscode-agent-plugins-source-1"
+          ]
+        }
+      ],
+      "lifecycle": {
+        "install": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "update": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "remove": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        }
+      },
+      "supportedComponentKinds": [
+        "skills",
+        "mcp",
+        "hooks"
+      ],
+      "executablePolicy": {
+        "state": "host-can-execute",
+        "reviewRequired": true,
+        "evidenceIds": [
+          "vscode-agent-plugins-source-1"
+        ]
+      },
+      "marketplace": {
+        "state": "not-documented",
+        "evidenceIds": [],
+        "availabilityClaim": false
+      },
+      "supportDisposition": {
+        "coverage": "standard-compatible",
+        "supportClaim": false,
+        "reason": "Existing researched ecosystem binding is retained; generated coverage is not support."
+      },
+      "serving": {
+        "artifactBindingId": "vscode-agent-plugins-artifact-binding",
+        "targetId": "portable-agent-plugin",
+        "outputRoot": "agent-plugin"
+      },
+      "lifecycleCanary": {
+        "required": true,
+        "assurances": [
+          "install",
+          "update",
+          "rollback",
+          "remove",
+          "project-context-preservation",
+          "host-discovery"
+        ]
+      },
+      "frontmatterTransformations": {
+        "state": "none",
+        "dropFields": [],
+        "renameFields": {},
+        "addFields": {}
+      },
+      "strategy": "portable-agent-plugin",
+      "notes": [
+        "This S5a registry record normalizes existing evidence without changing adapter bytes or release gates."
+      ]
+    },
+    {
+      "id": "windsurf-devin-desktop-host-adapter",
+      "ecosystemId": "windsurf-devin-desktop",
+      "product": {
+        "name": "Windsurf / Devin Desktop",
+        "status": "current",
+        "clientVersion": null,
+        "serviceVersion": null,
+        "versionEvidenceId": null,
+        "documentationSnapshot": "2026-08-25"
+      },
+      "officialEvidence": {
+        "evidenceIds": [
+          "windsurf-devin-desktop-source-1",
+          "windsurf-devin-desktop-source-2"
+        ],
+        "observedOn": "2026-08-25",
+        "validThrough": "2026-11-23"
+      },
+      "acceptedStandards": {
+        "agentSkills": {
+          "state": "explicit",
+          "version": null,
+          "evidenceIds": [
+            "windsurf-devin-desktop-source-1"
+          ]
+        },
+        "agentPlugins": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "mcp": {
+          "state": "explicit",
+          "version": null,
+          "evidenceIds": [
+            "windsurf-devin-desktop-source-2"
+          ]
+        },
+        "agentsMd": {
+          "state": "explicit",
+          "version": null,
+          "evidenceIds": [
+            "windsurf-devin-desktop-source-1"
+          ]
+        }
+      },
+      "nativeDiscoveryRoots": [
+        {
+          "scope": "project",
+          "path": ".windsurf/skills/<skill-name>/SKILL.md",
+          "evidenceIds": [
+            "windsurf-devin-desktop-source-1"
+          ]
+        }
+      ],
+      "manifests": [
+        {
+          "path": "SKILL.md",
+          "required": true,
+          "evidenceIds": [
+            "windsurf-devin-desktop-source-1"
+          ]
+        }
+      ],
+      "lifecycle": {
+        "install": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "update": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "remove": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        }
+      },
+      "supportedComponentKinds": [
+        "skills",
+        "rules",
+        "mcp"
+      ],
+      "executablePolicy": {
+        "state": "passive-content-only",
+        "reviewRequired": true,
+        "evidenceIds": [
+          "windsurf-devin-desktop-source-1"
+        ]
+      },
+      "marketplace": {
+        "state": "not-documented",
+        "evidenceIds": [],
+        "availabilityClaim": false
+      },
+      "supportDisposition": {
+        "coverage": "standard-compatible",
+        "supportClaim": false,
+        "reason": "Windsurf / Devin Desktop is standard-compatible in S5a; research coverage is not support."
+      },
+      "serving": {
+        "artifactBindingId": "windsurf-devin-desktop-artifact-binding",
+        "targetId": "canonical-agent-skills",
+        "outputRoot": "canonical"
+      },
+      "lifecycleCanary": {
+        "required": true,
+        "assurances": [
+          "install",
+          "update",
+          "rollback",
+          "remove",
+          "project-context-preservation",
+          "host-discovery"
+        ]
+      },
+      "frontmatterTransformations": {
+        "state": "none",
+        "dropFields": [],
+        "renameFields": {},
+        "addFields": {}
+      },
+      "strategy": "canonical-agent-skills",
+      "notes": [
+        "No new Windsurf / Devin Desktop adapter root or executable content is emitted in S5a."
+      ]
+    },
+    {
+      "id": "zed-skills-host-adapter",
+      "ecosystemId": "zed-skills",
+      "product": {
+        "name": "Zed",
+        "status": "current",
+        "clientVersion": null,
+        "serviceVersion": null,
+        "versionEvidenceId": null,
+        "documentationSnapshot": "2026-08-25"
+      },
+      "officialEvidence": {
+        "evidenceIds": [
+          "zed-skills-source-1",
+          "zed-skills-source-2"
+        ],
+        "observedOn": "2026-08-25",
+        "validThrough": "2026-11-18"
+      },
+      "acceptedStandards": {
+        "agentSkills": {
+          "state": "compatible-layout",
+          "version": null,
+          "evidenceIds": [
+            "zed-skills-source-1"
+          ]
+        },
+        "agentPlugins": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "mcp": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        },
+        "agentsMd": {
+          "state": "not-documented",
+          "version": null,
+          "evidenceIds": []
+        }
+      },
+      "nativeDiscoveryRoots": [
+        {
+          "scope": "project",
+          "path": ".agents/skills/<skill-name>/SKILL.md",
+          "evidenceIds": [
+            "zed-skills-source-1"
+          ]
+        },
+        {
+          "scope": "user",
+          "path": "~/.agents/skills/<skill-name>/SKILL.md",
+          "evidenceIds": [
+            "zed-skills-source-1"
+          ]
+        }
+      ],
+      "manifests": [
+        {
+          "path": "SKILL.md",
+          "required": true,
+          "evidenceIds": [
+            "zed-skills-source-1"
+          ]
+        }
+      ],
+      "lifecycle": {
+        "install": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "update": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        },
+        "remove": {
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
+        }
+      },
+      "supportedComponentKinds": [
+        "skills",
+        "scripts"
+      ],
+      "executablePolicy": {
+        "state": "host-can-execute",
+        "reviewRequired": true,
+        "evidenceIds": [
+          "zed-skills-source-1"
+        ]
+      },
+      "marketplace": {
+        "state": "not-documented",
+        "evidenceIds": [],
+        "availabilityClaim": false
+      },
+      "supportDisposition": {
+        "coverage": "standard-compatible",
+        "supportClaim": false,
+        "reason": "Existing researched ecosystem binding is retained; generated coverage is not support."
+      },
+      "serving": {
+        "artifactBindingId": "zed-skills-artifact-binding",
+        "targetId": "canonical-agent-skills",
+        "outputRoot": "canonical"
+      },
+      "lifecycleCanary": {
+        "required": true,
+        "assurances": [
+          "install",
+          "update",
+          "rollback",
+          "remove",
+          "project-context-preservation",
+          "host-discovery"
+        ]
+      },
+      "frontmatterTransformations": {
+        "state": "none",
+        "dropFields": [],
+        "renameFields": {},
+        "addFields": {}
+      },
+      "strategy": "canonical-agent-skills",
+      "notes": [
+        "This S5a registry record normalizes existing evidence without changing adapter bytes or release gates."
+      ]
+    }
+  ]
+}

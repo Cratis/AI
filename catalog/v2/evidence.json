@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "asOf": "2026-08-24",
+  "asOf": "2026-08-25",
   "generatedBy": "tooling/generate-catalog-v2.mjs",
   "evidence": [
     {
@@ -67,6 +67,78 @@
       "confidence": "high"
     },
     {
+      "id": "aider-source-1",
+      "officialUrl": "https://aider.chat/docs/usage/conventions.html",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "aider-0.86.0-release",
+      "confidence": "high"
+    },
+    {
+      "id": "aider-source-2",
+      "officialUrl": "https://github.com/Aider-AI/aider/releases/tag/v0.86.0",
+      "sourceKind": "official-repository",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "aider-0.86.0-release",
+      "confidence": "high"
+    },
+    {
+      "id": "amazon-q-developer-source-1",
+      "officialUrl": "https://aws.amazon.com/blogs/devops/amazon-q-developer-end-of-support-announcement/",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "retiring-2027-04-30",
+      "confidence": "high"
+    },
+    {
+      "id": "amazon-q-developer-source-2",
+      "officialUrl": "https://kiro.dev/docs/cli/migrating-from-q-developer/",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "retiring-2027-04-30",
+      "confidence": "high"
+    },
+    {
+      "id": "amp-source-1",
+      "officialUrl": "https://ampcode.com/manual",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "current-documentation-2026-08-25",
+      "confidence": "high"
+    },
+    {
+      "id": "amp-source-2",
+      "officialUrl": "https://ampcode.com/news/neo",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "current-documentation-2026-08-25",
+      "confidence": "high"
+    },
+    {
+      "id": "augment-auggie-source-1",
+      "officialUrl": "https://docs.augmentcode.com/cli/skills",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "current-documentation-2026-08-25",
+      "confidence": "high"
+    },
+    {
+      "id": "augment-auggie-source-2",
+      "officialUrl": "https://docs.augmentcode.com/cli/plugins",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "current-documentation-2026-08-25",
+      "confidence": "high"
+    },
+    {
       "id": "claude-code-plugins-source-1",
       "officialUrl": "https://code.claude.com/docs/en/plugins-reference",
       "sourceKind": "official-documentation",
@@ -100,6 +172,60 @@
       "verifiedOn": "2026-08-20",
       "expiresOn": "2026-11-18",
       "applicableVersion": "claude-code-2.1.235-local",
+      "confidence": "high"
+    },
+    {
+      "id": "claude-code-plugins-source-5",
+      "officialUrl": "https://registry.npmjs.org/@anthropic-ai/claude-code/latest",
+      "sourceKind": "registry",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "claude-code-2.1.245-registry-latest",
+      "confidence": "high"
+    },
+    {
+      "id": "cline-source-1",
+      "officialUrl": "https://docs.cline.bot/customization/skills",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "cline-3.0.24-release",
+      "confidence": "high"
+    },
+    {
+      "id": "cline-source-2",
+      "officialUrl": "https://docs.cline.bot/features/cline-rules",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "cline-3.0.24-release",
+      "confidence": "high"
+    },
+    {
+      "id": "cline-source-3",
+      "officialUrl": "https://github.com/cline/cline/blob/main/apps/cli/CHANGELOG.md",
+      "sourceKind": "official-repository",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "cline-3.0.24-release",
+      "confidence": "high"
+    },
+    {
+      "id": "continue-source-1",
+      "officialUrl": "https://docs.continue.dev/index",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "continue-2.0.0-final-read-only",
+      "confidence": "high"
+    },
+    {
+      "id": "continue-source-2",
+      "officialUrl": "https://github.com/continuedev/continue/blob/main/README.md",
+      "sourceKind": "official-repository",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "continue-2.0.0-final-read-only",
       "confidence": "high"
     },
     {
@@ -175,6 +301,24 @@
       "confidence": "high"
     },
     {
+      "id": "devin-hosted-source-1",
+      "officialUrl": "https://docs.devin.ai/product-guides/skills",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "current-documentation-2026-08-25",
+      "confidence": "high"
+    },
+    {
+      "id": "devin-hosted-source-2",
+      "officialUrl": "https://docs.devin.ai/onboard-devin/agents-md",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "current-documentation-2026-08-25",
+      "confidence": "high"
+    },
+    {
       "id": "ecosystem-use-cases",
       "officialUrl": "https://github.com/Cratis/AI",
       "sourceKind": "local-evidence-report",
@@ -237,6 +381,24 @@
       "immutableRevision": "6b5388ddc660e8c9ddae0d7aa3ef3b5581a9f979"
     },
     {
+      "id": "factory-droid-source-1",
+      "officialUrl": "https://docs.factory.ai/harness/skills",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "current-documentation-2026-08-25",
+      "confidence": "high"
+    },
+    {
+      "id": "factory-droid-source-2",
+      "officialUrl": "https://docs.factory.ai/harness/plugins",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "current-documentation-2026-08-25",
+      "confidence": "high"
+    },
+    {
       "id": "fundamentals-concept-focused-evaluation-2026-08-23",
       "officialUrl": "https://github.com/Cratis/AI/issues/148",
       "sourceKind": "local-evidence-report",
@@ -297,6 +459,15 @@
       "confidence": "high"
     },
     {
+      "id": "gemini-cli-extensions-source-4",
+      "officialUrl": "https://registry.npmjs.org/@google/gemini-cli/latest",
+      "sourceKind": "registry",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "gemini-cli-0.56.0-registry-latest",
+      "confidence": "high"
+    },
+    {
       "id": "gemini-skill-discovery-2026-08-24",
       "officialUrl": "https://github.com/Cratis/AI",
       "sourceKind": "local-evidence-report",
@@ -353,12 +524,39 @@
       "confidence": "high"
     },
     {
+      "id": "github-copilot-plugins-source-3",
+      "officialUrl": "https://registry.npmjs.org/@github/copilot/latest",
+      "sourceKind": "registry",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "copilot-cli-1.0.80-registry-latest",
+      "confidence": "high"
+    },
+    {
       "id": "github-organization-24",
       "officialUrl": "https://github.com/Cratis/.github/issues/24",
       "sourceKind": "organization-authority",
       "verifiedOn": "2026-08-20",
       "expiresOn": "2026-11-18",
       "applicableVersion": "issue-state-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "goose-source-1",
+      "officialUrl": "https://goose-docs.ai/docs/guides/context-engineering/using-skills/",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "goose-1.47.0-release",
+      "confidence": "high"
+    },
+    {
+      "id": "goose-source-2",
+      "officialUrl": "https://github.com/block/goose/releases/tag/v1.47.0",
+      "sourceKind": "official-repository",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "goose-1.47.0-release",
       "confidence": "high"
     },
     {
@@ -407,6 +605,24 @@
       "confidence": "high"
     },
     {
+      "id": "jetbrains-ai-assistant-source-1",
+      "officialUrl": "https://www.jetbrains.com/help/ai-assistant/configure-project-rules.html",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "current-documentation-2026-08-25",
+      "confidence": "high"
+    },
+    {
+      "id": "jetbrains-ai-assistant-source-2",
+      "officialUrl": "https://www.jetbrains.com/help/ai-assistant/configure-agent-behavior.html",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "current-documentation-2026-08-25",
+      "confidence": "high"
+    },
+    {
       "id": "junie-extensions-source-1",
       "officialUrl": "https://github.com/JetBrains/junie-extensions",
       "sourceKind": "official-repository",
@@ -414,6 +630,24 @@
       "expiresOn": "2026-11-18",
       "applicableVersion": "official-repository-2026-08-20",
       "confidence": "medium"
+    },
+    {
+      "id": "kilo-code-source-1",
+      "officialUrl": "https://github.com/Kilo-Org/kilocode/blob/main/packages/kilo-docs/pages/customize/skills.md",
+      "sourceKind": "official-repository",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "kilo-code-7.4.23-release",
+      "confidence": "high"
+    },
+    {
+      "id": "kilo-code-source-2",
+      "officialUrl": "https://github.com/Kilo-Org/kilocode/releases/tag/v7.4.23",
+      "sourceKind": "official-repository",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "kilo-code-7.4.23-release",
+      "confidence": "high"
     },
     {
       "id": "kiro-powers-source-1",
@@ -614,6 +848,15 @@
       "confidence": "high"
     },
     {
+      "id": "openai-plugins-source-3",
+      "officialUrl": "https://registry.npmjs.org/@openai/codex/latest",
+      "sourceKind": "registry",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "codex-cli-0.149.1-registry-latest",
+      "confidence": "high"
+    },
+    {
       "id": "openclaw-bundles-source-1",
       "officialUrl": "https://docs.openclaw.ai/plugins/bundles",
       "sourceKind": "official-documentation",
@@ -647,6 +890,24 @@
       "verifiedOn": "2026-08-20",
       "expiresOn": "2026-11-18",
       "applicableVersion": "current-documentation-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "openhands-source-1",
+      "officialUrl": "https://docs.openhands.dev/overview/skills",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "openhands-1.15.0-release",
+      "confidence": "high"
+    },
+    {
+      "id": "openhands-source-2",
+      "officialUrl": "https://github.com/OpenHands/OpenHands/releases/tag/v1.15.0",
+      "sourceKind": "official-repository",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "openhands-1.15.0-release",
       "confidence": "high"
     },
     {
@@ -695,6 +956,15 @@
       "confidence": "high"
     },
     {
+      "id": "pi-packages-source-4",
+      "officialUrl": "https://registry.npmjs.org/@earendil-works/pi-coding-agent/latest",
+      "sourceKind": "registry",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "0.84.3-registry-latest",
+      "confidence": "high"
+    },
+    {
       "id": "public-fundamentals-concept-source-b53caa5",
       "officialUrl": "https://github.com/Cratis/AI/tree/b53caa555b9a3f05ba1462b86202fe3ccb8a9470/skills/cratis-fundamentals-concept",
       "sourceKind": "repository-snapshot",
@@ -703,6 +973,33 @@
       "applicableVersion": "b53caa555b9a3f05ba1462b86202fe3ccb8a9470",
       "confidence": "high",
       "immutableRevision": "b53caa555b9a3f05ba1462b86202fe3ccb8a9470"
+    },
+    {
+      "id": "qwen-code-source-1",
+      "officialUrl": "https://github.com/QwenLM/qwen-code/blob/main/docs/users/features/skills.md",
+      "sourceKind": "official-repository",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "qwen-code-0.22.0-registry-latest",
+      "confidence": "high"
+    },
+    {
+      "id": "qwen-code-source-2",
+      "officialUrl": "https://github.com/QwenLM/qwen-code/blob/main/docs/users/features/agent-plugins.md",
+      "sourceKind": "official-repository",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "qwen-code-0.22.0-registry-latest",
+      "confidence": "high"
+    },
+    {
+      "id": "qwen-code-source-3",
+      "officialUrl": "https://registry.npmjs.org/@qwen-code/qwen-code/latest",
+      "sourceKind": "registry",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "qwen-code-0.22.0-registry-latest",
+      "confidence": "high"
     },
     {
       "id": "reevaluation-authority",
@@ -716,6 +1013,24 @@
       "digest": "d0e76cea34145717ae8874a252b7d4468c43ef102cb9ddc3f2241c0960aa70d5"
     },
     {
+      "id": "replit-agent-source-1",
+      "officialUrl": "https://docs.replit.com/learn/agent-skills",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "current-documentation-2026-08-25",
+      "confidence": "high"
+    },
+    {
+      "id": "replit-agent-source-2",
+      "officialUrl": "https://docs.replit.com/build/connect-via-mcp",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "current-documentation-2026-08-25",
+      "confidence": "high"
+    },
+    {
       "id": "repo-main-b795d53",
       "officialUrl": "https://github.com/Cratis/AI/tree/b795d5307e20f7f7458a67708b4f26975e223796",
       "sourceKind": "repository-snapshot",
@@ -724,6 +1039,60 @@
       "applicableVersion": "b795d5307e20f7f7458a67708b4f26975e223796",
       "confidence": "high",
       "immutableRevision": "b795d5307e20f7f7458a67708b4f26975e223796"
+    },
+    {
+      "id": "roo-code-source-1",
+      "officialUrl": "https://github.com/RooCodeInc/Roo-Code",
+      "sourceKind": "official-repository",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "roo-code-3.54.0-final",
+      "confidence": "high"
+    },
+    {
+      "id": "roo-code-source-2",
+      "officialUrl": "https://roocodeinc.github.io/Roo-Code/features/skills/",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "roo-code-3.54.0-final",
+      "confidence": "high"
+    },
+    {
+      "id": "sourcegraph-cody-source-1",
+      "officialUrl": "https://sourcegraph.com/docs/cody/capabilities/prompts",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "current-documentation-2026-08-25",
+      "confidence": "high"
+    },
+    {
+      "id": "sourcegraph-cody-source-2",
+      "officialUrl": "https://sourcegraph.com/docs/cody/capabilities/agentic-context-fetching",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "current-documentation-2026-08-25",
+      "confidence": "high"
+    },
+    {
+      "id": "tabnine-source-1",
+      "officialUrl": "https://docs.tabnine.com/main/getting-started/tabnine-agent/guidelines",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "current-documentation-2026-08-25",
+      "confidence": "high"
+    },
+    {
+      "id": "tabnine-source-2",
+      "officialUrl": "https://docs.tabnine.com/main/getting-started/tabnine-agent/mcp-intro-and-setup",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "current-documentation-2026-08-25",
+      "confidence": "high"
     },
     {
       "id": "third-party-skills-evaluation",
@@ -737,12 +1106,48 @@
       "digest": "cc9dcc93365dcfc2721b5aff837ace9d941db7251f68ab732b0285b063c2272c"
     },
     {
+      "id": "visual-studio-copilot-source-1",
+      "officialUrl": "https://learn.microsoft.com/en-us/visualstudio/ide/copilot-agent-mode?view=visualstudio",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "current-documentation-2026-08-25",
+      "confidence": "high"
+    },
+    {
+      "id": "visual-studio-copilot-source-2",
+      "officialUrl": "https://learn.microsoft.com/en-us/visualstudio/ide/copilot-custom-instructions?view=visualstudio",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "current-documentation-2026-08-25",
+      "confidence": "high"
+    },
+    {
       "id": "vscode-agent-plugins-source-1",
       "officialUrl": "https://code.visualstudio.com/docs/agent-customization/agent-plugins",
       "sourceKind": "official-documentation",
       "verifiedOn": "2026-08-20",
       "expiresOn": "2026-11-18",
       "applicableVersion": "current-documentation-2026-08-20",
+      "confidence": "high"
+    },
+    {
+      "id": "windsurf-devin-desktop-source-1",
+      "officialUrl": "https://docs.windsurf.com/windsurf/cascade/skills",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "current-documentation-2026-08-25",
+      "confidence": "high"
+    },
+    {
+      "id": "windsurf-devin-desktop-source-2",
+      "officialUrl": "https://docs.windsurf.com/windsurf/cascade/mcp",
+      "sourceKind": "official-documentation",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2026-11-23",
+      "applicableVersion": "current-documentation-2026-08-25",
       "confidence": "high"
     },
     {
@@ -874,6 +1279,102 @@
       ]
     },
     {
+      "id": "aider-fact-1",
+      "ecosystemId": "aider",
+      "fact": "Aider supports convention files through explicit --read or configuration; it does not document native Agent Skills or Agent Plugins discovery.",
+      "evidenceIds": [
+        "aider-source-1"
+      ]
+    },
+    {
+      "id": "aider-fact-2",
+      "ecosystemId": "aider",
+      "fact": "AGENTS.md may be supplied as a conventions file, which is a rules fallback rather than standard package support.",
+      "evidenceIds": [
+        "aider-source-2"
+      ]
+    },
+    {
+      "id": "aider-fact-3",
+      "ecosystemId": "aider",
+      "fact": "Official release evidence identifies Aider 0.86.0 as the latest published release in the official repository.",
+      "evidenceIds": [
+        "aider-source-2"
+      ]
+    },
+    {
+      "id": "amazon-q-developer-fact-1",
+      "ecosystemId": "amazon-q-developer",
+      "fact": "AWS will end support for Amazon Q Developer IDE plugins on April 30, 2027.",
+      "evidenceIds": [
+        "amazon-q-developer-source-1"
+      ]
+    },
+    {
+      "id": "amazon-q-developer-fact-2",
+      "ecosystemId": "amazon-q-developer",
+      "fact": "AWS directs users to migrate to Kiro; Visual Studio and Eclipse do not receive native Kiro plugins in the documented migration path.",
+      "evidenceIds": [
+        "amazon-q-developer-source-2"
+      ]
+    },
+    {
+      "id": "amazon-q-developer-fact-3",
+      "ecosystemId": "amazon-q-developer",
+      "fact": "S5a records migration evidence only and does not create an Amazon Q package or adapter.",
+      "evidenceIds": [
+        "amazon-q-developer-source-2"
+      ]
+    },
+    {
+      "id": "amp-fact-1",
+      "ecosystemId": "amp",
+      "fact": "Amp documents SKILL.md workflows under .agents/skills and AGENTS.md repository instructions without an explicit Agent Skills conformance claim.",
+      "evidenceIds": [
+        "amp-source-1"
+      ]
+    },
+    {
+      "id": "amp-fact-2",
+      "ecosystemId": "amp",
+      "fact": "Amp documents skill and MCP lifecycle commands, while official announcements show evolving command behavior that requires a future host canary.",
+      "evidenceIds": [
+        "amp-source-2"
+      ]
+    },
+    {
+      "id": "amp-fact-3",
+      "ecosystemId": "amp",
+      "fact": "The official documentation snapshot does not establish a stable client version distinct from service behavior.",
+      "evidenceIds": [
+        "amp-source-2"
+      ]
+    },
+    {
+      "id": "augment-auggie-fact-1",
+      "ecosystemId": "augment-auggie",
+      "fact": "Auggie explicitly documents Agent Skills in .augment/skills and compatible .agents/skills roots and uses AGENTS.md for directory-scoped instructions.",
+      "evidenceIds": [
+        "augment-auggie-source-1"
+      ]
+    },
+    {
+      "id": "augment-auggie-fact-2",
+      "ecosystemId": "augment-auggie",
+      "fact": "Auggie native plugins and marketplaces are host-specific and are not Agent Plugins 1.0 packages.",
+      "evidenceIds": [
+        "augment-auggie-source-2"
+      ]
+    },
+    {
+      "id": "augment-auggie-fact-3",
+      "ecosystemId": "augment-auggie",
+      "fact": "Official documentation establishes plugin lifecycle commands but does not establish a stable independently versioned public package surface for S5a.",
+      "evidenceIds": [
+        "augment-auggie-source-2"
+      ]
+    },
+    {
       "id": "claude-code-plugins-fact-1",
       "ecosystemId": "claude-code-plugins",
       "fact": "Claude Code plugins may provide skills, commands, agents, workflows, hooks, MCP servers, LSP servers, and other Claude-native components. The optional manifest is .claude-plugin/plugin.json and name is required when present.",
@@ -913,6 +1414,62 @@
       "evidenceIds": [
         "claude-code-plugins-source-2",
         "claude-code-plugins-source-3"
+      ]
+    },
+    {
+      "id": "claude-code-plugins-fact-6",
+      "ecosystemId": "claude-code-plugins",
+      "fact": "The official npm registry latest document establishes Claude Code client version 2.1.245.",
+      "evidenceIds": [
+        "claude-code-plugins-source-5"
+      ]
+    },
+    {
+      "id": "cline-fact-1",
+      "ecosystemId": "cline",
+      "fact": "Cline explicitly documents Agent Skills with SKILL.md and project and user discovery roots, and recognizes AGENTS.md as repository instructions.",
+      "evidenceIds": [
+        "cline-source-1"
+      ]
+    },
+    {
+      "id": "cline-fact-2",
+      "ecosystemId": "cline",
+      "fact": "Cline documents MCP configuration separately from skills and rules; executable MCP content remains host-managed and is not emitted by S5a.",
+      "evidenceIds": [
+        "cline-source-2"
+      ]
+    },
+    {
+      "id": "cline-fact-3",
+      "ecosystemId": "cline",
+      "fact": "The official Cline changelog establishes current product release 3.0.24; this client version is separate from standards versions.",
+      "evidenceIds": [
+        "cline-source-3"
+      ]
+    },
+    {
+      "id": "continue-fact-1",
+      "ecosystemId": "continue",
+      "fact": "Continue is no longer actively maintained and its official repository is read-only for users.",
+      "evidenceIds": [
+        "continue-source-1"
+      ]
+    },
+    {
+      "id": "continue-fact-2",
+      "ecosystemId": "continue",
+      "fact": "Continue 2.0.0 is the final VS Code, CLI, and JetBrains release; no new Cratis target is permitted.",
+      "evidenceIds": [
+        "continue-source-2"
+      ]
+    },
+    {
+      "id": "continue-fact-3",
+      "ecosystemId": "continue",
+      "fact": "Historical Continue rules and MCP surfaces are retained as research only and do not establish support.",
+      "evidenceIds": [
+        "continue-source-2"
       ]
     },
     {
@@ -1030,6 +1587,54 @@
       ]
     },
     {
+      "id": "devin-hosted-fact-1",
+      "ecosystemId": "devin-hosted",
+      "fact": "Devin explicitly documents repository SKILL.md workflows and AGENTS.md instructions.",
+      "evidenceIds": [
+        "devin-hosted-source-1"
+      ]
+    },
+    {
+      "id": "devin-hosted-fact-2",
+      "ecosystemId": "devin-hosted",
+      "fact": "Devin Knowledge and MCP are hosted provider features, and official evidence does not establish a stable third-party package lifecycle.",
+      "evidenceIds": [
+        "devin-hosted-source-2"
+      ]
+    },
+    {
+      "id": "devin-hosted-fact-3",
+      "ecosystemId": "devin-hosted",
+      "fact": "S5a monitors the hosted instruction surface without inventing an adapter or output root.",
+      "evidenceIds": [
+        "devin-hosted-source-2"
+      ]
+    },
+    {
+      "id": "factory-droid-fact-1",
+      "ecosystemId": "factory-droid",
+      "fact": "Factory Droid documents native .factory/skills workflows and AGENTS.md instructions; no open-standard conformance is claimed here.",
+      "evidenceIds": [
+        "factory-droid-source-1"
+      ]
+    },
+    {
+      "id": "factory-droid-fact-2",
+      "ecosystemId": "factory-droid",
+      "fact": "Factory plugins and marketplaces are native Factory formats, not Agent Plugins 1.0 packages.",
+      "evidenceIds": [
+        "factory-droid-source-2"
+      ]
+    },
+    {
+      "id": "factory-droid-fact-3",
+      "ecosystemId": "factory-droid",
+      "fact": "S5a records the native surface for future projection and emits no Factory adapter bytes.",
+      "evidenceIds": [
+        "factory-droid-source-2"
+      ]
+    },
+    {
       "id": "gemini-cli-extensions-fact-1",
       "ecosystemId": "gemini-cli-extensions",
       "fact": "A Gemini extension requires gemini-extension.json at its root and can bundle skills, commands, hooks, subagents, policies, MCP server configuration, context, settings, and themes.",
@@ -1067,6 +1672,14 @@
       "fact": "Sensitive extension settings use declared environment variables and keychain-backed storage; undeclared sensitive environment variables are filtered.",
       "evidenceIds": [
         "gemini-cli-extensions-source-1"
+      ]
+    },
+    {
+      "id": "gemini-cli-extensions-fact-6",
+      "ecosystemId": "gemini-cli-extensions",
+      "fact": "The official npm registry latest document establishes Gemini CLI client version 0.56.0.",
+      "evidenceIds": [
+        "gemini-cli-extensions-source-4"
       ]
     },
     {
@@ -1138,6 +1751,38 @@
       "fact": "No current public external-submission path to the built-in awesome-copilot marketplace is documented in the CLI plugin reference.",
       "evidenceIds": [
         "github-copilot-plugins-source-2"
+      ]
+    },
+    {
+      "id": "github-copilot-plugins-fact-5",
+      "ecosystemId": "github-copilot-plugins",
+      "fact": "The official npm registry latest document establishes GitHub Copilot CLI client version 1.0.80.",
+      "evidenceIds": [
+        "github-copilot-plugins-source-3"
+      ]
+    },
+    {
+      "id": "goose-fact-1",
+      "ecosystemId": "goose",
+      "fact": "Goose documents SKILL.md discovery under project and user .agents/skills roots but does not make an explicit Agent Skills conformance claim.",
+      "evidenceIds": [
+        "goose-source-1"
+      ]
+    },
+    {
+      "id": "goose-fact-2",
+      "ecosystemId": "goose",
+      "fact": "Goose extensions are MCP servers and may execute code; S5a emits no MCP or executable extension content.",
+      "evidenceIds": [
+        "goose-source-2"
+      ]
+    },
+    {
+      "id": "goose-fact-3",
+      "ecosystemId": "goose",
+      "fact": "Official release evidence identifies Goose 1.47.0 as a current non-prerelease release.",
+      "evidenceIds": [
+        "goose-source-2"
       ]
     },
     {
@@ -1229,6 +1874,30 @@
       ]
     },
     {
+      "id": "jetbrains-ai-assistant-fact-1",
+      "ecosystemId": "jetbrains-ai-assistant",
+      "fact": "JetBrains AI Assistant documents .aiassistant/rules and AGENTS.md for project behavior.",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ]
+    },
+    {
+      "id": "jetbrains-ai-assistant-fact-2",
+      "ecosystemId": "jetbrains-ai-assistant",
+      "fact": "The .agents/skills surface is consumed only by provider agents such as Claude Agent and Codex, not by a separate JetBrains-native skill package.",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-2"
+      ]
+    },
+    {
+      "id": "jetbrains-ai-assistant-fact-3",
+      "ecosystemId": "jetbrains-ai-assistant",
+      "fact": "S5a inherits provider behavior and creates no duplicate JetBrains artifact.",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-2"
+      ]
+    },
+    {
       "id": "junie-extensions-fact-1",
       "ecosystemId": "junie-extensions",
       "fact": "The official repository stores extensions under extensions/<name>/ with extension.json and optional skills, agents, guidelines, and mcp/.mcp.json.",
@@ -1250,6 +1919,30 @@
       "fact": "A generated Junie wrapper remains provisional; direct Agent Skills installation is a fallback only where a supported installer target is available.",
       "evidenceIds": [
         "junie-extensions-source-1"
+      ]
+    },
+    {
+      "id": "kilo-code-fact-1",
+      "ecosystemId": "kilo-code",
+      "fact": "Kilo Code explicitly documents Agent Skills in project .kilo/skills and user ~/.kilo/skills roots.",
+      "evidenceIds": [
+        "kilo-code-source-1"
+      ]
+    },
+    {
+      "id": "kilo-code-fact-2",
+      "ecosystemId": "kilo-code",
+      "fact": "Kilo Code documents rules and MCP as host-native configuration; Augment or Agent Plugins manifests are not implied.",
+      "evidenceIds": [
+        "kilo-code-source-2"
+      ]
+    },
+    {
+      "id": "kilo-code-fact-3",
+      "ecosystemId": "kilo-code",
+      "fact": "Official release evidence identifies Kilo Code 7.4.23 as a current non-prerelease product release.",
+      "evidenceIds": [
+        "kilo-code-source-2"
       ]
     },
     {
@@ -1498,6 +2191,14 @@
       ]
     },
     {
+      "id": "openai-plugins-fact-6",
+      "ecosystemId": "openai-plugins",
+      "fact": "The official npm registry latest document establishes Codex CLI client version 0.149.1.",
+      "evidenceIds": [
+        "openai-plugins-source-3"
+      ]
+    },
+    {
       "id": "openclaw-bundles-fact-1",
       "ecosystemId": "openclaw-bundles",
       "fact": "OpenClaw installs Agent Plugin bundles from directories, archives, or marketplaces and supports root skills plus stdio, Streamable HTTP, and legacy SSE MCP.",
@@ -1566,6 +2267,30 @@
       ]
     },
     {
+      "id": "openhands-fact-1",
+      "ecosystemId": "openhands",
+      "fact": "OpenHands explicitly documents Agent Skills in project .agents/skills and user ~/.openhands/skills roots and recognizes AGENTS.md.",
+      "evidenceIds": [
+        "openhands-source-1"
+      ]
+    },
+    {
+      "id": "openhands-fact-2",
+      "ecosystemId": "openhands",
+      "fact": "OpenHands native plugins and MCP settings are host-specific and are not Agent Plugins 1.0 packages.",
+      "evidenceIds": [
+        "openhands-source-2"
+      ]
+    },
+    {
+      "id": "openhands-fact-3",
+      "ecosystemId": "openhands",
+      "fact": "Official release evidence identifies OpenHands 1.15.0 as a current non-prerelease release.",
+      "evidenceIds": [
+        "openhands-source-2"
+      ]
+    },
+    {
       "id": "pi-packages-fact-1",
       "ecosystemId": "pi-packages",
       "fact": "Pi packages can declare extensions, skills, prompts, and themes through package.json or conventional directories and install from npm, Git, or local paths.",
@@ -1607,6 +2332,158 @@
       ]
     },
     {
+      "id": "pi-packages-fact-6",
+      "ecosystemId": "pi-packages",
+      "fact": "The official npm registry latest document establishes Pi 0.84.3; this client version is separate from the pi package format.",
+      "evidenceIds": [
+        "pi-packages-source-4"
+      ]
+    },
+    {
+      "id": "qwen-code-fact-1",
+      "ecosystemId": "qwen-code",
+      "fact": "Qwen Code explicitly supports Agent Skills and discovers native project and user .qwen skill roots.",
+      "evidenceIds": [
+        "qwen-code-source-1"
+      ]
+    },
+    {
+      "id": "qwen-code-fact-2",
+      "ecosystemId": "qwen-code",
+      "fact": "Qwen Code explicitly accepts Agent Plugins v1 with schema version 1.0.0 and documents MCP separately.",
+      "evidenceIds": [
+        "qwen-code-source-2"
+      ]
+    },
+    {
+      "id": "qwen-code-fact-3",
+      "ecosystemId": "qwen-code",
+      "fact": "The official npm registry latest document establishes Qwen Code client version 0.22.0; the version is not a standards version.",
+      "evidenceIds": [
+        "qwen-code-source-3"
+      ]
+    },
+    {
+      "id": "replit-agent-fact-1",
+      "ecosystemId": "replit-agent",
+      "fact": "Replit Agent explicitly documents Agent Skills under .agents/skills and distinguishes skills from project-wide replit.md context.",
+      "evidenceIds": [
+        "replit-agent-source-1"
+      ]
+    },
+    {
+      "id": "replit-agent-fact-2",
+      "ecosystemId": "replit-agent",
+      "fact": "Replit MCP connections expose external tools and services and do not authorize S5a to emit executable MCP content.",
+      "evidenceIds": [
+        "replit-agent-source-2"
+      ]
+    },
+    {
+      "id": "replit-agent-fact-3",
+      "ecosystemId": "replit-agent",
+      "fact": "The official documentation snapshot establishes current hosted behavior but no independently versioned public client.",
+      "evidenceIds": [
+        "replit-agent-source-2"
+      ]
+    },
+    {
+      "id": "roo-code-fact-1",
+      "ecosystemId": "roo-code",
+      "fact": "The official Roo Code repository is archived and read-only and states that the extension shut down on May 15, 2026.",
+      "evidenceIds": [
+        "roo-code-source-1"
+      ]
+    },
+    {
+      "id": "roo-code-fact-2",
+      "ecosystemId": "roo-code",
+      "fact": "The final Roo Code skill surface used native .roo skill roots and MCP configuration, but retirement precludes a new Cratis adapter target.",
+      "evidenceIds": [
+        "roo-code-source-2"
+      ]
+    },
+    {
+      "id": "roo-code-fact-3",
+      "ecosystemId": "roo-code",
+      "fact": "Official release evidence identifies 3.54.0 as the final Roo Code release.",
+      "evidenceIds": [
+        "roo-code-source-2"
+      ]
+    },
+    {
+      "id": "sourcegraph-cody-fact-1",
+      "ecosystemId": "sourcegraph-cody",
+      "fact": "Cody documents prompts and enterprise context controls but no public Agent Skills package surface.",
+      "evidenceIds": [
+        "sourcegraph-cody-source-1"
+      ]
+    },
+    {
+      "id": "sourcegraph-cody-fact-2",
+      "ecosystemId": "sourcegraph-cody",
+      "fact": "Cody MCP tools are enterprise-only and do not establish MCP Resources, MCP Prompts, or a third-party skills marketplace.",
+      "evidenceIds": [
+        "sourcegraph-cody-source-2"
+      ]
+    },
+    {
+      "id": "sourcegraph-cody-fact-3",
+      "ecosystemId": "sourcegraph-cody",
+      "fact": "S5a records Cody as researched no-output and makes no support or marketplace claim.",
+      "evidenceIds": [
+        "sourcegraph-cody-source-2"
+      ]
+    },
+    {
+      "id": "tabnine-fact-1",
+      "ecosystemId": "tabnine",
+      "fact": "Tabnine documents Markdown Guidelines but does not publish a public Agent Skills package format.",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ]
+    },
+    {
+      "id": "tabnine-fact-2",
+      "ecosystemId": "tabnine",
+      "fact": "Tabnine documents MCP configuration and governance; S5a does not emit MCP configuration or executable content.",
+      "evidenceIds": [
+        "tabnine-source-2"
+      ]
+    },
+    {
+      "id": "tabnine-fact-3",
+      "ecosystemId": "tabnine",
+      "fact": "Guidelines provide a rules fallback only, with no fabricated marketplace or package output.",
+      "evidenceIds": [
+        "tabnine-source-2"
+      ]
+    },
+    {
+      "id": "visual-studio-copilot-fact-1",
+      "ecosystemId": "visual-studio-copilot",
+      "fact": "Visual Studio GitHub Copilot explicitly documents Agent Skills discovery for repository skills.",
+      "evidenceIds": [
+        "visual-studio-copilot-source-1"
+      ]
+    },
+    {
+      "id": "visual-studio-copilot-fact-2",
+      "ecosystemId": "visual-studio-copilot",
+      "fact": "Visual Studio instructions use .github/copilot-instructions.md; VS Code AGENTS.md behavior must not be projected onto Visual Studio without evidence.",
+      "evidenceIds": [
+        "visual-studio-copilot-source-2"
+      ]
+    },
+    {
+      "id": "visual-studio-copilot-fact-3",
+      "ecosystemId": "visual-studio-copilot",
+      "fact": "The Visual Studio surface is served by canonical Agent Skills only and receives no duplicate Copilot plugin artifact.",
+      "evidenceIds": [
+        "visual-studio-copilot-source-2"
+      ]
+    },
+    {
       "id": "vscode-agent-plugins-fact-1",
       "ecosystemId": "vscode-agent-plugins",
       "fact": "VS Code consumes root Agent Plugins 1.0 with portable skills and MCP and can also read Copilot-specific agents, commands, rules, and hooks from the com.github.copilot extension namespace.",
@@ -1636,6 +2513,30 @@
       "fact": "Plugin MCP servers are implicitly trusted at installation, so executable content requires source review.",
       "evidenceIds": [
         "vscode-agent-plugins-source-1"
+      ]
+    },
+    {
+      "id": "windsurf-devin-desktop-fact-1",
+      "ecosystemId": "windsurf-devin-desktop",
+      "fact": "Cascade explicitly documents Agent Skills in .windsurf/skills; S5a does not invent a .devin/skills root.",
+      "evidenceIds": [
+        "windsurf-devin-desktop-source-1"
+      ]
+    },
+    {
+      "id": "windsurf-devin-desktop-fact-2",
+      "ecosystemId": "windsurf-devin-desktop",
+      "fact": "Windsurf and Devin Desktop documentation recognizes AGENTS.md and documents MCP separately from skills.",
+      "evidenceIds": [
+        "windsurf-devin-desktop-source-2"
+      ]
+    },
+    {
+      "id": "windsurf-devin-desktop-fact-3",
+      "ecosystemId": "windsurf-devin-desktop",
+      "fact": "The official documentation snapshot establishes current product behavior but does not establish a stable client or service version.",
+      "evidenceIds": [
+        "windsurf-devin-desktop-source-2"
       ]
     },
     {

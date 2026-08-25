@@ -23,6 +23,10 @@ export function generateEcosystemArtifactCoverage(
     root = defaultRepositoryRoot,
 ) {
     const bindingsCatalog = readJson(join(root, ecosystemArtifactBindingsPath));
+    const hostCatalog = readJson(join(root, "catalog/host-adapters.json"));
+    const hostByEcosystem = new Map(
+        hostCatalog.hosts.map((record) => [record.ecosystemId, record]),
+    );
     const supportCatalog = readJson(join(root, "catalog/v2/support.json"));
     const supportByBinding = new Map(
         supportCatalog.bindings.map((record) => [record.bindingId, record]),
@@ -32,9 +36,12 @@ export function generateEcosystemArtifactCoverage(
             const support = supportByBinding.get(binding.id);
             if (!support)
                 throw new Error(`Missing computed support for ${binding.id}`);
+            const host = hostByEcosystem.get(binding.ecosystemId);
             return {
                 bindingId: binding.id,
                 ecosystemId: binding.ecosystemId,
+                hostAdapterId: host?.id ?? null,
+                hostDisposition: host?.supportDisposition.coverage ?? "not-applicable",
                 interfaceId: binding.interfaceId,
                 requirementId: binding.requirementId,
                 targetId: binding.targetId,

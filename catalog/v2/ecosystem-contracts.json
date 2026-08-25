@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "asOf": "2026-08-24",
+  "asOf": "2026-08-25",
   "defaultPolicy": "deny",
   "ecosystems": [
     {
@@ -513,7 +513,7 @@
       "reviewState": "documentation-reviewed",
       "versions": {
         "specification": null,
-        "client": "1.0.67",
+        "client": "1.0.80",
         "service": null
       },
       "interfaces": [
@@ -565,7 +565,8 @@
       },
       "officialEvidenceIds": [
         "github-copilot-plugins-source-1",
-        "github-copilot-plugins-source-2"
+        "github-copilot-plugins-source-2",
+        "github-copilot-plugins-source-3"
       ],
       "legacyFactBindings": [
         {
@@ -592,12 +593,18 @@
           "evidenceIds": [
             "github-copilot-plugins-source-2"
           ]
+        },
+        {
+          "factId": "github-copilot-plugins-fact-5",
+          "evidenceIds": [
+            "github-copilot-plugins-source-3"
+          ]
         }
       ],
       "conflicts": [],
       "notes": [
         "The recorded client version is from local installed evidence.",
-        "Legacy version label retained separately for projection compatibility: copilot-cli-1.0.67-local."
+        "Legacy version label retained separately for projection compatibility: copilot-cli-1.0.80-registry-latest."
       ]
     },
     {
@@ -607,7 +614,7 @@
       "reviewState": "documentation-reviewed",
       "versions": {
         "specification": null,
-        "client": null,
+        "client": "0.149.1",
         "service": null
       },
       "interfaces": [
@@ -659,7 +666,8 @@
       },
       "officialEvidenceIds": [
         "openai-plugins-source-1",
-        "openai-plugins-source-2"
+        "openai-plugins-source-2",
+        "openai-plugins-source-3"
       ],
       "legacyFactBindings": [
         {
@@ -691,12 +699,18 @@
           "evidenceIds": [
             "openai-plugins-source-2"
           ]
+        },
+        {
+          "factId": "openai-plugins-fact-6",
+          "evidenceIds": [
+            "openai-plugins-source-3"
+          ]
         }
       ],
       "conflicts": [],
       "notes": [
         "No real Codex client or service version is established by the current evidence.",
-        "Legacy version label retained separately for projection compatibility: current-documentation-2026-08-20."
+        "Legacy version label retained separately for projection compatibility: codex-cli-0.149.1-registry-latest."
       ]
     },
     {
@@ -706,7 +720,7 @@
       "reviewState": "documentation-reviewed",
       "versions": {
         "specification": null,
-        "client": "2.1.235",
+        "client": "2.1.245",
         "service": null
       },
       "interfaces": [
@@ -761,7 +775,8 @@
         "claude-code-plugins-source-1",
         "claude-code-plugins-source-2",
         "claude-code-plugins-source-3",
-        "claude-code-plugins-source-4"
+        "claude-code-plugins-source-4",
+        "claude-code-plugins-source-5"
       ],
       "legacyFactBindings": [
         {
@@ -795,12 +810,18 @@
             "claude-code-plugins-source-2",
             "claude-code-plugins-source-3"
           ]
+        },
+        {
+          "factId": "claude-code-plugins-fact-6",
+          "evidenceIds": [
+            "claude-code-plugins-source-5"
+          ]
         }
       ],
       "conflicts": [],
       "notes": [
         "The recorded client version is from local installed evidence.",
-        "Legacy version label retained separately for projection compatibility: claude-code-2.1.235-local."
+        "Legacy version label retained separately for projection compatibility: claude-code-2.1.245-registry-latest."
       ]
     },
     {
@@ -810,7 +831,7 @@
       "reviewState": "incomplete-evidence",
       "versions": {
         "specification": null,
-        "client": null,
+        "client": "0.56.0",
         "service": null
       },
       "interfaces": [
@@ -858,7 +879,8 @@
       "officialEvidenceIds": [
         "gemini-cli-extensions-source-1",
         "gemini-cli-extensions-source-2",
-        "gemini-cli-extensions-source-3"
+        "gemini-cli-extensions-source-3",
+        "gemini-cli-extensions-source-4"
       ],
       "legacyFactBindings": [
         {
@@ -890,14 +912,20 @@
           "evidenceIds": [
             "gemini-cli-extensions-source-1"
           ]
+        },
+        {
+          "factId": "gemini-cli-extensions-fact-6",
+          "evidenceIds": [
+            "gemini-cli-extensions-source-4"
+          ]
         }
       ],
       "conflicts": [
-        "The local Gemini CLI version and validator result remain unrecorded because the installed command failed while saving its project registry."
+        "The local Gemini CLI version and validator result remain unrecorded because the installed command failed while saving its project registry. Registry evidence now establishes the client version but does not replace the missing local validator result."
       ],
       "notes": [
         "Existing fixture discovery evidence does not establish universal support or a current client version.",
-        "Legacy version label retained separately for projection compatibility: current-documentation-2026-08-20."
+        "Legacy version label retained separately for projection compatibility: gemini-cli-0.56.0-registry-latest."
       ]
     },
     {
@@ -1483,11 +1511,11 @@
     {
       "id": "pi-packages",
       "kind": "package-ecosystem",
-      "lifecycle": "local-only",
-      "reviewState": "local-evidence-only",
+      "lifecycle": "current",
+      "reviewState": "documentation-reviewed",
       "versions": {
         "specification": null,
-        "client": "0.84.2",
+        "client": "0.84.3",
         "service": null
       },
       "interfaces": [
@@ -1534,7 +1562,8 @@
       "officialEvidenceIds": [
         "pi-packages-source-1",
         "pi-packages-source-2",
-        "pi-packages-source-3"
+        "pi-packages-source-3",
+        "pi-packages-source-4"
       ],
       "legacyFactBindings": [
         {
@@ -1567,12 +1596,18 @@
           "evidenceIds": [
             "pi-packages-source-1"
           ]
+        },
+        {
+          "factId": "pi-packages-fact-6",
+          "evidenceIds": [
+            "pi-packages-source-4"
+          ]
         }
       ],
       "conflicts": [],
       "notes": [
-        "The client version is established only by installed documentation and local evidence.",
-        "Legacy version label retained separately for projection compatibility: 0.84.2-installed-and-latest."
+        "The current client version is established by official npm registry evidence; package publication gates remain false.",
+        "Legacy version label retained separately for projection compatibility: 0.84.3-registry-latest."
       ]
     },
     {
@@ -2237,6 +2272,1429 @@
       "notes": [
         "The recorded client version is local npm; no npm service version is claimed.",
         "Legacy version label retained separately for projection compatibility: current-documentation-2026-08-20."
+      ]
+    },
+    {
+      "id": "cline",
+      "kind": "host",
+      "lifecycle": "current",
+      "reviewState": "documentation-reviewed",
+      "versions": {
+        "specification": null,
+        "client": "3.0.24",
+        "service": null
+      },
+      "interfaces": [
+        "agent-skill",
+        "mcp-protocol",
+        "host-instructions"
+      ],
+      "manifests": [
+        {
+          "id": "skill-manifest",
+          "path": "SKILL.md",
+          "requirement": "required",
+          "schemaVersion": null
+        }
+      ],
+      "components": {
+        "skills": "required",
+        "mcp": "documented",
+        "hooks": "unknown",
+        "scripts": "documented",
+        "executableExtensions": "unknown"
+      },
+      "discoveryRoots": [
+        {
+          "scope": "project",
+          "path": ".cline/skills/<skill-name>/SKILL.md",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "cline-source-1"
+          ]
+        },
+        {
+          "scope": "user",
+          "path": "~/.cline/skills/<skill-name>/SKILL.md",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "cline-source-1"
+          ]
+        }
+      ],
+      "extensions": {
+        "state": "unsupported",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "cline-source-1",
+        "cline-source-2",
+        "cline-source-3"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "cline-fact-1",
+          "evidenceIds": [
+            "cline-source-1"
+          ]
+        },
+        {
+          "factId": "cline-fact-2",
+          "evidenceIds": [
+            "cline-source-2"
+          ]
+        },
+        {
+          "factId": "cline-fact-3",
+          "evidenceIds": [
+            "cline-source-3"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "notes": [
+        "S5a disposition is standard-compatible; this is research coverage, not support.",
+        "Legacy version label retained separately for projection compatibility: cline-3.0.24-release."
+      ]
+    },
+    {
+      "id": "roo-code",
+      "kind": "host",
+      "lifecycle": "archived",
+      "reviewState": "documentation-reviewed-with-conflicts",
+      "versions": {
+        "specification": null,
+        "client": "3.54.0",
+        "service": null
+      },
+      "interfaces": [
+        "agent-skill",
+        "mcp-protocol",
+        "host-instructions"
+      ],
+      "manifests": [
+        {
+          "id": "skill-manifest",
+          "path": "SKILL.md",
+          "requirement": "required",
+          "schemaVersion": null
+        }
+      ],
+      "components": {
+        "skills": "documented",
+        "mcp": "documented",
+        "hooks": "unknown",
+        "scripts": "unknown",
+        "executableExtensions": "unknown"
+      },
+      "discoveryRoots": [
+        {
+          "scope": "project",
+          "path": ".roo/skills/<skill-name>/SKILL.md",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "roo-code-source-2"
+          ]
+        }
+      ],
+      "extensions": {
+        "state": "unsupported",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "roo-code-source-1",
+        "roo-code-source-2"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "roo-code-fact-1",
+          "evidenceIds": [
+            "roo-code-source-1"
+          ]
+        },
+        {
+          "factId": "roo-code-fact-2",
+          "evidenceIds": [
+            "roo-code-source-2"
+          ]
+        },
+        {
+          "factId": "roo-code-fact-3",
+          "evidenceIds": [
+            "roo-code-source-2"
+          ]
+        }
+      ],
+      "conflicts": [
+        "The product is final or retired; historical package surfaces must not be interpreted as current adapter targets."
+      ],
+      "notes": [
+        "S5a disposition is no-surface; this is research coverage, not support.",
+        "Legacy version label retained separately for projection compatibility: roo-code-3.54.0-final."
+      ]
+    },
+    {
+      "id": "kilo-code",
+      "kind": "host",
+      "lifecycle": "current",
+      "reviewState": "documentation-reviewed",
+      "versions": {
+        "specification": null,
+        "client": "7.4.23",
+        "service": null
+      },
+      "interfaces": [
+        "agent-skill",
+        "mcp-protocol",
+        "host-instructions"
+      ],
+      "manifests": [
+        {
+          "id": "skill-manifest",
+          "path": "SKILL.md",
+          "requirement": "required",
+          "schemaVersion": null
+        }
+      ],
+      "components": {
+        "skills": "required",
+        "mcp": "documented",
+        "hooks": "unknown",
+        "scripts": "documented",
+        "executableExtensions": "unknown"
+      },
+      "discoveryRoots": [
+        {
+          "scope": "project",
+          "path": ".kilo/skills/<skill-name>/SKILL.md",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "kilo-code-source-1"
+          ]
+        },
+        {
+          "scope": "user",
+          "path": "~/.kilo/skills/<skill-name>/SKILL.md",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "kilo-code-source-1"
+          ]
+        }
+      ],
+      "extensions": {
+        "state": "unsupported",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "kilo-code-source-1",
+        "kilo-code-source-2"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "kilo-code-fact-1",
+          "evidenceIds": [
+            "kilo-code-source-1"
+          ]
+        },
+        {
+          "factId": "kilo-code-fact-2",
+          "evidenceIds": [
+            "kilo-code-source-2"
+          ]
+        },
+        {
+          "factId": "kilo-code-fact-3",
+          "evidenceIds": [
+            "kilo-code-source-2"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "notes": [
+        "S5a disposition is standard-compatible; this is research coverage, not support.",
+        "Legacy version label retained separately for projection compatibility: kilo-code-7.4.23-release."
+      ]
+    },
+    {
+      "id": "goose",
+      "kind": "host",
+      "lifecycle": "current",
+      "reviewState": "documentation-reviewed",
+      "versions": {
+        "specification": null,
+        "client": "1.47.0",
+        "service": null
+      },
+      "interfaces": [
+        "agent-skill",
+        "mcp-protocol"
+      ],
+      "manifests": [
+        {
+          "id": "skill-manifest",
+          "path": "SKILL.md",
+          "requirement": "required",
+          "schemaVersion": null
+        }
+      ],
+      "components": {
+        "skills": "documented",
+        "mcp": "documented",
+        "hooks": "unknown",
+        "scripts": "documented",
+        "executableExtensions": "documented"
+      },
+      "discoveryRoots": [
+        {
+          "scope": "project",
+          "path": ".agents/skills/<skill-name>/SKILL.md",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "goose-source-1"
+          ]
+        },
+        {
+          "scope": "user",
+          "path": "~/.agents/skills/<skill-name>/SKILL.md",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "goose-source-1"
+          ]
+        }
+      ],
+      "extensions": {
+        "state": "unsupported",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "goose-source-1",
+        "goose-source-2"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "goose-fact-1",
+          "evidenceIds": [
+            "goose-source-1"
+          ]
+        },
+        {
+          "factId": "goose-fact-2",
+          "evidenceIds": [
+            "goose-source-2"
+          ]
+        },
+        {
+          "factId": "goose-fact-3",
+          "evidenceIds": [
+            "goose-source-2"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "notes": [
+        "S5a disposition is researched; this is research coverage, not support.",
+        "Legacy version label retained separately for projection compatibility: goose-1.47.0-release."
+      ]
+    },
+    {
+      "id": "qwen-code",
+      "kind": "host",
+      "lifecycle": "current",
+      "reviewState": "documentation-reviewed",
+      "versions": {
+        "specification": "1.0.0",
+        "client": "0.22.0",
+        "service": null
+      },
+      "interfaces": [
+        "agent-skill",
+        "agent-plugin-package",
+        "mcp-protocol"
+      ],
+      "manifests": [
+        {
+          "id": "skill-manifest",
+          "path": "SKILL.md",
+          "requirement": "required",
+          "schemaVersion": null
+        },
+        {
+          "id": "plugin-json",
+          "path": "plugin.json",
+          "requirement": "required",
+          "schemaVersion": "1.0.0"
+        }
+      ],
+      "components": {
+        "skills": "required",
+        "mcp": "documented",
+        "hooks": "unknown",
+        "scripts": "documented",
+        "executableExtensions": "unknown"
+      },
+      "discoveryRoots": [
+        {
+          "scope": "project",
+          "path": ".qwen/skills/<skill-name>/SKILL.md",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "qwen-code-source-1"
+          ]
+        },
+        {
+          "scope": "user",
+          "path": "~/.qwen/skills/<skill-name>/SKILL.md",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "qwen-code-source-1"
+          ]
+        },
+        {
+          "scope": "package",
+          "path": "plugin.json",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "qwen-code-source-2"
+          ]
+        }
+      ],
+      "extensions": {
+        "state": "unsupported",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "qwen-code-source-1",
+        "qwen-code-source-2",
+        "qwen-code-source-3"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "qwen-code-fact-1",
+          "evidenceIds": [
+            "qwen-code-source-1"
+          ]
+        },
+        {
+          "factId": "qwen-code-fact-2",
+          "evidenceIds": [
+            "qwen-code-source-2"
+          ]
+        },
+        {
+          "factId": "qwen-code-fact-3",
+          "evidenceIds": [
+            "qwen-code-source-3"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "notes": [
+        "S5a disposition is standard-compatible; this is research coverage, not support.",
+        "Legacy version label retained separately for projection compatibility: qwen-code-0.22.0-registry-latest."
+      ]
+    },
+    {
+      "id": "windsurf-devin-desktop",
+      "kind": "host",
+      "lifecycle": "current",
+      "reviewState": "documentation-reviewed",
+      "versions": {
+        "specification": null,
+        "client": null,
+        "service": null
+      },
+      "interfaces": [
+        "agent-skill",
+        "mcp-protocol",
+        "host-instructions"
+      ],
+      "manifests": [
+        {
+          "id": "skill-manifest",
+          "path": "SKILL.md",
+          "requirement": "required",
+          "schemaVersion": null
+        }
+      ],
+      "components": {
+        "skills": "required",
+        "mcp": "documented",
+        "hooks": "unknown",
+        "scripts": "documented",
+        "executableExtensions": "unknown"
+      },
+      "discoveryRoots": [
+        {
+          "scope": "project",
+          "path": ".windsurf/skills/<skill-name>/SKILL.md",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "windsurf-devin-desktop-source-1"
+          ]
+        }
+      ],
+      "extensions": {
+        "state": "unsupported",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "windsurf-devin-desktop-source-1",
+        "windsurf-devin-desktop-source-2"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "windsurf-devin-desktop-fact-1",
+          "evidenceIds": [
+            "windsurf-devin-desktop-source-1"
+          ]
+        },
+        {
+          "factId": "windsurf-devin-desktop-fact-2",
+          "evidenceIds": [
+            "windsurf-devin-desktop-source-2"
+          ]
+        },
+        {
+          "factId": "windsurf-devin-desktop-fact-3",
+          "evidenceIds": [
+            "windsurf-devin-desktop-source-2"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "notes": [
+        "S5a disposition is standard-compatible; this is research coverage, not support.",
+        "Legacy version label retained separately for projection compatibility: current-documentation-2026-08-25."
+      ]
+    },
+    {
+      "id": "replit-agent",
+      "kind": "host",
+      "lifecycle": "current",
+      "reviewState": "documentation-reviewed",
+      "versions": {
+        "specification": null,
+        "client": null,
+        "service": null
+      },
+      "interfaces": [
+        "agent-skill",
+        "mcp-protocol",
+        "host-instructions"
+      ],
+      "manifests": [
+        {
+          "id": "skill-manifest",
+          "path": "SKILL.md",
+          "requirement": "required",
+          "schemaVersion": null
+        }
+      ],
+      "components": {
+        "skills": "required",
+        "mcp": "documented",
+        "hooks": "unknown",
+        "scripts": "documented",
+        "executableExtensions": "unknown"
+      },
+      "discoveryRoots": [
+        {
+          "scope": "project",
+          "path": ".agents/skills/<skill-name>/SKILL.md",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "replit-agent-source-1"
+          ]
+        }
+      ],
+      "extensions": {
+        "state": "unsupported",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "replit-agent-source-1",
+        "replit-agent-source-2"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "replit-agent-fact-1",
+          "evidenceIds": [
+            "replit-agent-source-1"
+          ]
+        },
+        {
+          "factId": "replit-agent-fact-2",
+          "evidenceIds": [
+            "replit-agent-source-2"
+          ]
+        },
+        {
+          "factId": "replit-agent-fact-3",
+          "evidenceIds": [
+            "replit-agent-source-2"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "notes": [
+        "S5a disposition is standard-compatible; this is research coverage, not support.",
+        "Legacy version label retained separately for projection compatibility: current-documentation-2026-08-25."
+      ]
+    },
+    {
+      "id": "augment-auggie",
+      "kind": "host",
+      "lifecycle": "current",
+      "reviewState": "documentation-reviewed",
+      "versions": {
+        "specification": null,
+        "client": null,
+        "service": null
+      },
+      "interfaces": [
+        "agent-skill",
+        "native-plugin",
+        "mcp-protocol",
+        "host-instructions"
+      ],
+      "manifests": [
+        {
+          "id": "skill-manifest",
+          "path": "SKILL.md",
+          "requirement": "required",
+          "schemaVersion": null
+        }
+      ],
+      "components": {
+        "skills": "required",
+        "mcp": "documented",
+        "hooks": "unknown",
+        "scripts": "documented",
+        "executableExtensions": "documented"
+      },
+      "discoveryRoots": [
+        {
+          "scope": "project",
+          "path": ".augment/skills/<skill-name>/SKILL.md",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "augment-auggie-source-1"
+          ]
+        },
+        {
+          "scope": "project",
+          "path": ".agents/skills/<skill-name>/SKILL.md",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "augment-auggie-source-1"
+          ]
+        }
+      ],
+      "extensions": {
+        "state": "host-specific",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "augment-auggie-source-1",
+        "augment-auggie-source-2"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "augment-auggie-fact-1",
+          "evidenceIds": [
+            "augment-auggie-source-1"
+          ]
+        },
+        {
+          "factId": "augment-auggie-fact-2",
+          "evidenceIds": [
+            "augment-auggie-source-2"
+          ]
+        },
+        {
+          "factId": "augment-auggie-fact-3",
+          "evidenceIds": [
+            "augment-auggie-source-2"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "notes": [
+        "S5a disposition is standard-compatible; this is research coverage, not support.",
+        "Legacy version label retained separately for projection compatibility: current-documentation-2026-08-25."
+      ]
+    },
+    {
+      "id": "amp",
+      "kind": "host",
+      "lifecycle": "current",
+      "reviewState": "documentation-reviewed",
+      "versions": {
+        "specification": null,
+        "client": null,
+        "service": null
+      },
+      "interfaces": [
+        "agent-skill",
+        "mcp-protocol",
+        "host-instructions"
+      ],
+      "manifests": [
+        {
+          "id": "skill-manifest",
+          "path": "SKILL.md",
+          "requirement": "required",
+          "schemaVersion": null
+        }
+      ],
+      "components": {
+        "skills": "documented",
+        "mcp": "documented",
+        "hooks": "unknown",
+        "scripts": "documented",
+        "executableExtensions": "unknown"
+      },
+      "discoveryRoots": [
+        {
+          "scope": "project",
+          "path": ".agents/skills/<skill-name>/SKILL.md",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "amp-source-1"
+          ]
+        }
+      ],
+      "extensions": {
+        "state": "unsupported",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "amp-source-1",
+        "amp-source-2"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "amp-fact-1",
+          "evidenceIds": [
+            "amp-source-1"
+          ]
+        },
+        {
+          "factId": "amp-fact-2",
+          "evidenceIds": [
+            "amp-source-2"
+          ]
+        },
+        {
+          "factId": "amp-fact-3",
+          "evidenceIds": [
+            "amp-source-2"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "notes": [
+        "S5a disposition is researched; this is research coverage, not support.",
+        "Legacy version label retained separately for projection compatibility: current-documentation-2026-08-25."
+      ]
+    },
+    {
+      "id": "factory-droid",
+      "kind": "host",
+      "lifecycle": "current",
+      "reviewState": "documentation-reviewed",
+      "versions": {
+        "specification": null,
+        "client": null,
+        "service": null
+      },
+      "interfaces": [
+        "agent-skill",
+        "native-plugin",
+        "mcp-protocol",
+        "host-instructions"
+      ],
+      "manifests": [
+        {
+          "id": "skill-manifest",
+          "path": "SKILL.md",
+          "requirement": "required",
+          "schemaVersion": null
+        }
+      ],
+      "components": {
+        "skills": "documented",
+        "mcp": "documented",
+        "hooks": "unknown",
+        "scripts": "documented",
+        "executableExtensions": "documented"
+      },
+      "discoveryRoots": [
+        {
+          "scope": "project",
+          "path": ".factory/skills/<skill-name>/SKILL.md",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "factory-droid-source-1"
+          ]
+        }
+      ],
+      "extensions": {
+        "state": "host-specific",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "factory-droid-source-1",
+        "factory-droid-source-2"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "factory-droid-fact-1",
+          "evidenceIds": [
+            "factory-droid-source-1"
+          ]
+        },
+        {
+          "factId": "factory-droid-fact-2",
+          "evidenceIds": [
+            "factory-droid-source-2"
+          ]
+        },
+        {
+          "factId": "factory-droid-fact-3",
+          "evidenceIds": [
+            "factory-droid-source-2"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "notes": [
+        "S5a disposition is native-planned; this is research coverage, not support.",
+        "Legacy version label retained separately for projection compatibility: current-documentation-2026-08-25."
+      ]
+    },
+    {
+      "id": "openhands",
+      "kind": "host",
+      "lifecycle": "current",
+      "reviewState": "documentation-reviewed",
+      "versions": {
+        "specification": null,
+        "client": "1.15.0",
+        "service": null
+      },
+      "interfaces": [
+        "agent-skill",
+        "native-plugin",
+        "mcp-protocol",
+        "host-instructions"
+      ],
+      "manifests": [
+        {
+          "id": "skill-manifest",
+          "path": "SKILL.md",
+          "requirement": "required",
+          "schemaVersion": null
+        }
+      ],
+      "components": {
+        "skills": "required",
+        "mcp": "documented",
+        "hooks": "unknown",
+        "scripts": "documented",
+        "executableExtensions": "documented"
+      },
+      "discoveryRoots": [
+        {
+          "scope": "project",
+          "path": ".agents/skills/<skill-name>/SKILL.md",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "openhands-source-1"
+          ]
+        },
+        {
+          "scope": "user",
+          "path": "~/.openhands/skills/<skill-name>/SKILL.md",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "openhands-source-1"
+          ]
+        }
+      ],
+      "extensions": {
+        "state": "host-specific",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "openhands-source-1",
+        "openhands-source-2"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "openhands-fact-1",
+          "evidenceIds": [
+            "openhands-source-1"
+          ]
+        },
+        {
+          "factId": "openhands-fact-2",
+          "evidenceIds": [
+            "openhands-source-2"
+          ]
+        },
+        {
+          "factId": "openhands-fact-3",
+          "evidenceIds": [
+            "openhands-source-2"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "notes": [
+        "S5a disposition is standard-compatible; this is research coverage, not support.",
+        "Legacy version label retained separately for projection compatibility: openhands-1.15.0-release."
+      ]
+    },
+    {
+      "id": "aider",
+      "kind": "host",
+      "lifecycle": "current",
+      "reviewState": "documentation-reviewed",
+      "versions": {
+        "specification": null,
+        "client": "0.86.0",
+        "service": null
+      },
+      "interfaces": [
+        "host-instructions"
+      ],
+      "manifests": [],
+      "components": {
+        "skills": "unsupported",
+        "mcp": "unsupported",
+        "hooks": "unknown",
+        "scripts": "unknown",
+        "executableExtensions": "unknown"
+      },
+      "discoveryRoots": [],
+      "extensions": {
+        "state": "unsupported",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "aider-source-1",
+        "aider-source-2"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "aider-fact-1",
+          "evidenceIds": [
+            "aider-source-1"
+          ]
+        },
+        {
+          "factId": "aider-fact-2",
+          "evidenceIds": [
+            "aider-source-2"
+          ]
+        },
+        {
+          "factId": "aider-fact-3",
+          "evidenceIds": [
+            "aider-source-2"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "notes": [
+        "S5a disposition is fallback; this is research coverage, not support.",
+        "Legacy version label retained separately for projection compatibility: aider-0.86.0-release."
+      ]
+    },
+    {
+      "id": "continue",
+      "kind": "host",
+      "lifecycle": "archived",
+      "reviewState": "documentation-reviewed-with-conflicts",
+      "versions": {
+        "specification": null,
+        "client": "2.0.0",
+        "service": null
+      },
+      "interfaces": [
+        "host-instructions",
+        "mcp-protocol"
+      ],
+      "manifests": [],
+      "components": {
+        "skills": "unsupported",
+        "mcp": "documented",
+        "hooks": "unknown",
+        "scripts": "unknown",
+        "executableExtensions": "unknown"
+      },
+      "discoveryRoots": [],
+      "extensions": {
+        "state": "unsupported",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "continue-source-1",
+        "continue-source-2"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "continue-fact-1",
+          "evidenceIds": [
+            "continue-source-1"
+          ]
+        },
+        {
+          "factId": "continue-fact-2",
+          "evidenceIds": [
+            "continue-source-2"
+          ]
+        },
+        {
+          "factId": "continue-fact-3",
+          "evidenceIds": [
+            "continue-source-2"
+          ]
+        }
+      ],
+      "conflicts": [
+        "The product is final or retired; historical package surfaces must not be interpreted as current adapter targets."
+      ],
+      "notes": [
+        "S5a disposition is no-surface; this is research coverage, not support.",
+        "Legacy version label retained separately for projection compatibility: continue-2.0.0-final-read-only."
+      ]
+    },
+    {
+      "id": "amazon-q-developer",
+      "kind": "host",
+      "lifecycle": "retiring",
+      "reviewState": "documentation-reviewed-with-conflicts",
+      "versions": {
+        "specification": null,
+        "client": null,
+        "service": null
+      },
+      "interfaces": [
+        "migration-surface"
+      ],
+      "manifests": [],
+      "components": {
+        "skills": "unsupported",
+        "mcp": "unknown",
+        "hooks": "unknown",
+        "scripts": "unknown",
+        "executableExtensions": "unknown"
+      },
+      "discoveryRoots": [],
+      "extensions": {
+        "state": "unsupported",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "amazon-q-developer-source-1",
+        "amazon-q-developer-source-2"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "amazon-q-developer-fact-1",
+          "evidenceIds": [
+            "amazon-q-developer-source-1"
+          ]
+        },
+        {
+          "factId": "amazon-q-developer-fact-2",
+          "evidenceIds": [
+            "amazon-q-developer-source-2"
+          ]
+        },
+        {
+          "factId": "amazon-q-developer-fact-3",
+          "evidenceIds": [
+            "amazon-q-developer-source-2"
+          ]
+        }
+      ],
+      "conflicts": [
+        "The product is retiring and is represented only for migration evidence."
+      ],
+      "notes": [
+        "S5a disposition is migration; this is research coverage, not support.",
+        "Legacy version label retained separately for projection compatibility: retiring-2027-04-30."
+      ]
+    },
+    {
+      "id": "sourcegraph-cody",
+      "kind": "host",
+      "lifecycle": "current",
+      "reviewState": "documentation-reviewed",
+      "versions": {
+        "specification": null,
+        "client": null,
+        "service": null
+      },
+      "interfaces": [
+        "host-instructions",
+        "mcp-protocol"
+      ],
+      "manifests": [],
+      "components": {
+        "skills": "unsupported",
+        "mcp": "documented",
+        "hooks": "unknown",
+        "scripts": "unknown",
+        "executableExtensions": "unknown"
+      },
+      "discoveryRoots": [],
+      "extensions": {
+        "state": "unsupported",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "sourcegraph-cody-source-1",
+        "sourcegraph-cody-source-2"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "sourcegraph-cody-fact-1",
+          "evidenceIds": [
+            "sourcegraph-cody-source-1"
+          ]
+        },
+        {
+          "factId": "sourcegraph-cody-fact-2",
+          "evidenceIds": [
+            "sourcegraph-cody-source-2"
+          ]
+        },
+        {
+          "factId": "sourcegraph-cody-fact-3",
+          "evidenceIds": [
+            "sourcegraph-cody-source-2"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "notes": [
+        "S5a disposition is no-surface; this is research coverage, not support.",
+        "Legacy version label retained separately for projection compatibility: current-documentation-2026-08-25."
+      ]
+    },
+    {
+      "id": "tabnine",
+      "kind": "host",
+      "lifecycle": "current",
+      "reviewState": "documentation-reviewed",
+      "versions": {
+        "specification": null,
+        "client": null,
+        "service": null
+      },
+      "interfaces": [
+        "host-instructions",
+        "mcp-protocol"
+      ],
+      "manifests": [],
+      "components": {
+        "skills": "unsupported",
+        "mcp": "documented",
+        "hooks": "unknown",
+        "scripts": "unknown",
+        "executableExtensions": "unknown"
+      },
+      "discoveryRoots": [
+        {
+          "scope": "project",
+          "path": ".tabnine/guidelines/",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "tabnine-source-1"
+          ]
+        }
+      ],
+      "extensions": {
+        "state": "unsupported",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "tabnine-source-1",
+        "tabnine-source-2"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "tabnine-fact-1",
+          "evidenceIds": [
+            "tabnine-source-1"
+          ]
+        },
+        {
+          "factId": "tabnine-fact-2",
+          "evidenceIds": [
+            "tabnine-source-2"
+          ]
+        },
+        {
+          "factId": "tabnine-fact-3",
+          "evidenceIds": [
+            "tabnine-source-2"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "notes": [
+        "S5a disposition is fallback; this is research coverage, not support.",
+        "Legacy version label retained separately for projection compatibility: current-documentation-2026-08-25."
+      ]
+    },
+    {
+      "id": "jetbrains-ai-assistant",
+      "kind": "host",
+      "lifecycle": "current",
+      "reviewState": "documentation-reviewed",
+      "versions": {
+        "specification": null,
+        "client": null,
+        "service": null
+      },
+      "interfaces": [
+        "agent-skill",
+        "host-instructions",
+        "mcp-protocol"
+      ],
+      "manifests": [
+        {
+          "id": "skill-manifest",
+          "path": "SKILL.md",
+          "requirement": "required",
+          "schemaVersion": null
+        }
+      ],
+      "components": {
+        "skills": "documented",
+        "mcp": "documented",
+        "hooks": "unknown",
+        "scripts": "documented",
+        "executableExtensions": "unknown"
+      },
+      "discoveryRoots": [
+        {
+          "scope": "project",
+          "path": ".aiassistant/rules/",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "jetbrains-ai-assistant-source-1"
+          ]
+        },
+        {
+          "scope": "project",
+          "path": ".agents/skills/<skill-name>/SKILL.md",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "jetbrains-ai-assistant-source-2"
+          ]
+        }
+      ],
+      "extensions": {
+        "state": "unsupported",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "jetbrains-ai-assistant-source-1",
+        "jetbrains-ai-assistant-source-2"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "jetbrains-ai-assistant-fact-1",
+          "evidenceIds": [
+            "jetbrains-ai-assistant-source-1"
+          ]
+        },
+        {
+          "factId": "jetbrains-ai-assistant-fact-2",
+          "evidenceIds": [
+            "jetbrains-ai-assistant-source-2"
+          ]
+        },
+        {
+          "factId": "jetbrains-ai-assistant-fact-3",
+          "evidenceIds": [
+            "jetbrains-ai-assistant-source-2"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "notes": [
+        "S5a disposition is researched; this is research coverage, not support.",
+        "Legacy version label retained separately for projection compatibility: current-documentation-2026-08-25."
+      ]
+    },
+    {
+      "id": "visual-studio-copilot",
+      "kind": "host",
+      "lifecycle": "current",
+      "reviewState": "documentation-reviewed",
+      "versions": {
+        "specification": null,
+        "client": null,
+        "service": null
+      },
+      "interfaces": [
+        "agent-skill",
+        "host-instructions"
+      ],
+      "manifests": [
+        {
+          "id": "skill-manifest",
+          "path": "SKILL.md",
+          "requirement": "required",
+          "schemaVersion": null
+        }
+      ],
+      "components": {
+        "skills": "required",
+        "mcp": "unknown",
+        "hooks": "unknown",
+        "scripts": "documented",
+        "executableExtensions": "unknown"
+      },
+      "discoveryRoots": [
+        {
+          "scope": "project",
+          "path": ".github/skills/<skill-name>/SKILL.md",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "visual-studio-copilot-source-1"
+          ]
+        },
+        {
+          "scope": "project",
+          "path": ".github/copilot-instructions.md",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "visual-studio-copilot-source-2"
+          ]
+        }
+      ],
+      "extensions": {
+        "state": "unsupported",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "visual-studio-copilot-source-1",
+        "visual-studio-copilot-source-2"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "visual-studio-copilot-fact-1",
+          "evidenceIds": [
+            "visual-studio-copilot-source-1"
+          ]
+        },
+        {
+          "factId": "visual-studio-copilot-fact-2",
+          "evidenceIds": [
+            "visual-studio-copilot-source-2"
+          ]
+        },
+        {
+          "factId": "visual-studio-copilot-fact-3",
+          "evidenceIds": [
+            "visual-studio-copilot-source-2"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "notes": [
+        "S5a disposition is standard-compatible; this is research coverage, not support.",
+        "Legacy version label retained separately for projection compatibility: current-documentation-2026-08-25."
+      ]
+    },
+    {
+      "id": "devin-hosted",
+      "kind": "host",
+      "lifecycle": "current",
+      "reviewState": "documentation-reviewed",
+      "versions": {
+        "specification": null,
+        "client": null,
+        "service": null
+      },
+      "interfaces": [
+        "agent-skill",
+        "host-instructions",
+        "mcp-protocol"
+      ],
+      "manifests": [
+        {
+          "id": "skill-manifest",
+          "path": "SKILL.md",
+          "requirement": "required",
+          "schemaVersion": null
+        }
+      ],
+      "components": {
+        "skills": "documented",
+        "mcp": "documented",
+        "hooks": "unknown",
+        "scripts": "documented",
+        "executableExtensions": "unknown"
+      },
+      "discoveryRoots": [
+        {
+          "scope": "project",
+          "path": "<repository-skill>/SKILL.md",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "devin-hosted-source-1"
+          ]
+        },
+        {
+          "scope": "project",
+          "path": "AGENTS.md",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "devin-hosted-source-2"
+          ]
+        }
+      ],
+      "extensions": {
+        "state": "unsupported",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "devin-hosted-source-1",
+        "devin-hosted-source-2"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "devin-hosted-fact-1",
+          "evidenceIds": [
+            "devin-hosted-source-1"
+          ]
+        },
+        {
+          "factId": "devin-hosted-fact-2",
+          "evidenceIds": [
+            "devin-hosted-source-2"
+          ]
+        },
+        {
+          "factId": "devin-hosted-fact-3",
+          "evidenceIds": [
+            "devin-hosted-source-2"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "notes": [
+        "S5a disposition is no-surface; this is research coverage, not support.",
+        "Legacy version label retained separately for projection compatibility: current-documentation-2026-08-25."
       ]
     }
   ]

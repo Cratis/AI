@@ -118,7 +118,7 @@ test("all authoritative ecosystem records reach the generated v2 projection", ()
         ...new Set(ecosystemFacts.map((fact) => fact.ecosystemId)),
     ].sort();
 
-    assert.equal(ecosystems.length, 26);
+    assert.equal(ecosystems.length, 45);
     assert.deepEqual(projectedIds, sourceIds);
     for (const ecosystem of ecosystems)
         assert.equal(

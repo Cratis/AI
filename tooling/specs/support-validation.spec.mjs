@@ -56,8 +56,8 @@ function hasError(errors, text) {
 function configuredCatalogs({
     assurances = allTechnicalAssurances,
     evidenceClass = "local",
-    observedOn = "2026-08-24",
-    validThrough = "2026-08-24",
+    observedOn = "2026-08-25",
+    validThrough = "2026-08-25",
     outcome = "pass",
 } = {}) {
     const catalogs = clone(loadSupportCatalogs());
@@ -143,17 +143,17 @@ test("all authored evidence and support policy schemas reject unknown properties
     }
 });
 
-test("all 83 observations, 110 fact IDs, 11 legacy gaps, 63 official sources, and 13 distribution evidence files are accounted exactly", () => {
+test("all 128 observations, 172 fact IDs, 11 legacy gaps, 108 official sources, and 13 distribution evidence files are accounted exactly", () => {
     const catalogs = loadSupportCatalogs();
-    assert.equal(catalogs.evidence.observations.length, 83);
-    assert.equal(catalogs.evidence.legacyFacts.length, 110);
+    assert.equal(catalogs.evidence.observations.length, 128);
+    assert.equal(catalogs.evidence.legacyFacts.length, 172);
     assert.equal(catalogs.evidence.legacyGaps.length, 11);
     assert.equal(
         catalogs.ecosystemVersions.ecosystems.reduce(
             (count, ecosystem) => count + ecosystem.sources.length,
             0,
         ),
-        63,
+        108,
     );
     assert.equal(catalogs.evidence.distributionEvidenceFiles.length, 13);
     assert.deepEqual(
@@ -274,8 +274,8 @@ test("synthetic fixture evidence never satisfies install-tested or above", () =>
 test("future evidence cannot satisfy a gate", () => {
     const record = supportRecord(
         configuredCatalogs({
-            observedOn: "2026-08-25",
-            validThrough: "2026-09-25",
+            observedOn: "2026-08-26",
+            validThrough: "2026-09-26",
         }),
     );
     assert.equal(record.effectiveTier, "documented");
@@ -394,7 +394,7 @@ test("coordinated observation and reciprocal claim ID mutation fails the indepen
     for (const assertion of observation.assertions) assertion.claimIds = [];
     hasError(
         validateNormalizedEvidence(catalogs),
-        "preserve all 83 S0/S1 evidence IDs exactly once",
+        "preserve all 128 S0-S5a evidence IDs exactly once",
     );
 });
 
@@ -456,7 +456,7 @@ test("support policy requirements controls and snapshot date cannot be weakened"
     );
 
     const dateMutation = clone(loadSupportCatalogs());
-    dateMutation.policy.asOf = "2026-08-25";
+    dateMutation.policy.asOf = "2026-08-26";
     hasError(
         validateNormalizedEvidence(dateMutation),
         "snapshot dates must agree",

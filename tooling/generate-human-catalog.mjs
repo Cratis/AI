@@ -32,6 +32,7 @@ const inputPaths = [
     "catalog/v2/targets.json",
     "catalog/v2/taxonomy.json",
     "catalog/v2/upstream-companions.json",
+    "catalog/host-adapters.json",
     "distribution/profile-catalog.json",
 ];
 
@@ -364,6 +365,7 @@ export function buildHumanCatalogOutputs() {
     const { catalogs, digest, humanContract } = loadInputs();
     const targets = catalogs.get("catalog/v2/targets.json").targets;
     const support = catalogs.get("catalog/v2/support.json");
+    const hostAdapters = catalogs.get("catalog/host-adapters.json").hosts;
     const bundles = catalogs.get("catalog/v2/bundles.json").bundles;
     const profileCatalog = catalogs.get("distribution/profile-catalog.json");
     const presentedProfiles = [
@@ -465,6 +467,20 @@ export function buildHumanCatalogOutputs() {
             ),
         }))
         .sort(compareAudienceThenId);
+    const hostCoverage = hostAdapters
+        .map((host) => ({
+            ecosystemId: host.ecosystemId,
+            hostAdapterId: host.id,
+            productName: host.product.name,
+            productStatus: host.product.status,
+            coverage: host.supportDisposition.coverage,
+            strategy: host.strategy,
+            servingArtifactBindingId: host.serving.artifactBindingId,
+            targetId: host.serving.targetId,
+            outputRoot: host.serving.outputRoot,
+            supportClaim: host.supportDisposition.supportClaim,
+        }))
+        .sort((left, right) => compareOrdinal(left.ecosystemId, right.ecosystemId));
     const data = {
         schemaVersion: 2,
         contractVersion: humanContract.contractVersion,
@@ -472,6 +488,7 @@ export function buildHumanCatalogOutputs() {
         inputDigest: digest,
         profiles,
         capabilities,
+        hostCoverage,
     };
     const dataErrors = validateAgainstSchema(
         data,
@@ -506,6 +523,16 @@ export function buildHumanCatalogOutputs() {
         ),
         "",
         "No technical tier grants runtime, publication, or promotion eligibility.",
+        "",
+        "## Researched host coverage",
+        "",
+        "This matrix reports research and serving disposition only. It is not support, publication readiness, or a promise to generate a host-native adapter.",
+        "",
+        "| Ecosystem | Product status | Coverage | Strategy | Serving target | Support |",
+        "| --- | --- | --- | --- | --- | --- |",
+        ...hostCoverage.map((host) =>
+            `| ${markdownText(host.ecosystemId)} | ${markdownText(host.productStatus)} | ${markdownText(host.coverage)} | ${markdownText(host.strategy)} | ${markdownText(host.targetId ?? "no output")} | no |`,
+        ),
         "",
         "## Packages and profiles",
         "",

@@ -116,8 +116,8 @@
     "promotionEligible": { "const": false },
     "bindings": {
       "type": "array",
-      "minItems": 26,
-      "maxItems": 26,
+      "minItems": 45,
+      "maxItems": 45,
       "uniqueItems": true,
       "items": { "$ref": "#/$defs/binding" }
     }

@@ -936,8 +936,10 @@ const definitions = [
         id: "catalog-v2-authored-registries",
         sourcePathPatterns: [
             "catalog/evidence.json",
+            "catalog/host-adapters.json",
             "catalog/support-policy.json",
             "catalog/schemas/evidence.schema.json",
+            "catalog/schemas/host-adapters.schema.json",
             "catalog/schemas/support-policy.schema.json",
             "catalog/schemas/support.schema.json",
             "catalog/v2/authoring-contracts.json",
@@ -959,6 +961,7 @@ const definitions = [
         dependencies: [
             "catalog/schemas/v2/catalog-v2.schema.json",
             "catalog/schemas/ecosystem-contracts.schema.json",
+            "catalog/schemas/host-adapters.schema.json",
             "catalog/schemas/artifact-assurance-profiles.schema.json",
             "catalog/schemas/evidence.schema.json",
             "catalog/schemas/support-policy.schema.json",

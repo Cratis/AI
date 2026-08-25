@@ -889,10 +889,27 @@
         "targetIds": { "$ref": "#/$defs/idArray" }
       }
     },
+    "generatedHostCoverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ecosystemId", "hostAdapterId", "productName", "productStatus", "coverage", "strategy", "servingArtifactBindingId", "targetId", "outputRoot", "supportClaim"],
+      "properties": {
+        "ecosystemId": { "$ref": "#/$defs/id" },
+        "hostAdapterId": { "$ref": "#/$defs/id" },
+        "productName": { "$ref": "#/$defs/nonEmptyString" },
+        "productStatus": { "$ref": "#/$defs/nonEmptyString" },
+        "coverage": { "enum": ["researched", "standard-compatible", "native-planned", "fallback", "migration", "no-surface"] },
+        "strategy": { "$ref": "#/$defs/id" },
+        "servingArtifactBindingId": { "$ref": "#/$defs/id" },
+        "targetId": { "oneOf": [{ "$ref": "#/$defs/id" }, { "type": "null" }] },
+        "outputRoot": { "oneOf": [{ "$ref": "#/$defs/nonEmptyString" }, { "type": "null" }] },
+        "supportClaim": { "const": false }
+      }
+    },
     "generatedHumanCatalog": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["schemaVersion", "contractVersion", "disclaimer", "inputDigest", "profiles", "capabilities"],
+      "required": ["schemaVersion", "contractVersion", "disclaimer", "inputDigest", "profiles", "capabilities", "hostCoverage"],
       "properties": {
         "schemaVersion": { "const": 2 },
         "contractVersion": { "const": 1 },
@@ -909,6 +926,13 @@
           "minItems": 1,
           "uniqueItems": true,
           "items": { "$ref": "#/$defs/generatedHumanCapability" }
+        },
+        "hostCoverage": {
+          "type": "array",
+          "minItems": 38,
+          "maxItems": 38,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/generatedHostCoverage" }
         }
       }
     },

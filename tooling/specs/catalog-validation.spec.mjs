@@ -174,4 +174,13 @@ test("ecosystem registry includes current MCP and compatible-client evidence", (
     assert.equal(byId.get("deepseek-deepcode-skills").status, "current");
     assert.equal(byId.get("deepseek-harness-skills").status, "preview");
     assert(byId.has("npm-trusted-publishing"));
+    assert.equal(byId.get("pi-packages").version, "0.84.3-registry-latest");
+    assert.equal(byId.get("claude-code-plugins").version, "claude-code-2.1.245-registry-latest");
+    assert.equal(byId.get("openai-plugins").version, "codex-cli-0.149.1-registry-latest");
+    assert.equal(byId.get("github-copilot-plugins").version, "copilot-cli-1.0.80-registry-latest");
+    assert.equal(byId.get("gemini-cli-extensions").version, "gemini-cli-0.56.0-registry-latest");
+    assert.equal(byId.get("qwen-code").version, "qwen-code-0.22.0-registry-latest");
+    assert.equal(byId.get("roo-code").status, "archived");
+    assert.equal(byId.get("continue").status, "archived");
+    assert.equal(byId.get("amazon-q-developer").status, "retiring");
 });

@@ -232,15 +232,15 @@
     },
     "observations": {
       "type": "array",
-      "minItems": 83,
-      "maxItems": 83,
+      "minItems": 128,
+      "maxItems": 128,
       "uniqueItems": true,
       "items": { "$ref": "#/$defs/observation" }
     },
     "legacyFacts": {
       "type": "array",
-      "minItems": 110,
-      "maxItems": 110,
+      "minItems": 172,
+      "maxItems": 172,
       "uniqueItems": true,
       "items": { "$ref": "#/$defs/legacyFact" }
     },

@@ -70,7 +70,7 @@
       "additionalProperties": false,
       "required": ["bindingCount", "supportClaimCount", "byTier"],
       "properties": {
-        "bindingCount": { "const": 26 },
+        "bindingCount": { "const": 45 },
         "supportClaimCount": { "type": "integer", "minimum": 0 },
         "byTier": {
           "type": "object",
@@ -92,8 +92,8 @@
     },
     "bindings": {
       "type": "array",
-      "minItems": 26,
-      "maxItems": 26,
+      "minItems": 45,
+      "maxItems": 45,
       "uniqueItems": true,
       "items": { "$ref": "#/$defs/binding" }
     }
