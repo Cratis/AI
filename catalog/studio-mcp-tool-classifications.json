@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "defaultPolicy": "deny",
-  "guidanceProductId": "chronicle-mcp",
-  "guidanceComponentId": "cratis-chronicle-mcp-inspection",
-  "sourceContractId": "cratis-chronicle-mcp-source",
+  "guidanceProductId": "studio",
+  "guidanceComponentId": "cratis-studio-mcp-safety-guidance",
+  "sourceContractId": null,
   "authorityState": "NO_ADMITTED_TOOL_EFFECT_EVIDENCE",
   "defaultDisposition": "evidence-blocked",
   "upstreamRevision": null,

@@ -36,6 +36,7 @@ function markdownText(value) {
 export function expectedChronicleMcpGuidanceReferences(
     catalog,
     { schema, sourceContracts, evidence },
+    productDisplayName = "Chronicle MCP",
 ) {
     const errors = validateChronicleMcpClassification(
         catalog,
@@ -58,14 +59,14 @@ export function expectedChronicleMcpGuidanceReferences(
         (subject) => subject.disposition !== "passive-allowed",
     ).length;
     const observationalLines = [
-        "# Observational Chronicle MCP guidance",
+        `# Observational ${markdownText(productDisplayName)} guidance`,
         "",
         "> Generated from the deny-by-default Chronicle MCP classification catalog.",
         "",
     ];
     if (observational.length === 0) {
         observationalLines.push(
-            "No Chronicle MCP tool or prompt is admitted for passive observational guidance.",
+            `No ${markdownText(productDisplayName)} tool or prompt is admitted for passive observational guidance.`,
             "",
             "Do not invoke a tool or prompt. Interpret only redacted output already supplied by the user.",
         );
@@ -83,7 +84,7 @@ export function expectedChronicleMcpGuidanceReferences(
     observationalLines.push("");
 
     const blockedLines = [
-        "# Blocked Chronicle MCP guidance",
+        `# Blocked ${markdownText(productDisplayName)} guidance`,
         "",
         "> Generated from the deny-by-default Chronicle MCP classification catalog.",
         "",

@@ -93,6 +93,7 @@ function evidenceBindingDigest(catalog, subjectKind, candidate, assuranceId) {
     return createHash("sha256")
         .update(
             JSON.stringify({
+                guidanceProductId: catalog.guidanceProductId,
                 sourceContractId: catalog.sourceContractId,
                 upstreamRevision: catalog.upstreamRevision,
                 subjectKind,
@@ -114,6 +115,7 @@ function subject(overrides = {}) {
         implementationDigest: "2".repeat(64),
         schemaDigest: "3".repeat(64),
         effects: ["read"],
+        delegatedOperationIds: [],
         boundedOutput: true,
         outputClassification: "internal",
         evidence: {
@@ -249,6 +251,7 @@ test("unknown, effectful, unbounded, and unredacted subjects cannot be admitted"
     const blockedEffects = [
         "credential-access",
         "destructive",
+        "dynamic-delegation",
         "execute",
         "open-world-transmission",
         "publish",

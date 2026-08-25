@@ -37,6 +37,7 @@ const expectedEffectClasses = Object.freeze([
 const expectedBlockedEffects = Object.freeze([
     "credential-access",
     "destructive",
+    "dynamic-delegation",
     "execute",
     "open-world-transmission",
     "publish",
@@ -45,6 +46,7 @@ const expectedBlockedEffects = Object.freeze([
 ]);
 const expectedAdmissionRequirements = Object.freeze([
     "bounded-output",
+    "closed-transitive-operation-set",
     "complete-subject-inventory",
     "credential-review",
     "effect-review",
@@ -101,6 +103,7 @@ export function chronicleMcpInventoryDigest(catalog) {
     ]
         .map(({ kind, subject }) =>
             JSON.stringify({
+                guidanceProductId: catalog.guidanceProductId,
                 kind,
                 id: subject.id,
                 sourceRevision: subject.sourceRevision,
@@ -116,6 +119,7 @@ function reviewBindingDigest(catalog, subjectKind, subject, assuranceId) {
     return createHash("sha256")
         .update(
             JSON.stringify({
+                guidanceProductId: catalog.guidanceProductId,
                 sourceContractId: catalog.sourceContractId,
                 upstreamRevision: catalog.upstreamRevision,
                 subjectKind,
@@ -185,18 +189,18 @@ export function validateChronicleMcpClassification(
         errors.push(
             "Chronicle MCP admission requirements differ from the reviewed contract",
         );
-    const sourceContract = sourceContracts.contracts.find(
-        (contract) => contract.id === catalog.sourceContractId,
-    );
-    if (!sourceContract) {
+    const sourceContract = catalog.sourceContractId
+        ? sourceContracts.contracts.find(
+              (contract) => contract.id === catalog.sourceContractId,
+          )
+        : null;
+    if (catalog.sourceContractId && !sourceContract)
         errors.push(
-            "Chronicle MCP classification references an unknown source contract",
+            `${catalog.guidanceProductId}: classification references an unknown source contract`,
         );
-        return errors;
-    }
     const sourceIsAdmitted =
-        sourceContract.verificationState === "verified" &&
-        sourceContract.distributionInputAllowed === true;
+        sourceContract?.verificationState === "verified" &&
+        sourceContract?.distributionInputAllowed === true;
     const subjectRecords = [
         ...catalog.tools.map((subject) => ({ kind: "tool", subject })),
         ...catalog.prompts.map((subject) => ({ kind: "prompt", subject })),
@@ -391,6 +395,7 @@ export function validateChronicleMcpClassification(
         ) {
             if (
                 !subject.effects.includes("read") ||
+                subject.delegatedOperationIds.length > 0 ||
                 hasBlockedEffect ||
                 !subject.boundedOutput ||
                 subject.outputClassification === "unknown" ||
@@ -493,6 +498,12 @@ export function validateChronicleMcpGuidance(
     )
         errors.push("Chronicle MCP guidance cannot grant executable emission");
 
+    if (
+        catalog.guidanceProductId !== "chronicle-mcp" ||
+        catalog.guidanceComponentId !== "cratis-chronicle-mcp-inspection" ||
+        catalog.sourceContractId !== "cratis-chronicle-mcp-source"
+    )
+        errors.push("Chronicle MCP guidance product binding changed");
     const guidanceComponent = components.components.find(
         (component) => component.id === "cratis-chronicle-mcp-inspection",
     );
