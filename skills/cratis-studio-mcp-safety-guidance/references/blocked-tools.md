@@ -1,6 +1,6 @@
 # Blocked Studio MCP guidance
 
-> Generated from the deny-by-default Chronicle MCP classification catalog.
+> Generated from the deny-by-default Studio MCP classification catalog.
 
 Default disposition: `evidence-blocked`.
 

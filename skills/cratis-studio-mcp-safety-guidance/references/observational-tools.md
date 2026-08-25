@@ -1,6 +1,6 @@
 # Observational Studio MCP guidance
 
-> Generated from the deny-by-default Chronicle MCP classification catalog.
+> Generated from the deny-by-default Studio MCP classification catalog.
 
 No Studio MCP tool or prompt is admitted for passive observational guidance.
 

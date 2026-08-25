@@ -8,6 +8,7 @@
     "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
     "revision": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
     "idArray": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/id" } },
+    "subjectIdArray": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/subjectId" } },
     "nullableId": { "oneOf": [{ "$ref": "#/$defs/id" }, { "type": "null" }] },
     "effectClass": { "enum": ["classification-only", "observational", "effectful", "unknown"] },
     "disposition": { "enum": ["passive-allowed", "effectful-blocked", "evidence-blocked"] },
@@ -35,7 +36,7 @@
         "implementationDigest": { "$ref": "#/$defs/sha256" },
         "schemaDigest": { "$ref": "#/$defs/sha256" },
         "effects": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/effectId" } },
-        "delegatedOperationIds": { "$ref": "#/$defs/idArray" },
+        "delegatedOperationIds": { "$ref": "#/$defs/subjectIdArray" },
         "boundedOutput": { "type": "boolean" },
         "outputClassification": { "enum": ["public", "internal", "confidential", "personal-data", "unknown"] },
         "evidence": {

@@ -96,6 +96,23 @@ function filesUnder(root, sourceRoot) {
     return files.sort();
 }
 
+function classificationSemantics(subject) {
+    return {
+        effectClass: subject.effectClass,
+        disposition: subject.disposition,
+        effects: [...subject.effects].sort(),
+        delegatedOperationIds: [...subject.delegatedOperationIds].sort(),
+        boundedOutput: subject.boundedOutput,
+        outputClassification: subject.outputClassification,
+        annotationHints: {
+            readOnly: subject.annotationHints.readOnly,
+            destructive: subject.annotationHints.destructive,
+            idempotent: subject.annotationHints.idempotent,
+            openWorld: subject.annotationHints.openWorld,
+        },
+    };
+}
+
 export function chronicleMcpInventoryDigest(catalog) {
     const lines = [
         ...catalog.tools.map((subject) => ({ kind: "tool", subject })),
@@ -109,6 +126,7 @@ export function chronicleMcpInventoryDigest(catalog) {
                 sourceRevision: subject.sourceRevision,
                 implementationDigest: subject.implementationDigest,
                 schemaDigest: subject.schemaDigest,
+                classification: classificationSemantics(subject),
             }),
         )
         .sort();
@@ -126,6 +144,7 @@ function reviewBindingDigest(catalog, subjectKind, subject, assuranceId) {
                 subjectId: subject.id,
                 implementationDigest: subject.implementationDigest,
                 schemaDigest: subject.schemaDigest,
+                classification: classificationSemantics(subject),
                 assuranceId,
             }),
         )
@@ -210,6 +229,43 @@ export function validateChronicleMcpClassification(
         errors.push(
             `Chronicle MCP classification contains duplicate subject ${id}`,
         );
+    const subjectsById = new Map(
+        subjects.map((subject) => [subject.id, subject]),
+    );
+    const delegatedTargets = new Set();
+    for (const subject of subjects)
+        for (const delegatedId of subject.delegatedOperationIds) {
+            delegatedTargets.add(delegatedId);
+            if (!subjectsById.has(delegatedId))
+                errors.push(
+                    `${subject.id}: delegated operation ${delegatedId} is unknown`,
+                );
+        }
+    const visiting = new Set();
+    const visited = new Set();
+    const visitDelegation = (subjectId) => {
+        if (visiting.has(subjectId)) {
+            errors.push(`MCP delegation cycle contains ${subjectId}`);
+            return;
+        }
+        if (visited.has(subjectId)) return;
+        visiting.add(subjectId);
+        for (const delegatedId of
+            subjectsById.get(subjectId)?.delegatedOperationIds ?? [])
+            if (subjectsById.has(delegatedId)) visitDelegation(delegatedId);
+        visiting.delete(subjectId);
+        visited.add(subjectId);
+    };
+    for (const subjectId of subjectsById.keys()) visitDelegation(subjectId);
+    for (const subject of subjects)
+        if (
+            subject.disposition === "passive-allowed" &&
+            (subject.delegatedOperationIds.length > 0 ||
+                delegatedTargets.has(subject.id))
+        )
+            errors.push(
+                `${subject.id}: delegated operations cannot be passive-allowed`,
+            );
     if (!sourceIsAdmitted) {
         if (
             catalog.authorityState !== "NO_ADMITTED_TOOL_EFFECT_EVIDENCE" ||
@@ -252,9 +308,28 @@ export function validateChronicleMcpClassification(
                 );
             if (subject.disposition === "passive-allowed")
                 errors.push(`${subject.id}: missing authority must fail closed`);
+
         }
         return errors;
     }
+    const requiredSubjectKinds = [
+        "tools",
+        "schemas",
+        "credentials",
+        "mutations",
+        "versions",
+        ...(catalog.prompts.length > 0 ? ["prompts"] : []),
+    ];
+    if (
+        !sourceContract.productIds.includes(catalog.guidanceProductId) ||
+        requiredSubjectKinds.some(
+            (subjectKind) =>
+                !sourceContract.subjectKinds.includes(subjectKind),
+        )
+    )
+        errors.push(
+            `${catalog.guidanceProductId}: source contract does not authorize this product and MCP subject scope`,
+        );
     if (catalog.authorityState === "NO_ADMITTED_TOOL_EFFECT_EVIDENCE") {
         if (
             catalog.upstreamRevision !== null ||
@@ -396,6 +471,7 @@ export function validateChronicleMcpClassification(
             if (
                 !subject.effects.includes("read") ||
                 subject.delegatedOperationIds.length > 0 ||
+                delegatedTargets.has(subject.id) ||
                 hasBlockedEffect ||
                 !subject.boundedOutput ||
                 subject.outputClassification === "unknown" ||

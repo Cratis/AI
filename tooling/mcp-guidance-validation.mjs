@@ -1,40 +1,22 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-import { createHash } from "node:crypto";
 import { existsSync, lstatSync, readFileSync, readdirSync } from "node:fs";
-import { join, relative, sep } from "node:path";
-import {
-    defaultRepositoryRoot,
-    readCatalog,
-    validateAgainstSchema,
-    validateSchemaVocabulary,
-} from "./catalog-validation.mjs";
+import { join, relative, resolve, sep } from "node:path";
+import { fileURLToPath } from "node:url";
+import { defaultRepositoryRoot, readCatalog } from "./catalog-validation.mjs";
+import { validateMcpGuidanceProductContract } from "./mcp-guidance-product-contract.mjs";
 import {
     expectedMcpGuidanceReferences,
     mcpGuidanceProductPaths,
 } from "./generate-mcp-guidance-references.mjs";
 
-const expectedProductAnchor =
-    "d86b3c4e39c5e9e8f92b15a83dc502dfe8b9331128d9df3d5bb663206a62ad62";
-const expectedProductIds = Object.freeze(["chronicle-mcp", "studio"]);
 const expectedSkillFiles = Object.freeze([
     "LICENSE",
     "SKILL.md",
     "references/blocked-tools.md",
     "references/observational-tools.md",
 ]);
-
-function semanticAnchor(records) {
-    return createHash("sha256")
-        .update(
-            `${[...records]
-                .sort((left, right) => left.id.localeCompare(right.id))
-                .map((record) => JSON.stringify(record))
-                .join("\n")}\n`,
-        )
-        .digest("hex");
-}
 
 function filesUnder(root, sourceRoot) {
     const absoluteRoot = join(root, sourceRoot);
@@ -89,17 +71,9 @@ export function validateMcpGuidanceProducts(
     } catch (error) {
         return [`MCP guidance products cannot be loaded: ${error.message}`];
     }
-    errors.push(...validateSchemaVocabulary(productSchema));
     errors.push(
-        ...validateAgainstSchema(products, productSchema, productSchema),
+        ...validateMcpGuidanceProductContract(products, productSchema),
     );
-    if (semanticAnchor(products.products) !== expectedProductAnchor)
-        errors.push(
-            "MCP guidance product contract differs from the independently reviewed anchor",
-        );
-    const productIds = products.products.map((product) => product.id).sort();
-    if (JSON.stringify(productIds) !== JSON.stringify(expectedProductIds))
-        errors.push("MCP guidance products must remain Chronicle and Studio");
     let expected = {};
     try {
         expected = expectedMcpGuidanceReferences(root);
@@ -190,4 +164,14 @@ export function validateMcpGuidanceProducts(
     )
         errors.push("Passive MCP guidance cannot create MCP or LSP components");
     return errors;
+}
+
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+    const errors = validateMcpGuidanceProducts(
+        resolve(fileURLToPath(new URL("..", import.meta.url))),
+    );
+    if (errors.length > 0) {
+        for (const error of errors) process.stderr.write(`- ${error}\n`);
+        process.exitCode = 1;
+    } else process.stdout.write("Multi-product MCP guidance validation passed.\n");
 }

@@ -2,8 +2,17 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import {
+    cpSync,
+    mkdtempSync,
+    readFileSync,
+    rmSync,
+    symlinkSync,
+    unlinkSync,
+    writeFileSync,
+} from "node:fs";
 import { join } from "node:path";
+import { tmpdir } from "node:os";
 import { test } from "node:test";
 import {
     defaultRepositoryRoot,
@@ -11,12 +20,22 @@ import {
 } from "../catalog-validation.mjs";
 import {
     expectedMcpGuidanceReferences,
+    generateMcpGuidanceReferences,
     mcpGuidanceProductPaths,
 } from "../generate-mcp-guidance-references.mjs";
 import { validateMcpGuidanceProducts } from "../mcp-guidance-validation.mjs";
 
 function clone(value) {
     return structuredClone(value);
+}
+
+function temporaryRepository() {
+    const root = mkdtempSync(join(tmpdir(), "cratis-mcp-guidance-"));
+    for (const path of ["catalog", "distribution", "skills"])
+        cpSync(join(defaultRepositoryRoot, path), join(root, path), {
+            recursive: true,
+        });
+    return root;
 }
 
 test("multi-product MCP guidance is closed and Chronicle output stays byte-identical", () => {
@@ -110,6 +129,68 @@ test("Studio public bytes contain no implementation inventory or executable mate
     assert.doesNotMatch(source, /```(?:bash|sh|powershell|json)/iu);
 });
 
+test("generation rejects symlinked inputs and outputs outside repository authority", () => {
+    const outputRoot = temporaryRepository();
+    const inputRoot = temporaryRepository();
+    const outside = join(tmpdir(), `cratis-mcp-outside-${process.pid}.md`);
+    writeFileSync(outside, "outside\n");
+    try {
+        const output = join(
+            outputRoot,
+            "skills/cratis-studio-mcp-safety-guidance/references/blocked-tools.md",
+        );
+        unlinkSync(output);
+        symlinkSync(outside, output);
+        assert.throws(
+            () => expectedMcpGuidanceReferences(outputRoot),
+            /traverses symlink|not a regular file/u,
+        );
+
+        const input = join(
+            inputRoot,
+            "catalog/studio-mcp-tool-classifications.json",
+        );
+        unlinkSync(input);
+        symlinkSync(outside, input);
+        assert.throws(
+            () => expectedMcpGuidanceReferences(inputRoot),
+            /traverses symlink|not a regular file/u,
+        );
+    } finally {
+        rmSync(outputRoot, { recursive: true, force: true });
+        rmSync(inputRoot, { recursive: true, force: true });
+        rmSync(outside, { force: true });
+    }
+});
+
+test("invalid generation leaves every existing reference byte unchanged", () => {
+    const root = temporaryRepository();
+    try {
+        const expected = expectedMcpGuidanceReferences(root);
+        const before = Object.fromEntries(
+            Object.keys(expected).map((path) => [
+                path,
+                readFileSync(join(root, path), "utf8"),
+            ]),
+        );
+        const catalogPath = join(
+            root,
+            "catalog/studio-mcp-tool-classifications.json",
+        );
+        const catalog = JSON.parse(readFileSync(catalogPath, "utf8"));
+        catalog.unexpected = true;
+        writeFileSync(catalogPath, `${JSON.stringify(catalog, null, 2)}\n`);
+        assert.throws(
+            () => generateMcpGuidanceReferences(root),
+            /Refusing to generate/u,
+        );
+        for (const [path, content] of Object.entries(before))
+            assert.equal(readFileSync(join(root, path), "utf8"), content);
+    } finally {
+        rmSync(root, { recursive: true, force: true });
+    }
+});
+
 test("invalid product generation fails before any output is selected", () => {
     const productCatalog = readCatalog(
         join(defaultRepositoryRoot, mcpGuidanceProductPaths.catalog),
@@ -124,6 +205,6 @@ test("invalid product generation fails before any output is selected", () => {
                 productCatalog,
                 productSchema,
             }),
-        /unsafe repository path|escape the skill root/u,
+        /product contract differs|unsafe repository path|escape the skill root/u,
     );
 });

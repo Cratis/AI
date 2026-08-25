@@ -61,7 +61,7 @@ export function expectedChronicleMcpGuidanceReferences(
     const observationalLines = [
         `# Observational ${markdownText(productDisplayName)} guidance`,
         "",
-        "> Generated from the deny-by-default Chronicle MCP classification catalog.",
+        `> Generated from the deny-by-default ${markdownText(productDisplayName)} classification catalog.`,
         "",
     ];
     if (observational.length === 0) {
@@ -86,7 +86,7 @@ export function expectedChronicleMcpGuidanceReferences(
     const blockedLines = [
         `# Blocked ${markdownText(productDisplayName)} guidance`,
         "",
-        "> Generated from the deny-by-default Chronicle MCP classification catalog.",
+        `> Generated from the deny-by-default ${markdownText(productDisplayName)} classification catalog.`,
         "",
         `Default disposition: \`${markdownText(catalog.defaultDisposition)}\`.`,
         "",
