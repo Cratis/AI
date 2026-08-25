@@ -11,11 +11,15 @@
     "host": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "contract", "acceptsAnyPassiveProjection", "allowedOutputPrefixes", "sharedSymlinkOutputs", "evidenceIds"],
+      "required": ["id", "contract", "hostAdapterId", "materialization", "staticOutputRoot", "acceptsAnyPassiveProjection", "allowedProjectedKinds", "allowedOutputPrefixes", "sharedSymlinkOutputs", "evidenceIds"],
       "properties": {
         "id": { "$ref": "#/$defs/id" },
-        "contract": { "enum": ["claude-code", "codex", "github-copilot", "pi", "portable-agent-plugins-1-0"] },
+        "contract": { "enum": ["claude-code", "codex", "github-copilot", "pi", "portable-agent-plugins-1-0", "jetbrains-ai-assistant", "tabnine", "visual-studio-copilot", "devin-hosted"] },
+        "hostAdapterId": { "oneOf": [{ "$ref": "#/$defs/id" }, { "type": "null" }] },
+        "materialization": { "enum": ["repository-existing", "static-fixture", "none"] },
+        "staticOutputRoot": { "oneOf": [{ "$ref": "#/$defs/nonEmptyString" }, { "type": "null" }] },
         "acceptsAnyPassiveProjection": { "type": "boolean" },
+        "allowedProjectedKinds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/kind" } },
         "allowedOutputPrefixes": { "$ref": "#/$defs/stringArray" },
         "sharedSymlinkOutputs": { "$ref": "#/$defs/stringArray" },
         "evidenceIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } }
@@ -33,7 +37,7 @@
         "artifactClass": { "$ref": "#/$defs/id" },
         "assuranceProfileId": { "$ref": "#/$defs/id" },
         "packageIdentity": { "oneOf": [{ "$ref": "#/$defs/id" }, { "type": "null" }] },
-        "state": { "enum": ["planned", "blocked", "existing"] },
+        "state": { "enum": ["planned", "blocked", "existing", "generated-static"] },
         "hostActivation": { "enum": ["active", "inert", "none"] },
         "adapterType": { "enum": ["symlink", "path-reference", "canonical-in-place", "generated", "none"] },
         "outputPaths": { "$ref": "#/$defs/stringArray" },

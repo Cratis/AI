@@ -603,7 +603,6 @@ export function validateChronicleMcpGuidance(
     )
         errors.push("Chronicle MCP guidance cannot create MCP or LSP components");
     if (
-        projections.projections.length !== 312 ||
         projections.projections.some(
             (projection) =>
                 projection.componentId === "cratis-chronicle-mcp-inspection",

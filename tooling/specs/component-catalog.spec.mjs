@@ -72,6 +72,9 @@ function load() {
                 componentCatalogPaths.assuranceProfiles,
             ),
         ),
+        hostAdapters: readCatalog(
+            join(defaultRepositoryRoot, componentCatalogPaths.hostAdapters),
+        ),
     };
 }
 
@@ -229,6 +232,82 @@ test("Studio MCP guidance is a passive unprojected skill without MCP components"
         ).length,
         0,
     );
+});
+
+test("S8 adds exactly 70 passive generated-static non-skill projections", () => {
+    const catalogs = load();
+    const generated = catalogs.projections.projections.filter(
+        (projection) => projection.state === "generated-static",
+    );
+    assert.equal(catalogs.projections.hosts.length, 9);
+    assert.equal(catalogs.projections.projections.length, 382);
+    assert.equal(
+        catalogs.projections.projections.filter(
+            (projection) => projection.state === "existing",
+        ).length,
+        312,
+    );
+    assert.equal(generated.length, 70);
+    assert.equal(
+        generated.filter((projection) => projection.projectedKind === "rule")
+            .length,
+        68,
+    );
+    assert.equal(
+        generated.filter(
+            (projection) => projection.projectedKind === "instruction",
+        ).length,
+        2,
+    );
+    assert(
+        generated.every(
+            (projection) =>
+                projection.adapterType === "generated" &&
+                projection.hostActivation === "none" &&
+                projection.packageIdentity === null &&
+                projection.approval === "modeled",
+        ),
+    );
+});
+
+test("S8 generated-static projections reject kind, path, package, and evidence drift", () => {
+    const catalogs = load();
+    const projection = catalogs.projections.projections.find(
+        (candidate) => candidate.state === "generated-static",
+    );
+    projection.packageIdentity = "fabricated-package";
+    projection.outputPaths = [
+        "jetbrains-ai-assistant-rules/.aiassistant/rules/general.md",
+    ];
+    let errors = projectionErrors(catalogs);
+    assert(
+        errors.some((error) =>
+            error.includes("generated-static projection contract changed"),
+        ),
+    );
+    assert(
+        errors.some((error) =>
+            error.includes("semantic kind, source, or output mapping changed"),
+        ),
+    );
+
+    const expired = load();
+    const generated = expired.projections.projections.find(
+        (candidate) => candidate.state === "generated-static",
+    );
+    expired.evidence.evidence.find(
+        (record) => record.id === generated.evidenceIds[0],
+    ).expiresOn = "2026-08-24";
+    errors = projectionErrors(expired);
+    assert(errors.some((error) => error.includes("expired projection evidence")));
+
+    const hostDrift = load();
+    const host = hostDrift.projections.hosts.find(
+        (candidate) => candidate.id === "jetbrains-ai-assistant",
+    );
+    host.staticOutputRoot = "wrong-root";
+    errors = projectionErrors(hostDrift);
+    assert(errors.some((error) => error.includes("static fixture host contract changed")));
 });
 
 test("retained legacy host skills are explicit unbound components", () => {

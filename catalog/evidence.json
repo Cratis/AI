@@ -669,6 +669,13 @@
       "kind": "repository-snapshot",
       "locator": "https://github.com/Cratis/AI/tree/f96eab8109ec0bb2d4aed6f1e893c2402a9a161a/skills/cratis-studio-mcp-safety-guidance",
       "immutableRevision": "f96eab8109ec0bb2d4aed6f1e893c2402a9a161a"
+    },
+    {
+      "id": "source-s8-native-non-skill-static-generation-2026-08-25",
+      "kind": "local-evidence-report",
+      "locator": "https://github.com/Cratis/AI/tree/3fe2b12aa7fd068565cbf082ea966cd783cc6aad/distribution/evidence/s8-native-non-skill-static-generation-2026-08-25.json",
+      "repositoryPath": "distribution/evidence/s8-native-non-skill-static-generation-2026-08-25.json",
+      "digest": "9f56390ab36221d425a5d238d1e5d202d8eb8760537d39256edf014581e8590d"
     }
   ],
   "observations": [
@@ -7056,6 +7063,47 @@
         "sourceKind": "repository-snapshot",
         "applicableVersion": "f96eab8109ec0bb2d4aed6f1e893c2402a9a161a"
       }
+    },
+    {
+      "id": "s8-native-non-skill-static-generation-2026-08-25",
+      "sourceId": "source-s8-native-non-skill-static-generation-2026-08-25",
+      "evidenceClass": "local",
+      "subject": {
+        "kind": "artifact",
+        "id": "s8-native-non-skill-static-fixtures",
+        "version": "3fe2b12aa7fd068565cbf082ea966cd783cc6aad",
+        "digest": "ac95afb703d06c8f37777be684237dd2fbea1f3fbb9a85ac59fd6d5b0261323b"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "static-validation",
+          "outcome": "pass",
+          "supporting": false,
+          "claimIds": []
+        }
+      ],
+      "scope": "Binds the committed S8 generator revision, four exact static fixture root inventories, canonical byte parity, and the complete local specification result without claiming host discovery, installation, behavior, lifecycle, runtime, publication, promotion, marketplace availability, or support.",
+      "environment": {
+        "operatingSystem": "macos",
+        "architecture": "arm64",
+        "isolation": "isolated-home"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Static generation validates documented project layouts and byte parity only.",
+        "No host process, discovery, parsing, installation, update, removal, project merge, lifecycle, marketplace, publication, runtime, or support behavior was tested.",
+        "Singleton project files have no collision-safe installation or merge contract.",
+        "Provider compatibility assurance is not public release assurance."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/3fe2b12aa7fd068565cbf082ea966cd783cc6aad/distribution/evidence/s8-native-non-skill-static-generation-2026-08-25.json",
+        "sourceKind": "local-evidence-report",
+        "applicableVersion": "3fe2b12aa7fd068565cbf082ea966cd783cc6aad"
+      }
     }
   ],
   "legacyFacts": [
@@ -8827,6 +8875,15 @@
         "s5b-zed-static-generation-2026-08-25"
       ],
       "reason": "Binds the exact committed S5b generator revision, deterministic root inventories, offline compliance receipts, and the complete local specification run without claiming host behavior."
+    },
+    {
+      "repositoryPath": "distribution/evidence/s8-native-non-skill-static-generation-2026-08-25.json",
+      "digest": "9f56390ab36221d425a5d238d1e5d202d8eb8760537d39256edf014581e8590d",
+      "role": "supporting",
+      "observationIds": [
+        "s8-native-non-skill-static-generation-2026-08-25"
+      ],
+      "reason": "Binds the exact non-promoting S8 static generation receipt and local specification run; its assertion is explicitly non-supporting and grants no host or release assurance."
     }
   ]
 }

@@ -553,7 +553,7 @@ export function buildHumanCatalogOutputs() {
             total: componentProjections.projections.length,
             byState: countBy(
                 componentProjections.projections,
-                ["planned", "blocked", "existing"],
+                ["planned", "blocked", "existing", "generated-static"],
                 (projection) => projection.state,
             ),
             byActivation: countBy(
@@ -614,6 +614,7 @@ export function buildHumanCatalogOutputs() {
         `- Executable: ${componentSummary.byTrust.executable}`,
         `- Legacy-retained: ${componentSummary.byLifecycle["legacy-retained"]}`,
         `- Existing adapter records: ${componentSummary.projections.byState.existing}`,
+        `- Generated static fixture projections: ${componentSummary.projections.byState["generated-static"]}`,
         `- Active host projections: ${componentSummary.projections.byActivation.active}`,
         `- Inert path references: ${componentSummary.projections.byActivation.inert}`,
         `- Planned projections: ${componentSummary.projections.byState.planned}`,

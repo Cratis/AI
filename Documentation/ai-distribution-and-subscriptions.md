@@ -282,6 +282,12 @@ validated only. Their runtime, installation, publication, promotion,
 marketplace availability, and support booleans remain false. A generated
 wrapper is not automatically a public marketplace listing.
 
+S8 also generates four isolated static project-layout fixtures for 68 rule files
+and two general-instruction files. They are not added to this archive table,
+do not alter the 34 S5b roots, and are not release assets. They contain no
+manifest or package identity and exist only to validate exact native layout and
+byte projection before S9 real-host canaries.
+
 ### S5b archive and extraction contract
 
 Every harness receives a separate archive named

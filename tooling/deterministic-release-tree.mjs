@@ -106,6 +106,22 @@ function assertNoPathCollisions(paths, label) {
     }
 }
 
+export function assertNoDirectoryPathCollisions(
+    paths,
+    label = "Projected directory",
+) {
+    const normalized = new Map();
+    for (const path of paths) {
+        validateRelativePath(path, label);
+        const key = collisionKey(path);
+        if (normalized.has(key))
+            throw new Error(
+                `${label} has a case or Unicode collision: ${normalized.get(key)} and ${path}`,
+            );
+        normalized.set(key, path);
+    }
+}
+
 function assertContained(root, path, label) {
     const relativePath = relative(root, path);
     if (
@@ -364,7 +380,7 @@ export function projectLogicalTree(logicalTree, rootDescriptors, options = {}) {
     return projected;
 }
 
-function walkActualFiles(root, current = root) {
+function walkActualFiles(root, current = root, directories = []) {
     const files = [];
     for (const entry of readdirSync(current, { withFileTypes: true })) {
         const absolutePath = join(current, entry.name);
@@ -374,9 +390,10 @@ function walkActualFiles(root, current = root) {
             throw new Error(
                 `Projected root contains a symlink or junction: ${path}`,
             );
-        if (stat.isDirectory())
-            files.push(...walkActualFiles(root, absolutePath));
-        else if (stat.isFile()) files.push(path);
+        if (stat.isDirectory()) {
+            directories.push(path);
+            files.push(...walkActualFiles(root, absolutePath, directories));
+        } else if (stat.isFile()) files.push(path);
         else throw new Error(`Projected root contains a special file: ${path}`);
     }
     return files;
@@ -393,12 +410,39 @@ export function validateProjectedRoot(
         options.expectedRootIdentity ?? captureDirectoryIdentity(root);
     assertDirectoryIdentity(root, identity);
     const expected = projectedTree.files;
-    const actualPaths = walkActualFiles(root).sort(compareOrdinal);
+    const actualDirectories = [];
+    const actualPaths = walkActualFiles(root, root, actualDirectories).sort(
+        compareOrdinal,
+    );
+    actualDirectories.sort(compareOrdinal);
     assertNoPathCollisions(actualPaths, "Actual projected path");
+    assertNoDirectoryPathCollisions(
+        actualDirectories,
+        "Actual projected directory",
+    );
     const expectedPaths = expected.map((file) => file.path);
+    const expectedDirectories = [
+        ...new Set(
+            expectedPaths.flatMap((path) => {
+                const segments = path.split("/");
+                return segments
+                    .slice(0, -1)
+                    .map((_, index) =>
+                        segments.slice(0, index + 1).join("/"),
+                    );
+            }),
+        ),
+    ].sort(compareOrdinal);
     if (JSON.stringify(actualPaths) !== JSON.stringify(expectedPaths))
         throw new Error(
             "Projected root inventory differs from the complete declared inventory",
+        );
+    if (
+        JSON.stringify(actualDirectories) !==
+        JSON.stringify(expectedDirectories)
+    )
+        throw new Error(
+            "Projected root directory inventory differs from the complete declared inventory",
         );
     const metrics = options.metrics ?? { finalReads: 0, bytesHashed: 0 };
     const expectedByPath = new Map(expected.map((file) => [file.path, file]));

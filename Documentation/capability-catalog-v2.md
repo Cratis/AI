@@ -82,6 +82,14 @@ classification catalog and passive skill. Studio begins without implementation
 authority; private implementation findings cannot enter public source or
 authorize operations.
 
+S8 adds 70 explicit `generated-static` projections for four isolated
+repository-only rule/instruction fixture roots. The original 312 repository
+adapter records remain unchanged. Generated-static records have no host
+activation or package identity and are validated against exact component kind,
+canonical bytes, official discovery-root evidence, and complete candidate-tree
+inventory. They do not establish installation, behavior, lifecycle, support, or
+publication.
+
 ## Target-local safety fields
 
 Every target records:

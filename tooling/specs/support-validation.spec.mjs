@@ -142,9 +142,9 @@ test("all authored evidence and support policy schemas reject unknown properties
     }
 });
 
-test("all 151 observations, 172 fact IDs, 11 legacy gaps, 108 official sources, and 14 distribution evidence files are accounted exactly", () => {
+test("all 152 observations, 172 fact IDs, 11 legacy gaps, 108 official sources, and 15 distribution evidence files are accounted exactly", () => {
     const catalogs = loadSupportCatalogs();
-    assert.equal(catalogs.evidence.observations.length, 151);
+    assert.equal(catalogs.evidence.observations.length, 152);
     assert.equal(catalogs.evidence.legacyFacts.length, 172);
     assert.equal(catalogs.evidence.legacyGaps.length, 11);
     assert.equal(
@@ -154,7 +154,7 @@ test("all 151 observations, 172 fact IDs, 11 legacy gaps, 108 official sources, 
         ),
         108,
     );
-    assert.equal(catalogs.evidence.distributionEvidenceFiles.length, 14);
+    assert.equal(catalogs.evidence.distributionEvidenceFiles.length, 15);
     assert.deepEqual(
         catalogs.evidence.distributionEvidenceFiles
             .map((record) => record.repositoryPath)
@@ -395,7 +395,7 @@ test("coordinated observation and reciprocal claim ID mutation fails the indepen
     for (const assertion of observation.assertions) assertion.claimIds = [];
     hasError(
         validateNormalizedEvidence(catalogs),
-        "preserve all 151 S0-S7b evidence IDs exactly once",
+        "preserve all 152 S0-S8 evidence IDs exactly once",
     );
 });
 

@@ -1791,6 +1791,16 @@ export function validateRepositoryInventory(catalogs, root) {
             ],
         ],
         [
+            "s8-native-non-skill-expected-tree",
+            [
+                "catalog/component-projections.json",
+                "catalog/components.json",
+                "catalog/evidence.json",
+                "catalog/host-adapters.json",
+                "tooling/native-non-skill-projections.mjs",
+            ],
+        ],
+        [
             "mcp-generated-guidance-references",
             [
                 "catalog/chronicle-mcp-tool-classifications.json",

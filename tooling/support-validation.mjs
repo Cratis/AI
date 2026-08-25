@@ -27,11 +27,11 @@ export const supportPaths = Object.freeze({
 });
 
 const expectedObservationAnchor =
-    "3ac740e93cb0b6de010138c20bb56f19ebca40c3da5fe5a4a641d616f5678020";
+    "523c158e181080a237ec62ef5a5278f2f7e98c709c522ecda4474ef6d95a4b7f";
 const expectedSourceIdentityAnchor =
-    "1205ff92dbad43edfa69c7f1e1944eb0b2b10c0a30705917af8b8b1a20192865";
+    "b99e0667a1aeaf9eab60757b80c9444426fa10f21eb6a9acb6daa4d9354845cc";
 const expectedObservationBindingAnchor =
-    "bfda57bbf6697f4d4a2c99723f391078a406914e6491cb8bddc64da21e0c23aa";
+    "dc6a983a35fec1b3c9e56bd686c91d2484931079b1e047c143ae4bcea5459690";
 const expectedFactAnchor =
     "4202f2d5ebf233b1d10e02000bd35e61803e8061bb800d343d0d1eed1fa984dd";
 const expectedGapAnchor =
@@ -441,7 +441,7 @@ export function validateNormalizedEvidence(
     }
     if (digestLines(observationIds) !== expectedObservationAnchor)
         errors.push(
-            "normalized evidence must preserve all 151 S0-S7b evidence IDs exactly once",
+            "normalized evidence must preserve all 152 S0-S8 evidence IDs exactly once",
         );
     if (
         digestLines(sourceIdentityLines(evidence.sources)) !==
