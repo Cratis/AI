@@ -972,11 +972,11 @@
     {
       "id": "aider",
       "status": "current",
-      "version": "aider-0.86.0-release",
+      "version": "0.86.2",
       "facts": [
         "Aider supports convention files through explicit --read or configuration; it does not document native Agent Skills or Agent Plugins discovery.",
         "AGENTS.md may be supplied as a conventions file, which is a rules fallback rather than standard package support.",
-        "Official release evidence identifies Aider 0.86.0 as the latest published release in the official repository."
+        "Official PyPI registry evidence identifies aider-chat 0.86.2 as the current package release."
       ],
       "sources": [
         {
@@ -985,8 +985,8 @@
           "verifiedOn": "2026-08-25"
         },
         {
-          "url": "https://github.com/Aider-AI/aider/releases/tag/v0.86.0",
-          "kind": "official-repository",
+          "url": "https://pypi.org/pypi/aider-chat/0.86.2/json",
+          "kind": "registry",
           "verifiedOn": "2026-08-25"
         }
       ]
@@ -1128,9 +1128,9 @@
       "status": "current",
       "version": "current-documentation-2026-08-25",
       "facts": [
-        "Devin explicitly documents repository SKILL.md workflows and AGENTS.md instructions.",
-        "Devin Knowledge and MCP are hosted provider features, and official evidence does not establish a stable third-party package lifecycle.",
-        "S5a monitors the hosted instruction surface without inventing an adapter or output root."
+        "Devin explicitly documents open-standard Agent Skills under .agents/skills and supports repository AGENTS.md instructions.",
+        "Devin Knowledge and MCP are hosted provider features and do not establish a portable plugin package.",
+        "S5a reuses canonical Agent Skills without inventing a Devin-specific artifact root."
       ],
       "sources": [
         {

@@ -175,7 +175,7 @@
     },
     {
       "id": "pi-passive-package",
-      "status": "VERIFIED_INSTALLED_DOCUMENTATION",
+      "status": "DOCUMENTATION_REVIEWED",
       "sourceUrls": [
         "https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/packages.md",
         "https://registry.npmjs.org/@earendil-works/pi-coding-agent/latest"
@@ -195,7 +195,7 @@
         "pi remove npm:@cratis/ai"
       ],
       "constraints": [
-        "Requirements were verified against installed @earendil-works/pi-coding-agent 0.84.3 docs/packages.md.",
+        "Package behavior was reviewed against installed 0.84.2 documentation; registry evidence records current package version 0.84.3 without claiming a 0.84.3 local lifecycle test.",
         "package.json declares the pi-package keyword and pi.skills allowlist.",
         "The passive package contains no extensions, prompts, themes, lifecycle scripts, or dependencies.",
         "Temporary, user, project, npm, Git, filter, pin, rollback, and uninstall behavior require smoke evidence."

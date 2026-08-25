@@ -892,7 +892,7 @@
     "generatedHostCoverage": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["ecosystemId", "hostAdapterId", "productName", "productStatus", "coverage", "strategy", "servingArtifactBindingId", "targetId", "outputRoot", "supportClaim"],
+      "required": ["ecosystemId", "hostAdapterId", "productName", "productStatus", "coverage", "strategy", "servingArtifactBindingId", "targetId", "outputRoot", "generationState", "technicalTier", "supportClaim"],
       "properties": {
         "ecosystemId": { "$ref": "#/$defs/id" },
         "hostAdapterId": { "$ref": "#/$defs/id" },
@@ -903,6 +903,30 @@
         "servingArtifactBindingId": { "$ref": "#/$defs/id" },
         "targetId": { "oneOf": [{ "$ref": "#/$defs/id" }, { "type": "null" }] },
         "outputRoot": { "oneOf": [{ "$ref": "#/$defs/nonEmptyString" }, { "type": "null" }] },
+        "generationState": {
+          "enum": [
+            "fixture-generated",
+            "fixture-generated-evidence-incomplete",
+            "source-compatible",
+            "provider-inherited",
+            "publication-only",
+            "no-output",
+            "blocked"
+          ]
+        },
+        "technicalTier": {
+          "enum": [
+            "unsupported",
+            "documented",
+            "generated",
+            "statically-validated",
+            "install-tested",
+            "behavior-tested",
+            "lifecycle-tested",
+            "release-tested",
+            "supported"
+          ]
+        },
         "supportClaim": { "const": false }
       }
     },

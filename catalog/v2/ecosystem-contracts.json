@@ -349,7 +349,7 @@
       "reviewState": "incomplete-evidence",
       "versions": {
         "specification": null,
-        "client": "2.71.2",
+        "client": null,
         "service": null
       },
       "interfaces": [
@@ -374,10 +374,10 @@
       "discoveryRoots": [
         {
           "scope": "project",
-          "path": "<discovered-skill-root>/SKILL.md",
+          "path": ".agents/skills/<skill-name>/SKILL.md",
           "requirement": "host-specific",
           "evidenceIds": [
-            "github-cli-skills-source-1"
+            "github-cli-skills-source-2"
           ]
         }
       ],
@@ -3139,9 +3139,7 @@
         },
         {
           "factId": "openhands-fact-2",
-          "evidenceIds": [
-            "openhands-source-2"
-          ]
+          "evidenceIds": []
         },
         {
           "factId": "openhands-fact-3",
@@ -3163,7 +3161,7 @@
       "reviewState": "documentation-reviewed",
       "versions": {
         "specification": null,
-        "client": "0.86.0",
+        "client": "0.86.2",
         "service": null
       },
       "interfaces": [
@@ -3208,8 +3206,8 @@
       ],
       "conflicts": [],
       "notes": [
-        "S5a disposition is fallback; this is research coverage, not support.",
-        "Legacy version label retained separately for projection compatibility: aider-0.86.0-release."
+        "S5a disposition is conventions fallback; this is research coverage, not support.",
+        "Legacy version label retained separately for projection compatibility: 0.86.2."
       ]
     },
     {
@@ -3648,7 +3646,7 @@
       "discoveryRoots": [
         {
           "scope": "project",
-          "path": "<repository-skill>/SKILL.md",
+          "path": ".agents/skills/<skill-name>/SKILL.md",
           "requirement": "host-specific",
           "evidenceIds": [
             "devin-hosted-source-1"
@@ -3693,7 +3691,7 @@
       ],
       "conflicts": [],
       "notes": [
-        "S5a disposition is no-surface; this is research coverage, not support.",
+        "Devin explicitly consumes canonical Agent Skills; compatibility is not support.",
         "Legacy version label retained separately for projection compatibility: current-documentation-2026-08-25."
       ]
     }

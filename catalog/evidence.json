@@ -552,8 +552,8 @@
     },
     {
       "id": "source-aider-source-2",
-      "kind": "official-repository",
-      "locator": "https://github.com/Aider-AI/aider/releases/tag/v0.86.0"
+      "kind": "registry",
+      "locator": "https://pypi.org/pypi/aider-chat/0.86.2/json"
     },
     {
       "id": "source-continue-source-1",
@@ -5042,7 +5042,6 @@
           "outcome": "pass",
           "supporting": true,
           "claimIds": [
-            "openhands-fact-2",
             "openhands-fact-3"
           ]
         }
@@ -5073,7 +5072,7 @@
       "subject": {
         "kind": "ecosystem",
         "id": "aider",
-        "version": "aider-0.86.0-release"
+        "version": "0.86.2"
       },
       "bindingIds": [
         "aider-artifact-binding"
@@ -5088,7 +5087,7 @@
           ]
         }
       ],
-      "scope": "Official official-documentation evidence for the aider S5a contract at aider-0.86.0-release.",
+      "scope": "Official official-documentation evidence for the aider S5a contract at 0.86.2.",
       "environment": {
         "operatingSystem": "not-recorded",
         "architecture": "not-recorded",
@@ -5104,7 +5103,7 @@
       "legacy": {
         "officialUrl": "https://aider.chat/docs/usage/conventions.html",
         "sourceKind": "official-documentation",
-        "applicableVersion": "aider-0.86.0-release"
+        "applicableVersion": "0.86.2"
       }
     },
     {
@@ -5114,7 +5113,7 @@
       "subject": {
         "kind": "ecosystem",
         "id": "aider",
-        "version": "aider-0.86.0-release"
+        "version": "0.86.2"
       },
       "bindingIds": [
         "aider-artifact-binding"
@@ -5130,7 +5129,7 @@
           ]
         }
       ],
-      "scope": "Official official-repository evidence for the aider S5a contract at aider-0.86.0-release.",
+      "scope": "Official official-repository evidence for the aider S5a contract at 0.86.2.",
       "environment": {
         "operatingSystem": "not-recorded",
         "architecture": "not-recorded",
@@ -5144,9 +5143,9 @@
       ],
       "supersedes": [],
       "legacy": {
-        "officialUrl": "https://github.com/Aider-AI/aider/releases/tag/v0.86.0",
-        "sourceKind": "official-repository",
-        "applicableVersion": "aider-0.86.0-release"
+        "officialUrl": "https://pypi.org/pypi/aider-chat/0.86.2/json",
+        "sourceKind": "registry",
+        "applicableVersion": "0.86.2"
       }
     },
     {
@@ -7226,10 +7225,8 @@
       "id": "openhands-fact-2",
       "ecosystemId": "openhands",
       "fact": "OpenHands native plugins and MCP settings are host-specific and are not Agent Plugins 1.0 packages.",
-      "evidenceIds": [
-        "openhands-source-2"
-      ],
-      "supporting": true
+      "evidenceIds": [],
+      "supporting": false
     },
     {
       "id": "openhands-fact-3",
@@ -7261,7 +7258,7 @@
     {
       "id": "aider-fact-3",
       "ecosystemId": "aider",
-      "fact": "Official release evidence identifies Aider 0.86.0 as the latest published release in the official repository.",
+      "fact": "Official PyPI registry evidence identifies aider-chat 0.86.2 as the current package release.",
       "evidenceIds": [
         "aider-source-2"
       ],
@@ -7432,7 +7429,7 @@
     {
       "id": "devin-hosted-fact-1",
       "ecosystemId": "devin-hosted",
-      "fact": "Devin explicitly documents repository SKILL.md workflows and AGENTS.md instructions.",
+      "fact": "Devin explicitly documents open-standard Agent Skills under .agents/skills and supports repository AGENTS.md instructions.",
       "evidenceIds": [
         "devin-hosted-source-1"
       ],
@@ -7441,7 +7438,7 @@
     {
       "id": "devin-hosted-fact-2",
       "ecosystemId": "devin-hosted",
-      "fact": "Devin Knowledge and MCP are hosted provider features, and official evidence does not establish a stable third-party package lifecycle.",
+      "fact": "Devin Knowledge and MCP are hosted provider features and do not establish a portable plugin package.",
       "evidenceIds": [
         "devin-hosted-source-2"
       ],
@@ -7450,7 +7447,7 @@
     {
       "id": "devin-hosted-fact-3",
       "ecosystemId": "devin-hosted",
-      "fact": "S5a monitors the hosted instruction surface without inventing an adapter or output root.",
+      "fact": "S5a reuses canonical Agent Skills without inventing a Devin-specific artifact root.",
       "evidenceIds": [
         "devin-hosted-source-2"
       ],

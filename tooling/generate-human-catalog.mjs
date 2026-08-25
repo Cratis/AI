@@ -26,6 +26,7 @@ const inputPaths = [
     "catalog/v2/authoring-contracts.json",
     "catalog/v2/bundles.json",
     "catalog/v2/evidence.json",
+    "catalog/v2/ecosystem-artifact-coverage.json",
     "catalog/v2/human-catalog.json",
     "catalog/v2/source-contracts.json",
     "catalog/v2/support.json",
@@ -365,6 +366,18 @@ export function buildHumanCatalogOutputs() {
     const { catalogs, digest, humanContract } = loadInputs();
     const targets = catalogs.get("catalog/v2/targets.json").targets;
     const support = catalogs.get("catalog/v2/support.json");
+    const supportByBindingId = new Map(
+        support.bindings.map((record) => [record.bindingId, record]),
+    );
+    const generatedCoverage = catalogs.get(
+        "catalog/v2/ecosystem-artifact-coverage.json",
+    );
+    const generatedCoverageByBindingId = new Map(
+        generatedCoverage.coverage.map((record) => [
+            record.bindingId,
+            record,
+        ]),
+    );
     const hostAdapters = catalogs.get("catalog/host-adapters.json").hosts;
     const bundles = catalogs.get("catalog/v2/bundles.json").bundles;
     const profileCatalog = catalogs.get("distribution/profile-catalog.json");
@@ -478,6 +491,13 @@ export function buildHumanCatalogOutputs() {
             servingArtifactBindingId: host.serving.artifactBindingId,
             targetId: host.serving.targetId,
             outputRoot: host.serving.outputRoot,
+            generationState:
+                generatedCoverageByBindingId.get(
+                    host.serving.artifactBindingId,
+                )?.generationState ?? "unmapped",
+            technicalTier:
+                supportByBindingId.get(host.serving.artifactBindingId)
+                    ?.effectiveTier ?? "unsupported",
             supportClaim: host.supportDisposition.supportClaim,
         }))
         .sort((left, right) =>
@@ -530,11 +550,11 @@ export function buildHumanCatalogOutputs() {
         "",
         "This matrix reports research and serving disposition only. It is not support, publication readiness, or a promise to generate a host-native adapter.",
         "",
-        "| Ecosystem | Product status | Coverage | Strategy | Serving target | Support |",
-        "| --- | --- | --- | --- | --- | --- |",
+        "| Ecosystem | Product status | Coverage | Strategy | Serving target | Generation | Technical tier | Support |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- |",
         ...hostCoverage.map(
             (host) =>
-                `| ${markdownText(host.ecosystemId)} | ${markdownText(host.productStatus)} | ${markdownText(host.coverage)} | ${markdownText(host.strategy)} | ${markdownText(host.targetId ?? "no output")} | no |`,
+                `| ${markdownText(host.ecosystemId)} | ${markdownText(host.productStatus)} | ${markdownText(host.coverage)} | ${markdownText(host.strategy)} | ${markdownText(host.targetId ?? "no output")} | ${markdownText(host.generationState)} | ${markdownText(host.technicalTier)} | no |`,
         ),
         "",
         "## Packages and profiles",

@@ -366,6 +366,12 @@ test("host registry is exact, fail-closed, and rejects unsupported claims or fab
     );
     hasError(validateHostAdapters(deletion), "does not account for cline");
 
+    const renamed = clone(catalogs);
+    renamed.hostAdapters.hosts.find(
+        (record) => record.ecosystemId === "cline",
+    ).id = "renamed-host-adapter";
+    hasError(validateHostAdapters(renamed), "identity diverges");
+
     const wrongStandard = clone(catalogs);
     const aider = wrongStandard.hostAdapters.hosts.find(
         (record) => record.ecosystemId === "aider",
@@ -380,6 +386,15 @@ test("host registry is exact, fail-closed, and rejects unsupported claims or fab
         "claims Agent Plugins without the ecosystem interface",
     );
 
+    const gooseMutation = clone(catalogs);
+    gooseMutation.hostAdapters.hosts.find(
+        (record) => record.ecosystemId === "goose",
+    ).acceptedStandards.agentSkills.state = "explicit";
+    hasError(
+        validateHostAdapters(gooseMutation),
+        "semantic contract differs",
+    );
+
     const fabricated = clone(catalogs);
     const roo = fabricated.hostAdapters.hosts.find(
         (record) => record.ecosystemId === "roo-code",
@@ -387,6 +402,17 @@ test("host registry is exact, fail-closed, and rejects unsupported claims or fab
     roo.serving.targetId = "canonical-agent-skills";
     roo.serving.outputRoot = "canonical";
     hasError(validateHostAdapters(fabricated), "fabricates output");
+
+    const devinContradiction = clone(catalogs);
+    const devinHost = devinContradiction.hostAdapters.hosts.find(
+        (record) => record.ecosystemId === "devin-hosted",
+    );
+    devinHost.strategy = "no-public-extension-surface";
+    devinHost.supportDisposition.coverage = "no-surface";
+    hasError(
+        validateHostAdapters(devinContradiction),
+        "no-surface disposition contradicts",
+    );
 
     const versionType = clone(catalogs);
     const cline = versionType.hostAdapters.hosts.find(
@@ -404,6 +430,15 @@ test("host registry is exact, fail-closed, and rejects unsupported claims or fab
     ).officialEvidence.validThrough = "2026-08-24";
     hasError(validateHostAdapters(expired), "evidence is expired");
 
+    const overstatedWindow = clone(catalogs);
+    overstatedWindow.hostAdapters.hosts.find(
+        (record) => record.ecosystemId === "claude-code-plugins",
+    ).officialEvidence.validThrough = "2026-11-23";
+    hasError(
+        validateHostAdapters(overstatedWindow),
+        "evidence window exceeds or diverges",
+    );
+
     const dangling = clone(catalogs);
     dangling.hostAdapters.hosts.find(
         (record) => record.ecosystemId === "cline",
@@ -412,6 +447,23 @@ test("host registry is exact, fail-closed, and rejects unsupported claims or fab
         validateHostAdapters(dangling),
         "unknown or foreign serving artifact binding",
     );
+
+    const current = catalogs.hostAdapters.hosts;
+    assert.equal(
+        current.find((record) => record.ecosystemId === "aider").product
+            .clientVersion,
+        "0.86.2",
+    );
+    assert.equal(
+        current.find((record) => record.ecosystemId === "devin-hosted")
+            .supportDisposition.coverage,
+        "standard-compatible",
+    );
+    const openHands = current.find(
+        (record) => record.ecosystemId === "openhands",
+    );
+    assert.equal(openHands.acceptedStandards.mcp.state, "not-documented");
+    assert.equal(openHands.marketplace.state, "not-documented");
 });
 
 test("closed host schema rejects coordinated additive records", () => {

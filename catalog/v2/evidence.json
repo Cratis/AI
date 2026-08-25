@@ -72,16 +72,16 @@
       "sourceKind": "official-documentation",
       "verifiedOn": "2026-08-25",
       "expiresOn": "2026-11-23",
-      "applicableVersion": "aider-0.86.0-release",
+      "applicableVersion": "0.86.2",
       "confidence": "high"
     },
     {
       "id": "aider-source-2",
-      "officialUrl": "https://github.com/Aider-AI/aider/releases/tag/v0.86.0",
-      "sourceKind": "official-repository",
+      "officialUrl": "https://pypi.org/pypi/aider-chat/0.86.2/json",
+      "sourceKind": "registry",
       "verifiedOn": "2026-08-25",
       "expiresOn": "2026-11-23",
-      "applicableVersion": "aider-0.86.0-release",
+      "applicableVersion": "0.86.2",
       "confidence": "high"
     },
     {
@@ -1297,7 +1297,7 @@
     {
       "id": "aider-fact-3",
       "ecosystemId": "aider",
-      "fact": "Official release evidence identifies Aider 0.86.0 as the latest published release in the official repository.",
+      "fact": "Official PyPI registry evidence identifies aider-chat 0.86.2 as the current package release.",
       "evidenceIds": [
         "aider-source-2"
       ]
@@ -1589,7 +1589,7 @@
     {
       "id": "devin-hosted-fact-1",
       "ecosystemId": "devin-hosted",
-      "fact": "Devin explicitly documents repository SKILL.md workflows and AGENTS.md instructions.",
+      "fact": "Devin explicitly documents open-standard Agent Skills under .agents/skills and supports repository AGENTS.md instructions.",
       "evidenceIds": [
         "devin-hosted-source-1"
       ]
@@ -1597,7 +1597,7 @@
     {
       "id": "devin-hosted-fact-2",
       "ecosystemId": "devin-hosted",
-      "fact": "Devin Knowledge and MCP are hosted provider features, and official evidence does not establish a stable third-party package lifecycle.",
+      "fact": "Devin Knowledge and MCP are hosted provider features and do not establish a portable plugin package.",
       "evidenceIds": [
         "devin-hosted-source-2"
       ]
@@ -1605,7 +1605,7 @@
     {
       "id": "devin-hosted-fact-3",
       "ecosystemId": "devin-hosted",
-      "fact": "S5a monitors the hosted instruction surface without inventing an adapter or output root.",
+      "fact": "S5a reuses canonical Agent Skills without inventing a Devin-specific artifact root.",
       "evidenceIds": [
         "devin-hosted-source-2"
       ]
@@ -2278,9 +2278,7 @@
       "id": "openhands-fact-2",
       "ecosystemId": "openhands",
       "fact": "OpenHands native plugins and MCP settings are host-specific and are not Agent Plugins 1.0 packages.",
-      "evidenceIds": [
-        "openhands-source-2"
-      ]
+      "evidenceIds": []
     },
     {
       "id": "openhands-fact-3",

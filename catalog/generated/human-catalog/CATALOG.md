@@ -31,46 +31,46 @@ No technical tier grants runtime, publication, or promotion eligibility.
 
 This matrix reports research and serving disposition only. It is not support, publication readiness, or a promise to generate a host-native adapter.
 
-| Ecosystem | Product status | Coverage | Strategy | Serving target | Support |
-| --- | --- | --- | --- | --- | --- |
-| aider | current | fallback | rules-fallback | no output | no |
-| amazon-q-developer | retiring | migration | migration-only | no output | no |
-| amp | current | researched | canonical-agent-skills | canonical-agent-skills | no |
-| augment-auggie | current | standard-compatible | canonical-agent-skills | canonical-agent-skills | no |
-| claude-code-plugins | current | researched | native-projection-planned | claude-code | no |
-| cline | current | standard-compatible | canonical-agent-skills | canonical-agent-skills | no |
-| continue | final-read-only | no-surface | no-public-extension-surface | no output | no |
-| cursor-plugins | current | researched | native-projection-planned | cursor | no |
-| deepseek-deepcode-skills | current | researched | native-projection-planned | deepseek-deepcode | no |
-| deepseek-harness-skills | preview | researched | native-projection-planned | deepseek-harness | no |
-| devin-hosted | current | no-surface | no-public-extension-surface | no output | no |
-| factory-droid | current | native-planned | native-projection-planned | no output | no |
-| gemini-cli-extensions | current | researched | native-projection-planned | gemini-cli | no |
-| github-cli-skills | preview | standard-compatible | canonical-agent-skills | canonical-agent-skills | no |
-| github-copilot-plugins | current | researched | native-projection-planned | github-copilot | no |
-| goose | current | researched | canonical-agent-skills | canonical-agent-skills | no |
-| grok-bot-plugins | current | standard-compatible | portable-agent-plugin | portable-agent-plugin | no |
-| grok-build-skills | current | researched | native-projection-planned | grok-build | no |
-| hermes-agent-plugins | current | standard-compatible | portable-agent-plugin | portable-agent-plugin | no |
-| jetbrains-ai-assistant | current | researched | provider-inherited | no output | no |
-| junie-extensions | provisional | researched | native-projection-planned | junie | no |
-| kilo-code | current | standard-compatible | canonical-agent-skills | canonical-agent-skills | no |
-| kiro-powers | current | researched | native-projection-planned | kiro | no |
-| nanoclaw-templates | current | standard-compatible | portable-agent-plugin | portable-agent-plugin | no |
-| openai-plugins | current | researched | native-projection-planned | openai-codex | no |
-| openclaw-bundles | current | standard-compatible | portable-agent-plugin | portable-agent-plugin | no |
-| opencode-skills | current | standard-compatible | canonical-agent-skills | canonical-agent-skills | no |
-| openhands | current | standard-compatible | canonical-agent-skills | canonical-agent-skills | no |
-| pi-packages | current | researched | native-projection-planned | pi-npm | no |
-| qwen-code | current | standard-compatible | portable-agent-plugin | portable-agent-plugin | no |
-| replit-agent | current | standard-compatible | canonical-agent-skills | canonical-agent-skills | no |
-| roo-code | archived | no-surface | no-public-extension-surface | no output | no |
-| sourcegraph-cody | current | no-surface | no-public-extension-surface | no output | no |
-| tabnine | current | fallback | rules-fallback | no output | no |
-| visual-studio-copilot | current | standard-compatible | canonical-agent-skills | canonical-agent-skills | no |
-| vscode-agent-plugins | current | standard-compatible | portable-agent-plugin | portable-agent-plugin | no |
-| windsurf-devin-desktop | current | standard-compatible | canonical-agent-skills | canonical-agent-skills | no |
-| zed-skills | current | standard-compatible | canonical-agent-skills | canonical-agent-skills | no |
+| Ecosystem | Product status | Coverage | Strategy | Serving target | Generation | Technical tier | Support |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| aider | current | fallback | rules-fallback | no output | no-output | documented | no |
+| amazon-q-developer | retiring | migration | migration-only | no output | blocked | documented | no |
+| amp | current | researched | canonical-agent-skills | canonical-agent-skills | source-compatible | documented | no |
+| augment-auggie | current | standard-compatible | canonical-agent-skills | canonical-agent-skills | source-compatible | documented | no |
+| claude-code-plugins | current | researched | native-projection-planned | claude-code | fixture-generated | documented | no |
+| cline | current | standard-compatible | canonical-agent-skills | canonical-agent-skills | source-compatible | documented | no |
+| continue | final-read-only | no-surface | no-public-extension-surface | no output | blocked | documented | no |
+| cursor-plugins | current | researched | native-projection-planned | cursor | fixture-generated | documented | no |
+| deepseek-deepcode-skills | current | researched | native-projection-planned | deepseek-deepcode | fixture-generated | documented | no |
+| deepseek-harness-skills | preview | researched | native-projection-planned | deepseek-harness | fixture-generated-evidence-incomplete | documented | no |
+| devin-hosted | current | standard-compatible | canonical-agent-skills | canonical-agent-skills | source-compatible | documented | no |
+| factory-droid | current | native-planned | native-projection-planned | no output | blocked | documented | no |
+| gemini-cli-extensions | current | researched | native-projection-planned | gemini-cli | fixture-generated-evidence-incomplete | documented | no |
+| github-cli-skills | preview | standard-compatible | canonical-agent-skills | canonical-agent-skills | source-compatible | documented | no |
+| github-copilot-plugins | current | researched | native-projection-planned | github-copilot | fixture-generated | documented | no |
+| goose | current | researched | canonical-agent-skills | canonical-agent-skills | source-compatible | documented | no |
+| grok-bot-plugins | current | standard-compatible | portable-agent-plugin | portable-agent-plugin | source-compatible | documented | no |
+| grok-build-skills | current | researched | native-projection-planned | grok-build | fixture-generated-evidence-incomplete | documented | no |
+| hermes-agent-plugins | current | standard-compatible | portable-agent-plugin | portable-agent-plugin | source-compatible | documented | no |
+| jetbrains-ai-assistant | current | researched | provider-inherited | no output | provider-inherited | documented | no |
+| junie-extensions | provisional | researched | native-projection-planned | junie | fixture-generated-evidence-incomplete | documented | no |
+| kilo-code | current | standard-compatible | canonical-agent-skills | canonical-agent-skills | source-compatible | documented | no |
+| kiro-powers | current | researched | native-projection-planned | kiro | fixture-generated | documented | no |
+| nanoclaw-templates | current | standard-compatible | portable-agent-plugin | portable-agent-plugin | source-compatible | documented | no |
+| openai-plugins | current | researched | native-projection-planned | openai-codex | fixture-generated | documented | no |
+| openclaw-bundles | current | standard-compatible | portable-agent-plugin | portable-agent-plugin | source-compatible | documented | no |
+| opencode-skills | current | standard-compatible | canonical-agent-skills | canonical-agent-skills | source-compatible | documented | no |
+| openhands | current | standard-compatible | canonical-agent-skills | canonical-agent-skills | source-compatible | documented | no |
+| pi-packages | current | researched | native-projection-planned | pi-npm | fixture-generated | documented | no |
+| qwen-code | current | standard-compatible | portable-agent-plugin | portable-agent-plugin | source-compatible | documented | no |
+| replit-agent | current | standard-compatible | canonical-agent-skills | canonical-agent-skills | source-compatible | documented | no |
+| roo-code | archived | no-surface | no-public-extension-surface | no output | blocked | documented | no |
+| sourcegraph-cody | current | no-surface | no-public-extension-surface | no output | no-output | documented | no |
+| tabnine | current | fallback | rules-fallback | no output | no-output | documented | no |
+| visual-studio-copilot | current | standard-compatible | canonical-agent-skills | canonical-agent-skills | source-compatible | documented | no |
+| vscode-agent-plugins | current | standard-compatible | portable-agent-plugin | portable-agent-plugin | source-compatible | documented | no |
+| windsurf-devin-desktop | current | standard-compatible | canonical-agent-skills | canonical-agent-skills | source-compatible | documented | no |
+| zed-skills | current | standard-compatible | canonical-agent-skills | canonical-agent-skills | source-compatible | documented | no |
 
 ## Packages and profiles
 

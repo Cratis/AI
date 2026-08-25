@@ -933,20 +933,21 @@
       "id": "devin-hosted-artifact-binding",
       "ecosystemId": "devin-hosted",
       "interfaceId": "agent-skill",
-      "requirementId": null,
-      "targetId": null,
-      "harnessId": null,
-      "outputRoot": null,
-      "artifactClass": "no-artifact",
-      "strategy": "no-output",
-      "assuranceProfileId": "no-artifact-v1",
+      "requirementId": "agent-skills-open-standard",
+      "targetId": "canonical-agent-skills",
+      "harnessId": "agent-skills",
+      "outputRoot": "canonical",
+      "artifactClass": "passive-public-package",
+      "strategy": "compatible-source",
+      "assuranceProfileId": "passive-public-package-v1",
       "evidenceIds": [
-        "devin-hosted-source-1"
+        "devin-hosted-source-1",
+        "devin-hosted-source-2"
       ],
-      "generationState": "no-output",
+      "generationState": "source-compatible",
       "supportClaim": false,
       "notes": [
-        "S5a records Devin hosted without creating a new adapter output root."
+        "Devin consumes the canonical Agent Skills source; S5a adds no native output root."
       ],
       "marketplaceAvailabilityClaim": false
     }

@@ -210,6 +210,13 @@ test("generated human catalog exposes public and engineering packages and capabi
     assert(
         catalog.hostCoverage.every((record) => record.supportClaim === false),
     );
+    assert(
+        catalog.hostCoverage.every(
+            (record) =>
+                typeof record.generationState === "string" &&
+                typeof record.technicalTier === "string",
+        ),
+    );
     assert.equal(
         catalog.hostCoverage.find((record) => record.ecosystemId === "roo-code")
             .coverage,
@@ -226,6 +233,12 @@ test("generated human catalog exposes public and engineering packages and capabi
             .coverage,
         "fallback",
     );
+    const devin = catalog.hostCoverage.find(
+        (record) => record.ecosystemId === "devin-hosted",
+    );
+    assert.equal(devin.coverage, "standard-compatible");
+    assert.equal(devin.generationState, "source-compatible");
+    assert.equal(devin.technicalTier, "documented");
 });
 
 test("human catalog manifest binds every generated product file", () => {
@@ -250,6 +263,8 @@ test("human catalog Markdown separates approval and trust visibly", () => {
     assert.match(markdown, /standard-compatible/);
     assert.match(markdown, /native-planned/);
     assert.match(markdown, /no-surface/);
+    assert.match(markdown, /fixture-generated|source-compatible|no-output/);
+    assert.match(markdown, /documented/);
     assert.match(markdown, /## Packages and profiles/);
     assert.match(markdown, /### Cratis Fundamentals/);
     assert.match(markdown, /## Capabilities/);

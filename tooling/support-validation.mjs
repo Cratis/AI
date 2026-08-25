@@ -29,11 +29,11 @@ export const supportPaths = Object.freeze({
 const expectedObservationAnchor =
     "f5992968f86a657b9af21e25d613f16043eddc40b40723af23181c8d5cec10a3";
 const expectedSourceIdentityAnchor =
-    "2f06873ea57efbdafa66f7d1bb2ee8890bbaafa797b5f8cdac4202c87cc19508";
+    "3c55b888817f8d82a3649592d07024f7a8e8bafd0869d24f98062b395abd6c19";
 const expectedObservationBindingAnchor =
-    "371843b933d2003a39b00ed21a4b8abc7e32368f70ba7eab746a56509372acac";
+    "afbebd5da3fff9cdfba20dadcd59bcf966b6e9cb8aa1a829ab1eead9d3503ef9";
 const expectedFactAnchor =
-    "49b5065571c520b0ff3833f21a3fc67180c9a3eff476205c7bf2680d63da94f9";
+    "4202f2d5ebf233b1d10e02000bd35e61803e8061bb800d343d0d1eed1fa984dd";
 const expectedGapAnchor =
     "618d4d6ce61c1ff2cc722da99cc6b0006dd676eb8fdd67bdb16ba8dfefc9c385";
 const expectedTierOrder = [
@@ -647,6 +647,7 @@ export function validateNormalizedEvidence(
         "github-cli-skills-fact-5",
         "npm-cratis-scope-fact-4",
         "npm-trusted-publishing-fact-5",
+        "openhands-fact-2",
     ]);
     for (const fact of evidence.legacyFacts) {
         const shouldSupport = !expectedUnsupportedFacts.has(fact.id);

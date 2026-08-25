@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "contractVersion": 1,
   "disclaimer": "Catalog inclusion, evaluation evidence, bundle generation, or publication does not grant runtime permission or approval.",
-  "inputDigest": "cd53c2bdd96e052d6967735ef386fff6f9c358be9f7d0e95848c79939ab38fd3",
+  "inputDigest": "af416aacfe7b4147d51107dc7d7b790e738f8f42b3a11863d9a03b72cae65b45",
   "profiles": [
     {
       "id": "public-application",
@@ -4227,6 +4227,8 @@
       "servingArtifactBindingId": "aider-artifact-binding",
       "targetId": null,
       "outputRoot": null,
+      "generationState": "no-output",
+      "technicalTier": "documented",
       "supportClaim": false
     },
     {
@@ -4239,6 +4241,8 @@
       "servingArtifactBindingId": "amazon-q-developer-artifact-binding",
       "targetId": null,
       "outputRoot": null,
+      "generationState": "blocked",
+      "technicalTier": "documented",
       "supportClaim": false
     },
     {
@@ -4251,6 +4255,8 @@
       "servingArtifactBindingId": "amp-artifact-binding",
       "targetId": "canonical-agent-skills",
       "outputRoot": "canonical",
+      "generationState": "source-compatible",
+      "technicalTier": "documented",
       "supportClaim": false
     },
     {
@@ -4263,6 +4269,8 @@
       "servingArtifactBindingId": "augment-auggie-artifact-binding",
       "targetId": "canonical-agent-skills",
       "outputRoot": "canonical",
+      "generationState": "source-compatible",
+      "technicalTier": "documented",
       "supportClaim": false
     },
     {
@@ -4275,6 +4283,8 @@
       "servingArtifactBindingId": "claude-code-plugins-artifact-binding",
       "targetId": "claude-code",
       "outputRoot": "claude",
+      "generationState": "fixture-generated",
+      "technicalTier": "documented",
       "supportClaim": false
     },
     {
@@ -4287,6 +4297,8 @@
       "servingArtifactBindingId": "cline-artifact-binding",
       "targetId": "canonical-agent-skills",
       "outputRoot": "canonical",
+      "generationState": "source-compatible",
+      "technicalTier": "documented",
       "supportClaim": false
     },
     {
@@ -4299,6 +4311,8 @@
       "servingArtifactBindingId": "continue-artifact-binding",
       "targetId": null,
       "outputRoot": null,
+      "generationState": "blocked",
+      "technicalTier": "documented",
       "supportClaim": false
     },
     {
@@ -4311,6 +4325,8 @@
       "servingArtifactBindingId": "cursor-plugins-artifact-binding",
       "targetId": "cursor",
       "outputRoot": "cursor",
+      "generationState": "fixture-generated",
+      "technicalTier": "documented",
       "supportClaim": false
     },
     {
@@ -4323,6 +4339,8 @@
       "servingArtifactBindingId": "deepseek-deepcode-skills-artifact-binding",
       "targetId": "deepseek-deepcode",
       "outputRoot": "deepcode",
+      "generationState": "fixture-generated",
+      "technicalTier": "documented",
       "supportClaim": false
     },
     {
@@ -4335,6 +4353,8 @@
       "servingArtifactBindingId": "deepseek-harness-skills-artifact-binding",
       "targetId": "deepseek-harness",
       "outputRoot": "deepseek",
+      "generationState": "fixture-generated-evidence-incomplete",
+      "technicalTier": "documented",
       "supportClaim": false
     },
     {
@@ -4342,11 +4362,13 @@
       "hostAdapterId": "devin-hosted-host-adapter",
       "productName": "Devin hosted",
       "productStatus": "current",
-      "coverage": "no-surface",
-      "strategy": "no-public-extension-surface",
+      "coverage": "standard-compatible",
+      "strategy": "canonical-agent-skills",
       "servingArtifactBindingId": "devin-hosted-artifact-binding",
-      "targetId": null,
-      "outputRoot": null,
+      "targetId": "canonical-agent-skills",
+      "outputRoot": "canonical",
+      "generationState": "source-compatible",
+      "technicalTier": "documented",
       "supportClaim": false
     },
     {
@@ -4359,6 +4381,8 @@
       "servingArtifactBindingId": "factory-droid-artifact-binding",
       "targetId": null,
       "outputRoot": null,
+      "generationState": "blocked",
+      "technicalTier": "documented",
       "supportClaim": false
     },
     {
@@ -4371,6 +4395,8 @@
       "servingArtifactBindingId": "gemini-cli-extensions-artifact-binding",
       "targetId": "gemini-cli",
       "outputRoot": "gemini",
+      "generationState": "fixture-generated-evidence-incomplete",
+      "technicalTier": "documented",
       "supportClaim": false
     },
     {
@@ -4383,6 +4409,8 @@
       "servingArtifactBindingId": "github-cli-skills-artifact-binding",
       "targetId": "canonical-agent-skills",
       "outputRoot": "canonical",
+      "generationState": "source-compatible",
+      "technicalTier": "documented",
       "supportClaim": false
     },
     {
@@ -4395,6 +4423,8 @@
       "servingArtifactBindingId": "github-copilot-plugins-artifact-binding",
       "targetId": "github-copilot",
       "outputRoot": "copilot",
+      "generationState": "fixture-generated",
+      "technicalTier": "documented",
       "supportClaim": false
     },
     {
@@ -4407,6 +4437,8 @@
       "servingArtifactBindingId": "goose-artifact-binding",
       "targetId": "canonical-agent-skills",
       "outputRoot": "canonical",
+      "generationState": "source-compatible",
+      "technicalTier": "documented",
       "supportClaim": false
     },
     {
@@ -4419,6 +4451,8 @@
       "servingArtifactBindingId": "grok-bot-plugins-artifact-binding",
       "targetId": "portable-agent-plugin",
       "outputRoot": "agent-plugin",
+      "generationState": "source-compatible",
+      "technicalTier": "documented",
       "supportClaim": false
     },
     {
@@ -4431,6 +4465,8 @@
       "servingArtifactBindingId": "grok-build-skills-artifact-binding",
       "targetId": "grok-build",
       "outputRoot": "grok",
+      "generationState": "fixture-generated-evidence-incomplete",
+      "technicalTier": "documented",
       "supportClaim": false
     },
     {
@@ -4443,6 +4479,8 @@
       "servingArtifactBindingId": "hermes-agent-plugins-artifact-binding",
       "targetId": "portable-agent-plugin",
       "outputRoot": "agent-plugin",
+      "generationState": "source-compatible",
+      "technicalTier": "documented",
       "supportClaim": false
     },
     {
@@ -4455,6 +4493,8 @@
       "servingArtifactBindingId": "jetbrains-ai-assistant-artifact-binding",
       "targetId": null,
       "outputRoot": null,
+      "generationState": "provider-inherited",
+      "technicalTier": "documented",
       "supportClaim": false
     },
     {
@@ -4467,6 +4507,8 @@
       "servingArtifactBindingId": "junie-extensions-artifact-binding",
       "targetId": "junie",
       "outputRoot": "junie",
+      "generationState": "fixture-generated-evidence-incomplete",
+      "technicalTier": "documented",
       "supportClaim": false
     },
     {
@@ -4479,6 +4521,8 @@
       "servingArtifactBindingId": "kilo-code-artifact-binding",
       "targetId": "canonical-agent-skills",
       "outputRoot": "canonical",
+      "generationState": "source-compatible",
+      "technicalTier": "documented",
       "supportClaim": false
     },
     {
@@ -4491,6 +4535,8 @@
       "servingArtifactBindingId": "kiro-powers-artifact-binding",
       "targetId": "kiro",
       "outputRoot": "kiro",
+      "generationState": "fixture-generated",
+      "technicalTier": "documented",
       "supportClaim": false
     },
     {
@@ -4503,6 +4549,8 @@
       "servingArtifactBindingId": "nanoclaw-templates-artifact-binding",
       "targetId": "portable-agent-plugin",
       "outputRoot": "agent-plugin",
+      "generationState": "source-compatible",
+      "technicalTier": "documented",
       "supportClaim": false
     },
     {
@@ -4515,6 +4563,8 @@
       "servingArtifactBindingId": "openai-plugins-artifact-binding",
       "targetId": "openai-codex",
       "outputRoot": "codex",
+      "generationState": "fixture-generated",
+      "technicalTier": "documented",
       "supportClaim": false
     },
     {
@@ -4527,6 +4577,8 @@
       "servingArtifactBindingId": "openclaw-bundles-artifact-binding",
       "targetId": "portable-agent-plugin",
       "outputRoot": "agent-plugin",
+      "generationState": "source-compatible",
+      "technicalTier": "documented",
       "supportClaim": false
     },
     {
@@ -4539,6 +4591,8 @@
       "servingArtifactBindingId": "opencode-skills-artifact-binding",
       "targetId": "canonical-agent-skills",
       "outputRoot": "canonical",
+      "generationState": "source-compatible",
+      "technicalTier": "documented",
       "supportClaim": false
     },
     {
@@ -4551,6 +4605,8 @@
       "servingArtifactBindingId": "openhands-artifact-binding",
       "targetId": "canonical-agent-skills",
       "outputRoot": "canonical",
+      "generationState": "source-compatible",
+      "technicalTier": "documented",
       "supportClaim": false
     },
     {
@@ -4563,6 +4619,8 @@
       "servingArtifactBindingId": "pi-packages-artifact-binding",
       "targetId": "pi-npm",
       "outputRoot": "pi",
+      "generationState": "fixture-generated",
+      "technicalTier": "documented",
       "supportClaim": false
     },
     {
@@ -4575,6 +4633,8 @@
       "servingArtifactBindingId": "qwen-code-artifact-binding",
       "targetId": "portable-agent-plugin",
       "outputRoot": "agent-plugin",
+      "generationState": "source-compatible",
+      "technicalTier": "documented",
       "supportClaim": false
     },
     {
@@ -4587,6 +4647,8 @@
       "servingArtifactBindingId": "replit-agent-artifact-binding",
       "targetId": "canonical-agent-skills",
       "outputRoot": "canonical",
+      "generationState": "source-compatible",
+      "technicalTier": "documented",
       "supportClaim": false
     },
     {
@@ -4599,6 +4661,8 @@
       "servingArtifactBindingId": "roo-code-artifact-binding",
       "targetId": null,
       "outputRoot": null,
+      "generationState": "blocked",
+      "technicalTier": "documented",
       "supportClaim": false
     },
     {
@@ -4611,6 +4675,8 @@
       "servingArtifactBindingId": "sourcegraph-cody-artifact-binding",
       "targetId": null,
       "outputRoot": null,
+      "generationState": "no-output",
+      "technicalTier": "documented",
       "supportClaim": false
     },
     {
@@ -4623,6 +4689,8 @@
       "servingArtifactBindingId": "tabnine-artifact-binding",
       "targetId": null,
       "outputRoot": null,
+      "generationState": "no-output",
+      "technicalTier": "documented",
       "supportClaim": false
     },
     {
@@ -4635,6 +4703,8 @@
       "servingArtifactBindingId": "visual-studio-copilot-artifact-binding",
       "targetId": "canonical-agent-skills",
       "outputRoot": "canonical",
+      "generationState": "source-compatible",
+      "technicalTier": "documented",
       "supportClaim": false
     },
     {
@@ -4647,6 +4717,8 @@
       "servingArtifactBindingId": "vscode-agent-plugins-artifact-binding",
       "targetId": "portable-agent-plugin",
       "outputRoot": "agent-plugin",
+      "generationState": "source-compatible",
+      "technicalTier": "documented",
       "supportClaim": false
     },
     {
@@ -4659,6 +4731,8 @@
       "servingArtifactBindingId": "windsurf-devin-desktop-artifact-binding",
       "targetId": "canonical-agent-skills",
       "outputRoot": "canonical",
+      "generationState": "source-compatible",
+      "technicalTier": "documented",
       "supportClaim": false
     },
     {
@@ -4671,6 +4745,8 @@
       "servingArtifactBindingId": "zed-skills-artifact-binding",
       "targetId": "canonical-agent-skills",
       "outputRoot": "canonical",
+      "generationState": "source-compatible",
+      "technicalTier": "documented",
       "supportClaim": false
     }
   ]

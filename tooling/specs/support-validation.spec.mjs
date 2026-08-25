@@ -178,6 +178,7 @@ test("legacy facts use minimum exact evidence rather than all-source fan-out", (
             "github-cli-skills-fact-5",
             "npm-cratis-scope-fact-4",
             "npm-trusted-publishing-fact-5",
+            "openhands-fact-2",
         ],
     );
     assert(

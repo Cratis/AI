@@ -10,7 +10,7 @@
       "product": {
         "name": "Aider",
         "status": "current",
-        "clientVersion": "0.86.0",
+        "clientVersion": "0.86.2",
         "serviceVersion": null,
         "versionEvidenceId": "aider-source-2",
         "documentationSnapshot": "2026-08-25"
@@ -528,7 +528,7 @@
         "clientVersion": "2.1.245",
         "serviceVersion": null,
         "versionEvidenceId": "claude-code-plugins-source-5",
-        "documentationSnapshot": "2026-08-25"
+        "documentationSnapshot": "2026-08-20"
       },
       "officialEvidence": {
         "evidenceIds": [
@@ -539,7 +539,7 @@
           "claude-code-plugins-source-5"
         ],
         "observedOn": "2026-08-25",
-        "validThrough": "2026-11-23"
+        "validThrough": "2026-11-18"
       },
       "acceptedStandards": {
         "agentSkills": {
@@ -927,14 +927,14 @@
         "clientVersion": null,
         "serviceVersion": null,
         "versionEvidenceId": null,
-        "documentationSnapshot": "2026-08-25"
+        "documentationSnapshot": "2026-08-20"
       },
       "officialEvidence": {
         "evidenceIds": [
           "cursor-plugins-source-1",
           "cursor-plugins-source-2"
         ],
-        "observedOn": "2026-08-25",
+        "observedOn": "2026-08-20",
         "validThrough": "2026-11-18"
       },
       "acceptedStandards": {
@@ -1072,13 +1072,13 @@
         "clientVersion": null,
         "serviceVersion": null,
         "versionEvidenceId": null,
-        "documentationSnapshot": "2026-08-25"
+        "documentationSnapshot": "2026-08-24"
       },
       "officialEvidence": {
         "evidenceIds": [
           "deepseek-deepcode-skills-source-1"
         ],
-        "observedOn": "2026-08-25",
+        "observedOn": "2026-08-24",
         "validThrough": "2026-11-18"
       },
       "acceptedStandards": {
@@ -1204,7 +1204,7 @@
         "clientVersion": null,
         "serviceVersion": null,
         "versionEvidenceId": null,
-        "documentationSnapshot": "2026-08-25"
+        "documentationSnapshot": "2026-08-20"
       },
       "officialEvidence": {
         "evidenceIds": [
@@ -1212,7 +1212,7 @@
           "deepseek-harness-skills-source-2",
           "deepseek-harness-skills-source-3"
         ],
-        "observedOn": "2026-08-25",
+        "observedOn": "2026-08-20",
         "validThrough": "2026-11-18"
       },
       "acceptedStandards": {
@@ -1379,7 +1379,7 @@
       "nativeDiscoveryRoots": [
         {
           "scope": "project",
-          "path": "<repository-skill>/SKILL.md",
+          "path": ".agents/skills/<skill-name>/SKILL.md",
           "evidenceIds": [
             "devin-hosted-source-1"
           ]
@@ -1451,28 +1451,28 @@
         "availabilityClaim": false
       },
       "supportDisposition": {
-        "coverage": "no-surface",
+        "coverage": "standard-compatible",
         "supportClaim": false,
-        "reason": "Devin hosted is no-surface in S5a; research coverage is not support."
+        "reason": "Devin explicitly consumes canonical Agent Skills; S5a compatibility is not host support."
       },
       "serving": {
         "artifactBindingId": "devin-hosted-artifact-binding",
-        "targetId": null,
-        "outputRoot": null
+        "targetId": "canonical-agent-skills",
+        "outputRoot": "canonical"
       },
       "lifecycleCanary": {
         "required": false,
         "assurances": []
       },
       "frontmatterTransformations": {
-        "state": "not-applicable",
+        "state": "none",
         "dropFields": [],
         "renameFields": {},
         "addFields": {}
       },
-      "strategy": "no-public-extension-surface",
+      "strategy": "canonical-agent-skills",
       "notes": [
-        "No new Devin hosted adapter root or executable content is emitted in S5a."
+        "S5a reuses canonical Agent Skills and emits no Devin-specific artifact root."
       ]
     },
     {
@@ -1633,7 +1633,7 @@
         "clientVersion": "0.56.0",
         "serviceVersion": null,
         "versionEvidenceId": "gemini-cli-extensions-source-4",
-        "documentationSnapshot": "2026-08-25"
+        "documentationSnapshot": "2026-08-20"
       },
       "officialEvidence": {
         "evidenceIds": [
@@ -1643,7 +1643,7 @@
           "gemini-cli-extensions-source-4"
         ],
         "observedOn": "2026-08-25",
-        "validThrough": "2026-11-23"
+        "validThrough": "2026-11-18"
       },
       "acceptedStandards": {
         "agentSkills": {
@@ -1768,10 +1768,10 @@
       "product": {
         "name": "GitHub CLI Skills",
         "status": "preview",
-        "clientVersion": "2.71.2",
+        "clientVersion": null,
         "serviceVersion": null,
-        "versionEvidenceId": "github-cli-skills-source-3",
-        "documentationSnapshot": "2026-08-25"
+        "versionEvidenceId": null,
+        "documentationSnapshot": "2026-08-20"
       },
       "officialEvidence": {
         "evidenceIds": [
@@ -1779,7 +1779,7 @@
           "github-cli-skills-source-2",
           "github-cli-skills-source-3"
         ],
-        "observedOn": "2026-08-25",
+        "observedOn": "2026-08-20",
         "validThrough": "2026-11-18"
       },
       "acceptedStandards": {
@@ -1809,9 +1809,9 @@
       "nativeDiscoveryRoots": [
         {
           "scope": "project",
-          "path": "<discovered-skill-root>/SKILL.md",
+          "path": ".agents/skills/<skill-name>/SKILL.md",
           "evidenceIds": [
-            "github-cli-skills-source-1"
+            "github-cli-skills-source-2"
           ]
         }
       ],
@@ -1826,14 +1826,24 @@
       ],
       "lifecycle": {
         "install": {
-          "state": "not-documented",
-          "scopes": [],
-          "evidenceIds": []
+          "state": "documented",
+          "scopes": [
+            "project",
+            "user"
+          ],
+          "evidenceIds": [
+            "github-cli-skills-source-2"
+          ]
         },
         "update": {
-          "state": "not-documented",
-          "scopes": [],
-          "evidenceIds": []
+          "state": "documented",
+          "scopes": [
+            "project",
+            "user"
+          ],
+          "evidenceIds": [
+            "github-cli-skills-source-1"
+          ]
         },
         "remove": {
           "state": "not-documented",
@@ -1898,7 +1908,7 @@
         "clientVersion": "1.0.80",
         "serviceVersion": null,
         "versionEvidenceId": "github-copilot-plugins-source-3",
-        "documentationSnapshot": "2026-08-25"
+        "documentationSnapshot": "2026-08-20"
       },
       "officialEvidence": {
         "evidenceIds": [
@@ -1907,7 +1917,7 @@
           "github-copilot-plugins-source-3"
         ],
         "observedOn": "2026-08-25",
-        "validThrough": "2026-11-23"
+        "validThrough": "2026-11-18"
       },
       "acceptedStandards": {
         "agentSkills": {
@@ -2180,14 +2190,14 @@
         "clientVersion": null,
         "serviceVersion": null,
         "versionEvidenceId": null,
-        "documentationSnapshot": "2026-08-25"
+        "documentationSnapshot": "2026-08-20"
       },
       "officialEvidence": {
         "evidenceIds": [
           "grok-bot-plugins-source-1",
           "grok-bot-plugins-source-2"
         ],
-        "observedOn": "2026-08-25",
+        "observedOn": "2026-08-20",
         "validThrough": "2026-11-18"
       },
       "acceptedStandards": {
@@ -2308,14 +2318,14 @@
         "clientVersion": null,
         "serviceVersion": null,
         "versionEvidenceId": null,
-        "documentationSnapshot": "2026-08-25"
+        "documentationSnapshot": "2026-08-22"
       },
       "officialEvidence": {
         "evidenceIds": [
           "grok-build-skills-source-1",
           "grok-build-skills-source-2"
         ],
-        "observedOn": "2026-08-25",
+        "observedOn": "2026-08-22",
         "validThrough": "2026-11-18"
       },
       "acceptedStandards": {
@@ -2453,13 +2463,13 @@
         "clientVersion": null,
         "serviceVersion": null,
         "versionEvidenceId": null,
-        "documentationSnapshot": "2026-08-25"
+        "documentationSnapshot": "2026-08-20"
       },
       "officialEvidence": {
         "evidenceIds": [
           "hermes-agent-plugins-source-1"
         ],
-        "observedOn": "2026-08-25",
+        "observedOn": "2026-08-20",
         "validThrough": "2026-11-18"
       },
       "acceptedStandards": {
@@ -2732,13 +2742,13 @@
         "clientVersion": null,
         "serviceVersion": null,
         "versionEvidenceId": null,
-        "documentationSnapshot": "2026-08-25"
+        "documentationSnapshot": "2026-08-20"
       },
       "officialEvidence": {
         "evidenceIds": [
           "junie-extensions-source-1"
         ],
-        "observedOn": "2026-08-25",
+        "observedOn": "2026-08-20",
         "validThrough": "2026-11-18"
       },
       "acceptedStandards": {
@@ -3011,7 +3021,7 @@
         "clientVersion": null,
         "serviceVersion": null,
         "versionEvidenceId": null,
-        "documentationSnapshot": "2026-08-25"
+        "documentationSnapshot": "2026-08-20"
       },
       "officialEvidence": {
         "evidenceIds": [
@@ -3019,7 +3029,7 @@
           "kiro-powers-source-2",
           "kiro-powers-source-3"
         ],
-        "observedOn": "2026-08-25",
+        "observedOn": "2026-08-20",
         "validThrough": "2026-11-18"
       },
       "acceptedStandards": {
@@ -3145,13 +3155,13 @@
         "clientVersion": null,
         "serviceVersion": null,
         "versionEvidenceId": null,
-        "documentationSnapshot": "2026-08-25"
+        "documentationSnapshot": "2026-08-20"
       },
       "officialEvidence": {
         "evidenceIds": [
           "nanoclaw-templates-source-1"
         ],
-        "observedOn": "2026-08-25",
+        "observedOn": "2026-08-20",
         "validThrough": "2026-11-18"
       },
       "acceptedStandards": {
@@ -3272,7 +3282,7 @@
         "clientVersion": "0.149.1",
         "serviceVersion": null,
         "versionEvidenceId": "openai-plugins-source-3",
-        "documentationSnapshot": "2026-08-25"
+        "documentationSnapshot": "2026-08-20"
       },
       "officialEvidence": {
         "evidenceIds": [
@@ -3281,7 +3291,7 @@
           "openai-plugins-source-3"
         ],
         "observedOn": "2026-08-25",
-        "validThrough": "2026-11-23"
+        "validThrough": "2026-11-18"
       },
       "acceptedStandards": {
         "agentSkills": {
@@ -3418,13 +3428,13 @@
         "clientVersion": null,
         "serviceVersion": null,
         "versionEvidenceId": null,
-        "documentationSnapshot": "2026-08-25"
+        "documentationSnapshot": "2026-08-20"
       },
       "officialEvidence": {
         "evidenceIds": [
           "openclaw-bundles-source-1"
         ],
-        "observedOn": "2026-08-25",
+        "observedOn": "2026-08-20",
         "validThrough": "2026-11-18"
       },
       "acceptedStandards": {
@@ -3545,7 +3555,7 @@
         "clientVersion": null,
         "serviceVersion": null,
         "versionEvidenceId": null,
-        "documentationSnapshot": "2026-08-25"
+        "documentationSnapshot": "2026-08-20"
       },
       "officialEvidence": {
         "evidenceIds": [
@@ -3553,7 +3563,7 @@
           "opencode-skills-source-2",
           "opencode-skills-source-3"
         ],
-        "observedOn": "2026-08-25",
+        "observedOn": "2026-08-20",
         "validThrough": "2026-11-18"
       },
       "acceptedStandards": {
@@ -3706,11 +3716,9 @@
           "evidenceIds": []
         },
         "mcp": {
-          "state": "explicit",
+          "state": "not-documented",
           "version": null,
-          "evidenceIds": [
-            "openhands-source-2"
-          ]
+          "evidenceIds": []
         },
         "agentsMd": {
           "state": "explicit",
@@ -3747,41 +3755,24 @@
       ],
       "lifecycle": {
         "install": {
-          "state": "documented",
-          "scopes": [
-            "user",
-            "project"
-          ],
-          "evidenceIds": [
-            "openhands-source-2"
-          ]
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
         },
         "update": {
-          "state": "documented",
-          "scopes": [
-            "user",
-            "project"
-          ],
-          "evidenceIds": [
-            "openhands-source-2"
-          ]
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
         },
         "remove": {
-          "state": "documented",
-          "scopes": [
-            "user",
-            "project"
-          ],
-          "evidenceIds": [
-            "openhands-source-2"
-          ]
+          "state": "not-documented",
+          "scopes": [],
+          "evidenceIds": []
         }
       },
       "supportedComponentKinds": [
         "skills",
-        "rules",
-        "plugins",
-        "mcp"
+        "rules"
       ],
       "executablePolicy": {
         "state": "passive-content-only",
@@ -3791,10 +3782,8 @@
         ]
       },
       "marketplace": {
-        "state": "official",
-        "evidenceIds": [
-          "openhands-source-2"
-        ],
+        "state": "not-documented",
+        "evidenceIds": [],
         "availabilityClaim": false
       },
       "supportDisposition": {
@@ -3838,7 +3827,7 @@
         "clientVersion": "0.84.3",
         "serviceVersion": null,
         "versionEvidenceId": "pi-packages-source-4",
-        "documentationSnapshot": "2026-08-25"
+        "documentationSnapshot": "2026-08-20"
       },
       "officialEvidence": {
         "evidenceIds": [
@@ -3848,7 +3837,7 @@
           "pi-packages-source-4"
         ],
         "observedOn": "2026-08-25",
-        "validThrough": "2026-11-23"
+        "validThrough": "2026-11-18"
       },
       "acceptedStandards": {
         "agentSkills": {
@@ -4285,7 +4274,7 @@
         "status": "archived",
         "clientVersion": "3.54.0",
         "serviceVersion": null,
-        "versionEvidenceId": "roo-code-source-2",
+        "versionEvidenceId": "roo-code-source-1",
         "documentationSnapshot": "2026-08-25"
       },
       "officialEvidence": {
@@ -4298,11 +4287,9 @@
       },
       "acceptedStandards": {
         "agentSkills": {
-          "state": "compatible-layout",
+          "state": "not-documented",
           "version": null,
-          "evidenceIds": [
-            "roo-code-source-1"
-          ]
+          "evidenceIds": []
         },
         "agentPlugins": {
           "state": "not-documented",
@@ -4310,11 +4297,9 @@
           "evidenceIds": []
         },
         "mcp": {
-          "state": "explicit",
+          "state": "not-documented",
           "version": null,
-          "evidenceIds": [
-            "roo-code-source-2"
-          ]
+          "evidenceIds": []
         },
         "agentsMd": {
           "state": "not-documented",
@@ -4322,55 +4307,35 @@
           "evidenceIds": []
         }
       },
-      "nativeDiscoveryRoots": [
-        {
-          "scope": "project",
-          "path": ".roo/skills/<skill-name>/SKILL.md",
-          "evidenceIds": [
-            "roo-code-source-2"
-          ]
-        }
-      ],
-      "manifests": [
-        {
-          "path": "SKILL.md",
-          "required": true,
-          "evidenceIds": [
-            "roo-code-source-2"
-          ]
-        }
-      ],
+      "nativeDiscoveryRoots": [],
+      "manifests": [],
       "lifecycle": {
         "install": {
           "state": "retired",
           "scopes": [],
           "evidenceIds": [
-            "roo-code-source-2"
+            "roo-code-source-1"
           ]
         },
         "update": {
           "state": "retired",
           "scopes": [],
           "evidenceIds": [
-            "roo-code-source-2"
+            "roo-code-source-1"
           ]
         },
         "remove": {
           "state": "retired",
           "scopes": [],
           "evidenceIds": [
-            "roo-code-source-2"
+            "roo-code-source-1"
           ]
         }
       },
-      "supportedComponentKinds": [
-        "skills",
-        "rules",
-        "mcp"
-      ],
+      "supportedComponentKinds": [],
       "executablePolicy": {
-        "state": "host-can-execute",
-        "reviewRequired": true,
+        "state": "no-output",
+        "reviewRequired": false,
         "evidenceIds": [
           "roo-code-source-1"
         ]
@@ -4378,7 +4343,7 @@
       "marketplace": {
         "state": "retired",
         "evidenceIds": [
-          "roo-code-source-2"
+          "roo-code-source-1"
         ],
         "availabilityClaim": false
       },
@@ -4713,6 +4678,13 @@
           "evidenceIds": [
             "visual-studio-copilot-source-2"
           ]
+        },
+        {
+          "scope": "project",
+          "path": ".agents/skills/<skill-name>/SKILL.md",
+          "evidenceIds": [
+            "visual-studio-copilot-source-1"
+          ]
         }
       ],
       "manifests": [
@@ -4812,13 +4784,13 @@
         "clientVersion": null,
         "serviceVersion": null,
         "versionEvidenceId": null,
-        "documentationSnapshot": "2026-08-25"
+        "documentationSnapshot": "2026-08-20"
       },
       "officialEvidence": {
         "evidenceIds": [
           "vscode-agent-plugins-source-1"
         ],
-        "observedOn": "2026-08-25",
+        "observedOn": "2026-08-20",
         "validThrough": "2026-11-18"
       },
       "acceptedStandards": {
@@ -5071,14 +5043,14 @@
         "clientVersion": null,
         "serviceVersion": null,
         "versionEvidenceId": null,
-        "documentationSnapshot": "2026-08-25"
+        "documentationSnapshot": "2026-08-20"
       },
       "officialEvidence": {
         "evidenceIds": [
           "zed-skills-source-1",
           "zed-skills-source-2"
         ],
-        "observedOn": "2026-08-25",
+        "observedOn": "2026-08-20",
         "validThrough": "2026-11-18"
       },
       "acceptedStandards": {

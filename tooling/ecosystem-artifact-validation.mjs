@@ -1,6 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+import { createHash } from "node:crypto";
 import { join } from "node:path";
 import { compareOrdinal } from "./catalog-ordering.mjs";
 import {
@@ -576,8 +577,23 @@ export function validateEcosystemArtifactClosure(catalogs) {
     return errors;
 }
 
+const expectedHostAdapterAnchor =
+    "8e68b6b1c3590b3a5c1b1b937330d364a93e6a94247317dd9868fd141680c6a1";
+
 export function validateHostAdapters(catalogs) {
     const errors = [];
+    const hostAdapterAnchor = createHash("sha256")
+        .update(
+            `${[...catalogs.hostAdapters.hosts]
+                .sort((left, right) => compareOrdinal(left.id, right.id))
+                .map((record) => JSON.stringify(record))
+                .join("\n")}\n`,
+        )
+        .digest("hex");
+    if (hostAdapterAnchor !== expectedHostAdapterAnchor)
+        errors.push(
+            "host adapter semantic contract differs from the independently reviewed anchor",
+        );
     const contractsById = new Map(
         catalogs.ecosystemContracts.ecosystems.map((record) => [
             record.id,
@@ -612,6 +628,10 @@ export function validateHostAdapters(catalogs) {
     ))
         errors.push(`host adapter registry contains duplicate id ${duplicate}`);
     for (const host of catalogs.hostAdapters.hosts) {
+        if (host.id !== `${host.ecosystemId}-host-adapter`)
+            errors.push(
+                `host adapter ${host.id} identity diverges from ecosystem ${host.ecosystemId}`,
+            );
         const contract = contractsById.get(host.ecosystemId);
         const binding = bindingsById.get(host.serving.artifactBindingId);
         if (!contract) {
@@ -651,6 +671,24 @@ export function validateHostAdapters(catalogs) {
             !host.product.versionEvidenceId
         )
             errors.push(`host adapter ${host.id} version lacks exact evidence`);
+        if (host.product.versionEvidenceId) {
+            const versionEvidence = evidenceById.get(
+                host.product.versionEvidenceId,
+            );
+            const version =
+                host.product.clientVersion ?? host.product.serviceVersion;
+            if (
+                !host.officialEvidence.evidenceIds.includes(
+                    host.product.versionEvidenceId,
+                ) ||
+                !versionEvidence ||
+                !versionEvidence.applicableVersion.includes(version)
+            )
+                errors.push(
+                    `host adapter ${host.id} version is not bound to exact official evidence`,
+                );
+        }
+        const citedEvidence = [];
         for (const evidenceId of host.officialEvidence.evidenceIds) {
             if (!contract.officialEvidenceIds.includes(evidenceId))
                 errors.push(
@@ -660,9 +698,45 @@ export function validateHostAdapters(catalogs) {
                 errors.push(
                     `host adapter ${host.id} references unknown evidence ${evidenceId}`,
                 );
+            else citedEvidence.push(evidenceById.get(evidenceId));
         }
         if (host.officialEvidence.validThrough < catalogs.hostAdapters.asOf)
             errors.push(`host adapter ${host.id} evidence is expired`);
+        if (citedEvidence.length > 0) {
+            const expectedObservedOn = citedEvidence
+                .map((record) => record.verifiedOn)
+                .sort()
+                .at(-1);
+            const expectedValidThrough = citedEvidence
+                .map((record) => record.expiresOn)
+                .sort()[0];
+            const documentationDates = citedEvidence
+                .filter((record) =>
+                    [
+                        "specification",
+                        "official-documentation",
+                        "installed-documentation",
+                    ].includes(record.sourceKind),
+                )
+                .map((record) => record.verifiedOn)
+                .sort();
+            const expectedDocumentationSnapshot =
+                documentationDates.at(-1) ?? expectedObservedOn;
+            if (
+                host.officialEvidence.observedOn !== expectedObservedOn ||
+                host.officialEvidence.validThrough !== expectedValidThrough
+            )
+                errors.push(
+                    `host adapter ${host.id} evidence window exceeds or diverges from cited evidence`,
+                );
+            if (
+                host.product.documentationSnapshot !==
+                expectedDocumentationSnapshot
+            )
+                errors.push(
+                    `host adapter ${host.id} documentation snapshot diverges from cited documentation evidence`,
+                );
+        }
         for (const [standardName, standard] of Object.entries(
             host.acceptedStandards,
         )) {
@@ -698,6 +772,22 @@ export function validateHostAdapters(catalogs) {
             errors.push(
                 `host adapter ${host.id} claims Agent Skills without the ecosystem interface`,
             );
+        if (host.strategy === "no-public-extension-surface") {
+            if (
+                [
+                    host.acceptedStandards.agentSkills,
+                    host.acceptedStandards.agentPlugins,
+                ].some((standard) =>
+                    ["explicit", "compatible-layout", "provider-only"].includes(
+                        standard.state,
+                    ),
+                ) ||
+                host.supportDisposition.coverage !== "no-surface"
+            )
+                errors.push(
+                    `host adapter ${host.id} no-surface disposition contradicts active host capabilities`,
+                );
+        }
         if (
             [
                 "migration-only",

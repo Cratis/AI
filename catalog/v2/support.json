@@ -431,7 +431,7 @@
     {
       "bindingId": "devin-hosted-artifact-binding",
       "ecosystemId": "devin-hosted",
-      "artifactClass": "no-artifact",
+      "artifactClass": "passive-public-package",
       "effectiveTier": "documented",
       "rank": 1,
       "supportClaim": false,
