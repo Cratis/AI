@@ -139,6 +139,16 @@
       "confidence": "high"
     },
     {
+      "id": "chronicle-mcp-inspection-source-5997b28",
+      "officialUrl": "https://github.com/Cratis/AI/tree/5997b28c142d9ee489841894e5d21730da5cb5a5/skills/cratis-chronicle-mcp-inspection",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2027-08-25",
+      "applicableVersion": "5997b28c142d9ee489841894e5d21730da5cb5a5",
+      "confidence": "high",
+      "immutableRevision": "5997b28c142d9ee489841894e5d21730da5cb5a5"
+    },
+    {
       "id": "claude-code-plugins-source-1",
       "officialUrl": "https://code.claude.com/docs/en/plugins-reference",
       "sourceKind": "official-documentation",

@@ -80,7 +80,7 @@ test("public schema rejects unknown fields and non-Cratis public names", () => {
 test("public catalog starts deny-by-default with no runtime-approved candidates", () => {
     const catalog = readCatalog(publicCatalogPath);
     assert.equal(catalog.defaultPolicy, "deny");
-    assert.equal(catalog.skills.length, 35);
+    assert.equal(catalog.skills.length, 36);
     assert.equal(catalog.audit.internalSkills.length, 8);
     assert(
         catalog.skills.every(
@@ -88,6 +88,20 @@ test("public catalog starts deny-by-default with no runtime-approved candidates"
         ),
     );
     assert(catalog.skills.every((skill) => skill.includeInRuntime === false));
+});
+
+test("Chronicle MCP candidate remains classification-only and runtime denied", () => {
+    const catalog = readCatalog(publicCatalogPath);
+    const guidance = catalog.skills.find(
+        (skill) =>
+            skill.currentName === "cratis-chronicle-mcp-inspection",
+    );
+    assert.equal(guidance.source, "skills/cratis-chronicle-mcp-inspection");
+    assert.equal(guidance.disposition, "retain");
+    assert.equal(guidance.publicationStatus, "candidate");
+    assert.equal(guidance.includeInRuntime, false);
+    assert.deepEqual(guidance.products, ["chronicle-mcp"]);
+    assert.deepEqual(guidance.dependencies.externalTools, []);
 });
 
 test("business-rule source records the approved split review", () => {

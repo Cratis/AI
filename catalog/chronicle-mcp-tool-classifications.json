@@ -5,6 +5,8 @@
   "authorityState": "NO_ADMITTED_TOOL_EFFECT_EVIDENCE",
   "defaultDisposition": "evidence-blocked",
   "upstreamRevision": null,
+  "inventoryDigest": null,
+  "inventoryEvidenceId": null,
   "effectClasses": [
     "classification-only",
     "observational",

@@ -154,6 +154,21 @@
       ]
     },
     {
+      "id": "rename-cratis-chronicle-mcp-inspection",
+      "kind": "retain",
+      "sourceIds": [
+        "cratis-chronicle-mcp-inspection"
+      ],
+      "targetIds": [
+        "cratis-chronicle-mcp-inspection"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
       "id": "rename-cratis-command",
       "kind": "rename",
       "sourceIds": [

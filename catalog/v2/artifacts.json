@@ -44,6 +44,7 @@
           "cratis-chronicle-event-modeling",
           "cratis-chronicle-event-specifications",
           "cratis-chronicle-event-type-migration",
+          "cratis-chronicle-mcp-inspection",
           "cratis-chronicle-multi-tenancy",
           "cratis-chronicle-projection",
           "cratis-chronicle-reactor",

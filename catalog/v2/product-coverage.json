@@ -1376,18 +1376,22 @@
         },
         {
           "id": "safe-use-and-interpretation",
-          "coverageState": "gap",
+          "coverageState": "partial",
           "claimState": "unclaimed",
           "languages": [
             "language-agnostic"
           ],
-          "sourceSkillIds": [],
-          "targetIds": [],
+          "sourceSkillIds": [
+            "cratis-chronicle-mcp-inspection"
+          ],
+          "targetIds": [
+            "cratis-chronicle-mcp-inspection"
+          ],
           "evidenceIds": [
             "repo-main-b795d53",
             "reevaluation-authority"
           ],
-          "notes": "Cratis AI owns passive guidance; Chronicle.Mcp owns executable tools, schemas, credentials, and mutations."
+          "notes": "Generic classification and interpretation guidance only. No Chronicle.Mcp tool or prompt is admitted or invocable; executable tools, schemas, credentials, mutations, installation, and server behavior remain Chronicle.Mcp-owned gaps."
         }
       ]
     },

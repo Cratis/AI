@@ -175,6 +175,14 @@ const publicClassifications = new Map([
 
 const sourceOverrides = new Map([
     [
+        "cratis-chronicle-mcp-inspection",
+        {
+            sourcePath: "skills/cratis-chronicle-mcp-inspection",
+            sourceRevision: "5997b28c142d9ee489841894e5d21730da5cb5a5",
+            evidenceId: "chronicle-mcp-inspection-source-5997b28",
+        },
+    ],
+    [
         "add-concept",
         {
             sourcePath: "skills/cratis-fundamentals-concept",
@@ -469,6 +477,20 @@ const engineeringClassifications = new Map([
 ]);
 
 const profiles = {
+    "cratis-chronicle-mcp-inspection": [
+        "Chronicle MCP classification-only inspection guidance",
+        "Use when classifying a Chronicle MCP inspection request or interpreting already-redacted output without invoking a tool or prompt.",
+        [
+            "Do not use to invoke, install, or configure Chronicle MCP.",
+            "Do not use for Chronicle CLI recovery or mutation operations.",
+        ],
+        [
+            "cratis-application-slice-diagnostics",
+            "cratis-chronicle-cli-operations",
+        ],
+        "high",
+        false,
+    ],
     "cratis-arc-command-validation": [
         "Arc command validation",
         "Use when adding validation or state-dependent rejection to an existing Arc command.",

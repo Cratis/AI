@@ -323,7 +323,10 @@ const definitions = [
     {
         id: "public-skill-sources-and-resources",
         sourcePathPatterns: publicSkillRoots,
-        excludePathPatterns: [".ai/skills/*/evals/**"],
+        excludePathPatterns: [
+            ".ai/skills/*/evals/**",
+            "skills/cratis-chronicle-mcp-inspection/references/**",
+        ],
         artifactType: "skill-source-and-resources",
         currentOwner: engineeringOwner,
         targetOwner: publicOwner,
@@ -338,6 +341,33 @@ const definitions = [
             "workflows-68",
             "reevaluation-authority",
         ],
+    },
+    {
+        id: "chronicle-mcp-generated-guidance-references",
+        sourcePathPatterns: [
+            "skills/cratis-chronicle-mcp-inspection/references/**",
+        ],
+        artifactType: "skill-source-and-resources",
+        currentOwner: repositoryOwner,
+        targetOwner: publicOwner,
+        runtimeEligibility: "candidate",
+        generatedStatus: "generated",
+        adapterStatus: "none",
+        dependencies: [
+            "catalog/chronicle-mcp-tool-classifications.json",
+            "catalog/evidence.json",
+            "catalog/schemas/chronicle-mcp-tool-classifications.schema.json",
+            "catalog/schemas/evidence.schema.json",
+            "catalog/schemas/v2/catalog-v2.schema.json",
+            "catalog/v2/source-contracts.json",
+            "tooling/chronicle-mcp-guidance-validation.mjs",
+            "tooling/generate-chronicle-mcp-guidance-references.mjs",
+            "tooling/support-validation.mjs",
+        ],
+        risk: "critical",
+        migrationState: "blocked-by-distribution-decision",
+        evidenceIds: ["chronicle-mcp-inspection-source-5997b28"],
+        generator: "tooling/generate-chronicle-mcp-guidance-references.mjs",
     },
     {
         id: "engineering-skill-sources-and-resources",
@@ -703,7 +733,10 @@ const definitions = [
     },
     {
         id: "capability-model-documentation",
-        sourcePathPatterns: ["Documentation/capability-catalog-v2.md"],
+        sourcePathPatterns: [
+            "Documentation/capability-catalog-v2.md",
+            "Documentation/chronicle-mcp-guidance.md",
+        ],
         artifactType: "documentation",
         currentOwner: repositoryOwner,
         targetOwner: repositoryOwner,
@@ -711,6 +744,7 @@ const definitions = [
         generatedStatus: "source",
         adapterStatus: "none",
         dependencies: [
+            "catalog/chronicle-mcp-tool-classifications.json",
             "catalog/v2/bundles.json",
             "catalog/v2/source-contracts.json",
             "catalog/v2/taxonomy.json",
@@ -950,11 +984,13 @@ const definitions = [
     {
         id: "catalog-v2-authored-registries",
         sourcePathPatterns: [
+            "catalog/chronicle-mcp-tool-classifications.json",
             "catalog/components.json",
             "catalog/component-projections.json",
             "catalog/evidence.json",
             "catalog/host-adapters.json",
             "catalog/support-policy.json",
+            "catalog/schemas/chronicle-mcp-tool-classifications.schema.json",
             "catalog/schemas/components.schema.json",
             "catalog/schemas/component-projections.schema.json",
             "catalog/schemas/evidence.schema.json",
@@ -986,6 +1022,7 @@ const definitions = [
             "catalog/schemas/support-policy.schema.json",
             "catalog/schemas/support.schema.json",
             "tooling/catalog-v2-validation.mjs",
+            "tooling/chronicle-mcp-guidance-validation.mjs",
             "tooling/ecosystem-artifact-validation.mjs",
         ],
         risk: "high",

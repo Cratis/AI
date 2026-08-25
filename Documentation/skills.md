@@ -68,6 +68,12 @@ A well-formed skill file follows this structure:
 
 ## Skill inventory
 
+### Canonical safety and interpretation skills
+
+| Skill | When to invoke |
+| --- | --- |
+| `cratis-chronicle-mcp-inspection` | Classifying a Chronicle MCP inspection request or interpreting already-redacted output without invoking a tool or prompt; its observational inventory is currently empty |
+
 ### Implementation skills
 
 | Skill | When to invoke |
@@ -126,7 +132,7 @@ Examples:
 
 ## Adding a new skill
 
-1. Create a folder under `.github/skills/<skill-name>/`.
+1. Create a canonical folder under `skills/<skill-name>/` for public content or `engineering/skills/<skill-name>/` for maintainer content. Legacy `.github/skills` paths are adapters, not authoring roots.
 2. Create `SKILL.md` following the structure above.
 3. Add supporting material to `references/` if needed.
 4. Add evals to `evals/evals.json` if you want quality measurement.

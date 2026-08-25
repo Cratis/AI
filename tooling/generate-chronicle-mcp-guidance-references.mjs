@@ -6,6 +6,12 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { compareOrdinal } from "./catalog-ordering.mjs";
+import { validateAgainstSchema } from "./catalog-validation.mjs";
+import { validateChronicleMcpClassification } from "./chronicle-mcp-guidance-validation.mjs";
+import {
+    loadSupportCatalogs,
+    validateNormalizedEvidence,
+} from "./support-validation.mjs";
 
 export const chronicleMcpGuidanceReferencePaths = Object.freeze({
     observational:
@@ -17,13 +23,30 @@ const defaultRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 
 function markdownText(value) {
     return value
+        .normalize("NFC")
+        .replaceAll("&", "&amp;")
         .replaceAll("\\", "\\\\")
         .replaceAll("`", "\\`")
         .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;");
+        .replaceAll(">", "&gt;")
+        .replaceAll("\r", " ")
+        .replaceAll("\n", " ");
 }
 
-export function expectedChronicleMcpGuidanceReferences(catalog) {
+export function expectedChronicleMcpGuidanceReferences(
+    catalog,
+    { schema, sourceContracts, evidence },
+) {
+    const errors = validateChronicleMcpClassification(
+        catalog,
+        schema,
+        sourceContracts,
+        evidence,
+    );
+    if (errors.length > 0)
+        throw new Error(
+            `Refusing to generate invalid Chronicle MCP guidance: ${errors.join("; ")}`,
+        );
     const observational = [...catalog.tools, ...catalog.prompts]
         .filter(
             (subject) =>
@@ -64,7 +87,7 @@ export function expectedChronicleMcpGuidanceReferences(catalog) {
         "",
         "> Generated from the deny-by-default Chronicle MCP classification catalog.",
         "",
-        `Default disposition: \`${catalog.defaultDisposition}\`.`,
+        `Default disposition: \`${markdownText(catalog.defaultDisposition)}\`.`,
         "",
         `Evidence-blocked or effectful subject count: ${blockedCount}.`,
         "",
@@ -81,6 +104,38 @@ export function expectedChronicleMcpGuidanceReferences(catalog) {
     };
 }
 
+export function validateChronicleMcpGenerationInputs(
+    root,
+    validationInputs,
+    supportCatalogs = loadSupportCatalogs(root),
+) {
+    const v2Schema = JSON.parse(
+        readFileSync(
+            join(root, "catalog/schemas/v2/catalog-v2.schema.json"),
+            "utf8",
+        ),
+    );
+    const evidenceSchema = JSON.parse(
+        readFileSync(
+            join(root, "catalog/schemas/evidence.schema.json"),
+            "utf8",
+        ),
+    );
+    return [
+        ...validateAgainstSchema(
+            validationInputs.sourceContracts,
+            v2Schema.$defs.sourceContractsCatalog,
+            v2Schema,
+        ),
+        ...validateAgainstSchema(
+            validationInputs.evidence,
+            evidenceSchema,
+            evidenceSchema,
+        ),
+        ...validateNormalizedEvidence(supportCatalogs, root),
+    ];
+}
+
 export function generateChronicleMcpGuidanceReferences(root = defaultRoot) {
     const catalog = JSON.parse(
         readFileSync(
@@ -88,7 +143,35 @@ export function generateChronicleMcpGuidanceReferences(root = defaultRoot) {
             "utf8",
         ),
     );
-    const expected = expectedChronicleMcpGuidanceReferences(catalog);
+    const validationInputs = {
+        schema: JSON.parse(
+            readFileSync(
+                join(
+                    root,
+                    "catalog/schemas/chronicle-mcp-tool-classifications.schema.json",
+                ),
+                "utf8",
+            ),
+        ),
+        sourceContracts: JSON.parse(
+            readFileSync(join(root, "catalog/v2/source-contracts.json"), "utf8"),
+        ),
+        evidence: JSON.parse(
+            readFileSync(join(root, "catalog/evidence.json"), "utf8"),
+        ),
+    };
+    const auxiliaryErrors = validateChronicleMcpGenerationInputs(
+        root,
+        validationInputs,
+    );
+    if (auxiliaryErrors.length > 0)
+        throw new Error(
+            `Refusing to generate from invalid Chronicle MCP authority catalogs: ${auxiliaryErrors.join("; ")}`,
+        );
+    const expected = expectedChronicleMcpGuidanceReferences(
+        catalog,
+        validationInputs,
+    );
     for (const [path, content] of Object.entries(expected)) {
         const output = join(root, path);
         mkdirSync(resolve(output, ".."), { recursive: true });

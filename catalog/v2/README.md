@@ -6,6 +6,7 @@ This README is hand-authored documentation. It is not a catalog and is not consu
 
 Edit these files directly:
 
+- `../chronicle-mcp-tool-classifications.json` — deny-by-default tool and prompt effect admission for the passive Chronicle MCP guidance skill
 - `../components.json` — canonical component identities, source ownership, trust, effects, boundaries, and projection policy
 - `../component-projections.json` — explicit existing, planned, and blocked host projections
 - `../evidence.json` — reusable evidence sources, exact observations, legacy facts and gaps, and distribution evidence-file inventory
@@ -39,6 +40,11 @@ publication, promotion, installation, or marketplace eligibility.
 `support.json` is generated from `../evidence.json`, `../support-policy.json`, `ecosystem-artifact-coverage.json` inputs, `artifact-assurance-profiles.json`, and `distribution/ecosystem-artifact-bindings.json`. Run `node tooling/generate-support.mjs` after the v2 catalog generator and before the coverage or human-catalog generators. It computes technical tier, active/expired/future evidence, missing assurances, decay, marketplace status, and the support claim. It never reads the wall clock, locale, network, environment, or filesystem timestamps.
 
 `ecosystem-artifact-coverage.json` is generated from the authored ecosystem contracts, assurance profiles, and `distribution/ecosystem-artifact-bindings.json`. Run `node tooling/generate-ecosystem-artifact-coverage.mjs`. A coverage record means the ecosystem is accounted for; it is not a support, publication, runtime, or promotion claim.
+
+The Chronicle MCP Markdown references are generated outside this directory from
+`../chronicle-mcp-tool-classifications.json`. Run
+`node tooling/generate-chronicle-mcp-guidance-references.mjs`; generation does
+not create a tool, prompt, configuration, or executable MCP component.
 
 `repository-inventory.json` is also generated. Run `node tooling/generate-repository-inventory.mjs` after repository files change.
 

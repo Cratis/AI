@@ -54,6 +54,7 @@
     "engineering/skills/cratis-engineering-docs-add-page",
     "engineering/skills/cratis-engineering-docs-authoring",
     "engineering/skills/cratis-engineering-docs-edit-page",
+    "skills/cratis-chronicle-mcp-inspection",
     "skills/cratis-fundamentals-concept"
   ],
   "declaredEmptyKinds": [
@@ -2482,6 +2483,87 @@
         "static-asset"
       ],
       "requiredCanaries": [
+        "projection-shape",
+        "semantic-identity",
+        "source-digest"
+      ],
+      "securityRequirements": {
+        "threatModel": false,
+        "securityReview": false,
+        "executableAssuranceProfile": false
+      }
+    },
+    {
+      "id": "cratis-chronicle-mcp-inspection",
+      "kind": "skill",
+      "semanticIdentity": "cratis-chronicle-mcp-inspection",
+      "semanticName": "Chronicle MCP classification-only inspection guidance",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-chronicle-mcp-inspection",
+      "canonicalSources": [
+        {
+          "path": "skills/cratis-chronicle-mcp-inspection",
+          "digest": "5af4235d93f1238cd6e59489adfa13b35caa31876f1e0b5bd129de6dd3e113bf",
+          "ownership": "owner",
+          "ownerComponentId": "cratis-chronicle-mcp-inspection"
+        }
+      ],
+      "contentDigest": "429ea7e71adb7d0f0473195da1c7165ea45205614e7832df34ee95f0383a4703",
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "classification": {
+        "artifactClass": "passive-content",
+        "trust": "passive",
+        "passive": true,
+        "executable": false,
+        "effect": "guided-read"
+      },
+      "dependencies": [],
+      "hostNeutralPurpose": "Classify Chronicle MCP inspection requests and interpret already-redacted output without invoking a tool or prompt",
+      "approval": {
+        "state": "modeled",
+        "evidenceIds": [
+          "chronicle-mcp-inspection-source-5997b28"
+        ]
+      },
+      "releaseBoundary": "public-passive",
+      "allowedProjections": [
+        {
+          "hostContract": "any-passive-host",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "passive-private-fixture",
+            "passive-public-package",
+            "provider-compatibility"
+          ]
+        },
+        {
+          "hostContract": "portable-agent-plugins-1-0",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "passive-public-package"
+          ]
+        }
+      ],
+      "forbiddenProjections": [
+        "agent",
+        "subagent",
+        "command",
+        "prompt",
+        "rule",
+        "instruction",
+        "hook",
+        "mcp",
+        "lsp",
+        "executable-host-extension",
+        "static-asset"
+      ],
+      "requiredCanaries": [
+        "classification-boundary",
         "projection-shape",
         "semantic-identity",
         "source-digest"

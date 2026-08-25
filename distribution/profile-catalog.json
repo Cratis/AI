@@ -213,8 +213,9 @@
       "packageName": "@cratis/ai-chronicle-mcp",
       "products": ["chronicle-mcp"],
       "languages": ["language-agnostic"],
-      "state": "content-gap",
-      "gapSummary": "Cratis AI owns passive installation, selection, safety, and interpretation guidance; Chronicle.Mcp owns executable tools, schemas, credentials, and mutations."
+      "state": "preview-source-candidate",
+      "availableTargets": ["cratis-chronicle-mcp-inspection"],
+      "gapSummary": "Contains a classification-only passive source candidate. No Chronicle.Mcp tool or prompt is admitted or invocable; installation, executable behavior, schemas, credentials, output controls, and mutations remain gaps."
     },
     {
       "id": "public-chronicle-web-workbench",

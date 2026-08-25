@@ -88,6 +88,12 @@ non-emitting and fail closed without SBOM, provenance, threat-model, and canary
 assurances. No Agent Plugin manifest fields are added for these repository
 controls.
 
+The Chronicle MCP inspection candidate is passive Agent Skill content, not an
+Agent Plugins MCP component. Its deny-all classification catalog generates two
+Markdown references, but creates no `mcp` manifest entry, server configuration,
+transport, dependency, or executable byte. Effectful guidance and local or
+remote MCP server classes remain non-emitting.
+
 ## Complete gate
 
 Run the repository's full gate after changing the contract, validator,
@@ -95,6 +101,7 @@ generators, fixtures, or documentation:
 
 ```bash
 node tooling/harness-registry.mjs
+node tooling/generate-chronicle-mcp-guidance-references.mjs
 node tooling/generate-catalog-v2.mjs
 node tooling/generate-support.mjs
 node tooling/generate-ecosystem-artifact-coverage.mjs
@@ -102,6 +109,7 @@ node tooling/generate-human-catalog.mjs
 node tooling/generate-repository-inventory.mjs
 node tooling/portable-compliance-validation.mjs --verify-lock
 node tooling/release-assurance-validation.mjs
+node tooling/chronicle-mcp-guidance-validation.mjs
 node tooling/benchmarks/release-generation.mjs 1
 node tooling/validate-catalogs.mjs
 node --test tooling/specs/*.spec.mjs

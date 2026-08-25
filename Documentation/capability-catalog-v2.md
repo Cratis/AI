@@ -48,7 +48,9 @@ trust and effect classification, dependencies, approval evidence, release
 boundary, projection policy, and required canaries. Retained legacy skills are
 modeled explicitly as unbound, repository-only components rather than hidden by
 an exclusion. MCP and LSP are explicitly empty because Cratis has no approved
-runtime components of either kind.
+runtime components of either kind. The Chronicle MCP inspection candidate is a
+passive `skill` component with `guided-read` classification; an MCP-product
+skill does not create an executable `mcp` component.
 
 `catalog/component-projections.json` separately records existing derived host
 adapters and any future planned or blocked projections. An agent can become an
@@ -72,7 +74,9 @@ projections. The component summary in the generated human catalog reports counts
 by kind, trust, audience, and projection state. **Modeled or planned does not
 mean emitted, supported, installable, published, promoted, or runtime eligible.**
 S6 creates no native component output and no MCP, LSP, hook, or extension
-runtime package.
+runtime package. S7 adds one classification-only passive skill source while
+keeping its tool and prompt inventory empty, its component unprojected, and all
+MCP executable and effectful lanes non-emitting.
 
 ## Target-local safety fields
 

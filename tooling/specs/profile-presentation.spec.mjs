@@ -46,6 +46,20 @@ test("profile presentation gives packages useful developer-facing descriptions",
     ]);
 });
 
+test("Chronicle MCP profile presentation denies tool and prompt invocation", () => {
+    const profile = {
+        id: "public-chronicle-mcp",
+        packageName: "@cratis/ai-chronicle-mcp",
+        products: ["chronicle-mcp"],
+        languages: ["language-agnostic"],
+        state: "preview-source-candidate",
+        availableTargets: ["cratis-chronicle-mcp-inspection"],
+    };
+    const description = profileDescription(profile, "public");
+    assert.match(description, /Classification-only passive guidance/u);
+    assert.match(description, /no tool or prompt is admitted or invocable/u);
+});
+
 test("engineering profile descriptions are public-safe and audience-specific", () => {
     assert.equal(
         profileDisplayName(engineeringChronicle, "cratis-engineering"),

@@ -2,12 +2,12 @@
   "schemaVersion": 2,
   "contractVersion": 1,
   "disclaimer": "Catalog inclusion, evaluation evidence, component modeling, planned projection, bundle generation, or publication does not grant runtime permission, emitted bytes, support, or approval.",
-  "inputDigest": "960868ff73efafe48bf9cd3ef45baa3706fd9ad9695e4e0515703b1a3f6b889f",
+  "inputDigest": "915ce16145f62499912619ed10ed7bf4f061af63177ab4810b61172ce782eb24",
   "componentSummary": {
     "disclaimer": "Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.",
-    "total": 133,
+    "total": 134,
     "byKind": {
-      "skill": 47,
+      "skill": 48,
       "agent": 12,
       "subagent": 0,
       "command": 18,
@@ -21,16 +21,16 @@
       "static-asset": 0
     },
     "byTrust": {
-      "passive": 130,
+      "passive": 131,
       "executable": 3
     },
     "byAudience": {
-      "public": 35,
+      "public": 36,
       "cratis-engineering": 98,
       "repository-only": 0
     },
     "byLifecycle": {
-      "active": 129,
+      "active": 130,
       "legacy-retained": 4
     },
     "projections": {
@@ -485,13 +485,13 @@
     {
       "id": "public-chronicle-mcp",
       "displayName": "Cratis Chronicle MCP",
-      "description": "AI guidance for developers building with Chronicle MCP.",
+      "description": "Classification-only passive guidance for Chronicle MCP inspection requests and already-redacted output; no tool or prompt is admitted or invocable.",
       "intendedFor": "Developers who use Chronicle MCP.",
       "audience": "public",
       "packageName": "@cratis/ai-chronicle-mcp",
-      "state": "content-gap",
+      "state": "preview-source-candidate",
       "installable": false,
-      "materialization": "catalog-only",
+      "materialization": "candidate-package",
       "products": [
         "chronicle-mcp"
       ],
@@ -500,8 +500,12 @@
       ],
       "repositoryKinds": [],
       "composes": [],
-      "directTargetIds": [],
-      "targetIds": []
+      "directTargetIds": [
+        "cratis-chronicle-mcp-inspection"
+      ],
+      "targetIds": [
+        "cratis-chronicle-mcp-inspection"
+      ]
     },
     {
       "id": "public-chronicle-multi-tenancy",
@@ -2505,6 +2509,67 @@
         "cratis-chronicle-dotnet-review"
       ],
       "profileIds": []
+    },
+    {
+      "id": "cratis-chronicle-mcp-inspection",
+      "semanticName": "cratis-chronicle-mcp-inspection",
+      "audience": "public",
+      "purpose": "Chronicle MCP classification-only inspection guidance",
+      "whenToUse": "Use when classifying a Chronicle MCP inspection request or interpreting already-redacted output without invoking a tool or prompt.",
+      "whenNotToUse": [
+        "Do not use for Chronicle CLI recovery or mutation operations.",
+        "Do not use to invoke, install, or configure Chronicle MCP."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "chronicle-mcp"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-application-slice-diagnostics",
+        "cratis-chronicle-cli-operations"
+      ],
+      "bundleIds": [],
+      "profileIds": [
+        "public-chronicle-mcp"
+      ]
     },
     {
       "id": "cratis-chronicle-multi-tenancy",
