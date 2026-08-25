@@ -215,8 +215,23 @@ const definitions = [
         evidenceIds: ["repo-main-b795d53", "ai-126"],
     },
     {
+        id: "engineering-general-instruction",
+        sourcePathPatterns: [".ai/rules/general.md"],
+        artifactType: "instruction",
+        currentOwner: engineeringOwner,
+        targetOwner: engineeringOwner,
+        runtimeEligibility: "forbidden",
+        generatedStatus: "source",
+        adapterStatus: "none",
+        dependencies: [],
+        risk: "high",
+        migrationState: "classify-in-place",
+        evidenceIds: ["repo-main-b795d53", "ai-126"],
+    },
+    {
         id: "engineering-rules",
         sourcePathPatterns: [".ai/rules/**"],
+        excludePathPatterns: [".ai/rules/general.md"],
         artifactType: "rule",
         currentOwner: engineeringOwner,
         targetOwner: engineeringOwner,
@@ -266,7 +281,7 @@ const definitions = [
     {
         id: "engineering-prompts",
         sourcePathPatterns: [".ai/prompts/**"],
-        artifactType: "prompt-command",
+        artifactType: "prompt",
         currentOwner: engineeringOwner,
         targetOwner: engineeringOwner,
         runtimeEligibility: "forbidden",
@@ -935,9 +950,13 @@ const definitions = [
     {
         id: "catalog-v2-authored-registries",
         sourcePathPatterns: [
+            "catalog/components.json",
+            "catalog/component-projections.json",
             "catalog/evidence.json",
             "catalog/host-adapters.json",
             "catalog/support-policy.json",
+            "catalog/schemas/components.schema.json",
+            "catalog/schemas/component-projections.schema.json",
             "catalog/schemas/evidence.schema.json",
             "catalog/schemas/host-adapters.schema.json",
             "catalog/schemas/support-policy.schema.json",
@@ -995,6 +1014,7 @@ const definitions = [
         adapterStatus: "none",
         dependencies: [
             "tooling/generate-catalog-v2.mjs",
+            "tooling/generate-component-catalogs.mjs",
             "tooling/generate-support.mjs",
             "tooling/generate-ecosystem-artifact-coverage.mjs",
             "tooling/generate-repository-inventory.mjs",
@@ -1003,7 +1023,7 @@ const definitions = [
         migrationState: "retain",
         evidenceIds: ["reevaluation-authority"],
         generator:
-            "tooling/generate-catalog-v2.mjs, tooling/generate-support.mjs, tooling/generate-ecosystem-artifact-coverage.mjs, and tooling/generate-repository-inventory.mjs",
+            "tooling/generate-catalog-v2.mjs, tooling/generate-component-catalogs.mjs, tooling/generate-support.mjs, tooling/generate-ecosystem-artifact-coverage.mjs, and tooling/generate-repository-inventory.mjs",
     },
     {
         id: "generated-human-catalog",
@@ -1015,6 +1035,8 @@ const definitions = [
         generatedStatus: "generated",
         adapterStatus: "none",
         dependencies: [
+            "catalog/v2/component-projections.json",
+            "catalog/v2/components.json",
             "catalog/v2/human-catalog.json",
             "catalog/v2/targets.json",
             "catalog/v2/support.json",

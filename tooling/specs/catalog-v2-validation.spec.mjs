@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import {
@@ -766,6 +767,14 @@ test("stale and future-dated evidence fail and unsupported local facts remain ex
     assert(errors.some((error) => error.includes("verified after")));
 });
 
+test("aggregate validation propagates its repository root to evidence checks", () => {
+    const source = readFileSync(
+        join(defaultRepositoryRoot, "tooling/catalog-v2-validation.mjs"),
+        "utf8",
+    );
+    assert.match(source, /validateEvidenceAndCoverage\(catalogs, root\)/u);
+});
+
 test("local evidence reports remain bound to repository bytes", () => {
     const catalogs = loadCatalogs();
     const localEvidence = catalogs.evidence.evidence.find(
@@ -962,6 +971,41 @@ test("repository inventory supports a clean tracked repository", () => {
             schema,
         ),
         [],
+    );
+});
+
+test("repository inventory records component generation provenance", () => {
+    const catalogs = loadCatalogs();
+    const generated = catalogs.repositoryInventory.records.find(
+        (record) => record.id === "catalog-v2-generated-surfaces",
+    );
+    generated.dependencies = generated.dependencies.filter(
+        (dependency) =>
+            dependency !== "tooling/generate-component-catalogs.mjs",
+    );
+    generated.generator = generated.generator.replace(
+        "tooling/generate-component-catalogs.mjs, ",
+        "",
+    );
+    const human = catalogs.repositoryInventory.records.find(
+        (record) => record.id === "generated-human-catalog",
+    );
+    human.dependencies = human.dependencies.filter(
+        (dependency) => dependency !== "catalog/v2/components.json",
+    );
+    const errors = validateRepositoryInventory(
+        catalogs,
+        defaultRepositoryRoot,
+    );
+    assert(
+        errors.some((error) =>
+            error.includes("missing generation provenance dependency"),
+        ),
+    );
+    assert(
+        errors.some((error) =>
+            error.includes("component catalog generator is missing"),
+        ),
     );
 });
 

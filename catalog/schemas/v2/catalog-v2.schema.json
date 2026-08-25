@@ -930,15 +930,111 @@
         "supportClaim": { "const": false }
       }
     },
+    "generatedComponentSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["disclaimer", "total", "byKind", "byTrust", "byAudience", "byLifecycle", "projections", "declaredEmptyKinds"],
+      "properties": {
+        "disclaimer": { "$ref": "#/$defs/nonEmptyString" },
+        "total": { "type": "integer", "minimum": 0 },
+        "byKind": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["skill", "agent", "subagent", "command", "prompt", "rule", "instruction", "hook", "mcp", "lsp", "executable-host-extension", "static-asset"],
+          "properties": {
+            "skill": { "type": "integer", "minimum": 0 },
+            "agent": { "type": "integer", "minimum": 0 },
+            "subagent": { "type": "integer", "minimum": 0 },
+            "command": { "type": "integer", "minimum": 0 },
+            "prompt": { "type": "integer", "minimum": 0 },
+            "rule": { "type": "integer", "minimum": 0 },
+            "instruction": { "type": "integer", "minimum": 0 },
+            "hook": { "type": "integer", "minimum": 0 },
+            "mcp": { "type": "integer", "minimum": 0 },
+            "lsp": { "type": "integer", "minimum": 0 },
+            "executable-host-extension": { "type": "integer", "minimum": 0 },
+            "static-asset": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "byTrust": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["passive", "executable"],
+          "properties": {
+            "passive": { "type": "integer", "minimum": 0 },
+            "executable": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "byAudience": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["public", "cratis-engineering", "repository-only"],
+          "properties": {
+            "public": { "type": "integer", "minimum": 0 },
+            "cratis-engineering": { "type": "integer", "minimum": 0 },
+            "repository-only": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "byLifecycle": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["active", "legacy-retained"],
+          "properties": {
+            "active": { "type": "integer", "minimum": 0 },
+            "legacy-retained": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "projections": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["total", "byState", "byActivation", "byApproval"],
+          "properties": {
+            "total": { "type": "integer", "minimum": 0 },
+            "byState": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["planned", "blocked", "existing"],
+              "properties": {
+                "planned": { "type": "integer", "minimum": 0 },
+                "blocked": { "type": "integer", "minimum": 0 },
+                "existing": { "type": "integer", "minimum": 0 }
+              }
+            },
+            "byActivation": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["active", "inert", "none"],
+              "properties": {
+                "active": { "type": "integer", "minimum": 0 },
+                "inert": { "type": "integer", "minimum": 0 },
+                "none": { "type": "integer", "minimum": 0 }
+              }
+            },
+            "byApproval": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["modeled", "approved", "blocked"],
+              "properties": {
+                "modeled": { "type": "integer", "minimum": 0 },
+                "approved": { "type": "integer", "minimum": 0 },
+                "blocked": { "type": "integer", "minimum": 0 }
+              }
+            }
+          }
+        },
+        "declaredEmptyKinds": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/componentKind" } }
+      }
+    },
     "generatedHumanCatalog": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["schemaVersion", "contractVersion", "disclaimer", "inputDigest", "profiles", "capabilities", "hostCoverage"],
+      "required": ["schemaVersion", "contractVersion", "disclaimer", "inputDigest", "componentSummary", "profiles", "capabilities", "hostCoverage"],
       "properties": {
         "schemaVersion": { "const": 2 },
         "contractVersion": { "const": 1 },
         "disclaimer": { "$ref": "#/$defs/nonEmptyString" },
         "inputDigest": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "componentSummary": { "$ref": "#/$defs/generatedComponentSummary" },
         "profiles": {
           "type": "array",
           "minItems": 1,
@@ -1028,6 +1124,147 @@
         }
       }
     },
+    "componentKind": {
+      "enum": ["skill", "agent", "subagent", "command", "prompt", "rule", "instruction", "hook", "mcp", "lsp", "executable-host-extension", "static-asset"]
+    },
+    "componentSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "digest", "ownership", "ownerComponentId"],
+      "properties": {
+        "path": { "$ref": "#/$defs/path" },
+        "digest": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "ownership": { "enum": ["owner", "shared-reference"] },
+        "ownerComponentId": { "$ref": "#/$defs/id" }
+      }
+    },
+    "componentProjectionAllowance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["hostContract", "kinds", "artifactClasses"],
+      "properties": {
+        "hostContract": { "enum": ["any-passive-host", "claude-code", "codex", "github-copilot", "pi", "portable-agent-plugins-1-0"] },
+        "kinds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/componentKind" } },
+        "artifactClasses": { "$ref": "#/$defs/idArray" }
+      }
+    },
+    "componentRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "semanticIdentity", "semanticName", "lifecycle", "distributionTargetId", "canonicalSources", "contentDigest", "owner", "audience", "classification", "dependencies", "hostNeutralPurpose", "approval", "releaseBoundary", "allowedProjections", "forbiddenProjections", "requiredCanaries", "securityRequirements"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "kind": { "$ref": "#/$defs/componentKind" },
+        "semanticIdentity": { "$ref": "#/$defs/id" },
+        "semanticName": { "$ref": "#/$defs/nonEmptyString" },
+        "lifecycle": { "enum": ["active", "legacy-retained"] },
+        "distributionTargetId": { "oneOf": [{ "$ref": "#/$defs/id" }, { "type": "null" }] },
+        "canonicalSources": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/componentSource" } },
+        "contentDigest": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "owner": { "enum": ["public Cratis product capability", "reusable Cratis engineering behavior", "Ensemble", "repository-only authoring/release tooling"] },
+        "audience": { "enum": ["public", "cratis-engineering", "repository-only"] },
+        "classification": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["artifactClass", "trust", "passive", "executable", "effect"],
+          "properties": {
+            "artifactClass": { "enum": ["passive-content", "executable-extension", "static-asset"] },
+            "trust": { "enum": ["passive", "executable"] },
+            "passive": { "type": "boolean" },
+            "executable": { "type": "boolean" },
+            "effect": { "enum": ["none", "guided-read", "guided-write", "guided-external-effect", "runtime-effect"] }
+          }
+        },
+        "dependencies": { "$ref": "#/$defs/idArray" },
+        "hostNeutralPurpose": { "$ref": "#/$defs/nonEmptyString" },
+        "approval": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["state", "evidenceIds"],
+          "properties": {
+            "state": { "enum": ["modeled", "approved", "blocked"] },
+            "evidenceIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } }
+          }
+        },
+        "releaseBoundary": { "enum": ["public-passive", "engineering-passive", "repository-only", "future-executable-package"] },
+        "allowedProjections": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/componentProjectionAllowance" } },
+        "forbiddenProjections": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/componentKind" } },
+        "requiredCanaries": { "$ref": "#/$defs/idArray" },
+        "securityRequirements": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["threatModel", "securityReview", "executableAssuranceProfile"],
+          "properties": {
+            "threatModel": { "type": "boolean" },
+            "securityReview": { "type": "boolean" },
+            "executableAssuranceProfile": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "componentsCatalog": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schemaVersion", "generatedBy", "sourceDigest", "defaultPolicy", "canonicalSourceRoots", "declaredEmptyKinds", "components"],
+      "properties": {
+        "schemaVersion": { "const": 2 },
+        "generatedBy": { "const": "tooling/generate-component-catalogs.mjs" },
+        "sourceDigest": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "defaultPolicy": { "const": "deny" },
+        "canonicalSourceRoots": { "$ref": "#/$defs/stringArray" },
+        "declaredEmptyKinds": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/componentKind" } },
+        "components": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/componentRecord" } }
+      }
+    },
+    "componentProjectionHost": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "contract", "acceptsAnyPassiveProjection", "allowedOutputPrefixes", "sharedSymlinkOutputs", "evidenceIds"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "contract": { "enum": ["claude-code", "codex", "github-copilot", "pi", "portable-agent-plugins-1-0"] },
+        "acceptsAnyPassiveProjection": { "type": "boolean" },
+        "allowedOutputPrefixes": { "$ref": "#/$defs/stringArray" },
+        "sharedSymlinkOutputs": { "$ref": "#/$defs/stringArray" },
+        "evidenceIds": { "$ref": "#/$defs/evidenceIds" }
+      }
+    },
+    "componentProjection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "componentId", "hostId", "projectedKind", "artifactClass", "assuranceProfileId", "packageIdentity", "state", "hostActivation", "adapterType", "outputPaths", "approval", "evidenceIds", "securityRequirements", "requiredCanaries"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "componentId": { "$ref": "#/$defs/id" },
+        "hostId": { "$ref": "#/$defs/id" },
+        "projectedKind": { "$ref": "#/$defs/componentKind" },
+        "artifactClass": { "$ref": "#/$defs/id" },
+        "assuranceProfileId": { "$ref": "#/$defs/id" },
+        "packageIdentity": { "oneOf": [{ "$ref": "#/$defs/id" }, { "type": "null" }] },
+        "state": { "enum": ["planned", "blocked", "existing"] },
+        "hostActivation": { "enum": ["active", "inert", "none"] },
+        "adapterType": { "enum": ["symlink", "path-reference", "canonical-in-place", "generated", "none"] },
+        "outputPaths": { "$ref": "#/$defs/stringArray" },
+        "approval": { "enum": ["modeled", "approved", "blocked"] },
+        "evidenceIds": { "$ref": "#/$defs/evidenceIds" },
+        "securityRequirements": { "$ref": "#/$defs/idArray" },
+        "requiredCanaries": { "$ref": "#/$defs/idArray" }
+      }
+    },
+    "componentProjectionsCatalog": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schemaVersion", "generatedBy", "sourceDigest", "defaultPolicy", "supportClaim", "hosts", "projections"],
+      "properties": {
+        "schemaVersion": { "const": 2 },
+        "generatedBy": { "const": "tooling/generate-component-catalogs.mjs" },
+        "sourceDigest": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "defaultPolicy": { "const": "deny" },
+        "supportClaim": { "const": false },
+        "hosts": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/componentProjectionHost" } },
+        "projections": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/componentProjection" } }
+      }
+    },
     "artifact": {
       "type": "object",
       "additionalProperties": false,
@@ -1053,10 +1290,20 @@
         "componentInventory": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["skills", "mcp"],
+          "required": ["skills", "agents", "subagents", "commands", "prompts", "rules", "instructions", "hooks", "mcp", "lsp", "executableExtensions", "staticAssets"],
           "properties": {
             "skills": { "$ref": "#/$defs/idArray" },
-            "mcp": { "$ref": "#/$defs/idArray" }
+            "agents": { "$ref": "#/$defs/idArray" },
+            "subagents": { "$ref": "#/$defs/idArray" },
+            "commands": { "$ref": "#/$defs/idArray" },
+            "prompts": { "$ref": "#/$defs/idArray" },
+            "rules": { "$ref": "#/$defs/idArray" },
+            "instructions": { "$ref": "#/$defs/idArray" },
+            "hooks": { "$ref": "#/$defs/idArray" },
+            "mcp": { "$ref": "#/$defs/idArray" },
+            "lsp": { "$ref": "#/$defs/idArray" },
+            "executableExtensions": { "$ref": "#/$defs/idArray" },
+            "staticAssets": { "$ref": "#/$defs/idArray" }
           }
         },
         "exactSourcePaths": { "$ref": "#/$defs/stringArray" },
@@ -1257,7 +1504,9 @@
         "artifactType": {
           "enum": [
             "rule",
+            "instruction",
             "agent",
+            "prompt",
             "prompt-command",
             "hook",
             "workflow",

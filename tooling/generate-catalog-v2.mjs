@@ -16,19 +16,16 @@ import { fileURLToPath } from "node:url";
 import { compareOrdinal } from "./catalog-ordering.mjs";
 import { readCatalog } from "./catalog-validation.mjs";
 import { artifactForbiddenPathPatterns } from "./harness-registry.mjs";
+import { generateComponentCatalogs } from "./generate-component-catalogs.mjs";
 
 const repositoryRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const outputRoot = join(repositoryRoot, "catalog/v2");
 const revision = "b795d5307e20f7f7458a67708b4f26975e223796";
-const sourceRevisionEvidenceId = "repo-main-b795d53";
 const publicOwner = "public Cratis product capability";
 const engineeringOwner = "reusable Cratis engineering behavior";
 const v1Public = readCatalog(join(repositoryRoot, "catalog/public-skills.yml"));
 const v1Coverage = readCatalog(
     join(repositoryRoot, "catalog/product-coverage.yml"),
-);
-const v1Ecosystems = readCatalog(
-    join(repositoryRoot, "catalog/ecosystem-versions.json"),
 );
 const releaseApprovals = readCatalog(
     join(repositoryRoot, "distribution/release-approvals.json"),
@@ -1003,12 +1000,6 @@ function digestFiles(paths) {
     return hash.digest("hex");
 }
 
-function digestFile(path) {
-    return createHash("sha256")
-        .update(readFileSync(join(repositoryRoot, path)))
-        .digest("hex");
-}
-
 function writeJson(name, value) {
     mkdirSync(outputRoot, { recursive: true });
     writeFileSync(
@@ -1371,6 +1362,20 @@ const approvedEngineeringTargets = targets.filter(
         target.approval.state === "approved" &&
         target.includeInRuntime,
 );
+const componentInventory = (skills) => ({
+    skills,
+    agents: [],
+    subagents: [],
+    commands: [],
+    prompts: [],
+    rules: [],
+    instructions: [],
+    hooks: [],
+    mcp: [],
+    lsp: [],
+    executableExtensions: [],
+    staticAssets: [],
+});
 const exactPathsForTargets = (approvedTargets) =>
     [
         ...new Set(
@@ -1408,7 +1413,7 @@ writeJson("artifacts.json", {
             fixtureOnly: false,
             materializationAllowed: approvedPublicTargets.length > 0,
             runtimeEligible: approvedPublicTargets.length > 0,
-            componentInventory: { skills: publicTargetIds, mcp: [] },
+            componentInventory: componentInventory(publicTargetIds),
             exactSourcePaths: exactPathsForTargets(approvedPublicTargets),
             allowedPathPatterns: [
                 "skills/<approved-target>/SKILL.md",
@@ -1432,7 +1437,7 @@ writeJson("artifacts.json", {
             fixtureOnly: false,
             materializationAllowed: approvedEngineeringTargets.length > 0,
             runtimeEligible: approvedEngineeringTargets.length > 0,
-            componentInventory: { skills: engineeringTargetIds, mcp: [] },
+            componentInventory: componentInventory(engineeringTargetIds),
             exactSourcePaths: exactPathsForTargets(approvedEngineeringTargets),
             allowedPathPatterns: [
                 "engineering/skills/<approved-target>/SKILL.md",
@@ -1456,10 +1461,9 @@ writeJson("artifacts.json", {
             fixtureOnly: true,
             materializationAllowed: true,
             runtimeEligible: false,
-            componentInventory: {
-                skills: ["cratis-engineering-docs-authoring-fixture"],
-                mcp: [],
-            },
+            componentInventory: componentInventory([
+                "cratis-engineering-docs-authoring",
+            ]),
             exactSourcePaths: [
                 "engineering/skills/cratis-engineering-docs-authoring/LICENSE",
                 "engineering/skills/cratis-engineering-docs-authoring/SKILL.md",
@@ -1486,10 +1490,9 @@ writeJson("artifacts.json", {
             fixtureOnly: true,
             materializationAllowed: true,
             runtimeEligible: false,
-            componentInventory: {
-                skills: ["cratis-fundamentals-concept"],
-                mcp: [],
-            },
+            componentInventory: componentInventory([
+                "cratis-fundamentals-concept",
+            ]),
             exactSourcePaths: [
                 "skills/cratis-fundamentals-concept/LICENSE",
                 "skills/cratis-fundamentals-concept/SKILL.md",
@@ -1610,6 +1613,7 @@ writeJson("product-coverage.json", {
     languages: coverageLanguages,
     products: coverageProducts,
 });
+generateComponentCatalogs(repositoryRoot);
 
 process.stdout.write(
     `Generated catalog v2: ${sources.length} sources, ${targets.length} targets, ${migrations.length} migrations, ${evidence.length} evidence records, and ${ecosystemFacts.length} ecosystem facts.\n`,

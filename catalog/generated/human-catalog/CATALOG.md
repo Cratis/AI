@@ -1,6 +1,6 @@
 # Cratis AI package and capability catalog
 
-> Catalog inclusion, evaluation evidence, bundle generation, or publication does not grant runtime permission or approval.
+> Catalog inclusion, evaluation evidence, component modeling, planned projection, bundle generation, or publication does not grant runtime permission, emitted bytes, support, or approval.
 
 This catalog is generated from reviewed catalog metadata. Use it to find
 the right package and understand its skills. It is not source authority
@@ -10,6 +10,37 @@ and does not make a planned package installable.
 - Capabilities: 43
 - Installable profiles: 0
 - Ecosystem bindings with support claims: 0
+
+## Component contract summary
+
+Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.
+
+- Components: 133
+- Passive: 130
+- Executable: 3
+- Legacy-retained: 4
+- Existing adapter records: 312
+- Active host projections: 309
+- Inert path references: 3
+- Planned projections: 0
+- Non-existing blocked projections: 0
+- Blocked projection approvals: 3
+- Explicitly empty kinds: lsp, mcp, static-asset, subagent
+
+### Components by kind
+
+- skill: 47
+- agent: 12
+- subagent: 0
+- command: 18
+- prompt: 18
+- rule: 34
+- instruction: 1
+- hook: 1
+- mcp: 0
+- lsp: 0
+- executable-host-extension: 2
+- static-asset: 0
 
 ## Computed ecosystem support
 
