@@ -544,12 +544,27 @@ export function buildHumanCatalogOutputs() {
             ["public", "cratis-engineering", "repository-only"],
             (component) => component.audience,
         ),
+        byLifecycle: countBy(
+            componentsCatalog.components,
+            ["active", "legacy-retained"],
+            (component) => component.lifecycle,
+        ),
         projections: {
             total: componentProjections.projections.length,
             byState: countBy(
                 componentProjections.projections,
                 ["planned", "blocked", "existing"],
                 (projection) => projection.state,
+            ),
+            byActivation: countBy(
+                componentProjections.projections,
+                ["active", "inert", "none"],
+                (projection) => projection.hostActivation,
+            ),
+            byApproval: countBy(
+                componentProjections.projections,
+                ["modeled", "approved", "blocked"],
+                (projection) => projection.approval,
             ),
         },
         declaredEmptyKinds: [...componentsCatalog.declaredEmptyKinds].sort(
@@ -597,9 +612,13 @@ export function buildHumanCatalogOutputs() {
         `- Components: ${componentSummary.total}`,
         `- Passive: ${componentSummary.byTrust.passive}`,
         `- Executable: ${componentSummary.byTrust.executable}`,
-        `- Existing projections: ${componentSummary.projections.byState.existing}`,
+        `- Legacy-retained: ${componentSummary.byLifecycle["legacy-retained"]}`,
+        `- Existing adapter records: ${componentSummary.projections.byState.existing}`,
+        `- Active host projections: ${componentSummary.projections.byActivation.active}`,
+        `- Inert path references: ${componentSummary.projections.byActivation.inert}`,
         `- Planned projections: ${componentSummary.projections.byState.planned}`,
-        `- Blocked projections: ${componentSummary.projections.byState.blocked}`,
+        `- Non-existing blocked projections: ${componentSummary.projections.byState.blocked}`,
+        `- Blocked projection approvals: ${componentSummary.projections.byApproval.blocked}`,
         `- Explicitly empty kinds: ${componentSummary.declaredEmptyKinds.join(", ")}`,
         "",
         "### Components by kind",

@@ -1014,6 +1014,7 @@ const definitions = [
         adapterStatus: "none",
         dependencies: [
             "tooling/generate-catalog-v2.mjs",
+            "tooling/generate-component-catalogs.mjs",
             "tooling/generate-support.mjs",
             "tooling/generate-ecosystem-artifact-coverage.mjs",
             "tooling/generate-repository-inventory.mjs",
@@ -1022,7 +1023,7 @@ const definitions = [
         migrationState: "retain",
         evidenceIds: ["reevaluation-authority"],
         generator:
-            "tooling/generate-catalog-v2.mjs, tooling/generate-support.mjs, tooling/generate-ecosystem-artifact-coverage.mjs, and tooling/generate-repository-inventory.mjs",
+            "tooling/generate-catalog-v2.mjs, tooling/generate-component-catalogs.mjs, tooling/generate-support.mjs, tooling/generate-ecosystem-artifact-coverage.mjs, and tooling/generate-repository-inventory.mjs",
     },
     {
         id: "generated-human-catalog",
@@ -1034,6 +1035,8 @@ const definitions = [
         generatedStatus: "generated",
         adapterStatus: "none",
         dependencies: [
+            "catalog/v2/component-projections.json",
+            "catalog/v2/components.json",
             "catalog/v2/human-catalog.json",
             "catalog/v2/targets.json",
             "catalog/v2/support.json",

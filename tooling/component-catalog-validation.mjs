@@ -9,7 +9,7 @@ import {
     readdirSync,
     realpathSync,
 } from "node:fs";
-import { isAbsolute, join, relative, sep } from "node:path";
+import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { compareOrdinal } from "./catalog-ordering.mjs";
 import {
     defaultRepositoryRoot,
@@ -28,7 +28,15 @@ export const componentCatalogPaths = Object.freeze({
     targets: "catalog/v2/targets.json",
     hostAdapters: "catalog/host-adapters.json",
     assuranceProfiles: "catalog/v2/artifact-assurance-profiles.json",
+    artifacts: "catalog/v2/artifacts.json",
 });
+
+const expectedComponentAnchor =
+    "9c995de7413b57d62ef11ce5b9cb35a5c872d9936bf77620f142031c3381d197";
+const expectedProjectionAnchor =
+    "00daa68b3be4198f6e367f90c637ffa400981112492d593cc7c3670edea3c4e1";
+const expectedProjectionHostAnchor =
+    "ea1d612b16aea9e1ab96670cec6c67d55cb0f4496bd5f442d273fa5bb801cf32";
 
 export const componentKinds = Object.freeze([
     "skill",
@@ -78,6 +86,13 @@ const derivedCanonicalPrefixes = [
     "AGENTS.md",
 ];
 
+function semanticAnchor(records) {
+    const lines = [...records]
+        .sort((left, right) => compareOrdinal(left.id, right.id))
+        .map((record) => JSON.stringify(record));
+    return createHash("sha256").update(`${lines.join("\n")}\n`).digest("hex");
+}
+
 function duplicates(values) {
     const seen = new Set();
     return [
@@ -103,7 +118,7 @@ function pathWithin(path, root) {
     return path === root || path.startsWith(`${root}/`);
 }
 
-function regularFiles(root, sourcePath) {
+export function regularFiles(root, sourcePath) {
     if (!normalizedRepositoryPath(sourcePath))
         throw new Error("path must be normalized and repository-relative");
     const absolute = join(root, sourcePath);
@@ -137,6 +152,33 @@ function regularFiles(root, sourcePath) {
     };
     visit(absolute);
     return files.sort(compareOrdinal);
+}
+
+function adapterLeaves(root, outputPath) {
+    if (!normalizedRepositoryPath(outputPath))
+        throw new Error("adapter path must be normalized and repository-relative");
+    const absolute = join(root, outputPath);
+    const stat = lstatSync(absolute);
+    if (stat.isFile() || stat.isSymbolicLink()) return [outputPath];
+    if (!stat.isDirectory())
+        throw new Error("adapter path is not a file, directory, or symlink");
+    const leaves = [];
+    const visit = (current) => {
+        for (const entry of readdirSync(current).sort(compareOrdinal)) {
+            const path = join(current, entry);
+            const item = lstatSync(path);
+            const repositoryPath = relative(root, path).split(sep).join("/");
+            if (item.isDirectory() && !item.isSymbolicLink()) visit(path);
+            else if (item.isFile() || item.isSymbolicLink())
+                leaves.push(repositoryPath);
+            else
+                throw new Error(
+                    `adapter contains special path ${repositoryPath}`,
+                );
+        }
+    };
+    visit(absolute);
+    return leaves.sort(compareOrdinal);
 }
 
 export function digestCanonicalSource(root, sourcePath) {
@@ -217,7 +259,9 @@ function allowanceMatches(component, host, projection) {
     return component.allowedProjections.some(
         (allowance) =>
             (allowance.hostContract === host.contract ||
-                allowance.hostContract === "any-passive-host") &&
+                (allowance.hostContract === "any-passive-host" &&
+                    host.acceptsAnyPassiveProjection &&
+                    component.classification.passive)) &&
             allowance.kinds.includes(projection.projectedKind) &&
             allowance.artifactClasses.includes(projection.artifactClass),
     );
@@ -239,6 +283,10 @@ function sourceSignature(component) {
 export function validateComponents(catalogs, root = defaultRepositoryRoot) {
     const errors = [];
     const { components: catalog, evidence, targets } = catalogs;
+    if (semanticAnchor(catalog.components) !== expectedComponentAnchor)
+        errors.push(
+            "component semantic contract differs from the independently reviewed anchor",
+        );
     const componentIds = new Set(
         catalog.components.map((component) => component.id),
     );
@@ -255,6 +303,15 @@ export function validateComponents(catalogs, root = defaultRepositoryRoot) {
             `components contains duplicate semantic identity ${identity}`,
         );
     const roots = catalog.canonicalSourceRoots;
+    for (let index = 0; index < roots.length; index++)
+        for (let other = index + 1; other < roots.length; other++)
+            if (
+                pathWithin(roots[index], roots[other]) ||
+                pathWithin(roots[other], roots[index])
+            )
+                errors.push(
+                    `canonical source roots overlap: ${roots[index]} and ${roots[other]}`,
+                );
     for (const rootPath of roots) {
         if (!normalizedRepositoryPath(rootPath))
             errors.push(`canonical source root is unsafe: ${rootPath}`);
@@ -273,13 +330,30 @@ export function validateComponents(catalogs, root = defaultRepositoryRoot) {
             errors.push(
                 `${component.id}: stable identity anchor requires ${anchoredId}`,
             );
-        if (component.kind === "skill" && !targetIds.has(component.id))
+        if (
+            component.distributionTargetId !== null &&
+            (component.kind !== "skill" ||
+                component.distributionTargetId !== component.id ||
+                !targetIds.has(component.distributionTargetId))
+        )
             errors.push(
-                `${component.id}: skill component must retain an existing target id`,
+                `${component.id}: distribution target binding must reference the same skill target id`,
             );
-        if (component.kind !== "skill" && targetIds.has(component.id))
+        if (
+            targetIds.has(component.id) &&
+            component.distributionTargetId !== component.id
+        )
             errors.push(
-                `${component.id}: non-skill component cannot reuse a skill target id`,
+                `${component.id}: target-backed component must retain its target binding`,
+            );
+        if (
+            component.lifecycle === "legacy-retained" &&
+            (component.distributionTargetId !== null ||
+                component.releaseBoundary !== "repository-only" ||
+                component.approval.state === "approved")
+        )
+            errors.push(
+                `${component.id}: legacy-retained component must remain unbound, repository-only, and unapproved`,
             );
         if (
             component.audience === "public" &&
@@ -332,11 +406,11 @@ export function validateComponents(catalogs, root = defaultRepositoryRoot) {
                 `${component.id}: component kind requires matching executable classification`,
             );
         if (
-            component.classification.executable &&
-            component.classification.effect !== "runtime-effect"
+            (component.classification.effect === "runtime-effect") !==
+            component.classification.executable
         )
             errors.push(
-                `${component.id}: executable component requires runtime-effect classification`,
+                `${component.id}: runtime-effect and executable classifications must match`,
             );
         if (component.classification.executable) {
             if (component.releaseBoundary !== "future-executable-package")
@@ -409,10 +483,8 @@ export function validateComponents(catalogs, root = defaultRepositoryRoot) {
                     `${component.id}: private project context cannot become a catalog component source: ${source.path}`,
                 );
             if (
-                !roots.some(
-                    (rootPath) =>
-                        pathWithin(source.path, rootPath) ||
-                        pathWithin(rootPath, source.path),
+                !roots.some((rootPath) =>
+                    pathWithin(source.path, rootPath),
                 )
             )
                 errors.push(
@@ -465,6 +537,14 @@ export function validateComponents(catalogs, root = defaultRepositoryRoot) {
         )
             errors.push(`${component.id}: component content digest is stale`);
     }
+    const targetBindings = catalog.components
+        .map((component) => component.distributionTargetId)
+        .filter((targetId) => targetId !== null);
+    for (const targetId of duplicates(targetBindings))
+        errors.push(`multiple components bind distribution target ${targetId}`);
+    for (const targetId of targetIds)
+        if (!targetBindings.includes(targetId))
+            errors.push(`distribution target has no component binding ${targetId}`);
     for (const rootPath of roots) {
         try {
             for (const file of regularFiles(root, rootPath)) {
@@ -482,6 +562,49 @@ export function validateComponents(catalogs, root = defaultRepositoryRoot) {
             );
         }
     }
+    for (const watchedRoot of [
+        ".ai/agents",
+        ".ai/hooks",
+        ".ai/prompts",
+        ".ai/rules",
+        ".ai/skills",
+        ".pi/extensions",
+        "engineering/skills",
+        "skills",
+    ]) {
+        if (!existsSync(join(root, watchedRoot))) continue;
+        try {
+            for (const file of regularFiles(root, watchedRoot)) {
+                if ((ownership.get(file) ?? []).length === 0)
+                    errors.push(`unmodeled canonical source ${file}`);
+            }
+        } catch (error) {
+            errors.push(
+                `watched source root failed for ${watchedRoot}: ${error.message}`,
+            );
+        }
+    }
+
+    const ownerEdges = new Map(
+        catalog.components.map((component) => [
+            component.id,
+            component.canonicalSources
+                .filter((source) => source.ownership === "shared-reference")
+                .map((source) => source.ownerComponentId),
+        ]),
+    );
+    const visitOwner = (id, stack = new Set()) => {
+        if (stack.has(id)) {
+            errors.push(`component source ownership cycle contains ${id}`);
+            return;
+        }
+        const next = new Set(stack);
+        next.add(id);
+        for (const ownerId of ownerEdges.get(id) ?? [])
+            visitOwner(ownerId, next);
+    };
+    for (const component of catalog.components) visitOwner(component.id);
+
     for (const component of catalog.components) {
         for (const source of component.canonicalSources) {
             const owner = catalog.components.find(
@@ -526,6 +649,17 @@ export function validateComponents(catalogs, root = defaultRepositoryRoot) {
             .filter((component) => component.kind === "prompt")
             .map((component) => [sourceSignature(component), component]),
     );
+    for (const prompt of catalog.components.filter(
+        (component) => component.kind === "prompt",
+    ))
+        if (
+            prompt.canonicalSources.some(
+                (source) =>
+                    source.ownership !== "owner" ||
+                    source.ownerComponentId !== prompt.id,
+            )
+        )
+            errors.push(`${prompt.id}: prompt must own its canonical bytes`);
     for (const command of catalog.components.filter(
         (component) => component.kind === "command",
     )) {
@@ -533,6 +667,17 @@ export function validateComponents(catalogs, root = defaultRepositoryRoot) {
         if (prompt && prompt.semanticIdentity === command.semanticIdentity)
             errors.push(
                 `${command.id}: command and prompt semantics are conflated`,
+            );
+        if (
+            !prompt ||
+            command.canonicalSources.some(
+                (source) =>
+                    source.ownership !== "shared-reference" ||
+                    source.ownerComponentId !== prompt.id,
+            )
+        )
+            errors.push(
+                `${command.id}: command must share canonical bytes owned by its prompt`,
             );
     }
     return errors;
@@ -544,6 +689,14 @@ export function validateComponentProjections(
 ) {
     const errors = [];
     const { components, projections, evidence, assuranceProfiles } = catalogs;
+    if (semanticAnchor(projections.projections) !== expectedProjectionAnchor)
+        errors.push(
+            "component projection semantic contract differs from the independently reviewed anchor",
+        );
+    if (semanticAnchor(projections.hosts) !== expectedProjectionHostAnchor)
+        errors.push(
+            "component projection host contract differs from the independently reviewed anchor",
+        );
     const componentsById = new Map(
         components.components.map((component) => [component.id, component]),
     );
@@ -558,10 +711,89 @@ export function validateComponentProjections(
         projections.projections.map((projection) => projection.id),
     ))
         errors.push(`component projections contains duplicate id ${id}`);
-    for (const host of projections.hosts)
+    for (const identity of duplicates(
+        projections.projections.map((projection) =>
+            JSON.stringify([
+                projection.componentId,
+                projection.hostId,
+                projection.projectedKind,
+                projection.outputPaths,
+            ]),
+        ),
+    ))
+        errors.push(
+            `component projections contains duplicate semantic projection ${identity}`,
+        );
+    const outputUses = new Map();
+    for (const projection of projections.projections)
+        for (const outputPath of projection.outputPaths) {
+            const uses = outputUses.get(outputPath) ?? [];
+            uses.push(projection);
+            outputUses.set(outputPath, uses);
+        }
+    for (const host of projections.hosts) {
         for (const evidenceId of host.evidenceIds)
             if (!evidenceIds.has(evidenceId))
                 errors.push(`${host.id}: unknown host evidence ${evidenceId}`);
+        if (
+            host.contract === "portable-agent-plugins-1-0" &&
+            host.acceptsAnyPassiveProjection
+        )
+            errors.push(
+                `${host.id}: portable contract cannot accept the native passive-host wildcard`,
+            );
+        const hostProjections = projections.projections.filter(
+            (projection) => projection.hostId === host.id,
+        );
+        const declaredOutputs = [
+            ...new Set(hostProjections.flatMap((projection) => projection.outputPaths)),
+        ].sort(compareOrdinal);
+        try {
+            const actualOutputs = [
+                ...new Set(
+                    host.allowedOutputPrefixes.flatMap((prefix) =>
+                        adapterLeaves(root, prefix),
+                    ),
+                ),
+            ].sort(compareOrdinal);
+            if (JSON.stringify(actualOutputs) !== JSON.stringify(declaredOutputs))
+                errors.push(
+                    `${host.id}: actual host adapter outputs do not match the projection catalog`,
+                );
+        } catch (error) {
+            errors.push(`${host.id}: host output closure failed: ${error.message}`);
+        }
+        for (const outputPath of host.sharedSymlinkOutputs) {
+            if (!projectionOutputMatchesHost(host, outputPath))
+                errors.push(
+                    `${host.id}: shared symlink output is outside its host boundary: ${outputPath}`,
+                );
+            const uses = outputUses.get(outputPath) ?? [];
+            if (
+                uses.length < 2 ||
+                uses.some(
+                    (projection) =>
+                        projection.hostId !== host.id ||
+                        projection.adapterType !== "symlink" ||
+                        projection.hostActivation !== "active",
+                )
+            )
+                errors.push(
+                    `${host.id}: shared symlink output lacks multiple consistent active projections: ${outputPath}`,
+                );
+        }
+        for (const projection of hostProjections)
+            for (const outputPath of projection.outputPaths) {
+                const uses = outputUses.get(outputPath) ?? [];
+                if (
+                    uses.length > 1 &&
+                    !host.sharedSymlinkOutputs.includes(outputPath)
+                )
+                    errors.push(
+                        `${projection.id}: shared output is not explicitly declared by its host: ${outputPath}`,
+                    );
+            }
+    }
     const packageTrust = new Map();
     for (const projection of projections.projections) {
         const component = componentsById.get(projection.componentId);
@@ -595,6 +827,14 @@ export function validateComponentProjections(
                 `${projection.id}: projection kind is explicitly forbidden`,
             );
         if (host?.contract === "portable-agent-plugins-1-0") {
+            if (
+                !component ||
+                !new Set(["skill", "mcp"]).has(component.kind) ||
+                projection.projectedKind !== component.kind
+            )
+                errors.push(
+                    `${projection.id}: canonical component kind is not portable in Agent Plugins 1.0`,
+                );
             if (!new Set(["skill", "mcp"]).has(projection.projectedKind))
                 errors.push(
                     `${projection.id}: portable Agent Plugins 1.0 accepts only skills and optional separately approved MCP`,
@@ -609,6 +849,12 @@ export function validateComponentProjections(
                 );
         }
         if (projection.state === "existing") {
+            const expectedActivation =
+                projection.adapterType === "path-reference" ? "inert" : "active";
+            if (projection.hostActivation !== expectedActivation)
+                errors.push(
+                    `${projection.id}: existing ${projection.adapterType} adapter requires ${expectedActivation} host activation`,
+                );
             if (
                 projection.outputPaths.length === 0 ||
                 projection.adapterType === "none"
@@ -622,21 +868,113 @@ export function validateComponentProjections(
                         errors.push(
                             `${projection.id}: projection output does not match host boundary: ${path}`,
                         );
-                    if (!existsSync(join(root, path)))
+                    const output = join(root, path);
+                    if (!existsSync(output))
                         errors.push(
                             `${projection.id}: existing projection output is missing: ${path}`,
                         );
+                    else {
+                        const stat = lstatSync(output);
+                        if (
+                            projection.adapterType === "symlink" &&
+                            !stat.isSymbolicLink()
+                        )
+                            errors.push(
+                                `${projection.id}: declared symlink adapter is not a symlink: ${path}`,
+                            );
+                        if (
+                            projection.adapterType === "path-reference" &&
+                            (!stat.isFile() || stat.isSymbolicLink())
+                        )
+                            errors.push(
+                                `${projection.id}: declared path-reference adapter is not a regular file: ${path}`,
+                            );
+                        if (
+                            projection.adapterType === "canonical-in-place" &&
+                            (!stat.isFile() || stat.isSymbolicLink())
+                        )
+                            errors.push(
+                                `${projection.id}: canonical-in-place output is not a regular file: ${path}`,
+                            );
+                        try {
+                            const canonicalTargets = component?.canonicalSources.map(
+                                (source) => realpathSync(join(root, source.path)),
+                            );
+                            if (
+                                projection.adapterType === "path-reference" &&
+                                canonicalTargets
+                            ) {
+                                const reference = readFileSync(output, "utf8").trim();
+                                const target = realpathSync(
+                                    resolve(dirname(output), reference),
+                                );
+                                if (!canonicalTargets.includes(target))
+                                    errors.push(
+                                        `${projection.id}: path-reference does not resolve to its canonical source`,
+                                    );
+                            }
+                            if (
+                                projection.adapterType === "symlink" &&
+                                canonicalTargets
+                            ) {
+                                const target = realpathSync(output);
+                                if (
+                                    !canonicalTargets.some(
+                                        (canonical) =>
+                                            canonical === target ||
+                                            dirname(canonical) === target,
+                                    )
+                                )
+                                    errors.push(
+                                        `${projection.id}: symlink adapter does not resolve to its canonical source boundary`,
+                                    );
+                            }
+                        } catch (error) {
+                            errors.push(
+                                `${projection.id}: adapter target validation failed for ${path}: ${error.message}`,
+                            );
+                        }
+                    }
                 } else
                     errors.push(
                         `${projection.id}: projection output path is unsafe: ${path}`,
                     );
             }
+            if (
+                projection.adapterType === "canonical-in-place" &&
+                component
+            ) {
+                try {
+                    const canonicalFiles = [
+                        ...new Set(
+                            component.canonicalSources.flatMap((source) =>
+                                regularFiles(root, source.path),
+                            ),
+                        ),
+                    ].sort(compareOrdinal);
+                    const outputFiles = [...projection.outputPaths].sort(
+                        compareOrdinal,
+                    );
+                    if (
+                        JSON.stringify(canonicalFiles) !==
+                        JSON.stringify(outputFiles)
+                    )
+                        errors.push(
+                            `${projection.id}: canonical-in-place outputs do not exactly match component source bytes`,
+                        );
+                } catch (error) {
+                    errors.push(
+                        `${projection.id}: canonical-in-place validation failed: ${error.message}`,
+                    );
+                }
+            }
         } else if (
             projection.outputPaths.length > 0 ||
-            projection.adapterType !== "none"
+            projection.adapterType !== "none" ||
+            projection.hostActivation !== "none"
         )
             errors.push(
-                `${projection.id}: planned or blocked projection cannot claim existing output`,
+                `${projection.id}: planned or blocked projection cannot claim existing output or activation`,
             );
         if (component?.classification.executable) {
             if (passivePackageClasses.has(projection.artifactClass))
@@ -683,6 +1021,50 @@ export function validateComponentProjections(
                     `${projection.id}: executable and passive components cannot share package identity ${projection.packageIdentity}`,
                 );
             else packageTrust.set(projection.packageIdentity, trust);
+        }
+    }
+    for (const [outputPath, uses] of outputUses) {
+        if (
+            uses.length === 0 ||
+            uses.some(
+                (projection) =>
+                    projection.adapterType !== "symlink" ||
+                    projection.hostActivation !== "active",
+            )
+        )
+            continue;
+        try {
+            const target = realpathSync(join(root, outputPath));
+            const targetPath = relative(root, target).split(sep).join("/");
+            const exposedFiles = regularFiles(root, targetPath);
+            const representedFiles = new Set();
+            for (const projection of uses) {
+                const component = componentsById.get(projection.componentId);
+                const componentFiles =
+                    component?.canonicalSources.flatMap((source) =>
+                        regularFiles(root, source.path),
+                    ) ?? [];
+                const representedByProjection = componentFiles.filter((file) =>
+                    pathWithin(file, targetPath),
+                );
+                if (
+                    representedByProjection.length !== componentFiles.length
+                )
+                    errors.push(
+                        `${projection.id}: symlink output does not expose all component canonical bytes`,
+                    );
+                for (const file of representedByProjection)
+                    representedFiles.add(file);
+            }
+            const represented = [...representedFiles].sort(compareOrdinal);
+            if (JSON.stringify(exposedFiles) !== JSON.stringify(represented))
+                errors.push(
+                    `${outputPath}: symlink target bytes do not have exact component projection coverage`,
+                );
+        } catch (error) {
+            errors.push(
+                `${outputPath}: symlink output closure failed: ${error.message}`,
+            );
         }
     }
     return errors;

@@ -32,12 +32,14 @@
     "component": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "kind", "semanticIdentity", "semanticName", "canonicalSources", "contentDigest", "owner", "audience", "classification", "dependencies", "hostNeutralPurpose", "approval", "releaseBoundary", "allowedProjections", "forbiddenProjections", "requiredCanaries", "securityRequirements"],
+      "required": ["id", "kind", "semanticIdentity", "semanticName", "lifecycle", "distributionTargetId", "canonicalSources", "contentDigest", "owner", "audience", "classification", "dependencies", "hostNeutralPurpose", "approval", "releaseBoundary", "allowedProjections", "forbiddenProjections", "requiredCanaries", "securityRequirements"],
       "properties": {
         "id": { "$ref": "#/$defs/id" },
         "kind": { "$ref": "#/$defs/kind" },
         "semanticIdentity": { "$ref": "#/$defs/id" },
         "semanticName": { "$ref": "#/$defs/nonEmptyString" },
+        "lifecycle": { "enum": ["active", "legacy-retained"] },
+        "distributionTargetId": { "oneOf": [{ "$ref": "#/$defs/id" }, { "type": "null" }] },
         "canonicalSources": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/source" } },
         "contentDigest": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
         "owner": { "enum": ["public Cratis product capability", "reusable Cratis engineering behavior", "Ensemble", "repository-only authoring/release tooling"] },

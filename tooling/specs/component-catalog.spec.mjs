@@ -90,6 +90,8 @@ function passiveStaticComponent(root, sourcePath = "source/owned.txt") {
         kind: "static-asset",
         semanticIdentity: "fixture-static-asset",
         semanticName: "Fixture static asset",
+        lifecycle: "active",
+        distributionTargetId: null,
         canonicalSources,
         contentDigest: digestComponentSources(canonicalSources),
         owner: "repository-only authoring/release tooling",
@@ -118,7 +120,7 @@ function passiveStaticComponent(root, sourcePath = "source/owned.txt") {
     };
 }
 
-function syntheticCatalog(root, component) {
+function syntheticCatalog(component) {
     return {
         components: {
             schemaVersion: 1,
@@ -162,7 +164,7 @@ test("catalog records all kinds and honestly declares MCP and LSP empty", () => 
                 .length,
         ]),
     );
-    assert.equal(counts.skill, 43);
+    assert.equal(counts.skill, 47);
     assert.equal(counts.agent, 12);
     assert.equal(counts.command, 18);
     assert.equal(counts.prompt, 18);
@@ -174,6 +176,39 @@ test("catalog records all kinds and honestly declares MCP and LSP empty", () => 
     assert.equal(counts.lsp, 0);
     assert(components.declaredEmptyKinds.includes("mcp"));
     assert(components.declaredEmptyKinds.includes("lsp"));
+    assert(
+        components.components.every(
+            (component) =>
+                component.hostNeutralPurpose !== ">" &&
+                component.hostNeutralPurpose.trim().length > 1,
+        ),
+    );
+});
+
+test("retained legacy host skills are explicit unbound components", () => {
+    const catalogs = load();
+    const legacy = catalogs.components.components.filter(
+        (component) => component.lifecycle === "legacy-retained",
+    );
+    assert.equal(legacy.length, 4);
+    assert(
+        legacy.every(
+            (component) =>
+                component.kind === "skill" &&
+                component.distributionTargetId === null &&
+                component.releaseBoundary === "repository-only",
+        ),
+    );
+    for (const component of legacy)
+        for (const hostId of ["claude-code", "codex", "github-copilot"])
+            assert(
+                catalogs.projections.projections.some(
+                    (projection) =>
+                        projection.componentId === component.id &&
+                        projection.hostId === hostId &&
+                        projection.hostActivation === "active",
+                ),
+            );
 });
 
 test("an orphan canonical source fails exact closure", () => {
@@ -182,10 +217,28 @@ test("an orphan canonical source fails exact closure", () => {
         mkdirSync(join(root, "source"));
         writeFileSync(join(root, "source/owned.txt"), "owned\n");
         writeFileSync(join(root, "source/orphan.txt"), "orphan\n");
-        const catalogs = syntheticCatalog(root, passiveStaticComponent(root));
+        const catalogs = syntheticCatalog(passiveStaticComponent(root));
         assert(
             validateComponents(catalogs, root).some((error) =>
                 error.includes("orphan canonical source source/orphan.txt"),
+            ),
+        );
+    } finally {
+        rmSync(root, { recursive: true, force: true });
+    }
+});
+
+test("a declared root cannot be a child of a broader canonical source", () => {
+    const root = mkdtempSync(join(tmpdir(), "cratis-component-boundary-"));
+    try {
+        mkdirSync(join(root, "source"));
+        writeFileSync(join(root, "source/owned.txt"), "owned\n");
+        const component = passiveStaticComponent(root, "source");
+        const catalogs = syntheticCatalog(component);
+        catalogs.components.canonicalSourceRoots = ["source/owned.txt"];
+        assert(
+            validateComponents(catalogs, root).some((error) =>
+                error.includes("canonical source is outside declared roots"),
             ),
         );
     } finally {
@@ -222,20 +275,36 @@ test("path escape, symlink, and special canonical sources fail", () => {
         execFileSync("mkfifo", [join(root, "source/fifo")]);
         const component = passiveStaticComponent(root, "outside.txt");
         component.canonicalSources[0].path = "../outside.txt";
-        let errors = validateComponents(
-            syntheticCatalog(root, component),
-            root,
-        );
+        let errors = validateComponents(syntheticCatalog(component), root);
         assert(errors.some((error) => error.includes("path is unsafe")));
         component.canonicalSources[0].path = "source/link";
-        errors = validateComponents(syntheticCatalog(root, component), root);
+        errors = validateComponents(syntheticCatalog(component), root);
         assert(errors.some((error) => error.includes("symlink")));
         component.canonicalSources[0].path = "source/fifo";
-        errors = validateComponents(syntheticCatalog(root, component), root);
+        errors = validateComponents(syntheticCatalog(component), root);
         assert(errors.some((error) => error.includes("not a regular file")));
     } finally {
         rmSync(root, { recursive: true, force: true });
     }
+});
+
+test("distribution target bindings are exact and legacy components stay unbound", () => {
+    const catalogs = load();
+    const bound = catalogs.components.components.find(
+        (component) => component.distributionTargetId !== null,
+    );
+    bound.distributionTargetId = null;
+    const legacy = catalogs.components.components.find(
+        (component) => component.lifecycle === "legacy-retained",
+    );
+    legacy.distributionTargetId = legacy.id;
+    const errors = validateComponents(catalogs);
+    assert(
+        errors.some((error) => error.includes("retain its target binding")),
+    );
+    assert(
+        errors.some((error) => error.includes("legacy-retained component")),
+    );
 });
 
 test("canonical and component digest drift fails", () => {
@@ -294,6 +363,7 @@ test("an agent cannot be approximated as a portable plugin field", () => {
     projection.artifactClass = "passive-public-package";
     projection.assuranceProfileId = "passive-public-package-v1";
     projection.state = "planned";
+    projection.hostActivation = "none";
     projection.adapterType = "none";
     projection.outputPaths = [];
     const errors = projectionErrors(catalogs);
@@ -448,7 +518,7 @@ test("coordinated component ID rename still violates exact semantic anchors", ()
     );
 });
 
-test("an additive passive component is accepted without granting eligibility", () => {
+test("additive components require an independently reviewed anchor update", () => {
     const catalogs = load();
     const owner = catalogs.components.components.find(
         (component) => component.id === "cratis-rule-code-quality",
@@ -472,8 +542,255 @@ test("an additive passive component is accepted without granting eligibility", (
             (kind) => kind !== "static-asset",
         );
     catalogs.components.components.push(additive);
-    assert.deepEqual(validateComponents(catalogs), []);
+    assert(
+        validateComponents(catalogs).some((error) =>
+            error.includes("independently reviewed anchor"),
+        ),
+    );
     assert.equal(additive.approval.state, "modeled");
+});
+
+test("coordinated projection host and adapter mutations fail independent anchors", () => {
+    const catalogs = load();
+    const projection = catalogs.projections.projections[0];
+    projection.id = `${projection.id}-renamed`;
+    projection.adapterType = "generated";
+    const host = catalogs.projections.hosts[0];
+    const oldHostId = host.id;
+    host.id = `${host.id}-renamed`;
+    for (const candidate of catalogs.projections.projections)
+        if (candidate.hostId === oldHostId) candidate.hostId = host.id;
+    const errors = projectionErrors(catalogs);
+    assert(
+        errors.some((error) => error.includes("projection semantic contract")),
+    );
+    assert(
+        errors.some((error) => error.includes("projection host contract")),
+    );
+});
+
+test("duplicate semantic projection records fail even with distinct IDs", () => {
+    const catalogs = load();
+    const duplicate = clone(catalogs.projections.projections[0]);
+    duplicate.id = `${duplicate.id}-duplicate`;
+    catalogs.projections.projections.push(duplicate);
+    assert(
+        projectionErrors(catalogs).some((error) =>
+            error.includes("duplicate semantic projection"),
+        ),
+    );
+});
+
+test("host output and shared symlink closure reject unmodeled exposure", () => {
+    const catalogs = load();
+    catalogs.projections.projections = catalogs.projections.projections.filter(
+        (projection) =>
+            !(
+                projection.componentId === "cratis-legacy-add-concept" &&
+                projection.hostId === "claude-code"
+            ),
+    );
+    let errors = projectionErrors(catalogs);
+    assert(
+        errors.some((error) =>
+            error.includes("exact component projection coverage"),
+        ),
+    );
+
+    const missingOutput = load();
+    missingOutput.projections.projections =
+        missingOutput.projections.projections.filter(
+            (projection) =>
+                !projection.outputPaths.includes(
+                    ".github/copilot-instructions.md",
+                ),
+        );
+    errors = projectionErrors(missingOutput);
+    assert(
+        errors.some((error) =>
+            error.includes("actual host adapter outputs do not match"),
+        ),
+    );
+
+    const implicitSharing = load();
+    const claude = implicitSharing.projections.hosts.find(
+        (host) => host.id === "claude-code",
+    );
+    claude.sharedSymlinkOutputs = claude.sharedSymlinkOutputs.filter(
+        (path) => path !== ".claude/skills",
+    );
+    errors = projectionErrors(implicitSharing);
+    assert(
+        errors.some((error) =>
+            error.includes("shared output is not explicitly declared"),
+        ),
+    );
+});
+
+test("Pi prompt and canonical executable exposures are completely modeled", () => {
+    const catalogs = load();
+    const piPrompts = catalogs.projections.projections.filter(
+        (projection) =>
+            projection.hostId === "pi" &&
+            projection.projectedKind === "prompt" &&
+            projection.hostActivation === "active",
+    );
+    assert.equal(piPrompts.length, 18);
+    assert(
+        piPrompts.every(
+            (projection) =>
+                projection.adapterType === "symlink" &&
+                projection.outputPaths[0].startsWith(".pi/prompts/"),
+        ),
+    );
+    const executable = catalogs.projections.projections.filter(
+        (projection) =>
+            projection.hostId === "pi" &&
+            projection.projectedKind === "executable-host-extension",
+    );
+    assert.equal(executable.length, 2);
+    assert(
+        executable.every(
+            (projection) =>
+                projection.state === "existing" &&
+                projection.hostActivation === "active" &&
+                projection.adapterType === "canonical-in-place" &&
+                projection.approval === "blocked" &&
+                projection.packageIdentity === null,
+        ),
+    );
+});
+
+test("symlink projection closure rejects canonical bytes outside its target", () => {
+    const catalogs = load();
+    const projection = catalogs.projections.projections.find(
+        (candidate) =>
+            candidate.hostId === "claude-code" &&
+            candidate.projectedKind === "subagent" &&
+            candidate.adapterType === "symlink",
+    );
+    const component = catalogs.components.components.find(
+        (candidate) => candidate.id === projection.componentId,
+    );
+    const outside = catalogs.components.components.find(
+        (candidate) => candidate.kind === "rule",
+    ).canonicalSources[0];
+    component.canonicalSources.push(clone(outside));
+    assert(
+        projectionErrors(catalogs).some((error) =>
+            error.includes("does not expose all component canonical bytes"),
+        ),
+    );
+});
+
+test("canonical-in-place exposure must cover every component source file", () => {
+    const catalogs = load();
+    const projection = catalogs.projections.projections.find(
+        (candidate) =>
+            candidate.adapterType === "canonical-in-place" &&
+            candidate.outputPaths.length > 1,
+    );
+    projection.outputPaths.pop();
+    assert(
+        projectionErrors(catalogs).some((error) =>
+            error.includes("do not exactly match component source bytes"),
+        ),
+    );
+});
+
+test("path-reference records are explicitly inert rather than host behavior", () => {
+    const catalogs = load();
+    const references = catalogs.projections.projections.filter(
+        (projection) => projection.adapterType === "path-reference",
+    );
+    assert.equal(references.length, 3);
+    assert(references.every((projection) => projection.hostActivation === "inert"));
+    references[0].hostActivation = "active";
+    assert(
+        projectionErrors(catalogs).some((error) =>
+            error.includes("requires inert host activation"),
+        ),
+    );
+});
+
+test("portable hosts cannot opt into the native passive wildcard", () => {
+    const catalogs = load();
+    const portable = catalogs.projections.hosts.find(
+        (host) => host.contract === "portable-agent-plugins-1-0",
+    );
+    portable.acceptsAnyPassiveProjection = true;
+    assert(
+        projectionErrors(catalogs).some((error) =>
+            error.includes("cannot accept the native passive-host wildcard"),
+        ),
+    );
+});
+
+test("declared adapter types must match real repository paths", () => {
+    const catalogs = load();
+    const projection = catalogs.projections.projections.find(
+        (candidate) => candidate.adapterType === "path-reference",
+    );
+    projection.adapterType = "symlink";
+    assert(
+        projectionErrors(catalogs).some((error) =>
+            error.includes("declared symlink adapter is not a symlink"),
+        ),
+    );
+});
+
+test("canonical roots ownership direction and portable kind cannot be coordinated away", () => {
+    const catalogs = load();
+    catalogs.components.canonicalSourceRoots.push(".ai/rules/general.md");
+    let errors = validateComponents(catalogs);
+    assert(errors.some((error) => error.includes("source roots overlap")));
+
+    const command = catalogs.components.components.find(
+        (component) => component.kind === "command",
+    );
+    const prompt = catalogs.components.components.find(
+        (component) => component.id === command.canonicalSources[0].ownerComponentId,
+    );
+    command.canonicalSources[0].ownership = "owner";
+    command.canonicalSources[0].ownerComponentId = command.id;
+    prompt.canonicalSources[0].ownership = "shared-reference";
+    prompt.canonicalSources[0].ownerComponentId = command.id;
+    errors = validateComponents(catalogs);
+    assert(errors.some((error) => error.includes("prompt must own")));
+    assert(errors.some((error) => error.includes("command must share")));
+
+    const projectionCatalogs = load();
+    const agent = projectionCatalogs.components.components.find(
+        (component) => component.kind === "agent",
+    );
+    const portable = {
+        ...clone(
+            projectionCatalogs.projections.projections.find(
+                (projection) => projection.componentId === agent.id,
+            ),
+        ),
+        id: "fabricated-portable-agent-projection",
+        hostId: "portable-agent-plugins-1-0",
+        projectedKind: "skill",
+        state: "blocked",
+        hostActivation: "none",
+        adapterType: "none",
+        outputPaths: [],
+    };
+    projectionCatalogs.projections.projections.push(portable);
+    agent.allowedProjections.push({
+        hostContract: "portable-agent-plugins-1-0",
+        kinds: ["skill"],
+        artifactClasses: [portable.artifactClass],
+    });
+    agent.forbiddenProjections = agent.forbiddenProjections.filter(
+        (kind) => kind !== "skill",
+    );
+    assert(
+        projectionErrors(projectionCatalogs).some((error) =>
+            error.includes("canonical component kind is not portable"),
+        ),
+    );
 });
 
 test("stale generated component projection fails deterministic parity", () => {
@@ -511,6 +828,69 @@ test("component inventory cannot grant artifact runtime eligibility", () => {
     assert(
         errors.some((error) =>
             error.includes("passive artifact rejects executable component"),
+        ),
+    );
+});
+
+test("fixture component inventories bind exact canonical bytes", () => {
+    const catalogs = load();
+    const artifacts = readCatalog(
+        join(defaultRepositoryRoot, "catalog/v2/artifacts.json"),
+    );
+    const fixture = artifacts.artifacts.find(
+        (artifact) =>
+            artifact.id === "cratis-fundamentals-concept-preview",
+    );
+    fixture.componentInventory.skills.push("cratis-arc-command");
+    assert(
+        validateArtifacts({ ...catalogs, artifacts }).some((error) =>
+            error.includes("complete component byte inventory"),
+        ),
+    );
+});
+
+test("artifact byte validation honors the caller repository root", () => {
+    const catalogs = load();
+    const artifacts = readCatalog(
+        join(defaultRepositoryRoot, "catalog/v2/artifacts.json"),
+    );
+    const root = mkdtempSync(join(tmpdir(), "cratis-artifact-root-"));
+    try {
+        assert(
+            validateArtifacts({ ...catalogs, artifacts }, root).some((error) =>
+                error.includes("component byte inventory failed"),
+            ),
+        );
+    } finally {
+        rmSync(root, { recursive: true, force: true });
+    }
+});
+
+test("non-materialized artifacts cannot claim exact source bytes", () => {
+    const catalogs = load();
+    const artifacts = readCatalog(
+        join(defaultRepositoryRoot, "catalog/v2/artifacts.json"),
+    );
+    const planned = artifacts.artifacts.find(
+        (artifact) => !artifact.fixtureOnly,
+    );
+    planned.exactSourcePaths.push("skills/cratis-arc-command/SKILL.md");
+    assert(
+        validateArtifacts({ ...catalogs, artifacts }).some((error) =>
+            error.includes("cannot claim exact source bytes"),
+        ),
+    );
+});
+
+test("runtime-effect classification cannot remain passive", () => {
+    const catalogs = load();
+    const passive = catalogs.components.components.find(
+        (component) => component.classification.passive,
+    );
+    passive.classification.effect = "runtime-effect";
+    assert(
+        validateComponents(catalogs).some((error) =>
+            error.includes("runtime-effect and executable"),
         ),
     );
 });

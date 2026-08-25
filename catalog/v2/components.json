@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generatedBy": "tooling/generate-component-catalogs.mjs",
-  "sourceDigest": "93e70136653a3d1b9b142cc6268214cad6334db749646a11a1fa012773b875f2",
+  "sourceDigest": "77f95edb585fe3bdee02e2f7e7849c07cae8fddfdcba1ce4ab2c182f193a38e6",
   "defaultPolicy": "deny",
   "canonicalSourceRoots": [
     ".ai/agents",
@@ -9,6 +9,8 @@
     ".ai/prompts",
     ".ai/rules",
     ".ai/skills/add-business-rule",
+    ".ai/skills/add-concept",
+    ".ai/skills/add-cratis-docs-page",
     ".ai/skills/add-ef-migration",
     ".ai/skills/add-projection",
     ".ai/skills/add-reactor",
@@ -27,6 +29,7 @@
     ".ai/skills/cross-cutting-properties",
     ".ai/skills/diagnose-slice",
     ".ai/skills/discover-implementations",
+    ".ai/skills/edit-cratis-docs",
     ".ai/skills/event-modeling",
     ".ai/skills/event-type-migrations",
     ".ai/skills/inspect-running-chronicle",
@@ -43,6 +46,7 @@
     ".ai/skills/skill-creator",
     ".ai/skills/stepper-command-dialog",
     ".ai/skills/toolbar",
+    ".ai/skills/write-documentation",
     ".ai/skills/write-specs",
     ".ai/skills/write-specs-events",
     ".ai/skills/write-specs-frontend",
@@ -66,6 +70,8 @@
       "kind": "agent",
       "semanticIdentity": "cratis-agent-backend-developer",
       "semanticName": "Cratis backend-developer agent",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/agents/backend-developer.md",
@@ -85,7 +91,7 @@
         "effect": "guided-write"
       },
       "dependencies": [],
-      "hostNeutralPurpose": ">",
+      "hostNeutralPurpose": "Specialist for C# backend code within a vertical slice. Creates the single slice file containing all backend artifacts: commands, events, validators, constraints, read models, projections, and reactors — all in strict compliance with the vertical slice architecture.",
       "approval": {
         "state": "modeled",
         "evidenceIds": [
@@ -133,6 +139,8 @@
       "kind": "agent",
       "semanticIdentity": "cratis-agent-code-reviewer",
       "semanticName": "Cratis code-reviewer agent",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/agents/code-reviewer.md",
@@ -152,7 +160,7 @@
         "effect": "guided-write"
       },
       "dependencies": [],
-      "hostNeutralPurpose": ">",
+      "hostNeutralPurpose": "Quality gate agent for Cratis-based projects. Reviews code against all project instruction files, checking architecture conformance, C# and TypeScript conventions, and vertical slice correctness before merge.",
       "approval": {
         "state": "modeled",
         "evidenceIds": [
@@ -200,6 +208,8 @@
       "kind": "agent",
       "semanticIdentity": "cratis-agent-coordinator",
       "semanticName": "Cratis coordinator agent",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/agents/coordinator.md",
@@ -219,7 +229,7 @@
         "effect": "guided-write"
       },
       "dependencies": [],
-      "hostNeutralPurpose": ">",
+      "hostNeutralPurpose": "General-purpose coordinator agent for Cratis-based projects. Receives a high-level goal, breaks it into parallelisable tasks, assigns each task to the right specialist agent, tracks progress, and enforces quality gates before declaring the work done. Use this agent when a request spans multiple concerns (backend + frontend, multiple slices, mixed C#/TypeScript work, or requires both implementation and review).",
       "approval": {
         "state": "modeled",
         "evidenceIds": [
@@ -267,6 +277,8 @@
       "kind": "agent",
       "semanticIdentity": "cratis-agent-frontend-developer",
       "semanticName": "Cratis frontend-developer agent",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/agents/frontend-developer.md",
@@ -286,7 +298,7 @@
         "effect": "guided-write"
       },
       "dependencies": [],
-      "hostNeutralPurpose": ">",
+      "hostNeutralPurpose": "Specialist for TypeScript/React frontend code within a vertical slice. Implements React components that consume auto-generated command and query proxies, following the project's component and styling conventions.",
       "approval": {
         "state": "modeled",
         "evidenceIds": [
@@ -334,6 +346,8 @@
       "kind": "agent",
       "semanticIdentity": "cratis-agent-orchestrator",
       "semanticName": "Cratis orchestrator agent",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/agents/orchestrator.md",
@@ -353,7 +367,7 @@
         "effect": "guided-write"
       },
       "dependencies": [],
-      "hostNeutralPurpose": ">",
+      "hostNeutralPurpose": "Top-level team orchestrator for Cratis-based projects. Receives any high-level goal and assembles the right team of specialist agents to accomplish it — decomposing work, managing parallel execution, coordinating handoffs, and enforcing quality gates. Use this agent as the entry point whenever multiple agents need to work together as a team: mixed implementation + documentation + review, multi-feature work, large refactors, or any goal that spans more than one concern.",
       "approval": {
         "state": "modeled",
         "evidenceIds": [
@@ -401,6 +415,8 @@
       "kind": "agent",
       "semanticIdentity": "cratis-agent-performance-reviewer",
       "semanticName": "Cratis performance-reviewer agent",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/agents/performance-reviewer.md",
@@ -420,7 +436,7 @@
         "effect": "guided-write"
       },
       "dependencies": [],
-      "hostNeutralPurpose": ">",
+      "hostNeutralPurpose": "Performance-focused review agent for Cratis-based projects. Analyzes changed files for projection efficiency, query patterns, unnecessary allocations, React render overhead, and Chronicle anti-patterns before merge.",
       "approval": {
         "state": "modeled",
         "evidenceIds": [
@@ -468,6 +484,8 @@
       "kind": "agent",
       "semanticIdentity": "cratis-agent-planner",
       "semanticName": "Cratis planner agent",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/agents/planner.md",
@@ -487,7 +505,7 @@
         "effect": "guided-write"
       },
       "dependencies": [],
-      "hostNeutralPurpose": ">",
+      "hostNeutralPurpose": "Orchestrates the implementation of one or more vertical slices. Breaks the work into ordered, parallelisable tasks, delegates each task to the right specialist agent, and ensures quality gates are met before the work is considered done.",
       "approval": {
         "state": "modeled",
         "evidenceIds": [
@@ -535,6 +553,8 @@
       "kind": "agent",
       "semanticIdentity": "cratis-agent-repository-investigation-reviewer",
       "semanticName": "Cratis repository-investigation-reviewer agent",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/agents/repository-investigation-reviewer.md",
@@ -554,7 +574,7 @@
         "effect": "guided-write"
       },
       "dependencies": [],
-      "hostNeutralPurpose": ">",
+      "hostNeutralPurpose": "Independent, read-only reviewer for typed Cratis repository investigations. Reviews evidence and repository-mode reasoning without applying application conventions to framework or client-library repositories.",
       "approval": {
         "state": "modeled",
         "evidenceIds": [
@@ -602,6 +622,8 @@
       "kind": "agent",
       "semanticIdentity": "cratis-agent-repository-investigator",
       "semanticName": "Cratis repository-investigator agent",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/agents/repository-investigator.md",
@@ -621,7 +643,7 @@
         "effect": "guided-write"
       },
       "dependencies": [],
-      "hostNeutralPurpose": ">",
+      "hostNeutralPurpose": "Read-only investigator for Cratis application and framework repositories. Produces typed, evidence-backed findings without changing source, invoking mutating Chronicle operations, or assuming an application architecture.",
       "approval": {
         "state": "modeled",
         "evidenceIds": [
@@ -669,6 +691,8 @@
       "kind": "agent",
       "semanticIdentity": "cratis-agent-security-reviewer",
       "semanticName": "Cratis security-reviewer agent",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/agents/security-reviewer.md",
@@ -688,7 +712,7 @@
         "effect": "guided-write"
       },
       "dependencies": [],
-      "hostNeutralPurpose": ">",
+      "hostNeutralPurpose": "Security gate agent for Cratis-based projects. Performs a structured security review of all changed files before merge, covering input validation, auth/authz, data exposure, secrets, event sourcing specifics, and frontend attack surface.",
       "approval": {
         "state": "modeled",
         "evidenceIds": [
@@ -736,6 +760,8 @@
       "kind": "agent",
       "semanticIdentity": "cratis-agent-slice-implementer",
       "semanticName": "Cratis slice-implementer agent",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/agents/slice-implementer.md",
@@ -755,7 +781,7 @@
         "effect": "guided-write"
       },
       "dependencies": [],
-      "hostNeutralPurpose": ">",
+      "hostNeutralPurpose": "Implements a Cratis vertical slice end-to-end — all backend artifacts in one slice file, BDD specs in when_*/ folders, and the React surface (page and/or command dialog). Use for new slices and for non-trivial slice changes spanning backend and frontend.",
       "approval": {
         "state": "modeled",
         "evidenceIds": [
@@ -803,6 +829,8 @@
       "kind": "agent",
       "semanticIdentity": "cratis-agent-spec-writer",
       "semanticName": "Cratis spec-writer agent",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/agents/spec-writer.md",
@@ -822,7 +850,7 @@
         "effect": "guided-write"
       },
       "dependencies": [],
-      "hostNeutralPurpose": ">",
+      "hostNeutralPurpose": "Specialist for writing C# specs (the in-process scenario family) and TypeScript/React specs for vertical slices. Ensures every slice has comprehensive behavior coverage following the project's BDD conventions.",
       "approval": {
         "state": "modeled",
         "evidenceIds": [
@@ -870,6 +898,8 @@
       "kind": "skill",
       "semanticIdentity": "cratis-application-react-specifications",
       "semanticName": "cratis-application-react-specifications",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-application-react-specifications",
       "canonicalSources": [
         {
           "path": ".ai/skills/write-specs-frontend",
@@ -952,6 +982,8 @@
       "kind": "skill",
       "semanticIdentity": "cratis-application-slice-diagnostics",
       "semanticName": "cratis-application-slice-diagnostics",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-application-slice-diagnostics",
       "canonicalSources": [
         {
           "path": ".ai/skills/diagnose-slice",
@@ -1035,6 +1067,8 @@
       "kind": "skill",
       "semanticIdentity": "cratis-application-slice-specifications",
       "semanticName": "cratis-application-slice-specifications",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-application-slice-specifications",
       "canonicalSources": [
         {
           "path": ".ai/skills/write-specs",
@@ -1118,6 +1152,8 @@
       "kind": "skill",
       "semanticIdentity": "cratis-application-vertical-slice",
       "semanticName": "cratis-application-vertical-slice",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-application-vertical-slice",
       "canonicalSources": [
         {
           "path": ".ai/skills/cratis-vertical-slice",
@@ -1207,6 +1243,8 @@
       "kind": "skill",
       "semanticIdentity": "cratis-arc-authentication-authorization-and-identity",
       "semanticName": "cratis-arc-authentication-authorization-and-identity",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-arc-authentication-authorization-and-identity",
       "canonicalSources": [
         {
           "path": ".ai/skills/auth-and-identity",
@@ -1290,6 +1328,8 @@
       "kind": "skill",
       "semanticIdentity": "cratis-arc-command",
       "semanticName": "cratis-arc-command",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-arc-command",
       "canonicalSources": [
         {
           "path": ".ai/skills/cratis-command",
@@ -1373,6 +1413,8 @@
       "kind": "skill",
       "semanticIdentity": "cratis-arc-command-execution",
       "semanticName": "cratis-arc-command-execution",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-arc-command-execution",
       "canonicalSources": [
         {
           "path": ".ai/skills/call-command-from-code",
@@ -1454,6 +1496,8 @@
       "kind": "skill",
       "semanticIdentity": "cratis-arc-command-validation",
       "semanticName": "cratis-arc-command-validation",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-arc-command-validation",
       "canonicalSources": [
         {
           "path": ".ai/skills/add-business-rule",
@@ -1536,6 +1580,8 @@
       "kind": "skill",
       "semanticIdentity": "cratis-arc-ef-core-migration",
       "semanticName": "cratis-arc-ef-core-migration",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-arc-ef-core-migration",
       "canonicalSources": [
         {
           "path": ".ai/skills/add-ef-migration",
@@ -1617,6 +1663,8 @@
       "kind": "skill",
       "semanticIdentity": "cratis-arc-observable-query-http",
       "semanticName": "cratis-arc-observable-query-http",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-arc-observable-query-http",
       "canonicalSources": [
         {
           "path": ".ai/skills/observable-query-curl",
@@ -1699,6 +1747,8 @@
       "kind": "skill",
       "semanticIdentity": "cratis-arc-query-paging",
       "semanticName": "cratis-arc-query-paging",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-arc-query-paging",
       "canonicalSources": [
         {
           "path": ".ai/skills/query-paging",
@@ -1781,6 +1831,8 @@
       "kind": "skill",
       "semanticIdentity": "cratis-arc-react-feature-scaffolding",
       "semanticName": "cratis-arc-react-feature-scaffolding",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-arc-react-feature-scaffolding",
       "canonicalSources": [
         {
           "path": ".ai/skills/scaffold-feature",
@@ -1863,6 +1915,8 @@
       "kind": "skill",
       "semanticIdentity": "cratis-arc-react-page",
       "semanticName": "cratis-arc-react-page",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-arc-react-page",
       "canonicalSources": [
         {
           "path": ".ai/skills/cratis-react-page",
@@ -1945,6 +1999,8 @@
       "kind": "skill",
       "semanticIdentity": "cratis-chronicle-cli-operations",
       "semanticName": "cratis-chronicle-cli-operations",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-chronicle-cli-operations",
       "canonicalSources": [
         {
           "path": ".ai/skills/inspect-running-chronicle",
@@ -2026,6 +2082,8 @@
       "kind": "skill",
       "semanticIdentity": "cratis-chronicle-event-constraints",
       "semanticName": "cratis-chronicle-event-constraints",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-chronicle-event-constraints",
       "canonicalSources": [
         {
           "path": ".ai/skills/add-business-rule",
@@ -2108,6 +2166,8 @@
       "kind": "skill",
       "semanticIdentity": "cratis-chronicle-event-metadata",
       "semanticName": "cratis-chronicle-event-metadata",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-chronicle-event-metadata",
       "canonicalSources": [
         {
           "path": ".ai/skills/cross-cutting-properties",
@@ -2189,6 +2249,8 @@
       "kind": "skill",
       "semanticIdentity": "cratis-chronicle-event-modeling",
       "semanticName": "cratis-chronicle-event-modeling",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-chronicle-event-modeling",
       "canonicalSources": [
         {
           "path": ".ai/skills/event-modeling",
@@ -2270,6 +2332,8 @@
       "kind": "skill",
       "semanticIdentity": "cratis-chronicle-event-specifications",
       "semanticName": "cratis-chronicle-event-specifications",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-chronicle-event-specifications",
       "canonicalSources": [
         {
           "path": ".ai/skills/write-specs-events",
@@ -2352,6 +2416,8 @@
       "kind": "skill",
       "semanticIdentity": "cratis-chronicle-event-type-migration",
       "semanticName": "cratis-chronicle-event-type-migration",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-chronicle-event-type-migration",
       "canonicalSources": [
         {
           "path": ".ai/skills/event-type-migrations",
@@ -2433,6 +2499,8 @@
       "kind": "skill",
       "semanticIdentity": "cratis-chronicle-multi-tenancy",
       "semanticName": "cratis-chronicle-multi-tenancy",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-chronicle-multi-tenancy",
       "canonicalSources": [
         {
           "path": ".ai/skills/multi-tenancy",
@@ -2514,6 +2582,8 @@
       "kind": "skill",
       "semanticIdentity": "cratis-chronicle-projection",
       "semanticName": "cratis-chronicle-projection",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-chronicle-projection",
       "canonicalSources": [
         {
           "path": ".ai/skills/add-projection",
@@ -2596,6 +2666,8 @@
       "kind": "skill",
       "semanticIdentity": "cratis-chronicle-reactor",
       "semanticName": "cratis-chronicle-reactor",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-chronicle-reactor",
       "canonicalSources": [
         {
           "path": ".ai/skills/add-reactor",
@@ -2678,6 +2750,8 @@
       "kind": "skill",
       "semanticIdentity": "cratis-chronicle-read-model",
       "semanticName": "cratis-chronicle-read-model",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-chronicle-read-model",
       "canonicalSources": [
         {
           "path": ".ai/skills/cratis-readmodel",
@@ -2761,6 +2835,8 @@
       "kind": "skill",
       "semanticIdentity": "cratis-chronicle-read-model-specifications",
       "semanticName": "cratis-chronicle-read-model-specifications",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-chronicle-read-model-specifications",
       "canonicalSources": [
         {
           "path": ".ai/skills/write-specs-readmodels",
@@ -2845,6 +2921,8 @@
       "kind": "skill",
       "semanticIdentity": "cratis-chronicle-reducer",
       "semanticName": "cratis-chronicle-reducer",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-chronicle-reducer",
       "canonicalSources": [
         {
           "path": ".ai/skills/add-reducer",
@@ -2927,6 +3005,8 @@
       "kind": "skill",
       "semanticIdentity": "cratis-code-review",
       "semanticName": "cratis-code-review",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-code-review",
       "canonicalSources": [
         {
           "path": ".ai/skills/review-code",
@@ -3009,6 +3089,8 @@
       "kind": "command",
       "semanticIdentity": "cratis-command-add-business-rule",
       "semanticName": "Cratis add-business-rule command",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/prompts/add-business-rule.prompt.md",
@@ -3076,6 +3158,8 @@
       "kind": "command",
       "semanticIdentity": "cratis-command-add-concept",
       "semanticName": "Cratis add-concept command",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/prompts/add-concept.prompt.md",
@@ -3143,6 +3227,8 @@
       "kind": "command",
       "semanticIdentity": "cratis-command-add-ef-migration",
       "semanticName": "Cratis add-ef-migration command",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/prompts/add-ef-migration.prompt.md",
@@ -3210,6 +3296,8 @@
       "kind": "command",
       "semanticIdentity": "cratis-command-add-projection",
       "semanticName": "Cratis add-projection command",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/prompts/add-projection.prompt.md",
@@ -3277,6 +3365,8 @@
       "kind": "command",
       "semanticIdentity": "cratis-command-add-reactor",
       "semanticName": "Cratis add-reactor command",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/prompts/add-reactor.prompt.md",
@@ -3344,6 +3434,8 @@
       "kind": "command",
       "semanticIdentity": "cratis-command-add-reducer",
       "semanticName": "Cratis add-reducer command",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/prompts/add-reducer.prompt.md",
@@ -3411,6 +3503,8 @@
       "kind": "command",
       "semanticIdentity": "cratis-command-audit-hooks",
       "semanticName": "Cratis audit-hooks command",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/prompts/audit-hooks.prompt.md",
@@ -3478,6 +3572,8 @@
       "kind": "command",
       "semanticIdentity": "cratis-command-check-doc-drift",
       "semanticName": "Cratis check-doc-drift command",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/prompts/check-doc-drift.prompt.md",
@@ -3545,6 +3641,8 @@
       "kind": "command",
       "semanticIdentity": "cratis-command-code-review",
       "semanticName": "Cratis code-review command",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/prompts/code-review.prompt.md",
@@ -3612,6 +3710,8 @@
       "kind": "command",
       "semanticIdentity": "cratis-command-new-feature",
       "semanticName": "Cratis new-feature command",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/prompts/new-feature.prompt.md",
@@ -3679,6 +3779,8 @@
       "kind": "command",
       "semanticIdentity": "cratis-command-new-vertical-slice",
       "semanticName": "Cratis new-vertical-slice command",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/prompts/new-vertical-slice.prompt.md",
@@ -3746,6 +3848,8 @@
       "kind": "command",
       "semanticIdentity": "cratis-command-review-pr",
       "semanticName": "Cratis review-pr command",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/prompts/review-pr.prompt.md",
@@ -3813,6 +3917,8 @@
       "kind": "command",
       "semanticIdentity": "cratis-command-review-skill",
       "semanticName": "Cratis review-skill command",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/prompts/review-skill.prompt.md",
@@ -3880,6 +3986,8 @@
       "kind": "command",
       "semanticIdentity": "cratis-command-scaffold-feature",
       "semanticName": "Cratis scaffold-feature command",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/prompts/scaffold-feature.prompt.md",
@@ -3947,6 +4055,8 @@
       "kind": "command",
       "semanticIdentity": "cratis-command-ship-changes",
       "semanticName": "Cratis ship-changes command",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/prompts/ship-changes.prompt.md",
@@ -4014,6 +4124,8 @@
       "kind": "command",
       "semanticIdentity": "cratis-command-verify-ai-setup",
       "semanticName": "Cratis verify-ai-setup command",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/prompts/verify-ai-setup.prompt.md",
@@ -4081,6 +4193,8 @@
       "kind": "command",
       "semanticIdentity": "cratis-command-write-documentation",
       "semanticName": "Cratis write-documentation command",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/prompts/write-documentation.prompt.md",
@@ -4148,6 +4262,8 @@
       "kind": "command",
       "semanticIdentity": "cratis-command-write-specs",
       "semanticName": "Cratis write-specs command",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/prompts/write-specs.prompt.md",
@@ -4215,6 +4331,8 @@
       "kind": "skill",
       "semanticIdentity": "cratis-components-stepper-command-dialog",
       "semanticName": "cratis-components-stepper-command-dialog",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-components-stepper-command-dialog",
       "canonicalSources": [
         {
           "path": ".ai/skills/stepper-command-dialog",
@@ -4297,6 +4415,8 @@
       "kind": "skill",
       "semanticIdentity": "cratis-components-toolbar",
       "semanticName": "cratis-components-toolbar",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-components-toolbar",
       "canonicalSources": [
         {
           "path": ".ai/skills/toolbar",
@@ -4378,6 +4498,8 @@
       "kind": "skill",
       "semanticIdentity": "cratis-engineering-chronicle-kernel-tracing",
       "semanticName": "cratis-engineering-chronicle-kernel-tracing",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-engineering-chronicle-kernel-tracing",
       "canonicalSources": [
         {
           "path": ".ai/skills/add-traces",
@@ -4457,6 +4579,8 @@
       "kind": "skill",
       "semanticIdentity": "cratis-engineering-csharp-conventions",
       "semanticName": "cratis-engineering-csharp-conventions",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-engineering-csharp-conventions",
       "canonicalSources": [
         {
           "path": ".ai/skills/cratis-csharp-standards",
@@ -4536,6 +4660,8 @@
       "kind": "skill",
       "semanticIdentity": "cratis-engineering-docs-add-page",
       "semanticName": "cratis-engineering-docs-add-page",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-engineering-docs-add-page",
       "canonicalSources": [
         {
           "path": "engineering/skills/cratis-engineering-docs-add-page",
@@ -4618,6 +4744,8 @@
       "kind": "skill",
       "semanticIdentity": "cratis-engineering-docs-authoring",
       "semanticName": "cratis-engineering-docs-authoring",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-engineering-docs-authoring",
       "canonicalSources": [
         {
           "path": "engineering/skills/cratis-engineering-docs-authoring",
@@ -4697,6 +4825,8 @@
       "kind": "skill",
       "semanticIdentity": "cratis-engineering-docs-edit-page",
       "semanticName": "cratis-engineering-docs-edit-page",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-engineering-docs-edit-page",
       "canonicalSources": [
         {
           "path": "engineering/skills/cratis-engineering-docs-edit-page",
@@ -4779,6 +4909,8 @@
       "kind": "skill",
       "semanticIdentity": "cratis-engineering-docs-visual-qa",
       "semanticName": "cratis-engineering-docs-visual-qa",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-engineering-docs-visual-qa",
       "canonicalSources": [
         {
           "path": ".ai/skills/qa-cratis-docs",
@@ -4858,6 +4990,8 @@
       "kind": "skill",
       "semanticIdentity": "cratis-engineering-ship-changes",
       "semanticName": "cratis-engineering-ship-changes",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-engineering-ship-changes",
       "canonicalSources": [
         {
           "path": ".ai/skills/ship-changes",
@@ -4937,6 +5071,8 @@
       "kind": "skill",
       "semanticIdentity": "cratis-event-model-diagram",
       "semanticName": "cratis-event-model-diagram",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-event-model-diagram",
       "canonicalSources": [
         {
           "path": ".ai/skills/create-event-model",
@@ -5018,6 +5154,8 @@
       "kind": "skill",
       "semanticIdentity": "cratis-fundamentals-concept",
       "semanticName": "cratis-fundamentals-concept",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-fundamentals-concept",
       "canonicalSources": [
         {
           "path": "skills/cratis-fundamentals-concept",
@@ -5100,6 +5238,8 @@
       "kind": "skill",
       "semanticIdentity": "cratis-fundamentals-type-discovery",
       "semanticName": "cratis-fundamentals-type-discovery",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-fundamentals-type-discovery",
       "canonicalSources": [
         {
           "path": ".ai/skills/discover-implementations",
@@ -5181,6 +5321,8 @@
       "kind": "hook",
       "semanticIdentity": "cratis-hooks",
       "semanticName": "Cratis lifecycle hooks",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/hooks",
@@ -5259,6 +5401,8 @@
       "kind": "instruction",
       "semanticIdentity": "cratis-instruction-general",
       "semanticName": "Cratis general instruction",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/rules/general.md",
@@ -5322,10 +5466,304 @@
       }
     },
     {
+      "id": "cratis-legacy-add-concept",
+      "kind": "skill",
+      "semanticIdentity": "cratis-legacy-add-concept",
+      "semanticName": "Legacy add-concept host skill",
+      "lifecycle": "legacy-retained",
+      "distributionTargetId": null,
+      "canonicalSources": [
+        {
+          "path": ".ai/skills/add-concept",
+          "digest": "b7d5860604d9a187e4faed7f44a0f2b64f304ea251fb86d953783a56995d49cf",
+          "ownership": "owner",
+          "ownerComponentId": "cratis-legacy-add-concept"
+        }
+      ],
+      "contentDigest": "d461c5f906d1176139715fc8f8a168c191b4dcd63ec30e37cfbde27bf4c48b91",
+      "owner": "reusable Cratis engineering behavior",
+      "audience": "cratis-engineering",
+      "classification": {
+        "artifactClass": "passive-content",
+        "trust": "passive",
+        "passive": true,
+        "executable": false,
+        "effect": "guided-write"
+      },
+      "dependencies": [
+        "cratis-fundamentals-concept"
+      ],
+      "hostNeutralPurpose": "Retained repository-local concept authoring guidance",
+      "approval": {
+        "state": "modeled",
+        "evidenceIds": [
+          "reevaluation-authority",
+          "repo-main-b795d53"
+        ]
+      },
+      "releaseBoundary": "repository-only",
+      "allowedProjections": [
+        {
+          "hostContract": "any-passive-host",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "provider-compatibility"
+          ]
+        }
+      ],
+      "forbiddenProjections": [
+        "agent",
+        "subagent",
+        "command",
+        "prompt",
+        "rule",
+        "instruction",
+        "hook",
+        "mcp",
+        "lsp",
+        "executable-host-extension",
+        "static-asset"
+      ],
+      "requiredCanaries": [
+        "host-discovery",
+        "projection-shape",
+        "semantic-identity",
+        "source-digest"
+      ],
+      "securityRequirements": {
+        "threatModel": false,
+        "securityReview": false,
+        "executableAssuranceProfile": false
+      }
+    },
+    {
+      "id": "cratis-legacy-add-cratis-docs-page",
+      "kind": "skill",
+      "semanticIdentity": "cratis-legacy-add-cratis-docs-page",
+      "semanticName": "Legacy add-cratis-docs-page host skill",
+      "lifecycle": "legacy-retained",
+      "distributionTargetId": null,
+      "canonicalSources": [
+        {
+          "path": ".ai/skills/add-cratis-docs-page",
+          "digest": "af8a22b279a7075c110fd6bf4197275006678699e46b154f6215784fb52b057d",
+          "ownership": "owner",
+          "ownerComponentId": "cratis-legacy-add-cratis-docs-page"
+        }
+      ],
+      "contentDigest": "f4b4054f210849c5a65dbb819a5f9394449184f6b2bf7565e46b057bbcdbd1f0",
+      "owner": "reusable Cratis engineering behavior",
+      "audience": "cratis-engineering",
+      "classification": {
+        "artifactClass": "passive-content",
+        "trust": "passive",
+        "passive": true,
+        "executable": false,
+        "effect": "guided-write"
+      },
+      "dependencies": [
+        "cratis-engineering-docs-add-page"
+      ],
+      "hostNeutralPurpose": "Retained repository-local documentation page creation guidance",
+      "approval": {
+        "state": "modeled",
+        "evidenceIds": [
+          "reevaluation-authority",
+          "repo-main-b795d53"
+        ]
+      },
+      "releaseBoundary": "repository-only",
+      "allowedProjections": [
+        {
+          "hostContract": "any-passive-host",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "provider-compatibility"
+          ]
+        }
+      ],
+      "forbiddenProjections": [
+        "agent",
+        "subagent",
+        "command",
+        "prompt",
+        "rule",
+        "instruction",
+        "hook",
+        "mcp",
+        "lsp",
+        "executable-host-extension",
+        "static-asset"
+      ],
+      "requiredCanaries": [
+        "host-discovery",
+        "projection-shape",
+        "semantic-identity",
+        "source-digest"
+      ],
+      "securityRequirements": {
+        "threatModel": false,
+        "securityReview": false,
+        "executableAssuranceProfile": false
+      }
+    },
+    {
+      "id": "cratis-legacy-edit-cratis-docs",
+      "kind": "skill",
+      "semanticIdentity": "cratis-legacy-edit-cratis-docs",
+      "semanticName": "Legacy edit-cratis-docs host skill",
+      "lifecycle": "legacy-retained",
+      "distributionTargetId": null,
+      "canonicalSources": [
+        {
+          "path": ".ai/skills/edit-cratis-docs",
+          "digest": "d07be3bed6a4cc4cc3d72548baafd211826160b168fa7a4b7e39d5c950063b07",
+          "ownership": "owner",
+          "ownerComponentId": "cratis-legacy-edit-cratis-docs"
+        }
+      ],
+      "contentDigest": "c88cc0ba82f66094fb35f085b094f5d13c070c03c8041ccf0b780ef9da93983e",
+      "owner": "reusable Cratis engineering behavior",
+      "audience": "cratis-engineering",
+      "classification": {
+        "artifactClass": "passive-content",
+        "trust": "passive",
+        "passive": true,
+        "executable": false,
+        "effect": "guided-write"
+      },
+      "dependencies": [
+        "cratis-engineering-docs-edit-page"
+      ],
+      "hostNeutralPurpose": "Retained repository-local documentation editing guidance",
+      "approval": {
+        "state": "modeled",
+        "evidenceIds": [
+          "reevaluation-authority",
+          "repo-main-b795d53"
+        ]
+      },
+      "releaseBoundary": "repository-only",
+      "allowedProjections": [
+        {
+          "hostContract": "any-passive-host",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "provider-compatibility"
+          ]
+        }
+      ],
+      "forbiddenProjections": [
+        "agent",
+        "subagent",
+        "command",
+        "prompt",
+        "rule",
+        "instruction",
+        "hook",
+        "mcp",
+        "lsp",
+        "executable-host-extension",
+        "static-asset"
+      ],
+      "requiredCanaries": [
+        "host-discovery",
+        "projection-shape",
+        "semantic-identity",
+        "source-digest"
+      ],
+      "securityRequirements": {
+        "threatModel": false,
+        "securityReview": false,
+        "executableAssuranceProfile": false
+      }
+    },
+    {
+      "id": "cratis-legacy-write-documentation",
+      "kind": "skill",
+      "semanticIdentity": "cratis-legacy-write-documentation",
+      "semanticName": "Legacy write-documentation host skill",
+      "lifecycle": "legacy-retained",
+      "distributionTargetId": null,
+      "canonicalSources": [
+        {
+          "path": ".ai/skills/write-documentation",
+          "digest": "a2275283ae6a841a007b7b2040a5b315fb889d49de5fe113f6fab99ecfbae4e7",
+          "ownership": "owner",
+          "ownerComponentId": "cratis-legacy-write-documentation"
+        }
+      ],
+      "contentDigest": "042cc0c7f9755ae6663bf30bbb1c427b2f75bf04d9dc5ff87a62fe856a0e1cc4",
+      "owner": "reusable Cratis engineering behavior",
+      "audience": "cratis-engineering",
+      "classification": {
+        "artifactClass": "passive-content",
+        "trust": "passive",
+        "passive": true,
+        "executable": false,
+        "effect": "guided-write"
+      },
+      "dependencies": [
+        "cratis-engineering-docs-authoring"
+      ],
+      "hostNeutralPurpose": "Retained repository-local documentation authoring guidance",
+      "approval": {
+        "state": "modeled",
+        "evidenceIds": [
+          "reevaluation-authority",
+          "repo-main-b795d53"
+        ]
+      },
+      "releaseBoundary": "repository-only",
+      "allowedProjections": [
+        {
+          "hostContract": "any-passive-host",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "provider-compatibility"
+          ]
+        }
+      ],
+      "forbiddenProjections": [
+        "agent",
+        "subagent",
+        "command",
+        "prompt",
+        "rule",
+        "instruction",
+        "hook",
+        "mcp",
+        "lsp",
+        "executable-host-extension",
+        "static-asset"
+      ],
+      "requiredCanaries": [
+        "host-discovery",
+        "projection-shape",
+        "semantic-identity",
+        "source-digest"
+      ],
+      "securityRequirements": {
+        "threatModel": false,
+        "securityReview": false,
+        "executableAssuranceProfile": false
+      }
+    },
+    {
       "id": "cratis-performance-review",
       "kind": "skill",
       "semanticIdentity": "cratis-performance-review",
       "semanticName": "cratis-performance-review",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-performance-review",
       "canonicalSources": [
         {
           "path": ".ai/skills/review-performance",
@@ -5407,6 +5845,8 @@
       "kind": "executable-host-extension",
       "semanticIdentity": "cratis-pi-hooks-extension",
       "semanticName": "Cratis Pi hooks extension",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".pi/extensions/cratis-hooks",
@@ -5485,6 +5925,8 @@
       "kind": "executable-host-extension",
       "semanticIdentity": "cratis-pi-subagent-extension",
       "semanticName": "Cratis Pi subagent extension",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".pi/extensions/subagent",
@@ -5563,6 +6005,8 @@
       "kind": "prompt",
       "semanticIdentity": "cratis-prompt-add-business-rule",
       "semanticName": "Cratis add-business-rule prompt",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/prompts/add-business-rule.prompt.md",
@@ -5630,6 +6074,8 @@
       "kind": "prompt",
       "semanticIdentity": "cratis-prompt-add-concept",
       "semanticName": "Cratis add-concept prompt",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/prompts/add-concept.prompt.md",
@@ -5697,6 +6143,8 @@
       "kind": "prompt",
       "semanticIdentity": "cratis-prompt-add-ef-migration",
       "semanticName": "Cratis add-ef-migration prompt",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/prompts/add-ef-migration.prompt.md",
@@ -5764,6 +6212,8 @@
       "kind": "prompt",
       "semanticIdentity": "cratis-prompt-add-projection",
       "semanticName": "Cratis add-projection prompt",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/prompts/add-projection.prompt.md",
@@ -5831,6 +6281,8 @@
       "kind": "prompt",
       "semanticIdentity": "cratis-prompt-add-reactor",
       "semanticName": "Cratis add-reactor prompt",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/prompts/add-reactor.prompt.md",
@@ -5898,6 +6350,8 @@
       "kind": "prompt",
       "semanticIdentity": "cratis-prompt-add-reducer",
       "semanticName": "Cratis add-reducer prompt",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/prompts/add-reducer.prompt.md",
@@ -5965,6 +6419,8 @@
       "kind": "prompt",
       "semanticIdentity": "cratis-prompt-audit-hooks",
       "semanticName": "Cratis audit-hooks prompt",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/prompts/audit-hooks.prompt.md",
@@ -6032,6 +6488,8 @@
       "kind": "prompt",
       "semanticIdentity": "cratis-prompt-check-doc-drift",
       "semanticName": "Cratis check-doc-drift prompt",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/prompts/check-doc-drift.prompt.md",
@@ -6099,6 +6557,8 @@
       "kind": "prompt",
       "semanticIdentity": "cratis-prompt-code-review",
       "semanticName": "Cratis code-review prompt",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/prompts/code-review.prompt.md",
@@ -6166,6 +6626,8 @@
       "kind": "prompt",
       "semanticIdentity": "cratis-prompt-new-feature",
       "semanticName": "Cratis new-feature prompt",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/prompts/new-feature.prompt.md",
@@ -6233,6 +6695,8 @@
       "kind": "prompt",
       "semanticIdentity": "cratis-prompt-new-vertical-slice",
       "semanticName": "Cratis new-vertical-slice prompt",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/prompts/new-vertical-slice.prompt.md",
@@ -6300,6 +6764,8 @@
       "kind": "prompt",
       "semanticIdentity": "cratis-prompt-review-pr",
       "semanticName": "Cratis review-pr prompt",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/prompts/review-pr.prompt.md",
@@ -6367,6 +6833,8 @@
       "kind": "prompt",
       "semanticIdentity": "cratis-prompt-review-skill",
       "semanticName": "Cratis review-skill prompt",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/prompts/review-skill.prompt.md",
@@ -6434,6 +6902,8 @@
       "kind": "prompt",
       "semanticIdentity": "cratis-prompt-scaffold-feature",
       "semanticName": "Cratis scaffold-feature prompt",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/prompts/scaffold-feature.prompt.md",
@@ -6501,6 +6971,8 @@
       "kind": "prompt",
       "semanticIdentity": "cratis-prompt-ship-changes",
       "semanticName": "Cratis ship-changes prompt",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/prompts/ship-changes.prompt.md",
@@ -6520,7 +6992,7 @@
         "effect": "guided-write"
       },
       "dependencies": [],
-      "hostNeutralPurpose": ">",
+      "hostNeutralPurpose": "Ship local changes: create a branch, make logical commits, push, open and label a PR with a proper description, merge it, prepare no-effect related issue dispositions, and delete the branch.",
       "approval": {
         "state": "modeled",
         "evidenceIds": [
@@ -6568,6 +7040,8 @@
       "kind": "prompt",
       "semanticIdentity": "cratis-prompt-verify-ai-setup",
       "semanticName": "Cratis verify-ai-setup prompt",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/prompts/verify-ai-setup.prompt.md",
@@ -6635,6 +7109,8 @@
       "kind": "prompt",
       "semanticIdentity": "cratis-prompt-write-documentation",
       "semanticName": "Cratis write-documentation prompt",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/prompts/write-documentation.prompt.md",
@@ -6702,6 +7178,8 @@
       "kind": "prompt",
       "semanticIdentity": "cratis-prompt-write-specs",
       "semanticName": "Cratis write-specs prompt",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/prompts/write-specs.prompt.md",
@@ -6769,6 +7247,8 @@
       "kind": "rule",
       "semanticIdentity": "cratis-rule-code-quality",
       "semanticName": "Cratis code-quality rule",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/rules/code-quality.md",
@@ -6836,6 +7316,8 @@
       "kind": "rule",
       "semanticIdentity": "cratis-rule-code-quality-csharp",
       "semanticName": "Cratis code-quality-csharp rule",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/rules/code-quality.csharp.md",
@@ -6903,6 +7385,8 @@
       "kind": "rule",
       "semanticIdentity": "cratis-rule-code-quality-typescript",
       "semanticName": "Cratis code-quality-typescript rule",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/rules/code-quality.typescript.md",
@@ -6970,6 +7454,8 @@
       "kind": "rule",
       "semanticIdentity": "cratis-rule-components",
       "semanticName": "Cratis components rule",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/rules/components.md",
@@ -7037,6 +7523,8 @@
       "kind": "rule",
       "semanticIdentity": "cratis-rule-concepts",
       "semanticName": "Cratis concepts rule",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/rules/concepts.md",
@@ -7104,6 +7592,8 @@
       "kind": "rule",
       "semanticIdentity": "cratis-rule-csharp",
       "semanticName": "Cratis csharp rule",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/rules/csharp.md",
@@ -7171,6 +7661,8 @@
       "kind": "rule",
       "semanticIdentity": "cratis-rule-dialogs",
       "semanticName": "Cratis dialogs rule",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/rules/dialogs.md",
@@ -7238,6 +7730,8 @@
       "kind": "rule",
       "semanticIdentity": "cratis-rule-documentation",
       "semanticName": "Cratis documentation rule",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/rules/documentation.md",
@@ -7305,6 +7799,8 @@
       "kind": "rule",
       "semanticIdentity": "cratis-rule-documentation-structure-and-formatting",
       "semanticName": "Cratis documentation-structure-and-formatting rule",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/rules/documentation-structure-and-formatting.md",
@@ -7372,6 +7868,8 @@
       "kind": "rule",
       "semanticIdentity": "cratis-rule-editing-cratis-docs",
       "semanticName": "Cratis editing-cratis-docs rule",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/rules/editing-cratis-docs.md",
@@ -7439,6 +7937,8 @@
       "kind": "rule",
       "semanticIdentity": "cratis-rule-efcore",
       "semanticName": "Cratis efcore rule",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/rules/efcore.md",
@@ -7506,6 +8006,8 @@
       "kind": "rule",
       "semanticIdentity": "cratis-rule-efcore-specs",
       "semanticName": "Cratis efcore-specs rule",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/rules/efcore.specs.md",
@@ -7573,6 +8075,8 @@
       "kind": "rule",
       "semanticIdentity": "cratis-rule-framework",
       "semanticName": "Cratis framework rule",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/rules/framework.md",
@@ -7640,6 +8144,8 @@
       "kind": "rule",
       "semanticIdentity": "cratis-rule-frontend-quality",
       "semanticName": "Cratis frontend-quality rule",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/rules/frontend-quality.md",
@@ -7707,6 +8213,8 @@
       "kind": "rule",
       "semanticIdentity": "cratis-rule-frontend-testing",
       "semanticName": "Cratis frontend-testing rule",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/rules/frontend-testing.md",
@@ -7774,6 +8282,8 @@
       "kind": "rule",
       "semanticIdentity": "cratis-rule-git-commits",
       "semanticName": "Cratis git-commits rule",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/rules/git-commits.md",
@@ -7841,6 +8351,8 @@
       "kind": "rule",
       "semanticIdentity": "cratis-rule-glossary",
       "semanticName": "Cratis glossary rule",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/rules/glossary.md",
@@ -7908,6 +8420,8 @@
       "kind": "rule",
       "semanticIdentity": "cratis-rule-managing-ai-rules",
       "semanticName": "Cratis managing-ai-rules rule",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/rules/managing-ai-rules.md",
@@ -7975,6 +8489,8 @@
       "kind": "rule",
       "semanticIdentity": "cratis-rule-orleans",
       "semanticName": "Cratis orleans rule",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/rules/orleans.md",
@@ -8042,6 +8558,8 @@
       "kind": "rule",
       "semanticIdentity": "cratis-rule-pull-requests",
       "semanticName": "Cratis pull-requests rule",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/rules/pull-requests.md",
@@ -8109,6 +8627,8 @@
       "kind": "rule",
       "semanticIdentity": "cratis-rule-react",
       "semanticName": "Cratis react rule",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/rules/react.md",
@@ -8176,6 +8696,8 @@
       "kind": "rule",
       "semanticIdentity": "cratis-rule-reactors",
       "semanticName": "Cratis reactors rule",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/rules/reactors.md",
@@ -8243,6 +8765,8 @@
       "kind": "rule",
       "semanticIdentity": "cratis-rule-rtk",
       "semanticName": "Cratis rtk rule",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/rules/rtk.md",
@@ -8310,6 +8834,8 @@
       "kind": "rule",
       "semanticIdentity": "cratis-rule-specs",
       "semanticName": "Cratis specs rule",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/rules/specs.md",
@@ -8377,6 +8903,8 @@
       "kind": "rule",
       "semanticIdentity": "cratis-rule-specs-csharp",
       "semanticName": "Cratis specs-csharp rule",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/rules/specs.csharp.md",
@@ -8444,6 +8972,8 @@
       "kind": "rule",
       "semanticIdentity": "cratis-rule-specs-scenarios-csharp",
       "semanticName": "Cratis specs-scenarios-csharp rule",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/rules/specs.scenarios.csharp.md",
@@ -8511,6 +9041,8 @@
       "kind": "rule",
       "semanticIdentity": "cratis-rule-specs-typescript",
       "semanticName": "Cratis specs-typescript rule",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/rules/specs.typescript.md",
@@ -8578,6 +9110,8 @@
       "kind": "rule",
       "semanticIdentity": "cratis-rule-storybook",
       "semanticName": "Cratis storybook rule",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/rules/storybook.md",
@@ -8645,6 +9179,8 @@
       "kind": "rule",
       "semanticIdentity": "cratis-rule-terminal-commands",
       "semanticName": "Cratis terminal-commands rule",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/rules/terminal-commands.md",
@@ -8712,6 +9248,8 @@
       "kind": "rule",
       "semanticIdentity": "cratis-rule-typescript",
       "semanticName": "Cratis typescript rule",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/rules/typescript.md",
@@ -8779,6 +9317,8 @@
       "kind": "rule",
       "semanticIdentity": "cratis-rule-vertical-slices",
       "semanticName": "Cratis vertical-slices rule",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/rules/vertical-slices.md",
@@ -8846,6 +9386,8 @@
       "kind": "rule",
       "semanticIdentity": "cratis-rule-web-fetching",
       "semanticName": "Cratis web-fetching rule",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/rules/web-fetching.md",
@@ -8913,6 +9455,8 @@
       "kind": "rule",
       "semanticIdentity": "cratis-rule-writing-correct-examples",
       "semanticName": "Cratis writing-correct-examples rule",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/rules/writing-correct-examples.md",
@@ -8980,6 +9524,8 @@
       "kind": "rule",
       "semanticIdentity": "cratis-rule-writing-cratis-docs",
       "semanticName": "Cratis writing-cratis-docs rule",
+      "lifecycle": "active",
+      "distributionTargetId": null,
       "canonicalSources": [
         {
           "path": ".ai/rules/writing-cratis-docs.md",
@@ -9047,6 +9593,8 @@
       "kind": "skill",
       "semanticIdentity": "cratis-security-review",
       "semanticName": "cratis-security-review",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-security-review",
       "canonicalSources": [
         {
           "path": ".ai/skills/review-security",
@@ -9128,6 +9676,8 @@
       "kind": "skill",
       "semanticIdentity": "cratis-specifications-csharp",
       "semanticName": "cratis-specifications-csharp",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-specifications-csharp",
       "canonicalSources": [
         {
           "path": ".ai/skills/cratis-specs-csharp",
@@ -9207,6 +9757,8 @@
       "kind": "skill",
       "semanticIdentity": "cratis-specifications-typescript",
       "semanticName": "cratis-specifications-typescript",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-specifications-typescript",
       "canonicalSources": [
         {
           "path": ".ai/skills/cratis-specs-typescript",
@@ -9286,6 +9838,8 @@
       "kind": "skill",
       "semanticIdentity": "skill-creator",
       "semanticName": "skill-creator",
+      "lifecycle": "active",
+      "distributionTargetId": "skill-creator",
       "canonicalSources": [
         {
           "path": ".ai/skills/skill-creator",

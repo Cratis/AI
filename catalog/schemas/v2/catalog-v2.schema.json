@@ -933,7 +933,7 @@
     "generatedComponentSummary": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["disclaimer", "total", "byKind", "byTrust", "byAudience", "projections", "declaredEmptyKinds"],
+      "required": ["disclaimer", "total", "byKind", "byTrust", "byAudience", "byLifecycle", "projections", "declaredEmptyKinds"],
       "properties": {
         "disclaimer": { "$ref": "#/$defs/nonEmptyString" },
         "total": { "type": "integer", "minimum": 0 },
@@ -975,10 +975,19 @@
             "repository-only": { "type": "integer", "minimum": 0 }
           }
         },
+        "byLifecycle": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["active", "legacy-retained"],
+          "properties": {
+            "active": { "type": "integer", "minimum": 0 },
+            "legacy-retained": { "type": "integer", "minimum": 0 }
+          }
+        },
         "projections": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["total", "byState"],
+          "required": ["total", "byState", "byActivation", "byApproval"],
           "properties": {
             "total": { "type": "integer", "minimum": 0 },
             "byState": {
@@ -989,6 +998,26 @@
                 "planned": { "type": "integer", "minimum": 0 },
                 "blocked": { "type": "integer", "minimum": 0 },
                 "existing": { "type": "integer", "minimum": 0 }
+              }
+            },
+            "byActivation": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["active", "inert", "none"],
+              "properties": {
+                "active": { "type": "integer", "minimum": 0 },
+                "inert": { "type": "integer", "minimum": 0 },
+                "none": { "type": "integer", "minimum": 0 }
+              }
+            },
+            "byApproval": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["modeled", "approved", "blocked"],
+              "properties": {
+                "modeled": { "type": "integer", "minimum": 0 },
+                "approved": { "type": "integer", "minimum": 0 },
+                "blocked": { "type": "integer", "minimum": 0 }
               }
             }
           }
@@ -1122,12 +1151,14 @@
     "componentRecord": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "kind", "semanticIdentity", "semanticName", "canonicalSources", "contentDigest", "owner", "audience", "classification", "dependencies", "hostNeutralPurpose", "approval", "releaseBoundary", "allowedProjections", "forbiddenProjections", "requiredCanaries", "securityRequirements"],
+      "required": ["id", "kind", "semanticIdentity", "semanticName", "lifecycle", "distributionTargetId", "canonicalSources", "contentDigest", "owner", "audience", "classification", "dependencies", "hostNeutralPurpose", "approval", "releaseBoundary", "allowedProjections", "forbiddenProjections", "requiredCanaries", "securityRequirements"],
       "properties": {
         "id": { "$ref": "#/$defs/id" },
         "kind": { "$ref": "#/$defs/componentKind" },
         "semanticIdentity": { "$ref": "#/$defs/id" },
         "semanticName": { "$ref": "#/$defs/nonEmptyString" },
+        "lifecycle": { "enum": ["active", "legacy-retained"] },
+        "distributionTargetId": { "oneOf": [{ "$ref": "#/$defs/id" }, { "type": "null" }] },
         "canonicalSources": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/componentSource" } },
         "contentDigest": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
         "owner": { "enum": ["public Cratis product capability", "reusable Cratis engineering behavior", "Ensemble", "repository-only authoring/release tooling"] },
@@ -1188,18 +1219,20 @@
     "componentProjectionHost": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "contract", "allowedOutputPrefixes", "evidenceIds"],
+      "required": ["id", "contract", "acceptsAnyPassiveProjection", "allowedOutputPrefixes", "sharedSymlinkOutputs", "evidenceIds"],
       "properties": {
         "id": { "$ref": "#/$defs/id" },
         "contract": { "enum": ["claude-code", "codex", "github-copilot", "pi", "portable-agent-plugins-1-0"] },
+        "acceptsAnyPassiveProjection": { "type": "boolean" },
         "allowedOutputPrefixes": { "$ref": "#/$defs/stringArray" },
+        "sharedSymlinkOutputs": { "$ref": "#/$defs/stringArray" },
         "evidenceIds": { "$ref": "#/$defs/evidenceIds" }
       }
     },
     "componentProjection": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "componentId", "hostId", "projectedKind", "artifactClass", "assuranceProfileId", "packageIdentity", "state", "adapterType", "outputPaths", "approval", "evidenceIds", "securityRequirements", "requiredCanaries"],
+      "required": ["id", "componentId", "hostId", "projectedKind", "artifactClass", "assuranceProfileId", "packageIdentity", "state", "hostActivation", "adapterType", "outputPaths", "approval", "evidenceIds", "securityRequirements", "requiredCanaries"],
       "properties": {
         "id": { "$ref": "#/$defs/id" },
         "componentId": { "$ref": "#/$defs/id" },
@@ -1209,7 +1242,8 @@
         "assuranceProfileId": { "$ref": "#/$defs/id" },
         "packageIdentity": { "oneOf": [{ "$ref": "#/$defs/id" }, { "type": "null" }] },
         "state": { "enum": ["planned", "blocked", "existing"] },
-        "adapterType": { "enum": ["symlink", "path-reference", "generated", "none"] },
+        "hostActivation": { "enum": ["active", "inert", "none"] },
+        "adapterType": { "enum": ["symlink", "path-reference", "canonical-in-place", "generated", "none"] },
         "outputPaths": { "$ref": "#/$defs/stringArray" },
         "approval": { "enum": ["modeled", "approved", "blocked"] },
         "evidenceIds": { "$ref": "#/$defs/evidenceIds" },

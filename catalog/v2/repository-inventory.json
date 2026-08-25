@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "f6140dc41ea173e3b709bae7f6ca0abb7b5eed9cf1309f88c75f9688f667cd9c",
+  "indexDigest": "26ff031188b423a44239d3a078b43b1470a975417686852d788dbc0ce9c25a21",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -3882,6 +3882,7 @@
       "adapterStatus": "none",
       "dependencies": [
         "tooling/generate-catalog-v2.mjs",
+        "tooling/generate-component-catalogs.mjs",
         "tooling/generate-support.mjs",
         "tooling/generate-ecosystem-artifact-coverage.mjs",
         "tooling/generate-repository-inventory.mjs"
@@ -3891,7 +3892,7 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "generator": "tooling/generate-catalog-v2.mjs, tooling/generate-support.mjs, tooling/generate-ecosystem-artifact-coverage.mjs, and tooling/generate-repository-inventory.mjs",
+      "generator": "tooling/generate-catalog-v2.mjs, tooling/generate-component-catalogs.mjs, tooling/generate-support.mjs, tooling/generate-ecosystem-artifact-coverage.mjs, and tooling/generate-repository-inventory.mjs",
       "expectedPathCount": 11,
       "expectedPathsDigest": "13e5cefbee41ff9fea3e2d5980b943de02937e695290e80b4ae9d9c6bee866fa"
     },
@@ -3908,6 +3909,8 @@
       "generatedStatus": "generated",
       "adapterStatus": "none",
       "dependencies": [
+        "catalog/v2/component-projections.json",
+        "catalog/v2/components.json",
         "catalog/v2/human-catalog.json",
         "catalog/v2/targets.json",
         "catalog/v2/support.json",

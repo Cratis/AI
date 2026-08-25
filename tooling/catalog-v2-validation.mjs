@@ -18,7 +18,10 @@ import {
     validateAgainstSchema,
     validateSchemaVocabulary,
 } from "./catalog-validation.mjs";
-import { validateComponentCatalogs } from "./component-catalog-validation.mjs";
+import {
+    regularFiles,
+    validateComponentCatalogs,
+} from "./component-catalog-validation.mjs";
 
 export const v2CatalogPaths = {
     sources: "catalog/v2/sources.json",
@@ -1484,7 +1487,7 @@ export function validateHumanCatalogContract(catalogs) {
     return errors;
 }
 
-export function validateArtifacts(catalogs) {
+export function validateArtifacts(catalogs, root = defaultRepositoryRoot) {
     const errors = [];
     const decision = catalogs.artifacts.distributionDecision;
     const evidenceIds = new Set(
@@ -1612,6 +1615,14 @@ export function validateArtifacts(catalogs) {
                     errors.push(
                         `${artifact.id}: ${artifact.audience} artifact cannot select ${component.audience} component ${componentId}`,
                     );
+                } else if (
+                    !artifact.fixtureOnly &&
+                    liveEnabled &&
+                    component.approval.state !== "approved"
+                ) {
+                    errors.push(
+                        `${artifact.id}: live artifact cannot select unapproved component ${componentId}`,
+                    );
                 }
                 if (
                     ["hooks", "mcp", "lsp", "executableExtensions"].includes(
@@ -1622,6 +1633,47 @@ export function validateArtifacts(catalogs) {
                         `${artifact.id}: passive artifact rejects executable component ${componentId}`,
                     );
                 }
+            }
+        }
+        if (
+            !artifact.fixtureOnly &&
+            !artifact.materializationAllowed &&
+            artifact.exactSourcePaths.length > 0
+        )
+            errors.push(
+                `${artifact.id}: non-materialized artifact cannot claim exact source bytes`,
+            );
+        if (artifact.fixtureOnly || artifact.materializationAllowed) {
+            try {
+                const expectedSourcePaths = [];
+                for (const [inventoryName] of componentKindByInventory)
+                    for (const componentId of artifact.componentInventory[
+                        inventoryName
+                    ]) {
+                        const component = componentsById.get(componentId);
+                        if (!component) continue;
+                        for (const source of component.canonicalSources)
+                            expectedSourcePaths.push(
+                                ...regularFiles(
+                                    root,
+                                    source.path,
+                                ),
+                            );
+                    }
+                const expected = [...new Set(expectedSourcePaths)].sort(
+                    compareOrdinal,
+                );
+                const actual = [...artifact.exactSourcePaths].sort(
+                    compareOrdinal,
+                );
+                if (JSON.stringify(expected) !== JSON.stringify(actual))
+                    errors.push(
+                        `${artifact.id}: exact source paths do not match the complete component byte inventory`,
+                    );
+            } catch (error) {
+                errors.push(
+                    `${artifact.id}: component byte inventory failed: ${error.message}`,
+                );
             }
         }
         for (const evidenceId of artifact.evidenceIds) {
@@ -1726,6 +1778,40 @@ export function expandInventoryRecord(record, universe) {
 export function validateRepositoryInventory(catalogs, root) {
     const errors = [];
     const inventory = catalogs.repositoryInventory;
+    const requiredGenerationDependencies = new Map([
+        [
+            "catalog-v2-generated-surfaces",
+            ["tooling/generate-component-catalogs.mjs"],
+        ],
+        [
+            "generated-human-catalog",
+            [
+                "catalog/v2/components.json",
+                "catalog/v2/component-projections.json",
+            ],
+        ],
+    ]);
+    for (const [recordId, dependencies] of requiredGenerationDependencies) {
+        const record = inventory.records.find(
+            (candidate) => candidate.id === recordId,
+        );
+        for (const dependency of dependencies)
+            if (!record?.dependencies.includes(dependency))
+                errors.push(
+                    `${recordId}: missing generation provenance dependency ${dependency}`,
+                );
+    }
+    const generatedSurfaces = inventory.records.find(
+        (record) => record.id === "catalog-v2-generated-surfaces",
+    );
+    if (
+        !generatedSurfaces?.generator?.includes(
+            "tooling/generate-component-catalogs.mjs",
+        )
+    )
+        errors.push(
+            "catalog-v2-generated-surfaces: component catalog generator is missing from provenance",
+        );
     const evidenceIds = new Set(
         catalogs.evidence.evidence.map((evidence) => evidence.id),
     );
@@ -1843,13 +1929,13 @@ export function validateV2Catalogs(root = defaultRepositoryRoot) {
     errors.push(...validateSources(catalogs, root));
     errors.push(...validateTargets(catalogs));
     errors.push(...validateMigrations(catalogs));
-    errors.push(...validateEvidenceAndCoverage(catalogs));
+    errors.push(...validateEvidenceAndCoverage(catalogs, root));
     errors.push(...validateSourceContracts(catalogs));
     errors.push(...validateBundles(catalogs));
     errors.push(...validateUpstreamCompanions(catalogs));
     errors.push(...validateAuthoringContracts(catalogs));
     errors.push(...validateHumanCatalogContract(catalogs));
-    errors.push(...validateArtifacts(catalogs));
+    errors.push(...validateArtifacts(catalogs, root));
     errors.push(...validateComponentCatalogs(root));
     errors.push(...validateRepositoryInventory(catalogs, root));
     return errors;
