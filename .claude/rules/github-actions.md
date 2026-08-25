@@ -1,0 +1,1 @@
+../../.ai/rules/github-actions.md
