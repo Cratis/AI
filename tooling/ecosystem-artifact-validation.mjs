@@ -112,7 +112,9 @@ export function validateArtifactAssuranceProfiles(catalogs) {
     const classes = profiles.map((profile) => profile.artifactClass);
 
     for (const duplicate of duplicates(profileIds))
-        errors.push(`artifact assurance profiles contain duplicate id ${duplicate}`);
+        errors.push(
+            `artifact assurance profiles contain duplicate id ${duplicate}`,
+        );
     for (const duplicate of duplicates(classes))
         errors.push(
             `artifact assurance profiles contain duplicate artifact class ${duplicate}`,
@@ -148,10 +150,7 @@ export function validateArtifactAssuranceProfiles(catalogs) {
                         `passive public assurance profile ${profile.id} must require ${control}`,
                     );
             }
-            if (
-                profile.controls.ecosystemNativeProvenance !==
-                "when-supported"
-            )
+            if (profile.controls.ecosystemNativeProvenance !== "when-supported")
                 errors.push(
                     `passive public assurance profile ${profile.id} must require ecosystem-native provenance when supported`,
                 );
@@ -275,7 +274,9 @@ export function validateEcosystemContracts(catalogs) {
         if (mcp?.requirement !== "optional")
             errors.push("Agent Plugins root mcp.json must remain optional");
         if (agentPlugins.components.skills !== "optional")
-            errors.push("Agent Plugins skills must remain an optional component");
+            errors.push(
+                "Agent Plugins skills must remain an optional component",
+            );
         if (agentPlugins.components.mcp !== "optional")
             errors.push("Agent Plugins MCP must remain an optional component");
     }
@@ -316,14 +317,18 @@ export function validateEcosystemArtifactClosure(catalogs) {
     const targetsById = new Map(
         catalogs.artifactMatrix.targets.map((target) => [target.id, target]),
     );
-    const harnessesById = new Map(harnesses.map((harness) => [harness.id, harness]));
+    const harnessesById = new Map(
+        harnesses.map((harness) => [harness.id, harness]),
+    );
     const evidenceIds = new Set(
         catalogs.evidence.evidence.map((record) => record.id),
     );
     const bindings = catalogs.bindings.bindings;
 
     for (const duplicate of duplicates(bindings.map((binding) => binding.id)))
-        errors.push(`ecosystem artifact bindings contain duplicate id ${duplicate}`);
+        errors.push(
+            `ecosystem artifact bindings contain duplicate id ${duplicate}`,
+        );
     const bindingKeys = bindings.map((binding) =>
         [
             binding.ecosystemId,
@@ -349,9 +354,7 @@ export function validateEcosystemArtifactClosure(catalogs) {
         errors,
         "ecosystem artifact requirement bindings",
         new Set(
-            bindings
-                .map((binding) => binding.requirementId)
-                .filter(Boolean),
+            bindings.map((binding) => binding.requirementId).filter(Boolean),
         ),
         new Set(requirementsById.keys()),
     );
@@ -388,7 +391,10 @@ export function validateEcosystemArtifactClosure(catalogs) {
             errors.push(
                 `binding ${binding.id} uses interface ${binding.interfaceId} not declared by ${binding.ecosystemId}`,
             );
-        if (binding.requirementId && !requirementsById.has(binding.requirementId))
+        if (
+            binding.requirementId &&
+            !requirementsById.has(binding.requirementId)
+        )
             errors.push(
                 `binding ${binding.id} references unknown requirement ${binding.requirementId}`,
             );

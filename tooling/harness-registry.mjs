@@ -157,10 +157,7 @@ const harnessDefinitions = [
 const ecosystemContracts = JSON.parse(
     readFileSync(
         fileURLToPath(
-            new URL(
-                "../catalog/v2/ecosystem-contracts.json",
-                import.meta.url,
-            ),
+            new URL("../catalog/v2/ecosystem-contracts.json", import.meta.url),
         ),
         "utf8",
     ),

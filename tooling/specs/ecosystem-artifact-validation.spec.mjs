@@ -109,9 +109,13 @@ test("Agent Plugins cannot make MCP universal and Agent Skills cannot impose an 
     const mcpMutation = clone(catalogs);
     mcpMutation.ecosystemContracts.ecosystems
         .find((record) => record.id === "agent-plugins")
-        .manifests.find((manifest) => manifest.path === "mcp.json").requirement =
-        "required";
-    hasError(validateEcosystemContracts(mcpMutation), "mcp.json must remain optional");
+        .manifests.find(
+            (manifest) => manifest.path === "mcp.json",
+        ).requirement = "required";
+    hasError(
+        validateEcosystemContracts(mcpMutation),
+        "mcp.json must remain optional",
+    );
 
     const skillsMutation = clone(catalogs);
     skillsMutation.ecosystemContracts.ecosystems.find(
@@ -146,11 +150,26 @@ test("passive public profiles reject every executable component and require all 
 
 test("closure rejects an unmapped ecosystem, requirement, target, harness, and generated root", () => {
     const removals = [
-        ["agent-skills-artifact-binding", "ecosystem artifact bindings does not account for agent-skills"],
-        ["npm-trusted-publishing-artifact-binding", "ecosystem artifact requirement bindings does not account for npm-trusted-publication"],
-        ["openai-plugins-artifact-binding", "ecosystem artifact target bindings does not account for openai-codex"],
-        ["gemini-cli-extensions-artifact-binding", "ecosystem artifact harness bindings does not account for gemini"],
-        ["pi-packages-artifact-binding", "ecosystem artifact output-root bindings does not account for pi"],
+        [
+            "agent-skills-artifact-binding",
+            "ecosystem artifact bindings does not account for agent-skills",
+        ],
+        [
+            "npm-trusted-publishing-artifact-binding",
+            "ecosystem artifact requirement bindings does not account for npm-trusted-publication",
+        ],
+        [
+            "openai-plugins-artifact-binding",
+            "ecosystem artifact target bindings does not account for openai-codex",
+        ],
+        [
+            "gemini-cli-extensions-artifact-binding",
+            "ecosystem artifact harness bindings does not account for gemini",
+        ],
+        [
+            "pi-packages-artifact-binding",
+            "ecosystem artifact output-root bindings does not account for pi",
+        ],
     ];
     for (const [bindingId, message] of removals) {
         const catalogs = load();
@@ -210,8 +229,6 @@ test("generated coverage is deterministic, byte-stable, and explicitly not suppo
     );
     const coverage = JSON.parse(first);
     assert.equal(coverage.coverage.length, 26);
-    assert(
-        coverage.coverage.every((record) => record.supportClaim === false),
-    );
+    assert(coverage.coverage.every((record) => record.supportClaim === false));
     assert.match(coverage.supportPolicy, /not support claims/);
 });

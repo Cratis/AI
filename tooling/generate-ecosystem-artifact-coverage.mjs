@@ -22,9 +22,7 @@ function readJson(path) {
 export function generateEcosystemArtifactCoverage(
     root = defaultRepositoryRoot,
 ) {
-    const bindingsCatalog = readJson(
-        join(root, ecosystemArtifactBindingsPath),
-    );
+    const bindingsCatalog = readJson(join(root, ecosystemArtifactBindingsPath));
     const coverage = bindingsCatalog.bindings
         .map((binding) => ({
             bindingId: binding.id,
