@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "8976230dccabebdd03032975de66ddcf00d34aefb70546bbbdc9e88ec00487c7",
+  "indexDigest": "351b2d977aa67be1cc9fe88e88f579185a25ca437b5163fd3ff220b725807dc6",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -2371,6 +2371,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/specs/approved-profile-assets.spec.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/specs/approved-profile-release.spec.mjs",
       "status": "added"
     },
@@ -2541,12 +2545,13 @@
     {
       "path": "tooling/validate-catalogs.mjs",
       "status": "added"
+    },
+    {
+      "path": "tooling/verify-approved-profile-assets.mjs",
+      "status": "added"
     }
   ],
-  "admittedUntracked": [
-    "tooling/specs/approved-profile-assets.spec.mjs",
-    "tooling/verify-approved-profile-assets.mjs"
-  ],
+  "admittedUntracked": [],
   "excludedRuntimePrefixes": [
     ".pi/delegate/",
     ".pi/fusion/",
