@@ -35,42 +35,42 @@ This matrix reports research and serving disposition only. It is not support, pu
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | aider | current | fallback | rules-fallback | no output | no-output | documented | no |
 | amazon-q-developer | retiring | migration | migration-only | no output | blocked | documented | no |
-| amp | current | researched | canonical-agent-skills | canonical-agent-skills | source-compatible | documented | no |
-| augment-auggie | current | standard-compatible | canonical-agent-skills | canonical-agent-skills | source-compatible | documented | no |
+| amp | current | standard-compatible | canonical-agent-skills | amp-passive | fixture-generated | documented | no |
+| augment-auggie | current | standard-compatible | canonical-agent-skills | augment-passive | fixture-generated | documented | no |
 | claude-code-plugins | current | researched | native-projection-planned | claude-code | fixture-generated | documented | no |
-| cline | current | standard-compatible | canonical-agent-skills | canonical-agent-skills | source-compatible | documented | no |
+| cline | current | standard-compatible | canonical-agent-skills | cline-passive | fixture-generated | documented | no |
 | continue | final-read-only | no-surface | no-public-extension-surface | no output | blocked | documented | no |
 | cursor-plugins | current | researched | native-projection-planned | cursor | fixture-generated | documented | no |
 | deepseek-deepcode-skills | current | researched | native-projection-planned | deepseek-deepcode | fixture-generated | documented | no |
 | deepseek-harness-skills | preview | researched | native-projection-planned | deepseek-harness | fixture-generated-evidence-incomplete | documented | no |
-| devin-hosted | current | standard-compatible | canonical-agent-skills | canonical-agent-skills | source-compatible | documented | no |
-| factory-droid | current | native-planned | native-projection-planned | no output | blocked | documented | no |
+| devin-hosted | current | standard-compatible | canonical-agent-skills | devin-passive | fixture-generated | documented | no |
+| factory-droid | current | standard-compatible | canonical-agent-skills | factory-passive | fixture-generated | documented | no |
 | gemini-cli-extensions | current | researched | native-projection-planned | gemini-cli | fixture-generated-evidence-incomplete | documented | no |
-| github-cli-skills | preview | standard-compatible | canonical-agent-skills | canonical-agent-skills | source-compatible | documented | no |
+| github-cli-skills | preview | standard-compatible | canonical-agent-skills | github-cli-passive | fixture-generated | documented | no |
 | github-copilot-plugins | current | researched | native-projection-planned | github-copilot | fixture-generated | documented | no |
-| goose | current | researched | canonical-agent-skills | canonical-agent-skills | source-compatible | documented | no |
-| grok-bot-plugins | current | standard-compatible | portable-agent-plugin | portable-agent-plugin | source-compatible | documented | no |
-| grok-build-skills | current | researched | native-projection-planned | grok-build | fixture-generated-evidence-incomplete | documented | no |
-| hermes-agent-plugins | current | standard-compatible | portable-agent-plugin | portable-agent-plugin | source-compatible | documented | no |
+| goose | current | standard-compatible | canonical-agent-skills | goose-passive | fixture-generated | documented | no |
+| grok-bot-plugins | current | standard-compatible | portable-agent-plugin | grok-bot-passive | fixture-generated | documented | no |
+| grok-build-skills | current | standard-compatible | canonical-agent-skills | grok-native-passive | fixture-generated | documented | no |
+| hermes-agent-plugins | current | standard-compatible | portable-agent-plugin | hermes-passive | fixture-generated | documented | no |
 | jetbrains-ai-assistant | current | researched | provider-inherited | no output | provider-inherited | documented | no |
 | junie-extensions | provisional | researched | native-projection-planned | junie | fixture-generated-evidence-incomplete | documented | no |
-| kilo-code | current | standard-compatible | canonical-agent-skills | canonical-agent-skills | source-compatible | documented | no |
+| kilo-code | current | standard-compatible | canonical-agent-skills | kilo-passive | fixture-generated | documented | no |
 | kiro-powers | current | researched | native-projection-planned | kiro | fixture-generated | documented | no |
-| nanoclaw-templates | current | standard-compatible | portable-agent-plugin | portable-agent-plugin | source-compatible | documented | no |
+| nanoclaw-templates | current | standard-compatible | portable-agent-plugin | nanoclaw-passive | fixture-generated | documented | no |
 | openai-plugins | current | researched | native-projection-planned | openai-codex | fixture-generated | documented | no |
-| openclaw-bundles | current | standard-compatible | portable-agent-plugin | portable-agent-plugin | source-compatible | documented | no |
-| opencode-skills | current | standard-compatible | canonical-agent-skills | canonical-agent-skills | source-compatible | documented | no |
-| openhands | current | standard-compatible | canonical-agent-skills | canonical-agent-skills | source-compatible | documented | no |
+| openclaw-bundles | current | standard-compatible | portable-agent-plugin | openclaw-passive | fixture-generated | documented | no |
+| opencode-skills | current | standard-compatible | canonical-agent-skills | opencode-passive | fixture-generated | documented | no |
+| openhands | current | standard-compatible | canonical-agent-skills | openhands-passive | fixture-generated | documented | no |
 | pi-packages | current | researched | native-projection-planned | pi-npm | fixture-generated | documented | no |
-| qwen-code | current | standard-compatible | portable-agent-plugin | portable-agent-plugin | source-compatible | documented | no |
-| replit-agent | current | standard-compatible | canonical-agent-skills | canonical-agent-skills | source-compatible | documented | no |
+| qwen-code | current | standard-compatible | portable-agent-plugin | qwen-passive | fixture-generated | documented | no |
+| replit-agent | current | standard-compatible | canonical-agent-skills | replit-passive | fixture-generated | documented | no |
 | roo-code | archived | no-surface | no-public-extension-surface | no output | blocked | documented | no |
 | sourcegraph-cody | current | no-surface | no-public-extension-surface | no output | no-output | documented | no |
 | tabnine | current | fallback | rules-fallback | no output | no-output | documented | no |
-| visual-studio-copilot | current | standard-compatible | canonical-agent-skills | canonical-agent-skills | source-compatible | documented | no |
-| vscode-agent-plugins | current | standard-compatible | portable-agent-plugin | portable-agent-plugin | source-compatible | documented | no |
-| windsurf-devin-desktop | current | standard-compatible | canonical-agent-skills | canonical-agent-skills | source-compatible | documented | no |
-| zed-skills | current | standard-compatible | canonical-agent-skills | canonical-agent-skills | source-compatible | documented | no |
+| visual-studio-copilot | current | standard-compatible | canonical-agent-skills | visual-studio-passive | fixture-generated | documented | no |
+| vscode-agent-plugins | current | standard-compatible | portable-agent-plugin | vscode-passive | fixture-generated | documented | no |
+| windsurf-devin-desktop | current | standard-compatible | canonical-agent-skills | windsurf-passive | fixture-generated | documented | no |
+| zed-skills | current | standard-compatible | canonical-agent-skills | zed-passive | fixture-generated | documented | no |
 
 ## Packages and profiles
 

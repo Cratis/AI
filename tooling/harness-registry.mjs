@@ -6,6 +6,61 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+const passivePublicArtifactClass = "passive-public-package";
+
+function agentPluginHarness({ id, ecosystemId, outputRoot, requirementId }) {
+    return {
+        id,
+        subscriptionId: id,
+        ecosystemId,
+        fixtureTargetId: `${id}-passive`,
+        fixtureOutputRoot: outputRoot,
+        canonicalArtifactId: "agent-plugin",
+        profileSkillRoot: ".",
+        fixtureSkillRoot: ".",
+        projectDiscoveryRoot: ".",
+        projectSkillRoot: "skills",
+        adapterKind: "portable-plugin",
+        artifactClass: passivePublicArtifactClass,
+        servingRequirementId: requirementId,
+        parityGroup: id,
+        complianceModes: [
+            "agent-plugins-1.0-universal",
+            "cratis-passive-strict",
+        ],
+        expectedInventory: ["plugin.json", "skills/{skill}/{file}"],
+    };
+}
+
+function directSkillHarness({
+    id,
+    ecosystemId,
+    outputRoot,
+    discoveryRoot,
+    requirementId,
+}) {
+    const skillRoot = `${discoveryRoot}/skills`;
+    return {
+        id,
+        subscriptionId: id,
+        ecosystemId,
+        fixtureTargetId: `${id}-passive`,
+        fixtureOutputRoot: outputRoot,
+        canonicalArtifactId: "agent-skills",
+        profileSkillRoot: discoveryRoot,
+        fixtureSkillRoot: discoveryRoot,
+        projectDiscoveryRoot: discoveryRoot,
+        projectSkillRoot: skillRoot,
+        copySkillsDirectly: true,
+        adapterKind: "direct-skills",
+        artifactClass: passivePublicArtifactClass,
+        servingRequirementId: requirementId,
+        parityGroup: id,
+        complianceModes: ["agent-skills-strict", "cratis-passive-payload"],
+        expectedInventory: [`${skillRoot}/{skill}/{file}`],
+    };
+}
+
 const harnessDefinitions = [
     {
         id: "agent-skills",
@@ -139,6 +194,147 @@ const harnessDefinitions = [
         copySkillsDirectly: true,
         adapterKind: "portable-plugin",
     },
+    agentPluginHarness({
+        id: "vscode",
+        ecosystemId: "vscode-agent-plugins",
+        outputRoot: "vscode-agent-plugin",
+        requirementId: "vscode-agent-plugin-passive",
+    }),
+    agentPluginHarness({
+        id: "qwen",
+        ecosystemId: "qwen-code",
+        outputRoot: "qwen-agent-plugin",
+        requirementId: "qwen-agent-plugin-passive",
+    }),
+    agentPluginHarness({
+        id: "hermes",
+        ecosystemId: "hermes-agent-plugins",
+        outputRoot: "hermes-agent-plugin",
+        requirementId: "hermes-agent-plugin-passive",
+    }),
+    agentPluginHarness({
+        id: "openclaw",
+        ecosystemId: "openclaw-bundles",
+        outputRoot: "openclaw-agent-plugin",
+        requirementId: "openclaw-agent-plugin-passive",
+    }),
+    agentPluginHarness({
+        id: "grok-bot",
+        ecosystemId: "grok-bot-plugins",
+        outputRoot: "grok-bot-agent-plugin",
+        requirementId: "grok-bot-agent-plugin-passive",
+    }),
+    agentPluginHarness({
+        id: "nanoclaw",
+        ecosystemId: "nanoclaw-templates",
+        outputRoot: "nanoclaw-agent-plugin",
+        requirementId: "nanoclaw-agent-plugin-passive",
+    }),
+    directSkillHarness({
+        id: "amp",
+        ecosystemId: "amp",
+        outputRoot: "amp-agent-skills",
+        discoveryRoot: ".agents",
+        requirementId: "amp-agent-skills-passive",
+    }),
+    directSkillHarness({
+        id: "augment",
+        ecosystemId: "augment-auggie",
+        outputRoot: "augment-agent-skills",
+        discoveryRoot: ".augment",
+        requirementId: "augment-agent-skills-passive",
+    }),
+    directSkillHarness({
+        id: "cline",
+        ecosystemId: "cline",
+        outputRoot: "cline-agent-skills",
+        discoveryRoot: ".cline",
+        requirementId: "cline-agent-skills-passive",
+    }),
+    directSkillHarness({
+        id: "devin",
+        ecosystemId: "devin-hosted",
+        outputRoot: "devin-agent-skills",
+        discoveryRoot: ".agents",
+        requirementId: "devin-agent-skills-passive",
+    }),
+    directSkillHarness({
+        id: "github-cli",
+        ecosystemId: "github-cli-skills",
+        outputRoot: "github-cli-agent-skills",
+        discoveryRoot: ".agents",
+        requirementId: "github-cli-agent-skills-passive",
+    }),
+    directSkillHarness({
+        id: "goose",
+        ecosystemId: "goose",
+        outputRoot: "goose-agent-skills",
+        discoveryRoot: ".agents",
+        requirementId: "goose-agent-skills-passive",
+    }),
+    directSkillHarness({
+        id: "kilo",
+        ecosystemId: "kilo-code",
+        outputRoot: "kilo-agent-skills",
+        discoveryRoot: ".kilo",
+        requirementId: "kilo-agent-skills-passive",
+    }),
+    directSkillHarness({
+        id: "opencode",
+        ecosystemId: "opencode-skills",
+        outputRoot: "opencode-agent-skills",
+        discoveryRoot: ".agents",
+        requirementId: "opencode-agent-skills-passive",
+    }),
+    directSkillHarness({
+        id: "openhands",
+        ecosystemId: "openhands",
+        outputRoot: "openhands-agent-skills",
+        discoveryRoot: ".agents",
+        requirementId: "openhands-agent-skills-passive",
+    }),
+    directSkillHarness({
+        id: "replit",
+        ecosystemId: "replit-agent",
+        outputRoot: "replit-agent-skills",
+        discoveryRoot: ".agents",
+        requirementId: "replit-agent-skills-passive",
+    }),
+    directSkillHarness({
+        id: "visual-studio",
+        ecosystemId: "visual-studio-copilot",
+        outputRoot: "visual-studio-agent-skills",
+        discoveryRoot: ".github",
+        requirementId: "visual-studio-agent-skills-passive",
+    }),
+    directSkillHarness({
+        id: "windsurf",
+        ecosystemId: "windsurf-devin-desktop",
+        outputRoot: "windsurf-agent-skills",
+        discoveryRoot: ".windsurf",
+        requirementId: "windsurf-agent-skills-passive",
+    }),
+    directSkillHarness({
+        id: "zed",
+        ecosystemId: "zed-skills",
+        outputRoot: "zed-agent-skills",
+        discoveryRoot: ".agents",
+        requirementId: "zed-agent-skills-passive",
+    }),
+    directSkillHarness({
+        id: "factory",
+        ecosystemId: "factory-droid",
+        outputRoot: "factory-agent-skills",
+        discoveryRoot: ".factory",
+        requirementId: "factory-agent-skills-passive",
+    }),
+    directSkillHarness({
+        id: "grok-native",
+        ecosystemId: "grok-build-skills",
+        outputRoot: "grok-native-agent-skills",
+        discoveryRoot: ".grok",
+        requirementId: "grok-native-agent-skills-passive",
+    }),
     {
         id: "pi",
         subscriptionId: "pi",
@@ -219,6 +415,27 @@ export const requiredMarketplaceRequirementIds = Object.freeze([
     "cursor-marketplace",
     "kiro-marketplace",
     "junie-marketplace",
+    "vscode-agent-plugin-passive",
+    "qwen-agent-plugin-passive",
+    "hermes-agent-plugin-passive",
+    "openclaw-agent-plugin-passive",
+    "grok-bot-agent-plugin-passive",
+    "nanoclaw-agent-plugin-passive",
+    "amp-agent-skills-passive",
+    "augment-agent-skills-passive",
+    "cline-agent-skills-passive",
+    "devin-agent-skills-passive",
+    "github-cli-agent-skills-passive",
+    "goose-agent-skills-passive",
+    "kilo-agent-skills-passive",
+    "opencode-agent-skills-passive",
+    "openhands-agent-skills-passive",
+    "replit-agent-skills-passive",
+    "visual-studio-agent-skills-passive",
+    "windsurf-agent-skills-passive",
+    "zed-agent-skills-passive",
+    "factory-agent-skills-passive",
+    "grok-native-agent-skills-passive",
 ]);
 
 export const requiredArtifactTargetIds = Object.freeze([
@@ -236,6 +453,27 @@ export const requiredArtifactTargetIds = Object.freeze([
     "cursor",
     "kiro",
     "junie",
+    "vscode-passive",
+    "qwen-passive",
+    "hermes-passive",
+    "openclaw-passive",
+    "grok-bot-passive",
+    "nanoclaw-passive",
+    "amp-passive",
+    "augment-passive",
+    "cline-passive",
+    "devin-passive",
+    "github-cli-passive",
+    "goose-passive",
+    "kilo-passive",
+    "opencode-passive",
+    "openhands-passive",
+    "replit-passive",
+    "visual-studio-passive",
+    "windsurf-passive",
+    "zed-passive",
+    "factory-passive",
+    "grok-native-passive",
 ]);
 
 export const requiredEcosystemBindingIds = Object.freeze([
@@ -294,12 +532,40 @@ export const harnesses = Object.freeze(
             modelProviders: Object.freeze([
                 ...(definition.modelProviders ?? []),
             ]),
+            complianceModes: Object.freeze([
+                ...(definition.complianceModes ?? []),
+            ]),
+            expectedInventory: Object.freeze([
+                ...(definition.expectedInventory ?? []),
+            ]),
+            artifactClass:
+                definition.artifactClass ?? passivePublicArtifactClass,
+            servingRequirementId:
+                definition.servingRequirementId ?? definition.requirementId,
+            parityGroup: definition.parityGroup ?? definition.id,
+            projectDiscoveryRoot:
+                definition.projectDiscoveryRoot ??
+                definition.projectSkillRoot ??
+                definition.fixtureSkillRoot,
             profileOutputRoot: definition.id,
             profileProjectionRoots: Object.freeze([
                 Object.freeze({
                     id: `${definition.id}-primary`,
                     outputRoot: `harnesses/${definition.id}`,
                     skillRoot: definition.profileSkillRoot,
+                    discoveryRoot:
+                        definition.projectDiscoveryRoot ??
+                        definition.projectSkillRoot ??
+                        definition.profileSkillRoot,
+                    artifactClass:
+                        definition.artifactClass ?? passivePublicArtifactClass,
+                    servingRequirementId:
+                        definition.servingRequirementId ??
+                        definition.requirementId,
+                    parityGroup: definition.parityGroup ?? definition.id,
+                    expectedInventory: Object.freeze([
+                        ...(definition.expectedInventory ?? []),
+                    ]),
                 }),
             ]),
             fixtureProjectionRoots: Object.freeze([
@@ -307,6 +573,19 @@ export const harnesses = Object.freeze(
                     id: `${definition.id}-primary`,
                     outputRoot: definition.fixtureOutputRoot,
                     skillRoot: definition.fixtureSkillRoot,
+                    discoveryRoot:
+                        definition.projectDiscoveryRoot ??
+                        definition.projectSkillRoot ??
+                        definition.fixtureSkillRoot,
+                    artifactClass:
+                        definition.artifactClass ?? passivePublicArtifactClass,
+                    servingRequirementId:
+                        definition.servingRequirementId ??
+                        definition.requirementId,
+                    parityGroup: definition.parityGroup ?? definition.id,
+                    expectedInventory: Object.freeze([
+                        ...(definition.expectedInventory ?? []),
+                    ]),
                 }),
             ]),
         }),
@@ -370,9 +649,9 @@ export function profileSkillRoot(identifier, pluginName) {
 function expandProjectionRoots(roots, pluginName) {
     return roots.map((root) =>
         Object.freeze({
-            id: root.id,
-            outputRoot: root.outputRoot,
+            ...root,
             skillRoot: expandSkillRoot(root.skillRoot, pluginName),
+            expectedInventory: Object.freeze([...root.expectedInventory]),
         }),
     );
 }

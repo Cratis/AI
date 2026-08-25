@@ -24,6 +24,7 @@ import {
 import {
     formatComplianceDiagnostics,
     parseAgentSkillFrontmatter,
+    validateAgentSkill,
     validateCratisPassiveProfile,
 } from "./portable-compliance-validation.mjs";
 
@@ -451,7 +452,7 @@ export function createPassiveFixtureProjection(options) {
             roots.push({
                 id: projection.id,
                 root: projection.outputRoot,
-                parityGroup: harness.id,
+                parityGroup: projection.parityGroup,
                 mappings: [
                     ...skillMappings(logicalSkillFiles, projection.skillRoot),
                     ...harnessMetadata.map((file) => ({
@@ -489,12 +490,10 @@ export function createPassiveProfileProjection(options) {
     const logicalTree = createLogicalTree({
         files: [
             ...logicalSkillFiles,
-            ...[...metadataByHarness.values()]
-                .flat()
-                .map((file) => ({
-                    path: file.sourcePath,
-                    content: file.content,
-                })),
+            ...[...metadataByHarness.values()].flat().map((file) => ({
+                path: file.sourcePath,
+                content: file.content,
+            })),
         ],
         metrics: options.metrics,
     });
@@ -503,15 +502,13 @@ export function createPassiveProfileProjection(options) {
             (projection) => ({
                 id: projection.id,
                 root: projection.outputRoot,
-                parityGroup: harness.id,
+                parityGroup: projection.parityGroup,
                 mappings: [
                     ...skillMappings(logicalSkillFiles, projection.skillRoot),
-                    ...metadataByHarness
-                        .get(harness.id)
-                        .map((file) => ({
-                            sourcePath: file.sourcePath,
-                            path: file.path,
-                        })),
+                    ...metadataByHarness.get(harness.id).map((file) => ({
+                        sourcePath: file.sourcePath,
+                        path: file.path,
+                    })),
                 ],
             }),
         ),
@@ -519,6 +516,89 @@ export function createPassiveProfileProjection(options) {
     return projectLogicalTree(logicalTree, roots, {
         concurrency: options.concurrency ?? 1,
     });
+}
+
+export function validatePassiveFixtureHarnesses({
+    outputRoot,
+    version,
+    pluginName,
+    skills,
+}) {
+    const root = resolve(outputRoot);
+    const receipts = [];
+    for (const harness of harnesses.filter(
+        (candidate) => candidate.complianceModes.length > 0,
+    )) {
+        for (const descriptor of fixtureProjectionRoots(
+            harness.id,
+            pluginName,
+        )) {
+            const artifactRoot = join(root, descriptor.outputRoot);
+            if (harness.adapterKind === "portable-plugin") {
+                const result = validateCratisPassiveProfile(artifactRoot, {
+                    profileId: pluginName,
+                    version,
+                    artifactId: harness.id,
+                    allowFixtureProfileId: true,
+                });
+                if (result.releaseBlocking)
+                    throw new Error(
+                        `${harness.id}: fixture compliance failed\n${formatComplianceDiagnostics(result.diagnostics)}`,
+                    );
+                receipts.push(result.receipt);
+                continue;
+            }
+            const files = [];
+            for (const skill of skills) {
+                const skillRoot = join(
+                    artifactRoot,
+                    descriptor.skillRoot,
+                    "skills",
+                    skill.name,
+                );
+                const result = validateAgentSkill(skillRoot, {
+                    mode: "cratis-passive-v1",
+                    pluginRoot: artifactRoot,
+                });
+                if (!result.valid)
+                    throw new Error(
+                        `${harness.id}: fixture Agent Skill validation failed\n${formatComplianceDiagnostics(result.diagnostics)}`,
+                    );
+                files.push({
+                    name: skill.name,
+                    path: `${descriptor.skillRoot}/skills/${skill.name}/SKILL.md`,
+                    sha256: createHash("sha256")
+                        .update(result.sourceBytes)
+                        .digest("hex"),
+                });
+            }
+            receipts.push({
+                schemaVersion: "1.0.0",
+                contract: "agent-skills-strict-passive-v1",
+                artifactId: harness.id,
+                files,
+                conformant: true,
+                releaseBlocking: false,
+                passivePayloadSafe: true,
+                executionPerformed: false,
+                networkAccessPerformed: false,
+                approvalGranted: false,
+                supportGranted: false,
+                publicationGranted: false,
+            });
+        }
+    }
+    return {
+        schemaVersion: "1.0.0",
+        state: "GENERATED_STATIC_VALIDATION_ONLY",
+        hostTested: false,
+        installationTested: false,
+        runtimeGranted: false,
+        publicationGranted: false,
+        promotionGranted: false,
+        supportGranted: false,
+        receipts,
+    };
 }
 
 function generatePassiveProfileAdaptersCore(options) {
@@ -576,26 +656,86 @@ function generatePassiveProfileAdaptersCore(options) {
                 .map((candidate) => candidate.root),
         ]),
     );
-    const portableRoots = {
-        "agent-plugin": join(root, rootsByHarness["agent-plugin"]),
-        copilot: join(root, rootsByHarness.copilot, `plugins/${profileId}`),
-        cursor: join(root, rootsByHarness.cursor, `plugins/${profileId}`),
-        kiro: join(root, rootsByHarness.kiro),
-    };
     const complianceReceipts = [];
-    for (const [artifactId, portableRoot] of Object.entries(portableRoots)) {
-        const validationResult = validateCratisPassiveProfile(portableRoot, {
-            profileId,
-            version,
-            artifactId,
-        });
-        if (validationResult.releaseBlocking) {
-            rmSync(root, { recursive: true, force: true });
-            throw new Error(
-                `${artifactId}: portable compliance failed\n${formatComplianceDiagnostics(validationResult.diagnostics)}`,
-            );
+    for (const harness of harnesses) {
+        const harnessRoots = projected.roots.filter(
+            (candidate) => candidate.parityGroup === harness.parityGroup,
+        );
+        for (const harnessRoot of harnessRoots) {
+            const descriptor = profileProjectionRoots(
+                harness.id,
+                profileId,
+            ).find((candidate) => candidate.id === harnessRoot.id);
+            if (!descriptor)
+                throw new Error(
+                    `Missing profile projection descriptor: ${harnessRoot.id}`,
+                );
+            const artifactRoot = join(root, harnessRoot.root);
+            if (
+                harness.adapterKind === "portable-plugin" ||
+                harness.adapterKind === "portable-plugin-marketplace"
+            ) {
+                const portableRoot =
+                    harness.adapterKind === "portable-plugin-marketplace"
+                        ? join(artifactRoot, `plugins/${profileId}`)
+                        : artifactRoot;
+                const validationResult = validateCratisPassiveProfile(
+                    portableRoot,
+                    {
+                        profileId,
+                        version,
+                        artifactId: harness.id,
+                    },
+                );
+                if (validationResult.releaseBlocking) {
+                    rmSync(root, { recursive: true, force: true });
+                    throw new Error(
+                        `${harness.id}: portable compliance failed\n${formatComplianceDiagnostics(validationResult.diagnostics)}`,
+                    );
+                }
+                complianceReceipts.push(validationResult.receipt);
+                continue;
+            }
+            if (harness.adapterKind !== "direct-skills") continue;
+            const skillReceipts = [];
+            for (const skill of skills) {
+                const skillRoot = join(
+                    artifactRoot,
+                    descriptor.skillRoot,
+                    "skills",
+                    skill.name,
+                );
+                const validationResult = validateAgentSkill(skillRoot, {
+                    mode: "cratis-passive-v1",
+                    pluginRoot: artifactRoot,
+                });
+                if (!validationResult.valid) {
+                    rmSync(root, { recursive: true, force: true });
+                    throw new Error(
+                        `${harness.id}: strict Agent Skill validation failed\n${formatComplianceDiagnostics(validationResult.diagnostics)}`,
+                    );
+                }
+                skillReceipts.push({
+                    name: skill.name,
+                    path: `${descriptor.skillRoot ? `${descriptor.skillRoot}/` : ""}skills/${skill.name}/SKILL.md`,
+                    sha256: createHash("sha256")
+                        .update(validationResult.sourceBytes)
+                        .digest("hex"),
+                });
+            }
+            complianceReceipts.push({
+                artifactId: harness.id,
+                profile: "agent-skills-strict-passive-v1",
+                conformant: true,
+                releaseBlocking: false,
+                passivePayloadSafe: true,
+                files: skillReceipts,
+                executionPerformed: false,
+                networkAccessPerformed: false,
+                supportGranted: false,
+                hostTested: false,
+            });
         }
-        complianceReceipts.push(validationResult.receipt);
     }
     const canonicalFiles = skillLogicalFiles(skills).map((file) => {
         const projectedFile = projected.files.find(
@@ -632,7 +772,9 @@ function generatePassiveProfileAdaptersCore(options) {
         compliance: {
             profile: "cratis-passive-v1",
             profileDigest: profileHash.digest("hex"),
-            specifications: complianceReceipts[0].specifications,
+            specifications: complianceReceipts.find(
+                (receipt) => receipt.specifications,
+            )?.specifications,
             receipts: complianceReceipts,
             deterministicReleaseTree: {
                 state: deterministicManifest.state,

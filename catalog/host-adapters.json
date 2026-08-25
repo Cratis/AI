@@ -332,14 +332,14 @@
         "availabilityClaim": false
       },
       "supportDisposition": {
-        "coverage": "researched",
+        "coverage": "standard-compatible",
         "supportClaim": false,
-        "reason": "Amp is researched in S5a; research coverage is not support."
+        "reason": "A distinct passive root is generated and statically validated from exact official format evidence; host runtime and lifecycle remain untested."
       },
       "serving": {
         "artifactBindingId": "amp-artifact-binding",
-        "targetId": "canonical-agent-skills",
-        "outputRoot": "canonical"
+        "targetId": "amp-passive",
+        "outputRoot": "amp-agent-skills"
       },
       "lifecycleCanary": {
         "required": true,
@@ -360,7 +360,9 @@
       },
       "strategy": "canonical-agent-skills",
       "notes": [
-        "No new Amp adapter root or executable content is emitted in S5a."
+        "No new Amp adapter root or executable content is emitted in S5a.",
+        "S5b emits one standalone Agent Skills project root (amp-agent-skills) without transforming canonical skill bytes.",
+        "Generation and static validation do not establish host support, installation, publication, promotion, or marketplace availability."
       ]
     },
     {
@@ -490,12 +492,12 @@
       "supportDisposition": {
         "coverage": "standard-compatible",
         "supportClaim": false,
-        "reason": "Augment / Auggie is standard-compatible in S5a; research coverage is not support."
+        "reason": "A distinct passive root is generated and statically validated from exact official format evidence; host runtime and lifecycle remain untested."
       },
       "serving": {
         "artifactBindingId": "augment-auggie-artifact-binding",
-        "targetId": "canonical-agent-skills",
-        "outputRoot": "canonical"
+        "targetId": "augment-passive",
+        "outputRoot": "augment-agent-skills"
       },
       "lifecycleCanary": {
         "required": true,
@@ -516,7 +518,9 @@
       },
       "strategy": "canonical-agent-skills",
       "notes": [
-        "No new Augment / Auggie adapter root or executable content is emitted in S5a."
+        "No new Augment / Auggie adapter root or executable content is emitted in S5a.",
+        "S5b emits one standalone Agent Skills project root (augment-agent-skills) without transforming canonical skill bytes.",
+        "Generation and static validation do not establish host support, installation, publication, promotion, or marketplace availability."
       ]
     },
     {
@@ -778,12 +782,12 @@
       "supportDisposition": {
         "coverage": "standard-compatible",
         "supportClaim": false,
-        "reason": "Cline is standard-compatible in S5a; research coverage is not support."
+        "reason": "A distinct passive root is generated and statically validated from exact official format evidence; host runtime and lifecycle remain untested."
       },
       "serving": {
         "artifactBindingId": "cline-artifact-binding",
-        "targetId": "canonical-agent-skills",
-        "outputRoot": "canonical"
+        "targetId": "cline-passive",
+        "outputRoot": "cline-agent-skills"
       },
       "lifecycleCanary": {
         "required": true,
@@ -804,7 +808,9 @@
       },
       "strategy": "canonical-agent-skills",
       "notes": [
-        "No new Cline adapter root or executable content is emitted in S5a."
+        "No new Cline adapter root or executable content is emitted in S5a.",
+        "S5b emits one standalone Agent Skills project root (cline-agent-skills) without transforming canonical skill bytes.",
+        "Generation and static validation do not establish host support, installation, publication, promotion, or marketplace availability."
       ]
     },
     {
@@ -1453,12 +1459,12 @@
       "supportDisposition": {
         "coverage": "standard-compatible",
         "supportClaim": false,
-        "reason": "Devin explicitly consumes canonical Agent Skills; S5a compatibility is not host support."
+        "reason": "A distinct passive root is generated and statically validated from exact official format evidence; host runtime and lifecycle remain untested."
       },
       "serving": {
         "artifactBindingId": "devin-hosted-artifact-binding",
-        "targetId": "canonical-agent-skills",
-        "outputRoot": "canonical"
+        "targetId": "devin-passive",
+        "outputRoot": "devin-agent-skills"
       },
       "lifecycleCanary": {
         "required": false,
@@ -1472,7 +1478,9 @@
       },
       "strategy": "canonical-agent-skills",
       "notes": [
-        "S5a reuses canonical Agent Skills and emits no Devin-specific artifact root."
+        "S5a reuses canonical Agent Skills and emits no Devin-specific artifact root.",
+        "S5b emits one standalone Agent Skills project root (devin-agent-skills) without transforming canonical skill bytes.",
+        "Generation and static validation do not establish host support, installation, publication, promotion, or marketplace availability."
       ]
     },
     {
@@ -1593,14 +1601,14 @@
         "availabilityClaim": false
       },
       "supportDisposition": {
-        "coverage": "native-planned",
+        "coverage": "standard-compatible",
         "supportClaim": false,
-        "reason": "Factory Droid is native-planned in S5a; research coverage is not support."
+        "reason": "A distinct passive root is generated and statically validated from exact official format evidence; host runtime and lifecycle remain untested."
       },
       "serving": {
         "artifactBindingId": "factory-droid-artifact-binding",
-        "targetId": null,
-        "outputRoot": null
+        "targetId": "factory-passive",
+        "outputRoot": "factory-agent-skills"
       },
       "lifecycleCanary": {
         "required": true,
@@ -1619,9 +1627,11 @@
         "renameFields": {},
         "addFields": {}
       },
-      "strategy": "native-projection-planned",
+      "strategy": "canonical-agent-skills",
       "notes": [
-        "No new Factory Droid adapter root or executable content is emitted in S5a."
+        "No new Factory Droid adapter root or executable content is emitted in S5a.",
+        "S5b emits one standalone Agent Skills project root (factory-agent-skills) without transforming canonical skill bytes.",
+        "Generation and static validation do not establish host support, installation, publication, promotion, or marketplace availability."
       ]
     },
     {
@@ -1870,12 +1880,12 @@
       "supportDisposition": {
         "coverage": "standard-compatible",
         "supportClaim": false,
-        "reason": "Existing researched ecosystem binding is retained; generated coverage is not support."
+        "reason": "A distinct passive root is generated and statically validated from exact official format evidence; host runtime and lifecycle remain untested."
       },
       "serving": {
         "artifactBindingId": "github-cli-skills-artifact-binding",
-        "targetId": "canonical-agent-skills",
-        "outputRoot": "canonical"
+        "targetId": "github-cli-passive",
+        "outputRoot": "github-cli-agent-skills"
       },
       "lifecycleCanary": {
         "required": true,
@@ -1896,7 +1906,9 @@
       },
       "strategy": "canonical-agent-skills",
       "notes": [
-        "This S5a registry record normalizes existing evidence without changing adapter bytes or release gates."
+        "This S5a registry record normalizes existing evidence without changing adapter bytes or release gates.",
+        "S5b emits one standalone Agent Skills project root (github-cli-agent-skills) without transforming canonical skill bytes.",
+        "Generation and static validation do not establish host support, installation, publication, promotion, or marketplace availability."
       ]
     },
     {
@@ -2150,14 +2162,14 @@
         "availabilityClaim": false
       },
       "supportDisposition": {
-        "coverage": "researched",
+        "coverage": "standard-compatible",
         "supportClaim": false,
-        "reason": "Goose is researched in S5a; research coverage is not support."
+        "reason": "A distinct passive root is generated and statically validated from exact official format evidence; host runtime and lifecycle remain untested."
       },
       "serving": {
         "artifactBindingId": "goose-artifact-binding",
-        "targetId": "canonical-agent-skills",
-        "outputRoot": "canonical"
+        "targetId": "goose-passive",
+        "outputRoot": "goose-agent-skills"
       },
       "lifecycleCanary": {
         "required": true,
@@ -2178,7 +2190,9 @@
       },
       "strategy": "canonical-agent-skills",
       "notes": [
-        "No new Goose adapter root or executable content is emitted in S5a."
+        "No new Goose adapter root or executable content is emitted in S5a.",
+        "S5b emits one standalone Agent Skills project root (goose-agent-skills) without transforming canonical skill bytes.",
+        "Generation and static validation do not establish host support, installation, publication, promotion, or marketplace availability."
       ]
     },
     {
@@ -2280,12 +2294,12 @@
       "supportDisposition": {
         "coverage": "standard-compatible",
         "supportClaim": false,
-        "reason": "Existing researched ecosystem binding is retained; generated coverage is not support."
+        "reason": "A distinct passive root is generated and statically validated from exact official format evidence; host runtime and lifecycle remain untested."
       },
       "serving": {
         "artifactBindingId": "grok-bot-plugins-artifact-binding",
-        "targetId": "portable-agent-plugin",
-        "outputRoot": "agent-plugin"
+        "targetId": "grok-bot-passive",
+        "outputRoot": "grok-bot-agent-plugin"
       },
       "lifecycleCanary": {
         "required": true,
@@ -2306,7 +2320,9 @@
       },
       "strategy": "portable-agent-plugin",
       "notes": [
-        "This S5a registry record normalizes existing evidence without changing adapter bytes or release gates."
+        "This S5a registry record normalizes existing evidence without changing adapter bytes or release gates.",
+        "S5b emits one standalone Agent Plugins 1.0 project root (grok-bot-agent-plugin) without transforming canonical skill bytes.",
+        "Generation and static validation do not establish host support, installation, publication, promotion, or marketplace availability."
       ]
     },
     {
@@ -2423,14 +2439,14 @@
         "availabilityClaim": false
       },
       "supportDisposition": {
-        "coverage": "researched",
+        "coverage": "standard-compatible",
         "supportClaim": false,
-        "reason": "Existing researched ecosystem binding is retained; generated coverage is not support."
+        "reason": "Separate Claude-compatible and native .grok/skills artifacts are generated from canonical bytes; host runtime and lifecycle remain untested."
       },
       "serving": {
         "artifactBindingId": "grok-build-skills-artifact-binding",
-        "targetId": "grok-build",
-        "outputRoot": "grok"
+        "targetId": "grok-native-passive",
+        "outputRoot": "grok-native-agent-skills"
       },
       "lifecycleCanary": {
         "required": true,
@@ -2449,9 +2465,11 @@
         "renameFields": {},
         "addFields": {}
       },
-      "strategy": "native-projection-planned",
+      "strategy": "canonical-agent-skills",
       "notes": [
-        "This S5a registry record normalizes existing evidence without changing adapter bytes or release gates."
+        "This S5a registry record normalizes existing evidence without changing adapter bytes or release gates.",
+        "S5b retains the Claude-compatible Grok artifact as a separate alternate output and adds a native .grok/skills project-root artifact.",
+        "Generation and static validation do not establish host support, installation, publication, promotion, or marketplace availability."
       ]
     },
     {
@@ -2552,12 +2570,12 @@
       "supportDisposition": {
         "coverage": "standard-compatible",
         "supportClaim": false,
-        "reason": "Existing researched ecosystem binding is retained; generated coverage is not support."
+        "reason": "A distinct passive root is generated and statically validated from exact official format evidence; host runtime and lifecycle remain untested."
       },
       "serving": {
         "artifactBindingId": "hermes-agent-plugins-artifact-binding",
-        "targetId": "portable-agent-plugin",
-        "outputRoot": "agent-plugin"
+        "targetId": "hermes-passive",
+        "outputRoot": "hermes-agent-plugin"
       },
       "lifecycleCanary": {
         "required": true,
@@ -2578,7 +2596,9 @@
       },
       "strategy": "portable-agent-plugin",
       "notes": [
-        "This S5a registry record normalizes existing evidence without changing adapter bytes or release gates."
+        "This S5a registry record normalizes existing evidence without changing adapter bytes or release gates.",
+        "S5b emits one standalone Agent Plugins 1.0 project root (hermes-agent-plugin) without transforming canonical skill bytes.",
+        "Generation and static validation do not establish host support, installation, publication, promotion, or marketplace availability."
       ]
     },
     {
@@ -2983,12 +3003,12 @@
       "supportDisposition": {
         "coverage": "standard-compatible",
         "supportClaim": false,
-        "reason": "Kilo Code is standard-compatible in S5a; research coverage is not support."
+        "reason": "A distinct passive root is generated and statically validated from exact official format evidence; host runtime and lifecycle remain untested."
       },
       "serving": {
         "artifactBindingId": "kilo-code-artifact-binding",
-        "targetId": "canonical-agent-skills",
-        "outputRoot": "canonical"
+        "targetId": "kilo-passive",
+        "outputRoot": "kilo-agent-skills"
       },
       "lifecycleCanary": {
         "required": true,
@@ -3009,7 +3029,9 @@
       },
       "strategy": "canonical-agent-skills",
       "notes": [
-        "No new Kilo Code adapter root or executable content is emitted in S5a."
+        "No new Kilo Code adapter root or executable content is emitted in S5a.",
+        "S5b emits one standalone Agent Skills project root (kilo-agent-skills) without transforming canonical skill bytes.",
+        "Generation and static validation do not establish host support, installation, publication, promotion, or marketplace availability."
       ]
     },
     {
@@ -3244,12 +3266,12 @@
       "supportDisposition": {
         "coverage": "standard-compatible",
         "supportClaim": false,
-        "reason": "Existing researched ecosystem binding is retained; generated coverage is not support."
+        "reason": "A distinct passive root is generated and statically validated from exact official format evidence; host runtime and lifecycle remain untested."
       },
       "serving": {
         "artifactBindingId": "nanoclaw-templates-artifact-binding",
-        "targetId": "portable-agent-plugin",
-        "outputRoot": "agent-plugin"
+        "targetId": "nanoclaw-passive",
+        "outputRoot": "nanoclaw-agent-plugin"
       },
       "lifecycleCanary": {
         "required": true,
@@ -3270,7 +3292,9 @@
       },
       "strategy": "portable-agent-plugin",
       "notes": [
-        "This S5a registry record normalizes existing evidence without changing adapter bytes or release gates."
+        "This S5a registry record normalizes existing evidence without changing adapter bytes or release gates.",
+        "S5b emits one standalone Agent Plugins 1.0 project root (nanoclaw-agent-plugin) without transforming canonical skill bytes.",
+        "Generation and static validation do not establish host support, installation, publication, promotion, or marketplace availability."
       ]
     },
     {
@@ -3517,12 +3541,12 @@
       "supportDisposition": {
         "coverage": "standard-compatible",
         "supportClaim": false,
-        "reason": "Existing researched ecosystem binding is retained; generated coverage is not support."
+        "reason": "A distinct passive root is generated and statically validated from exact official format evidence; host runtime and lifecycle remain untested."
       },
       "serving": {
         "artifactBindingId": "openclaw-bundles-artifact-binding",
-        "targetId": "portable-agent-plugin",
-        "outputRoot": "agent-plugin"
+        "targetId": "openclaw-passive",
+        "outputRoot": "openclaw-agent-plugin"
       },
       "lifecycleCanary": {
         "required": true,
@@ -3543,7 +3567,9 @@
       },
       "strategy": "portable-agent-plugin",
       "notes": [
-        "This S5a registry record normalizes existing evidence without changing adapter bytes or release gates."
+        "This S5a registry record normalizes existing evidence without changing adapter bytes or release gates.",
+        "S5b emits one standalone Agent Plugins 1.0 project root (openclaw-agent-plugin) without transforming canonical skill bytes.",
+        "Generation and static validation do not establish host support, installation, publication, promotion, or marketplace availability."
       ]
     },
     {
@@ -3654,12 +3680,12 @@
       "supportDisposition": {
         "coverage": "standard-compatible",
         "supportClaim": false,
-        "reason": "Existing researched ecosystem binding is retained; generated coverage is not support."
+        "reason": "A distinct passive root is generated and statically validated from exact official format evidence; host runtime and lifecycle remain untested."
       },
       "serving": {
         "artifactBindingId": "opencode-skills-artifact-binding",
-        "targetId": "canonical-agent-skills",
-        "outputRoot": "canonical"
+        "targetId": "opencode-passive",
+        "outputRoot": "opencode-agent-skills"
       },
       "lifecycleCanary": {
         "required": true,
@@ -3680,7 +3706,9 @@
       },
       "strategy": "canonical-agent-skills",
       "notes": [
-        "This S5a registry record normalizes existing evidence without changing adapter bytes or release gates."
+        "This S5a registry record normalizes existing evidence without changing adapter bytes or release gates.",
+        "S5b emits one standalone Agent Skills project root (opencode-agent-skills) without transforming canonical skill bytes.",
+        "Generation and static validation do not establish host support, installation, publication, promotion, or marketplace availability."
       ]
     },
     {
@@ -3789,12 +3817,12 @@
       "supportDisposition": {
         "coverage": "standard-compatible",
         "supportClaim": false,
-        "reason": "OpenHands is standard-compatible in S5a; research coverage is not support."
+        "reason": "A distinct passive root is generated and statically validated from exact official format evidence; host runtime and lifecycle remain untested."
       },
       "serving": {
         "artifactBindingId": "openhands-artifact-binding",
-        "targetId": "canonical-agent-skills",
-        "outputRoot": "canonical"
+        "targetId": "openhands-passive",
+        "outputRoot": "openhands-agent-skills"
       },
       "lifecycleCanary": {
         "required": true,
@@ -3815,7 +3843,9 @@
       },
       "strategy": "canonical-agent-skills",
       "notes": [
-        "No new OpenHands adapter root or executable content is emitted in S5a."
+        "No new OpenHands adapter root or executable content is emitted in S5a.",
+        "S5b emits one standalone Agent Skills project root (openhands-agent-skills) without transforming canonical skill bytes.",
+        "Generation and static validation do not establish host support, installation, publication, promotion, or marketplace availability."
       ]
     },
     {
@@ -4094,12 +4124,12 @@
       "supportDisposition": {
         "coverage": "standard-compatible",
         "supportClaim": false,
-        "reason": "Qwen Code is standard-compatible in S5a; research coverage is not support."
+        "reason": "A distinct passive root is generated and statically validated from exact official format evidence; host runtime and lifecycle remain untested."
       },
       "serving": {
         "artifactBindingId": "qwen-code-artifact-binding",
-        "targetId": "portable-agent-plugin",
-        "outputRoot": "agent-plugin"
+        "targetId": "qwen-passive",
+        "outputRoot": "qwen-agent-plugin"
       },
       "lifecycleCanary": {
         "required": true,
@@ -4120,7 +4150,9 @@
       },
       "strategy": "portable-agent-plugin",
       "notes": [
-        "No new Qwen Code adapter root or executable content is emitted in S5a."
+        "No new Qwen Code adapter root or executable content is emitted in S5a.",
+        "S5b emits one standalone Agent Plugins 1.0 project root (qwen-agent-plugin) without transforming canonical skill bytes.",
+        "Generation and static validation do not establish host support, installation, publication, promotion, or marketplace availability."
       ]
     },
     {
@@ -4237,12 +4269,12 @@
       "supportDisposition": {
         "coverage": "standard-compatible",
         "supportClaim": false,
-        "reason": "Replit Agent is standard-compatible in S5a; research coverage is not support."
+        "reason": "A distinct passive root is generated and statically validated from exact official format evidence; host runtime and lifecycle remain untested."
       },
       "serving": {
         "artifactBindingId": "replit-agent-artifact-binding",
-        "targetId": "canonical-agent-skills",
-        "outputRoot": "canonical"
+        "targetId": "replit-passive",
+        "outputRoot": "replit-agent-skills"
       },
       "lifecycleCanary": {
         "required": true,
@@ -4263,7 +4295,9 @@
       },
       "strategy": "canonical-agent-skills",
       "notes": [
-        "No new Replit Agent adapter root or executable content is emitted in S5a."
+        "No new Replit Agent adapter root or executable content is emitted in S5a.",
+        "S5b emits one standalone Agent Skills project root (replit-agent-skills) without transforming canonical skill bytes.",
+        "Generation and static validation do not establish host support, installation, publication, promotion, or marketplace availability."
       ]
     },
     {
@@ -4746,12 +4780,12 @@
       "supportDisposition": {
         "coverage": "standard-compatible",
         "supportClaim": false,
-        "reason": "Visual Studio GitHub Copilot is standard-compatible in S5a; research coverage is not support."
+        "reason": "A distinct passive root is generated and statically validated from exact official format evidence; host runtime and lifecycle remain untested."
       },
       "serving": {
         "artifactBindingId": "visual-studio-copilot-artifact-binding",
-        "targetId": "canonical-agent-skills",
-        "outputRoot": "canonical"
+        "targetId": "visual-studio-passive",
+        "outputRoot": "visual-studio-agent-skills"
       },
       "lifecycleCanary": {
         "required": true,
@@ -4772,7 +4806,9 @@
       },
       "strategy": "canonical-agent-skills",
       "notes": [
-        "No new Visual Studio GitHub Copilot adapter root or executable content is emitted in S5a."
+        "No new Visual Studio GitHub Copilot adapter root or executable content is emitted in S5a.",
+        "S5b emits one standalone Agent Skills project root (visual-studio-agent-skills) without transforming canonical skill bytes.",
+        "Generation and static validation do not establish host support, installation, publication, promotion, or marketplace availability."
       ]
     },
     {
@@ -4874,12 +4910,12 @@
       "supportDisposition": {
         "coverage": "standard-compatible",
         "supportClaim": false,
-        "reason": "Existing researched ecosystem binding is retained; generated coverage is not support."
+        "reason": "A distinct passive root is generated and statically validated from exact official format evidence; host runtime and lifecycle remain untested."
       },
       "serving": {
         "artifactBindingId": "vscode-agent-plugins-artifact-binding",
-        "targetId": "portable-agent-plugin",
-        "outputRoot": "agent-plugin"
+        "targetId": "vscode-passive",
+        "outputRoot": "vscode-agent-plugin"
       },
       "lifecycleCanary": {
         "required": true,
@@ -4900,7 +4936,9 @@
       },
       "strategy": "portable-agent-plugin",
       "notes": [
-        "This S5a registry record normalizes existing evidence without changing adapter bytes or release gates."
+        "This S5a registry record normalizes existing evidence without changing adapter bytes or release gates.",
+        "S5b emits one standalone Agent Plugins 1.0 project root (vscode-agent-plugin) without transforming canonical skill bytes.",
+        "Generation and static validation do not establish host support, installation, publication, promotion, or marketplace availability."
       ]
     },
     {
@@ -5005,12 +5043,12 @@
       "supportDisposition": {
         "coverage": "standard-compatible",
         "supportClaim": false,
-        "reason": "Windsurf / Devin Desktop is standard-compatible in S5a; research coverage is not support."
+        "reason": "A distinct passive root is generated and statically validated from exact official format evidence; host runtime and lifecycle remain untested."
       },
       "serving": {
         "artifactBindingId": "windsurf-devin-desktop-artifact-binding",
-        "targetId": "canonical-agent-skills",
-        "outputRoot": "canonical"
+        "targetId": "windsurf-passive",
+        "outputRoot": "windsurf-agent-skills"
       },
       "lifecycleCanary": {
         "required": true,
@@ -5031,7 +5069,9 @@
       },
       "strategy": "canonical-agent-skills",
       "notes": [
-        "No new Windsurf / Devin Desktop adapter root or executable content is emitted in S5a."
+        "No new Windsurf / Devin Desktop adapter root or executable content is emitted in S5a.",
+        "S5b emits one standalone Agent Skills project root (windsurf-agent-skills) without transforming canonical skill bytes.",
+        "Generation and static validation do not establish host support, installation, publication, promotion, or marketplace availability."
       ]
     },
     {
@@ -5138,12 +5178,12 @@
       "supportDisposition": {
         "coverage": "standard-compatible",
         "supportClaim": false,
-        "reason": "Existing researched ecosystem binding is retained; generated coverage is not support."
+        "reason": "A distinct passive root is generated and statically validated from exact official format evidence; host runtime and lifecycle remain untested."
       },
       "serving": {
         "artifactBindingId": "zed-skills-artifact-binding",
-        "targetId": "canonical-agent-skills",
-        "outputRoot": "canonical"
+        "targetId": "zed-passive",
+        "outputRoot": "zed-agent-skills"
       },
       "lifecycleCanary": {
         "required": true,
@@ -5164,7 +5204,9 @@
       },
       "strategy": "canonical-agent-skills",
       "notes": [
-        "This S5a registry record normalizes existing evidence without changing adapter bytes or release gates."
+        "This S5a registry record normalizes existing evidence without changing adapter bytes or release gates.",
+        "S5b emits one standalone Agent Skills project root (zed-agent-skills) without transforming canonical skill bytes.",
+        "Generation and static validation do not establish host support, installation, publication, promotion, or marketplace availability."
       ]
     }
   ]

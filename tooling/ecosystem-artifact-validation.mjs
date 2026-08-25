@@ -356,6 +356,10 @@ export function validateEcosystemArtifactClosure(catalogs) {
         catalogs.evidence.evidence.map((record) => record.id),
     );
     const bindings = catalogs.bindings.bindings;
+    const bindingOutputs = bindings.flatMap((binding) => [
+        binding,
+        ...(binding.additionalOutputs ?? []),
+    ]);
 
     for (const duplicate of duplicates(bindings.map((binding) => binding.id)))
         errors.push(
@@ -392,7 +396,9 @@ export function validateEcosystemArtifactClosure(catalogs) {
         errors,
         "ecosystem artifact requirement bindings",
         new Set(
-            bindings.map((binding) => binding.requirementId).filter(Boolean),
+            bindingOutputs
+                .map((binding) => binding.requirementId)
+                .filter(Boolean),
         ),
         new Set(requiredMarketplaceRequirementIds),
     );
@@ -405,7 +411,9 @@ export function validateEcosystemArtifactClosure(catalogs) {
     addClosureErrors(
         errors,
         "ecosystem artifact target bindings",
-        new Set(bindings.map((binding) => binding.targetId).filter(Boolean)),
+        new Set(
+            bindingOutputs.map((binding) => binding.targetId).filter(Boolean),
+        ),
         new Set(requiredArtifactTargetIds),
     );
     addClosureErrors(
@@ -417,13 +425,17 @@ export function validateEcosystemArtifactClosure(catalogs) {
     addClosureErrors(
         errors,
         "ecosystem artifact harness bindings",
-        new Set(bindings.map((binding) => binding.harnessId).filter(Boolean)),
+        new Set(
+            bindingOutputs.map((binding) => binding.harnessId).filter(Boolean),
+        ),
         new Set(harnessesById.keys()),
     );
     addClosureErrors(
         errors,
         "ecosystem artifact output-root bindings",
-        new Set(bindings.map((binding) => binding.outputRoot).filter(Boolean)),
+        new Set(
+            bindingOutputs.map((binding) => binding.outputRoot).filter(Boolean),
+        ),
         new Set(fixtureOutputRoots),
     );
 
@@ -540,6 +552,31 @@ export function validateEcosystemArtifactClosure(catalogs) {
             errors.push(
                 `no-output target binding ${binding.id} must not fabricate output`,
             );
+        for (const output of binding.additionalOutputs ?? []) {
+            const additionalTarget = targetsById.get(output.targetId);
+            const additionalHarness = harnessesById.get(output.harnessId);
+            if (!requirementsById.has(output.requirementId))
+                errors.push(
+                    `binding ${binding.id} alternate output references unknown requirement ${output.requirementId}`,
+                );
+            if (!additionalTarget || !additionalHarness)
+                errors.push(
+                    `binding ${binding.id} alternate output references an unknown target or harness`,
+                );
+            else if (
+                additionalTarget.requirementId !== output.requirementId ||
+                additionalTarget.outputRoot !== output.outputRoot ||
+                additionalHarness.fixtureTargetId !== output.targetId ||
+                additionalHarness.fixtureOutputRoot !== output.outputRoot
+            )
+                errors.push(
+                    `binding ${binding.id} alternate output diverges from its target or harness`,
+                );
+            if (output.supportClaim || output.marketplaceAvailabilityClaim)
+                errors.push(
+                    `binding ${binding.id} alternate output must not claim support or marketplace availability`,
+                );
+        }
     }
 
     const agentPluginRequirement = requirementsById.get(
@@ -578,7 +615,7 @@ export function validateEcosystemArtifactClosure(catalogs) {
 }
 
 const expectedHostAdapterAnchor =
-    "8e68b6b1c3590b3a5c1b1b937330d364a93e6a94247317dd9868fd141680c6a1";
+    "54bcdf34a5cec633d7c6a697d9d82def9bee06051c542d20de27030ba9db5cb1";
 
 export function validateHostAdapters(catalogs) {
     const errors = [];
@@ -694,11 +731,12 @@ export function validateHostAdapters(catalogs) {
                 errors.push(
                     `host adapter ${host.id} uses non-contract evidence ${evidenceId}`,
                 );
-            if (!evidenceById.has(evidenceId))
+            if (evidenceById.has(evidenceId))
+                citedEvidence.push(evidenceById.get(evidenceId));
+            else
                 errors.push(
                     `host adapter ${host.id} references unknown evidence ${evidenceId}`,
                 );
-            else citedEvidence.push(evidenceById.get(evidenceId));
         }
         if (host.officialEvidence.validThrough < catalogs.hostAdapters.asOf)
             errors.push(`host adapter ${host.id} evidence is expired`);

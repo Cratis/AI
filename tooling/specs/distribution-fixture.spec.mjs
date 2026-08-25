@@ -93,9 +93,17 @@ test("distribution requirements and artifact matrix stay authority bounded", () 
         matrix.targets.map((target) => target.requirementId),
     );
     assert(
-        matrix.targets.every((target) =>
-            verified.includes(target.requirementId),
+        matrix.targets.every(
+            (target) =>
+                verified.includes(target.requirementId) ||
+                target.requirementId === "pi-passive-package",
         ),
+    );
+    assert.equal(
+        requirements.requirements.find(
+            (item) => item.id === "pi-passive-package",
+        ).status,
+        "DOCUMENTATION_REVIEWED",
     );
     assert.deepEqual(
         verified.filter((id) => !targetRequirementIds.has(id)),

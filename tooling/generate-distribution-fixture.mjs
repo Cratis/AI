@@ -18,7 +18,6 @@ import {
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-    claudeCompatibleHarnesses,
     fixtureOutputRoots,
     fixtureSkillRoot,
     fixtureSkillRoots,
@@ -26,16 +25,13 @@ import {
     resolveHarness,
 } from "./harness-registry.mjs";
 import {
-    createAgentPluginManifest,
-    createClaudeMarketplace,
-    createClaudePluginManifest,
     createPassiveFixtureProjection,
+    validatePassiveFixtureHarnesses,
 } from "./passive-profile-adapters.mjs";
 import {
     buildGlobalReleaseManifest,
-    validateProjectedRoot,
+    writeProjectedRoot,
 } from "./deterministic-release-tree.mjs";
-import { materializeFixtureArtifact } from "./public-artifact-materializer.mjs";
 import { buildReleaseAssuranceReceipt } from "./release-assurance-validation.mjs";
 import { createReleaseContext } from "./release-context.mjs";
 
@@ -87,15 +83,6 @@ function walkFiles(root, current = root) {
             throw new Error(`Generated special file is forbidden: ${path}`);
         return [relative(root, path).replaceAll("\\", "/")];
     });
-}
-
-function copyCanonicalSkill(canonicalRoot, destinationRoot) {
-    for (const path of approvedFiles) {
-        const source = join(canonicalRoot, path);
-        const destination = join(destinationRoot, path);
-        mkdirSync(dirname(destination), { recursive: true });
-        cpSync(source, destination, { errorOnExist: true });
-    }
 }
 
 function manifestFile(root, path) {
@@ -269,204 +256,25 @@ export function generateDistributionFixture({
             },
         ],
     });
-    mkdirSync(root, { recursive: false });
+    const payloadValidation = writeProjectedRoot(root, fixtureProjection);
     try {
         const canonicalRoot = join(root, "canonical");
-        materializeFixtureArtifact({
-            stageRoot: canonicalRoot,
-            approvedFiles,
-            approvedBuffers,
-        });
-
-        const portableDescription = "Passive Cratis skills fixture.";
-        const agentPluginRoot = join(root, "agent-plugin");
-        copyCanonicalSkill(canonicalRoot, agentPluginRoot);
+        const passiveComplianceReceiptPath = "passive-compliance-receipts.json";
         writeJson(
-            join(agentPluginRoot, "plugin.json"),
-            createAgentPluginManifest({
-                name: "cratis",
+            join(root, passiveComplianceReceiptPath),
+            validatePassiveFixtureHarnesses({
+                outputRoot: root,
                 version,
-                description: portableDescription,
-            }),
-        );
-
-        const claudeRoot = join(root, "claude");
-        copyCanonicalSkill(canonicalRoot, join(claudeRoot, "plugins/cratis"));
-        writeJson(
-            join(claudeRoot, ".claude-plugin/marketplace.json"),
-            createClaudeMarketplace({
-                name: "cratis",
-                version,
-                description: portableDescription,
-            }),
-        );
-        writeJson(
-            join(claudeRoot, "plugins/cratis/.claude-plugin/plugin.json"),
-            createClaudePluginManifest({
-                name: "cratis",
-                version,
-                description: portableDescription,
-            }),
-        );
-
-        const codexRoot = join(root, "codex");
-        copyCanonicalSkill(canonicalRoot, join(codexRoot, "plugins/cratis"));
-        writeJson(join(codexRoot, ".agents/plugins/marketplace.json"), {
-            name: "cratis",
-            interface: { displayName: "Cratis" },
-            plugins: [
-                {
-                    name: "cratis",
-                    source: { source: "local", path: "./plugins/cratis" },
-                    policy: {
-                        installation: "AVAILABLE",
-                        authentication: "ON_INSTALL",
+                pluginName: "cratis",
+                skills: [
+                    {
+                        name: "cratis-fundamentals-concept",
+                        files: approvedFiles,
                     },
-                    category: "Developer Tools",
-                },
-            ],
-        });
-        writeJson(join(codexRoot, "plugins/cratis/.codex-plugin/plugin.json"), {
-            name: "cratis",
-            version,
-            description: "Passive Cratis skills fixture.",
-            skills: "./skills/",
-        });
-
-        const copilotRoot = join(root, "copilot");
-        copyCanonicalSkill(canonicalRoot, join(copilotRoot, "plugins/cratis"));
-        writeJson(join(copilotRoot, ".github/plugin/marketplace.json"), {
-            name: "cratis",
-            owner: { name: "Cratis" },
-            metadata: {
-                description: "Cratis skills-only fixture marketplace",
-                version,
-            },
-            plugins: [
-                {
-                    name: "cratis",
-                    description: "Passive Cratis skills fixture.",
-                    version,
-                    source: "./plugins/cratis",
-                    strict: true,
-                },
-            ],
-        });
-        writeJson(
-            join(copilotRoot, "plugins/cratis/plugin.json"),
-            createAgentPluginManifest({
-                name: "cratis",
-                version,
-                description: portableDescription,
+                ],
             }),
         );
-
-        const cursorRoot = join(root, "cursor");
-        copyCanonicalSkill(canonicalRoot, join(cursorRoot, "plugins/cratis"));
-        writeJson(join(cursorRoot, ".cursor-plugin/marketplace.json"), {
-            name: "cratis",
-            owner: { name: "Cratis" },
-            metadata: {
-                description: "Cratis skills-only fixture marketplace",
-                version,
-            },
-            plugins: [
-                {
-                    name: "cratis",
-                    description: "Passive Cratis skills fixture.",
-                    version,
-                    source: "./plugins/cratis",
-                },
-            ],
-        });
-        writeJson(
-            join(cursorRoot, "plugins/cratis/plugin.json"),
-            createAgentPluginManifest({
-                name: "cratis",
-                version,
-                description: portableDescription,
-            }),
-        );
-
-        const deepCodeRoot = join(root, fixtureSkillRoot("deepcode", "cratis"));
-        copyCanonicalSkill(canonicalRoot, deepCodeRoot);
-
-        const deepSeekRoot = join(
-            root,
-            fixtureSkillRoot("deepseek-harness", "cratis"),
-        );
-        copyCanonicalSkill(canonicalRoot, deepSeekRoot);
-
-        const geminiRoot = join(root, fixtureSkillRoot("gemini", "cratis"));
-        copyCanonicalSkill(canonicalRoot, geminiRoot);
-        writeJson(join(geminiRoot, "gemini-extension.json"), {
-            name: "cratis",
-            version,
-            description: "Passive Cratis skills fixture.",
-        });
-
-        for (const harness of claudeCompatibleHarnesses.filter(
-            (harness) => harness !== "claude",
-        )) {
-            const compatibleRoot = join(
-                root,
-                resolveHarness(harness).fixtureOutputRoot,
-            );
-            copyCanonicalSkill(
-                canonicalRoot,
-                join(compatibleRoot, "plugins/cratis"),
-            );
-            writeJson(
-                join(compatibleRoot, ".claude-plugin/marketplace.json"),
-                createClaudeMarketplace({
-                    name: "cratis",
-                    version,
-                    description: portableDescription,
-                }),
-            );
-            writeJson(
-                join(
-                    compatibleRoot,
-                    "plugins/cratis/.claude-plugin/plugin.json",
-                ),
-                createClaudePluginManifest({
-                    name: "cratis",
-                    version,
-                    description: portableDescription,
-                }),
-            );
-        }
-
-        const kiroRoot = join(root, "kiro");
-        copyCanonicalSkill(canonicalRoot, kiroRoot);
-        writeJson(
-            join(kiroRoot, "plugin.json"),
-            createAgentPluginManifest({
-                name: "cratis",
-                version,
-                description: portableDescription,
-            }),
-        );
-
-        const piPackageRoot = join(root, "pi/package");
-        copyCanonicalSkill(canonicalRoot, piPackageRoot);
-        writeJson(join(piPackageRoot, "package.json"), {
-            name: "@cratis/ai",
-            version,
-            description: "Private passive Cratis skills fixture.",
-            private: true,
-            license: "MIT",
-            files: ["skills"],
-            keywords: ["pi-package"],
-            pi: { skills: ["./skills"] },
-        });
-
-        const payloadValidation = validateProjectedRoot(
-            root,
-            fixtureProjection,
-        );
-        const deterministicManifestPath =
-            "deterministic-release-manifest.json";
+        const deterministicManifestPath = "deterministic-release-manifest.json";
         const deterministicManifest = buildGlobalReleaseManifest(
             fixtureProjection,
             payloadValidation,
@@ -640,6 +448,7 @@ export function validateDistributionFixture(outputRoot) {
     const metadataPaths = [
         "SHA256SUMS",
         "artifact-assurance-receipt.json",
+        "passive-compliance-receipts.json",
         deterministicManifestPath,
         "provenance.json",
         "provider-compatibility.json",

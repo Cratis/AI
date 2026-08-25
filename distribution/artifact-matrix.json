@@ -183,6 +183,300 @@
         "canonical-byte-parity",
         "junie-host-smoke-pending"
       ]
+    },
+    {
+      "id": "vscode-passive",
+      "requirementId": "vscode-agent-plugin-passive",
+      "state": "FIXTURE_GENERATION_ENABLED",
+      "outputRoot": "vscode-agent-plugin",
+      "packageKind": "STANDALONE_PASSIVE_AGENT_PLUGIN_1_0",
+      "smokeGates": [
+        "agent-plugin-schema",
+        "strict-passive-compliance",
+        "exact-inventory",
+        "canonical-byte-parity",
+        "host-smoke-pending"
+      ]
+    },
+    {
+      "id": "qwen-passive",
+      "requirementId": "qwen-agent-plugin-passive",
+      "state": "FIXTURE_GENERATION_ENABLED",
+      "outputRoot": "qwen-agent-plugin",
+      "packageKind": "STANDALONE_PASSIVE_AGENT_PLUGIN_1_0",
+      "smokeGates": [
+        "agent-plugin-schema",
+        "strict-passive-compliance",
+        "exact-inventory",
+        "canonical-byte-parity",
+        "host-smoke-pending"
+      ]
+    },
+    {
+      "id": "hermes-passive",
+      "requirementId": "hermes-agent-plugin-passive",
+      "state": "FIXTURE_GENERATION_ENABLED",
+      "outputRoot": "hermes-agent-plugin",
+      "packageKind": "STANDALONE_PASSIVE_AGENT_PLUGIN_1_0",
+      "smokeGates": [
+        "agent-plugin-schema",
+        "strict-passive-compliance",
+        "exact-inventory",
+        "canonical-byte-parity",
+        "host-smoke-pending"
+      ]
+    },
+    {
+      "id": "openclaw-passive",
+      "requirementId": "openclaw-agent-plugin-passive",
+      "state": "FIXTURE_GENERATION_ENABLED",
+      "outputRoot": "openclaw-agent-plugin",
+      "packageKind": "STANDALONE_PASSIVE_AGENT_PLUGIN_1_0",
+      "smokeGates": [
+        "agent-plugin-schema",
+        "strict-passive-compliance",
+        "exact-inventory",
+        "canonical-byte-parity",
+        "host-smoke-pending"
+      ]
+    },
+    {
+      "id": "grok-bot-passive",
+      "requirementId": "grok-bot-agent-plugin-passive",
+      "state": "FIXTURE_GENERATION_ENABLED",
+      "outputRoot": "grok-bot-agent-plugin",
+      "packageKind": "STANDALONE_PASSIVE_AGENT_PLUGIN_1_0",
+      "smokeGates": [
+        "agent-plugin-schema",
+        "strict-passive-compliance",
+        "exact-inventory",
+        "canonical-byte-parity",
+        "host-smoke-pending"
+      ]
+    },
+    {
+      "id": "nanoclaw-passive",
+      "requirementId": "nanoclaw-agent-plugin-passive",
+      "state": "FIXTURE_GENERATION_ENABLED",
+      "outputRoot": "nanoclaw-agent-plugin",
+      "packageKind": "STANDALONE_PASSIVE_AGENT_PLUGIN_1_0",
+      "smokeGates": [
+        "agent-plugin-schema",
+        "strict-passive-compliance",
+        "exact-inventory",
+        "canonical-byte-parity",
+        "host-smoke-pending"
+      ]
+    },
+    {
+      "id": "amp-passive",
+      "requirementId": "amp-agent-skills-passive",
+      "state": "FIXTURE_GENERATION_ENABLED",
+      "outputRoot": "amp-agent-skills",
+      "packageKind": "STANDALONE_NATIVE_AGENT_SKILLS_ROOT",
+      "smokeGates": [
+        "strict-agent-skill-validation",
+        "passive-payload-safety",
+        "exact-inventory",
+        "canonical-byte-parity",
+        "host-smoke-pending"
+      ]
+    },
+    {
+      "id": "augment-passive",
+      "requirementId": "augment-agent-skills-passive",
+      "state": "FIXTURE_GENERATION_ENABLED",
+      "outputRoot": "augment-agent-skills",
+      "packageKind": "STANDALONE_NATIVE_AGENT_SKILLS_ROOT",
+      "smokeGates": [
+        "strict-agent-skill-validation",
+        "passive-payload-safety",
+        "exact-inventory",
+        "canonical-byte-parity",
+        "host-smoke-pending"
+      ]
+    },
+    {
+      "id": "cline-passive",
+      "requirementId": "cline-agent-skills-passive",
+      "state": "FIXTURE_GENERATION_ENABLED",
+      "outputRoot": "cline-agent-skills",
+      "packageKind": "STANDALONE_NATIVE_AGENT_SKILLS_ROOT",
+      "smokeGates": [
+        "strict-agent-skill-validation",
+        "passive-payload-safety",
+        "exact-inventory",
+        "canonical-byte-parity",
+        "host-smoke-pending"
+      ]
+    },
+    {
+      "id": "devin-passive",
+      "requirementId": "devin-agent-skills-passive",
+      "state": "FIXTURE_GENERATION_ENABLED",
+      "outputRoot": "devin-agent-skills",
+      "packageKind": "STANDALONE_NATIVE_AGENT_SKILLS_ROOT",
+      "smokeGates": [
+        "strict-agent-skill-validation",
+        "passive-payload-safety",
+        "exact-inventory",
+        "canonical-byte-parity",
+        "host-smoke-pending"
+      ]
+    },
+    {
+      "id": "github-cli-passive",
+      "requirementId": "github-cli-agent-skills-passive",
+      "state": "FIXTURE_GENERATION_ENABLED",
+      "outputRoot": "github-cli-agent-skills",
+      "packageKind": "STANDALONE_NATIVE_AGENT_SKILLS_ROOT",
+      "smokeGates": [
+        "strict-agent-skill-validation",
+        "passive-payload-safety",
+        "exact-inventory",
+        "canonical-byte-parity",
+        "host-smoke-pending"
+      ]
+    },
+    {
+      "id": "goose-passive",
+      "requirementId": "goose-agent-skills-passive",
+      "state": "FIXTURE_GENERATION_ENABLED",
+      "outputRoot": "goose-agent-skills",
+      "packageKind": "STANDALONE_NATIVE_AGENT_SKILLS_ROOT",
+      "smokeGates": [
+        "strict-agent-skill-validation",
+        "passive-payload-safety",
+        "exact-inventory",
+        "canonical-byte-parity",
+        "host-smoke-pending"
+      ]
+    },
+    {
+      "id": "kilo-passive",
+      "requirementId": "kilo-agent-skills-passive",
+      "state": "FIXTURE_GENERATION_ENABLED",
+      "outputRoot": "kilo-agent-skills",
+      "packageKind": "STANDALONE_NATIVE_AGENT_SKILLS_ROOT",
+      "smokeGates": [
+        "strict-agent-skill-validation",
+        "passive-payload-safety",
+        "exact-inventory",
+        "canonical-byte-parity",
+        "host-smoke-pending"
+      ]
+    },
+    {
+      "id": "opencode-passive",
+      "requirementId": "opencode-agent-skills-passive",
+      "state": "FIXTURE_GENERATION_ENABLED",
+      "outputRoot": "opencode-agent-skills",
+      "packageKind": "STANDALONE_NATIVE_AGENT_SKILLS_ROOT",
+      "smokeGates": [
+        "strict-agent-skill-validation",
+        "passive-payload-safety",
+        "exact-inventory",
+        "canonical-byte-parity",
+        "host-smoke-pending"
+      ]
+    },
+    {
+      "id": "openhands-passive",
+      "requirementId": "openhands-agent-skills-passive",
+      "state": "FIXTURE_GENERATION_ENABLED",
+      "outputRoot": "openhands-agent-skills",
+      "packageKind": "STANDALONE_NATIVE_AGENT_SKILLS_ROOT",
+      "smokeGates": [
+        "strict-agent-skill-validation",
+        "passive-payload-safety",
+        "exact-inventory",
+        "canonical-byte-parity",
+        "host-smoke-pending"
+      ]
+    },
+    {
+      "id": "replit-passive",
+      "requirementId": "replit-agent-skills-passive",
+      "state": "FIXTURE_GENERATION_ENABLED",
+      "outputRoot": "replit-agent-skills",
+      "packageKind": "STANDALONE_NATIVE_AGENT_SKILLS_ROOT",
+      "smokeGates": [
+        "strict-agent-skill-validation",
+        "passive-payload-safety",
+        "exact-inventory",
+        "canonical-byte-parity",
+        "host-smoke-pending"
+      ]
+    },
+    {
+      "id": "visual-studio-passive",
+      "requirementId": "visual-studio-agent-skills-passive",
+      "state": "FIXTURE_GENERATION_ENABLED",
+      "outputRoot": "visual-studio-agent-skills",
+      "packageKind": "STANDALONE_NATIVE_AGENT_SKILLS_ROOT",
+      "smokeGates": [
+        "strict-agent-skill-validation",
+        "passive-payload-safety",
+        "exact-inventory",
+        "canonical-byte-parity",
+        "host-smoke-pending"
+      ]
+    },
+    {
+      "id": "windsurf-passive",
+      "requirementId": "windsurf-agent-skills-passive",
+      "state": "FIXTURE_GENERATION_ENABLED",
+      "outputRoot": "windsurf-agent-skills",
+      "packageKind": "STANDALONE_NATIVE_AGENT_SKILLS_ROOT",
+      "smokeGates": [
+        "strict-agent-skill-validation",
+        "passive-payload-safety",
+        "exact-inventory",
+        "canonical-byte-parity",
+        "host-smoke-pending"
+      ]
+    },
+    {
+      "id": "zed-passive",
+      "requirementId": "zed-agent-skills-passive",
+      "state": "FIXTURE_GENERATION_ENABLED",
+      "outputRoot": "zed-agent-skills",
+      "packageKind": "STANDALONE_NATIVE_AGENT_SKILLS_ROOT",
+      "smokeGates": [
+        "strict-agent-skill-validation",
+        "passive-payload-safety",
+        "exact-inventory",
+        "canonical-byte-parity",
+        "host-smoke-pending"
+      ]
+    },
+    {
+      "id": "factory-passive",
+      "requirementId": "factory-agent-skills-passive",
+      "state": "FIXTURE_GENERATION_ENABLED",
+      "outputRoot": "factory-agent-skills",
+      "packageKind": "STANDALONE_NATIVE_AGENT_SKILLS_ROOT",
+      "smokeGates": [
+        "strict-agent-skill-validation",
+        "passive-payload-safety",
+        "exact-inventory",
+        "canonical-byte-parity",
+        "host-smoke-pending"
+      ]
+    },
+    {
+      "id": "grok-native-passive",
+      "requirementId": "grok-native-agent-skills-passive",
+      "state": "FIXTURE_GENERATION_ENABLED",
+      "outputRoot": "grok-native-agent-skills",
+      "packageKind": "STANDALONE_NATIVE_AGENT_SKILLS_ROOT",
+      "smokeGates": [
+        "strict-agent-skill-validation",
+        "passive-payload-safety",
+        "exact-inventory",
+        "canonical-byte-parity",
+        "host-smoke-pending"
+      ]
     }
   ]
 }

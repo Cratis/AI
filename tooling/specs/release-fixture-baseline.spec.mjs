@@ -10,8 +10,9 @@ import test from "node:test";
 import { generateDistributionFixture } from "../generate-distribution-fixture.mjs";
 import { generateEngineeringDistributionFixture } from "../generate-engineering-distribution-fixture.mjs";
 
-const baselineRevision = "d22749e862726a8a1e7c74a1e52cfb622d86be37";
-const baseline = Object.freeze({
+const baselineRevision = "1ab6a9fbd41c48d6f8b6c459e5b22db9a8fe752b";
+const legacyBaselineRevision = "d22749e862726a8a1e7c74a1e52cfb622d86be37";
+const legacyBaseline = Object.freeze({
     public: Object.freeze({
         count: 43,
         digest: "25729748611c561408474c555f636049d50030472cae7f6b9f516a6bc8d8220d",
@@ -21,6 +22,31 @@ const baseline = Object.freeze({
         digest: "afbd86ba1d0da34f8eb4d35a873cf489d1024ac1d50e54a5203238c5f6413fd3",
     }),
 });
+const baseline = Object.freeze({
+    public: Object.freeze({
+        count: 91,
+        digest: "c939105c0e85ba6c8a20004a5292c0e53ee3ec5efe867233bcb3fa922d94dec6",
+    }),
+    engineering: Object.freeze({
+        count: 124,
+        digest: "20bf2c06232229daee81aa054e1e541263ac9779c46f3bb0800b724b08cb1d54",
+    }),
+});
+const legacyRoots = new Set([
+    "agent-plugin",
+    "canonical",
+    "claude",
+    "codex",
+    "copilot",
+    "cursor",
+    "deepcode",
+    "deepseek",
+    "gemini",
+    "grok",
+    "junie",
+    "kiro",
+    "pi",
+]);
 
 function walk(root, current = root) {
     return readdirSync(current, { withFileTypes: true }).flatMap((entry) => {
@@ -31,12 +57,14 @@ function walk(root, current = root) {
     });
 }
 
-function payloadInventory(root) {
+function payloadInventory(root, pathFilter = () => true) {
     const paths = walk(root)
         .filter((path) => path !== "SHA256SUMS")
         .filter((path) => !path.endsWith("manifest.json"))
         .filter((path) => path !== "provenance.json")
         .filter((path) => !path.endsWith("receipt.json"))
+        .filter((path) => !path.endsWith("receipts.json"))
+        .filter(pathFilter)
         .sort();
     const content = paths
         .map(
@@ -59,6 +87,22 @@ test(`public and engineering fixture payloads preserve ${baselineRevision} path 
         const engineeringRoot = join(temporary, "engineering");
         generateDistributionFixture({ outputRoot: publicRoot });
         generateEngineeringDistributionFixture({ outputRoot: engineeringRoot });
+        assert.deepEqual(
+            payloadInventory(
+                publicRoot,
+                (path) =>
+                    !path.includes("/") || legacyRoots.has(path.split("/")[0]),
+            ),
+            legacyBaseline.public,
+            `legacy public roots from ${legacyBaselineRevision} changed`,
+        );
+        assert.deepEqual(
+            payloadInventory(engineeringRoot, (path) =>
+                legacyRoots.has(path.split("/")[0]),
+            ),
+            legacyBaseline.engineering,
+            `legacy engineering roots from ${legacyBaselineRevision} changed`,
+        );
         assert.deepEqual(payloadInventory(publicRoot), baseline.public);
         assert.deepEqual(
             payloadInventory(engineeringRoot),
@@ -73,6 +117,7 @@ test(`public and engineering fixture payloads preserve ${baselineRevision} path 
                 "artifact-assurance-receipt.json",
                 "deterministic-release-manifest.json",
                 "distribution-manifest.json",
+                "passive-compliance-receipts.json",
                 "provenance.json",
                 "provider-compatibility.json",
             ],
@@ -86,6 +131,7 @@ test(`public and engineering fixture payloads preserve ${baselineRevision} path 
                 "artifact-assurance-receipt.json",
                 "deterministic-release-manifest.json",
                 "engineering-distribution-manifest.json",
+                "passive-compliance-receipts.json",
                 "provenance.json",
             ],
         );

@@ -218,10 +218,14 @@ function strictJsonParse(text) {
                 skipWhitespace();
                 const key = parseString();
                 if (keys.has(key))
-                    fail(`Duplicate JSON object key ${JSON.stringify(key)}`, "JSON_DUPLICATE_KEY");
+                    fail(
+                        `Duplicate JSON object key ${JSON.stringify(key)}`,
+                        "JSON_DUPLICATE_KEY",
+                    );
                 keys.add(key);
                 skipWhitespace();
-                if (text[index++] !== ":") fail("Expected colon after JSON object key");
+                if (text[index++] !== ":")
+                    fail("Expected colon after JSON object key");
                 value[key] = parseValue();
                 skipWhitespace();
                 const delimiter = text[index++];
@@ -243,7 +247,8 @@ function strictJsonParse(text) {
                 skipWhitespace();
                 const delimiter = text[index++];
                 if (delimiter === "]") return value;
-                if (delimiter !== ",") fail("Expected comma or closing bracket");
+                if (delimiter !== ",")
+                    fail("Expected comma or closing bracket");
             }
             fail("Unterminated JSON array");
         }
@@ -259,7 +264,9 @@ function strictJsonParse(text) {
         }
         const number = text
             .slice(index)
-            .match(/^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?/u)?.[0];
+            .match(
+                /^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?/u,
+            )?.[0];
         if (number) {
             index += number.length;
             return Number(number);
@@ -596,10 +603,12 @@ function splitMappingLine(line) {
         }
         if (
             character === ":" &&
-            (index === line.length - 1 ||
-                [" ", "\t"].includes(line[index + 1]))
+            (index === line.length - 1 || [" ", "\t"].includes(line[index + 1]))
         )
-            return [line.slice(0, index).trim(), line.slice(index + 1).trimStart()];
+            return [
+                line.slice(0, index).trim(),
+                line.slice(index + 1).trimStart(),
+            ];
     }
     throw new Error("mapping entry has no colon");
 }
@@ -620,13 +629,10 @@ function blockScalar(lines, start, parentIndent, indicator) {
         throw new Error("block scalar indentation is invalid");
     if (
         source.some(
-            (line) =>
-                line.trim() && line.match(/^ */u)[0].length !== indent,
+            (line) => line.trim() && line.match(/^ */u)[0].length !== indent,
         )
     )
-        throw new Error(
-            "bounded block scalars require uniform indentation",
-        );
+        throw new Error("bounded block scalars require uniform indentation");
     const values = source.map((line) =>
         line.trim() ? line.slice(indent) : "",
     );
@@ -1927,7 +1933,13 @@ function walkPassive(root, current, diagnostics, files, collisions) {
 
 export function validateCratisPassiveProfile(
     pluginRoot,
-    { profileId, version, artifactId, repositoryRoot } = {},
+    {
+        profileId,
+        version,
+        artifactId,
+        repositoryRoot,
+        allowFixtureProfileId = false,
+    } = {},
 ) {
     return validateAgentPluginArtifact(pluginRoot, {
         mode: passiveProfile,
@@ -1935,6 +1947,7 @@ export function validateCratisPassiveProfile(
         expectedVersion: version,
         artifactId,
         repositoryRoot,
+        allowFixtureProfileId,
         skipPassiveDelegation: true,
     });
 }
@@ -1988,6 +2001,7 @@ export function validateAgentPluginArtifact(
         expectedVersion,
         artifactId = basename(resolve(pluginRoot)),
         repositoryRoot = defaultRepositoryRoot,
+        allowFixtureProfileId = false,
         skipPassiveDelegation = false,
     } = {},
 ) {
@@ -1997,6 +2011,7 @@ export function validateAgentPluginArtifact(
             version: expectedVersion,
             artifactId,
             repositoryRoot,
+            allowFixtureProfileId,
         });
     const root = resolve(pluginRoot);
     const diagnostics = [];
@@ -2057,9 +2072,13 @@ export function validateAgentPluginArtifact(
     if (rootValid && mode === passiveProfile) {
         if (
             typeof expectedProfileId !== "string" ||
-            !/^(?:public|engineering)-[a-z0-9]+(?:-[a-z0-9]+)*$/.test(
+            (!/^(?:public|engineering)-[a-z0-9]+(?:-[a-z0-9]+)*$/.test(
                 expectedProfileId,
-            )
+            ) &&
+                !(
+                    allowFixtureProfileId &&
+                    /^cratis(?:-[a-z0-9]+)*$/.test(expectedProfileId)
+                ))
         )
             diagnostics.push(
                 diagnostic(

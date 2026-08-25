@@ -260,7 +260,15 @@ The same approved skill bytes are wrapped idiomatically for each host:
 | GitHub Copilot / VS Code | Copilot marketplace around the portable Agent Plugin |
 | Cursor | Cursor marketplace around the portable Agent Plugin |
 | Gemini CLI | Gemini extension |
-| Grok Build | Claude-compatible Cratis marketplace and plugin |
+| Grok Build | Separate Claude-compatible marketplace and native `.grok/skills/<name>/SKILL.md` archives; neither archive duplicates the other discovery path |
+| VS Code, Qwen Code, Hermes Agent, OpenClaw, Grok Bot, NanoClaw | One standalone Agent Plugins 1.0 archive per host: root `plugin.json` plus `skills/<name>/SKILL.md` |
+| Amp, Devin, GitHub CLI skills, Goose, OpenCode, OpenHands, Replit, Zed | One native archive per host containing `.agents/skills/<name>/SKILL.md` |
+| Augment / Auggie | `.augment/skills/<name>/SKILL.md` |
+| Cline | `.cline/skills/<name>/SKILL.md` |
+| Kilo | `.kilo/skills/<name>/SKILL.md` |
+| Visual Studio Copilot | `.github/skills/<name>/SKILL.md` |
+| Windsurf / Devin Desktop | `.windsurf/skills/<name>/SKILL.md` |
+| Factory / Droid | `.factory/skills/<name>/SKILL.md` |
 | Deep Code | `.deepcode/skills/<name>/SKILL.md` from the current official contract |
 | DeepSeek Harness | `.dsh/skills/<name>/SKILL.md` as a separately labeled preview contract |
 | Kiro | The same portable Agent Plugin installed as a Power |
@@ -268,8 +276,35 @@ The same approved skill bytes are wrapped idiomatically for each host:
 | Pi | Versioned npm/Git Pi package |
 
 Release documentation distinguishes **generated**, **statically validated**, and
-**host-tested and supported**. A generated wrapper is not automatically a
-public marketplace listing.
+**host-tested and supported**. These S5b roots are generated and statically
+validated only. Their runtime, installation, publication, promotion,
+marketplace availability, and support booleans remain false. A generated
+wrapper is not automatically a public marketplace listing.
+
+### S5b archive and extraction contract
+
+Every harness receives a separate archive named
+`cratis-ai-<profile>-<version>-<harness>.tar.gz` (Pi alone remains an npm-style
+`.tgz`). Extract one archive as its own root; do not extract several harness
+archives over the same directory. Agent Plugins 1.0 archives expose exactly
+`plugin.json` and `skills/` at the extraction root. Direct Agent Skills archives
+retain the exact project discovery root shown above. The canonical `SKILL.md`,
+license, references, and assets are byte-identical in every projection.
+
+OpenCode uses `.agents/skills` because that is the verified project discovery
+root in the current official record; no `.opencode/skills` output is inferred.
+NanoClaw receives plain Agent Plugins 1.0 because the current evidence does not
+establish an additional NanoClaw manifest field. Junie retains its existing
+provisional Claude-compatible artifact; no new Junie-native format is inferred.
+The existing `.deepcode` and `.dsh` outputs remain separate and are not copied
+into the new host archives.
+
+The generated archives contain no rules, prompts, agents, commands, hooks, MCP,
+LSP, scripts, or executable extensions. Offline Agent Plugins roots pass the
+universal 1.0 validator and the strict passive profile. Direct roots pass strict
+Agent Skill validation and passive payload safety. These checks do not execute a
+host and do not provide an installation command where the official lifecycle
+evidence does not provide one.
 
 ### Released host examples
 

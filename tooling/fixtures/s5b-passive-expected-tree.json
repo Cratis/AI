@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "authorityRevision": "1ab6a9fbd41c48d6f8b6c459e5b22db9a8fe752b",
+  "legacyFixtureRoots": [
+    "canonical",
+    "agent-plugin",
+    "claude",
+    "codex",
+    "copilot",
+    "cursor",
+    "deepcode",
+    "deepseek",
+    "gemini",
+    "grok",
+    "junie",
+    "kiro",
+    "pi"
+  ],
+  "agentPluginRoots": [
+    { "harnessId": "vscode", "outputRoot": "vscode-agent-plugin", "discoveryRoot": "." },
+    { "harnessId": "qwen", "outputRoot": "qwen-agent-plugin", "discoveryRoot": "." },
+    { "harnessId": "hermes", "outputRoot": "hermes-agent-plugin", "discoveryRoot": "." },
+    { "harnessId": "openclaw", "outputRoot": "openclaw-agent-plugin", "discoveryRoot": "." },
+    { "harnessId": "grok-bot", "outputRoot": "grok-bot-agent-plugin", "discoveryRoot": "." },
+    { "harnessId": "nanoclaw", "outputRoot": "nanoclaw-agent-plugin", "discoveryRoot": "." }
+  ],
+  "agentSkillRoots": [
+    { "harnessId": "amp", "outputRoot": "amp-agent-skills", "discoveryRoot": ".agents" },
+    { "harnessId": "augment", "outputRoot": "augment-agent-skills", "discoveryRoot": ".augment" },
+    { "harnessId": "cline", "outputRoot": "cline-agent-skills", "discoveryRoot": ".cline" },
+    { "harnessId": "devin", "outputRoot": "devin-agent-skills", "discoveryRoot": ".agents" },
+    { "harnessId": "github-cli", "outputRoot": "github-cli-agent-skills", "discoveryRoot": ".agents" },
+    { "harnessId": "goose", "outputRoot": "goose-agent-skills", "discoveryRoot": ".agents" },
+    { "harnessId": "kilo", "outputRoot": "kilo-agent-skills", "discoveryRoot": ".kilo" },
+    { "harnessId": "opencode", "outputRoot": "opencode-agent-skills", "discoveryRoot": ".agents" },
+    { "harnessId": "openhands", "outputRoot": "openhands-agent-skills", "discoveryRoot": ".agents" },
+    { "harnessId": "replit", "outputRoot": "replit-agent-skills", "discoveryRoot": ".agents" },
+    { "harnessId": "visual-studio", "outputRoot": "visual-studio-agent-skills", "discoveryRoot": ".github" },
+    { "harnessId": "windsurf", "outputRoot": "windsurf-agent-skills", "discoveryRoot": ".windsurf" },
+    { "harnessId": "zed", "outputRoot": "zed-agent-skills", "discoveryRoot": ".agents" },
+    { "harnessId": "factory", "outputRoot": "factory-agent-skills", "discoveryRoot": ".factory" },
+    { "harnessId": "grok-native", "outputRoot": "grok-native-agent-skills", "discoveryRoot": ".grok" }
+  ]
+}

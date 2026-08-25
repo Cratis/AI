@@ -756,6 +756,7 @@ test("stale and future-dated evidence fail and unsupported local facts remain ex
             "github-cli-skills-fact-5",
             "npm-cratis-scope-fact-4",
             "npm-trusted-publishing-fact-5",
+            "openhands-fact-2",
         ],
     );
     catalogs.evidence.evidence[0].expiresOn = "2026-08-19";

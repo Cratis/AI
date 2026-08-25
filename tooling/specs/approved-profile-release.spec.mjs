@@ -19,7 +19,11 @@ import {
     buildReleaseSupportMatrix,
     generateApprovedProfileRelease,
 } from "../generate-approved-profile-release.mjs";
-import { passiveHarnesses, resolveHarness } from "../harness-registry.mjs";
+import {
+    harnesses,
+    passiveHarnesses,
+    resolveHarness,
+} from "../harness-registry.mjs";
 import { generatePassiveProfileAdapters } from "../passive-profile-adapters.mjs";
 
 function readJson(path) {
@@ -386,7 +390,10 @@ test("every generation failure removes only newly-created output", () => {
                 }),
             /output must not exist|at least one skill/,
         );
-        assert.equal(readFileSync(join(outputRoot, "owner.txt"), "utf8"), "preserve\n");
+        assert.equal(
+            readFileSync(join(outputRoot, "owner.txt"), "utf8"),
+            "preserve\n",
+        );
     });
 });
 
@@ -433,7 +440,16 @@ test("passive adapter materializer emits one install root per harness", () => {
         assert.deepEqual(manifest.harnesses, passiveHarnesses);
         assert.equal(manifest.compliance.profile, "cratis-passive-v1");
         assert.match(manifest.compliance.profileDigest, /^[0-9a-f]{64}$/);
-        assert.equal(manifest.compliance.receipts.length, 4);
+        assert.equal(
+            manifest.compliance.receipts.length,
+            harnesses.filter((harness) =>
+                [
+                    "portable-plugin",
+                    "portable-plugin-marketplace",
+                    "direct-skills",
+                ].includes(harness.adapterKind),
+            ).length,
+        );
         assert.equal(
             manifest.compliance.staticValidationInput.supporting,
             false,

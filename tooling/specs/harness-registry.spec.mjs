@@ -46,6 +46,27 @@ test("harness registry identifiers and output roots are unique", () => {
         "grok",
         "junie",
         "kiro",
+        "vscode",
+        "qwen",
+        "hermes",
+        "openclaw",
+        "grok-bot",
+        "nanoclaw",
+        "amp",
+        "augment",
+        "cline",
+        "devin",
+        "github-cli",
+        "goose",
+        "kilo",
+        "opencode",
+        "openhands",
+        "replit",
+        "visual-studio",
+        "windsurf",
+        "zed",
+        "factory",
+        "grok-native",
         "pi",
     ]);
     assert.deepEqual(fixtureOutputRoots, [
@@ -61,6 +82,27 @@ test("harness registry identifiers and output roots are unique", () => {
         "grok",
         "junie",
         "kiro",
+        "vscode-agent-plugin",
+        "qwen-agent-plugin",
+        "hermes-agent-plugin",
+        "openclaw-agent-plugin",
+        "grok-bot-agent-plugin",
+        "nanoclaw-agent-plugin",
+        "amp-agent-skills",
+        "augment-agent-skills",
+        "cline-agent-skills",
+        "devin-agent-skills",
+        "github-cli-agent-skills",
+        "goose-agent-skills",
+        "kilo-agent-skills",
+        "opencode-agent-skills",
+        "openhands-agent-skills",
+        "replit-agent-skills",
+        "visual-studio-agent-skills",
+        "windsurf-agent-skills",
+        "zed-agent-skills",
+        "factory-agent-skills",
+        "grok-native-agent-skills",
         "pi",
     ]);
     assert.deepEqual(duplicates(passiveHarnesses), []);
@@ -68,6 +110,24 @@ test("harness registry identifiers and output roots are unique", () => {
     assert.deepEqual(duplicates(fixtureOutputRoots), []);
     assert.equal(harnesses.length, passiveHarnesses.length);
     for (const harness of harnesses) {
+        assert.equal(harness.profileProjectionRoots.length, 1);
+        assert.equal(harness.fixtureProjectionRoots.length, 1);
+        assert.equal(
+            harness.fixtureProjectionRoots[0].parityGroup,
+            harness.parityGroup,
+        );
+        assert.equal(
+            harness.fixtureProjectionRoots[0].artifactClass,
+            harness.artifactClass,
+        );
+        assert.equal(
+            harness.fixtureProjectionRoots[0].servingRequirementId,
+            harness.servingRequirementId,
+        );
+        assert.deepEqual(
+            harness.fixtureProjectionRoots[0].expectedInventory,
+            harness.expectedInventory,
+        );
         assert.equal(resolveHarness(harness.id), harness);
         assert.equal(resolveHarness(harness.subscriptionId), harness);
         for (const alias of harness.aliases)

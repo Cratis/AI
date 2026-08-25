@@ -461,7 +461,7 @@
     {
       "bindingId": "factory-droid-artifact-binding",
       "ecosystemId": "factory-droid",
-      "artifactClass": "no-artifact",
+      "artifactClass": "passive-public-package",
       "effectiveTier": "documented",
       "rank": 1,
       "supportClaim": false,
