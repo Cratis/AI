@@ -152,6 +152,38 @@ const harnessDefinitions = [
     },
 ];
 
+// Independent completeness anchor until S1 replaces this with the structured
+// ecosystem contract. Keeping it separate from ecosystem-versions.json means
+// deleting a known ecosystem cannot silently validate.
+export const requiredEcosystemIds = Object.freeze([
+    "agent-plugins",
+    "agent-skills",
+    "model-context-protocol",
+    "mcp-registry",
+    "github-cli-skills",
+    "vscode-agent-plugins",
+    "github-copilot-plugins",
+    "openai-plugins",
+    "claude-code-plugins",
+    "gemini-cli-extensions",
+    "cursor-plugins",
+    "kiro-powers",
+    "hermes-agent-plugins",
+    "openclaw-bundles",
+    "grok-build-skills",
+    "grok-bot-plugins",
+    "nanoclaw-templates",
+    "pi-packages",
+    "junie-extensions",
+    "opencode-skills",
+    "zed-skills",
+    "deepseek-deepcode-skills",
+    "deepseek-harness-skills",
+    "deepseek-model-integrations",
+    "npm-cratis-scope",
+    "npm-trusted-publishing",
+]);
+
 export const harnesses = Object.freeze(
     harnessDefinitions.map((definition) =>
         Object.freeze({

@@ -12,6 +12,7 @@ import {
     forbiddenPathPolicy,
     harnesses,
     passiveHarnesses,
+    requiredEcosystemIds,
     resolveHarness,
     subscriptionHarnessIds,
 } from "../harness-registry.mjs";
@@ -32,6 +33,36 @@ function duplicates(values) {
 }
 
 test("harness registry identifiers and output roots are unique", () => {
+    assert.deepEqual(passiveHarnesses, [
+        "agent-skills",
+        "agent-plugin",
+        "claude",
+        "codex",
+        "copilot",
+        "cursor",
+        "deepcode",
+        "deepseek",
+        "gemini",
+        "grok",
+        "junie",
+        "kiro",
+        "pi",
+    ]);
+    assert.deepEqual(fixtureOutputRoots, [
+        "canonical",
+        "agent-plugin",
+        "claude",
+        "codex",
+        "copilot",
+        "cursor",
+        "deepcode",
+        "deepseek",
+        "gemini",
+        "grok",
+        "junie",
+        "kiro",
+        "pi",
+    ]);
     assert.deepEqual(duplicates(passiveHarnesses), []);
     assert.deepEqual(duplicates(subscriptionHarnessIds), []);
     assert.deepEqual(duplicates(fixtureOutputRoots), []);
@@ -82,6 +113,7 @@ test("all authoritative ecosystem records reach the generated v2 projection", ()
     const ecosystems = readJson("catalog/ecosystem-versions.json").ecosystems;
     const ecosystemFacts = readJson("catalog/v2/evidence.json").ecosystemFacts;
     const sourceIds = ecosystems.map((ecosystem) => ecosystem.id).sort();
+    assert.deepEqual(sourceIds, [...requiredEcosystemIds].sort());
     const projectedIds = [
         ...new Set(ecosystemFacts.map((fact) => fact.ecosystemId)),
     ].sort();

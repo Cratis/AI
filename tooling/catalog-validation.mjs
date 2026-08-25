@@ -4,7 +4,10 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { forbiddenPathPolicy } from "./harness-registry.mjs";
+import {
+    forbiddenPathPolicy,
+    requiredEcosystemIds,
+} from "./harness-registry.mjs";
 
 const moduleDirectory = dirname(fileURLToPath(import.meta.url));
 export const defaultRepositoryRoot = resolve(moduleDirectory, "..");
@@ -562,12 +565,26 @@ function validateProductCoverage(coverage, publicSkills) {
     return errors;
 }
 
-function validateEcosystems(registry) {
+export function validateEcosystems(registry) {
     const errors = [];
     const ecosystemIds = registry.ecosystems.map((ecosystem) => ecosystem.id);
 
     for (const duplicate of findDuplicates(ecosystemIds))
         errors.push(`ecosystem-versions contains duplicate id ${duplicate}`);
+
+    const actualIds = [...ecosystemIds].sort();
+    const expectedIds = [...requiredEcosystemIds].sort();
+    for (const missing of expectedIds.filter((id) => !actualIds.includes(id)))
+        errors.push(
+            `ecosystem-versions is missing required ecosystem ${missing}`,
+        );
+    for (const unexpected of actualIds.filter(
+        (id) => !expectedIds.includes(id),
+    ))
+        errors.push(
+            `ecosystem-versions contains unregistered ecosystem ${unexpected}`,
+        );
+
     for (const ecosystem of registry.ecosystems) {
         for (const source of ecosystem.sources) {
             if (!source.url.startsWith("https://"))

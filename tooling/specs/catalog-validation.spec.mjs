@@ -11,6 +11,7 @@ import {
     readCatalog,
     validateAgainstSchema,
     validateCatalogs,
+    validateEcosystems,
 } from "../catalog-validation.mjs";
 
 const publicCatalogPath = join(
@@ -134,6 +135,29 @@ test("ecosystem schema requires official source registry fields", () => {
     assert(
         errors.some((error) =>
             error.includes("missing required property sources"),
+        ),
+    );
+});
+
+test("ecosystem semantic validation rejects missing and unregistered records", () => {
+    const missing = clone(readCatalog(ecosystemPath));
+    missing.ecosystems = missing.ecosystems.filter(
+        (ecosystem) => ecosystem.id !== "agent-plugins",
+    );
+    assert(
+        validateEcosystems(missing).includes(
+            "ecosystem-versions is missing required ecosystem agent-plugins",
+        ),
+    );
+
+    const unexpected = clone(readCatalog(ecosystemPath));
+    unexpected.ecosystems.push({
+        ...unexpected.ecosystems[0],
+        id: "unregistered-ecosystem",
+    });
+    assert(
+        validateEcosystems(unexpected).includes(
+            "ecosystem-versions contains unregistered ecosystem unregistered-ecosystem",
         ),
     );
 });

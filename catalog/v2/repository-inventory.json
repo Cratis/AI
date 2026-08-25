@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "e71b9c715c70b6f085f8f4b503b639a5f977afbbfa7248192e45907424f3c118",
+  "indexDigest": "865eccf3b5001232ff6845d19e5780cc986ad5c99c80ccbd949cf52d11c5837b",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -428,6 +428,10 @@
     },
     {
       "path": "catalog/schemas/v2/catalog-v2.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/v2/README.md",
       "status": "added"
     },
     {
@@ -2099,6 +2103,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/harness-registry.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/navigator-pilot-validation.mjs",
       "status": "added"
     },
@@ -2239,6 +2247,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/specs/harness-registry.spec.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/specs/human-catalog.spec.mjs",
       "status": "added"
     },
@@ -2299,11 +2311,7 @@
       "status": "added"
     }
   ],
-  "admittedUntracked": [
-    "catalog/v2/README.md",
-    "tooling/harness-registry.mjs",
-    "tooling/specs/harness-registry.spec.mjs"
-  ],
+  "admittedUntracked": [],
   "excludedRuntimePrefixes": [
     ".pi/delegate/",
     ".pi/fusion/",

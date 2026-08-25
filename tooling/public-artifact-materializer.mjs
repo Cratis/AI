@@ -91,9 +91,7 @@ function assertNoPrivateNetworkUrls(path, content) {
         try {
             const url = new URL(match[0]);
             if (isPrivateNetworkHost(url.hostname))
-                throw new Error(
-                    `Private or local content is forbidden: ${path}`,
-                );
+                throw new Error(`Private or local content is forbidden: ${path}`);
         } catch (error) {
             if (error.message.startsWith("Private or local content"))
                 throw error;
@@ -386,7 +384,11 @@ export function materializeFixtureArtifact(options) {
         stageCreated = true;
         for (const file of validatedFiles) {
             const destination = join(stageRoot, file.path);
-            assertContained(stageRoot, destination, `Destination ${file.path}`);
+            assertContained(
+                stageRoot,
+                destination,
+                `Destination ${file.path}`,
+            );
             mkdirSync(dirname(destination), { recursive: true });
             writeFileSync(destination, file.content, { flag: "wx" });
         }
@@ -457,9 +459,7 @@ function validateArchiveEntries(archive, options) {
         if (totalSize > limits.maximumTotalSize)
             throw new Error("Fixture archive exceeds total-size policy");
         if (typeof entry.content !== "string")
-            throw new Error(
-                `Archive entry content must be Base64: ${entry.path}`,
-            );
+            throw new Error(`Archive entry content must be Base64: ${entry.path}`);
         const maximumEncodedSize = 4 * Math.ceil(entry.size / 3);
         if (entry.content.length > maximumEncodedSize)
             throw new Error(
@@ -467,9 +467,7 @@ function validateArchiveEntries(archive, options) {
             );
         const content = Buffer.from(entry.content, "base64");
         if (content.toString("base64") !== entry.content)
-            throw new Error(
-                `Archive entry Base64 is not canonical: ${entry.path}`,
-            );
+            throw new Error(`Archive entry Base64 is not canonical: ${entry.path}`);
         if (
             typeof entry.sha256 !== "string" ||
             content.length !== entry.size ||
@@ -517,9 +515,7 @@ export function packFixtureArchive(stageRoot, archivePath, options = {}) {
             path: file.path,
             size: file.size,
             sha256: file.sha256,
-            content: readFileSync(join(stageRoot, file.path)).toString(
-                "base64",
-            ),
+            content: readFileSync(join(stageRoot, file.path)).toString("base64"),
         })),
     };
     validateArchiveEntries(archive, options);
@@ -551,12 +547,9 @@ function readFixtureArchive(archivePath, options) {
     try {
         return JSON.parse(content.toString("utf8"));
     } catch (error) {
-        throw new Error(
-            `Fixture archive must be valid JSON: ${error.message}`,
-            {
-                cause: error,
-            },
-        );
+        throw new Error(`Fixture archive must be valid JSON: ${error.message}`, {
+            cause: error,
+        });
     }
 }
 
