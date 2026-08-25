@@ -49,10 +49,10 @@ test("catalog v2 schemas and semantic policy pass for the repository", () => {
     assert.deepEqual(validateV2Catalogs(), []);
 });
 
-test("catalog v2 preserves all 43 sources while split and merge targets are independent", () => {
+test("catalog v2 preserves all 44 sources while split and merge targets are independent", () => {
     const catalogs = loadCatalogs();
-    assert.equal(catalogs.sources.sources.length, 43);
-    assert.equal(catalogs.targets.targets.length, 43);
+    assert.equal(catalogs.sources.sources.length, 44);
+    assert.equal(catalogs.targets.targets.length, 44);
     const split = catalogs.migrations.migrations.find(
         (migration) => migration.kind === "split",
     );
@@ -77,6 +77,31 @@ test("catalog v2 preserves all 43 sources while split and merge targets are inde
             (target) => target.id === split.targetIds[1],
         ),
     );
+});
+
+test("Chronicle MCP guidance target is provenance-bound but remains unclassified and denied", () => {
+    const catalogs = loadCatalogs();
+    const source = catalogs.sources.sources.find(
+        (record) => record.id === "cratis-chronicle-mcp-inspection",
+    );
+    const target = catalogs.targets.targets.find(
+        (record) => record.id === "cratis-chronicle-mcp-inspection",
+    );
+    assert.equal(
+        source.sourceRevision,
+        "5997b28c142d9ee489841894e5d21730da5cb5a5",
+    );
+    assert(
+        source.evidenceIds.includes(
+            "chronicle-mcp-inspection-source-5997b28",
+        ),
+    );
+    assert.equal(target.lifecycle, "candidate");
+    assert.equal(target.capabilityKind, "unclassified");
+    assert.equal(target.trust.assessmentState, "unclassified");
+    assert.equal(target.sourceContractState, "unclassified");
+    assert.equal(target.includeInRuntime, false);
+    assert.equal(target.approval.state, "candidate");
 });
 
 test("catalog v2 exposes closed shared taxonomies without broadening targets", () => {
@@ -974,7 +999,7 @@ test("repository inventory supports a clean tracked repository", () => {
     );
 });
 
-test("repository inventory records component generation provenance", () => {
+test("repository inventory records component and MCP guidance generation provenance", () => {
     const catalogs = loadCatalogs();
     const generated = catalogs.repositoryInventory.records.find(
         (record) => record.id === "catalog-v2-generated-surfaces",
@@ -992,6 +1017,14 @@ test("repository inventory records component generation provenance", () => {
     );
     human.dependencies = human.dependencies.filter(
         (dependency) => dependency !== "catalog/v2/components.json",
+    );
+    const chronicleMcp = catalogs.repositoryInventory.records.find(
+        (record) =>
+            record.id === "chronicle-mcp-generated-guidance-references",
+    );
+    chronicleMcp.dependencies = chronicleMcp.dependencies.filter(
+        (dependency) =>
+            dependency !== "tooling/chronicle-mcp-guidance-validation.mjs",
     );
     const errors = validateRepositoryInventory(
         catalogs,

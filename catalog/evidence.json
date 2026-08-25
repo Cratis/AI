@@ -657,6 +657,12 @@
       "immutableRevision": "914a84984f7a53663740b8ea1711871e0e294620",
       "repositoryPath": "distribution/evidence/s5b-passive-host-static-generation-2026-08-25.json",
       "digest": "d619e16b71976284c5812319a27abc612a92645d817e8a6d88aa27929c75ea9e"
+    },
+    {
+      "id": "source-chronicle-mcp-inspection-source-5997b28",
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/5997b28c142d9ee489841894e5d21730da5cb5a5/skills/cratis-chronicle-mcp-inspection",
+      "immutableRevision": "5997b28c142d9ee489841894e5d21730da5cb5a5"
     }
   ],
   "observations": [
@@ -6969,6 +6975,43 @@
         "officialUrl": "https://github.com/Cratis/AI/tree/914a84984f7a53663740b8ea1711871e0e294620",
         "sourceKind": "local-evidence-report",
         "applicableVersion": "0.0.0-fixture"
+      }
+    },
+    {
+      "id": "chronicle-mcp-inspection-source-5997b28",
+      "sourceId": "source-chronicle-mcp-inspection-source-5997b28",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "target",
+        "id": "cratis-chronicle-mcp-inspection",
+        "version": "5997b28c142d9ee489841894e5d21730da5cb5a5"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "source-provenance",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Immutable provenance for the Cratis-authored classification-only passive guidance source. This observation makes no Chronicle.Mcp tool, prompt, effect, schema, installation, runtime, support, or source-authority claim.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2027-08-25",
+      "confidence": "high",
+      "limitations": [
+        "Provenance covers only the exact Cratis-authored skill bytes at this revision. Chronicle.Mcp remains an unverified source contract and no upstream behavior is admitted."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/5997b28c142d9ee489841894e5d21730da5cb5a5/skills/cratis-chronicle-mcp-inspection",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "5997b28c142d9ee489841894e5d21730da5cb5a5"
       }
     }
   ],

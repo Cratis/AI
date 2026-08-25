@@ -74,6 +74,10 @@ const displayNameOverrides = new Map([
 
 const descriptionOverrides = new Map([
     [
+        "public-chronicle-mcp",
+        "Classification-only passive guidance for Chronicle MCP inspection requests and already-redacted output; no tool or prompt is admitted or invocable.",
+    ],
+    [
         "public-fundamentals",
         "Strongly typed Cratis Fundamentals concepts and Chronicle event-source identities for C# projects.",
     ],

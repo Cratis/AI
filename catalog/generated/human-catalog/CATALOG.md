@@ -7,7 +7,7 @@ the right package and understand its skills. It is not source authority
 and does not make a planned package installable.
 
 - Profiles: 52
-- Capabilities: 43
+- Capabilities: 44
 - Installable profiles: 0
 - Ecosystem bindings with support claims: 0
 
@@ -15,8 +15,8 @@ and does not make a planned package installable.
 
 Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.
 
-- Components: 133
-- Passive: 130
+- Components: 134
+- Passive: 131
 - Executable: 3
 - Legacy-retained: 4
 - Existing adapter records: 312
@@ -29,7 +29,7 @@ Modeled or planned components and projections are catalog metadata only; they ar
 
 ### Components by kind
 
-- skill: 47
+- skill: 48
 - agent: 12
 - subagent: 0
 - command: 18
@@ -557,11 +557,11 @@ AI guidance for developers building with Cratis Chronicle.
 - **Profile ID:** `public-chronicle-mcp`
 - **Audience:** public
 - **Package:** `@cratis/ai-chronicle-mcp`
-- **State:** content-gap
+- **State:** preview-source-candidate
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** candidate-package
 
-AI guidance for developers building with Chronicle MCP.
+Classification-only passive guidance for Chronicle MCP inspection requests and already-redacted output; no tool or prompt is admitted or invocable.
 
 **Intended for:** Developers who use Chronicle MCP.
 
@@ -571,7 +571,7 @@ AI guidance for developers building with Chronicle MCP.
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-chronicle-mcp-inspection
 
 #### Composed profiles
 
@@ -2667,6 +2667,70 @@ Use when a stored event schema needs a new generation and migration.
 #### Profile membership — cratis-chronicle-event-type-migration
 
 - None
+
+### cratis-chronicle-mcp-inspection
+
+- **ID:** `cratis-chronicle-mcp-inspection`
+- **Audience:** public
+- **Lifecycle:** candidate
+- **Approval:** candidate
+- **Runtime eligible:** no
+
+#### Purpose — cratis-chronicle-mcp-inspection
+
+Chronicle MCP classification-only inspection guidance
+
+#### When to use — cratis-chronicle-mcp-inspection
+
+Use when classifying a Chronicle MCP inspection request or interpreting already-redacted output without invoking a tool or prompt.
+
+#### When not to use — cratis-chronicle-mcp-inspection
+
+- Do not use for Chronicle CLI recovery or mutation operations.
+- Do not use to invoke, install, or configure Chronicle MCP.
+
+#### Invocation — cratis-chronicle-mcp-inspection
+
+- Capability kind: unclassified
+- Invocation: unclassified
+
+#### Applicability — cratis-chronicle-mcp-inspection
+
+- Products: chronicle-mcp
+- Languages: language-agnostic
+- Architectures: Unclassified — Architecture requires reviewed target classification.
+- Personas: Unclassified — Persona requires reviewed target classification.
+- Surfaces: Unclassified — Surface requires reviewed target classification.
+- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+
+#### Dependencies — cratis-chronicle-mcp-inspection
+
+- Unclassified
+
+#### Trust and effects — cratis-chronicle-mcp-inspection
+
+- Trust class: passive
+- Assessment: unclassified
+- No assessed effects
+
+#### Evidence and support — cratis-chronicle-mcp-inspection
+
+- Authoring contract unclassified
+- Evidence: reevaluation-authority
+- Evidence: repo-main-b795d53
+
+#### Related capabilities — cratis-chronicle-mcp-inspection
+
+- cratis-application-slice-diagnostics
+- cratis-chronicle-cli-operations
+
+#### Bundle membership — cratis-chronicle-mcp-inspection
+
+- None
+
+#### Profile membership — cratis-chronicle-mcp-inspection
+
+- public-chronicle-mcp
 
 ### cratis-chronicle-multi-tenancy
 

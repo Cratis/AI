@@ -17,6 +17,7 @@ import { validateReleaseApprovals } from "./release-approval-validation.mjs";
 import { validateEcosystemArtifactContracts } from "./ecosystem-artifact-validation.mjs";
 import { validateSupportCatalogs } from "./support-validation.mjs";
 import { validateReleaseAssurancePolicy } from "./release-assurance-validation.mjs";
+import { validateChronicleMcpGuidance } from "./chronicle-mcp-guidance-validation.mjs";
 import {
     formatComplianceDiagnostics,
     validateSpecificationLock,
@@ -38,6 +39,7 @@ const errors = [
     ...validateEcosystemArtifactContracts(),
     ...validateSupportCatalogs(),
     ...validateReleaseAssurancePolicy(),
+    ...validateChronicleMcpGuidance(),
     ...validateSpecificationLock().map((diagnostic) =>
         formatComplianceDiagnostics([diagnostic]),
     ),
@@ -50,6 +52,6 @@ if (errors.length > 0) {
     process.exitCode = 1;
 } else {
     process.stdout.write(
-        "Catalog validation passed: legacy, v2, normalized evidence, computed support, source-evidence, offline portable specifications, distribution-profile, and evaluation contracts are valid.\n",
+        "Catalog validation passed: legacy, v2, normalized evidence, computed support, source-evidence, Chronicle MCP guidance, offline portable specifications, distribution-profile, and evaluation contracts are valid.\n",
     );
 }

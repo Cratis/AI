@@ -198,6 +198,28 @@
       ]
     },
     {
+      "id": "cratis-chronicle-mcp-inspection",
+      "sourcePath": "skills/cratis-chronicle-mcp-inspection",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        "skills/cratis-chronicle-mcp-inspection/LICENSE",
+        "skills/cratis-chronicle-mcp-inspection/SKILL.md",
+        "skills/cratis-chronicle-mcp-inspection/references/blocked-tools.md",
+        "skills/cratis-chronicle-mcp-inspection/references/observational-tools.md"
+      ],
+      "sourceRevision": "5997b28c142d9ee489841894e5d21730da5cb5a5",
+      "contentDigest": "5af4235d93f1238cd6e59489adfa13b35caa31876f1e0b5bd129de6dd3e113bf",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority",
+        "chronicle-mcp-inspection-source-5997b28"
+      ]
+    },
+    {
       "id": "cratis-command",
       "sourcePath": ".ai/skills/cratis-command",
       "artifactType": "agent-skill-source",

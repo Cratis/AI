@@ -149,6 +149,8 @@ function matchesKnownPattern(value, pattern) {
     switch (pattern) {
         case "^[a-z0-9]+(?:-[a-z0-9]+)*$":
             return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value);
+        case "^[a-z0-9]+(?:_[a-z0-9]+)*$":
+            return /^[a-z0-9]+(?:_[a-z0-9]+)*$/.test(value);
         case "^cratis-[a-z0-9]+(?:-[a-z0-9]+)*$":
             return /^cratis-[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value);
         case "^(\\.ai/skills|skills)/[a-z0-9]+(?:-[a-z0-9]+)*$":
@@ -338,10 +340,17 @@ function extractSkillName(skillFile) {
 function validatePublicSkills(catalog, coverage, root) {
     const errors = [];
     const skillRoot = join(root, ".ai/skills");
-    const currentDirectories = readdirSync(skillRoot, { withFileTypes: true })
+    const legacyDirectories = readdirSync(skillRoot, { withFileTypes: true })
         .filter((entry) => entry.isDirectory())
-        .map((entry) => entry.name)
-        .sort();
+        .map((entry) => entry.name);
+    const directCanonicalNames = catalog.skills
+        .filter((skill) => skill.source.startsWith("skills/"))
+        .map((skill) => skill.currentName)
+        .filter((name) => !legacyDirectories.includes(name));
+    const currentDirectories = [
+        ...legacyDirectories,
+        ...directCanonicalNames,
+    ].sort();
     const publicNames = catalog.skills.map((skill) => skill.currentName);
     const internalNames = catalog.audit.internalSkills.map(
         (skill) => skill.currentName,
@@ -373,7 +382,7 @@ function validatePublicSkills(catalog, coverage, root) {
     }
     if (JSON.stringify(catalogedNames) !== JSON.stringify(currentDirectories)) {
         errors.push(
-            "public-skills audit must account for every current .ai/skills directory exactly once",
+            "public-skills audit must account for every legacy and direct canonical skill exactly once",
         );
     }
 

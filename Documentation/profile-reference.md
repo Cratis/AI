@@ -28,7 +28,7 @@ availability, trust, and evidence, browse the
 | `public-screenplay` | `@cratis/ai-screenplay` | Content gap |
 | `public-stage` | `@cratis/ai-stage` | Content gap |
 | `public-studio` | `@cratis/ai-studio` | Public-safe content gap |
-| `public-chronicle-mcp` | `@cratis/ai-chronicle-mcp` | Passive guidance gap; executable server remains product-owned |
+| `public-chronicle-mcp` | `@cratis/ai-chronicle-mcp` | Classification-only passive source candidate; no tool or prompt admitted, executable server remains product-owned |
 
 ## Chronicle client profiles
 
