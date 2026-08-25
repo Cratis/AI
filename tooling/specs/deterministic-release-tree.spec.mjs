@@ -228,6 +228,29 @@ test("a failure in any root removes the whole new candidate", () => {
     }
 });
 
+test("destination replacement cannot redirect writes outside the owned candidate", () => {
+    const temporary = temporaryRoot();
+    try {
+        const destination = join(temporary, "candidate");
+        const outside = join(temporary, "outside");
+        mkdirSync(outside);
+        assert.throws(
+            () =>
+                writeProjectedRoot(destination, projection(tree()), {
+                    beforeWrite({ index }) {
+                        if (index !== 0) return;
+                        rmSync(destination, { recursive: true });
+                        symlinkSync(outside, destination, "dir");
+                    },
+                }),
+            /ownership changed/,
+        );
+        assert.deepEqual(readdirSync(outside), []);
+    } finally {
+        rmSync(temporary, { recursive: true, force: true });
+    }
+});
+
 test("preexisting destinations are preserved and refused", () => {
     const temporary = temporaryRoot();
     try {

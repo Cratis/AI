@@ -64,6 +64,31 @@ test(`public and engineering fixture payloads preserve ${baselineRevision} path 
             payloadInventory(engineeringRoot),
             baseline.engineering,
         );
+        assert.deepEqual(
+            walk(publicRoot)
+                .filter((path) => !path.includes("/"))
+                .sort(),
+            [
+                "SHA256SUMS",
+                "artifact-assurance-receipt.json",
+                "deterministic-release-manifest.json",
+                "distribution-manifest.json",
+                "provenance.json",
+                "provider-compatibility.json",
+            ],
+        );
+        assert.deepEqual(
+            walk(engineeringRoot)
+                .filter((path) => !path.includes("/"))
+                .sort(),
+            [
+                "SHA256SUMS",
+                "artifact-assurance-receipt.json",
+                "deterministic-release-manifest.json",
+                "engineering-distribution-manifest.json",
+                "provenance.json",
+            ],
+        );
     } finally {
         rmSync(temporary, { recursive: true, force: true });
     }

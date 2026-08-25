@@ -3,9 +3,13 @@
 
 import { createHash } from "node:crypto";
 import {
+    closeSync,
+    constants,
     existsSync,
+    fstatSync,
     lstatSync,
     mkdirSync,
+    openSync,
     readFileSync,
     readdirSync,
     realpathSync,
@@ -24,7 +28,38 @@ function sha256(content, metrics) {
 }
 
 function collisionKey(path) {
-    return path.normalize("NFC").toLocaleLowerCase("en-US");
+    return path.normalize("NFC").toLowerCase();
+}
+
+function captureDirectoryIdentity(path) {
+    const stat = lstatSync(path);
+    if (!stat.isDirectory() || stat.isSymbolicLink())
+        throw new Error(`Owned destination is not a direct directory: ${path}`);
+    return Object.freeze({
+        device: stat.dev,
+        inode: stat.ino,
+        realPath: realpathSync(path),
+    });
+}
+
+function directoryIdentityMatches(path, identity) {
+    try {
+        const stat = lstatSync(path);
+        return (
+            stat.isDirectory() &&
+            !stat.isSymbolicLink() &&
+            stat.dev === identity.device &&
+            stat.ino === identity.inode &&
+            realpathSync(path) === identity.realPath
+        );
+    } catch {
+        return false;
+    }
+}
+
+function assertDirectoryIdentity(path, identity) {
+    if (!directoryIdentityMatches(path, identity))
+        throw new Error(`Projected destination ownership changed: ${path}`);
 }
 
 function validateRelativePath(path, label = "Release path") {
@@ -91,13 +126,37 @@ function readApprovedFileOnce(sourceRoot, path, metrics) {
         if (stat.isSymbolicLink())
             throw new Error(`Symlink or junction is forbidden: ${path}`);
     }
-    const stat = lstatSync(current);
-    if (!stat.isFile())
+    const before = lstatSync(current);
+    if (!before.isFile())
         throw new Error(`Special or non-regular file is forbidden: ${path}`);
     assertContained(root, realpathSync(current), `Approved source ${path}`);
-    const content = readFileSync(current);
-    if (metrics) metrics.sourceReads += 1;
-    return content;
+    let descriptor;
+    try {
+        descriptor = openSync(
+            current,
+            constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0),
+        );
+        const opened = fstatSync(descriptor);
+        if (
+            !opened.isFile() ||
+            opened.dev !== before.dev ||
+            opened.ino !== before.ino
+        )
+            throw new Error(`Approved source identity changed: ${path}`);
+        const content = readFileSync(descriptor);
+        const after = fstatSync(descriptor);
+        if (
+            after.dev !== opened.dev ||
+            after.ino !== opened.ino ||
+            after.size !== opened.size ||
+            after.mtimeMs !== opened.mtimeMs
+        )
+            throw new Error(`Approved source changed while reading: ${path}`);
+        if (metrics) metrics.sourceReads += 1;
+        return content;
+    } finally {
+        if (descriptor !== undefined) closeSync(descriptor);
+    }
 }
 
 function frozenFileRecord(path, content, metrics, extra = {}) {
@@ -329,7 +388,10 @@ export function validateProjectedRoot(
     projectedTree,
     options = {},
 ) {
-    const root = realpathSync(destination);
+    const root = resolve(destination);
+    const identity =
+        options.expectedRootIdentity ?? captureDirectoryIdentity(root);
+    assertDirectoryIdentity(root, identity);
     const expected = projectedTree.files;
     const actualPaths = walkActualFiles(root).sort(compareOrdinal);
     assertNoPathCollisions(actualPaths, "Actual projected path");
@@ -341,9 +403,10 @@ export function validateProjectedRoot(
     const metrics = options.metrics ?? { finalReads: 0, bytesHashed: 0 };
     const expectedByPath = new Map(expected.map((file) => [file.path, file]));
     const files = actualPaths.map((path) => {
+        assertDirectoryIdentity(root, identity);
         const absolutePath = join(root, path);
         assertContained(
-            root,
+            identity.realPath,
             realpathSync(absolutePath),
             `Projected file ${path}`,
         );
@@ -375,14 +438,15 @@ export function writeProjectedRoot(destination, projectedTree, options = {}) {
         throw new Error(
             "Projection concurrency must be an integer from 1 through 4",
         );
-    let created = false;
+    let identity;
     try {
         mkdirSync(root, { recursive: false });
-        created = true;
+        identity = captureDirectoryIdentity(root);
         for (const [index, path] of [...contents.keys()]
             .sort(compareOrdinal)
             .entries()) {
             options.beforeWrite?.({ index, path, destination: root });
+            assertDirectoryIdentity(root, identity);
             const destinationPath = join(root, path);
             assertContained(
                 root,
@@ -390,11 +454,21 @@ export function writeProjectedRoot(destination, projectedTree, options = {}) {
                 `Projected destination ${path}`,
             );
             mkdirSync(dirname(destinationPath), { recursive: true });
+            assertDirectoryIdentity(root, identity);
+            assertContained(
+                identity.realPath,
+                realpathSync(dirname(destinationPath)),
+                `Projected parent ${path}`,
+            );
             writeFileSync(destinationPath, contents.get(path), { flag: "wx" });
         }
-        return validateProjectedRoot(root, projectedTree, options);
+        return validateProjectedRoot(root, projectedTree, {
+            ...options,
+            expectedRootIdentity: identity,
+        });
     } catch (error) {
-        if (created) rmSync(root, { recursive: true, force: true });
+        if (identity && directoryIdentityMatches(root, identity))
+            rmSync(root, { recursive: true, force: true });
         throw error;
     }
 }

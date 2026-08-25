@@ -2,7 +2,8 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-import { join } from "node:path";
+import { createHash } from "node:crypto";
+import { isAbsolute, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
     defaultRepositoryRoot,
@@ -33,6 +34,90 @@ const executableAssurances = Object.freeze([
     "provenance",
     "sbom",
     "threat-model",
+]);
+const passiveAssurances = Object.freeze([
+    "canonical-parity",
+    "immutable-source",
+    "path-scanning",
+    "secret-scanning",
+    "sha256-inventory",
+]);
+const marketplaceAssurances = Object.freeze([
+    "immutable-source",
+    "path-scanning",
+    "secret-scanning",
+    "sha256-inventory",
+]);
+const expectedClassContracts = new Map([
+    [
+        "passive-skill-package",
+        {
+            kind: "passive",
+            assuranceProfileIds: [
+                "passive-private-fixture-v1",
+                "passive-public-package-v1",
+            ],
+            requiredAssurances: passiveAssurances,
+            s4EmissionAllowed: true,
+        },
+    ],
+    [
+        "passive-native-metadata",
+        {
+            kind: "passive",
+            assuranceProfileIds: [
+                "passive-private-fixture-v1",
+                "passive-public-package-v1",
+            ],
+            requiredAssurances: passiveAssurances,
+            s4EmissionAllowed: true,
+        },
+    ],
+    [
+        "passive-effectful-guidance",
+        {
+            kind: "passive",
+            assuranceProfileIds: ["passive-public-package-v1"],
+            requiredAssurances: passiveAssurances,
+            s4EmissionAllowed: false,
+        },
+    ],
+    [
+        "local-executable-extension",
+        {
+            kind: "executable",
+            assuranceProfileIds: ["executable-plugin-package-v1"],
+            requiredAssurances: executableAssurances,
+            s4EmissionAllowed: false,
+        },
+    ],
+    [
+        "stdio-mcp-server",
+        {
+            kind: "executable",
+            assuranceProfileIds: ["mcp-server-package-v1"],
+            requiredAssurances: executableAssurances,
+            s4EmissionAllowed: false,
+        },
+    ],
+    [
+        "remote-mcp-server",
+        {
+            kind: "executable",
+            assuranceProfileIds: ["mcp-server-package-v1"],
+            requiredAssurances: executableAssurances,
+            s4EmissionAllowed: false,
+        },
+    ],
+    [
+        "marketplace-index",
+        {
+            kind: "publication",
+            assuranceProfileIds: ["publication-metadata-v1"],
+            requiredAssurances: marketplaceAssurances,
+            s4EmissionAllowed: true,
+        },
+    ],
 ]);
 const passiveS1Classes = new Set([
     "passive-private-fixture",
@@ -83,6 +168,23 @@ export function validateReleaseAssurancePolicy(root = defaultRepositoryRoot) {
         inputs.profiles.profiles.map((profile) => [profile.id, profile]),
     );
     for (const artifactClass of classes) {
+        const expected = expectedClassContracts.get(artifactClass.id);
+        if (
+            !expected ||
+            artifactClass.kind !== expected.kind ||
+            !equalOrdinal(
+                artifactClass.assuranceProfileIds,
+                expected.assuranceProfileIds,
+            ) ||
+            !equalOrdinal(
+                artifactClass.requiredAssurances,
+                expected.requiredAssurances,
+            ) ||
+            artifactClass.s4EmissionAllowed !== expected.s4EmissionAllowed
+        )
+            errors.push(
+                `${artifactClass.id} assurance contract differs from the closed S4 policy`,
+            );
         for (const profileId of artifactClass.assuranceProfileIds) {
             const profile = profilesById.get(profileId);
             if (!profile) {
@@ -99,16 +201,6 @@ export function validateReleaseAssurancePolicy(root = defaultRepositoryRoot) {
                         `${artifactClass.id} does not preserve ${profileId} control ${control}`,
                     );
         }
-        if (
-            artifactClass.kind === "executable" &&
-            !equalOrdinal(
-                artifactClass.requiredAssurances,
-                executableAssurances,
-            )
-        )
-            errors.push(
-                `${artifactClass.id} must fail closed on SBOM, provenance, threat-model, and canary assurance`,
-            );
         if (
             artifactClass.kind === "executable" &&
             artifactClass.s4EmissionAllowed
@@ -152,6 +244,12 @@ export function buildReleaseAssuranceReceipt({
     releaseManifest,
     policy = loadReleaseAssuranceInputs().policy,
 }) {
+    const canonicalPolicy = loadReleaseAssuranceInputs().policy;
+    if (JSON.stringify(policy) !== JSON.stringify(canonicalPolicy))
+        throw new Error("Release assurance receipt requires the exact validated policy");
+    const policyErrors = validateReleaseAssurancePolicy();
+    if (policyErrors.length > 0)
+        throw new Error(`Release assurance policy is invalid: ${policyErrors.join(", ")}`);
     if (!Array.isArray(artifactClasses) || artifactClasses.length === 0)
         throw new Error("At least one artifact assurance class is required");
     const byId = new Map(policy.classes.map((record) => [record.id, record]));
@@ -162,9 +260,9 @@ export function buildReleaseAssuranceReceipt({
         const missing = record.requiredAssurances.filter(
             (assurance) => !supplied.has(assurance),
         );
-        if (record.kind === "executable" && missing.length > 0)
+        if (missing.length > 0)
             throw new Error(
-                `${id} is missing executable assurances: ${missing.join(", ")}`,
+                `${id} is missing required assurances: ${missing.join(", ")}`,
             );
         if (!record.s4EmissionAllowed)
             throw new Error(`Artifact class is not emitted in S4: ${id}`);
@@ -178,10 +276,38 @@ export function buildReleaseAssuranceReceipt({
             outcome: missing.length === 0 ? "pass" : "incomplete",
         };
     });
+    if (
+        !releaseManifest ||
+        typeof releaseManifest.path !== "string" ||
+        isAbsolute(releaseManifest.path) ||
+        releaseManifest.path.includes("\\") ||
+        releaseManifest.path.split("/").some((segment) => !segment || segment === "." || segment === "..") ||
+        !releaseManifest.manifest ||
+        releaseManifest.manifest.state !==
+            "DETERMINISTIC_RELEASE_TREE_VALIDATED" ||
+        !Number.isInteger(releaseManifest.manifest.fileCount) ||
+        releaseManifest.manifest.fileCount < 1 ||
+        !Array.isArray(releaseManifest.manifest.files) ||
+        releaseManifest.manifest.files.length !==
+            releaseManifest.manifest.fileCount
+    )
+        throw new Error(
+            "Release assurance receipt requires an exact validated deterministic manifest",
+        );
+    const manifestBytes = Buffer.from(
+        `${JSON.stringify(releaseManifest.manifest, null, 2)}\n`,
+    );
+    const manifestDescriptor = {
+        path: releaseManifest.path,
+        sha256: createHash("sha256").update(manifestBytes).digest("hex"),
+        state: releaseManifest.manifest.state,
+        fileCount: releaseManifest.manifest.fileCount,
+        totalBytes: releaseManifest.manifest.totalBytes,
+    };
     return {
         schemaVersion: "1.0.0",
         state: "S4_DETERMINISTIC_GENERATION_ASSURANCE",
-        releaseManifest,
+        releaseManifest: manifestDescriptor,
         classes: selected,
         staticValidationInput: {
             assuranceId: "static-validation",

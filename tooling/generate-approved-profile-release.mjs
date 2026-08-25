@@ -399,7 +399,10 @@ export function generateApprovedProfileRelease({
                     "secret-scanning",
                     "sha256-inventory",
                 ],
-                releaseManifest: deterministicManifestPath,
+                releaseManifest: {
+                    path: deterministicManifestPath,
+                    manifest: adapterManifest.deterministicManifest,
+                },
                 policy: inputs.context.catalogs.artifactAssurancePolicy,
             }),
         );

@@ -59,6 +59,29 @@ test("harness descriptors explicitly declare one or more profile and fixture pro
     }
 });
 
+function validatedManifest(path = "release-manifest.json") {
+    return {
+        path,
+        manifest: {
+            schemaVersion: "1.0.0",
+            state: "DETERMINISTIC_RELEASE_TREE_VALIDATED",
+            files: [
+                {
+                    path: "skills/example/SKILL.md",
+                    size: 1,
+                    sha256: "0".repeat(64),
+                },
+            ],
+            fileCount: 1,
+            totalBytes: 1,
+            supportGranted: false,
+            publicationGranted: false,
+            runtimeGranted: false,
+            promotionGranted: false,
+        },
+    };
+}
+
 test("release assurance policy is closed and current S4 use remains passive only", () => {
     assert.deepEqual(validateReleaseAssurancePolicy(), []);
     const receipt = buildReleaseAssuranceReceipt({
@@ -74,7 +97,7 @@ test("release assurance policy is closed and current S4 use remains passive only
             "secret-scanning",
             "sha256-inventory",
         ],
-        releaseManifest: "release-manifest.json",
+        releaseManifest: validatedManifest(),
     });
     assert.equal(receipt.staticValidationInput.outcome, "pass");
     assert.equal(receipt.staticValidationInput.supporting, false);
@@ -82,6 +105,43 @@ test("release assurance policy is closed and current S4 use remains passive only
     assert.equal(receipt.publicationGranted, false);
     assert.equal(receipt.runtimeGranted, false);
     assert.equal(receipt.promotionGranted, false);
+});
+
+test("assurance receipts reject weakened policy and unbound manifests", () => {
+    const policy = JSON.parse(
+        readFileSync(
+            "distribution/artifact-assurance-policy.json",
+            "utf8",
+        ),
+    );
+    policy.classes.find(
+        (record) => record.id === "passive-skill-package",
+    ).requiredAssurances = [];
+    assert.throws(
+        () =>
+            buildReleaseAssuranceReceipt({
+                artifactClasses: ["passive-skill-package"],
+                assurances: [],
+                releaseManifest: validatedManifest(),
+                policy,
+            }),
+        /exact validated policy/,
+    );
+    assert.throws(
+        () =>
+            buildReleaseAssuranceReceipt({
+                artifactClasses: ["passive-skill-package"],
+                assurances: [
+                    "canonical-parity",
+                    "immutable-source",
+                    "path-scanning",
+                    "secret-scanning",
+                    "sha256-inventory",
+                ],
+                releaseManifest: validatedManifest("../../missing.json"),
+            }),
+        /exact validated deterministic manifest/,
+    );
 });
 
 test("S4 refuses executable and MCP artifact classes", () => {
@@ -95,8 +155,8 @@ test("S4 refuses executable and MCP artifact classes", () => {
                 buildReleaseAssuranceReceipt({
                     artifactClasses: [artifactClass],
                     assurances: [],
-                    releaseManifest: "release-manifest.json",
+                    releaseManifest: validatedManifest(),
                 }),
-            /missing executable assurances/,
+            /missing required assurances/,
         );
 });

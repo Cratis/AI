@@ -31,7 +31,10 @@ import {
     createClaudePluginManifest,
     createPassiveFixtureProjection,
 } from "./passive-profile-adapters.mjs";
-import { validateProjectedRoot } from "./deterministic-release-tree.mjs";
+import {
+    buildGlobalReleaseManifest,
+    validateProjectedRoot,
+} from "./deterministic-release-tree.mjs";
 import { materializeFixtureArtifact } from "./public-artifact-materializer.mjs";
 import { buildReleaseAssuranceReceipt } from "./release-assurance-validation.mjs";
 import { createReleaseContext } from "./release-context.mjs";
@@ -458,7 +461,18 @@ export function generateDistributionFixture({
             pi: { skills: ["./skills"] },
         });
 
-        validateProjectedRoot(root, fixtureProjection);
+        const payloadValidation = validateProjectedRoot(
+            root,
+            fixtureProjection,
+        );
+        const deterministicManifestPath =
+            "deterministic-release-manifest.json";
+        const deterministicManifest = buildGlobalReleaseManifest(
+            fixtureProjection,
+            payloadValidation,
+            { version },
+        );
+        writeJson(join(root, deterministicManifestPath), deterministicManifest);
         writeJson(join(root, "provider-compatibility.json"), {
             schemaVersion: "1.0.0",
             providers: [
@@ -488,7 +502,10 @@ export function generateDistributionFixture({
                     "secret-scanning",
                     "sha256-inventory",
                 ],
-                releaseManifest: "distribution-manifest.json",
+                releaseManifest: {
+                    path: deterministicManifestPath,
+                    manifest: deterministicManifest,
+                },
                 policy: context.catalogs.artifactAssurancePolicy,
             }),
         );
@@ -597,14 +614,68 @@ export function validateDistributionFixture(outputRoot) {
         throw new Error(
             "DeepSeek model provider must not receive a duplicate artifact root",
         );
+    const deterministicManifestPath = "deterministic-release-manifest.json";
+    const deterministicManifest = readJson(
+        join(root, deterministicManifestPath),
+    );
+    if (
+        deterministicManifest.state !==
+            "DETERMINISTIC_RELEASE_TREE_VALIDATED" ||
+        deterministicManifest.supportGranted !== false ||
+        deterministicManifest.publicationGranted !== false ||
+        deterministicManifest.runtimeGranted !== false ||
+        deterministicManifest.promotionGranted !== false
+    )
+        throw new Error("Deterministic payload manifest state changed");
+    const payloadPaths = deterministicManifest.files
+        .map((file) => file.path)
+        .sort();
+    for (const file of deterministicManifest.files) {
+        const content = readFileSync(join(root, file.path));
+        if (content.length !== file.size || sha256(content) !== file.sha256)
+            throw new Error(
+                `Deterministic payload digest mismatch: ${file.path}`,
+            );
+    }
+    const metadataPaths = [
+        "SHA256SUMS",
+        "artifact-assurance-receipt.json",
+        deterministicManifestPath,
+        "provenance.json",
+        "provider-compatibility.json",
+    ];
+    const expectedActualPaths = [...payloadPaths, ...metadataPaths].sort();
+    if (JSON.stringify(actualPaths) !== JSON.stringify(expectedActualPaths))
+        throw new Error(
+            "Generated distribution contains undeclared payload or metadata",
+        );
+    const receipt = readJson(join(root, "artifact-assurance-receipt.json"));
+    if (
+        receipt.releaseManifest?.path !== deterministicManifestPath ||
+        receipt.releaseManifest?.sha256 !==
+            sha256(readFileSync(join(root, deterministicManifestPath))) ||
+        receipt.releaseManifest?.fileCount !== deterministicManifest.fileCount
+    )
+        throw new Error(
+            "Artifact assurance receipt does not bind the deterministic payload manifest",
+        );
     const checksumLines = readFileSync(join(root, "SHA256SUMS"), "utf8")
         .trim()
         .split("\n");
-    for (const line of checksumLines) {
+    const checksumPaths = checksumLines.map((line) => {
         const match = /^([0-9a-f]{64}) {2}(.+)$/.exec(line);
         if (!match || sha256(readFileSync(join(root, match[2]))) !== match[1])
             throw new Error(`Checksum verification failed: ${line}`);
-    }
+        return match[2];
+    });
+    const expectedChecksumPaths = actualPaths
+        .filter((path) => path !== "SHA256SUMS")
+        .sort();
+    if (
+        JSON.stringify(checksumPaths.sort()) !==
+        JSON.stringify(expectedChecksumPaths)
+    )
+        throw new Error("SHA256SUMS does not cover the exact final inventory");
     return manifest;
 }
 

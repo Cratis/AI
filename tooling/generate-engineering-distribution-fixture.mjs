@@ -31,7 +31,10 @@ import {
     createClaudePluginManifest,
     createPassiveFixtureProjection,
 } from "./passive-profile-adapters.mjs";
-import { validateProjectedRoot } from "./deterministic-release-tree.mjs";
+import {
+    buildGlobalReleaseManifest,
+    validateProjectedRoot,
+} from "./deterministic-release-tree.mjs";
 import { materializeFixtureArtifact } from "./public-artifact-materializer.mjs";
 import { buildReleaseAssuranceReceipt } from "./release-assurance-validation.mjs";
 import { createReleaseContext } from "./release-context.mjs";
@@ -484,7 +487,18 @@ export function generateEngineeringDistributionFixture({
             pi: { skills: ["./skills"] },
         });
 
-        validateProjectedRoot(root, fixtureProjection);
+        const payloadValidation = validateProjectedRoot(
+            root,
+            fixtureProjection,
+        );
+        const deterministicManifestPath =
+            "deterministic-release-manifest.json";
+        const deterministicManifest = buildGlobalReleaseManifest(
+            fixtureProjection,
+            payloadValidation,
+            { version },
+        );
+        writeJson(join(root, deterministicManifestPath), deterministicManifest);
         const assuranceReceiptPath = "artifact-assurance-receipt.json";
         writeJson(
             join(root, assuranceReceiptPath),
@@ -501,7 +515,10 @@ export function generateEngineeringDistributionFixture({
                     "secret-scanning",
                     "sha256-inventory",
                 ],
-                releaseManifest: "engineering-distribution-manifest.json",
+                releaseManifest: {
+                    path: deterministicManifestPath,
+                    manifest: deterministicManifest,
+                },
                 policy: context.catalogs.artifactAssurancePolicy,
             }),
         );
@@ -605,13 +622,69 @@ export function validateEngineeringDistributionFixture(outputRoot) {
             throw new Error(
                 `Engineering fixture contains project-owned path: ${forbidden}`,
             );
-    for (const line of readFileSync(join(root, "SHA256SUMS"), "utf8")
+    const deterministicManifestPath = "deterministic-release-manifest.json";
+    const deterministicManifest = readJson(
+        join(root, deterministicManifestPath),
+    );
+    if (
+        deterministicManifest.state !==
+            "DETERMINISTIC_RELEASE_TREE_VALIDATED" ||
+        deterministicManifest.supportGranted !== false ||
+        deterministicManifest.publicationGranted !== false ||
+        deterministicManifest.runtimeGranted !== false ||
+        deterministicManifest.promotionGranted !== false
+    )
+        throw new Error("Engineering deterministic payload state changed");
+    const payloadPaths = deterministicManifest.files
+        .map((file) => file.path)
+        .sort();
+    for (const file of deterministicManifest.files) {
+        const content = readFileSync(join(root, file.path));
+        if (content.length !== file.size || sha256(content) !== file.sha256)
+            throw new Error(
+                `Engineering deterministic payload digest mismatch: ${file.path}`,
+            );
+    }
+    const expectedActualPaths = [
+        ...payloadPaths,
+        "SHA256SUMS",
+        "artifact-assurance-receipt.json",
+        deterministicManifestPath,
+        "provenance.json",
+    ].sort();
+    if (JSON.stringify(actualPaths) !== JSON.stringify(expectedActualPaths))
+        throw new Error(
+            "Engineering fixture contains undeclared payload or metadata",
+        );
+    const receipt = readJson(join(root, "artifact-assurance-receipt.json"));
+    if (
+        receipt.releaseManifest?.path !== deterministicManifestPath ||
+        receipt.releaseManifest?.sha256 !==
+            sha256(readFileSync(join(root, deterministicManifestPath))) ||
+        receipt.releaseManifest?.fileCount !== deterministicManifest.fileCount
+    )
+        throw new Error(
+            "Engineering assurance receipt does not bind the deterministic payload manifest",
+        );
+    const checksumLines = readFileSync(join(root, "SHA256SUMS"), "utf8")
         .trim()
-        .split("\n")) {
+        .split("\n");
+    const checksumPaths = checksumLines.map((line) => {
         const match = /^([0-9a-f]{64}) {2}(.+)$/.exec(line);
         if (!match || sha256(readFileSync(join(root, match[2]))) !== match[1])
             throw new Error(`Engineering fixture checksum failed: ${line}`);
-    }
+        return match[2];
+    });
+    const expectedChecksumPaths = actualPaths
+        .filter((path) => path !== "SHA256SUMS")
+        .sort();
+    if (
+        JSON.stringify(checksumPaths.sort()) !==
+        JSON.stringify(expectedChecksumPaths)
+    )
+        throw new Error(
+            "Engineering SHA256SUMS does not cover the exact final inventory",
+        );
     return manifest;
 }
 

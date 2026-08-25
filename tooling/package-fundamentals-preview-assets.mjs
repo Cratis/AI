@@ -17,6 +17,7 @@ import { tmpdir } from "node:os";
 import { join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { gunzipSync, gzipSync } from "node:zlib";
+import { compareOrdinal } from "./catalog-ordering.mjs";
 import { passiveHarnesses } from "./harness-registry.mjs";
 import { generatePassiveProfileAdapters } from "./passive-profile-adapters.mjs";
 import { buildReleaseAssuranceReceipt } from "./release-assurance-validation.mjs";
@@ -294,6 +295,30 @@ export function packageFundamentalsPreviewAssets({
             join(root, deterministicManifestPath),
             adapterManifest.deterministicManifest,
         );
+        const releaseAssetManifestPath = "release-asset-manifest.json";
+        const releaseAssetManifest = {
+            schemaVersion: "1.0.0",
+            state: "DETERMINISTIC_RELEASE_TREE_VALIDATED",
+            profileId,
+            version,
+            files: assets
+                .map((asset) => ({
+                    path: asset.filename,
+                    size: asset.size,
+                    sha256: asset.sha256,
+                }))
+                .sort((left, right) => compareOrdinal(left.path, right.path)),
+            fileCount: assets.length,
+            totalBytes: assets.reduce((sum, asset) => sum + asset.size, 0),
+            supportGranted: false,
+            publicationGranted: false,
+            runtimeGranted: false,
+            promotionGranted: false,
+        };
+        writeJson(
+            join(root, releaseAssetManifestPath),
+            releaseAssetManifest,
+        );
         const assuranceReceiptPath = "artifact-assurance-receipt.json";
         writeJson(
             join(root, assuranceReceiptPath),
@@ -310,7 +335,10 @@ export function packageFundamentalsPreviewAssets({
                     "secret-scanning",
                     "sha256-inventory",
                 ],
-                releaseManifest: deterministicManifestPath,
+                releaseManifest: {
+                    path: releaseAssetManifestPath,
+                    manifest: releaseAssetManifest,
+                },
                 policy: authority.context.catalogs.artifactAssurancePolicy,
             }),
         );
@@ -360,9 +388,13 @@ export function packageFundamentalsPreviewAssets({
             generatorDigest,
             assets,
             deterministicReleaseTree: {
-                manifestPath: deterministicManifestPath,
-                manifestSha256: sha256(
+                sourceProjectionManifestPath: deterministicManifestPath,
+                sourceProjectionManifestSha256: sha256(
                     readFileSync(join(root, deterministicManifestPath)),
+                ),
+                releaseAssetManifestPath,
+                releaseAssetManifestSha256: sha256(
+                    readFileSync(join(root, releaseAssetManifestPath)),
                 ),
                 assuranceReceiptPath,
                 assuranceReceiptSha256: sha256(

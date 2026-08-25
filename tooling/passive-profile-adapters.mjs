@@ -661,13 +661,5 @@ function generatePassiveProfileAdaptersCore(options) {
 }
 
 export function generatePassiveProfileAdapters(options) {
-    const root = resolve(options.outputRoot);
-    const existedBeforeGeneration = existsSync(root);
-    try {
-        return generatePassiveProfileAdaptersCore(options);
-    } catch (error) {
-        if (!existedBeforeGeneration)
-            rmSync(root, { recursive: true, force: true });
-        throw error;
-    }
+    return generatePassiveProfileAdaptersCore(options);
 }

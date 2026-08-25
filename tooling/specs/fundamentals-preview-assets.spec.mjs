@@ -179,7 +179,11 @@ test("Fundamentals preview assets are deterministic and non-publishable", () => 
             "tooling/release-context.mjs",
         ]);
         assert.match(
-            first.deterministicReleaseTree.manifestSha256,
+            first.deterministicReleaseTree.sourceProjectionManifestSha256,
+            /^[0-9a-f]{64}$/,
+        );
+        assert.match(
+            first.deterministicReleaseTree.releaseAssetManifestSha256,
             /^[0-9a-f]{64}$/,
         );
         assert.match(
@@ -200,6 +204,26 @@ test("Fundamentals preview assets are deterministic and non-publishable", () => 
         assert.equal(first.installationSupported, false);
         assert.equal(first.publicationEligible, false);
         assert.equal(first.promotionEligible, false);
+        const releaseAssets = JSON.parse(
+            readFileSync(
+                join(
+                    firstRoot,
+                    first.deterministicReleaseTree.releaseAssetManifestPath,
+                ),
+                "utf8",
+            ),
+        );
+        assert.deepEqual(
+            releaseAssets.files.map((file) => file.path).sort(),
+            first.assets.map((asset) => asset.filename).sort(),
+        );
+        for (const file of releaseAssets.files) {
+            const asset = first.assets.find(
+                (candidate) => candidate.filename === file.path,
+            );
+            assert.equal(file.sha256, asset.sha256);
+            assert.equal(file.size, asset.size);
+        }
         for (const asset of first.assets) {
             assert.match(asset.sha256, /^[0-9a-f]{64}$/);
             assert.deepEqual(
@@ -249,10 +273,11 @@ test("Fundamentals preview assets are deterministic and non-publishable", () => 
         assert(checksums.includes("preview-assets.json"));
         assert(checksums.includes("preview-sbom.json"));
         assert(checksums.includes("deterministic-release-manifest.json"));
+        assert(checksums.includes("release-asset-manifest.json"));
         assert(checksums.includes("artifact-assurance-receipt.json"));
         assert.equal(
             checksums.trim().split("\n").length,
-            passiveHarnesses.length + 5,
+            passiveHarnesses.length + 6,
         );
     });
 });

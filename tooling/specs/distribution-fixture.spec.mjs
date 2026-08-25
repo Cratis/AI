@@ -3,6 +3,7 @@
 
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import {
     existsSync,
     mkdtempSync,
@@ -381,6 +382,28 @@ test("distribution fixture detects payload and checksum tampering", () => {
         assert.throws(
             () => validateDistributionFixture(stage),
             /digest mismatch|byte parity|Checksum verification/,
+        );
+    });
+});
+
+test("distribution fixture rejects post-hoc files omitted from checksums and assurance", () => {
+    withTemporaryDirectory((root) => {
+        const stage = join(root, "stage");
+        generateDistributionFixture({ repositoryRoot, outputRoot: stage });
+        const extraPath = join(stage, "undeclared-executable.sh");
+        const extra = Buffer.from("#!/bin/sh\nexit 0\n");
+        writeFileSync(extraPath, extra);
+        const manifestPath = join(stage, "distribution-manifest.json");
+        const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+        manifest.files.push({
+            path: "undeclared-executable.sh",
+            size: extra.length,
+            sha256: createHash("sha256").update(extra).digest("hex"),
+        });
+        writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+        assert.throws(
+            () => validateDistributionFixture(stage),
+            /undeclared payload or metadata|exact final inventory/,
         );
     });
 });
