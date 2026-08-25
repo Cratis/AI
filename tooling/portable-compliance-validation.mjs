@@ -32,8 +32,7 @@ const moduleDirectory = dirname(fileURLToPath(import.meta.url));
 const defaultRepositoryRoot = resolve(moduleDirectory, "..");
 const pluginSchemaUrl =
     "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json";
-const mcpSchemaUrl =
-    "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json";
+const mcpSchemaUrl = "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json";
 const passiveProfile = "cratis-passive-v1";
 const pluginFields = new Set([
     "$schema",
@@ -58,8 +57,7 @@ const skillFields = new Set([
 const extensionNamespacePattern =
     /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)+$/;
 const skillNamePattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-const pluginNamePattern =
-    /^(?!.*(?:--|\.\.))[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?$/;
+const pluginNamePattern = /^(?!.*(?:--|\.\.))[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?$/;
 const exactSemVerPattern =
     /^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-(?:0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
 const secretLiteralPatterns = [
@@ -82,8 +80,7 @@ const expectedSpecificationSources = Object.freeze([
     {
         role: "mcp-schema",
         url: mcpSchemaUrl,
-        localPath:
-            "tooling/specifications/agent-plugins/1.0.0/mcp.schema.json",
+        localPath: "tooling/specifications/agent-plugins/1.0.0/mcp.schema.json",
         sha256: "6539175bfcdf43085855183e86da40ea94b166547a72b47ae9a0a390516d3acb",
     },
     {
@@ -186,12 +183,9 @@ export function validateSpecificationLock({
         repositoryRoot,
         "tooling/specifications/agent-plugins/1.0.0/specification-lock.json",
     );
-    const lockRead = readJson(
-        lockPath,
-        "SPEC_LOCK_MALFORMED",
-        diagnostics,
-        { fatal: true },
-    );
+    const lockRead = readJson(lockPath, "SPEC_LOCK_MALFORMED", diagnostics, {
+        fatal: true,
+    });
     const lock = lockRead.value;
     if (lock) {
         if (
@@ -286,7 +280,8 @@ export function validateSpecificationLock({
             contract.id !== "agent-skills-current" ||
             contract.status !== "current-unversioned-specification" ||
             contract.source?.url !== expectedAgentSkillsSource.url ||
-            contract.source?.localPath !== expectedAgentSkillsSource.localPath ||
+            contract.source?.localPath !==
+                expectedAgentSkillsSource.localPath ||
             contract.source?.sha256 !== expectedAgentSkillsSource.sha256 ||
             contract.source?.verifiedOn !== contract.source?.retrievedOn ||
             contract.frontmatter?.unknownFieldsAllowed !== false ||
@@ -343,7 +338,7 @@ function yamlDoubleQuoted(value) {
         if (index >= value.length - 1) throw new Error("trailing escape");
         const escape = value[index];
         const simple = {
-            "0": "\0",
+            0: "\0",
             a: "\x07",
             b: "\b",
             t: "\t",
@@ -394,7 +389,9 @@ function parseScalar(value) {
     if (/^[&*!>{}[\],%@`]/.test(value) || /^[-?:](?:\s|$)/.test(value))
         throw new Error("unsupported YAML scalar feature");
     if (/\s+#/.test(value) || /:\s/.test(value))
-        throw new Error("plain scalars containing YAML comments or mappings must be quoted");
+        throw new Error(
+            "plain scalars containing YAML comments or mappings must be quoted",
+        );
     if (
         /^(?:~|null|true|false|[-+]?(?:[0-9][0-9_]*(?:\.[0-9_]*)?(?:e[-+]?[0-9]+)?|\.inf|\.nan)|[0-9]{4}-[0-9]{2}-[0-9]{2}(?:[Tt ].*)?)$/i.test(
             value,
@@ -452,14 +449,14 @@ function blockScalar(lines, start, parentIndent, indicator) {
         for (let index = 0; index < values.length; index++) {
             value += values[index];
             if (index === values.length - 1) continue;
-            value += values[index] === "" || values[index + 1] === "" ? "\n" : " ";
+            value +=
+                values[index] === "" || values[index + 1] === "" ? "\n" : " ";
         }
     }
     if (source.length > 0) value += "\n";
     const chomping = indicator[1] ?? "";
     if (chomping === "-") value = value.replace(/\n+$/u, "");
-    else if (chomping === "")
-        value = `${value.replace(/\n+$/u, "")}\n`;
+    else if (chomping === "") value = `${value.replace(/\n+$/u, "")}\n`;
     return { value, next: end };
 }
 
@@ -577,8 +574,13 @@ function parseFrontmatterLines(lines, diagnostics, path) {
                             ),
                         );
                     else metadataKeys.add(metadataKey);
-                    if (metadataValue === "" || /^[|>][+-]?$/.test(metadataValue))
-                        throw new Error("metadata values must be one-line strings");
+                    if (
+                        metadataValue === "" ||
+                        /^[|>][+-]?$/.test(metadataValue)
+                    )
+                        throw new Error(
+                            "metadata values must be one-line strings",
+                        );
                     metadata[metadataKey] = parseScalar(metadataValue);
                     count++;
                 } catch (error) {
@@ -653,7 +655,10 @@ function parseFrontmatterLines(lines, diagnostics, path) {
     return frontmatter;
 }
 
-export function parseAgentSkillFrontmatter(content, { path = "SKILL.md" } = {}) {
+export function parseAgentSkillFrontmatter(
+    content,
+    { path = "SKILL.md" } = {},
+) {
     const sourceBytes = Buffer.isBuffer(content)
         ? Buffer.from(content)
         : Buffer.from(String(content), "utf8");
@@ -819,10 +824,7 @@ export function validateAgentSkill(
                 { fatal: true },
             ),
         );
-    if (
-        Object.hasOwn(values, "license") &&
-        typeof values.license !== "string"
-    )
+    if (Object.hasOwn(values, "license") && typeof values.license !== "string")
         diagnostics.push(
             diagnostic(
                 "SKILL_LICENSE_WRONG_TYPE",
@@ -992,7 +994,10 @@ export function validatePluginManifest(
             "repository",
             "license",
         ])
-            if (Object.hasOwn(manifest, key) && typeof manifest[key] !== "string")
+            if (
+                Object.hasOwn(manifest, key) &&
+                typeof manifest[key] !== "string"
+            )
                 diagnostics.push(
                     diagnostic(
                         "AP_MANIFEST_FIELD_TYPE_INVALID",
@@ -1016,16 +1021,7 @@ export function validatePluginManifest(
                 );
         }
         if (Object.hasOwn(manifest, "author")) {
-            if (!isObject(manifest.author)) {
-                diagnostics.push(
-                    diagnostic(
-                        "AP_MANIFEST_AUTHOR_INVALID",
-                        `${manifestPath}#/author`,
-                        "author must be an object.",
-                        { fatal: true },
-                    ),
-                );
-            } else {
+            if (isObject(manifest.author)) {
                 for (const [key, value] of Object.entries(manifest.author)) {
                     if (
                         !["name", "email", "url"].includes(key) ||
@@ -1040,23 +1036,19 @@ export function validatePluginManifest(
                             ),
                         );
                 }
+            } else {
+                diagnostics.push(
+                    diagnostic(
+                        "AP_MANIFEST_AUTHOR_INVALID",
+                        `${manifestPath}#/author`,
+                        "author must be an object.",
+                        { fatal: true },
+                    ),
+                );
             }
         }
         if (Object.hasOwn(manifest, "extensions")) {
-            if (!isObject(manifest.extensions)) {
-                diagnostics.push(
-                    diagnostic(
-                        "AP_EXTENSIONS_NON_OBJECT_IGNORED",
-                        `${manifestPath}#/extensions`,
-                        "Non-object extensions is reported and ignored.",
-                        {
-                            severity: "warning",
-                            fatal: false,
-                            releaseBlocking: mode === passiveProfile,
-                        },
-                    ),
-                );
-            } else {
+            if (isObject(manifest.extensions)) {
                 for (const [namespace, value] of Object.entries(
                     manifest.extensions,
                 )) {
@@ -1079,6 +1071,19 @@ export function validatePluginManifest(
                             ),
                         );
                 }
+            } else {
+                diagnostics.push(
+                    diagnostic(
+                        "AP_EXTENSIONS_NON_OBJECT_IGNORED",
+                        `${manifestPath}#/extensions`,
+                        "Non-object extensions is reported and ignored.",
+                        {
+                            severity: "warning",
+                            fatal: false,
+                            releaseBlocking: mode === passiveProfile,
+                        },
+                    ),
+                );
             }
         }
     } else {
@@ -1466,7 +1471,12 @@ export function validateMcpConfiguration(
                     ),
                 );
             else if (server.type === "stdio")
-                validateStdioServer(server, root, serverPath, serverDiagnostics);
+                validateStdioServer(
+                    server,
+                    root,
+                    serverPath,
+                    serverDiagnostics,
+                );
             else if (["streamable-http", "sse"].includes(server.type))
                 validateRemoteServer(server, serverPath, serverDiagnostics);
             else
@@ -1480,7 +1490,11 @@ export function validateMcpConfiguration(
                 );
             const sorted = sortDiagnostics(serverDiagnostics);
             diagnostics.push(...sorted);
-            servers.push({ name, valid: sorted.length === 0, diagnostics: sorted });
+            servers.push({
+                name,
+                valid: sorted.length === 0,
+                diagnostics: sorted,
+            });
         }
     const sorted = sortDiagnostics(diagnostics);
     return {
@@ -1502,7 +1516,8 @@ function discoverSkills(root, mode, diagnostics) {
         const stat = lstatSync(skillsPath);
         if (!stat.isDirectory() && !stat.isSymbolicLink())
             throw new Error("skills is not a directory");
-        if (!resolvedContained(root, skillsPath)) throw new Error("skills escapes");
+        if (!resolvedContained(root, skillsPath))
+            throw new Error("skills escapes");
     } catch (error) {
         diagnostics.push(
             diagnostic(
@@ -1595,7 +1610,9 @@ function walkPassive(root, current, diagnostics, files, collisions) {
             continue;
         }
         if (stat.isDirectory()) {
-            if (["scripts", "evals", "hooks"].includes(entry.name.toLowerCase()))
+            if (
+                ["scripts", "evals", "hooks"].includes(entry.name.toLowerCase())
+            )
                 diagnostics.push(
                     diagnostic(
                         "PASSIVE_EXECUTABLE_CATEGORY_FORBIDDEN",
@@ -1630,9 +1647,7 @@ function walkPassive(root, current, diagnostics, files, collisions) {
             );
         const content = readFileSync(path);
         if (
-            /\.(?:bat|cmd|com|cjs|exe|js|mjs|ps1|py|sh)$/i.test(
-                relativePath,
-            ) ||
+            /\.(?:bat|cmd|com|cjs|exe|js|mjs|ps1|py|sh)$/i.test(relativePath) ||
             content.subarray(0, 2).toString("utf8") === "#!"
         )
             diagnostics.push(
@@ -1689,9 +1704,10 @@ export function validateCratisPassiveProfile(
 }
 
 function buildReceipt(result, artifactId) {
-    const files = result.pluginRoot && existsSync(result.pluginRoot)
-        ? result.fileInventory
-        : [];
+    const files =
+        result.pluginRoot && existsSync(result.pluginRoot)
+            ? result.fileInventory
+            : [];
     const receipt = {
         schemaVersion: "1.0.0",
         contract: result.mode,
@@ -1789,7 +1805,11 @@ export function validateAgentPluginArtifact(
         diagnostics: [],
     };
     if (rootValid && manifestResult.loadable) {
-        validateExtensionDirectories(root, manifestResult.manifest, diagnostics);
+        validateExtensionDirectories(
+            root,
+            manifestResult.manifest,
+            diagnostics,
+        );
         skills = discoverSkills(root, mode, diagnostics);
         mcp = validateMcpConfiguration(root, {
             pluginManifest: manifestResult.manifest,
@@ -1868,9 +1888,9 @@ export function validateAgentPluginArtifact(
     }
     if (rootValid) {
         const collect = (current) => {
-            for (const entry of readdirSync(current, { withFileTypes: true }).sort(
-                (left, right) => compareOrdinal(left.name, right.name),
-            )) {
+            for (const entry of readdirSync(current, {
+                withFileTypes: true,
+            }).sort((left, right) => compareOrdinal(left.name, right.name))) {
                 const path = join(current, entry.name);
                 if (entry.isDirectory()) collect(path);
                 else if (entry.isFile())
@@ -1921,7 +1941,9 @@ function main() {
     if (!argument || argument === "--verify-lock") {
         const diagnostics = validateSpecificationLock();
         if (diagnostics.length > 0) {
-            process.stderr.write(`${formatComplianceDiagnostics(diagnostics)}\n`);
+            process.stderr.write(
+                `${formatComplianceDiagnostics(diagnostics)}\n`,
+            );
             process.exitCode = 1;
         } else process.stdout.write("Portable specification locks verified.\n");
         return;
@@ -1932,7 +1954,9 @@ function main() {
         expectedVersion,
     });
     if (result.diagnostics.length > 0)
-        process.stderr.write(`${formatComplianceDiagnostics(result.diagnostics)}\n`);
+        process.stderr.write(
+            `${formatComplianceDiagnostics(result.diagnostics)}\n`,
+        );
     process.stdout.write(`${JSON.stringify(result.receipt, null, 2)}\n`);
     if (result.releaseBlocking) process.exitCode = 1;
 }

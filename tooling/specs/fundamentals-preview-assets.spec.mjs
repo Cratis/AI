@@ -176,14 +176,8 @@ test("Fundamentals preview assets are deterministic and non-publishable", () => 
             "tooling/harness-registry.mjs",
         ]);
         assert.equal(first.portableCompliance.profile, "cratis-passive-v1");
-        assert.match(
-            first.portableCompliance.profileDigest,
-            /^[0-9a-f]{64}$/,
-        );
-        assert.match(
-            first.portableCompliance.receiptSha256,
-            /^[0-9a-f]{64}$/,
-        );
+        assert.match(first.portableCompliance.profileDigest, /^[0-9a-f]{64}$/);
+        assert.match(first.portableCompliance.receiptSha256, /^[0-9a-f]{64}$/);
         assert.equal(
             first.portableCompliance.staticValidationInput.supporting,
             false,

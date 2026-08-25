@@ -56,7 +56,10 @@ function codes(result) {
 }
 
 function assertCode(result, code) {
-    assert(codes(result).includes(code), `${code}: ${codes(result).join(", ")}`);
+    assert(
+        codes(result).includes(code),
+        `${code}: ${codes(result).join(", ")}`,
+    );
 }
 
 function validatePassive(root) {
@@ -116,10 +119,7 @@ test("specification lock rejects changed locked bytes offline", () => {
         const diagnostics = validateSpecificationLock({
             repositoryRoot: root,
         });
-        assertCode(
-            { diagnostics },
-            "SPEC_LOCK_DIGEST_MISMATCH",
-        );
+        assertCode({ diagnostics }, "SPEC_LOCK_DIGEST_MISMATCH");
     });
 });
 
@@ -155,8 +155,16 @@ test("golden plugin, extension, optional MCP, skills forms, and sibling isolatio
     const allOptions = validateAgentPluginArtifact(
         join(fixtureRoot, "all-skill-options"),
     );
-    assert.equal(allOptions.skills[0].frontmatter.description.includes("folded scalar behavior"), true);
-    assert.equal(allOptions.skills[0].frontmatter.compatibility.endsWith("host."), true);
+    assert.equal(
+        allOptions.skills[0].frontmatter.description.includes(
+            "folded scalar behavior",
+        ),
+        true,
+    );
+    assert.equal(
+        allOptions.skills[0].frontmatter.compatibility.endsWith("host."),
+        true,
+    );
     assert.deepEqual(allOptions.skills[0].frontmatter.metadata, {
         owner: "Cratis",
         release: "fixture",
@@ -166,8 +174,14 @@ test("golden plugin, extension, optional MCP, skills forms, and sibling isolatio
     );
     assert.equal(sibling.loadable, true);
     assert.equal(sibling.skills.length, 2);
-    assert.equal(sibling.skills.find((skill) => skill.name === "valid-sibling").valid, true);
-    assert.equal(sibling.skills.find((skill) => skill.name === "invalid-sibling").valid, false);
+    assert.equal(
+        sibling.skills.find((skill) => skill.name === "valid-sibling").valid,
+        true,
+    );
+    assert.equal(
+        sibling.skills.find((skill) => skill.name === "invalid-sibling").valid,
+        false,
+    );
     assertCode(sibling, "SKILL_NAME_DIRECTORY_MISMATCH");
 });
 
@@ -256,11 +270,16 @@ test("unknown security-like fields and non-object extensions remain loadable but
         assert.equal(universal.loadable, true);
         assert.equal(universal.conformant, false);
         assert.equal(
-            codes(universal).filter((code) => code === "AP_MANIFEST_UNKNOWN_FIELD").length,
+            codes(universal).filter(
+                (code) => code === "AP_MANIFEST_UNKNOWN_FIELD",
+            ).length,
             3,
         );
         assertCode(universal, "AP_EXTENSIONS_NON_OBJECT_IGNORED");
-        assert.equal(universal.diagnostics.every((entry) => entry.fatal === false), true);
+        assert.equal(
+            universal.diagnostics.every((entry) => entry.fatal === false),
+            true,
+        );
         const passive = validatePassive(plugin);
         assert.equal(passive.releaseBlocking, true);
         assertCode(passive, "AP_MANIFEST_UNKNOWN_FIELD");
@@ -312,7 +331,10 @@ test("skill limits, nesting, directory parity, types, and passive allowed-tools 
             "---\nname: nested\ndescription: Not discovered.\n---\n",
         );
         result = validateAgentPluginArtifact(plugin);
-        assert.equal(result.skills.some((skill) => skill.name === "nested"), false);
+        assert.equal(
+            result.skills.some((skill) => skill.name === "nested"),
+            false,
+        );
     });
 });
 
@@ -348,8 +370,14 @@ test("MCP variants isolate malformed siblings and reject mixed fields paths env 
         writeJson(path, configuration);
         let result = validateAgentPluginArtifact(plugin);
         assert.equal(result.loadable, true);
-        assert.equal(result.mcp.servers.find((server) => server.name === "local").valid, true);
-        assert.equal(result.mcp.servers.find((server) => server.name === "mixed").valid, false);
+        assert.equal(
+            result.mcp.servers.find((server) => server.name === "local").valid,
+            true,
+        );
+        assert.equal(
+            result.mcp.servers.find((server) => server.name === "mixed").valid,
+            false,
+        );
         for (const code of [
             "MCP_COMMAND_INVALID",
             "MCP_SERVER_FIELD_INVALID",
@@ -413,7 +441,10 @@ test("passive mode rejects symlinks special files and realpath escapes without e
         const outside = join(root, "outside.txt");
         const marker = join(root, "executed.marker");
         writeFileSync(outside, `touch ${marker}\n`);
-        symlinkSync(outside, join(plugin, "skills/example-skill/assets/link.txt"));
+        symlinkSync(
+            outside,
+            join(plugin, "skills/example-skill/assets/link.txt"),
+        );
         const fifo = join(plugin, "skills/example-skill/assets/special.fifo");
         execFileSync("mkfifo", [fifo]);
         const result = validatePassive(plugin);
@@ -446,7 +477,8 @@ test("diagnostics and receipts are ordinal deterministic and never grant release
     assert.equal(result.receipt.publicationGranted, false);
     assert.match(result.receipt.sha256, /^[0-9a-f]{64}$/);
     assert.deepEqual(
-        validateAgentPluginArtifact(join(fixtureRoot, "sibling-isolation")).receipt,
+        validateAgentPluginArtifact(join(fixtureRoot, "sibling-isolation"))
+            .receipt,
         result.receipt,
     );
 });

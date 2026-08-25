@@ -378,7 +378,10 @@ test("passive adapter materializer emits one install root per harness", () => {
         assert.equal(manifest.compliance.profile, "cratis-passive-v1");
         assert.match(manifest.compliance.profileDigest, /^[0-9a-f]{64}$/);
         assert.equal(manifest.compliance.receipts.length, 4);
-        assert.equal(manifest.compliance.staticValidationInput.supporting, false);
+        assert.equal(
+            manifest.compliance.staticValidationInput.supporting,
+            false,
+        );
         assert.equal(manifest.compliance.approvalGranted, false);
         assert.equal(manifest.compliance.supportGranted, false);
         assert.equal(manifest.compliance.publicationGranted, false);

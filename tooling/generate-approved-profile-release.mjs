@@ -65,7 +65,8 @@ export function buildReleaseSupportMatrix(plan, harnesses) {
         profileId: plan.profileId,
         version: plan.version,
         definitions: {
-            generated: "The canonical approved skill bytes are present in the host package.",
+            generated:
+                "The canonical approved skill bytes are present in the host package.",
             staticallyValidated:
                 "Manifest shape, file inventory, safety boundaries, and canonical byte parity passed repository specifications.",
             hostTested:

@@ -1055,9 +1055,7 @@ const definitions = [
     },
     {
         id: "portable-agent-plugins-specification-lock",
-        sourcePathPatterns: [
-            "tooling/specifications/agent-plugins/1.0.0/**",
-        ],
+        sourcePathPatterns: ["tooling/specifications/agent-plugins/1.0.0/**"],
         artifactType: "catalog-schema",
         currentOwner: repositoryOwner,
         targetOwner: repositoryOwner,
