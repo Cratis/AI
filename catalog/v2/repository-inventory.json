@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "e98d47ff7ab4fc5fb24ac344fe1c4d775e789446d3425338b3eb1c5652bea9f4",
+  "indexDigest": "7252cf897cb2e417dddaa9f3cf3d730bc4103027ccb95143ee9dcf060bdfeb5d",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -540,6 +540,14 @@
     },
     {
       "path": "distribution/apm-managed-install-evaluation.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/artifact-assurance-policy.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/artifact-assurance-policy.schema.json",
       "status": "added"
     },
     {
@@ -2031,6 +2039,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/benchmarks/release-generation.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/bootstrap-generated-distribution-repository.mjs",
       "status": "added"
     },
@@ -2048,6 +2060,10 @@
     },
     {
       "path": "tooling/code-review-pilot-validation.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/deterministic-release-tree.mjs",
       "status": "added"
     },
     {
@@ -2279,6 +2295,14 @@
       "status": "added"
     },
     {
+      "path": "tooling/release-assurance-validation.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/release-context.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/release-request-validation.mjs",
       "status": "added"
     },
@@ -2352,6 +2376,10 @@
     },
     {
       "path": "tooling/specs/code-review-pilot.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/deterministic-release-tree.spec.mjs",
       "status": "added"
     },
     {
@@ -2452,6 +2480,14 @@
     },
     {
       "path": "tooling/specs/release-approval.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/release-fixture-baseline.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/release-foundation.spec.mjs",
       "status": "added"
     },
     {
@@ -3835,8 +3871,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 31,
-      "expectedPathsDigest": "9e198c41335f79204fd4c79de04da27e3d1d0deb6387a02ee7c0860010ae4e50"
+      "expectedPathCount": 33,
+      "expectedPathsDigest": "13386260d3a914f2b349e1d23bc7070af9b3be494ec894c7d5e5cd0a256debdf"
     },
     {
       "excludePathPatterns": [],
@@ -3893,7 +3929,8 @@
       "excludePathPatterns": [],
       "id": "catalog-and-redesign-tooling",
       "sourcePathPatterns": [
-        "tooling/*.mjs"
+        "tooling/*.mjs",
+        "tooling/benchmarks/**"
       ],
       "artifactType": "validation-tooling",
       "currentOwner": "repository-only authoring/release tooling",
@@ -3909,8 +3946,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 43,
-      "expectedPathsDigest": "de9ee328ee086d9c94f65fe77579a56c06f18f6cb0ddd38fc156b09f7da431ef"
+      "expectedPathCount": 47,
+      "expectedPathsDigest": "c703273afa8a9cbb3bf92d3b324fbd5a21006ab4a867c76146ad5bd63cd5fab2"
     },
     {
       "excludePathPatterns": [],
@@ -3933,8 +3970,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 36,
-      "expectedPathsDigest": "5cf9d64714207ccdf9daeb69f040e5ca4f0c19cce8c90829a513f6a7dda69575"
+      "expectedPathCount": 39,
+      "expectedPathsDigest": "9ba2c5b19ff5331afa27c215ad3e751d8e2bdfbae512783f5265dbe6e3480308"
     },
     {
       "excludePathPatterns": [],
