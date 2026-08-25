@@ -28,9 +28,6 @@ import {
 const fixtureRoot = resolve("tooling/fixtures/portable-compliance");
 const pluginSchema =
     "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json";
-const mcpSchema =
-    "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json";
-
 function withTemporaryDirectory(callback) {
     const root = mkdtempSync(join(tmpdir(), "cratis-portable-compliance-"));
     try {
