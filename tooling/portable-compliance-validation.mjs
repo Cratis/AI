@@ -128,6 +128,133 @@ function containsSecretLiteral(value) {
     return secretLiteralPatterns.some((pattern) => pattern.test(value));
 }
 
+function containsUnsupportedPlaceholder(value) {
+    return [...String(value).matchAll(/\$\{([^}]+)\}/gu)].some(
+        ([, name]) => !["PLUGIN_ROOT", "PLUGIN_DATA"].includes(name),
+    );
+}
+
+function strictJsonParse(text) {
+    let index = 0;
+    const fail = (message, code) => {
+        const error = new Error(`${message} at character ${index}`);
+        if (code) error.code = code;
+        throw error;
+    };
+    const skipWhitespace = () => {
+        while ([" ", "\t", "\n", "\r"].includes(text[index])) index++;
+    };
+    const validateUnicodeScalars = (value) => {
+        for (let offset = 0; offset < value.length; offset++) {
+            const unit = value.charCodeAt(offset);
+            if (unit >= 0xd800 && unit <= 0xdbff) {
+                const next = value.charCodeAt(offset + 1);
+                if (!(next >= 0xdc00 && next <= 0xdfff))
+                    fail("JSON string contains an unpaired high surrogate");
+                offset++;
+            } else if (unit >= 0xdc00 && unit <= 0xdfff) {
+                fail("JSON string contains an unpaired low surrogate");
+            }
+        }
+    };
+    const parseString = () => {
+        if (text[index] !== '"') fail("Expected JSON string");
+        const start = index++;
+        while (index < text.length) {
+            const character = text[index++];
+            if (character === '"') {
+                const value = JSON.parse(text.slice(start, index));
+                validateUnicodeScalars(value);
+                return value;
+            }
+            if (character === "\\") {
+                if (index >= text.length) fail("Trailing JSON escape");
+                const escape = text[index++];
+                if (escape === "u") {
+                    const hexadecimal = text.slice(index, index + 4);
+                    if (!/^[0-9a-fA-F]{4}$/u.test(hexadecimal))
+                        fail("Invalid JSON Unicode escape");
+                    index += 4;
+                } else if (!'"\\/bfnrt'.includes(escape)) {
+                    fail(`Invalid JSON escape \\${escape}`);
+                }
+            } else if (character.charCodeAt(0) < 0x20) {
+                fail("JSON string contains a control character");
+            }
+        }
+        fail("Unterminated JSON string");
+    };
+    const parseValue = () => {
+        skipWhitespace();
+        const character = text[index];
+        if (character === '"') return parseString();
+        if (character === "{") {
+            index++;
+            const value = Object.create(null);
+            const keys = new Set();
+            skipWhitespace();
+            if (text[index] === "}") {
+                index++;
+                return value;
+            }
+            while (index < text.length) {
+                skipWhitespace();
+                const key = parseString();
+                if (keys.has(key))
+                    fail(`Duplicate JSON object key ${JSON.stringify(key)}`, "JSON_DUPLICATE_KEY");
+                keys.add(key);
+                skipWhitespace();
+                if (text[index++] !== ":") fail("Expected colon after JSON object key");
+                value[key] = parseValue();
+                skipWhitespace();
+                const delimiter = text[index++];
+                if (delimiter === "}") return value;
+                if (delimiter !== ",") fail("Expected comma or closing brace");
+            }
+            fail("Unterminated JSON object");
+        }
+        if (character === "[") {
+            index++;
+            const value = [];
+            skipWhitespace();
+            if (text[index] === "]") {
+                index++;
+                return value;
+            }
+            while (index < text.length) {
+                value.push(parseValue());
+                skipWhitespace();
+                const delimiter = text[index++];
+                if (delimiter === "]") return value;
+                if (delimiter !== ",") fail("Expected comma or closing bracket");
+            }
+            fail("Unterminated JSON array");
+        }
+        for (const [literal, value] of [
+            ["true", true],
+            ["false", false],
+            ["null", null],
+        ]) {
+            if (text.startsWith(literal, index)) {
+                index += literal.length;
+                return value;
+            }
+        }
+        const number = text
+            .slice(index)
+            .match(/^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?/u)?.[0];
+        if (number) {
+            index += number.length;
+            return Number(number);
+        }
+        fail("Invalid JSON value");
+    };
+    const value = parseValue();
+    skipWhitespace();
+    if (index !== text.length) fail("Unexpected trailing JSON content");
+    return value;
+}
+
 function readJson(path, code, diagnostics, options = {}) {
     let content;
     try {
@@ -141,14 +268,27 @@ function readJson(path, code, diagnostics, options = {}) {
         );
         return {};
     }
+    if (!isUtf8(content)) {
+        diagnostics.push(
+            diagnostic(
+                "JSON_ENCODING_INVALID",
+                path,
+                "JSON input must be valid UTF-8.",
+                { ...options, fatal: options.fatal ?? true },
+            ),
+        );
+        return { content };
+    }
     try {
-        return { content, value: JSON.parse(content.toString("utf8")) };
+        return { content, value: strictJsonParse(content.toString("utf8")) };
     } catch (error) {
         diagnostics.push(
-            diagnostic(code, path, `Malformed JSON: ${error.message}`, {
-                ...options,
-                fatal: options.fatal ?? true,
-            }),
+            diagnostic(
+                error.code ?? code,
+                path,
+                `Malformed JSON: ${error.message}`,
+                { ...options, fatal: options.fatal ?? true },
+            ),
         );
         return { content };
     }
@@ -187,8 +327,9 @@ export function validateSpecificationLock({
         fatal: true,
     });
     const lock = lockRead.value;
-    if (lock) {
+    if (lock !== undefined) {
         if (
+            !isObject(lock) ||
             lock.schemaVersion !== "1.0.0" ||
             lock.version !== "1.0.0" ||
             lock.status !== "published" ||
@@ -275,8 +416,9 @@ export function validateSpecificationLock({
     );
     const contract = contractRead.value;
     if (
-        contract &&
-        (contract.schemaVersion !== "1.0.0" ||
+        contract !== undefined &&
+        (!isObject(contract) ||
+            contract.schemaVersion !== "1.0.0" ||
             contract.id !== "agent-skills-current" ||
             contract.status !== "current-unversioned-specification" ||
             contract.source?.url !== expectedAgentSkillsSource.url ||
@@ -331,6 +473,8 @@ function yamlDoubleQuoted(value) {
     for (let index = 1; index < value.length - 1; index++) {
         const character = value[index];
         if (character !== "\\") {
+            if (character === '"')
+                throw new Error("unescaped quote in double-quoted scalar");
             result += character;
             continue;
         }
@@ -367,8 +511,11 @@ function yamlDoubleQuoted(value) {
         if (!new RegExp(`^[0-9a-fA-F]{${length}}$`).test(hexadecimal))
             throw new Error("invalid Unicode escape");
         const codePoint = Number.parseInt(hexadecimal, 16);
-        if (codePoint > 0x10ffff)
-            throw new Error("Unicode escape is out of range");
+        if (
+            codePoint > 0x10ffff ||
+            (codePoint >= 0xd800 && codePoint <= 0xdfff)
+        )
+            throw new Error("Unicode escape is not a scalar value");
         result += String.fromCodePoint(codePoint);
         index += length;
     }
@@ -379,21 +526,32 @@ function parseScalar(value) {
     if (value.startsWith("'")) {
         if (!value.endsWith("'") || value.length < 2)
             throw new Error("unclosed single-quoted scalar");
-        return value.slice(1, -1).replaceAll("''", "'");
+        let result = "";
+        for (let index = 1; index < value.length - 1; index++) {
+            if (value[index] !== "'") {
+                result += value[index];
+                continue;
+            }
+            if (value[index + 1] !== "'")
+                throw new Error("single quote must be doubled");
+            result += "'";
+            index++;
+        }
+        return result;
     }
     if (value.startsWith('"')) {
         if (!value.endsWith('"') || value.length < 2)
             throw new Error("unclosed double-quoted scalar");
         return yamlDoubleQuoted(value);
     }
-    if (/^[&*!>{}[\],%@`]/.test(value) || /^[-?:](?:\s|$)/.test(value))
+    if (/^[&*!|>{}[\],%@`]/.test(value) || /^[-?:](?:\s|$)/.test(value))
         throw new Error("unsupported YAML scalar feature");
-    if (/\s+#/.test(value) || /:\s/.test(value))
+    if (/(?:^|\s)#/.test(value) || /:\s/.test(value))
         throw new Error(
             "plain scalars containing YAML comments or mappings must be quoted",
         );
     if (
-        /^(?:~|null|true|false|[-+]?(?:[0-9][0-9_]*(?:\.[0-9_]*)?(?:e[-+]?[0-9]+)?|\.inf|\.nan)|[0-9]{4}-[0-9]{2}-[0-9]{2}(?:[Tt ].*)?)$/i.test(
+        /^(?:~|null|true|false|[-+]?(?:0x[0-9a-f_]+|0o[0-7_]+|0b[01_]+|(?:[0-9][0-9_]*(?:\.[0-9_]*)?|\.[0-9_]+)(?:e[-+]?[0-9]+)?|\.inf|\.nan)|[0-9]{4}-[0-9]{2}-[0-9]{2}(?:[Tt ].*)?)$/i.test(
             value,
         )
     )
@@ -419,8 +577,11 @@ function splitMappingLine(line) {
             quote = character;
             continue;
         }
-        if (character === ":")
-            return [line.slice(0, index), line.slice(index + 1).trimStart()];
+        if (
+            character === ":" &&
+            (index === line.length - 1 || /\s/u.test(line[index + 1]))
+        )
+            return [line.slice(0, index).trim(), line.slice(index + 1).trimStart()];
     }
     throw new Error("mapping entry has no colon");
 }
@@ -439,6 +600,15 @@ function blockScalar(lines, start, parentIndent, indicator) {
         : parentIndent + 1;
     if (indent <= parentIndent)
         throw new Error("block scalar indentation is invalid");
+    if (
+        source.some(
+            (line) =>
+                line.trim() && line.match(/^ */u)[0].length !== indent,
+        )
+    )
+        throw new Error(
+            "bounded block scalars require uniform indentation",
+        );
     const values = source.map((line) =>
         line.trim() ? line.slice(indent) : "",
     );
@@ -541,7 +711,10 @@ function parseFrontmatterLines(lines, diagnostics, path) {
             let count = 0;
             while (index < lines.length) {
                 const metadataLine = lines[index];
-                if (!metadataLine.trim()) {
+                if (
+                    !metadataLine.trim() ||
+                    metadataLine.trimStart().startsWith("#")
+                ) {
                     index++;
                     continue;
                 }
@@ -581,7 +754,12 @@ function parseFrontmatterLines(lines, diagnostics, path) {
                         throw new Error(
                             "metadata values must be one-line strings",
                         );
-                    metadata[metadataKey] = parseScalar(metadataValue);
+                    Object.defineProperty(metadata, metadataKey, {
+                        value: parseScalar(metadataValue),
+                        enumerable: true,
+                        configurable: true,
+                        writable: true,
+                    });
                     count++;
                 } catch (error) {
                     diagnostics.push(
@@ -813,7 +991,7 @@ export function validateAgentSkill(
     }
     if (
         typeof values.description === "string" &&
-        (characters(values.description) < 1 ||
+        (values.description.trim().length === 0 ||
             characters(values.description) > 1024)
     )
         diagnostics.push(
@@ -836,7 +1014,7 @@ export function validateAgentSkill(
     if (Object.hasOwn(values, "compatibility")) {
         if (
             typeof values.compatibility !== "string" ||
-            characters(values.compatibility) < 1 ||
+            values.compatibility.trim().length === 0 ||
             characters(values.compatibility) > 500
         )
             diagnostics.push(
@@ -941,7 +1119,7 @@ export function validatePluginManifest(
         { fatal: true },
     );
     const manifest = manifestRead.value;
-    if (!manifest)
+    if (manifest === undefined)
         return {
             root,
             manifestPath,
@@ -1273,19 +1451,31 @@ function validateStdioServer(server, root, path, diagnostics) {
                 { fatal: true },
             ),
         );
-    if (
-        Object.hasOwn(server, "args") &&
-        (!Array.isArray(server.args) ||
-            server.args.some((value) => typeof value !== "string"))
-    )
-        diagnostics.push(
-            diagnostic(
-                "MCP_ARGS_INVALID",
-                `${path}/args`,
-                "args must be an array of opaque strings.",
-                { fatal: true },
-            ),
-        );
+    if (Object.hasOwn(server, "args")) {
+        if (
+            !Array.isArray(server.args) ||
+            server.args.some((value) => typeof value !== "string")
+        )
+            diagnostics.push(
+                diagnostic(
+                    "MCP_ARGS_INVALID",
+                    `${path}/args`,
+                    "args must be an array of strings.",
+                    { fatal: true },
+                ),
+            );
+        else
+            for (const [index, value] of server.args.entries())
+                if (containsUnsupportedPlaceholder(value))
+                    diagnostics.push(
+                        diagnostic(
+                            "MCP_PLACEHOLDER_INVALID",
+                            `${path}/args/${index}`,
+                            "Only PLUGIN_ROOT and PLUGIN_DATA placeholders are portable.",
+                            { fatal: true },
+                        ),
+                    );
+    }
     if (Object.hasOwn(server, "env")) {
         if (
             !isObject(server.env) ||
@@ -1307,6 +1497,15 @@ function validateStdioServer(server, root, path, diagnostics) {
                             "MCP_ENV_RESERVED",
                             `${path}/env/${key}`,
                             `${key} conflicts with a client-provided reserved environment variable.`,
+                            { fatal: true },
+                        ),
+                    );
+                if (containsUnsupportedPlaceholder(value))
+                    diagnostics.push(
+                        diagnostic(
+                            "MCP_PLACEHOLDER_INVALID",
+                            `${path}/env/${key}`,
+                            "Only PLUGIN_ROOT and PLUGIN_DATA placeholders are portable.",
                             { fatal: true },
                         ),
                     );
@@ -1417,7 +1616,7 @@ export function validateMcpConfiguration(
         fatal: true,
     });
     const configuration = read.value;
-    if (!configuration)
+    if (configuration === undefined)
         return {
             root,
             path,

@@ -22,6 +22,8 @@ import {
     parseAgentSkillFrontmatter,
     validateAgentPluginArtifact,
     validateCratisPassiveProfile,
+    validateMcpConfiguration,
+    validatePluginManifest,
     validateSpecificationLock,
 } from "../portable-compliance-validation.mjs";
 
@@ -102,6 +104,49 @@ test("official specification locks verify exact offline bytes and published 1.0.
         "fe7186a885f97962d9ab54c662be46294ce11ae06adf4c7ddf41148abd5ece2c",
     );
     assert.equal(skillContract.status, "current-unversioned-specification");
+});
+
+test("specification and skill contract JSON reject falsy top-level documents", () => {
+    for (const raw of ["null", "false", "0", '""']) {
+        withTemporaryDirectory((root) => {
+            cpSync(
+                "tooling/specifications",
+                join(root, "tooling/specifications"),
+                { recursive: true },
+            );
+            writeFileSync(
+                join(
+                    root,
+                    "tooling/specifications/agent-plugins/1.0.0/specification-lock.json",
+                ),
+                `${raw}\n`,
+            );
+            let diagnostics = validateSpecificationLock({
+                repositoryRoot: root,
+            });
+            assertCode({ diagnostics }, "SPEC_LOCK_CONTRACT_INVALID");
+
+            cpSync(
+                "tooling/specifications/agent-plugins/1.0.0/specification-lock.json",
+                join(
+                    root,
+                    "tooling/specifications/agent-plugins/1.0.0/specification-lock.json",
+                ),
+                { force: true },
+            );
+            writeFileSync(
+                join(
+                    root,
+                    "tooling/specifications/agent-skills/current/contract.json",
+                ),
+                `${raw}\n`,
+            );
+            diagnostics = validateSpecificationLock({
+                repositoryRoot: root,
+            });
+            assertCode({ diagnostics }, "SKILL_CONTRACT_INVALID");
+        });
+    }
 });
 
 test("specification lock rejects changed locked bytes offline", () => {
@@ -185,6 +230,38 @@ test("golden plugin, extension, optional MCP, skills forms, and sibling isolatio
     assertCode(sibling, "SKILL_NAME_DIRECTORY_MISMATCH");
 });
 
+test("frontmatter parser rejects ambiguous YAML while retaining safe metadata keys", () => {
+    for (const source of [
+        "---\nname:value\ndescription: Test.\n---\n",
+        "---\nname: test\ndescription: # comment\n---\n",
+        "---\nname: test\ndescription: 0x41\n---\n",
+        "---\nname: test\ndescription: 0o10\n---\n",
+        "---\nname: test\ndescription: .5\n---\n",
+        "---\nname: test\ndescription: |bogus\n---\n",
+        "---\nname: test\ndescription: 'safe'junk'\n---\n",
+        '---\nname: test\ndescription: "safe"junk"\n---\n',
+        '---\nname: test\ndescription: "\\uD800"\n---\n',
+        "---\nname: test\ndescription: >\n  first\n    more indented\n---\n",
+    ]) {
+        const result = parseAgentSkillFrontmatter(source);
+        assert.equal(result.valid, false, source);
+    }
+
+    const metadata = parseAgentSkillFrontmatter(
+        "---\nname: metadata\ndescription: Safe.\nmetadata:\n  # retained comment\n  owner: one\n  owner : two\n  __proto__: safe\n---\n",
+    );
+    assertCode(metadata, "SKILL_METADATA_DUPLICATE_KEY");
+    assert.equal(
+        Object.hasOwn(metadata.frontmatter.metadata, "__proto__"),
+        true,
+    );
+    assert.equal(metadata.frontmatter.metadata.__proto__, "safe");
+    assert.equal(
+        Object.getPrototypeOf(metadata.frontmatter.metadata),
+        Object.prototype,
+    );
+});
+
 test("frontmatter parser is bounded, typed, duplicate-safe, and byte preserving", () => {
     const source = Buffer.from(
         "---\r\nname: quoted-skill\r\ndescription: >-\r\n  A folded\r\n  description.\r\nlicense: 'LICENSE''S'\r\ncompatibility: |\r\n  Node 24\r\nmetadata:\r\n  owner: \"Cratis\"\r\nallowed-tools: Read Grep\r\n---\r\n\r\n# Body\r\n",
@@ -211,6 +288,74 @@ test("frontmatter parser is bounded, typed, duplicate-safe, and byte preserving"
     );
     assertCode(wrongYaml, "SKILL_YAML_SCALAR_INVALID");
     assertCode(wrongYaml, "SKILL_FRONTMATTER_UNKNOWN_FIELD");
+});
+
+test("JSON inputs reject falsy roots duplicate keys and invalid UTF-8", () => {
+    withTemporaryDirectory((root) => {
+        const plugin = join(root, "plugin");
+        mkdirSync(plugin);
+        for (const raw of ["null", "false", "0", '""']) {
+            writeFileSync(join(plugin, "plugin.json"), `${raw}\n`);
+            const result = validatePluginManifest(plugin);
+            assertCode(result, "AP_MANIFEST_TOP_LEVEL_INVALID");
+            assert.equal(result.loadable, false);
+        }
+
+        writeFileSync(
+            join(plugin, "plugin.json"),
+            `{"$schema":${JSON.stringify(pluginSchema)},"name":"first","name":"second"}\n`,
+        );
+        assertCode(
+            validatePluginManifest(plugin),
+            "JSON_DUPLICATE_KEY",
+        );
+
+        writeFileSync(
+            join(plugin, "plugin.json"),
+            Buffer.from([
+                0x7b,
+                0x22,
+                0x6e,
+                0x61,
+                0x6d,
+                0x65,
+                0x22,
+                0x3a,
+                0x22,
+                0xff,
+                0x22,
+                0x7d,
+            ]),
+        );
+        assertCode(
+            validatePluginManifest(plugin),
+            "JSON_ENCODING_INVALID",
+        );
+
+        writeJson(join(plugin, "plugin.json"), {
+            $schema: pluginSchema,
+            name: "valid",
+        });
+        for (const raw of ["null", "false", "0", '""']) {
+            writeFileSync(join(plugin, "mcp.json"), `${raw}\n`);
+            assertCode(
+                validateMcpConfiguration(plugin, {
+                    pluginManifest: readJson(join(plugin, "plugin.json")),
+                }),
+                "MCP_TOP_LEVEL_INVALID",
+            );
+        }
+        writeFileSync(
+            join(plugin, "mcp.json"),
+            '{"$schema":"https://agent-plugins.org/schemas/1.0.0/mcp.schema.json","mcpServers":{"x":{"type":"stdio","command":"bad","command":"node"}}}\n',
+        );
+        assertCode(
+            validateMcpConfiguration(plugin, {
+                pluginManifest: readJson(join(plugin, "plugin.json")),
+            }),
+            "JSON_DUPLICATE_KEY",
+        );
+    });
 });
 
 test("missing malformed renamed and closed manifest failures have exact boundaries", () => {
@@ -320,6 +465,16 @@ test("skill limits, nesting, directory parity, types, and passive allowed-tools 
         result = validateAgentPluginArtifact(plugin);
         assertCode(result, "SKILL_DESCRIPTION_LENGTH_INVALID");
         assertCode(result, "SKILL_COMPATIBILITY_INVALID");
+        writeFileSync(
+            skillPath,
+            "---\nname: all-options\ndescription: |\n---\n",
+        );
+        result = validateAgentPluginArtifact(plugin);
+        assertCode(result, "SKILL_DESCRIPTION_LENGTH_INVALID");
+        writeFileSync(
+            skillPath,
+            "---\nname: all-options\ndescription: Valid.\nallowed-tools: Read\n---\n",
+        );
         const passive = validateCratisPassiveProfile(plugin, {
             profileId: "all-skill-options",
             version: undefined,
@@ -358,6 +513,12 @@ test("MCP variants isolate malformed siblings and reject mixed fields paths env 
                     token: "abcdefghijklmnopqrstuvwxyz123456",
                 },
             },
+            placeholders: {
+                type: "stdio",
+                command: "node",
+                args: ["${UNSUPPORTED}/file"],
+                env: { CONFIG: "${OTHER}" },
+            },
             insecure: {
                 type: "streamable-http",
                 url: "http://example.com/mcp#fragment",
@@ -383,6 +544,7 @@ test("MCP variants isolate malformed siblings and reject mixed fields paths env 
             "MCP_SERVER_FIELD_INVALID",
             "MCP_CWD_INVALID",
             "MCP_ENV_RESERVED",
+            "MCP_PLACEHOLDER_INVALID",
             "MCP_URL_INVALID",
             "MCP_HEADER_DUPLICATE_CASE_INSENSITIVE",
             "MCP_HEADER_LITERAL_INVALID",
