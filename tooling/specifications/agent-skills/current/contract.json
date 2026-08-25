@@ -3,10 +3,10 @@
   "id": "agent-skills-current",
   "status": "current-unversioned-specification",
   "source": {
-    "url": "https://agentskills.io/specification",
+    "url": "https://agentskills.io/specification.md",
     "retrievedOn": "2026-08-25",
     "verifiedOn": "2026-08-25",
-    "sha256": "fe7186a885f97962d9ab54c662be46294ce11ae06adf4c7ddf41148abd5ece2c",
+    "sha256": "2b1dbb4fd80c31748d15812c4ebd3e66c09383d0c792801f617718684489e40d",
     "localPath": "tooling/specifications/agent-skills/current/specification.snapshot"
   },
   "frontmatter": {

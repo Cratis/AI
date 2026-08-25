@@ -2,7 +2,14 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import assert from "node:assert/strict";
-import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import {
+    existsSync,
+    mkdirSync,
+    mkdtempSync,
+    readFileSync,
+    rmSync,
+    writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
@@ -331,6 +338,55 @@ test("passive compliance failure removes the incomplete generated candidate", ()
             /PASSIVE_ALLOWED_TOOLS_FORBIDDEN/,
         );
         assert.equal(existsSync(outputRoot), false);
+    });
+});
+
+test("every generation failure removes only newly-created output", () => {
+    withTemporaryDirectory((root) => {
+        const outputRoot = join(root, "candidate");
+        assert.throws(() =>
+            generatePassiveProfileAdapters({
+                outputRoot,
+                version: "1.0.0",
+                profileId: "public-example",
+                packageName: "@cratis/ai-example",
+                description: "Example",
+                skills: [
+                    {
+                        name: "cratis-example",
+                        files: [
+                            {
+                                path: "SKILL.md",
+                                content: Buffer.from(
+                                    "---\nname: cratis-example\ndescription: Example.\n---\n",
+                                ),
+                            },
+                            {
+                                path: `assets/${"x".repeat(300)}.txt`,
+                                content: Buffer.from("too long\n"),
+                            },
+                        ],
+                    },
+                ],
+            }),
+        );
+        assert.equal(existsSync(outputRoot), false);
+
+        mkdirSync(outputRoot);
+        writeFileSync(join(outputRoot, "owner.txt"), "preserve\n");
+        assert.throws(
+            () =>
+                generatePassiveProfileAdapters({
+                    outputRoot,
+                    version: "1.0.0",
+                    profileId: "public-example",
+                    packageName: "@cratis/ai-example",
+                    description: "Example",
+                    skills: [],
+                }),
+            /output must not exist|at least one skill/,
+        );
+        assert.equal(readFileSync(join(outputRoot, "owner.txt"), "utf8"), "preserve\n");
     });
 });
 

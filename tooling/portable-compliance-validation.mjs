@@ -57,6 +57,22 @@ const skillFields = new Set([
 const extensionNamespacePattern =
     /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)+$/;
 const skillNamePattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const passiveStaticExtensions = new Set([
+    ".css",
+    ".csv",
+    ".html",
+    ".json",
+    ".jsonc",
+    ".md",
+    ".mdx",
+    ".svg",
+    ".toml",
+    ".tsv",
+    ".txt",
+    ".xml",
+    ".yaml",
+    ".yml",
+]);
 const pluginNamePattern = /^(?!.*(?:--|\.\.))[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?$/;
 const exactSemVerPattern =
     /^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-(?:0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
@@ -66,8 +82,9 @@ const secretLiteralPatterns = [
     /\bnpm_[A-Za-z0-9]{20,}\b/,
     /\bAKIA[0-9A-Z]{16}\b/,
     /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/,
-    /\bAuthorization\s*:\s*Bearer\s+[^\s"']{12,}/i,
-    /\b(?:password|secret|token)\s*[:=]\s*["']?[^\s"']{12,}/i,
+    /\bAuthorization\s*:\s*(?:Bearer|Basic)\s+[^\s"']{12,}/i,
+    /\b(?:api[_-]?key|access[_-]?key|client[_-]?secret|password|private[_-]?token|secret|token)\s*[:=]\s*["']?[^\s"']{12,}/i,
+    /\b(?:sk|pk)_(?:live|test)_[A-Za-z0-9]{16,}\b/,
 ];
 const expectedSpecificationSources = Object.freeze([
     {
@@ -92,10 +109,10 @@ const expectedSpecificationSources = Object.freeze([
     },
 ]);
 const expectedAgentSkillsSource = Object.freeze({
-    url: "https://agentskills.io/specification",
+    url: "https://agentskills.io/specification.md",
     localPath:
         "tooling/specifications/agent-skills/current/specification.snapshot",
-    sha256: "fe7186a885f97962d9ab54c662be46294ce11ae06adf4c7ddf41148abd5ece2c",
+    sha256: "2b1dbb4fd80c31748d15812c4ebd3e66c09383d0c792801f617718684489e40d",
 });
 
 function sha256(content) {
@@ -579,7 +596,8 @@ function splitMappingLine(line) {
         }
         if (
             character === ":" &&
-            (index === line.length - 1 || /\s/u.test(line[index + 1]))
+            (index === line.length - 1 ||
+                [" ", "\t"].includes(line[index + 1]))
         )
             return [line.slice(0, index).trim(), line.slice(index + 1).trimStart()];
     }
@@ -1314,7 +1332,7 @@ function validateHeaderMap(headers, path, diagnostics) {
         if (
             !/^[!#$%&'*+.^_`|~0-9A-Za-z-]+$/.test(name) ||
             typeof value !== "string" ||
-            /[\0\r\n]/.test(value) ||
+            /[\u0000-\u0008\u000a-\u001f\u007f]/u.test(value) ||
             /\$\{[^}]+\}/.test(name) ||
             /\$\{[^}]+\}/.test(value)
         )
@@ -1532,7 +1550,10 @@ function validateStdioServer(server, root, path, diagnostics) {
                 server.cwd.startsWith("${PLUGIN_ROOT}/")
             ) {
                 const suffix = server.cwd.slice("${PLUGIN_ROOT}".length);
-                valid = lexicalRelativeContained(`.${suffix || "/"}`);
+                const relativeCwd = `.${suffix || "/"}`;
+                valid =
+                    lexicalRelativeContained(relativeCwd) &&
+                    existingPathContained(root, relativeCwd);
             } else if (
                 server.cwd === "${PLUGIN_DATA}" ||
                 server.cwd.startsWith("${PLUGIN_DATA}/")
@@ -1846,7 +1867,9 @@ function walkPassive(root, current, diagnostics, files, collisions) {
             );
         const content = readFileSync(path);
         if (
-            /\.(?:bat|cmd|com|cjs|exe|js|mjs|ps1|py|sh)$/i.test(relativePath) ||
+            /\.(?:apk|app|bat|bin|class|cmd|com|cjs|dll|dylib|exe|fish|jar|js|jsx|lua|mjs|msi|php|pl|pm|ps1|py|pyc|pyo|rb|sh|so|tcl|ts|tsx|vbs|wasm|zsh)$/i.test(
+                relativePath,
+            ) ||
             content.subarray(0, 2).toString("utf8") === "#!"
         )
             diagnostics.push(
@@ -1861,6 +1884,20 @@ function walkPassive(root, current, diagnostics, files, collisions) {
             relativePath === "plugin.json" ||
             /^skills\/[^/]+\/(?:SKILL\.md|LICENSE[^/]*|references\/.+|assets\/.+)$/.test(
                 relativePath,
+            );
+        if (
+            /\/(?:references|assets)\//u.test(relativePath) &&
+            !passiveStaticExtensions.has(
+                relativePath.slice(relativePath.lastIndexOf(".")).toLowerCase(),
+            )
+        )
+            diagnostics.push(
+                diagnostic(
+                    "PASSIVE_FILE_TYPE_FORBIDDEN",
+                    relativePath,
+                    "Passive references and assets must use a reviewed static text format.",
+                    { fatal: true },
+                ),
             );
         if (!allowed)
             diagnostics.push(
@@ -2091,12 +2128,36 @@ export function validateAgentPluginArtifact(
                 withFileTypes: true,
             }).sort((left, right) => compareOrdinal(left.name, right.name))) {
                 const path = join(current, entry.name);
-                if (entry.isDirectory()) collect(path);
+                const relativePath = relative(root, path).replaceAll("\\", "/");
+                if (entry.isSymbolicLink()) {
+                    if (!resolvedContained(root, path))
+                        diagnostics.push(
+                            diagnostic(
+                                "AP_PACKAGE_PATH_ESCAPE",
+                                relativePath,
+                                "Package symlink resolves outside the plugin root.",
+                                { fatal: true },
+                            ),
+                        );
+                    else
+                        diagnostics.push(
+                            diagnostic(
+                                "AP_PACKAGE_SYMLINK_FORBIDDEN",
+                                relativePath,
+                                "Cratis portable validation rejects symlinks so release inventory cannot omit indirection.",
+                                { fatal: true },
+                            ),
+                        );
+                } else if (entry.isDirectory()) collect(path);
                 else if (entry.isFile())
-                    fileInventory.push(
-                        fileDigestRecord(
-                            root,
-                            relative(root, path).replaceAll("\\", "/"),
+                    fileInventory.push(fileDigestRecord(root, relativePath));
+                else
+                    diagnostics.push(
+                        diagnostic(
+                            "AP_PACKAGE_SPECIAL_FILE_FORBIDDEN",
+                            relativePath,
+                            "Portable package inventory rejects special files.",
+                            { fatal: true },
                         ),
                     );
             }

@@ -101,7 +101,7 @@ test("official specification locks verify exact offline bytes and published 1.0.
     );
     assert.equal(
         skillContract.source.sha256,
-        "fe7186a885f97962d9ab54c662be46294ce11ae06adf4c7ddf41148abd5ece2c",
+        "2b1dbb4fd80c31748d15812c4ebd3e66c09383d0c792801f617718684489e40d",
     );
     assert.equal(skillContract.status, "current-unversioned-specification");
 });
@@ -519,15 +519,23 @@ test("MCP variants isolate malformed siblings and reject mixed fields paths env 
                 args: ["${UNSUPPORTED}/file"],
                 env: { CONFIG: "${OTHER}" },
             },
+            cwdSymlink: {
+                type: "stdio",
+                command: "node",
+                cwd: "${PLUGIN_ROOT}/link",
+            },
             insecure: {
                 type: "streamable-http",
                 url: "http://example.com/mcp#fragment",
                 headers: {
-                    Authorization: "${TOKEN}",
+                    Authorization: "Basic dXNlcjpwYXNzd29yZA==",
                     authorization: "duplicate",
+                    "X-Control": "ok\u0001bad",
                 },
             },
         });
+        mkdirSync(join(root, "outside"));
+        symlinkSync(join(root, "outside"), join(plugin, "link"));
         writeJson(path, configuration);
         let result = validateAgentPluginArtifact(plugin);
         assert.equal(result.loadable, true);
@@ -581,13 +589,18 @@ test("passive mode forbids executable categories files extension content and uns
         writeJson(manifestPath, manifest);
         writeFileSync(
             join(plugin, "skills/example-skill/assets/secret.txt"),
-            "token=abcdefghijklmnopqrstuvwxyz123456\n",
+            "token=abcdefghijklmnopqrstuvwxyz123456\napi_key=sk_live_abcdefghijklmnopqrstuvwxyz123456\nAuthorization: Basic dXNlcjpwYXNzd29yZA==\n",
+        );
+        writeFileSync(
+            join(plugin, "skills/example-skill/assets/run.rb"),
+            'system("touch /tmp/pwned")\n',
         );
         const result = validatePassive(plugin);
         for (const code of [
             "PASSIVE_EXECUTABLE_CATEGORY_FORBIDDEN",
             "PASSIVE_EXECUTABLE_FILE_FORBIDDEN",
             "PASSIVE_EXECUTABLE_CONTENT_FORBIDDEN",
+            "PASSIVE_FILE_TYPE_FORBIDDEN",
             "PASSIVE_PAYLOAD_PATH_FORBIDDEN",
             "PASSIVE_EXTENSION_CONTENT_FORBIDDEN",
             "PASSIVE_CONTENT_SAFETY_INVALID",
@@ -607,8 +620,21 @@ test("passive mode rejects symlinks special files and realpath escapes without e
             outside,
             join(plugin, "skills/example-skill/assets/link.txt"),
         );
+        symlinkSync(
+            join(plugin, "skills/example-skill/references/guide.md"),
+            join(plugin, "skills/example-skill/assets/internal-link.md"),
+        );
         const fifo = join(plugin, "skills/example-skill/assets/special.fifo");
         execFileSync("mkfifo", [fifo]);
+        const universal = validateAgentPluginArtifact(plugin);
+        assertCode(universal, "AP_PACKAGE_PATH_ESCAPE");
+        assertCode(universal, "AP_PACKAGE_SYMLINK_FORBIDDEN");
+        assertCode(universal, "AP_PACKAGE_SPECIAL_FILE_FORBIDDEN");
+        assert.equal(
+            universal.receipt.files.some((file) => file.path.endsWith("link.txt")),
+            false,
+        );
+
         const result = validatePassive(plugin);
         assertCode(result, "PASSIVE_SYMLINK_FORBIDDEN");
         assertCode(result, "PASSIVE_SPECIAL_FILE_FORBIDDEN");

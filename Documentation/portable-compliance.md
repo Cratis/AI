@@ -33,7 +33,9 @@ node tooling/portable-compliance-validation.mjs --verify-lock
 Unknown top-level manifest fields and a non-object `extensions` value are
 reported as nonconformant but remain loadable. Invalid skills and MCP servers
 are isolated from valid siblings, and a malformed MCP component does not reject
-valid skills.
+valid skills. Cratis additionally rejects symlinks and special files while
+building a deterministic release inventory; this is a client safety policy,
+not a claim that Agent Plugins 1.0 universally forbids contained symlinks.
 
 `cratis-passive-v1` is a stricter release profile. It requires exact profile and
 version parity and at least one valid skill. It forbids MCP, extension content,
@@ -44,8 +46,12 @@ path except:
 - `plugin.json`;
 - `skills/<name>/SKILL.md`;
 - `skills/<name>/LICENSE*`;
-- `skills/<name>/references/**`;
-- `skills/<name>/assets/**`.
+- reviewed static-text formats under `skills/<name>/references/**`;
+- reviewed static-text formats under `skills/<name>/assets/**`.
+
+Executable and unknown file formats remain blocked even when placed under a
+reference or asset directory. New static formats require an explicit policy and
+test update.
 
 The validator performs no script or MCP execution. It never fetches a schema at
 runtime.
