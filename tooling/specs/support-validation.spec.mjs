@@ -16,6 +16,7 @@ import {
     loadSupportCatalogs,
     supportPaths,
     validateNormalizedEvidence,
+    validatePolicy,
     validateSupportCatalogs,
 } from "../support-validation.mjs";
 
@@ -38,7 +39,6 @@ const allTechnicalAssurances = [
     "released-artifact",
     "canary",
     "ecosystem-native-provenance",
-    "release-approval",
     "immutable-source",
     "sha256-inventory",
     "canonical-parity",
@@ -105,9 +105,7 @@ function configuredCatalogs({
                   },
               }
             : {}),
-        ...(assuranceId === "release-approval"
-            ? { approvalName: "Cratis AI release approval 1.2.3" }
-            : {}),
+
     }));
     return catalogs;
 }
@@ -172,7 +170,22 @@ test("all 83 observations, 110 fact IDs, 11 legacy gaps, 63 official sources, an
 test("legacy facts use minimum exact evidence rather than all-source fan-out", () => {
     const evidence = loadSupportCatalogs().evidence;
     assert(evidence.legacyFacts.every((fact) => fact.evidenceIds.length <= 3));
-    assert(evidence.legacyFacts.some((fact) => fact.evidenceIds.length === 0));
+    assert.deepEqual(
+        evidence.legacyFacts
+            .filter((fact) => !fact.supporting)
+            .map((fact) => fact.id)
+            .sort(),
+        [
+            "github-cli-skills-fact-5",
+            "npm-cratis-scope-fact-4",
+            "npm-trusted-publishing-fact-5",
+        ],
+    );
+    assert(
+        evidence.legacyFacts
+            .filter((fact) => fact.supporting)
+            .every((fact) => fact.evidenceIds.length > 0),
+    );
     assert(evidence.legacyFacts.some((fact) => fact.evidenceIds.length === 2));
 });
 
@@ -284,7 +297,7 @@ test("expired evidence remains history but cannot satisfy a gate", () => {
 
 test("evidence activity is inclusive at observedOn and validThrough", () => {
     const record = supportRecord(configuredCatalogs());
-    assert.equal(record.effectiveTier, "supported");
+    assert.equal(record.effectiveTier, "release-tested");
     assert(record.activeEvidenceIds.includes(observationId));
 });
 
@@ -318,6 +331,53 @@ test("higher assurance cannot skip an unsatisfied lower tier", () => {
     );
     assert.equal(record.effectiveTier, "documented");
     assert.equal(record.rank, 1);
+});
+
+test("coordinated source claim and subject mutations fail independent identity anchors", () => {
+    const sourceMutation = clone(loadSupportCatalogs());
+    const source = sourceMutation.evidence.sources[0];
+    const oldSourceId = source.id;
+    source.id = "replacement-source";
+    for (const observation of sourceMutation.evidence.observations) {
+        if (observation.sourceId === oldSourceId)
+            observation.sourceId = source.id;
+    }
+    hasError(
+        validateNormalizedEvidence(sourceMutation),
+        "source identities and immutable locators changed",
+    );
+
+    const claimMutation = clone(loadSupportCatalogs());
+    const fact = claimMutation.evidence.legacyFacts.find(
+        (record) => record.id === "agent-plugins-fact-1",
+    );
+    fact.evidenceIds = ["agent-plugins-source-2"];
+    const oldObservation = claimMutation.evidence.observations.find(
+        (record) => record.id === "agent-plugins-source-1",
+    );
+    const newObservation = claimMutation.evidence.observations.find(
+        (record) => record.id === "agent-plugins-source-2",
+    );
+    for (const assertion of oldObservation.assertions)
+        assertion.claimIds = assertion.claimIds.filter((id) => id !== fact.id);
+    newObservation.assertions[0].claimIds.push(fact.id);
+    claimMutation.ecosystemContracts.ecosystems
+        .find((record) => record.id === "agent-plugins")
+        .legacyFactBindings.find((record) => record.factId === fact.id)
+        .evidenceIds = [...fact.evidenceIds];
+    hasError(
+        validateNormalizedEvidence(claimMutation),
+        "fact IDs, texts, evidence bindings, and support dispositions",
+    );
+
+    const subjectMutation = clone(loadSupportCatalogs());
+    subjectMutation.evidence.observations.find(
+        (record) => record.id === "agent-plugins-source-1",
+    ).subject.id = "agent-skills";
+    hasError(
+        validateNormalizedEvidence(subjectMutation),
+        "must bind its exact ecosystem subject",
+    );
 });
 
 test("coordinated observation and reciprocal claim ID mutation fails the independent evidence anchor", () => {
@@ -358,12 +418,77 @@ test("dangling reusable source is rejected", () => {
     );
 });
 
+test("distribution evidence linkage is enforced in both directions", () => {
+    const catalogs = clone(loadSupportCatalogs());
+    const record = catalogs.evidence.distributionEvidenceFiles.find(
+        (item) =>
+            item.repositoryPath ===
+            "distribution/evidence/local-gemini-skill-discovery-2026-08-24.json",
+    );
+    record.role = "inventory-only";
+    record.observationIds = [];
+    hasError(
+        validateNormalizedEvidence(catalogs),
+        "lacks an exact supporting inventory backlink",
+    );
+});
+
 test("unindexed distribution evidence is rejected", () => {
     const catalogs = clone(loadSupportCatalogs());
     catalogs.evidence.distributionEvidenceFiles.pop();
     hasError(
         validateNormalizedEvidence(catalogs),
         "does not account for every distribution evidence JSON file exactly once",
+    );
+});
+
+test("support policy requirements controls and snapshot date cannot be weakened", () => {
+    const policyMutation = clone(loadSupportCatalogs()).policy;
+    for (const tier of policyMutation.tiers) tier.requirements = [];
+    hasError(validatePolicy(policyMutation), "requirements changed");
+
+    const mappingMutation = clone(loadSupportCatalogs()).policy;
+    mappingMutation.assuranceProfileControlMap[0].assuranceId =
+        "documentation";
+    hasError(
+        validatePolicy(mappingMutation),
+        "assurance control mappings changed",
+    );
+
+    const dateMutation = clone(loadSupportCatalogs());
+    dateMutation.policy.asOf = "2026-08-25";
+    hasError(
+        validateNormalizedEvidence(dateMutation),
+        "snapshot dates must agree",
+    );
+});
+
+test("an active failure vetoes an assurance even when it is non-supporting", () => {
+    const catalogs = configuredCatalogs();
+    const observation = catalogs.evidence.observations.find(
+        (record) => record.id === observationId,
+    );
+    observation.assertions.push({
+        assuranceId: "artifact-generation",
+        outcome: "fail",
+        supporting: false,
+        claimIds: [],
+    });
+    assert.equal(supportRecord(catalogs).effectiveTier, "documented");
+});
+
+test("release approval assertions remain blocked until an exact S10 release contract exists", () => {
+    const catalogs = clone(loadSupportCatalogs());
+    catalogs.evidence.observations[0].assertions.push({
+        assuranceId: "release-approval",
+        outcome: "pass",
+        supporting: true,
+        claimIds: [],
+        approvalName: "arbitrary text posing as approval",
+    });
+    hasError(
+        validateNormalizedEvidence(catalogs),
+        "cannot assert release approval before S10",
     );
 });
 
@@ -380,7 +505,7 @@ test("tier decays when the authored asOf moves beyond every relevant validity wi
 
 test("marketplace listing is orthogonal for direct delivery and required only when availability is claimed", () => {
     const direct = configuredCatalogs();
-    assert.equal(supportRecord(direct).effectiveTier, "supported");
+    assert.equal(supportRecord(direct).effectiveTier, "release-tested");
     assert.equal(supportRecord(direct).marketplace.status, "not-claimed");
 
     const claimed = configuredCatalogs();
@@ -398,7 +523,7 @@ test("marketplace listing is orthogonal for direct delivery and required only wh
             supporting: true,
             claimIds: [],
         });
-    assert.equal(supportRecord(claimed).effectiveTier, "supported");
+    assert.equal(supportRecord(claimed).effectiveTier, "release-tested");
     assert.equal(supportRecord(claimed).marketplace.status, "listed");
 });
 
@@ -409,6 +534,18 @@ test("authored technical tier claims are forbidden", () => {
         validateNormalizedEvidence(catalogs),
         "forbidden authored tier claim effectiveTier",
     );
+});
+
+test("legacy evidence projection is ordinal-canonical", () => {
+    const legacy = readCatalog(
+        join(defaultRepositoryRoot, supportPaths.legacyEvidence),
+    );
+    const evidenceIds = legacy.evidence.map((record) => record.id);
+    const factIds = legacy.ecosystemFacts.map((record) => record.id);
+    assert.deepEqual(evidenceIds, [...evidenceIds].sort());
+    assert.deepEqual(factIds, [...factIds].sort());
+    for (const fact of legacy.ecosystemFacts)
+        assert.deepEqual(fact.evidenceIds, [...fact.evidenceIds].sort());
 });
 
 test("computed support is deterministic and byte-identical to the generated catalog", () => {

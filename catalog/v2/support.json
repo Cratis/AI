@@ -22,8 +22,8 @@
     "supportClaimCount": 0,
     "byTier": {
       "unsupported": 0,
-      "documented": 25,
-      "generated": 1,
+      "documented": 26,
+      "generated": 0,
       "statically-validated": 0,
       "install-tested": 0,
       "behavior-tested": 0,
@@ -250,8 +250,8 @@
       "bindingId": "gemini-cli-extensions-artifact-binding",
       "ecosystemId": "gemini-cli-extensions",
       "artifactClass": "passive-public-package",
-      "effectiveTier": "generated",
-      "rank": 2,
+      "effectiveTier": "documented",
+      "rank": 1,
       "supportClaim": false,
       "activeEvidenceIds": [
         "gemini-cli-extensions-source-1",
@@ -262,11 +262,10 @@
       "expiredEvidenceIds": [],
       "futureEvidenceIds": [],
       "satisfiedAssurances": [
-        "artifact-generation",
         "documentation"
       ],
       "missingAssurances": [
-        "static-validation"
+        "artifact-generation"
       ],
       "decay": {
         "state": "none",

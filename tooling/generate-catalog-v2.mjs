@@ -1541,7 +1541,15 @@ const evidence = normalizedEvidence.observations.map((observation) => {
         ...(source.digest ? { digest: source.digest } : {}),
     };
 });
-const ecosystemFacts = normalizedEvidence.legacyFacts;
+const ecosystemFacts = normalizedEvidence.legacyFacts
+    .map(({ id, ecosystemId, fact, evidenceIds }) => ({
+        id,
+        ecosystemId,
+        fact,
+        evidenceIds: [...evidenceIds].sort(compareOrdinal),
+    }))
+    .sort((left, right) => compareOrdinal(left.id, right.id));
+evidence.sort((left, right) => compareOrdinal(left.id, right.id));
 writeJson("evidence.json", {
     schemaVersion: 2,
     asOf: normalizedEvidence.asOf,

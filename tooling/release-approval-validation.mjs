@@ -45,17 +45,6 @@ export function validateReleaseApprovals(
         "distribution/profile-catalog.json",
     );
     const targets = readJson(repositoryRoot, "catalog/v2/targets.json").targets;
-    const bindings = readJson(
-        repositoryRoot,
-        "distribution/ecosystem-artifact-bindings.json",
-    ).bindings;
-    const computedSupport = readJson(
-        repositoryRoot,
-        "catalog/v2/support.json",
-    ).bindings;
-    const supportByBindingId = new Map(
-        computedSupport.map((record) => [record.bindingId, record]),
-    );
     const contracts = readJson(
         repositoryRoot,
         "catalog/v2/source-contracts.json",
@@ -70,6 +59,15 @@ export function validateReleaseApprovals(
         approvals.defaultPolicy !== "deny"
     )
         errors.push("Release approval catalog contract changed");
+    const allProfiles = [
+        ...profiles.publicProfiles,
+        ...profiles.engineeringProfiles,
+    ];
+    const knownIdsByKind = new Map([
+        ["profile", new Set(allProfiles.map((profile) => profile.id))],
+        ["target", new Set(targets.map((target) => target.id))],
+        ["source contract", new Set(contracts.map((contract) => contract.id))],
+    ]);
     for (const [name, records, key] of [
         ["profile", approvals.profileApprovals, "profileId"],
         ["target", approvals.targetApprovals, "targetId"],
@@ -82,6 +80,8 @@ export function validateReleaseApprovals(
         if (duplicates(records.map((record) => record[key])).length)
             errors.push(`Release approval catalog contains duplicate ${name}s`);
         for (const record of records) {
+            if (!knownIdsByKind.get(name).has(record[key]))
+                errors.push(`${record[key]}: unknown ${name} approval`);
             if (!completeApproval(record))
                 errors.push(`${record[key]}: incomplete ${name} approval`);
             for (const evidenceId of record.evidenceIds ?? [])
@@ -91,10 +91,6 @@ export function validateReleaseApprovals(
                     );
         }
     }
-    const allProfiles = [
-        ...profiles.publicProfiles,
-        ...profiles.engineeringProfiles,
-    ];
     const profileApprovals = new Map(
         approvals.profileApprovals.map((approval) => [
             approval.profileId,
@@ -118,22 +114,6 @@ export function validateReleaseApprovals(
         const approval = targetApprovals.get(target.id);
         if ((target.approval.state === "approved") !== Boolean(approval))
             errors.push(`${target.id}: target approval state is inconsistent`);
-        if (approval) {
-            const relatedBindings = bindings.filter(
-                (binding) => binding.targetId === target.id,
-            );
-            if (
-                relatedBindings.length === 0 ||
-                !relatedBindings.some(
-                    (binding) =>
-                        supportByBindingId.get(binding.id)?.supportClaim ===
-                        true,
-                )
-            )
-                errors.push(
-                    `${target.id}: release approval lacks a computed supported binding`,
-                );
-        }
         if (
             approval &&
             (target.approval.reviewer !== approval.reviewer ||

@@ -183,12 +183,13 @@
     "legacyFact": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "ecosystemId", "fact", "evidenceIds"],
+      "required": ["id", "ecosystemId", "fact", "evidenceIds", "supporting"],
       "properties": {
         "id": { "$ref": "#/$defs/id" },
         "ecosystemId": { "$ref": "#/$defs/id" },
         "fact": { "$ref": "#/$defs/nonEmptyString" },
-        "evidenceIds": { "$ref": "#/$defs/idArray" }
+        "evidenceIds": { "$ref": "#/$defs/idArray" },
+        "supporting": { "type": "boolean" }
       }
     },
     "legacyGap": {

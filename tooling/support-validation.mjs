@@ -28,8 +28,12 @@ export const supportPaths = Object.freeze({
 
 const expectedObservationAnchor =
     "0d82c5c7c7a08a4278fc0278a3f25421e1299cc83d20af450427948305210f69";
+const expectedSourceIdentityAnchor =
+    "1392c47a15f7699c4fbfbfa6e2fe4cdbe384d8bb26eb6e1c2051380208d438d1";
+const expectedObservationBindingAnchor =
+    "05ff2713aebff4895d332c56438484b609beebd08583069c1134fbef0a13cc39";
 const expectedFactAnchor =
-    "52a021f9b82367dbc3587b9ddc3f5e772ea9cefb65f026d6f06f1680358e2525";
+    "9583615118311347817aaae548dd0c60372c16fc7d8ab61a2cc5cd6dccb67d95";
 const expectedGapAnchor =
     "618d4d6ce61c1ff2cc722da99cc6b0006dd676eb8fdd67bdb16ba8dfefc9c385";
 const expectedTierOrder = [
@@ -43,6 +47,71 @@ const expectedTierOrder = [
     "release-tested",
     "supported",
 ];
+const expectedTierRequirements = new Map([
+    ["unsupported", []],
+    ["documented", ["documentation"]],
+    ["generated", ["artifact-generation"]],
+    ["statically-validated", ["static-validation"]],
+    ["install-tested", ["install"]],
+    [
+        "behavior-tested",
+        ["discovery", "behavior-positive", "behavior-negative"],
+    ],
+    [
+        "lifecycle-tested",
+        [
+            "install",
+            "update",
+            "rollback",
+            "uninstall",
+            "project-context-preservation",
+        ],
+    ],
+    ["release-tested", ["released-artifact", "canary"]],
+    ["supported", ["release-approval"]],
+]);
+const expectedEvidenceClasses = [
+    "synthetic-fixture",
+    "local",
+    "hosted",
+    "real-consumer",
+];
+const expectedExecutionAssurances = [
+    "install",
+    "discovery",
+    "behavior-positive",
+    "behavior-negative",
+    "update",
+    "rollback",
+    "uninstall",
+    "project-context-preservation",
+    "canary",
+];
+const expectedBehaviorAssurances = [
+    "discovery",
+    "behavior-positive",
+    "behavior-negative",
+];
+const expectedLifecycleAssurances = [
+    "install",
+    "update",
+    "rollback",
+    "uninstall",
+    "project-context-preservation",
+];
+const expectedReleaseAssurances = [
+    "released-artifact",
+    "canary",
+    "ecosystem-native-provenance",
+];
+const expectedControlMappings = new Map([
+    ["immutableSource", "immutable-source"],
+    ["sha256Inventory", "sha256-inventory"],
+    ["canonicalParity", "canonical-parity"],
+    ["secretScanning", "secret-scanning"],
+    ["pathScanning", "path-scanning"],
+    ["ecosystemNativeProvenance", "ecosystem-native-provenance"],
+]);
 const forbiddenAuthoredKeys = new Set([
     "effectiveTier",
     "computedTier",
@@ -57,6 +126,69 @@ function digestLines(lines) {
 
 function sha256(content) {
     return createHash("sha256").update(content).digest("hex");
+}
+
+function normalizedAssertion(assertion) {
+    return {
+        assuranceId: assertion.assuranceId,
+        outcome: assertion.outcome,
+        supporting: assertion.supporting,
+        claimIds: sortedOrdinal(assertion.claimIds),
+        approvalName: assertion.approvalName ?? null,
+        execution: assertion.execution ?? null,
+    };
+}
+
+function sourceIdentityLines(sources) {
+    return sources.map((source) =>
+        JSON.stringify({
+            id: source.id,
+            kind: source.kind,
+            locator: source.locator,
+            immutableRevision: source.immutableRevision ?? null,
+            repositoryPath: source.repositoryPath ?? null,
+            digest: source.digest ?? null,
+        }),
+    );
+}
+
+function observationIdentityLines(observations) {
+    return observations.map((observation) =>
+        JSON.stringify({
+            id: observation.id,
+            sourceId: observation.sourceId,
+            evidenceClass: observation.evidenceClass,
+            subject: observation.subject,
+            bindingIds: sortedOrdinal(observation.bindingIds),
+            assertions: observation.assertions
+                .map(normalizedAssertion)
+                .sort((left, right) =>
+                    compareOrdinal(
+                        `${left.assuranceId}\0${left.outcome}`,
+                        `${right.assuranceId}\0${right.outcome}`,
+                    ),
+                ),
+            scope: observation.scope,
+            environment: observation.environment,
+            observedOn: observation.observedOn,
+            validThrough: observation.validThrough,
+            confidence: observation.confidence,
+            limitations: sortedOrdinal(observation.limitations),
+            supersedes: sortedOrdinal(observation.supersedes),
+        }),
+    );
+}
+
+function factIdentityLines(facts) {
+    return facts.map((fact) =>
+        JSON.stringify({
+            id: fact.id,
+            ecosystemId: fact.ecosystemId,
+            fact: fact.fact,
+            evidenceIds: sortedOrdinal(fact.evidenceIds),
+            supporting: fact.supporting,
+        }),
+    );
 }
 
 function duplicates(values) {
@@ -113,7 +245,7 @@ export function loadSupportCatalogs(root = defaultRepositoryRoot) {
     return readSupportInputs(root);
 }
 
-function validatePolicy(policy) {
+export function validatePolicy(policy) {
     const errors = [];
     const actualOrder = policy.tiers.map((tier) => tier.id);
     if (JSON.stringify(actualOrder) !== JSON.stringify(expectedTierOrder))
@@ -125,7 +257,51 @@ function validatePolicy(policy) {
             errors.push(
                 `support policy tier ${tier.id} must have rank ${rank}`,
             );
+        if (!equalSets(tier.requirements, expectedTierRequirements.get(tier.id) ?? []))
+            errors.push(
+                `support policy tier ${tier.id} requirements changed`,
+            );
     });
+    for (const [label, actual, expected] of [
+        ["evidence classes", policy.evidenceClasses, expectedEvidenceClasses],
+        [
+            "execution assurances",
+            policy.executionRequiredAssuranceIds,
+            expectedExecutionAssurances,
+        ],
+        ["behavior assurances", policy.behaviorAssuranceIds, expectedBehaviorAssurances],
+        ["lifecycle assurances", policy.lifecycleAssuranceIds, expectedLifecycleAssurances],
+        ["release assurances", policy.releaseAssuranceIds, expectedReleaseAssurances],
+    ]) {
+        if (!equalSets(actual, expected))
+            errors.push(`support policy ${label} changed`);
+    }
+    const actualControlMappings = new Map(
+        policy.assuranceProfileControlMap.map((mapping) => [
+            mapping.control,
+            mapping.assuranceId,
+        ]),
+    );
+    if (
+        actualControlMappings.size !== expectedControlMappings.size ||
+        [...expectedControlMappings].some(
+            ([control, assurance]) =>
+                actualControlMappings.get(control) !== assurance,
+        )
+    )
+        errors.push("support policy assurance control mappings changed");
+    if (
+        policy.marketplace.listingAssuranceId !== "marketplace-listing" ||
+        policy.marketplace.availabilityClaimField !==
+            "marketplaceAvailabilityClaim"
+    )
+        errors.push("support policy marketplace contract changed");
+    if (
+        policy.support.releaseApprovalAssuranceId !== "release-approval" ||
+        policy.support.requireNamedApproval !== true ||
+        policy.support.requireAllApplicableProfileControls !== true
+    )
+        errors.push("support policy approval contract changed");
     if (policy.support.syntheticMaximumTier !== "statically-validated")
         errors.push(
             "synthetic fixture evidence must never satisfy install-tested or above",
@@ -206,6 +382,17 @@ export function validateNormalizedEvidence(
         bindings,
         policy,
     } = catalogs;
+    const authoredDates = [
+        evidence.asOf,
+        policy.asOf,
+        ecosystemContracts.asOf,
+        ecosystemVersions.verifiedOn,
+    ];
+    if (new Set(authoredDates).size !== 1)
+        errors.push(
+            "normalized evidence, support policy, ecosystem contract, and legacy registry snapshot dates must agree",
+        );
+
     const sourceIds = evidence.sources.map((source) => source.id);
     const observationIds = evidence.observations.map(
         (observation) => observation.id,
@@ -215,7 +402,6 @@ export function validateNormalizedEvidence(
     const bindingsById = new Map(
         bindings.bindings.map((binding) => [binding.id, binding]),
     );
-    const bindingIds = new Set(bindingsById.keys());
     const factsById = new Map(
         evidence.legacyFacts.map((fact) => [fact.id, fact]),
     );
@@ -242,13 +428,20 @@ export function validateNormalizedEvidence(
         errors.push(
             "normalized evidence must preserve all 83 S0/S1 evidence IDs exactly once",
         );
+    if (digestLines(sourceIdentityLines(evidence.sources)) !== expectedSourceIdentityAnchor)
+        errors.push(
+            "normalized evidence source identities and immutable locators changed",
+        );
     if (
-        digestLines(
-            evidence.legacyFacts.map((fact) => `${fact.id}\0${fact.fact}`),
-        ) !== expectedFactAnchor
+        digestLines(observationIdentityLines(evidence.observations)) !==
+        expectedObservationBindingAnchor
     )
         errors.push(
-            "normalized evidence must preserve all 110 legacy fact IDs and texts exactly",
+            "normalized observation source, subject, binding, or assertion identity changed",
+        );
+    if (digestLines(factIdentityLines(evidence.legacyFacts)) !== expectedFactAnchor)
+        errors.push(
+            "normalized evidence must preserve all 110 legacy fact IDs, texts, evidence bindings, and support dispositions exactly",
         );
     if (
         digestLines(
@@ -293,12 +486,16 @@ export function validateNormalizedEvidence(
             "normalized gaps diverge from the legacy localEvidence anchor",
         );
 
-    const officialObservationIds = new Set(
+    const officialObservationEcosystems = new Map(
         ecosystemVersions.ecosystems.flatMap((ecosystem) =>
-            ecosystem.sources.map(
-                (_, index) => `${ecosystem.id}-source-${index + 1}`,
-            ),
+            ecosystem.sources.map((_, index) => [
+                `${ecosystem.id}-source-${index + 1}`,
+                ecosystem.id,
+            ]),
         ),
+    );
+    const officialObservationIds = new Set(
+        officialObservationEcosystems.keys(),
     );
     if (officialObservationIds.size !== 63)
         errors.push(
@@ -316,9 +513,27 @@ export function validateNormalizedEvidence(
                 `observation ${observation.id} is valid before it was observed`,
             );
         for (const bindingId of observation.bindingIds) {
-            if (!bindingIds.has(bindingId))
+            const binding = bindingsById.get(bindingId);
+            if (!binding) {
                 errors.push(
                     `observation ${observation.id} references unknown binding ${bindingId}`,
+                );
+                continue;
+            }
+            if (
+                observation.subject.kind === "ecosystem" &&
+                observation.subject.id !== binding.ecosystemId
+            )
+                errors.push(
+                    `observation ${observation.id} ecosystem subject diverges from binding ${bindingId}`,
+                );
+            if (
+                observation.subject.kind === "host" &&
+                (observation.subject.id !== binding.targetId ||
+                    observation.subject.harnessId !== binding.harnessId)
+            )
+                errors.push(
+                    `observation ${observation.id} host subject diverges from binding ${bindingId}`,
                 );
         }
         for (const supersededId of observation.supersedes) {
@@ -358,18 +573,20 @@ export function validateNormalizedEvidence(
                 validateExecution(observation, assertion, bindingsById, errors);
             if (
                 assertion.assuranceId ===
-                    policy.support.releaseApprovalAssuranceId &&
-                assertion.supporting &&
-                !assertion.approvalName
+                    policy.support.releaseApprovalAssuranceId
             )
                 errors.push(
-                    `observation ${observation.id} release approval must be named`,
+                    `observation ${observation.id} cannot assert release approval before S10 defines an exact release-record contract`,
                 );
         }
         if (officialObservationIds.has(observation.id)) {
-            if (observation.subject.kind !== "ecosystem")
+            if (
+                observation.subject.kind !== "ecosystem" ||
+                observation.subject.id !==
+                    officialObservationEcosystems.get(observation.id)
+            )
                 errors.push(
-                    `official observation ${observation.id} must bind an exact ecosystem subject`,
+                    `official observation ${observation.id} must bind its exact ecosystem subject`,
                 );
             if (!observation.subject.version)
                 errors.push(
@@ -405,7 +622,23 @@ export function validateNormalizedEvidence(
     }
     for (const id of observationIds) visit(id);
 
+    const expectedUnsupportedFacts = new Set([
+        "github-cli-skills-fact-5",
+        "npm-cratis-scope-fact-4",
+        "npm-trusted-publishing-fact-5",
+    ]);
     for (const fact of evidence.legacyFacts) {
+        const shouldSupport = !expectedUnsupportedFacts.has(fact.id);
+        if (fact.supporting !== shouldSupport)
+            errors.push(
+                `legacy fact ${fact.id} support disposition changed`,
+            );
+        if (fact.supporting && fact.evidenceIds.length === 0)
+            errors.push(`supporting legacy fact ${fact.id} lacks evidence`);
+        if (!fact.supporting && fact.evidenceIds.length > 0)
+            errors.push(
+                `non-supporting legacy fact ${fact.id} must not cite evidence`,
+            );
         for (const evidenceId of fact.evidenceIds) {
             const observation = observationsById.get(evidenceId);
             if (!observation)
@@ -460,6 +693,12 @@ export function validateNormalizedEvidence(
         errors.push(
             "normalized evidence inventory does not account for every distribution evidence JSON file exactly once",
         );
+    const distributionEvidenceByPath = new Map(
+        evidence.distributionEvidenceFiles.map((record) => [
+            record.repositoryPath,
+            record,
+        ]),
+    );
     for (const record of evidence.distributionEvidenceFiles) {
         const absolutePath = join(root, record.repositoryPath);
         if (!existsSync(absolutePath)) {
@@ -499,6 +738,20 @@ export function validateNormalizedEvidence(
                     `distribution evidence ${record.repositoryPath} references unknown observation ${observationId}`,
                 );
         }
+    }
+    for (const observation of evidence.observations) {
+        const source = sourcesById.get(observation.sourceId);
+        if (!source?.repositoryPath?.startsWith("distribution/evidence/"))
+            continue;
+        const record = distributionEvidenceByPath.get(source.repositoryPath);
+        if (
+            !record ||
+            record.role !== "supporting" ||
+            !record.observationIds.includes(observation.id)
+        )
+            errors.push(
+                `distribution evidence observation ${observation.id} lacks an exact supporting inventory backlink`,
+            );
     }
     walkForbiddenKeys(evidence, "catalog/evidence.json", errors);
     walkForbiddenKeys(policy, "catalog/support-policy.json", errors);
@@ -567,7 +820,6 @@ export function computeSupport(catalogs) {
             const assuranceObservations = new Map();
             for (const observation of groups.active) {
                 for (const assertion of observation.assertions) {
-                    if (!assertion.supporting) continue;
                     if (!assuranceObservations.has(assertion.assuranceId))
                         assuranceObservations.set(assertion.assuranceId, []);
                     assuranceObservations
@@ -578,7 +830,8 @@ export function computeSupport(catalogs) {
             const satisfied = new Set();
             for (const [assuranceId, values] of assuranceObservations) {
                 const hasPass = values.some(
-                    ({ assertion }) => assertion.outcome === "pass",
+                    ({ assertion }) =>
+                        assertion.supporting && assertion.outcome === "pass",
                 );
                 const hasFail = values.some(
                     ({ assertion }) => assertion.outcome === "fail",

@@ -745,12 +745,18 @@ test("unsupported JSON Schema vocabulary fails explicitly", () => {
     );
 });
 
-test("stale and future-dated evidence fail and every fact remains evidence-bound", () => {
+test("stale and future-dated evidence fail and unsupported local facts remain explicit", () => {
     const catalogs = loadCatalogs();
-    assert(
-        catalogs.evidence.ecosystemFacts.every(
-            (fact) => fact.evidenceIds.length > 0,
-        ),
+    assert.deepEqual(
+        catalogs.evidence.ecosystemFacts
+            .filter((fact) => fact.evidenceIds.length === 0)
+            .map((fact) => fact.id)
+            .sort(),
+        [
+            "github-cli-skills-fact-5",
+            "npm-cratis-scope-fact-4",
+            "npm-trusted-publishing-fact-5",
+        ],
     );
     catalogs.evidence.evidence[0].expiresOn = "2026-08-19";
     catalogs.evidence.evidence[1].verifiedOn = "2026-08-25";

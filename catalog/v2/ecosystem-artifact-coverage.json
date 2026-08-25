@@ -220,8 +220,8 @@
         "gemini-cli-extensions-source-1"
       ],
       "generationState": "fixture-generated-evidence-incomplete",
-      "technicalTier": "generated",
-      "technicalTierRank": 2,
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
       "activeEvidenceIds": [
         "gemini-cli-extensions-source-1",
         "gemini-cli-extensions-source-2",
@@ -230,7 +230,7 @@
       ],
       "expiredEvidenceIds": [],
       "missingAssurances": [
-        "static-validation"
+        "artifact-generation"
       ],
       "marketplaceStatus": "not-claimed",
       "supportClaim": false

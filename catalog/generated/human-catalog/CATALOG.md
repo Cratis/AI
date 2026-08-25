@@ -16,8 +16,8 @@ and does not make a planned package installable.
 As of 2026-08-24, technical tiers are computed from active normalized evidence; expired and future evidence cannot satisfy gates. Marketplace listing is orthogonal.
 
 - unsupported: 0
-- documented: 25
-- generated: 1
+- documented: 26
+- generated: 0
 - statically-validated: 0
 - install-tested: 0
 - behavior-tested: 0

@@ -78,6 +78,43 @@ test("profile and source admission cannot bypass release approval records", () =
     });
 });
 
+test("approval records reject unknown profile target and source contract IDs", () => {
+    withFixture((root) => {
+        const path = join(root, "distribution/release-approvals.json");
+        const approvals = readJson(path);
+        const evidenceIds = ["reevaluation-authority"];
+        approvals.profileApprovals.push({
+            profileId: "unknown-profile",
+            reviewer: "reviewer",
+            approvedOn: "2026-08-24",
+            evidenceIds,
+        });
+        approvals.targetApprovals.push({
+            targetId: "unknown-target",
+            reviewer: "reviewer",
+            approvedOn: "2026-08-24",
+            sourceRevision: "0".repeat(40),
+            contentDigest: "0".repeat(64),
+            evidenceIds,
+        });
+        approvals.sourceContractApprovals.push({
+            contractId: "unknown-contract",
+            reviewer: "reviewer",
+            approvedOn: "2026-08-24",
+            evidenceIds,
+        });
+        writeJson(path, approvals);
+        const errors = validateReleaseApprovals(root);
+        assert(errors.includes("unknown-profile: unknown profile approval"));
+        assert(errors.includes("unknown-target: unknown target approval"));
+        assert(
+            errors.includes(
+                "unknown-contract: unknown source contract approval",
+            ),
+        );
+    });
+});
+
 test("approval records require known evidence and complete reviewer metadata", () => {
     withFixture((root) => {
         const path = join(root, "distribution/release-approvals.json");
