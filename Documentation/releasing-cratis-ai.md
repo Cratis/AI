@@ -61,7 +61,8 @@ The release workflow runs during pull-request validation and:
 - resolves every profile through the approval-driven materializer;
 - regenerates root-native harness artifacts;
 - packages deterministic release archives and the Pi npm tarball;
-- verifies checksums, provenance, SBOM, and focused release specs;
+- verifies checksums, provenance, SBOM, locked offline portable compliance,
+  and focused release specs;
 - uploads short-lived PR review artifacts.
 
 If any profile is not approved or any release artifact differs from its source
@@ -75,8 +76,11 @@ Review:
 - product/source revisions and digests;
 - package versions;
 - generated host roots;
-- provenance, SBOM, and checksums;
+- provenance, SBOM, checksums, and the deterministic `cratis-passive-v1`
+  compliance receipts for Agent Plugin, Copilot, Cursor, and Kiro roots;
 - generated lifecycle instructions and the generated/static/host-tested support matrix;
+- confirmation that compliance receipts grant no approval, support, promotion,
+  or publication state;
 - selected canaries;
 - release notes and known limitations.
 

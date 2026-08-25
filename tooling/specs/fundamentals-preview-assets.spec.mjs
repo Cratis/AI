@@ -172,8 +172,25 @@ test("Fundamentals preview assets are deterministic and non-publishable", () => 
         assert.deepEqual(first.generatorPaths, [
             "tooling/package-fundamentals-preview-assets.mjs",
             "tooling/passive-profile-adapters.mjs",
+            "tooling/portable-compliance-validation.mjs",
             "tooling/harness-registry.mjs",
         ]);
+        assert.equal(first.portableCompliance.profile, "cratis-passive-v1");
+        assert.match(
+            first.portableCompliance.profileDigest,
+            /^[0-9a-f]{64}$/,
+        );
+        assert.match(
+            first.portableCompliance.receiptSha256,
+            /^[0-9a-f]{64}$/,
+        );
+        assert.equal(
+            first.portableCompliance.staticValidationInput.supporting,
+            false,
+        );
+        assert.equal(first.portableCompliance.approvalGranted, false);
+        assert.equal(first.portableCompliance.supportGranted, false);
+        assert.equal(first.portableCompliance.publicationGranted, false);
         assert.equal(first.approvalEligible, false);
         assert.equal(first.installationSupported, false);
         assert.equal(first.publicationEligible, false);
@@ -228,7 +245,7 @@ test("Fundamentals preview assets are deterministic and non-publishable", () => 
         assert(checksums.includes("preview-sbom.json"));
         assert.equal(
             checksums.trim().split("\n").length,
-            passiveHarnesses.length + 2,
+            passiveHarnesses.length + 3,
         );
     });
 });

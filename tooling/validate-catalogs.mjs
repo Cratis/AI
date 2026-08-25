@@ -16,6 +16,10 @@ import { validateReleaseRequests } from "./release-request-validation.mjs";
 import { validateReleaseApprovals } from "./release-approval-validation.mjs";
 import { validateEcosystemArtifactContracts } from "./ecosystem-artifact-validation.mjs";
 import { validateSupportCatalogs } from "./support-validation.mjs";
+import {
+    formatComplianceDiagnostics,
+    validateSpecificationLock,
+} from "./portable-compliance-validation.mjs";
 
 const errors = [
     ...validateCatalogs(),
@@ -32,6 +36,9 @@ const errors = [
     ...validateReleaseApprovals(),
     ...validateEcosystemArtifactContracts(),
     ...validateSupportCatalogs(),
+    ...validateSpecificationLock().map((diagnostic) =>
+        formatComplianceDiagnostics([diagnostic]),
+    ),
 ];
 if (errors.length > 0) {
     process.stderr.write(
@@ -41,6 +48,6 @@ if (errors.length > 0) {
     process.exitCode = 1;
 } else {
     process.stdout.write(
-        "Catalog validation passed: legacy, v2, normalized evidence, computed support, source-evidence, distribution-profile, and evaluation contracts are valid.\n",
+        "Catalog validation passed: legacy, v2, normalized evidence, computed support, source-evidence, offline portable specifications, distribution-profile, and evaluation contracts are valid.\n",
     );
 }

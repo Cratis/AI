@@ -309,6 +309,14 @@ export function packageFundamentalsPreviewAssets({
                 sha256: sha256(content),
             });
         }
+        const complianceReceiptPath = "compliance-receipts.json";
+        writeJson(
+            join(root, complianceReceiptPath),
+            adapterManifest.compliance,
+        );
+        const complianceReceiptSha256 = sha256(
+            readFileSync(join(root, complianceReceiptPath)),
+        );
         const sourceCommit = execFileSync("git", ["rev-parse", "HEAD"], {
             cwd: repositoryRoot,
             encoding: "utf8",
@@ -316,6 +324,7 @@ export function packageFundamentalsPreviewAssets({
         const generatorPaths = [
             "tooling/package-fundamentals-preview-assets.mjs",
             "tooling/passive-profile-adapters.mjs",
+            "tooling/portable-compliance-validation.mjs",
             "tooling/harness-registry.mjs",
         ];
         const generatorHash = createHash("sha256");
@@ -342,6 +351,18 @@ export function packageFundamentalsPreviewAssets({
             generatorPaths,
             generatorDigest,
             assets,
+            portableCompliance: {
+                profile: adapterManifest.compliance.profile,
+                profileDigest: adapterManifest.compliance.profileDigest,
+                specifications: adapterManifest.compliance.specifications,
+                receiptPath: complianceReceiptPath,
+                receiptSha256: complianceReceiptSha256,
+                staticValidationInput:
+                    adapterManifest.compliance.staticValidationInput,
+                approvalGranted: false,
+                supportGranted: false,
+                publicationGranted: false,
+            },
             approvalEligible: false,
             installationSupported: false,
             publicationEligible: false,

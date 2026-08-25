@@ -7,6 +7,7 @@ import {
     mkdirSync,
     readFileSync,
     readdirSync,
+    rmSync,
     writeFileSync,
 } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
@@ -21,6 +22,11 @@ import {
     assertSafeContent,
     validatePayloadPath,
 } from "./public-artifact-materializer.mjs";
+import {
+    formatComplianceDiagnostics,
+    parseAgentSkillFrontmatter,
+    validateCratisPassiveProfile,
+} from "./portable-compliance-validation.mjs";
 
 export { passiveHarnesses } from "./harness-registry.mjs";
 
@@ -91,27 +97,19 @@ function walkFiles(root, current = root) {
 }
 
 export function readSkillFrontmatter(content, skillName) {
-    const text = content.toString("utf8");
-    if (!text.startsWith("---\n"))
-        throw new Error(`Profile skill frontmatter is missing: ${skillName}`);
-    const closing = text.indexOf("\n---\n", 4);
-    if (closing < 0)
-        throw new Error(`Profile skill frontmatter is unclosed: ${skillName}`);
-    const properties = new Map();
-    for (const line of text.slice(4, closing).split("\n")) {
-        if (!line.trim()) continue;
-        const match = /^([A-Za-z][A-Za-z0-9-]*):\s*(\S.*)$/.exec(line);
-        if (!match || properties.has(match[1]))
-            throw new Error(
-                `Profile skill frontmatter is invalid: ${skillName}`,
-            );
-        properties.set(match[1], match[2]);
-    }
-    if (properties.get("name") !== skillName || !properties.get("description"))
+    const parsed = parseAgentSkillFrontmatter(content, {
+        path: `skills/${skillName}/SKILL.md`,
+    });
+    if (
+        parsed.diagnostics.length > 0 ||
+        parsed.frontmatter.name !== skillName ||
+        typeof parsed.frontmatter.description !== "string" ||
+        parsed.frontmatter.description.length === 0
+    )
         throw new Error(
             `Profile skill frontmatter name or description is invalid: ${skillName}`,
         );
-    return properties;
+    return new Map(Object.entries(parsed.frontmatter));
 }
 
 function copySkills(skills, root) {
@@ -381,6 +379,40 @@ export function generatePassiveProfileAdapters({
                 throw new Error(`${harness}: canonical byte parity failed`);
         }
     }
+    const portableRoots = {
+        "agent-plugin": agentPluginRoot,
+        copilot: join(copilotRoot, `plugins/${profileId}`),
+        cursor: join(cursorRoot, `plugins/${profileId}`),
+        kiro: harnessRoot("kiro"),
+    };
+    const complianceReceipts = [];
+    for (const [artifactId, portableRoot] of Object.entries(portableRoots)) {
+        const validation = validateCratisPassiveProfile(portableRoot, {
+            profileId,
+            version,
+            artifactId,
+        });
+        if (validation.releaseBlocking) {
+            rmSync(root, { recursive: true, force: true });
+            throw new Error(
+                `${artifactId}: portable compliance failed\n${formatComplianceDiagnostics(validation.diagnostics)}`,
+            );
+        }
+        complianceReceipts.push(validation.receipt);
+    }
+    const profileHash = createHash("sha256");
+    profileHash.update(profileId);
+    profileHash.update("\0");
+    profileHash.update(version);
+    profileHash.update("\0");
+    for (const [path, digest] of [...canonicalFiles].sort(([left], [right]) =>
+        left < right ? -1 : left > right ? 1 : 0,
+    )) {
+        profileHash.update(path);
+        profileHash.update("\0");
+        profileHash.update(digest);
+        profileHash.update("\0");
+    }
     return {
         harnesses: passiveHarnesses,
         roots: Object.fromEntries(
@@ -389,6 +421,21 @@ export function generatePassiveProfileAdapters({
                 `harnesses/${resolveHarness(harness).profileOutputRoot}`,
             ]),
         ),
+        compliance: {
+            profile: "cratis-passive-v1",
+            profileDigest: profileHash.digest("hex"),
+            specifications: complianceReceipts[0].specifications,
+            receipts: complianceReceipts,
+            staticValidationInput: {
+                assuranceId: "static-validation",
+                outcome: "pass",
+                supporting: false,
+                reason: "Deterministic repository validation input; it does not establish host support or release approval.",
+            },
+            approvalGranted: false,
+            supportGranted: false,
+            publicationGranted: false,
+        },
         files: walkFiles(root)
             .sort()
             .map((path) => {

@@ -303,6 +303,37 @@ test("passive adapter materializer rejects unsafe or mismatched skill input", ()
     });
 });
 
+test("passive compliance failure removes the incomplete generated candidate", () => {
+    withTemporaryDirectory((root) => {
+        const outputRoot = join(root, "candidate");
+        assert.throws(
+            () =>
+                generatePassiveProfileAdapters({
+                    outputRoot,
+                    version: "1.0.0",
+                    profileId: "public-example",
+                    packageName: "@cratis/ai-example",
+                    description: "Example",
+                    skills: [
+                        {
+                            name: "cratis-example",
+                            files: [
+                                {
+                                    path: "SKILL.md",
+                                    content: Buffer.from(
+                                        "---\nname: cratis-example\ndescription: Example.\nallowed-tools: Read\n---\n",
+                                    ),
+                                },
+                            ],
+                        },
+                    ],
+                }),
+            /PASSIVE_ALLOWED_TOOLS_FORBIDDEN/,
+        );
+        assert.equal(existsSync(outputRoot), false);
+    });
+});
+
 test("release provenance binds generators and checksums the final manifest", () => {
     const generator = readFileSync(
         "tooling/generate-approved-profile-release.mjs",
@@ -310,6 +341,8 @@ test("release provenance binds generators and checksums the final manifest", () 
     );
     assert(generator.includes("generatorDigest"));
     assert(generator.includes('"tooling/profile-presentation.mjs"'));
+    assert(generator.includes('"tooling/portable-compliance-validation.mjs"'));
+    assert(generator.includes("compliance-receipts.json"));
     assert(generator.includes("testedHostVersions"));
     assert(generator.includes('state: "pending-canary"'));
     assert(
@@ -342,6 +375,21 @@ test("passive adapter materializer emits one install root per harness", () => {
             ],
         });
         assert.deepEqual(manifest.harnesses, passiveHarnesses);
+        assert.equal(manifest.compliance.profile, "cratis-passive-v1");
+        assert.match(manifest.compliance.profileDigest, /^[0-9a-f]{64}$/);
+        assert.equal(manifest.compliance.receipts.length, 4);
+        assert.equal(manifest.compliance.staticValidationInput.supporting, false);
+        assert.equal(manifest.compliance.approvalGranted, false);
+        assert.equal(manifest.compliance.supportGranted, false);
+        assert.equal(manifest.compliance.publicationGranted, false);
+        assert(
+            manifest.compliance.receipts.every(
+                (receipt) =>
+                    receipt.conformant === true &&
+                    receipt.executionPerformed === false &&
+                    receipt.networkAccessPerformed === false,
+            ),
+        );
         for (const harness of passiveHarnesses)
             assert.equal(
                 manifest.roots[harness],

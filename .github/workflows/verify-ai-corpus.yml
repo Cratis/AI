@@ -88,6 +88,7 @@ jobs:
             - name: Validate catalogs and specifications
               run: |
                   set -euo pipefail
+                  node tooling/portable-compliance-validation.mjs --verify-lock
                   node tooling/validate-catalogs.mjs
                   node --test tooling/specs/*.spec.mjs
 

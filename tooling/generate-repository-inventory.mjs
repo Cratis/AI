@@ -108,7 +108,7 @@ const unexpectedUntracked = admittedUntracked.filter(
             path === ".github/workflows/release-approved-ai-profiles.yml" ||
             /^AI-REPOSITORY-REDESIGN-[A-Z0-9-]+\.md$/.test(path) ||
             path === "Documentation/.markdownlint.json" ||
-            /^Documentation\/(?:adopting-cratis-ai|adopting-cratis-ai-for-maintainers|ai-distribution-and-subscriptions|capability-catalog-v2|phase-0-verification|private-repository-overlays|profile-reference|public-product-architecture|skill-authoring-contract|skill-classification-audit|project-context-bootstrap|redesign-foundation-validation|releasing-cratis-ai|source-evidence-contract)\.md$/.test(
+            /^Documentation\/(?:adopting-cratis-ai|adopting-cratis-ai-for-maintainers|ai-distribution-and-subscriptions|capability-catalog-v2|phase-0-verification|private-repository-overlays|portable-compliance|profile-reference|public-product-architecture|skill-authoring-contract|skill-classification-audit|project-context-bootstrap|redesign-foundation-validation|releasing-cratis-ai|source-evidence-contract)\.md$/.test(
                 path,
             ) ||
             /^Documentation\/examples\/(?:ai-release|ai-subscriptions|private-repository-overlay)\//.test(
@@ -659,6 +659,7 @@ const definitions = [
             "Documentation/adopting-cratis-ai-for-maintainers.md",
             "Documentation/ai-distribution-and-subscriptions.md",
             "Documentation/private-repository-overlays.md",
+            "Documentation/portable-compliance.md",
             "Documentation/profile-reference.md",
             "Documentation/releasing-cratis-ai.md",
             "Documentation/examples/ai-release/**",
@@ -1051,6 +1052,44 @@ const definitions = [
         risk: "high",
         migrationState: "retain",
         evidenceIds: ["option-a-plus-authority"],
+    },
+    {
+        id: "portable-agent-plugins-specification-lock",
+        sourcePathPatterns: [
+            "tooling/specifications/agent-plugins/1.0.0/**",
+        ],
+        artifactType: "catalog-schema",
+        currentOwner: repositoryOwner,
+        targetOwner: repositoryOwner,
+        runtimeEligibility: "repository-only",
+        generatedStatus: "source",
+        adapterStatus: "none",
+        dependencies: [
+            "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+            "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+            "https://raw.githubusercontent.com/agentplugins/agent-plugins-spec/main/spec/1.0.0.md",
+            "tooling/portable-compliance-validation.mjs",
+        ],
+        risk: "high",
+        migrationState: "retain",
+        evidenceIds: ["agent-plugins-source-1", "agent-plugins-source-2"],
+    },
+    {
+        id: "portable-agent-skills-contract",
+        sourcePathPatterns: ["tooling/specifications/agent-skills/current/**"],
+        artifactType: "catalog-schema",
+        currentOwner: repositoryOwner,
+        targetOwner: repositoryOwner,
+        runtimeEligibility: "repository-only",
+        generatedStatus: "source",
+        adapterStatus: "none",
+        dependencies: [
+            "https://agentskills.io/specification",
+            "tooling/portable-compliance-validation.mjs",
+        ],
+        risk: "high",
+        migrationState: "retain",
+        evidenceIds: ["agent-skills-source-1"],
     },
     {
         id: "catalog-and-redesign-tooling",

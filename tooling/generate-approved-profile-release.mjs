@@ -392,6 +392,14 @@ export function generateApprovedProfileRelease({
             description: plan.description,
             skills,
         });
+        const complianceReceiptPath = "compliance-receipts.json";
+        writeJson(
+            join(root, complianceReceiptPath),
+            adapterManifest.compliance,
+        );
+        const complianceReceiptSha256 = sha256(
+            readFileSync(join(root, complianceReceiptPath)),
+        );
         writeJson(
             join(root, "support-matrix.json"),
             buildReleaseSupportMatrix(plan, adapterManifest.harnesses),
@@ -408,6 +416,7 @@ export function generateApprovedProfileRelease({
         const generatorPaths = [
             "tooling/generate-approved-profile-release.mjs",
             "tooling/passive-profile-adapters.mjs",
+            "tooling/portable-compliance-validation.mjs",
             "tooling/profile-presentation.mjs",
         ];
         const generatorHash = createHash("sha256");
@@ -433,6 +442,18 @@ export function generateApprovedProfileRelease({
             profileDescription: plan.description,
             version,
             artifactId: plan.artifactId,
+            portableCompliance: {
+                profile: adapterManifest.compliance.profile,
+                profileDigest: adapterManifest.compliance.profileDigest,
+                specifications: adapterManifest.compliance.specifications,
+                receiptPath: complianceReceiptPath,
+                receiptSha256: complianceReceiptSha256,
+                staticValidationInput:
+                    adapterManifest.compliance.staticValidationInput,
+                approvalGranted: false,
+                supportGranted: false,
+                publicationGranted: false,
+            },
             targets: plan.selectedSources.map(({ target, source }) => ({
                 targetId: target.id,
                 sourceId: source.id,
@@ -468,6 +489,7 @@ export function generateApprovedProfileRelease({
             checksumFile: "SHA256SUMS",
             instructionsFile: "release-instructions.md",
             supportMatrixFile: "support-matrix.json",
+            complianceReceiptFile: complianceReceiptPath,
             publicationEligible: releaseMode,
             promotionEligible: false,
         };

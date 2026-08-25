@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "agent-skills-current",
+  "status": "current-unversioned-specification",
+  "source": {
+    "url": "https://agentskills.io/specification",
+    "retrievedOn": "2026-08-25",
+    "verifiedOn": "2026-08-25",
+    "sha256": "fe7186a885f97962d9ab54c662be46294ce11ae06adf4c7ddf41148abd5ece2c",
+    "localPath": "tooling/specifications/agent-skills/current/specification.snapshot"
+  },
+  "frontmatter": {
+    "requiredFields": ["name", "description"],
+    "optionalFields": [
+      "license",
+      "compatibility",
+      "metadata",
+      "allowed-tools"
+    ],
+    "unknownFieldsAllowed": false,
+    "fields": {
+      "name": {
+        "type": "string",
+        "minimumCharacters": 1,
+        "maximumCharacters": 64,
+        "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+        "mustMatchParentDirectory": true
+      },
+      "description": {
+        "type": "string",
+        "minimumCharacters": 1,
+        "maximumCharacters": 1024
+      },
+      "license": {
+        "type": "string"
+      },
+      "compatibility": {
+        "type": "string",
+        "minimumCharacters": 1,
+        "maximumCharacters": 500
+      },
+      "metadata": {
+        "type": "string-to-string-map"
+      },
+      "allowed-tools": {
+        "type": "string",
+        "experimental": true,
+        "universalMode": "accepted",
+        "cratisPassiveMode": "forbidden"
+      }
+    }
+  },
+  "parserPolicy": {
+    "format": "bounded-closed-yaml-frontmatter",
+    "lineEndings": ["LF", "CRLF"],
+    "scalarForms": [
+      "plain-string",
+      "single-quoted-string",
+      "double-quoted-string",
+      "literal-block-string",
+      "folded-block-string"
+    ],
+    "unsupportedYamlFeaturesRejected": true,
+    "duplicateKeysRejected": true,
+    "sourceBytesPreserved": true
+  }
+}
