@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cratis/AI/catalog/schemas/support.schema.json",
+  "title": "Generated Cratis technical support status",
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+    "idArray": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/id" } },
+    "tier": { "enum": ["unsupported", "documented", "generated", "statically-validated", "install-tested", "behavior-tested", "lifecycle-tested", "release-tested", "supported"] },
+    "marketplace": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["availabilityClaim", "listingRequired", "status", "evidenceIds"],
+      "properties": {
+        "availabilityClaim": { "type": "boolean" },
+        "listingRequired": { "type": "boolean" },
+        "status": { "enum": ["not-claimed", "listed", "listing-missing"] },
+        "evidenceIds": { "$ref": "#/$defs/idArray" }
+      }
+    },
+    "decay": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "reason"],
+      "properties": {
+        "state": { "enum": ["none", "expired-evidence", "future-evidence"] },
+        "reason": { "type": "string", "minLength": 1 }
+      }
+    },
+    "binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bindingId", "ecosystemId", "artifactClass", "effectiveTier", "rank", "supportClaim", "activeEvidenceIds", "expiredEvidenceIds", "futureEvidenceIds", "satisfiedAssurances", "missingAssurances", "decay", "marketplace"],
+      "properties": {
+        "bindingId": { "$ref": "#/$defs/id" },
+        "ecosystemId": { "$ref": "#/$defs/id" },
+        "artifactClass": { "$ref": "#/$defs/id" },
+        "effectiveTier": { "$ref": "#/$defs/tier" },
+        "rank": { "type": "integer", "minimum": 0 },
+        "supportClaim": { "type": "boolean" },
+        "activeEvidenceIds": { "$ref": "#/$defs/idArray" },
+        "expiredEvidenceIds": { "$ref": "#/$defs/idArray" },
+        "futureEvidenceIds": { "$ref": "#/$defs/idArray" },
+        "satisfiedAssurances": { "$ref": "#/$defs/idArray" },
+        "missingAssurances": { "$ref": "#/$defs/idArray" },
+        "decay": { "$ref": "#/$defs/decay" },
+        "marketplace": { "$ref": "#/$defs/marketplace" }
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "asOf", "generatedBy", "defaultPolicy", "publicationEligible", "promotionEligible", "runtimeEligible", "tierOrder", "summary", "bindings"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "asOf": { "type": "string", "format": "date" },
+    "generatedBy": { "const": "tooling/generate-support.mjs" },
+    "defaultPolicy": { "const": "deny" },
+    "publicationEligible": { "const": false },
+    "promotionEligible": { "const": false },
+    "runtimeEligible": { "const": false },
+    "tierOrder": {
+      "type": "array",
+      "minItems": 9,
+      "maxItems": 9,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/tier" }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bindingCount", "supportClaimCount", "byTier"],
+      "properties": {
+        "bindingCount": { "const": 26 },
+        "supportClaimCount": { "type": "integer", "minimum": 0 },
+        "byTier": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["unsupported", "documented", "generated", "statically-validated", "install-tested", "behavior-tested", "lifecycle-tested", "release-tested", "supported"],
+          "properties": {
+            "unsupported": { "type": "integer", "minimum": 0 },
+            "documented": { "type": "integer", "minimum": 0 },
+            "generated": { "type": "integer", "minimum": 0 },
+            "statically-validated": { "type": "integer", "minimum": 0 },
+            "install-tested": { "type": "integer", "minimum": 0 },
+            "behavior-tested": { "type": "integer", "minimum": 0 },
+            "lifecycle-tested": { "type": "integer", "minimum": 0 },
+            "release-tested": { "type": "integer", "minimum": 0 },
+            "supported": { "type": "integer", "minimum": 0 }
+          }
+        }
+      }
+    },
+    "bindings": {
+      "type": "array",
+      "minItems": 26,
+      "maxItems": 26,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/binding" }
+    }
+  }
+}

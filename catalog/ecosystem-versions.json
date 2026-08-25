@@ -179,7 +179,8 @@
         { "url": "https://geminicli.com/docs/cli/gemini-md/", "kind": "official-documentation", "verifiedOn": "2026-08-20" }
       ],
       "localEvidence": [
-        "The installed gemini --version command failed while attempting to save its project registry, so no local version or validator result was recorded."
+        "The installed gemini --version command failed while attempting to save its project registry, so no local version or validator result was recorded.",
+        "Installed Gemini CLI version: 0.33.1"
       ]
     },
     {

@@ -19,6 +19,11 @@
       "uniqueItems": true,
       "items": { "$ref": "#/$defs/id" }
     },
+    "idArray": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/id" }
+    },
     "componentState": {
       "enum": ["required", "optional", "documented", "unsupported", "unknown"]
     },
@@ -50,7 +55,7 @@
       "required": ["factId", "evidenceIds"],
       "properties": {
         "factId": { "$ref": "#/$defs/id" },
-        "evidenceIds": { "$ref": "#/$defs/evidenceIds" }
+        "evidenceIds": { "$ref": "#/$defs/idArray" }
       }
     },
     "ecosystem": {

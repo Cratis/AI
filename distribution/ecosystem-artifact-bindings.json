@@ -17,15 +17,14 @@
       "strategy": "distinct-output",
       "assuranceProfileId": "passive-public-package-v1",
       "evidenceIds": [
-        "agent-plugins-source-1",
-        "agent-plugins-source-2",
-        "agent-plugins-source-3"
+        "agent-plugins-source-1"
       ],
       "generationState": "fixture-generated",
       "supportClaim": false,
       "notes": [
         "The portable fixture uses the existing Agent Plugin artifact and adds no S1 adapter."
-      ]
+      ],
+      "marketplaceAvailabilityClaim": false
     },
     {
       "id": "agent-skills-artifact-binding",
@@ -39,14 +38,14 @@
       "strategy": "distinct-output",
       "assuranceProfileId": "passive-public-package-v1",
       "evidenceIds": [
-        "agent-skills-source-1",
-        "agent-skills-source-2"
+        "agent-skills-source-1"
       ],
       "generationState": "fixture-generated",
       "supportClaim": false,
       "notes": [
         "Canonical Agent Skills are the compatible source for direct-skill hosts."
-      ]
+      ],
+      "marketplaceAvailabilityClaim": false
     },
     {
       "id": "model-context-protocol-artifact-binding",
@@ -60,14 +59,14 @@
       "strategy": "no-output",
       "assuranceProfileId": "no-artifact-v1",
       "evidenceIds": [
-        "model-context-protocol-source-1",
-        "model-context-protocol-source-2"
+        "model-context-protocol-source-1"
       ],
       "generationState": "no-output",
       "supportClaim": false,
       "notes": [
         "The protocol contract does not create a Cratis artifact in S1."
-      ]
+      ],
+      "marketplaceAvailabilityClaim": false
     },
     {
       "id": "mcp-registry-artifact-binding",
@@ -81,18 +80,14 @@
       "strategy": "no-output",
       "assuranceProfileId": "no-artifact-v1",
       "evidenceIds": [
-        "mcp-registry-source-1",
-        "mcp-registry-source-2",
-        "mcp-registry-source-3",
-        "mcp-registry-source-4",
-        "mcp-registry-source-5",
-        "mcp-registry-source-6"
+        "mcp-registry-source-1"
       ],
       "generationState": "no-output",
       "supportClaim": false,
       "notes": [
         "No MCP server or Registry publication artifact exists in S1."
-      ]
+      ],
+      "marketplaceAvailabilityClaim": false
     },
     {
       "id": "github-cli-skills-artifact-binding",
@@ -106,15 +101,14 @@
       "strategy": "compatible-source",
       "assuranceProfileId": "passive-public-package-v1",
       "evidenceIds": [
-        "github-cli-skills-source-1",
-        "github-cli-skills-source-2",
-        "github-cli-skills-source-3"
+        "github-cli-skills-source-1"
       ],
       "generationState": "source-compatible",
       "supportClaim": false,
       "notes": [
         "The preview gh lifecycle can consume canonical Agent Skills when available; S1 adds no adapter."
-      ]
+      ],
+      "marketplaceAvailabilityClaim": false
     },
     {
       "id": "vscode-agent-plugins-artifact-binding",
@@ -134,7 +128,8 @@
       "supportClaim": false,
       "notes": [
         "VS Code compatibility binds to the existing portable Agent Plugin fixture."
-      ]
+      ],
+      "marketplaceAvailabilityClaim": false
     },
     {
       "id": "github-copilot-plugins-artifact-binding",
@@ -148,14 +143,14 @@
       "strategy": "distinct-output",
       "assuranceProfileId": "passive-public-package-v1",
       "evidenceIds": [
-        "github-copilot-plugins-source-1",
-        "github-copilot-plugins-source-2"
+        "github-copilot-plugins-source-1"
       ],
       "generationState": "fixture-generated",
       "supportClaim": false,
       "notes": [
         "The Copilot marketplace wrapper contains the existing passive portable plugin payload."
-      ]
+      ],
+      "marketplaceAvailabilityClaim": false
     },
     {
       "id": "openai-plugins-artifact-binding",
@@ -169,14 +164,14 @@
       "strategy": "distinct-output",
       "assuranceProfileId": "passive-public-package-v1",
       "evidenceIds": [
-        "openai-plugins-source-1",
-        "openai-plugins-source-2"
+        "openai-plugins-source-1"
       ],
       "generationState": "fixture-generated",
       "supportClaim": false,
       "notes": [
         "The Codex fixture remains skills-only and does not add MCP, hooks, or executable content."
-      ]
+      ],
+      "marketplaceAvailabilityClaim": false
     },
     {
       "id": "claude-code-plugins-artifact-binding",
@@ -190,16 +185,14 @@
       "strategy": "distinct-output",
       "assuranceProfileId": "passive-public-package-v1",
       "evidenceIds": [
-        "claude-code-plugins-source-1",
-        "claude-code-plugins-source-2",
-        "claude-code-plugins-source-3",
-        "claude-code-plugins-source-4"
+        "claude-code-plugins-source-1"
       ],
       "generationState": "fixture-generated",
       "supportClaim": false,
       "notes": [
         "The Claude fixture remains a passive skills-only marketplace."
-      ]
+      ],
+      "marketplaceAvailabilityClaim": false
     },
     {
       "id": "gemini-cli-extensions-artifact-binding",
@@ -213,15 +206,14 @@
       "strategy": "distinct-output",
       "assuranceProfileId": "passive-public-package-v1",
       "evidenceIds": [
-        "gemini-cli-extensions-source-1",
-        "gemini-cli-extensions-source-2",
-        "gemini-cli-extensions-source-3"
+        "gemini-cli-extensions-source-1"
       ],
       "generationState": "fixture-generated-evidence-incomplete",
       "supportClaim": false,
       "notes": [
         "The fixture is generated, but missing local client version and validator evidence remain explicit."
-      ]
+      ],
+      "marketplaceAvailabilityClaim": false
     },
     {
       "id": "cursor-plugins-artifact-binding",
@@ -235,14 +227,14 @@
       "strategy": "distinct-output",
       "assuranceProfileId": "passive-public-package-v1",
       "evidenceIds": [
-        "cursor-plugins-source-1",
-        "cursor-plugins-source-2"
+        "cursor-plugins-source-1"
       ],
       "generationState": "fixture-generated",
       "supportClaim": false,
       "notes": [
         "The Cursor wrapper uses the existing portable Agent Plugin payload."
-      ]
+      ],
+      "marketplaceAvailabilityClaim": false
     },
     {
       "id": "kiro-powers-artifact-binding",
@@ -256,15 +248,14 @@
       "strategy": "distinct-output",
       "assuranceProfileId": "passive-public-package-v1",
       "evidenceIds": [
-        "kiro-powers-source-1",
-        "kiro-powers-source-2",
-        "kiro-powers-source-3"
+        "kiro-powers-source-1"
       ],
       "generationState": "fixture-generated",
       "supportClaim": false,
       "notes": [
         "The Kiro fixture uses the existing portable Agent Plugin payload and contains no MCP or executable components."
-      ]
+      ],
+      "marketplaceAvailabilityClaim": false
     },
     {
       "id": "hermes-agent-plugins-artifact-binding",
@@ -284,7 +275,8 @@
       "supportClaim": false,
       "notes": [
         "Hermes compatibility binds to the existing portable Agent Plugin fixture; S1 adds no adapter."
-      ]
+      ],
+      "marketplaceAvailabilityClaim": false
     },
     {
       "id": "openclaw-bundles-artifact-binding",
@@ -304,7 +296,8 @@
       "supportClaim": false,
       "notes": [
         "OpenClaw compatibility binds to the existing portable Agent Plugin fixture; S1 adds no adapter."
-      ]
+      ],
+      "marketplaceAvailabilityClaim": false
     },
     {
       "id": "grok-build-skills-artifact-binding",
@@ -318,14 +311,14 @@
       "strategy": "shared-output",
       "assuranceProfileId": "passive-public-package-v1",
       "evidenceIds": [
-        "grok-build-skills-source-1",
-        "grok-build-skills-source-2"
+        "grok-build-skills-source-1"
       ],
       "generationState": "fixture-generated-evidence-incomplete",
       "supportClaim": false,
       "notes": [
         "The current fixture reuses Claude-compatible source despite the legacy native .grok/skills statement; the conflict remains gated."
-      ]
+      ],
+      "marketplaceAvailabilityClaim": false
     },
     {
       "id": "grok-bot-plugins-artifact-binding",
@@ -339,14 +332,14 @@
       "strategy": "compatible-source",
       "assuranceProfileId": "passive-public-package-v1",
       "evidenceIds": [
-        "grok-bot-plugins-source-1",
-        "grok-bot-plugins-source-2"
+        "grok-bot-plugins-source-1"
       ],
       "generationState": "source-compatible",
       "supportClaim": false,
       "notes": [
         "Grok Bot compatibility uses the existing portable Agent Plugin artifact; undocumented lifecycle details remain incomplete."
-      ]
+      ],
+      "marketplaceAvailabilityClaim": false
     },
     {
       "id": "nanoclaw-templates-artifact-binding",
@@ -366,7 +359,8 @@
       "supportClaim": false,
       "notes": [
         "NanoClaw template compatibility binds to the existing portable Agent Plugin fixture; S1 adds no template adapter."
-      ]
+      ],
+      "marketplaceAvailabilityClaim": false
     },
     {
       "id": "pi-packages-artifact-binding",
@@ -380,15 +374,14 @@
       "strategy": "distinct-output",
       "assuranceProfileId": "passive-private-fixture-v1",
       "evidenceIds": [
-        "pi-packages-source-1",
-        "pi-packages-source-2",
-        "pi-packages-source-3"
+        "pi-packages-source-1"
       ],
       "generationState": "fixture-generated",
       "supportClaim": false,
       "notes": [
         "The current Pi output is a private passive npm fixture and remains publication-ineligible."
-      ]
+      ],
+      "marketplaceAvailabilityClaim": false
     },
     {
       "id": "junie-extensions-artifact-binding",
@@ -408,7 +401,8 @@
       "supportClaim": false,
       "notes": [
         "The current fixture reuses Claude-compatible source while legacy extension.json lifecycle evidence conflicts; Junie remains provisional."
-      ]
+      ],
+      "marketplaceAvailabilityClaim": false
     },
     {
       "id": "opencode-skills-artifact-binding",
@@ -422,15 +416,14 @@
       "strategy": "compatible-source",
       "assuranceProfileId": "passive-public-package-v1",
       "evidenceIds": [
-        "opencode-skills-source-1",
-        "opencode-skills-source-2",
-        "opencode-skills-source-3"
+        "opencode-skills-source-1"
       ],
       "generationState": "source-compatible",
       "supportClaim": false,
       "notes": [
         "OpenCode binds to canonical Agent Skills; S1 adds no native plugin adapter."
-      ]
+      ],
+      "marketplaceAvailabilityClaim": false
     },
     {
       "id": "zed-skills-artifact-binding",
@@ -444,14 +437,14 @@
       "strategy": "compatible-source",
       "assuranceProfileId": "passive-public-package-v1",
       "evidenceIds": [
-        "zed-skills-source-1",
-        "zed-skills-source-2"
+        "zed-skills-source-1"
       ],
       "generationState": "source-compatible",
       "supportClaim": false,
       "notes": [
         "Zed binds to canonical Agent Skills; S1 adds no installer adapter."
-      ]
+      ],
+      "marketplaceAvailabilityClaim": false
     },
     {
       "id": "deepseek-deepcode-skills-artifact-binding",
@@ -471,7 +464,8 @@
       "supportClaim": false,
       "notes": [
         "The Deep Code fixture places canonical passive skills in the documented host root."
-      ]
+      ],
+      "marketplaceAvailabilityClaim": false
     },
     {
       "id": "deepseek-harness-skills-artifact-binding",
@@ -485,15 +479,14 @@
       "strategy": "distinct-output",
       "assuranceProfileId": "passive-public-package-v1",
       "evidenceIds": [
-        "deepseek-harness-skills-source-1",
-        "deepseek-harness-skills-source-2",
-        "deepseek-harness-skills-source-3"
+        "deepseek-harness-skills-source-1"
       ],
       "generationState": "fixture-generated-evidence-incomplete",
       "supportClaim": false,
       "notes": [
         "The developer-preview harness fixture remains gated and is not a support claim."
-      ]
+      ],
+      "marketplaceAvailabilityClaim": false
     },
     {
       "id": "deepseek-model-integrations-artifact-binding",
@@ -507,14 +500,14 @@
       "strategy": "provider-inherited",
       "assuranceProfileId": "provider-compatibility-v1",
       "evidenceIds": [
-        "deepseek-model-integrations-source-1",
-        "deepseek-model-integrations-source-2"
+        "deepseek-model-integrations-source-1"
       ],
       "generationState": "provider-inherited",
       "supportClaim": false,
       "notes": [
         "DeepSeek provider selection inherits artifacts from the selected harness and creates no distinct output."
-      ]
+      ],
+      "marketplaceAvailabilityClaim": false
     },
     {
       "id": "npm-cratis-scope-artifact-binding",
@@ -528,18 +521,14 @@
       "strategy": "publication-only",
       "assuranceProfileId": "publication-metadata-v1",
       "evidenceIds": [
-        "npm-cratis-scope-source-1",
-        "npm-cratis-scope-source-2",
-        "npm-cratis-scope-source-3",
-        "npm-cratis-scope-source-4",
-        "npm-cratis-scope-source-5",
-        "npm-cratis-scope-source-6"
+        "npm-cratis-scope-source-1"
       ],
       "generationState": "publication-only",
       "supportClaim": false,
       "notes": [
         "The observed registry namespace does not create or authorize an output artifact."
-      ]
+      ],
+      "marketplaceAvailabilityClaim": false
     },
     {
       "id": "npm-trusted-publishing-artifact-binding",
@@ -553,14 +542,14 @@
       "strategy": "publication-only",
       "assuranceProfileId": "publication-metadata-v1",
       "evidenceIds": [
-        "npm-trusted-publishing-source-1",
-        "npm-trusted-publishing-source-2"
+        "npm-trusted-publishing-source-1"
       ],
       "generationState": "publication-only",
       "supportClaim": false,
       "notes": [
         "Trusted publishing is a future publication control, not an artifact output or current eligibility claim."
-      ]
+      ],
+      "marketplaceAvailabilityClaim": false
     }
   ]
 }

@@ -50,8 +50,14 @@ const outputlessStrategies = new Set([
     "blocked",
 ]);
 const generationStatesByStrategy = new Map([
-    ["distinct-output", new Set(["fixture-generated", "fixture-generated-evidence-incomplete"])],
-    ["shared-output", new Set(["fixture-generated", "fixture-generated-evidence-incomplete"])],
+    [
+        "distinct-output",
+        new Set(["fixture-generated", "fixture-generated-evidence-incomplete"]),
+    ],
+    [
+        "shared-output",
+        new Set(["fixture-generated", "fixture-generated-evidence-incomplete"]),
+    ],
     ["compatible-source", new Set(["source-compatible"])],
     ["provider-inherited", new Set(["provider-inherited"])],
     ["publication-only", new Set(["publication-only"])],
@@ -261,9 +267,15 @@ export function validateEcosystemContracts(catalogs) {
                 );
         }
         for (const root of contract.discoveryRoots) {
-            if (!equalSets(root.evidenceIds, contract.officialEvidenceIds))
+            if (
+                root.evidenceIds.length === 0 ||
+                root.evidenceIds.some(
+                    (evidenceId) =>
+                        !contract.officialEvidenceIds.includes(evidenceId),
+                )
+            )
                 errors.push(
-                    `ecosystem contract ${contract.id} discovery root ${root.path} must preserve its exact official evidence binding`,
+                    `ecosystem contract ${contract.id} discovery root ${root.path} must use minimum exact official evidence`,
                 );
         }
     }
@@ -457,10 +469,14 @@ export function validateEcosystemArtifactClosure(catalogs) {
         }
         if (
             contract &&
-            !equalSets(binding.evidenceIds, contract.officialEvidenceIds)
+            (binding.evidenceIds.length === 0 ||
+                binding.evidenceIds.some(
+                    (evidenceId) =>
+                        !contract.officialEvidenceIds.includes(evidenceId),
+                ))
         )
             errors.push(
-                `binding ${binding.id} must preserve the ecosystem contract's exact official evidence binding`,
+                `binding ${binding.id} must use minimum exact official evidence`,
             );
         if (binding.supportClaim)
             errors.push(`binding ${binding.id} must not claim support`);

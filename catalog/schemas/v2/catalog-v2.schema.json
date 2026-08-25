@@ -1081,7 +1081,7 @@
         "id": { "$ref": "#/$defs/id" },
         "ecosystemId": { "$ref": "#/$defs/id" },
         "fact": { "$ref": "#/$defs/nonEmptyString" },
-        "evidenceIds": { "$ref": "#/$defs/evidenceIds" }
+        "evidenceIds": { "$ref": "#/$defs/idArray" }
       }
     },
     "evidenceCatalog": {

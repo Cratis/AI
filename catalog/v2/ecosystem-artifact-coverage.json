@@ -18,11 +18,21 @@
       "strategy": "distinct-output",
       "assuranceProfileId": "passive-public-package-v1",
       "evidenceIds": [
+        "agent-plugins-source-1"
+      ],
+      "generationState": "fixture-generated",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
         "agent-plugins-source-1",
         "agent-plugins-source-2",
         "agent-plugins-source-3"
       ],
-      "generationState": "fixture-generated",
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
       "supportClaim": false
     },
     {
@@ -37,10 +47,20 @@
       "strategy": "distinct-output",
       "assuranceProfileId": "passive-public-package-v1",
       "evidenceIds": [
+        "agent-skills-source-1"
+      ],
+      "generationState": "fixture-generated",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
         "agent-skills-source-1",
         "agent-skills-source-2"
       ],
-      "generationState": "fixture-generated",
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
       "supportClaim": false
     },
     {
@@ -55,12 +75,22 @@
       "strategy": "distinct-output",
       "assuranceProfileId": "passive-public-package-v1",
       "evidenceIds": [
+        "claude-code-plugins-source-1"
+      ],
+      "generationState": "fixture-generated",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
         "claude-code-plugins-source-1",
         "claude-code-plugins-source-2",
         "claude-code-plugins-source-3",
         "claude-code-plugins-source-4"
       ],
-      "generationState": "fixture-generated",
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
       "supportClaim": false
     },
     {
@@ -75,10 +105,20 @@
       "strategy": "distinct-output",
       "assuranceProfileId": "passive-public-package-v1",
       "evidenceIds": [
+        "cursor-plugins-source-1"
+      ],
+      "generationState": "fixture-generated",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
         "cursor-plugins-source-1",
         "cursor-plugins-source-2"
       ],
-      "generationState": "fixture-generated",
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
       "supportClaim": false
     },
     {
@@ -96,6 +136,16 @@
         "deepseek-deepcode-skills-source-1"
       ],
       "generationState": "fixture-generated",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
+        "deepseek-deepcode-skills-source-1"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
       "supportClaim": false
     },
     {
@@ -110,11 +160,21 @@
       "strategy": "distinct-output",
       "assuranceProfileId": "passive-public-package-v1",
       "evidenceIds": [
+        "deepseek-harness-skills-source-1"
+      ],
+      "generationState": "fixture-generated-evidence-incomplete",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
         "deepseek-harness-skills-source-1",
         "deepseek-harness-skills-source-2",
         "deepseek-harness-skills-source-3"
       ],
-      "generationState": "fixture-generated-evidence-incomplete",
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
       "supportClaim": false
     },
     {
@@ -129,10 +189,20 @@
       "strategy": "provider-inherited",
       "assuranceProfileId": "provider-compatibility-v1",
       "evidenceIds": [
+        "deepseek-model-integrations-source-1"
+      ],
+      "generationState": "provider-inherited",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
         "deepseek-model-integrations-source-1",
         "deepseek-model-integrations-source-2"
       ],
-      "generationState": "provider-inherited",
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
       "supportClaim": false
     },
     {
@@ -147,11 +217,22 @@
       "strategy": "distinct-output",
       "assuranceProfileId": "passive-public-package-v1",
       "evidenceIds": [
-        "gemini-cli-extensions-source-1",
-        "gemini-cli-extensions-source-2",
-        "gemini-cli-extensions-source-3"
+        "gemini-cli-extensions-source-1"
       ],
       "generationState": "fixture-generated-evidence-incomplete",
+      "technicalTier": "generated",
+      "technicalTierRank": 2,
+      "activeEvidenceIds": [
+        "gemini-cli-extensions-source-1",
+        "gemini-cli-extensions-source-2",
+        "gemini-cli-extensions-source-3",
+        "gemini-skill-discovery-2026-08-24"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "static-validation"
+      ],
+      "marketplaceStatus": "not-claimed",
       "supportClaim": false
     },
     {
@@ -166,11 +247,21 @@
       "strategy": "compatible-source",
       "assuranceProfileId": "passive-public-package-v1",
       "evidenceIds": [
+        "github-cli-skills-source-1"
+      ],
+      "generationState": "source-compatible",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
         "github-cli-skills-source-1",
         "github-cli-skills-source-2",
         "github-cli-skills-source-3"
       ],
-      "generationState": "source-compatible",
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
       "supportClaim": false
     },
     {
@@ -185,10 +276,20 @@
       "strategy": "distinct-output",
       "assuranceProfileId": "passive-public-package-v1",
       "evidenceIds": [
+        "github-copilot-plugins-source-1"
+      ],
+      "generationState": "fixture-generated",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
         "github-copilot-plugins-source-1",
         "github-copilot-plugins-source-2"
       ],
-      "generationState": "fixture-generated",
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
       "supportClaim": false
     },
     {
@@ -203,10 +304,20 @@
       "strategy": "compatible-source",
       "assuranceProfileId": "passive-public-package-v1",
       "evidenceIds": [
+        "grok-bot-plugins-source-1"
+      ],
+      "generationState": "source-compatible",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
         "grok-bot-plugins-source-1",
         "grok-bot-plugins-source-2"
       ],
-      "generationState": "source-compatible",
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
       "supportClaim": false
     },
     {
@@ -221,10 +332,20 @@
       "strategy": "shared-output",
       "assuranceProfileId": "passive-public-package-v1",
       "evidenceIds": [
+        "grok-build-skills-source-1"
+      ],
+      "generationState": "fixture-generated-evidence-incomplete",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
         "grok-build-skills-source-1",
         "grok-build-skills-source-2"
       ],
-      "generationState": "fixture-generated-evidence-incomplete",
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
       "supportClaim": false
     },
     {
@@ -242,6 +363,16 @@
         "hermes-agent-plugins-source-1"
       ],
       "generationState": "source-compatible",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
+        "hermes-agent-plugins-source-1"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
       "supportClaim": false
     },
     {
@@ -259,6 +390,16 @@
         "junie-extensions-source-1"
       ],
       "generationState": "fixture-generated-evidence-incomplete",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
+        "junie-extensions-source-1"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
       "supportClaim": false
     },
     {
@@ -273,11 +414,21 @@
       "strategy": "distinct-output",
       "assuranceProfileId": "passive-public-package-v1",
       "evidenceIds": [
+        "kiro-powers-source-1"
+      ],
+      "generationState": "fixture-generated",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
         "kiro-powers-source-1",
         "kiro-powers-source-2",
         "kiro-powers-source-3"
       ],
-      "generationState": "fixture-generated",
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
       "supportClaim": false
     },
     {
@@ -292,6 +443,12 @@
       "strategy": "no-output",
       "assuranceProfileId": "no-artifact-v1",
       "evidenceIds": [
+        "mcp-registry-source-1"
+      ],
+      "generationState": "no-output",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
         "mcp-registry-source-1",
         "mcp-registry-source-2",
         "mcp-registry-source-3",
@@ -299,7 +456,11 @@
         "mcp-registry-source-5",
         "mcp-registry-source-6"
       ],
-      "generationState": "no-output",
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
       "supportClaim": false
     },
     {
@@ -314,10 +475,20 @@
       "strategy": "no-output",
       "assuranceProfileId": "no-artifact-v1",
       "evidenceIds": [
+        "model-context-protocol-source-1"
+      ],
+      "generationState": "no-output",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
         "model-context-protocol-source-1",
         "model-context-protocol-source-2"
       ],
-      "generationState": "no-output",
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
       "supportClaim": false
     },
     {
@@ -335,6 +506,16 @@
         "nanoclaw-templates-source-1"
       ],
       "generationState": "source-compatible",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
+        "nanoclaw-templates-source-1"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
       "supportClaim": false
     },
     {
@@ -349,6 +530,12 @@
       "strategy": "publication-only",
       "assuranceProfileId": "publication-metadata-v1",
       "evidenceIds": [
+        "npm-cratis-scope-source-1"
+      ],
+      "generationState": "publication-only",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
         "npm-cratis-scope-source-1",
         "npm-cratis-scope-source-2",
         "npm-cratis-scope-source-3",
@@ -356,7 +543,11 @@
         "npm-cratis-scope-source-5",
         "npm-cratis-scope-source-6"
       ],
-      "generationState": "publication-only",
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
       "supportClaim": false
     },
     {
@@ -371,10 +562,20 @@
       "strategy": "publication-only",
       "assuranceProfileId": "publication-metadata-v1",
       "evidenceIds": [
+        "npm-trusted-publishing-source-1"
+      ],
+      "generationState": "publication-only",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
         "npm-trusted-publishing-source-1",
         "npm-trusted-publishing-source-2"
       ],
-      "generationState": "publication-only",
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
       "supportClaim": false
     },
     {
@@ -389,10 +590,20 @@
       "strategy": "distinct-output",
       "assuranceProfileId": "passive-public-package-v1",
       "evidenceIds": [
+        "openai-plugins-source-1"
+      ],
+      "generationState": "fixture-generated",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
         "openai-plugins-source-1",
         "openai-plugins-source-2"
       ],
-      "generationState": "fixture-generated",
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
       "supportClaim": false
     },
     {
@@ -410,6 +621,16 @@
         "openclaw-bundles-source-1"
       ],
       "generationState": "source-compatible",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
+        "openclaw-bundles-source-1"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
       "supportClaim": false
     },
     {
@@ -424,11 +645,21 @@
       "strategy": "compatible-source",
       "assuranceProfileId": "passive-public-package-v1",
       "evidenceIds": [
+        "opencode-skills-source-1"
+      ],
+      "generationState": "source-compatible",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
         "opencode-skills-source-1",
         "opencode-skills-source-2",
         "opencode-skills-source-3"
       ],
-      "generationState": "source-compatible",
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
       "supportClaim": false
     },
     {
@@ -443,11 +674,21 @@
       "strategy": "distinct-output",
       "assuranceProfileId": "passive-private-fixture-v1",
       "evidenceIds": [
+        "pi-packages-source-1"
+      ],
+      "generationState": "fixture-generated",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
         "pi-packages-source-1",
         "pi-packages-source-2",
         "pi-packages-source-3"
       ],
-      "generationState": "fixture-generated",
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
       "supportClaim": false
     },
     {
@@ -465,6 +706,16 @@
         "vscode-agent-plugins-source-1"
       ],
       "generationState": "source-compatible",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
+        "vscode-agent-plugins-source-1"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
       "supportClaim": false
     },
     {
@@ -479,10 +730,20 @@
       "strategy": "compatible-source",
       "assuranceProfileId": "passive-public-package-v1",
       "evidenceIds": [
+        "zed-skills-source-1"
+      ],
+      "generationState": "source-compatible",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
         "zed-skills-source-1",
         "zed-skills-source-2"
       ],
-      "generationState": "source-compatible",
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
       "supportClaim": false
     }
   ]

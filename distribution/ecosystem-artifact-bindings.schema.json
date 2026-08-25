@@ -35,6 +35,7 @@
         "assuranceProfileId",
         "evidenceIds",
         "generationState",
+        "marketplaceAvailabilityClaim",
         "supportClaim",
         "notes"
       ],
@@ -86,6 +87,7 @@
             "blocked"
           ]
         },
+        "marketplaceAvailabilityClaim": { "type": "boolean" },
         "supportClaim": { "const": false },
         "notes": {
           "type": "array",

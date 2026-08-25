@@ -934,6 +934,11 @@ const definitions = [
     {
         id: "catalog-v2-authored-registries",
         sourcePathPatterns: [
+            "catalog/evidence.json",
+            "catalog/support-policy.json",
+            "catalog/schemas/evidence.schema.json",
+            "catalog/schemas/support-policy.schema.json",
+            "catalog/schemas/support.schema.json",
             "catalog/v2/authoring-contracts.json",
             "catalog/v2/artifact-assurance-profiles.json",
             "catalog/v2/bundles.json",
@@ -954,6 +959,9 @@ const definitions = [
             "catalog/schemas/v2/catalog-v2.schema.json",
             "catalog/schemas/ecosystem-contracts.schema.json",
             "catalog/schemas/artifact-assurance-profiles.schema.json",
+            "catalog/schemas/evidence.schema.json",
+            "catalog/schemas/support-policy.schema.json",
+            "catalog/schemas/support.schema.json",
             "tooling/catalog-v2-validation.mjs",
             "tooling/ecosystem-artifact-validation.mjs",
         ],
@@ -983,6 +991,7 @@ const definitions = [
         adapterStatus: "none",
         dependencies: [
             "tooling/generate-catalog-v2.mjs",
+            "tooling/generate-support.mjs",
             "tooling/generate-ecosystem-artifact-coverage.mjs",
             "tooling/generate-repository-inventory.mjs",
         ],
@@ -990,7 +999,7 @@ const definitions = [
         migrationState: "retain",
         evidenceIds: ["reevaluation-authority"],
         generator:
-            "tooling/generate-catalog-v2.mjs, tooling/generate-ecosystem-artifact-coverage.mjs, and tooling/generate-repository-inventory.mjs",
+            "tooling/generate-catalog-v2.mjs, tooling/generate-support.mjs, tooling/generate-ecosystem-artifact-coverage.mjs, and tooling/generate-repository-inventory.mjs",
     },
     {
         id: "generated-human-catalog",
@@ -1004,6 +1013,7 @@ const definitions = [
         dependencies: [
             "catalog/v2/human-catalog.json",
             "catalog/v2/targets.json",
+            "catalog/v2/support.json",
             "tooling/generate-human-catalog.mjs",
         ],
         risk: "medium",

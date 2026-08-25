@@ -45,6 +45,17 @@ export function validateReleaseApprovals(
         "distribution/profile-catalog.json",
     );
     const targets = readJson(repositoryRoot, "catalog/v2/targets.json").targets;
+    const bindings = readJson(
+        repositoryRoot,
+        "distribution/ecosystem-artifact-bindings.json",
+    ).bindings;
+    const computedSupport = readJson(
+        repositoryRoot,
+        "catalog/v2/support.json",
+    ).bindings;
+    const supportByBindingId = new Map(
+        computedSupport.map((record) => [record.bindingId, record]),
+    );
     const contracts = readJson(
         repositoryRoot,
         "catalog/v2/source-contracts.json",
@@ -107,6 +118,22 @@ export function validateReleaseApprovals(
         const approval = targetApprovals.get(target.id);
         if ((target.approval.state === "approved") !== Boolean(approval))
             errors.push(`${target.id}: target approval state is inconsistent`);
+        if (approval) {
+            const relatedBindings = bindings.filter(
+                (binding) => binding.targetId === target.id,
+            );
+            if (
+                relatedBindings.length === 0 ||
+                !relatedBindings.some(
+                    (binding) =>
+                        supportByBindingId.get(binding.id)?.supportClaim ===
+                        true,
+                )
+            )
+                errors.push(
+                    `${target.id}: release approval lacks a computed supported binding`,
+                );
+        }
         if (
             approval &&
             (target.approval.reviewer !== approval.reviewer ||

@@ -43,9 +43,7 @@
           "path": ".",
           "requirement": "required",
           "evidenceIds": [
-            "agent-plugins-source-1",
-            "agent-plugins-source-2",
-            "agent-plugins-source-3"
+            "agent-plugins-source-1"
           ]
         }
       ],
@@ -63,47 +61,37 @@
           "factId": "agent-plugins-fact-1",
           "evidenceIds": [
             "agent-plugins-source-1",
-            "agent-plugins-source-2",
-            "agent-plugins-source-3"
+            "agent-plugins-source-2"
           ]
         },
         {
           "factId": "agent-plugins-fact-2",
           "evidenceIds": [
-            "agent-plugins-source-1",
-            "agent-plugins-source-2",
-            "agent-plugins-source-3"
+            "agent-plugins-source-1"
           ]
         },
         {
           "factId": "agent-plugins-fact-3",
           "evidenceIds": [
             "agent-plugins-source-1",
-            "agent-plugins-source-2",
-            "agent-plugins-source-3"
+            "agent-plugins-source-2"
           ]
         },
         {
           "factId": "agent-plugins-fact-4",
           "evidenceIds": [
-            "agent-plugins-source-1",
-            "agent-plugins-source-2",
-            "agent-plugins-source-3"
+            "agent-plugins-source-1"
           ]
         },
         {
           "factId": "agent-plugins-fact-5",
           "evidenceIds": [
-            "agent-plugins-source-1",
-            "agent-plugins-source-2",
-            "agent-plugins-source-3"
+            "agent-plugins-source-1"
           ]
         },
         {
           "factId": "agent-plugins-fact-6",
           "evidenceIds": [
-            "agent-plugins-source-1",
-            "agent-plugins-source-2",
             "agent-plugins-source-3"
           ]
         }
@@ -148,8 +136,7 @@
           "path": "<skill-root>/SKILL.md",
           "requirement": "required",
           "evidenceIds": [
-            "agent-skills-source-1",
-            "agent-skills-source-2"
+            "agent-skills-source-1"
           ]
         }
       ],
@@ -165,29 +152,25 @@
         {
           "factId": "agent-skills-fact-1",
           "evidenceIds": [
-            "agent-skills-source-1",
-            "agent-skills-source-2"
+            "agent-skills-source-1"
           ]
         },
         {
           "factId": "agent-skills-fact-2",
           "evidenceIds": [
-            "agent-skills-source-1",
-            "agent-skills-source-2"
+            "agent-skills-source-1"
           ]
         },
         {
           "factId": "agent-skills-fact-3",
           "evidenceIds": [
-            "agent-skills-source-1",
-            "agent-skills-source-2"
+            "agent-skills-source-1"
           ]
         },
         {
           "factId": "agent-skills-fact-4",
           "evidenceIds": [
-            "agent-skills-source-1",
-            "agent-skills-source-2"
+            "agent-skills-source-1"
           ]
         },
         {
@@ -200,8 +183,7 @@
         {
           "factId": "agent-skills-fact-6",
           "evidenceIds": [
-            "agent-skills-source-1",
-            "agent-skills-source-2"
+            "repo-main-b795d53"
           ]
         }
       ],
@@ -245,22 +227,19 @@
         {
           "factId": "model-context-protocol-fact-1",
           "evidenceIds": [
-            "model-context-protocol-source-1",
-            "model-context-protocol-source-2"
+            "model-context-protocol-source-1"
           ]
         },
         {
           "factId": "model-context-protocol-fact-2",
           "evidenceIds": [
-            "model-context-protocol-source-1",
             "model-context-protocol-source-2"
           ]
         },
         {
           "factId": "model-context-protocol-fact-3",
           "evidenceIds": [
-            "model-context-protocol-source-1",
-            "model-context-protocol-source-2"
+            "model-context-protocol-source-1"
           ]
         }
       ],
@@ -304,12 +283,7 @@
           "path": "server.json",
           "requirement": "required",
           "evidenceIds": [
-            "mcp-registry-source-1",
-            "mcp-registry-source-2",
-            "mcp-registry-source-3",
-            "mcp-registry-source-4",
-            "mcp-registry-source-5",
-            "mcp-registry-source-6"
+            "mcp-registry-source-1"
           ]
         }
       ],
@@ -330,54 +304,34 @@
           "factId": "mcp-registry-fact-1",
           "evidenceIds": [
             "mcp-registry-source-1",
-            "mcp-registry-source-2",
-            "mcp-registry-source-3",
-            "mcp-registry-source-4",
-            "mcp-registry-source-5",
-            "mcp-registry-source-6"
+            "mcp-registry-source-4"
           ]
         },
         {
           "factId": "mcp-registry-fact-2",
           "evidenceIds": [
             "mcp-registry-source-1",
-            "mcp-registry-source-2",
-            "mcp-registry-source-3",
-            "mcp-registry-source-4",
-            "mcp-registry-source-5",
             "mcp-registry-source-6"
           ]
         },
         {
           "factId": "mcp-registry-fact-3",
           "evidenceIds": [
-            "mcp-registry-source-1",
-            "mcp-registry-source-2",
             "mcp-registry-source-3",
-            "mcp-registry-source-4",
-            "mcp-registry-source-5",
-            "mcp-registry-source-6"
+            "mcp-registry-source-4"
           ]
         },
         {
           "factId": "mcp-registry-fact-4",
           "evidenceIds": [
-            "mcp-registry-source-1",
             "mcp-registry-source-2",
-            "mcp-registry-source-3",
-            "mcp-registry-source-4",
-            "mcp-registry-source-5",
-            "mcp-registry-source-6"
+            "mcp-registry-source-5"
           ]
         },
         {
           "factId": "mcp-registry-fact-5",
           "evidenceIds": [
             "mcp-registry-source-1",
-            "mcp-registry-source-2",
-            "mcp-registry-source-3",
-            "mcp-registry-source-4",
-            "mcp-registry-source-5",
             "mcp-registry-source-6"
           ]
         }
@@ -423,9 +377,7 @@
           "path": "<discovered-skill-root>/SKILL.md",
           "requirement": "host-specific",
           "evidenceIds": [
-            "github-cli-skills-source-1",
-            "github-cli-skills-source-2",
-            "github-cli-skills-source-3"
+            "github-cli-skills-source-1"
           ]
         }
       ],
@@ -442,42 +394,30 @@
         {
           "factId": "github-cli-skills-fact-1",
           "evidenceIds": [
-            "github-cli-skills-source-1",
-            "github-cli-skills-source-2",
-            "github-cli-skills-source-3"
+            "github-cli-skills-source-1"
           ]
         },
         {
           "factId": "github-cli-skills-fact-2",
           "evidenceIds": [
-            "github-cli-skills-source-1",
-            "github-cli-skills-source-2",
             "github-cli-skills-source-3"
           ]
         },
         {
           "factId": "github-cli-skills-fact-3",
           "evidenceIds": [
-            "github-cli-skills-source-1",
-            "github-cli-skills-source-2",
-            "github-cli-skills-source-3"
+            "github-cli-skills-source-2"
           ]
         },
         {
           "factId": "github-cli-skills-fact-4",
           "evidenceIds": [
-            "github-cli-skills-source-1",
-            "github-cli-skills-source-2",
-            "github-cli-skills-source-3"
+            "github-cli-skills-source-2"
           ]
         },
         {
           "factId": "github-cli-skills-fact-5",
-          "evidenceIds": [
-            "github-cli-skills-source-1",
-            "github-cli-skills-source-2",
-            "github-cli-skills-source-3"
-          ]
+          "evidenceIds": []
         }
       ],
       "conflicts": [
@@ -607,8 +547,7 @@
           "path": "plugin.json",
           "requirement": "required",
           "evidenceIds": [
-            "github-copilot-plugins-source-1",
-            "github-copilot-plugins-source-2"
+            "github-copilot-plugins-source-1"
           ]
         },
         {
@@ -616,8 +555,7 @@
           "path": ".github/plugin/marketplace.json",
           "requirement": "host-specific",
           "evidenceIds": [
-            "github-copilot-plugins-source-1",
-            "github-copilot-plugins-source-2"
+            "github-copilot-plugins-source-1"
           ]
         }
       ],
@@ -640,21 +578,18 @@
         {
           "factId": "github-copilot-plugins-fact-2",
           "evidenceIds": [
-            "github-copilot-plugins-source-1",
             "github-copilot-plugins-source-2"
           ]
         },
         {
           "factId": "github-copilot-plugins-fact-3",
           "evidenceIds": [
-            "github-copilot-plugins-source-1",
             "github-copilot-plugins-source-2"
           ]
         },
         {
           "factId": "github-copilot-plugins-fact-4",
           "evidenceIds": [
-            "github-copilot-plugins-source-1",
             "github-copilot-plugins-source-2"
           ]
         }
@@ -706,8 +641,7 @@
           "path": ".codex-plugin/plugin.json",
           "requirement": "required",
           "evidenceIds": [
-            "openai-plugins-source-1",
-            "openai-plugins-source-2"
+            "openai-plugins-source-1"
           ]
         },
         {
@@ -715,8 +649,7 @@
           "path": ".agents/plugins/marketplace.json",
           "requirement": "host-specific",
           "evidenceIds": [
-            "openai-plugins-source-1",
-            "openai-plugins-source-2"
+            "openai-plugins-source-1"
           ]
         }
       ],
@@ -732,35 +665,30 @@
         {
           "factId": "openai-plugins-fact-1",
           "evidenceIds": [
-            "openai-plugins-source-1",
-            "openai-plugins-source-2"
+            "openai-plugins-source-1"
           ]
         },
         {
           "factId": "openai-plugins-fact-2",
           "evidenceIds": [
-            "openai-plugins-source-1",
-            "openai-plugins-source-2"
+            "openai-plugins-source-1"
           ]
         },
         {
           "factId": "openai-plugins-fact-3",
           "evidenceIds": [
-            "openai-plugins-source-1",
-            "openai-plugins-source-2"
+            "openai-plugins-source-1"
           ]
         },
         {
           "factId": "openai-plugins-fact-4",
           "evidenceIds": [
-            "openai-plugins-source-1",
             "openai-plugins-source-2"
           ]
         },
         {
           "factId": "openai-plugins-fact-5",
           "evidenceIds": [
-            "openai-plugins-source-1",
             "openai-plugins-source-2"
           ]
         }
@@ -813,10 +741,7 @@
           "path": ".claude-plugin/plugin.json",
           "requirement": "optional",
           "evidenceIds": [
-            "claude-code-plugins-source-1",
-            "claude-code-plugins-source-2",
-            "claude-code-plugins-source-3",
-            "claude-code-plugins-source-4"
+            "claude-code-plugins-source-1"
           ]
         },
         {
@@ -824,10 +749,7 @@
           "path": ".claude-plugin/marketplace.json",
           "requirement": "host-specific",
           "evidenceIds": [
-            "claude-code-plugins-source-1",
-            "claude-code-plugins-source-2",
-            "claude-code-plugins-source-3",
-            "claude-code-plugins-source-4"
+            "claude-code-plugins-source-1"
           ]
         }
       ],
@@ -845,46 +767,33 @@
         {
           "factId": "claude-code-plugins-fact-1",
           "evidenceIds": [
-            "claude-code-plugins-source-1",
-            "claude-code-plugins-source-2",
-            "claude-code-plugins-source-3",
-            "claude-code-plugins-source-4"
+            "claude-code-plugins-source-1"
           ]
         },
         {
           "factId": "claude-code-plugins-fact-2",
           "evidenceIds": [
-            "claude-code-plugins-source-1",
-            "claude-code-plugins-source-2",
-            "claude-code-plugins-source-3",
-            "claude-code-plugins-source-4"
+            "claude-code-plugins-source-1"
           ]
         },
         {
           "factId": "claude-code-plugins-fact-3",
           "evidenceIds": [
             "claude-code-plugins-source-1",
-            "claude-code-plugins-source-2",
-            "claude-code-plugins-source-3",
-            "claude-code-plugins-source-4"
+            "claude-code-plugins-source-2"
           ]
         },
         {
           "factId": "claude-code-plugins-fact-4",
           "evidenceIds": [
-            "claude-code-plugins-source-1",
-            "claude-code-plugins-source-2",
-            "claude-code-plugins-source-3",
             "claude-code-plugins-source-4"
           ]
         },
         {
           "factId": "claude-code-plugins-fact-5",
           "evidenceIds": [
-            "claude-code-plugins-source-1",
             "claude-code-plugins-source-2",
-            "claude-code-plugins-source-3",
-            "claude-code-plugins-source-4"
+            "claude-code-plugins-source-3"
           ]
         }
       ],
@@ -930,9 +839,7 @@
           "path": "gemini-extension.json",
           "requirement": "required",
           "evidenceIds": [
-            "gemini-cli-extensions-source-1",
-            "gemini-cli-extensions-source-2",
-            "gemini-cli-extensions-source-3"
+            "gemini-cli-extensions-source-1"
           ]
         },
         {
@@ -940,9 +847,7 @@
           "path": "skills/<skill-name>/SKILL.md",
           "requirement": "optional",
           "evidenceIds": [
-            "gemini-cli-extensions-source-1",
-            "gemini-cli-extensions-source-2",
-            "gemini-cli-extensions-source-3"
+            "gemini-cli-extensions-source-1"
           ]
         }
       ],
@@ -959,41 +864,31 @@
         {
           "factId": "gemini-cli-extensions-fact-1",
           "evidenceIds": [
-            "gemini-cli-extensions-source-1",
-            "gemini-cli-extensions-source-2",
-            "gemini-cli-extensions-source-3"
+            "gemini-cli-extensions-source-1"
           ]
         },
         {
           "factId": "gemini-cli-extensions-fact-2",
           "evidenceIds": [
-            "gemini-cli-extensions-source-1",
-            "gemini-cli-extensions-source-2",
-            "gemini-cli-extensions-source-3"
+            "gemini-cli-extensions-source-1"
           ]
         },
         {
           "factId": "gemini-cli-extensions-fact-3",
           "evidenceIds": [
-            "gemini-cli-extensions-source-1",
-            "gemini-cli-extensions-source-2",
-            "gemini-cli-extensions-source-3"
+            "gemini-cli-extensions-source-2"
           ]
         },
         {
           "factId": "gemini-cli-extensions-fact-4",
           "evidenceIds": [
-            "gemini-cli-extensions-source-1",
-            "gemini-cli-extensions-source-2",
-            "gemini-cli-extensions-source-3"
+            "gemini-cli-extensions-source-2"
           ]
         },
         {
           "factId": "gemini-cli-extensions-fact-5",
           "evidenceIds": [
-            "gemini-cli-extensions-source-1",
-            "gemini-cli-extensions-source-2",
-            "gemini-cli-extensions-source-3"
+            "gemini-cli-extensions-source-1"
           ]
         }
       ],
@@ -1046,8 +941,7 @@
           "path": "plugin.json",
           "requirement": "required",
           "evidenceIds": [
-            "cursor-plugins-source-1",
-            "cursor-plugins-source-2"
+            "cursor-plugins-source-1"
           ]
         },
         {
@@ -1055,8 +949,7 @@
           "path": ".cursor-plugin/marketplace.json",
           "requirement": "host-specific",
           "evidenceIds": [
-            "cursor-plugins-source-1",
-            "cursor-plugins-source-2"
+            "cursor-plugins-source-1"
           ]
         }
       ],
@@ -1079,21 +972,18 @@
         {
           "factId": "cursor-plugins-fact-2",
           "evidenceIds": [
-            "cursor-plugins-source-1",
-            "cursor-plugins-source-2"
+            "cursor-plugins-source-1"
           ]
         },
         {
           "factId": "cursor-plugins-fact-3",
           "evidenceIds": [
-            "cursor-plugins-source-1",
-            "cursor-plugins-source-2"
+            "cursor-plugins-source-1"
           ]
         },
         {
           "factId": "cursor-plugins-fact-4",
           "evidenceIds": [
-            "cursor-plugins-source-1",
             "cursor-plugins-source-2"
           ]
         }
@@ -1145,9 +1035,7 @@
           "path": "plugin.json",
           "requirement": "required",
           "evidenceIds": [
-            "kiro-powers-source-1",
-            "kiro-powers-source-2",
-            "kiro-powers-source-3"
+            "kiro-powers-source-1"
           ]
         }
       ],
@@ -1164,32 +1052,24 @@
         {
           "factId": "kiro-powers-fact-1",
           "evidenceIds": [
-            "kiro-powers-source-1",
-            "kiro-powers-source-2",
-            "kiro-powers-source-3"
+            "kiro-powers-source-1"
           ]
         },
         {
           "factId": "kiro-powers-fact-2",
           "evidenceIds": [
-            "kiro-powers-source-1",
-            "kiro-powers-source-2",
-            "kiro-powers-source-3"
+            "kiro-powers-source-2"
           ]
         },
         {
           "factId": "kiro-powers-fact-3",
           "evidenceIds": [
-            "kiro-powers-source-1",
-            "kiro-powers-source-2",
-            "kiro-powers-source-3"
+            "kiro-powers-source-1"
           ]
         },
         {
           "factId": "kiro-powers-fact-4",
           "evidenceIds": [
-            "kiro-powers-source-1",
-            "kiro-powers-source-2",
             "kiro-powers-source-3"
           ]
         }
@@ -1395,8 +1275,7 @@
           "path": ".grok/skills/<skill-name>/SKILL.md",
           "requirement": "host-specific",
           "evidenceIds": [
-            "grok-build-skills-source-1",
-            "grok-build-skills-source-2"
+            "grok-build-skills-source-1"
           ]
         },
         {
@@ -1404,8 +1283,7 @@
           "path": ".claude-plugin/marketplace.json",
           "requirement": "host-specific",
           "evidenceIds": [
-            "grok-build-skills-source-1",
-            "grok-build-skills-source-2"
+            "grok-build-skills-source-1"
           ]
         }
       ],
@@ -1421,29 +1299,25 @@
         {
           "factId": "grok-build-skills-fact-1",
           "evidenceIds": [
-            "grok-build-skills-source-1",
-            "grok-build-skills-source-2"
+            "grok-build-skills-source-1"
           ]
         },
         {
           "factId": "grok-build-skills-fact-2",
           "evidenceIds": [
-            "grok-build-skills-source-1",
             "grok-build-skills-source-2"
           ]
         },
         {
           "factId": "grok-build-skills-fact-3",
           "evidenceIds": [
-            "grok-build-skills-source-1",
             "grok-build-skills-source-2"
           ]
         },
         {
           "factId": "grok-build-skills-fact-4",
           "evidenceIds": [
-            "grok-build-skills-source-1",
-            "grok-build-skills-source-2"
+            "repo-main-b795d53"
           ]
         }
       ],
@@ -1489,8 +1363,7 @@
           "path": "plugin.json",
           "requirement": "required",
           "evidenceIds": [
-            "grok-bot-plugins-source-1",
-            "grok-bot-plugins-source-2"
+            "grok-bot-plugins-source-1"
           ]
         }
       ],
@@ -1506,21 +1379,18 @@
         {
           "factId": "grok-bot-plugins-fact-1",
           "evidenceIds": [
-            "grok-bot-plugins-source-1",
-            "grok-bot-plugins-source-2"
+            "grok-bot-plugins-source-1"
           ]
         },
         {
           "factId": "grok-bot-plugins-fact-2",
           "evidenceIds": [
-            "grok-bot-plugins-source-1",
             "grok-bot-plugins-source-2"
           ]
         },
         {
           "factId": "grok-bot-plugins-fact-3",
           "evidenceIds": [
-            "grok-bot-plugins-source-1",
             "grok-bot-plugins-source-2"
           ]
         }
@@ -1645,9 +1515,7 @@
           "path": "package.json",
           "requirement": "required",
           "evidenceIds": [
-            "pi-packages-source-1",
-            "pi-packages-source-2",
-            "pi-packages-source-3"
+            "pi-packages-source-1"
           ]
         },
         {
@@ -1655,9 +1523,7 @@
           "path": "skills/<skill-name>/SKILL.md",
           "requirement": "optional",
           "evidenceIds": [
-            "pi-packages-source-1",
-            "pi-packages-source-2",
-            "pi-packages-source-3"
+            "pi-packages-source-1"
           ]
         }
       ],
@@ -1674,41 +1540,32 @@
         {
           "factId": "pi-packages-fact-1",
           "evidenceIds": [
-            "pi-packages-source-1",
-            "pi-packages-source-2",
-            "pi-packages-source-3"
+            "pi-packages-source-1"
           ]
         },
         {
           "factId": "pi-packages-fact-2",
           "evidenceIds": [
-            "pi-packages-source-1",
-            "pi-packages-source-2",
-            "pi-packages-source-3"
+            "pi-packages-source-1"
           ]
         },
         {
           "factId": "pi-packages-fact-3",
           "evidenceIds": [
-            "pi-packages-source-1",
-            "pi-packages-source-2",
-            "pi-packages-source-3"
+            "pi-packages-source-2"
           ]
         },
         {
           "factId": "pi-packages-fact-4",
           "evidenceIds": [
             "pi-packages-source-1",
-            "pi-packages-source-2",
             "pi-packages-source-3"
           ]
         },
         {
           "factId": "pi-packages-fact-5",
           "evidenceIds": [
-            "pi-packages-source-1",
-            "pi-packages-source-2",
-            "pi-packages-source-3"
+            "pi-packages-source-1"
           ]
         }
       ],
@@ -1842,9 +1699,7 @@
           "path": ".agents/skills/<skill-name>/SKILL.md",
           "requirement": "host-specific",
           "evidenceIds": [
-            "opencode-skills-source-1",
-            "opencode-skills-source-2",
-            "opencode-skills-source-3"
+            "opencode-skills-source-1"
           ]
         },
         {
@@ -1852,9 +1707,7 @@
           "path": "~/.agents/skills/<skill-name>/SKILL.md",
           "requirement": "host-specific",
           "evidenceIds": [
-            "opencode-skills-source-1",
-            "opencode-skills-source-2",
-            "opencode-skills-source-3"
+            "opencode-skills-source-1"
           ]
         }
       ],
@@ -1872,14 +1725,12 @@
           "factId": "opencode-skills-fact-1",
           "evidenceIds": [
             "opencode-skills-source-1",
-            "opencode-skills-source-2",
-            "opencode-skills-source-3"
+            "opencode-skills-source-2"
           ]
         },
         {
           "factId": "opencode-skills-fact-2",
           "evidenceIds": [
-            "opencode-skills-source-1",
             "opencode-skills-source-2",
             "opencode-skills-source-3"
           ]
@@ -1887,7 +1738,6 @@
         {
           "factId": "opencode-skills-fact-3",
           "evidenceIds": [
-            "opencode-skills-source-1",
             "opencode-skills-source-2",
             "opencode-skills-source-3"
           ]
@@ -1896,8 +1746,7 @@
           "factId": "opencode-skills-fact-4",
           "evidenceIds": [
             "opencode-skills-source-1",
-            "opencode-skills-source-2",
-            "opencode-skills-source-3"
+            "opencode-skills-source-2"
           ]
         }
       ],
@@ -1941,8 +1790,7 @@
           "path": ".agents/skills/<skill-name>/SKILL.md",
           "requirement": "host-specific",
           "evidenceIds": [
-            "zed-skills-source-1",
-            "zed-skills-source-2"
+            "zed-skills-source-1"
           ]
         },
         {
@@ -1950,8 +1798,7 @@
           "path": "~/.agents/skills/<skill-name>/SKILL.md",
           "requirement": "host-specific",
           "evidenceIds": [
-            "zed-skills-source-1",
-            "zed-skills-source-2"
+            "zed-skills-source-1"
           ]
         }
       ],
@@ -1967,29 +1814,25 @@
         {
           "factId": "zed-skills-fact-1",
           "evidenceIds": [
-            "zed-skills-source-1",
-            "zed-skills-source-2"
+            "zed-skills-source-1"
           ]
         },
         {
           "factId": "zed-skills-fact-2",
           "evidenceIds": [
-            "zed-skills-source-1",
-            "zed-skills-source-2"
+            "zed-skills-source-1"
           ]
         },
         {
           "factId": "zed-skills-fact-3",
           "evidenceIds": [
-            "zed-skills-source-1",
             "zed-skills-source-2"
           ]
         },
         {
           "factId": "zed-skills-fact-4",
           "evidenceIds": [
-            "zed-skills-source-1",
-            "zed-skills-source-2"
+            "zed-skills-source-1"
           ]
         }
       ],
@@ -2114,9 +1957,7 @@
           "path": ".dsh/skills/<skill-name>/SKILL.md",
           "requirement": "host-specific",
           "evidenceIds": [
-            "deepseek-harness-skills-source-1",
-            "deepseek-harness-skills-source-2",
-            "deepseek-harness-skills-source-3"
+            "deepseek-harness-skills-source-1"
           ]
         },
         {
@@ -2124,9 +1965,7 @@
           "path": ".agents/skills/<skill-name>/SKILL.md",
           "requirement": "host-specific",
           "evidenceIds": [
-            "deepseek-harness-skills-source-1",
-            "deepseek-harness-skills-source-2",
-            "deepseek-harness-skills-source-3"
+            "deepseek-harness-skills-source-1"
           ]
         }
       ],
@@ -2143,32 +1982,24 @@
         {
           "factId": "deepseek-harness-skills-fact-1",
           "evidenceIds": [
-            "deepseek-harness-skills-source-1",
-            "deepseek-harness-skills-source-2",
-            "deepseek-harness-skills-source-3"
+            "deepseek-harness-skills-source-1"
           ]
         },
         {
           "factId": "deepseek-harness-skills-fact-2",
           "evidenceIds": [
-            "deepseek-harness-skills-source-1",
-            "deepseek-harness-skills-source-2",
-            "deepseek-harness-skills-source-3"
+            "deepseek-harness-skills-source-2"
           ]
         },
         {
           "factId": "deepseek-harness-skills-fact-3",
           "evidenceIds": [
-            "deepseek-harness-skills-source-1",
-            "deepseek-harness-skills-source-2",
-            "deepseek-harness-skills-source-3"
+            "deepseek-harness-skills-source-2"
           ]
         },
         {
           "factId": "deepseek-harness-skills-fact-4",
           "evidenceIds": [
-            "deepseek-harness-skills-source-1",
-            "deepseek-harness-skills-source-2",
             "deepseek-harness-skills-source-3"
           ]
         }
@@ -2215,8 +2046,7 @@
         {
           "factId": "deepseek-model-integrations-fact-1",
           "evidenceIds": [
-            "deepseek-model-integrations-source-1",
-            "deepseek-model-integrations-source-2"
+            "deepseek-model-integrations-source-1"
           ]
         },
         {
@@ -2229,8 +2059,7 @@
         {
           "factId": "deepseek-model-integrations-fact-3",
           "evidenceIds": [
-            "deepseek-model-integrations-source-1",
-            "deepseek-model-integrations-source-2"
+            "ecosystem-use-cases"
           ]
         }
       ],
@@ -2274,12 +2103,7 @@
           "path": "@cratis/<package>",
           "requirement": "host-specific",
           "evidenceIds": [
-            "npm-cratis-scope-source-1",
-            "npm-cratis-scope-source-2",
-            "npm-cratis-scope-source-3",
-            "npm-cratis-scope-source-4",
-            "npm-cratis-scope-source-5",
-            "npm-cratis-scope-source-6"
+            "npm-cratis-scope-source-1"
           ]
         }
       ],
@@ -2301,44 +2125,25 @@
           "evidenceIds": [
             "npm-cratis-scope-source-1",
             "npm-cratis-scope-source-2",
-            "npm-cratis-scope-source-3",
-            "npm-cratis-scope-source-4",
-            "npm-cratis-scope-source-5",
-            "npm-cratis-scope-source-6"
+            "npm-cratis-scope-source-3"
           ]
         },
         {
           "factId": "npm-cratis-scope-fact-2",
           "evidenceIds": [
-            "npm-cratis-scope-source-1",
-            "npm-cratis-scope-source-2",
-            "npm-cratis-scope-source-3",
             "npm-cratis-scope-source-4",
-            "npm-cratis-scope-source-5",
-            "npm-cratis-scope-source-6"
+            "npm-cratis-scope-source-5"
           ]
         },
         {
           "factId": "npm-cratis-scope-fact-3",
           "evidenceIds": [
-            "npm-cratis-scope-source-1",
-            "npm-cratis-scope-source-2",
-            "npm-cratis-scope-source-3",
-            "npm-cratis-scope-source-4",
-            "npm-cratis-scope-source-5",
             "npm-cratis-scope-source-6"
           ]
         },
         {
           "factId": "npm-cratis-scope-fact-4",
-          "evidenceIds": [
-            "npm-cratis-scope-source-1",
-            "npm-cratis-scope-source-2",
-            "npm-cratis-scope-source-3",
-            "npm-cratis-scope-source-4",
-            "npm-cratis-scope-source-5",
-            "npm-cratis-scope-source-6"
-          ]
+          "evidenceIds": []
         }
       ],
       "conflicts": [
@@ -2383,8 +2188,7 @@
           "path": "package.json",
           "requirement": "required",
           "evidenceIds": [
-            "npm-trusted-publishing-source-1",
-            "npm-trusted-publishing-source-2"
+            "npm-trusted-publishing-source-1"
           ]
         }
       ],
@@ -2400,15 +2204,13 @@
         {
           "factId": "npm-trusted-publishing-fact-1",
           "evidenceIds": [
-            "npm-trusted-publishing-source-1",
-            "npm-trusted-publishing-source-2"
+            "npm-trusted-publishing-source-1"
           ]
         },
         {
           "factId": "npm-trusted-publishing-fact-2",
           "evidenceIds": [
-            "npm-trusted-publishing-source-1",
-            "npm-trusted-publishing-source-2"
+            "npm-trusted-publishing-source-1"
           ]
         },
         {
@@ -2421,16 +2223,12 @@
         {
           "factId": "npm-trusted-publishing-fact-4",
           "evidenceIds": [
-            "npm-trusted-publishing-source-1",
-            "npm-trusted-publishing-source-2"
+            "npm-trusted-publishing-source-1"
           ]
         },
         {
           "factId": "npm-trusted-publishing-fact-5",
-          "evidenceIds": [
-            "npm-trusted-publishing-source-1",
-            "npm-trusted-publishing-source-2"
-          ]
+          "evidenceIds": []
         }
       ],
       "conflicts": [

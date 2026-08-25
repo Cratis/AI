@@ -23,22 +23,37 @@ export function generateEcosystemArtifactCoverage(
     root = defaultRepositoryRoot,
 ) {
     const bindingsCatalog = readJson(join(root, ecosystemArtifactBindingsPath));
+    const supportCatalog = readJson(join(root, "catalog/v2/support.json"));
+    const supportByBinding = new Map(
+        supportCatalog.bindings.map((record) => [record.bindingId, record]),
+    );
     const coverage = bindingsCatalog.bindings
-        .map((binding) => ({
-            bindingId: binding.id,
-            ecosystemId: binding.ecosystemId,
-            interfaceId: binding.interfaceId,
-            requirementId: binding.requirementId,
-            targetId: binding.targetId,
-            harnessId: binding.harnessId,
-            outputRoot: binding.outputRoot,
-            artifactClass: binding.artifactClass,
-            strategy: binding.strategy,
-            assuranceProfileId: binding.assuranceProfileId,
-            evidenceIds: sortedOrdinal(binding.evidenceIds),
-            generationState: binding.generationState,
-            supportClaim: false,
-        }))
+        .map((binding) => {
+            const support = supportByBinding.get(binding.id);
+            if (!support)
+                throw new Error(`Missing computed support for ${binding.id}`);
+            return {
+                bindingId: binding.id,
+                ecosystemId: binding.ecosystemId,
+                interfaceId: binding.interfaceId,
+                requirementId: binding.requirementId,
+                targetId: binding.targetId,
+                harnessId: binding.harnessId,
+                outputRoot: binding.outputRoot,
+                artifactClass: binding.artifactClass,
+                strategy: binding.strategy,
+                assuranceProfileId: binding.assuranceProfileId,
+                evidenceIds: sortedOrdinal(binding.evidenceIds),
+                generationState: binding.generationState,
+                technicalTier: support.effectiveTier,
+                technicalTierRank: support.rank,
+                activeEvidenceIds: support.activeEvidenceIds,
+                expiredEvidenceIds: support.expiredEvidenceIds,
+                missingAssurances: support.missingAssurances,
+                marketplaceStatus: support.marketplace.status,
+                supportClaim: support.supportClaim,
+            };
+        })
         .sort((left, right) => compareOrdinal(left.bindingId, right.bindingId));
 
     return {

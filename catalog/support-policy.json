@@ -1,0 +1,145 @@
+{
+  "schemaVersion": 1,
+  "asOf": "2026-08-24",
+  "defaultPolicy": "deny",
+  "evidenceClasses": [
+    "synthetic-fixture",
+    "local",
+    "hosted",
+    "real-consumer"
+  ],
+  "tiers": [
+    {
+      "id": "unsupported",
+      "rank": 0,
+      "requirements": []
+    },
+    {
+      "id": "documented",
+      "rank": 1,
+      "requirements": [
+        "documentation"
+      ]
+    },
+    {
+      "id": "generated",
+      "rank": 2,
+      "requirements": [
+        "artifact-generation"
+      ]
+    },
+    {
+      "id": "statically-validated",
+      "rank": 3,
+      "requirements": [
+        "static-validation"
+      ]
+    },
+    {
+      "id": "install-tested",
+      "rank": 4,
+      "requirements": [
+        "install"
+      ]
+    },
+    {
+      "id": "behavior-tested",
+      "rank": 5,
+      "requirements": [
+        "discovery",
+        "behavior-positive",
+        "behavior-negative"
+      ]
+    },
+    {
+      "id": "lifecycle-tested",
+      "rank": 6,
+      "requirements": [
+        "install",
+        "update",
+        "rollback",
+        "uninstall",
+        "project-context-preservation"
+      ]
+    },
+    {
+      "id": "release-tested",
+      "rank": 7,
+      "requirements": [
+        "released-artifact",
+        "canary"
+      ]
+    },
+    {
+      "id": "supported",
+      "rank": 8,
+      "requirements": [
+        "release-approval"
+      ]
+    }
+  ],
+  "executionRequiredAssuranceIds": [
+    "install",
+    "discovery",
+    "behavior-positive",
+    "behavior-negative",
+    "update",
+    "rollback",
+    "uninstall",
+    "project-context-preservation",
+    "canary"
+  ],
+  "behaviorAssuranceIds": [
+    "discovery",
+    "behavior-positive",
+    "behavior-negative"
+  ],
+  "lifecycleAssuranceIds": [
+    "install",
+    "update",
+    "rollback",
+    "uninstall",
+    "project-context-preservation"
+  ],
+  "releaseAssuranceIds": [
+    "released-artifact",
+    "canary",
+    "ecosystem-native-provenance"
+  ],
+  "assuranceProfileControlMap": [
+    {
+      "control": "immutableSource",
+      "assuranceId": "immutable-source"
+    },
+    {
+      "control": "sha256Inventory",
+      "assuranceId": "sha256-inventory"
+    },
+    {
+      "control": "canonicalParity",
+      "assuranceId": "canonical-parity"
+    },
+    {
+      "control": "secretScanning",
+      "assuranceId": "secret-scanning"
+    },
+    {
+      "control": "pathScanning",
+      "assuranceId": "path-scanning"
+    },
+    {
+      "control": "ecosystemNativeProvenance",
+      "assuranceId": "ecosystem-native-provenance"
+    }
+  ],
+  "marketplace": {
+    "listingAssuranceId": "marketplace-listing",
+    "availabilityClaimField": "marketplaceAvailabilityClaim"
+  },
+  "support": {
+    "releaseApprovalAssuranceId": "release-approval",
+    "requireNamedApproval": true,
+    "requireAllApplicableProfileControls": true,
+    "syntheticMaximumTier": "statically-validated"
+  }
+}

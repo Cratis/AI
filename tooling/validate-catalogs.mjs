@@ -15,6 +15,7 @@ import { validateProfileSubscriptions } from "./profile-subscription-validation.
 import { validateReleaseRequests } from "./release-request-validation.mjs";
 import { validateReleaseApprovals } from "./release-approval-validation.mjs";
 import { validateEcosystemArtifactContracts } from "./ecosystem-artifact-validation.mjs";
+import { validateSupportCatalogs } from "./support-validation.mjs";
 
 const errors = [
     ...validateCatalogs(),
@@ -30,6 +31,7 @@ const errors = [
     ...validateReleaseRequests().errors,
     ...validateReleaseApprovals(),
     ...validateEcosystemArtifactContracts(),
+    ...validateSupportCatalogs(),
 ];
 if (errors.length > 0) {
     process.stderr.write(
@@ -39,6 +41,6 @@ if (errors.length > 0) {
     process.exitCode = 1;
 } else {
     process.stdout.write(
-        "Catalog validation passed: legacy, v2, source-evidence, distribution-profile, and evaluation contracts are valid.\n",
+        "Catalog validation passed: legacy, v2, normalized evidence, computed support, source-evidence, distribution-profile, and evaluation contracts are valid.\n",
     );
 }

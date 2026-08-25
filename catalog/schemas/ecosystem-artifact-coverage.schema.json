@@ -35,6 +35,12 @@
         "assuranceProfileId",
         "evidenceIds",
         "generationState",
+        "technicalTier",
+        "technicalTierRank",
+        "activeEvidenceIds",
+        "expiredEvidenceIds",
+        "missingAssurances",
+        "marketplaceStatus",
         "supportClaim"
       ],
       "properties": {
@@ -85,6 +91,24 @@
             "blocked"
           ]
         },
+        "technicalTier": { "enum": ["unsupported", "documented", "generated", "statically-validated", "install-tested", "behavior-tested", "lifecycle-tested", "release-tested", "supported"] },
+        "technicalTierRank": { "type": "integer", "minimum": 0 },
+        "activeEvidenceIds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "expiredEvidenceIds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "missingAssurances": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "marketplaceStatus": { "enum": ["not-claimed", "listed", "listing-missing"] },
         "supportClaim": { "const": false }
       }
     }

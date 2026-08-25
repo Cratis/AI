@@ -214,7 +214,8 @@ test("independent anchors reject coordinated ecosystem, requirement, target, and
     );
 
     const requirementMutation = clone(load());
-    const oldRequirement = requirementMutation.marketplaceRequirements.requirements[0].id;
+    const oldRequirement =
+        requirementMutation.marketplaceRequirements.requirements[0].id;
     requirementMutation.marketplaceRequirements.requirements[0].id =
         "replacement-requirement";
     for (const target of requirementMutation.artifactMatrix.targets) {
@@ -257,23 +258,21 @@ test("closure requires exact evidence bindings", () => {
     ];
     hasError(
         validateEcosystemArtifactClosure(wrongBindingEvidence),
-        "exact official evidence binding",
+        "minimum exact official evidence",
     );
 
     const omittedFactEvidence = clone(load());
-    omittedFactEvidence.ecosystemContracts.ecosystems[0]
-        .legacyFactBindings[0].evidenceIds.pop();
+    omittedFactEvidence.ecosystemContracts.ecosystems[0].legacyFactBindings[0].evidenceIds.pop();
     hasError(
         validateEcosystemContracts(omittedFactEvidence),
         "must preserve its exact evidence binding",
     );
 
     const omittedRootEvidence = clone(load());
-    omittedRootEvidence.ecosystemContracts.ecosystems[0]
-        .discoveryRoots[0].evidenceIds.pop();
+    omittedRootEvidence.ecosystemContracts.ecosystems[0].discoveryRoots[0].evidenceIds.pop();
     hasError(
         validateEcosystemContracts(omittedRootEvidence),
-        "discovery root . must preserve its exact official evidence binding",
+        "discovery root . must use minimum exact official evidence",
     );
 });
 
@@ -302,10 +301,7 @@ test("closure binds requirement and generation state to target strategy", () => 
 test("closed schemas reject additive ecosystem coverage records", () => {
     const catalogs = load();
     const bindingsSchema = readCatalog(
-        join(
-            defaultRepositoryRoot,
-            ecosystemArtifactSchemaPaths.bindings,
-        ),
+        join(defaultRepositoryRoot, ecosystemArtifactSchemaPaths.bindings),
     );
     const mutation = clone(catalogs.bindings);
     mutation.bindings.push({

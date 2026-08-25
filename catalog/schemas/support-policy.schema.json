@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cratis/AI/catalog/schemas/support-policy.schema.json",
+  "title": "Cratis computed support policy",
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+    "idArray": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/id" } },
+    "tier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "rank", "requirements"],
+      "properties": {
+        "id": { "enum": ["unsupported", "documented", "generated", "statically-validated", "install-tested", "behavior-tested", "lifecycle-tested", "release-tested", "supported"] },
+        "rank": { "type": "integer", "minimum": 0 },
+        "requirements": { "$ref": "#/$defs/idArray" }
+      }
+    },
+    "controlMap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["control", "assuranceId"],
+      "properties": {
+        "control": { "enum": ["immutableSource", "sha256Inventory", "canonicalParity", "secretScanning", "pathScanning", "ecosystemNativeProvenance"] },
+        "assuranceId": { "$ref": "#/$defs/id" }
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "asOf", "defaultPolicy", "evidenceClasses", "tiers", "executionRequiredAssuranceIds", "behaviorAssuranceIds", "lifecycleAssuranceIds", "releaseAssuranceIds", "assuranceProfileControlMap", "marketplace", "support"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "asOf": { "type": "string", "format": "date" },
+    "defaultPolicy": { "const": "deny" },
+    "evidenceClasses": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "uniqueItems": true,
+      "items": { "enum": ["synthetic-fixture", "local", "hosted", "real-consumer"] }
+    },
+    "tiers": {
+      "type": "array",
+      "minItems": 9,
+      "maxItems": 9,
+      "items": { "$ref": "#/$defs/tier" }
+    },
+    "executionRequiredAssuranceIds": { "$ref": "#/$defs/idArray" },
+    "behaviorAssuranceIds": { "$ref": "#/$defs/idArray" },
+    "lifecycleAssuranceIds": { "$ref": "#/$defs/idArray" },
+    "releaseAssuranceIds": { "$ref": "#/$defs/idArray" },
+    "assuranceProfileControlMap": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "items": { "$ref": "#/$defs/controlMap" }
+    },
+    "marketplace": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["listingAssuranceId", "availabilityClaimField"],
+      "properties": {
+        "listingAssuranceId": { "const": "marketplace-listing" },
+        "availabilityClaimField": { "const": "marketplaceAvailabilityClaim" }
+      }
+    },
+    "support": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["releaseApprovalAssuranceId", "requireNamedApproval", "requireAllApplicableProfileControls", "syntheticMaximumTier"],
+      "properties": {
+        "releaseApprovalAssuranceId": { "const": "release-approval" },
+        "requireNamedApproval": { "const": true },
+        "requireAllApplicableProfileControls": { "const": true },
+        "syntheticMaximumTier": { "const": "statically-validated" }
+      }
+    }
+  }
+}
