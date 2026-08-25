@@ -1309,17 +1309,22 @@
       "capabilities": [
         {
           "id": "public-onboarding-and-mcp",
-          "coverageState": "gap",
+          "coverageState": "partial",
           "claimState": "unclaimed",
           "languages": [
             "language-agnostic"
           ],
-          "sourceSkillIds": [],
-          "targetIds": [],
+          "sourceSkillIds": [
+            "cratis-studio-mcp-safety-guidance"
+          ],
+          "targetIds": [
+            "cratis-studio-mcp-safety-guidance"
+          ],
           "evidenceIds": [
             "repo-main-b795d53",
             "reevaluation-authority"
-          ]
+          ],
+          "notes": "Classification-only public-safe guidance. No Studio MCP implementation authority, operation, prompt, resource, schema, transport, or invocation is admitted; private implementation remains repository-local."
         },
         {
           "id": "modeling-preparation",

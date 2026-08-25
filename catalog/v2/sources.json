@@ -352,6 +352,28 @@
       ]
     },
     {
+      "id": "cratis-studio-mcp-safety-guidance",
+      "sourcePath": "skills/cratis-studio-mcp-safety-guidance",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        "skills/cratis-studio-mcp-safety-guidance/LICENSE",
+        "skills/cratis-studio-mcp-safety-guidance/SKILL.md",
+        "skills/cratis-studio-mcp-safety-guidance/references/blocked-tools.md",
+        "skills/cratis-studio-mcp-safety-guidance/references/observational-tools.md"
+      ],
+      "sourceRevision": "f96eab8109ec0bb2d4aed6f1e893c2402a9a161a",
+      "contentDigest": "f0c7591741fbbaf877d1ed0e67c9f5f388d92c3861b4693d8ca13d94cc988743",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority",
+        "studio-mcp-safety-guidance-source-f96eab8"
+      ]
+    },
+    {
       "id": "cratis-vertical-slice",
       "sourcePath": ".ai/skills/cratis-vertical-slice",
       "artifactType": "agent-skill-source",

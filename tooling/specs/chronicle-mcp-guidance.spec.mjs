@@ -89,16 +89,35 @@ function validateCatalog(catalog, additional = {}) {
     });
 }
 
+function classificationSemantics(candidate) {
+    return {
+        effectClass: candidate.effectClass,
+        disposition: candidate.disposition,
+        effects: [...candidate.effects].sort(),
+        delegatedOperationIds: [...candidate.delegatedOperationIds].sort(),
+        boundedOutput: candidate.boundedOutput,
+        outputClassification: candidate.outputClassification,
+        annotationHints: {
+            readOnly: candidate.annotationHints.readOnly,
+            destructive: candidate.annotationHints.destructive,
+            idempotent: candidate.annotationHints.idempotent,
+            openWorld: candidate.annotationHints.openWorld,
+        },
+    };
+}
+
 function evidenceBindingDigest(catalog, subjectKind, candidate, assuranceId) {
     return createHash("sha256")
         .update(
             JSON.stringify({
+                guidanceProductId: catalog.guidanceProductId,
                 sourceContractId: catalog.sourceContractId,
                 upstreamRevision: catalog.upstreamRevision,
                 subjectKind,
                 subjectId: candidate.id,
                 implementationDigest: candidate.implementationDigest,
                 schemaDigest: candidate.schemaDigest,
+                classification: classificationSemantics(candidate),
                 assuranceId,
             }),
         )
@@ -114,6 +133,7 @@ function subject(overrides = {}) {
         implementationDigest: "2".repeat(64),
         schemaDigest: "3".repeat(64),
         effects: ["read"],
+        delegatedOperationIds: [],
         boundedOutput: true,
         outputClassification: "internal",
         evidence: {
@@ -249,6 +269,7 @@ test("unknown, effectful, unbounded, and unredacted subjects cannot be admitted"
     const blockedEffects = [
         "credential-access",
         "destructive",
+        "dynamic-delegation",
         "execute",
         "open-world-transmission",
         "publish",
@@ -265,6 +286,10 @@ test("unknown, effectful, unbounded, and unredacted subjects cannot be admitted"
         ),
         subject({ id: "open_query", boundedOutput: false }),
         subject({
+            id: "delegating_query",
+            delegatedOperationIds: ["unknown_operation"],
+        }),
+        subject({
             id: "raw_query",
             outputClassification: "unknown",
             evidence: {
@@ -278,6 +303,7 @@ test("unknown, effectful, unbounded, and unredacted subjects cannot be admitted"
             !(
                 candidate.effectClass === "observational" &&
                 candidate.effects.every((effect) => effect === "read") &&
+                candidate.delegatedOperationIds.length === 0 &&
                 candidate.boundedOutput &&
                 candidate.outputClassification !== "unknown" &&
                 Object.values(candidate.evidence).every(
@@ -299,6 +325,24 @@ test("unknown, effectful, unbounded, and unredacted subjects cannot be admitted"
             ),
         );
     }
+    const delegation = clone(catalog);
+    delegation.tools = [
+        subject({ id: "delegated_target" }),
+        subject({
+            id: "delegator",
+            effectClass: "effectful",
+            disposition: "effectful-blocked",
+            effects: ["dynamic-delegation"],
+            delegatedOperationIds: ["delegated_target"],
+        }),
+    ];
+    assert(
+        validateCatalog(delegation).some((error) =>
+            error.includes(
+                "delegated_target: delegated operations cannot be passive-allowed",
+            ),
+        ),
+    );
 });
 
 test("future admission requires subject-specific active revision and digest evidence", () => {
@@ -458,6 +502,39 @@ test("future admission requires subject-specific active revision and digest evid
         [],
     );
 
+    const wrongScope = clone(sourceContracts);
+    const wrongScopeContract = wrongScope.contracts.find(
+        (contract) => contract.id === catalog.sourceContractId,
+    );
+    wrongScopeContract.productIds = ["studio"];
+    wrongScopeContract.subjectKinds = ["tools"];
+    assert(
+        validateChronicleMcpClassification(
+            catalog,
+            inputs.schema,
+            wrongScope,
+            evidence,
+        ).some((error) =>
+            error.includes("does not authorize this product and MCP subject scope"),
+        ),
+    );
+
+    const reclassified = clone(catalog);
+    reclassified.tools[0].boundedOutput = false;
+    reclassified.inventoryDigest = chronicleMcpInventoryDigest(reclassified);
+    const reclassifiedEvidence = clone(evidence);
+    reclassifiedEvidence.observations.find(
+        (record) => record.id === "mcp-inventory-review",
+    ).subject.digest = reclassified.inventoryDigest;
+    assert(
+        validateChronicleMcpClassification(
+            reclassified,
+            inputs.schema,
+            sourceContracts,
+            reclassifiedEvidence,
+        ).some((error) => error.includes("stale, unrelated")),
+    );
+
     const unrelated = clone(evidence);
     unrelated.observations.find(
         (record) => record.id === evidenceByField.effectReview,
@@ -560,8 +637,8 @@ test("standalone generation rejects invalid auxiliary authority catalogs", () =>
     assert(
         errors.some(
             (error) =>
-                error.includes("at least 150") ||
-                error.includes("preserve all 150"),
+                error.includes("at least 151") ||
+                error.includes("preserve all 151"),
         ),
     );
 });

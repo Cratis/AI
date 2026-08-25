@@ -1339,6 +1339,16 @@
       "confidence": "high"
     },
     {
+      "id": "studio-mcp-safety-guidance-source-f96eab8",
+      "officialUrl": "https://github.com/Cratis/AI/tree/f96eab8109ec0bb2d4aed6f1e893c2402a9a161a/skills/cratis-studio-mcp-safety-guidance",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-08-25",
+      "expiresOn": "2027-08-25",
+      "applicableVersion": "f96eab8109ec0bb2d4aed6f1e893c2402a9a161a",
+      "confidence": "high",
+      "immutableRevision": "f96eab8109ec0bb2d4aed6f1e893c2402a9a161a"
+    },
+    {
       "id": "tabnine-source-1",
       "officialUrl": "https://docs.tabnine.com/main/getting-started/tabnine-agent/guidelines",
       "sourceKind": "official-documentation",

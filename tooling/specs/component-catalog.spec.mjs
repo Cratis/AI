@@ -164,7 +164,7 @@ test("catalog records all kinds and honestly declares MCP and LSP empty", () => 
                 .length,
         ]),
     );
-    assert.equal(counts.skill, 48);
+    assert.equal(counts.skill, 49);
     assert.equal(counts.agent, 12);
     assert.equal(counts.command, 18);
     assert.equal(counts.prompt, 18);
@@ -203,6 +203,29 @@ test("Chronicle MCP product guidance is a passive skill, not an MCP component", 
     assert.equal(
         catalogs.projections.projections.filter(
             (projection) => projection.componentId === guidance.id,
+        ).length,
+        0,
+    );
+});
+
+test("Studio MCP guidance is a passive unprojected skill without MCP components", () => {
+    const catalogs = load();
+    const guidance = catalogs.components.components.find(
+        (component) => component.id === "cratis-studio-mcp-safety-guidance",
+    );
+    assert.equal(guidance.kind, "skill");
+    assert.equal(guidance.classification.effect, "guided-read");
+    assert.equal(guidance.classification.executable, false);
+    assert.equal(guidance.approval.state, "modeled");
+    assert.equal(
+        catalogs.projections.projections.filter(
+            (projection) => projection.componentId === guidance.id,
+        ).length,
+        0,
+    );
+    assert.equal(
+        catalogs.components.components.filter(
+            (component) => component.kind === "mcp",
         ).length,
         0,
     );

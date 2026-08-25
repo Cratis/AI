@@ -27,7 +27,7 @@ availability, trust, and evidence, browse the
 | `public-lens` | `@cratis/ai-lens` | Content gap |
 | `public-screenplay` | `@cratis/ai-screenplay` | Content gap |
 | `public-stage` | `@cratis/ai-stage` | Content gap |
-| `public-studio` | `@cratis/ai-studio` | Public-safe content gap |
+| `public-studio` | `@cratis/ai-studio` | Classification-only public-safe MCP source candidate; no implementation operation admitted |
 | `public-chronicle-mcp` | `@cratis/ai-chronicle-mcp` | Classification-only passive source candidate; no tool or prompt admitted, executable server remains product-owned |
 
 ## Chronicle client profiles

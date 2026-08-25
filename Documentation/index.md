@@ -19,7 +19,8 @@ harness. The mixed source repository is not itself an installation package.
 | [Skill authoring contract](./skill-authoring-contract.md) | Canonical source, evidence, and clean-room requirements |
 | [Package and capability catalog](../catalog/generated/human-catalog/CATALOG.md) | Browse public and maintainer packages, included skills, and availability |
 | [Capability catalog v2](./capability-catalog-v2.md) | Understand the source, approval, trust, and coverage model behind the generated catalog |
-| [Chronicle MCP passive guidance](./chronicle-mcp-guidance.md) | Understand the classification-only skill, evidence boundary, and blocked executable lane |
+| [Chronicle MCP passive guidance](./chronicle-mcp-guidance.md) | Understand the classification-only Chronicle skill, evidence boundary, and blocked executable lane |
+| [Studio MCP passive guidance](./studio-mcp-guidance.md) | Understand the public-safe Studio skill, private-fact boundary, and deny-all operation policy |
 
 ## Repository-local corpus reference
 

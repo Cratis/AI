@@ -226,11 +226,11 @@ export function validateSources(catalogs, root) {
     ];
     if (!equalStringSets(sourceIds, v1Ids))
         errors.push(
-            "catalog v2 sources must preserve all 44 authored skill sources exactly once",
+            "catalog v2 sources must preserve all 45 authored skill sources exactly once",
         );
-    if (sourceIds.length !== 44)
+    if (sourceIds.length !== 45)
         errors.push(
-            `catalog v2 must contain 44 sources; found ${sourceIds.length}`,
+            `catalog v2 must contain 45 sources; found ${sourceIds.length}`,
         );
     for (const source of catalogs.sources.sources) {
         if (source.publicationApproval)
@@ -1791,16 +1791,22 @@ export function validateRepositoryInventory(catalogs, root) {
             ],
         ],
         [
-            "chronicle-mcp-generated-guidance-references",
+            "mcp-generated-guidance-references",
             [
                 "catalog/chronicle-mcp-tool-classifications.json",
                 "catalog/evidence.json",
+                "catalog/mcp-guidance-products.json",
+                "catalog/studio-mcp-tool-classifications.json",
                 "catalog/schemas/chronicle-mcp-tool-classifications.schema.json",
                 "catalog/schemas/evidence.schema.json",
+                "catalog/schemas/mcp-guidance-products.schema.json",
                 "catalog/schemas/v2/catalog-v2.schema.json",
                 "catalog/v2/source-contracts.json",
                 "tooling/chronicle-mcp-guidance-validation.mjs",
                 "tooling/generate-chronicle-mcp-guidance-references.mjs",
+                "tooling/generate-mcp-guidance-references.mjs",
+                "tooling/mcp-guidance-product-contract.mjs",
+                "tooling/mcp-guidance-validation.mjs",
                 "tooling/support-validation.mjs",
             ],
         ],

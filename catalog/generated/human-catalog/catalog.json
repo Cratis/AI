@@ -2,12 +2,12 @@
   "schemaVersion": 2,
   "contractVersion": 1,
   "disclaimer": "Catalog inclusion, evaluation evidence, component modeling, planned projection, bundle generation, or publication does not grant runtime permission, emitted bytes, support, or approval.",
-  "inputDigest": "915ce16145f62499912619ed10ed7bf4f061af63177ab4810b61172ce782eb24",
+  "inputDigest": "0bc8d10fb5bd8fc8dcec7b40b42e65d3b8494a2728b4c18dbfee10224e2b764d",
   "componentSummary": {
     "disclaimer": "Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.",
-    "total": 134,
+    "total": 135,
     "byKind": {
-      "skill": 48,
+      "skill": 49,
       "agent": 12,
       "subagent": 0,
       "command": 18,
@@ -21,16 +21,16 @@
       "static-asset": 0
     },
     "byTrust": {
-      "passive": 131,
+      "passive": 132,
       "executable": 3
     },
     "byAudience": {
-      "public": 36,
+      "public": 37,
       "cratis-engineering": 98,
       "repository-only": 0
     },
     "byLifecycle": {
-      "active": 130,
+      "active": 131,
       "legacy-retained": 4
     },
     "projections": {
@@ -807,13 +807,13 @@
     {
       "id": "public-studio",
       "displayName": "Cratis Studio",
-      "description": "AI guidance for developers building with Cratis Studio.",
+      "description": "Classification-only public-safe guidance for Studio MCP requests and already-redacted output; no implementation operation is admitted or invocable.",
       "intendedFor": "Developers who use Cratis Studio.",
       "audience": "public",
       "packageName": "@cratis/ai-studio",
-      "state": "content-gap",
+      "state": "preview-source-candidate",
       "installable": false,
-      "materialization": "catalog-only",
+      "materialization": "candidate-package",
       "products": [
         "studio"
       ],
@@ -822,8 +822,12 @@
       ],
       "repositoryKinds": [],
       "composes": [],
-      "directTargetIds": [],
-      "targetIds": []
+      "directTargetIds": [
+        "cratis-studio-mcp-safety-guidance"
+      ],
+      "targetIds": [
+        "cratis-studio-mcp-safety-guidance"
+      ]
     },
     {
       "id": "engineering-ai",
@@ -3631,6 +3635,66 @@
       ],
       "bundleIds": [],
       "profileIds": []
+    },
+    {
+      "id": "cratis-studio-mcp-safety-guidance",
+      "semanticName": "cratis-studio-mcp-safety-guidance",
+      "audience": "public",
+      "purpose": "Studio MCP classification-only safety guidance",
+      "whenToUse": "Use when classifying a Studio MCP request or interpreting already-redacted output without discovering or invoking an operation.",
+      "whenNotToUse": [
+        "Do not use private Studio implementation facts as public authority.",
+        "Do not use to discover, invoke, install, or configure Studio MCP."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "studio"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-chronicle-mcp-inspection"
+      ],
+      "bundleIds": [],
+      "profileIds": [
+        "public-studio"
+      ]
     },
     {
       "id": "cratis-engineering-chronicle-kernel-tracing",

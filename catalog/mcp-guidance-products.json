@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "defaultPolicy": "deny",
+  "products": [
+    {
+      "id": "chronicle-mcp",
+      "displayName": "Chronicle MCP",
+      "classificationPath": "catalog/chronicle-mcp-tool-classifications.json",
+      "classificationSchemaPath": "catalog/schemas/chronicle-mcp-tool-classifications.schema.json",
+      "skillRoot": "skills/cratis-chronicle-mcp-inspection",
+      "observationalReferencePath": "skills/cratis-chronicle-mcp-inspection/references/observational-tools.md",
+      "blockedReferencePath": "skills/cratis-chronicle-mcp-inspection/references/blocked-tools.md",
+      "componentId": "cratis-chronicle-mcp-inspection",
+      "sourceContractId": "cratis-chronicle-mcp-source",
+      "profileIds": ["public-chronicle-mcp"],
+      "privateImplementationFactsAllowed": false
+    },
+    {
+      "id": "studio",
+      "displayName": "Studio MCP",
+      "classificationPath": "catalog/studio-mcp-tool-classifications.json",
+      "classificationSchemaPath": "catalog/schemas/chronicle-mcp-tool-classifications.schema.json",
+      "skillRoot": "skills/cratis-studio-mcp-safety-guidance",
+      "observationalReferencePath": "skills/cratis-studio-mcp-safety-guidance/references/observational-tools.md",
+      "blockedReferencePath": "skills/cratis-studio-mcp-safety-guidance/references/blocked-tools.md",
+      "componentId": "cratis-studio-mcp-safety-guidance",
+      "sourceContractId": null,
+      "profileIds": ["public-studio"],
+      "privateImplementationFactsAllowed": false
+    }
+  ]
+}

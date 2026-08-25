@@ -175,6 +175,14 @@ const publicClassifications = new Map([
 
 const sourceOverrides = new Map([
     [
+        "cratis-studio-mcp-safety-guidance",
+        {
+            sourcePath: "skills/cratis-studio-mcp-safety-guidance",
+            sourceRevision: "f96eab8109ec0bb2d4aed6f1e893c2402a9a161a",
+            evidenceId: "studio-mcp-safety-guidance-source-f96eab8",
+        },
+    ],
+    [
         "cratis-chronicle-mcp-inspection",
         {
             sourcePath: "skills/cratis-chronicle-mcp-inspection",
@@ -477,6 +485,17 @@ const engineeringClassifications = new Map([
 ]);
 
 const profiles = {
+    "cratis-studio-mcp-safety-guidance": [
+        "Studio MCP classification-only safety guidance",
+        "Use when classifying a Studio MCP request or interpreting already-redacted output without discovering or invoking an operation.",
+        [
+            "Do not use to discover, invoke, install, or configure Studio MCP.",
+            "Do not use private Studio implementation facts as public authority.",
+        ],
+        ["cratis-chronicle-mcp-inspection"],
+        "critical",
+        false,
+    ],
     "cratis-chronicle-mcp-inspection": [
         "Chronicle MCP classification-only inspection guidance",
         "Use when classifying a Chronicle MCP inspection request or interpreting already-redacted output without invoking a tool or prompt.",

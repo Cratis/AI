@@ -74,6 +74,10 @@ const displayNameOverrides = new Map([
 
 const descriptionOverrides = new Map([
     [
+        "public-studio",
+        "Classification-only public-safe guidance for Studio MCP requests and already-redacted output; no implementation operation is admitted or invocable.",
+    ],
+    [
         "public-chronicle-mcp",
         "Classification-only passive guidance for Chronicle MCP inspection requests and already-redacted output; no tool or prompt is admitted or invocable.",
     ],

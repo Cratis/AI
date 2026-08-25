@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "d2303b78d08903417890aba87214a8a8e54714bb067a637d7b0b32c1f3d66464",
+  "indexDigest": "e96b06b18a91dfd94c2c53e105df25b57297cd9e2c7fb3a508f6f037e03f5cd9",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -391,6 +391,10 @@
       "status": "added"
     },
     {
+      "path": "Documentation/studio-mcp-guidance.md",
+      "status": "added"
+    },
+    {
       "path": "Documentation/verify-markdown.sh",
       "status": "modified"
     },
@@ -432,6 +436,10 @@
     },
     {
       "path": "catalog/host-adapters.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/mcp-guidance-products.json",
       "status": "added"
     },
     {
@@ -479,6 +487,10 @@
       "status": "added"
     },
     {
+      "path": "catalog/schemas/mcp-guidance-products.schema.json",
+      "status": "added"
+    },
+    {
       "path": "catalog/schemas/product-coverage.schema.json",
       "status": "added"
     },
@@ -496,6 +508,10 @@
     },
     {
       "path": "catalog/schemas/v2/catalog-v2.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/studio-mcp-tool-classifications.json",
       "status": "added"
     },
     {
@@ -2103,6 +2119,22 @@
       "status": "added"
     },
     {
+      "path": "skills/cratis-studio-mcp-safety-guidance/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-studio-mcp-safety-guidance/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-studio-mcp-safety-guidance/references/blocked-tools.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-studio-mcp-safety-guidance/references/observational-tools.md",
+      "status": "added"
+    },
+    {
       "path": "tooling/benchmarks/release-generation.mjs",
       "status": "added"
     },
@@ -2315,6 +2347,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/generate-mcp-guidance-references.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/generate-repository-inventory.mjs",
       "status": "added"
     },
@@ -2340,6 +2376,14 @@
     },
     {
       "path": "tooling/harness-registry.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/mcp-guidance-product-contract.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/mcp-guidance-validation.mjs",
       "status": "added"
     },
     {
@@ -2544,6 +2588,10 @@
     },
     {
       "path": "tooling/specs/human-catalog.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/mcp-guidance.spec.mjs",
       "status": "added"
     },
     {
@@ -2905,7 +2953,8 @@
     {
       "excludePathPatterns": [
         ".ai/skills/*/evals/**",
-        "skills/cratis-chronicle-mcp-inspection/references/**"
+        "skills/cratis-chronicle-mcp-inspection/references/**",
+        "skills/cratis-studio-mcp-safety-guidance/references/**"
       ],
       "id": "public-skill-sources-and-resources",
       "sourcePathPatterns": [
@@ -2923,6 +2972,7 @@
         ".ai/skills/cratis-readmodel/**",
         ".ai/skills/cratis-specs-csharp/**",
         ".ai/skills/cratis-specs-typescript/**",
+        "skills/cratis-studio-mcp-safety-guidance/**",
         ".ai/skills/cratis-vertical-slice/**",
         ".ai/skills/create-event-model/**",
         ".ai/skills/cross-cutting-properties/**",
@@ -2964,14 +3014,15 @@
         "workflows-68",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 66,
-      "expectedPathsDigest": "ff8ee483c1883ad4697b5348260ab0eb4818e391413fb62fdfb9965411fb18a3"
+      "expectedPathCount": 68,
+      "expectedPathsDigest": "10b4b75a7848dc8b47f553b6f0158fdf8ac2ce6e57b2db3228e5fd8bbf97a73f"
     },
     {
       "excludePathPatterns": [],
-      "id": "chronicle-mcp-generated-guidance-references",
+      "id": "mcp-generated-guidance-references",
       "sourcePathPatterns": [
-        "skills/cratis-chronicle-mcp-inspection/references/**"
+        "skills/cratis-chronicle-mcp-inspection/references/**",
+        "skills/cratis-studio-mcp-safety-guidance/references/**"
       ],
       "artifactType": "skill-source-and-resources",
       "currentOwner": "repository-only authoring/release tooling",
@@ -2982,22 +3033,29 @@
       "dependencies": [
         "catalog/chronicle-mcp-tool-classifications.json",
         "catalog/evidence.json",
+        "catalog/mcp-guidance-products.json",
+        "catalog/studio-mcp-tool-classifications.json",
         "catalog/schemas/chronicle-mcp-tool-classifications.schema.json",
         "catalog/schemas/evidence.schema.json",
+        "catalog/schemas/mcp-guidance-products.schema.json",
         "catalog/schemas/v2/catalog-v2.schema.json",
         "catalog/v2/source-contracts.json",
         "tooling/chronicle-mcp-guidance-validation.mjs",
         "tooling/generate-chronicle-mcp-guidance-references.mjs",
+        "tooling/generate-mcp-guidance-references.mjs",
+        "tooling/mcp-guidance-product-contract.mjs",
+        "tooling/mcp-guidance-validation.mjs",
         "tooling/support-validation.mjs"
       ],
       "risk": "critical",
       "migrationState": "blocked-by-distribution-decision",
       "evidenceIds": [
-        "chronicle-mcp-inspection-source-5997b28"
+        "chronicle-mcp-inspection-source-5997b28",
+        "studio-mcp-safety-guidance-source-f96eab8"
       ],
-      "generator": "tooling/generate-chronicle-mcp-guidance-references.mjs",
-      "expectedPathCount": 2,
-      "expectedPathsDigest": "4eb555c3f124abb33dfbfbd284fc9fc68ce52190212713522c0a0e9d0331fec8"
+      "generator": "tooling/generate-mcp-guidance-references.mjs",
+      "expectedPathCount": 4,
+      "expectedPathsDigest": "73d658a8a0bd2584186a452288bbd21623cebe338de3868e3b69fe21afd27bae"
     },
     {
       "excludePathPatterns": [
@@ -3522,7 +3580,8 @@
       "id": "capability-model-documentation",
       "sourcePathPatterns": [
         "Documentation/capability-catalog-v2.md",
-        "Documentation/chronicle-mcp-guidance.md"
+        "Documentation/chronicle-mcp-guidance.md",
+        "Documentation/studio-mcp-guidance.md"
       ],
       "artifactType": "documentation",
       "currentOwner": "repository-only authoring/release tooling",
@@ -3532,6 +3591,8 @@
       "adapterStatus": "none",
       "dependencies": [
         "catalog/chronicle-mcp-tool-classifications.json",
+        "catalog/mcp-guidance-products.json",
+        "catalog/studio-mcp-tool-classifications.json",
         "catalog/v2/bundles.json",
         "catalog/v2/source-contracts.json",
         "catalog/v2/taxonomy.json",
@@ -3542,8 +3603,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 2,
-      "expectedPathsDigest": "8d9c92611cf1696d936cb2c17afd7e767a9700b6a396c5db4d36021eb59d7d07"
+      "expectedPathCount": 3,
+      "expectedPathsDigest": "016856985393e594b725b7bf20ab3380fb61943eb293a70c6344fbeaea358ee3"
     },
     {
       "excludePathPatterns": [],
@@ -3888,12 +3949,15 @@
       "id": "catalog-v2-authored-registries",
       "sourcePathPatterns": [
         "catalog/chronicle-mcp-tool-classifications.json",
+        "catalog/mcp-guidance-products.json",
+        "catalog/studio-mcp-tool-classifications.json",
         "catalog/components.json",
         "catalog/component-projections.json",
         "catalog/evidence.json",
         "catalog/host-adapters.json",
         "catalog/support-policy.json",
         "catalog/schemas/chronicle-mcp-tool-classifications.schema.json",
+        "catalog/schemas/mcp-guidance-products.schema.json",
         "catalog/schemas/components.schema.json",
         "catalog/schemas/component-projections.schema.json",
         "catalog/schemas/evidence.schema.json",
@@ -3926,7 +3990,8 @@
         "catalog/schemas/support.schema.json",
         "tooling/catalog-v2-validation.mjs",
         "tooling/chronicle-mcp-guidance-validation.mjs",
-        "tooling/ecosystem-artifact-validation.mjs"
+        "tooling/ecosystem-artifact-validation.mjs",
+        "tooling/mcp-guidance-validation.mjs"
       ],
       "risk": "high",
       "migrationState": "retain",
@@ -3934,8 +3999,8 @@
         "ecosystem-use-cases",
         "third-party-skills-evaluation"
       ],
-      "expectedPathCount": 22,
-      "expectedPathsDigest": "fc2a077be45e5e0acefb141a6bea5bf891cfd963c310e1caebb4fdcb538337b2"
+      "expectedPathCount": 25,
+      "expectedPathsDigest": "70f9293e8ddada0b9a2e7ab25c555f1682247c4e79675ec9b4b9df9dbca2858c"
     },
     {
       "excludePathPatterns": [
@@ -4123,8 +4188,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 52,
-      "expectedPathsDigest": "ddceae0537597f926874e288a73275482eb5f531d90d7bc231d21af8b31f59f6"
+      "expectedPathCount": 55,
+      "expectedPathsDigest": "e2747032e15dc20c7b3e96e8710bfd0752cf5b6570d8d2652dfc10bc94c8f797"
     },
     {
       "excludePathPatterns": [],
@@ -4147,8 +4212,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 43,
-      "expectedPathsDigest": "b2021c855ba4cfde3c23edf4987349e449a70529ab4500558f7dfb250d4ec901"
+      "expectedPathCount": 44,
+      "expectedPathsDigest": "02ddfcb6a1b0199e1a4c2c3dbad5feaef25cea9df782e9f4934db09d94463a20"
     },
     {
       "excludePathPatterns": [],

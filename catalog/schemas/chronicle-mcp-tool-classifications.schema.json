@@ -1,17 +1,18 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/Cratis/AI/catalog/schemas/chronicle-mcp-tool-classifications.schema.json",
-  "title": "Chronicle MCP passive guidance classifications",
+  "title": "Cratis product MCP passive guidance classifications",
   "$defs": {
     "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
     "subjectId": { "type": "string", "pattern": "^[a-z0-9]+(?:_[a-z0-9]+)*$" },
     "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
     "revision": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
     "idArray": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/id" } },
+    "subjectIdArray": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/subjectId" } },
     "nullableId": { "oneOf": [{ "$ref": "#/$defs/id" }, { "type": "null" }] },
     "effectClass": { "enum": ["classification-only", "observational", "effectful", "unknown"] },
     "disposition": { "enum": ["passive-allowed", "effectful-blocked", "evidence-blocked"] },
-    "effectId": { "enum": ["credential-access", "destructive", "execute", "open-world-transmission", "publish", "read", "unbounded-transmission", "write"] },
+    "effectId": { "enum": ["credential-access", "destructive", "dynamic-delegation", "execute", "open-world-transmission", "publish", "read", "unbounded-transmission", "write"] },
     "annotationHints": {
       "type": "object",
       "additionalProperties": false,
@@ -26,7 +27,7 @@
     "subject": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "effectClass", "disposition", "sourceRevision", "implementationDigest", "schemaDigest", "effects", "boundedOutput", "outputClassification", "evidence", "annotationHints"],
+      "required": ["id", "effectClass", "disposition", "sourceRevision", "implementationDigest", "schemaDigest", "effects", "delegatedOperationIds", "boundedOutput", "outputClassification", "evidence", "annotationHints"],
       "properties": {
         "id": { "$ref": "#/$defs/subjectId" },
         "effectClass": { "$ref": "#/$defs/effectClass" },
@@ -35,6 +36,7 @@
         "implementationDigest": { "$ref": "#/$defs/sha256" },
         "schemaDigest": { "$ref": "#/$defs/sha256" },
         "effects": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/effectId" } },
+        "delegatedOperationIds": { "$ref": "#/$defs/subjectIdArray" },
         "boundedOutput": { "type": "boolean" },
         "outputClassification": { "enum": ["public", "internal", "confidential", "personal-data", "unknown"] },
         "evidence": {
@@ -56,19 +58,21 @@
   },
   "type": "object",
   "additionalProperties": false,
-  "required": ["schemaVersion", "defaultPolicy", "sourceContractId", "authorityState", "defaultDisposition", "upstreamRevision", "inventoryDigest", "inventoryEvidenceId", "effectClasses", "blockedEffectIds", "admissionRequirements", "emission", "tools", "prompts"],
+  "required": ["schemaVersion", "defaultPolicy", "guidanceProductId", "guidanceComponentId", "sourceContractId", "authorityState", "defaultDisposition", "upstreamRevision", "inventoryDigest", "inventoryEvidenceId", "effectClasses", "blockedEffectIds", "admissionRequirements", "emission", "tools", "prompts"],
   "properties": {
     "schemaVersion": { "const": 1 },
     "defaultPolicy": { "const": "deny" },
-    "sourceContractId": { "const": "cratis-chronicle-mcp-source" },
+    "guidanceProductId": { "$ref": "#/$defs/id" },
+    "guidanceComponentId": { "$ref": "#/$defs/id" },
+    "sourceContractId": { "oneOf": [{ "$ref": "#/$defs/id" }, { "type": "null" }] },
     "authorityState": { "enum": ["NO_ADMITTED_TOOL_EFFECT_EVIDENCE", "ADMITTED_TOOL_EFFECT_EVIDENCE"] },
     "defaultDisposition": { "const": "evidence-blocked" },
     "upstreamRevision": { "oneOf": [{ "$ref": "#/$defs/revision" }, { "type": "null" }] },
     "inventoryDigest": { "oneOf": [{ "$ref": "#/$defs/sha256" }, { "type": "null" }] },
     "inventoryEvidenceId": { "oneOf": [{ "$ref": "#/$defs/id" }, { "type": "null" }] },
     "effectClasses": { "type": "array", "minItems": 4, "maxItems": 4, "uniqueItems": true, "items": { "$ref": "#/$defs/effectClass" } },
-    "blockedEffectIds": { "type": "array", "minItems": 7, "maxItems": 7, "uniqueItems": true, "items": { "$ref": "#/$defs/effectId" } },
-    "admissionRequirements": { "type": "array", "minItems": 10, "maxItems": 10, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } },
+    "blockedEffectIds": { "type": "array", "minItems": 8, "maxItems": 8, "uniqueItems": true, "items": { "$ref": "#/$defs/effectId" } },
+    "admissionRequirements": { "type": "array", "minItems": 11, "maxItems": 11, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } },
     "emission": {
       "type": "object",
       "additionalProperties": false,

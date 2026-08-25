@@ -6,7 +6,9 @@ This README is hand-authored documentation. It is not a catalog and is not consu
 
 Edit these files directly:
 
+- `../mcp-guidance-products.json` — closed product identities, source boundaries, components, profiles, and generated-reference paths for passive MCP guidance
 - `../chronicle-mcp-tool-classifications.json` — deny-by-default tool and prompt effect admission for the passive Chronicle MCP guidance skill
+- `../studio-mcp-tool-classifications.json` — deny-by-default public-safe Studio MCP guidance with no implementation authority
 - `../components.json` — canonical component identities, source ownership, trust, effects, boundaries, and projection policy
 - `../component-projections.json` — explicit existing, planned, and blocked host projections
 - `../evidence.json` — reusable evidence sources, exact observations, legacy facts and gaps, and distribution evidence-file inventory
@@ -41,10 +43,12 @@ publication, promotion, installation, or marketplace eligibility.
 
 `ecosystem-artifact-coverage.json` is generated from the authored ecosystem contracts, assurance profiles, and `distribution/ecosystem-artifact-bindings.json`. Run `node tooling/generate-ecosystem-artifact-coverage.mjs`. A coverage record means the ecosystem is accounted for; it is not a support, publication, runtime, or promotion claim.
 
-The Chronicle MCP Markdown references are generated outside this directory from
-`../chronicle-mcp-tool-classifications.json`. Run
-`node tooling/generate-chronicle-mcp-guidance-references.mjs`; generation does
-not create a tool, prompt, configuration, or executable MCP component.
+The Chronicle and Studio MCP Markdown references are generated outside this
+directory from their independent classification catalogs. Run
+`node tooling/generate-mcp-guidance-references.mjs`; generation validates every
+product before writing and does not create a tool, prompt, resource,
+configuration, or executable MCP component. The Chronicle-specific generator
+remains as a byte-compatible entry point.
 
 `repository-inventory.json` is also generated. Run `node tooling/generate-repository-inventory.mjs` after repository files change.
 

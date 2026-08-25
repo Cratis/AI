@@ -7,7 +7,7 @@ the right package and understand its skills. It is not source authority
 and does not make a planned package installable.
 
 - Profiles: 52
-- Capabilities: 44
+- Capabilities: 45
 - Installable profiles: 0
 - Ecosystem bindings with support claims: 0
 
@@ -15,8 +15,8 @@ and does not make a planned package installable.
 
 Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.
 
-- Components: 134
-- Passive: 131
+- Components: 135
+- Passive: 132
 - Executable: 3
 - Legacy-retained: 4
 - Existing adapter records: 312
@@ -29,7 +29,7 @@ Modeled or planned components and projections are catalog metadata only; they ar
 
 ### Components by kind
 
-- skill: 48
+- skill: 49
 - agent: 12
 - subagent: 0
 - command: 18
@@ -908,11 +908,11 @@ AI guidance for developers building with Cratis Stage.
 - **Profile ID:** `public-studio`
 - **Audience:** public
 - **Package:** `@cratis/ai-studio`
-- **State:** content-gap
+- **State:** preview-source-candidate
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** candidate-package
 
-AI guidance for developers building with Cratis Studio.
+Classification-only public-safe guidance for Studio MCP requests and already-redacted output; no implementation operation is admitted or invocable.
 
 **Intended for:** Developers who use Cratis Studio.
 
@@ -922,7 +922,7 @@ AI guidance for developers building with Cratis Studio.
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-studio-mcp-safety-guidance
 
 #### Composed profiles
 
@@ -3765,6 +3765,69 @@ Use for framework or package TypeScript Specification by Example tests.
 #### Profile membership — cratis-specifications-typescript
 
 - None
+
+### cratis-studio-mcp-safety-guidance
+
+- **ID:** `cratis-studio-mcp-safety-guidance`
+- **Audience:** public
+- **Lifecycle:** candidate
+- **Approval:** candidate
+- **Runtime eligible:** no
+
+#### Purpose — cratis-studio-mcp-safety-guidance
+
+Studio MCP classification-only safety guidance
+
+#### When to use — cratis-studio-mcp-safety-guidance
+
+Use when classifying a Studio MCP request or interpreting already-redacted output without discovering or invoking an operation.
+
+#### When not to use — cratis-studio-mcp-safety-guidance
+
+- Do not use private Studio implementation facts as public authority.
+- Do not use to discover, invoke, install, or configure Studio MCP.
+
+#### Invocation — cratis-studio-mcp-safety-guidance
+
+- Capability kind: unclassified
+- Invocation: unclassified
+
+#### Applicability — cratis-studio-mcp-safety-guidance
+
+- Products: studio
+- Languages: language-agnostic
+- Architectures: Unclassified — Architecture requires reviewed target classification.
+- Personas: Unclassified — Persona requires reviewed target classification.
+- Surfaces: Unclassified — Surface requires reviewed target classification.
+- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+
+#### Dependencies — cratis-studio-mcp-safety-guidance
+
+- Unclassified
+
+#### Trust and effects — cratis-studio-mcp-safety-guidance
+
+- Trust class: passive
+- Assessment: unclassified
+- No assessed effects
+
+#### Evidence and support — cratis-studio-mcp-safety-guidance
+
+- Authoring contract unclassified
+- Evidence: reevaluation-authority
+- Evidence: repo-main-b795d53
+
+#### Related capabilities — cratis-studio-mcp-safety-guidance
+
+- cratis-chronicle-mcp-inspection
+
+#### Bundle membership — cratis-studio-mcp-safety-guidance
+
+- None
+
+#### Profile membership — cratis-studio-mcp-safety-guidance
+
+- public-studio
 
 ### cratis-engineering-chronicle-kernel-tracing
 

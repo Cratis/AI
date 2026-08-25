@@ -663,6 +663,12 @@
       "kind": "repository-snapshot",
       "locator": "https://github.com/Cratis/AI/tree/5997b28c142d9ee489841894e5d21730da5cb5a5/skills/cratis-chronicle-mcp-inspection",
       "immutableRevision": "5997b28c142d9ee489841894e5d21730da5cb5a5"
+    },
+    {
+      "id": "source-studio-mcp-safety-guidance-source-f96eab8",
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/f96eab8109ec0bb2d4aed6f1e893c2402a9a161a/skills/cratis-studio-mcp-safety-guidance",
+      "immutableRevision": "f96eab8109ec0bb2d4aed6f1e893c2402a9a161a"
     }
   ],
   "observations": [
@@ -7012,6 +7018,43 @@
         "officialUrl": "https://github.com/Cratis/AI/tree/5997b28c142d9ee489841894e5d21730da5cb5a5/skills/cratis-chronicle-mcp-inspection",
         "sourceKind": "repository-snapshot",
         "applicableVersion": "5997b28c142d9ee489841894e5d21730da5cb5a5"
+      }
+    },
+    {
+      "id": "studio-mcp-safety-guidance-source-f96eab8",
+      "sourceId": "source-studio-mcp-safety-guidance-source-f96eab8",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "target",
+        "id": "cratis-studio-mcp-safety-guidance",
+        "version": "f96eab8109ec0bb2d4aed6f1e893c2402a9a161a"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "source-provenance",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Immutable provenance for the Cratis-authored classification-only public-safe Studio MCP guidance source. This observation makes no Studio MCP implementation, operation, prompt, resource, effect, schema, transport, runtime, support, or source-authority claim.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2027-08-25",
+      "confidence": "high",
+      "limitations": [
+        "Provenance covers only the exact Cratis-authored skill bytes at this revision. No private Studio implementation fact or upstream behavior is admitted."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/f96eab8109ec0bb2d4aed6f1e893c2402a9a161a/skills/cratis-studio-mcp-safety-guidance",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "f96eab8109ec0bb2d4aed6f1e893c2402a9a161a"
       }
     }
   ],
