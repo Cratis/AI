@@ -637,8 +637,8 @@ test("standalone generation rejects invalid auxiliary authority catalogs", () =>
     assert(
         errors.some(
             (error) =>
-                error.includes("at least 151") ||
-                error.includes("preserve all 151"),
+                error.includes("at least 152") ||
+                error.includes("preserve all 152"),
         ),
     );
 });

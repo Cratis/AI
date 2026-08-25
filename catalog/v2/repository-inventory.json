@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "d2b532f5665ba1d2720fbd92ec04abc14962428cb425e232ff2d19f0f5d75005",
+  "indexDigest": "1ab8b8de7a33e7ef946cccf635aafdd48cd25a510084b70981b51cf30188c2ba",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -684,6 +684,10 @@
     },
     {
       "path": "distribution/evidence/s5b-passive-host-static-generation-2026-08-25.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/evidence/s8-native-non-skill-static-generation-2026-08-25.json",
       "status": "added"
     },
     {
@@ -4133,8 +4137,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 34,
-      "expectedPathsDigest": "243f1e352bc5a047bbd690b5e395d4b73f999c3e69d555dac7bc6ba4f8ea9e7c"
+      "expectedPathCount": 35,
+      "expectedPathsDigest": "aaa2079e4258d00ee08d9433d263846de20b4fb438c05509db1fe6acdd60a6b2"
     },
     {
       "excludePathPatterns": [],

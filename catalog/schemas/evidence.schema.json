@@ -232,8 +232,8 @@
     },
     "observations": {
       "type": "array",
-      "minItems": 151,
-      "maxItems": 151,
+      "minItems": 152,
+      "maxItems": 152,
       "uniqueItems": true,
       "items": { "$ref": "#/$defs/observation" }
     },
@@ -254,7 +254,7 @@
     "distributionEvidenceFiles": {
       "type": "array",
       "minItems": 14,
-      "maxItems": 14,
+      "maxItems": 15,
       "uniqueItems": true,
       "items": { "$ref": "#/$defs/evidenceFile" }
     }

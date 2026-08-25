@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import {
     mkdirSync,
     mkdtempSync,
@@ -57,6 +58,48 @@ test("S8 native non-skill contract is exact, passive, and non-promoting", () => 
             ["visual-studio-copilot-instructions", 1],
         ],
     );
+});
+
+test("S8 evidence report binds the committed non-promoting generation", () => {
+    const report = JSON.parse(
+        readFileSync(
+            join(
+                defaultRepositoryRoot,
+                "distribution/evidence/s8-native-non-skill-static-generation-2026-08-25.json",
+            ),
+            "utf8",
+        ),
+    );
+    const { receipt } = buildNativeNonSkillProjectionPlan();
+    assert.equal(
+        report.sourceRevision,
+        "3fe2b12aa7fd068565cbf082ea966cd783cc6aad",
+    );
+    assert.equal(report.verification.exitCode, 0);
+    assert.equal(report.verification.passed, 467);
+    assert.equal(report.rootCount, receipt.rootCount);
+    assert.equal(report.fileCount, receipt.fileCount);
+    assert.equal(report.uniqueComponentCount, receipt.uniqueComponentCount);
+    assert.equal(
+        report.receiptSha256,
+        createHash("sha256").update(JSON.stringify(receipt)).digest("hex"),
+    );
+    assert.deepEqual(
+        report.roots.map((root) => [root.id, root.fileCount]),
+        receipt.roots.map((root) => [root.id, root.files.length]),
+    );
+    for (const field of [
+        "executionPerformed",
+        "networkAccessPerformed",
+        "hostTestingPerformed",
+        "installationPerformed",
+        "lifecycleTestingPerformed",
+        "supportGranted",
+        "publicationGranted",
+        "runtimeGranted",
+        "promotionGranted",
+    ])
+        assert.equal(report[field], false);
 });
 
 test("S8 payload contains only exact native rule and instruction bytes", () => {
