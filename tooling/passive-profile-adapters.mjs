@@ -11,6 +11,7 @@ import {
     writeFileSync,
 } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
+import { compareOrdinal } from "./catalog-ordering.mjs";
 import {
     claudeCompatibleHarnesses,
     directProfileHarnesses,
@@ -406,7 +407,7 @@ export function generatePassiveProfileAdapters({
     profileHash.update(version);
     profileHash.update("\0");
     for (const [path, digest] of [...canonicalFiles].sort(([left], [right]) =>
-        left < right ? -1 : left > right ? 1 : 0,
+        compareOrdinal(left, right),
     )) {
         profileHash.update(path);
         profileHash.update("\0");
