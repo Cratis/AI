@@ -170,11 +170,14 @@ test("Fundamentals preview assets are deterministic and non-publishable", () => 
         assert.equal(first.assets.length, passiveHarnesses.length);
         assert.match(first.generatorDigest, /^[0-9a-f]{64}$/);
         assert.deepEqual(first.generatorPaths, [
+            "tooling/catalog-ordering.mjs",
+            "tooling/catalog-validation.mjs",
             "tooling/deterministic-release-tree.mjs",
             "tooling/harness-registry.mjs",
             "tooling/package-fundamentals-preview-assets.mjs",
             "tooling/passive-profile-adapters.mjs",
             "tooling/portable-compliance-validation.mjs",
+            "tooling/public-artifact-materializer.mjs",
             "tooling/release-assurance-validation.mjs",
             "tooling/release-context.mjs",
         ]);

@@ -237,7 +237,7 @@ test("generated human catalog exposes public and engineering packages and capabi
         (record) => record.ecosystemId === "devin-hosted",
     );
     assert.equal(devin.coverage, "standard-compatible");
-    assert.equal(devin.generationState, "source-compatible");
+    assert.equal(devin.generationState, "fixture-generated");
     assert.equal(devin.technicalTier, "documented");
 });
 
@@ -261,7 +261,7 @@ test("human catalog Markdown separates approval and trust visibly", () => {
     assert.match(markdown, /^# Cratis AI package and capability catalog/m);
     assert.match(markdown, /## Researched host coverage/);
     assert.match(markdown, /standard-compatible/);
-    assert.match(markdown, /native-planned/);
+    assert.match(markdown, /native-projection-planned/);
     assert.match(markdown, /no-surface/);
     assert.match(markdown, /fixture-generated|source-compatible|no-output/);
     assert.match(markdown, /documented/);

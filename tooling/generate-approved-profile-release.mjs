@@ -428,12 +428,15 @@ export function generateApprovedProfileRelease({
             encoding: "utf8",
         }).trim();
         const generatorPaths = [
+            "tooling/catalog-ordering.mjs",
+            "tooling/catalog-validation.mjs",
             "tooling/deterministic-release-tree.mjs",
             "tooling/generate-approved-profile-release.mjs",
             "tooling/harness-registry.mjs",
             "tooling/passive-profile-adapters.mjs",
             "tooling/portable-compliance-validation.mjs",
             "tooling/profile-presentation.mjs",
+            "tooling/public-artifact-materializer.mjs",
             "tooling/release-assurance-validation.mjs",
             "tooling/release-context.mjs",
         ];

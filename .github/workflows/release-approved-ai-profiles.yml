@@ -119,13 +119,20 @@ jobs:
                 -C "$root" .
             fi
           done
-          cp "$candidate/release-instructions.md" "$candidate/assets/"
-          cp "$candidate/support-matrix.json" "$candidate/assets/"
-          (
-            cd "$candidate/assets"
-            sha256sum ./* > SHA256SUMS
-          )
-          node --test tooling/specs/approved-profile-release.spec.mjs
+          for metadata in \
+            artifact-assurance-receipt.json \
+            compliance-receipts.json \
+            deterministic-release-manifest.json \
+            provenance.json \
+            release-instructions.md \
+            release-manifest.json \
+            support-matrix.json; do
+            cp "$candidate/$metadata" "$candidate/assets/$metadata"
+          done
+          node tooling/verify-approved-profile-assets.mjs \
+            "$candidate" "$candidate/assets" "$PROFILE" "$VERSION"
+          node --test tooling/specs/approved-profile-release.spec.mjs \
+            tooling/specs/approved-profile-assets.spec.mjs
 
       - name: Upload verified profile candidate
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v7.0.1

@@ -283,7 +283,7 @@ const harnessDefinitions = [
         id: "opencode",
         ecosystemId: "opencode-skills",
         outputRoot: "opencode-agent-skills",
-        discoveryRoot: ".agents",
+        discoveryRoot: ".opencode",
         requirementId: "opencode-agent-skills-passive",
     }),
     directSkillHarness({

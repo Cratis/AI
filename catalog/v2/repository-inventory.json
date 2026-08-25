@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "8e47b88383b7f2b8d3668fec96041aa1df9f847d90e92cd6ca515bbbe80006a3",
+  "indexDigest": "8976230dccabebdd03032975de66ddcf00d34aefb70546bbbdc9e88ec00487c7",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -2215,6 +2215,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/fixtures/s5b-passive-expected-tree.json",
+      "status": "added"
+    },
+    {
       "path": "tooling/generate-approved-profile-release.mjs",
       "status": "added"
     },
@@ -2503,6 +2507,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/specs/s5b-passive-host-artifacts.spec.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/specs/source-evidence-contract.spec.mjs",
       "status": "added"
     },
@@ -2535,7 +2543,10 @@
       "status": "added"
     }
   ],
-  "admittedUntracked": [],
+  "admittedUntracked": [
+    "tooling/specs/approved-profile-assets.spec.mjs",
+    "tooling/verify-approved-profile-assets.mjs"
+  ],
   "excludedRuntimePrefixes": [
     ".pi/delegate/",
     ".pi/fusion/",
@@ -3957,8 +3968,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 47,
-      "expectedPathsDigest": "c703273afa8a9cbb3bf92d3b324fbd5a21006ab4a867c76146ad5bd63cd5fab2"
+      "expectedPathCount": 48,
+      "expectedPathsDigest": "97d912be579a527a3d01d5b82c59106975389eaf85aba04f7106ed8dc740845c"
     },
     {
       "excludePathPatterns": [],
@@ -3981,8 +3992,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 39,
-      "expectedPathsDigest": "9ba2c5b19ff5331afa27c215ad3e751d8e2bdfbae512783f5265dbe6e3480308"
+      "expectedPathCount": 41,
+      "expectedPathsDigest": "49ef818b1b76e80ee071323534d5b186e1ab8ce29824940a2ebf9fa389668cc6"
     },
     {
       "excludePathPatterns": [],
@@ -4005,8 +4016,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 30,
-      "expectedPathsDigest": "958f046fd28f06eef7aea005189936cd869b774d00453048ce7a37b49426cfc9"
+      "expectedPathCount": 31,
+      "expectedPathsDigest": "c97727f86b11a9347454a889dbd51208071f4adb652740bc8ce7cc9a759a1dc3"
     }
   ]
 }

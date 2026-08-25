@@ -671,6 +671,15 @@ function generatePassiveProfileAdaptersCore(options) {
                     `Missing profile projection descriptor: ${harnessRoot.id}`,
                 );
             const artifactRoot = join(root, harnessRoot.root);
+            const rootPrefix = `${harnessRoot.root}/`;
+            const artifactFiles = projected.files
+                .filter((file) => file.path.startsWith(rootPrefix))
+                .map((file) => ({
+                    path: file.path.slice(rootPrefix.length),
+                    size: file.size,
+                    sha256: file.sha256,
+                }))
+                .sort((left, right) => compareOrdinal(left.path, right.path));
             if (
                 harness.adapterKind === "portable-plugin" ||
                 harness.adapterKind === "portable-plugin-marketplace"
@@ -693,10 +702,14 @@ function generatePassiveProfileAdaptersCore(options) {
                         `${harness.id}: portable compliance failed\n${formatComplianceDiagnostics(validationResult.diagnostics)}`,
                     );
                 }
-                complianceReceipts.push(validationResult.receipt);
+                complianceReceipts.push({
+                    ...validationResult.receipt,
+                    artifactId: harnessRoot.id,
+                    artifactRoot: harnessRoot.root,
+                    artifactFiles,
+                });
                 continue;
             }
-            if (harness.adapterKind !== "direct-skills") continue;
             const skillReceipts = [];
             for (const skill of skills) {
                 const skillRoot = join(
@@ -724,12 +737,17 @@ function generatePassiveProfileAdaptersCore(options) {
                 });
             }
             complianceReceipts.push({
-                artifactId: harness.id,
-                profile: "agent-skills-strict-passive-v1",
+                artifactId: harnessRoot.id,
+                artifactRoot: harnessRoot.root,
+                profile:
+                    harness.adapterKind === "direct-skills"
+                        ? "agent-skills-strict-passive-v1"
+                        : "passive-native-metadata-v1",
                 conformant: true,
                 releaseBlocking: false,
                 passivePayloadSafe: true,
-                files: skillReceipts,
+                skills: skillReceipts,
+                artifactFiles,
                 executionPerformed: false,
                 networkAccessPerformed: false,
                 supportGranted: false,

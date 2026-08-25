@@ -262,7 +262,8 @@ The same approved skill bytes are wrapped idiomatically for each host:
 | Gemini CLI | Gemini extension |
 | Grok Build | Separate Claude-compatible marketplace and native `.grok/skills/<name>/SKILL.md` archives; neither archive duplicates the other discovery path |
 | VS Code, Qwen Code, Hermes Agent, OpenClaw, Grok Bot, NanoClaw | One standalone Agent Plugins 1.0 archive per host: root `plugin.json` plus `skills/<name>/SKILL.md` |
-| Amp, Devin, GitHub CLI skills, Goose, OpenCode, OpenHands, Replit, Zed | One native archive per host containing `.agents/skills/<name>/SKILL.md` |
+| Amp, Devin, GitHub CLI skills, Goose, OpenHands, Replit, Zed | One native archive per host containing `.agents/skills/<name>/SKILL.md` |
+| OpenCode | `.opencode/skills/<name>/SKILL.md` |
 | Augment / Auggie | `.augment/skills/<name>/SKILL.md` |
 | Cline | `.cline/skills/<name>/SKILL.md` |
 | Kilo | `.kilo/skills/<name>/SKILL.md` |
@@ -291,8 +292,9 @@ archives over the same directory. Agent Plugins 1.0 archives expose exactly
 retain the exact project discovery root shown above. The canonical `SKILL.md`,
 license, references, and assets are byte-identical in every projection.
 
-OpenCode uses `.agents/skills` because that is the verified project discovery
-root in the current official record; no `.opencode/skills` output is inferred.
+OpenCode uses its documented native `.opencode/skills` project root. Its
+`.agents/skills` compatibility root remains recorded for cross-tool use but is
+not duplicated inside the OpenCode artifact.
 NanoClaw receives plain Agent Plugins 1.0 because the current evidence does not
 establish an additional NanoClaw manifest field. Junie retains its existing
 provisional Claude-compatible artifact; no new Junie-native format is inferred.

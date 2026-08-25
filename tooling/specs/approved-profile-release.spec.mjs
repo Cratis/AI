@@ -403,7 +403,10 @@ test("release provenance binds generators and checksums the final manifest", () 
         "utf8",
     );
     assert(generator.includes("generatorDigest"));
+    assert(generator.includes('"tooling/catalog-ordering.mjs"'));
+    assert(generator.includes('"tooling/catalog-validation.mjs"'));
     assert(generator.includes('"tooling/profile-presentation.mjs"'));
+    assert(generator.includes('"tooling/public-artifact-materializer.mjs"'));
     assert(generator.includes('"tooling/portable-compliance-validation.mjs"'));
     assert(generator.includes("compliance-receipts.json"));
     assert(generator.includes("testedHostVersions"));
@@ -440,16 +443,7 @@ test("passive adapter materializer emits one install root per harness", () => {
         assert.deepEqual(manifest.harnesses, passiveHarnesses);
         assert.equal(manifest.compliance.profile, "cratis-passive-v1");
         assert.match(manifest.compliance.profileDigest, /^[0-9a-f]{64}$/);
-        assert.equal(
-            manifest.compliance.receipts.length,
-            harnesses.filter((harness) =>
-                [
-                    "portable-plugin",
-                    "portable-plugin-marketplace",
-                    "direct-skills",
-                ].includes(harness.adapterKind),
-            ).length,
-        );
+        assert.equal(manifest.compliance.receipts.length, harnesses.length);
         assert.equal(
             manifest.compliance.staticValidationInput.supporting,
             false,
@@ -465,6 +459,17 @@ test("passive adapter materializer emits one install root per harness", () => {
                     receipt.networkAccessPerformed === false,
             ),
         );
+        for (const receipt of manifest.compliance.receipts) {
+            const prefix = `${receipt.artifactRoot}/`;
+            const expectedFiles = manifest.files
+                .filter((file) => file.path.startsWith(prefix))
+                .map((file) => ({
+                    path: file.path.slice(prefix.length),
+                    size: file.size,
+                    sha256: file.sha256,
+                }));
+            assert.deepEqual(receipt.artifactFiles, expectedFiles);
+        }
         for (const harness of passiveHarnesses)
             assert.equal(
                 manifest.roots[harness],

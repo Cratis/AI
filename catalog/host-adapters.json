@@ -3621,6 +3621,13 @@
       "nativeDiscoveryRoots": [
         {
           "scope": "project",
+          "path": ".opencode/skills/<skill-name>/SKILL.md",
+          "evidenceIds": [
+            "opencode-skills-source-1"
+          ]
+        },
+        {
+          "scope": "project",
           "path": ".agents/skills/<skill-name>/SKILL.md",
           "evidenceIds": [
             "opencode-skills-source-1"

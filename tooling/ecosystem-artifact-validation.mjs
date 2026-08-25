@@ -615,7 +615,7 @@ export function validateEcosystemArtifactClosure(catalogs) {
 }
 
 const expectedHostAdapterAnchor =
-    "54bcdf34a5cec633d7c6a697d9d82def9bee06051c542d20de27030ba9db5cb1";
+    "9355fb1d654896bdd1bcf51d301b5728161240c1629e9fe69f19cea4e64e4c00";
 
 export function validateHostAdapters(catalogs) {
     const errors = [];

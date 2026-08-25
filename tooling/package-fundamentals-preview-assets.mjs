@@ -100,7 +100,7 @@ function tarHeader(path, size) {
     return header;
 }
 
-function createTarGzip(root, paths, pathPrefix = "") {
+export function createTarGzip(root, paths, pathPrefix = "") {
     const chunks = [];
     for (const path of paths) {
         const content = readFileSync(join(root, path));
@@ -355,11 +355,14 @@ export function packageFundamentalsPreviewAssets({
             encoding: "utf8",
         }).trim();
         const generatorPaths = [
+            "tooling/catalog-ordering.mjs",
+            "tooling/catalog-validation.mjs",
             "tooling/deterministic-release-tree.mjs",
             "tooling/harness-registry.mjs",
             "tooling/package-fundamentals-preview-assets.mjs",
             "tooling/passive-profile-adapters.mjs",
             "tooling/portable-compliance-validation.mjs",
+            "tooling/public-artifact-materializer.mjs",
             "tooling/release-assurance-validation.mjs",
             "tooling/release-context.mjs",
         ];
