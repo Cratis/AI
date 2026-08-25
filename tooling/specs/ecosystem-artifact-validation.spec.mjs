@@ -393,7 +393,10 @@ test("host registry is exact, fail-closed, and rejects unsupported claims or fab
         (record) => record.ecosystemId === "cline",
     );
     cline.product.clientVersion = "current-documentation-2026-08-25";
-    hasError(validateHostAdapters(versionType), "confuses a documentation snapshot");
+    hasError(
+        validateHostAdapters(versionType),
+        "confuses a documentation snapshot",
+    );
 
     const expired = clone(catalogs);
     expired.hostAdapters.hosts.find(
@@ -405,7 +408,10 @@ test("host registry is exact, fail-closed, and rejects unsupported claims or fab
     dangling.hostAdapters.hosts.find(
         (record) => record.ecosystemId === "cline",
     ).serving.artifactBindingId = "missing-artifact-binding";
-    hasError(validateHostAdapters(dangling), "unknown or foreign serving artifact binding");
+    hasError(
+        validateHostAdapters(dangling),
+        "unknown or foreign serving artifact binding",
+    );
 });
 
 test("closed host schema rejects coordinated additive records", () => {
@@ -419,7 +425,10 @@ test("closed host schema rejects coordinated additive records", () => {
         id: "fabricated-host-adapter",
         ecosystemId: "fabricated-host",
     });
-    hasError(validateAgainstSchema(mutation, schema), "must contain at most 38 items");
+    hasError(
+        validateAgainstSchema(mutation, schema),
+        "must contain at most 38 items",
+    );
 });
 
 test("generated coverage is deterministic, byte-stable, and explicitly not support", () => {

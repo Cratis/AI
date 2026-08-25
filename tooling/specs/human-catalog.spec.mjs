@@ -191,7 +191,10 @@ test("generated human catalog exposes public and engineering packages and capabi
     const engineeringDocumentation = catalog.profiles.find(
         (profile) => profile.id === "engineering-documentation",
     );
-    assert.match(engineeringDocumentation.description, /documentation authoring/);
+    assert.match(
+        engineeringDocumentation.description,
+        /documentation authoring/,
+    );
     assert(
         engineeringDocumentation.targetIds.includes(
             "cratis-engineering-docs-authoring",
@@ -204,7 +207,9 @@ test("generated human catalog exposes public and engineering packages and capabi
     assert(concept.profileIds.includes("public-application"));
     assert.match(catalog.disclaimer, /does not grant runtime permission/);
     assert.equal(catalog.hostCoverage.length, 38);
-    assert(catalog.hostCoverage.every((record) => record.supportClaim === false));
+    assert(
+        catalog.hostCoverage.every((record) => record.supportClaim === false),
+    );
     assert.equal(
         catalog.hostCoverage.find((record) => record.ecosystemId === "roo-code")
             .coverage,

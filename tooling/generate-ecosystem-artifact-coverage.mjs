@@ -41,7 +41,8 @@ export function generateEcosystemArtifactCoverage(
                 bindingId: binding.id,
                 ecosystemId: binding.ecosystemId,
                 hostAdapterId: host?.id ?? null,
-                hostDisposition: host?.supportDisposition.coverage ?? "not-applicable",
+                hostDisposition:
+                    host?.supportDisposition.coverage ?? "not-applicable",
                 interfaceId: binding.interfaceId,
                 requirementId: binding.requirementId,
                 targetId: binding.targetId,

@@ -257,10 +257,13 @@ export function validatePolicy(policy) {
             errors.push(
                 `support policy tier ${tier.id} must have rank ${rank}`,
             );
-        if (!equalSets(tier.requirements, expectedTierRequirements.get(tier.id) ?? []))
-            errors.push(
-                `support policy tier ${tier.id} requirements changed`,
-            );
+        if (
+            !equalSets(
+                tier.requirements,
+                expectedTierRequirements.get(tier.id) ?? [],
+            )
+        )
+            errors.push(`support policy tier ${tier.id} requirements changed`);
     });
     for (const [label, actual, expected] of [
         ["evidence classes", policy.evidenceClasses, expectedEvidenceClasses],
@@ -269,9 +272,21 @@ export function validatePolicy(policy) {
             policy.executionRequiredAssuranceIds,
             expectedExecutionAssurances,
         ],
-        ["behavior assurances", policy.behaviorAssuranceIds, expectedBehaviorAssurances],
-        ["lifecycle assurances", policy.lifecycleAssuranceIds, expectedLifecycleAssurances],
-        ["release assurances", policy.releaseAssuranceIds, expectedReleaseAssurances],
+        [
+            "behavior assurances",
+            policy.behaviorAssuranceIds,
+            expectedBehaviorAssurances,
+        ],
+        [
+            "lifecycle assurances",
+            policy.lifecycleAssuranceIds,
+            expectedLifecycleAssurances,
+        ],
+        [
+            "release assurances",
+            policy.releaseAssuranceIds,
+            expectedReleaseAssurances,
+        ],
     ]) {
         if (!equalSets(actual, expected))
             errors.push(`support policy ${label} changed`);
@@ -428,7 +443,10 @@ export function validateNormalizedEvidence(
         errors.push(
             "normalized evidence must preserve all 128 S0-S5a evidence IDs exactly once",
         );
-    if (digestLines(sourceIdentityLines(evidence.sources)) !== expectedSourceIdentityAnchor)
+    if (
+        digestLines(sourceIdentityLines(evidence.sources)) !==
+        expectedSourceIdentityAnchor
+    )
         errors.push(
             "normalized evidence source identities and immutable locators changed",
         );
@@ -439,7 +457,10 @@ export function validateNormalizedEvidence(
         errors.push(
             "normalized observation source, subject, binding, or assertion identity changed",
         );
-    if (digestLines(factIdentityLines(evidence.legacyFacts)) !== expectedFactAnchor)
+    if (
+        digestLines(factIdentityLines(evidence.legacyFacts)) !==
+        expectedFactAnchor
+    )
         errors.push(
             "normalized evidence must preserve all 172 ecosystem fact IDs, texts, evidence bindings, and support dispositions exactly",
         );
@@ -573,7 +594,7 @@ export function validateNormalizedEvidence(
                 validateExecution(observation, assertion, bindingsById, errors);
             if (
                 assertion.assuranceId ===
-                    policy.support.releaseApprovalAssuranceId
+                policy.support.releaseApprovalAssuranceId
             )
                 errors.push(
                     `observation ${observation.id} cannot assert release approval before S10 defines an exact release-record contract`,
@@ -630,9 +651,7 @@ export function validateNormalizedEvidence(
     for (const fact of evidence.legacyFacts) {
         const shouldSupport = !expectedUnsupportedFacts.has(fact.id);
         if (fact.supporting !== shouldSupport)
-            errors.push(
-                `legacy fact ${fact.id} support disposition changed`,
-            );
+            errors.push(`legacy fact ${fact.id} support disposition changed`);
         if (fact.supporting && fact.evidenceIds.length === 0)
             errors.push(`supporting legacy fact ${fact.id} lacks evidence`);
         if (!fact.supporting && fact.evidenceIds.length > 0)

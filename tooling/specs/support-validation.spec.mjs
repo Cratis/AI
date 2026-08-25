@@ -105,7 +105,6 @@ function configuredCatalogs({
                   },
               }
             : {}),
-
     }));
     return catalogs;
 }
@@ -363,8 +362,9 @@ test("coordinated source claim and subject mutations fail independent identity a
     newObservation.assertions[0].claimIds.push(fact.id);
     claimMutation.ecosystemContracts.ecosystems
         .find((record) => record.id === "agent-plugins")
-        .legacyFactBindings.find((record) => record.factId === fact.id)
-        .evidenceIds = [...fact.evidenceIds];
+        .legacyFactBindings.find(
+            (record) => record.factId === fact.id,
+        ).evidenceIds = [...fact.evidenceIds];
     hasError(
         validateNormalizedEvidence(claimMutation),
         "fact IDs, texts, evidence bindings, and support dispositions",
@@ -448,8 +448,7 @@ test("support policy requirements controls and snapshot date cannot be weakened"
     hasError(validatePolicy(policyMutation), "requirements changed");
 
     const mappingMutation = clone(loadSupportCatalogs()).policy;
-    mappingMutation.assuranceProfileControlMap[0].assuranceId =
-        "documentation";
+    mappingMutation.assuranceProfileControlMap[0].assuranceId = "documentation";
     hasError(
         validatePolicy(mappingMutation),
         "assurance control mappings changed",

@@ -480,7 +480,9 @@ export function buildHumanCatalogOutputs() {
             outputRoot: host.serving.outputRoot,
             supportClaim: host.supportDisposition.supportClaim,
         }))
-        .sort((left, right) => compareOrdinal(left.ecosystemId, right.ecosystemId));
+        .sort((left, right) =>
+            compareOrdinal(left.ecosystemId, right.ecosystemId),
+        );
     const data = {
         schemaVersion: 2,
         contractVersion: humanContract.contractVersion,
@@ -530,8 +532,9 @@ export function buildHumanCatalogOutputs() {
         "",
         "| Ecosystem | Product status | Coverage | Strategy | Serving target | Support |",
         "| --- | --- | --- | --- | --- | --- |",
-        ...hostCoverage.map((host) =>
-            `| ${markdownText(host.ecosystemId)} | ${markdownText(host.productStatus)} | ${markdownText(host.coverage)} | ${markdownText(host.strategy)} | ${markdownText(host.targetId ?? "no output")} | no |`,
+        ...hostCoverage.map(
+            (host) =>
+                `| ${markdownText(host.ecosystemId)} | ${markdownText(host.productStatus)} | ${markdownText(host.coverage)} | ${markdownText(host.strategy)} | ${markdownText(host.targetId ?? "no output")} | no |`,
         ),
         "",
         "## Packages and profiles",
