@@ -38,6 +38,7 @@ const supportedSchemaKeywords = new Set([
     "const",
     "enum",
     "minItems",
+    "maxItems",
     "uniqueItems",
     "items",
     "minLength",
@@ -249,6 +250,11 @@ export function validateAgainstSchema(
         if (schema.minItems !== undefined && value.length < schema.minItems) {
             errors.push(
                 `${path}: must contain at least ${schema.minItems} items`,
+            );
+        }
+        if (schema.maxItems !== undefined && value.length > schema.maxItems) {
+            errors.push(
+                `${path}: must contain at most ${schema.maxItems} items`,
             );
         }
         if (schema.uniqueItems) {

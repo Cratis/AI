@@ -177,6 +177,7 @@
     "ecosystems": {
       "type": "array",
       "minItems": 26,
+      "maxItems": 26,
       "uniqueItems": true,
       "items": { "$ref": "#/$defs/ecosystem" }
     }

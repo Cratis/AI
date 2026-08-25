@@ -104,6 +104,26 @@ test("Agent Plugins requires only root plugin.json while skills and root mcp.jso
     );
 });
 
+test("standards contracts pin the published Agent Plugins version without inventing an Agent Skills version", () => {
+    const pluginsMutation = clone(load());
+    pluginsMutation.ecosystemContracts.ecosystems.find(
+        (record) => record.id === "agent-plugins",
+    ).versions.specification = "1.1.0";
+    hasError(
+        validateEcosystemContracts(pluginsMutation),
+        "pinned to published specification 1.0.0",
+    );
+
+    const skillsMutation = clone(load());
+    skillsMutation.ecosystemContracts.ecosystems.find(
+        (record) => record.id === "agent-skills",
+    ).versions.specification = "1.0.0";
+    hasError(
+        validateEcosystemContracts(skillsMutation),
+        "must not invent a numbered specification version",
+    );
+});
+
 test("Agent Plugins cannot make MCP universal and Agent Skills cannot impose an enclosing root", () => {
     const catalogs = load();
     const mcpMutation = clone(catalogs);
@@ -178,6 +198,125 @@ test("closure rejects an unmapped ecosystem, requirement, target, harness, and g
         );
         hasError(validateEcosystemArtifactClosure(catalogs), message);
     }
+});
+
+test("independent anchors reject coordinated ecosystem, requirement, target, and binding drift", () => {
+    const ecosystemMutation = clone(load());
+    ecosystemMutation.ecosystemContracts.ecosystems[0].id =
+        "replacement-ecosystem";
+    ecosystemMutation.ecosystemVersions.ecosystems[0].id =
+        "replacement-ecosystem";
+    ecosystemMutation.bindings.bindings[0].ecosystemId =
+        "replacement-ecosystem";
+    hasError(
+        validateEcosystemContracts(ecosystemMutation),
+        "must remain the harness registry completeness anchor",
+    );
+
+    const requirementMutation = clone(load());
+    const oldRequirement = requirementMutation.marketplaceRequirements.requirements[0].id;
+    requirementMutation.marketplaceRequirements.requirements[0].id =
+        "replacement-requirement";
+    for (const target of requirementMutation.artifactMatrix.targets) {
+        if (target.requirementId === oldRequirement)
+            target.requirementId = "replacement-requirement";
+    }
+    for (const binding of requirementMutation.bindings.bindings) {
+        if (binding.requirementId === oldRequirement)
+            binding.requirementId = "replacement-requirement";
+    }
+    hasError(
+        validateEcosystemArtifactClosure(requirementMutation),
+        "marketplace requirement catalog does not account for",
+    );
+
+    const targetMutation = clone(load());
+    const oldTarget = targetMutation.artifactMatrix.targets[0].id;
+    targetMutation.artifactMatrix.targets[0].id = "replacement-target";
+    for (const binding of targetMutation.bindings.bindings) {
+        if (binding.targetId === oldTarget)
+            binding.targetId = "replacement-target";
+    }
+    hasError(
+        validateEcosystemArtifactClosure(targetMutation),
+        "artifact target catalog does not account for",
+    );
+
+    const bindingMutation = clone(load());
+    bindingMutation.bindings.bindings[0].id = "replacement-artifact-binding";
+    hasError(
+        validateEcosystemArtifactClosure(bindingMutation),
+        "ecosystem artifact binding IDs does not account for",
+    );
+});
+
+test("closure requires exact evidence bindings", () => {
+    const wrongBindingEvidence = clone(load());
+    wrongBindingEvidence.bindings.bindings[0].evidenceIds = [
+        "reevaluation-authority",
+    ];
+    hasError(
+        validateEcosystemArtifactClosure(wrongBindingEvidence),
+        "exact official evidence binding",
+    );
+
+    const omittedFactEvidence = clone(load());
+    omittedFactEvidence.ecosystemContracts.ecosystems[0]
+        .legacyFactBindings[0].evidenceIds.pop();
+    hasError(
+        validateEcosystemContracts(omittedFactEvidence),
+        "must preserve its exact evidence binding",
+    );
+
+    const omittedRootEvidence = clone(load());
+    omittedRootEvidence.ecosystemContracts.ecosystems[0]
+        .discoveryRoots[0].evidenceIds.pop();
+    hasError(
+        validateEcosystemContracts(omittedRootEvidence),
+        "discovery root . must preserve its exact official evidence binding",
+    );
+});
+
+test("closure binds requirement and generation state to target strategy", () => {
+    const requirementMutation = clone(load());
+    requirementMutation.bindings.bindings.find(
+        (binding) => binding.id === "agent-plugins-artifact-binding",
+    ).requirementId = "agent-skills-open-standard";
+    hasError(
+        validateEcosystemArtifactClosure(requirementMutation),
+        "requirement diverges from target portable-agent-plugin",
+    );
+
+    const stateMutation = clone(load());
+    const binding = stateMutation.bindings.bindings.find(
+        (record) => record.id === "model-context-protocol-artifact-binding",
+    );
+    binding.strategy = "blocked";
+    binding.generationState = "fixture-generated";
+    hasError(
+        validateEcosystemArtifactClosure(stateMutation),
+        "generation state fixture-generated is invalid for strategy blocked",
+    );
+});
+
+test("closed schemas reject additive ecosystem coverage records", () => {
+    const catalogs = load();
+    const bindingsSchema = readCatalog(
+        join(
+            defaultRepositoryRoot,
+            ecosystemArtifactSchemaPaths.bindings,
+        ),
+    );
+    const mutation = clone(catalogs.bindings);
+    mutation.bindings.push({
+        ...mutation.bindings[0],
+        id: "additional-artifact-binding",
+        ecosystemId: "additional-ecosystem",
+    });
+    hasError(
+        validateAgainstSchema(mutation, bindingsSchema),
+        "must contain at most 26 items",
+    );
 });
 
 test("closure rejects dangling IDs and duplicate semantic bindings", () => {

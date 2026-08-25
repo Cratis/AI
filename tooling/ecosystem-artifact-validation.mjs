@@ -12,7 +12,10 @@ import {
 import {
     fixtureOutputRoots,
     harnesses,
+    requiredArtifactTargetIds,
+    requiredEcosystemBindingIds,
     requiredEcosystemIds,
+    requiredMarketplaceRequirementIds,
 } from "./harness-registry.mjs";
 import { generateEcosystemArtifactCoverage } from "./generate-ecosystem-artifact-coverage.mjs";
 
@@ -45,6 +48,15 @@ const outputlessStrategies = new Set([
     "publication-only",
     "no-output",
     "blocked",
+]);
+const generationStatesByStrategy = new Map([
+    ["distinct-output", new Set(["fixture-generated", "fixture-generated-evidence-incomplete"])],
+    ["shared-output", new Set(["fixture-generated", "fixture-generated-evidence-incomplete"])],
+    ["compatible-source", new Set(["source-compatible"])],
+    ["provider-inherited", new Set(["provider-inherited"])],
+    ["publication-only", new Set(["publication-only"])],
+    ["no-output", new Set(["no-output"])],
+    ["blocked", new Set(["blocked"])],
 ]);
 const executableComponents = [
     "execution",
@@ -243,25 +255,25 @@ export function validateEcosystemContracts(catalogs) {
                 errors.push(
                     `ecosystem contract ${contract.id} binds legacy fact ${binding.factId} from ${fact.ecosystemId}`,
                 );
-            for (const evidenceId of binding.evidenceIds) {
-                if (!contract.officialEvidenceIds.includes(evidenceId))
-                    errors.push(
-                        `ecosystem contract ${contract.id} legacy fact ${binding.factId} references nonofficial evidence ${evidenceId}`,
-                    );
-            }
+            if (fact && !equalSets(binding.evidenceIds, fact.evidenceIds))
+                errors.push(
+                    `ecosystem contract ${contract.id} legacy fact ${binding.factId} must preserve its exact evidence binding`,
+                );
         }
         for (const root of contract.discoveryRoots) {
-            for (const evidenceId of root.evidenceIds) {
-                if (!contract.officialEvidenceIds.includes(evidenceId))
-                    errors.push(
-                        `ecosystem contract ${contract.id} discovery root references nonofficial evidence ${evidenceId}`,
-                    );
-            }
+            if (!equalSets(root.evidenceIds, contract.officialEvidenceIds))
+                errors.push(
+                    `ecosystem contract ${contract.id} discovery root ${root.path} must preserve its exact official evidence binding`,
+                );
         }
     }
 
     const agentPlugins = contractsById.get("agent-plugins");
     if (agentPlugins) {
+        if (agentPlugins.versions.specification !== "1.0.0")
+            errors.push(
+                "Agent Plugins contract must remain pinned to published specification 1.0.0",
+            );
         const requiredManifests = agentPlugins.manifests
             .filter((manifest) => manifest.requirement === "required")
             .map((manifest) => manifest.path);
@@ -284,6 +296,10 @@ export function validateEcosystemContracts(catalogs) {
 
     const agentSkills = contractsById.get("agent-skills");
     if (agentSkills) {
+        if (agentSkills.versions.specification !== null)
+            errors.push(
+                "Agent Skills contract must not invent a numbered specification version",
+            );
         const requiredPaths = agentSkills.discoveryRoots
             .filter((root) => root.requirement === "required")
             .map((root) => root.path);
@@ -330,6 +346,12 @@ export function validateEcosystemArtifactClosure(catalogs) {
         errors.push(
             `ecosystem artifact bindings contain duplicate id ${duplicate}`,
         );
+    addClosureErrors(
+        errors,
+        "ecosystem artifact binding IDs",
+        new Set(bindings.map((binding) => binding.id)),
+        new Set(requiredEcosystemBindingIds),
+    );
     const bindingKeys = bindings.map((binding) =>
         [
             binding.ecosystemId,
@@ -357,13 +379,25 @@ export function validateEcosystemArtifactClosure(catalogs) {
         new Set(
             bindings.map((binding) => binding.requirementId).filter(Boolean),
         ),
+        new Set(requiredMarketplaceRequirementIds),
+    );
+    addClosureErrors(
+        errors,
+        "marketplace requirement catalog",
         new Set(requirementsById.keys()),
+        new Set(requiredMarketplaceRequirementIds),
     );
     addClosureErrors(
         errors,
         "ecosystem artifact target bindings",
         new Set(bindings.map((binding) => binding.targetId).filter(Boolean)),
+        new Set(requiredArtifactTargetIds),
+    );
+    addClosureErrors(
+        errors,
+        "artifact target catalog",
         new Set(targetsById.keys()),
+        new Set(requiredArtifactTargetIds),
     );
     addClosureErrors(
         errors,
@@ -421,6 +455,13 @@ export function validateEcosystemArtifactClosure(catalogs) {
                     `binding ${binding.id} references unknown evidence ${evidenceId}`,
                 );
         }
+        if (
+            contract &&
+            !equalSets(binding.evidenceIds, contract.officialEvidenceIds)
+        )
+            errors.push(
+                `binding ${binding.id} must preserve the ecosystem contract's exact official evidence binding`,
+            );
         if (binding.supportClaim)
             errors.push(`binding ${binding.id} must not claim support`);
 
@@ -433,6 +474,10 @@ export function validateEcosystemArtifactClosure(catalogs) {
                 errors.push(
                     `binding ${binding.id} output root diverges from target ${target.id}`,
                 );
+            if (target && target.requirementId !== binding.requirementId)
+                errors.push(
+                    `binding ${binding.id} requirement diverges from target ${target.id}`,
+                );
             if (harness) {
                 if (harness.fixtureTargetId !== binding.targetId)
                     errors.push(
@@ -444,6 +489,13 @@ export function validateEcosystemArtifactClosure(catalogs) {
                     );
             }
         }
+        const allowedGenerationStates = generationStatesByStrategy.get(
+            binding.strategy,
+        );
+        if (!allowedGenerationStates?.has(binding.generationState))
+            errors.push(
+                `binding ${binding.id} generation state ${binding.generationState} is invalid for strategy ${binding.strategy}`,
+            );
         if (
             outputlessStrategies.has(binding.strategy) &&
             (binding.harnessId !== null || binding.outputRoot !== null)

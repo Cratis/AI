@@ -152,19 +152,101 @@ const harnessDefinitions = [
     },
 ];
 
-// The authored contract is the independent completeness anchor for legacy
-// projections, distribution bindings, generated coverage, and harness roots.
-const ecosystemContracts = JSON.parse(
-    readFileSync(
-        fileURLToPath(
-            new URL("../catalog/v2/ecosystem-contracts.json", import.meta.url),
-        ),
-        "utf8",
-    ),
-);
-export const requiredEcosystemIds = Object.freeze(
-    ecosystemContracts.ecosystems.map((ecosystem) => ecosystem.id),
-);
+// Independent completeness anchors. S1 intentionally keeps these separate
+// from authored catalogs so coordinated deletion or renaming cannot redefine
+// the expected ecosystem and distribution surface.
+export const requiredEcosystemIds = Object.freeze([
+    "agent-plugins",
+    "agent-skills",
+    "model-context-protocol",
+    "mcp-registry",
+    "github-cli-skills",
+    "vscode-agent-plugins",
+    "github-copilot-plugins",
+    "openai-plugins",
+    "claude-code-plugins",
+    "gemini-cli-extensions",
+    "cursor-plugins",
+    "kiro-powers",
+    "hermes-agent-plugins",
+    "openclaw-bundles",
+    "grok-build-skills",
+    "grok-bot-plugins",
+    "nanoclaw-templates",
+    "pi-packages",
+    "junie-extensions",
+    "opencode-skills",
+    "zed-skills",
+    "deepseek-deepcode-skills",
+    "deepseek-harness-skills",
+    "deepseek-model-integrations",
+    "npm-cratis-scope",
+    "npm-trusted-publishing",
+]);
+
+export const requiredMarketplaceRequirementIds = Object.freeze([
+    "agent-skills-open-standard",
+    "agent-plugins-open-standard",
+    "claude-code-marketplace",
+    "openai-codex-plugin",
+    "github-copilot-plugin",
+    "gemini-cli-extension",
+    "pi-passive-package",
+    "grok-build-skills",
+    "deepseek-deepcode-skills",
+    "deepseek-harness-skills",
+    "deepseek-model-provider",
+    "npm-trusted-publication",
+    "cursor-marketplace",
+    "kiro-marketplace",
+    "junie-marketplace",
+]);
+
+export const requiredArtifactTargetIds = Object.freeze([
+    "canonical-agent-skills",
+    "portable-agent-plugin",
+    "claude-code",
+    "openai-codex",
+    "github-copilot",
+    "gemini-cli",
+    "grok-build",
+    "deepseek-deepcode",
+    "deepseek-harness",
+    "deepseek-provider",
+    "pi-npm",
+    "cursor",
+    "kiro",
+    "junie",
+]);
+
+export const requiredEcosystemBindingIds = Object.freeze([
+    "agent-plugins-artifact-binding",
+    "agent-skills-artifact-binding",
+    "model-context-protocol-artifact-binding",
+    "mcp-registry-artifact-binding",
+    "github-cli-skills-artifact-binding",
+    "vscode-agent-plugins-artifact-binding",
+    "github-copilot-plugins-artifact-binding",
+    "openai-plugins-artifact-binding",
+    "claude-code-plugins-artifact-binding",
+    "gemini-cli-extensions-artifact-binding",
+    "cursor-plugins-artifact-binding",
+    "kiro-powers-artifact-binding",
+    "hermes-agent-plugins-artifact-binding",
+    "openclaw-bundles-artifact-binding",
+    "grok-build-skills-artifact-binding",
+    "grok-bot-plugins-artifact-binding",
+    "nanoclaw-templates-artifact-binding",
+    "pi-packages-artifact-binding",
+    "junie-extensions-artifact-binding",
+    "opencode-skills-artifact-binding",
+    "zed-skills-artifact-binding",
+    "deepseek-deepcode-skills-artifact-binding",
+    "deepseek-harness-skills-artifact-binding",
+    "deepseek-model-integrations-artifact-binding",
+    "npm-cratis-scope-artifact-binding",
+    "npm-trusted-publishing-artifact-binding",
+]);
 
 export const harnesses = Object.freeze(
     harnessDefinitions.map((definition) =>

@@ -110,6 +110,7 @@
     "coverage": {
       "type": "array",
       "minItems": 26,
+      "maxItems": 26,
       "uniqueItems": true,
       "items": { "$ref": "#/$defs/coverage" }
     }
