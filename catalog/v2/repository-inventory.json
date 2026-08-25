@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "caa8eabf30d481c9cd271cf2845d20a8bcd82ab07eae71168dec4b7a5b58b94f",
+  "indexDigest": "a99a8d239669f79d7e98ff03c731d103dec379eafe8a4ff7e1c75d3bfc211864",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -39,6 +39,10 @@
       "status": "modified"
     },
     {
+      "path": ".ai/rules/github-actions.md",
+      "status": "added"
+    },
+    {
       "path": ".ai/rules/managing-ai-rules.md",
       "status": "modified"
     },
@@ -65,6 +69,10 @@
     {
       "path": ".ai/workflows/claude.yml",
       "status": "modified"
+    },
+    {
+      "path": ".claude/rules/github-actions.md",
+      "status": "added"
     },
     {
       "path": ".github/ISSUE_TEMPLATE/shared-ai-improvement.yml",
@@ -2430,8 +2438,8 @@
         "repo-main-b795d53",
         "ai-126"
       ],
-      "expectedPathCount": 35,
-      "expectedPathsDigest": "b61335ee479ba0b46f861baf40ac257abe6b0687909e655ea3f4de59cd3fbd49"
+      "expectedPathCount": 36,
+      "expectedPathsDigest": "8d7706204bf0c1ae7289dded92089adcb2fdacd54e7a9668412eb8f501be9b9d"
     },
     {
       "excludePathPatterns": [],
@@ -2721,8 +2729,8 @@
         "reevaluation-authority"
       ],
       "generator": "legacy-manual-adapter-model",
-      "expectedPathCount": 57,
-      "expectedPathsDigest": "8df9cc32a0bf05818a3bdb16823d6231d4c1ca5d7b4658fc0a6841e524d0b8f0"
+      "expectedPathCount": 58,
+      "expectedPathsDigest": "ccf44ef5d952014b918a42ddcb3f4f6ae743a43916b55a07bb29828d2e98b543"
     },
     {
       "excludePathPatterns": [],
