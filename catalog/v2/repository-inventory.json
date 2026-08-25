@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "ad6b0ad218c9346d247bcf7fbbb0043cf3eab9fead1804f8f99fd59c49b01998",
+  "indexDigest": "f512ab9f44248169693ee66a3ad25ba6c38b06be069fd2d6604748848d80b9fd",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -415,6 +415,18 @@
       "status": "added"
     },
     {
+      "path": "catalog/schemas/artifact-assurance-profiles.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/schemas/ecosystem-artifact-coverage.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/schemas/ecosystem-contracts.schema.json",
+      "status": "added"
+    },
+    {
       "path": "catalog/schemas/ecosystem-versions.schema.json",
       "status": "added"
     },
@@ -435,6 +447,10 @@
       "status": "added"
     },
     {
+      "path": "catalog/v2/artifact-assurance-profiles.json",
+      "status": "added"
+    },
+    {
       "path": "catalog/v2/artifacts.json",
       "status": "added"
     },
@@ -444,6 +460,14 @@
     },
     {
       "path": "catalog/v2/bundles.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/v2/ecosystem-artifact-coverage.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/v2/ecosystem-contracts.json",
       "status": "added"
     },
     {
@@ -492,6 +516,14 @@
     },
     {
       "path": "distribution/artifact-matrix.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/ecosystem-artifact-bindings.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/ecosystem-artifact-bindings.schema.json",
       "status": "added"
     },
     {
@@ -1999,6 +2031,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/ecosystem-artifact-validation.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/engineering-docs-authoring-validation.mjs",
       "status": "added"
     },
@@ -2072,6 +2108,10 @@
     },
     {
       "path": "tooling/generate-distribution-fixture.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/generate-ecosystem-artifact-coverage.mjs",
       "status": "added"
     },
     {
@@ -2212,6 +2252,10 @@
     },
     {
       "path": "tooling/specs/domain-expert-event-modeling-pilot.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/ecosystem-artifact-validation.spec.mjs",
       "status": "added"
     },
     {
@@ -3479,6 +3523,9 @@
         "catalog/product-coverage.yml",
         "catalog/public-skills.yml",
         "catalog/schemas/ecosystem-versions.schema.json",
+        "catalog/schemas/ecosystem-contracts.schema.json",
+        "catalog/schemas/artifact-assurance-profiles.schema.json",
+        "catalog/schemas/ecosystem-artifact-coverage.schema.json",
         "catalog/schemas/product-coverage.schema.json",
         "catalog/schemas/public-skills.schema.json"
       ],
@@ -3496,15 +3543,17 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 6,
-      "expectedPathsDigest": "73a48d8157df4c5c347ab0d28bf4547282556ae52113232104bae92a616f749b"
+      "expectedPathCount": 9,
+      "expectedPathsDigest": "add7f934a78773bbfed4ead60726fcb071b6a0fe28126a461ded4c3ddd7ff846"
     },
     {
       "excludePathPatterns": [],
       "id": "catalog-v2-authored-registries",
       "sourcePathPatterns": [
         "catalog/v2/authoring-contracts.json",
+        "catalog/v2/artifact-assurance-profiles.json",
         "catalog/v2/bundles.json",
+        "catalog/v2/ecosystem-contracts.json",
         "catalog/v2/human-catalog.json",
         "catalog/v2/README.md",
         "catalog/v2/source-contracts.json",
@@ -3519,7 +3568,10 @@
       "adapterStatus": "none",
       "dependencies": [
         "catalog/schemas/v2/catalog-v2.schema.json",
-        "tooling/catalog-v2-validation.mjs"
+        "catalog/schemas/ecosystem-contracts.schema.json",
+        "catalog/schemas/artifact-assurance-profiles.schema.json",
+        "tooling/catalog-v2-validation.mjs",
+        "tooling/ecosystem-artifact-validation.mjs"
       ],
       "risk": "high",
       "migrationState": "retain",
@@ -3527,14 +3579,16 @@
         "ecosystem-use-cases",
         "third-party-skills-evaluation"
       ],
-      "expectedPathCount": 7,
-      "expectedPathsDigest": "2c2d41ac4686103ad1877b1f1becd759855ed337df84eeef95ea4091b01a7f0e"
+      "expectedPathCount": 9,
+      "expectedPathsDigest": "a19306fdc8c6c7cdee4a2c0a9a46249846e193925d7e817cf477f29bab4eb6d1"
     },
     {
       "excludePathPatterns": [
         "catalog/v2/authoring-contracts.json",
         "catalog/v2/bundles.json",
         "catalog/v2/human-catalog.json",
+        "catalog/v2/ecosystem-contracts.json",
+        "catalog/v2/artifact-assurance-profiles.json",
         "catalog/v2/README.md",
         "catalog/v2/source-contracts.json",
         "catalog/v2/taxonomy.json",
@@ -3552,6 +3606,7 @@
       "adapterStatus": "none",
       "dependencies": [
         "tooling/generate-catalog-v2.mjs",
+        "tooling/generate-ecosystem-artifact-coverage.mjs",
         "tooling/generate-repository-inventory.mjs"
       ],
       "risk": "high",
@@ -3559,9 +3614,9 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "generator": "tooling/generate-catalog-v2.mjs and tooling/generate-repository-inventory.mjs",
-      "expectedPathCount": 7,
-      "expectedPathsDigest": "e357183a0be12bfbbdea6835b9946fc8b10004c5c902cb1dd4a9d96c105a32c8"
+      "generator": "tooling/generate-catalog-v2.mjs, tooling/generate-ecosystem-artifact-coverage.mjs, and tooling/generate-repository-inventory.mjs",
+      "expectedPathCount": 8,
+      "expectedPathsDigest": "53ef5d3e62bf54294d8f0dfe76b6c1dd7f8a883eaeb0d66ac90731f1f65ba1a9"
     },
     {
       "excludePathPatterns": [],
@@ -3633,8 +3688,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 29,
-      "expectedPathsDigest": "fd834db5c4993ac7e32fd33ee85171742e0c2aa183dcd208cf554a44c5d3ec0d"
+      "expectedPathCount": 31,
+      "expectedPathsDigest": "9e198c41335f79204fd4c79de04da27e3d1d0deb6387a02ee7c0860010ae4e50"
     },
     {
       "excludePathPatterns": [],
@@ -3656,8 +3711,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 38,
-      "expectedPathsDigest": "d7d5fb122733811ab9a4f9765c222c5fbaf16405a1cb87d17add57076f770293"
+      "expectedPathCount": 40,
+      "expectedPathsDigest": "ffea23c38bcc89fbddb66f9e4c1abf38339e319576413be8cf7ab7690f4a892e"
     },
     {
       "excludePathPatterns": [],
@@ -3680,8 +3735,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 33,
-      "expectedPathsDigest": "617c922369153897d2a280f00757050c5b3fe5049cfe3cd9de5b0e16b7dad2fc"
+      "expectedPathCount": 34,
+      "expectedPathsDigest": "e327e390fe82f3ab8eb1bdbda36ff11a952b882c669f778cfede915fcf900f68"
     },
     {
       "excludePathPatterns": [],
