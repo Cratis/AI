@@ -6,6 +6,8 @@ This README is hand-authored documentation. It is not a catalog and is not consu
 
 Edit these files directly:
 
+- `../components.json` — canonical component identities, source ownership, trust, effects, boundaries, and projection policy
+- `../component-projections.json` — explicit existing, planned, and blocked host projections
 - `../evidence.json` — reusable evidence sources, exact observations, legacy facts and gaps, and distribution evidence-file inventory
 - `../support-policy.json` — authored `asOf`, monotonic tier rules, evidence classes, assurance gates, and marketplace policy
 - `authoring-contracts.json`
@@ -22,11 +24,17 @@ Edit these files directly:
 Do not edit these files directly. Run `node tooling/generate-catalog-v2.mjs`:
 
 - `artifacts.json`
+- `components.json`
+- `component-projections.json`
 - `evidence.json`
 - `migrations.json`
 - `product-coverage.json`
 - `sources.json`
 - `targets.json`
+
+The component projections are metadata only. Modeled, planned, or existing
+adapter records do not emit new component bytes or establish support, runtime,
+publication, promotion, installation, or marketplace eligibility.
 
 `support.json` is generated from `../evidence.json`, `../support-policy.json`, `ecosystem-artifact-coverage.json` inputs, `artifact-assurance-profiles.json`, and `distribution/ecosystem-artifact-bindings.json`. Run `node tooling/generate-support.mjs` after the v2 catalog generator and before the coverage or human-catalog generators. It computes technical tier, active/expired/future evidence, missing assurances, decay, marketplace status, and the support claim. It never reads the wall clock, locale, network, environment, or filesystem timestamps.
 

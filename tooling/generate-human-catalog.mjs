@@ -25,6 +25,8 @@ const repositoryRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const inputPaths = [
     "catalog/v2/authoring-contracts.json",
     "catalog/v2/bundles.json",
+    "catalog/v2/components.json",
+    "catalog/v2/component-projections.json",
     "catalog/v2/evidence.json",
     "catalog/v2/ecosystem-artifact-coverage.json",
     "catalog/v2/human-catalog.json",
@@ -365,6 +367,10 @@ export function buildHumanCatalogOutputs() {
     const schema = readCatalog(join(repositoryRoot, v2SchemaPath));
     const { catalogs, digest, humanContract } = loadInputs();
     const targets = catalogs.get("catalog/v2/targets.json").targets;
+    const componentsCatalog = catalogs.get("catalog/v2/components.json");
+    const componentProjections = catalogs.get(
+        "catalog/v2/component-projections.json",
+    );
     const support = catalogs.get("catalog/v2/support.json");
     const supportByBindingId = new Map(
         support.bindings.map((record) => [record.bindingId, record]),
@@ -503,11 +509,63 @@ export function buildHumanCatalogOutputs() {
         .sort((left, right) =>
             compareOrdinal(left.ecosystemId, right.ecosystemId),
         );
+    const countBy = (values, keys, selector) =>
+        Object.fromEntries(
+            keys.map((key) => [
+                key,
+                values.filter((value) => selector(value) === key).length,
+            ]),
+        );
+    const componentSummary = {
+        disclaimer:
+            "Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.",
+        total: componentsCatalog.components.length,
+        byKind: countBy(
+            componentsCatalog.components,
+            [
+                "skill",
+                "agent",
+                "subagent",
+                "command",
+                "prompt",
+                "rule",
+                "instruction",
+                "hook",
+                "mcp",
+                "lsp",
+                "executable-host-extension",
+                "static-asset",
+            ],
+            (component) => component.kind,
+        ),
+        byTrust: countBy(
+            componentsCatalog.components,
+            ["passive", "executable"],
+            (component) => component.classification.trust,
+        ),
+        byAudience: countBy(
+            componentsCatalog.components,
+            ["public", "cratis-engineering", "repository-only"],
+            (component) => component.audience,
+        ),
+        projections: {
+            total: componentProjections.projections.length,
+            byState: countBy(
+                componentProjections.projections,
+                ["planned", "blocked", "existing"],
+                (projection) => projection.state,
+            ),
+        },
+        declaredEmptyKinds: [...componentsCatalog.declaredEmptyKinds].sort(
+            compareOrdinal,
+        ),
+    };
     const data = {
         schemaVersion: 2,
         contractVersion: humanContract.contractVersion,
         disclaimer: humanContract.disclaimer,
         inputDigest: digest,
+        componentSummary,
         profiles,
         capabilities,
         hostCoverage,
@@ -535,6 +593,24 @@ export function buildHumanCatalogOutputs() {
         `- Capabilities: ${capabilities.length}`,
         `- Installable profiles: ${profiles.filter((profile) => profile.installable).length}`,
         `- Ecosystem bindings with support claims: ${support.summary.supportClaimCount}`,
+        "",
+        "## Component contract summary",
+        "",
+        componentSummary.disclaimer,
+        "",
+        `- Components: ${componentSummary.total}`,
+        `- Passive: ${componentSummary.byTrust.passive}`,
+        `- Executable: ${componentSummary.byTrust.executable}`,
+        `- Existing projections: ${componentSummary.projections.byState.existing}`,
+        `- Planned projections: ${componentSummary.projections.byState.planned}`,
+        `- Blocked projections: ${componentSummary.projections.byState.blocked}`,
+        `- Explicitly empty kinds: ${componentSummary.declaredEmptyKinds.join(", ")}`,
+        "",
+        "### Components by kind",
+        "",
+        ...Object.entries(componentSummary.byKind).map(
+            ([kind, count]) => `- ${kind}: ${count}`,
+        ),
         "",
         "## Computed ecosystem support",
         "",

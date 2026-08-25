@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cratis/AI/catalog/schemas/components.schema.json",
+  "title": "Cratis authored component catalog",
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+    "nonEmptyString": { "type": "string", "minLength": 1 },
+    "idArray": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/id" } },
+    "stringArray": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/nonEmptyString" } },
+    "kind": { "enum": ["skill", "agent", "subagent", "command", "prompt", "rule", "instruction", "hook", "mcp", "lsp", "executable-host-extension", "static-asset"] },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "digest", "ownership", "ownerComponentId"],
+      "properties": {
+        "path": { "$ref": "#/$defs/nonEmptyString" },
+        "digest": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "ownership": { "enum": ["owner", "shared-reference"] },
+        "ownerComponentId": { "$ref": "#/$defs/id" }
+      }
+    },
+    "projectionAllowance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["hostContract", "kinds", "artifactClasses"],
+      "properties": {
+        "hostContract": { "enum": ["any-passive-host", "claude-code", "codex", "github-copilot", "pi", "portable-agent-plugins-1-0"] },
+        "kinds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/kind" } },
+        "artifactClasses": { "$ref": "#/$defs/idArray" }
+      }
+    },
+    "component": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "semanticIdentity", "semanticName", "canonicalSources", "contentDigest", "owner", "audience", "classification", "dependencies", "hostNeutralPurpose", "approval", "releaseBoundary", "allowedProjections", "forbiddenProjections", "requiredCanaries", "securityRequirements"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "kind": { "$ref": "#/$defs/kind" },
+        "semanticIdentity": { "$ref": "#/$defs/id" },
+        "semanticName": { "$ref": "#/$defs/nonEmptyString" },
+        "canonicalSources": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/source" } },
+        "contentDigest": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "owner": { "enum": ["public Cratis product capability", "reusable Cratis engineering behavior", "Ensemble", "repository-only authoring/release tooling"] },
+        "audience": { "enum": ["public", "cratis-engineering", "repository-only"] },
+        "classification": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["artifactClass", "trust", "passive", "executable", "effect"],
+          "properties": {
+            "artifactClass": { "enum": ["passive-content", "executable-extension", "static-asset"] },
+            "trust": { "enum": ["passive", "executable"] },
+            "passive": { "type": "boolean" },
+            "executable": { "type": "boolean" },
+            "effect": { "enum": ["none", "guided-read", "guided-write", "guided-external-effect", "runtime-effect"] }
+          }
+        },
+        "dependencies": { "$ref": "#/$defs/idArray" },
+        "hostNeutralPurpose": { "$ref": "#/$defs/nonEmptyString" },
+        "approval": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["state", "evidenceIds"],
+          "properties": {
+            "state": { "enum": ["modeled", "approved", "blocked"] },
+            "evidenceIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } }
+          }
+        },
+        "releaseBoundary": { "enum": ["public-passive", "engineering-passive", "repository-only", "future-executable-package"] },
+        "allowedProjections": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/projectionAllowance" } },
+        "forbiddenProjections": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/kind" } },
+        "requiredCanaries": { "$ref": "#/$defs/idArray" },
+        "securityRequirements": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["threatModel", "securityReview", "executableAssuranceProfile"],
+          "properties": {
+            "threatModel": { "type": "boolean" },
+            "securityReview": { "type": "boolean" },
+            "executableAssuranceProfile": { "type": "boolean" }
+          }
+        }
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "defaultPolicy", "canonicalSourceRoots", "declaredEmptyKinds", "components"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "defaultPolicy": { "const": "deny" },
+    "canonicalSourceRoots": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/nonEmptyString" } },
+    "declaredEmptyKinds": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/kind" } },
+    "components": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/component" } }
+  }
+}

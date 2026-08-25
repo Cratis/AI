@@ -1,8 +1,49 @@
 {
   "schemaVersion": 2,
   "contractVersion": 1,
-  "disclaimer": "Catalog inclusion, evaluation evidence, bundle generation, or publication does not grant runtime permission or approval.",
-  "inputDigest": "aacdab0c52f21758c6879bba7b175921dab2ea9fc598dc87bc51fa917d312678",
+  "disclaimer": "Catalog inclusion, evaluation evidence, component modeling, planned projection, bundle generation, or publication does not grant runtime permission, emitted bytes, support, or approval.",
+  "inputDigest": "9dbf61b23be10b7a75181063bc12c6031e7e90b300572a179dfd6e5f6756b73b",
+  "componentSummary": {
+    "disclaimer": "Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.",
+    "total": 129,
+    "byKind": {
+      "skill": 43,
+      "agent": 12,
+      "subagent": 0,
+      "command": 18,
+      "prompt": 18,
+      "rule": 34,
+      "instruction": 1,
+      "hook": 1,
+      "mcp": 0,
+      "lsp": 0,
+      "executable-host-extension": 2,
+      "static-asset": 0
+    },
+    "byTrust": {
+      "passive": 126,
+      "executable": 3
+    },
+    "byAudience": {
+      "public": 35,
+      "cratis-engineering": 94,
+      "repository-only": 0
+    },
+    "projections": {
+      "total": 272,
+      "byState": {
+        "planned": 0,
+        "blocked": 2,
+        "existing": 270
+      }
+    },
+    "declaredEmptyKinds": [
+      "lsp",
+      "mcp",
+      "static-asset",
+      "subagent"
+    ]
+  },
   "profiles": [
     {
       "id": "public-application",

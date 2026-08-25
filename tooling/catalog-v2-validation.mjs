@@ -18,6 +18,7 @@ import {
     validateAgainstSchema,
     validateSchemaVocabulary,
 } from "./catalog-validation.mjs";
+import { validateComponentCatalogs } from "./component-catalog-validation.mjs";
 
 export const v2CatalogPaths = {
     sources: "catalog/v2/sources.json",
@@ -33,6 +34,8 @@ export const v2CatalogPaths = {
     upstreamCompanions: "catalog/v2/upstream-companions.json",
     authoringContracts: "catalog/v2/authoring-contracts.json",
     humanCatalog: "catalog/v2/human-catalog.json",
+    components: "catalog/v2/components.json",
+    componentProjections: "catalog/v2/component-projections.json",
 };
 
 export const v2SchemaPath = "catalog/schemas/v2/catalog-v2.schema.json";
@@ -51,6 +54,8 @@ const schemaDefinitionByCatalog = {
     upstreamCompanions: "upstreamCompanionsCatalog",
     authoringContracts: "authoringContractsCatalog",
     humanCatalog: "humanCatalogContract",
+    components: "componentsCatalog",
+    componentProjections: "componentProjectionsCatalog",
 };
 
 function duplicates(values) {
@@ -1500,6 +1505,26 @@ export function validateArtifacts(catalogs) {
             )
             .map((target) => target.id),
     );
+    const componentKindByInventory = new Map([
+        ["skills", "skill"],
+        ["agents", "agent"],
+        ["subagents", "subagent"],
+        ["commands", "command"],
+        ["prompts", "prompt"],
+        ["rules", "rule"],
+        ["instructions", "instruction"],
+        ["hooks", "hook"],
+        ["mcp", "mcp"],
+        ["lsp", "lsp"],
+        ["executableExtensions", "executable-host-extension"],
+        ["staticAssets", "static-asset"],
+    ]);
+    const componentsById = new Map(
+        catalogs.components.components.map((component) => [
+            component.id,
+            component,
+        ]),
+    );
     addDuplicateErrors(
         errors,
         "artifacts",
@@ -1565,6 +1590,36 @@ export function validateArtifacts(catalogs) {
                 errors.push(
                     `${artifact.id}: unapproved target selected for live artifact: ${targetId}`,
                 );
+            }
+        }
+        for (const [inventoryName, expectedKind] of componentKindByInventory) {
+            for (const componentId of artifact.componentInventory[inventoryName]) {
+                const component = componentsById.get(componentId);
+                if (!component) {
+                    errors.push(
+                        `${artifact.id}: unknown ${expectedKind} component ${componentId}`,
+                    );
+                } else if (component.kind !== expectedKind) {
+                    errors.push(
+                        `${artifact.id}: ${inventoryName} inventory cannot contain ${component.kind} component ${componentId}`,
+                    );
+                } else if (
+                    !artifact.fixtureOnly &&
+                    component.audience !== artifact.audience
+                ) {
+                    errors.push(
+                        `${artifact.id}: ${artifact.audience} artifact cannot select ${component.audience} component ${componentId}`,
+                    );
+                }
+                if (
+                    ["hooks", "mcp", "lsp", "executableExtensions"].includes(
+                        inventoryName,
+                    )
+                ) {
+                    errors.push(
+                        `${artifact.id}: passive artifact rejects executable component ${componentId}`,
+                    );
+                }
             }
         }
         for (const evidenceId of artifact.evidenceIds) {
@@ -1793,6 +1848,7 @@ export function validateV2Catalogs(root = defaultRepositoryRoot) {
     errors.push(...validateAuthoringContracts(catalogs));
     errors.push(...validateHumanCatalogContract(catalogs));
     errors.push(...validateArtifacts(catalogs));
+    errors.push(...validateComponentCatalogs(root));
     errors.push(...validateRepositoryInventory(catalogs, root));
     return errors;
 }

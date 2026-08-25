@@ -25,7 +25,7 @@
     "bundle-membership",
     "profile-membership"
   ],
-  "disclaimer": "Catalog inclusion, evaluation evidence, bundle generation, or publication does not grant runtime permission or approval.",
+  "disclaimer": "Catalog inclusion, evaluation evidence, component modeling, planned projection, bundle generation, or publication does not grant runtime permission, emitted bytes, support, or approval.",
   "limits": {
     "maximumInputBytes": 16777216,
     "maximumJsonDepth": 64,

@@ -38,6 +38,32 @@ coverage, support, migrations, artifacts, sources, and repository inventory
 remain derived from the existing generators. Authored registries are never
 overwritten by generation.
 
+## Component and projection contracts
+
+`catalog/components.json` is the authored, closed inventory of canonical skills,
+agents, commands, prompts, rules, instructions, hooks, executable Pi extensions,
+and any static assets. It records exact canonical source ownership and SHA-256,
+semantic identity, audience, trust and effect classification, dependencies,
+approval evidence, release boundary, projection policy, and required canaries.
+MCP and LSP are explicitly empty because Cratis has no approved runtime
+components of either kind.
+
+`catalog/component-projections.json` separately records existing derived host
+adapters and any future planned or blocked projections. An agent can become an
+agent or subagent only through one of these explicit records. Commands and
+prompts remain different semantic components even when they refer to the same
+current source bytes. Rules and instructions are not skills. Symlinks and
+host-specific adapter files are derived projections and never acquire canonical
+source ownership.
+
+`tooling/generate-component-catalogs.mjs` deterministically produces the closed
+`catalog/v2/components.json` and `catalog/v2/component-projections.json`
+projections. The component summary in the generated human catalog reports counts
+by kind, trust, audience, and projection state. **Modeled or planned does not
+mean emitted, supported, installable, published, promoted, or runtime eligible.**
+S6 creates no native component output and no MCP, LSP, hook, or extension
+runtime package.
+
 ## Target-local safety fields
 
 Every target records:
