@@ -649,6 +649,14 @@
       "id": "source-gemini-cli-extensions-source-4",
       "kind": "registry",
       "locator": "https://registry.npmjs.org/@google/gemini-cli/latest"
+    },
+    {
+      "id": "source-s5b-passive-host-static-generation-2026-08-25",
+      "kind": "local-evidence-report",
+      "locator": "https://github.com/Cratis/AI/tree/914a84984f7a53663740b8ea1711871e0e294620",
+      "immutableRevision": "914a84984f7a53663740b8ea1711871e0e294620",
+      "repositoryPath": "distribution/evidence/s5b-passive-host-static-generation-2026-08-25.json",
+      "digest": "d619e16b71976284c5812319a27abc612a92645d817e8a6d88aa27929c75ea9e"
     }
   ],
   "observations": [
@@ -5933,6 +5941,1035 @@
         "sourceKind": "registry",
         "applicableVersion": "gemini-cli-0.56.0-registry-latest"
       }
+    },
+    {
+      "id": "s5b-amp-static-generation-2026-08-25",
+      "sourceId": "source-s5b-passive-host-static-generation-2026-08-25",
+      "evidenceClass": "local",
+      "subject": {
+        "kind": "output",
+        "id": "amp-passive",
+        "version": "0.0.0-fixture",
+        "digest": "f1989721c9f7d23bc25981e635ff73aa72983c6aa8989cd1f7f8afb3c5e7871e",
+        "harnessId": "amp",
+        "hostVersion": "not-run"
+      },
+      "bindingIds": [
+        "amp-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "artifact-generation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        },
+        {
+          "assuranceId": "static-validation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Deterministic passive direct-skills generation and offline static validation for amp-agent-skills; no host execution.",
+      "environment": {
+        "operatingSystem": "darwin",
+        "architecture": "arm64",
+        "isolation": "not-recorded",
+        "runtime": "Node.js 24"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Static local generation proves exact bytes and schemas only; it does not prove host installation, discovery, behavior, lifecycle, marketplace availability, release, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/914a84984f7a53663740b8ea1711871e0e294620",
+        "sourceKind": "local-evidence-report",
+        "applicableVersion": "0.0.0-fixture"
+      }
+    },
+    {
+      "id": "s5b-augment-static-generation-2026-08-25",
+      "sourceId": "source-s5b-passive-host-static-generation-2026-08-25",
+      "evidenceClass": "local",
+      "subject": {
+        "kind": "output",
+        "id": "augment-passive",
+        "version": "0.0.0-fixture",
+        "digest": "b3e0190417b95057404fe1104b9359f7e4786e2d7342d71908ecc6ccbb1f374f",
+        "harnessId": "augment",
+        "hostVersion": "not-run"
+      },
+      "bindingIds": [
+        "augment-auggie-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "artifact-generation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        },
+        {
+          "assuranceId": "static-validation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Deterministic passive direct-skills generation and offline static validation for augment-agent-skills; no host execution.",
+      "environment": {
+        "operatingSystem": "darwin",
+        "architecture": "arm64",
+        "isolation": "not-recorded",
+        "runtime": "Node.js 24"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Static local generation proves exact bytes and schemas only; it does not prove host installation, discovery, behavior, lifecycle, marketplace availability, release, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/914a84984f7a53663740b8ea1711871e0e294620",
+        "sourceKind": "local-evidence-report",
+        "applicableVersion": "0.0.0-fixture"
+      }
+    },
+    {
+      "id": "s5b-cline-static-generation-2026-08-25",
+      "sourceId": "source-s5b-passive-host-static-generation-2026-08-25",
+      "evidenceClass": "local",
+      "subject": {
+        "kind": "output",
+        "id": "cline-passive",
+        "version": "0.0.0-fixture",
+        "digest": "54dc18f58255ddadb790cdb0f0787b5ff580b30e197ed7671f4212cce9f2e45d",
+        "harnessId": "cline",
+        "hostVersion": "not-run"
+      },
+      "bindingIds": [
+        "cline-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "artifact-generation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        },
+        {
+          "assuranceId": "static-validation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Deterministic passive direct-skills generation and offline static validation for cline-agent-skills; no host execution.",
+      "environment": {
+        "operatingSystem": "darwin",
+        "architecture": "arm64",
+        "isolation": "not-recorded",
+        "runtime": "Node.js 24"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Static local generation proves exact bytes and schemas only; it does not prove host installation, discovery, behavior, lifecycle, marketplace availability, release, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/914a84984f7a53663740b8ea1711871e0e294620",
+        "sourceKind": "local-evidence-report",
+        "applicableVersion": "0.0.0-fixture"
+      }
+    },
+    {
+      "id": "s5b-devin-static-generation-2026-08-25",
+      "sourceId": "source-s5b-passive-host-static-generation-2026-08-25",
+      "evidenceClass": "local",
+      "subject": {
+        "kind": "output",
+        "id": "devin-passive",
+        "version": "0.0.0-fixture",
+        "digest": "f1989721c9f7d23bc25981e635ff73aa72983c6aa8989cd1f7f8afb3c5e7871e",
+        "harnessId": "devin",
+        "hostVersion": "not-run"
+      },
+      "bindingIds": [
+        "devin-hosted-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "artifact-generation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        },
+        {
+          "assuranceId": "static-validation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Deterministic passive direct-skills generation and offline static validation for devin-agent-skills; no host execution.",
+      "environment": {
+        "operatingSystem": "darwin",
+        "architecture": "arm64",
+        "isolation": "not-recorded",
+        "runtime": "Node.js 24"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Static local generation proves exact bytes and schemas only; it does not prove host installation, discovery, behavior, lifecycle, marketplace availability, release, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/914a84984f7a53663740b8ea1711871e0e294620",
+        "sourceKind": "local-evidence-report",
+        "applicableVersion": "0.0.0-fixture"
+      }
+    },
+    {
+      "id": "s5b-factory-static-generation-2026-08-25",
+      "sourceId": "source-s5b-passive-host-static-generation-2026-08-25",
+      "evidenceClass": "local",
+      "subject": {
+        "kind": "output",
+        "id": "factory-passive",
+        "version": "0.0.0-fixture",
+        "digest": "a449b50a8adeefff253f70ae60397ec5f501167446a922e6cd1d7ab3204acf59",
+        "harnessId": "factory",
+        "hostVersion": "not-run"
+      },
+      "bindingIds": [
+        "factory-droid-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "artifact-generation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        },
+        {
+          "assuranceId": "static-validation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Deterministic passive direct-skills generation and offline static validation for factory-agent-skills; no host execution.",
+      "environment": {
+        "operatingSystem": "darwin",
+        "architecture": "arm64",
+        "isolation": "not-recorded",
+        "runtime": "Node.js 24"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Static local generation proves exact bytes and schemas only; it does not prove host installation, discovery, behavior, lifecycle, marketplace availability, release, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/914a84984f7a53663740b8ea1711871e0e294620",
+        "sourceKind": "local-evidence-report",
+        "applicableVersion": "0.0.0-fixture"
+      }
+    },
+    {
+      "id": "s5b-github-cli-static-generation-2026-08-25",
+      "sourceId": "source-s5b-passive-host-static-generation-2026-08-25",
+      "evidenceClass": "local",
+      "subject": {
+        "kind": "output",
+        "id": "github-cli-passive",
+        "version": "0.0.0-fixture",
+        "digest": "f1989721c9f7d23bc25981e635ff73aa72983c6aa8989cd1f7f8afb3c5e7871e",
+        "harnessId": "github-cli",
+        "hostVersion": "not-run"
+      },
+      "bindingIds": [
+        "github-cli-skills-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "artifact-generation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        },
+        {
+          "assuranceId": "static-validation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Deterministic passive direct-skills generation and offline static validation for github-cli-agent-skills; no host execution.",
+      "environment": {
+        "operatingSystem": "darwin",
+        "architecture": "arm64",
+        "isolation": "not-recorded",
+        "runtime": "Node.js 24"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Static local generation proves exact bytes and schemas only; it does not prove host installation, discovery, behavior, lifecycle, marketplace availability, release, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/914a84984f7a53663740b8ea1711871e0e294620",
+        "sourceKind": "local-evidence-report",
+        "applicableVersion": "0.0.0-fixture"
+      }
+    },
+    {
+      "id": "s5b-goose-static-generation-2026-08-25",
+      "sourceId": "source-s5b-passive-host-static-generation-2026-08-25",
+      "evidenceClass": "local",
+      "subject": {
+        "kind": "output",
+        "id": "goose-passive",
+        "version": "0.0.0-fixture",
+        "digest": "f1989721c9f7d23bc25981e635ff73aa72983c6aa8989cd1f7f8afb3c5e7871e",
+        "harnessId": "goose",
+        "hostVersion": "not-run"
+      },
+      "bindingIds": [
+        "goose-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "artifact-generation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        },
+        {
+          "assuranceId": "static-validation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Deterministic passive direct-skills generation and offline static validation for goose-agent-skills; no host execution.",
+      "environment": {
+        "operatingSystem": "darwin",
+        "architecture": "arm64",
+        "isolation": "not-recorded",
+        "runtime": "Node.js 24"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Static local generation proves exact bytes and schemas only; it does not prove host installation, discovery, behavior, lifecycle, marketplace availability, release, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/914a84984f7a53663740b8ea1711871e0e294620",
+        "sourceKind": "local-evidence-report",
+        "applicableVersion": "0.0.0-fixture"
+      }
+    },
+    {
+      "id": "s5b-grok-bot-static-generation-2026-08-25",
+      "sourceId": "source-s5b-passive-host-static-generation-2026-08-25",
+      "evidenceClass": "local",
+      "subject": {
+        "kind": "output",
+        "id": "grok-bot-passive",
+        "version": "0.0.0-fixture",
+        "digest": "da65ec5b836b7973907a7377243a733c087a322c30040e87da776ddce7432e4b",
+        "harnessId": "grok-bot",
+        "hostVersion": "not-run"
+      },
+      "bindingIds": [
+        "grok-bot-plugins-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "artifact-generation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        },
+        {
+          "assuranceId": "static-validation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Deterministic passive portable-plugin generation and offline static validation for grok-bot-agent-plugin; no host execution.",
+      "environment": {
+        "operatingSystem": "darwin",
+        "architecture": "arm64",
+        "isolation": "not-recorded",
+        "runtime": "Node.js 24"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Static local generation proves exact bytes and schemas only; it does not prove host installation, discovery, behavior, lifecycle, marketplace availability, release, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/914a84984f7a53663740b8ea1711871e0e294620",
+        "sourceKind": "local-evidence-report",
+        "applicableVersion": "0.0.0-fixture"
+      }
+    },
+    {
+      "id": "s5b-grok-native-static-generation-2026-08-25",
+      "sourceId": "source-s5b-passive-host-static-generation-2026-08-25",
+      "evidenceClass": "local",
+      "subject": {
+        "kind": "output",
+        "id": "grok-native-passive",
+        "version": "0.0.0-fixture",
+        "digest": "6f6698e9d99a7c4d199ca96fb150f2e22984522414e8ac9a62241dff49fed972",
+        "harnessId": "grok-native",
+        "hostVersion": "not-run"
+      },
+      "bindingIds": [
+        "grok-build-skills-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "artifact-generation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        },
+        {
+          "assuranceId": "static-validation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Deterministic passive direct-skills generation and offline static validation for grok-native-agent-skills; no host execution.",
+      "environment": {
+        "operatingSystem": "darwin",
+        "architecture": "arm64",
+        "isolation": "not-recorded",
+        "runtime": "Node.js 24"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Static local generation proves exact bytes and schemas only; it does not prove host installation, discovery, behavior, lifecycle, marketplace availability, release, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/914a84984f7a53663740b8ea1711871e0e294620",
+        "sourceKind": "local-evidence-report",
+        "applicableVersion": "0.0.0-fixture"
+      }
+    },
+    {
+      "id": "s5b-hermes-static-generation-2026-08-25",
+      "sourceId": "source-s5b-passive-host-static-generation-2026-08-25",
+      "evidenceClass": "local",
+      "subject": {
+        "kind": "output",
+        "id": "hermes-passive",
+        "version": "0.0.0-fixture",
+        "digest": "da65ec5b836b7973907a7377243a733c087a322c30040e87da776ddce7432e4b",
+        "harnessId": "hermes",
+        "hostVersion": "not-run"
+      },
+      "bindingIds": [
+        "hermes-agent-plugins-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "artifact-generation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        },
+        {
+          "assuranceId": "static-validation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Deterministic passive portable-plugin generation and offline static validation for hermes-agent-plugin; no host execution.",
+      "environment": {
+        "operatingSystem": "darwin",
+        "architecture": "arm64",
+        "isolation": "not-recorded",
+        "runtime": "Node.js 24"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Static local generation proves exact bytes and schemas only; it does not prove host installation, discovery, behavior, lifecycle, marketplace availability, release, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/914a84984f7a53663740b8ea1711871e0e294620",
+        "sourceKind": "local-evidence-report",
+        "applicableVersion": "0.0.0-fixture"
+      }
+    },
+    {
+      "id": "s5b-kilo-static-generation-2026-08-25",
+      "sourceId": "source-s5b-passive-host-static-generation-2026-08-25",
+      "evidenceClass": "local",
+      "subject": {
+        "kind": "output",
+        "id": "kilo-passive",
+        "version": "0.0.0-fixture",
+        "digest": "e2c5557a992d15e66373d05255fb7f5b71a421a001db067b9fcb386c1c69843b",
+        "harnessId": "kilo",
+        "hostVersion": "not-run"
+      },
+      "bindingIds": [
+        "kilo-code-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "artifact-generation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        },
+        {
+          "assuranceId": "static-validation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Deterministic passive direct-skills generation and offline static validation for kilo-agent-skills; no host execution.",
+      "environment": {
+        "operatingSystem": "darwin",
+        "architecture": "arm64",
+        "isolation": "not-recorded",
+        "runtime": "Node.js 24"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Static local generation proves exact bytes and schemas only; it does not prove host installation, discovery, behavior, lifecycle, marketplace availability, release, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/914a84984f7a53663740b8ea1711871e0e294620",
+        "sourceKind": "local-evidence-report",
+        "applicableVersion": "0.0.0-fixture"
+      }
+    },
+    {
+      "id": "s5b-nanoclaw-static-generation-2026-08-25",
+      "sourceId": "source-s5b-passive-host-static-generation-2026-08-25",
+      "evidenceClass": "local",
+      "subject": {
+        "kind": "output",
+        "id": "nanoclaw-passive",
+        "version": "0.0.0-fixture",
+        "digest": "da65ec5b836b7973907a7377243a733c087a322c30040e87da776ddce7432e4b",
+        "harnessId": "nanoclaw",
+        "hostVersion": "not-run"
+      },
+      "bindingIds": [
+        "nanoclaw-templates-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "artifact-generation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        },
+        {
+          "assuranceId": "static-validation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Deterministic passive portable-plugin generation and offline static validation for nanoclaw-agent-plugin; no host execution.",
+      "environment": {
+        "operatingSystem": "darwin",
+        "architecture": "arm64",
+        "isolation": "not-recorded",
+        "runtime": "Node.js 24"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Static local generation proves exact bytes and schemas only; it does not prove host installation, discovery, behavior, lifecycle, marketplace availability, release, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/914a84984f7a53663740b8ea1711871e0e294620",
+        "sourceKind": "local-evidence-report",
+        "applicableVersion": "0.0.0-fixture"
+      }
+    },
+    {
+      "id": "s5b-openclaw-static-generation-2026-08-25",
+      "sourceId": "source-s5b-passive-host-static-generation-2026-08-25",
+      "evidenceClass": "local",
+      "subject": {
+        "kind": "output",
+        "id": "openclaw-passive",
+        "version": "0.0.0-fixture",
+        "digest": "da65ec5b836b7973907a7377243a733c087a322c30040e87da776ddce7432e4b",
+        "harnessId": "openclaw",
+        "hostVersion": "not-run"
+      },
+      "bindingIds": [
+        "openclaw-bundles-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "artifact-generation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        },
+        {
+          "assuranceId": "static-validation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Deterministic passive portable-plugin generation and offline static validation for openclaw-agent-plugin; no host execution.",
+      "environment": {
+        "operatingSystem": "darwin",
+        "architecture": "arm64",
+        "isolation": "not-recorded",
+        "runtime": "Node.js 24"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Static local generation proves exact bytes and schemas only; it does not prove host installation, discovery, behavior, lifecycle, marketplace availability, release, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/914a84984f7a53663740b8ea1711871e0e294620",
+        "sourceKind": "local-evidence-report",
+        "applicableVersion": "0.0.0-fixture"
+      }
+    },
+    {
+      "id": "s5b-opencode-static-generation-2026-08-25",
+      "sourceId": "source-s5b-passive-host-static-generation-2026-08-25",
+      "evidenceClass": "local",
+      "subject": {
+        "kind": "output",
+        "id": "opencode-passive",
+        "version": "0.0.0-fixture",
+        "digest": "3ffcf1aaa291de2f66f577e9be6457c7d0e0c20f31fc0ec5d0f87521314b25ba",
+        "harnessId": "opencode",
+        "hostVersion": "not-run"
+      },
+      "bindingIds": [
+        "opencode-skills-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "artifact-generation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        },
+        {
+          "assuranceId": "static-validation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Deterministic passive direct-skills generation and offline static validation for opencode-agent-skills; no host execution.",
+      "environment": {
+        "operatingSystem": "darwin",
+        "architecture": "arm64",
+        "isolation": "not-recorded",
+        "runtime": "Node.js 24"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Static local generation proves exact bytes and schemas only; it does not prove host installation, discovery, behavior, lifecycle, marketplace availability, release, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/914a84984f7a53663740b8ea1711871e0e294620",
+        "sourceKind": "local-evidence-report",
+        "applicableVersion": "0.0.0-fixture"
+      }
+    },
+    {
+      "id": "s5b-openhands-static-generation-2026-08-25",
+      "sourceId": "source-s5b-passive-host-static-generation-2026-08-25",
+      "evidenceClass": "local",
+      "subject": {
+        "kind": "output",
+        "id": "openhands-passive",
+        "version": "0.0.0-fixture",
+        "digest": "f1989721c9f7d23bc25981e635ff73aa72983c6aa8989cd1f7f8afb3c5e7871e",
+        "harnessId": "openhands",
+        "hostVersion": "not-run"
+      },
+      "bindingIds": [
+        "openhands-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "artifact-generation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        },
+        {
+          "assuranceId": "static-validation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Deterministic passive direct-skills generation and offline static validation for openhands-agent-skills; no host execution.",
+      "environment": {
+        "operatingSystem": "darwin",
+        "architecture": "arm64",
+        "isolation": "not-recorded",
+        "runtime": "Node.js 24"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Static local generation proves exact bytes and schemas only; it does not prove host installation, discovery, behavior, lifecycle, marketplace availability, release, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/914a84984f7a53663740b8ea1711871e0e294620",
+        "sourceKind": "local-evidence-report",
+        "applicableVersion": "0.0.0-fixture"
+      }
+    },
+    {
+      "id": "s5b-qwen-static-generation-2026-08-25",
+      "sourceId": "source-s5b-passive-host-static-generation-2026-08-25",
+      "evidenceClass": "local",
+      "subject": {
+        "kind": "output",
+        "id": "qwen-passive",
+        "version": "0.0.0-fixture",
+        "digest": "da65ec5b836b7973907a7377243a733c087a322c30040e87da776ddce7432e4b",
+        "harnessId": "qwen",
+        "hostVersion": "not-run"
+      },
+      "bindingIds": [
+        "qwen-code-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "artifact-generation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        },
+        {
+          "assuranceId": "static-validation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Deterministic passive portable-plugin generation and offline static validation for qwen-agent-plugin; no host execution.",
+      "environment": {
+        "operatingSystem": "darwin",
+        "architecture": "arm64",
+        "isolation": "not-recorded",
+        "runtime": "Node.js 24"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Static local generation proves exact bytes and schemas only; it does not prove host installation, discovery, behavior, lifecycle, marketplace availability, release, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/914a84984f7a53663740b8ea1711871e0e294620",
+        "sourceKind": "local-evidence-report",
+        "applicableVersion": "0.0.0-fixture"
+      }
+    },
+    {
+      "id": "s5b-replit-static-generation-2026-08-25",
+      "sourceId": "source-s5b-passive-host-static-generation-2026-08-25",
+      "evidenceClass": "local",
+      "subject": {
+        "kind": "output",
+        "id": "replit-passive",
+        "version": "0.0.0-fixture",
+        "digest": "f1989721c9f7d23bc25981e635ff73aa72983c6aa8989cd1f7f8afb3c5e7871e",
+        "harnessId": "replit",
+        "hostVersion": "not-run"
+      },
+      "bindingIds": [
+        "replit-agent-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "artifact-generation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        },
+        {
+          "assuranceId": "static-validation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Deterministic passive direct-skills generation and offline static validation for replit-agent-skills; no host execution.",
+      "environment": {
+        "operatingSystem": "darwin",
+        "architecture": "arm64",
+        "isolation": "not-recorded",
+        "runtime": "Node.js 24"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Static local generation proves exact bytes and schemas only; it does not prove host installation, discovery, behavior, lifecycle, marketplace availability, release, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/914a84984f7a53663740b8ea1711871e0e294620",
+        "sourceKind": "local-evidence-report",
+        "applicableVersion": "0.0.0-fixture"
+      }
+    },
+    {
+      "id": "s5b-visual-studio-static-generation-2026-08-25",
+      "sourceId": "source-s5b-passive-host-static-generation-2026-08-25",
+      "evidenceClass": "local",
+      "subject": {
+        "kind": "output",
+        "id": "visual-studio-passive",
+        "version": "0.0.0-fixture",
+        "digest": "e6d919031ebf72096cbf20775d5297b2c3a5bad78f7d26b25e8743cc98ed9520",
+        "harnessId": "visual-studio",
+        "hostVersion": "not-run"
+      },
+      "bindingIds": [
+        "visual-studio-copilot-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "artifact-generation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        },
+        {
+          "assuranceId": "static-validation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Deterministic passive direct-skills generation and offline static validation for visual-studio-agent-skills; no host execution.",
+      "environment": {
+        "operatingSystem": "darwin",
+        "architecture": "arm64",
+        "isolation": "not-recorded",
+        "runtime": "Node.js 24"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Static local generation proves exact bytes and schemas only; it does not prove host installation, discovery, behavior, lifecycle, marketplace availability, release, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/914a84984f7a53663740b8ea1711871e0e294620",
+        "sourceKind": "local-evidence-report",
+        "applicableVersion": "0.0.0-fixture"
+      }
+    },
+    {
+      "id": "s5b-vscode-static-generation-2026-08-25",
+      "sourceId": "source-s5b-passive-host-static-generation-2026-08-25",
+      "evidenceClass": "local",
+      "subject": {
+        "kind": "output",
+        "id": "vscode-passive",
+        "version": "0.0.0-fixture",
+        "digest": "da65ec5b836b7973907a7377243a733c087a322c30040e87da776ddce7432e4b",
+        "harnessId": "vscode",
+        "hostVersion": "not-run"
+      },
+      "bindingIds": [
+        "vscode-agent-plugins-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "artifact-generation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        },
+        {
+          "assuranceId": "static-validation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Deterministic passive portable-plugin generation and offline static validation for vscode-agent-plugin; no host execution.",
+      "environment": {
+        "operatingSystem": "darwin",
+        "architecture": "arm64",
+        "isolation": "not-recorded",
+        "runtime": "Node.js 24"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Static local generation proves exact bytes and schemas only; it does not prove host installation, discovery, behavior, lifecycle, marketplace availability, release, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/914a84984f7a53663740b8ea1711871e0e294620",
+        "sourceKind": "local-evidence-report",
+        "applicableVersion": "0.0.0-fixture"
+      }
+    },
+    {
+      "id": "s5b-windsurf-static-generation-2026-08-25",
+      "sourceId": "source-s5b-passive-host-static-generation-2026-08-25",
+      "evidenceClass": "local",
+      "subject": {
+        "kind": "output",
+        "id": "windsurf-passive",
+        "version": "0.0.0-fixture",
+        "digest": "9ddd2c5bdde58e212e598270a3407afd9f2c567a0f3efc2ac4dd14c289593481",
+        "harnessId": "windsurf",
+        "hostVersion": "not-run"
+      },
+      "bindingIds": [
+        "windsurf-devin-desktop-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "artifact-generation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        },
+        {
+          "assuranceId": "static-validation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Deterministic passive direct-skills generation and offline static validation for windsurf-agent-skills; no host execution.",
+      "environment": {
+        "operatingSystem": "darwin",
+        "architecture": "arm64",
+        "isolation": "not-recorded",
+        "runtime": "Node.js 24"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Static local generation proves exact bytes and schemas only; it does not prove host installation, discovery, behavior, lifecycle, marketplace availability, release, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/914a84984f7a53663740b8ea1711871e0e294620",
+        "sourceKind": "local-evidence-report",
+        "applicableVersion": "0.0.0-fixture"
+      }
+    },
+    {
+      "id": "s5b-zed-static-generation-2026-08-25",
+      "sourceId": "source-s5b-passive-host-static-generation-2026-08-25",
+      "evidenceClass": "local",
+      "subject": {
+        "kind": "output",
+        "id": "zed-passive",
+        "version": "0.0.0-fixture",
+        "digest": "f1989721c9f7d23bc25981e635ff73aa72983c6aa8989cd1f7f8afb3c5e7871e",
+        "harnessId": "zed",
+        "hostVersion": "not-run"
+      },
+      "bindingIds": [
+        "zed-skills-artifact-binding"
+      ],
+      "assertions": [
+        {
+          "assuranceId": "artifact-generation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        },
+        {
+          "assuranceId": "static-validation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Deterministic passive direct-skills generation and offline static validation for zed-agent-skills; no host execution.",
+      "environment": {
+        "operatingSystem": "darwin",
+        "architecture": "arm64",
+        "isolation": "not-recorded",
+        "runtime": "Node.js 24"
+      },
+      "observedOn": "2026-08-25",
+      "validThrough": "2026-11-23",
+      "confidence": "high",
+      "limitations": [
+        "Static local generation proves exact bytes and schemas only; it does not prove host installation, discovery, behavior, lifecycle, marketplace availability, release, or support."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/914a84984f7a53663740b8ea1711871e0e294620",
+        "sourceKind": "local-evidence-report",
+        "applicableVersion": "0.0.0-fixture"
+      }
     }
   ],
   "legacyFacts": [
@@ -7675,6 +8712,35 @@
         "fundamentals-concept-samples-canary-2026-08-23"
       ],
       "reason": "Digest-bound by the named normalized observation for only its explicit assertions."
+    },
+    {
+      "repositoryPath": "distribution/evidence/s5b-passive-host-static-generation-2026-08-25.json",
+      "digest": "d619e16b71976284c5812319a27abc612a92645d817e8a6d88aa27929c75ea9e",
+      "role": "supporting",
+      "observationIds": [
+        "s5b-amp-static-generation-2026-08-25",
+        "s5b-augment-static-generation-2026-08-25",
+        "s5b-cline-static-generation-2026-08-25",
+        "s5b-devin-static-generation-2026-08-25",
+        "s5b-factory-static-generation-2026-08-25",
+        "s5b-github-cli-static-generation-2026-08-25",
+        "s5b-goose-static-generation-2026-08-25",
+        "s5b-grok-bot-static-generation-2026-08-25",
+        "s5b-grok-native-static-generation-2026-08-25",
+        "s5b-hermes-static-generation-2026-08-25",
+        "s5b-kilo-static-generation-2026-08-25",
+        "s5b-nanoclaw-static-generation-2026-08-25",
+        "s5b-openclaw-static-generation-2026-08-25",
+        "s5b-opencode-static-generation-2026-08-25",
+        "s5b-openhands-static-generation-2026-08-25",
+        "s5b-qwen-static-generation-2026-08-25",
+        "s5b-replit-static-generation-2026-08-25",
+        "s5b-visual-studio-static-generation-2026-08-25",
+        "s5b-vscode-static-generation-2026-08-25",
+        "s5b-windsurf-static-generation-2026-08-25",
+        "s5b-zed-static-generation-2026-08-25"
+      ],
+      "reason": "Binds the exact committed S5b generator revision, deterministic root inventories, offline compliance receipts, and the complete local specification run without claiming host behavior."
     }
   ]
 }

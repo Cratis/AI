@@ -2551,7 +2551,9 @@
       "status": "added"
     }
   ],
-  "admittedUntracked": [],
+  "admittedUntracked": [
+    "distribution/evidence/s5b-passive-host-static-generation-2026-08-25.json"
+  ],
   "excludedRuntimePrefixes": [
     ".pi/delegate/",
     ".pi/fusion/",
@@ -3898,8 +3900,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 33,
-      "expectedPathsDigest": "13386260d3a914f2b349e1d23bc7070af9b3be494ec894c7d5e5cd0a256debdf"
+      "expectedPathCount": 34,
+      "expectedPathsDigest": "243f1e352bc5a047bbd690b5e395d4b73f999c3e69d555dac7bc6ba4f8ea9e7c"
     },
     {
       "excludePathPatterns": [],

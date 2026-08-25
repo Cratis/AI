@@ -22,9 +22,9 @@
     "supportClaimCount": 0,
     "byTier": {
       "unsupported": 0,
-      "documented": 45,
+      "documented": 24,
       "generated": 0,
-      "statically-validated": 0,
+      "statically-validated": 21,
       "install-tested": 0,
       "behavior-tested": 0,
       "lifecycle-tested": 0,
@@ -158,20 +158,23 @@
       "bindingId": "amp-artifact-binding",
       "ecosystemId": "amp",
       "artifactClass": "passive-public-package",
-      "effectiveTier": "documented",
-      "rank": 1,
+      "effectiveTier": "statically-validated",
+      "rank": 3,
       "supportClaim": false,
       "activeEvidenceIds": [
         "amp-source-1",
-        "amp-source-2"
+        "amp-source-2",
+        "s5b-amp-static-generation-2026-08-25"
       ],
       "expiredEvidenceIds": [],
       "futureEvidenceIds": [],
       "satisfiedAssurances": [
-        "documentation"
+        "artifact-generation",
+        "documentation",
+        "static-validation"
       ],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "decay": {
         "state": "none",
@@ -188,20 +191,23 @@
       "bindingId": "augment-auggie-artifact-binding",
       "ecosystemId": "augment-auggie",
       "artifactClass": "passive-public-package",
-      "effectiveTier": "documented",
-      "rank": 1,
+      "effectiveTier": "statically-validated",
+      "rank": 3,
       "supportClaim": false,
       "activeEvidenceIds": [
         "augment-auggie-source-1",
-        "augment-auggie-source-2"
+        "augment-auggie-source-2",
+        "s5b-augment-static-generation-2026-08-25"
       ],
       "expiredEvidenceIds": [],
       "futureEvidenceIds": [],
       "satisfiedAssurances": [
-        "documentation"
+        "artifact-generation",
+        "documentation",
+        "static-validation"
       ],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "decay": {
         "state": "none",
@@ -251,21 +257,24 @@
       "bindingId": "cline-artifact-binding",
       "ecosystemId": "cline",
       "artifactClass": "passive-public-package",
-      "effectiveTier": "documented",
-      "rank": 1,
+      "effectiveTier": "statically-validated",
+      "rank": 3,
       "supportClaim": false,
       "activeEvidenceIds": [
         "cline-source-1",
         "cline-source-2",
-        "cline-source-3"
+        "cline-source-3",
+        "s5b-cline-static-generation-2026-08-25"
       ],
       "expiredEvidenceIds": [],
       "futureEvidenceIds": [],
       "satisfiedAssurances": [
-        "documentation"
+        "artifact-generation",
+        "documentation",
+        "static-validation"
       ],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "decay": {
         "state": "none",
@@ -432,20 +441,23 @@
       "bindingId": "devin-hosted-artifact-binding",
       "ecosystemId": "devin-hosted",
       "artifactClass": "passive-public-package",
-      "effectiveTier": "documented",
-      "rank": 1,
+      "effectiveTier": "statically-validated",
+      "rank": 3,
       "supportClaim": false,
       "activeEvidenceIds": [
         "devin-hosted-source-1",
-        "devin-hosted-source-2"
+        "devin-hosted-source-2",
+        "s5b-devin-static-generation-2026-08-25"
       ],
       "expiredEvidenceIds": [],
       "futureEvidenceIds": [],
       "satisfiedAssurances": [
-        "documentation"
+        "artifact-generation",
+        "documentation",
+        "static-validation"
       ],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "decay": {
         "state": "none",
@@ -462,20 +474,23 @@
       "bindingId": "factory-droid-artifact-binding",
       "ecosystemId": "factory-droid",
       "artifactClass": "passive-public-package",
-      "effectiveTier": "documented",
-      "rank": 1,
+      "effectiveTier": "statically-validated",
+      "rank": 3,
       "supportClaim": false,
       "activeEvidenceIds": [
         "factory-droid-source-1",
-        "factory-droid-source-2"
+        "factory-droid-source-2",
+        "s5b-factory-static-generation-2026-08-25"
       ],
       "expiredEvidenceIds": [],
       "futureEvidenceIds": [],
       "satisfiedAssurances": [
-        "documentation"
+        "artifact-generation",
+        "documentation",
+        "static-validation"
       ],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "decay": {
         "state": "none",
@@ -525,21 +540,24 @@
       "bindingId": "github-cli-skills-artifact-binding",
       "ecosystemId": "github-cli-skills",
       "artifactClass": "passive-public-package",
-      "effectiveTier": "documented",
-      "rank": 1,
+      "effectiveTier": "statically-validated",
+      "rank": 3,
       "supportClaim": false,
       "activeEvidenceIds": [
         "github-cli-skills-source-1",
         "github-cli-skills-source-2",
-        "github-cli-skills-source-3"
+        "github-cli-skills-source-3",
+        "s5b-github-cli-static-generation-2026-08-25"
       ],
       "expiredEvidenceIds": [],
       "futureEvidenceIds": [],
       "satisfiedAssurances": [
-        "documentation"
+        "artifact-generation",
+        "documentation",
+        "static-validation"
       ],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "decay": {
         "state": "none",
@@ -587,20 +605,23 @@
       "bindingId": "goose-artifact-binding",
       "ecosystemId": "goose",
       "artifactClass": "passive-public-package",
-      "effectiveTier": "documented",
-      "rank": 1,
+      "effectiveTier": "statically-validated",
+      "rank": 3,
       "supportClaim": false,
       "activeEvidenceIds": [
         "goose-source-1",
-        "goose-source-2"
+        "goose-source-2",
+        "s5b-goose-static-generation-2026-08-25"
       ],
       "expiredEvidenceIds": [],
       "futureEvidenceIds": [],
       "satisfiedAssurances": [
-        "documentation"
+        "artifact-generation",
+        "documentation",
+        "static-validation"
       ],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "decay": {
         "state": "none",
@@ -617,20 +638,23 @@
       "bindingId": "grok-bot-plugins-artifact-binding",
       "ecosystemId": "grok-bot-plugins",
       "artifactClass": "passive-public-package",
-      "effectiveTier": "documented",
-      "rank": 1,
+      "effectiveTier": "statically-validated",
+      "rank": 3,
       "supportClaim": false,
       "activeEvidenceIds": [
         "grok-bot-plugins-source-1",
-        "grok-bot-plugins-source-2"
+        "grok-bot-plugins-source-2",
+        "s5b-grok-bot-static-generation-2026-08-25"
       ],
       "expiredEvidenceIds": [],
       "futureEvidenceIds": [],
       "satisfiedAssurances": [
-        "documentation"
+        "artifact-generation",
+        "documentation",
+        "static-validation"
       ],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "decay": {
         "state": "none",
@@ -647,20 +671,23 @@
       "bindingId": "grok-build-skills-artifact-binding",
       "ecosystemId": "grok-build-skills",
       "artifactClass": "passive-public-package",
-      "effectiveTier": "documented",
-      "rank": 1,
+      "effectiveTier": "statically-validated",
+      "rank": 3,
       "supportClaim": false,
       "activeEvidenceIds": [
         "grok-build-skills-source-1",
-        "grok-build-skills-source-2"
+        "grok-build-skills-source-2",
+        "s5b-grok-native-static-generation-2026-08-25"
       ],
       "expiredEvidenceIds": [],
       "futureEvidenceIds": [],
       "satisfiedAssurances": [
-        "documentation"
+        "artifact-generation",
+        "documentation",
+        "static-validation"
       ],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "decay": {
         "state": "none",
@@ -677,19 +704,22 @@
       "bindingId": "hermes-agent-plugins-artifact-binding",
       "ecosystemId": "hermes-agent-plugins",
       "artifactClass": "passive-public-package",
-      "effectiveTier": "documented",
-      "rank": 1,
+      "effectiveTier": "statically-validated",
+      "rank": 3,
       "supportClaim": false,
       "activeEvidenceIds": [
-        "hermes-agent-plugins-source-1"
+        "hermes-agent-plugins-source-1",
+        "s5b-hermes-static-generation-2026-08-25"
       ],
       "expiredEvidenceIds": [],
       "futureEvidenceIds": [],
       "satisfiedAssurances": [
-        "documentation"
+        "artifact-generation",
+        "documentation",
+        "static-validation"
       ],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "decay": {
         "state": "none",
@@ -765,20 +795,23 @@
       "bindingId": "kilo-code-artifact-binding",
       "ecosystemId": "kilo-code",
       "artifactClass": "passive-public-package",
-      "effectiveTier": "documented",
-      "rank": 1,
+      "effectiveTier": "statically-validated",
+      "rank": 3,
       "supportClaim": false,
       "activeEvidenceIds": [
         "kilo-code-source-1",
-        "kilo-code-source-2"
+        "kilo-code-source-2",
+        "s5b-kilo-static-generation-2026-08-25"
       ],
       "expiredEvidenceIds": [],
       "futureEvidenceIds": [],
       "satisfiedAssurances": [
-        "documentation"
+        "artifact-generation",
+        "documentation",
+        "static-validation"
       ],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "decay": {
         "state": "none",
@@ -890,19 +923,22 @@
       "bindingId": "nanoclaw-templates-artifact-binding",
       "ecosystemId": "nanoclaw-templates",
       "artifactClass": "passive-public-package",
-      "effectiveTier": "documented",
-      "rank": 1,
+      "effectiveTier": "statically-validated",
+      "rank": 3,
       "supportClaim": false,
       "activeEvidenceIds": [
-        "nanoclaw-templates-source-1"
+        "nanoclaw-templates-source-1",
+        "s5b-nanoclaw-static-generation-2026-08-25"
       ],
       "expiredEvidenceIds": [],
       "futureEvidenceIds": [],
       "satisfiedAssurances": [
-        "documentation"
+        "artifact-generation",
+        "documentation",
+        "static-validation"
       ],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "decay": {
         "state": "none",
@@ -1014,19 +1050,22 @@
       "bindingId": "openclaw-bundles-artifact-binding",
       "ecosystemId": "openclaw-bundles",
       "artifactClass": "passive-public-package",
-      "effectiveTier": "documented",
-      "rank": 1,
+      "effectiveTier": "statically-validated",
+      "rank": 3,
       "supportClaim": false,
       "activeEvidenceIds": [
-        "openclaw-bundles-source-1"
+        "openclaw-bundles-source-1",
+        "s5b-openclaw-static-generation-2026-08-25"
       ],
       "expiredEvidenceIds": [],
       "futureEvidenceIds": [],
       "satisfiedAssurances": [
-        "documentation"
+        "artifact-generation",
+        "documentation",
+        "static-validation"
       ],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "decay": {
         "state": "none",
@@ -1043,21 +1082,24 @@
       "bindingId": "opencode-skills-artifact-binding",
       "ecosystemId": "opencode-skills",
       "artifactClass": "passive-public-package",
-      "effectiveTier": "documented",
-      "rank": 1,
+      "effectiveTier": "statically-validated",
+      "rank": 3,
       "supportClaim": false,
       "activeEvidenceIds": [
         "opencode-skills-source-1",
         "opencode-skills-source-2",
-        "opencode-skills-source-3"
+        "opencode-skills-source-3",
+        "s5b-opencode-static-generation-2026-08-25"
       ],
       "expiredEvidenceIds": [],
       "futureEvidenceIds": [],
       "satisfiedAssurances": [
-        "documentation"
+        "artifact-generation",
+        "documentation",
+        "static-validation"
       ],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "decay": {
         "state": "none",
@@ -1074,20 +1116,23 @@
       "bindingId": "openhands-artifact-binding",
       "ecosystemId": "openhands",
       "artifactClass": "passive-public-package",
-      "effectiveTier": "documented",
-      "rank": 1,
+      "effectiveTier": "statically-validated",
+      "rank": 3,
       "supportClaim": false,
       "activeEvidenceIds": [
         "openhands-source-1",
-        "openhands-source-2"
+        "openhands-source-2",
+        "s5b-openhands-static-generation-2026-08-25"
       ],
       "expiredEvidenceIds": [],
       "futureEvidenceIds": [],
       "satisfiedAssurances": [
-        "documentation"
+        "artifact-generation",
+        "documentation",
+        "static-validation"
       ],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "decay": {
         "state": "none",
@@ -1136,21 +1181,24 @@
       "bindingId": "qwen-code-artifact-binding",
       "ecosystemId": "qwen-code",
       "artifactClass": "passive-public-package",
-      "effectiveTier": "documented",
-      "rank": 1,
+      "effectiveTier": "statically-validated",
+      "rank": 3,
       "supportClaim": false,
       "activeEvidenceIds": [
         "qwen-code-source-1",
         "qwen-code-source-2",
-        "qwen-code-source-3"
+        "qwen-code-source-3",
+        "s5b-qwen-static-generation-2026-08-25"
       ],
       "expiredEvidenceIds": [],
       "futureEvidenceIds": [],
       "satisfiedAssurances": [
-        "documentation"
+        "artifact-generation",
+        "documentation",
+        "static-validation"
       ],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "decay": {
         "state": "none",
@@ -1167,20 +1215,23 @@
       "bindingId": "replit-agent-artifact-binding",
       "ecosystemId": "replit-agent",
       "artifactClass": "passive-public-package",
-      "effectiveTier": "documented",
-      "rank": 1,
+      "effectiveTier": "statically-validated",
+      "rank": 3,
       "supportClaim": false,
       "activeEvidenceIds": [
         "replit-agent-source-1",
-        "replit-agent-source-2"
+        "replit-agent-source-2",
+        "s5b-replit-static-generation-2026-08-25"
       ],
       "expiredEvidenceIds": [],
       "futureEvidenceIds": [],
       "satisfiedAssurances": [
-        "documentation"
+        "artifact-generation",
+        "documentation",
+        "static-validation"
       ],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "decay": {
         "state": "none",
@@ -1287,20 +1338,23 @@
       "bindingId": "visual-studio-copilot-artifact-binding",
       "ecosystemId": "visual-studio-copilot",
       "artifactClass": "passive-public-package",
-      "effectiveTier": "documented",
-      "rank": 1,
+      "effectiveTier": "statically-validated",
+      "rank": 3,
       "supportClaim": false,
       "activeEvidenceIds": [
+        "s5b-visual-studio-static-generation-2026-08-25",
         "visual-studio-copilot-source-1",
         "visual-studio-copilot-source-2"
       ],
       "expiredEvidenceIds": [],
       "futureEvidenceIds": [],
       "satisfiedAssurances": [
-        "documentation"
+        "artifact-generation",
+        "documentation",
+        "static-validation"
       ],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "decay": {
         "state": "none",
@@ -1317,19 +1371,22 @@
       "bindingId": "vscode-agent-plugins-artifact-binding",
       "ecosystemId": "vscode-agent-plugins",
       "artifactClass": "passive-public-package",
-      "effectiveTier": "documented",
-      "rank": 1,
+      "effectiveTier": "statically-validated",
+      "rank": 3,
       "supportClaim": false,
       "activeEvidenceIds": [
+        "s5b-vscode-static-generation-2026-08-25",
         "vscode-agent-plugins-source-1"
       ],
       "expiredEvidenceIds": [],
       "futureEvidenceIds": [],
       "satisfiedAssurances": [
-        "documentation"
+        "artifact-generation",
+        "documentation",
+        "static-validation"
       ],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "decay": {
         "state": "none",
@@ -1346,20 +1403,23 @@
       "bindingId": "windsurf-devin-desktop-artifact-binding",
       "ecosystemId": "windsurf-devin-desktop",
       "artifactClass": "passive-public-package",
-      "effectiveTier": "documented",
-      "rank": 1,
+      "effectiveTier": "statically-validated",
+      "rank": 3,
       "supportClaim": false,
       "activeEvidenceIds": [
+        "s5b-windsurf-static-generation-2026-08-25",
         "windsurf-devin-desktop-source-1",
         "windsurf-devin-desktop-source-2"
       ],
       "expiredEvidenceIds": [],
       "futureEvidenceIds": [],
       "satisfiedAssurances": [
-        "documentation"
+        "artifact-generation",
+        "documentation",
+        "static-validation"
       ],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "decay": {
         "state": "none",
@@ -1376,20 +1436,23 @@
       "bindingId": "zed-skills-artifact-binding",
       "ecosystemId": "zed-skills",
       "artifactClass": "passive-public-package",
-      "effectiveTier": "documented",
-      "rank": 1,
+      "effectiveTier": "statically-validated",
+      "rank": 3,
       "supportClaim": false,
       "activeEvidenceIds": [
+        "s5b-zed-static-generation-2026-08-25",
         "zed-skills-source-1",
         "zed-skills-source-2"
       ],
       "expiredEvidenceIds": [],
       "futureEvidenceIds": [],
       "satisfiedAssurances": [
-        "documentation"
+        "artifact-generation",
+        "documentation",
+        "static-validation"
       ],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "decay": {
         "state": "none",

@@ -238,7 +238,7 @@ test("generated human catalog exposes public and engineering packages and capabi
     );
     assert.equal(devin.coverage, "standard-compatible");
     assert.equal(devin.generationState, "fixture-generated");
-    assert.equal(devin.technicalTier, "documented");
+    assert.equal(devin.technicalTier, "statically-validated");
 });
 
 test("human catalog manifest binds every generated product file", () => {

@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "contractVersion": 1,
   "disclaimer": "Catalog inclusion, evaluation evidence, bundle generation, or publication does not grant runtime permission or approval.",
-  "inputDigest": "7fc584b3eb5e5aecec04d5b8e977838bb810584f17493ab30942ebf5de7cd48b",
+  "inputDigest": "aacdab0c52f21758c6879bba7b175921dab2ea9fc598dc87bc51fa917d312678",
   "profiles": [
     {
       "id": "public-application",
@@ -4256,7 +4256,7 @@
       "targetId": "amp-passive",
       "outputRoot": "amp-agent-skills",
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
+      "technicalTier": "statically-validated",
       "supportClaim": false
     },
     {
@@ -4270,7 +4270,7 @@
       "targetId": "augment-passive",
       "outputRoot": "augment-agent-skills",
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
+      "technicalTier": "statically-validated",
       "supportClaim": false
     },
     {
@@ -4298,7 +4298,7 @@
       "targetId": "cline-passive",
       "outputRoot": "cline-agent-skills",
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
+      "technicalTier": "statically-validated",
       "supportClaim": false
     },
     {
@@ -4368,7 +4368,7 @@
       "targetId": "devin-passive",
       "outputRoot": "devin-agent-skills",
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
+      "technicalTier": "statically-validated",
       "supportClaim": false
     },
     {
@@ -4382,7 +4382,7 @@
       "targetId": "factory-passive",
       "outputRoot": "factory-agent-skills",
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
+      "technicalTier": "statically-validated",
       "supportClaim": false
     },
     {
@@ -4410,7 +4410,7 @@
       "targetId": "github-cli-passive",
       "outputRoot": "github-cli-agent-skills",
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
+      "technicalTier": "statically-validated",
       "supportClaim": false
     },
     {
@@ -4438,7 +4438,7 @@
       "targetId": "goose-passive",
       "outputRoot": "goose-agent-skills",
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
+      "technicalTier": "statically-validated",
       "supportClaim": false
     },
     {
@@ -4452,7 +4452,7 @@
       "targetId": "grok-bot-passive",
       "outputRoot": "grok-bot-agent-plugin",
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
+      "technicalTier": "statically-validated",
       "supportClaim": false
     },
     {
@@ -4466,7 +4466,7 @@
       "targetId": "grok-native-passive",
       "outputRoot": "grok-native-agent-skills",
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
+      "technicalTier": "statically-validated",
       "supportClaim": false
     },
     {
@@ -4480,7 +4480,7 @@
       "targetId": "hermes-passive",
       "outputRoot": "hermes-agent-plugin",
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
+      "technicalTier": "statically-validated",
       "supportClaim": false
     },
     {
@@ -4522,7 +4522,7 @@
       "targetId": "kilo-passive",
       "outputRoot": "kilo-agent-skills",
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
+      "technicalTier": "statically-validated",
       "supportClaim": false
     },
     {
@@ -4550,7 +4550,7 @@
       "targetId": "nanoclaw-passive",
       "outputRoot": "nanoclaw-agent-plugin",
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
+      "technicalTier": "statically-validated",
       "supportClaim": false
     },
     {
@@ -4578,7 +4578,7 @@
       "targetId": "openclaw-passive",
       "outputRoot": "openclaw-agent-plugin",
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
+      "technicalTier": "statically-validated",
       "supportClaim": false
     },
     {
@@ -4592,7 +4592,7 @@
       "targetId": "opencode-passive",
       "outputRoot": "opencode-agent-skills",
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
+      "technicalTier": "statically-validated",
       "supportClaim": false
     },
     {
@@ -4606,7 +4606,7 @@
       "targetId": "openhands-passive",
       "outputRoot": "openhands-agent-skills",
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
+      "technicalTier": "statically-validated",
       "supportClaim": false
     },
     {
@@ -4634,7 +4634,7 @@
       "targetId": "qwen-passive",
       "outputRoot": "qwen-agent-plugin",
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
+      "technicalTier": "statically-validated",
       "supportClaim": false
     },
     {
@@ -4648,7 +4648,7 @@
       "targetId": "replit-passive",
       "outputRoot": "replit-agent-skills",
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
+      "technicalTier": "statically-validated",
       "supportClaim": false
     },
     {
@@ -4704,7 +4704,7 @@
       "targetId": "visual-studio-passive",
       "outputRoot": "visual-studio-agent-skills",
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
+      "technicalTier": "statically-validated",
       "supportClaim": false
     },
     {
@@ -4718,7 +4718,7 @@
       "targetId": "vscode-passive",
       "outputRoot": "vscode-agent-plugin",
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
+      "technicalTier": "statically-validated",
       "supportClaim": false
     },
     {
@@ -4732,7 +4732,7 @@
       "targetId": "windsurf-passive",
       "outputRoot": "windsurf-agent-skills",
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
+      "technicalTier": "statically-validated",
       "supportClaim": false
     },
     {
@@ -4746,7 +4746,7 @@
       "targetId": "zed-passive",
       "outputRoot": "zed-agent-skills",
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
+      "technicalTier": "statically-validated",
       "supportClaim": false
     }
   ]

@@ -144,15 +144,16 @@
         "amp-source-1"
       ],
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
-      "technicalTierRank": 1,
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
       "activeEvidenceIds": [
         "amp-source-1",
-        "amp-source-2"
+        "amp-source-2",
+        "s5b-amp-static-generation-2026-08-25"
       ],
       "expiredEvidenceIds": [],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "marketplaceStatus": "not-claimed",
       "supportClaim": false
@@ -174,15 +175,16 @@
         "augment-auggie-source-1"
       ],
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
-      "technicalTierRank": 1,
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
       "activeEvidenceIds": [
         "augment-auggie-source-1",
-        "augment-auggie-source-2"
+        "augment-auggie-source-2",
+        "s5b-augment-static-generation-2026-08-25"
       ],
       "expiredEvidenceIds": [],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "marketplaceStatus": "not-claimed",
       "supportClaim": false
@@ -237,16 +239,17 @@
         "cline-source-1"
       ],
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
-      "technicalTierRank": 1,
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
       "activeEvidenceIds": [
         "cline-source-1",
         "cline-source-2",
-        "cline-source-3"
+        "cline-source-3",
+        "s5b-cline-static-generation-2026-08-25"
       ],
       "expiredEvidenceIds": [],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "marketplaceStatus": "not-claimed",
       "supportClaim": false
@@ -418,15 +421,16 @@
         "devin-hosted-source-1"
       ],
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
-      "technicalTierRank": 1,
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
       "activeEvidenceIds": [
         "devin-hosted-source-1",
-        "devin-hosted-source-2"
+        "devin-hosted-source-2",
+        "s5b-devin-static-generation-2026-08-25"
       ],
       "expiredEvidenceIds": [],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "marketplaceStatus": "not-claimed",
       "supportClaim": false
@@ -448,15 +452,16 @@
         "factory-droid-source-1"
       ],
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
-      "technicalTierRank": 1,
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
       "activeEvidenceIds": [
         "factory-droid-source-1",
-        "factory-droid-source-2"
+        "factory-droid-source-2",
+        "s5b-factory-static-generation-2026-08-25"
       ],
       "expiredEvidenceIds": [],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "marketplaceStatus": "not-claimed",
       "supportClaim": false
@@ -511,16 +516,17 @@
         "github-cli-skills-source-1"
       ],
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
-      "technicalTierRank": 1,
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
       "activeEvidenceIds": [
         "github-cli-skills-source-1",
         "github-cli-skills-source-2",
-        "github-cli-skills-source-3"
+        "github-cli-skills-source-3",
+        "s5b-github-cli-static-generation-2026-08-25"
       ],
       "expiredEvidenceIds": [],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "marketplaceStatus": "not-claimed",
       "supportClaim": false
@@ -573,15 +579,16 @@
         "goose-source-1"
       ],
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
-      "technicalTierRank": 1,
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
       "activeEvidenceIds": [
         "goose-source-1",
-        "goose-source-2"
+        "goose-source-2",
+        "s5b-goose-static-generation-2026-08-25"
       ],
       "expiredEvidenceIds": [],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "marketplaceStatus": "not-claimed",
       "supportClaim": false
@@ -603,15 +610,16 @@
         "grok-bot-plugins-source-1"
       ],
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
-      "technicalTierRank": 1,
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
       "activeEvidenceIds": [
         "grok-bot-plugins-source-1",
-        "grok-bot-plugins-source-2"
+        "grok-bot-plugins-source-2",
+        "s5b-grok-bot-static-generation-2026-08-25"
       ],
       "expiredEvidenceIds": [],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "marketplaceStatus": "not-claimed",
       "supportClaim": false
@@ -633,15 +641,16 @@
         "grok-build-skills-source-1"
       ],
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
-      "technicalTierRank": 1,
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
       "activeEvidenceIds": [
         "grok-build-skills-source-1",
-        "grok-build-skills-source-2"
+        "grok-build-skills-source-2",
+        "s5b-grok-native-static-generation-2026-08-25"
       ],
       "expiredEvidenceIds": [],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "marketplaceStatus": "not-claimed",
       "supportClaim": false
@@ -663,14 +672,15 @@
         "hermes-agent-plugins-source-1"
       ],
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
-      "technicalTierRank": 1,
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
       "activeEvidenceIds": [
-        "hermes-agent-plugins-source-1"
+        "hermes-agent-plugins-source-1",
+        "s5b-hermes-static-generation-2026-08-25"
       ],
       "expiredEvidenceIds": [],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "marketplaceStatus": "not-claimed",
       "supportClaim": false
@@ -751,15 +761,16 @@
         "kilo-code-source-1"
       ],
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
-      "technicalTierRank": 1,
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
       "activeEvidenceIds": [
         "kilo-code-source-1",
-        "kilo-code-source-2"
+        "kilo-code-source-2",
+        "s5b-kilo-static-generation-2026-08-25"
       ],
       "expiredEvidenceIds": [],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "marketplaceStatus": "not-claimed",
       "supportClaim": false
@@ -876,14 +887,15 @@
         "nanoclaw-templates-source-1"
       ],
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
-      "technicalTierRank": 1,
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
       "activeEvidenceIds": [
-        "nanoclaw-templates-source-1"
+        "nanoclaw-templates-source-1",
+        "s5b-nanoclaw-static-generation-2026-08-25"
       ],
       "expiredEvidenceIds": [],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "marketplaceStatus": "not-claimed",
       "supportClaim": false
@@ -1000,14 +1012,15 @@
         "openclaw-bundles-source-1"
       ],
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
-      "technicalTierRank": 1,
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
       "activeEvidenceIds": [
-        "openclaw-bundles-source-1"
+        "openclaw-bundles-source-1",
+        "s5b-openclaw-static-generation-2026-08-25"
       ],
       "expiredEvidenceIds": [],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "marketplaceStatus": "not-claimed",
       "supportClaim": false
@@ -1029,16 +1042,17 @@
         "opencode-skills-source-1"
       ],
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
-      "technicalTierRank": 1,
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
       "activeEvidenceIds": [
         "opencode-skills-source-1",
         "opencode-skills-source-2",
-        "opencode-skills-source-3"
+        "opencode-skills-source-3",
+        "s5b-opencode-static-generation-2026-08-25"
       ],
       "expiredEvidenceIds": [],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "marketplaceStatus": "not-claimed",
       "supportClaim": false
@@ -1060,15 +1074,16 @@
         "openhands-source-1"
       ],
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
-      "technicalTierRank": 1,
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
       "activeEvidenceIds": [
         "openhands-source-1",
-        "openhands-source-2"
+        "openhands-source-2",
+        "s5b-openhands-static-generation-2026-08-25"
       ],
       "expiredEvidenceIds": [],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "marketplaceStatus": "not-claimed",
       "supportClaim": false
@@ -1122,16 +1137,17 @@
         "qwen-code-source-2"
       ],
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
-      "technicalTierRank": 1,
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
       "activeEvidenceIds": [
         "qwen-code-source-1",
         "qwen-code-source-2",
-        "qwen-code-source-3"
+        "qwen-code-source-3",
+        "s5b-qwen-static-generation-2026-08-25"
       ],
       "expiredEvidenceIds": [],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "marketplaceStatus": "not-claimed",
       "supportClaim": false
@@ -1153,15 +1169,16 @@
         "replit-agent-source-1"
       ],
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
-      "technicalTierRank": 1,
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
       "activeEvidenceIds": [
         "replit-agent-source-1",
-        "replit-agent-source-2"
+        "replit-agent-source-2",
+        "s5b-replit-static-generation-2026-08-25"
       ],
       "expiredEvidenceIds": [],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "marketplaceStatus": "not-claimed",
       "supportClaim": false
@@ -1273,15 +1290,16 @@
         "visual-studio-copilot-source-1"
       ],
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
-      "technicalTierRank": 1,
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
       "activeEvidenceIds": [
+        "s5b-visual-studio-static-generation-2026-08-25",
         "visual-studio-copilot-source-1",
         "visual-studio-copilot-source-2"
       ],
       "expiredEvidenceIds": [],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "marketplaceStatus": "not-claimed",
       "supportClaim": false
@@ -1303,14 +1321,15 @@
         "vscode-agent-plugins-source-1"
       ],
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
-      "technicalTierRank": 1,
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
       "activeEvidenceIds": [
+        "s5b-vscode-static-generation-2026-08-25",
         "vscode-agent-plugins-source-1"
       ],
       "expiredEvidenceIds": [],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "marketplaceStatus": "not-claimed",
       "supportClaim": false
@@ -1332,15 +1351,16 @@
         "windsurf-devin-desktop-source-1"
       ],
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
-      "technicalTierRank": 1,
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
       "activeEvidenceIds": [
+        "s5b-windsurf-static-generation-2026-08-25",
         "windsurf-devin-desktop-source-1",
         "windsurf-devin-desktop-source-2"
       ],
       "expiredEvidenceIds": [],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "marketplaceStatus": "not-claimed",
       "supportClaim": false
@@ -1362,15 +1382,16 @@
         "zed-skills-source-1"
       ],
       "generationState": "fixture-generated",
-      "technicalTier": "documented",
-      "technicalTierRank": 1,
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
       "activeEvidenceIds": [
+        "s5b-zed-static-generation-2026-08-25",
         "zed-skills-source-1",
         "zed-skills-source-2"
       ],
       "expiredEvidenceIds": [],
       "missingAssurances": [
-        "artifact-generation"
+        "install"
       ],
       "marketplaceStatus": "not-claimed",
       "supportClaim": false
