@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cratis/AI/catalog/schemas/chronicle-mcp-tool-classifications.schema.json",
+  "title": "Chronicle MCP passive guidance classifications",
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+    "subjectId": { "type": "string", "pattern": "^[a-z0-9]+(?:_[a-z0-9]+)*$" },
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "revision": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+    "idArray": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/id" } },
+    "effectClass": { "enum": ["classification-only", "observational", "effectful", "unknown"] },
+    "disposition": { "enum": ["passive-allowed", "effectful-blocked", "evidence-blocked"] },
+    "effectId": { "enum": ["credential-access", "destructive", "execute", "open-world-transmission", "publish", "read", "unbounded-transmission", "write"] },
+    "annotationHints": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["readOnly", "destructive", "idempotent", "openWorld"],
+      "properties": {
+        "readOnly": { "oneOf": [{ "type": "boolean" }, { "type": "null" }] },
+        "destructive": { "oneOf": [{ "type": "boolean" }, { "type": "null" }] },
+        "idempotent": { "oneOf": [{ "type": "boolean" }, { "type": "null" }] },
+        "openWorld": { "oneOf": [{ "type": "boolean" }, { "type": "null" }] }
+      }
+    },
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "effectClass", "disposition", "sourceRevision", "implementationDigest", "schemaDigest", "effects", "boundedOutput", "outputClassification", "evidenceIds", "redactionReviewEvidenceIds", "annotationHints"],
+      "properties": {
+        "id": { "$ref": "#/$defs/subjectId" },
+        "effectClass": { "$ref": "#/$defs/effectClass" },
+        "disposition": { "$ref": "#/$defs/disposition" },
+        "sourceRevision": { "$ref": "#/$defs/revision" },
+        "implementationDigest": { "$ref": "#/$defs/sha256" },
+        "schemaDigest": { "$ref": "#/$defs/sha256" },
+        "effects": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/effectId" } },
+        "boundedOutput": { "type": "boolean" },
+        "outputClassification": { "enum": ["public", "internal", "confidential", "personal-data", "unknown"] },
+        "evidenceIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } },
+        "redactionReviewEvidenceIds": { "$ref": "#/$defs/idArray" },
+        "annotationHints": { "$ref": "#/$defs/annotationHints" }
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "defaultPolicy", "sourceContractId", "authorityState", "defaultDisposition", "upstreamRevision", "effectClasses", "blockedEffectIds", "admissionRequirements", "emission", "tools", "prompts"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "defaultPolicy": { "const": "deny" },
+    "sourceContractId": { "const": "cratis-chronicle-mcp-source" },
+    "authorityState": { "enum": ["NO_ADMITTED_TOOL_EFFECT_EVIDENCE", "ADMITTED_TOOL_EFFECT_EVIDENCE"] },
+    "defaultDisposition": { "const": "evidence-blocked" },
+    "upstreamRevision": { "oneOf": [{ "$ref": "#/$defs/revision" }, { "type": "null" }] },
+    "effectClasses": { "type": "array", "minItems": 4, "maxItems": 4, "uniqueItems": true, "items": { "$ref": "#/$defs/effectClass" } },
+    "blockedEffectIds": { "type": "array", "minItems": 7, "maxItems": 7, "uniqueItems": true, "items": { "$ref": "#/$defs/effectId" } },
+    "admissionRequirements": { "type": "array", "minItems": 10, "maxItems": 10, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } },
+    "emission": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classificationReferencesAllowed", "executableAllowed", "installationAllowed", "invocationAllowed", "promptInvocationAllowed", "runtimeConfigurationAllowed", "serverBytesAllowed"],
+      "properties": {
+        "classificationReferencesAllowed": { "const": true },
+        "executableAllowed": { "const": false },
+        "installationAllowed": { "const": false },
+        "invocationAllowed": { "const": false },
+        "promptInvocationAllowed": { "const": false },
+        "runtimeConfigurationAllowed": { "const": false },
+        "serverBytesAllowed": { "const": false }
+      }
+    },
+    "tools": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/subject" } },
+    "prompts": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/subject" } }
+  }
+}

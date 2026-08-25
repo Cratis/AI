@@ -149,6 +149,8 @@ function matchesKnownPattern(value, pattern) {
     switch (pattern) {
         case "^[a-z0-9]+(?:-[a-z0-9]+)*$":
             return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value);
+        case "^[a-z0-9]+(?:_[a-z0-9]+)*$":
+            return /^[a-z0-9]+(?:_[a-z0-9]+)*$/.test(value);
         case "^cratis-[a-z0-9]+(?:-[a-z0-9]+)*$":
             return /^cratis-[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value);
         case "^(\\.ai/skills|skills)/[a-z0-9]+(?:-[a-z0-9]+)*$":
