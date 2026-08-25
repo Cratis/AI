@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "351b2d977aa67be1cc9fe88e88f579185a25ca437b5163fd3ff220b725807dc6",
+  "indexDigest": "8808fae8e53c923f2428b2016d8ee9bdf4a8badc278b6628e14d12e1a6778dbe",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -624,6 +624,10 @@
     },
     {
       "path": "distribution/evidence/real-samples-fundamentals-preview-canary-2026-08-23.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/evidence/s5b-passive-host-static-generation-2026-08-25.json",
       "status": "added"
     },
     {
@@ -2551,9 +2555,7 @@
       "status": "added"
     }
   ],
-  "admittedUntracked": [
-    "distribution/evidence/s5b-passive-host-static-generation-2026-08-25.json"
-  ],
+  "admittedUntracked": [],
   "excludedRuntimePrefixes": [
     ".pi/delegate/",
     ".pi/fusion/",
