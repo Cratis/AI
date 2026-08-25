@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cratis/AI/distribution/ecosystem-artifact-bindings.schema.json",
+  "title": "Cratis ecosystem artifact bindings",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "nullableId": {
+      "oneOf": [
+        { "$ref": "#/$defs/id" },
+        { "type": "null" }
+      ]
+    },
+    "nullableString": {
+      "oneOf": [
+        { "type": "string", "minLength": 1 },
+        { "type": "null" }
+      ]
+    },
+    "binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "ecosystemId",
+        "interfaceId",
+        "requirementId",
+        "targetId",
+        "harnessId",
+        "outputRoot",
+        "artifactClass",
+        "strategy",
+        "assuranceProfileId",
+        "evidenceIds",
+        "generationState",
+        "supportClaim",
+        "notes"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "ecosystemId": { "$ref": "#/$defs/id" },
+        "interfaceId": { "$ref": "#/$defs/id" },
+        "requirementId": { "$ref": "#/$defs/nullableId" },
+        "targetId": { "$ref": "#/$defs/nullableId" },
+        "harnessId": { "$ref": "#/$defs/nullableId" },
+        "outputRoot": { "$ref": "#/$defs/nullableString" },
+        "artifactClass": {
+          "enum": [
+            "executable-plugin-package",
+            "mcp-server-package",
+            "no-artifact",
+            "passive-private-fixture",
+            "passive-public-package",
+            "provider-compatibility",
+            "publication-metadata"
+          ]
+        },
+        "strategy": {
+          "enum": [
+            "distinct-output",
+            "shared-output",
+            "compatible-source",
+            "provider-inherited",
+            "publication-only",
+            "no-output",
+            "blocked"
+          ]
+        },
+        "assuranceProfileId": { "$ref": "#/$defs/id" },
+        "evidenceIds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "generationState": {
+          "enum": [
+            "fixture-generated",
+            "fixture-generated-evidence-incomplete",
+            "source-compatible",
+            "provider-inherited",
+            "publication-only",
+            "no-output",
+            "blocked"
+          ]
+        },
+        "supportClaim": { "const": false },
+        "notes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "state",
+    "defaultPolicy",
+    "publicationEligible",
+    "promotionEligible",
+    "bindings"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "state": { "const": "FIXTURE_ONLY_LOCAL_STAGING" },
+    "defaultPolicy": { "const": "deny" },
+    "publicationEligible": { "const": false },
+    "promotionEligible": { "const": false },
+    "bindings": {
+      "type": "array",
+      "minItems": 26,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/binding" }
+    }
+  }
+}

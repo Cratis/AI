@@ -14,6 +14,7 @@ import { validateEngineeringDocsCompanions } from "./engineering-docs-companions
 import { validateProfileSubscriptions } from "./profile-subscription-validation.mjs";
 import { validateReleaseRequests } from "./release-request-validation.mjs";
 import { validateReleaseApprovals } from "./release-approval-validation.mjs";
+import { validateEcosystemArtifactContracts } from "./ecosystem-artifact-validation.mjs";
 
 const errors = [
     ...validateCatalogs(),
@@ -28,6 +29,7 @@ const errors = [
     ...validateProfileSubscriptions(),
     ...validateReleaseRequests().errors,
     ...validateReleaseApprovals(),
+    ...validateEcosystemArtifactContracts(),
 ];
 if (errors.length > 0) {
     process.stderr.write(

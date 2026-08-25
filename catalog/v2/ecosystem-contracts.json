@@ -1,0 +1,2445 @@
+{
+  "schemaVersion": 2,
+  "asOf": "2026-08-24",
+  "defaultPolicy": "deny",
+  "ecosystems": [
+    {
+      "id": "agent-plugins",
+      "kind": "standard",
+      "lifecycle": "current",
+      "reviewState": "verified",
+      "versions": {
+        "specification": "1.0.0",
+        "client": null,
+        "service": null
+      },
+      "interfaces": [
+        "agent-plugin-package"
+      ],
+      "manifests": [
+        {
+          "id": "plugin-manifest",
+          "path": "plugin.json",
+          "requirement": "required",
+          "schemaVersion": "1.0.0"
+        },
+        {
+          "id": "mcp-configuration",
+          "path": "mcp.json",
+          "requirement": "optional",
+          "schemaVersion": "1.0.0"
+        }
+      ],
+      "components": {
+        "skills": "optional",
+        "mcp": "optional",
+        "hooks": "unsupported",
+        "scripts": "unsupported",
+        "executableExtensions": "unsupported"
+      },
+      "discoveryRoots": [
+        {
+          "scope": "standard",
+          "path": ".",
+          "requirement": "required",
+          "evidenceIds": [
+            "agent-plugins-source-1",
+            "agent-plugins-source-2",
+            "agent-plugins-source-3"
+          ]
+        }
+      ],
+      "extensions": {
+        "state": "standard",
+        "namespace": "reverse-domain"
+      },
+      "officialEvidenceIds": [
+        "agent-plugins-source-1",
+        "agent-plugins-source-2",
+        "agent-plugins-source-3"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "agent-plugins-fact-1",
+          "evidenceIds": [
+            "agent-plugins-source-1",
+            "agent-plugins-source-2",
+            "agent-plugins-source-3"
+          ]
+        },
+        {
+          "factId": "agent-plugins-fact-2",
+          "evidenceIds": [
+            "agent-plugins-source-1",
+            "agent-plugins-source-2",
+            "agent-plugins-source-3"
+          ]
+        },
+        {
+          "factId": "agent-plugins-fact-3",
+          "evidenceIds": [
+            "agent-plugins-source-1",
+            "agent-plugins-source-2",
+            "agent-plugins-source-3"
+          ]
+        },
+        {
+          "factId": "agent-plugins-fact-4",
+          "evidenceIds": [
+            "agent-plugins-source-1",
+            "agent-plugins-source-2",
+            "agent-plugins-source-3"
+          ]
+        },
+        {
+          "factId": "agent-plugins-fact-5",
+          "evidenceIds": [
+            "agent-plugins-source-1",
+            "agent-plugins-source-2",
+            "agent-plugins-source-3"
+          ]
+        },
+        {
+          "factId": "agent-plugins-fact-6",
+          "evidenceIds": [
+            "agent-plugins-source-1",
+            "agent-plugins-source-2",
+            "agent-plugins-source-3"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "notes": [
+        "Agent Plugins Specification 1.0.0 universally requires only plugin.json at the plugin root; root mcp.json and skills are optional standard components.",
+        "Legacy version label retained separately for projection compatibility: 1.0.0."
+      ]
+    },
+    {
+      "id": "agent-skills",
+      "kind": "standard",
+      "lifecycle": "current",
+      "reviewState": "verified",
+      "versions": {
+        "specification": "unversioned-current-specification",
+        "client": null,
+        "service": null
+      },
+      "interfaces": [
+        "agent-skill"
+      ],
+      "manifests": [
+        {
+          "id": "skill-manifest",
+          "path": "SKILL.md",
+          "requirement": "required",
+          "schemaVersion": null
+        }
+      ],
+      "components": {
+        "skills": "required",
+        "mcp": "unsupported",
+        "hooks": "unsupported",
+        "scripts": "optional",
+        "executableExtensions": "unsupported"
+      },
+      "discoveryRoots": [
+        {
+          "scope": "standard",
+          "path": "<skill-root>/SKILL.md",
+          "requirement": "required",
+          "evidenceIds": [
+            "agent-skills-source-1",
+            "agent-skills-source-2"
+          ]
+        }
+      ],
+      "extensions": {
+        "state": "unsupported",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "agent-skills-source-1",
+        "agent-skills-source-2"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "agent-skills-fact-1",
+          "evidenceIds": [
+            "agent-skills-source-1",
+            "agent-skills-source-2"
+          ]
+        },
+        {
+          "factId": "agent-skills-fact-2",
+          "evidenceIds": [
+            "agent-skills-source-1",
+            "agent-skills-source-2"
+          ]
+        },
+        {
+          "factId": "agent-skills-fact-3",
+          "evidenceIds": [
+            "agent-skills-source-1",
+            "agent-skills-source-2"
+          ]
+        },
+        {
+          "factId": "agent-skills-fact-4",
+          "evidenceIds": [
+            "agent-skills-source-1",
+            "agent-skills-source-2"
+          ]
+        },
+        {
+          "factId": "agent-skills-fact-5",
+          "evidenceIds": [
+            "agent-skills-source-1",
+            "agent-skills-source-2"
+          ]
+        },
+        {
+          "factId": "agent-skills-fact-6",
+          "evidenceIds": [
+            "agent-skills-source-1",
+            "agent-skills-source-2"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "notes": [
+        "The universal contract is SKILL.md within a skill root; the standard does not require one enclosing repository path.",
+        "Legacy version label retained separately for projection compatibility: unversioned-current-specification."
+      ]
+    },
+    {
+      "id": "model-context-protocol",
+      "kind": "standard",
+      "lifecycle": "current",
+      "reviewState": "verified",
+      "versions": {
+        "specification": "2026-07-28",
+        "client": null,
+        "service": null
+      },
+      "interfaces": [
+        "mcp-protocol"
+      ],
+      "manifests": [],
+      "components": {
+        "skills": "unsupported",
+        "mcp": "required",
+        "hooks": "unknown",
+        "scripts": "unknown",
+        "executableExtensions": "unknown"
+      },
+      "discoveryRoots": [],
+      "extensions": {
+        "state": "standard",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "model-context-protocol-source-1",
+        "model-context-protocol-source-2"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "model-context-protocol-fact-1",
+          "evidenceIds": [
+            "model-context-protocol-source-1",
+            "model-context-protocol-source-2"
+          ]
+        },
+        {
+          "factId": "model-context-protocol-fact-2",
+          "evidenceIds": [
+            "model-context-protocol-source-1",
+            "model-context-protocol-source-2"
+          ]
+        },
+        {
+          "factId": "model-context-protocol-fact-3",
+          "evidenceIds": [
+            "model-context-protocol-source-1",
+            "model-context-protocol-source-2"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "notes": [
+        "MCP wire behavior is separate from plugin packaging and host-native configuration.",
+        "Legacy version label retained separately for projection compatibility: 2026-07-28."
+      ]
+    },
+    {
+      "id": "mcp-registry",
+      "kind": "registry",
+      "lifecycle": "preview",
+      "reviewState": "verified",
+      "versions": {
+        "specification": null,
+        "client": null,
+        "service": null
+      },
+      "interfaces": [
+        "mcp-registry-publication"
+      ],
+      "manifests": [
+        {
+          "id": "mcp-server-metadata",
+          "path": "server.json",
+          "requirement": "required",
+          "schemaVersion": null
+        }
+      ],
+      "components": {
+        "skills": "unsupported",
+        "mcp": "supported",
+        "hooks": "unknown",
+        "scripts": "unknown",
+        "executableExtensions": "unknown"
+      },
+      "discoveryRoots": [
+        {
+          "scope": "service",
+          "path": "server.json",
+          "requirement": "required",
+          "evidenceIds": [
+            "mcp-registry-source-1",
+            "mcp-registry-source-2",
+            "mcp-registry-source-3",
+            "mcp-registry-source-4",
+            "mcp-registry-source-5",
+            "mcp-registry-source-6"
+          ]
+        }
+      ],
+      "extensions": {
+        "state": "unsupported",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "mcp-registry-source-1",
+        "mcp-registry-source-2",
+        "mcp-registry-source-3",
+        "mcp-registry-source-4",
+        "mcp-registry-source-5",
+        "mcp-registry-source-6"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "mcp-registry-fact-1",
+          "evidenceIds": [
+            "mcp-registry-source-1",
+            "mcp-registry-source-2",
+            "mcp-registry-source-3",
+            "mcp-registry-source-4",
+            "mcp-registry-source-5",
+            "mcp-registry-source-6"
+          ]
+        },
+        {
+          "factId": "mcp-registry-fact-2",
+          "evidenceIds": [
+            "mcp-registry-source-1",
+            "mcp-registry-source-2",
+            "mcp-registry-source-3",
+            "mcp-registry-source-4",
+            "mcp-registry-source-5",
+            "mcp-registry-source-6"
+          ]
+        },
+        {
+          "factId": "mcp-registry-fact-3",
+          "evidenceIds": [
+            "mcp-registry-source-1",
+            "mcp-registry-source-2",
+            "mcp-registry-source-3",
+            "mcp-registry-source-4",
+            "mcp-registry-source-5",
+            "mcp-registry-source-6"
+          ]
+        },
+        {
+          "factId": "mcp-registry-fact-4",
+          "evidenceIds": [
+            "mcp-registry-source-1",
+            "mcp-registry-source-2",
+            "mcp-registry-source-3",
+            "mcp-registry-source-4",
+            "mcp-registry-source-5",
+            "mcp-registry-source-6"
+          ]
+        },
+        {
+          "factId": "mcp-registry-fact-5",
+          "evidenceIds": [
+            "mcp-registry-source-1",
+            "mcp-registry-source-2",
+            "mcp-registry-source-3",
+            "mcp-registry-source-4",
+            "mcp-registry-source-5",
+            "mcp-registry-source-6"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "notes": [
+        "The service remains preview; the legacy preview date is evidence currency, not a service version.",
+        "Legacy version label retained separately for projection compatibility: preview-2026-08-20."
+      ]
+    },
+    {
+      "id": "github-cli-skills",
+      "kind": "host",
+      "lifecycle": "preview",
+      "reviewState": "incomplete-evidence",
+      "versions": {
+        "specification": null,
+        "client": "2.71.2",
+        "service": null
+      },
+      "interfaces": [
+        "github-skill-lifecycle",
+        "agent-skill"
+      ],
+      "manifests": [
+        {
+          "id": "skill-manifest",
+          "path": "SKILL.md",
+          "requirement": "required",
+          "schemaVersion": null
+        }
+      ],
+      "components": {
+        "skills": "required",
+        "mcp": "unknown",
+        "hooks": "unknown",
+        "scripts": "optional",
+        "executableExtensions": "unknown"
+      },
+      "discoveryRoots": [
+        {
+          "scope": "project",
+          "path": "<discovered-skill-root>/SKILL.md",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "github-cli-skills-source-1",
+            "github-cli-skills-source-2",
+            "github-cli-skills-source-3"
+          ]
+        }
+      ],
+      "extensions": {
+        "state": "unsupported",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "github-cli-skills-source-1",
+        "github-cli-skills-source-2",
+        "github-cli-skills-source-3"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "github-cli-skills-fact-1",
+          "evidenceIds": [
+            "github-cli-skills-source-1",
+            "github-cli-skills-source-2",
+            "github-cli-skills-source-3"
+          ]
+        },
+        {
+          "factId": "github-cli-skills-fact-2",
+          "evidenceIds": [
+            "github-cli-skills-source-1",
+            "github-cli-skills-source-2",
+            "github-cli-skills-source-3"
+          ]
+        },
+        {
+          "factId": "github-cli-skills-fact-3",
+          "evidenceIds": [
+            "github-cli-skills-source-1",
+            "github-cli-skills-source-2",
+            "github-cli-skills-source-3"
+          ]
+        },
+        {
+          "factId": "github-cli-skills-fact-4",
+          "evidenceIds": [
+            "github-cli-skills-source-1",
+            "github-cli-skills-source-2",
+            "github-cli-skills-source-3"
+          ]
+        },
+        {
+          "factId": "github-cli-skills-fact-5",
+          "evidenceIds": [
+            "github-cli-skills-source-1",
+            "github-cli-skills-source-2",
+            "github-cli-skills-source-3"
+          ]
+        }
+      ],
+      "conflicts": [
+        "The installed GitHub CLI 2.71.2 does not expose the documented preview gh skill command."
+      ],
+      "notes": [
+        "No artifact adapter is introduced for the preview lifecycle in S1.",
+        "Legacy version label retained separately for projection compatibility: preview-documentation-2026-08-20."
+      ]
+    },
+    {
+      "id": "vscode-agent-plugins",
+      "kind": "host",
+      "lifecycle": "current",
+      "reviewState": "verified",
+      "versions": {
+        "specification": null,
+        "client": null,
+        "service": null
+      },
+      "interfaces": [
+        "agent-plugin-package",
+        "native-plugin"
+      ],
+      "manifests": [
+        {
+          "id": "plugin-manifest",
+          "path": "plugin.json",
+          "requirement": "required",
+          "schemaVersion": "1.0.0"
+        }
+      ],
+      "components": {
+        "skills": "supported",
+        "mcp": "supported",
+        "hooks": "supported",
+        "scripts": "unknown",
+        "executableExtensions": "supported"
+      },
+      "discoveryRoots": [
+        {
+          "scope": "package",
+          "path": "plugin.json",
+          "requirement": "required",
+          "evidenceIds": [
+            "vscode-agent-plugins-source-1"
+          ]
+        }
+      ],
+      "extensions": {
+        "state": "host-specific",
+        "namespace": "com.github.copilot"
+      },
+      "officialEvidenceIds": [
+        "vscode-agent-plugins-source-1"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "vscode-agent-plugins-fact-1",
+          "evidenceIds": [
+            "vscode-agent-plugins-source-1"
+          ]
+        },
+        {
+          "factId": "vscode-agent-plugins-fact-2",
+          "evidenceIds": [
+            "vscode-agent-plugins-source-1"
+          ]
+        },
+        {
+          "factId": "vscode-agent-plugins-fact-3",
+          "evidenceIds": [
+            "vscode-agent-plugins-source-1"
+          ]
+        },
+        {
+          "factId": "vscode-agent-plugins-fact-4",
+          "evidenceIds": [
+            "vscode-agent-plugins-source-1"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "notes": [
+        "No real VS Code client version is established by the current evidence.",
+        "Legacy version label retained separately for projection compatibility: current-documentation-2026-08-20."
+      ]
+    },
+    {
+      "id": "github-copilot-plugins",
+      "kind": "host",
+      "lifecycle": "current",
+      "reviewState": "verified",
+      "versions": {
+        "specification": null,
+        "client": "1.0.67",
+        "service": null
+      },
+      "interfaces": [
+        "agent-plugin-package",
+        "native-plugin"
+      ],
+      "manifests": [
+        {
+          "id": "plugin-manifest",
+          "path": "plugin.json",
+          "requirement": "required",
+          "schemaVersion": "1.0.0"
+        },
+        {
+          "id": "copilot-marketplace",
+          "path": ".github/plugin/marketplace.json",
+          "requirement": "host-specific",
+          "schemaVersion": null
+        }
+      ],
+      "components": {
+        "skills": "supported",
+        "mcp": "supported",
+        "hooks": "supported",
+        "scripts": "unknown",
+        "executableExtensions": "supported"
+      },
+      "discoveryRoots": [
+        {
+          "scope": "package",
+          "path": "plugin.json",
+          "requirement": "required",
+          "evidenceIds": [
+            "github-copilot-plugins-source-1",
+            "github-copilot-plugins-source-2"
+          ]
+        },
+        {
+          "scope": "marketplace",
+          "path": ".github/plugin/marketplace.json",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "github-copilot-plugins-source-1",
+            "github-copilot-plugins-source-2"
+          ]
+        }
+      ],
+      "extensions": {
+        "state": "host-specific",
+        "namespace": "com.github.copilot"
+      },
+      "officialEvidenceIds": [
+        "github-copilot-plugins-source-1",
+        "github-copilot-plugins-source-2"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "github-copilot-plugins-fact-1",
+          "evidenceIds": [
+            "github-copilot-plugins-source-1",
+            "github-copilot-plugins-source-2"
+          ]
+        },
+        {
+          "factId": "github-copilot-plugins-fact-2",
+          "evidenceIds": [
+            "github-copilot-plugins-source-1",
+            "github-copilot-plugins-source-2"
+          ]
+        },
+        {
+          "factId": "github-copilot-plugins-fact-3",
+          "evidenceIds": [
+            "github-copilot-plugins-source-1",
+            "github-copilot-plugins-source-2"
+          ]
+        },
+        {
+          "factId": "github-copilot-plugins-fact-4",
+          "evidenceIds": [
+            "github-copilot-plugins-source-1",
+            "github-copilot-plugins-source-2"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "notes": [
+        "The recorded client version is from local installed evidence.",
+        "Legacy version label retained separately for projection compatibility: copilot-cli-1.0.67-local."
+      ]
+    },
+    {
+      "id": "openai-plugins",
+      "kind": "host",
+      "lifecycle": "current",
+      "reviewState": "verified",
+      "versions": {
+        "specification": null,
+        "client": null,
+        "service": null
+      },
+      "interfaces": [
+        "native-plugin",
+        "agent-skill"
+      ],
+      "manifests": [
+        {
+          "id": "codex-plugin-manifest",
+          "path": ".codex-plugin/plugin.json",
+          "requirement": "required",
+          "schemaVersion": null
+        },
+        {
+          "id": "codex-marketplace",
+          "path": ".agents/plugins/marketplace.json",
+          "requirement": "host-specific",
+          "schemaVersion": null
+        }
+      ],
+      "components": {
+        "skills": "supported",
+        "mcp": "supported",
+        "hooks": "supported",
+        "scripts": "unknown",
+        "executableExtensions": "supported"
+      },
+      "discoveryRoots": [
+        {
+          "scope": "package",
+          "path": ".codex-plugin/plugin.json",
+          "requirement": "required",
+          "evidenceIds": [
+            "openai-plugins-source-1",
+            "openai-plugins-source-2"
+          ]
+        },
+        {
+          "scope": "marketplace",
+          "path": ".agents/plugins/marketplace.json",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "openai-plugins-source-1",
+            "openai-plugins-source-2"
+          ]
+        }
+      ],
+      "extensions": {
+        "state": "host-specific",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "openai-plugins-source-1",
+        "openai-plugins-source-2"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "openai-plugins-fact-1",
+          "evidenceIds": [
+            "openai-plugins-source-1",
+            "openai-plugins-source-2"
+          ]
+        },
+        {
+          "factId": "openai-plugins-fact-2",
+          "evidenceIds": [
+            "openai-plugins-source-1",
+            "openai-plugins-source-2"
+          ]
+        },
+        {
+          "factId": "openai-plugins-fact-3",
+          "evidenceIds": [
+            "openai-plugins-source-1",
+            "openai-plugins-source-2"
+          ]
+        },
+        {
+          "factId": "openai-plugins-fact-4",
+          "evidenceIds": [
+            "openai-plugins-source-1",
+            "openai-plugins-source-2"
+          ]
+        },
+        {
+          "factId": "openai-plugins-fact-5",
+          "evidenceIds": [
+            "openai-plugins-source-1",
+            "openai-plugins-source-2"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "notes": [
+        "No real Codex client or service version is established by the current evidence.",
+        "Legacy version label retained separately for projection compatibility: current-documentation-2026-08-20."
+      ]
+    },
+    {
+      "id": "claude-code-plugins",
+      "kind": "host",
+      "lifecycle": "current",
+      "reviewState": "verified",
+      "versions": {
+        "specification": null,
+        "client": "2.1.235",
+        "service": null
+      },
+      "interfaces": [
+        "claude-compatible-plugin",
+        "agent-skill",
+        "native-plugin"
+      ],
+      "manifests": [
+        {
+          "id": "claude-plugin-manifest",
+          "path": ".claude-plugin/plugin.json",
+          "requirement": "optional",
+          "schemaVersion": null
+        },
+        {
+          "id": "claude-marketplace",
+          "path": ".claude-plugin/marketplace.json",
+          "requirement": "host-specific",
+          "schemaVersion": null
+        }
+      ],
+      "components": {
+        "skills": "supported",
+        "mcp": "supported",
+        "hooks": "supported",
+        "scripts": "supported",
+        "executableExtensions": "supported"
+      },
+      "discoveryRoots": [
+        {
+          "scope": "package",
+          "path": ".claude-plugin/plugin.json",
+          "requirement": "optional",
+          "evidenceIds": [
+            "claude-code-plugins-source-1",
+            "claude-code-plugins-source-2",
+            "claude-code-plugins-source-3",
+            "claude-code-plugins-source-4"
+          ]
+        },
+        {
+          "scope": "marketplace",
+          "path": ".claude-plugin/marketplace.json",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "claude-code-plugins-source-1",
+            "claude-code-plugins-source-2",
+            "claude-code-plugins-source-3",
+            "claude-code-plugins-source-4"
+          ]
+        }
+      ],
+      "extensions": {
+        "state": "host-specific",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "claude-code-plugins-source-1",
+        "claude-code-plugins-source-2",
+        "claude-code-plugins-source-3",
+        "claude-code-plugins-source-4"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "claude-code-plugins-fact-1",
+          "evidenceIds": [
+            "claude-code-plugins-source-1",
+            "claude-code-plugins-source-2",
+            "claude-code-plugins-source-3",
+            "claude-code-plugins-source-4"
+          ]
+        },
+        {
+          "factId": "claude-code-plugins-fact-2",
+          "evidenceIds": [
+            "claude-code-plugins-source-1",
+            "claude-code-plugins-source-2",
+            "claude-code-plugins-source-3",
+            "claude-code-plugins-source-4"
+          ]
+        },
+        {
+          "factId": "claude-code-plugins-fact-3",
+          "evidenceIds": [
+            "claude-code-plugins-source-1",
+            "claude-code-plugins-source-2",
+            "claude-code-plugins-source-3",
+            "claude-code-plugins-source-4"
+          ]
+        },
+        {
+          "factId": "claude-code-plugins-fact-4",
+          "evidenceIds": [
+            "claude-code-plugins-source-1",
+            "claude-code-plugins-source-2",
+            "claude-code-plugins-source-3",
+            "claude-code-plugins-source-4"
+          ]
+        },
+        {
+          "factId": "claude-code-plugins-fact-5",
+          "evidenceIds": [
+            "claude-code-plugins-source-1",
+            "claude-code-plugins-source-2",
+            "claude-code-plugins-source-3",
+            "claude-code-plugins-source-4"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "notes": [
+        "The recorded client version is from local installed evidence.",
+        "Legacy version label retained separately for projection compatibility: claude-code-2.1.235-local."
+      ]
+    },
+    {
+      "id": "gemini-cli-extensions",
+      "kind": "host",
+      "lifecycle": "current",
+      "reviewState": "incomplete-evidence",
+      "versions": {
+        "specification": null,
+        "client": null,
+        "service": null
+      },
+      "interfaces": [
+        "gemini-extension",
+        "agent-skill",
+        "native-plugin"
+      ],
+      "manifests": [
+        {
+          "id": "gemini-extension-manifest",
+          "path": "gemini-extension.json",
+          "requirement": "required",
+          "schemaVersion": null
+        }
+      ],
+      "components": {
+        "skills": "supported",
+        "mcp": "supported",
+        "hooks": "supported",
+        "scripts": "unknown",
+        "executableExtensions": "supported"
+      },
+      "discoveryRoots": [
+        {
+          "scope": "package",
+          "path": "gemini-extension.json",
+          "requirement": "required",
+          "evidenceIds": [
+            "gemini-cli-extensions-source-1",
+            "gemini-cli-extensions-source-2",
+            "gemini-cli-extensions-source-3"
+          ]
+        },
+        {
+          "scope": "package",
+          "path": "skills/<skill-name>/SKILL.md",
+          "requirement": "optional",
+          "evidenceIds": [
+            "gemini-cli-extensions-source-1",
+            "gemini-cli-extensions-source-2",
+            "gemini-cli-extensions-source-3"
+          ]
+        }
+      ],
+      "extensions": {
+        "state": "host-specific",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "gemini-cli-extensions-source-1",
+        "gemini-cli-extensions-source-2",
+        "gemini-cli-extensions-source-3"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "gemini-cli-extensions-fact-1",
+          "evidenceIds": [
+            "gemini-cli-extensions-source-1",
+            "gemini-cli-extensions-source-2",
+            "gemini-cli-extensions-source-3"
+          ]
+        },
+        {
+          "factId": "gemini-cli-extensions-fact-2",
+          "evidenceIds": [
+            "gemini-cli-extensions-source-1",
+            "gemini-cli-extensions-source-2",
+            "gemini-cli-extensions-source-3"
+          ]
+        },
+        {
+          "factId": "gemini-cli-extensions-fact-3",
+          "evidenceIds": [
+            "gemini-cli-extensions-source-1",
+            "gemini-cli-extensions-source-2",
+            "gemini-cli-extensions-source-3"
+          ]
+        },
+        {
+          "factId": "gemini-cli-extensions-fact-4",
+          "evidenceIds": [
+            "gemini-cli-extensions-source-1",
+            "gemini-cli-extensions-source-2",
+            "gemini-cli-extensions-source-3"
+          ]
+        },
+        {
+          "factId": "gemini-cli-extensions-fact-5",
+          "evidenceIds": [
+            "gemini-cli-extensions-source-1",
+            "gemini-cli-extensions-source-2",
+            "gemini-cli-extensions-source-3"
+          ]
+        }
+      ],
+      "conflicts": [
+        "The local Gemini CLI version and validator result remain unrecorded because the installed command failed while saving its project registry."
+      ],
+      "notes": [
+        "Existing fixture discovery evidence does not establish universal support or a current client version.",
+        "Legacy version label retained separately for projection compatibility: current-documentation-2026-08-20."
+      ]
+    },
+    {
+      "id": "cursor-plugins",
+      "kind": "host",
+      "lifecycle": "current",
+      "reviewState": "verified",
+      "versions": {
+        "specification": null,
+        "client": null,
+        "service": null
+      },
+      "interfaces": [
+        "agent-plugin-package",
+        "native-plugin"
+      ],
+      "manifests": [
+        {
+          "id": "plugin-manifest",
+          "path": "plugin.json",
+          "requirement": "required",
+          "schemaVersion": "1.0.0"
+        },
+        {
+          "id": "cursor-marketplace",
+          "path": ".cursor-plugin/marketplace.json",
+          "requirement": "host-specific",
+          "schemaVersion": null
+        }
+      ],
+      "components": {
+        "skills": "supported",
+        "mcp": "supported",
+        "hooks": "supported",
+        "scripts": "unknown",
+        "executableExtensions": "supported"
+      },
+      "discoveryRoots": [
+        {
+          "scope": "package",
+          "path": "plugin.json",
+          "requirement": "required",
+          "evidenceIds": [
+            "cursor-plugins-source-1",
+            "cursor-plugins-source-2"
+          ]
+        },
+        {
+          "scope": "marketplace",
+          "path": ".cursor-plugin/marketplace.json",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "cursor-plugins-source-1",
+            "cursor-plugins-source-2"
+          ]
+        }
+      ],
+      "extensions": {
+        "state": "host-specific",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "cursor-plugins-source-1",
+        "cursor-plugins-source-2"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "cursor-plugins-fact-1",
+          "evidenceIds": [
+            "cursor-plugins-source-1",
+            "cursor-plugins-source-2"
+          ]
+        },
+        {
+          "factId": "cursor-plugins-fact-2",
+          "evidenceIds": [
+            "cursor-plugins-source-1",
+            "cursor-plugins-source-2"
+          ]
+        },
+        {
+          "factId": "cursor-plugins-fact-3",
+          "evidenceIds": [
+            "cursor-plugins-source-1",
+            "cursor-plugins-source-2"
+          ]
+        },
+        {
+          "factId": "cursor-plugins-fact-4",
+          "evidenceIds": [
+            "cursor-plugins-source-1",
+            "cursor-plugins-source-2"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "notes": [
+        "No real Cursor client or service version is established by the current evidence.",
+        "Legacy version label retained separately for projection compatibility: current-documentation-2026-08-20."
+      ]
+    },
+    {
+      "id": "kiro-powers",
+      "kind": "host",
+      "lifecycle": "current",
+      "reviewState": "verified",
+      "versions": {
+        "specification": null,
+        "client": null,
+        "service": null
+      },
+      "interfaces": [
+        "agent-plugin-package",
+        "native-plugin"
+      ],
+      "manifests": [
+        {
+          "id": "plugin-manifest",
+          "path": "plugin.json",
+          "requirement": "required",
+          "schemaVersion": "1.0.0"
+        },
+        {
+          "id": "mcp-configuration",
+          "path": "mcp.json",
+          "requirement": "optional",
+          "schemaVersion": "1.0.0"
+        }
+      ],
+      "components": {
+        "skills": "optional",
+        "mcp": "optional",
+        "hooks": "unknown",
+        "scripts": "unknown",
+        "executableExtensions": "supported"
+      },
+      "discoveryRoots": [
+        {
+          "scope": "package",
+          "path": "plugin.json",
+          "requirement": "required",
+          "evidenceIds": [
+            "kiro-powers-source-1",
+            "kiro-powers-source-2",
+            "kiro-powers-source-3"
+          ]
+        }
+      ],
+      "extensions": {
+        "state": "host-specific",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "kiro-powers-source-1",
+        "kiro-powers-source-2",
+        "kiro-powers-source-3"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "kiro-powers-fact-1",
+          "evidenceIds": [
+            "kiro-powers-source-1",
+            "kiro-powers-source-2",
+            "kiro-powers-source-3"
+          ]
+        },
+        {
+          "factId": "kiro-powers-fact-2",
+          "evidenceIds": [
+            "kiro-powers-source-1",
+            "kiro-powers-source-2",
+            "kiro-powers-source-3"
+          ]
+        },
+        {
+          "factId": "kiro-powers-fact-3",
+          "evidenceIds": [
+            "kiro-powers-source-1",
+            "kiro-powers-source-2",
+            "kiro-powers-source-3"
+          ]
+        },
+        {
+          "factId": "kiro-powers-fact-4",
+          "evidenceIds": [
+            "kiro-powers-source-1",
+            "kiro-powers-source-2",
+            "kiro-powers-source-3"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "notes": [
+        "No real Kiro client or service version is established by the current evidence.",
+        "Legacy version label retained separately for projection compatibility: current-documentation-2026-08-20."
+      ]
+    },
+    {
+      "id": "hermes-agent-plugins",
+      "kind": "host",
+      "lifecycle": "current",
+      "reviewState": "verified",
+      "versions": {
+        "specification": "1.0.0",
+        "client": null,
+        "service": null
+      },
+      "interfaces": [
+        "agent-plugin-package"
+      ],
+      "manifests": [
+        {
+          "id": "plugin-manifest",
+          "path": "plugin.json",
+          "requirement": "required",
+          "schemaVersion": "1.0.0"
+        }
+      ],
+      "components": {
+        "skills": "supported",
+        "mcp": "supported",
+        "hooks": "unsupported",
+        "scripts": "unsupported",
+        "executableExtensions": "supported"
+      },
+      "discoveryRoots": [
+        {
+          "scope": "package",
+          "path": "plugin.json",
+          "requirement": "required",
+          "evidenceIds": [
+            "hermes-agent-plugins-source-1"
+          ]
+        }
+      ],
+      "extensions": {
+        "state": "host-specific",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "hermes-agent-plugins-source-1"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "hermes-agent-plugins-fact-1",
+          "evidenceIds": [
+            "hermes-agent-plugins-source-1"
+          ]
+        },
+        {
+          "factId": "hermes-agent-plugins-fact-2",
+          "evidenceIds": [
+            "hermes-agent-plugins-source-1"
+          ]
+        },
+        {
+          "factId": "hermes-agent-plugins-fact-3",
+          "evidenceIds": [
+            "hermes-agent-plugins-source-1"
+          ]
+        },
+        {
+          "factId": "hermes-agent-plugins-fact-4",
+          "evidenceIds": [
+            "hermes-agent-plugins-source-1"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "notes": [
+        "The 1.0.0 value describes the consumed Agent Plugins specification, not a Hermes client version.",
+        "Legacy version label retained separately for projection compatibility: agent-plugins-1.0.0-adapter."
+      ]
+    },
+    {
+      "id": "openclaw-bundles",
+      "kind": "host",
+      "lifecycle": "current",
+      "reviewState": "verified",
+      "versions": {
+        "specification": "1.0.0",
+        "client": null,
+        "service": null
+      },
+      "interfaces": [
+        "agent-plugin-package"
+      ],
+      "manifests": [
+        {
+          "id": "plugin-manifest",
+          "path": "plugin.json",
+          "requirement": "required",
+          "schemaVersion": "1.0.0"
+        }
+      ],
+      "components": {
+        "skills": "supported",
+        "mcp": "supported",
+        "hooks": "unsupported",
+        "scripts": "unsupported",
+        "executableExtensions": "supported"
+      },
+      "discoveryRoots": [
+        {
+          "scope": "package",
+          "path": "plugin.json",
+          "requirement": "required",
+          "evidenceIds": [
+            "openclaw-bundles-source-1"
+          ]
+        }
+      ],
+      "extensions": {
+        "state": "host-specific",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "openclaw-bundles-source-1"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "openclaw-bundles-fact-1",
+          "evidenceIds": [
+            "openclaw-bundles-source-1"
+          ]
+        },
+        {
+          "factId": "openclaw-bundles-fact-2",
+          "evidenceIds": [
+            "openclaw-bundles-source-1"
+          ]
+        },
+        {
+          "factId": "openclaw-bundles-fact-3",
+          "evidenceIds": [
+            "openclaw-bundles-source-1"
+          ]
+        },
+        {
+          "factId": "openclaw-bundles-fact-4",
+          "evidenceIds": [
+            "openclaw-bundles-source-1"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "notes": [
+        "The 1.0.0 value describes the consumed Agent Plugins specification, not an OpenClaw client version.",
+        "Legacy version label retained separately for projection compatibility: agent-plugins-1.0.0-adapter."
+      ]
+    },
+    {
+      "id": "grok-build-skills",
+      "kind": "host",
+      "lifecycle": "current",
+      "reviewState": "verified-with-conflicts",
+      "versions": {
+        "specification": null,
+        "client": null,
+        "service": null
+      },
+      "interfaces": [
+        "agent-skill",
+        "claude-compatible-plugin"
+      ],
+      "manifests": [
+        {
+          "id": "skill-manifest",
+          "path": "SKILL.md",
+          "requirement": "required",
+          "schemaVersion": null
+        },
+        {
+          "id": "claude-marketplace",
+          "path": ".claude-plugin/marketplace.json",
+          "requirement": "host-specific",
+          "schemaVersion": null
+        }
+      ],
+      "components": {
+        "skills": "required",
+        "mcp": "supported",
+        "hooks": "supported",
+        "scripts": "unknown",
+        "executableExtensions": "supported"
+      },
+      "discoveryRoots": [
+        {
+          "scope": "project",
+          "path": ".grok/skills/<skill-name>/SKILL.md",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "grok-build-skills-source-1",
+            "grok-build-skills-source-2"
+          ]
+        },
+        {
+          "scope": "marketplace",
+          "path": ".claude-plugin/marketplace.json",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "grok-build-skills-source-1",
+            "grok-build-skills-source-2"
+          ]
+        }
+      ],
+      "extensions": {
+        "state": "host-specific",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "grok-build-skills-source-1",
+        "grok-build-skills-source-2"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "grok-build-skills-fact-1",
+          "evidenceIds": [
+            "grok-build-skills-source-1",
+            "grok-build-skills-source-2"
+          ]
+        },
+        {
+          "factId": "grok-build-skills-fact-2",
+          "evidenceIds": [
+            "grok-build-skills-source-1",
+            "grok-build-skills-source-2"
+          ]
+        },
+        {
+          "factId": "grok-build-skills-fact-3",
+          "evidenceIds": [
+            "grok-build-skills-source-1",
+            "grok-build-skills-source-2"
+          ]
+        },
+        {
+          "factId": "grok-build-skills-fact-4",
+          "evidenceIds": [
+            "grok-build-skills-source-1",
+            "grok-build-skills-source-2"
+          ]
+        }
+      ],
+      "conflicts": [
+        "Legacy facts describe native .grok/skills output while the current artifact matrix reuses the Claude-compatible marketplace output."
+      ],
+      "notes": [
+        "The generated compatibility record remains fixture-only and is not a support claim.",
+        "Legacy version label retained separately for projection compatibility: current-documentation-2026-08-22."
+      ]
+    },
+    {
+      "id": "grok-bot-plugins",
+      "kind": "host",
+      "lifecycle": "current",
+      "reviewState": "incomplete-evidence",
+      "versions": {
+        "specification": "1.0.0",
+        "client": null,
+        "service": null
+      },
+      "interfaces": [
+        "agent-plugin-package"
+      ],
+      "manifests": [
+        {
+          "id": "plugin-manifest",
+          "path": "plugin.json",
+          "requirement": "required",
+          "schemaVersion": "1.0.0"
+        }
+      ],
+      "components": {
+        "skills": "supported",
+        "mcp": "supported",
+        "hooks": "unknown",
+        "scripts": "unknown",
+        "executableExtensions": "unknown"
+      },
+      "discoveryRoots": [
+        {
+          "scope": "package",
+          "path": "plugin.json",
+          "requirement": "required",
+          "evidenceIds": [
+            "grok-bot-plugins-source-1",
+            "grok-bot-plugins-source-2"
+          ]
+        }
+      ],
+      "extensions": {
+        "state": "unknown",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "grok-bot-plugins-source-1",
+        "grok-bot-plugins-source-2"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "grok-bot-plugins-fact-1",
+          "evidenceIds": [
+            "grok-bot-plugins-source-1",
+            "grok-bot-plugins-source-2"
+          ]
+        },
+        {
+          "factId": "grok-bot-plugins-fact-2",
+          "evidenceIds": [
+            "grok-bot-plugins-source-1",
+            "grok-bot-plugins-source-2"
+          ]
+        },
+        {
+          "factId": "grok-bot-plugins-fact-3",
+          "evidenceIds": [
+            "grok-bot-plugins-source-1",
+            "grok-bot-plugins-source-2"
+          ]
+        }
+      ],
+      "conflicts": [
+        "Official Grok Bot evidence does not document repository manifest paths, update semantics, or project discovery."
+      ],
+      "notes": [
+        "The 1.0.0 value describes compatible package input, not a Grok Bot service version.",
+        "Legacy version label retained separately for projection compatibility: current-documentation-2026-08-20."
+      ]
+    },
+    {
+      "id": "nanoclaw-templates",
+      "kind": "host",
+      "lifecycle": "current",
+      "reviewState": "verified",
+      "versions": {
+        "specification": "1.0.0",
+        "client": null,
+        "service": null
+      },
+      "interfaces": [
+        "agent-plugin-package"
+      ],
+      "manifests": [
+        {
+          "id": "plugin-manifest",
+          "path": "plugin.json",
+          "requirement": "required",
+          "schemaVersion": "1.0.0"
+        }
+      ],
+      "components": {
+        "skills": "supported",
+        "mcp": "supported",
+        "hooks": "unknown",
+        "scripts": "unknown",
+        "executableExtensions": "supported"
+      },
+      "discoveryRoots": [
+        {
+          "scope": "package",
+          "path": "plugin.json",
+          "requirement": "required",
+          "evidenceIds": [
+            "nanoclaw-templates-source-1"
+          ]
+        }
+      ],
+      "extensions": {
+        "state": "host-specific",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "nanoclaw-templates-source-1"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "nanoclaw-templates-fact-1",
+          "evidenceIds": [
+            "nanoclaw-templates-source-1"
+          ]
+        },
+        {
+          "factId": "nanoclaw-templates-fact-2",
+          "evidenceIds": [
+            "nanoclaw-templates-source-1"
+          ]
+        },
+        {
+          "factId": "nanoclaw-templates-fact-3",
+          "evidenceIds": [
+            "nanoclaw-templates-source-1"
+          ]
+        },
+        {
+          "factId": "nanoclaw-templates-fact-4",
+          "evidenceIds": [
+            "nanoclaw-templates-source-1"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "notes": [
+        "The 1.0.0 value describes template input, not a NanoClaw client version.",
+        "Legacy version label retained separately for projection compatibility: agent-plugins-1.0.0-templates."
+      ]
+    },
+    {
+      "id": "pi-packages",
+      "kind": "package-ecosystem",
+      "lifecycle": "local-only",
+      "reviewState": "local-only",
+      "versions": {
+        "specification": null,
+        "client": "0.84.2",
+        "service": null
+      },
+      "interfaces": [
+        "pi-package",
+        "agent-skill"
+      ],
+      "manifests": [
+        {
+          "id": "npm-package-manifest",
+          "path": "package.json",
+          "requirement": "required",
+          "schemaVersion": null
+        }
+      ],
+      "components": {
+        "skills": "supported",
+        "mcp": "unsupported",
+        "hooks": "unknown",
+        "scripts": "supported",
+        "executableExtensions": "supported"
+      },
+      "discoveryRoots": [
+        {
+          "scope": "package",
+          "path": "package.json",
+          "requirement": "required",
+          "evidenceIds": [
+            "pi-packages-source-1",
+            "pi-packages-source-2",
+            "pi-packages-source-3"
+          ]
+        },
+        {
+          "scope": "package",
+          "path": "skills/<skill-name>/SKILL.md",
+          "requirement": "optional",
+          "evidenceIds": [
+            "pi-packages-source-1",
+            "pi-packages-source-2",
+            "pi-packages-source-3"
+          ]
+        }
+      ],
+      "extensions": {
+        "state": "host-specific",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "pi-packages-source-1",
+        "pi-packages-source-2",
+        "pi-packages-source-3"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "pi-packages-fact-1",
+          "evidenceIds": [
+            "pi-packages-source-1",
+            "pi-packages-source-2",
+            "pi-packages-source-3"
+          ]
+        },
+        {
+          "factId": "pi-packages-fact-2",
+          "evidenceIds": [
+            "pi-packages-source-1",
+            "pi-packages-source-2",
+            "pi-packages-source-3"
+          ]
+        },
+        {
+          "factId": "pi-packages-fact-3",
+          "evidenceIds": [
+            "pi-packages-source-1",
+            "pi-packages-source-2",
+            "pi-packages-source-3"
+          ]
+        },
+        {
+          "factId": "pi-packages-fact-4",
+          "evidenceIds": [
+            "pi-packages-source-1",
+            "pi-packages-source-2",
+            "pi-packages-source-3"
+          ]
+        },
+        {
+          "factId": "pi-packages-fact-5",
+          "evidenceIds": [
+            "pi-packages-source-1",
+            "pi-packages-source-2",
+            "pi-packages-source-3"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "notes": [
+        "The client version is established only by installed documentation and local evidence.",
+        "Legacy version label retained separately for projection compatibility: 0.84.2-installed-and-latest."
+      ]
+    },
+    {
+      "id": "junie-extensions",
+      "kind": "host",
+      "lifecycle": "provisional",
+      "reviewState": "verified-with-conflicts",
+      "versions": {
+        "specification": null,
+        "client": null,
+        "service": null
+      },
+      "interfaces": [
+        "native-plugin",
+        "agent-skill",
+        "claude-compatible-plugin"
+      ],
+      "manifests": [
+        {
+          "id": "junie-extension-manifest",
+          "path": "extension.json",
+          "requirement": "host-specific",
+          "schemaVersion": null
+        },
+        {
+          "id": "claude-marketplace",
+          "path": ".claude-plugin/marketplace.json",
+          "requirement": "host-specific",
+          "schemaVersion": null
+        }
+      ],
+      "components": {
+        "skills": "supported",
+        "mcp": "supported",
+        "hooks": "unknown",
+        "scripts": "unknown",
+        "executableExtensions": "supported"
+      },
+      "discoveryRoots": [
+        {
+          "scope": "package",
+          "path": "extensions/<name>/extension.json",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "junie-extensions-source-1"
+          ]
+        },
+        {
+          "scope": "marketplace",
+          "path": ".claude-plugin/marketplace.json",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "junie-extensions-source-1"
+          ]
+        }
+      ],
+      "extensions": {
+        "state": "host-specific",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "junie-extensions-source-1"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "junie-extensions-fact-1",
+          "evidenceIds": [
+            "junie-extensions-source-1"
+          ]
+        },
+        {
+          "factId": "junie-extensions-fact-2",
+          "evidenceIds": [
+            "junie-extensions-source-1"
+          ]
+        },
+        {
+          "factId": "junie-extensions-fact-3",
+          "evidenceIds": [
+            "junie-extensions-source-1"
+          ]
+        }
+      ],
+      "conflicts": [
+        "Legacy official-repository evidence documents extension.json and no general third-party lifecycle, while the current marketplace requirement claims a Claude-compatible lifecycle."
+      ],
+      "notes": [
+        "Junie remains provisional in the legacy registry; generated fixture coverage must not be read as support.",
+        "Legacy version label retained separately for projection compatibility: official-repository-2026-08-20."
+      ]
+    },
+    {
+      "id": "opencode-skills",
+      "kind": "host",
+      "lifecycle": "current",
+      "reviewState": "verified",
+      "versions": {
+        "specification": null,
+        "client": null,
+        "service": null
+      },
+      "interfaces": [
+        "agent-skill",
+        "native-plugin"
+      ],
+      "manifests": [
+        {
+          "id": "skill-manifest",
+          "path": "SKILL.md",
+          "requirement": "required",
+          "schemaVersion": null
+        }
+      ],
+      "components": {
+        "skills": "supported",
+        "mcp": "supported",
+        "hooks": "supported",
+        "scripts": "unknown",
+        "executableExtensions": "supported"
+      },
+      "discoveryRoots": [
+        {
+          "scope": "project",
+          "path": ".agents/skills/<skill-name>/SKILL.md",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "opencode-skills-source-1",
+            "opencode-skills-source-2",
+            "opencode-skills-source-3"
+          ]
+        },
+        {
+          "scope": "user",
+          "path": "~/.agents/skills/<skill-name>/SKILL.md",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "opencode-skills-source-1",
+            "opencode-skills-source-2",
+            "opencode-skills-source-3"
+          ]
+        }
+      ],
+      "extensions": {
+        "state": "host-specific",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "opencode-skills-source-1",
+        "opencode-skills-source-2",
+        "opencode-skills-source-3"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "opencode-skills-fact-1",
+          "evidenceIds": [
+            "opencode-skills-source-1",
+            "opencode-skills-source-2",
+            "opencode-skills-source-3"
+          ]
+        },
+        {
+          "factId": "opencode-skills-fact-2",
+          "evidenceIds": [
+            "opencode-skills-source-1",
+            "opencode-skills-source-2",
+            "opencode-skills-source-3"
+          ]
+        },
+        {
+          "factId": "opencode-skills-fact-3",
+          "evidenceIds": [
+            "opencode-skills-source-1",
+            "opencode-skills-source-2",
+            "opencode-skills-source-3"
+          ]
+        },
+        {
+          "factId": "opencode-skills-fact-4",
+          "evidenceIds": [
+            "opencode-skills-source-1",
+            "opencode-skills-source-2",
+            "opencode-skills-source-3"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "notes": [
+        "No root Agent Plugins installation mechanism is established by current evidence.",
+        "Legacy version label retained separately for projection compatibility: current-documentation-2026-08-20."
+      ]
+    },
+    {
+      "id": "zed-skills",
+      "kind": "host",
+      "lifecycle": "current",
+      "reviewState": "verified-with-conflicts",
+      "versions": {
+        "specification": null,
+        "client": null,
+        "service": null
+      },
+      "interfaces": [
+        "agent-skill"
+      ],
+      "manifests": [
+        {
+          "id": "skill-manifest",
+          "path": "SKILL.md",
+          "requirement": "required",
+          "schemaVersion": null
+        }
+      ],
+      "components": {
+        "skills": "supported",
+        "mcp": "unknown",
+        "hooks": "unknown",
+        "scripts": "optional",
+        "executableExtensions": "unknown"
+      },
+      "discoveryRoots": [
+        {
+          "scope": "project",
+          "path": ".agents/skills/<skill-name>/SKILL.md",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "zed-skills-source-1",
+            "zed-skills-source-2"
+          ]
+        },
+        {
+          "scope": "user",
+          "path": "~/.agents/skills/<skill-name>/SKILL.md",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "zed-skills-source-1",
+            "zed-skills-source-2"
+          ]
+        }
+      ],
+      "extensions": {
+        "state": "unsupported",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "zed-skills-source-1",
+        "zed-skills-source-2"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "zed-skills-fact-1",
+          "evidenceIds": [
+            "zed-skills-source-1",
+            "zed-skills-source-2"
+          ]
+        },
+        {
+          "factId": "zed-skills-fact-2",
+          "evidenceIds": [
+            "zed-skills-source-1",
+            "zed-skills-source-2"
+          ]
+        },
+        {
+          "factId": "zed-skills-fact-3",
+          "evidenceIds": [
+            "zed-skills-source-1",
+            "zed-skills-source-2"
+          ]
+        },
+        {
+          "factId": "zed-skills-fact-4",
+          "evidenceIds": [
+            "zed-skills-source-1",
+            "zed-skills-source-2"
+          ]
+        }
+      ],
+      "conflicts": [
+        "The current gh skill install target list does not include Zed."
+      ],
+      "notes": [
+        "Compatible source placement is recorded without a generated adapter.",
+        "Legacy version label retained separately for projection compatibility: current-documentation-2026-08-20."
+      ]
+    },
+    {
+      "id": "deepseek-deepcode-skills",
+      "kind": "host",
+      "lifecycle": "current",
+      "reviewState": "verified",
+      "versions": {
+        "specification": null,
+        "client": null,
+        "service": null
+      },
+      "interfaces": [
+        "agent-skill"
+      ],
+      "manifests": [
+        {
+          "id": "skill-manifest",
+          "path": "SKILL.md",
+          "requirement": "required",
+          "schemaVersion": null
+        }
+      ],
+      "components": {
+        "skills": "required",
+        "mcp": "unknown",
+        "hooks": "unknown",
+        "scripts": "optional",
+        "executableExtensions": "unknown"
+      },
+      "discoveryRoots": [
+        {
+          "scope": "project",
+          "path": ".deepcode/skills/<skill-name>/SKILL.md",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "deepseek-deepcode-skills-source-1"
+          ]
+        },
+        {
+          "scope": "user",
+          "path": "~/.agents/skills/<skill-name>/SKILL.md",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "deepseek-deepcode-skills-source-1"
+          ]
+        }
+      ],
+      "extensions": {
+        "state": "unsupported",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "deepseek-deepcode-skills-source-1"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "deepseek-deepcode-skills-fact-1",
+          "evidenceIds": [
+            "deepseek-deepcode-skills-source-1"
+          ]
+        },
+        {
+          "factId": "deepseek-deepcode-skills-fact-2",
+          "evidenceIds": [
+            "deepseek-deepcode-skills-source-1"
+          ]
+        },
+        {
+          "factId": "deepseek-deepcode-skills-fact-3",
+          "evidenceIds": [
+            "deepseek-deepcode-skills-source-1"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "notes": [
+        "No real Deep Code client version is established by the current evidence.",
+        "Legacy version label retained separately for projection compatibility: current-documentation-2026-08-24."
+      ]
+    },
+    {
+      "id": "deepseek-harness-skills",
+      "kind": "host",
+      "lifecycle": "preview",
+      "reviewState": "incomplete-evidence",
+      "versions": {
+        "specification": null,
+        "client": null,
+        "service": null
+      },
+      "interfaces": [
+        "agent-skill"
+      ],
+      "manifests": [
+        {
+          "id": "skill-manifest",
+          "path": "SKILL.md",
+          "requirement": "required",
+          "schemaVersion": null
+        }
+      ],
+      "components": {
+        "skills": "required",
+        "mcp": "unknown",
+        "hooks": "unknown",
+        "scripts": "optional",
+        "executableExtensions": "unknown"
+      },
+      "discoveryRoots": [
+        {
+          "scope": "project",
+          "path": ".dsh/skills/<skill-name>/SKILL.md",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "deepseek-harness-skills-source-1",
+            "deepseek-harness-skills-source-2",
+            "deepseek-harness-skills-source-3"
+          ]
+        },
+        {
+          "scope": "project",
+          "path": ".agents/skills/<skill-name>/SKILL.md",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "deepseek-harness-skills-source-1",
+            "deepseek-harness-skills-source-2",
+            "deepseek-harness-skills-source-3"
+          ]
+        }
+      ],
+      "extensions": {
+        "state": "unsupported",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "deepseek-harness-skills-source-1",
+        "deepseek-harness-skills-source-2",
+        "deepseek-harness-skills-source-3"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "deepseek-harness-skills-fact-1",
+          "evidenceIds": [
+            "deepseek-harness-skills-source-1",
+            "deepseek-harness-skills-source-2",
+            "deepseek-harness-skills-source-3"
+          ]
+        },
+        {
+          "factId": "deepseek-harness-skills-fact-2",
+          "evidenceIds": [
+            "deepseek-harness-skills-source-1",
+            "deepseek-harness-skills-source-2",
+            "deepseek-harness-skills-source-3"
+          ]
+        },
+        {
+          "factId": "deepseek-harness-skills-fact-3",
+          "evidenceIds": [
+            "deepseek-harness-skills-source-1",
+            "deepseek-harness-skills-source-2",
+            "deepseek-harness-skills-source-3"
+          ]
+        },
+        {
+          "factId": "deepseek-harness-skills-fact-4",
+          "evidenceIds": [
+            "deepseek-harness-skills-source-1",
+            "deepseek-harness-skills-source-2",
+            "deepseek-harness-skills-source-3"
+          ]
+        }
+      ],
+      "conflicts": [
+        "DeepSeek Harness is developer preview and explicitly warns of compatibility-breaking changes; gh skill does not list it as an install target."
+      ],
+      "notes": [
+        "No real harness client version is established by the current evidence.",
+        "Legacy version label retained separately for projection compatibility: developer-preview-2026-08-20."
+      ]
+    },
+    {
+      "id": "deepseek-model-integrations",
+      "kind": "provider",
+      "lifecycle": "current",
+      "reviewState": "verified",
+      "versions": {
+        "specification": null,
+        "client": null,
+        "service": null
+      },
+      "interfaces": [
+        "model-provider"
+      ],
+      "manifests": [],
+      "components": {
+        "skills": "unsupported",
+        "mcp": "unsupported",
+        "hooks": "unknown",
+        "scripts": "unknown",
+        "executableExtensions": "unknown"
+      },
+      "discoveryRoots": [],
+      "extensions": {
+        "state": "unsupported",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "deepseek-model-integrations-source-1",
+        "deepseek-model-integrations-source-2"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "deepseek-model-integrations-fact-1",
+          "evidenceIds": [
+            "deepseek-model-integrations-source-1",
+            "deepseek-model-integrations-source-2"
+          ]
+        },
+        {
+          "factId": "deepseek-model-integrations-fact-2",
+          "evidenceIds": [
+            "deepseek-model-integrations-source-1",
+            "deepseek-model-integrations-source-2"
+          ]
+        },
+        {
+          "factId": "deepseek-model-integrations-fact-3",
+          "evidenceIds": [
+            "deepseek-model-integrations-source-1",
+            "deepseek-model-integrations-source-2"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "notes": [
+        "Provider selection inherits harness artifacts and does not create a distinct output.",
+        "Legacy version label retained separately for projection compatibility: current-documentation-2026-08-22."
+      ]
+    },
+    {
+      "id": "npm-cratis-scope",
+      "kind": "registry",
+      "lifecycle": "current",
+      "reviewState": "incomplete-evidence",
+      "versions": {
+        "specification": null,
+        "client": null,
+        "service": null
+      },
+      "interfaces": [
+        "npm-registry"
+      ],
+      "manifests": [
+        {
+          "id": "npm-package-manifest",
+          "path": "package.json",
+          "requirement": "required",
+          "schemaVersion": null
+        }
+      ],
+      "components": {
+        "skills": "unknown",
+        "mcp": "unknown",
+        "hooks": "unknown",
+        "scripts": "unknown",
+        "executableExtensions": "unknown"
+      },
+      "discoveryRoots": [
+        {
+          "scope": "service",
+          "path": "@cratis/<package>",
+          "requirement": "host-specific",
+          "evidenceIds": [
+            "npm-cratis-scope-source-1",
+            "npm-cratis-scope-source-2",
+            "npm-cratis-scope-source-3",
+            "npm-cratis-scope-source-4",
+            "npm-cratis-scope-source-5",
+            "npm-cratis-scope-source-6"
+          ]
+        }
+      ],
+      "extensions": {
+        "state": "unsupported",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "npm-cratis-scope-source-1",
+        "npm-cratis-scope-source-2",
+        "npm-cratis-scope-source-3",
+        "npm-cratis-scope-source-4",
+        "npm-cratis-scope-source-5",
+        "npm-cratis-scope-source-6"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "npm-cratis-scope-fact-1",
+          "evidenceIds": [
+            "npm-cratis-scope-source-1",
+            "npm-cratis-scope-source-2",
+            "npm-cratis-scope-source-3",
+            "npm-cratis-scope-source-4",
+            "npm-cratis-scope-source-5",
+            "npm-cratis-scope-source-6"
+          ]
+        },
+        {
+          "factId": "npm-cratis-scope-fact-2",
+          "evidenceIds": [
+            "npm-cratis-scope-source-1",
+            "npm-cratis-scope-source-2",
+            "npm-cratis-scope-source-3",
+            "npm-cratis-scope-source-4",
+            "npm-cratis-scope-source-5",
+            "npm-cratis-scope-source-6"
+          ]
+        },
+        {
+          "factId": "npm-cratis-scope-fact-3",
+          "evidenceIds": [
+            "npm-cratis-scope-source-1",
+            "npm-cratis-scope-source-2",
+            "npm-cratis-scope-source-3",
+            "npm-cratis-scope-source-4",
+            "npm-cratis-scope-source-5",
+            "npm-cratis-scope-source-6"
+          ]
+        },
+        {
+          "factId": "npm-cratis-scope-fact-4",
+          "evidenceIds": [
+            "npm-cratis-scope-source-1",
+            "npm-cratis-scope-source-2",
+            "npm-cratis-scope-source-3",
+            "npm-cratis-scope-source-4",
+            "npm-cratis-scope-source-5",
+            "npm-cratis-scope-source-6"
+          ]
+        }
+      ],
+      "conflicts": [
+        "Authentication, organization membership, package creation rights, and trusted-publisher configuration were not verified."
+      ],
+      "notes": [
+        "Registry observation is publication-only and does not establish a generated artifact output.",
+        "Legacy version label retained separately for projection compatibility: registry-state-2026-08-20."
+      ]
+    },
+    {
+      "id": "npm-trusted-publishing",
+      "kind": "publication-service",
+      "lifecycle": "current",
+      "reviewState": "verified-with-conflicts",
+      "versions": {
+        "specification": null,
+        "client": "10.9.2",
+        "service": null
+      },
+      "interfaces": [
+        "npm-trusted-publication"
+      ],
+      "manifests": [
+        {
+          "id": "npm-package-manifest",
+          "path": "package.json",
+          "requirement": "required",
+          "schemaVersion": null
+        }
+      ],
+      "components": {
+        "skills": "unknown",
+        "mcp": "unknown",
+        "hooks": "unknown",
+        "scripts": "unknown",
+        "executableExtensions": "unknown"
+      },
+      "discoveryRoots": [
+        {
+          "scope": "service",
+          "path": "package.json",
+          "requirement": "required",
+          "evidenceIds": [
+            "npm-trusted-publishing-source-1",
+            "npm-trusted-publishing-source-2"
+          ]
+        }
+      ],
+      "extensions": {
+        "state": "unsupported",
+        "namespace": null
+      },
+      "officialEvidenceIds": [
+        "npm-trusted-publishing-source-1",
+        "npm-trusted-publishing-source-2"
+      ],
+      "legacyFactBindings": [
+        {
+          "factId": "npm-trusted-publishing-fact-1",
+          "evidenceIds": [
+            "npm-trusted-publishing-source-1",
+            "npm-trusted-publishing-source-2"
+          ]
+        },
+        {
+          "factId": "npm-trusted-publishing-fact-2",
+          "evidenceIds": [
+            "npm-trusted-publishing-source-1",
+            "npm-trusted-publishing-source-2"
+          ]
+        },
+        {
+          "factId": "npm-trusted-publishing-fact-3",
+          "evidenceIds": [
+            "npm-trusted-publishing-source-1",
+            "npm-trusted-publishing-source-2"
+          ]
+        },
+        {
+          "factId": "npm-trusted-publishing-fact-4",
+          "evidenceIds": [
+            "npm-trusted-publishing-source-1",
+            "npm-trusted-publishing-source-2"
+          ]
+        },
+        {
+          "factId": "npm-trusted-publishing-fact-5",
+          "evidenceIds": [
+            "npm-trusted-publishing-source-1",
+            "npm-trusted-publishing-source-2"
+          ]
+        }
+      ],
+      "conflicts": [
+        "Local npm 10.9.2 does not satisfy the documented npm 11.5.1 trusted-publishing minimum."
+      ],
+      "notes": [
+        "The recorded client version is local npm; no npm service version is claimed.",
+        "Legacy version label retained separately for projection compatibility: current-documentation-2026-08-20."
+      ]
+    }
+  ]
+}

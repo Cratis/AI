@@ -146,6 +146,7 @@ Run the complete local gate after changing release-relevant content:
 ```bash
 node tooling/harness-registry.mjs
 node tooling/generate-catalog-v2.mjs
+node tooling/generate-ecosystem-artifact-coverage.mjs
 node tooling/generate-human-catalog.mjs
 node tooling/generate-repository-inventory.mjs
 node tooling/validate-catalogs.mjs

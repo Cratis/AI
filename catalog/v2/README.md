@@ -9,6 +9,8 @@ Edit these files directly:
 - `authoring-contracts.json`
 - `bundles.json`
 - `human-catalog.json`
+- `ecosystem-contracts.json`
+- `artifact-assurance-profiles.json`
 - `source-contracts.json`
 - `taxonomy.json`
 - `upstream-companions.json`
@@ -23,6 +25,8 @@ Do not edit these files directly. Run `node tooling/generate-catalog-v2.mjs`:
 - `product-coverage.json`
 - `sources.json`
 - `targets.json`
+
+`ecosystem-artifact-coverage.json` is generated from the authored ecosystem contracts, assurance profiles, and `distribution/ecosystem-artifact-bindings.json`. Run `node tooling/generate-ecosystem-artifact-coverage.mjs`. A coverage record means the ecosystem is accounted for; it is not a support, publication, runtime, or promotion claim.
 
 `repository-inventory.json` is also generated. Run `node tooling/generate-repository-inventory.mjs` after repository files change.
 

@@ -9,7 +9,7 @@
         "https://agentskills.io/specification"
       ],
       "requiredRoots": [
-        "skills/<skill-name>/SKILL.md"
+        "<skill-root>/SKILL.md"
       ],
       "installCommands": [],
       "updateCommands": [],
@@ -28,8 +28,7 @@
         "https://agent-plugins.org/plugin-authors/manifest"
       ],
       "requiredRoots": [
-        "plugin.json",
-        "skills/<skill-name>/SKILL.md"
+        "plugin.json"
       ],
       "installCommands": [
         "Install the generated Agent Plugin through a compatible host marketplace or local plugin flow"
@@ -42,8 +41,8 @@
       ],
       "constraints": [
         "Agent Plugins 1.0 defines the portable package format, not one universal marketplace or permission model.",
-        "plugin.json uses the canonical 1.0.0 schema and fixed skills/ discovery root.",
-        "The portable Cratis package contains passive Agent Skills only; no MCP server, hook, command, executable, or credential content is included.",
+        "Agent Plugins Specification 1.0.0 universally requires only root plugin.json; skills under skills/ and root mcp.json are optional standard components.",
+        "The portable Cratis package chooses to contain passive Agent Skills only; no MCP server, hook, command, executable, or credential content is included.",
         "Copilot, Cursor, Kiro, and VS Code support this portable core, but each host lifecycle is tested and reported separately."
       ]
     },

@@ -1,0 +1,489 @@
+{
+  "schemaVersion": 1,
+  "generatedBy": "tooling/generate-ecosystem-artifact-coverage.mjs",
+  "state": "FIXTURE_ONLY_LOCAL_STAGING",
+  "publicationEligible": false,
+  "promotionEligible": false,
+  "supportPolicy": "Generated coverage records cataloged compatibility and generation state; they are not support claims.",
+  "coverage": [
+    {
+      "bindingId": "agent-plugins-artifact-binding",
+      "ecosystemId": "agent-plugins",
+      "interfaceId": "agent-plugin-package",
+      "requirementId": "agent-plugins-open-standard",
+      "targetId": "portable-agent-plugin",
+      "harnessId": "agent-plugin",
+      "outputRoot": "agent-plugin",
+      "artifactClass": "passive-public-package",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "agent-plugins-source-1",
+        "agent-plugins-source-2",
+        "agent-plugins-source-3"
+      ],
+      "generationState": "fixture-generated",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "agent-skills-artifact-binding",
+      "ecosystemId": "agent-skills",
+      "interfaceId": "agent-skill",
+      "requirementId": "agent-skills-open-standard",
+      "targetId": "canonical-agent-skills",
+      "harnessId": "agent-skills",
+      "outputRoot": "canonical",
+      "artifactClass": "passive-public-package",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "agent-skills-source-1",
+        "agent-skills-source-2"
+      ],
+      "generationState": "fixture-generated",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "claude-code-plugins-artifact-binding",
+      "ecosystemId": "claude-code-plugins",
+      "interfaceId": "claude-compatible-plugin",
+      "requirementId": "claude-code-marketplace",
+      "targetId": "claude-code",
+      "harnessId": "claude",
+      "outputRoot": "claude",
+      "artifactClass": "passive-public-package",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "claude-code-plugins-source-1",
+        "claude-code-plugins-source-2",
+        "claude-code-plugins-source-3",
+        "claude-code-plugins-source-4"
+      ],
+      "generationState": "fixture-generated",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "cursor-plugins-artifact-binding",
+      "ecosystemId": "cursor-plugins",
+      "interfaceId": "agent-plugin-package",
+      "requirementId": "cursor-marketplace",
+      "targetId": "cursor",
+      "harnessId": "cursor",
+      "outputRoot": "cursor",
+      "artifactClass": "passive-public-package",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "cursor-plugins-source-1",
+        "cursor-plugins-source-2"
+      ],
+      "generationState": "fixture-generated",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "deepseek-deepcode-skills-artifact-binding",
+      "ecosystemId": "deepseek-deepcode-skills",
+      "interfaceId": "agent-skill",
+      "requirementId": "deepseek-deepcode-skills",
+      "targetId": "deepseek-deepcode",
+      "harnessId": "deepcode",
+      "outputRoot": "deepcode",
+      "artifactClass": "passive-public-package",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "deepseek-deepcode-skills-source-1"
+      ],
+      "generationState": "fixture-generated",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "deepseek-harness-skills-artifact-binding",
+      "ecosystemId": "deepseek-harness-skills",
+      "interfaceId": "agent-skill",
+      "requirementId": "deepseek-harness-skills",
+      "targetId": "deepseek-harness",
+      "harnessId": "deepseek",
+      "outputRoot": "deepseek",
+      "artifactClass": "passive-public-package",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "deepseek-harness-skills-source-1",
+        "deepseek-harness-skills-source-2",
+        "deepseek-harness-skills-source-3"
+      ],
+      "generationState": "fixture-generated-evidence-incomplete",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "deepseek-model-integrations-artifact-binding",
+      "ecosystemId": "deepseek-model-integrations",
+      "interfaceId": "model-provider",
+      "requirementId": "deepseek-model-provider",
+      "targetId": "deepseek-provider",
+      "harnessId": null,
+      "outputRoot": null,
+      "artifactClass": "provider-compatibility",
+      "strategy": "provider-inherited",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "evidenceIds": [
+        "deepseek-model-integrations-source-1",
+        "deepseek-model-integrations-source-2"
+      ],
+      "generationState": "provider-inherited",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "gemini-cli-extensions-artifact-binding",
+      "ecosystemId": "gemini-cli-extensions",
+      "interfaceId": "gemini-extension",
+      "requirementId": "gemini-cli-extension",
+      "targetId": "gemini-cli",
+      "harnessId": "gemini",
+      "outputRoot": "gemini",
+      "artifactClass": "passive-public-package",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "gemini-cli-extensions-source-1",
+        "gemini-cli-extensions-source-2",
+        "gemini-cli-extensions-source-3"
+      ],
+      "generationState": "fixture-generated-evidence-incomplete",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "github-cli-skills-artifact-binding",
+      "ecosystemId": "github-cli-skills",
+      "interfaceId": "agent-skill",
+      "requirementId": null,
+      "targetId": "canonical-agent-skills",
+      "harnessId": "agent-skills",
+      "outputRoot": "canonical",
+      "artifactClass": "passive-public-package",
+      "strategy": "compatible-source",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "github-cli-skills-source-1",
+        "github-cli-skills-source-2",
+        "github-cli-skills-source-3"
+      ],
+      "generationState": "source-compatible",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "github-copilot-plugins-artifact-binding",
+      "ecosystemId": "github-copilot-plugins",
+      "interfaceId": "agent-plugin-package",
+      "requirementId": "github-copilot-plugin",
+      "targetId": "github-copilot",
+      "harnessId": "copilot",
+      "outputRoot": "copilot",
+      "artifactClass": "passive-public-package",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "github-copilot-plugins-source-1",
+        "github-copilot-plugins-source-2"
+      ],
+      "generationState": "fixture-generated",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "grok-bot-plugins-artifact-binding",
+      "ecosystemId": "grok-bot-plugins",
+      "interfaceId": "agent-plugin-package",
+      "requirementId": null,
+      "targetId": "portable-agent-plugin",
+      "harnessId": "agent-plugin",
+      "outputRoot": "agent-plugin",
+      "artifactClass": "passive-public-package",
+      "strategy": "compatible-source",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "grok-bot-plugins-source-1",
+        "grok-bot-plugins-source-2"
+      ],
+      "generationState": "source-compatible",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "grok-build-skills-artifact-binding",
+      "ecosystemId": "grok-build-skills",
+      "interfaceId": "claude-compatible-plugin",
+      "requirementId": "grok-build-skills",
+      "targetId": "grok-build",
+      "harnessId": "grok",
+      "outputRoot": "grok",
+      "artifactClass": "passive-public-package",
+      "strategy": "shared-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "grok-build-skills-source-1",
+        "grok-build-skills-source-2"
+      ],
+      "generationState": "fixture-generated-evidence-incomplete",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "hermes-agent-plugins-artifact-binding",
+      "ecosystemId": "hermes-agent-plugins",
+      "interfaceId": "agent-plugin-package",
+      "requirementId": null,
+      "targetId": "portable-agent-plugin",
+      "harnessId": "agent-plugin",
+      "outputRoot": "agent-plugin",
+      "artifactClass": "passive-public-package",
+      "strategy": "compatible-source",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "hermes-agent-plugins-source-1"
+      ],
+      "generationState": "source-compatible",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "junie-extensions-artifact-binding",
+      "ecosystemId": "junie-extensions",
+      "interfaceId": "claude-compatible-plugin",
+      "requirementId": "junie-marketplace",
+      "targetId": "junie",
+      "harnessId": "junie",
+      "outputRoot": "junie",
+      "artifactClass": "passive-public-package",
+      "strategy": "shared-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "junie-extensions-source-1"
+      ],
+      "generationState": "fixture-generated-evidence-incomplete",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "kiro-powers-artifact-binding",
+      "ecosystemId": "kiro-powers",
+      "interfaceId": "agent-plugin-package",
+      "requirementId": "kiro-marketplace",
+      "targetId": "kiro",
+      "harnessId": "kiro",
+      "outputRoot": "kiro",
+      "artifactClass": "passive-public-package",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "kiro-powers-source-1",
+        "kiro-powers-source-2",
+        "kiro-powers-source-3"
+      ],
+      "generationState": "fixture-generated",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "mcp-registry-artifact-binding",
+      "ecosystemId": "mcp-registry",
+      "interfaceId": "mcp-registry-publication",
+      "requirementId": null,
+      "targetId": null,
+      "harnessId": null,
+      "outputRoot": null,
+      "artifactClass": "no-artifact",
+      "strategy": "no-output",
+      "assuranceProfileId": "no-artifact-v1",
+      "evidenceIds": [
+        "mcp-registry-source-1",
+        "mcp-registry-source-2",
+        "mcp-registry-source-3",
+        "mcp-registry-source-4",
+        "mcp-registry-source-5",
+        "mcp-registry-source-6"
+      ],
+      "generationState": "no-output",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "model-context-protocol-artifact-binding",
+      "ecosystemId": "model-context-protocol",
+      "interfaceId": "mcp-protocol",
+      "requirementId": null,
+      "targetId": null,
+      "harnessId": null,
+      "outputRoot": null,
+      "artifactClass": "no-artifact",
+      "strategy": "no-output",
+      "assuranceProfileId": "no-artifact-v1",
+      "evidenceIds": [
+        "model-context-protocol-source-1",
+        "model-context-protocol-source-2"
+      ],
+      "generationState": "no-output",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "nanoclaw-templates-artifact-binding",
+      "ecosystemId": "nanoclaw-templates",
+      "interfaceId": "agent-plugin-package",
+      "requirementId": null,
+      "targetId": "portable-agent-plugin",
+      "harnessId": "agent-plugin",
+      "outputRoot": "agent-plugin",
+      "artifactClass": "passive-public-package",
+      "strategy": "compatible-source",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "nanoclaw-templates-source-1"
+      ],
+      "generationState": "source-compatible",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "npm-cratis-scope-artifact-binding",
+      "ecosystemId": "npm-cratis-scope",
+      "interfaceId": "npm-registry",
+      "requirementId": null,
+      "targetId": null,
+      "harnessId": null,
+      "outputRoot": null,
+      "artifactClass": "publication-metadata",
+      "strategy": "publication-only",
+      "assuranceProfileId": "publication-metadata-v1",
+      "evidenceIds": [
+        "npm-cratis-scope-source-1",
+        "npm-cratis-scope-source-2",
+        "npm-cratis-scope-source-3",
+        "npm-cratis-scope-source-4",
+        "npm-cratis-scope-source-5",
+        "npm-cratis-scope-source-6"
+      ],
+      "generationState": "publication-only",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "npm-trusted-publishing-artifact-binding",
+      "ecosystemId": "npm-trusted-publishing",
+      "interfaceId": "npm-trusted-publication",
+      "requirementId": "npm-trusted-publication",
+      "targetId": null,
+      "harnessId": null,
+      "outputRoot": null,
+      "artifactClass": "publication-metadata",
+      "strategy": "publication-only",
+      "assuranceProfileId": "publication-metadata-v1",
+      "evidenceIds": [
+        "npm-trusted-publishing-source-1",
+        "npm-trusted-publishing-source-2"
+      ],
+      "generationState": "publication-only",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "openai-plugins-artifact-binding",
+      "ecosystemId": "openai-plugins",
+      "interfaceId": "native-plugin",
+      "requirementId": "openai-codex-plugin",
+      "targetId": "openai-codex",
+      "harnessId": "codex",
+      "outputRoot": "codex",
+      "artifactClass": "passive-public-package",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "openai-plugins-source-1",
+        "openai-plugins-source-2"
+      ],
+      "generationState": "fixture-generated",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "openclaw-bundles-artifact-binding",
+      "ecosystemId": "openclaw-bundles",
+      "interfaceId": "agent-plugin-package",
+      "requirementId": null,
+      "targetId": "portable-agent-plugin",
+      "harnessId": "agent-plugin",
+      "outputRoot": "agent-plugin",
+      "artifactClass": "passive-public-package",
+      "strategy": "compatible-source",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "openclaw-bundles-source-1"
+      ],
+      "generationState": "source-compatible",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "opencode-skills-artifact-binding",
+      "ecosystemId": "opencode-skills",
+      "interfaceId": "agent-skill",
+      "requirementId": null,
+      "targetId": "canonical-agent-skills",
+      "harnessId": "agent-skills",
+      "outputRoot": "canonical",
+      "artifactClass": "passive-public-package",
+      "strategy": "compatible-source",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "opencode-skills-source-1",
+        "opencode-skills-source-2",
+        "opencode-skills-source-3"
+      ],
+      "generationState": "source-compatible",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "pi-packages-artifact-binding",
+      "ecosystemId": "pi-packages",
+      "interfaceId": "pi-package",
+      "requirementId": "pi-passive-package",
+      "targetId": "pi-npm",
+      "harnessId": "pi",
+      "outputRoot": "pi",
+      "artifactClass": "passive-private-fixture",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-private-fixture-v1",
+      "evidenceIds": [
+        "pi-packages-source-1",
+        "pi-packages-source-2",
+        "pi-packages-source-3"
+      ],
+      "generationState": "fixture-generated",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "vscode-agent-plugins-artifact-binding",
+      "ecosystemId": "vscode-agent-plugins",
+      "interfaceId": "agent-plugin-package",
+      "requirementId": null,
+      "targetId": "portable-agent-plugin",
+      "harnessId": "agent-plugin",
+      "outputRoot": "agent-plugin",
+      "artifactClass": "passive-public-package",
+      "strategy": "compatible-source",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "vscode-agent-plugins-source-1"
+      ],
+      "generationState": "source-compatible",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "zed-skills-artifact-binding",
+      "ecosystemId": "zed-skills",
+      "interfaceId": "agent-skill",
+      "requirementId": null,
+      "targetId": "canonical-agent-skills",
+      "harnessId": "agent-skills",
+      "outputRoot": "canonical",
+      "artifactClass": "passive-public-package",
+      "strategy": "compatible-source",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "zed-skills-source-1",
+        "zed-skills-source-2"
+      ],
+      "generationState": "source-compatible",
+      "supportClaim": false
+    }
+  ]
+}

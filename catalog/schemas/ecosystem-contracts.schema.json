@@ -1,0 +1,177 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cratis/AI/catalog/schemas/ecosystem-contracts.schema.json",
+  "title": "Cratis ecosystem contracts",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "nullableString": {
+      "oneOf": [
+        { "type": "string", "minLength": 1 },
+        { "type": "null" }
+      ]
+    },
+    "evidenceIds": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/id" }
+    },
+    "componentState": {
+      "enum": ["required", "optional", "supported", "unsupported", "unknown"]
+    },
+    "manifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "path", "requirement", "schemaVersion"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "path": { "type": "string", "minLength": 1 },
+        "requirement": { "enum": ["required", "optional", "host-specific"] },
+        "schemaVersion": { "$ref": "#/$defs/nullableString" }
+      }
+    },
+    "discoveryRoot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scope", "path", "requirement", "evidenceIds"],
+      "properties": {
+        "scope": { "enum": ["standard", "user", "project", "package", "marketplace", "service"] },
+        "path": { "type": "string", "minLength": 1 },
+        "requirement": { "enum": ["required", "optional", "host-specific"] },
+        "evidenceIds": { "$ref": "#/$defs/evidenceIds" }
+      }
+    },
+    "legacyFactBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["factId", "evidenceIds"],
+      "properties": {
+        "factId": { "$ref": "#/$defs/id" },
+        "evidenceIds": { "$ref": "#/$defs/evidenceIds" }
+      }
+    },
+    "ecosystem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "lifecycle",
+        "reviewState",
+        "versions",
+        "interfaces",
+        "manifests",
+        "components",
+        "discoveryRoots",
+        "extensions",
+        "officialEvidenceIds",
+        "legacyFactBindings",
+        "conflicts",
+        "notes"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "kind": { "enum": ["standard", "host", "provider", "registry", "package-ecosystem", "publication-service"] },
+        "lifecycle": { "enum": ["current", "preview", "provisional", "local-only"] },
+        "reviewState": { "enum": ["verified", "verified-with-conflicts", "incomplete-evidence", "local-only"] },
+        "versions": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["specification", "client", "service"],
+          "properties": {
+            "specification": { "$ref": "#/$defs/nullableString" },
+            "client": { "$ref": "#/$defs/nullableString" },
+            "service": { "$ref": "#/$defs/nullableString" }
+          }
+        },
+        "interfaces": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "agent-plugin-package",
+              "agent-skill",
+              "claude-compatible-plugin",
+              "gemini-extension",
+              "github-skill-lifecycle",
+              "mcp-protocol",
+              "mcp-registry-publication",
+              "model-provider",
+              "native-plugin",
+              "npm-registry",
+              "npm-trusted-publication",
+              "pi-package"
+            ]
+          }
+        },
+        "manifests": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/manifest" }
+        },
+        "components": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["skills", "mcp", "hooks", "scripts", "executableExtensions"],
+          "properties": {
+            "skills": { "$ref": "#/$defs/componentState" },
+            "mcp": { "$ref": "#/$defs/componentState" },
+            "hooks": { "$ref": "#/$defs/componentState" },
+            "scripts": { "$ref": "#/$defs/componentState" },
+            "executableExtensions": { "$ref": "#/$defs/componentState" }
+          }
+        },
+        "discoveryRoots": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/discoveryRoot" }
+        },
+        "extensions": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["state", "namespace"],
+          "properties": {
+            "state": { "enum": ["standard", "host-specific", "unsupported", "unknown"] },
+            "namespace": { "$ref": "#/$defs/nullableString" }
+          }
+        },
+        "officialEvidenceIds": { "$ref": "#/$defs/evidenceIds" },
+        "legacyFactBindings": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/legacyFactBinding" }
+        },
+        "conflicts": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "notes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "asOf", "defaultPolicy", "ecosystems"],
+  "properties": {
+    "schemaVersion": { "const": 2 },
+    "asOf": { "type": "string", "format": "date" },
+    "defaultPolicy": { "const": "deny" },
+    "ecosystems": {
+      "type": "array",
+      "minItems": 26,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/ecosystem" }
+    }
+  }
+}

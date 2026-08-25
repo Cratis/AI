@@ -74,6 +74,7 @@ jobs:
                   set -euo pipefail
                   node tooling/harness-registry.mjs
                   node tooling/generate-catalog-v2.mjs
+                  node tooling/generate-ecosystem-artifact-coverage.mjs
                   node tooling/generate-human-catalog.mjs
                   node tooling/generate-repository-inventory.mjs
                   git diff --exit-code -- \

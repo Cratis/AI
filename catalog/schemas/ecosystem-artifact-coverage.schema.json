@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cratis/AI/catalog/schemas/ecosystem-artifact-coverage.schema.json",
+  "title": "Generated Cratis ecosystem artifact coverage",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "nullableId": {
+      "oneOf": [
+        { "$ref": "#/$defs/id" },
+        { "type": "null" }
+      ]
+    },
+    "nullableString": {
+      "oneOf": [
+        { "type": "string", "minLength": 1 },
+        { "type": "null" }
+      ]
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bindingId",
+        "ecosystemId",
+        "interfaceId",
+        "requirementId",
+        "targetId",
+        "harnessId",
+        "outputRoot",
+        "artifactClass",
+        "strategy",
+        "assuranceProfileId",
+        "evidenceIds",
+        "generationState",
+        "supportClaim"
+      ],
+      "properties": {
+        "bindingId": { "$ref": "#/$defs/id" },
+        "ecosystemId": { "$ref": "#/$defs/id" },
+        "interfaceId": { "$ref": "#/$defs/id" },
+        "requirementId": { "$ref": "#/$defs/nullableId" },
+        "targetId": { "$ref": "#/$defs/nullableId" },
+        "harnessId": { "$ref": "#/$defs/nullableId" },
+        "outputRoot": { "$ref": "#/$defs/nullableString" },
+        "artifactClass": {
+          "enum": [
+            "executable-plugin-package",
+            "mcp-server-package",
+            "no-artifact",
+            "passive-private-fixture",
+            "passive-public-package",
+            "provider-compatibility",
+            "publication-metadata"
+          ]
+        },
+        "strategy": {
+          "enum": [
+            "distinct-output",
+            "shared-output",
+            "compatible-source",
+            "provider-inherited",
+            "publication-only",
+            "no-output",
+            "blocked"
+          ]
+        },
+        "assuranceProfileId": { "$ref": "#/$defs/id" },
+        "evidenceIds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "generationState": {
+          "enum": [
+            "fixture-generated",
+            "fixture-generated-evidence-incomplete",
+            "source-compatible",
+            "provider-inherited",
+            "publication-only",
+            "no-output",
+            "blocked"
+          ]
+        },
+        "supportClaim": { "const": false }
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "generatedBy",
+    "state",
+    "publicationEligible",
+    "promotionEligible",
+    "supportPolicy",
+    "coverage"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "generatedBy": { "const": "tooling/generate-ecosystem-artifact-coverage.mjs" },
+    "state": { "const": "FIXTURE_ONLY_LOCAL_STAGING" },
+    "publicationEligible": { "const": false },
+    "promotionEligible": { "const": false },
+    "supportPolicy": { "const": "Generated coverage records cataloged compatibility and generation state; they are not support claims." },
+    "coverage": {
+      "type": "array",
+      "minItems": 26,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/coverage" }
+    }
+  }
+}
