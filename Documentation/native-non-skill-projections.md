@@ -50,5 +50,8 @@ merges, updates, or removes these files correctly. S8 performs no host process,
 installation, behavior, lifecycle, marketplace, or project-overwrite test.
 Singleton project files also have no collision-safe merge contract yet.
 
-Real-host canaries and project-context preservation belong to S9. Until those
-pass, the fixture roots are test evidence only and are not offered as packages.
+Real-host canaries and project-context preservation belong to S9. S8 singleton
+files still have no collision-safe install/merge contract, so S9 treats them as
+placement/behavior candidates only rather than lifecycle packages. Until exact
+host canaries pass, the fixture roots are test evidence only and are not offered
+as packages.

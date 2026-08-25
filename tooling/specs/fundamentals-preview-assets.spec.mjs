@@ -30,15 +30,6 @@ function withTemporaryDirectory(callback) {
     }
 }
 
-function commandAvailable(command) {
-    try {
-        execFileSync(command, ["--version"], { stdio: "pipe" });
-        return true;
-    } catch {
-        return false;
-    }
-}
-
 function assetPath(root, manifest, harness) {
     const asset = manifest.assets.find(
         (candidate) => candidate.harness === harness,
@@ -384,7 +375,7 @@ test("Pi npm preview asset updates rolls back uninstalls and preserves context",
 });
 
 test("Pi loads and removes the extracted exact preview package in an isolated home", {
-    skip: !commandAvailable("pi"),
+    skip: "Real host execution moved to the explicit S9 runner",
 }, () => {
     withTemporaryDirectory((root) => {
         const outputRoot = join(root, "assets");

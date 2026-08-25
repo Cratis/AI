@@ -635,11 +635,18 @@ export function smokeDeepSeekDistributionFixture(outputRoot, temporaryRoot) {
     );
 }
 
+function rejectLegacyRealHostSmoke() {
+    throw new Error(
+        "Real host execution moved to tooling/run-real-host-canary.mjs",
+    );
+}
+
 export function smokePiDistributionFixture(
     outputRoot,
     temporaryHome,
     piCommand = "pi",
 ) {
+    rejectLegacyRealHostSmoke();
     const packageRoot = join(outputRoot, "pi/package");
     const environment = { ...process.env, HOME: temporaryHome };
     execFileSync(piCommand, ["install", packageRoot], {
@@ -670,6 +677,7 @@ export function smokeClaudeDistributionFixture(
     temporaryHome,
     claudeCommand = "claude",
 ) {
+    rejectLegacyRealHostSmoke();
     const marketplaceRoot = join(outputRoot, "claude");
     const pluginRoot = join(marketplaceRoot, "plugins/cratis");
     const environment = { ...process.env, HOME: temporaryHome };
@@ -715,6 +723,7 @@ export function smokeCopilotDistributionFixture(
     temporaryHome,
     copilotCommand = "copilot",
 ) {
+    rejectLegacyRealHostSmoke();
     const marketplaceRoot = join(outputRoot, "copilot");
     const environment = { ...process.env, HOME: temporaryHome };
     execFileSync(
@@ -755,6 +764,7 @@ export function smokeCodexDistributionFixture(
     temporaryHome,
     codexCommand = "codex",
 ) {
+    rejectLegacyRealHostSmoke();
     const marketplaceRoot = join(outputRoot, "codex");
     const environment = { ...process.env, HOME: temporaryHome };
     execFileSync(
@@ -787,6 +797,7 @@ export function smokeGeminiDistributionFixture(
     temporaryHome,
     geminiCommand = "gemini",
 ) {
+    rejectLegacyRealHostSmoke();
     const extensionRoot = join(outputRoot, "gemini");
     mkdirSync(join(temporaryHome, ".gemini"), { recursive: true });
     const environment = {
