@@ -1,14 +1,26 @@
 {
   "schemaVersion": 2,
   "generatedBy": "tooling/generate-component-catalogs.mjs",
-  "sourceDigest": "4223bb15677187963fdf8eb4cd38e472bcc7db9b79261df9b5965c24c3bb0adb",
+  "sourceDigest": "02b9db9466e13ff6f45cf8b74d3de7d1b3bf7cc4f8ecd4d70e3d38f09cd55abd",
   "defaultPolicy": "deny",
   "supportClaim": false,
   "hosts": [
     {
       "id": "claude-code",
       "contract": "claude-code",
+      "hostAdapterId": "claude-code-plugins-host-adapter",
+      "materialization": "repository-existing",
+      "staticOutputRoot": null,
       "acceptsAnyPassiveProjection": true,
+      "allowedProjectedKinds": [
+        "command",
+        "hook",
+        "instruction",
+        "prompt",
+        "rule",
+        "skill",
+        "subagent"
+      ],
       "allowedOutputPrefixes": [
         ".claude"
       ],
@@ -24,7 +36,14 @@
     {
       "id": "codex",
       "contract": "codex",
+      "hostAdapterId": "openai-plugins-host-adapter",
+      "materialization": "repository-existing",
+      "staticOutputRoot": null,
       "acceptsAnyPassiveProjection": true,
+      "allowedProjectedKinds": [
+        "instruction",
+        "skill"
+      ],
       "allowedOutputPrefixes": [
         ".agents",
         "AGENTS.md"
@@ -37,9 +56,37 @@
       ]
     },
     {
+      "id": "devin-hosted",
+      "contract": "devin-hosted",
+      "hostAdapterId": "devin-hosted-host-adapter",
+      "materialization": "static-fixture",
+      "staticOutputRoot": "devin-hosted-instructions",
+      "acceptsAnyPassiveProjection": true,
+      "allowedProjectedKinds": [
+        "instruction"
+      ],
+      "allowedOutputPrefixes": [
+        "devin-hosted-instructions"
+      ],
+      "sharedSymlinkOutputs": [],
+      "evidenceIds": [
+        "devin-hosted-source-2"
+      ]
+    },
+    {
       "id": "github-copilot",
       "contract": "github-copilot",
+      "hostAdapterId": "github-copilot-plugins-host-adapter",
+      "materialization": "repository-existing",
+      "staticOutputRoot": null,
       "acceptsAnyPassiveProjection": true,
+      "allowedProjectedKinds": [
+        "agent",
+        "instruction",
+        "prompt",
+        "rule",
+        "skill"
+      ],
       "allowedOutputPrefixes": [
         ".github/agents",
         ".github/copilot-instructions.md",
@@ -57,9 +104,35 @@
       ]
     },
     {
+      "id": "jetbrains-ai-assistant",
+      "contract": "jetbrains-ai-assistant",
+      "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
+      "materialization": "static-fixture",
+      "staticOutputRoot": "jetbrains-ai-assistant-rules",
+      "acceptsAnyPassiveProjection": true,
+      "allowedProjectedKinds": [
+        "rule"
+      ],
+      "allowedOutputPrefixes": [
+        "jetbrains-ai-assistant-rules"
+      ],
+      "sharedSymlinkOutputs": [],
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ]
+    },
+    {
       "id": "pi",
       "contract": "pi",
+      "hostAdapterId": "pi-packages-host-adapter",
+      "materialization": "repository-existing",
+      "staticOutputRoot": null,
       "acceptsAnyPassiveProjection": true,
+      "allowedProjectedKinds": [
+        "agent",
+        "executable-host-extension",
+        "prompt"
+      ],
       "allowedOutputPrefixes": [
         ".pi/agents",
         ".pi/extensions",
@@ -73,12 +146,55 @@
     {
       "id": "portable-agent-plugins-1-0",
       "contract": "portable-agent-plugins-1-0",
+      "hostAdapterId": null,
+      "materialization": "none",
+      "staticOutputRoot": null,
       "acceptsAnyPassiveProjection": false,
+      "allowedProjectedKinds": [
+        "skill",
+        "mcp"
+      ],
       "allowedOutputPrefixes": [],
       "sharedSymlinkOutputs": [],
       "evidenceIds": [
         "agent-plugins-source-1",
         "agent-plugins-source-2"
+      ]
+    },
+    {
+      "id": "tabnine",
+      "contract": "tabnine",
+      "hostAdapterId": "tabnine-host-adapter",
+      "materialization": "static-fixture",
+      "staticOutputRoot": "tabnine-guidelines",
+      "acceptsAnyPassiveProjection": true,
+      "allowedProjectedKinds": [
+        "rule"
+      ],
+      "allowedOutputPrefixes": [
+        "tabnine-guidelines"
+      ],
+      "sharedSymlinkOutputs": [],
+      "evidenceIds": [
+        "tabnine-source-1"
+      ]
+    },
+    {
+      "id": "visual-studio-copilot",
+      "contract": "visual-studio-copilot",
+      "hostAdapterId": "visual-studio-copilot-host-adapter",
+      "materialization": "static-fixture",
+      "staticOutputRoot": "visual-studio-copilot-instructions",
+      "acceptsAnyPassiveProjection": true,
+      "allowedProjectedKinds": [
+        "instruction"
+      ],
+      "allowedOutputPrefixes": [
+        "visual-studio-copilot-instructions"
+      ],
+      "sharedSymlinkOutputs": [],
+      "evidenceIds": [
+        "visual-studio-copilot-source-2"
       ]
     }
   ],
@@ -3906,6 +4022,31 @@
       ]
     },
     {
+      "id": "cratis-instruction-general-to-devin-hosted-instruction",
+      "componentId": "cratis-instruction-general",
+      "hostId": "devin-hosted",
+      "projectedKind": "instruction",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "devin-hosted-instructions/AGENTS.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "devin-hosted-source-2"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
       "id": "cratis-instruction-general-to-github-copilot-instruction",
       "componentId": "cratis-instruction-general",
       "hostId": "github-copilot",
@@ -3951,6 +4092,31 @@
       "requiredCanaries": [
         "projection-shape",
         "source-digest"
+      ]
+    },
+    {
+      "id": "cratis-instruction-general-to-visual-studio-copilot-instruction",
+      "componentId": "cratis-instruction-general",
+      "hostId": "visual-studio-copilot",
+      "projectedKind": "instruction",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "visual-studio-copilot-instructions/.github/copilot-instructions.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "visual-studio-copilot-source-2"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
       ]
     },
     {
@@ -5721,6 +5887,56 @@
       ]
     },
     {
+      "id": "cratis-rule-code-quality-csharp-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-code-quality-csharp",
+      "hostId": "jetbrains-ai-assistant",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "jetbrains-ai-assistant-rules/.aiassistant/rules/code-quality.csharp.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
+      "id": "cratis-rule-code-quality-csharp-to-tabnine-rule",
+      "componentId": "cratis-rule-code-quality-csharp",
+      "hostId": "tabnine",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "tabnine-guidelines/.tabnine/guidelines/code-quality.csharp.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
       "id": "cratis-rule-code-quality-to-claude-code-rule",
       "componentId": "cratis-rule-code-quality",
       "hostId": "claude-code",
@@ -5766,6 +5982,56 @@
       "requiredCanaries": [
         "projection-shape",
         "source-digest"
+      ]
+    },
+    {
+      "id": "cratis-rule-code-quality-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-code-quality",
+      "hostId": "jetbrains-ai-assistant",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "jetbrains-ai-assistant-rules/.aiassistant/rules/code-quality.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
+      "id": "cratis-rule-code-quality-to-tabnine-rule",
+      "componentId": "cratis-rule-code-quality",
+      "hostId": "tabnine",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "tabnine-guidelines/.tabnine/guidelines/code-quality.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
       ]
     },
     {
@@ -5817,6 +6083,56 @@
       ]
     },
     {
+      "id": "cratis-rule-code-quality-typescript-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-code-quality-typescript",
+      "hostId": "jetbrains-ai-assistant",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "jetbrains-ai-assistant-rules/.aiassistant/rules/code-quality.typescript.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
+      "id": "cratis-rule-code-quality-typescript-to-tabnine-rule",
+      "componentId": "cratis-rule-code-quality-typescript",
+      "hostId": "tabnine",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "tabnine-guidelines/.tabnine/guidelines/code-quality.typescript.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
       "id": "cratis-rule-components-to-claude-code-rule",
       "componentId": "cratis-rule-components",
       "hostId": "claude-code",
@@ -5862,6 +6178,56 @@
       "requiredCanaries": [
         "projection-shape",
         "source-digest"
+      ]
+    },
+    {
+      "id": "cratis-rule-components-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-components",
+      "hostId": "jetbrains-ai-assistant",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "jetbrains-ai-assistant-rules/.aiassistant/rules/components.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
+      "id": "cratis-rule-components-to-tabnine-rule",
+      "componentId": "cratis-rule-components",
+      "hostId": "tabnine",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "tabnine-guidelines/.tabnine/guidelines/components.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
       ]
     },
     {
@@ -5913,6 +6279,56 @@
       ]
     },
     {
+      "id": "cratis-rule-concepts-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-concepts",
+      "hostId": "jetbrains-ai-assistant",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "jetbrains-ai-assistant-rules/.aiassistant/rules/concepts.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
+      "id": "cratis-rule-concepts-to-tabnine-rule",
+      "componentId": "cratis-rule-concepts",
+      "hostId": "tabnine",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "tabnine-guidelines/.tabnine/guidelines/concepts.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
       "id": "cratis-rule-csharp-to-claude-code-rule",
       "componentId": "cratis-rule-csharp",
       "hostId": "claude-code",
@@ -5958,6 +6374,56 @@
       "requiredCanaries": [
         "projection-shape",
         "source-digest"
+      ]
+    },
+    {
+      "id": "cratis-rule-csharp-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-csharp",
+      "hostId": "jetbrains-ai-assistant",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "jetbrains-ai-assistant-rules/.aiassistant/rules/csharp.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
+      "id": "cratis-rule-csharp-to-tabnine-rule",
+      "componentId": "cratis-rule-csharp",
+      "hostId": "tabnine",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "tabnine-guidelines/.tabnine/guidelines/csharp.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
       ]
     },
     {
@@ -6009,6 +6475,56 @@
       ]
     },
     {
+      "id": "cratis-rule-dialogs-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-dialogs",
+      "hostId": "jetbrains-ai-assistant",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "jetbrains-ai-assistant-rules/.aiassistant/rules/dialogs.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
+      "id": "cratis-rule-dialogs-to-tabnine-rule",
+      "componentId": "cratis-rule-dialogs",
+      "hostId": "tabnine",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "tabnine-guidelines/.tabnine/guidelines/dialogs.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
       "id": "cratis-rule-documentation-structure-and-formatting-to-claude-code-rule",
       "componentId": "cratis-rule-documentation-structure-and-formatting",
       "hostId": "claude-code",
@@ -6054,6 +6570,56 @@
       "requiredCanaries": [
         "projection-shape",
         "source-digest"
+      ]
+    },
+    {
+      "id": "cratis-rule-documentation-structure-and-formatting-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-documentation-structure-and-formatting",
+      "hostId": "jetbrains-ai-assistant",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "jetbrains-ai-assistant-rules/.aiassistant/rules/documentation-structure-and-formatting.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
+      "id": "cratis-rule-documentation-structure-and-formatting-to-tabnine-rule",
+      "componentId": "cratis-rule-documentation-structure-and-formatting",
+      "hostId": "tabnine",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "tabnine-guidelines/.tabnine/guidelines/documentation-structure-and-formatting.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
       ]
     },
     {
@@ -6105,6 +6671,56 @@
       ]
     },
     {
+      "id": "cratis-rule-documentation-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-documentation",
+      "hostId": "jetbrains-ai-assistant",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "jetbrains-ai-assistant-rules/.aiassistant/rules/documentation.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
+      "id": "cratis-rule-documentation-to-tabnine-rule",
+      "componentId": "cratis-rule-documentation",
+      "hostId": "tabnine",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "tabnine-guidelines/.tabnine/guidelines/documentation.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
       "id": "cratis-rule-editing-cratis-docs-to-claude-code-rule",
       "componentId": "cratis-rule-editing-cratis-docs",
       "hostId": "claude-code",
@@ -6150,6 +6766,56 @@
       "requiredCanaries": [
         "projection-shape",
         "source-digest"
+      ]
+    },
+    {
+      "id": "cratis-rule-editing-cratis-docs-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-editing-cratis-docs",
+      "hostId": "jetbrains-ai-assistant",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "jetbrains-ai-assistant-rules/.aiassistant/rules/editing-cratis-docs.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
+      "id": "cratis-rule-editing-cratis-docs-to-tabnine-rule",
+      "componentId": "cratis-rule-editing-cratis-docs",
+      "hostId": "tabnine",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "tabnine-guidelines/.tabnine/guidelines/editing-cratis-docs.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
       ]
     },
     {
@@ -6201,6 +6867,56 @@
       ]
     },
     {
+      "id": "cratis-rule-efcore-specs-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-efcore-specs",
+      "hostId": "jetbrains-ai-assistant",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "jetbrains-ai-assistant-rules/.aiassistant/rules/efcore.specs.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
+      "id": "cratis-rule-efcore-specs-to-tabnine-rule",
+      "componentId": "cratis-rule-efcore-specs",
+      "hostId": "tabnine",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "tabnine-guidelines/.tabnine/guidelines/efcore.specs.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
       "id": "cratis-rule-efcore-to-claude-code-rule",
       "componentId": "cratis-rule-efcore",
       "hostId": "claude-code",
@@ -6246,6 +6962,56 @@
       "requiredCanaries": [
         "projection-shape",
         "source-digest"
+      ]
+    },
+    {
+      "id": "cratis-rule-efcore-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-efcore",
+      "hostId": "jetbrains-ai-assistant",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "jetbrains-ai-assistant-rules/.aiassistant/rules/efcore.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
+      "id": "cratis-rule-efcore-to-tabnine-rule",
+      "componentId": "cratis-rule-efcore",
+      "hostId": "tabnine",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "tabnine-guidelines/.tabnine/guidelines/efcore.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
       ]
     },
     {
@@ -6297,6 +7063,56 @@
       ]
     },
     {
+      "id": "cratis-rule-framework-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-framework",
+      "hostId": "jetbrains-ai-assistant",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "jetbrains-ai-assistant-rules/.aiassistant/rules/framework.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
+      "id": "cratis-rule-framework-to-tabnine-rule",
+      "componentId": "cratis-rule-framework",
+      "hostId": "tabnine",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "tabnine-guidelines/.tabnine/guidelines/framework.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
       "id": "cratis-rule-frontend-quality-to-claude-code-rule",
       "componentId": "cratis-rule-frontend-quality",
       "hostId": "claude-code",
@@ -6342,6 +7158,56 @@
       "requiredCanaries": [
         "projection-shape",
         "source-digest"
+      ]
+    },
+    {
+      "id": "cratis-rule-frontend-quality-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-frontend-quality",
+      "hostId": "jetbrains-ai-assistant",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "jetbrains-ai-assistant-rules/.aiassistant/rules/frontend-quality.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
+      "id": "cratis-rule-frontend-quality-to-tabnine-rule",
+      "componentId": "cratis-rule-frontend-quality",
+      "hostId": "tabnine",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "tabnine-guidelines/.tabnine/guidelines/frontend-quality.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
       ]
     },
     {
@@ -6393,6 +7259,56 @@
       ]
     },
     {
+      "id": "cratis-rule-frontend-testing-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-frontend-testing",
+      "hostId": "jetbrains-ai-assistant",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "jetbrains-ai-assistant-rules/.aiassistant/rules/frontend-testing.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
+      "id": "cratis-rule-frontend-testing-to-tabnine-rule",
+      "componentId": "cratis-rule-frontend-testing",
+      "hostId": "tabnine",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "tabnine-guidelines/.tabnine/guidelines/frontend-testing.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
       "id": "cratis-rule-git-commits-to-claude-code-rule",
       "componentId": "cratis-rule-git-commits",
       "hostId": "claude-code",
@@ -6438,6 +7354,56 @@
       "requiredCanaries": [
         "projection-shape",
         "source-digest"
+      ]
+    },
+    {
+      "id": "cratis-rule-git-commits-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-git-commits",
+      "hostId": "jetbrains-ai-assistant",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "jetbrains-ai-assistant-rules/.aiassistant/rules/git-commits.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
+      "id": "cratis-rule-git-commits-to-tabnine-rule",
+      "componentId": "cratis-rule-git-commits",
+      "hostId": "tabnine",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "tabnine-guidelines/.tabnine/guidelines/git-commits.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
       ]
     },
     {
@@ -6489,6 +7455,56 @@
       ]
     },
     {
+      "id": "cratis-rule-glossary-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-glossary",
+      "hostId": "jetbrains-ai-assistant",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "jetbrains-ai-assistant-rules/.aiassistant/rules/glossary.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
+      "id": "cratis-rule-glossary-to-tabnine-rule",
+      "componentId": "cratis-rule-glossary",
+      "hostId": "tabnine",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "tabnine-guidelines/.tabnine/guidelines/glossary.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
       "id": "cratis-rule-managing-ai-rules-to-claude-code-rule",
       "componentId": "cratis-rule-managing-ai-rules",
       "hostId": "claude-code",
@@ -6534,6 +7550,56 @@
       "requiredCanaries": [
         "projection-shape",
         "source-digest"
+      ]
+    },
+    {
+      "id": "cratis-rule-managing-ai-rules-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-managing-ai-rules",
+      "hostId": "jetbrains-ai-assistant",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "jetbrains-ai-assistant-rules/.aiassistant/rules/managing-ai-rules.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
+      "id": "cratis-rule-managing-ai-rules-to-tabnine-rule",
+      "componentId": "cratis-rule-managing-ai-rules",
+      "hostId": "tabnine",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "tabnine-guidelines/.tabnine/guidelines/managing-ai-rules.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
       ]
     },
     {
@@ -6585,6 +7651,56 @@
       ]
     },
     {
+      "id": "cratis-rule-orleans-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-orleans",
+      "hostId": "jetbrains-ai-assistant",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "jetbrains-ai-assistant-rules/.aiassistant/rules/orleans.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
+      "id": "cratis-rule-orleans-to-tabnine-rule",
+      "componentId": "cratis-rule-orleans",
+      "hostId": "tabnine",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "tabnine-guidelines/.tabnine/guidelines/orleans.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
       "id": "cratis-rule-pull-requests-to-claude-code-rule",
       "componentId": "cratis-rule-pull-requests",
       "hostId": "claude-code",
@@ -6630,6 +7746,56 @@
       "requiredCanaries": [
         "projection-shape",
         "source-digest"
+      ]
+    },
+    {
+      "id": "cratis-rule-pull-requests-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-pull-requests",
+      "hostId": "jetbrains-ai-assistant",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "jetbrains-ai-assistant-rules/.aiassistant/rules/pull-requests.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
+      "id": "cratis-rule-pull-requests-to-tabnine-rule",
+      "componentId": "cratis-rule-pull-requests",
+      "hostId": "tabnine",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "tabnine-guidelines/.tabnine/guidelines/pull-requests.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
       ]
     },
     {
@@ -6681,6 +7847,56 @@
       ]
     },
     {
+      "id": "cratis-rule-react-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-react",
+      "hostId": "jetbrains-ai-assistant",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "jetbrains-ai-assistant-rules/.aiassistant/rules/react.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
+      "id": "cratis-rule-react-to-tabnine-rule",
+      "componentId": "cratis-rule-react",
+      "hostId": "tabnine",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "tabnine-guidelines/.tabnine/guidelines/react.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
       "id": "cratis-rule-reactors-to-claude-code-rule",
       "componentId": "cratis-rule-reactors",
       "hostId": "claude-code",
@@ -6726,6 +7942,56 @@
       "requiredCanaries": [
         "projection-shape",
         "source-digest"
+      ]
+    },
+    {
+      "id": "cratis-rule-reactors-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-reactors",
+      "hostId": "jetbrains-ai-assistant",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "jetbrains-ai-assistant-rules/.aiassistant/rules/reactors.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
+      "id": "cratis-rule-reactors-to-tabnine-rule",
+      "componentId": "cratis-rule-reactors",
+      "hostId": "tabnine",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "tabnine-guidelines/.tabnine/guidelines/reactors.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
       ]
     },
     {
@@ -6777,6 +8043,56 @@
       ]
     },
     {
+      "id": "cratis-rule-rtk-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-rtk",
+      "hostId": "jetbrains-ai-assistant",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "jetbrains-ai-assistant-rules/.aiassistant/rules/rtk.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
+      "id": "cratis-rule-rtk-to-tabnine-rule",
+      "componentId": "cratis-rule-rtk",
+      "hostId": "tabnine",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "tabnine-guidelines/.tabnine/guidelines/rtk.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
       "id": "cratis-rule-specs-csharp-to-claude-code-rule",
       "componentId": "cratis-rule-specs-csharp",
       "hostId": "claude-code",
@@ -6822,6 +8138,56 @@
       "requiredCanaries": [
         "projection-shape",
         "source-digest"
+      ]
+    },
+    {
+      "id": "cratis-rule-specs-csharp-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-specs-csharp",
+      "hostId": "jetbrains-ai-assistant",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "jetbrains-ai-assistant-rules/.aiassistant/rules/specs.csharp.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
+      "id": "cratis-rule-specs-csharp-to-tabnine-rule",
+      "componentId": "cratis-rule-specs-csharp",
+      "hostId": "tabnine",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "tabnine-guidelines/.tabnine/guidelines/specs.csharp.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
       ]
     },
     {
@@ -6873,6 +8239,56 @@
       ]
     },
     {
+      "id": "cratis-rule-specs-scenarios-csharp-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-specs-scenarios-csharp",
+      "hostId": "jetbrains-ai-assistant",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "jetbrains-ai-assistant-rules/.aiassistant/rules/specs.scenarios.csharp.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
+      "id": "cratis-rule-specs-scenarios-csharp-to-tabnine-rule",
+      "componentId": "cratis-rule-specs-scenarios-csharp",
+      "hostId": "tabnine",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "tabnine-guidelines/.tabnine/guidelines/specs.scenarios.csharp.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
       "id": "cratis-rule-specs-to-claude-code-rule",
       "componentId": "cratis-rule-specs",
       "hostId": "claude-code",
@@ -6918,6 +8334,56 @@
       "requiredCanaries": [
         "projection-shape",
         "source-digest"
+      ]
+    },
+    {
+      "id": "cratis-rule-specs-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-specs",
+      "hostId": "jetbrains-ai-assistant",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "jetbrains-ai-assistant-rules/.aiassistant/rules/specs.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
+      "id": "cratis-rule-specs-to-tabnine-rule",
+      "componentId": "cratis-rule-specs",
+      "hostId": "tabnine",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "tabnine-guidelines/.tabnine/guidelines/specs.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
       ]
     },
     {
@@ -6969,6 +8435,56 @@
       ]
     },
     {
+      "id": "cratis-rule-specs-typescript-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-specs-typescript",
+      "hostId": "jetbrains-ai-assistant",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "jetbrains-ai-assistant-rules/.aiassistant/rules/specs.typescript.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
+      "id": "cratis-rule-specs-typescript-to-tabnine-rule",
+      "componentId": "cratis-rule-specs-typescript",
+      "hostId": "tabnine",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "tabnine-guidelines/.tabnine/guidelines/specs.typescript.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
       "id": "cratis-rule-storybook-to-claude-code-rule",
       "componentId": "cratis-rule-storybook",
       "hostId": "claude-code",
@@ -7014,6 +8530,56 @@
       "requiredCanaries": [
         "projection-shape",
         "source-digest"
+      ]
+    },
+    {
+      "id": "cratis-rule-storybook-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-storybook",
+      "hostId": "jetbrains-ai-assistant",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "jetbrains-ai-assistant-rules/.aiassistant/rules/storybook.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
+      "id": "cratis-rule-storybook-to-tabnine-rule",
+      "componentId": "cratis-rule-storybook",
+      "hostId": "tabnine",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "tabnine-guidelines/.tabnine/guidelines/storybook.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
       ]
     },
     {
@@ -7065,6 +8631,56 @@
       ]
     },
     {
+      "id": "cratis-rule-terminal-commands-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-terminal-commands",
+      "hostId": "jetbrains-ai-assistant",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "jetbrains-ai-assistant-rules/.aiassistant/rules/terminal-commands.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
+      "id": "cratis-rule-terminal-commands-to-tabnine-rule",
+      "componentId": "cratis-rule-terminal-commands",
+      "hostId": "tabnine",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "tabnine-guidelines/.tabnine/guidelines/terminal-commands.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
       "id": "cratis-rule-typescript-to-claude-code-rule",
       "componentId": "cratis-rule-typescript",
       "hostId": "claude-code",
@@ -7110,6 +8726,56 @@
       "requiredCanaries": [
         "projection-shape",
         "source-digest"
+      ]
+    },
+    {
+      "id": "cratis-rule-typescript-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-typescript",
+      "hostId": "jetbrains-ai-assistant",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "jetbrains-ai-assistant-rules/.aiassistant/rules/typescript.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
+      "id": "cratis-rule-typescript-to-tabnine-rule",
+      "componentId": "cratis-rule-typescript",
+      "hostId": "tabnine",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "tabnine-guidelines/.tabnine/guidelines/typescript.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
       ]
     },
     {
@@ -7161,6 +8827,56 @@
       ]
     },
     {
+      "id": "cratis-rule-vertical-slices-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-vertical-slices",
+      "hostId": "jetbrains-ai-assistant",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "jetbrains-ai-assistant-rules/.aiassistant/rules/vertical-slices.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
+      "id": "cratis-rule-vertical-slices-to-tabnine-rule",
+      "componentId": "cratis-rule-vertical-slices",
+      "hostId": "tabnine",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "tabnine-guidelines/.tabnine/guidelines/vertical-slices.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
       "id": "cratis-rule-web-fetching-to-claude-code-rule",
       "componentId": "cratis-rule-web-fetching",
       "hostId": "claude-code",
@@ -7206,6 +8922,56 @@
       "requiredCanaries": [
         "projection-shape",
         "source-digest"
+      ]
+    },
+    {
+      "id": "cratis-rule-web-fetching-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-web-fetching",
+      "hostId": "jetbrains-ai-assistant",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "jetbrains-ai-assistant-rules/.aiassistant/rules/web-fetching.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
+      "id": "cratis-rule-web-fetching-to-tabnine-rule",
+      "componentId": "cratis-rule-web-fetching",
+      "hostId": "tabnine",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "tabnine-guidelines/.tabnine/guidelines/web-fetching.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
       ]
     },
     {
@@ -7257,6 +9023,56 @@
       ]
     },
     {
+      "id": "cratis-rule-writing-correct-examples-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-writing-correct-examples",
+      "hostId": "jetbrains-ai-assistant",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "jetbrains-ai-assistant-rules/.aiassistant/rules/writing-correct-examples.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
+      "id": "cratis-rule-writing-correct-examples-to-tabnine-rule",
+      "componentId": "cratis-rule-writing-correct-examples",
+      "hostId": "tabnine",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "tabnine-guidelines/.tabnine/guidelines/writing-correct-examples.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
       "id": "cratis-rule-writing-cratis-docs-to-claude-code-rule",
       "componentId": "cratis-rule-writing-cratis-docs",
       "hostId": "claude-code",
@@ -7302,6 +9118,56 @@
       "requiredCanaries": [
         "projection-shape",
         "source-digest"
+      ]
+    },
+    {
+      "id": "cratis-rule-writing-cratis-docs-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-writing-cratis-docs",
+      "hostId": "jetbrains-ai-assistant",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "jetbrains-ai-assistant-rules/.aiassistant/rules/writing-cratis-docs.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
+      ]
+    },
+    {
+      "id": "cratis-rule-writing-cratis-docs-to-tabnine-rule",
+      "componentId": "cratis-rule-writing-cratis-docs",
+      "hostId": "tabnine",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "generated-static",
+      "hostActivation": "none",
+      "adapterType": "generated",
+      "outputPaths": [
+        "tabnine-guidelines/.tabnine/guidelines/writing-cratis-docs.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest",
+        "static-inventory"
       ]
     },
     {

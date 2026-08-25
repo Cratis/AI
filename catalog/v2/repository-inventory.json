@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "e96b06b18a91dfd94c2c53e105df25b57297cd9e2c7fb3a508f6f037e03f5cd9",
+  "indexDigest": "d2b532f5665ba1d2720fbd92ec04abc14962428cb425e232ff2d19f0f5d75005",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -337,6 +337,10 @@
     {
       "path": "Documentation/instructions.md",
       "status": "modified"
+    },
+    {
+      "path": "Documentation/native-non-skill-projections.md",
+      "status": "added"
     },
     {
       "path": "Documentation/orchestrator.md",
@@ -2315,6 +2319,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/fixtures/s8-native-non-skill-expected-tree.json",
+      "status": "added"
+    },
+    {
       "path": "tooling/generate-approved-profile-release.mjs",
       "status": "added"
     },
@@ -2384,6 +2392,10 @@
     },
     {
       "path": "tooling/mcp-guidance-validation.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/native-non-skill-projections.mjs",
       "status": "added"
     },
     {
@@ -2640,6 +2652,10 @@
     },
     {
       "path": "tooling/specs/s5b-passive-host-artifacts.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/s8-native-non-skill-projections.spec.mjs",
       "status": "added"
     },
     {
@@ -3581,6 +3597,7 @@
       "sourcePathPatterns": [
         "Documentation/capability-catalog-v2.md",
         "Documentation/chronicle-mcp-guidance.md",
+        "Documentation/native-non-skill-projections.md",
         "Documentation/studio-mcp-guidance.md"
       ],
       "artifactType": "documentation",
@@ -3591,20 +3608,23 @@
       "adapterStatus": "none",
       "dependencies": [
         "catalog/chronicle-mcp-tool-classifications.json",
+        "catalog/component-projections.json",
+        "catalog/components.json",
         "catalog/mcp-guidance-products.json",
         "catalog/studio-mcp-tool-classifications.json",
         "catalog/v2/bundles.json",
         "catalog/v2/source-contracts.json",
         "catalog/v2/taxonomy.json",
-        "catalog/v2/upstream-companions.json"
+        "catalog/v2/upstream-companions.json",
+        "tooling/native-non-skill-projections.mjs"
       ],
       "risk": "medium",
       "migrationState": "retain",
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 3,
-      "expectedPathsDigest": "016856985393e594b725b7bf20ab3380fb61943eb293a70c6344fbeaea358ee3"
+      "expectedPathCount": 4,
+      "expectedPathsDigest": "3766b1d02c8e5d8d4c640964b7726abaa3ce69e35ef4c1026ec25c598a9238c8"
     },
     {
       "excludePathPatterns": [],
@@ -4188,8 +4208,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 55,
-      "expectedPathsDigest": "e2747032e15dc20c7b3e96e8710bfd0752cf5b6570d8d2652dfc10bc94c8f797"
+      "expectedPathCount": 56,
+      "expectedPathsDigest": "cad8cfa87885390f1e75df95d52f267ef8219413af97d179f2dde2db4bc59b7d"
     },
     {
       "excludePathPatterns": [],
@@ -4212,11 +4232,41 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 44,
-      "expectedPathsDigest": "02ddfcb6a1b0199e1a4c2c3dbad5feaef25cea9df782e9f4934db09d94463a20"
+      "expectedPathCount": 45,
+      "expectedPathsDigest": "ead988faa47027308befb931167a5f11357a02c4dac61cebc5421903c0263199"
     },
     {
       "excludePathPatterns": [],
+      "id": "s8-native-non-skill-expected-tree",
+      "sourcePathPatterns": [
+        "tooling/fixtures/s8-native-non-skill-expected-tree.json"
+      ],
+      "artifactType": "test-fixture",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "generated",
+      "adapterStatus": "none",
+      "dependencies": [
+        "catalog/component-projections.json",
+        "catalog/components.json",
+        "catalog/evidence.json",
+        "catalog/host-adapters.json",
+        "tooling/native-non-skill-projections.mjs"
+      ],
+      "risk": "high",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "reevaluation-authority"
+      ],
+      "generator": "tooling/native-non-skill-projections.mjs",
+      "expectedPathCount": 1,
+      "expectedPathsDigest": "bb1c2d3739f12b5277cfaff35a336eef1597055e83bcb4cd72ef508e5b3ccba2"
+    },
+    {
+      "excludePathPatterns": [
+        "tooling/fixtures/s8-native-non-skill-expected-tree.json"
+      ],
       "id": "sanitized-redesign-fixtures",
       "sourcePathPatterns": [
         "tooling/fixtures/**"

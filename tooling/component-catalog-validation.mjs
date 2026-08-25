@@ -34,9 +34,9 @@ export const componentCatalogPaths = Object.freeze({
 const expectedComponentAnchor =
     "c95388e68d4c4dc63ac64e5220d55be89cd9881819140d113f8cd35868adeb5b";
 const expectedProjectionAnchor =
-    "00daa68b3be4198f6e367f90c637ffa400981112492d593cc7c3670edea3c4e1";
+    "1846a598a1996d240efa819ca9289126ef0c55a628b95fe3050e9c5bfd37fa42";
 const expectedProjectionHostAnchor =
-    "ea1d612b16aea9e1ab96670cec6c67d55cb0f4496bd5f442d273fa5bb801cf32";
+    "9735e6fd6a1b15e92086df6fda6cb4a988094c37c26e11bddf0518d5d3fdeba2";
 
 export const componentKinds = Object.freeze([
     "skill",
@@ -62,6 +62,48 @@ const executableKinds = new Set([
 const passivePackageClasses = new Set([
     "passive-public-package",
     "passive-private-fixture",
+]);
+const staticFixtureHostContracts = new Map([
+    [
+        "jetbrains-ai-assistant",
+        {
+            adapterId: "jetbrains-ai-assistant-host-adapter",
+            outputRoot: "jetbrains-ai-assistant-rules",
+            discoveryRoot: ".aiassistant/rules/",
+            kind: "rule",
+            evidenceId: "jetbrains-ai-assistant-source-1",
+        },
+    ],
+    [
+        "tabnine",
+        {
+            adapterId: "tabnine-host-adapter",
+            outputRoot: "tabnine-guidelines",
+            discoveryRoot: ".tabnine/guidelines/",
+            kind: "rule",
+            evidenceId: "tabnine-source-1",
+        },
+    ],
+    [
+        "visual-studio-copilot",
+        {
+            adapterId: "visual-studio-copilot-host-adapter",
+            outputRoot: "visual-studio-copilot-instructions",
+            discoveryRoot: ".github/copilot-instructions.md",
+            kind: "instruction",
+            evidenceId: "visual-studio-copilot-source-2",
+        },
+    ],
+    [
+        "devin-hosted",
+        {
+            adapterId: "devin-hosted-host-adapter",
+            outputRoot: "devin-hosted-instructions",
+            discoveryRoot: "AGENTS.md",
+            kind: "instruction",
+            evidenceId: "devin-hosted-source-2",
+        },
+    ],
 ]);
 const executableCanaries = new Set([
     "threat-model",
@@ -688,7 +730,13 @@ export function validateComponentProjections(
     root = defaultRepositoryRoot,
 ) {
     const errors = [];
-    const { components, projections, evidence, assuranceProfiles } = catalogs;
+    const {
+        components,
+        projections,
+        evidence,
+        assuranceProfiles,
+        hostAdapters,
+    } = catalogs;
     if (semanticAnchor(projections.projections) !== expectedProjectionAnchor)
         errors.push(
             "component projection semantic contract differs from the independently reviewed anchor",
@@ -702,6 +750,12 @@ export function validateComponentProjections(
     );
     const hostsById = new Map(projections.hosts.map((host) => [host.id, host]));
     const evidenceIds = new Set(evidence.evidence.map((record) => record.id));
+    const evidenceById = new Map(
+        evidence.evidence.map((record) => [record.id, record]),
+    );
+    const hostAdaptersById = new Map(
+        hostAdapters.hosts.map((adapter) => [adapter.id, adapter]),
+    );
     const profilesById = new Map(
         assuranceProfiles.profiles.map((profile) => [profile.id, profile]),
     );
@@ -732,9 +786,35 @@ export function validateComponentProjections(
             outputUses.set(outputPath, uses);
         }
     for (const host of projections.hosts) {
-        for (const evidenceId of host.evidenceIds)
+        for (const evidenceId of host.evidenceIds) {
             if (!evidenceIds.has(evidenceId))
                 errors.push(`${host.id}: unknown host evidence ${evidenceId}`);
+            else if (evidenceById.get(evidenceId).expiresOn < evidence.asOf)
+                errors.push(`${host.id}: expired host evidence ${evidenceId}`);
+        }
+        const adapter = host.hostAdapterId
+            ? hostAdaptersById.get(host.hostAdapterId)
+            : null;
+        if (host.hostAdapterId && !adapter)
+            errors.push(`${host.id}: unknown host adapter ${host.hostAdapterId}`);
+        const staticContract = staticFixtureHostContracts.get(host.id);
+        if (host.materialization === "static-fixture") {
+            if (
+                !staticContract ||
+                host.hostAdapterId !== staticContract.adapterId ||
+                host.staticOutputRoot !== staticContract.outputRoot ||
+                !host.allowedOutputPrefixes.includes(staticContract.outputRoot) ||
+                !host.allowedProjectedKinds.includes(staticContract.kind) ||
+                !host.evidenceIds.includes(staticContract.evidenceId) ||
+                !adapter?.nativeDiscoveryRoots.some(
+                    (root) =>
+                        root.path === staticContract.discoveryRoot &&
+                        root.evidenceIds.includes(staticContract.evidenceId),
+                )
+            )
+                errors.push(`${host.id}: static fixture host contract changed`);
+        } else if (host.staticOutputRoot !== null)
+            errors.push(`${host.id}: non-static host cannot declare an output root`);
         if (
             host.contract === "portable-agent-plugins-1-0" &&
             host.acceptsAnyPassiveProjection
@@ -748,21 +828,32 @@ export function validateComponentProjections(
         const declaredOutputs = [
             ...new Set(hostProjections.flatMap((projection) => projection.outputPaths)),
         ].sort(compareOrdinal);
-        try {
-            const actualOutputs = [
-                ...new Set(
-                    host.allowedOutputPrefixes.flatMap((prefix) =>
-                        adapterLeaves(root, prefix),
+        if (host.materialization === "repository-existing") {
+            try {
+                const actualOutputs = [
+                    ...new Set(
+                        host.allowedOutputPrefixes.flatMap((prefix) =>
+                            adapterLeaves(root, prefix),
+                        ),
                     ),
-                ),
-            ].sort(compareOrdinal);
-            if (JSON.stringify(actualOutputs) !== JSON.stringify(declaredOutputs))
+                ].sort(compareOrdinal);
+                if (
+                    JSON.stringify(actualOutputs) !==
+                    JSON.stringify(declaredOutputs)
+                )
+                    errors.push(
+                        `${host.id}: actual host adapter outputs do not match the projection catalog`,
+                    );
+            } catch (error) {
                 errors.push(
-                    `${host.id}: actual host adapter outputs do not match the projection catalog`,
+                    `${host.id}: host output closure failed: ${error.message}`,
                 );
-        } catch (error) {
-            errors.push(`${host.id}: host output closure failed: ${error.message}`);
-        }
+            }
+        } else if (
+            host.materialization === "none" &&
+            declaredOutputs.length > 0
+        )
+            errors.push(`${host.id}: non-materialized host has output claims`);
         for (const outputPath of host.sharedSymlinkOutputs) {
             if (!projectionOutputMatchesHost(host, outputPath))
                 errors.push(
@@ -818,9 +909,17 @@ export function validateComponentProjections(
                 errors.push(
                     `${projection.id}: unknown projection evidence ${evidenceId}`,
                 );
+            else if (evidenceById.get(evidenceId).expiresOn < evidence.asOf)
+                errors.push(
+                    `${projection.id}: expired projection evidence ${evidenceId}`,
+                );
         if (component && host && !allowanceMatches(component, host, projection))
             errors.push(
                 `${projection.id}: projection is not explicitly allowed by the component contract`,
+            );
+        if (host && !host.allowedProjectedKinds.includes(projection.projectedKind))
+            errors.push(
+                `${projection.id}: projected kind is not allowed by the host contract`,
             );
         if (component?.forbiddenProjections.includes(projection.projectedKind))
             errors.push(
@@ -968,6 +1067,46 @@ export function validateComponentProjections(
                     );
                 }
             }
+        } else if (projection.state === "generated-static") {
+            const staticContract = host
+                ? staticFixtureHostContracts.get(host.id)
+                : null;
+            if (
+                !component ||
+                !component.classification.passive ||
+                !host ||
+                host.materialization !== "static-fixture" ||
+                !staticContract ||
+                projection.adapterType !== "generated" ||
+                projection.hostActivation !== "none" ||
+                projection.packageIdentity !== null ||
+                projection.artifactClass !== "provider-compatibility" ||
+                projection.assuranceProfileId !== "provider-compatibility-v1" ||
+                projection.approval !== "modeled" ||
+                projection.outputPaths.length !== 1 ||
+                !projection.evidenceIds.includes(staticContract.evidenceId)
+            )
+                errors.push(
+                    `${projection.id}: generated-static projection contract changed`,
+                );
+            const sourcePath = component?.canonicalSources[0]?.path;
+            const basename = sourcePath?.split("/").at(-1);
+            const expectedOutput =
+                staticContract?.kind === "rule"
+                    ? `${staticContract.outputRoot}/${staticContract.discoveryRoot}${basename}`
+                    : staticContract
+                      ? `${staticContract.outputRoot}/${staticContract.discoveryRoot}`
+                      : null;
+            if (
+                component?.kind !== staticContract?.kind ||
+                projection.projectedKind !== staticContract?.kind ||
+                component?.canonicalSources.length !== 1 ||
+                projection.outputPaths[0] !== expectedOutput ||
+                !projectionOutputMatchesHost(host, projection.outputPaths[0])
+            )
+                errors.push(
+                    `${projection.id}: generated-static semantic kind, source, or output mapping changed`,
+                );
         } else if (
             projection.outputPaths.length > 0 ||
             projection.adapterType !== "none" ||
@@ -1023,6 +1162,33 @@ export function validateComponentProjections(
             else packageTrust.set(projection.packageIdentity, trust);
         }
     }
+    const generatedStatic = projections.projections.filter(
+        (projection) => projection.state === "generated-static",
+    );
+    const generatedCounts = Object.fromEntries(
+        [...staticFixtureHostContracts.keys()].map((hostId) => [
+            hostId,
+            generatedStatic.filter((projection) => projection.hostId === hostId)
+                .length,
+        ]),
+    );
+    if (
+        projections.hosts.length !== 9 ||
+        projections.projections.length !== 382 ||
+        projections.projections.filter(
+            (projection) => projection.state === "existing",
+        ).length !== 312 ||
+        generatedStatic.length !== 70 ||
+        generatedCounts["jetbrains-ai-assistant"] !== 34 ||
+        generatedCounts.tabnine !== 34 ||
+        generatedCounts["visual-studio-copilot"] !== 1 ||
+        generatedCounts["devin-hosted"] !== 1 ||
+        new Set(generatedStatic.map((projection) => projection.componentId))
+            .size !== 35
+    )
+        errors.push(
+            "S8 generated-static projection cardinality differs from the reviewed contract",
+        );
     for (const [outputPath, uses] of outputUses) {
         if (
             uses.length === 0 ||
@@ -1147,6 +1313,7 @@ export function validateComponentCatalogs(root = defaultRepositoryRoot) {
     let evidence;
     let targets;
     let assuranceProfiles;
+    let hostAdapters;
     try {
         authoredComponents = readCatalog(
             join(root, componentCatalogPaths.authoredComponents),
@@ -1164,6 +1331,9 @@ export function validateComponentCatalogs(root = defaultRepositoryRoot) {
         targets = readCatalog(join(root, componentCatalogPaths.targets));
         assuranceProfiles = readCatalog(
             join(root, componentCatalogPaths.assuranceProfiles),
+        );
+        hostAdapters = readCatalog(
+            join(root, componentCatalogPaths.hostAdapters),
         );
         const componentsSchema = readCatalog(
             join(root, componentCatalogPaths.componentsSchema),
@@ -1201,6 +1371,7 @@ export function validateComponentCatalogs(root = defaultRepositoryRoot) {
         evidence,
         targets,
         assuranceProfiles,
+        hostAdapters,
     };
     errors.push(...validateComponents(catalogs, root));
     errors.push(...validateComponentProjections(catalogs, root));
