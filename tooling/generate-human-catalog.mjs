@@ -379,10 +379,7 @@ export function buildHumanCatalogOutputs() {
         "catalog/v2/ecosystem-artifact-coverage.json",
     );
     const generatedCoverageByBindingId = new Map(
-        generatedCoverage.coverage.map((record) => [
-            record.bindingId,
-            record,
-        ]),
+        generatedCoverage.coverage.map((record) => [record.bindingId, record]),
     );
     const hostAdapters = catalogs.get("catalog/host-adapters.json").hosts;
     const bundles = catalogs.get("catalog/v2/bundles.json").bundles;
@@ -498,9 +495,8 @@ export function buildHumanCatalogOutputs() {
             targetId: host.serving.targetId,
             outputRoot: host.serving.outputRoot,
             generationState:
-                generatedCoverageByBindingId.get(
-                    host.serving.artifactBindingId,
-                )?.generationState ?? "unmapped",
+                generatedCoverageByBindingId.get(host.serving.artifactBindingId)
+                    ?.generationState ?? "unmapped",
             technicalTier:
                 supportByBindingId.get(host.serving.artifactBindingId)
                     ?.effectiveTier ?? "unsupported",

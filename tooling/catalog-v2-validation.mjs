@@ -1593,7 +1593,9 @@ export function validateArtifacts(catalogs) {
             }
         }
         for (const [inventoryName, expectedKind] of componentKindByInventory) {
-            for (const componentId of artifact.componentInventory[inventoryName]) {
+            for (const componentId of artifact.componentInventory[
+                inventoryName
+            ]) {
                 const component = componentsById.get(componentId);
                 if (!component) {
                     errors.push(

@@ -37,16 +37,28 @@ function clone(value) {
 function load() {
     return {
         components: readCatalog(
-            join(defaultRepositoryRoot, componentCatalogPaths.authoredComponents),
+            join(
+                defaultRepositoryRoot,
+                componentCatalogPaths.authoredComponents,
+            ),
         ),
         projections: readCatalog(
-            join(defaultRepositoryRoot, componentCatalogPaths.authoredProjections),
+            join(
+                defaultRepositoryRoot,
+                componentCatalogPaths.authoredProjections,
+            ),
         ),
         generatedComponents: readCatalog(
-            join(defaultRepositoryRoot, componentCatalogPaths.generatedComponents),
+            join(
+                defaultRepositoryRoot,
+                componentCatalogPaths.generatedComponents,
+            ),
         ),
         generatedProjections: readCatalog(
-            join(defaultRepositoryRoot, componentCatalogPaths.generatedProjections),
+            join(
+                defaultRepositoryRoot,
+                componentCatalogPaths.generatedProjections,
+            ),
         ),
         evidence: readCatalog(
             join(defaultRepositoryRoot, componentCatalogPaths.evidence),
@@ -55,7 +67,10 @@ function load() {
             join(defaultRepositoryRoot, componentCatalogPaths.targets),
         ),
         assuranceProfiles: readCatalog(
-            join(defaultRepositoryRoot, componentCatalogPaths.assuranceProfiles),
+            join(
+                defaultRepositoryRoot,
+                componentCatalogPaths.assuranceProfiles,
+            ),
         ),
     };
 }
@@ -187,7 +202,9 @@ test("duplicate canonical ownership fails", () => {
     duplicate.id = "duplicate-owner-fixture";
     duplicate.semanticIdentity = duplicate.id;
     duplicate.canonicalSources[0].ownerComponentId = duplicate.id;
-    duplicate.contentDigest = digestComponentSources(duplicate.canonicalSources);
+    duplicate.contentDigest = digestComponentSources(
+        duplicate.canonicalSources,
+    );
     catalogs.components.components.push(duplicate);
     assert(
         validateComponents(catalogs).some((error) =>
@@ -205,7 +222,10 @@ test("path escape, symlink, and special canonical sources fail", () => {
         execFileSync("mkfifo", [join(root, "source/fifo")]);
         const component = passiveStaticComponent(root, "outside.txt");
         component.canonicalSources[0].path = "../outside.txt";
-        let errors = validateComponents(syntheticCatalog(root, component), root);
+        let errors = validateComponents(
+            syntheticCatalog(root, component),
+            root,
+        );
         assert(errors.some((error) => error.includes("path is unsafe")));
         component.canonicalSources[0].path = "source/link";
         errors = validateComponents(syntheticCatalog(root, component), root);
@@ -224,8 +244,14 @@ test("canonical and component digest drift fails", () => {
     component.canonicalSources[0].digest = "0".repeat(64);
     component.contentDigest = "0".repeat(64);
     const errors = validateComponents(catalogs);
-    assert(errors.some((error) => error.includes("canonical source digest drift")));
-    assert(errors.some((error) => error.includes("component content digest is stale")));
+    assert(
+        errors.some((error) => error.includes("canonical source digest drift")),
+    );
+    assert(
+        errors.some((error) =>
+            error.includes("component content digest is stale"),
+        ),
+    );
 });
 
 test("unknown component dependency and evidence fail", () => {
@@ -234,8 +260,12 @@ test("unknown component dependency and evidence fail", () => {
     component.dependencies.push("unknown-component");
     component.approval.evidenceIds.push("unknown-evidence");
     const errors = validateComponents(catalogs);
-    assert(errors.some((error) => error.includes("unknown component dependency")));
-    assert(errors.some((error) => error.includes("unknown component evidence")));
+    assert(
+        errors.some((error) => error.includes("unknown component dependency")),
+    );
+    assert(
+        errors.some((error) => error.includes("unknown component evidence")),
+    );
 });
 
 test("unknown projection component, evidence, host, and artifact class fail", () => {
@@ -250,7 +280,9 @@ test("unknown projection component, evidence, host, and artifact class fail", ()
     assert(errors.some((error) => error.includes("unknown component")));
     assert(errors.some((error) => error.includes("unknown host")));
     assert(errors.some((error) => error.includes("unknown assurance profile")));
-    assert(errors.some((error) => error.includes("unknown projection evidence")));
+    assert(
+        errors.some((error) => error.includes("unknown projection evidence")),
+    );
 });
 
 test("an agent cannot be approximated as a portable plugin field", () => {
@@ -267,7 +299,9 @@ test("an agent cannot be approximated as a portable plugin field", () => {
     const errors = projectionErrors(catalogs);
     assert(
         errors.some((error) =>
-            error.includes("accepts only skills and optional separately approved MCP"),
+            error.includes(
+                "accepts only skills and optional separately approved MCP",
+            ),
         ),
     );
 });
@@ -293,7 +327,9 @@ test("hook, MCP, and LSP components are rejected from passive artifacts", () => 
     }
     const errors = validateArtifacts({ ...catalogs, artifacts });
     assert.equal(
-        errors.filter((error) => error.includes("passive artifact rejects executable component")).length,
+        errors.filter((error) =>
+            error.includes("passive artifact rejects executable component"),
+        ).length,
         3,
     );
 });
@@ -311,8 +347,14 @@ test("executable components require threat, security, assurance, and canary cont
     component.requiredCanaries = [];
     const errors = validateComponents(catalogs);
     assert(errors.some((error) => error.includes("requires threat model")));
-    assert(errors.some((error) => error.includes("requires threat-model canary")));
-    assert(errors.some((error) => error.includes("requires security-review canary")));
+    assert(
+        errors.some((error) => error.includes("requires threat-model canary")),
+    );
+    assert(
+        errors.some((error) =>
+            error.includes("requires security-review canary"),
+        ),
+    );
 });
 
 test("commands and prompts cannot conflate semantic identity", () => {
@@ -323,11 +365,14 @@ test("commands and prompts cannot conflate semantic identity", () => {
     const prompt = catalogs.components.components.find(
         (component) =>
             component.kind === "prompt" &&
-            component.canonicalSources[0].path === command.canonicalSources[0].path,
+            component.canonicalSources[0].path ===
+                command.canonicalSources[0].path,
     );
     command.semanticIdentity = prompt.semanticIdentity;
     const errors = validateComponents(catalogs);
-    assert(errors.some((error) => error.includes("duplicate semantic identity")));
+    assert(
+        errors.some((error) => error.includes("duplicate semantic identity")),
+    );
     assert(errors.some((error) => error.includes("semantics are conflated")));
 });
 
@@ -340,7 +385,9 @@ test("generated adapters cannot acquire canonical ownership", () => {
     const errors = validateComponents(catalogs);
     assert(
         errors.some((error) =>
-            error.includes("generated adapter cannot be claimed as canonical source"),
+            error.includes(
+                "generated adapter cannot be claimed as canonical source",
+            ),
         ),
     );
 });
@@ -352,12 +399,16 @@ test("projection state and host output boundary must agree", () => {
     );
     projection.hostId = "codex";
     let errors = projectionErrors(catalogs);
-    assert(errors.some((error) => error.includes("does not match host boundary")));
+    assert(
+        errors.some((error) => error.includes("does not match host boundary")),
+    );
     projection.state = "planned";
     errors = projectionErrors(catalogs);
     assert(
         errors.some((error) =>
-            error.includes("planned or blocked projection cannot claim existing output"),
+            error.includes(
+                "planned or blocked projection cannot claim existing output",
+            ),
         ),
     );
     const projectionCatalog = clone(load().projections);
@@ -385,11 +436,16 @@ test("coordinated component ID rename still violates exact semantic anchors", ()
     component.canonicalSources[0].ownerComponentId = component.id;
     for (const candidate of catalogs.components.components) {
         for (const source of candidate.canonicalSources) {
-            if (source.ownerComponentId === oldId) source.ownerComponentId = component.id;
+            if (source.ownerComponentId === oldId)
+                source.ownerComponentId = component.id;
         }
     }
     const errors = validateComponents(catalogs);
-    assert(errors.some((error) => error.includes("stable identity anchor requires")));
+    assert(
+        errors.some((error) =>
+            error.includes("stable identity anchor requires"),
+        ),
+    );
 });
 
 test("an additive passive component is accepted without granting eligibility", () => {
@@ -436,15 +492,27 @@ test("component inventory cannot grant artifact runtime eligibility", () => {
     const artifacts = readCatalog(
         join(defaultRepositoryRoot, "catalog/v2/artifacts.json"),
     );
-    const planned = artifacts.artifacts.find((artifact) => !artifact.fixtureOnly);
+    const planned = artifacts.artifacts.find(
+        (artifact) => !artifact.fixtureOnly,
+    );
     planned.runtimeEligible = true;
     const hook = catalogs.components.components.find(
         (component) => component.kind === "hook",
     );
     planned.componentInventory.hooks.push(hook.id);
     const errors = validateArtifacts({ ...catalogs, artifacts });
-    assert(errors.some((error) => error.includes("runtime eligibility requires materialization approval")));
-    assert(errors.some((error) => error.includes("passive artifact rejects executable component")));
+    assert(
+        errors.some((error) =>
+            error.includes(
+                "runtime eligibility requires materialization approval",
+            ),
+        ),
+    );
+    assert(
+        errors.some((error) =>
+            error.includes("passive artifact rejects executable component"),
+        ),
+    );
 });
 
 test("executable and passive components cannot share a package identity", () => {

@@ -30,7 +30,12 @@ export function generateComponentCatalogs(root = repositoryRoot) {
     return outputs;
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+if (
+    process.argv[1] &&
+    resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+) {
     const outputs = generateComponentCatalogs();
-    process.stdout.write(`Generated ${outputs.size} component catalog projections.\n`);
+    process.stdout.write(
+        `Generated ${outputs.size} component catalog projections.\n`,
+    );
 }
