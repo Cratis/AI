@@ -158,3 +158,6 @@ artifacts/
 .pi/fusion/
 .pi/tasks/
 .pi/*-session-*/
+
+# Local AI work artifacts (plans, handovers, session notes) — never tracked
+.ai-work/
