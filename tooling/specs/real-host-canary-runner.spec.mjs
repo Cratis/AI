@@ -170,12 +170,16 @@ test("checked-in Pi attempts preserve blocked history and non-supporting success
     );
     assert(
         validateRealHostCanaryReportFile(blockedPath).some((error) =>
-            error.includes("source revision differs"),
+            error.includes(
+                "does not descend from the reviewed runner baseline",
+            ),
         ),
     );
     assert(
         validateRealHostCanaryReportFile(supersededPath).some((error) =>
-            error.includes("source revision differs"),
+            error.includes(
+                "does not descend from the reviewed runner baseline",
+            ),
         ),
     );
     assert.deepEqual(validateRealHostCanaryReportFile(successPath), []);

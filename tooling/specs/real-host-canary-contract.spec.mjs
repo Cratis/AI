@@ -190,7 +190,7 @@ test("report digest, phase closure, context, environment, and grant fields fail 
     );
     assert(
         semanticErrors.some((error) =>
-            error.includes("source revision differs"),
+            error.includes("does not descend from the reviewed runner baseline"),
         ),
     );
     assert(

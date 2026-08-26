@@ -295,7 +295,7 @@ export function runRealHostCanary({
             }
         }
         base.reportPayloadDigest = reportPayloadDigest(base);
-        const errors = validateRealHostCanaryReport(base, contracts);
+        const errors = validateRealHostCanaryReport(base, contracts, root);
         if (errors.length > 0)
             throw new Error(`Real-host report invalid: ${errors.join("; ")}`);
         if (outputPath)

@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
 import { join } from "node:path";
 import {
     defaultRepositoryRoot,
@@ -165,6 +166,7 @@ export function validateRealHostCanaryMatrix(
 export function validateRealHostCanaryReport(
     report,
     contracts = loadRealHostCanaryContracts(),
+    root = defaultRepositoryRoot,
 ) {
     const errors = [
         ...validateAgainstSchema(
@@ -186,8 +188,22 @@ export function validateRealHostCanaryReport(
         errors.push("real-host report does not match its matrix identity");
     if (report.reportPayloadDigest !== reportPayloadDigest(report))
         errors.push("real-host report payload digest is stale");
-    if (report.sourceRevision !== contracts.matrix.requiredSourceRevision)
-        errors.push("real-host report source revision differs from the matrix");
+    try {
+        execFileSync(
+            "git",
+            [
+                "merge-base",
+                "--is-ancestor",
+                contracts.matrix.requiredSourceRevision,
+                report.sourceRevision,
+            ],
+            { cwd: root, stdio: "pipe" },
+        );
+    } catch {
+        errors.push(
+            "real-host report source revision does not descend from the reviewed runner baseline",
+        );
+    }
     const phaseIds = report.phases.map((phase) => phase.id);
     if (
         JSON.stringify([...phaseIds].sort(compareOrdinal)) !==
