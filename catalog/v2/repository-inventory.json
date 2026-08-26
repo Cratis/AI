@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "d2675bd46175b22f74a1299f447abc2bc36bbcd05242ed9417a2fdc62c42db79",
+  "indexDigest": "6a2861b21d4f6776ebc0b7801e1af6efecfe9e27ec9318f85433f5c2d25a73da",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -816,6 +816,14 @@
     },
     {
       "path": "distribution/remote-repository-state.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/repository-control-plane/.github/scripts/verify-generated-distribution.mjs",
+      "status": "added"
+    },
+    {
+      "path": "distribution/repository-control-plane/.github/workflows/verify-generated-distribution.yml",
       "status": "added"
     },
     {
@@ -2679,6 +2687,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/specs/distribution-repository-verification.spec.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/specs/distribution-rollout.spec.mjs",
       "status": "added"
     },
@@ -4340,8 +4352,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 55,
-      "expectedPathsDigest": "1d67d2b407a241c5f1f41dcda85c236535b9dffe27611beb7f3555e87722674c"
+      "expectedPathCount": 57,
+      "expectedPathsDigest": "e059e8310448fc80e3fc2ed4f95fdea90e5254b0493115a752cbd880f5ba93ec"
     },
     {
       "excludePathPatterns": [],
@@ -4439,8 +4451,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 50,
-      "expectedPathsDigest": "825d91145f10140b2ca0cf151ef87dea482656d514a0e397d82b2394c833720a"
+      "expectedPathCount": 51,
+      "expectedPathsDigest": "f9d4e875952ca45d135296450eabae78425109eba0292de7168e62d2404f5879"
     },
     {
       "excludePathPatterns": [],
