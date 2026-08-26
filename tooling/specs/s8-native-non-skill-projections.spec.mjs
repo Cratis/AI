@@ -131,8 +131,16 @@ test("S8 payload contains only exact native rule and instruction bytes", () => {
             general,
         );
         const paths = generated.validation.files.map((file) => file.path);
-        assert(!paths.includes("jetbrains-ai-assistant-rules/.aiassistant/rules/general.md"));
-        assert(!paths.includes("tabnine-guidelines/.tabnine/guidelines/general.md"));
+        assert(
+            !paths.includes(
+                "jetbrains-ai-assistant-rules/.aiassistant/rules/general.md",
+            ),
+        );
+        assert(
+            !paths.includes(
+                "tabnine-guidelines/.tabnine/guidelines/general.md",
+            ),
+        );
         for (const path of paths) {
             assert.doesNotMatch(
                 path,
@@ -140,12 +148,18 @@ test("S8 payload contains only exact native rule and instruction bytes", () => {
             );
             assert.doesNotMatch(path, /(?:^|\/)manifest(?:\.|\/)/iu);
         }
-        assert.equal(generated.receipt.projections.every(
-            (projection) => projection.outputDigest.length === 64,
-        ), true);
-        assert.equal(generated.receipt.projections.every(
-            (projection) => projection.sourceDigest.length === 64,
-        ), true);
+        assert.equal(
+            generated.receipt.projections.every(
+                (projection) => projection.outputDigest.length === 64,
+            ),
+            true,
+        );
+        assert.equal(
+            generated.receipt.projections.every(
+                (projection) => projection.sourceDigest.length === 64,
+            ),
+            true,
+        );
     } finally {
         rmSync(parent, { recursive: true, force: true });
     }

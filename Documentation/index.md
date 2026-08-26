@@ -14,6 +14,7 @@ harness. The mixed source repository is not itself an installation package.
 | Page | Purpose |
 | --- | --- |
 | [Distribution and subscriptions](./ai-distribution-and-subscriptions.md) | Source authority, product profiles, Pi, versioning, pinning, updates, rollback, and upstream improvements |
+| [Maintaining shared AI behavior](./maintaining-shared-ai-behavior.md) | Maintainer workflow for ownership, local overlays, upstream improvements, releases, and one-way delivery |
 | [Public product architecture](./public-product-architecture.md) | Public/engineering ownership and runtime payload boundaries |
 | [Project context bootstrap](./project-context-bootstrap.md) | Project-owned facts and minimal harness bootstraps |
 | [Skill authoring contract](./skill-authoring-contract.md) | Canonical source, evidence, and clean-room requirements |

@@ -299,7 +299,9 @@ test("S8 generated-static projections reject kind, path, package, and evidence d
         (record) => record.id === generated.evidenceIds[0],
     ).expiresOn = "2026-08-24";
     errors = projectionErrors(expired);
-    assert(errors.some((error) => error.includes("expired projection evidence")));
+    assert(
+        errors.some((error) => error.includes("expired projection evidence")),
+    );
 
     const hostDrift = load();
     const host = hostDrift.projections.hosts.find(
@@ -307,7 +309,11 @@ test("S8 generated-static projections reject kind, path, package, and evidence d
     );
     host.staticOutputRoot = "wrong-root";
     errors = projectionErrors(hostDrift);
-    assert(errors.some((error) => error.includes("static fixture host contract changed")));
+    assert(
+        errors.some((error) =>
+            error.includes("static fixture host contract changed"),
+        ),
+    );
 });
 
 test("retained legacy host skills are explicit unbound components", () => {
@@ -424,12 +430,8 @@ test("distribution target bindings are exact and legacy components stay unbound"
     );
     legacy.distributionTargetId = legacy.id;
     const errors = validateComponents(catalogs);
-    assert(
-        errors.some((error) => error.includes("retain its target binding")),
-    );
-    assert(
-        errors.some((error) => error.includes("legacy-retained component")),
-    );
+    assert(errors.some((error) => error.includes("retain its target binding")));
+    assert(errors.some((error) => error.includes("legacy-retained component")));
 });
 
 test("canonical and component digest drift fails", () => {
@@ -689,9 +691,7 @@ test("coordinated projection host and adapter mutations fail independent anchors
     assert(
         errors.some((error) => error.includes("projection semantic contract")),
     );
-    assert(
-        errors.some((error) => error.includes("projection host contract")),
-    );
+    assert(errors.some((error) => error.includes("projection host contract")));
 });
 
 test("duplicate semantic projection records fail even with distinct IDs", () => {
@@ -829,7 +829,9 @@ test("path-reference records are explicitly inert rather than host behavior", ()
         (projection) => projection.adapterType === "path-reference",
     );
     assert.equal(references.length, 3);
-    assert(references.every((projection) => projection.hostActivation === "inert"));
+    assert(
+        references.every((projection) => projection.hostActivation === "inert"),
+    );
     references[0].hostActivation = "active";
     assert(
         projectionErrors(catalogs).some((error) =>
@@ -874,7 +876,8 @@ test("canonical roots ownership direction and portable kind cannot be coordinate
         (component) => component.kind === "command",
     );
     const prompt = catalogs.components.components.find(
-        (component) => component.id === command.canonicalSources[0].ownerComponentId,
+        (component) =>
+            component.id === command.canonicalSources[0].ownerComponentId,
     );
     command.canonicalSources[0].ownership = "owner";
     command.canonicalSources[0].ownerComponentId = command.id;
@@ -963,8 +966,7 @@ test("fixture component inventories bind exact canonical bytes", () => {
         join(defaultRepositoryRoot, "catalog/v2/artifacts.json"),
     );
     const fixture = artifacts.artifacts.find(
-        (artifact) =>
-            artifact.id === "cratis-fundamentals-concept-preview",
+        (artifact) => artifact.id === "cratis-fundamentals-concept-preview",
     );
     fixture.componentInventory.skills.push("cratis-arc-command");
     assert(

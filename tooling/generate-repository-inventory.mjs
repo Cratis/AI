@@ -747,6 +747,7 @@ const definitions = [
         sourcePathPatterns: [
             "Documentation/capability-catalog-v2.md",
             "Documentation/chronicle-mcp-guidance.md",
+            "Documentation/maintaining-shared-ai-behavior.md",
             "Documentation/native-non-skill-projections.md",
             "Documentation/real-host-canaries.md",
             "Documentation/s10-release-and-marketplace-gates.md",

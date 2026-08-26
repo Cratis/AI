@@ -132,7 +132,9 @@ function semanticAnchor(records) {
     const lines = [...records]
         .sort((left, right) => compareOrdinal(left.id, right.id))
         .map((record) => JSON.stringify(record));
-    return createHash("sha256").update(`${lines.join("\n")}\n`).digest("hex");
+    return createHash("sha256")
+        .update(`${lines.join("\n")}\n`)
+        .digest("hex");
 }
 
 function duplicates(values) {
@@ -198,7 +200,9 @@ export function regularFiles(root, sourcePath) {
 
 function adapterLeaves(root, outputPath) {
     if (!normalizedRepositoryPath(outputPath))
-        throw new Error("adapter path must be normalized and repository-relative");
+        throw new Error(
+            "adapter path must be normalized and repository-relative",
+        );
     const absolute = join(root, outputPath);
     const stat = lstatSync(absolute);
     if (stat.isFile() || stat.isSymbolicLink()) return [outputPath];
@@ -524,11 +528,7 @@ export function validateComponents(catalogs, root = defaultRepositoryRoot) {
                 errors.push(
                     `${component.id}: private project context cannot become a catalog component source: ${source.path}`,
                 );
-            if (
-                !roots.some((rootPath) =>
-                    pathWithin(source.path, rootPath),
-                )
-            )
+            if (!roots.some((rootPath) => pathWithin(source.path, rootPath)))
                 errors.push(
                     `${component.id}: canonical source is outside declared roots: ${source.path}`,
                 );
@@ -586,7 +586,9 @@ export function validateComponents(catalogs, root = defaultRepositoryRoot) {
         errors.push(`multiple components bind distribution target ${targetId}`);
     for (const targetId of targetIds)
         if (!targetBindings.includes(targetId))
-            errors.push(`distribution target has no component binding ${targetId}`);
+            errors.push(
+                `distribution target has no component binding ${targetId}`,
+            );
     for (const rootPath of roots) {
         try {
             for (const file of regularFiles(root, rootPath)) {
@@ -796,14 +798,18 @@ export function validateComponentProjections(
             ? hostAdaptersById.get(host.hostAdapterId)
             : null;
         if (host.hostAdapterId && !adapter)
-            errors.push(`${host.id}: unknown host adapter ${host.hostAdapterId}`);
+            errors.push(
+                `${host.id}: unknown host adapter ${host.hostAdapterId}`,
+            );
         const staticContract = staticFixtureHostContracts.get(host.id);
         if (host.materialization === "static-fixture") {
             if (
                 !staticContract ||
                 host.hostAdapterId !== staticContract.adapterId ||
                 host.staticOutputRoot !== staticContract.outputRoot ||
-                !host.allowedOutputPrefixes.includes(staticContract.outputRoot) ||
+                !host.allowedOutputPrefixes.includes(
+                    staticContract.outputRoot,
+                ) ||
                 !host.allowedProjectedKinds.includes(staticContract.kind) ||
                 !host.evidenceIds.includes(staticContract.evidenceId) ||
                 !adapter?.nativeDiscoveryRoots.some(
@@ -814,7 +820,9 @@ export function validateComponentProjections(
             )
                 errors.push(`${host.id}: static fixture host contract changed`);
         } else if (host.staticOutputRoot !== null)
-            errors.push(`${host.id}: non-static host cannot declare an output root`);
+            errors.push(
+                `${host.id}: non-static host cannot declare an output root`,
+            );
         if (
             host.contract === "portable-agent-plugins-1-0" &&
             host.acceptsAnyPassiveProjection
@@ -826,7 +834,9 @@ export function validateComponentProjections(
             (projection) => projection.hostId === host.id,
         );
         const declaredOutputs = [
-            ...new Set(hostProjections.flatMap((projection) => projection.outputPaths)),
+            ...new Set(
+                hostProjections.flatMap((projection) => projection.outputPaths),
+            ),
         ].sort(compareOrdinal);
         if (host.materialization === "repository-existing") {
             try {
@@ -917,7 +927,10 @@ export function validateComponentProjections(
             errors.push(
                 `${projection.id}: projection is not explicitly allowed by the component contract`,
             );
-        if (host && !host.allowedProjectedKinds.includes(projection.projectedKind))
+        if (
+            host &&
+            !host.allowedProjectedKinds.includes(projection.projectedKind)
+        )
             errors.push(
                 `${projection.id}: projected kind is not allowed by the host contract`,
             );
@@ -949,7 +962,9 @@ export function validateComponentProjections(
         }
         if (projection.state === "existing") {
             const expectedActivation =
-                projection.adapterType === "path-reference" ? "inert" : "active";
+                projection.adapterType === "path-reference"
+                    ? "inert"
+                    : "active";
             if (projection.hostActivation !== expectedActivation)
                 errors.push(
                     `${projection.id}: existing ${projection.adapterType} adapter requires ${expectedActivation} host activation`,
@@ -968,11 +983,7 @@ export function validateComponentProjections(
                             `${projection.id}: projection output does not match host boundary: ${path}`,
                         );
                     const output = join(root, path);
-                    if (!existsSync(output))
-                        errors.push(
-                            `${projection.id}: existing projection output is missing: ${path}`,
-                        );
-                    else {
+                    if (existsSync(output)) {
                         const stat = lstatSync(output);
                         if (
                             projection.adapterType === "symlink" &&
@@ -996,14 +1007,18 @@ export function validateComponentProjections(
                                 `${projection.id}: canonical-in-place output is not a regular file: ${path}`,
                             );
                         try {
-                            const canonicalTargets = component?.canonicalSources.map(
-                                (source) => realpathSync(join(root, source.path)),
-                            );
+                            const canonicalTargets =
+                                component?.canonicalSources.map((source) =>
+                                    realpathSync(join(root, source.path)),
+                                );
                             if (
                                 projection.adapterType === "path-reference" &&
                                 canonicalTargets
                             ) {
-                                const reference = readFileSync(output, "utf8").trim();
+                                const reference = readFileSync(
+                                    output,
+                                    "utf8",
+                                ).trim();
                                 const target = realpathSync(
                                     resolve(dirname(output), reference),
                                 );
@@ -1033,16 +1048,16 @@ export function validateComponentProjections(
                                 `${projection.id}: adapter target validation failed for ${path}: ${error.message}`,
                             );
                         }
-                    }
+                    } else
+                        errors.push(
+                            `${projection.id}: existing projection output is missing: ${path}`,
+                        );
                 } else
                     errors.push(
                         `${projection.id}: projection output path is unsafe: ${path}`,
                     );
             }
-            if (
-                projection.adapterType === "canonical-in-place" &&
-                component
-            ) {
+            if (projection.adapterType === "canonical-in-place" && component) {
                 try {
                     const canonicalFiles = [
                         ...new Set(
@@ -1213,9 +1228,7 @@ export function validateComponentProjections(
                 const representedByProjection = componentFiles.filter((file) =>
                     pathWithin(file, targetPath),
                 );
-                if (
-                    representedByProjection.length !== componentFiles.length
-                )
+                if (representedByProjection.length !== componentFiles.length)
                     errors.push(
                         `${projection.id}: symlink output does not expose all component canonical bytes`,
                     );

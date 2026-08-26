@@ -1,6 +1,6 @@
 # Public Product and Internal Engineering Ownership
 
-> **Reevaluation update — 2026-08-20:** The ownership separation remains sound, but direct distribution from a co-located source checkout is rejected. `Cratis/Workflows#68` still owns the replacement distribution decision. Public releases must be materialized into a public-only tree, engineering Agent Skills must not live under a recursively discoverable `**/skills` source path, and `.cratis/PROJECT.md` requires project-owned host bootstraps or managed configuration. See [`../AI-REPOSITORY-REDESIGN-REEVALUATION.md`](../AI-REPOSITORY-REDESIGN-REEVALUATION.md).
+> **Reevaluation update — 2026-08-20:** The ownership separation remains sound, but direct distribution from a co-located source checkout is rejected. `Cratis/Workflows#68` still owns the replacement distribution decision. Public releases must be materialized into a public-only tree, engineering Agent Skills must not live under a recursively discoverable `**/skills` source path, and `.cratis/PROJECT.md` requires project-owned host bootstraps or managed configuration. See [Capability catalog v2](./capability-catalog-v2.md) and [Distribution and subscriptions](./ai-distribution-and-subscriptions.md).
 
 **Decision status:** Maintainer direction recorded
 **Scope:** Public product and Cratis engineering source boundaries

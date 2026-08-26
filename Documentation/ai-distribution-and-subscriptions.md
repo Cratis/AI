@@ -430,6 +430,11 @@ a convenient staging subdirectory.
 
 ## Improvements from consuming repositories
 
+See [Maintaining shared Cratis AI behavior](./maintaining-shared-ai-behavior.md)
+for the complete internal maintainer workflow, including ownership decisions,
+temporary local workarounds, proposal evidence, canonical implementation, and
+downstream adoption.
+
 There is intentionally no automatic two-way or multi-way file sync. File sync
 creates competing authorities, merge ambiguity, accidental publication, and
 unreviewed behavior drift.

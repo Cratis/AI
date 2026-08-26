@@ -201,8 +201,12 @@ export function computeEvidenceIdentityAnchors(evidence) {
         observationIdentityAnchor: digestLines(
             observationIdentityLines(evidence.observations),
         ),
-        sourceIdentityAnchor: digestLines(sourceIdentityLines(evidence.sources)),
-        factIdentityAnchor: digestLines(factIdentityLines(evidence.legacyFacts)),
+        sourceIdentityAnchor: digestLines(
+            sourceIdentityLines(evidence.sources),
+        ),
+        factIdentityAnchor: digestLines(
+            factIdentityLines(evidence.legacyFacts),
+        ),
         gapIdentityAnchor: digestLines(
             evidence.legacyGaps.map((gap) =>
                 JSON.stringify({
@@ -469,9 +473,7 @@ export function validateNormalizedEvidence(
         for (const duplicate of duplicates(ids))
             errors.push(`${label} catalog contains duplicate id ${duplicate}`);
     }
-    const protectedObservationIds = new Set(
-        evidenceBaseline.observationIds,
-    );
+    const protectedObservationIds = new Set(evidenceBaseline.observationIds);
     const protectedSourceIds = new Set(evidenceBaseline.sourceIds);
     const protectedFactIds = new Set(evidenceBaseline.factIds);
     const protectedGapIds = new Set(evidenceBaseline.gapIds);

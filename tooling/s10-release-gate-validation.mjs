@@ -67,10 +67,7 @@ export function validateS10ReleaseGate(root = defaultRepositoryRoot) {
     const releaseRecordSchema = readCatalog(
         join(root, s10ReleasePaths.releaseRecordSchema),
     );
-    const evidenceBaselinePath = join(
-        root,
-        s10ReleasePaths.evidenceBaseline,
-    );
+    const evidenceBaselinePath = join(root, s10ReleasePaths.evidenceBaseline);
     const evidenceBaseline = readCatalog(evidenceBaselinePath);
     const evidenceBaselineSchema = readCatalog(
         join(root, s10ReleasePaths.evidenceBaselineSchema),
@@ -96,7 +93,9 @@ export function validateS10ReleaseGate(root = defaultRepositoryRoot) {
     ])
         errors.push(...validateAgainstSchema(value, schema, schema));
     if (sha256(readFileSync(policyPath)) !== expectedPolicyDigest)
-        errors.push("S10 release policy differs from the reviewed blocked anchor");
+        errors.push(
+            "S10 release policy differs from the reviewed blocked anchor",
+        );
     if (
         sha256(readFileSync(evidenceBaselinePath)) !==
         expectedEvidenceBaselineDigest
@@ -146,7 +145,8 @@ export function validateS10ReleaseGate(root = defaultRepositoryRoot) {
         if (!observationIds.has(id))
             errors.push(`evidence baseline lost observation ${id}`);
     for (const id of evidenceBaseline.sourceIds)
-        if (!sourceIds.has(id)) errors.push(`evidence baseline lost source ${id}`);
+        if (!sourceIds.has(id))
+            errors.push(`evidence baseline lost source ${id}`);
     for (const id of evidenceBaseline.factIds)
         if (!factIds.has(id)) errors.push(`evidence baseline lost fact ${id}`);
     for (const id of evidenceBaseline.gapIds)
@@ -187,8 +187,14 @@ export function validateS10ReleaseGate(root = defaultRepositoryRoot) {
         const record = evidence.distributionEvidenceFiles.find(
             (candidate) => candidate.repositoryPath === reportPath,
         );
-        if (!record || record.role !== "inventory-only" || record.observationIds.length)
-            errors.push(`${reportPath}: S9 fixture report must remain inventory-only`);
+        if (
+            !record ||
+            record.role !== "inventory-only" ||
+            record.observationIds.length
+        )
+            errors.push(
+                `${reportPath}: S9 fixture report must remain inventory-only`,
+            );
     }
     const workflow = readFileSync(
         join(root, ".github/workflows/release-approved-ai-profiles.yml"),
@@ -221,7 +227,9 @@ export function validateS10ReleaseGate(root = defaultRepositoryRoot) {
             !block.includes("s10_preflight") ||
             !block.includes("release_allowed == 'true'")
         )
-            errors.push(`${job}: side-effect job is reachable while S10 is blocked`);
+            errors.push(
+                `${job}: side-effect job is reachable while S10 is blocked`,
+            );
     }
     const distributionWorkflow = readFileSync(
         join(
@@ -249,7 +257,9 @@ export function validateS10ReleaseGate(root = defaultRepositoryRoot) {
         generator.includes('mode === "release"') ||
         !generator.includes("S10 readiness owns release authority")
     )
-        errors.push("release generator still accepts event or argument authority");
+        errors.push(
+            "release generator still accepts event or argument authority",
+        );
     return [...new Set(errors)].sort();
 }
 
@@ -258,5 +268,6 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     if (errors.length > 0) {
         for (const error of errors) process.stderr.write(`- ${error}\n`);
         process.exitCode = 1;
-    } else process.stdout.write("S10 release gate validation passed: BLOCKED.\n");
+    } else
+        process.stdout.write("S10 release gate validation passed: BLOCKED.\n");
 }

@@ -3,11 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import { createHash } from "node:crypto";
-import {
-    existsSync,
-    lstatSync,
-    realpathSync,
-} from "node:fs";
+import { existsSync, lstatSync, realpathSync } from "node:fs";
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { compareOrdinal } from "./catalog-ordering.mjs";
@@ -103,8 +99,12 @@ function generatedStaticProjections(catalog) {
 export function buildNativeNonSkillProjectionPlan(
     root = defaultRepositoryRoot,
 ) {
-    const components = readCatalog(join(root, s8NativeProjectionPaths.components));
-    const projections = readCatalog(join(root, s8NativeProjectionPaths.projections));
+    const components = readCatalog(
+        join(root, s8NativeProjectionPaths.components),
+    );
+    const projections = readCatalog(
+        join(root, s8NativeProjectionPaths.projections),
+    );
     const componentSchema = readCatalog(
         join(root, s8NativeProjectionPaths.componentSchema),
     );
@@ -144,7 +144,9 @@ export function buildNativeNonSkillProjectionPlan(
         throw new Error(
             `Component metadata blocks S8 generation: ${metadataErrors.join("; ")}`,
         );
-    const hostAdapters = readCatalog(join(root, s8NativeProjectionPaths.hostAdapters));
+    const hostAdapters = readCatalog(
+        join(root, s8NativeProjectionPaths.hostAdapters),
+    );
     const evidence = readCatalog(join(root, s8NativeProjectionPaths.evidence));
     const componentsById = new Map(
         components.components.map((component) => [component.id, component]),
@@ -160,7 +162,9 @@ export function buildNativeNonSkillProjectionPlan(
         ]),
     );
     if (selected.length !== 70)
-        throw new Error(`S8 requires exactly 70 projections; found ${selected.length}`);
+        throw new Error(
+            `S8 requires exactly 70 projections; found ${selected.length}`,
+        );
     const logicalPaths = new Set();
     const mappingsByRoot = new Map();
     const receiptProjections = [];
@@ -184,18 +188,24 @@ export function buildNativeNonSkillProjectionPlan(
             projection.projectedKind !== component.kind ||
             projection.outputPaths.length !== 1
         )
-            throw new Error(`${projection.id}: S8 authority or effect contract changed`);
+            throw new Error(
+                `${projection.id}: S8 authority or effect contract changed`,
+            );
         const source = component.canonicalSources.find(
             (candidate) =>
                 candidate.ownership === "owner" &&
                 candidate.ownerComponentId === component.id,
         );
         if (!source || component.canonicalSources.length !== 1)
-            throw new Error(`${projection.id}: canonical ownership is not exact`);
+            throw new Error(
+                `${projection.id}: canonical ownership is not exact`,
+            );
         const outputPath = projection.outputPaths[0];
         const rootPrefix = `${host.staticOutputRoot}/`;
         if (!outputPath.startsWith(rootPrefix))
-            throw new Error(`${projection.id}: output escapes declared fixture root`);
+            throw new Error(
+                `${projection.id}: output escapes declared fixture root`,
+            );
         const relativeOutput = outputPath.slice(rootPrefix.length);
         const basename = relativeOutput.split("/").at(-1);
         if (
@@ -204,7 +214,9 @@ export function buildNativeNonSkillProjectionPlan(
                 relativeOutput,
             )
         )
-            throw new Error(`${projection.id}: forbidden payload path ${relativeOutput}`);
+            throw new Error(
+                `${projection.id}: forbidden payload path ${relativeOutput}`,
+            );
         logicalPaths.add(source.path);
         const mappings = mappingsByRoot.get(host.staticOutputRoot) ?? [];
         mappings.push({ sourcePath: source.path, path: relativeOutput });
@@ -342,8 +354,13 @@ export function generateNativeNonSkillProjectionFixture(
     if (!existsSync(parent) || !lstatSync(parent).isDirectory())
         throw new Error("S8 destination parent must be an existing directory");
     const parentReal = realpathSync(parent);
-    if (containedBy(repositoryReal, parentReal) || parentReal === repositoryReal)
-        throw new Error("S8 fixture destination must be outside the repository");
+    if (
+        containedBy(repositoryReal, parentReal) ||
+        parentReal === repositoryReal
+    )
+        throw new Error(
+            "S8 fixture destination must be outside the repository",
+        );
     const plan = buildNativeNonSkillProjectionPlan(root);
     const validation = writeProjectedRoot(
         absoluteDestination,
