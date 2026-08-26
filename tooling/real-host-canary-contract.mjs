@@ -22,7 +22,7 @@ export const realHostCanaryPaths = Object.freeze({
 const expectedMatrixAnchor =
     "651045fa37b280f94bdc747e4c4893bb5d4b8d97670314bdc59320132abf65fe";
 const expectedSourceRevision =
-    "18f9e25b9939b966a7652a32096fbdbb633a7561";
+    "ec826ed21a67415f1be5410039592d17d50fbdc7";
 const expectedHostVersions = new Map([
     ["pi", "0.84.3"],
     ["claude", "2.1.245"],

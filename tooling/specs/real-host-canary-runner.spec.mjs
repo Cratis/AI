@@ -10,9 +10,10 @@ import {
     rmSync,
     writeFileSync,
 } from "node:fs";
-import { join } from "node:path";
+import { delimiter, dirname, join } from "node:path";
 import { tmpdir } from "node:os";
 import { test } from "node:test";
+import { defaultRepositoryRoot } from "../catalog-validation.mjs";
 import { runRealHostCanary } from "../run-real-host-canary.mjs";
 import { validateRealHostCanaryReportFile } from "../validate-real-host-canary-report.mjs";
 
@@ -23,6 +24,7 @@ function digest(value) {
 function fakeCommandRunner() {
     let installedRoot = null;
     return ({ executable, args, cwd, environment }) => {
+        assert(environment.PATH.split(delimiter).includes(dirname(process.execPath)));
         let stdout = "";
         if (args[0] === "--version") stdout = "0.84.3\n";
         else if (args[0] === "install") installedRoot = args[1];
@@ -150,6 +152,35 @@ test("exact Pi fixture canary records non-supporting local lifecycle under expli
     } finally {
         rmSync(root, { recursive: true, force: true });
     }
+});
+
+test("checked-in Pi attempts preserve blocked history and non-supporting success", () => {
+    const blockedPath = join(
+        defaultRepositoryRoot,
+        "distribution/evidence/s9-pi-0.84.3-2026-08-25.json",
+    );
+    const successPath = join(
+        defaultRepositoryRoot,
+        "distribution/evidence/s9-pi-0.84.3-2026-08-26-attempt-2.json",
+    );
+    assert.deepEqual(validateRealHostCanaryReportFile(blockedPath), []);
+    assert.deepEqual(validateRealHostCanaryReportFile(successPath), []);
+    const blocked = JSON.parse(readFileSync(blockedPath, "utf8"));
+    const success = JSON.parse(readFileSync(successPath, "utf8"));
+    assert.equal(blocked.state, "BLOCKED");
+    assert.equal(success.state, "PASS_NON_SUPPORTING_FIXTURE");
+    assert.equal(success.observedHostVersion, "0.84.3");
+    assert.equal(success.observedOn, "2026-08-26");
+    assert(success.phases.every((phase) => phase.supporting === false));
+    for (const field of [
+        "installationEligible",
+        "marketplaceAvailabilityClaim",
+        "supportGranted",
+        "publicationGranted",
+        "runtimeGranted",
+        "promotionGranted",
+    ])
+        assert.equal(success[field], false);
 });
 
 test("version mismatch blocks every real lifecycle phase", () => {

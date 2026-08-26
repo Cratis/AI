@@ -38,16 +38,27 @@ export function executableDigest(path) {
     return sha256(readFileSync(path));
 }
 
-export function createIsolatedEnvironment({ executable, home, temporaryRoot }) {
+export function createIsolatedEnvironment({
+    executable,
+    home,
+    temporaryRoot,
+    runtimeExecutable = process.execPath,
+}) {
     const executableDirectory = dirname(executable);
+    const runtimeDirectory = dirname(runtimeExecutable);
     return Object.freeze({
         HOME: home,
         LANG: "C.UTF-8",
         LC_ALL: "C.UTF-8",
         NO_COLOR: "1",
-        PATH: [executableDirectory, "/usr/bin", "/bin", "/usr/sbin", "/sbin"].join(
-            delimiter,
-        ),
+        PATH: [
+            executableDirectory,
+            runtimeDirectory,
+            "/usr/bin",
+            "/bin",
+            "/usr/sbin",
+            "/sbin",
+        ].join(delimiter),
         TMPDIR: temporaryRoot,
         XDG_CACHE_HOME: join(home, ".cache"),
         XDG_CONFIG_HOME: join(home, ".config"),

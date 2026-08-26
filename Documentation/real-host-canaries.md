@@ -24,7 +24,7 @@ consumer tree, forbidden credentials, and OS-enforced denied egress.
 
 | Host | Exact version | Current S9 status |
 | --- | ---: | --- |
-| Pi | 0.84.3 | Local fixture install/list/remove contract available |
+| Pi | 0.84.3 | Non-supporting denied-egress fixture install/list/remove passed; discovery, behavior, collision, update, and rollback blocked |
 | Claude Code | 2.1.245 | Blocked until hardened lifecycle argv is reviewed |
 | Copilot CLI | 1.0.80 | Blocked; update/rollback argv unverified |
 | Codex CLI | 0.149.1 | Marketplace registration is not installation |
@@ -76,8 +76,15 @@ and after.
 
 ## Evidence boundary
 
-The initial Pi run uses a synthetic local fixture, so every phase is
-non-supporting even when install and removal pass. It cannot establish
+The first Pi attempt was blocked before lifecycle execution because the initial
+allowlisted PATH omitted its exact Node runtime; that report is preserved. The
+second attempt used Pi 0.84.3 under denied egress and passed fixture install,
+package listing, removal, cleanup, and complete context preservation.
+
+Both reports use a synthetic local fixture, so every assertion is
+non-supporting. The successful attempt is future-dated relative to the current
+catalog `asOf` and remains inventory-only until that date is advanced by
+review. It cannot establish
 `install-tested`, behavior, lifecycle, release, marketplace availability,
 runtime eligibility, publication, promotion, or support.
 

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "f38112b6ee9fd9ff4f6e808961b85e606b13fc47e219a324a70390ec2be99c97",
+  "indexDigest": "9fbfc0d14d504f841d4202c53d462d59463f9a8cc33aa63fbfe9a883947ea96f",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -692,6 +692,14 @@
     },
     {
       "path": "distribution/evidence/s8-native-non-skill-static-generation-2026-08-25.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/evidence/s9-pi-0.84.3-2026-08-25.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/evidence/s9-pi-0.84.3-2026-08-26-attempt-2.json",
       "status": "added"
     },
     {
@@ -4189,8 +4197,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 38,
-      "expectedPathsDigest": "cf95f891bb18d49d4c94f210666289f5c21193f95ec5f17bcf29b4196467bcf4"
+      "expectedPathCount": 40,
+      "expectedPathsDigest": "d53b806bc224fc7b16fd9308737133d86ad3fafb0cf70bfbcf06022cbb341662"
     },
     {
       "excludePathPatterns": [],

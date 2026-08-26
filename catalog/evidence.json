@@ -8884,6 +8884,20 @@
         "s8-native-non-skill-static-generation-2026-08-25"
       ],
       "reason": "Binds the exact non-promoting S8 static generation receipt and local specification run; its assertion is explicitly non-supporting and grants no host or release assurance."
+    },
+    {
+      "repositoryPath": "distribution/evidence/s9-pi-0.84.3-2026-08-25.json",
+      "digest": "b77df90f3b1114df47e83d1cf6a4d2d87f488fd0ffeecc582e51854e576b54d2",
+      "role": "inventory-only",
+      "observationIds": [],
+      "reason": "Preserves the immutable first blocked Pi attempt; Node was absent from the initial allowlisted PATH and no lifecycle phase executed."
+    },
+    {
+      "repositoryPath": "distribution/evidence/s9-pi-0.84.3-2026-08-26-attempt-2.json",
+      "digest": "b2531dfdc9190ebcdbe1b44390d00063b0c2879c1ff5488eba6921e9865e9096",
+      "role": "inventory-only",
+      "observationIds": [],
+      "reason": "Preserves the exact future-dated Pi 0.84.3 denied-egress local fixture report. It remains inventory-only until the catalog asOf is advanced by review; the synthetic run cannot support assurance."
     }
   ]
 }
