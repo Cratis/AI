@@ -217,11 +217,11 @@ export function loadPassiveCandidateAuthority(
 
 function reviewNotice(authority, version) {
     return `# Passive candidate review bundle\n\n` +
-        `Artifact: \`${authority.artifact.id}\`  \n` +
-        `Version: \`${version}\`  \n` +
-        `Packaged targets: ${authority.targets.length}  \n` +
-        `Excluded targets: ${authority.artifact.targetExclusions.length}  \n` +
-        `Canonical skills: ${authority.skills.length}\n\n` +
+        `- Artifact: \`${authority.artifact.id}\`\n` +
+        `- Version: \`${version}\`\n` +
+        `- Packaged targets: ${authority.targets.length}\n` +
+        `- Excluded targets: ${authority.artifact.targetExclusions.length}\n` +
+        `- Canonical skills: ${authority.skills.length}\n\n` +
         `This deterministic bundle exists for static review only. It is not an ` +
         `installation recommendation, supported package, release, marketplace ` +
         `listing, runtime approval, or publication grant.\n`;
