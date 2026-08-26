@@ -163,7 +163,11 @@ test("generated Distribution updates preserve the reviewed control plane", () =>
             "utf8",
         ),
     );
-    assert(workflow.includes("rsync -a --delete --exclude=.git --exclude=.github"));
+    assert(
+        workflow.includes(
+            "rsync -a --delete --exclude=.git --exclude=.github --exclude=candidates",
+        ),
+    );
     assert.deepEqual(contract.repositoryControlPlane.allowedPaths, [
         ".github/scripts/verify-generated-distribution.mjs",
         ".github/workflows/verify-generated-distribution.yml",
@@ -174,6 +178,11 @@ test("generated Distribution updates preserve the reviewed control plane", () =>
     );
     assert.equal(contract.repositoryControlPlane.manifestedAsArtifact, false);
     assert.equal(contract.repositoryControlPlane.manualAuthoringAllowed, false);
+    assert.equal(
+        contract.repositoryReviewCandidates.preserveDuringPayloadReplacement,
+        true,
+    );
+    assert.equal(contract.repositoryReviewCandidates.releaseEligible, false);
 });
 
 test("legacy propagation workflows are inert and inherit no secrets", () => {

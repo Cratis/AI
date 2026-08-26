@@ -16,6 +16,7 @@ import { dirname, join, resolve } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import { generateDistributionFixture } from "../generate-distribution-fixture.mjs";
+import { packagePassiveCandidateAssets } from "../package-passive-candidate-assets.mjs";
 import {
     distributionCheckNames,
     verifyDistributionCheck,
@@ -49,6 +50,17 @@ function withTemporaryDirectory(callback) {
     }
 }
 
+function installCandidate(distributionRoot, artifactId, version) {
+    const parent = join(distributionRoot, "candidates", artifactId);
+    mkdirSync(parent, { recursive: true });
+    packagePassiveCandidateAssets({
+        repositoryRoot,
+        artifactId,
+        version,
+        outputRoot: join(parent, version),
+    });
+}
+
 function installControlPlane(distributionRoot) {
     for (const path of contract.repositoryControlPlane.allowedPaths) {
         const destination = join(distributionRoot, path);
@@ -72,6 +84,11 @@ test("generated repository verification runs every exact non-supporting check", 
             version: "0.0.2-fixture",
         });
         installControlPlane(candidateRoot);
+        installCandidate(
+            candidateRoot,
+            "candidate-passive-public-package",
+            "0.0.1-candidate.1",
+        );
         for (const check of distributionCheckNames) {
             const result = verifyDistributionCheck({
                 root: candidateRoot,
@@ -84,6 +101,33 @@ test("generated repository verification runs every exact non-supporting check", 
                 supporting: false,
             });
         }
+    });
+});
+
+test("generated repository verification rejects candidate checksum drift", () => {
+    withTemporaryDirectory((root) => {
+        const candidateRoot = join(root, "candidate");
+        generateDistributionFixture({ repositoryRoot, outputRoot: candidateRoot });
+        installCandidate(
+            candidateRoot,
+            "candidate-passive-engineering-package",
+            "0.0.1-candidate.1",
+        );
+        writeFileSync(
+            join(
+                candidateRoot,
+                "candidates/candidate-passive-engineering-package/0.0.1-candidate.1/REVIEW.md",
+            ),
+            "tampered\n",
+        );
+        assert.throws(
+            () =>
+                verifyDistributionCheck({
+                    root: candidateRoot,
+                    check: "exact-inventory",
+                }),
+            /checksum verification failed/,
+        );
     });
 });
 

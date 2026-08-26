@@ -91,6 +91,17 @@ test("generated repository contract keeps remote authority and production blocke
         preserveDuringPayloadReplacement: true,
         manualAuthoringAllowed: false,
     });
+    assert.deepEqual(contract.repositoryReviewCandidates, {
+        root: "candidates",
+        artifactIds: [
+            "candidate-passive-engineering-package",
+            "candidate-passive-public-package",
+        ],
+        versionPattern:
+            "^0\\.0\\.(?:0|[1-9][0-9]*)-candidate\\.(?:0|[1-9][0-9]*)$",
+        preserveDuringPayloadReplacement: true,
+        releaseEligible: false,
+    });
     assert.deepEqual(contract.requiredChecks, [
         ...rolloutPolicy.candidate.requiredChecks,
         "canary-rollback-simulation",

@@ -391,10 +391,14 @@ Pi archive is npm-private, Codex installation is `NOT_AVAILABLE`, and only
 `0.0.N-candidate.N` versions are accepted.
 
 The manual, read-only **Package Passive Candidate Assets** workflow uploads both
-bundles for seven days. Every approval, installation, publication, runtime,
-support, and promotion flag remains false. Candidate materialization is review
-coverage—not release materialization, host evidence, marketplace availability,
-or permission to install these bundles into a production repository.
+bundles for seven days. Reviewed generated copies use append-only paths under
+`AI.Distribution/candidates/<artifact>/<version>/`; fixture payload replacement
+preserves that root, and repository verification checks each candidate's exact
+inventory, manifest, asset digests, and checksum closure. Every approval,
+installation, publication, runtime, support, and promotion flag remains false.
+Candidate materialization is review coverage—not release materialization, host
+evidence, marketplace availability, or permission to install these bundles into
+a production repository.
 
 ### Approval-pending Fundamentals review assets
 

@@ -33,6 +33,12 @@ const controlPlanePaths = Object.freeze([
     ".github/scripts/verify-generated-distribution.mjs",
     ".github/workflows/verify-generated-distribution.yml",
 ]);
+const candidateArtifactIds = new Set([
+    "candidate-passive-engineering-package",
+    "candidate-passive-public-package",
+]);
+const candidateVersionPattern =
+    /^0\.0\.(?:0|[1-9][0-9]*)-candidate\.(?:0|[1-9][0-9]*)$/;
 
 function sha256(content) {
     return createHash("sha256").update(content).digest("hex");
@@ -282,6 +288,82 @@ function verifyManifestedFiles(root, manifest) {
     }
 }
 
+function verifyCandidateReviewRoot(root, candidateRoot) {
+    const [rootName, artifactId, version, ...extra] = candidateRoot.split("/");
+    if (
+        rootName !== "candidates" ||
+        !candidateArtifactIds.has(artifactId) ||
+        !candidateVersionPattern.test(version) ||
+        extra.length > 0
+    ) {
+        throw new Error(`Invalid Distribution candidate root: ${candidateRoot}`);
+    }
+    const absoluteRoot = join(root, candidateRoot);
+    const actualPaths = walkFiles(absoluteRoot).sort();
+    for (const required of ["candidate-assets.json", "SHA256SUMS"])
+        if (!actualPaths.includes(required))
+            throw new Error(`${candidateRoot}: missing ${required}`);
+    const manifest = readJson(join(absoluteRoot, "candidate-assets.json"));
+    if (
+        manifest.state !== "PASSIVE_CANDIDATE_REVIEW_ONLY" ||
+        manifest.artifactId !== artifactId ||
+        manifest.version !== version ||
+        !Array.isArray(manifest.assets) ||
+        manifest.assets.length === 0 ||
+        manifest.approvalEligible !== false ||
+        manifest.installationSupported !== false ||
+        manifest.publicationEligible !== false ||
+        manifest.runtimeEligible !== false ||
+        manifest.supportGranted !== false ||
+        manifest.promotionEligible !== false
+    ) {
+        throw new Error(`${candidateRoot}: candidate manifest authority changed`);
+    }
+    const assetPaths = [];
+    for (const asset of manifest.assets) {
+        assertSafeRelativePath(asset.filename);
+        if (asset.filename.includes("/"))
+            throw new Error(`${candidateRoot}: nested candidate asset is forbidden`);
+        const content = readFileSync(join(absoluteRoot, asset.filename));
+        if (
+            !Number.isSafeInteger(asset.size) ||
+            content.length !== asset.size ||
+            asset.sha256 !== sha256(content)
+        ) {
+            throw new Error(
+                `${candidateRoot}: candidate asset digest mismatch: ${asset.filename}`,
+            );
+        }
+        assetPaths.push(asset.filename);
+    }
+    if (new Set(assetPaths).size !== assetPaths.length)
+        throw new Error(`${candidateRoot}: duplicate candidate assets`);
+    const checksumLines = readFileSync(join(absoluteRoot, "SHA256SUMS"), "utf8")
+        .trim()
+        .split("\n");
+    const checksumPaths = checksumLines.map((line) => {
+        const match = /^([0-9a-f]{64}) {2}(.+)$/.exec(line);
+        if (!match) throw new Error(`${candidateRoot}: malformed checksum line`);
+        assertSafeRelativePath(match[2]);
+        if (sha256(readFileSync(join(absoluteRoot, match[2]))) !== match[1])
+            throw new Error(
+                `${candidateRoot}: checksum verification failed: ${match[2]}`,
+            );
+        return match[2];
+    });
+    if (new Set(checksumPaths).size !== checksumPaths.length)
+        throw new Error(`${candidateRoot}: duplicate checksum paths`);
+    const expectedChecksumPaths = actualPaths
+        .filter((path) => path !== "SHA256SUMS")
+        .sort();
+    if (
+        JSON.stringify(checksumPaths.sort()) !==
+        JSON.stringify(expectedChecksumPaths)
+    ) {
+        throw new Error(`${candidateRoot}: checksum inventory is incomplete`);
+    }
+}
+
 function verifyExactInventory(root) {
     const manifest = loadManifest(root);
     const actualPaths = walkFiles(root).sort();
@@ -293,7 +375,26 @@ function verifyExactInventory(root) {
     ) {
         throw new Error("Distribution repository control-plane inventory changed");
     }
-    const payloadPaths = actualPaths.filter((path) => !path.startsWith(".github/"));
+    const candidatePaths = actualPaths.filter((path) =>
+        path.startsWith("candidates/"),
+    );
+    const candidateRoots = [
+        ...new Set(
+            candidatePaths.map((path) => {
+                const segments = path.split("/");
+                if (segments.length < 4)
+                    throw new Error(`Invalid Distribution candidate path: ${path}`);
+                return segments.slice(0, 3).join("/");
+            }),
+        ),
+    ].sort();
+    for (const candidateRoot of candidateRoots)
+        verifyCandidateReviewRoot(root, candidateRoot);
+    const payloadPaths = actualPaths.filter(
+        (path) =>
+            !path.startsWith(".github/") &&
+            !path.startsWith("candidates/"),
+    );
     const expectedPayloadPaths = [
         ...manifest.files.map((file) => file.path),
         "distribution-manifest.json",
