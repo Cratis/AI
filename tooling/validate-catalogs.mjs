@@ -21,6 +21,10 @@ import { validateChronicleMcpGuidance } from "./chronicle-mcp-guidance-validatio
 import { validateMcpGuidanceProducts } from "./mcp-guidance-validation.mjs";
 import { validateNativeNonSkillProjectionContract } from "./native-non-skill-projections.mjs";
 import {
+    loadRealHostCanaryContracts,
+    validateRealHostCanaryMatrix,
+} from "./real-host-canary-contract.mjs";
+import {
     formatComplianceDiagnostics,
     validateSpecificationLock,
 } from "./portable-compliance-validation.mjs";
@@ -44,6 +48,7 @@ const errors = [
     ...validateChronicleMcpGuidance(),
     ...validateMcpGuidanceProducts(),
     ...validateNativeNonSkillProjectionContract(),
+    ...validateRealHostCanaryMatrix(loadRealHostCanaryContracts()),
     ...validateSpecificationLock().map((diagnostic) =>
         formatComplianceDiagnostics([diagnostic]),
     ),
@@ -56,6 +61,6 @@ if (errors.length > 0) {
     process.exitCode = 1;
 } else {
     process.stdout.write(
-        "Catalog validation passed: legacy, v2, normalized evidence, computed support, source-evidence, multi-product MCP guidance, native non-skill projections, offline portable specifications, distribution-profile, and evaluation contracts are valid.\n",
+        "Catalog validation passed: legacy, v2, normalized evidence, computed support, source-evidence, multi-product MCP guidance, native non-skill projections, real-host canary contracts, offline portable specifications, distribution-profile, and evaluation contracts are valid.\n",
     );
 }

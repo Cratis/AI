@@ -1,0 +1,285 @@
+{
+  "schemaVersion": "1.0.0",
+  "caseId": "s9-pi-local-fixture",
+  "state": "PASS_NON_SUPPORTING_FIXTURE",
+  "observedOn": "2026-08-26",
+  "sourceRevision": "1a9af3d8b6e10ee61f390c4e6a5c73bde109379d",
+  "hostId": "pi",
+  "harnessId": "pi",
+  "bindingId": "pi-packages-artifact-binding",
+  "targetId": "pi-npm",
+  "artifactVersion": "0.0.1-fixture",
+  "artifactRoot": "pi/package",
+  "artifactDigest": "e335d92e6111a9d806f174a9be4e20a39b08a76db58e6f26157c49f75854e83d",
+  "executable": "pi",
+  "resolvedExecutable": "/Users/sindrewilting/.nvm/versions/node/v23.11.1/lib/node_modules/@earendil-works/pi-coding-agent/dist/bundle/cli.js",
+  "executableDigest": "1c3a5094b54aae9ae98c66516ce8c6578140363d081471ca7e91f9cb8c23dc8a",
+  "expectedHostVersion": "0.84.3",
+  "observedHostVersion": "0.84.3",
+  "operatingSystem": "darwin",
+  "architecture": "arm64",
+  "runtimeVersion": "v23.11.1",
+  "isolation": "isolated-home-and-worktree",
+  "credentialMode": "forbidden",
+  "networkEnforcement": "sandbox-exec-deny-network",
+  "beforeContextDigest": "46f1a935ac678229817799be4af1fd6ea7731f8f0a5499e8c7e9115a18dfdae9",
+  "afterContextDigest": "46f1a935ac678229817799be4af1fd6ea7731f8f0a5499e8c7e9115a18dfdae9",
+  "phases": [
+    {
+      "id": "preflight",
+      "status": "PASS",
+      "supporting": false,
+      "reason": "Exact Pi version and denied egress confirmed.",
+      "command": {
+        "argv": [
+          "/usr/bin/sandbox-exec",
+          "-p",
+          "(version 1)(allow default)(deny network*)",
+          "/Users/sindrewilting/.nvm/versions/node/v23.11.1/lib/node_modules/@earendil-works/pi-coding-agent/dist/bundle/cli.js",
+          "--version"
+        ],
+        "cwd": "/var/folders/n2/c0514trj2wld924nfm754j8h0000gn/T/cratis-s9-pi-J0Izrt/consumer",
+        "environmentNames": [
+          "HOME",
+          "LANG",
+          "LC_ALL",
+          "NO_COLOR",
+          "PATH",
+          "TMPDIR",
+          "XDG_CACHE_HOME",
+          "XDG_CONFIG_HOME",
+          "XDG_DATA_HOME",
+          "XDG_STATE_HOME"
+        ],
+        "exitCode": 0,
+        "timedOut": false,
+        "stdoutDigest": "e470244f5d207065cacf7314a910c7cff5fc8334840dc42426d62da3e661f580",
+        "stderrDigest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "artifact-validation",
+      "status": "PASS",
+      "supporting": false,
+      "reason": "Synthetic passive fixture inventory validated.",
+      "command": null
+    },
+    {
+      "id": "negative-baseline",
+      "status": "PASS",
+      "supporting": false,
+      "reason": "Candidate package was absent before install.",
+      "command": {
+        "argv": [
+          "/usr/bin/sandbox-exec",
+          "-p",
+          "(version 1)(allow default)(deny network*)",
+          "/Users/sindrewilting/.nvm/versions/node/v23.11.1/lib/node_modules/@earendil-works/pi-coding-agent/dist/bundle/cli.js",
+          "list"
+        ],
+        "cwd": "/var/folders/n2/c0514trj2wld924nfm754j8h0000gn/T/cratis-s9-pi-J0Izrt/consumer",
+        "environmentNames": [
+          "HOME",
+          "LANG",
+          "LC_ALL",
+          "NO_COLOR",
+          "PATH",
+          "TMPDIR",
+          "XDG_CACHE_HOME",
+          "XDG_CONFIG_HOME",
+          "XDG_DATA_HOME",
+          "XDG_STATE_HOME"
+        ],
+        "exitCode": 0,
+        "timedOut": false,
+        "stdoutDigest": "97b79322c8820b3eb74b04575cf8151359ba74ba5bec6bf48ce26480414de561",
+        "stderrDigest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "collision-negative",
+      "status": "BLOCKED_NO_REVIEWED_CONTRACT",
+      "supporting": false,
+      "reason": "Pi package collision semantics are not admitted.",
+      "command": null
+    },
+    {
+      "id": "install",
+      "status": "PASS",
+      "supporting": false,
+      "reason": "Local fixture package install and package listing checked.",
+      "command": {
+        "argv": [
+          "/usr/bin/sandbox-exec",
+          "-p",
+          "(version 1)(allow default)(deny network*)",
+          "/Users/sindrewilting/.nvm/versions/node/v23.11.1/lib/node_modules/@earendil-works/pi-coding-agent/dist/bundle/cli.js",
+          "install",
+          "/private/var/folders/n2/c0514trj2wld924nfm754j8h0000gn/T/cratis-s9-pi-J0Izrt/fixture/pi/package"
+        ],
+        "cwd": "/var/folders/n2/c0514trj2wld924nfm754j8h0000gn/T/cratis-s9-pi-J0Izrt/consumer",
+        "environmentNames": [
+          "HOME",
+          "LANG",
+          "LC_ALL",
+          "NO_COLOR",
+          "PATH",
+          "TMPDIR",
+          "XDG_CACHE_HOME",
+          "XDG_CONFIG_HOME",
+          "XDG_DATA_HOME",
+          "XDG_STATE_HOME"
+        ],
+        "exitCode": 0,
+        "timedOut": false,
+        "stdoutDigest": "258aea5322bfb4ac35615248b776814cd3e4d963aecfa93673d1f7c6b54073fb",
+        "stderrDigest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "discovery",
+      "status": "BLOCKED_NO_REVIEWED_CONTRACT",
+      "supporting": false,
+      "reason": "Pi package listing is not skill discovery proof.",
+      "command": {
+        "argv": [
+          "/usr/bin/sandbox-exec",
+          "-p",
+          "(version 1)(allow default)(deny network*)",
+          "/Users/sindrewilting/.nvm/versions/node/v23.11.1/lib/node_modules/@earendil-works/pi-coding-agent/dist/bundle/cli.js",
+          "list"
+        ],
+        "cwd": "/var/folders/n2/c0514trj2wld924nfm754j8h0000gn/T/cratis-s9-pi-J0Izrt/consumer",
+        "environmentNames": [
+          "HOME",
+          "LANG",
+          "LC_ALL",
+          "NO_COLOR",
+          "PATH",
+          "TMPDIR",
+          "XDG_CACHE_HOME",
+          "XDG_CONFIG_HOME",
+          "XDG_DATA_HOME",
+          "XDG_STATE_HOME"
+        ],
+        "exitCode": 0,
+        "timedOut": false,
+        "stdoutDigest": "9c0258db637ca314665f1506178d48bc656a205a598c66164b303d7651917cb5",
+        "stderrDigest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "behavior-positive",
+      "status": "BLOCKED_NO_REVIEWED_CONTRACT",
+      "supporting": false,
+      "reason": "No positive behavior contract is admitted.",
+      "command": null
+    },
+    {
+      "id": "behavior-negative",
+      "status": "BLOCKED_NO_REVIEWED_CONTRACT",
+      "supporting": false,
+      "reason": "No negative behavior contract is admitted.",
+      "command": null
+    },
+    {
+      "id": "update",
+      "status": "BLOCKED_NO_REVIEWED_CONTRACT",
+      "supporting": false,
+      "reason": "No genuine update contract is admitted.",
+      "command": null
+    },
+    {
+      "id": "rollback",
+      "status": "BLOCKED_NO_REVIEWED_CONTRACT",
+      "supporting": false,
+      "reason": "No genuine rollback contract is admitted.",
+      "command": null
+    },
+    {
+      "id": "uninstall",
+      "status": "PASS",
+      "supporting": false,
+      "reason": "Local fixture package removal checked.",
+      "command": {
+        "argv": [
+          "/usr/bin/sandbox-exec",
+          "-p",
+          "(version 1)(allow default)(deny network*)",
+          "/Users/sindrewilting/.nvm/versions/node/v23.11.1/lib/node_modules/@earendil-works/pi-coding-agent/dist/bundle/cli.js",
+          "remove",
+          "/private/var/folders/n2/c0514trj2wld924nfm754j8h0000gn/T/cratis-s9-pi-J0Izrt/fixture/pi/package"
+        ],
+        "cwd": "/var/folders/n2/c0514trj2wld924nfm754j8h0000gn/T/cratis-s9-pi-J0Izrt/consumer",
+        "environmentNames": [
+          "HOME",
+          "LANG",
+          "LC_ALL",
+          "NO_COLOR",
+          "PATH",
+          "TMPDIR",
+          "XDG_CACHE_HOME",
+          "XDG_CONFIG_HOME",
+          "XDG_DATA_HOME",
+          "XDG_STATE_HOME"
+        ],
+        "exitCode": 0,
+        "timedOut": false,
+        "stdoutDigest": "51b2985edc892c5469c134d13496fb7fe1326d7f37b28c3ffe41dcc59667cd16",
+        "stderrDigest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "context-preservation",
+      "status": "PASS",
+      "supporting": false,
+      "reason": "Complete consumer context snapshot compared.",
+      "command": null
+    },
+    {
+      "id": "cleanup",
+      "status": "PASS",
+      "supporting": false,
+      "reason": "No package registration remained in isolated home.",
+      "command": {
+        "argv": [
+          "/usr/bin/sandbox-exec",
+          "-p",
+          "(version 1)(allow default)(deny network*)",
+          "/Users/sindrewilting/.nvm/versions/node/v23.11.1/lib/node_modules/@earendil-works/pi-coding-agent/dist/bundle/cli.js",
+          "list"
+        ],
+        "cwd": "/var/folders/n2/c0514trj2wld924nfm754j8h0000gn/T/cratis-s9-pi-J0Izrt/consumer",
+        "environmentNames": [
+          "HOME",
+          "LANG",
+          "LC_ALL",
+          "NO_COLOR",
+          "PATH",
+          "TMPDIR",
+          "XDG_CACHE_HOME",
+          "XDG_CONFIG_HOME",
+          "XDG_DATA_HOME",
+          "XDG_STATE_HOME"
+        ],
+        "exitCode": 0,
+        "timedOut": false,
+        "stdoutDigest": "97b79322c8820b3eb74b04575cf8151359ba74ba5bec6bf48ce26480414de561",
+        "stderrDigest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "limitations": [
+    "The tested artifact is a synthetic local fixture and cannot satisfy install-tested or higher support assurance.",
+    "Package listing is not treated as skill discovery.",
+    "No positive or negative model behavior case is admitted.",
+    "No genuine host-managed update or rollback contract is admitted."
+  ],
+  "reportPayloadDigest": "320cd10f78d58640ab0d436385a8b88833fcabd28104a625fdfb2a9c59bba50d",
+  "installationEligible": false,
+  "marketplaceAvailabilityClaim": false,
+  "supportGranted": false,
+  "publicationGranted": false,
+  "runtimeGranted": false,
+  "promotionGranted": false
+}

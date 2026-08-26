@@ -142,7 +142,7 @@ test("all authored evidence and support policy schemas reject unknown properties
     }
 });
 
-test("all 152 observations, 172 fact IDs, 11 legacy gaps, 108 official sources, and 15 distribution evidence files are accounted exactly", () => {
+test("all 152 observations, 172 fact IDs, 11 legacy gaps, 108 official sources, and 18 distribution evidence files are accounted exactly", () => {
     const catalogs = loadSupportCatalogs();
     assert.equal(catalogs.evidence.observations.length, 152);
     assert.equal(catalogs.evidence.legacyFacts.length, 172);
@@ -154,7 +154,7 @@ test("all 152 observations, 172 fact IDs, 11 legacy gaps, 108 official sources, 
         ),
         108,
     );
-    assert.equal(catalogs.evidence.distributionEvidenceFiles.length, 15);
+    assert.equal(catalogs.evidence.distributionEvidenceFiles.length, 18);
     assert.deepEqual(
         catalogs.evidence.distributionEvidenceFiles
             .map((record) => record.repositoryPath)

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "1ab8b8de7a33e7ef946cccf635aafdd48cd25a510084b70981b51cf30188c2ba",
+  "indexDigest": "9334fad65f87bc142a9090556ba7799c1aed45cfc15f7a38dd878a4ebd937c0a",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -371,6 +371,10 @@
       "status": "added"
     },
     {
+      "path": "Documentation/real-host-canaries.md",
+      "status": "added"
+    },
+    {
       "path": "Documentation/redesign-foundation-validation.md",
       "status": "added"
     },
@@ -691,6 +695,18 @@
       "status": "added"
     },
     {
+      "path": "distribution/evidence/s9-pi-0.84.3-2026-08-25.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/evidence/s9-pi-0.84.3-2026-08-26-attempt-2.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/evidence/s9-pi-0.84.3-2026-08-26-attempt-3.json",
+      "status": "added"
+    },
+    {
       "path": "distribution/generated-repository-authority-request.md",
       "status": "added"
     },
@@ -712,6 +728,18 @@
     },
     {
       "path": "distribution/profile-subscription.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/real-host-canary-matrix.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/real-host-canary-matrix.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/real-host-canary-report.schema.json",
       "status": "added"
     },
     {
@@ -2435,6 +2463,18 @@
       "status": "added"
     },
     {
+      "path": "tooling/real-host-canary-adapters.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/real-host-canary-contract.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/real-host-project-context-snapshot.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/release-approval-validation.mjs",
       "status": "added"
     },
@@ -2460,6 +2500,10 @@
     },
     {
       "path": "tooling/run-engineering-docs-companions-evaluation.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/run-real-host-canary.mjs",
       "status": "added"
     },
     {
@@ -2639,6 +2683,18 @@
       "status": "added"
     },
     {
+      "path": "tooling/specs/real-host-canary-contract.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/real-host-canary-runner.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/real-host-project-context-snapshot.spec.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/specs/release-approval.spec.mjs",
       "status": "added"
     },
@@ -2692,6 +2748,10 @@
     },
     {
       "path": "tooling/validate-catalogs.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/validate-real-host-canary-report.mjs",
       "status": "added"
     },
     {
@@ -3602,6 +3662,7 @@
         "Documentation/capability-catalog-v2.md",
         "Documentation/chronicle-mcp-guidance.md",
         "Documentation/native-non-skill-projections.md",
+        "Documentation/real-host-canaries.md",
         "Documentation/studio-mcp-guidance.md"
       ],
       "artifactType": "documentation",
@@ -3620,15 +3681,18 @@
         "catalog/v2/source-contracts.json",
         "catalog/v2/taxonomy.json",
         "catalog/v2/upstream-companions.json",
-        "tooling/native-non-skill-projections.mjs"
+        "distribution/real-host-canary-matrix.json",
+        "distribution/real-host-canary-report.schema.json",
+        "tooling/native-non-skill-projections.mjs",
+        "tooling/real-host-canary-contract.mjs"
       ],
       "risk": "medium",
       "migrationState": "retain",
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 4,
-      "expectedPathsDigest": "3766b1d02c8e5d8d4c640964b7726abaa3ce69e35ef4c1026ec25c598a9238c8"
+      "expectedPathCount": 5,
+      "expectedPathsDigest": "784c0064aa06474b6320f74d38e4d6709891f4f5bfa29dceb79e09d1263da970"
     },
     {
       "excludePathPatterns": [],
@@ -4137,8 +4201,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 35,
-      "expectedPathsDigest": "aaa2079e4258d00ee08d9433d263846de20b4fb438c05509db1fe6acdd60a6b2"
+      "expectedPathCount": 41,
+      "expectedPathsDigest": "05e089d541b221c404ee324cc4a5eacfedd51fb06894735f30b1389d7eeac852"
     },
     {
       "excludePathPatterns": [],
@@ -4212,8 +4276,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 56,
-      "expectedPathsDigest": "cad8cfa87885390f1e75df95d52f267ef8219413af97d179f2dde2db4bc59b7d"
+      "expectedPathCount": 61,
+      "expectedPathsDigest": "f227c7aa65d8340d79676996e753d2d498e45de86669157963fdca2153fc01f9"
     },
     {
       "excludePathPatterns": [],
@@ -4236,8 +4300,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 45,
-      "expectedPathsDigest": "ead988faa47027308befb931167a5f11357a02c4dac61cebc5421903c0263199"
+      "expectedPathCount": 48,
+      "expectedPathsDigest": "7ef78d64b4f25d81b596893698e1dadad6df69ae816adaeb2521a1b8f2ec1a6d"
     },
     {
       "excludePathPatterns": [],

@@ -39,20 +39,13 @@ const repositoryRoot = resolve(
     dirname(fileURLToPath(import.meta.url)),
     "../..",
 );
-function commandAvailable(command) {
-    try {
-        execFileSync(command, ["--version"], { stdio: "pipe" });
-        return true;
-    } catch {
-        return false;
-    }
-}
-
-const piAvailable = commandAvailable("pi");
-const claudeAvailable = commandAvailable("claude");
-const codexAvailable = commandAvailable("codex");
-const copilotAvailable = commandAvailable("copilot");
-const geminiAvailable = commandAvailable("gemini");
+// Real host execution is owned exclusively by run-real-host-canary.mjs.
+// Legacy fixture specs remain static/fake-only even when S9 opt-in is present.
+const piAvailable = false;
+const claudeAvailable = false;
+const codexAvailable = false;
+const copilotAvailable = false;
+const geminiAvailable = false;
 
 function withTemporaryDirectory(callback) {
     const root = mkdtempSync(join(tmpdir(), "cratis-distribution-"));

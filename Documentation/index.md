@@ -22,6 +22,7 @@ harness. The mixed source repository is not itself an installation package.
 | [Chronicle MCP passive guidance](./chronicle-mcp-guidance.md) | Understand the classification-only Chronicle skill, evidence boundary, and blocked executable lane |
 | [Studio MCP passive guidance](./studio-mcp-guidance.md) | Understand the public-safe Studio skill, private-fact boundary, and deny-all operation policy |
 | [Native non-skill projections](./native-non-skill-projections.md) | Understand the four repository-only rule/instruction fixture roots and their non-promoting boundary |
+| [Real-host canaries](./real-host-canaries.md) | Understand exact-version isolation, lifecycle phases, blocked outcomes, and non-supporting fixture evidence |
 
 ## Repository-local corpus reference
 

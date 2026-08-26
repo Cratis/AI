@@ -254,7 +254,7 @@
     "distributionEvidenceFiles": {
       "type": "array",
       "minItems": 14,
-      "maxItems": 15,
+      "maxItems": 18,
       "uniqueItems": true,
       "items": { "$ref": "#/$defs/evidenceFile" }
     }

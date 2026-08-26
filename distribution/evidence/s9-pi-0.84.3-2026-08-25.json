@@ -1,0 +1,158 @@
+{
+  "schemaVersion": "1.0.0",
+  "caseId": "s9-pi-local-fixture",
+  "state": "BLOCKED",
+  "observedOn": "2026-08-25",
+  "sourceRevision": "ec826ed21a67415f1be5410039592d17d50fbdc7",
+  "hostId": "pi",
+  "harnessId": "pi",
+  "bindingId": "pi-packages-artifact-binding",
+  "targetId": "pi-npm",
+  "artifactVersion": "0.0.1-fixture",
+  "artifactRoot": "pi/package",
+  "artifactDigest": "e335d92e6111a9d806f174a9be4e20a39b08a76db58e6f26157c49f75854e83d",
+  "executable": "pi",
+  "resolvedExecutable": "/Users/sindrewilting/.nvm/versions/node/v23.11.1/lib/node_modules/@earendil-works/pi-coding-agent/dist/bundle/cli.js",
+  "executableDigest": "1c3a5094b54aae9ae98c66516ce8c6578140363d081471ca7e91f9cb8c23dc8a",
+  "expectedHostVersion": "0.84.3",
+  "observedHostVersion": "env: node: No such file or directory",
+  "operatingSystem": "darwin",
+  "architecture": "arm64",
+  "runtimeVersion": "v23.11.1",
+  "isolation": "isolated-home-and-worktree",
+  "credentialMode": "forbidden",
+  "networkEnforcement": "sandbox-exec-deny-network",
+  "beforeContextDigest": "46f1a935ac678229817799be4af1fd6ea7731f8f0a5499e8c7e9115a18dfdae9",
+  "afterContextDigest": "46f1a935ac678229817799be4af1fd6ea7731f8f0a5499e8c7e9115a18dfdae9",
+  "phases": [
+    {
+      "id": "preflight",
+      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "supporting": false,
+      "reason": "Observed env: node: No such file or directory.",
+      "command": {
+        "argv": [
+          "/usr/bin/sandbox-exec",
+          "-p",
+          "(version 1)(allow default)(deny network*)",
+          "/Users/sindrewilting/.nvm/versions/node/v23.11.1/lib/node_modules/@earendil-works/pi-coding-agent/dist/bundle/cli.js",
+          "--version"
+        ],
+        "cwd": "/var/folders/n2/c0514trj2wld924nfm754j8h0000gn/T/cratis-s9-pi-OyIZFY/consumer",
+        "environmentNames": [
+          "HOME",
+          "LANG",
+          "LC_ALL",
+          "NO_COLOR",
+          "PATH",
+          "TMPDIR",
+          "XDG_CACHE_HOME",
+          "XDG_CONFIG_HOME",
+          "XDG_DATA_HOME",
+          "XDG_STATE_HOME"
+        ],
+        "exitCode": 127,
+        "timedOut": false,
+        "stdoutDigest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderrDigest": "058c3e7114a685e48c485c5eec7bf04ecd685fb818d18a9cf483d38fcc3eef35"
+      }
+    },
+    {
+      "id": "artifact-validation",
+      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "supporting": false,
+      "reason": "Installed version does not match 0.84.3.",
+      "command": null
+    },
+    {
+      "id": "negative-baseline",
+      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "supporting": false,
+      "reason": "Installed version does not match 0.84.3.",
+      "command": null
+    },
+    {
+      "id": "collision-negative",
+      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "supporting": false,
+      "reason": "Installed version does not match 0.84.3.",
+      "command": null
+    },
+    {
+      "id": "install",
+      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "supporting": false,
+      "reason": "Installed version does not match 0.84.3.",
+      "command": null
+    },
+    {
+      "id": "discovery",
+      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "supporting": false,
+      "reason": "Installed version does not match 0.84.3.",
+      "command": null
+    },
+    {
+      "id": "behavior-positive",
+      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "supporting": false,
+      "reason": "Installed version does not match 0.84.3.",
+      "command": null
+    },
+    {
+      "id": "behavior-negative",
+      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "supporting": false,
+      "reason": "Installed version does not match 0.84.3.",
+      "command": null
+    },
+    {
+      "id": "update",
+      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "supporting": false,
+      "reason": "Installed version does not match 0.84.3.",
+      "command": null
+    },
+    {
+      "id": "rollback",
+      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "supporting": false,
+      "reason": "Installed version does not match 0.84.3.",
+      "command": null
+    },
+    {
+      "id": "uninstall",
+      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "supporting": false,
+      "reason": "Installed version does not match 0.84.3.",
+      "command": null
+    },
+    {
+      "id": "context-preservation",
+      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "supporting": false,
+      "reason": "Installed version does not match 0.84.3.",
+      "command": null
+    },
+    {
+      "id": "cleanup",
+      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "supporting": false,
+      "reason": "Installed version does not match 0.84.3.",
+      "command": null
+    }
+  ],
+  "limitations": [
+    "The tested artifact is a synthetic local fixture and cannot satisfy install-tested or higher support assurance.",
+    "Package listing is not treated as skill discovery.",
+    "No positive or negative model behavior case is admitted.",
+    "No genuine host-managed update or rollback contract is admitted."
+  ],
+  "reportPayloadDigest": "c845a596016a80e4bd687106b51b2874c6bce1c600147b56af5181e0dc89351b",
+  "installationEligible": false,
+  "marketplaceAvailabilityClaim": false,
+  "supportGranted": false,
+  "publicationGranted": false,
+  "runtimeGranted": false,
+  "promotionGranted": false
+}

@@ -90,6 +90,11 @@ canonical bytes, official discovery-root evidence, and complete candidate-tree
 inventory. They do not establish installation, behavior, lifecycle, support, or
 publication.
 
+S9 defines a separate exact-version real-host canary matrix and immutable phase
+report. Real execution is disabled in ordinary tests and requires explicit
+opt-in, isolated homes, forbidden credentials, and OS-enforced denied egress.
+Synthetic fixture lifecycle results are always non-supporting.
+
 ## Target-local safety fields
 
 Every target records:
