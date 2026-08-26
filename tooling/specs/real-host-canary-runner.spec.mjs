@@ -209,6 +209,47 @@ test("checked-in Pi attempts preserve blocked history and non-supporting success
         assert.equal(success[field], false);
 });
 
+test("checked-in non-Pi preflights preserve exact version mismatches without lifecycle execution", () => {
+    for (const [host, expectedObserved] of [
+        ["claude", "2.1.235 (Claude Code)"],
+        ["copilot", "GitHub Copilot CLI 1.0.67."],
+        ["codex", "codex-cli 0.147.0"],
+        ["gemini", "0.33.1"],
+    ]) {
+        const path = join(
+            defaultRepositoryRoot,
+            "distribution/evidence",
+            `s9-${host}-${
+                host === "claude"
+                    ? "2.1.245"
+                    : host === "copilot"
+                      ? "1.0.80"
+                      : host === "codex"
+                        ? "0.149.1"
+                        : "0.56.0"
+            }-2026-08-26-preflight.json`,
+        );
+        assert.deepEqual(validateRealHostCanaryReportFile(path), []);
+        const report = JSON.parse(readFileSync(path, "utf8"));
+        assert.equal(report.state, "BLOCKED");
+        assert.equal(report.observedHostVersion, expectedObserved);
+        assert.equal(
+            report.phases[0].status,
+            "BLOCKED_HOST_VERSION_MISMATCH",
+        );
+        assert(
+            report.phases
+                .slice(1)
+                .every(
+                    (phase) =>
+                        phase.status === "BLOCKED_HOST_VERSION_MISMATCH" &&
+                        phase.command === null,
+                ),
+        );
+        assert.equal(report.supportGranted, false);
+    }
+});
+
 test("version mismatch blocks every real lifecycle phase", () => {
     const root = mkdtempSync(join(tmpdir(), "cratis-s9-wrong-pi-"));
     try {
