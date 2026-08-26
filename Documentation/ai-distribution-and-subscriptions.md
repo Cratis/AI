@@ -381,7 +381,10 @@ contains 7. Four additional modeled targets remain explicitly accounted for but
 excluded: Chronicle and Studio MCP guidance cannot enter a materialized artifact,
 and the observable-query HTTP and documentation visual-QA sources contain
 private-or-local endpoint/path examples that fail the public artifact scanner.
-Their canonical sources are not rewritten or silently sanitized.
+Four superseded legacy skills remain explicitly repository-only. The two
+candidate manifests therefore account for all 49 skill components: 41 packaged,
+4 target exclusions, and 4 retained legacy exclusions. Canonical sources are not
+rewritten or silently sanitized.
 
 Each bundle contains one deterministic archive per harness, exact immutable
 source revision and digest records, a candidate SBOM, static support matrix,

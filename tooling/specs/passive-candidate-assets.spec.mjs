@@ -102,6 +102,40 @@ test("passive candidate assets package every currently safe target and account f
                 reason: "private-or-local-content",
             },
         ]);
+        assert.deepEqual(publicManifest.repositoryOnlySkillExclusions, []);
+        assert.deepEqual(
+            engineeringManifest.repositoryOnlySkillExclusions.map(
+                (item) => item.componentId,
+            ),
+            [
+                "cratis-legacy-add-concept",
+                "cratis-legacy-add-cratis-docs-page",
+                "cratis-legacy-edit-cratis-docs",
+                "cratis-legacy-write-documentation",
+            ],
+        );
+        const skillComponentIds = JSON.parse(
+            readFileSync("catalog/v2/components.json", "utf8"),
+        ).components
+            .filter((component) => component.kind === "skill")
+            .map((component) => component.id)
+            .sort();
+        const accountedSkillComponentIds = [
+            ...publicManifest.targetIds,
+            ...publicManifest.targetExclusions.map((item) => item.targetId),
+            ...publicManifest.repositoryOnlySkillExclusions.map(
+                (item) => item.componentId,
+            ),
+            ...engineeringManifest.targetIds,
+            ...engineeringManifest.targetExclusions.map(
+                (item) => item.targetId,
+            ),
+            ...engineeringManifest.repositoryOnlySkillExclusions.map(
+                (item) => item.componentId,
+            ),
+        ].sort();
+        assert.equal(skillComponentIds.length, 49);
+        assert.deepEqual(accountedSkillComponentIds, skillComponentIds);
         for (const manifest of [publicManifest, engineeringManifest]) {
             assert.equal(manifest.assets.length, passiveHarnesses.length);
             assert.match(manifest.sourceCommit, /^[0-9a-f]{40}$/);

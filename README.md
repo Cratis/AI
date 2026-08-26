@@ -12,10 +12,11 @@ It serves two separate audiences:
 
 > **Current status:** distribution remains candidate/preview-only. No supported
 > public or engineering profile package has been published. Deterministic
-> review bundles now cover 41 passive targets across 34 harness shapes; four
+> review bundles now package 41 passive targets across 34 harness shapes. Four
 > additional targets remain explicitly blocked by MCP or private/local-content
-> safety boundaries. Do not install this mixed source repository or the review
-> bundles as runtime packages.
+> safety boundaries, and four superseded legacy skills remain repository-only;
+> together the manifests account for all 49 skill components. Do not install
+> this mixed source repository or the review bundles as runtime packages.
 
 ## The architecture
 

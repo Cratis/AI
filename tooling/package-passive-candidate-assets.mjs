@@ -139,6 +139,29 @@ export function loadPassiveCandidateAuthority(
     if (!configuration)
         throw new Error(`Unknown passive candidate artifact: ${artifactId}`);
     const context = createReleaseContext({ repositoryRoot });
+    const componentCatalog = JSON.parse(
+        readFileSync(
+            join(repositoryRoot, "catalog/v2/components.json"),
+            "utf8",
+        ),
+    );
+    if (!Array.isArray(componentCatalog.components))
+        throw new Error("Component catalog inventory is malformed");
+    const repositoryOnlySkills = componentCatalog.components
+        .filter(
+            (component) =>
+                component.kind === "skill" &&
+                component.audience === configuration.audience &&
+                component.releaseBoundary === "repository-only",
+        )
+        .map((component) => ({
+            componentId: component.id,
+            lifecycle: component.lifecycle,
+            sourcePaths: component.canonicalSources.map(
+                (source) => source.path,
+            ),
+            reason: "legacy-retained-repository-only",
+        }));
     const artifact = context.require("artifacts", artifactId);
     if (
         artifact.materializationClass !== "review-candidate" ||
@@ -212,6 +235,7 @@ export function loadPassiveCandidateAuthority(
         targets,
         sources,
         skills,
+        repositoryOnlySkills,
     };
 }
 
@@ -221,6 +245,7 @@ function reviewNotice(authority, version) {
         `- Version: \`${version}\`\n` +
         `- Packaged targets: ${authority.targets.length}\n` +
         `- Excluded targets: ${authority.artifact.targetExclusions.length}\n` +
+        `- Repository-only legacy skills: ${authority.repositoryOnlySkills.length}\n` +
         `- Canonical skills: ${authority.skills.length}\n\n` +
         `This deterministic bundle exists for static review only. It is not an ` +
         `installation recommendation, supported package, release, marketplace ` +
@@ -379,6 +404,7 @@ export function packagePassiveCandidateAssets({
             sourceSkillCount: authority.sources.length,
             targets: authority.targets.map(targetReviewRecord),
             targetExclusions: authority.artifact.targetExclusions,
+            repositoryOnlySkillExclusions: authority.repositoryOnlySkills,
             harnesses: passiveHarnesses.map((harness) => ({
                 harness,
                 staticallyValidated: true,
@@ -432,8 +458,12 @@ export function packagePassiveCandidateAssets({
             sourceCommit,
             generatorPaths,
             generatorDigest: generatorHash.digest("hex"),
+            componentCatalogSha256: sha256(
+                readFileSync(join(repositoryRoot, "catalog/v2/components.json")),
+            ),
             targetIds: authority.targets.map((target) => target.id),
             targetExclusions: authority.artifact.targetExclusions,
+            repositoryOnlySkillExclusions: authority.repositoryOnlySkills,
             sourceSkills: authority.sources.map((source, index) => ({
                 sourceId: source.id,
                 sourcePath: source.sourcePath,
@@ -492,6 +522,7 @@ export function packagePassiveCandidateAssets({
             bundleId: authority.configuration.bundleId,
             version,
             targetExclusions: authority.artifact.targetExclusions,
+            repositoryOnlySkillExclusions: authority.repositoryOnlySkills,
             components: authority.sources.map((source, index) => ({
                 type: "agent-skill",
                 name: authority.skills[index].name,
