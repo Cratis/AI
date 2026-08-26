@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "ed019828756fe0be9c157f062281b651f252b719fd75fc867b5eed4ae9bf6000",
+  "indexDigest": "31e75c6ea9589e48b965ebad0a9d6f8dbe8f17c92212b68d18eb7f54b7853905",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -39,6 +39,14 @@
       "status": "modified"
     },
     {
+      "path": ".ai/rules/github-actions.md",
+      "status": "added"
+    },
+    {
+      "path": ".ai/rules/local-work-artifacts.md",
+      "status": "added"
+    },
+    {
       "path": ".ai/rules/managing-ai-rules.md",
       "status": "modified"
     },
@@ -67,8 +75,16 @@
       "status": "modified"
     },
     {
+      "path": ".claude/rules/github-actions.md",
+      "status": "added"
+    },
+    {
       "path": ".github/ISSUE_TEMPLATE/shared-ai-improvement.yml",
       "status": "added"
+    },
+    {
+      "path": ".github/workflows/cleanup-pr-artifacts.yml",
+      "status": "modified"
     },
     {
       "path": ".github/workflows/distribution-approved-profile-release.yml",
@@ -107,68 +123,16 @@
       "status": "modified"
     },
     {
+      "path": ".github/workflows/update-packages.yml",
+      "status": "modified"
+    },
+    {
       "path": ".github/workflows/verify-ai-corpus.yml",
       "status": "added"
     },
     {
       "path": ".gitignore",
       "status": "modified"
-    },
-    {
-      "path": "AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md",
-      "status": "added"
-    },
-    {
-      "path": "AI-REPOSITORY-REDESIGN-AUTONOMOUS-PLAN.md",
-      "status": "added"
-    },
-    {
-      "path": "AI-REPOSITORY-REDESIGN-AUTONOMOUS-PROMPT.md",
-      "status": "added"
-    },
-    {
-      "path": "AI-REPOSITORY-REDESIGN-CONTINUATION-HANDOVER.md",
-      "status": "added"
-    },
-    {
-      "path": "AI-REPOSITORY-REDESIGN-DELIVERY-FIRST-CONTINUATION-PROMPT.md",
-      "status": "added"
-    },
-    {
-      "path": "AI-REPOSITORY-REDESIGN-ECOSYSTEM-USE-CASES.md",
-      "status": "added"
-    },
-    {
-      "path": "AI-REPOSITORY-REDESIGN-FIRST-SOURCE-MOVE-PROMPT.md",
-      "status": "added"
-    },
-    {
-      "path": "AI-REPOSITORY-REDESIGN-HANDOVER.md",
-      "status": "added"
-    },
-    {
-      "path": "AI-REPOSITORY-REDESIGN-IMPLEMENTATION-PLAN.md",
-      "status": "added"
-    },
-    {
-      "path": "AI-REPOSITORY-REDESIGN-IMPLEMENTATION-PROMPT.md",
-      "status": "added"
-    },
-    {
-      "path": "AI-REPOSITORY-REDESIGN-NEXT-SESSION-HANDOVER.md",
-      "status": "added"
-    },
-    {
-      "path": "AI-REPOSITORY-REDESIGN-REEVALUATION-PROMPT.md",
-      "status": "added"
-    },
-    {
-      "path": "AI-REPOSITORY-REDESIGN-REEVALUATION.md",
-      "status": "added"
-    },
-    {
-      "path": "AI-REPOSITORY-REDESIGN-THIRD-PARTY-SKILLS-EVALUATION.md",
-      "status": "added"
     },
     {
       "path": "Documentation/.markdownlint.json",
@@ -3010,8 +2974,8 @@
         "repo-main-b795d53",
         "ai-126"
       ],
-      "expectedPathCount": 34,
-      "expectedPathsDigest": "d04853e6d39e3bf656687ddbcc110460cf1d8d856ed1386daffc2524aa852cd5"
+      "expectedPathCount": 36,
+      "expectedPathsDigest": "3d3ef1ea14bba42811b1b08628aa1e145365665d41d1035c3248c61d421f1d4b"
     },
     {
       "excludePathPatterns": [],
@@ -3345,8 +3309,8 @@
         "reevaluation-authority"
       ],
       "generator": "legacy-manual-adapter-model",
-      "expectedPathCount": 57,
-      "expectedPathsDigest": "8df9cc32a0bf05818a3bdb16823d6231d4c1ca5d7b4658fc0a6841e524d0b8f0"
+      "expectedPathCount": 58,
+      "expectedPathsDigest": "ccf44ef5d952014b918a42ddcb3f4f6ae743a43916b55a07bb29828d2e98b543"
     },
     {
       "excludePathPatterns": [],
@@ -3756,8 +3720,8 @@
         "workflows-68",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 41,
-      "expectedPathsDigest": "d1d88655847a1f105bf3a84d37ffa9dad1efc0e97242e3e44e34e83344095fdb"
+      "expectedPathCount": 27,
+      "expectedPathsDigest": "e64c4acb88b58c14fd3d36f873802f4e29cb52774eb8b06897e3c6247dfd1540"
     },
     {
       "excludePathPatterns": [],

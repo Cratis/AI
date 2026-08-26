@@ -83,8 +83,9 @@ authority; private implementation findings cannot enter public source or
 authorize operations.
 
 S8 adds 70 explicit `generated-static` projections for four isolated
-repository-only rule/instruction fixture roots. The original 312 repository
-adapter records remain unchanged. Generated-static records have no host
+repository-only rule/instruction fixture roots. Those 70 fixture projections
+remain unchanged; the repository adapter inventory now contains 315 existing
+records after incorporating newer main-branch rules. Generated-static records have no host
 activation or package identity and are validated against exact component kind,
 canonical bytes, official discovery-root evidence, and complete candidate-tree
 inventory. They do not establish installation, behavior, lifecycle, support, or

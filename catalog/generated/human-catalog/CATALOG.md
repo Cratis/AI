@@ -15,13 +15,13 @@ and does not make a planned package installable.
 
 Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.
 
-- Components: 135
-- Passive: 132
+- Components: 137
+- Passive: 134
 - Executable: 3
 - Legacy-retained: 4
-- Existing adapter records: 312
+- Existing adapter records: 315
 - Generated static fixture projections: 70
-- Active host projections: 309
+- Active host projections: 312
 - Inert path references: 3
 - Planned projections: 0
 - Non-existing blocked projections: 0
@@ -35,7 +35,7 @@ Modeled or planned components and projections are catalog metadata only; they ar
 - subagent: 0
 - command: 18
 - prompt: 18
-- rule: 34
+- rule: 36
 - instruction: 1
 - hook: 1
 - mcp: 0

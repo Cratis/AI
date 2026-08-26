@@ -399,6 +399,7 @@ jobs:
     if: ${{ always() && github.event_name == 'push' && needs.s10_preflight.outputs.release_allowed == 'true' && needs.distribute.result == 'success' && needs['publish-npm'].result == 'failure' }}
     needs: [discover, s10_preflight, distribute, publish-npm]
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     environment: distribution-canary
     steps:
       - name: Create repository-scoped distribution token
@@ -474,6 +475,7 @@ jobs:
     if: ${{ always() && github.event_name == 'push' && needs.s10_preflight.outputs.release_allowed == 'true' && needs['publish-npm'].result == 'success' && needs['promote-and-follow-up'].result == 'failure' }}
     needs: [discover, s10_preflight, publish-npm, promote-and-follow-up]
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     permissions:
       contents: read
     steps:

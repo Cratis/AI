@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import test from "node:test";
 
 function read(path) {
@@ -18,7 +18,8 @@ const shipPrompt = read(".ai/prompts/ship-changes.prompt.md");
 const shipEvals = read(".ai/skills/ship-changes/evals/evals.json");
 const releaseWorkflow = read(".github/workflows/release-approved-ai-profiles.yml");
 const claudeWorkflow = read(".ai/workflows/claude.yml");
-const historicalPrompt = read("AI-REPOSITORY-REDESIGN-AUTONOMOUS-PROMPT.md");
+const localWorkArtifacts = read(".ai/rules/local-work-artifacts.md");
+const gitignore = read(".gitignore");
 
 const mutatingIssueCommand = /\bgh\s+issue\s+(?:create|comment|edit|close|reopen|delete|pin|unpin|lock|unlock|transfer|develop)\b/;
 
@@ -69,8 +70,13 @@ test("the bundled Claude workflow is inert and read-only", () => {
     assert.doesNotMatch(claudeWorkflow, /anthropics\/claude-code-action/);
 });
 
-test("historical blanket authority is visibly non-operational", () => {
-    assert.match(historicalPrompt, /Historical record — not current execution authority/);
-    assert.match(historicalPrompt, /Do not copy or run this prompt/);
-    assert.match(historicalPrompt, /grants no effect/);
+test("historical AI work records are absent and local work remains untracked", () => {
+    assert.equal(
+        existsSync("AI-REPOSITORY-REDESIGN-AUTONOMOUS-PROMPT.md"),
+        false,
+    );
+    assert.match(localWorkArtifacts, /work records, not documentation/);
+    assert.match(localWorkArtifacts, /inside \*\*`\.ai-work\/`\*\*/);
+    assert.match(localWorkArtifacts, /must stay untracked/);
+    assert.match(gitignore, /^\.ai-work\/$/m);
 });

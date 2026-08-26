@@ -32,9 +32,9 @@ export const componentCatalogPaths = Object.freeze({
 });
 
 const expectedComponentAnchor =
-    "c95388e68d4c4dc63ac64e5220d55be89cd9881819140d113f8cd35868adeb5b";
+    "293461cd41ae39e761cebc9afb75442401aef69efec4059c02f07f10f277a951";
 const expectedProjectionAnchor =
-    "1846a598a1996d240efa819ca9289126ef0c55a628b95fe3050e9c5bfd37fa42";
+    "390dae84371d1682cac9efdb3c99ea36cfb1582823c3a8d9ebc841c6f50f6ebe";
 const expectedProjectionHostAnchor =
     "9735e6fd6a1b15e92086df6fda6cb4a988094c37c26e11bddf0518d5d3fdeba2";
 
@@ -1174,10 +1174,10 @@ export function validateComponentProjections(
     );
     if (
         projections.hosts.length !== 9 ||
-        projections.projections.length !== 382 ||
+        projections.projections.length !== 385 ||
         projections.projections.filter(
             (projection) => projection.state === "existing",
-        ).length !== 312 ||
+        ).length !== 315 ||
         generatedStatic.length !== 70 ||
         generatedCounts["jetbrains-ai-assistant"] !== 34 ||
         generatedCounts.tabnine !== 34 ||

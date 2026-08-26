@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generatedBy": "tooling/generate-component-catalogs.mjs",
-  "sourceDigest": "4f2f3618486c60ce1c03c999c8f0a2822ef09bc2bfba02e5fc7c7ac64775869d",
+  "sourceDigest": "1805d2372d9a3fd92e692226099e4eb0ce7c07c529bc0d4cd99e7d5f77f633e6",
   "defaultPolicy": "deny",
   "canonicalSourceRoots": [
     ".ai/agents",
@@ -5489,12 +5489,12 @@
       "canonicalSources": [
         {
           "path": ".ai/rules/general.md",
-          "digest": "980132180f4a4696dcdd41669256ba72672ca6e40b550bc575186c18b8182759",
+          "digest": "dba032aee881958df8de0b912759519c53fc3cbbcc1da8af5f304bbabd5970c4",
           "ownership": "owner",
           "ownerComponentId": "cratis-instruction-general"
         }
       ],
-      "contentDigest": "96f61d0f374800321e32a8c9475ffa13b60fd00e0235c0496f454d4a58e7b9cd",
+      "contentDigest": "d488cbe5abfbf1a64abd42295f16eb8e6344f92648bf8f8f2277ff95b08075cf",
       "owner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "classification": {
@@ -8430,6 +8430,75 @@
       }
     },
     {
+      "id": "cratis-rule-github-actions",
+      "kind": "rule",
+      "semanticIdentity": "cratis-rule-github-actions",
+      "semanticName": "Cratis github-actions rule",
+      "lifecycle": "active",
+      "distributionTargetId": null,
+      "canonicalSources": [
+        {
+          "path": ".ai/rules/github-actions.md",
+          "digest": "57534c3f708a167e49e02dc95adaec8920c8c2c872c67bc6be208586d868f90b",
+          "ownership": "owner",
+          "ownerComponentId": "cratis-rule-github-actions"
+        }
+      ],
+      "contentDigest": "a62690bd37728385f2f2284eaabaf16c30935b79fbbdb570ebe050ba860c43e4",
+      "owner": "reusable Cratis engineering behavior",
+      "audience": "cratis-engineering",
+      "classification": {
+        "artifactClass": "passive-content",
+        "trust": "passive",
+        "passive": true,
+        "executable": false,
+        "effect": "guided-write"
+      },
+      "dependencies": [],
+      "hostNeutralPurpose": "Provide persistent host-neutral GitHub Actions engineering rules.",
+      "approval": {
+        "state": "modeled",
+        "evidenceIds": [
+          "reevaluation-authority"
+        ]
+      },
+      "releaseBoundary": "repository-only",
+      "allowedProjections": [
+        {
+          "hostContract": "any-passive-host",
+          "kinds": [
+            "rule"
+          ],
+          "artifactClasses": [
+            "provider-compatibility"
+          ]
+        }
+      ],
+      "forbiddenProjections": [
+        "skill",
+        "agent",
+        "subagent",
+        "command",
+        "prompt",
+        "instruction",
+        "hook",
+        "mcp",
+        "lsp",
+        "executable-host-extension",
+        "static-asset"
+      ],
+      "requiredCanaries": [
+        "projection-shape",
+        "semantic-identity",
+        "source-digest"
+      ],
+      "securityRequirements": {
+        "threatModel": false,
+        "securityReview": false,
+        "executableAssuranceProfile": false
+      }
+    },
+    {
       "id": "cratis-rule-glossary",
       "kind": "rule",
       "semanticIdentity": "cratis-rule-glossary",
@@ -8460,6 +8529,75 @@
         "state": "modeled",
         "evidenceIds": [
           "repo-main-b795d53"
+        ]
+      },
+      "releaseBoundary": "repository-only",
+      "allowedProjections": [
+        {
+          "hostContract": "any-passive-host",
+          "kinds": [
+            "rule"
+          ],
+          "artifactClasses": [
+            "provider-compatibility"
+          ]
+        }
+      ],
+      "forbiddenProjections": [
+        "skill",
+        "agent",
+        "subagent",
+        "command",
+        "prompt",
+        "instruction",
+        "hook",
+        "mcp",
+        "lsp",
+        "executable-host-extension",
+        "static-asset"
+      ],
+      "requiredCanaries": [
+        "projection-shape",
+        "semantic-identity",
+        "source-digest"
+      ],
+      "securityRequirements": {
+        "threatModel": false,
+        "securityReview": false,
+        "executableAssuranceProfile": false
+      }
+    },
+    {
+      "id": "cratis-rule-local-work-artifacts",
+      "kind": "rule",
+      "semanticIdentity": "cratis-rule-local-work-artifacts",
+      "semanticName": "Cratis local-work-artifacts rule",
+      "lifecycle": "active",
+      "distributionTargetId": null,
+      "canonicalSources": [
+        {
+          "path": ".ai/rules/local-work-artifacts.md",
+          "digest": "8866866a43b5ccdb774a243cbba2cd1948a6220b1ae12149e2461b463696edad",
+          "ownership": "owner",
+          "ownerComponentId": "cratis-rule-local-work-artifacts"
+        }
+      ],
+      "contentDigest": "2c5c0c72e14bd54d6e4fd847706750e56f44bdcb5767d1d334b0a515fb627f84",
+      "owner": "reusable Cratis engineering behavior",
+      "audience": "cratis-engineering",
+      "classification": {
+        "artifactClass": "passive-content",
+        "trust": "passive",
+        "passive": true,
+        "executable": false,
+        "effect": "guided-write"
+      },
+      "dependencies": [],
+      "hostNeutralPurpose": "Keep temporary AI work artifacts out of version control.",
+      "approval": {
+        "state": "modeled",
+        "evidenceIds": [
+          "reevaluation-authority"
         ]
       },
       "releaseBoundary": "repository-only",

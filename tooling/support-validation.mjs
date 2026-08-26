@@ -30,9 +30,9 @@ export const supportPaths = Object.freeze({
 const expectedObservationAnchor =
     "523c158e181080a237ec62ef5a5278f2f7e98c709c522ecda4474ef6d95a4b7f";
 const expectedSourceIdentityAnchor =
-    "b99e0667a1aeaf9eab60757b80c9444426fa10f21eb6a9acb6daa4d9354845cc";
+    "5ee7d05ab2b7390b46ca40c076175022940944b5690e47032e7ff75d0d1e4762";
 const expectedObservationBindingAnchor =
-    "250c4cbf8a3a0957d875397f76527d8ceb757a01e637dff8ae230bc2c3ab7be8";
+    "a51c78eb2111b00394f23002c1286c87371a3d98c455b1e3d8bc0bec21716d5d";
 const expectedFactAnchor =
     "4202f2d5ebf233b1d10e02000bd35e61803e8061bb800d343d0d1eed1fa984dd";
 const expectedGapAnchor =

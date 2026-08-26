@@ -96,24 +96,24 @@
     },
     {
       "id": "source-reevaluation-authority",
-      "kind": "local-evidence-report",
-      "locator": "https://github.com/Cratis/AI",
-      "repositoryPath": "AI-REPOSITORY-REDESIGN-REEVALUATION.md",
-      "digest": "d0e76cea34145717ae8874a252b7d4468c43ef102cb9ddc3f2241c0960aa70d5"
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/b795d5307e20f7f7458a67708b4f26975e223796/AI-REPOSITORY-REDESIGN-REEVALUATION.md",
+      "digest": "d0e76cea34145717ae8874a252b7d4468c43ef102cb9ddc3f2241c0960aa70d5",
+      "immutableRevision": "b795d5307e20f7f7458a67708b4f26975e223796"
     },
     {
       "id": "source-ecosystem-use-cases",
-      "kind": "local-evidence-report",
-      "locator": "https://github.com/Cratis/AI",
-      "repositoryPath": "AI-REPOSITORY-REDESIGN-ECOSYSTEM-USE-CASES.md",
-      "digest": "3b6fa1b0458eaf6c7305f68fc475e16e9ad2dd78f25cf0db3dea7bedd505f8f1"
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/b795d5307e20f7f7458a67708b4f26975e223796/AI-REPOSITORY-REDESIGN-ECOSYSTEM-USE-CASES.md",
+      "digest": "3b6fa1b0458eaf6c7305f68fc475e16e9ad2dd78f25cf0db3dea7bedd505f8f1",
+      "immutableRevision": "b795d5307e20f7f7458a67708b4f26975e223796"
     },
     {
       "id": "source-third-party-skills-evaluation",
-      "kind": "local-evidence-report",
-      "locator": "https://github.com/Cratis/AI",
-      "repositoryPath": "AI-REPOSITORY-REDESIGN-THIRD-PARTY-SKILLS-EVALUATION.md",
-      "digest": "cc9dcc93365dcfc2721b5aff837ace9d941db7251f68ab732b0285b063c2272c"
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/b795d5307e20f7f7458a67708b4f26975e223796/AI-REPOSITORY-REDESIGN-THIRD-PARTY-SKILLS-EVALUATION.md",
+      "digest": "cc9dcc93365dcfc2721b5aff837ace9d941db7251f68ab732b0285b063c2272c",
+      "immutableRevision": "b795d5307e20f7f7458a67708b4f26975e223796"
     },
     {
       "id": "source-option-a-plus-authority",
@@ -1298,9 +1298,9 @@
       ],
       "supersedes": [],
       "legacy": {
-        "officialUrl": "https://github.com/Cratis/AI",
-        "sourceKind": "local-evidence-report",
-        "applicableVersion": "content-digest-bound"
+        "officialUrl": "https://github.com/Cratis/AI/tree/b795d5307e20f7f7458a67708b4f26975e223796/AI-REPOSITORY-REDESIGN-REEVALUATION.md",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "b795d5307e20f7f7458a67708b4f26975e223796"
       }
     },
     {
@@ -1338,9 +1338,9 @@
       ],
       "supersedes": [],
       "legacy": {
-        "officialUrl": "https://github.com/Cratis/AI",
-        "sourceKind": "local-evidence-report",
-        "applicableVersion": "content-digest-bound"
+        "officialUrl": "https://github.com/Cratis/AI/tree/b795d5307e20f7f7458a67708b4f26975e223796/AI-REPOSITORY-REDESIGN-ECOSYSTEM-USE-CASES.md",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "b795d5307e20f7f7458a67708b4f26975e223796"
       }
     },
     {
@@ -1376,9 +1376,9 @@
       ],
       "supersedes": [],
       "legacy": {
-        "officialUrl": "https://github.com/Cratis/AI",
-        "sourceKind": "local-evidence-report",
-        "applicableVersion": "content-digest-bound"
+        "officialUrl": "https://github.com/Cratis/AI/tree/b795d5307e20f7f7458a67708b4f26975e223796/AI-REPOSITORY-REDESIGN-THIRD-PARTY-SKILLS-EVALUATION.md",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "b795d5307e20f7f7458a67708b4f26975e223796"
       }
     },
     {

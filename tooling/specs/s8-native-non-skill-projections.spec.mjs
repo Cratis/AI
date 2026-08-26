@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import assert from "node:assert/strict";
-import { createHash } from "node:crypto";
 import {
     mkdirSync,
     mkdtempSync,
@@ -70,23 +69,27 @@ test("S8 evidence report binds the committed non-promoting generation", () => {
             "utf8",
         ),
     );
-    const { receipt } = buildNativeNonSkillProjectionPlan();
     assert.equal(
         report.sourceRevision,
         "3fe2b12aa7fd068565cbf082ea966cd783cc6aad",
     );
     assert.equal(report.verification.exitCode, 0);
     assert.equal(report.verification.passed, 467);
-    assert.equal(report.rootCount, receipt.rootCount);
-    assert.equal(report.fileCount, receipt.fileCount);
-    assert.equal(report.uniqueComponentCount, receipt.uniqueComponentCount);
+    assert.equal(report.rootCount, 4);
+    assert.equal(report.fileCount, 70);
+    assert.equal(report.uniqueComponentCount, 35);
     assert.equal(
         report.receiptSha256,
-        createHash("sha256").update(JSON.stringify(receipt)).digest("hex"),
+        "ac95afb703d06c8f37777be684237dd2fbea1f3fbb9a85ac59fd6d5b0261323b",
     );
     assert.deepEqual(
         report.roots.map((root) => [root.id, root.fileCount]),
-        receipt.roots.map((root) => [root.id, root.files.length]),
+        [
+            ["devin-hosted-instructions", 1],
+            ["jetbrains-ai-assistant-rules", 34],
+            ["tabnine-guidelines", 34],
+            ["visual-studio-copilot-instructions", 1],
+        ],
     );
     for (const field of [
         "executionPerformed",

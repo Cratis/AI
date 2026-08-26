@@ -330,13 +330,13 @@
     },
     {
       "id": "ecosystem-use-cases",
-      "officialUrl": "https://github.com/Cratis/AI",
-      "sourceKind": "local-evidence-report",
+      "officialUrl": "https://github.com/Cratis/AI/tree/b795d5307e20f7f7458a67708b4f26975e223796/AI-REPOSITORY-REDESIGN-ECOSYSTEM-USE-CASES.md",
+      "sourceKind": "repository-snapshot",
       "verifiedOn": "2026-08-20",
       "expiresOn": "2026-11-18",
-      "applicableVersion": "content-digest-bound",
+      "applicableVersion": "b795d5307e20f7f7458a67708b4f26975e223796",
       "confidence": "medium",
-      "repositoryPath": "AI-REPOSITORY-REDESIGN-ECOSYSTEM-USE-CASES.md",
+      "immutableRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
       "digest": "3b6fa1b0458eaf6c7305f68fc475e16e9ad2dd78f25cf0db3dea7bedd505f8f1"
     },
     {
@@ -1013,13 +1013,13 @@
     },
     {
       "id": "reevaluation-authority",
-      "officialUrl": "https://github.com/Cratis/AI",
-      "sourceKind": "local-evidence-report",
+      "officialUrl": "https://github.com/Cratis/AI/tree/b795d5307e20f7f7458a67708b4f26975e223796/AI-REPOSITORY-REDESIGN-REEVALUATION.md",
+      "sourceKind": "repository-snapshot",
       "verifiedOn": "2026-08-20",
       "expiresOn": "2026-09-19",
-      "applicableVersion": "content-digest-bound",
+      "applicableVersion": "b795d5307e20f7f7458a67708b4f26975e223796",
       "confidence": "medium",
-      "repositoryPath": "AI-REPOSITORY-REDESIGN-REEVALUATION.md",
+      "immutableRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
       "digest": "d0e76cea34145717ae8874a252b7d4468c43ef102cb9ddc3f2241c0960aa70d5"
     },
     {
@@ -1379,13 +1379,13 @@
     },
     {
       "id": "third-party-skills-evaluation",
-      "officialUrl": "https://github.com/Cratis/AI",
-      "sourceKind": "local-evidence-report",
+      "officialUrl": "https://github.com/Cratis/AI/tree/b795d5307e20f7f7458a67708b4f26975e223796/AI-REPOSITORY-REDESIGN-THIRD-PARTY-SKILLS-EVALUATION.md",
+      "sourceKind": "repository-snapshot",
       "verifiedOn": "2026-08-20",
       "expiresOn": "2026-11-18",
-      "applicableVersion": "content-digest-bound",
+      "applicableVersion": "b795d5307e20f7f7458a67708b4f26975e223796",
       "confidence": "medium",
-      "repositoryPath": "AI-REPOSITORY-REDESIGN-THIRD-PARTY-SKILLS-EVALUATION.md",
+      "immutableRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
       "digest": "cc9dcc93365dcfc2721b5aff837ace9d941db7251f68ab732b0285b063c2272c"
     },
     {

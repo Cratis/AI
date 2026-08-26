@@ -32,12 +32,12 @@ export const s8NativeProjectionPaths = Object.freeze({
     expectedTree: "tooling/fixtures/s8-native-non-skill-expected-tree.json",
 });
 
-const expectedComponentAnchor =
-    "c95388e68d4c4dc63ac64e5220d55be89cd9881819140d113f8cd35868adeb5b";
-const expectedProjectionAnchor =
-    "1846a598a1996d240efa819ca9289126ef0c55a628b95fe3050e9c5bfd37fa42";
-const expectedProjectionHostAnchor =
-    "9735e6fd6a1b15e92086df6fda6cb4a988094c37c26e11bddf0518d5d3fdeba2";
+const expectedStaticComponentAnchor =
+    "e3d38dcd229c97a132908f94f90d3ecd8d11a889b7a1ec153770fce22946be91";
+const expectedStaticProjectionAnchor =
+    "5994bb761eeaf6f44fd5da70af8434f93b5197ccc7325bb9aa536eb1a9bf0056";
+const expectedStaticProjectionHostAnchor =
+    "ae962a476c91b871d5e9906280e6751e64d962d325a15f37ad8e35e04825eb9a";
 
 const expectedRoots = Object.freeze([
     "devin-hosted-instructions",
@@ -111,6 +111,13 @@ export function buildNativeNonSkillProjectionPlan(
     const projectionSchema = readCatalog(
         join(root, s8NativeProjectionPaths.projectionSchema),
     );
+    const selected = generatedStaticProjections(projections);
+    const selectedComponentIds = new Set(
+        selected.map((projection) => projection.componentId),
+    );
+    const selectedHostIds = new Set(
+        selected.map((projection) => projection.hostId),
+    );
     const metadataErrors = [
         ...validateAgainstSchema(components, componentSchema, componentSchema),
         ...validateAgainstSchema(
@@ -120,9 +127,15 @@ export function buildNativeNonSkillProjectionPlan(
         ),
     ];
     if (
-        semanticAnchor(components.components) !== expectedComponentAnchor ||
-        semanticAnchor(projections.projections) !== expectedProjectionAnchor ||
-        semanticAnchor(projections.hosts) !== expectedProjectionHostAnchor
+        semanticAnchor(
+            components.components.filter((component) =>
+                selectedComponentIds.has(component.id),
+            ),
+        ) !== expectedStaticComponentAnchor ||
+        semanticAnchor(selected) !== expectedStaticProjectionAnchor ||
+        semanticAnchor(
+            projections.hosts.filter((host) => selectedHostIds.has(host.id)),
+        ) !== expectedStaticProjectionHostAnchor
     )
         metadataErrors.push(
             "S8 component or projection metadata differs from the reviewed anchors",
@@ -146,7 +159,6 @@ export function buildNativeNonSkillProjectionPlan(
             observation,
         ]),
     );
-    const selected = generatedStaticProjections(projections);
     if (selected.length !== 70)
         throw new Error(`S8 requires exactly 70 projections; found ${selected.length}`);
     const logicalPaths = new Set();
