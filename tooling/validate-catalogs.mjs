@@ -24,6 +24,7 @@ import {
     loadRealHostCanaryContracts,
     validateRealHostCanaryMatrix,
 } from "./real-host-canary-contract.mjs";
+import { validateCheckedInRealHostCanaryReports } from "./validate-real-host-canary-report.mjs";
 import { validateS10ReleaseGate } from "./s10-release-gate-validation.mjs";
 import { validateReleaseLifecycleEvidence } from "./release-lifecycle-validation.mjs";
 import { validateMarketplacePublications } from "./marketplace-publication-validation.mjs";
@@ -52,6 +53,7 @@ const errors = [
     ...validateMcpGuidanceProducts(),
     ...validateNativeNonSkillProjectionContract(),
     ...validateRealHostCanaryMatrix(loadRealHostCanaryContracts()),
+    ...validateCheckedInRealHostCanaryReports(),
     ...validateS10ReleaseGate(),
     ...validateReleaseLifecycleEvidence(),
     ...validateMarketplacePublications(),

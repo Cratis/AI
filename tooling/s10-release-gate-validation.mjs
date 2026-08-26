@@ -20,7 +20,7 @@ import { computeEvidenceIdentityAnchors } from "./support-validation.mjs";
 const expectedPolicyDigest =
     "02982ff7a36eb77025f7eda8e82d41ab671e695f7faa8dafc0d3dbcd665474ed";
 const expectedEvidenceBaselineDigest =
-    "48e626a15a495dedfa476d2214e9903adfdd3dd15710b72c42334cfe57274038";
+    "b28d8e4b0d813fd5e5c4546b5ce0b06e84222a4160f3a3b2e4437c9ee7b3cdad";
 const sideEffectJobs = [
     "canary",
     "distribute",
@@ -180,9 +180,9 @@ export function validateS10ReleaseGate(root = defaultRepositoryRoot) {
         if (anchors[key] !== evidenceBaseline[key])
             errors.push(`evidence baseline identity changed: ${key}`);
     for (const reportPath of [
-        "distribution/evidence/s9-pi-0.84.3-2026-08-25.json",
-        "distribution/evidence/s9-pi-0.84.3-2026-08-26-attempt-2.json",
-        "distribution/evidence/s9-pi-0.84.3-2026-08-26-attempt-3.json",
+        "distribution/evidence/s9-pi-attempt-1-blocked-2026-08-25.json",
+        "distribution/evidence/s9-pi-attempt-2-superseded-2026-08-26.json",
+        "distribution/evidence/s9-pi-attempt-3-current-2026-08-26.json",
     ]) {
         const record = evidence.distributionEvidenceFiles.find(
             (candidate) => candidate.repositoryPath === reportPath,

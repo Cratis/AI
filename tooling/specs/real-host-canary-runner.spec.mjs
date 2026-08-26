@@ -16,7 +16,10 @@ import { test } from "node:test";
 import { defaultRepositoryRoot } from "../catalog-validation.mjs";
 import { reportPayloadDigest } from "../real-host-canary-contract.mjs";
 import { runRealHostCanary } from "../run-real-host-canary.mjs";
-import { validateRealHostCanaryReportFile } from "../validate-real-host-canary-report.mjs";
+import {
+    validateCheckedInRealHostCanaryReports,
+    validateRealHostCanaryReportFile,
+} from "../validate-real-host-canary-report.mjs";
 
 function digest(value) {
     return createHash("sha256").update(value).digest("hex");
@@ -25,7 +28,11 @@ function digest(value) {
 function fakeCommandRunner() {
     let installedRoot = null;
     return ({ executable, args, cwd, environment }) => {
-        assert(environment.PATH.split(delimiter).includes(dirname(process.execPath)));
+        assert(
+            environment.PATH.split(delimiter).includes(
+                dirname(process.execPath),
+            ),
+        );
         let stdout = "";
         if (args[0] === "--version") stdout = "0.84.3\n";
         else if (args[0] === "install") installedRoot = args[1];
@@ -52,6 +59,7 @@ function fakeCommandRunner() {
 test("runner is blocked without an installed executable", () => {
     const report = runRealHostCanary({
         hostId: "pi",
+        attemptId: "missing-executable",
         commandPath: "/missing/pi",
         networkAvailable: true,
     });
@@ -73,6 +81,7 @@ test("runner executes no host command until both opt-ins are present", () => {
         let calls = 0;
         const report = runRealHostCanary({
             hostId: "pi",
+            attemptId: "no-opt-in",
             commandPath: executable,
             allowRealHost: true,
             environmentOptIn: false,
@@ -85,9 +94,7 @@ test("runner executes no host command until both opt-ins are present", () => {
         assert.equal(calls, 0);
         assert.equal(report.state, "BLOCKED");
         assert(
-            report.phases.every(
-                (phase) => phase.status === "BLOCKED_NOT_RUN",
-            ),
+            report.phases.every((phase) => phase.status === "BLOCKED_NOT_RUN"),
         );
     } finally {
         rmSync(root, { recursive: true, force: true });
@@ -103,6 +110,7 @@ test("exact Pi fixture canary records non-supporting local lifecycle under expli
         chmodSync(executable, 0o755);
         const report = runRealHostCanary({
             hostId: "pi",
+            attemptId: "fixture-success",
             outputPath: output,
             commandPath: executable,
             allowRealHost: true,
@@ -143,7 +151,9 @@ test("exact Pi fixture canary records non-supporting local lifecycle under expli
                 .flatMap((phase) => phase.command?.environmentNames ?? [])
                 .every(
                     (name) =>
-                        !/(?:TOKEN|KEY|SECRET|AUTH|PROXY|CREDENTIAL)/iu.test(name),
+                        !/(?:TOKEN|KEY|SECRET|AUTH|PROXY|CREDENTIAL)/iu.test(
+                            name,
+                        ),
                 ),
         );
         assert.equal(report.beforeContextDigest, report.afterContextDigest);
@@ -155,18 +165,22 @@ test("exact Pi fixture canary records non-supporting local lifecycle under expli
     }
 });
 
+test("checked-in canary reports have unique identities and path-neutral evidence", () => {
+    assert.deepEqual(validateCheckedInRealHostCanaryReports(), []);
+});
+
 test("checked-in Pi attempts preserve blocked history and non-supporting success", () => {
     const blockedPath = join(
         defaultRepositoryRoot,
-        "distribution/evidence/s9-pi-0.84.3-2026-08-25.json",
+        "distribution/evidence/s9-pi-attempt-1-blocked-2026-08-25.json",
     );
     const supersededPath = join(
         defaultRepositoryRoot,
-        "distribution/evidence/s9-pi-0.84.3-2026-08-26-attempt-2.json",
+        "distribution/evidence/s9-pi-attempt-2-superseded-2026-08-26.json",
     );
     const successPath = join(
         defaultRepositoryRoot,
-        "distribution/evidence/s9-pi-0.84.3-2026-08-26-attempt-3.json",
+        "distribution/evidence/s9-pi-attempt-3-current-2026-08-26.json",
     );
     assert(
         validateRealHostCanaryReportFile(blockedPath).some((error) =>
@@ -187,8 +201,15 @@ test("checked-in Pi attempts preserve blocked history and non-supporting success
     const superseded = JSON.parse(readFileSync(supersededPath, "utf8"));
     const success = JSON.parse(readFileSync(successPath, "utf8"));
     assert.equal(blocked.state, "BLOCKED");
+    assert.equal(blocked.observedHostVersion, null);
+    assert.equal(blocked.attemptId, "attempt-1");
+    assert.equal(blocked.supersededBy, "s9-pi-local-fixture-attempt-2");
     assert.equal(superseded.state, "PASS_NON_SUPPORTING_FIXTURE");
+    assert.equal(superseded.attemptId, "attempt-2");
+    assert.equal(superseded.supersededBy, "s9-pi-local-fixture-attempt-3");
     assert.equal(success.state, "PASS_NON_SUPPORTING_FIXTURE");
+    assert.equal(success.attemptId, "attempt-3");
+    assert.equal(success.supersededBy, null);
     assert.equal(blocked.reportPayloadDigest, reportPayloadDigest(blocked));
     assert.equal(
         superseded.reportPayloadDigest,
@@ -219,24 +240,15 @@ test("checked-in non-Pi preflights preserve exact version mismatches without lif
         const path = join(
             defaultRepositoryRoot,
             "distribution/evidence",
-            `s9-${host}-${
-                host === "claude"
-                    ? "2.1.245"
-                    : host === "copilot"
-                      ? "1.0.80"
-                      : host === "codex"
-                        ? "0.149.1"
-                        : "0.56.0"
-            }-2026-08-26-preflight.json`,
+            `s9-${host}-version-preflight-blocked-2026-08-26.json`,
         );
         assert.deepEqual(validateRealHostCanaryReportFile(path), []);
         const report = JSON.parse(readFileSync(path, "utf8"));
         assert.equal(report.state, "BLOCKED");
+        assert.equal(report.attemptId, "version-preflight-1");
+        assert.equal(report.supersededBy, null);
         assert.equal(report.observedHostVersion, expectedObserved);
-        assert.equal(
-            report.phases[0].status,
-            "BLOCKED_HOST_VERSION_MISMATCH",
-        );
+        assert.equal(report.phases[0].status, "BLOCKED_HOST_VERSION_MISMATCH");
         assert(
             report.phases
                 .slice(1)
@@ -258,11 +270,17 @@ test("version mismatch blocks every real lifecycle phase", () => {
         chmodSync(executable, 0o755);
         const report = runRealHostCanary({
             hostId: "pi",
+            attemptId: "version-mismatch",
             commandPath: executable,
             allowRealHost: true,
             environmentOptIn: true,
             networkAvailable: true,
-            commandRunner: ({ executable: command, args, cwd, environment }) => {
+            commandRunner: ({
+                executable: command,
+                args,
+                cwd,
+                environment,
+            }) => {
                 const stdout = args[0] === "--version" ? "0.84.2\n" : "";
                 return {
                     argv: [command, ...args],
@@ -279,16 +297,12 @@ test("version mismatch blocks every real lifecycle phase", () => {
             },
         });
         assert.equal(report.state, "BLOCKED");
-        assert.equal(
-            report.phases[0].status,
-            "BLOCKED_HOST_VERSION_MISMATCH",
-        );
+        assert.equal(report.phases[0].status, "BLOCKED_HOST_VERSION_MISMATCH");
         assert(
             report.phases
                 .slice(1)
                 .every(
-                    (phase) =>
-                        phase.status === "BLOCKED_HOST_VERSION_MISMATCH",
+                    (phase) => phase.status === "BLOCKED_HOST_VERSION_MISMATCH",
                 ),
         );
     } finally {

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "0c7879a26bd9587730139213b3117f248a0acb60604cecc718f7600c6a3dc4a2",
+  "indexDigest": "61ae08a4dcc00d4727f0ac88fd4483274289545cb45dd65d5d54034b3776463f",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -83,7 +83,15 @@
       "status": "added"
     },
     {
+      "path": ".gitattributes",
+      "status": "added"
+    },
+    {
       "path": ".github/ISSUE_TEMPLATE/shared-ai-improvement.yml",
+      "status": "added"
+    },
+    {
+      "path": ".github/workflows/benchmark-release-generation.yml",
       "status": "added"
     },
     {
@@ -172,6 +180,10 @@
     },
     {
       "path": "Documentation/chronicle-mcp-guidance.md",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/ecosystem-support-architecture-review.md",
       "status": "added"
     },
     {
@@ -691,31 +703,31 @@
       "status": "added"
     },
     {
-      "path": "distribution/evidence/s9-claude-2.1.245-2026-08-26-preflight.json",
+      "path": "distribution/evidence/s9-claude-version-preflight-blocked-2026-08-26.json",
       "status": "added"
     },
     {
-      "path": "distribution/evidence/s9-codex-0.149.1-2026-08-26-preflight.json",
+      "path": "distribution/evidence/s9-codex-version-preflight-blocked-2026-08-26.json",
       "status": "added"
     },
     {
-      "path": "distribution/evidence/s9-copilot-1.0.80-2026-08-26-preflight.json",
+      "path": "distribution/evidence/s9-copilot-version-preflight-blocked-2026-08-26.json",
       "status": "added"
     },
     {
-      "path": "distribution/evidence/s9-gemini-0.56.0-2026-08-26-preflight.json",
+      "path": "distribution/evidence/s9-gemini-version-preflight-blocked-2026-08-26.json",
       "status": "added"
     },
     {
-      "path": "distribution/evidence/s9-pi-0.84.3-2026-08-25.json",
+      "path": "distribution/evidence/s9-pi-attempt-1-blocked-2026-08-25.json",
       "status": "added"
     },
     {
-      "path": "distribution/evidence/s9-pi-0.84.3-2026-08-26-attempt-2.json",
+      "path": "distribution/evidence/s9-pi-attempt-2-superseded-2026-08-26.json",
       "status": "added"
     },
     {
-      "path": "distribution/evidence/s9-pi-0.84.3-2026-08-26-attempt-3.json",
+      "path": "distribution/evidence/s9-pi-attempt-3-current-2026-08-26.json",
       "status": "added"
     },
     {
@@ -2850,6 +2862,7 @@
       "excludePathPatterns": [],
       "id": "root-repository-metadata",
       "sourcePathPatterns": [
+        ".gitattributes",
         ".gitignore",
         "LICENSE",
         "README.md"
@@ -2866,8 +2879,8 @@
       "evidenceIds": [
         "repo-main-b795d53"
       ],
-      "expectedPathCount": 3,
-      "expectedPathsDigest": "d81915b300d7a1503c839c65817b67c8a4f6442898278a204cd1a9567fedaf79"
+      "expectedPathCount": 4,
+      "expectedPathsDigest": "afe74be8573bd6b2bbaf6cb00ab97dd574334d3b9cf74980d60cdc96ec3e59fc"
     },
     {
       "excludePathPatterns": [],
@@ -3457,6 +3470,7 @@
       "excludePathPatterns": [],
       "id": "repository-validation-workflow",
       "sourcePathPatterns": [
+        ".github/workflows/benchmark-release-generation.yml",
         ".github/workflows/distribution-approved-profile-release.yml",
         ".github/workflows/distribution-fundamentals-preview-assets.yml",
         ".github/workflows/distribution-canary-rollback.yml",
@@ -3483,8 +3497,8 @@
         "repo-main-b795d53",
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 9,
-      "expectedPathsDigest": "32942814dfbacda3d0b172e3451b27ccad20a7b710fdc352378bc4c9ca89d356"
+      "expectedPathCount": 10,
+      "expectedPathsDigest": "34a178e3ec591a55d667286d0967be14cddb137538feca083187b7dc8deea28d"
     },
     {
       "excludePathPatterns": [],
@@ -3742,6 +3756,7 @@
       "sourcePathPatterns": [
         "Documentation/capability-catalog-v2.md",
         "Documentation/chronicle-mcp-guidance.md",
+        "Documentation/ecosystem-support-architecture-review.md",
         "Documentation/maintaining-shared-ai-behavior.md",
         "Documentation/native-non-skill-projections.md",
         "Documentation/real-host-canaries.md",
@@ -3776,8 +3791,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 7,
-      "expectedPathsDigest": "7899f04a074187a2740a85b5cfead82252ec41481656097bb5cfc13b2b8271a0"
+      "expectedPathCount": 8,
+      "expectedPathsDigest": "bff60e5d5b57a3147d80020a89bb3afbeab7fb029099d5dc70136abff29e7610"
     },
     {
       "excludePathPatterns": [],
@@ -4326,7 +4341,7 @@
         "option-a-plus-authority"
       ],
       "expectedPathCount": 55,
-      "expectedPathsDigest": "10cbe055d93116a61de61a845fd40b2e9028dc53d4b3a3861f5bea637e0f2d7e"
+      "expectedPathsDigest": "1d67d2b407a241c5f1f41dcda85c236535b9dffe27611beb7f3555e87722674c"
     },
     {
       "excludePathPatterns": [],

@@ -103,10 +103,27 @@ export function runSandboxedCommand({
     });
 }
 
-export function commandEvidence(command) {
+export function normalizeEvidencePath(
+    value,
+    { userHome, runRoot, runRootReal },
+) {
+    if (typeof value !== "string") return value;
+    let normalized = value;
+    for (const [prefix, replacement] of [
+        [runRootReal, "$RUN_ROOT"],
+        [runRoot, "$RUN_ROOT"],
+        [userHome, "$USER_HOME"],
+    ])
+        if (prefix) normalized = normalized.split(prefix).join(replacement);
+    return normalized;
+}
+
+export function commandEvidence(command, pathContext = {}) {
     return {
-        argv: command.argv,
-        cwd: command.cwd,
+        argv: command.argv.map((argument) =>
+            normalizeEvidencePath(argument, pathContext),
+        ),
+        cwd: normalizeEvidencePath(command.cwd, pathContext),
         environmentNames: command.environmentNames,
         exitCode: command.exitCode,
         timedOut: command.timedOut,

@@ -47,15 +47,11 @@ test("ordinary specifications require explicit S9 opt-in before host execution",
         "tooling/specs/distribution-fixture.spec.mjs",
         "tooling/specs/engineering-distribution-fixture.spec.mjs",
         "tooling/specs/fundamentals-preview-assets.spec.mjs",
-    ])
-        {
-            const source = readFileSync(
-                join(defaultRepositoryRoot, path),
-                "utf8",
-            );
-            assert.doesNotMatch(source, /CRATIS_S9_REAL_HOST_CANARY/u);
-            assert.match(source, /Real host execution/u);
-        }
+    ]) {
+        const source = readFileSync(join(defaultRepositoryRoot, path), "utf8");
+        assert.doesNotMatch(source, /CRATIS_S9_REAL_HOST_CANARY/u);
+        assert.match(source, /Real host execution/u);
+    }
 });
 
 test("legacy smoke helpers cannot bypass the hardened S9 runner", () => {
@@ -80,7 +76,9 @@ test("matrix rejects coordinated version, binding, and argv drift", () => {
     assert(errors.some((error) => error.includes("matrix differs")));
     assert(errors.some((error) => error.includes("binding identity")));
     assert(errors.some((error) => error.includes("exact expected version")));
-    assert(errors.some((error) => error.includes("reviewed local fixture argv")));
+    assert(
+        errors.some((error) => error.includes("reviewed local fixture argv")),
+    );
 });
 
 test("report digest, phase closure, context, environment, and grant fields fail closed", () => {
@@ -98,6 +96,8 @@ test("report digest, phase closure, context, environment, and grant fields fail 
     const report = {
         schemaVersion: "1.0.0",
         caseId: "s9-pi-fixture",
+        attemptId: "fixture-contract",
+        supersededBy: null,
         state: "PASS_NON_SUPPORTING_FIXTURE",
         observedOn: "2026-08-25",
         sourceRevision: contracts.matrix.requiredSourceRevision,
@@ -178,19 +178,19 @@ test("report digest, phase closure, context, environment, and grant fields fail 
     semanticallyFalse.observedHostVersion = null;
     semanticallyFalse.networkEnforcement = "unavailable";
     semanticallyFalse.sourceRevision = "b".repeat(40);
-    semanticallyFalse.phases.find(
-        (phase) => phase.id === "discovery",
-    ).status = "PASS";
-    semanticallyFalse.reportPayloadDigest = reportPayloadDigest(
-        semanticallyFalse,
-    );
+    semanticallyFalse.phases.find((phase) => phase.id === "discovery").status =
+        "PASS";
+    semanticallyFalse.reportPayloadDigest =
+        reportPayloadDigest(semanticallyFalse);
     const semanticErrors = validateRealHostCanaryReport(
         semanticallyFalse,
         contracts,
     );
     assert(
         semanticErrors.some((error) =>
-            error.includes("does not descend from the reviewed runner baseline"),
+            error.includes(
+                "does not descend from the reviewed runner baseline",
+            ),
         ),
     );
     assert(
@@ -213,5 +213,7 @@ test("report digest, phase closure, context, environment, and grant fields fail 
     assert(errors.some((error) => error.includes("forbidden environment")));
     assert(errors.some((error) => error.includes("cannot support assurance")));
     assert(errors.some((error) => error.includes("changed project bytes")));
-    assert(errors.some((error) => error.includes("cannot grant supportGranted")));
+    assert(
+        errors.some((error) => error.includes("cannot grant supportGranted")),
+    );
 });

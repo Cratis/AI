@@ -89,7 +89,6 @@ jobs:
                   set -euo pipefail
                   node tooling/portable-compliance-validation.mjs --verify-lock
                   node tooling/release-assurance-validation.mjs
-                  node tooling/benchmarks/release-generation.mjs 1
                   node tooling/validate-catalogs.mjs
                   node --test tooling/specs/*.spec.mjs
 

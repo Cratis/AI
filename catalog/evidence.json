@@ -8886,50 +8886,50 @@
       "reason": "Binds the exact non-promoting S8 static generation receipt and local specification run; its assertion is explicitly non-supporting and grants no host or release assurance."
     },
     {
-      "repositoryPath": "distribution/evidence/s9-pi-0.84.3-2026-08-25.json",
-      "digest": "b77df90f3b1114df47e83d1cf6a4d2d87f488fd0ffeecc582e51854e576b54d2",
+      "repositoryPath": "distribution/evidence/s9-pi-attempt-1-blocked-2026-08-25.json",
+      "digest": "b319e69c39c8254fbd2b9809a07623937207cda64e155777469a9acd4778a6dc",
       "role": "inventory-only",
       "observationIds": [],
       "reason": "Preserves the immutable first blocked Pi attempt; Node was absent from the initial allowlisted PATH and no lifecycle phase executed."
     },
     {
-      "repositoryPath": "distribution/evidence/s9-pi-0.84.3-2026-08-26-attempt-2.json",
-      "digest": "b2531dfdc9190ebcdbe1b44390d00063b0c2879c1ff5488eba6921e9865e9096",
+      "repositoryPath": "distribution/evidence/s9-pi-attempt-2-superseded-2026-08-26.json",
+      "digest": "2e266eaecf25a06e0b3fcf5ac67be9dc7352ee9f2cc71cd0df2cd4f300257fe9",
       "role": "inventory-only",
       "observationIds": [],
       "reason": "Preserves the superseded second Pi attempt. It passed the fixture lifecycle, but its sourceRevision predates the allowlisted Node PATH fix used by the worktree run, so it is not admissible evidence."
     },
     {
-      "repositoryPath": "distribution/evidence/s9-pi-0.84.3-2026-08-26-attempt-3.json",
-      "digest": "fbe3e5404a30c1eb3a7a144f72e066dd9d00a954c62a74c314232186e3bdd192",
+      "repositoryPath": "distribution/evidence/s9-pi-attempt-3-current-2026-08-26.json",
+      "digest": "1ba95cdfe2b58653061fb4afa4bf43f40ebbcc0b626a340dd658297c3d2c531c",
       "role": "inventory-only",
       "observationIds": [],
       "reason": "Preserves the exact Pi 0.84.3 denied-egress fixture run at committed runner revision 1a9af3d. It remains inventory-only because it is future-dated relative to catalog asOf and synthetic fixtures cannot support assurance."
     },
     {
-      "repositoryPath": "distribution/evidence/s9-claude-2.1.245-2026-08-26-preflight.json",
-      "digest": "b677dd52a441161f6e6cdb24ff1101dc34df762824b718bbbad91d334bb0508a",
+      "repositoryPath": "distribution/evidence/s9-claude-version-preflight-blocked-2026-08-26.json",
+      "digest": "e33d0b2dc033959bda2eec2fb1a5d6b29421cea2ce2e7798299b73f85ab4934d",
       "role": "inventory-only",
       "observationIds": [],
       "reason": "Preserves an exact denied-egress version preflight. Claude Code 2.1.235 is installed; current required version is 2.1.245. Every lifecycle phase remained blocked and the report grants no assurance."
     },
     {
-      "repositoryPath": "distribution/evidence/s9-copilot-1.0.80-2026-08-26-preflight.json",
-      "digest": "b255eec93b17dc840078ba4d773138899d8676a107b2f33f7e3f6ecd87c23217",
+      "repositoryPath": "distribution/evidence/s9-copilot-version-preflight-blocked-2026-08-26.json",
+      "digest": "93b5a41f1a9d1c0d37b1aeae1fcbafe75871b6bceb9ef83e27980f42c0dacb69",
       "role": "inventory-only",
       "observationIds": [],
       "reason": "Preserves an exact denied-egress version preflight. Copilot CLI 1.0.67 is installed; current required version is 1.0.80. Every lifecycle phase remained blocked and the report grants no assurance."
     },
     {
-      "repositoryPath": "distribution/evidence/s9-codex-0.149.1-2026-08-26-preflight.json",
-      "digest": "253416db4291baa31883da4b88f43b0e0cf0b45e497a6a94062ea00b7926f2a6",
+      "repositoryPath": "distribution/evidence/s9-codex-version-preflight-blocked-2026-08-26.json",
+      "digest": "4a7c03b9718911657a6f564126c9f2f8f9a0fc715938822aaaf9e6f877b46700",
       "role": "inventory-only",
       "observationIds": [],
       "reason": "Preserves an exact denied-egress version preflight. Codex CLI 0.147.0 is installed; current required version is 0.149.1. Every lifecycle phase remained blocked and the report grants no assurance."
     },
     {
-      "repositoryPath": "distribution/evidence/s9-gemini-0.56.0-2026-08-26-preflight.json",
-      "digest": "907ce382a6f2aa31c4c23e8886cef22b83c6587e5b342aafa32162bebfb83df6",
+      "repositoryPath": "distribution/evidence/s9-gemini-version-preflight-blocked-2026-08-26.json",
+      "digest": "851cf94e875196e7fb9a49fe9661a6c868fbf735161794a24cdea78a07fdcba0",
       "role": "inventory-only",
       "observationIds": [],
       "reason": "Preserves an exact denied-egress version preflight. Gemini CLI 0.33.1 is installed; current required version is 0.56.0. Every lifecycle phase remained blocked and the report grants no assurance."

@@ -1,9 +1,9 @@
 {
   "schemaVersion": "1.0.0",
-  "caseId": "s9-pi-local-fixture",
+  "caseId": "s9-pi-local-fixture-attempt-3",
   "state": "PASS_NON_SUPPORTING_FIXTURE",
   "observedOn": "2026-08-26",
-  "sourceRevision": "ec826ed21a67415f1be5410039592d17d50fbdc7",
+  "sourceRevision": "1a9af3d8b6e10ee61f390c4e6a5c73bde109379d",
   "hostId": "pi",
   "harnessId": "pi",
   "bindingId": "pi-packages-artifact-binding",
@@ -12,7 +12,7 @@
   "artifactRoot": "pi/package",
   "artifactDigest": "e335d92e6111a9d806f174a9be4e20a39b08a76db58e6f26157c49f75854e83d",
   "executable": "pi",
-  "resolvedExecutable": "/Users/sindrewilting/.nvm/versions/node/v23.11.1/lib/node_modules/@earendil-works/pi-coding-agent/dist/bundle/cli.js",
+  "resolvedExecutable": "$USER_HOME/.nvm/versions/node/v23.11.1/lib/node_modules/@earendil-works/pi-coding-agent/dist/bundle/cli.js",
   "executableDigest": "1c3a5094b54aae9ae98c66516ce8c6578140363d081471ca7e91f9cb8c23dc8a",
   "expectedHostVersion": "0.84.3",
   "observedHostVersion": "0.84.3",
@@ -35,10 +35,10 @@
           "/usr/bin/sandbox-exec",
           "-p",
           "(version 1)(allow default)(deny network*)",
-          "/Users/sindrewilting/.nvm/versions/node/v23.11.1/lib/node_modules/@earendil-works/pi-coding-agent/dist/bundle/cli.js",
+          "$USER_HOME/.nvm/versions/node/v23.11.1/lib/node_modules/@earendil-works/pi-coding-agent/dist/bundle/cli.js",
           "--version"
         ],
-        "cwd": "/var/folders/n2/c0514trj2wld924nfm754j8h0000gn/T/cratis-s9-pi-h6MEeC/consumer",
+        "cwd": "$RUN_ROOT/consumer",
         "environmentNames": [
           "HOME",
           "LANG",
@@ -74,10 +74,10 @@
           "/usr/bin/sandbox-exec",
           "-p",
           "(version 1)(allow default)(deny network*)",
-          "/Users/sindrewilting/.nvm/versions/node/v23.11.1/lib/node_modules/@earendil-works/pi-coding-agent/dist/bundle/cli.js",
+          "$USER_HOME/.nvm/versions/node/v23.11.1/lib/node_modules/@earendil-works/pi-coding-agent/dist/bundle/cli.js",
           "list"
         ],
-        "cwd": "/var/folders/n2/c0514trj2wld924nfm754j8h0000gn/T/cratis-s9-pi-h6MEeC/consumer",
+        "cwd": "$RUN_ROOT/consumer",
         "environmentNames": [
           "HOME",
           "LANG",
@@ -113,11 +113,11 @@
           "/usr/bin/sandbox-exec",
           "-p",
           "(version 1)(allow default)(deny network*)",
-          "/Users/sindrewilting/.nvm/versions/node/v23.11.1/lib/node_modules/@earendil-works/pi-coding-agent/dist/bundle/cli.js",
+          "$USER_HOME/.nvm/versions/node/v23.11.1/lib/node_modules/@earendil-works/pi-coding-agent/dist/bundle/cli.js",
           "install",
-          "/private/var/folders/n2/c0514trj2wld924nfm754j8h0000gn/T/cratis-s9-pi-h6MEeC/fixture/pi/package"
+          "$RUN_ROOT/fixture/pi/package"
         ],
-        "cwd": "/var/folders/n2/c0514trj2wld924nfm754j8h0000gn/T/cratis-s9-pi-h6MEeC/consumer",
+        "cwd": "$RUN_ROOT/consumer",
         "environmentNames": [
           "HOME",
           "LANG",
@@ -132,7 +132,7 @@
         ],
         "exitCode": 0,
         "timedOut": false,
-        "stdoutDigest": "9b711d24af1c8c6b7c64f2d182aa852e21fa6df78a6d6a5f1cb14e1cf15a920b",
+        "stdoutDigest": "258aea5322bfb4ac35615248b776814cd3e4d963aecfa93673d1f7c6b54073fb",
         "stderrDigest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       }
     },
@@ -146,10 +146,10 @@
           "/usr/bin/sandbox-exec",
           "-p",
           "(version 1)(allow default)(deny network*)",
-          "/Users/sindrewilting/.nvm/versions/node/v23.11.1/lib/node_modules/@earendil-works/pi-coding-agent/dist/bundle/cli.js",
+          "$USER_HOME/.nvm/versions/node/v23.11.1/lib/node_modules/@earendil-works/pi-coding-agent/dist/bundle/cli.js",
           "list"
         ],
-        "cwd": "/var/folders/n2/c0514trj2wld924nfm754j8h0000gn/T/cratis-s9-pi-h6MEeC/consumer",
+        "cwd": "$RUN_ROOT/consumer",
         "environmentNames": [
           "HOME",
           "LANG",
@@ -164,7 +164,7 @@
         ],
         "exitCode": 0,
         "timedOut": false,
-        "stdoutDigest": "03b3cb8e0d3cfed731e77caaa4a2037de09f6c4da89f9157da313ae34cfec96d",
+        "stdoutDigest": "9c0258db637ca314665f1506178d48bc656a205a598c66164b303d7651917cb5",
         "stderrDigest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       }
     },
@@ -206,11 +206,11 @@
           "/usr/bin/sandbox-exec",
           "-p",
           "(version 1)(allow default)(deny network*)",
-          "/Users/sindrewilting/.nvm/versions/node/v23.11.1/lib/node_modules/@earendil-works/pi-coding-agent/dist/bundle/cli.js",
+          "$USER_HOME/.nvm/versions/node/v23.11.1/lib/node_modules/@earendil-works/pi-coding-agent/dist/bundle/cli.js",
           "remove",
-          "/private/var/folders/n2/c0514trj2wld924nfm754j8h0000gn/T/cratis-s9-pi-h6MEeC/fixture/pi/package"
+          "$RUN_ROOT/fixture/pi/package"
         ],
-        "cwd": "/var/folders/n2/c0514trj2wld924nfm754j8h0000gn/T/cratis-s9-pi-h6MEeC/consumer",
+        "cwd": "$RUN_ROOT/consumer",
         "environmentNames": [
           "HOME",
           "LANG",
@@ -225,7 +225,7 @@
         ],
         "exitCode": 0,
         "timedOut": false,
-        "stdoutDigest": "a8ba2c2364fe7ea471f06945cd35bc2f343742f68fb4b04b6ba459c754f39359",
+        "stdoutDigest": "51b2985edc892c5469c134d13496fb7fe1326d7f37b28c3ffe41dcc59667cd16",
         "stderrDigest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       }
     },
@@ -246,10 +246,10 @@
           "/usr/bin/sandbox-exec",
           "-p",
           "(version 1)(allow default)(deny network*)",
-          "/Users/sindrewilting/.nvm/versions/node/v23.11.1/lib/node_modules/@earendil-works/pi-coding-agent/dist/bundle/cli.js",
+          "$USER_HOME/.nvm/versions/node/v23.11.1/lib/node_modules/@earendil-works/pi-coding-agent/dist/bundle/cli.js",
           "list"
         ],
-        "cwd": "/var/folders/n2/c0514trj2wld924nfm754j8h0000gn/T/cratis-s9-pi-h6MEeC/consumer",
+        "cwd": "$RUN_ROOT/consumer",
         "environmentNames": [
           "HOME",
           "LANG",
@@ -275,11 +275,13 @@
     "No positive or negative model behavior case is admitted.",
     "No genuine host-managed update or rollback contract is admitted."
   ],
-  "reportPayloadDigest": "c102f9db415b3978cb639c813feb548f5dd3585342bbacbaff6ade564adc0037",
+  "reportPayloadDigest": "bae4c99dd37d19860ccad84f59b36e10f8d92929cd2f434cdbfa42d23dac32b9",
   "installationEligible": false,
   "marketplaceAvailabilityClaim": false,
   "supportGranted": false,
   "publicationGranted": false,
   "runtimeGranted": false,
-  "promotionGranted": false
+  "promotionGranted": false,
+  "attemptId": "attempt-3",
+  "supersededBy": null
 }

@@ -158,7 +158,12 @@ const engineeringSkillRoots = legacyEngineeringSkillNames.map(
 const definitions = [
     {
         id: "root-repository-metadata",
-        sourcePathPatterns: [".gitignore", "LICENSE", "README.md"],
+        sourcePathPatterns: [
+            ".gitattributes",
+            ".gitignore",
+            "LICENSE",
+            "README.md",
+        ],
         artifactType: "repository-metadata",
         currentOwner: repositoryOwner,
         targetOwner: repositoryOwner,
@@ -536,6 +541,7 @@ const definitions = [
     {
         id: "repository-validation-workflow",
         sourcePathPatterns: [
+            ".github/workflows/benchmark-release-generation.yml",
             ".github/workflows/distribution-approved-profile-release.yml",
             ".github/workflows/distribution-fundamentals-preview-assets.yml",
             ".github/workflows/distribution-canary-rollback.yml",
@@ -748,6 +754,7 @@ const definitions = [
         sourcePathPatterns: [
             "Documentation/capability-catalog-v2.md",
             "Documentation/chronicle-mcp-guidance.md",
+            "Documentation/ecosystem-support-architecture-review.md",
             "Documentation/maintaining-shared-ai-behavior.md",
             "Documentation/native-non-skill-projections.md",
             "Documentation/real-host-canaries.md",

@@ -57,7 +57,9 @@ test("S10 authority schemas are closed and all authority collections are empty",
         [s10ReleasePaths.controls, s10ReleasePaths.controlsSchema],
         [s10ReleasePaths.marketplaces, s10ReleasePaths.marketplacesSchema],
     ]) {
-        const value = clone(readCatalog(join(defaultRepositoryRoot, valuePath)));
+        const value = clone(
+            readCatalog(join(defaultRepositoryRoot, valuePath)),
+        );
         const schema = readCatalog(join(defaultRepositoryRoot, schemaPath));
         value.unexpected = true;
         assert(
@@ -121,9 +123,9 @@ test("synthetic and future S9 reports remain inventory-only and cannot authorize
         join(defaultRepositoryRoot, "catalog/evidence.json"),
     );
     for (const path of [
-        "distribution/evidence/s9-pi-0.84.3-2026-08-25.json",
-        "distribution/evidence/s9-pi-0.84.3-2026-08-26-attempt-2.json",
-        "distribution/evidence/s9-pi-0.84.3-2026-08-26-attempt-3.json",
+        "distribution/evidence/s9-pi-attempt-1-blocked-2026-08-25.json",
+        "distribution/evidence/s9-pi-attempt-2-superseded-2026-08-26.json",
+        "distribution/evidence/s9-pi-attempt-3-current-2026-08-26.json",
     ]) {
         const record = evidence.distributionEvidenceFiles.find(
             (candidate) => candidate.repositoryPath === path,

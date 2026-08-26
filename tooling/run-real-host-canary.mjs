@@ -25,6 +25,7 @@ import {
     createIsolatedEnvironment,
     executableDigest,
     networkSandboxAvailable,
+    normalizeEvidencePath,
     resolveExecutable,
     runSandboxedCommand,
 } from "./real-host-canary-adapters.mjs";
@@ -69,8 +70,15 @@ function artifactInventory(root) {
             if (stat.isDirectory()) visit(absolute);
             else if (stat.isFile()) {
                 const content = readFileSync(absolute);
-                files.push({ path, size: content.length, sha256: sha256(content) });
-            } else throw new Error(`Canary artifact contains special path ${path}`);
+                files.push({
+                    path,
+                    size: content.length,
+                    sha256: sha256(content),
+                });
+            } else
+                throw new Error(
+                    `Canary artifact contains special path ${path}`,
+                );
         }
     };
     visit(root);
@@ -119,20 +127,31 @@ export function runRealHostCanary({
     allowRealHost = false,
     root = repositoryRoot,
     commandPath,
+    attemptId,
+    supersededBy = null,
     spawn,
     commandRunner = runSandboxedCommand,
     networkAvailable = networkSandboxAvailable(),
     environmentOptIn = process.env.CRATIS_S9_REAL_HOST_CANARY === "1",
     observedOn = new Date().toISOString().slice(0, 10),
 }) {
+    if (!attemptId || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/u.test(attemptId))
+        throw new Error("A normalized --attempt-id is required");
     const contracts = loadRealHostCanaryContracts(root);
     const matrixErrors = validateRealHostCanaryMatrix(contracts);
     if (matrixErrors.length > 0)
         throw new Error(`Real-host matrix invalid: ${matrixErrors.join("; ")}`);
-    const host = contracts.matrix.hosts.find((candidate) => candidate.id === hostId);
+    const host = contracts.matrix.hosts.find(
+        (candidate) => candidate.id === hostId,
+    );
     if (!host) throw new Error(`Unknown real-host canary ${hostId}`);
     const runRoot = mkdtempSync(join(tmpdir(), `cratis-s9-${host.id}-`));
     try {
+        const pathContext = {
+            userHome: process.env.HOME ?? null,
+            runRoot,
+            runRootReal: realpathSync(runRoot),
+        };
         const home = join(runRoot, "home");
         const temporaryRoot = join(runRoot, "tmp");
         const consumer = join(runRoot, "consumer");
@@ -156,7 +175,9 @@ export function runRealHostCanary({
             : resolveExecutable(host.executable);
         const base = {
             schemaVersion: "1.0.0",
-            caseId: `s9-${host.id}-local-fixture`,
+            caseId: `s9-${host.id}-local-fixture-${attemptId}`,
+            attemptId,
+            supersededBy,
             state: "BLOCKED",
             observedOn,
             sourceRevision,
@@ -168,7 +189,9 @@ export function runRealHostCanary({
             artifactRoot: host.artifactRoot,
             artifactDigest: artifact.digest,
             executable: host.executable,
-            resolvedExecutable,
+            resolvedExecutable: resolvedExecutable
+                ? normalizeEvidencePath(resolvedExecutable, pathContext)
+                : null,
             executableDigest: resolvedExecutable
                 ? executableDigest(resolvedExecutable)
                 : null,
@@ -242,7 +265,7 @@ export function runRealHostCanary({
                     "preflight",
                     "BLOCKED_HOST_VERSION_MISMATCH",
                     `Observed ${observedVersion || "no version"}.`,
-                    commandEvidence(versionCommand),
+                    commandEvidence(versionCommand, pathContext),
                 );
             } else if (host.id !== "pi") {
                 base.phases = blockedPhases(
@@ -275,23 +298,85 @@ export function runRealHostCanary({
                 const after = snapshotProjectContext(consumer);
                 base.afterContextDigest = after.digest;
                 base.phases = [
-                    phase("preflight", "PASS", "Exact Pi version and denied egress confirmed.", commandEvidence(commands.version)),
-                    phase("artifact-validation", "PASS", "Synthetic passive fixture inventory validated."),
-                    phase("negative-baseline", baselineAbsent ? "PASS" : "FAIL", "Candidate package was absent before install.", commandEvidence(commands.baseline)),
-                    phase("collision-negative", "BLOCKED_NO_REVIEWED_CONTRACT", "Pi package collision semantics are not admitted."),
-                    phase("install", installed ? "PASS" : "FAIL", "Local fixture package install and package listing checked.", commandEvidence(commands.install)),
-                    phase("discovery", "BLOCKED_NO_REVIEWED_CONTRACT", "Pi package listing is not skill discovery proof.", commandEvidence(commands.list)),
-                    phase("behavior-positive", "BLOCKED_NO_REVIEWED_CONTRACT", "No positive behavior contract is admitted."),
-                    phase("behavior-negative", "BLOCKED_NO_REVIEWED_CONTRACT", "No negative behavior contract is admitted."),
-                    phase("update", "BLOCKED_NO_REVIEWED_CONTRACT", "No genuine update contract is admitted."),
-                    phase("rollback", "BLOCKED_NO_REVIEWED_CONTRACT", "No genuine rollback contract is admitted."),
-                    phase("uninstall", removed ? "PASS" : "FAIL", "Local fixture package removal checked.", commandEvidence(commands.uninstall)),
-                    phase("context-preservation", before.digest === after.digest ? "PASS" : "FAIL", "Complete consumer context snapshot compared."),
-                    phase("cleanup", removed ? "PASS" : "FAIL", "No package registration remained in isolated home.", commandEvidence(commands.cleanup)),
+                    phase(
+                        "preflight",
+                        "PASS",
+                        "Exact Pi version and denied egress confirmed.",
+                        commandEvidence(commands.version, pathContext),
+                    ),
+                    phase(
+                        "artifact-validation",
+                        "PASS",
+                        "Synthetic passive fixture inventory validated.",
+                    ),
+                    phase(
+                        "negative-baseline",
+                        baselineAbsent ? "PASS" : "FAIL",
+                        "Candidate package was absent before install.",
+                        commandEvidence(commands.baseline, pathContext),
+                    ),
+                    phase(
+                        "collision-negative",
+                        "BLOCKED_NO_REVIEWED_CONTRACT",
+                        "Pi package collision semantics are not admitted.",
+                    ),
+                    phase(
+                        "install",
+                        installed ? "PASS" : "FAIL",
+                        "Local fixture package install and package listing checked.",
+                        commandEvidence(commands.install, pathContext),
+                    ),
+                    phase(
+                        "discovery",
+                        "BLOCKED_NO_REVIEWED_CONTRACT",
+                        "Pi package listing is not skill discovery proof.",
+                        commandEvidence(commands.list, pathContext),
+                    ),
+                    phase(
+                        "behavior-positive",
+                        "BLOCKED_NO_REVIEWED_CONTRACT",
+                        "No positive behavior contract is admitted.",
+                    ),
+                    phase(
+                        "behavior-negative",
+                        "BLOCKED_NO_REVIEWED_CONTRACT",
+                        "No negative behavior contract is admitted.",
+                    ),
+                    phase(
+                        "update",
+                        "BLOCKED_NO_REVIEWED_CONTRACT",
+                        "No genuine update contract is admitted.",
+                    ),
+                    phase(
+                        "rollback",
+                        "BLOCKED_NO_REVIEWED_CONTRACT",
+                        "No genuine rollback contract is admitted.",
+                    ),
+                    phase(
+                        "uninstall",
+                        removed ? "PASS" : "FAIL",
+                        "Local fixture package removal checked.",
+                        commandEvidence(commands.uninstall, pathContext),
+                    ),
+                    phase(
+                        "context-preservation",
+                        before.digest === after.digest ? "PASS" : "FAIL",
+                        "Complete consumer context snapshot compared.",
+                    ),
+                    phase(
+                        "cleanup",
+                        removed ? "PASS" : "FAIL",
+                        "No package registration remained in isolated home.",
+                        commandEvidence(commands.cleanup, pathContext),
+                    ),
                 ];
-                base.state = baselineAbsent && installed && removed && before.digest === after.digest
-                    ? "PASS_NON_SUPPORTING_FIXTURE"
-                    : "FAIL";
+                base.state =
+                    baselineAbsent &&
+                    installed &&
+                    removed &&
+                    before.digest === after.digest
+                        ? "PASS_NON_SUPPORTING_FIXTURE"
+                        : "FAIL";
             }
         }
         base.reportPayloadDigest = reportPayloadDigest(base);
@@ -314,11 +399,15 @@ function parseArguments(argv) {
         const value = argv[index];
         if (value === "--host") options.hostId = argv[++index];
         else if (value === "--output") options.outputPath = argv[++index];
+        else if (value === "--attempt-id") options.attemptId = argv[++index];
+        else if (value === "--superseded-by")
+            options.supersededBy = argv[++index];
         else if (value === "--allow-real-host") options.allowRealHost = true;
         else throw new Error(`Unknown argument ${value}`);
     }
     if (!options.hostId) throw new Error("--host is required");
     if (!options.outputPath) throw new Error("--output is required");
+    if (!options.attemptId) throw new Error("--attempt-id is required");
     return options;
 }
 

@@ -1,0 +1,4 @@
+# Large deterministic projections are reviewed through their authored sources,
+# source digests, schemas, and regeneration checks rather than expanded diffs.
+catalog/v2/components.json linguist-generated=true -diff
+catalog/v2/component-projections.json linguist-generated=true -diff

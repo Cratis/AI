@@ -536,16 +536,32 @@
       "digest": "9f56390ab36221d425a5d238d1e5d202d8eb8760537d39256edf014581e8590d"
     },
     {
-      "repositoryPath": "distribution/evidence/s9-pi-0.84.3-2026-08-25.json",
-      "digest": "b77df90f3b1114df47e83d1cf6a4d2d87f488fd0ffeecc582e51854e576b54d2"
+      "repositoryPath": "distribution/evidence/s9-claude-version-preflight-blocked-2026-08-26.json",
+      "digest": "e33d0b2dc033959bda2eec2fb1a5d6b29421cea2ce2e7798299b73f85ab4934d"
     },
     {
-      "repositoryPath": "distribution/evidence/s9-pi-0.84.3-2026-08-26-attempt-2.json",
-      "digest": "b2531dfdc9190ebcdbe1b44390d00063b0c2879c1ff5488eba6921e9865e9096"
+      "repositoryPath": "distribution/evidence/s9-codex-version-preflight-blocked-2026-08-26.json",
+      "digest": "4a7c03b9718911657a6f564126c9f2f8f9a0fc715938822aaaf9e6f877b46700"
     },
     {
-      "repositoryPath": "distribution/evidence/s9-pi-0.84.3-2026-08-26-attempt-3.json",
-      "digest": "fbe3e5404a30c1eb3a7a144f72e066dd9d00a954c62a74c314232186e3bdd192"
+      "repositoryPath": "distribution/evidence/s9-copilot-version-preflight-blocked-2026-08-26.json",
+      "digest": "93b5a41f1a9d1c0d37b1aeae1fcbafe75871b6bceb9ef83e27980f42c0dacb69"
+    },
+    {
+      "repositoryPath": "distribution/evidence/s9-gemini-version-preflight-blocked-2026-08-26.json",
+      "digest": "851cf94e875196e7fb9a49fe9661a6c868fbf735161794a24cdea78a07fdcba0"
+    },
+    {
+      "repositoryPath": "distribution/evidence/s9-pi-attempt-1-blocked-2026-08-25.json",
+      "digest": "b319e69c39c8254fbd2b9809a07623937207cda64e155777469a9acd4778a6dc"
+    },
+    {
+      "repositoryPath": "distribution/evidence/s9-pi-attempt-2-superseded-2026-08-26.json",
+      "digest": "2e266eaecf25a06e0b3fcf5ac67be9dc7352ee9f2cc71cd0df2cd4f300257fe9"
+    },
+    {
+      "repositoryPath": "distribution/evidence/s9-pi-attempt-3-current-2026-08-26.json",
+      "digest": "1ba95cdfe2b58653061fb4afa4bf43f40ebbcc0b626a340dd658297c3d2c531c"
     }
   ],
   "observationIdentityAnchor": "a51c78eb2111b00394f23002c1286c87371a3d98c455b1e3d8bc0bec21716d5d",

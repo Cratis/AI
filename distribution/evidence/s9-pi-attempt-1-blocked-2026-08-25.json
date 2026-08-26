@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "caseId": "s9-pi-local-fixture",
+  "caseId": "s9-pi-local-fixture-attempt-1",
   "state": "BLOCKED",
   "observedOn": "2026-08-25",
   "sourceRevision": "ec826ed21a67415f1be5410039592d17d50fbdc7",
@@ -12,10 +12,10 @@
   "artifactRoot": "pi/package",
   "artifactDigest": "e335d92e6111a9d806f174a9be4e20a39b08a76db58e6f26157c49f75854e83d",
   "executable": "pi",
-  "resolvedExecutable": "/Users/sindrewilting/.nvm/versions/node/v23.11.1/lib/node_modules/@earendil-works/pi-coding-agent/dist/bundle/cli.js",
+  "resolvedExecutable": "$USER_HOME/.nvm/versions/node/v23.11.1/lib/node_modules/@earendil-works/pi-coding-agent/dist/bundle/cli.js",
   "executableDigest": "1c3a5094b54aae9ae98c66516ce8c6578140363d081471ca7e91f9cb8c23dc8a",
   "expectedHostVersion": "0.84.3",
-  "observedHostVersion": "env: node: No such file or directory",
+  "observedHostVersion": null,
   "operatingSystem": "darwin",
   "architecture": "arm64",
   "runtimeVersion": "v23.11.1",
@@ -27,18 +27,18 @@
   "phases": [
     {
       "id": "preflight",
-      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "status": "BLOCKED_HOST_RUNTIME_UNAVAILABLE",
       "supporting": false,
-      "reason": "Observed env: node: No such file or directory.",
+      "reason": "Required Node runtime was unavailable in the isolated PATH; no host version or lifecycle behavior was observed.",
       "command": {
         "argv": [
           "/usr/bin/sandbox-exec",
           "-p",
           "(version 1)(allow default)(deny network*)",
-          "/Users/sindrewilting/.nvm/versions/node/v23.11.1/lib/node_modules/@earendil-works/pi-coding-agent/dist/bundle/cli.js",
+          "$USER_HOME/.nvm/versions/node/v23.11.1/lib/node_modules/@earendil-works/pi-coding-agent/dist/bundle/cli.js",
           "--version"
         ],
-        "cwd": "/var/folders/n2/c0514trj2wld924nfm754j8h0000gn/T/cratis-s9-pi-OyIZFY/consumer",
+        "cwd": "$RUN_ROOT/consumer",
         "environmentNames": [
           "HOME",
           "LANG",
@@ -59,86 +59,86 @@
     },
     {
       "id": "artifact-validation",
-      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "status": "BLOCKED_HOST_RUNTIME_UNAVAILABLE",
       "supporting": false,
-      "reason": "Installed version does not match 0.84.3.",
+      "reason": "Required Node runtime was unavailable in the isolated PATH; no host version or lifecycle behavior was observed.",
       "command": null
     },
     {
       "id": "negative-baseline",
-      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "status": "BLOCKED_HOST_RUNTIME_UNAVAILABLE",
       "supporting": false,
-      "reason": "Installed version does not match 0.84.3.",
+      "reason": "Required Node runtime was unavailable in the isolated PATH; no host version or lifecycle behavior was observed.",
       "command": null
     },
     {
       "id": "collision-negative",
-      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "status": "BLOCKED_HOST_RUNTIME_UNAVAILABLE",
       "supporting": false,
-      "reason": "Installed version does not match 0.84.3.",
+      "reason": "Required Node runtime was unavailable in the isolated PATH; no host version or lifecycle behavior was observed.",
       "command": null
     },
     {
       "id": "install",
-      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "status": "BLOCKED_HOST_RUNTIME_UNAVAILABLE",
       "supporting": false,
-      "reason": "Installed version does not match 0.84.3.",
+      "reason": "Required Node runtime was unavailable in the isolated PATH; no host version or lifecycle behavior was observed.",
       "command": null
     },
     {
       "id": "discovery",
-      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "status": "BLOCKED_HOST_RUNTIME_UNAVAILABLE",
       "supporting": false,
-      "reason": "Installed version does not match 0.84.3.",
+      "reason": "Required Node runtime was unavailable in the isolated PATH; no host version or lifecycle behavior was observed.",
       "command": null
     },
     {
       "id": "behavior-positive",
-      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "status": "BLOCKED_HOST_RUNTIME_UNAVAILABLE",
       "supporting": false,
-      "reason": "Installed version does not match 0.84.3.",
+      "reason": "Required Node runtime was unavailable in the isolated PATH; no host version or lifecycle behavior was observed.",
       "command": null
     },
     {
       "id": "behavior-negative",
-      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "status": "BLOCKED_HOST_RUNTIME_UNAVAILABLE",
       "supporting": false,
-      "reason": "Installed version does not match 0.84.3.",
+      "reason": "Required Node runtime was unavailable in the isolated PATH; no host version or lifecycle behavior was observed.",
       "command": null
     },
     {
       "id": "update",
-      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "status": "BLOCKED_HOST_RUNTIME_UNAVAILABLE",
       "supporting": false,
-      "reason": "Installed version does not match 0.84.3.",
+      "reason": "Required Node runtime was unavailable in the isolated PATH; no host version or lifecycle behavior was observed.",
       "command": null
     },
     {
       "id": "rollback",
-      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "status": "BLOCKED_HOST_RUNTIME_UNAVAILABLE",
       "supporting": false,
-      "reason": "Installed version does not match 0.84.3.",
+      "reason": "Required Node runtime was unavailable in the isolated PATH; no host version or lifecycle behavior was observed.",
       "command": null
     },
     {
       "id": "uninstall",
-      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "status": "BLOCKED_HOST_RUNTIME_UNAVAILABLE",
       "supporting": false,
-      "reason": "Installed version does not match 0.84.3.",
+      "reason": "Required Node runtime was unavailable in the isolated PATH; no host version or lifecycle behavior was observed.",
       "command": null
     },
     {
       "id": "context-preservation",
-      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "status": "BLOCKED_HOST_RUNTIME_UNAVAILABLE",
       "supporting": false,
-      "reason": "Installed version does not match 0.84.3.",
+      "reason": "Required Node runtime was unavailable in the isolated PATH; no host version or lifecycle behavior was observed.",
       "command": null
     },
     {
       "id": "cleanup",
-      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "status": "BLOCKED_HOST_RUNTIME_UNAVAILABLE",
       "supporting": false,
-      "reason": "Installed version does not match 0.84.3.",
+      "reason": "Required Node runtime was unavailable in the isolated PATH; no host version or lifecycle behavior was observed.",
       "command": null
     }
   ],
@@ -148,11 +148,13 @@
     "No positive or negative model behavior case is admitted.",
     "No genuine host-managed update or rollback contract is admitted."
   ],
-  "reportPayloadDigest": "c845a596016a80e4bd687106b51b2874c6bce1c600147b56af5181e0dc89351b",
+  "reportPayloadDigest": "cb5941fb9baa2acbb3504a43060bdb3669b6f5d92def0a1eb28823a678b67a4f",
   "installationEligible": false,
   "marketplaceAvailabilityClaim": false,
   "supportGranted": false,
   "publicationGranted": false,
   "runtimeGranted": false,
-  "promotionGranted": false
+  "promotionGranted": false,
+  "attemptId": "attempt-1",
+  "supersededBy": "s9-pi-local-fixture-attempt-2"
 }

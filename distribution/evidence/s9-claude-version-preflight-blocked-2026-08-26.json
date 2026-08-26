@@ -1,21 +1,21 @@
 {
   "schemaVersion": "1.0.0",
-  "caseId": "s9-gemini-local-fixture",
+  "caseId": "s9-claude-version-preflight-blocked",
   "state": "BLOCKED",
   "observedOn": "2026-08-26",
   "sourceRevision": "2e913c45a497dcf6109e44df3352ba134304656b",
-  "hostId": "gemini",
-  "harnessId": "gemini",
-  "bindingId": "gemini-cli-extensions-artifact-binding",
-  "targetId": "gemini-cli",
+  "hostId": "claude",
+  "harnessId": "claude",
+  "bindingId": "claude-code-plugins-artifact-binding",
+  "targetId": "claude-code",
   "artifactVersion": "0.0.1-fixture",
-  "artifactRoot": "gemini",
-  "artifactDigest": "3da07afb60dc5584c2a55192448eac80635d37353b0376f444b8c6cfa3410f25",
-  "executable": "gemini",
-  "resolvedExecutable": "/Users/sindrewilting/.nvm/versions/node/v23.11.1/lib/node_modules/@google/gemini-cli/dist/index.js",
-  "executableDigest": "766e778d6466285e1d7620b6d50f500d12f2e9c3229d199209d2461552ca2019",
-  "expectedHostVersion": "0.56.0",
-  "observedHostVersion": "0.33.1",
+  "artifactRoot": "claude",
+  "artifactDigest": "2be2eabaf44667b2b5a17a8c303ff9a9c2c1a1b626a8399e8846796b9e14362e",
+  "executable": "claude",
+  "resolvedExecutable": "$USER_HOME/.local/share/claude/versions/2.1.235",
+  "executableDigest": "83b8f806f6f2eea316cfe246628e6c23374711d868f1fd0409db551b877b7748",
+  "expectedHostVersion": "2.1.245",
+  "observedHostVersion": "2.1.235 (Claude Code)",
   "operatingSystem": "darwin",
   "architecture": "arm64",
   "runtimeVersion": "v23.11.1",
@@ -29,16 +29,16 @@
       "id": "preflight",
       "status": "BLOCKED_HOST_VERSION_MISMATCH",
       "supporting": false,
-      "reason": "Observed 0.33.1.",
+      "reason": "Observed 2.1.235 (Claude Code).",
       "command": {
         "argv": [
           "/usr/bin/sandbox-exec",
           "-p",
           "(version 1)(allow default)(deny network*)",
-          "/Users/sindrewilting/.nvm/versions/node/v23.11.1/lib/node_modules/@google/gemini-cli/dist/index.js",
+          "$USER_HOME/.local/share/claude/versions/2.1.235",
           "--version"
         ],
-        "cwd": "/var/folders/n2/c0514trj2wld924nfm754j8h0000gn/T/cratis-s9-gemini-r6W5OJ/consumer",
+        "cwd": "$RUN_ROOT/consumer",
         "environmentNames": [
           "HOME",
           "LANG",
@@ -53,92 +53,92 @@
         ],
         "exitCode": 0,
         "timedOut": false,
-        "stdoutDigest": "88dc89b23d1eb296b577d2cd6b8fd2a8013d9d499299cdb24578106eb5b4f59c",
-        "stderrDigest": "69010a8289d06dc8827805e1adb8bc703596f3b398d988f56b7c268243b76dbb"
+        "stdoutDigest": "387df7c8b3ec3d27e9ddf78bcdc032f2d73129c15567757674687ab1a06bebc3",
+        "stderrDigest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       }
     },
     {
       "id": "artifact-validation",
       "status": "BLOCKED_HOST_VERSION_MISMATCH",
       "supporting": false,
-      "reason": "Installed version does not match 0.56.0.",
+      "reason": "Installed version does not match 2.1.245.",
       "command": null
     },
     {
       "id": "negative-baseline",
       "status": "BLOCKED_HOST_VERSION_MISMATCH",
       "supporting": false,
-      "reason": "Installed version does not match 0.56.0.",
+      "reason": "Installed version does not match 2.1.245.",
       "command": null
     },
     {
       "id": "collision-negative",
       "status": "BLOCKED_HOST_VERSION_MISMATCH",
       "supporting": false,
-      "reason": "Installed version does not match 0.56.0.",
+      "reason": "Installed version does not match 2.1.245.",
       "command": null
     },
     {
       "id": "install",
       "status": "BLOCKED_HOST_VERSION_MISMATCH",
       "supporting": false,
-      "reason": "Installed version does not match 0.56.0.",
+      "reason": "Installed version does not match 2.1.245.",
       "command": null
     },
     {
       "id": "discovery",
       "status": "BLOCKED_HOST_VERSION_MISMATCH",
       "supporting": false,
-      "reason": "Installed version does not match 0.56.0.",
+      "reason": "Installed version does not match 2.1.245.",
       "command": null
     },
     {
       "id": "behavior-positive",
       "status": "BLOCKED_HOST_VERSION_MISMATCH",
       "supporting": false,
-      "reason": "Installed version does not match 0.56.0.",
+      "reason": "Installed version does not match 2.1.245.",
       "command": null
     },
     {
       "id": "behavior-negative",
       "status": "BLOCKED_HOST_VERSION_MISMATCH",
       "supporting": false,
-      "reason": "Installed version does not match 0.56.0.",
+      "reason": "Installed version does not match 2.1.245.",
       "command": null
     },
     {
       "id": "update",
       "status": "BLOCKED_HOST_VERSION_MISMATCH",
       "supporting": false,
-      "reason": "Installed version does not match 0.56.0.",
+      "reason": "Installed version does not match 2.1.245.",
       "command": null
     },
     {
       "id": "rollback",
       "status": "BLOCKED_HOST_VERSION_MISMATCH",
       "supporting": false,
-      "reason": "Installed version does not match 0.56.0.",
+      "reason": "Installed version does not match 2.1.245.",
       "command": null
     },
     {
       "id": "uninstall",
       "status": "BLOCKED_HOST_VERSION_MISMATCH",
       "supporting": false,
-      "reason": "Installed version does not match 0.56.0.",
+      "reason": "Installed version does not match 2.1.245.",
       "command": null
     },
     {
       "id": "context-preservation",
       "status": "BLOCKED_HOST_VERSION_MISMATCH",
       "supporting": false,
-      "reason": "Installed version does not match 0.56.0.",
+      "reason": "Installed version does not match 2.1.245.",
       "command": null
     },
     {
       "id": "cleanup",
       "status": "BLOCKED_HOST_VERSION_MISMATCH",
       "supporting": false,
-      "reason": "Installed version does not match 0.56.0.",
+      "reason": "Installed version does not match 2.1.245.",
       "command": null
     }
   ],
@@ -148,11 +148,13 @@
     "No positive or negative model behavior case is admitted.",
     "No genuine host-managed update or rollback contract is admitted."
   ],
-  "reportPayloadDigest": "e15e89a75694f04528378bc1b55093b0c0de1e5efcef408395d067608e5778c5",
+  "reportPayloadDigest": "e1a846eaaf77304eabcd748854816ce77ef3a87fba7ebadbb7b4f7eb0257a017",
   "installationEligible": false,
   "marketplaceAvailabilityClaim": false,
   "supportGranted": false,
   "publicationGranted": false,
   "runtimeGranted": false,
-  "promotionGranted": false
+  "promotionGranted": false,
+  "attemptId": "version-preflight-1",
+  "supersededBy": null
 }

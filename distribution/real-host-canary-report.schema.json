@@ -26,7 +26,7 @@
       "required": ["id", "status", "supporting", "reason", "command"],
       "properties": {
         "id": { "$ref": "#/$defs/id" },
-        "status": { "enum": ["PASS", "FAIL", "BLOCKED_HOST_NOT_INSTALLED", "BLOCKED_HOST_VERSION_MISMATCH", "BLOCKED_NETWORK_ENFORCEMENT_UNAVAILABLE", "BLOCKED_NO_REVIEWED_CONTRACT", "BLOCKED_NOT_RUN"] },
+        "status": { "enum": ["PASS", "FAIL", "BLOCKED_HOST_NOT_INSTALLED", "BLOCKED_HOST_VERSION_MISMATCH", "BLOCKED_HOST_RUNTIME_UNAVAILABLE", "BLOCKED_NETWORK_ENFORCEMENT_UNAVAILABLE", "BLOCKED_NO_REVIEWED_CONTRACT", "BLOCKED_NOT_RUN"] },
         "supporting": { "const": false },
         "reason": { "$ref": "#/$defs/nonEmpty" },
         "command": { "oneOf": [{ "$ref": "#/$defs/command" }, { "type": "null" }] }
@@ -35,10 +35,12 @@
   },
   "type": "object",
   "additionalProperties": false,
-  "required": ["schemaVersion", "caseId", "state", "observedOn", "sourceRevision", "hostId", "harnessId", "bindingId", "targetId", "artifactVersion", "artifactRoot", "artifactDigest", "executable", "resolvedExecutable", "executableDigest", "expectedHostVersion", "observedHostVersion", "operatingSystem", "architecture", "runtimeVersion", "isolation", "credentialMode", "networkEnforcement", "beforeContextDigest", "afterContextDigest", "phases", "limitations", "reportPayloadDigest", "installationEligible", "marketplaceAvailabilityClaim", "supportGranted", "publicationGranted", "runtimeGranted", "promotionGranted"],
+  "required": ["schemaVersion", "caseId", "attemptId", "supersededBy", "state", "observedOn", "sourceRevision", "hostId", "harnessId", "bindingId", "targetId", "artifactVersion", "artifactRoot", "artifactDigest", "executable", "resolvedExecutable", "executableDigest", "expectedHostVersion", "observedHostVersion", "operatingSystem", "architecture", "runtimeVersion", "isolation", "credentialMode", "networkEnforcement", "beforeContextDigest", "afterContextDigest", "phases", "limitations", "reportPayloadDigest", "installationEligible", "marketplaceAvailabilityClaim", "supportGranted", "publicationGranted", "runtimeGranted", "promotionGranted"],
   "properties": {
     "schemaVersion": { "const": "1.0.0" },
     "caseId": { "$ref": "#/$defs/id" },
+    "attemptId": { "$ref": "#/$defs/id" },
+    "supersededBy": { "oneOf": [{ "$ref": "#/$defs/id" }, { "type": "null" }] },
     "state": { "enum": ["PASS_NON_SUPPORTING_FIXTURE", "FAIL", "BLOCKED"] },
     "observedOn": { "type": "string", "format": "date" },
     "sourceRevision": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
