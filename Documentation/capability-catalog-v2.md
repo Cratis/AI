@@ -95,6 +95,11 @@ report. Real execution is disabled in ordinary tests and requires explicit
 opt-in, isolated homes, forbidden credentials, and OS-enforced denied egress.
 Synthetic fixture lifecycle results are always non-supporting.
 
+S10 computes a separate release-readiness projection from production lifecycle
+evidence, exact approvals, external-control attestations, release records, and
+marketplace records. The current projection is deterministically `BLOCKED`, and
+all credentialed workflow jobs are unreachable behind its fixed preflight.
+
 ## Target-local safety fields
 
 Every target records:

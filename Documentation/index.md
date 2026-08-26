@@ -23,6 +23,7 @@ harness. The mixed source repository is not itself an installation package.
 | [Studio MCP passive guidance](./studio-mcp-guidance.md) | Understand the public-safe Studio skill, private-fact boundary, and deny-all operation policy |
 | [Native non-skill projections](./native-non-skill-projections.md) | Understand the four repository-only rule/instruction fixture roots and their non-promoting boundary |
 | [Real-host canaries](./real-host-canaries.md) | Understand exact-version isolation, lifecycle phases, blocked outcomes, and non-supporting fixture evidence |
+| [S10 release and marketplace gates](./s10-release-and-marketplace-gates.md) | Understand blocked readiness, external controls, append-only records, and unreachable side effects |
 
 ## Repository-local corpus reference
 

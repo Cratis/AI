@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cratis/AI/distribution/release-approvals.schema.json",
+  "title": "Cratis release prerequisite approvals",
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "approvalBase": {
+      "type": "object",
+      "properties": {
+        "reviewer": { "type": "string", "minLength": 1 },
+        "approvedOn": { "type": "string", "format": "date" },
+        "sourceRevision": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+        "contentDigest": { "$ref": "#/$defs/sha256" },
+        "scope": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } },
+        "evidenceIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } }
+      }
+    },
+    "profileApproval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["profileId", "reviewer", "approvedOn", "sourceRevision", "contentDigest", "scope", "evidenceIds"],
+      "properties": {
+        "profileId": { "$ref": "#/$defs/id" },
+        "reviewer": { "type": "string", "minLength": 1 },
+        "approvedOn": { "type": "string", "format": "date" },
+        "sourceRevision": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+        "contentDigest": { "$ref": "#/$defs/sha256" },
+        "scope": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } },
+        "evidenceIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } }
+      }
+    },
+    "targetApproval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["targetId", "reviewer", "approvedOn", "sourceRevision", "contentDigest", "scope", "evidenceIds"],
+      "properties": {
+        "targetId": { "$ref": "#/$defs/id" },
+        "reviewer": { "type": "string", "minLength": 1 },
+        "approvedOn": { "type": "string", "format": "date" },
+        "sourceRevision": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+        "contentDigest": { "$ref": "#/$defs/sha256" },
+        "scope": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } },
+        "evidenceIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } }
+      }
+    },
+    "contractApproval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["contractId", "reviewer", "approvedOn", "sourceRevision", "contentDigest", "scope", "evidenceIds"],
+      "properties": {
+        "contractId": { "$ref": "#/$defs/id" },
+        "reviewer": { "type": "string", "minLength": 1 },
+        "approvedOn": { "type": "string", "format": "date" },
+        "sourceRevision": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+        "contentDigest": { "$ref": "#/$defs/sha256" },
+        "scope": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } },
+        "evidenceIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } }
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "defaultPolicy", "profileApprovals", "targetApprovals", "sourceContractApprovals"],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "defaultPolicy": { "const": "deny" },
+    "profileApprovals": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/profileApproval" } },
+    "targetApprovals": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/targetApproval" } },
+    "sourceContractApprovals": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/contractApproval" } }
+  }
+}

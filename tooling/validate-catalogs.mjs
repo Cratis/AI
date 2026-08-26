@@ -24,6 +24,9 @@ import {
     loadRealHostCanaryContracts,
     validateRealHostCanaryMatrix,
 } from "./real-host-canary-contract.mjs";
+import { validateS10ReleaseGate } from "./s10-release-gate-validation.mjs";
+import { validateReleaseLifecycleEvidence } from "./release-lifecycle-validation.mjs";
+import { validateMarketplacePublications } from "./marketplace-publication-validation.mjs";
 import {
     formatComplianceDiagnostics,
     validateSpecificationLock,
@@ -49,6 +52,9 @@ const errors = [
     ...validateMcpGuidanceProducts(),
     ...validateNativeNonSkillProjectionContract(),
     ...validateRealHostCanaryMatrix(loadRealHostCanaryContracts()),
+    ...validateS10ReleaseGate(),
+    ...validateReleaseLifecycleEvidence(),
+    ...validateMarketplacePublications(),
     ...validateSpecificationLock().map((diagnostic) =>
         formatComplianceDiagnostics([diagnostic]),
     ),
@@ -61,6 +67,6 @@ if (errors.length > 0) {
     process.exitCode = 1;
 } else {
     process.stdout.write(
-        "Catalog validation passed: legacy, v2, normalized evidence, computed support, source-evidence, multi-product MCP guidance, native non-skill projections, real-host canary contracts, offline portable specifications, distribution-profile, and evaluation contracts are valid.\n",
+        "Catalog validation passed: legacy, v2, normalized evidence, computed support, source-evidence, multi-product MCP guidance, native non-skill projections, real-host canary contracts, blocked S10 release readiness, offline portable specifications, distribution-profile, and evaluation contracts are valid.\n",
     );
 }

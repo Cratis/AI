@@ -286,7 +286,9 @@ S9 real-host execution is a separate opt-in evidence lane. Ordinary tests do
 not execute detected host binaries. A canary requires an exact client version,
 allowlisted isolated environment, denied egress, complete phase report, and
 project-context snapshot. Synthetic fixture runs remain non-supporting even
-when local install and removal pass.
+when local install and removal pass. S10 release readiness is a separate
+production gate and currently remains blocked; generated wrappers and candidate
+artifacts do not authorize publication or marketplace availability.
 
 S8 also generates four isolated static project-layout fixtures for 68 rule files
 and two general-instruction files. They are not added to this archive table,

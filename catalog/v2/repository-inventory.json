@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "9334fad65f87bc142a9090556ba7799c1aed45cfc15f7a38dd878a4ebd937c0a",
+  "indexDigest": "6eff64f8f76746d7b057e16457b90ce29b3360b2bcb610a2a3c93c8e509ffaca",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -383,6 +383,10 @@
       "status": "added"
     },
     {
+      "path": "Documentation/s10-release-and-marketplace-gates.md",
+      "status": "added"
+    },
+    {
       "path": "Documentation/skill-authoring-contract.md",
       "status": "added"
     },
@@ -424,6 +428,14 @@
     },
     {
       "path": "catalog/ecosystem-versions.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/evidence-baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/evidence-baseline.schema.json",
       "status": "added"
     },
     {
@@ -507,6 +519,10 @@
       "status": "added"
     },
     {
+      "path": "catalog/schemas/release-readiness.schema.json",
+      "status": "added"
+    },
+    {
       "path": "catalog/schemas/support-policy.schema.json",
       "status": "added"
     },
@@ -576,6 +592,10 @@
     },
     {
       "path": "catalog/v2/product-coverage.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/v2/release-readiness.json",
       "status": "added"
     },
     {
@@ -715,6 +735,14 @@
       "status": "added"
     },
     {
+      "path": "distribution/marketplace-publications.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/marketplace-publications.schema.json",
+      "status": "added"
+    },
+    {
       "path": "distribution/marketplace-requirements.json",
       "status": "added"
     },
@@ -747,7 +775,31 @@
       "status": "added"
     },
     {
+      "path": "distribution/release-approvals.schema.json",
+      "status": "added"
+    },
+    {
       "path": "distribution/release-automation-capabilities.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/release-control-attestations.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/release-control-attestations.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/release-lifecycle-report.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/release-record.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/release-records/README.md",
       "status": "added"
     },
     {
@@ -764,6 +816,14 @@
     },
     {
       "path": "distribution/rollout-policy.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/s10-release-policy.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/s10-release-policy.schema.json",
       "status": "added"
     },
     {
@@ -2391,6 +2451,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/generate-release-readiness.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/generate-repository-inventory.mjs",
       "status": "added"
     },
@@ -2416,6 +2480,10 @@
     },
     {
       "path": "tooling/harness-registry.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/marketplace-publication-validation.mjs",
       "status": "added"
     },
     {
@@ -2487,6 +2555,14 @@
       "status": "added"
     },
     {
+      "path": "tooling/release-lifecycle-validation.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/release-merge-topology-validation.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/release-request-validation.mjs",
       "status": "added"
     },
@@ -2504,6 +2580,10 @@
     },
     {
       "path": "tooling/run-real-host-canary.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/s10-release-gate-validation.mjs",
       "status": "added"
     },
     {
@@ -2707,7 +2787,15 @@
       "status": "added"
     },
     {
+      "path": "tooling/specs/release-merge-topology.spec.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/specs/release-request.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/s10-release-gate.spec.mjs",
       "status": "added"
     },
     {
@@ -3663,6 +3751,7 @@
         "Documentation/chronicle-mcp-guidance.md",
         "Documentation/native-non-skill-projections.md",
         "Documentation/real-host-canaries.md",
+        "Documentation/s10-release-and-marketplace-gates.md",
         "Documentation/studio-mcp-guidance.md"
       ],
       "artifactType": "documentation",
@@ -3684,15 +3773,17 @@
         "distribution/real-host-canary-matrix.json",
         "distribution/real-host-canary-report.schema.json",
         "tooling/native-non-skill-projections.mjs",
-        "tooling/real-host-canary-contract.mjs"
+        "distribution/s10-release-policy.json",
+        "tooling/real-host-canary-contract.mjs",
+        "tooling/s10-release-gate-validation.mjs"
       ],
       "risk": "medium",
       "migrationState": "retain",
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 5,
-      "expectedPathsDigest": "784c0064aa06474b6320f74d38e4d6709891f4f5bfa29dceb79e09d1263da970"
+      "expectedPathCount": 6,
+      "expectedPathsDigest": "b1fac3f142d41a12da0f46f42ef8951abd33be25e9d8ea0bbba26e7b578a0505"
     },
     {
       "excludePathPatterns": [],
@@ -4041,6 +4132,8 @@
         "catalog/studio-mcp-tool-classifications.json",
         "catalog/components.json",
         "catalog/component-projections.json",
+        "catalog/evidence-baseline.json",
+        "catalog/evidence-baseline.schema.json",
         "catalog/evidence.json",
         "catalog/host-adapters.json",
         "catalog/support-policy.json",
@@ -4050,6 +4143,7 @@
         "catalog/schemas/component-projections.schema.json",
         "catalog/schemas/evidence.schema.json",
         "catalog/schemas/host-adapters.schema.json",
+        "catalog/schemas/release-readiness.schema.json",
         "catalog/schemas/support-policy.schema.json",
         "catalog/schemas/support.schema.json",
         "catalog/v2/authoring-contracts.json",
@@ -4074,6 +4168,7 @@
         "catalog/schemas/host-adapters.schema.json",
         "catalog/schemas/artifact-assurance-profiles.schema.json",
         "catalog/schemas/evidence.schema.json",
+        "catalog/schemas/release-readiness.schema.json",
         "catalog/schemas/support-policy.schema.json",
         "catalog/schemas/support.schema.json",
         "tooling/catalog-v2-validation.mjs",
@@ -4087,14 +4182,15 @@
         "ecosystem-use-cases",
         "third-party-skills-evaluation"
       ],
-      "expectedPathCount": 25,
-      "expectedPathsDigest": "70f9293e8ddada0b9a2e7ab25c555f1682247c4e79675ec9b4b9df9dbca2858c"
+      "expectedPathCount": 28,
+      "expectedPathsDigest": "6f1beb9c87dee61294db91c18e0e61602745f53c4ac1b38ce4f05f955279c9a5"
     },
     {
       "excludePathPatterns": [
         "catalog/v2/authoring-contracts.json",
         "catalog/v2/bundles.json",
         "catalog/v2/human-catalog.json",
+        "catalog/v2/release-readiness.json",
         "catalog/v2/ecosystem-contracts.json",
         "catalog/v2/artifact-assurance-profiles.json",
         "catalog/v2/README.md",
@@ -4130,6 +4226,39 @@
     },
     {
       "excludePathPatterns": [],
+      "id": "s10-release-readiness",
+      "sourcePathPatterns": [
+        "catalog/v2/release-readiness.json"
+      ],
+      "artifactType": "catalog-schema",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "generated",
+      "adapterStatus": "none",
+      "dependencies": [
+        "catalog/evidence-baseline.json",
+        "catalog/v2/support.json",
+        "distribution/marketplace-publications.json",
+        "distribution/release-approvals.json",
+        "distribution/release-control-attestations.json",
+        "distribution/release-records/README.md",
+        "distribution/releases/README.md",
+        "distribution/s10-release-policy.json",
+        "tooling/generate-release-readiness.mjs",
+        "tooling/s10-release-gate-validation.mjs"
+      ],
+      "risk": "critical",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "option-a-plus-authority"
+      ],
+      "generator": "tooling/generate-release-readiness.mjs",
+      "expectedPathCount": 1,
+      "expectedPathsDigest": "d52b8a349f1e49d140bc247783ab7171aec2f1160923f08b70207575c1c0e574"
+    },
+    {
+      "excludePathPatterns": [],
       "id": "generated-human-catalog",
       "sourcePathPatterns": [
         "catalog/generated/human-catalog/**"
@@ -4144,6 +4273,7 @@
         "catalog/v2/component-projections.json",
         "catalog/v2/components.json",
         "catalog/v2/human-catalog.json",
+        "catalog/v2/release-readiness.json",
         "catalog/v2/targets.json",
         "catalog/v2/support.json",
         "tooling/generate-human-catalog.mjs"
@@ -4201,8 +4331,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 41,
-      "expectedPathsDigest": "05e089d541b221c404ee324cc4a5eacfedd51fb06894735f30b1389d7eeac852"
+      "expectedPathCount": 51,
+      "expectedPathsDigest": "8e1389b57caf9ad5f8e9f6cc8277738b99927e06b784a38047e4beb37dc9c4f8"
     },
     {
       "excludePathPatterns": [],
@@ -4276,8 +4406,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 61,
-      "expectedPathsDigest": "f227c7aa65d8340d79676996e753d2d498e45de86669157963fdca2153fc01f9"
+      "expectedPathCount": 66,
+      "expectedPathsDigest": "dbad94acfdfe37433cf0b03d6743588340ab321876669a880d76ceefb2e75d16"
     },
     {
       "excludePathPatterns": [],
@@ -4300,8 +4430,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 48,
-      "expectedPathsDigest": "7ef78d64b4f25d81b596893698e1dadad6df69ae816adaeb2521a1b8f2ec1a6d"
+      "expectedPathCount": 50,
+      "expectedPathsDigest": "825d91145f10140b2ca0cf151ef87dea482656d514a0e397d82b2394c833720a"
     },
     {
       "excludePathPatterns": [],

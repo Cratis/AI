@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "contractVersion": 1,
   "disclaimer": "Catalog inclusion, evaluation evidence, component modeling, planned projection, bundle generation, or publication does not grant runtime permission, emitted bytes, support, or approval.",
-  "inputDigest": "d6cab75aaa9227d02a555bc732a34cea97789c86d8c2ccdebc87ec81f9251a04",
+  "inputDigest": "9765aec9be0b3ef8cc5617e9f1f0e3bf8648ea95c8b01e4fff578b0e7849b5b1",
   "componentSummary": {
     "disclaimer": "Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.",
     "total": 135,
@@ -58,6 +58,28 @@
       "static-asset",
       "subagent"
     ]
+  },
+  "releaseReadiness": {
+    "state": "BLOCKED",
+    "blockerCodes": [
+      "policy-blocked",
+      "no-release-tested-binding",
+      "no-lifecycle-tested-binding",
+      "no-profile-approvals",
+      "no-target-approvals",
+      "no-source-contract-approvals",
+      "no-control-attestations",
+      "no-exact-package-ownership-attestation",
+      "no-trusted-publisher-attestation",
+      "no-release-request",
+      "no-release-records",
+      "no-marketplace-publications"
+    ],
+    "releaseRequestEligible": false,
+    "publicationEligible": false,
+    "promotionEligible": false,
+    "supportGranted": false,
+    "marketplaceAvailabilityClaim": false
   },
   "profiles": [
     {

@@ -33,7 +33,7 @@ test("verification workflow covers every release-relevant source", () => {
     }
 });
 
-test("merged release request publishes one profile with truthful cleanup and recovery", () => {
+test("release candidates remain readable while every side-effect job is S10-blocked", () => {
     const workflow = readFileSync(
         ".github/workflows/release-approved-ai-profiles.yml",
         "utf8",
@@ -44,14 +44,19 @@ test("merged release request publishes one profile with truthful cleanup and rec
         "distribution/releases/*.json",
         "release-request-validation.mjs",
         "generate-approved-profile-release.mjs",
-        'if [ "$EVENT_NAME" = "push" ]; then mode=(release); fi',
+        "s10_preflight:",
+        "generate-release-readiness.mjs",
+        "s10-release-gate-validation.mjs",
+        "release_allowed=false",
+        "release_allowed == 'true'",
         "release-instructions.md",
         "support-matrix.json",
         "sha256sum -c SHA256SUMS",
         "needs: [discover, verify]",
-        "needs: [discover, verify, canary]",
-        "needs: [discover, verify, canary, distribute]",
-        "needs: [discover, distribute, publish-npm]",
+        "needs: [discover, verify, s10_preflight]",
+        "needs: [discover, verify, s10_preflight, canary]",
+        "needs: [discover, verify, s10_preflight, canary, distribute]",
+        "needs: [discover, s10_preflight, distribute, publish-npm]",
         "samples-chronicle-backend",
         "trap cleanup EXIT",
         'gh release delete "v$VERSION"',
@@ -76,6 +81,7 @@ test("merged release request publishes one profile with truthful cleanup and rec
     ])
         assert(workflow.includes(required), required);
     for (const forbidden of [
+        'if [ "$EVENT_NAME" = "push" ]; then mode=(release); fi',
         "workflow_dispatch:",
         "INPUT_REQUEST",
         "NPM_TOKEN",

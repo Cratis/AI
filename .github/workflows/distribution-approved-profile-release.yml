@@ -13,7 +13,6 @@ on:
         type: choice
         options:
           - verify
-          - create-generated-pr
       profile:
         description: Approved profile id
         required: true
@@ -53,6 +52,7 @@ jobs:
         run: |
           set -euo pipefail
           node tooling/validate-catalogs.mjs
+          node tooling/s10-release-gate-validation.mjs
           node tooling/generate-approved-profile-release.mjs \
             "$RUNNER_TEMP/approved-profile" "$PROFILE" "$VERSION"
           test "$(node -p "require('$RUNNER_TEMP/approved-profile/release-manifest.json').publicationEligible")" = "false"
@@ -60,7 +60,7 @@ jobs:
           node --test tooling/specs/approved-profile-release.spec.mjs
 
   create-generated-pr:
-    if: inputs.operation == 'create-generated-pr'
+    if: ${{ false }} # S10 blocked: activation requires a later reviewed merge
     needs: verify
     runs-on: ubuntu-latest
     timeout-minutes: 15

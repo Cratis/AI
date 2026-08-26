@@ -106,6 +106,7 @@ node tooling/generate-mcp-guidance-references.mjs
 node tooling/generate-chronicle-mcp-guidance-references.mjs
 node tooling/generate-catalog-v2.mjs
 node tooling/generate-support.mjs
+node tooling/generate-release-readiness.mjs
 node tooling/generate-ecosystem-artifact-coverage.mjs
 node tooling/generate-human-catalog.mjs
 node tooling/generate-repository-inventory.mjs

@@ -75,6 +75,7 @@ jobs:
                   node tooling/harness-registry.mjs
                   node tooling/generate-catalog-v2.mjs
                   node tooling/generate-support.mjs
+                  node tooling/generate-release-readiness.mjs
                   node tooling/generate-ecosystem-artifact-coverage.mjs
                   node tooling/generate-human-catalog.mjs
                   node tooling/generate-repository-inventory.mjs

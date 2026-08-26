@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cratis/AI/distribution/release-lifecycle-report.schema.json",
+  "title": "Cratis production release lifecycle evidence",
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "phase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "status", "argv", "exitCode", "transcriptDigest", "selectedPath", "selectedDigest"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "status": { "const": "PASS" },
+        "argv": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+        "exitCode": { "const": 0 },
+        "transcriptDigest": { "$ref": "#/$defs/sha256" },
+        "selectedPath": { "type": "string", "minLength": 1 },
+        "selectedDigest": { "$ref": "#/$defs/sha256" }
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "state", "synthetic", "sourceRevision", "artifactId", "artifactDigest", "packageName", "versionA", "versionB", "profileId", "targetId", "bindingId", "harnessId", "hostVersion", "executableDigest", "environmentDigest", "phases", "evidenceIds"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "state": { "const": "COMPLETE" },
+    "synthetic": { "const": false },
+    "sourceRevision": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+    "artifactId": { "$ref": "#/$defs/id" },
+    "artifactDigest": { "$ref": "#/$defs/sha256" },
+    "packageName": { "type": "string", "minLength": 1 },
+    "versionA": { "type": "string", "minLength": 1 },
+    "versionB": { "type": "string", "minLength": 1 },
+    "profileId": { "$ref": "#/$defs/id" },
+    "targetId": { "$ref": "#/$defs/id" },
+    "bindingId": { "$ref": "#/$defs/id" },
+    "harnessId": { "$ref": "#/$defs/id" },
+    "hostVersion": { "type": "string", "minLength": 1 },
+    "executableDigest": { "$ref": "#/$defs/sha256" },
+    "environmentDigest": { "$ref": "#/$defs/sha256" },
+    "phases": { "type": "array", "minItems": 13, "maxItems": 13, "uniqueItems": true, "items": { "$ref": "#/$defs/phase" } },
+    "evidenceIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } }
+  }
+}

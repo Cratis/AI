@@ -5,6 +5,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
+    releasePreflightDigest,
     validateReleaseRequest,
     validateReleaseRequests,
 } from "../release-request-validation.mjs";
@@ -24,6 +25,10 @@ function approvedInputs() {
         artifacts: readJson("catalog/v2/artifacts.json").artifacts,
         releaseAutomationCapabilities: readJson(
             "distribution/release-automation-capabilities.json",
+        ),
+        releaseReadiness: readJson("catalog/v2/release-readiness.json"),
+        evidenceIds: readJson("catalog/v2/evidence.json").evidence.map(
+            (evidence) => evidence.id,
         ),
     });
     const profile = inputs.profileCatalog.publicProfiles.find(
@@ -89,21 +94,57 @@ test("repository has no release request before owner approval", () => {
     assert.deepEqual(result.requests, []);
 });
 
-test("approved release request resolves every requested profile", () => {
+test("approved profile plan still cannot bypass blocked S10 readiness", () => {
     const request = readJson(
         "Documentation/examples/ai-release/v0.1.0-preview.1.json",
     );
+    request.prerequisiteEvidenceIds = ["option-a-plus-authority"];
+    const inputs = approvedInputs();
+    const preflight = {
+        schemaVersion: 1,
+        stage: "preflight-snapshot",
+        recordId: "example-preflight",
+        releaseVersion: request.version,
+        artifactDigest: "a".repeat(64),
+        requestDigest: null,
+        preflightDigest: "0".repeat(64),
+        sourceRevision: "b".repeat(40),
+        evidenceIds: [...request.prerequisiteEvidenceIds],
+        previousRecordIds: [],
+    };
+    preflight.preflightDigest = releasePreflightDigest(preflight);
+    inputs.releaseRecords = [preflight];
+    request.preflightDigest = preflight.preflightDigest;
+    request.artifactDigest = preflight.artifactDigest;
+    request.sourceRevision = preflight.sourceRevision;
     const schema = readJson("distribution/release-request.schema.json");
     const result = validateReleaseRequest(
         request,
         "distribution/releases/v0.1.0-preview.1.json",
-        approvedInputs(),
+        inputs,
         schema,
     );
-    assert.deepEqual(result.errors, []);
+    assert(
+        result.errors.some((error) =>
+            error.includes("S10 release readiness blocks every request"),
+        ),
+    );
     assert.equal(result.plans.length, 1);
     assert.equal(result.plans[0].state, "READY_FOR_BOT_MATERIALIZATION");
     assert.equal(result.plans[0].profileId, "public-fundamentals");
+    request.artifactDigest = "c".repeat(64);
+    request.prerequisiteEvidenceIds = ["reevaluation-authority"];
+    const mismatched = validateReleaseRequest(
+        request,
+        "distribution/releases/v0.1.0-preview.1.json",
+        inputs,
+        schema,
+    );
+    assert(
+        mismatched.errors.some((error) =>
+            error.includes("not bound to an existing exact preflight snapshot"),
+        ),
+    );
 });
 
 test("release request limits publication to one profile until atomic npm publication exists", () => {

@@ -2,6 +2,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { basename, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -14,6 +15,25 @@ import { buildApprovedProfileReleasePlan } from "./generate-approved-profile-rel
 const defaultRepositoryRoot = resolve(
     fileURLToPath(new URL("..", import.meta.url)),
 );
+
+function canonicalJson(value) {
+    if (Array.isArray(value))
+        return `[${value.map((item) => canonicalJson(item)).join(",")}]`;
+    if (value && typeof value === "object")
+        return `{${Object.keys(value)
+            .sort()
+            .map(
+                (key) =>
+                    `${JSON.stringify(key)}:${canonicalJson(value[key])}`,
+            )
+            .join(",")}}`;
+    return JSON.stringify(value);
+}
+
+export function releasePreflightDigest(record) {
+    const { preflightDigest: _digest, ...payload } = record;
+    return createHash("sha256").update(canonicalJson(payload)).digest("hex");
+}
 
 function parseJson(path, errors) {
     try {
@@ -39,6 +59,40 @@ function repositoryInputs(repositoryRoot, errors) {
     const releaseAutomationCapabilities = read(
         "distribution/release-automation-capabilities.json",
     );
+    const releaseReadiness = read("catalog/v2/release-readiness.json");
+    const releaseRecordSchema = read("distribution/release-record.schema.json");
+    const evidenceIds = read("catalog/v2/evidence.json")?.evidence?.map(
+        (evidence) => evidence.id,
+    );
+    const releaseRecordsRoot = join(
+        repositoryRoot,
+        "distribution/release-records",
+    );
+    const releaseRecords = existsSync(releaseRecordsRoot)
+        ? readdirSync(releaseRecordsRoot)
+              .filter((name) => name.endsWith(".json"))
+              .sort()
+              .map((name) => read(`distribution/release-records/${name}`))
+              .filter(Boolean)
+        : [];
+    if (releaseRecordSchema)
+        for (const record of releaseRecords) {
+            errors.push(
+                ...validateAgainstSchema(
+                    record,
+                    releaseRecordSchema,
+                    releaseRecordSchema,
+                    "release-record",
+                ),
+            );
+            if (
+                record.stage === "preflight-snapshot" &&
+                record.preflightDigest !== releasePreflightDigest(record)
+            )
+                errors.push(
+                    `${record.recordId}: preflight record digest is stale`,
+                );
+        }
     if (
         !profileCatalog ||
         !targets ||
@@ -46,7 +100,10 @@ function repositoryInputs(repositoryRoot, errors) {
         !sourceContracts ||
         !authoringContracts ||
         !artifacts ||
-        !releaseAutomationCapabilities
+        !releaseAutomationCapabilities ||
+        !releaseReadiness ||
+        !releaseRecordSchema ||
+        !evidenceIds
     )
         return null;
     return {
@@ -57,6 +114,9 @@ function repositoryInputs(repositoryRoot, errors) {
         authoringContracts,
         artifacts,
         releaseAutomationCapabilities,
+        releaseReadiness,
+        evidenceIds,
+        releaseRecords,
     };
 }
 
@@ -68,6 +128,33 @@ export function validateReleaseRequest(request, relativePath, inputs, schema) {
             `${relativePath}: filename must be v${request.version}.json`,
         );
     const automationCapabilities = inputs?.releaseAutomationCapabilities;
+    if (inputs?.releaseReadiness.releaseRequestEligible !== true)
+        errors.push(
+            `${relativePath}: S10 release readiness blocks every request`,
+        );
+    const evidenceIds = new Set(inputs?.evidenceIds ?? []);
+    for (const evidenceId of request.prerequisiteEvidenceIds ?? [])
+        if (!evidenceIds.has(evidenceId))
+            errors.push(
+                `${relativePath}: unknown prerequisite evidence ${evidenceId}`,
+            );
+    const preflight = inputs?.releaseRecords?.find(
+        (record) =>
+            record.stage === "preflight-snapshot" &&
+            record.preflightDigest === request.preflightDigest,
+    );
+    if (
+        !preflight ||
+        preflight.preflightDigest !== releasePreflightDigest(preflight) ||
+        preflight.releaseVersion !== request.version ||
+        preflight.artifactDigest !== request.artifactDigest ||
+        preflight.sourceRevision !== request.sourceRevision ||
+        JSON.stringify([...(preflight.evidenceIds ?? [])].sort()) !==
+            JSON.stringify([...(request.prerequisiteEvidenceIds ?? [])].sort())
+    )
+        errors.push(
+            `${relativePath}: request is not bound to an existing exact preflight snapshot`,
+        );
     if (
         automationCapabilities &&
         (request.profiles?.length ?? 0) >

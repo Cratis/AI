@@ -166,6 +166,97 @@ test("all 152 observations, 172 fact IDs, 11 legacy gaps, 108 official sources, 
     );
 });
 
+test("append-only evidence growth preserves the protected baseline without anchor rewrites", () => {
+    const catalogs = clone(loadSupportCatalogs());
+    catalogs.evidence.sources.push({
+        id: "source-future-append-only-observation",
+        kind: "official-documentation",
+        locator: "https://example.invalid/future-evidence",
+    });
+    catalogs.evidence.observations.push({
+        id: "future-append-only-observation",
+        sourceId: "source-future-append-only-observation",
+        evidenceClass: "hosted",
+        subject: {
+            kind: "target",
+            id: "cratis-fundamentals-concept",
+            version: "future-review",
+        },
+        bindingIds: [],
+        assertions: [
+            {
+                assuranceId: "documentation",
+                outcome: "pass",
+                supporting: false,
+                claimIds: [],
+            },
+        ],
+        scope: "Append-only future observation fixture.",
+        environment: {
+            operatingSystem: "not-recorded",
+            architecture: "not-recorded",
+            isolation: "not-recorded",
+        },
+        observedOn: catalogs.evidence.asOf,
+        validThrough: catalogs.evidence.asOf,
+        confidence: "low",
+        limitations: ["Fixture only."],
+        supersedes: [],
+    });
+    assert.deepEqual(validateNormalizedEvidence(catalogs), []);
+});
+
+test("superseding corrections require explicit reason reviewer date and replacement identity", () => {
+    const catalogs = clone(loadSupportCatalogs());
+    const original = catalogs.evidence.observations[0];
+    const replacement = clone(original);
+    replacement.id = "reviewed-correction-observation";
+    replacement.supersedes = [original.id];
+    catalogs.evidence.observations.push(replacement);
+    let errors = validateNormalizedEvidence(catalogs);
+    assert(
+        errors.some((error) =>
+            error.includes("correction lacks reason, reviewer, date"),
+        ),
+    );
+    replacement.correction = {
+        reason: "Correct an explicitly reviewed evidence defect.",
+        reviewer: "reviewer",
+        reviewedOn: catalogs.evidence.asOf,
+        replacementIdentity: replacement.id,
+    };
+    errors = validateNormalizedEvidence(catalogs);
+    assert(
+        errors.every(
+            (error) =>
+                !error.includes("correction lacks reason, reviewer, date"),
+        ),
+    );
+});
+
+test("protected legacy metadata and gap identity reason are baseline-bound", () => {
+    const catalogs = clone(loadSupportCatalogs());
+    const observation = catalogs.evidence.observations.find(
+        (record) => record.legacy,
+    );
+    observation.legacy.officialUrl = "https://example.invalid/rewritten";
+    let errors = validateNormalizedEvidence(catalogs);
+    assert(
+        errors.some((error) =>
+            error.includes("observation source, subject, binding, or assertion identity changed"),
+        ),
+    );
+
+    const gapCatalogs = clone(loadSupportCatalogs());
+    gapCatalogs.evidence.legacyGaps[0].reason = "Rewritten reason";
+    errors = validateNormalizedEvidence(gapCatalogs);
+    assert(
+        errors.some((error) =>
+            error.includes("legacy localEvidence strings exactly"),
+        ),
+    );
+});
+
 test("legacy facts use minimum exact evidence rather than all-source fan-out", () => {
     const evidence = loadSupportCatalogs().evidence;
     assert(evidence.legacyFacts.every((fact) => fact.evidenceIds.length <= 3));
@@ -395,7 +486,7 @@ test("coordinated observation and reciprocal claim ID mutation fails the indepen
     for (const assertion of observation.assertions) assertion.claimIds = [];
     hasError(
         validateNormalizedEvidence(catalogs),
-        "preserve all 152 S0-S8 evidence IDs exactly once",
+        "preserve the complete S0-S8 observation baseline",
     );
 });
 
