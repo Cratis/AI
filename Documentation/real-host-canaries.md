@@ -77,13 +77,15 @@ and after.
 ## Evidence boundary
 
 The first Pi attempt was blocked before lifecycle execution because the initial
-allowlisted PATH omitted its exact Node runtime; that report is preserved. The
-second attempt used Pi 0.84.3 under denied egress and passed fixture install,
-package listing, removal, cleanup, and complete context preservation.
+allowlisted PATH omitted its exact Node runtime. The second attempt passed but
+is retained as superseded because its reported source revision predates the
+uncommitted PATH correction used for that run. The third attempt uses committed
+runner revision `1a9af3d`, Pi 0.84.3, and denied egress; fixture install,
+package listing, removal, cleanup, and complete context preservation passed.
 
-Both reports use a synthetic local fixture, so every assertion is
-non-supporting. The successful attempt is future-dated relative to the current
-catalog `asOf` and remains inventory-only until that date is advanced by
+All reports use a synthetic local fixture, so every assertion is
+non-supporting. The valid successful attempt is future-dated relative to the
+current catalog `asOf` and remains inventory-only until that date is advanced by
 review. It cannot establish
 `install-tested`, behavior, lifecycle, release, marketplace availability,
 runtime eligibility, publication, promotion, or support.

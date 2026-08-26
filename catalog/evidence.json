@@ -8897,7 +8897,14 @@
       "digest": "b2531dfdc9190ebcdbe1b44390d00063b0c2879c1ff5488eba6921e9865e9096",
       "role": "inventory-only",
       "observationIds": [],
-      "reason": "Preserves the exact future-dated Pi 0.84.3 denied-egress local fixture report. It remains inventory-only until the catalog asOf is advanced by review; the synthetic run cannot support assurance."
+      "reason": "Preserves the superseded second Pi attempt. It passed the fixture lifecycle, but its sourceRevision predates the allowlisted Node PATH fix used by the worktree run, so it is not admissible evidence."
+    },
+    {
+      "repositoryPath": "distribution/evidence/s9-pi-0.84.3-2026-08-26-attempt-3.json",
+      "digest": "fbe3e5404a30c1eb3a7a144f72e066dd9d00a954c62a74c314232186e3bdd192",
+      "role": "inventory-only",
+      "observationIds": [],
+      "reason": "Preserves the exact Pi 0.84.3 denied-egress fixture run at committed runner revision 1a9af3d. It remains inventory-only because it is future-dated relative to catalog asOf and synthetic fixtures cannot support assurance."
     }
   ]
 }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "9fbfc0d14d504f841d4202c53d462d59463f9a8cc33aa63fbfe9a883947ea96f",
+  "indexDigest": "e408e211e1040c1132565f9f4d45013d87cad5cecc40f726dd080de615529447",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -700,6 +700,10 @@
     },
     {
       "path": "distribution/evidence/s9-pi-0.84.3-2026-08-26-attempt-2.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/evidence/s9-pi-0.84.3-2026-08-26-attempt-3.json",
       "status": "added"
     },
     {
@@ -4197,8 +4201,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 40,
-      "expectedPathsDigest": "d53b806bc224fc7b16fd9308737133d86ad3fafb0cf70bfbcf06022cbb341662"
+      "expectedPathCount": 41,
+      "expectedPathsDigest": "05e089d541b221c404ee324cc4a5eacfedd51fb06894735f30b1389d7eeac852"
     },
     {
       "excludePathPatterns": [],

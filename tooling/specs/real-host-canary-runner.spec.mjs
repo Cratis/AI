@@ -14,6 +14,7 @@ import { delimiter, dirname, join } from "node:path";
 import { tmpdir } from "node:os";
 import { test } from "node:test";
 import { defaultRepositoryRoot } from "../catalog-validation.mjs";
+import { reportPayloadDigest } from "../real-host-canary-contract.mjs";
 import { runRealHostCanary } from "../run-real-host-canary.mjs";
 import { validateRealHostCanaryReportFile } from "../validate-real-host-canary-report.mjs";
 
@@ -159,16 +160,37 @@ test("checked-in Pi attempts preserve blocked history and non-supporting success
         defaultRepositoryRoot,
         "distribution/evidence/s9-pi-0.84.3-2026-08-25.json",
     );
-    const successPath = join(
+    const supersededPath = join(
         defaultRepositoryRoot,
         "distribution/evidence/s9-pi-0.84.3-2026-08-26-attempt-2.json",
     );
-    assert.deepEqual(validateRealHostCanaryReportFile(blockedPath), []);
+    const successPath = join(
+        defaultRepositoryRoot,
+        "distribution/evidence/s9-pi-0.84.3-2026-08-26-attempt-3.json",
+    );
+    assert(
+        validateRealHostCanaryReportFile(blockedPath).some((error) =>
+            error.includes("source revision differs"),
+        ),
+    );
+    assert(
+        validateRealHostCanaryReportFile(supersededPath).some((error) =>
+            error.includes("source revision differs"),
+        ),
+    );
     assert.deepEqual(validateRealHostCanaryReportFile(successPath), []);
     const blocked = JSON.parse(readFileSync(blockedPath, "utf8"));
+    const superseded = JSON.parse(readFileSync(supersededPath, "utf8"));
     const success = JSON.parse(readFileSync(successPath, "utf8"));
     assert.equal(blocked.state, "BLOCKED");
+    assert.equal(superseded.state, "PASS_NON_SUPPORTING_FIXTURE");
     assert.equal(success.state, "PASS_NON_SUPPORTING_FIXTURE");
+    assert.equal(blocked.reportPayloadDigest, reportPayloadDigest(blocked));
+    assert.equal(
+        superseded.reportPayloadDigest,
+        reportPayloadDigest(superseded),
+    );
+    assert.equal(success.reportPayloadDigest, reportPayloadDigest(success));
     assert.equal(success.observedHostVersion, "0.84.3");
     assert.equal(success.observedOn, "2026-08-26");
     assert(success.phases.every((phase) => phase.supporting === false));
