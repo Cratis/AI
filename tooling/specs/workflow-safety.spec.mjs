@@ -152,6 +152,29 @@ test("approved profile workflow is bot-scoped and keeps publication separate", (
         assert.equal(workflow.includes(forbidden), false, forbidden);
 });
 
+test("generated Distribution updates preserve the reviewed control plane", () => {
+    const workflow = readFileSync(
+        ".github/workflows/distribution-generated-update.yml",
+        "utf8",
+    );
+    const contract = JSON.parse(
+        readFileSync(
+            "distribution/generated-repository-contract.json",
+            "utf8",
+        ),
+    );
+    assert(workflow.includes("rsync -a --delete --exclude=.git --exclude=.github"));
+    assert.deepEqual(contract.repositoryControlPlane.allowedPaths, [
+        ".github/workflows/verify-generated-distribution.yml",
+    ]);
+    assert.equal(
+        contract.repositoryControlPlane.preserveDuringPayloadReplacement,
+        true,
+    );
+    assert.equal(contract.repositoryControlPlane.manifestedAsArtifact, false);
+    assert.equal(contract.repositoryControlPlane.manualAuthoringAllowed, false);
+});
+
 test("legacy propagation workflows are inert and inherit no secrets", () => {
     for (const path of [
         ".github/workflows/propagate-copilot-instructions.yml",

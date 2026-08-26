@@ -45,6 +45,12 @@ to contents and pull-request write access for `AI.Distribution` and is revoked a
 job completion. The workflow cannot push to `main`, tag, release, publish npm, or
 submit a marketplace package.
 
+The generated repository's exact verification workflow is a separate stable
+control-plane file. Its canonical source remains in `Cratis/AI`, it is installed
+only through a reviewed bot-authored pull request, and root payload replacement
+preserves `.github/`. Control-plane files stay outside artifact manifests and
+checksums and do not become package or authoring content.
+
 ## Gates that remain closed
 
 - Zero public targets or product-source contracts are approved.

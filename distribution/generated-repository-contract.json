@@ -13,6 +13,15 @@
     "initializationState": "COMPLETE_PROTECTED",
     "writeCredentialState": "ABSENT_PENDING_PR_RELEASE_BOT"
   },
+  "repositoryControlPlane": {
+    "sourceRepository": "Cratis/AI",
+    "allowedPaths": [
+      ".github/workflows/verify-generated-distribution.yml"
+    ],
+    "manifestedAsArtifact": false,
+    "preserveDuringPayloadReplacement": true,
+    "manualAuthoringAllowed": false
+  },
   "localSimulation": {
     "enabled": true,
     "identity": {
@@ -23,11 +32,11 @@
     "commitMessage": "Generate fixture distribution"
   },
   "requiredChecks": [
-    "generated-inventory",
+    "exact-inventory",
     "canonical-byte-parity",
-    "native-manifests",
+    "native-manifest-parse",
     "checksums",
-    "fixture-provenance",
+    "fixture-provenance-record",
     "pack-install-smoke-uninstall",
     "canary-rollback-simulation"
   ],

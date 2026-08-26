@@ -108,7 +108,7 @@ jobs:
           version_slug="${VERSION//./-}"
           branch="generated/${version_slug}-${GITHUB_SHA:0:12}"
           git -C "$RUNNER_TEMP/AI.Distribution" checkout -b "$branch"
-          rsync -a --delete --exclude=.git \
+          rsync -a --delete --exclude=.git --exclude=.github \
             "$RUNNER_TEMP/generated-distribution/" \
             "$RUNNER_TEMP/AI.Distribution/"
           git -C "$RUNNER_TEMP/AI.Distribution" config \

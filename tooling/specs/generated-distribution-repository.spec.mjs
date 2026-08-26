@@ -48,6 +48,12 @@ function bootstrap(root, name = "generated") {
 
 test("generated repository contract keeps remote authority and production blocked", () => {
     const contract = JSON.parse(readFileSync(contractPath, "utf8"));
+    const rolloutPolicy = JSON.parse(
+        readFileSync(
+            join(repositoryRoot, "distribution/rollout-policy.json"),
+            "utf8",
+        ),
+    );
     const generalRules = readFileSync(
         join(repositoryRoot, ".ai/rules/general.md"),
         "utf8",
@@ -71,6 +77,19 @@ test("generated repository contract keeps remote authority and production blocke
     assert.equal(contract.repository.status, "INITIALIZED_PROTECTED_FIXTURE");
     assert.equal(contract.repository.manualAuthoringAllowed, false);
     assert.equal(contract.repository.botOnlyWrites, true);
+    assert.deepEqual(contract.repositoryControlPlane, {
+        sourceRepository: "Cratis/AI",
+        allowedPaths: [
+            ".github/workflows/verify-generated-distribution.yml",
+        ],
+        manifestedAsArtifact: false,
+        preserveDuringPayloadReplacement: true,
+        manualAuthoringAllowed: false,
+    });
+    assert.deepEqual(contract.requiredChecks, [
+        ...rolloutPolicy.candidate.requiredChecks,
+        "canary-rollback-simulation",
+    ]);
     assert.equal(
         contract.repository.strategyIssue,
         "https://github.com/Cratis/Strategy/issues/126",
