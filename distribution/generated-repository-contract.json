@@ -15,7 +15,9 @@
   },
   "repositoryControlPlane": {
     "sourceRepository": "Cratis/AI",
+    "sourceRoot": "distribution/repository-control-plane",
     "allowedPaths": [
+      ".github/scripts/verify-generated-distribution.mjs",
       ".github/workflows/verify-generated-distribution.yml"
     ],
     "manifestedAsArtifact": false,

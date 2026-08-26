@@ -165,6 +165,7 @@ test("generated Distribution updates preserve the reviewed control plane", () =>
     );
     assert(workflow.includes("rsync -a --delete --exclude=.git --exclude=.github"));
     assert.deepEqual(contract.repositoryControlPlane.allowedPaths, [
+        ".github/scripts/verify-generated-distribution.mjs",
         ".github/workflows/verify-generated-distribution.yml",
     ]);
     assert.equal(
