@@ -84,7 +84,7 @@ authorize operations.
 
 S8 adds 70 explicit `generated-static` projections for four isolated
 repository-only rule/instruction fixture roots. Those 70 fixture projections
-remain unchanged; the repository adapter inventory now contains 315 existing
+remain unchanged; the repository adapter inventory now contains 316 existing
 records after incorporating newer main-branch rules. Generated-static records have no host
 activation or package identity and are validated against exact component kind,
 canonical bytes, official discovery-root evidence, and complete candidate-tree

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "31e75c6ea9589e48b965ebad0a9d6f8dbe8f17c92212b68d18eb7f54b7853905",
+  "indexDigest": "8a64d0b5034deccbc8f1592d7f7af1c9687e74b97cb8428f63cf34eed564355b",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -76,6 +76,10 @@
     },
     {
       "path": ".claude/rules/github-actions.md",
+      "status": "added"
+    },
+    {
+      "path": ".claude/rules/local-work-artifacts.md",
       "status": "added"
     },
     {
@@ -3309,8 +3313,8 @@
         "reevaluation-authority"
       ],
       "generator": "legacy-manual-adapter-model",
-      "expectedPathCount": 58,
-      "expectedPathsDigest": "ccf44ef5d952014b918a42ddcb3f4f6ae743a43916b55a07bb29828d2e98b543"
+      "expectedPathCount": 59,
+      "expectedPathsDigest": "9683f84dcc88eadab7de73b4c2c60aee649d79c3497a950e17cf0bc9a8a658f9"
     },
     {
       "excludePathPatterns": [],

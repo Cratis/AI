@@ -240,12 +240,12 @@ test("S8 adds exactly 70 passive generated-static non-skill projections", () => 
         (projection) => projection.state === "generated-static",
     );
     assert.equal(catalogs.projections.hosts.length, 9);
-    assert.equal(catalogs.projections.projections.length, 385);
+    assert.equal(catalogs.projections.projections.length, 386);
     assert.equal(
         catalogs.projections.projections.filter(
             (projection) => projection.state === "existing",
         ).length,
-        315,
+        316,
     );
     assert.equal(generated.length, 70);
     assert.equal(

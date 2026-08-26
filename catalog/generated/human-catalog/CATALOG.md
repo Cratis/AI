@@ -19,9 +19,9 @@ Modeled or planned components and projections are catalog metadata only; they ar
 - Passive: 134
 - Executable: 3
 - Legacy-retained: 4
-- Existing adapter records: 315
+- Existing adapter records: 316
 - Generated static fixture projections: 70
-- Active host projections: 312
+- Active host projections: 313
 - Inert path references: 3
 - Planned projections: 0
 - Non-existing blocked projections: 0

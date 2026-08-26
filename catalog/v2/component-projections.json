@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generatedBy": "tooling/generate-component-catalogs.mjs",
-  "sourceDigest": "11eef794867dbae36237e70537edafd54326b8449568fee6280759620f67bd64",
+  "sourceDigest": "3a803fb33d116e36ef6c494ae38de68a4660c2df2926fc7f1ff3c09177938b5e",
   "defaultPolicy": "deny",
   "supportClaim": false,
   "hosts": [
@@ -7550,6 +7550,30 @@
         "projection-shape",
         "source-digest",
         "static-inventory"
+      ]
+    },
+    {
+      "id": "cratis-rule-local-work-artifacts-to-claude-code-rule",
+      "componentId": "cratis-rule-local-work-artifacts",
+      "hostId": "claude-code",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "existing",
+      "hostActivation": "active",
+      "adapterType": "symlink",
+      "outputPaths": [
+        ".claude/rules/local-work-artifacts.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "repo-main-b795d53"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest"
       ]
     },
     {

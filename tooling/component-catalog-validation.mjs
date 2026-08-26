@@ -34,7 +34,7 @@ export const componentCatalogPaths = Object.freeze({
 const expectedComponentAnchor =
     "293461cd41ae39e761cebc9afb75442401aef69efec4059c02f07f10f277a951";
 const expectedProjectionAnchor =
-    "390dae84371d1682cac9efdb3c99ea36cfb1582823c3a8d9ebc841c6f50f6ebe";
+    "70f3e05988839ba21247eff528709caf4738f2aa7f637e05e28658ff05902027";
 const expectedProjectionHostAnchor =
     "9735e6fd6a1b15e92086df6fda6cb4a988094c37c26e11bddf0518d5d3fdeba2";
 
@@ -1174,10 +1174,10 @@ export function validateComponentProjections(
     );
     if (
         projections.hosts.length !== 9 ||
-        projections.projections.length !== 385 ||
+        projections.projections.length !== 386 ||
         projections.projections.filter(
             (projection) => projection.state === "existing",
-        ).length !== 315 ||
+        ).length !== 316 ||
         generatedStatic.length !== 70 ||
         generatedCounts["jetbrains-ai-assistant"] !== 34 ||
         generatedCounts.tabnine !== 34 ||

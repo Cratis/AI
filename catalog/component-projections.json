@@ -7551,6 +7551,30 @@
       ]
     },
     {
+      "id": "cratis-rule-local-work-artifacts-to-claude-code-rule",
+      "componentId": "cratis-rule-local-work-artifacts",
+      "hostId": "claude-code",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "existing",
+      "hostActivation": "active",
+      "adapterType": "symlink",
+      "outputPaths": [
+        ".claude/rules/local-work-artifacts.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "repo-main-b795d53"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest"
+      ]
+    },
+    {
       "id": "cratis-rule-local-work-artifacts-to-github-copilot-rule",
       "componentId": "cratis-rule-local-work-artifacts",
       "hostId": "github-copilot",
