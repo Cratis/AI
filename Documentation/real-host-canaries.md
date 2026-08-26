@@ -25,10 +25,10 @@ consumer tree, forbidden credentials, and OS-enforced denied egress.
 | Host | Exact version | Current S9 status |
 | --- | ---: | --- |
 | Pi | 0.84.3 | Non-supporting denied-egress fixture install/list/remove passed; discovery, behavior, collision, update, and rollback blocked |
-| Claude Code | 2.1.245 | Blocked until hardened lifecycle argv is reviewed |
-| Copilot CLI | 1.0.80 | Blocked; update/rollback argv unverified |
-| Codex CLI | 0.149.1 | Marketplace registration is not installation |
-| Gemini CLI | 0.56.0 | Blocked until exact executable and lifecycle are available |
+| Claude Code | 2.1.245 | Blocked: installed 2.1.235; no lifecycle command executed |
+| Copilot CLI | 1.0.80 | Blocked: installed 1.0.67; no lifecycle command executed |
+| Codex CLI | 0.149.1 | Blocked: installed 0.147.0; marketplace registration is not installation |
+| Gemini CLI | 0.56.0 | Blocked: installed 0.33.1; no lifecycle command executed |
 
 A missing executable and a version mismatch are explicit blocked outcomes, not
 skips or passes.
@@ -82,6 +82,10 @@ is retained as superseded because its reported source revision predates the
 uncommitted PATH correction used for that run. The third attempt uses committed
 runner revision `1a9af3d`, Pi 0.84.3, and denied egress; fixture install,
 package listing, removal, cleanup, and complete context preservation passed.
+
+Denied-egress preflights also confirmed that locally installed Claude, Copilot,
+Codex, and Gemini versions do not match the current matrix. Each stopped after
+its version command; no lifecycle or marketplace command executed.
 
 All reports use a synthetic local fixture, so every assertion is
 non-supporting. The valid successful attempt is future-dated relative to the

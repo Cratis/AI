@@ -1,0 +1,158 @@
+{
+  "schemaVersion": "1.0.0",
+  "caseId": "s9-gemini-local-fixture",
+  "state": "BLOCKED",
+  "observedOn": "2026-08-26",
+  "sourceRevision": "2e913c45a497dcf6109e44df3352ba134304656b",
+  "hostId": "gemini",
+  "harnessId": "gemini",
+  "bindingId": "gemini-cli-extensions-artifact-binding",
+  "targetId": "gemini-cli",
+  "artifactVersion": "0.0.1-fixture",
+  "artifactRoot": "gemini",
+  "artifactDigest": "3da07afb60dc5584c2a55192448eac80635d37353b0376f444b8c6cfa3410f25",
+  "executable": "gemini",
+  "resolvedExecutable": "/Users/sindrewilting/.nvm/versions/node/v23.11.1/lib/node_modules/@google/gemini-cli/dist/index.js",
+  "executableDigest": "766e778d6466285e1d7620b6d50f500d12f2e9c3229d199209d2461552ca2019",
+  "expectedHostVersion": "0.56.0",
+  "observedHostVersion": "0.33.1",
+  "operatingSystem": "darwin",
+  "architecture": "arm64",
+  "runtimeVersion": "v23.11.1",
+  "isolation": "isolated-home-and-worktree",
+  "credentialMode": "forbidden",
+  "networkEnforcement": "sandbox-exec-deny-network",
+  "beforeContextDigest": "46f1a935ac678229817799be4af1fd6ea7731f8f0a5499e8c7e9115a18dfdae9",
+  "afterContextDigest": "46f1a935ac678229817799be4af1fd6ea7731f8f0a5499e8c7e9115a18dfdae9",
+  "phases": [
+    {
+      "id": "preflight",
+      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "supporting": false,
+      "reason": "Observed 0.33.1.",
+      "command": {
+        "argv": [
+          "/usr/bin/sandbox-exec",
+          "-p",
+          "(version 1)(allow default)(deny network*)",
+          "/Users/sindrewilting/.nvm/versions/node/v23.11.1/lib/node_modules/@google/gemini-cli/dist/index.js",
+          "--version"
+        ],
+        "cwd": "/var/folders/n2/c0514trj2wld924nfm754j8h0000gn/T/cratis-s9-gemini-r6W5OJ/consumer",
+        "environmentNames": [
+          "HOME",
+          "LANG",
+          "LC_ALL",
+          "NO_COLOR",
+          "PATH",
+          "TMPDIR",
+          "XDG_CACHE_HOME",
+          "XDG_CONFIG_HOME",
+          "XDG_DATA_HOME",
+          "XDG_STATE_HOME"
+        ],
+        "exitCode": 0,
+        "timedOut": false,
+        "stdoutDigest": "88dc89b23d1eb296b577d2cd6b8fd2a8013d9d499299cdb24578106eb5b4f59c",
+        "stderrDigest": "69010a8289d06dc8827805e1adb8bc703596f3b398d988f56b7c268243b76dbb"
+      }
+    },
+    {
+      "id": "artifact-validation",
+      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "supporting": false,
+      "reason": "Installed version does not match 0.56.0.",
+      "command": null
+    },
+    {
+      "id": "negative-baseline",
+      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "supporting": false,
+      "reason": "Installed version does not match 0.56.0.",
+      "command": null
+    },
+    {
+      "id": "collision-negative",
+      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "supporting": false,
+      "reason": "Installed version does not match 0.56.0.",
+      "command": null
+    },
+    {
+      "id": "install",
+      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "supporting": false,
+      "reason": "Installed version does not match 0.56.0.",
+      "command": null
+    },
+    {
+      "id": "discovery",
+      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "supporting": false,
+      "reason": "Installed version does not match 0.56.0.",
+      "command": null
+    },
+    {
+      "id": "behavior-positive",
+      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "supporting": false,
+      "reason": "Installed version does not match 0.56.0.",
+      "command": null
+    },
+    {
+      "id": "behavior-negative",
+      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "supporting": false,
+      "reason": "Installed version does not match 0.56.0.",
+      "command": null
+    },
+    {
+      "id": "update",
+      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "supporting": false,
+      "reason": "Installed version does not match 0.56.0.",
+      "command": null
+    },
+    {
+      "id": "rollback",
+      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "supporting": false,
+      "reason": "Installed version does not match 0.56.0.",
+      "command": null
+    },
+    {
+      "id": "uninstall",
+      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "supporting": false,
+      "reason": "Installed version does not match 0.56.0.",
+      "command": null
+    },
+    {
+      "id": "context-preservation",
+      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "supporting": false,
+      "reason": "Installed version does not match 0.56.0.",
+      "command": null
+    },
+    {
+      "id": "cleanup",
+      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "supporting": false,
+      "reason": "Installed version does not match 0.56.0.",
+      "command": null
+    }
+  ],
+  "limitations": [
+    "The tested artifact is a synthetic local fixture and cannot satisfy install-tested or higher support assurance.",
+    "Package listing is not treated as skill discovery.",
+    "No positive or negative model behavior case is admitted.",
+    "No genuine host-managed update or rollback contract is admitted."
+  ],
+  "reportPayloadDigest": "e15e89a75694f04528378bc1b55093b0c0de1e5efcef408395d067608e5778c5",
+  "installationEligible": false,
+  "marketplaceAvailabilityClaim": false,
+  "supportGranted": false,
+  "publicationGranted": false,
+  "runtimeGranted": false,
+  "promotionGranted": false
+}
