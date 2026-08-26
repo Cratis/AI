@@ -1,5 +1,9 @@
 # Release Cratis AI
 
+> **S10 is blocked.** This page describes the future authorized flow. Do not add
+a release request until generated readiness is unblocked by complete production
+lifecycle evidence, exact approvals, and external-control attestations.
+
 A merged release pull request is the recurring human release approval. Do not
 run a second manual publication, promotion, or rollout approval after merge.
 
@@ -8,9 +12,11 @@ tracked in [AI#181](https://github.com/Cratis/AI/issues/181).
 
 ## 1. Prepare approved profile state
 
-The release PR includes every required profile, target, source-contract,
-security, evaluation, artifact, and runtime approval. The approval-driven
-materializer must resolve every requested profile without blockers.
+Every required profile, target, source-contract, security, evaluation,
+artifact, runtime, lifecycle, and external-control approval must already exist
+on the release PR's base. The request PR cannot introduce or weaken its own
+prerequisites. The approval-driven materializer must resolve every requested
+profile without blockers.
 
 ## 2. Add one immutable release request
 
@@ -21,6 +27,11 @@ Create `distribution/releases/v<version>.json`:
   "schemaVersion": "1.0.0",
   "state": "release-on-merge",
   "version": "0.1.0-preview.1",
+  "sourceRevision": "<reviewed-40-character-commit>",
+  "preflightDigest": "<64-character-preflight-digest>",
+  "artifactDigest": "<64-character-artifact-digest>",
+  "prerequisiteEvidenceIds": ["<existing-prerequisite-evidence>"],
+  "mergeStrategy": "merge-commit",
   "profiles": ["public-fundamentals"],
   "canaries": [
     {

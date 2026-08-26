@@ -344,13 +344,17 @@ function immutableSkill(repositoryRoot, target, source) {
     return { name: target.id, files };
 }
 
-export function generateApprovedProfileRelease({
-    repositoryRoot = defaultRepositoryRoot,
-    outputRoot,
-    profileId,
-    version,
-    releaseMode = false,
-} = {}) {
+export function generateApprovedProfileRelease(options = {}) {
+    if (Object.hasOwn(options, "releaseMode"))
+        throw new Error(
+            "releaseMode cannot grant publication; S10 readiness owns release authority",
+        );
+    const {
+        repositoryRoot = defaultRepositoryRoot,
+        outputRoot,
+        profileId,
+        version,
+    } = options;
     if (!outputRoot || !profileId || !version)
         throw new Error("outputRoot, profileId, and version are required");
     const inputs = readRepositoryInputs(repositoryRoot);
@@ -495,7 +499,7 @@ export function generateApprovedProfileRelease({
                 contentDigest: source.contentDigest,
                 approval: target.approval,
             })),
-            publicationEligible: releaseMode,
+            publicationEligible: false,
             promotionEligible: false,
         });
         const payloadFiles = walkFiles(root)
@@ -506,9 +510,7 @@ export function generateApprovedProfileRelease({
             });
         const releaseManifest = {
             schemaVersion: "1.0.0",
-            state: releaseMode
-                ? "APPROVED_PROFILE_RELEASE"
-                : "APPROVED_PROFILE_RELEASE_CANDIDATE",
+            state: "APPROVED_PROFILE_RELEASE_CANDIDATE",
             profileId,
             profileDisplayName: plan.displayName,
             profileDescription: plan.description,
@@ -525,7 +527,7 @@ export function generateApprovedProfileRelease({
             complianceReceiptFile: complianceReceiptPath,
             deterministicManifestFile: deterministicManifestPath,
             assuranceReceiptFile: assuranceReceiptPath,
-            publicationEligible: releaseMode,
+            publicationEligible: false,
             runtimeEligible: false,
             promotionEligible: false,
         };
@@ -549,10 +551,17 @@ export function generateApprovedProfileRelease({
 }
 
 function main() {
-    const [outputRoot, profileId, version, mode] = process.argv.slice(2);
+    const [outputRoot, profileId, version, ...extra] = process.argv.slice(2);
     if (!outputRoot || !profileId || !version) {
         process.stderr.write(
-            "Usage: node tooling/generate-approved-profile-release.mjs <output> <profile-id> <exact-version> [release]\n",
+            "Usage: node tooling/generate-approved-profile-release.mjs <output> <profile-id> <exact-version>\n",
+        );
+        process.exitCode = 1;
+        return;
+    }
+    if (extra.length > 0) {
+        process.stderr.write(
+            "Release authority cannot be supplied as a generator argument\n",
         );
         process.exitCode = 1;
         return;
@@ -561,7 +570,6 @@ function main() {
         outputRoot,
         profileId,
         version,
-        releaseMode: mode === "release",
     });
     process.stdout.write(
         `Generated approved profile release ${manifest.profileId}@${manifest.version}.\n`,

@@ -1784,10 +1784,26 @@ export function validateRepositoryInventory(catalogs, root) {
             ["tooling/generate-component-catalogs.mjs"],
         ],
         [
+            "s10-release-readiness",
+            [
+                "catalog/evidence-baseline.json",
+                "catalog/v2/support.json",
+                "distribution/marketplace-publications.json",
+                "distribution/release-approvals.json",
+                "distribution/release-control-attestations.json",
+                "distribution/release-records/README.md",
+                "distribution/releases/README.md",
+                "distribution/s10-release-policy.json",
+                "tooling/generate-release-readiness.mjs",
+                "tooling/s10-release-gate-validation.mjs",
+            ],
+        ],
+        [
             "generated-human-catalog",
             [
                 "catalog/v2/components.json",
                 "catalog/v2/component-projections.json",
+                "catalog/v2/release-readiness.json",
             ],
         ],
         [

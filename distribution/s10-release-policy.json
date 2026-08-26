@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "defaultPolicy": "deny",
+  "mode": "BLOCKED",
+  "requiredTechnicalTier": "release-tested",
+  "requiredLifecyclePhases": [
+    "collision-negative",
+    "install",
+    "discovery",
+    "behavior-positive",
+    "behavior-negative",
+    "update",
+    "rollback",
+    "uninstall",
+    "project-context-preservation",
+    "cleanup"
+  ],
+  "requiredExternalControls": [
+    "ai-main-branch-protection",
+    "distribution-branch-protection",
+    "distribution-app-scope",
+    "npm-exact-package-ownership",
+    "npm-trusted-publisher",
+    "protected-publication-environment",
+    "release-required-statuses"
+  ],
+  "requiredReceipts": [
+    "authorized-candidate",
+    "artifact-provenance",
+    "sbom",
+    "checksums",
+    "publication",
+    "released-artifact-canary",
+    "promotion",
+    "recovery-disposition",
+    "support-approval"
+  ],
+  "releaseRequestAllowed": false,
+  "publicationAllowed": false,
+  "promotionAllowed": false,
+  "marketplaceSubmissionAllowed": false,
+  "supportApprovalAllowed": false
+}

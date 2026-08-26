@@ -1026,16 +1026,31 @@
         "declaredEmptyKinds": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/componentKind" } }
       }
     },
+    "generatedReleaseReadiness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "blockerCodes", "releaseRequestEligible", "publicationEligible", "promotionEligible", "supportGranted", "marketplaceAvailabilityClaim"],
+      "properties": {
+        "state": { "const": "BLOCKED" },
+        "blockerCodes": { "$ref": "#/$defs/idArray" },
+        "releaseRequestEligible": { "const": false },
+        "publicationEligible": { "const": false },
+        "promotionEligible": { "const": false },
+        "supportGranted": { "const": false },
+        "marketplaceAvailabilityClaim": { "const": false }
+      }
+    },
     "generatedHumanCatalog": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["schemaVersion", "contractVersion", "disclaimer", "inputDigest", "componentSummary", "profiles", "capabilities", "hostCoverage"],
+      "required": ["schemaVersion", "contractVersion", "disclaimer", "inputDigest", "componentSummary", "releaseReadiness", "profiles", "capabilities", "hostCoverage"],
       "properties": {
         "schemaVersion": { "const": 2 },
         "contractVersion": { "const": 1 },
         "disclaimer": { "$ref": "#/$defs/nonEmptyString" },
         "inputDigest": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
         "componentSummary": { "$ref": "#/$defs/generatedComponentSummary" },
+        "releaseReadiness": { "$ref": "#/$defs/generatedReleaseReadiness" },
         "profiles": {
           "type": "array",
           "minItems": 1,

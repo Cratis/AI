@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cratis/AI/distribution/s10-release-policy.schema.json",
+  "title": "Cratis S10 release and marketplace policy",
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+    "idArray": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "defaultPolicy", "mode", "requiredTechnicalTier", "requiredLifecyclePhases", "requiredExternalControls", "requiredReceipts", "releaseRequestAllowed", "publicationAllowed", "promotionAllowed", "marketplaceSubmissionAllowed", "supportApprovalAllowed"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "defaultPolicy": { "const": "deny" },
+    "mode": { "const": "BLOCKED" },
+    "requiredTechnicalTier": { "const": "release-tested" },
+    "requiredLifecyclePhases": { "$ref": "#/$defs/idArray" },
+    "requiredExternalControls": { "$ref": "#/$defs/idArray" },
+    "requiredReceipts": { "$ref": "#/$defs/idArray" },
+    "releaseRequestAllowed": { "const": false },
+    "publicationAllowed": { "const": false },
+    "promotionAllowed": { "const": false },
+    "marketplaceSubmissionAllowed": { "const": false },
+    "supportApprovalAllowed": { "const": false }
+  }
+}

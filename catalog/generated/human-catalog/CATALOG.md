@@ -43,6 +43,16 @@ Modeled or planned components and projections are catalog metadata only; they ar
 - executable-host-extension: 2
 - static-asset: 0
 
+## Release readiness
+
+- State: BLOCKED
+- Release request eligible: false
+- Publication eligible: false
+- Promotion eligible: false
+- Support granted: false
+- Marketplace availability claimed: false
+- Blockers: policy-blocked, no-release-tested-binding, no-lifecycle-tested-binding, no-profile-approvals, no-target-approvals, no-source-contract-approvals, no-control-attestations, no-exact-package-ownership-attestation, no-trusted-publisher-attestation, no-release-request, no-release-records, no-marketplace-publications
+
 ## Computed ecosystem support
 
 As of 2026-08-25, technical tiers are computed from active normalized evidence; expired and future evidence cannot satisfy gates. Marketplace listing is orthogonal.

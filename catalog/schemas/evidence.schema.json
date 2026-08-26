@@ -168,6 +168,17 @@
           "items": { "$ref": "#/$defs/nonEmptyString" }
         },
         "supersedes": { "$ref": "#/$defs/idArray" },
+        "correction": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["reason", "reviewer", "reviewedOn", "replacementIdentity"],
+          "properties": {
+            "reason": { "$ref": "#/$defs/nonEmptyString" },
+            "reviewer": { "$ref": "#/$defs/nonEmptyString" },
+            "reviewedOn": { "type": "string", "format": "date" },
+            "replacementIdentity": { "$ref": "#/$defs/id" }
+          }
+        },
         "legacy": {
           "type": "object",
           "additionalProperties": false,
@@ -233,28 +244,24 @@
     "observations": {
       "type": "array",
       "minItems": 152,
-      "maxItems": 152,
       "uniqueItems": true,
       "items": { "$ref": "#/$defs/observation" }
     },
     "legacyFacts": {
       "type": "array",
       "minItems": 172,
-      "maxItems": 172,
       "uniqueItems": true,
       "items": { "$ref": "#/$defs/legacyFact" }
     },
     "legacyGaps": {
       "type": "array",
       "minItems": 11,
-      "maxItems": 11,
       "uniqueItems": true,
       "items": { "$ref": "#/$defs/legacyGap" }
     },
     "distributionEvidenceFiles": {
       "type": "array",
-      "minItems": 14,
-      "maxItems": 18,
+      "minItems": 18,
       "uniqueItems": true,
       "items": { "$ref": "#/$defs/evidenceFile" }
     }

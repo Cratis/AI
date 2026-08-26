@@ -15,6 +15,7 @@ import {
 export const supportPaths = Object.freeze({
     evidence: "catalog/evidence.json",
     evidenceSchema: "catalog/schemas/evidence.schema.json",
+    evidenceBaseline: "catalog/evidence-baseline.json",
     policy: "catalog/support-policy.json",
     policySchema: "catalog/schemas/support-policy.schema.json",
     support: "catalog/v2/support.json",
@@ -31,11 +32,11 @@ const expectedObservationAnchor =
 const expectedSourceIdentityAnchor =
     "b99e0667a1aeaf9eab60757b80c9444426fa10f21eb6a9acb6daa4d9354845cc";
 const expectedObservationBindingAnchor =
-    "dc6a983a35fec1b3c9e56bd686c91d2484931079b1e047c143ae4bcea5459690";
+    "250c4cbf8a3a0957d875397f76527d8ceb757a01e637dff8ae230bc2c3ab7be8";
 const expectedFactAnchor =
     "4202f2d5ebf233b1d10e02000bd35e61803e8061bb800d343d0d1eed1fa984dd";
 const expectedGapAnchor =
-    "618d4d6ce61c1ff2cc722da99cc6b0006dd676eb8fdd67bdb16ba8dfefc9c385";
+    "926c8bf81607e45d608376e294bf65215bf71f71dfaaf95b3ff0bdc3ace226b4";
 const expectedTierOrder = [
     "unsupported",
     "documented",
@@ -175,6 +176,10 @@ function observationIdentityLines(observations) {
             confidence: observation.confidence,
             limitations: sortedOrdinal(observation.limitations),
             supersedes: sortedOrdinal(observation.supersedes),
+            ...(observation.correction
+                ? { correction: observation.correction }
+                : {}),
+            ...(observation.legacy ? { legacy: observation.legacy } : {}),
         }),
     );
 }
@@ -189,6 +194,27 @@ function factIdentityLines(facts) {
             supporting: fact.supporting,
         }),
     );
+}
+
+export function computeEvidenceIdentityAnchors(evidence) {
+    return {
+        observationIdentityAnchor: digestLines(
+            observationIdentityLines(evidence.observations),
+        ),
+        sourceIdentityAnchor: digestLines(sourceIdentityLines(evidence.sources)),
+        factIdentityAnchor: digestLines(factIdentityLines(evidence.legacyFacts)),
+        gapIdentityAnchor: digestLines(
+            evidence.legacyGaps.map((gap) =>
+                JSON.stringify({
+                    id: gap.id,
+                    ecosystemId: gap.ecosystemId,
+                    value: gap.value,
+                    supporting: gap.supporting,
+                    reason: gap.reason,
+                }),
+            ),
+        ),
+    };
 }
 
 function duplicates(values) {
@@ -227,6 +253,9 @@ function walkForbiddenKeys(value, path, errors) {
 function readSupportInputs(root = defaultRepositoryRoot) {
     return {
         evidence: readCatalog(join(root, supportPaths.evidence)),
+        evidenceBaseline: readCatalog(
+            join(root, supportPaths.evidenceBaseline),
+        ),
         policy: readCatalog(join(root, supportPaths.policy)),
         bindings: readCatalog(join(root, supportPaths.bindings)),
         assuranceProfiles: readCatalog(
@@ -392,6 +421,7 @@ export function validateNormalizedEvidence(
     const errors = [];
     const {
         evidence,
+        evidenceBaseline,
         ecosystemVersions,
         ecosystemContracts,
         bindings,
@@ -439,36 +469,69 @@ export function validateNormalizedEvidence(
         for (const duplicate of duplicates(ids))
             errors.push(`${label} catalog contains duplicate id ${duplicate}`);
     }
-    if (digestLines(observationIds) !== expectedObservationAnchor)
+    const protectedObservationIds = new Set(
+        evidenceBaseline.observationIds,
+    );
+    const protectedSourceIds = new Set(evidenceBaseline.sourceIds);
+    const protectedFactIds = new Set(evidenceBaseline.factIds);
+    const protectedGapIds = new Set(evidenceBaseline.gapIds);
+    if (
+        digestLines(
+            observationIds.filter((id) => protectedObservationIds.has(id)),
+        ) !== expectedObservationAnchor
+    )
         errors.push(
-            "normalized evidence must preserve all 152 S0-S8 evidence IDs exactly once",
+            "normalized evidence must preserve the complete S0-S8 observation baseline",
         );
     if (
-        digestLines(sourceIdentityLines(evidence.sources)) !==
-        expectedSourceIdentityAnchor
+        digestLines(
+            sourceIdentityLines(
+                evidence.sources.filter((source) =>
+                    protectedSourceIds.has(source.id),
+                ),
+            ),
+        ) !== expectedSourceIdentityAnchor
     )
         errors.push(
             "normalized evidence source identities and immutable locators changed",
         );
     if (
-        digestLines(observationIdentityLines(evidence.observations)) !==
-        expectedObservationBindingAnchor
+        digestLines(
+            observationIdentityLines(
+                evidence.observations.filter((observation) =>
+                    protectedObservationIds.has(observation.id),
+                ),
+            ),
+        ) !== expectedObservationBindingAnchor
     )
         errors.push(
             "normalized observation source, subject, binding, or assertion identity changed",
         );
     if (
-        digestLines(factIdentityLines(evidence.legacyFacts)) !==
-        expectedFactAnchor
+        digestLines(
+            factIdentityLines(
+                evidence.legacyFacts.filter((fact) =>
+                    protectedFactIds.has(fact.id),
+                ),
+            ),
+        ) !== expectedFactAnchor
     )
         errors.push(
             "normalized evidence must preserve all 172 ecosystem fact IDs, texts, evidence bindings, and support dispositions exactly",
         );
     if (
         digestLines(
-            evidence.legacyGaps.map(
-                (gap) => `${gap.ecosystemId}\0${gap.value}`,
-            ),
+            evidence.legacyGaps
+                .filter((gap) => protectedGapIds.has(gap.id))
+                .map((gap) =>
+                    JSON.stringify({
+                        id: gap.id,
+                        ecosystemId: gap.ecosystemId,
+                        value: gap.value,
+                        supporting: gap.supporting,
+                        reason: gap.reason,
+                    }),
+                ),
         ) !== expectedGapAnchor
     )
         errors.push(
@@ -567,6 +630,18 @@ export function validateNormalizedEvidence(
                     `observation ${observation.id} cannot supersede itself`,
                 );
         }
+        if (
+            observation.supersedes.length > 0 &&
+            (!observation.correction ||
+                observation.correction.replacementIdentity !== observation.id)
+        )
+            errors.push(
+                `observation ${observation.id} correction lacks reason, reviewer, date, or replacement identity`,
+            );
+        if (observation.supersedes.length === 0 && observation.correction)
+            errors.push(
+                `observation ${observation.id} has correction metadata without supersession`,
+            );
         const assertionKeys = observation.assertions.map(
             (assertion) => `${assertion.assuranceId}\0${assertion.outcome}`,
         );

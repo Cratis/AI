@@ -93,4 +93,5 @@ runtime eligibility, publication, promotion, or support.
 Future supporting evidence requires an immutable non-synthetic artifact,
 current exact host version, complete phase transcripts, selected skill
 path/digest for behavior, genuine host-managed update and rollback, collision
-proof, and explicit reviewed admission.
+proof, and explicit reviewed admission. S10 uses a separate production lifecycle
+schema; the S9 fixture report cannot be promoted by changing its labels.

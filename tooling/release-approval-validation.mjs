@@ -27,6 +27,10 @@ function completeApproval(approval) {
         typeof approval.reviewer === "string" &&
         approval.reviewer.length > 0 &&
         /^\d{4}-\d{2}-\d{2}$/.test(approval.approvedOn) &&
+        /^[a-f0-9]{40}$/.test(approval.sourceRevision) &&
+        /^[a-f0-9]{64}$/.test(approval.contentDigest) &&
+        Array.isArray(approval.scope) &&
+        approval.scope.length > 0 &&
         Array.isArray(approval.evidenceIds) &&
         approval.evidenceIds.length > 0
     );

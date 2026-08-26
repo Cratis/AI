@@ -31,6 +31,7 @@ const inputPaths = [
     "catalog/v2/ecosystem-artifact-coverage.json",
     "catalog/v2/human-catalog.json",
     "catalog/v2/source-contracts.json",
+    "catalog/v2/release-readiness.json",
     "catalog/v2/support.json",
     "catalog/v2/targets.json",
     "catalog/v2/taxonomy.json",
@@ -571,12 +572,29 @@ export function buildHumanCatalogOutputs() {
             compareOrdinal,
         ),
     };
+    const releaseReadinessCatalog = catalogs.get(
+        "catalog/v2/release-readiness.json",
+    );
+    const releaseReadiness = {
+        state: releaseReadinessCatalog.state,
+        blockerCodes: releaseReadinessCatalog.blockers.map(
+            (blocker) => blocker.code,
+        ),
+        releaseRequestEligible:
+            releaseReadinessCatalog.releaseRequestEligible,
+        publicationEligible: releaseReadinessCatalog.publicationEligible,
+        promotionEligible: releaseReadinessCatalog.promotionEligible,
+        supportGranted: releaseReadinessCatalog.supportGranted,
+        marketplaceAvailabilityClaim:
+            releaseReadinessCatalog.marketplaceAvailabilityClaim,
+    };
     const data = {
         schemaVersion: 2,
         contractVersion: humanContract.contractVersion,
         disclaimer: humanContract.disclaimer,
         inputDigest: digest,
         componentSummary,
+        releaseReadiness,
         profiles,
         capabilities,
         hostCoverage,
@@ -627,6 +645,16 @@ export function buildHumanCatalogOutputs() {
         ...Object.entries(componentSummary.byKind).map(
             ([kind, count]) => `- ${kind}: ${count}`,
         ),
+        "",
+        "## Release readiness",
+        "",
+        `- State: ${releaseReadiness.state}`,
+        `- Release request eligible: ${releaseReadiness.releaseRequestEligible}`,
+        `- Publication eligible: ${releaseReadiness.publicationEligible}`,
+        `- Promotion eligible: ${releaseReadiness.promotionEligible}`,
+        `- Support granted: ${releaseReadiness.supportGranted}`,
+        `- Marketplace availability claimed: ${releaseReadiness.marketplaceAvailabilityClaim}`,
+        `- Blockers: ${releaseReadiness.blockerCodes.join(", ")}`,
         "",
         "## Computed ecosystem support",
         "",

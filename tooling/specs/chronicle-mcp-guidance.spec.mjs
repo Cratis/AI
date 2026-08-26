@@ -638,7 +638,7 @@ test("standalone generation rejects invalid auxiliary authority catalogs", () =>
         errors.some(
             (error) =>
                 error.includes("at least 152") ||
-                error.includes("preserve all 152"),
+                error.includes("complete S0-S8 observation baseline"),
         ),
     );
 });

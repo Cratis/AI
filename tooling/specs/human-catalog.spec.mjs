@@ -125,6 +125,17 @@ test("human catalog manifest remains the activation pointer on interrupted publi
     }
 });
 
+test("generated human catalog exposes blocked S10 release readiness", () => {
+    const data = readJson("catalog.json");
+    assert.equal(data.releaseReadiness.state, "BLOCKED");
+    assert.equal(data.releaseReadiness.releaseRequestEligible, false);
+    assert.equal(data.releaseReadiness.publicationEligible, false);
+    assert.equal(data.releaseReadiness.promotionEligible, false);
+    assert.equal(data.releaseReadiness.supportGranted, false);
+    assert.equal(data.releaseReadiness.marketplaceAvailabilityClaim, false);
+    assert(data.releaseReadiness.blockerCodes.includes("policy-blocked"));
+});
+
 test("generated human catalog exposes public and engineering packages and capabilities", () => {
     const catalog = readJson("catalog.json");
     const targets = JSON.parse(

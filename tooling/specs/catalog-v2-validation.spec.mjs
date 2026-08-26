@@ -1050,6 +1050,13 @@ test("repository inventory records component and MCP guidance generation provena
         (dependency) =>
             dependency !== "tooling/chronicle-mcp-guidance-validation.mjs",
     );
+    const s10 = catalogs.repositoryInventory.records.find(
+        (record) => record.id === "s10-release-readiness",
+    );
+    s10.dependencies = s10.dependencies.filter(
+        (dependency) =>
+            dependency !== "tooling/s10-release-gate-validation.mjs",
+    );
     const s8 = catalogs.repositoryInventory.records.find(
         (record) => record.id === "s8-native-non-skill-expected-tree",
     );

@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cratis/AI/catalog/schemas/release-readiness.schema.json",
+  "title": "Generated Cratis S10 release readiness",
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+    "blocker": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "reason"],
+      "properties": {
+        "code": { "$ref": "#/$defs/id" },
+        "reason": { "type": "string", "minLength": 1 }
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "generatedBy", "state", "policyMode", "blockers", "releaseRequestEligible", "installationEligible", "runtimeEligible", "publicationEligible", "promotionEligible", "supportGranted", "marketplaceAvailabilityClaim"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "generatedBy": { "const": "tooling/generate-release-readiness.mjs" },
+    "state": { "const": "BLOCKED" },
+    "policyMode": { "const": "BLOCKED" },
+    "blockers": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/blocker" } },
+    "releaseRequestEligible": { "const": false },
+    "installationEligible": { "const": false },
+    "runtimeEligible": { "const": false },
+    "publicationEligible": { "const": false },
+    "promotionEligible": { "const": false },
+    "supportGranted": { "const": false },
+    "marketplaceAvailabilityClaim": { "const": false }
+  }
+}
