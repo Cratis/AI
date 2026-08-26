@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "612dd8e5d8b4138c1a1d85dae5064e6a06fa3c60fba4e3860e5829340119417f",
+  "indexDigest": "0c7879a26bd9587730139213b3117f248a0acb60604cecc718f7600c6a3dc4a2",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -132,6 +132,10 @@
     },
     {
       "path": ".github/workflows/verify-ai-corpus.yml",
+      "status": "added"
+    },
+    {
+      "path": ".github/workflows/verify-no-work-records.yml",
       "status": "added"
     },
     {
@@ -3460,7 +3464,8 @@
         ".github/workflows/distribution-generated-update.yml",
         ".github/workflows/distribution-npm-stage.yml",
         ".github/workflows/release-approved-ai-profiles.yml",
-        ".github/workflows/verify-ai-corpus.yml"
+        ".github/workflows/verify-ai-corpus.yml",
+        ".github/workflows/verify-no-work-records.yml"
       ],
       "artifactType": "workflow",
       "currentOwner": "repository-only authoring/release tooling",
@@ -3478,8 +3483,8 @@
         "repo-main-b795d53",
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 8,
-      "expectedPathsDigest": "53bf511d530ba6effa5c10f494bc2d935fa48a57b245d3772841a90d2a832494"
+      "expectedPathCount": 9,
+      "expectedPathsDigest": "32942814dfbacda3d0b172e3451b27ccad20a7b710fdc352378bc4c9ca89d356"
     },
     {
       "excludePathPatterns": [],

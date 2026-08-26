@@ -544,6 +544,7 @@ const definitions = [
             ".github/workflows/distribution-npm-stage.yml",
             ".github/workflows/release-approved-ai-profiles.yml",
             ".github/workflows/verify-ai-corpus.yml",
+            ".github/workflows/verify-no-work-records.yml",
         ],
         artifactType: "workflow",
         currentOwner: repositoryOwner,
