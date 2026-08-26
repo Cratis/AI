@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "state": "FIXTURE_ONLY_ROLLOUT_SIMULATION",
+  "state": "STATIC_CANDIDATE_AND_FIXTURE_STAGING",
   "generatedRepository": {
     "name": "Cratis/AI.Distribution",
     "status": "INITIALIZED_PROTECTED_FIXTURE",
@@ -11,6 +11,8 @@
   },
   "candidate": {
     "allowedArtifactIds": [
+      "candidate-passive-engineering-package",
+      "candidate-passive-public-package",
       "cratis-fundamentals-concept-preview"
     ],
     "blockedArtifactIds": [

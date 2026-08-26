@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "6a2861b21d4f6776ebc0b7801e1af6efecfe9e27ec9318f85433f5c2d25a73da",
+  "indexDigest": "cddb0c3b5fb35c39ca2a3365c9f9ec6f466240f1b9c1c499401b4015e0d529da",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -120,6 +120,10 @@
     },
     {
       "path": ".github/workflows/engineering-distribution-fixture.yml",
+      "status": "added"
+    },
+    {
+      "path": ".github/workflows/package-passive-candidate-assets.yml",
       "status": "added"
     },
     {
@@ -2519,6 +2523,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/package-passive-candidate-assets.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/passive-profile-adapters.mjs",
       "status": "added"
     },
@@ -2752,6 +2760,10 @@
     },
     {
       "path": "tooling/specs/navigator-pilot.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/passive-candidate-assets.spec.mjs",
       "status": "added"
     },
     {
@@ -3489,6 +3501,7 @@
         ".github/workflows/engineering-distribution-fixture.yml",
         ".github/workflows/distribution-generated-update.yml",
         ".github/workflows/distribution-npm-stage.yml",
+        ".github/workflows/package-passive-candidate-assets.yml",
         ".github/workflows/release-approved-ai-profiles.yml",
         ".github/workflows/verify-ai-corpus.yml",
         ".github/workflows/verify-no-work-records.yml"
@@ -3509,8 +3522,8 @@
         "repo-main-b795d53",
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 10,
-      "expectedPathsDigest": "34a178e3ec591a55d667286d0967be14cddb137538feca083187b7dc8deea28d"
+      "expectedPathCount": 11,
+      "expectedPathsDigest": "69b8a8616bb094a23f6ec323283db8426bc8e89719968ba07d8ade6b81cac3b2"
     },
     {
       "excludePathPatterns": [],
@@ -4427,8 +4440,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 66,
-      "expectedPathsDigest": "dbad94acfdfe37433cf0b03d6743588340ab321876669a880d76ceefb2e75d16"
+      "expectedPathCount": 67,
+      "expectedPathsDigest": "e72ad7e495dd9392ec306aa92530ffa985eb23c888dafe1305238b7254910bab"
     },
     {
       "excludePathPatterns": [],
@@ -4451,8 +4464,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 51,
-      "expectedPathsDigest": "f9d4e875952ca45d135296450eabae78425109eba0292de7168e62d2404f5879"
+      "expectedPathCount": 52,
+      "expectedPathsDigest": "93c83f20ae80ba066b4e5b9698c4f102afd507777f1749226c463c634511cc3b"
     },
     {
       "excludePathPatterns": [],

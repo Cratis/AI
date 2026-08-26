@@ -4,12 +4,13 @@
 
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
     generateDistributionFixture,
     validateDistributionConfiguration,
 } from "./generate-distribution-fixture.mjs";
+import { packagePassiveCandidateAssets } from "./package-passive-candidate-assets.mjs";
 
 const defaultRepositoryRoot = resolve(
     fileURLToPath(new URL("..", import.meta.url)),
@@ -35,7 +36,7 @@ export function stageDistributionCandidate({
     artifactId,
     outputRoot,
     candidateRecordPath,
-    version = "0.0.0-fixture",
+    version,
 } = {}) {
     if (!artifactId || !outputRoot || !candidateRecordPath)
         throw new Error(
@@ -62,36 +63,60 @@ export function stageDistributionCandidate({
     );
     if (!artifact)
         throw new Error(`Unknown distribution artifact: ${artifactId}`);
+    const fixtureCandidate =
+        artifactId === fixtureArtifactId &&
+        artifact.materializationClass === "test-fixture";
+    const passiveReviewCandidate =
+        artifact.materializationClass === "review-candidate";
     if (
         artifact.materializationAllowed !== true ||
         artifact.runtimeEligible !== false ||
-        artifact.fixtureOnly !== true ||
-        !policy.candidate.allowedArtifactIds.includes(artifactId)
+        !policy.candidate.allowedArtifactIds.includes(artifactId) ||
+        (!fixtureCandidate && !passiveReviewCandidate)
     ) {
         throw new Error(
-            `Distribution artifact is not authorized for fixture staging: ${artifactId}`,
+            `Distribution artifact is not authorized for candidate staging: ${artifactId}`,
         );
     }
-    if (artifactId !== fixtureArtifactId)
-        throw new Error(`No generator is bound to artifact: ${artifactId}`);
-    const manifest = generateDistributionFixture({
-        repositoryRoot,
+    const selectedVersion =
+        version ??
+        (fixtureCandidate ? "0.0.0-fixture" : "0.0.1-candidate.1");
+    const manifest = fixtureCandidate
+        ? generateDistributionFixture({
+              repositoryRoot,
+              outputRoot,
+              version: selectedVersion,
+          })
+        : packagePassiveCandidateAssets({
+              repositoryRoot,
+              outputRoot,
+              artifactId,
+              version: selectedVersion,
+          });
+    const manifestPath = join(
         outputRoot,
-        version,
-    });
-    const manifestPath = join(outputRoot, "distribution-manifest.json");
+        fixtureCandidate ? "distribution-manifest.json" : "candidate-assets.json",
+    );
     const manifestBytes = readFileSync(manifestPath);
     const record = {
         schemaVersion: "1.0.0",
-        state: "FIXTURE_CANDIDATE_ONLY",
+        state: fixtureCandidate
+            ? "FIXTURE_CANDIDATE_ONLY"
+            : "PASSIVE_REVIEW_CANDIDATE_ONLY",
         artifactId,
-        version,
+        version: selectedVersion,
+        manifestPath: relative(outputRoot, manifestPath),
         manifestSha256: sha256(manifestBytes),
-        manifestFiles: manifest.files.length,
-        sourceCommit: null,
+        manifestFiles: fixtureCandidate
+            ? manifest.files.length
+            : manifest.assets.length,
+        sourceCommit: manifest.sourceCommit ?? null,
         generatedRepository: policy.generatedRepository.name,
         generatedRepositoryStatus: policy.generatedRepository.status,
+        installationSupported: false,
         publicationEligible: false,
+        runtimeEligible: false,
+        supportGranted: false,
         promotionEligible: false,
     };
     writeFileSync(candidateRecordPath, `${JSON.stringify(record, null, 2)}\n`, {
@@ -119,7 +144,7 @@ function main() {
             artifactId: arguments_.get("artifact"),
             outputRoot: arguments_.get("output"),
             candidateRecordPath: arguments_.get("record"),
-            version: arguments_.get("version") ?? "0.0.0-fixture",
+            version: arguments_.get("version"),
         });
         process.stdout.write(
             `Staged ${record.state} ${record.artifactId} at ${record.version}.\n`,

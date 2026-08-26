@@ -28,7 +28,7 @@ const secretPatterns = [
     /\bAKIA[0-9A-Z]{16}\b/,
     /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/,
     /\bAuthorization\s*:\s*(?:Bearer|Basic)\s+[^\s"']{12,}/i,
-    /\b(?:api[_-]?key|access[_-]?key|client[_-]?secret|password|private[_-]?token|secret|token)\s*[:=]\s*["']?[^\s"']{12,}/i,
+    /\b(?:api[_-]?key|access[_-]?key|client[_-]?secret|password|private[_-]?token|secret|token)\s*[:=]\s*(?:"[^"\r\n]{12,}"|'[^'\r\n]{12,}'|[A-Za-z0-9_+./=-]{20,})/i,
     /\b(?:sk|pk)_(?:live|test)_[A-Za-z0-9]{16,}\b/,
 ];
 const privateOrLocalPatterns = [

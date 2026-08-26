@@ -10,6 +10,21 @@ run a second manual publication, promotion, or rollout approval after merge.
 One-time external App, registry, canary-scope, and marketplace account setup is
 tracked in [AI#181](https://github.com/Cratis/AI/issues/181).
 
+## Static candidate review before release authority
+
+Before any profile is approved, the manual **Package Passive Candidate Assets**
+workflow can build two short-lived review bundles from immutable source: one for
+34 currently materializable public targets and one for 7 engineering targets.
+It projects each bundle to all 34 passive harness shapes and records the four
+excluded targets rather than silently dropping them.
+
+This candidate lane accepts only `0.0.N-candidate.N`, keeps npm packages private,
+marks Codex installation unavailable, and emits provenance, SBOM, compliance,
+assurance, support-matrix, and checksum records. Every approval, installation,
+publication, runtime, support, and promotion flag is false. It is a static
+packaging and review facility; it does not satisfy any step below and cannot be
+referenced as a release request or production lifecycle receipt.
+
 ## 1. Prepare approved profile state
 
 Every required profile, target, source-contract, security, evaluation,

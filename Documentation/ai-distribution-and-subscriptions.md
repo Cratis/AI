@@ -357,6 +357,45 @@ The final release page replaces placeholders with immutable URLs, checksums,
 tested host versions, update commands, and uninstall commands. Do not point a
 host at the multi-profile generated repository root.
 
+### All-passive candidate review bundles
+
+The candidate lane packages every currently materializable public-safe passive
+skill without treating unreviewed content as a release. It produces one public
+review bundle and one engineering review bundle across all 34 passive harness
+shapes:
+
+```bash
+node tooling/package-passive-candidate-assets.mjs \
+  candidate-passive-public-package \
+  /tmp/cratis-public-candidates \
+  0.0.1-candidate.1
+
+node tooling/package-passive-candidate-assets.mjs \
+  candidate-passive-engineering-package \
+  /tmp/cratis-engineering-candidates \
+  0.0.1-candidate.1
+```
+
+The public bundle currently contains 34 targets and the engineering bundle
+contains 7. Four additional modeled targets remain explicitly accounted for but
+excluded: Chronicle and Studio MCP guidance cannot enter a materialized artifact,
+and the observable-query HTTP and documentation visual-QA sources contain
+private-or-local endpoint/path examples that fail the public artifact scanner.
+Their canonical sources are not rewritten or silently sanitized.
+
+Each bundle contains one deterministic archive per harness, exact immutable
+source revision and digest records, a candidate SBOM, static support matrix,
+portable-compliance and assurance receipts, `REVIEW.md`, and `SHA256SUMS`.
+Evaluation files remain source evidence but are not runtime skill payload. The
+Pi archive is npm-private, Codex installation is `NOT_AVAILABLE`, and only
+`0.0.N-candidate.N` versions are accepted.
+
+The manual, read-only **Package Passive Candidate Assets** workflow uploads both
+bundles for seven days. Every approval, installation, publication, runtime,
+support, and promotion flag remains false. Candidate materialization is review
+coverage—not release materialization, host evidence, marketplace availability,
+or permission to install these bundles into a production repository.
+
 ### Approval-pending Fundamentals review assets
 
 While target approval remains open, maintainers can generate deterministic,

@@ -10,9 +10,12 @@ It serves two separate audiences:
 - **Cratis maintainers** receive separate engineering profiles for application,
   framework, client, documentation, Studio, Stagehand, and corpus repositories.
 
-> **Current status:** distribution remains preview/fixture-only. No supported
-> public or engineering profile package has been published. Do not install this
-> mixed source repository as a runtime package.
+> **Current status:** distribution remains candidate/preview-only. No supported
+> public or engineering profile package has been published. Deterministic
+> review bundles now cover 41 passive targets across 34 harness shapes; four
+> additional targets remain explicitly blocked by MCP or private/local-content
+> safety boundaries. Do not install this mixed source repository or the review
+> bundles as runtime packages.
 
 ## The architecture
 
@@ -110,8 +113,9 @@ packages exist. See the [Pi package workflow](Documentation/ai-distribution-and-
 
 ## Supported output formats
 
-The generator now emits a portable Agent Plugins 1.0 package for compatible
-hosts alongside Agent Skills and native adapters for Claude Code, Codex, GitHub
+The candidate generator emits separate public and engineering review bundles,
+each with a portable Agent Plugins 1.0 package for compatible hosts alongside
+Agent Skills and native adapters for Claude Code, Codex, GitHub
 Copilot, Cursor, Gemini CLI, Grok Build, Deep Code, preview DeepSeek Harness,
 Kiro, Junie, and Pi/npm. Copilot, Cursor, Kiro, and VS Code share the same
 portable plugin identity. Claude, Grok, and Junie share one Claude-compatible
@@ -121,8 +125,8 @@ Normalized evidence and computed support distinguish the monotonic technical
 ranks: unsupported, documented, generated, statically-validated,
 install-tested, behavior-tested, lifecycle-tested, release-tested, and
 supported. Marketplace listing is an orthogonal status and is required only
-when a delivery binding claims marketplace availability. Adapter generation
-alone is not a support or marketplace-publication claim. See
+when a delivery binding claims marketplace availability. Adapter or candidate generation
+alone is not installation evidence, support, or a marketplace-publication claim. See
 [the catalog v2 evidence and support model](Documentation/capability-catalog-v2.md#normalized-evidence)
 and [offline portable compliance](Documentation/portable-compliance.md).
 

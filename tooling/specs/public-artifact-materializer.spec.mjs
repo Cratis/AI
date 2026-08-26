@@ -288,6 +288,18 @@ test("rejects secret-shaped, private, and local payload content", () => {
     }
 });
 
+test("allows ordinary code variables whose names mention tokens", () => {
+    withTemporaryDirectory((root) => {
+        const source = copyFixture(root);
+        writeSourceFile(
+            source,
+            "skills/cratis-example/assets/example.txt",
+            "if (result.IsSuccess) { var token = result.Response; }",
+        );
+        assert.doesNotThrow(() => materialize(source, root));
+    });
+});
+
 test("rejects payload content that is not valid UTF-8", () => {
     withTemporaryDirectory((root) => {
         const source = copyFixture(root);

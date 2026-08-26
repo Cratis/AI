@@ -1,0 +1,74 @@
+# Copyright (c) Cratis. All rights reserved.
+# Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+name: Package Passive Candidate Assets
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Exact non-production candidate version
+        required: true
+        default: 0.0.1-candidate.1
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: passive-candidates-${{ inputs.version }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  package-candidates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out complete immutable history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+
+      - name: Generate and verify review-only candidate assets
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          node tooling/generate-catalog-v2.mjs
+          git diff --exit-code -- catalog/v2
+          node tooling/validate-catalogs.mjs
+          node tooling/package-passive-candidate-assets.mjs \
+            candidate-passive-public-package \
+            "$RUNNER_TEMP/passive-candidates/public" \
+            "$VERSION"
+          node tooling/package-passive-candidate-assets.mjs \
+            candidate-passive-engineering-package \
+            "$RUNNER_TEMP/passive-candidates/engineering" \
+            "$VERSION"
+          for candidate in public engineering; do
+            manifest="$RUNNER_TEMP/passive-candidates/$candidate/candidate-assets.json"
+            test "$(node -p "require('$manifest').state")" = \
+              "PASSIVE_CANDIDATE_REVIEW_ONLY"
+            test "$(node -p "require('$manifest').approvalEligible")" = "false"
+            test "$(node -p "require('$manifest').installationSupported")" = "false"
+            test "$(node -p "require('$manifest').publicationEligible")" = "false"
+            test "$(node -p "require('$manifest').runtimeEligible")" = "false"
+            test "$(node -p "require('$manifest').supportGranted")" = "false"
+            test "$(node -p "require('$manifest').promotionEligible")" = "false"
+            (cd "$RUNNER_TEMP/passive-candidates/$candidate" && sha256sum -c SHA256SUMS)
+          done
+          node --test tooling/specs/passive-candidate-assets.spec.mjs
+
+      - name: Upload short-lived review bundles
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v7.0.1
+        with:
+          name: passive-candidates-${{ inputs.version }}-review-only
+          path: ${{ runner.temp }}/passive-candidates
+          if-no-files-found: error
+          retention-days: 7
