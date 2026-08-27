@@ -16,6 +16,7 @@ import {
 import { tmpdir } from "node:os";
 import { join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { isDeepStrictEqual } from "node:util";
 import { generatePassiveProfileAdapters } from "./passive-profile-adapters.mjs";
 import {
     createTarGzip,
@@ -84,6 +85,8 @@ export function materializeFundamentalsPreviewNpmAsset({
     if (existsSync(root))
         throw new Error(`Preview npm output must not exist: ${root}`);
     const authority = loadPreviewAuthority(repositoryRoot);
+    const repositoryUrl =
+        authority.context.catalogs.profileCatalog.sourceRepository;
     if (
         request.sourceRevision !== authority.source.sourceRevision ||
         request.sourceContentDigest !== authority.source.contentDigest
@@ -108,44 +111,27 @@ export function materializeFundamentalsPreviewNpmAsset({
         const packageJson = JSON.parse(
             readFileSync(join(piRoot, "package.json"), "utf8"),
         );
-        const allowedPackageFields = [
-            "description",
-            "files",
-            "homepage",
-            "keywords",
-            "license",
-            "name",
-            "pi",
-            "private",
-            "repository",
-            "version",
-        ];
-        const packageFields = Object.keys(packageJson).sort();
+        const expectedPackageJson = {
+            name: packageName,
+            version,
+            description: "Preview of Cratis Fundamentals concept guidance",
+            private: false,
+            license: "MIT",
+            repository: {
+                type: "git",
+                url: repositoryUrl,
+            },
+            homepage: packageJson.homepage,
+            files: ["skills"],
+            keywords: ["pi-package", "cratis"],
+            pi: {
+                skills: ["./skills"],
+            },
+        };
         if (
-            JSON.stringify(packageFields) !==
-                JSON.stringify(allowedPackageFields) ||
-            packageJson.name !== packageName ||
-            packageJson.version !== version ||
-            packageJson.private !== false ||
-            packageJson.license !== "MIT" ||
-            JSON.stringify(packageJson.repository) !==
-                JSON.stringify({
-                    type: "git",
-                    url: "https://github.com/Cratis/AI",
-                }) ||
-            packageJson.homepage !== "https://cratis.io/ai" ||
-            JSON.stringify(packageJson.files) !== JSON.stringify(["skills"]) ||
-            JSON.stringify(packageJson.pi?.skills) !==
-                JSON.stringify(["./skills"]) ||
-            [
-                "scripts",
-                "dependencies",
-                "devDependencies",
-                "optionalDependencies",
-                "peerDependencies",
-                "bundledDependencies",
-                "bundleDependencies",
-            ].some((field) => packageJson[field] !== undefined)
+            typeof packageJson.homepage !== "string" ||
+            !packageJson.homepage.startsWith("https://") ||
+            !isDeepStrictEqual(packageJson, expectedPackageJson)
         )
             throw new Error("Generated preview npm package metadata is unsafe");
         const filename = `cratis-ai-fundamentals-${version}.tgz`;

@@ -80,35 +80,23 @@ test("publishable Fundamentals preview npm asset is deterministic and scriptless
         const packageJson = JSON.parse(
             files.get("package/package.json").toString("utf8"),
         );
-        assert.equal(packageJson.name, "@cratis/ai-fundamentals");
-        assert.equal(packageJson.version, "0.1.0-preview.1");
-        assert.equal(packageJson.private, false);
-        for (const field of [
-            "scripts",
-            "dependencies",
-            "devDependencies",
-            "optionalDependencies",
-            "peerDependencies",
-            "bundledDependencies",
-            "bundleDependencies",
-        ])
-            assert.equal(packageJson[field], undefined, field);
-        assert.deepEqual(Object.keys(packageJson).sort(), [
-            "description",
-            "files",
-            "homepage",
-            "keywords",
-            "license",
-            "name",
-            "pi",
-            "private",
-            "repository",
-            "version",
-        ]);
-        assert.equal(
-            packageJson.repository.url,
-            "https://github.com/Cratis/AI",
-        );
+        assert.deepEqual(packageJson, {
+            name: "@cratis/ai-fundamentals",
+            version: "0.1.0-preview.1",
+            description: "Preview of Cratis Fundamentals concept guidance",
+            private: false,
+            license: "MIT",
+            repository: {
+                type: "git",
+                url: "https://github.com/Cratis/AI",
+            },
+            homepage: "https://cratis.io/ai",
+            files: ["skills"],
+            keywords: ["pi-package", "cratis"],
+            pi: {
+                skills: ["./skills"],
+            },
+        });
         assert(files.has("package/skills/cratis-fundamentals-concept/SKILL.md"));
         const checksums = readFileSync(join(firstRoot, "SHA256SUMS"), "utf8");
         assert(checksums.includes(first.filename));
