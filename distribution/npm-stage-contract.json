@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "state": "OWNER_CONFIGURED_BOOTSTRAP_DEPRECATION_REQUIRED",
+  "state": "PASSIVE_PREVIEW_REQUEST_READY",
   "trackingIssue": "https://github.com/Cratis/Workflows/issues/70",
   "package": {
     "fixtureName": "@cratis/ai",
@@ -18,14 +18,19 @@
     },
     "bootstrapVersion": "0.0.0-bootstrap.0",
     "bootstrapDeprecationRequired": true,
-    "bootstrapDeprecationConfirmed": false,
+    "bootstrapDeprecationConfirmed": true,
+    "bootstrapDeprecationEvidence": {
+      "verifiedOn": "2026-08-27",
+      "registryReadbackVerified": true,
+      "cliExitReconciled": "E422_WRITE_PERSISTED"
+    },
     "latestTagPolicy": "stable-or-deprecated-bootstrap-never-preview",
-    "latestTagSafe": false
+    "latestTagSafe": true
   },
   "workflow": {
     "path": ".github/workflows/distribution-npm-stage.yml",
     "productionPath": ".github/workflows/release-approved-ai-profiles.yml",
-    "currentOperation": "DEPRECATE_BOOTSTRAP_LATEST_VERSION",
+    "currentOperation": "AWAIT_MERGED_PASSIVE_PREVIEW_REQUEST",
     "environment": "npm-stage",
     "passivePreviewPath": ".github/workflows/release-passive-previews.yml",
     "trustedPublisherConfigured": true,
@@ -54,7 +59,7 @@
     "pack install discovery uninstall and exact-version rollback smoke",
     "explicit npm preview dist-tag"
   ],
-  "previewRequestEligible": false,
+  "previewRequestEligible": true,
   "publicationEligible": false,
   "promotionEligible": false
 }

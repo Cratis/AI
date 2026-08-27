@@ -79,20 +79,17 @@ test("assurance lanes keep preview lightweight and support governed", () => {
     assert.equal(policy.advancedAssurance.status, "SIDELINED_AVAILABLE");
 });
 
-test("current passive preview records owner setup but blocks an undeprecated bootstrap", () => {
+test("current passive preview is ready for one exact request without granting support", () => {
     const first = generatePreviewReadiness();
     const second = generatePreviewReadiness();
     assert.deepEqual(second, first);
-    assert.equal(first.state, "OWNER_SETUP_REQUIRED");
+    assert.equal(first.state, "READY_FOR_PREVIEW_REQUEST");
     assert.equal(first.staticCandidateReady, true);
     assert.equal(first.assuranceMode, "basic");
     assert.equal(first.governedAssurance.requiredForPreview, false);
     assert.equal(first.governedAssurance.availableForGraduation, true);
-    assert.deepEqual(
-        first.blockers.map((blocker) => blocker.code),
-        ["npm-latest-tag-unsafe"],
-    );
-    assert.equal(first.previewRequestEligible, false);
+    assert.deepEqual(first.blockers, []);
+    assert.equal(first.previewRequestEligible, true);
     assert.equal(first.publicationEligible, false);
     assert.equal(first.supportGranted, false);
 });

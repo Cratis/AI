@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "generatedBy": "tooling/preview-readiness.mjs",
-  "state": "OWNER_SETUP_REQUIRED",
+  "state": "READY_FOR_PREVIEW_REQUEST",
   "lane": "passive-preview",
   "assuranceMode": "basic",
   "profileId": "public-fundamentals",
@@ -10,18 +10,13 @@
     "cratis-fundamentals-concept"
   ],
   "staticCandidateReady": true,
-  "blockers": [
-    {
-      "code": "npm-latest-tag-unsafe",
-      "reason": "The npm-forced bootstrap latest version is not confirmed deprecated."
-    }
-  ],
+  "blockers": [],
   "governedAssurance": {
     "requiredForPreview": false,
     "availableForGraduation": true,
     "readinessPath": "catalog/v2/release-readiness.json"
   },
-  "previewRequestEligible": false,
+  "previewRequestEligible": true,
   "publicationEligible": false,
   "supportGranted": false
 }

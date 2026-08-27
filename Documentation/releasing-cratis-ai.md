@@ -1,6 +1,6 @@
 # Release Cratis AI
 
-> **Passive preview owner setup is recorded; bootstrap deprecation and governed S10 remain blocked.**
+> **The passive preview lane is ready for one exact request; governed S10 remains blocked.**
 Candidate review is available now. Passive previews use the basic lane; stable
 support uses the sidelined governed lane and its complete S9/S10 assurance.
 
@@ -19,9 +19,9 @@ tracked in [AI#181](https://github.com/Cratis/AI/issues/181).
 publisher, OIDC permission, and protected `npm-stage` environment are configured.
 Generated [`preview-readiness.json`](../distribution/preview-readiness.json) is
 independent of S10. npm assigns `latest` to a package's first publication even
-when another tag was requested and currently rejects removing it. Preview
-requests therefore stay blocked until the inert bootstrap version carries the
-required deprecation warning.
+when another tag was requested and currently rejects removing it. The inert
+bootstrap version now carries the required deprecation warning, so one reviewed
+preview request is eligible without granting publication or support by itself.
 
 The existing Fundamentals asset workflow remains packaging-only. The separate
 **Release Passive Previews** workflow validates an append-only exact request,

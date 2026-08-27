@@ -185,8 +185,8 @@ tooling.
 The first narrow `public-fundamentals` preview has approved passive source,
 deterministic public package bytes, exact request binding, protected OIDC
 publication, and npm owner setup. npm forces `latest` onto a package's first
-publication and rejects removing it, so the inert bootstrap version must be
-deprecated before one reviewed append-only preview request becomes eligible. No
+publication and rejects removing it; the inert bootstrap version is therefore
+deprecated and one reviewed append-only preview request is now eligible. No
 preview version has been published, and the preview lane cannot claim support or
 move npm `latest` to a preview.
 

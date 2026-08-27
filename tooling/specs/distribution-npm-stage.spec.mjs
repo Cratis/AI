@@ -22,23 +22,25 @@ const workflow = readFileSync(
     "utf8",
 );
 
-test("npm stage contract records owner setup while bootstrap deprecation remains", () => {
-    assert.equal(
-        contract.state,
-        "OWNER_CONFIGURED_BOOTSTRAP_DEPRECATION_REQUIRED",
-    );
+test("npm stage contract admits an exact passive preview request", () => {
+    assert.equal(contract.state, "PASSIVE_PREVIEW_REQUEST_READY");
     assert.equal(contract.package.fixtureName, "@cratis/ai");
     assert.equal(contract.package.productionName, "@cratis/ai-fundamentals");
     assert.equal(contract.package.fixturePrivate, true);
     assert.equal(contract.package.publicOwnershipConfirmed, true);
     assert.equal(contract.package.bootstrapVersion, "0.0.0-bootstrap.0");
     assert.equal(contract.package.bootstrapDeprecationRequired, true);
-    assert.equal(contract.package.bootstrapDeprecationConfirmed, false);
+    assert.equal(contract.package.bootstrapDeprecationConfirmed, true);
+    assert.deepEqual(contract.package.bootstrapDeprecationEvidence, {
+        verifiedOn: "2026-08-27",
+        registryReadbackVerified: true,
+        cliExitReconciled: "E422_WRITE_PERSISTED",
+    });
     assert.equal(
         contract.package.latestTagPolicy,
         "stable-or-deprecated-bootstrap-never-preview",
     );
-    assert.equal(contract.package.latestTagSafe, false);
+    assert.equal(contract.package.latestTagSafe, true);
     assert.deepEqual(contract.package.ownerSetupEvidence, {
         confirmedBy: "woksin.sindre",
         confirmedOn: "2026-08-27",
@@ -60,7 +62,7 @@ test("npm stage contract records owner setup while bootstrap deprecation remains
     assert.equal(contract.workflow.publicPublishEnabled, true);
     assert.equal(
         contract.workflow.currentOperation,
-        "DEPRECATE_BOOTSTRAP_LATEST_VERSION",
+        "AWAIT_MERGED_PASSIVE_PREVIEW_REQUEST",
     );
     assert.equal(
         contract.workflow.passivePreviewPath,
@@ -75,7 +77,7 @@ test("npm stage contract records owner setup while bootstrap deprecation remains
         contract.workflow.productionPath,
         ".github/workflows/release-approved-ai-profiles.yml",
     );
-    assert.equal(contract.previewRequestEligible, false);
+    assert.equal(contract.previewRequestEligible, true);
     assert.equal(contract.publicationEligible, false);
     assert.equal(contract.promotionEligible, false);
 });
