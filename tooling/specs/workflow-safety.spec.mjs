@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import test from "node:test";
 
 const verification = readFileSync(
@@ -231,16 +231,43 @@ test("generated Distribution updates preserve the reviewed control plane", () =>
     assert.equal(contract.repositoryReviewCandidates.releaseEligible, false);
 });
 
-test("legacy propagation workflows are inert and inherit no secrets", () => {
+test("legacy propagation entry points are removed", () => {
     for (const path of [
+        ".github/scripts/copilot-sync-ignore-filter.sh",
+        ".github/scripts/propagate-copilot-instructions.sh",
         ".github/workflows/propagate-copilot-instructions.yml",
         ".github/workflows/sync-copilot-instructions.yml",
-    ]) {
-        const workflow = readFileSync(path, "utf8");
-        assert(workflow.includes("Retired -"));
-        assert(workflow.includes("workflow_dispatch"));
-        assert.equal(workflow.includes("uses: Cratis/Workflows/"), false);
-        assert.equal(workflow.includes("secrets: inherit"), false);
-        assert.equal(workflow.includes("push:"), false);
+    ])
+        assert.equal(existsSync(path), false, path);
+    for (const filename of readdirSync(".github/workflows")) {
+        const workflow = readFileSync(
+            `.github/workflows/${filename}`,
+            "utf8",
+        );
+        assert.equal(
+            workflow.includes(".github/scripts/propagate-copilot-instructions.sh"),
+            false,
+            filename,
+        );
+    }
+});
+
+test("merge-reachable reusable workflows are pinned and do not inherit secrets", () => {
+    const cleanup = readFileSync(
+        ".github/workflows/cleanup-pr-artifacts.yml",
+        "utf8",
+    );
+    assert.equal(cleanup.includes("secrets: inherit"), false);
+    assert(cleanup.includes("PAT_WORKFLOWS: ${{ secrets.PAT_WORKFLOWS }}"));
+    for (const filename of readdirSync(".github/workflows")) {
+        const workflow = readFileSync(
+            `.github/workflows/${filename}`,
+            "utf8",
+        );
+        const references = workflow.match(
+            /uses: Cratis\/Workflows\/[^\s]+@([^\s]+)/g,
+        ) ?? [];
+        for (const reference of references)
+            assert.match(reference, /@[0-9a-f]{40}$/, filename);
     }
 });

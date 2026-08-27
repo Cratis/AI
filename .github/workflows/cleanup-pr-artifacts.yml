@@ -10,7 +10,8 @@ on:
 
 jobs:
   cleanup:
-    uses: Cratis/Workflows/.github/workflows/cleanup-pr-artifacts.yml@main
+    uses: Cratis/Workflows/.github/workflows/cleanup-pr-artifacts.yml@f4106c468d4483905b18651a50d22349627a0bcc
     with:
       pull_request: ${{ github.event.pull_request.number }}
-    secrets: inherit
+    secrets:
+      PAT_WORKFLOWS: ${{ secrets.PAT_WORKFLOWS }}

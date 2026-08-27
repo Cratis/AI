@@ -7,4 +7,4 @@ on:
 
 jobs:
   verify:
-    uses: Cratis/Workflows/.github/workflows/verify-no-work-records.yml@main
+    uses: Cratis/Workflows/.github/workflows/verify-no-work-records.yml@f4106c468d4483905b18651a50d22349627a0bcc

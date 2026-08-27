@@ -195,8 +195,9 @@ source, release a new version, and adopt it through a reviewed exact-pin update.
 - A generator argument that could turn publication eligibility on.
 - Release or marketplace readiness inferred from implemented workflow code.
 
-Retired propagation workflows remain inert only where historical compatibility
-or explicit retirement evidence still needs a checked-in record.
+The legacy Copilot propagation/synchronization workflows and their re-armable
+shell scripts are removed. Historical authority evidence remains, but no
+executable propagation entry point is retained in this repository.
 
 ## Compatibility
 
