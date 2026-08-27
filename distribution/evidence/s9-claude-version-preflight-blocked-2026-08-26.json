@@ -1,0 +1,160 @@
+{
+  "schemaVersion": "1.0.0",
+  "caseId": "s9-claude-version-preflight-blocked",
+  "state": "BLOCKED",
+  "observedOn": "2026-08-26",
+  "sourceRevision": "2e913c45a497dcf6109e44df3352ba134304656b",
+  "hostId": "claude",
+  "harnessId": "claude",
+  "bindingId": "claude-code-plugins-artifact-binding",
+  "targetId": "claude-code",
+  "artifactVersion": "0.0.1-fixture",
+  "artifactRoot": "claude",
+  "artifactDigest": "2be2eabaf44667b2b5a17a8c303ff9a9c2c1a1b626a8399e8846796b9e14362e",
+  "executable": "claude",
+  "resolvedExecutable": "$USER_HOME/.local/share/claude/versions/2.1.235",
+  "executableDigest": "83b8f806f6f2eea316cfe246628e6c23374711d868f1fd0409db551b877b7748",
+  "expectedHostVersion": "2.1.245",
+  "observedHostVersion": "2.1.235 (Claude Code)",
+  "operatingSystem": "darwin",
+  "architecture": "arm64",
+  "runtimeVersion": "v23.11.1",
+  "isolation": "isolated-home-and-worktree",
+  "credentialMode": "forbidden",
+  "networkEnforcement": "sandbox-exec-deny-network",
+  "beforeContextDigest": "46f1a935ac678229817799be4af1fd6ea7731f8f0a5499e8c7e9115a18dfdae9",
+  "afterContextDigest": "46f1a935ac678229817799be4af1fd6ea7731f8f0a5499e8c7e9115a18dfdae9",
+  "phases": [
+    {
+      "id": "preflight",
+      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "supporting": false,
+      "reason": "Observed 2.1.235 (Claude Code).",
+      "command": {
+        "argv": [
+          "/usr/bin/sandbox-exec",
+          "-p",
+          "(version 1)(allow default)(deny network*)",
+          "$USER_HOME/.local/share/claude/versions/2.1.235",
+          "--version"
+        ],
+        "cwd": "$RUN_ROOT/consumer",
+        "environmentNames": [
+          "HOME",
+          "LANG",
+          "LC_ALL",
+          "NO_COLOR",
+          "PATH",
+          "TMPDIR",
+          "XDG_CACHE_HOME",
+          "XDG_CONFIG_HOME",
+          "XDG_DATA_HOME",
+          "XDG_STATE_HOME"
+        ],
+        "exitCode": 0,
+        "timedOut": false,
+        "stdoutDigest": "387df7c8b3ec3d27e9ddf78bcdc032f2d73129c15567757674687ab1a06bebc3",
+        "stderrDigest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "artifact-validation",
+      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "supporting": false,
+      "reason": "Installed version does not match 2.1.245.",
+      "command": null
+    },
+    {
+      "id": "negative-baseline",
+      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "supporting": false,
+      "reason": "Installed version does not match 2.1.245.",
+      "command": null
+    },
+    {
+      "id": "collision-negative",
+      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "supporting": false,
+      "reason": "Installed version does not match 2.1.245.",
+      "command": null
+    },
+    {
+      "id": "install",
+      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "supporting": false,
+      "reason": "Installed version does not match 2.1.245.",
+      "command": null
+    },
+    {
+      "id": "discovery",
+      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "supporting": false,
+      "reason": "Installed version does not match 2.1.245.",
+      "command": null
+    },
+    {
+      "id": "behavior-positive",
+      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "supporting": false,
+      "reason": "Installed version does not match 2.1.245.",
+      "command": null
+    },
+    {
+      "id": "behavior-negative",
+      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "supporting": false,
+      "reason": "Installed version does not match 2.1.245.",
+      "command": null
+    },
+    {
+      "id": "update",
+      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "supporting": false,
+      "reason": "Installed version does not match 2.1.245.",
+      "command": null
+    },
+    {
+      "id": "rollback",
+      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "supporting": false,
+      "reason": "Installed version does not match 2.1.245.",
+      "command": null
+    },
+    {
+      "id": "uninstall",
+      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "supporting": false,
+      "reason": "Installed version does not match 2.1.245.",
+      "command": null
+    },
+    {
+      "id": "context-preservation",
+      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "supporting": false,
+      "reason": "Installed version does not match 2.1.245.",
+      "command": null
+    },
+    {
+      "id": "cleanup",
+      "status": "BLOCKED_HOST_VERSION_MISMATCH",
+      "supporting": false,
+      "reason": "Installed version does not match 2.1.245.",
+      "command": null
+    }
+  ],
+  "limitations": [
+    "The tested artifact is a synthetic local fixture and cannot satisfy install-tested or higher support assurance.",
+    "Package listing is not treated as skill discovery.",
+    "No positive or negative model behavior case is admitted.",
+    "No genuine host-managed update or rollback contract is admitted."
+  ],
+  "reportPayloadDigest": "e1a846eaaf77304eabcd748854816ce77ef3a87fba7ebadbb7b4f7eb0257a017",
+  "installationEligible": false,
+  "marketplaceAvailabilityClaim": false,
+  "supportGranted": false,
+  "publicationGranted": false,
+  "runtimeGranted": false,
+  "promotionGranted": false,
+  "attemptId": "version-preflight-1",
+  "supersededBy": null
+}

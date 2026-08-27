@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cratis/AI/distribution/marketplace-publications.schema.json",
+  "title": "Cratis marketplace publication contracts",
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+    "publication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "vendor", "channel", "disposition", "publisher", "artifactDigest", "credentialIdentity", "legalMetadataDigest", "supportMetadataDigest", "submissionReceiptDigest", "listingId", "listingUrl", "updatePolicy", "removalProcedure", "postListingEvidenceIds"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "vendor": { "$ref": "#/$defs/id" },
+        "channel": { "$ref": "#/$defs/id" },
+        "disposition": { "enum": ["disabled", "approved"] },
+        "publisher": { "type": "string", "minLength": 1 },
+        "artifactDigest": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "credentialIdentity": { "type": "string", "minLength": 1 },
+        "legalMetadataDigest": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "supportMetadataDigest": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "submissionReceiptDigest": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "listingId": { "type": "string", "minLength": 1 },
+        "listingUrl": { "type": "string", "format": "uri" },
+        "updatePolicy": { "type": "string", "minLength": 1 },
+        "removalProcedure": { "type": "string", "minLength": 1 },
+        "postListingEvidenceIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } }
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "defaultPolicy", "publications"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "defaultPolicy": { "const": "deny" },
+    "publications": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/publication" } }
+  }
+}

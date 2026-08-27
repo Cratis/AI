@@ -14,6 +14,24 @@ import { validateEngineeringDocsCompanions } from "./engineering-docs-companions
 import { validateProfileSubscriptions } from "./profile-subscription-validation.mjs";
 import { validateReleaseRequests } from "./release-request-validation.mjs";
 import { validateReleaseApprovals } from "./release-approval-validation.mjs";
+import { validateEcosystemArtifactContracts } from "./ecosystem-artifact-validation.mjs";
+import { validateSupportCatalogs } from "./support-validation.mjs";
+import { validateReleaseAssurancePolicy } from "./release-assurance-validation.mjs";
+import { validateChronicleMcpGuidance } from "./chronicle-mcp-guidance-validation.mjs";
+import { validateMcpGuidanceProducts } from "./mcp-guidance-validation.mjs";
+import { validateNativeNonSkillProjectionContract } from "./native-non-skill-projections.mjs";
+import {
+    loadRealHostCanaryContracts,
+    validateRealHostCanaryMatrix,
+} from "./real-host-canary-contract.mjs";
+import { validateCheckedInRealHostCanaryReports } from "./validate-real-host-canary-report.mjs";
+import { validateS10ReleaseGate } from "./s10-release-gate-validation.mjs";
+import { validateReleaseLifecycleEvidence } from "./release-lifecycle-validation.mjs";
+import { validateMarketplacePublications } from "./marketplace-publication-validation.mjs";
+import {
+    formatComplianceDiagnostics,
+    validateSpecificationLock,
+} from "./portable-compliance-validation.mjs";
 
 const errors = [
     ...validateCatalogs(),
@@ -28,6 +46,20 @@ const errors = [
     ...validateProfileSubscriptions(),
     ...validateReleaseRequests().errors,
     ...validateReleaseApprovals(),
+    ...validateEcosystemArtifactContracts(),
+    ...validateSupportCatalogs(),
+    ...validateReleaseAssurancePolicy(),
+    ...validateChronicleMcpGuidance(),
+    ...validateMcpGuidanceProducts(),
+    ...validateNativeNonSkillProjectionContract(),
+    ...validateRealHostCanaryMatrix(loadRealHostCanaryContracts()),
+    ...validateCheckedInRealHostCanaryReports(),
+    ...validateS10ReleaseGate(),
+    ...validateReleaseLifecycleEvidence(),
+    ...validateMarketplacePublications(),
+    ...validateSpecificationLock().map((diagnostic) =>
+        formatComplianceDiagnostics([diagnostic]),
+    ),
 ];
 if (errors.length > 0) {
     process.stderr.write(
@@ -37,6 +69,6 @@ if (errors.length > 0) {
     process.exitCode = 1;
 } else {
     process.stdout.write(
-        "Catalog validation passed: legacy, v2, source-evidence, distribution-profile, and evaluation contracts are valid.\n",
+        "Catalog validation passed: legacy, v2, normalized evidence, computed support, source-evidence, multi-product MCP guidance, native non-skill projections, real-host canary contracts, blocked S10 release readiness, offline portable specifications, distribution-profile, and evaluation contracts are valid.\n",
     );
 }

@@ -61,6 +61,10 @@ jobs:
           test "${#requests[@]}" -eq 1
           request="${requests[0]}"
           test -f "$request"
+          if [ "$EVENT_NAME" = "push" ]; then
+            node tooling/release-merge-topology-validation.mjs \
+              "$request" "$PUSH_BEFORE"
+          fi
           node tooling/validate-catalogs.mjs
           node tooling/release-request-validation.mjs "$request" \
             > "$RUNNER_TEMP/release-request.json"
@@ -103,10 +107,8 @@ jobs:
         run: |
           set -euo pipefail
           candidate="$RUNNER_TEMP/release-$PROFILE"
-          mode=()
-          if [ "$EVENT_NAME" = "push" ]; then mode=(release); fi
           node tooling/generate-approved-profile-release.mjs \
-            "$candidate" "$PROFILE" "$VERSION" "${mode[@]}"
+            "$candidate" "$PROFILE" "$VERSION"
           mkdir -p "$candidate/assets"
           for root in "$candidate"/harnesses/*; do
             harness=$(basename "$root")
@@ -119,13 +121,20 @@ jobs:
                 -C "$root" .
             fi
           done
-          cp "$candidate/release-instructions.md" "$candidate/assets/"
-          cp "$candidate/support-matrix.json" "$candidate/assets/"
-          (
-            cd "$candidate/assets"
-            sha256sum ./* > SHA256SUMS
-          )
-          node --test tooling/specs/approved-profile-release.spec.mjs
+          for metadata in \
+            artifact-assurance-receipt.json \
+            compliance-receipts.json \
+            deterministic-release-manifest.json \
+            provenance.json \
+            release-instructions.md \
+            release-manifest.json \
+            support-matrix.json; do
+            cp "$candidate/$metadata" "$candidate/assets/$metadata"
+          done
+          node tooling/verify-approved-profile-assets.mjs \
+            "$candidate" "$candidate/assets" "$PROFILE" "$VERSION"
+          node --test tooling/specs/approved-profile-release.spec.mjs \
+            tooling/specs/approved-profile-assets.spec.mjs
 
       - name: Upload verified profile candidate
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v7.0.1
@@ -135,9 +144,36 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-  canary:
-    if: github.event_name == 'push'
+  s10_preflight:
     needs: [discover, verify]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      release_allowed: ${{ steps.readiness.outputs.release_allowed }}
+    steps:
+      - name: Check out release policy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+
+      - name: Compute fixed-name S10 readiness gate
+        id: readiness
+        run: |
+          set -euo pipefail
+          node tooling/generate-release-readiness.mjs
+          node tooling/s10-release-gate-validation.mjs
+          state=$(node -p "require('./catalog/v2/release-readiness.json').state")
+          test "$state" = BLOCKED
+          echo "release_allowed=false" >> "$GITHUB_OUTPUT"
+
+  canary:
+    if: github.event_name == 'push' && needs.s10_preflight.outputs.release_allowed == 'true'
+    needs: [discover, verify, s10_preflight]
     strategy:
       fail-fast: true
       matrix:
@@ -212,8 +248,8 @@ jobs:
           exit 1
 
   distribute:
-    if: github.event_name == 'push'
-    needs: [discover, verify, canary]
+    if: github.event_name == 'push' && needs.s10_preflight.outputs.release_allowed == 'true'
+    needs: [discover, verify, s10_preflight, canary]
     runs-on: ubuntu-latest
     timeout-minutes: 20
     environment: distribution-canary
@@ -320,8 +356,8 @@ jobs:
           trap - EXIT
 
   publish-npm:
-    if: github.event_name == 'push'
-    needs: [discover, verify, canary, distribute]
+    if: github.event_name == 'push' && needs.s10_preflight.outputs.release_allowed == 'true'
+    needs: [discover, verify, s10_preflight, canary, distribute]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment: npm-stage
@@ -360,8 +396,8 @@ jobs:
             --access public --provenance --tag "$tag"
 
   cleanup-failed-publication:
-    if: ${{ always() && github.event_name == 'push' && needs.distribute.result == 'success' && needs['publish-npm'].result == 'failure' }}
-    needs: [discover, distribute, publish-npm]
+    if: ${{ always() && github.event_name == 'push' && needs.s10_preflight.outputs.release_allowed == 'true' && needs.distribute.result == 'success' && needs['publish-npm'].result == 'failure' }}
+    needs: [discover, s10_preflight, distribute, publish-npm]
     runs-on: ubuntu-latest
     timeout-minutes: 60
     environment: distribution-canary
@@ -390,8 +426,8 @@ jobs:
             --delete-branch
 
   promote-and-follow-up:
-    if: github.event_name == 'push'
-    needs: [discover, distribute, publish-npm]
+    if: github.event_name == 'push' && needs.s10_preflight.outputs.release_allowed == 'true'
+    needs: [discover, s10_preflight, distribute, publish-npm]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment: distribution-canary
@@ -436,8 +472,8 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
   record-promotion-failure:
-    if: ${{ always() && github.event_name == 'push' && needs['publish-npm'].result == 'success' && needs['promote-and-follow-up'].result == 'failure' }}
-    needs: [discover, publish-npm, promote-and-follow-up]
+    if: ${{ always() && github.event_name == 'push' && needs.s10_preflight.outputs.release_allowed == 'true' && needs['publish-npm'].result == 'success' && needs['promote-and-follow-up'].result == 'failure' }}
+    needs: [discover, s10_preflight, publish-npm, promote-and-follow-up]
     runs-on: ubuntu-latest
     timeout-minutes: 60
     permissions:

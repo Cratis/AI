@@ -19,7 +19,7 @@ import {
     packageFundamentalsPreviewAssets,
     readTarGzip,
 } from "../package-fundamentals-preview-assets.mjs";
-import { passiveHarnesses } from "../passive-profile-adapters.mjs";
+import { passiveHarnesses } from "../harness-registry.mjs";
 
 function withTemporaryDirectory(callback) {
     const root = mkdtempSync(join(tmpdir(), "cratis-preview-assets-"));
@@ -27,15 +27,6 @@ function withTemporaryDirectory(callback) {
         return callback(root);
     } finally {
         rmSync(root, { recursive: true, force: true });
-    }
-}
-
-function commandAvailable(command) {
-    try {
-        execFileSync(command, ["--version"], { stdio: "pipe" });
-        return true;
-    } catch {
-        return false;
     }
 }
 
@@ -170,13 +161,63 @@ test("Fundamentals preview assets are deterministic and non-publishable", () => 
         assert.equal(first.assets.length, passiveHarnesses.length);
         assert.match(first.generatorDigest, /^[0-9a-f]{64}$/);
         assert.deepEqual(first.generatorPaths, [
+            "tooling/catalog-ordering.mjs",
+            "tooling/catalog-validation.mjs",
+            "tooling/deterministic-release-tree.mjs",
+            "tooling/harness-registry.mjs",
             "tooling/package-fundamentals-preview-assets.mjs",
             "tooling/passive-profile-adapters.mjs",
+            "tooling/portable-compliance-validation.mjs",
+            "tooling/public-artifact-materializer.mjs",
+            "tooling/release-assurance-validation.mjs",
+            "tooling/release-context.mjs",
         ]);
+        assert.match(
+            first.deterministicReleaseTree.sourceProjectionManifestSha256,
+            /^[0-9a-f]{64}$/,
+        );
+        assert.match(
+            first.deterministicReleaseTree.releaseAssetManifestSha256,
+            /^[0-9a-f]{64}$/,
+        );
+        assert.match(
+            first.deterministicReleaseTree.assuranceReceiptSha256,
+            /^[0-9a-f]{64}$/,
+        );
+        assert.equal(first.portableCompliance.profile, "cratis-passive-v1");
+        assert.match(first.portableCompliance.profileDigest, /^[0-9a-f]{64}$/);
+        assert.match(first.portableCompliance.receiptSha256, /^[0-9a-f]{64}$/);
+        assert.equal(
+            first.portableCompliance.staticValidationInput.supporting,
+            false,
+        );
+        assert.equal(first.portableCompliance.approvalGranted, false);
+        assert.equal(first.portableCompliance.supportGranted, false);
+        assert.equal(first.portableCompliance.publicationGranted, false);
         assert.equal(first.approvalEligible, false);
         assert.equal(first.installationSupported, false);
         assert.equal(first.publicationEligible, false);
         assert.equal(first.promotionEligible, false);
+        const releaseAssets = JSON.parse(
+            readFileSync(
+                join(
+                    firstRoot,
+                    first.deterministicReleaseTree.releaseAssetManifestPath,
+                ),
+                "utf8",
+            ),
+        );
+        assert.deepEqual(
+            releaseAssets.files.map((file) => file.path).sort(),
+            first.assets.map((asset) => asset.filename).sort(),
+        );
+        for (const file of releaseAssets.files) {
+            const asset = first.assets.find(
+                (candidate) => candidate.filename === file.path,
+            );
+            assert.equal(file.sha256, asset.sha256);
+            assert.equal(file.size, asset.size);
+        }
         for (const asset of first.assets) {
             assert.match(asset.sha256, /^[0-9a-f]{64}$/);
             assert.deepEqual(
@@ -225,9 +266,12 @@ test("Fundamentals preview assets are deterministic and non-publishable", () => 
         const checksums = readFileSync(join(firstRoot, "SHA256SUMS"), "utf8");
         assert(checksums.includes("preview-assets.json"));
         assert(checksums.includes("preview-sbom.json"));
+        assert(checksums.includes("deterministic-release-manifest.json"));
+        assert(checksums.includes("release-asset-manifest.json"));
+        assert(checksums.includes("artifact-assurance-receipt.json"));
         assert.equal(
             checksums.trim().split("\n").length,
-            passiveHarnesses.length + 2,
+            passiveHarnesses.length + 6,
         );
     });
 });
@@ -331,7 +375,7 @@ test("Pi npm preview asset updates rolls back uninstalls and preserves context",
 });
 
 test("Pi loads and removes the extracted exact preview package in an isolated home", {
-    skip: !commandAvailable("pi"),
+    skip: "Real host execution moved to the explicit S9 runner",
 }, () => {
     withTemporaryDirectory((root) => {
         const outputRoot = join(root, "assets");

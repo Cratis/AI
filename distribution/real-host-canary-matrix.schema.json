@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cratis/AI/distribution/real-host-canary-matrix.schema.json",
+  "title": "Cratis real-host canary matrix",
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+    "nonEmpty": { "type": "string", "minLength": 1 },
+    "argv": { "type": "array", "items": { "type": "string" } },
+    "host": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "harnessId", "bindingId", "targetId", "artifactRoot", "executable", "expectedVersion", "versionArgs", "versionPattern", "networkPolicy", "credentialPolicy", "phases", "assuranceDisposition"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "harnessId": { "$ref": "#/$defs/id" },
+        "bindingId": { "$ref": "#/$defs/id" },
+        "targetId": { "$ref": "#/$defs/id" },
+        "artifactRoot": { "$ref": "#/$defs/nonEmpty" },
+        "executable": { "$ref": "#/$defs/nonEmpty" },
+        "expectedVersion": { "$ref": "#/$defs/nonEmpty" },
+        "versionArgs": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+        "versionPattern": { "$ref": "#/$defs/nonEmpty" },
+        "networkPolicy": { "const": "deny-required" },
+        "credentialPolicy": { "const": "forbidden" },
+        "phases": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["install", "list", "uninstall"],
+          "properties": {
+            "install": { "$ref": "#/$defs/argv" },
+            "list": { "$ref": "#/$defs/argv" },
+            "uninstall": { "$ref": "#/$defs/argv" }
+          }
+        },
+        "assuranceDisposition": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["install", "discovery", "behavior", "update", "rollback", "uninstall", "contextPreservation"],
+          "properties": {
+            "install": { "$ref": "#/$defs/nonEmpty" },
+            "discovery": { "$ref": "#/$defs/nonEmpty" },
+            "behavior": { "$ref": "#/$defs/nonEmpty" },
+            "update": { "$ref": "#/$defs/nonEmpty" },
+            "rollback": { "$ref": "#/$defs/nonEmpty" },
+            "uninstall": { "$ref": "#/$defs/nonEmpty" },
+            "contextPreservation": { "$ref": "#/$defs/nonEmpty" }
+          }
+        }
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "defaultPolicy", "realExecutionDefault", "requiredSourceRevision", "hosts"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "defaultPolicy": { "const": "deny" },
+    "realExecutionDefault": { "const": false },
+    "requiredSourceRevision": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+    "hosts": { "type": "array", "minItems": 5, "maxItems": 5, "uniqueItems": true, "items": { "$ref": "#/$defs/host" } }
+  }
+}

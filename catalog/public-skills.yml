@@ -24,8 +24,8 @@
   },
   "audit": {
     "verifiedOn": "2026-08-20",
-    "currentInventoryCount": 43,
-    "publicCandidateCount": 35,
+    "currentInventoryCount": 45,
+    "publicCandidateCount": 37,
     "internalSkillCount": 8,
     "internalSkills": [
       {
@@ -305,6 +305,50 @@
       },
       "reviewNotes": [
         "Distinguish backend pipeline execution from defining an Arc command."
+      ]
+    },
+    {
+      "currentName": "cratis-chronicle-mcp-inspection",
+      "source": "skills/cratis-chronicle-mcp-inspection",
+      "proposedName": "cratis-chronicle-mcp-inspection",
+      "disposition": "retain",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "chronicle-mcp"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "dependencies": {
+        "skills": [],
+        "internalArtifacts": [],
+        "externalTools": []
+      },
+      "reviewNotes": [
+        "Classification-only passive guidance. Tool and prompt invocation remains deny-all until immutable upstream effect, schema, output, and redaction evidence is admitted."
+      ]
+    },
+    {
+      "currentName": "cratis-studio-mcp-safety-guidance",
+      "source": "skills/cratis-studio-mcp-safety-guidance",
+      "proposedName": "cratis-studio-mcp-safety-guidance",
+      "disposition": "retain",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "studio"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "dependencies": {
+        "skills": [],
+        "internalArtifacts": [],
+        "externalTools": []
+      },
+      "reviewNotes": [
+        "Classification-only public-safe guidance. No Studio MCP implementation authority, operation, prompt, resource, schema, transport, or invocation is admitted."
       ]
     },
     {

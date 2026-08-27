@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "1.0.0",
+  "specification": "Agent Plugins Specification",
+  "version": "1.0.0",
+  "status": "published",
+  "retrievedOn": "2026-08-25",
+  "verifiedOn": "2026-08-25",
+  "runtimeNetworkAllowed": false,
+  "sources": [
+    {
+      "role": "plugin-schema",
+      "url": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+      "version": "1.0.0",
+      "status": "published",
+      "retrievedOn": "2026-08-25",
+      "verifiedOn": "2026-08-25",
+      "sha256": "0a4aad95ce337878ad38802ebf0daa3fde76abe3f65400c86bcbb1ec0b3ab883",
+      "localPath": "tooling/specifications/agent-plugins/1.0.0/plugin.schema.json"
+    },
+    {
+      "role": "mcp-schema",
+      "url": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+      "version": "1.0.0",
+      "status": "published",
+      "retrievedOn": "2026-08-25",
+      "verifiedOn": "2026-08-25",
+      "sha256": "6539175bfcdf43085855183e86da40ea94b166547a72b47ae9a0a390516d3acb",
+      "localPath": "tooling/specifications/agent-plugins/1.0.0/mcp.schema.json"
+    },
+    {
+      "role": "normative-specification",
+      "url": "https://raw.githubusercontent.com/agentplugins/agent-plugins-spec/main/spec/1.0.0.md",
+      "version": "1.0.0",
+      "status": "published",
+      "retrievedOn": "2026-08-25",
+      "verifiedOn": "2026-08-25",
+      "sha256": "97a658b7dca3ce1b4c2266b95da300fa51d9dc4ade59d73168e5f9104272da18",
+      "localPath": "tooling/specifications/agent-plugins/1.0.0/specification.snapshot"
+    }
+  ]
+}

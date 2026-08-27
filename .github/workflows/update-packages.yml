@@ -7,6 +7,6 @@ on:
 
 jobs:
   update:
-    uses: Cratis/Workflows/.github/workflows/update-packages.yml@main
+    uses: Cratis/Workflows/.github/workflows/update-packages.yml@f4106c468d4483905b18651a50d22349627a0bcc
     secrets:
       PAT_WORKFLOWS: ${{ secrets.PAT_WORKFLOWS }}

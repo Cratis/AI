@@ -25,11 +25,81 @@ The following files are manually reviewed source:
 - `catalog/v2/bundles.json` — explicit review-bundle roots and known capability
   gaps;
 - `catalog/v2/upstream-companions.json` — direct-upstream companion metadata
-  whose `bytesIncluded` value is always `false`.
+  whose `bytesIncluded` value is always `false`;
+- `catalog/evidence.json` — reusable source locators separated from exact,
+  validity-bounded observations, legacy fact bindings and non-supporting local
+  gaps, plus digest inventory for every `distribution/evidence/*.json` file;
+- `catalog/support-policy.json` — the explicit `asOf` date, evidence classes,
+  monotonic technical tiers, assurance requirements, and orthogonal marketplace
+  listing policy.
 
-Generated targets, evidence, coverage, migrations, artifacts, sources, and
-repository inventory remain derived from the existing generators. Authored
-registries are never overwritten by generation.
+Generated targets, the transition `catalog/v2/evidence.json` projection,
+coverage, support, migrations, artifacts, sources, and repository inventory
+remain derived from the existing generators. Authored registries are never
+overwritten by generation.
+
+## Component and projection contracts
+
+`catalog/components.json` is the authored, closed inventory of canonical skills,
+agents, commands, prompts, rules, instructions, hooks, executable Pi extensions,
+and any static assets. It records exact canonical source ownership and SHA-256,
+semantic identity, lifecycle, optional distribution-target binding, audience,
+trust and effect classification, dependencies, approval evidence, release
+boundary, projection policy, and required canaries. Retained legacy skills are
+modeled explicitly as unbound, repository-only components rather than hidden by
+an exclusion. MCP and LSP are explicitly empty because Cratis has no approved
+runtime components of either kind. The Chronicle MCP inspection candidate is a
+passive `skill` component with `guided-read` classification; an MCP-product
+skill does not create an executable `mcp` component.
+
+`catalog/component-projections.json` separately records existing derived host
+adapters and any future planned or blocked projections. An agent can become an
+agent or subagent only through one of these explicit records. Commands and
+prompts remain different semantic components even when they refer to the same
+current source bytes. Rules and instructions are not skills. Symlinks and
+host-specific adapter files are derived projections and never acquire canonical
+source ownership. Repository-local executable extension sources already under a
+host discovery root are recorded as active `canonical-in-place` exposure, while
+their release approval and future package remain blocked. Existing adapters
+distinguish active host projections from inert repository path references; an
+inert reference is not claimed as host behavior. Shared directory symlinks are
+declared explicitly, and validation
+requires their complete target-byte inventory to be covered by the components
+projected through that output. Validation also requires every leaf under each
+host output boundary to have an exact projection record.
+
+`tooling/generate-component-catalogs.mjs` deterministically produces the closed
+`catalog/v2/components.json` and `catalog/v2/component-projections.json`
+projections. The component summary in the generated human catalog reports counts
+by kind, trust, audience, and projection state. **Modeled or planned does not
+mean emitted, supported, installable, published, promoted, or runtime eligible.**
+S6 creates no native component output and no MCP, LSP, hook, or extension
+runtime package. S7 adds one classification-only passive skill source while
+keeping its tool and prompt inventory empty, its component unprojected, and all
+MCP executable and effectful lanes non-emitting. S7b generalizes that mechanism
+without changing Chronicle output and adds a separately identified Studio
+classification catalog and passive skill. Studio begins without implementation
+authority; private implementation findings cannot enter public source or
+authorize operations.
+
+S8 adds 70 explicit `generated-static` projections for four isolated
+repository-only rule/instruction fixture roots. Those 70 fixture projections
+remain unchanged; the repository adapter inventory now contains 316 existing
+records after incorporating newer main-branch rules. Generated-static records have no host
+activation or package identity and are validated against exact component kind,
+canonical bytes, official discovery-root evidence, and complete candidate-tree
+inventory. They do not establish installation, behavior, lifecycle, support, or
+publication.
+
+S9 defines a separate exact-version real-host canary matrix and immutable phase
+report. Real execution is disabled in ordinary tests and requires explicit
+opt-in, isolated homes, forbidden credentials, and OS-enforced denied egress.
+Synthetic fixture lifecycle results are always non-supporting.
+
+S10 computes a separate release-readiness projection from production lifecycle
+evidence, exact approvals, external-control attestations, release records, and
+marketplace records. The current projection is deterministically `BLOCKED`, and
+all credentialed workflow jobs are unreachable behind its fixed preflight.
 
 ## Target-local safety fields
 
@@ -109,8 +179,67 @@ source provenance loads each Git revision once and resolves its blobs through a
 single batch process, keeping validation practical as the catalog grows.
 Repository inventory uses set membership for bounded path checks.
 
+## Normalized evidence
+
+An evidence source is a reusable locator and immutable revision or digest where
+one exists. An observation binds that source to exactly one ecosystem,
+artifact, output, profile, target, source contract, repository, host, or release.
+It records the exact version, digest, harness, host version, assertion scope,
+environment, observation date, inclusive validity end, limitations, evidence
+class, and supersession history that are actually known. Missing values are not
+inferred.
+
+The 83 S0/S1 evidence IDs remain observation IDs in the authored catalog. The
+110 legacy fact IDs bind only the minimum exact observations that currently
+support each claim. The 11 legacy `localEvidence` strings remain explicit,
+non-supporting gaps until immutable reports carry the command and transcript
+requirements. Every distribution evidence JSON file is indexed by repository
+path and SHA-256 as either supporting a named observation or inventory-only.
+Historical files are never rewritten, and the source-evidence contract under
+`evidence/source-evidence/contracts/v1` remains independent.
+
+An observation is active only when `observedOn <= asOf <= validThrough`.
+Expired and future observations stay visible as history but cannot satisfy a
+gate. A supporting install-or-higher assertion requires exact command `argv`,
+exit code, host/client version, artifact version and digest, environment, and
+report or transcript digest. Behavior additionally requires discovery,
+positive, and negative or near-miss evidence. Lifecycle requires install,
+update, rollback, uninstall, and project-context preservation. Synthetic
+fixtures can never satisfy install-tested or a higher tier.
+
+## Computed technical support
+
+`catalog/v2/support.json` is computed deterministically from S1 bindings,
+assurance profiles, normalized evidence, and the authored policy. Technical
+ranks are monotonic and cannot skip a lower rank:
+
+| Rank | Tier |
+| ---: | --- |
+| 0 | unsupported |
+| 1 | documented |
+| 2 | generated |
+| 3 | statically-validated |
+| 4 | install-tested |
+| 5 | behavior-tested |
+| 6 | lifecycle-tested |
+| 7 | release-tested |
+| 8 | supported |
+
+Release-tested requires an immutable released artifact digest, a canary, and
+ecosystem-native provenance when that provenance exists. Supported additionally
+requires a named release approval and every applicable artifact assurance.
+Marketplace listing is a separate status: direct/native delivery can be
+supported without a marketplace, while a binding that explicitly claims
+marketplace availability must carry active listing evidence.
+
+The generator uses only the authored `asOf` date. It does not read wall-clock
+time, locale, the network, environment variables, or filesystem timestamps.
+Current output remains fixture-only: every support claim and every runtime,
+publication, promotion, and installation eligibility gate is false.
+
 ## Claims
 
-This model proves representability and fail-closed migration only. It does not
-approve a capability, create a public artifact, validate a plugin or package,
-or authorize runtime execution.
+This model proves representability, evidence accounting, and fail-closed support
+computation only. It does not approve a capability, create a public artifact,
+validate a plugin or package, list one in a marketplace, or authorize runtime
+execution.

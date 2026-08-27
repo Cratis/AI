@@ -18,11 +18,22 @@ import {
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-    createAgentPluginManifest,
-    createClaudeMarketplace,
-    createClaudePluginManifest,
+    fixtureOutputRoots,
+    fixtureSkillRoot,
+    fixtureSkillRoots,
+    harnessOutputsForProvider,
+    resolveHarness,
+} from "./harness-registry.mjs";
+import {
+    createPassiveFixtureProjection,
+    validatePassiveFixtureHarnesses,
 } from "./passive-profile-adapters.mjs";
-import { materializeFixtureArtifact } from "./public-artifact-materializer.mjs";
+import {
+    buildGlobalReleaseManifest,
+    writeProjectedRoot,
+} from "./deterministic-release-tree.mjs";
+import { buildReleaseAssuranceReceipt } from "./release-assurance-validation.mjs";
+import { createReleaseContext } from "./release-context.mjs";
 
 const defaultRepositoryRoot = resolve(
     fileURLToPath(new URL("..", import.meta.url)),
@@ -31,21 +42,7 @@ const approvedFiles = [
     "skills/cratis-fundamentals-concept/LICENSE",
     "skills/cratis-fundamentals-concept/SKILL.md",
 ];
-const generatedTargets = [
-    "canonical",
-    "agent-plugin",
-    "claude",
-    "codex",
-    "copilot",
-    "cursor",
-    "deepcode",
-    "deepseek",
-    "gemini",
-    "grok",
-    "junie",
-    "kiro",
-    "pi",
-];
+const generatedTargets = fixtureOutputRoots;
 
 function sha256(content) {
     return createHash("sha256").update(content).digest("hex");
@@ -86,15 +83,6 @@ function walkFiles(root, current = root) {
             throw new Error(`Generated special file is forbidden: ${path}`);
         return [relative(root, path).replaceAll("\\", "/")];
     });
-}
-
-function copyCanonicalSkill(canonicalRoot, destinationRoot) {
-    for (const path of approvedFiles) {
-        const source = join(canonicalRoot, path);
-        const destination = join(destinationRoot, path);
-        mkdirSync(dirname(destination), { recursive: true });
-        cpSync(source, destination, { errorOnExist: true });
-    }
 }
 
 function manifestFile(root, path) {
@@ -170,8 +158,10 @@ function assertConfiguration(
         !/^[0-9a-f]{40}$/.test(source.sourceRevision)
     )
         throw new Error("Public fixture artifact authority is inconsistent");
+    const approvedBuffers = new Map();
     for (const path of approvedFiles) {
         const current = readFileSync(join(repositoryRoot, path));
+        approvedBuffers.set(path, current);
         let immutable;
         try {
             immutable = execFileSync(
@@ -189,25 +179,18 @@ function assertConfiguration(
                 `Public fixture source drifted from revision: ${path}`,
             );
     }
-    return { artifact, source };
+    return { artifact, source, approvedBuffers };
 }
 
 export function validateDistributionConfiguration(
     repositoryRoot = defaultRepositoryRoot,
 ) {
     try {
-        const requirements = readJson(
-            join(repositoryRoot, "distribution/marketplace-requirements.json"),
-        );
-        const matrix = readJson(
-            join(repositoryRoot, "distribution/artifact-matrix.json"),
-        );
-        const artifacts = readJson(
-            join(repositoryRoot, "catalog/v2/artifacts.json"),
-        ).artifacts;
-        const sources = readJson(
-            join(repositoryRoot, "catalog/v2/sources.json"),
-        ).sources;
+        const context = createReleaseContext({ repositoryRoot });
+        const requirements = context.catalogs.marketplaceRequirements;
+        const matrix = context.catalogs.artifactMatrix;
+        const artifacts = context.catalogs.artifacts.artifacts;
+        const sources = context.catalogs.sources.sources;
         assertConfiguration(
             requirements,
             matrix,
@@ -234,23 +217,12 @@ export function generateDistributionFixture({
     const root = resolve(outputRoot);
     if (existsSync(root))
         throw new Error(`Distribution stage must not exist: ${root}`);
-    const requirementsPath = join(
-        repositoryRoot,
-        "distribution/marketplace-requirements.json",
-    );
-    const matrixPath = join(
-        repositoryRoot,
-        "distribution/artifact-matrix.json",
-    );
-    const requirements = readJson(requirementsPath);
-    const matrix = readJson(matrixPath);
-    const artifacts = readJson(
-        join(repositoryRoot, "catalog/v2/artifacts.json"),
-    ).artifacts;
-    const sources = readJson(
-        join(repositoryRoot, "catalog/v2/sources.json"),
-    ).sources;
-    const { source } = assertConfiguration(
+    const context = createReleaseContext({ repositoryRoot });
+    const requirements = context.catalogs.marketplaceRequirements;
+    const matrix = context.catalogs.artifactMatrix;
+    const artifacts = context.catalogs.artifacts.artifacts;
+    const sources = context.catalogs.sources.sources;
+    const { source, approvedBuffers } = assertConfiguration(
         requirements,
         matrix,
         artifacts,
@@ -258,180 +230,13 @@ export function generateDistributionFixture({
         repositoryRoot,
     );
 
-    mkdirSync(root, { recursive: false });
-    try {
-        const canonicalRoot = join(root, "canonical");
-        materializeFixtureArtifact({
-            sourceRoot: repositoryRoot,
-            stageRoot: canonicalRoot,
-            approvedFiles,
-        });
-
-        const portableDescription = "Passive Cratis skills fixture.";
-        const agentPluginRoot = join(root, "agent-plugin");
-        copyCanonicalSkill(canonicalRoot, agentPluginRoot);
-        writeJson(
-            join(agentPluginRoot, "plugin.json"),
-            createAgentPluginManifest({
-                name: "cratis",
-                version,
-                description: portableDescription,
-            }),
-        );
-
-        const claudeRoot = join(root, "claude");
-        copyCanonicalSkill(canonicalRoot, join(claudeRoot, "plugins/cratis"));
-        writeJson(
-            join(claudeRoot, ".claude-plugin/marketplace.json"),
-            createClaudeMarketplace({
-                name: "cratis",
-                version,
-                description: portableDescription,
-            }),
-        );
-        writeJson(
-            join(claudeRoot, "plugins/cratis/.claude-plugin/plugin.json"),
-            createClaudePluginManifest({
-                name: "cratis",
-                version,
-                description: portableDescription,
-            }),
-        );
-
-        const codexRoot = join(root, "codex");
-        copyCanonicalSkill(canonicalRoot, join(codexRoot, "plugins/cratis"));
-        writeJson(join(codexRoot, ".agents/plugins/marketplace.json"), {
-            name: "cratis",
-            interface: { displayName: "Cratis" },
-            plugins: [
-                {
-                    name: "cratis",
-                    source: { source: "local", path: "./plugins/cratis" },
-                    policy: {
-                        installation: "AVAILABLE",
-                        authentication: "ON_INSTALL",
-                    },
-                    category: "Developer Tools",
-                },
-            ],
-        });
-        writeJson(join(codexRoot, "plugins/cratis/.codex-plugin/plugin.json"), {
-            name: "cratis",
-            version,
-            description: "Passive Cratis skills fixture.",
-            skills: "./skills/",
-        });
-
-        const copilotRoot = join(root, "copilot");
-        copyCanonicalSkill(canonicalRoot, join(copilotRoot, "plugins/cratis"));
-        writeJson(join(copilotRoot, ".github/plugin/marketplace.json"), {
-            name: "cratis",
-            owner: { name: "Cratis" },
-            metadata: {
-                description: "Cratis skills-only fixture marketplace",
-                version,
-            },
-            plugins: [
-                {
-                    name: "cratis",
-                    description: "Passive Cratis skills fixture.",
-                    version,
-                    source: "./plugins/cratis",
-                    strict: true,
-                },
-            ],
-        });
-        writeJson(
-            join(copilotRoot, "plugins/cratis/plugin.json"),
-            createAgentPluginManifest({
-                name: "cratis",
-                version,
-                description: portableDescription,
-            }),
-        );
-
-        const cursorRoot = join(root, "cursor");
-        copyCanonicalSkill(canonicalRoot, join(cursorRoot, "plugins/cratis"));
-        writeJson(join(cursorRoot, ".cursor-plugin/marketplace.json"), {
-            name: "cratis",
-            owner: { name: "Cratis" },
-            metadata: {
-                description: "Cratis skills-only fixture marketplace",
-                version,
-            },
-            plugins: [
-                {
-                    name: "cratis",
-                    description: "Passive Cratis skills fixture.",
-                    version,
-                    source: "./plugins/cratis",
-                },
-            ],
-        });
-        writeJson(
-            join(cursorRoot, "plugins/cratis/plugin.json"),
-            createAgentPluginManifest({
-                name: "cratis",
-                version,
-                description: portableDescription,
-            }),
-        );
-
-        const deepCodeRoot = join(root, "deepcode/.deepcode");
-        copyCanonicalSkill(canonicalRoot, deepCodeRoot);
-
-        const deepSeekRoot = join(root, "deepseek/.dsh");
-        copyCanonicalSkill(canonicalRoot, deepSeekRoot);
-
-        const geminiRoot = join(root, "gemini");
-        copyCanonicalSkill(canonicalRoot, geminiRoot);
-        writeJson(join(geminiRoot, "gemini-extension.json"), {
-            name: "cratis",
-            version,
-            description: "Passive Cratis skills fixture.",
-        });
-
-        for (const harness of ["grok", "junie"]) {
-            const compatibleRoot = join(root, harness);
-            copyCanonicalSkill(
-                canonicalRoot,
-                join(compatibleRoot, "plugins/cratis"),
-            );
-            writeJson(
-                join(compatibleRoot, ".claude-plugin/marketplace.json"),
-                createClaudeMarketplace({
-                    name: "cratis",
-                    version,
-                    description: portableDescription,
-                }),
-            );
-            writeJson(
-                join(
-                    compatibleRoot,
-                    "plugins/cratis/.claude-plugin/plugin.json",
-                ),
-                createClaudePluginManifest({
-                    name: "cratis",
-                    version,
-                    description: portableDescription,
-                }),
-            );
-        }
-
-        const kiroRoot = join(root, "kiro");
-        copyCanonicalSkill(canonicalRoot, kiroRoot);
-        writeJson(
-            join(kiroRoot, "plugin.json"),
-            createAgentPluginManifest({
-                name: "cratis",
-                version,
-                description: portableDescription,
-            }),
-        );
-
-        const piPackageRoot = join(root, "pi/package");
-        copyCanonicalSkill(canonicalRoot, piPackageRoot);
-        writeJson(join(piPackageRoot, "package.json"), {
+    const fixtureProjection = createPassiveFixtureProjection({
+        version,
+        pluginName: "cratis",
+        portableDescription: "Passive Cratis skills fixture.",
+        marketplaceDescription: "Cratis skills-only fixture marketplace",
+        codexDisplayName: "Cratis",
+        piPackageManifest: {
             name: "@cratis/ai",
             version,
             description: "Private passive Cratis skills fixture.",
@@ -440,26 +245,78 @@ export function generateDistributionFixture({
             files: ["skills"],
             keywords: ["pi-package"],
             pi: { skills: ["./skills"] },
-        });
-
+        },
+        skills: [
+            {
+                name: "cratis-fundamentals-concept",
+                files: approvedFiles.map((path) => ({
+                    path: path.split("/").slice(2).join("/"),
+                    content: approvedBuffers.get(path),
+                })),
+            },
+        ],
+    });
+    const payloadValidation = writeProjectedRoot(root, fixtureProjection);
+    try {
+        const canonicalRoot = join(root, "canonical");
+        const passiveComplianceReceiptPath = "passive-compliance-receipts.json";
+        writeJson(
+            join(root, passiveComplianceReceiptPath),
+            validatePassiveFixtureHarnesses({
+                outputRoot: root,
+                version,
+                pluginName: "cratis",
+                skills: [
+                    {
+                        name: "cratis-fundamentals-concept",
+                        files: approvedFiles,
+                    },
+                ],
+            }),
+        );
+        const deterministicManifestPath = "deterministic-release-manifest.json";
+        const deterministicManifest = buildGlobalReleaseManifest(
+            fixtureProjection,
+            payloadValidation,
+            { version },
+        );
+        writeJson(join(root, deterministicManifestPath), deterministicManifest);
         writeJson(join(root, "provider-compatibility.json"), {
             schemaVersion: "1.0.0",
             providers: [
                 {
                     id: "deepseek",
                     artifactStrategy: "USE_HARNESS_PACKAGE",
-                    supportedHarnessOutputs: [
-                        "claude",
-                        "copilot",
-                        "deepcode",
-                        "deepseek",
-                        "pi",
-                    ],
+                    supportedHarnessOutputs:
+                        harnessOutputsForProvider("deepseek"),
                     distinctArtifactRoot: null,
                 },
             ],
         });
 
+        const assuranceReceiptPath = "artifact-assurance-receipt.json";
+        writeJson(
+            join(root, assuranceReceiptPath),
+            buildReleaseAssuranceReceipt({
+                artifactClasses: [
+                    "passive-skill-package",
+                    "passive-native-metadata",
+                    "marketplace-index",
+                ],
+                assurances: [
+                    "canonical-parity",
+                    "immutable-source",
+                    "path-scanning",
+                    "secret-scanning",
+                    "sha256-inventory",
+                ],
+                releaseManifest: {
+                    path: deterministicManifestPath,
+                    manifest: deterministicManifest,
+                },
+                policy: context.catalogs.artifactAssurancePolicy,
+            }),
+        );
         const canonicalManifest = approvedFiles.map((path) =>
             manifestFile(canonicalRoot, path),
         );
@@ -473,9 +330,13 @@ export function generateDistributionFixture({
             sourceContentDigest: source.contentDigest,
             generator: "tooling/generate-distribution-fixture.mjs",
             version,
-            requirementsSha256: sha256(readFileSync(requirementsPath)),
-            matrixSha256: sha256(readFileSync(matrixPath)),
+            requirementsSha256: context.catalogDigests.marketplaceRequirements,
+            matrixSha256: context.catalogDigests.artifactMatrix,
             canonicalFiles: canonicalManifest,
+            assuranceReceiptPath,
+            assuranceReceiptSha256: sha256(
+                readFileSync(join(root, assuranceReceiptPath)),
+            ),
             publicationEligible: false,
             promotionEligible: false,
         });
@@ -531,20 +392,7 @@ export function validateDistributionFixture(outputRoot) {
             );
     }
     const canonicalRoot = join(root, "canonical");
-    const targetSkillRoots = [
-        "agent-plugin",
-        "claude/plugins/cratis",
-        "codex/plugins/cratis",
-        "copilot/plugins/cratis",
-        "cursor/plugins/cratis",
-        "deepcode/.deepcode",
-        "deepseek/.dsh",
-        "gemini",
-        "grok/plugins/cratis",
-        "junie/plugins/cratis",
-        "kiro",
-        "pi/package",
-    ];
+    const targetSkillRoots = fixtureSkillRoots("cratis");
     for (const path of approvedFiles) {
         const canonical = readFileSync(join(canonicalRoot, path));
         for (const targetRoot of targetSkillRoots) {
@@ -564,13 +412,7 @@ export function validateDistributionFixture(outputRoot) {
             {
                 id: "deepseek",
                 artifactStrategy: "USE_HARNESS_PACKAGE",
-                supportedHarnessOutputs: [
-                    "claude",
-                    "copilot",
-                    "deepcode",
-                    "deepseek",
-                    "pi",
-                ],
+                supportedHarnessOutputs: harnessOutputsForProvider("deepseek"),
                 distinctArtifactRoot: null,
             },
         ])
@@ -580,14 +422,69 @@ export function validateDistributionFixture(outputRoot) {
         throw new Error(
             "DeepSeek model provider must not receive a duplicate artifact root",
         );
+    const deterministicManifestPath = "deterministic-release-manifest.json";
+    const deterministicManifest = readJson(
+        join(root, deterministicManifestPath),
+    );
+    if (
+        deterministicManifest.state !==
+            "DETERMINISTIC_RELEASE_TREE_VALIDATED" ||
+        deterministicManifest.supportGranted !== false ||
+        deterministicManifest.publicationGranted !== false ||
+        deterministicManifest.runtimeGranted !== false ||
+        deterministicManifest.promotionGranted !== false
+    )
+        throw new Error("Deterministic payload manifest state changed");
+    const payloadPaths = deterministicManifest.files
+        .map((file) => file.path)
+        .sort();
+    for (const file of deterministicManifest.files) {
+        const content = readFileSync(join(root, file.path));
+        if (content.length !== file.size || sha256(content) !== file.sha256)
+            throw new Error(
+                `Deterministic payload digest mismatch: ${file.path}`,
+            );
+    }
+    const metadataPaths = [
+        "SHA256SUMS",
+        "artifact-assurance-receipt.json",
+        "passive-compliance-receipts.json",
+        deterministicManifestPath,
+        "provenance.json",
+        "provider-compatibility.json",
+    ];
+    const expectedActualPaths = [...payloadPaths, ...metadataPaths].sort();
+    if (JSON.stringify(actualPaths) !== JSON.stringify(expectedActualPaths))
+        throw new Error(
+            "Generated distribution contains undeclared payload or metadata",
+        );
+    const receipt = readJson(join(root, "artifact-assurance-receipt.json"));
+    if (
+        receipt.releaseManifest?.path !== deterministicManifestPath ||
+        receipt.releaseManifest?.sha256 !==
+            sha256(readFileSync(join(root, deterministicManifestPath))) ||
+        receipt.releaseManifest?.fileCount !== deterministicManifest.fileCount
+    )
+        throw new Error(
+            "Artifact assurance receipt does not bind the deterministic payload manifest",
+        );
     const checksumLines = readFileSync(join(root, "SHA256SUMS"), "utf8")
         .trim()
         .split("\n");
-    for (const line of checksumLines) {
+    const checksumPaths = checksumLines.map((line) => {
         const match = /^([0-9a-f]{64}) {2}(.+)$/.exec(line);
         if (!match || sha256(readFileSync(join(root, match[2]))) !== match[1])
             throw new Error(`Checksum verification failed: ${line}`);
-    }
+        return match[2];
+    });
+    const expectedChecksumPaths = actualPaths
+        .filter((path) => path !== "SHA256SUMS")
+        .sort();
+    if (
+        JSON.stringify(checksumPaths.sort()) !==
+        JSON.stringify(expectedChecksumPaths)
+    )
+        throw new Error("SHA256SUMS does not cover the exact final inventory");
     return manifest;
 }
 
@@ -702,7 +599,9 @@ function smokeClaudeCompatiblePluginFixture(
         join(installed, "skills/cratis-fundamentals-concept/SKILL.md"),
     );
     if (!sourceSkill.equals(installedSkill))
-        throw new Error("Claude-compatible plugin install changed canonical bytes");
+        throw new Error(
+            "Claude-compatible plugin install changed canonical bytes",
+        );
     rmSync(installed, { recursive: true, force: false });
     if (existsSync(installed))
         throw new Error("Claude-compatible plugin uninstall left content");
@@ -713,8 +612,8 @@ export function smokeGrokDistributionFixture(outputRoot, temporaryRoot) {
     return smokeClaudeCompatiblePluginFixture(
         outputRoot,
         temporaryRoot,
-        "grok",
-        ".grok/plugins",
+        resolveHarness("grok").fixtureOutputRoot,
+        resolveHarness("grok").projectSkillRoot,
     );
 }
 
@@ -722,8 +621,8 @@ export function smokeDeepCodeDistributionFixture(outputRoot, temporaryRoot) {
     return smokeDirectSkillFixture(
         outputRoot,
         temporaryRoot,
-        "deepcode/.deepcode",
-        ".deepcode/skills",
+        fixtureSkillRoot("deepcode", "cratis"),
+        resolveHarness("deepcode").projectSkillRoot,
     );
 }
 
@@ -731,8 +630,14 @@ export function smokeDeepSeekDistributionFixture(outputRoot, temporaryRoot) {
     return smokeDirectSkillFixture(
         outputRoot,
         temporaryRoot,
-        "deepseek/.dsh",
-        ".dsh/skills",
+        fixtureSkillRoot("deepseek-harness", "cratis"),
+        resolveHarness("deepseek-harness").projectSkillRoot,
+    );
+}
+
+function rejectLegacyRealHostSmoke() {
+    throw new Error(
+        "Real host execution moved to tooling/run-real-host-canary.mjs",
     );
 }
 
@@ -741,6 +646,7 @@ export function smokePiDistributionFixture(
     temporaryHome,
     piCommand = "pi",
 ) {
+    rejectLegacyRealHostSmoke();
     const packageRoot = join(outputRoot, "pi/package");
     const environment = { ...process.env, HOME: temporaryHome };
     execFileSync(piCommand, ["install", packageRoot], {
@@ -771,6 +677,7 @@ export function smokeClaudeDistributionFixture(
     temporaryHome,
     claudeCommand = "claude",
 ) {
+    rejectLegacyRealHostSmoke();
     const marketplaceRoot = join(outputRoot, "claude");
     const pluginRoot = join(marketplaceRoot, "plugins/cratis");
     const environment = { ...process.env, HOME: temporaryHome };
@@ -816,6 +723,7 @@ export function smokeCopilotDistributionFixture(
     temporaryHome,
     copilotCommand = "copilot",
 ) {
+    rejectLegacyRealHostSmoke();
     const marketplaceRoot = join(outputRoot, "copilot");
     const environment = { ...process.env, HOME: temporaryHome };
     execFileSync(
@@ -856,6 +764,7 @@ export function smokeCodexDistributionFixture(
     temporaryHome,
     codexCommand = "codex",
 ) {
+    rejectLegacyRealHostSmoke();
     const marketplaceRoot = join(outputRoot, "codex");
     const environment = { ...process.env, HOME: temporaryHome };
     execFileSync(
@@ -888,6 +797,7 @@ export function smokeGeminiDistributionFixture(
     temporaryHome,
     geminiCommand = "gemini",
 ) {
+    rejectLegacyRealHostSmoke();
     const extensionRoot = join(outputRoot, "gemini");
     mkdirSync(join(temporaryHome, ".gemini"), { recursive: true });
     const environment = {

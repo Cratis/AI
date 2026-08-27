@@ -16,10 +16,7 @@ import {
 import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { compareOrdinal } from "./catalog-ordering.mjs";
-import {
-    readCatalog,
-    validateAgainstSchema,
-} from "./catalog-validation.mjs";
+import { readCatalog, validateAgainstSchema } from "./catalog-validation.mjs";
 import { v2SchemaPath } from "./catalog-v2-validation.mjs";
 import { assertSafeContent } from "./public-artifact-materializer.mjs";
 import { presentProfile } from "./profile-presentation.mjs";
@@ -28,12 +25,18 @@ const repositoryRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const inputPaths = [
     "catalog/v2/authoring-contracts.json",
     "catalog/v2/bundles.json",
+    "catalog/v2/components.json",
+    "catalog/v2/component-projections.json",
     "catalog/v2/evidence.json",
+    "catalog/v2/ecosystem-artifact-coverage.json",
     "catalog/v2/human-catalog.json",
     "catalog/v2/source-contracts.json",
+    "catalog/v2/release-readiness.json",
+    "catalog/v2/support.json",
     "catalog/v2/targets.json",
     "catalog/v2/taxonomy.json",
     "catalog/v2/upstream-companions.json",
+    "catalog/host-adapters.json",
     "distribution/profile-catalog.json",
 ];
 
@@ -111,7 +114,9 @@ function assertBounded(value, limits, depth = 0) {
     }
     if (Array.isArray(value)) {
         if (value.length > limits.maximumItemsPerRegistry)
-            throw new Error("Human catalog input exceeds maximum registry size");
+            throw new Error(
+                "Human catalog input exceeds maximum registry size",
+            );
         for (const item of value) assertBounded(item, limits, depth + 1);
         return;
     }
@@ -176,7 +181,10 @@ function renderProfile(profile) {
         "",
         "#### Included capabilities",
         "",
-        ...renderList(profile.targetIds, "No approved or candidate capabilities yet"),
+        ...renderList(
+            profile.targetIds,
+            "No approved or candidate capabilities yet",
+        ),
         "",
         "#### Composed profiles",
         "",
@@ -321,7 +329,9 @@ function canonicalEffect(effect) {
         operation: effect.operation,
         resourceBoundary: effect.resourceBoundary,
         scope: effect.scope,
-        dataClassifications: [...effect.dataClassifications].sort(compareOrdinal),
+        dataClassifications: [...effect.dataClassifications].sort(
+            compareOrdinal,
+        ),
         reversible: effect.reversible,
         confirmation: {
             required: effect.confirmation.required,
@@ -358,10 +368,23 @@ export function buildHumanCatalogOutputs() {
     const schema = readCatalog(join(repositoryRoot, v2SchemaPath));
     const { catalogs, digest, humanContract } = loadInputs();
     const targets = catalogs.get("catalog/v2/targets.json").targets;
-    const bundles = catalogs.get("catalog/v2/bundles.json").bundles;
-    const profileCatalog = catalogs.get(
-        "distribution/profile-catalog.json",
+    const componentsCatalog = catalogs.get("catalog/v2/components.json");
+    const componentProjections = catalogs.get(
+        "catalog/v2/component-projections.json",
     );
+    const support = catalogs.get("catalog/v2/support.json");
+    const supportByBindingId = new Map(
+        support.bindings.map((record) => [record.bindingId, record]),
+    );
+    const generatedCoverage = catalogs.get(
+        "catalog/v2/ecosystem-artifact-coverage.json",
+    );
+    const generatedCoverageByBindingId = new Map(
+        generatedCoverage.coverage.map((record) => [record.bindingId, record]),
+    );
+    const hostAdapters = catalogs.get("catalog/host-adapters.json").hosts;
+    const bundles = catalogs.get("catalog/v2/bundles.json").bundles;
+    const profileCatalog = catalogs.get("distribution/profile-catalog.json");
     const presentedProfiles = [
         ...profileCatalog.publicProfiles.map((profile) =>
             presentProfile(profile, "public"),
@@ -461,13 +484,120 @@ export function buildHumanCatalogOutputs() {
             ),
         }))
         .sort(compareAudienceThenId);
+    const hostCoverage = hostAdapters
+        .map((host) => ({
+            ecosystemId: host.ecosystemId,
+            hostAdapterId: host.id,
+            productName: host.product.name,
+            productStatus: host.product.status,
+            coverage: host.supportDisposition.coverage,
+            strategy: host.strategy,
+            servingArtifactBindingId: host.serving.artifactBindingId,
+            targetId: host.serving.targetId,
+            outputRoot: host.serving.outputRoot,
+            generationState:
+                generatedCoverageByBindingId.get(host.serving.artifactBindingId)
+                    ?.generationState ?? "unmapped",
+            technicalTier:
+                supportByBindingId.get(host.serving.artifactBindingId)
+                    ?.effectiveTier ?? "unsupported",
+            supportClaim: host.supportDisposition.supportClaim,
+        }))
+        .sort((left, right) =>
+            compareOrdinal(left.ecosystemId, right.ecosystemId),
+        );
+    const countBy = (values, keys, selector) =>
+        Object.fromEntries(
+            keys.map((key) => [
+                key,
+                values.filter((value) => selector(value) === key).length,
+            ]),
+        );
+    const componentSummary = {
+        disclaimer:
+            "Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.",
+        total: componentsCatalog.components.length,
+        byKind: countBy(
+            componentsCatalog.components,
+            [
+                "skill",
+                "agent",
+                "subagent",
+                "command",
+                "prompt",
+                "rule",
+                "instruction",
+                "hook",
+                "mcp",
+                "lsp",
+                "executable-host-extension",
+                "static-asset",
+            ],
+            (component) => component.kind,
+        ),
+        byTrust: countBy(
+            componentsCatalog.components,
+            ["passive", "executable"],
+            (component) => component.classification.trust,
+        ),
+        byAudience: countBy(
+            componentsCatalog.components,
+            ["public", "cratis-engineering", "repository-only"],
+            (component) => component.audience,
+        ),
+        byLifecycle: countBy(
+            componentsCatalog.components,
+            ["active", "legacy-retained"],
+            (component) => component.lifecycle,
+        ),
+        projections: {
+            total: componentProjections.projections.length,
+            byState: countBy(
+                componentProjections.projections,
+                ["planned", "blocked", "existing", "generated-static"],
+                (projection) => projection.state,
+            ),
+            byActivation: countBy(
+                componentProjections.projections,
+                ["active", "inert", "none"],
+                (projection) => projection.hostActivation,
+            ),
+            byApproval: countBy(
+                componentProjections.projections,
+                ["modeled", "approved", "blocked"],
+                (projection) => projection.approval,
+            ),
+        },
+        declaredEmptyKinds: [...componentsCatalog.declaredEmptyKinds].sort(
+            compareOrdinal,
+        ),
+    };
+    const releaseReadinessCatalog = catalogs.get(
+        "catalog/v2/release-readiness.json",
+    );
+    const releaseReadiness = {
+        state: releaseReadinessCatalog.state,
+        blockerCodes: releaseReadinessCatalog.blockers.map(
+            (blocker) => blocker.code,
+        ),
+        releaseRequestEligible:
+            releaseReadinessCatalog.releaseRequestEligible,
+        publicationEligible: releaseReadinessCatalog.publicationEligible,
+        promotionEligible: releaseReadinessCatalog.promotionEligible,
+        supportGranted: releaseReadinessCatalog.supportGranted,
+        marketplaceAvailabilityClaim:
+            releaseReadinessCatalog.marketplaceAvailabilityClaim,
+    };
     const data = {
         schemaVersion: 2,
         contractVersion: humanContract.contractVersion,
         disclaimer: humanContract.disclaimer,
         inputDigest: digest,
+        componentSummary,
+        releaseReadiness,
         profiles,
         capabilities,
+        hostCoverage,
     };
     const dataErrors = validateAgainstSchema(
         data,
@@ -475,7 +605,9 @@ export function buildHumanCatalogOutputs() {
         schema,
     );
     if (dataErrors.length > 0)
-        throw new Error(`Generated human catalog is invalid: ${dataErrors.join("; ")}`);
+        throw new Error(
+            `Generated human catalog is invalid: ${dataErrors.join("; ")}`,
+        );
 
     const markdownLines = [
         "# Cratis AI package and capability catalog",
@@ -489,6 +621,61 @@ export function buildHumanCatalogOutputs() {
         `- Profiles: ${profiles.length}`,
         `- Capabilities: ${capabilities.length}`,
         `- Installable profiles: ${profiles.filter((profile) => profile.installable).length}`,
+        `- Ecosystem bindings with support claims: ${support.summary.supportClaimCount}`,
+        "",
+        "## Component contract summary",
+        "",
+        componentSummary.disclaimer,
+        "",
+        `- Components: ${componentSummary.total}`,
+        `- Passive: ${componentSummary.byTrust.passive}`,
+        `- Executable: ${componentSummary.byTrust.executable}`,
+        `- Legacy-retained: ${componentSummary.byLifecycle["legacy-retained"]}`,
+        `- Existing adapter records: ${componentSummary.projections.byState.existing}`,
+        `- Generated static fixture projections: ${componentSummary.projections.byState["generated-static"]}`,
+        `- Active host projections: ${componentSummary.projections.byActivation.active}`,
+        `- Inert path references: ${componentSummary.projections.byActivation.inert}`,
+        `- Planned projections: ${componentSummary.projections.byState.planned}`,
+        `- Non-existing blocked projections: ${componentSummary.projections.byState.blocked}`,
+        `- Blocked projection approvals: ${componentSummary.projections.byApproval.blocked}`,
+        `- Explicitly empty kinds: ${componentSummary.declaredEmptyKinds.join(", ")}`,
+        "",
+        "### Components by kind",
+        "",
+        ...Object.entries(componentSummary.byKind).map(
+            ([kind, count]) => `- ${kind}: ${count}`,
+        ),
+        "",
+        "## Release readiness",
+        "",
+        `- State: ${releaseReadiness.state}`,
+        `- Release request eligible: ${releaseReadiness.releaseRequestEligible}`,
+        `- Publication eligible: ${releaseReadiness.publicationEligible}`,
+        `- Promotion eligible: ${releaseReadiness.promotionEligible}`,
+        `- Support granted: ${releaseReadiness.supportGranted}`,
+        `- Marketplace availability claimed: ${releaseReadiness.marketplaceAvailabilityClaim}`,
+        `- Blockers: ${releaseReadiness.blockerCodes.join(", ")}`,
+        "",
+        "## Computed ecosystem support",
+        "",
+        `As of ${support.asOf}, technical tiers are computed from active normalized evidence; expired and future evidence cannot satisfy gates. Marketplace listing is orthogonal.`,
+        "",
+        ...support.tierOrder.map(
+            (tier) => `- ${tier}: ${support.summary.byTier[tier]}`,
+        ),
+        "",
+        "No technical tier grants runtime, publication, or promotion eligibility.",
+        "",
+        "## Researched host coverage",
+        "",
+        "This matrix reports research and serving disposition only. It is not support, publication readiness, or a promise to generate a host-native adapter.",
+        "",
+        "| Ecosystem | Product status | Coverage | Strategy | Serving target | Generation | Technical tier | Support |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- |",
+        ...hostCoverage.map(
+            (host) =>
+                `| ${markdownText(host.ecosystemId)} | ${markdownText(host.productStatus)} | ${markdownText(host.coverage)} | ${markdownText(host.strategy)} | ${markdownText(host.targetId ?? "no output")} | ${markdownText(host.generationState)} | ${markdownText(host.technicalTier)} | no |`,
+        ),
         "",
         "## Packages and profiles",
         "",
@@ -531,8 +718,13 @@ export function buildHumanCatalogOutputs() {
         schema,
     );
     if (manifestErrors.length > 0)
-        throw new Error(`Generated manifest is invalid: ${manifestErrors.join("; ")}`);
-    contents.set(humanContract.generatedFiles.manifest, Buffer.from(json(manifest)));
+        throw new Error(
+            `Generated manifest is invalid: ${manifestErrors.join("; ")}`,
+        );
+    contents.set(
+        humanContract.generatedFiles.manifest,
+        Buffer.from(json(manifest)),
+    );
     if (contents.size > humanContract.limits.maximumGeneratedFiles)
         throw new Error("Human catalog exceeds maximum generated files");
     const generatedBytes = [...contents.values()].reduce(
@@ -553,7 +745,10 @@ function currentFiles(root) {
             if (entry.isDirectory()) visit(absolutePath);
             else if (entry.isFile())
                 paths.push(relative(root, absolutePath).split(sep).join("/"));
-            else throw new Error("Generated human catalog contains a non-regular path");
+            else
+                throw new Error(
+                    "Generated human catalog contains a non-regular path",
+                );
         }
     }
     visit(root);
@@ -598,10 +793,7 @@ export function writeHumanCatalogOutputsAtomically(
             if (publishedDataFiles === options.failAfterDataFiles)
                 throw new Error("Injected failure after data publication");
         }
-        renameSync(
-            partialPaths.get(manifestPath),
-            join(root, manifestPath),
-        );
+        renameSync(partialPaths.get(manifestPath), join(root, manifestPath));
         const expectedPaths = new Set(outputs.keys());
         for (const path of currentFiles(root)) {
             if (!expectedPaths.has(path))

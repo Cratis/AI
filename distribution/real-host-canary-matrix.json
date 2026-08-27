@@ -1,0 +1,143 @@
+{
+  "schemaVersion": 1,
+  "defaultPolicy": "deny",
+  "realExecutionDefault": false,
+  "requiredSourceRevision": "1a9af3d8b6e10ee61f390c4e6a5c73bde109379d",
+  "hosts": [
+    {
+      "id": "pi",
+      "harnessId": "pi",
+      "bindingId": "pi-packages-artifact-binding",
+      "targetId": "pi-npm",
+      "artifactRoot": "pi/package",
+      "executable": "pi",
+      "expectedVersion": "0.84.3",
+      "versionArgs": ["--version"],
+      "versionPattern": "^0\\.84\\.3$",
+      "networkPolicy": "deny-required",
+      "credentialPolicy": "forbidden",
+      "phases": {
+        "install": ["install", "<artifactRoot>"],
+        "list": ["list"],
+        "uninstall": ["remove", "<artifactRoot>"]
+      },
+      "assuranceDisposition": {
+        "install": "non-supporting-fixture",
+        "discovery": "blocked-no-host-discovery-proof",
+        "behavior": "blocked-no-reviewed-cases",
+        "update": "blocked-no-reviewed-host-transition",
+        "rollback": "blocked-no-reviewed-host-transition",
+        "uninstall": "non-supporting-fixture",
+        "contextPreservation": "non-supporting-fixture"
+      }
+    },
+    {
+      "id": "claude",
+      "harnessId": "claude",
+      "bindingId": "claude-code-plugins-artifact-binding",
+      "targetId": "claude-code",
+      "artifactRoot": "claude",
+      "executable": "claude",
+      "expectedVersion": "2.1.245",
+      "versionArgs": ["--version"],
+      "versionPattern": "^2\\.1\\.245(?: |$)",
+      "networkPolicy": "deny-required",
+      "credentialPolicy": "forbidden",
+      "phases": {
+        "install": [],
+        "list": [],
+        "uninstall": []
+      },
+      "assuranceDisposition": {
+        "install": "blocked-runner-not-hardened",
+        "discovery": "blocked-no-host-discovery-proof",
+        "behavior": "blocked-no-reviewed-cases",
+        "update": "blocked-no-reviewed-host-transition",
+        "rollback": "blocked-no-reviewed-host-transition",
+        "uninstall": "blocked-runner-not-hardened",
+        "contextPreservation": "blocked-runner-not-hardened"
+      }
+    },
+    {
+      "id": "copilot",
+      "harnessId": "copilot",
+      "bindingId": "github-copilot-plugins-artifact-binding",
+      "targetId": "github-copilot",
+      "artifactRoot": "copilot",
+      "executable": "copilot",
+      "expectedVersion": "1.0.80",
+      "versionArgs": ["--version"],
+      "versionPattern": "^GitHub Copilot CLI 1\\.0\\.80\\.",
+      "networkPolicy": "deny-required",
+      "credentialPolicy": "forbidden",
+      "phases": {
+        "install": [],
+        "list": [],
+        "uninstall": []
+      },
+      "assuranceDisposition": {
+        "install": "blocked-runner-not-hardened",
+        "discovery": "blocked-no-host-discovery-proof",
+        "behavior": "blocked-no-reviewed-cases",
+        "update": "blocked-unverified-argv",
+        "rollback": "blocked-unverified-argv",
+        "uninstall": "blocked-runner-not-hardened",
+        "contextPreservation": "blocked-runner-not-hardened"
+      }
+    },
+    {
+      "id": "codex",
+      "harnessId": "codex",
+      "bindingId": "openai-plugins-artifact-binding",
+      "targetId": "openai-codex",
+      "artifactRoot": "codex",
+      "executable": "codex",
+      "expectedVersion": "0.149.1",
+      "versionArgs": ["--version"],
+      "versionPattern": "^codex-cli 0\\.149\\.1$",
+      "networkPolicy": "deny-required",
+      "credentialPolicy": "forbidden",
+      "phases": {
+        "install": [],
+        "list": [],
+        "uninstall": []
+      },
+      "assuranceDisposition": {
+        "install": "blocked-marketplace-registration-only",
+        "discovery": "blocked-no-host-discovery-proof",
+        "behavior": "blocked-no-reviewed-cases",
+        "update": "blocked-unverified-argv",
+        "rollback": "blocked-unverified-argv",
+        "uninstall": "blocked-marketplace-registration-only",
+        "contextPreservation": "blocked-runner-not-hardened"
+      }
+    },
+    {
+      "id": "gemini",
+      "harnessId": "gemini",
+      "bindingId": "gemini-cli-extensions-artifact-binding",
+      "targetId": "gemini-cli",
+      "artifactRoot": "gemini",
+      "executable": "gemini",
+      "expectedVersion": "0.56.0",
+      "versionArgs": ["--version"],
+      "versionPattern": "^0\\.56\\.0$",
+      "networkPolicy": "deny-required",
+      "credentialPolicy": "forbidden",
+      "phases": {
+        "install": [],
+        "list": [],
+        "uninstall": []
+      },
+      "assuranceDisposition": {
+        "install": "blocked-runner-not-hardened",
+        "discovery": "blocked-version-not-available",
+        "behavior": "blocked-no-reviewed-cases",
+        "update": "blocked-no-reviewed-host-transition",
+        "rollback": "blocked-no-reviewed-host-transition",
+        "uninstall": "blocked-runner-not-hardened",
+        "contextPreservation": "blocked-runner-not-hardened"
+      }
+    }
+  ]
+}

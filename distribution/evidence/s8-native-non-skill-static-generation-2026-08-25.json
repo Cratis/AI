@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "1.0.0",
+  "state": "S8_NATIVE_NON_SKILL_STATIC_GENERATION_EVIDENCE_NON_PROMOTING",
+  "observedOn": "2026-08-25",
+  "sourceRevision": "3fe2b12aa7fd068565cbf082ea966cd783cc6aad",
+  "generator": "tooling/native-non-skill-projections.mjs",
+  "verification": {
+    "command": [
+      "node",
+      "--test",
+      "tooling/specs/*.spec.mjs"
+    ],
+    "exitCode": 0,
+    "testCount": 467,
+    "passed": 467,
+    "failed": 0
+  },
+  "rootCount": 4,
+  "fileCount": 70,
+  "uniqueComponentCount": 35,
+  "receiptSha256": "ac95afb703d06c8f37777be684237dd2fbea1f3fbb9a85ac59fd6d5b0261323b",
+  "roots": [
+    {
+      "id": "devin-hosted-instructions",
+      "outputRoot": "devin-hosted-instructions",
+      "fileCount": 1,
+      "totalBytes": 26775,
+      "inventorySha256": "b3c5d67e957acca06e5be1decaca7dd7f1605f4b1ba9f1ed1738bfe5fd1396d0"
+    },
+    {
+      "id": "jetbrains-ai-assistant-rules",
+      "outputRoot": "jetbrains-ai-assistant-rules",
+      "fileCount": 34,
+      "totalBytes": 262927,
+      "inventorySha256": "942c5cc0fc3c01a813f8854b577750379ccf885219b1c4bed13d16f61b7c0ed4"
+    },
+    {
+      "id": "tabnine-guidelines",
+      "outputRoot": "tabnine-guidelines",
+      "fileCount": 34,
+      "totalBytes": 262927,
+      "inventorySha256": "096f372e040f975d05279cdec3e96621d11d80fe9cfe4fd09dc33b746e74c9bd"
+    },
+    {
+      "id": "visual-studio-copilot-instructions",
+      "outputRoot": "visual-studio-copilot-instructions",
+      "fileCount": 1,
+      "totalBytes": 26775,
+      "inventorySha256": "4d9b8ed461bd6adda8408909b2c97734e33aa9ebba9c38e6f0ed2a09d121334b"
+    }
+  ],
+  "executionPerformed": false,
+  "networkAccessPerformed": false,
+  "hostTestingPerformed": false,
+  "installationPerformed": false,
+  "lifecycleTestingPerformed": false,
+  "supportGranted": false,
+  "publicationGranted": false,
+  "runtimeGranted": false,
+  "promotionGranted": false,
+  "limitations": [
+    "Static generation validates exact documented project layouts and canonical byte parity only.",
+    "No host process, discovery, parsing, installation, update, removal, project merge, lifecycle, marketplace, publication, runtime, or support behavior was tested.",
+    "Singleton project files have no collision-safe installation or merge contract.",
+    "Provider compatibility assurance is not public release assurance."
+  ]
+}

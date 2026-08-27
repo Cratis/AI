@@ -4,6 +4,10 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+    forbiddenPathPolicy,
+    requiredEcosystemIds,
+} from "./harness-registry.mjs";
 
 const moduleDirectory = dirname(fileURLToPath(import.meta.url));
 export const defaultRepositoryRoot = resolve(moduleDirectory, "..");
@@ -34,6 +38,7 @@ const supportedSchemaKeywords = new Set([
     "const",
     "enum",
     "minItems",
+    "maxItems",
     "uniqueItems",
     "items",
     "minLength",
@@ -144,6 +149,8 @@ function matchesKnownPattern(value, pattern) {
     switch (pattern) {
         case "^[a-z0-9]+(?:-[a-z0-9]+)*$":
             return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value);
+        case "^[a-z0-9]+(?:_[a-z0-9]+)*$":
+            return /^[a-z0-9]+(?:_[a-z0-9]+)*$/.test(value);
         case "^cratis-[a-z0-9]+(?:-[a-z0-9]+)*$":
             return /^cratis-[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value);
         case "^(\\.ai/skills|skills)/[a-z0-9]+(?:-[a-z0-9]+)*$":
@@ -247,6 +254,11 @@ export function validateAgainstSchema(
                 `${path}: must contain at least ${schema.minItems} items`,
             );
         }
+        if (schema.maxItems !== undefined && value.length > schema.maxItems) {
+            errors.push(
+                `${path}: must contain at most ${schema.maxItems} items`,
+            );
+        }
         if (schema.uniqueItems) {
             const serializedItems = value.map((item) => JSON.stringify(item));
             if (new Set(serializedItems).size !== serializedItems.length) {
@@ -328,10 +340,17 @@ function extractSkillName(skillFile) {
 function validatePublicSkills(catalog, coverage, root) {
     const errors = [];
     const skillRoot = join(root, ".ai/skills");
-    const currentDirectories = readdirSync(skillRoot, { withFileTypes: true })
+    const legacyDirectories = readdirSync(skillRoot, { withFileTypes: true })
         .filter((entry) => entry.isDirectory())
-        .map((entry) => entry.name)
-        .sort();
+        .map((entry) => entry.name);
+    const directCanonicalNames = catalog.skills
+        .filter((skill) => skill.source.startsWith("skills/"))
+        .map((skill) => skill.currentName)
+        .filter((name) => !legacyDirectories.includes(name));
+    const currentDirectories = [
+        ...legacyDirectories,
+        ...directCanonicalNames,
+    ].sort();
     const publicNames = catalog.skills.map((skill) => skill.currentName);
     const internalNames = catalog.audit.internalSkills.map(
         (skill) => skill.currentName,
@@ -363,7 +382,7 @@ function validatePublicSkills(catalog, coverage, root) {
     }
     if (JSON.stringify(catalogedNames) !== JSON.stringify(currentDirectories)) {
         errors.push(
-            "public-skills audit must account for every current .ai/skills directory exactly once",
+            "public-skills audit must account for every legacy and direct canonical skill exactly once",
         );
     }
 
@@ -495,16 +514,7 @@ function validatePublicSkills(catalog, coverage, root) {
         }
     }
 
-    const requiredForbiddenPatterns = [
-        "rules/**",
-        "agents/**",
-        "prompts/**",
-        "hooks/**",
-        "scripts/**",
-        "evals/**",
-        ".ai/**",
-    ];
-    for (const pattern of requiredForbiddenPatterns) {
+    for (const pattern of forbiddenPathPolicy.publicRuntimePatterns) {
         if (!catalog.runtimePayloadPolicy.forbidden.includes(pattern)) {
             errors.push(`runtimePayloadPolicy must forbid ${pattern}`);
         }
@@ -570,42 +580,26 @@ function validateProductCoverage(coverage, publicSkills) {
     return errors;
 }
 
-function validateEcosystems(registry) {
+export function validateEcosystems(registry) {
     const errors = [];
     const ecosystemIds = registry.ecosystems.map((ecosystem) => ecosystem.id);
-    const requiredEcosystems = [
-        "agent-plugins",
-        "agent-skills",
-        "model-context-protocol",
-        "mcp-registry",
-        "github-cli-skills",
-        "vscode-agent-plugins",
-        "github-copilot-plugins",
-        "openai-plugins",
-        "claude-code-plugins",
-        "gemini-cli-extensions",
-        "cursor-plugins",
-        "kiro-powers",
-        "hermes-agent-plugins",
-        "openclaw-bundles",
-        "grok-bot-plugins",
-        "nanoclaw-templates",
-        "pi-packages",
-        "junie-extensions",
-        "opencode-skills",
-        "zed-skills",
-        "deepseek-deepcode-skills",
-        "deepseek-harness-skills",
-        "npm-cratis-scope",
-        "npm-trusted-publishing",
-    ];
 
     for (const duplicate of findDuplicates(ecosystemIds))
         errors.push(`ecosystem-versions contains duplicate id ${duplicate}`);
-    for (const required of requiredEcosystems) {
-        if (!ecosystemIds.includes(required))
-            errors.push(`ecosystem-versions is missing ${required}`);
-    }
+
+    const actualIds = [...ecosystemIds].sort();
+    const expectedIds = [...requiredEcosystemIds].sort();
+    for (const missing of expectedIds.filter((id) => !actualIds.includes(id)))
+        errors.push(
+            `ecosystem-versions is missing required ecosystem ${missing}`,
+        );
+    for (const unexpected of actualIds.filter(
+        (id) => !expectedIds.includes(id),
+    ))
+        errors.push(
+            `ecosystem-versions contains unregistered ecosystem ${unexpected}`,
+        );
+
     for (const ecosystem of registry.ecosystems) {
         for (const source of ecosystem.sources) {
             if (!source.url.startsWith("https://"))

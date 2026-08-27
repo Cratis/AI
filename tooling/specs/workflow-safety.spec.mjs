@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import test from "node:test";
 
 const verification = readFileSync(
@@ -33,7 +33,7 @@ test("verification workflow covers every release-relevant source", () => {
     }
 });
 
-test("merged release request publishes one profile with truthful cleanup and recovery", () => {
+test("release candidates remain readable while every side-effect job is S10-blocked", () => {
     const workflow = readFileSync(
         ".github/workflows/release-approved-ai-profiles.yml",
         "utf8",
@@ -44,14 +44,19 @@ test("merged release request publishes one profile with truthful cleanup and rec
         "distribution/releases/*.json",
         "release-request-validation.mjs",
         "generate-approved-profile-release.mjs",
-        'if [ "$EVENT_NAME" = "push" ]; then mode=(release); fi',
+        "s10_preflight:",
+        "generate-release-readiness.mjs",
+        "s10-release-gate-validation.mjs",
+        "release_allowed=false",
+        "release_allowed == 'true'",
         "release-instructions.md",
         "support-matrix.json",
         "sha256sum -c SHA256SUMS",
         "needs: [discover, verify]",
-        "needs: [discover, verify, canary]",
-        "needs: [discover, verify, canary, distribute]",
-        "needs: [discover, distribute, publish-npm]",
+        "needs: [discover, verify, s10_preflight]",
+        "needs: [discover, verify, s10_preflight, canary]",
+        "needs: [discover, verify, s10_preflight, canary, distribute]",
+        "needs: [discover, s10_preflight, distribute, publish-npm]",
         "samples-chronicle-backend",
         "trap cleanup EXIT",
         'gh release delete "v$VERSION"',
@@ -76,6 +81,7 @@ test("merged release request publishes one profile with truthful cleanup and rec
     ])
         assert(workflow.includes(required), required);
     for (const forbidden of [
+        'if [ "$EVENT_NAME" = "push" ]; then mode=(release); fi',
         "workflow_dispatch:",
         "INPUT_REQUEST",
         "NPM_TOKEN",
@@ -146,16 +152,43 @@ test("approved profile workflow is bot-scoped and keeps publication separate", (
         assert.equal(workflow.includes(forbidden), false, forbidden);
 });
 
-test("legacy propagation workflows are inert and inherit no secrets", () => {
+test("legacy propagation entry points are removed", () => {
     for (const path of [
+        ".github/scripts/copilot-sync-ignore-filter.sh",
+        ".github/scripts/propagate-copilot-instructions.sh",
         ".github/workflows/propagate-copilot-instructions.yml",
         ".github/workflows/sync-copilot-instructions.yml",
-    ]) {
-        const workflow = readFileSync(path, "utf8");
-        assert(workflow.includes("Retired -"));
-        assert(workflow.includes("workflow_dispatch"));
-        assert.equal(workflow.includes("uses: Cratis/Workflows/"), false);
-        assert.equal(workflow.includes("secrets: inherit"), false);
-        assert.equal(workflow.includes("push:"), false);
+    ])
+        assert.equal(existsSync(path), false, path);
+    for (const filename of readdirSync(".github/workflows")) {
+        const workflow = readFileSync(
+            `.github/workflows/${filename}`,
+            "utf8",
+        );
+        assert.equal(
+            workflow.includes(".github/scripts/propagate-copilot-instructions.sh"),
+            false,
+            filename,
+        );
+    }
+});
+
+test("merge-reachable reusable workflows are pinned and do not inherit secrets", () => {
+    const cleanup = readFileSync(
+        ".github/workflows/cleanup-pr-artifacts.yml",
+        "utf8",
+    );
+    assert.equal(cleanup.includes("secrets: inherit"), false);
+    assert(cleanup.includes("PAT_WORKFLOWS: ${{ secrets.PAT_WORKFLOWS }}"));
+    for (const filename of readdirSync(".github/workflows")) {
+        const workflow = readFileSync(
+            `.github/workflows/${filename}`,
+            "utf8",
+        );
+        const references = workflow.match(
+            /uses: Cratis\/Workflows\/[^\s]+@([^\s]+)/g,
+        ) ?? [];
+        for (const reference of references)
+            assert.match(reference, /@[0-9a-f]{40}$/, filename);
     }
 });

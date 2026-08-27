@@ -2,7 +2,14 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import assert from "node:assert/strict";
-import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import {
+    existsSync,
+    mkdirSync,
+    mkdtempSync,
+    readFileSync,
+    rmSync,
+    writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
@@ -13,9 +20,11 @@ import {
     generateApprovedProfileRelease,
 } from "../generate-approved-profile-release.mjs";
 import {
-    generatePassiveProfileAdapters,
+    harnesses,
     passiveHarnesses,
-} from "../passive-profile-adapters.mjs";
+    resolveHarness,
+} from "../harness-registry.mjs";
+import { generatePassiveProfileAdapters } from "../passive-profile-adapters.mjs";
 
 function readJson(path) {
     return JSON.parse(readFileSync(path, "utf8"));
@@ -305,13 +314,101 @@ test("passive adapter materializer rejects unsafe or mismatched skill input", ()
     });
 });
 
+test("passive compliance failure removes the incomplete generated candidate", () => {
+    withTemporaryDirectory((root) => {
+        const outputRoot = join(root, "candidate");
+        assert.throws(
+            () =>
+                generatePassiveProfileAdapters({
+                    outputRoot,
+                    version: "1.0.0",
+                    profileId: "public-example",
+                    packageName: "@cratis/ai-example",
+                    description: "Example",
+                    skills: [
+                        {
+                            name: "cratis-example",
+                            files: [
+                                {
+                                    path: "SKILL.md",
+                                    content: Buffer.from(
+                                        "---\nname: cratis-example\ndescription: Example.\nallowed-tools: Read\n---\n",
+                                    ),
+                                },
+                            ],
+                        },
+                    ],
+                }),
+            /PASSIVE_ALLOWED_TOOLS_FORBIDDEN/,
+        );
+        assert.equal(existsSync(outputRoot), false);
+    });
+});
+
+test("every generation failure removes only newly-created output", () => {
+    withTemporaryDirectory((root) => {
+        const outputRoot = join(root, "candidate");
+        assert.throws(() =>
+            generatePassiveProfileAdapters({
+                outputRoot,
+                version: "1.0.0",
+                profileId: "public-example",
+                packageName: "@cratis/ai-example",
+                description: "Example",
+                skills: [
+                    {
+                        name: "cratis-example",
+                        files: [
+                            {
+                                path: "SKILL.md",
+                                content: Buffer.from(
+                                    "---\nname: cratis-example\ndescription: Example.\n---\n",
+                                ),
+                            },
+                            {
+                                path: `assets/${"x".repeat(300)}.txt`,
+                                content: Buffer.from("too long\n"),
+                            },
+                        ],
+                    },
+                ],
+            }),
+        );
+        assert.equal(existsSync(outputRoot), false);
+
+        mkdirSync(outputRoot);
+        writeFileSync(join(outputRoot, "owner.txt"), "preserve\n");
+        assert.throws(
+            () =>
+                generatePassiveProfileAdapters({
+                    outputRoot,
+                    version: "1.0.0",
+                    profileId: "public-example",
+                    packageName: "@cratis/ai-example",
+                    description: "Example",
+                    skills: [],
+                }),
+            /output must not exist|at least one skill/,
+        );
+        assert.equal(
+            readFileSync(join(outputRoot, "owner.txt"), "utf8"),
+            "preserve\n",
+        );
+    });
+});
+
 test("release provenance binds generators and checksums the final manifest", () => {
     const generator = readFileSync(
         "tooling/generate-approved-profile-release.mjs",
         "utf8",
     );
     assert(generator.includes("generatorDigest"));
+    assert(generator.includes('"tooling/catalog-ordering.mjs"'));
+    assert(generator.includes('"tooling/catalog-validation.mjs"'));
     assert(generator.includes('"tooling/profile-presentation.mjs"'));
+    assert(generator.includes('"tooling/public-artifact-materializer.mjs"'));
+    assert(generator.includes('"tooling/portable-compliance-validation.mjs"'));
+    assert(generator.includes("compliance-receipts.json"));
     assert(generator.includes("testedHostVersions"));
     assert(generator.includes('state: "pending-canary"'));
     assert(
@@ -344,8 +441,40 @@ test("passive adapter materializer emits one install root per harness", () => {
             ],
         });
         assert.deepEqual(manifest.harnesses, passiveHarnesses);
+        assert.equal(manifest.compliance.profile, "cratis-passive-v1");
+        assert.match(manifest.compliance.profileDigest, /^[0-9a-f]{64}$/);
+        assert.equal(manifest.compliance.receipts.length, harnesses.length);
+        assert.equal(
+            manifest.compliance.staticValidationInput.supporting,
+            false,
+        );
+        assert.equal(manifest.compliance.approvalGranted, false);
+        assert.equal(manifest.compliance.supportGranted, false);
+        assert.equal(manifest.compliance.publicationGranted, false);
+        assert(
+            manifest.compliance.receipts.every(
+                (receipt) =>
+                    receipt.conformant === true &&
+                    receipt.executionPerformed === false &&
+                    receipt.networkAccessPerformed === false,
+            ),
+        );
+        for (const receipt of manifest.compliance.receipts) {
+            const prefix = `${receipt.artifactRoot}/`;
+            const expectedFiles = manifest.files
+                .filter((file) => file.path.startsWith(prefix))
+                .map((file) => ({
+                    path: file.path.slice(prefix.length),
+                    size: file.size,
+                    sha256: file.sha256,
+                }));
+            assert.deepEqual(receipt.artifactFiles, expectedFiles);
+        }
         for (const harness of passiveHarnesses)
-            assert.equal(manifest.roots[harness], `harnesses/${harness}`);
+            assert.equal(
+                manifest.roots[harness],
+                `harnesses/${resolveHarness(harness).profileOutputRoot}`,
+            );
         const portablePlugin = readJson(
             join(outputRoot, "harnesses/agent-plugin/plugin.json"),
         );
@@ -371,10 +500,7 @@ test("passive adapter materializer emits one install root per harness", () => {
             ),
         );
         const grokMarketplace = readJson(
-            join(
-                outputRoot,
-                "harnesses/grok/.claude-plugin/marketplace.json",
-            ),
+            join(outputRoot, "harnesses/grok/.claude-plugin/marketplace.json"),
         );
         const grokPlugin = readJson(
             join(
@@ -383,10 +509,7 @@ test("passive adapter materializer emits one install root per harness", () => {
             ),
         );
         const junieMarketplace = readJson(
-            join(
-                outputRoot,
-                "harnesses/junie/.claude-plugin/marketplace.json",
-            ),
+            join(outputRoot, "harnesses/junie/.claude-plugin/marketplace.json"),
         );
         const juniePlugin = readJson(
             join(

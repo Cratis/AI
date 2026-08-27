@@ -93,6 +93,10 @@ example.
 
 ## Upstream an improvement
 
+Follow the complete [maintainer improvement workflow](./maintaining-shared-ai-behavior.md)
+for ownership, temporary local workarounds, proposal evidence, canonical
+implementation, release, downstream update, and rollback.
+
 Classify the improvement before moving it:
 
 - **General and public-safe:** propose it to `Cratis/AI`.
@@ -102,7 +106,9 @@ Classify the improvement before moving it:
 - **Mixed:** split public workflow from private facts before proposing it.
 
 A consuming repository never publishes a Cratis AI package and never pushes
-local generated adapters back into `Cratis/AI`.
+local generated adapters back into `Cratis/AI`. Feedback travels upstream as a
+reviewed proposal and immutable evidence; generated delivery travels downstream
+through a new release.
 
 ## Review an update pull request
 

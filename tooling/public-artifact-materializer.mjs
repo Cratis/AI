@@ -16,34 +16,20 @@ import {
 } from "node:fs";
 import { isIP } from "node:net";
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
+import { forbiddenPathPolicy } from "./harness-registry.mjs";
+import { createLogicalTree } from "./deterministic-release-tree.mjs";
 
 const allowedSkillResourceDirectories = new Set(["references", "assets"]);
-const forbiddenSegments = new Set([
-    ".cache",
-    ".git",
-    ".pi",
-    "agents",
-    "cache",
-    "commands",
-    "engineering",
-    "evals",
-    "hooks",
-    "instructions",
-    "lsp",
-    "prompts",
-    "rules",
-    "scripts",
-    "tooling",
-    "workflows",
-]);
+const forbiddenSegments = new Set(forbiddenPathPolicy.artifactSegments);
 const secretPatterns = [
     /\bgh[oprsu]_[A-Za-z0-9_]{20,}\b/,
     /\bgithub_pat_[A-Za-z0-9_]{20,}\b/,
     /\bnpm_[A-Za-z0-9]{20,}\b/,
     /\bAKIA[0-9A-Z]{16}\b/,
     /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/,
-    /\bAuthorization\s*:\s*Bearer\s+[^\s"']{12,}/i,
-    /\b(?:password|secret|token)\s*[:=]\s*["']?[^\s"']{12,}/i,
+    /\bAuthorization\s*:\s*(?:Bearer|Basic)\s+[^\s"']{12,}/i,
+    /\b(?:api[_-]?key|access[_-]?key|client[_-]?secret|password|private[_-]?token|secret|token)\s*[:=]\s*["']?[^\s"']{12,}/i,
+    /\b(?:sk|pk)_(?:live|test)_[A-Za-z0-9]{16,}\b/,
 ];
 const privateOrLocalPatterns = [
     /(?:^|[\s("'`])\/(?:Users|home|Volumes)\//,
@@ -107,7 +93,9 @@ function assertNoPrivateNetworkUrls(path, content) {
         try {
             const url = new URL(match[0]);
             if (isPrivateNetworkHost(url.hostname))
-                throw new Error(`Private or local content is forbidden: ${path}`);
+                throw new Error(
+                    `Private or local content is forbidden: ${path}`,
+                );
         } catch (error) {
             if (error.message.startsWith("Private or local content"))
                 throw error;
@@ -213,30 +201,6 @@ function assertContained(root, path, label) {
         return;
     }
     throw new Error(`${label} escapes its root: ${path}`);
-}
-
-function assertRegularContainedSource(sourceRoot, relativePath) {
-    let current = sourceRoot;
-    for (const segment of relativePath.split("/")) {
-        current = join(current, segment);
-        const stat = lstatSync(current);
-        if (stat.isSymbolicLink())
-            throw new Error(
-                `Symlink or junction is forbidden: ${relativePath}`,
-            );
-    }
-    const stat = lstatSync(current);
-    if (!stat.isFile())
-        throw new Error(
-            `Special or non-regular file is forbidden: ${relativePath}`,
-        );
-    const resolved = realpathSync(current);
-    assertContained(
-        realpathSync(sourceRoot),
-        resolved,
-        `Source ${relativePath}`,
-    );
-    return current;
 }
 
 export function assertSafeContent(path, content) {
@@ -374,7 +338,9 @@ export function validateStagedArtifact(stageRoot, options = {}) {
 }
 
 export function materializeFixtureArtifact(options) {
-    const sourceRoot = realpathSync(options.sourceRoot);
+    const sourceRoot = options.sourceRoot
+        ? realpathSync(options.sourceRoot)
+        : undefined;
     const stageRoot = resolve(options.stageRoot);
     if (existsSync(stageRoot))
         throw new Error(
@@ -387,26 +353,34 @@ export function materializeFixtureArtifact(options) {
     const approvedFiles = [...options.approvedFiles];
     assertUniquePaths(approvedFiles, "Approved source selection");
     approvedFiles.sort();
-    const validatedFiles = approvedFiles.map((path) => {
+    for (const path of approvedFiles)
         validatePayloadPath(path, options.approvedMetadata ?? []);
-        const source = assertRegularContainedSource(sourceRoot, path);
-        const content = readFileSync(source);
-        assertSafeContent(path, content);
-        return { content, path };
-    });
+    const logicalTree = options.approvedBuffers
+        ? createLogicalTree({
+              files: approvedFiles.map((path) => ({
+                  path,
+                  content: options.approvedBuffers.get(path),
+              })),
+              metrics: options.metrics,
+          })
+        : createLogicalTree({
+              sourceRoot,
+              approvedFiles,
+              metrics: options.metrics,
+          });
+    for (const file of logicalTree.files)
+        assertSafeContent(file.path, logicalTree.read(file.path));
     let stageCreated = false;
     try {
         mkdirSync(stageRoot, { recursive: false });
         stageCreated = true;
-        for (const file of validatedFiles) {
+        for (const file of logicalTree.files) {
             const destination = join(stageRoot, file.path);
-            assertContained(
-                stageRoot,
-                destination,
-                `Destination ${file.path}`,
-            );
+            assertContained(stageRoot, destination, `Destination ${file.path}`);
             mkdirSync(dirname(destination), { recursive: true });
-            writeFileSync(destination, file.content, { flag: "wx" });
+            writeFileSync(destination, logicalTree.read(file.path), {
+                flag: "wx",
+            });
         }
         const manifest = validateStagedArtifact(stageRoot, options);
         if (options.manifestPath) {
@@ -475,7 +449,9 @@ function validateArchiveEntries(archive, options) {
         if (totalSize > limits.maximumTotalSize)
             throw new Error("Fixture archive exceeds total-size policy");
         if (typeof entry.content !== "string")
-            throw new Error(`Archive entry content must be Base64: ${entry.path}`);
+            throw new Error(
+                `Archive entry content must be Base64: ${entry.path}`,
+            );
         const maximumEncodedSize = 4 * Math.ceil(entry.size / 3);
         if (entry.content.length > maximumEncodedSize)
             throw new Error(
@@ -483,7 +459,9 @@ function validateArchiveEntries(archive, options) {
             );
         const content = Buffer.from(entry.content, "base64");
         if (content.toString("base64") !== entry.content)
-            throw new Error(`Archive entry Base64 is not canonical: ${entry.path}`);
+            throw new Error(
+                `Archive entry Base64 is not canonical: ${entry.path}`,
+            );
         if (
             typeof entry.sha256 !== "string" ||
             content.length !== entry.size ||
@@ -531,7 +509,9 @@ export function packFixtureArchive(stageRoot, archivePath, options = {}) {
             path: file.path,
             size: file.size,
             sha256: file.sha256,
-            content: readFileSync(join(stageRoot, file.path)).toString("base64"),
+            content: readFileSync(join(stageRoot, file.path)).toString(
+                "base64",
+            ),
         })),
     };
     validateArchiveEntries(archive, options);
@@ -563,9 +543,12 @@ function readFixtureArchive(archivePath, options) {
     try {
         return JSON.parse(content.toString("utf8"));
     } catch (error) {
-        throw new Error(`Fixture archive must be valid JSON: ${error.message}`, {
-            cause: error,
-        });
+        throw new Error(
+            `Fixture archive must be valid JSON: ${error.message}`,
+            {
+                cause: error,
+            },
+        );
     }
 }
 

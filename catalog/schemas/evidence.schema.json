@@ -1,0 +1,269 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cratis/AI/catalog/schemas/evidence.schema.json",
+  "title": "Cratis normalized evidence catalog",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "idArray": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/id" }
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["operatingSystem", "architecture", "isolation"],
+      "properties": {
+        "operatingSystem": { "$ref": "#/$defs/nonEmptyString" },
+        "architecture": { "$ref": "#/$defs/nonEmptyString" },
+        "isolation": { "enum": ["not-recorded", "isolated-home", "consumer-worktree", "hosted-runner"] },
+        "runtime": { "$ref": "#/$defs/nonEmptyString" }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "locator"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "kind": {
+          "enum": [
+            "specification",
+            "official-documentation",
+            "official-repository",
+            "registry",
+            "installed-documentation",
+            "organization-authority",
+            "repository-authority",
+            "repository-snapshot",
+            "local-evidence-report"
+          ]
+        },
+        "locator": { "type": "string", "format": "uri" },
+        "immutableRevision": { "$ref": "#/$defs/nonEmptyString" },
+        "repositoryPath": { "$ref": "#/$defs/nonEmptyString" },
+        "digest": { "$ref": "#/$defs/digest" }
+      }
+    },
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "id"],
+      "properties": {
+        "kind": { "enum": ["ecosystem", "artifact", "output", "profile", "target", "source-contract", "repository", "host", "release"] },
+        "id": { "$ref": "#/$defs/id" },
+        "version": { "$ref": "#/$defs/nonEmptyString" },
+        "digest": { "$ref": "#/$defs/digest" },
+        "harnessId": { "$ref": "#/$defs/id" },
+        "hostVersion": { "$ref": "#/$defs/nonEmptyString" }
+      }
+    },
+    "execution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["argv", "exitCode", "client", "clientVersion", "artifactVersion", "artifactDigest", "environment", "reportDigest"],
+      "properties": {
+        "argv": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string" }
+        },
+        "exitCode": { "type": "integer" },
+        "client": { "$ref": "#/$defs/nonEmptyString" },
+        "clientVersion": { "$ref": "#/$defs/nonEmptyString" },
+        "artifactVersion": { "$ref": "#/$defs/nonEmptyString" },
+        "artifactDigest": { "$ref": "#/$defs/digest" },
+        "environment": { "$ref": "#/$defs/environment" },
+        "reportDigest": { "$ref": "#/$defs/digest" }
+      }
+    },
+    "assertion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["assuranceId", "outcome", "supporting", "claimIds"],
+      "properties": {
+        "assuranceId": {
+          "enum": [
+            "documentation",
+            "authority",
+            "source-provenance",
+            "artifact-generation",
+            "static-validation",
+            "install",
+            "discovery",
+            "behavior-positive",
+            "behavior-negative",
+            "update",
+            "rollback",
+            "uninstall",
+            "project-context-preservation",
+            "released-artifact",
+            "canary",
+            "ecosystem-native-provenance",
+            "release-approval",
+            "immutable-source",
+            "sha256-inventory",
+            "canonical-parity",
+            "secret-scanning",
+            "path-scanning",
+            "marketplace-listing"
+          ]
+        },
+        "outcome": { "enum": ["pass", "fail"] },
+        "supporting": { "type": "boolean" },
+        "claimIds": { "$ref": "#/$defs/idArray" },
+        "execution": { "$ref": "#/$defs/execution" },
+        "approvalName": { "$ref": "#/$defs/nonEmptyString" }
+      }
+    },
+    "observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "sourceId",
+        "evidenceClass",
+        "subject",
+        "bindingIds",
+        "assertions",
+        "scope",
+        "environment",
+        "observedOn",
+        "validThrough",
+        "confidence",
+        "limitations",
+        "supersedes"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "sourceId": { "$ref": "#/$defs/id" },
+        "evidenceClass": { "enum": ["synthetic-fixture", "local", "hosted", "real-consumer"] },
+        "subject": { "$ref": "#/$defs/subject" },
+        "bindingIds": { "$ref": "#/$defs/idArray" },
+        "assertions": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/assertion" }
+        },
+        "scope": { "$ref": "#/$defs/nonEmptyString" },
+        "environment": { "$ref": "#/$defs/environment" },
+        "observedOn": { "type": "string", "format": "date" },
+        "validThrough": { "type": "string", "format": "date" },
+        "confidence": { "enum": ["low", "medium", "high"] },
+        "limitations": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/nonEmptyString" }
+        },
+        "supersedes": { "$ref": "#/$defs/idArray" },
+        "correction": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["reason", "reviewer", "reviewedOn", "replacementIdentity"],
+          "properties": {
+            "reason": { "$ref": "#/$defs/nonEmptyString" },
+            "reviewer": { "$ref": "#/$defs/nonEmptyString" },
+            "reviewedOn": { "type": "string", "format": "date" },
+            "replacementIdentity": { "$ref": "#/$defs/id" }
+          }
+        },
+        "legacy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["officialUrl", "sourceKind", "applicableVersion"],
+          "properties": {
+            "officialUrl": { "type": "string", "format": "uri" },
+            "sourceKind": { "$ref": "#/$defs/nonEmptyString" },
+            "applicableVersion": { "$ref": "#/$defs/nonEmptyString" }
+          }
+        }
+      }
+    },
+    "legacyFact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "ecosystemId", "fact", "evidenceIds", "supporting"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "ecosystemId": { "$ref": "#/$defs/id" },
+        "fact": { "$ref": "#/$defs/nonEmptyString" },
+        "evidenceIds": { "$ref": "#/$defs/idArray" },
+        "supporting": { "type": "boolean" }
+      }
+    },
+    "legacyGap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "ecosystemId", "value", "supporting", "reason"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "ecosystemId": { "$ref": "#/$defs/id" },
+        "value": { "$ref": "#/$defs/nonEmptyString" },
+        "supporting": { "const": false },
+        "reason": { "$ref": "#/$defs/nonEmptyString" }
+      }
+    },
+    "evidenceFile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repositoryPath", "digest", "role", "observationIds", "reason"],
+      "properties": {
+        "repositoryPath": { "$ref": "#/$defs/nonEmptyString" },
+        "digest": { "$ref": "#/$defs/digest" },
+        "role": { "enum": ["supporting", "inventory-only"] },
+        "observationIds": { "$ref": "#/$defs/idArray" },
+        "reason": { "$ref": "#/$defs/nonEmptyString" }
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "asOf", "defaultPolicy", "sources", "observations", "legacyFacts", "legacyGaps", "distributionEvidenceFiles"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "asOf": { "type": "string", "format": "date" },
+    "defaultPolicy": { "const": "deny" },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/source" }
+    },
+    "observations": {
+      "type": "array",
+      "minItems": 152,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/observation" }
+    },
+    "legacyFacts": {
+      "type": "array",
+      "minItems": 172,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/legacyFact" }
+    },
+    "legacyGaps": {
+      "type": "array",
+      "minItems": 11,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/legacyGap" }
+    },
+    "distributionEvidenceFiles": {
+      "type": "array",
+      "minItems": 18,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/evidenceFile" }
+    }
+  }
+}

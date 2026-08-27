@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cratis/AI/distribution/real-host-canary-report.schema.json",
+  "title": "Cratis real-host canary report",
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+    "nonEmpty": { "type": "string", "minLength": 1 },
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "command": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["argv", "cwd", "environmentNames", "exitCode", "timedOut", "stdoutDigest", "stderrDigest"],
+      "properties": {
+        "argv": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+        "cwd": { "$ref": "#/$defs/nonEmpty" },
+        "environmentNames": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/nonEmpty" } },
+        "exitCode": { "type": "integer" },
+        "timedOut": { "type": "boolean" },
+        "stdoutDigest": { "$ref": "#/$defs/sha256" },
+        "stderrDigest": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "phase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "status", "supporting", "reason", "command"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "status": { "enum": ["PASS", "FAIL", "BLOCKED_HOST_NOT_INSTALLED", "BLOCKED_HOST_VERSION_MISMATCH", "BLOCKED_HOST_RUNTIME_UNAVAILABLE", "BLOCKED_NETWORK_ENFORCEMENT_UNAVAILABLE", "BLOCKED_NO_REVIEWED_CONTRACT", "BLOCKED_NOT_RUN"] },
+        "supporting": { "const": false },
+        "reason": { "$ref": "#/$defs/nonEmpty" },
+        "command": { "oneOf": [{ "$ref": "#/$defs/command" }, { "type": "null" }] }
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "caseId", "attemptId", "supersededBy", "state", "observedOn", "sourceRevision", "hostId", "harnessId", "bindingId", "targetId", "artifactVersion", "artifactRoot", "artifactDigest", "executable", "resolvedExecutable", "executableDigest", "expectedHostVersion", "observedHostVersion", "operatingSystem", "architecture", "runtimeVersion", "isolation", "credentialMode", "networkEnforcement", "beforeContextDigest", "afterContextDigest", "phases", "limitations", "reportPayloadDigest", "installationEligible", "marketplaceAvailabilityClaim", "supportGranted", "publicationGranted", "runtimeGranted", "promotionGranted"],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "caseId": { "$ref": "#/$defs/id" },
+    "attemptId": { "$ref": "#/$defs/id" },
+    "supersededBy": { "oneOf": [{ "$ref": "#/$defs/id" }, { "type": "null" }] },
+    "state": { "enum": ["PASS_NON_SUPPORTING_FIXTURE", "FAIL", "BLOCKED"] },
+    "observedOn": { "type": "string", "format": "date" },
+    "sourceRevision": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+    "hostId": { "$ref": "#/$defs/id" },
+    "harnessId": { "$ref": "#/$defs/id" },
+    "bindingId": { "$ref": "#/$defs/id" },
+    "targetId": { "$ref": "#/$defs/id" },
+    "artifactVersion": { "$ref": "#/$defs/nonEmpty" },
+    "artifactRoot": { "$ref": "#/$defs/nonEmpty" },
+    "artifactDigest": { "$ref": "#/$defs/sha256" },
+    "executable": { "$ref": "#/$defs/nonEmpty" },
+    "resolvedExecutable": { "oneOf": [{ "$ref": "#/$defs/nonEmpty" }, { "type": "null" }] },
+    "executableDigest": { "oneOf": [{ "$ref": "#/$defs/sha256" }, { "type": "null" }] },
+    "expectedHostVersion": { "$ref": "#/$defs/nonEmpty" },
+    "observedHostVersion": { "oneOf": [{ "$ref": "#/$defs/nonEmpty" }, { "type": "null" }] },
+    "operatingSystem": { "$ref": "#/$defs/nonEmpty" },
+    "architecture": { "$ref": "#/$defs/nonEmpty" },
+    "runtimeVersion": { "$ref": "#/$defs/nonEmpty" },
+    "isolation": { "const": "isolated-home-and-worktree" },
+    "credentialMode": { "const": "forbidden" },
+    "networkEnforcement": { "enum": ["sandbox-exec-deny-network", "unavailable"] },
+    "beforeContextDigest": { "$ref": "#/$defs/sha256" },
+    "afterContextDigest": { "$ref": "#/$defs/sha256" },
+    "phases": { "type": "array", "minItems": 10, "uniqueItems": true, "items": { "$ref": "#/$defs/phase" } },
+    "limitations": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/nonEmpty" } },
+    "reportPayloadDigest": { "$ref": "#/$defs/sha256" },
+    "installationEligible": { "const": false },
+    "marketplaceAvailabilityClaim": { "const": false },
+    "supportGranted": { "const": false },
+    "publicationGranted": { "const": false },
+    "runtimeGranted": { "const": false },
+    "promotionGranted": { "const": false }
+  }
+}

@@ -9,6 +9,7 @@ import {
     validateAgainstSchema,
     validateSchemaVocabulary,
 } from "./catalog-validation.mjs";
+import { resolveHarness, subscriptionHarnessIds } from "./harness-registry.mjs";
 
 const defaultRepositoryRoot = resolve(
     fileURLToPath(new URL("..", import.meta.url)),
@@ -49,6 +50,11 @@ export function validateProfileSubscriptions(
     const profileCatalog = readJson(profilePath, errors);
     const schema = readJson(schemaPath, errors);
     if (!profileCatalog || !schema) return errors;
+    if (
+        JSON.stringify(schema.properties?.harnesses?.items?.enum) !==
+        JSON.stringify(subscriptionHarnessIds)
+    )
+        errors.push("Profile subscription harness enum drifted from registry");
     errors.push(
         ...validateSchemaVocabulary(schema, "profile-subscription.schema.json"),
     );
@@ -202,6 +208,13 @@ export function validateProfileSubscriptions(
         for (const profile of example.profiles)
             if (!allowedProfiles.has(profile))
                 errors.push(`${relativePath}: unknown profile ${profile}`);
+        for (const harness of example.harnesses) {
+            try {
+                resolveHarness(harness);
+            } catch {
+                errors.push(`${relativePath}: unknown harness ${harness}`);
+            }
+        }
         const overlap = (example.skillAllowlist ?? []).filter((skill) =>
             (example.skillDenylist ?? []).includes(skill),
         );

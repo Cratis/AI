@@ -125,6 +125,17 @@ test("human catalog manifest remains the activation pointer on interrupted publi
     }
 });
 
+test("generated human catalog exposes blocked S10 release readiness", () => {
+    const data = readJson("catalog.json");
+    assert.equal(data.releaseReadiness.state, "BLOCKED");
+    assert.equal(data.releaseReadiness.releaseRequestEligible, false);
+    assert.equal(data.releaseReadiness.publicationEligible, false);
+    assert.equal(data.releaseReadiness.promotionEligible, false);
+    assert.equal(data.releaseReadiness.supportGranted, false);
+    assert.equal(data.releaseReadiness.marketplaceAvailabilityClaim, false);
+    assert(data.releaseReadiness.blockerCodes.includes("policy-blocked"));
+});
+
 test("generated human catalog exposes public and engineering packages and capabilities", () => {
     const catalog = readJson("catalog.json");
     const targets = JSON.parse(
@@ -191,7 +202,10 @@ test("generated human catalog exposes public and engineering packages and capabi
     const engineeringDocumentation = catalog.profiles.find(
         (profile) => profile.id === "engineering-documentation",
     );
-    assert.match(engineeringDocumentation.description, /documentation authoring/);
+    assert.match(
+        engineeringDocumentation.description,
+        /documentation authoring/,
+    );
     assert(
         engineeringDocumentation.targetIds.includes(
             "cratis-engineering-docs-authoring",
@@ -203,6 +217,39 @@ test("generated human catalog exposes public and engineering packages and capabi
     assert(concept.profileIds.includes("public-fundamentals"));
     assert(concept.profileIds.includes("public-application"));
     assert.match(catalog.disclaimer, /does not grant runtime permission/);
+    assert.equal(catalog.hostCoverage.length, 38);
+    assert(
+        catalog.hostCoverage.every((record) => record.supportClaim === false),
+    );
+    assert(
+        catalog.hostCoverage.every(
+            (record) =>
+                typeof record.generationState === "string" &&
+                typeof record.technicalTier === "string",
+        ),
+    );
+    assert.equal(
+        catalog.hostCoverage.find((record) => record.ecosystemId === "roo-code")
+            .coverage,
+        "no-surface",
+    );
+    assert.equal(
+        catalog.hostCoverage.find(
+            (record) => record.ecosystemId === "amazon-q-developer",
+        ).coverage,
+        "migration",
+    );
+    assert.equal(
+        catalog.hostCoverage.find((record) => record.ecosystemId === "aider")
+            .coverage,
+        "fallback",
+    );
+    const devin = catalog.hostCoverage.find(
+        (record) => record.ecosystemId === "devin-hosted",
+    );
+    assert.equal(devin.coverage, "standard-compatible");
+    assert.equal(devin.generationState, "fixture-generated");
+    assert.equal(devin.technicalTier, "statically-validated");
 });
 
 test("human catalog manifest binds every generated product file", () => {
@@ -223,6 +270,12 @@ test("human catalog manifest binds every generated product file", () => {
 test("human catalog Markdown separates approval and trust visibly", () => {
     const markdown = readFileSync(join(outputRoot, "CATALOG.md"), "utf8");
     assert.match(markdown, /^# Cratis AI package and capability catalog/m);
+    assert.match(markdown, /## Researched host coverage/);
+    assert.match(markdown, /standard-compatible/);
+    assert.match(markdown, /native-projection-planned/);
+    assert.match(markdown, /no-surface/);
+    assert.match(markdown, /fixture-generated|source-compatible|no-output/);
+    assert.match(markdown, /documented/);
     assert.match(markdown, /## Packages and profiles/);
     assert.match(markdown, /### Cratis Fundamentals/);
     assert.match(markdown, /## Capabilities/);

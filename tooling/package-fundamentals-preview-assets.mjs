@@ -17,10 +17,11 @@ import { tmpdir } from "node:os";
 import { join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { gunzipSync, gzipSync } from "node:zlib";
-import {
-    generatePassiveProfileAdapters,
-    passiveHarnesses,
-} from "./passive-profile-adapters.mjs";
+import { compareOrdinal } from "./catalog-ordering.mjs";
+import { passiveHarnesses } from "./harness-registry.mjs";
+import { generatePassiveProfileAdapters } from "./passive-profile-adapters.mjs";
+import { buildReleaseAssuranceReceipt } from "./release-assurance-validation.mjs";
+import { createReleaseContext } from "./release-context.mjs";
 
 const defaultRepositoryRoot = resolve(
     fileURLToPath(new URL("..", import.meta.url)),
@@ -36,16 +37,6 @@ const requiredSourceContentDigest =
 
 function sha256(content) {
     return createHash("sha256").update(content).digest("hex");
-}
-
-function readJson(path) {
-    try {
-        return JSON.parse(readFileSync(path, "utf8"));
-    } catch (error) {
-        throw new Error(`Unable to parse preview input: ${path}`, {
-            cause: error,
-        });
-    }
 }
 
 function writeJson(path, value) {
@@ -109,7 +100,7 @@ function tarHeader(path, size) {
     return header;
 }
 
-function createTarGzip(root, paths, pathPrefix = "") {
+export function createTarGzip(root, paths, pathPrefix = "") {
     const chunks = [];
     for (const path of paths) {
         const content = readFileSync(join(root, path));
@@ -183,24 +174,11 @@ function sourceDigest(paths, contents) {
 }
 
 function loadPreviewAuthority(repositoryRoot) {
-    const profiles = readJson(
-        join(repositoryRoot, "distribution/profile-catalog.json"),
-    );
-    const profile = profiles.publicProfiles.find(
-        (candidate) => candidate.id === profileId,
-    );
-    const targets = readJson(
-        join(repositoryRoot, "catalog/v2/targets.json"),
-    ).targets;
-    const target = targets.find((candidate) => candidate.id === targetId);
-    const sources = readJson(
-        join(repositoryRoot, "catalog/v2/sources.json"),
-    ).sources;
-    const source = sources.find((candidate) => candidate.id === sourceId);
-    const artifacts = readJson(
-        join(repositoryRoot, "catalog/v2/artifacts.json"),
-    ).artifacts;
-    const artifact = artifacts.find((candidate) => candidate.id === artifactId);
+    const context = createReleaseContext({ repositoryRoot });
+    const profile = context.require("profileCatalog", profileId);
+    const target = context.require("targets", targetId);
+    const source = context.require("sources", sourceId);
+    const artifact = context.require("artifacts", artifactId);
     if (
         profile?.state !== "preview-source-candidate" ||
         JSON.stringify(profile.availableTargets) !==
@@ -234,6 +212,7 @@ function loadPreviewAuthority(repositoryRoot) {
         throw new Error("Fundamentals preview immutable source digest changed");
     const prefix = `${source.sourcePath}/`;
     return {
+        context,
         profile,
         target,
         source,
@@ -311,13 +290,81 @@ export function packageFundamentalsPreviewAssets({
                 sha256: sha256(content),
             });
         }
+        const deterministicManifestPath = "deterministic-release-manifest.json";
+        writeJson(
+            join(root, deterministicManifestPath),
+            adapterManifest.deterministicManifest,
+        );
+        const releaseAssetManifestPath = "release-asset-manifest.json";
+        const releaseAssetManifest = {
+            schemaVersion: "1.0.0",
+            state: "DETERMINISTIC_RELEASE_TREE_VALIDATED",
+            profileId,
+            version,
+            files: assets
+                .map((asset) => ({
+                    path: asset.filename,
+                    size: asset.size,
+                    sha256: asset.sha256,
+                }))
+                .sort((left, right) => compareOrdinal(left.path, right.path)),
+            fileCount: assets.length,
+            totalBytes: assets.reduce((sum, asset) => sum + asset.size, 0),
+            supportGranted: false,
+            publicationGranted: false,
+            runtimeGranted: false,
+            promotionGranted: false,
+        };
+        writeJson(
+            join(root, releaseAssetManifestPath),
+            releaseAssetManifest,
+        );
+        const assuranceReceiptPath = "artifact-assurance-receipt.json";
+        writeJson(
+            join(root, assuranceReceiptPath),
+            buildReleaseAssuranceReceipt({
+                artifactClasses: [
+                    "passive-skill-package",
+                    "passive-native-metadata",
+                    "marketplace-index",
+                ],
+                assurances: [
+                    "canonical-parity",
+                    "immutable-source",
+                    "path-scanning",
+                    "secret-scanning",
+                    "sha256-inventory",
+                ],
+                releaseManifest: {
+                    path: releaseAssetManifestPath,
+                    manifest: releaseAssetManifest,
+                },
+                policy: authority.context.catalogs.artifactAssurancePolicy,
+            }),
+        );
+        const complianceReceiptPath = "compliance-receipts.json";
+        writeJson(
+            join(root, complianceReceiptPath),
+            adapterManifest.compliance,
+        );
+        const complianceReceiptSha256 = sha256(
+            readFileSync(join(root, complianceReceiptPath)),
+        );
         const sourceCommit = execFileSync("git", ["rev-parse", "HEAD"], {
             cwd: repositoryRoot,
             encoding: "utf8",
         }).trim();
         const generatorPaths = [
+            "tooling/catalog-ordering.mjs",
+            "tooling/catalog-validation.mjs",
+            "tooling/deterministic-release-tree.mjs",
+            "tooling/harness-registry.mjs",
             "tooling/package-fundamentals-preview-assets.mjs",
             "tooling/passive-profile-adapters.mjs",
+            "tooling/portable-compliance-validation.mjs",
+            "tooling/public-artifact-materializer.mjs",
+            "tooling/release-assurance-validation.mjs",
+            "tooling/release-context.mjs",
         ];
         const generatorHash = createHash("sha256");
         for (const path of generatorPaths) {
@@ -343,6 +390,34 @@ export function packageFundamentalsPreviewAssets({
             generatorPaths,
             generatorDigest,
             assets,
+            deterministicReleaseTree: {
+                sourceProjectionManifestPath: deterministicManifestPath,
+                sourceProjectionManifestSha256: sha256(
+                    readFileSync(join(root, deterministicManifestPath)),
+                ),
+                releaseAssetManifestPath,
+                releaseAssetManifestSha256: sha256(
+                    readFileSync(join(root, releaseAssetManifestPath)),
+                ),
+                assuranceReceiptPath,
+                assuranceReceiptSha256: sha256(
+                    readFileSync(join(root, assuranceReceiptPath)),
+                ),
+            },
+            portableCompliance: {
+                profile: adapterManifest.compliance.profile,
+                profileDigest: adapterManifest.compliance.profileDigest,
+                specifications: adapterManifest.compliance.specifications,
+                receiptPath: complianceReceiptPath,
+                receiptSha256: complianceReceiptSha256,
+                staticValidationInput:
+                    adapterManifest.compliance.staticValidationInput,
+                approvalGranted: false,
+                supportGranted: false,
+                publicationGranted: false,
+                runtimeGranted: false,
+                promotionGranted: false,
+            },
             approvalEligible: false,
             installationSupported: false,
             publicationEligible: false,

@@ -14,11 +14,18 @@ harness. The mixed source repository is not itself an installation package.
 | Page | Purpose |
 | --- | --- |
 | [Distribution and subscriptions](./ai-distribution-and-subscriptions.md) | Source authority, product profiles, Pi, versioning, pinning, updates, rollback, and upstream improvements |
+| [Maintaining shared AI behavior](./maintaining-shared-ai-behavior.md) | Maintainer workflow for ownership, local overlays, upstream improvements, releases, and one-way delivery |
+| [Ecosystem-support architecture review](./ecosystem-support-architecture-review.md) | Idea-level review of what was added, changed, retired, preserved, compatible, and still blocked |
 | [Public product architecture](./public-product-architecture.md) | Public/engineering ownership and runtime payload boundaries |
 | [Project context bootstrap](./project-context-bootstrap.md) | Project-owned facts and minimal harness bootstraps |
 | [Skill authoring contract](./skill-authoring-contract.md) | Canonical source, evidence, and clean-room requirements |
 | [Package and capability catalog](../catalog/generated/human-catalog/CATALOG.md) | Browse public and maintainer packages, included skills, and availability |
 | [Capability catalog v2](./capability-catalog-v2.md) | Understand the source, approval, trust, and coverage model behind the generated catalog |
+| [Chronicle MCP passive guidance](./chronicle-mcp-guidance.md) | Understand the classification-only Chronicle skill, evidence boundary, and blocked executable lane |
+| [Studio MCP passive guidance](./studio-mcp-guidance.md) | Understand the public-safe Studio skill, private-fact boundary, and deny-all operation policy |
+| [Native non-skill projections](./native-non-skill-projections.md) | Understand the four repository-only rule/instruction fixture roots and their non-promoting boundary |
+| [Real-host canaries](./real-host-canaries.md) | Understand exact-version isolation, lifecycle phases, blocked outcomes, and non-supporting fixture evidence |
+| [S10 release and marketplace gates](./s10-release-and-marketplace-gates.md) | Understand blocked readiness, external controls, append-only records, and unreachable side effects |
 
 ## Repository-local corpus reference
 

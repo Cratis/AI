@@ -27,6 +27,10 @@ function completeApproval(approval) {
         typeof approval.reviewer === "string" &&
         approval.reviewer.length > 0 &&
         /^\d{4}-\d{2}-\d{2}$/.test(approval.approvedOn) &&
+        /^[a-f0-9]{40}$/.test(approval.sourceRevision) &&
+        /^[a-f0-9]{64}$/.test(approval.contentDigest) &&
+        Array.isArray(approval.scope) &&
+        approval.scope.length > 0 &&
         Array.isArray(approval.evidenceIds) &&
         approval.evidenceIds.length > 0
     );
@@ -59,6 +63,15 @@ export function validateReleaseApprovals(
         approvals.defaultPolicy !== "deny"
     )
         errors.push("Release approval catalog contract changed");
+    const allProfiles = [
+        ...profiles.publicProfiles,
+        ...profiles.engineeringProfiles,
+    ];
+    const knownIdsByKind = new Map([
+        ["profile", new Set(allProfiles.map((profile) => profile.id))],
+        ["target", new Set(targets.map((target) => target.id))],
+        ["source contract", new Set(contracts.map((contract) => contract.id))],
+    ]);
     for (const [name, records, key] of [
         ["profile", approvals.profileApprovals, "profileId"],
         ["target", approvals.targetApprovals, "targetId"],
@@ -71,6 +84,8 @@ export function validateReleaseApprovals(
         if (duplicates(records.map((record) => record[key])).length)
             errors.push(`Release approval catalog contains duplicate ${name}s`);
         for (const record of records) {
+            if (!knownIdsByKind.get(name).has(record[key]))
+                errors.push(`${record[key]}: unknown ${name} approval`);
             if (!completeApproval(record))
                 errors.push(`${record[key]}: incomplete ${name} approval`);
             for (const evidenceId of record.evidenceIds ?? [])
@@ -80,10 +95,6 @@ export function validateReleaseApprovals(
                     );
         }
     }
-    const allProfiles = [
-        ...profiles.publicProfiles,
-        ...profiles.engineeringProfiles,
-    ];
     const profileApprovals = new Map(
         approvals.profileApprovals.map((approval) => [
             approval.profileId,

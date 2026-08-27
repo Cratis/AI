@@ -2,46 +2,36 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import { createHash } from "node:crypto";
+import { existsSync, rmSync } from "node:fs";
+import { join, resolve } from "node:path";
+import { compareOrdinal } from "./catalog-ordering.mjs";
 import {
-    existsSync,
-    mkdirSync,
-    readFileSync,
-    readdirSync,
-    writeFileSync,
-} from "node:fs";
-import { dirname, join, relative, resolve } from "node:path";
+    buildGlobalReleaseManifest,
+    createLogicalTree,
+    projectLogicalTree,
+    writeProjectedRoot,
+} from "./deterministic-release-tree.mjs";
+import {
+    fixtureProjectionRoots,
+    harnesses,
+    passiveHarnesses,
+    profileProjectionRoots,
+} from "./harness-registry.mjs";
 import {
     assertSafeContent,
     validatePayloadPath,
 } from "./public-artifact-materializer.mjs";
+import {
+    formatComplianceDiagnostics,
+    parseAgentSkillFrontmatter,
+    validateAgentSkill,
+    validateCratisPassiveProfile,
+} from "./portable-compliance-validation.mjs";
 
-export const passiveHarnesses = [
-    "agent-skills",
-    "agent-plugin",
-    "claude",
-    "codex",
-    "copilot",
-    "cursor",
-    "deepcode",
-    "deepseek",
-    "gemini",
-    "grok",
-    "junie",
-    "kiro",
-    "pi",
-];
+export { passiveHarnesses } from "./harness-registry.mjs";
 
-function sha256(content) {
-    return createHash("sha256").update(content).digest("hex");
-}
-
-function writeExclusive(path, content) {
-    mkdirSync(dirname(path), { recursive: true });
-    writeFileSync(path, content, { flag: "wx" });
-}
-
-function writeJson(path, value) {
-    writeExclusive(path, `${JSON.stringify(value, null, 2)}\n`);
+function jsonBuffer(value) {
+    return Buffer.from(`${JSON.stringify(value, null, 2)}\n`);
 }
 
 export function createClaudeMarketplace({ name, version, description }) {
@@ -87,47 +77,20 @@ export function createAgentPluginManifest({ name, version, description }) {
     };
 }
 
-function walkFiles(root, current = root) {
-    return readdirSync(current, { withFileTypes: true }).flatMap((entry) => {
-        const path = join(current, entry.name);
-        if (entry.isDirectory()) return walkFiles(root, path);
-        if (!entry.isFile())
-            throw new Error(`Profile adapter contains a special file: ${path}`);
-        return [relative(root, path).replaceAll("\\", "/")];
-    });
-}
-
 export function readSkillFrontmatter(content, skillName) {
-    const text = content.toString("utf8");
-    if (!text.startsWith("---\n"))
-        throw new Error(`Profile skill frontmatter is missing: ${skillName}`);
-    const closing = text.indexOf("\n---\n", 4);
-    if (closing < 0)
-        throw new Error(`Profile skill frontmatter is unclosed: ${skillName}`);
-    const properties = new Map();
-    for (const line of text.slice(4, closing).split("\n")) {
-        if (!line.trim()) continue;
-        const match = /^([A-Za-z][A-Za-z0-9-]*):\s*(\S.*)$/.exec(line);
-        if (!match || properties.has(match[1]))
-            throw new Error(
-                `Profile skill frontmatter is invalid: ${skillName}`,
-            );
-        properties.set(match[1], match[2]);
-    }
-    if (properties.get("name") !== skillName || !properties.get("description"))
+    const parsed = parseAgentSkillFrontmatter(content, {
+        path: `skills/${skillName}/SKILL.md`,
+    });
+    if (
+        parsed.diagnostics.length > 0 ||
+        parsed.frontmatter.name !== skillName ||
+        typeof parsed.frontmatter.description !== "string" ||
+        parsed.frontmatter.description.length === 0
+    )
         throw new Error(
             `Profile skill frontmatter name or description is invalid: ${skillName}`,
         );
-    return properties;
-}
-
-function copySkills(skills, root) {
-    for (const skill of skills)
-        for (const file of skill.files)
-            writeExclusive(
-                join(root, "skills", skill.name, file.path),
-                file.content,
-            );
+    return new Map(Object.entries(parsed.frontmatter));
 }
 
 function assertInputs({
@@ -193,16 +156,462 @@ function assertInputs({
     }
 }
 
-export function generatePassiveProfileAdapters({
+function skillLogicalFiles(skills) {
+    return skills.flatMap((skill) =>
+        skill.files.map((file) => ({
+            path: `skills/${skill.name}/${file.path}`,
+            content: file.content,
+        })),
+    );
+}
+
+function skillMappings(logicalFiles, skillRoot) {
+    return logicalFiles.map((file) => ({
+        sourcePath: file.path,
+        path: [skillRoot, file.path].filter(Boolean).join("/"),
+    }));
+}
+
+function metadataFilesForHarness(harness, options) {
+    const {
+        profileId,
+        version,
+        packageName,
+        description,
+        codexInstallationPolicy,
+        piPrivate,
+    } = options;
+    const files = [];
+    const add = (path, value) => {
+        const sourcePath = `metadata/${harness.id}/${path}`;
+        files.push({ sourcePath, path, content: jsonBuffer(value) });
+    };
+    switch (harness.adapterKind) {
+        case "portable-plugin":
+            add(
+                "plugin.json",
+                createAgentPluginManifest({
+                    name: profileId,
+                    version,
+                    description,
+                }),
+            );
+            break;
+        case "claude-compatible":
+            add(
+                ".claude-plugin/marketplace.json",
+                createClaudeMarketplace({
+                    name: profileId,
+                    version,
+                    description,
+                }),
+            );
+            add(
+                `plugins/${profileId}/.claude-plugin/plugin.json`,
+                createClaudePluginManifest({
+                    name: profileId,
+                    version,
+                    description,
+                }),
+            );
+            break;
+        case "codex-plugin":
+            add(".agents/plugins/marketplace.json", {
+                name: "cratis",
+                interface: { displayName: "Cratis" },
+                plugins: [
+                    {
+                        name: profileId,
+                        source: {
+                            source: "local",
+                            path: `./plugins/${profileId}`,
+                        },
+                        policy: {
+                            installation: codexInstallationPolicy,
+                            ...(codexInstallationPolicy === "NOT_AVAILABLE"
+                                ? {}
+                                : { authentication: "ON_INSTALL" }),
+                        },
+                        category: "Developer Tools",
+                    },
+                ],
+            });
+            add(`plugins/${profileId}/.codex-plugin/plugin.json`, {
+                name: profileId,
+                version,
+                description,
+                skills: "./skills/",
+            });
+            break;
+        case "portable-plugin-marketplace": {
+            const cursor = harness.id === "cursor";
+            add(
+                cursor
+                    ? ".cursor-plugin/marketplace.json"
+                    : ".github/plugin/marketplace.json",
+                {
+                    name: "cratis",
+                    owner: { name: "Cratis" },
+                    metadata: { description, version },
+                    plugins: [
+                        {
+                            name: profileId,
+                            description,
+                            version,
+                            source: `./plugins/${profileId}`,
+                            ...(cursor ? {} : { strict: true }),
+                        },
+                    ],
+                },
+            );
+            add(
+                `plugins/${profileId}/plugin.json`,
+                createAgentPluginManifest({
+                    name: profileId,
+                    version,
+                    description,
+                }),
+            );
+            break;
+        }
+        case "direct-skills-manifest":
+            add("gemini-extension.json", {
+                name: profileId,
+                version,
+                description,
+            });
+            break;
+        case "pi-package":
+            add("package.json", {
+                name: packageName,
+                version,
+                description,
+                private: piPrivate,
+                license: "MIT",
+                repository: {
+                    type: "git",
+                    url: "https://github.com/Cratis/AI",
+                },
+                homepage: "https://cratis.io/ai",
+                files: ["skills"],
+                keywords: ["pi-package", "cratis"],
+                pi: { skills: ["./skills"] },
+            });
+            break;
+        case "direct-skills":
+            break;
+        default:
+            throw new Error(
+                `Unknown passive adapter kind: ${harness.adapterKind}`,
+            );
+    }
+    return files;
+}
+
+function metadataFilesForFixtureHarness(harness, projection, options) {
+    const {
+        pluginName,
+        version,
+        portableDescription,
+        marketplaceDescription,
+        codexDisplayName,
+        piPackageManifest,
+    } = options;
+    const files = [];
+    const add = (path, value) => {
+        const sourcePath = `metadata/${harness.id}/${projection.id}/${path}`;
+        files.push({ sourcePath, path, content: jsonBuffer(value) });
+    };
+    switch (harness.adapterKind) {
+        case "portable-plugin":
+            add(
+                "plugin.json",
+                createAgentPluginManifest({
+                    name: pluginName,
+                    version,
+                    description: portableDescription,
+                }),
+            );
+            break;
+        case "claude-compatible":
+            add(
+                ".claude-plugin/marketplace.json",
+                createClaudeMarketplace({
+                    name: pluginName,
+                    version,
+                    description: portableDescription,
+                }),
+            );
+            add(
+                `plugins/${pluginName}/.claude-plugin/plugin.json`,
+                createClaudePluginManifest({
+                    name: pluginName,
+                    version,
+                    description: portableDescription,
+                }),
+            );
+            break;
+        case "codex-plugin":
+            add(".agents/plugins/marketplace.json", {
+                name: pluginName,
+                interface: { displayName: codexDisplayName },
+                plugins: [
+                    {
+                        name: pluginName,
+                        source: {
+                            source: "local",
+                            path: `./plugins/${pluginName}`,
+                        },
+                        policy: {
+                            installation: "AVAILABLE",
+                            authentication: "ON_INSTALL",
+                        },
+                        category: "Developer Tools",
+                    },
+                ],
+            });
+            add(`plugins/${pluginName}/.codex-plugin/plugin.json`, {
+                name: pluginName,
+                version,
+                description: portableDescription,
+                skills: "./skills/",
+            });
+            break;
+        case "portable-plugin-marketplace": {
+            const cursor = harness.id === "cursor";
+            add(
+                cursor
+                    ? ".cursor-plugin/marketplace.json"
+                    : ".github/plugin/marketplace.json",
+                {
+                    name: pluginName,
+                    owner: { name: "Cratis" },
+                    metadata: { description: marketplaceDescription, version },
+                    plugins: [
+                        {
+                            name: pluginName,
+                            description: portableDescription,
+                            version,
+                            source: `./plugins/${pluginName}`,
+                            ...(cursor ? {} : { strict: true }),
+                        },
+                    ],
+                },
+            );
+            add(
+                `plugins/${pluginName}/plugin.json`,
+                createAgentPluginManifest({
+                    name: pluginName,
+                    version,
+                    description: portableDescription,
+                }),
+            );
+            break;
+        }
+        case "direct-skills-manifest":
+            add("gemini-extension.json", {
+                name: pluginName,
+                version,
+                description: portableDescription,
+            });
+            break;
+        case "pi-package":
+            add(
+                [projection.skillRoot, "package.json"]
+                    .filter(Boolean)
+                    .join("/"),
+                piPackageManifest,
+            );
+            break;
+        case "direct-skills":
+            break;
+        default:
+            throw new Error(
+                `Unknown passive adapter kind: ${harness.adapterKind}`,
+            );
+    }
+    return files;
+}
+
+/** Builds the shared logical skill tree and registry-declared fixture projections. */
+export function createPassiveFixtureProjection(options) {
+    const logicalSkillFiles = skillLogicalFiles(options.skills);
+    const roots = [];
+    const metadata = [];
+    for (const harness of harnesses) {
+        for (const projection of fixtureProjectionRoots(
+            harness.id,
+            options.pluginName,
+        )) {
+            const harnessMetadata = metadataFilesForFixtureHarness(
+                harness,
+                projection,
+                options,
+            );
+            metadata.push(...harnessMetadata);
+            roots.push({
+                id: projection.id,
+                root: projection.outputRoot,
+                parityGroup: projection.parityGroup,
+                mappings: [
+                    ...skillMappings(logicalSkillFiles, projection.skillRoot),
+                    ...harnessMetadata.map((file) => ({
+                        sourcePath: file.sourcePath,
+                        path: file.path,
+                    })),
+                ],
+            });
+        }
+    }
+    const logicalTree = createLogicalTree({
+        files: [
+            ...logicalSkillFiles,
+            ...metadata.map((file) => ({
+                path: file.sourcePath,
+                content: file.content,
+            })),
+        ],
+        metrics: options.metrics,
+    });
+    return projectLogicalTree(logicalTree, roots, {
+        concurrency: options.concurrency ?? 1,
+    });
+}
+
+/** Builds the single logical-skill-tree and explicit registry projections used by passive releases. */
+export function createPassiveProfileProjection(options) {
+    const logicalSkillFiles = skillLogicalFiles(options.skills);
+    const metadataByHarness = new Map(
+        harnesses.map((harness) => [
+            harness.id,
+            metadataFilesForHarness(harness, options),
+        ]),
+    );
+    const logicalTree = createLogicalTree({
+        files: [
+            ...logicalSkillFiles,
+            ...[...metadataByHarness.values()].flat().map((file) => ({
+                path: file.sourcePath,
+                content: file.content,
+            })),
+        ],
+        metrics: options.metrics,
+    });
+    const roots = harnesses.flatMap((harness) =>
+        profileProjectionRoots(harness.id, options.profileId).map(
+            (projection) => ({
+                id: projection.id,
+                root: projection.outputRoot,
+                parityGroup: projection.parityGroup,
+                mappings: [
+                    ...skillMappings(logicalSkillFiles, projection.skillRoot),
+                    ...metadataByHarness.get(harness.id).map((file) => ({
+                        sourcePath: file.sourcePath,
+                        path: file.path,
+                    })),
+                ],
+            }),
+        ),
+    );
+    return projectLogicalTree(logicalTree, roots, {
+        concurrency: options.concurrency ?? 1,
+    });
+}
+
+export function validatePassiveFixtureHarnesses({
     outputRoot,
     version,
-    profileId,
-    packageName,
-    description,
+    pluginName,
     skills,
-    codexInstallationPolicy = "AVAILABLE",
-    piPrivate = false,
 }) {
+    const root = resolve(outputRoot);
+    const receipts = [];
+    for (const harness of harnesses.filter(
+        (candidate) => candidate.complianceModes.length > 0,
+    )) {
+        for (const descriptor of fixtureProjectionRoots(
+            harness.id,
+            pluginName,
+        )) {
+            const artifactRoot = join(root, descriptor.outputRoot);
+            if (harness.adapterKind === "portable-plugin") {
+                const result = validateCratisPassiveProfile(artifactRoot, {
+                    profileId: pluginName,
+                    version,
+                    artifactId: harness.id,
+                    allowFixtureProfileId: true,
+                });
+                if (result.releaseBlocking)
+                    throw new Error(
+                        `${harness.id}: fixture compliance failed\n${formatComplianceDiagnostics(result.diagnostics)}`,
+                    );
+                receipts.push(result.receipt);
+                continue;
+            }
+            const files = [];
+            for (const skill of skills) {
+                const skillRoot = join(
+                    artifactRoot,
+                    descriptor.skillRoot,
+                    "skills",
+                    skill.name,
+                );
+                const result = validateAgentSkill(skillRoot, {
+                    mode: "cratis-passive-v1",
+                    pluginRoot: artifactRoot,
+                });
+                if (!result.valid)
+                    throw new Error(
+                        `${harness.id}: fixture Agent Skill validation failed\n${formatComplianceDiagnostics(result.diagnostics)}`,
+                    );
+                files.push({
+                    name: skill.name,
+                    path: `${descriptor.skillRoot}/skills/${skill.name}/SKILL.md`,
+                    sha256: createHash("sha256")
+                        .update(result.sourceBytes)
+                        .digest("hex"),
+                });
+            }
+            receipts.push({
+                schemaVersion: "1.0.0",
+                contract: "agent-skills-strict-passive-v1",
+                artifactId: harness.id,
+                files,
+                conformant: true,
+                releaseBlocking: false,
+                passivePayloadSafe: true,
+                executionPerformed: false,
+                networkAccessPerformed: false,
+                approvalGranted: false,
+                supportGranted: false,
+                publicationGranted: false,
+            });
+        }
+    }
+    return {
+        schemaVersion: "1.0.0",
+        state: "GENERATED_STATIC_VALIDATION_ONLY",
+        hostTested: false,
+        installationTested: false,
+        runtimeGranted: false,
+        publicationGranted: false,
+        promotionGranted: false,
+        supportGranted: false,
+        receipts,
+    };
+}
+
+function generatePassiveProfileAdaptersCore(options) {
+    const {
+        outputRoot,
+        version,
+        profileId,
+        packageName,
+        description,
+        skills,
+        codexInstallationPolicy = "AVAILABLE",
+        piPrivate = false,
+    } = options;
     assertInputs({ version, profileId, packageName, description, skills });
     if (
         !["AVAILABLE", "INSTALLED_BY_DEFAULT", "NOT_AVAILABLE"].includes(
@@ -214,198 +623,203 @@ export function generatePassiveProfileAdapters({
     const root = resolve(outputRoot);
     if (existsSync(root))
         throw new Error(`Profile adapter output must not exist: ${root}`);
-    mkdirSync(root, { recursive: false });
-    const harnessRoot = (harness) => join(root, "harnesses", harness);
+    const metrics = options.metrics ?? {
+        sourceReads: 0,
+        finalReads: 0,
+        bytesHashed: 0,
+    };
+    const projected = createPassiveProfileProjection({
+        ...options,
+        codexInstallationPolicy,
+        piPrivate,
+        metrics,
+    });
+    const validation = writeProjectedRoot(root, projected, {
+        concurrency: options.concurrency ?? 1,
+        metrics,
+        beforeWrite: options.beforeWrite,
+    });
 
-    copySkills(skills, harnessRoot("agent-skills"));
-
-    const agentPluginRoot = harnessRoot("agent-plugin");
-    copySkills(skills, agentPluginRoot);
-    writeJson(
-        join(agentPluginRoot, "plugin.json"),
-        createAgentPluginManifest({
-            name: profileId,
-            version,
-            description,
+    const rootsByHarness = Object.fromEntries(
+        harnesses.map((harness) => {
+            const roots = projected.roots
+                .filter((candidate) => candidate.parityGroup === harness.id)
+                .map((candidate) => candidate.root);
+            return [harness.id, roots[0]];
         }),
     );
-
-    const claudeRoot = harnessRoot("claude");
-    copySkills(skills, join(claudeRoot, `plugins/${profileId}`));
-    writeJson(
-        join(claudeRoot, ".claude-plugin/marketplace.json"),
-        createClaudeMarketplace({ name: profileId, version, description }),
+    const declaredRoots = Object.fromEntries(
+        harnesses.map((harness) => [
+            harness.id,
+            projected.roots
+                .filter((candidate) => candidate.parityGroup === harness.id)
+                .map((candidate) => candidate.root),
+        ]),
     );
-    writeJson(
-        join(claudeRoot, `plugins/${profileId}/.claude-plugin/plugin.json`),
-        createClaudePluginManifest({ name: profileId, version, description }),
-    );
-
-    const codexRoot = harnessRoot("codex");
-    copySkills(skills, join(codexRoot, `plugins/${profileId}`));
-    writeJson(join(codexRoot, ".agents/plugins/marketplace.json"), {
-        name: "cratis",
-        interface: { displayName: "Cratis" },
-        plugins: [
-            {
-                name: profileId,
-                source: {
-                    source: "local",
-                    path: `./plugins/${profileId}`,
-                },
-                policy: {
-                    installation: codexInstallationPolicy,
-                    ...(codexInstallationPolicy === "NOT_AVAILABLE"
-                        ? {}
-                        : { authentication: "ON_INSTALL" }),
-                },
-                category: "Developer Tools",
-            },
-        ],
-    });
-    writeJson(
-        join(codexRoot, `plugins/${profileId}/.codex-plugin/plugin.json`),
-        { name: profileId, version, description, skills: "./skills/" },
-    );
-
-    const copilotRoot = harnessRoot("copilot");
-    copySkills(skills, join(copilotRoot, `plugins/${profileId}`));
-    writeJson(join(copilotRoot, ".github/plugin/marketplace.json"), {
-        name: "cratis",
-        owner: { name: "Cratis" },
-        metadata: { description, version },
-        plugins: [
-            {
-                name: profileId,
-                description,
-                version,
-                source: `./plugins/${profileId}`,
-                strict: true,
-            },
-        ],
-    });
-    writeJson(
-        join(copilotRoot, `plugins/${profileId}/plugin.json`),
-        createAgentPluginManifest({ name: profileId, version, description }),
-    );
-
-    const cursorRoot = harnessRoot("cursor");
-    copySkills(skills, join(cursorRoot, `plugins/${profileId}`));
-    writeJson(join(cursorRoot, ".cursor-plugin/marketplace.json"), {
-        name: "cratis",
-        owner: { name: "Cratis" },
-        metadata: { description, version },
-        plugins: [
-            {
-                name: profileId,
-                description,
-                version,
-                source: `./plugins/${profileId}`,
-            },
-        ],
-    });
-    writeJson(
-        join(cursorRoot, `plugins/${profileId}/plugin.json`),
-        createAgentPluginManifest({ name: profileId, version, description }),
-    );
-
-    const directRoots = {
-        deepcode: ".deepcode",
-        deepseek: ".dsh",
-        gemini: ".",
-        kiro: ".",
-    };
-    for (const [harness, destination] of Object.entries(directRoots))
-        copySkills(skills, join(harnessRoot(harness), destination));
-    writeJson(join(harnessRoot("gemini"), "gemini-extension.json"), {
-        name: profileId,
-        version,
-        description,
-    });
-    writeJson(
-        join(harnessRoot("kiro"), "plugin.json"),
-        createAgentPluginManifest({ name: profileId, version, description }),
-    );
-
-    for (const harness of ["grok", "junie"]) {
-        const compatibleRoot = harnessRoot(harness);
-        copySkills(skills, join(compatibleRoot, `plugins/${profileId}`));
-        writeJson(
-            join(compatibleRoot, ".claude-plugin/marketplace.json"),
-            createClaudeMarketplace({ name: profileId, version, description }),
+    const complianceReceipts = [];
+    for (const harness of harnesses) {
+        const harnessRoots = projected.roots.filter(
+            (candidate) => candidate.parityGroup === harness.parityGroup,
         );
-        writeJson(
-            join(
-                compatibleRoot,
-                `plugins/${profileId}/.claude-plugin/plugin.json`,
-            ),
-            createClaudePluginManifest({
-                name: profileId,
-                version,
-                description,
-            }),
-        );
-    }
-
-    const piRoot = harnessRoot("pi");
-    copySkills(skills, piRoot);
-    writeJson(join(piRoot, "package.json"), {
-        name: packageName,
-        version,
-        description,
-        private: piPrivate,
-        license: "MIT",
-        repository: {
-            type: "git",
-            url: "https://github.com/Cratis/AI",
-        },
-        homepage: "https://cratis.io/ai",
-        files: ["skills"],
-        keywords: ["pi-package", "cratis"],
-        pi: { skills: ["./skills"] },
-    });
-
-    const canonicalFiles = new Map();
-    for (const skill of skills)
-        for (const file of skill.files)
-            canonicalFiles.set(
-                `skills/${skill.name}/${file.path}`,
-                sha256(file.content),
-            );
-    for (const harness of passiveHarnesses) {
-        const harnessPath = harnessRoot(harness);
-        const files = walkFiles(harnessPath).sort();
-        const skillFiles = files.filter(
-            (path) => path.includes("/skills/") || path.startsWith("skills/"),
-        );
-        for (const [canonicalPath, digest] of canonicalFiles) {
-            const suffix = canonicalPath;
-            const matches = skillFiles.filter((path) => path.endsWith(suffix));
-            if (matches.length !== 1)
+        for (const harnessRoot of harnessRoots) {
+            const descriptor = profileProjectionRoots(
+                harness.id,
+                profileId,
+            ).find((candidate) => candidate.id === harnessRoot.id);
+            if (!descriptor)
                 throw new Error(
-                    `${harness}: expected one copy of ${canonicalPath}, found ${matches.length}`,
+                    `Missing profile projection descriptor: ${harnessRoot.id}`,
                 );
-            if (sha256(readFileSync(join(harnessPath, matches[0]))) !== digest)
-                throw new Error(`${harness}: canonical byte parity failed`);
+            const artifactRoot = join(root, harnessRoot.root);
+            const rootPrefix = `${harnessRoot.root}/`;
+            const artifactFiles = projected.files
+                .filter((file) => file.path.startsWith(rootPrefix))
+                .map((file) => ({
+                    path: file.path.slice(rootPrefix.length),
+                    size: file.size,
+                    sha256: file.sha256,
+                }))
+                .sort((left, right) => compareOrdinal(left.path, right.path));
+            if (
+                harness.adapterKind === "portable-plugin" ||
+                harness.adapterKind === "portable-plugin-marketplace"
+            ) {
+                const portableRoot =
+                    harness.adapterKind === "portable-plugin-marketplace"
+                        ? join(artifactRoot, `plugins/${profileId}`)
+                        : artifactRoot;
+                const validationResult = validateCratisPassiveProfile(
+                    portableRoot,
+                    {
+                        profileId,
+                        version,
+                        artifactId: harness.id,
+                    },
+                );
+                if (validationResult.releaseBlocking) {
+                    rmSync(root, { recursive: true, force: true });
+                    throw new Error(
+                        `${harness.id}: portable compliance failed\n${formatComplianceDiagnostics(validationResult.diagnostics)}`,
+                    );
+                }
+                complianceReceipts.push({
+                    ...validationResult.receipt,
+                    artifactId: harnessRoot.id,
+                    artifactRoot: harnessRoot.root,
+                    artifactFiles,
+                });
+                continue;
+            }
+            const skillReceipts = [];
+            for (const skill of skills) {
+                const skillRoot = join(
+                    artifactRoot,
+                    descriptor.skillRoot,
+                    "skills",
+                    skill.name,
+                );
+                const validationResult = validateAgentSkill(skillRoot, {
+                    mode: "cratis-passive-v1",
+                    pluginRoot: artifactRoot,
+                });
+                if (!validationResult.valid) {
+                    rmSync(root, { recursive: true, force: true });
+                    throw new Error(
+                        `${harness.id}: strict Agent Skill validation failed\n${formatComplianceDiagnostics(validationResult.diagnostics)}`,
+                    );
+                }
+                skillReceipts.push({
+                    name: skill.name,
+                    path: `${descriptor.skillRoot ? `${descriptor.skillRoot}/` : ""}skills/${skill.name}/SKILL.md`,
+                    sha256: createHash("sha256")
+                        .update(validationResult.sourceBytes)
+                        .digest("hex"),
+                });
+            }
+            complianceReceipts.push({
+                artifactId: harnessRoot.id,
+                artifactRoot: harnessRoot.root,
+                profile:
+                    harness.adapterKind === "direct-skills"
+                        ? "agent-skills-strict-passive-v1"
+                        : "passive-native-metadata-v1",
+                conformant: true,
+                releaseBlocking: false,
+                passivePayloadSafe: true,
+                skills: skillReceipts,
+                artifactFiles,
+                executionPerformed: false,
+                networkAccessPerformed: false,
+                supportGranted: false,
+                hostTested: false,
+            });
         }
     }
+    const canonicalFiles = skillLogicalFiles(skills).map((file) => {
+        const projectedFile = projected.files.find(
+            (candidate) => candidate.sourcePath === file.path,
+        );
+        return [file.path, projectedFile.sha256];
+    });
+    const profileHash = createHash("sha256");
+    profileHash.update(profileId);
+    profileHash.update("\0");
+    profileHash.update(version);
+    profileHash.update("\0");
+    for (const [path, digest] of canonicalFiles.sort(([left], [right]) =>
+        compareOrdinal(left, right),
+    )) {
+        profileHash.update(path);
+        profileHash.update("\0");
+        profileHash.update(digest);
+        profileHash.update("\0");
+    }
+    const deterministicManifest = buildGlobalReleaseManifest(
+        projected,
+        validation,
+        {
+            profileId,
+            version,
+        },
+    );
     return {
         harnesses: passiveHarnesses,
-        roots: Object.fromEntries(
-            passiveHarnesses.map((harness) => [
-                harness,
-                `harnesses/${harness}`,
-            ]),
-        ),
-        files: walkFiles(root)
-            .sort()
-            .map((path) => {
-                const content = readFileSync(join(root, path));
-                return {
-                    path,
-                    size: content.length,
-                    sha256: sha256(content),
-                };
-            }),
+        roots: rootsByHarness,
+        declaredRoots,
+        deterministicManifest,
+        compliance: {
+            profile: "cratis-passive-v1",
+            profileDigest: profileHash.digest("hex"),
+            specifications: complianceReceipts.find(
+                (receipt) => receipt.specifications,
+            )?.specifications,
+            receipts: complianceReceipts,
+            deterministicReleaseTree: {
+                state: deterministicManifest.state,
+                fileCount: deterministicManifest.fileCount,
+                totalBytes: deterministicManifest.totalBytes,
+                roots: deterministicManifest.roots.map((candidate) => ({
+                    id: candidate.id,
+                    path: candidate.path,
+                })),
+            },
+            staticValidationInput: {
+                assuranceId: "static-validation",
+                outcome: "pass",
+                supporting: false,
+                reason: "Deterministic repository validation input; it does not establish host support or release approval.",
+            },
+            approvalGranted: false,
+            supportGranted: false,
+            publicationGranted: false,
+            runtimeGranted: false,
+            promotionGranted: false,
+        },
+        files: validation.files,
+        metrics,
     };
+}
+
+export function generatePassiveProfileAdapters(options) {
+    return generatePassiveProfileAdaptersCore(options);
 }

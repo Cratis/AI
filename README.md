@@ -117,13 +117,14 @@ Kiro, Junie, and Pi/npm. Copilot, Cursor, Kiro, and VS Code share the same
 portable plugin identity. Claude, Grok, and Junie share one Claude-compatible
 marketplace package rather than separate skill instructions.
 
-Documentation and release records distinguish:
-
-1. generated;
-2. statically validated;
-3. host-tested and supported.
-
-Adapter generation alone is not a support or marketplace-publication claim.
+Normalized evidence and computed support distinguish the monotonic technical
+ranks: unsupported, documented, generated, statically-validated,
+install-tested, behavior-tested, lifecycle-tested, release-tested, and
+supported. Marketplace listing is an orthogonal status and is required only
+when a delivery binding claims marketplace availability. Adapter generation
+alone is not a support or marketplace-publication claim. See
+[the catalog v2 evidence and support model](Documentation/capability-catalog-v2.md#normalized-evidence)
+and [offline portable compliance](Documentation/portable-compliance.md).
 
 ## Contributing an improvement
 
@@ -144,9 +145,14 @@ repositories receive reviewed update pull requests.
 Run the complete local gate after changing release-relevant content:
 
 ```bash
+node tooling/harness-registry.mjs
 node tooling/generate-catalog-v2.mjs
+node tooling/generate-support.mjs
+node tooling/generate-ecosystem-artifact-coverage.mjs
 node tooling/generate-human-catalog.mjs
 node tooling/generate-repository-inventory.mjs
+node tooling/portable-compliance-validation.mjs --verify-lock
+node tooling/release-assurance-validation.mjs
 node tooling/validate-catalogs.mjs
 node --test tooling/specs/*.spec.mjs
 .ai/hooks/scripts/validate-ai-setup.sh

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "a99a8d239669f79d7e98ff03c731d103dec379eafe8a4ff7e1c75d3bfc211864",
+  "indexDigest": "6c3b8053def0b1991f6b1ae1e2950ee57b898280a9f5994d8f868c2c56069215",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -43,6 +43,10 @@
       "status": "added"
     },
     {
+      "path": ".ai/rules/local-work-artifacts.md",
+      "status": "added"
+    },
+    {
       "path": ".ai/rules/managing-ai-rules.md",
       "status": "modified"
     },
@@ -75,7 +79,27 @@
       "status": "added"
     },
     {
+      "path": ".claude/rules/local-work-artifacts.md",
+      "status": "added"
+    },
+    {
+      "path": ".gitattributes",
+      "status": "added"
+    },
+    {
       "path": ".github/ISSUE_TEMPLATE/shared-ai-improvement.yml",
+      "status": "added"
+    },
+    {
+      "path": ".github/scripts/copilot-sync-ignore-filter.sh",
+      "status": "deleted"
+    },
+    {
+      "path": ".github/scripts/propagate-copilot-instructions.sh",
+      "status": "deleted"
+    },
+    {
+      "path": ".github/workflows/benchmark-release-generation.yml",
       "status": "added"
     },
     {
@@ -108,7 +132,7 @@
     },
     {
       "path": ".github/workflows/propagate-copilot-instructions.yml",
-      "status": "modified"
+      "status": "deleted"
     },
     {
       "path": ".github/workflows/release-approved-ai-profiles.yml",
@@ -116,7 +140,7 @@
     },
     {
       "path": ".github/workflows/sync-copilot-instructions.yml",
-      "status": "modified"
+      "status": "deleted"
     },
     {
       "path": ".github/workflows/update-packages.yml",
@@ -127,64 +151,12 @@
       "status": "added"
     },
     {
+      "path": ".github/workflows/verify-no-work-records.yml",
+      "status": "added"
+    },
+    {
       "path": ".gitignore",
       "status": "modified"
-    },
-    {
-      "path": "AI-REPOSITORY-REDESIGN-AUTONOMOUS-HANDOVER.md",
-      "status": "added"
-    },
-    {
-      "path": "AI-REPOSITORY-REDESIGN-AUTONOMOUS-PLAN.md",
-      "status": "added"
-    },
-    {
-      "path": "AI-REPOSITORY-REDESIGN-AUTONOMOUS-PROMPT.md",
-      "status": "added"
-    },
-    {
-      "path": "AI-REPOSITORY-REDESIGN-CONTINUATION-HANDOVER.md",
-      "status": "added"
-    },
-    {
-      "path": "AI-REPOSITORY-REDESIGN-DELIVERY-FIRST-CONTINUATION-PROMPT.md",
-      "status": "added"
-    },
-    {
-      "path": "AI-REPOSITORY-REDESIGN-ECOSYSTEM-USE-CASES.md",
-      "status": "added"
-    },
-    {
-      "path": "AI-REPOSITORY-REDESIGN-FIRST-SOURCE-MOVE-PROMPT.md",
-      "status": "added"
-    },
-    {
-      "path": "AI-REPOSITORY-REDESIGN-HANDOVER.md",
-      "status": "added"
-    },
-    {
-      "path": "AI-REPOSITORY-REDESIGN-IMPLEMENTATION-PLAN.md",
-      "status": "added"
-    },
-    {
-      "path": "AI-REPOSITORY-REDESIGN-IMPLEMENTATION-PROMPT.md",
-      "status": "added"
-    },
-    {
-      "path": "AI-REPOSITORY-REDESIGN-NEXT-SESSION-HANDOVER.md",
-      "status": "added"
-    },
-    {
-      "path": "AI-REPOSITORY-REDESIGN-REEVALUATION-PROMPT.md",
-      "status": "added"
-    },
-    {
-      "path": "AI-REPOSITORY-REDESIGN-REEVALUATION.md",
-      "status": "added"
-    },
-    {
-      "path": "AI-REPOSITORY-REDESIGN-THIRD-PARTY-SKILLS-EVALUATION.md",
-      "status": "added"
     },
     {
       "path": "Documentation/.markdownlint.json",
@@ -212,6 +184,14 @@
     },
     {
       "path": "Documentation/capability-catalog-v2.md",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/chronicle-mcp-guidance.md",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/ecosystem-support-architecture-review.md",
       "status": "added"
     },
     {
@@ -351,11 +331,23 @@
       "status": "modified"
     },
     {
+      "path": "Documentation/maintaining-shared-ai-behavior.md",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/native-non-skill-projections.md",
+      "status": "added"
+    },
+    {
       "path": "Documentation/orchestrator.md",
       "status": "modified"
     },
     {
       "path": "Documentation/phase-0-verification.md",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/portable-compliance.md",
       "status": "added"
     },
     {
@@ -375,11 +367,19 @@
       "status": "added"
     },
     {
+      "path": "Documentation/real-host-canaries.md",
+      "status": "added"
+    },
+    {
       "path": "Documentation/redesign-foundation-validation.md",
       "status": "added"
     },
     {
       "path": "Documentation/releasing-cratis-ai.md",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/s10-release-and-marketplace-gates.md",
       "status": "added"
     },
     {
@@ -399,6 +399,10 @@
       "status": "added"
     },
     {
+      "path": "Documentation/studio-mcp-guidance.md",
+      "status": "added"
+    },
+    {
       "path": "Documentation/verify-markdown.sh",
       "status": "modified"
     },
@@ -407,7 +411,31 @@
       "status": "modified"
     },
     {
+      "path": "catalog/chronicle-mcp-tool-classifications.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/component-projections.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/components.json",
+      "status": "added"
+    },
+    {
       "path": "catalog/ecosystem-versions.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/evidence-baseline.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/evidence-baseline.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/evidence.json",
       "status": "added"
     },
     {
@@ -423,6 +451,14 @@
       "status": "added"
     },
     {
+      "path": "catalog/host-adapters.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/mcp-guidance-products.json",
+      "status": "added"
+    },
+    {
       "path": "catalog/product-coverage.yml",
       "status": "added"
     },
@@ -431,7 +467,43 @@
       "status": "added"
     },
     {
+      "path": "catalog/schemas/artifact-assurance-profiles.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/schemas/chronicle-mcp-tool-classifications.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/schemas/component-projections.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/schemas/components.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/schemas/ecosystem-artifact-coverage.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/schemas/ecosystem-contracts.schema.json",
+      "status": "added"
+    },
+    {
       "path": "catalog/schemas/ecosystem-versions.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/schemas/evidence.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/schemas/host-adapters.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/schemas/mcp-guidance-products.schema.json",
       "status": "added"
     },
     {
@@ -443,7 +515,35 @@
       "status": "added"
     },
     {
+      "path": "catalog/schemas/release-readiness.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/schemas/support-policy.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/schemas/support.schema.json",
+      "status": "added"
+    },
+    {
       "path": "catalog/schemas/v2/catalog-v2.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/studio-mcp-tool-classifications.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/support-policy.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/v2/README.md",
+      "status": "added"
+    },
+    {
+      "path": "catalog/v2/artifact-assurance-profiles.json",
       "status": "added"
     },
     {
@@ -456,6 +556,22 @@
     },
     {
       "path": "catalog/v2/bundles.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/v2/component-projections.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/v2/components.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/v2/ecosystem-artifact-coverage.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/v2/ecosystem-contracts.json",
       "status": "added"
     },
     {
@@ -475,6 +591,10 @@
       "status": "added"
     },
     {
+      "path": "catalog/v2/release-readiness.json",
+      "status": "added"
+    },
+    {
       "path": "catalog/v2/repository-inventory.json",
       "status": "added"
     },
@@ -484,6 +604,10 @@
     },
     {
       "path": "catalog/v2/sources.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/v2/support.json",
       "status": "added"
     },
     {
@@ -503,7 +627,23 @@
       "status": "added"
     },
     {
+      "path": "distribution/artifact-assurance-policy.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/artifact-assurance-policy.schema.json",
+      "status": "added"
+    },
+    {
       "path": "distribution/artifact-matrix.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/ecosystem-artifact-bindings.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/ecosystem-artifact-bindings.schema.json",
       "status": "added"
     },
     {
@@ -563,11 +703,55 @@
       "status": "added"
     },
     {
+      "path": "distribution/evidence/s5b-passive-host-static-generation-2026-08-25.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/evidence/s8-native-non-skill-static-generation-2026-08-25.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/evidence/s9-claude-version-preflight-blocked-2026-08-26.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/evidence/s9-codex-version-preflight-blocked-2026-08-26.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/evidence/s9-copilot-version-preflight-blocked-2026-08-26.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/evidence/s9-gemini-version-preflight-blocked-2026-08-26.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/evidence/s9-pi-attempt-1-blocked-2026-08-25.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/evidence/s9-pi-attempt-2-superseded-2026-08-26.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/evidence/s9-pi-attempt-3-current-2026-08-26.json",
+      "status": "added"
+    },
+    {
       "path": "distribution/generated-repository-authority-request.md",
       "status": "added"
     },
     {
       "path": "distribution/generated-repository-contract.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/marketplace-publications.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/marketplace-publications.schema.json",
       "status": "added"
     },
     {
@@ -587,11 +771,47 @@
       "status": "added"
     },
     {
+      "path": "distribution/real-host-canary-matrix.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/real-host-canary-matrix.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/real-host-canary-report.schema.json",
+      "status": "added"
+    },
+    {
       "path": "distribution/release-approvals.json",
       "status": "added"
     },
     {
+      "path": "distribution/release-approvals.schema.json",
+      "status": "added"
+    },
+    {
       "path": "distribution/release-automation-capabilities.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/release-control-attestations.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/release-control-attestations.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/release-lifecycle-report.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/release-record.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/release-records/README.md",
       "status": "added"
     },
     {
@@ -608,6 +828,14 @@
     },
     {
       "path": "distribution/rollout-policy.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/s10-release-policy.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/s10-release-policy.schema.json",
       "status": "added"
     },
     {
@@ -1975,11 +2203,47 @@
       "status": "added"
     },
     {
+      "path": "skills/cratis-chronicle-mcp-inspection/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-mcp-inspection/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-mcp-inspection/references/blocked-tools.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-mcp-inspection/references/observational-tools.md",
+      "status": "added"
+    },
+    {
       "path": "skills/cratis-fundamentals-concept/LICENSE",
       "status": "added"
     },
     {
       "path": "skills/cratis-fundamentals-concept/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-studio-mcp-safety-guidance/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-studio-mcp-safety-guidance/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-studio-mcp-safety-guidance/references/blocked-tools.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-studio-mcp-safety-guidance/references/observational-tools.md",
+      "status": "added"
+    },
+    {
+      "path": "tooling/benchmarks/release-generation.mjs",
       "status": "added"
     },
     {
@@ -1999,7 +2263,19 @@
       "status": "added"
     },
     {
+      "path": "tooling/chronicle-mcp-guidance-validation.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/code-review-pilot-validation.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/component-catalog-validation.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/deterministic-release-tree.mjs",
       "status": "added"
     },
     {
@@ -2011,11 +2287,79 @@
       "status": "added"
     },
     {
+      "path": "tooling/ecosystem-artifact-validation.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/engineering-docs-authoring-validation.mjs",
       "status": "added"
     },
     {
       "path": "tooling/engineering-docs-companions-validation.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/portable-compliance/all-skill-options/plugin.json",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/portable-compliance/all-skill-options/skills/all-options/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/portable-compliance/manifest-only/plugin.json",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/portable-compliance/passive-one-skill/plugin.json",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/portable-compliance/passive-one-skill/skills/example-skill/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/portable-compliance/passive-one-skill/skills/example-skill/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/portable-compliance/passive-one-skill/skills/example-skill/assets/example.txt",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/portable-compliance/passive-one-skill/skills/example-skill/references/guide.md",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/portable-compliance/reverse-domain-extension/com.cratis.fixture/config.json",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/portable-compliance/reverse-domain-extension/plugin.json",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/portable-compliance/sibling-isolation/plugin.json",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/portable-compliance/sibling-isolation/skills/container/nested-too-deep/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/portable-compliance/sibling-isolation/skills/invalid-sibling/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/portable-compliance/sibling-isolation/skills/valid-sibling/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/portable-compliance/valid-mcp/mcp.json",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/portable-compliance/valid-mcp/plugin.json",
       "status": "added"
     },
     {
@@ -2075,6 +2419,14 @@
       "status": "added"
     },
     {
+      "path": "tooling/fixtures/s5b-passive-expected-tree.json",
+      "status": "added"
+    },
+    {
+      "path": "tooling/fixtures/s8-native-non-skill-expected-tree.json",
+      "status": "added"
+    },
+    {
       "path": "tooling/generate-approved-profile-release.mjs",
       "status": "added"
     },
@@ -2083,7 +2435,19 @@
       "status": "added"
     },
     {
+      "path": "tooling/generate-chronicle-mcp-guidance-references.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/generate-component-catalogs.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/generate-distribution-fixture.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/generate-ecosystem-artifact-coverage.mjs",
       "status": "added"
     },
     {
@@ -2095,7 +2459,19 @@
       "status": "added"
     },
     {
+      "path": "tooling/generate-mcp-guidance-references.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/generate-release-readiness.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/generate-repository-inventory.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/generate-support.mjs",
       "status": "added"
     },
     {
@@ -2115,6 +2491,26 @@
       "status": "added"
     },
     {
+      "path": "tooling/harness-registry.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/marketplace-publication-validation.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/mcp-guidance-product-contract.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/mcp-guidance-validation.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/native-non-skill-projections.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/navigator-pilot-validation.mjs",
       "status": "added"
     },
@@ -2124,6 +2520,10 @@
     },
     {
       "path": "tooling/passive-profile-adapters.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/portable-compliance-validation.mjs",
       "status": "added"
     },
     {
@@ -2143,7 +2543,35 @@
       "status": "added"
     },
     {
+      "path": "tooling/real-host-canary-adapters.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/real-host-canary-contract.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/real-host-project-context-snapshot.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/release-approval-validation.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/release-assurance-validation.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/release-context.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/release-lifecycle-validation.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/release-merge-topology-validation.mjs",
       "status": "added"
     },
     {
@@ -2163,6 +2591,14 @@
       "status": "added"
     },
     {
+      "path": "tooling/run-real-host-canary.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/s10-release-gate-validation.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/simulate-distribution-rollout.mjs",
       "status": "added"
     },
@@ -2175,7 +2611,35 @@
       "status": "added"
     },
     {
+      "path": "tooling/specifications/agent-plugins/1.0.0/mcp.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specifications/agent-plugins/1.0.0/plugin.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specifications/agent-plugins/1.0.0/specification-lock.json",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specifications/agent-plugins/1.0.0/specification.snapshot",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specifications/agent-skills/current/contract.json",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specifications/agent-skills/current/specification.snapshot",
+      "status": "added"
+    },
+    {
       "path": "tooling/specs/apm-managed-install-evaluation.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/approved-profile-assets.spec.mjs",
       "status": "added"
     },
     {
@@ -2195,7 +2659,19 @@
       "status": "added"
     },
     {
+      "path": "tooling/specs/chronicle-mcp-guidance.spec.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/specs/code-review-pilot.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/component-catalog.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/deterministic-release-tree.spec.mjs",
       "status": "added"
     },
     {
@@ -2220,6 +2696,10 @@
     },
     {
       "path": "tooling/specs/domain-expert-event-modeling-pilot.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/ecosystem-artifact-validation.spec.mjs",
       "status": "added"
     },
     {
@@ -2255,11 +2735,23 @@
       "status": "added"
     },
     {
+      "path": "tooling/specs/harness-registry.spec.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/specs/human-catalog.spec.mjs",
       "status": "added"
     },
     {
+      "path": "tooling/specs/mcp-guidance.spec.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/specs/navigator-pilot.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/portable-compliance-validation.spec.mjs",
       "status": "added"
     },
     {
@@ -2283,7 +2775,31 @@
       "status": "added"
     },
     {
+      "path": "tooling/specs/real-host-canary-contract.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/real-host-canary-runner.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/real-host-project-context-snapshot.spec.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/specs/release-approval.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/release-fixture-baseline.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/release-foundation.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/release-merge-topology.spec.mjs",
       "status": "added"
     },
     {
@@ -2291,7 +2807,23 @@
       "status": "added"
     },
     {
+      "path": "tooling/specs/s10-release-gate.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/s5b-passive-host-artifacts.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/s8-native-non-skill-projections.spec.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/specs/source-evidence-contract.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/support-validation.spec.mjs",
       "status": "added"
     },
     {
@@ -2311,7 +2843,19 @@
       "status": "added"
     },
     {
+      "path": "tooling/support-validation.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/validate-catalogs.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/validate-real-host-canary-report.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/verify-approved-profile-assets.mjs",
       "status": "added"
     }
   ],
@@ -2326,6 +2870,7 @@
       "excludePathPatterns": [],
       "id": "root-repository-metadata",
       "sourcePathPatterns": [
+        ".gitattributes",
         ".gitignore",
         "LICENSE",
         "README.md"
@@ -2342,8 +2887,8 @@
       "evidenceIds": [
         "repo-main-b795d53"
       ],
-      "expectedPathCount": 3,
-      "expectedPathsDigest": "d81915b300d7a1503c839c65817b67c8a4f6442898278a204cd1a9567fedaf79"
+      "expectedPathCount": 4,
+      "expectedPathsDigest": "afe74be8573bd6b2bbaf6cb00ab97dd574334d3b9cf74980d60cdc96ec3e59fc"
     },
     {
       "excludePathPatterns": [],
@@ -2421,6 +2966,30 @@
     },
     {
       "excludePathPatterns": [],
+      "id": "engineering-general-instruction",
+      "sourcePathPatterns": [
+        ".ai/rules/general.md"
+      ],
+      "artifactType": "instruction",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "reusable Cratis engineering behavior",
+      "runtimeEligibility": "forbidden",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [],
+      "risk": "high",
+      "migrationState": "classify-in-place",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "ai-126"
+      ],
+      "expectedPathCount": 1,
+      "expectedPathsDigest": "eb54cf05a1897c9b0a0235d910aa9b9a326e350c91270701a9fb957d6a018ca5"
+    },
+    {
+      "excludePathPatterns": [
+        ".ai/rules/general.md"
+      ],
       "id": "engineering-rules",
       "sourcePathPatterns": [
         ".ai/rules/**"
@@ -2439,7 +3008,7 @@
         "ai-126"
       ],
       "expectedPathCount": 36,
-      "expectedPathsDigest": "8d7706204bf0c1ae7289dded92089adcb2fdacd54e7a9668412eb8f501be9b9d"
+      "expectedPathsDigest": "3d3ef1ea14bba42811b1b08628aa1e145365665d41d1035c3248c61d421f1d4b"
     },
     {
       "excludePathPatterns": [],
@@ -2496,7 +3065,7 @@
       "sourcePathPatterns": [
         ".ai/prompts/**"
       ],
-      "artifactType": "prompt-command",
+      "artifactType": "prompt",
       "currentOwner": "reusable Cratis engineering behavior",
       "targetOwner": "reusable Cratis engineering behavior",
       "runtimeEligibility": "forbidden",
@@ -2564,7 +3133,9 @@
     },
     {
       "excludePathPatterns": [
-        ".ai/skills/*/evals/**"
+        ".ai/skills/*/evals/**",
+        "skills/cratis-chronicle-mcp-inspection/references/**",
+        "skills/cratis-studio-mcp-safety-guidance/references/**"
       ],
       "id": "public-skill-sources-and-resources",
       "sourcePathPatterns": [
@@ -2576,11 +3147,13 @@
         ".ai/skills/add-reducer/**",
         ".ai/skills/auth-and-identity/**",
         ".ai/skills/call-command-from-code/**",
+        "skills/cratis-chronicle-mcp-inspection/**",
         ".ai/skills/cratis-command/**",
         ".ai/skills/cratis-react-page/**",
         ".ai/skills/cratis-readmodel/**",
         ".ai/skills/cratis-specs-csharp/**",
         ".ai/skills/cratis-specs-typescript/**",
+        "skills/cratis-studio-mcp-safety-guidance/**",
         ".ai/skills/cratis-vertical-slice/**",
         ".ai/skills/create-event-model/**",
         ".ai/skills/cross-cutting-properties/**",
@@ -2622,8 +3195,48 @@
         "workflows-68",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 64,
-      "expectedPathsDigest": "4599993447a921d5d7a2f265e95fa394647e526af0dede16d33476a70693eb7e"
+      "expectedPathCount": 68,
+      "expectedPathsDigest": "10b4b75a7848dc8b47f553b6f0158fdf8ac2ce6e57b2db3228e5fd8bbf97a73f"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "mcp-generated-guidance-references",
+      "sourcePathPatterns": [
+        "skills/cratis-chronicle-mcp-inspection/references/**",
+        "skills/cratis-studio-mcp-safety-guidance/references/**"
+      ],
+      "artifactType": "skill-source-and-resources",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "public Cratis product capability",
+      "runtimeEligibility": "candidate",
+      "generatedStatus": "generated",
+      "adapterStatus": "none",
+      "dependencies": [
+        "catalog/chronicle-mcp-tool-classifications.json",
+        "catalog/evidence.json",
+        "catalog/mcp-guidance-products.json",
+        "catalog/studio-mcp-tool-classifications.json",
+        "catalog/schemas/chronicle-mcp-tool-classifications.schema.json",
+        "catalog/schemas/evidence.schema.json",
+        "catalog/schemas/mcp-guidance-products.schema.json",
+        "catalog/schemas/v2/catalog-v2.schema.json",
+        "catalog/v2/source-contracts.json",
+        "tooling/chronicle-mcp-guidance-validation.mjs",
+        "tooling/generate-chronicle-mcp-guidance-references.mjs",
+        "tooling/generate-mcp-guidance-references.mjs",
+        "tooling/mcp-guidance-product-contract.mjs",
+        "tooling/mcp-guidance-validation.mjs",
+        "tooling/support-validation.mjs"
+      ],
+      "risk": "critical",
+      "migrationState": "blocked-by-distribution-decision",
+      "evidenceIds": [
+        "chronicle-mcp-inspection-source-5997b28",
+        "studio-mcp-safety-guidance-source-f96eab8"
+      ],
+      "generator": "tooling/generate-mcp-guidance-references.mjs",
+      "expectedPathCount": 4,
+      "expectedPathsDigest": "73d658a8a0bd2584186a452288bbd21623cebe338de3868e3b69fe21afd27bae"
     },
     {
       "excludePathPatterns": [
@@ -2729,8 +3342,8 @@
         "reevaluation-authority"
       ],
       "generator": "legacy-manual-adapter-model",
-      "expectedPathCount": 58,
-      "expectedPathsDigest": "ccf44ef5d952014b918a42ddcb3f4f6ae743a43916b55a07bb29828d2e98b543"
+      "expectedPathCount": 59,
+      "expectedPathsDigest": "9683f84dcc88eadab7de73b4c2c60aee649d79c3497a950e17cf0bc9a8a658f9"
     },
     {
       "excludePathPatterns": [],
@@ -2811,34 +3424,9 @@
         "workflows-68",
         "reevaluation-authority"
       ],
-      "generator": ".github/scripts/propagate-copilot-instructions.sh",
+      "generator": "legacy-manual-adapter-model",
       "expectedPathCount": 4,
       "expectedPathsDigest": "34b01a4f1bff59fa82f81a3a9f91921d17b32c4078a9a49397d926d21664fac3"
-    },
-    {
-      "excludePathPatterns": [],
-      "id": "copilot-propagation-mechanics",
-      "sourcePathPatterns": [
-        ".github/scripts/**",
-        ".github/workflows/propagate-copilot-instructions.yml",
-        ".github/workflows/sync-copilot-instructions.yml"
-      ],
-      "artifactType": "propagation-script",
-      "currentOwner": "reusable Cratis engineering behavior",
-      "targetOwner": "Workflows organization mechanics",
-      "runtimeEligibility": "forbidden",
-      "generatedStatus": "source",
-      "adapterStatus": "none",
-      "dependencies": [
-        "Cratis/Workflows"
-      ],
-      "risk": "critical",
-      "migrationState": "retire-after-evidence",
-      "evidenceIds": [
-        "workflows-68"
-      ],
-      "expectedPathCount": 4,
-      "expectedPathsDigest": "cdbad1406a0b5040579c30532589e9614becc5ddc8a3e17a8021ed1d436cb656"
     },
     {
       "excludePathPatterns": [],
@@ -2865,6 +3453,7 @@
       "excludePathPatterns": [],
       "id": "repository-validation-workflow",
       "sourcePathPatterns": [
+        ".github/workflows/benchmark-release-generation.yml",
         ".github/workflows/distribution-approved-profile-release.yml",
         ".github/workflows/distribution-fundamentals-preview-assets.yml",
         ".github/workflows/distribution-canary-rollback.yml",
@@ -2872,7 +3461,8 @@
         ".github/workflows/distribution-generated-update.yml",
         ".github/workflows/distribution-npm-stage.yml",
         ".github/workflows/release-approved-ai-profiles.yml",
-        ".github/workflows/verify-ai-corpus.yml"
+        ".github/workflows/verify-ai-corpus.yml",
+        ".github/workflows/verify-no-work-records.yml"
       ],
       "artifactType": "workflow",
       "currentOwner": "repository-only authoring/release tooling",
@@ -2890,8 +3480,8 @@
         "repo-main-b795d53",
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 8,
-      "expectedPathsDigest": "53bf511d530ba6effa5c10f494bc2d935fa48a57b245d3772841a90d2a832494"
+      "expectedPathCount": 10,
+      "expectedPathsDigest": "34a178e3ec591a55d667286d0967be14cddb137538feca083187b7dc8deea28d"
     },
     {
       "excludePathPatterns": [],
@@ -3111,6 +3701,7 @@
         "Documentation/adopting-cratis-ai-for-maintainers.md",
         "Documentation/ai-distribution-and-subscriptions.md",
         "Documentation/private-repository-overlays.md",
+        "Documentation/portable-compliance.md",
         "Documentation/profile-reference.md",
         "Documentation/releasing-cratis-ai.md",
         "Documentation/examples/ai-release/**",
@@ -3139,14 +3730,21 @@
         "workflows-68",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 40,
-      "expectedPathsDigest": "a20ce8cc2841a9a0a0208b415fc36303c4fde4f56a7219b0d4f8264049aec14f"
+      "expectedPathCount": 27,
+      "expectedPathsDigest": "e64c4acb88b58c14fd3d36f873802f4e29cb52774eb8b06897e3c6247dfd1540"
     },
     {
       "excludePathPatterns": [],
       "id": "capability-model-documentation",
       "sourcePathPatterns": [
-        "Documentation/capability-catalog-v2.md"
+        "Documentation/capability-catalog-v2.md",
+        "Documentation/chronicle-mcp-guidance.md",
+        "Documentation/ecosystem-support-architecture-review.md",
+        "Documentation/maintaining-shared-ai-behavior.md",
+        "Documentation/native-non-skill-projections.md",
+        "Documentation/real-host-canaries.md",
+        "Documentation/s10-release-and-marketplace-gates.md",
+        "Documentation/studio-mcp-guidance.md"
       ],
       "artifactType": "documentation",
       "currentOwner": "repository-only authoring/release tooling",
@@ -3155,18 +3753,29 @@
       "generatedStatus": "source",
       "adapterStatus": "none",
       "dependencies": [
+        "catalog/chronicle-mcp-tool-classifications.json",
+        "catalog/component-projections.json",
+        "catalog/components.json",
+        "catalog/mcp-guidance-products.json",
+        "catalog/studio-mcp-tool-classifications.json",
         "catalog/v2/bundles.json",
         "catalog/v2/source-contracts.json",
         "catalog/v2/taxonomy.json",
-        "catalog/v2/upstream-companions.json"
+        "catalog/v2/upstream-companions.json",
+        "distribution/real-host-canary-matrix.json",
+        "distribution/real-host-canary-report.schema.json",
+        "tooling/native-non-skill-projections.mjs",
+        "distribution/s10-release-policy.json",
+        "tooling/real-host-canary-contract.mjs",
+        "tooling/s10-release-gate-validation.mjs"
       ],
       "risk": "medium",
       "migrationState": "retain",
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 1,
-      "expectedPathsDigest": "368dbe32574523305797d2250728c509c934c842c4e07b607d7b0ad95f400e98"
+      "expectedPathCount": 8,
+      "expectedPathsDigest": "bff60e5d5b57a3147d80020a89bb3afbeab7fb029099d5dc70136abff29e7610"
     },
     {
       "excludePathPatterns": [],
@@ -3483,6 +4092,9 @@
         "catalog/product-coverage.yml",
         "catalog/public-skills.yml",
         "catalog/schemas/ecosystem-versions.schema.json",
+        "catalog/schemas/ecosystem-contracts.schema.json",
+        "catalog/schemas/artifact-assurance-profiles.schema.json",
+        "catalog/schemas/ecosystem-artifact-coverage.schema.json",
         "catalog/schemas/product-coverage.schema.json",
         "catalog/schemas/public-skills.schema.json"
       ],
@@ -3500,16 +4112,38 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 6,
-      "expectedPathsDigest": "73a48d8157df4c5c347ab0d28bf4547282556ae52113232104bae92a616f749b"
+      "expectedPathCount": 9,
+      "expectedPathsDigest": "add7f934a78773bbfed4ead60726fcb071b6a0fe28126a461ded4c3ddd7ff846"
     },
     {
       "excludePathPatterns": [],
       "id": "catalog-v2-authored-registries",
       "sourcePathPatterns": [
+        "catalog/chronicle-mcp-tool-classifications.json",
+        "catalog/mcp-guidance-products.json",
+        "catalog/studio-mcp-tool-classifications.json",
+        "catalog/components.json",
+        "catalog/component-projections.json",
+        "catalog/evidence-baseline.json",
+        "catalog/evidence-baseline.schema.json",
+        "catalog/evidence.json",
+        "catalog/host-adapters.json",
+        "catalog/support-policy.json",
+        "catalog/schemas/chronicle-mcp-tool-classifications.schema.json",
+        "catalog/schemas/mcp-guidance-products.schema.json",
+        "catalog/schemas/components.schema.json",
+        "catalog/schemas/component-projections.schema.json",
+        "catalog/schemas/evidence.schema.json",
+        "catalog/schemas/host-adapters.schema.json",
+        "catalog/schemas/release-readiness.schema.json",
+        "catalog/schemas/support-policy.schema.json",
+        "catalog/schemas/support.schema.json",
         "catalog/v2/authoring-contracts.json",
+        "catalog/v2/artifact-assurance-profiles.json",
         "catalog/v2/bundles.json",
+        "catalog/v2/ecosystem-contracts.json",
         "catalog/v2/human-catalog.json",
+        "catalog/v2/README.md",
         "catalog/v2/source-contracts.json",
         "catalog/v2/taxonomy.json",
         "catalog/v2/upstream-companions.json"
@@ -3522,7 +4156,17 @@
       "adapterStatus": "none",
       "dependencies": [
         "catalog/schemas/v2/catalog-v2.schema.json",
-        "tooling/catalog-v2-validation.mjs"
+        "catalog/schemas/ecosystem-contracts.schema.json",
+        "catalog/schemas/host-adapters.schema.json",
+        "catalog/schemas/artifact-assurance-profiles.schema.json",
+        "catalog/schemas/evidence.schema.json",
+        "catalog/schemas/release-readiness.schema.json",
+        "catalog/schemas/support-policy.schema.json",
+        "catalog/schemas/support.schema.json",
+        "tooling/catalog-v2-validation.mjs",
+        "tooling/chronicle-mcp-guidance-validation.mjs",
+        "tooling/ecosystem-artifact-validation.mjs",
+        "tooling/mcp-guidance-validation.mjs"
       ],
       "risk": "high",
       "migrationState": "retain",
@@ -3530,14 +4174,18 @@
         "ecosystem-use-cases",
         "third-party-skills-evaluation"
       ],
-      "expectedPathCount": 6,
-      "expectedPathsDigest": "3350efe628cafcb336a57b5c118a4789687fb83bce6c360752fd69aed5938b75"
+      "expectedPathCount": 28,
+      "expectedPathsDigest": "6f1beb9c87dee61294db91c18e0e61602745f53c4ac1b38ce4f05f955279c9a5"
     },
     {
       "excludePathPatterns": [
         "catalog/v2/authoring-contracts.json",
         "catalog/v2/bundles.json",
         "catalog/v2/human-catalog.json",
+        "catalog/v2/release-readiness.json",
+        "catalog/v2/ecosystem-contracts.json",
+        "catalog/v2/artifact-assurance-profiles.json",
+        "catalog/v2/README.md",
         "catalog/v2/source-contracts.json",
         "catalog/v2/taxonomy.json",
         "catalog/v2/upstream-companions.json"
@@ -3554,6 +4202,9 @@
       "adapterStatus": "none",
       "dependencies": [
         "tooling/generate-catalog-v2.mjs",
+        "tooling/generate-component-catalogs.mjs",
+        "tooling/generate-support.mjs",
+        "tooling/generate-ecosystem-artifact-coverage.mjs",
         "tooling/generate-repository-inventory.mjs"
       ],
       "risk": "high",
@@ -3561,9 +4212,42 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "generator": "tooling/generate-catalog-v2.mjs and tooling/generate-repository-inventory.mjs",
-      "expectedPathCount": 7,
-      "expectedPathsDigest": "e357183a0be12bfbbdea6835b9946fc8b10004c5c902cb1dd4a9d96c105a32c8"
+      "generator": "tooling/generate-catalog-v2.mjs, tooling/generate-component-catalogs.mjs, tooling/generate-support.mjs, tooling/generate-ecosystem-artifact-coverage.mjs, and tooling/generate-repository-inventory.mjs",
+      "expectedPathCount": 11,
+      "expectedPathsDigest": "13e5cefbee41ff9fea3e2d5980b943de02937e695290e80b4ae9d9c6bee866fa"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "s10-release-readiness",
+      "sourcePathPatterns": [
+        "catalog/v2/release-readiness.json"
+      ],
+      "artifactType": "catalog-schema",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "generated",
+      "adapterStatus": "none",
+      "dependencies": [
+        "catalog/evidence-baseline.json",
+        "catalog/v2/support.json",
+        "distribution/marketplace-publications.json",
+        "distribution/release-approvals.json",
+        "distribution/release-control-attestations.json",
+        "distribution/release-records/README.md",
+        "distribution/releases/README.md",
+        "distribution/s10-release-policy.json",
+        "tooling/generate-release-readiness.mjs",
+        "tooling/s10-release-gate-validation.mjs"
+      ],
+      "risk": "critical",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "option-a-plus-authority"
+      ],
+      "generator": "tooling/generate-release-readiness.mjs",
+      "expectedPathCount": 1,
+      "expectedPathsDigest": "d52b8a349f1e49d140bc247783ab7171aec2f1160923f08b70207575c1c0e574"
     },
     {
       "excludePathPatterns": [],
@@ -3578,8 +4262,12 @@
       "generatedStatus": "generated",
       "adapterStatus": "none",
       "dependencies": [
+        "catalog/v2/component-projections.json",
+        "catalog/v2/components.json",
         "catalog/v2/human-catalog.json",
+        "catalog/v2/release-readiness.json",
         "catalog/v2/targets.json",
+        "catalog/v2/support.json",
         "tooling/generate-human-catalog.mjs"
       ],
       "risk": "medium",
@@ -3635,14 +4323,66 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 29,
-      "expectedPathsDigest": "fd834db5c4993ac7e32fd33ee85171742e0c2aa183dcd208cf554a44c5d3ec0d"
+      "expectedPathCount": 55,
+      "expectedPathsDigest": "1d67d2b407a241c5f1f41dcda85c236535b9dffe27611beb7f3555e87722674c"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "portable-agent-plugins-specification-lock",
+      "sourcePathPatterns": [
+        "tooling/specifications/agent-plugins/1.0.0/**"
+      ],
+      "artifactType": "catalog-schema",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+        "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+        "https://raw.githubusercontent.com/agentplugins/agent-plugins-spec/main/spec/1.0.0.md",
+        "tooling/portable-compliance-validation.mjs"
+      ],
+      "risk": "high",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "agent-plugins-source-1",
+        "agent-plugins-source-2"
+      ],
+      "expectedPathCount": 4,
+      "expectedPathsDigest": "9c1d9ec596137e8e15f460ef24113f9f3eaa279d341269ec41d84b94366ad341"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "portable-agent-skills-contract",
+      "sourcePathPatterns": [
+        "tooling/specifications/agent-skills/current/**"
+      ],
+      "artifactType": "catalog-schema",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "https://agentskills.io/specification",
+        "tooling/portable-compliance-validation.mjs"
+      ],
+      "risk": "high",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "agent-skills-source-1"
+      ],
+      "expectedPathCount": 2,
+      "expectedPathsDigest": "fbe976e986cea9d3109d16113a384f75a50206a585dd1674e03c9201a3977608"
     },
     {
       "excludePathPatterns": [],
       "id": "catalog-and-redesign-tooling",
       "sourcePathPatterns": [
-        "tooling/*.mjs"
+        "tooling/*.mjs",
+        "tooling/benchmarks/**"
       ],
       "artifactType": "validation-tooling",
       "currentOwner": "repository-only authoring/release tooling",
@@ -3658,8 +4398,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 37,
-      "expectedPathsDigest": "f43ff0fcf2f616fa5d2fc55dd2602b204cac1316c7a961b40e93316a74955eaf"
+      "expectedPathCount": 66,
+      "expectedPathsDigest": "dbad94acfdfe37433cf0b03d6743588340ab321876669a880d76ceefb2e75d16"
     },
     {
       "excludePathPatterns": [],
@@ -3682,11 +4422,41 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 32,
-      "expectedPathsDigest": "2ded73be4583582c3eb465d41478d2615d622f90037eb234f1838abf7149d84e"
+      "expectedPathCount": 50,
+      "expectedPathsDigest": "825d91145f10140b2ca0cf151ef87dea482656d514a0e397d82b2394c833720a"
     },
     {
       "excludePathPatterns": [],
+      "id": "s8-native-non-skill-expected-tree",
+      "sourcePathPatterns": [
+        "tooling/fixtures/s8-native-non-skill-expected-tree.json"
+      ],
+      "artifactType": "test-fixture",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "generated",
+      "adapterStatus": "none",
+      "dependencies": [
+        "catalog/component-projections.json",
+        "catalog/components.json",
+        "catalog/evidence.json",
+        "catalog/host-adapters.json",
+        "tooling/native-non-skill-projections.mjs"
+      ],
+      "risk": "high",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "reevaluation-authority"
+      ],
+      "generator": "tooling/native-non-skill-projections.mjs",
+      "expectedPathCount": 1,
+      "expectedPathsDigest": "bb1c2d3739f12b5277cfaff35a336eef1597055e83bcb4cd72ef508e5b3ccba2"
+    },
+    {
+      "excludePathPatterns": [
+        "tooling/fixtures/s8-native-non-skill-expected-tree.json"
+      ],
       "id": "sanitized-redesign-fixtures",
       "sourcePathPatterns": [
         "tooling/fixtures/**"
@@ -3706,8 +4476,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 14,
-      "expectedPathsDigest": "cb002190b3cf88b3fd07c0ff21024015838a4299c67318eac3b0605f7d04f602"
+      "expectedPathCount": 31,
+      "expectedPathsDigest": "c97727f86b11a9347454a889dbd51208071f4adb652740bc8ce7cc9a759a1dc3"
     }
   ]
 }

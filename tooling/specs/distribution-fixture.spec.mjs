@@ -3,11 +3,13 @@
 
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import {
     existsSync,
     mkdtempSync,
     mkdirSync,
     readFileSync,
+    readdirSync,
     rmSync,
     writeFileSync,
 } from "node:fs";
@@ -15,6 +17,10 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
+import {
+    fixtureOutputRoots,
+    harnessOutputsForProvider,
+} from "../harness-registry.mjs";
 import {
     generateDistributionFixture,
     smokeClaudeDistributionFixture,
@@ -33,20 +39,13 @@ const repositoryRoot = resolve(
     dirname(fileURLToPath(import.meta.url)),
     "../..",
 );
-function commandAvailable(command) {
-    try {
-        execFileSync(command, ["--version"], { stdio: "pipe" });
-        return true;
-    } catch {
-        return false;
-    }
-}
-
-const piAvailable = commandAvailable("pi");
-const claudeAvailable = commandAvailable("claude");
-const codexAvailable = commandAvailable("codex");
-const copilotAvailable = commandAvailable("copilot");
-const geminiAvailable = commandAvailable("gemini");
+// Real host execution is owned exclusively by run-real-host-canary.mjs.
+// Legacy fixture specs remain static/fake-only even when S9 opt-in is present.
+const piAvailable = false;
+const claudeAvailable = false;
+const codexAvailable = false;
+const copilotAvailable = false;
+const geminiAvailable = false;
 
 function withTemporaryDirectory(callback) {
     const root = mkdtempSync(join(tmpdir(), "cratis-distribution-"));
@@ -83,23 +82,26 @@ test("distribution requirements and artifact matrix stay authority bounded", () 
     const verified = requirements.requirements
         .filter((item) => item.status.startsWith("VERIFIED"))
         .map((item) => item.id);
-    assert.deepEqual(verified, [
-        "agent-skills-open-standard",
-        "agent-plugins-open-standard",
-        "claude-code-marketplace",
-        "openai-codex-plugin",
-        "github-copilot-plugin",
-        "gemini-cli-extension",
-        "pi-passive-package",
-        "grok-build-skills",
-        "deepseek-deepcode-skills",
-        "deepseek-harness-skills",
-        "deepseek-model-provider",
-        "npm-trusted-publication",
-        "cursor-marketplace",
-        "kiro-marketplace",
-        "junie-marketplace",
-    ]);
+    const targetRequirementIds = new Set(
+        matrix.targets.map((target) => target.requirementId),
+    );
+    assert(
+        matrix.targets.every(
+            (target) =>
+                verified.includes(target.requirementId) ||
+                target.requirementId === "pi-passive-package",
+        ),
+    );
+    assert.equal(
+        requirements.requirements.find(
+            (item) => item.id === "pi-passive-package",
+        ).status,
+        "DOCUMENTATION_REVIEWED",
+    );
+    assert.deepEqual(
+        verified.filter((id) => !targetRequirementIds.has(id)),
+        ["npm-trusted-publication"],
+    );
     assert.deepEqual(
         requirements.requirements
             .filter(
@@ -175,21 +177,14 @@ test("distribution fixture generation is deterministic across native adapters", 
             );
         }
         assert.deepEqual(validateDistributionFixture(firstRoot), first);
-        assert.deepEqual(first.generatedTargets, [
-            "canonical",
-            "agent-plugin",
-            "claude",
-            "codex",
-            "copilot",
-            "cursor",
-            "deepcode",
-            "deepseek",
-            "gemini",
-            "grok",
-            "junie",
-            "kiro",
-            "pi",
-        ]);
+        assert.deepEqual(first.generatedTargets, fixtureOutputRoots);
+        assert.deepEqual(
+            readdirSync(firstRoot, { withFileTypes: true })
+                .filter((entry) => entry.isDirectory())
+                .map((entry) => entry.name)
+                .sort(),
+            [...fixtureOutputRoots].sort(),
+        );
     });
 });
 
@@ -293,13 +288,7 @@ test("generated marketplace manifests remain passive and idiomatic", () => {
             {
                 id: "deepseek",
                 artifactStrategy: "USE_HARNESS_PACKAGE",
-                supportedHarnessOutputs: [
-                    "claude",
-                    "copilot",
-                    "deepcode",
-                    "deepseek",
-                    "pi",
-                ],
+                supportedHarnessOutputs: harnessOutputsForProvider("deepseek"),
                 distinctArtifactRoot: null,
             },
         ]);
@@ -394,6 +383,28 @@ test("distribution fixture detects payload and checksum tampering", () => {
         assert.throws(
             () => validateDistributionFixture(stage),
             /digest mismatch|byte parity|Checksum verification/,
+        );
+    });
+});
+
+test("distribution fixture rejects post-hoc files omitted from checksums and assurance", () => {
+    withTemporaryDirectory((root) => {
+        const stage = join(root, "stage");
+        generateDistributionFixture({ repositoryRoot, outputRoot: stage });
+        const extraPath = join(stage, "undeclared-executable.sh");
+        const extra = Buffer.from("#!/bin/sh\nexit 0\n");
+        writeFileSync(extraPath, extra);
+        const manifestPath = join(stage, "distribution-manifest.json");
+        const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+        manifest.files.push({
+            path: "undeclared-executable.sh",
+            size: extra.length,
+            sha256: createHash("sha256").update(extra).digest("hex"),
+        });
+        writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+        assert.throws(
+            () => validateDistributionFixture(stage),
+            /undeclared payload or metadata|exact final inventory/,
         );
     });
 });

@@ -1,0 +1,200 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cratis/AI/catalog/schemas/host-adapters.schema.json",
+  "title": "Cratis researched host adapter registry",
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+    "nonEmptyString": { "type": "string", "minLength": 1 },
+    "nullableString": { "oneOf": [{ "$ref": "#/$defs/nonEmptyString" }, { "type": "null" }] },
+    "nullableId": { "oneOf": [{ "$ref": "#/$defs/id" }, { "type": "null" }] },
+    "idArray": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/id" } },
+    "evidenceIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } },
+    "standard": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "version", "evidenceIds"],
+      "properties": {
+        "state": { "enum": ["explicit", "compatible-layout", "provider-only", "not-documented", "not-applicable"] },
+        "version": { "$ref": "#/$defs/nullableString" },
+        "evidenceIds": { "$ref": "#/$defs/idArray" }
+      }
+    },
+    "root": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scope", "path", "evidenceIds"],
+      "properties": {
+        "scope": { "enum": ["user", "project", "workspace", "package", "marketplace", "service"] },
+        "path": { "$ref": "#/$defs/nonEmptyString" },
+        "evidenceIds": { "$ref": "#/$defs/evidenceIds" }
+      }
+    },
+    "manifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "required", "evidenceIds"],
+      "properties": {
+        "path": { "$ref": "#/$defs/nonEmptyString" },
+        "required": { "type": "boolean" },
+        "evidenceIds": { "$ref": "#/$defs/evidenceIds" }
+      }
+    },
+    "lifecycleAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "scopes", "evidenceIds"],
+      "properties": {
+        "state": { "enum": ["documented", "provider-managed", "migration-only", "retired", "not-documented", "not-applicable"] },
+        "scopes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "enum": ["user", "project", "workspace", "organization", "service"] }
+        },
+        "evidenceIds": { "$ref": "#/$defs/idArray" }
+      }
+    },
+    "host": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "ecosystemId", "product", "officialEvidence", "acceptedStandards",
+        "nativeDiscoveryRoots", "manifests", "lifecycle", "supportedComponentKinds",
+        "executablePolicy", "marketplace", "supportDisposition", "serving",
+        "lifecycleCanary", "frontmatterTransformations", "strategy", "notes"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "ecosystemId": { "$ref": "#/$defs/id" },
+        "product": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["name", "status", "clientVersion", "serviceVersion", "versionEvidenceId", "documentationSnapshot"],
+          "properties": {
+            "name": { "$ref": "#/$defs/nonEmptyString" },
+            "status": { "enum": ["current", "preview", "provisional", "archived", "retiring", "final-read-only", "local-only"] },
+            "clientVersion": { "$ref": "#/$defs/nullableString" },
+            "serviceVersion": { "$ref": "#/$defs/nullableString" },
+            "versionEvidenceId": { "$ref": "#/$defs/nullableId" },
+            "documentationSnapshot": { "type": "string", "format": "date" }
+          }
+        },
+        "officialEvidence": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["evidenceIds", "observedOn", "validThrough"],
+          "properties": {
+            "evidenceIds": { "$ref": "#/$defs/evidenceIds" },
+            "observedOn": { "type": "string", "format": "date" },
+            "validThrough": { "type": "string", "format": "date" }
+          }
+        },
+        "acceptedStandards": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["agentSkills", "agentPlugins", "mcp", "agentsMd"],
+          "properties": {
+            "agentSkills": { "$ref": "#/$defs/standard" },
+            "agentPlugins": { "$ref": "#/$defs/standard" },
+            "mcp": { "$ref": "#/$defs/standard" },
+            "agentsMd": { "$ref": "#/$defs/standard" }
+          }
+        },
+        "nativeDiscoveryRoots": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/root" } },
+        "manifests": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/manifest" } },
+        "lifecycle": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["install", "update", "remove"],
+          "properties": {
+            "install": { "$ref": "#/$defs/lifecycleAction" },
+            "update": { "$ref": "#/$defs/lifecycleAction" },
+            "remove": { "$ref": "#/$defs/lifecycleAction" }
+          }
+        },
+        "supportedComponentKinds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "enum": ["agents", "commands", "hooks", "knowledge", "mcp", "plugins", "prompts", "rules", "scripts", "skills"] }
+        },
+        "executablePolicy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["state", "reviewRequired", "evidenceIds"],
+          "properties": {
+            "state": { "enum": ["passive-content-only", "host-can-execute", "no-output", "unknown"] },
+            "reviewRequired": { "type": "boolean" },
+            "evidenceIds": { "$ref": "#/$defs/idArray" }
+          }
+        },
+        "marketplace": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["state", "evidenceIds", "availabilityClaim"],
+          "properties": {
+            "state": { "enum": ["official", "self-hosted", "provider-managed", "retired", "none", "not-documented"] },
+            "evidenceIds": { "$ref": "#/$defs/idArray" },
+            "availabilityClaim": { "const": false }
+          }
+        },
+        "supportDisposition": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["coverage", "supportClaim", "reason"],
+          "properties": {
+            "coverage": { "enum": ["researched", "standard-compatible", "native-planned", "fallback", "migration", "no-surface"] },
+            "supportClaim": { "const": false },
+            "reason": { "$ref": "#/$defs/nonEmptyString" }
+          }
+        },
+        "serving": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["artifactBindingId", "targetId", "outputRoot"],
+          "properties": {
+            "artifactBindingId": { "$ref": "#/$defs/id" },
+            "targetId": { "$ref": "#/$defs/nullableId" },
+            "outputRoot": { "$ref": "#/$defs/nullableString" }
+          }
+        },
+        "lifecycleCanary": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["required", "assurances"],
+          "properties": {
+            "required": { "type": "boolean" },
+            "assurances": { "type": "array", "uniqueItems": true, "items": { "enum": ["install", "update", "rollback", "remove", "project-context-preservation", "host-discovery"] } }
+          }
+        },
+        "frontmatterTransformations": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["state", "dropFields", "renameFields", "addFields"],
+          "properties": {
+            "state": { "enum": ["none", "planned", "provider-managed", "not-applicable", "unknown"] },
+            "dropFields": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/nonEmptyString" } },
+            "renameFields": { "type": "object", "additionalProperties": { "$ref": "#/$defs/nonEmptyString" } },
+            "addFields": { "type": "object", "additionalProperties": { "$ref": "#/$defs/nonEmptyString" } }
+          }
+        },
+        "strategy": { "enum": ["portable-agent-plugin", "canonical-agent-skills", "native-projection-planned", "rules-fallback", "provider-inherited", "migration-only", "evidence-gap", "no-public-extension-surface"] },
+        "notes": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/nonEmptyString" } }
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "asOf", "defaultPolicy", "supportPolicy", "hosts"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "asOf": { "type": "string", "format": "date" },
+    "defaultPolicy": { "const": "deny" },
+    "supportPolicy": { "const": "Research and compatibility dispositions are not support claims." },
+    "hosts": {
+      "type": "array",
+      "minItems": 38,
+      "maxItems": 38,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/host" }
+    }
+  }
+}

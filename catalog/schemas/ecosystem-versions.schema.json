@@ -19,7 +19,7 @@
         "properties": {
           "id": { "$ref": "#/$defs/id" },
           "status": {
-            "enum": ["current", "preview", "provisional", "local-only"]
+            "enum": ["current", "preview", "provisional", "local-only", "archived", "retiring"]
           },
           "version": { "type": "string", "minLength": 1 },
           "facts": {

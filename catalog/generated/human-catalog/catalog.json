@@ -1,8 +1,86 @@
 {
   "schemaVersion": 2,
   "contractVersion": 1,
-  "disclaimer": "Catalog inclusion, evaluation evidence, bundle generation, or publication does not grant runtime permission or approval.",
-  "inputDigest": "58d924c8367893386d0daad077290e1415d41735c19cf7ef2f71378e51c1bc02",
+  "disclaimer": "Catalog inclusion, evaluation evidence, component modeling, planned projection, bundle generation, or publication does not grant runtime permission, emitted bytes, support, or approval.",
+  "inputDigest": "b058e00644bbe23e51371983326ccc16089bb95ad8de3720f5f0ddcddc8c3ec9",
+  "componentSummary": {
+    "disclaimer": "Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.",
+    "total": 137,
+    "byKind": {
+      "skill": 49,
+      "agent": 12,
+      "subagent": 0,
+      "command": 18,
+      "prompt": 18,
+      "rule": 36,
+      "instruction": 1,
+      "hook": 1,
+      "mcp": 0,
+      "lsp": 0,
+      "executable-host-extension": 2,
+      "static-asset": 0
+    },
+    "byTrust": {
+      "passive": 134,
+      "executable": 3
+    },
+    "byAudience": {
+      "public": 37,
+      "cratis-engineering": 100,
+      "repository-only": 0
+    },
+    "byLifecycle": {
+      "active": 133,
+      "legacy-retained": 4
+    },
+    "projections": {
+      "total": 386,
+      "byState": {
+        "planned": 0,
+        "blocked": 0,
+        "existing": 316,
+        "generated-static": 70
+      },
+      "byActivation": {
+        "active": 313,
+        "inert": 3,
+        "none": 70
+      },
+      "byApproval": {
+        "modeled": 383,
+        "approved": 0,
+        "blocked": 3
+      }
+    },
+    "declaredEmptyKinds": [
+      "lsp",
+      "mcp",
+      "static-asset",
+      "subagent"
+    ]
+  },
+  "releaseReadiness": {
+    "state": "BLOCKED",
+    "blockerCodes": [
+      "policy-blocked",
+      "no-release-tested-binding",
+      "no-lifecycle-tested-binding",
+      "no-profile-approvals",
+      "no-target-approvals",
+      "no-source-contract-approvals",
+      "no-control-attestations",
+      "no-exact-package-ownership-attestation",
+      "no-trusted-publisher-attestation",
+      "no-release-request",
+      "no-release-records",
+      "no-marketplace-publications"
+    ],
+    "releaseRequestEligible": false,
+    "publicationEligible": false,
+    "promotionEligible": false,
+    "supportGranted": false,
+    "marketplaceAvailabilityClaim": false
+  },
   "profiles": [
     {
       "id": "public-application",
@@ -430,13 +508,13 @@
     {
       "id": "public-chronicle-mcp",
       "displayName": "Cratis Chronicle MCP",
-      "description": "AI guidance for developers building with Chronicle MCP.",
+      "description": "Classification-only passive guidance for Chronicle MCP inspection requests and already-redacted output; no tool or prompt is admitted or invocable.",
       "intendedFor": "Developers who use Chronicle MCP.",
       "audience": "public",
       "packageName": "@cratis/ai-chronicle-mcp",
-      "state": "content-gap",
+      "state": "preview-source-candidate",
       "installable": false,
-      "materialization": "catalog-only",
+      "materialization": "candidate-package",
       "products": [
         "chronicle-mcp"
       ],
@@ -445,8 +523,12 @@
       ],
       "repositoryKinds": [],
       "composes": [],
-      "directTargetIds": [],
-      "targetIds": []
+      "directTargetIds": [
+        "cratis-chronicle-mcp-inspection"
+      ],
+      "targetIds": [
+        "cratis-chronicle-mcp-inspection"
+      ]
     },
     {
       "id": "public-chronicle-multi-tenancy",
@@ -748,13 +830,13 @@
     {
       "id": "public-studio",
       "displayName": "Cratis Studio",
-      "description": "AI guidance for developers building with Cratis Studio.",
+      "description": "Classification-only public-safe guidance for Studio MCP requests and already-redacted output; no implementation operation is admitted or invocable.",
       "intendedFor": "Developers who use Cratis Studio.",
       "audience": "public",
       "packageName": "@cratis/ai-studio",
-      "state": "content-gap",
+      "state": "preview-source-candidate",
       "installable": false,
-      "materialization": "catalog-only",
+      "materialization": "candidate-package",
       "products": [
         "studio"
       ],
@@ -763,8 +845,12 @@
       ],
       "repositoryKinds": [],
       "composes": [],
-      "directTargetIds": [],
-      "targetIds": []
+      "directTargetIds": [
+        "cratis-studio-mcp-safety-guidance"
+      ],
+      "targetIds": [
+        "cratis-studio-mcp-safety-guidance"
+      ]
     },
     {
       "id": "engineering-ai",
@@ -2452,6 +2538,67 @@
       "profileIds": []
     },
     {
+      "id": "cratis-chronicle-mcp-inspection",
+      "semanticName": "cratis-chronicle-mcp-inspection",
+      "audience": "public",
+      "purpose": "Chronicle MCP classification-only inspection guidance",
+      "whenToUse": "Use when classifying a Chronicle MCP inspection request or interpreting already-redacted output without invoking a tool or prompt.",
+      "whenNotToUse": [
+        "Do not use for Chronicle CLI recovery or mutation operations.",
+        "Do not use to invoke, install, or configure Chronicle MCP."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "chronicle-mcp"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-application-slice-diagnostics",
+        "cratis-chronicle-cli-operations"
+      ],
+      "bundleIds": [],
+      "profileIds": [
+        "public-chronicle-mcp"
+      ]
+    },
+    {
       "id": "cratis-chronicle-multi-tenancy",
       "semanticName": "cratis-chronicle-multi-tenancy",
       "audience": "public",
@@ -3513,6 +3660,66 @@
       "profileIds": []
     },
     {
+      "id": "cratis-studio-mcp-safety-guidance",
+      "semanticName": "cratis-studio-mcp-safety-guidance",
+      "audience": "public",
+      "purpose": "Studio MCP classification-only safety guidance",
+      "whenToUse": "Use when classifying a Studio MCP request or interpreting already-redacted output without discovering or invoking an operation.",
+      "whenNotToUse": [
+        "Do not use private Studio implementation facts as public authority.",
+        "Do not use to discover, invoke, install, or configure Studio MCP."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "studio"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-chronicle-mcp-inspection"
+      ],
+      "bundleIds": [],
+      "profileIds": [
+        "public-studio"
+      ]
+    },
+    {
       "id": "cratis-engineering-chronicle-kernel-tracing",
       "semanticName": "cratis-engineering-chronicle-kernel-tracing",
       "audience": "cratis-engineering",
@@ -4214,6 +4421,540 @@
         "cratis-engineering-review"
       ],
       "profileIds": []
+    }
+  ],
+  "hostCoverage": [
+    {
+      "ecosystemId": "aider",
+      "hostAdapterId": "aider-host-adapter",
+      "productName": "Aider",
+      "productStatus": "current",
+      "coverage": "fallback",
+      "strategy": "rules-fallback",
+      "servingArtifactBindingId": "aider-artifact-binding",
+      "targetId": null,
+      "outputRoot": null,
+      "generationState": "no-output",
+      "technicalTier": "documented",
+      "supportClaim": false
+    },
+    {
+      "ecosystemId": "amazon-q-developer",
+      "hostAdapterId": "amazon-q-developer-host-adapter",
+      "productName": "Amazon Q Developer IDE plugins",
+      "productStatus": "retiring",
+      "coverage": "migration",
+      "strategy": "migration-only",
+      "servingArtifactBindingId": "amazon-q-developer-artifact-binding",
+      "targetId": null,
+      "outputRoot": null,
+      "generationState": "blocked",
+      "technicalTier": "documented",
+      "supportClaim": false
+    },
+    {
+      "ecosystemId": "amp",
+      "hostAdapterId": "amp-host-adapter",
+      "productName": "Amp",
+      "productStatus": "current",
+      "coverage": "standard-compatible",
+      "strategy": "canonical-agent-skills",
+      "servingArtifactBindingId": "amp-artifact-binding",
+      "targetId": "amp-passive",
+      "outputRoot": "amp-agent-skills",
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "supportClaim": false
+    },
+    {
+      "ecosystemId": "augment-auggie",
+      "hostAdapterId": "augment-auggie-host-adapter",
+      "productName": "Augment / Auggie",
+      "productStatus": "current",
+      "coverage": "standard-compatible",
+      "strategy": "canonical-agent-skills",
+      "servingArtifactBindingId": "augment-auggie-artifact-binding",
+      "targetId": "augment-passive",
+      "outputRoot": "augment-agent-skills",
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "supportClaim": false
+    },
+    {
+      "ecosystemId": "claude-code-plugins",
+      "hostAdapterId": "claude-code-plugins-host-adapter",
+      "productName": "Claude Code",
+      "productStatus": "current",
+      "coverage": "researched",
+      "strategy": "native-projection-planned",
+      "servingArtifactBindingId": "claude-code-plugins-artifact-binding",
+      "targetId": "claude-code",
+      "outputRoot": "claude",
+      "generationState": "fixture-generated",
+      "technicalTier": "documented",
+      "supportClaim": false
+    },
+    {
+      "ecosystemId": "cline",
+      "hostAdapterId": "cline-host-adapter",
+      "productName": "Cline",
+      "productStatus": "current",
+      "coverage": "standard-compatible",
+      "strategy": "canonical-agent-skills",
+      "servingArtifactBindingId": "cline-artifact-binding",
+      "targetId": "cline-passive",
+      "outputRoot": "cline-agent-skills",
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "supportClaim": false
+    },
+    {
+      "ecosystemId": "continue",
+      "hostAdapterId": "continue-host-adapter",
+      "productName": "Continue",
+      "productStatus": "final-read-only",
+      "coverage": "no-surface",
+      "strategy": "no-public-extension-surface",
+      "servingArtifactBindingId": "continue-artifact-binding",
+      "targetId": null,
+      "outputRoot": null,
+      "generationState": "blocked",
+      "technicalTier": "documented",
+      "supportClaim": false
+    },
+    {
+      "ecosystemId": "cursor-plugins",
+      "hostAdapterId": "cursor-plugins-host-adapter",
+      "productName": "Cursor",
+      "productStatus": "current",
+      "coverage": "researched",
+      "strategy": "native-projection-planned",
+      "servingArtifactBindingId": "cursor-plugins-artifact-binding",
+      "targetId": "cursor",
+      "outputRoot": "cursor",
+      "generationState": "fixture-generated",
+      "technicalTier": "documented",
+      "supportClaim": false
+    },
+    {
+      "ecosystemId": "deepseek-deepcode-skills",
+      "hostAdapterId": "deepseek-deepcode-skills-host-adapter",
+      "productName": "DeepSeek DeepCode",
+      "productStatus": "current",
+      "coverage": "researched",
+      "strategy": "native-projection-planned",
+      "servingArtifactBindingId": "deepseek-deepcode-skills-artifact-binding",
+      "targetId": "deepseek-deepcode",
+      "outputRoot": "deepcode",
+      "generationState": "fixture-generated",
+      "technicalTier": "documented",
+      "supportClaim": false
+    },
+    {
+      "ecosystemId": "deepseek-harness-skills",
+      "hostAdapterId": "deepseek-harness-skills-host-adapter",
+      "productName": "DeepSeek Harness",
+      "productStatus": "preview",
+      "coverage": "researched",
+      "strategy": "native-projection-planned",
+      "servingArtifactBindingId": "deepseek-harness-skills-artifact-binding",
+      "targetId": "deepseek-harness",
+      "outputRoot": "deepseek",
+      "generationState": "fixture-generated-evidence-incomplete",
+      "technicalTier": "documented",
+      "supportClaim": false
+    },
+    {
+      "ecosystemId": "devin-hosted",
+      "hostAdapterId": "devin-hosted-host-adapter",
+      "productName": "Devin hosted",
+      "productStatus": "current",
+      "coverage": "standard-compatible",
+      "strategy": "canonical-agent-skills",
+      "servingArtifactBindingId": "devin-hosted-artifact-binding",
+      "targetId": "devin-passive",
+      "outputRoot": "devin-agent-skills",
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "supportClaim": false
+    },
+    {
+      "ecosystemId": "factory-droid",
+      "hostAdapterId": "factory-droid-host-adapter",
+      "productName": "Factory Droid",
+      "productStatus": "current",
+      "coverage": "standard-compatible",
+      "strategy": "canonical-agent-skills",
+      "servingArtifactBindingId": "factory-droid-artifact-binding",
+      "targetId": "factory-passive",
+      "outputRoot": "factory-agent-skills",
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "supportClaim": false
+    },
+    {
+      "ecosystemId": "gemini-cli-extensions",
+      "hostAdapterId": "gemini-cli-extensions-host-adapter",
+      "productName": "Gemini CLI",
+      "productStatus": "current",
+      "coverage": "researched",
+      "strategy": "native-projection-planned",
+      "servingArtifactBindingId": "gemini-cli-extensions-artifact-binding",
+      "targetId": "gemini-cli",
+      "outputRoot": "gemini",
+      "generationState": "fixture-generated-evidence-incomplete",
+      "technicalTier": "documented",
+      "supportClaim": false
+    },
+    {
+      "ecosystemId": "github-cli-skills",
+      "hostAdapterId": "github-cli-skills-host-adapter",
+      "productName": "GitHub CLI Skills",
+      "productStatus": "preview",
+      "coverage": "standard-compatible",
+      "strategy": "canonical-agent-skills",
+      "servingArtifactBindingId": "github-cli-skills-artifact-binding",
+      "targetId": "github-cli-passive",
+      "outputRoot": "github-cli-agent-skills",
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "supportClaim": false
+    },
+    {
+      "ecosystemId": "github-copilot-plugins",
+      "hostAdapterId": "github-copilot-plugins-host-adapter",
+      "productName": "GitHub Copilot CLI",
+      "productStatus": "current",
+      "coverage": "researched",
+      "strategy": "native-projection-planned",
+      "servingArtifactBindingId": "github-copilot-plugins-artifact-binding",
+      "targetId": "github-copilot",
+      "outputRoot": "copilot",
+      "generationState": "fixture-generated",
+      "technicalTier": "documented",
+      "supportClaim": false
+    },
+    {
+      "ecosystemId": "goose",
+      "hostAdapterId": "goose-host-adapter",
+      "productName": "Goose",
+      "productStatus": "current",
+      "coverage": "standard-compatible",
+      "strategy": "canonical-agent-skills",
+      "servingArtifactBindingId": "goose-artifact-binding",
+      "targetId": "goose-passive",
+      "outputRoot": "goose-agent-skills",
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "supportClaim": false
+    },
+    {
+      "ecosystemId": "grok-bot-plugins",
+      "hostAdapterId": "grok-bot-plugins-host-adapter",
+      "productName": "Grok Bot",
+      "productStatus": "current",
+      "coverage": "standard-compatible",
+      "strategy": "portable-agent-plugin",
+      "servingArtifactBindingId": "grok-bot-plugins-artifact-binding",
+      "targetId": "grok-bot-passive",
+      "outputRoot": "grok-bot-agent-plugin",
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "supportClaim": false
+    },
+    {
+      "ecosystemId": "grok-build-skills",
+      "hostAdapterId": "grok-build-skills-host-adapter",
+      "productName": "Grok Build",
+      "productStatus": "current",
+      "coverage": "standard-compatible",
+      "strategy": "canonical-agent-skills",
+      "servingArtifactBindingId": "grok-build-skills-artifact-binding",
+      "targetId": "grok-native-passive",
+      "outputRoot": "grok-native-agent-skills",
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "supportClaim": false
+    },
+    {
+      "ecosystemId": "hermes-agent-plugins",
+      "hostAdapterId": "hermes-agent-plugins-host-adapter",
+      "productName": "Hermes Agent",
+      "productStatus": "current",
+      "coverage": "standard-compatible",
+      "strategy": "portable-agent-plugin",
+      "servingArtifactBindingId": "hermes-agent-plugins-artifact-binding",
+      "targetId": "hermes-passive",
+      "outputRoot": "hermes-agent-plugin",
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "supportClaim": false
+    },
+    {
+      "ecosystemId": "jetbrains-ai-assistant",
+      "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
+      "productName": "JetBrains AI Assistant",
+      "productStatus": "current",
+      "coverage": "researched",
+      "strategy": "provider-inherited",
+      "servingArtifactBindingId": "jetbrains-ai-assistant-artifact-binding",
+      "targetId": null,
+      "outputRoot": null,
+      "generationState": "provider-inherited",
+      "technicalTier": "documented",
+      "supportClaim": false
+    },
+    {
+      "ecosystemId": "junie-extensions",
+      "hostAdapterId": "junie-extensions-host-adapter",
+      "productName": "Junie",
+      "productStatus": "provisional",
+      "coverage": "researched",
+      "strategy": "native-projection-planned",
+      "servingArtifactBindingId": "junie-extensions-artifact-binding",
+      "targetId": "junie",
+      "outputRoot": "junie",
+      "generationState": "fixture-generated-evidence-incomplete",
+      "technicalTier": "documented",
+      "supportClaim": false
+    },
+    {
+      "ecosystemId": "kilo-code",
+      "hostAdapterId": "kilo-code-host-adapter",
+      "productName": "Kilo Code",
+      "productStatus": "current",
+      "coverage": "standard-compatible",
+      "strategy": "canonical-agent-skills",
+      "servingArtifactBindingId": "kilo-code-artifact-binding",
+      "targetId": "kilo-passive",
+      "outputRoot": "kilo-agent-skills",
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "supportClaim": false
+    },
+    {
+      "ecosystemId": "kiro-powers",
+      "hostAdapterId": "kiro-powers-host-adapter",
+      "productName": "Kiro",
+      "productStatus": "current",
+      "coverage": "researched",
+      "strategy": "native-projection-planned",
+      "servingArtifactBindingId": "kiro-powers-artifact-binding",
+      "targetId": "kiro",
+      "outputRoot": "kiro",
+      "generationState": "fixture-generated",
+      "technicalTier": "documented",
+      "supportClaim": false
+    },
+    {
+      "ecosystemId": "nanoclaw-templates",
+      "hostAdapterId": "nanoclaw-templates-host-adapter",
+      "productName": "NanoClaw",
+      "productStatus": "current",
+      "coverage": "standard-compatible",
+      "strategy": "portable-agent-plugin",
+      "servingArtifactBindingId": "nanoclaw-templates-artifact-binding",
+      "targetId": "nanoclaw-passive",
+      "outputRoot": "nanoclaw-agent-plugin",
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "supportClaim": false
+    },
+    {
+      "ecosystemId": "openai-plugins",
+      "hostAdapterId": "openai-plugins-host-adapter",
+      "productName": "OpenAI Codex",
+      "productStatus": "current",
+      "coverage": "researched",
+      "strategy": "native-projection-planned",
+      "servingArtifactBindingId": "openai-plugins-artifact-binding",
+      "targetId": "openai-codex",
+      "outputRoot": "codex",
+      "generationState": "fixture-generated",
+      "technicalTier": "documented",
+      "supportClaim": false
+    },
+    {
+      "ecosystemId": "openclaw-bundles",
+      "hostAdapterId": "openclaw-bundles-host-adapter",
+      "productName": "OpenClaw",
+      "productStatus": "current",
+      "coverage": "standard-compatible",
+      "strategy": "portable-agent-plugin",
+      "servingArtifactBindingId": "openclaw-bundles-artifact-binding",
+      "targetId": "openclaw-passive",
+      "outputRoot": "openclaw-agent-plugin",
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "supportClaim": false
+    },
+    {
+      "ecosystemId": "opencode-skills",
+      "hostAdapterId": "opencode-skills-host-adapter",
+      "productName": "OpenCode",
+      "productStatus": "current",
+      "coverage": "standard-compatible",
+      "strategy": "canonical-agent-skills",
+      "servingArtifactBindingId": "opencode-skills-artifact-binding",
+      "targetId": "opencode-passive",
+      "outputRoot": "opencode-agent-skills",
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "supportClaim": false
+    },
+    {
+      "ecosystemId": "openhands",
+      "hostAdapterId": "openhands-host-adapter",
+      "productName": "OpenHands",
+      "productStatus": "current",
+      "coverage": "standard-compatible",
+      "strategy": "canonical-agent-skills",
+      "servingArtifactBindingId": "openhands-artifact-binding",
+      "targetId": "openhands-passive",
+      "outputRoot": "openhands-agent-skills",
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "supportClaim": false
+    },
+    {
+      "ecosystemId": "pi-packages",
+      "hostAdapterId": "pi-packages-host-adapter",
+      "productName": "Pi",
+      "productStatus": "current",
+      "coverage": "researched",
+      "strategy": "native-projection-planned",
+      "servingArtifactBindingId": "pi-packages-artifact-binding",
+      "targetId": "pi-npm",
+      "outputRoot": "pi",
+      "generationState": "fixture-generated",
+      "technicalTier": "documented",
+      "supportClaim": false
+    },
+    {
+      "ecosystemId": "qwen-code",
+      "hostAdapterId": "qwen-code-host-adapter",
+      "productName": "Qwen Code",
+      "productStatus": "current",
+      "coverage": "standard-compatible",
+      "strategy": "portable-agent-plugin",
+      "servingArtifactBindingId": "qwen-code-artifact-binding",
+      "targetId": "qwen-passive",
+      "outputRoot": "qwen-agent-plugin",
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "supportClaim": false
+    },
+    {
+      "ecosystemId": "replit-agent",
+      "hostAdapterId": "replit-agent-host-adapter",
+      "productName": "Replit Agent",
+      "productStatus": "current",
+      "coverage": "standard-compatible",
+      "strategy": "canonical-agent-skills",
+      "servingArtifactBindingId": "replit-agent-artifact-binding",
+      "targetId": "replit-passive",
+      "outputRoot": "replit-agent-skills",
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "supportClaim": false
+    },
+    {
+      "ecosystemId": "roo-code",
+      "hostAdapterId": "roo-code-host-adapter",
+      "productName": "Roo Code",
+      "productStatus": "archived",
+      "coverage": "no-surface",
+      "strategy": "no-public-extension-surface",
+      "servingArtifactBindingId": "roo-code-artifact-binding",
+      "targetId": null,
+      "outputRoot": null,
+      "generationState": "blocked",
+      "technicalTier": "documented",
+      "supportClaim": false
+    },
+    {
+      "ecosystemId": "sourcegraph-cody",
+      "hostAdapterId": "sourcegraph-cody-host-adapter",
+      "productName": "Sourcegraph Cody",
+      "productStatus": "current",
+      "coverage": "no-surface",
+      "strategy": "no-public-extension-surface",
+      "servingArtifactBindingId": "sourcegraph-cody-artifact-binding",
+      "targetId": null,
+      "outputRoot": null,
+      "generationState": "no-output",
+      "technicalTier": "documented",
+      "supportClaim": false
+    },
+    {
+      "ecosystemId": "tabnine",
+      "hostAdapterId": "tabnine-host-adapter",
+      "productName": "Tabnine",
+      "productStatus": "current",
+      "coverage": "fallback",
+      "strategy": "rules-fallback",
+      "servingArtifactBindingId": "tabnine-artifact-binding",
+      "targetId": null,
+      "outputRoot": null,
+      "generationState": "no-output",
+      "technicalTier": "documented",
+      "supportClaim": false
+    },
+    {
+      "ecosystemId": "visual-studio-copilot",
+      "hostAdapterId": "visual-studio-copilot-host-adapter",
+      "productName": "Visual Studio GitHub Copilot",
+      "productStatus": "current",
+      "coverage": "standard-compatible",
+      "strategy": "canonical-agent-skills",
+      "servingArtifactBindingId": "visual-studio-copilot-artifact-binding",
+      "targetId": "visual-studio-passive",
+      "outputRoot": "visual-studio-agent-skills",
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "supportClaim": false
+    },
+    {
+      "ecosystemId": "vscode-agent-plugins",
+      "hostAdapterId": "vscode-agent-plugins-host-adapter",
+      "productName": "Visual Studio Code Agent Plugins",
+      "productStatus": "current",
+      "coverage": "standard-compatible",
+      "strategy": "portable-agent-plugin",
+      "servingArtifactBindingId": "vscode-agent-plugins-artifact-binding",
+      "targetId": "vscode-passive",
+      "outputRoot": "vscode-agent-plugin",
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "supportClaim": false
+    },
+    {
+      "ecosystemId": "windsurf-devin-desktop",
+      "hostAdapterId": "windsurf-devin-desktop-host-adapter",
+      "productName": "Windsurf / Devin Desktop",
+      "productStatus": "current",
+      "coverage": "standard-compatible",
+      "strategy": "canonical-agent-skills",
+      "servingArtifactBindingId": "windsurf-devin-desktop-artifact-binding",
+      "targetId": "windsurf-passive",
+      "outputRoot": "windsurf-agent-skills",
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "supportClaim": false
+    },
+    {
+      "ecosystemId": "zed-skills",
+      "hostAdapterId": "zed-skills-host-adapter",
+      "productName": "Zed",
+      "productStatus": "current",
+      "coverage": "standard-compatible",
+      "strategy": "canonical-agent-skills",
+      "servingArtifactBindingId": "zed-skills-artifact-binding",
+      "targetId": "zed-passive",
+      "outputRoot": "zed-agent-skills",
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "supportClaim": false
     }
   ]
 }

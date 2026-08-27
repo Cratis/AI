@@ -1,6 +1,6 @@
 # Current Skill Classification Audit
 
-> **Reevaluated — 2026-08-20:** A complete second pass confirmed the 35 public-source and eight engineering-source classifications, the `add-business-rule` split, focused performance review, and the engineering ownership of `add-traces` and broad C# conventions. The vertical-slice merge remains an evaluation-gated experiment, not an approved merge. Current details and remediation are in [`../AI-REPOSITORY-REDESIGN-REEVALUATION.md`](../AI-REPOSITORY-REDESIGN-REEVALUATION.md#8-complete-43-skill-reevaluation).
+> **Reevaluated — 2026-08-20:** A complete second pass confirmed the 35 public-source and eight engineering-source classifications, the `add-business-rule` split, focused performance review, and the engineering ownership of `add-traces` and broad C# conventions. The vertical-slice merge remains an evaluation-gated experiment, not an approved merge. Current details and remediation are in [Capability catalog v2](./capability-catalog-v2.md) and the generated [package and capability catalog](../catalog/generated/human-catalog/CATALOG.md).
 
 **Audited:** 2026-08-20
 **Inventory:** 43 current skills

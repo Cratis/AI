@@ -1,0 +1,1469 @@
+{
+  "schemaVersion": 1,
+  "asOf": "2026-08-25",
+  "generatedBy": "tooling/generate-support.mjs",
+  "defaultPolicy": "deny",
+  "publicationEligible": false,
+  "promotionEligible": false,
+  "runtimeEligible": false,
+  "tierOrder": [
+    "unsupported",
+    "documented",
+    "generated",
+    "statically-validated",
+    "install-tested",
+    "behavior-tested",
+    "lifecycle-tested",
+    "release-tested",
+    "supported"
+  ],
+  "summary": {
+    "bindingCount": 45,
+    "supportClaimCount": 0,
+    "byTier": {
+      "unsupported": 0,
+      "documented": 24,
+      "generated": 0,
+      "statically-validated": 21,
+      "install-tested": 0,
+      "behavior-tested": 0,
+      "lifecycle-tested": 0,
+      "release-tested": 0,
+      "supported": 0
+    }
+  },
+  "bindings": [
+    {
+      "bindingId": "agent-plugins-artifact-binding",
+      "ecosystemId": "agent-plugins",
+      "artifactClass": "passive-public-package",
+      "effectiveTier": "documented",
+      "rank": 1,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "agent-plugins-source-1",
+        "agent-plugins-source-2",
+        "agent-plugins-source-3"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "documentation"
+      ],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "agent-skills-artifact-binding",
+      "ecosystemId": "agent-skills",
+      "artifactClass": "passive-public-package",
+      "effectiveTier": "documented",
+      "rank": 1,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "agent-skills-source-1",
+        "agent-skills-source-2"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "documentation"
+      ],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "aider-artifact-binding",
+      "ecosystemId": "aider",
+      "artifactClass": "no-artifact",
+      "effectiveTier": "documented",
+      "rank": 1,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "aider-source-1",
+        "aider-source-2"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "documentation"
+      ],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "amazon-q-developer-artifact-binding",
+      "ecosystemId": "amazon-q-developer",
+      "artifactClass": "no-artifact",
+      "effectiveTier": "documented",
+      "rank": 1,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "amazon-q-developer-source-1",
+        "amazon-q-developer-source-2"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "documentation"
+      ],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "amp-artifact-binding",
+      "ecosystemId": "amp",
+      "artifactClass": "passive-public-package",
+      "effectiveTier": "statically-validated",
+      "rank": 3,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "amp-source-1",
+        "amp-source-2",
+        "s5b-amp-static-generation-2026-08-25"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "artifact-generation",
+        "documentation",
+        "static-validation"
+      ],
+      "missingAssurances": [
+        "install"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "augment-auggie-artifact-binding",
+      "ecosystemId": "augment-auggie",
+      "artifactClass": "passive-public-package",
+      "effectiveTier": "statically-validated",
+      "rank": 3,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "augment-auggie-source-1",
+        "augment-auggie-source-2",
+        "s5b-augment-static-generation-2026-08-25"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "artifact-generation",
+        "documentation",
+        "static-validation"
+      ],
+      "missingAssurances": [
+        "install"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "claude-code-plugins-artifact-binding",
+      "ecosystemId": "claude-code-plugins",
+      "artifactClass": "passive-public-package",
+      "effectiveTier": "documented",
+      "rank": 1,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "claude-code-plugins-source-1",
+        "claude-code-plugins-source-2",
+        "claude-code-plugins-source-3",
+        "claude-code-plugins-source-4",
+        "claude-code-plugins-source-5"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "documentation"
+      ],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "cline-artifact-binding",
+      "ecosystemId": "cline",
+      "artifactClass": "passive-public-package",
+      "effectiveTier": "statically-validated",
+      "rank": 3,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "cline-source-1",
+        "cline-source-2",
+        "cline-source-3",
+        "s5b-cline-static-generation-2026-08-25"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "artifact-generation",
+        "documentation",
+        "static-validation"
+      ],
+      "missingAssurances": [
+        "install"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "continue-artifact-binding",
+      "ecosystemId": "continue",
+      "artifactClass": "no-artifact",
+      "effectiveTier": "documented",
+      "rank": 1,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "continue-source-1",
+        "continue-source-2"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "documentation"
+      ],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "cursor-plugins-artifact-binding",
+      "ecosystemId": "cursor-plugins",
+      "artifactClass": "passive-public-package",
+      "effectiveTier": "documented",
+      "rank": 1,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "cursor-plugins-source-1",
+        "cursor-plugins-source-2"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "documentation"
+      ],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "deepseek-deepcode-skills-artifact-binding",
+      "ecosystemId": "deepseek-deepcode-skills",
+      "artifactClass": "passive-public-package",
+      "effectiveTier": "documented",
+      "rank": 1,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "deepseek-deepcode-skills-source-1"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "documentation"
+      ],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "deepseek-harness-skills-artifact-binding",
+      "ecosystemId": "deepseek-harness-skills",
+      "artifactClass": "passive-public-package",
+      "effectiveTier": "documented",
+      "rank": 1,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "deepseek-harness-skills-source-1",
+        "deepseek-harness-skills-source-2",
+        "deepseek-harness-skills-source-3"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "documentation"
+      ],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "deepseek-model-integrations-artifact-binding",
+      "ecosystemId": "deepseek-model-integrations",
+      "artifactClass": "provider-compatibility",
+      "effectiveTier": "documented",
+      "rank": 1,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "deepseek-model-integrations-source-1",
+        "deepseek-model-integrations-source-2"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "documentation"
+      ],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "devin-hosted-artifact-binding",
+      "ecosystemId": "devin-hosted",
+      "artifactClass": "passive-public-package",
+      "effectiveTier": "statically-validated",
+      "rank": 3,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "devin-hosted-source-1",
+        "devin-hosted-source-2",
+        "s5b-devin-static-generation-2026-08-25"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "artifact-generation",
+        "documentation",
+        "static-validation"
+      ],
+      "missingAssurances": [
+        "install"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "factory-droid-artifact-binding",
+      "ecosystemId": "factory-droid",
+      "artifactClass": "passive-public-package",
+      "effectiveTier": "statically-validated",
+      "rank": 3,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "factory-droid-source-1",
+        "factory-droid-source-2",
+        "s5b-factory-static-generation-2026-08-25"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "artifact-generation",
+        "documentation",
+        "static-validation"
+      ],
+      "missingAssurances": [
+        "install"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "gemini-cli-extensions-artifact-binding",
+      "ecosystemId": "gemini-cli-extensions",
+      "artifactClass": "passive-public-package",
+      "effectiveTier": "documented",
+      "rank": 1,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "gemini-cli-extensions-source-1",
+        "gemini-cli-extensions-source-2",
+        "gemini-cli-extensions-source-3",
+        "gemini-cli-extensions-source-4",
+        "gemini-skill-discovery-2026-08-24"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "documentation"
+      ],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "github-cli-skills-artifact-binding",
+      "ecosystemId": "github-cli-skills",
+      "artifactClass": "passive-public-package",
+      "effectiveTier": "statically-validated",
+      "rank": 3,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "github-cli-skills-source-1",
+        "github-cli-skills-source-2",
+        "github-cli-skills-source-3",
+        "s5b-github-cli-static-generation-2026-08-25"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "artifact-generation",
+        "documentation",
+        "static-validation"
+      ],
+      "missingAssurances": [
+        "install"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "github-copilot-plugins-artifact-binding",
+      "ecosystemId": "github-copilot-plugins",
+      "artifactClass": "passive-public-package",
+      "effectiveTier": "documented",
+      "rank": 1,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "github-copilot-plugins-source-1",
+        "github-copilot-plugins-source-2",
+        "github-copilot-plugins-source-3"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "documentation"
+      ],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "goose-artifact-binding",
+      "ecosystemId": "goose",
+      "artifactClass": "passive-public-package",
+      "effectiveTier": "statically-validated",
+      "rank": 3,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "goose-source-1",
+        "goose-source-2",
+        "s5b-goose-static-generation-2026-08-25"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "artifact-generation",
+        "documentation",
+        "static-validation"
+      ],
+      "missingAssurances": [
+        "install"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "grok-bot-plugins-artifact-binding",
+      "ecosystemId": "grok-bot-plugins",
+      "artifactClass": "passive-public-package",
+      "effectiveTier": "statically-validated",
+      "rank": 3,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "grok-bot-plugins-source-1",
+        "grok-bot-plugins-source-2",
+        "s5b-grok-bot-static-generation-2026-08-25"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "artifact-generation",
+        "documentation",
+        "static-validation"
+      ],
+      "missingAssurances": [
+        "install"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "grok-build-skills-artifact-binding",
+      "ecosystemId": "grok-build-skills",
+      "artifactClass": "passive-public-package",
+      "effectiveTier": "statically-validated",
+      "rank": 3,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "grok-build-skills-source-1",
+        "grok-build-skills-source-2",
+        "s5b-grok-native-static-generation-2026-08-25"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "artifact-generation",
+        "documentation",
+        "static-validation"
+      ],
+      "missingAssurances": [
+        "install"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "hermes-agent-plugins-artifact-binding",
+      "ecosystemId": "hermes-agent-plugins",
+      "artifactClass": "passive-public-package",
+      "effectiveTier": "statically-validated",
+      "rank": 3,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "hermes-agent-plugins-source-1",
+        "s5b-hermes-static-generation-2026-08-25"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "artifact-generation",
+        "documentation",
+        "static-validation"
+      ],
+      "missingAssurances": [
+        "install"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "jetbrains-ai-assistant-artifact-binding",
+      "ecosystemId": "jetbrains-ai-assistant",
+      "artifactClass": "provider-compatibility",
+      "effectiveTier": "documented",
+      "rank": 1,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "jetbrains-ai-assistant-source-1",
+        "jetbrains-ai-assistant-source-2"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "documentation"
+      ],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "junie-extensions-artifact-binding",
+      "ecosystemId": "junie-extensions",
+      "artifactClass": "passive-public-package",
+      "effectiveTier": "documented",
+      "rank": 1,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "junie-extensions-source-1"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "documentation"
+      ],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "kilo-code-artifact-binding",
+      "ecosystemId": "kilo-code",
+      "artifactClass": "passive-public-package",
+      "effectiveTier": "statically-validated",
+      "rank": 3,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "kilo-code-source-1",
+        "kilo-code-source-2",
+        "s5b-kilo-static-generation-2026-08-25"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "artifact-generation",
+        "documentation",
+        "static-validation"
+      ],
+      "missingAssurances": [
+        "install"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "kiro-powers-artifact-binding",
+      "ecosystemId": "kiro-powers",
+      "artifactClass": "passive-public-package",
+      "effectiveTier": "documented",
+      "rank": 1,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "kiro-powers-source-1",
+        "kiro-powers-source-2",
+        "kiro-powers-source-3"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "documentation"
+      ],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "mcp-registry-artifact-binding",
+      "ecosystemId": "mcp-registry",
+      "artifactClass": "no-artifact",
+      "effectiveTier": "documented",
+      "rank": 1,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "mcp-registry-source-1",
+        "mcp-registry-source-2",
+        "mcp-registry-source-3",
+        "mcp-registry-source-4",
+        "mcp-registry-source-5",
+        "mcp-registry-source-6"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "documentation"
+      ],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "model-context-protocol-artifact-binding",
+      "ecosystemId": "model-context-protocol",
+      "artifactClass": "no-artifact",
+      "effectiveTier": "documented",
+      "rank": 1,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "model-context-protocol-source-1",
+        "model-context-protocol-source-2"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "documentation"
+      ],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "nanoclaw-templates-artifact-binding",
+      "ecosystemId": "nanoclaw-templates",
+      "artifactClass": "passive-public-package",
+      "effectiveTier": "statically-validated",
+      "rank": 3,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "nanoclaw-templates-source-1",
+        "s5b-nanoclaw-static-generation-2026-08-25"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "artifact-generation",
+        "documentation",
+        "static-validation"
+      ],
+      "missingAssurances": [
+        "install"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "npm-cratis-scope-artifact-binding",
+      "ecosystemId": "npm-cratis-scope",
+      "artifactClass": "publication-metadata",
+      "effectiveTier": "documented",
+      "rank": 1,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "npm-cratis-scope-source-1",
+        "npm-cratis-scope-source-2",
+        "npm-cratis-scope-source-3",
+        "npm-cratis-scope-source-4",
+        "npm-cratis-scope-source-5",
+        "npm-cratis-scope-source-6"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "documentation"
+      ],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "npm-trusted-publishing-artifact-binding",
+      "ecosystemId": "npm-trusted-publishing",
+      "artifactClass": "publication-metadata",
+      "effectiveTier": "documented",
+      "rank": 1,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "npm-trusted-publishing-source-1",
+        "npm-trusted-publishing-source-2"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "documentation"
+      ],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "openai-plugins-artifact-binding",
+      "ecosystemId": "openai-plugins",
+      "artifactClass": "passive-public-package",
+      "effectiveTier": "documented",
+      "rank": 1,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "openai-plugins-source-1",
+        "openai-plugins-source-2",
+        "openai-plugins-source-3"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "documentation"
+      ],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "openclaw-bundles-artifact-binding",
+      "ecosystemId": "openclaw-bundles",
+      "artifactClass": "passive-public-package",
+      "effectiveTier": "statically-validated",
+      "rank": 3,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "openclaw-bundles-source-1",
+        "s5b-openclaw-static-generation-2026-08-25"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "artifact-generation",
+        "documentation",
+        "static-validation"
+      ],
+      "missingAssurances": [
+        "install"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "opencode-skills-artifact-binding",
+      "ecosystemId": "opencode-skills",
+      "artifactClass": "passive-public-package",
+      "effectiveTier": "statically-validated",
+      "rank": 3,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "opencode-skills-source-1",
+        "opencode-skills-source-2",
+        "opencode-skills-source-3",
+        "s5b-opencode-static-generation-2026-08-25"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "artifact-generation",
+        "documentation",
+        "static-validation"
+      ],
+      "missingAssurances": [
+        "install"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "openhands-artifact-binding",
+      "ecosystemId": "openhands",
+      "artifactClass": "passive-public-package",
+      "effectiveTier": "statically-validated",
+      "rank": 3,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "openhands-source-1",
+        "openhands-source-2",
+        "s5b-openhands-static-generation-2026-08-25"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "artifact-generation",
+        "documentation",
+        "static-validation"
+      ],
+      "missingAssurances": [
+        "install"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "pi-packages-artifact-binding",
+      "ecosystemId": "pi-packages",
+      "artifactClass": "passive-private-fixture",
+      "effectiveTier": "documented",
+      "rank": 1,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "pi-packages-source-1",
+        "pi-packages-source-2",
+        "pi-packages-source-3",
+        "pi-packages-source-4"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "documentation"
+      ],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "qwen-code-artifact-binding",
+      "ecosystemId": "qwen-code",
+      "artifactClass": "passive-public-package",
+      "effectiveTier": "statically-validated",
+      "rank": 3,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "qwen-code-source-1",
+        "qwen-code-source-2",
+        "qwen-code-source-3",
+        "s5b-qwen-static-generation-2026-08-25"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "artifact-generation",
+        "documentation",
+        "static-validation"
+      ],
+      "missingAssurances": [
+        "install"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "replit-agent-artifact-binding",
+      "ecosystemId": "replit-agent",
+      "artifactClass": "passive-public-package",
+      "effectiveTier": "statically-validated",
+      "rank": 3,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "replit-agent-source-1",
+        "replit-agent-source-2",
+        "s5b-replit-static-generation-2026-08-25"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "artifact-generation",
+        "documentation",
+        "static-validation"
+      ],
+      "missingAssurances": [
+        "install"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "roo-code-artifact-binding",
+      "ecosystemId": "roo-code",
+      "artifactClass": "no-artifact",
+      "effectiveTier": "documented",
+      "rank": 1,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "roo-code-source-1",
+        "roo-code-source-2"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "documentation"
+      ],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "sourcegraph-cody-artifact-binding",
+      "ecosystemId": "sourcegraph-cody",
+      "artifactClass": "no-artifact",
+      "effectiveTier": "documented",
+      "rank": 1,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "sourcegraph-cody-source-1",
+        "sourcegraph-cody-source-2"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "documentation"
+      ],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "tabnine-artifact-binding",
+      "ecosystemId": "tabnine",
+      "artifactClass": "no-artifact",
+      "effectiveTier": "documented",
+      "rank": 1,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "tabnine-source-1",
+        "tabnine-source-2"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "documentation"
+      ],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "visual-studio-copilot-artifact-binding",
+      "ecosystemId": "visual-studio-copilot",
+      "artifactClass": "passive-public-package",
+      "effectiveTier": "statically-validated",
+      "rank": 3,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "s5b-visual-studio-static-generation-2026-08-25",
+        "visual-studio-copilot-source-1",
+        "visual-studio-copilot-source-2"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "artifact-generation",
+        "documentation",
+        "static-validation"
+      ],
+      "missingAssurances": [
+        "install"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "vscode-agent-plugins-artifact-binding",
+      "ecosystemId": "vscode-agent-plugins",
+      "artifactClass": "passive-public-package",
+      "effectiveTier": "statically-validated",
+      "rank": 3,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "s5b-vscode-static-generation-2026-08-25",
+        "vscode-agent-plugins-source-1"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "artifact-generation",
+        "documentation",
+        "static-validation"
+      ],
+      "missingAssurances": [
+        "install"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "windsurf-devin-desktop-artifact-binding",
+      "ecosystemId": "windsurf-devin-desktop",
+      "artifactClass": "passive-public-package",
+      "effectiveTier": "statically-validated",
+      "rank": 3,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "s5b-windsurf-static-generation-2026-08-25",
+        "windsurf-devin-desktop-source-1",
+        "windsurf-devin-desktop-source-2"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "artifact-generation",
+        "documentation",
+        "static-validation"
+      ],
+      "missingAssurances": [
+        "install"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    },
+    {
+      "bindingId": "zed-skills-artifact-binding",
+      "ecosystemId": "zed-skills",
+      "artifactClass": "passive-public-package",
+      "effectiveTier": "statically-validated",
+      "rank": 3,
+      "supportClaim": false,
+      "activeEvidenceIds": [
+        "s5b-zed-static-generation-2026-08-25",
+        "zed-skills-source-1",
+        "zed-skills-source-2"
+      ],
+      "expiredEvidenceIds": [],
+      "futureEvidenceIds": [],
+      "satisfiedAssurances": [
+        "artifact-generation",
+        "documentation",
+        "static-validation"
+      ],
+      "missingAssurances": [
+        "install"
+      ],
+      "decay": {
+        "state": "none",
+        "reason": "No related supporting evidence is expired or future-dated at the authored asOf date."
+      },
+      "marketplace": {
+        "availabilityClaim": false,
+        "listingRequired": false,
+        "status": "not-claimed",
+        "evidenceIds": []
+      }
+    }
+  ]
+}

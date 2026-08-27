@@ -80,6 +80,10 @@ weaken security, authorization, or required quality gates.
 
 ## Share an improvement safely
 
+Use the complete [maintainer improvement workflow](./maintaining-shared-ai-behavior.md)
+to move only reusable public-safe behavior through the canonical review and
+release path.
+
 1. Identify the reusable behavior separately from private facts.
 2. Update authoritative product code/docs first when the behavior is a product
    fact.

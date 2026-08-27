@@ -1,0 +1,195 @@
+{
+  "schemaVersion": 2,
+  "defaultPolicy": "deny",
+  "profiles": [
+    {
+      "id": "executable-plugin-package-v1",
+      "artifactClass": "executable-plugin-package",
+      "passivePublic": false,
+      "failClosed": true,
+      "components": {
+        "execution": "allow",
+        "mcp": "allow",
+        "hooks": "allow",
+        "scripts": "allow",
+        "executableExtensions": "allow"
+      },
+      "controls": {
+        "immutableSource": "required",
+        "sha256Inventory": "required",
+        "canonicalParity": "required",
+        "secretScanning": "required",
+        "pathScanning": "required",
+        "ecosystemNativeProvenance": "when-supported"
+      },
+      "nonClaims": [
+        "no-agent-plugin-manifest-signature",
+        "no-generic-context-isolation",
+        "no-generic-host-sandbox"
+      ],
+      "evidenceIds": ["ecosystem-use-cases"]
+    },
+    {
+      "id": "mcp-server-package-v1",
+      "artifactClass": "mcp-server-package",
+      "passivePublic": false,
+      "failClosed": true,
+      "components": {
+        "execution": "require",
+        "mcp": "require",
+        "hooks": "allow",
+        "scripts": "allow",
+        "executableExtensions": "allow"
+      },
+      "controls": {
+        "immutableSource": "required",
+        "sha256Inventory": "required",
+        "canonicalParity": "required",
+        "secretScanning": "required",
+        "pathScanning": "required",
+        "ecosystemNativeProvenance": "when-supported"
+      },
+      "nonClaims": [
+        "no-agent-plugin-manifest-signature",
+        "no-generic-context-isolation",
+        "no-generic-host-sandbox"
+      ],
+      "evidenceIds": ["ecosystem-use-cases"]
+    },
+    {
+      "id": "no-artifact-v1",
+      "artifactClass": "no-artifact",
+      "passivePublic": false,
+      "failClosed": true,
+      "components": {
+        "execution": "not-applicable",
+        "mcp": "not-applicable",
+        "hooks": "not-applicable",
+        "scripts": "not-applicable",
+        "executableExtensions": "not-applicable"
+      },
+      "controls": {
+        "immutableSource": "not-applicable",
+        "sha256Inventory": "not-applicable",
+        "canonicalParity": "not-applicable",
+        "secretScanning": "not-applicable",
+        "pathScanning": "not-applicable",
+        "ecosystemNativeProvenance": "not-applicable"
+      },
+      "nonClaims": [
+        "no-agent-plugin-manifest-signature",
+        "no-generic-context-isolation",
+        "no-generic-host-sandbox"
+      ],
+      "evidenceIds": ["reevaluation-authority"]
+    },
+    {
+      "id": "passive-private-fixture-v1",
+      "artifactClass": "passive-private-fixture",
+      "passivePublic": false,
+      "failClosed": true,
+      "components": {
+        "execution": "forbid",
+        "mcp": "forbid",
+        "hooks": "forbid",
+        "scripts": "forbid",
+        "executableExtensions": "forbid"
+      },
+      "controls": {
+        "immutableSource": "required",
+        "sha256Inventory": "required",
+        "canonicalParity": "required",
+        "secretScanning": "required",
+        "pathScanning": "required",
+        "ecosystemNativeProvenance": "when-supported"
+      },
+      "nonClaims": [
+        "no-agent-plugin-manifest-signature",
+        "no-generic-context-isolation",
+        "no-generic-host-sandbox"
+      ],
+      "evidenceIds": ["option-a-plus-authority"]
+    },
+    {
+      "id": "passive-public-package-v1",
+      "artifactClass": "passive-public-package",
+      "passivePublic": true,
+      "failClosed": true,
+      "components": {
+        "execution": "forbid",
+        "mcp": "forbid",
+        "hooks": "forbid",
+        "scripts": "forbid",
+        "executableExtensions": "forbid"
+      },
+      "controls": {
+        "immutableSource": "required",
+        "sha256Inventory": "required",
+        "canonicalParity": "required",
+        "secretScanning": "required",
+        "pathScanning": "required",
+        "ecosystemNativeProvenance": "when-supported"
+      },
+      "nonClaims": [
+        "no-agent-plugin-manifest-signature",
+        "no-generic-context-isolation",
+        "no-generic-host-sandbox"
+      ],
+      "evidenceIds": ["option-a-plus-authority"]
+    },
+    {
+      "id": "provider-compatibility-v1",
+      "artifactClass": "provider-compatibility",
+      "passivePublic": false,
+      "failClosed": true,
+      "components": {
+        "execution": "not-applicable",
+        "mcp": "not-applicable",
+        "hooks": "not-applicable",
+        "scripts": "not-applicable",
+        "executableExtensions": "not-applicable"
+      },
+      "controls": {
+        "immutableSource": "not-applicable",
+        "sha256Inventory": "not-applicable",
+        "canonicalParity": "not-applicable",
+        "secretScanning": "not-applicable",
+        "pathScanning": "not-applicable",
+        "ecosystemNativeProvenance": "not-applicable"
+      },
+      "nonClaims": [
+        "no-agent-plugin-manifest-signature",
+        "no-generic-context-isolation",
+        "no-generic-host-sandbox"
+      ],
+      "evidenceIds": ["ecosystem-use-cases"]
+    },
+    {
+      "id": "publication-metadata-v1",
+      "artifactClass": "publication-metadata",
+      "passivePublic": false,
+      "failClosed": true,
+      "components": {
+        "execution": "not-applicable",
+        "mcp": "not-applicable",
+        "hooks": "not-applicable",
+        "scripts": "not-applicable",
+        "executableExtensions": "not-applicable"
+      },
+      "controls": {
+        "immutableSource": "required",
+        "sha256Inventory": "required",
+        "canonicalParity": "required",
+        "secretScanning": "required",
+        "pathScanning": "required",
+        "ecosystemNativeProvenance": "when-supported"
+      },
+      "nonClaims": [
+        "no-agent-plugin-manifest-signature",
+        "no-generic-context-isolation",
+        "no-generic-host-sandbox"
+      ],
+      "evidenceIds": ["option-a-plus-authority"]
+    }
+  ]
+}

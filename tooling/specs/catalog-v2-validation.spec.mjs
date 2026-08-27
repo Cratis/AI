@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import {
@@ -48,10 +49,10 @@ test("catalog v2 schemas and semantic policy pass for the repository", () => {
     assert.deepEqual(validateV2Catalogs(), []);
 });
 
-test("catalog v2 preserves all 43 sources while split and merge targets are independent", () => {
+test("catalog v2 preserves all 45 sources while split and merge targets are independent", () => {
     const catalogs = loadCatalogs();
-    assert.equal(catalogs.sources.sources.length, 43);
-    assert.equal(catalogs.targets.targets.length, 43);
+    assert.equal(catalogs.sources.sources.length, 45);
+    assert.equal(catalogs.targets.targets.length, 45);
     const split = catalogs.migrations.migrations.find(
         (migration) => migration.kind === "split",
     );
@@ -76,6 +77,55 @@ test("catalog v2 preserves all 43 sources while split and merge targets are inde
             (target) => target.id === split.targetIds[1],
         ),
     );
+});
+
+test("Chronicle MCP guidance target is provenance-bound but remains unclassified and denied", () => {
+    const catalogs = loadCatalogs();
+    const source = catalogs.sources.sources.find(
+        (record) => record.id === "cratis-chronicle-mcp-inspection",
+    );
+    const target = catalogs.targets.targets.find(
+        (record) => record.id === "cratis-chronicle-mcp-inspection",
+    );
+    assert.equal(
+        source.sourceRevision,
+        "5997b28c142d9ee489841894e5d21730da5cb5a5",
+    );
+    assert(
+        source.evidenceIds.includes(
+            "chronicle-mcp-inspection-source-5997b28",
+        ),
+    );
+    assert.equal(target.lifecycle, "candidate");
+    assert.equal(target.capabilityKind, "unclassified");
+    assert.equal(target.trust.assessmentState, "unclassified");
+    assert.equal(target.sourceContractState, "unclassified");
+    assert.equal(target.includeInRuntime, false);
+    assert.equal(target.approval.state, "candidate");
+});
+
+test("Studio MCP guidance target is source-bound without implementation authority", () => {
+    const catalogs = loadCatalogs();
+    const source = catalogs.sources.sources.find(
+        (record) => record.id === "cratis-studio-mcp-safety-guidance",
+    );
+    const target = catalogs.targets.targets.find(
+        (record) => record.id === "cratis-studio-mcp-safety-guidance",
+    );
+    assert.equal(
+        source.sourceRevision,
+        "f96eab8109ec0bb2d4aed6f1e893c2402a9a161a",
+    );
+    assert(
+        source.evidenceIds.includes(
+            "studio-mcp-safety-guidance-source-f96eab8",
+        ),
+    );
+    assert.equal(target.lifecycle, "candidate");
+    assert.equal(target.sourceContractState, "unclassified");
+    assert.deepEqual(target.sourceContractIds, []);
+    assert.equal(target.includeInRuntime, false);
+    assert.equal(target.approval.state, "candidate");
 });
 
 test("catalog v2 exposes closed shared taxonomies without broadening targets", () => {
@@ -745,18 +795,33 @@ test("unsupported JSON Schema vocabulary fails explicitly", () => {
     );
 });
 
-test("stale and future-dated evidence fail and every fact remains evidence-bound", () => {
+test("stale and future-dated evidence fail and unsupported local facts remain explicit", () => {
     const catalogs = loadCatalogs();
-    assert(
-        catalogs.evidence.ecosystemFacts.every(
-            (fact) => fact.evidenceIds.length > 0,
-        ),
+    assert.deepEqual(
+        catalogs.evidence.ecosystemFacts
+            .filter((fact) => fact.evidenceIds.length === 0)
+            .map((fact) => fact.id)
+            .sort(),
+        [
+            "github-cli-skills-fact-5",
+            "npm-cratis-scope-fact-4",
+            "npm-trusted-publishing-fact-5",
+            "openhands-fact-2",
+        ],
     );
     catalogs.evidence.evidence[0].expiresOn = "2026-08-19";
-    catalogs.evidence.evidence[1].verifiedOn = "2026-08-25";
+    catalogs.evidence.evidence[1].verifiedOn = "2026-08-26";
     const errors = validateEvidenceAndCoverage(catalogs);
     assert(errors.some((error) => error.includes("expired")));
     assert(errors.some((error) => error.includes("verified after")));
+});
+
+test("aggregate validation propagates its repository root to evidence checks", () => {
+    const source = readFileSync(
+        join(defaultRepositoryRoot, "tooling/catalog-v2-validation.mjs"),
+        "utf8",
+    );
+    assert.match(source, /validateEvidenceAndCoverage\(catalogs, root\)/u);
 });
 
 test("local evidence reports remain bound to repository bytes", () => {
@@ -955,6 +1020,63 @@ test("repository inventory supports a clean tracked repository", () => {
             schema,
         ),
         [],
+    );
+});
+
+test("repository inventory records component and MCP guidance generation provenance", () => {
+    const catalogs = loadCatalogs();
+    const generated = catalogs.repositoryInventory.records.find(
+        (record) => record.id === "catalog-v2-generated-surfaces",
+    );
+    generated.dependencies = generated.dependencies.filter(
+        (dependency) =>
+            dependency !== "tooling/generate-component-catalogs.mjs",
+    );
+    generated.generator = generated.generator.replace(
+        "tooling/generate-component-catalogs.mjs, ",
+        "",
+    );
+    const human = catalogs.repositoryInventory.records.find(
+        (record) => record.id === "generated-human-catalog",
+    );
+    human.dependencies = human.dependencies.filter(
+        (dependency) => dependency !== "catalog/v2/components.json",
+    );
+    const chronicleMcp = catalogs.repositoryInventory.records.find(
+        (record) =>
+            record.id === "mcp-generated-guidance-references",
+    );
+    chronicleMcp.dependencies = chronicleMcp.dependencies.filter(
+        (dependency) =>
+            dependency !== "tooling/chronicle-mcp-guidance-validation.mjs",
+    );
+    const s10 = catalogs.repositoryInventory.records.find(
+        (record) => record.id === "s10-release-readiness",
+    );
+    s10.dependencies = s10.dependencies.filter(
+        (dependency) =>
+            dependency !== "tooling/s10-release-gate-validation.mjs",
+    );
+    const s8 = catalogs.repositoryInventory.records.find(
+        (record) => record.id === "s8-native-non-skill-expected-tree",
+    );
+    s8.dependencies = s8.dependencies.filter(
+        (dependency) =>
+            dependency !== "tooling/native-non-skill-projections.mjs",
+    );
+    const errors = validateRepositoryInventory(
+        catalogs,
+        defaultRepositoryRoot,
+    );
+    assert(
+        errors.some((error) =>
+            error.includes("missing generation provenance dependency"),
+        ),
+    );
+    assert(
+        errors.some((error) =>
+            error.includes("component catalog generator is missing"),
+        ),
     );
 });
 

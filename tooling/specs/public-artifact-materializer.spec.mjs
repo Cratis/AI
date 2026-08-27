@@ -259,6 +259,8 @@ test("rejects secret-shaped, private, and local payload content", () => {
         ["github-token", "github_pat_abcdefghijklmnopqrstuvwxyz123456"],
         ["npm-token", "npm_abcdefghijklmnopqrstuvwxyz123456"],
         ["bearer-token", "Authorization: Bearer abcdefghijklmnopqrstuvwxyz"],
+        ["basic-token", "Authorization: Basic dXNlcjpwYXNzd29yZA=="],
+        ["api-key", "api_key=sk_live_abcdefghijklmnopqrstuvwxyz123456"],
         ["private-host", "https://service.internal/resource"],
         ["private-ipv4", "https://192.168.10.12/resource"],
         ["short-loopback", "http://127.1/resource"],

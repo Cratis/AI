@@ -44,6 +44,7 @@
           "cratis-chronicle-event-modeling",
           "cratis-chronicle-event-specifications",
           "cratis-chronicle-event-type-migration",
+          "cratis-chronicle-mcp-inspection",
           "cratis-chronicle-multi-tenancy",
           "cratis-chronicle-projection",
           "cratis-chronicle-reactor",
@@ -59,9 +60,20 @@
           "cratis-performance-review",
           "cratis-security-review",
           "cratis-specifications-csharp",
-          "cratis-specifications-typescript"
+          "cratis-specifications-typescript",
+          "cratis-studio-mcp-safety-guidance"
         ],
-        "mcp": []
+        "agents": [],
+        "subagents": [],
+        "commands": [],
+        "prompts": [],
+        "rules": [],
+        "instructions": [],
+        "hooks": [],
+        "mcp": [],
+        "lsp": [],
+        "executableExtensions": [],
+        "staticAssets": []
       },
       "exactSourcePaths": [],
       "allowedPathPatterns": [
@@ -109,7 +121,17 @@
           "cratis-engineering-ship-changes",
           "skill-creator"
         ],
-        "mcp": []
+        "agents": [],
+        "subagents": [],
+        "commands": [],
+        "prompts": [],
+        "rules": [],
+        "instructions": [],
+        "hooks": [],
+        "mcp": [],
+        "lsp": [],
+        "executableExtensions": [],
+        "staticAssets": []
       },
       "exactSourcePaths": [],
       "allowedPathPatterns": [
@@ -153,9 +175,19 @@
       "runtimeEligible": false,
       "componentInventory": {
         "skills": [
-          "cratis-engineering-docs-authoring-fixture"
+          "cratis-engineering-docs-authoring"
         ],
-        "mcp": []
+        "agents": [],
+        "subagents": [],
+        "commands": [],
+        "prompts": [],
+        "rules": [],
+        "instructions": [],
+        "hooks": [],
+        "mcp": [],
+        "lsp": [],
+        "executableExtensions": [],
+        "staticAssets": []
       },
       "exactSourcePaths": [
         "engineering/skills/cratis-engineering-docs-authoring/LICENSE",
@@ -202,7 +234,17 @@
         "skills": [
           "cratis-fundamentals-concept"
         ],
-        "mcp": []
+        "agents": [],
+        "subagents": [],
+        "commands": [],
+        "prompts": [],
+        "rules": [],
+        "instructions": [],
+        "hooks": [],
+        "mcp": [],
+        "lsp": [],
+        "executableExtensions": [],
+        "staticAssets": []
       },
       "exactSourcePaths": [
         "skills/cratis-fundamentals-concept/LICENSE",

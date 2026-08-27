@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "generatedBy": "tooling/generate-release-readiness.mjs",
+  "state": "BLOCKED",
+  "policyMode": "BLOCKED",
+  "blockers": [
+    {
+      "code": "policy-blocked",
+      "reason": "S10 release policy is explicitly blocked."
+    },
+    {
+      "code": "no-release-tested-binding",
+      "reason": "No binding has complete released-artifact and canary evidence."
+    },
+    {
+      "code": "no-lifecycle-tested-binding",
+      "reason": "No binding has complete install, behavior, update, rollback, uninstall, and preservation evidence."
+    },
+    {
+      "code": "no-profile-approvals",
+      "reason": "No exact profile prerequisite approval exists."
+    },
+    {
+      "code": "no-target-approvals",
+      "reason": "No exact target prerequisite approval exists."
+    },
+    {
+      "code": "no-source-contract-approvals",
+      "reason": "No exact source-contract prerequisite approval exists."
+    },
+    {
+      "code": "no-control-attestations",
+      "reason": "No active branch, workflow, environment, package, or credential-scope attestation exists."
+    },
+    {
+      "code": "no-exact-package-ownership-attestation",
+      "reason": "No ownership evidence exists for the exact production package name."
+    },
+    {
+      "code": "no-trusted-publisher-attestation",
+      "reason": "No exact repository, workflow, environment, and package OIDC publisher attestation exists."
+    },
+    {
+      "code": "no-release-request",
+      "reason": "No append-only release request exists."
+    },
+    {
+      "code": "no-release-records",
+      "reason": "No append-only release record exists."
+    },
+    {
+      "code": "no-marketplace-publications",
+      "reason": "No approved or disabled marketplace publication disposition exists."
+    }
+  ],
+  "releaseRequestEligible": false,
+  "installationEligible": false,
+  "runtimeEligible": false,
+  "publicationEligible": false,
+  "promotionEligible": false,
+  "supportGranted": false,
+  "marketplaceAvailabilityClaim": false
+}

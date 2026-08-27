@@ -18,6 +18,10 @@ import {
     validateAgainstSchema,
     validateSchemaVocabulary,
 } from "./catalog-validation.mjs";
+import {
+    regularFiles,
+    validateComponentCatalogs,
+} from "./component-catalog-validation.mjs";
 
 export const v2CatalogPaths = {
     sources: "catalog/v2/sources.json",
@@ -33,6 +37,8 @@ export const v2CatalogPaths = {
     upstreamCompanions: "catalog/v2/upstream-companions.json",
     authoringContracts: "catalog/v2/authoring-contracts.json",
     humanCatalog: "catalog/v2/human-catalog.json",
+    components: "catalog/v2/components.json",
+    componentProjections: "catalog/v2/component-projections.json",
 };
 
 export const v2SchemaPath = "catalog/schemas/v2/catalog-v2.schema.json";
@@ -51,6 +57,8 @@ const schemaDefinitionByCatalog = {
     upstreamCompanions: "upstreamCompanionsCatalog",
     authoringContracts: "authoringContractsCatalog",
     humanCatalog: "humanCatalogContract",
+    components: "componentsCatalog",
+    componentProjections: "componentProjectionsCatalog",
 };
 
 function duplicates(values) {
@@ -218,11 +226,11 @@ export function validateSources(catalogs, root) {
     ];
     if (!equalStringSets(sourceIds, v1Ids))
         errors.push(
-            "catalog v2 sources must preserve all 43 v1 skill sources exactly once",
+            "catalog v2 sources must preserve all 45 authored skill sources exactly once",
         );
-    if (sourceIds.length !== 43)
+    if (sourceIds.length !== 45)
         errors.push(
-            `catalog v2 must contain 43 sources; found ${sourceIds.length}`,
+            `catalog v2 must contain 45 sources; found ${sourceIds.length}`,
         );
     for (const source of catalogs.sources.sources) {
         if (source.publicationApproval)
@@ -1479,7 +1487,7 @@ export function validateHumanCatalogContract(catalogs) {
     return errors;
 }
 
-export function validateArtifacts(catalogs) {
+export function validateArtifacts(catalogs, root = defaultRepositoryRoot) {
     const errors = [];
     const decision = catalogs.artifacts.distributionDecision;
     const evidenceIds = new Set(
@@ -1499,6 +1507,26 @@ export function validateArtifacts(catalogs) {
                     target.includeInRuntime,
             )
             .map((target) => target.id),
+    );
+    const componentKindByInventory = new Map([
+        ["skills", "skill"],
+        ["agents", "agent"],
+        ["subagents", "subagent"],
+        ["commands", "command"],
+        ["prompts", "prompt"],
+        ["rules", "rule"],
+        ["instructions", "instruction"],
+        ["hooks", "hook"],
+        ["mcp", "mcp"],
+        ["lsp", "lsp"],
+        ["executableExtensions", "executable-host-extension"],
+        ["staticAssets", "static-asset"],
+    ]);
+    const componentsById = new Map(
+        catalogs.components.components.map((component) => [
+            component.id,
+            component,
+        ]),
     );
     addDuplicateErrors(
         errors,
@@ -1564,6 +1592,87 @@ export function validateArtifacts(catalogs) {
             ) {
                 errors.push(
                     `${artifact.id}: unapproved target selected for live artifact: ${targetId}`,
+                );
+            }
+        }
+        for (const [inventoryName, expectedKind] of componentKindByInventory) {
+            for (const componentId of artifact.componentInventory[
+                inventoryName
+            ]) {
+                const component = componentsById.get(componentId);
+                if (!component) {
+                    errors.push(
+                        `${artifact.id}: unknown ${expectedKind} component ${componentId}`,
+                    );
+                } else if (component.kind !== expectedKind) {
+                    errors.push(
+                        `${artifact.id}: ${inventoryName} inventory cannot contain ${component.kind} component ${componentId}`,
+                    );
+                } else if (
+                    !artifact.fixtureOnly &&
+                    component.audience !== artifact.audience
+                ) {
+                    errors.push(
+                        `${artifact.id}: ${artifact.audience} artifact cannot select ${component.audience} component ${componentId}`,
+                    );
+                } else if (
+                    !artifact.fixtureOnly &&
+                    liveEnabled &&
+                    component.approval.state !== "approved"
+                ) {
+                    errors.push(
+                        `${artifact.id}: live artifact cannot select unapproved component ${componentId}`,
+                    );
+                }
+                if (
+                    ["hooks", "mcp", "lsp", "executableExtensions"].includes(
+                        inventoryName,
+                    )
+                ) {
+                    errors.push(
+                        `${artifact.id}: passive artifact rejects executable component ${componentId}`,
+                    );
+                }
+            }
+        }
+        if (
+            !artifact.fixtureOnly &&
+            !artifact.materializationAllowed &&
+            artifact.exactSourcePaths.length > 0
+        )
+            errors.push(
+                `${artifact.id}: non-materialized artifact cannot claim exact source bytes`,
+            );
+        if (artifact.fixtureOnly || artifact.materializationAllowed) {
+            try {
+                const expectedSourcePaths = [];
+                for (const [inventoryName] of componentKindByInventory)
+                    for (const componentId of artifact.componentInventory[
+                        inventoryName
+                    ]) {
+                        const component = componentsById.get(componentId);
+                        if (!component) continue;
+                        for (const source of component.canonicalSources)
+                            expectedSourcePaths.push(
+                                ...regularFiles(
+                                    root,
+                                    source.path,
+                                ),
+                            );
+                    }
+                const expected = [...new Set(expectedSourcePaths)].sort(
+                    compareOrdinal,
+                );
+                const actual = [...artifact.exactSourcePaths].sort(
+                    compareOrdinal,
+                );
+                if (JSON.stringify(expected) !== JSON.stringify(actual))
+                    errors.push(
+                        `${artifact.id}: exact source paths do not match the complete component byte inventory`,
+                    );
+            } catch (error) {
+                errors.push(
+                    `${artifact.id}: component byte inventory failed: ${error.message}`,
                 );
             }
         }
@@ -1669,6 +1778,86 @@ export function expandInventoryRecord(record, universe) {
 export function validateRepositoryInventory(catalogs, root) {
     const errors = [];
     const inventory = catalogs.repositoryInventory;
+    const requiredGenerationDependencies = new Map([
+        [
+            "catalog-v2-generated-surfaces",
+            ["tooling/generate-component-catalogs.mjs"],
+        ],
+        [
+            "s10-release-readiness",
+            [
+                "catalog/evidence-baseline.json",
+                "catalog/v2/support.json",
+                "distribution/marketplace-publications.json",
+                "distribution/release-approvals.json",
+                "distribution/release-control-attestations.json",
+                "distribution/release-records/README.md",
+                "distribution/releases/README.md",
+                "distribution/s10-release-policy.json",
+                "tooling/generate-release-readiness.mjs",
+                "tooling/s10-release-gate-validation.mjs",
+            ],
+        ],
+        [
+            "generated-human-catalog",
+            [
+                "catalog/v2/components.json",
+                "catalog/v2/component-projections.json",
+                "catalog/v2/release-readiness.json",
+            ],
+        ],
+        [
+            "s8-native-non-skill-expected-tree",
+            [
+                "catalog/component-projections.json",
+                "catalog/components.json",
+                "catalog/evidence.json",
+                "catalog/host-adapters.json",
+                "tooling/native-non-skill-projections.mjs",
+            ],
+        ],
+        [
+            "mcp-generated-guidance-references",
+            [
+                "catalog/chronicle-mcp-tool-classifications.json",
+                "catalog/evidence.json",
+                "catalog/mcp-guidance-products.json",
+                "catalog/studio-mcp-tool-classifications.json",
+                "catalog/schemas/chronicle-mcp-tool-classifications.schema.json",
+                "catalog/schemas/evidence.schema.json",
+                "catalog/schemas/mcp-guidance-products.schema.json",
+                "catalog/schemas/v2/catalog-v2.schema.json",
+                "catalog/v2/source-contracts.json",
+                "tooling/chronicle-mcp-guidance-validation.mjs",
+                "tooling/generate-chronicle-mcp-guidance-references.mjs",
+                "tooling/generate-mcp-guidance-references.mjs",
+                "tooling/mcp-guidance-product-contract.mjs",
+                "tooling/mcp-guidance-validation.mjs",
+                "tooling/support-validation.mjs",
+            ],
+        ],
+    ]);
+    for (const [recordId, dependencies] of requiredGenerationDependencies) {
+        const record = inventory.records.find(
+            (candidate) => candidate.id === recordId,
+        );
+        for (const dependency of dependencies)
+            if (!record?.dependencies.includes(dependency))
+                errors.push(
+                    `${recordId}: missing generation provenance dependency ${dependency}`,
+                );
+    }
+    const generatedSurfaces = inventory.records.find(
+        (record) => record.id === "catalog-v2-generated-surfaces",
+    );
+    if (
+        !generatedSurfaces?.generator?.includes(
+            "tooling/generate-component-catalogs.mjs",
+        )
+    )
+        errors.push(
+            "catalog-v2-generated-surfaces: component catalog generator is missing from provenance",
+        );
     const evidenceIds = new Set(
         catalogs.evidence.evidence.map((evidence) => evidence.id),
     );
@@ -1786,13 +1975,14 @@ export function validateV2Catalogs(root = defaultRepositoryRoot) {
     errors.push(...validateSources(catalogs, root));
     errors.push(...validateTargets(catalogs));
     errors.push(...validateMigrations(catalogs));
-    errors.push(...validateEvidenceAndCoverage(catalogs));
+    errors.push(...validateEvidenceAndCoverage(catalogs, root));
     errors.push(...validateSourceContracts(catalogs));
     errors.push(...validateBundles(catalogs));
     errors.push(...validateUpstreamCompanions(catalogs));
     errors.push(...validateAuthoringContracts(catalogs));
     errors.push(...validateHumanCatalogContract(catalogs));
-    errors.push(...validateArtifacts(catalogs));
+    errors.push(...validateArtifacts(catalogs, root));
+    errors.push(...validateComponentCatalogs(root));
     errors.push(...validateRepositoryInventory(catalogs, root));
     return errors;
 }

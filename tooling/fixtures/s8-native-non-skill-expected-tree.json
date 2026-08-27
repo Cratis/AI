@@ -1,0 +1,1515 @@
+{
+  "schemaVersion": "1.0.0",
+  "state": "S8_NATIVE_NON_SKILL_STATIC_FIXTURE",
+  "generatedBy": "tooling/native-non-skill-projections.mjs",
+  "roots": [
+    {
+      "id": "devin-hosted-instructions",
+      "outputRoot": "devin-hosted-instructions",
+      "files": [
+        {
+          "path": "AGENTS.md",
+          "sourcePath": ".ai/rules/general.md",
+          "size": 27939,
+          "sha256": "8c8a7b1c48205a69b9cde5b21b504112a235fae39a701b2c6b19282a4c901f8a"
+        }
+      ]
+    },
+    {
+      "id": "jetbrains-ai-assistant-rules",
+      "outputRoot": "jetbrains-ai-assistant-rules",
+      "files": [
+        {
+          "path": ".aiassistant/rules/code-quality.csharp.md",
+          "sourcePath": ".ai/rules/code-quality.csharp.md",
+          "size": 4113,
+          "sha256": "fde0900c6fb6221729ee4efe319a5ad612ee337b9b5262a7d8e9085de569ef4f"
+        },
+        {
+          "path": ".aiassistant/rules/code-quality.md",
+          "sourcePath": ".ai/rules/code-quality.md",
+          "size": 5902,
+          "sha256": "2754603edc9913154500461592c7808a5b95f7f328e89740c809759133a9a4f1"
+        },
+        {
+          "path": ".aiassistant/rules/code-quality.typescript.md",
+          "sourcePath": ".ai/rules/code-quality.typescript.md",
+          "size": 4164,
+          "sha256": "b9bb7a86c52dc366602343a29997639a8dfa91f003b1bdfeeb3768034f9c2858"
+        },
+        {
+          "path": ".aiassistant/rules/components.md",
+          "sourcePath": ".ai/rules/components.md",
+          "size": 12510,
+          "sha256": "b093e49667c0a0aa9f37ab4e44ed04d51e7f40d0d82e7be120e1859a79323f6e"
+        },
+        {
+          "path": ".aiassistant/rules/concepts.md",
+          "sourcePath": ".ai/rules/concepts.md",
+          "size": 4655,
+          "sha256": "f1f941ec32415bd4b5a403f0d084dd601935ea5e6a4baf29598a63f69753a095"
+        },
+        {
+          "path": ".aiassistant/rules/csharp.md",
+          "sourcePath": ".ai/rules/csharp.md",
+          "size": 12905,
+          "sha256": "67d810084776dd5695618bd4a7ebab2eae359263a6c3e93bbbd3f2ddb25d0c94"
+        },
+        {
+          "path": ".aiassistant/rules/dialogs.md",
+          "sourcePath": ".ai/rules/dialogs.md",
+          "size": 12076,
+          "sha256": "17f4c4978b489c11db38d327668b04e336387db0dccd9f5c97b48be6f636639f"
+        },
+        {
+          "path": ".aiassistant/rules/documentation-structure-and-formatting.md",
+          "sourcePath": ".ai/rules/documentation-structure-and-formatting.md",
+          "size": 4938,
+          "sha256": "ab6f79aab44035f03d89fc92fd3319d99f7e782b3d8da0ceba1778c557007f25"
+        },
+        {
+          "path": ".aiassistant/rules/documentation.md",
+          "sourcePath": ".ai/rules/documentation.md",
+          "size": 7763,
+          "sha256": "f861fc90a20ad7747812d1a2810223024fd56ecff924a41db6d105bcd04fa316"
+        },
+        {
+          "path": ".aiassistant/rules/editing-cratis-docs.md",
+          "sourcePath": ".ai/rules/editing-cratis-docs.md",
+          "size": 4502,
+          "sha256": "d3a78a5ec35dac52aec365a02b3f87d4d0c6a01ca9a240168f17b36a571c6f35"
+        },
+        {
+          "path": ".aiassistant/rules/efcore.md",
+          "sourcePath": ".ai/rules/efcore.md",
+          "size": 8354,
+          "sha256": "364da6bcfe33ebe258b78ce09e00a73cd910894ae29850f034155b0310b0caa1"
+        },
+        {
+          "path": ".aiassistant/rules/efcore.specs.md",
+          "sourcePath": ".ai/rules/efcore.specs.md",
+          "size": 1832,
+          "sha256": "a582194ac993a1ccb86bbf017d67d18e61145cf2b881ace439edce335823dbf8"
+        },
+        {
+          "path": ".aiassistant/rules/framework.md",
+          "sourcePath": ".ai/rules/framework.md",
+          "size": 7688,
+          "sha256": "4f26cad2495982e35e379bcca4f0d061817af102731d26458df6176e4147949f"
+        },
+        {
+          "path": ".aiassistant/rules/frontend-quality.md",
+          "sourcePath": ".ai/rules/frontend-quality.md",
+          "size": 5612,
+          "sha256": "96c283528837ed898590a9256e48f0c86229cf940df7d9b0ca6a52220ef41d0c"
+        },
+        {
+          "path": ".aiassistant/rules/frontend-testing.md",
+          "sourcePath": ".ai/rules/frontend-testing.md",
+          "size": 5480,
+          "sha256": "5d58246f0af1355865c3f0bda56d6a414e054f5ab2652da9100b58d413f0ed8b"
+        },
+        {
+          "path": ".aiassistant/rules/git-commits.md",
+          "sourcePath": ".ai/rules/git-commits.md",
+          "size": 8831,
+          "sha256": "cb7b7fea2d8cfe7eb2407a570dad7c2e63f5e00e653ac0ddeae6bafcc0a2bf6c"
+        },
+        {
+          "path": ".aiassistant/rules/glossary.md",
+          "sourcePath": ".ai/rules/glossary.md",
+          "size": 4986,
+          "sha256": "bbc5da53b562456445b2e8c2d4cbbf2c2376bf4e56b71f4a2f181bae1915f8fd"
+        },
+        {
+          "path": ".aiassistant/rules/managing-ai-rules.md",
+          "sourcePath": ".ai/rules/managing-ai-rules.md",
+          "size": 11417,
+          "sha256": "5e9f8225d13467eeec93471a70afdae494b630eb88fddf10e5a7cf709610b6db"
+        },
+        {
+          "path": ".aiassistant/rules/orleans.md",
+          "sourcePath": ".ai/rules/orleans.md",
+          "size": 1933,
+          "sha256": "545fb3e7dcd53f6e922f16004d91b4621d2ce4a37242901e5d6b15f5cd9f916a"
+        },
+        {
+          "path": ".aiassistant/rules/pull-requests.md",
+          "sourcePath": ".ai/rules/pull-requests.md",
+          "size": 7842,
+          "sha256": "d8f7eabf9df2d34fee048fd3cb90d80444770ae90446c594c97f25451ae6eb1c"
+        },
+        {
+          "path": ".aiassistant/rules/react.md",
+          "sourcePath": ".ai/rules/react.md",
+          "size": 15114,
+          "sha256": "a88d9c4a382bbb51ed6b01511ce2effcbb3d6a7a899113a585cc002e3c0758af"
+        },
+        {
+          "path": ".aiassistant/rules/reactors.md",
+          "sourcePath": ".ai/rules/reactors.md",
+          "size": 14268,
+          "sha256": "ccbc5a3d78c2ba0170cadb5fa50ca5a03682839e179988ec0a7daa168fe04753"
+        },
+        {
+          "path": ".aiassistant/rules/rtk.md",
+          "sourcePath": ".ai/rules/rtk.md",
+          "size": 3190,
+          "sha256": "0d5bc7404ce9e357552705d8d0e2a5178a09635d3e46654f71539216a5f49388"
+        },
+        {
+          "path": ".aiassistant/rules/specs.csharp.md",
+          "sourcePath": ".ai/rules/specs.csharp.md",
+          "size": 9122,
+          "sha256": "82aab7bc72862d978e0bf2d3c35d0eee386c4c9d758537350059dfef056438a9"
+        },
+        {
+          "path": ".aiassistant/rules/specs.md",
+          "sourcePath": ".ai/rules/specs.md",
+          "size": 8490,
+          "sha256": "6f9c6d95f06d8637e3f6a2b71c788a91fa738e8bf9f2e55c7dc7fb41c996ea15"
+        },
+        {
+          "path": ".aiassistant/rules/specs.scenarios.csharp.md",
+          "sourcePath": ".ai/rules/specs.scenarios.csharp.md",
+          "size": 13684,
+          "sha256": "4fefed8bb5a5baf7cf14259b4aa9b60e4633d654bc9908a0c3584ededadc3ab9"
+        },
+        {
+          "path": ".aiassistant/rules/specs.typescript.md",
+          "sourcePath": ".ai/rules/specs.typescript.md",
+          "size": 5515,
+          "sha256": "51b9a7b2e3c9ee42add8a6377d3dd002a859afd22df29d246d7db793c97a424b"
+        },
+        {
+          "path": ".aiassistant/rules/storybook.md",
+          "sourcePath": ".ai/rules/storybook.md",
+          "size": 4764,
+          "sha256": "81530f5739fb29a8805c6d146d1a321b6366430d9ba05c2488b4fe65837a6da8"
+        },
+        {
+          "path": ".aiassistant/rules/terminal-commands.md",
+          "sourcePath": ".ai/rules/terminal-commands.md",
+          "size": 617,
+          "sha256": "63be5f54e6e00af2ae66a40d1de64ede7a7920abdcd87823b9861c1df1e47dd1"
+        },
+        {
+          "path": ".aiassistant/rules/typescript.md",
+          "sourcePath": ".ai/rules/typescript.md",
+          "size": 8425,
+          "sha256": "b52b4b854293ff238a643fc822cab1455a54b0bac1c14f3afc9f7ca1c54f5c9e"
+        },
+        {
+          "path": ".aiassistant/rules/vertical-slices.md",
+          "sourcePath": ".ai/rules/vertical-slices.md",
+          "size": 31443,
+          "sha256": "51df677faf11f73555981207e7993e3c217ebfc5b4ac1e0df31455fdb0780f5e"
+        },
+        {
+          "path": ".aiassistant/rules/web-fetching.md",
+          "sourcePath": ".ai/rules/web-fetching.md",
+          "size": 811,
+          "sha256": "f351e254d165642034e9dd6ca41185138cb13b7c641ee198f572d4b810bc2ebf"
+        },
+        {
+          "path": ".aiassistant/rules/writing-correct-examples.md",
+          "sourcePath": ".ai/rules/writing-correct-examples.md",
+          "size": 4359,
+          "sha256": "593e0bc73b1117699011033455d9d5c56aaff9c08e6c03187c0e55d3e3105a7b"
+        },
+        {
+          "path": ".aiassistant/rules/writing-cratis-docs.md",
+          "sourcePath": ".ai/rules/writing-cratis-docs.md",
+          "size": 5622,
+          "sha256": "e30478e5eb29cac704e04b5605ea649e1e9405c934ff220ecc3d586e62834fd0"
+        }
+      ]
+    },
+    {
+      "id": "tabnine-guidelines",
+      "outputRoot": "tabnine-guidelines",
+      "files": [
+        {
+          "path": ".tabnine/guidelines/code-quality.csharp.md",
+          "sourcePath": ".ai/rules/code-quality.csharp.md",
+          "size": 4113,
+          "sha256": "fde0900c6fb6221729ee4efe319a5ad612ee337b9b5262a7d8e9085de569ef4f"
+        },
+        {
+          "path": ".tabnine/guidelines/code-quality.md",
+          "sourcePath": ".ai/rules/code-quality.md",
+          "size": 5902,
+          "sha256": "2754603edc9913154500461592c7808a5b95f7f328e89740c809759133a9a4f1"
+        },
+        {
+          "path": ".tabnine/guidelines/code-quality.typescript.md",
+          "sourcePath": ".ai/rules/code-quality.typescript.md",
+          "size": 4164,
+          "sha256": "b9bb7a86c52dc366602343a29997639a8dfa91f003b1bdfeeb3768034f9c2858"
+        },
+        {
+          "path": ".tabnine/guidelines/components.md",
+          "sourcePath": ".ai/rules/components.md",
+          "size": 12510,
+          "sha256": "b093e49667c0a0aa9f37ab4e44ed04d51e7f40d0d82e7be120e1859a79323f6e"
+        },
+        {
+          "path": ".tabnine/guidelines/concepts.md",
+          "sourcePath": ".ai/rules/concepts.md",
+          "size": 4655,
+          "sha256": "f1f941ec32415bd4b5a403f0d084dd601935ea5e6a4baf29598a63f69753a095"
+        },
+        {
+          "path": ".tabnine/guidelines/csharp.md",
+          "sourcePath": ".ai/rules/csharp.md",
+          "size": 12905,
+          "sha256": "67d810084776dd5695618bd4a7ebab2eae359263a6c3e93bbbd3f2ddb25d0c94"
+        },
+        {
+          "path": ".tabnine/guidelines/dialogs.md",
+          "sourcePath": ".ai/rules/dialogs.md",
+          "size": 12076,
+          "sha256": "17f4c4978b489c11db38d327668b04e336387db0dccd9f5c97b48be6f636639f"
+        },
+        {
+          "path": ".tabnine/guidelines/documentation-structure-and-formatting.md",
+          "sourcePath": ".ai/rules/documentation-structure-and-formatting.md",
+          "size": 4938,
+          "sha256": "ab6f79aab44035f03d89fc92fd3319d99f7e782b3d8da0ceba1778c557007f25"
+        },
+        {
+          "path": ".tabnine/guidelines/documentation.md",
+          "sourcePath": ".ai/rules/documentation.md",
+          "size": 7763,
+          "sha256": "f861fc90a20ad7747812d1a2810223024fd56ecff924a41db6d105bcd04fa316"
+        },
+        {
+          "path": ".tabnine/guidelines/editing-cratis-docs.md",
+          "sourcePath": ".ai/rules/editing-cratis-docs.md",
+          "size": 4502,
+          "sha256": "d3a78a5ec35dac52aec365a02b3f87d4d0c6a01ca9a240168f17b36a571c6f35"
+        },
+        {
+          "path": ".tabnine/guidelines/efcore.md",
+          "sourcePath": ".ai/rules/efcore.md",
+          "size": 8354,
+          "sha256": "364da6bcfe33ebe258b78ce09e00a73cd910894ae29850f034155b0310b0caa1"
+        },
+        {
+          "path": ".tabnine/guidelines/efcore.specs.md",
+          "sourcePath": ".ai/rules/efcore.specs.md",
+          "size": 1832,
+          "sha256": "a582194ac993a1ccb86bbf017d67d18e61145cf2b881ace439edce335823dbf8"
+        },
+        {
+          "path": ".tabnine/guidelines/framework.md",
+          "sourcePath": ".ai/rules/framework.md",
+          "size": 7688,
+          "sha256": "4f26cad2495982e35e379bcca4f0d061817af102731d26458df6176e4147949f"
+        },
+        {
+          "path": ".tabnine/guidelines/frontend-quality.md",
+          "sourcePath": ".ai/rules/frontend-quality.md",
+          "size": 5612,
+          "sha256": "96c283528837ed898590a9256e48f0c86229cf940df7d9b0ca6a52220ef41d0c"
+        },
+        {
+          "path": ".tabnine/guidelines/frontend-testing.md",
+          "sourcePath": ".ai/rules/frontend-testing.md",
+          "size": 5480,
+          "sha256": "5d58246f0af1355865c3f0bda56d6a414e054f5ab2652da9100b58d413f0ed8b"
+        },
+        {
+          "path": ".tabnine/guidelines/git-commits.md",
+          "sourcePath": ".ai/rules/git-commits.md",
+          "size": 8831,
+          "sha256": "cb7b7fea2d8cfe7eb2407a570dad7c2e63f5e00e653ac0ddeae6bafcc0a2bf6c"
+        },
+        {
+          "path": ".tabnine/guidelines/glossary.md",
+          "sourcePath": ".ai/rules/glossary.md",
+          "size": 4986,
+          "sha256": "bbc5da53b562456445b2e8c2d4cbbf2c2376bf4e56b71f4a2f181bae1915f8fd"
+        },
+        {
+          "path": ".tabnine/guidelines/managing-ai-rules.md",
+          "sourcePath": ".ai/rules/managing-ai-rules.md",
+          "size": 11417,
+          "sha256": "5e9f8225d13467eeec93471a70afdae494b630eb88fddf10e5a7cf709610b6db"
+        },
+        {
+          "path": ".tabnine/guidelines/orleans.md",
+          "sourcePath": ".ai/rules/orleans.md",
+          "size": 1933,
+          "sha256": "545fb3e7dcd53f6e922f16004d91b4621d2ce4a37242901e5d6b15f5cd9f916a"
+        },
+        {
+          "path": ".tabnine/guidelines/pull-requests.md",
+          "sourcePath": ".ai/rules/pull-requests.md",
+          "size": 7842,
+          "sha256": "d8f7eabf9df2d34fee048fd3cb90d80444770ae90446c594c97f25451ae6eb1c"
+        },
+        {
+          "path": ".tabnine/guidelines/react.md",
+          "sourcePath": ".ai/rules/react.md",
+          "size": 15114,
+          "sha256": "a88d9c4a382bbb51ed6b01511ce2effcbb3d6a7a899113a585cc002e3c0758af"
+        },
+        {
+          "path": ".tabnine/guidelines/reactors.md",
+          "sourcePath": ".ai/rules/reactors.md",
+          "size": 14268,
+          "sha256": "ccbc5a3d78c2ba0170cadb5fa50ca5a03682839e179988ec0a7daa168fe04753"
+        },
+        {
+          "path": ".tabnine/guidelines/rtk.md",
+          "sourcePath": ".ai/rules/rtk.md",
+          "size": 3190,
+          "sha256": "0d5bc7404ce9e357552705d8d0e2a5178a09635d3e46654f71539216a5f49388"
+        },
+        {
+          "path": ".tabnine/guidelines/specs.csharp.md",
+          "sourcePath": ".ai/rules/specs.csharp.md",
+          "size": 9122,
+          "sha256": "82aab7bc72862d978e0bf2d3c35d0eee386c4c9d758537350059dfef056438a9"
+        },
+        {
+          "path": ".tabnine/guidelines/specs.md",
+          "sourcePath": ".ai/rules/specs.md",
+          "size": 8490,
+          "sha256": "6f9c6d95f06d8637e3f6a2b71c788a91fa738e8bf9f2e55c7dc7fb41c996ea15"
+        },
+        {
+          "path": ".tabnine/guidelines/specs.scenarios.csharp.md",
+          "sourcePath": ".ai/rules/specs.scenarios.csharp.md",
+          "size": 13684,
+          "sha256": "4fefed8bb5a5baf7cf14259b4aa9b60e4633d654bc9908a0c3584ededadc3ab9"
+        },
+        {
+          "path": ".tabnine/guidelines/specs.typescript.md",
+          "sourcePath": ".ai/rules/specs.typescript.md",
+          "size": 5515,
+          "sha256": "51b9a7b2e3c9ee42add8a6377d3dd002a859afd22df29d246d7db793c97a424b"
+        },
+        {
+          "path": ".tabnine/guidelines/storybook.md",
+          "sourcePath": ".ai/rules/storybook.md",
+          "size": 4764,
+          "sha256": "81530f5739fb29a8805c6d146d1a321b6366430d9ba05c2488b4fe65837a6da8"
+        },
+        {
+          "path": ".tabnine/guidelines/terminal-commands.md",
+          "sourcePath": ".ai/rules/terminal-commands.md",
+          "size": 617,
+          "sha256": "63be5f54e6e00af2ae66a40d1de64ede7a7920abdcd87823b9861c1df1e47dd1"
+        },
+        {
+          "path": ".tabnine/guidelines/typescript.md",
+          "sourcePath": ".ai/rules/typescript.md",
+          "size": 8425,
+          "sha256": "b52b4b854293ff238a643fc822cab1455a54b0bac1c14f3afc9f7ca1c54f5c9e"
+        },
+        {
+          "path": ".tabnine/guidelines/vertical-slices.md",
+          "sourcePath": ".ai/rules/vertical-slices.md",
+          "size": 31443,
+          "sha256": "51df677faf11f73555981207e7993e3c217ebfc5b4ac1e0df31455fdb0780f5e"
+        },
+        {
+          "path": ".tabnine/guidelines/web-fetching.md",
+          "sourcePath": ".ai/rules/web-fetching.md",
+          "size": 811,
+          "sha256": "f351e254d165642034e9dd6ca41185138cb13b7c641ee198f572d4b810bc2ebf"
+        },
+        {
+          "path": ".tabnine/guidelines/writing-correct-examples.md",
+          "sourcePath": ".ai/rules/writing-correct-examples.md",
+          "size": 4359,
+          "sha256": "593e0bc73b1117699011033455d9d5c56aaff9c08e6c03187c0e55d3e3105a7b"
+        },
+        {
+          "path": ".tabnine/guidelines/writing-cratis-docs.md",
+          "sourcePath": ".ai/rules/writing-cratis-docs.md",
+          "size": 5622,
+          "sha256": "e30478e5eb29cac704e04b5605ea649e1e9405c934ff220ecc3d586e62834fd0"
+        }
+      ]
+    },
+    {
+      "id": "visual-studio-copilot-instructions",
+      "outputRoot": "visual-studio-copilot-instructions",
+      "files": [
+        {
+          "path": ".github/copilot-instructions.md",
+          "sourcePath": ".ai/rules/general.md",
+          "size": 27939,
+          "sha256": "8c8a7b1c48205a69b9cde5b21b504112a235fae39a701b2c6b19282a4c901f8a"
+        }
+      ]
+    }
+  ],
+  "projections": [
+    {
+      "projectionId": "cratis-instruction-general-to-devin-hosted-instruction",
+      "componentId": "cratis-instruction-general",
+      "canonicalOwnerId": "cratis-instruction-general",
+      "semanticKind": "instruction",
+      "sourcePath": ".ai/rules/general.md",
+      "sourceDigest": "dba032aee881958df8de0b912759519c53fc3cbbcc1da8af5f304bbabd5970c4",
+      "outputPath": "devin-hosted-instructions/AGENTS.md",
+      "hostId": "devin-hosted",
+      "hostAdapterId": "devin-hosted-host-adapter",
+      "evidenceIds": [
+        "devin-hosted-source-2"
+      ],
+      "outputDigest": "8c8a7b1c48205a69b9cde5b21b504112a235fae39a701b2c6b19282a4c901f8a"
+    },
+    {
+      "projectionId": "cratis-instruction-general-to-visual-studio-copilot-instruction",
+      "componentId": "cratis-instruction-general",
+      "canonicalOwnerId": "cratis-instruction-general",
+      "semanticKind": "instruction",
+      "sourcePath": ".ai/rules/general.md",
+      "sourceDigest": "dba032aee881958df8de0b912759519c53fc3cbbcc1da8af5f304bbabd5970c4",
+      "outputPath": "visual-studio-copilot-instructions/.github/copilot-instructions.md",
+      "hostId": "visual-studio-copilot",
+      "hostAdapterId": "visual-studio-copilot-host-adapter",
+      "evidenceIds": [
+        "visual-studio-copilot-source-2"
+      ],
+      "outputDigest": "8c8a7b1c48205a69b9cde5b21b504112a235fae39a701b2c6b19282a4c901f8a"
+    },
+    {
+      "projectionId": "cratis-rule-code-quality-csharp-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-code-quality-csharp",
+      "canonicalOwnerId": "cratis-rule-code-quality-csharp",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/code-quality.csharp.md",
+      "sourceDigest": "034db8589c45bd9fab8c16c5c05ae3057a3a2e32fbba144f2e3851ff3564ce63",
+      "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/code-quality.csharp.md",
+      "hostId": "jetbrains-ai-assistant",
+      "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "outputDigest": "fde0900c6fb6221729ee4efe319a5ad612ee337b9b5262a7d8e9085de569ef4f"
+    },
+    {
+      "projectionId": "cratis-rule-code-quality-csharp-to-tabnine-rule",
+      "componentId": "cratis-rule-code-quality-csharp",
+      "canonicalOwnerId": "cratis-rule-code-quality-csharp",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/code-quality.csharp.md",
+      "sourceDigest": "034db8589c45bd9fab8c16c5c05ae3057a3a2e32fbba144f2e3851ff3564ce63",
+      "outputPath": "tabnine-guidelines/.tabnine/guidelines/code-quality.csharp.md",
+      "hostId": "tabnine",
+      "hostAdapterId": "tabnine-host-adapter",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "outputDigest": "fde0900c6fb6221729ee4efe319a5ad612ee337b9b5262a7d8e9085de569ef4f"
+    },
+    {
+      "projectionId": "cratis-rule-code-quality-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-code-quality",
+      "canonicalOwnerId": "cratis-rule-code-quality",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/code-quality.md",
+      "sourceDigest": "9b7532e9f4f12f58d0d1b7671887d73ea3f15600378badc4d0769384e31d8637",
+      "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/code-quality.md",
+      "hostId": "jetbrains-ai-assistant",
+      "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "outputDigest": "2754603edc9913154500461592c7808a5b95f7f328e89740c809759133a9a4f1"
+    },
+    {
+      "projectionId": "cratis-rule-code-quality-to-tabnine-rule",
+      "componentId": "cratis-rule-code-quality",
+      "canonicalOwnerId": "cratis-rule-code-quality",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/code-quality.md",
+      "sourceDigest": "9b7532e9f4f12f58d0d1b7671887d73ea3f15600378badc4d0769384e31d8637",
+      "outputPath": "tabnine-guidelines/.tabnine/guidelines/code-quality.md",
+      "hostId": "tabnine",
+      "hostAdapterId": "tabnine-host-adapter",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "outputDigest": "2754603edc9913154500461592c7808a5b95f7f328e89740c809759133a9a4f1"
+    },
+    {
+      "projectionId": "cratis-rule-code-quality-typescript-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-code-quality-typescript",
+      "canonicalOwnerId": "cratis-rule-code-quality-typescript",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/code-quality.typescript.md",
+      "sourceDigest": "58972e7b91f4a699ddba6d95fd54dbf250d27e2a9087b088626dad56cfffc9e1",
+      "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/code-quality.typescript.md",
+      "hostId": "jetbrains-ai-assistant",
+      "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "outputDigest": "b9bb7a86c52dc366602343a29997639a8dfa91f003b1bdfeeb3768034f9c2858"
+    },
+    {
+      "projectionId": "cratis-rule-code-quality-typescript-to-tabnine-rule",
+      "componentId": "cratis-rule-code-quality-typescript",
+      "canonicalOwnerId": "cratis-rule-code-quality-typescript",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/code-quality.typescript.md",
+      "sourceDigest": "58972e7b91f4a699ddba6d95fd54dbf250d27e2a9087b088626dad56cfffc9e1",
+      "outputPath": "tabnine-guidelines/.tabnine/guidelines/code-quality.typescript.md",
+      "hostId": "tabnine",
+      "hostAdapterId": "tabnine-host-adapter",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "outputDigest": "b9bb7a86c52dc366602343a29997639a8dfa91f003b1bdfeeb3768034f9c2858"
+    },
+    {
+      "projectionId": "cratis-rule-components-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-components",
+      "canonicalOwnerId": "cratis-rule-components",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/components.md",
+      "sourceDigest": "410a53ed8a65f3009a1f7f56083037b9a419d8d0453f3713305375924e0da1d5",
+      "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/components.md",
+      "hostId": "jetbrains-ai-assistant",
+      "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "outputDigest": "b093e49667c0a0aa9f37ab4e44ed04d51e7f40d0d82e7be120e1859a79323f6e"
+    },
+    {
+      "projectionId": "cratis-rule-components-to-tabnine-rule",
+      "componentId": "cratis-rule-components",
+      "canonicalOwnerId": "cratis-rule-components",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/components.md",
+      "sourceDigest": "410a53ed8a65f3009a1f7f56083037b9a419d8d0453f3713305375924e0da1d5",
+      "outputPath": "tabnine-guidelines/.tabnine/guidelines/components.md",
+      "hostId": "tabnine",
+      "hostAdapterId": "tabnine-host-adapter",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "outputDigest": "b093e49667c0a0aa9f37ab4e44ed04d51e7f40d0d82e7be120e1859a79323f6e"
+    },
+    {
+      "projectionId": "cratis-rule-concepts-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-concepts",
+      "canonicalOwnerId": "cratis-rule-concepts",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/concepts.md",
+      "sourceDigest": "ec09879acc66fe7bc0518bb2d9c2dbf7944e1c65c4408ebc5bdb69a5c846c48c",
+      "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/concepts.md",
+      "hostId": "jetbrains-ai-assistant",
+      "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "outputDigest": "f1f941ec32415bd4b5a403f0d084dd601935ea5e6a4baf29598a63f69753a095"
+    },
+    {
+      "projectionId": "cratis-rule-concepts-to-tabnine-rule",
+      "componentId": "cratis-rule-concepts",
+      "canonicalOwnerId": "cratis-rule-concepts",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/concepts.md",
+      "sourceDigest": "ec09879acc66fe7bc0518bb2d9c2dbf7944e1c65c4408ebc5bdb69a5c846c48c",
+      "outputPath": "tabnine-guidelines/.tabnine/guidelines/concepts.md",
+      "hostId": "tabnine",
+      "hostAdapterId": "tabnine-host-adapter",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "outputDigest": "f1f941ec32415bd4b5a403f0d084dd601935ea5e6a4baf29598a63f69753a095"
+    },
+    {
+      "projectionId": "cratis-rule-csharp-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-csharp",
+      "canonicalOwnerId": "cratis-rule-csharp",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/csharp.md",
+      "sourceDigest": "535db1d781279f8974ab71ebe9aa525b88b314b46fe4fd5a475331db2f440f5f",
+      "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/csharp.md",
+      "hostId": "jetbrains-ai-assistant",
+      "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "outputDigest": "67d810084776dd5695618bd4a7ebab2eae359263a6c3e93bbbd3f2ddb25d0c94"
+    },
+    {
+      "projectionId": "cratis-rule-csharp-to-tabnine-rule",
+      "componentId": "cratis-rule-csharp",
+      "canonicalOwnerId": "cratis-rule-csharp",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/csharp.md",
+      "sourceDigest": "535db1d781279f8974ab71ebe9aa525b88b314b46fe4fd5a475331db2f440f5f",
+      "outputPath": "tabnine-guidelines/.tabnine/guidelines/csharp.md",
+      "hostId": "tabnine",
+      "hostAdapterId": "tabnine-host-adapter",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "outputDigest": "67d810084776dd5695618bd4a7ebab2eae359263a6c3e93bbbd3f2ddb25d0c94"
+    },
+    {
+      "projectionId": "cratis-rule-dialogs-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-dialogs",
+      "canonicalOwnerId": "cratis-rule-dialogs",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/dialogs.md",
+      "sourceDigest": "678aca0fbb1bbd123d260e1f2abe9235b4833dacd659a35f4076d7f5731cf16e",
+      "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/dialogs.md",
+      "hostId": "jetbrains-ai-assistant",
+      "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "outputDigest": "17f4c4978b489c11db38d327668b04e336387db0dccd9f5c97b48be6f636639f"
+    },
+    {
+      "projectionId": "cratis-rule-dialogs-to-tabnine-rule",
+      "componentId": "cratis-rule-dialogs",
+      "canonicalOwnerId": "cratis-rule-dialogs",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/dialogs.md",
+      "sourceDigest": "678aca0fbb1bbd123d260e1f2abe9235b4833dacd659a35f4076d7f5731cf16e",
+      "outputPath": "tabnine-guidelines/.tabnine/guidelines/dialogs.md",
+      "hostId": "tabnine",
+      "hostAdapterId": "tabnine-host-adapter",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "outputDigest": "17f4c4978b489c11db38d327668b04e336387db0dccd9f5c97b48be6f636639f"
+    },
+    {
+      "projectionId": "cratis-rule-documentation-structure-and-formatting-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-documentation-structure-and-formatting",
+      "canonicalOwnerId": "cratis-rule-documentation-structure-and-formatting",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/documentation-structure-and-formatting.md",
+      "sourceDigest": "688d40eee9d88fa5cb1fb82a56829083726d27f356c48e42cf082d2e33a3412c",
+      "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/documentation-structure-and-formatting.md",
+      "hostId": "jetbrains-ai-assistant",
+      "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "outputDigest": "ab6f79aab44035f03d89fc92fd3319d99f7e782b3d8da0ceba1778c557007f25"
+    },
+    {
+      "projectionId": "cratis-rule-documentation-structure-and-formatting-to-tabnine-rule",
+      "componentId": "cratis-rule-documentation-structure-and-formatting",
+      "canonicalOwnerId": "cratis-rule-documentation-structure-and-formatting",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/documentation-structure-and-formatting.md",
+      "sourceDigest": "688d40eee9d88fa5cb1fb82a56829083726d27f356c48e42cf082d2e33a3412c",
+      "outputPath": "tabnine-guidelines/.tabnine/guidelines/documentation-structure-and-formatting.md",
+      "hostId": "tabnine",
+      "hostAdapterId": "tabnine-host-adapter",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "outputDigest": "ab6f79aab44035f03d89fc92fd3319d99f7e782b3d8da0ceba1778c557007f25"
+    },
+    {
+      "projectionId": "cratis-rule-documentation-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-documentation",
+      "canonicalOwnerId": "cratis-rule-documentation",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/documentation.md",
+      "sourceDigest": "001ea7c6e6e830ed807895502c968181dfa5c2a3beff7d3c241375b46c5df55a",
+      "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/documentation.md",
+      "hostId": "jetbrains-ai-assistant",
+      "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "outputDigest": "f861fc90a20ad7747812d1a2810223024fd56ecff924a41db6d105bcd04fa316"
+    },
+    {
+      "projectionId": "cratis-rule-documentation-to-tabnine-rule",
+      "componentId": "cratis-rule-documentation",
+      "canonicalOwnerId": "cratis-rule-documentation",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/documentation.md",
+      "sourceDigest": "001ea7c6e6e830ed807895502c968181dfa5c2a3beff7d3c241375b46c5df55a",
+      "outputPath": "tabnine-guidelines/.tabnine/guidelines/documentation.md",
+      "hostId": "tabnine",
+      "hostAdapterId": "tabnine-host-adapter",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "outputDigest": "f861fc90a20ad7747812d1a2810223024fd56ecff924a41db6d105bcd04fa316"
+    },
+    {
+      "projectionId": "cratis-rule-editing-cratis-docs-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-editing-cratis-docs",
+      "canonicalOwnerId": "cratis-rule-editing-cratis-docs",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/editing-cratis-docs.md",
+      "sourceDigest": "d0489bf9cfa17bc35ea220b3ed6b2ccdc5043b9a96cb78a119fc15782a7b2174",
+      "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/editing-cratis-docs.md",
+      "hostId": "jetbrains-ai-assistant",
+      "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "outputDigest": "d3a78a5ec35dac52aec365a02b3f87d4d0c6a01ca9a240168f17b36a571c6f35"
+    },
+    {
+      "projectionId": "cratis-rule-editing-cratis-docs-to-tabnine-rule",
+      "componentId": "cratis-rule-editing-cratis-docs",
+      "canonicalOwnerId": "cratis-rule-editing-cratis-docs",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/editing-cratis-docs.md",
+      "sourceDigest": "d0489bf9cfa17bc35ea220b3ed6b2ccdc5043b9a96cb78a119fc15782a7b2174",
+      "outputPath": "tabnine-guidelines/.tabnine/guidelines/editing-cratis-docs.md",
+      "hostId": "tabnine",
+      "hostAdapterId": "tabnine-host-adapter",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "outputDigest": "d3a78a5ec35dac52aec365a02b3f87d4d0c6a01ca9a240168f17b36a571c6f35"
+    },
+    {
+      "projectionId": "cratis-rule-efcore-specs-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-efcore-specs",
+      "canonicalOwnerId": "cratis-rule-efcore-specs",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/efcore.specs.md",
+      "sourceDigest": "cdb462b2fae0a295f680db059ada7872228fe9f55ec104a3a0d6d951cedddb3a",
+      "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/efcore.specs.md",
+      "hostId": "jetbrains-ai-assistant",
+      "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "outputDigest": "a582194ac993a1ccb86bbf017d67d18e61145cf2b881ace439edce335823dbf8"
+    },
+    {
+      "projectionId": "cratis-rule-efcore-specs-to-tabnine-rule",
+      "componentId": "cratis-rule-efcore-specs",
+      "canonicalOwnerId": "cratis-rule-efcore-specs",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/efcore.specs.md",
+      "sourceDigest": "cdb462b2fae0a295f680db059ada7872228fe9f55ec104a3a0d6d951cedddb3a",
+      "outputPath": "tabnine-guidelines/.tabnine/guidelines/efcore.specs.md",
+      "hostId": "tabnine",
+      "hostAdapterId": "tabnine-host-adapter",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "outputDigest": "a582194ac993a1ccb86bbf017d67d18e61145cf2b881ace439edce335823dbf8"
+    },
+    {
+      "projectionId": "cratis-rule-efcore-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-efcore",
+      "canonicalOwnerId": "cratis-rule-efcore",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/efcore.md",
+      "sourceDigest": "28aac28a64649e052984602578e7470527d52dcb89ec7d24be22ee7b5ac45542",
+      "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/efcore.md",
+      "hostId": "jetbrains-ai-assistant",
+      "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "outputDigest": "364da6bcfe33ebe258b78ce09e00a73cd910894ae29850f034155b0310b0caa1"
+    },
+    {
+      "projectionId": "cratis-rule-efcore-to-tabnine-rule",
+      "componentId": "cratis-rule-efcore",
+      "canonicalOwnerId": "cratis-rule-efcore",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/efcore.md",
+      "sourceDigest": "28aac28a64649e052984602578e7470527d52dcb89ec7d24be22ee7b5ac45542",
+      "outputPath": "tabnine-guidelines/.tabnine/guidelines/efcore.md",
+      "hostId": "tabnine",
+      "hostAdapterId": "tabnine-host-adapter",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "outputDigest": "364da6bcfe33ebe258b78ce09e00a73cd910894ae29850f034155b0310b0caa1"
+    },
+    {
+      "projectionId": "cratis-rule-framework-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-framework",
+      "canonicalOwnerId": "cratis-rule-framework",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/framework.md",
+      "sourceDigest": "ef0696d9782b5b9c8453d1b2cd933dcbbb3806645a22281f6a13cca678c9e2a0",
+      "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/framework.md",
+      "hostId": "jetbrains-ai-assistant",
+      "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "outputDigest": "4f26cad2495982e35e379bcca4f0d061817af102731d26458df6176e4147949f"
+    },
+    {
+      "projectionId": "cratis-rule-framework-to-tabnine-rule",
+      "componentId": "cratis-rule-framework",
+      "canonicalOwnerId": "cratis-rule-framework",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/framework.md",
+      "sourceDigest": "ef0696d9782b5b9c8453d1b2cd933dcbbb3806645a22281f6a13cca678c9e2a0",
+      "outputPath": "tabnine-guidelines/.tabnine/guidelines/framework.md",
+      "hostId": "tabnine",
+      "hostAdapterId": "tabnine-host-adapter",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "outputDigest": "4f26cad2495982e35e379bcca4f0d061817af102731d26458df6176e4147949f"
+    },
+    {
+      "projectionId": "cratis-rule-frontend-quality-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-frontend-quality",
+      "canonicalOwnerId": "cratis-rule-frontend-quality",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/frontend-quality.md",
+      "sourceDigest": "632da2d5df6f91d3d48234cc7f9427f11164502c8b98563469f84af298a920ef",
+      "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/frontend-quality.md",
+      "hostId": "jetbrains-ai-assistant",
+      "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "outputDigest": "96c283528837ed898590a9256e48f0c86229cf940df7d9b0ca6a52220ef41d0c"
+    },
+    {
+      "projectionId": "cratis-rule-frontend-quality-to-tabnine-rule",
+      "componentId": "cratis-rule-frontend-quality",
+      "canonicalOwnerId": "cratis-rule-frontend-quality",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/frontend-quality.md",
+      "sourceDigest": "632da2d5df6f91d3d48234cc7f9427f11164502c8b98563469f84af298a920ef",
+      "outputPath": "tabnine-guidelines/.tabnine/guidelines/frontend-quality.md",
+      "hostId": "tabnine",
+      "hostAdapterId": "tabnine-host-adapter",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "outputDigest": "96c283528837ed898590a9256e48f0c86229cf940df7d9b0ca6a52220ef41d0c"
+    },
+    {
+      "projectionId": "cratis-rule-frontend-testing-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-frontend-testing",
+      "canonicalOwnerId": "cratis-rule-frontend-testing",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/frontend-testing.md",
+      "sourceDigest": "9e26721adf9036937453136ff2d4275ecb4e1621c2351c469bea6ac70e478304",
+      "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/frontend-testing.md",
+      "hostId": "jetbrains-ai-assistant",
+      "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "outputDigest": "5d58246f0af1355865c3f0bda56d6a414e054f5ab2652da9100b58d413f0ed8b"
+    },
+    {
+      "projectionId": "cratis-rule-frontend-testing-to-tabnine-rule",
+      "componentId": "cratis-rule-frontend-testing",
+      "canonicalOwnerId": "cratis-rule-frontend-testing",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/frontend-testing.md",
+      "sourceDigest": "9e26721adf9036937453136ff2d4275ecb4e1621c2351c469bea6ac70e478304",
+      "outputPath": "tabnine-guidelines/.tabnine/guidelines/frontend-testing.md",
+      "hostId": "tabnine",
+      "hostAdapterId": "tabnine-host-adapter",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "outputDigest": "5d58246f0af1355865c3f0bda56d6a414e054f5ab2652da9100b58d413f0ed8b"
+    },
+    {
+      "projectionId": "cratis-rule-git-commits-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-git-commits",
+      "canonicalOwnerId": "cratis-rule-git-commits",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/git-commits.md",
+      "sourceDigest": "2a392f71bcee5f342e207b72e7bcbfef86dbbd7ab638d9984a28b7cce165ea89",
+      "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/git-commits.md",
+      "hostId": "jetbrains-ai-assistant",
+      "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "outputDigest": "cb7b7fea2d8cfe7eb2407a570dad7c2e63f5e00e653ac0ddeae6bafcc0a2bf6c"
+    },
+    {
+      "projectionId": "cratis-rule-git-commits-to-tabnine-rule",
+      "componentId": "cratis-rule-git-commits",
+      "canonicalOwnerId": "cratis-rule-git-commits",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/git-commits.md",
+      "sourceDigest": "2a392f71bcee5f342e207b72e7bcbfef86dbbd7ab638d9984a28b7cce165ea89",
+      "outputPath": "tabnine-guidelines/.tabnine/guidelines/git-commits.md",
+      "hostId": "tabnine",
+      "hostAdapterId": "tabnine-host-adapter",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "outputDigest": "cb7b7fea2d8cfe7eb2407a570dad7c2e63f5e00e653ac0ddeae6bafcc0a2bf6c"
+    },
+    {
+      "projectionId": "cratis-rule-glossary-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-glossary",
+      "canonicalOwnerId": "cratis-rule-glossary",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/glossary.md",
+      "sourceDigest": "5a89504e5b4cc32f4cbf55f894c3d37332043119ef78843047ee5f24909267aa",
+      "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/glossary.md",
+      "hostId": "jetbrains-ai-assistant",
+      "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "outputDigest": "bbc5da53b562456445b2e8c2d4cbbf2c2376bf4e56b71f4a2f181bae1915f8fd"
+    },
+    {
+      "projectionId": "cratis-rule-glossary-to-tabnine-rule",
+      "componentId": "cratis-rule-glossary",
+      "canonicalOwnerId": "cratis-rule-glossary",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/glossary.md",
+      "sourceDigest": "5a89504e5b4cc32f4cbf55f894c3d37332043119ef78843047ee5f24909267aa",
+      "outputPath": "tabnine-guidelines/.tabnine/guidelines/glossary.md",
+      "hostId": "tabnine",
+      "hostAdapterId": "tabnine-host-adapter",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "outputDigest": "bbc5da53b562456445b2e8c2d4cbbf2c2376bf4e56b71f4a2f181bae1915f8fd"
+    },
+    {
+      "projectionId": "cratis-rule-managing-ai-rules-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-managing-ai-rules",
+      "canonicalOwnerId": "cratis-rule-managing-ai-rules",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/managing-ai-rules.md",
+      "sourceDigest": "e99edf6fd51682092a41df11dd9fb205f185ffe41c6c2bf822788fe65bb5bbd4",
+      "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/managing-ai-rules.md",
+      "hostId": "jetbrains-ai-assistant",
+      "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "outputDigest": "5e9f8225d13467eeec93471a70afdae494b630eb88fddf10e5a7cf709610b6db"
+    },
+    {
+      "projectionId": "cratis-rule-managing-ai-rules-to-tabnine-rule",
+      "componentId": "cratis-rule-managing-ai-rules",
+      "canonicalOwnerId": "cratis-rule-managing-ai-rules",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/managing-ai-rules.md",
+      "sourceDigest": "e99edf6fd51682092a41df11dd9fb205f185ffe41c6c2bf822788fe65bb5bbd4",
+      "outputPath": "tabnine-guidelines/.tabnine/guidelines/managing-ai-rules.md",
+      "hostId": "tabnine",
+      "hostAdapterId": "tabnine-host-adapter",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "outputDigest": "5e9f8225d13467eeec93471a70afdae494b630eb88fddf10e5a7cf709610b6db"
+    },
+    {
+      "projectionId": "cratis-rule-orleans-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-orleans",
+      "canonicalOwnerId": "cratis-rule-orleans",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/orleans.md",
+      "sourceDigest": "b9ecab6dd6edb70664a96f7e4de9063e0e83c0681604b69ebddb02edaa83619f",
+      "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/orleans.md",
+      "hostId": "jetbrains-ai-assistant",
+      "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "outputDigest": "545fb3e7dcd53f6e922f16004d91b4621d2ce4a37242901e5d6b15f5cd9f916a"
+    },
+    {
+      "projectionId": "cratis-rule-orleans-to-tabnine-rule",
+      "componentId": "cratis-rule-orleans",
+      "canonicalOwnerId": "cratis-rule-orleans",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/orleans.md",
+      "sourceDigest": "b9ecab6dd6edb70664a96f7e4de9063e0e83c0681604b69ebddb02edaa83619f",
+      "outputPath": "tabnine-guidelines/.tabnine/guidelines/orleans.md",
+      "hostId": "tabnine",
+      "hostAdapterId": "tabnine-host-adapter",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "outputDigest": "545fb3e7dcd53f6e922f16004d91b4621d2ce4a37242901e5d6b15f5cd9f916a"
+    },
+    {
+      "projectionId": "cratis-rule-pull-requests-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-pull-requests",
+      "canonicalOwnerId": "cratis-rule-pull-requests",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/pull-requests.md",
+      "sourceDigest": "660d7b67b8219eacabcb801eec09f97a0f1b7f6fe8f85f6bf71b96cf37ef8d97",
+      "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/pull-requests.md",
+      "hostId": "jetbrains-ai-assistant",
+      "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "outputDigest": "d8f7eabf9df2d34fee048fd3cb90d80444770ae90446c594c97f25451ae6eb1c"
+    },
+    {
+      "projectionId": "cratis-rule-pull-requests-to-tabnine-rule",
+      "componentId": "cratis-rule-pull-requests",
+      "canonicalOwnerId": "cratis-rule-pull-requests",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/pull-requests.md",
+      "sourceDigest": "660d7b67b8219eacabcb801eec09f97a0f1b7f6fe8f85f6bf71b96cf37ef8d97",
+      "outputPath": "tabnine-guidelines/.tabnine/guidelines/pull-requests.md",
+      "hostId": "tabnine",
+      "hostAdapterId": "tabnine-host-adapter",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "outputDigest": "d8f7eabf9df2d34fee048fd3cb90d80444770ae90446c594c97f25451ae6eb1c"
+    },
+    {
+      "projectionId": "cratis-rule-react-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-react",
+      "canonicalOwnerId": "cratis-rule-react",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/react.md",
+      "sourceDigest": "25bc22421fd19f74f57de6ff07d5cc8b755c6801ad89f57d21b533748c77afd5",
+      "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/react.md",
+      "hostId": "jetbrains-ai-assistant",
+      "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "outputDigest": "a88d9c4a382bbb51ed6b01511ce2effcbb3d6a7a899113a585cc002e3c0758af"
+    },
+    {
+      "projectionId": "cratis-rule-react-to-tabnine-rule",
+      "componentId": "cratis-rule-react",
+      "canonicalOwnerId": "cratis-rule-react",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/react.md",
+      "sourceDigest": "25bc22421fd19f74f57de6ff07d5cc8b755c6801ad89f57d21b533748c77afd5",
+      "outputPath": "tabnine-guidelines/.tabnine/guidelines/react.md",
+      "hostId": "tabnine",
+      "hostAdapterId": "tabnine-host-adapter",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "outputDigest": "a88d9c4a382bbb51ed6b01511ce2effcbb3d6a7a899113a585cc002e3c0758af"
+    },
+    {
+      "projectionId": "cratis-rule-reactors-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-reactors",
+      "canonicalOwnerId": "cratis-rule-reactors",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/reactors.md",
+      "sourceDigest": "64913c4ad55677fc7ee630e4283e61be9a84b7f2cfaafc76aae3a34b5e09975b",
+      "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/reactors.md",
+      "hostId": "jetbrains-ai-assistant",
+      "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "outputDigest": "ccbc5a3d78c2ba0170cadb5fa50ca5a03682839e179988ec0a7daa168fe04753"
+    },
+    {
+      "projectionId": "cratis-rule-reactors-to-tabnine-rule",
+      "componentId": "cratis-rule-reactors",
+      "canonicalOwnerId": "cratis-rule-reactors",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/reactors.md",
+      "sourceDigest": "64913c4ad55677fc7ee630e4283e61be9a84b7f2cfaafc76aae3a34b5e09975b",
+      "outputPath": "tabnine-guidelines/.tabnine/guidelines/reactors.md",
+      "hostId": "tabnine",
+      "hostAdapterId": "tabnine-host-adapter",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "outputDigest": "ccbc5a3d78c2ba0170cadb5fa50ca5a03682839e179988ec0a7daa168fe04753"
+    },
+    {
+      "projectionId": "cratis-rule-rtk-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-rtk",
+      "canonicalOwnerId": "cratis-rule-rtk",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/rtk.md",
+      "sourceDigest": "6a2d9b6e089c44f0dc037f9c2c364a59d3369f5306aee6784538b7475bfad6b1",
+      "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/rtk.md",
+      "hostId": "jetbrains-ai-assistant",
+      "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "outputDigest": "0d5bc7404ce9e357552705d8d0e2a5178a09635d3e46654f71539216a5f49388"
+    },
+    {
+      "projectionId": "cratis-rule-rtk-to-tabnine-rule",
+      "componentId": "cratis-rule-rtk",
+      "canonicalOwnerId": "cratis-rule-rtk",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/rtk.md",
+      "sourceDigest": "6a2d9b6e089c44f0dc037f9c2c364a59d3369f5306aee6784538b7475bfad6b1",
+      "outputPath": "tabnine-guidelines/.tabnine/guidelines/rtk.md",
+      "hostId": "tabnine",
+      "hostAdapterId": "tabnine-host-adapter",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "outputDigest": "0d5bc7404ce9e357552705d8d0e2a5178a09635d3e46654f71539216a5f49388"
+    },
+    {
+      "projectionId": "cratis-rule-specs-csharp-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-specs-csharp",
+      "canonicalOwnerId": "cratis-rule-specs-csharp",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/specs.csharp.md",
+      "sourceDigest": "e4d611b1fceebd7ee2b5d24a3a9fde7bba064bcbd8599504165135fda1738320",
+      "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/specs.csharp.md",
+      "hostId": "jetbrains-ai-assistant",
+      "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "outputDigest": "82aab7bc72862d978e0bf2d3c35d0eee386c4c9d758537350059dfef056438a9"
+    },
+    {
+      "projectionId": "cratis-rule-specs-csharp-to-tabnine-rule",
+      "componentId": "cratis-rule-specs-csharp",
+      "canonicalOwnerId": "cratis-rule-specs-csharp",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/specs.csharp.md",
+      "sourceDigest": "e4d611b1fceebd7ee2b5d24a3a9fde7bba064bcbd8599504165135fda1738320",
+      "outputPath": "tabnine-guidelines/.tabnine/guidelines/specs.csharp.md",
+      "hostId": "tabnine",
+      "hostAdapterId": "tabnine-host-adapter",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "outputDigest": "82aab7bc72862d978e0bf2d3c35d0eee386c4c9d758537350059dfef056438a9"
+    },
+    {
+      "projectionId": "cratis-rule-specs-scenarios-csharp-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-specs-scenarios-csharp",
+      "canonicalOwnerId": "cratis-rule-specs-scenarios-csharp",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/specs.scenarios.csharp.md",
+      "sourceDigest": "44312d48e263569903e89bd6623c88c3d057298f1a70a7bb4ba90305e5215c0c",
+      "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/specs.scenarios.csharp.md",
+      "hostId": "jetbrains-ai-assistant",
+      "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "outputDigest": "4fefed8bb5a5baf7cf14259b4aa9b60e4633d654bc9908a0c3584ededadc3ab9"
+    },
+    {
+      "projectionId": "cratis-rule-specs-scenarios-csharp-to-tabnine-rule",
+      "componentId": "cratis-rule-specs-scenarios-csharp",
+      "canonicalOwnerId": "cratis-rule-specs-scenarios-csharp",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/specs.scenarios.csharp.md",
+      "sourceDigest": "44312d48e263569903e89bd6623c88c3d057298f1a70a7bb4ba90305e5215c0c",
+      "outputPath": "tabnine-guidelines/.tabnine/guidelines/specs.scenarios.csharp.md",
+      "hostId": "tabnine",
+      "hostAdapterId": "tabnine-host-adapter",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "outputDigest": "4fefed8bb5a5baf7cf14259b4aa9b60e4633d654bc9908a0c3584ededadc3ab9"
+    },
+    {
+      "projectionId": "cratis-rule-specs-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-specs",
+      "canonicalOwnerId": "cratis-rule-specs",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/specs.md",
+      "sourceDigest": "1fbd099fd1ce98026054790f8cf1296139a610f628ce4357d43236e85c551643",
+      "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/specs.md",
+      "hostId": "jetbrains-ai-assistant",
+      "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "outputDigest": "6f9c6d95f06d8637e3f6a2b71c788a91fa738e8bf9f2e55c7dc7fb41c996ea15"
+    },
+    {
+      "projectionId": "cratis-rule-specs-to-tabnine-rule",
+      "componentId": "cratis-rule-specs",
+      "canonicalOwnerId": "cratis-rule-specs",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/specs.md",
+      "sourceDigest": "1fbd099fd1ce98026054790f8cf1296139a610f628ce4357d43236e85c551643",
+      "outputPath": "tabnine-guidelines/.tabnine/guidelines/specs.md",
+      "hostId": "tabnine",
+      "hostAdapterId": "tabnine-host-adapter",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "outputDigest": "6f9c6d95f06d8637e3f6a2b71c788a91fa738e8bf9f2e55c7dc7fb41c996ea15"
+    },
+    {
+      "projectionId": "cratis-rule-specs-typescript-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-specs-typescript",
+      "canonicalOwnerId": "cratis-rule-specs-typescript",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/specs.typescript.md",
+      "sourceDigest": "090958a27725b3e7dd84eb787e2d37915d0a1f28ae41a1649d1fd6fc8d53d656",
+      "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/specs.typescript.md",
+      "hostId": "jetbrains-ai-assistant",
+      "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "outputDigest": "51b9a7b2e3c9ee42add8a6377d3dd002a859afd22df29d246d7db793c97a424b"
+    },
+    {
+      "projectionId": "cratis-rule-specs-typescript-to-tabnine-rule",
+      "componentId": "cratis-rule-specs-typescript",
+      "canonicalOwnerId": "cratis-rule-specs-typescript",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/specs.typescript.md",
+      "sourceDigest": "090958a27725b3e7dd84eb787e2d37915d0a1f28ae41a1649d1fd6fc8d53d656",
+      "outputPath": "tabnine-guidelines/.tabnine/guidelines/specs.typescript.md",
+      "hostId": "tabnine",
+      "hostAdapterId": "tabnine-host-adapter",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "outputDigest": "51b9a7b2e3c9ee42add8a6377d3dd002a859afd22df29d246d7db793c97a424b"
+    },
+    {
+      "projectionId": "cratis-rule-storybook-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-storybook",
+      "canonicalOwnerId": "cratis-rule-storybook",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/storybook.md",
+      "sourceDigest": "0031f40a7d81a675493e8d2e5e6ceca7829ce102ee1471e1f4817f6c834318dc",
+      "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/storybook.md",
+      "hostId": "jetbrains-ai-assistant",
+      "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "outputDigest": "81530f5739fb29a8805c6d146d1a321b6366430d9ba05c2488b4fe65837a6da8"
+    },
+    {
+      "projectionId": "cratis-rule-storybook-to-tabnine-rule",
+      "componentId": "cratis-rule-storybook",
+      "canonicalOwnerId": "cratis-rule-storybook",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/storybook.md",
+      "sourceDigest": "0031f40a7d81a675493e8d2e5e6ceca7829ce102ee1471e1f4817f6c834318dc",
+      "outputPath": "tabnine-guidelines/.tabnine/guidelines/storybook.md",
+      "hostId": "tabnine",
+      "hostAdapterId": "tabnine-host-adapter",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "outputDigest": "81530f5739fb29a8805c6d146d1a321b6366430d9ba05c2488b4fe65837a6da8"
+    },
+    {
+      "projectionId": "cratis-rule-terminal-commands-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-terminal-commands",
+      "canonicalOwnerId": "cratis-rule-terminal-commands",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/terminal-commands.md",
+      "sourceDigest": "fb16a56b6cb386ed86209e4e64d619a91da7383b40e2f168a53bc3b279c9025f",
+      "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/terminal-commands.md",
+      "hostId": "jetbrains-ai-assistant",
+      "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "outputDigest": "63be5f54e6e00af2ae66a40d1de64ede7a7920abdcd87823b9861c1df1e47dd1"
+    },
+    {
+      "projectionId": "cratis-rule-terminal-commands-to-tabnine-rule",
+      "componentId": "cratis-rule-terminal-commands",
+      "canonicalOwnerId": "cratis-rule-terminal-commands",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/terminal-commands.md",
+      "sourceDigest": "fb16a56b6cb386ed86209e4e64d619a91da7383b40e2f168a53bc3b279c9025f",
+      "outputPath": "tabnine-guidelines/.tabnine/guidelines/terminal-commands.md",
+      "hostId": "tabnine",
+      "hostAdapterId": "tabnine-host-adapter",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "outputDigest": "63be5f54e6e00af2ae66a40d1de64ede7a7920abdcd87823b9861c1df1e47dd1"
+    },
+    {
+      "projectionId": "cratis-rule-typescript-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-typescript",
+      "canonicalOwnerId": "cratis-rule-typescript",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/typescript.md",
+      "sourceDigest": "e0a02082a9905b093f33f52406a1b5f627401a7d2b77788189f90d135ccf3dc9",
+      "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/typescript.md",
+      "hostId": "jetbrains-ai-assistant",
+      "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "outputDigest": "b52b4b854293ff238a643fc822cab1455a54b0bac1c14f3afc9f7ca1c54f5c9e"
+    },
+    {
+      "projectionId": "cratis-rule-typescript-to-tabnine-rule",
+      "componentId": "cratis-rule-typescript",
+      "canonicalOwnerId": "cratis-rule-typescript",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/typescript.md",
+      "sourceDigest": "e0a02082a9905b093f33f52406a1b5f627401a7d2b77788189f90d135ccf3dc9",
+      "outputPath": "tabnine-guidelines/.tabnine/guidelines/typescript.md",
+      "hostId": "tabnine",
+      "hostAdapterId": "tabnine-host-adapter",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "outputDigest": "b52b4b854293ff238a643fc822cab1455a54b0bac1c14f3afc9f7ca1c54f5c9e"
+    },
+    {
+      "projectionId": "cratis-rule-vertical-slices-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-vertical-slices",
+      "canonicalOwnerId": "cratis-rule-vertical-slices",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/vertical-slices.md",
+      "sourceDigest": "2f6fbcbfd2be4b6eb94ff2c878a6f2f67c4523296753fdd4256219a25d1b2590",
+      "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/vertical-slices.md",
+      "hostId": "jetbrains-ai-assistant",
+      "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "outputDigest": "51df677faf11f73555981207e7993e3c217ebfc5b4ac1e0df31455fdb0780f5e"
+    },
+    {
+      "projectionId": "cratis-rule-vertical-slices-to-tabnine-rule",
+      "componentId": "cratis-rule-vertical-slices",
+      "canonicalOwnerId": "cratis-rule-vertical-slices",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/vertical-slices.md",
+      "sourceDigest": "2f6fbcbfd2be4b6eb94ff2c878a6f2f67c4523296753fdd4256219a25d1b2590",
+      "outputPath": "tabnine-guidelines/.tabnine/guidelines/vertical-slices.md",
+      "hostId": "tabnine",
+      "hostAdapterId": "tabnine-host-adapter",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "outputDigest": "51df677faf11f73555981207e7993e3c217ebfc5b4ac1e0df31455fdb0780f5e"
+    },
+    {
+      "projectionId": "cratis-rule-web-fetching-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-web-fetching",
+      "canonicalOwnerId": "cratis-rule-web-fetching",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/web-fetching.md",
+      "sourceDigest": "60a6fcc5a6559ac0684146151498eef5d71ac464ef4f9272995541d9fddaf47b",
+      "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/web-fetching.md",
+      "hostId": "jetbrains-ai-assistant",
+      "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "outputDigest": "f351e254d165642034e9dd6ca41185138cb13b7c641ee198f572d4b810bc2ebf"
+    },
+    {
+      "projectionId": "cratis-rule-web-fetching-to-tabnine-rule",
+      "componentId": "cratis-rule-web-fetching",
+      "canonicalOwnerId": "cratis-rule-web-fetching",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/web-fetching.md",
+      "sourceDigest": "60a6fcc5a6559ac0684146151498eef5d71ac464ef4f9272995541d9fddaf47b",
+      "outputPath": "tabnine-guidelines/.tabnine/guidelines/web-fetching.md",
+      "hostId": "tabnine",
+      "hostAdapterId": "tabnine-host-adapter",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "outputDigest": "f351e254d165642034e9dd6ca41185138cb13b7c641ee198f572d4b810bc2ebf"
+    },
+    {
+      "projectionId": "cratis-rule-writing-correct-examples-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-writing-correct-examples",
+      "canonicalOwnerId": "cratis-rule-writing-correct-examples",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/writing-correct-examples.md",
+      "sourceDigest": "48d8399ebf2a3bb645390116eb1fdeea61002eb90a6271b022cfab50a9ec0389",
+      "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/writing-correct-examples.md",
+      "hostId": "jetbrains-ai-assistant",
+      "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "outputDigest": "593e0bc73b1117699011033455d9d5c56aaff9c08e6c03187c0e55d3e3105a7b"
+    },
+    {
+      "projectionId": "cratis-rule-writing-correct-examples-to-tabnine-rule",
+      "componentId": "cratis-rule-writing-correct-examples",
+      "canonicalOwnerId": "cratis-rule-writing-correct-examples",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/writing-correct-examples.md",
+      "sourceDigest": "48d8399ebf2a3bb645390116eb1fdeea61002eb90a6271b022cfab50a9ec0389",
+      "outputPath": "tabnine-guidelines/.tabnine/guidelines/writing-correct-examples.md",
+      "hostId": "tabnine",
+      "hostAdapterId": "tabnine-host-adapter",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "outputDigest": "593e0bc73b1117699011033455d9d5c56aaff9c08e6c03187c0e55d3e3105a7b"
+    },
+    {
+      "projectionId": "cratis-rule-writing-cratis-docs-to-jetbrains-ai-assistant-rule",
+      "componentId": "cratis-rule-writing-cratis-docs",
+      "canonicalOwnerId": "cratis-rule-writing-cratis-docs",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/writing-cratis-docs.md",
+      "sourceDigest": "5eb1284bd46b9edc396cf85d7ed62abd4dc7b6f923a91563a66c768bb18aef9d",
+      "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/writing-cratis-docs.md",
+      "hostId": "jetbrains-ai-assistant",
+      "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "outputDigest": "e30478e5eb29cac704e04b5605ea649e1e9405c934ff220ecc3d586e62834fd0"
+    },
+    {
+      "projectionId": "cratis-rule-writing-cratis-docs-to-tabnine-rule",
+      "componentId": "cratis-rule-writing-cratis-docs",
+      "canonicalOwnerId": "cratis-rule-writing-cratis-docs",
+      "semanticKind": "rule",
+      "sourcePath": ".ai/rules/writing-cratis-docs.md",
+      "sourceDigest": "5eb1284bd46b9edc396cf85d7ed62abd4dc7b6f923a91563a66c768bb18aef9d",
+      "outputPath": "tabnine-guidelines/.tabnine/guidelines/writing-cratis-docs.md",
+      "hostId": "tabnine",
+      "hostAdapterId": "tabnine-host-adapter",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "outputDigest": "e30478e5eb29cac704e04b5605ea649e1e9405c934ff220ecc3d586e62834fd0"
+    }
+  ],
+  "rootCount": 4,
+  "fileCount": 70,
+  "uniqueComponentCount": 35,
+  "executionPerformed": false,
+  "hostTestingPerformed": false,
+  "installationPerformed": false,
+  "lifecycleTestingPerformed": false,
+  "networkAccessPerformed": false,
+  "supportGranted": false,
+  "publicationGranted": false,
+  "runtimeGranted": false,
+  "promotionGranted": false
+}

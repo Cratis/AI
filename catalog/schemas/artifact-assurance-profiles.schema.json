@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cratis/AI/catalog/schemas/artifact-assurance-profiles.schema.json",
+  "title": "Cratis artifact assurance profiles",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "componentPolicy": {
+      "enum": ["forbid", "allow", "require", "not-applicable"]
+    },
+    "controlPolicy": {
+      "enum": ["required", "when-supported", "not-applicable"]
+    },
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "artifactClass",
+        "passivePublic",
+        "failClosed",
+        "components",
+        "controls",
+        "nonClaims",
+        "evidenceIds"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "artifactClass": {
+          "enum": [
+            "executable-plugin-package",
+            "mcp-server-package",
+            "no-artifact",
+            "passive-private-fixture",
+            "passive-public-package",
+            "provider-compatibility",
+            "publication-metadata"
+          ]
+        },
+        "passivePublic": { "type": "boolean" },
+        "failClosed": { "const": true },
+        "components": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["execution", "mcp", "hooks", "scripts", "executableExtensions"],
+          "properties": {
+            "execution": { "$ref": "#/$defs/componentPolicy" },
+            "mcp": { "$ref": "#/$defs/componentPolicy" },
+            "hooks": { "$ref": "#/$defs/componentPolicy" },
+            "scripts": { "$ref": "#/$defs/componentPolicy" },
+            "executableExtensions": { "$ref": "#/$defs/componentPolicy" }
+          }
+        },
+        "controls": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "immutableSource",
+            "sha256Inventory",
+            "canonicalParity",
+            "secretScanning",
+            "pathScanning",
+            "ecosystemNativeProvenance"
+          ],
+          "properties": {
+            "immutableSource": { "$ref": "#/$defs/controlPolicy" },
+            "sha256Inventory": { "$ref": "#/$defs/controlPolicy" },
+            "canonicalParity": { "$ref": "#/$defs/controlPolicy" },
+            "secretScanning": { "$ref": "#/$defs/controlPolicy" },
+            "pathScanning": { "$ref": "#/$defs/controlPolicy" },
+            "ecosystemNativeProvenance": { "$ref": "#/$defs/controlPolicy" }
+          }
+        },
+        "nonClaims": {
+          "type": "array",
+          "minItems": 3,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "no-agent-plugin-manifest-signature",
+              "no-generic-context-isolation",
+              "no-generic-host-sandbox"
+            ]
+          }
+        },
+        "evidenceIds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        }
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "defaultPolicy", "profiles"],
+  "properties": {
+    "schemaVersion": { "const": 2 },
+    "defaultPolicy": { "const": "deny" },
+    "profiles": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/profile" }
+    }
+  }
+}

@@ -1,15 +1,24 @@
 {
   "schemaVersion": "1.0.0",
-  "verifiedAt": "2026-08-24",
+  "verifiedAt": "2026-08-25",
   "requirements": [
     {
       "id": "agent-skills-open-standard",
       "status": "VERIFIED",
       "sourceUrls": [
-        "https://agentskills.io/specification"
+        "https://agentskills.io/specification",
+        "https://docs.cline.bot/customization/skills",
+        "https://github.com/Kilo-Org/kilocode/blob/main/packages/kilo-docs/pages/customize/skills.md",
+        "https://goose-docs.ai/docs/guides/context-engineering/using-skills/",
+        "https://docs.windsurf.com/windsurf/cascade/skills",
+        "https://docs.replit.com/learn/agent-skills",
+        "https://docs.augmentcode.com/cli/skills",
+        "https://ampcode.com/manual",
+        "https://docs.openhands.dev/overview/skills",
+        "https://learn.microsoft.com/en-us/visualstudio/ide/copilot-agent-mode?view=visualstudio"
       ],
       "requiredRoots": [
-        "skills/<skill-name>/SKILL.md"
+        "<skill-root>/SKILL.md"
       ],
       "installCommands": [],
       "updateCommands": [],
@@ -17,7 +26,8 @@
       "constraints": [
         "Skill directory and frontmatter name must match and use lowercase letters, digits, and single hyphens.",
         "SKILL.md requires nonempty name and description; scripts, references, and assets are optional.",
-        "Passive Cratis artifacts omit scripts and experimental allowed-tools."
+        "Passive Cratis artifacts omit scripts and experimental allowed-tools.",
+        "S5a host compatibility is evidence-bound per host and cannot exceed statically validated without host-specific lifecycle evidence."
       ]
     },
     {
@@ -25,11 +35,11 @@
       "status": "VERIFIED",
       "sourceUrls": [
         "https://agent-plugins.org/specification",
-        "https://agent-plugins.org/plugin-authors/manifest"
+        "https://agent-plugins.org/plugin-authors/manifest",
+        "https://github.com/QwenLM/qwen-code/blob/main/docs/users/features/agent-plugins.md"
       ],
       "requiredRoots": [
-        "plugin.json",
-        "skills/<skill-name>/SKILL.md"
+        "plugin.json"
       ],
       "installCommands": [
         "Install the generated Agent Plugin through a compatible host marketplace or local plugin flow"
@@ -42,9 +52,10 @@
       ],
       "constraints": [
         "Agent Plugins 1.0 defines the portable package format, not one universal marketplace or permission model.",
-        "plugin.json uses the canonical 1.0.0 schema and fixed skills/ discovery root.",
-        "The portable Cratis package contains passive Agent Skills only; no MCP server, hook, command, executable, or credential content is included.",
-        "Copilot, Cursor, Kiro, and VS Code support this portable core, but each host lifecycle is tested and reported separately."
+        "Agent Plugins Specification 1.0.0 universally requires only root plugin.json; skills under skills/ and root mcp.json are optional standard components.",
+        "The portable Cratis package chooses to contain passive Agent Skills only; no MCP server, hook, command, executable, or credential content is included.",
+        "Copilot, Cursor, Kiro, and VS Code support this portable core, but each host lifecycle is tested and reported separately.",
+        "Qwen Code explicitly accepts Agent Plugins schema 1.0.0; compatibility remains evidence-bound and is not a support claim."
       ]
     },
     {
@@ -164,8 +175,11 @@
     },
     {
       "id": "pi-passive-package",
-      "status": "VERIFIED_INSTALLED_DOCUMENTATION",
-      "sourceUrls": [],
+      "status": "DOCUMENTATION_REVIEWED",
+      "sourceUrls": [
+        "https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/packages.md",
+        "https://registry.npmjs.org/@earendil-works/pi-coding-agent/latest"
+      ],
       "requiredRoots": [
         "package.json",
         "skills/<skill-name>/SKILL.md"
@@ -181,7 +195,7 @@
         "pi remove npm:@cratis/ai"
       ],
       "constraints": [
-        "Requirements were verified against installed @earendil-works/pi-coding-agent 0.84.2 docs/packages.md.",
+        "Package behavior was reviewed against installed 0.84.2 documentation; registry evidence records current package version 0.84.3 without claiming a 0.84.3 local lifecycle test.",
         "package.json declares the pi-package keyword and pi.skills allowlist.",
         "The passive package contains no extensions, prompts, themes, lifecycle scripts, or dependencies.",
         "Temporary, user, project, npm, Git, filter, pin, rollback, and uninstall behavior require smoke evidence."
@@ -386,6 +400,390 @@
         "Junie accepts the Claude .claude-plugin/marketplace.json format, so Cratis reuses that package instead of maintaining a divergent extension.json contract.",
         "Junie also discovers trusted project and user Agent Skills locations.",
         "Users must review and trust extension contents; passive Cratis output omits scripts, agents, guidelines, and MCP servers."
+      ]
+    },
+    {
+      "id": "vscode-agent-plugin-passive",
+      "status": "VERIFIED_STATIC_FORMAT_ONLY",
+      "sourceUrls": [
+        "https://code.visualstudio.com/docs/agent-customization/agent-plugins"
+      ],
+      "requiredRoots": [
+        "plugin.json",
+        "skills/<skill-name>/SKILL.md"
+      ],
+      "installCommands": [],
+      "updateCommands": [],
+      "uninstallCommands": [],
+      "constraints": [
+        "The standalone archive root contains exact Agent Plugins 1.0 plugin.json and passive skills/ only.",
+        "Offline universal and strict passive compliance are generation gates.",
+        "Static validation does not establish host installation, runtime compatibility, marketplace availability, or support."
+      ]
+    },
+    {
+      "id": "qwen-agent-plugin-passive",
+      "status": "VERIFIED_STATIC_FORMAT_ONLY",
+      "sourceUrls": [
+        "https://github.com/QwenLM/qwen-code/blob/main/docs/users/features/agent-plugins.md"
+      ],
+      "requiredRoots": [
+        "plugin.json",
+        "skills/<skill-name>/SKILL.md"
+      ],
+      "installCommands": [],
+      "updateCommands": [],
+      "uninstallCommands": [],
+      "constraints": [
+        "The standalone archive root contains exact Agent Plugins 1.0 plugin.json and passive skills/ only.",
+        "Offline universal and strict passive compliance are generation gates.",
+        "Static validation does not establish host installation, runtime compatibility, marketplace availability, or support."
+      ]
+    },
+    {
+      "id": "hermes-agent-plugin-passive",
+      "status": "VERIFIED_STATIC_FORMAT_ONLY",
+      "sourceUrls": [
+        "https://hermes-agent.nousresearch.com/docs/developer-guide/plugins#portable-agent-plugins-v1-packages"
+      ],
+      "requiredRoots": [
+        "plugin.json",
+        "skills/<skill-name>/SKILL.md"
+      ],
+      "installCommands": [],
+      "updateCommands": [],
+      "uninstallCommands": [],
+      "constraints": [
+        "The standalone archive root contains exact Agent Plugins 1.0 plugin.json and passive skills/ only.",
+        "Offline universal and strict passive compliance are generation gates.",
+        "Static validation does not establish host installation, runtime compatibility, marketplace availability, or support."
+      ]
+    },
+    {
+      "id": "openclaw-agent-plugin-passive",
+      "status": "VERIFIED_STATIC_FORMAT_ONLY",
+      "sourceUrls": [
+        "https://docs.openclaw.ai/plugins/bundles"
+      ],
+      "requiredRoots": [
+        "plugin.json",
+        "skills/<skill-name>/SKILL.md"
+      ],
+      "installCommands": [],
+      "updateCommands": [],
+      "uninstallCommands": [],
+      "constraints": [
+        "The standalone archive root contains exact Agent Plugins 1.0 plugin.json and passive skills/ only.",
+        "Offline universal and strict passive compliance are generation gates.",
+        "Static validation does not establish host installation, runtime compatibility, marketplace availability, or support."
+      ]
+    },
+    {
+      "id": "grok-bot-agent-plugin-passive",
+      "status": "VERIFIED_STATIC_FORMAT_ONLY",
+      "sourceUrls": [
+        "https://agent-plugins.org/compatible-clients"
+      ],
+      "requiredRoots": [
+        "plugin.json",
+        "skills/<skill-name>/SKILL.md"
+      ],
+      "installCommands": [],
+      "updateCommands": [],
+      "uninstallCommands": [],
+      "constraints": [
+        "The standalone archive root contains exact Agent Plugins 1.0 plugin.json and passive skills/ only.",
+        "Offline universal and strict passive compliance are generation gates.",
+        "Static validation does not establish host installation, runtime compatibility, marketplace availability, or support."
+      ]
+    },
+    {
+      "id": "nanoclaw-agent-plugin-passive",
+      "status": "VERIFIED_STATIC_FORMAT_ONLY",
+      "sourceUrls": [
+        "https://github.com/nanocoai/nanoclaw/blob/main/docs/templates.md"
+      ],
+      "requiredRoots": [
+        "plugin.json",
+        "skills/<skill-name>/SKILL.md"
+      ],
+      "installCommands": [],
+      "updateCommands": [],
+      "uninstallCommands": [],
+      "constraints": [
+        "The standalone archive root contains exact Agent Plugins 1.0 plugin.json and passive skills/ only.",
+        "Offline universal and strict passive compliance are generation gates.",
+        "Static validation does not establish host installation, runtime compatibility, marketplace availability, or support."
+      ]
+    },
+    {
+      "id": "amp-agent-skills-passive",
+      "status": "VERIFIED_STATIC_FORMAT_ONLY",
+      "sourceUrls": [
+        "https://ampcode.com/manual"
+      ],
+      "requiredRoots": [
+        ".agents/skills/<skill-name>/SKILL.md"
+      ],
+      "installCommands": [],
+      "updateCommands": [],
+      "uninstallCommands": [],
+      "constraints": [
+        "The standalone archive root contains exact project discovery root .agents/skills and no second discovery copy.",
+        "Agent Skill bytes are identical to canonical source; no frontmatter transformation is allowed.",
+        "Strict skill validation and passive payload safety are generation gates; host behavior and support remain untested."
+      ]
+    },
+    {
+      "id": "augment-agent-skills-passive",
+      "status": "VERIFIED_STATIC_FORMAT_ONLY",
+      "sourceUrls": [
+        "https://docs.augmentcode.com/cli/skills"
+      ],
+      "requiredRoots": [
+        ".augment/skills/<skill-name>/SKILL.md"
+      ],
+      "installCommands": [],
+      "updateCommands": [],
+      "uninstallCommands": [],
+      "constraints": [
+        "The standalone archive root contains exact project discovery root .augment/skills and no second discovery copy.",
+        "Agent Skill bytes are identical to canonical source; no frontmatter transformation is allowed.",
+        "Strict skill validation and passive payload safety are generation gates; host behavior and support remain untested."
+      ]
+    },
+    {
+      "id": "cline-agent-skills-passive",
+      "status": "VERIFIED_STATIC_FORMAT_ONLY",
+      "sourceUrls": [
+        "https://docs.cline.bot/customization/skills"
+      ],
+      "requiredRoots": [
+        ".cline/skills/<skill-name>/SKILL.md"
+      ],
+      "installCommands": [],
+      "updateCommands": [],
+      "uninstallCommands": [],
+      "constraints": [
+        "The standalone archive root contains exact project discovery root .cline/skills and no second discovery copy.",
+        "Agent Skill bytes are identical to canonical source; no frontmatter transformation is allowed.",
+        "Strict skill validation and passive payload safety are generation gates; host behavior and support remain untested."
+      ]
+    },
+    {
+      "id": "devin-agent-skills-passive",
+      "status": "VERIFIED_STATIC_FORMAT_ONLY",
+      "sourceUrls": [
+        "https://docs.devin.ai/product-guides/skills"
+      ],
+      "requiredRoots": [
+        ".agents/skills/<skill-name>/SKILL.md"
+      ],
+      "installCommands": [],
+      "updateCommands": [],
+      "uninstallCommands": [],
+      "constraints": [
+        "The standalone archive root contains exact project discovery root .agents/skills and no second discovery copy.",
+        "Agent Skill bytes are identical to canonical source; no frontmatter transformation is allowed.",
+        "Strict skill validation and passive payload safety are generation gates; host behavior and support remain untested."
+      ]
+    },
+    {
+      "id": "github-cli-agent-skills-passive",
+      "status": "VERIFIED_STATIC_FORMAT_ONLY",
+      "sourceUrls": [
+        "https://cli.github.com/manual/gh_skill"
+      ],
+      "requiredRoots": [
+        ".agents/skills/<skill-name>/SKILL.md"
+      ],
+      "installCommands": [],
+      "updateCommands": [],
+      "uninstallCommands": [],
+      "constraints": [
+        "The standalone archive root contains exact project discovery root .agents/skills and no second discovery copy.",
+        "Agent Skill bytes are identical to canonical source; no frontmatter transformation is allowed.",
+        "Strict skill validation and passive payload safety are generation gates; host behavior and support remain untested."
+      ]
+    },
+    {
+      "id": "goose-agent-skills-passive",
+      "status": "VERIFIED_STATIC_FORMAT_ONLY",
+      "sourceUrls": [
+        "https://goose-docs.ai/docs/guides/context-engineering/using-skills/"
+      ],
+      "requiredRoots": [
+        ".agents/skills/<skill-name>/SKILL.md"
+      ],
+      "installCommands": [],
+      "updateCommands": [],
+      "uninstallCommands": [],
+      "constraints": [
+        "The standalone archive root contains exact project discovery root .agents/skills and no second discovery copy.",
+        "Agent Skill bytes are identical to canonical source; no frontmatter transformation is allowed.",
+        "Strict skill validation and passive payload safety are generation gates; host behavior and support remain untested."
+      ]
+    },
+    {
+      "id": "kilo-agent-skills-passive",
+      "status": "VERIFIED_STATIC_FORMAT_ONLY",
+      "sourceUrls": [
+        "https://github.com/Kilo-Org/kilocode/blob/main/packages/kilo-docs/pages/customize/skills.md"
+      ],
+      "requiredRoots": [
+        ".kilo/skills/<skill-name>/SKILL.md"
+      ],
+      "installCommands": [],
+      "updateCommands": [],
+      "uninstallCommands": [],
+      "constraints": [
+        "The standalone archive root contains exact project discovery root .kilo/skills and no second discovery copy.",
+        "Agent Skill bytes are identical to canonical source; no frontmatter transformation is allowed.",
+        "Strict skill validation and passive payload safety are generation gates; host behavior and support remain untested."
+      ]
+    },
+    {
+      "id": "opencode-agent-skills-passive",
+      "status": "VERIFIED_STATIC_FORMAT_ONLY",
+      "sourceUrls": [
+        "https://opencode.ai/docs/skills/"
+      ],
+      "requiredRoots": [
+        ".agents/skills/<skill-name>/SKILL.md"
+      ],
+      "installCommands": [],
+      "updateCommands": [],
+      "uninstallCommands": [],
+      "constraints": [
+        "The standalone archive root contains exact project discovery root .agents/skills and no second discovery copy.",
+        "Agent Skill bytes are identical to canonical source; no frontmatter transformation is allowed.",
+        "Strict skill validation and passive payload safety are generation gates; host behavior and support remain untested."
+      ]
+    },
+    {
+      "id": "openhands-agent-skills-passive",
+      "status": "VERIFIED_STATIC_FORMAT_ONLY",
+      "sourceUrls": [
+        "https://docs.openhands.dev/overview/skills"
+      ],
+      "requiredRoots": [
+        ".agents/skills/<skill-name>/SKILL.md"
+      ],
+      "installCommands": [],
+      "updateCommands": [],
+      "uninstallCommands": [],
+      "constraints": [
+        "The standalone archive root contains exact project discovery root .agents/skills and no second discovery copy.",
+        "Agent Skill bytes are identical to canonical source; no frontmatter transformation is allowed.",
+        "Strict skill validation and passive payload safety are generation gates; host behavior and support remain untested."
+      ]
+    },
+    {
+      "id": "replit-agent-skills-passive",
+      "status": "VERIFIED_STATIC_FORMAT_ONLY",
+      "sourceUrls": [
+        "https://docs.replit.com/learn/agent-skills"
+      ],
+      "requiredRoots": [
+        ".agents/skills/<skill-name>/SKILL.md"
+      ],
+      "installCommands": [],
+      "updateCommands": [],
+      "uninstallCommands": [],
+      "constraints": [
+        "The standalone archive root contains exact project discovery root .agents/skills and no second discovery copy.",
+        "Agent Skill bytes are identical to canonical source; no frontmatter transformation is allowed.",
+        "Strict skill validation and passive payload safety are generation gates; host behavior and support remain untested."
+      ]
+    },
+    {
+      "id": "visual-studio-agent-skills-passive",
+      "status": "VERIFIED_STATIC_FORMAT_ONLY",
+      "sourceUrls": [
+        "https://learn.microsoft.com/en-us/visualstudio/ide/copilot-agent-mode?view=visualstudio"
+      ],
+      "requiredRoots": [
+        ".github/skills/<skill-name>/SKILL.md"
+      ],
+      "installCommands": [],
+      "updateCommands": [],
+      "uninstallCommands": [],
+      "constraints": [
+        "The standalone archive root contains exact project discovery root .github/skills and no second discovery copy.",
+        "Agent Skill bytes are identical to canonical source; no frontmatter transformation is allowed.",
+        "Strict skill validation and passive payload safety are generation gates; host behavior and support remain untested."
+      ]
+    },
+    {
+      "id": "windsurf-agent-skills-passive",
+      "status": "VERIFIED_STATIC_FORMAT_ONLY",
+      "sourceUrls": [
+        "https://docs.windsurf.com/windsurf/cascade/skills"
+      ],
+      "requiredRoots": [
+        ".windsurf/skills/<skill-name>/SKILL.md"
+      ],
+      "installCommands": [],
+      "updateCommands": [],
+      "uninstallCommands": [],
+      "constraints": [
+        "The standalone archive root contains exact project discovery root .windsurf/skills and no second discovery copy.",
+        "Agent Skill bytes are identical to canonical source; no frontmatter transformation is allowed.",
+        "Strict skill validation and passive payload safety are generation gates; host behavior and support remain untested."
+      ]
+    },
+    {
+      "id": "zed-agent-skills-passive",
+      "status": "VERIFIED_STATIC_FORMAT_ONLY",
+      "sourceUrls": [
+        "https://zed.dev/docs/ai/skills"
+      ],
+      "requiredRoots": [
+        ".agents/skills/<skill-name>/SKILL.md"
+      ],
+      "installCommands": [],
+      "updateCommands": [],
+      "uninstallCommands": [],
+      "constraints": [
+        "The standalone archive root contains exact project discovery root .agents/skills and no second discovery copy.",
+        "Agent Skill bytes are identical to canonical source; no frontmatter transformation is allowed.",
+        "Strict skill validation and passive payload safety are generation gates; host behavior and support remain untested."
+      ]
+    },
+    {
+      "id": "factory-agent-skills-passive",
+      "status": "VERIFIED_STATIC_FORMAT_ONLY",
+      "sourceUrls": [
+        "https://docs.factory.ai/harness/skills"
+      ],
+      "requiredRoots": [
+        ".factory/skills/<skill-name>/SKILL.md"
+      ],
+      "installCommands": [],
+      "updateCommands": [],
+      "uninstallCommands": [],
+      "constraints": [
+        "The standalone archive root contains exact project discovery root .factory/skills and no second discovery copy.",
+        "Agent Skill bytes are identical to canonical source; no frontmatter transformation is allowed.",
+        "Strict skill validation and passive payload safety are generation gates; host behavior and support remain untested."
+      ]
+    },
+    {
+      "id": "grok-native-agent-skills-passive",
+      "status": "VERIFIED_STATIC_FORMAT_ONLY",
+      "sourceUrls": [
+        "https://docs.x.ai/build/overview"
+      ],
+      "requiredRoots": [
+        ".grok/skills/<skill-name>/SKILL.md"
+      ],
+      "installCommands": [],
+      "updateCommands": [],
+      "uninstallCommands": [],
+      "constraints": [
+        "The standalone archive root contains exact project discovery root .grok/skills and no second discovery copy.",
+        "Agent Skill bytes are identical to canonical source; no frontmatter transformation is allowed.",
+        "Strict skill validation and passive payload safety are generation gates; host behavior and support remain untested."
       ]
     }
   ]

@@ -11,6 +11,7 @@ import {
     readCatalog,
     validateAgainstSchema,
     validateCatalogs,
+    validateEcosystems,
 } from "../catalog-validation.mjs";
 
 const publicCatalogPath = join(
@@ -79,7 +80,7 @@ test("public schema rejects unknown fields and non-Cratis public names", () => {
 test("public catalog starts deny-by-default with no runtime-approved candidates", () => {
     const catalog = readCatalog(publicCatalogPath);
     assert.equal(catalog.defaultPolicy, "deny");
-    assert.equal(catalog.skills.length, 35);
+    assert.equal(catalog.skills.length, 37);
     assert.equal(catalog.audit.internalSkills.length, 8);
     assert(
         catalog.skills.every(
@@ -87,6 +88,34 @@ test("public catalog starts deny-by-default with no runtime-approved candidates"
         ),
     );
     assert(catalog.skills.every((skill) => skill.includeInRuntime === false));
+});
+
+test("Chronicle MCP candidate remains classification-only and runtime denied", () => {
+    const catalog = readCatalog(publicCatalogPath);
+    const guidance = catalog.skills.find(
+        (skill) =>
+            skill.currentName === "cratis-chronicle-mcp-inspection",
+    );
+    assert.equal(guidance.source, "skills/cratis-chronicle-mcp-inspection");
+    assert.equal(guidance.disposition, "retain");
+    assert.equal(guidance.publicationStatus, "candidate");
+    assert.equal(guidance.includeInRuntime, false);
+    assert.deepEqual(guidance.products, ["chronicle-mcp"]);
+    assert.deepEqual(guidance.dependencies.externalTools, []);
+});
+
+test("Studio MCP candidate remains public-safe, classification-only, and denied", () => {
+    const catalog = readCatalog(publicCatalogPath);
+    const guidance = catalog.skills.find(
+        (skill) =>
+            skill.currentName === "cratis-studio-mcp-safety-guidance",
+    );
+    assert.equal(guidance.source, "skills/cratis-studio-mcp-safety-guidance");
+    assert.equal(guidance.disposition, "retain");
+    assert.equal(guidance.publicationStatus, "candidate");
+    assert.equal(guidance.includeInRuntime, false);
+    assert.deepEqual(guidance.products, ["studio"]);
+    assert.deepEqual(guidance.dependencies.externalTools, []);
 });
 
 test("business-rule source records the approved split review", () => {
@@ -138,6 +167,29 @@ test("ecosystem schema requires official source registry fields", () => {
     );
 });
 
+test("ecosystem semantic validation rejects missing and unregistered records", () => {
+    const missing = clone(readCatalog(ecosystemPath));
+    missing.ecosystems = missing.ecosystems.filter(
+        (ecosystem) => ecosystem.id !== "agent-plugins",
+    );
+    assert(
+        validateEcosystems(missing).includes(
+            "ecosystem-versions is missing required ecosystem agent-plugins",
+        ),
+    );
+
+    const unexpected = clone(readCatalog(ecosystemPath));
+    unexpected.ecosystems.push({
+        ...unexpected.ecosystems[0],
+        id: "unregistered-ecosystem",
+    });
+    assert(
+        validateEcosystems(unexpected).includes(
+            "ecosystem-versions contains unregistered ecosystem unregistered-ecosystem",
+        ),
+    );
+});
+
 test("ecosystem registry includes current MCP and compatible-client evidence", () => {
     const registry = readCatalog(ecosystemPath);
     const byId = new Map(
@@ -150,4 +202,28 @@ test("ecosystem registry includes current MCP and compatible-client evidence", (
     assert.equal(byId.get("deepseek-deepcode-skills").status, "current");
     assert.equal(byId.get("deepseek-harness-skills").status, "preview");
     assert(byId.has("npm-trusted-publishing"));
+    assert.equal(byId.get("pi-packages").version, "0.84.3-registry-latest");
+    assert.equal(
+        byId.get("claude-code-plugins").version,
+        "claude-code-2.1.245-registry-latest",
+    );
+    assert.equal(
+        byId.get("openai-plugins").version,
+        "codex-cli-0.149.1-registry-latest",
+    );
+    assert.equal(
+        byId.get("github-copilot-plugins").version,
+        "copilot-cli-1.0.80-registry-latest",
+    );
+    assert.equal(
+        byId.get("gemini-cli-extensions").version,
+        "gemini-cli-0.56.0-registry-latest",
+    );
+    assert.equal(
+        byId.get("qwen-code").version,
+        "qwen-code-0.22.0-registry-latest",
+    );
+    assert.equal(byId.get("roo-code").status, "archived");
+    assert.equal(byId.get("continue").status, "archived");
+    assert.equal(byId.get("amazon-q-developer").status, "retiring");
 });

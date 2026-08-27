@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cratis/AI/catalog/evidence-baseline.schema.json",
+  "title": "Append-only Cratis evidence baseline",
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "ids": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } },
+    "evidenceRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repositoryPath", "digest"],
+      "properties": {
+        "repositoryPath": { "type": "string", "minLength": 1 },
+        "digest": { "$ref": "#/$defs/sha256" }
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "defaultPolicy", "protectedThrough", "observationIds", "sourceIds", "factIds", "gapIds", "distributionEvidence", "observationIdentityAnchor", "sourceIdentityAnchor", "factIdentityAnchor", "gapIdentityAnchor", "correctionPolicy"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "defaultPolicy": { "const": "append-only" },
+    "protectedThrough": { "const": "S9" },
+    "observationIds": { "$ref": "#/$defs/ids" },
+    "sourceIds": { "$ref": "#/$defs/ids" },
+    "factIds": { "$ref": "#/$defs/ids" },
+    "gapIds": { "$ref": "#/$defs/ids" },
+    "distributionEvidence": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/evidenceRecord" } },
+    "observationIdentityAnchor": { "$ref": "#/$defs/sha256" },
+    "sourceIdentityAnchor": { "$ref": "#/$defs/sha256" },
+    "factIdentityAnchor": { "$ref": "#/$defs/sha256" },
+    "gapIdentityAnchor": { "$ref": "#/$defs/sha256" },
+    "correctionPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requiresSupersedes", "requiresReason", "requiresReviewer", "reuseIdentityAllowed"],
+      "properties": {
+        "requiresSupersedes": { "const": true },
+        "requiresReason": { "const": true },
+        "requiresReviewer": { "const": true },
+        "reuseIdentityAllowed": { "const": false }
+      }
+    }
+  }
+}

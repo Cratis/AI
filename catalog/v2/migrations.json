@@ -154,6 +154,21 @@
       ]
     },
     {
+      "id": "rename-cratis-chronicle-mcp-inspection",
+      "kind": "retain",
+      "sourceIds": [
+        "cratis-chronicle-mcp-inspection"
+      ],
+      "targetIds": [
+        "cratis-chronicle-mcp-inspection"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
       "id": "rename-cratis-command",
       "kind": "rename",
       "sourceIds": [
@@ -236,6 +251,21 @@
       ],
       "targetIds": [
         "cratis-specifications-typescript"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-cratis-studio-mcp-safety-guidance",
+      "kind": "retain",
+      "sourceIds": [
+        "cratis-studio-mcp-safety-guidance"
+      ],
+      "targetIds": [
+        "cratis-studio-mcp-safety-guidance"
       ],
       "state": "proposed",
       "evaluationEvidenceIds": [],

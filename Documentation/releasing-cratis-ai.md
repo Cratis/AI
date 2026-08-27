@@ -1,5 +1,9 @@
 # Release Cratis AI
 
+> **S10 is blocked.** This page describes the future authorized flow. Do not add
+a release request until generated readiness is unblocked by complete production
+lifecycle evidence, exact approvals, and external-control attestations.
+
 A merged release pull request is the recurring human release approval. Do not
 run a second manual publication, promotion, or rollout approval after merge.
 
@@ -8,9 +12,11 @@ tracked in [AI#181](https://github.com/Cratis/AI/issues/181).
 
 ## 1. Prepare approved profile state
 
-The release PR includes every required profile, target, source-contract,
-security, evaluation, artifact, and runtime approval. The approval-driven
-materializer must resolve every requested profile without blockers.
+Every required profile, target, source-contract, security, evaluation,
+artifact, runtime, lifecycle, and external-control approval must already exist
+on the release PR's base. The request PR cannot introduce or weaken its own
+prerequisites. The approval-driven materializer must resolve every requested
+profile without blockers.
 
 ## 2. Add one immutable release request
 
@@ -21,6 +27,11 @@ Create `distribution/releases/v<version>.json`:
   "schemaVersion": "1.0.0",
   "state": "release-on-merge",
   "version": "0.1.0-preview.1",
+  "sourceRevision": "<reviewed-40-character-commit>",
+  "preflightDigest": "<64-character-preflight-digest>",
+  "artifactDigest": "<64-character-artifact-digest>",
+  "prerequisiteEvidenceIds": ["<existing-prerequisite-evidence>"],
+  "mergeStrategy": "merge-commit",
   "profiles": ["public-fundamentals"],
   "canaries": [
     {
@@ -61,11 +72,22 @@ The release workflow runs during pull-request validation and:
 - resolves every profile through the approval-driven materializer;
 - regenerates root-native harness artifacts;
 - packages deterministic release archives and the Pi npm tarball;
-- verifies checksums, provenance, SBOM, and focused release specs;
+- verifies checksums, provenance, SBOM, locked offline portable compliance,
+  and focused release specs;
 - uploads short-lived PR review artifacts.
 
 If any profile is not approved or any release artifact differs from its source
 revision/digest, the PR cannot pass.
+
+All host packages are projections of one immutable logical skill tree. Harness
+registry descriptors declare every root and every projected skill location;
+one harness may declare one or more roots, but every declared copy must remain
+byte-identical to the canonical source. Generation writes only to a new empty
+candidate, validates the complete final inventory, and removes the entire
+candidate on any root failure. Deterministic generation and assurance receipts
+are static-validation inputs only: they do not grant support, publication,
+runtime, or promotion state. S4 adds no new host output, executable extension,
+or MCP server.
 
 ## 4. Review and merge
 
@@ -75,8 +97,13 @@ Review:
 - product/source revisions and digests;
 - package versions;
 - generated host roots;
-- provenance, SBOM, and checksums;
+- provenance, SBOM, checksums, the complete deterministic release-tree
+  manifest, the artifact-assurance receipt, and the deterministic
+  `cratis-passive-v1` compliance receipts for Agent Plugin, Copilot, Cursor,
+  and Kiro roots;
 - generated lifecycle instructions and the generated/static/host-tested support matrix;
+- confirmation that compliance receipts grant no approval, support, promotion,
+  or publication state;
 - selected canaries;
 - release notes and known limitations.
 

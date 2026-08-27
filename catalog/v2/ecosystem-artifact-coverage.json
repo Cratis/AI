@@ -1,0 +1,1400 @@
+{
+  "schemaVersion": 1,
+  "generatedBy": "tooling/generate-ecosystem-artifact-coverage.mjs",
+  "state": "FIXTURE_ONLY_LOCAL_STAGING",
+  "publicationEligible": false,
+  "promotionEligible": false,
+  "supportPolicy": "Generated coverage records cataloged compatibility and generation state; they are not support claims.",
+  "coverage": [
+    {
+      "bindingId": "agent-plugins-artifact-binding",
+      "ecosystemId": "agent-plugins",
+      "hostAdapterId": null,
+      "hostDisposition": "not-applicable",
+      "interfaceId": "agent-plugin-package",
+      "requirementId": "agent-plugins-open-standard",
+      "targetId": "portable-agent-plugin",
+      "harnessId": "agent-plugin",
+      "outputRoot": "agent-plugin",
+      "artifactClass": "passive-public-package",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "agent-plugins-source-1"
+      ],
+      "generationState": "fixture-generated",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
+        "agent-plugins-source-1",
+        "agent-plugins-source-2",
+        "agent-plugins-source-3"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "agent-skills-artifact-binding",
+      "ecosystemId": "agent-skills",
+      "hostAdapterId": null,
+      "hostDisposition": "not-applicable",
+      "interfaceId": "agent-skill",
+      "requirementId": "agent-skills-open-standard",
+      "targetId": "canonical-agent-skills",
+      "harnessId": "agent-skills",
+      "outputRoot": "canonical",
+      "artifactClass": "passive-public-package",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "agent-skills-source-1"
+      ],
+      "generationState": "fixture-generated",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
+        "agent-skills-source-1",
+        "agent-skills-source-2"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "aider-artifact-binding",
+      "ecosystemId": "aider",
+      "hostAdapterId": "aider-host-adapter",
+      "hostDisposition": "fallback",
+      "interfaceId": "host-instructions",
+      "requirementId": null,
+      "targetId": null,
+      "harnessId": null,
+      "outputRoot": null,
+      "artifactClass": "no-artifact",
+      "strategy": "no-output",
+      "assuranceProfileId": "no-artifact-v1",
+      "evidenceIds": [
+        "aider-source-1"
+      ],
+      "generationState": "no-output",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
+        "aider-source-1",
+        "aider-source-2"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "amazon-q-developer-artifact-binding",
+      "ecosystemId": "amazon-q-developer",
+      "hostAdapterId": "amazon-q-developer-host-adapter",
+      "hostDisposition": "migration",
+      "interfaceId": "migration-surface",
+      "requirementId": null,
+      "targetId": null,
+      "harnessId": null,
+      "outputRoot": null,
+      "artifactClass": "no-artifact",
+      "strategy": "blocked",
+      "assuranceProfileId": "no-artifact-v1",
+      "evidenceIds": [
+        "amazon-q-developer-source-1"
+      ],
+      "generationState": "blocked",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
+        "amazon-q-developer-source-1",
+        "amazon-q-developer-source-2"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "amp-artifact-binding",
+      "ecosystemId": "amp",
+      "hostAdapterId": "amp-host-adapter",
+      "hostDisposition": "standard-compatible",
+      "interfaceId": "agent-skill",
+      "requirementId": "amp-agent-skills-passive",
+      "targetId": "amp-passive",
+      "harnessId": "amp",
+      "outputRoot": "amp-agent-skills",
+      "artifactClass": "passive-public-package",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "amp-source-1"
+      ],
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
+      "activeEvidenceIds": [
+        "amp-source-1",
+        "amp-source-2",
+        "s5b-amp-static-generation-2026-08-25"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "install"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "augment-auggie-artifact-binding",
+      "ecosystemId": "augment-auggie",
+      "hostAdapterId": "augment-auggie-host-adapter",
+      "hostDisposition": "standard-compatible",
+      "interfaceId": "agent-skill",
+      "requirementId": "augment-agent-skills-passive",
+      "targetId": "augment-passive",
+      "harnessId": "augment",
+      "outputRoot": "augment-agent-skills",
+      "artifactClass": "passive-public-package",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "augment-auggie-source-1"
+      ],
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
+      "activeEvidenceIds": [
+        "augment-auggie-source-1",
+        "augment-auggie-source-2",
+        "s5b-augment-static-generation-2026-08-25"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "install"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "claude-code-plugins-artifact-binding",
+      "ecosystemId": "claude-code-plugins",
+      "hostAdapterId": "claude-code-plugins-host-adapter",
+      "hostDisposition": "researched",
+      "interfaceId": "claude-compatible-plugin",
+      "requirementId": "claude-code-marketplace",
+      "targetId": "claude-code",
+      "harnessId": "claude",
+      "outputRoot": "claude",
+      "artifactClass": "passive-public-package",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "claude-code-plugins-source-1"
+      ],
+      "generationState": "fixture-generated",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
+        "claude-code-plugins-source-1",
+        "claude-code-plugins-source-2",
+        "claude-code-plugins-source-3",
+        "claude-code-plugins-source-4",
+        "claude-code-plugins-source-5"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "cline-artifact-binding",
+      "ecosystemId": "cline",
+      "hostAdapterId": "cline-host-adapter",
+      "hostDisposition": "standard-compatible",
+      "interfaceId": "agent-skill",
+      "requirementId": "cline-agent-skills-passive",
+      "targetId": "cline-passive",
+      "harnessId": "cline",
+      "outputRoot": "cline-agent-skills",
+      "artifactClass": "passive-public-package",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "cline-source-1"
+      ],
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
+      "activeEvidenceIds": [
+        "cline-source-1",
+        "cline-source-2",
+        "cline-source-3",
+        "s5b-cline-static-generation-2026-08-25"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "install"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "continue-artifact-binding",
+      "ecosystemId": "continue",
+      "hostAdapterId": "continue-host-adapter",
+      "hostDisposition": "no-surface",
+      "interfaceId": "host-instructions",
+      "requirementId": null,
+      "targetId": null,
+      "harnessId": null,
+      "outputRoot": null,
+      "artifactClass": "no-artifact",
+      "strategy": "blocked",
+      "assuranceProfileId": "no-artifact-v1",
+      "evidenceIds": [
+        "continue-source-1"
+      ],
+      "generationState": "blocked",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
+        "continue-source-1",
+        "continue-source-2"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "cursor-plugins-artifact-binding",
+      "ecosystemId": "cursor-plugins",
+      "hostAdapterId": "cursor-plugins-host-adapter",
+      "hostDisposition": "researched",
+      "interfaceId": "agent-plugin-package",
+      "requirementId": "cursor-marketplace",
+      "targetId": "cursor",
+      "harnessId": "cursor",
+      "outputRoot": "cursor",
+      "artifactClass": "passive-public-package",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "cursor-plugins-source-1"
+      ],
+      "generationState": "fixture-generated",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
+        "cursor-plugins-source-1",
+        "cursor-plugins-source-2"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "deepseek-deepcode-skills-artifact-binding",
+      "ecosystemId": "deepseek-deepcode-skills",
+      "hostAdapterId": "deepseek-deepcode-skills-host-adapter",
+      "hostDisposition": "researched",
+      "interfaceId": "agent-skill",
+      "requirementId": "deepseek-deepcode-skills",
+      "targetId": "deepseek-deepcode",
+      "harnessId": "deepcode",
+      "outputRoot": "deepcode",
+      "artifactClass": "passive-public-package",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "deepseek-deepcode-skills-source-1"
+      ],
+      "generationState": "fixture-generated",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
+        "deepseek-deepcode-skills-source-1"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "deepseek-harness-skills-artifact-binding",
+      "ecosystemId": "deepseek-harness-skills",
+      "hostAdapterId": "deepseek-harness-skills-host-adapter",
+      "hostDisposition": "researched",
+      "interfaceId": "agent-skill",
+      "requirementId": "deepseek-harness-skills",
+      "targetId": "deepseek-harness",
+      "harnessId": "deepseek",
+      "outputRoot": "deepseek",
+      "artifactClass": "passive-public-package",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "deepseek-harness-skills-source-1"
+      ],
+      "generationState": "fixture-generated-evidence-incomplete",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
+        "deepseek-harness-skills-source-1",
+        "deepseek-harness-skills-source-2",
+        "deepseek-harness-skills-source-3"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "deepseek-model-integrations-artifact-binding",
+      "ecosystemId": "deepseek-model-integrations",
+      "hostAdapterId": null,
+      "hostDisposition": "not-applicable",
+      "interfaceId": "model-provider",
+      "requirementId": "deepseek-model-provider",
+      "targetId": "deepseek-provider",
+      "harnessId": null,
+      "outputRoot": null,
+      "artifactClass": "provider-compatibility",
+      "strategy": "provider-inherited",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "evidenceIds": [
+        "deepseek-model-integrations-source-1"
+      ],
+      "generationState": "provider-inherited",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
+        "deepseek-model-integrations-source-1",
+        "deepseek-model-integrations-source-2"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "devin-hosted-artifact-binding",
+      "ecosystemId": "devin-hosted",
+      "hostAdapterId": "devin-hosted-host-adapter",
+      "hostDisposition": "standard-compatible",
+      "interfaceId": "agent-skill",
+      "requirementId": "devin-agent-skills-passive",
+      "targetId": "devin-passive",
+      "harnessId": "devin",
+      "outputRoot": "devin-agent-skills",
+      "artifactClass": "passive-public-package",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "devin-hosted-source-1"
+      ],
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
+      "activeEvidenceIds": [
+        "devin-hosted-source-1",
+        "devin-hosted-source-2",
+        "s5b-devin-static-generation-2026-08-25"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "install"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "factory-droid-artifact-binding",
+      "ecosystemId": "factory-droid",
+      "hostAdapterId": "factory-droid-host-adapter",
+      "hostDisposition": "standard-compatible",
+      "interfaceId": "agent-skill",
+      "requirementId": "factory-agent-skills-passive",
+      "targetId": "factory-passive",
+      "harnessId": "factory",
+      "outputRoot": "factory-agent-skills",
+      "artifactClass": "passive-public-package",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "factory-droid-source-1"
+      ],
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
+      "activeEvidenceIds": [
+        "factory-droid-source-1",
+        "factory-droid-source-2",
+        "s5b-factory-static-generation-2026-08-25"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "install"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "gemini-cli-extensions-artifact-binding",
+      "ecosystemId": "gemini-cli-extensions",
+      "hostAdapterId": "gemini-cli-extensions-host-adapter",
+      "hostDisposition": "researched",
+      "interfaceId": "gemini-extension",
+      "requirementId": "gemini-cli-extension",
+      "targetId": "gemini-cli",
+      "harnessId": "gemini",
+      "outputRoot": "gemini",
+      "artifactClass": "passive-public-package",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "gemini-cli-extensions-source-1"
+      ],
+      "generationState": "fixture-generated-evidence-incomplete",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
+        "gemini-cli-extensions-source-1",
+        "gemini-cli-extensions-source-2",
+        "gemini-cli-extensions-source-3",
+        "gemini-cli-extensions-source-4",
+        "gemini-skill-discovery-2026-08-24"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "github-cli-skills-artifact-binding",
+      "ecosystemId": "github-cli-skills",
+      "hostAdapterId": "github-cli-skills-host-adapter",
+      "hostDisposition": "standard-compatible",
+      "interfaceId": "agent-skill",
+      "requirementId": "github-cli-agent-skills-passive",
+      "targetId": "github-cli-passive",
+      "harnessId": "github-cli",
+      "outputRoot": "github-cli-agent-skills",
+      "artifactClass": "passive-public-package",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "github-cli-skills-source-1"
+      ],
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
+      "activeEvidenceIds": [
+        "github-cli-skills-source-1",
+        "github-cli-skills-source-2",
+        "github-cli-skills-source-3",
+        "s5b-github-cli-static-generation-2026-08-25"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "install"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "github-copilot-plugins-artifact-binding",
+      "ecosystemId": "github-copilot-plugins",
+      "hostAdapterId": "github-copilot-plugins-host-adapter",
+      "hostDisposition": "researched",
+      "interfaceId": "agent-plugin-package",
+      "requirementId": "github-copilot-plugin",
+      "targetId": "github-copilot",
+      "harnessId": "copilot",
+      "outputRoot": "copilot",
+      "artifactClass": "passive-public-package",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "github-copilot-plugins-source-1"
+      ],
+      "generationState": "fixture-generated",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
+        "github-copilot-plugins-source-1",
+        "github-copilot-plugins-source-2",
+        "github-copilot-plugins-source-3"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "goose-artifact-binding",
+      "ecosystemId": "goose",
+      "hostAdapterId": "goose-host-adapter",
+      "hostDisposition": "standard-compatible",
+      "interfaceId": "agent-skill",
+      "requirementId": "goose-agent-skills-passive",
+      "targetId": "goose-passive",
+      "harnessId": "goose",
+      "outputRoot": "goose-agent-skills",
+      "artifactClass": "passive-public-package",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "goose-source-1"
+      ],
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
+      "activeEvidenceIds": [
+        "goose-source-1",
+        "goose-source-2",
+        "s5b-goose-static-generation-2026-08-25"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "install"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "grok-bot-plugins-artifact-binding",
+      "ecosystemId": "grok-bot-plugins",
+      "hostAdapterId": "grok-bot-plugins-host-adapter",
+      "hostDisposition": "standard-compatible",
+      "interfaceId": "agent-plugin-package",
+      "requirementId": "grok-bot-agent-plugin-passive",
+      "targetId": "grok-bot-passive",
+      "harnessId": "grok-bot",
+      "outputRoot": "grok-bot-agent-plugin",
+      "artifactClass": "passive-public-package",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "grok-bot-plugins-source-1"
+      ],
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
+      "activeEvidenceIds": [
+        "grok-bot-plugins-source-1",
+        "grok-bot-plugins-source-2",
+        "s5b-grok-bot-static-generation-2026-08-25"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "install"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "grok-build-skills-artifact-binding",
+      "ecosystemId": "grok-build-skills",
+      "hostAdapterId": "grok-build-skills-host-adapter",
+      "hostDisposition": "standard-compatible",
+      "interfaceId": "claude-compatible-plugin",
+      "requirementId": "grok-native-agent-skills-passive",
+      "targetId": "grok-native-passive",
+      "harnessId": "grok-native",
+      "outputRoot": "grok-native-agent-skills",
+      "artifactClass": "passive-public-package",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "grok-build-skills-source-1"
+      ],
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
+      "activeEvidenceIds": [
+        "grok-build-skills-source-1",
+        "grok-build-skills-source-2",
+        "s5b-grok-native-static-generation-2026-08-25"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "install"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "hermes-agent-plugins-artifact-binding",
+      "ecosystemId": "hermes-agent-plugins",
+      "hostAdapterId": "hermes-agent-plugins-host-adapter",
+      "hostDisposition": "standard-compatible",
+      "interfaceId": "agent-plugin-package",
+      "requirementId": "hermes-agent-plugin-passive",
+      "targetId": "hermes-passive",
+      "harnessId": "hermes",
+      "outputRoot": "hermes-agent-plugin",
+      "artifactClass": "passive-public-package",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "hermes-agent-plugins-source-1"
+      ],
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
+      "activeEvidenceIds": [
+        "hermes-agent-plugins-source-1",
+        "s5b-hermes-static-generation-2026-08-25"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "install"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "jetbrains-ai-assistant-artifact-binding",
+      "ecosystemId": "jetbrains-ai-assistant",
+      "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
+      "hostDisposition": "researched",
+      "interfaceId": "agent-skill",
+      "requirementId": null,
+      "targetId": null,
+      "harnessId": null,
+      "outputRoot": null,
+      "artifactClass": "provider-compatibility",
+      "strategy": "provider-inherited",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "evidenceIds": [
+        "jetbrains-ai-assistant-source-1"
+      ],
+      "generationState": "provider-inherited",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
+        "jetbrains-ai-assistant-source-1",
+        "jetbrains-ai-assistant-source-2"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "junie-extensions-artifact-binding",
+      "ecosystemId": "junie-extensions",
+      "hostAdapterId": "junie-extensions-host-adapter",
+      "hostDisposition": "researched",
+      "interfaceId": "claude-compatible-plugin",
+      "requirementId": "junie-marketplace",
+      "targetId": "junie",
+      "harnessId": "junie",
+      "outputRoot": "junie",
+      "artifactClass": "passive-public-package",
+      "strategy": "shared-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "junie-extensions-source-1"
+      ],
+      "generationState": "fixture-generated-evidence-incomplete",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
+        "junie-extensions-source-1"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "kilo-code-artifact-binding",
+      "ecosystemId": "kilo-code",
+      "hostAdapterId": "kilo-code-host-adapter",
+      "hostDisposition": "standard-compatible",
+      "interfaceId": "agent-skill",
+      "requirementId": "kilo-agent-skills-passive",
+      "targetId": "kilo-passive",
+      "harnessId": "kilo",
+      "outputRoot": "kilo-agent-skills",
+      "artifactClass": "passive-public-package",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "kilo-code-source-1"
+      ],
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
+      "activeEvidenceIds": [
+        "kilo-code-source-1",
+        "kilo-code-source-2",
+        "s5b-kilo-static-generation-2026-08-25"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "install"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "kiro-powers-artifact-binding",
+      "ecosystemId": "kiro-powers",
+      "hostAdapterId": "kiro-powers-host-adapter",
+      "hostDisposition": "researched",
+      "interfaceId": "agent-plugin-package",
+      "requirementId": "kiro-marketplace",
+      "targetId": "kiro",
+      "harnessId": "kiro",
+      "outputRoot": "kiro",
+      "artifactClass": "passive-public-package",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "kiro-powers-source-1"
+      ],
+      "generationState": "fixture-generated",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
+        "kiro-powers-source-1",
+        "kiro-powers-source-2",
+        "kiro-powers-source-3"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "mcp-registry-artifact-binding",
+      "ecosystemId": "mcp-registry",
+      "hostAdapterId": null,
+      "hostDisposition": "not-applicable",
+      "interfaceId": "mcp-registry-publication",
+      "requirementId": null,
+      "targetId": null,
+      "harnessId": null,
+      "outputRoot": null,
+      "artifactClass": "no-artifact",
+      "strategy": "no-output",
+      "assuranceProfileId": "no-artifact-v1",
+      "evidenceIds": [
+        "mcp-registry-source-1"
+      ],
+      "generationState": "no-output",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
+        "mcp-registry-source-1",
+        "mcp-registry-source-2",
+        "mcp-registry-source-3",
+        "mcp-registry-source-4",
+        "mcp-registry-source-5",
+        "mcp-registry-source-6"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "model-context-protocol-artifact-binding",
+      "ecosystemId": "model-context-protocol",
+      "hostAdapterId": null,
+      "hostDisposition": "not-applicable",
+      "interfaceId": "mcp-protocol",
+      "requirementId": null,
+      "targetId": null,
+      "harnessId": null,
+      "outputRoot": null,
+      "artifactClass": "no-artifact",
+      "strategy": "no-output",
+      "assuranceProfileId": "no-artifact-v1",
+      "evidenceIds": [
+        "model-context-protocol-source-1"
+      ],
+      "generationState": "no-output",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
+        "model-context-protocol-source-1",
+        "model-context-protocol-source-2"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "nanoclaw-templates-artifact-binding",
+      "ecosystemId": "nanoclaw-templates",
+      "hostAdapterId": "nanoclaw-templates-host-adapter",
+      "hostDisposition": "standard-compatible",
+      "interfaceId": "agent-plugin-package",
+      "requirementId": "nanoclaw-agent-plugin-passive",
+      "targetId": "nanoclaw-passive",
+      "harnessId": "nanoclaw",
+      "outputRoot": "nanoclaw-agent-plugin",
+      "artifactClass": "passive-public-package",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "nanoclaw-templates-source-1"
+      ],
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
+      "activeEvidenceIds": [
+        "nanoclaw-templates-source-1",
+        "s5b-nanoclaw-static-generation-2026-08-25"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "install"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "npm-cratis-scope-artifact-binding",
+      "ecosystemId": "npm-cratis-scope",
+      "hostAdapterId": null,
+      "hostDisposition": "not-applicable",
+      "interfaceId": "npm-registry",
+      "requirementId": null,
+      "targetId": null,
+      "harnessId": null,
+      "outputRoot": null,
+      "artifactClass": "publication-metadata",
+      "strategy": "publication-only",
+      "assuranceProfileId": "publication-metadata-v1",
+      "evidenceIds": [
+        "npm-cratis-scope-source-1"
+      ],
+      "generationState": "publication-only",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
+        "npm-cratis-scope-source-1",
+        "npm-cratis-scope-source-2",
+        "npm-cratis-scope-source-3",
+        "npm-cratis-scope-source-4",
+        "npm-cratis-scope-source-5",
+        "npm-cratis-scope-source-6"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "npm-trusted-publishing-artifact-binding",
+      "ecosystemId": "npm-trusted-publishing",
+      "hostAdapterId": null,
+      "hostDisposition": "not-applicable",
+      "interfaceId": "npm-trusted-publication",
+      "requirementId": "npm-trusted-publication",
+      "targetId": null,
+      "harnessId": null,
+      "outputRoot": null,
+      "artifactClass": "publication-metadata",
+      "strategy": "publication-only",
+      "assuranceProfileId": "publication-metadata-v1",
+      "evidenceIds": [
+        "npm-trusted-publishing-source-1"
+      ],
+      "generationState": "publication-only",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
+        "npm-trusted-publishing-source-1",
+        "npm-trusted-publishing-source-2"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "openai-plugins-artifact-binding",
+      "ecosystemId": "openai-plugins",
+      "hostAdapterId": "openai-plugins-host-adapter",
+      "hostDisposition": "researched",
+      "interfaceId": "native-plugin",
+      "requirementId": "openai-codex-plugin",
+      "targetId": "openai-codex",
+      "harnessId": "codex",
+      "outputRoot": "codex",
+      "artifactClass": "passive-public-package",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "openai-plugins-source-1"
+      ],
+      "generationState": "fixture-generated",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
+        "openai-plugins-source-1",
+        "openai-plugins-source-2",
+        "openai-plugins-source-3"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "openclaw-bundles-artifact-binding",
+      "ecosystemId": "openclaw-bundles",
+      "hostAdapterId": "openclaw-bundles-host-adapter",
+      "hostDisposition": "standard-compatible",
+      "interfaceId": "agent-plugin-package",
+      "requirementId": "openclaw-agent-plugin-passive",
+      "targetId": "openclaw-passive",
+      "harnessId": "openclaw",
+      "outputRoot": "openclaw-agent-plugin",
+      "artifactClass": "passive-public-package",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "openclaw-bundles-source-1"
+      ],
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
+      "activeEvidenceIds": [
+        "openclaw-bundles-source-1",
+        "s5b-openclaw-static-generation-2026-08-25"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "install"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "opencode-skills-artifact-binding",
+      "ecosystemId": "opencode-skills",
+      "hostAdapterId": "opencode-skills-host-adapter",
+      "hostDisposition": "standard-compatible",
+      "interfaceId": "agent-skill",
+      "requirementId": "opencode-agent-skills-passive",
+      "targetId": "opencode-passive",
+      "harnessId": "opencode",
+      "outputRoot": "opencode-agent-skills",
+      "artifactClass": "passive-public-package",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "opencode-skills-source-1"
+      ],
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
+      "activeEvidenceIds": [
+        "opencode-skills-source-1",
+        "opencode-skills-source-2",
+        "opencode-skills-source-3",
+        "s5b-opencode-static-generation-2026-08-25"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "install"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "openhands-artifact-binding",
+      "ecosystemId": "openhands",
+      "hostAdapterId": "openhands-host-adapter",
+      "hostDisposition": "standard-compatible",
+      "interfaceId": "agent-skill",
+      "requirementId": "openhands-agent-skills-passive",
+      "targetId": "openhands-passive",
+      "harnessId": "openhands",
+      "outputRoot": "openhands-agent-skills",
+      "artifactClass": "passive-public-package",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "openhands-source-1"
+      ],
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
+      "activeEvidenceIds": [
+        "openhands-source-1",
+        "openhands-source-2",
+        "s5b-openhands-static-generation-2026-08-25"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "install"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "pi-packages-artifact-binding",
+      "ecosystemId": "pi-packages",
+      "hostAdapterId": "pi-packages-host-adapter",
+      "hostDisposition": "researched",
+      "interfaceId": "pi-package",
+      "requirementId": "pi-passive-package",
+      "targetId": "pi-npm",
+      "harnessId": "pi",
+      "outputRoot": "pi",
+      "artifactClass": "passive-private-fixture",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-private-fixture-v1",
+      "evidenceIds": [
+        "pi-packages-source-1"
+      ],
+      "generationState": "fixture-generated",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
+        "pi-packages-source-1",
+        "pi-packages-source-2",
+        "pi-packages-source-3",
+        "pi-packages-source-4"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "qwen-code-artifact-binding",
+      "ecosystemId": "qwen-code",
+      "hostAdapterId": "qwen-code-host-adapter",
+      "hostDisposition": "standard-compatible",
+      "interfaceId": "agent-plugin-package",
+      "requirementId": "qwen-agent-plugin-passive",
+      "targetId": "qwen-passive",
+      "harnessId": "qwen",
+      "outputRoot": "qwen-agent-plugin",
+      "artifactClass": "passive-public-package",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "qwen-code-source-2"
+      ],
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
+      "activeEvidenceIds": [
+        "qwen-code-source-1",
+        "qwen-code-source-2",
+        "qwen-code-source-3",
+        "s5b-qwen-static-generation-2026-08-25"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "install"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "replit-agent-artifact-binding",
+      "ecosystemId": "replit-agent",
+      "hostAdapterId": "replit-agent-host-adapter",
+      "hostDisposition": "standard-compatible",
+      "interfaceId": "agent-skill",
+      "requirementId": "replit-agent-skills-passive",
+      "targetId": "replit-passive",
+      "harnessId": "replit",
+      "outputRoot": "replit-agent-skills",
+      "artifactClass": "passive-public-package",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "replit-agent-source-1"
+      ],
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
+      "activeEvidenceIds": [
+        "replit-agent-source-1",
+        "replit-agent-source-2",
+        "s5b-replit-static-generation-2026-08-25"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "install"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "roo-code-artifact-binding",
+      "ecosystemId": "roo-code",
+      "hostAdapterId": "roo-code-host-adapter",
+      "hostDisposition": "no-surface",
+      "interfaceId": "agent-skill",
+      "requirementId": null,
+      "targetId": null,
+      "harnessId": null,
+      "outputRoot": null,
+      "artifactClass": "no-artifact",
+      "strategy": "blocked",
+      "assuranceProfileId": "no-artifact-v1",
+      "evidenceIds": [
+        "roo-code-source-1"
+      ],
+      "generationState": "blocked",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
+        "roo-code-source-1",
+        "roo-code-source-2"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "sourcegraph-cody-artifact-binding",
+      "ecosystemId": "sourcegraph-cody",
+      "hostAdapterId": "sourcegraph-cody-host-adapter",
+      "hostDisposition": "no-surface",
+      "interfaceId": "host-instructions",
+      "requirementId": null,
+      "targetId": null,
+      "harnessId": null,
+      "outputRoot": null,
+      "artifactClass": "no-artifact",
+      "strategy": "no-output",
+      "assuranceProfileId": "no-artifact-v1",
+      "evidenceIds": [
+        "sourcegraph-cody-source-1"
+      ],
+      "generationState": "no-output",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
+        "sourcegraph-cody-source-1",
+        "sourcegraph-cody-source-2"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "tabnine-artifact-binding",
+      "ecosystemId": "tabnine",
+      "hostAdapterId": "tabnine-host-adapter",
+      "hostDisposition": "fallback",
+      "interfaceId": "host-instructions",
+      "requirementId": null,
+      "targetId": null,
+      "harnessId": null,
+      "outputRoot": null,
+      "artifactClass": "no-artifact",
+      "strategy": "no-output",
+      "assuranceProfileId": "no-artifact-v1",
+      "evidenceIds": [
+        "tabnine-source-1"
+      ],
+      "generationState": "no-output",
+      "technicalTier": "documented",
+      "technicalTierRank": 1,
+      "activeEvidenceIds": [
+        "tabnine-source-1",
+        "tabnine-source-2"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "artifact-generation"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "visual-studio-copilot-artifact-binding",
+      "ecosystemId": "visual-studio-copilot",
+      "hostAdapterId": "visual-studio-copilot-host-adapter",
+      "hostDisposition": "standard-compatible",
+      "interfaceId": "agent-skill",
+      "requirementId": "visual-studio-agent-skills-passive",
+      "targetId": "visual-studio-passive",
+      "harnessId": "visual-studio",
+      "outputRoot": "visual-studio-agent-skills",
+      "artifactClass": "passive-public-package",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "visual-studio-copilot-source-1"
+      ],
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
+      "activeEvidenceIds": [
+        "s5b-visual-studio-static-generation-2026-08-25",
+        "visual-studio-copilot-source-1",
+        "visual-studio-copilot-source-2"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "install"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "vscode-agent-plugins-artifact-binding",
+      "ecosystemId": "vscode-agent-plugins",
+      "hostAdapterId": "vscode-agent-plugins-host-adapter",
+      "hostDisposition": "standard-compatible",
+      "interfaceId": "agent-plugin-package",
+      "requirementId": "vscode-agent-plugin-passive",
+      "targetId": "vscode-passive",
+      "harnessId": "vscode",
+      "outputRoot": "vscode-agent-plugin",
+      "artifactClass": "passive-public-package",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "vscode-agent-plugins-source-1"
+      ],
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
+      "activeEvidenceIds": [
+        "s5b-vscode-static-generation-2026-08-25",
+        "vscode-agent-plugins-source-1"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "install"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "windsurf-devin-desktop-artifact-binding",
+      "ecosystemId": "windsurf-devin-desktop",
+      "hostAdapterId": "windsurf-devin-desktop-host-adapter",
+      "hostDisposition": "standard-compatible",
+      "interfaceId": "agent-skill",
+      "requirementId": "windsurf-agent-skills-passive",
+      "targetId": "windsurf-passive",
+      "harnessId": "windsurf",
+      "outputRoot": "windsurf-agent-skills",
+      "artifactClass": "passive-public-package",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "windsurf-devin-desktop-source-1"
+      ],
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
+      "activeEvidenceIds": [
+        "s5b-windsurf-static-generation-2026-08-25",
+        "windsurf-devin-desktop-source-1",
+        "windsurf-devin-desktop-source-2"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "install"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    },
+    {
+      "bindingId": "zed-skills-artifact-binding",
+      "ecosystemId": "zed-skills",
+      "hostAdapterId": "zed-skills-host-adapter",
+      "hostDisposition": "standard-compatible",
+      "interfaceId": "agent-skill",
+      "requirementId": "zed-agent-skills-passive",
+      "targetId": "zed-passive",
+      "harnessId": "zed",
+      "outputRoot": "zed-agent-skills",
+      "artifactClass": "passive-public-package",
+      "strategy": "distinct-output",
+      "assuranceProfileId": "passive-public-package-v1",
+      "evidenceIds": [
+        "zed-skills-source-1"
+      ],
+      "generationState": "fixture-generated",
+      "technicalTier": "statically-validated",
+      "technicalTierRank": 3,
+      "activeEvidenceIds": [
+        "s5b-zed-static-generation-2026-08-25",
+        "zed-skills-source-1",
+        "zed-skills-source-2"
+      ],
+      "expiredEvidenceIds": [],
+      "missingAssurances": [
+        "install"
+      ],
+      "marketplaceStatus": "not-claimed",
+      "supportClaim": false
+    }
+  ]
+}

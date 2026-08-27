@@ -15,19 +15,17 @@ import { join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { compareOrdinal } from "./catalog-ordering.mjs";
 import { readCatalog } from "./catalog-validation.mjs";
+import { artifactForbiddenPathPatterns } from "./harness-registry.mjs";
+import { generateComponentCatalogs } from "./generate-component-catalogs.mjs";
 
 const repositoryRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const outputRoot = join(repositoryRoot, "catalog/v2");
 const revision = "b795d5307e20f7f7458a67708b4f26975e223796";
-const sourceRevisionEvidenceId = "repo-main-b795d53";
 const publicOwner = "public Cratis product capability";
 const engineeringOwner = "reusable Cratis engineering behavior";
 const v1Public = readCatalog(join(repositoryRoot, "catalog/public-skills.yml"));
 const v1Coverage = readCatalog(
     join(repositoryRoot, "catalog/product-coverage.yml"),
-);
-const v1Ecosystems = readCatalog(
-    join(repositoryRoot, "catalog/ecosystem-versions.json"),
 );
 const releaseApprovals = readCatalog(
     join(repositoryRoot, "distribution/release-approvals.json"),
@@ -176,6 +174,22 @@ const publicClassifications = new Map([
 ]);
 
 const sourceOverrides = new Map([
+    [
+        "cratis-studio-mcp-safety-guidance",
+        {
+            sourcePath: "skills/cratis-studio-mcp-safety-guidance",
+            sourceRevision: "f96eab8109ec0bb2d4aed6f1e893c2402a9a161a",
+            evidenceId: "studio-mcp-safety-guidance-source-f96eab8",
+        },
+    ],
+    [
+        "cratis-chronicle-mcp-inspection",
+        {
+            sourcePath: "skills/cratis-chronicle-mcp-inspection",
+            sourceRevision: "5997b28c142d9ee489841894e5d21730da5cb5a5",
+            evidenceId: "chronicle-mcp-inspection-source-5997b28",
+        },
+    ],
     [
         "add-concept",
         {
@@ -471,6 +485,31 @@ const engineeringClassifications = new Map([
 ]);
 
 const profiles = {
+    "cratis-studio-mcp-safety-guidance": [
+        "Studio MCP classification-only safety guidance",
+        "Use when classifying a Studio MCP request or interpreting already-redacted output without discovering or invoking an operation.",
+        [
+            "Do not use to discover, invoke, install, or configure Studio MCP.",
+            "Do not use private Studio implementation facts as public authority.",
+        ],
+        ["cratis-chronicle-mcp-inspection"],
+        "critical",
+        false,
+    ],
+    "cratis-chronicle-mcp-inspection": [
+        "Chronicle MCP classification-only inspection guidance",
+        "Use when classifying a Chronicle MCP inspection request or interpreting already-redacted output without invoking a tool or prompt.",
+        [
+            "Do not use to invoke, install, or configure Chronicle MCP.",
+            "Do not use for Chronicle CLI recovery or mutation operations.",
+        ],
+        [
+            "cratis-application-slice-diagnostics",
+            "cratis-chronicle-cli-operations",
+        ],
+        "high",
+        false,
+    ],
     "cratis-arc-command-validation": [
         "Arc command validation",
         "Use when adding validation or state-dependent rejection to an existing Arc command.",
@@ -1002,12 +1041,6 @@ function digestFiles(paths) {
     return hash.digest("hex");
 }
 
-function digestFile(path) {
-    return createHash("sha256")
-        .update(readFileSync(join(repositoryRoot, path)))
-        .digest("hex");
-}
-
 function writeJson(name, value) {
     mkdirSync(outputRoot, { recursive: true });
     writeFileSync(
@@ -1370,6 +1403,20 @@ const approvedEngineeringTargets = targets.filter(
         target.approval.state === "approved" &&
         target.includeInRuntime,
 );
+const componentInventory = (skills) => ({
+    skills,
+    agents: [],
+    subagents: [],
+    commands: [],
+    prompts: [],
+    rules: [],
+    instructions: [],
+    hooks: [],
+    mcp: [],
+    lsp: [],
+    executableExtensions: [],
+    staticAssets: [],
+});
 const exactPathsForTargets = (approvedTargets) =>
     [
         ...new Set(
@@ -1407,7 +1454,7 @@ writeJson("artifacts.json", {
             fixtureOnly: false,
             materializationAllowed: approvedPublicTargets.length > 0,
             runtimeEligible: approvedPublicTargets.length > 0,
-            componentInventory: { skills: publicTargetIds, mcp: [] },
+            componentInventory: componentInventory(publicTargetIds),
             exactSourcePaths: exactPathsForTargets(approvedPublicTargets),
             allowedPathPatterns: [
                 "skills/<approved-target>/SKILL.md",
@@ -1415,21 +1462,9 @@ writeJson("artifacts.json", {
                 "skills/<approved-target>/assets/**",
                 "skills/<approved-target>/LICENSE*",
             ],
-            forbiddenPathPatterns: [
-                "engineering/**",
-                "**/scripts/**",
-                "**/evals/**",
-                "rules/**",
-                "agents/**",
-                "prompts/**",
-                "commands/**",
-                "hooks/**",
-                "lsp/**",
-                "tooling/**",
-                "workflows/**",
-                ".pi/**",
-                ".git/**",
-            ],
+            forbiddenPathPatterns: artifactForbiddenPathPatterns({
+                audience: "public",
+            }),
             requiresApprovedTargets: true,
             evidenceIds: [
                 "workflows-68",
@@ -1443,7 +1478,7 @@ writeJson("artifacts.json", {
             fixtureOnly: false,
             materializationAllowed: approvedEngineeringTargets.length > 0,
             runtimeEligible: approvedEngineeringTargets.length > 0,
-            componentInventory: { skills: engineeringTargetIds, mcp: [] },
+            componentInventory: componentInventory(engineeringTargetIds),
             exactSourcePaths: exactPathsForTargets(approvedEngineeringTargets),
             allowedPathPatterns: [
                 "engineering/skills/<approved-target>/SKILL.md",
@@ -1451,26 +1486,9 @@ writeJson("artifacts.json", {
                 "engineering/skills/<approved-target>/assets/**",
                 "engineering/skills/<approved-target>/LICENSE*",
             ],
-            forbiddenPathPatterns: [
-                "skills/**",
-                "**/scripts/**",
-                "**/evals/**",
-                "rules/**",
-                "agents/**",
-                "prompts/**",
-                "commands/**",
-                "hooks/**",
-                "lsp/**",
-                "tooling/**",
-                "workflows/**",
-                ".pi/**",
-                ".git/**",
-                ".cratis/PROJECT.md",
-                ".agents/PROJECT.md",
-                "AGENTS.md",
-                "CLAUDE.md",
-                "GEMINI.md",
-            ],
+            forbiddenPathPatterns: artifactForbiddenPathPatterns({
+                audience: "cratis-engineering",
+            }),
             requiresApprovedTargets: true,
             evidenceIds: [
                 "workflows-68",
@@ -1484,10 +1502,9 @@ writeJson("artifacts.json", {
             fixtureOnly: true,
             materializationAllowed: true,
             runtimeEligible: false,
-            componentInventory: {
-                skills: ["cratis-engineering-docs-authoring-fixture"],
-                mcp: [],
-            },
+            componentInventory: componentInventory([
+                "cratis-engineering-docs-authoring",
+            ]),
             exactSourcePaths: [
                 "engineering/skills/cratis-engineering-docs-authoring/LICENSE",
                 "engineering/skills/cratis-engineering-docs-authoring/SKILL.md",
@@ -1498,25 +1515,10 @@ writeJson("artifacts.json", {
                 "skills/cratis-engineering-docs-authoring/SKILL.md",
                 "skills/cratis-engineering-docs-authoring/references/**",
             ],
-            forbiddenPathPatterns: [
-                "**/scripts/**",
-                "**/evals/**",
-                "rules/**",
-                "agents/**",
-                "prompts/**",
-                "commands/**",
-                "hooks/**",
-                "lsp/**",
-                "tooling/**",
-                "workflows/**",
-                ".pi/**",
-                ".git/**",
-                ".cratis/PROJECT.md",
-                ".agents/PROJECT.md",
-                "AGENTS.md",
-                "CLAUDE.md",
-                "GEMINI.md",
-            ],
+            forbiddenPathPatterns: artifactForbiddenPathPatterns({
+                audience: "cratis-engineering",
+                fixture: true,
+            }),
             requiresApprovedTargets: false,
             evidenceIds: [
                 "engineering-docs-authoring-source-f58bcf7",
@@ -1529,10 +1531,9 @@ writeJson("artifacts.json", {
             fixtureOnly: true,
             materializationAllowed: true,
             runtimeEligible: false,
-            componentInventory: {
-                skills: ["cratis-fundamentals-concept"],
-                mcp: [],
-            },
+            componentInventory: componentInventory([
+                "cratis-fundamentals-concept",
+            ]),
             exactSourcePaths: [
                 "skills/cratis-fundamentals-concept/LICENSE",
                 "skills/cratis-fundamentals-concept/SKILL.md",
@@ -1543,21 +1544,9 @@ writeJson("artifacts.json", {
                 "skills/cratis-fundamentals-concept/assets/**",
                 "skills/cratis-fundamentals-concept/LICENSE*",
             ],
-            forbiddenPathPatterns: [
-                "engineering/**",
-                "**/scripts/**",
-                "**/evals/**",
-                "rules/**",
-                "agents/**",
-                "prompts/**",
-                "commands/**",
-                "hooks/**",
-                "lsp/**",
-                "tooling/**",
-                "workflows/**",
-                ".pi/**",
-                ".git/**",
-            ],
+            forbiddenPathPatterns: artifactForbiddenPathPatterns({
+                audience: "public",
+            }),
             requiresApprovedTargets: false,
             evidenceIds: [
                 "reevaluation-authority",
@@ -1567,262 +1556,47 @@ writeJson("artifacts.json", {
     ],
 });
 
-const evidence = [
-    {
-        id: "github-organization-24",
-        officialUrl: "https://github.com/Cratis/.github/issues/24",
-        sourceKind: "organization-authority",
-        verifiedOn: "2026-08-20",
-        expiresOn: "2026-11-18",
-        applicableVersion: "issue-state-2026-08-20",
-        confidence: "high",
-    },
-    {
-        id: "workflows-68",
-        officialUrl: "https://github.com/Cratis/Workflows/issues/68",
-        sourceKind: "organization-authority",
-        verifiedOn: "2026-08-20",
-        expiresOn: "2026-09-19",
-        applicableVersion: "issue-state-2026-08-20",
-        confidence: "high",
-    },
-    {
-        id: "ai-126",
-        officialUrl: "https://github.com/Cratis/AI/issues/126",
-        sourceKind: "repository-authority",
-        verifiedOn: "2026-08-20",
-        expiresOn: "2026-11-18",
-        applicableVersion: "issue-state-2026-08-20",
-        confidence: "high",
-    },
-    {
-        id: "ai-127",
-        officialUrl: "https://github.com/Cratis/AI/issues/127",
-        sourceKind: "repository-authority",
-        verifiedOn: "2026-08-20",
-        expiresOn: "2026-11-18",
-        applicableVersion: "issue-state-2026-08-20",
-        confidence: "high",
-    },
-    {
-        id: sourceRevisionEvidenceId,
-        officialUrl: `https://github.com/Cratis/AI/tree/${revision}`,
-        sourceKind: "repository-snapshot",
-        verifiedOn: "2026-08-20",
-        expiresOn: "2027-08-20",
-        applicableVersion: revision,
-        confidence: "high",
-        immutableRevision: revision,
-    },
-    {
-        id: "public-fundamentals-concept-source-b53caa5",
-        officialUrl:
-            "https://github.com/Cratis/AI/tree/b53caa555b9a3f05ba1462b86202fe3ccb8a9470/skills/cratis-fundamentals-concept",
-        sourceKind: "repository-snapshot",
-        verifiedOn: "2026-08-23",
-        expiresOn: "2027-08-23",
-        applicableVersion: "b53caa555b9a3f05ba1462b86202fe3ccb8a9470",
-        confidence: "high",
-        immutableRevision: "b53caa555b9a3f05ba1462b86202fe3ccb8a9470",
-    },
-    {
-        id: "fundamentals-concept-source-review-2026-08-23",
-        officialUrl: "https://github.com/Cratis/AI/issues/148",
-        sourceKind: "local-evidence-report",
-        verifiedOn: "2026-08-23",
-        expiresOn: "2026-11-21",
-        applicableVersion:
-            "Cratis.Fundamentals@7.18.1+Cratis.Chronicle@16.38.1",
-        confidence: "high",
-        repositoryPath:
-            "distribution/evidence/fundamentals-concept-source-review-2026-08-23.json",
-        digest: digestFile(
-            "distribution/evidence/fundamentals-concept-source-review-2026-08-23.json",
-        ),
-    },
-    {
-        id: "fundamentals-concept-focused-evaluation-2026-08-23",
-        officialUrl: "https://github.com/Cratis/AI/issues/148",
-        sourceKind: "local-evidence-report",
-        verifiedOn: "2026-08-23",
-        expiresOn: "2026-11-21",
-        applicableVersion: "b53caa555b9a3f05ba1462b86202fe3ccb8a9470",
-        confidence: "medium",
-        repositoryPath:
-            "evals/cratis-fundamentals-concept/focused-evaluation.json",
-        digest: digestFile(
-            "evals/cratis-fundamentals-concept/focused-evaluation.json",
-        ),
-    },
-    {
-        id: "fundamentals-concept-samples-canary-2026-08-23",
-        officialUrl: "https://github.com/Cratis/Samples",
-        sourceKind: "local-evidence-report",
-        verifiedOn: "2026-08-23",
-        expiresOn: "2026-11-21",
-        applicableVersion:
-            "Cratis/Samples@55e6eb168606da96136cc7f91db8adf45aac3288",
-        confidence: "high",
-        repositoryPath:
-            "distribution/evidence/real-samples-fundamentals-preview-canary-2026-08-23.json",
-        digest: digestFile(
-            "distribution/evidence/real-samples-fundamentals-preview-canary-2026-08-23.json",
-        ),
-    },
-    {
-        id: "gemini-skill-discovery-2026-08-24",
-        officialUrl: "https://github.com/Cratis/AI",
-        sourceKind: "local-evidence-report",
-        verifiedOn: "2026-08-24",
-        expiresOn: "2026-11-22",
-        applicableVersion: "Gemini CLI 0.33.1",
-        confidence: "high",
-        repositoryPath:
-            "distribution/evidence/local-gemini-skill-discovery-2026-08-24.json",
-        digest: digestFile(
-            "distribution/evidence/local-gemini-skill-discovery-2026-08-24.json",
-        ),
-    },
-    {
-        id: "engineering-docs-add-page-source-684d037",
-        officialUrl:
-            "https://github.com/Cratis/AI/tree/684d03755bacd40af95463b81b4a0c8b9f088ec1/engineering/skills/cratis-engineering-docs-add-page",
-        sourceKind: "repository-snapshot",
-        verifiedOn: "2026-08-22",
-        expiresOn: "2027-08-22",
-        applicableVersion: "684d03755bacd40af95463b81b4a0c8b9f088ec1",
-        confidence: "high",
-        immutableRevision: "684d03755bacd40af95463b81b4a0c8b9f088ec1",
-    },
-    {
-        id: "engineering-docs-edit-page-source-684d037",
-        officialUrl:
-            "https://github.com/Cratis/AI/tree/684d03755bacd40af95463b81b4a0c8b9f088ec1/engineering/skills/cratis-engineering-docs-edit-page",
-        sourceKind: "repository-snapshot",
-        verifiedOn: "2026-08-22",
-        expiresOn: "2027-08-22",
-        applicableVersion: "684d03755bacd40af95463b81b4a0c8b9f088ec1",
-        confidence: "high",
-        immutableRevision: "684d03755bacd40af95463b81b4a0c8b9f088ec1",
-    },
-    {
-        id: "engineering-ship-changes-no-effect-source-6b5388d",
-        officialUrl:
-            "https://github.com/Cratis/AI/tree/6b5388ddc660e8c9ddae0d7aa3ef3b5581a9f979/.ai/skills/ship-changes",
-        sourceKind: "repository-snapshot",
-        verifiedOn: "2026-08-24",
-        expiresOn: "2027-08-24",
-        applicableVersion: "6b5388ddc660e8c9ddae0d7aa3ef3b5581a9f979",
-        confidence: "high",
-        immutableRevision: "6b5388ddc660e8c9ddae0d7aa3ef3b5581a9f979",
-    },
-    {
-        id: "engineering-docs-authoring-source-f58bcf7",
-        officialUrl:
-            "https://github.com/Cratis/AI/tree/f58bcf7f5cc9fc0e11305ada3b5ecb6fa20953e9/engineering/skills/cratis-engineering-docs-authoring",
-        sourceKind: "repository-snapshot",
-        verifiedOn: "2026-08-22",
-        expiresOn: "2027-08-22",
-        applicableVersion: "f58bcf7f5cc9fc0e11305ada3b5ecb6fa20953e9",
-        confidence: "high",
-        immutableRevision: "f58bcf7f5cc9fc0e11305ada3b5ecb6fa20953e9",
-    },
-    {
-        id: "engineering-docs-authoring-evaluation-2026-08-22",
-        officialUrl: "https://github.com/Cratis/AI",
-        sourceKind: "local-evidence-report",
-        verifiedOn: "2026-08-22",
-        expiresOn: "2026-11-20",
-        applicableVersion: "f58bcf7f5cc9fc0e11305ada3b5ecb6fa20953e9",
-        confidence: "high",
-        repositoryPath:
-            "evals/cratis-engineering-docs-authoring/evaluation-summary.json",
-        digest: "b8a322d0f43764a0469c540f28fd57734be4f6a885f81064f55ffe06f85d5c74",
-    },
-    {
-        id: "reevaluation-authority",
-        officialUrl: "https://github.com/Cratis/AI",
-        sourceKind: "local-evidence-report",
-        verifiedOn: "2026-08-20",
-        expiresOn: "2026-09-19",
-        applicableVersion: "content-digest-bound",
-        confidence: "medium",
-        repositoryPath: "AI-REPOSITORY-REDESIGN-REEVALUATION.md",
-        digest: digestFile("AI-REPOSITORY-REDESIGN-REEVALUATION.md"),
-    },
-    {
-        id: "ecosystem-use-cases",
-        officialUrl: "https://github.com/Cratis/AI",
-        sourceKind: "local-evidence-report",
-        verifiedOn: "2026-08-20",
-        expiresOn: "2026-11-18",
-        applicableVersion: "content-digest-bound",
-        confidence: "medium",
-        repositoryPath: "AI-REPOSITORY-REDESIGN-ECOSYSTEM-USE-CASES.md",
-        digest: digestFile("AI-REPOSITORY-REDESIGN-ECOSYSTEM-USE-CASES.md"),
-    },
-    {
-        id: "third-party-skills-evaluation",
-        officialUrl: "https://github.com/Cratis/AI",
-        sourceKind: "local-evidence-report",
-        verifiedOn: "2026-08-20",
-        expiresOn: "2026-11-18",
-        applicableVersion: "content-digest-bound",
-        confidence: "medium",
-        repositoryPath:
-            "AI-REPOSITORY-REDESIGN-THIRD-PARTY-SKILLS-EVALUATION.md",
-        digest: digestFile(
-            "AI-REPOSITORY-REDESIGN-THIRD-PARTY-SKILLS-EVALUATION.md",
-        ),
-    },
-    {
-        id: "option-a-plus-authority",
-        officialUrl:
-            "https://github.com/Cratis/Workflows/issues/68#issuecomment-5363284054",
-        sourceKind: "organization-authority",
-        verifiedOn: "2026-08-20",
-        expiresOn: "2027-08-20",
-        applicableVersion: "option-a-plus-accepted",
-        confidence: "high",
-    },
-    {
-        id: "organization-option-a-plus-authority",
-        officialUrl:
-            "https://github.com/Cratis/.github/issues/24#issuecomment-5363284173",
-        sourceKind: "organization-authority",
-        verifiedOn: "2026-08-20",
-        expiresOn: "2027-08-20",
-        applicableVersion: "option-a-plus-accepted",
-        confidence: "high",
-    },
-];
-const ecosystemFacts = [];
-for (const ecosystem of v1Ecosystems.ecosystems) {
-    const sourceIds = ecosystem.sources.map((source, index) => {
-        const id = `${ecosystem.id}-source-${index + 1}`;
-        evidence.push({
-            id,
-            officialUrl: source.url,
-            sourceKind: source.kind,
-            verifiedOn: source.verifiedOn,
-            expiresOn: "2026-11-18",
-            applicableVersion: ecosystem.version,
-            confidence: ecosystem.status === "provisional" ? "medium" : "high",
-        });
-        return id;
-    });
-    ecosystem.facts.forEach((fact, index) =>
-        ecosystemFacts.push({
-            id: `${ecosystem.id}-fact-${index + 1}`,
-            ecosystemId: ecosystem.id,
-            fact,
-            evidenceIds: sourceIds,
-        }),
-    );
-}
+const normalizedEvidence = readCatalog(
+    join(repositoryRoot, "catalog/evidence.json"),
+);
+const normalizedSourcesById = new Map(
+    normalizedEvidence.sources.map((source) => [source.id, source]),
+);
+const evidence = normalizedEvidence.observations.map((observation) => {
+    const source = normalizedSourcesById.get(observation.sourceId);
+    if (!source)
+        throw new Error(
+            `Normalized observation ${observation.id} references unknown source ${observation.sourceId}`,
+        );
+    return {
+        id: observation.id,
+        officialUrl: observation.legacy.officialUrl,
+        sourceKind: observation.legacy.sourceKind,
+        verifiedOn: observation.observedOn,
+        expiresOn: observation.validThrough,
+        applicableVersion: observation.legacy.applicableVersion,
+        confidence: observation.confidence,
+        ...(source.immutableRevision
+            ? { immutableRevision: source.immutableRevision }
+            : {}),
+        ...(source.repositoryPath
+            ? { repositoryPath: source.repositoryPath }
+            : {}),
+        ...(source.digest ? { digest: source.digest } : {}),
+    };
+});
+const ecosystemFacts = normalizedEvidence.legacyFacts
+    .map(({ id, ecosystemId, fact, evidenceIds }) => ({
+        id,
+        ecosystemId,
+        fact,
+        evidenceIds: [...evidenceIds].sort(compareOrdinal),
+    }))
+    .sort((left, right) => compareOrdinal(left.id, right.id));
+evidence.sort((left, right) => compareOrdinal(left.id, right.id));
 writeJson("evidence.json", {
     schemaVersion: 2,
-    asOf: "2026-08-24",
+    asOf: normalizedEvidence.asOf,
     generatedBy: "tooling/generate-catalog-v2.mjs",
     evidence,
     ecosystemFacts,
@@ -1880,6 +1654,7 @@ writeJson("product-coverage.json", {
     languages: coverageLanguages,
     products: coverageProducts,
 });
+generateComponentCatalogs(repositoryRoot);
 
 process.stdout.write(
     `Generated catalog v2: ${sources.length} sources, ${targets.length} targets, ${migrations.length} migrations, ${evidence.length} evidence records, and ${ecosystemFacts.length} ecosystem facts.\n`,

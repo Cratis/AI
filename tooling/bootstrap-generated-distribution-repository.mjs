@@ -11,6 +11,7 @@ import {
     generateDistributionFixture,
     validateDistributionFixture,
 } from "./generate-distribution-fixture.mjs";
+import { forbiddenPathPolicy } from "./harness-registry.mjs";
 
 const defaultRepositoryRoot = resolve(
     fileURLToPath(new URL("..", import.meta.url)),
@@ -140,13 +141,7 @@ export function verifyGeneratedDistributionRepository(
                 `Generated repository digest mismatch: ${file.path}`,
             );
     }
-    const forbiddenSegments = new Set([
-        "agents",
-        "evals",
-        "hooks",
-        "prompts",
-        "tooling",
-    ]);
+    const forbiddenSegments = new Set(forbiddenPathPolicy.artifactSegments);
     if (
         expectedFiles.some((path) =>
             path.split("/").some((segment) => forbiddenSegments.has(segment)),

@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "defaultPolicy": "deny",
+  "guidanceProductId": "studio",
+  "guidanceComponentId": "cratis-studio-mcp-safety-guidance",
+  "sourceContractId": null,
+  "authorityState": "NO_ADMITTED_TOOL_EFFECT_EVIDENCE",
+  "defaultDisposition": "evidence-blocked",
+  "upstreamRevision": null,
+  "inventoryDigest": null,
+  "inventoryEvidenceId": null,
+  "effectClasses": [
+    "classification-only",
+    "observational",
+    "effectful",
+    "unknown"
+  ],
+  "blockedEffectIds": [
+    "credential-access",
+    "destructive",
+    "dynamic-delegation",
+    "execute",
+    "open-world-transmission",
+    "publish",
+    "unbounded-transmission",
+    "write"
+  ],
+  "admissionRequirements": [
+    "bounded-output",
+    "closed-transitive-operation-set",
+    "complete-subject-inventory",
+    "credential-review",
+    "effect-review",
+    "immutable-upstream-revision",
+    "implementation-digest",
+    "input-output-schema-digest",
+    "output-classification",
+    "redaction-review",
+    "unique-subject-identity"
+  ],
+  "emission": {
+    "classificationReferencesAllowed": true,
+    "executableAllowed": false,
+    "installationAllowed": false,
+    "invocationAllowed": false,
+    "promptInvocationAllowed": false,
+    "runtimeConfigurationAllowed": false,
+    "serverBytesAllowed": false
+  },
+  "tools": [],
+  "prompts": []
+}
