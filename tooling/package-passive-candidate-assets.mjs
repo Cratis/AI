@@ -16,6 +16,7 @@ import {
 import { tmpdir } from "node:os";
 import { join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { buildCandidateComponentCoverage } from "./candidate-component-coverage.mjs";
 import { compareOrdinal } from "./catalog-ordering.mjs";
 import { passiveHarnesses } from "./harness-registry.mjs";
 import {
@@ -423,11 +424,17 @@ export function packagePassiveCandidateAssets({
             reviewNotice(authority, version),
             { flag: "wx" },
         );
+        const componentCoveragePath = "candidate-component-coverage.json";
+        writeJson(
+            join(root, componentCoveragePath),
+            buildCandidateComponentCoverage(repositoryRoot),
+        );
         const sourceCommit = execFileSync("git", ["rev-parse", "HEAD"], {
             cwd: repositoryRoot,
             encoding: "utf8",
         }).trim();
         const generatorPaths = [
+            "tooling/candidate-component-coverage.mjs",
             "tooling/catalog-ordering.mjs",
             "tooling/catalog-validation.mjs",
             "tooling/deterministic-release-tree.mjs",
@@ -460,6 +467,10 @@ export function packagePassiveCandidateAssets({
             generatorDigest: generatorHash.digest("hex"),
             componentCatalogSha256: sha256(
                 readFileSync(join(repositoryRoot, "catalog/v2/components.json")),
+            ),
+            componentCoveragePath,
+            componentCoverageSha256: sha256(
+                readFileSync(join(root, componentCoveragePath)),
             ),
             targetIds: authority.targets.map((target) => target.id),
             targetExclusions: authority.artifact.targetExclusions,

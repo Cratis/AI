@@ -12,6 +12,7 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
+import { buildCandidateComponentCoverage } from "../candidate-component-coverage.mjs";
 import { passiveHarnesses } from "../harness-registry.mjs";
 import {
     packagePassiveCandidateAssets,
@@ -140,6 +141,38 @@ test("passive candidate assets package every currently safe target and account f
             assert.equal(manifest.assets.length, passiveHarnesses.length);
             assert.match(manifest.sourceCommit, /^[0-9a-f]{40}$/);
             assert.match(manifest.generatorDigest, /^[0-9a-f]{64}$/);
+            assert.match(manifest.componentCoverageSha256, /^[0-9a-f]{64}$/);
+            const coverage = JSON.parse(
+                readFileSync(
+                    join(
+                        manifest === publicManifest
+                            ? publicRoot
+                            : engineeringRoot,
+                        manifest.componentCoveragePath,
+                    ),
+                    "utf8",
+                ),
+            );
+            assert.equal(coverage.componentCount, 137);
+            assert.equal(coverage.byDisposition["skill-packaged-candidate"], 41);
+            assert.equal(coverage.byDisposition["skill-blocked-candidate"], 4);
+            assert.equal(
+                coverage.byDisposition["skill-legacy-repository-only"],
+                4,
+            );
+            assert.equal(
+                coverage.byDisposition["native-static-review-projected"],
+                35,
+            );
+            assert.equal(coverage.byDisposition["native-static-unprojected"], 2);
+            assert.equal(
+                coverage.byDisposition["repository-host-adapter-only"],
+                48,
+            );
+            assert.equal(coverage.byDisposition["executable-blocked"], 3);
+            assert.equal(coverage.runtimeEligible, false);
+            assert.equal(coverage.publicationEligible, false);
+            assert.equal(coverage.supportGranted, false);
             assert(
                 manifest.sourceSkills.every(
                     (source) =>
@@ -230,7 +263,8 @@ test("passive candidate archives are deterministic private and non-installable",
         assert(checksums.includes("candidate-assets.json"));
         assert(checksums.includes("candidate-sbom.json"));
         assert(checksums.includes("candidate-support-matrix.json"));
-        assert.equal(checksums.trim().split("\n").length, first.assets.length + 8);
+        assert(checksums.includes("candidate-component-coverage.json"));
+        assert.equal(checksums.trim().split("\n").length, first.assets.length + 9);
     });
 });
 
@@ -290,6 +324,8 @@ test("passive candidate workflow is manual read-only and short-lived", () => {
         "persist-credentials: false",
         "candidate-passive-public-package",
         "candidate-passive-engineering-package",
+        "package-native-non-skill-review-assets.mjs",
+        "NATIVE_NON_SKILL_REVIEW_ONLY",
         "PASSIVE_CANDIDATE_REVIEW_ONLY",
         "installationSupported",
         "supportGranted",
@@ -308,6 +344,42 @@ test("passive candidate workflow is manual read-only and short-lived", () => {
         "git push",
     ])
         assert.equal(workflow.includes(forbidden), false, forbidden);
+});
+
+test("candidate component coverage closes every modeled component kind", () => {
+    const coverage = buildCandidateComponentCoverage();
+    assert.equal(coverage.componentCount, 137);
+    assert.deepEqual(coverage.byKind, {
+        agent: 12,
+        command: 18,
+        "executable-host-extension": 2,
+        hook: 1,
+        instruction: 1,
+        prompt: 18,
+        rule: 36,
+        skill: 49,
+    });
+    assert.equal(coverage.records.length, 137);
+    assert.equal(
+        new Set(coverage.records.map((record) => record.componentId)).size,
+        137,
+    );
+    assert(
+        coverage.records
+            .filter((record) => ["agent", "command", "prompt"].includes(record.kind))
+            .every(
+                (record) =>
+                    record.disposition === "repository-host-adapter-only" &&
+                    record.existingProjectionCount > 0,
+            ),
+    );
+    assert(
+        coverage.records
+            .filter((record) =>
+                ["hook", "executable-host-extension"].includes(record.kind),
+            )
+            .every((record) => record.disposition === "executable-blocked"),
+    );
 });
 
 test("passive candidate configuration is closed to the two audience review bundles", () => {

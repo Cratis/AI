@@ -15,8 +15,11 @@ It serves two separate audiences:
 > review bundles now package 41 passive targets across 34 harness shapes. Four
 > additional targets remain explicitly blocked by MCP or private/local-content
 > safety boundaries, and four superseded legacy skills remain repository-only;
-> together the manifests account for all 49 skill components. Do not install
-> this mixed source repository or the review bundles as runtime packages.
+> together the manifests account for all 49 skill components. A shared coverage
+> record dispositions all 137 component kinds, and four native review snapshots
+> cover 35 statically projected rule/instruction components without package
+> identity. Do not install this mixed source repository or the review bundles as
+> runtime packages.
 
 ## The architecture
 

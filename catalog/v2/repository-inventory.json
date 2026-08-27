@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "757fc79127aeff74c4579d110d9b754299ca20ae6560705303ed796fd8e00826",
+  "indexDigest": "2c276fd7f0c74ddc3af9151a5dcbb8b86a8ed3a1716b247f0498deedf6a48196",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -2255,6 +2255,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/candidate-component-coverage.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/catalog-ordering.mjs",
       "status": "added"
     },
@@ -2523,6 +2527,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/package-native-non-skill-review-assets.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/package-passive-candidate-assets.mjs",
       "status": "added"
     },
@@ -2756,6 +2764,10 @@
     },
     {
       "path": "tooling/specs/mcp-guidance.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/native-non-skill-review-assets.spec.mjs",
       "status": "added"
     },
     {
@@ -4440,8 +4452,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 67,
-      "expectedPathsDigest": "e72ad7e495dd9392ec306aa92530ffa985eb23c888dafe1305238b7254910bab"
+      "expectedPathCount": 69,
+      "expectedPathsDigest": "48b5c9427562f0d86f3a5995ba4ffd85eadaa688ba2b317021e111937c394cea"
     },
     {
       "excludePathPatterns": [],
@@ -4464,8 +4476,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 52,
-      "expectedPathsDigest": "93c83f20ae80ba066b4e5b9698c4f102afd507777f1749226c463c634511cc3b"
+      "expectedPathCount": 53,
+      "expectedPathsDigest": "d5ccaaeb55b8f4e2980f7c8f82d8e66ded3967f46ca0bfa23b59576317299b87"
     },
     {
       "excludePathPatterns": [],
