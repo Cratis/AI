@@ -33,6 +33,16 @@ test("verification workflow covers every release-relevant source", () => {
     }
 });
 
+test("strict JSON verification excludes generated Distribution workflow YAML", () => {
+    assert(verification.includes("path.startsWith('catalog/')"));
+    assert.equal(
+        verification.includes(
+            "path.endsWith('.json') || path.endsWith('.yml')",
+        ),
+        false,
+    );
+});
+
 test("required verification uses the basic lane while governed assurance stays separate", () => {
     for (const required of [
         "generate-support.mjs",
