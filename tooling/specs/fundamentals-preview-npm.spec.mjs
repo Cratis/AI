@@ -111,6 +111,10 @@ test("publishable Fundamentals preview npm asset is deterministic and scriptless
         assert(
             files.has("package/skills/cratis-fundamentals-concept/SKILL.md"),
         );
+        const readme = files.get("package/README.md").toString("utf8");
+        assert(readme.includes("pi install npm:@cratis/ai-fundamentals@0.1.0-preview.1"));
+        assert(readme.includes("pi install -l npm:@cratis/ai-fundamentals@0.1.0-preview.1"));
+        assert(readme.includes("unsupported evaluation release"));
         const checksums = readFileSync(join(firstRoot, "SHA256SUMS"), "utf8");
         assert(checksums.includes(first.filename));
         assert(checksums.includes("preview-npm-manifest.json"));
@@ -213,6 +217,12 @@ test("normal release stages a support-free 0.x package for latest", () => {
         assert.equal(manifest.previewPublicationEligible, false);
         assert.equal(manifest.supportGranted, false);
         assert.equal(manifest.stablePromotionEligible, false);
+        const files = readTarGzip(
+            readFileSync(join(root, "release", manifest.filename)),
+        );
+        const readme = files.get("package/README.md").toString("utf8");
+        assert(readme.includes("pi install npm:@cratis/ai-fundamentals@0.1.0"));
+        assert(readme.includes("pi -e npm:@cratis/ai-fundamentals@0.1.0"));
     });
 });
 
