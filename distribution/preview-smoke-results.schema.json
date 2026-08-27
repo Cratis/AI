@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cratis/AI/distribution/preview-smoke-results.schema.json",
+  "title": "Cratis passive preview smoke results",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "defaultPolicy", "records"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "defaultPolicy": { "const": "deny" },
+    "records": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "profileId", "packageName", "version", "sourceRevision", "artifactSha256", "host", "hostVersion", "workflowRunUrl", "checks", "outcome", "supporting"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+          "profileId": { "const": "public-fundamentals" },
+          "packageName": { "const": "@cratis/ai-fundamentals" },
+          "version": { "type": "string", "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-(?:0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$" },
+          "sourceRevision": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+          "artifactSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "host": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+          "hostVersion": { "type": "string", "minLength": 1 },
+          "workflowRunUrl": { "type": "string", "format": "uri" },
+          "checks": {
+            "type": "array",
+            "minItems": 5,
+            "maxItems": 5,
+            "uniqueItems": true,
+            "items": { "enum": ["pack", "install", "discovery", "uninstall", "rollback"] }
+          },
+          "outcome": { "const": "pass" },
+          "supporting": { "const": false }
+        }
+      }
+    }
+  }
+}

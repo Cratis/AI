@@ -72,12 +72,14 @@ jobs:
                   set -euo pipefail
                   node tooling/harness-registry.mjs
                   node tooling/generate-catalog-v2.mjs
+                  node tooling/generate-support.mjs
                   node tooling/preview-readiness.mjs
                   node tooling/generate-ecosystem-artifact-coverage.mjs
                   node tooling/generate-human-catalog.mjs
                   node tooling/generate-repository-inventory.mjs
                   git diff --exit-code -- \
                     catalog/v2 \
+                    catalog/v2/support.json \
                     catalog/generated/human-catalog \
                     distribution/artifact-matrix.json \
                     distribution/engineering-artifact-matrix.json \

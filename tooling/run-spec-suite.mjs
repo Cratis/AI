@@ -19,7 +19,6 @@ export const governedOnlySpecBasenames = Object.freeze([
     "release-merge-topology.spec.mjs",
     "release-request.spec.mjs",
     "s10-release-gate.spec.mjs",
-    "source-evidence-contract.spec.mjs",
     "support-validation.spec.mjs",
 ]);
 

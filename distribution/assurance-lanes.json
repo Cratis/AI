@@ -60,8 +60,8 @@
   "selectedPreview": {
     "profileId": "public-fundamentals",
     "packageName": "@cratis/ai-fundamentals",
-    "basicHostSmokeComplete": false,
-    "requiredStatusConfigured": false
+    "requiredStatusContext": "preview / verify",
+    "smokeRegistry": "distribution/preview-smoke-results.json"
   },
   "advancedAssurance": {
     "status": "SIDELINED_AVAILABLE",

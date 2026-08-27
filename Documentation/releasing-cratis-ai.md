@@ -16,16 +16,17 @@ tracked in [AI#181](https://github.com/Cratis/AI/issues/181).
 
 `public-fundamentals` is the selected first preview. Generated
 [`preview-readiness.json`](../distribution/preview-readiness.json) is independent
-of S10 and currently lists seven basic owner-setup blockers: reconcile the exact
-npm package name, prove ownership, configure trusted OIDC, enable public preview
-publishing, complete one basic exact-artifact host smoke, and configure the
-required preview status.
+of S10 and currently lists eight basic blockers: reconcile the exact npm package
+name, prove ownership, configure trusted OIDC, enable public preview publishing,
+record one immutable basic exact-artifact host smoke, configure the required
+preview status, and implement the separately reviewed preview release workflow.
 
-Once those practical controls are ready, an ordinary independently reviewed PR
-can request an exact preview version. The preview workflow packages the passive
-profile, verifies deterministic bytes and safety checks, runs the basic smoke,
-and publishes through the protected environment. It does not require the full
-evidence graph and cannot promote itself to stable support.
+The current Fundamentals workflow is packaging-only: it emits private,
+approval-pending review assets and asserts that preview requests remain blocked.
+It does not publish. After the owner controls and smoke record exist, a separate
+reviewed change can add the request/publication workflow. That future workflow
+must use the basic readiness result and protected environment, and can never
+promote itself to stable support.
 
 ## Static candidate review before release authority
 

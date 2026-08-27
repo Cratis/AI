@@ -38,6 +38,7 @@ const basicMode = process.argv.includes("--basic");
 const basicErrors = [
     ...validateCatalogs(),
     ...validateV2Catalogs(),
+    ...validateSourceEvidenceContract(),
     ...validateCodeReviewPilot(),
     ...validateDomainExpertEventModelingPilot(),
     ...validateDistributionConfiguration(),
@@ -46,7 +47,10 @@ const basicErrors = [
     ...validateEngineeringDocsCompanions(),
     ...validateProfileSubscriptions(),
     ...validatePreviewReadiness(),
+    ...validateReleaseApprovals(),
     ...validateEcosystemArtifactContracts(),
+    ...validateSupportCatalogs(),
+    ...validateMarketplacePublications(),
     ...validateReleaseAssurancePolicy(),
     ...validateChronicleMcpGuidance(),
     ...validateMcpGuidanceProducts(),
@@ -58,15 +62,11 @@ const basicErrors = [
 const governedErrors = basicMode
     ? []
     : [
-          ...validateSourceEvidenceContract(),
           ...validateReleaseRequests().errors,
-          ...validateReleaseApprovals(),
-          ...validateSupportCatalogs(),
           ...validateRealHostCanaryMatrix(loadRealHostCanaryContracts()),
           ...validateCheckedInRealHostCanaryReports(),
           ...validateS10ReleaseGate(),
           ...validateReleaseLifecycleEvidence(),
-          ...validateMarketplacePublications(),
       ];
 const errors = [...basicErrors, ...governedErrors];
 if (errors.length > 0) {

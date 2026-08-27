@@ -33,11 +33,15 @@
     },
     {
       "code": "basic-host-smoke-pending",
-      "reason": "A basic exact-artifact pack, install, discovery, and uninstall smoke has not been accepted."
+      "reason": "No immutable basic exact-artifact smoke record covers pack, install, discovery, uninstall, and rollback."
     },
     {
       "code": "required-preview-status-not-configured",
-      "reason": "The protected preview verification status is not configured."
+      "reason": "The protected preview / verify status is not configured."
+    },
+    {
+      "code": "preview-release-workflow-not-implemented",
+      "reason": "The passive preview request and publication workflow is not implemented."
     }
   ],
   "governedAssurance": {

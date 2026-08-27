@@ -2,7 +2,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -34,6 +34,17 @@ function validateWithSchema(root, value, schemaPath) {
         throw new Error(`${schemaPath}: ${errors.join("; ")}`);
 }
 
+const expectedPreviewChecks = Object.freeze([
+    "deterministic-generation",
+    "static-contract-validation",
+    "secret-and-path-scanning",
+    "schema-validation",
+    "checksums",
+    "independent-review",
+    "basic-pack-install-discovery-uninstall-smoke",
+    "exact-version-rollback",
+]);
+
 function addBlocker(blockers, code, reason) {
     blockers.push({ code, reason });
 }
@@ -49,6 +60,15 @@ export function buildPreviewReadiness(
         "distribution/assurance-lanes.schema.json",
     );
     const profileCatalog = readJson(root, "distribution/profile-catalog.json");
+    const smokeResults = readJson(
+        root,
+        lanes.selectedPreview.smokeRegistry,
+    );
+    validateWithSchema(
+        root,
+        smokeResults,
+        "distribution/preview-smoke-results.schema.json",
+    );
     const targets = readJson(root, "catalog/v2/targets.json").targets;
     const artifacts = readJson(root, "catalog/v2/artifacts.json").artifacts;
     const npmStage = readJson(root, "distribution/npm-stage-contract.json");
@@ -70,7 +90,9 @@ export function buildPreviewReadiness(
         previewLane.passiveOnly !== true ||
         previewLane.publicationAllowed !== true ||
         previewLane.supportClaimAllowed !== false ||
-        previewLane.governedReadinessRequired !== false
+        previewLane.governedReadinessRequired !== false ||
+        JSON.stringify(previewLane.requiredChecks) !==
+            JSON.stringify(expectedPreviewChecks)
     )
         throw new Error("Passive preview lane authority changed");
     const profile = profileCatalog.publicProfiles.find(
@@ -139,25 +161,46 @@ export function buildPreviewReadiness(
             "public-preview-publish-disabled",
             "Public preview publication remains disabled.",
         );
-    if (lanes.selectedPreview.basicHostSmokeComplete !== true)
+    const acceptedSmoke = smokeResults.records.find(
+        (record) =>
+            record.profileId === profile.id &&
+            record.packageName === profile.packageName &&
+            record.outcome === "pass" &&
+            record.supporting === false &&
+            JSON.stringify([...record.checks].sort()) ===
+                JSON.stringify(
+                    ["pack", "install", "discovery", "uninstall", "rollback"].sort(),
+                ),
+    );
+    if (!acceptedSmoke)
         addBlocker(
             blockers,
             "basic-host-smoke-pending",
-            "A basic exact-artifact pack, install, discovery, and uninstall smoke has not been accepted.",
+            "No immutable basic exact-artifact smoke record covers pack, install, discovery, uninstall, and rollback.",
         );
-    if (lanes.selectedPreview.requiredStatusConfigured !== true)
+    const requiredStatuses =
+        remoteState.branchProtection.requiredStatuses ?? [];
+    if (!requiredStatuses.includes(lanes.selectedPreview.requiredStatusContext))
         addBlocker(
             blockers,
             "required-preview-status-not-configured",
-            "The protected preview verification status is not configured.",
+            `The protected ${lanes.selectedPreview.requiredStatusContext} status is not configured.`,
+        );
+    if (
+        !existsSync(
+            join(root, ".github/workflows/release-passive-previews.yml"),
+        )
+    )
+        addBlocker(
+            blockers,
+            "preview-release-workflow-not-implemented",
+            "The passive preview request and publication workflow is not implemented.",
         );
     const npmEnvironment = remoteState.protectedEnvironments.find(
         (environment) => environment.name === npmStage.workflow.environment,
     );
     if (!npmEnvironment || npmEnvironment.state !== "CONFIGURED")
         throw new Error("npm-stage protected environment is not configured");
-    if (governedReadiness.state !== "BLOCKED")
-        throw new Error("Governed assurance unexpectedly changed state");
     const readiness = {
         schemaVersion: 1,
         generatedBy: "tooling/preview-readiness.mjs",

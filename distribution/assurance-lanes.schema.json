@@ -33,12 +33,12 @@
     "selectedPreview": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["profileId", "packageName", "basicHostSmokeComplete", "requiredStatusConfigured"],
+      "required": ["profileId", "packageName", "requiredStatusContext", "smokeRegistry"],
       "properties": {
         "profileId": { "const": "public-fundamentals" },
         "packageName": { "const": "@cratis/ai-fundamentals" },
-        "basicHostSmokeComplete": { "type": "boolean" },
-        "requiredStatusConfigured": { "type": "boolean" }
+        "requiredStatusContext": { "const": "preview / verify" },
+        "smokeRegistry": { "const": "distribution/preview-smoke-results.json" }
       }
     },
     "advancedAssurance": {

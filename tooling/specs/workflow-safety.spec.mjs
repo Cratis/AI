@@ -35,6 +35,8 @@ test("verification workflow covers every release-relevant source", () => {
 
 test("required verification uses the basic lane while governed assurance stays separate", () => {
     for (const required of [
+        "generate-support.mjs",
+        "catalog/v2/support.json",
         "preview-readiness.mjs",
         "validate-catalogs.mjs --basic",
         "run-spec-suite.mjs --basic",
@@ -42,7 +44,6 @@ test("required verification uses the basic lane while governed assurance stays s
     ])
         assert(verification.includes(required), required);
     for (const governedOnly of [
-        "generate-support.mjs",
         "generate-release-readiness.mjs",
         "run-spec-suite.mjs --governed",
     ])
