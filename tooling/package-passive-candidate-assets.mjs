@@ -73,6 +73,14 @@ function walkFiles(root, current = root) {
     });
 }
 
+function repositoryLicenseEvidence(repositoryRoot) {
+    const path = "LICENSE";
+    const content = readFileSync(join(repositoryRoot, path));
+    if (!content.toString("utf8").includes("MIT License"))
+        throw new Error("Repository MIT license evidence changed");
+    return { license: "MIT", path, sha256: sha256(content) };
+}
+
 function sourceDigest(paths, contents) {
     const hash = createHash("sha256");
     for (const path of paths) {
@@ -231,6 +239,7 @@ export function loadPassiveCandidateAuthority(
         throw new Error(`${artifactId}: canonical skill names are not unique`);
     return {
         context,
+        licenseEvidence: repositoryLicenseEvidence(repositoryRoot),
         configuration,
         artifact,
         targets,
@@ -532,6 +541,7 @@ export function packagePassiveCandidateAssets({
             audience: authority.configuration.audience,
             bundleId: authority.configuration.bundleId,
             version,
+            licenseEvidence: authority.licenseEvidence,
             targetExclusions: authority.artifact.targetExclusions,
             repositoryOnlySkillExclusions: authority.repositoryOnlySkills,
             components: authority.sources.map((source, index) => ({

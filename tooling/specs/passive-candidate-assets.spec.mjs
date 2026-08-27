@@ -193,6 +193,11 @@ test("passive candidate assets package every currently safe target and account f
                     "utf8",
                 ),
             );
+            assert.deepEqual(sbom.licenseEvidence, {
+                license: "MIT",
+                path: "LICENSE",
+                sha256: "8db23da452b8cee0e9aa8d49801000475bbcc30ab4e6e322e28d1146df7230a7",
+            });
             assert.deepEqual(sbom.dependencies, []);
             assert.deepEqual(sbom.executableComponents, []);
             assert.equal(sbom.components.length, manifest.sourceSkills.length);

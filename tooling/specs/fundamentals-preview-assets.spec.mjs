@@ -10,12 +10,14 @@ import {
     mkdtempSync,
     readFileSync,
     rmSync,
+    symlinkSync,
     writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import {
+    createTarGzip,
     packageFundamentalsPreviewAssets,
     readTarGzip,
 } from "../package-fundamentals-preview-assets.mjs";
@@ -49,6 +51,33 @@ function packageVersion(consumerRoot) {
         ),
     ).version;
 }
+
+test("tar creation rejects traversal symlinks and path collisions", () => {
+    withTemporaryDirectory((root) => {
+        const sourceRoot = join(root, "source");
+        mkdirSync(sourceRoot);
+        writeFileSync(join(sourceRoot, "safe.txt"), "safe\n");
+        writeFileSync(join(root, "outside.txt"), "outside\n");
+        assert.throws(
+            () => createTarGzip(sourceRoot, ["../outside.txt"]),
+            /Tar source path is unsafe|escaped root/,
+        );
+        assert.throws(
+            () => createTarGzip(sourceRoot, ["safe.txt"], "../package"),
+            /Tar path prefix is unsafe/,
+        );
+        writeFileSync(join(sourceRoot, "SAFE.TXT"), "collision\n");
+        symlinkSync(join(root, "outside.txt"), join(sourceRoot, "link.txt"));
+        assert.throws(
+            () => createTarGzip(sourceRoot, ["link.txt"]),
+            /Tar source must be a regular file/,
+        );
+        assert.throws(
+            () => createTarGzip(sourceRoot, ["safe.txt", "SAFE.TXT"]),
+            /path collision/,
+        );
+    });
+});
 
 test("source-corrected Fundamentals preview assets remain approval-pending", () => {
     const evidence = JSON.parse(
@@ -233,6 +262,11 @@ test("Fundamentals preview assets are deterministic and non-publishable", () => 
             readFileSync(join(firstRoot, "preview-sbom.json"), "utf8"),
         );
         assert.equal(sbom.format, "cratis-passive-profile-sbom-v1");
+        assert.deepEqual(sbom.licenseEvidence, {
+            license: "MIT",
+            path: "LICENSE",
+            sha256: "8db23da452b8cee0e9aa8d49801000475bbcc30ab4e6e322e28d1146df7230a7",
+        });
         assert.deepEqual(sbom.dependencies, []);
         assert.deepEqual(sbom.executableComponents, []);
         assert.deepEqual(
