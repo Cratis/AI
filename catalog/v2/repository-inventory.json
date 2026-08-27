@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "a0e166f3b9bc4df15a6455dce7eb7ea95b2dd80b3cc38d6777483e6b9c49223d",
+  "indexDigest": "8793a6d950b3a748c8cae20b52b2f6e4360a77b00988b0f73a13038454dedf84",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -173,6 +173,10 @@
     {
       "path": ".gitignore",
       "status": "modified"
+    },
+    {
+      "path": ".gitleaks.toml",
+      "status": "added"
     },
     {
       "path": "Documentation/.markdownlint.json",
@@ -3024,6 +3028,7 @@
       "sourcePathPatterns": [
         ".gitattributes",
         ".gitignore",
+        ".gitleaks.toml",
         "LICENSE",
         "README.md"
       ],
@@ -3039,8 +3044,8 @@
       "evidenceIds": [
         "repo-main-b795d53"
       ],
-      "expectedPathCount": 4,
-      "expectedPathsDigest": "afe74be8573bd6b2bbaf6cb00ab97dd574334d3b9cf74980d60cdc96ec3e59fc"
+      "expectedPathCount": 5,
+      "expectedPathsDigest": "8caa01de1b913d15c864daef16c57d13fc2a99a19e9a23e63f0ceb8dddfd3c78"
     },
     {
       "excludePathPatterns": [],

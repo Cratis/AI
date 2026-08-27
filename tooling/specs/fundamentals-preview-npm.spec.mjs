@@ -112,8 +112,16 @@ test("publishable Fundamentals preview npm asset is deterministic and scriptless
             files.has("package/skills/cratis-fundamentals-concept/SKILL.md"),
         );
         const readme = files.get("package/README.md").toString("utf8");
-        assert(readme.includes("pi install npm:@cratis/ai-fundamentals@0.1.0-preview.1"));
-        assert(readme.includes("pi install -l npm:@cratis/ai-fundamentals@0.1.0-preview.1"));
+        assert(
+            readme.includes(
+                "pi install npm:@cratis/ai-fundamentals@0.1.0-preview.1",
+            ),
+        );
+        assert(
+            readme.includes(
+                "pi install -l npm:@cratis/ai-fundamentals@0.1.0-preview.1",
+            ),
+        );
         assert(readme.includes("unsupported evaluation release"));
         const checksums = readFileSync(join(firstRoot, "SHA256SUMS"), "utf8");
         assert(checksums.includes(first.filename));

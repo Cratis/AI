@@ -1,0 +1,16 @@
+# Copyright (c) Cratis. All rights reserved.
+# Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Generated evidence catalog immutable Git revisions"
+paths = ['''^catalog/(?:v2/)?evidence\.json$''']
+regexTarget = "line"
+regexes = [
+  '''^\s*"applicableVersion": "(?:Cratis/Samples@)?[0-9a-f]{40}",?$''',
+  '''^\s*"immutableRevision": "[0-9a-f]{40}",?$''',
+  '''^\s*"(?:officialUrl|locator)": "https://github\.com/Cratis/AI/(?:tree|blob)/[0-9a-f]{40}(?:/[^"]*)?",?$''',
+  '''^\s*"version": "[0-9a-f]{40}",?$'''
+]
