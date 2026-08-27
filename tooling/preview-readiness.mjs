@@ -114,12 +114,11 @@ export function buildPreviewReadiness(
     )
         throw new Error("Fundamentals preview artifact changed");
     const blockers = [];
-    if (npmStage.package.name !== lanes.selectedPreview.packageName)
-        addBlocker(
-            blockers,
-            "package-name-not-reconciled",
-            `npm stage names ${npmStage.package.name}; preview profile names ${lanes.selectedPreview.packageName}.`,
-        );
+    if (
+        npmStage.package.productionName !==
+        lanes.selectedPreview.packageName
+    )
+        throw new Error("Preview production package name is not reconciled");
     if (npmStage.package.publicOwnershipConfirmed !== true)
         addBlocker(
             blockers,
