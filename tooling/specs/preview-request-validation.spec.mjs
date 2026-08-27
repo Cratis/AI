@@ -13,6 +13,11 @@ function readJson(path) {
 
 test("preview request catalog is empty closed and valid before owner setup", () => {
     assert.deepEqual(validatePreviewRequests(), []);
+    assert(
+        validatePreviewRequests(undefined, { requireRequest: true }).some(
+            (error) => error.includes("At least one passive preview request"),
+        ),
+    );
     const requests = readJson("distribution/preview-requests.json");
     assert.deepEqual(requests.requests, []);
 });
@@ -26,6 +31,7 @@ test("preview request schema rejects support claims unknown fields and multiple 
         packageName: "@cratis/ai-fundamentals",
         version: "0.1.0-preview.1",
         sourceRevision: "a".repeat(40),
+        sourceContentDigest: "b".repeat(64),
         assuranceMode: "basic",
         supportClaim: true,
         releaseNotes: "Preview",
@@ -41,7 +47,7 @@ test("preview request schema rejects support claims unknown fields and multiple 
         schema,
     );
     assert(
-        errors.some((error) => error.includes("at most 1 items")),
+        errors.some((error) => error.includes("duplicate items")),
     );
     assert(
         errors.some((error) =>
@@ -63,9 +69,12 @@ test("preview request validation is bound to basic readiness and immutable sourc
     for (const required of [
         "buildPreviewReadiness",
         "READY_FOR_PREVIEW_REQUEST",
+        "loadPreviewAuthority",
+        "sourceContentDigest",
         "merge-base",
         "--is-ancestor",
         "cat-file",
+        "Preview requests must append exactly one record",
     ])
         assert(source.includes(required), required);
     for (const forbidden of ["npm publish", "id-token", "gh release"])

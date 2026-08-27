@@ -15,7 +15,6 @@ on:
     branches: ["main"]
     paths:
       - "distribution/preview-requests.json"
-  workflow_dispatch:
 
 permissions:
   contents: read
@@ -30,8 +29,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     outputs:
-      preview_allowed: ${{ steps.readiness.outputs.preview_allowed }}
+      preview_allowed: ${{ steps.authorize.outputs.preview_allowed }}
       version: ${{ steps.request.outputs.version }}
+      artifact_sha256: ${{ steps.stage.outputs.artifact_sha256 }}
     steps:
       - name: Check out complete immutable history
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -53,23 +53,38 @@ jobs:
           git diff --exit-code -- distribution/preview-readiness.json
           state=$(node -p "require('./distribution/preview-readiness.json').state")
           test "$(node -p "require('./distribution/preview-readiness.json').supportGranted")" = "false"
-          if [ "$state" = "READY_FOR_PREVIEW_REQUEST" ]; then
-            echo "preview_allowed=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "preview_allowed=false" >> "$GITHUB_OUTPUT"
-          fi
+          echo "state=$state" >> "$GITHUB_OUTPUT"
 
       - name: schema-validation
         id: request
+        env:
+          BASE_REVISION: ${{ github.event.pull_request.base.sha || github.event.before }}
         run: |
           set -euo pipefail
-          node tooling/preview-request-validation.mjs
+          node tooling/preview-request-validation.mjs \
+            --require-request --base "$BASE_REVISION"
           version=$(node - <<'NODE'
           const requests = require('./distribution/preview-requests.json').requests;
-          process.stdout.write(requests[0]?.version ?? '0.1.0-preview.1');
+          if (requests.length === 0) process.exit(1);
+          process.stdout.write(requests.at(-1).version);
           NODE
           )
           echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Authorize exact reviewed request
+        id: authorize
+        env:
+          READINESS_STATE: ${{ steps.readiness.outputs.state }}
+          VERSION: ${{ steps.request.outputs.version }}
+        run: |
+          set -euo pipefail
+          test -n "$VERSION"
+          if [ "$READINESS_STATE" = "READY_FOR_PREVIEW_REQUEST" ]; then
+            echo "preview_allowed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "preview_allowed=false" >> "$GITHUB_OUTPUT"
+            exit 1
+          fi
 
       - name: static-contract-validation
         run: node tooling/validate-catalogs.mjs --basic
@@ -80,30 +95,38 @@ jobs:
           node --test tooling/specs/fundamentals-preview-assets.spec.mjs
 
       - name: checksums
+        id: stage
         env:
           VERSION: ${{ steps.request.outputs.version }}
         run: |
           set -euo pipefail
-          node tooling/package-fundamentals-preview-assets.mjs \
-            "$RUNNER_TEMP/fundamentals-preview" "$VERSION"
-          (cd "$RUNNER_TEMP/fundamentals-preview" && sha256sum -c SHA256SUMS)
+          node tooling/package-fundamentals-preview-npm.mjs \
+            "$RUNNER_TEMP/fundamentals-preview-npm" "$VERSION"
+          (cd "$RUNNER_TEMP/fundamentals-preview-npm" && sha256sum -c SHA256SUMS)
+          archive="$RUNNER_TEMP/fundamentals-preview-npm/cratis-ai-fundamentals-$VERSION.tgz"
+          echo "artifact_sha256=$(sha256sum "$archive" | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
 
       - name: owner-review
         run: |
           echo "The protected pull request and environment provide the owner review boundary."
 
       - name: basic-pack-install-discovery-uninstall-smoke
-        run: node --test tooling/specs/fundamentals-preview-npm.spec.mjs
+        env:
+          VERSION: ${{ steps.request.outputs.version }}
+        run: |
+          node tooling/smoke-fundamentals-preview-npm.mjs \
+            "$RUNNER_TEMP/fundamentals-preview-npm/cratis-ai-fundamentals-$VERSION.tgz" \
+            "$VERSION"
 
       - name: exact-version-rollback
-        run: node --test tooling/specs/fundamentals-preview-assets.spec.mjs
+        run: node --test tooling/specs/fundamentals-preview-npm.spec.mjs
 
       - name: Upload preview review assets
-        if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'pull_request'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v7.0.1
         with:
           name: fundamentals-${{ steps.request.outputs.version }}-preview-review
-          path: ${{ runner.temp }}/fundamentals-preview
+          path: ${{ runner.temp }}/fundamentals-preview-npm
           if-no-files-found: error
           retention-days: 7
 
@@ -141,21 +164,27 @@ jobs:
           ' "$npm_version"
 
       - name: Revalidate preview request and readiness
+        env:
+          BASE_REVISION: ${{ github.event.before }}
         run: |
           set -euo pipefail
           node tooling/preview-readiness.mjs
           test "$(node -p "require('./distribution/preview-readiness.json').state")" = \
             "READY_FOR_PREVIEW_REQUEST"
-          node tooling/preview-request-validation.mjs
+          node tooling/preview-request-validation.mjs \
+            --require-request --base "$BASE_REVISION"
 
       - name: Stage publishable passive preview
         env:
           VERSION: ${{ needs.verify.outputs.version }}
+          EXPECTED_SHA256: ${{ needs.verify.outputs.artifact_sha256 }}
         run: |
           set -euo pipefail
           node tooling/package-fundamentals-preview-npm.mjs \
             "$RUNNER_TEMP/fundamentals-preview-npm" "$VERSION"
           (cd "$RUNNER_TEMP/fundamentals-preview-npm" && sha256sum -c SHA256SUMS)
+          archive="$RUNNER_TEMP/fundamentals-preview-npm/cratis-ai-fundamentals-$VERSION.tgz"
+          test "$(sha256sum "$archive" | cut -d' ' -f1)" = "$EXPECTED_SHA256"
 
       - name: Publish exact passive preview through OIDC
         env:

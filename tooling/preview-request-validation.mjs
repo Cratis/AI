@@ -10,6 +10,7 @@ import {
     validateAgainstSchema,
     validateSchemaVocabulary,
 } from "./catalog-validation.mjs";
+import { loadPreviewAuthority } from "./package-fundamentals-preview-assets.mjs";
 import { buildPreviewReadiness } from "./preview-readiness.mjs";
 
 const defaultRepositoryRoot = resolve(
@@ -40,8 +41,26 @@ function git(root, arguments_) {
     }
 }
 
+function requestsAtRevision(root, revision) {
+    if (!revision) return null;
+    try {
+        return JSON.parse(
+            git(root, [
+                "show",
+                `${revision}:distribution/preview-requests.json`,
+            ]),
+        );
+    } catch (error) {
+        throw new Error(
+            `Unable to read prior preview requests at ${revision}`,
+            { cause: error },
+        );
+    }
+}
+
 export function validatePreviewRequests(
     repositoryRoot = defaultRepositoryRoot,
+    { requireRequest = false, baseRevision = null } = {},
 ) {
     const root = resolve(repositoryRoot);
     const requests = readJson(root, "distribution/preview-requests.json");
@@ -53,6 +72,7 @@ export function validatePreviewRequests(
         ...validateSchemaVocabulary(schema),
         ...validateAgainstSchema(requests, schema, schema),
     ];
+    const authority = loadPreviewAuthority(root);
     const ids = new Set();
     const versions = new Set();
     for (const [index, request] of (requests.requests ?? []).entries()) {
@@ -64,6 +84,13 @@ export function validatePreviewRequests(
         versions.add(request.version);
         if (!/^0\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)-preview\.(?:0|[1-9][0-9]*)$/.test(request.version))
             errors.push(`${path}.version: expected 0.MINOR.PATCH-preview.N`);
+        if (
+            request.sourceRevision !== authority.source.sourceRevision ||
+            request.sourceContentDigest !== authority.source.contentDigest
+        )
+            errors.push(
+                `${path}: source revision and digest must match the selected immutable preview source`,
+            );
         if (/^[a-f0-9]{40}$/.test(request.sourceRevision)) {
             try {
                 git(root, ["cat-file", "-e", `${request.sourceRevision}^{commit}`]);
@@ -75,6 +102,22 @@ export function validatePreviewRequests(
         const expectedId = `${request.profileId}-${request.version.replaceAll(".", "-")}`;
         if (request.id !== expectedId)
             errors.push(`${path}.id: must equal ${expectedId}`);
+    }
+    if (requireRequest && requests.requests.length === 0)
+        errors.push("At least one passive preview request is required");
+    const previous = requestsAtRevision(root, baseRevision);
+    if (previous) {
+        const previousRequests = previous.requests ?? [];
+        if (requests.requests.length !== previousRequests.length + 1)
+            errors.push("Preview requests must append exactly one record");
+        for (const [index, previousRequest] of previousRequests.entries())
+            if (
+                JSON.stringify(requests.requests[index]) !==
+                JSON.stringify(previousRequest)
+            )
+                errors.push(
+                    `Preview request ${previousRequest.id} is not append-only`,
+                );
     }
     if ((requests.requests?.length ?? 0) > 0) {
         const readiness = buildPreviewReadiness(root);
@@ -89,7 +132,19 @@ export function validatePreviewRequests(
 }
 
 function main() {
-    const errors = validatePreviewRequests();
+    const arguments_ = process.argv.slice(2);
+    const requireRequest = arguments_.includes("--require-request");
+    const baseIndex = arguments_.indexOf("--base");
+    const baseRevision = baseIndex >= 0 ? arguments_[baseIndex + 1] : null;
+    if (baseIndex >= 0 && !baseRevision) {
+        process.stderr.write("--base requires a revision\n");
+        process.exitCode = 1;
+        return;
+    }
+    const errors = validatePreviewRequests(defaultRepositoryRoot, {
+        requireRequest,
+        baseRevision,
+    });
     if (errors.length > 0) {
         process.stderr.write(
             `Preview request validation failed:\n${errors

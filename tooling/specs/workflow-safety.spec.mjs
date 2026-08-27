@@ -158,6 +158,11 @@ test("passive preview publication is request readiness and environment gated", (
         "name: preview / verify",
         "distribution/preview-requests.json",
         "preview_allowed",
+        "--require-request --base",
+        "requests.at(-1).version",
+        "artifact_sha256",
+        "EXPECTED_SHA256",
+        "smoke-fundamentals-preview-npm.mjs",
         "github.event_name == 'push'",
         "needs.verify.outputs.preview_allowed == 'true'",
         "environment: npm-stage",
@@ -187,6 +192,8 @@ test("passive preview publication is request readiness and environment gated", (
         "contents: write",
         "pull-requests: write",
         "supportGranted: true",
+        "workflow_dispatch:",
+        "0.1.0-preview.1');",
     ])
         assert.equal(workflow.includes(forbidden), false, forbidden);
 });

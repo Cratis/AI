@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "639c4a156b65b62f6e43dcf9d7ba7b6705ef0537978bfc5b18096aabaa2366f4",
+  "indexDigest": "047c664fbf87efda16cc03f4bd454267a0822afa2e8200b94717b790d5673025",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -2703,6 +2703,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/smoke-fundamentals-preview-npm.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/source-evidence-contract-validation.mjs",
       "status": "added"
     },
@@ -4546,8 +4550,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 76,
-      "expectedPathsDigest": "1c51aa5d431d82aaf1aa2bfe176d824f0b0c6d53dbb92eea1c369b752c2d3de2"
+      "expectedPathCount": 77,
+      "expectedPathsDigest": "876c450cffbf5170ba30ef057b4983548f79f46f4b5d719c4a37a0c9a368d9c5"
     },
     {
       "excludePathPatterns": [],

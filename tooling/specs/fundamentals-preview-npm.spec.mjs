@@ -11,6 +11,10 @@ import {
     materializeFundamentalsPreviewNpmAsset,
     packageFundamentalsPreviewNpm,
 } from "../package-fundamentals-preview-npm.mjs";
+import {
+    smokeFundamentalsPreviewNpm,
+    smokeFundamentalsPreviewNpmTransition,
+} from "../smoke-fundamentals-preview-npm.mjs";
 
 function withTemporaryDirectory(callback) {
     const root = mkdtempSync(join(tmpdir(), "cratis-fundamentals-preview-npm-"));
@@ -20,6 +24,20 @@ function withTemporaryDirectory(callback) {
         rmSync(root, { recursive: true, force: true });
     }
 }
+
+const request = Object.freeze({
+    id: "public-fundamentals-0-1-0-preview-1",
+    state: "preview-on-merge",
+    profileId: "public-fundamentals",
+    packageName: "@cratis/ai-fundamentals",
+    version: "0.1.0-preview.1",
+    sourceRevision: "b53caa555b9a3f05ba1462b86202fe3ccb8a9470",
+    sourceContentDigest:
+        "9e537c48a95c414709008c69ebfb616354d60992578ddd9da3d7dc7308c42caa",
+    assuranceMode: "basic",
+    supportClaim: false,
+    releaseNotes: "Preview",
+});
 
 const ready = Object.freeze({
     state: "READY_FOR_PREVIEW_REQUEST",
@@ -38,11 +56,13 @@ test("publishable Fundamentals preview npm asset is deterministic and scriptless
             outputRoot: firstRoot,
             version: "0.1.0-preview.1",
             readiness: ready,
+            request,
         });
         const second = materializeFundamentalsPreviewNpmAsset({
             outputRoot: secondRoot,
             version: "0.1.0-preview.1",
             readiness: ready,
+            request,
         });
         assert.deepEqual(second, first);
         assert.equal(first.state, "PASSIVE_PREVIEW_NPM_STAGED");
@@ -62,9 +82,29 @@ test("publishable Fundamentals preview npm asset is deterministic and scriptless
         );
         assert.equal(packageJson.name, "@cratis/ai-fundamentals");
         assert.equal(packageJson.version, "0.1.0-preview.1");
-        assert.notEqual(packageJson.private, true);
-        assert.equal(packageJson.scripts, undefined);
-        assert.equal(packageJson.dependencies, undefined);
+        assert.equal(packageJson.private, false);
+        for (const field of [
+            "scripts",
+            "dependencies",
+            "devDependencies",
+            "optionalDependencies",
+            "peerDependencies",
+            "bundledDependencies",
+            "bundleDependencies",
+        ])
+            assert.equal(packageJson[field], undefined, field);
+        assert.deepEqual(Object.keys(packageJson).sort(), [
+            "description",
+            "files",
+            "homepage",
+            "keywords",
+            "license",
+            "name",
+            "pi",
+            "private",
+            "repository",
+            "version",
+        ]);
         assert.equal(
             packageJson.repository.url,
             "https://github.com/Cratis/AI",
@@ -76,6 +116,75 @@ test("publishable Fundamentals preview npm asset is deterministic and scriptless
     });
 });
 
+test("public preview archive passes exact lifecycle and A-to-B-to-A transition", () => {
+    withTemporaryDirectory((root) => {
+        const previousRequest = {
+            ...request,
+            id: "public-fundamentals-0-1-0-preview-0",
+            version: "0.1.0-preview.0",
+        };
+        const previous = materializeFundamentalsPreviewNpmAsset({
+            outputRoot: join(root, "previous"),
+            version: previousRequest.version,
+            readiness: ready,
+            request: previousRequest,
+        });
+        const current = materializeFundamentalsPreviewNpmAsset({
+            outputRoot: join(root, "current"),
+            version: request.version,
+            readiness: ready,
+            request,
+        });
+        const currentArchive = join(root, "current", current.filename);
+        const smoke = smokeFundamentalsPreviewNpm({
+            archivePath: currentArchive,
+            expectedVersion: request.version,
+        });
+        assert.deepEqual(smoke.phases, [
+            "install",
+            "discovery",
+            "uninstall",
+            "rollback-reinstall",
+            "cleanup",
+            "project-context-preservation",
+        ]);
+        const transition = smokeFundamentalsPreviewNpmTransition({
+            previousArchivePath: join(root, "previous", previous.filename),
+            previousVersion: previousRequest.version,
+            currentArchivePath: currentArchive,
+            currentVersion: request.version,
+        });
+        assert.deepEqual(transition.phases, [
+            "install-previous",
+            "update-current",
+            "rollback-previous",
+            "uninstall",
+            "cleanup",
+            "project-context-preservation",
+        ]);
+        assert.equal(transition.networkAccessPerformed, false);
+        assert.equal(transition.supportGranted, false);
+    });
+});
+
+test("publishable preview staging requires exact request source authority", () => {
+    withTemporaryDirectory((root) => {
+        assert.throws(
+            () =>
+                materializeFundamentalsPreviewNpmAsset({
+                    outputRoot: join(root, "wrong-source"),
+                    version: request.version,
+                    readiness: ready,
+                    request: {
+                        ...request,
+                        sourceContentDigest: "0".repeat(64),
+                    },
+                }),
+            /source does not match immutable authority/,
+        );
+    });
+});
+
 test("current owner setup blocks publishable preview staging", () => {
     withTemporaryDirectory((root) => {
         assert.throws(
@@ -84,7 +193,7 @@ test("current owner setup blocks publishable preview staging", () => {
                     outputRoot: join(root, "blocked"),
                     version: "0.1.0-preview.1",
                 }),
-            /does not authorize npm staging/,
+            /No passive preview request exists/,
         );
     });
 });
@@ -101,6 +210,7 @@ test("publishable preview staging rejects stable and malformed versions", () => 
                         ),
                         version,
                         readiness: ready,
+                        request: { ...request, version },
                     }),
                 /must match 0\.MINOR\.PATCH-preview\.N/,
             );

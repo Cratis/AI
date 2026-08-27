@@ -56,9 +56,10 @@ export function materializeFundamentalsPreviewNpmAsset({
     outputRoot,
     version,
     readiness,
+    request,
 } = {}) {
-    if (!outputRoot || !version || !readiness)
-        throw new Error("outputRoot, version, and readiness are required");
+    if (!outputRoot || !version || !readiness || !request)
+        throw new Error("outputRoot, version, readiness, and request are required");
     if (
         readiness.state !== "READY_FOR_PREVIEW_REQUEST" ||
         readiness.assuranceMode !== "basic" ||
@@ -70,10 +71,24 @@ export function materializeFundamentalsPreviewNpmAsset({
         throw new Error("Basic preview readiness does not authorize npm staging");
     if (!/^0\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)-preview\.(?:0|[1-9][0-9]*)$/.test(version))
         throw new Error("Preview npm version must match 0.MINOR.PATCH-preview.N");
+    if (
+        request.state !== "preview-on-merge" ||
+        request.profileId !== profileId ||
+        request.packageName !== packageName ||
+        request.version !== version ||
+        request.assuranceMode !== "basic" ||
+        request.supportClaim !== false
+    )
+        throw new Error("Preview request does not authorize this npm artifact");
     const root = resolve(outputRoot);
     if (existsSync(root))
         throw new Error(`Preview npm output must not exist: ${root}`);
     const authority = loadPreviewAuthority(repositoryRoot);
+    if (
+        request.sourceRevision !== authority.source.sourceRevision ||
+        request.sourceContentDigest !== authority.source.contentDigest
+    )
+        throw new Error("Preview request source does not match immutable authority");
     const temporaryRoot = mkdtempSync(join(tmpdir(), "cratis-preview-npm-"));
     const stageRoot = join(temporaryRoot, "stage");
     mkdirSync(root, { recursive: false });
@@ -93,13 +108,44 @@ export function materializeFundamentalsPreviewNpmAsset({
         const packageJson = JSON.parse(
             readFileSync(join(piRoot, "package.json"), "utf8"),
         );
+        const allowedPackageFields = [
+            "description",
+            "files",
+            "homepage",
+            "keywords",
+            "license",
+            "name",
+            "pi",
+            "private",
+            "repository",
+            "version",
+        ];
+        const packageFields = Object.keys(packageJson).sort();
         if (
+            JSON.stringify(packageFields) !==
+                JSON.stringify(allowedPackageFields) ||
             packageJson.name !== packageName ||
             packageJson.version !== version ||
-            packageJson.private === true ||
-            packageJson.scripts !== undefined ||
-            packageJson.dependencies !== undefined ||
-            packageJson.repository?.url !== "https://github.com/Cratis/AI"
+            packageJson.private !== false ||
+            packageJson.license !== "MIT" ||
+            JSON.stringify(packageJson.repository) !==
+                JSON.stringify({
+                    type: "git",
+                    url: "https://github.com/Cratis/AI",
+                }) ||
+            packageJson.homepage !== "https://cratis.io/ai" ||
+            JSON.stringify(packageJson.files) !== JSON.stringify(["skills"]) ||
+            JSON.stringify(packageJson.pi?.skills) !==
+                JSON.stringify(["./skills"]) ||
+            [
+                "scripts",
+                "dependencies",
+                "devDependencies",
+                "optionalDependencies",
+                "peerDependencies",
+                "bundledDependencies",
+                "bundleDependencies",
+            ].some((field) => packageJson[field] !== undefined)
         )
             throw new Error("Generated preview npm package metadata is unsafe");
         const filename = `cratis-ai-fundamentals-${version}.tgz`;
@@ -122,6 +168,7 @@ export function materializeFundamentalsPreviewNpmAsset({
             version,
             sourceRevision: authority.source.sourceRevision,
             sourceContentDigest: authority.source.contentDigest,
+            requestId: request.id,
             filename,
             size: content.length,
             sha256: sha256(content),
@@ -154,11 +201,27 @@ export function packageFundamentalsPreviewNpm({
     outputRoot,
     version,
 } = {}) {
+    let requests;
+    try {
+        requests = JSON.parse(
+            readFileSync(
+                join(repositoryRoot, "distribution/preview-requests.json"),
+                "utf8",
+            ),
+        ).requests;
+    } catch (error) {
+        throw new Error("Unable to read passive preview requests", {
+            cause: error,
+        });
+    }
+    if (!Array.isArray(requests) || requests.length === 0)
+        throw new Error("No passive preview request exists");
     return materializeFundamentalsPreviewNpmAsset({
         repositoryRoot,
         outputRoot,
         version,
         readiness: buildPreviewReadiness(repositoryRoot),
+        request: requests.at(-1),
     });
 }
 
