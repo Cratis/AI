@@ -159,6 +159,7 @@ test("passive preview publication is request readiness and environment gated", (
         "distribution/preview-requests.json",
         "preview_allowed",
         "git diff --quiet",
+        "request_count",
         "--require-request",
         "--base",
         "request_present",

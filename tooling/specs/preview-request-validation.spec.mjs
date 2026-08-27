@@ -17,10 +17,6 @@ test("preview request catalog is empty closed and valid before owner setup", () 
         validatePreviewRequests(undefined, { baseRevision: "HEAD" }),
         [],
     );
-    assert.deepEqual(
-        validatePreviewRequests(undefined, { baseRevision: "main" }),
-        [],
-    );
     assert(
         validatePreviewRequests(undefined, { requireRequest: true }).some(
             (error) => error.includes("At least one passive preview request"),

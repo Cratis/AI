@@ -63,7 +63,9 @@ jobs:
           set -euo pipefail
           arguments=(--base "$BASE_REVISION")
           request_present=false
-          if ! git diff --quiet "$BASE_REVISION" -- distribution/preview-requests.json; then
+          request_count=$(node -p "require('./distribution/preview-requests.json').requests.length")
+          if ! git diff --quiet "$BASE_REVISION" -- distribution/preview-requests.json &&
+             [ "$request_count" -gt 0 ]; then
             arguments+=(--require-request)
             request_present=true
           fi
