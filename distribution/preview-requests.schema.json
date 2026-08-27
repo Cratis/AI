@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cratis/AI/distribution/preview-requests.schema.json",
+  "title": "Cratis passive preview requests",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "defaultPolicy", "requests"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "defaultPolicy": { "const": "deny" },
+    "requests": {
+      "type": "array",
+      "maxItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "state", "profileId", "packageName", "version", "sourceRevision", "assuranceMode", "supportClaim", "releaseNotes"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+          "state": { "const": "preview-on-merge" },
+          "profileId": { "const": "public-fundamentals" },
+          "packageName": { "const": "@cratis/ai-fundamentals" },
+          "version": { "type": "string", "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-(?:0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$" },
+          "sourceRevision": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+          "assuranceMode": { "const": "basic" },
+          "supportClaim": { "const": false },
+          "releaseNotes": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}

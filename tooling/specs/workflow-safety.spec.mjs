@@ -149,6 +149,48 @@ test("release candidates remain readable while every side-effect job is S10-bloc
         assert.equal(workflow.includes(forbidden), false, forbidden);
 });
 
+test("passive preview publication is request readiness and environment gated", () => {
+    const workflow = readFileSync(
+        ".github/workflows/release-passive-previews.yml",
+        "utf8",
+    );
+    for (const required of [
+        "name: preview / verify",
+        "distribution/preview-requests.json",
+        "preview_allowed",
+        "github.event_name == 'push'",
+        "needs.verify.outputs.preview_allowed == 'true'",
+        "environment: npm-stage",
+        "id-token: write",
+        "npm_version=$(npm --version)",
+        "major < 11",
+        "npm publish --provenance --access public",
+        "package-fundamentals-preview-npm.mjs",
+        "supportGranted",
+    ])
+        assert(workflow.includes(required), required);
+    for (const check of [
+        "deterministic-generation",
+        "static-contract-validation",
+        "secret-and-path-scanning",
+        "schema-validation",
+        "checksums",
+        "owner-review",
+        "basic-pack-install-discovery-uninstall-smoke",
+        "exact-version-rollback",
+    ])
+        assert(workflow.includes(check), check);
+    for (const forbidden of [
+        "NPM_TOKEN",
+        "NODE_AUTH_TOKEN",
+        "secrets:",
+        "contents: write",
+        "pull-requests: write",
+        "supportGranted: true",
+    ])
+        assert.equal(workflow.includes(forbidden), false, forbidden);
+});
+
 test("Fundamentals preview workflow is read-only short-lived and non-publishing", () => {
     const workflow = readFileSync(
         ".github/workflows/distribution-fundamentals-preview-assets.yml",

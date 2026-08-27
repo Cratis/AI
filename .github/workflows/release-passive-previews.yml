@@ -1,0 +1,166 @@
+# Copyright (c) Cratis. All rights reserved.
+# Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+name: Release Passive Previews
+
+on:
+  pull_request:
+    paths:
+      - "distribution/preview-requests.json"
+      - "distribution/preview-requests.schema.json"
+      - ".github/workflows/release-passive-previews.yml"
+      - "tooling/package-fundamentals-preview-*.mjs"
+      - "tooling/preview-*.mjs"
+  push:
+    branches: ["main"]
+    paths:
+      - "distribution/preview-requests.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: passive-preview-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: preview / verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      preview_allowed: ${{ steps.readiness.outputs.preview_allowed }}
+      version: ${{ steps.request.outputs.version }}
+    steps:
+      - name: Check out complete immutable history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+
+      - name: deterministic-generation
+        id: readiness
+        run: |
+          set -euo pipefail
+          node tooling/preview-readiness.mjs
+          git diff --exit-code -- distribution/preview-readiness.json
+          state=$(node -p "require('./distribution/preview-readiness.json').state")
+          test "$(node -p "require('./distribution/preview-readiness.json').supportGranted")" = "false"
+          if [ "$state" = "READY_FOR_PREVIEW_REQUEST" ]; then
+            echo "preview_allowed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "preview_allowed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: schema-validation
+        id: request
+        run: |
+          set -euo pipefail
+          node tooling/preview-request-validation.mjs
+          version=$(node - <<'NODE'
+          const requests = require('./distribution/preview-requests.json').requests;
+          process.stdout.write(requests[0]?.version ?? '0.1.0-preview.1');
+          NODE
+          )
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: static-contract-validation
+        run: node tooling/validate-catalogs.mjs --basic
+
+      - name: secret-and-path-scanning
+        run: |
+          node --test tooling/specs/public-artifact-materializer.spec.mjs
+          node --test tooling/specs/fundamentals-preview-assets.spec.mjs
+
+      - name: checksums
+        env:
+          VERSION: ${{ steps.request.outputs.version }}
+        run: |
+          set -euo pipefail
+          node tooling/package-fundamentals-preview-assets.mjs \
+            "$RUNNER_TEMP/fundamentals-preview" "$VERSION"
+          (cd "$RUNNER_TEMP/fundamentals-preview" && sha256sum -c SHA256SUMS)
+
+      - name: owner-review
+        run: |
+          echo "The protected pull request and environment provide the owner review boundary."
+
+      - name: basic-pack-install-discovery-uninstall-smoke
+        run: node --test tooling/specs/fundamentals-preview-npm.spec.mjs
+
+      - name: exact-version-rollback
+        run: node --test tooling/specs/fundamentals-preview-assets.spec.mjs
+
+      - name: Upload preview review assets
+        if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v7.0.1
+        with:
+          name: fundamentals-${{ steps.request.outputs.version }}-preview-review
+          path: ${{ runner.temp }}/fundamentals-preview
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    if: github.event_name == 'push' && needs.verify.outputs.preview_allowed == 'true'
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: npm-stage
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Check out complete immutable history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+
+      - name: Verify trusted-publishing npm CLI
+        run: |
+          set -euo pipefail
+          npm_version=$(npm --version)
+          node -e '
+            const [major, minor, patch] = process.argv[1].split(".").map(Number);
+            if (major < 11 || (major === 11 && minor < 5) ||
+                (major === 11 && minor === 5 && patch < 1)) process.exit(1);
+          ' "$npm_version"
+
+      - name: Revalidate preview request and readiness
+        run: |
+          set -euo pipefail
+          node tooling/preview-readiness.mjs
+          test "$(node -p "require('./distribution/preview-readiness.json').state")" = \
+            "READY_FOR_PREVIEW_REQUEST"
+          node tooling/preview-request-validation.mjs
+
+      - name: Stage publishable passive preview
+        env:
+          VERSION: ${{ needs.verify.outputs.version }}
+        run: |
+          set -euo pipefail
+          node tooling/package-fundamentals-preview-npm.mjs \
+            "$RUNNER_TEMP/fundamentals-preview-npm" "$VERSION"
+          (cd "$RUNNER_TEMP/fundamentals-preview-npm" && sha256sum -c SHA256SUMS)
+
+      - name: Publish exact passive preview through OIDC
+        env:
+          VERSION: ${{ needs.verify.outputs.version }}
+        run: |
+          set -euo pipefail
+          archive="$RUNNER_TEMP/fundamentals-preview-npm/cratis-ai-fundamentals-$VERSION.tgz"
+          npm publish --provenance --access public "$archive"

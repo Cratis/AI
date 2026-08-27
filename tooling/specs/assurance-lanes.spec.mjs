@@ -99,7 +99,6 @@ test("current passive preview is statically ready and blocked only on basic owne
             "trusted-publisher-not-configured",
             "oidc-not-enabled",
             "public-preview-publish-disabled",
-            "preview-release-workflow-not-implemented",
         ],
     );
     assert.equal(first.previewRequestEligible, false);
