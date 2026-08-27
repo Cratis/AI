@@ -23,7 +23,7 @@
         "additionalProperties": false,
         "required": ["code", "reason"],
         "properties": {
-          "code": { "enum": ["package-ownership-unconfirmed", "trusted-publisher-not-configured", "oidc-not-enabled", "public-preview-publish-disabled", "preview-release-workflow-not-implemented"] },
+          "code": { "enum": ["package-ownership-unconfirmed", "trusted-publisher-not-configured", "oidc-not-enabled", "public-preview-publish-disabled", "npm-latest-tag-unsafe", "preview-release-workflow-not-implemented"] },
           "reason": { "type": "string", "minLength": 1 }
         }
       }

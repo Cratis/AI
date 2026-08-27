@@ -56,11 +56,7 @@ test("assurance lanes keep preview lightweight and support governed", () => {
     );
     assert.equal(policy.defaultLane, "candidate-review");
     assert.deepEqual(
-        policy.lanes.map((lane) => [
-            lane.id,
-            lane.assuranceMode,
-            lane.channel,
-        ]),
+        policy.lanes.map((lane) => [lane.id, lane.assuranceMode, lane.channel]),
         [
             ["candidate-review", "basic", "candidate"],
             ["passive-preview", "basic", "preview"],
@@ -83,7 +79,7 @@ test("assurance lanes keep preview lightweight and support governed", () => {
     assert.equal(policy.advancedAssurance.status, "SIDELINED_AVAILABLE");
 });
 
-test("current passive preview is statically ready and blocked only on basic owner setup", () => {
+test("current passive preview records owner setup but blocks an undeprecated bootstrap", () => {
     const first = generatePreviewReadiness();
     const second = generatePreviewReadiness();
     assert.deepEqual(second, first);
@@ -94,12 +90,7 @@ test("current passive preview is statically ready and blocked only on basic owne
     assert.equal(first.governedAssurance.availableForGraduation, true);
     assert.deepEqual(
         first.blockers.map((blocker) => blocker.code),
-        [
-            "package-ownership-unconfirmed",
-            "trusted-publisher-not-configured",
-            "oidc-not-enabled",
-            "public-preview-publish-disabled",
-        ],
+        ["npm-latest-tag-unsafe"],
     );
     assert.equal(first.previewRequestEligible, false);
     assert.equal(first.publicationEligible, false);
@@ -113,6 +104,7 @@ test("basic owner setup can admit a preview request without granting support", (
         const npm = readJson(root, "distribution/npm-stage-contract.json");
         npm.package.productionName = "@cratis/ai-fundamentals";
         npm.package.publicOwnershipConfirmed = true;
+        npm.package.latestTagSafe = true;
         npm.workflow.trustedPublisherConfigured = true;
         npm.workflow.oidcEnabled = true;
         npm.workflow.publicPublishEnabled = true;

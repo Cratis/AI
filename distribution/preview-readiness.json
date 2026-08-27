@@ -12,20 +12,8 @@
   "staticCandidateReady": true,
   "blockers": [
     {
-      "code": "package-ownership-unconfirmed",
-      "reason": "Exact npm package ownership is not confirmed."
-    },
-    {
-      "code": "trusted-publisher-not-configured",
-      "reason": "The exact npm trusted publisher is not configured."
-    },
-    {
-      "code": "oidc-not-enabled",
-      "reason": "OIDC publication is not enabled."
-    },
-    {
-      "code": "public-preview-publish-disabled",
-      "reason": "Public preview publication remains disabled."
+      "code": "npm-latest-tag-unsafe",
+      "reason": "The npm-forced bootstrap latest version is not confirmed deprecated."
     }
   ],
   "governedAssurance": {

@@ -1,8 +1,8 @@
 # Release Cratis AI
 
-> **Preview owner setup and governed S10 are blocked.** Candidate review is
-available now. Passive previews use the basic lane; stable support uses the
-sidelined governed lane and its complete S9/S10 assurance.
+> **Passive preview owner setup is recorded; bootstrap deprecation and governed S10 remain blocked.**
+Candidate review is available now. Passive previews use the basic lane; stable
+support uses the sidelined governed lane and its complete S9/S10 assurance.
 
 A merged release pull request is the recurring human release approval. Do not
 run a second manual publication, promotion, or rollout approval after merge.
@@ -14,18 +14,22 @@ tracked in [AI#181](https://github.com/Cratis/AI/issues/181).
 
 ## Passive preview lane
 
-`public-fundamentals` is the selected first preview. Generated
-[`preview-readiness.json`](../distribution/preview-readiness.json) is independent
-of S10 and currently lists four request-readiness blockers: prove ownership of
-`@cratis/ai-fundamentals`, configure its trusted publisher, enable OIDC, and
-enable public preview publishing.
+`public-fundamentals` is the selected first preview. The public
+`@cratis/ai-fundamentals` package exists, and its exact GitHub Actions trusted
+publisher, OIDC permission, and protected `npm-stage` environment are configured.
+Generated [`preview-readiness.json`](../distribution/preview-readiness.json) is
+independent of S10. npm assigns `latest` to a package's first publication even
+when another tag was requested and currently rejects removing it. Preview
+requests therefore stay blocked until the inert bootstrap version carries the
+required deprecation warning.
 
 The existing Fundamentals asset workflow remains packaging-only. The separate
-**Release Passive Previews** workflow now validates an append-only exact request,
+**Release Passive Previews** workflow validates an append-only exact request,
 runs every anchored basic check, stages a public scriptless/dependency-free npm
-archive, and binds publication to `npm-stage` with OIDC. Its publication job is
-unreachable while readiness is blocked. After owner setup, merging one reviewed
-request can publish that exact preview under the explicit npm `preview`
+archive, and binds publication to `npm-stage` with OIDC. It permits npm
+`latest` only when it selects a stable version or the exact deprecated inert
+bootstrap; every preview or other prerelease value is rejected. Merging one
+reviewed request can publish that exact preview under the explicit npm `preview`
 dist-tag; it cannot become `latest`, claim support, or promote itself to stable
 support.
 

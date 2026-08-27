@@ -180,15 +180,18 @@ The main workflow runs for canonical skills, engineering content, catalogs,
 distribution contracts, evidence, evaluations, documentation, workflows, and
 tooling.
 
-## Current release blockers
+## Current release state
 
-The first narrow public preview still requires:
+The first narrow `public-fundamentals` preview has approved passive source,
+deterministic public package bytes, exact request binding, protected OIDC
+publication, and npm owner setup. npm forces `latest` onto a package's first
+publication and rejects removing it, so the inert bootstrap version must be
+deprecated before one reviewed append-only preview request becomes eligible. No
+preview version has been published, and the preview lane cannot claim support or
+move npm `latest` to a preview.
 
-- owner approval and exact product authority for the Fundamentals concept skill;
-- enabling and exercising the approval-driven production materializer after target approval;
-- scoped GitHub App credentials for generated pull requests;
-- one real consumer install/update/rollback/uninstall canary;
-- an immutable release channel and published installation instructions.
-
-Until those gates pass, this repository is a source and preview-generation
-system—not a supported installation endpoint.
+Stable support and broad rollout still require the governed S9/S10 lane,
+including scoped generated-repository automation, real consumer lifecycle
+canaries, release evidence, immutable installation guidance, and explicit
+support approval. Until those gates pass, any published preview remains an
+unsupported evaluation endpoint.

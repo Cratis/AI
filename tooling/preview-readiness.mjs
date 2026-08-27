@@ -49,16 +49,10 @@ function addBlocker(blockers, code, reason) {
     blockers.push({ code, reason });
 }
 
-export function buildPreviewReadiness(
-    repositoryRoot = defaultRepositoryRoot,
-) {
+export function buildPreviewReadiness(repositoryRoot = defaultRepositoryRoot) {
     const root = resolve(repositoryRoot);
     const lanes = readJson(root, "distribution/assurance-lanes.json");
-    validateWithSchema(
-        root,
-        lanes,
-        "distribution/assurance-lanes.schema.json",
-    );
+    validateWithSchema(root, lanes, "distribution/assurance-lanes.schema.json");
     const profileCatalog = readJson(root, "distribution/profile-catalog.json");
     const targets = readJson(root, "catalog/v2/targets.json").targets;
     const artifacts = readJson(root, "catalog/v2/artifacts.json").artifacts;
@@ -114,10 +108,7 @@ export function buildPreviewReadiness(
     )
         throw new Error("Fundamentals preview artifact changed");
     const blockers = [];
-    if (
-        npmStage.package.productionName !==
-        lanes.selectedPreview.packageName
-    )
+    if (npmStage.package.productionName !== lanes.selectedPreview.packageName)
         throw new Error("Preview production package name is not reconciled");
     if (npmStage.package.publicOwnershipConfirmed !== true)
         addBlocker(
@@ -142,6 +133,12 @@ export function buildPreviewReadiness(
             blockers,
             "public-preview-publish-disabled",
             "Public preview publication remains disabled.",
+        );
+    if (npmStage.package.latestTagSafe !== true)
+        addBlocker(
+            blockers,
+            "npm-latest-tag-unsafe",
+            "The npm-forced bootstrap latest version is not confirmed deprecated.",
         );
     const previewWorkflowPath = join(
         root,

@@ -157,6 +157,13 @@ test("passive preview publication is request readiness and environment gated", (
     for (const required of [
         "name: preview / verify",
         "distribution/preview-requests.json",
+        "distribution/npm-stage-contract.json",
+        "Verify registry dist-tag safety",
+        'latest=$(npm view "$package" dist-tags.latest)',
+        "0.0.0-bootstrap.0",
+        'deprecated=$(npm view "$package@$latest" deprecated)',
+        "Bootstrap only. Install an exact preview version or use the preview dist-tag.",
+        "*-*",
         "preview_allowed",
         "git diff --quiet",
         "request_count",
@@ -197,6 +204,7 @@ test("passive preview publication is request readiness and environment gated", (
         "pull-requests: write",
         "supportGranted: true",
         "workflow_dispatch:",
+        "dist-tags.latest 2>/dev/null || true",
         "0.1.0-preview.1');",
     ])
         assert.equal(workflow.includes(forbidden), false, forbidden);
@@ -267,10 +275,7 @@ test("generated Distribution updates preserve the reviewed control plane", () =>
         "utf8",
     );
     const contract = JSON.parse(
-        readFileSync(
-            "distribution/generated-repository-contract.json",
-            "utf8",
-        ),
+        readFileSync("distribution/generated-repository-contract.json", "utf8"),
     );
     assert(
         workflow.includes(
@@ -303,12 +308,11 @@ test("legacy propagation entry points are removed", () => {
     ])
         assert.equal(existsSync(path), false, path);
     for (const filename of readdirSync(".github/workflows")) {
-        const workflow = readFileSync(
-            `.github/workflows/${filename}`,
-            "utf8",
-        );
+        const workflow = readFileSync(`.github/workflows/${filename}`, "utf8");
         assert.equal(
-            workflow.includes(".github/scripts/propagate-copilot-instructions.sh"),
+            workflow.includes(
+                ".github/scripts/propagate-copilot-instructions.sh",
+            ),
             false,
             filename,
         );
@@ -323,13 +327,9 @@ test("merge-reachable reusable workflows are pinned and do not inherit secrets",
     assert.equal(cleanup.includes("secrets: inherit"), false);
     assert(cleanup.includes("PAT_WORKFLOWS: ${{ secrets.PAT_WORKFLOWS }}"));
     for (const filename of readdirSync(".github/workflows")) {
-        const workflow = readFileSync(
-            `.github/workflows/${filename}`,
-            "utf8",
-        );
-        const references = workflow.match(
-            /uses: Cratis\/Workflows\/[^\s]+@([^\s]+)/g,
-        ) ?? [];
+        const workflow = readFileSync(`.github/workflows/${filename}`, "utf8");
+        const references =
+            workflow.match(/uses: Cratis\/Workflows\/[^\s]+@([^\s]+)/g) ?? [];
         for (const reference of references)
             assert.match(reference, /@[0-9a-f]{40}$/, filename);
     }

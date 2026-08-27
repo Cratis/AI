@@ -54,8 +54,7 @@ jobs:
           test "$(node -p "require('$package').dependencies === undefined")" = "true"
           node --test tooling/specs/distribution-fixture.spec.mjs
 
-      - name: Confirm npm publication remains absent
+      - name: Confirm staged publication remains absent
         run: |
           set -euo pipefail
           test "$(node -p "require('./distribution/npm-stage-contract.json').workflow.stagePublishEnabled")" = "false"
-          test "$(node -p "require('./distribution/npm-stage-contract.json').workflow.publicPublishEnabled")" = "false"
