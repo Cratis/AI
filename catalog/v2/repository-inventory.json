@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "95f1f8f9a4aa9cfc38c797f51f90158093336c8446a71464723e4f715255e9d5",
+  "indexDigest": "840d07fcb321a18378f0e802913e90c7d010bfdf1ad0306d33ae7eacec02ab85",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -2291,6 +2291,14 @@
       "status": "added"
     },
     {
+      "path": "tooling/agent-mutation-manifest.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "tooling/agent-mutation-protocol.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/benchmarks/release-generation.mjs",
       "status": "added"
     },
@@ -2704,6 +2712,10 @@
     },
     {
       "path": "tooling/specifications/agent-skills/current/specification.snapshot",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/agent-mutation-protocol.spec.mjs",
       "status": "added"
     },
     {
@@ -4488,6 +4500,7 @@
       "id": "catalog-and-redesign-tooling",
       "sourcePathPatterns": [
         "tooling/*.mjs",
+        "tooling/*.schema.json",
         "tooling/benchmarks/**"
       ],
       "artifactType": "validation-tooling",
@@ -4504,8 +4517,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 72,
-      "expectedPathsDigest": "d3cf3e2603bc122b413ab16649895d16bd8e66f83101650a321655024f4d6c5a"
+      "expectedPathCount": 74,
+      "expectedPathsDigest": "4d48dc656917984ff6a6f6f45e5df72c62f57959122a582ee762b04dab710957"
     },
     {
       "excludePathPatterns": [],
@@ -4528,8 +4541,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 58,
-      "expectedPathsDigest": "c56d9549b21e095a0d7638ebf154520a6e21d3354dd76061986dda2971066dcc"
+      "expectedPathCount": 59,
+      "expectedPathsDigest": "38cd079fd227bb565a27b77be1c30f70f5c2470a20a81db65000beccfd94b567"
     },
     {
       "excludePathPatterns": [],

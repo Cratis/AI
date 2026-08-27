@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cratis/AI/tooling/agent-mutation-manifest.schema.json",
+  "title": "Cratis interactive agent mutation manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "runId", "state", "provider", "repository", "resource", "action", "policy", "authorization", "targets"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "runId": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+    "state": { "const": "PREPARED" },
+    "provider": { "const": "github" },
+    "repository": { "type": "string", "minLength": 3 },
+    "resource": { "const": "issue" },
+    "action": { "const": "bulk-update" },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dryRunRequired", "inverseRequired", "ageOnlyMutationAllowed", "longLivedLabels"],
+      "properties": {
+        "dryRunRequired": { "const": true },
+        "inverseRequired": { "const": true },
+        "ageOnlyMutationAllowed": { "const": false },
+        "longLivedLabels": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": { "enum": ["idea", "investigate"] }
+        }
+      }
+    },
+    "authorization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "approvedBy", "approvedAt"],
+      "properties": {
+        "state": { "enum": ["pending", "approved"] },
+        "approvedBy": { "type": "string" },
+        "approvedAt": { "type": "string" }
+      }
+    },
+    "targets": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["issueNumber", "preState", "forward", "inverse"],
+        "properties": {
+          "issueNumber": { "type": "integer", "minimum": 1 },
+          "preState": { "$ref": "#/$defs/preState" },
+          "forward": { "$ref": "#/$defs/issueState" },
+          "inverse": { "$ref": "#/$defs/issueState" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "stringSet": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "issueState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "labels", "assignees"],
+      "properties": {
+        "state": { "enum": ["open", "closed"] },
+        "labels": { "$ref": "#/$defs/stringSet" },
+        "assignees": { "$ref": "#/$defs/stringSet" }
+      }
+    },
+    "preState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "labels", "assignees", "updatedAt", "fingerprintSha256"],
+      "properties": {
+        "state": { "enum": ["open", "closed"] },
+        "labels": { "$ref": "#/$defs/stringSet" },
+        "assignees": { "$ref": "#/$defs/stringSet" },
+        "updatedAt": { "type": "string", "minLength": 1 },
+        "fingerprintSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      }
+    }
+  }
+}

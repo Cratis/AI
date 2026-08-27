@@ -1209,7 +1209,11 @@ const definitions = [
     },
     {
         id: "catalog-and-redesign-tooling",
-        sourcePathPatterns: ["tooling/*.mjs", "tooling/benchmarks/**"],
+        sourcePathPatterns: [
+            "tooling/*.mjs",
+            "tooling/*.schema.json",
+            "tooling/benchmarks/**",
+        ],
         artifactType: "validation-tooling",
         currentOwner: repositoryOwner,
         targetOwner: repositoryOwner,
