@@ -50,9 +50,7 @@ test("preview request schema rejects support claims unknown fields and multiple 
         schema,
         schema,
     );
-    assert(
-        errors.some((error) => error.includes("duplicate items")),
-    );
+    assert(errors.some((error) => error.includes("duplicate items")));
     assert(
         errors.some((error) =>
             error.includes("supportClaim: expected constant false"),

@@ -94,7 +94,7 @@ test("current passive preview is ready for one exact request without granting su
     assert.equal(first.supportGranted, false);
 });
 
-test("basic owner setup can admit a preview request without granting support", () => {
+test("basic owner setup can enable normal 0.x releases without granting support", () => {
     withTemporaryInputs((root) => {
         const lanes = readJson(root, "distribution/assurance-lanes.json");
         writeJson(root, "distribution/assurance-lanes.json", lanes);
@@ -111,14 +111,12 @@ test("basic owner setup can admit a preview request without granting support", (
             ".github/workflows/release-passive-previews.yml",
         );
         mkdirSync(dirname(workflowPath), { recursive: true });
-        const previewLane = lanes.lanes.find(
-            (lane) => lane.id === "passive-preview",
-        );
         writeFileSync(
             workflowPath,
-            `name: ${lanes.selectedPreview.requiredStatusContext}\n` +
+            "cratis/release-action@pinned\n" +
                 `environment: ${lanes.selectedPreview.protectedEnvironment}\n` +
-                `${previewLane.requiredChecks.join("\n")}\n`,
+                "npm publish --provenance --access public --tag latest\n" +
+                "supportGranted\n",
         );
         const readiness = buildPreviewReadiness(root);
         assert.equal(readiness.state, "READY_FOR_PREVIEW_REQUEST");

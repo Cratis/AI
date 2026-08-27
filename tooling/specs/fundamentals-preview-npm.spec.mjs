@@ -9,6 +9,7 @@ import { test } from "node:test";
 import { readTarGzip } from "../package-fundamentals-preview-assets.mjs";
 import {
     materializeFundamentalsPreviewNpmAsset,
+    packageFundamentalsNpmRelease,
     packageFundamentalsPreviewNpm,
 } from "../package-fundamentals-preview-npm.mjs";
 import {
@@ -73,8 +74,10 @@ test("publishable Fundamentals preview npm asset is deterministic and scriptless
             request,
         });
         assert.deepEqual(second, first);
-        assert.equal(first.state, "PASSIVE_PREVIEW_NPM_STAGED");
+        assert.equal(first.state, "PASSIVE_NPM_STAGED");
         assert.equal(first.packageName, "@cratis/ai-fundamentals");
+        assert.equal(first.distTag, "preview");
+        assert.equal(first.publicationEligible, true);
         assert.equal(first.previewPublicationEligible, true);
         assert.equal(first.supportGranted, false);
         assert.equal(first.stablePromotionEligible, false);
@@ -91,7 +94,7 @@ test("publishable Fundamentals preview npm asset is deterministic and scriptless
         assert.deepEqual(packageJson, {
             name: "@cratis/ai-fundamentals",
             version: "0.1.0-preview.1",
-            description: "Preview of Cratis Fundamentals concept guidance",
+            description: "Cratis Fundamentals concept guidance",
             private: false,
             license: "MIT",
             repository: {
@@ -197,9 +200,30 @@ test("current request stages the exact publishable preview", () => {
     });
 });
 
-test("publishable preview staging rejects stable and malformed versions", () => {
+test("normal release stages a support-free 0.x package for latest", () => {
     withTemporaryDirectory((root) => {
-        for (const version of ["1.0.0", "latest", "0.1.0-preview"]) {
+        const manifest = packageFundamentalsNpmRelease({
+            outputRoot: join(root, "release"),
+            version: "0.1.0",
+        });
+        assert.equal(manifest.state, "PASSIVE_NPM_STAGED");
+        assert.equal(manifest.version, "0.1.0");
+        assert.equal(manifest.distTag, "latest");
+        assert.equal(manifest.publicationEligible, true);
+        assert.equal(manifest.previewPublicationEligible, false);
+        assert.equal(manifest.supportGranted, false);
+        assert.equal(manifest.stablePromotionEligible, false);
+    });
+});
+
+test("npm staging rejects 1.x and malformed versions", () => {
+    withTemporaryDirectory((root) => {
+        for (const version of [
+            "1.0.0",
+            "latest",
+            "0.1.0-preview",
+            "0.1.0-beta.1",
+        ]) {
             assert.throws(
                 () =>
                     materializeFundamentalsPreviewNpmAsset({
@@ -211,7 +235,7 @@ test("publishable preview staging rejects stable and malformed versions", () => 
                         readiness: ready,
                         request: { ...request, version },
                     }),
-                /must match 0\.MINOR\.PATCH-preview\.N/,
+                /must match 0\.MINOR\.PATCH or 0\.MINOR\.PATCH-preview\.N/,
             );
         }
     });

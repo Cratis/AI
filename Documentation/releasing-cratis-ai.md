@@ -1,37 +1,30 @@
 # Release Cratis AI
 
-> **The passive preview lane is ready for one exact request; governed S10 remains blocked.**
-Candidate review is available now. Passive previews use the basic lane; stable
-support uses the sidelined governed lane and its complete S9/S10 assurance.
+> **Normal support-free `0.x.y` package releases are enabled; governed S10 remains blocked.**
+Candidate review is available now. Passive `0.x.y` packages use the basic lane;
+a `1.0.0` release and stable support use the governed lane and its complete
+S9/S10 assurance.
 
-A merged release pull request is the recurring human release approval. Do not
-run a second manual publication, promotion, or rollout approval after merge.
-A passive preview can never claim `supported`; that claim requires graduation to
-governed assurance.
+A merged, labeled release pull request is the sole recurring human approval.
+There is no second environment approval. A `0.x.y` package can never claim
+`supported`; that claim requires graduation to governed assurance.
 
 One-time external App, registry, canary-scope, and marketplace account setup is
 tracked in [AI#181](https://github.com/Cratis/AI/issues/181).
 
-## Passive preview lane
+## Passive `0.x.y` release lane
 
-`public-fundamentals` is the selected first preview. The public
-`@cratis/ai-fundamentals` package exists, and its exact GitHub Actions trusted
-publisher, OIDC permission, and protected `npm-stage` environment are configured.
-Generated [`preview-readiness.json`](../distribution/preview-readiness.json) is
-independent of S10. npm assigns `latest` to a package's first publication even
-when another tag was requested and currently rejects removing it. The inert
-bootstrap version now carries the required deprecation warning, so one reviewed
-preview request is eligible without granting publication or support by itself.
+`public-fundamentals` is the first package. Pull requests must carry exactly one
+`major`, `minor`, `patch`, or `no-release` label. The shared Cratis release action
+derives the next version after merge; while this lane is active, publication
+accepts only `0.x.y`. The package is generated from the exact immutable source,
+passes checksum and install/discovery/uninstall verification, and publishes to
+npm `latest` through the main-only `npm-stage` OIDC environment.
 
-The existing Fundamentals asset workflow remains packaging-only. The separate
-**Release Passive Previews** workflow validates an append-only exact request,
-runs every anchored basic check, stages a public scriptless/dependency-free npm
-archive, and binds publication to `npm-stage` with OIDC. It permits npm
-`latest` only when it selects a stable version or the exact deprecated inert
-bootstrap; every preview or other prerelease value is rejected. Merging one
-reviewed request can publish that exact preview under the explicit npm `preview`
-dist-tag; it cannot become `latest`, claim support, or promote itself to stable
-support.
+The historical `0.1.0-preview.1` request remains an immutable record of the first
+OIDC canary. Future releases do not use a preview tag or require an append-only
+preview request. Package provenance and lifecycle checks continue to grant no
+support, runtime, stable-promotion, or marketplace claim.
 
 ## Static candidate review before release authority
 
@@ -70,7 +63,7 @@ Create `distribution/releases/v<version>.json`:
 {
   "schemaVersion": "1.0.0",
   "state": "release-on-merge",
-  "version": "0.1.0-preview.1",
+  "version": "1.0.0",
   "sourceRevision": "<reviewed-40-character-commit>",
   "preflightDigest": "<64-character-preflight-digest>",
   "artifactDigest": "<64-character-artifact-digest>",
@@ -103,10 +96,10 @@ exactly one profile. Requests are append-only and version-unique.
 
 The request may claim only automation recorded in
 [`release-automation-capabilities.json`](../distribution/release-automation-capabilities.json).
-The first preview cleans up unpublished draft state automatically, but it does
-not claim that an immutable npm version can be rolled back, and subscriber or
-marketplace automation remains disabled until its own implementation and canary
-exist.
+The governed release cleans up unpublished draft state automatically, but it
+does not claim that an immutable npm version can be rolled back, and subscriber
+or marketplace automation remains disabled until its own implementation and
+canary exist.
 
 ## 3. Open the release PR
 
@@ -182,8 +175,8 @@ release path.
 - Promotion failure after npm succeeds: npm is immutable and is **not** described
   as rolled back. The draft release and index PR remain for explicit recovery,
   and the failure is recorded on AI#181.
-- Subscriber and marketplace delivery are disabled for this preview and cannot
-  advance automatically.
+- Subscriber and marketplace delivery remain disabled until their own gates
+  explicitly allow them.
 
 Never rewrite or reuse a release request version. Correct a released defect with
 a new SemVer version.

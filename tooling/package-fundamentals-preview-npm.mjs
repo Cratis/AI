@@ -43,7 +43,9 @@ function walkFiles(root, current = root) {
             throw new Error(`Preview npm stage contains a symlink: ${path}`);
         if (stat.isDirectory()) return walkFiles(root, path);
         if (!stat.isFile())
-            throw new Error(`Preview npm stage contains a special file: ${path}`);
+            throw new Error(
+                `Preview npm stage contains a special file: ${path}`,
+            );
         return [relative(root, path).replaceAll("\\", "/")];
     });
 }
@@ -60,7 +62,9 @@ export function materializeFundamentalsPreviewNpmAsset({
     request,
 } = {}) {
     if (!outputRoot || !version || !readiness || !request)
-        throw new Error("outputRoot, version, readiness, and request are required");
+        throw new Error(
+            "outputRoot, version, readiness, and request are required",
+        );
     if (
         readiness.state !== "READY_FOR_PREVIEW_REQUEST" ||
         readiness.assuranceMode !== "basic" ||
@@ -69,18 +73,28 @@ export function materializeFundamentalsPreviewNpmAsset({
         readiness.previewRequestEligible !== true ||
         readiness.supportGranted !== false
     )
-        throw new Error("Basic preview readiness does not authorize npm staging");
-    if (!/^0\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)-preview\.(?:0|[1-9][0-9]*)$/.test(version))
-        throw new Error("Preview npm version must match 0.MINOR.PATCH-preview.N");
+        throw new Error(
+            "Basic preview readiness does not authorize npm staging",
+        );
+    const isPreview = version.includes("-preview.");
     if (
-        request.state !== "preview-on-merge" ||
+        !/^0\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)(?:-preview\.(?:0|[1-9][0-9]*))?$/.test(
+            version,
+        )
+    )
+        throw new Error(
+            "npm version must match 0.MINOR.PATCH or 0.MINOR.PATCH-preview.N",
+        );
+    if (
+        request.state !==
+            (isPreview ? "preview-on-merge" : "release-on-merge") ||
         request.profileId !== profileId ||
         request.packageName !== packageName ||
         request.version !== version ||
         request.assuranceMode !== "basic" ||
         request.supportClaim !== false
     )
-        throw new Error("Preview request does not authorize this npm artifact");
+        throw new Error("Release input does not authorize this npm artifact");
     const root = resolve(outputRoot);
     if (existsSync(root))
         throw new Error(`Preview npm output must not exist: ${root}`);
@@ -92,7 +106,9 @@ export function materializeFundamentalsPreviewNpmAsset({
         request.sourceRevision !== authority.source.sourceRevision ||
         request.sourceContentDigest !== authority.source.contentDigest
     )
-        throw new Error("Preview request source does not match immutable authority");
+        throw new Error(
+            "Preview request source does not match immutable authority",
+        );
     const temporaryRoot = mkdtempSync(join(tmpdir(), "cratis-preview-npm-"));
     const stageRoot = join(temporaryRoot, "stage");
     mkdirSync(root, { recursive: false });
@@ -102,7 +118,7 @@ export function materializeFundamentalsPreviewNpmAsset({
             version,
             profileId,
             packageName,
-            description: "Preview of Cratis Fundamentals concept guidance",
+            description: "Cratis Fundamentals concept guidance",
             skills: [authority.skill],
             codexInstallationPolicy: "NOT_AVAILABLE",
             piPrivate: false,
@@ -115,7 +131,7 @@ export function materializeFundamentalsPreviewNpmAsset({
         const expectedPackageJson = {
             name: packageName,
             version,
-            description: "Preview of Cratis Fundamentals concept guidance",
+            description: "Cratis Fundamentals concept guidance",
             private: false,
             license: "MIT",
             repository: {
@@ -129,10 +145,8 @@ export function materializeFundamentalsPreviewNpmAsset({
                 skills: ["./skills"],
             },
         };
-        if (
-            !isDeepStrictEqual(packageJson, expectedPackageJson)
-        )
-            throw new Error("Generated preview npm package metadata is unsafe");
+        if (!isDeepStrictEqual(packageJson, expectedPackageJson))
+            throw new Error("Generated npm package metadata is unsafe");
         const filename = `cratis-ai-fundamentals-${version}.tgz`;
         const content = createTarGzip(piRoot, paths, "package");
         const archive = readTarGzip(content);
@@ -140,14 +154,16 @@ export function materializeFundamentalsPreviewNpmAsset({
             const archivePath = `package/${path}`;
             if (
                 !archive.has(archivePath) ||
-                !archive.get(archivePath).equals(readFileSync(join(piRoot, path)))
+                !archive
+                    .get(archivePath)
+                    .equals(readFileSync(join(piRoot, path)))
             )
-                throw new Error(`Preview npm archive byte drift: ${path}`);
+                throw new Error(`npm archive byte drift: ${path}`);
         }
         writeFileSync(join(root, filename), content, { flag: "wx" });
         const manifest = {
             schemaVersion: 1,
-            state: "PASSIVE_PREVIEW_NPM_STAGED",
+            state: "PASSIVE_NPM_STAGED",
             profileId,
             packageName,
             version,
@@ -160,7 +176,9 @@ export function materializeFundamentalsPreviewNpmAsset({
             repositoryUrl: packageJson.repository.url,
             lifecycleScripts: false,
             dependencies: false,
-            previewPublicationEligible: true,
+            distTag: isPreview ? "preview" : "latest",
+            publicationEligible: true,
+            previewPublicationEligible: isPreview,
             supportGranted: false,
             stablePromotionEligible: false,
         };
@@ -179,6 +197,31 @@ export function materializeFundamentalsPreviewNpmAsset({
     } finally {
         rmSync(temporaryRoot, { recursive: true, force: true });
     }
+}
+
+export function packageFundamentalsNpmRelease({
+    repositoryRoot = defaultRepositoryRoot,
+    outputRoot,
+    version,
+} = {}) {
+    const authority = loadPreviewAuthority(repositoryRoot);
+    return materializeFundamentalsPreviewNpmAsset({
+        repositoryRoot,
+        outputRoot,
+        version,
+        readiness: buildPreviewReadiness(repositoryRoot),
+        request: {
+            id: `public-fundamentals-${version.replaceAll(".", "-")}`,
+            state: "release-on-merge",
+            profileId,
+            packageName,
+            version,
+            sourceRevision: authority.source.sourceRevision,
+            sourceContentDigest: authority.source.contentDigest,
+            assuranceMode: "basic",
+            supportClaim: false,
+        },
+    });
 }
 
 export function packageFundamentalsPreviewNpm({
@@ -211,18 +254,18 @@ export function packageFundamentalsPreviewNpm({
 }
 
 function main() {
-    const [outputRoot, version] = process.argv.slice(2);
+    const [outputRoot, version, mode = "preview"] = process.argv.slice(2);
     try {
-        const manifest = packageFundamentalsPreviewNpm({
-            outputRoot,
-            version,
-        });
+        const manifest =
+            mode === "release"
+                ? packageFundamentalsNpmRelease({ outputRoot, version })
+                : packageFundamentalsPreviewNpm({ outputRoot, version });
         process.stdout.write(
-            `Staged ${manifest.packageName}@${manifest.version} for protected preview publication.\n`,
+            `Staged ${manifest.packageName}@${manifest.version} for npm publication.\n`,
         );
     } catch (error) {
         process.stderr.write(
-            `${error instanceof Error ? error.message : "Preview npm staging failed"}\n`,
+            `${error instanceof Error ? error.message : "npm staging failed"}\n`,
         );
         process.exitCode = 1;
     }
