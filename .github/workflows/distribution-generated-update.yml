@@ -7,34 +7,38 @@ on:
   workflow_dispatch:
     inputs:
       operation:
-        description: Credential-gated fixture operation
+        description: Credential-gated generated Distribution operation
         required: true
         default: verify-fixture-update
         type: choice
         options:
           - verify-fixture-update
           - create-fixture-pr
+          - verify-passive-candidates
+          - create-passive-candidate-pr
       version:
-        description: Fixture prerelease version (0.0.N-fixture)
+        description: Exact fixture or candidate prerelease version
         required: true
-        default: 0.0.1-fixture
+        default: 0.0.1-candidate.1
         type: string
 
 permissions:
   contents: read
 
 concurrency:
-  group: distribution-update-${{ github.ref }}
+  group: distribution-update-${{ inputs.operation }}-${{ inputs.version }}-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
   verify-fixture-update:
+    if: inputs.operation == 'verify-fixture-update' || inputs.operation == 'create-fixture-pr'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - name: Check out the canonical authoring repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          fetch-depth: 0
           persist-credentials: false
 
       - name: Use Node.js 24
@@ -42,23 +46,62 @@ jobs:
         with:
           node-version: 24
 
-      - name: Validate the fixture version
+      - name: Generate and verify the fixture candidate
         env:
           VERSION: ${{ inputs.version }}
         run: |
           set -euo pipefail
           [[ "$VERSION" =~ ^0\.0\.[0-9]+-fixture$ ]]
-
-      - name: Generate and verify the candidate
-        env:
-          VERSION: ${{ inputs.version }}
-        run: |
-          set -euo pipefail
           node tooling/generate-distribution-fixture.mjs \
             "$RUNNER_TEMP/generated-distribution" "$VERSION"
           test "$(node -p "require('$RUNNER_TEMP/generated-distribution/distribution-manifest.json').publicationEligible")" = "false"
           node --test tooling/specs/distribution-fixture.spec.mjs
           node --test tooling/specs/generated-distribution-repository.spec.mjs
+
+  verify-passive-candidates:
+    if: inputs.operation == 'verify-passive-candidates' || inputs.operation == 'create-passive-candidate-pr'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out complete immutable history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+
+      - name: Generate and verify both passive review candidates
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          [[ "$VERSION" =~ ^0\.0\.[0-9]+-candidate\.[0-9]+$ ]]
+          node tooling/package-passive-candidate-assets.mjs \
+            candidate-passive-public-package \
+            "$RUNNER_TEMP/passive-candidates/candidate-passive-public-package" \
+            "$VERSION"
+          node tooling/package-passive-candidate-assets.mjs \
+            candidate-passive-engineering-package \
+            "$RUNNER_TEMP/passive-candidates/candidate-passive-engineering-package" \
+            "$VERSION"
+          for artifact in \
+            candidate-passive-public-package \
+            candidate-passive-engineering-package; do
+            manifest="$RUNNER_TEMP/passive-candidates/$artifact/candidate-assets.json"
+            test "$(node -p "require('$manifest').state")" = \
+              "PASSIVE_CANDIDATE_REVIEW_ONLY"
+            test "$(node -p "require('$manifest').installationSupported")" = "false"
+            test "$(node -p "require('$manifest').publicationEligible")" = "false"
+            test "$(node -p "require('$manifest').runtimeEligible")" = "false"
+            test "$(node -p "require('$manifest').supportGranted")" = "false"
+            (cd "$RUNNER_TEMP/passive-candidates/$artifact" && sha256sum -c SHA256SUMS)
+          done
+          node --test tooling/specs/passive-candidate-assets.spec.mjs
+          node --test tooling/specs/distribution-repository-verification.spec.mjs
 
   create-fixture-pr:
     if: inputs.operation == 'create-fixture-pr'
@@ -70,6 +113,7 @@ jobs:
       - name: Check out the canonical authoring repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          fetch-depth: 0
           persist-credentials: false
 
       - name: Use Node.js 24
@@ -97,7 +141,7 @@ jobs:
           node tooling/generate-distribution-fixture.mjs \
             "$RUNNER_TEMP/generated-distribution" "$VERSION"
 
-      - name: Create the generated update pull request
+      - name: Create the generated fixture pull request
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           VERSION: ${{ inputs.version }}
@@ -125,3 +169,90 @@ jobs:
             --head "$branch" \
             --title "Generate fixture distribution $VERSION" \
             --body "Generated from Cratis/AI@$GITHUB_SHA. Fixture-only; publication and promotion remain disabled."
+
+  create-passive-candidate-pr:
+    if: inputs.operation == 'create-passive-candidate-pr'
+    needs: verify-passive-candidates
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: distribution-canary
+    steps:
+      - name: Check out complete immutable history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+
+      - name: Create a repository-scoped GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.AI_DISTRIBUTION_APP_ID }}
+          private-key: ${{ secrets.AI_DISTRIBUTION_APP_PRIVATE_KEY }}
+          owner: Cratis
+          repositories: AI.Distribution
+          permission-contents: write
+          permission-pull-requests: write
+
+      - name: Generate both passive review candidates
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          [[ "$VERSION" =~ ^0\.0\.[0-9]+-candidate\.[0-9]+$ ]]
+          for artifact in \
+            candidate-passive-public-package \
+            candidate-passive-engineering-package; do
+            node tooling/package-passive-candidate-assets.mjs \
+              "$artifact" \
+              "$RUNNER_TEMP/passive-candidates/$artifact" \
+              "$VERSION"
+          done
+
+      - name: Create the generated candidate pull request
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          gh auth setup-git
+          gh repo clone Cratis/AI.Distribution "$RUNNER_TEMP/AI.Distribution"
+          cmp \
+            distribution/repository-control-plane/.github/scripts/verify-generated-distribution.mjs \
+            "$RUNNER_TEMP/AI.Distribution/.github/scripts/verify-generated-distribution.mjs"
+          version_slug="${VERSION//./-}"
+          branch="candidates/${version_slug}-${GITHUB_SHA:0:12}"
+          git -C "$RUNNER_TEMP/AI.Distribution" checkout -b "$branch"
+          for artifact in \
+            candidate-passive-public-package \
+            candidate-passive-engineering-package; do
+            destination="$RUNNER_TEMP/AI.Distribution/candidates/$artifact/$VERSION"
+            test ! -e "$destination"
+            mkdir -p "$destination"
+            rsync -a \
+              "$RUNNER_TEMP/passive-candidates/$artifact/" \
+              "$destination/"
+          done
+          node \
+            "$RUNNER_TEMP/AI.Distribution/.github/scripts/verify-generated-distribution.mjs" \
+            --root "$RUNNER_TEMP/AI.Distribution" \
+            --check exact-inventory
+          git -C "$RUNNER_TEMP/AI.Distribution" config \
+            user.name "cratis-distribution-candidate-bot"
+          git -C "$RUNNER_TEMP/AI.Distribution" config \
+            user.email "candidate-bot@invalid.example"
+          git -C "$RUNNER_TEMP/AI.Distribution" add -A
+          git -C "$RUNNER_TEMP/AI.Distribution" commit \
+            --message "Add passive candidate review bundles $VERSION"
+          git -C "$RUNNER_TEMP/AI.Distribution" push origin "$branch"
+          gh pr create \
+            --repo Cratis/AI.Distribution \
+            --base main \
+            --head "$branch" \
+            --title "Add passive candidate review bundles $VERSION" \
+            --body "Generated from Cratis/AI@$GITHUB_SHA. Review-only; installation, runtime, publication, support, and promotion remain disabled."

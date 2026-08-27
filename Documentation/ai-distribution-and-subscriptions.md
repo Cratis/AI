@@ -401,7 +401,11 @@ inventory, manifest, asset digests, and checksum closure. Every approval,
 installation, publication, runtime, support, and promotion flag remains false.
 Candidate materialization is review coverage—not release materialization, host
 evidence, marketplace availability, or permission to install these bundles into
-a production repository.
+a production repository. After the repository-scoped Distribution App is
+configured, the generated-update workflow can open an ordinary reviewed PR for
+one exact candidate version. It requires a new append-only destination, verifies
+the installed Distribution control plane byte-for-byte, runs exact-inventory
+validation, and never auto-merges or performs a release operation.
 
 ### Approval-pending Fundamentals review assets
 
