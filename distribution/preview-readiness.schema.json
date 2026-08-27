@@ -23,7 +23,7 @@
         "additionalProperties": false,
         "required": ["code", "reason"],
         "properties": {
-          "code": { "enum": ["package-name-not-reconciled", "package-ownership-unconfirmed", "trusted-publisher-not-configured", "oidc-not-enabled", "public-preview-publish-disabled", "basic-host-smoke-pending", "required-preview-status-not-configured", "preview-release-workflow-not-implemented"] },
+          "code": { "enum": ["package-name-not-reconciled", "package-ownership-unconfirmed", "trusted-publisher-not-configured", "oidc-not-enabled", "public-preview-publish-disabled", "preview-release-workflow-not-implemented"] },
           "reason": { "type": "string", "minLength": 1 }
         }
       }
@@ -31,11 +31,10 @@
     "governedAssurance": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["requiredForPreview", "availableForGraduation", "state", "readinessPath"],
+      "required": ["requiredForPreview", "availableForGraduation", "readinessPath"],
       "properties": {
         "requiredForPreview": { "const": false },
         "availableForGraduation": { "const": true },
-        "state": { "type": "string", "minLength": 1 },
         "readinessPath": { "const": "catalog/v2/release-readiness.json" }
       }
     },

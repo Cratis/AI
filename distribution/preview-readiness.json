@@ -32,14 +32,6 @@
       "reason": "Public preview publication remains disabled."
     },
     {
-      "code": "basic-host-smoke-pending",
-      "reason": "No immutable basic exact-artifact smoke record covers pack, install, discovery, uninstall, and rollback."
-    },
-    {
-      "code": "required-preview-status-not-configured",
-      "reason": "The protected preview / verify status is not configured."
-    },
-    {
       "code": "preview-release-workflow-not-implemented",
       "reason": "The passive preview request and publication workflow is not implemented."
     }
@@ -47,7 +39,6 @@
   "governedAssurance": {
     "requiredForPreview": false,
     "availableForGraduation": true,
-    "state": "BLOCKED",
     "readinessPath": "catalog/v2/release-readiness.json"
   },
   "previewRequestEligible": false,

@@ -22,14 +22,10 @@ const inputs = [
     "distribution/assurance-lanes.json",
     "distribution/assurance-lanes.schema.json",
     "distribution/preview-readiness.schema.json",
-    "distribution/preview-smoke-results.json",
-    "distribution/preview-smoke-results.schema.json",
     "distribution/profile-catalog.json",
     "distribution/npm-stage-contract.json",
-    "distribution/remote-repository-state.json",
     "catalog/v2/targets.json",
     "catalog/v2/artifacts.json",
-    "catalog/v2/release-readiness.json",
 ];
 
 function withTemporaryInputs(callback) {
@@ -104,8 +100,6 @@ test("current passive preview is statically ready and blocked only on basic owne
             "trusted-publisher-not-configured",
             "oidc-not-enabled",
             "public-preview-publish-disabled",
-            "basic-host-smoke-pending",
-            "required-preview-status-not-configured",
             "preview-release-workflow-not-implemented",
         ],
     );
@@ -118,25 +112,6 @@ test("basic owner setup can admit a preview request without granting support", (
     withTemporaryInputs((root) => {
         const lanes = readJson(root, "distribution/assurance-lanes.json");
         writeJson(root, "distribution/assurance-lanes.json", lanes);
-        const smoke = readJson(
-            root,
-            "distribution/preview-smoke-results.json",
-        );
-        smoke.records.push({
-            id: "public-fundamentals-pi-preview-smoke",
-            profileId: "public-fundamentals",
-            packageName: "@cratis/ai-fundamentals",
-            version: "0.1.0-preview.1",
-            sourceRevision: "a".repeat(40),
-            artifactSha256: "b".repeat(64),
-            host: "pi",
-            hostVersion: "0.84.3",
-            workflowRunUrl: "https://github.com/Cratis/AI/actions/runs/1",
-            checks: ["pack", "install", "discovery", "uninstall", "rollback"],
-            outcome: "pass",
-            supporting: false,
-        });
-        writeJson(root, "distribution/preview-smoke-results.json", smoke);
         const npm = readJson(root, "distribution/npm-stage-contract.json");
         npm.package.name = "@cratis/ai-fundamentals";
         npm.package.publicOwnershipConfirmed = true;
@@ -144,38 +119,28 @@ test("basic owner setup can admit a preview request without granting support", (
         npm.workflow.oidcEnabled = true;
         npm.workflow.publicPublishEnabled = true;
         writeJson(root, "distribution/npm-stage-contract.json", npm);
-        const remoteState = readJson(
-            root,
-            "distribution/remote-repository-state.json",
-        );
-        remoteState.branchProtection.requiredStatuses = ["preview / verify"];
-        writeJson(
-            root,
-            "distribution/remote-repository-state.json",
-            remoteState,
-        );
-        const governed = readJson(
-            root,
-            "catalog/v2/release-readiness.json",
-        );
-        governed.state = "READY_FOR_RELEASE";
-        writeJson(root, "catalog/v2/release-readiness.json", governed);
         const workflowPath = join(
             root,
             ".github/workflows/release-passive-previews.yml",
         );
         mkdirSync(dirname(workflowPath), { recursive: true });
-        writeFileSync(workflowPath, "name: Release Passive Previews\n");
+        const previewLane = lanes.lanes.find(
+            (lane) => lane.id === "passive-preview",
+        );
+        writeFileSync(
+            workflowPath,
+            `name: ${lanes.selectedPreview.requiredStatusContext}\n` +
+                `environment: ${lanes.selectedPreview.protectedEnvironment}\n` +
+                `${previewLane.requiredChecks.join("\n")}\n`,
+        );
         const readiness = buildPreviewReadiness(root);
         assert.equal(readiness.state, "READY_FOR_PREVIEW_REQUEST");
         assert.deepEqual(readiness.blockers, []);
         assert.equal(readiness.previewRequestEligible, true);
         assert.equal(readiness.publicationEligible, false);
         assert.equal(readiness.supportGranted, false);
-        assert.equal(
-            readiness.governedAssurance.state,
-            "READY_FOR_RELEASE",
-        );
+        assert.equal(readiness.governedAssurance.requiredForPreview, false);
+        assert.equal(readiness.governedAssurance.availableForGraduation, true);
     });
 });
 

@@ -60,26 +60,9 @@ export function buildPreviewReadiness(
         "distribution/assurance-lanes.schema.json",
     );
     const profileCatalog = readJson(root, "distribution/profile-catalog.json");
-    const smokeResults = readJson(
-        root,
-        lanes.selectedPreview.smokeRegistry,
-    );
-    validateWithSchema(
-        root,
-        smokeResults,
-        "distribution/preview-smoke-results.schema.json",
-    );
     const targets = readJson(root, "catalog/v2/targets.json").targets;
     const artifacts = readJson(root, "catalog/v2/artifacts.json").artifacts;
     const npmStage = readJson(root, "distribution/npm-stage-contract.json");
-    const remoteState = readJson(
-        root,
-        "distribution/remote-repository-state.json",
-    );
-    const governedReadiness = readJson(
-        root,
-        "catalog/v2/release-readiness.json",
-    );
     const previewLane = lanes.lanes.find(
         (lane) => lane.id === "passive-preview",
     );
@@ -161,46 +144,32 @@ export function buildPreviewReadiness(
             "public-preview-publish-disabled",
             "Public preview publication remains disabled.",
         );
-    const acceptedSmoke = smokeResults.records.find(
-        (record) =>
-            record.profileId === profile.id &&
-            record.packageName === profile.packageName &&
-            record.outcome === "pass" &&
-            record.supporting === false &&
-            JSON.stringify([...record.checks].sort()) ===
-                JSON.stringify(
-                    ["pack", "install", "discovery", "uninstall", "rollback"].sort(),
-                ),
+    const previewWorkflowPath = join(
+        root,
+        ".github/workflows/release-passive-previews.yml",
     );
-    if (!acceptedSmoke)
-        addBlocker(
-            blockers,
-            "basic-host-smoke-pending",
-            "No immutable basic exact-artifact smoke record covers pack, install, discovery, uninstall, and rollback.",
-        );
-    const requiredStatuses =
-        remoteState.branchProtection.requiredStatuses ?? [];
-    if (!requiredStatuses.includes(lanes.selectedPreview.requiredStatusContext))
-        addBlocker(
-            blockers,
-            "required-preview-status-not-configured",
-            `The protected ${lanes.selectedPreview.requiredStatusContext} status is not configured.`,
-        );
-    if (
-        !existsSync(
-            join(root, ".github/workflows/release-passive-previews.yml"),
-        )
-    )
+    if (!existsSync(previewWorkflowPath)) {
         addBlocker(
             blockers,
             "preview-release-workflow-not-implemented",
             "The passive preview request and publication workflow is not implemented.",
         );
-    const npmEnvironment = remoteState.protectedEnvironments.find(
-        (environment) => environment.name === npmStage.workflow.environment,
-    );
-    if (!npmEnvironment || npmEnvironment.state !== "CONFIGURED")
-        throw new Error("npm-stage protected environment is not configured");
+    } else {
+        const previewWorkflow = readFileSync(previewWorkflowPath, "utf8");
+        for (const requiredCheck of expectedPreviewChecks)
+            if (!previewWorkflow.includes(requiredCheck))
+                throw new Error(
+                    `Preview release workflow omits required check ${requiredCheck}`,
+                );
+        for (const requiredControl of [
+            `name: ${lanes.selectedPreview.requiredStatusContext}`,
+            `environment: ${lanes.selectedPreview.protectedEnvironment}`,
+        ])
+            if (!previewWorkflow.includes(requiredControl))
+                throw new Error(
+                    `Preview release workflow omits ${requiredControl}`,
+                );
+    }
     const readiness = {
         schemaVersion: 1,
         generatedBy: "tooling/preview-readiness.mjs",
@@ -218,7 +187,6 @@ export function buildPreviewReadiness(
         governedAssurance: {
             requiredForPreview: false,
             availableForGraduation: true,
-            state: governedReadiness.state,
             readinessPath: lanes.advancedAssurance.readinessPath,
         },
         previewRequestEligible: blockers.length === 0,

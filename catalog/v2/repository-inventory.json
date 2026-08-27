@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "6fdcfe30b7034066fb6e6c0c3c62ce98949cdc827b3a21df2d53c2b0dd884258",
+  "indexDigest": "c7b7650232f0721624fc4c3217ba41103a832ba31e24279c65f1b635505193d5",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -792,14 +792,6 @@
     },
     {
       "path": "distribution/preview-readiness.schema.json",
-      "status": "added"
-    },
-    {
-      "path": "distribution/preview-smoke-results.json",
-      "status": "added"
-    },
-    {
-      "path": "distribution/preview-smoke-results.schema.json",
       "status": "added"
     },
     {
@@ -4454,8 +4446,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 67,
-      "expectedPathsDigest": "feb912f4b5dcdc9c4ce1c66a3a0d9414dd1665987741b50976160e407096090b"
+      "expectedPathCount": 65,
+      "expectedPathsDigest": "1062877da4bbc85fc63af384ae5ec9dcc7aff80325e11f03bf1eb2e7a7652e00"
     },
     {
       "excludePathPatterns": [],
