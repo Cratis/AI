@@ -17,7 +17,9 @@ import {
 } from "../smoke-fundamentals-preview-npm.mjs";
 
 function withTemporaryDirectory(callback) {
-    const root = mkdtempSync(join(tmpdir(), "cratis-fundamentals-preview-npm-"));
+    const root = mkdtempSync(
+        join(tmpdir(), "cratis-fundamentals-preview-npm-"),
+    );
     try {
         return callback(root);
     } finally {
@@ -97,7 +99,9 @@ test("publishable Fundamentals preview npm asset is deterministic and scriptless
                 skills: ["./skills"],
             },
         });
-        assert(files.has("package/skills/cratis-fundamentals-concept/SKILL.md"));
+        assert(
+            files.has("package/skills/cratis-fundamentals-concept/SKILL.md"),
+        );
         const checksums = readFileSync(join(firstRoot, "SHA256SUMS"), "utf8");
         assert(checksums.includes(first.filename));
         assert(checksums.includes("preview-npm-manifest.json"));
@@ -173,7 +177,7 @@ test("publishable preview staging requires exact request source authority", () =
     });
 });
 
-test("current owner setup blocks publishable preview staging", () => {
+test("an empty request registry blocks publishable preview staging", () => {
     withTemporaryDirectory((root) => {
         assert.throws(
             () =>

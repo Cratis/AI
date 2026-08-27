@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "state": "PACK_VERIFY_READY_OWNER_AND_TRUST_MISSING",
+  "state": "PASSIVE_PREVIEW_REQUEST_READY",
   "trackingIssue": "https://github.com/Cratis/Workflows/issues/70",
   "package": {
     "fixtureName": "@cratis/ai",
@@ -8,31 +8,58 @@
     "fixturePrivate": true,
     "lifecycleScriptsAllowed": false,
     "dependenciesAllowed": false,
-    "publicOwnershipConfirmed": false
+    "publicOwnershipConfirmed": true,
+    "ownerSetupEvidence": {
+      "confirmedBy": "woksin.sindre",
+      "confirmedOn": "2026-08-27",
+      "publicRegistryStatusVerified": true,
+      "writeCollaboratorVerified": true,
+      "trustedPublisherConfiguration": "owner-attested"
+    },
+    "bootstrapVersion": "0.0.0-bootstrap.0",
+    "bootstrapDeprecationRequired": true,
+    "bootstrapDeprecationConfirmed": true,
+    "bootstrapDeprecationEvidence": {
+      "verifiedOn": "2026-08-27",
+      "registryReadbackVerified": true,
+      "cliExitReconciled": "E422_WRITE_PERSISTED"
+    },
+    "latestTagPolicy": "stable-or-deprecated-bootstrap-never-preview",
+    "latestTagSafe": true
   },
   "workflow": {
     "path": ".github/workflows/distribution-npm-stage.yml",
     "productionPath": ".github/workflows/release-approved-ai-profiles.yml",
-    "currentOperation": "VERIFY_PRIVATE_FIXTURE",
+    "currentOperation": "AWAIT_MERGED_PASSIVE_PREVIEW_REQUEST",
     "environment": "npm-stage",
-    "trustedPublisherConfigured": false,
-    "oidcEnabled": false,
+    "passivePreviewPath": ".github/workflows/release-passive-previews.yml",
+    "trustedPublisherConfigured": true,
+    "trustedPublisher": {
+      "provider": "github-actions",
+      "organization": "Cratis",
+      "repository": "AI",
+      "workflowFilename": "release-passive-previews.yml",
+      "environment": "npm-stage",
+      "allowedOperation": "npm publish"
+    },
+    "oidcEnabled": true,
     "stagePublishEnabled": false,
-    "publicPublishEnabled": false,
+    "publicPublishEnabled": true,
     "publishAutomaticallyAfterMergedReleaseRequestAndCanary": true
   },
-  "futureStageRequirements": [
-    "approved public target and source contract",
-    "public package ownership",
-    "exact npm trusted-publisher workflow registration",
+  "previewPublicationControls": [
+    "approved public target and immutable source contract",
+    "append-only request bound to exact source revision and digest",
     "Node 22.14 or newer",
     "npm 11.5.1 or newer",
     "npm-stage environment approval",
-    "id-token write only in the stage job",
-    "unpacked allowlist and zero lifecycle scripts",
-    "provenance and checksum verification",
-    "reject and rollback evidence"
+    "id-token write only in the publish job",
+    "unpacked allowlist and zero lifecycle scripts or dependencies",
+    "provenance checksum and exact-artifact verification",
+    "pack install discovery uninstall and exact-version rollback smoke",
+    "explicit npm preview dist-tag"
   ],
+  "previewRequestEligible": true,
   "publicationEligible": false,
   "promotionEligible": false
 }

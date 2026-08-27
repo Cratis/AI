@@ -8,6 +8,7 @@ on:
     paths:
       - "distribution/preview-requests.json"
       - "distribution/preview-requests.schema.json"
+      - "distribution/npm-stage-contract.json"
       - ".github/workflows/release-passive-previews.yml"
       - "tooling/package-fundamentals-preview-*.mjs"
       - "tooling/preview-*.mjs"
@@ -44,6 +45,25 @@ jobs:
         with:
           node-version: 24
           package-manager-cache: false
+
+      - name: Verify registry dist-tag safety
+        run: |
+          set -euo pipefail
+          package=@cratis/ai-fundamentals
+          latest=$(npm view "$package" dist-tags.latest)
+          if [[ -z "$latest" ]]; then
+            exit 0
+          fi
+          if [[ "$latest" == "0.0.0-bootstrap.0" ]]; then
+            deprecated=$(npm view "$package@$latest" deprecated)
+            test "$deprecated" = \
+              "Bootstrap only. Install an exact preview version or use the preview dist-tag."
+            exit 0
+          fi
+          if [[ "$latest" == *-* || ! "$latest" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "The npm latest tag must select a stable version or the deprecated bootstrap: $latest" >&2
+            exit 1
+          fi
 
       - name: deterministic-generation
         id: readiness

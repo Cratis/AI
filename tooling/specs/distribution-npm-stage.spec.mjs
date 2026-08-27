@@ -22,19 +22,52 @@ const workflow = readFileSync(
     "utf8",
 );
 
-test("npm stage contract keeps ownership OIDC and publication blocked", () => {
-    assert.equal(contract.state, "PACK_VERIFY_READY_OWNER_AND_TRUST_MISSING");
+test("npm stage contract admits an exact passive preview request", () => {
+    assert.equal(contract.state, "PASSIVE_PREVIEW_REQUEST_READY");
     assert.equal(contract.package.fixtureName, "@cratis/ai");
-    assert.equal(
-        contract.package.productionName,
-        "@cratis/ai-fundamentals",
-    );
+    assert.equal(contract.package.productionName, "@cratis/ai-fundamentals");
     assert.equal(contract.package.fixturePrivate, true);
-    assert.equal(contract.package.publicOwnershipConfirmed, false);
-    assert.equal(contract.workflow.trustedPublisherConfigured, false);
-    assert.equal(contract.workflow.oidcEnabled, false);
+    assert.equal(contract.package.publicOwnershipConfirmed, true);
+    assert.equal(contract.package.bootstrapVersion, "0.0.0-bootstrap.0");
+    assert.equal(contract.package.bootstrapDeprecationRequired, true);
+    assert.equal(contract.package.bootstrapDeprecationConfirmed, true);
+    assert.deepEqual(contract.package.bootstrapDeprecationEvidence, {
+        verifiedOn: "2026-08-27",
+        registryReadbackVerified: true,
+        cliExitReconciled: "E422_WRITE_PERSISTED",
+    });
+    assert.equal(
+        contract.package.latestTagPolicy,
+        "stable-or-deprecated-bootstrap-never-preview",
+    );
+    assert.equal(contract.package.latestTagSafe, true);
+    assert.deepEqual(contract.package.ownerSetupEvidence, {
+        confirmedBy: "woksin.sindre",
+        confirmedOn: "2026-08-27",
+        publicRegistryStatusVerified: true,
+        writeCollaboratorVerified: true,
+        trustedPublisherConfiguration: "owner-attested",
+    });
+    assert.equal(contract.workflow.trustedPublisherConfigured, true);
+    assert.deepEqual(contract.workflow.trustedPublisher, {
+        provider: "github-actions",
+        organization: "Cratis",
+        repository: "AI",
+        workflowFilename: "release-passive-previews.yml",
+        environment: "npm-stage",
+        allowedOperation: "npm publish",
+    });
+    assert.equal(contract.workflow.oidcEnabled, true);
     assert.equal(contract.workflow.stagePublishEnabled, false);
-    assert.equal(contract.workflow.publicPublishEnabled, false);
+    assert.equal(contract.workflow.publicPublishEnabled, true);
+    assert.equal(
+        contract.workflow.currentOperation,
+        "AWAIT_MERGED_PASSIVE_PREVIEW_REQUEST",
+    );
+    assert.equal(
+        contract.workflow.passivePreviewPath,
+        ".github/workflows/release-passive-previews.yml",
+    );
     assert.equal(
         contract.workflow
             .publishAutomaticallyAfterMergedReleaseRequestAndCanary,
@@ -44,6 +77,7 @@ test("npm stage contract keeps ownership OIDC and publication blocked", () => {
         contract.workflow.productionPath,
         ".github/workflows/release-approved-ai-profiles.yml",
     );
+    assert.equal(contract.previewRequestEligible, true);
     assert.equal(contract.publicationEligible, false);
     assert.equal(contract.promotionEligible, false);
 });

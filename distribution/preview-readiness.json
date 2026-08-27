@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "generatedBy": "tooling/preview-readiness.mjs",
-  "state": "OWNER_SETUP_REQUIRED",
+  "state": "READY_FOR_PREVIEW_REQUEST",
   "lane": "passive-preview",
   "assuranceMode": "basic",
   "profileId": "public-fundamentals",
@@ -10,30 +10,13 @@
     "cratis-fundamentals-concept"
   ],
   "staticCandidateReady": true,
-  "blockers": [
-    {
-      "code": "package-ownership-unconfirmed",
-      "reason": "Exact npm package ownership is not confirmed."
-    },
-    {
-      "code": "trusted-publisher-not-configured",
-      "reason": "The exact npm trusted publisher is not configured."
-    },
-    {
-      "code": "oidc-not-enabled",
-      "reason": "OIDC publication is not enabled."
-    },
-    {
-      "code": "public-preview-publish-disabled",
-      "reason": "Public preview publication remains disabled."
-    }
-  ],
+  "blockers": [],
   "governedAssurance": {
     "requiredForPreview": false,
     "availableForGraduation": true,
     "readinessPath": "catalog/v2/release-readiness.json"
   },
-  "previewRequestEligible": false,
+  "previewRequestEligible": true,
   "publicationEligible": false,
   "supportGranted": false
 }

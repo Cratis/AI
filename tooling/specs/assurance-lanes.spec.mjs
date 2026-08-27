@@ -56,11 +56,7 @@ test("assurance lanes keep preview lightweight and support governed", () => {
     );
     assert.equal(policy.defaultLane, "candidate-review");
     assert.deepEqual(
-        policy.lanes.map((lane) => [
-            lane.id,
-            lane.assuranceMode,
-            lane.channel,
-        ]),
+        policy.lanes.map((lane) => [lane.id, lane.assuranceMode, lane.channel]),
         [
             ["candidate-review", "basic", "candidate"],
             ["passive-preview", "basic", "preview"],
@@ -83,25 +79,17 @@ test("assurance lanes keep preview lightweight and support governed", () => {
     assert.equal(policy.advancedAssurance.status, "SIDELINED_AVAILABLE");
 });
 
-test("current passive preview is statically ready and blocked only on basic owner setup", () => {
+test("current passive preview is ready for one exact request without granting support", () => {
     const first = generatePreviewReadiness();
     const second = generatePreviewReadiness();
     assert.deepEqual(second, first);
-    assert.equal(first.state, "OWNER_SETUP_REQUIRED");
+    assert.equal(first.state, "READY_FOR_PREVIEW_REQUEST");
     assert.equal(first.staticCandidateReady, true);
     assert.equal(first.assuranceMode, "basic");
     assert.equal(first.governedAssurance.requiredForPreview, false);
     assert.equal(first.governedAssurance.availableForGraduation, true);
-    assert.deepEqual(
-        first.blockers.map((blocker) => blocker.code),
-        [
-            "package-ownership-unconfirmed",
-            "trusted-publisher-not-configured",
-            "oidc-not-enabled",
-            "public-preview-publish-disabled",
-        ],
-    );
-    assert.equal(first.previewRequestEligible, false);
+    assert.deepEqual(first.blockers, []);
+    assert.equal(first.previewRequestEligible, true);
     assert.equal(first.publicationEligible, false);
     assert.equal(first.supportGranted, false);
 });
@@ -113,6 +101,7 @@ test("basic owner setup can admit a preview request without granting support", (
         const npm = readJson(root, "distribution/npm-stage-contract.json");
         npm.package.productionName = "@cratis/ai-fundamentals";
         npm.package.publicOwnershipConfirmed = true;
+        npm.package.latestTagSafe = true;
         npm.workflow.trustedPublisherConfigured = true;
         npm.workflow.oidcEnabled = true;
         npm.workflow.publicPublishEnabled = true;
