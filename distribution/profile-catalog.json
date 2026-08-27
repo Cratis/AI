@@ -3,6 +3,7 @@
   "state": "DESIGNED_RELEASES_NOT_YET_PUBLISHED",
   "sourceRepository": "https://github.com/Cratis/AI",
   "generatedRepository": "https://github.com/Cratis/AI.Distribution",
+  "homepage": "https://cratis.io/ai",
   "versioning": {
     "strategy": "semver",
     "releaseTrain": "atomic",

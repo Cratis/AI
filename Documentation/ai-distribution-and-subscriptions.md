@@ -48,7 +48,7 @@ pretending to be supported:
 | Governed support | Governed | Stable support, executable/MCP, broad automation | Yes |
 
 The basic preview lane requires deterministic generation, static standards,
-secret/path checks, schemas, checksums, independent review, a basic exact-package
+secret/path checks, schemas, checksums, explicit owner review, a basic exact-package
 pack/install/discovery/uninstall smoke, and rollback. It can never claim
 `supported`.
 

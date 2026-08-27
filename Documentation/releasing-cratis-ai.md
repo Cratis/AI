@@ -16,20 +16,18 @@ tracked in [AI#181](https://github.com/Cratis/AI/issues/181).
 
 `public-fundamentals` is the selected first preview. Generated
 [`preview-readiness.json`](../distribution/preview-readiness.json) is independent
-of S10 and currently lists five request-readiness blockers: prove ownership of
-`@cratis/ai-fundamentals`, configure its trusted publisher, enable OIDC, enable
-public preview publishing, and implement the separately reviewed preview release
-workflow.
+of S10 and currently lists four request-readiness blockers: prove ownership of
+`@cratis/ai-fundamentals`, configure its trusted publisher, enable OIDC, and
+enable public preview publishing.
 
-The current Fundamentals workflow is packaging-only: it emits private,
-approval-pending review assets and asserts that preview requests remain blocked.
-It does not publish. After the owner controls exist, a separate reviewed change
-can add the request/publication workflow. Readiness will accept that workflow
-only when its reviewed bytes contain every exact basic check and the expected
-protected environment/status identity. The workflow itself must run the basic
-exact-artifact pack/install/discovery/uninstall smoke and rollback before
-publication; those run results are not self-authored readiness booleans. A
-passive preview can never promote itself to stable support.
+The existing Fundamentals asset workflow remains packaging-only. The separate
+**Release Passive Previews** workflow now validates an append-only exact request,
+runs every anchored basic check, stages a public scriptless/dependency-free npm
+archive, and binds publication to `npm-stage` with OIDC. Its publication job is
+unreachable while readiness is blocked. After owner setup, merging one reviewed
+request can publish that exact preview under the explicit npm `preview`
+dist-tag; it cannot become `latest`, claim support, or promote itself to stable
+support.
 
 ## Static candidate review before release authority
 

@@ -58,6 +58,12 @@ export function validateProfileSubscriptions(
     errors.push(
         ...validateSchemaVocabulary(schema, "profile-subscription.schema.json"),
     );
+    let homepage;
+    try {
+        homepage = new URL(profileCatalog.homepage);
+    } catch {
+        errors.push("Profile catalog homepage must be an absolute URL");
+    }
     if (
         profileCatalog.schemaVersion !== "1.1.0" ||
         profileCatalog.state !== "DESIGNED_RELEASES_NOT_YET_PUBLISHED" ||
@@ -65,6 +71,9 @@ export function validateProfileSubscriptions(
         profileCatalog.versioning?.releaseTrain !== "atomic" ||
         profileCatalog.versioning?.exactPinsRequired !== true ||
         profileCatalog.versioning?.floatingVersionsAllowed !== false ||
+        homepage?.protocol !== "https:" ||
+        homepage?.hostname !== "cratis.io" ||
+        homepage?.pathname !== "/ai" ||
         profileCatalog.authority?.sharedBehaviorOwner !== "Cratis/AI" ||
         profileCatalog.authority?.productFactOwner !==
             "owning Cratis product repository" ||
@@ -252,15 +261,19 @@ function main() {
         for (const error of errors) process.stderr.write(`- ${error}\n`);
         process.exitCode = 1;
     } else {
-        const profileCatalog = JSON.parse(
-            readFileSync(
-                join(
-                    defaultRepositoryRoot,
-                    "distribution/profile-catalog.json",
-                ),
-                "utf8",
+        const readErrors = [];
+        const profileCatalog = readJson(
+            join(
+                defaultRepositoryRoot,
+                "distribution/profile-catalog.json",
             ),
+            readErrors,
         );
+        if (!profileCatalog) {
+            process.stderr.write(`${readErrors.join("\n")}\n`);
+            process.exitCode = 1;
+            return;
+        }
         const exampleCount =
             readdirSync(
                 join(

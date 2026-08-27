@@ -13,6 +13,7 @@ import { validateEngineeringDistributionConfiguration } from "./generate-enginee
 import { validateEngineeringDocsCompanions } from "./engineering-docs-companions-validation.mjs";
 import { validateProfileSubscriptions } from "./profile-subscription-validation.mjs";
 import { validatePreviewReadiness } from "./preview-readiness.mjs";
+import { validatePreviewRequests } from "./preview-request-validation.mjs";
 import { validateReleaseRequests } from "./release-request-validation.mjs";
 import { validateReleaseApprovals } from "./release-approval-validation.mjs";
 import { validateEcosystemArtifactContracts } from "./ecosystem-artifact-validation.mjs";
@@ -47,6 +48,7 @@ const basicErrors = [
     ...validateEngineeringDocsCompanions(),
     ...validateProfileSubscriptions(),
     ...validatePreviewReadiness(),
+    ...validatePreviewRequests(),
     ...validateReleaseApprovals(),
     ...validateEcosystemArtifactContracts(),
     ...validateSupportCatalogs(),

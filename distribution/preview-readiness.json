@@ -26,10 +26,6 @@
     {
       "code": "public-preview-publish-disabled",
       "reason": "Public preview publication remains disabled."
-    },
-    {
-      "code": "preview-release-workflow-not-implemented",
-      "reason": "The passive preview request and publication workflow is not implemented."
     }
   ],
   "governedAssurance": {

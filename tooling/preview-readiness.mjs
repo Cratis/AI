@@ -40,7 +40,7 @@ const expectedPreviewChecks = Object.freeze([
     "secret-and-path-scanning",
     "schema-validation",
     "checksums",
-    "independent-review",
+    "owner-review",
     "basic-pack-install-discovery-uninstall-smoke",
     "exact-version-rollback",
 ]);

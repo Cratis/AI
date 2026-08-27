@@ -219,7 +219,7 @@ function sourceDigest(paths, contents) {
     return hash.digest("hex");
 }
 
-function loadPreviewAuthority(repositoryRoot) {
+export function loadPreviewAuthority(repositoryRoot) {
     const context = createReleaseContext({ repositoryRoot });
     const profile = context.require("profileCatalog", profileId);
     const target = context.require("targets", targetId);

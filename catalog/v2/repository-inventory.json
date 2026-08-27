@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "840d07fcb321a18378f0e802913e90c7d010bfdf1ad0306d33ae7eacec02ab85",
+  "indexDigest": "fc964761c5ddb82a8fb050ab3c8977ea511b1e29026c2de4683fe541b90b1fd2",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -144,6 +144,10 @@
     },
     {
       "path": ".github/workflows/release-approved-ai-profiles.yml",
+      "status": "added"
+    },
+    {
+      "path": ".github/workflows/release-passive-previews.yml",
       "status": "added"
     },
     {
@@ -800,6 +804,14 @@
     },
     {
       "path": "distribution/preview-readiness.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/preview-requests.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/preview-requests.schema.json",
       "status": "added"
     },
     {
@@ -2583,6 +2595,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/package-fundamentals-preview-npm.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/package-native-non-skill-review-assets.mjs",
       "status": "added"
     },
@@ -2600,6 +2616,10 @@
     },
     {
       "path": "tooling/preview-readiness.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/preview-request-validation.mjs",
       "status": "added"
     },
     {
@@ -2680,6 +2700,10 @@
     },
     {
       "path": "tooling/simulate-distribution-rollout.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/smoke-fundamentals-preview-npm.mjs",
       "status": "added"
     },
     {
@@ -2835,6 +2859,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/specs/fundamentals-preview-npm.spec.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/specs/generated-distribution-repository.spec.mjs",
       "status": "added"
     },
@@ -2864,6 +2892,10 @@
     },
     {
       "path": "tooling/specs/portable-compliance-validation.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/preview-request-validation.spec.mjs",
       "status": "added"
     },
     {
@@ -3579,6 +3611,7 @@
         ".github/workflows/distribution-npm-stage.yml",
         ".github/workflows/package-passive-candidate-assets.yml",
         ".github/workflows/release-approved-ai-profiles.yml",
+        ".github/workflows/release-passive-previews.yml",
         ".github/workflows/verify-ai-corpus.yml",
         ".github/workflows/verify-no-work-records.yml"
       ],
@@ -3598,8 +3631,8 @@
         "repo-main-b795d53",
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 12,
-      "expectedPathsDigest": "60b538f22ce9ccac2ae5f28b6363e6da2e40bae1565f3f532152829bfd72935b"
+      "expectedPathCount": 13,
+      "expectedPathsDigest": "9baffda4e0ab2f7c8600acd9c15b3a65c4d8b9f1536bb86b2aef2dd498fc96ea"
     },
     {
       "excludePathPatterns": [],
@@ -4441,8 +4474,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 65,
-      "expectedPathsDigest": "1062877da4bbc85fc63af384ae5ec9dcc7aff80325e11f03bf1eb2e7a7652e00"
+      "expectedPathCount": 67,
+      "expectedPathsDigest": "95ba7956af3343791c1f224d6eca8f644766ada2a7c22c6b6b35bb9208628d1e"
     },
     {
       "excludePathPatterns": [],
@@ -4517,8 +4550,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 74,
-      "expectedPathsDigest": "4d48dc656917984ff6a6f6f45e5df72c62f57959122a582ee762b04dab710957"
+      "expectedPathCount": 77,
+      "expectedPathsDigest": "876c450cffbf5170ba30ef057b4983548f79f46f4b5d719c4a37a0c9a368d9c5"
     },
     {
       "excludePathPatterns": [],
@@ -4541,8 +4574,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 59,
-      "expectedPathsDigest": "38cd079fd227bb565a27b77be1c30f70f5c2470a20a81db65000beccfd94b567"
+      "expectedPathCount": 61,
+      "expectedPathsDigest": "0fd1fe04c8b46f4cc33917dc3256000b0fb001fda19a8805e7868dbbeb6acce2"
     },
     {
       "excludePathPatterns": [],
