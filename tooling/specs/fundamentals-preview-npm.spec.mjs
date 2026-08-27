@@ -50,6 +50,12 @@ const ready = Object.freeze({
     supportGranted: false,
 });
 
+const currentRequest = Object.freeze(
+    JSON.parse(
+        readFileSync("distribution/preview-requests.json", "utf8"),
+    ).requests.at(-1),
+);
+
 test("publishable Fundamentals preview npm asset is deterministic and scriptless", () => {
     withTemporaryDirectory((root) => {
         const firstRoot = join(root, "first");
@@ -177,16 +183,17 @@ test("publishable preview staging requires exact request source authority", () =
     });
 });
 
-test("an empty request registry blocks publishable preview staging", () => {
+test("current request stages the exact publishable preview", () => {
     withTemporaryDirectory((root) => {
-        assert.throws(
-            () =>
-                packageFundamentalsPreviewNpm({
-                    outputRoot: join(root, "blocked"),
-                    version: "0.1.0-preview.1",
-                }),
-            /No passive preview request exists/,
-        );
+        const manifest = packageFundamentalsPreviewNpm({
+            outputRoot: join(root, "current-request"),
+            version: currentRequest.version,
+        });
+        assert.equal(manifest.requestId, currentRequest.id);
+        assert.equal(manifest.version, currentRequest.version);
+        assert.equal(manifest.sourceRevision, currentRequest.sourceRevision);
+        assert.equal(manifest.previewPublicationEligible, true);
+        assert.equal(manifest.supportGranted, false);
     });
 });
 

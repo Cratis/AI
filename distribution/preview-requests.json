@@ -1,5 +1,18 @@
 {
   "schemaVersion": 1,
   "defaultPolicy": "deny",
-  "requests": []
+  "requests": [
+    {
+      "id": "public-fundamentals-0-1-0-preview-1",
+      "state": "preview-on-merge",
+      "profileId": "public-fundamentals",
+      "packageName": "@cratis/ai-fundamentals",
+      "version": "0.1.0-preview.1",
+      "sourceRevision": "b53caa555b9a3f05ba1462b86202fe3ccb8a9470",
+      "sourceContentDigest": "9e537c48a95c414709008c69ebfb616354d60992578ddd9da3d7dc7308c42caa",
+      "assuranceMode": "basic",
+      "supportClaim": false,
+      "releaseNotes": "First unsupported public preview of passive Cratis Fundamentals concept and Chronicle event-source identity guidance."
+    }
+  ]
 }

@@ -11,19 +11,19 @@ function readJson(path) {
     return JSON.parse(readFileSync(path, "utf8"));
 }
 
-test("preview request catalog is empty closed and valid before owner setup", () => {
+test("current preview request catalog is closed and valid", () => {
     assert.deepEqual(validatePreviewRequests(), []);
     assert.deepEqual(
         validatePreviewRequests(undefined, { baseRevision: "HEAD" }),
         [],
     );
-    assert(
-        validatePreviewRequests(undefined, { requireRequest: true }).some(
-            (error) => error.includes("At least one passive preview request"),
-        ),
+    assert.deepEqual(
+        validatePreviewRequests(undefined, { requireRequest: true }),
+        [],
     );
-    const requests = readJson("distribution/preview-requests.json");
-    assert.deepEqual(requests.requests, []);
+    const requests = readJson("distribution/preview-requests.json").requests;
+    assert(requests.length > 0);
+    assert(requests.every((request) => request.supportClaim === false));
 });
 
 test("preview request schema rejects support claims unknown fields and multiple releases", () => {
