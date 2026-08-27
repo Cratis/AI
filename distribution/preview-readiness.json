@@ -12,10 +12,6 @@
   "staticCandidateReady": true,
   "blockers": [
     {
-      "code": "package-name-not-reconciled",
-      "reason": "npm stage names @cratis/ai; preview profile names @cratis/ai-fundamentals."
-    },
-    {
       "code": "package-ownership-unconfirmed",
       "reason": "Exact npm package ownership is not confirmed."
     },

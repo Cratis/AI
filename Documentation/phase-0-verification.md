@@ -59,8 +59,11 @@ This environment is not authenticated to npm. `npm whoami` returned
 new packages were not verified. No name was claimed and no package was
 published.
 
-Maintainers approved the three names. Trusted-publisher and organization access
-must still be configured and verified before release.
+Maintainers approved the three initial names. The later profile architecture
+selected `@cratis/ai-fundamentals` as the exact first production preview package;
+the generic `@cratis/ai` name remains fixture-only. Ownership of the selected
+profile package plus trusted-publisher and organization access must still be
+configured and verified before release.
 
 ## Ecosystem verification result
 

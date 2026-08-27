@@ -16,9 +16,10 @@ tracked in [AI#181](https://github.com/Cratis/AI/issues/181).
 
 `public-fundamentals` is the selected first preview. Generated
 [`preview-readiness.json`](../distribution/preview-readiness.json) is independent
-of S10 and currently lists six request-readiness blockers: reconcile the exact
-npm package name, prove ownership, configure trusted OIDC, enable public preview
-publishing, and implement the separately reviewed preview release workflow.
+of S10 and currently lists five request-readiness blockers: prove ownership of
+`@cratis/ai-fundamentals`, configure its trusted publisher, enable OIDC, enable
+public preview publishing, and implement the separately reviewed preview release
+workflow.
 
 The current Fundamentals workflow is packaging-only: it emits private,
 approval-pending review assets and asserts that preview requests remain blocked.

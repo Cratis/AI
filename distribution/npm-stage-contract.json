@@ -3,7 +3,8 @@
   "state": "PACK_VERIFY_READY_OWNER_AND_TRUST_MISSING",
   "trackingIssue": "https://github.com/Cratis/Workflows/issues/70",
   "package": {
-    "name": "@cratis/ai",
+    "fixtureName": "@cratis/ai",
+    "productionName": "@cratis/ai-fundamentals",
     "fixturePrivate": true,
     "lifecycleScriptsAllowed": false,
     "dependenciesAllowed": false,

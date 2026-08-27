@@ -30,7 +30,8 @@ The eight engineering classifications are:
 - `cratis-csharp-standards`.
 
 The engineering source remains public under `engineering/`, but none of these
-skills enters the public `@cratis/ai` or Agent Plugin artifact.
+skills enters a public product-profile package such as
+`@cratis/ai-fundamentals` or its Agent Plugin artifact.
 
 ## Audit of all current skills
 
