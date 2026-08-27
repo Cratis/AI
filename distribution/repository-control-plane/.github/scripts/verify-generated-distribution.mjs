@@ -300,14 +300,26 @@ function verifyCandidateReviewRoot(root, candidateRoot) {
     }
     const absoluteRoot = join(root, candidateRoot);
     const actualPaths = walkFiles(absoluteRoot).sort();
-    for (const required of ["candidate-assets.json", "SHA256SUMS"])
+    for (const required of [
+        "candidate-assets.json",
+        "candidate-component-coverage.json",
+        "SHA256SUMS",
+    ])
         if (!actualPaths.includes(required))
             throw new Error(`${candidateRoot}: missing ${required}`);
     const manifest = readJson(join(absoluteRoot, "candidate-assets.json"));
     if (
+        manifest.schemaPath !==
+            "distribution/passive-candidate-assets.schema.json" ||
+        !/^[0-9a-f]{64}$/.test(manifest.schemaSha256) ||
         manifest.state !== "PASSIVE_CANDIDATE_REVIEW_ONLY" ||
         manifest.artifactId !== artifactId ||
         manifest.version !== version ||
+        !/^[0-9a-f]{40}$/.test(manifest.sourceCommit) ||
+        !/^[0-9a-f]{64}$/.test(manifest.generatorDigest) ||
+        manifest.componentCoveragePath !==
+            "candidate-component-coverage.json" ||
+        !/^[0-9a-f]{64}$/.test(manifest.componentCoverageSha256) ||
         !Array.isArray(manifest.assets) ||
         manifest.assets.length === 0 ||
         manifest.approvalEligible !== false ||
@@ -318,6 +330,41 @@ function verifyCandidateReviewRoot(root, candidateRoot) {
         manifest.promotionEligible !== false
     ) {
         throw new Error(`${candidateRoot}: candidate manifest authority changed`);
+    }
+    const componentCoverageBytes = readFileSync(
+        join(absoluteRoot, manifest.componentCoveragePath),
+    );
+    if (sha256(componentCoverageBytes) !== manifest.componentCoverageSha256)
+        throw new Error(
+            `${candidateRoot}: component coverage digest mismatch`,
+        );
+    const componentCoverage = readJson(
+        join(absoluteRoot, manifest.componentCoveragePath),
+    );
+    if (
+        componentCoverage.schemaPath !==
+            "distribution/candidate-component-coverage.schema.json" ||
+        !/^[0-9a-f]{64}$/.test(componentCoverage.schemaSha256) ||
+        componentCoverage.state !==
+            "CANDIDATE_COMPONENT_COVERAGE_REVIEW_ONLY" ||
+        componentCoverage.componentCount !== 137 ||
+        componentCoverage.byDisposition?.["skill-packaged-candidate"] !== 41 ||
+        componentCoverage.byDisposition?.["skill-blocked-candidate"] !== 4 ||
+        componentCoverage.byDisposition?.["skill-legacy-repository-only"] !== 4 ||
+        componentCoverage.byDisposition?.["native-static-review-projected"] !== 35 ||
+        componentCoverage.byDisposition?.["native-static-unprojected"] !== 2 ||
+        componentCoverage.byDisposition?.["repository-host-adapter-only"] !== 48 ||
+        componentCoverage.byDisposition?.["executable-blocked"] !== 3 ||
+        !Array.isArray(componentCoverage.records) ||
+        componentCoverage.records.length !== 137 ||
+        componentCoverage.approvalGranted !== false ||
+        componentCoverage.installationSupported !== false ||
+        componentCoverage.publicationEligible !== false ||
+        componentCoverage.runtimeEligible !== false ||
+        componentCoverage.supportGranted !== false ||
+        componentCoverage.promotionEligible !== false
+    ) {
+        throw new Error(`${candidateRoot}: component coverage authority changed`);
     }
     const assetPaths = [];
     for (const asset of manifest.assets) {

@@ -104,6 +104,42 @@ test("generated repository verification runs every exact non-supporting check", 
     });
 });
 
+test("generated repository verification rejects candidate component authority drift", () => {
+    withTemporaryDirectory((root) => {
+        const candidateRoot = join(root, "candidate");
+        generateDistributionFixture({ repositoryRoot, outputRoot: candidateRoot });
+        installCandidate(
+            candidateRoot,
+            "candidate-passive-public-package",
+            "0.0.1-candidate.1",
+        );
+        const reviewRoot = join(
+            candidateRoot,
+            "candidates/candidate-passive-public-package/0.0.1-candidate.1",
+        );
+        const coveragePath = join(
+            reviewRoot,
+            "candidate-component-coverage.json",
+        );
+        const manifestPath = join(reviewRoot, "candidate-assets.json");
+        const coverage = JSON.parse(readFileSync(coveragePath, "utf8"));
+        coverage.supportGranted = true;
+        const coverageContent = `${JSON.stringify(coverage, null, 2)}\n`;
+        writeFileSync(coveragePath, coverageContent);
+        const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+        manifest.componentCoverageSha256 = sha256(coverageContent);
+        writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+        assert.throws(
+            () =>
+                verifyDistributionCheck({
+                    root: candidateRoot,
+                    check: "exact-inventory",
+                }),
+            /component coverage authority changed/,
+        );
+    });
+});
+
 test("generated repository verification rejects candidate checksum drift", () => {
     withTemporaryDirectory((root) => {
         const candidateRoot = join(root, "candidate");
