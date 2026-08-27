@@ -60,6 +60,43 @@ obtaining credentials, and other local conventions ("Product policy" above).
 
 Default to agentic behavior: inspect local rules, skills, code, tests, and generated patterns; make conservative assumptions supported by that context; implement and verify end to end when feasible. Don't interrupt with questions the repository can answer. Ask when the answer can't be found locally, when reasonable product/domain choices differ meaningfully, when a change is risky, or when the user asked for checkpoints.
 
+## Interactive Agent Mutation Protocol
+
+Ad-hoc interactive agents must not bulk-close issues, delete branches or labels,
+force-push, publish, or perform another destructive/bulk external mutation from
+memory or an age-only heuristic.
+
+Before any such effect:
+
+1. Produce a dry-run with the exact repository, target IDs, and forward action.
+2. Read and capture each target's exact pre-state. Issues labeled `idea` or
+   `investigate` are long-lived and exempt from staleness closure; age alone is
+   never positive closure evidence.
+3. Write a deterministic inverse escrow under the ignored local path
+   `.ai-work/reversals/<run-id>.json` before mutation. It records exact prior
+   state, labels, assignees, precondition fingerprint, forward state, and inverse
+   state for every target.
+4. In `Cratis/AI`, validate and digest it with
+   `node tooling/agent-mutation-protocol.mjs validate|digest <manifest>` and
+   render the machine-executable inverse with `render-inverse`. In another
+   repository, use its approved repository-owned equivalent; if none exists,
+   stop rather than falling back to agent memory. If an exact inverse or safe
+   compensation cannot be prepared, stop unless the owner separately authorizes
+   that explicit irreversible operation.
+5. Show the dry-run and inverse digest to the human and obtain explicit
+   authorization for that exact manifest. Approval for one manifest does not
+   authorize changed targets or actions.
+6. Re-read preconditions immediately before each mutation and stop on drift.
+   Record completed, failed, and not-attempted operations. A partial run remains
+   recoverable from the escrow; never reconstruct reversal from chat history.
+7. Reversal is a new separately authorized operation. Use a repository-owned
+   adapter to replay the rendered payload; the shared validator deliberately
+   performs no network or mutation itself.
+
+Issue comments, closure, labels, assignments, mentions, publication, and other
+notification-bearing effects remain separate authorizations. Git history
+rewrites stay prohibited even when an inverse payload exists.
+
 ## New Repository Strategy Intake
 
 When a repository is created in the Cratis organization, prepare one transient,
