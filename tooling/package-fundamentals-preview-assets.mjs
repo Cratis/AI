@@ -6,6 +6,7 @@ import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
     existsSync,
+    lstatSync,
     mkdirSync,
     mkdtempSync,
     readFileSync,
@@ -14,7 +15,7 @@ import {
     writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, relative, resolve } from "node:path";
+import { isAbsolute, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { gunzipSync, gzipSync } from "node:zlib";
 import { compareOrdinal } from "./catalog-ordering.mjs";
@@ -100,11 +101,48 @@ function tarHeader(path, size) {
     return header;
 }
 
+function validateTarRelativePath(path, label) {
+    if (
+        typeof path !== "string" ||
+        path.length === 0 ||
+        isAbsolute(path) ||
+        path.includes("\\") ||
+        path
+            .split("/")
+            .some(
+                (segment) =>
+                    segment === "" || segment === "." || segment === "..",
+            )
+    )
+        throw new Error(`${label} is unsafe: ${String(path)}`);
+}
+
 export function createTarGzip(root, paths, pathPrefix = "") {
     const chunks = [];
+    const absoluteRoot = resolve(root);
+    if (pathPrefix) validateTarRelativePath(pathPrefix, "Tar path prefix");
+    const collisionKeys = new Set();
     for (const path of paths) {
-        const content = readFileSync(join(root, path));
+        validateTarRelativePath(path, "Tar source path");
+        const sourcePath = resolve(absoluteRoot, path);
+        const containedPath = relative(absoluteRoot, sourcePath);
+        if (
+            containedPath === "" ||
+            containedPath === ".." ||
+            containedPath.startsWith(`..${sep}`) ||
+            isAbsolute(containedPath)
+        )
+            throw new Error(`Tar source path escaped root: ${path}`);
+        const sourceStat = lstatSync(sourcePath);
+        if (sourceStat.isSymbolicLink() || !sourceStat.isFile())
+            throw new Error(`Tar source must be a regular file: ${path}`);
         const archivePath = pathPrefix ? `${pathPrefix}/${path}` : path;
+        validateTarRelativePath(archivePath, "Tar archive path");
+        const collisionKey = archivePath.normalize("NFC").toLowerCase();
+        if (collisionKeys.has(collisionKey))
+            throw new Error(`Tar archive path collision: ${archivePath}`);
+        collisionKeys.add(collisionKey);
+        const content = readFileSync(sourcePath);
         chunks.push(tarHeader(archivePath, content.length), content);
         const remainder = content.length % 512;
         if (remainder) chunks.push(Buffer.alloc(512 - remainder, 0));
@@ -162,6 +200,14 @@ export function readTarGzip(content) {
     return files;
 }
 
+function repositoryLicenseEvidence(repositoryRoot) {
+    const path = "LICENSE";
+    const content = readFileSync(join(repositoryRoot, path));
+    if (!content.toString("utf8").includes("MIT License"))
+        throw new Error("Repository MIT license evidence changed");
+    return { license: "MIT", path, sha256: sha256(content) };
+}
+
 function sourceDigest(paths, contents) {
     const hash = createHash("sha256");
     for (const path of paths) {
@@ -213,6 +259,7 @@ function loadPreviewAuthority(repositoryRoot) {
     const prefix = `${source.sourcePath}/`;
     return {
         context,
+        licenseEvidence: repositoryLicenseEvidence(repositoryRoot),
         profile,
         target,
         source,
@@ -429,6 +476,7 @@ export function packageFundamentalsPreviewAssets({
             format: "cratis-passive-profile-sbom-v1",
             profileId,
             version,
+            licenseEvidence: authority.licenseEvidence,
             components: [
                 {
                     type: "agent-skill",

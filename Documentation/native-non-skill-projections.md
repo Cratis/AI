@@ -43,6 +43,31 @@ The four roots contain no manifest, dependency, settings file, skill,
 frontmatter wrapper, script, hook, MCP/LSP configuration, executable extension,
 or generation receipt. The receipt remains outside the payload tree.
 
+## Review snapshots
+
+Maintainers can package the four isolated roots as deterministic review
+snapshots without giving them package identity or installation semantics:
+
+```bash
+node tooling/package-native-non-skill-review-assets.mjs \
+  /tmp/cratis-native-non-skill-review \
+  0.0.1-candidate.1
+```
+
+The output contains one `tar.gz` snapshot per root, the exact projection receipt,
+a component-coverage record for all 137 modeled components, a review SBOM,
+checksums, and an explicit disposition for the two rules that do not yet have a
+generated-static contract. The native review manifest and shared component
+coverage conform to closed, digest-bound schemas under `distribution/`. The
+snapshots retain `packageIdentity: null` and
+`hostActivation: none`; every installation, runtime, publication, support, and
+promotion grant remains false.
+
+The manual **Package Passive Candidate Assets** workflow includes these four
+snapshots in its seven-day review artifact alongside the public and engineering
+skill candidates. It does not install them or transfer singleton files into a
+project checkout.
+
 ## What this does not prove
 
 Static layout documentation does not prove that a real host discovers, parses,

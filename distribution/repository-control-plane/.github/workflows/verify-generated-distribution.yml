@@ -1,0 +1,71 @@
+# Copyright (c) Cratis. All rights reserved.
+# Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+name: Verify Generated Distribution
+
+on:
+  pull_request:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-generated-distribution-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: ${{ matrix.check }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        check:
+          - exact-inventory
+          - canonical-byte-parity
+          - native-manifest-parse
+          - checksums
+          - fixture-provenance-record
+          - pack-install-smoke-uninstall
+          - canary-rollback-simulation
+    steps:
+      - name: Check out the candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          path: current
+          persist-credentials: false
+
+      - name: Check out the previous protected state
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
+          path: previous
+          persist-credentials: false
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+
+      - name: Run exact Distribution check
+        env:
+          CHECK: ${{ matrix.check }}
+        run: |
+          set -euo pipefail
+          arguments=(
+            --root "$GITHUB_WORKSPACE/current"
+            --check "$CHECK"
+          )
+          if [ "$CHECK" = "canary-rollback-simulation" ]; then
+            arguments+=(--before-root "$GITHUB_WORKSPACE/previous")
+          fi
+          validator="$GITHUB_WORKSPACE/previous/.github/scripts/verify-generated-distribution.mjs"
+          if [ ! -f "$validator" ]; then
+            validator="$GITHUB_WORKSPACE/current/.github/scripts/verify-generated-distribution.mjs"
+          fi
+          node "$validator" "${arguments[@]}"

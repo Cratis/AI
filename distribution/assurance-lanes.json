@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "defaultPolicy": "deny",
+  "defaultLane": "candidate-review",
+  "lanes": [
+    {
+      "id": "candidate-review",
+      "assuranceMode": "basic",
+      "channel": "candidate",
+      "passiveOnly": true,
+      "publicationAllowed": false,
+      "supportClaimAllowed": false,
+      "governedReadinessRequired": false,
+      "requiredChecks": [
+        "deterministic-generation",
+        "static-contract-validation",
+        "secret-and-path-scanning",
+        "schema-validation",
+        "checksums"
+      ]
+    },
+    {
+      "id": "passive-preview",
+      "assuranceMode": "basic",
+      "channel": "preview",
+      "passiveOnly": true,
+      "publicationAllowed": true,
+      "supportClaimAllowed": false,
+      "governedReadinessRequired": false,
+      "requiredChecks": [
+        "deterministic-generation",
+        "static-contract-validation",
+        "secret-and-path-scanning",
+        "schema-validation",
+        "checksums",
+        "independent-review",
+        "basic-pack-install-discovery-uninstall-smoke",
+        "exact-version-rollback"
+      ]
+    },
+    {
+      "id": "governed-support",
+      "assuranceMode": "governed",
+      "channel": "supported",
+      "passiveOnly": false,
+      "publicationAllowed": true,
+      "supportClaimAllowed": true,
+      "governedReadinessRequired": true,
+      "requiredChecks": [
+        "s9-real-host-evidence",
+        "s10-release-readiness",
+        "exact-owner-approvals",
+        "external-control-attestations",
+        "released-artifact-canary",
+        "recovery-disposition",
+        "support-approval"
+      ]
+    }
+  ],
+  "selectedPreview": {
+    "profileId": "public-fundamentals",
+    "packageName": "@cratis/ai-fundamentals",
+    "requiredStatusContext": "preview / verify",
+    "protectedEnvironment": "npm-stage"
+  },
+  "advancedAssurance": {
+    "status": "SIDELINED_AVAILABLE",
+    "requiredFor": [
+      "supported-claim",
+      "executable-component",
+      "mcp-operation",
+      "automatic-broad-rollout",
+      "stable-marketplace-promotion"
+    ],
+    "optionalFor": [
+      "candidate-review",
+      "passive-preview"
+    ],
+    "readinessPath": "catalog/v2/release-readiness.json"
+  }
+}

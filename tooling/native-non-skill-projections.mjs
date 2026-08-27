@@ -70,6 +70,8 @@ function componentSourceDigest(source) {
         .digest("hex");
 }
 
+const forbiddenPayloadPathPattern =
+    /(?:^|\/)(?:scripts?|hooks?|mcp|lsp|agents?|prompts?|commands?)(?:\/|$)/iu;
 const forbiddenPayloadBasenames = new Set([
     "SKILL.md",
     "plugin.json",
@@ -210,9 +212,8 @@ export function buildNativeNonSkillProjectionPlan(
         const basename = relativeOutput.split("/").at(-1);
         if (
             forbiddenPayloadBasenames.has(basename) ||
-            /(?:^|\/)(?:scripts?|hooks?|mcp|lsp|agents?|prompts?|commands?)(?:\/|$)/iu.test(
-                relativeOutput,
-            )
+            forbiddenPayloadPathPattern.test(outputPath) ||
+            forbiddenPayloadPathPattern.test(relativeOutput)
         )
             throw new Error(
                 `${projection.id}: forbidden payload path ${relativeOutput}`,

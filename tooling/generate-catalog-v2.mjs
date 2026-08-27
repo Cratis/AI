@@ -1391,6 +1391,45 @@ const publicTargetIds = targets
 const engineeringTargetIds = targets
     .filter((target) => target.audience === "cratis-engineering")
     .map((target) => target.id);
+const candidateTargetExclusions = new Map([
+    [
+        "cratis-arc-observable-query-http",
+        "private-or-local-content",
+    ],
+    [
+        "cratis-chronicle-mcp-inspection",
+        "mcp-guidance-materialization-blocked",
+    ],
+    [
+        "cratis-engineering-docs-visual-qa",
+        "private-or-local-content",
+    ],
+    [
+        "cratis-studio-mcp-safety-guidance",
+        "mcp-guidance-materialization-blocked",
+    ],
+]);
+const candidatePublicTargets = targets.filter(
+    (target) =>
+        target.audience === "public" &&
+        !candidateTargetExclusions.has(target.id),
+);
+const candidateEngineeringTargets = targets.filter(
+    (target) =>
+        target.audience === "cratis-engineering" &&
+        !candidateTargetExclusions.has(target.id),
+);
+const targetExclusionsForAudience = (audience) =>
+    targets
+        .filter(
+            (target) =>
+                target.audience === audience &&
+                candidateTargetExclusions.has(target.id),
+        )
+        .map((target) => ({
+            targetId: target.id,
+            reason: candidateTargetExclusions.get(target.id),
+        }));
 const approvedPublicTargets = targets.filter(
     (target) =>
         target.audience === "public" &&
@@ -1443,7 +1482,7 @@ writeJson("artifacts.json", {
         blockedActions: [
             "mixed-source-installation",
             "manual-distribution-authorship",
-            "materialization-before-target-approval",
+            "release-materialization-before-target-approval",
             "publication-before-release-gates",
         ],
     },
@@ -1452,9 +1491,11 @@ writeJson("artifacts.json", {
             id: "planned-passive-public-release",
             audience: "public",
             fixtureOnly: false,
+            materializationClass: "release",
             materializationAllowed: approvedPublicTargets.length > 0,
             runtimeEligible: approvedPublicTargets.length > 0,
             componentInventory: componentInventory(publicTargetIds),
+            targetExclusions: [],
             exactSourcePaths: exactPathsForTargets(approvedPublicTargets),
             allowedPathPatterns: [
                 "skills/<approved-target>/SKILL.md",
@@ -1476,9 +1517,11 @@ writeJson("artifacts.json", {
             id: "planned-passive-engineering-release",
             audience: "cratis-engineering",
             fixtureOnly: false,
+            materializationClass: "release",
             materializationAllowed: approvedEngineeringTargets.length > 0,
             runtimeEligible: approvedEngineeringTargets.length > 0,
             componentInventory: componentInventory(engineeringTargetIds),
+            targetExclusions: [],
             exactSourcePaths: exactPathsForTargets(approvedEngineeringTargets),
             allowedPathPatterns: [
                 "engineering/skills/<approved-target>/SKILL.md",
@@ -1497,14 +1540,77 @@ writeJson("artifacts.json", {
             ],
         },
         {
+            id: "candidate-passive-public-package",
+            audience: "public",
+            fixtureOnly: false,
+            materializationClass: "review-candidate",
+            materializationAllowed: true,
+            runtimeEligible: false,
+            componentInventory: componentInventory(
+                candidatePublicTargets.map((target) => target.id),
+            ),
+            targetExclusions: targetExclusionsForAudience("public"),
+            exactSourcePaths: exactPathsForTargets(candidatePublicTargets),
+            allowedPathPatterns: [
+                "skills/<candidate-source>/SKILL.md",
+                "skills/<candidate-source>/references/**",
+                "skills/<candidate-source>/assets/**",
+                "skills/<candidate-source>/LICENSE*",
+            ],
+            forbiddenPathPatterns: artifactForbiddenPathPatterns({
+                audience: "public",
+            }),
+            requiresApprovedTargets: false,
+            evidenceIds: [
+                "workflows-68",
+                "option-a-plus-authority",
+                "organization-option-a-plus-authority",
+            ],
+        },
+        {
+            id: "candidate-passive-engineering-package",
+            audience: "cratis-engineering",
+            fixtureOnly: false,
+            materializationClass: "review-candidate",
+            materializationAllowed: true,
+            runtimeEligible: false,
+            componentInventory: componentInventory(
+                candidateEngineeringTargets.map((target) => target.id),
+            ),
+            targetExclusions: targetExclusionsForAudience(
+                "cratis-engineering",
+            ),
+            exactSourcePaths: exactPathsForTargets(
+                candidateEngineeringTargets,
+            ),
+            allowedPathPatterns: [
+                "skills/<candidate-source>/SKILL.md",
+                "skills/<candidate-source>/references/**",
+                "skills/<candidate-source>/assets/**",
+                "skills/<candidate-source>/LICENSE*",
+            ],
+            forbiddenPathPatterns: artifactForbiddenPathPatterns({
+                audience: "cratis-engineering",
+                fixture: true,
+            }),
+            requiresApprovedTargets: false,
+            evidenceIds: [
+                "workflows-68",
+                "option-a-plus-authority",
+                "organization-option-a-plus-authority",
+            ],
+        },
+        {
             id: "sanitized-engineering-docs-authoring-fixture",
             audience: "test-fixture",
             fixtureOnly: true,
+            materializationClass: "test-fixture",
             materializationAllowed: true,
             runtimeEligible: false,
             componentInventory: componentInventory([
                 "cratis-engineering-docs-authoring",
             ]),
+            targetExclusions: [],
             exactSourcePaths: [
                 "engineering/skills/cratis-engineering-docs-authoring/LICENSE",
                 "engineering/skills/cratis-engineering-docs-authoring/SKILL.md",
@@ -1529,11 +1635,13 @@ writeJson("artifacts.json", {
             id: "cratis-fundamentals-concept-preview",
             audience: "test-fixture",
             fixtureOnly: true,
+            materializationClass: "test-fixture",
             materializationAllowed: true,
             runtimeEligible: false,
             componentInventory: componentInventory([
                 "cratis-fundamentals-concept",
             ]),
+            targetExclusions: [],
             exactSourcePaths: [
                 "skills/cratis-fundamentals-concept/LICENSE",
                 "skills/cratis-fundamentals-concept/SKILL.md",

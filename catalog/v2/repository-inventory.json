@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "6c3b8053def0b1991f6b1ae1e2950ee57b898280a9f5994d8f868c2c56069215",
+  "indexDigest": "a5b36de3d43a297e0c9be6a2985350a4b068bd6780d0645b42bb13643fc1104e",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -99,6 +99,10 @@
       "status": "deleted"
     },
     {
+      "path": ".github/workflows/advanced-assurance-audit.yml",
+      "status": "added"
+    },
+    {
       "path": ".github/workflows/benchmark-release-generation.yml",
       "status": "added"
     },
@@ -128,6 +132,10 @@
     },
     {
       "path": ".github/workflows/engineering-distribution-fixture.yml",
+      "status": "added"
+    },
+    {
+      "path": ".github/workflows/package-passive-candidate-assets.yml",
       "status": "added"
     },
     {
@@ -639,6 +647,22 @@
       "status": "added"
     },
     {
+      "path": "distribution/assurance-lanes.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/assurance-lanes.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/candidate-component-coverage.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/candidate-review-batch.schema.json",
+      "status": "added"
+    },
+    {
       "path": "distribution/ecosystem-artifact-bindings.json",
       "status": "added"
     },
@@ -759,7 +783,23 @@
       "status": "added"
     },
     {
+      "path": "distribution/native-non-skill-review-assets.schema.json",
+      "status": "added"
+    },
+    {
       "path": "distribution/npm-stage-contract.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/passive-candidate-assets.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/preview-readiness.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/preview-readiness.schema.json",
       "status": "added"
     },
     {
@@ -824,6 +864,14 @@
     },
     {
       "path": "distribution/remote-repository-state.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/repository-control-plane/.github/scripts/verify-generated-distribution.mjs",
+      "status": "added"
+    },
+    {
+      "path": "distribution/repository-control-plane/.github/workflows/verify-generated-distribution.yml",
       "status": "added"
     },
     {
@@ -2251,6 +2299,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/candidate-component-coverage.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/catalog-ordering.mjs",
       "status": "added"
     },
@@ -2515,7 +2567,19 @@
       "status": "added"
     },
     {
+      "path": "tooling/package-candidate-review-batch.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/package-fundamentals-preview-assets.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/package-native-non-skill-review-assets.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/package-passive-candidate-assets.mjs",
       "status": "added"
     },
     {
@@ -2524,6 +2588,10 @@
     },
     {
       "path": "tooling/portable-compliance-validation.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/preview-readiness.mjs",
       "status": "added"
     },
     {
@@ -2595,6 +2663,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/run-spec-suite.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/s10-release-gate-validation.mjs",
       "status": "added"
     },
@@ -2647,6 +2719,22 @@
       "status": "added"
     },
     {
+      "path": "tooling/specs/assurance-lanes.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/basic-nonclaim-boundary.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/candidate-contract-schemas.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/candidate-review-batch.spec.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/specs/catalog-ordering.spec.mjs",
       "status": "added"
     },
@@ -2684,6 +2772,10 @@
     },
     {
       "path": "tooling/specs/distribution-npm-stage.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/distribution-repository-verification.spec.mjs",
       "status": "added"
     },
     {
@@ -2747,7 +2839,15 @@
       "status": "added"
     },
     {
+      "path": "tooling/specs/native-non-skill-review-assets.spec.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/specs/navigator-pilot.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/passive-candidate-assets.spec.mjs",
       "status": "added"
     },
     {
@@ -2820,6 +2920,10 @@
     },
     {
       "path": "tooling/specs/source-evidence-contract.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/spec-suite-lanes.spec.mjs",
       "status": "added"
     },
     {
@@ -3453,6 +3557,7 @@
       "excludePathPatterns": [],
       "id": "repository-validation-workflow",
       "sourcePathPatterns": [
+        ".github/workflows/advanced-assurance-audit.yml",
         ".github/workflows/benchmark-release-generation.yml",
         ".github/workflows/distribution-approved-profile-release.yml",
         ".github/workflows/distribution-fundamentals-preview-assets.yml",
@@ -3460,6 +3565,7 @@
         ".github/workflows/engineering-distribution-fixture.yml",
         ".github/workflows/distribution-generated-update.yml",
         ".github/workflows/distribution-npm-stage.yml",
+        ".github/workflows/package-passive-candidate-assets.yml",
         ".github/workflows/release-approved-ai-profiles.yml",
         ".github/workflows/verify-ai-corpus.yml",
         ".github/workflows/verify-no-work-records.yml"
@@ -3480,8 +3586,8 @@
         "repo-main-b795d53",
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 10,
-      "expectedPathsDigest": "34a178e3ec591a55d667286d0967be14cddb137538feca083187b7dc8deea28d"
+      "expectedPathCount": 12,
+      "expectedPathsDigest": "60b538f22ce9ccac2ae5f28b6363e6da2e40bae1565f3f532152829bfd72935b"
     },
     {
       "excludePathPatterns": [],
@@ -4323,8 +4429,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 55,
-      "expectedPathsDigest": "1d67d2b407a241c5f1f41dcda85c236535b9dffe27611beb7f3555e87722674c"
+      "expectedPathCount": 65,
+      "expectedPathsDigest": "1062877da4bbc85fc63af384ae5ec9dcc7aff80325e11f03bf1eb2e7a7652e00"
     },
     {
       "excludePathPatterns": [],
@@ -4398,8 +4504,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 66,
-      "expectedPathsDigest": "dbad94acfdfe37433cf0b03d6743588340ab321876669a880d76ceefb2e75d16"
+      "expectedPathCount": 72,
+      "expectedPathsDigest": "d3cf3e2603bc122b413ab16649895d16bd8e66f83101650a321655024f4d6c5a"
     },
     {
       "excludePathPatterns": [],
@@ -4422,8 +4528,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 50,
-      "expectedPathsDigest": "825d91145f10140b2ca0cf151ef87dea482656d514a0e397d82b2394c833720a"
+      "expectedPathCount": 58,
+      "expectedPathsDigest": "c56d9549b21e095a0d7638ebf154520a6e21d3354dd76061986dda2971066dcc"
     },
     {
       "excludePathPatterns": [],

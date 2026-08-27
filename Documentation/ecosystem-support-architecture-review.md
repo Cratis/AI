@@ -73,6 +73,11 @@ unsupported
 → supported
 ```
 
+This ladder is the governed-support lane, not the ordinary passive-preview gate.
+Candidate review and passive preview use basic deterministic, safety, review,
+and smoke checks; they remain explicitly unsupported. The full evidence ladder
+stays available for stable support, executable/MCP behavior, and broad rollout.
+
 Current state:
 
 - 24 bindings are documented;

@@ -49,11 +49,42 @@ function runGit(repositoryRoot, arguments_, options = {}) {
     }
 }
 
-function trackedFiles(repositoryRoot) {
-    const output = execFileSync("git", ["ls-files", "-z"], {
-        cwd: repositoryRoot,
-    });
-    return output.toString("utf8").split("\0").filter(Boolean).sort();
+function runGitBytes(repositoryRoot, arguments_) {
+    try {
+        return execFileSync("git", arguments_, {
+            cwd: repositoryRoot,
+            stdio: ["ignore", "pipe", "pipe"],
+        });
+    } catch (error) {
+        throw new Error(
+            `Generated repository git command failed: git ${arguments_.join(" ")}`,
+            { cause: error },
+        );
+    }
+}
+
+function committedFiles(repositoryRoot) {
+    return runGitBytes(repositoryRoot, ["ls-tree", "-rz", "HEAD"])
+        .toString("utf8")
+        .split("\0")
+        .filter(Boolean)
+        .map((record) => {
+            const separator = record.indexOf("\t");
+            if (separator < 0)
+                throw new Error("Generated repository tree entry is malformed");
+            const [mode, type] = record.slice(0, separator).split(" ");
+            const path = record.slice(separator + 1);
+            if (type !== "blob" || !["100644", "100755"].includes(mode))
+                throw new Error(
+                    `Generated repository contains a non-file entry: ${path}`,
+                );
+            return path;
+        })
+        .sort();
+}
+
+function readCommittedFile(repositoryRoot, path) {
+    return runGitBytes(repositoryRoot, ["show", `HEAD:${path}`]);
 }
 
 export function buildApprovedDistributionPlan(
@@ -127,15 +158,47 @@ export function verifyGeneratedDistributionRepository(
     ) {
         throw new Error("Generated repository commit identity changed");
     }
-    const manifest = readJson(join(root, "distribution-manifest.json"));
+    let manifest;
+    try {
+        manifest = JSON.parse(
+            readCommittedFile(root, "distribution-manifest.json").toString(
+                "utf8",
+            ),
+        );
+    } catch (error) {
+        throw new Error("Unable to parse committed distribution manifest", {
+            cause: error,
+        });
+    }
+    if (!Array.isArray(manifest.files))
+        throw new Error("Committed distribution manifest inventory is malformed");
+    const manifestedPaths = manifest.files.map((file) => file.path);
+    if (
+        manifestedPaths.some(
+            (path) =>
+                typeof path !== "string" ||
+                path.length === 0 ||
+                path.startsWith("/") ||
+                path.includes("\\") ||
+                path
+                    .split("/")
+                    .some(
+                        (segment) =>
+                            segment === "" || segment === "." || segment === "..",
+                    ),
+        ) ||
+        new Set(manifestedPaths).size !== manifestedPaths.length
+    ) {
+        throw new Error("Committed distribution manifest paths are unsafe");
+    }
     const expectedFiles = [
-        ...manifest.files.map((file) => file.path),
+        ...manifestedPaths,
         "distribution-manifest.json",
     ].sort();
-    if (JSON.stringify(trackedFiles(root)) !== JSON.stringify(expectedFiles))
+    if (JSON.stringify(committedFiles(root)) !== JSON.stringify(expectedFiles))
         throw new Error("Generated repository tracked inventory changed");
     for (const file of manifest.files) {
-        const content = readFileSync(join(root, file.path));
+        const content = readCommittedFile(root, file.path);
         if (content.length !== file.size || sha256(content) !== file.sha256)
             throw new Error(
                 `Generated repository digest mismatch: ${file.path}`,

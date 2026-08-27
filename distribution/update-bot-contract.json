@@ -24,6 +24,10 @@
     "targetBaseBranch": "main",
     "directPushToBaseAllowed": false,
     "fixturePullRequestEnabledAfterCredentialSetup": true,
+    "candidatePullRequestEnabledAfterCredentialSetup": true,
+    "candidateRoot": "candidates/<artifact>/<version>",
+    "candidateAutoMergeAllowed": false,
+    "candidateMergeGrantsRelease": false,
     "productionPullRequestEnabledAfterCredentialSetup": true,
     "releaseOnMerge": true,
     "generatedIndexAutoMergeRequired": true

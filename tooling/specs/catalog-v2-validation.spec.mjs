@@ -936,8 +936,15 @@ test("the accepted Option A+ decision still blocks unapproved live targets", () 
     const engineering = catalogs.artifacts.artifacts.find(
         (artifact) => artifact.id === "planned-passive-engineering-release",
     );
+    const publicCandidate = catalogs.artifacts.artifacts.find(
+        (artifact) => artifact.id === "candidate-passive-public-package",
+    );
+    const engineeringCandidate = catalogs.artifacts.artifacts.find(
+        (artifact) =>
+            artifact.id === "candidate-passive-engineering-package",
+    );
     const fixture = catalogs.artifacts.artifacts.find(
-        (artifact) => artifact.fixtureOnly,
+        (artifact) => artifact.materializationClass === "test-fixture",
     );
     assert.equal(decision.state, "accepted");
     assert.equal(
@@ -946,6 +953,58 @@ test("the accepted Option A+ decision still blocks unapproved live targets", () 
     );
     assert(decision.authorityEvidenceIds.includes("option-a-plus-authority"));
     assert.equal(fixture.materializationAllowed, true);
+    assert.equal(planned.materializationClass, "release");
+    assert.equal(engineering.materializationClass, "release");
+    assert.equal(publicCandidate.materializationClass, "review-candidate");
+    assert.equal(publicCandidate.materializationAllowed, true);
+    assert.equal(publicCandidate.runtimeEligible, false);
+    assert.equal(publicCandidate.requiresApprovedTargets, false);
+    assert.equal(publicCandidate.componentInventory.skills.length, 34);
+    assert(
+        !publicCandidate.componentInventory.skills.includes(
+            "cratis-chronicle-mcp-inspection",
+        ),
+    );
+    assert(
+        !publicCandidate.componentInventory.skills.includes(
+            "cratis-studio-mcp-safety-guidance",
+        ),
+    );
+    assert(
+        !publicCandidate.componentInventory.skills.includes(
+            "cratis-arc-observable-query-http",
+        ),
+    );
+    assert.deepEqual(publicCandidate.targetExclusions, [
+        {
+            targetId: "cratis-arc-observable-query-http",
+            reason: "private-or-local-content",
+        },
+        {
+            targetId: "cratis-chronicle-mcp-inspection",
+            reason: "mcp-guidance-materialization-blocked",
+        },
+        {
+            targetId: "cratis-studio-mcp-safety-guidance",
+            reason: "mcp-guidance-materialization-blocked",
+        },
+    ]);
+    assert(publicCandidate.exactSourcePaths.length > 0);
+    assert.equal(
+        engineeringCandidate.materializationClass,
+        "review-candidate",
+    );
+    assert.equal(engineeringCandidate.materializationAllowed, true);
+    assert.equal(engineeringCandidate.runtimeEligible, false);
+    assert.equal(engineeringCandidate.requiresApprovedTargets, false);
+    assert.equal(engineeringCandidate.componentInventory.skills.length, 7);
+    assert.deepEqual(engineeringCandidate.targetExclusions, [
+        {
+            targetId: "cratis-engineering-docs-visual-qa",
+            reason: "private-or-local-content",
+        },
+    ]);
+    assert(engineeringCandidate.exactSourcePaths.length > 0);
     assert.equal(engineering.audience, "cratis-engineering");
     assert.equal(engineering.materializationAllowed, false);
     assert.equal(engineering.runtimeEligible, false);
@@ -979,11 +1038,20 @@ test("the accepted Option A+ decision still blocks unapproved live targets", () 
     assert(
         validateArtifacts(catalogs).some((error) =>
             error.includes(
-                "non-fixture artifacts must require approved targets",
+                "release artifacts must require approved targets",
             ),
         ),
     );
     planned.requiresApprovedTargets = true;
+    publicCandidate.runtimeEligible = true;
+    assert(
+        validateArtifacts(catalogs).some((error) =>
+            error.includes(
+                "review candidates must materialize without runtime or target approval",
+            ),
+        ),
+    );
+    publicCandidate.runtimeEligible = false;
     assert(
         validateArtifacts(catalogs).some((error) =>
             error.includes("unapproved target selected for live artifact"),

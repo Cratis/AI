@@ -36,6 +36,35 @@ A consuming repository never becomes a package publisher. It selects profiles,
 pins a version, owns its project context, and receives reviewed update pull
 requests.
 
+## Assurance lanes
+
+Packaging and support use separate lanes so passive previews can iterate without
+pretending to be supported:
+
+| Lane | Mode | Purpose | Full S9/S10 required |
+| --- | --- | --- | --- |
+| Candidate review | Basic | Static review artifacts only | No |
+| Passive preview | Basic | Reviewed passive prerelease with basic smoke checks | No |
+| Governed support | Governed | Stable support, executable/MCP, broad automation | Yes |
+
+The basic preview lane requires deterministic generation, static standards,
+secret/path checks, schemas, checksums, independent review, a basic exact-package
+pack/install/discovery/uninstall smoke, and rollback. It can never claim
+`supported`.
+
+The governed system remains available but sidelined. S9 and S10 become mandatory
+when Cratis promises stable support, introduces executable or MCP behavior,
+automates broad rollout, or promotes a stable marketplace release. The advanced
+evidence catalogs and readiness engine are audited manually and weekly rather
+than gating ordinary candidate and passive-preview generation.
+
+The authored policy is
+[`distribution/assurance-lanes.json`](../distribution/assurance-lanes.json).
+Generated [`preview-readiness.json`](../distribution/preview-readiness.json)
+currently confirms that `public-fundamentals` is statically ready and lists only
+the remaining basic owner-setup blockers. Governed readiness remains separately
+`BLOCKED` and available for later graduation.
+
 ## Profiles instead of one universal corpus
 
 Different repositories need different behavior. A Chronicle framework change
@@ -357,6 +386,70 @@ The final release page replaces placeholders with immutable URLs, checksums,
 tested host versions, update commands, and uninstall commands. Do not point a
 host at the multi-profile generated repository root.
 
+### All-passive candidate review bundles
+
+The candidate lane packages every currently materializable public-safe passive
+skill without treating unreviewed content as a release. It produces one public
+review bundle and one engineering review bundle across all 34 passive harness
+shapes:
+
+```bash
+node tooling/package-passive-candidate-assets.mjs \
+  candidate-passive-public-package \
+  /tmp/cratis-public-candidates \
+  0.0.1-candidate.1
+
+node tooling/package-passive-candidate-assets.mjs \
+  candidate-passive-engineering-package \
+  /tmp/cratis-engineering-candidates \
+  0.0.1-candidate.1
+```
+
+The public bundle currently contains 34 targets and the engineering bundle
+contains 7. Four additional modeled targets remain explicitly accounted for but
+excluded: Chronicle and Studio MCP guidance cannot enter a materialized artifact,
+and the observable-query HTTP and documentation visual-QA sources contain
+private-or-local endpoint/path examples that fail the public artifact scanner.
+Four superseded legacy skills remain explicitly repository-only. The two
+candidate manifests therefore account for all 49 skill components: 41 packaged,
+4 target exclusions, and 4 retained legacy exclusions. Canonical sources are not
+rewritten or silently sanitized.
+
+Each bundle contains one deterministic archive per harness, exact immutable
+source revision and digest records, a candidate SBOM, static support matrix,
+portable-compliance and assurance receipts, `REVIEW.md`, and `SHA256SUMS`.
+The primary candidate manifest and complete component-coverage record conform to
+closed schemas under `distribution/` and bind each schema's SHA-256 so a later
+review cannot silently reinterpret the generated record.
+Both bundles also carry the same closed component-coverage record, which
+accounts for all 137 modeled components without pretending that agents,
+commands, prompts, rules, hooks, or extensions are skills.
+Evaluation files remain source evidence but are not runtime skill payload. The
+Pi archive is npm-private, Codex installation is `NOT_AVAILABLE`, and only
+`0.0.N-candidate.N` versions are accepted.
+
+The manual, read-only **Package Passive Candidate Assets** workflow emits one
+atomic candidate-review batch containing the public bundle, engineering bundle,
+and native non-skill snapshots, with a top-level digest-bound manifest and exact
+checksum closure. It uploads that batch for seven days. Reviewed generated
+skill copies use append-only paths under
+`AI.Distribution/candidates/<artifact>/<version>/`; fixture payload replacement
+preserves that root, and repository verification checks each candidate's exact
+inventory, manifest, asset digests, and checksum closure. Every approval,
+installation, publication, runtime, support, and promotion flag remains false.
+The workflow additionally emits four deterministic native non-skill review
+snapshots for the 35 rule/instruction components with generated-static
+projections and explicitly records the two rules that have no such contract.
+These snapshots have no package identity or host activation.
+
+Candidate materialization is review coverage—not release materialization, host
+evidence, marketplace availability, or permission to install these bundles into
+a production repository. After the repository-scoped Distribution App is
+configured, the generated-update workflow can open an ordinary reviewed PR for
+one exact candidate version. It requires a new append-only destination, verifies
+the installed Distribution control plane byte-for-byte, runs exact-inventory
+validation, and never auto-merges or performs a release operation.
+
 ### Approval-pending Fundamentals review assets
 
 While target approval remains open, maintainers can generate deterministic,
@@ -413,6 +506,14 @@ migration.
 
 Generated artifacts are bot-authored in `Cratis/AI.Distribution`. Humans review
 the generated pull request but do not edit generated bytes.
+
+The repository also has one narrow control-plane exception for its exact
+verification workflow and dependency-free validator. Their canonical source
+remains in `Cratis/AI`, they are installed through a bot-authored pull request,
+stay outside package manifests and checksums, and are preserved when generated
+payload bytes are replaced. This does not make `AI.Distribution` an authoring
+repository, and humans still do not patch control-plane or generated artifact
+bytes in place.
 
 The generated repository is an index and review surface, not one universal
 install root. Every release publishes a separate root archive or immutable ref

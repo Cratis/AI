@@ -1,14 +1,55 @@
 # Release Cratis AI
 
-> **S10 is blocked.** This page describes the future authorized flow. Do not add
-a release request until generated readiness is unblocked by complete production
-lifecycle evidence, exact approvals, and external-control attestations.
+> **Preview owner setup and governed S10 are blocked.** Candidate review is
+available now. Passive previews use the basic lane; stable support uses the
+sidelined governed lane and its complete S9/S10 assurance.
 
 A merged release pull request is the recurring human release approval. Do not
 run a second manual publication, promotion, or rollout approval after merge.
+A passive preview can never claim `supported`; that claim requires graduation to
+governed assurance.
 
 One-time external App, registry, canary-scope, and marketplace account setup is
 tracked in [AI#181](https://github.com/Cratis/AI/issues/181).
+
+## Passive preview lane
+
+`public-fundamentals` is the selected first preview. Generated
+[`preview-readiness.json`](../distribution/preview-readiness.json) is independent
+of S10 and currently lists six request-readiness blockers: reconcile the exact
+npm package name, prove ownership, configure trusted OIDC, enable public preview
+publishing, and implement the separately reviewed preview release workflow.
+
+The current Fundamentals workflow is packaging-only: it emits private,
+approval-pending review assets and asserts that preview requests remain blocked.
+It does not publish. After the owner controls exist, a separate reviewed change
+can add the request/publication workflow. Readiness will accept that workflow
+only when its reviewed bytes contain every exact basic check and the expected
+protected environment/status identity. The workflow itself must run the basic
+exact-artifact pack/install/discovery/uninstall smoke and rollback before
+publication; those run results are not self-authored readiness booleans. A
+passive preview can never promote itself to stable support.
+
+## Static candidate review before release authority
+
+Before any profile is approved, the manual **Package Passive Candidate Assets**
+workflow can build two short-lived review bundles from immutable source: one for
+34 currently materializable public targets and one for 7 engineering targets.
+It projects each bundle to all 34 passive harness shapes and records the four
+excluded targets rather than silently dropping them.
+
+This candidate lane accepts only `0.0.N-candidate.N`, keeps npm packages private,
+marks Codex installation unavailable, and emits provenance, SBOM, compliance,
+assurance, support-matrix, and checksum records. Every approval, installation,
+publication, runtime, support, and promotion flag is false. It is a static
+packaging and review facility; it does not satisfy any step below and cannot be
+referenced as a release request or production lifecycle receipt.
+
+## Governed support lane
+
+The numbered flow below applies when graduating a preview to stable support or
+shipping executable/MCP behavior. S10 remains blocked until its full
+prerequisites are deliberately activated.
 
 ## 1. Prepare approved profile state
 

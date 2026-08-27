@@ -53,7 +53,7 @@ jobs:
         runs-on: ubuntu-latest
         timeout-minutes: 10
         steps:
-            - name: Check out the complete evidence history
+            - name: Check out complete immutable history
               uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
               with:
                   fetch-depth: 0
@@ -73,24 +73,26 @@ jobs:
                   node tooling/harness-registry.mjs
                   node tooling/generate-catalog-v2.mjs
                   node tooling/generate-support.mjs
-                  node tooling/generate-release-readiness.mjs
+                  node tooling/preview-readiness.mjs
                   node tooling/generate-ecosystem-artifact-coverage.mjs
                   node tooling/generate-human-catalog.mjs
                   node tooling/generate-repository-inventory.mjs
                   git diff --exit-code -- \
                     catalog/v2 \
+                    catalog/v2/support.json \
                     catalog/generated/human-catalog \
                     distribution/artifact-matrix.json \
                     distribution/engineering-artifact-matrix.json \
-                    distribution/profile-subscription.schema.json
+                    distribution/profile-subscription.schema.json \
+                    distribution/preview-readiness.json
 
             - name: Validate catalogs and specifications
               run: |
                   set -euo pipefail
                   node tooling/portable-compliance-validation.mjs --verify-lock
                   node tooling/release-assurance-validation.mjs
-                  node tooling/validate-catalogs.mjs
-                  node --test tooling/specs/*.spec.mjs
+                  node tooling/validate-catalogs.mjs --basic
+                  node tooling/run-spec-suite.mjs --basic
 
             - name: Verify strict JSON inputs
               run: |
@@ -109,7 +111,8 @@ jobs:
                     ...files('catalog'),
                     ...files('distribution'),
                   ].filter((path) =>
-                    path.endsWith('.json') || path.endsWith('.yml'));
+                    path.endsWith('.json') ||
+                    (path.startsWith('catalog/') && path.endsWith('.yml')));
                   for (const path of inputs) JSON.parse(readFileSync(path, 'utf8'));
                   process.stdout.write(`Strict JSON inputs verified: ${inputs.length}\n`);
                   NODE

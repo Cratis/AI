@@ -40,7 +40,12 @@ test("rollout policy keeps production promotion and retirement blocked", () => {
             "utf8",
         ),
     );
-    assert.equal(policy.state, "FIXTURE_ONLY_ROLLOUT_SIMULATION");
+    assert.equal(policy.state, "STATIC_CANDIDATE_AND_FIXTURE_STAGING");
+    assert.deepEqual(policy.candidate.allowedArtifactIds, [
+        "candidate-passive-engineering-package",
+        "candidate-passive-public-package",
+        "cratis-fundamentals-concept-preview",
+    ]);
     assert.equal(policy.generatedRepository.botOnlyWrites, true);
     assert.equal(policy.canary.productionTargetsEnabled, false);
     assert.equal(policy.releaseOnMergeAutomation.mergeToMainIsApproval, true);
@@ -82,7 +87,7 @@ test("rollout policy keeps production promotion and retirement blocked", () => {
     assert.match(evidence.candidate.provenanceSha256, /^[0-9a-f]{64}$/);
 });
 
-test("candidate staging allows only the authorized Fundamentals preview", () => {
+test("candidate staging dispatches only authorized fixture and passive review generators", () => {
     withTemporaryDirectory((root) => {
         const stage = join(root, "stage");
         const recordPath = join(root, "candidate.json");
@@ -94,17 +99,34 @@ test("candidate staging allows only the authorized Fundamentals preview", () => 
         });
         assert.equal(record.state, "FIXTURE_CANDIDATE_ONLY");
         assert.equal(record.publicationEligible, false);
+        assert.equal(record.runtimeEligible, false);
+        assert.equal(record.supportGranted, false);
         assert.equal(record.promotionEligible, false);
         assert.deepEqual(JSON.parse(readFileSync(recordPath, "utf8")), record);
+        const publicRecord = stageDistributionCandidate({
+            repositoryRoot,
+            artifactId: "candidate-passive-public-package",
+            outputRoot: join(root, "public-stage"),
+            candidateRecordPath: join(root, "public-candidate.json"),
+            version: "0.0.1-candidate.1",
+        });
+        assert.equal(publicRecord.state, "PASSIVE_REVIEW_CANDIDATE_ONLY");
+        assert.equal(publicRecord.manifestFiles, 34);
+        assert.match(publicRecord.sourceCommit, /^[0-9a-f]{40}$/);
+        assert.equal(publicRecord.installationSupported, false);
+        assert.equal(publicRecord.publicationEligible, false);
+        assert.equal(publicRecord.runtimeEligible, false);
+        assert.equal(publicRecord.supportGranted, false);
+        assert.equal(publicRecord.promotionEligible, false);
         assert.throws(
             () =>
                 stageDistributionCandidate({
                     repositoryRoot,
                     artifactId: "planned-passive-public-release",
-                    outputRoot: join(root, "public-stage"),
-                    candidateRecordPath: join(root, "public-candidate.json"),
+                    outputRoot: join(root, "blocked-stage"),
+                    candidateRecordPath: join(root, "blocked-candidate.json"),
                 }),
-            /not authorized for fixture staging/,
+            /not authorized for candidate staging/,
         );
     });
 });

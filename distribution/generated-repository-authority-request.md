@@ -45,6 +45,20 @@ to contents and pull-request write access for `AI.Distribution` and is revoked a
 job completion. The workflow cannot push to `main`, tag, release, publish npm, or
 submit a marketplace package.
 
+The same workflow can prepare append-only passive candidate pull requests after
+the repository-scoped App is configured and the Distribution verification
+control plane is present at the exact canonical bytes. Candidate PRs write only
+`candidates/<artifact>/<version>`, require the destination to be absent, run the
+Distribution exact-inventory check before commit, never auto-merge, and do not
+grant release, installation, runtime, publication, support, or promotion.
+
+The generated repository's exact verification workflow and dependency-free
+validator are separate stable control-plane files. Their canonical source
+remains in `Cratis/AI`, they are installed only through a reviewed bot-authored
+pull request, and root payload replacement preserves `.github/`. Control-plane
+files stay outside artifact manifests and checksums and do not become package or
+authoring content.
+
 ## Gates that remain closed
 
 - Zero public targets or product-source contracts are approved.

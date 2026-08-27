@@ -10,9 +10,21 @@ It serves two separate audiences:
 - **Cratis maintainers** receive separate engineering profiles for application,
   framework, client, documentation, Studio, Stagehand, and corpus repositories.
 
-> **Current status:** distribution remains preview/fixture-only. No supported
-> public or engineering profile package has been published. Do not install this
-> mixed source repository as a runtime package.
+> **Current status:** distribution remains candidate/preview-only. No supported
+> public or engineering profile package has been published. Deterministic
+> review bundles now package 41 passive targets across 34 harness shapes. Four
+> additional targets remain explicitly blocked by MCP or private/local-content
+> safety boundaries, and four superseded legacy skills remain repository-only;
+> together the manifests account for all 49 skill components. A shared coverage
+> record dispositions all 137 component kinds, and four native review snapshots
+> cover 35 statically projected rule/instruction components without package
+> identity. Do not install this mixed source repository or the review bundles as
+> runtime packages.
+>
+> Assurance has two operating levels: lightweight basic checks for passive
+> candidate/preview iteration, and the existing governed S9/S10 system for
+> stable support, executable/MCP behavior, and broad automated rollout. Advanced
+> assurance remains available but does not gate ordinary passive preview work.
 
 ## The architecture
 
@@ -110,8 +122,9 @@ packages exist. See the [Pi package workflow](Documentation/ai-distribution-and-
 
 ## Supported output formats
 
-The generator now emits a portable Agent Plugins 1.0 package for compatible
-hosts alongside Agent Skills and native adapters for Claude Code, Codex, GitHub
+The candidate generator emits separate public and engineering review bundles,
+each with a portable Agent Plugins 1.0 package for compatible hosts alongside
+Agent Skills and native adapters for Claude Code, Codex, GitHub
 Copilot, Cursor, Gemini CLI, Grok Build, Deep Code, preview DeepSeek Harness,
 Kiro, Junie, and Pi/npm. Copilot, Cursor, Kiro, and VS Code share the same
 portable plugin identity. Claude, Grok, and Junie share one Claude-compatible
@@ -121,8 +134,8 @@ Normalized evidence and computed support distinguish the monotonic technical
 ranks: unsupported, documented, generated, statically-validated,
 install-tested, behavior-tested, lifecycle-tested, release-tested, and
 supported. Marketplace listing is an orthogonal status and is required only
-when a delivery binding claims marketplace availability. Adapter generation
-alone is not a support or marketplace-publication claim. See
+when a delivery binding claims marketplace availability. Adapter or candidate generation
+alone is not installation evidence, support, or a marketplace-publication claim. See
 [the catalog v2 evidence and support model](Documentation/capability-catalog-v2.md#normalized-evidence)
 and [offline portable compliance](Documentation/portable-compliance.md).
 
@@ -153,8 +166,12 @@ node tooling/generate-human-catalog.mjs
 node tooling/generate-repository-inventory.mjs
 node tooling/portable-compliance-validation.mjs --verify-lock
 node tooling/release-assurance-validation.mjs
+node tooling/preview-readiness.mjs
+node tooling/validate-catalogs.mjs --basic
+node tooling/run-spec-suite.mjs --basic
+# Optional full governed audit:
 node tooling/validate-catalogs.mjs
-node --test tooling/specs/*.spec.mjs
+node tooling/run-spec-suite.mjs --governed
 .ai/hooks/scripts/validate-ai-setup.sh
 git diff --check
 ```

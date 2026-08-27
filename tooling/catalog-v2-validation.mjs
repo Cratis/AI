@@ -1549,13 +1549,21 @@ export function validateArtifacts(catalogs, root = defaultRepositoryRoot) {
         );
     }
     for (const artifact of catalogs.artifacts.artifacts) {
+        const releaseArtifact = artifact.materializationClass === "release";
+        const reviewCandidate =
+            artifact.materializationClass === "review-candidate";
+        const testFixture = artifact.materializationClass === "test-fixture";
+        if (artifact.fixtureOnly !== testFixture)
+            errors.push(
+                `${artifact.id}: fixtureOnly must match materialization class`,
+            );
         if (
             decision.state === "unresolved" &&
-            !artifact.fixtureOnly &&
+            releaseArtifact &&
             (artifact.materializationAllowed || artifact.runtimeEligible)
         ) {
             errors.push(
-                `${artifact.id}: unresolved distribution decision blocks live materialization and runtime`,
+                `${artifact.id}: unresolved distribution decision blocks release materialization and runtime`,
             );
         }
         if (artifact.runtimeEligible && !artifact.materializationAllowed) {
@@ -1563,18 +1571,79 @@ export function validateArtifacts(catalogs, root = defaultRepositoryRoot) {
                 `${artifact.id}: runtime eligibility requires materialization approval`,
             );
         }
-        if (artifact.fixtureOnly && artifact.requiresApprovedTargets) {
+        if (testFixture && artifact.requiresApprovedTargets) {
             errors.push(
                 `${artifact.id}: fixture artifacts cannot require approved targets`,
             );
         }
-        if (!artifact.fixtureOnly && !artifact.requiresApprovedTargets) {
+        if (releaseArtifact && !artifact.requiresApprovedTargets) {
             errors.push(
-                `${artifact.id}: non-fixture artifacts must require approved targets`,
+                `${artifact.id}: release artifacts must require approved targets`,
+            );
+        }
+        if (
+            reviewCandidate &&
+            (!artifact.materializationAllowed ||
+                artifact.runtimeEligible ||
+                artifact.requiresApprovedTargets)
+        ) {
+            errors.push(
+                `${artifact.id}: review candidates must materialize without runtime or target approval`,
+            );
+        }
+        const excludedTargetIds = artifact.targetExclusions.map(
+            (exclusion) => exclusion.targetId,
+        );
+        addDuplicateErrors(
+            errors,
+            `${artifact.id} target exclusions`,
+            excludedTargetIds,
+        );
+        for (const exclusion of artifact.targetExclusions) {
+            if (!targetIds.has(exclusion.targetId))
+                errors.push(
+                    `${artifact.id}: excludes unknown target ${exclusion.targetId}`,
+                );
+            else if (
+                !artifact.fixtureOnly &&
+                targetAudiences.get(exclusion.targetId) !== artifact.audience
+            )
+                errors.push(
+                    `${artifact.id}: cannot exclude ${targetAudiences.get(exclusion.targetId)} target ${exclusion.targetId}`,
+                );
+            if (
+                artifact.componentInventory.skills.includes(
+                    exclusion.targetId,
+                )
+            )
+                errors.push(
+                    `${artifact.id}: target ${exclusion.targetId} is both included and excluded`,
+                );
+        }
+        if (reviewCandidate) {
+            const expectedTargetIds = catalogs.targets.targets
+                .filter((target) => target.audience === artifact.audience)
+                .map((target) => target.id)
+                .sort(compareOrdinal);
+            const accountedTargetIds = [
+                ...artifact.componentInventory.skills,
+                ...excludedTargetIds,
+            ].sort(compareOrdinal);
+            if (
+                JSON.stringify(accountedTargetIds) !==
+                JSON.stringify(expectedTargetIds)
+            )
+                errors.push(
+                    `${artifact.id}: review candidate must account for every audience target`,
+                );
+        } else if (artifact.targetExclusions.length > 0) {
+            errors.push(
+                `${artifact.id}: only review candidates can exclude targets`,
             );
         }
         const liveEnabled =
-            artifact.materializationAllowed || artifact.runtimeEligible;
+            releaseArtifact &&
+            (artifact.materializationAllowed || artifact.runtimeEligible);
         for (const targetId of artifact.componentInventory.skills) {
             if (!targetIds.has(targetId) && !artifact.fixtureOnly) {
                 errors.push(`${artifact.id}: unknown target ${targetId}`);
@@ -1683,7 +1752,7 @@ export function validateArtifacts(catalogs, root = defaultRepositoryRoot) {
                 );
             }
         }
-        if (artifact.audience === "public" && artifact.fixtureOnly)
+        if (artifact.audience === "public" && testFixture)
             errors.push(
                 `${artifact.id}: public release definition cannot masquerade as a fixture`,
             );

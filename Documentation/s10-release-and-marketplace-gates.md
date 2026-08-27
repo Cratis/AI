@@ -1,6 +1,13 @@
 # S10 release and marketplace gates
 
-**Status:** Contract implemented; release and marketplace activation blocked
+**Status:** Governed-support contract implemented and sidelined; activation blocked
+
+S10 is not required for candidate review or passive preview publication. It is
+the advanced assurance lane for stable support claims, executable or MCP
+components, automatic broad rollout, and stable marketplace promotion. The
+basic preview lane is defined in
+[`assurance-lanes.json`](../distribution/assurance-lanes.json) and cannot grant
+support.
 
 ## Current readiness
 
@@ -63,6 +70,17 @@ credentials, npm OIDC publication, cleanup, promotion, and recovery jobs all
 require that exact output to become true in a later reviewed activation change.
 The candidate generator itself cannot accept a release-mode argument or emit a
 true publication grant.
+
+## Relationship to passive previews
+
+A passive preview uses basic readiness rather than this 12-blocker gate. It must
+still pass deterministic packaging, safety scanning, schema/checksum validation,
+independent review, and a basic exact-artifact smoke. npm ownership, OIDC, the
+protected environment, and a required preview status remain owner-controlled.
+
+A preview may later graduate into governed support without changing its package
+format. Graduation then requires the complete S9/S10 evidence, approvals,
+canaries, recovery, and support decision for the exact released artifact.
 
 ## Safe stopping point
 

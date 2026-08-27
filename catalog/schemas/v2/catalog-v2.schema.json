@@ -1292,9 +1292,11 @@
         "id",
         "audience",
         "fixtureOnly",
+        "materializationClass",
         "materializationAllowed",
         "runtimeEligible",
         "componentInventory",
+        "targetExclusions",
         "exactSourcePaths",
         "allowedPathPatterns",
         "forbiddenPathPatterns",
@@ -1305,6 +1307,7 @@
         "id": { "$ref": "#/$defs/id" },
         "audience": { "enum": ["public", "cratis-engineering", "test-fixture"] },
         "fixtureOnly": { "type": "boolean" },
+        "materializationClass": { "enum": ["release", "review-candidate", "test-fixture"] },
         "materializationAllowed": { "type": "boolean" },
         "runtimeEligible": { "type": "boolean" },
         "componentInventory": {
@@ -1324,6 +1327,19 @@
             "lsp": { "$ref": "#/$defs/idArray" },
             "executableExtensions": { "$ref": "#/$defs/idArray" },
             "staticAssets": { "$ref": "#/$defs/idArray" }
+          }
+        },
+        "targetExclusions": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["targetId", "reason"],
+            "properties": {
+              "targetId": { "$ref": "#/$defs/id" },
+              "reason": { "enum": ["mcp-guidance-materialization-blocked", "private-or-local-content"] }
+            }
           }
         },
         "exactSourcePaths": { "$ref": "#/$defs/stringArray" },

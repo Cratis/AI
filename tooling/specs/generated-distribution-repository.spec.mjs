@@ -8,6 +8,8 @@ import {
     mkdirSync,
     readFileSync,
     rmSync,
+    symlinkSync,
+    unlinkSync,
     writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -19,6 +21,7 @@ import {
     buildApprovedDistributionPlan,
     verifyGeneratedDistributionRepository,
 } from "../bootstrap-generated-distribution-repository.mjs";
+import { generateDistributionFixture } from "../generate-distribution-fixture.mjs";
 
 const repositoryRoot = resolve(
     dirname(fileURLToPath(import.meta.url)),
@@ -48,6 +51,12 @@ function bootstrap(root, name = "generated") {
 
 test("generated repository contract keeps remote authority and production blocked", () => {
     const contract = JSON.parse(readFileSync(contractPath, "utf8"));
+    const rolloutPolicy = JSON.parse(
+        readFileSync(
+            join(repositoryRoot, "distribution/rollout-policy.json"),
+            "utf8",
+        ),
+    );
     const generalRules = readFileSync(
         join(repositoryRoot, ".ai/rules/general.md"),
         "utf8",
@@ -71,6 +80,32 @@ test("generated repository contract keeps remote authority and production blocke
     assert.equal(contract.repository.status, "INITIALIZED_PROTECTED_FIXTURE");
     assert.equal(contract.repository.manualAuthoringAllowed, false);
     assert.equal(contract.repository.botOnlyWrites, true);
+    assert.deepEqual(contract.repositoryControlPlane, {
+        sourceRepository: "Cratis/AI",
+        sourceRoot: "distribution/repository-control-plane",
+        allowedPaths: [
+            ".github/scripts/verify-generated-distribution.mjs",
+            ".github/workflows/verify-generated-distribution.yml",
+        ],
+        manifestedAsArtifact: false,
+        preserveDuringPayloadReplacement: true,
+        manualAuthoringAllowed: false,
+    });
+    assert.deepEqual(contract.repositoryReviewCandidates, {
+        root: "candidates",
+        artifactIds: [
+            "candidate-passive-engineering-package",
+            "candidate-passive-public-package",
+        ],
+        versionPattern:
+            "^0\\.0\\.(?:0|[1-9][0-9]*)-candidate\\.(?:0|[1-9][0-9]*)$",
+        preserveDuringPayloadReplacement: true,
+        releaseEligible: false,
+    });
+    assert.deepEqual(contract.requiredChecks, [
+        ...rolloutPolicy.candidate.requiredChecks,
+        "canary-rollback-simulation",
+    ]);
     assert.equal(
         contract.repository.strategyIssue,
         "https://github.com/Cratis/Strategy/issues/126",
@@ -287,6 +322,55 @@ test("generated repository verification rejects human follow-up commits", () => 
                     contractPath,
                 ),
             /one root commit|commit identity changed/,
+        );
+    });
+});
+
+test("generated repository verification reads only regular committed blobs", () => {
+    withTemporaryDirectory((root) => {
+        const generatedRoot = join(root, "generated");
+        generateDistributionFixture({
+            repositoryRoot,
+            outputRoot: generatedRoot,
+        });
+        const manifest = JSON.parse(
+            readFileSync(
+                join(generatedRoot, "distribution-manifest.json"),
+                "utf8",
+            ),
+        );
+        const linkedPath = join(generatedRoot, manifest.files[0].path);
+        const outsidePath = join(root, "outside.txt");
+        writeFileSync(outsidePath, "outside repository\n");
+        unlinkSync(linkedPath);
+        symlinkSync(outsidePath, linkedPath);
+        execFileSync("git", ["init", "--initial-branch", "main"], {
+            cwd: generatedRoot,
+            stdio: "pipe",
+        });
+        execFileSync("git", ["config", "user.name", "cratis-distribution-fixture-bot"], {
+            cwd: generatedRoot,
+        });
+        execFileSync("git", ["config", "user.email", "fixture-bot@invalid.example"], {
+            cwd: generatedRoot,
+        });
+        execFileSync("git", ["add", "--all"], { cwd: generatedRoot });
+        execFileSync("git", ["commit", "--message", "Generate fixture distribution"], {
+            cwd: generatedRoot,
+            env: {
+                ...process.env,
+                GIT_AUTHOR_DATE: "2000-01-01T00:00:00Z",
+                GIT_COMMITTER_DATE: "2000-01-01T00:00:00Z",
+            },
+            stdio: "pipe",
+        });
+        assert.throws(
+            () =>
+                verifyGeneratedDistributionRepository(
+                    generatedRoot,
+                    contractPath,
+                ),
+            /non-file entry/,
         );
     });
 });

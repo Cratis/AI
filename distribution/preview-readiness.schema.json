@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cratis/AI/distribution/preview-readiness.schema.json",
+  "title": "Cratis passive preview readiness",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "generatedBy", "state", "lane", "assuranceMode", "profileId", "packageName", "targetIds", "staticCandidateReady", "blockers", "governedAssurance", "previewRequestEligible", "publicationEligible", "supportGranted"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "generatedBy": { "const": "tooling/preview-readiness.mjs" },
+    "state": { "enum": ["OWNER_SETUP_REQUIRED", "READY_FOR_PREVIEW_REQUEST"] },
+    "lane": { "const": "passive-preview" },
+    "assuranceMode": { "const": "basic" },
+    "profileId": { "const": "public-fundamentals" },
+    "packageName": { "const": "@cratis/ai-fundamentals" },
+    "targetIds": { "type": "array", "minItems": 1, "maxItems": 1, "uniqueItems": true, "items": { "const": "cratis-fundamentals-concept" } },
+    "staticCandidateReady": { "const": true },
+    "blockers": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["code", "reason"],
+        "properties": {
+          "code": { "enum": ["package-name-not-reconciled", "package-ownership-unconfirmed", "trusted-publisher-not-configured", "oidc-not-enabled", "public-preview-publish-disabled", "preview-release-workflow-not-implemented"] },
+          "reason": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "governedAssurance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requiredForPreview", "availableForGraduation", "readinessPath"],
+      "properties": {
+        "requiredForPreview": { "const": false },
+        "availableForGraduation": { "const": true },
+        "readinessPath": { "const": "catalog/v2/release-readiness.json" }
+      }
+    },
+    "previewRequestEligible": { "type": "boolean" },
+    "publicationEligible": { "const": false },
+    "supportGranted": { "const": false }
+  }
+}

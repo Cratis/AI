@@ -105,6 +105,8 @@ const unexpectedUntracked = admittedUntracked.filter(
             path === ".github/workflows/engineering-distribution-fixture.yml" ||
             path === ".github/workflows/distribution-generated-update.yml" ||
             path === ".github/workflows/distribution-npm-stage.yml" ||
+            path ===
+                ".github/workflows/package-passive-candidate-assets.yml" ||
             path === ".github/workflows/release-approved-ai-profiles.yml" ||
             /^AI-REPOSITORY-REDESIGN-[A-Z0-9-]+\.md$/.test(path) ||
             path === "Documentation/.markdownlint.json" ||
@@ -523,6 +525,7 @@ const definitions = [
     {
         id: "repository-validation-workflow",
         sourcePathPatterns: [
+            ".github/workflows/advanced-assurance-audit.yml",
             ".github/workflows/benchmark-release-generation.yml",
             ".github/workflows/distribution-approved-profile-release.yml",
             ".github/workflows/distribution-fundamentals-preview-assets.yml",
@@ -530,6 +533,7 @@ const definitions = [
             ".github/workflows/engineering-distribution-fixture.yml",
             ".github/workflows/distribution-generated-update.yml",
             ".github/workflows/distribution-npm-stage.yml",
+            ".github/workflows/package-passive-candidate-assets.yml",
             ".github/workflows/release-approved-ai-profiles.yml",
             ".github/workflows/verify-ai-corpus.yml",
             ".github/workflows/verify-no-work-records.yml",

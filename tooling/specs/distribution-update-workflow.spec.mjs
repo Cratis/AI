@@ -39,6 +39,16 @@ test("generated update bot contract remains credential and release gated", () =>
     });
     assert.equal(contract.workflow.directPushToBaseAllowed, false);
     assert.equal(
+        contract.workflow.candidatePullRequestEnabledAfterCredentialSetup,
+        true,
+    );
+    assert.equal(
+        contract.workflow.candidateRoot,
+        "candidates/<artifact>/<version>",
+    );
+    assert.equal(contract.workflow.candidateAutoMergeAllowed, false);
+    assert.equal(contract.workflow.candidateMergeGrantsRelease, false);
+    assert.equal(
         contract.workflow.productionPullRequestEnabledAfterCredentialSetup,
         true,
     );
@@ -62,16 +72,43 @@ test("generated update workflow scopes the GitHub App token to one repository", 
     assert.match(workflow, /AI_DISTRIBUTION_APP_PRIVATE_KEY/);
     assert.match(workflow, /environment: distribution-canary/);
     assert.match(workflow, /version_slug="\$\{VERSION\/\/\.\/-\}"/);
-    assert.match(workflow, /gh pr create/);
+    assert.equal(workflow.match(/gh pr create/g)?.length, 2);
     assert.match(workflow, /--repo Cratis\/AI\.Distribution/);
     assert.match(workflow, /--base main/);
+});
+
+test("generated update workflow creates append-only non-releasing candidate PRs", () => {
+    const workflow = workflowText();
+    for (const required of [
+        "verify-passive-candidates",
+        "create-passive-candidate-pr",
+        "package-candidate-review-batch.mjs",
+        "CANDIDATE_REVIEW_BATCH_ONLY",
+        "candidate-passive-public-package",
+        "candidate-passive-engineering-package",
+        'test ! -e "$destination"',
+        "--check exact-inventory",
+        "Review-only; installation, runtime, publication, support, and promotion remain disabled",
+    ])
+        assert(workflow.includes(required), required);
+    assert.equal(
+        workflow.match(/environment: distribution-canary/g)?.length,
+        2,
+    );
+    assert.equal(workflow.includes("--auto"), false);
 });
 
 test("generated update workflow cannot publish or bypass protected main", () => {
     const workflow = workflowText();
     assert.match(workflow, /workflow_dispatch:/);
     assert.match(workflow, /create-fixture-pr/);
+    assert.match(workflow, /create-passive-candidate-pr/);
     assert(workflow.includes('[[ "$VERSION" =~ ^0\\.0\\.[0-9]+-fixture$ ]]'));
+    assert(
+        workflow.includes(
+            '[[ "$VERSION" =~ ^0\\.0\\.[0-9]+-candidate\\.[0-9]+$ ]]',
+        ),
+    );
     assert.equal(
         workflow.match(/"\$RUNNER_TEMP\/generated-distribution" "\$VERSION"/g)
             ?.length,
@@ -86,6 +123,7 @@ test("generated update workflow cannot publish or bypass protected main", () => 
         "npm stage publish",
         "git tag",
         "pull_request:",
+        "--auto",
     ])
         assert.equal(workflow.includes(forbidden), false, forbidden);
 });

@@ -33,6 +33,59 @@ test("verification workflow covers every release-relevant source", () => {
     }
 });
 
+test("strict JSON verification excludes generated Distribution workflow YAML", () => {
+    assert(verification.includes("path.startsWith('catalog/')"));
+    assert.equal(
+        verification.includes(
+            "path.endsWith('.json') || path.endsWith('.yml')",
+        ),
+        false,
+    );
+});
+
+test("required verification uses the basic lane while governed assurance stays separate", () => {
+    for (const required of [
+        "generate-support.mjs",
+        "catalog/v2/support.json",
+        "preview-readiness.mjs",
+        "validate-catalogs.mjs --basic",
+        "run-spec-suite.mjs --basic",
+        "distribution/preview-readiness.json",
+    ])
+        assert(verification.includes(required), required);
+    for (const governedOnly of [
+        "generate-release-readiness.mjs",
+        "run-spec-suite.mjs --governed",
+    ])
+        assert.equal(verification.includes(governedOnly), false, governedOnly);
+});
+
+test("advanced assurance audit is manual scheduled and read-only", () => {
+    const workflow = readFileSync(
+        ".github/workflows/advanced-assurance-audit.yml",
+        "utf8",
+    );
+    for (const required of [
+        "workflow_dispatch:",
+        "schedule:",
+        "permissions:\n  contents: read",
+        "persist-credentials: false",
+        "generate-support.mjs",
+        "generate-release-readiness.mjs",
+        "run-spec-suite.mjs --governed",
+    ])
+        assert(workflow.includes(required), required);
+    for (const forbidden of [
+        "contents: write",
+        "id-token: write",
+        "secrets:",
+        "npm publish",
+        "gh release",
+        "git push",
+    ])
+        assert.equal(workflow.includes(forbidden), false, forbidden);
+});
+
 test("release candidates remain readable while every side-effect job is S10-blocked", () => {
     const workflow = readFileSync(
         ".github/workflows/release-approved-ai-profiles.yml",
@@ -104,6 +157,9 @@ test("Fundamentals preview workflow is read-only short-lived and non-publishing"
     for (const required of [
         "permissions:\n  contents: read",
         "fetch-depth: 0",
+        "preview-readiness.mjs",
+        "validate-catalogs.mjs --basic",
+        "governedAssurance.requiredForPreview",
         "package-fundamentals-preview-assets.mjs",
         "PREVIEW_ASSETS_APPROVAL_PENDING",
         "preview-assets.json').approvalEligible",
@@ -150,6 +206,39 @@ test("approved profile workflow is bot-scoped and keeps publication separate", (
         "secrets: inherit",
     ])
         assert.equal(workflow.includes(forbidden), false, forbidden);
+});
+
+test("generated Distribution updates preserve the reviewed control plane", () => {
+    const workflow = readFileSync(
+        ".github/workflows/distribution-generated-update.yml",
+        "utf8",
+    );
+    const contract = JSON.parse(
+        readFileSync(
+            "distribution/generated-repository-contract.json",
+            "utf8",
+        ),
+    );
+    assert(
+        workflow.includes(
+            "rsync -a --delete --exclude=.git --exclude=.github --exclude=candidates",
+        ),
+    );
+    assert.deepEqual(contract.repositoryControlPlane.allowedPaths, [
+        ".github/scripts/verify-generated-distribution.mjs",
+        ".github/workflows/verify-generated-distribution.yml",
+    ]);
+    assert.equal(
+        contract.repositoryControlPlane.preserveDuringPayloadReplacement,
+        true,
+    );
+    assert.equal(contract.repositoryControlPlane.manifestedAsArtifact, false);
+    assert.equal(contract.repositoryControlPlane.manualAuthoringAllowed, false);
+    assert.equal(
+        contract.repositoryReviewCandidates.preserveDuringPayloadReplacement,
+        true,
+    );
+    assert.equal(contract.repositoryReviewCandidates.releaseEligible, false);
 });
 
 test("legacy propagation entry points are removed", () => {
