@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cratis/AI/distribution/candidate-review-batch.schema.json",
+  "title": "Cratis candidate review batch",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion", "schemaPath", "schemaSha256", "state", "version", "sourceCommit", "componentCount", "packagedSkillTargetCount", "blockedSkillTargetCount", "repositoryOnlyLegacySkillCount", "nativeProjectedComponentCount", "nativeUnprojectedComponentCount", "skillAssetCount", "nativeAssetCount", "roots", "componentCoverageSha256", "approvalEligible", "installationSupported", "publicationEligible", "runtimeEligible", "supportGranted", "promotionEligible"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "schemaPath": { "const": "distribution/candidate-review-batch.schema.json" },
+    "schemaSha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "state": { "const": "CANDIDATE_REVIEW_BATCH_ONLY" },
+    "version": { "type": "string", "pattern": "^0\\.0\\.(?:0|[1-9][0-9]*)-candidate\\.(?:0|[1-9][0-9]*)$" },
+    "sourceCommit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "componentCount": { "const": 137 },
+    "packagedSkillTargetCount": { "const": 41 },
+    "blockedSkillTargetCount": { "const": 4 },
+    "repositoryOnlyLegacySkillCount": { "const": 4 },
+    "nativeProjectedComponentCount": { "const": 35 },
+    "nativeUnprojectedComponentCount": { "const": 2 },
+    "skillAssetCount": { "const": 68 },
+    "nativeAssetCount": { "const": 4 },
+    "roots": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "path", "manifestPath", "manifestSha256", "fileCount"],
+        "properties": {
+          "id": { "enum": ["public", "engineering", "native-non-skill"] },
+          "path": { "enum": ["public", "engineering", "native-non-skill"] },
+          "manifestPath": { "enum": ["candidate-assets.json", "native-review-assets.json"] },
+          "manifestSha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+          "fileCount": { "type": "integer", "minimum": 1 }
+        }
+      }
+    },
+    "componentCoverageSha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "approvalEligible": { "const": false },
+    "installationSupported": { "const": false },
+    "publicationEligible": { "const": false },
+    "runtimeEligible": { "const": false },
+    "supportGranted": { "const": false },
+    "promotionEligible": { "const": false }
+  }
+}

@@ -82,7 +82,8 @@ test("generated update workflow creates append-only non-releasing candidate PRs"
     for (const required of [
         "verify-passive-candidates",
         "create-passive-candidate-pr",
-        "package-passive-candidate-assets.mjs",
+        "package-candidate-review-batch.mjs",
+        "CANDIDATE_REVIEW_BATCH_ONLY",
         "candidate-passive-public-package",
         "candidate-passive-engineering-package",
         'test ! -e "$destination"',

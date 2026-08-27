@@ -80,27 +80,18 @@ jobs:
         run: |
           set -euo pipefail
           [[ "$VERSION" =~ ^0\.0\.[0-9]+-candidate\.[0-9]+$ ]]
-          node tooling/package-passive-candidate-assets.mjs \
-            candidate-passive-public-package \
-            "$RUNNER_TEMP/passive-candidates/candidate-passive-public-package" \
+          node tooling/package-candidate-review-batch.mjs \
+            "$RUNNER_TEMP/passive-candidates" \
             "$VERSION"
-          node tooling/package-passive-candidate-assets.mjs \
-            candidate-passive-engineering-package \
-            "$RUNNER_TEMP/passive-candidates/candidate-passive-engineering-package" \
-            "$VERSION"
-          for artifact in \
-            candidate-passive-public-package \
-            candidate-passive-engineering-package; do
-            manifest="$RUNNER_TEMP/passive-candidates/$artifact/candidate-assets.json"
-            test "$(node -p "require('$manifest').state")" = \
-              "PASSIVE_CANDIDATE_REVIEW_ONLY"
-            test "$(node -p "require('$manifest').installationSupported")" = "false"
-            test "$(node -p "require('$manifest').publicationEligible")" = "false"
-            test "$(node -p "require('$manifest').runtimeEligible")" = "false"
-            test "$(node -p "require('$manifest').supportGranted")" = "false"
-            (cd "$RUNNER_TEMP/passive-candidates/$artifact" && sha256sum -c SHA256SUMS)
-          done
-          node --test tooling/specs/passive-candidate-assets.spec.mjs
+          manifest="$RUNNER_TEMP/passive-candidates/candidate-batch.json"
+          test "$(node -p "require('$manifest').state")" = \
+            "CANDIDATE_REVIEW_BATCH_ONLY"
+          test "$(node -p "require('$manifest').installationSupported")" = "false"
+          test "$(node -p "require('$manifest').publicationEligible")" = "false"
+          test "$(node -p "require('$manifest').runtimeEligible")" = "false"
+          test "$(node -p "require('$manifest').supportGranted")" = "false"
+          (cd "$RUNNER_TEMP/passive-candidates" && sha256sum -c SHA256SUMS)
+          node --test tooling/specs/candidate-review-batch.spec.mjs
           node --test tooling/specs/distribution-repository-verification.spec.mjs
 
   create-fixture-pr:
@@ -205,14 +196,9 @@ jobs:
         run: |
           set -euo pipefail
           [[ "$VERSION" =~ ^0\.0\.[0-9]+-candidate\.[0-9]+$ ]]
-          for artifact in \
-            candidate-passive-public-package \
-            candidate-passive-engineering-package; do
-            node tooling/package-passive-candidate-assets.mjs \
-              "$artifact" \
-              "$RUNNER_TEMP/passive-candidates/$artifact" \
-              "$VERSION"
-          done
+          node tooling/package-candidate-review-batch.mjs \
+            "$RUNNER_TEMP/passive-candidates" \
+            "$VERSION"
 
       - name: Create the generated candidate pull request
         env:
@@ -228,14 +214,16 @@ jobs:
           version_slug="${VERSION//./-}"
           branch="candidates/${version_slug}-${GITHUB_SHA:0:12}"
           git -C "$RUNNER_TEMP/AI.Distribution" checkout -b "$branch"
-          for artifact in \
-            candidate-passive-public-package \
-            candidate-passive-engineering-package; do
+          for mapping in \
+            "candidate-passive-public-package:public" \
+            "candidate-passive-engineering-package:engineering"; do
+            artifact="${mapping%%:*}"
+            source_root="${mapping#*:}"
             destination="$RUNNER_TEMP/AI.Distribution/candidates/$artifact/$VERSION"
             test ! -e "$destination"
             mkdir -p "$destination"
             rsync -a \
-              "$RUNNER_TEMP/passive-candidates/$artifact/" \
+              "$RUNNER_TEMP/passive-candidates/$source_root/" \
               "$destination/"
           done
           node \

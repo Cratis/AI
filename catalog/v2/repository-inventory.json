@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "b20b6d39e4d684cdd42eb5176e4d1adf9936174bf1088dbc11f70d2c26e27ce6",
+  "indexDigest": "03ccbfa9a0cfd3603cbbb736935d7411c0919082ee60780345cab47133e8638c",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -636,6 +636,10 @@
     },
     {
       "path": "distribution/candidate-component-coverage.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/candidate-review-batch.schema.json",
       "status": "added"
     },
     {
@@ -2535,6 +2539,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/package-candidate-review-batch.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/package-fundamentals-preview-assets.mjs",
       "status": "added"
     },
@@ -2676,6 +2684,10 @@
     },
     {
       "path": "tooling/specs/candidate-contract-schemas.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/candidate-review-batch.spec.mjs",
       "status": "added"
     },
     {
@@ -4393,8 +4405,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 60,
-      "expectedPathsDigest": "410622172f922e2eed4ad7f8d3840f55c0f05874983949bb63035704e6e0621f"
+      "expectedPathCount": 61,
+      "expectedPathsDigest": "18b6a61e6a47278b971ed6ff3b5c7eb8087521973478d2a02132098b98d174a2"
     },
     {
       "excludePathPatterns": [],
@@ -4468,8 +4480,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 69,
-      "expectedPathsDigest": "48b5c9427562f0d86f3a5995ba4ffd85eadaa688ba2b317021e111937c394cea"
+      "expectedPathCount": 70,
+      "expectedPathsDigest": "8de06131412b83e7fb95f107a504df82317413eaa9f8744c129c3cc19c76abe8"
     },
     {
       "excludePathPatterns": [],
@@ -4492,8 +4504,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 54,
-      "expectedPathsDigest": "1f97aae9c4fb28fdd70a483449250a999ad4eda71de30b12068c12ec5f5885ad"
+      "expectedPathCount": 55,
+      "expectedPathsDigest": "870d608e019143f5e7c1f833d4cf773dedd0b5d16ea150dcb6e7839d5f13a7e7"
     },
     {
       "excludePathPatterns": [],

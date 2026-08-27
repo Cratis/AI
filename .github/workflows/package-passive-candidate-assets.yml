@@ -43,39 +43,23 @@ jobs:
           node tooling/generate-catalog-v2.mjs
           git diff --exit-code -- catalog/v2
           node tooling/validate-catalogs.mjs
-          node tooling/package-passive-candidate-assets.mjs \
-            candidate-passive-public-package \
-            "$RUNNER_TEMP/passive-candidates/public" \
+          node tooling/package-candidate-review-batch.mjs \
+            "$RUNNER_TEMP/passive-candidates" \
             "$VERSION"
-          node tooling/package-passive-candidate-assets.mjs \
-            candidate-passive-engineering-package \
-            "$RUNNER_TEMP/passive-candidates/engineering" \
-            "$VERSION"
-          node tooling/package-native-non-skill-review-assets.mjs \
-            "$RUNNER_TEMP/passive-candidates/native-non-skill" \
-            "$VERSION"
-          for candidate in public engineering; do
-            manifest="$RUNNER_TEMP/passive-candidates/$candidate/candidate-assets.json"
-            test "$(node -p "require('$manifest').state")" = \
-              "PASSIVE_CANDIDATE_REVIEW_ONLY"
-            test "$(node -p "require('$manifest').approvalEligible")" = "false"
-            test "$(node -p "require('$manifest').installationSupported")" = "false"
-            test "$(node -p "require('$manifest').publicationEligible")" = "false"
-            test "$(node -p "require('$manifest').runtimeEligible")" = "false"
-            test "$(node -p "require('$manifest').supportGranted")" = "false"
-            test "$(node -p "require('$manifest').promotionEligible")" = "false"
-            (cd "$RUNNER_TEMP/passive-candidates/$candidate" && sha256sum -c SHA256SUMS)
-          done
-          native_manifest="$RUNNER_TEMP/passive-candidates/native-non-skill/native-review-assets.json"
-          test "$(node -p "require('$native_manifest').state")" = \
-            "NATIVE_NON_SKILL_REVIEW_ONLY"
-          test "$(node -p "require('$native_manifest').installationSupported")" = "false"
-          test "$(node -p "require('$native_manifest').packageIdentity")" = "null"
-          test "$(node -p "require('$native_manifest').runtimeEligible")" = "false"
-          test "$(node -p "require('$native_manifest').supportGranted")" = "false"
-          (cd "$RUNNER_TEMP/passive-candidates/native-non-skill" && sha256sum -c SHA256SUMS)
-          node --test tooling/specs/passive-candidate-assets.spec.mjs
-          node --test tooling/specs/native-non-skill-review-assets.spec.mjs
+          manifest="$RUNNER_TEMP/passive-candidates/candidate-batch.json"
+          test "$(node -p "require('$manifest').state")" = \
+            "CANDIDATE_REVIEW_BATCH_ONLY"
+          test "$(node -p "require('$manifest').componentCount")" = "137"
+          test "$(node -p "require('$manifest').packagedSkillTargetCount")" = "41"
+          test "$(node -p "require('$manifest').skillAssetCount")" = "68"
+          test "$(node -p "require('$manifest').nativeAssetCount")" = "4"
+          test "$(node -p "require('$manifest').installationSupported")" = "false"
+          test "$(node -p "require('$manifest').publicationEligible")" = "false"
+          test "$(node -p "require('$manifest').runtimeEligible")" = "false"
+          test "$(node -p "require('$manifest').supportGranted")" = "false"
+          (cd "$RUNNER_TEMP/passive-candidates" && sha256sum -c SHA256SUMS)
+          node --test tooling/specs/candidate-review-batch.spec.mjs
+          node --test tooling/specs/candidate-contract-schemas.spec.mjs
 
       - name: Upload short-lived review bundles
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v7.0.1

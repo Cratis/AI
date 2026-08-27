@@ -399,8 +399,11 @@ Evaluation files remain source evidence but are not runtime skill payload. The
 Pi archive is npm-private, Codex installation is `NOT_AVAILABLE`, and only
 `0.0.N-candidate.N` versions are accepted.
 
-The manual, read-only **Package Passive Candidate Assets** workflow uploads both
-bundles for seven days. Reviewed generated copies use append-only paths under
+The manual, read-only **Package Passive Candidate Assets** workflow emits one
+atomic candidate-review batch containing the public bundle, engineering bundle,
+and native non-skill snapshots, with a top-level digest-bound manifest and exact
+checksum closure. It uploads that batch for seven days. Reviewed generated
+skill copies use append-only paths under
 `AI.Distribution/candidates/<artifact>/<version>/`; fixture payload replacement
 preserves that root, and repository verification checks each candidate's exact
 inventory, manifest, asset digests, and checksum closure. Every approval,
