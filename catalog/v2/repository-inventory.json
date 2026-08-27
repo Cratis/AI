@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "61ae08a4dcc00d4727f0ac88fd4483274289545cb45dd65d5d54034b3776463f",
+  "indexDigest": "6c3b8053def0b1991f6b1ae1e2950ee57b898280a9f5994d8f868c2c56069215",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -91,6 +91,14 @@
       "status": "added"
     },
     {
+      "path": ".github/scripts/copilot-sync-ignore-filter.sh",
+      "status": "deleted"
+    },
+    {
+      "path": ".github/scripts/propagate-copilot-instructions.sh",
+      "status": "deleted"
+    },
+    {
       "path": ".github/workflows/benchmark-release-generation.yml",
       "status": "added"
     },
@@ -124,7 +132,7 @@
     },
     {
       "path": ".github/workflows/propagate-copilot-instructions.yml",
-      "status": "modified"
+      "status": "deleted"
     },
     {
       "path": ".github/workflows/release-approved-ai-profiles.yml",
@@ -132,7 +140,7 @@
     },
     {
       "path": ".github/workflows/sync-copilot-instructions.yml",
-      "status": "modified"
+      "status": "deleted"
     },
     {
       "path": ".github/workflows/update-packages.yml",
@@ -3416,34 +3424,9 @@
         "workflows-68",
         "reevaluation-authority"
       ],
-      "generator": ".github/scripts/propagate-copilot-instructions.sh",
+      "generator": "legacy-manual-adapter-model",
       "expectedPathCount": 4,
       "expectedPathsDigest": "34b01a4f1bff59fa82f81a3a9f91921d17b32c4078a9a49397d926d21664fac3"
-    },
-    {
-      "excludePathPatterns": [],
-      "id": "copilot-propagation-mechanics",
-      "sourcePathPatterns": [
-        ".github/scripts/**",
-        ".github/workflows/propagate-copilot-instructions.yml",
-        ".github/workflows/sync-copilot-instructions.yml"
-      ],
-      "artifactType": "propagation-script",
-      "currentOwner": "reusable Cratis engineering behavior",
-      "targetOwner": "Workflows organization mechanics",
-      "runtimeEligibility": "forbidden",
-      "generatedStatus": "source",
-      "adapterStatus": "none",
-      "dependencies": [
-        "Cratis/Workflows"
-      ],
-      "risk": "critical",
-      "migrationState": "retire-after-evidence",
-      "evidenceIds": [
-        "workflows-68"
-      ],
-      "expectedPathCount": 4,
-      "expectedPathsDigest": "cdbad1406a0b5040579c30532589e9614becc5ddc8a3e17a8021ed1d436cb656"
     },
     {
       "excludePathPatterns": [],
