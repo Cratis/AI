@@ -25,7 +25,8 @@ The existing Fundamentals asset workflow remains packaging-only. The separate
 runs every anchored basic check, stages a public scriptless/dependency-free npm
 archive, and binds publication to `npm-stage` with OIDC. Its publication job is
 unreachable while readiness is blocked. After owner setup, merging one reviewed
-request can publish that exact preview; it cannot claim or promote stable
+request can publish that exact preview under the explicit npm `preview`
+dist-tag; it cannot become `latest`, claim support, or promote itself to stable
 support.
 
 ## Static candidate review before release authority

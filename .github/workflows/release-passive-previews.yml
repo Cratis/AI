@@ -192,4 +192,4 @@ jobs:
         run: |
           set -euo pipefail
           archive="$RUNNER_TEMP/fundamentals-preview-npm/cratis-ai-fundamentals-$VERSION.tgz"
-          npm publish --provenance --access public "$archive"
+          npm publish --provenance --access public --tag preview "$archive"

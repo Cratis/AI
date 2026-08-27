@@ -169,7 +169,7 @@ test("passive preview publication is request readiness and environment gated", (
         "id-token: write",
         "npm_version=$(npm --version)",
         "major < 11",
-        "npm publish --provenance --access public",
+        "npm publish --provenance --access public --tag preview",
         "package-fundamentals-preview-npm.mjs",
         "supportGranted",
     ])
