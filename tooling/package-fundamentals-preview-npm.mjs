@@ -54,6 +54,48 @@ function writeJson(path, value) {
     writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`, { flag: "wx" });
 }
 
+function packageReadme(version) {
+    return `<!--
+Copyright (c) Cratis. All rights reserved.
+Licensed under the MIT license. See LICENSE in this package for full license information.
+-->
+
+# @cratis/ai-fundamentals
+
+Passive AI guidance for Cratis Fundamentals concepts and Chronicle event-source identities.
+
+## Install
+
+Install this exact version globally:
+
+\`\`\`bash
+pi install npm:@cratis/ai-fundamentals@${version}
+\`\`\`
+
+Install it for one trusted project:
+
+\`\`\`bash
+pi install -l npm:@cratis/ai-fundamentals@${version}
+\`\`\`
+
+Try it for one Pi run without changing settings:
+
+\`\`\`bash
+pi -e npm:@cratis/ai-fundamentals@${version}
+\`\`\`
+
+## Update or remove
+
+Move to another exact version with \`pi install npm:@cratis/ai-fundamentals@<version>\`.
+Remove the package with \`pi remove npm:@cratis/ai-fundamentals\`.
+
+## Status
+
+This \`0.x\` package is an unsupported evaluation release. Packaging, provenance,
+and lifecycle checks do not grant a support claim. Review skill instructions before use.
+`;
+}
+
 export function materializeFundamentalsPreviewNpmAsset({
     repositoryRoot = defaultRepositoryRoot,
     outputRoot,
@@ -124,6 +166,9 @@ export function materializeFundamentalsPreviewNpmAsset({
             piPrivate: false,
         });
         const piRoot = join(stageRoot, adapters.roots.pi);
+        writeFileSync(join(piRoot, "README.md"), packageReadme(version), {
+            flag: "wx",
+        });
         const paths = walkFiles(piRoot).sort();
         const packageJson = JSON.parse(
             readFileSync(join(piRoot, "package.json"), "utf8"),
