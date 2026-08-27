@@ -1,0 +1,20 @@
+# Copyright (c) Cratis. All rights reserved.
+# Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+name: Verify Release Intent
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, labeled, unlabeled]
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-intent-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  release-intent:
+    uses: Cratis/Workflows/.github/workflows/verify-release-intent.yml@1e5319ff574ce61a771ec5199527b917204a13b5

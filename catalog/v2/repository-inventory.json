@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "cc764be2b2ceeeae414ea1af93ab1c23a23edd3909743c73bf86c80d467aadc8",
+  "indexDigest": "c9367af6948a3658c78d4bda50691abeff94a9db52010233df6eecd112dda58f",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -164,6 +164,10 @@
     },
     {
       "path": ".github/workflows/verify-no-work-records.yml",
+      "status": "added"
+    },
+    {
+      "path": ".github/workflows/verify-semver-label.yml",
       "status": "added"
     },
     {
@@ -3613,7 +3617,8 @@
         ".github/workflows/release-approved-ai-profiles.yml",
         ".github/workflows/release-passive-previews.yml",
         ".github/workflows/verify-ai-corpus.yml",
-        ".github/workflows/verify-no-work-records.yml"
+        ".github/workflows/verify-no-work-records.yml",
+        ".github/workflows/verify-semver-label.yml"
       ],
       "artifactType": "workflow",
       "currentOwner": "repository-only authoring/release tooling",
@@ -3631,8 +3636,8 @@
         "repo-main-b795d53",
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 13,
-      "expectedPathsDigest": "9baffda4e0ab2f7c8600acd9c15b3a65c4d8b9f1536bb86b2aef2dd498fc96ea"
+      "expectedPathCount": 14,
+      "expectedPathsDigest": "3d3bea4b355438e51bb0c0088c1423a30d910ecee0d91b5669078c5b2f492d6b"
     },
     {
       "excludePathPatterns": [],

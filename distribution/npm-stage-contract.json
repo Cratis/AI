@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "state": "PASSIVE_PREVIEW_REQUEST_READY",
+  "state": "NORMAL_0X_RELEASES_ENABLED",
   "trackingIssue": "https://github.com/Cratis/Workflows/issues/70",
   "package": {
     "fixtureName": "@cratis/ai",
@@ -30,9 +30,10 @@
   "workflow": {
     "path": ".github/workflows/distribution-npm-stage.yml",
     "productionPath": ".github/workflows/release-approved-ai-profiles.yml",
-    "currentOperation": "AWAIT_MERGED_PASSIVE_PREVIEW_REQUEST",
+    "currentOperation": "PUBLISH_MERGED_LABELED_PULL_REQUEST",
     "environment": "npm-stage",
-    "passivePreviewPath": ".github/workflows/release-passive-previews.yml",
+    "environmentApprovalRequired": false,
+    "packageReleasePath": ".github/workflows/release-passive-previews.yml",
     "trustedPublisherConfigured": true,
     "trustedPublisher": {
       "provider": "github-actions",
@@ -45,21 +46,22 @@
     "oidcEnabled": true,
     "stagePublishEnabled": false,
     "publicPublishEnabled": true,
-    "publishAutomaticallyAfterMergedReleaseRequestAndCanary": true
+    "publishAutomaticallyAfterMergedLabeledPullRequest": true
   },
-  "previewPublicationControls": [
+  "releaseControls": [
+    "exactly one major minor patch or no-release pull-request label",
+    "release version derived by cratis release-action",
+    "0.x versions only until governed support approval",
     "approved public target and immutable source contract",
-    "append-only request bound to exact source revision and digest",
     "Node 22.14 or newer",
     "npm 11.5.1 or newer",
-    "npm-stage environment approval",
+    "main-only npm-stage OIDC environment",
     "id-token write only in the publish job",
     "unpacked allowlist and zero lifecycle scripts or dependencies",
-    "provenance checksum and exact-artifact verification",
-    "pack install discovery uninstall and exact-version rollback smoke",
-    "explicit npm preview dist-tag"
+    "provenance checksum and package lifecycle verification",
+    "explicit npm latest dist-tag"
   ],
-  "previewRequestEligible": true,
+  "releaseEligible": true,
   "publicationEligible": false,
   "promotionEligible": false
 }

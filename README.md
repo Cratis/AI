@@ -182,16 +182,13 @@ tooling.
 
 ## Current release state
 
-The first narrow `public-fundamentals` preview has approved passive source,
-deterministic public package bytes, exact request binding, protected OIDC
-publication, and npm owner setup. npm forces `latest` onto a package's first
-publication and rejects removing it; the inert bootstrap version is therefore
-deprecated and one reviewed append-only preview request is now eligible. No
-preview version has been published, and the preview lane cannot claim support or
-move npm `latest` to a preview.
+`@cratis/ai-fundamentals` uses the normal Cratis release flow: exactly one
+`major`, `minor`, `patch`, or `no-release` pull-request label, followed by an
+automatic release from protected `main`. Releases stay on `0.x.y` and publish to
+npm `latest` through trusted OIDC while the API is still evolving. Package
+provenance and lifecycle checks do not grant support.
 
-Stable support and broad rollout still require the governed S9/S10 lane,
-including scoped generated-repository automation, real consumer lifecycle
-canaries, release evidence, immutable installation guidance, and explicit
-support approval. Until those gates pass, any published preview remains an
+A `1.0.0` release, stable support, and broad rollout still require the governed
+S9/S10 lane, including real consumer lifecycle canaries, release evidence, and
+explicit support approval. Until those gates pass, the package remains an
 unsupported evaluation endpoint.

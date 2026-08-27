@@ -60,7 +60,7 @@
   "selectedPreview": {
     "profileId": "public-fundamentals",
     "packageName": "@cratis/ai-fundamentals",
-    "requiredStatusContext": "preview / verify",
+    "requiredStatusContext": "release-intent / verify",
     "protectedEnvironment": "npm-stage"
   },
   "advancedAssurance": {

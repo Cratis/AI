@@ -22,8 +22,8 @@ const workflow = readFileSync(
     "utf8",
 );
 
-test("npm stage contract admits an exact passive preview request", () => {
-    assert.equal(contract.state, "PASSIVE_PREVIEW_REQUEST_READY");
+test("npm stage contract enables normal support-free 0.x releases", () => {
+    assert.equal(contract.state, "NORMAL_0X_RELEASES_ENABLED");
     assert.equal(contract.package.fixtureName, "@cratis/ai");
     assert.equal(contract.package.productionName, "@cratis/ai-fundamentals");
     assert.equal(contract.package.fixturePrivate, true);
@@ -62,22 +62,22 @@ test("npm stage contract admits an exact passive preview request", () => {
     assert.equal(contract.workflow.publicPublishEnabled, true);
     assert.equal(
         contract.workflow.currentOperation,
-        "AWAIT_MERGED_PASSIVE_PREVIEW_REQUEST",
+        "PUBLISH_MERGED_LABELED_PULL_REQUEST",
     );
     assert.equal(
-        contract.workflow.passivePreviewPath,
+        contract.workflow.packageReleasePath,
         ".github/workflows/release-passive-previews.yml",
     );
     assert.equal(
-        contract.workflow
-            .publishAutomaticallyAfterMergedReleaseRequestAndCanary,
+        contract.workflow.publishAutomaticallyAfterMergedLabeledPullRequest,
         true,
     );
     assert.equal(
         contract.workflow.productionPath,
         ".github/workflows/release-approved-ai-profiles.yml",
     );
-    assert.equal(contract.previewRequestEligible, true);
+    assert.equal(contract.workflow.environmentApprovalRequired, false);
+    assert.equal(contract.releaseEligible, true);
     assert.equal(contract.publicationEligible, false);
     assert.equal(contract.promotionEligible, false);
 });

@@ -140,30 +140,35 @@ export function buildPreviewReadiness(repositoryRoot = defaultRepositoryRoot) {
             "npm-latest-tag-unsafe",
             "The npm-forced bootstrap latest version is not confirmed deprecated.",
         );
-    const previewWorkflowPath = join(
+    const packageWorkflowPath = join(
         root,
         ".github/workflows/release-passive-previews.yml",
     );
-    if (!existsSync(previewWorkflowPath)) {
+    if (!existsSync(packageWorkflowPath)) {
         addBlocker(
             blockers,
             "preview-release-workflow-not-implemented",
-            "The passive preview request and publication workflow is not implemented.",
+            "The passive package publication workflow is not implemented.",
         );
     } else {
-        const previewWorkflow = readFileSync(previewWorkflowPath, "utf8");
-        for (const requiredCheck of expectedPreviewChecks)
-            if (!previewWorkflow.includes(requiredCheck))
+        const packageWorkflow = readFileSync(packageWorkflowPath, "utf8");
+        const requiredControls =
+            npmStage.state === "NORMAL_0X_RELEASES_ENABLED"
+                ? [
+                      "cratis/release-action@",
+                      `environment: ${lanes.selectedPreview.protectedEnvironment}`,
+                      "npm publish --provenance --access public --tag latest",
+                      "supportGranted",
+                  ]
+                : [
+                      ...expectedPreviewChecks,
+                      `name: ${lanes.selectedPreview.requiredStatusContext}`,
+                      `environment: ${lanes.selectedPreview.protectedEnvironment}`,
+                  ];
+        for (const requiredControl of requiredControls)
+            if (!packageWorkflow.includes(requiredControl))
                 throw new Error(
-                    `Preview release workflow omits required check ${requiredCheck}`,
-                );
-        for (const requiredControl of [
-            `name: ${lanes.selectedPreview.requiredStatusContext}`,
-            `environment: ${lanes.selectedPreview.protectedEnvironment}`,
-        ])
-            if (!previewWorkflow.includes(requiredControl))
-                throw new Error(
-                    `Preview release workflow omits ${requiredControl}`,
+                    `Package release workflow omits ${requiredControl}`,
                 );
     }
     const readiness = {

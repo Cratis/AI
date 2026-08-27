@@ -149,65 +149,50 @@ test("release candidates remain readable while every side-effect job is S10-bloc
         assert.equal(workflow.includes(forbidden), false, forbidden);
 });
 
-test("passive preview publication is request readiness and environment gated", () => {
+test("Fundamentals package uses the normal labeled Cratis release flow", () => {
     const workflow = readFileSync(
         ".github/workflows/release-passive-previews.yml",
         "utf8",
     );
     for (const required of [
-        "name: preview / verify",
-        "distribution/preview-requests.json",
-        "distribution/npm-stage-contract.json",
-        "Verify registry dist-tag safety",
-        'latest=$(npm view "$package" dist-tags.latest)',
-        "0.0.0-bootstrap.0",
-        'deprecated=$(npm view "$package@$latest" deprecated)',
-        "Bootstrap only. Install an exact preview version or use the preview dist-tag.",
-        "*-*",
-        "preview_allowed",
-        "git diff --quiet",
-        "request_count",
-        "--require-request",
-        "--base",
-        "request_present",
-        "requests.at(-1).version",
-        "artifact_sha256",
-        "EXPECTED_SHA256",
-        "smoke-fundamentals-preview-npm.mjs",
-        "github.event_name == 'push'",
-        "needs.verify.outputs.preview_allowed == 'true'",
+        "name: Publish Fundamentals AI Package",
+        'branches: ["main"]',
+        "cratis/release-action@bdaded342eb31b52b48dca0611f0214794f8c655",
+        "needs.release.outputs.publish == 'true'",
         "environment: npm-stage",
         "id-token: write",
-        "npm_version=$(npm --version)",
-        "major < 11",
-        "npm publish --provenance --access public --tag preview",
+        '[[ "$VERSION" =~ ^0\\.[0-9]+\\.[0-9]+$ ]]',
         "package-fundamentals-preview-npm.mjs",
+        "smoke-fundamentals-preview-npm.mjs",
+        "npm publish --provenance --access public --tag latest",
         "supportGranted",
     ])
         assert(workflow.includes(required), required);
-    for (const check of [
-        "deterministic-generation",
-        "static-contract-validation",
-        "secret-and-path-scanning",
-        "schema-validation",
-        "checksums",
-        "owner-review",
-        "basic-pack-install-discovery-uninstall-smoke",
-        "exact-version-rollback",
-    ])
-        assert(workflow.includes(check), check);
     for (const forbidden of [
         "NPM_TOKEN",
         "NODE_AUTH_TOKEN",
         "secrets:",
-        "contents: write",
-        "pull-requests: write",
-        "supportGranted: true",
         "workflow_dispatch:",
-        "dist-tags.latest 2>/dev/null || true",
-        "0.1.0-preview.1');",
+        "--tag preview",
+        "distribution/preview-requests.json",
     ])
         assert.equal(workflow.includes(forbidden), false, forbidden);
+});
+
+test("AI delegates release-intent labels to the shared pinned workflow", () => {
+    const workflow = readFileSync(
+        ".github/workflows/verify-semver-label.yml",
+        "utf8",
+    );
+    for (const required of [
+        "pull_request:",
+        "opened, reopened, synchronize, labeled, unlabeled",
+        'branches: ["main"]',
+        "release-intent:",
+        "Cratis/Workflows/.github/workflows/verify-release-intent.yml@1e5319ff574ce61a771ec5199527b917204a13b5",
+    ])
+        assert(workflow.includes(required), required);
+    assert.equal(workflow.includes("secrets: inherit"), false);
 });
 
 test("Fundamentals preview workflow is read-only short-lived and non-publishing", () => {
