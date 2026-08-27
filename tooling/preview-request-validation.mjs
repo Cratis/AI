@@ -51,6 +51,24 @@ function requestsAtRevision(root, revision) {
             ]),
         );
     } catch (error) {
+        try {
+            git(root, ["cat-file", "-e", `${revision}^{commit}`]);
+            const path = git(root, [
+                "ls-tree",
+                "--name-only",
+                revision,
+                "--",
+                "distribution/preview-requests.json",
+            ]);
+            if (path === "")
+                return {
+                    schemaVersion: 1,
+                    defaultPolicy: "deny",
+                    requests: [],
+                };
+        } catch {
+            // The bounded error below retains the original failed read as cause.
+        }
         throw new Error(
             `Unable to read prior preview requests at ${revision}`,
             { cause: error },
