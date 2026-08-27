@@ -1,5 +1,10 @@
 # Cratis AI
 
+Free, MIT-licensed AI skills, rules, and agent guidance for building
+event-sourced and CQRS applications with the [Cratis](https://www.cratis.io)
+ecosystem. Everything here is in preview; the only published package today is
+`@cratis/ai-fundamentals`, released as a `0.x` evaluation package.
+
 Cratis AI is the controlled source for shared AI skills, engineering guidance,
 product profiles, and generated multi-harness packages for the Cratis ecosystem.
 
