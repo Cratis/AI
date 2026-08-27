@@ -162,6 +162,7 @@ const definitions = [
         sourcePathPatterns: [
             ".gitattributes",
             ".gitignore",
+            ".gitleaks.toml",
             "LICENSE",
             "README.md",
         ],
