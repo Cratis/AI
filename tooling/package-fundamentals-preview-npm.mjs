@@ -87,6 +87,7 @@ export function materializeFundamentalsPreviewNpmAsset({
     const authority = loadPreviewAuthority(repositoryRoot);
     const repositoryUrl =
         authority.context.catalogs.profileCatalog.sourceRepository;
+    const homepage = authority.context.catalogs.profileCatalog.homepage;
     if (
         request.sourceRevision !== authority.source.sourceRevision ||
         request.sourceContentDigest !== authority.source.contentDigest
@@ -121,7 +122,7 @@ export function materializeFundamentalsPreviewNpmAsset({
                 type: "git",
                 url: repositoryUrl,
             },
-            homepage: packageJson.homepage,
+            homepage,
             files: ["skills"],
             keywords: ["pi-package", "cratis"],
             pi: {
@@ -129,8 +130,6 @@ export function materializeFundamentalsPreviewNpmAsset({
             },
         };
         if (
-            typeof packageJson.homepage !== "string" ||
-            !packageJson.homepage.startsWith("https://") ||
             !isDeepStrictEqual(packageJson, expectedPackageJson)
         )
             throw new Error("Generated preview npm package metadata is unsafe");
