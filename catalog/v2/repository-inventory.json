@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "3a343f066947e43438dd6091896c7d0d706b554d597a7ba1621af696cfacda22",
+  "indexDigest": "825ef4f6e41c9f9ef0e1dd7fd52399485956527565e308ed63fc285a03517270",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -635,6 +635,10 @@
       "status": "added"
     },
     {
+      "path": "distribution/candidate-component-coverage.schema.json",
+      "status": "added"
+    },
+    {
       "path": "distribution/ecosystem-artifact-bindings.json",
       "status": "added"
     },
@@ -755,7 +759,15 @@
       "status": "added"
     },
     {
+      "path": "distribution/native-non-skill-review-assets.schema.json",
+      "status": "added"
+    },
+    {
       "path": "distribution/npm-stage-contract.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/passive-candidate-assets.schema.json",
       "status": "added"
     },
     {
@@ -2663,6 +2675,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/specs/candidate-contract-schemas.spec.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/specs/catalog-ordering.spec.mjs",
       "status": "added"
     },
@@ -4377,8 +4393,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 57,
-      "expectedPathsDigest": "e059e8310448fc80e3fc2ed4f95fdea90e5254b0493115a752cbd880f5ba93ec"
+      "expectedPathCount": 60,
+      "expectedPathsDigest": "410622172f922e2eed4ad7f8d3840f55c0f05874983949bb63035704e6e0621f"
     },
     {
       "excludePathPatterns": [],
@@ -4476,8 +4492,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 53,
-      "expectedPathsDigest": "d5ccaaeb55b8f4e2980f7c8f82d8e66ded3967f46ca0bfa23b59576317299b87"
+      "expectedPathCount": 54,
+      "expectedPathsDigest": "1f97aae9c4fb28fdd70a483449250a999ad4eda71de30b12068c12ec5f5885ad"
     },
     {
       "excludePathPatterns": [],
