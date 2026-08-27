@@ -57,7 +57,9 @@ node tooling/package-native-non-skill-review-assets.mjs \
 The output contains one `tar.gz` snapshot per root, the exact projection receipt,
 a component-coverage record for all 137 modeled components, a review SBOM,
 checksums, and an explicit disposition for the two rules that do not yet have a
-generated-static contract. The snapshots retain `packageIdentity: null` and
+generated-static contract. The native review manifest and shared component
+coverage conform to closed, digest-bound schemas under `distribution/`. The
+snapshots retain `packageIdentity: null` and
 `hostActivation: none`; every installation, runtime, publication, support, and
 promotion grant remains false.
 

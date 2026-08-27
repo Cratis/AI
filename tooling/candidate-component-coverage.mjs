@@ -196,8 +196,12 @@ export function buildCandidateComponentCoverage(
     ) {
         throw new Error("Candidate component coverage closure changed");
     }
+    const schemaPath =
+        "distribution/candidate-component-coverage.schema.json";
     return {
         schemaVersion: "1.0.0",
+        schemaPath,
+        schemaSha256: sha256(readFileSync(join(root, schemaPath))),
         state: "CANDIDATE_COMPONENT_COVERAGE_REVIEW_ONLY",
         inputDigests: Object.fromEntries(
             Object.entries(paths).map(([name, path]) => [

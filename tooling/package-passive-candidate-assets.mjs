@@ -463,8 +463,14 @@ export function packagePassiveCandidateAssets({
             generatorHash.update(readFileSync(join(repositoryRoot, path)));
             generatorHash.update("\0");
         }
+        const candidateSchemaPath =
+            "distribution/passive-candidate-assets.schema.json";
         const candidateManifest = {
             schemaVersion: "1.0.0",
+            schemaPath: candidateSchemaPath,
+            schemaSha256: sha256(
+                readFileSync(join(repositoryRoot, candidateSchemaPath)),
+            ),
             state: "PASSIVE_CANDIDATE_REVIEW_ONLY",
             artifactId,
             audience: authority.configuration.audience,

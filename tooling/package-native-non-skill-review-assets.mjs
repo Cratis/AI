@@ -135,8 +135,14 @@ export function packageNativeNonSkillReviewAssets({
             cwd: repositoryRoot,
             encoding: "utf8",
         }).trim();
+        const manifestSchemaPath =
+            "distribution/native-non-skill-review-assets.schema.json";
         const manifest = {
             schemaVersion: "1.0.0",
+            schemaPath: manifestSchemaPath,
+            schemaSha256: sha256(
+                readFileSync(join(repositoryRoot, manifestSchemaPath)),
+            ),
             state: "NATIVE_NON_SKILL_REVIEW_ONLY",
             version,
             sourceRepository: "https://github.com/Cratis/AI",

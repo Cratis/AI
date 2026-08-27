@@ -389,6 +389,9 @@ rewritten or silently sanitized.
 Each bundle contains one deterministic archive per harness, exact immutable
 source revision and digest records, a candidate SBOM, static support matrix,
 portable-compliance and assurance receipts, `REVIEW.md`, and `SHA256SUMS`.
+The primary candidate manifest and complete component-coverage record conform to
+closed schemas under `distribution/` and bind each schema's SHA-256 so a later
+review cannot silently reinterpret the generated record.
 Both bundles also carry the same closed component-coverage record, which
 accounts for all 137 modeled components without pretending that agents,
 commands, prompts, rules, hooks, or extensions are skills.

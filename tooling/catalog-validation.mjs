@@ -158,9 +158,19 @@ function matchesKnownPattern(value, pattern) {
                 value,
             );
         case "^[a-f0-9]{40}$":
+        case "^[0-9a-f]{40}$":
             return /^[a-f0-9]{40}$/.test(value);
         case "^[a-f0-9]{64}$":
+        case "^[0-9a-f]{64}$":
             return /^[a-f0-9]{64}$/.test(value);
+        case "^0\\.0\\.(?:0|[1-9][0-9]*)-candidate\\.(?:0|[1-9][0-9]*)$":
+            return /^0\.0\.(?:0|[1-9][0-9]*)-candidate\.(?:0|[1-9][0-9]*)$/.test(
+                value,
+            );
+        case "^[A-Za-z0-9._-]+\\.(?:tar\\.gz|tgz)$":
+            return /^[A-Za-z0-9._-]+\.(?:tar\.gz|tgz)$/.test(value);
+        case "^[A-Za-z0-9._-]+\\.tar\\.gz$":
+            return /^[A-Za-z0-9._-]+\.tar\.gz$/.test(value);
         case "^(?:public|engineering)-[a-z0-9]+(?:-[a-z0-9]+)*$":
             return /^(?:public|engineering)-[a-z0-9]+(?:-[a-z0-9]+)*$/.test(
                 value,
