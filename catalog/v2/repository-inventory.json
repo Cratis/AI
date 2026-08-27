@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "03ccbfa9a0cfd3603cbbb736935d7411c0919082ee60780345cab47133e8638c",
+  "indexDigest": "5ae20bbfff67894dde61fb8a560d7288a505270306203b48acf3f083da435590",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -88,6 +88,10 @@
     },
     {
       "path": ".github/ISSUE_TEMPLATE/shared-ai-improvement.yml",
+      "status": "added"
+    },
+    {
+      "path": ".github/workflows/advanced-assurance-audit.yml",
       "status": "added"
     },
     {
@@ -635,6 +639,14 @@
       "status": "added"
     },
     {
+      "path": "distribution/assurance-lanes.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/assurance-lanes.schema.json",
+      "status": "added"
+    },
+    {
       "path": "distribution/candidate-component-coverage.schema.json",
       "status": "added"
     },
@@ -772,6 +784,14 @@
     },
     {
       "path": "distribution/passive-candidate-assets.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/preview-readiness.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/preview-readiness.schema.json",
       "status": "added"
     },
     {
@@ -2563,6 +2583,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/preview-readiness.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/profile-presentation.mjs",
       "status": "added"
     },
@@ -2631,6 +2655,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/run-spec-suite.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/s10-release-gate-validation.mjs",
       "status": "added"
     },
@@ -2680,6 +2708,10 @@
     },
     {
       "path": "tooling/specs/approved-profile-release.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/assurance-lanes.spec.mjs",
       "status": "added"
     },
     {
@@ -2876,6 +2908,10 @@
     },
     {
       "path": "tooling/specs/source-evidence-contract.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/spec-suite-lanes.spec.mjs",
       "status": "added"
     },
     {
@@ -3534,6 +3570,7 @@
       "excludePathPatterns": [],
       "id": "repository-validation-workflow",
       "sourcePathPatterns": [
+        ".github/workflows/advanced-assurance-audit.yml",
         ".github/workflows/benchmark-release-generation.yml",
         ".github/workflows/distribution-approved-profile-release.yml",
         ".github/workflows/distribution-fundamentals-preview-assets.yml",
@@ -3562,8 +3599,8 @@
         "repo-main-b795d53",
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 11,
-      "expectedPathsDigest": "69b8a8616bb094a23f6ec323283db8426bc8e89719968ba07d8ade6b81cac3b2"
+      "expectedPathCount": 12,
+      "expectedPathsDigest": "60b538f22ce9ccac2ae5f28b6363e6da2e40bae1565f3f532152829bfd72935b"
     },
     {
       "excludePathPatterns": [],
@@ -4405,8 +4442,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 61,
-      "expectedPathsDigest": "18b6a61e6a47278b971ed6ff3b5c7eb8087521973478d2a02132098b98d174a2"
+      "expectedPathCount": 65,
+      "expectedPathsDigest": "1062877da4bbc85fc63af384ae5ec9dcc7aff80325e11f03bf1eb2e7a7652e00"
     },
     {
       "excludePathPatterns": [],
@@ -4480,8 +4517,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 70,
-      "expectedPathsDigest": "8de06131412b83e7fb95f107a504df82317413eaa9f8744c129c3cc19c76abe8"
+      "expectedPathCount": 72,
+      "expectedPathsDigest": "d3cf3e2603bc122b413ab16649895d16bd8e66f83101650a321655024f4d6c5a"
     },
     {
       "excludePathPatterns": [],
@@ -4504,8 +4541,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 55,
-      "expectedPathsDigest": "870d608e019143f5e7c1f833d4cf773dedd0b5d16ea150dcb6e7839d5f13a7e7"
+      "expectedPathCount": 57,
+      "expectedPathsDigest": "78cb2fac251fd534b783539075ee292778dddb9e1dfb36e42bcce58f262ce7b4"
     },
     {
       "excludePathPatterns": [],

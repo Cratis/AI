@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "generatedBy": "tooling/preview-readiness.mjs",
+  "state": "OWNER_SETUP_REQUIRED",
+  "lane": "passive-preview",
+  "assuranceMode": "basic",
+  "profileId": "public-fundamentals",
+  "packageName": "@cratis/ai-fundamentals",
+  "targetIds": [
+    "cratis-fundamentals-concept"
+  ],
+  "staticCandidateReady": true,
+  "blockers": [
+    {
+      "code": "package-name-not-reconciled",
+      "reason": "npm stage names @cratis/ai; preview profile names @cratis/ai-fundamentals."
+    },
+    {
+      "code": "package-ownership-unconfirmed",
+      "reason": "Exact npm package ownership is not confirmed."
+    },
+    {
+      "code": "trusted-publisher-not-configured",
+      "reason": "The exact npm trusted publisher is not configured."
+    },
+    {
+      "code": "oidc-not-enabled",
+      "reason": "OIDC publication is not enabled."
+    },
+    {
+      "code": "public-preview-publish-disabled",
+      "reason": "Public preview publication remains disabled."
+    },
+    {
+      "code": "basic-host-smoke-pending",
+      "reason": "A basic exact-artifact pack, install, discovery, and uninstall smoke has not been accepted."
+    },
+    {
+      "code": "required-preview-status-not-configured",
+      "reason": "The protected preview verification status is not configured."
+    }
+  ],
+  "governedAssurance": {
+    "requiredForPreview": false,
+    "availableForGraduation": true,
+    "state": "BLOCKED",
+    "readinessPath": "catalog/v2/release-readiness.json"
+  },
+  "previewRequestEligible": false,
+  "publicationEligible": false,
+  "supportGranted": false
+}

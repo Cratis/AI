@@ -9,6 +9,11 @@ version installs, discovers, selects, updates, rolls back, or removes those
 bytes. S9 records those phases independently and refuses to reinterpret older
 static or compatibility observations as host evidence.
 
+S9 belongs to the governed-support lane. A passive preview needs only a smaller
+exact-artifact pack/install/discovery/uninstall smoke plus rollback; it cannot use
+that basic signal to claim support. Teams can opt into S9 later when graduating a
+preview to stable support or when executable/MCP behavior raises the risk.
+
 The current framework is opt-in. Ordinary repository tests never execute a
 detected host binary. Real execution requires both:
 

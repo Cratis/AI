@@ -36,6 +36,35 @@ A consuming repository never becomes a package publisher. It selects profiles,
 pins a version, owns its project context, and receives reviewed update pull
 requests.
 
+## Assurance lanes
+
+Packaging and support use separate lanes so passive previews can iterate without
+pretending to be supported:
+
+| Lane | Mode | Purpose | Full S9/S10 required |
+| --- | --- | --- | --- |
+| Candidate review | Basic | Static review artifacts only | No |
+| Passive preview | Basic | Reviewed passive prerelease with basic smoke checks | No |
+| Governed support | Governed | Stable support, executable/MCP, broad automation | Yes |
+
+The basic preview lane requires deterministic generation, static standards,
+secret/path checks, schemas, checksums, independent review, a basic exact-package
+pack/install/discovery/uninstall smoke, and rollback. It can never claim
+`supported`.
+
+The governed system remains available but sidelined. S9 and S10 become mandatory
+when Cratis promises stable support, introduces executable or MCP behavior,
+automates broad rollout, or promotes a stable marketplace release. The advanced
+evidence catalogs and readiness engine are audited manually and weekly rather
+than gating ordinary candidate and passive-preview generation.
+
+The authored policy is
+[`distribution/assurance-lanes.json`](../distribution/assurance-lanes.json).
+Generated [`preview-readiness.json`](../distribution/preview-readiness.json)
+currently confirms that `public-fundamentals` is statically ready and lists only
+the remaining basic owner-setup blockers. Governed readiness remains separately
+`BLOCKED` and available for later graduation.
+
 ## Profiles instead of one universal corpus
 
 Different repositories need different behavior. A Chronicle framework change

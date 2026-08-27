@@ -42,7 +42,7 @@ jobs:
           set -euo pipefail
           node tooling/generate-catalog-v2.mjs
           git diff --exit-code -- catalog/v2
-          node tooling/validate-catalogs.mjs
+          node tooling/validate-catalogs.mjs --basic
           node tooling/package-candidate-review-batch.mjs \
             "$RUNNER_TEMP/passive-candidates" \
             "$VERSION"

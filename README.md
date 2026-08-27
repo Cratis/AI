@@ -20,6 +20,11 @@ It serves two separate audiences:
 > cover 35 statically projected rule/instruction components without package
 > identity. Do not install this mixed source repository or the review bundles as
 > runtime packages.
+>
+> Assurance has two operating levels: lightweight basic checks for passive
+> candidate/preview iteration, and the existing governed S9/S10 system for
+> stable support, executable/MCP behavior, and broad automated rollout. Advanced
+> assurance remains available but does not gate ordinary passive preview work.
 
 ## The architecture
 
@@ -161,8 +166,12 @@ node tooling/generate-human-catalog.mjs
 node tooling/generate-repository-inventory.mjs
 node tooling/portable-compliance-validation.mjs --verify-lock
 node tooling/release-assurance-validation.mjs
+node tooling/preview-readiness.mjs
+node tooling/validate-catalogs.mjs --basic
+node tooling/run-spec-suite.mjs --basic
+# Optional full governed audit:
 node tooling/validate-catalogs.mjs
-node --test tooling/specs/*.spec.mjs
+node tooling/run-spec-suite.mjs --governed
 .ai/hooks/scripts/validate-ai-setup.sh
 git diff --check
 ```

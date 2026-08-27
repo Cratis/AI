@@ -33,6 +33,48 @@ test("verification workflow covers every release-relevant source", () => {
     }
 });
 
+test("required verification uses the basic lane while governed assurance stays separate", () => {
+    for (const required of [
+        "preview-readiness.mjs",
+        "validate-catalogs.mjs --basic",
+        "run-spec-suite.mjs --basic",
+        "distribution/preview-readiness.json",
+    ])
+        assert(verification.includes(required), required);
+    for (const governedOnly of [
+        "generate-support.mjs",
+        "generate-release-readiness.mjs",
+        "run-spec-suite.mjs --governed",
+    ])
+        assert.equal(verification.includes(governedOnly), false, governedOnly);
+});
+
+test("advanced assurance audit is manual scheduled and read-only", () => {
+    const workflow = readFileSync(
+        ".github/workflows/advanced-assurance-audit.yml",
+        "utf8",
+    );
+    for (const required of [
+        "workflow_dispatch:",
+        "schedule:",
+        "permissions:\n  contents: read",
+        "persist-credentials: false",
+        "generate-support.mjs",
+        "generate-release-readiness.mjs",
+        "run-spec-suite.mjs --governed",
+    ])
+        assert(workflow.includes(required), required);
+    for (const forbidden of [
+        "contents: write",
+        "id-token: write",
+        "secrets:",
+        "npm publish",
+        "gh release",
+        "git push",
+    ])
+        assert.equal(workflow.includes(forbidden), false, forbidden);
+});
+
 test("release candidates remain readable while every side-effect job is S10-blocked", () => {
     const workflow = readFileSync(
         ".github/workflows/release-approved-ai-profiles.yml",
@@ -104,6 +146,9 @@ test("Fundamentals preview workflow is read-only short-lived and non-publishing"
     for (const required of [
         "permissions:\n  contents: read",
         "fetch-depth: 0",
+        "preview-readiness.mjs",
+        "validate-catalogs.mjs --basic",
+        "governedAssurance.requiredForPreview",
         "package-fundamentals-preview-assets.mjs",
         "PREVIEW_ASSETS_APPROVAL_PENDING",
         "preview-assets.json').approvalEligible",

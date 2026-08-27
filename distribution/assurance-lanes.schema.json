@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cratis/AI/distribution/assurance-lanes.schema.json",
+  "title": "Cratis AI assurance lanes",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "defaultPolicy", "defaultLane", "lanes", "selectedPreview", "advancedAssurance"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "defaultPolicy": { "const": "deny" },
+    "defaultLane": { "const": "candidate-review" },
+    "lanes": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "assuranceMode", "channel", "passiveOnly", "publicationAllowed", "supportClaimAllowed", "governedReadinessRequired", "requiredChecks"],
+        "properties": {
+          "id": { "enum": ["candidate-review", "passive-preview", "governed-support"] },
+          "assuranceMode": { "enum": ["basic", "governed"] },
+          "channel": { "enum": ["candidate", "preview", "supported"] },
+          "passiveOnly": { "type": "boolean" },
+          "publicationAllowed": { "type": "boolean" },
+          "supportClaimAllowed": { "type": "boolean" },
+          "governedReadinessRequired": { "type": "boolean" },
+          "requiredChecks": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" } }
+        }
+      }
+    },
+    "selectedPreview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["profileId", "packageName", "basicHostSmokeComplete", "requiredStatusConfigured"],
+      "properties": {
+        "profileId": { "const": "public-fundamentals" },
+        "packageName": { "const": "@cratis/ai-fundamentals" },
+        "basicHostSmokeComplete": { "type": "boolean" },
+        "requiredStatusConfigured": { "type": "boolean" }
+      }
+    },
+    "advancedAssurance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "requiredFor", "optionalFor", "readinessPath"],
+      "properties": {
+        "status": { "const": "SIDELINED_AVAILABLE" },
+        "requiredFor": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" } },
+        "optionalFor": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "enum": ["candidate-review", "passive-preview"] } },
+        "readinessPath": { "const": "catalog/v2/release-readiness.json" }
+      }
+    }
+  }
+}

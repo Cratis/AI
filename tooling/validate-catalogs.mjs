@@ -12,6 +12,7 @@ import { validateEngineeringDocsAuthoring } from "./engineering-docs-authoring-v
 import { validateEngineeringDistributionConfiguration } from "./generate-engineering-distribution-fixture.mjs";
 import { validateEngineeringDocsCompanions } from "./engineering-docs-companions-validation.mjs";
 import { validateProfileSubscriptions } from "./profile-subscription-validation.mjs";
+import { validatePreviewReadiness } from "./preview-readiness.mjs";
 import { validateReleaseRequests } from "./release-request-validation.mjs";
 import { validateReleaseApprovals } from "./release-approval-validation.mjs";
 import { validateEcosystemArtifactContracts } from "./ecosystem-artifact-validation.mjs";
@@ -33,10 +34,10 @@ import {
     validateSpecificationLock,
 } from "./portable-compliance-validation.mjs";
 
-const errors = [
+const basicMode = process.argv.includes("--basic");
+const basicErrors = [
     ...validateCatalogs(),
     ...validateV2Catalogs(),
-    ...validateSourceEvidenceContract(),
     ...validateCodeReviewPilot(),
     ...validateDomainExpertEventModelingPilot(),
     ...validateDistributionConfiguration(),
@@ -44,23 +45,30 @@ const errors = [
     ...validateEngineeringDistributionConfiguration(),
     ...validateEngineeringDocsCompanions(),
     ...validateProfileSubscriptions(),
-    ...validateReleaseRequests().errors,
-    ...validateReleaseApprovals(),
+    ...validatePreviewReadiness(),
     ...validateEcosystemArtifactContracts(),
-    ...validateSupportCatalogs(),
     ...validateReleaseAssurancePolicy(),
     ...validateChronicleMcpGuidance(),
     ...validateMcpGuidanceProducts(),
     ...validateNativeNonSkillProjectionContract(),
-    ...validateRealHostCanaryMatrix(loadRealHostCanaryContracts()),
-    ...validateCheckedInRealHostCanaryReports(),
-    ...validateS10ReleaseGate(),
-    ...validateReleaseLifecycleEvidence(),
-    ...validateMarketplacePublications(),
     ...validateSpecificationLock().map((diagnostic) =>
         formatComplianceDiagnostics([diagnostic]),
     ),
 ];
+const governedErrors = basicMode
+    ? []
+    : [
+          ...validateSourceEvidenceContract(),
+          ...validateReleaseRequests().errors,
+          ...validateReleaseApprovals(),
+          ...validateSupportCatalogs(),
+          ...validateRealHostCanaryMatrix(loadRealHostCanaryContracts()),
+          ...validateCheckedInRealHostCanaryReports(),
+          ...validateS10ReleaseGate(),
+          ...validateReleaseLifecycleEvidence(),
+          ...validateMarketplacePublications(),
+      ];
+const errors = [...basicErrors, ...governedErrors];
 if (errors.length > 0) {
     process.stderr.write(
         `Catalog validation failed with ${errors.length} error(s):\n`,
@@ -69,6 +77,8 @@ if (errors.length > 0) {
     process.exitCode = 1;
 } else {
     process.stdout.write(
-        "Catalog validation passed: legacy, v2, normalized evidence, computed support, source-evidence, multi-product MCP guidance, native non-skill projections, real-host canary contracts, blocked S10 release readiness, offline portable specifications, distribution-profile, and evaluation contracts are valid.\n",
+        basicMode
+            ? "Basic catalog validation passed: packaging, passive preview lanes, portable standards, MCP deny rules, native projections, and distribution profiles are valid.\n"
+            : "Governed catalog validation passed: basic packaging plus normalized evidence, computed support, source evidence, real-host canaries, blocked S10 readiness, lifecycle, and marketplace contracts are valid.\n",
     );
 }

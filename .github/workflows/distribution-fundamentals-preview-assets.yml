@@ -40,7 +40,12 @@ jobs:
           VERSION: ${{ inputs.version }}
         run: |
           set -euo pipefail
-          node tooling/validate-catalogs.mjs
+          node tooling/preview-readiness.mjs
+          git diff --exit-code -- distribution/preview-readiness.json
+          node tooling/validate-catalogs.mjs --basic
+          test "$(node -p "require('./distribution/preview-readiness.json').assuranceMode")" = "basic"
+          test "$(node -p "require('./distribution/preview-readiness.json').governedAssurance.requiredForPreview")" = "false"
+          test "$(node -p "require('./distribution/preview-readiness.json').previewRequestEligible")" = "false"
           node tooling/package-fundamentals-preview-assets.mjs \
             "$RUNNER_TEMP/fundamentals-preview-assets" "$VERSION"
           test "$(node -p "require('$RUNNER_TEMP/fundamentals-preview-assets/preview-assets.json').state")" = "PREVIEW_ASSETS_APPROVAL_PENDING"

@@ -543,6 +543,7 @@ const definitions = [
     {
         id: "repository-validation-workflow",
         sourcePathPatterns: [
+            ".github/workflows/advanced-assurance-audit.yml",
             ".github/workflows/benchmark-release-generation.yml",
             ".github/workflows/distribution-approved-profile-release.yml",
             ".github/workflows/distribution-fundamentals-preview-assets.yml",

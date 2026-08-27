@@ -1,14 +1,31 @@
 # Release Cratis AI
 
-> **S10 is blocked.** This page describes the future authorized flow. Do not add
-a release request until generated readiness is unblocked by complete production
-lifecycle evidence, exact approvals, and external-control attestations.
+> **Preview owner setup and governed S10 are blocked.** Candidate review is
+available now. Passive previews use the basic lane; stable support uses the
+sidelined governed lane and its complete S9/S10 assurance.
 
 A merged release pull request is the recurring human release approval. Do not
 run a second manual publication, promotion, or rollout approval after merge.
+A passive preview can never claim `supported`; that claim requires graduation to
+governed assurance.
 
 One-time external App, registry, canary-scope, and marketplace account setup is
 tracked in [AI#181](https://github.com/Cratis/AI/issues/181).
+
+## Passive preview lane
+
+`public-fundamentals` is the selected first preview. Generated
+[`preview-readiness.json`](../distribution/preview-readiness.json) is independent
+of S10 and currently lists seven basic owner-setup blockers: reconcile the exact
+npm package name, prove ownership, configure trusted OIDC, enable public preview
+publishing, complete one basic exact-artifact host smoke, and configure the
+required preview status.
+
+Once those practical controls are ready, an ordinary independently reviewed PR
+can request an exact preview version. The preview workflow packages the passive
+profile, verifies deterministic bytes and safety checks, runs the basic smoke,
+and publishes through the protected environment. It does not require the full
+evidence graph and cannot promote itself to stable support.
 
 ## Static candidate review before release authority
 
@@ -24,6 +41,12 @@ assurance, support-matrix, and checksum records. Every approval, installation,
 publication, runtime, support, and promotion flag is false. It is a static
 packaging and review facility; it does not satisfy any step below and cannot be
 referenced as a release request or production lifecycle receipt.
+
+## Governed support lane
+
+The numbered flow below applies when graduating a preview to stable support or
+shipping executable/MCP behavior. S10 remains blocked until its full
+prerequisites are deliberately activated.
 
 ## 1. Prepare approved profile state
 
