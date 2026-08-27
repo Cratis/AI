@@ -192,3 +192,13 @@ A `1.0.0` release, stable support, and broad rollout still require the governed
 S9/S10 lane, including real consumer lifecycle canaries, release evidence, and
 explicit support approval. Until those gates pass, the package remains an
 unsupported evaluation endpoint.
+
+## Evaluation artifacts
+
+[Cratis/AI.Distribution v0.1.0](https://github.com/Cratis/AI.Distribution/releases/tag/v0.1.0)
+contains one checksum-bound download with all currently generated review output:
+41 packaged skill targets across 68 host-specific archives, plus four native
+non-skill rule/instruction archives kept in their own semantic form. The release
+manifests retain every blocked and repository-only exclusion. These downloads
+are public evaluation artifacts, not supported installers or marketplace
+claims.
