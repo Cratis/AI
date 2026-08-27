@@ -95,7 +95,6 @@ test("current passive preview is statically ready and blocked only on basic owne
     assert.deepEqual(
         first.blockers.map((blocker) => blocker.code),
         [
-            "package-name-not-reconciled",
             "package-ownership-unconfirmed",
             "trusted-publisher-not-configured",
             "oidc-not-enabled",
@@ -113,7 +112,7 @@ test("basic owner setup can admit a preview request without granting support", (
         const lanes = readJson(root, "distribution/assurance-lanes.json");
         writeJson(root, "distribution/assurance-lanes.json", lanes);
         const npm = readJson(root, "distribution/npm-stage-contract.json");
-        npm.package.name = "@cratis/ai-fundamentals";
+        npm.package.productionName = "@cratis/ai-fundamentals";
         npm.package.publicOwnershipConfirmed = true;
         npm.workflow.trustedPublisherConfigured = true;
         npm.workflow.oidcEnabled = true;

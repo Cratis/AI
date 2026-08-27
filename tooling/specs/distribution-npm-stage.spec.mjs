@@ -24,7 +24,11 @@ const workflow = readFileSync(
 
 test("npm stage contract keeps ownership OIDC and publication blocked", () => {
     assert.equal(contract.state, "PACK_VERIFY_READY_OWNER_AND_TRUST_MISSING");
-    assert.equal(contract.package.name, "@cratis/ai");
+    assert.equal(contract.package.fixtureName, "@cratis/ai");
+    assert.equal(
+        contract.package.productionName,
+        "@cratis/ai-fundamentals",
+    );
     assert.equal(contract.package.fixturePrivate, true);
     assert.equal(contract.package.publicOwnershipConfirmed, false);
     assert.equal(contract.workflow.trustedPublisherConfigured, false);
@@ -48,6 +52,7 @@ test("npm fixture workflow verifies a private scriptless package", () => {
     assert.match(workflow, /workflow_dispatch:/);
     assert.match(workflow, /package-manager-cache: false/);
     assert.match(workflow, /require\('\$package'\)\.private/);
+    assert(workflow.includes('= "@cratis/ai"'));
     assert.match(workflow, /scripts === undefined/);
     assert.match(workflow, /dependencies === undefined/);
     assert.match(workflow, /distribution-fixture\.spec\.mjs/);
