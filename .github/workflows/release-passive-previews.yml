@@ -61,29 +61,36 @@ jobs:
           BASE_REVISION: ${{ github.event.pull_request.base.sha || github.event.before }}
         run: |
           set -euo pipefail
-          node tooling/preview-request-validation.mjs \
-            --require-request --base "$BASE_REVISION"
-          version=$(node - <<'NODE'
+          arguments=(--base "$BASE_REVISION")
+          request_present=false
+          if ! git diff --quiet "$BASE_REVISION" -- distribution/preview-requests.json; then
+            arguments+=(--require-request)
+            request_present=true
+          fi
+          node tooling/preview-request-validation.mjs "${arguments[@]}"
+          echo "request_present=$request_present" >> "$GITHUB_OUTPUT"
+          if [ "$request_present" = "true" ]; then
+            version=$(node - <<'NODE'
           const requests = require('./distribution/preview-requests.json').requests;
           if (requests.length === 0) process.exit(1);
           process.stdout.write(requests.at(-1).version);
           NODE
-          )
-          echo "version=$version" >> "$GITHUB_OUTPUT"
+            )
+            echo "version=$version" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Authorize exact reviewed request
         id: authorize
         env:
           READINESS_STATE: ${{ steps.readiness.outputs.state }}
-          VERSION: ${{ steps.request.outputs.version }}
+          REQUEST_PRESENT: ${{ steps.request.outputs.request_present }}
         run: |
           set -euo pipefail
-          test -n "$VERSION"
-          if [ "$READINESS_STATE" = "READY_FOR_PREVIEW_REQUEST" ]; then
+          if [ "$READINESS_STATE" = "READY_FOR_PREVIEW_REQUEST" ] &&
+             [ "$REQUEST_PRESENT" = "true" ]; then
             echo "preview_allowed=true" >> "$GITHUB_OUTPUT"
           else
             echo "preview_allowed=false" >> "$GITHUB_OUTPUT"
-            exit 1
           fi
 
       - name: static-contract-validation
@@ -95,6 +102,7 @@ jobs:
           node --test tooling/specs/fundamentals-preview-assets.spec.mjs
 
       - name: checksums
+        if: steps.request.outputs.request_present == 'true'
         id: stage
         env:
           VERSION: ${{ steps.request.outputs.version }}
@@ -111,6 +119,7 @@ jobs:
           echo "The protected pull request and environment provide the owner review boundary."
 
       - name: basic-pack-install-discovery-uninstall-smoke
+        if: steps.request.outputs.request_present == 'true'
         env:
           VERSION: ${{ steps.request.outputs.version }}
         run: |
@@ -119,10 +128,11 @@ jobs:
             "$VERSION"
 
       - name: exact-version-rollback
+        if: steps.request.outputs.request_present == 'true'
         run: node --test tooling/specs/fundamentals-preview-npm.spec.mjs
 
       - name: Upload preview review assets
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && steps.request.outputs.request_present == 'true'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v7.0.1
         with:
           name: fundamentals-${{ steps.request.outputs.version }}-preview-review

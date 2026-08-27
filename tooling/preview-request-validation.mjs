@@ -108,16 +108,25 @@ export function validatePreviewRequests(
     const previous = requestsAtRevision(root, baseRevision);
     if (previous) {
         const previousRequests = previous.requests ?? [];
-        if (requests.requests.length !== previousRequests.length + 1)
+        const unchanged =
+            JSON.stringify(requests.requests) ===
+            JSON.stringify(previousRequests);
+        if (
+            !unchanged &&
+            requests.requests.length !== previousRequests.length + 1
+        )
             errors.push("Preview requests must append exactly one record");
-        for (const [index, previousRequest] of previousRequests.entries())
-            if (
-                JSON.stringify(requests.requests[index]) !==
-                JSON.stringify(previousRequest)
-            )
-                errors.push(
-                    `Preview request ${previousRequest.id} is not append-only`,
-                );
+        if (!unchanged)
+            for (const [index, previousRequest] of previousRequests.entries())
+                if (
+                    JSON.stringify(requests.requests[index]) !==
+                    JSON.stringify(previousRequest)
+                )
+                    errors.push(
+                        `Preview request ${previousRequest.id} is not append-only`,
+                    );
+        if (requireRequest && unchanged)
+            errors.push("A new passive preview request must be appended");
     }
     if ((requests.requests?.length ?? 0) > 0) {
         const readiness = buildPreviewReadiness(root);
