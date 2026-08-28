@@ -533,6 +533,7 @@ const definitions = [
             ".github/workflows/engineering-distribution-fixture.yml",
             ".github/workflows/distribution-generated-update.yml",
             ".github/workflows/distribution-npm-stage.yml",
+            ".github/workflows/distribution-public-marketplace.yml",
             ".github/workflows/package-passive-candidate-assets.yml",
             ".github/workflows/release-approved-ai-profiles.yml",
             ".github/workflows/release-passive-previews.yml",

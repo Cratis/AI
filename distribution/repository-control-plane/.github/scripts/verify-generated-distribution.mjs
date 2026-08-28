@@ -414,7 +414,16 @@ function verifyCandidateReviewRoot(root, candidateRoot) {
 function verifyExactInventory(root) {
     const manifest = loadManifest(root);
     const actualPaths = walkFiles(root).sort();
-    const actualControlPlanePaths = actualPaths.filter((path) => path.startsWith(".github/"));
+    const marketplaceGitHubPayloadPaths = new Set(
+        manifest.state === "PUBLIC_EVALUATION_MARKETPLACE"
+            ? [".github/plugin/marketplace.json"]
+            : [],
+    );
+    const actualControlPlanePaths = actualPaths.filter(
+        (path) =>
+            path.startsWith(".github/") &&
+            !marketplaceGitHubPayloadPaths.has(path),
+    );
     if (
         actualControlPlanePaths.length > 0 &&
         JSON.stringify(actualControlPlanePaths) !==
@@ -439,7 +448,7 @@ function verifyExactInventory(root) {
         verifyCandidateReviewRoot(root, candidateRoot);
     const payloadPaths = actualPaths.filter(
         (path) =>
-            !path.startsWith(".github/") &&
+            !controlPlanePaths.includes(path) &&
             !path.startsWith("candidates/"),
     );
     const expectedPayloadPaths = [
@@ -458,6 +467,29 @@ function verifyCanonicalByteParity(root) {
     if (!Array.isArray(provenance.canonicalFiles) || provenance.canonicalFiles.length === 0)
         throw new Error("Distribution provenance canonical inventory is missing");
     const manifestedPaths = manifest.files.map((file) => file.path);
+    if (manifest.state === "PUBLIC_EVALUATION_MARKETPLACE") {
+        for (const file of provenance.canonicalFiles) {
+            assertSafeRelativePath(file.path);
+            if (!Array.isArray(file.copies) || file.copies.length !== 2)
+                throw new Error(`Marketplace canonical copy inventory changed: ${file.path}`);
+            const expectedCopies = [
+                file.path,
+                `plugins/${manifest.profileId}/${file.path}`,
+            ];
+            if (JSON.stringify(file.copies) !== JSON.stringify(expectedCopies))
+                throw new Error(`Marketplace canonical copy paths changed: ${file.path}`);
+            const canonical = readFileSync(join(root, file.path));
+            if (canonical.length !== file.size || sha256(canonical) !== file.sha256)
+                throw new Error(`Marketplace canonical provenance mismatch: ${file.path}`);
+            for (const path of file.copies) {
+                if (!manifestedPaths.includes(path))
+                    throw new Error(`Marketplace canonical copy is unmanifested: ${path}`);
+                if (!readFileSync(join(root, path)).equals(canonical))
+                    throw new Error(`Marketplace canonical byte parity failed: ${path}`);
+            }
+        }
+        return;
+    }
     const expectedTargets = [...manifest.generatedTargets].sort();
     for (const file of provenance.canonicalFiles) {
         assertSafeRelativePath(file.path);
@@ -518,6 +550,28 @@ function verifyChecksums(root) {
 function verifyFixtureProvenance(root) {
     const manifest = verifyExactInventory(root);
     const provenance = readJson(join(root, "provenance.json"));
+    if (manifest.state === "PUBLIC_EVALUATION_MARKETPLACE") {
+        if (
+            manifest.publicationEligible !== true ||
+            manifest.installationSupported !== false ||
+            manifest.supportGranted !== false ||
+            manifest.promotionEligible !== false ||
+            provenance.state !== "PUBLIC_EVALUATION_MARKETPLACE_NOT_SUPPORT" ||
+            provenance.canonicalRepository !== "Cratis/AI" ||
+            provenance.distributionRepository !== "Cratis/AI.Distribution" ||
+            provenance.generator !==
+                "tooling/generate-public-marketplace-distribution.mjs" ||
+            provenance.version !== manifest.version ||
+            provenance.installationAvailable !== true ||
+            provenance.installationSupported !== false ||
+            provenance.behaviorSupported !== false ||
+            provenance.supportGranted !== false ||
+            provenance.promotionEligible !== false
+        ) {
+            throw new Error("Marketplace provenance or eligibility state changed");
+        }
+        return;
+    }
     if (
         manifest.state !== "FIXTURE_ONLY_LOCAL_STAGING" ||
         manifest.publicationEligible !== false ||

@@ -26,6 +26,28 @@ OIDC canary. Future releases do not use a preview tag or require an append-only
 preview request. Package provenance and lifecycle checks continue to grant no
 support, runtime, stable-promotion, or marketplace claim.
 
+## Public multi-marketplace evaluation
+
+The `public-cratis-ai` Distribution root merges one immutable skill tree into
+compatible manifests for generic Agent Skills and Agent Plugins, Claude Code,
+OpenAI Codex, GitHub Copilot, Cursor, Gemini CLI, Kiro, and Pi. The generator
+rejects byte-divergent collisions and preserves blocked targets, repository-only
+legacy skills, and native non-skill components as explicit exclusions.
+
+Self-hosted GitHub installation is the publication channel for Claude Code,
+Copilot, Gemini CLI, Kiro, generic Agent Plugin hosts, and Pi Git packages.
+OpenAI's universal directory and Cursor's marketplace remain separately prepared
+portal handoffs because those vendors require an authenticated publisher,
+manual submission, and review. The OpenAI handoff also records the owner-supplied
+identity, logo, privacy/terms URLs, country availability, and policy attestations
+that must not be invented by automation. Marketplace availability remains an unsupported
+`0.x.y` evaluation claim; it does not advance S9/S10 or grant support.
+
+The manual **Stage Public Marketplace Distribution** workflow generates the
+complete `Cratis/AI.Distribution` repository candidate, runs all seven protected
+Distribution checks, and uploads the exact hidden-file-preserving review tree.
+It has read-only permissions and cannot push, publish, or submit vendor portals.
+
 ## Static candidate review before release authority
 
 Before any profile is approved, the manual **Package Passive Candidate Assets**

@@ -227,6 +227,41 @@ test("Fundamentals preview workflow is read-only short-lived and non-publishing"
         assert.equal(workflow.includes(forbidden), false, forbidden);
 });
 
+test("public marketplace staging is read-only and runs every Distribution gate", () => {
+    const workflow = readFileSync(
+        ".github/workflows/distribution-public-marketplace.yml",
+        "utf8",
+    );
+    for (const required of [
+        "workflow_dispatch:",
+        "permissions:\n  contents: read",
+        "repository: Cratis/AI.Distribution",
+        "stage-public-marketplace-repository.mjs",
+        "package-public-marketplace-submissions.mjs",
+        "vendor-portal-handoff",
+        "exact-inventory",
+        "canonical-byte-parity",
+        "native-manifest-parse",
+        "checksums",
+        "fixture-provenance-record",
+        "pack-install-smoke-uninstall",
+        "canary-rollback-simulation",
+        "include-hidden-files: true",
+        "retention-days: 7",
+    ])
+        assert(workflow.includes(required), required);
+    for (const forbidden of [
+        "id-token: write",
+        "contents: write",
+        "pull-requests: write",
+        "secrets:",
+        "git push",
+        "gh release",
+        "npm publish",
+    ])
+        assert.equal(workflow.includes(forbidden), false, forbidden);
+});
+
 test("approved profile workflow is bot-scoped and keeps publication separate", () => {
     const workflow = readFileSync(
         ".github/workflows/distribution-approved-profile-release.yml",

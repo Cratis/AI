@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "dd85ba8b4d9050086c28e1fbfa21a0e9b79893234b2fc365c64fd336b35f7956",
+  "indexDigest": "137bb537c70b4e1f6de247bdce2e10a368463525329ccc17cf03f990867f89aa",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -128,6 +128,10 @@
     },
     {
       "path": ".github/workflows/distribution-npm-stage.yml",
+      "status": "added"
+    },
+    {
+      "path": ".github/workflows/distribution-public-marketplace.yml",
       "status": "added"
     },
     {
@@ -832,6 +836,10 @@
     },
     {
       "path": "distribution/profile-subscription.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/public-marketplace-release.schema.json",
       "status": "added"
     },
     {
@@ -2547,6 +2555,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/generate-public-marketplace-distribution.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/generate-release-readiness.mjs",
       "status": "added"
     },
@@ -2616,6 +2628,10 @@
     },
     {
       "path": "tooling/package-passive-candidate-assets.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/package-public-marketplace-submissions.mjs",
       "status": "added"
     },
     {
@@ -2931,6 +2947,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/specs/public-marketplace-distribution.spec.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/specs/real-host-canary-contract.spec.mjs",
       "status": "added"
     },
@@ -2996,6 +3016,10 @@
     },
     {
       "path": "tooling/stage-distribution-candidate.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/stage-public-marketplace-repository.mjs",
       "status": "added"
     },
     {
@@ -3622,6 +3646,7 @@
         ".github/workflows/engineering-distribution-fixture.yml",
         ".github/workflows/distribution-generated-update.yml",
         ".github/workflows/distribution-npm-stage.yml",
+        ".github/workflows/distribution-public-marketplace.yml",
         ".github/workflows/package-passive-candidate-assets.yml",
         ".github/workflows/release-approved-ai-profiles.yml",
         ".github/workflows/release-passive-previews.yml",
@@ -3645,8 +3670,8 @@
         "repo-main-b795d53",
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 14,
-      "expectedPathsDigest": "3d3bea4b355438e51bb0c0088c1423a30d910ecee0d91b5669078c5b2f492d6b"
+      "expectedPathCount": 15,
+      "expectedPathsDigest": "e7a40c6e4bd8650f56d99277f622e6bfa82677da93076bf28ef48829c4a5ec57"
     },
     {
       "excludePathPatterns": [],
@@ -4488,8 +4513,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 68,
-      "expectedPathsDigest": "44d1de38d8b2e53269fc1499441728d8a0586740c0bc5c3a5181037ff3161942"
+      "expectedPathCount": 69,
+      "expectedPathsDigest": "040622ad500fdd641979aab773052506711ce832db092d718729008695838da5"
     },
     {
       "excludePathPatterns": [],
@@ -4564,8 +4589,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 77,
-      "expectedPathsDigest": "876c450cffbf5170ba30ef057b4983548f79f46f4b5d719c4a37a0c9a368d9c5"
+      "expectedPathCount": 80,
+      "expectedPathsDigest": "ba56fdd96ec85d5fe4250f2df1e2cf9c603e54b5ca4840ee56c5d340d965918d"
     },
     {
       "excludePathPatterns": [],
@@ -4588,8 +4613,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 61,
-      "expectedPathsDigest": "0fd1fe04c8b46f4cc33917dc3256000b0fb001fda19a8805e7868dbbeb6acce2"
+      "expectedPathCount": 62,
+      "expectedPathsDigest": "1a6bc1f87205f6d5e153f63486bc47b8e5c22a9006b78e07daeddcf75f6d467f"
     },
     {
       "excludePathPatterns": [],

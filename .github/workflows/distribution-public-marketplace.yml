@@ -1,0 +1,95 @@
+# Copyright (c) Cratis. All rights reserved.
+# Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+name: Stage Public Marketplace Distribution
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Unsupported public evaluation version (0.x.y)
+        required: true
+        default: 0.2.0
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: stage-public-marketplace-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  stage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out canonical AI source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: source
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check out current generated Distribution
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: Cratis/AI.Distribution
+          ref: main
+          path: current-distribution
+          persist-credentials: false
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+
+      - name: Generate complete marketplace repository
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          [[ "$VERSION" =~ ^0\.[0-9]+\.[0-9]+$ ]]
+          cd source
+          node tooling/stage-public-marketplace-repository.mjs \
+            "$GITHUB_WORKSPACE/current-distribution" \
+            "$RUNNER_TEMP/staged-distribution" \
+            "$VERSION"
+          node tooling/package-public-marketplace-submissions.mjs \
+            "$RUNNER_TEMP/staged-distribution" \
+            "$RUNNER_TEMP/vendor-portal-handoff"
+
+      - name: Verify every Distribution gate
+        run: |
+          set -euo pipefail
+          validator="$GITHUB_WORKSPACE/source/distribution/repository-control-plane/.github/scripts/verify-generated-distribution.mjs"
+          for check in \
+            exact-inventory \
+            canonical-byte-parity \
+            native-manifest-parse \
+            checksums \
+            fixture-provenance-record \
+            pack-install-smoke-uninstall \
+            canary-rollback-simulation
+          do
+            arguments=(
+              --root "$RUNNER_TEMP/staged-distribution"
+              --check "$check"
+            )
+            if [ "$check" = "canary-rollback-simulation" ]; then
+              arguments+=(--before-root "$GITHUB_WORKSPACE/current-distribution")
+            fi
+            node "$validator" "${arguments[@]}"
+          done
+
+      - name: Upload exact marketplace review tree
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v7.0.1
+        with:
+          name: cratis-ai-public-marketplace-${{ inputs.version }}
+          path: |
+            ${{ runner.temp }}/staged-distribution
+            ${{ runner.temp }}/vendor-portal-handoff
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 7

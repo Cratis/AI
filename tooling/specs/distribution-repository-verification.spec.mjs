@@ -16,6 +16,7 @@ import { dirname, join, resolve } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import { generateDistributionFixture } from "../generate-distribution-fixture.mjs";
+import { generatePublicMarketplaceDistribution } from "../generate-public-marketplace-distribution.mjs";
 import { packagePassiveCandidateAssets } from "../package-passive-candidate-assets.mjs";
 import {
     distributionCheckNames,
@@ -101,6 +102,62 @@ test("generated repository verification runs every exact non-supporting check", 
                 supporting: false,
             });
         }
+    });
+});
+
+test("generated repository verification accepts the public marketplace transition", () => {
+    withTemporaryDirectory((root) => {
+        const beforeRoot = join(root, "before");
+        const marketplaceRoot = join(root, "marketplace");
+        generateDistributionFixture({
+            repositoryRoot,
+            outputRoot: beforeRoot,
+            version: "0.0.1-fixture",
+        });
+        generatePublicMarketplaceDistribution({
+            repositoryRoot,
+            outputRoot: marketplaceRoot,
+            version: "0.2.0",
+        });
+        installControlPlane(marketplaceRoot);
+        for (const check of distributionCheckNames) {
+            const result = verifyDistributionCheck({
+                root: marketplaceRoot,
+                check,
+                beforeRoot,
+            });
+            assert.deepEqual(result, {
+                check,
+                status: "PASS",
+                supporting: false,
+            });
+        }
+    });
+});
+
+test("generated repository verification rejects marketplace support drift", () => {
+    withTemporaryDirectory((root) => {
+        const marketplaceRoot = join(root, "marketplace");
+        generatePublicMarketplaceDistribution({
+            repositoryRoot,
+            outputRoot: marketplaceRoot,
+            version: "0.2.0",
+        });
+        const manifestPath = join(
+            marketplaceRoot,
+            "distribution-manifest.json",
+        );
+        const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+        manifest.supportGranted = true;
+        writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+        assert.throws(
+            () =>
+                verifyDistributionCheck({
+                    root: marketplaceRoot,
+                    check: "fixture-provenance-record",
+                }),
+            /Marketplace provenance or eligibility state changed/,
+        );
     });
 });
 
