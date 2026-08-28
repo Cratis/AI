@@ -3015,7 +3015,9 @@
       "status": "added"
     }
   ],
-  "admittedUntracked": [],
+  "admittedUntracked": [
+    "distribution/evidence/registry-fundamentals-samples-canary-0.1.1-2026-08-28.json"
+  ],
   "excludedRuntimePrefixes": [
     ".pi/delegate/",
     ".pi/fusion/",
@@ -4484,8 +4486,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 67,
-      "expectedPathsDigest": "95ba7956af3343791c1f224d6eca8f644766ada2a7c22c6b6b35bb9208628d1e"
+      "expectedPathCount": 68,
+      "expectedPathsDigest": "44d1de38d8b2e53269fc1499441728d8a0586740c0bc5c3a5181037ff3161942"
     },
     {
       "excludePathPatterns": [],

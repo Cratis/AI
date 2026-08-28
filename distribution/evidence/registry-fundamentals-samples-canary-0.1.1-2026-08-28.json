@@ -1,0 +1,87 @@
+{
+  "schemaVersion": "1.0.0",
+  "observedOn": "2026-08-28",
+  "state": "REAL_REGISTRY_SAMPLES_CANARY_PASS_NON_SUPPORTING",
+  "repository": "https://github.com/Cratis/Samples",
+  "repositoryRevision": "c8d149adb8ffc2728f0c54886ad060a27048faa3",
+  "scope": "Chronicle/Backend",
+  "profileId": "public-fundamentals",
+  "targetId": "cratis-fundamentals-concept",
+  "sourceRevision": "b53caa555b9a3f05ba1462b86202fe3ccb8a9470",
+  "sourceContentDigest": "9e537c48a95c414709008c69ebfb616354d60992578ddd9da3d7dc7308c42caa",
+  "package": {
+    "name": "@cratis/ai-fundamentals",
+    "version": "0.1.1",
+    "archiveSha256": "08330c9ce7f8c1e754002007e12e08dd97cb499775a43fb54e1819c102202602",
+    "sourceCommit": "42236fb28dda494392200a255c0a914ada3a8961",
+    "provenance": "https://registry.npmjs.org/-/npm/v1/attestations/@cratis%2fai-fundamentals@0.1.1"
+  },
+  "isolation": {
+    "nugetCache": "temporary-empty-cache",
+    "piHome": "temporary-empty-home",
+    "samplesCheckout": "detached-clean-worktree"
+  },
+  "results": [
+    {
+      "gate": "isolated-nuget-restore",
+      "status": "PASS",
+      "logSha256": "ce40faa700754f7090b014a67a6793dfa1e8c86092955d39ac69c94b282c0533"
+    },
+    {
+      "gate": "debug-specifications",
+      "status": "PASS",
+      "passed": 4,
+      "failed": 0,
+      "logSha256": "e8075f67879aa87daf7557d7d2933038a518f32047e99ba1e82a1939667bc1b9"
+    },
+    {
+      "gate": "release-specifications",
+      "status": "PASS",
+      "passed": 4,
+      "failed": 0,
+      "logSha256": "d8ef259e827fcc62a193f80318513eae3dc63d5f97a03e22db0ebb758802aaf8"
+    },
+    {
+      "gate": "pi-install-and-discovery",
+      "status": "PASS",
+      "installLogSha256": "d4945323dc8c9fc07324df9012a8a9db0952477763a62e6eb53b7afa4e05b1ad",
+      "listLogSha256": "a809669b5d8f858f927ad1d049aa35a87256c69260c660317639e24f96bbde2a"
+    },
+    {
+      "gate": "concept-guidance-alignment",
+      "status": "PASS",
+      "evidence": "TimelineEntryText derives from ConceptAs<string>."
+    },
+    {
+      "gate": "event-source-identity-guidance-alignment",
+      "status": "PASS",
+      "evidence": "TimelineId derives from EventSourceId<Guid>."
+    },
+    {
+      "gate": "event-source-id-omission",
+      "status": "PASS",
+      "evidence": "TimelineEntryRecorded does not carry TimelineId, EventSourceId, or Guid."
+    },
+    {
+      "gate": "pi-remove-and-settings-cleanup",
+      "status": "PASS",
+      "removeLogSha256": "0cb67fb702ca70aea6f00c5eb9cff5667450eb087867fe69969b9f52f473b5ba",
+      "listLogSha256": "97b79322c8820b3eb74b04575cf8151359ba74ba5bec6bf48ce26480414de561"
+    },
+    {
+      "gate": "worktree-preservation",
+      "status": "PASS",
+      "evidence": "git status --porcelain remained empty after restore, specs, package install, and removal."
+    }
+  ],
+  "limitations": [
+    "No model response was invoked or graded.",
+    "Analyzer warnings remain in pre-existing sample source and specification style.",
+    "This canary validates Pi package lifecycle and exact guidance alignment only.",
+    "This evidence grants no support, stable promotion, marketplace, or broad rollout claim."
+  ],
+  "installationSupported": false,
+  "behaviorSupported": false,
+  "supportGranted": false,
+  "promotionEligible": false
+}
