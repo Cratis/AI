@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "593581a9553d2ca2549d6afd8ccdeafff3a93333cf2e83f251206ed60f33458a",
+  "indexDigest": "804adbc0715e948e8dadb4a5c8d315cb12d1e8b91da1ad3d73c50b25f49fa3d6",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -173,6 +173,10 @@
     {
       "path": ".gitignore",
       "status": "modified"
+    },
+    {
+      "path": ".gitleaks.toml",
+      "status": "added"
     },
     {
       "path": "Documentation/.markdownlint.json",
@@ -612,7 +616,7 @@
     },
     {
       "path": "catalog/v2/repository-inventory.json",
-      "status": "added"
+      "status": "unmerged"
     },
     {
       "path": "catalog/v2/source-contracts.json",
@@ -3024,6 +3028,7 @@
       "sourcePathPatterns": [
         ".gitattributes",
         ".gitignore",
+        ".gitleaks.toml",
         "LICENSE",
         "README.md"
       ],
@@ -3039,8 +3044,8 @@
       "evidenceIds": [
         "repo-main-b795d53"
       ],
-      "expectedPathCount": 4,
-      "expectedPathsDigest": "afe74be8573bd6b2bbaf6cb00ab97dd574334d3b9cf74980d60cdc96ec3e59fc"
+      "expectedPathCount": 5,
+      "expectedPathsDigest": "8caa01de1b913d15c864daef16c57d13fc2a99a19e9a23e63f0ceb8dddfd3c78"
     },
     {
       "excludePathPatterns": [],
@@ -4369,8 +4374,8 @@
         "reevaluation-authority"
       ],
       "generator": "tooling/generate-catalog-v2.mjs, tooling/generate-component-catalogs.mjs, tooling/generate-support.mjs, tooling/generate-ecosystem-artifact-coverage.mjs, and tooling/generate-repository-inventory.mjs",
-      "expectedPathCount": 11,
-      "expectedPathsDigest": "13e5cefbee41ff9fea3e2d5980b943de02937e695290e80b4ae9d9c6bee866fa"
+      "expectedPathCount": 13,
+      "expectedPathsDigest": "235a23d4ee9b013cda25b00cc6d287a85de92e4ce6ff52ed933ddd769b67dcf7"
     },
     {
       "excludePathPatterns": [],
