@@ -198,6 +198,20 @@ S9/S10 lane, including real consumer lifecycle canaries, release evidence, and
 explicit support approval. Until those gates pass, the package remains an
 unsupported evaluation endpoint.
 
+## Native marketplace installation
+
+[Cratis/AI.Distribution v0.2.0](https://github.com/Cratis/AI.Distribution/releases/tag/v0.2.0)
+provides one 34-skill `public-cratis-ai` root for Agent Skills, Agent Plugin,
+Claude Code, Codex, GitHub Copilot, Gemini CLI, Kiro, and Pi. The Distribution
+README contains exact version-pinned commands. Claude, Codex, Copilot, and Pi
+public install/discovery/remove canaries pass; Gemini gallery discovery is
+enabled. OpenAI and Cursor packages are prepared release assets but still require
+owner-authenticated vendor submission and review.
+
+This remains an unsupported `0.x` evaluation distribution. Marketplace
+availability does not imply behavior support, broad-rollout approval, or a
+stable support claim.
+
 ## Evaluation artifacts
 
 [Cratis/AI.Distribution v0.1.0](https://github.com/Cratis/AI.Distribution/releases/tag/v0.1.0)
