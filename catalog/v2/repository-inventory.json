@@ -616,7 +616,7 @@
     },
     {
       "path": "catalog/v2/repository-inventory.json",
-      "status": "unmerged"
+      "status": "added"
     },
     {
       "path": "catalog/v2/source-contracts.json",
@@ -4374,8 +4374,8 @@
         "reevaluation-authority"
       ],
       "generator": "tooling/generate-catalog-v2.mjs, tooling/generate-component-catalogs.mjs, tooling/generate-support.mjs, tooling/generate-ecosystem-artifact-coverage.mjs, and tooling/generate-repository-inventory.mjs",
-      "expectedPathCount": 13,
-      "expectedPathsDigest": "235a23d4ee9b013cda25b00cc6d287a85de92e4ce6ff52ed933ddd769b67dcf7"
+      "expectedPathCount": 11,
+      "expectedPathsDigest": "13e5cefbee41ff9fea3e2d5980b943de02937e695290e80b4ae9d9c6bee866fa"
     },
     {
       "excludePathPatterns": [],
