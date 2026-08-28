@@ -234,6 +234,30 @@ test("normal release stages a support-free 0.x package for latest", () => {
     });
 });
 
+test("merged Samples registry canary remains exact and non-supporting", () => {
+    const evidence = JSON.parse(
+        readFileSync(
+            "distribution/evidence/registry-fundamentals-samples-canary-0.1.1-2026-08-28.json",
+            "utf8",
+        ),
+    );
+    assert.equal(
+        evidence.state,
+        "REAL_REGISTRY_SAMPLES_CANARY_PASS_NON_SUPPORTING",
+    );
+    assert.equal(
+        evidence.repositoryRevision,
+        "c8d149adb8ffc2728f0c54886ad060a27048faa3",
+    );
+    assert.equal(evidence.package.version, "0.1.1");
+    assert.equal(evidence.results.length, 9);
+    assert(evidence.results.every((result) => result.status === "PASS"));
+    assert.equal(evidence.installationSupported, false);
+    assert.equal(evidence.behaviorSupported, false);
+    assert.equal(evidence.supportGranted, false);
+    assert.equal(evidence.promotionEligible, false);
+});
+
 test("npm staging rejects 1.x and malformed versions", () => {
     withTemporaryDirectory((root) => {
         for (const version of [

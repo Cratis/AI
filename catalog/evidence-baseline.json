@@ -528,6 +528,10 @@
       "digest": "345fdacc6d907aa701785d4e9306959282baa2d196e81ab925626acbe3e50219"
     },
     {
+      "repositoryPath": "distribution/evidence/registry-fundamentals-samples-canary-0.1.1-2026-08-28.json",
+      "digest": "720cb899eec49248a22aba195923b8098ecfce793b4054c26481c1296ebce60d"
+    },
+    {
       "repositoryPath": "distribution/evidence/s5b-passive-host-static-generation-2026-08-25.json",
       "digest": "d619e16b71976284c5812319a27abc612a92645d817e8a6d88aa27929c75ea9e"
     },

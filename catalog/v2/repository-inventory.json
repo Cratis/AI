@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "804adbc0715e948e8dadb4a5c8d315cb12d1e8b91da1ad3d73c50b25f49fa3d6",
+  "indexDigest": "dd85ba8b4d9050086c28e1fbfa21a0e9b79893234b2fc365c64fd336b35f7956",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -736,6 +736,10 @@
     },
     {
       "path": "distribution/evidence/real-samples-fundamentals-preview-canary-2026-08-23.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/evidence/registry-fundamentals-samples-canary-0.1.1-2026-08-28.json",
       "status": "added"
     },
     {
@@ -4484,8 +4488,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 67,
-      "expectedPathsDigest": "95ba7956af3343791c1f224d6eca8f644766ada2a7c22c6b6b35bb9208628d1e"
+      "expectedPathCount": 68,
+      "expectedPathsDigest": "44d1de38d8b2e53269fc1499441728d8a0586740c0bc5c3a5181037ff3161942"
     },
     {
       "excludePathPatterns": [],
