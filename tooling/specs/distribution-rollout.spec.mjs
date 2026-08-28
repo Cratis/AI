@@ -47,6 +47,12 @@ test("rollout policy keeps production promotion and retirement blocked", () => {
         "cratis-fundamentals-concept-preview",
     ]);
     assert.equal(policy.generatedRepository.botOnlyWrites, true);
+    assert.equal(policy.publicEvaluationMarketplace.enabled, true);
+    assert.equal(policy.publicEvaluationMarketplace.profileId, "public-cratis-ai");
+    assert.equal(policy.publicEvaluationMarketplace.publicationEligible, true);
+    assert.equal(policy.publicEvaluationMarketplace.installationSupported, false);
+    assert.equal(policy.publicEvaluationMarketplace.supportGranted, false);
+    assert.equal(policy.publicEvaluationMarketplace.promotionEligible, false);
     assert.equal(policy.canary.productionTargetsEnabled, false);
     assert.equal(policy.releaseOnMergeAutomation.mergeToMainIsApproval, true);
     assert.equal(policy.releaseOnMergeAutomation.canaryBeforePublication, true);

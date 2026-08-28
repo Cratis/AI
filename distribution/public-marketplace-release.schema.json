@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cratis/AI/distribution/public-marketplace-release.schema.json",
+  "title": "Cratis AI public marketplace evaluation release",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "schemaPath",
+    "schemaSha256",
+    "state",
+    "version",
+    "profileId",
+    "packageName",
+    "description",
+    "sourceCommit",
+    "targetCount",
+    "skillCount",
+    "selectedHarnesses",
+    "marketplaceChannels",
+    "installationAvailable",
+    "installationSupported",
+    "supportGranted",
+    "promotionEligible"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "schemaPath": { "const": "distribution/public-marketplace-release.schema.json" },
+    "schemaSha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "state": { "const": "PUBLIC_EVALUATION_MARKETPLACE" },
+    "version": { "type": "string", "pattern": "^0\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)$" },
+    "profileId": { "const": "public-cratis-ai" },
+    "packageName": { "const": "@cratis/ai" },
+    "description": { "type": "string", "minLength": 1 },
+    "sourceCommit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "targetCount": { "const": 34 },
+    "skillCount": { "const": 34 },
+    "selectedHarnesses": {
+      "type": "array",
+      "minItems": 9,
+      "maxItems": 9,
+      "uniqueItems": true,
+      "items": {
+        "enum": ["agent-skills", "agent-plugin", "claude", "codex", "copilot", "cursor", "gemini", "kiro", "pi"]
+      }
+    },
+    "marketplaceChannels": {
+      "type": "array",
+      "minItems": 9,
+      "maxItems": 9,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "agent-skills",
+          "agent-plugin",
+          "claude-code",
+          "codex-openai-submission",
+          "github-copilot",
+          "cursor-submission",
+          "gemini-cli",
+          "kiro",
+          "pi-git-package"
+        ]
+      }
+    },
+    "installationAvailable": { "const": true },
+    "installationSupported": { "const": false },
+    "supportGranted": { "const": false },
+    "promotionEligible": { "const": false }
+  }
+}

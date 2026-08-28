@@ -163,6 +163,10 @@ function matchesKnownPattern(value, pattern) {
         case "^[a-f0-9]{64}$":
         case "^[0-9a-f]{64}$":
             return /^[a-f0-9]{64}$/.test(value);
+        case "^0\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)$":
+            return /^0\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)$/.test(
+                value,
+            );
         case "^0\\.0\\.(?:0|[1-9][0-9]*)-candidate\\.(?:0|[1-9][0-9]*)$":
             return /^0\.0\.(?:0|[1-9][0-9]*)-candidate\.(?:0|[1-9][0-9]*)$/.test(
                 value,

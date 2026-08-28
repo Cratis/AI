@@ -60,7 +60,13 @@ export function createClaudePluginManifest({ name, version, description }) {
     };
 }
 
-export function createAgentPluginManifest({ name, version, description }) {
+export function createAgentPluginManifest({
+    name,
+    version,
+    description,
+    homepage = "https://cratis.io/ai",
+    repository = "https://github.com/Cratis/AI",
+}) {
     return {
         $schema: "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
         name,
@@ -70,8 +76,8 @@ export function createAgentPluginManifest({ name, version, description }) {
             name: "Cratis",
             url: "https://cratis.io",
         },
-        homepage: "https://cratis.io/ai",
-        repository: "https://github.com/Cratis/AI",
+        homepage,
+        repository,
         license: "MIT",
         keywords: ["cratis", "agent-skills"],
     };
@@ -180,6 +186,8 @@ function metadataFilesForHarness(harness, options) {
         description,
         codexInstallationPolicy,
         piPrivate,
+        homepage = "https://cratis.io/ai",
+        repositoryUrl = "https://github.com/Cratis/AI",
     } = options;
     const files = [];
     const add = (path, value) => {
@@ -194,6 +202,8 @@ function metadataFilesForHarness(harness, options) {
                     name: profileId,
                     version,
                     description,
+                    homepage,
+                    repository: repositoryUrl,
                 }),
             );
             break;
@@ -270,6 +280,8 @@ function metadataFilesForHarness(harness, options) {
                     name: profileId,
                     version,
                     description,
+                    homepage,
+                    repository: repositoryUrl,
                 }),
             );
             break;
@@ -290,9 +302,9 @@ function metadataFilesForHarness(harness, options) {
                 license: "MIT",
                 repository: {
                     type: "git",
-                    url: "https://github.com/Cratis/AI",
+                    url: repositoryUrl,
                 },
-                homepage: "https://cratis.io/ai",
+                homepage,
                 files: ["skills"],
                 keywords: ["pi-package", "cratis"],
                 pi: { skills: ["./skills"] },

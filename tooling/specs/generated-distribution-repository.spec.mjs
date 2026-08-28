@@ -102,6 +102,33 @@ test("generated repository contract keeps remote authority and production blocke
         preserveDuringPayloadReplacement: true,
         releaseEligible: false,
     });
+    assert.deepEqual(contract.publicEvaluationMarketplace, {
+        enabled: true,
+        profileId: "public-cratis-ai",
+        packageName: "@cratis/ai",
+        versionPattern: "^0\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)$",
+        generator: "tooling/generate-public-marketplace-distribution.mjs",
+        stager: "tooling/stage-public-marketplace-repository.mjs",
+        sourceArtifactId: "candidate-passive-public-package",
+        targetCount: 34,
+        selfHostedChannels: [
+            "agent-skills",
+            "agent-plugin",
+            "claude-code",
+            "github-copilot",
+            "gemini-cli",
+            "kiro",
+            "pi-git-package",
+        ],
+        vendorPortalHandoffs: [
+            "openai-skills-only-plugin",
+            "cursor-agent-plugin",
+        ],
+        publicationEligible: true,
+        installationSupported: false,
+        supportGranted: false,
+        promotionEligible: false,
+    });
     assert.deepEqual(contract.requiredChecks, [
         ...rolloutPolicy.candidate.requiredChecks,
         "canary-rollback-simulation",

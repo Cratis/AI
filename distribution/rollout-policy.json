@@ -27,6 +27,28 @@
       "pack-install-smoke-uninstall"
     ]
   },
+  "publicEvaluationMarketplace": {
+    "enabled": true,
+    "profileId": "public-cratis-ai",
+    "versionChannel": "0.x.y",
+    "selfHostedChannels": [
+      "agent-skills",
+      "agent-plugin",
+      "claude-code",
+      "github-copilot",
+      "gemini-cli",
+      "kiro",
+      "pi-git-package"
+    ],
+    "vendorPortalHandoffs": [
+      "openai-skills-only-plugin",
+      "cursor-agent-plugin"
+    ],
+    "publicationEligible": true,
+    "installationSupported": false,
+    "supportGranted": false,
+    "promotionEligible": false
+  },
   "canary": {
     "enabledTargets": [
       "local-fixture-simulator"
