@@ -2421,12 +2421,12 @@
       "canonicalSources": [
         {
           "path": ".ai/skills/event-type-migrations",
-          "digest": "010a81cb10539f66d6bf0dd782acf5bec3383dbf29f015b3eac59d5bafc114bd",
+          "digest": "77b55e9cb4916e7e70afbbd88a2948bececde3547c18068716daa36176b0ed67",
           "ownership": "owner",
           "ownerComponentId": "cratis-chronicle-event-type-migration"
         }
       ],
-      "contentDigest": "f1bdbb75ed87cc97d9421dae480fa637317e4b826f76bc8766d826111264d3db",
+      "contentDigest": "a93f09c1253b8e7701ebcd41946e719f484f94f338fbb4daaa134c61ee41b45f",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -5487,12 +5487,12 @@
       "canonicalSources": [
         {
           "path": ".ai/rules/general.md",
-          "digest": "3c3248b6e3b65d898e17b1dbad65aac36e8d363164e692671e3e5966b73046da",
+          "digest": "b48af74e4bbd01e9b8798c7b7a94e7ce3ea0d423ea1966a94079d98f9f120081",
           "ownership": "owner",
           "ownerComponentId": "cratis-instruction-general"
         }
       ],
-      "contentDigest": "90b968642cf0c98aca3d438949aeea935defb48033dd388ddce04ef65390bf03",
+      "contentDigest": "e171f34a8e7c09134938a0f0c4b1e10b0c08e7b3a915639fbea0bdc54882ec61",
       "owner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "classification": {
