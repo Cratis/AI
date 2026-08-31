@@ -139,6 +139,16 @@
       "confidence": "high"
     },
     {
+      "id": "chronicle-event-type-migrations-parity-source-c4c63da",
+      "officialUrl": "https://github.com/Cratis/AI/tree/c4c63dadfe57276a1a53c4d76bc7f9683c4b48a4/.ai/skills/event-type-migrations",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-08-31",
+      "expiresOn": "2027-08-31",
+      "applicableVersion": "c4c63dadfe57276a1a53c4d76bc7f9683c4b48a4",
+      "confidence": "high",
+      "immutableRevision": "c4c63dadfe57276a1a53c4d76bc7f9683c4b48a4"
+    },
+    {
       "id": "chronicle-event-type-migrations-value-map-source-ed28ee6",
       "officialUrl": "https://github.com/Cratis/AI/tree/ed28ee63c97fbe8c1ad326f6d1b48b1e0efea837/.ai/skills/event-type-migrations",
       "sourceKind": "repository-snapshot",

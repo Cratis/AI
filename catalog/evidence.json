@@ -88,6 +88,12 @@
       "immutableRevision": "ed28ee63c97fbe8c1ad326f6d1b48b1e0efea837"
     },
     {
+      "id": "source-chronicle-event-type-migrations-parity-source-c4c63da",
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/c4c63dadfe57276a1a53c4d76bc7f9683c4b48a4/.ai/skills/event-type-migrations",
+      "immutableRevision": "c4c63dadfe57276a1a53c4d76bc7f9683c4b48a4"
+    },
+    {
       "id": "source-engineering-docs-authoring-source-f58bcf7",
       "kind": "repository-snapshot",
       "locator": "https://github.com/Cratis/AI/tree/f58bcf7f5cc9fc0e11305ada3b5ecb6fa20953e9/engineering/skills/cratis-engineering-docs-authoring",
@@ -1225,6 +1231,43 @@
         "officialUrl": "https://github.com/Cratis/AI/tree/ed28ee63c97fbe8c1ad326f6d1b48b1e0efea837/.ai/skills/event-type-migrations",
         "sourceKind": "repository-snapshot",
         "applicableVersion": "ed28ee63c97fbe8c1ad326f6d1b48b1e0efea837"
+      }
+    },
+    {
+      "id": "chronicle-event-type-migrations-parity-source-c4c63da",
+      "sourceId": "source-chronicle-event-type-migrations-parity-source-c4c63da",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "target",
+        "id": "cratis-chronicle-event-type-migration",
+        "version": "c4c63dadfe57276a1a53c4d76bc7f9683c4b48a4"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "source-provenance",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Source provenance for the event type migration skill at the revision that brought it in line with Chronicle.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-31",
+      "validThrough": "2027-08-31",
+      "confidence": "high",
+      "limitations": [
+        "This observation is limited to its exact recorded subject, version, digest, scope, and environment and grants no unrecorded assurance."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/c4c63dadfe57276a1a53c4d76bc7f9683c4b48a4/.ai/skills/event-type-migrations",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "c4c63dadfe57276a1a53c4d76bc7f9683c4b48a4"
       }
     },
     {

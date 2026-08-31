@@ -516,13 +516,13 @@
       "bundledPaths": [
         ".ai/skills/event-type-migrations/SKILL.md"
       ],
-      "sourceRevision": "ed28ee63c97fbe8c1ad326f6d1b48b1e0efea837",
-      "contentDigest": "010a81cb10539f66d6bf0dd782acf5bec3383dbf29f015b3eac59d5bafc114bd",
+      "sourceRevision": "c4c63dadfe57276a1a53c4d76bc7f9683c4b48a4",
+      "contentDigest": "77b55e9cb4916e7e70afbbd88a2948bececde3547c18068716daa36176b0ed67",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
         "reevaluation-authority",
-        "chronicle-event-type-migrations-value-map-source-ed28ee6"
+        "chronicle-event-type-migrations-parity-source-c4c63da"
       ]
     },
     {
