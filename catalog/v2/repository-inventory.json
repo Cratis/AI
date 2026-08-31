@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "c2e11d91b4df229dc76e8786ed70cbef6f97808df4d192810820cce889548504",
+  "indexDigest": "03e98484786e0c9e27952218ba8a16633da626946e2c908ab333b5d39d87c57a",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -60,6 +60,10 @@
     },
     {
       "path": ".ai/skills/add-concept/SKILL.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/event-type-migrations/SKILL.md",
       "status": "modified"
     },
     {
