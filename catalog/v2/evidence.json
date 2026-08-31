@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "asOf": "2026-08-25",
+  "asOf": "2026-08-31",
   "generatedBy": "tooling/generate-catalog-v2.mjs",
   "evidence": [
     {
@@ -137,6 +137,16 @@
       "expiresOn": "2026-11-23",
       "applicableVersion": "current-documentation-2026-08-25",
       "confidence": "high"
+    },
+    {
+      "id": "chronicle-event-type-migrations-value-map-source-ed28ee6",
+      "officialUrl": "https://github.com/Cratis/AI/tree/ed28ee63c97fbe8c1ad326f6d1b48b1e0efea837/.ai/skills/event-type-migrations",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-08-31",
+      "expiresOn": "2027-08-31",
+      "applicableVersion": "ed28ee63c97fbe8c1ad326f6d1b48b1e0efea837",
+      "confidence": "high",
+      "immutableRevision": "ed28ee63c97fbe8c1ad326f6d1b48b1e0efea837"
     },
     {
       "id": "chronicle-mcp-inspection-source-5997b28",

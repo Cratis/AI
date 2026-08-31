@@ -2421,12 +2421,12 @@
       "canonicalSources": [
         {
           "path": ".ai/skills/event-type-migrations",
-          "digest": "4019c27bef563a3268b40670774f6ed45953bc3c2d38840d0390f6b8c314cb31",
+          "digest": "010a81cb10539f66d6bf0dd782acf5bec3383dbf29f015b3eac59d5bafc114bd",
           "ownership": "owner",
           "ownerComponentId": "cratis-chronicle-event-type-migration"
         }
       ],
-      "contentDigest": "679091f0610da1785da4df98d08d06107267ce113454da4adc7ae1420c75021b",
+      "contentDigest": "f1bdbb75ed87cc97d9421dae480fa637317e4b826f76bc8766d826111264d3db",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
