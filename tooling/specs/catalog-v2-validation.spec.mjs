@@ -810,7 +810,7 @@ test("stale and future-dated evidence fail and unsupported local facts remain ex
         ],
     );
     catalogs.evidence.evidence[0].expiresOn = "2026-08-19";
-    catalogs.evidence.evidence[1].verifiedOn = "2026-08-26";
+    catalogs.evidence.evidence[1].verifiedOn = "2026-09-01";
     const errors = validateEvidenceAndCoverage(catalogs);
     assert(errors.some((error) => error.includes("expired")));
     assert(errors.some((error) => error.includes("verified after")));

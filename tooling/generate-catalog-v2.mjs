@@ -215,6 +215,14 @@ const sourceOverrides = new Map([
         },
     ],
     [
+        "event-type-migrations",
+        {
+            sourcePath: ".ai/skills/event-type-migrations",
+            sourceRevision: "ed28ee63c97fbe8c1ad326f6d1b48b1e0efea837",
+            evidenceId: "chronicle-event-type-migrations-value-map-source-ed28ee6",
+        },
+    ],
+    [
         "ship-changes",
         {
             sourcePath: ".ai/skills/ship-changes",

@@ -55,7 +55,7 @@ Modeled or planned components and projections are catalog metadata only; they ar
 
 ## Computed ecosystem support
 
-As of 2026-08-25, technical tiers are computed from active normalized evidence; expired and future evidence cannot satisfy gates. Marketplace listing is orthogonal.
+As of 2026-08-31, technical tiers are computed from active normalized evidence; expired and future evidence cannot satisfy gates. Marketplace listing is orthogonal.
 
 - unsupported: 0
 - documented: 24

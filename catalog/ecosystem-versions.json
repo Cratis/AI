@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "verifiedOn": "2026-08-25",
+  "verifiedOn": "2026-08-31",
   "policy": "official-sources-only",
   "ecosystems": [
     {
@@ -200,7 +200,7 @@
         {
           "url": "https://registry.npmjs.org/@github/copilot/latest",
           "kind": "registry",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         }
       ],
       "localEvidence": [
@@ -233,7 +233,7 @@
         {
           "url": "https://registry.npmjs.org/@openai/codex/latest",
           "kind": "registry",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         }
       ]
     },
@@ -273,7 +273,7 @@
         {
           "url": "https://registry.npmjs.org/@anthropic-ai/claude-code/latest",
           "kind": "registry",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         }
       ],
       "localEvidence": [
@@ -311,7 +311,7 @@
         {
           "url": "https://registry.npmjs.org/@google/gemini-cli/latest",
           "kind": "registry",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         }
       ],
       "localEvidence": [
@@ -499,7 +499,7 @@
         {
           "url": "https://registry.npmjs.org/@earendil-works/pi-coding-agent/latest",
           "kind": "registry",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         }
       ],
       "localEvidence": [
@@ -730,17 +730,17 @@
         {
           "url": "https://docs.cline.bot/customization/skills",
           "kind": "official-documentation",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         },
         {
           "url": "https://docs.cline.bot/features/cline-rules",
           "kind": "official-documentation",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         },
         {
           "url": "https://github.com/cline/cline/blob/main/apps/cli/CHANGELOG.md",
           "kind": "official-repository",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         }
       ]
     },
@@ -757,12 +757,12 @@
         {
           "url": "https://github.com/RooCodeInc/Roo-Code",
           "kind": "official-repository",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         },
         {
           "url": "https://roocodeinc.github.io/Roo-Code/features/skills/",
           "kind": "official-documentation",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         }
       ]
     },
@@ -779,12 +779,12 @@
         {
           "url": "https://github.com/Kilo-Org/kilocode/blob/main/packages/kilo-docs/pages/customize/skills.md",
           "kind": "official-repository",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         },
         {
           "url": "https://github.com/Kilo-Org/kilocode/releases/tag/v7.4.23",
           "kind": "official-repository",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         }
       ]
     },
@@ -801,12 +801,12 @@
         {
           "url": "https://goose-docs.ai/docs/guides/context-engineering/using-skills/",
           "kind": "official-documentation",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         },
         {
           "url": "https://github.com/block/goose/releases/tag/v1.47.0",
           "kind": "official-repository",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         }
       ]
     },
@@ -823,17 +823,17 @@
         {
           "url": "https://github.com/QwenLM/qwen-code/blob/main/docs/users/features/skills.md",
           "kind": "official-repository",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         },
         {
           "url": "https://github.com/QwenLM/qwen-code/blob/main/docs/users/features/agent-plugins.md",
           "kind": "official-repository",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         },
         {
           "url": "https://registry.npmjs.org/@qwen-code/qwen-code/latest",
           "kind": "registry",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         }
       ]
     },
@@ -850,12 +850,12 @@
         {
           "url": "https://docs.windsurf.com/windsurf/cascade/skills",
           "kind": "official-documentation",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         },
         {
           "url": "https://docs.windsurf.com/windsurf/cascade/mcp",
           "kind": "official-documentation",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         }
       ]
     },
@@ -872,12 +872,12 @@
         {
           "url": "https://docs.replit.com/learn/agent-skills",
           "kind": "official-documentation",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         },
         {
           "url": "https://docs.replit.com/build/connect-via-mcp",
           "kind": "official-documentation",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         }
       ]
     },
@@ -894,12 +894,12 @@
         {
           "url": "https://docs.augmentcode.com/cli/skills",
           "kind": "official-documentation",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         },
         {
           "url": "https://docs.augmentcode.com/cli/plugins",
           "kind": "official-documentation",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         }
       ]
     },
@@ -916,12 +916,12 @@
         {
           "url": "https://ampcode.com/manual",
           "kind": "official-documentation",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         },
         {
           "url": "https://ampcode.com/news/neo",
           "kind": "official-documentation",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         }
       ]
     },
@@ -938,12 +938,12 @@
         {
           "url": "https://docs.factory.ai/harness/skills",
           "kind": "official-documentation",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         },
         {
           "url": "https://docs.factory.ai/harness/plugins",
           "kind": "official-documentation",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         }
       ]
     },
@@ -960,12 +960,12 @@
         {
           "url": "https://docs.openhands.dev/overview/skills",
           "kind": "official-documentation",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         },
         {
           "url": "https://github.com/OpenHands/OpenHands/releases/tag/v1.15.0",
           "kind": "official-repository",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         }
       ]
     },
@@ -982,12 +982,12 @@
         {
           "url": "https://aider.chat/docs/usage/conventions.html",
           "kind": "official-documentation",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         },
         {
           "url": "https://pypi.org/pypi/aider-chat/0.86.2/json",
           "kind": "registry",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         }
       ]
     },
@@ -1004,12 +1004,12 @@
         {
           "url": "https://docs.continue.dev/index",
           "kind": "official-documentation",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         },
         {
           "url": "https://github.com/continuedev/continue/blob/main/README.md",
           "kind": "official-repository",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         }
       ]
     },
@@ -1026,12 +1026,12 @@
         {
           "url": "https://aws.amazon.com/blogs/devops/amazon-q-developer-end-of-support-announcement/",
           "kind": "official-documentation",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         },
         {
           "url": "https://kiro.dev/docs/cli/migrating-from-q-developer/",
           "kind": "official-documentation",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         }
       ]
     },
@@ -1048,12 +1048,12 @@
         {
           "url": "https://sourcegraph.com/docs/cody/capabilities/prompts",
           "kind": "official-documentation",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         },
         {
           "url": "https://sourcegraph.com/docs/cody/capabilities/agentic-context-fetching",
           "kind": "official-documentation",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         }
       ]
     },
@@ -1070,12 +1070,12 @@
         {
           "url": "https://docs.tabnine.com/main/getting-started/tabnine-agent/guidelines",
           "kind": "official-documentation",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         },
         {
           "url": "https://docs.tabnine.com/main/getting-started/tabnine-agent/mcp-intro-and-setup",
           "kind": "official-documentation",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         }
       ]
     },
@@ -1092,12 +1092,12 @@
         {
           "url": "https://www.jetbrains.com/help/ai-assistant/configure-project-rules.html",
           "kind": "official-documentation",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         },
         {
           "url": "https://www.jetbrains.com/help/ai-assistant/configure-agent-behavior.html",
           "kind": "official-documentation",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         }
       ]
     },
@@ -1114,12 +1114,12 @@
         {
           "url": "https://learn.microsoft.com/en-us/visualstudio/ide/copilot-agent-mode?view=visualstudio",
           "kind": "official-documentation",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         },
         {
           "url": "https://learn.microsoft.com/en-us/visualstudio/ide/copilot-custom-instructions?view=visualstudio",
           "kind": "official-documentation",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         }
       ]
     },
@@ -1136,12 +1136,12 @@
         {
           "url": "https://docs.devin.ai/product-guides/skills",
           "kind": "official-documentation",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         },
         {
           "url": "https://docs.devin.ai/onboard-devin/agents-md",
           "kind": "official-documentation",
-          "verifiedOn": "2026-08-25"
+          "verifiedOn": "2026-08-31"
         }
       ]
     }
