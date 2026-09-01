@@ -32,7 +32,7 @@ export const componentCatalogPaths = Object.freeze({
 });
 
 const expectedComponentAnchor =
-    "3f99535b97b748d1dc5aa616ae2ace05e6c71b8b925c479773b77d61ae64d053";
+    "5e5907ff8b3b3a5fc2efb40670bd09726a408a0aae01d5359094242366d18400";
 const expectedProjectionAnchor =
     "70f3e05988839ba21247eff528709caf4738f2aa7f637e05e28658ff05902027";
 const expectedProjectionHostAnchor =

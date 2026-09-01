@@ -8782,12 +8782,12 @@
       "canonicalSources": [
         {
           "path": ".ai/rules/pull-requests.md",
-          "digest": "660d7b67b8219eacabcb801eec09f97a0f1b7f6fe8f85f6bf71b96cf37ef8d97",
+          "digest": "8672d47b04ed52f19ea8260469a1ef8476c8ac8681f7d733aa904d09d74ad381",
           "ownership": "owner",
           "ownerComponentId": "cratis-rule-pull-requests"
         }
       ],
-      "contentDigest": "89a97c9dd55762a40464fd4546360e2097cb57a611e7d50d4bc457c612eff77d",
+      "contentDigest": "b466712370662ce1a78a4d3da71ee02aeb49f72204cbdcf2be80960b9e508a20",
       "owner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "classification": {

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generatedBy": "tooling/generate-component-catalogs.mjs",
-  "sourceDigest": "29d558ef139ffe4c2813912f482b1d030720e458910df0e671666562cc2776a6",
+  "sourceDigest": "aa3f0a9663319b1b0ae930d30a75d3075e43cb8743db336e4edd32dba14a6c26",
   "defaultPolicy": "deny",
   "canonicalSourceRoots": [
     ".ai/agents",
@@ -8784,12 +8784,12 @@
       "canonicalSources": [
         {
           "path": ".ai/rules/pull-requests.md",
-          "digest": "660d7b67b8219eacabcb801eec09f97a0f1b7f6fe8f85f6bf71b96cf37ef8d97",
+          "digest": "8672d47b04ed52f19ea8260469a1ef8476c8ac8681f7d733aa904d09d74ad381",
           "ownership": "owner",
           "ownerComponentId": "cratis-rule-pull-requests"
         }
       ],
-      "contentDigest": "89a97c9dd55762a40464fd4546360e2097cb57a611e7d50d4bc457c612eff77d",
+      "contentDigest": "b466712370662ce1a78a4d3da71ee02aeb49f72204cbdcf2be80960b9e508a20",
       "owner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "classification": {
