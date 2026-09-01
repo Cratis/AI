@@ -279,12 +279,13 @@
         ".ai/skills/cratis-react-page/references/dialogs.md",
         ".ai/skills/cratis-react-page/references/mvvm.md"
       ],
-      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-      "contentDigest": "e785b26225b20e5bf4ad9eca1b8e713b63cc1367627f723b7d5a64313c2fddd0",
+      "sourceRevision": "2006490b23dd60a384cd803423fdc59cd395611b",
+      "contentDigest": "989391b660bcb2fb257eb495848172ba9a21cc76841c2aef57c87813c86b9b13",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "cratis-react-page-host-rendered-dialogs-2006490"
       ]
     },
     {
@@ -516,12 +517,13 @@
       "bundledPaths": [
         ".ai/skills/event-type-migrations/SKILL.md"
       ],
-      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-      "contentDigest": "4019c27bef563a3268b40670774f6ed45953bc3c2d38840d0390f6b8c314cb31",
+      "sourceRevision": "c4c63dadfe57276a1a53c4d76bc7f9683c4b48a4",
+      "contentDigest": "77b55e9cb4916e7e70afbbd88a2948bececde3547c18068716daa36176b0ed67",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "chronicle-event-type-migrations-parity-source-c4c63da"
       ]
     },
     {

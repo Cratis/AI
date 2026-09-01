@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "asOf": "2026-08-25",
+  "asOf": "2026-08-31",
   "generatedBy": "tooling/generate-catalog-v2.mjs",
   "evidence": [
     {
@@ -139,6 +139,26 @@
       "confidence": "high"
     },
     {
+      "id": "chronicle-event-type-migrations-parity-source-c4c63da",
+      "officialUrl": "https://github.com/Cratis/AI/tree/c4c63dadfe57276a1a53c4d76bc7f9683c4b48a4/.ai/skills/event-type-migrations",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-08-31",
+      "expiresOn": "2027-08-31",
+      "applicableVersion": "c4c63dadfe57276a1a53c4d76bc7f9683c4b48a4",
+      "confidence": "high",
+      "immutableRevision": "c4c63dadfe57276a1a53c4d76bc7f9683c4b48a4"
+    },
+    {
+      "id": "chronicle-event-type-migrations-value-map-source-ed28ee6",
+      "officialUrl": "https://github.com/Cratis/AI/tree/ed28ee63c97fbe8c1ad326f6d1b48b1e0efea837/.ai/skills/event-type-migrations",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-08-31",
+      "expiresOn": "2027-08-31",
+      "applicableVersion": "ed28ee63c97fbe8c1ad326f6d1b48b1e0efea837",
+      "confidence": "high",
+      "immutableRevision": "ed28ee63c97fbe8c1ad326f6d1b48b1e0efea837"
+    },
+    {
       "id": "chronicle-mcp-inspection-source-5997b28",
       "officialUrl": "https://github.com/Cratis/AI/tree/5997b28c142d9ee489841894e5d21730da5cb5a5/skills/cratis-chronicle-mcp-inspection",
       "sourceKind": "repository-snapshot",
@@ -237,6 +257,16 @@
       "expiresOn": "2026-11-23",
       "applicableVersion": "continue-2.0.0-final-read-only",
       "confidence": "high"
+    },
+    {
+      "id": "cratis-react-page-host-rendered-dialogs-2006490",
+      "officialUrl": "https://github.com/Cratis/AI/tree/2006490b23dd60a384cd803423fdc59cd395611b/.ai/skills/cratis-react-page",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-08-31",
+      "expiresOn": "2027-08-31",
+      "applicableVersion": "2006490b23dd60a384cd803423fdc59cd395611b",
+      "confidence": "high",
+      "immutableRevision": "2006490b23dd60a384cd803423fdc59cd395611b"
     },
     {
       "id": "cursor-plugins-source-1",

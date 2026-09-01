@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "asOf": "2026-08-25",
+  "asOf": "2026-08-31",
   "defaultPolicy": "deny",
   "supportPolicy": "Research and compatibility dispositions are not support claims.",
   "hosts": [

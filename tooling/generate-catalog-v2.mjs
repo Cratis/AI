@@ -215,6 +215,22 @@ const sourceOverrides = new Map([
         },
     ],
     [
+        "event-type-migrations",
+        {
+            sourcePath: ".ai/skills/event-type-migrations",
+            sourceRevision: "c4c63dadfe57276a1a53c4d76bc7f9683c4b48a4",
+            evidenceId: "chronicle-event-type-migrations-parity-source-c4c63da",
+        },
+    ],
+    [
+        "cratis-react-page",
+        {
+            sourcePath: ".ai/skills/cratis-react-page",
+            sourceRevision: "2006490b23dd60a384cd803423fdc59cd395611b",
+            evidenceId: "cratis-react-page-host-rendered-dialogs-2006490",
+        },
+    ],
+    [
         "ship-changes",
         {
             sourcePath: ".ai/skills/ship-changes",

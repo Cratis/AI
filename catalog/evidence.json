@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "asOf": "2026-08-25",
+  "asOf": "2026-08-31",
   "defaultPolicy": "deny",
   "sources": [
     {
@@ -80,6 +80,24 @@
       "kind": "repository-snapshot",
       "locator": "https://github.com/Cratis/AI/tree/6b5388ddc660e8c9ddae0d7aa3ef3b5581a9f979/.ai/skills/ship-changes",
       "immutableRevision": "6b5388ddc660e8c9ddae0d7aa3ef3b5581a9f979"
+    },
+    {
+      "id": "source-chronicle-event-type-migrations-value-map-source-ed28ee6",
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/ed28ee63c97fbe8c1ad326f6d1b48b1e0efea837/.ai/skills/event-type-migrations",
+      "immutableRevision": "ed28ee63c97fbe8c1ad326f6d1b48b1e0efea837"
+    },
+    {
+      "id": "source-chronicle-event-type-migrations-parity-source-c4c63da",
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/c4c63dadfe57276a1a53c4d76bc7f9683c4b48a4/.ai/skills/event-type-migrations",
+      "immutableRevision": "c4c63dadfe57276a1a53c4d76bc7f9683c4b48a4"
+    },
+    {
+      "id": "source-cratis-react-page-host-rendered-dialogs-2006490",
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/2006490b23dd60a384cd803423fdc59cd395611b/.ai/skills/cratis-react-page",
+      "immutableRevision": "2006490b23dd60a384cd803423fdc59cd395611b"
     },
     {
       "id": "source-engineering-docs-authoring-source-f58bcf7",
@@ -1182,6 +1200,117 @@
         "officialUrl": "https://github.com/Cratis/AI/tree/6b5388ddc660e8c9ddae0d7aa3ef3b5581a9f979/.ai/skills/ship-changes",
         "sourceKind": "repository-snapshot",
         "applicableVersion": "6b5388ddc660e8c9ddae0d7aa3ef3b5581a9f979"
+      }
+    },
+    {
+      "id": "chronicle-event-type-migrations-value-map-source-ed28ee6",
+      "sourceId": "source-chronicle-event-type-migrations-value-map-source-ed28ee6",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "target",
+        "id": "cratis-chronicle-event-type-migration",
+        "version": "ed28ee63c97fbe8c1ad326f6d1b48b1e0efea837"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "source-provenance",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Source provenance for the event type migration skill at the revision that added value-map guidance.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-31",
+      "validThrough": "2027-08-31",
+      "confidence": "high",
+      "limitations": [
+        "This observation is limited to its exact recorded subject, version, digest, scope, and environment and grants no unrecorded assurance."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/ed28ee63c97fbe8c1ad326f6d1b48b1e0efea837/.ai/skills/event-type-migrations",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "ed28ee63c97fbe8c1ad326f6d1b48b1e0efea837"
+      }
+    },
+    {
+      "id": "chronicle-event-type-migrations-parity-source-c4c63da",
+      "sourceId": "source-chronicle-event-type-migrations-parity-source-c4c63da",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "target",
+        "id": "cratis-chronicle-event-type-migration",
+        "version": "c4c63dadfe57276a1a53c4d76bc7f9683c4b48a4"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "source-provenance",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Source provenance for the event type migration skill at the revision that brought it in line with Chronicle.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-31",
+      "validThrough": "2027-08-31",
+      "confidence": "high",
+      "limitations": [
+        "This observation is limited to its exact recorded subject, version, digest, scope, and environment and grants no unrecorded assurance."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/c4c63dadfe57276a1a53c4d76bc7f9683c4b48a4/.ai/skills/event-type-migrations",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "c4c63dadfe57276a1a53c4d76bc7f9683c4b48a4"
+      }
+    },
+    {
+      "id": "cratis-react-page-host-rendered-dialogs-2006490",
+      "sourceId": "source-cratis-react-page-host-rendered-dialogs-2006490",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "target",
+        "id": "cratis-arc-react-page",
+        "version": "2006490b23dd60a384cd803423fdc59cd395611b"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "source-provenance",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Source provenance for the React page skill at the revision that added confirmation and busy-indicator guidance.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-31",
+      "validThrough": "2027-08-31",
+      "confidence": "high",
+      "limitations": [
+        "This observation is limited to its exact recorded subject, version, digest, scope, and environment and grants no unrecorded assurance."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/2006490b23dd60a384cd803423fdc59cd395611b/.ai/skills/cratis-react-page",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "2006490b23dd60a384cd803423fdc59cd395611b"
       }
     },
     {

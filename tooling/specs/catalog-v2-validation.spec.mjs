@@ -43,6 +43,15 @@ function loadCatalogs() {
     );
 }
 
+// Dates that are stale or future-dated are only so relative to the catalog's own as-of date, which moves every
+// time evidence is bound. Deriving them keeps this spec testing staleness rather than a date that quietly stops
+// being stale the next time that happens.
+function daysFromAsOf(catalogs, offset) {
+    const date = new Date(`${catalogs.evidence.asOf}T00:00:00Z`);
+    date.setUTCDate(date.getUTCDate() + offset);
+    return date.toISOString().slice(0, 10);
+}
+
 const schema = readCatalog(join(defaultRepositoryRoot, v2SchemaPath));
 
 test("catalog v2 schemas and semantic policy pass for the repository", () => {
@@ -809,8 +818,8 @@ test("stale and future-dated evidence fail and unsupported local facts remain ex
             "openhands-fact-2",
         ],
     );
-    catalogs.evidence.evidence[0].expiresOn = "2026-08-19";
-    catalogs.evidence.evidence[1].verifiedOn = "2026-08-26";
+    catalogs.evidence.evidence[0].expiresOn = daysFromAsOf(catalogs, -1);
+    catalogs.evidence.evidence[1].verifiedOn = daysFromAsOf(catalogs, 1);
     const errors = validateEvidenceAndCoverage(catalogs);
     assert(errors.some((error) => error.includes("expired")));
     assert(errors.some((error) => error.includes("verified after")));
