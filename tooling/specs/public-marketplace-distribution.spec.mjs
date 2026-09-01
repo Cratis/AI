@@ -90,6 +90,8 @@ test("marketplace root contains every first-class install shape", () => {
             "plugins/public-cratis-ai/.claude-plugin/plugin.json",
             "plugins/public-cratis-ai/.codex-plugin/plugin.json",
             "plugins/public-cratis-ai/plugin.json",
+            "assets/cratis-logo.png",
+            "plugins/public-cratis-ai/assets/cratis-logo.png",
             "README.md",
             "submissions/openai.json",
             "submissions/cursor.json",
@@ -102,6 +104,25 @@ test("marketplace root contains every first-class install shape", () => {
                 path,
             );
         }
+        const codexManifest = readJson(
+            join(root, "plugins/public-cratis-ai/.codex-plugin/plugin.json"),
+        );
+        assert.equal(codexManifest.author.name, "SINDRE ALSTAD WILTING");
+        assert.equal(
+            codexManifest.interface.developerName,
+            "SINDRE ALSTAD WILTING",
+        );
+        assert.equal(
+            codexManifest.interface.composerIcon,
+            "./assets/cratis-logo.png",
+        );
+        assert.equal(codexManifest.interface.logo, "./assets/cratis-logo.png");
+        assert.deepEqual(
+            readFileSync(join(root, "assets/cratis-logo.png")),
+            readFileSync(
+                join(root, "plugins/public-cratis-ai/assets/cratis-logo.png"),
+            ),
+        );
         const packageJson = readJson(join(root, "package.json"));
         assert.equal(packageJson.name, "@cratis/ai");
         assert.equal(packageJson.private, false);
@@ -154,6 +175,18 @@ test("canonical skills and plugin copies remain byte-identical", () => {
                 "cratis-studio-mcp-safety-guidance",
             ],
         );
+        assert.equal(
+            provenance.brandAsset.sha256,
+            "da99d76b1513c92617e4f3104437fe8988a3b94cc27d457955eb7e155403b7f6",
+        );
+        assert.deepEqual(provenance.brandAsset.copies, [
+            "assets/cratis-logo.png",
+            "plugins/public-cratis-ai/assets/cratis-logo.png",
+        ]);
+        assert.equal(
+            provenance.openAiInterface.developerName,
+            "SINDRE ALSTAD WILTING",
+        );
         assert.equal(provenance.nativeComponentsIncluded, false);
         assert.equal(provenance.supportGranted, false);
     });
@@ -173,9 +206,15 @@ test("OpenAI and Cursor handoff metadata is complete but non-supporting", () => 
         assert.equal(openAi.negativeTests.length, 3);
         assert.equal(
             openAi.portalReadiness,
-            "OWNER_IDENTITY_AND_LISTING_ASSETS_REQUIRED",
+            "OWNER_IDENTITY_AND_LEGAL_METADATA_REQUIRED",
+        );
+        assert.equal(openAi.developerName, "SINDRE ALSTAD WILTING");
+        assert.equal(
+            openAi.logo,
+            "plugins/public-cratis-ai/assets/cratis-logo.png",
         );
         assert(openAi.requiredOwnerInputs.includes("privacy policy URL"));
+        assert.equal(openAi.requiredOwnerInputs.includes("logo"), false);
         assert.equal(openAi.supportGranted, false);
         assert.equal(cursor.repository, "https://github.com/Cratis/AI.Distribution");
         assert.equal(cursor.pluginManifest, "plugin.json");
@@ -220,6 +259,7 @@ test("vendor portal handoff archive is deterministic and skills-only", () => {
                 "public-cratis-ai/skills/cratis-fundamentals-concept/SKILL.md",
             ),
         );
+        assert(paths.includes("public-cratis-ai/assets/cratis-logo.png"));
         assert.equal(paths.some((path) => path.includes(".mcp.json")), false);
         assert.equal(first.openAi.positiveTestCount, 5);
         assert.equal(first.openAi.negativeTestCount, 3);
