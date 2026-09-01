@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "2877963540fb16572cca83e17793d4daee5da945c62157203b24f500db98c111",
+  "indexDigest": "3ee189195ae5ac17efbdce07acb9a897a4fbd8933ce244529b281dc3ae64b557",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -47,6 +47,10 @@
       "status": "added"
     },
     {
+      "path": ".ai/rules/glossary.md",
+      "status": "modified"
+    },
+    {
       "path": ".ai/rules/local-work-artifacts.md",
       "status": "added"
     },
@@ -67,11 +71,23 @@
       "status": "modified"
     },
     {
+      "path": ".ai/skills/cratis-command/SKILL.md",
+      "status": "modified"
+    },
+    {
       "path": ".ai/skills/cratis-react-page/SKILL.md",
       "status": "modified"
     },
     {
+      "path": ".ai/skills/cross-cutting-properties/SKILL.md",
+      "status": "modified"
+    },
+    {
       "path": ".ai/skills/event-type-migrations/SKILL.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/review-security/SKILL.md",
       "status": "modified"
     },
     {
