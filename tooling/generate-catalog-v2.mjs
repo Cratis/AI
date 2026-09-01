@@ -223,6 +223,14 @@ const sourceOverrides = new Map([
         },
     ],
     [
+        "cratis-react-page",
+        {
+            sourcePath: ".ai/skills/cratis-react-page",
+            sourceRevision: "2006490b23dd60a384cd803423fdc59cd395611b",
+            evidenceId: "engineering-react-page-dialogs-source-2006490",
+        },
+    ],
+    [
         "ship-changes",
         {
             sourcePath: ".ai/skills/ship-changes",

@@ -58,8 +58,8 @@
         {
           "path": ".aiassistant/rules/dialogs.md",
           "sourcePath": ".ai/rules/dialogs.md",
-          "size": 12076,
-          "sha256": "17f4c4978b489c11db38d327668b04e336387db0dccd9f5c97b48be6f636639f"
+          "size": 14453,
+          "sha256": "b7c966adf5cb495472154491fec7c0da2c98112889f9c54e090d6cc4793dcd2e"
         },
         {
           "path": ".aiassistant/rules/documentation-structure-and-formatting.md",
@@ -268,8 +268,8 @@
         {
           "path": ".tabnine/guidelines/dialogs.md",
           "sourcePath": ".ai/rules/dialogs.md",
-          "size": 12076,
-          "sha256": "17f4c4978b489c11db38d327668b04e336387db0dccd9f5c97b48be6f636639f"
+          "size": 14453,
+          "sha256": "b7c966adf5cb495472154491fec7c0da2c98112889f9c54e090d6cc4793dcd2e"
         },
         {
           "path": ".tabnine/guidelines/documentation-structure-and-formatting.md",
@@ -665,14 +665,14 @@
       "canonicalOwnerId": "cratis-rule-dialogs",
       "semanticKind": "rule",
       "sourcePath": ".ai/rules/dialogs.md",
-      "sourceDigest": "678aca0fbb1bbd123d260e1f2abe9235b4833dacd659a35f4076d7f5731cf16e",
+      "sourceDigest": "7343ba6fc18a146885e02bfeea723345df6566a141b11d0a69c0dd50dd8fbd0d",
       "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/dialogs.md",
       "hostId": "jetbrains-ai-assistant",
       "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
       "evidenceIds": [
         "jetbrains-ai-assistant-source-1"
       ],
-      "outputDigest": "17f4c4978b489c11db38d327668b04e336387db0dccd9f5c97b48be6f636639f"
+      "outputDigest": "b7c966adf5cb495472154491fec7c0da2c98112889f9c54e090d6cc4793dcd2e"
     },
     {
       "projectionId": "cratis-rule-dialogs-to-tabnine-rule",
@@ -680,14 +680,14 @@
       "canonicalOwnerId": "cratis-rule-dialogs",
       "semanticKind": "rule",
       "sourcePath": ".ai/rules/dialogs.md",
-      "sourceDigest": "678aca0fbb1bbd123d260e1f2abe9235b4833dacd659a35f4076d7f5731cf16e",
+      "sourceDigest": "7343ba6fc18a146885e02bfeea723345df6566a141b11d0a69c0dd50dd8fbd0d",
       "outputPath": "tabnine-guidelines/.tabnine/guidelines/dialogs.md",
       "hostId": "tabnine",
       "hostAdapterId": "tabnine-host-adapter",
       "evidenceIds": [
         "tabnine-source-1"
       ],
-      "outputDigest": "17f4c4978b489c11db38d327668b04e336387db0dccd9f5c97b48be6f636639f"
+      "outputDigest": "b7c966adf5cb495472154491fec7c0da2c98112889f9c54e090d6cc4793dcd2e"
     },
     {
       "projectionId": "cratis-rule-documentation-structure-and-formatting-to-jetbrains-ai-assistant-rule",

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "asOf": "2026-08-31",
+  "asOf": "2026-09-01",
   "generatedBy": "tooling/generate-support.mjs",
   "defaultPolicy": "deny",
   "publicationEligible": false,

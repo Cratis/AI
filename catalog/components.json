@@ -1920,12 +1920,12 @@
       "canonicalSources": [
         {
           "path": ".ai/skills/cratis-react-page",
-          "digest": "e785b26225b20e5bf4ad9eca1b8e713b63cc1367627f723b7d5a64313c2fddd0",
+          "digest": "989391b660bcb2fb257eb495848172ba9a21cc76841c2aef57c87813c86b9b13",
           "ownership": "owner",
           "ownerComponentId": "cratis-arc-react-page"
         }
       ],
-      "contentDigest": "1b7b6531376353e16b9c9fc770ed0e71e5a6376b7ac953a55a2e1a648c26f3c0",
+      "contentDigest": "1a2261856af8c5a72ffe76f37043d78190d47f0415c886785fd4f7b4aacab2a3",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -7747,12 +7747,12 @@
       "canonicalSources": [
         {
           "path": ".ai/rules/dialogs.md",
-          "digest": "678aca0fbb1bbd123d260e1f2abe9235b4833dacd659a35f4076d7f5731cf16e",
+          "digest": "7343ba6fc18a146885e02bfeea723345df6566a141b11d0a69c0dd50dd8fbd0d",
           "ownership": "owner",
           "ownerComponentId": "cratis-rule-dialogs"
         }
       ],
-      "contentDigest": "2cfca9fe54063010fe8a8dae49daceeda84028be02a54d4ed11eebc7cb5f54de",
+      "contentDigest": "73209171f85c3dd82a2fc97bb0837a06bcbdb1c2ce77a8bd4cfde2e688057bf0",
       "owner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "classification": {

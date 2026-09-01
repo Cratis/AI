@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "asOf": "2026-08-31",
+  "asOf": "2026-09-01",
   "defaultPolicy": "deny",
   "sources": [
     {
@@ -688,6 +688,12 @@
       "locator": "https://github.com/Cratis/AI/tree/3fe2b12aa7fd068565cbf082ea966cd783cc6aad/distribution/evidence/s8-native-non-skill-static-generation-2026-08-25.json",
       "repositoryPath": "distribution/evidence/s8-native-non-skill-static-generation-2026-08-25.json",
       "digest": "9f56390ab36221d425a5d238d1e5d202d8eb8760537d39256edf014581e8590d"
+    },
+    {
+      "id": "source-engineering-react-page-dialogs-source-2006490",
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/2006490b23dd60a384cd803423fdc59cd395611b/.ai/skills/cratis-react-page",
+      "immutableRevision": "2006490b23dd60a384cd803423fdc59cd395611b"
     }
   ],
   "observations": [
@@ -1268,6 +1274,43 @@
         "officialUrl": "https://github.com/Cratis/AI/tree/c4c63dadfe57276a1a53c4d76bc7f9683c4b48a4/.ai/skills/event-type-migrations",
         "sourceKind": "repository-snapshot",
         "applicableVersion": "c4c63dadfe57276a1a53c4d76bc7f9683c4b48a4"
+      }
+    },
+    {
+      "id": "engineering-react-page-dialogs-source-2006490",
+      "sourceId": "source-engineering-react-page-dialogs-source-2006490",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "target",
+        "id": "cratis-arc-react-page",
+        "version": "2006490b23dd60a384cd803423fdc59cd395611b"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "source-provenance",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Source provenance for the React page skill at the revision that added the host-rendered confirmation and busy-indicator guidance.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-09-01",
+      "validThrough": "2027-09-01",
+      "confidence": "high",
+      "limitations": [
+        "This observation is limited to its exact recorded subject, version, digest, scope, and environment and grants no unrecorded assurance."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/2006490b23dd60a384cd803423fdc59cd395611b/.ai/skills/cratis-react-page",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "2006490b23dd60a384cd803423fdc59cd395611b"
       }
     },
     {
