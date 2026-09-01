@@ -1333,12 +1333,12 @@
       "canonicalSources": [
         {
           "path": ".ai/skills/cratis-command",
-          "digest": "05e1dda70a0871c306071677998698491186b0ca541c7ef62ddce89a787359f8",
+          "digest": "8014cd3f881ad0cb70588851f99a0c241e1635a3265df9479f7ddccf43cd15e1",
           "ownership": "owner",
           "ownerComponentId": "cratis-arc-command"
         }
       ],
-      "contentDigest": "b14353daac54256668c61b3ff10af74f30595f471c01ffd8ee3b44655128078e",
+      "contentDigest": "9ebfcefa08743a99d4b21c43a22a2584b4c37b0b5e70542b59f5b1559d61b763",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -2171,12 +2171,12 @@
       "canonicalSources": [
         {
           "path": ".ai/skills/cross-cutting-properties",
-          "digest": "e9a68b833d73d04610434902ff797f82956821a1547b02c443cf465cd3f83e34",
+          "digest": "a1c0a1670025bbf0341e3f8573ec11bddd2d77a0420e3b4d692b0ae1ff11f441",
           "ownership": "owner",
           "ownerComponentId": "cratis-chronicle-event-metadata"
         }
       ],
-      "contentDigest": "684432d53c4dfffdaf0e4bfa3ef140b50d2ea895a27d7209a5ea11156c70ed66",
+      "contentDigest": "b77868621786350acff030f7e06a9c9402ee6332b4aac60b3688581db28db0e1",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -7609,12 +7609,12 @@
       "canonicalSources": [
         {
           "path": ".ai/rules/concepts.md",
-          "digest": "ec09879acc66fe7bc0518bb2d9c2dbf7944e1c65c4408ebc5bdb69a5c846c48c",
+          "digest": "8eb4e594aa4da07143f4b8b21ab5f1c2354469afa66604dd4a6e25103d426b50",
           "ownership": "owner",
           "ownerComponentId": "cratis-rule-concepts"
         }
       ],
-      "contentDigest": "45fe35b007e883f45933a9315653d2086c29a24dd8403e32021446a6cb3cb886",
+      "contentDigest": "2b25eabbf5e75cbd512701c950be6fc4fabc5ea3c6c8a6a6fdca10dcbb2e8a24",
       "owner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "classification": {
@@ -8506,12 +8506,12 @@
       "canonicalSources": [
         {
           "path": ".ai/rules/glossary.md",
-          "digest": "5a89504e5b4cc32f4cbf55f894c3d37332043119ef78843047ee5f24909267aa",
+          "digest": "8dd04c98a21a0861b3fb061d188af766cb41c10a0c87298ec32a4eddf6cd19c3",
           "ownership": "owner",
           "ownerComponentId": "cratis-rule-glossary"
         }
       ],
-      "contentDigest": "94d301149fe4d194926558955861cb2f3df729b25fc824c80229804aaed9b064",
+      "contentDigest": "a3d53661ee7850731100886143241974df343d37def9bf9d79ebe4527a24b430",
       "owner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "classification": {
@@ -9541,12 +9541,12 @@
       "canonicalSources": [
         {
           "path": ".ai/rules/vertical-slices.md",
-          "digest": "2f6fbcbfd2be4b6eb94ff2c878a6f2f67c4523296753fdd4256219a25d1b2590",
+          "digest": "5e590df10d4036595472079d9defd9746ce96d04d868444158b1707879bdecf3",
           "ownership": "owner",
           "ownerComponentId": "cratis-rule-vertical-slices"
         }
       ],
-      "contentDigest": "64be055892e6e3c83a7334f8d68dca984d21251ef30cc1a62bd464750df6d1c9",
+      "contentDigest": "a9dfd97c7ab84001c18386e7f5a5d15679244aaabbf282bb1b6def62ec2cd22f",
       "owner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "classification": {
@@ -9817,12 +9817,12 @@
       "canonicalSources": [
         {
           "path": ".ai/skills/review-security",
-          "digest": "c5829036d84177ba53cdacf54e01ec7cf05cb84fb4b8f07fb0305003213d0b3f",
+          "digest": "f7a78c4c980d17ae304bce81a20a19a8864965ba2784466c10fcca7aaa0fd178",
           "ownership": "owner",
           "ownerComponentId": "cratis-security-review"
         }
       ],
-      "contentDigest": "a9c38df6402c5d0a7c1be37a4e64967e96c23a0b2e803a24dc25567b06e7e88b",
+      "contentDigest": "0f957586d4509a518b94f58a98f283364ecf52be3f067f406472f44d43d6acd6",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {

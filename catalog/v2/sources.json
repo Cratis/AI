@@ -234,12 +234,13 @@
         ".ai/skills/cratis-command/references/proxy-setup.md",
         ".ai/skills/cratis-command/references/validation.md"
       ],
-      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "sourceRevision": "5d45432cda795ad1f5e5b58c2df143f01161885c",
       "contentDigest": "8014cd3f881ad0cb70588851f99a0c241e1635a3265df9479f7ddccf43cd15e1",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "cratis-command-command-causation-values-5d45432"
       ]
     },
     {
@@ -424,12 +425,13 @@
       "bundledPaths": [
         ".ai/skills/cross-cutting-properties/SKILL.md"
       ],
-      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "sourceRevision": "5d45432cda795ad1f5e5b58c2df143f01161885c",
       "contentDigest": "a1c0a1670025bbf0341e3f8573ec11bddd2d77a0420e3b4d692b0ae1ff11f441",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "cross-cutting-properties-command-causation-values-5d45432"
       ]
     },
     {
@@ -683,12 +685,13 @@
       "bundledPaths": [
         ".ai/skills/review-security/SKILL.md"
       ],
-      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "sourceRevision": "5d45432cda795ad1f5e5b58c2df143f01161885c",
       "contentDigest": "f7a78c4c980d17ae304bce81a20a19a8864965ba2784466c10fcca7aaa0fd178",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "review-security-command-causation-values-5d45432"
       ]
     },
     {

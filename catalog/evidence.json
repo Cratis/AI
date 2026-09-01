@@ -100,6 +100,24 @@
       "immutableRevision": "2006490b23dd60a384cd803423fdc59cd395611b"
     },
     {
+      "id": "source-cratis-command-command-causation-values-5d45432",
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/5d45432cda795ad1f5e5b58c2df143f01161885c/.ai/skills/cratis-command",
+      "immutableRevision": "5d45432cda795ad1f5e5b58c2df143f01161885c"
+    },
+    {
+      "id": "source-cross-cutting-properties-command-causation-values-5d45432",
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/5d45432cda795ad1f5e5b58c2df143f01161885c/.ai/skills/cross-cutting-properties",
+      "immutableRevision": "5d45432cda795ad1f5e5b58c2df143f01161885c"
+    },
+    {
+      "id": "source-review-security-command-causation-values-5d45432",
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/5d45432cda795ad1f5e5b58c2df143f01161885c/.ai/skills/review-security",
+      "immutableRevision": "5d45432cda795ad1f5e5b58c2df143f01161885c"
+    },
+    {
       "id": "source-engineering-docs-authoring-source-f58bcf7",
       "kind": "repository-snapshot",
       "locator": "https://github.com/Cratis/AI/tree/f58bcf7f5cc9fc0e11305ada3b5ecb6fa20953e9/engineering/skills/cratis-engineering-docs-authoring",
@@ -1311,6 +1329,117 @@
         "officialUrl": "https://github.com/Cratis/AI/tree/2006490b23dd60a384cd803423fdc59cd395611b/.ai/skills/cratis-react-page",
         "sourceKind": "repository-snapshot",
         "applicableVersion": "2006490b23dd60a384cd803423fdc59cd395611b"
+      }
+    },
+    {
+      "id": "cratis-command-command-causation-values-5d45432",
+      "sourceId": "source-cratis-command-command-causation-values-5d45432",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "target",
+        "id": "cratis-arc-command",
+        "version": "5d45432cda795ad1f5e5b58c2df143f01161885c"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "source-provenance",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Source provenance for the Arc command skill at the revision that added command causation value guidance.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-31",
+      "validThrough": "2027-08-31",
+      "confidence": "high",
+      "limitations": [
+        "This observation is limited to its exact recorded subject, version, digest, scope, and environment and grants no unrecorded assurance."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/5d45432cda795ad1f5e5b58c2df143f01161885c/.ai/skills/cratis-command",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "5d45432cda795ad1f5e5b58c2df143f01161885c"
+      }
+    },
+    {
+      "id": "cross-cutting-properties-command-causation-values-5d45432",
+      "sourceId": "source-cross-cutting-properties-command-causation-values-5d45432",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "target",
+        "id": "cratis-chronicle-event-metadata",
+        "version": "5d45432cda795ad1f5e5b58c2df143f01161885c"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "source-provenance",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Source provenance for the cross-cutting event properties skill at the revision that added command causation value guidance.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-31",
+      "validThrough": "2027-08-31",
+      "confidence": "high",
+      "limitations": [
+        "This observation is limited to its exact recorded subject, version, digest, scope, and environment and grants no unrecorded assurance."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/5d45432cda795ad1f5e5b58c2df143f01161885c/.ai/skills/cross-cutting-properties",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "5d45432cda795ad1f5e5b58c2df143f01161885c"
+      }
+    },
+    {
+      "id": "review-security-command-causation-values-5d45432",
+      "sourceId": "source-review-security-command-causation-values-5d45432",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "target",
+        "id": "cratis-security-review",
+        "version": "5d45432cda795ad1f5e5b58c2df143f01161885c"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "source-provenance",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Source provenance for the security review skill at the revision that added the command causation checklist item.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-08-31",
+      "validThrough": "2027-08-31",
+      "confidence": "high",
+      "limitations": [
+        "This observation is limited to its exact recorded subject, version, digest, scope, and environment and grants no unrecorded assurance."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/5d45432cda795ad1f5e5b58c2df143f01161885c/.ai/skills/review-security",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "5d45432cda795ad1f5e5b58c2df143f01161885c"
       }
     },
     {

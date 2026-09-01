@@ -46,8 +46,8 @@
         {
           "path": ".aiassistant/rules/concepts.md",
           "sourcePath": ".ai/rules/concepts.md",
-          "size": 4655,
-          "sha256": "f1f941ec32415bd4b5a403f0d084dd601935ea5e6a4baf29598a63f69753a095"
+          "size": 5310,
+          "sha256": "3aa3e81e5992f295a76ac3eda8fd02f14c7a49ed7500517bfd301674511866a6"
         },
         {
           "path": ".aiassistant/rules/csharp.md",
@@ -118,8 +118,8 @@
         {
           "path": ".aiassistant/rules/glossary.md",
           "sourcePath": ".ai/rules/glossary.md",
-          "size": 4986,
-          "sha256": "bbc5da53b562456445b2e8c2d4cbbf2c2376bf4e56b71f4a2f181bae1915f8fd"
+          "size": 5546,
+          "sha256": "e3feec1ad0074f32007ddb1db1db62835cd96ae360eed81e74404e9030e7caf9"
         },
         {
           "path": ".aiassistant/rules/managing-ai-rules.md",
@@ -202,8 +202,8 @@
         {
           "path": ".aiassistant/rules/vertical-slices.md",
           "sourcePath": ".ai/rules/vertical-slices.md",
-          "size": 31443,
-          "sha256": "51df677faf11f73555981207e7993e3c217ebfc5b4ac1e0df31455fdb0780f5e"
+          "size": 33778,
+          "sha256": "3583b8f7e6ab4561385bf6d72bdac63dab919a10d7262b0732c6a7ba4cd80678"
         },
         {
           "path": ".aiassistant/rules/web-fetching.md",
@@ -256,8 +256,8 @@
         {
           "path": ".tabnine/guidelines/concepts.md",
           "sourcePath": ".ai/rules/concepts.md",
-          "size": 4655,
-          "sha256": "f1f941ec32415bd4b5a403f0d084dd601935ea5e6a4baf29598a63f69753a095"
+          "size": 5310,
+          "sha256": "3aa3e81e5992f295a76ac3eda8fd02f14c7a49ed7500517bfd301674511866a6"
         },
         {
           "path": ".tabnine/guidelines/csharp.md",
@@ -328,8 +328,8 @@
         {
           "path": ".tabnine/guidelines/glossary.md",
           "sourcePath": ".ai/rules/glossary.md",
-          "size": 4986,
-          "sha256": "bbc5da53b562456445b2e8c2d4cbbf2c2376bf4e56b71f4a2f181bae1915f8fd"
+          "size": 5546,
+          "sha256": "e3feec1ad0074f32007ddb1db1db62835cd96ae360eed81e74404e9030e7caf9"
         },
         {
           "path": ".tabnine/guidelines/managing-ai-rules.md",
@@ -412,8 +412,8 @@
         {
           "path": ".tabnine/guidelines/vertical-slices.md",
           "sourcePath": ".ai/rules/vertical-slices.md",
-          "size": 31443,
-          "sha256": "51df677faf11f73555981207e7993e3c217ebfc5b4ac1e0df31455fdb0780f5e"
+          "size": 33778,
+          "sha256": "3583b8f7e6ab4561385bf6d72bdac63dab919a10d7262b0732c6a7ba4cd80678"
         },
         {
           "path": ".tabnine/guidelines/web-fetching.md",
@@ -605,14 +605,14 @@
       "canonicalOwnerId": "cratis-rule-concepts",
       "semanticKind": "rule",
       "sourcePath": ".ai/rules/concepts.md",
-      "sourceDigest": "ec09879acc66fe7bc0518bb2d9c2dbf7944e1c65c4408ebc5bdb69a5c846c48c",
+      "sourceDigest": "8eb4e594aa4da07143f4b8b21ab5f1c2354469afa66604dd4a6e25103d426b50",
       "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/concepts.md",
       "hostId": "jetbrains-ai-assistant",
       "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
       "evidenceIds": [
         "jetbrains-ai-assistant-source-1"
       ],
-      "outputDigest": "f1f941ec32415bd4b5a403f0d084dd601935ea5e6a4baf29598a63f69753a095"
+      "outputDigest": "3aa3e81e5992f295a76ac3eda8fd02f14c7a49ed7500517bfd301674511866a6"
     },
     {
       "projectionId": "cratis-rule-concepts-to-tabnine-rule",
@@ -620,14 +620,14 @@
       "canonicalOwnerId": "cratis-rule-concepts",
       "semanticKind": "rule",
       "sourcePath": ".ai/rules/concepts.md",
-      "sourceDigest": "ec09879acc66fe7bc0518bb2d9c2dbf7944e1c65c4408ebc5bdb69a5c846c48c",
+      "sourceDigest": "8eb4e594aa4da07143f4b8b21ab5f1c2354469afa66604dd4a6e25103d426b50",
       "outputPath": "tabnine-guidelines/.tabnine/guidelines/concepts.md",
       "hostId": "tabnine",
       "hostAdapterId": "tabnine-host-adapter",
       "evidenceIds": [
         "tabnine-source-1"
       ],
-      "outputDigest": "f1f941ec32415bd4b5a403f0d084dd601935ea5e6a4baf29598a63f69753a095"
+      "outputDigest": "3aa3e81e5992f295a76ac3eda8fd02f14c7a49ed7500517bfd301674511866a6"
     },
     {
       "projectionId": "cratis-rule-csharp-to-jetbrains-ai-assistant-rule",
@@ -965,14 +965,14 @@
       "canonicalOwnerId": "cratis-rule-glossary",
       "semanticKind": "rule",
       "sourcePath": ".ai/rules/glossary.md",
-      "sourceDigest": "5a89504e5b4cc32f4cbf55f894c3d37332043119ef78843047ee5f24909267aa",
+      "sourceDigest": "8dd04c98a21a0861b3fb061d188af766cb41c10a0c87298ec32a4eddf6cd19c3",
       "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/glossary.md",
       "hostId": "jetbrains-ai-assistant",
       "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
       "evidenceIds": [
         "jetbrains-ai-assistant-source-1"
       ],
-      "outputDigest": "bbc5da53b562456445b2e8c2d4cbbf2c2376bf4e56b71f4a2f181bae1915f8fd"
+      "outputDigest": "e3feec1ad0074f32007ddb1db1db62835cd96ae360eed81e74404e9030e7caf9"
     },
     {
       "projectionId": "cratis-rule-glossary-to-tabnine-rule",
@@ -980,14 +980,14 @@
       "canonicalOwnerId": "cratis-rule-glossary",
       "semanticKind": "rule",
       "sourcePath": ".ai/rules/glossary.md",
-      "sourceDigest": "5a89504e5b4cc32f4cbf55f894c3d37332043119ef78843047ee5f24909267aa",
+      "sourceDigest": "8dd04c98a21a0861b3fb061d188af766cb41c10a0c87298ec32a4eddf6cd19c3",
       "outputPath": "tabnine-guidelines/.tabnine/guidelines/glossary.md",
       "hostId": "tabnine",
       "hostAdapterId": "tabnine-host-adapter",
       "evidenceIds": [
         "tabnine-source-1"
       ],
-      "outputDigest": "bbc5da53b562456445b2e8c2d4cbbf2c2376bf4e56b71f4a2f181bae1915f8fd"
+      "outputDigest": "e3feec1ad0074f32007ddb1db1db62835cd96ae360eed81e74404e9030e7caf9"
     },
     {
       "projectionId": "cratis-rule-managing-ai-rules-to-jetbrains-ai-assistant-rule",
@@ -1385,14 +1385,14 @@
       "canonicalOwnerId": "cratis-rule-vertical-slices",
       "semanticKind": "rule",
       "sourcePath": ".ai/rules/vertical-slices.md",
-      "sourceDigest": "2f6fbcbfd2be4b6eb94ff2c878a6f2f67c4523296753fdd4256219a25d1b2590",
+      "sourceDigest": "5e590df10d4036595472079d9defd9746ce96d04d868444158b1707879bdecf3",
       "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/vertical-slices.md",
       "hostId": "jetbrains-ai-assistant",
       "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
       "evidenceIds": [
         "jetbrains-ai-assistant-source-1"
       ],
-      "outputDigest": "51df677faf11f73555981207e7993e3c217ebfc5b4ac1e0df31455fdb0780f5e"
+      "outputDigest": "3583b8f7e6ab4561385bf6d72bdac63dab919a10d7262b0732c6a7ba4cd80678"
     },
     {
       "projectionId": "cratis-rule-vertical-slices-to-tabnine-rule",
@@ -1400,14 +1400,14 @@
       "canonicalOwnerId": "cratis-rule-vertical-slices",
       "semanticKind": "rule",
       "sourcePath": ".ai/rules/vertical-slices.md",
-      "sourceDigest": "2f6fbcbfd2be4b6eb94ff2c878a6f2f67c4523296753fdd4256219a25d1b2590",
+      "sourceDigest": "5e590df10d4036595472079d9defd9746ce96d04d868444158b1707879bdecf3",
       "outputPath": "tabnine-guidelines/.tabnine/guidelines/vertical-slices.md",
       "hostId": "tabnine",
       "hostAdapterId": "tabnine-host-adapter",
       "evidenceIds": [
         "tabnine-source-1"
       ],
-      "outputDigest": "51df677faf11f73555981207e7993e3c217ebfc5b4ac1e0df31455fdb0780f5e"
+      "outputDigest": "3583b8f7e6ab4561385bf6d72bdac63dab919a10d7262b0732c6a7ba4cd80678"
     },
     {
       "projectionId": "cratis-rule-web-fetching-to-jetbrains-ai-assistant-rule",

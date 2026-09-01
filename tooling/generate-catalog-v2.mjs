@@ -175,6 +175,30 @@ const publicClassifications = new Map([
 
 const sourceOverrides = new Map([
     [
+        "cratis-command",
+        {
+            sourcePath: ".ai/skills/cratis-command",
+            sourceRevision: "5d45432cda795ad1f5e5b58c2df143f01161885c",
+            evidenceId: "cratis-command-command-causation-values-5d45432",
+        },
+    ],
+    [
+        "cross-cutting-properties",
+        {
+            sourcePath: ".ai/skills/cross-cutting-properties",
+            sourceRevision: "5d45432cda795ad1f5e5b58c2df143f01161885c",
+            evidenceId: "cross-cutting-properties-command-causation-values-5d45432",
+        },
+    ],
+    [
+        "review-security",
+        {
+            sourcePath: ".ai/skills/review-security",
+            sourceRevision: "5d45432cda795ad1f5e5b58c2df143f01161885c",
+            evidenceId: "review-security-command-causation-values-5d45432",
+        },
+    ],
+    [
         "cratis-studio-mcp-safety-guidance",
         {
             sourcePath: "skills/cratis-studio-mcp-safety-guidance",

@@ -259,6 +259,16 @@
       "confidence": "high"
     },
     {
+      "id": "cratis-command-command-causation-values-5d45432",
+      "officialUrl": "https://github.com/Cratis/AI/tree/5d45432cda795ad1f5e5b58c2df143f01161885c/.ai/skills/cratis-command",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-08-31",
+      "expiresOn": "2027-08-31",
+      "applicableVersion": "5d45432cda795ad1f5e5b58c2df143f01161885c",
+      "confidence": "high",
+      "immutableRevision": "5d45432cda795ad1f5e5b58c2df143f01161885c"
+    },
+    {
       "id": "cratis-react-page-host-rendered-dialogs-2006490",
       "officialUrl": "https://github.com/Cratis/AI/tree/2006490b23dd60a384cd803423fdc59cd395611b/.ai/skills/cratis-react-page",
       "sourceKind": "repository-snapshot",
@@ -267,6 +277,16 @@
       "applicableVersion": "2006490b23dd60a384cd803423fdc59cd395611b",
       "confidence": "high",
       "immutableRevision": "2006490b23dd60a384cd803423fdc59cd395611b"
+    },
+    {
+      "id": "cross-cutting-properties-command-causation-values-5d45432",
+      "officialUrl": "https://github.com/Cratis/AI/tree/5d45432cda795ad1f5e5b58c2df143f01161885c/.ai/skills/cross-cutting-properties",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-08-31",
+      "expiresOn": "2027-08-31",
+      "applicableVersion": "5d45432cda795ad1f5e5b58c2df143f01161885c",
+      "confidence": "high",
+      "immutableRevision": "5d45432cda795ad1f5e5b58c2df143f01161885c"
     },
     {
       "id": "cursor-plugins-source-1",
@@ -1079,6 +1099,16 @@
       "applicableVersion": "b795d5307e20f7f7458a67708b4f26975e223796",
       "confidence": "high",
       "immutableRevision": "b795d5307e20f7f7458a67708b4f26975e223796"
+    },
+    {
+      "id": "review-security-command-causation-values-5d45432",
+      "officialUrl": "https://github.com/Cratis/AI/tree/5d45432cda795ad1f5e5b58c2df143f01161885c/.ai/skills/review-security",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-08-31",
+      "expiresOn": "2027-08-31",
+      "applicableVersion": "5d45432cda795ad1f5e5b58c2df143f01161885c",
+      "confidence": "high",
+      "immutableRevision": "5d45432cda795ad1f5e5b58c2df143f01161885c"
     },
     {
       "id": "roo-code-source-1",
