@@ -279,12 +279,13 @@
         ".ai/skills/cratis-react-page/references/dialogs.md",
         ".ai/skills/cratis-react-page/references/mvvm.md"
       ],
-      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-      "contentDigest": "e785b26225b20e5bf4ad9eca1b8e713b63cc1367627f723b7d5a64313c2fddd0",
+      "sourceRevision": "2006490b23dd60a384cd803423fdc59cd395611b",
+      "contentDigest": "989391b660bcb2fb257eb495848172ba9a21cc76841c2aef57c87813c86b9b13",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "cratis-react-page-host-rendered-dialogs-2006490"
       ]
     },
     {

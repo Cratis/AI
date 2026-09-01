@@ -13,7 +13,45 @@ The Cratis dialog wrappers handle command execution, validation timing, loading 
 
 - If confirm executes a command, use `CommandDialog` from `@cratis/components/CommandDialog`.
 - If no command is executed on confirm, use `Dialog` from `@cratis/components/Dialogs`.
+- If you are **asking the user to confirm** or **showing that something is in progress**, do not build a dialog at all — raise the host-rendered one through its hook (below).
 - **Never** import `Dialog` from `primereact/dialog` directly.
+
+## Confirmations and busy indicators are host-rendered — register once, raise by hook
+
+`ConfirmationDialog` and `BusyIndicatorDialog` are **not** instantiated in a slice's JSX. They are
+registered once at the app root and raised from anywhere through a hook, so every confirmation and
+every busy indicator in the application looks and behaves identically:
+
+```tsx
+import { DialogComponents } from '@cratis/arc.react/dialogs';
+import { BusyIndicatorDialog, ConfirmationDialog } from '@cratis/components/Dialogs';
+
+export const App = () => (
+    <DialogComponents confirmation={ConfirmationDialog} busyIndicator={BusyIndicatorDialog}>
+        <YourApp />
+    </DialogComponents>
+);
+```
+
+```tsx
+import { DialogButtons, DialogResult, useConfirmationDialog, useBusyIndicator } from '@cratis/arc.react/dialogs';
+
+const [confirm] = useConfirmationDialog();
+const answer = await confirm('Delete this alert?', `"${alert.title}" disappears permanently.`, DialogButtons.YesNo);
+if (answer !== DialogResult.Yes) return;
+
+const [showBusy, closeBusy] = useBusyIndicator('Importing', 'This takes a moment.');
+showBusy();
+try { await doTheSlowThing(); } finally { closeBusy(); }
+```
+
+**Rules:**
+- Register both in **exactly one** place — the app root. A second registration, or a slice building its own confirm/busy dialog, is how two of them end up looking different.
+- Reach them only via `useConfirmationDialog` / `useBusyIndicator`. Never hand-roll a Yes/No `Dialog`, and never use `window.confirm`.
+- `showConfirm()` resolves to a `DialogResult` — branch on the enum member, never on button text.
+- Always pair `showBusy()` with `closeBusy()` in a `finally`; the busy dialog is deliberately non-dismissible, so a missed close leaves the user stuck.
+- **A busy indicator is a modal for work that blocks the user.** For a quick command behind a button, an in-flight/disabled button (eventual-consistency rule 9) is the better control — a modal that flashes for 200 ms is worse than no modal. Use the busy dialog when the user genuinely cannot proceed.
+- From a view model, use the injectable `IDialogs` abstraction (`@cratis/arc.react.mvvm/dialogs`) rather than the hooks — see [react.md](./react.md).
 
 ## When Using `CommandDialog`
 
