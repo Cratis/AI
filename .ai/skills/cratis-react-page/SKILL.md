@@ -1,6 +1,6 @@
 ---
 name: cratis-react-page
-description: Step-by-step guidance for building a React page in a Cratis Arc application — DataPage lists, CommandDialog toolbar actions, row selection, details components, observable queries, and MVVM. Use when building or modifying a page that lists/displays data, adding a table, wiring Add/Edit/Delete, or connecting a component to a proxy-generated query (standard or observable).
+description: Step-by-step guidance for building a React page in a Cratis Arc application — DataPage lists, CommandDialog toolbar actions, confirmation and busy-indicator dialogs, row selection, details components, observable queries, and MVVM. Use when building or modifying a page that lists/displays data, adding a table, wiring Add/Edit/Delete, connecting a component to a proxy-generated query (standard or observable), or asking the user to confirm something.
 ---
 
 ## Workflow
@@ -92,6 +92,38 @@ export const AccountsPage = () => {
 ```
 
 See [dialogs.md](../../rules/dialogs.md) and the `stepper-command-dialog` skill for the full dialog patterns.
+
+#### Confirming, and showing that something is in progress
+
+Do not build either of these into a page. `ConfirmationDialog` and `BusyIndicatorDialog` are
+registered once at the app root through `DialogComponents` and raised by hook from anywhere, which is
+what keeps every confirmation and every busy indicator looking the same:
+
+```tsx
+import { DialogButtons, DialogResult, useConfirmationDialog, useBusyIndicator } from '@cratis/arc.react/dialogs';
+
+const [confirm] = useConfirmationDialog();
+if (await confirm('Delete this account?', `"${account.name}" disappears permanently.`, DialogButtons.YesNo) !== DialogResult.Yes) return;
+```
+
+**A busy indicator dialog is only for work that genuinely has to block the user.** It is modal and
+deliberately non-dismissible, so it takes the whole screen away until the work finishes — reach for it
+when carrying on would be wrong: a multi-step import, a migration, something the next click would
+corrupt or duplicate.
+
+For everything else — and that is most of it — the in-flight button is the right control. A command
+that appends events and returns in milliseconds sits behind a button that already disables itself and
+shows progress (eventual-consistency rule 9); putting a modal in front of it makes the screen flash
+and tells the user nothing. Never open one just to signal "working".
+
+When you do use it, pair it with `closeBusy()` in a `finally` — a non-dismissible dialog whose close
+was skipped strands the user with no way out:
+
+```tsx
+const [showBusy, closeBusy] = useBusyIndicator('Importing', 'This takes a moment.');
+showBusy();
+try { await importEverything(); } finally { closeBusy(); }
+```
 
 ---
 
