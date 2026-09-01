@@ -30,6 +30,10 @@ const description =
     "Cratis AI skills for event-sourced and CQRS application development";
 const repositoryUrl = "https://github.com/Cratis/AI.Distribution";
 const homepage = "https://cratis.io/ai";
+const openAiDeveloperName = "SINDRE ALSTAD WILTING";
+const brandAssetPath = "distribution/assets/cratis-logo.png";
+const brandProvenancePath =
+    "distribution/assets/cratis-logo.provenance.json";
 const selectedHarnesses = Object.freeze([
     "agent-skills",
     "agent-plugin",
@@ -48,6 +52,70 @@ function sha256(content) {
 
 function writeJson(path, value) {
     writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`, { flag: "wx" });
+}
+
+function readJson(path) {
+    try {
+        return JSON.parse(readFileSync(path, "utf8"));
+    } catch (error) {
+        throw new Error(`Unable to read JSON: ${path}`, { cause: error });
+    }
+}
+
+function loadBrandAsset(repositoryRoot) {
+    const content = readFileSync(join(repositoryRoot, brandAssetPath));
+    const provenance = readJson(join(repositoryRoot, brandProvenancePath));
+    const pngSignature = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
+    if (
+        !content.subarray(0, pngSignature.length).equals(pngSignature) ||
+        content.length > 5 * 1024 * 1024 ||
+        content.readUInt32BE(16) !== content.readUInt32BE(20) ||
+        content.readUInt32BE(16) < 48 ||
+        content.readUInt32BE(16) > 4096 ||
+        provenance.sha256 !== sha256(content) ||
+        provenance.width !== content.readUInt32BE(16) ||
+        provenance.height !== content.readUInt32BE(20) ||
+        provenance.mediaType !== "image/png"
+    )
+        throw new Error("Cratis marketplace brand asset changed");
+    return { content, provenance };
+}
+
+function writeOpenAiManifest(root, version) {
+    const manifestPath = join(
+        root,
+        `plugins/${profileId}/.codex-plugin/plugin.json`,
+    );
+    const manifest = readJson(manifestPath);
+    const value = {
+        ...manifest,
+        author: {
+            name: openAiDeveloperName,
+        },
+        homepage,
+        repository: repositoryUrl,
+        license: "MIT",
+        keywords: ["cratis", "event-sourcing", "cqrs"],
+        interface: {
+            displayName: "Cratis AI",
+            shortDescription:
+                "Cratis skills for event-sourced and CQRS development",
+            longDescription: description,
+            developerName: openAiDeveloperName,
+            category: "Developer Tools",
+            websiteURL: homepage,
+            defaultPrompt: [
+                "Use Cratis AI to model and implement this event-sourced behavior.",
+            ],
+            brandColor: "#000000",
+            composerIcon: "./assets/cratis-logo.png",
+            logo: "./assets/cratis-logo.png",
+        },
+    };
+    if (value.version !== version || value.skills !== "./skills/")
+        throw new Error("OpenAI plugin manifest authority changed");
+    writeFileSync(manifestPath, `${JSON.stringify(value, null, 2)}\n`);
+    return value;
 }
 
 function walkFiles(root, current = root) {
@@ -122,10 +190,11 @@ function openAiSubmission(version) {
         sourceRepository: repositoryUrl,
         version,
         releaseNotes: "Initial unsupported 0.x public evaluation release.",
-        portalReadiness: "OWNER_IDENTITY_AND_LISTING_ASSETS_REQUIRED",
+        portalReadiness: "OWNER_IDENTITY_AND_LEGAL_METADATA_REQUIRED",
+        developerName: openAiDeveloperName,
+        logo: `plugins/${profileId}/assets/cratis-logo.png`,
         requiredOwnerInputs: [
             "verified OpenAI developer identity",
-            "logo",
             "privacy policy URL",
             "terms URL",
             "country availability",
@@ -246,6 +315,16 @@ export function generatePublicMarketplaceDistribution({
             if (!harnessRoot) throw new Error(`Missing marketplace harness: ${harness}`);
             mergeRoot(join(adaptersRoot, harnessRoot), root, origins, harness);
         }
+        const brandAsset = loadBrandAsset(repositoryRoot);
+        for (const path of [
+            "assets/cratis-logo.png",
+            `plugins/${profileId}/assets/cratis-logo.png`,
+        ]) {
+            const destination = join(root, path);
+            mkdirSync(dirname(destination), { recursive: true });
+            writeFileSync(destination, brandAsset.content, { flag: "wx" });
+        }
+        const openAiManifest = writeOpenAiManifest(root, version);
         writeFileSync(join(root, "LICENSE"), readFileSync(join(repositoryRoot, "LICENSE")), {
             flag: "wx",
         });
@@ -274,6 +353,21 @@ export function generatePublicMarketplaceDistribution({
             targetIds: authority.targets.map((target) => target.id).sort(compareOrdinal),
             targetExclusions: authority.artifact.targetExclusions ?? [],
             repositoryOnlySkillExclusions: authority.repositoryOnlySkills,
+            brandAsset: {
+                sourceRepository: brandAsset.provenance.sourceRepository,
+                sourceRevision: brandAsset.provenance.sourceRevision,
+                sourcePath: brandAsset.provenance.sourcePath,
+                sha256: brandAsset.provenance.sha256,
+                copies: [
+                    "assets/cratis-logo.png",
+                    `plugins/${profileId}/assets/cratis-logo.png`,
+                ],
+            },
+            openAiInterface: {
+                developerName: openAiManifest.interface.developerName,
+                composerIcon: openAiManifest.interface.composerIcon,
+                logo: openAiManifest.interface.logo,
+            },
             nativeComponentsIncluded: false,
             nativeComponentsReason:
                 "Native rules and instructions retain separate semantic artifacts and are not repackaged as skills.",

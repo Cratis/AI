@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "2877963540fb16572cca83e17793d4daee5da945c62157203b24f500db98c111",
+  "indexDigest": "ea4c12936f61dbe76e114e63dc9cb2698f24ec92af25972be387b63b3da0b880",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -672,6 +672,14 @@
     },
     {
       "path": "distribution/artifact-matrix.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/assets/cratis-logo.png",
+      "status": "added"
+    },
+    {
+      "path": "distribution/assets/cratis-logo.provenance.json",
       "status": "added"
     },
     {
@@ -4525,8 +4533,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 69,
-      "expectedPathsDigest": "040622ad500fdd641979aab773052506711ce832db092d718729008695838da5"
+      "expectedPathCount": 71,
+      "expectedPathsDigest": "22f2f685c8733e3632f419a37e18feeea3e43f1bbbd8cf1c29f097e66d71723d"
     },
     {
       "excludePathPatterns": [],

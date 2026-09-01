@@ -57,7 +57,7 @@ export function packagePublicMarketplaceSubmissions({
             openAi.positiveTests?.length < 5 ||
             openAi.negativeTests?.length < 3 ||
             openAi.portalReadiness !==
-                "OWNER_IDENTITY_AND_LISTING_ASSETS_REQUIRED" ||
+                "OWNER_IDENTITY_AND_LEGAL_METADATA_REQUIRED" ||
             !Array.isArray(openAi.requiredOwnerInputs) ||
             openAi.requiredOwnerInputs.length === 0 ||
             openAi.supportGranted !== false ||
@@ -74,6 +74,11 @@ export function packagePublicMarketplaceSubmissions({
         cpSync(
             join(sourceRoot, `plugins/${pluginName}/skills`),
             join(pluginRoot, "skills"),
+            { recursive: true, errorOnExist: true },
+        );
+        cpSync(
+            join(sourceRoot, `plugins/${pluginName}/assets`),
+            join(pluginRoot, "assets"),
             { recursive: true, errorOnExist: true },
         );
         cpSync(join(sourceRoot, "LICENSE"), join(pluginRoot, "LICENSE"), {
