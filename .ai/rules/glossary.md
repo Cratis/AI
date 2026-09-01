@@ -32,6 +32,7 @@ One precise line per load-bearing term, so the same word means the same thing ev
 
 - **Command** — a `[Command]` record expressing an imperative **intent**; its public `Handle()` produces event(s) (or a response).
 - **Provide()** — the command method that fetches/computes data after validation/authorization and before `Handle()`; may short-circuit with a `ValidationResult`.
+- **Causation chain** — the ordered links saying how an append came about (root process → command → …), each carrying properties. A command records its **name and its property values** there, so an event says what the command was asked to do; the chain lives in the event log and is as permanent as the events.
 - **Constraint** — `IConstraint`; an **append-time** invariant (uniqueness / concurrency) enforced at the event-store level.
 - **DCB (Dynamic Consistency Boundary)** — enforcing a state-dependent rule **under concurrency** by injecting the read model into `Handle()` and returning `Result<TEvent, ValidationResult>`.
 - **Consistency boundary** — the scope within which an invariant holds atomically (an event source, or the read model a DCB rule inspects).
@@ -50,6 +51,7 @@ One precise line per load-bearing term, so the same word means the same thing ev
 
 - **Subject / `[Subject]`** — the natural person a piece of PII belongs to (for GDPR erasure); defaults to the `EventSourceId<T>` identity.
 - **`[PII]`** — marks an inherently personal value so Chronicle can manage/erase it.
+- **`[NotAudited]`** — marks a value that is secret but *not* personal data (password, token, API key) so it is never written to the causation chain. Withholds only; it does not encrypt or enroll the value in erasure the way `[PII]` does.
 - **Namespace / tenant** — Chronicle isolates tenants by **namespace**; each namespace has its own events, observers, and read models.
 
 ## Profiles
