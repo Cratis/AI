@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "asOf": "2026-09-01",
+  "asOf": "2026-08-31",
   "generatedBy": "tooling/generate-catalog-v2.mjs",
   "evidence": [
     {
@@ -259,6 +259,16 @@
       "confidence": "high"
     },
     {
+      "id": "cratis-react-page-host-rendered-dialogs-2006490",
+      "officialUrl": "https://github.com/Cratis/AI/tree/2006490b23dd60a384cd803423fdc59cd395611b/.ai/skills/cratis-react-page",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-08-31",
+      "expiresOn": "2027-08-31",
+      "applicableVersion": "2006490b23dd60a384cd803423fdc59cd395611b",
+      "confidence": "high",
+      "immutableRevision": "2006490b23dd60a384cd803423fdc59cd395611b"
+    },
+    {
       "id": "cursor-plugins-source-1",
       "officialUrl": "https://cursor.com/docs/plugins",
       "sourceKind": "official-documentation",
@@ -399,16 +409,6 @@
       "applicableVersion": "684d03755bacd40af95463b81b4a0c8b9f088ec1",
       "confidence": "high",
       "immutableRevision": "684d03755bacd40af95463b81b4a0c8b9f088ec1"
-    },
-    {
-      "id": "engineering-react-page-dialogs-source-2006490",
-      "officialUrl": "https://github.com/Cratis/AI/tree/2006490b23dd60a384cd803423fdc59cd395611b/.ai/skills/cratis-react-page",
-      "sourceKind": "repository-snapshot",
-      "verifiedOn": "2026-09-01",
-      "expiresOn": "2027-09-01",
-      "applicableVersion": "2006490b23dd60a384cd803423fdc59cd395611b",
-      "confidence": "high",
-      "immutableRevision": "2006490b23dd60a384cd803423fdc59cd395611b"
     },
     {
       "id": "engineering-ship-changes-no-effect-source-6b5388d",

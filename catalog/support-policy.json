@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "asOf": "2026-09-01",
+  "asOf": "2026-08-31",
   "defaultPolicy": "deny",
   "evidenceClasses": [
     "synthetic-fixture",
