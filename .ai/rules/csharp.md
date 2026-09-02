@@ -129,11 +129,65 @@ The framework discovers and wires dependencies by convention. Explicit registrat
 - Systems with a convention of `IFoo → Foo` do not need to be registered explicitly.
 - Command/query `Handle()` method parameters are automatically resolved from DI by type.
 
-### `[Singleton]` is a narrow choice, not the default
+### Service lifetimes — `[Singleton]` is a narrow choice, not the default
 
-The default is the convention (transient) or `[Scoped]`. A singleton may **not** depend on anything belonging to a tenant, a user, or a request — `IEventStore` and everything off it, `IMongoCollection<T>`, a `DbContext`, or a captured principal. Those resolve per scope, and a singleton captures the *root* scope: the default namespace, and nobody signed in. It fails by returning empty results rather than by throwing, so nothing tells you.
+**Assume every application you build is multi-tenant.** Not "design for it later" — assume it now, even when the deployment ships with a single tenant and no tenant resolution configured. A single-tenant application is a multi-tenant one with one tenant in it, and the code shape that serves both is the same shape. The code shape that serves only one has to be found and rewritten later, from the far side of a data migration, under production. The same reasoning applies to the signed-in user: an application always has one, and a service that remembers *which* one will eventually answer for the wrong person.
 
-Singletons that need data take `IServiceScopeFactory` and open a scope per call, or `IChronicleClient` with the namespace named explicitly. See `service-lifetimes.md` for the full rule, the reasoning, and the architecture spec that enforces it.
+That gives one rule with two faces:
+
+> **A singleton may not depend on anything that belongs to a tenant, a user, or a request.**
+
+These resolve **per scope**, and the scope is what carries the tenant — so none of them may be injected into a `[Singleton]`:
+
+| Off limits in a singleton | Why |
+| --- | --- |
+| `IEventStore` — and everything off it: `IEventLog`, `IReadModels`, `IConstraints`, `IEventTypes`, `IProjections`, `IReducers`, `IPII` | resolved for the scope's namespace |
+| `IMongoCollection<T>`, `IMongoDatabase`, `IMongoClient` | the database name is resolved per scope from the current tenant |
+| An EF Core `DbContext` | scoped for the same reason, plus it is not thread-safe |
+| A read model injected directly by key | same scope, same binding |
+| Any held tenant, principal, claims, correlation id, or `HttpContext` **value** | belongs to one request and outlives it in a singleton |
+
+A `[Singleton]` taking one of these is a **captive dependency**: the container hands it the *root* scope's instance and keeps it for process lifetime. The root scope has no request, so it resolves no tenant — every read and write goes to the default namespace forever, regardless of who is asking.
+
+**It does not throw. It returns nothing.** A query against the wrong namespace hits a database that exists and is empty, so the caller gets an empty collection, a `null` read model, or a default-valued options object, and carries on. The application starts, the pages render, the build is green, and the configuration a tenant spent an afternoon entering is simply not there. It is also invisible while there is only one tenant — every symptom appears on the day a second one arrives.
+
+**What to use instead.** Default to the convention (transient), which inherits the resolving scope's tenant for free, or `[Scoped]` when a service must be shared within one request. Reserve `[Singleton]` for things that are genuinely process-wide and hold no tenant-, user-, or request-bound state: `IInstancesOf<T>` aggregators, HTTP client wrappers, `IOptions<T>` readers, pure computation, framework plumbing.
+
+When something must be a singleton and still needs data — a hosted service, a dispatcher, a poller — inject `IServiceScopeFactory` and open a scope per unit of work:
+
+```csharp
+// ❌ Wrong — IEventStore is scoped; this captures the root scope's default namespace forever.
+[Singleton]
+public class DigestSources(IEventStore eventStore) : IDigestSources
+{
+    public Task<DigestConfiguration?> GetCurrent() =>
+        eventStore.ReadModels.GetInstanceById<DigestConfiguration>(DigestId.Default);
+}
+
+// ✅ Right — a scope per call, so the collaborators bind to the caller's tenant.
+[Singleton]
+public class DigestSources(IServiceScopeFactory scopeFactory) : IDigestSources
+{
+    public async Task<DigestConfiguration?> GetCurrent()
+    {
+        using var scope = scopeFactory.CreateScope();
+        var eventStore = scope.ServiceProvider.GetRequiredService<IEventStore>();
+        return await eventStore.ReadModels.GetInstanceById<DigestConfiguration>(DigestId.Default);
+    }
+}
+```
+
+`IChronicleClient` **is** singleton-safe, and is the right collaborator when a flow knows which namespace it means and has no scope to resolve one from — it names the event store and namespace explicitly: `await chronicleClient.GetEventStore("MyStore", tenantId.Value)`. Naming the namespace is a deliberate, readable statement that this code crosses a tenant boundary; capturing a scoped service is the same crossing made by accident.
+
+**The current user is not process-wide either.** Never keep the signed-in user, their principal, claims, roles, or anything derived from them in a singleton. The distinction that matters: *the accessor is fine, the value is not.* `IHttpContextAccessor` is itself a singleton and safe to inject; reading a value out of it once and keeping it is not. A current-user service may be a singleton only when every method reads through the accessor on each call and stores nothing. Anything that derives something per user and wants to keep it holds a cache **keyed by the user**, never a single field.
+
+**Off-request work carries its tenant.** Reactors, hosted services, background dispatch and scheduled jobs run with no HTTP request, so there is nothing for a tenant resolver to read. Chronicle observers are themselves instantiated per namespace, but the collaborators they call are not — a reactor that reaches a tenant-blind singleton has left its namespace behind without saying so. Such a flow states its tenant explicitly rather than inheriting whatever the root scope happens to be.
+
+**Caching.** A process-wide cache of tenant data is the same bug wearing a performance justification. If a singleton caches, the tenant (and where relevant the user) is part of the key. The same holds for `static` fields: a `static` cache of anything tenant-scoped is shared by every tenant in the process.
+
+**Enforce it, do not remember it.** This failure is silent, so review will not reliably catch it. Add an architecture spec that reflects over the assembly, finds every `[Singleton]` whose constructor takes a scope-bound service, and asserts the set is empty. It is a few dozen lines, it runs on every build, and it is the only thing that keeps the rule true a year from now.
+
+> .NET's own captive-dependency detection (`ServiceProviderOptions.ValidateScopes`, which Arc deliberately leaves on in Development) exists to catch exactly this. If a singleton in your codebase holds a scoped service and Development startup is not complaining, that path is not being exercised in Development — worth knowing on its own.
 
 ### Discovering multiple implementations — use `IInstancesOf<T>`, never `IEnumerable<T>`
 
