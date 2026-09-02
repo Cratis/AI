@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "asOf": "2026-08-31",
+  "asOf": "2026-09-02",
   "generatedBy": "tooling/generate-catalog-v2.mjs",
   "evidence": [
     {
@@ -257,6 +257,16 @@
       "expiresOn": "2026-11-23",
       "applicableVersion": "continue-2.0.0-final-read-only",
       "confidence": "high"
+    },
+    {
+      "id": "cratis-chronicle-multi-tenancy-source-fbf7602",
+      "officialUrl": "https://github.com/Cratis/AI/tree/fbf76029e4a6593a6a24f939face32b720009198/.ai/skills/multi-tenancy",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-09-02",
+      "expiresOn": "2027-09-02",
+      "applicableVersion": "fbf76029e4a6593a6a24f939face32b720009198",
+      "confidence": "high",
+      "immutableRevision": "fbf76029e4a6593a6a24f939face32b720009198"
     },
     {
       "id": "cratis-react-page-host-rendered-dialogs-2006490",

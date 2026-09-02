@@ -554,12 +554,13 @@
       "bundledPaths": [
         ".ai/skills/multi-tenancy/SKILL.md"
       ],
-      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-      "contentDigest": "159825bd29f8101c58ea1e036f7dbd9ea25762cfab7a96d8a694d339efe15603",
+      "sourceRevision": "fbf76029e4a6593a6a24f939face32b720009198",
+      "contentDigest": "3cf47761145947eed05de2605457817d5d62771926796527df7c0cf562634677",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "cratis-chronicle-multi-tenancy-source-fbf7602"
       ]
     },
     {
