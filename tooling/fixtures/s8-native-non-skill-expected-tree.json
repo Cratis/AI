@@ -10,8 +10,8 @@
         {
           "path": "AGENTS.md",
           "sourcePath": ".ai/rules/general.md",
-          "size": 30262,
-          "sha256": "395777d942af9615e51655daa66df72b12769b34e4c779ef611e47a695ab1915"
+          "size": 30364,
+          "sha256": "0a668a5d4268bda55d997619748acefffaf3df3266bf0d63ba8332339f72d9d2"
         }
       ]
     },
@@ -52,8 +52,8 @@
         {
           "path": ".aiassistant/rules/csharp.md",
           "sourcePath": ".ai/rules/csharp.md",
-          "size": 12905,
-          "sha256": "67d810084776dd5695618bd4a7ebab2eae359263a6c3e93bbbd3f2ddb25d0c94"
+          "size": 19252,
+          "sha256": "90426246c62891202de5ee4b9ca6bc8951d3f89f2fb9f730ea0f8fcbef3ef09b"
         },
         {
           "path": ".aiassistant/rules/dialogs.md",
@@ -262,8 +262,8 @@
         {
           "path": ".tabnine/guidelines/csharp.md",
           "sourcePath": ".ai/rules/csharp.md",
-          "size": 12905,
-          "sha256": "67d810084776dd5695618bd4a7ebab2eae359263a6c3e93bbbd3f2ddb25d0c94"
+          "size": 19252,
+          "sha256": "90426246c62891202de5ee4b9ca6bc8951d3f89f2fb9f730ea0f8fcbef3ef09b"
         },
         {
           "path": ".tabnine/guidelines/dialogs.md",
@@ -442,8 +442,8 @@
         {
           "path": ".github/copilot-instructions.md",
           "sourcePath": ".ai/rules/general.md",
-          "size": 30262,
-          "sha256": "395777d942af9615e51655daa66df72b12769b34e4c779ef611e47a695ab1915"
+          "size": 30364,
+          "sha256": "0a668a5d4268bda55d997619748acefffaf3df3266bf0d63ba8332339f72d9d2"
         }
       ]
     }
@@ -455,14 +455,14 @@
       "canonicalOwnerId": "cratis-instruction-general",
       "semanticKind": "instruction",
       "sourcePath": ".ai/rules/general.md",
-      "sourceDigest": "b48af74e4bbd01e9b8798c7b7a94e7ce3ea0d423ea1966a94079d98f9f120081",
+      "sourceDigest": "afdb400c06ed35220ac1b625e5060bce9297bd2534e7cea2fd996910b22fb4ac",
       "outputPath": "devin-hosted-instructions/AGENTS.md",
       "hostId": "devin-hosted",
       "hostAdapterId": "devin-hosted-host-adapter",
       "evidenceIds": [
         "devin-hosted-source-2"
       ],
-      "outputDigest": "395777d942af9615e51655daa66df72b12769b34e4c779ef611e47a695ab1915"
+      "outputDigest": "0a668a5d4268bda55d997619748acefffaf3df3266bf0d63ba8332339f72d9d2"
     },
     {
       "projectionId": "cratis-instruction-general-to-visual-studio-copilot-instruction",
@@ -470,14 +470,14 @@
       "canonicalOwnerId": "cratis-instruction-general",
       "semanticKind": "instruction",
       "sourcePath": ".ai/rules/general.md",
-      "sourceDigest": "b48af74e4bbd01e9b8798c7b7a94e7ce3ea0d423ea1966a94079d98f9f120081",
+      "sourceDigest": "afdb400c06ed35220ac1b625e5060bce9297bd2534e7cea2fd996910b22fb4ac",
       "outputPath": "visual-studio-copilot-instructions/.github/copilot-instructions.md",
       "hostId": "visual-studio-copilot",
       "hostAdapterId": "visual-studio-copilot-host-adapter",
       "evidenceIds": [
         "visual-studio-copilot-source-2"
       ],
-      "outputDigest": "395777d942af9615e51655daa66df72b12769b34e4c779ef611e47a695ab1915"
+      "outputDigest": "0a668a5d4268bda55d997619748acefffaf3df3266bf0d63ba8332339f72d9d2"
     },
     {
       "projectionId": "cratis-rule-code-quality-csharp-to-jetbrains-ai-assistant-rule",
@@ -635,14 +635,14 @@
       "canonicalOwnerId": "cratis-rule-csharp",
       "semanticKind": "rule",
       "sourcePath": ".ai/rules/csharp.md",
-      "sourceDigest": "535db1d781279f8974ab71ebe9aa525b88b314b46fe4fd5a475331db2f440f5f",
+      "sourceDigest": "70d579c6a6cc634c1201062e9c203170457977b243b8ffb6cddc613e7f627fed",
       "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/csharp.md",
       "hostId": "jetbrains-ai-assistant",
       "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
       "evidenceIds": [
         "jetbrains-ai-assistant-source-1"
       ],
-      "outputDigest": "67d810084776dd5695618bd4a7ebab2eae359263a6c3e93bbbd3f2ddb25d0c94"
+      "outputDigest": "90426246c62891202de5ee4b9ca6bc8951d3f89f2fb9f730ea0f8fcbef3ef09b"
     },
     {
       "projectionId": "cratis-rule-csharp-to-tabnine-rule",
@@ -650,14 +650,14 @@
       "canonicalOwnerId": "cratis-rule-csharp",
       "semanticKind": "rule",
       "sourcePath": ".ai/rules/csharp.md",
-      "sourceDigest": "535db1d781279f8974ab71ebe9aa525b88b314b46fe4fd5a475331db2f440f5f",
+      "sourceDigest": "70d579c6a6cc634c1201062e9c203170457977b243b8ffb6cddc613e7f627fed",
       "outputPath": "tabnine-guidelines/.tabnine/guidelines/csharp.md",
       "hostId": "tabnine",
       "hostAdapterId": "tabnine-host-adapter",
       "evidenceIds": [
         "tabnine-source-1"
       ],
-      "outputDigest": "67d810084776dd5695618bd4a7ebab2eae359263a6c3e93bbbd3f2ddb25d0c94"
+      "outputDigest": "90426246c62891202de5ee4b9ca6bc8951d3f89f2fb9f730ea0f8fcbef3ef09b"
     },
     {
       "projectionId": "cratis-rule-dialogs-to-jetbrains-ai-assistant-rule",

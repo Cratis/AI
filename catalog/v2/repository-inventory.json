@@ -35,6 +35,10 @@
       "status": "modified"
     },
     {
+      "path": ".ai/rules/csharp.md",
+      "status": "modified"
+    },
+    {
       "path": ".ai/rules/dialogs.md",
       "status": "modified"
     },

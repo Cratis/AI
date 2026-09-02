@@ -5487,12 +5487,12 @@
       "canonicalSources": [
         {
           "path": ".ai/rules/general.md",
-          "digest": "b48af74e4bbd01e9b8798c7b7a94e7ce3ea0d423ea1966a94079d98f9f120081",
+          "digest": "afdb400c06ed35220ac1b625e5060bce9297bd2534e7cea2fd996910b22fb4ac",
           "ownership": "owner",
           "ownerComponentId": "cratis-instruction-general"
         }
       ],
-      "contentDigest": "e171f34a8e7c09134938a0f0c4b1e10b0c08e7b3a915639fbea0bdc54882ec61",
+      "contentDigest": "5c62bca29896b4a442da84239eb8e66ac64b2597ee1557ec0e146823329afaba",
       "owner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "classification": {
@@ -7678,12 +7678,12 @@
       "canonicalSources": [
         {
           "path": ".ai/rules/csharp.md",
-          "digest": "535db1d781279f8974ab71ebe9aa525b88b314b46fe4fd5a475331db2f440f5f",
+          "digest": "70d579c6a6cc634c1201062e9c203170457977b243b8ffb6cddc613e7f627fed",
           "ownership": "owner",
           "ownerComponentId": "cratis-rule-csharp"
         }
       ],
-      "contentDigest": "6b6d915bbde059ee6ff783bb1bf5e1090bc0dd9d65a5833e7f7d0dff7b0fee02",
+      "contentDigest": "6abaf8b6771772f967780c027ac7bf1507a2a16640ea23b5cfdc1baa738d2e4b",
       "owner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "classification": {
