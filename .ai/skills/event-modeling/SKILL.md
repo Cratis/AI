@@ -51,7 +51,7 @@ A slice is the unit of work, and it moves through four states. The model (events
 - **Draft** — being modeled; events/commands/read models/boundaries still in flux.
 - **Ready** — the **handoff gate**: the model is *information-complete* (the checks above pass — every read-model field traces to an event, every event has a consumer; commands, authorization, compliance, and the specs outline all decided). A Ready slice can be implemented with **no further modeling decisions**.
 - **Working** — an implementer (agent or human) has picked it up and is running the **Implementation Workflow** end-to-end: backend slice file → Debug+Release build → specs → frontend → docs → quality gates. Use the `new-vertical-slice` skill; keep `EventModel.md` in sync via `create-event-model`.
-- **Done** — every quality gate is green and the change is shipped (PR merged, CI green — via `ship-changes`). Ready for downstream slices to build on.
+- **Done** — every quality gate is green and any owner-requested delivery is complete. Branch, pull-request, merge, and publication effects remain separately authorized; a Ready slice alone does not authorize them.
 
 **Marking a slice Ready is the signal to implement it** — the implementer runs the full workflow through to Done rather than stopping at the model, and doesn't batch Ready slices behind one another. (This is the Event Modeling "agent harness" loop: model → Ready → pick up → work → Done → repeat.) This stays subject to the [Collaboration Default](https://github.com/Cratis/AI/blob/main/.ai/rules/general.md) — pause only for a genuine checkpoint, risky change, or a decision the model can't make.
 
@@ -59,5 +59,4 @@ A slice is the unit of work, and it moves through four states. The model (events
 
 - `create-event-model` — render the chosen model into a Mermaid `EventModel.md`.
 - `new-vertical-slice` — implement a Ready slice end-to-end (the Working state).
-- `ship-changes` — branch, commit, PR, and merge to reach Done.
 - [vertical-slices.md](https://github.com/Cratis/AI/blob/main/.ai/rules/vertical-slices.md) — slice anatomy that implements the brief.
