@@ -358,8 +358,7 @@
           "cratis-engineering-docs-add-page",
           "cratis-engineering-docs-authoring",
           "cratis-engineering-docs-edit-page",
-          "cratis-engineering-ship-changes",
-          "skill-creator"
+          "cratis-engineering-ship-changes"
         ],
         "agents": [],
         "subagents": [],
@@ -377,6 +376,10 @@
         {
           "targetId": "cratis-engineering-docs-visual-qa",
           "reason": "private-or-local-content"
+        },
+        {
+          "targetId": "skill-creator",
+          "reason": "incomplete-resource-and-license-closure"
         }
       ],
       "exactSourcePaths": [
@@ -388,25 +391,6 @@
         ".ai/skills/cratis-csharp-standards/references/exceptions-logging-di.md",
         ".ai/skills/ship-changes/SKILL.md",
         ".ai/skills/ship-changes/evals/evals.json",
-        ".ai/skills/skill-creator/LICENSE.txt",
-        ".ai/skills/skill-creator/SKILL.md",
-        ".ai/skills/skill-creator/agents/analyzer.md",
-        ".ai/skills/skill-creator/agents/comparator.md",
-        ".ai/skills/skill-creator/agents/grader.md",
-        ".ai/skills/skill-creator/assets/eval_review.html",
-        ".ai/skills/skill-creator/eval-viewer/generate_review.py",
-        ".ai/skills/skill-creator/eval-viewer/viewer.html",
-        ".ai/skills/skill-creator/references/schemas.md",
-        ".ai/skills/skill-creator/scripts/__init__.py",
-        ".ai/skills/skill-creator/scripts/aggregate_benchmark.py",
-        ".ai/skills/skill-creator/scripts/generate_report.py",
-        ".ai/skills/skill-creator/scripts/improve_description.py",
-        ".ai/skills/skill-creator/scripts/package_skill.py",
-        ".ai/skills/skill-creator/scripts/quick_validate.py",
-        ".ai/skills/skill-creator/scripts/restructure_evals.py",
-        ".ai/skills/skill-creator/scripts/run_eval.py",
-        ".ai/skills/skill-creator/scripts/run_loop.py",
-        ".ai/skills/skill-creator/scripts/utils.py",
         "engineering/skills/cratis-engineering-docs-add-page/LICENSE",
         "engineering/skills/cratis-engineering-docs-add-page/SKILL.md",
         "engineering/skills/cratis-engineering-docs-add-page/references/ownership-and-navigation.md",

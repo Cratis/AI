@@ -189,10 +189,14 @@ function walkFiles(root, current = root) {
         const path = join(current, entry.name);
         const relativePath = relative(root, path).replaceAll("\\", "/");
         if (entry.isSymbolicLink())
-            throw new Error(`Distribution repository symlink is forbidden: ${relativePath}`);
+            throw new Error(
+                `Distribution repository symlink is forbidden: ${relativePath}`,
+            );
         if (entry.isDirectory()) return walkFiles(root, path);
         if (!entry.isFile())
-            throw new Error(`Distribution repository special file is forbidden: ${relativePath}`);
+            throw new Error(
+                `Distribution repository special file is forbidden: ${relativePath}`,
+            );
         return [relativePath];
     });
 }
@@ -203,7 +207,12 @@ function assertSafeRelativePath(path) {
         path.length === 0 ||
         isAbsolute(path) ||
         path.includes("\\") ||
-        path.split("/").some((segment) => segment === "" || segment === "." || segment === "..")
+        path
+            .split("/")
+            .some(
+                (segment) =>
+                    segment === "" || segment === "." || segment === "..",
+            )
     ) {
         throw new Error(`Unsafe distribution manifest path: ${String(path)}`);
     }
@@ -220,9 +229,10 @@ function isContained(root, candidate) {
 }
 
 function normalizeSafePackageRelativePath(path) {
-    const normalized = typeof path === "string" && path.startsWith("./")
-        ? path.slice(2)
-        : path;
+    const normalized =
+        typeof path === "string" && path.startsWith("./")
+            ? path.slice(2)
+            : path;
     assertSafeRelativePath(normalized);
     return normalized;
 }
@@ -255,7 +265,8 @@ function assertSafePackageMetadata(packageValue) {
     for (const field of ["bundleDependencies", "bundledDependencies"]) {
         if (
             packageValue[field] !== undefined &&
-            (!Array.isArray(packageValue[field]) || packageValue[field].length > 0)
+            (!Array.isArray(packageValue[field]) ||
+                packageValue[field].length > 0)
         ) {
             throw new Error(`Distribution package ${field} must be empty`);
         }
@@ -266,7 +277,10 @@ function assertSafePackageMetadata(packageValue) {
 function loadManifest(root) {
     const manifestPath = join(root, "distribution-manifest.json");
     const manifest = readJson(manifestPath);
-    if (!Array.isArray(manifest.files) || !Array.isArray(manifest.generatedTargets))
+    if (
+        !Array.isArray(manifest.files) ||
+        !Array.isArray(manifest.generatedTargets)
+    )
         throw new Error("Distribution manifest inventory is malformed");
     const paths = manifest.files.map((file) => file.path);
     for (const path of paths) assertSafeRelativePath(path);
@@ -283,7 +297,9 @@ function verifyManifestedFiles(root, manifest) {
             content.length !== file.size ||
             file.sha256 !== sha256(content)
         ) {
-            throw new Error(`Distribution manifest digest mismatch: ${file.path}`);
+            throw new Error(
+                `Distribution manifest digest mismatch: ${file.path}`,
+            );
         }
     }
 }
@@ -296,7 +312,9 @@ function verifyCandidateReviewRoot(root, candidateRoot) {
         !candidateVersionPattern.test(version) ||
         extra.length > 0
     ) {
-        throw new Error(`Invalid Distribution candidate root: ${candidateRoot}`);
+        throw new Error(
+            `Invalid Distribution candidate root: ${candidateRoot}`,
+        );
     }
     const absoluteRoot = join(root, candidateRoot);
     const actualPaths = walkFiles(absoluteRoot).sort();
@@ -329,17 +347,36 @@ function verifyCandidateReviewRoot(root, candidateRoot) {
         manifest.supportGranted !== false ||
         manifest.promotionEligible !== false
     ) {
-        throw new Error(`${candidateRoot}: candidate manifest authority changed`);
+        throw new Error(
+            `${candidateRoot}: candidate manifest authority changed`,
+        );
     }
     const componentCoverageBytes = readFileSync(
         join(absoluteRoot, manifest.componentCoveragePath),
     );
     if (sha256(componentCoverageBytes) !== manifest.componentCoverageSha256)
-        throw new Error(
-            `${candidateRoot}: component coverage digest mismatch`,
-        );
+        throw new Error(`${candidateRoot}: component coverage digest mismatch`);
     const componentCoverage = readJson(
         join(absoluteRoot, manifest.componentCoveragePath),
+    );
+    const dispositionCounts = Object.fromEntries(
+        Object.keys(componentCoverage.byDisposition ?? {}).map(
+            (disposition) => [
+                disposition,
+                componentCoverage.records?.filter(
+                    (record) => record.disposition === disposition,
+                ).length,
+            ],
+        ),
+    );
+    const skillDispositionCount = [
+        "skill-packaged-candidate",
+        "skill-blocked-candidate",
+        "skill-legacy-repository-only",
+    ].reduce(
+        (total, disposition) =>
+            total + (componentCoverage.byDisposition?.[disposition] ?? 0),
+        0,
     );
     if (
         componentCoverage.schemaPath !==
@@ -348,12 +385,16 @@ function verifyCandidateReviewRoot(root, candidateRoot) {
         componentCoverage.state !==
             "CANDIDATE_COMPONENT_COVERAGE_REVIEW_ONLY" ||
         componentCoverage.componentCount !== 137 ||
-        componentCoverage.byDisposition?.["skill-packaged-candidate"] !== 41 ||
-        componentCoverage.byDisposition?.["skill-blocked-candidate"] !== 4 ||
-        componentCoverage.byDisposition?.["skill-legacy-repository-only"] !== 4 ||
-        componentCoverage.byDisposition?.["native-static-review-projected"] !== 35 ||
+        JSON.stringify(dispositionCounts) !==
+            JSON.stringify(componentCoverage.byDisposition) ||
+        skillDispositionCount !== 49 ||
+        componentCoverage.byDisposition?.["skill-legacy-repository-only"] !==
+            4 ||
+        componentCoverage.byDisposition?.["native-static-review-projected"] !==
+            35 ||
         componentCoverage.byDisposition?.["native-static-unprojected"] !== 2 ||
-        componentCoverage.byDisposition?.["repository-host-adapter-only"] !== 48 ||
+        componentCoverage.byDisposition?.["repository-host-adapter-only"] !==
+            48 ||
         componentCoverage.byDisposition?.["executable-blocked"] !== 3 ||
         !Array.isArray(componentCoverage.records) ||
         componentCoverage.records.length !== 137 ||
@@ -364,13 +405,17 @@ function verifyCandidateReviewRoot(root, candidateRoot) {
         componentCoverage.supportGranted !== false ||
         componentCoverage.promotionEligible !== false
     ) {
-        throw new Error(`${candidateRoot}: component coverage authority changed`);
+        throw new Error(
+            `${candidateRoot}: component coverage authority changed`,
+        );
     }
     const assetPaths = [];
     for (const asset of manifest.assets) {
         assertSafeRelativePath(asset.filename);
         if (asset.filename.includes("/"))
-            throw new Error(`${candidateRoot}: nested candidate asset is forbidden`);
+            throw new Error(
+                `${candidateRoot}: nested candidate asset is forbidden`,
+            );
         const content = readFileSync(join(absoluteRoot, asset.filename));
         if (
             !Number.isSafeInteger(asset.size) ||
@@ -390,7 +435,8 @@ function verifyCandidateReviewRoot(root, candidateRoot) {
         .split("\n");
     const checksumPaths = checksumLines.map((line) => {
         const match = /^([0-9a-f]{64}) {2}(.+)$/.exec(line);
-        if (!match) throw new Error(`${candidateRoot}: malformed checksum line`);
+        if (!match)
+            throw new Error(`${candidateRoot}: malformed checksum line`);
         assertSafeRelativePath(match[2]);
         if (sha256(readFileSync(join(absoluteRoot, match[2]))) !== match[1])
             throw new Error(
@@ -429,7 +475,9 @@ function verifyExactInventory(root) {
         JSON.stringify(actualControlPlanePaths) !==
             JSON.stringify([...controlPlanePaths].sort())
     ) {
-        throw new Error("Distribution repository control-plane inventory changed");
+        throw new Error(
+            "Distribution repository control-plane inventory changed",
+        );
     }
     const candidatePaths = actualPaths.filter((path) =>
         path.startsWith("candidates/"),
@@ -439,7 +487,9 @@ function verifyExactInventory(root) {
             candidatePaths.map((path) => {
                 const segments = path.split("/");
                 if (segments.length < 4)
-                    throw new Error(`Invalid Distribution candidate path: ${path}`);
+                    throw new Error(
+                        `Invalid Distribution candidate path: ${path}`,
+                    );
                 return segments.slice(0, 3).join("/");
             }),
         ),
@@ -464,28 +514,46 @@ function verifyExactInventory(root) {
 function verifyCanonicalByteParity(root) {
     const manifest = verifyExactInventory(root);
     const provenance = readJson(join(root, "provenance.json"));
-    if (!Array.isArray(provenance.canonicalFiles) || provenance.canonicalFiles.length === 0)
-        throw new Error("Distribution provenance canonical inventory is missing");
+    if (
+        !Array.isArray(provenance.canonicalFiles) ||
+        provenance.canonicalFiles.length === 0
+    )
+        throw new Error(
+            "Distribution provenance canonical inventory is missing",
+        );
     const manifestedPaths = manifest.files.map((file) => file.path);
     if (manifest.state === "PUBLIC_EVALUATION_MARKETPLACE") {
         for (const file of provenance.canonicalFiles) {
             assertSafeRelativePath(file.path);
             if (!Array.isArray(file.copies) || file.copies.length !== 2)
-                throw new Error(`Marketplace canonical copy inventory changed: ${file.path}`);
+                throw new Error(
+                    `Marketplace canonical copy inventory changed: ${file.path}`,
+                );
             const expectedCopies = [
                 file.path,
                 `plugins/${manifest.profileId}/${file.path}`,
             ];
             if (JSON.stringify(file.copies) !== JSON.stringify(expectedCopies))
-                throw new Error(`Marketplace canonical copy paths changed: ${file.path}`);
+                throw new Error(
+                    `Marketplace canonical copy paths changed: ${file.path}`,
+                );
             const canonical = readFileSync(join(root, file.path));
-            if (canonical.length !== file.size || sha256(canonical) !== file.sha256)
-                throw new Error(`Marketplace canonical provenance mismatch: ${file.path}`);
+            if (
+                canonical.length !== file.size ||
+                sha256(canonical) !== file.sha256
+            )
+                throw new Error(
+                    `Marketplace canonical provenance mismatch: ${file.path}`,
+                );
             for (const path of file.copies) {
                 if (!manifestedPaths.includes(path))
-                    throw new Error(`Marketplace canonical copy is unmanifested: ${path}`);
+                    throw new Error(
+                        `Marketplace canonical copy is unmanifested: ${path}`,
+                    );
                 if (!readFileSync(join(root, path)).equals(canonical))
-                    throw new Error(`Marketplace canonical byte parity failed: ${path}`);
+                    throw new Error(
+                        `Marketplace canonical byte parity failed: ${path}`,
+                    );
             }
         }
         return;
@@ -504,9 +572,13 @@ function verifyCanonicalByteParity(root) {
         const copies = manifestedPaths.filter(
             (path) => path === canonicalPath || path.endsWith(`/${file.path}`),
         );
-        const actualTargets = copies.map((path) => path.split("/", 1)[0]).sort();
+        const actualTargets = copies
+            .map((path) => path.split("/", 1)[0])
+            .sort();
         if (JSON.stringify(actualTargets) !== JSON.stringify(expectedTargets))
-            throw new Error(`Canonical projection inventory changed: ${file.path}`);
+            throw new Error(
+                `Canonical projection inventory changed: ${file.path}`,
+            );
         for (const path of copies) {
             if (!readFileSync(join(root, path)).equals(canonical))
                 throw new Error(`Canonical byte parity failed: ${path}`);
@@ -544,13 +616,26 @@ function verifyChecksums(root) {
         .filter((path) => path !== "SHA256SUMS")
         .sort();
     if (JSON.stringify(paths.sort()) !== JSON.stringify(expectedPaths))
-        throw new Error("SHA256SUMS does not cover the exact manifested inventory");
+        throw new Error(
+            "SHA256SUMS does not cover the exact manifested inventory",
+        );
 }
 
 function verifyFixtureProvenance(root) {
     const manifest = verifyExactInventory(root);
     const provenance = readJson(join(root, "provenance.json"));
     if (manifest.state === "PUBLIC_EVALUATION_MARKETPLACE") {
+        const release = readJson(join(root, "marketplace-release.json"));
+        const excludedTargetIds = provenance.targetExclusions
+            ?.map((entry) => entry.targetId)
+            .sort();
+        const excludedSkillNames = [
+            "add-ef-migration",
+            "add-reactor",
+            "call-command-from-code",
+            "event-type-migrations",
+            "inspect-running-chronicle",
+        ];
         if (
             manifest.publicationEligible !== true ||
             manifest.installationSupported !== false ||
@@ -562,13 +647,43 @@ function verifyFixtureProvenance(root) {
             provenance.generator !==
                 "tooling/generate-public-marketplace-distribution.mjs" ||
             provenance.version !== manifest.version ||
+            release.version !== manifest.version ||
+            release.targetCount !== provenance.targetIds?.length ||
+            release.skillCount !== provenance.resourceClosure?.skillCount ||
+            provenance.eligibility?.policyPath !==
+                "distribution/public-evaluation-eligibility.json" ||
+            provenance.eligibility?.policySha256 !==
+                "187e00d37665451d64be71d9775d4ef00cf2ac397c091afffbe73be6a02cac4a" ||
+            provenance.eligibility?.schemaSha256 !==
+                "aabae2440a5f4367f8044050259cac6b40068d501b54ef192d3f16a55a792ab5" ||
+            provenance.eligibility?.approval?.state !==
+                "approved-for-unsupported-evaluation" ||
+            provenance.licenseClosure?.license !== "MIT" ||
+            JSON.stringify(excludedTargetIds) !==
+                JSON.stringify([
+                    "cratis-arc-command-execution",
+                    "cratis-arc-ef-core-migration",
+                    "cratis-arc-observable-query-http",
+                    "cratis-chronicle-cli-operations",
+                    "cratis-chronicle-event-type-migration",
+                    "cratis-chronicle-mcp-inspection",
+                    "cratis-chronicle-reactor",
+                    "cratis-studio-mcp-safety-guidance",
+                ]) ||
+            manifest.files.some((file) =>
+                excludedSkillNames.some((skillName) =>
+                    file.path.includes(`skills/${skillName}/`),
+                ),
+            ) ||
             provenance.installationAvailable !== true ||
             provenance.installationSupported !== false ||
             provenance.behaviorSupported !== false ||
             provenance.supportGranted !== false ||
             provenance.promotionEligible !== false
         ) {
-            throw new Error("Marketplace provenance or eligibility state changed");
+            throw new Error(
+                "Marketplace provenance or eligibility state changed",
+            );
         }
         return;
     }
@@ -604,11 +719,15 @@ function verifyPackInstallSmokeUninstall(root) {
         .map((path) => ({ path, value: readJson(join(root, path)) }))
         .filter((candidate) => Array.isArray(candidate.value.pi?.skills));
     if (packageCandidates.length !== 1)
-        throw new Error("Distribution must contain exactly one Pi package manifest");
+        throw new Error(
+            "Distribution must contain exactly one Pi package manifest",
+        );
     const candidate = packageCandidates[0];
     const skillRoots = assertSafePackageMetadata(candidate.value);
     const packageRoot = dirname(join(root, candidate.path));
-    const temporaryRoot = mkdtempSync(join(tmpdir(), "cratis-distribution-pack-"));
+    const temporaryRoot = mkdtempSync(
+        join(tmpdir(), "cratis-distribution-pack-"),
+    );
     let archivePath;
     try {
         const cacheRoot = join(temporaryRoot, "npm-cache");
@@ -622,7 +741,11 @@ function verifyPackInstallSmokeUninstall(root) {
             npm_config_update_notifier: "false",
         };
         const packResult = JSON.parse(
-            runNpm(["pack", "--json", "--ignore-scripts"], packageRoot, environment),
+            runNpm(
+                ["pack", "--json", "--ignore-scripts"],
+                packageRoot,
+                environment,
+            ),
         );
         if (
             !Array.isArray(packResult) ||
@@ -668,7 +791,9 @@ function verifyPackInstallSmokeUninstall(root) {
                 !isContained(packagePath, installedSkillRoot) ||
                 !existsSync(installedSkillRoot)
             ) {
-                throw new Error(`Installed Pi skill root is missing: ${skillRoot}`);
+                throw new Error(
+                    `Installed Pi skill root is missing: ${skillRoot}`,
+                );
             }
         }
         runNpm(
@@ -709,8 +834,11 @@ function copyManifestedRepository(sourceRoot, destinationRoot) {
 }
 
 function verifyCanaryRollbackSimulation(root, beforeRoot) {
-    if (!beforeRoot) throw new Error("beforeRoot is required for rollback simulation");
-    const temporaryRoot = mkdtempSync(join(tmpdir(), "cratis-distribution-rollback-"));
+    if (!beforeRoot)
+        throw new Error("beforeRoot is required for rollback simulation");
+    const temporaryRoot = mkdtempSync(
+        join(tmpdir(), "cratis-distribution-rollback-"),
+    );
     try {
         const projectRoot = join(temporaryRoot, "project");
         const installRoot = join(projectRoot, "distribution");
@@ -718,7 +846,10 @@ function verifyCanaryRollbackSimulation(root, beforeRoot) {
         const contextPath = join(projectRoot, "PROJECT.md");
         const context = "repository-owned context\n";
         writeFileSync(contextPath, context);
-        const beforeManifest = copyManifestedRepository(beforeRoot, installRoot);
+        const beforeManifest = copyManifestedRepository(
+            beforeRoot,
+            installRoot,
+        );
         rmSync(installRoot, { recursive: true, force: true });
         copyManifestedRepository(root, installRoot);
         rmSync(installRoot, { recursive: true, force: true });
@@ -730,7 +861,9 @@ function verifyCanaryRollbackSimulation(root, beforeRoot) {
         }
         rmSync(installRoot, { recursive: true, force: true });
         if (readFileSync(contextPath, "utf8") !== context)
-            throw new Error("Repository-owned context changed during rollback simulation");
+            throw new Error(
+                "Repository-owned context changed during rollback simulation",
+            );
     } finally {
         rmSync(temporaryRoot, { recursive: true, force: true });
     }
@@ -738,7 +871,11 @@ function verifyCanaryRollbackSimulation(root, beforeRoot) {
 
 export function verifyDistributionCheck({ root, check, beforeRoot } = {}) {
     const repositoryRoot = resolve(root ?? "");
-    if (!root || !existsSync(repositoryRoot) || !lstatSync(repositoryRoot).isDirectory())
+    if (
+        !root ||
+        !existsSync(repositoryRoot) ||
+        !lstatSync(repositoryRoot).isDirectory()
+    )
         throw new Error("root must be an existing directory");
     if (!distributionCheckNames.includes(check))
         throw new Error(`Unknown Distribution check: ${String(check)}`);

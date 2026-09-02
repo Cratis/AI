@@ -2,16 +2,11 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-import {
-    cpSync,
-    existsSync,
-    mkdirSync,
-    readFileSync,
-    rmSync,
-} from "node:fs";
+import { cpSync, existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { generatePublicMarketplaceDistribution } from "./generate-public-marketplace-distribution.mjs";
+import { packagePassiveCandidateAssets } from "./package-passive-candidate-assets.mjs";
 
 const defaultRepositoryRoot = resolve(
     fileURLToPath(new URL("..", import.meta.url)),
@@ -26,7 +21,10 @@ function readJson(path) {
 }
 
 const generatedRepositoryContract = readJson(
-    new URL("../distribution/generated-repository-contract.json", import.meta.url),
+    new URL(
+        "../distribution/generated-repository-contract.json",
+        import.meta.url,
+    ),
 );
 
 export function stagePublicMarketplaceRepository({
@@ -34,13 +32,15 @@ export function stagePublicMarketplaceRepository({
     currentDistributionRoot,
     outputRoot,
     version,
+    candidateVersion = "0.0.2-candidate.1",
 } = {}) {
     if (!currentDistributionRoot || !existsSync(currentDistributionRoot))
         throw new Error("currentDistributionRoot must exist");
     if (!outputRoot) throw new Error("outputRoot is required");
     const currentRoot = resolve(currentDistributionRoot);
     const root = resolve(outputRoot);
-    if (existsSync(root)) throw new Error(`Staged repository already exists: ${root}`);
+    if (existsSync(root))
+        throw new Error(`Staged repository already exists: ${root}`);
     try {
         const generated = generatePublicMarketplaceDistribution({
             repositoryRoot,
@@ -53,7 +53,21 @@ export function stagePublicMarketplaceRepository({
                 recursive: true,
                 errorOnExist: true,
             });
-        for (const path of generatedRepositoryContract.repositoryControlPlane.allowedPaths) {
+        for (const artifactId of [
+            "candidate-passive-public-package",
+            "candidate-passive-engineering-package",
+        ]) {
+            const artifactRoot = join(root, "candidates", artifactId);
+            mkdirSync(artifactRoot, { recursive: true });
+            packagePassiveCandidateAssets({
+                repositoryRoot,
+                artifactId,
+                version: candidateVersion,
+                outputRoot: join(artifactRoot, candidateVersion),
+            });
+        }
+        for (const path of generatedRepositoryContract.repositoryControlPlane
+            .allowedPaths) {
             const source = join(
                 repositoryRoot,
                 generatedRepositoryContract.repositoryControlPlane.sourceRoot,
@@ -71,12 +85,14 @@ export function stagePublicMarketplaceRepository({
 }
 
 async function main() {
-    const [currentDistributionRoot, outputRoot, version] = process.argv.slice(2);
+    const [currentDistributionRoot, outputRoot, version, candidateVersion] =
+        process.argv.slice(2);
     try {
         const result = await stagePublicMarketplaceRepository({
             currentDistributionRoot,
             outputRoot,
             version,
+            candidateVersion,
         });
         process.stdout.write(
             `Staged ${result.release.profileId}@${result.release.version} as a complete Distribution repository.\n`,

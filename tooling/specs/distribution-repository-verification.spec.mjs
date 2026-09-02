@@ -161,6 +161,41 @@ test("generated repository verification rejects marketplace support drift", () =
     });
 });
 
+test("generated repository verification rejects marketplace eligibility drift", () => {
+    withTemporaryDirectory((root) => {
+        const marketplaceRoot = join(root, "marketplace");
+        generatePublicMarketplaceDistribution({
+            repositoryRoot,
+            outputRoot: marketplaceRoot,
+            version: "0.3.0",
+        });
+        const provenancePath = join(marketplaceRoot, "provenance.json");
+        const provenance = JSON.parse(readFileSync(provenancePath, "utf8"));
+        provenance.eligibility.policySha256 = "0".repeat(64);
+        const provenanceContent = `${JSON.stringify(provenance, null, 2)}\n`;
+        writeFileSync(provenancePath, provenanceContent);
+        const manifestPath = join(
+            marketplaceRoot,
+            "distribution-manifest.json",
+        );
+        const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+        const provenanceRecord = manifest.files.find(
+            (file) => file.path === "provenance.json",
+        );
+        provenanceRecord.size = Buffer.byteLength(provenanceContent);
+        provenanceRecord.sha256 = sha256(provenanceContent);
+        writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+        assert.throws(
+            () =>
+                verifyDistributionCheck({
+                    root: marketplaceRoot,
+                    check: "fixture-provenance-record",
+                }),
+            /Marketplace provenance or eligibility state changed/,
+        );
+    });
+});
+
 test("generated repository verification rejects candidate component authority drift", () => {
     withTemporaryDirectory((root) => {
         const candidateRoot = join(root, "candidate");
