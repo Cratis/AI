@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generatedBy": "tooling/generate-component-catalogs.mjs",
-  "sourceDigest": "29d558ef139ffe4c2813912f482b1d030720e458910df0e671666562cc2776a6",
+  "sourceDigest": "2c91623a9d966999c8e934154446da3f55554ac6fb4ae23a110c0d4114eca240",
   "defaultPolicy": "deny",
   "canonicalSourceRoots": [
     ".ai/agents",
@@ -2587,12 +2587,12 @@
       "canonicalSources": [
         {
           "path": ".ai/skills/multi-tenancy",
-          "digest": "159825bd29f8101c58ea1e036f7dbd9ea25762cfab7a96d8a694d339efe15603",
+          "digest": "3cf47761145947eed05de2605457817d5d62771926796527df7c0cf562634677",
           "ownership": "owner",
           "ownerComponentId": "cratis-chronicle-multi-tenancy"
         }
       ],
-      "contentDigest": "24d84e535b38fed9741ac4428f6b0ed1472b8910b1e48d738241094e60f7ee19",
+      "contentDigest": "9284361ca5debabe0472f886615b70d6d1c297905b2f3f18019029511cc2066c",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -5489,12 +5489,12 @@
       "canonicalSources": [
         {
           "path": ".ai/rules/general.md",
-          "digest": "b48af74e4bbd01e9b8798c7b7a94e7ce3ea0d423ea1966a94079d98f9f120081",
+          "digest": "afdb400c06ed35220ac1b625e5060bce9297bd2534e7cea2fd996910b22fb4ac",
           "ownership": "owner",
           "ownerComponentId": "cratis-instruction-general"
         }
       ],
-      "contentDigest": "e171f34a8e7c09134938a0f0c4b1e10b0c08e7b3a915639fbea0bdc54882ec61",
+      "contentDigest": "5c62bca29896b4a442da84239eb8e66ac64b2597ee1557ec0e146823329afaba",
       "owner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "classification": {
@@ -7680,12 +7680,12 @@
       "canonicalSources": [
         {
           "path": ".ai/rules/csharp.md",
-          "digest": "535db1d781279f8974ab71ebe9aa525b88b314b46fe4fd5a475331db2f440f5f",
+          "digest": "70d579c6a6cc634c1201062e9c203170457977b243b8ffb6cddc613e7f627fed",
           "ownership": "owner",
           "ownerComponentId": "cratis-rule-csharp"
         }
       ],
-      "contentDigest": "6b6d915bbde059ee6ff783bb1bf5e1090bc0dd9d65a5833e7f7d0dff7b0fee02",
+      "contentDigest": "6abaf8b6771772f967780c027ac7bf1507a2a16640ea23b5cfdc1baa738d2e4b",
       "owner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "classification": {

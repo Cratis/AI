@@ -231,6 +231,14 @@ const sourceOverrides = new Map([
         },
     ],
     [
+        "multi-tenancy",
+        {
+            sourcePath: ".ai/skills/multi-tenancy",
+            sourceRevision: "fbf76029e4a6593a6a24f939face32b720009198",
+            evidenceId: "cratis-chronicle-multi-tenancy-source-fbf7602",
+        },
+    ],
+    [
         "ship-changes",
         {
             sourcePath: ".ai/skills/ship-changes",

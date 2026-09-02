@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "ea4c12936f61dbe76e114e63dc9cb2698f24ec92af25972be387b63b3da0b880",
+  "indexDigest": "16d8c93ef92bf671aa580bd393a2f02eb9b856d53fc8d427309b129983b21a50",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -32,6 +32,10 @@
     },
     {
       "path": ".ai/rules/concepts.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/rules/csharp.md",
       "status": "modified"
     },
     {
@@ -72,6 +76,10 @@
     },
     {
       "path": ".ai/skills/event-type-migrations/SKILL.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/multi-tenancy/SKILL.md",
       "status": "modified"
     },
     {
