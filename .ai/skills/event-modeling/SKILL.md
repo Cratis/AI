@@ -53,7 +53,7 @@ A slice is the unit of work, and it moves through four states. The model (events
 - **Working** — an implementer (agent or human) has picked it up and is running the **Implementation Workflow** end-to-end: backend slice file → Debug+Release build → specs → frontend → docs → quality gates. Use the `new-vertical-slice` skill; keep `EventModel.md` in sync via `create-event-model`.
 - **Done** — every quality gate is green and the change is shipped (PR merged, CI green — via `ship-changes`). Ready for downstream slices to build on.
 
-**Marking a slice Ready is the signal to implement it** — the implementer runs the full workflow through to Done rather than stopping at the model, and doesn't batch Ready slices behind one another. (This is the Event Modeling "agent harness" loop: model → Ready → pick up → work → Done → repeat.) This stays subject to the [Collaboration Default](../../rules/general.md) — pause only for a genuine checkpoint, risky change, or a decision the model can't make.
+**Marking a slice Ready is the signal to implement it** — the implementer runs the full workflow through to Done rather than stopping at the model, and doesn't batch Ready slices behind one another. (This is the Event Modeling "agent harness" loop: model → Ready → pick up → work → Done → repeat.) This stays subject to the [Collaboration Default](https://github.com/Cratis/AI/blob/main/.ai/rules/general.md) — pause only for a genuine checkpoint, risky change, or a decision the model can't make.
 
 ## See also
 

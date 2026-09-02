@@ -7,7 +7,7 @@ Add a business rule or event-store constraint to an existing command.
 
 ## Choose the right mechanism
 
-Pick by what the decision *is* — see [vertical-slices.md](../../rules/vertical-slices.md) "The decision matrix":
+Pick by what the decision *is* — see [vertical-slices.md](https://github.com/Cratis/AI/blob/main/.ai/rules/vertical-slices.md) "The decision matrix":
 
 | Scenario | Use |
 |---|---|
