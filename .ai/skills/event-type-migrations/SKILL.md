@@ -97,5 +97,5 @@ For three generations, write two migrations (`1→2`, `2→3`) — each only kno
 
 ## See also
 
-- `vertical-slices.md` — event type rules (non-nullable, naming).
+- [vertical-slices.md](https://github.com/Cratis/AI/blob/main/.ai/rules/vertical-slices.md) — event type rules (non-nullable, naming).
 - `event-modeling` — deciding when a fact is a new event vs a migration.

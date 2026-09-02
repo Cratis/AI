@@ -26,7 +26,7 @@ If you need custom namespace resolution outside Arc tenancy (header, subdomain, 
 
 Observers (projections, reducers, reactors) are instantiated **per namespace**. Consequences:
 
-- A `[OnceOnly]` reactor fires once **per event source within each namespace** (i.e. once per tenant), not globally once — see reactors.md.
+- A `[OnceOnly]` reactor fires once **per event source within each namespace** (i.e. once per tenant), not globally once — see [reactors.md](https://github.com/Cratis/AI/blob/main/.ai/rules/reactors.md).
 - Projection rewind affects only the target namespace.
 - Each namespace has its own sequence numbers.
 

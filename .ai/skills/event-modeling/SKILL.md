@@ -60,4 +60,4 @@ A slice is the unit of work, and it moves through four states. The model (events
 - `create-event-model` — render the chosen model into a Mermaid `EventModel.md`.
 - `new-vertical-slice` — implement a Ready slice end-to-end (the Working state).
 - `ship-changes` — branch, commit, PR, and merge to reach Done.
-- `vertical-slices.md` — slice anatomy that implements the brief.
+- [vertical-slices.md](https://github.com/Cratis/AI/blob/main/.ai/rules/vertical-slices.md) — slice anatomy that implements the brief.

@@ -86,5 +86,5 @@ void Because() => _result = _scenario.Instances.Values;
 
 ## See also
 
-- `vertical-slices.md` — read-model query return shapes.
-- `react.md` — consuming paged queries (`useWithPaging`, `DataPage`).
+- [vertical-slices.md](https://github.com/Cratis/AI/blob/main/.ai/rules/vertical-slices.md) — read-model query return shapes.
+- [react.md](https://github.com/Cratis/AI/blob/main/.ai/rules/react.md) — consuming paged queries (`useWithPaging`, `DataPage`).

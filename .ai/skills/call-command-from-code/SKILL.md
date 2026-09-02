@@ -7,7 +7,7 @@ description: Execute a Cratis Arc command from backend code via ICommandPipeline
 
 Backend code can drive a command through `ICommandPipeline` instead of an HTTP request. The pipeline runs the same authorization → validation → `Provide()` → `Handle()` chain as the HTTP boundary — only the entry point changes. Common callers: a reactor spawning a follow-up command, a background/scheduled job, an integration test harness.
 
-> Inside `Handle()` wanting to append to a *different stream*, do **not** inject `IEventLog` — return `IEnumerable<object>` with `EventForEventSourceId(targetId, @event)` wrappers (see `vertical-slices.md`). `ICommandPipeline` is for **command-shaped** invocations that need validation/authorization.
+> Inside `Handle()` wanting to append to a *different stream*, do **not** inject `IEventLog` - return `IEnumerable<object>` with `EventForEventSourceId(targetId, @event)` wrappers (see [vertical-slices.md](https://github.com/Cratis/AI/blob/main/.ai/rules/vertical-slices.md)). `ICommandPipeline` is for **command-shaped** invocations that need validation/authorization.
 
 ## Steps
 
@@ -77,5 +77,5 @@ A reactor calling `Execute` is not idempotent on replay — every replay re-fire
 
 ## See also
 
-- `vertical-slices.md` — reactors, `Handle()` return shapes, cross-stream events.
+- [vertical-slices.md](https://github.com/Cratis/AI/blob/main/.ai/rules/vertical-slices.md) - reactors, `Handle()` return shapes, cross-stream events.
 - `add-business-rule` / `auth-and-identity` — the validation/authorization the pipeline runs.

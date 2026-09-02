@@ -77,4 +77,4 @@ Mermaid eventmodeling has no shape for validation/guards. After the diagram, add
 ## See also
 
 - `event-modeling` — decide the model before drawing it.
-- `vertical-slices.md` — slice types and anatomy.
+- [vertical-slices.md](https://github.com/Cratis/AI/blob/main/.ai/rules/vertical-slices.md) — slice types and anatomy.

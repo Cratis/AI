@@ -66,5 +66,5 @@ Tags are also used for concurrency scoping. To *filter* by tag you need `[Filter
 
 ## See also
 
-- `vertical-slices.md` — event types, `EventContext` in reactors/reducers.
+- [vertical-slices.md](https://github.com/Cratis/AI/blob/main/.ai/rules/vertical-slices.md) — event types, `EventContext` in reactors/reducers.
 - `multi-tenancy` — namespace-per-tenant isolation (a different mechanism from a tenant tag).

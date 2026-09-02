@@ -26,7 +26,7 @@ For a standard page action menu (Create / Edit / Delete over a data table), use 
 | `ToolbarContext` | Named set of buttons inside a `ToolbarSection` |
 | `ToolbarFanOutItem` | Button that slides out a horizontal sub-panel on click |
 
-All components import from the `@cratis/components/Toolbar` subpath (never the root barrel — see components.md):
+All components import from the `@cratis/components/Toolbar` subpath (never the root barrel — see [components.md](https://github.com/Cratis/AI/blob/main/.ai/rules/components.md)):
 
 ```tsx
 import { Toolbar, ToolbarButton, ToolbarSeparator, ToolbarSection, ToolbarContext, ToolbarFanOutItem } from '@cratis/components/Toolbar';
