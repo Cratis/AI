@@ -46,7 +46,7 @@ if (result.IsSuccess) { var token = result.Response; }
 `IsSuccess` is the AND of the others — check the specific one your caller cares about:
 
 | Flag | Meaning |
-|---|---|
+| --- | --- |
 | `IsAuthorized` | identity satisfied the authorization attributes |
 | `IsValid` | validators passed (`ValidationResults` carries failures) |
 | `HasExceptions` | `Provide()`/`Handle()` threw (`ExceptionMessages`) |
@@ -63,7 +63,7 @@ A reactor calling `Execute` is not idempotent on replay — every replay re-fire
 ## Common pitfalls
 
 | Pitfall | Why |
-|---|---|
+| --- | --- |
 | Throwing on `!result.IsValid` instead of surfacing `ValidationResults` | loses structured failure info |
 | `Execute` from a reactor without `[OnceOnly]` | replay re-fires the command |
 | Defaulting to the scoped overload | most callers don't need it |

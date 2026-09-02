@@ -18,7 +18,7 @@ For a standard page action menu (Create / Edit / Delete over a data table), use 
 ## Component overview
 
 | Component | Purpose |
-|---|---|
+| --- | --- |
 | `Toolbar` | Container — renders a pill-shaped bar of buttons |
 | `ToolbarButton` | Icon or text button with tooltip and optional active state |
 | `ToolbarSeparator` | Visual divider between button groups |
@@ -203,14 +203,14 @@ When the toolbar is on the **right side** of the screen, fan out to the left:
 ### `Toolbar`
 
 | Prop | Type | Default | Description |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `children` | `ReactNode` | — | `ToolbarButton`, `ToolbarSeparator`, `ToolbarSection`, or `ToolbarFanOutItem` elements |
 | `orientation` | `'vertical' \| 'horizontal'` | `'vertical'` | Layout direction |
 
 ### `ToolbarButton`
 
 | Prop | Type | Default | Description |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `icon` | `string` | — | PrimeIcons CSS class (e.g. `'pi pi-pencil'`) |
 | `text` | `string` | — | Text shown inside the button (use for values like zoom %) |
 | `tooltip` | `string` | **required** | Tooltip text on hover |
@@ -227,7 +227,7 @@ When the toolbar is on the **right side** of the screen, fan out to the left:
 ### `ToolbarSection`
 
 | Prop | Type | Default | Description |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `activeContext` | `string` | first context name | Name of the active `ToolbarContext` |
 | `children` | `ToolbarContext[]` | — | `ToolbarContext` children |
 | `orientation` | `'vertical' \| 'horizontal'` | `'vertical'` | Match the enclosing `Toolbar` |
@@ -235,14 +235,14 @@ When the toolbar is on the **right side** of the screen, fan out to the left:
 ### `ToolbarContext`
 
 | Prop | Type | Default | Description |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `name` | `string` | **required** | Identifier matched by `ToolbarSection.activeContext` |
 | `children` | `ReactNode` | — | `ToolbarButton` elements for this context |
 
 ### `ToolbarFanOutItem`
 
 | Prop | Type | Default | Description |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `icon` | `string` | **required** | PrimeIcons CSS class for the trigger button |
 | `tooltip` | `string` | **required** | Tooltip for the trigger button |
 | `tooltipPosition` | `'top' \| 'right' \| 'bottom' \| 'left'` | `'right'` | Tooltip position |

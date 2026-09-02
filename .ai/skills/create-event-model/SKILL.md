@@ -20,7 +20,7 @@ It arranges a module's commands, events, read models, and automations on a left-
 **Frame:** `<prefix> <number> <type> <EntityName>`. Number is unique (order of declaration doesn't matter — frames position by reference). Type is one of:
 
 | Type | Swimlane | Represents |
-|---|---|---|
+| --- | --- | --- |
 | `ui` | UI / Automation | the persona interacting (persona name only — not a screen name) |
 | `pcr` | UI / Automation | a reactor / automation processor |
 | `cmd` | Command / Read Model | a `[Command]` record |

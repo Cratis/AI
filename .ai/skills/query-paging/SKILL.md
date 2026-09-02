@@ -44,7 +44,7 @@ Each emission carries page metadata alongside the data. Sorting and paging are a
 ### 3. What does and doesn't page
 
 | Return type | Paging? | How |
-|---|---|---|
+| --- | --- | --- |
 | `T`, `T?`, `IEnumerable<T>`, `List<T>`, `T[]` | No | Nothing narrows the result |
 | `IQueryable<T>` | **Yes — auto-paged** | The query renderer applies `OrderBy`/`Skip`/`Take` to the queryable |
 | `Task<IQueryable<T>>` | **Yes — auto-paged** | The result is awaited first, then rendered as the queryable it unwraps to |

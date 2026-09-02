@@ -10,7 +10,7 @@ Chronicle implements multi-tenancy through **namespaces**: each namespace is a l
 ## Core concept
 
 | Term | Meaning |
-|---|---|
+| --- | --- |
 | Namespace | a named isolation boundary in Chronicle (its own event store) |
 | Default namespace | `"Default"` — used when none is resolved |
 
@@ -33,7 +33,7 @@ Observers (projections, reducers, reactors) are instantiated **per namespace**. 
 ## Common pitfalls
 
 | Pitfall | Why |
-|---|---|
+| --- | --- |
 | Storing a tenant id on every event type | the namespace *is* the tenant — events don't need a tenant property |
 | No tenant resolution in a multi-tenant deployment | every tenant lands in `"Default"` — no isolation |
 | Reading one namespace and writing another in the same request | accidental cross-namespace access is a bug (intentional bridging is a Translation reactor) |

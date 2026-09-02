@@ -44,7 +44,7 @@ cratis context set dev
 ## When to reach for it
 
 | Question | Where to look |
-|---|---|
+| --- | --- |
 | Why has this read model stopped updating? | failed partitions for its observer — the error is on the partition, not in the log |
 | An observer is "quarantined" — why? | the failed partition's detail, with full stack traces |
 | Did this event actually get appended? | the event sequence, filtered by event type or event source |
