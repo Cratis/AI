@@ -1248,12 +1248,12 @@
       "canonicalSources": [
         {
           "path": ".ai/skills/auth-and-identity",
-          "digest": "4a61419ba8b2d7e39f490ccc641392eb458ce332f7ba7dc2cd330ed447a265cf",
+          "digest": "1980b45f2ac70c4b03858923b022ec4cbb470718fc5b72cc93efc799a7bbd81d",
           "ownership": "owner",
           "ownerComponentId": "cratis-arc-authentication-authorization-and-identity"
         }
       ],
-      "contentDigest": "acc839f4c51cc68d8a5d432c1a3cc4d4902256461efc14b2d2faad247157be0b",
+      "contentDigest": "59a7da140408368253bf224defde27dbb20ce8468e6e0a44dd057fc1eda8272a",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {

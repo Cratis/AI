@@ -257,8 +257,8 @@ const sourceOverrides = new Map([
         name,
         {
             sourcePath: `.ai/skills/${name}`,
-            sourceRevision: "74c0d8eb15886c24f9a3411d33f01bd00dab0e51",
-            evidenceId: "public-effect-guidance-boundary-source-74c0d8e",
+            sourceRevision: "6ec724752023b7c1639b01e33d700d84d04fcfc3",
+            evidenceId: "public-effect-guidance-boundary-source-6ec7247",
         },
     ]),
     ...normalizedPackagedSourceNames.map((name) => [
