@@ -1,0 +1,1 @@
+../../.ai/rules/service-lifetimes.md

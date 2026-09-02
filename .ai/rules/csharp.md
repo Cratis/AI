@@ -129,6 +129,12 @@ The framework discovers and wires dependencies by convention. Explicit registrat
 - Systems with a convention of `IFoo → Foo` do not need to be registered explicitly.
 - Command/query `Handle()` method parameters are automatically resolved from DI by type.
 
+### `[Singleton]` is a narrow choice, not the default
+
+The default is the convention (transient) or `[Scoped]`. A singleton may **not** depend on anything belonging to a tenant, a user, or a request — `IEventStore` and everything off it, `IMongoCollection<T>`, a `DbContext`, or a captured principal. Those resolve per scope, and a singleton captures the *root* scope: the default namespace, and nobody signed in. It fails by returning empty results rather than by throwing, so nothing tells you.
+
+Singletons that need data take `IServiceScopeFactory` and open a scope per call, or `IChronicleClient` with the namespace named explicitly. See `service-lifetimes.md` for the full rule, the reasoning, and the architecture spec that enforces it.
+
 ### Discovering multiple implementations — use `IInstancesOf<T>`, never `IEnumerable<T>`
 
 When a type needs every implementation of an abstraction (handlers, strategies, filters, validators, formatters), inject `IInstancesOf<TInterface>` from `Cratis.Types`. The framework discovers and instantiates every implementation by convention — no `services.AddSingleton<TInterface, Impl1>()` calls anywhere.

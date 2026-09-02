@@ -279,6 +279,7 @@ All gates pass before merging, opening a PR, or marking a slice complete — exc
 | **Contributing to a Cratis framework repo** (framework profile) | `framework.md` |
 | Slice anatomy (commands, `Provide()`, validators, events, projections, read models, reactors, constraints, compliance, cross-slice) | `vertical-slices.md` |
 | C# / TypeScript style | `csharp.md`, `typescript.md` |
+| Service lifetimes — what a singleton may never hold (tenant, user, request state) | `service-lifetimes.md` |
 | React + Arc + Cratis Components + MVVM + dialogs | `react.md`, `components.md`, `dialogs.md` |
 | Frontend engineering quality & testing | `frontend-quality.md`, `frontend-testing.md`, `storybook.md` |
 | Spec patterns — universal `Specification` base (both profiles) | `specs.md`, `specs.csharp.md`, `specs.typescript.md` |
