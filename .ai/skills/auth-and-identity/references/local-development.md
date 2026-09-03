@@ -2,6 +2,8 @@
 
 This reference covers simulating authentication and identity in local development environments without real Azure or identity infrastructure.
 
+> Use these techniques only against a localhost process or an isolated developer-owned environment that explicitly enables test identity input. Never inject a principal or identity cookie into a shared, staging, or production endpoint; never use real user identifiers, credentials, or tokens. Confirm the target origin before adding the header or cookie.
+
 ## How Identity Works in Development
 
 When running locally:
@@ -56,7 +58,7 @@ btoa(JSON.stringify({
 
 ### Step 3: Inject the Header
 
-Use the [ModHeader](https://modheader.com/) browser extension:
+After reviewing the extension's permissions and your organization's browser-extension policy, use [ModHeader](https://modheader.com/) only for the isolated local origin:
 
 1. Install ModHeader for Chrome/Edge/Firefox
 2. Add a request header:
@@ -89,16 +91,16 @@ public Task<UserDetails> Provide(IdentityProviderContext context)
 If you prefer not to install a browser extension, you can also set the cookie directly:
 
 1. Build the identity JSON matching the `.cratis-identity` cookie format
-2. Set it via browser console:
+2. Set it via browser console, on the local origin only:
 
-```javascript
-document.cookie = '.cratis-identity=' + btoa(JSON.stringify({
-    id: 'user-id',
-    name: 'Jane Developer',
-    roles: ['Admin'],
-    details: { department: 'Engineering' }
-})) + '; path=/';
-```
+    ```javascript
+    document.cookie = '.cratis-identity=' + btoa(JSON.stringify({
+        id: 'user-id',
+        name: 'Jane Developer',
+        roles: ['Admin'],
+        details: { department: 'Engineering' }
+    })) + '; path=/';
+    ```
 
 3. Reload — the frontend will use this cookie directly without calling the backend
 

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "16d8c93ef92bf671aa580bd393a2f02eb9b856d53fc8d427309b129983b21a50",
+  "indexDigest": "e5874c8f59314448c2ed16507346334411fddb614b48380dfc95d0ac90afa683",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -67,7 +67,39 @@
       "status": "modified"
     },
     {
+      "path": ".ai/skills/add-business-rule/SKILL.md",
+      "status": "modified"
+    },
+    {
       "path": ".ai/skills/add-concept/SKILL.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/add-ef-migration/SKILL.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/add-reactor/SKILL.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/add-reducer/SKILL.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/auth-and-identity/references/frontend.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/auth-and-identity/references/local-development.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/call-command-from-code/SKILL.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/cratis-command/SKILL.md",
       "status": "modified"
     },
     {
@@ -75,11 +107,43 @@
       "status": "modified"
     },
     {
+      "path": ".ai/skills/cratis-react-page/references/data-page.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/cratis-specs-csharp/SKILL.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/create-event-model/SKILL.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/cross-cutting-properties/SKILL.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/diagnose-slice/SKILL.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/event-modeling/SKILL.md",
+      "status": "modified"
+    },
+    {
       "path": ".ai/skills/event-type-migrations/SKILL.md",
       "status": "modified"
     },
     {
+      "path": ".ai/skills/inspect-running-chronicle/SKILL.md",
+      "status": "modified"
+    },
+    {
       "path": ".ai/skills/multi-tenancy/SKILL.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/query-paging/SKILL.md",
       "status": "modified"
     },
     {
@@ -88,6 +152,18 @@
     },
     {
       "path": ".ai/skills/ship-changes/evals/evals.json",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/toolbar/SKILL.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/write-specs-frontend/SKILL.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/write-specs/SKILL.md",
       "status": "modified"
     },
     {
@@ -864,6 +940,14 @@
     },
     {
       "path": "distribution/profile-subscription.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/public-evaluation-eligibility.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/public-evaluation-eligibility.schema.json",
       "status": "added"
     },
     {
@@ -4541,8 +4625,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 71,
-      "expectedPathsDigest": "22f2f685c8733e3632f419a37e18feeea3e43f1bbbd8cf1c29f097e66d71723d"
+      "expectedPathCount": 73,
+      "expectedPathsDigest": "9e03a1d09ed64c2dc2ea3dfb9c075910373912141c779cf5dbda00e7242a3b7f"
     },
     {
       "excludePathPatterns": [],

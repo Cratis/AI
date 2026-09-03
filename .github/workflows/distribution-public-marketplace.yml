@@ -9,7 +9,12 @@ on:
       version:
         description: Unsupported public evaluation version (0.x.y)
         required: true
-        default: 0.2.0
+        default: 0.3.0
+        type: string
+      candidate-version:
+        description: Immutable corrected candidate review version
+        required: true
+        default: 0.0.2-candidate.1
         type: string
 
 permissions:
@@ -48,14 +53,17 @@ jobs:
       - name: Generate complete marketplace repository
         env:
           VERSION: ${{ inputs.version }}
+          CANDIDATE_VERSION: ${{ inputs.candidate-version }}
         run: |
           set -euo pipefail
           [[ "$VERSION" =~ ^0\.[0-9]+\.[0-9]+$ ]]
+          [[ "$CANDIDATE_VERSION" =~ ^0\.0\.[0-9]+-candidate\.[0-9]+$ ]]
           cd source
           node tooling/stage-public-marketplace-repository.mjs \
             "$GITHUB_WORKSPACE/current-distribution" \
             "$RUNNER_TEMP/staged-distribution" \
-            "$VERSION"
+            "$VERSION" \
+            "$CANDIDATE_VERSION"
           node tooling/package-public-marketplace-submissions.mjs \
             "$RUNNER_TEMP/staged-distribution" \
             "$RUNNER_TEMP/vendor-portal-handoff"

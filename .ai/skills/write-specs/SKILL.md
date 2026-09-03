@@ -5,7 +5,7 @@ description: Use this skill to write specs for an event-sourced Cratis APPLICATI
 
 Write comprehensive in-process BDD specs for an **event-sourced Cratis application** slice. **Lead with the scenario family**; reserve out-of-process Chronicle host specs for the host/transport boundary. Full patterns and assertion catalogs: `.ai/rules/specs.scenarios.csharp.md` (application profile).
 
-> **Application-oriented.** Most **framework / library** specs (Chronicle kernel, Arc pipeline, Fundamentals, generators) use the plain `Specification` base + NSubstitute — see [specs.csharp.md](../../rules/specs.csharp.md). A framework repo reaches for the scenario family only to test the engine it provides (Arc's command pipeline, Chronicle's event/projection/reactor engine) — see [specs.scenarios.csharp.md](../../rules/specs.scenarios.csharp.md).
+> **Application-oriented.** Most **framework / library** specs (Chronicle kernel, Arc pipeline, Fundamentals, generators) use the plain `Specification` base + NSubstitute — see [specs.csharp.md](https://github.com/Cratis/AI/blob/main/.ai/rules/specs.csharp.md). A framework repo reaches for the scenario family only to test the engine it provides (Arc's command pipeline, Chronicle's event/projection/reactor engine) — see [specs.scenarios.csharp.md](https://github.com/Cratis/AI/blob/main/.ai/rules/specs.scenarios.csharp.md).
 
 ## Spec placement
 

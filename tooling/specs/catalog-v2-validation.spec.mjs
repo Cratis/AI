@@ -101,9 +101,7 @@ test("Chronicle MCP guidance target is provenance-bound but remains unclassified
         "5997b28c142d9ee489841894e5d21730da5cb5a5",
     );
     assert(
-        source.evidenceIds.includes(
-            "chronicle-mcp-inspection-source-5997b28",
-        ),
+        source.evidenceIds.includes("chronicle-mcp-inspection-source-5997b28"),
     );
     assert.equal(target.lifecycle, "candidate");
     assert.equal(target.capabilityKind, "unclassified");
@@ -949,8 +947,7 @@ test("the accepted Option A+ decision still blocks unapproved live targets", () 
         (artifact) => artifact.id === "candidate-passive-public-package",
     );
     const engineeringCandidate = catalogs.artifacts.artifacts.find(
-        (artifact) =>
-            artifact.id === "candidate-passive-engineering-package",
+        (artifact) => artifact.id === "candidate-passive-engineering-package",
     );
     const fixture = catalogs.artifacts.artifacts.find(
         (artifact) => artifact.materializationClass === "test-fixture",
@@ -999,18 +996,19 @@ test("the accepted Option A+ decision still blocks unapproved live targets", () 
         },
     ]);
     assert(publicCandidate.exactSourcePaths.length > 0);
-    assert.equal(
-        engineeringCandidate.materializationClass,
-        "review-candidate",
-    );
+    assert.equal(engineeringCandidate.materializationClass, "review-candidate");
     assert.equal(engineeringCandidate.materializationAllowed, true);
     assert.equal(engineeringCandidate.runtimeEligible, false);
     assert.equal(engineeringCandidate.requiresApprovedTargets, false);
-    assert.equal(engineeringCandidate.componentInventory.skills.length, 7);
+    assert.equal(engineeringCandidate.componentInventory.skills.length, 6);
     assert.deepEqual(engineeringCandidate.targetExclusions, [
         {
             targetId: "cratis-engineering-docs-visual-qa",
             reason: "private-or-local-content",
+        },
+        {
+            targetId: "skill-creator",
+            reason: "incomplete-resource-and-license-closure",
         },
     ]);
     assert(engineeringCandidate.exactSourcePaths.length > 0);
@@ -1046,9 +1044,7 @@ test("the accepted Option A+ decision still blocks unapproved live targets", () 
     planned.materializationAllowed = true;
     assert(
         validateArtifacts(catalogs).some((error) =>
-            error.includes(
-                "release artifacts must require approved targets",
-            ),
+            error.includes("release artifacts must require approved targets"),
         ),
     );
     planned.requiresApprovedTargets = true;
@@ -1120,8 +1116,7 @@ test("repository inventory records component and MCP guidance generation provena
         (dependency) => dependency !== "catalog/v2/components.json",
     );
     const chronicleMcp = catalogs.repositoryInventory.records.find(
-        (record) =>
-            record.id === "mcp-generated-guidance-references",
+        (record) => record.id === "mcp-generated-guidance-references",
     );
     chronicleMcp.dependencies = chronicleMcp.dependencies.filter(
         (dependency) =>
@@ -1141,10 +1136,7 @@ test("repository inventory records component and MCP guidance generation provena
         (dependency) =>
             dependency !== "tooling/native-non-skill-projections.mjs",
     );
-    const errors = validateRepositoryInventory(
-        catalogs,
-        defaultRepositoryRoot,
-    );
+    const errors = validateRepositoryInventory(catalogs, defaultRepositoryRoot);
     assert(
         errors.some((error) =>
             error.includes("missing generation provenance dependency"),

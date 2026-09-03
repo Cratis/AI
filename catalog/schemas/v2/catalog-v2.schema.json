@@ -1338,7 +1338,7 @@
             "required": ["targetId", "reason"],
             "properties": {
               "targetId": { "$ref": "#/$defs/id" },
-              "reason": { "enum": ["mcp-guidance-materialization-blocked", "private-or-local-content"] }
+              "reason": { "enum": ["incomplete-resource-and-license-closure", "mcp-guidance-materialization-blocked", "private-or-local-content"] }
             }
           }
         },

@@ -14,7 +14,7 @@ Concretely, that means: no service holds tenant-scoped state for the process (se
 ## Core concept
 
 | Term | Meaning |
-|---|---|
+| --- | --- |
 | Namespace | a named isolation boundary in Chronicle (its own event store) |
 | Default namespace | `"Default"` — used when none is resolved |
 
@@ -30,14 +30,14 @@ If you need custom namespace resolution outside Arc tenancy (header, subdomain, 
 
 Observers (projections, reducers, reactors) are instantiated **per namespace**. Consequences:
 
-- A `[OnceOnly]` reactor fires once **per event source within each namespace** (i.e. once per tenant), not globally once — see reactors.md.
+- A `[OnceOnly]` reactor fires once **per event source within each namespace** (i.e. once per tenant), not globally once — see [reactors.md](https://github.com/Cratis/AI/blob/main/.ai/rules/reactors.md).
 - Projection rewind affects only the target namespace.
 - Each namespace has its own sequence numbers.
 
 ## Common pitfalls
 
 | Pitfall | Why |
-|---|---|
+| --- | --- |
 | Storing a tenant id on every event type | the namespace *is* the tenant — events don't need a tenant property |
 | No tenant resolution in a multi-tenant deployment | every tenant lands in `"Default"` — no isolation |
 | A `[Singleton]` holding `IEventStore`, `IMongoCollection<T>` or a `DbContext` | captures the root scope, so it is pinned to the default namespace forever — and it returns empty results rather than failing (`csharp.md`) |

@@ -43,7 +43,7 @@ public record DebitAccountOpened(AccountName Name, OwnerId OwnerId);
 - `Handle()` returns the event (or events) to append — Arc's Chronicle integration automatically appends them; **never inject `IEventLog` to append the primary event**
 - `[EventType]` takes **no arguments** — the identifier is generated from the type name
 - Name the command as an imperative action — `OpenDebitAccount`, not `OpenDebitAccountCommand`
-- All backend artifacts for the slice live in this one file; place it in the slice folder, not an `API/` or `Commands/` folder (see [vertical-slices.md](../../rules/vertical-slices.md))
+- All backend artifacts for the slice live in this one file; place it in the slice folder, not an `API/` or `Commands/` folder (see [vertical-slices.md](https://github.com/Cratis/AI/blob/main/.ai/rules/vertical-slices.md))
 - Use concept wrappers for every domain value — **identity** concepts derive from `EventSourceId<T>`, **value** concepts from `ConceptAs<T>`; never raw `Guid`/`string`
 
 ```csharp

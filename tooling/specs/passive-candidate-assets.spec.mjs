@@ -76,9 +76,9 @@ test("passive candidate assets package every currently safe target and account f
         assert.equal(publicManifest.targetIds.length, 34);
         assert.equal(publicManifest.sourceSkills.length, 34);
         assert.equal(publicManifest.targetExclusions.length, 3);
-        assert.equal(engineeringManifest.targetIds.length, 7);
-        assert.equal(engineeringManifest.sourceSkills.length, 7);
-        assert.equal(engineeringManifest.targetExclusions.length, 1);
+        assert.equal(engineeringManifest.targetIds.length, 6);
+        assert.equal(engineeringManifest.sourceSkills.length, 6);
+        assert.equal(engineeringManifest.targetExclusions.length, 2);
         assert.equal(
             publicManifest.targetIds.length +
                 publicManifest.targetExclusions.length,
@@ -102,6 +102,10 @@ test("passive candidate assets package every currently safe target and account f
                 targetId: "cratis-engineering-docs-visual-qa",
                 reason: "private-or-local-content",
             },
+            {
+                targetId: "skill-creator",
+                reason: "incomplete-resource-and-license-closure",
+            },
         ]);
         assert.deepEqual(publicManifest.repositoryOnlySkillExclusions, []);
         assert.deepEqual(
@@ -117,8 +121,8 @@ test("passive candidate assets package every currently safe target and account f
         );
         const skillComponentIds = JSON.parse(
             readFileSync("catalog/v2/components.json", "utf8"),
-        ).components
-            .filter((component) => component.kind === "skill")
+        )
+            .components.filter((component) => component.kind === "skill")
             .map((component) => component.id)
             .sort();
         const accountedSkillComponentIds = [
@@ -154,8 +158,11 @@ test("passive candidate assets package every currently safe target and account f
                 ),
             );
             assert.equal(coverage.componentCount, 137);
-            assert.equal(coverage.byDisposition["skill-packaged-candidate"], 41);
-            assert.equal(coverage.byDisposition["skill-blocked-candidate"], 4);
+            assert.equal(
+                coverage.byDisposition["skill-packaged-candidate"],
+                40,
+            );
+            assert.equal(coverage.byDisposition["skill-blocked-candidate"], 5);
             assert.equal(
                 coverage.byDisposition["skill-legacy-repository-only"],
                 4,
@@ -164,7 +171,10 @@ test("passive candidate assets package every currently safe target and account f
                 coverage.byDisposition["native-static-review-projected"],
                 35,
             );
-            assert.equal(coverage.byDisposition["native-static-unprojected"], 2);
+            assert.equal(
+                coverage.byDisposition["native-static-unprojected"],
+                2,
+            );
             assert.equal(
                 coverage.byDisposition["repository-host-adapter-only"],
                 48,
@@ -201,6 +211,22 @@ test("passive candidate assets package every currently safe target and account f
             assert.deepEqual(sbom.dependencies, []);
             assert.deepEqual(sbom.executableComponents, []);
             assert.equal(sbom.components.length, manifest.sourceSkills.length);
+            if (manifest === engineeringManifest) {
+                assert.equal(
+                    sbom.components.some(
+                        (component) => component.sourceId === "skill-creator",
+                    ),
+                    false,
+                );
+                assert(
+                    sbom.targetExclusions.some(
+                        (exclusion) =>
+                            exclusion.targetId === "skill-creator" &&
+                            exclusion.reason ===
+                                "incomplete-resource-and-license-closure",
+                    ),
+                );
+            }
         }
     });
 });
@@ -269,7 +295,10 @@ test("passive candidate archives are deterministic private and non-installable",
         assert(checksums.includes("candidate-sbom.json"));
         assert(checksums.includes("candidate-support-matrix.json"));
         assert(checksums.includes("candidate-component-coverage.json"));
-        assert.equal(checksums.trim().split("\n").length, first.assets.length + 9);
+        assert.equal(
+            checksums.trim().split("\n").length,
+            first.assets.length + 9,
+        );
     });
 });
 
@@ -371,7 +400,9 @@ test("candidate component coverage closes every modeled component kind", () => {
     );
     assert(
         coverage.records
-            .filter((record) => ["agent", "command", "prompt"].includes(record.kind))
+            .filter((record) =>
+                ["agent", "command", "prompt"].includes(record.kind),
+            )
             .every(
                 (record) =>
                     record.disposition === "repository-host-adapter-only" &&

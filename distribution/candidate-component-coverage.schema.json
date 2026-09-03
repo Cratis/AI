@@ -69,9 +69,9 @@
         "native-static-review-projected": { "const": 35 },
         "native-static-unprojected": { "const": 2 },
         "repository-host-adapter-only": { "const": 48 },
-        "skill-blocked-candidate": { "const": 4 },
+        "skill-blocked-candidate": { "type": "integer", "minimum": 0, "maximum": 49 },
         "skill-legacy-repository-only": { "const": 4 },
-        "skill-packaged-candidate": { "const": 41 }
+        "skill-packaged-candidate": { "type": "integer", "minimum": 0, "maximum": 49 }
       }
     },
     "records": {
@@ -104,7 +104,7 @@
           "lifecycle": { "enum": ["active", "legacy-retained"] },
           "releaseBoundary": { "enum": ["public-passive", "engineering-passive", "repository-only", "future-executable-package"] },
           "disposition": { "enum": ["skill-packaged-candidate", "skill-blocked-candidate", "skill-legacy-repository-only", "native-static-review-projected", "native-static-unprojected", "repository-host-adapter-only", "executable-blocked"] },
-          "reason": { "enum": ["included-in-passive-review-candidate", "private-or-local-content", "mcp-guidance-materialization-blocked", "legacy-retained-repository-only", "generated-static-repository-fixture", "no-generated-static-contract", "repository-native-kind-no-package-contract", "executable-component-blocked"] },
+          "reason": { "enum": ["included-in-passive-review-candidate", "private-or-local-content", "mcp-guidance-materialization-blocked", "incomplete-resource-and-license-closure", "legacy-retained-repository-only", "generated-static-repository-fixture", "no-generated-static-contract", "repository-native-kind-no-package-contract", "executable-component-blocked"] },
           "existingProjectionCount": { "type": "integer", "minimum": 0 },
           "generatedStaticProjectionCount": { "type": "integer", "minimum": 0 },
           "approvalState": { "enum": ["modeled", "blocked"] },

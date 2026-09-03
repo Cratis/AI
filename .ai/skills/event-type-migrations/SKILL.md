@@ -82,7 +82,7 @@ For three generations, write two migrations (`1→2`, `2→3`) — each only kno
 ## Common pitfalls
 
 | Pitfall | Why it breaks |
-|---|---|
+| --- | --- |
 | Editing the stored event record without bumping `generation` | Old events still carry the old schema; Chronicle won't migrate them |
 | Giving the prior record its own `[EventType]` with no id, or an id that doesn't exactly match the current generation's | Chronicle treats the two as unrelated event types and the migration never applies; use `[EventTypeGenerationFor<T>]` so there's no id to mismatch |
 | Adding a nullable value type to handle "missing old data" | Analyzer-flagged anti-pattern; use a migration default |
@@ -97,5 +97,5 @@ For three generations, write two migrations (`1→2`, `2→3`) — each only kno
 
 ## See also
 
-- `vertical-slices.md` — event type rules (non-nullable, naming).
+- [vertical-slices.md](https://github.com/Cratis/AI/blob/main/.ai/rules/vertical-slices.md) — event type rules (non-nullable, naming).
 - `event-modeling` — deciding when a fact is a new event vs a migration.

@@ -12,7 +12,7 @@ Some information must travel with every event — correlation/causation ids, the
 Before implementing a provider, see whether what you need is already there (available in reactors/reducers):
 
 | Property | Description |
-|---|---|
+| --- | --- |
 | `EventSourceId` | the event source appended to |
 | `SequenceNumber` | ordinal within the sequence |
 | `Occurred` | wall-clock time at append |
@@ -43,7 +43,7 @@ Chronicle discovers providers from DI — register as scoped/singleton. Multiple
 ## Tags vs filtering — easy to confuse
 
 | Attribute | Where | What it does |
-|---|---|---|
+| --- | --- | --- |
 | `[Tag("analytics", "user-action")]` | on an `[EventType]` | merges static tags into every occurrence at append time; available in `EventContext.Tags`. Does **not** filter. |
 | `[FilterEventsByTag("tag")]` | on a reactor/reducer class | restricts which events reach the handler (multiple = OR; combined with `[EventSourceType]`/`[EventStreamType]` = AND). |
 | `[Tag]` / `[Tags]` | on a reactor/reducer class | admin-UI label only — **no** effect on delivery. |
@@ -53,7 +53,7 @@ Tags are also used for concurrency scoping. To *filter* by tag you need `[Filter
 ## Common pitfalls
 
 | Pitfall | Why |
-|---|---|
+| --- | --- |
 | Adding correlation/tenant id to every `[EventType]` | pollutes schemas — use a provider |
 | Injecting scoped services into a singleton provider | register the provider scoped, or use `IServiceScopeFactory` |
 | Expecting envelope properties to appear in `EventContext` on handlers | they don't — they're metadata only |
@@ -66,5 +66,5 @@ Tags are also used for concurrency scoping. To *filter* by tag you need `[Filter
 
 ## See also
 
-- `vertical-slices.md` — event types, `EventContext` in reactors/reducers.
+- [vertical-slices.md](https://github.com/Cratis/AI/blob/main/.ai/rules/vertical-slices.md) — event types, `EventContext` in reactors/reducers.
 - `multi-tenancy` — namespace-per-tenant isolation (a different mechanism from a tenant tag).
