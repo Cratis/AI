@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "7f859ac0ec5a70c7c278e458dd650aaf33f82301a959e52532bf4296da2593ba",
+  "indexDigest": "7dc4b27bafa3da0c282354241150776578345326d66373a005fe12e6af2697a0",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -716,7 +716,7 @@
     },
     {
       "path": "catalog/v2/repository-inventory.json",
-      "status": "unmerged"
+      "status": "added"
     },
     {
       "path": "catalog/v2/source-contracts.json",
@@ -4515,8 +4515,8 @@
         "reevaluation-authority"
       ],
       "generator": "tooling/generate-catalog-v2.mjs, tooling/generate-component-catalogs.mjs, tooling/generate-support.mjs, tooling/generate-ecosystem-artifact-coverage.mjs, and tooling/generate-repository-inventory.mjs",
-      "expectedPathCount": 13,
-      "expectedPathsDigest": "235a23d4ee9b013cda25b00cc6d287a85de92e4ce6ff52ed933ddd769b67dcf7"
+      "expectedPathCount": 11,
+      "expectedPathsDigest": "13e5cefbee41ff9fea3e2d5980b943de02937e695290e80b4ae9d9c6bee866fa"
     },
     {
       "excludePathPatterns": [],
