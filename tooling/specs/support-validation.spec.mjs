@@ -21,6 +21,15 @@ import {
 } from "../support-validation.mjs";
 
 const clone = (value) => structuredClone(value);
+// The catalogs are evaluated as of one authored date. Fixtures derive their dates
+// from it so a fixture stays active as the corpus advances, instead of silently
+// expiring and turning these specs red on a date rather than on a behavior.
+const activeDate = loadSupportCatalogs().evidence.asOf;
+const shiftDate = (days) => {
+    const [year, month, day] = activeDate.split("-").map(Number);
+    const shifted = new Date(Date.UTC(year, month - 1, day + days));
+    return shifted.toISOString().slice(0, 10);
+};
 const digestA = "a".repeat(64);
 const digestB = "b".repeat(64);
 const bindingId = "gemini-cli-extensions-artifact-binding";
@@ -56,8 +65,8 @@ function hasError(errors, text) {
 function configuredCatalogs({
     assurances = allTechnicalAssurances,
     evidenceClass = "local",
-    observedOn = "2026-08-25",
-    validThrough = "2026-08-25",
+    observedOn = activeDate,
+    validThrough = activeDate,
     outcome = "pass",
 } = {}) {
     const catalogs = clone(loadSupportCatalogs());
@@ -142,9 +151,9 @@ test("all authored evidence and support policy schemas reject unknown properties
     }
 });
 
-test("all 152 observations, 172 fact IDs, 11 legacy gaps, 108 official sources, and 22 distribution evidence files are accounted exactly", () => {
+test("all 163 observations, 172 fact IDs, 11 legacy gaps, 108 official sources, and 23 distribution evidence files are accounted exactly", () => {
     const catalogs = loadSupportCatalogs();
-    assert.equal(catalogs.evidence.observations.length, 152);
+    assert.equal(catalogs.evidence.observations.length, 163);
     assert.equal(catalogs.evidence.legacyFacts.length, 172);
     assert.equal(catalogs.evidence.legacyGaps.length, 11);
     assert.equal(
@@ -154,7 +163,7 @@ test("all 152 observations, 172 fact IDs, 11 legacy gaps, 108 official sources, 
         ),
         108,
     );
-    assert.equal(catalogs.evidence.distributionEvidenceFiles.length, 22);
+    assert.equal(catalogs.evidence.distributionEvidenceFiles.length, 23);
     assert.deepEqual(
         catalogs.evidence.distributionEvidenceFiles
             .map((record) => record.repositoryPath)
@@ -365,8 +374,8 @@ test("synthetic fixture evidence never satisfies install-tested or above", () =>
 test("future evidence cannot satisfy a gate", () => {
     const record = supportRecord(
         configuredCatalogs({
-            observedOn: "2026-08-26",
-            validThrough: "2026-09-26",
+            observedOn: shiftDate(1),
+            validThrough: shiftDate(31),
         }),
     );
     assert.equal(record.effectiveTier, "documented");
@@ -377,8 +386,8 @@ test("future evidence cannot satisfy a gate", () => {
 test("expired evidence remains history but cannot satisfy a gate", () => {
     const record = supportRecord(
         configuredCatalogs({
-            observedOn: "2026-08-01",
-            validThrough: "2026-08-23",
+            observedOn: shiftDate(-32),
+            validThrough: shiftDate(-1),
         }),
     );
     assert.equal(record.effectiveTier, "documented");
