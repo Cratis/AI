@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generatedBy": "tooling/generate-component-catalogs.mjs",
-  "sourceDigest": "21d43ce98ac1bf566dcbf6b15299420f3194c72bdddb916f786078f94de5b357",
+  "sourceDigest": "f6ffb03847510e9007c063915a82530a74c21f04ff792ab207dafca18ebb4b0e",
   "defaultPolicy": "deny",
   "canonicalSourceRoots": [
     ".ai/agents",
@@ -2587,12 +2587,12 @@
       "canonicalSources": [
         {
           "path": ".ai/skills/multi-tenancy",
-          "digest": "f61cfdab507bef04ba59aa3faf8453a11ded2be7b6e878bbf1cff5bf64be8965",
+          "digest": "13a42d07bf78dbda994c0c00903f88efb0deb59d70052ebed520a33a73028858",
           "ownership": "owner",
           "ownerComponentId": "cratis-chronicle-multi-tenancy"
         }
       ],
-      "contentDigest": "452807aa4f981856d98c97e316abc276a8bb6a34fe1b79f50dfc62b91eb8d113",
+      "contentDigest": "3577cddd27bb35221cb42a023e16997a7438487a090f64d883f2163f9ceb1186",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -7680,12 +7680,12 @@
       "canonicalSources": [
         {
           "path": ".ai/rules/csharp.md",
-          "digest": "70d579c6a6cc634c1201062e9c203170457977b243b8ffb6cddc613e7f627fed",
+          "digest": "ed5c3100d9b32f36bdc8cfbf64c3293def09005cc01898b3df59a3a8b2c054ea",
           "ownership": "owner",
           "ownerComponentId": "cratis-rule-csharp"
         }
       ],
-      "contentDigest": "6abaf8b6771772f967780c027ac7bf1507a2a16640ea23b5cfdc1baa738d2e4b",
+      "contentDigest": "f701d7dcb53e35e26def35d7eabfc1b464cb7013947685fa643cf2efe8fb0b23",
       "owner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "classification": {

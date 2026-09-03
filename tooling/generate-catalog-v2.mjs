@@ -200,7 +200,6 @@ const normalizedPackagedSourceNames = [
     "cross-cutting-properties",
     "diagnose-slice",
     "event-type-migrations",
-    "multi-tenancy",
     "query-paging",
     "toolbar",
 ];
@@ -281,8 +280,8 @@ const sourceOverrides = new Map([
         "multi-tenancy",
         {
             sourcePath: ".ai/skills/multi-tenancy",
-            sourceRevision: "fbf76029e4a6593a6a24f939face32b720009198",
-            evidenceId: "cratis-chronicle-multi-tenancy-source-fbf7602",
+            sourceRevision: "68616b143aeffaeda333553bb4c491f696a0018a",
+            evidenceId: "cratis-chronicle-multi-tenancy-source-68616b1",
         },
     ],
     [

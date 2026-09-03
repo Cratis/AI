@@ -259,6 +259,16 @@
       "confidence": "high"
     },
     {
+      "id": "cratis-chronicle-multi-tenancy-source-68616b1",
+      "officialUrl": "https://github.com/Cratis/AI/tree/68616b143aeffaeda333553bb4c491f696a0018a/.ai/skills/multi-tenancy",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-09-02",
+      "expiresOn": "2027-09-02",
+      "applicableVersion": "68616b143aeffaeda333553bb4c491f696a0018a",
+      "confidence": "high",
+      "immutableRevision": "68616b143aeffaeda333553bb4c491f696a0018a"
+    },
+    {
       "id": "cratis-chronicle-multi-tenancy-source-fbf7602",
       "officialUrl": "https://github.com/Cratis/AI/tree/fbf76029e4a6593a6a24f939face32b720009198/.ai/skills/multi-tenancy",
       "sourceKind": "repository-snapshot",

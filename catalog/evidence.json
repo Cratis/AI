@@ -726,6 +726,12 @@
       "digest": "9f56390ab36221d425a5d238d1e5d202d8eb8760537d39256edf014581e8590d"
     },
     {
+      "id": "source-cratis-chronicle-multi-tenancy-source-68616b1",
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/68616b143aeffaeda333553bb4c491f696a0018a/.ai/skills/multi-tenancy",
+      "immutableRevision": "68616b143aeffaeda333553bb4c491f696a0018a"
+    },
+    {
       "id": "source-cratis-chronicle-multi-tenancy-source-fbf7602",
       "kind": "repository-snapshot",
       "locator": "https://github.com/Cratis/AI/tree/fbf76029e4a6593a6a24f939face32b720009198/.ai/skills/multi-tenancy",
@@ -7420,6 +7426,51 @@
         "officialUrl": "https://github.com/Cratis/AI/tree/f96eab8109ec0bb2d4aed6f1e893c2402a9a161a/skills/cratis-studio-mcp-safety-guidance",
         "sourceKind": "repository-snapshot",
         "applicableVersion": "f96eab8109ec0bb2d4aed6f1e893c2402a9a161a"
+      }
+    },
+    {
+      "id": "cratis-chronicle-multi-tenancy-source-68616b1",
+      "sourceId": "source-cratis-chronicle-multi-tenancy-source-68616b1",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "target",
+        "id": "cratis-chronicle-multi-tenancy",
+        "version": "68616b143aeffaeda333553bb4c491f696a0018a"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "source-provenance",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Source provenance for the multi-tenancy skill after the packaged reference closure and Markdown normalization were merged with the multi-tenant assumption.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-09-02",
+      "validThrough": "2027-09-02",
+      "confidence": "high",
+      "limitations": [
+        "This observation is limited to its exact recorded subject, version, digest, scope, and environment and grants no unrecorded assurance."
+      ],
+      "supersedes": [
+        "cratis-chronicle-multi-tenancy-source-fbf7602"
+      ],
+      "correction": {
+        "reason": "Rebinds the multi-tenancy skill after merging the multi-tenant assumption with packaged reference closure and Markdown normalization.",
+        "reviewer": "woksin",
+        "reviewedOn": "2026-09-02",
+        "replacementIdentity": "cratis-chronicle-multi-tenancy-source-68616b1"
+      },
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/68616b143aeffaeda333553bb4c491f696a0018a/.ai/skills/multi-tenancy",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "68616b143aeffaeda333553bb4c491f696a0018a"
       }
     },
     {

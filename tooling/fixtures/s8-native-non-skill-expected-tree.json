@@ -52,8 +52,8 @@
         {
           "path": ".aiassistant/rules/csharp.md",
           "sourcePath": ".ai/rules/csharp.md",
-          "size": 19252,
-          "sha256": "90426246c62891202de5ee4b9ca6bc8951d3f89f2fb9f730ea0f8fcbef3ef09b"
+          "size": 19262,
+          "sha256": "c19a9f915cb782a95a5a40baeb8fa0361110ddefce7da402f2deaf48ba4e8745"
         },
         {
           "path": ".aiassistant/rules/dialogs.md",
@@ -262,8 +262,8 @@
         {
           "path": ".tabnine/guidelines/csharp.md",
           "sourcePath": ".ai/rules/csharp.md",
-          "size": 19252,
-          "sha256": "90426246c62891202de5ee4b9ca6bc8951d3f89f2fb9f730ea0f8fcbef3ef09b"
+          "size": 19262,
+          "sha256": "c19a9f915cb782a95a5a40baeb8fa0361110ddefce7da402f2deaf48ba4e8745"
         },
         {
           "path": ".tabnine/guidelines/dialogs.md",
@@ -635,14 +635,14 @@
       "canonicalOwnerId": "cratis-rule-csharp",
       "semanticKind": "rule",
       "sourcePath": ".ai/rules/csharp.md",
-      "sourceDigest": "70d579c6a6cc634c1201062e9c203170457977b243b8ffb6cddc613e7f627fed",
+      "sourceDigest": "ed5c3100d9b32f36bdc8cfbf64c3293def09005cc01898b3df59a3a8b2c054ea",
       "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/csharp.md",
       "hostId": "jetbrains-ai-assistant",
       "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
       "evidenceIds": [
         "jetbrains-ai-assistant-source-1"
       ],
-      "outputDigest": "90426246c62891202de5ee4b9ca6bc8951d3f89f2fb9f730ea0f8fcbef3ef09b"
+      "outputDigest": "c19a9f915cb782a95a5a40baeb8fa0361110ddefce7da402f2deaf48ba4e8745"
     },
     {
       "projectionId": "cratis-rule-csharp-to-tabnine-rule",
@@ -650,14 +650,14 @@
       "canonicalOwnerId": "cratis-rule-csharp",
       "semanticKind": "rule",
       "sourcePath": ".ai/rules/csharp.md",
-      "sourceDigest": "70d579c6a6cc634c1201062e9c203170457977b243b8ffb6cddc613e7f627fed",
+      "sourceDigest": "ed5c3100d9b32f36bdc8cfbf64c3293def09005cc01898b3df59a3a8b2c054ea",
       "outputPath": "tabnine-guidelines/.tabnine/guidelines/csharp.md",
       "hostId": "tabnine",
       "hostAdapterId": "tabnine-host-adapter",
       "evidenceIds": [
         "tabnine-source-1"
       ],
-      "outputDigest": "90426246c62891202de5ee4b9ca6bc8951d3f89f2fb9f730ea0f8fcbef3ef09b"
+      "outputDigest": "c19a9f915cb782a95a5a40baeb8fa0361110ddefce7da402f2deaf48ba4e8745"
     },
     {
       "projectionId": "cratis-rule-dialogs-to-jetbrains-ai-assistant-rule",
