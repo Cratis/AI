@@ -240,13 +240,13 @@
         ".ai/skills/cratis-command/references/proxy-setup.md",
         ".ai/skills/cratis-command/references/validation.md"
       ],
-      "sourceRevision": "c2f721c2f80321cfba352d8d2e4209a0881ccb63",
-      "contentDigest": "2696e19f3cb57b32666469f21951672800c98be4212c2e8aba61188495fed7fc",
+      "sourceRevision": "afbe46fc7c87ab110df7f1983a0ca174ef0f6aac",
+      "contentDigest": "2f97a3c740b96273326783de74a3479d6ff972dda8df733d39dc5111da1753da",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
         "reevaluation-authority",
-        "public-skill-reference-closure-c2f721c"
+        "command-causation-guidance-source-afbe46f"
       ]
     },
     {
@@ -433,13 +433,13 @@
       "bundledPaths": [
         ".ai/skills/cross-cutting-properties/SKILL.md"
       ],
-      "sourceRevision": "23efb73a14eb367a2dd0e745caed171f67f3d550",
-      "contentDigest": "1aa579cdc9ea0da01477bf295f88de6a207c5ceda0aaacac4da028d8d302f091",
+      "sourceRevision": "afbe46fc7c87ab110df7f1983a0ca174ef0f6aac",
+      "contentDigest": "9f32dd20867ae150d2c6342e374afec1a78c08797620b7bba41d4bf995086fd5",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
         "reevaluation-authority",
-        "public-skill-markdown-normalization-source-23efb73"
+        "command-causation-guidance-source-afbe46f"
       ]
     },
     {
@@ -698,12 +698,13 @@
       "bundledPaths": [
         ".ai/skills/review-security/SKILL.md"
       ],
-      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-      "contentDigest": "c5829036d84177ba53cdacf54e01ec7cf05cb84fb4b8f07fb0305003213d0b3f",
+      "sourceRevision": "afbe46fc7c87ab110df7f1983a0ca174ef0f6aac",
+      "contentDigest": "f7a78c4c980d17ae304bce81a20a19a8864965ba2784466c10fcca7aaa0fd178",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "command-causation-guidance-source-afbe46f"
       ]
     },
     {

@@ -48,6 +48,12 @@
       "immutableRevision": "c2f721c2f80321cfba352d8d2e4209a0881ccb63"
     },
     {
+      "id": "source-command-causation-guidance-source-afbe46f",
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/afbe46fc7c87ab110df7f1983a0ca174ef0f6aac/.ai/skills",
+      "immutableRevision": "afbe46fc7c87ab110df7f1983a0ca174ef0f6aac"
+    },
+    {
       "id": "source-public-effect-guidance-boundary-source-6ec7247",
       "kind": "repository-snapshot",
       "locator": "https://github.com/Cratis/AI/tree/6ec724752023b7c1639b01e33d700d84d04fcfc3/.ai/skills",
@@ -1044,6 +1050,43 @@
         "officialUrl": "https://github.com/Cratis/AI/tree/c2f721c2f80321cfba352d8d2e4209a0881ccb63/.ai/skills",
         "sourceKind": "repository-snapshot",
         "applicableVersion": "c2f721c2f80321cfba352d8d2e4209a0881ccb63"
+      }
+    },
+    {
+      "id": "command-causation-guidance-source-afbe46f",
+      "sourceId": "source-command-causation-guidance-source-afbe46f",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "artifact",
+        "id": "candidate-passive-public-package",
+        "version": "afbe46fc7c87ab110df7f1983a0ca174ef0f6aac"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "source-provenance",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Source provenance for the command, cross-cutting and security guidance that documents what a command records on the causation chain.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-09-02",
+      "validThrough": "2027-09-02",
+      "confidence": "high",
+      "limitations": [
+        "This observation proves source provenance only; it grants no behavior or support assurance."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/afbe46fc7c87ab110df7f1983a0ca174ef0f6aac/.ai/skills",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "afbe46fc7c87ab110df7f1983a0ca174ef0f6aac"
       }
     },
     {

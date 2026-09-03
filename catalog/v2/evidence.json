@@ -241,6 +241,16 @@
       "confidence": "high"
     },
     {
+      "id": "command-causation-guidance-source-afbe46f",
+      "officialUrl": "https://github.com/Cratis/AI/tree/afbe46fc7c87ab110df7f1983a0ca174ef0f6aac/.ai/skills",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-09-02",
+      "expiresOn": "2027-09-02",
+      "applicableVersion": "afbe46fc7c87ab110df7f1983a0ca174ef0f6aac",
+      "confidence": "high",
+      "immutableRevision": "afbe46fc7c87ab110df7f1983a0ca174ef0f6aac"
+    },
+    {
       "id": "continue-source-1",
       "officialUrl": "https://docs.continue.dev/index",
       "sourceKind": "official-documentation",
