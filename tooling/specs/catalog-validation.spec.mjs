@@ -77,6 +77,21 @@ test("public schema rejects unknown fields and non-Cratis public names", () => {
     assert(errors.some((error) => error.includes("does not match")));
 });
 
+test("schema number bounds enforce both minimum and maximum", () => {
+    const schema = { type: "integer", minimum: 1, maximum: 3 };
+    assert.deepEqual(validateAgainstSchema(2, schema), []);
+    assert(
+        validateAgainstSchema(0, schema).some((error) =>
+            error.includes("must be at least 1"),
+        ),
+    );
+    assert(
+        validateAgainstSchema(4, schema).some((error) =>
+            error.includes("must be at most 3"),
+        ),
+    );
+});
+
 test("public catalog starts deny-by-default with no runtime-approved candidates", () => {
     const catalog = readCatalog(publicCatalogPath);
     assert.equal(catalog.defaultPolicy, "deny");
@@ -93,8 +108,7 @@ test("public catalog starts deny-by-default with no runtime-approved candidates"
 test("Chronicle MCP candidate remains classification-only and runtime denied", () => {
     const catalog = readCatalog(publicCatalogPath);
     const guidance = catalog.skills.find(
-        (skill) =>
-            skill.currentName === "cratis-chronicle-mcp-inspection",
+        (skill) => skill.currentName === "cratis-chronicle-mcp-inspection",
     );
     assert.equal(guidance.source, "skills/cratis-chronicle-mcp-inspection");
     assert.equal(guidance.disposition, "retain");
@@ -107,8 +121,7 @@ test("Chronicle MCP candidate remains classification-only and runtime denied", (
 test("Studio MCP candidate remains public-safe, classification-only, and denied", () => {
     const catalog = readCatalog(publicCatalogPath);
     const guidance = catalog.skills.find(
-        (skill) =>
-            skill.currentName === "cratis-studio-mcp-safety-guidance",
+        (skill) => skill.currentName === "cratis-studio-mcp-safety-guidance",
     );
     assert.equal(guidance.source, "skills/cratis-studio-mcp-safety-guidance");
     assert.equal(guidance.disposition, "retain");

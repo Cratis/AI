@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cratis/AI/distribution/public-evaluation-eligibility.schema.json",
+  "title": "Cratis AI public evaluation eligibility",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "defaultPolicy",
+    "profileId",
+    "sourceArtifactId",
+    "admission",
+    "approval",
+    "eligibleTargetIds",
+    "excludedTargets",
+    "installationSupported",
+    "behaviorSupported",
+    "supportGranted",
+    "promotionEligible"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "defaultPolicy": { "const": "deny" },
+    "profileId": { "const": "public-cratis-ai" },
+    "sourceArtifactId": { "const": "candidate-passive-public-package" },
+    "admission": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "audience",
+        "payloadClass",
+        "allowedInstructedEffects",
+        "referenceClosureRequired",
+        "licenseClosureRequired",
+        "explicitOwnerReviewRequired"
+      ],
+      "properties": {
+        "audience": { "const": "public" },
+        "payloadClass": { "const": "static-instructions" },
+        "allowedInstructedEffects": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "read-only-analysis",
+              "reversible-worktree-write",
+              "local-command-execution"
+            ]
+          }
+        },
+        "referenceClosureRequired": { "const": true },
+        "licenseClosureRequired": { "const": true },
+        "explicitOwnerReviewRequired": { "const": true }
+      }
+    },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "reviewer", "reviewedOn", "scope"],
+      "properties": {
+        "state": { "const": "approved-for-unsupported-evaluation" },
+        "reviewer": { "type": "string", "minLength": 1 },
+        "reviewedOn": { "type": "string", "format": "date" },
+        "scope": { "type": "string", "minLength": 1 }
+      }
+    },
+    "eligibleTargetIds": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^cratis-[a-z0-9]+(?:-[a-z0-9]+)*$" }
+    },
+    "excludedTargets": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["targetId", "reason"],
+        "properties": {
+          "targetId": { "type": "string", "pattern": "^cratis-[a-z0-9]+(?:-[a-z0-9]+)*$" },
+          "reason": {
+            "enum": [
+              "private-or-local-content",
+              "mcp-guidance-materialization-blocked",
+              "effect-assessment-required",
+              "live-external-destructive-effects-not-admitted"
+            ]
+          }
+        }
+      }
+    },
+    "installationSupported": { "const": false },
+    "behaviorSupported": { "const": false },
+    "supportGranted": { "const": false },
+    "promotionEligible": { "const": false }
+  }
+}

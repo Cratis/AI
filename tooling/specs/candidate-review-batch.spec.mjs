@@ -35,8 +35,8 @@ test("candidate review batch is deterministic complete and non-releasing", () =>
         assert.deepEqual(second, first);
         assert.equal(first.state, "CANDIDATE_REVIEW_BATCH_ONLY");
         assert.equal(first.componentCount, 137);
-        assert.equal(first.packagedSkillTargetCount, 41);
-        assert.equal(first.blockedSkillTargetCount, 4);
+        assert.equal(first.packagedSkillTargetCount, 40);
+        assert.equal(first.blockedSkillTargetCount, 5);
         assert.equal(first.repositoryOnlyLegacySkillCount, 4);
         assert.equal(first.nativeProjectedComponentCount, 35);
         assert.equal(first.nativeUnprojectedComponentCount, 2);
@@ -54,12 +54,13 @@ test("candidate review batch is deterministic complete and non-releasing", () =>
             "promotionEligible",
         ])
             assert.equal(first[field], false, field);
-        const schema = JSON.parse(
-            readFileSync(first.schemaPath, "utf8"),
-        );
+        const schema = JSON.parse(readFileSync(first.schemaPath, "utf8"));
         assert.deepEqual(validateSchemaVocabulary(schema), []);
         assert.deepEqual(validateAgainstSchema(first, schema, schema), []);
-        assert.equal(first.schemaSha256, sha256(readFileSync(first.schemaPath)));
+        assert.equal(
+            first.schemaSha256,
+            sha256(readFileSync(first.schemaPath)),
+        );
         const firstChecksums = readFileSync(
             join(firstRoot, "SHA256SUMS"),
             "utf8",

@@ -46,6 +46,7 @@ const supportedSchemaKeywords = new Set([
     "pattern",
     "format",
     "minimum",
+    "maximum",
     "oneOf",
 ]);
 
@@ -164,9 +165,7 @@ function matchesKnownPattern(value, pattern) {
         case "^[0-9a-f]{64}$":
             return /^[a-f0-9]{64}$/.test(value);
         case "^0\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)$":
-            return /^0\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)$/.test(
-                value,
-            );
+            return /^0\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)$/.test(value);
         case "^0\\.0\\.(?:0|[1-9][0-9]*)-candidate\\.(?:0|[1-9][0-9]*)$":
             return /^0\.0\.(?:0|[1-9][0-9]*)-candidate\.(?:0|[1-9][0-9]*)$/.test(
                 value,
@@ -260,6 +259,13 @@ export function validateAgainstSchema(
         value < schema.minimum
     ) {
         errors.push(`${path}: must be at least ${schema.minimum}`);
+    }
+    if (
+        typeof value === "number" &&
+        schema.maximum !== undefined &&
+        value > schema.maximum
+    ) {
+        errors.push(`${path}: must be at most ${schema.maximum}`);
     }
 
     if (Array.isArray(value)) {

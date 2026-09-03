@@ -1,0 +1,93 @@
+{
+  "schemaVersion": "1.0.0",
+  "defaultPolicy": "deny",
+  "profileId": "public-cratis-ai",
+  "sourceArtifactId": "candidate-passive-public-package",
+  "admission": {
+    "audience": "public",
+    "payloadClass": "static-instructions",
+    "allowedInstructedEffects": [
+      "read-only-analysis",
+      "reversible-worktree-write",
+      "local-command-execution"
+    ],
+    "referenceClosureRequired": true,
+    "licenseClosureRequired": true,
+    "explicitOwnerReviewRequired": true
+  },
+  "approval": {
+    "state": "approved-for-unsupported-evaluation",
+    "reviewer": "woksin",
+    "reviewedOn": "2026-09-02",
+    "scope": "Static public instructions limited to read-only analysis, reversible worktree changes, and local command execution."
+  },
+  "eligibleTargetIds": [
+    "cratis-application-react-specifications",
+    "cratis-application-slice-diagnostics",
+    "cratis-application-slice-specifications",
+    "cratis-application-vertical-slice",
+    "cratis-arc-authentication-authorization-and-identity",
+    "cratis-arc-command",
+    "cratis-arc-command-validation",
+    "cratis-arc-query-paging",
+    "cratis-arc-react-feature-scaffolding",
+    "cratis-arc-react-page",
+    "cratis-chronicle-event-constraints",
+    "cratis-chronicle-event-metadata",
+    "cratis-chronicle-event-modeling",
+    "cratis-chronicle-event-specifications",
+    "cratis-chronicle-multi-tenancy",
+    "cratis-chronicle-projection",
+    "cratis-chronicle-read-model",
+    "cratis-chronicle-read-model-specifications",
+    "cratis-chronicle-reducer",
+    "cratis-code-review",
+    "cratis-components-stepper-command-dialog",
+    "cratis-components-toolbar",
+    "cratis-event-model-diagram",
+    "cratis-fundamentals-concept",
+    "cratis-fundamentals-type-discovery",
+    "cratis-performance-review",
+    "cratis-security-review",
+    "cratis-specifications-csharp",
+    "cratis-specifications-typescript"
+  ],
+  "excludedTargets": [
+    {
+      "targetId": "cratis-arc-command-execution",
+      "reason": "effect-assessment-required"
+    },
+    {
+      "targetId": "cratis-arc-ef-core-migration",
+      "reason": "effect-assessment-required"
+    },
+    {
+      "targetId": "cratis-arc-observable-query-http",
+      "reason": "private-or-local-content"
+    },
+    {
+      "targetId": "cratis-chronicle-cli-operations",
+      "reason": "live-external-destructive-effects-not-admitted"
+    },
+    {
+      "targetId": "cratis-chronicle-event-type-migration",
+      "reason": "effect-assessment-required"
+    },
+    {
+      "targetId": "cratis-chronicle-mcp-inspection",
+      "reason": "mcp-guidance-materialization-blocked"
+    },
+    {
+      "targetId": "cratis-chronicle-reactor",
+      "reason": "effect-assessment-required"
+    },
+    {
+      "targetId": "cratis-studio-mcp-safety-guidance",
+      "reason": "mcp-guidance-materialization-blocked"
+    }
+  ],
+  "installationSupported": false,
+  "behaviorSupported": false,
+  "supportGranted": false,
+  "promotionEligible": false
+}

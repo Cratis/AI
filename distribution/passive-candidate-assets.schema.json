@@ -126,7 +126,7 @@
         "required": ["targetId", "reason"],
         "properties": {
           "targetId": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
-          "reason": { "enum": ["private-or-local-content", "mcp-guidance-materialization-blocked"] }
+          "reason": { "enum": ["private-or-local-content", "mcp-guidance-materialization-blocked", "incomplete-resource-and-license-closure"] }
         }
       }
     },

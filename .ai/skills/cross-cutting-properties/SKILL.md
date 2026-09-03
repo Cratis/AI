@@ -12,7 +12,7 @@ Some information must travel with every event — correlation/causation ids, the
 Before implementing a provider, see whether what you need is already there (available in reactors/reducers):
 
 | Property | Description |
-|---|---|
+| --- | --- |
 | `EventSourceId` | the event source appended to |
 | `SequenceNumber` | ordinal within the sequence |
 | `Occurred` | wall-clock time at append |
@@ -40,10 +40,25 @@ public class TenantMetadataProvider(IHttpContextAccessor http) : ICanProvideAddi
 
 Chronicle discovers providers from DI — register as scoped/singleton. Multiple providers merge; key collisions = last-registered wins. Place the class at a cross-cutting infrastructure location, not inside a slice. The properties land in the event's **metadata envelope**, not the event record — they are not surfaced in `EventContext` on reactive handlers. If a value must influence a projection/reducer, it belongs on the event type (or a dedicated audit event), not in cross-cutting metadata.
 
+## Command values on the causation chain
+
+A third channel carries context, and unlike the two above you get it without asking: a **command's property values** are recorded on the causation of every event it appends, next to the command's name. Nothing to implement — but something to review, because the causation goes into the event log and stays there for as long as the events do.
+
+Mark what must not be written before the command ships:
+
+| Marking | For |
+| --- | --- |
+| `[PII]` | personal data — also encrypts it in the event and enrolls it in erasure |
+| `[NotAudited]` | a secret that is not personal data — password, token, API key, card number |
+
+Both are honored on the property, the declaring type, the positional record parameter, **and the property's type** — so marking a concept once covers every command that takes one, the same idiom as `[PII]` elsewhere. `ARCCHR0009` warns on an unmarked property whose *name* reads like a secret.
+
+Unlike a metadata provider, this is per-command payload rather than per-event infrastructure: use it to answer "what was this command asked to do", not to carry ambient context, which is what `ICanProvideAdditionalEventInformation` is for.
+
 ## Tags vs filtering — easy to confuse
 
 | Attribute | Where | What it does |
-|---|---|---|
+| --- | --- | --- |
 | `[Tag("analytics", "user-action")]` | on an `[EventType]` | merges static tags into every occurrence at append time; available in `EventContext.Tags`. Does **not** filter. |
 | `[FilterEventsByTag("tag")]` | on a reactor/reducer class | restricts which events reach the handler (multiple = OR; combined with `[EventSourceType]`/`[EventStreamType]` = AND). |
 | `[Tag]` / `[Tags]` | on a reactor/reducer class | admin-UI label only — **no** effect on delivery. |
@@ -53,11 +68,12 @@ Tags are also used for concurrency scoping. To *filter* by tag you need `[Filter
 ## Common pitfalls
 
 | Pitfall | Why |
-|---|---|
+| --- | --- |
 | Adding correlation/tenant id to every `[EventType]` | pollutes schemas — use a provider |
 | Injecting scoped services into a singleton provider | register the provider scoped, or use `IServiceScopeFactory` |
 | Expecting envelope properties to appear in `EventContext` on handlers | they don't — they're metadata only |
 | Using a provider for data a projection needs | if the projection needs it, it belongs on the event type |
+| Letting a command carry a secret unmarked | its value is written to the causation of every event it appends, permanently — mark it `[NotAudited]` (or `[PII]` for personal data) |
 
 ## Quality gate
 
@@ -66,5 +82,6 @@ Tags are also used for concurrency scoping. To *filter* by tag you need `[Filter
 
 ## See also
 
-- `vertical-slices.md` — event types, `EventContext` in reactors/reducers.
+- [vertical-slices.md](https://github.com/Cratis/AI/blob/main/.ai/rules/vertical-slices.md) — event types, `EventContext` in reactors/reducers, and what a command records on the causation chain.
+- `cratis-command` — marking a command's secrets before they reach the event log.
 - `multi-tenancy` — namespace-per-tenant isolation (a different mechanism from a tenant tag).

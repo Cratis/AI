@@ -253,6 +253,58 @@ test("rejects unlinked, escaping, and unresolved skill references", () => {
     });
 });
 
+test("optional resource reachability mode still rejects escaping and missing references", () => {
+    withTemporaryDirectory((root) => {
+        const source = copyFixture(root);
+        writeSourceFile(
+            source,
+            "skills/cratis-example/references/unlinked.md",
+            "# Supplemental reference\n",
+        );
+        const stageRoot = join(root, "stage");
+        materializeFixtureArtifact({
+            sourceRoot: source,
+            stageRoot,
+            approvedFiles: [
+                ...approvedFiles,
+                "skills/cratis-example/references/unlinked.md",
+            ],
+            allowUnlinkedResources: true,
+        });
+        assert.doesNotThrow(() =>
+            validateStagedArtifact(stageRoot, {
+                allowUnlinkedResources: true,
+            }),
+        );
+
+        writeSourceFile(
+            stageRoot,
+            "skills/cratis-example/SKILL.md",
+            "# Fixture\n\n[escape](../../outside.md)\n",
+        );
+        assert.throws(
+            () =>
+                validateStagedArtifact(stageRoot, {
+                    allowUnlinkedResources: true,
+                }),
+            /escapes skill root/,
+        );
+
+        writeSourceFile(
+            stageRoot,
+            "skills/cratis-example/SKILL.md",
+            "# Fixture\n\n[missing](references/missing.md)\n",
+        );
+        assert.throws(
+            () =>
+                validateStagedArtifact(stageRoot, {
+                    allowUnlinkedResources: true,
+                }),
+            /Unresolved staged reference/,
+        );
+    });
+});
+
 test("rejects secret-shaped, private, and local payload content", () => {
     for (const [name, content] of [
         ["secret", "token=abcdefghijklmnopqrstuvwxyz123456"],
@@ -308,10 +360,7 @@ test("rejects payload content that is not valid UTF-8", () => {
             "skills/cratis-example/assets/example.txt",
             Buffer.from([0xc3, 0x28]),
         );
-        assert.throws(
-            () => materialize(source, root),
-            /Invalid UTF-8 payload/,
-        );
+        assert.throws(() => materialize(source, root), /Invalid UTF-8 payload/);
     });
 });
 

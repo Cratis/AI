@@ -173,7 +173,49 @@ const publicClassifications = new Map([
     ],
 ]);
 
+const referenceClosureSourceNames = [
+    "add-business-rule",
+    "add-ef-migration",
+    "add-reactor",
+    "add-reducer",
+    "auth-and-identity",
+    "call-command-from-code",
+    "cratis-command",
+    "cratis-react-page",
+    "cratis-specs-csharp",
+    "create-event-model",
+    "cross-cutting-properties",
+    "diagnose-slice",
+    "event-modeling",
+    "event-type-migrations",
+    "multi-tenancy",
+    "query-paging",
+    "toolbar",
+    "write-specs",
+    "write-specs-frontend",
+];
+const causationGuidanceSourceNames = [
+    "cratis-command",
+    "cross-cutting-properties",
+    "review-security",
+];
+const normalizedPackagedSourceNames = [
+    "call-command-from-code",
+    "create-event-model",
+    "diagnose-slice",
+    "event-type-migrations",
+    "query-paging",
+    "toolbar",
+];
 const sourceOverrides = new Map([
+    ...referenceClosureSourceNames.map((name) => [
+        name,
+        {
+            sourcePath: `.ai/skills/${name}`,
+            sourceRevision: "c2f721c2f80321cfba352d8d2e4209a0881ccb63",
+            evidenceId: "public-skill-reference-closure-c2f721c",
+        },
+    ]),
     [
         "cratis-studio-mcp-safety-guidance",
         {
@@ -214,20 +256,44 @@ const sourceOverrides = new Map([
             evidenceId: "engineering-docs-edit-page-source-684d037",
         },
     ],
-    [
-        "event-type-migrations",
+    ...["auth-and-identity", "event-modeling"].map((name) => [
+        name,
         {
-            sourcePath: ".ai/skills/event-type-migrations",
-            sourceRevision: "c4c63dadfe57276a1a53c4d76bc7f9683c4b48a4",
-            evidenceId: "chronicle-event-type-migrations-parity-source-c4c63da",
+            sourcePath: `.ai/skills/${name}`,
+            sourceRevision: "6ec724752023b7c1639b01e33d700d84d04fcfc3",
+            evidenceId: "public-effect-guidance-boundary-source-6ec7247",
+        },
+    ]),
+    ...causationGuidanceSourceNames.map((name) => [
+        name,
+        {
+            sourcePath: `.ai/skills/${name}`,
+            sourceRevision: "afbe46fc7c87ab110df7f1983a0ca174ef0f6aac",
+            evidenceId: "command-causation-guidance-source-afbe46f",
+        },
+    ]),
+    ...normalizedPackagedSourceNames.map((name) => [
+        name,
+        {
+            sourcePath: `.ai/skills/${name}`,
+            sourceRevision: "23efb73a14eb367a2dd0e745caed171f67f3d550",
+            evidenceId: "public-skill-markdown-normalization-source-23efb73",
+        },
+    ]),
+    [
+        "inspect-running-chronicle",
+        {
+            sourcePath: ".ai/skills/inspect-running-chronicle",
+            sourceRevision: "23efb73a14eb367a2dd0e745caed171f67f3d550",
+            evidenceId: "public-skill-markdown-normalization-source-23efb73",
         },
     ],
     [
-        "cratis-react-page",
+        "multi-tenancy",
         {
-            sourcePath: ".ai/skills/cratis-react-page",
-            sourceRevision: "2006490b23dd60a384cd803423fdc59cd395611b",
-            evidenceId: "cratis-react-page-host-rendered-dialogs-2006490",
+            sourcePath: ".ai/skills/multi-tenancy",
+            sourceRevision: "68616b143aeffaeda333553bb4c491f696a0018a",
+            evidenceId: "cratis-chronicle-multi-tenancy-source-68616b1",
         },
     ],
     [
@@ -1408,18 +1474,10 @@ const engineeringTargetIds = targets
     .filter((target) => target.audience === "cratis-engineering")
     .map((target) => target.id);
 const candidateTargetExclusions = new Map([
-    [
-        "cratis-arc-observable-query-http",
-        "private-or-local-content",
-    ],
-    [
-        "cratis-chronicle-mcp-inspection",
-        "mcp-guidance-materialization-blocked",
-    ],
-    [
-        "cratis-engineering-docs-visual-qa",
-        "private-or-local-content",
-    ],
+    ["cratis-arc-observable-query-http", "private-or-local-content"],
+    ["cratis-chronicle-mcp-inspection", "mcp-guidance-materialization-blocked"],
+    ["cratis-engineering-docs-visual-qa", "private-or-local-content"],
+    ["skill-creator", "incomplete-resource-and-license-closure"],
     [
         "cratis-studio-mcp-safety-guidance",
         "mcp-guidance-materialization-blocked",
@@ -1593,12 +1651,8 @@ writeJson("artifacts.json", {
             componentInventory: componentInventory(
                 candidateEngineeringTargets.map((target) => target.id),
             ),
-            targetExclusions: targetExclusionsForAudience(
-                "cratis-engineering",
-            ),
-            exactSourcePaths: exactPathsForTargets(
-                candidateEngineeringTargets,
-            ),
+            targetExclusions: targetExclusionsForAudience("cratis-engineering"),
+            exactSourcePaths: exactPathsForTargets(candidateEngineeringTargets),
             allowedPathPatterns: [
                 "skills/<candidate-source>/SKILL.md",
                 "skills/<candidate-source>/references/**",

@@ -44,7 +44,7 @@ Each emission carries page metadata alongside the data. Sorting and paging are a
 ### 3. What does and doesn't page
 
 | Return type | Paging? | How |
-|---|---|---|
+| --- | --- | --- |
 | `T`, `T?`, `IEnumerable<T>`, `List<T>`, `T[]` | No | Nothing narrows the result |
 | `IQueryable<T>` | **Yes — auto-paged** | The query renderer applies `OrderBy`/`Skip`/`Take` to the queryable |
 | `Task<IQueryable<T>>` | **Yes — auto-paged** | The result is awaited first, then rendered as the queryable it unwraps to |
@@ -86,5 +86,5 @@ void Because() => _result = _scenario.Instances.Values;
 
 ## See also
 
-- `vertical-slices.md` — read-model query return shapes.
-- `react.md` — consuming paged queries (`useWithPaging`, `DataPage`).
+- [vertical-slices.md](https://github.com/Cratis/AI/blob/main/.ai/rules/vertical-slices.md) — read-model query return shapes.
+- [react.md](https://github.com/Cratis/AI/blob/main/.ai/rules/react.md) — consuming paged queries (`useWithPaging`, `DataPage`).

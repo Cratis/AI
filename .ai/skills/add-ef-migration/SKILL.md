@@ -5,7 +5,7 @@ description: Use this skill when asked to add a database table, column, relation
 
 Add or update an Entity Framework Core schema change with a hand-written migration.
 
-> **Always read the [efcore.md](../../rules/efcore.md) rule first.** It is the source of truth for project structure, base types, column helpers, and migration conventions.
+> **Always read the [efcore.md](https://github.com/Cratis/AI/blob/main/.ai/rules/efcore.md) rule first.** It is the source of truth for project structure, base types, column helpers, and migration conventions.
 
 ## Pre-flight — Understand the project split
 

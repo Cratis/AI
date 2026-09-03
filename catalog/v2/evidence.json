@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "asOf": "2026-08-31",
+  "asOf": "2026-09-02",
   "generatedBy": "tooling/generate-catalog-v2.mjs",
   "evidence": [
     {
@@ -241,6 +241,16 @@
       "confidence": "high"
     },
     {
+      "id": "command-causation-guidance-source-afbe46f",
+      "officialUrl": "https://github.com/Cratis/AI/tree/afbe46fc7c87ab110df7f1983a0ca174ef0f6aac/.ai/skills",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-09-02",
+      "expiresOn": "2027-09-02",
+      "applicableVersion": "afbe46fc7c87ab110df7f1983a0ca174ef0f6aac",
+      "confidence": "high",
+      "immutableRevision": "afbe46fc7c87ab110df7f1983a0ca174ef0f6aac"
+    },
+    {
       "id": "continue-source-1",
       "officialUrl": "https://docs.continue.dev/index",
       "sourceKind": "official-documentation",
@@ -257,6 +267,26 @@
       "expiresOn": "2026-11-23",
       "applicableVersion": "continue-2.0.0-final-read-only",
       "confidence": "high"
+    },
+    {
+      "id": "cratis-chronicle-multi-tenancy-source-68616b1",
+      "officialUrl": "https://github.com/Cratis/AI/tree/68616b143aeffaeda333553bb4c491f696a0018a/.ai/skills/multi-tenancy",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-09-02",
+      "expiresOn": "2027-09-02",
+      "applicableVersion": "68616b143aeffaeda333553bb4c491f696a0018a",
+      "confidence": "high",
+      "immutableRevision": "68616b143aeffaeda333553bb4c491f696a0018a"
+    },
+    {
+      "id": "cratis-chronicle-multi-tenancy-source-fbf7602",
+      "officialUrl": "https://github.com/Cratis/AI/tree/fbf76029e4a6593a6a24f939face32b720009198/.ai/skills/multi-tenancy",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-09-02",
+      "expiresOn": "2027-09-02",
+      "applicableVersion": "fbf76029e4a6593a6a24f939face32b720009198",
+      "confidence": "high",
+      "immutableRevision": "fbf76029e4a6593a6a24f939face32b720009198"
     },
     {
       "id": "cratis-react-page-host-rendered-dialogs-2006490",
@@ -645,6 +675,16 @@
       "confidence": "high"
     },
     {
+      "id": "inspect-running-chronicle-safety-source-9fa3663",
+      "officialUrl": "https://github.com/Cratis/AI/tree/9fa366363d1dba71d242e3c7519e4852bf12129e/.ai/skills/inspect-running-chronicle",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-09-02",
+      "expiresOn": "2027-09-02",
+      "applicableVersion": "9fa366363d1dba71d242e3c7519e4852bf12129e",
+      "confidence": "high",
+      "immutableRevision": "9fa366363d1dba71d242e3c7519e4852bf12129e"
+    },
+    {
       "id": "jetbrains-ai-assistant-source-1",
       "officialUrl": "https://www.jetbrains.com/help/ai-assistant/configure-project-rules.html",
       "sourceKind": "official-documentation",
@@ -1005,6 +1045,16 @@
       "confidence": "high"
     },
     {
+      "id": "public-effect-guidance-boundary-source-6ec7247",
+      "officialUrl": "https://github.com/Cratis/AI/tree/6ec724752023b7c1639b01e33d700d84d04fcfc3/.ai/skills",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-09-02",
+      "expiresOn": "2027-09-02",
+      "applicableVersion": "74c0d8eb15886c24f9a3411d33f01bd00dab0e51",
+      "confidence": "high",
+      "immutableRevision": "6ec724752023b7c1639b01e33d700d84d04fcfc3"
+    },
+    {
       "id": "public-fundamentals-concept-source-b53caa5",
       "officialUrl": "https://github.com/Cratis/AI/tree/b53caa555b9a3f05ba1462b86202fe3ccb8a9470/skills/cratis-fundamentals-concept",
       "sourceKind": "repository-snapshot",
@@ -1013,6 +1063,36 @@
       "applicableVersion": "b53caa555b9a3f05ba1462b86202fe3ccb8a9470",
       "confidence": "high",
       "immutableRevision": "b53caa555b9a3f05ba1462b86202fe3ccb8a9470"
+    },
+    {
+      "id": "public-skill-markdown-normalization-source-23efb73",
+      "officialUrl": "https://github.com/Cratis/AI/tree/23efb73a14eb367a2dd0e745caed171f67f3d550/.ai/skills",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-09-02",
+      "expiresOn": "2027-09-02",
+      "applicableVersion": "23efb73a14eb367a2dd0e745caed171f67f3d550",
+      "confidence": "high",
+      "immutableRevision": "23efb73a14eb367a2dd0e745caed171f67f3d550"
+    },
+    {
+      "id": "public-skill-reference-closure-30c813c",
+      "officialUrl": "https://github.com/Cratis/AI/tree/30c813c4bf0cf55315a8aa3b6246f1f6fcff9167/.ai/skills",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-09-02",
+      "expiresOn": "2027-09-02",
+      "applicableVersion": "30c813c4bf0cf55315a8aa3b6246f1f6fcff9167",
+      "confidence": "high",
+      "immutableRevision": "30c813c4bf0cf55315a8aa3b6246f1f6fcff9167"
+    },
+    {
+      "id": "public-skill-reference-closure-c2f721c",
+      "officialUrl": "https://github.com/Cratis/AI/tree/c2f721c2f80321cfba352d8d2e4209a0881ccb63/.ai/skills",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-09-02",
+      "expiresOn": "2027-09-02",
+      "applicableVersion": "c2f721c2f80321cfba352d8d2e4209a0881ccb63",
+      "confidence": "high",
+      "immutableRevision": "c2f721c2f80321cfba352d8d2e4209a0881ccb63"
     },
     {
       "id": "qwen-code-source-1",

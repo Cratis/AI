@@ -58,7 +58,8 @@ export function buildCandidateComponentCoverage(
     const components = componentsCatalog.components;
     const projectionsByComponent = new Map();
     for (const projection of projectionsCatalog.projections) {
-        const records = projectionsByComponent.get(projection.componentId) ?? [];
+        const records =
+            projectionsByComponent.get(projection.componentId) ?? [];
         records.push(projection);
         projectionsByComponent.set(projection.componentId, records);
     }
@@ -167,22 +168,22 @@ export function buildCandidateComponentCoverage(
         compareOrdinal(left.componentId, right.componentId),
     );
     const componentIds = records.map((record) => record.componentId);
+    const skillDispositionCount = records.filter((record) =>
+        [
+            "skill-packaged-candidate",
+            "skill-blocked-candidate",
+            "skill-legacy-repository-only",
+        ].includes(record.disposition),
+    ).length;
     if (
         records.length !== 137 ||
         new Set(componentIds).size !== records.length ||
+        skillDispositionCount !== 49 ||
         records.filter(
-            (record) => record.disposition === "skill-packaged-candidate",
-        ).length !== 41 ||
-        records.filter(
-            (record) => record.disposition === "skill-blocked-candidate",
+            (record) => record.disposition === "skill-legacy-repository-only",
         ).length !== 4 ||
         records.filter(
-            (record) =>
-                record.disposition === "skill-legacy-repository-only",
-        ).length !== 4 ||
-        records.filter(
-            (record) =>
-                record.disposition === "native-static-review-projected",
+            (record) => record.disposition === "native-static-review-projected",
         ).length !== 35 ||
         records.filter(
             (record) => record.disposition === "native-static-unprojected",
@@ -190,14 +191,12 @@ export function buildCandidateComponentCoverage(
         records.filter(
             (record) => record.disposition === "repository-host-adapter-only",
         ).length !== 48 ||
-        records.filter(
-            (record) => record.disposition === "executable-blocked",
-        ).length !== 3
+        records.filter((record) => record.disposition === "executable-blocked")
+            .length !== 3
     ) {
         throw new Error("Candidate component coverage closure changed");
     }
-    const schemaPath =
-        "distribution/candidate-component-coverage.schema.json";
+    const schemaPath = "distribution/candidate-component-coverage.schema.json";
     return {
         schemaVersion: "1.0.0",
         schemaPath,

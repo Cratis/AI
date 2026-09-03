@@ -903,12 +903,12 @@
       "canonicalSources": [
         {
           "path": ".ai/skills/write-specs-frontend",
-          "digest": "1a1c99cb0de67a44edddd08ad5c95468a024afc746a33d19942e98371b66097f",
+          "digest": "617460c80872e4f134fbb5c6feccc81e0a3215837283202d77753a1dd73a475a",
           "ownership": "owner",
           "ownerComponentId": "cratis-application-react-specifications"
         }
       ],
-      "contentDigest": "c36faf8434cb4f6c24ce83695c7d19953e9ab1dc3abb85709f2c239e64f9a84c",
+      "contentDigest": "b82dd7cc47fdb11d363881bc43a1a1f3ce83b3084a4f3548adb762e4ad44bb34",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -987,12 +987,12 @@
       "canonicalSources": [
         {
           "path": ".ai/skills/diagnose-slice",
-          "digest": "eea29363e496b7a4ed1776e3aa975b464f7e39041bd569b4ef5ea4c812e6817b",
+          "digest": "e26faf85efb0fa2541b773a5307f28744cf029fee9af8f5243237e661bb8892b",
           "ownership": "owner",
           "ownerComponentId": "cratis-application-slice-diagnostics"
         }
       ],
-      "contentDigest": "9a499c5e04a7f12e866591d8121cbafd505041016165fdd60d6bd540af6960b0",
+      "contentDigest": "c41e4b9feade580aabaa101db60af7948f465a63d1dac4e7f2a58a3e7faf18c7",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -1072,12 +1072,12 @@
       "canonicalSources": [
         {
           "path": ".ai/skills/write-specs",
-          "digest": "ae613d7de8ae45a0b787808201e4e8646fbfe4ee67fe99c99dd25cd5820af1a4",
+          "digest": "0ff170c2fc61c6ff6cec74593052e3cc2788558fd1bcef0f63ae3ea379b29e6e",
           "ownership": "owner",
           "ownerComponentId": "cratis-application-slice-specifications"
         }
       ],
-      "contentDigest": "7ccf97e25ba2388f7de3ef98c225237188b5a369e32e84f638783cd9ca854b7e",
+      "contentDigest": "3f37d3f4a15134fd748a55c65a8cc076a0eda35adf30af84065667bba36bafa3",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -1248,12 +1248,12 @@
       "canonicalSources": [
         {
           "path": ".ai/skills/auth-and-identity",
-          "digest": "16a63a628f0aad9c8daef890f49074bc1af7a086025ab4978a5c2bdc018f3ca9",
+          "digest": "1980b45f2ac70c4b03858923b022ec4cbb470718fc5b72cc93efc799a7bbd81d",
           "ownership": "owner",
           "ownerComponentId": "cratis-arc-authentication-authorization-and-identity"
         }
       ],
-      "contentDigest": "8aa2f18c1c206558e04e6c5c3a52ffb930ba21f3c3cfae9bc2b73b32b4679be1",
+      "contentDigest": "59a7da140408368253bf224defde27dbb20ce8468e6e0a44dd057fc1eda8272a",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -1333,12 +1333,12 @@
       "canonicalSources": [
         {
           "path": ".ai/skills/cratis-command",
-          "digest": "05e1dda70a0871c306071677998698491186b0ca541c7ef62ddce89a787359f8",
+          "digest": "2f97a3c740b96273326783de74a3479d6ff972dda8df733d39dc5111da1753da",
           "ownership": "owner",
           "ownerComponentId": "cratis-arc-command"
         }
       ],
-      "contentDigest": "b14353daac54256668c61b3ff10af74f30595f471c01ffd8ee3b44655128078e",
+      "contentDigest": "c6b6a8e61c97187b7359c15eb01268d5ad3513fe59378d32152efbcd0c4d5fb7",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -1418,12 +1418,12 @@
       "canonicalSources": [
         {
           "path": ".ai/skills/call-command-from-code",
-          "digest": "99b9c640ca2dca5121ff64275df8de8408dd07306e4cc9f9a511b01f32ddd203",
+          "digest": "bc60327237bef1659fd508793d24bb86ff2221e8d2c409ff9539cc57d11584ba",
           "ownership": "owner",
           "ownerComponentId": "cratis-arc-command-execution"
         }
       ],
-      "contentDigest": "5f587576bab6999bbfdd3e27dcdc5017b9db82d14ae4994b3d7f0bdbbab03ecf",
+      "contentDigest": "b6829f15d2f964b19d77f336cdb2f3c426255e08678308c0b14ba4efabbc4413",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -1501,12 +1501,12 @@
       "canonicalSources": [
         {
           "path": ".ai/skills/add-business-rule",
-          "digest": "796ccf26f62bec707eb389ea0e3e666ab26a5d1ad7aa69c30801c3ca3b036852",
+          "digest": "7aff5f2a3586a74b046a51a4c9f0f6ad5ec6a95bed5eb40ea383ef588b1eba76",
           "ownership": "owner",
           "ownerComponentId": "cratis-arc-command-validation"
         }
       ],
-      "contentDigest": "9a7a3de0bd63592e2676920caaa7a12571e8b0b632cda9fcd6ab307ba670c7a7",
+      "contentDigest": "16928b6e11edd80ddf14db0d4e1f0ed299da1c33edd077c52e53c01cd1f2b3a5",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -1585,12 +1585,12 @@
       "canonicalSources": [
         {
           "path": ".ai/skills/add-ef-migration",
-          "digest": "1b6701db62731341d6059487b6560762fc24446809eda9123bebd1d21747d91e",
+          "digest": "56005db12405112a042fe018a44607e88e7369d38ab0e03056eb35346f3359fe",
           "ownership": "owner",
           "ownerComponentId": "cratis-arc-ef-core-migration"
         }
       ],
-      "contentDigest": "9f59ff656b35078ff329c9f9b13aee31d812659d7c444d00ef8998ec720cdb46",
+      "contentDigest": "191009a617374e0bd5a94102cb4c88bd2ea04e11a8a95dc4abba98b8cc1672a4",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -1752,12 +1752,12 @@
       "canonicalSources": [
         {
           "path": ".ai/skills/query-paging",
-          "digest": "16ecda1fc707ee8a816e72724b4bb78cc19d940a93b9c5087fa30395f9868d03",
+          "digest": "ab1c37b6b14b57454530bc6e282d6c73deae26f73745fb5bac28b4d9e2481df8",
           "ownership": "owner",
           "ownerComponentId": "cratis-arc-query-paging"
         }
       ],
-      "contentDigest": "461dbb452f3932c5eb11a6b3734cf7224002bf3144de448daa2287987a4d94cd",
+      "contentDigest": "f67d0da622f3ebb478f735b6c30fd45c14938f3896786146ca272c8639ea77e8",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -1920,12 +1920,12 @@
       "canonicalSources": [
         {
           "path": ".ai/skills/cratis-react-page",
-          "digest": "989391b660bcb2fb257eb495848172ba9a21cc76841c2aef57c87813c86b9b13",
+          "digest": "4517c0c7240d884407b994c6a4e41ddfeb08c0c0133ccac3ced03657a6eb3084",
           "ownership": "owner",
           "ownerComponentId": "cratis-arc-react-page"
         }
       ],
-      "contentDigest": "1a2261856af8c5a72ffe76f37043d78190d47f0415c886785fd4f7b4aacab2a3",
+      "contentDigest": "104bb10153a8c6f422ea5a05aeb3fca2a11c6327ba60e88c61f575ce17a50601",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -2004,12 +2004,12 @@
       "canonicalSources": [
         {
           "path": ".ai/skills/inspect-running-chronicle",
-          "digest": "01f376b0ad6a954e204948f3ef5f433ae59acab8eb0221476d87a83eb1fd99bc",
+          "digest": "9452b7fefd294f307b91f4e3c07af55d98743affb603c04005189db75435899e",
           "ownership": "owner",
           "ownerComponentId": "cratis-chronicle-cli-operations"
         }
       ],
-      "contentDigest": "2c2658843bb3a2c4293ad50391f7ebd6469239163073657479e4d2888a4b6b08",
+      "contentDigest": "034f0ff334525fb922e7e2d13309f5a0190c55ae23c39eade1c429dc7816093b",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -2087,12 +2087,12 @@
       "canonicalSources": [
         {
           "path": ".ai/skills/add-business-rule",
-          "digest": "796ccf26f62bec707eb389ea0e3e666ab26a5d1ad7aa69c30801c3ca3b036852",
+          "digest": "7aff5f2a3586a74b046a51a4c9f0f6ad5ec6a95bed5eb40ea383ef588b1eba76",
           "ownership": "shared-reference",
           "ownerComponentId": "cratis-arc-command-validation"
         }
       ],
-      "contentDigest": "9a7a3de0bd63592e2676920caaa7a12571e8b0b632cda9fcd6ab307ba670c7a7",
+      "contentDigest": "16928b6e11edd80ddf14db0d4e1f0ed299da1c33edd077c52e53c01cd1f2b3a5",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -2171,12 +2171,12 @@
       "canonicalSources": [
         {
           "path": ".ai/skills/cross-cutting-properties",
-          "digest": "e9a68b833d73d04610434902ff797f82956821a1547b02c443cf465cd3f83e34",
+          "digest": "9f32dd20867ae150d2c6342e374afec1a78c08797620b7bba41d4bf995086fd5",
           "ownership": "owner",
           "ownerComponentId": "cratis-chronicle-event-metadata"
         }
       ],
-      "contentDigest": "684432d53c4dfffdaf0e4bfa3ef140b50d2ea895a27d7209a5ea11156c70ed66",
+      "contentDigest": "56927a1b16001d7852bc4a57b49350a69a8ee9163c37efb626fb1e30bc0d45b5",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -2254,12 +2254,12 @@
       "canonicalSources": [
         {
           "path": ".ai/skills/event-modeling",
-          "digest": "9ac38bc05ac0792623ef81e33337391308084514942cb812386ebccfb40f9e77",
+          "digest": "312a9c52e8e4d239a389905b17d458cce3578d7b8763e76a05140bf8caa5b354",
           "ownership": "owner",
           "ownerComponentId": "cratis-chronicle-event-modeling"
         }
       ],
-      "contentDigest": "5d66a79fee80141baee14a5341829e572cedb3436b5b1bd5bd2fdb601e5023c2",
+      "contentDigest": "94f49ad92e78959bb4662404fa142129875d534ea1fc33b15a5dd68c843875b9",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -2421,12 +2421,12 @@
       "canonicalSources": [
         {
           "path": ".ai/skills/event-type-migrations",
-          "digest": "77b55e9cb4916e7e70afbbd88a2948bececde3547c18068716daa36176b0ed67",
+          "digest": "267d1b1ac9e403f97692961b000a91d39a87d94e63fde7cb3662dbddabb4f92d",
           "ownership": "owner",
           "ownerComponentId": "cratis-chronicle-event-type-migration"
         }
       ],
-      "contentDigest": "a93f09c1253b8e7701ebcd41946e719f484f94f338fbb4daaa134c61ee41b45f",
+      "contentDigest": "f16a671e014e655cb12f0944bf57d861f5384488e6da9a6ec33f3d6a79d8afc6",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -2585,12 +2585,12 @@
       "canonicalSources": [
         {
           "path": ".ai/skills/multi-tenancy",
-          "digest": "159825bd29f8101c58ea1e036f7dbd9ea25762cfab7a96d8a694d339efe15603",
+          "digest": "13a42d07bf78dbda994c0c00903f88efb0deb59d70052ebed520a33a73028858",
           "ownership": "owner",
           "ownerComponentId": "cratis-chronicle-multi-tenancy"
         }
       ],
-      "contentDigest": "24d84e535b38fed9741ac4428f6b0ed1472b8910b1e48d738241094e60f7ee19",
+      "contentDigest": "3577cddd27bb35221cb42a023e16997a7438487a090f64d883f2163f9ceb1186",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -2752,12 +2752,12 @@
       "canonicalSources": [
         {
           "path": ".ai/skills/add-reactor",
-          "digest": "76b3ad7d5f55f04996ae2c5d8d34ba4bb4ce324aafe0eadaa2268fb9abf32bfa",
+          "digest": "abb5cbd7f79f9630386a258341bb4a5b055e590952e83e4ea244469b21040bfd",
           "ownership": "owner",
           "ownerComponentId": "cratis-chronicle-reactor"
         }
       ],
-      "contentDigest": "e1d71129a3777f61de03d3a510e7f0f99c9a9447812eff3c6fa860d11c08378c",
+      "contentDigest": "9874636d109d3d4fceb5a7901df68aa5d88a351f04f63e6dc99f83277ac03be6",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -3007,12 +3007,12 @@
       "canonicalSources": [
         {
           "path": ".ai/skills/add-reducer",
-          "digest": "46d0f00962aa14b40e5f1554499175908d65829fd8a2392fb460e10ee51bf103",
+          "digest": "cf8c382a70ad880fcd5e4b72ad344d44aaa25af05c24506067b5401e0c21a43e",
           "ownership": "owner",
           "ownerComponentId": "cratis-chronicle-reducer"
         }
       ],
-      "contentDigest": "c5b66fd25771f04cc795fbf956781733ffed2e17c0b92492245a9d93b4e1fed4",
+      "contentDigest": "d7fc05162c43b31d2ffc029d572805716b34fc540fbcca1bc8f40cce416a92ee",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -4501,12 +4501,12 @@
       "canonicalSources": [
         {
           "path": ".ai/skills/toolbar",
-          "digest": "b68cf8a695c1bf6a7ba40a00285f52382b57a3aed579c7fda63c9ae6c5593c9d",
+          "digest": "ff3a7bcd3e72d2e500034095b98d7ab79c2fcbdc5cf1d015574f133d90276d57",
           "ownership": "owner",
           "ownerComponentId": "cratis-components-toolbar"
         }
       ],
-      "contentDigest": "b43842310d1069597df99945ade66202706d8f0203c831fd30aaa409cf2ea842",
+      "contentDigest": "710975220005c770d78ed65a3a1b0b525103597c752bba51acaf4b2d5e969b45",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -5157,12 +5157,12 @@
       "canonicalSources": [
         {
           "path": ".ai/skills/create-event-model",
-          "digest": "765fe1507b25fff781b151848cc282b726799ebad29a8c6a5ad1d6d8c9be3ec2",
+          "digest": "0d2250645d979036ce01511ccfcdc303ae618a0e6c7d62a97d46476cd03832f9",
           "ownership": "owner",
           "ownerComponentId": "cratis-event-model-diagram"
         }
       ],
-      "contentDigest": "ea6458772d9323e3560c71c959741cb742f4be94e457d4c397aaa79e08d66ea3",
+      "contentDigest": "56ae341158b83f60521ffda513815af75a9f7d3f24fa76b0ec80c700c2e236b6",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -5487,12 +5487,12 @@
       "canonicalSources": [
         {
           "path": ".ai/rules/general.md",
-          "digest": "b48af74e4bbd01e9b8798c7b7a94e7ce3ea0d423ea1966a94079d98f9f120081",
+          "digest": "afdb400c06ed35220ac1b625e5060bce9297bd2534e7cea2fd996910b22fb4ac",
           "ownership": "owner",
           "ownerComponentId": "cratis-instruction-general"
         }
       ],
-      "contentDigest": "e171f34a8e7c09134938a0f0c4b1e10b0c08e7b3a915639fbea0bdc54882ec61",
+      "contentDigest": "5c62bca29896b4a442da84239eb8e66ac64b2597ee1557ec0e146823329afaba",
       "owner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "classification": {
@@ -7609,12 +7609,12 @@
       "canonicalSources": [
         {
           "path": ".ai/rules/concepts.md",
-          "digest": "ec09879acc66fe7bc0518bb2d9c2dbf7944e1c65c4408ebc5bdb69a5c846c48c",
+          "digest": "8eb4e594aa4da07143f4b8b21ab5f1c2354469afa66604dd4a6e25103d426b50",
           "ownership": "owner",
           "ownerComponentId": "cratis-rule-concepts"
         }
       ],
-      "contentDigest": "45fe35b007e883f45933a9315653d2086c29a24dd8403e32021446a6cb3cb886",
+      "contentDigest": "2b25eabbf5e75cbd512701c950be6fc4fabc5ea3c6c8a6a6fdca10dcbb2e8a24",
       "owner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "classification": {
@@ -7678,12 +7678,12 @@
       "canonicalSources": [
         {
           "path": ".ai/rules/csharp.md",
-          "digest": "535db1d781279f8974ab71ebe9aa525b88b314b46fe4fd5a475331db2f440f5f",
+          "digest": "ed5c3100d9b32f36bdc8cfbf64c3293def09005cc01898b3df59a3a8b2c054ea",
           "ownership": "owner",
           "ownerComponentId": "cratis-rule-csharp"
         }
       ],
-      "contentDigest": "6b6d915bbde059ee6ff783bb1bf5e1090bc0dd9d65a5833e7f7d0dff7b0fee02",
+      "contentDigest": "f701d7dcb53e35e26def35d7eabfc1b464cb7013947685fa643cf2efe8fb0b23",
       "owner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "classification": {
@@ -8506,12 +8506,12 @@
       "canonicalSources": [
         {
           "path": ".ai/rules/glossary.md",
-          "digest": "5a89504e5b4cc32f4cbf55f894c3d37332043119ef78843047ee5f24909267aa",
+          "digest": "8dd04c98a21a0861b3fb061d188af766cb41c10a0c87298ec32a4eddf6cd19c3",
           "ownership": "owner",
           "ownerComponentId": "cratis-rule-glossary"
         }
       ],
-      "contentDigest": "94d301149fe4d194926558955861cb2f3df729b25fc824c80229804aaed9b064",
+      "contentDigest": "a3d53661ee7850731100886143241974df343d37def9bf9d79ebe4527a24b430",
       "owner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "classification": {
@@ -8782,12 +8782,12 @@
       "canonicalSources": [
         {
           "path": ".ai/rules/pull-requests.md",
-          "digest": "660d7b67b8219eacabcb801eec09f97a0f1b7f6fe8f85f6bf71b96cf37ef8d97",
+          "digest": "d8cd50022c2e5a964f73870b8c33c5f6425748f27f4f7bc764740a21f65d761a",
           "ownership": "owner",
           "ownerComponentId": "cratis-rule-pull-requests"
         }
       ],
-      "contentDigest": "89a97c9dd55762a40464fd4546360e2097cb57a611e7d50d4bc457c612eff77d",
+      "contentDigest": "89e72d3b5d92afd66a3929dc223cfca29c81828774258b223c213a80706f62be",
       "owner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "classification": {
@@ -9541,12 +9541,12 @@
       "canonicalSources": [
         {
           "path": ".ai/rules/vertical-slices.md",
-          "digest": "2f6fbcbfd2be4b6eb94ff2c878a6f2f67c4523296753fdd4256219a25d1b2590",
+          "digest": "40ee72260db33d91dc1f2342d2bf0e3d75554102203a38d0f637c9454a3d42a7",
           "ownership": "owner",
           "ownerComponentId": "cratis-rule-vertical-slices"
         }
       ],
-      "contentDigest": "64be055892e6e3c83a7334f8d68dca984d21251ef30cc1a62bd464750df6d1c9",
+      "contentDigest": "280afbfdcef2ddb063865bae944895c3b6734a05d085fccd3cd82f417ebcb975",
       "owner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "classification": {
@@ -9817,12 +9817,12 @@
       "canonicalSources": [
         {
           "path": ".ai/skills/review-security",
-          "digest": "c5829036d84177ba53cdacf54e01ec7cf05cb84fb4b8f07fb0305003213d0b3f",
+          "digest": "f7a78c4c980d17ae304bce81a20a19a8864965ba2784466c10fcca7aaa0fd178",
           "ownership": "owner",
           "ownerComponentId": "cratis-security-review"
         }
       ],
-      "contentDigest": "a9c38df6402c5d0a7c1be37a4e64967e96c23a0b2e803a24dc25567b06e7e88b",
+      "contentDigest": "0f957586d4509a518b94f58a98f283364ecf52be3f067f406472f44d43d6acd6",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -9900,12 +9900,12 @@
       "canonicalSources": [
         {
           "path": ".ai/skills/cratis-specs-csharp",
-          "digest": "4a88d76ffe76db7636ac2dfb5169c40fea66fb908d0f9e543630fd084e8e053b",
+          "digest": "b52084ff3c16363d7a042dac186d16c1f44e8f1169cd16bbe88037fb6111057d",
           "ownership": "owner",
           "ownerComponentId": "cratis-specifications-csharp"
         }
       ],
-      "contentDigest": "7220a73c0712de0ce75752c675eeaed2f5124978152e42f47d2a5b900723ffcd",
+      "contentDigest": "ac9c0a04e1db2b6e1247a1ab057ffa4891ad6c1fd8cef5a711f6d77749d4872e",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {

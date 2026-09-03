@@ -3,7 +3,7 @@ name: write-specs-frontend
 description: Use this skill to write specs for the React/TypeScript surface of a Cratis APPLICATION slice — view models, helpers, and component behavior (Vitest + Mocha-style describe/it + Sinon + Chai .should). The frontend peer to write-specs (backend). For framework @cratis/* package specs use cratis-specs-typescript instead.
 ---
 
-Write specs for a slice's React/TypeScript surface — view models, helpers, and narrow component behavior. Full conventions live in `.ai/rules/frontend-testing.md`; this skill is the **application** frontend peer to **write-specs** (backend). For **framework** `@cratis/*` package specs (the `given()` helper), use **cratis-specs-typescript** instead.
+Write specs for a slice's React/TypeScript surface — view models, helpers, and narrow component behavior. Full conventions live in [frontend-testing.md](https://github.com/Cratis/AI/blob/main/.ai/rules/frontend-testing.md); this skill is the **application** frontend peer to **write-specs** (backend). For **framework** `@cratis/*` package specs (the `given()` helper), use **cratis-specs-typescript** instead.
 
 ## Placement & naming
 
@@ -88,6 +88,6 @@ Run `yarn test` (or the project's frontend test gate) plus `yarn lint` and `npx 
 
 ## See also
 
-- `frontend-testing.md` — the full conventions this applies.
-- `react.md` — MVVM, view-model testability, Arc hooks.
+- [frontend-testing.md](https://github.com/Cratis/AI/blob/main/.ai/rules/frontend-testing.md) — the full conventions this applies.
+- [react.md](https://github.com/Cratis/AI/blob/main/.ai/rules/react.md) — MVVM, view-model testability, Arc hooks.
 - `write-specs` — the backend peer; `cratis-specs-typescript` — framework `@cratis/*` package specs.
