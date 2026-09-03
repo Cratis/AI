@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "7dc4b27bafa3da0c282354241150776578345326d66373a005fe12e6af2697a0",
+  "indexDigest": "752e61c19b489e6c54a25fb627cf522c6bb4f0d6ca7cbb7872ac336e9966370e",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -49,6 +49,10 @@
     {
       "path": ".ai/rules/github-actions.md",
       "status": "added"
+    },
+    {
+      "path": ".ai/rules/glossary.md",
+      "status": "modified"
     },
     {
       "path": ".ai/rules/local-work-artifacts.md",
@@ -144,6 +148,10 @@
     },
     {
       "path": ".ai/skills/query-paging/SKILL.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/review-security/SKILL.md",
       "status": "modified"
     },
     {

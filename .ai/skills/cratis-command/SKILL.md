@@ -39,12 +39,14 @@ public record DebitAccountOpened(AccountName Name, OwnerId OwnerId);
 ```
 
 **Rules:**
+
 - `[Command]` attribute is **required** — it makes the type discoverable and the analyzer will warn without it
 - `Handle()` returns the event (or events) to append — Arc's Chronicle integration automatically appends them; **never inject `IEventLog` to append the primary event**
 - `[EventType]` takes **no arguments** — the identifier is generated from the type name
 - Name the command as an imperative action — `OpenDebitAccount`, not `OpenDebitAccountCommand`
 - All backend artifacts for the slice live in this one file; place it in the slice folder, not an `API/` or `Commands/` folder (see [vertical-slices.md](https://github.com/Cratis/AI/blob/main/.ai/rules/vertical-slices.md))
 - Use concept wrappers for every domain value — **identity** concepts derive from `EventSourceId<T>`, **value** concepts from `ConceptAs<T>`; never raw `Guid`/`string`
+- Every property's **value** is recorded on the causation chain of each event the command appends — mark a secret `[NotAudited]` and personal data `[PII]` before it reaches the event log (see below)
 
 ```csharp
 // Accounts/AccountId.cs — identity concept derives from EventSourceId<T>
@@ -88,6 +90,37 @@ public record TransferFunds(AccountId FromId, AccountId ToId, Money Amount)
 ```
 
 For multiple events on the **same** event source, return the bare event records.
+
+### Values the command must not record
+
+A command's property values are written to the causation of **every** event it appends, and the event log is immutable — a secret recorded there cannot be taken back out by changing code. Decide this when you add the property, not later.
+
+```csharp
+[Command]
+public record ChangePassword(
+    UserId User,
+    [property: NotAudited] string OldPassword,   // withheld: a secret
+    [property: NotAudited] string NewPassword)
+{
+    public PasswordChanged Handle(IPasswordHasher hasher) => new(hasher.Hash(NewPassword));
+}
+```
+
+| Marking | Use for | Also does |
+| --- | --- | --- |
+| `[PII]` | personal data — a name, an email | encrypts it in the event, enrolls it in erasure |
+| `[NotAudited]` | a secret that is not personal data — password, token, API key | nothing else; it only withholds |
+
+**Prefer marking the concept** so it travels to every command that takes one — the same idiom as `[PII]`:
+
+```csharp
+[NotAudited]
+public record ApiKey(string Value) : ConceptAs<string>(Value);
+```
+
+`[NotAudited]` on the command type withholds every property at once. The command is still **named** on the chain either way; only the values are withheld.
+
+`ARCCHR0009` warns when a property's *name* reads like a secret and is unmarked. It cannot see a secret whose name does not say so — a clean build means "nothing obvious was missed", not "no secrets are recorded". If it is wrong and the value should be recorded, **suppress the diagnostic** rather than marking it `[NotAudited]`, which would silence the warning by withholding a value you wanted.
 
 ---
 
@@ -266,6 +299,7 @@ export const AccountsPage = () => {
 ```
 
 **How it works:**
+
 - `useDialog(OpenAccountDialog)` returns a wrapper component and a `show` function
 - `showOpenAccount()` opens the dialog; it returns a Promise that resolves when the dialog closes
 - `CommandDialog` executes the command when the user confirms; it closes automatically

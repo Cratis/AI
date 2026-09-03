@@ -194,10 +194,14 @@ const referenceClosureSourceNames = [
     "write-specs",
     "write-specs-frontend",
 ];
+const causationGuidanceSourceNames = [
+    "cratis-command",
+    "cross-cutting-properties",
+    "review-security",
+];
 const normalizedPackagedSourceNames = [
     "call-command-from-code",
     "create-event-model",
-    "cross-cutting-properties",
     "diagnose-slice",
     "event-type-migrations",
     "query-paging",
@@ -258,6 +262,14 @@ const sourceOverrides = new Map([
             sourcePath: `.ai/skills/${name}`,
             sourceRevision: "6ec724752023b7c1639b01e33d700d84d04fcfc3",
             evidenceId: "public-effect-guidance-boundary-source-6ec7247",
+        },
+    ]),
+    ...causationGuidanceSourceNames.map((name) => [
+        name,
+        {
+            sourcePath: `.ai/skills/${name}`,
+            sourceRevision: "afbe46fc7c87ab110df7f1983a0ca174ef0f6aac",
+            evidenceId: "command-causation-guidance-source-afbe46f",
         },
     ]),
     ...normalizedPackagedSourceNames.map((name) => [
