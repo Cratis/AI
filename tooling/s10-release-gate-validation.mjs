@@ -20,7 +20,7 @@ import { computeEvidenceIdentityAnchors } from "./support-validation.mjs";
 const expectedPolicyDigest =
     "02982ff7a36eb77025f7eda8e82d41ab671e695f7faa8dafc0d3dbcd665474ed";
 const expectedEvidenceBaselineDigest =
-    "b28d8e4b0d813fd5e5c4546b5ce0b06e84222a4160f3a3b2e4437c9ee7b3cdad";
+    "8041cb8c0c9b442d9528a3779a0449b50cedadd4efa056191a993f5d5bc9374b";
 const sideEffectJobs = [
     "canary",
     "distribute",
@@ -201,7 +201,7 @@ export function validateS10ReleaseGate(root = defaultRepositoryRoot) {
         "utf8",
     );
     if (
-        !/^  s10_preflight:/mu.test(workflow) ||
+        !/^ {2}s10_preflight:/mu.test(workflow) ||
         !workflow.includes("release_allowed=false") ||
         !workflow.includes("node tooling/s10-release-gate-validation.mjs") ||
         !workflow.includes("node tooling/release-merge-topology-validation.mjs")
@@ -212,7 +212,7 @@ export function validateS10ReleaseGate(root = defaultRepositoryRoot) {
         const start = workflow.indexOf(marker);
         const remainder =
             start < 0 ? "" : workflow.slice(start + marker.length);
-        const nextJob = remainder.match(/\n  [a-zA-Z0-9_-]+:\n/u);
+        const nextJob = remainder.match(/\n {2}[a-zA-Z0-9_-]+:\n/u);
         const block =
             start < 0
                 ? ""
