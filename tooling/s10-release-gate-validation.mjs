@@ -201,7 +201,7 @@ export function validateS10ReleaseGate(root = defaultRepositoryRoot) {
         "utf8",
     );
     if (
-        !/^  s10_preflight:/mu.test(workflow) ||
+        !/^ {2}s10_preflight:/mu.test(workflow) ||
         !workflow.includes("release_allowed=false") ||
         !workflow.includes("node tooling/s10-release-gate-validation.mjs") ||
         !workflow.includes("node tooling/release-merge-topology-validation.mjs")
@@ -212,7 +212,7 @@ export function validateS10ReleaseGate(root = defaultRepositoryRoot) {
         const start = workflow.indexOf(marker);
         const remainder =
             start < 0 ? "" : workflow.slice(start + marker.length);
-        const nextJob = remainder.match(/\n  [a-zA-Z0-9_-]+:\n/u);
+        const nextJob = remainder.match(/\n {2}[a-zA-Z0-9_-]+:\n/u);
         const block =
             start < 0
                 ? ""
