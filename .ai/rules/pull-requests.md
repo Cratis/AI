@@ -21,6 +21,7 @@ PR descriptions serve two purposes: they help reviewers understand the change *n
 See the full [Git Commits guide](./git-commits.md) for rules on logical grouping, message format, and staging discipline.
 
 Quick reminders:
+
 - Imperative mood: "Add author registration" not "Added author registration".
 - Each commit = one logical unit of work. No WIP commits in the final PR.
 - Never mix unrelated changes in a single commit.
@@ -61,11 +62,14 @@ Split into separate pull requests when the changes are genuinely unrelated, when
 
 ## Quality Gates
 
-**A documentation-only pull request skips this section entirely.** Nothing it changes can break a build, a spec or a lint, so there is nothing to wait for: open it and merge it. Do not monitor its checks, do not wait for green, and do not treat a red `verify` from the deliberately absent version label as a failure. Verify the content instead — links resolve, anchors exist, every code example matches real source.
+**A documentation-only pull request skips the build gates below.** Nothing it changes can break a build, a spec or a lint, so there is nothing to wait for there: open it and merge it. Do not monitor those checks and do not wait for green on them. Verify the content instead — links resolve, anchors exist, every code example matches real source.
+
+**The release-intent check is not one of the gates it skips.** A documentation-only pull request still carries `no-release`, and its release-intent run still has to be green — the label is the entire statement that nothing was meant to ship, and the check is the only place that statement is recorded. A red release-intent run on a documentation pull request therefore means the label is missing, never that the gate does not apply; treating it as expected merges a pull request that says nothing about its own release intent and leaves a failed run standing on the record.
 
 **`no-release` does not otherwise excuse a PR from this section.** A CI, tooling, or spec-only pull request ships nothing, but it is exactly the kind of change that can break the build or the pipeline for everyone else — a broken workflow or a deleted spec does its damage without ever being released. Hold it to every gate below.
 
 Before marking any other PR ready for review:
+
 - `dotnet build` — zero errors, zero warnings
 - `dotnet test` — all specs pass
 - `yarn lint` — zero errors

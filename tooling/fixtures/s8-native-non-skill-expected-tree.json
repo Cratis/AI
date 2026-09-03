@@ -136,8 +136,8 @@
         {
           "path": ".aiassistant/rules/pull-requests.md",
           "sourcePath": ".ai/rules/pull-requests.md",
-          "size": 7842,
-          "sha256": "d8f7eabf9df2d34fee048fd3cb90d80444770ae90446c594c97f25451ae6eb1c"
+          "size": 8351,
+          "sha256": "e4bd4be4adbeb371abf8634e8b0afe0fb82bdfb97bb859a8813915893c255b4c"
         },
         {
           "path": ".aiassistant/rules/react.md",
@@ -346,8 +346,8 @@
         {
           "path": ".tabnine/guidelines/pull-requests.md",
           "sourcePath": ".ai/rules/pull-requests.md",
-          "size": 7842,
-          "sha256": "d8f7eabf9df2d34fee048fd3cb90d80444770ae90446c594c97f25451ae6eb1c"
+          "size": 8351,
+          "sha256": "e4bd4be4adbeb371abf8634e8b0afe0fb82bdfb97bb859a8813915893c255b4c"
         },
         {
           "path": ".tabnine/guidelines/react.md",
@@ -1055,14 +1055,14 @@
       "canonicalOwnerId": "cratis-rule-pull-requests",
       "semanticKind": "rule",
       "sourcePath": ".ai/rules/pull-requests.md",
-      "sourceDigest": "660d7b67b8219eacabcb801eec09f97a0f1b7f6fe8f85f6bf71b96cf37ef8d97",
+      "sourceDigest": "d8cd50022c2e5a964f73870b8c33c5f6425748f27f4f7bc764740a21f65d761a",
       "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/pull-requests.md",
       "hostId": "jetbrains-ai-assistant",
       "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
       "evidenceIds": [
         "jetbrains-ai-assistant-source-1"
       ],
-      "outputDigest": "d8f7eabf9df2d34fee048fd3cb90d80444770ae90446c594c97f25451ae6eb1c"
+      "outputDigest": "e4bd4be4adbeb371abf8634e8b0afe0fb82bdfb97bb859a8813915893c255b4c"
     },
     {
       "projectionId": "cratis-rule-pull-requests-to-tabnine-rule",
@@ -1070,14 +1070,14 @@
       "canonicalOwnerId": "cratis-rule-pull-requests",
       "semanticKind": "rule",
       "sourcePath": ".ai/rules/pull-requests.md",
-      "sourceDigest": "660d7b67b8219eacabcb801eec09f97a0f1b7f6fe8f85f6bf71b96cf37ef8d97",
+      "sourceDigest": "d8cd50022c2e5a964f73870b8c33c5f6425748f27f4f7bc764740a21f65d761a",
       "outputPath": "tabnine-guidelines/.tabnine/guidelines/pull-requests.md",
       "hostId": "tabnine",
       "hostAdapterId": "tabnine-host-adapter",
       "evidenceIds": [
         "tabnine-source-1"
       ],
-      "outputDigest": "d8f7eabf9df2d34fee048fd3cb90d80444770ae90446c594c97f25451ae6eb1c"
+      "outputDigest": "e4bd4be4adbeb371abf8634e8b0afe0fb82bdfb97bb859a8813915893c255b4c"
     },
     {
       "projectionId": "cratis-rule-react-to-jetbrains-ai-assistant-rule",
