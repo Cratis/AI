@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "1.0.0",
+  "state": "PUBLIC_BRAND_ASSET",
+  "sourceRepository": "https://github.com/Cratis/Documentation",
+  "sourceRevision": "a5a53c2cba1f3cbe5c29c5ec70fb3d533ac0694c",
+  "sourcePath": "web/public/favicon-512.png",
+  "sourceBlob": "585c56ed687a116e9d8bab66cd3fa6a13ab42ae6",
+  "sha256": "da99d76b1513c92617e4f3104437fe8988a3b94cc27d457955eb7e155403b7f6",
+  "mediaType": "image/png",
+  "width": 328,
+  "height": 328,
+  "license": "MIT",
+  "purpose": [
+    "plugin-composer-icon",
+    "plugin-logo",
+    "vendor-marketplace-listing"
+  ]
+}

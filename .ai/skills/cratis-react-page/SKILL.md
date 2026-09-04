@@ -91,7 +91,7 @@ export const AccountsPage = () => {
 };
 ```
 
-See [dialogs.md](../../rules/dialogs.md) and the `stepper-command-dialog` skill for the full dialog patterns.
+See [dialogs.md](https://github.com/Cratis/AI/blob/main/.ai/rules/dialogs.md) and the `stepper-command-dialog` skill for the full dialog patterns.
 
 #### Confirming, and showing that something is in progress
 
@@ -221,7 +221,7 @@ const AccountDetail = ({ item }: IDetailsComponentProps<AccountSummary>) => (
 
 ### Step 7 — MVVM view model (for complex pages)
 
-For pages with complex state or coordination logic, wrap the page in a view model (see [react.md](../../rules/react.md)):
+For pages with complex state or coordination logic, wrap the page in a view model (see [react.md](https://github.com/Cratis/AI/blob/main/.ai/rules/react.md)):
 
 ```tsx
 import { withViewModel } from '@cratis/arc.react.mvvm';
@@ -244,14 +244,14 @@ export const AccountsPage = withViewModel(AccountsViewModel, ({ viewModel }) => 
 ));
 ```
 
-Read `viewModel.property` inside JSX (never destructure observables at the top of the body). See [react.md](../../rules/react.md) for the full MVVM rules.
+Read `viewModel.property` inside JSX (never destructure observables at the top of the body). See [react.md](https://github.com/Cratis/AI/blob/main/.ai/rules/react.md) for the full MVVM rules.
 
 ---
 
 ## Quick decision guide
 
 | Need | Use |
-|---|---|
+| --- | --- |
 | Read-only list | `DataPage` with a standard `query` |
 | Real-time updates | `DataPage` with an observable query passed to the same `query` prop |
 | Add / create action | `<DataPage.MenuItems>` + `MenuItem` + `CommandDialog` + `useDialog` |
@@ -262,7 +262,7 @@ Read `viewModel.property` inside JSX (never destructure observables at the top o
 ## Key DataPage props
 
 | Prop | Purpose |
-|---|---|
+| --- | --- |
 | `title` (required) | toolbar title |
 | `query` (required) | the query proxy — standard or observable |
 | `emptyMessage` (required) | shown when there are no rows |

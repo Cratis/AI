@@ -39,6 +39,15 @@ does not need a `ConceptAs<T>` wrapper.
 - `NotSet` or `Empty` is optional domain policy. Add one only when the backing
   value is impossible or explicitly reserved in that domain. Do not assume
   empty string, zero, or `Guid.Empty` is universally invalid.
+- Mark a concept that holds **personal data** `[PII]` and one that holds a
+  **secret** `[NotAudited]`. Both markings travel with the type, so marking it
+  once covers every command and event that uses it - which is the point of
+  having the concept. A command's property values are written to the causation
+  chain of every event it appends, so an unmarked `ApiKey` or `AccessToken`
+  concept reaches the event log in the clear and stays there. The two are not
+  interchangeable: `[PII]` also encrypts and enrolls the value in erasure, which
+  is wrong for a password, and `[NotAudited]` does nothing for an erasure
+  request, which is wrong for a name.
 
 ```csharp
 public record AuthorName(string Value) : ConceptAs<string>(Value)

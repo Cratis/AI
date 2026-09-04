@@ -200,8 +200,10 @@ unsupported evaluation endpoint.
 
 ## Native marketplace installation
 
-[Cratis/AI.Distribution v0.2.0](https://github.com/Cratis/AI.Distribution/releases/tag/v0.2.0)
-provides one 34-skill `public-cratis-ai` root for Agent Skills, Agent Plugin,
+[Cratis/AI.Distribution v0.2.1](https://github.com/Cratis/AI.Distribution/releases/tag/v0.2.1)
+is the latest published marketplace. The corrected release policy admits 29
+public skills and excludes five effectful workflows, including live Chronicle
+operations, until their effects are separately assessed and approved. It provides one `public-cratis-ai` root for Agent Skills, Agent Plugin,
 Claude Code, Codex, GitHub Copilot, Gemini CLI, Kiro, and Pi. The Distribution
 README contains exact version-pinned commands. Claude, Codex, Copilot, and Pi
 public install/discovery/remove canaries pass; Gemini gallery discovery is

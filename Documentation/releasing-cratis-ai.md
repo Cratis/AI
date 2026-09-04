@@ -32,10 +32,16 @@ The `public-cratis-ai` Distribution root merges one immutable skill tree into
 compatible manifests for generic Agent Skills and Agent Plugins, Claude Code,
 OpenAI Codex, GitHub Copilot, Cursor, Gemini CLI, Kiro, and Pi. The generator
 rejects byte-divergent collisions and preserves blocked targets, repository-only
-legacy skills, and native non-skill components as explicit exclusions.
+legacy skills, and native non-skill components as explicit exclusions. A closed,
+deny-by-default evaluation policy explicitly admits 29 public targets and keeps
+five effectful workflows, including live Chronicle operations, out until their
+effects are separately assessed and approved. Every packaged Markdown reference must resolve inside the
+skill or use an explicit external URL.
 
 Self-hosted GitHub installation is the publication channel for Claude Code,
-Copilot, Gemini CLI, Kiro, generic Agent Plugin hosts, and Pi Git packages.
+Copilot, Gemini CLI, Kiro, generic Agent Plugin hosts, and Pi Git packages. The
+aggregate `@cratis/ai` package manifest is deliberately private and exists only
+to make Pi's Git installation idiomatic; it is not an npm publication identity.
 OpenAI's universal directory and Cursor's marketplace remain separately prepared
 portal handoffs because those vendors require an authenticated publisher,
 manual submission, and review. The OpenAI handoff also records the owner-supplied
@@ -52,14 +58,18 @@ It has read-only permissions and cannot push, publish, or submit vendor portals.
 
 Before any profile is approved, the manual **Package Passive Candidate Assets**
 workflow can build two short-lived review bundles from immutable source: one for
-34 currently materializable public targets and one for 7 engineering targets.
+candidate public targets and one for candidate engineering targets. Public
+marketplace eligibility is narrower than candidate packaging and is controlled
+by `public-evaluation-eligibility.json`.
 It projects each bundle to all 34 passive harness shapes and records the four
 excluded targets rather than silently dropping them.
 
 This candidate lane accepts only `0.0.N-candidate.N`, keeps npm packages private,
 marks Codex installation unavailable, and emits provenance, SBOM, compliance,
-assurance, support-matrix, and checksum records. Every approval, installation,
-publication, runtime, support, and promotion flag is false. It is a static
+assurance, support-matrix, and checksum records. `skill-creator` is quarantined because its
+executable scripts/agents are intentionally excluded from passive packages and
+its Apache license cannot be represented by the aggregate MIT SBOM. Every
+approval, installation, publication, runtime, support, and promotion flag is false. It is a static
 packaging and review facility; it does not satisfy any step below and cannot be
 referenced as a release request or production lifecycle receipt.
 

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "4b8df778516a9f4d2fc62c2aa5fdd8e1a251e787ee041ca744a4307b021015f6",
+  "indexDigest": "796cccdcf7d964db1c065aa5251c0be23624ebeaac9cef88b5dc1a46235fc9fd",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -35,6 +35,10 @@
       "status": "modified"
     },
     {
+      "path": ".ai/rules/csharp.md",
+      "status": "modified"
+    },
+    {
       "path": ".ai/rules/dialogs.md",
       "status": "modified"
     },
@@ -45,6 +49,10 @@
     {
       "path": ".ai/rules/github-actions.md",
       "status": "added"
+    },
+    {
+      "path": ".ai/rules/glossary.md",
+      "status": "modified"
     },
     {
       "path": ".ai/rules/local-work-artifacts.md",
@@ -63,7 +71,39 @@
       "status": "modified"
     },
     {
+      "path": ".ai/skills/add-business-rule/SKILL.md",
+      "status": "modified"
+    },
+    {
       "path": ".ai/skills/add-concept/SKILL.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/add-ef-migration/SKILL.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/add-reactor/SKILL.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/add-reducer/SKILL.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/auth-and-identity/references/frontend.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/auth-and-identity/references/local-development.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/call-command-from-code/SKILL.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/cratis-command/SKILL.md",
       "status": "modified"
     },
     {
@@ -71,7 +111,47 @@
       "status": "modified"
     },
     {
+      "path": ".ai/skills/cratis-react-page/references/data-page.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/cratis-specs-csharp/SKILL.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/create-event-model/SKILL.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/cross-cutting-properties/SKILL.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/diagnose-slice/SKILL.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/event-modeling/SKILL.md",
+      "status": "modified"
+    },
+    {
       "path": ".ai/skills/event-type-migrations/SKILL.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/inspect-running-chronicle/SKILL.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/multi-tenancy/SKILL.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/query-paging/SKILL.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/review-security/SKILL.md",
       "status": "modified"
     },
     {
@@ -80,6 +160,18 @@
     },
     {
       "path": ".ai/skills/ship-changes/evals/evals.json",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/toolbar/SKILL.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/write-specs-frontend/SKILL.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/write-specs/SKILL.md",
       "status": "modified"
     },
     {
@@ -675,6 +767,14 @@
       "status": "added"
     },
     {
+      "path": "distribution/assets/cratis-logo.png",
+      "status": "added"
+    },
+    {
+      "path": "distribution/assets/cratis-logo.provenance.json",
+      "status": "added"
+    },
+    {
       "path": "distribution/assurance-lanes.json",
       "status": "added"
     },
@@ -848,6 +948,14 @@
     },
     {
       "path": "distribution/profile-subscription.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/public-evaluation-eligibility.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/public-evaluation-eligibility.schema.json",
       "status": "added"
     },
     {
@@ -4525,8 +4633,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 69,
-      "expectedPathsDigest": "040622ad500fdd641979aab773052506711ce832db092d718729008695838da5"
+      "expectedPathCount": 73,
+      "expectedPathsDigest": "9e03a1d09ed64c2dc2ea3dfb9c075910373912141c779cf5dbda00e7242a3b7f"
     },
     {
       "excludePathPatterns": [],

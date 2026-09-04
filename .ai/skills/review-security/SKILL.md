@@ -20,7 +20,7 @@ Perform a structured security review of changed code.
 
 ## Sensitive Data Exposure
 
-- [ ] No passwords, secrets, API keys, or tokens stored in event properties or read models
+- [ ] No passwords, secrets, API keys, or tokens stored in event properties, read models, **or command properties reaching the causation chain**
 - [ ] No PII returned to clients that did not provide it
 - [ ] Query results scoped to requesting tenant/user — never return all-tenant data
 
@@ -36,6 +36,7 @@ Perform a structured security review of changed code.
 - [ ] Aggregate/event-store IDs generated server-side, never accepted from untrusted clients
 - [ ] Event upcasting logic does not allow injection of unexpected properties
 - [ ] Uniqueness constraints cannot be bypassed by concurrent multi-tenant writes
+- [ ] **Every `[Command]` property holding a secret is marked `[NotAudited]` (or `[PII]` for personal data)** — a command's values are written to the causation of every event it appends and cannot be removed afterwards. Prefer the marking on the concept. `ARCCHR0009` catches secret-*sounding* names only, so read the properties whose names do not say what they hold
 
 ## Frontend
 

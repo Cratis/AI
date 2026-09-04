@@ -235,7 +235,7 @@ function stripAnchor(path) {
     return path.split("#", 1)[0].split("?", 1)[0];
 }
 
-function assertSkillReferences(stageRoot, stagedPaths) {
+function assertSkillReferences(stageRoot, stagedPaths, options = {}) {
     const pathSet = new Set(stagedPaths);
     const referencedResources = new Set();
     for (const path of stagedPaths.filter((candidate) =>
@@ -263,6 +263,7 @@ function assertSkillReferences(stageRoot, stagedPaths) {
             referencedResources.add(target);
         }
     }
+    if (options.allowUnlinkedResources === true) return;
     for (const path of stagedPaths) {
         const segments = path.split("/");
         if (
@@ -318,7 +319,7 @@ export function validateStagedArtifact(stageRoot, options = {}) {
         const content = readFileSync(absolutePath);
         assertSafeContent(path, content);
     }
-    assertSkillReferences(root, paths);
+    assertSkillReferences(root, paths, options);
     const discovered = discoverSkillPaths(root);
     const unexpected = discovered.filter(
         (path) => !/^skills\/[^/]+\/SKILL\.md$/.test(path),

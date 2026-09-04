@@ -43,7 +43,9 @@ function sha256(content) {
 }
 
 function withTemporaryDirectory(callback) {
-    const root = mkdtempSync(join(tmpdir(), "cratis-distribution-verification-"));
+    const root = mkdtempSync(
+        join(tmpdir(), "cratis-distribution-verification-"),
+    );
     try {
         return callback(root);
     } finally {
@@ -161,10 +163,111 @@ test("generated repository verification rejects marketplace support drift", () =
     });
 });
 
+test("generated repository verification accepts the published candidate skill split", () => {
+    withTemporaryDirectory((root) => {
+        const candidateRoot = join(root, "candidate");
+        generateDistributionFixture({
+            repositoryRoot,
+            outputRoot: candidateRoot,
+        });
+        installCandidate(
+            candidateRoot,
+            "candidate-passive-public-package",
+            "0.0.1-candidate.1",
+        );
+        const reviewRoot = join(
+            candidateRoot,
+            "candidates/candidate-passive-public-package/0.0.1-candidate.1",
+        );
+        const coveragePath = join(
+            reviewRoot,
+            "candidate-component-coverage.json",
+        );
+        const coverage = JSON.parse(readFileSync(coveragePath, "utf8"));
+        const record = coverage.records.find(
+            (entry) => entry.disposition === "skill-blocked-candidate",
+        );
+        record.disposition = "skill-packaged-candidate";
+        coverage.byDisposition["skill-blocked-candidate"] -= 1;
+        coverage.byDisposition["skill-packaged-candidate"] += 1;
+        assert.equal(coverage.byDisposition["skill-packaged-candidate"], 41);
+        assert.equal(coverage.byDisposition["skill-blocked-candidate"], 4);
+        const coverageContent = `${JSON.stringify(coverage, null, 2)}\n`;
+        writeFileSync(coveragePath, coverageContent);
+        const assetsPath = join(reviewRoot, "candidate-assets.json");
+        const assets = JSON.parse(readFileSync(assetsPath, "utf8"));
+        assets.componentCoverageSha256 = sha256(coverageContent);
+        const assetsContent = `${JSON.stringify(assets, null, 2)}\n`;
+        writeFileSync(assetsPath, assetsContent);
+        const checksumsPath = join(reviewRoot, "SHA256SUMS");
+        const digests = new Map([
+            ["candidate-component-coverage.json", sha256(coverageContent)],
+            ["candidate-assets.json", sha256(assetsContent)],
+        ]);
+        const checksums = readFileSync(checksumsPath, "utf8")
+            .trimEnd()
+            .split("\n")
+            .map((line) => {
+                const path = line.slice(66);
+                return digests.has(path)
+                    ? `${digests.get(path)}  ${path}`
+                    : line;
+            });
+        writeFileSync(checksumsPath, `${checksums.join("\n")}\n`);
+        const result = verifyDistributionCheck({
+            root: candidateRoot,
+            check: "exact-inventory",
+        });
+        assert.deepEqual(result, {
+            check: "exact-inventory",
+            status: "PASS",
+            supporting: false,
+        });
+    });
+});
+
+test("generated repository verification rejects marketplace eligibility drift", () => {
+    withTemporaryDirectory((root) => {
+        const marketplaceRoot = join(root, "marketplace");
+        generatePublicMarketplaceDistribution({
+            repositoryRoot,
+            outputRoot: marketplaceRoot,
+            version: "0.3.0",
+        });
+        const provenancePath = join(marketplaceRoot, "provenance.json");
+        const provenance = JSON.parse(readFileSync(provenancePath, "utf8"));
+        provenance.eligibility.policySha256 = "0".repeat(64);
+        const provenanceContent = `${JSON.stringify(provenance, null, 2)}\n`;
+        writeFileSync(provenancePath, provenanceContent);
+        const manifestPath = join(
+            marketplaceRoot,
+            "distribution-manifest.json",
+        );
+        const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+        const provenanceRecord = manifest.files.find(
+            (file) => file.path === "provenance.json",
+        );
+        provenanceRecord.size = Buffer.byteLength(provenanceContent);
+        provenanceRecord.sha256 = sha256(provenanceContent);
+        writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+        assert.throws(
+            () =>
+                verifyDistributionCheck({
+                    root: marketplaceRoot,
+                    check: "fixture-provenance-record",
+                }),
+            /Marketplace provenance or eligibility state changed/,
+        );
+    });
+});
+
 test("generated repository verification rejects candidate component authority drift", () => {
     withTemporaryDirectory((root) => {
         const candidateRoot = join(root, "candidate");
-        generateDistributionFixture({ repositoryRoot, outputRoot: candidateRoot });
+        generateDistributionFixture({
+            repositoryRoot,
+            outputRoot: candidateRoot,
+        });
         installCandidate(
             candidateRoot,
             "candidate-passive-public-package",
@@ -200,7 +303,10 @@ test("generated repository verification rejects candidate component authority dr
 test("generated repository verification rejects candidate checksum drift", () => {
     withTemporaryDirectory((root) => {
         const candidateRoot = join(root, "candidate");
-        generateDistributionFixture({ repositoryRoot, outputRoot: candidateRoot });
+        generateDistributionFixture({
+            repositoryRoot,
+            outputRoot: candidateRoot,
+        });
         installCandidate(
             candidateRoot,
             "candidate-passive-engineering-package",
@@ -227,7 +333,10 @@ test("generated repository verification rejects candidate checksum drift", () =>
 test("generated repository verification rejects unreviewed control-plane files", () => {
     withTemporaryDirectory((root) => {
         const candidateRoot = join(root, "candidate");
-        generateDistributionFixture({ repositoryRoot, outputRoot: candidateRoot });
+        generateDistributionFixture({
+            repositoryRoot,
+            outputRoot: candidateRoot,
+        });
         installControlPlane(candidateRoot);
         writeFileSync(
             join(candidateRoot, ".github/workflows/unreviewed.yml"),
@@ -247,14 +356,20 @@ test("generated repository verification rejects unreviewed control-plane files",
 test("generated repository verification rejects manifested payload drift", () => {
     withTemporaryDirectory((root) => {
         const candidateRoot = join(root, "candidate");
-        generateDistributionFixture({ repositoryRoot, outputRoot: candidateRoot });
+        generateDistributionFixture({
+            repositoryRoot,
+            outputRoot: candidateRoot,
+        });
         const manifest = JSON.parse(
             readFileSync(
                 join(candidateRoot, "distribution-manifest.json"),
                 "utf8",
             ),
         );
-        writeFileSync(join(candidateRoot, manifest.files[0].path), "tampered\n");
+        writeFileSync(
+            join(candidateRoot, manifest.files[0].path),
+            "tampered\n",
+        );
         assert.throws(
             () =>
                 verifyDistributionCheck({
@@ -269,7 +384,10 @@ test("generated repository verification rejects manifested payload drift", () =>
 test("generated repository verification rejects duplicate JSON keys", () => {
     withTemporaryDirectory((root) => {
         const candidateRoot = join(root, "candidate");
-        generateDistributionFixture({ repositoryRoot, outputRoot: candidateRoot });
+        generateDistributionFixture({
+            repositoryRoot,
+            outputRoot: candidateRoot,
+        });
         const manifestPath = join(candidateRoot, "distribution-manifest.json");
         const manifest = readFileSync(manifestPath, "utf8");
         writeFileSync(
@@ -293,7 +411,10 @@ test("generated repository verification rejects duplicate JSON keys", () => {
 test("pack smoke rejects dependency-bearing packages before npm execution", () => {
     withTemporaryDirectory((root) => {
         const candidateRoot = join(root, "candidate");
-        generateDistributionFixture({ repositoryRoot, outputRoot: candidateRoot });
+        generateDistributionFixture({
+            repositoryRoot,
+            outputRoot: candidateRoot,
+        });
         const manifestPath = join(candidateRoot, "distribution-manifest.json");
         const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
         const packageRecord = manifest.files.find((file) =>

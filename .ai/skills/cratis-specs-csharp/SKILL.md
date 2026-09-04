@@ -6,6 +6,7 @@ description: Step-by-step guidance for writing C# specs in Cratis with BDD Speci
 ## Core philosophy
 
 Specs are **executable documentation** — the folder tree reads like a spec sheet. Favor readability over DRY. Each spec file has:
+
 - One action under test (`Because`)
 - One setup (`Establish`)
 - One or more focused assertions (`should_*`)
@@ -14,7 +15,7 @@ Specs are **executable documentation** — the folder tree reads like a spec she
 
 ## Step 1 — Choose the spec type
 
-Lead with the in-process **scenario family** (fast, infrastructure-free — the default for slice behavior); reserve out-of-process Chronicle integration specs for host/transport boundaries they can't reach. **Every spec file is wrapped in `#if DEBUG … #endif`.** Full reference: the universal base in [specs.csharp.md](../../rules/specs.csharp.md) and the application `*Scenario` family in [specs.scenarios.csharp.md](../../rules/specs.scenarios.csharp.md).
+Lead with the in-process **scenario family** (fast, infrastructure-free — the default for slice behavior); reserve out-of-process Chronicle integration specs for host/transport boundaries they can't reach. **Every spec file is wrapped in `#if DEBUG … #endif`.** Full reference: the universal base in [specs.csharp.md](https://github.com/Cratis/AI/blob/main/.ai/rules/specs.csharp.md) and the application `*Scenario` family in [specs.scenarios.csharp.md](https://github.com/Cratis/AI/blob/main/.ai/rules/specs.scenarios.csharp.md).
 
 | Scenario | Spec type |
 | --- | --- |
@@ -42,6 +43,7 @@ for_<ClassName>/
 ```
 
 Folder/file names read as English sentences:
+
 - `for_Changeset / when_adding_changes / and_there_are_differences`
 - `for_AuthorService / when_registering / and_name_already_exists`
 
@@ -68,6 +70,7 @@ public class when_combining_parts : Specification
 ```
 
 Rules:
+
 - Inherit `Specification` (from `Cratis.Specifications`)
 - `void Establish()` — setup before the action
 - `void Because()` — **one** action under test (the thing being specified)
@@ -151,7 +154,7 @@ public class and_all_information_is_valid : Specification
 #endif
 ```
 
-`CommandScenario<TCommand>` exposes only `Services`, `Context`, `Execute`, and `Validate` — event assertions are the extension methods `await _scenario.ShouldHaveAppendedEvent<TCommand, TEvent>(eventSourceId[, predicate])` and `ShouldHaveTailSequenceNumber<TCommand>(...)`. Unhappy-path specs assert **both** `ShouldNotBeSuccessful()` and `ShouldHaveValidationErrors()` (authorization uses `ShouldNotBeAuthorized()`). Seed DCB read-model state by registering it into `_scenario.Services` (substitute `IReadModels`/`GetInstanceById`, or `AddReadModels(...)`) — there is no `Given`/`Events` on a command scenario. See [specs.scenarios.csharp.md](../../rules/specs.scenarios.csharp.md) for `EventScenario`, `ReadModelScenario<T>`, and `ReactorScenario<T>` (which *do* use `Given.ForEventSource(...).Events(...)`).
+`CommandScenario<TCommand>` exposes only `Services`, `Context`, `Execute`, and `Validate` — event assertions are the extension methods `await _scenario.ShouldHaveAppendedEvent<TCommand, TEvent>(eventSourceId[, predicate])` and `ShouldHaveTailSequenceNumber<TCommand>(...)`. Unhappy-path specs assert **both** `ShouldNotBeSuccessful()` and `ShouldHaveValidationErrors()` (authorization uses `ShouldNotBeAuthorized()`). Seed DCB read-model state by registering it into `_scenario.Services` (substitute `IReadModels`/`GetInstanceById`, or `AddReadModels(...)`) — there is no `Given`/`Events` on a command scenario. See [specs.scenarios.csharp.md](https://github.com/Cratis/AI/blob/main/.ai/rules/specs.scenarios.csharp.md) for `EventScenario`, `ReadModelScenario<T>`, and `ReactorScenario<T>` (which *do* use `Given.ForEventSource(...).Events(...)`).
 
 ## Step 6 — Out-of-process Chronicle integration spec (advanced)
 

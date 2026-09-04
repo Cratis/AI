@@ -88,6 +88,32 @@ The command carries input from the caller. `Handle()` is defined directly on the
 
 **Do not throw for normal business rejection.** A thrown exception (from `Provide()` or `Handle()`) surfaces as an exception/HTTP 500, *not* a validation result. Recoverable, user-facing rejections are validation: `ValidationResult.Error(...)` via a validator or `Result<,>`. (For step-by-step business-rule placement, invoke the **add-business-rule** skill.)
 
+### Causation — what a command records **[contract]**
+
+A command's **property values** are recorded on the causation of every event it appends, alongside the command's name, so an event says not only which command produced it but what that command was asked to do. The causation is written into the event log and stays there for as long as the events do — a value recorded there cannot be taken back out by changing code.
+
+Two markings keep a value off the chain, and both are honored on the property, the declaring type, the positional record parameter, **and the property's type**:
+
+| Marking | For | Also does |
+| --- | --- | --- |
+| `[PII]` | personal data | encrypts it in the event, enrolls it in erasure |
+| `[NotAudited]` | a secret that is not personal data — password, token, API key, card number | nothing else; it only withholds |
+
+They are **not interchangeable**: `[PII]` on a password would encrypt it and enroll it in GDPR erasure, which is wrong; `[NotAudited]` on a name does nothing for an erasure request, which is also wrong.
+
+**Prefer marking the concept**, exactly as with `[PII]` — mark `ApiKey` once and every command taking one is covered:
+
+```csharp
+[NotAudited]
+public record ApiKey(string Value) : ConceptAs<string>(Value);
+```
+
+`[NotAudited]` on the command type excludes every property at once, which is right when a command exists only to carry secrets. The command is still **named** on the chain either way — what is withheld is the values, never the fact that it ran.
+
+`ARCCHR0009` warns on a command property whose *name* reads like a secret and is unmarked. It cannot see a secret whose name does not say so, so a clean build means "nothing obvious was missed", not "no secrets are recorded". For a false positive, **suppress the diagnostic** — marking it `[NotAudited]` would silence the warning by withholding a value you wanted recorded.
+
+Values render camel-cased; concepts unwrap to the value they hold; a value that is not set is omitted; a long one is truncated (the causation rides on *every* event the command appends).
+
 ### `Provide()` — data for `Handle()` **[contract]**
 
 `Provide()` runs after authorization and validation, before `Handle()`. Its parameters resolve from DI (like `Handle()`'s); the command instance is `this`. Return one value, or a tuple (Arc binds tuple values to `Handle(...)` parameters by type). Each provided value must be consumed by a `Handle` parameter — an unused one is the **`ARC0005`** analyzer error. Use a **named record** when the provided values form a real domain/snapshot concept; a **tuple** when they are just separate inputs to event construction. It may be sync or async.
@@ -256,6 +282,7 @@ public Task AuthorRegistered(AuthorRegistered @event, EventContext context) => .
 **[contract]** Chronicle encrypts `[PII]`-marked values per subject; decryption is transparent to observers and queries (read models injected into a `CommandValidator<T>` or `Handle()` decrypt transparently under the command's resolved subject before validation/handler logic runs).
 
 - Prefer **concept-level `[PII]`** (on the `ConceptAs<T>` type) so the marker travels everywhere automatically; use property-level `[PII]` only when a value is personal in one event context but not everywhere.
+- `[PII]` also keeps the value **off the causation chain** when it is a command property — see [Causation](#causation--what-a-command-records-contract). A secret that is not personal data needs `[NotAudited]` instead; `[PII]` is the wrong tool for a password.
 - **`[PII]` is found at any nesting depth, and may mark a whole value object.** A `[PII]` concept inside a value object is encrypted where it sits (siblings stay readable). Marking the **value object type** (or a property typed as one) with `[PII]` classifies every value it holds — Chronicle pushes the marker down to the individual values, so the document keeps its shape and each value is separately encrypted rather than fused into one blob.
 - Projection-backed read models inherit PII lineage automatically — don't add `[PII]` to their properties. Reducer-backed models: a `[PII]`-concept-typed property is detected automatically; add property-level `[PII]` only for a primitive/non-PII-concept property populated from PII source data.
 - ⚠️ **`[PII]` cannot be applied to `EventSourceId`/`EventSourceId<T>`** — Chronicle throws `PIINotSupportedOnEventSourceId` at runtime because the identifier is the encryption-key lookup. If the identifier itself is sensitive, use a random `Guid`-backed surrogate as the event source id and store the sensitive value in a `[PII]` property.

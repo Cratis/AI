@@ -21,6 +21,7 @@ PR descriptions serve two purposes: they help reviewers understand the change *n
 See the full [Git Commits guide](./git-commits.md) for rules on logical grouping, message format, and staging discipline.
 
 Quick reminders:
+
 - Imperative mood: "Add author registration" not "Added author registration".
 - Each commit = one logical unit of work. No WIP commits in the final PR.
 - Never mix unrelated changes in a single commit.
@@ -68,6 +69,7 @@ Split into separate pull requests when the changes are genuinely unrelated, when
 **`no-release` does not otherwise excuse a PR from this section.** A CI, tooling, or spec-only pull request ships nothing, but it is exactly the kind of change that can break the build or the pipeline for everyone else — a broken workflow or a deleted spec does its damage without ever being released. Hold it to every gate below.
 
 Before marking any other PR ready for review:
+
 - `dotnet build` — zero errors, zero warnings
 - `dotnet test` — all specs pass
 - `yarn lint` — zero errors

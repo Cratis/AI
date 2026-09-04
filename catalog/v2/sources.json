@@ -14,12 +14,13 @@
         ".ai/skills/add-business-rule/SKILL.md",
         ".ai/skills/add-business-rule/evals/evals.json"
       ],
-      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-      "contentDigest": "796ccf26f62bec707eb389ea0e3e666ab26a5d1ad7aa69c30801c3ca3b036852",
+      "sourceRevision": "c2f721c2f80321cfba352d8d2e4209a0881ccb63",
+      "contentDigest": "7aff5f2a3586a74b046a51a4c9f0f6ad5ec6a95bed5eb40ea383ef588b1eba76",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "public-skill-reference-closure-c2f721c"
       ]
     },
     {
@@ -73,12 +74,13 @@
       "bundledPaths": [
         ".ai/skills/add-ef-migration/SKILL.md"
       ],
-      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-      "contentDigest": "1b6701db62731341d6059487b6560762fc24446809eda9123bebd1d21747d91e",
+      "sourceRevision": "c2f721c2f80321cfba352d8d2e4209a0881ccb63",
+      "contentDigest": "56005db12405112a042fe018a44607e88e7369d38ab0e03056eb35346f3359fe",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "public-skill-reference-closure-c2f721c"
       ]
     },
     {
@@ -112,12 +114,13 @@
         ".ai/skills/add-reactor/SKILL.md",
         ".ai/skills/add-reactor/evals/evals.json"
       ],
-      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-      "contentDigest": "76b3ad7d5f55f04996ae2c5d8d34ba4bb4ce324aafe0eadaa2268fb9abf32bfa",
+      "sourceRevision": "c2f721c2f80321cfba352d8d2e4209a0881ccb63",
+      "contentDigest": "abb5cbd7f79f9630386a258341bb4a5b055e590952e83e4ea244469b21040bfd",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "public-skill-reference-closure-c2f721c"
       ]
     },
     {
@@ -130,12 +133,13 @@
       "bundledPaths": [
         ".ai/skills/add-reducer/SKILL.md"
       ],
-      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-      "contentDigest": "46d0f00962aa14b40e5f1554499175908d65829fd8a2392fb460e10ee51bf103",
+      "sourceRevision": "c2f721c2f80321cfba352d8d2e4209a0881ccb63",
+      "contentDigest": "cf8c382a70ad880fcd5e4b72ad344d44aaa25af05c24506067b5401e0c21a43e",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "public-skill-reference-closure-c2f721c"
       ]
     },
     {
@@ -171,12 +175,13 @@
         ".ai/skills/auth-and-identity/references/frontend.md",
         ".ai/skills/auth-and-identity/references/local-development.md"
       ],
-      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-      "contentDigest": "16a63a628f0aad9c8daef890f49074bc1af7a086025ab4978a5c2bdc018f3ca9",
+      "sourceRevision": "6ec724752023b7c1639b01e33d700d84d04fcfc3",
+      "contentDigest": "1980b45f2ac70c4b03858923b022ec4cbb470718fc5b72cc93efc799a7bbd81d",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "public-effect-guidance-boundary-source-6ec7247"
       ]
     },
     {
@@ -189,12 +194,13 @@
       "bundledPaths": [
         ".ai/skills/call-command-from-code/SKILL.md"
       ],
-      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-      "contentDigest": "99b9c640ca2dca5121ff64275df8de8408dd07306e4cc9f9a511b01f32ddd203",
+      "sourceRevision": "23efb73a14eb367a2dd0e745caed171f67f3d550",
+      "contentDigest": "bc60327237bef1659fd508793d24bb86ff2221e8d2c409ff9539cc57d11584ba",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "public-skill-markdown-normalization-source-23efb73"
       ]
     },
     {
@@ -234,12 +240,13 @@
         ".ai/skills/cratis-command/references/proxy-setup.md",
         ".ai/skills/cratis-command/references/validation.md"
       ],
-      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-      "contentDigest": "05e1dda70a0871c306071677998698491186b0ca541c7ef62ddce89a787359f8",
+      "sourceRevision": "afbe46fc7c87ab110df7f1983a0ca174ef0f6aac",
+      "contentDigest": "2f97a3c740b96273326783de74a3479d6ff972dda8df733d39dc5111da1753da",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "command-causation-guidance-source-afbe46f"
       ]
     },
     {
@@ -279,13 +286,13 @@
         ".ai/skills/cratis-react-page/references/dialogs.md",
         ".ai/skills/cratis-react-page/references/mvvm.md"
       ],
-      "sourceRevision": "2006490b23dd60a384cd803423fdc59cd395611b",
-      "contentDigest": "989391b660bcb2fb257eb495848172ba9a21cc76841c2aef57c87813c86b9b13",
+      "sourceRevision": "c2f721c2f80321cfba352d8d2e4209a0881ccb63",
+      "contentDigest": "4517c0c7240d884407b994c6a4e41ddfeb08c0c0133ccac3ced03657a6eb3084",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
         "reevaluation-authority",
-        "cratis-react-page-host-rendered-dialogs-2006490"
+        "public-skill-reference-closure-c2f721c"
       ]
     },
     {
@@ -324,12 +331,13 @@
         ".ai/skills/cratis-specs-csharp/references/csharp-patterns.md",
         ".ai/skills/cratis-specs-csharp/references/integration-specs.md"
       ],
-      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-      "contentDigest": "4a88d76ffe76db7636ac2dfb5169c40fea66fb908d0f9e543630fd084e8e053b",
+      "sourceRevision": "c2f721c2f80321cfba352d8d2e4209a0881ccb63",
+      "contentDigest": "b52084ff3c16363d7a042dac186d16c1f44e8f1169cd16bbe88037fb6111057d",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "public-skill-reference-closure-c2f721c"
       ]
     },
     {
@@ -406,12 +414,13 @@
       "bundledPaths": [
         ".ai/skills/create-event-model/SKILL.md"
       ],
-      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-      "contentDigest": "765fe1507b25fff781b151848cc282b726799ebad29a8c6a5ad1d6d8c9be3ec2",
+      "sourceRevision": "23efb73a14eb367a2dd0e745caed171f67f3d550",
+      "contentDigest": "0d2250645d979036ce01511ccfcdc303ae618a0e6c7d62a97d46476cd03832f9",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "public-skill-markdown-normalization-source-23efb73"
       ]
     },
     {
@@ -424,12 +433,13 @@
       "bundledPaths": [
         ".ai/skills/cross-cutting-properties/SKILL.md"
       ],
-      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-      "contentDigest": "e9a68b833d73d04610434902ff797f82956821a1547b02c443cf465cd3f83e34",
+      "sourceRevision": "afbe46fc7c87ab110df7f1983a0ca174ef0f6aac",
+      "contentDigest": "9f32dd20867ae150d2c6342e374afec1a78c08797620b7bba41d4bf995086fd5",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "command-causation-guidance-source-afbe46f"
       ]
     },
     {
@@ -442,12 +452,13 @@
       "bundledPaths": [
         ".ai/skills/diagnose-slice/SKILL.md"
       ],
-      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-      "contentDigest": "eea29363e496b7a4ed1776e3aa975b464f7e39041bd569b4ef5ea4c812e6817b",
+      "sourceRevision": "23efb73a14eb367a2dd0e745caed171f67f3d550",
+      "contentDigest": "e26faf85efb0fa2541b773a5307f28744cf029fee9af8f5243237e661bb8892b",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "public-skill-markdown-normalization-source-23efb73"
       ]
     },
     {
@@ -499,12 +510,13 @@
       "bundledPaths": [
         ".ai/skills/event-modeling/SKILL.md"
       ],
-      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-      "contentDigest": "9ac38bc05ac0792623ef81e33337391308084514942cb812386ebccfb40f9e77",
+      "sourceRevision": "6ec724752023b7c1639b01e33d700d84d04fcfc3",
+      "contentDigest": "312a9c52e8e4d239a389905b17d458cce3578d7b8763e76a05140bf8caa5b354",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "public-effect-guidance-boundary-source-6ec7247"
       ]
     },
     {
@@ -517,13 +529,13 @@
       "bundledPaths": [
         ".ai/skills/event-type-migrations/SKILL.md"
       ],
-      "sourceRevision": "c4c63dadfe57276a1a53c4d76bc7f9683c4b48a4",
-      "contentDigest": "77b55e9cb4916e7e70afbbd88a2948bececde3547c18068716daa36176b0ed67",
+      "sourceRevision": "23efb73a14eb367a2dd0e745caed171f67f3d550",
+      "contentDigest": "267d1b1ac9e403f97692961b000a91d39a87d94e63fde7cb3662dbddabb4f92d",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
         "reevaluation-authority",
-        "chronicle-event-type-migrations-parity-source-c4c63da"
+        "public-skill-markdown-normalization-source-23efb73"
       ]
     },
     {
@@ -536,12 +548,13 @@
       "bundledPaths": [
         ".ai/skills/inspect-running-chronicle/SKILL.md"
       ],
-      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-      "contentDigest": "01f376b0ad6a954e204948f3ef5f433ae59acab8eb0221476d87a83eb1fd99bc",
+      "sourceRevision": "23efb73a14eb367a2dd0e745caed171f67f3d550",
+      "contentDigest": "9452b7fefd294f307b91f4e3c07af55d98743affb603c04005189db75435899e",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "public-skill-markdown-normalization-source-23efb73"
       ]
     },
     {
@@ -554,12 +567,13 @@
       "bundledPaths": [
         ".ai/skills/multi-tenancy/SKILL.md"
       ],
-      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-      "contentDigest": "159825bd29f8101c58ea1e036f7dbd9ea25762cfab7a96d8a694d339efe15603",
+      "sourceRevision": "68616b143aeffaeda333553bb4c491f696a0018a",
+      "contentDigest": "13a42d07bf78dbda994c0c00903f88efb0deb59d70052ebed520a33a73028858",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "cratis-chronicle-multi-tenancy-source-68616b1"
       ]
     },
     {
@@ -628,12 +642,13 @@
       "bundledPaths": [
         ".ai/skills/query-paging/SKILL.md"
       ],
-      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-      "contentDigest": "16ecda1fc707ee8a816e72724b4bb78cc19d940a93b9c5087fa30395f9868d03",
+      "sourceRevision": "23efb73a14eb367a2dd0e745caed171f67f3d550",
+      "contentDigest": "ab1c37b6b14b57454530bc6e282d6c73deae26f73745fb5bac28b4d9e2481df8",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "public-skill-markdown-normalization-source-23efb73"
       ]
     },
     {
@@ -683,12 +698,13 @@
       "bundledPaths": [
         ".ai/skills/review-security/SKILL.md"
       ],
-      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-      "contentDigest": "c5829036d84177ba53cdacf54e01ec7cf05cb84fb4b8f07fb0305003213d0b3f",
+      "sourceRevision": "afbe46fc7c87ab110df7f1983a0ca174ef0f6aac",
+      "contentDigest": "f7a78c4c980d17ae304bce81a20a19a8864965ba2784466c10fcca7aaa0fd178",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "command-causation-guidance-source-afbe46f"
       ]
     },
     {
@@ -793,12 +809,13 @@
       "bundledPaths": [
         ".ai/skills/toolbar/SKILL.md"
       ],
-      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-      "contentDigest": "b68cf8a695c1bf6a7ba40a00285f52382b57a3aed579c7fda63c9ae6c5593c9d",
+      "sourceRevision": "23efb73a14eb367a2dd0e745caed171f67f3d550",
+      "contentDigest": "ff3a7bcd3e72d2e500034095b98d7ab79c2fcbdc5cf1d015574f133d90276d57",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "public-skill-markdown-normalization-source-23efb73"
       ]
     },
     {
@@ -834,12 +851,13 @@
         ".ai/skills/write-specs/evals/evals.json",
         ".ai/skills/write-specs/references/EXAMPLES.md"
       ],
-      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-      "contentDigest": "ae613d7de8ae45a0b787808201e4e8646fbfe4ee67fe99c99dd25cd5820af1a4",
+      "sourceRevision": "c2f721c2f80321cfba352d8d2e4209a0881ccb63",
+      "contentDigest": "0ff170c2fc61c6ff6cec74593052e3cc2788558fd1bcef0f63ae3ea379b29e6e",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "public-skill-reference-closure-c2f721c"
       ]
     },
     {
@@ -870,12 +888,13 @@
       "bundledPaths": [
         ".ai/skills/write-specs-frontend/SKILL.md"
       ],
-      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-      "contentDigest": "1a1c99cb0de67a44edddd08ad5c95468a024afc746a33d19942e98371b66097f",
+      "sourceRevision": "c2f721c2f80321cfba352d8d2e4209a0881ccb63",
+      "contentDigest": "617460c80872e4f134fbb5c6feccc81e0a3215837283202d77753a1dd73a475a",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "public-skill-reference-closure-c2f721c"
       ]
     },
     {

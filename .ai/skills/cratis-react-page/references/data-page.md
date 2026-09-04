@@ -99,4 +99,4 @@ export const AccountsPage = () => {
 };
 ```
 
-`CreateAccountDialog` is a separate component that receives `closeDialog` via `DialogProps` and renders a `CommandDialog`. See `dialogs.md` for the full dialog pattern.
+`CreateAccountDialog` is a separate component that receives `closeDialog` via `DialogProps` and renders a `CommandDialog`. See [dialogs.md](https://github.com/Cratis/AI/blob/main/.ai/rules/dialogs.md) for the full dialog pattern.

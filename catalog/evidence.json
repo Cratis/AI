@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "asOf": "2026-08-31",
+  "asOf": "2026-09-02",
   "defaultPolicy": "deny",
   "sources": [
     {
@@ -34,6 +34,42 @@
       "kind": "repository-snapshot",
       "locator": "https://github.com/Cratis/AI/tree/b53caa555b9a3f05ba1462b86202fe3ccb8a9470/skills/cratis-fundamentals-concept",
       "immutableRevision": "b53caa555b9a3f05ba1462b86202fe3ccb8a9470"
+    },
+    {
+      "id": "source-public-skill-reference-closure-30c813c",
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/30c813c4bf0cf55315a8aa3b6246f1f6fcff9167/.ai/skills",
+      "immutableRevision": "30c813c4bf0cf55315a8aa3b6246f1f6fcff9167"
+    },
+    {
+      "id": "source-public-skill-reference-closure-c2f721c",
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/c2f721c2f80321cfba352d8d2e4209a0881ccb63/.ai/skills",
+      "immutableRevision": "c2f721c2f80321cfba352d8d2e4209a0881ccb63"
+    },
+    {
+      "id": "source-command-causation-guidance-source-afbe46f",
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/afbe46fc7c87ab110df7f1983a0ca174ef0f6aac/.ai/skills",
+      "immutableRevision": "afbe46fc7c87ab110df7f1983a0ca174ef0f6aac"
+    },
+    {
+      "id": "source-public-effect-guidance-boundary-source-6ec7247",
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/6ec724752023b7c1639b01e33d700d84d04fcfc3/.ai/skills",
+      "immutableRevision": "6ec724752023b7c1639b01e33d700d84d04fcfc3"
+    },
+    {
+      "id": "source-public-skill-markdown-normalization-source-23efb73",
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/23efb73a14eb367a2dd0e745caed171f67f3d550/.ai/skills",
+      "immutableRevision": "23efb73a14eb367a2dd0e745caed171f67f3d550"
+    },
+    {
+      "id": "source-inspect-running-chronicle-safety-source-9fa3663",
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/9fa366363d1dba71d242e3c7519e4852bf12129e/.ai/skills/inspect-running-chronicle",
+      "immutableRevision": "9fa366363d1dba71d242e3c7519e4852bf12129e"
     },
     {
       "id": "source-fundamentals-concept-source-review-2026-08-23",
@@ -694,6 +730,18 @@
       "locator": "https://github.com/Cratis/AI/tree/3fe2b12aa7fd068565cbf082ea966cd783cc6aad/distribution/evidence/s8-native-non-skill-static-generation-2026-08-25.json",
       "repositoryPath": "distribution/evidence/s8-native-non-skill-static-generation-2026-08-25.json",
       "digest": "9f56390ab36221d425a5d238d1e5d202d8eb8760537d39256edf014581e8590d"
+    },
+    {
+      "id": "source-cratis-chronicle-multi-tenancy-source-68616b1",
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/68616b143aeffaeda333553bb4c491f696a0018a/.ai/skills/multi-tenancy",
+      "immutableRevision": "68616b143aeffaeda333553bb4c491f696a0018a"
+    },
+    {
+      "id": "source-cratis-chronicle-multi-tenancy-source-fbf7602",
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/fbf76029e4a6593a6a24f939face32b720009198/.ai/skills/multi-tenancy",
+      "immutableRevision": "fbf76029e4a6593a6a24f939face32b720009198"
     }
   ],
   "observations": [
@@ -920,6 +968,236 @@
         "officialUrl": "https://github.com/Cratis/AI/tree/b53caa555b9a3f05ba1462b86202fe3ccb8a9470/skills/cratis-fundamentals-concept",
         "sourceKind": "repository-snapshot",
         "applicableVersion": "b53caa555b9a3f05ba1462b86202fe3ccb8a9470"
+      }
+    },
+    {
+      "id": "public-skill-reference-closure-30c813c",
+      "sourceId": "source-public-skill-reference-closure-30c813c",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "artifact",
+        "id": "candidate-passive-public-package",
+        "version": "30c813c4bf0cf55315a8aa3b6246f1f6fcff9167"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "source-provenance",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Source provenance for ten public skills at the revision that replaced package-breaking repository-relative links with public source URLs.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-09-02",
+      "validThrough": "2027-09-02",
+      "confidence": "high",
+      "limitations": [
+        "This observation proves source provenance and reference-link edits only; it grants no behavior or support assurance."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/30c813c4bf0cf55315a8aa3b6246f1f6fcff9167/.ai/skills",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "30c813c4bf0cf55315a8aa3b6246f1f6fcff9167"
+      }
+    },
+    {
+      "id": "public-skill-reference-closure-c2f721c",
+      "sourceId": "source-public-skill-reference-closure-c2f721c",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "artifact",
+        "id": "candidate-passive-public-package",
+        "version": "c2f721c2f80321cfba352d8d2e4209a0881ccb63"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "source-provenance",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Source provenance for the complete public skill reference-closure update.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-09-02",
+      "validThrough": "2027-09-02",
+      "confidence": "high",
+      "limitations": [
+        "This observation proves source provenance and reference navigation only; it grants no behavior or support assurance."
+      ],
+      "supersedes": [
+        "public-skill-reference-closure-30c813c"
+      ],
+      "correction": {
+        "reason": "Extends the initial reference-closure pass to every affected public skill and packaged reference file.",
+        "reviewer": "woksin",
+        "reviewedOn": "2026-09-02",
+        "replacementIdentity": "public-skill-reference-closure-c2f721c"
+      },
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/c2f721c2f80321cfba352d8d2e4209a0881ccb63/.ai/skills",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "c2f721c2f80321cfba352d8d2e4209a0881ccb63"
+      }
+    },
+    {
+      "id": "command-causation-guidance-source-afbe46f",
+      "sourceId": "source-command-causation-guidance-source-afbe46f",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "artifact",
+        "id": "candidate-passive-public-package",
+        "version": "afbe46fc7c87ab110df7f1983a0ca174ef0f6aac"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "source-provenance",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Source provenance for the command, cross-cutting and security guidance that documents what a command records on the causation chain.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-09-02",
+      "validThrough": "2027-09-02",
+      "confidence": "high",
+      "limitations": [
+        "This observation proves source provenance only; it grants no behavior or support assurance."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/afbe46fc7c87ab110df7f1983a0ca174ef0f6aac/.ai/skills",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "afbe46fc7c87ab110df7f1983a0ca174ef0f6aac"
+      }
+    },
+    {
+      "id": "public-effect-guidance-boundary-source-6ec7247",
+      "sourceId": "source-public-effect-guidance-boundary-source-6ec7247",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "artifact",
+        "id": "candidate-passive-public-package",
+        "version": "6ec724752023b7c1639b01e33d700d84d04fcfc3"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "source-provenance",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Source provenance for local-only identity simulation and separately authorized delivery wording in public guidance.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-09-02",
+      "validThrough": "2027-09-02",
+      "confidence": "high",
+      "limitations": [
+        "This observation proves source provenance and safety wording only; it grants no behavior or support assurance."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/6ec724752023b7c1639b01e33d700d84d04fcfc3/.ai/skills",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "74c0d8eb15886c24f9a3411d33f01bd00dab0e51"
+      }
+    },
+    {
+      "id": "public-skill-markdown-normalization-source-23efb73",
+      "sourceId": "source-public-skill-markdown-normalization-source-23efb73",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "artifact",
+        "id": "candidate-passive-public-package",
+        "version": "23efb73a14eb367a2dd0e745caed171f67f3d550"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "source-provenance",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Source provenance for normalized Markdown in packaged public skill guidance.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-09-02",
+      "validThrough": "2027-09-02",
+      "confidence": "high",
+      "limitations": [
+        "This observation proves source provenance and formatting only; it grants no behavior or support assurance."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/23efb73a14eb367a2dd0e745caed171f67f3d550/.ai/skills",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "23efb73a14eb367a2dd0e745caed171f67f3d550"
+      }
+    },
+    {
+      "id": "inspect-running-chronicle-safety-source-9fa3663",
+      "sourceId": "source-inspect-running-chronicle-safety-source-9fa3663",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "target",
+        "id": "cratis-chronicle-cli-operations",
+        "version": "9fa366363d1dba71d242e3c7519e4852bf12129e"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "source-provenance",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Source provenance for the live Chronicle operation guidance after replacing propagation wording and adding explicit mutation authorization controls.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-09-02",
+      "validThrough": "2027-09-02",
+      "confidence": "high",
+      "limitations": [
+        "This observation proves source provenance and safety wording only; live destructive effects remain excluded from evaluation publication and no behavior or support assurance is granted."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/9fa366363d1dba71d242e3c7519e4852bf12129e/.ai/skills/inspect-running-chronicle",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "9fa366363d1dba71d242e3c7519e4852bf12129e"
       }
     },
     {
@@ -7191,6 +7469,88 @@
         "officialUrl": "https://github.com/Cratis/AI/tree/f96eab8109ec0bb2d4aed6f1e893c2402a9a161a/skills/cratis-studio-mcp-safety-guidance",
         "sourceKind": "repository-snapshot",
         "applicableVersion": "f96eab8109ec0bb2d4aed6f1e893c2402a9a161a"
+      }
+    },
+    {
+      "id": "cratis-chronicle-multi-tenancy-source-68616b1",
+      "sourceId": "source-cratis-chronicle-multi-tenancy-source-68616b1",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "target",
+        "id": "cratis-chronicle-multi-tenancy",
+        "version": "68616b143aeffaeda333553bb4c491f696a0018a"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "source-provenance",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Source provenance for the multi-tenancy skill after the packaged reference closure and Markdown normalization were merged with the multi-tenant assumption.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-09-02",
+      "validThrough": "2027-09-02",
+      "confidence": "high",
+      "limitations": [
+        "This observation is limited to its exact recorded subject, version, digest, scope, and environment and grants no unrecorded assurance."
+      ],
+      "supersedes": [
+        "cratis-chronicle-multi-tenancy-source-fbf7602"
+      ],
+      "correction": {
+        "reason": "Rebinds the multi-tenancy skill after merging the multi-tenant assumption with packaged reference closure and Markdown normalization.",
+        "reviewer": "woksin",
+        "reviewedOn": "2026-09-02",
+        "replacementIdentity": "cratis-chronicle-multi-tenancy-source-68616b1"
+      },
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/68616b143aeffaeda333553bb4c491f696a0018a/.ai/skills/multi-tenancy",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "68616b143aeffaeda333553bb4c491f696a0018a"
+      }
+    },
+    {
+      "id": "cratis-chronicle-multi-tenancy-source-fbf7602",
+      "sourceId": "source-cratis-chronicle-multi-tenancy-source-fbf7602",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "target",
+        "id": "cratis-chronicle-multi-tenancy",
+        "version": "fbf76029e4a6593a6a24f939face32b720009198"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "source-provenance",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Source provenance for the multi-tenancy skill at the revision that made every Cratis application assumed multi-tenant.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-09-02",
+      "validThrough": "2027-09-02",
+      "confidence": "high",
+      "limitations": [
+        "This observation is limited to its exact recorded subject, version, digest, scope, and environment and grants no unrecorded assurance."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/fbf76029e4a6593a6a24f939face32b720009198/.ai/skills/multi-tenancy",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "fbf76029e4a6593a6a24f939face32b720009198"
       }
     },
     {

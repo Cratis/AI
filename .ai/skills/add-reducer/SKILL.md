@@ -52,10 +52,10 @@ Each public method's **first parameter** is the event type it handles (dispatch 
 
 ## Specs
 
-Use `ReadModelScenario<TReadModel>` (it auto-detects reducer vs projection). Drive a sequence of events through `Given.ForEventSource(id).Events(...)` and assert on `_scenario.Instance`. Cover: first-event creation, accumulation across multiple events, and any branch in the reducer. See [specs.scenarios.csharp.md](../../rules/specs.scenarios.csharp.md) and the `write-specs-readmodels` skill.
+Use `ReadModelScenario<TReadModel>` (it auto-detects reducer vs projection). Drive a sequence of events through `Given.ForEventSource(id).Events(...)` and assert on `_scenario.Instance`. Cover: first-event creation, accumulation across multiple events, and any branch in the reducer. See [specs.scenarios.csharp.md](https://github.com/Cratis/AI/blob/main/.ai/rules/specs.scenarios.csharp.md) and the `write-specs-readmodels` skill.
 
 ## See also
 
-- [vertical-slices.md](../../rules/vertical-slices.md) — the projection→fluent→reducer ladder.
+- [vertical-slices.md](https://github.com/Cratis/AI/blob/main/.ai/rules/vertical-slices.md) — the projection→fluent→reducer ladder.
 - `add-projection` — the model-bound and fluent options to exhaust first.
 - `cratis-readmodel` — read model + query method basics.

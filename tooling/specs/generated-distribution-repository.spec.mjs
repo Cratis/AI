@@ -106,11 +106,12 @@ test("generated repository contract keeps remote authority and production blocke
         enabled: true,
         profileId: "public-cratis-ai",
         packageName: "@cratis/ai",
+        piDistribution: "git-only-private-manifest",
         versionPattern: "^0\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)$",
         generator: "tooling/generate-public-marketplace-distribution.mjs",
         stager: "tooling/stage-public-marketplace-repository.mjs",
         sourceArtifactId: "candidate-passive-public-package",
-        targetCount: 34,
+        targetCount: 29,
         selfHostedChannels: [
             "agent-skills",
             "agent-plugin",
@@ -185,9 +186,15 @@ test("generated repository contract keeps remote authority and production blocke
     assert.equal(contract.promotionEligible, false);
     assert.equal(contract.legacyRetirementEligible, false);
     assert.match(generalRules, /## New Repository Strategy Intake/);
-    assert.match(generalRules, /transient,\s*no-effect Strategy intake proposal/);
+    assert.match(
+        generalRules,
+        /transient,\s*no-effect Strategy intake proposal/,
+    );
     assert.match(generalRules, /Do not create, comment on, assign, mention/);
-    assert.match(generalRules, /Repository\s+creation does not require an issue URL/);
+    assert.match(
+        generalRules,
+        /Repository\s+creation does not require an issue URL/,
+    );
     assert.match(generalRules, /## Shared AI Distribution/);
     assert.match(generalRules, /Do not copy or synchronize shared/);
     assert.match(generalRules, /Never patch generated distribution bytes/);
@@ -375,22 +382,34 @@ test("generated repository verification reads only regular committed blobs", () 
             cwd: generatedRoot,
             stdio: "pipe",
         });
-        execFileSync("git", ["config", "user.name", "cratis-distribution-fixture-bot"], {
-            cwd: generatedRoot,
-        });
-        execFileSync("git", ["config", "user.email", "fixture-bot@invalid.example"], {
-            cwd: generatedRoot,
-        });
-        execFileSync("git", ["add", "--all"], { cwd: generatedRoot });
-        execFileSync("git", ["commit", "--message", "Generate fixture distribution"], {
-            cwd: generatedRoot,
-            env: {
-                ...process.env,
-                GIT_AUTHOR_DATE: "2000-01-01T00:00:00Z",
-                GIT_COMMITTER_DATE: "2000-01-01T00:00:00Z",
+        execFileSync(
+            "git",
+            ["config", "user.name", "cratis-distribution-fixture-bot"],
+            {
+                cwd: generatedRoot,
             },
-            stdio: "pipe",
-        });
+        );
+        execFileSync(
+            "git",
+            ["config", "user.email", "fixture-bot@invalid.example"],
+            {
+                cwd: generatedRoot,
+            },
+        );
+        execFileSync("git", ["add", "--all"], { cwd: generatedRoot });
+        execFileSync(
+            "git",
+            ["commit", "--message", "Generate fixture distribution"],
+            {
+                cwd: generatedRoot,
+                env: {
+                    ...process.env,
+                    GIT_AUTHOR_DATE: "2000-01-01T00:00:00Z",
+                    GIT_COMMITTER_DATE: "2000-01-01T00:00:00Z",
+                },
+                stdio: "pipe",
+            },
+        );
         assert.throws(
             () =>
                 verifyGeneratedDistributionRepository(
