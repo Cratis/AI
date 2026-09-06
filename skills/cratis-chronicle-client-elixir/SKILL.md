@@ -358,7 +358,7 @@ read.
 
 ## Keepalive — the failure mode is silence
 
-The contract is spelled out in `lib/chronicle/connections/keep_alive.ex:7-19`:
+The contract is spelled out in `lib/chronicle/connections/keep_alive.ex:7-17`:
 the kernel pushes a `ConnectionKeepAlive` down the `Connect` server stream once
 per second, and for each one **the client must call back the separate unary
 `ConnectionKeepAlive` RPC** (`answer/2` at `:56`). A client that only consumes the
