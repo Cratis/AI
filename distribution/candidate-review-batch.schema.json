@@ -14,7 +14,7 @@
     "state": { "const": "CANDIDATE_REVIEW_BATCH_ONLY" },
     "version": { "type": "string", "pattern": "^0\\.0\\.(?:0|[1-9][0-9]*)-candidate\\.(?:0|[1-9][0-9]*)$" },
     "sourceCommit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
-    "componentCount": { "const": 169 },
+    "componentCount": { "const": 173 },
     "packagedSkillTargetCount": { "type": "integer", "minimum": 0, "maximum": 79 },
     "blockedSkillTargetCount": { "type": "integer", "minimum": 0, "maximum": 79 },
     "repositoryOnlyLegacySkillCount": { "const": 27 },

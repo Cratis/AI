@@ -70,6 +70,22 @@
       "reason": "live-external-destructive-effects-not-admitted"
     },
     {
+      "targetId": "cratis-chronicle-client-dotnet",
+      "reason": "effect-assessment-required"
+    },
+    {
+      "targetId": "cratis-chronicle-client-elixir",
+      "reason": "effect-assessment-required"
+    },
+    {
+      "targetId": "cratis-chronicle-client-kotlin",
+      "reason": "effect-assessment-required"
+    },
+    {
+      "targetId": "cratis-chronicle-client-typescript",
+      "reason": "effect-assessment-required"
+    },
+    {
       "targetId": "cratis-chronicle-compliance",
       "reason": "effect-assessment-required"
     },

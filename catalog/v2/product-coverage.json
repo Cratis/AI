@@ -73,29 +73,29 @@
         "repo-main-b795d53",
         "reevaluation-authority"
       ],
-      "notes": "Do not add a public skill until the client repository, supported version, API, and toolchain are verified."
+      "notes": "No separate Chronicle Java client repository exists; JVM support is Chronicle.Kotlin's blocking surface. Do not add a Java-specific public skill until a supported Java client exists."
     },
     {
       "id": "kotlin",
       "name": "Kotlin",
-      "coverageState": "gap",
+      "coverageState": "partial",
       "claimState": "unclaimed",
       "evidenceIds": [
         "repo-main-b795d53",
         "reevaluation-authority"
       ],
-      "notes": "Do not add a public skill until the client repository, supported version, API, and toolchain are verified."
+      "notes": "Verified against Chronicle.Kotlin v4.0.0 (io.cratis:chronicle on Maven Central)."
     },
     {
       "id": "elixir",
       "name": "Elixir",
-      "coverageState": "gap",
+      "coverageState": "partial",
       "claimState": "unclaimed",
       "evidenceIds": [
         "repo-main-b795d53",
         "reevaluation-authority"
       ],
-      "notes": "Do not add a public skill until the client repository, supported version, API, and toolchain are verified."
+      "notes": "Verified against Chronicle.Elixir v2.2.0 (cratis_chronicle on Hex)."
     },
     {
       "id": "python",
@@ -106,7 +106,7 @@
         "repo-main-b795d53",
         "reevaluation-authority"
       ],
-      "notes": "Do not add a public skill until Chronicle.Python, supported versions, APIs, async behavior, and toolchain are verified."
+      "notes": "Chronicle.Python exists but carries only package scaffolding - no client implementation and no published package. Do not add a public skill until a real client, supported versions, APIs, and toolchain are verified."
     }
   ],
   "products": [
@@ -629,17 +629,22 @@
         },
         {
           "id": "csharp-client",
-          "coverageState": "gap",
+          "coverageState": "source-candidate",
           "claimState": "unclaimed",
           "languages": [
             "csharp"
           ],
-          "sourceSkillIds": [],
-          "targetIds": [],
+          "sourceSkillIds": [
+            "cratis-chronicle-client-dotnet"
+          ],
+          "targetIds": [
+            "cratis-chronicle-client-dotnet"
+          ],
           "evidenceIds": [
             "repo-main-b795d53",
             "reevaluation-authority"
-          ]
+          ],
+          "notes": "Standalone client journey verified against the Chronicle client sources at tag v17.0.1. Arc integration is out of scope."
         },
         {
           "id": "java-client",
@@ -653,50 +658,65 @@
           "evidenceIds": [
             "repo-main-b795d53",
             "reevaluation-authority"
-          ]
+          ],
+          "notes": "No separate Chronicle Java client repository exists. Java is served by Chronicle.Kotlin's blocking surface, covered by cratis-chronicle-client-kotlin. Keep this an authority gap until a supported Java client exists."
         },
         {
           "id": "kotlin-client",
-          "coverageState": "gap",
+          "coverageState": "source-candidate",
           "claimState": "unclaimed",
           "languages": [
             "kotlin"
           ],
-          "sourceSkillIds": [],
-          "targetIds": [],
+          "sourceSkillIds": [
+            "cratis-chronicle-client-kotlin"
+          ],
+          "targetIds": [
+            "cratis-chronicle-client-kotlin"
+          ],
           "evidenceIds": [
             "repo-main-b795d53",
             "reevaluation-authority"
-          ]
+          ],
+          "notes": "Verified against Chronicle.Kotlin v4.0.0 (io.cratis:chronicle on Maven Central). Covers the Kotlin and Java surfaces of the one JVM client."
         },
         {
           "id": "elixir-client",
-          "coverageState": "gap",
+          "coverageState": "source-candidate",
           "claimState": "unclaimed",
           "languages": [
             "elixir"
           ],
-          "sourceSkillIds": [],
-          "targetIds": [],
+          "sourceSkillIds": [
+            "cratis-chronicle-client-elixir"
+          ],
+          "targetIds": [
+            "cratis-chronicle-client-elixir"
+          ],
           "evidenceIds": [
             "repo-main-b795d53",
             "reevaluation-authority"
-          ]
+          ],
+          "notes": "Verified against Chronicle.Elixir v2.2.0 (cratis_chronicle on Hex). The v2.3.0 tag was never published to Hex and is deliberately out of scope."
         },
         {
           "id": "typescript-client",
-          "coverageState": "gap",
+          "coverageState": "source-candidate",
           "claimState": "unclaimed",
           "languages": [
             "typescript"
           ],
-          "sourceSkillIds": [],
-          "targetIds": [],
+          "sourceSkillIds": [
+            "cratis-chronicle-client-typescript"
+          ],
+          "targetIds": [
+            "cratis-chronicle-client-typescript"
+          ],
           "evidenceIds": [
             "repo-main-b795d53",
             "reevaluation-authority"
           ],
-          "notes": "Requires Chronicle.TypeScript-owned source and version evidence."
+          "notes": "Verified against Chronicle.TypeScript v4.0.0 (@cratis/chronicle on npm)."
         },
         {
           "id": "python-client",
@@ -711,7 +731,7 @@
             "repo-main-b795d53",
             "reevaluation-authority"
           ],
-          "notes": "Requires Chronicle.Python-owned source and version evidence."
+          "notes": "Chronicle.Python carries package scaffolding only - no client implementation and no published package on PyPI. Requires a real Chronicle.Python-owned client, supported versions, and API evidence."
         },
         {
           "id": "browser-workbench",

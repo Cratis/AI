@@ -2,12 +2,12 @@
   "schemaVersion": 2,
   "contractVersion": 1,
   "disclaimer": "Catalog inclusion, evaluation evidence, component modeling, planned projection, bundle generation, or publication does not grant runtime permission, emitted bytes, support, or approval.",
-  "inputDigest": "e6572cf7e6ccbac0fe54592291e49d079690d6a432e368d99f44eaa4dc9d44f9",
+  "inputDigest": "76297185ff6ad0f9fc951afdb9a24301baded366d9b602d32fa3eef7cb7b5fcc",
   "componentSummary": {
     "disclaimer": "Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.",
-    "total": 175,
+    "total": 179,
     "byKind": {
-      "skill": 79,
+      "skill": 83,
       "agent": 12,
       "subagent": 0,
       "command": 18,
@@ -21,16 +21,16 @@
       "static-asset": 0
     },
     "byTrust": {
-      "passive": 172,
+      "passive": 176,
       "executable": 3
     },
     "byAudience": {
-      "public": 44,
+      "public": 48,
       "cratis-engineering": 131,
       "repository-only": 0
     },
     "byLifecycle": {
-      "active": 148,
+      "active": 152,
       "legacy-retained": 27
     },
     "projections": {
@@ -173,6 +173,10 @@
         "cratis-arc-query-paging",
         "cratis-arc-react-page",
         "cratis-chronicle-cli-operations",
+        "cratis-chronicle-client-dotnet",
+        "cratis-chronicle-client-elixir",
+        "cratis-chronicle-client-kotlin",
+        "cratis-chronicle-client-typescript",
         "cratis-chronicle-compliance",
         "cratis-chronicle-event-modeling",
         "cratis-chronicle-event-type-migration",
@@ -311,6 +315,7 @@
       ],
       "directTargetIds": [],
       "targetIds": [
+        "cratis-chronicle-client-dotnet",
         "cratis-chronicle-compliance",
         "cratis-chronicle-event-modeling",
         "cratis-chronicle-event-type-migration",
@@ -368,6 +373,7 @@
         "cratis-arc-observable-query-http",
         "cratis-arc-query-paging",
         "cratis-arc-react-page",
+        "cratis-chronicle-client-dotnet",
         "cratis-chronicle-compliance",
         "cratis-chronicle-event-modeling",
         "cratis-chronicle-event-type-migration",
@@ -546,6 +552,7 @@
       ],
       "directTargetIds": [],
       "targetIds": [
+        "cratis-chronicle-client-dotnet",
         "cratis-chronicle-event-modeling",
         "cratis-chronicle-event-type-migration",
         "cratis-chronicle-projection",
@@ -782,9 +789,9 @@
       "intendedFor": "Developers who use Cratis Chronicle.",
       "audience": "public",
       "packageName": "@cratis/ai-chronicle-dotnet",
-      "state": "content-gap",
+      "state": "preview-source-candidate",
       "installable": false,
-      "materialization": "catalog-only",
+      "materialization": "candidate-package",
       "products": [
         "chronicle"
       ],
@@ -793,8 +800,12 @@
       ],
       "repositoryKinds": [],
       "composes": [],
-      "directTargetIds": [],
-      "targetIds": []
+      "directTargetIds": [
+        "cratis-chronicle-client-dotnet"
+      ],
+      "targetIds": [
+        "cratis-chronicle-client-dotnet"
+      ]
     },
     {
       "id": "public-chronicle-client-elixir",
@@ -803,9 +814,9 @@
       "intendedFor": "Developers who use Cratis Chronicle.",
       "audience": "public",
       "packageName": "@cratis/ai-chronicle-elixir",
-      "state": "content-gap",
+      "state": "preview-source-candidate",
       "installable": false,
-      "materialization": "catalog-only",
+      "materialization": "candidate-package",
       "products": [
         "chronicle"
       ],
@@ -814,8 +825,12 @@
       ],
       "repositoryKinds": [],
       "composes": [],
-      "directTargetIds": [],
-      "targetIds": []
+      "directTargetIds": [
+        "cratis-chronicle-client-elixir"
+      ],
+      "targetIds": [
+        "cratis-chronicle-client-elixir"
+      ]
     },
     {
       "id": "public-chronicle-client-java",
@@ -845,9 +860,9 @@
       "intendedFor": "Developers who use Cratis Chronicle.",
       "audience": "public",
       "packageName": "@cratis/ai-chronicle-kotlin",
-      "state": "content-gap",
+      "state": "preview-source-candidate",
       "installable": false,
-      "materialization": "catalog-only",
+      "materialization": "candidate-package",
       "products": [
         "chronicle"
       ],
@@ -856,8 +871,12 @@
       ],
       "repositoryKinds": [],
       "composes": [],
-      "directTargetIds": [],
-      "targetIds": []
+      "directTargetIds": [
+        "cratis-chronicle-client-kotlin"
+      ],
+      "targetIds": [
+        "cratis-chronicle-client-kotlin"
+      ]
     },
     {
       "id": "public-chronicle-client-python",
@@ -887,9 +906,9 @@
       "intendedFor": "Developers who use Cratis Chronicle.",
       "audience": "public",
       "packageName": "@cratis/ai-chronicle-typescript",
-      "state": "content-gap",
+      "state": "preview-source-candidate",
       "installable": false,
-      "materialization": "catalog-only",
+      "materialization": "candidate-package",
       "products": [
         "chronicle"
       ],
@@ -898,8 +917,12 @@
       ],
       "repositoryKinds": [],
       "composes": [],
-      "directTargetIds": [],
-      "targetIds": []
+      "directTargetIds": [
+        "cratis-chronicle-client-typescript"
+      ],
+      "targetIds": [
+        "cratis-chronicle-client-typescript"
+      ]
     },
     {
       "id": "public-chronicle-compliance",
@@ -2930,6 +2953,261 @@
         "cratis",
         "public-cratis-cli",
         "public-cratis-cli-terminal-workbench"
+      ]
+    },
+    {
+      "id": "cratis-chronicle-client-dotnet",
+      "semanticName": "cratis-chronicle-client-dotnet",
+      "audience": "public",
+      "purpose": "Chronicle .NET client",
+      "whenToUse": "Use when a standalone .NET console, worker, or service connects to a Chronicle server and appends or observes events.",
+      "whenNotToUse": [
+        "Do not use for Arc applications, where Chronicle is already wired in.",
+        "Do not use for the Chronicle kernel or for another language's client."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-chronicle-client-elixir",
+        "cratis-chronicle-client-kotlin",
+        "cratis-chronicle-client-typescript"
+      ],
+      "bundleIds": [],
+      "profileIds": [
+        "cratis",
+        "cratis/chronicle",
+        "cratis/full",
+        "public-application-chronicle-dotnet",
+        "public-chronicle-client-dotnet"
+      ]
+    },
+    {
+      "id": "cratis-chronicle-client-elixir",
+      "semanticName": "cratis-chronicle-client-elixir",
+      "audience": "public",
+      "purpose": "Chronicle Elixir client",
+      "whenToUse": "Use when an Elixir or OTP application connects to a Chronicle server and appends or observes events.",
+      "whenNotToUse": [
+        "Do not use for another language's Chronicle client.",
+        "Do not use for the Chronicle kernel."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "elixir"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-chronicle-client-dotnet",
+        "cratis-chronicle-client-kotlin",
+        "cratis-chronicle-client-typescript"
+      ],
+      "bundleIds": [],
+      "profileIds": [
+        "cratis",
+        "public-chronicle-client-elixir"
+      ]
+    },
+    {
+      "id": "cratis-chronicle-client-kotlin",
+      "semanticName": "cratis-chronicle-client-kotlin",
+      "audience": "public",
+      "purpose": "Chronicle Kotlin and Java client",
+      "whenToUse": "Use when a Kotlin or Java application, with or without Spring Boot, connects to a Chronicle server and appends or observes events.",
+      "whenNotToUse": [
+        "Do not use for another language's Chronicle client.",
+        "Do not use for the Chronicle kernel."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "kotlin"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-chronicle-client-dotnet",
+        "cratis-chronicle-client-elixir",
+        "cratis-chronicle-client-typescript"
+      ],
+      "bundleIds": [],
+      "profileIds": [
+        "cratis",
+        "public-chronicle-client-kotlin"
+      ]
+    },
+    {
+      "id": "cratis-chronicle-client-typescript",
+      "semanticName": "cratis-chronicle-client-typescript",
+      "audience": "public",
+      "purpose": "Chronicle TypeScript client",
+      "whenToUse": "Use when a Node.js or TypeScript application connects to a Chronicle server and appends or observes events.",
+      "whenNotToUse": [
+        "Do not use for Arc React frontends or generated Arc proxies.",
+        "Do not use for another language's Chronicle client."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "typescript"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-chronicle-client-dotnet",
+        "cratis-chronicle-client-elixir",
+        "cratis-chronicle-client-kotlin"
+      ],
+      "bundleIds": [],
+      "profileIds": [
+        "cratis",
+        "public-chronicle-client-typescript"
       ]
     },
     {

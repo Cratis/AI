@@ -527,6 +527,30 @@ const chronicleMigrationSourcePaths = new Map([
     ["inspect-running-chronicle", "skills/cratis-chronicle-cli-operations"],
     ["multi-tenancy", "skills/cratis-chronicle-multi-tenancy"],
 ]);
+// Cratis/AI#178: the language-native Chronicle client journeys are authored
+// directly in the canonical skill tree. They have no `.ai/skills` ancestor, so
+// unlike the migrations above these names only ever resolve through this map.
+const chronicleClientRevision =
+    "f625294e16dc44260bf7a02c5044a83d86c1837a";
+const chronicleClientEvidenceId = "chronicle-language-clients-source-f625294";
+const chronicleClientSourcePaths = new Map([
+    [
+        "cratis-chronicle-client-dotnet",
+        "skills/cratis-chronicle-client-dotnet",
+    ],
+    [
+        "cratis-chronicle-client-elixir",
+        "skills/cratis-chronicle-client-elixir",
+    ],
+    [
+        "cratis-chronicle-client-kotlin",
+        "skills/cratis-chronicle-client-kotlin",
+    ],
+    [
+        "cratis-chronicle-client-typescript",
+        "skills/cratis-chronicle-client-typescript",
+    ],
+]);
 const sourceOverrides = new Map([
     ...referenceClosureSourceNames
         .filter((name) => !migratedCanonicalNames.has(name))
@@ -674,6 +698,14 @@ const sourceOverrides = new Map([
             sourcePath,
             sourceRevision: chronicleMigrationRevision,
             evidenceId: "chronicle-core-source-migration-3d85719",
+        },
+    ]),
+    ...[...chronicleClientSourcePaths].map(([name, sourcePath]) => [
+        name,
+        {
+            sourcePath,
+            sourceRevision: chronicleClientRevision,
+            evidenceId: chronicleClientEvidenceId,
         },
     ]),
 ]);
@@ -1069,6 +1101,66 @@ const profiles = {
         [
             "cratis-arc-command-validation",
             "cratis-chronicle-event-specifications",
+        ],
+        "high",
+        false,
+    ],
+    "cratis-chronicle-client-dotnet": [
+        "Chronicle .NET client",
+        "Use when a standalone .NET console, worker, or service connects to a Chronicle server and appends or observes events.",
+        [
+            "Do not use for Arc applications, where Chronicle is already wired in.",
+            "Do not use for the Chronicle kernel or for another language's client.",
+        ],
+        [
+            "cratis-chronicle-client-elixir",
+            "cratis-chronicle-client-kotlin",
+            "cratis-chronicle-client-typescript",
+        ],
+        "high",
+        false,
+    ],
+    "cratis-chronicle-client-elixir": [
+        "Chronicle Elixir client",
+        "Use when an Elixir or OTP application connects to a Chronicle server and appends or observes events.",
+        [
+            "Do not use for another language's Chronicle client.",
+            "Do not use for the Chronicle kernel.",
+        ],
+        [
+            "cratis-chronicle-client-dotnet",
+            "cratis-chronicle-client-kotlin",
+            "cratis-chronicle-client-typescript",
+        ],
+        "high",
+        false,
+    ],
+    "cratis-chronicle-client-kotlin": [
+        "Chronicle Kotlin and Java client",
+        "Use when a Kotlin or Java application, with or without Spring Boot, connects to a Chronicle server and appends or observes events.",
+        [
+            "Do not use for another language's Chronicle client.",
+            "Do not use for the Chronicle kernel.",
+        ],
+        [
+            "cratis-chronicle-client-dotnet",
+            "cratis-chronicle-client-elixir",
+            "cratis-chronicle-client-typescript",
+        ],
+        "high",
+        false,
+    ],
+    "cratis-chronicle-client-typescript": [
+        "Chronicle TypeScript client",
+        "Use when a Node.js or TypeScript application connects to a Chronicle server and appends or observes events.",
+        [
+            "Do not use for Arc React frontends or generated Arc proxies.",
+            "Do not use for another language's Chronicle client.",
+        ],
+        [
+            "cratis-chronicle-client-dotnet",
+            "cratis-chronicle-client-elixir",
+            "cratis-chronicle-client-kotlin",
         ],
         "high",
         false,

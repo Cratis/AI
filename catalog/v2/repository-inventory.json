@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "b35c070045357f8b88ab0ab186d7530d06eb86b020d7f25dfab4e590485fb408",
+  "indexDigest": "7f0837d06b093746d6769c779a4b9882eb17f77b5322c2acd73f5af403f257c5",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -2919,6 +2919,38 @@
       "status": "added"
     },
     {
+      "path": "skills/cratis-chronicle-client-dotnet/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-client-dotnet/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-client-elixir/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-client-elixir/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-client-kotlin/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-client-kotlin/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-client-typescript/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-client-typescript/SKILL.md",
+      "status": "added"
+    },
+    {
       "path": "skills/cratis-chronicle-compliance/LICENSE",
       "status": "added"
     },
@@ -4176,6 +4208,10 @@
         "skills/cratis-chronicle-reducer/**",
         "skills/cratis-arc-authentication-authorization-and-identity/**",
         "skills/cratis-arc-command-execution/**",
+        "skills/cratis-chronicle-client-dotnet/**",
+        "skills/cratis-chronicle-client-elixir/**",
+        "skills/cratis-chronicle-client-kotlin/**",
+        "skills/cratis-chronicle-client-typescript/**",
         "skills/cratis-chronicle-compliance/**",
         "skills/cratis-chronicle-mcp-inspection/**",
         "skills/cratis-chronicle-web-workbench/**",
@@ -4252,8 +4288,8 @@
         "workflows-68",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 145,
-      "expectedPathsDigest": "d138fb87b9eaa76712b93ca2e154c8434297a5e5a3cb82c929e3388b917a7a60"
+      "expectedPathCount": 153,
+      "expectedPathsDigest": "15d07e2b631f137e64bfe5798fce4977167484505414acf61f96bfb13b72cb12"
     },
     {
       "excludePathPatterns": [],

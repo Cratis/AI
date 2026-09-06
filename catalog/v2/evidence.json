@@ -199,6 +199,16 @@
       "immutableRevision": "ed28ee63c97fbe8c1ad326f6d1b48b1e0efea837"
     },
     {
+      "id": "chronicle-language-clients-source-f625294",
+      "officialUrl": "https://github.com/Cratis/AI/tree/f625294e16dc44260bf7a02c5044a83d86c1837a/skills",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-09-06",
+      "expiresOn": "2027-09-06",
+      "applicableVersion": "f625294e16dc44260bf7a02c5044a83d86c1837a",
+      "confidence": "high",
+      "immutableRevision": "f625294e16dc44260bf7a02c5044a83d86c1837a"
+    },
+    {
       "id": "chronicle-mcp-inspection-source-5997b28",
       "officialUrl": "https://github.com/Cratis/AI/tree/5997b28c142d9ee489841894e5d21730da5cb5a5/skills/cratis-chronicle-mcp-inspection",
       "sourceKind": "repository-snapshot",

@@ -154,6 +154,66 @@
       ]
     },
     {
+      "id": "rename-cratis-chronicle-client-dotnet",
+      "kind": "retain",
+      "sourceIds": [
+        "cratis-chronicle-client-dotnet"
+      ],
+      "targetIds": [
+        "cratis-chronicle-client-dotnet"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-cratis-chronicle-client-elixir",
+      "kind": "retain",
+      "sourceIds": [
+        "cratis-chronicle-client-elixir"
+      ],
+      "targetIds": [
+        "cratis-chronicle-client-elixir"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-cratis-chronicle-client-kotlin",
+      "kind": "retain",
+      "sourceIds": [
+        "cratis-chronicle-client-kotlin"
+      ],
+      "targetIds": [
+        "cratis-chronicle-client-kotlin"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-cratis-chronicle-client-typescript",
+      "kind": "retain",
+      "sourceIds": [
+        "cratis-chronicle-client-typescript"
+      ],
+      "targetIds": [
+        "cratis-chronicle-client-typescript"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
       "id": "rename-cratis-chronicle-compliance",
       "kind": "retain",
       "sourceIds": [

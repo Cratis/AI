@@ -804,6 +804,12 @@
       "kind": "repository-snapshot",
       "locator": "https://github.com/Cratis/AI/tree/47263222559843c47065be0f124d66ddb02b7c04/skills",
       "immutableRevision": "47263222559843c47065be0f124d66ddb02b7c04"
+    },
+    {
+      "id": "source-chronicle-language-clients-source-f625294",
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/f625294e16dc44260bf7a02c5044a83d86c1837a/skills",
+      "immutableRevision": "f625294e16dc44260bf7a02c5044a83d86c1837a"
     }
   ],
   "observations": [
@@ -8047,6 +8053,43 @@
         "officialUrl": "https://github.com/Cratis/AI/tree/3d857190964d7ae45b4a49b4adda0cad9f569444/skills",
         "sourceKind": "repository-snapshot",
         "applicableVersion": "3d857190964d7ae45b4a49b4adda0cad9f569444"
+      }
+    },
+    {
+      "id": "chronicle-language-clients-source-f625294",
+      "sourceId": "source-chronicle-language-clients-source-f625294",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "artifact",
+        "id": "candidate-passive-public-package",
+        "version": "f625294e16dc44260bf7a02c5044a83d86c1837a"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "source-provenance",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Source provenance for the language-native Chronicle client skills for .NET, Elixir, Kotlin, and TypeScript in the canonical skill tree.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-09-06",
+      "validThrough": "2027-09-06",
+      "confidence": "high",
+      "limitations": [
+        "This observation proves source provenance for the recorded skill sources only; it grants no behavior, evaluation, or support assurance."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/f625294e16dc44260bf7a02c5044a83d86c1837a/skills",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "f625294e16dc44260bf7a02c5044a83d86c1837a"
       }
     }
   ],

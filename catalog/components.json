@@ -65,6 +65,10 @@
     "skills/cratis-arc-query-paging",
     "skills/cratis-arc-react-page",
     "skills/cratis-chronicle-cli-operations",
+    "skills/cratis-chronicle-client-dotnet",
+    "skills/cratis-chronicle-client-elixir",
+    "skills/cratis-chronicle-client-kotlin",
+    "skills/cratis-chronicle-client-typescript",
     "skills/cratis-chronicle-compliance",
     "skills/cratis-chronicle-event-modeling",
     "skills/cratis-chronicle-event-type-migration",
@@ -121,7 +125,7 @@
         "effect": "guided-write"
       },
       "dependencies": [],
-      "hostNeutralPurpose": "Specialist for C# backend code within a vertical slice. Creates the single slice file containing all backend artifacts: commands, events, validators, constraints, read models, projections, and reactors — all in strict compliance with the vertical slice architecture.",
+      "hostNeutralPurpose": "Specialist for C# backend code within a vertical slice. Creates the single slice file containing all backend artifacts: commands, events, validators, constraints, read models, projections, and reactors \u2014 all in strict compliance with the vertical slice architecture.",
       "approval": {
         "state": "modeled",
         "evidenceIds": [
@@ -397,7 +401,7 @@
         "effect": "guided-write"
       },
       "dependencies": [],
-      "hostNeutralPurpose": "Top-level team orchestrator for Cratis-based projects. Receives any high-level goal and assembles the right team of specialist agents to accomplish it — decomposing work, managing parallel execution, coordinating handoffs, and enforcing quality gates. Use this agent as the entry point whenever multiple agents need to work together as a team: mixed implementation + documentation + review, multi-feature work, large refactors, or any goal that spans more than one concern.",
+      "hostNeutralPurpose": "Top-level team orchestrator for Cratis-based projects. Receives any high-level goal and assembles the right team of specialist agents to accomplish it \u2014 decomposing work, managing parallel execution, coordinating handoffs, and enforcing quality gates. Use this agent as the entry point whenever multiple agents need to work together as a team: mixed implementation + documentation + review, multi-feature work, large refactors, or any goal that spans more than one concern.",
       "approval": {
         "state": "modeled",
         "evidenceIds": [
@@ -811,7 +815,7 @@
         "effect": "guided-write"
       },
       "dependencies": [],
-      "hostNeutralPurpose": "Implements a Cratis vertical slice end-to-end — all backend artifacts in one slice file, BDD specs in when_*/ folders, and the React surface (page and/or command dialog). Use for new slices and for non-trivial slice changes spanning backend and frontend.",
+      "hostNeutralPurpose": "Implements a Cratis vertical slice end-to-end \u2014 all backend artifacts in one slice file, BDD specs in when_*/ folders, and the React surface (page and/or command dialog). Use for new slices and for non-trivial slice changes spanning backend and frontend.",
       "approval": {
         "state": "modeled",
         "evidenceIds": [
@@ -2035,6 +2039,330 @@
         "cratis-application-slice-diagnostics"
       ],
       "hostNeutralPurpose": "Chronicle CLI operations",
+      "approval": {
+        "state": "modeled",
+        "evidenceIds": [
+          "reevaluation-authority",
+          "repo-main-b795d53"
+        ]
+      },
+      "releaseBoundary": "public-passive",
+      "allowedProjections": [
+        {
+          "hostContract": "any-passive-host",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "passive-private-fixture",
+            "passive-public-package",
+            "provider-compatibility"
+          ]
+        },
+        {
+          "hostContract": "portable-agent-plugins-1-0",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "passive-public-package"
+          ]
+        }
+      ],
+      "forbiddenProjections": [
+        "agent",
+        "subagent",
+        "command",
+        "prompt",
+        "rule",
+        "instruction",
+        "hook",
+        "mcp",
+        "lsp",
+        "executable-host-extension",
+        "static-asset"
+      ],
+      "requiredCanaries": [
+        "projection-shape",
+        "semantic-identity",
+        "source-digest"
+      ],
+      "securityRequirements": {
+        "threatModel": false,
+        "securityReview": false,
+        "executableAssuranceProfile": false
+      }
+    },
+    {
+      "id": "cratis-chronicle-client-dotnet",
+      "kind": "skill",
+      "semanticIdentity": "cratis-chronicle-client-dotnet",
+      "semanticName": "cratis-chronicle-client-dotnet",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-chronicle-client-dotnet",
+      "canonicalSources": [
+        {
+          "path": "skills/cratis-chronicle-client-dotnet",
+          "digest": "d6e4a71fbd4c17abd34763e5496419017658e2e0020360cf7262800de794d4b0",
+          "ownership": "owner",
+          "ownerComponentId": "cratis-chronicle-client-dotnet"
+        }
+      ],
+      "contentDigest": "cc7682f8af87dfbef39f31018f5d2e694e8ac499c9d11de2aeb0ae84f73d207b",
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "classification": {
+        "artifactClass": "passive-content",
+        "trust": "passive",
+        "passive": true,
+        "executable": false,
+        "effect": "guided-write"
+      },
+      "dependencies": [],
+      "hostNeutralPurpose": "Standalone Chronicle .NET client connection, append, and observation",
+      "approval": {
+        "state": "modeled",
+        "evidenceIds": [
+          "reevaluation-authority",
+          "repo-main-b795d53"
+        ]
+      },
+      "releaseBoundary": "public-passive",
+      "allowedProjections": [
+        {
+          "hostContract": "any-passive-host",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "passive-private-fixture",
+            "passive-public-package",
+            "provider-compatibility"
+          ]
+        },
+        {
+          "hostContract": "portable-agent-plugins-1-0",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "passive-public-package"
+          ]
+        }
+      ],
+      "forbiddenProjections": [
+        "agent",
+        "subagent",
+        "command",
+        "prompt",
+        "rule",
+        "instruction",
+        "hook",
+        "mcp",
+        "lsp",
+        "executable-host-extension",
+        "static-asset"
+      ],
+      "requiredCanaries": [
+        "projection-shape",
+        "semantic-identity",
+        "source-digest"
+      ],
+      "securityRequirements": {
+        "threatModel": false,
+        "securityReview": false,
+        "executableAssuranceProfile": false
+      }
+    },
+    {
+      "id": "cratis-chronicle-client-elixir",
+      "kind": "skill",
+      "semanticIdentity": "cratis-chronicle-client-elixir",
+      "semanticName": "cratis-chronicle-client-elixir",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-chronicle-client-elixir",
+      "canonicalSources": [
+        {
+          "path": "skills/cratis-chronicle-client-elixir",
+          "digest": "0d6d42e254d645593227da63b902cbdba3881af11f8e0d4b0e9d4651ab1d8620",
+          "ownership": "owner",
+          "ownerComponentId": "cratis-chronicle-client-elixir"
+        }
+      ],
+      "contentDigest": "d809d17756125246a593be85946eb0c6d2469233882e8e98f3ad96c179874f5c",
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "classification": {
+        "artifactClass": "passive-content",
+        "trust": "passive",
+        "passive": true,
+        "executable": false,
+        "effect": "guided-write"
+      },
+      "dependencies": [],
+      "hostNeutralPurpose": "Chronicle Elixir client supervision, append, and observation",
+      "approval": {
+        "state": "modeled",
+        "evidenceIds": [
+          "reevaluation-authority",
+          "repo-main-b795d53"
+        ]
+      },
+      "releaseBoundary": "public-passive",
+      "allowedProjections": [
+        {
+          "hostContract": "any-passive-host",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "passive-private-fixture",
+            "passive-public-package",
+            "provider-compatibility"
+          ]
+        },
+        {
+          "hostContract": "portable-agent-plugins-1-0",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "passive-public-package"
+          ]
+        }
+      ],
+      "forbiddenProjections": [
+        "agent",
+        "subagent",
+        "command",
+        "prompt",
+        "rule",
+        "instruction",
+        "hook",
+        "mcp",
+        "lsp",
+        "executable-host-extension",
+        "static-asset"
+      ],
+      "requiredCanaries": [
+        "projection-shape",
+        "semantic-identity",
+        "source-digest"
+      ],
+      "securityRequirements": {
+        "threatModel": false,
+        "securityReview": false,
+        "executableAssuranceProfile": false
+      }
+    },
+    {
+      "id": "cratis-chronicle-client-kotlin",
+      "kind": "skill",
+      "semanticIdentity": "cratis-chronicle-client-kotlin",
+      "semanticName": "cratis-chronicle-client-kotlin",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-chronicle-client-kotlin",
+      "canonicalSources": [
+        {
+          "path": "skills/cratis-chronicle-client-kotlin",
+          "digest": "8f4e0e605d6be9e76445bf54f757d2a3e3242b3dc55a66754bde72c8074f33d0",
+          "ownership": "owner",
+          "ownerComponentId": "cratis-chronicle-client-kotlin"
+        }
+      ],
+      "contentDigest": "0813d4820831c803b137dcb66685659210fae2262b78092f202ff2d353651f2c",
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "classification": {
+        "artifactClass": "passive-content",
+        "trust": "passive",
+        "passive": true,
+        "executable": false,
+        "effect": "guided-write"
+      },
+      "dependencies": [],
+      "hostNeutralPurpose": "Chronicle Kotlin and Java client connection, append, and observation",
+      "approval": {
+        "state": "modeled",
+        "evidenceIds": [
+          "reevaluation-authority",
+          "repo-main-b795d53"
+        ]
+      },
+      "releaseBoundary": "public-passive",
+      "allowedProjections": [
+        {
+          "hostContract": "any-passive-host",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "passive-private-fixture",
+            "passive-public-package",
+            "provider-compatibility"
+          ]
+        },
+        {
+          "hostContract": "portable-agent-plugins-1-0",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "passive-public-package"
+          ]
+        }
+      ],
+      "forbiddenProjections": [
+        "agent",
+        "subagent",
+        "command",
+        "prompt",
+        "rule",
+        "instruction",
+        "hook",
+        "mcp",
+        "lsp",
+        "executable-host-extension",
+        "static-asset"
+      ],
+      "requiredCanaries": [
+        "projection-shape",
+        "semantic-identity",
+        "source-digest"
+      ],
+      "securityRequirements": {
+        "threatModel": false,
+        "securityReview": false,
+        "executableAssuranceProfile": false
+      }
+    },
+    {
+      "id": "cratis-chronicle-client-typescript",
+      "kind": "skill",
+      "semanticIdentity": "cratis-chronicle-client-typescript",
+      "semanticName": "cratis-chronicle-client-typescript",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-chronicle-client-typescript",
+      "canonicalSources": [
+        {
+          "path": "skills/cratis-chronicle-client-typescript",
+          "digest": "5efe57da345f2ae41ca2637812f5188447b2dc92cbb148495979ef573a3c6895",
+          "ownership": "owner",
+          "ownerComponentId": "cratis-chronicle-client-typescript"
+        }
+      ],
+      "contentDigest": "8e9ba156c638ab69f01b51fc4b76f8c613adcf899314927d4c5bf2cd14b0d31d",
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "classification": {
+        "artifactClass": "passive-content",
+        "trust": "passive",
+        "passive": true,
+        "executable": false,
+        "effect": "guided-write"
+      },
+      "dependencies": [],
+      "hostNeutralPurpose": "Chronicle TypeScript client connection, append, and observation",
       "approval": {
         "state": "modeled",
         "evidenceIds": [
@@ -9274,7 +9602,7 @@
         "effect": "guided-write"
       },
       "dependencies": [],
-      "hostNeutralPurpose": "Scaffold a new feature — folder structure, composition page, routing, and navigation.",
+      "hostNeutralPurpose": "Scaffold a new feature \u2014 folder structure, composition page, routing, and navigation.",
       "approval": {
         "state": "modeled",
         "evidenceIds": [
@@ -9481,7 +9809,7 @@
         "effect": "guided-write"
       },
       "dependencies": [],
-      "hostNeutralPurpose": "\"Write documentation following the Diátaxis framework.\"",
+      "hostNeutralPurpose": "\"Write documentation following the Di\u00e1taxis framework.\"",
       "approval": {
         "state": "modeled",
         "evidenceIds": [
