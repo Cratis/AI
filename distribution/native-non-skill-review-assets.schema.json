@@ -21,15 +21,15 @@
     "projectedComponentCount": { "const": 35 },
     "componentExclusions": {
       "type": "array",
-      "minItems": 2,
-      "maxItems": 2,
+      "minItems": 10,
+      "maxItems": 10,
       "uniqueItems": true,
       "items": {
         "type": "object",
         "additionalProperties": false,
         "required": ["componentId", "kind", "reason"],
         "properties": {
-          "componentId": { "enum": ["cratis-rule-github-actions", "cratis-rule-local-work-artifacts"] },
+          "componentId": { "enum": ["cratis-rule-capability-is-not-authority", "cratis-rule-decision-records", "cratis-rule-engineering-recipe-skeleton", "cratis-rule-exit-codes-and-wrappers", "cratis-rule-github-actions", "cratis-rule-guards-and-fuses", "cratis-rule-human-verdicts", "cratis-rule-local-work-artifacts", "cratis-rule-verification-discipline", "cratis-rule-work-records-and-comments"] },
           "kind": { "const": "rule" },
           "reason": { "const": "no-generated-static-contract" }
         }

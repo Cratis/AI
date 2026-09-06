@@ -1,0 +1,1 @@
+../../.ai/rules/capability-is-not-authority.md

@@ -36,7 +36,7 @@
         "artifacts": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
       }
     },
-    "componentCount": { "const": 143 },
+    "componentCount": { "const": 155 },
     "byKind": {
       "type": "object",
       "additionalProperties": false,
@@ -48,8 +48,8 @@
         "hook": { "const": 1 },
         "instruction": { "const": 1 },
         "prompt": { "const": 18 },
-        "rule": { "const": 36 },
-        "skill": { "const": 55 }
+        "rule": { "const": 44 },
+        "skill": { "const": 59 }
       }
     },
     "byDisposition": {
@@ -67,17 +67,17 @@
       "properties": {
         "executable-blocked": { "const": 3 },
         "native-static-review-projected": { "const": 35 },
-        "native-static-unprojected": { "const": 2 },
+        "native-static-unprojected": { "const": 10 },
         "repository-host-adapter-only": { "const": 48 },
-        "skill-blocked-candidate": { "type": "integer", "minimum": 0, "maximum": 49 },
-        "skill-legacy-repository-only": { "const": 10 },
-        "skill-packaged-candidate": { "type": "integer", "minimum": 0, "maximum": 49 }
+        "skill-blocked-candidate": { "type": "integer", "minimum": 0, "maximum": 59 },
+        "skill-legacy-repository-only": { "const": 13 },
+        "skill-packaged-candidate": { "type": "integer", "minimum": 0, "maximum": 59 }
       }
     },
     "records": {
       "type": "array",
-      "minItems": 137,
-      "maxItems": 143,
+      "minItems": 149,
+      "maxItems": 155,
       "uniqueItems": true,
       "items": {
         "type": "object",

@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cratis/AI/catalog/schemas/vocabulary.schema.json",
+  "title": "Cratis shared vocabulary for decision, work-item, verdict and comment value sets",
+  "$defs": {
+    "value": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+    "meaning": { "type": "string", "minLength": 1 },
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "meaning"],
+      "properties": {
+        "value": { "$ref": "#/$defs/value" },
+        "meaning": { "$ref": "#/$defs/meaning" }
+      }
+    },
+    "dispositionEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "meaning", "dispositions"],
+      "properties": {
+        "value": { "$ref": "#/$defs/value" },
+        "meaning": { "$ref": "#/$defs/meaning" },
+        "dispositions": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/value" }
+        }
+      }
+    },
+    "set": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["description", "values"],
+      "properties": {
+        "description": { "type": "string", "minLength": 1 },
+        "values": {
+          "type": "array",
+          "minItems": 2,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/entry" }
+        }
+      }
+    },
+    "dispositionSet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["description", "values"],
+      "properties": {
+        "description": { "type": "string", "minLength": 1 },
+        "values": {
+          "type": "array",
+          "minItems": 2,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/dispositionEntry" }
+        }
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "asOf", "authority", "valuePattern", "sets"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "asOf": { "type": "string", "format": "date" },
+    "authority": { "type": "string", "minLength": 1 },
+    "valuePattern": { "const": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+    "sets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "decision.status",
+        "decision.stage",
+        "decision.class",
+        "decision.reversibility",
+        "work-item.next",
+        "work-item.blocker",
+        "verdict-request.kind",
+        "verification.verdict",
+        "comment.kind",
+        "closure.disposition",
+        "readiness.blocker"
+      ],
+      "properties": {
+        "decision.status": { "$ref": "#/$defs/set" },
+        "decision.stage": { "$ref": "#/$defs/set" },
+        "decision.class": { "$ref": "#/$defs/set" },
+        "decision.reversibility": { "$ref": "#/$defs/set" },
+        "work-item.next": { "$ref": "#/$defs/set" },
+        "work-item.blocker": { "$ref": "#/$defs/set" },
+        "verdict-request.kind": { "$ref": "#/$defs/dispositionSet" },
+        "verification.verdict": { "$ref": "#/$defs/set" },
+        "comment.kind": { "$ref": "#/$defs/set" },
+        "closure.disposition": { "$ref": "#/$defs/set" },
+        "readiness.blocker": { "$ref": "#/$defs/set" }
+      }
+    }
+  }
+}

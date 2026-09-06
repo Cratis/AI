@@ -73,8 +73,8 @@ test("passive candidate assets package every currently safe target and account f
         });
         assertBlocked(publicManifest);
         assertBlocked(engineeringManifest);
-        assert.equal(publicManifest.targetIds.length, 35);
-        assert.equal(publicManifest.sourceSkills.length, 35);
+        assert.equal(publicManifest.targetIds.length, 36);
+        assert.equal(publicManifest.sourceSkills.length, 36);
         assert.equal(publicManifest.targetExclusions.length, 2);
         assert.equal(engineeringManifest.targetIds.length, 6);
         assert.equal(engineeringManifest.sourceSkills.length, 6);
@@ -82,7 +82,7 @@ test("passive candidate assets package every currently safe target and account f
         assert.equal(
             publicManifest.targetIds.length +
                 publicManifest.targetExclusions.length,
-            37,
+            38,
         );
         assert.equal(
             engineeringManifest.targetIds.length +
@@ -115,6 +115,9 @@ test("passive candidate assets package every currently safe target and account f
                 "cratis-legacy-auth-and-identity",
                 "cratis-legacy-call-command-from-code",
                 "cratis-legacy-cratis-command",
+                "cratis-legacy-cratis-csharp-standards",
+                "cratis-legacy-cratis-specs-csharp",
+                "cratis-legacy-cratis-specs-typescript",
                 "cratis-legacy-edit-cratis-docs",
                 "cratis-legacy-observable-query-curl",
                 "cratis-legacy-query-paging",
@@ -141,7 +144,7 @@ test("passive candidate assets package every currently safe target and account f
                 (item) => item.componentId,
             ),
         ].sort();
-        assert.equal(skillComponentIds.length, 55);
+        assert.equal(skillComponentIds.length, 59);
         assert.deepEqual(accountedSkillComponentIds, skillComponentIds);
         for (const manifest of [publicManifest, engineeringManifest]) {
             assert.equal(manifest.assets.length, passiveHarnesses.length);
@@ -159,15 +162,15 @@ test("passive candidate assets package every currently safe target and account f
                     "utf8",
                 ),
             );
-            assert.equal(coverage.componentCount, 143);
+            assert.equal(coverage.componentCount, 155);
             assert.equal(
                 coverage.byDisposition["skill-packaged-candidate"],
-                41,
+                42,
             );
             assert.equal(coverage.byDisposition["skill-blocked-candidate"], 4);
             assert.equal(
                 coverage.byDisposition["skill-legacy-repository-only"],
-                10,
+                13,
             );
             assert.equal(
                 coverage.byDisposition["native-static-review-projected"],
@@ -175,7 +178,7 @@ test("passive candidate assets package every currently safe target and account f
             );
             assert.equal(
                 coverage.byDisposition["native-static-unprojected"],
-                2,
+                10,
             );
             assert.equal(
                 coverage.byDisposition["repository-host-adapter-only"],
@@ -384,7 +387,7 @@ test("passive candidate workflow is manual read-only and short-lived", () => {
 
 test("candidate component coverage closes every modeled component kind", () => {
     const coverage = buildCandidateComponentCoverage();
-    assert.equal(coverage.componentCount, 143);
+    assert.equal(coverage.componentCount, 155);
     assert.deepEqual(coverage.byKind, {
         agent: 12,
         command: 18,
@@ -392,13 +395,13 @@ test("candidate component coverage closes every modeled component kind", () => {
         hook: 1,
         instruction: 1,
         prompt: 18,
-        rule: 36,
-        skill: 55,
+        rule: 44,
+        skill: 59,
     });
-    assert.equal(coverage.records.length, 143);
+    assert.equal(coverage.records.length, 155);
     assert.equal(
         new Set(coverage.records.map((record) => record.componentId)).size,
-        143,
+        155,
     );
     assert(
         coverage.records

@@ -94,6 +94,14 @@ Rule content here.
 
 Use `applyTo: "**/*"` (and omit `paths`) for rules that apply to all files.
 
+### Writing a recipe
+
+A skill that walks someone through a procedure follows the section skeleton in
+[`engineering-recipe-skeleton.md`](./engineering-recipe-skeleton.md) — *when you need
+this*, *when you do not*, *steps*, *what breaks*, *how it is proven* — so every recipe
+answers the same questions in the same order. Read it before authoring or restructuring
+one.
+
 ### Profiles (application vs framework)
 
 A Cratis repo is one of two **profiles** and the corpus serves both from this one source:

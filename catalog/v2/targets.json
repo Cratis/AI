@@ -3869,41 +3869,92 @@
       "languages": [
         "language-agnostic"
       ],
-      "capabilityKind": "unclassified",
-      "invocation": "unclassified",
+      "capabilityKind": "explanation",
+      "invocation": "both",
       "lifecycle": "candidate",
       "architectures": {
-        "state": "unclassified",
-        "ids": [],
-        "reason": "Architecture requires reviewed target classification."
+        "state": "applicable",
+        "ids": [
+          "product-neutral"
+        ],
+        "reason": "House C# conventions apply to every Cratis repository regardless of the architecture it implements."
       },
       "personas": {
-        "state": "unclassified",
-        "ids": [],
-        "reason": "Persona requires reviewed target classification."
+        "state": "applicable",
+        "ids": [
+          "contributor",
+          "developer",
+          "maintainer"
+        ],
+        "reason": "Contributors, developers, and maintainers apply and review the house C# conventions."
       },
       "surfaces": {
-        "state": "unclassified",
-        "ids": [],
-        "reason": "Surface requires reviewed target classification."
+        "state": "applicable",
+        "ids": [
+          "backend",
+          "direct-agent-skills",
+          "ide",
+          "pi"
+        ],
+        "reason": "The passive skill guides C# source changes from supported agent and IDE surfaces."
       },
       "repositoryProfiles": {
-        "state": "unclassified",
-        "ids": [],
-        "reason": "Repository profile requires reviewed target classification."
+        "state": "applicable",
+        "ids": [
+          "application",
+          "client",
+          "corpus",
+          "framework"
+        ],
+        "reason": "Every Cratis repository that compiles C# follows these conventions; consuming projects own their own style policy."
       },
       "trust": {
         "class": "passive",
-        "assessmentState": "unclassified",
-        "effects": []
+        "assessmentState": "assessed",
+        "effects": [
+          {
+            "id": "modify-csharp-source-for-conventions",
+            "operation": "modify",
+            "resourceBoundary": "current repository worktree",
+            "scope": "the C# source files the user asked to write or bring in line with the conventions",
+            "dataClassifications": [
+              "internal",
+              "public"
+            ],
+            "reversible": true,
+            "rollbackOrCompensation": "Restore the prior uncommitted files or revert the dedicated source commit.",
+            "confirmation": {
+              "required": true,
+              "timing": "before-effect",
+              "reason": "The repository maintainer confirms which files a convention change may touch before files change."
+            },
+            "authorization": {
+              "required": true,
+              "authority": "Repository maintainer or task owner",
+              "evidenceIds": [
+                "ai-126"
+              ]
+            },
+            "evidenceIds": [
+              "repo-main-b795d53",
+              "reevaluation-authority"
+            ]
+          }
+        ]
       },
-      "dependencyClassificationState": "unclassified",
+      "dependencyClassificationState": "classified",
       "dependencyEdges": [],
-      "sourceContractState": "unclassified",
-      "sourceContractIds": [],
-      "sourceAuthoritySubjects": [],
-      "authoringContractState": "unclassified",
-      "authoringContractIds": [],
+      "sourceContractState": "classified",
+      "sourceContractIds": [
+        "cratis-ai-composition"
+      ],
+      "sourceAuthoritySubjects": [
+        "capability-composition"
+      ],
+      "authoringContractState": "classified",
+      "authoringContractIds": [
+        "cratis-skill-clean-room-v1"
+      ],
       "capability": "Cratis C# engineering conventions",
       "positiveTriggerIntent": "Use for Cratis-maintainer C# house standards and review policy.",
       "nearMissExclusions": [
@@ -3918,7 +3969,12 @@
         "externalTools": []
       },
       "runtimePayloadPolicy": {
-        "allowed": [],
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
         "forbidden": [
           "scripts/**",
           "evals/**",
@@ -3936,7 +3992,7 @@
       "security": {
         "executable": false,
         "destructive": false,
-        "risk": "medium",
+        "risk": "low",
         "disposition": "pending",
         "evidenceIds": []
       },
@@ -5250,6 +5306,123 @@
       "includeInRuntime": false
     },
     {
+      "id": "cratis-governed-release-methodology",
+      "semanticName": "cratis-governed-release-methodology",
+      "sourceSkillIds": [
+        "cratis-governed-release-methodology"
+      ],
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "products": [
+        "cross-product"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencyClassificationState": "unclassified",
+      "dependencyEdges": [],
+      "sourceContractState": "unclassified",
+      "sourceContractIds": [],
+      "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
+      "capability": "Governed release methodology",
+      "positiveTriggerIntent": "Use when choosing the assurance tier a release needs, deciding whether checksums, provenance, or an SBOM are warranted, labeling release intent, or judging whether a support claim is backed by evidence.",
+      "nearMissExclusions": [
+        "Do not use to run a publish, tag, or promotion operation.",
+        "Do not use for a registry's publish command syntax or credentials."
+      ],
+      "collisionSet": [],
+      "dependencies": {
+        "targets": [],
+        "internalArtifacts": [],
+        "externalTools": []
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "low",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
       "id": "cratis-performance-review",
       "semanticName": "cratis-performance-review",
       "sourceSkillIds": [
@@ -5516,47 +5689,115 @@
       "owner": "public Cratis product capability",
       "audience": "public",
       "products": [
-        "cross-product",
+        "arc",
+        "chronicle",
         "specifications"
       ],
       "languages": [
         "csharp"
       ],
-      "capabilityKind": "unclassified",
-      "invocation": "unclassified",
+      "capabilityKind": "primitive",
+      "invocation": "both",
       "lifecycle": "candidate",
       "architectures": {
-        "state": "unclassified",
-        "ids": [],
-        "reason": "Architecture requires reviewed target classification."
+        "state": "applicable",
+        "ids": [
+          "product-neutral"
+        ],
+        "reason": "The Establish/Because/should_ pattern and the for_/when_ hierarchy are the same in application, library, and client repositories."
       },
       "personas": {
-        "state": "unclassified",
-        "ids": [],
-        "reason": "Persona requires reviewed target classification."
+        "state": "applicable",
+        "ids": [
+          "contributor",
+          "developer",
+          "maintainer",
+          "qa"
+        ],
+        "reason": "Contributors, developers, maintainers, and QA all author and review C# specifications."
       },
       "surfaces": {
-        "state": "unclassified",
-        "ids": [],
-        "reason": "Surface requires reviewed target classification."
+        "state": "applicable",
+        "ids": [
+          "backend",
+          "direct-agent-skills",
+          "ide",
+          "pi"
+        ],
+        "reason": "The passive skill guides C# specification source changes from supported agent and IDE surfaces."
       },
       "repositoryProfiles": {
-        "state": "unclassified",
-        "ids": [],
-        "reason": "Repository profile requires reviewed target classification."
+        "state": "applicable",
+        "ids": [
+          "application",
+          "client",
+          "consuming-project",
+          "framework"
+        ],
+        "reason": "Every repository that compiles C# against Cratis packages writes specifications this way."
       },
       "trust": {
         "class": "passive",
-        "assessmentState": "unclassified",
-        "effects": []
+        "assessmentState": "assessed",
+        "effects": [
+          {
+            "id": "create-or-modify-csharp-specification-source",
+            "operation": "modify",
+            "resourceBoundary": "current repository worktree",
+            "scope": "C# specification files and their given/ contexts under the folder the user selected",
+            "dataClassifications": [
+              "internal",
+              "public"
+            ],
+            "reversible": true,
+            "rollbackOrCompensation": "Restore the prior uncommitted files or revert the dedicated specification commit.",
+            "confirmation": {
+              "required": true,
+              "timing": "before-effect",
+              "reason": "The repository owner confirms the specification project and folder before files change."
+            },
+            "authorization": {
+              "required": true,
+              "authority": "Repository maintainer or task owner",
+              "evidenceIds": [
+                "ai-126"
+              ]
+            },
+            "evidenceIds": [
+              "repo-main-b795d53"
+            ]
+          }
+        ]
       },
-      "dependencyClassificationState": "unclassified",
-      "dependencyEdges": [],
-      "sourceContractState": "unclassified",
-      "sourceContractIds": [],
-      "sourceAuthoritySubjects": [],
-      "authoringContractState": "unclassified",
-      "authoringContractIds": [],
+      "dependencyClassificationState": "classified",
+      "dependencyEdges": [
+        {
+          "dependencyId": "dotnet",
+          "category": "tool",
+          "strength": "hard",
+          "reason": "The authored specifications must compile and run before the workflow can claim completion.",
+          "missingBehavior": {
+            "action": "block",
+            "description": "Stop before claiming completion when the .NET SDK and the specification project gates are unavailable."
+          }
+        }
+      ],
+      "sourceContractState": "classified",
+      "sourceContractIds": [
+        "cratis-arc-source",
+        "cratis-chronicle-source",
+        "cratis-specifications-source"
+      ],
+      "sourceAuthoritySubjects": [
+        "api",
+        "documentation",
+        "examples",
+        "versions"
+      ],
+      "authoringContractState": "classified",
+      "authoringContractIds": [
+        "cratis-skill-clean-room-v1"
+      ],
       "capability": "Cratis C# specification foundations",
       "positiveTriggerIntent": "Use for framework or library C# Specification by Example tests.",
       "nearMissExclusions": [
@@ -5569,11 +5810,7 @@
       ],
       "dependencies": {
         "targets": [],
-        "internalArtifacts": [
-          ".ai/rules/specs.csharp.md",
-          ".ai/rules/specs.scenarios.csharp.md",
-          ".ai/skills/cratis-specs-csharp/evals/**"
-        ],
+        "internalArtifacts": [],
         "externalTools": [
           "dotnet"
         ]
@@ -5643,47 +5880,110 @@
       "owner": "public Cratis product capability",
       "audience": "public",
       "products": [
-        "cross-product",
         "specifications"
       ],
       "languages": [
         "typescript"
       ],
-      "capabilityKind": "unclassified",
-      "invocation": "unclassified",
+      "capabilityKind": "primitive",
+      "invocation": "both",
       "lifecycle": "candidate",
       "architectures": {
-        "state": "unclassified",
-        "ids": [],
-        "reason": "Architecture requires reviewed target classification."
+        "state": "applicable",
+        "ids": [
+          "product-neutral"
+        ],
+        "reason": "The given() helper and the for_/when_ hierarchy do not assume an application architecture."
       },
       "personas": {
-        "state": "unclassified",
-        "ids": [],
-        "reason": "Persona requires reviewed target classification."
+        "state": "applicable",
+        "ids": [
+          "contributor",
+          "developer",
+          "maintainer",
+          "qa"
+        ],
+        "reason": "Contributors, developers, maintainers, and QA all author and review TypeScript specifications."
       },
       "surfaces": {
-        "state": "unclassified",
-        "ids": [],
-        "reason": "Surface requires reviewed target classification."
+        "state": "applicable",
+        "ids": [
+          "direct-agent-skills",
+          "frontend",
+          "ide",
+          "pi"
+        ],
+        "reason": "The passive skill guides TypeScript specification source changes from supported agent and IDE surfaces."
       },
       "repositoryProfiles": {
-        "state": "unclassified",
-        "ids": [],
-        "reason": "Repository profile requires reviewed target classification."
+        "state": "applicable",
+        "ids": [
+          "client",
+          "consuming-project",
+          "framework"
+        ],
+        "reason": "The given() specification style is used by the Cratis TypeScript packages and the projects that extend them."
       },
       "trust": {
         "class": "passive",
-        "assessmentState": "unclassified",
-        "effects": []
+        "assessmentState": "assessed",
+        "effects": [
+          {
+            "id": "create-or-modify-typescript-specification-source",
+            "operation": "modify",
+            "resourceBoundary": "current repository worktree",
+            "scope": "TypeScript specification files and their given/ context classes under the folder the user selected",
+            "dataClassifications": [
+              "internal",
+              "public"
+            ],
+            "reversible": true,
+            "rollbackOrCompensation": "Restore the prior uncommitted files or revert the dedicated specification commit.",
+            "confirmation": {
+              "required": true,
+              "timing": "before-effect",
+              "reason": "The repository owner confirms the package and folder before files change."
+            },
+            "authorization": {
+              "required": true,
+              "authority": "Repository maintainer or task owner",
+              "evidenceIds": [
+                "ai-126"
+              ]
+            },
+            "evidenceIds": [
+              "repo-main-b795d53"
+            ]
+          }
+        ]
       },
-      "dependencyClassificationState": "unclassified",
-      "dependencyEdges": [],
-      "sourceContractState": "unclassified",
-      "sourceContractIds": [],
-      "sourceAuthoritySubjects": [],
-      "authoringContractState": "unclassified",
-      "authoringContractIds": [],
+      "dependencyClassificationState": "classified",
+      "dependencyEdges": [
+        {
+          "dependencyId": "node",
+          "category": "tool",
+          "strength": "hard",
+          "reason": "The authored specifications must run under the package test command before the workflow can claim completion.",
+          "missingBehavior": {
+            "action": "block",
+            "description": "Stop before claiming completion when the Node toolchain and the package test script are unavailable."
+          }
+        }
+      ],
+      "sourceContractState": "classified",
+      "sourceContractIds": [
+        "cratis-specifications-source"
+      ],
+      "sourceAuthoritySubjects": [
+        "api",
+        "documentation",
+        "examples",
+        "versions"
+      ],
+      "authoringContractState": "classified",
+      "authoringContractIds": [
+        "cratis-skill-clean-room-v1"
+      ],
       "capability": "Cratis TypeScript specification foundations",
       "positiveTriggerIntent": "Use for framework or package TypeScript Specification by Example tests.",
       "nearMissExclusions": [
@@ -5696,9 +5996,7 @@
       ],
       "dependencies": {
         "targets": [],
-        "internalArtifacts": [
-          ".ai/skills/cratis-specs-typescript/evals/**"
-        ],
+        "internalArtifacts": [],
         "externalTools": [
           "node"
         ]

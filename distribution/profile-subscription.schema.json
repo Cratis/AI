@@ -50,7 +50,7 @@
         "profiles": {
           "items": {
             "type": "string",
-            "pattern": "^cratis/[a-z0-9]+(?:-[a-z0-9]+)*$"
+            "pattern": "^cratis(?:/[a-z0-9]+(?:-[a-z0-9]+)*)?$"
           }
         }
       }
@@ -74,7 +74,7 @@
       "uniqueItems": true,
       "items": {
         "type": "string",
-        "pattern": "^(?:cratis/|public-|engineering-)[a-z0-9]+(?:-[a-z0-9]+)*$"
+        "pattern": "^(?:cratis(?:/[a-z0-9]+(?:-[a-z0-9]+)*)?|(?:public|engineering)-[a-z0-9]+(?:-[a-z0-9]+)*)$"
       }
     },
     "harnesses": {

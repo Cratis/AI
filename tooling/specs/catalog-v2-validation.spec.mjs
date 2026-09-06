@@ -58,10 +58,10 @@ test("catalog v2 schemas and semantic policy pass for the repository", () => {
     assert.deepEqual(validateV2Catalogs(), []);
 });
 
-test("catalog v2 preserves all 45 sources while split and merge targets are independent", () => {
+test("catalog v2 preserves all 46 sources while split and merge targets are independent", () => {
     const catalogs = loadCatalogs();
-    assert.equal(catalogs.sources.sources.length, 45);
-    assert.equal(catalogs.targets.targets.length, 45);
+    assert.equal(catalogs.sources.sources.length, 46);
+    assert.equal(catalogs.targets.targets.length, 46);
     const split = catalogs.migrations.migrations.find(
         (migration) => migration.kind === "split",
     );
@@ -154,9 +154,12 @@ test("unreviewed targets remain explicitly unclassified and runtime ineligible",
     const catalogs = loadCatalogs();
     const classified = new Set([
         "cratis-fundamentals-concept",
+        "cratis-engineering-csharp-conventions",
         "cratis-engineering-docs-add-page",
         "cratis-engineering-docs-authoring",
         "cratis-engineering-docs-edit-page",
+        "cratis-specifications-csharp",
+        "cratis-specifications-typescript",
     ]);
     for (const target of catalogs.targets.targets) {
         if (classified.has(target.id)) continue;
@@ -823,6 +826,104 @@ test("stale and future-dated evidence fail and unsupported local facts remain ex
     assert(errors.some((error) => error.includes("verified after")));
 });
 
+// Evidence is append-only, so renewing an observation appends a replacement that names it in `supersedes` while
+// the replaced observation stays in the catalog forever with an `expiresOn` that keeps receding into the past.
+// These cover the resulting expiry semantics: history stops gating for exactly as long as a live renewal covers it.
+function renewalOf(record, id, verifiedOn, expiresOn) {
+    return {
+        id,
+        officialUrl: record.officialUrl,
+        sourceKind: record.sourceKind,
+        verifiedOn,
+        expiresOn,
+        applicableVersion: record.applicableVersion,
+        confidence: record.confidence,
+        supersedes: [record.id],
+    };
+}
+
+test("a live renewal retires the expiry of the observation it supersedes", () => {
+    const catalogs = loadCatalogs();
+    const original = catalogs.evidence.evidence[0];
+    original.expiresOn = daysFromAsOf(catalogs, -1);
+    assert(
+        validateEvidenceAndCoverage(catalogs).includes(
+            `${original.id}: evidence expired before the catalog as-of date`,
+        ),
+    );
+    catalogs.evidence.evidence.push(
+        renewalOf(
+            original,
+            `${original.id}-renewal`,
+            daysFromAsOf(catalogs, -1),
+            daysFromAsOf(catalogs, 30),
+        ),
+    );
+    assert.deepEqual(validateEvidenceAndCoverage(catalogs), []);
+});
+
+test("expiry gates again once an entire renewal chain has lapsed", () => {
+    const catalogs = loadCatalogs();
+    const original = catalogs.evidence.evidence[0];
+    original.expiresOn = daysFromAsOf(catalogs, -20);
+    const lapsed = renewalOf(
+        original,
+        `${original.id}-renewal`,
+        daysFromAsOf(catalogs, -20),
+        daysFromAsOf(catalogs, -1),
+    );
+    catalogs.evidence.evidence.push(lapsed);
+    const errors = validateEvidenceAndCoverage(catalogs);
+    assert(
+        errors.includes(
+            `${original.id}: evidence expired before the catalog as-of date`,
+        ),
+    );
+    assert(
+        errors.includes(
+            `${lapsed.id}: evidence expired before the catalog as-of date`,
+        ),
+    );
+    catalogs.evidence.evidence.push(
+        renewalOf(
+            lapsed,
+            `${original.id}-renewal-2`,
+            daysFromAsOf(catalogs, -1),
+            daysFromAsOf(catalogs, 30),
+        ),
+    );
+    assert.deepEqual(validateEvidenceAndCoverage(catalogs), []);
+});
+
+test("evidence cannot supersede an observation the catalog does not carry", () => {
+    const catalogs = loadCatalogs();
+    const evidence = catalogs.evidence.evidence[0];
+    evidence.supersedes = ["missing-evidence"];
+    assert(
+        validateEvidenceAndCoverage(catalogs).includes(
+            `${evidence.id}: unknown superseded evidence missing-evidence`,
+        ),
+    );
+});
+
+test("the v2 evidence projection carries the normalized supersession relation", () => {
+    const normalized = readCatalog(
+        join(defaultRepositoryRoot, "catalog/evidence.json"),
+    );
+    const expected = Object.fromEntries(
+        normalized.observations
+            .filter((observation) => observation.supersedes.length > 0)
+            .map((observation) => [observation.id, [...observation.supersedes]]),
+    );
+    const projected = Object.fromEntries(
+        readCatalog(join(defaultRepositoryRoot, v2CatalogPaths.evidence))
+            .evidence.filter((evidence) => evidence.supersedes)
+            .map((evidence) => [evidence.id, evidence.supersedes]),
+    );
+    assert(Object.keys(expected).length > 0);
+    assert.deepEqual(projected, expected);
+});
+
 test("aggregate validation propagates its repository root to evidence checks", () => {
     const source = readFileSync(
         join(defaultRepositoryRoot, "tooling/catalog-v2-validation.mjs"),
@@ -965,7 +1066,7 @@ test("the accepted Option A+ decision still blocks unapproved live targets", () 
     assert.equal(publicCandidate.materializationAllowed, true);
     assert.equal(publicCandidate.runtimeEligible, false);
     assert.equal(publicCandidate.requiresApprovedTargets, false);
-    assert.equal(publicCandidate.componentInventory.skills.length, 35);
+    assert.equal(publicCandidate.componentInventory.skills.length, 36);
     assert(
         !publicCandidate.componentInventory.skills.includes(
             "cratis-chronicle-mcp-inspection",

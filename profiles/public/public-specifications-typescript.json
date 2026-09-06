@@ -9,9 +9,12 @@
     "typescript",
     "react"
   ],
-  "state": "planned-source-migration",
+  "state": "preview-source-candidate",
+  "availableTargets": [
+    "cratis-specifications-typescript"
+  ],
   "composes": [
     "public-specifications"
   ],
-  "gapSummary": "Needs Vitest/Mocha structure, Chai, Sinon, view-model, React, and shared philosophy mapping."
+  "gapSummary": "Carries the canonical given()/Chai/Sinon TypeScript specification capability. React application behavior specifications remain a legacy candidate."
 }

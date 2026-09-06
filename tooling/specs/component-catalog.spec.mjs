@@ -167,11 +167,11 @@ test("catalog records all kinds and honestly declares MCP and LSP empty", () => 
                 .length,
         ]),
     );
-    assert.equal(counts.skill, 55);
+    assert.equal(counts.skill, 59);
     assert.equal(counts.agent, 12);
     assert.equal(counts.command, 18);
     assert.equal(counts.prompt, 18);
-    assert.equal(counts.rule, 36);
+    assert.equal(counts.rule, 44);
     assert.equal(counts.instruction, 1);
     assert.equal(counts.hook, 1);
     assert.equal(counts["executable-host-extension"], 2);
@@ -240,12 +240,12 @@ test("S8 adds exactly 70 passive generated-static non-skill projections", () => 
         (projection) => projection.state === "generated-static",
     );
     assert.equal(catalogs.projections.hosts.length, 9);
-    assert.equal(catalogs.projections.projections.length, 386);
+    assert.equal(catalogs.projections.projections.length, 402);
     assert.equal(
         catalogs.projections.projections.filter(
             (projection) => projection.state === "existing",
         ).length,
-        316,
+        332,
     );
     assert.equal(generated.length, 70);
     assert.equal(
@@ -321,7 +321,7 @@ test("retained legacy host skills are explicit unbound components", () => {
     const legacy = catalogs.components.components.filter(
         (component) => component.lifecycle === "legacy-retained",
     );
-    assert.equal(legacy.length, 10);
+    assert.equal(legacy.length, 13);
     assert(
         legacy.every(
             (component) =>

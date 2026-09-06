@@ -22,6 +22,7 @@ import {
     regularFiles,
     validateComponentCatalogs,
 } from "./component-catalog-validation.mjs";
+import { supersededEvidenceIds } from "./evidence-supersession.mjs";
 
 export const v2CatalogPaths = {
     sources: "catalog/v2/sources.json",
@@ -226,11 +227,11 @@ export function validateSources(catalogs, root) {
     ];
     if (!equalStringSets(sourceIds, v1Ids))
         errors.push(
-            "catalog v2 sources must preserve all 45 authored skill sources exactly once",
+            "catalog v2 sources must preserve all 46 authored skill sources exactly once",
         );
-    if (sourceIds.length !== 45)
+    if (sourceIds.length !== 46)
         errors.push(
-            `catalog v2 must contain 45 sources; found ${sourceIds.length}`,
+            `catalog v2 must contain 46 sources; found ${sourceIds.length}`,
         );
     for (const source of catalogs.sources.sources) {
         if (source.publicationApproval)
@@ -948,8 +949,21 @@ export function validateEvidenceAndCoverage(
         "ecosystem facts",
         catalogs.evidence.ecosystemFacts.map((fact) => fact.id),
     );
+    const supersededIds = supersededEvidenceIds(
+        catalogs.evidence.evidence,
+        catalogs.evidence.asOf,
+    );
     for (const evidence of catalogs.evidence.evidence) {
-        if (evidence.expiresOn < catalogs.evidence.asOf)
+        for (const supersededId of evidence.supersedes ?? []) {
+            if (!evidenceIds.has(supersededId))
+                errors.push(
+                    `${evidence.id}: unknown superseded evidence ${supersededId}`,
+                );
+        }
+        if (
+            evidence.expiresOn < catalogs.evidence.asOf &&
+            !supersededIds.has(evidence.id)
+        )
             errors.push(
                 `${evidence.id}: evidence expired before the catalog as-of date`,
             );

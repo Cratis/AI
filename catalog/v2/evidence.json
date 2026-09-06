@@ -296,6 +296,9 @@
       "expiresOn": "2027-09-02",
       "applicableVersion": "68616b143aeffaeda333553bb4c491f696a0018a",
       "confidence": "high",
+      "supersedes": [
+        "cratis-chronicle-multi-tenancy-source-fbf7602"
+      ],
       "immutableRevision": "68616b143aeffaeda333553bb4c491f696a0018a"
     },
     {
@@ -309,6 +312,16 @@
       "immutableRevision": "fbf76029e4a6593a6a24f939face32b720009198"
     },
     {
+      "id": "cratis-engineering-csharp-conventions-source-ee5c566",
+      "officialUrl": "https://github.com/Cratis/AI/tree/ee5c566e4685b26823ae858545495d13615f7af9/engineering/skills/cratis-engineering-csharp-conventions",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-09-06",
+      "expiresOn": "2027-09-06",
+      "applicableVersion": "ee5c566e4685b26823ae858545495d13615f7af9",
+      "confidence": "high",
+      "immutableRevision": "ee5c566e4685b26823ae858545495d13615f7af9"
+    },
+    {
       "id": "cratis-react-page-host-rendered-dialogs-2006490",
       "officialUrl": "https://github.com/Cratis/AI/tree/2006490b23dd60a384cd803423fdc59cd395611b/.ai/skills/cratis-react-page",
       "sourceKind": "repository-snapshot",
@@ -317,6 +330,26 @@
       "applicableVersion": "2006490b23dd60a384cd803423fdc59cd395611b",
       "confidence": "high",
       "immutableRevision": "2006490b23dd60a384cd803423fdc59cd395611b"
+    },
+    {
+      "id": "cratis-specifications-csharp-source-ee5c566",
+      "officialUrl": "https://github.com/Cratis/AI/tree/ee5c566e4685b26823ae858545495d13615f7af9/skills/cratis-specifications-csharp",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-09-06",
+      "expiresOn": "2027-09-06",
+      "applicableVersion": "ee5c566e4685b26823ae858545495d13615f7af9",
+      "confidence": "high",
+      "immutableRevision": "ee5c566e4685b26823ae858545495d13615f7af9"
+    },
+    {
+      "id": "cratis-specifications-typescript-source-ee5c566",
+      "officialUrl": "https://github.com/Cratis/AI/tree/ee5c566e4685b26823ae858545495d13615f7af9/skills/cratis-specifications-typescript",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-09-06",
+      "expiresOn": "2027-09-06",
+      "applicableVersion": "ee5c566e4685b26823ae858545495d13615f7af9",
+      "confidence": "high",
+      "immutableRevision": "ee5c566e4685b26823ae858545495d13615f7af9"
     },
     {
       "id": "cursor-plugins-source-1",
@@ -648,6 +681,16 @@
       "expiresOn": "2026-11-23",
       "applicableVersion": "goose-1.47.0-release",
       "confidence": "high"
+    },
+    {
+      "id": "governed-release-methodology-source-59f47a6",
+      "officialUrl": "https://github.com/Cratis/AI/tree/59f47a614bd2317ca379d99adfd8036b42d2e64e/skills/cratis-governed-release-methodology",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-09-06",
+      "expiresOn": "2027-09-06",
+      "applicableVersion": "59f47a614bd2317ca379d99adfd8036b42d2e64e",
+      "confidence": "high",
+      "immutableRevision": "59f47a614bd2317ca379d99adfd8036b42d2e64e"
     },
     {
       "id": "grok-bot-plugins-source-1",
@@ -1112,6 +1155,9 @@
       "expiresOn": "2027-09-02",
       "applicableVersion": "c2f721c2f80321cfba352d8d2e4209a0881ccb63",
       "confidence": "high",
+      "supersedes": [
+        "public-skill-reference-closure-30c813c"
+      ],
       "immutableRevision": "c2f721c2f80321cfba352d8d2e4209a0881ccb63"
     },
     {
@@ -1151,6 +1197,20 @@
       "confidence": "medium",
       "immutableRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
       "digest": "d0e76cea34145717ae8874a252b7d4468c43ef102cb9ddc3f2241c0960aa70d5"
+    },
+    {
+      "id": "reevaluation-authority-2026-09-06",
+      "officialUrl": "https://github.com/Cratis/Workflows/issues/68#issuecomment-5363284054",
+      "sourceKind": "local-evidence-report",
+      "verifiedOn": "2026-09-06",
+      "expiresOn": "2026-12-05",
+      "applicableVersion": "authority-reobservation-2026-09-06",
+      "confidence": "medium",
+      "supersedes": [
+        "reevaluation-authority"
+      ],
+      "repositoryPath": "distribution/evidence/authority-reobservation-2026-09-06.json",
+      "digest": "83635d802a9179c921fa803987f4b447ceb921c3778db7601864c8875d530f50"
     },
     {
       "id": "replit-agent-source-1",
@@ -1571,6 +1631,20 @@
       "expiresOn": "2026-09-19",
       "applicableVersion": "issue-state-2026-08-20",
       "confidence": "high"
+    },
+    {
+      "id": "workflows-68-2026-09-06",
+      "officialUrl": "https://github.com/Cratis/Workflows/issues/68",
+      "sourceKind": "local-evidence-report",
+      "verifiedOn": "2026-09-06",
+      "expiresOn": "2026-12-05",
+      "applicableVersion": "issue-state-2026-09-06",
+      "confidence": "high",
+      "supersedes": [
+        "workflows-68"
+      ],
+      "repositoryPath": "distribution/evidence/authority-reobservation-2026-09-06.json",
+      "digest": "83635d802a9179c921fa803987f4b447ceb921c3778db7601864c8875d530f50"
     },
     {
       "id": "zed-skills-source-1",

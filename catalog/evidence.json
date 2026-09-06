@@ -713,6 +713,12 @@
       "digest": "d619e16b71976284c5812319a27abc612a92645d817e8a6d88aa27929c75ea9e"
     },
     {
+      "id": "source-governed-release-methodology-source-59f47a6",
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/59f47a614bd2317ca379d99adfd8036b42d2e64e/skills/cratis-governed-release-methodology",
+      "immutableRevision": "59f47a614bd2317ca379d99adfd8036b42d2e64e"
+    },
+    {
       "id": "source-chronicle-mcp-inspection-source-5997b28",
       "kind": "repository-snapshot",
       "locator": "https://github.com/Cratis/AI/tree/5997b28c142d9ee489841894e5d21730da5cb5a5/skills/cratis-chronicle-mcp-inspection",
@@ -742,6 +748,38 @@
       "kind": "repository-snapshot",
       "locator": "https://github.com/Cratis/AI/tree/fbf76029e4a6593a6a24f939face32b720009198/.ai/skills/multi-tenancy",
       "immutableRevision": "fbf76029e4a6593a6a24f939face32b720009198"
+    },
+    {
+      "id": "source-workflows-68-2026-09-06",
+      "kind": "local-evidence-report",
+      "locator": "https://github.com/Cratis/Workflows/issues/68",
+      "repositoryPath": "distribution/evidence/authority-reobservation-2026-09-06.json",
+      "digest": "83635d802a9179c921fa803987f4b447ceb921c3778db7601864c8875d530f50"
+    },
+    {
+      "id": "source-reevaluation-authority-2026-09-06",
+      "kind": "local-evidence-report",
+      "locator": "https://github.com/Cratis/Workflows/issues/68#issuecomment-5363284054",
+      "repositoryPath": "distribution/evidence/authority-reobservation-2026-09-06.json",
+      "digest": "83635d802a9179c921fa803987f4b447ceb921c3778db7601864c8875d530f50"
+    },
+    {
+      "id": "source-cratis-specifications-csharp-source-ee5c566",
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/ee5c566e4685b26823ae858545495d13615f7af9/skills/cratis-specifications-csharp",
+      "immutableRevision": "ee5c566e4685b26823ae858545495d13615f7af9"
+    },
+    {
+      "id": "source-cratis-specifications-typescript-source-ee5c566",
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/ee5c566e4685b26823ae858545495d13615f7af9/skills/cratis-specifications-typescript",
+      "immutableRevision": "ee5c566e4685b26823ae858545495d13615f7af9"
+    },
+    {
+      "id": "source-cratis-engineering-csharp-conventions-source-ee5c566",
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/ee5c566e4685b26823ae858545495d13615f7af9/engineering/skills/cratis-engineering-csharp-conventions",
+      "immutableRevision": "ee5c566e4685b26823ae858545495d13615f7af9"
     },
     {
       "id": "source-arc-backend-command-sources-c650e09",
@@ -7410,6 +7448,43 @@
       }
     },
     {
+      "id": "governed-release-methodology-source-59f47a6",
+      "sourceId": "source-governed-release-methodology-source-59f47a6",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "target",
+        "id": "cratis-governed-release-methodology",
+        "version": "59f47a614bd2317ca379d99adfd8036b42d2e64e"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "source-provenance",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Immutable provenance for the Cratis-authored, product- and language-independent release-engineering methodology source. This observation makes no release, publication, promotion, marketplace, installation, runtime, or support claim.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-09-06",
+      "validThrough": "2027-09-06",
+      "confidence": "high",
+      "limitations": [
+        "Provenance covers only the exact skill bytes at this revision. The guidance is advisory: it grants no release authority and no behavior, trigger, collision, or host evidence exists for it."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/59f47a614bd2317ca379d99adfd8036b42d2e64e/skills/cratis-governed-release-methodology",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "59f47a614bd2317ca379d99adfd8036b42d2e64e"
+      }
+    },
+    {
       "id": "chronicle-mcp-inspection-source-5997b28",
       "sourceId": "source-chronicle-mcp-inspection-source-5997b28",
       "evidenceClass": "hosted",
@@ -7563,6 +7638,214 @@
         "officialUrl": "https://github.com/Cratis/AI/tree/fbf76029e4a6593a6a24f939face32b720009198/.ai/skills/multi-tenancy",
         "sourceKind": "repository-snapshot",
         "applicableVersion": "fbf76029e4a6593a6a24f939face32b720009198"
+      }
+    },
+    {
+      "id": "workflows-68-2026-09-06",
+      "sourceId": "source-workflows-68-2026-09-06",
+      "evidenceClass": "local",
+      "subject": {
+        "kind": "repository",
+        "id": "cratis-workflows",
+        "version": "issue-state-2026-09-06",
+        "digest": "83635d802a9179c921fa803987f4b447ceb921c3778db7601864c8875d530f50"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "authority",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Administrative renewal of the workflows-68 organization-authority observation. An authenticated read-only re-read on 2026-09-06 confirmed Cratis/Workflows#68 is still open, its body is byte-identical to the 2026-08-20 baseline snapshot, and both baseline comments are still present verbatim, so the recorded authority is unchanged.",
+      "environment": {
+        "operatingSystem": "macos",
+        "architecture": "arm64",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-09-06",
+      "validThrough": "2026-12-05",
+      "confidence": "high",
+      "limitations": [
+        "This observation is limited to its exact recorded subject, version, digest, scope, and environment and grants no unrecorded assurance.",
+        "It renews the recorded authority only. It establishes no new grant and changes nothing the superseded observation asserts.",
+        "It is bound to the exact issue state recorded in the report; a later edit, retraction, or close of Cratis/Workflows#68 invalidates it."
+      ],
+      "supersedes": [
+        "workflows-68"
+      ],
+      "correction": {
+        "reason": "Administrative renewal ahead of the 2026-09-19 expiry, on re-read evidence that the recorded authority is unchanged. The 90-day validity matches the cadence the sibling organization-authority observations already use and replaces the 30-day window that produced this expiry cliff.",
+        "reviewer": "cratis-ai-maintainers",
+        "reviewedOn": "2026-09-06",
+        "replacementIdentity": "workflows-68-2026-09-06"
+      },
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/Workflows/issues/68",
+        "sourceKind": "local-evidence-report",
+        "applicableVersion": "issue-state-2026-09-06"
+      }
+    },
+    {
+      "id": "reevaluation-authority-2026-09-06",
+      "sourceId": "source-reevaluation-authority-2026-09-06",
+      "evidenceClass": "local",
+      "subject": {
+        "kind": "repository",
+        "id": "cratis-ai",
+        "version": "authority-reobservation-2026-09-06",
+        "digest": "83635d802a9179c921fa803987f4b447ceb921c3778db7601864c8875d530f50"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "authority",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Administrative renewal of the reevaluation-authority observation that every generated agent-skill source record cites. An authenticated read-only re-read on 2026-09-06 confirmed the maintainer comment recording the accepted Option A+ direction and the standing authorization for autonomous execution of the redesign program is still present, byte-identical, and unretracted, and that all four recorded authority issues remain open with byte-identical bodies.",
+      "environment": {
+        "operatingSystem": "macos",
+        "architecture": "arm64",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-09-06",
+      "validThrough": "2026-12-05",
+      "confidence": "medium",
+      "limitations": [
+        "This observation is limited to its exact recorded subject, version, digest, scope, and environment and grants no unrecorded assurance.",
+        "It renews the recorded authority only. It establishes no new grant and changes nothing the superseded observation asserts.",
+        "Confidence is carried forward unchanged from the superseded observation; the renewal re-anchors the same grant to a live re-readable source and does not raise it.",
+        "It is bound to the exact comment and issue states recorded in the report; a later edit, retraction, or close invalidates it."
+      ],
+      "supersedes": [
+        "reevaluation-authority"
+      ],
+      "correction": {
+        "reason": "Administrative renewal ahead of the 2026-09-19 expiry, re-anchored from the untracked AI-REPOSITORY-REDESIGN-REEVALUATION.md snapshot to the live maintainer authorization comment and the in-repository 2026-08-20 authority baseline, both of which are still re-readable. The 90-day validity matches the cadence the sibling authority observations already use and replaces the 30-day window that produced this expiry cliff.",
+        "reviewer": "cratis-ai-maintainers",
+        "reviewedOn": "2026-09-06",
+        "replacementIdentity": "reevaluation-authority-2026-09-06"
+      },
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/Workflows/issues/68#issuecomment-5363284054",
+        "sourceKind": "local-evidence-report",
+        "applicableVersion": "authority-reobservation-2026-09-06"
+      }
+    },
+    {
+      "id": "cratis-specifications-csharp-source-ee5c566",
+      "sourceId": "source-cratis-specifications-csharp-source-ee5c566",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "target",
+        "id": "cratis-specifications-csharp",
+        "version": "ee5c566e4685b26823ae858545495d13615f7af9"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "source-provenance",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Canonical skills/cratis-specifications-csharp skill source migrated from the legacy .ai/skills tree at ee5c566.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-09-06",
+      "validThrough": "2027-09-06",
+      "confidence": "high",
+      "limitations": [
+        "This observation is limited to its exact recorded subject, version, digest, scope, and environment and grants no unrecorded assurance."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/ee5c566e4685b26823ae858545495d13615f7af9/skills/cratis-specifications-csharp",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "ee5c566e4685b26823ae858545495d13615f7af9"
+      }
+    },
+    {
+      "id": "cratis-specifications-typescript-source-ee5c566",
+      "sourceId": "source-cratis-specifications-typescript-source-ee5c566",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "target",
+        "id": "cratis-specifications-typescript",
+        "version": "ee5c566e4685b26823ae858545495d13615f7af9"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "source-provenance",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Canonical skills/cratis-specifications-typescript skill source migrated from the legacy .ai/skills tree at ee5c566.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-09-06",
+      "validThrough": "2027-09-06",
+      "confidence": "high",
+      "limitations": [
+        "This observation is limited to its exact recorded subject, version, digest, scope, and environment and grants no unrecorded assurance."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/ee5c566e4685b26823ae858545495d13615f7af9/skills/cratis-specifications-typescript",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "ee5c566e4685b26823ae858545495d13615f7af9"
+      }
+    },
+    {
+      "id": "cratis-engineering-csharp-conventions-source-ee5c566",
+      "sourceId": "source-cratis-engineering-csharp-conventions-source-ee5c566",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "target",
+        "id": "cratis-engineering-csharp-conventions",
+        "version": "ee5c566e4685b26823ae858545495d13615f7af9"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "source-provenance",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Canonical engineering/skills/cratis-engineering-csharp-conventions skill source migrated from the legacy .ai/skills tree at ee5c566.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-09-06",
+      "validThrough": "2027-09-06",
+      "confidence": "high",
+      "limitations": [
+        "This observation is limited to its exact recorded subject, version, digest, scope, and environment and grants no unrecorded assurance."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/ee5c566e4685b26823ae858545495d13615f7af9/engineering/skills/cratis-engineering-csharp-conventions",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "ee5c566e4685b26823ae858545495d13615f7af9"
       }
     },
     {
@@ -9515,6 +9798,16 @@
       "role": "inventory-only",
       "observationIds": [],
       "reason": "Preserves an exact denied-egress version preflight. Gemini CLI 0.33.1 is installed; current required version is 0.56.0. Every lifecycle phase remained blocked and the report grants no assurance."
+    },
+    {
+      "repositoryPath": "distribution/evidence/authority-reobservation-2026-09-06.json",
+      "digest": "83635d802a9179c921fa803987f4b447ceb921c3778db7601864c8875d530f50",
+      "role": "supporting",
+      "observationIds": [
+        "reevaluation-authority-2026-09-06",
+        "workflows-68-2026-09-06"
+      ],
+      "reason": "Digest-bound by the two named renewal observations for only their explicit authority assertions. It records an authenticated read-only re-read of the four recorded authority issues against the 2026-08-20 in-repository baseline and grants no behavior, lifecycle, release, or support assurance."
     }
   ]
 }
