@@ -10,9 +10,12 @@
     "corpus"
   ],
   "products": [],
-  "state": "planned-source-migration",
+  "state": "preview-source-candidate",
   "distributionVisibility": "public",
   "confidentialContentAllowed": false,
   "privateOverlayExpected": true,
-  "gapSummary": "Universal C#/TypeScript, Specification by Example, review, documentation, and contribution behavior must be reconciled into public-safe passive sources."
+  "availableTargets": [
+    "cratis-engineering-csharp-conventions"
+  ],
+  "gapSummary": "Carries the canonical C# house conventions. Universal TypeScript conventions, review behavior, and contribution behavior are still to be reconciled into public-safe passive sources."
 }
