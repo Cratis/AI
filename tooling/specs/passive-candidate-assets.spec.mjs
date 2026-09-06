@@ -73,9 +73,9 @@ test("passive candidate assets package every currently safe target and account f
         });
         assertBlocked(publicManifest);
         assertBlocked(engineeringManifest);
-        assert.equal(publicManifest.targetIds.length, 34);
-        assert.equal(publicManifest.sourceSkills.length, 34);
-        assert.equal(publicManifest.targetExclusions.length, 3);
+        assert.equal(publicManifest.targetIds.length, 35);
+        assert.equal(publicManifest.sourceSkills.length, 35);
+        assert.equal(publicManifest.targetExclusions.length, 2);
         assert.equal(engineeringManifest.targetIds.length, 6);
         assert.equal(engineeringManifest.sourceSkills.length, 6);
         assert.equal(engineeringManifest.targetExclusions.length, 2);
@@ -91,11 +91,7 @@ test("passive candidate assets package every currently safe target and account f
         );
         assert.deepEqual(
             publicManifest.targetExclusions.map((item) => item.targetId),
-            [
-                "cratis-arc-observable-query-http",
-                "cratis-chronicle-mcp-inspection",
-                "cratis-studio-mcp-safety-guidance",
-            ],
+            ["cratis-chronicle-mcp-inspection", "cratis-studio-mcp-safety-guidance"],
         );
         assert.deepEqual(engineeringManifest.targetExclusions, [
             {
@@ -115,7 +111,11 @@ test("passive candidate assets package every currently safe target and account f
             [
                 "cratis-legacy-add-concept",
                 "cratis-legacy-add-cratis-docs-page",
+                "cratis-legacy-call-command-from-code",
+                "cratis-legacy-cratis-command",
                 "cratis-legacy-edit-cratis-docs",
+                "cratis-legacy-observable-query-curl",
+                "cratis-legacy-query-paging",
                 "cratis-legacy-write-documentation",
             ],
         );
@@ -139,7 +139,7 @@ test("passive candidate assets package every currently safe target and account f
                 (item) => item.componentId,
             ),
         ].sort();
-        assert.equal(skillComponentIds.length, 49);
+        assert.equal(skillComponentIds.length, 53);
         assert.deepEqual(accountedSkillComponentIds, skillComponentIds);
         for (const manifest of [publicManifest, engineeringManifest]) {
             assert.equal(manifest.assets.length, passiveHarnesses.length);
@@ -157,15 +157,15 @@ test("passive candidate assets package every currently safe target and account f
                     "utf8",
                 ),
             );
-            assert.equal(coverage.componentCount, 137);
+            assert.equal(coverage.componentCount, 141);
             assert.equal(
                 coverage.byDisposition["skill-packaged-candidate"],
-                40,
+                41,
             );
-            assert.equal(coverage.byDisposition["skill-blocked-candidate"], 5);
+            assert.equal(coverage.byDisposition["skill-blocked-candidate"], 4);
             assert.equal(
                 coverage.byDisposition["skill-legacy-repository-only"],
-                4,
+                8,
             );
             assert.equal(
                 coverage.byDisposition["native-static-review-projected"],
@@ -382,7 +382,7 @@ test("passive candidate workflow is manual read-only and short-lived", () => {
 
 test("candidate component coverage closes every modeled component kind", () => {
     const coverage = buildCandidateComponentCoverage();
-    assert.equal(coverage.componentCount, 137);
+    assert.equal(coverage.componentCount, 141);
     assert.deepEqual(coverage.byKind, {
         agent: 12,
         command: 18,
@@ -391,12 +391,12 @@ test("candidate component coverage closes every modeled component kind", () => {
         instruction: 1,
         prompt: 18,
         rule: 36,
-        skill: 49,
+        skill: 53,
     });
-    assert.equal(coverage.records.length, 137);
+    assert.equal(coverage.records.length, 141);
     assert.equal(
         new Set(coverage.records.map((record) => record.componentId)).size,
-        137,
+        141,
     );
     assert(
         coverage.records
