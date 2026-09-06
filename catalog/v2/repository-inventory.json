@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "a159b73b18c922a534d91315004a7bd0522ebb33a2b57c72eb59abf80e506757",
+  "indexDigest": "50e9f7ab66dca145f28f48da10c575997005aa811ac830c28bd9d5a31df10a68",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -3115,6 +3115,22 @@
       "status": "added"
     },
     {
+      "path": "skills/cratis-lens-browser-extension/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-lens-browser-extension/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-screenplay-model-authoring/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-screenplay-model-authoring/SKILL.md",
+      "status": "added"
+    },
+    {
       "path": "skills/cratis-specifications-csharp/LICENSE",
       "status": "added"
     },
@@ -3144,6 +3160,14 @@
     },
     {
       "path": "skills/cratis-specifications-typescript/references/typescript-patterns.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-stage-rendering-and-sandbox/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-stage-rendering-and-sandbox/SKILL.md",
       "status": "added"
     },
     {
@@ -4209,10 +4233,13 @@
         "skills/cratis-components-schema-editor/**",
         "skills/cratis-components-styling/**",
         "skills/cratis-governed-release-methodology/**",
+        "skills/cratis-lens-browser-extension/**",
         "skills/cratis-arc-react-page/**",
         "skills/cratis-chronicle-read-model/**",
+        "skills/cratis-screenplay-model-authoring/**",
         "skills/cratis-specifications-csharp/**",
         "skills/cratis-specifications-typescript/**",
+        "skills/cratis-stage-rendering-and-sandbox/**",
         "skills/cratis-studio-mcp-safety-guidance/**",
         ".ai/skills/cratis-vertical-slice/**",
         "skills/cratis-event-model-diagram/**",
@@ -4276,8 +4303,8 @@
         "workflows-68",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 145,
-      "expectedPathsDigest": "d138fb87b9eaa76712b93ca2e154c8434297a5e5a3cb82c929e3388b917a7a60"
+      "expectedPathCount": 151,
+      "expectedPathsDigest": "341cb5267b837bf1b9d5f306d2061a272870aa60577e15d9aeded4b9bf2b6cbb"
     },
     {
       "excludePathPatterns": [],

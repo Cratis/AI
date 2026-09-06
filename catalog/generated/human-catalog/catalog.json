@@ -2,12 +2,12 @@
   "schemaVersion": 2,
   "contractVersion": 1,
   "disclaimer": "Catalog inclusion, evaluation evidence, component modeling, planned projection, bundle generation, or publication does not grant runtime permission, emitted bytes, support, or approval.",
-  "inputDigest": "306c15142cd7ffa6ed70c8781648c865ab91c6645d6c8476ca0c3eceb26451b6",
+  "inputDigest": "bb96ac633a8edf4599f03d3ec8caffb6871374b3b1372e13ab3e7c48b2e732ae",
   "componentSummary": {
     "disclaimer": "Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.",
-    "total": 175,
+    "total": 178,
     "byKind": {
-      "skill": 79,
+      "skill": 82,
       "agent": 12,
       "subagent": 0,
       "command": 18,
@@ -21,16 +21,16 @@
       "static-asset": 0
     },
     "byTrust": {
-      "passive": 172,
+      "passive": 175,
       "executable": 3
     },
     "byAudience": {
-      "public": 44,
+      "public": 47,
       "cratis-engineering": 131,
       "repository-only": 0
     },
     "byLifecycle": {
-      "active": 148,
+      "active": 151,
       "legacy-retained": 27
     },
     "projections": {
@@ -192,8 +192,11 @@
         "cratis-event-model-diagram",
         "cratis-fundamentals-concept",
         "cratis-governed-release-methodology",
+        "cratis-lens-browser-extension",
+        "cratis-screenplay-model-authoring",
         "cratis-specifications-csharp",
         "cratis-specifications-typescript",
+        "cratis-stage-rendering-and-sandbox",
         "cratis-studio-mcp-safety-guidance"
       ]
     },
@@ -384,8 +387,10 @@
         "cratis-components-toolbar",
         "cratis-event-model-diagram",
         "cratis-fundamentals-concept",
+        "cratis-screenplay-model-authoring",
         "cratis-specifications-csharp",
-        "cratis-specifications-typescript"
+        "cratis-specifications-typescript",
+        "cratis-stage-rendering-and-sandbox"
       ]
     },
     {
@@ -1226,9 +1231,9 @@
       "intendedFor": "Developers who use Cratis Lens.",
       "audience": "public",
       "packageName": "@cratis/ai-lens",
-      "state": "content-gap",
+      "state": "preview-source-candidate",
       "installable": false,
-      "materialization": "catalog-only",
+      "materialization": "candidate-package",
       "products": [
         "lens"
       ],
@@ -1239,8 +1244,12 @@
       ],
       "repositoryKinds": [],
       "composes": [],
-      "directTargetIds": [],
-      "targetIds": []
+      "directTargetIds": [
+        "cratis-lens-browser-extension"
+      ],
+      "targetIds": [
+        "cratis-lens-browser-extension"
+      ]
     },
     {
       "id": "public-methodology-governed-releases",
@@ -1286,7 +1295,10 @@
         "public-stage"
       ],
       "directTargetIds": [],
-      "targetIds": []
+      "targetIds": [
+        "cratis-screenplay-model-authoring",
+        "cratis-stage-rendering-and-sandbox"
+      ]
     },
     {
       "id": "public-screenplay",
@@ -1295,9 +1307,9 @@
       "intendedFor": "Developers who use Cratis Screenplay.",
       "audience": "public",
       "packageName": "@cratis/ai-screenplay",
-      "state": "content-gap",
+      "state": "preview-source-candidate",
       "installable": false,
-      "materialization": "catalog-only",
+      "materialization": "candidate-package",
       "products": [
         "screenplay"
       ],
@@ -1306,8 +1318,12 @@
       ],
       "repositoryKinds": [],
       "composes": [],
-      "directTargetIds": [],
-      "targetIds": []
+      "directTargetIds": [
+        "cratis-screenplay-model-authoring"
+      ],
+      "targetIds": [
+        "cratis-screenplay-model-authoring"
+      ]
     },
     {
       "id": "public-specifications",
@@ -1392,9 +1408,9 @@
       "intendedFor": "Developers who use Cratis Stage.",
       "audience": "public",
       "packageName": "@cratis/ai-stage",
-      "state": "content-gap",
+      "state": "preview-source-candidate",
       "installable": false,
-      "materialization": "catalog-only",
+      "materialization": "candidate-package",
       "products": [
         "stage"
       ],
@@ -1403,8 +1419,12 @@
       ],
       "repositoryKinds": [],
       "composes": [],
-      "directTargetIds": [],
-      "targetIds": []
+      "directTargetIds": [
+        "cratis-stage-rendering-and-sandbox"
+      ],
+      "targetIds": [
+        "cratis-stage-rendering-and-sandbox"
+      ]
     },
     {
       "id": "public-studio",
@@ -4676,6 +4696,70 @@
       ]
     },
     {
+      "id": "cratis-lens-browser-extension",
+      "semanticName": "cratis-lens-browser-extension",
+      "audience": "public",
+      "purpose": "Cratis Lens browser extension",
+      "whenToUse": "Use when setting up Lens against a running Arc application, when it does not detect the app, or when a switched user or tenant does not take effect.",
+      "whenNotToUse": [
+        "Do not use for Chronicle event-store inspection.",
+        "Do not use for production authentication or authorization design."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "arc",
+        "lens"
+      ],
+      "languages": [
+        "csharp",
+        "typescript"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-arc-authentication-authorization-and-identity",
+        "cratis-arc-command-execution"
+      ],
+      "bundleIds": [],
+      "profileIds": [
+        "cratis",
+        "public-lens"
+      ]
+    },
+    {
       "id": "cratis-performance-review",
       "semanticName": "cratis-performance-review",
       "audience": "public",
@@ -4738,6 +4822,70 @@
         "cratis-review-capabilities"
       ],
       "profileIds": []
+    },
+    {
+      "id": "cratis-screenplay-model-authoring",
+      "semanticName": "cratis-screenplay-model-authoring",
+      "audience": "public",
+      "purpose": "Screenplay .play model authoring",
+      "whenToUse": "Use when writing, reviewing, or compiling a Screenplay .play file, or when deciding whether a construct is safe to model.",
+      "whenNotToUse": [
+        "Do not use for hand-written Arc or Chronicle source.",
+        "Do not use to render a model into an application."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "screenplay"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-event-model-diagram",
+        "cratis-stage-rendering-and-sandbox"
+      ],
+      "bundleIds": [],
+      "profileIds": [
+        "cratis",
+        "cratis/full",
+        "public-modeling-screenplay-stage",
+        "public-screenplay"
+      ]
     },
     {
       "id": "cratis-security-review",
@@ -5055,6 +5203,71 @@
         "public-application",
         "public-application-react",
         "public-specifications-typescript"
+      ]
+    },
+    {
+      "id": "cratis-stage-rendering-and-sandbox",
+      "semanticName": "cratis-stage-rendering-and-sandbox",
+      "audience": "public",
+      "purpose": "Stage rendering and sandbox",
+      "whenToUse": "Use when deciding whether Stage can render a Screenplay model, when interpreting a blocked render plan, or when running the sandbox or specification containers.",
+      "whenNotToUse": [
+        "Do not use for authoring the .play model itself.",
+        "Do not use for hand-written Arc or Chronicle source."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "screenplay",
+        "stage"
+      ],
+      "languages": [
+        "csharp",
+        "language-agnostic"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-screenplay-model-authoring"
+      ],
+      "bundleIds": [],
+      "profileIds": [
+        "cratis",
+        "cratis/full",
+        "public-modeling-screenplay-stage",
+        "public-stage"
       ]
     },
     {

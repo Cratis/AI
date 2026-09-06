@@ -10,6 +10,9 @@
     "typescript",
     "language-agnostic"
   ],
-  "state": "content-gap",
-  "gapSummary": "Needs Lens-owned setup, diagnostics, inspection, interpretation, safety, and contribution journeys."
+  "state": "preview-source-candidate",
+  "availableTargets": [
+    "cratis-lens-browser-extension"
+  ],
+  "gapSummary": "Building and side-loading the extension, the Arc endpoints and forwarded-identity headers it depends on, identity and tenant switching, and command and query execution are canonical. Observable-query diagnosis, publishing the extension, and any non-Chromium browser remain gaps."
 }

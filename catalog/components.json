@@ -84,8 +84,11 @@
     "skills/cratis-event-model-diagram",
     "skills/cratis-fundamentals-concept",
     "skills/cratis-governed-release-methodology",
+    "skills/cratis-lens-browser-extension",
+    "skills/cratis-screenplay-model-authoring",
     "skills/cratis-specifications-csharp",
     "skills/cratis-specifications-typescript",
+    "skills/cratis-stage-rendering-and-sandbox",
     "skills/cratis-studio-mcp-safety-guidance"
   ],
   "declaredEmptyKinds": [
@@ -8109,6 +8112,87 @@
       }
     },
     {
+      "id": "cratis-lens-browser-extension",
+      "kind": "skill",
+      "semanticIdentity": "cratis-lens-browser-extension",
+      "semanticName": "cratis-lens-browser-extension",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-lens-browser-extension",
+      "canonicalSources": [
+        {
+          "path": "skills/cratis-lens-browser-extension",
+          "digest": "5a32ca5f08eb8d16b37828c665a7b0374f81500c2d7b423a67bbc7f007d1a4db",
+          "ownership": "owner",
+          "ownerComponentId": "cratis-lens-browser-extension"
+        }
+      ],
+      "contentDigest": "c0a3c83a9bf229edfb3c08d7f1c6e19b7e8a0d65d4e744eff9fce43f83135580",
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "classification": {
+        "artifactClass": "passive-content",
+        "trust": "passive",
+        "passive": true,
+        "executable": false,
+        "effect": "guided-write"
+      },
+      "dependencies": [],
+      "hostNeutralPurpose": "Use the Lens browser extension against a running Cratis Arc application",
+      "approval": {
+        "state": "modeled",
+        "evidenceIds": [
+          "reevaluation-authority",
+          "repo-main-b795d53"
+        ]
+      },
+      "releaseBoundary": "public-passive",
+      "allowedProjections": [
+        {
+          "hostContract": "any-passive-host",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "passive-private-fixture",
+            "passive-public-package",
+            "provider-compatibility"
+          ]
+        },
+        {
+          "hostContract": "portable-agent-plugins-1-0",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "passive-public-package"
+          ]
+        }
+      ],
+      "forbiddenProjections": [
+        "agent",
+        "subagent",
+        "command",
+        "prompt",
+        "rule",
+        "instruction",
+        "hook",
+        "mcp",
+        "lsp",
+        "executable-host-extension",
+        "static-asset"
+      ],
+      "requiredCanaries": [
+        "projection-shape",
+        "semantic-identity",
+        "source-digest"
+      ],
+      "securityRequirements": {
+        "threatModel": false,
+        "securityReview": false,
+        "executableAssuranceProfile": false
+      }
+    },
+    {
       "id": "cratis-performance-review",
       "kind": "skill",
       "semanticIdentity": "cratis-performance-review",
@@ -12630,6 +12714,87 @@
       }
     },
     {
+      "id": "cratis-screenplay-model-authoring",
+      "kind": "skill",
+      "semanticIdentity": "cratis-screenplay-model-authoring",
+      "semanticName": "cratis-screenplay-model-authoring",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-screenplay-model-authoring",
+      "canonicalSources": [
+        {
+          "path": "skills/cratis-screenplay-model-authoring",
+          "digest": "cc3b83cc50dab5938ad6f9f61e1df6ff12030807600382c1f4faa5bafea7bb97",
+          "ownership": "owner",
+          "ownerComponentId": "cratis-screenplay-model-authoring"
+        }
+      ],
+      "contentDigest": "30e65abc90e764192aa45adc4c696f47ddf780fc11aed577bf39f897d8e4e2d9",
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "classification": {
+        "artifactClass": "passive-content",
+        "trust": "passive",
+        "passive": true,
+        "executable": false,
+        "effect": "guided-write"
+      },
+      "dependencies": [],
+      "hostNeutralPurpose": "Author and verify a Screenplay .play event model",
+      "approval": {
+        "state": "modeled",
+        "evidenceIds": [
+          "reevaluation-authority",
+          "repo-main-b795d53"
+        ]
+      },
+      "releaseBoundary": "public-passive",
+      "allowedProjections": [
+        {
+          "hostContract": "any-passive-host",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "passive-private-fixture",
+            "passive-public-package",
+            "provider-compatibility"
+          ]
+        },
+        {
+          "hostContract": "portable-agent-plugins-1-0",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "passive-public-package"
+          ]
+        }
+      ],
+      "forbiddenProjections": [
+        "agent",
+        "subagent",
+        "command",
+        "prompt",
+        "rule",
+        "instruction",
+        "hook",
+        "mcp",
+        "lsp",
+        "executable-host-extension",
+        "static-asset"
+      ],
+      "requiredCanaries": [
+        "projection-shape",
+        "semantic-identity",
+        "source-digest"
+      ],
+      "securityRequirements": {
+        "threatModel": false,
+        "securityReview": false,
+        "executableAssuranceProfile": false
+      }
+    },
+    {
       "id": "cratis-security-review",
       "kind": "skill",
       "semanticIdentity": "cratis-security-review",
@@ -12820,6 +12985,89 @@
       },
       "dependencies": [],
       "hostNeutralPurpose": "Cratis TypeScript specification foundations",
+      "approval": {
+        "state": "modeled",
+        "evidenceIds": [
+          "reevaluation-authority",
+          "repo-main-b795d53"
+        ]
+      },
+      "releaseBoundary": "public-passive",
+      "allowedProjections": [
+        {
+          "hostContract": "any-passive-host",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "passive-private-fixture",
+            "passive-public-package",
+            "provider-compatibility"
+          ]
+        },
+        {
+          "hostContract": "portable-agent-plugins-1-0",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "passive-public-package"
+          ]
+        }
+      ],
+      "forbiddenProjections": [
+        "agent",
+        "subagent",
+        "command",
+        "prompt",
+        "rule",
+        "instruction",
+        "hook",
+        "mcp",
+        "lsp",
+        "executable-host-extension",
+        "static-asset"
+      ],
+      "requiredCanaries": [
+        "projection-shape",
+        "semantic-identity",
+        "source-digest"
+      ],
+      "securityRequirements": {
+        "threatModel": false,
+        "securityReview": false,
+        "executableAssuranceProfile": false
+      }
+    },
+    {
+      "id": "cratis-stage-rendering-and-sandbox",
+      "kind": "skill",
+      "semanticIdentity": "cratis-stage-rendering-and-sandbox",
+      "semanticName": "cratis-stage-rendering-and-sandbox",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-stage-rendering-and-sandbox",
+      "canonicalSources": [
+        {
+          "path": "skills/cratis-stage-rendering-and-sandbox",
+          "digest": "616ddce1523e455c47fa1770f3556a31e8b2955ce3ad49fa33acf27cd8cea0ed",
+          "ownership": "owner",
+          "ownerComponentId": "cratis-stage-rendering-and-sandbox"
+        }
+      ],
+      "contentDigest": "9d4c7df5c05426029ed3ca1fa10e71dd9e685cce2cad9778615062e577425b02",
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "classification": {
+        "artifactClass": "passive-content",
+        "trust": "passive",
+        "passive": true,
+        "executable": false,
+        "effect": "guided-write"
+      },
+      "dependencies": [
+        "cratis-screenplay-model-authoring"
+      ],
+      "hostNeutralPurpose": "Render a Screenplay model with Stage and run its sandbox and specification containers",
       "approval": {
         "state": "modeled",
         "evidenceIds": [
