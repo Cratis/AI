@@ -9541,12 +9541,12 @@
       "canonicalSources": [
         {
           "path": ".ai/rules/vertical-slices.md",
-          "digest": "40ee72260db33d91dc1f2342d2bf0e3d75554102203a38d0f637c9454a3d42a7",
+          "digest": "c2fd104acbe9286139f7d8a7164737032a483e6a5b3fb054717a813374aa847f",
           "ownership": "owner",
           "ownerComponentId": "cratis-rule-vertical-slices"
         }
       ],
-      "contentDigest": "280afbfdcef2ddb063865bae944895c3b6734a05d085fccd3cd82f417ebcb975",
+      "contentDigest": "18a35f85ca7924cf5c635afe72334365ba385cd215a2b77fb8b1074d4da0184b",
       "owner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "classification": {
