@@ -207,6 +207,17 @@ const normalizedPackagedSourceNames = [
     "query-paging",
     "toolbar",
 ];
+const arcReactAndComponentsRevision =
+    "80b1697803ccd2ad641fb6c4d40c905b6706dfde";
+const arcReactAndComponentsSourcePaths = new Map([
+    ["cratis-react-page", "skills/cratis-arc-react-page"],
+    ["stepper-command-dialog", "skills/cratis-components-stepper-command-dialog"],
+    ["toolbar", "skills/cratis-components-toolbar"],
+    ["write-specs-frontend", "skills/cratis-application-react-specifications"],
+    ["cratis-components-accessibility", "skills/cratis-components-accessibility"],
+    ["cratis-components-schema-editor", "skills/cratis-components-schema-editor"],
+    ["cratis-components-styling", "skills/cratis-components-styling"],
+]);
 const sourceOverrides = new Map([
     ...referenceClosureSourceNames.map((name) => [
         name,
@@ -312,6 +323,16 @@ const sourceOverrides = new Map([
             evidenceId: "engineering-docs-authoring-source-f58bcf7",
         },
     ],
+    // Keep the Arc React and Components relocations last so they win over the
+    // earlier legacy `.ai/skills` mappings for the same source names.
+    ...[...arcReactAndComponentsSourcePaths].map(([name, sourcePath]) => [
+        name,
+        {
+            sourcePath,
+            sourceRevision: arcReactAndComponentsRevision,
+            evidenceId: "arc-react-and-components-source-80b1697",
+        },
+    ]),
 ]);
 
 function documentationEffect(id, operation, scope, rollback) {
@@ -958,6 +979,39 @@ const profiles = {
         "low",
         false,
     ],
+    "cratis-components-schema-editor": [
+        "Cratis Components schema editors",
+        "Use when a UI edits a JSON schema's shape or edits an object instance against a schema.",
+        [
+            "Do not use for a form bound to a generated Arc command.",
+            "Do not use for Chronicle event type migration.",
+        ],
+        ["cratis-arc-react-page", "cratis-chronicle-event-type-migration"],
+        "low",
+        false,
+    ],
+    "cratis-components-styling": [
+        "Cratis Components styling and theming",
+        "Use when setting up stylesheets, tokens, themes, dark mode, or PrimeReact pass-through for a Cratis frontend.",
+        [
+            "Do not use for component API or page composition questions.",
+            "Do not use for accessible naming.",
+        ],
+        ["cratis-arc-react-page", "cratis-components-accessibility"],
+        "low",
+        false,
+    ],
+    "cratis-components-accessibility": [
+        "Cratis Components accessibility",
+        "Use when setting dialog initial focus, supplying accessible names, or correcting invalid ARIA in a Cratis frontend.",
+        [
+            "Do not use as a general WCAG conformance guide.",
+            "Do not use for visual theming.",
+        ],
+        ["cratis-arc-react-page", "cratis-components-styling"],
+        "low",
+        false,
+    ],
     "cratis-application-slice-specifications": [
         "Application slice specifications",
         "Use to route event-sourced application backend behavior to the correct in-process scenario family.",
@@ -1173,7 +1227,10 @@ const sources = allSkillNames.map((name) => {
         evidenceIds: [
             "repo-main-b795d53",
             "reevaluation-authority",
-            ...(sourceOverride ? [sourceOverride.evidenceId] : []),
+            // An override may relocate a source to its canonical `skills/` path
+            // without asserting additional evidence; the exact source revision
+            // above remains the binding provenance for those relocations.
+            ...(sourceOverride?.evidenceId ? [sourceOverride.evidenceId] : []),
         ],
     };
 });

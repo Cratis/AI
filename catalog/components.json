@@ -54,7 +54,14 @@
     "engineering/skills/cratis-engineering-docs-add-page",
     "engineering/skills/cratis-engineering-docs-authoring",
     "engineering/skills/cratis-engineering-docs-edit-page",
+    "skills/cratis-application-react-specifications",
+    "skills/cratis-arc-react-page",
     "skills/cratis-chronicle-mcp-inspection",
+    "skills/cratis-components-accessibility",
+    "skills/cratis-components-schema-editor",
+    "skills/cratis-components-stepper-command-dialog",
+    "skills/cratis-components-styling",
+    "skills/cratis-components-toolbar",
     "skills/cratis-fundamentals-concept",
     "skills/cratis-studio-mcp-safety-guidance"
   ],
@@ -902,13 +909,13 @@
       "distributionTargetId": "cratis-application-react-specifications",
       "canonicalSources": [
         {
-          "path": ".ai/skills/write-specs-frontend",
-          "digest": "617460c80872e4f134fbb5c6feccc81e0a3215837283202d77753a1dd73a475a",
+          "path": "skills/cratis-application-react-specifications",
+          "digest": "8ae2054f6438734590d199545755ecb9a9a159cc6f352c7600c652a7b4303f03",
           "ownership": "owner",
           "ownerComponentId": "cratis-application-react-specifications"
         }
       ],
-      "contentDigest": "b82dd7cc47fdb11d363881bc43a1a1f3ce83b3084a4f3548adb762e4ad44bb34",
+      "contentDigest": "9c7fb2f2bbc717ef289e3c376424c5fdac3cd8c96185436270f891e4e479a5fe",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -1919,13 +1926,13 @@
       "distributionTargetId": "cratis-arc-react-page",
       "canonicalSources": [
         {
-          "path": ".ai/skills/cratis-react-page",
-          "digest": "4517c0c7240d884407b994c6a4e41ddfeb08c0c0133ccac3ced03657a6eb3084",
+          "path": "skills/cratis-arc-react-page",
+          "digest": "beeed943640862fdd40215081305e3fd06d8ecc9d6636dcd57674066e148b2a2",
           "ownership": "owner",
           "ownerComponentId": "cratis-arc-react-page"
         }
       ],
-      "contentDigest": "104bb10153a8c6f422ea5a05aeb3fca2a11c6327ba60e88c61f575ce17a50601",
+      "contentDigest": "35d6f6064654e02239eb25600f6ad01fe02dc730763fc78b49db32d0a90c05d6",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -4408,6 +4415,172 @@
       }
     },
     {
+      "id": "cratis-components-accessibility",
+      "kind": "skill",
+      "semanticIdentity": "cratis-components-accessibility",
+      "semanticName": "cratis-components-accessibility",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-components-accessibility",
+      "canonicalSources": [
+        {
+          "path": "skills/cratis-components-accessibility",
+          "digest": "80ee4aac86ec7325874ffe24c85abc03db13982c8b28bf4f5c5712056e1e1c54",
+          "ownership": "owner",
+          "ownerComponentId": "cratis-components-accessibility"
+        }
+      ],
+      "contentDigest": "86e9de00ecbedc95c1a9c0cdfdf9fa9fb8de21f21e2bf2c107d672fd0e7d5cef",
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "classification": {
+        "artifactClass": "passive-content",
+        "trust": "passive",
+        "passive": true,
+        "executable": false,
+        "effect": "guided-write"
+      },
+      "dependencies": [
+        "cratis-arc-react-page"
+      ],
+      "hostNeutralPurpose": "Cratis Components accessibility",
+      "approval": {
+        "state": "modeled",
+        "evidenceIds": [
+          "reevaluation-authority",
+          "repo-main-b795d53"
+        ]
+      },
+      "releaseBoundary": "public-passive",
+      "allowedProjections": [
+        {
+          "hostContract": "any-passive-host",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "passive-private-fixture",
+            "passive-public-package",
+            "provider-compatibility"
+          ]
+        },
+        {
+          "hostContract": "portable-agent-plugins-1-0",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "passive-public-package"
+          ]
+        }
+      ],
+      "forbiddenProjections": [
+        "agent",
+        "subagent",
+        "command",
+        "prompt",
+        "rule",
+        "instruction",
+        "hook",
+        "mcp",
+        "lsp",
+        "executable-host-extension",
+        "static-asset"
+      ],
+      "requiredCanaries": [
+        "projection-shape",
+        "semantic-identity",
+        "source-digest"
+      ],
+      "securityRequirements": {
+        "threatModel": false,
+        "securityReview": false,
+        "executableAssuranceProfile": false
+      }
+    },
+    {
+      "id": "cratis-components-schema-editor",
+      "kind": "skill",
+      "semanticIdentity": "cratis-components-schema-editor",
+      "semanticName": "cratis-components-schema-editor",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-components-schema-editor",
+      "canonicalSources": [
+        {
+          "path": "skills/cratis-components-schema-editor",
+          "digest": "4d46279f50070afcad1e94b7e978bbcf569500ec289ed7b6b74117239b083571",
+          "ownership": "owner",
+          "ownerComponentId": "cratis-components-schema-editor"
+        }
+      ],
+      "contentDigest": "e6c982783006f659be5f7e0ffcf8195e199b485e55a18262ad75aee618ae6e74",
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "classification": {
+        "artifactClass": "passive-content",
+        "trust": "passive",
+        "passive": true,
+        "executable": false,
+        "effect": "guided-write"
+      },
+      "dependencies": [
+        "cratis-arc-react-page"
+      ],
+      "hostNeutralPurpose": "Cratis Components schema editors",
+      "approval": {
+        "state": "modeled",
+        "evidenceIds": [
+          "reevaluation-authority",
+          "repo-main-b795d53"
+        ]
+      },
+      "releaseBoundary": "public-passive",
+      "allowedProjections": [
+        {
+          "hostContract": "any-passive-host",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "passive-private-fixture",
+            "passive-public-package",
+            "provider-compatibility"
+          ]
+        },
+        {
+          "hostContract": "portable-agent-plugins-1-0",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "passive-public-package"
+          ]
+        }
+      ],
+      "forbiddenProjections": [
+        "agent",
+        "subagent",
+        "command",
+        "prompt",
+        "rule",
+        "instruction",
+        "hook",
+        "mcp",
+        "lsp",
+        "executable-host-extension",
+        "static-asset"
+      ],
+      "requiredCanaries": [
+        "projection-shape",
+        "semantic-identity",
+        "source-digest"
+      ],
+      "securityRequirements": {
+        "threatModel": false,
+        "securityReview": false,
+        "executableAssuranceProfile": false
+      }
+    },
+    {
       "id": "cratis-components-stepper-command-dialog",
       "kind": "skill",
       "semanticIdentity": "cratis-components-stepper-command-dialog",
@@ -4416,13 +4589,13 @@
       "distributionTargetId": "cratis-components-stepper-command-dialog",
       "canonicalSources": [
         {
-          "path": ".ai/skills/stepper-command-dialog",
-          "digest": "a8505de6a7c4e943cc884581e6b3a3db39551299c22c8dfbea65810f081f3c4f",
+          "path": "skills/cratis-components-stepper-command-dialog",
+          "digest": "a2a9f88f52f3a31754149ada8dad5f03af65dfb743e90f5a9f560f4be2fd6941",
           "ownership": "owner",
           "ownerComponentId": "cratis-components-stepper-command-dialog"
         }
       ],
-      "contentDigest": "4f00aa91a732a1a37695546e80b503bbae57c6e04011f80ebba9577baf6c9f98",
+      "contentDigest": "aafdbee672553eadfca5089440611721b94954040f0f9a30af3d7a5b5f80b7ee",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -4492,6 +4665,89 @@
       }
     },
     {
+      "id": "cratis-components-styling",
+      "kind": "skill",
+      "semanticIdentity": "cratis-components-styling",
+      "semanticName": "cratis-components-styling",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-components-styling",
+      "canonicalSources": [
+        {
+          "path": "skills/cratis-components-styling",
+          "digest": "fa632eea001a1f23f629b40e9afe1f2f6d284e906f5188066be01d80f7440d0d",
+          "ownership": "owner",
+          "ownerComponentId": "cratis-components-styling"
+        }
+      ],
+      "contentDigest": "05998f2af4cb66cc7f42cd0bda7297e9179014e90e278128fc735e4317997517",
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "classification": {
+        "artifactClass": "passive-content",
+        "trust": "passive",
+        "passive": true,
+        "executable": false,
+        "effect": "guided-write"
+      },
+      "dependencies": [
+        "cratis-arc-react-page"
+      ],
+      "hostNeutralPurpose": "Cratis Components styling and theming",
+      "approval": {
+        "state": "modeled",
+        "evidenceIds": [
+          "reevaluation-authority",
+          "repo-main-b795d53"
+        ]
+      },
+      "releaseBoundary": "public-passive",
+      "allowedProjections": [
+        {
+          "hostContract": "any-passive-host",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "passive-private-fixture",
+            "passive-public-package",
+            "provider-compatibility"
+          ]
+        },
+        {
+          "hostContract": "portable-agent-plugins-1-0",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "passive-public-package"
+          ]
+        }
+      ],
+      "forbiddenProjections": [
+        "agent",
+        "subagent",
+        "command",
+        "prompt",
+        "rule",
+        "instruction",
+        "hook",
+        "mcp",
+        "lsp",
+        "executable-host-extension",
+        "static-asset"
+      ],
+      "requiredCanaries": [
+        "projection-shape",
+        "semantic-identity",
+        "source-digest"
+      ],
+      "securityRequirements": {
+        "threatModel": false,
+        "securityReview": false,
+        "executableAssuranceProfile": false
+      }
+    },
+    {
       "id": "cratis-components-toolbar",
       "kind": "skill",
       "semanticIdentity": "cratis-components-toolbar",
@@ -4500,13 +4756,13 @@
       "distributionTargetId": "cratis-components-toolbar",
       "canonicalSources": [
         {
-          "path": ".ai/skills/toolbar",
-          "digest": "ff3a7bcd3e72d2e500034095b98d7ab79c2fcbdc5cf1d015574f133d90276d57",
+          "path": "skills/cratis-components-toolbar",
+          "digest": "ea6cf928a2a658a9f033d220d1f5a27465126aa8835282476d6b45e8cad5e74e",
           "ownership": "owner",
           "ownerComponentId": "cratis-components-toolbar"
         }
       ],
-      "contentDigest": "710975220005c770d78ed65a3a1b0b525103597c752bba51acaf4b2d5e969b45",
+      "contentDigest": "abfd7ff161cd3dacc50bb0950f1a875bf3fd9a459b10f6a5c91cdb1c5c541e97",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -5693,6 +5949,79 @@
       }
     },
     {
+      "id": "cratis-legacy-cratis-react-page",
+      "kind": "skill",
+      "semanticIdentity": "cratis-legacy-cratis-react-page",
+      "semanticName": "Legacy cratis-react-page host skill",
+      "lifecycle": "legacy-retained",
+      "distributionTargetId": null,
+      "canonicalSources": [
+        {
+          "path": ".ai/skills/cratis-react-page",
+          "digest": "4517c0c7240d884407b994c6a4e41ddfeb08c0c0133ccac3ced03657a6eb3084",
+          "ownership": "owner",
+          "ownerComponentId": "cratis-legacy-cratis-react-page"
+        }
+      ],
+      "contentDigest": "104bb10153a8c6f422ea5a05aeb3fca2a11c6327ba60e88c61f575ce17a50601",
+      "owner": "reusable Cratis engineering behavior",
+      "audience": "cratis-engineering",
+      "classification": {
+        "artifactClass": "passive-content",
+        "trust": "passive",
+        "passive": true,
+        "executable": false,
+        "effect": "guided-write"
+      },
+      "dependencies": [
+        "cratis-arc-react-page"
+      ],
+      "hostNeutralPurpose": "Retained repository-local Arc React page guidance",
+      "approval": {
+        "state": "modeled",
+        "evidenceIds": [
+          "reevaluation-authority",
+          "repo-main-b795d53"
+        ]
+      },
+      "releaseBoundary": "repository-only",
+      "allowedProjections": [
+        {
+          "hostContract": "any-passive-host",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "provider-compatibility"
+          ]
+        }
+      ],
+      "forbiddenProjections": [
+        "agent",
+        "subagent",
+        "command",
+        "prompt",
+        "rule",
+        "instruction",
+        "hook",
+        "mcp",
+        "lsp",
+        "executable-host-extension",
+        "static-asset"
+      ],
+      "requiredCanaries": [
+        "host-discovery",
+        "projection-shape",
+        "semantic-identity",
+        "source-digest"
+      ],
+      "securityRequirements": {
+        "threatModel": false,
+        "securityReview": false,
+        "executableAssuranceProfile": false
+      }
+    },
+    {
       "id": "cratis-legacy-edit-cratis-docs",
       "kind": "skill",
       "semanticIdentity": "cratis-legacy-edit-cratis-docs",
@@ -5766,6 +6095,152 @@
       }
     },
     {
+      "id": "cratis-legacy-stepper-command-dialog",
+      "kind": "skill",
+      "semanticIdentity": "cratis-legacy-stepper-command-dialog",
+      "semanticName": "Legacy stepper-command-dialog host skill",
+      "lifecycle": "legacy-retained",
+      "distributionTargetId": null,
+      "canonicalSources": [
+        {
+          "path": ".ai/skills/stepper-command-dialog",
+          "digest": "a8505de6a7c4e943cc884581e6b3a3db39551299c22c8dfbea65810f081f3c4f",
+          "ownership": "owner",
+          "ownerComponentId": "cratis-legacy-stepper-command-dialog"
+        }
+      ],
+      "contentDigest": "4f00aa91a732a1a37695546e80b503bbae57c6e04011f80ebba9577baf6c9f98",
+      "owner": "reusable Cratis engineering behavior",
+      "audience": "cratis-engineering",
+      "classification": {
+        "artifactClass": "passive-content",
+        "trust": "passive",
+        "passive": true,
+        "executable": false,
+        "effect": "guided-write"
+      },
+      "dependencies": [
+        "cratis-components-stepper-command-dialog"
+      ],
+      "hostNeutralPurpose": "Retained repository-local stepper command dialog guidance",
+      "approval": {
+        "state": "modeled",
+        "evidenceIds": [
+          "reevaluation-authority",
+          "repo-main-b795d53"
+        ]
+      },
+      "releaseBoundary": "repository-only",
+      "allowedProjections": [
+        {
+          "hostContract": "any-passive-host",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "provider-compatibility"
+          ]
+        }
+      ],
+      "forbiddenProjections": [
+        "agent",
+        "subagent",
+        "command",
+        "prompt",
+        "rule",
+        "instruction",
+        "hook",
+        "mcp",
+        "lsp",
+        "executable-host-extension",
+        "static-asset"
+      ],
+      "requiredCanaries": [
+        "host-discovery",
+        "projection-shape",
+        "semantic-identity",
+        "source-digest"
+      ],
+      "securityRequirements": {
+        "threatModel": false,
+        "securityReview": false,
+        "executableAssuranceProfile": false
+      }
+    },
+    {
+      "id": "cratis-legacy-toolbar",
+      "kind": "skill",
+      "semanticIdentity": "cratis-legacy-toolbar",
+      "semanticName": "Legacy toolbar host skill",
+      "lifecycle": "legacy-retained",
+      "distributionTargetId": null,
+      "canonicalSources": [
+        {
+          "path": ".ai/skills/toolbar",
+          "digest": "ff3a7bcd3e72d2e500034095b98d7ab79c2fcbdc5cf1d015574f133d90276d57",
+          "ownership": "owner",
+          "ownerComponentId": "cratis-legacy-toolbar"
+        }
+      ],
+      "contentDigest": "710975220005c770d78ed65a3a1b0b525103597c752bba51acaf4b2d5e969b45",
+      "owner": "reusable Cratis engineering behavior",
+      "audience": "cratis-engineering",
+      "classification": {
+        "artifactClass": "passive-content",
+        "trust": "passive",
+        "passive": true,
+        "executable": false,
+        "effect": "guided-write"
+      },
+      "dependencies": [
+        "cratis-components-toolbar"
+      ],
+      "hostNeutralPurpose": "Retained repository-local toolbar guidance",
+      "approval": {
+        "state": "modeled",
+        "evidenceIds": [
+          "reevaluation-authority",
+          "repo-main-b795d53"
+        ]
+      },
+      "releaseBoundary": "repository-only",
+      "allowedProjections": [
+        {
+          "hostContract": "any-passive-host",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "provider-compatibility"
+          ]
+        }
+      ],
+      "forbiddenProjections": [
+        "agent",
+        "subagent",
+        "command",
+        "prompt",
+        "rule",
+        "instruction",
+        "hook",
+        "mcp",
+        "lsp",
+        "executable-host-extension",
+        "static-asset"
+      ],
+      "requiredCanaries": [
+        "host-discovery",
+        "projection-shape",
+        "semantic-identity",
+        "source-digest"
+      ],
+      "securityRequirements": {
+        "threatModel": false,
+        "securityReview": false,
+        "executableAssuranceProfile": false
+      }
+    },
+    {
       "id": "cratis-legacy-write-documentation",
       "kind": "skill",
       "semanticIdentity": "cratis-legacy-write-documentation",
@@ -5794,6 +6269,79 @@
         "cratis-engineering-docs-authoring"
       ],
       "hostNeutralPurpose": "Retained repository-local documentation authoring guidance",
+      "approval": {
+        "state": "modeled",
+        "evidenceIds": [
+          "reevaluation-authority",
+          "repo-main-b795d53"
+        ]
+      },
+      "releaseBoundary": "repository-only",
+      "allowedProjections": [
+        {
+          "hostContract": "any-passive-host",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "provider-compatibility"
+          ]
+        }
+      ],
+      "forbiddenProjections": [
+        "agent",
+        "subagent",
+        "command",
+        "prompt",
+        "rule",
+        "instruction",
+        "hook",
+        "mcp",
+        "lsp",
+        "executable-host-extension",
+        "static-asset"
+      ],
+      "requiredCanaries": [
+        "host-discovery",
+        "projection-shape",
+        "semantic-identity",
+        "source-digest"
+      ],
+      "securityRequirements": {
+        "threatModel": false,
+        "securityReview": false,
+        "executableAssuranceProfile": false
+      }
+    },
+    {
+      "id": "cratis-legacy-write-specs-frontend",
+      "kind": "skill",
+      "semanticIdentity": "cratis-legacy-write-specs-frontend",
+      "semanticName": "Legacy write-specs-frontend host skill",
+      "lifecycle": "legacy-retained",
+      "distributionTargetId": null,
+      "canonicalSources": [
+        {
+          "path": ".ai/skills/write-specs-frontend",
+          "digest": "617460c80872e4f134fbb5c6feccc81e0a3215837283202d77753a1dd73a475a",
+          "ownership": "owner",
+          "ownerComponentId": "cratis-legacy-write-specs-frontend"
+        }
+      ],
+      "contentDigest": "b82dd7cc47fdb11d363881bc43a1a1f3ce83b3084a4f3548adb762e4ad44bb34",
+      "owner": "reusable Cratis engineering behavior",
+      "audience": "cratis-engineering",
+      "classification": {
+        "artifactClass": "passive-content",
+        "trust": "passive",
+        "passive": true,
+        "executable": false,
+        "effect": "guided-write"
+      },
+      "dependencies": [
+        "cratis-application-react-specifications"
+      ],
+      "hostNeutralPurpose": "Retained repository-local frontend specification guidance",
       "approval": {
         "state": "modeled",
         "evidenceIds": [

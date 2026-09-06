@@ -24,8 +24,8 @@
   },
   "audit": {
     "verifiedOn": "2026-08-20",
-    "currentInventoryCount": 45,
-    "publicCandidateCount": 37,
+    "currentInventoryCount": 48,
+    "publicCandidateCount": 40,
     "internalSkillCount": 8,
     "internalSkills": [
       {
@@ -305,6 +305,87 @@
       },
       "reviewNotes": [
         "Distinguish backend pipeline execution from defining an Arc command."
+      ]
+    },
+    {
+      "currentName": "cratis-components-accessibility",
+      "source": "skills/cratis-components-accessibility",
+      "proposedName": "cratis-components-accessibility",
+      "disposition": "retain",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "components"
+      ],
+      "languages": [
+        "react",
+        "typescript"
+      ],
+      "dependencies": {
+        "skills": [
+          "cratis-react-page"
+        ],
+        "internalArtifacts": [],
+        "externalTools": [
+          "node"
+        ]
+      },
+      "reviewNotes": [
+        "Authored from Cratis Components source. Scope is deliberately the conventions the library implements; it makes no WCAG conformance claim and records that no accessibility lint, scan, or gate exists."
+      ]
+    },
+    {
+      "currentName": "cratis-components-schema-editor",
+      "source": "skills/cratis-components-schema-editor",
+      "proposedName": "cratis-components-schema-editor",
+      "disposition": "retain",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "components"
+      ],
+      "languages": [
+        "react",
+        "typescript"
+      ],
+      "dependencies": {
+        "skills": [
+          "cratis-react-page"
+        ],
+        "internalArtifacts": [],
+        "externalTools": [
+          "node"
+        ]
+      },
+      "reviewNotes": [
+        "Authored from Cratis Components source. Records the editors' real limits, including the unresolved schema references and the root-only object editing."
+      ]
+    },
+    {
+      "currentName": "cratis-components-styling",
+      "source": "skills/cratis-components-styling",
+      "proposedName": "cratis-components-styling",
+      "disposition": "retain",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "components"
+      ],
+      "languages": [
+        "react",
+        "typescript"
+      ],
+      "dependencies": {
+        "skills": [
+          "cratis-react-page"
+        ],
+        "internalArtifacts": [],
+        "externalTools": [
+          "node"
+        ]
+      },
+      "reviewNotes": [
+        "Authored from Cratis Components source. Confirm the token vocabulary and the styled-mode contract against each Components major before publication."
       ]
     },
     {

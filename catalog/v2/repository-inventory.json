@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "aff5c44e10dede9a2ba1b32b49b9b432861ce43cbf324f933ed25fdf5c3e592e",
+  "indexDigest": "c05a9ca5930307f2f38a5b34c5a96210258bc7c77205e619c618067d1de93825",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -2671,6 +2671,42 @@
       "status": "added"
     },
     {
+      "path": "skills/cratis-application-react-specifications/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-application-react-specifications/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-react-page/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-react-page/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-react-page/references/data-page.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-react-page/references/data-tables.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-react-page/references/dialogs.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-react-page/references/mvvm.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-react-page/references/queries-and-commands.md",
+      "status": "added"
+    },
+    {
       "path": "skills/cratis-chronicle-mcp-inspection/LICENSE",
       "status": "added"
     },
@@ -2684,6 +2720,46 @@
     },
     {
       "path": "skills/cratis-chronicle-mcp-inspection/references/observational-tools.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-components-accessibility/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-components-accessibility/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-components-schema-editor/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-components-schema-editor/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-components-stepper-command-dialog/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-components-stepper-command-dialog/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-components-styling/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-components-styling/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-components-toolbar/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-components-toolbar/SKILL.md",
       "status": "added"
     },
     {
@@ -3726,7 +3802,10 @@
         ".ai/skills/call-command-from-code/**",
         "skills/cratis-chronicle-mcp-inspection/**",
         ".ai/skills/cratis-command/**",
-        ".ai/skills/cratis-react-page/**",
+        "skills/cratis-components-accessibility/**",
+        "skills/cratis-components-schema-editor/**",
+        "skills/cratis-components-styling/**",
+        "skills/cratis-arc-react-page/**",
         ".ai/skills/cratis-readmodel/**",
         ".ai/skills/cratis-specs-csharp/**",
         ".ai/skills/cratis-specs-typescript/**",
@@ -3747,13 +3826,17 @@
         ".ai/skills/review-performance/**",
         ".ai/skills/review-security/**",
         ".ai/skills/scaffold-feature/**",
-        ".ai/skills/stepper-command-dialog/**",
-        ".ai/skills/toolbar/**",
+        "skills/cratis-components-stepper-command-dialog/**",
+        "skills/cratis-components-toolbar/**",
         ".ai/skills/write-specs/**",
         ".ai/skills/write-specs-events/**",
-        ".ai/skills/write-specs-frontend/**",
+        "skills/cratis-application-react-specifications/**",
         ".ai/skills/write-specs-readmodels/**",
         ".ai/skills/add-concept/**",
+        ".ai/skills/cratis-react-page/**",
+        ".ai/skills/stepper-command-dialog/**",
+        ".ai/skills/toolbar/**",
+        ".ai/skills/write-specs-frontend/**",
         "skills/**"
       ],
       "artifactType": "skill-source-and-resources",
@@ -3772,8 +3855,8 @@
         "workflows-68",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 68,
-      "expectedPathsDigest": "10b4b75a7848dc8b47f553b6f0158fdf8ac2ce6e57b2db3228e5fd8bbf97a73f"
+      "expectedPathCount": 87,
+      "expectedPathsDigest": "c22c4760ab3f3c0073a0eabe1c0f6a390a4af8cf54293a493e52c0b351c32774"
     },
     {
       "excludePathPatterns": [],

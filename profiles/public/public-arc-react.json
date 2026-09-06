@@ -9,9 +9,13 @@
     "react",
     "typescript"
   ],
-  "state": "planned-source-migration",
+  "state": "preview-source-candidate",
   "composes": [
     "public-arc"
   ],
-  "gapSummary": "Page, observable query, paging, generated proxy, MVVM, lifecycle, and error-handling guidance require canonical sources."
+  "availableTargets": [
+    "cratis-application-react-specifications",
+    "cratis-arc-react-page"
+  ],
+  "gapSummary": "Page composition, generated proxy hooks, observable queries, paging, MVVM, and frontend specifications are covered; dedicated identity and error-boundary guidance remain gaps."
 }

@@ -7,7 +7,7 @@ the right package and understand its skills. It is not source authority
 and does not make a planned package installable.
 
 - Profiles: 60
-- Capabilities: 45
+- Capabilities: 48
 - Installable profiles: 0
 - Ecosystem bindings with support claims: 0
 
@@ -15,10 +15,10 @@ and does not make a planned package installable.
 
 Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.
 
-- Components: 137
-- Passive: 134
+- Components: 144
+- Passive: 141
 - Executable: 3
-- Legacy-retained: 4
+- Legacy-retained: 8
 - Existing adapter records: 316
 - Generated static fixture projections: 70
 - Active host projections: 313
@@ -30,7 +30,7 @@ Modeled or planned components and projections are catalog metadata only; they ar
 
 ### Components by kind
 
-- skill: 49
+- skill: 56
 - agent: 12
 - subagent: 0
 - command: 18
@@ -138,6 +138,13 @@ The namespaced suite for building a full Cratis application with Arc, Chronicle,
 
 #### Included capabilities
 
+- cratis-application-react-specifications
+- cratis-arc-react-page
+- cratis-components-accessibility
+- cratis-components-schema-editor
+- cratis-components-stepper-command-dialog
+- cratis-components-styling
+- cratis-components-toolbar
 - cratis-fundamentals-concept
 
 #### Composed profiles
@@ -218,6 +225,13 @@ Every public Cratis suite in one selection, including the Screenplay to Stage mo
 
 #### Included capabilities
 
+- cratis-application-react-specifications
+- cratis-arc-react-page
+- cratis-components-accessibility
+- cratis-components-schema-editor
+- cratis-components-stepper-command-dialog
+- cratis-components-styling
+- cratis-components-toolbar
 - cratis-fundamentals-concept
 
 #### Composed profiles
@@ -246,6 +260,13 @@ End-to-end guidance for building Cratis applications with Arc, Chronicle, React,
 
 #### Included capabilities
 
+- cratis-application-react-specifications
+- cratis-arc-react-page
+- cratis-components-accessibility
+- cratis-components-schema-editor
+- cratis-components-stepper-command-dialog
+- cratis-components-styling
+- cratis-components-toolbar
 - cratis-fundamentals-concept
 
 #### Composed profiles
@@ -360,6 +381,13 @@ Combined AI guidance for developers using Cratis Fundamentals, Cratis Arc, Crati
 
 #### Included capabilities
 
+- cratis-application-react-specifications
+- cratis-arc-react-page
+- cratis-components-accessibility
+- cratis-components-schema-editor
+- cratis-components-stepper-command-dialog
+- cratis-components-styling
+- cratis-components-toolbar
 - cratis-fundamentals-concept
 
 #### Composed profiles
@@ -451,9 +479,9 @@ AI guidance for developers building with Cratis Arc.
 - **Profile ID:** `public-arc-react`
 - **Audience:** public
 - **Package:** `@cratis/ai-arc-react`
-- **State:** planned-source-migration
+- **State:** preview-source-candidate
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** candidate-package
 
 AI guidance for developers building with Cratis Arc React.
 
@@ -465,7 +493,8 @@ AI guidance for developers building with Cratis Arc React.
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-application-react-specifications
+- cratis-arc-react-page
 
 #### Composed profiles
 
@@ -751,9 +780,9 @@ AI guidance for developers building with Cratis Chronicle.
 - **Profile ID:** `public-components`
 - **Audience:** public
 - **Package:** `@cratis/ai-components`
-- **State:** planned-source-migration
+- **State:** preview-source-candidate
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** candidate-package
 
 AI guidance for developers building with Cratis Components.
 
@@ -765,7 +794,11 @@ AI guidance for developers building with Cratis Components.
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-components-accessibility
+- cratis-components-schema-editor
+- cratis-components-stepper-command-dialog
+- cratis-components-styling
+- cratis-components-toolbar
 
 #### Composed profiles
 
@@ -1716,7 +1749,11 @@ Use for React or TypeScript behavior in a Cratis application slice.
 
 #### Profile membership — cratis-application-react-specifications
 
-- None
+- cratis/application
+- cratis/full
+- public-application
+- public-application-react
+- public-arc-react
 
 ### cratis-application-slice-diagnostics
 
@@ -2500,7 +2537,11 @@ Use when building a DataPage or MVVM React page backed by generated Arc queries.
 
 #### Profile membership — cratis-arc-react-page
 
-- None
+- cratis/application
+- cratis/full
+- public-application
+- public-application-react
+- public-arc-react
 
 ### cratis-chronicle-cli-operations
 
@@ -3407,6 +3448,142 @@ Use for a general correctness and maintainability review of Cratis code.
 
 - None
 
+### cratis-components-accessibility
+
+- **ID:** `cratis-components-accessibility`
+- **Audience:** public
+- **Lifecycle:** candidate
+- **Approval:** candidate
+- **Runtime eligible:** no
+
+#### Purpose — cratis-components-accessibility
+
+Cratis Components accessibility
+
+#### When to use — cratis-components-accessibility
+
+Use when setting dialog initial focus, supplying accessible names, or correcting invalid ARIA in a Cratis frontend.
+
+#### When not to use — cratis-components-accessibility
+
+- Do not use as a general WCAG conformance guide.
+- Do not use for visual theming.
+
+#### Invocation — cratis-components-accessibility
+
+- Capability kind: unclassified
+- Invocation: unclassified
+
+#### Applicability — cratis-components-accessibility
+
+- Products: components
+- Languages: react, typescript
+- Architectures: Unclassified — Architecture requires reviewed target classification.
+- Personas: Unclassified — Persona requires reviewed target classification.
+- Surfaces: Unclassified — Surface requires reviewed target classification.
+- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+
+#### Dependencies — cratis-components-accessibility
+
+- Unclassified
+
+#### Trust and effects — cratis-components-accessibility
+
+- Trust class: passive
+- Assessment: unclassified
+- No assessed effects
+
+#### Evidence and support — cratis-components-accessibility
+
+- Authoring contract unclassified
+- Evidence: reevaluation-authority
+- Evidence: repo-main-b795d53
+
+#### Related capabilities — cratis-components-accessibility
+
+- cratis-arc-react-page
+- cratis-components-styling
+
+#### Bundle membership — cratis-components-accessibility
+
+- None
+
+#### Profile membership — cratis-components-accessibility
+
+- cratis/application
+- cratis/full
+- public-application
+- public-application-react
+- public-components
+
+### cratis-components-schema-editor
+
+- **ID:** `cratis-components-schema-editor`
+- **Audience:** public
+- **Lifecycle:** candidate
+- **Approval:** candidate
+- **Runtime eligible:** no
+
+#### Purpose — cratis-components-schema-editor
+
+Cratis Components schema editors
+
+#### When to use — cratis-components-schema-editor
+
+Use when a UI edits a JSON schema's shape or edits an object instance against a schema.
+
+#### When not to use — cratis-components-schema-editor
+
+- Do not use for Chronicle event type migration.
+- Do not use for a form bound to a generated Arc command.
+
+#### Invocation — cratis-components-schema-editor
+
+- Capability kind: unclassified
+- Invocation: unclassified
+
+#### Applicability — cratis-components-schema-editor
+
+- Products: components
+- Languages: react, typescript
+- Architectures: Unclassified — Architecture requires reviewed target classification.
+- Personas: Unclassified — Persona requires reviewed target classification.
+- Surfaces: Unclassified — Surface requires reviewed target classification.
+- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+
+#### Dependencies — cratis-components-schema-editor
+
+- Unclassified
+
+#### Trust and effects — cratis-components-schema-editor
+
+- Trust class: passive
+- Assessment: unclassified
+- No assessed effects
+
+#### Evidence and support — cratis-components-schema-editor
+
+- Authoring contract unclassified
+- Evidence: reevaluation-authority
+- Evidence: repo-main-b795d53
+
+#### Related capabilities — cratis-components-schema-editor
+
+- cratis-arc-react-page
+- cratis-chronicle-event-type-migration
+
+#### Bundle membership — cratis-components-schema-editor
+
+- None
+
+#### Profile membership — cratis-components-schema-editor
+
+- cratis/application
+- cratis/full
+- public-application
+- public-application-react
+- public-components
+
 ### cratis-components-stepper-command-dialog
 
 - **ID:** `cratis-components-stepper-command-dialog`
@@ -3469,7 +3646,79 @@ Use when a command requires a multi-step wizard dialog.
 
 #### Profile membership — cratis-components-stepper-command-dialog
 
+- cratis/application
+- cratis/full
+- public-application
+- public-application-react
+- public-components
+
+### cratis-components-styling
+
+- **ID:** `cratis-components-styling`
+- **Audience:** public
+- **Lifecycle:** candidate
+- **Approval:** candidate
+- **Runtime eligible:** no
+
+#### Purpose — cratis-components-styling
+
+Cratis Components styling and theming
+
+#### When to use — cratis-components-styling
+
+Use when setting up stylesheets, tokens, themes, dark mode, or PrimeReact pass-through for a Cratis frontend.
+
+#### When not to use — cratis-components-styling
+
+- Do not use for accessible naming.
+- Do not use for component API or page composition questions.
+
+#### Invocation — cratis-components-styling
+
+- Capability kind: unclassified
+- Invocation: unclassified
+
+#### Applicability — cratis-components-styling
+
+- Products: components
+- Languages: react, typescript
+- Architectures: Unclassified — Architecture requires reviewed target classification.
+- Personas: Unclassified — Persona requires reviewed target classification.
+- Surfaces: Unclassified — Surface requires reviewed target classification.
+- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+
+#### Dependencies — cratis-components-styling
+
+- Unclassified
+
+#### Trust and effects — cratis-components-styling
+
+- Trust class: passive
+- Assessment: unclassified
+- No assessed effects
+
+#### Evidence and support — cratis-components-styling
+
+- Authoring contract unclassified
+- Evidence: reevaluation-authority
+- Evidence: repo-main-b795d53
+
+#### Related capabilities — cratis-components-styling
+
+- cratis-arc-react-page
+- cratis-components-accessibility
+
+#### Bundle membership — cratis-components-styling
+
 - None
+
+#### Profile membership — cratis-components-styling
+
+- cratis/application
+- cratis/full
+- public-application
+- public-application-react
+- public-components
 
 ### cratis-components-toolbar
 
@@ -3531,7 +3780,11 @@ Use when building a canvas-style icon toolbar with active tools or fan-out contr
 
 #### Profile membership — cratis-components-toolbar
 
-- None
+- cratis/application
+- cratis/full
+- public-application
+- public-application-react
+- public-components
 
 ### cratis-event-model-diagram
 

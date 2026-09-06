@@ -2,12 +2,12 @@
   "schemaVersion": 2,
   "contractVersion": 1,
   "disclaimer": "Catalog inclusion, evaluation evidence, component modeling, planned projection, bundle generation, or publication does not grant runtime permission, emitted bytes, support, or approval.",
-  "inputDigest": "1b8b3f9251401bf01d6810c689c9b9a83c329a6c4058fee552d05300ded45666",
+  "inputDigest": "e874515c7b6a49eb661c47a85394e0d1d5b20bc402fff6ef82d232fbc5ad6d0e",
   "componentSummary": {
     "disclaimer": "Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.",
-    "total": 137,
+    "total": 144,
     "byKind": {
-      "skill": 49,
+      "skill": 56,
       "agent": 12,
       "subagent": 0,
       "command": 18,
@@ -21,17 +21,17 @@
       "static-asset": 0
     },
     "byTrust": {
-      "passive": 134,
+      "passive": 141,
       "executable": 3
     },
     "byAudience": {
-      "public": 37,
-      "cratis-engineering": 100,
+      "public": 40,
+      "cratis-engineering": 104,
       "repository-only": 0
     },
     "byLifecycle": {
-      "active": 133,
-      "legacy-retained": 4
+      "active": 136,
+      "legacy-retained": 8
     },
     "projections": {
       "total": 386,
@@ -110,6 +110,13 @@
       ],
       "directTargetIds": [],
       "targetIds": [
+        "cratis-application-react-specifications",
+        "cratis-arc-react-page",
+        "cratis-components-accessibility",
+        "cratis-components-schema-editor",
+        "cratis-components-stepper-command-dialog",
+        "cratis-components-styling",
+        "cratis-components-toolbar",
         "cratis-fundamentals-concept"
       ]
     },
@@ -207,6 +214,13 @@
       ],
       "directTargetIds": [],
       "targetIds": [
+        "cratis-application-react-specifications",
+        "cratis-arc-react-page",
+        "cratis-components-accessibility",
+        "cratis-components-schema-editor",
+        "cratis-components-stepper-command-dialog",
+        "cratis-components-styling",
+        "cratis-components-toolbar",
         "cratis-fundamentals-concept"
       ]
     },
@@ -244,6 +258,13 @@
       ],
       "directTargetIds": [],
       "targetIds": [
+        "cratis-application-react-specifications",
+        "cratis-arc-react-page",
+        "cratis-components-accessibility",
+        "cratis-components-schema-editor",
+        "cratis-components-stepper-command-dialog",
+        "cratis-components-styling",
+        "cratis-components-toolbar",
         "cratis-fundamentals-concept"
       ]
     },
@@ -366,6 +387,13 @@
       ],
       "directTargetIds": [],
       "targetIds": [
+        "cratis-application-react-specifications",
+        "cratis-arc-react-page",
+        "cratis-components-accessibility",
+        "cratis-components-schema-editor",
+        "cratis-components-stepper-command-dialog",
+        "cratis-components-styling",
+        "cratis-components-toolbar",
         "cratis-fundamentals-concept"
       ]
     },
@@ -446,9 +474,9 @@
       "intendedFor": "Developers who use Cratis Arc React.",
       "audience": "public",
       "packageName": "@cratis/ai-arc-react",
-      "state": "planned-source-migration",
+      "state": "preview-source-candidate",
       "installable": false,
-      "materialization": "catalog-only",
+      "materialization": "candidate-package",
       "products": [
         "arc-react"
       ],
@@ -460,8 +488,14 @@
       "composes": [
         "public-arc"
       ],
-      "directTargetIds": [],
-      "targetIds": []
+      "directTargetIds": [
+        "cratis-application-react-specifications",
+        "cratis-arc-react-page"
+      ],
+      "targetIds": [
+        "cratis-application-react-specifications",
+        "cratis-arc-react-page"
+      ]
     },
     {
       "id": "public-chronicle",
@@ -714,9 +748,9 @@
       "intendedFor": "Developers who use Cratis Components.",
       "audience": "public",
       "packageName": "@cratis/ai-components",
-      "state": "planned-source-migration",
+      "state": "preview-source-candidate",
       "installable": false,
-      "materialization": "catalog-only",
+      "materialization": "candidate-package",
       "products": [
         "components"
       ],
@@ -726,8 +760,20 @@
       ],
       "repositoryKinds": [],
       "composes": [],
-      "directTargetIds": [],
-      "targetIds": []
+      "directTargetIds": [
+        "cratis-components-accessibility",
+        "cratis-components-schema-editor",
+        "cratis-components-stepper-command-dialog",
+        "cratis-components-styling",
+        "cratis-components-toolbar"
+      ],
+      "targetIds": [
+        "cratis-components-accessibility",
+        "cratis-components-schema-editor",
+        "cratis-components-stepper-command-dialog",
+        "cratis-components-styling",
+        "cratis-components-toolbar"
+      ]
     },
     {
       "id": "public-cratis-cli",
@@ -1605,7 +1651,13 @@
       "bundleIds": [
         "cratis-application-full-stack-review"
       ],
-      "profileIds": []
+      "profileIds": [
+        "cratis/application",
+        "cratis/full",
+        "public-application",
+        "public-application-react",
+        "public-arc-react"
+      ]
     },
     {
       "id": "cratis-application-slice-diagnostics",
@@ -2373,7 +2425,13 @@
       "bundleIds": [
         "cratis-application-full-stack-review"
       ],
-      "profileIds": []
+      "profileIds": [
+        "cratis/application",
+        "cratis/full",
+        "public-application",
+        "public-application-react",
+        "public-arc-react"
+      ]
     },
     {
       "id": "cratis-chronicle-cli-operations",
@@ -3248,6 +3306,138 @@
       "profileIds": []
     },
     {
+      "id": "cratis-components-accessibility",
+      "semanticName": "cratis-components-accessibility",
+      "audience": "public",
+      "purpose": "Cratis Components accessibility",
+      "whenToUse": "Use when setting dialog initial focus, supplying accessible names, or correcting invalid ARIA in a Cratis frontend.",
+      "whenNotToUse": [
+        "Do not use as a general WCAG conformance guide.",
+        "Do not use for visual theming."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "components"
+      ],
+      "languages": [
+        "react",
+        "typescript"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-arc-react-page",
+        "cratis-components-styling"
+      ],
+      "bundleIds": [],
+      "profileIds": [
+        "cratis/application",
+        "cratis/full",
+        "public-application",
+        "public-application-react",
+        "public-components"
+      ]
+    },
+    {
+      "id": "cratis-components-schema-editor",
+      "semanticName": "cratis-components-schema-editor",
+      "audience": "public",
+      "purpose": "Cratis Components schema editors",
+      "whenToUse": "Use when a UI edits a JSON schema's shape or edits an object instance against a schema.",
+      "whenNotToUse": [
+        "Do not use for Chronicle event type migration.",
+        "Do not use for a form bound to a generated Arc command."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "components"
+      ],
+      "languages": [
+        "react",
+        "typescript"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-arc-react-page",
+        "cratis-chronicle-event-type-migration"
+      ],
+      "bundleIds": [],
+      "profileIds": [
+        "cratis/application",
+        "cratis/full",
+        "public-application",
+        "public-application-react",
+        "public-components"
+      ]
+    },
+    {
       "id": "cratis-components-stepper-command-dialog",
       "semanticName": "cratis-components-stepper-command-dialog",
       "audience": "public",
@@ -3308,7 +3498,79 @@
       "bundleIds": [
         "cratis-application-full-stack-review"
       ],
-      "profileIds": []
+      "profileIds": [
+        "cratis/application",
+        "cratis/full",
+        "public-application",
+        "public-application-react",
+        "public-components"
+      ]
+    },
+    {
+      "id": "cratis-components-styling",
+      "semanticName": "cratis-components-styling",
+      "audience": "public",
+      "purpose": "Cratis Components styling and theming",
+      "whenToUse": "Use when setting up stylesheets, tokens, themes, dark mode, or PrimeReact pass-through for a Cratis frontend.",
+      "whenNotToUse": [
+        "Do not use for accessible naming.",
+        "Do not use for component API or page composition questions."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "components"
+      ],
+      "languages": [
+        "react",
+        "typescript"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-arc-react-page",
+        "cratis-components-accessibility"
+      ],
+      "bundleIds": [],
+      "profileIds": [
+        "cratis/application",
+        "cratis/full",
+        "public-application",
+        "public-application-react",
+        "public-components"
+      ]
     },
     {
       "id": "cratis-components-toolbar",
@@ -3368,7 +3630,13 @@
       "bundleIds": [
         "cratis-application-full-stack-review"
       ],
-      "profileIds": []
+      "profileIds": [
+        "cratis/application",
+        "cratis/full",
+        "public-application",
+        "public-application-react",
+        "public-components"
+      ]
     },
     {
       "id": "cratis-event-model-diagram",

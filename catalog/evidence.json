@@ -756,6 +756,12 @@
       "locator": "https://github.com/Cratis/Workflows/issues/68#issuecomment-5363284054",
       "repositoryPath": "distribution/evidence/authority-reobservation-2026-09-06.json",
       "digest": "83635d802a9179c921fa803987f4b447ceb921c3778db7601864c8875d530f50"
+    },
+    {
+      "id": "source-arc-react-and-components-source-80b1697",
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/80b1697803ccd2ad641fb6c4d40c905b6706dfde/skills",
+      "immutableRevision": "80b1697803ccd2ad641fb6c4d40c905b6706dfde"
     }
   ],
   "observations": [
@@ -7703,6 +7709,43 @@
         "officialUrl": "https://github.com/Cratis/AI/tree/3fe2b12aa7fd068565cbf082ea966cd783cc6aad/distribution/evidence/s8-native-non-skill-static-generation-2026-08-25.json",
         "sourceKind": "local-evidence-report",
         "applicableVersion": "3fe2b12aa7fd068565cbf082ea966cd783cc6aad"
+      }
+    },
+    {
+      "id": "arc-react-and-components-source-80b1697",
+      "sourceId": "source-arc-react-and-components-source-80b1697",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "artifact",
+        "id": "candidate-passive-public-package",
+        "version": "80b1697803ccd2ad641fb6c4d40c905b6706dfde"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "source-provenance",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Immutable provenance for the canonical Arc React and Cratis Components public skill sources under skills/. This observation makes no behavior, evaluation, installation, or support claim.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-09-06",
+      "validThrough": "2027-09-06",
+      "confidence": "high",
+      "limitations": [
+        "Provenance covers only the exact Cratis-authored skill bytes at this revision. No product API assurance, behavior evaluation, or release approval is admitted."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/80b1697803ccd2ad641fb6c4d40c905b6706dfde/skills",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "80b1697803ccd2ad641fb6c4d40c905b6706dfde"
       }
     }
   ],
