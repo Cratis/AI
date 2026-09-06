@@ -36,7 +36,7 @@
         "artifacts": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
       }
     },
-    "componentCount": { "const": 137 },
+    "componentCount": { "const": 145 },
     "byKind": {
       "type": "object",
       "additionalProperties": false,
@@ -48,7 +48,7 @@
         "hook": { "const": 1 },
         "instruction": { "const": 1 },
         "prompt": { "const": 18 },
-        "rule": { "const": 36 },
+        "rule": { "const": 44 },
         "skill": { "const": 49 }
       }
     },
@@ -67,7 +67,7 @@
       "properties": {
         "executable-blocked": { "const": 3 },
         "native-static-review-projected": { "const": 35 },
-        "native-static-unprojected": { "const": 2 },
+        "native-static-unprojected": { "const": 10 },
         "repository-host-adapter-only": { "const": 48 },
         "skill-blocked-candidate": { "type": "integer", "minimum": 0, "maximum": 49 },
         "skill-legacy-repository-only": { "const": 4 },
@@ -76,8 +76,8 @@
     },
     "records": {
       "type": "array",
-      "minItems": 137,
-      "maxItems": 137,
+      "minItems": 145,
+      "maxItems": 145,
       "uniqueItems": true,
       "items": {
         "type": "object",

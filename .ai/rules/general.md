@@ -290,6 +290,14 @@ All gates pass before merging, opening a PR, or marking a slice complete — exc
 | Inspecting or operating a **running** Chronicle store (failed partitions, replays, browsing events) with the `cratis` CLI | the **inspect-running-chronicle** skill |
 | EF Core read models / migrations | `efcore.md`, `efcore.specs.md` |
 | PRs / commits | `pull-requests.md`, `git-commits.md` |
+| Reading, citing and superseding a decision record | `decision-records.md` |
+| Whether you are allowed to do the thing you are able to do | `capability-is-not-authority.md` |
+| What must stop and ask a human | `human-verdicts.md` |
+| What counts as evidence that something works | `verification-discipline.md` |
+| `next:` / `blocker:` values and when a comment is warranted | `work-records-and-comments.md` |
+| Exit-code meaning and wrappers that lose a verdict | `exit-codes-and-wrappers.md` |
+| Writing a scan, allowlist or destructive pass that cannot pass vacuously | `guards-and-fuses.md` |
+| The section skeleton every engineering recipe follows | `engineering-recipe-skeleton.md` |
 | Event modeling / schema migration / calling commands from code / paging / cross-cutting metadata / multi-tenancy | the matching skills |
 | Step-by-step recipes | `.ai/skills/` |
 

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "7aad36e883b81701a94240712bb781c278472c1a3a89e8ea7e804995fcad2d31",
+  "indexDigest": "25e671d6a178ab8ee2fcf954097c676d75edc92c24bb9049615a62d421c03728",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -31,8 +31,24 @@
       "status": "modified"
     },
     {
+      "path": ".ai/hooks/README.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/hooks/scripts/validate-ai-setup.sh",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/hooks/settings.template.json",
+      "status": "added"
+    },
+    {
       "path": ".ai/prompts/ship-changes.prompt.md",
       "status": "modified"
+    },
+    {
+      "path": ".ai/rules/capability-is-not-authority.md",
+      "status": "added"
     },
     {
       "path": ".ai/rules/concepts.md",
@@ -43,8 +59,20 @@
       "status": "modified"
     },
     {
+      "path": ".ai/rules/decision-records.md",
+      "status": "added"
+    },
+    {
       "path": ".ai/rules/dialogs.md",
       "status": "modified"
+    },
+    {
+      "path": ".ai/rules/engineering-recipe-skeleton.md",
+      "status": "added"
+    },
+    {
+      "path": ".ai/rules/exit-codes-and-wrappers.md",
+      "status": "added"
     },
     {
       "path": ".ai/rules/general.md",
@@ -59,6 +87,14 @@
       "status": "modified"
     },
     {
+      "path": ".ai/rules/guards-and-fuses.md",
+      "status": "added"
+    },
+    {
+      "path": ".ai/rules/human-verdicts.md",
+      "status": "added"
+    },
+    {
       "path": ".ai/rules/local-work-artifacts.md",
       "status": "added"
     },
@@ -71,8 +107,16 @@
       "status": "modified"
     },
     {
+      "path": ".ai/rules/verification-discipline.md",
+      "status": "added"
+    },
+    {
       "path": ".ai/rules/vertical-slices.md",
       "status": "modified"
+    },
+    {
+      "path": ".ai/rules/work-records-and-comments.md",
+      "status": "added"
     },
     {
       "path": ".ai/skills/add-business-rule/SKILL.md",
@@ -187,11 +231,43 @@
       "status": "added"
     },
     {
+      "path": ".claude/rules/capability-is-not-authority.md",
+      "status": "added"
+    },
+    {
+      "path": ".claude/rules/decision-records.md",
+      "status": "added"
+    },
+    {
+      "path": ".claude/rules/engineering-recipe-skeleton.md",
+      "status": "added"
+    },
+    {
+      "path": ".claude/rules/exit-codes-and-wrappers.md",
+      "status": "added"
+    },
+    {
       "path": ".claude/rules/github-actions.md",
       "status": "added"
     },
     {
+      "path": ".claude/rules/guards-and-fuses.md",
+      "status": "added"
+    },
+    {
+      "path": ".claude/rules/human-verdicts.md",
+      "status": "added"
+    },
+    {
       "path": ".claude/rules/local-work-artifacts.md",
+      "status": "added"
+    },
+    {
+      "path": ".claude/rules/verification-discipline.md",
+      "status": "added"
+    },
+    {
+      "path": ".claude/rules/work-records-and-comments.md",
       "status": "added"
     },
     {
@@ -3604,8 +3680,8 @@
         "repo-main-b795d53",
         "ai-126"
       ],
-      "expectedPathCount": 36,
-      "expectedPathsDigest": "3d3ef1ea14bba42811b1b08628aa1e145365665d41d1035c3248c61d421f1d4b"
+      "expectedPathCount": 44,
+      "expectedPathsDigest": "56ea7e6f3f2e44b89a9b7a8d83d7a3c79844fa48063467a6f05f3d88786fdda4"
     },
     {
       "excludePathPatterns": [],
@@ -3701,8 +3777,8 @@
         "repo-main-b795d53",
         "ai-126"
       ],
-      "expectedPathCount": 14,
-      "expectedPathsDigest": "bad82a4ca327684526057da05d262423e0d6ce94e2f711c68c334f9094556cd9"
+      "expectedPathCount": 15,
+      "expectedPathsDigest": "4228d04947edd2941b3ab38db6f9d1f469dfd8c91cb84d0c856ceca0c9de8dc8"
     },
     {
       "excludePathPatterns": [],
@@ -3939,8 +4015,8 @@
         "reevaluation-authority"
       ],
       "generator": "legacy-manual-adapter-model",
-      "expectedPathCount": 59,
-      "expectedPathsDigest": "9683f84dcc88eadab7de73b4c2c60aee649d79c3497a950e17cf0bc9a8a658f9"
+      "expectedPathCount": 67,
+      "expectedPathsDigest": "1f298673776b30249dd5c9180c9b6bb7bbbe4443ef07568becb42ec10ae19de7"
     },
     {
       "excludePathPatterns": [],

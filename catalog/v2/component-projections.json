@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generatedBy": "tooling/generate-component-catalogs.mjs",
-  "sourceDigest": "3a803fb33d116e36ef6c494ae38de68a4660c2df2926fc7f1ff3c09177938b5e",
+  "sourceDigest": "8329d9d2fee31bfd0f382183290618832f47b9130e23c6ba9ceaad1fcde28b99",
   "defaultPolicy": "deny",
   "supportClaim": false,
   "hosts": [
@@ -5839,6 +5839,54 @@
       ]
     },
     {
+      "id": "cratis-rule-capability-is-not-authority-to-claude-code-rule",
+      "componentId": "cratis-rule-capability-is-not-authority",
+      "hostId": "claude-code",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "existing",
+      "hostActivation": "active",
+      "adapterType": "symlink",
+      "outputPaths": [
+        ".claude/rules/capability-is-not-authority.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "repo-main-b795d53"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest"
+      ]
+    },
+    {
+      "id": "cratis-rule-capability-is-not-authority-to-github-copilot-rule",
+      "componentId": "cratis-rule-capability-is-not-authority",
+      "hostId": "github-copilot",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "existing",
+      "hostActivation": "active",
+      "adapterType": "symlink",
+      "outputPaths": [
+        ".github/instructions"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "repo-main-b795d53"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest"
+      ]
+    },
+    {
       "id": "cratis-rule-code-quality-csharp-to-claude-code-rule",
       "componentId": "cratis-rule-code-quality-csharp",
       "hostId": "claude-code",
@@ -6424,6 +6472,54 @@
         "projection-shape",
         "source-digest",
         "static-inventory"
+      ]
+    },
+    {
+      "id": "cratis-rule-decision-records-to-claude-code-rule",
+      "componentId": "cratis-rule-decision-records",
+      "hostId": "claude-code",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "existing",
+      "hostActivation": "active",
+      "adapterType": "symlink",
+      "outputPaths": [
+        ".claude/rules/decision-records.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "repo-main-b795d53"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest"
+      ]
+    },
+    {
+      "id": "cratis-rule-decision-records-to-github-copilot-rule",
+      "componentId": "cratis-rule-decision-records",
+      "hostId": "github-copilot",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "existing",
+      "hostActivation": "active",
+      "adapterType": "symlink",
+      "outputPaths": [
+        ".github/instructions"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "repo-main-b795d53"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest"
       ]
     },
     {
@@ -7015,6 +7111,102 @@
       ]
     },
     {
+      "id": "cratis-rule-engineering-recipe-skeleton-to-claude-code-rule",
+      "componentId": "cratis-rule-engineering-recipe-skeleton",
+      "hostId": "claude-code",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "existing",
+      "hostActivation": "active",
+      "adapterType": "symlink",
+      "outputPaths": [
+        ".claude/rules/engineering-recipe-skeleton.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "repo-main-b795d53"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest"
+      ]
+    },
+    {
+      "id": "cratis-rule-engineering-recipe-skeleton-to-github-copilot-rule",
+      "componentId": "cratis-rule-engineering-recipe-skeleton",
+      "hostId": "github-copilot",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "existing",
+      "hostActivation": "active",
+      "adapterType": "symlink",
+      "outputPaths": [
+        ".github/instructions"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "repo-main-b795d53"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest"
+      ]
+    },
+    {
+      "id": "cratis-rule-exit-codes-and-wrappers-to-claude-code-rule",
+      "componentId": "cratis-rule-exit-codes-and-wrappers",
+      "hostId": "claude-code",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "existing",
+      "hostActivation": "active",
+      "adapterType": "symlink",
+      "outputPaths": [
+        ".claude/rules/exit-codes-and-wrappers.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "repo-main-b795d53"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest"
+      ]
+    },
+    {
+      "id": "cratis-rule-exit-codes-and-wrappers-to-github-copilot-rule",
+      "componentId": "cratis-rule-exit-codes-and-wrappers",
+      "hostId": "github-copilot",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "existing",
+      "hostActivation": "active",
+      "adapterType": "symlink",
+      "outputPaths": [
+        ".github/instructions"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "repo-main-b795d53"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest"
+      ]
+    },
+    {
       "id": "cratis-rule-framework-to-claude-code-rule",
       "componentId": "cratis-rule-framework",
       "hostId": "claude-code",
@@ -7550,6 +7742,102 @@
         "projection-shape",
         "source-digest",
         "static-inventory"
+      ]
+    },
+    {
+      "id": "cratis-rule-guards-and-fuses-to-claude-code-rule",
+      "componentId": "cratis-rule-guards-and-fuses",
+      "hostId": "claude-code",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "existing",
+      "hostActivation": "active",
+      "adapterType": "symlink",
+      "outputPaths": [
+        ".claude/rules/guards-and-fuses.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "repo-main-b795d53"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest"
+      ]
+    },
+    {
+      "id": "cratis-rule-guards-and-fuses-to-github-copilot-rule",
+      "componentId": "cratis-rule-guards-and-fuses",
+      "hostId": "github-copilot",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "existing",
+      "hostActivation": "active",
+      "adapterType": "symlink",
+      "outputPaths": [
+        ".github/instructions"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "repo-main-b795d53"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest"
+      ]
+    },
+    {
+      "id": "cratis-rule-human-verdicts-to-claude-code-rule",
+      "componentId": "cratis-rule-human-verdicts",
+      "hostId": "claude-code",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "existing",
+      "hostActivation": "active",
+      "adapterType": "symlink",
+      "outputPaths": [
+        ".claude/rules/human-verdicts.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "repo-main-b795d53"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest"
+      ]
+    },
+    {
+      "id": "cratis-rule-human-verdicts-to-github-copilot-rule",
+      "componentId": "cratis-rule-human-verdicts",
+      "hostId": "github-copilot",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "existing",
+      "hostActivation": "active",
+      "adapterType": "symlink",
+      "outputPaths": [
+        ".github/instructions"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "repo-main-b795d53"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest"
       ]
     },
     {
@@ -8875,6 +9163,54 @@
       ]
     },
     {
+      "id": "cratis-rule-verification-discipline-to-claude-code-rule",
+      "componentId": "cratis-rule-verification-discipline",
+      "hostId": "claude-code",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "existing",
+      "hostActivation": "active",
+      "adapterType": "symlink",
+      "outputPaths": [
+        ".claude/rules/verification-discipline.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "repo-main-b795d53"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest"
+      ]
+    },
+    {
+      "id": "cratis-rule-verification-discipline-to-github-copilot-rule",
+      "componentId": "cratis-rule-verification-discipline",
+      "hostId": "github-copilot",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "existing",
+      "hostActivation": "active",
+      "adapterType": "symlink",
+      "outputPaths": [
+        ".github/instructions"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "repo-main-b795d53"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest"
+      ]
+    },
+    {
       "id": "cratis-rule-vertical-slices-to-claude-code-rule",
       "componentId": "cratis-rule-vertical-slices",
       "hostId": "claude-code",
@@ -9068,6 +9404,54 @@
         "projection-shape",
         "source-digest",
         "static-inventory"
+      ]
+    },
+    {
+      "id": "cratis-rule-work-records-and-comments-to-claude-code-rule",
+      "componentId": "cratis-rule-work-records-and-comments",
+      "hostId": "claude-code",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "existing",
+      "hostActivation": "active",
+      "adapterType": "symlink",
+      "outputPaths": [
+        ".claude/rules/work-records-and-comments.md"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "repo-main-b795d53"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest"
+      ]
+    },
+    {
+      "id": "cratis-rule-work-records-and-comments-to-github-copilot-rule",
+      "componentId": "cratis-rule-work-records-and-comments",
+      "hostId": "github-copilot",
+      "projectedKind": "rule",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "existing",
+      "hostActivation": "active",
+      "adapterType": "symlink",
+      "outputPaths": [
+        ".github/instructions"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "repo-main-b795d53"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest"
       ]
     },
     {
