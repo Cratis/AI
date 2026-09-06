@@ -207,6 +207,39 @@ const normalizedPackagedSourceNames = [
     "query-paging",
     "toolbar",
 ];
+// Cratis/AI#177: the Chronicle core, tenancy, operations, compliance, Workbench,
+// and kernel-tracing skills now live in the canonical skill trees. The legacy
+// `.ai/skills` directories stay in place for the repository-local host adapters.
+const chronicleMigrationRevision =
+    "3d857190964d7ae45b4a49b4adda0cad9f569444";
+const chronicleMigrationEvidenceId = "chronicle-core-source-migration-3d85719";
+const chronicleMigrationSourcePaths = [
+    ["add-projection", "skills/cratis-chronicle-projection"],
+    ["add-reactor", "skills/cratis-chronicle-reactor"],
+    ["add-reducer", "skills/cratis-chronicle-reducer"],
+    [
+        "add-traces",
+        "engineering/skills/cratis-engineering-chronicle-kernel-tracing",
+    ],
+    ["cratis-chronicle-compliance", "skills/cratis-chronicle-compliance"],
+    [
+        "cratis-chronicle-web-workbench",
+        "skills/cratis-chronicle-web-workbench",
+    ],
+    ["cratis-cli-terminal-workbench", "skills/cratis-cli-terminal-workbench"],
+    ["cratis-readmodel", "skills/cratis-chronicle-read-model"],
+    ["create-event-model", "skills/cratis-event-model-diagram"],
+    ["event-modeling", "skills/cratis-chronicle-event-modeling"],
+    [
+        "event-type-migrations",
+        "skills/cratis-chronicle-event-type-migration",
+    ],
+    [
+        "inspect-running-chronicle",
+        "skills/cratis-chronicle-cli-operations",
+    ],
+    ["multi-tenancy", "skills/cratis-chronicle-multi-tenancy"],
+];
 const sourceOverrides = new Map([
     ...referenceClosureSourceNames.map((name) => [
         name,
@@ -312,6 +345,14 @@ const sourceOverrides = new Map([
             evidenceId: "engineering-docs-authoring-source-f58bcf7",
         },
     ],
+    ...chronicleMigrationSourcePaths.map(([name, sourcePath]) => [
+        name,
+        {
+            sourcePath,
+            sourceRevision: chronicleMigrationRevision,
+            evidenceId: chronicleMigrationEvidenceId,
+        },
+    ]),
 ]);
 
 function documentationEffect(id, operation, scope, rollback) {
@@ -616,6 +657,45 @@ const profiles = {
         ],
         "high",
         false,
+    ],
+    "cratis-chronicle-compliance": [
+        "Chronicle compliance and personal data",
+        "Use when an event or read model carries personal data, when a compliance subject must be decided, or when a right-to-erasure request must be executed.",
+        [
+            "Do not use for authentication or authorization.",
+            "Do not use for generic secret handling.",
+        ],
+        ["cratis-chronicle-event-modeling", "cratis-fundamentals-concept"],
+        "critical",
+        false,
+    ],
+    "cratis-chronicle-web-workbench": [
+        "Chronicle browser Workbench",
+        "Use when inspecting or operating a running Chronicle store through the browser Workbench, or deciding whether to expose it.",
+        [
+            "Do not use for the CLI terminal Workbench.",
+            "Do not use for application source changes.",
+        ],
+        [
+            "cratis-chronicle-cli-operations",
+            "cratis-cli-terminal-workbench",
+        ],
+        "critical",
+        true,
+    ],
+    "cratis-cli-terminal-workbench": [
+        "Cratis CLI terminal Workbench",
+        "Use when exploring a running Chronicle store interactively in the terminal rather than answering one question with a single command.",
+        [
+            "Do not use for the browser Workbench.",
+            "Do not use for scripted or machine-readable inspection.",
+        ],
+        [
+            "cratis-chronicle-cli-operations",
+            "cratis-chronicle-web-workbench",
+        ],
+        "high",
+        true,
     ],
     "cratis-fundamentals-concept": [
         "Strongly typed Cratis concepts",

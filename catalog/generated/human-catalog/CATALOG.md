@@ -7,7 +7,7 @@ the right package and understand its skills. It is not source authority
 and does not make a planned package installable.
 
 - Profiles: 60
-- Capabilities: 45
+- Capabilities: 48
 - Installable profiles: 0
 - Ecosystem bindings with support claims: 0
 
@@ -15,10 +15,10 @@ and does not make a planned package installable.
 
 Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.
 
-- Components: 137
-- Passive: 134
+- Components: 150
+- Passive: 147
 - Executable: 3
-- Legacy-retained: 4
+- Legacy-retained: 14
 - Existing adapter records: 316
 - Generated static fixture projections: 70
 - Active host projections: 313
@@ -30,7 +30,7 @@ Modeled or planned components and projections are catalog metadata only; they ar
 
 ### Components by kind
 
-- skill: 49
+- skill: 62
 - agent: 12
 - subagent: 0
 - command: 18
@@ -138,6 +138,13 @@ The namespaced suite for building a full Cratis application with Arc, Chronicle,
 
 #### Included capabilities
 
+- cratis-chronicle-event-modeling
+- cratis-chronicle-event-type-migration
+- cratis-chronicle-projection
+- cratis-chronicle-reactor
+- cratis-chronicle-read-model
+- cratis-chronicle-reducer
+- cratis-event-model-diagram
 - cratis-fundamentals-concept
 
 #### Composed profiles
@@ -190,6 +197,16 @@ The namespaced Chronicle suite: event modeling, compliance, multi-tenancy, and w
 
 #### Included capabilities
 
+- cratis-chronicle-compliance
+- cratis-chronicle-event-modeling
+- cratis-chronicle-event-type-migration
+- cratis-chronicle-multi-tenancy
+- cratis-chronicle-projection
+- cratis-chronicle-reactor
+- cratis-chronicle-read-model
+- cratis-chronicle-reducer
+- cratis-chronicle-web-workbench
+- cratis-event-model-diagram
 - cratis-fundamentals-concept
 
 #### Composed profiles
@@ -218,6 +235,16 @@ Every public Cratis suite in one selection, including the Screenplay to Stage mo
 
 #### Included capabilities
 
+- cratis-chronicle-compliance
+- cratis-chronicle-event-modeling
+- cratis-chronicle-event-type-migration
+- cratis-chronicle-multi-tenancy
+- cratis-chronicle-projection
+- cratis-chronicle-reactor
+- cratis-chronicle-read-model
+- cratis-chronicle-reducer
+- cratis-chronicle-web-workbench
+- cratis-event-model-diagram
 - cratis-fundamentals-concept
 
 #### Composed profiles
@@ -246,6 +273,13 @@ End-to-end guidance for building Cratis applications with Arc, Chronicle, React,
 
 #### Included capabilities
 
+- cratis-chronicle-event-modeling
+- cratis-chronicle-event-type-migration
+- cratis-chronicle-projection
+- cratis-chronicle-reactor
+- cratis-chronicle-read-model
+- cratis-chronicle-reducer
+- cratis-event-model-diagram
 - cratis-fundamentals-concept
 
 #### Composed profiles
@@ -277,6 +311,13 @@ Combined AI guidance for developers using Cratis Fundamentals, Cratis Arc, and C
 
 #### Included capabilities
 
+- cratis-chronicle-event-modeling
+- cratis-chronicle-event-type-migration
+- cratis-chronicle-projection
+- cratis-chronicle-reactor
+- cratis-chronicle-read-model
+- cratis-chronicle-reducer
+- cratis-event-model-diagram
 - cratis-fundamentals-concept
 
 #### Composed profiles
@@ -332,6 +373,13 @@ Combined AI guidance for developers using Cratis Fundamentals and Cratis Chronic
 
 #### Included capabilities
 
+- cratis-chronicle-event-modeling
+- cratis-chronicle-event-type-migration
+- cratis-chronicle-projection
+- cratis-chronicle-reactor
+- cratis-chronicle-read-model
+- cratis-chronicle-reducer
+- cratis-event-model-diagram
 - cratis-fundamentals-concept
 
 #### Composed profiles
@@ -476,9 +524,9 @@ AI guidance for developers building with Cratis Arc React.
 - **Profile ID:** `public-chronicle`
 - **Audience:** public
 - **Package:** `@cratis/ai-chronicle`
-- **State:** planned-source-migration
+- **State:** preview-source-candidate
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** candidate-package
 
 AI guidance for developers building with Cratis Chronicle.
 
@@ -490,7 +538,13 @@ AI guidance for developers building with Cratis Chronicle.
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-chronicle-event-modeling
+- cratis-chronicle-event-type-migration
+- cratis-chronicle-projection
+- cratis-chronicle-reactor
+- cratis-chronicle-read-model
+- cratis-chronicle-reducer
+- cratis-event-model-diagram
 
 #### Composed profiles
 
@@ -651,9 +705,9 @@ AI guidance for developers building with Cratis Chronicle.
 - **Profile ID:** `public-chronicle-compliance`
 - **Audience:** public
 - **Package:** `@cratis/ai-chronicle-compliance`
-- **State:** content-gap
+- **State:** preview-source-candidate
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** candidate-package
 
 AI guidance for developers building with Cratis Chronicle.
 
@@ -665,7 +719,14 @@ AI guidance for developers building with Cratis Chronicle.
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-chronicle-compliance
+- cratis-chronicle-event-modeling
+- cratis-chronicle-event-type-migration
+- cratis-chronicle-projection
+- cratis-chronicle-reactor
+- cratis-chronicle-read-model
+- cratis-chronicle-reducer
+- cratis-event-model-diagram
 
 #### Composed profiles
 
@@ -701,9 +762,9 @@ Classification-only passive guidance for Chronicle MCP inspection requests and a
 - **Profile ID:** `public-chronicle-multi-tenancy`
 - **Audience:** public
 - **Package:** `@cratis/ai-chronicle-multi-tenancy`
-- **State:** planned-source-migration
+- **State:** preview-source-candidate
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** candidate-package
 
 AI guidance for developers building with Cratis Chronicle.
 
@@ -715,7 +776,14 @@ AI guidance for developers building with Cratis Chronicle.
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-chronicle-event-modeling
+- cratis-chronicle-event-type-migration
+- cratis-chronicle-multi-tenancy
+- cratis-chronicle-projection
+- cratis-chronicle-reactor
+- cratis-chronicle-read-model
+- cratis-chronicle-reducer
+- cratis-event-model-diagram
 
 #### Composed profiles
 
@@ -726,9 +794,9 @@ AI guidance for developers building with Cratis Chronicle.
 - **Profile ID:** `public-chronicle-web-workbench`
 - **Audience:** public
 - **Package:** `@cratis/ai-chronicle-web-workbench`
-- **State:** content-gap
+- **State:** preview-source-candidate
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** candidate-package
 
 AI guidance for developers building with Cratis Chronicle.
 
@@ -740,7 +808,14 @@ AI guidance for developers building with Cratis Chronicle.
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-chronicle-event-modeling
+- cratis-chronicle-event-type-migration
+- cratis-chronicle-projection
+- cratis-chronicle-reactor
+- cratis-chronicle-read-model
+- cratis-chronicle-reducer
+- cratis-chronicle-web-workbench
+- cratis-event-model-diagram
 
 #### Composed profiles
 
@@ -776,9 +851,9 @@ AI guidance for developers building with Cratis Components.
 - **Profile ID:** `public-cratis-cli`
 - **Audience:** public
 - **Package:** `@cratis/ai-cli`
-- **State:** content-gap
+- **State:** preview-source-candidate
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** candidate-package
 
 AI guidance for developers building with the Cratis CLI.
 
@@ -790,7 +865,7 @@ AI guidance for developers building with the Cratis CLI.
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-chronicle-cli-operations
 
 #### Composed profiles
 
@@ -801,9 +876,9 @@ AI guidance for developers building with the Cratis CLI.
 - **Profile ID:** `public-cratis-cli-terminal-workbench`
 - **Audience:** public
 - **Package:** `@cratis/ai-cli-workbench`
-- **State:** content-gap
+- **State:** preview-source-candidate
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** candidate-package
 
 AI guidance for developers building with the Cratis CLI.
 
@@ -815,7 +890,8 @@ AI guidance for developers building with the Cratis CLI.
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-chronicle-cli-operations
+- cratis-cli-terminal-workbench
 
 #### Composed profiles
 
@@ -1303,9 +1379,9 @@ Public-safe shared engineering conventions for contributors across Cratis reposi
 - **Profile ID:** `engineering-chronicle`
 - **Audience:** cratis-engineering
 - **Package:** `@cratis/ai-engineering-chronicle`
-- **State:** planned-source-migration
+- **State:** preview-source-candidate
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** candidate-package
 
 Public-safe contributor guidance for maintainers working on Cratis Chronicle. Private repository details remain local.
 
@@ -1317,7 +1393,7 @@ Public-safe contributor guidance for maintainers working on Cratis Chronicle. Pr
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-engineering-chronicle-kernel-tracing
 
 #### Composed profiles
 
@@ -2563,7 +2639,74 @@ Use to inspect a running Chronicle store and, only with explicit confirmation, p
 
 #### Profile membership — cratis-chronicle-cli-operations
 
+- public-cratis-cli
+- public-cratis-cli-terminal-workbench
+
+### cratis-chronicle-compliance
+
+- **ID:** `cratis-chronicle-compliance`
+- **Audience:** public
+- **Lifecycle:** candidate
+- **Approval:** candidate
+- **Runtime eligible:** no
+
+#### Purpose — cratis-chronicle-compliance
+
+Chronicle compliance and personal data
+
+#### When to use — cratis-chronicle-compliance
+
+Use when an event or read model carries personal data, when a compliance subject must be decided, or when a right-to-erasure request must be executed.
+
+#### When not to use — cratis-chronicle-compliance
+
+- Do not use for authentication or authorization.
+- Do not use for generic secret handling.
+
+#### Invocation — cratis-chronicle-compliance
+
+- Capability kind: unclassified
+- Invocation: unclassified
+
+#### Applicability — cratis-chronicle-compliance
+
+- Products: chronicle
+- Languages: csharp
+- Architectures: Unclassified — Architecture requires reviewed target classification.
+- Personas: Unclassified — Persona requires reviewed target classification.
+- Surfaces: Unclassified — Surface requires reviewed target classification.
+- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+
+#### Dependencies — cratis-chronicle-compliance
+
+- Unclassified
+
+#### Trust and effects — cratis-chronicle-compliance
+
+- Trust class: passive
+- Assessment: unclassified
+- No assessed effects
+
+#### Evidence and support — cratis-chronicle-compliance
+
+- Authoring contract unclassified
+- Evidence: reevaluation-authority
+- Evidence: repo-main-b795d53
+
+#### Related capabilities — cratis-chronicle-compliance
+
+- cratis-chronicle-event-modeling
+- cratis-fundamentals-concept
+
+#### Bundle membership — cratis-chronicle-compliance
+
 - None
+
+#### Profile membership — cratis-chronicle-compliance
+
+- cratis/chronicle
+- cratis/full
+- public-chronicle-compliance
 
 ### cratis-chronicle-event-constraints
 
@@ -2756,7 +2899,16 @@ Use before implementation when commands, events, streams, read models, or reacti
 
 #### Profile membership — cratis-chronicle-event-modeling
 
-- None
+- cratis/application
+- cratis/chronicle
+- cratis/full
+- public-application
+- public-application-arc-chronicle
+- public-application-chronicle-dotnet
+- public-chronicle
+- public-chronicle-compliance
+- public-chronicle-multi-tenancy
+- public-chronicle-web-workbench
 
 ### cratis-chronicle-event-specifications
 
@@ -2885,7 +3037,16 @@ Use when a stored event schema needs a new generation and migration.
 
 #### Profile membership — cratis-chronicle-event-type-migration
 
-- None
+- cratis/application
+- cratis/chronicle
+- cratis/full
+- public-application
+- public-application-arc-chronicle
+- public-application-chronicle-dotnet
+- public-chronicle
+- public-chronicle-compliance
+- public-chronicle-multi-tenancy
+- public-chronicle-web-workbench
 
 ### cratis-chronicle-mcp-inspection
 
@@ -3013,7 +3174,9 @@ Use when isolating tenants through Chronicle namespaces and Arc tenant resolutio
 
 #### Profile membership — cratis-chronicle-multi-tenancy
 
-- None
+- cratis/chronicle
+- cratis/full
+- public-chronicle-multi-tenancy
 
 ### cratis-chronicle-projection
 
@@ -3078,7 +3241,16 @@ Use when adding projection behavior to an existing Chronicle read model.
 
 #### Profile membership — cratis-chronicle-projection
 
-- None
+- cratis/application
+- cratis/chronicle
+- cratis/full
+- public-application
+- public-application-arc-chronicle
+- public-application-chronicle-dotnet
+- public-chronicle
+- public-chronicle-compliance
+- public-chronicle-multi-tenancy
+- public-chronicle-web-workbench
 
 ### cratis-chronicle-reactor
 
@@ -3143,7 +3315,16 @@ Use when implementing an automation or translation that reacts to events.
 
 #### Profile membership — cratis-chronicle-reactor
 
-- None
+- cratis/application
+- cratis/chronicle
+- cratis/full
+- public-application
+- public-application-arc-chronicle
+- public-application-chronicle-dotnet
+- public-chronicle
+- public-chronicle-compliance
+- public-chronicle-multi-tenancy
+- public-chronicle-web-workbench
 
 ### cratis-chronicle-read-model
 
@@ -3208,7 +3389,16 @@ Use when creating a Chronicle read model and model-bound query surface.
 
 #### Profile membership — cratis-chronicle-read-model
 
-- None
+- cratis/application
+- cratis/chronicle
+- cratis/full
+- public-application
+- public-application-arc-chronicle
+- public-application-chronicle-dotnet
+- public-chronicle
+- public-chronicle-compliance
+- public-chronicle-multi-tenancy
+- public-chronicle-web-workbench
 
 ### cratis-chronicle-read-model-specifications
 
@@ -3340,7 +3530,146 @@ Use when a current-state-plus-event transition cannot be expressed as a projecti
 
 #### Profile membership — cratis-chronicle-reducer
 
+- cratis/application
+- cratis/chronicle
+- cratis/full
+- public-application
+- public-application-arc-chronicle
+- public-application-chronicle-dotnet
+- public-chronicle
+- public-chronicle-compliance
+- public-chronicle-multi-tenancy
+- public-chronicle-web-workbench
+
+### cratis-chronicle-web-workbench
+
+- **ID:** `cratis-chronicle-web-workbench`
+- **Audience:** public
+- **Lifecycle:** candidate
+- **Approval:** candidate
+- **Runtime eligible:** no
+
+#### Purpose — cratis-chronicle-web-workbench
+
+Chronicle browser Workbench
+
+#### When to use — cratis-chronicle-web-workbench
+
+Use when inspecting or operating a running Chronicle store through the browser Workbench, or deciding whether to expose it.
+
+#### When not to use — cratis-chronicle-web-workbench
+
+- Do not use for application source changes.
+- Do not use for the CLI terminal Workbench.
+
+#### Invocation — cratis-chronicle-web-workbench
+
+- Capability kind: unclassified
+- Invocation: unclassified
+
+#### Applicability — cratis-chronicle-web-workbench
+
+- Products: chronicle
+- Languages: language-agnostic
+- Architectures: Unclassified — Architecture requires reviewed target classification.
+- Personas: Unclassified — Persona requires reviewed target classification.
+- Surfaces: Unclassified — Surface requires reviewed target classification.
+- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+
+#### Dependencies — cratis-chronicle-web-workbench
+
+- Unclassified
+
+#### Trust and effects — cratis-chronicle-web-workbench
+
+- Trust class: passive
+- Assessment: unclassified
+- No assessed effects
+
+#### Evidence and support — cratis-chronicle-web-workbench
+
+- Authoring contract unclassified
+- Evidence: reevaluation-authority
+- Evidence: repo-main-b795d53
+
+#### Related capabilities — cratis-chronicle-web-workbench
+
+- cratis-chronicle-cli-operations
+- cratis-cli-terminal-workbench
+
+#### Bundle membership — cratis-chronicle-web-workbench
+
 - None
+
+#### Profile membership — cratis-chronicle-web-workbench
+
+- cratis/chronicle
+- cratis/full
+- public-chronicle-web-workbench
+
+### cratis-cli-terminal-workbench
+
+- **ID:** `cratis-cli-terminal-workbench`
+- **Audience:** public
+- **Lifecycle:** candidate
+- **Approval:** candidate
+- **Runtime eligible:** no
+
+#### Purpose — cratis-cli-terminal-workbench
+
+Cratis CLI terminal Workbench
+
+#### When to use — cratis-cli-terminal-workbench
+
+Use when exploring a running Chronicle store interactively in the terminal rather than answering one question with a single command.
+
+#### When not to use — cratis-cli-terminal-workbench
+
+- Do not use for scripted or machine-readable inspection.
+- Do not use for the browser Workbench.
+
+#### Invocation — cratis-cli-terminal-workbench
+
+- Capability kind: unclassified
+- Invocation: unclassified
+
+#### Applicability — cratis-cli-terminal-workbench
+
+- Products: chronicle, cli
+- Languages: shell
+- Architectures: Unclassified — Architecture requires reviewed target classification.
+- Personas: Unclassified — Persona requires reviewed target classification.
+- Surfaces: Unclassified — Surface requires reviewed target classification.
+- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+
+#### Dependencies — cratis-cli-terminal-workbench
+
+- Unclassified
+
+#### Trust and effects — cratis-cli-terminal-workbench
+
+- Trust class: passive
+- Assessment: unclassified
+- No assessed effects
+
+#### Evidence and support — cratis-cli-terminal-workbench
+
+- Authoring contract unclassified
+- Evidence: reevaluation-authority
+- Evidence: repo-main-b795d53
+
+#### Related capabilities — cratis-cli-terminal-workbench
+
+- cratis-chronicle-cli-operations
+- cratis-chronicle-web-workbench
+
+#### Bundle membership — cratis-cli-terminal-workbench
+
+- None
+
+#### Profile membership — cratis-cli-terminal-workbench
+
+- public-cratis-cli-terminal-workbench
 
 ### cratis-code-review
 
@@ -3594,7 +3923,16 @@ Use when creating or maintaining a Mermaid EventModel.md diagram for settled beh
 
 #### Profile membership — cratis-event-model-diagram
 
-- None
+- cratis/application
+- cratis/chronicle
+- cratis/full
+- public-application
+- public-application-arc-chronicle
+- public-application-chronicle-dotnet
+- public-chronicle
+- public-chronicle-compliance
+- public-chronicle-multi-tenancy
+- public-chronicle-web-workbench
 
 ### cratis-fundamentals-concept
 
@@ -4112,7 +4450,7 @@ Use by Chronicle framework maintainers to add generated OpenTelemetry traces.
 
 #### Profile membership — cratis-engineering-chronicle-kernel-tracing
 
-- None
+- engineering-chronicle
 
 ### cratis-engineering-csharp-conventions
 

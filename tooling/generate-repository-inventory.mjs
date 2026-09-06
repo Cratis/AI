@@ -133,11 +133,27 @@ if (unexpectedUntracked.length > 0) {
 }
 const universe = [...tracked, ...admittedUntracked];
 const v2Sources = readCatalog(join(repositoryRoot, "catalog/v2/sources.json"));
+// Legacy `.ai/skills` directories whose canonical source has moved into
+// `skills/`. They stay in place for the repository-local host adapters until
+// their retirement is separately reviewed, so the inventory still accounts for
+// them alongside the canonical tree.
+const retainedLegacyPublicSkillNames = [
+    "add-concept",
+    "add-projection",
+    "add-reactor",
+    "add-reducer",
+    "cratis-readmodel",
+    "create-event-model",
+    "event-modeling",
+    "event-type-migrations",
+    "inspect-running-chronicle",
+    "multi-tenancy",
+];
 const publicSkillRoots = [
     ...v2Sources.sources
         .filter((source) => source.audience === "public")
         .map((source) => `${source.sourcePath}/**`),
-    ".ai/skills/add-concept/**",
+    ...retainedLegacyPublicSkillNames.map((name) => `.ai/skills/${name}/**`),
     "skills/**",
 ];
 const legacyEngineeringSkillNames = [

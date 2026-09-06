@@ -9,9 +9,12 @@
     "csharp",
     "language-agnostic"
   ],
-  "state": "planned-source-migration",
+  "state": "preview-source-candidate",
+  "availableTargets": [
+    "cratis-chronicle-multi-tenancy"
+  ],
   "composes": [
     "public-chronicle"
   ],
-  "gapSummary": "The namespace-based tenancy legacy source requires canonical authority, isolation, identity, and operational evidence."
+  "gapSummary": "Namespace isolation, resolution, and the code rules for a second tenant are a canonical source candidate. Tenant provisioning and cross-namespace migration operations remain gaps."
 }

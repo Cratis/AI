@@ -8,9 +8,12 @@
   "languages": [
     "language-agnostic"
   ],
-  "state": "content-gap",
+  "state": "preview-source-candidate",
+  "availableTargets": [
+    "cratis-chronicle-web-workbench"
+  ],
   "composes": [
     "public-chronicle"
   ],
-  "gapSummary": "Needs browser-first events, observers, failed partitions, read models, projected state, evidence capture, redaction, and support escalation guidance."
+  "gapSummary": "Browser Workbench screens, mutating operations, and exposure decisions are a canonical source candidate. Evidence capture workflows and support escalation remain gaps."
 }

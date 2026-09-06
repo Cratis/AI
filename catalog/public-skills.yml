@@ -24,8 +24,8 @@
   },
   "audit": {
     "verifiedOn": "2026-08-20",
-    "currentInventoryCount": 45,
-    "publicCandidateCount": 37,
+    "currentInventoryCount": 48,
+    "publicCandidateCount": 40,
     "internalSkillCount": 8,
     "internalSkills": [
       {
@@ -1184,6 +1184,77 @@
       },
       "reviewNotes": [
         "ReadModelScenario specialization may remain separate, but duplicate scenario boilerplate should move to shared references."
+      ]
+    },
+    {
+      "currentName": "cratis-chronicle-compliance",
+      "source": "skills/cratis-chronicle-compliance",
+      "proposedName": "cratis-chronicle-compliance",
+      "disposition": "retain",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "dependencies": {
+        "skills": [],
+        "internalArtifacts": [],
+        "externalTools": [
+          "dotnet"
+        ]
+      },
+      "reviewNotes": [
+        "Authored directly in the canonical tree against Chronicle 16.45.2 compliance source. Erasure and redaction remain guidance only; no operation is invoked."
+      ]
+    },
+    {
+      "currentName": "cratis-chronicle-web-workbench",
+      "source": "skills/cratis-chronicle-web-workbench",
+      "proposedName": "cratis-chronicle-web-workbench",
+      "disposition": "retain",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "dependencies": {
+        "skills": [],
+        "internalArtifacts": [],
+        "externalTools": []
+      },
+      "reviewNotes": [
+        "Authored directly in the canonical tree against the Chronicle 16.45.2 Workbench source. It describes live destructive operations, so its effect assessment is required before any evaluation admission."
+      ]
+    },
+    {
+      "currentName": "cratis-cli-terminal-workbench",
+      "source": "skills/cratis-cli-terminal-workbench",
+      "proposedName": "cratis-cli-terminal-workbench",
+      "disposition": "retain",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "cli",
+        "chronicle"
+      ],
+      "languages": [
+        "shell"
+      ],
+      "dependencies": {
+        "skills": [],
+        "internalArtifacts": [],
+        "externalTools": [
+          "cratis-cli"
+        ]
+      },
+      "reviewNotes": [
+        "Authored directly in the canonical tree against Cratis CLI 2.4.0. It describes live mutating key bindings, so its effect assessment is required before any evaluation admission."
       ]
     }
   ]

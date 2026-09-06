@@ -85,79 +85,84 @@
     },
     {
       "id": "add-projection",
-      "sourcePath": ".ai/skills/add-projection",
+      "sourcePath": "skills/cratis-chronicle-projection",
       "artifactType": "agent-skill-source",
       "currentOwner": "reusable Cratis engineering behavior",
       "targetOwner": "public Cratis product capability",
       "audience": "public",
       "bundledPaths": [
-        ".ai/skills/add-projection/SKILL.md",
-        ".ai/skills/add-projection/evals/evals.json",
-        ".ai/skills/add-projection/references/CHRONICLE-API.md"
+        "skills/cratis-chronicle-projection/LICENSE",
+        "skills/cratis-chronicle-projection/SKILL.md",
+        "skills/cratis-chronicle-projection/references/fluent-builder.md",
+        "skills/cratis-chronicle-projection/references/model-bound-attributes.md"
       ],
-      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-      "contentDigest": "119882a43c05d74dbcc51cb1637fe9be70801247886265b50ec85cb7c5c415c8",
+      "sourceRevision": "3d857190964d7ae45b4a49b4adda0cad9f569444",
+      "contentDigest": "36b9339335e1055a1e537508bf9812992f1dfaf9f49414ca2d92eda5156eab9c",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "chronicle-core-source-migration-3d85719"
       ]
     },
     {
       "id": "add-reactor",
-      "sourcePath": ".ai/skills/add-reactor",
+      "sourcePath": "skills/cratis-chronicle-reactor",
       "artifactType": "agent-skill-source",
       "currentOwner": "reusable Cratis engineering behavior",
       "targetOwner": "public Cratis product capability",
       "audience": "public",
       "bundledPaths": [
-        ".ai/skills/add-reactor/SKILL.md",
-        ".ai/skills/add-reactor/evals/evals.json"
+        "skills/cratis-chronicle-reactor/LICENSE",
+        "skills/cratis-chronicle-reactor/SKILL.md"
       ],
-      "sourceRevision": "c2f721c2f80321cfba352d8d2e4209a0881ccb63",
-      "contentDigest": "abb5cbd7f79f9630386a258341bb4a5b055e590952e83e4ea244469b21040bfd",
+      "sourceRevision": "3d857190964d7ae45b4a49b4adda0cad9f569444",
+      "contentDigest": "c21c73c1e745291b492f18a3bb9a73b638ba937ed9d21d8719e8443c0ff164fc",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
         "reevaluation-authority",
-        "public-skill-reference-closure-c2f721c"
+        "chronicle-core-source-migration-3d85719"
       ]
     },
     {
       "id": "add-reducer",
-      "sourcePath": ".ai/skills/add-reducer",
+      "sourcePath": "skills/cratis-chronicle-reducer",
       "artifactType": "agent-skill-source",
       "currentOwner": "reusable Cratis engineering behavior",
       "targetOwner": "public Cratis product capability",
       "audience": "public",
       "bundledPaths": [
-        ".ai/skills/add-reducer/SKILL.md"
+        "skills/cratis-chronicle-reducer/LICENSE",
+        "skills/cratis-chronicle-reducer/SKILL.md"
       ],
-      "sourceRevision": "c2f721c2f80321cfba352d8d2e4209a0881ccb63",
-      "contentDigest": "cf8c382a70ad880fcd5e4b72ad344d44aaa25af05c24506067b5401e0c21a43e",
+      "sourceRevision": "3d857190964d7ae45b4a49b4adda0cad9f569444",
+      "contentDigest": "7ea867f77ff203da23950eed57c324fdfb59a13826edfee5cf456ae003493093",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
         "reevaluation-authority",
-        "public-skill-reference-closure-c2f721c"
+        "chronicle-core-source-migration-3d85719"
       ]
     },
     {
       "id": "add-traces",
-      "sourcePath": ".ai/skills/add-traces",
+      "sourcePath": "engineering/skills/cratis-engineering-chronicle-kernel-tracing",
       "artifactType": "agent-skill-source",
       "currentOwner": "reusable Cratis engineering behavior",
       "targetOwner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "bundledPaths": [
-        ".ai/skills/add-traces/SKILL.md"
+        "engineering/skills/cratis-engineering-chronicle-kernel-tracing/LICENSE",
+        "engineering/skills/cratis-engineering-chronicle-kernel-tracing/SKILL.md"
       ],
-      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-      "contentDigest": "95b503d37799819abd59f1a920dd33a574d49bc74bac96127a0ac0009a95036b",
+      "sourceRevision": "3d857190964d7ae45b4a49b4adda0cad9f569444",
+      "contentDigest": "1e74f56d3391d67f34434cdd06fc1a1a5136fb060ac7cd60cb704d4e2cf14798",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "chronicle-core-source-migration-3d85719"
       ]
     },
     {
@@ -204,6 +209,26 @@
       ]
     },
     {
+      "id": "cratis-chronicle-compliance",
+      "sourcePath": "skills/cratis-chronicle-compliance",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        "skills/cratis-chronicle-compliance/LICENSE",
+        "skills/cratis-chronicle-compliance/SKILL.md"
+      ],
+      "sourceRevision": "3d857190964d7ae45b4a49b4adda0cad9f569444",
+      "contentDigest": "be2f894e83dab0de735ea4bf44bcaf785b11d421908575aa5d98f222ac3acea4",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority",
+        "chronicle-core-source-migration-3d85719"
+      ]
+    },
+    {
       "id": "cratis-chronicle-mcp-inspection",
       "sourcePath": "skills/cratis-chronicle-mcp-inspection",
       "artifactType": "agent-skill-source",
@@ -223,6 +248,46 @@
         "repo-main-b795d53",
         "reevaluation-authority",
         "chronicle-mcp-inspection-source-5997b28"
+      ]
+    },
+    {
+      "id": "cratis-chronicle-web-workbench",
+      "sourcePath": "skills/cratis-chronicle-web-workbench",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        "skills/cratis-chronicle-web-workbench/LICENSE",
+        "skills/cratis-chronicle-web-workbench/SKILL.md"
+      ],
+      "sourceRevision": "3d857190964d7ae45b4a49b4adda0cad9f569444",
+      "contentDigest": "896e1e3b072cd5a6f84394180031afc8f23338da6e39975b753986d017846476",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority",
+        "chronicle-core-source-migration-3d85719"
+      ]
+    },
+    {
+      "id": "cratis-cli-terminal-workbench",
+      "sourcePath": "skills/cratis-cli-terminal-workbench",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        "skills/cratis-cli-terminal-workbench/LICENSE",
+        "skills/cratis-cli-terminal-workbench/SKILL.md"
+      ],
+      "sourceRevision": "3d857190964d7ae45b4a49b4adda0cad9f569444",
+      "contentDigest": "4f588667e48b3c68223852f84554d7a0f4858e71600db0968783731ceee53d6c",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority",
+        "chronicle-core-source-migration-3d85719"
       ]
     },
     {
@@ -297,25 +362,23 @@
     },
     {
       "id": "cratis-readmodel",
-      "sourcePath": ".ai/skills/cratis-readmodel",
+      "sourcePath": "skills/cratis-chronicle-read-model",
       "artifactType": "agent-skill-source",
       "currentOwner": "reusable Cratis engineering behavior",
       "targetOwner": "public Cratis product capability",
       "audience": "public",
       "bundledPaths": [
-        ".ai/skills/cratis-readmodel/SKILL.md",
-        ".ai/skills/cratis-readmodel/evals/evals.json",
-        ".ai/skills/cratis-readmodel/references/events.md",
-        ".ai/skills/cratis-readmodel/references/projections.md",
-        ".ai/skills/cratis-readmodel/references/queries.md",
-        ".ai/skills/cratis-readmodel/references/reducers.md"
+        "skills/cratis-chronicle-read-model/LICENSE",
+        "skills/cratis-chronicle-read-model/SKILL.md",
+        "skills/cratis-chronicle-read-model/references/queries.md"
       ],
-      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-      "contentDigest": "1839efc1aec020b2a9cdd7e37abe9bb509a1d92ca5d7a126ee58c6df673ae2c7",
+      "sourceRevision": "3d857190964d7ae45b4a49b4adda0cad9f569444",
+      "contentDigest": "48fd917fa7a528c9a863338675a119af348f44c429856e6d89dea7b5107ca7e3",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "chronicle-core-source-migration-3d85719"
       ]
     },
     {
@@ -406,21 +469,22 @@
     },
     {
       "id": "create-event-model",
-      "sourcePath": ".ai/skills/create-event-model",
+      "sourcePath": "skills/cratis-event-model-diagram",
       "artifactType": "agent-skill-source",
       "currentOwner": "reusable Cratis engineering behavior",
       "targetOwner": "public Cratis product capability",
       "audience": "public",
       "bundledPaths": [
-        ".ai/skills/create-event-model/SKILL.md"
+        "skills/cratis-event-model-diagram/LICENSE",
+        "skills/cratis-event-model-diagram/SKILL.md"
       ],
-      "sourceRevision": "23efb73a14eb367a2dd0e745caed171f67f3d550",
-      "contentDigest": "0d2250645d979036ce01511ccfcdc303ae618a0e6c7d62a97d46476cd03832f9",
+      "sourceRevision": "3d857190964d7ae45b4a49b4adda0cad9f569444",
+      "contentDigest": "483274fe528210e1d01e2647a078a908992fd38851c7ebef308672c3665531ac",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
         "reevaluation-authority",
-        "public-skill-markdown-normalization-source-23efb73"
+        "chronicle-core-source-migration-3d85719"
       ]
     },
     {
@@ -502,78 +566,82 @@
     },
     {
       "id": "event-modeling",
-      "sourcePath": ".ai/skills/event-modeling",
+      "sourcePath": "skills/cratis-chronicle-event-modeling",
       "artifactType": "agent-skill-source",
       "currentOwner": "reusable Cratis engineering behavior",
       "targetOwner": "public Cratis product capability",
       "audience": "public",
       "bundledPaths": [
-        ".ai/skills/event-modeling/SKILL.md"
+        "skills/cratis-chronicle-event-modeling/LICENSE",
+        "skills/cratis-chronicle-event-modeling/SKILL.md"
       ],
-      "sourceRevision": "6ec724752023b7c1639b01e33d700d84d04fcfc3",
-      "contentDigest": "312a9c52e8e4d239a389905b17d458cce3578d7b8763e76a05140bf8caa5b354",
+      "sourceRevision": "3d857190964d7ae45b4a49b4adda0cad9f569444",
+      "contentDigest": "5a27e95979a9bf75a3a464015519b662955d21e5e020a958aefaeb27c5b500bc",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
         "reevaluation-authority",
-        "public-effect-guidance-boundary-source-6ec7247"
+        "chronicle-core-source-migration-3d85719"
       ]
     },
     {
       "id": "event-type-migrations",
-      "sourcePath": ".ai/skills/event-type-migrations",
+      "sourcePath": "skills/cratis-chronicle-event-type-migration",
       "artifactType": "agent-skill-source",
       "currentOwner": "reusable Cratis engineering behavior",
       "targetOwner": "public Cratis product capability",
       "audience": "public",
       "bundledPaths": [
-        ".ai/skills/event-type-migrations/SKILL.md"
+        "skills/cratis-chronicle-event-type-migration/LICENSE",
+        "skills/cratis-chronicle-event-type-migration/SKILL.md"
       ],
-      "sourceRevision": "23efb73a14eb367a2dd0e745caed171f67f3d550",
-      "contentDigest": "267d1b1ac9e403f97692961b000a91d39a87d94e63fde7cb3662dbddabb4f92d",
+      "sourceRevision": "3d857190964d7ae45b4a49b4adda0cad9f569444",
+      "contentDigest": "3e1179a9aa3a1eccb87964ff01bce5d5311153d3ce5e508b27c4409a5396be01",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
         "reevaluation-authority",
-        "public-skill-markdown-normalization-source-23efb73"
+        "chronicle-core-source-migration-3d85719"
       ]
     },
     {
       "id": "inspect-running-chronicle",
-      "sourcePath": ".ai/skills/inspect-running-chronicle",
+      "sourcePath": "skills/cratis-chronicle-cli-operations",
       "artifactType": "agent-skill-source",
       "currentOwner": "reusable Cratis engineering behavior",
       "targetOwner": "public Cratis product capability",
       "audience": "public",
       "bundledPaths": [
-        ".ai/skills/inspect-running-chronicle/SKILL.md"
+        "skills/cratis-chronicle-cli-operations/LICENSE",
+        "skills/cratis-chronicle-cli-operations/SKILL.md"
       ],
-      "sourceRevision": "23efb73a14eb367a2dd0e745caed171f67f3d550",
-      "contentDigest": "9452b7fefd294f307b91f4e3c07af55d98743affb603c04005189db75435899e",
+      "sourceRevision": "3d857190964d7ae45b4a49b4adda0cad9f569444",
+      "contentDigest": "6ca3fdc2bdbc527e00fca1ca9a021ee5c7147bc7513a11e67eb39b979bead89a",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
         "reevaluation-authority",
-        "public-skill-markdown-normalization-source-23efb73"
+        "chronicle-core-source-migration-3d85719"
       ]
     },
     {
       "id": "multi-tenancy",
-      "sourcePath": ".ai/skills/multi-tenancy",
+      "sourcePath": "skills/cratis-chronicle-multi-tenancy",
       "artifactType": "agent-skill-source",
       "currentOwner": "reusable Cratis engineering behavior",
       "targetOwner": "public Cratis product capability",
       "audience": "public",
       "bundledPaths": [
-        ".ai/skills/multi-tenancy/SKILL.md"
+        "skills/cratis-chronicle-multi-tenancy/LICENSE",
+        "skills/cratis-chronicle-multi-tenancy/SKILL.md"
       ],
-      "sourceRevision": "68616b143aeffaeda333553bb4c491f696a0018a",
-      "contentDigest": "13a42d07bf78dbda994c0c00903f88efb0deb59d70052ebed520a33a73028858",
+      "sourceRevision": "3d857190964d7ae45b4a49b4adda0cad9f569444",
+      "contentDigest": "0d9b4135ef75efde6b704adc30e1b90f356749a2619bd5f552998003e00c3e23",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
         "reevaluation-authority",
-        "cratis-chronicle-multi-tenancy-source-68616b1"
+        "chronicle-core-source-migration-3d85719"
       ]
     },
     {

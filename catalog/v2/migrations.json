@@ -154,6 +154,21 @@
       ]
     },
     {
+      "id": "rename-cratis-chronicle-compliance",
+      "kind": "retain",
+      "sourceIds": [
+        "cratis-chronicle-compliance"
+      ],
+      "targetIds": [
+        "cratis-chronicle-compliance"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
       "id": "rename-cratis-chronicle-mcp-inspection",
       "kind": "retain",
       "sourceIds": [
@@ -161,6 +176,36 @@
       ],
       "targetIds": [
         "cratis-chronicle-mcp-inspection"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-cratis-chronicle-web-workbench",
+      "kind": "retain",
+      "sourceIds": [
+        "cratis-chronicle-web-workbench"
+      ],
+      "targetIds": [
+        "cratis-chronicle-web-workbench"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-cratis-cli-terminal-workbench",
+      "kind": "retain",
+      "sourceIds": [
+        "cratis-cli-terminal-workbench"
+      ],
+      "targetIds": [
+        "cratis-cli-terminal-workbench"
       ],
       "state": "proposed",
       "evaluationEvidenceIds": [],

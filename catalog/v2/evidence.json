@@ -139,6 +139,16 @@
       "confidence": "high"
     },
     {
+      "id": "chronicle-core-source-migration-3d85719",
+      "officialUrl": "https://github.com/Cratis/AI/tree/3d857190964d7ae45b4a49b4adda0cad9f569444/skills",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-09-06",
+      "expiresOn": "2027-09-06",
+      "applicableVersion": "3d857190964d7ae45b4a49b4adda0cad9f569444",
+      "confidence": "high",
+      "immutableRevision": "3d857190964d7ae45b4a49b4adda0cad9f569444"
+    },
+    {
       "id": "chronicle-event-type-migrations-parity-source-c4c63da",
       "officialUrl": "https://github.com/Cratis/AI/tree/c4c63dadfe57276a1a53c4d76bc7f9683c4b48a4/.ai/skills/event-type-migrations",
       "sourceKind": "repository-snapshot",

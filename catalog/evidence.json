@@ -756,6 +756,12 @@
       "locator": "https://github.com/Cratis/Workflows/issues/68#issuecomment-5363284054",
       "repositoryPath": "distribution/evidence/authority-reobservation-2026-09-06.json",
       "digest": "83635d802a9179c921fa803987f4b447ceb921c3778db7601864c8875d530f50"
+    },
+    {
+      "id": "source-chronicle-core-source-migration-3d85719",
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/3d857190964d7ae45b4a49b4adda0cad9f569444/skills",
+      "immutableRevision": "3d857190964d7ae45b4a49b4adda0cad9f569444"
     }
   ],
   "observations": [
@@ -7703,6 +7709,43 @@
         "officialUrl": "https://github.com/Cratis/AI/tree/3fe2b12aa7fd068565cbf082ea966cd783cc6aad/distribution/evidence/s8-native-non-skill-static-generation-2026-08-25.json",
         "sourceKind": "local-evidence-report",
         "applicableVersion": "3fe2b12aa7fd068565cbf082ea966cd783cc6aad"
+      }
+    },
+    {
+      "id": "chronicle-core-source-migration-3d85719",
+      "sourceId": "source-chronicle-core-source-migration-3d85719",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "artifact",
+        "id": "candidate-passive-public-package",
+        "version": "3d857190964d7ae45b4a49b4adda0cad9f569444"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "source-provenance",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Source provenance for the Chronicle core, tenancy, operations, compliance, Workbench, and kernel-tracing skills in the canonical skill trees.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-09-06",
+      "validThrough": "2027-09-06",
+      "confidence": "high",
+      "limitations": [
+        "This observation proves source provenance for the recorded skill sources only; it grants no behavior, evaluation, or support assurance."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/3d857190964d7ae45b4a49b4adda0cad9f569444/skills",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "3d857190964d7ae45b4a49b4adda0cad9f569444"
       }
     }
   ],
