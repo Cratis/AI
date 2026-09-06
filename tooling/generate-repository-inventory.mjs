@@ -158,7 +158,12 @@ function publicSkillRoots() {
         ...v2Sources.sources
             .filter((source) => source.audience === "public")
             .map((source) => `${source.sourcePath}/**`),
+        // A source record whose canonical path has moved into `skills/` no
+        // longer contributes its legacy `.ai/skills` root, so each retained
+        // twin is named explicitly until Cratis/AI#256 retires it.
         ".ai/skills/add-concept/**",
+        ".ai/skills/cratis-specs-csharp/**",
+        ".ai/skills/cratis-specs-typescript/**",
         "skills/**",
     ];
 }
@@ -362,8 +367,13 @@ const inventoryDefinitions = () => [
         generatedStatus: "source",
         adapterStatus: "none",
         dependencies: ["catalog/v2/targets.json"],
-        risk: "critical",
-        migrationState: "blocked-by-distribution-decision",
+        // Cratis/AI#266 settled the distribution decision: profiles install
+        // directly from `main`, so nothing about how content ships blocks this
+        // group any more. What remains is sequencing — a legacy `.ai/skills`
+        // twin is retired only once its canonical replacement exists and the
+        // host adapters no longer resolve through it (Cratis/AI#256).
+        risk: "high",
+        migrationState: "retire-after-evidence",
         evidenceIds: [
             "repo-main-b795d53",
             "workflows-68",
@@ -399,8 +409,11 @@ const inventoryDefinitions = () => [
             "tooling/mcp-guidance-validation.mjs",
             "tooling/support-validation.mjs",
         ],
+        // Cratis/AI#266 settled the distribution decision. These references are
+        // generated in place under skills already owned by the canonical tree
+        // and do not move, so the group is retained rather than migrated.
         risk: "critical",
-        migrationState: "blocked-by-distribution-decision",
+        migrationState: "retain",
         evidenceIds: [
             "chronicle-mcp-inspection-source-5997b28",
             "studio-mcp-safety-guidance-source-f96eab8",

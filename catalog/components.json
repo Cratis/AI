@@ -51,12 +51,15 @@
     ".ai/skills/write-specs-readmodels",
     ".pi/extensions/cratis-hooks",
     ".pi/extensions/subagent",
+    "engineering/skills/cratis-engineering-csharp-conventions",
     "engineering/skills/cratis-engineering-docs-add-page",
     "engineering/skills/cratis-engineering-docs-authoring",
     "engineering/skills/cratis-engineering-docs-edit-page",
     "skills/cratis-chronicle-mcp-inspection",
     "skills/cratis-fundamentals-concept",
     "skills/cratis-governed-release-methodology",
+    "skills/cratis-specifications-csharp",
+    "skills/cratis-specifications-typescript",
     "skills/cratis-studio-mcp-safety-guidance"
   ],
   "declaredEmptyKinds": [
@@ -4665,13 +4668,13 @@
       "distributionTargetId": "cratis-engineering-csharp-conventions",
       "canonicalSources": [
         {
-          "path": ".ai/skills/cratis-csharp-standards",
-          "digest": "87744eca811ce6c8f733a8e6fdb3f570e35e78b8e9a5eabcf2fca8339e01fb59",
+          "path": "engineering/skills/cratis-engineering-csharp-conventions",
+          "digest": "33103fe25b8ec074d7abc5a7d27631ad2a3d30f1ded4ceb5ce3f896a63e0870d",
           "ownership": "owner",
           "ownerComponentId": "cratis-engineering-csharp-conventions"
         }
       ],
-      "contentDigest": "bebb2d318fca28be31e4e256b76c14a2414a1b5eca05ecb5ff8c253c4c819abf",
+      "contentDigest": "fbf676e413a7d6ba546fb42d2a1147193bd6a955784ff60105ff88a9bad0cc4e",
       "owner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "classification": {
@@ -5729,6 +5732,225 @@
         "cratis-engineering-docs-add-page"
       ],
       "hostNeutralPurpose": "Retained repository-local documentation page creation guidance",
+      "approval": {
+        "state": "modeled",
+        "evidenceIds": [
+          "reevaluation-authority",
+          "repo-main-b795d53"
+        ]
+      },
+      "releaseBoundary": "repository-only",
+      "allowedProjections": [
+        {
+          "hostContract": "any-passive-host",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "provider-compatibility"
+          ]
+        }
+      ],
+      "forbiddenProjections": [
+        "agent",
+        "subagent",
+        "command",
+        "prompt",
+        "rule",
+        "instruction",
+        "hook",
+        "mcp",
+        "lsp",
+        "executable-host-extension",
+        "static-asset"
+      ],
+      "requiredCanaries": [
+        "host-discovery",
+        "projection-shape",
+        "semantic-identity",
+        "source-digest"
+      ],
+      "securityRequirements": {
+        "threatModel": false,
+        "securityReview": false,
+        "executableAssuranceProfile": false
+      }
+    },
+    {
+      "id": "cratis-legacy-cratis-csharp-standards",
+      "kind": "skill",
+      "semanticIdentity": "cratis-legacy-cratis-csharp-standards",
+      "semanticName": "Legacy cratis-csharp-standards host skill",
+      "lifecycle": "legacy-retained",
+      "distributionTargetId": null,
+      "canonicalSources": [
+        {
+          "path": ".ai/skills/cratis-csharp-standards",
+          "digest": "87744eca811ce6c8f733a8e6fdb3f570e35e78b8e9a5eabcf2fca8339e01fb59",
+          "ownership": "owner",
+          "ownerComponentId": "cratis-legacy-cratis-csharp-standards"
+        }
+      ],
+      "contentDigest": "bebb2d318fca28be31e4e256b76c14a2414a1b5eca05ecb5ff8c253c4c819abf",
+      "owner": "reusable Cratis engineering behavior",
+      "audience": "cratis-engineering",
+      "classification": {
+        "artifactClass": "passive-content",
+        "trust": "passive",
+        "passive": true,
+        "executable": false,
+        "effect": "guided-write"
+      },
+      "dependencies": [
+        "cratis-engineering-csharp-conventions"
+      ],
+      "hostNeutralPurpose": "Retained repository-local C# standards guidance",
+      "approval": {
+        "state": "modeled",
+        "evidenceIds": [
+          "reevaluation-authority",
+          "repo-main-b795d53"
+        ]
+      },
+      "releaseBoundary": "repository-only",
+      "allowedProjections": [
+        {
+          "hostContract": "any-passive-host",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "provider-compatibility"
+          ]
+        }
+      ],
+      "forbiddenProjections": [
+        "agent",
+        "subagent",
+        "command",
+        "prompt",
+        "rule",
+        "instruction",
+        "hook",
+        "mcp",
+        "lsp",
+        "executable-host-extension",
+        "static-asset"
+      ],
+      "requiredCanaries": [
+        "host-discovery",
+        "projection-shape",
+        "semantic-identity",
+        "source-digest"
+      ],
+      "securityRequirements": {
+        "threatModel": false,
+        "securityReview": false,
+        "executableAssuranceProfile": false
+      }
+    },
+    {
+      "id": "cratis-legacy-cratis-specs-csharp",
+      "kind": "skill",
+      "semanticIdentity": "cratis-legacy-cratis-specs-csharp",
+      "semanticName": "Legacy cratis-specs-csharp host skill",
+      "lifecycle": "legacy-retained",
+      "distributionTargetId": null,
+      "canonicalSources": [
+        {
+          "path": ".ai/skills/cratis-specs-csharp",
+          "digest": "b52084ff3c16363d7a042dac186d16c1f44e8f1169cd16bbe88037fb6111057d",
+          "ownership": "owner",
+          "ownerComponentId": "cratis-legacy-cratis-specs-csharp"
+        }
+      ],
+      "contentDigest": "ac9c0a04e1db2b6e1247a1ab057ffa4891ad6c1fd8cef5a711f6d77749d4872e",
+      "owner": "reusable Cratis engineering behavior",
+      "audience": "cratis-engineering",
+      "classification": {
+        "artifactClass": "passive-content",
+        "trust": "passive",
+        "passive": true,
+        "executable": false,
+        "effect": "guided-write"
+      },
+      "dependencies": [
+        "cratis-specifications-csharp"
+      ],
+      "hostNeutralPurpose": "Retained repository-local C# specification guidance",
+      "approval": {
+        "state": "modeled",
+        "evidenceIds": [
+          "reevaluation-authority",
+          "repo-main-b795d53"
+        ]
+      },
+      "releaseBoundary": "repository-only",
+      "allowedProjections": [
+        {
+          "hostContract": "any-passive-host",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "provider-compatibility"
+          ]
+        }
+      ],
+      "forbiddenProjections": [
+        "agent",
+        "subagent",
+        "command",
+        "prompt",
+        "rule",
+        "instruction",
+        "hook",
+        "mcp",
+        "lsp",
+        "executable-host-extension",
+        "static-asset"
+      ],
+      "requiredCanaries": [
+        "host-discovery",
+        "projection-shape",
+        "semantic-identity",
+        "source-digest"
+      ],
+      "securityRequirements": {
+        "threatModel": false,
+        "securityReview": false,
+        "executableAssuranceProfile": false
+      }
+    },
+    {
+      "id": "cratis-legacy-cratis-specs-typescript",
+      "kind": "skill",
+      "semanticIdentity": "cratis-legacy-cratis-specs-typescript",
+      "semanticName": "Legacy cratis-specs-typescript host skill",
+      "lifecycle": "legacy-retained",
+      "distributionTargetId": null,
+      "canonicalSources": [
+        {
+          "path": ".ai/skills/cratis-specs-typescript",
+          "digest": "f01196428217c00e5bdcc14ebc86d2bc9dc02c3dcad8c721ff8dfa104fb284a5",
+          "ownership": "owner",
+          "ownerComponentId": "cratis-legacy-cratis-specs-typescript"
+        }
+      ],
+      "contentDigest": "2d868ae9b1c5f02018b48a54e032eac06beec04d25254ddeea251b431c8ced43",
+      "owner": "reusable Cratis engineering behavior",
+      "audience": "cratis-engineering",
+      "classification": {
+        "artifactClass": "passive-content",
+        "trust": "passive",
+        "passive": true,
+        "executable": false,
+        "effect": "guided-write"
+      },
+      "dependencies": [
+        "cratis-specifications-typescript"
+      ],
+      "hostNeutralPurpose": "Retained repository-local TypeScript specification guidance",
       "approval": {
         "state": "modeled",
         "evidenceIds": [
@@ -10532,13 +10754,13 @@
       "distributionTargetId": "cratis-specifications-csharp",
       "canonicalSources": [
         {
-          "path": ".ai/skills/cratis-specs-csharp",
-          "digest": "b52084ff3c16363d7a042dac186d16c1f44e8f1169cd16bbe88037fb6111057d",
+          "path": "skills/cratis-specifications-csharp",
+          "digest": "b05f5cca15570df2aa5dff1ed414c9a6f71d4bf622db2ba84652d2c36e3254f0",
           "ownership": "owner",
           "ownerComponentId": "cratis-specifications-csharp"
         }
       ],
-      "contentDigest": "ac9c0a04e1db2b6e1247a1ab057ffa4891ad6c1fd8cef5a711f6d77749d4872e",
+      "contentDigest": "b7e0018cf135efda6e251e12adaffb612ec224610e42672b27932e3b9ca7d506",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -10613,13 +10835,13 @@
       "distributionTargetId": "cratis-specifications-typescript",
       "canonicalSources": [
         {
-          "path": ".ai/skills/cratis-specs-typescript",
-          "digest": "f01196428217c00e5bdcc14ebc86d2bc9dc02c3dcad8c721ff8dfa104fb284a5",
+          "path": "skills/cratis-specifications-typescript",
+          "digest": "a07bc1c3307ff993deb688de213f3a95bc7b81a55d339a0aa0a15a555b656384",
           "ownership": "owner",
           "ownerComponentId": "cratis-specifications-typescript"
         }
       ],
-      "contentDigest": "2d868ae9b1c5f02018b48a54e032eac06beec04d25254ddeea251b431c8ced43",
+      "contentDigest": "8d94ca83710456cecd3307236ed3fc94cdff668b897b14c0037d8e816d056e73",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {

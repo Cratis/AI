@@ -154,9 +154,12 @@ test("unreviewed targets remain explicitly unclassified and runtime ineligible",
     const catalogs = loadCatalogs();
     const classified = new Set([
         "cratis-fundamentals-concept",
+        "cratis-engineering-csharp-conventions",
         "cratis-engineering-docs-add-page",
         "cratis-engineering-docs-authoring",
         "cratis-engineering-docs-edit-page",
+        "cratis-specifications-csharp",
+        "cratis-specifications-typescript",
     ]);
     for (const target of catalogs.targets.targets) {
         if (classified.has(target.id)) continue;

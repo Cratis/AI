@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "d81d166aebfa4917e0d6bca19095598af7e4e90c0298cf786141f558bdbca2bf",
+  "indexDigest": "475ad33ed0da3b26c01f7b1e893613b34f245f25e3cc3beaed7334d0646100e9",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -1132,6 +1132,26 @@
     },
     {
       "path": "distribution/update-bot-contract.json",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-csharp-conventions/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-csharp-conventions/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-csharp-conventions/references/code-style.md",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-csharp-conventions/references/domain-philosophy.md",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-csharp-conventions/references/exceptions-logging-and-di.md",
       "status": "added"
     },
     {
@@ -2795,6 +2815,38 @@
       "status": "added"
     },
     {
+      "path": "skills/cratis-specifications-csharp/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-specifications-csharp/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-specifications-csharp/references/application-scenarios.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-specifications-csharp/references/csharp-patterns.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-specifications-csharp/references/integration-specs.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-specifications-typescript/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-specifications-typescript/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-specifications-typescript/references/typescript-patterns.md",
+      "status": "added"
+    },
+    {
       "path": "skills/cratis-studio-mcp-safety-guidance/LICENSE",
       "status": "added"
     },
@@ -3853,8 +3905,8 @@
         "skills/cratis-governed-release-methodology/**",
         ".ai/skills/cratis-react-page/**",
         ".ai/skills/cratis-readmodel/**",
-        ".ai/skills/cratis-specs-csharp/**",
-        ".ai/skills/cratis-specs-typescript/**",
+        "skills/cratis-specifications-csharp/**",
+        "skills/cratis-specifications-typescript/**",
         "skills/cratis-studio-mcp-safety-guidance/**",
         ".ai/skills/cratis-vertical-slice/**",
         ".ai/skills/create-event-model/**",
@@ -3879,6 +3931,8 @@
         ".ai/skills/write-specs-frontend/**",
         ".ai/skills/write-specs-readmodels/**",
         ".ai/skills/add-concept/**",
+        ".ai/skills/cratis-specs-csharp/**",
+        ".ai/skills/cratis-specs-typescript/**",
         "skills/**"
       ],
       "artifactType": "skill-source-and-resources",
@@ -3890,15 +3944,15 @@
       "dependencies": [
         "catalog/v2/targets.json"
       ],
-      "risk": "critical",
-      "migrationState": "blocked-by-distribution-decision",
+      "risk": "high",
+      "migrationState": "retire-after-evidence",
       "evidenceIds": [
         "repo-main-b795d53",
         "workflows-68",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 70,
-      "expectedPathsDigest": "c53fea49098a20db4bb01762a9ec596bf83980f198aba1cad4f9bdb77690ce22"
+      "expectedPathCount": 78,
+      "expectedPathsDigest": "871bf9cd0a97dc2cca6f68d7407dfcf18f6574f5b61f705894910f1125b2169d"
     },
     {
       "excludePathPatterns": [],
@@ -3931,7 +3985,7 @@
         "tooling/support-validation.mjs"
       ],
       "risk": "critical",
-      "migrationState": "blocked-by-distribution-decision",
+      "migrationState": "retain",
       "evidenceIds": [
         "chronicle-mcp-inspection-source-5997b28",
         "studio-mcp-safety-guidance-source-f96eab8"
@@ -3995,8 +4049,8 @@
         "option-a-plus-authority",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 9,
-      "expectedPathsDigest": "8d3836987b9ad3075a797d6bdd086de34432c3a944bda2393b5aa44d46472009"
+      "expectedPathCount": 14,
+      "expectedPathsDigest": "97dfe37bc4e3b800dfe7f84bdf8e100f06147e9906e6a3b828b964e8493ceaf6"
     },
     {
       "excludePathPatterns": [],

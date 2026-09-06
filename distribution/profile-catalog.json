@@ -731,11 +731,14 @@
       "languages": [
         "csharp"
       ],
-      "state": "planned-source-migration",
+      "state": "preview-source-candidate",
+      "availableTargets": [
+        "cratis-specifications-csharp"
+      ],
       "composes": [
         "public-specifications"
       ],
-      "gapSummary": "Needs Cratis.Specifications, C# contexts, NSubstitute, assertions, framework specs, and application scenario-family guidance."
+      "gapSummary": "Carries the canonical C# Specification by Example capability at verified Cratis.Specifications, Arc.Testing, and Chronicle.Testing versions. The application scenario-family skills remain legacy candidates."
     },
     {
       "id": "public-specifications-typescript",
@@ -748,11 +751,14 @@
         "typescript",
         "react"
       ],
-      "state": "planned-source-migration",
+      "state": "preview-source-candidate",
+      "availableTargets": [
+        "cratis-specifications-typescript"
+      ],
       "composes": [
         "public-specifications"
       ],
-      "gapSummary": "Needs Vitest/Mocha structure, Chai, Sinon, view-model, React, and shared philosophy mapping."
+      "gapSummary": "Carries the canonical given()/Chai/Sinon TypeScript specification capability. React application behavior specifications remain a legacy candidate."
     },
     {
       "id": "public-stage",
@@ -894,11 +900,14 @@
         "corpus"
       ],
       "products": [],
-      "state": "planned-source-migration",
+      "state": "preview-source-candidate",
       "distributionVisibility": "public",
       "confidentialContentAllowed": false,
       "privateOverlayExpected": true,
-      "gapSummary": "Universal C#/TypeScript, Specification by Example, review, documentation, and contribution behavior must be reconciled into public-safe passive sources."
+      "availableTargets": [
+        "cratis-engineering-csharp-conventions"
+      ],
+      "gapSummary": "Carries the canonical C# house conventions. Universal TypeScript conventions, review behavior, and contribution behavior are still to be reconciled into public-safe passive sources."
     },
     {
       "id": "engineering-chronicle",

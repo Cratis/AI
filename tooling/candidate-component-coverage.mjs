@@ -176,12 +176,12 @@ export function buildCandidateComponentCoverage(
         ].includes(record.disposition),
     ).length;
     if (
-        records.length !== 146 ||
+        records.length !== 149 ||
         new Set(componentIds).size !== records.length ||
-        skillDispositionCount !== 50 ||
+        skillDispositionCount !== 53 ||
         records.filter(
             (record) => record.disposition === "skill-legacy-repository-only",
-        ).length !== 4 ||
+        ).length !== 7 ||
         records.filter(
             (record) => record.disposition === "native-static-review-projected",
         ).length !== 35 ||
