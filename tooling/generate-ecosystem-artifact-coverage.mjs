@@ -6,6 +6,11 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { compareOrdinal, sortedOrdinal } from "./catalog-ordering.mjs";
+import {
+    checkModeRequested,
+    runGeneratorCheck,
+    serializeJson,
+} from "./generator-check.mjs";
 
 export const ecosystemArtifactCoveragePath =
     "catalog/v2/ecosystem-artifact-coverage.json";
@@ -76,21 +81,44 @@ export function generateEcosystemArtifactCoverage(
     };
 }
 
+export function ecosystemArtifactCoverageOutputs(
+    root = defaultRepositoryRoot,
+) {
+    return new Map([
+        [
+            ecosystemArtifactCoveragePath,
+            serializeJson(generateEcosystemArtifactCoverage(root)),
+        ],
+    ]);
+}
+
 export function writeEcosystemArtifactCoverage(root = defaultRepositoryRoot) {
     const catalog = generateEcosystemArtifactCoverage(root);
     writeFileSync(
         join(root, ecosystemArtifactCoveragePath),
-        `${JSON.stringify(catalog, null, 2)}\n`,
+        serializeJson(catalog),
     );
     return catalog;
+}
+
+function main() {
+    if (checkModeRequested()) {
+        process.exitCode = runGeneratorCheck({
+            name: "generate-ecosystem-artifact-coverage",
+            root: defaultRepositoryRoot,
+            build: () => ecosystemArtifactCoverageOutputs(),
+        });
+        return;
+    }
+    const catalog = writeEcosystemArtifactCoverage();
+    process.stdout.write(
+        `Generated ecosystem artifact coverage: ${catalog.coverage.length} bindings (coverage is not support).\n`,
+    );
 }
 
 if (
     process.argv[1] &&
     resolve(process.argv[1]) === fileURLToPath(import.meta.url)
 ) {
-    const catalog = writeEcosystemArtifactCoverage();
-    process.stdout.write(
-        `Generated ecosystem artifact coverage: ${catalog.coverage.length} bindings (coverage is not support).\n`,
-    );
+    main();
 }

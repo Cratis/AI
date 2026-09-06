@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "e9955dbfe2359dbfc0c6541f3c147e0862a0d14fd8de88f2323856f1e8589b26",
+  "indexDigest": "4f51c69c8846983304ad75b0a66c6ca586a50f38af29848aa29b3e32d3a8fd02",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -2963,6 +2963,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/generator-check.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/grade-engineering-docs-authoring-evaluation.mjs",
       "status": "added"
     },
@@ -3280,6 +3284,10 @@
     },
     {
       "path": "tooling/specs/generated-distribution-repository.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/generator-check.spec.mjs",
       "status": "added"
     },
     {
@@ -5041,8 +5049,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 80,
-      "expectedPathsDigest": "c0bf5fead4ca823f0d28f18e80333ade4b838c5047d950bfc6562eaddcfaf58d"
+      "expectedPathCount": 81,
+      "expectedPathsDigest": "1e68465a0a5afa5bf3a507016689416c366e021fa1de02c233d649b46dd68916"
     },
     {
       "excludePathPatterns": [],
@@ -5095,8 +5103,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 63,
-      "expectedPathsDigest": "5bd85d266ea785fc5a6619f375a1bc8200d92db32e2b6585f0bd6d0ee49f032b"
+      "expectedPathCount": 64,
+      "expectedPathsDigest": "1f72cccc394224abedd50d4dde016dcc272904750573a9e176b415bed6ca46d5"
     },
     {
       "excludePathPatterns": [],
