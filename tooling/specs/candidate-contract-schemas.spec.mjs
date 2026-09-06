@@ -115,12 +115,12 @@ test("candidate contract schemas reject grants count drift and unknown fields", 
         const coverage = readJson(
             join(publicRoot, manifest.componentCoveragePath),
         );
-        coverage.componentCount = 136;
+        coverage.componentCount = 145;
         coverage.records[0].supportGranted = true;
         const coverageErrors = validate(coverage, schemas.coverage);
         assert(
             coverageErrors.some((error) =>
-                error.includes("componentCount: expected constant 138"),
+                error.includes("componentCount: expected constant 146"),
             ),
         );
         assert(

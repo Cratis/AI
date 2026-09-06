@@ -157,7 +157,7 @@ test("passive candidate assets package every currently safe target and account f
                     "utf8",
                 ),
             );
-            assert.equal(coverage.componentCount, 138);
+            assert.equal(coverage.componentCount, 146);
             assert.equal(
                 coverage.byDisposition["skill-packaged-candidate"],
                 41,
@@ -173,7 +173,7 @@ test("passive candidate assets package every currently safe target and account f
             );
             assert.equal(
                 coverage.byDisposition["native-static-unprojected"],
-                2,
+                10,
             );
             assert.equal(
                 coverage.byDisposition["repository-host-adapter-only"],
@@ -382,7 +382,7 @@ test("passive candidate workflow is manual read-only and short-lived", () => {
 
 test("candidate component coverage closes every modeled component kind", () => {
     const coverage = buildCandidateComponentCoverage();
-    assert.equal(coverage.componentCount, 138);
+    assert.equal(coverage.componentCount, 146);
     assert.deepEqual(coverage.byKind, {
         agent: 12,
         command: 18,
@@ -390,13 +390,13 @@ test("candidate component coverage closes every modeled component kind", () => {
         hook: 1,
         instruction: 1,
         prompt: 18,
-        rule: 36,
+        rule: 44,
         skill: 50,
     });
-    assert.equal(coverage.records.length, 138);
+    assert.equal(coverage.records.length, 146);
     assert.equal(
         new Set(coverage.records.map((record) => record.componentId)).size,
-        138,
+        146,
     );
     assert(
         coverage.records

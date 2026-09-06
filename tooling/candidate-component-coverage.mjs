@@ -176,7 +176,7 @@ export function buildCandidateComponentCoverage(
         ].includes(record.disposition),
     ).length;
     if (
-        records.length !== 138 ||
+        records.length !== 146 ||
         new Set(componentIds).size !== records.length ||
         skillDispositionCount !== 50 ||
         records.filter(
@@ -187,7 +187,7 @@ export function buildCandidateComponentCoverage(
         ).length !== 35 ||
         records.filter(
             (record) => record.disposition === "native-static-unprojected",
-        ).length !== 2 ||
+        ).length !== 10 ||
         records.filter(
             (record) => record.disposition === "repository-host-adapter-only",
         ).length !== 48 ||

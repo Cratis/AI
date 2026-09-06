@@ -21,3 +21,13 @@ dumps, and similar coordination files. These are **work records, not documentati
 - Knowledge that must outlive the session (real documentation, ADRs, operator
   guides) is written deliberately into the repository's documentation structure
   through normal review — not left behind as a work record.
+- **A decision log is not a work record.** A decision — a durable choice with a
+  decider and a date — is documentation: it lives in **`decisions/`** (or the
+  repository's documented decisions folder) and is reviewed like any other
+  documentation. A handover may summarize decisions; it never holds the only
+  copy. If a session produced a real decision, land the record in `decisions/`
+  before the session's `.ai-work/` files are discarded.
+- The record's shape (front matter, status and stage values, supersession
+  pointers) is defined by the decision-record skill and the shared vocabulary
+  once this repository carries them; until then use the repository's existing
+  decisions folder and keep decider and date explicit.

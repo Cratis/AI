@@ -171,7 +171,7 @@ test("catalog records all kinds and honestly declares MCP and LSP empty", () => 
     assert.equal(counts.agent, 12);
     assert.equal(counts.command, 18);
     assert.equal(counts.prompt, 18);
-    assert.equal(counts.rule, 36);
+    assert.equal(counts.rule, 44);
     assert.equal(counts.instruction, 1);
     assert.equal(counts.hook, 1);
     assert.equal(counts["executable-host-extension"], 2);
@@ -240,12 +240,12 @@ test("S8 adds exactly 70 passive generated-static non-skill projections", () => 
         (projection) => projection.state === "generated-static",
     );
     assert.equal(catalogs.projections.hosts.length, 9);
-    assert.equal(catalogs.projections.projections.length, 386);
+    assert.equal(catalogs.projections.projections.length, 402);
     assert.equal(
         catalogs.projections.projections.filter(
             (projection) => projection.state === "existing",
         ).length,
-        316,
+        332,
     );
     assert.equal(generated.length, 70);
     assert.equal(
