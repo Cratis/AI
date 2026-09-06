@@ -115,6 +115,9 @@ test("passive candidate assets package every currently safe target and account f
             [
                 "cratis-legacy-add-concept",
                 "cratis-legacy-add-cratis-docs-page",
+                "cratis-legacy-cratis-csharp-standards",
+                "cratis-legacy-cratis-specs-csharp",
+                "cratis-legacy-cratis-specs-typescript",
                 "cratis-legacy-edit-cratis-docs",
                 "cratis-legacy-write-documentation",
             ],
@@ -139,7 +142,7 @@ test("passive candidate assets package every currently safe target and account f
                 (item) => item.componentId,
             ),
         ].sort();
-        assert.equal(skillComponentIds.length, 49);
+        assert.equal(skillComponentIds.length, 52);
         assert.deepEqual(accountedSkillComponentIds, skillComponentIds);
         for (const manifest of [publicManifest, engineeringManifest]) {
             assert.equal(manifest.assets.length, passiveHarnesses.length);
@@ -157,7 +160,7 @@ test("passive candidate assets package every currently safe target and account f
                     "utf8",
                 ),
             );
-            assert.equal(coverage.componentCount, 137);
+            assert.equal(coverage.componentCount, 140);
             assert.equal(
                 coverage.byDisposition["skill-packaged-candidate"],
                 40,
@@ -165,7 +168,7 @@ test("passive candidate assets package every currently safe target and account f
             assert.equal(coverage.byDisposition["skill-blocked-candidate"], 5);
             assert.equal(
                 coverage.byDisposition["skill-legacy-repository-only"],
-                4,
+                7,
             );
             assert.equal(
                 coverage.byDisposition["native-static-review-projected"],
@@ -382,7 +385,7 @@ test("passive candidate workflow is manual read-only and short-lived", () => {
 
 test("candidate component coverage closes every modeled component kind", () => {
     const coverage = buildCandidateComponentCoverage();
-    assert.equal(coverage.componentCount, 137);
+    assert.equal(coverage.componentCount, 140);
     assert.deepEqual(coverage.byKind, {
         agent: 12,
         command: 18,
@@ -391,12 +394,12 @@ test("candidate component coverage closes every modeled component kind", () => {
         instruction: 1,
         prompt: 18,
         rule: 36,
-        skill: 49,
+        skill: 52,
     });
-    assert.equal(coverage.records.length, 137);
+    assert.equal(coverage.records.length, 140);
     assert.equal(
         new Set(coverage.records.map((record) => record.componentId)).size,
-        137,
+        140,
     );
     assert(
         coverage.records
