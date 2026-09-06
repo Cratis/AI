@@ -24,8 +24,8 @@
   },
   "audit": {
     "verifiedOn": "2026-08-20",
-    "currentInventoryCount": 54,
-    "publicCandidateCount": 44,
+    "currentInventoryCount": 57,
+    "publicCandidateCount": 47,
     "internalSkillCount": 10,
     "internalSkills": [
       {
@@ -1366,6 +1366,85 @@
       },
       "reviewNotes": [
         "Authored directly in the canonical tree against Cratis CLI 2.4.0. It describes live mutating key bindings, so its effect assessment is required before any evaluation admission."
+      ]
+    },
+    {
+      "currentName": "cratis-lens-browser-extension",
+      "source": "skills/cratis-lens-browser-extension",
+      "proposedName": "cratis-lens-browser-extension",
+      "disposition": "retain",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "lens",
+        "arc"
+      ],
+      "languages": [
+        "typescript",
+        "csharp"
+      ],
+      "dependencies": {
+        "skills": [],
+        "internalArtifacts": [],
+        "externalTools": [
+          "node"
+        ]
+      },
+      "reviewNotes": [
+        "Authored directly in the canonical tree against the Lens source at manifest version 1.0.0 and Cratis.Arc.Core 22.10.4. It describes a browser extension that impersonates identities against a running application, so its effect assessment is required before any evaluation admission."
+      ]
+    },
+    {
+      "currentName": "cratis-screenplay-model-authoring",
+      "source": "skills/cratis-screenplay-model-authoring",
+      "proposedName": "cratis-screenplay-model-authoring",
+      "disposition": "retain",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "screenplay"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "dependencies": {
+        "skills": [],
+        "internalArtifacts": [],
+        "externalTools": [
+          "dotnet"
+        ]
+      },
+      "reviewNotes": [
+        "Authored directly in the canonical tree against Cratis.Screenplay and Cratis.Screenplay.Tool 4.12.1. It installs and runs a global dotnet tool, so its effect assessment is required before any evaluation admission."
+      ]
+    },
+    {
+      "currentName": "cratis-stage-rendering-and-sandbox",
+      "source": "skills/cratis-stage-rendering-and-sandbox",
+      "proposedName": "cratis-stage-rendering-and-sandbox",
+      "disposition": "retain",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "stage",
+        "screenplay"
+      ],
+      "languages": [
+        "csharp",
+        "language-agnostic"
+      ],
+      "dependencies": {
+        "skills": [
+          "cratis-screenplay-model-authoring"
+        ],
+        "internalArtifacts": [],
+        "externalTools": [
+          "dotnet",
+          "docker"
+        ]
+      },
+      "reviewNotes": [
+        "Authored directly in the canonical tree against Cratis.Stage 3.11.0 and the repository at revision 4f3fc6a. It runs container images and writes generated application source, so its effect assessment is required before any evaluation admission."
       ]
     }
   ]

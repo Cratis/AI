@@ -806,6 +806,12 @@
       "immutableRevision": "47263222559843c47065be0f124d66ddb02b7c04"
     },
     {
+      "id": "source-modeling-layer-source-authoring-7b85abb",
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/7b85abb3c7a1678f42fc4e38bc4c3e27f26b40d9/skills",
+      "immutableRevision": "7b85abb3c7a1678f42fc4e38bc4c3e27f26b40d9"
+    },
+    {
       "id": "source-engineering-decision-record-source-1e19bb4",
       "kind": "repository-snapshot",
       "locator": "https://github.com/Cratis/AI/tree/1e19bb4e7cb2ad9e827a8d4ad6b16b9f8a3c0060/engineering/skills/cratis-engineering-decision-record",
@@ -8059,6 +8065,43 @@
         "officialUrl": "https://github.com/Cratis/AI/tree/3d857190964d7ae45b4a49b4adda0cad9f569444/skills",
         "sourceKind": "repository-snapshot",
         "applicableVersion": "3d857190964d7ae45b4a49b4adda0cad9f569444"
+      }
+    },
+    {
+      "id": "modeling-layer-source-authoring-7b85abb",
+      "sourceId": "source-modeling-layer-source-authoring-7b85abb",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "artifact",
+        "id": "candidate-passive-public-package",
+        "version": "7b85abb3c7a1678f42fc4e38bc4c3e27f26b40d9"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "source-provenance",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Source provenance for the Lens, Screenplay, and Stage skills authored in the canonical skill tree.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-09-06",
+      "validThrough": "2027-09-06",
+      "confidence": "high",
+      "limitations": [
+        "This observation proves source provenance for the recorded skill sources only; it grants no behavior, evaluation, or support assurance."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/7b85abb3c7a1678f42fc4e38bc4c3e27f26b40d9/skills",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "7b85abb3c7a1678f42fc4e38bc4c3e27f26b40d9"
       }
     },
     {

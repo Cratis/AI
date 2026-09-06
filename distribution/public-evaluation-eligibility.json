@@ -110,6 +110,18 @@
       "reason": "effect-assessment-required"
     },
     {
+      "targetId": "cratis-lens-browser-extension",
+      "reason": "effect-assessment-required"
+    },
+    {
+      "targetId": "cratis-screenplay-model-authoring",
+      "reason": "effect-assessment-required"
+    },
+    {
+      "targetId": "cratis-stage-rendering-and-sandbox",
+      "reason": "effect-assessment-required"
+    },
+    {
       "targetId": "cratis-studio-mcp-safety-guidance",
       "reason": "mcp-guidance-materialization-blocked"
     }

@@ -304,6 +304,21 @@
       ]
     },
     {
+      "id": "rename-cratis-lens-browser-extension",
+      "kind": "retain",
+      "sourceIds": [
+        "cratis-lens-browser-extension"
+      ],
+      "targetIds": [
+        "cratis-lens-browser-extension"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
       "id": "rename-cratis-react-page",
       "kind": "rename",
       "sourceIds": [
@@ -334,6 +349,21 @@
       ]
     },
     {
+      "id": "rename-cratis-screenplay-model-authoring",
+      "kind": "retain",
+      "sourceIds": [
+        "cratis-screenplay-model-authoring"
+      ],
+      "targetIds": [
+        "cratis-screenplay-model-authoring"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
       "id": "rename-cratis-specs-csharp",
       "kind": "rename",
       "sourceIds": [
@@ -356,6 +386,21 @@
       ],
       "targetIds": [
         "cratis-specifications-typescript"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-cratis-stage-rendering-and-sandbox",
+      "kind": "retain",
+      "sourceIds": [
+        "cratis-stage-rendering-and-sandbox"
+      ],
+      "targetIds": [
+        "cratis-stage-rendering-and-sandbox"
       ],
       "state": "proposed",
       "evaluationEvidenceIds": [],

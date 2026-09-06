@@ -52,6 +52,42 @@ changed="$(
 )"
 [ -n "$changed" ] || exit 0
 
+# ── Project discovery ────────────────────────────────────────────────────────
+# A gate names *what kind of project* it builds, never a product's file. The repository's
+# own solution or package is discovered here, so the shipped gates activate unchanged in an
+# application, a framework, or a corpus-only repository. Read lazily: a configuration whose
+# gates all use literal requires.paths never pays for the listing.
+repo_paths=""
+repo_paths_read=0
+repository_paths() {
+    if [ "$repo_paths_read" -eq 0 ]; then
+        repo_paths_read=1
+        repo_paths="$(
+            {
+                git -C "$root" ls-files 2>/dev/null || true
+                git -C "$root" ls-files --others --exclude-standard 2>/dev/null || true
+            } | LC_ALL=C sort -u
+        )"
+    fi
+    printf '%s\n' "$repo_paths"
+}
+
+# Print the repository path a gate should be located by, given newline-separated globs.
+# The globs are tried IN ORDER and the first one with a match wins, so a configuration can
+# state a preference ("a solution at the root, else one anywhere") rather than depending on
+# where a path happens to sort. Prints nothing when nothing matches.
+discover_path() {
+    local g match
+    while IFS= read -r g; do
+        [ -n "$g" ] || continue
+        match="$(repository_paths | hook_glob_first_match "$g" || true)"
+        [ -n "$match" ] && { printf '%s\n' "$match"; return 0; }
+    done <<EOF
+$1
+EOF
+    return 1
+}
+
 gate_count="$(jq -r '.gates | length' "$config")"
 [ "${gate_count:-0}" -gt 0 ] || exit 0
 fail_fast="$(jq -r '.failFast // true' "$config")"
@@ -103,13 +139,30 @@ ran=0
 while [ "$idx" -lt "$gate_count" ]; do
     id="$(jq -r --argjson i "$idx" '.gates[$i].id' "$config")"
     desc="$(jq -r --argjson i "$idx" '.gates[$i].description // ""' "$config")"
-    wd="$(jq -r --argjson i "$idx" '.gates[$i].workingDirectory // "."' "$config")"
+    wd="$(jq -r --argjson i "$idx" '.gates[$i].workingDirectory // ""' "$config")"
 
     if ! gate_triggered "$idx"; then
         [ "$dryrun" = "1" ] && printf 'cratis-quality-gate: SKIP  %-24s (no matching change)\n' "$id" >&2
         idx=$((idx + 1))
         continue
     fi
+
+    # workingDirectoryFrom is discovery AND requirement in one: the gate runs in the directory
+    # of the discovered project file, and a repository holding no such file is a NO-OP.
+    if [ -z "$wd" ]; then
+        wd_globs="$(jq -r --argjson i "$idx" '.gates[$i].workingDirectoryFrom // [] | .[]' "$config")"
+        if [ -n "$wd_globs" ]; then
+            wd_path="$(discover_path "$wd_globs" || true)"
+            if [ -z "$wd_path" ]; then
+                printf 'cratis-quality-gate: NO-OP %-24s — no repository path matches %s. Configure it in %s.\n' \
+                    "$id" "$(printf '%s' "$wd_globs" | tr '\n' ' ')" "${config#"$root"/}" >&2
+                idx=$((idx + 1))
+                continue
+            fi
+            wd="$(dirname "$wd_path")"
+        fi
+    fi
+    [ -n "$wd" ] || wd="."
 
     unmet="$(gate_unmet "$idx")"
     if [ -n "$unmet" ]; then

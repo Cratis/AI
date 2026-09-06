@@ -932,6 +932,16 @@
       "confidence": "high"
     },
     {
+      "id": "modeling-layer-source-authoring-7b85abb",
+      "officialUrl": "https://github.com/Cratis/AI/tree/7b85abb3c7a1678f42fc4e38bc4c3e27f26b40d9/skills",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-09-06",
+      "expiresOn": "2027-09-06",
+      "applicableVersion": "7b85abb3c7a1678f42fc4e38bc4c3e27f26b40d9",
+      "confidence": "high",
+      "immutableRevision": "7b85abb3c7a1678f42fc4e38bc4c3e27f26b40d9"
+    },
+    {
       "id": "nanoclaw-templates-source-1",
       "officialUrl": "https://github.com/nanocoai/nanoclaw/blob/main/docs/templates.md",
       "sourceKind": "official-repository",
