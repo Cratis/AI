@@ -282,12 +282,13 @@
         "skills/cratis-governed-release-methodology/LICENSE",
         "skills/cratis-governed-release-methodology/SKILL.md"
       ],
-      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "sourceRevision": "59f47a614bd2317ca379d99adfd8036b42d2e64e",
       "contentDigest": "7cefb600826715cee05f59ec93f5ff3d9dcbf063e8b2b2ccdbb26560170899d5",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "governed-release-methodology-source-59f47a6"
       ]
     },
     {

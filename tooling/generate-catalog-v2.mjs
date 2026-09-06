@@ -241,10 +241,12 @@ const sourceOverrides = new Map([
         },
     ],
     [
-        // Authored in this repository and not yet rebound to its own merged
-        // revision, so it deliberately carries no extra source evidence id.
         "cratis-governed-release-methodology",
-        { sourcePath: "skills/cratis-governed-release-methodology" },
+        {
+            sourcePath: "skills/cratis-governed-release-methodology",
+            sourceRevision: "59f47a614bd2317ca379d99adfd8036b42d2e64e",
+            evidenceId: "governed-release-methodology-source-59f47a6",
+        },
     ],
     [
         "add-cratis-docs-page",
