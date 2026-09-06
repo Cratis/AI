@@ -251,24 +251,25 @@
     },
     {
       "id": "cratis-csharp-standards",
-      "sourcePath": ".ai/skills/cratis-csharp-standards",
+      "sourcePath": "engineering/skills/cratis-engineering-csharp-conventions",
       "artifactType": "agent-skill-source",
       "currentOwner": "reusable Cratis engineering behavior",
       "targetOwner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "bundledPaths": [
-        ".ai/skills/cratis-csharp-standards/SKILL.md",
-        ".ai/skills/cratis-csharp-standards/evals/evals.json",
-        ".ai/skills/cratis-csharp-standards/references/code-style.md",
-        ".ai/skills/cratis-csharp-standards/references/domain-philosophy.md",
-        ".ai/skills/cratis-csharp-standards/references/exceptions-logging-di.md"
+        "engineering/skills/cratis-engineering-csharp-conventions/LICENSE",
+        "engineering/skills/cratis-engineering-csharp-conventions/SKILL.md",
+        "engineering/skills/cratis-engineering-csharp-conventions/references/code-style.md",
+        "engineering/skills/cratis-engineering-csharp-conventions/references/domain-philosophy.md",
+        "engineering/skills/cratis-engineering-csharp-conventions/references/exceptions-logging-and-di.md"
       ],
-      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-      "contentDigest": "87744eca811ce6c8f733a8e6fdb3f570e35e78b8e9a5eabcf2fca8339e01fb59",
+      "sourceRevision": "ee5c566e4685b26823ae858545495d13615f7af9",
+      "contentDigest": "33103fe25b8ec074d7abc5a7d27631ad2a3d30f1ded4ceb5ce3f896a63e0870d",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "cratis-engineering-csharp-conventions-source-ee5c566"
       ]
     },
     {
@@ -320,44 +321,46 @@
     },
     {
       "id": "cratis-specs-csharp",
-      "sourcePath": ".ai/skills/cratis-specs-csharp",
+      "sourcePath": "skills/cratis-specifications-csharp",
       "artifactType": "agent-skill-source",
       "currentOwner": "reusable Cratis engineering behavior",
       "targetOwner": "public Cratis product capability",
       "audience": "public",
       "bundledPaths": [
-        ".ai/skills/cratis-specs-csharp/SKILL.md",
-        ".ai/skills/cratis-specs-csharp/evals/evals.json",
-        ".ai/skills/cratis-specs-csharp/references/csharp-patterns.md",
-        ".ai/skills/cratis-specs-csharp/references/integration-specs.md"
+        "skills/cratis-specifications-csharp/LICENSE",
+        "skills/cratis-specifications-csharp/SKILL.md",
+        "skills/cratis-specifications-csharp/references/application-scenarios.md",
+        "skills/cratis-specifications-csharp/references/csharp-patterns.md",
+        "skills/cratis-specifications-csharp/references/integration-specs.md"
       ],
-      "sourceRevision": "c2f721c2f80321cfba352d8d2e4209a0881ccb63",
-      "contentDigest": "b52084ff3c16363d7a042dac186d16c1f44e8f1169cd16bbe88037fb6111057d",
+      "sourceRevision": "ee5c566e4685b26823ae858545495d13615f7af9",
+      "contentDigest": "b05f5cca15570df2aa5dff1ed414c9a6f71d4bf622db2ba84652d2c36e3254f0",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
         "reevaluation-authority",
-        "public-skill-reference-closure-c2f721c"
+        "cratis-specifications-csharp-source-ee5c566"
       ]
     },
     {
       "id": "cratis-specs-typescript",
-      "sourcePath": ".ai/skills/cratis-specs-typescript",
+      "sourcePath": "skills/cratis-specifications-typescript",
       "artifactType": "agent-skill-source",
       "currentOwner": "reusable Cratis engineering behavior",
       "targetOwner": "public Cratis product capability",
       "audience": "public",
       "bundledPaths": [
-        ".ai/skills/cratis-specs-typescript/SKILL.md",
-        ".ai/skills/cratis-specs-typescript/evals/evals.json",
-        ".ai/skills/cratis-specs-typescript/references/typescript-patterns.md"
+        "skills/cratis-specifications-typescript/LICENSE",
+        "skills/cratis-specifications-typescript/SKILL.md",
+        "skills/cratis-specifications-typescript/references/typescript-patterns.md"
       ],
-      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-      "contentDigest": "f01196428217c00e5bdcc14ebc86d2bc9dc02c3dcad8c721ff8dfa104fb284a5",
+      "sourceRevision": "ee5c566e4685b26823ae858545495d13615f7af9",
+      "contentDigest": "a07bc1c3307ff993deb688de213f3a95bc7b81a55d339a0aa0a15a555b656384",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "cratis-specifications-typescript-source-ee5c566"
       ]
     },
     {

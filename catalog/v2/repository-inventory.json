@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "c7aab23d1d50b395a8d781e35ea58bd50287ba7ccb64c88d6e35b025ae61789b",
+  "indexDigest": "cdb50a6d59b51d7329f4b75bb0c9b7471af560a53ce0f818cfc8ef66341258f0",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -1044,6 +1044,26 @@
     },
     {
       "path": "distribution/update-bot-contract.json",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-csharp-conventions/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-csharp-conventions/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-csharp-conventions/references/code-style.md",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-csharp-conventions/references/domain-philosophy.md",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-csharp-conventions/references/exceptions-logging-and-di.md",
       "status": "added"
     },
     {
@@ -2691,6 +2711,38 @@
       "status": "added"
     },
     {
+      "path": "skills/cratis-specifications-csharp/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-specifications-csharp/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-specifications-csharp/references/application-scenarios.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-specifications-csharp/references/csharp-patterns.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-specifications-csharp/references/integration-specs.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-specifications-typescript/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-specifications-typescript/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-specifications-typescript/references/typescript-patterns.md",
+      "status": "added"
+    },
+    {
       "path": "skills/cratis-studio-mcp-safety-guidance/LICENSE",
       "status": "added"
     },
@@ -3720,8 +3772,8 @@
         ".ai/skills/cratis-command/**",
         ".ai/skills/cratis-react-page/**",
         ".ai/skills/cratis-readmodel/**",
-        ".ai/skills/cratis-specs-csharp/**",
-        ".ai/skills/cratis-specs-typescript/**",
+        "skills/cratis-specifications-csharp/**",
+        "skills/cratis-specifications-typescript/**",
         "skills/cratis-studio-mcp-safety-guidance/**",
         ".ai/skills/cratis-vertical-slice/**",
         ".ai/skills/create-event-model/**",
@@ -3746,6 +3798,8 @@
         ".ai/skills/write-specs-frontend/**",
         ".ai/skills/write-specs-readmodels/**",
         ".ai/skills/add-concept/**",
+        ".ai/skills/cratis-specs-csharp/**",
+        ".ai/skills/cratis-specs-typescript/**",
         "skills/**"
       ],
       "artifactType": "skill-source-and-resources",
@@ -3757,15 +3811,15 @@
       "dependencies": [
         "catalog/v2/targets.json"
       ],
-      "risk": "critical",
-      "migrationState": "blocked-by-distribution-decision",
+      "risk": "high",
+      "migrationState": "retire-after-evidence",
       "evidenceIds": [
         "repo-main-b795d53",
         "workflows-68",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 68,
-      "expectedPathsDigest": "10b4b75a7848dc8b47f553b6f0158fdf8ac2ce6e57b2db3228e5fd8bbf97a73f"
+      "expectedPathCount": 76,
+      "expectedPathsDigest": "559c81b75a2e1fba780ad4351718693929b0082eb7ec75c2a53b28750dec4bc7"
     },
     {
       "excludePathPatterns": [],
@@ -3798,7 +3852,7 @@
         "tooling/support-validation.mjs"
       ],
       "risk": "critical",
-      "migrationState": "blocked-by-distribution-decision",
+      "migrationState": "retain",
       "evidenceIds": [
         "chronicle-mcp-inspection-source-5997b28",
         "studio-mcp-safety-guidance-source-f96eab8"
@@ -3862,8 +3916,8 @@
         "option-a-plus-authority",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 9,
-      "expectedPathsDigest": "8d3836987b9ad3075a797d6bdd086de34432c3a944bda2393b5aa44d46472009"
+      "expectedPathCount": 14,
+      "expectedPathsDigest": "97dfe37bc4e3b800dfe7f84bdf8e100f06147e9906e6a3b828b964e8493ceaf6"
     },
     {
       "excludePathPatterns": [],

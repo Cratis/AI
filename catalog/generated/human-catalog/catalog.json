@@ -2,12 +2,12 @@
   "schemaVersion": 2,
   "contractVersion": 1,
   "disclaimer": "Catalog inclusion, evaluation evidence, component modeling, planned projection, bundle generation, or publication does not grant runtime permission, emitted bytes, support, or approval.",
-  "inputDigest": "2d5f5870c4756b70b9e60a7751a728f3d9851dba86bd9bd75629cd0ce102db21",
+  "inputDigest": "d6379f34bf504bb1910dd357633b694fe1369c437309287c45ecb62214edfb8e",
   "componentSummary": {
     "disclaimer": "Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.",
-    "total": 137,
+    "total": 140,
     "byKind": {
-      "skill": 49,
+      "skill": 52,
       "agent": 12,
       "subagent": 0,
       "command": 18,
@@ -21,17 +21,17 @@
       "static-asset": 0
     },
     "byTrust": {
-      "passive": 134,
+      "passive": 137,
       "executable": 3
     },
     "byAudience": {
       "public": 37,
-      "cratis-engineering": 100,
+      "cratis-engineering": 103,
       "repository-only": 0
     },
     "byLifecycle": {
       "active": 133,
-      "legacy-retained": 4
+      "legacy-retained": 7
     },
     "projections": {
       "total": 386,
@@ -110,7 +110,9 @@
       ],
       "directTargetIds": [],
       "targetIds": [
-        "cratis-fundamentals-concept"
+        "cratis-fundamentals-concept",
+        "cratis-specifications-csharp",
+        "cratis-specifications-typescript"
       ]
     },
     {
@@ -139,7 +141,8 @@
       ],
       "directTargetIds": [],
       "targetIds": [
-        "cratis-fundamentals-concept"
+        "cratis-fundamentals-concept",
+        "cratis-specifications-csharp"
       ]
     },
     {
@@ -169,7 +172,8 @@
       ],
       "directTargetIds": [],
       "targetIds": [
-        "cratis-fundamentals-concept"
+        "cratis-fundamentals-concept",
+        "cratis-specifications-csharp"
       ]
     },
     {
@@ -207,7 +211,9 @@
       ],
       "directTargetIds": [],
       "targetIds": [
-        "cratis-fundamentals-concept"
+        "cratis-fundamentals-concept",
+        "cratis-specifications-csharp",
+        "cratis-specifications-typescript"
       ]
     },
     {
@@ -244,7 +250,9 @@
       ],
       "directTargetIds": [],
       "targetIds": [
-        "cratis-fundamentals-concept"
+        "cratis-fundamentals-concept",
+        "cratis-specifications-csharp",
+        "cratis-specifications-typescript"
       ]
     },
     {
@@ -274,7 +282,8 @@
       ],
       "directTargetIds": [],
       "targetIds": [
-        "cratis-fundamentals-concept"
+        "cratis-fundamentals-concept",
+        "cratis-specifications-csharp"
       ]
     },
     {
@@ -302,7 +311,8 @@
       ],
       "directTargetIds": [],
       "targetIds": [
-        "cratis-fundamentals-concept"
+        "cratis-fundamentals-concept",
+        "cratis-specifications-csharp"
       ]
     },
     {
@@ -331,7 +341,8 @@
       ],
       "directTargetIds": [],
       "targetIds": [
-        "cratis-fundamentals-concept"
+        "cratis-fundamentals-concept",
+        "cratis-specifications-csharp"
       ]
     },
     {
@@ -366,7 +377,9 @@
       ],
       "directTargetIds": [],
       "targetIds": [
-        "cratis-fundamentals-concept"
+        "cratis-fundamentals-concept",
+        "cratis-specifications-csharp",
+        "cratis-specifications-typescript"
       ]
     },
     {
@@ -970,9 +983,9 @@
       "intendedFor": "Developers who use Cratis Specifications.",
       "audience": "public",
       "packageName": "@cratis/ai-specifications-dotnet",
-      "state": "planned-source-migration",
+      "state": "preview-source-candidate",
       "installable": false,
-      "materialization": "catalog-only",
+      "materialization": "candidate-package",
       "products": [
         "specifications"
       ],
@@ -983,8 +996,12 @@
       "composes": [
         "public-specifications"
       ],
-      "directTargetIds": [],
-      "targetIds": []
+      "directTargetIds": [
+        "cratis-specifications-csharp"
+      ],
+      "targetIds": [
+        "cratis-specifications-csharp"
+      ]
     },
     {
       "id": "public-specifications-typescript",
@@ -993,9 +1010,9 @@
       "intendedFor": "Developers who use Cratis Specifications.",
       "audience": "public",
       "packageName": "@cratis/ai-specifications-typescript",
-      "state": "planned-source-migration",
+      "state": "preview-source-candidate",
       "installable": false,
-      "materialization": "catalog-only",
+      "materialization": "candidate-package",
       "products": [
         "specifications"
       ],
@@ -1007,8 +1024,12 @@
       "composes": [
         "public-specifications"
       ],
-      "directTargetIds": [],
-      "targetIds": []
+      "directTargetIds": [
+        "cratis-specifications-typescript"
+      ],
+      "targetIds": [
+        "cratis-specifications-typescript"
+      ]
     },
     {
       "id": "public-stage",
@@ -1077,7 +1098,9 @@
         "engineering-base"
       ],
       "directTargetIds": [],
-      "targetIds": []
+      "targetIds": [
+        "cratis-engineering-csharp-conventions"
+      ]
     },
     {
       "id": "engineering-application",
@@ -1104,7 +1127,9 @@
         "engineering-base"
       ],
       "directTargetIds": [],
-      "targetIds": []
+      "targetIds": [
+        "cratis-engineering-csharp-conventions"
+      ]
     },
     {
       "id": "engineering-arc",
@@ -1127,7 +1152,9 @@
         "engineering-base"
       ],
       "directTargetIds": [],
-      "targetIds": []
+      "targetIds": [
+        "cratis-engineering-csharp-conventions"
+      ]
     },
     {
       "id": "engineering-arc-ef-core",
@@ -1153,7 +1180,9 @@
         "engineering-arc"
       ],
       "directTargetIds": [],
-      "targetIds": []
+      "targetIds": [
+        "cratis-engineering-csharp-conventions"
+      ]
     },
     {
       "id": "engineering-arc-react",
@@ -1176,7 +1205,9 @@
         "engineering-base"
       ],
       "directTargetIds": [],
-      "targetIds": []
+      "targetIds": [
+        "cratis-engineering-csharp-conventions"
+      ]
     },
     {
       "id": "engineering-base",
@@ -1185,9 +1216,9 @@
       "intendedFor": "Cratis maintainers contributing to Cratis in application projects, framework projects, client projects, documentation projects, and corpus repositories.",
       "audience": "cratis-engineering",
       "packageName": "@cratis/ai-engineering-base",
-      "state": "planned-source-migration",
+      "state": "preview-source-candidate",
       "installable": false,
-      "materialization": "catalog-only",
+      "materialization": "candidate-package",
       "products": [],
       "languages": [],
       "repositoryKinds": [
@@ -1198,8 +1229,12 @@
         "corpus"
       ],
       "composes": [],
-      "directTargetIds": [],
-      "targetIds": []
+      "directTargetIds": [
+        "cratis-engineering-csharp-conventions"
+      ],
+      "targetIds": [
+        "cratis-engineering-csharp-conventions"
+      ]
     },
     {
       "id": "engineering-chronicle",
@@ -1222,7 +1257,9 @@
         "engineering-base"
       ],
       "directTargetIds": [],
-      "targetIds": []
+      "targetIds": [
+        "cratis-engineering-csharp-conventions"
+      ]
     },
     {
       "id": "engineering-chronicle-clients",
@@ -1251,7 +1288,9 @@
         "engineering-base"
       ],
       "directTargetIds": [],
-      "targetIds": []
+      "targetIds": [
+        "cratis-engineering-csharp-conventions"
+      ]
     },
     {
       "id": "engineering-chronicle-mcp",
@@ -1274,7 +1313,9 @@
         "engineering-base"
       ],
       "directTargetIds": [],
-      "targetIds": []
+      "targetIds": [
+        "cratis-engineering-csharp-conventions"
+      ]
     },
     {
       "id": "engineering-components",
@@ -1297,7 +1338,9 @@
         "engineering-base"
       ],
       "directTargetIds": [],
-      "targetIds": []
+      "targetIds": [
+        "cratis-engineering-csharp-conventions"
+      ]
     },
     {
       "id": "engineering-cratis-cli",
@@ -1320,7 +1363,9 @@
         "engineering-base"
       ],
       "directTargetIds": [],
-      "targetIds": []
+      "targetIds": [
+        "cratis-engineering-csharp-conventions"
+      ]
     },
     {
       "id": "engineering-documentation",
@@ -1346,6 +1391,7 @@
         "cratis-engineering-docs-authoring"
       ],
       "targetIds": [
+        "cratis-engineering-csharp-conventions",
         "cratis-engineering-docs-authoring"
       ]
     },
@@ -1370,7 +1416,9 @@
         "engineering-base"
       ],
       "directTargetIds": [],
-      "targetIds": []
+      "targetIds": [
+        "cratis-engineering-csharp-conventions"
+      ]
     },
     {
       "id": "engineering-lens",
@@ -1393,7 +1441,9 @@
         "engineering-base"
       ],
       "directTargetIds": [],
-      "targetIds": []
+      "targetIds": [
+        "cratis-engineering-csharp-conventions"
+      ]
     },
     {
       "id": "engineering-screenplay",
@@ -1416,7 +1466,9 @@
         "engineering-base"
       ],
       "directTargetIds": [],
-      "targetIds": []
+      "targetIds": [
+        "cratis-engineering-csharp-conventions"
+      ]
     },
     {
       "id": "engineering-specifications",
@@ -1441,7 +1493,9 @@
         "engineering-base"
       ],
       "directTargetIds": [],
-      "targetIds": []
+      "targetIds": [
+        "cratis-engineering-csharp-conventions"
+      ]
     },
     {
       "id": "engineering-stage",
@@ -1464,7 +1518,9 @@
         "engineering-base"
       ],
       "directTargetIds": [],
-      "targetIds": []
+      "targetIds": [
+        "cratis-engineering-csharp-conventions"
+      ]
     },
     {
       "id": "engineering-stagehand",
@@ -1488,7 +1544,9 @@
         "engineering-base"
       ],
       "directTargetIds": [],
-      "targetIds": []
+      "targetIds": [
+        "cratis-engineering-csharp-conventions"
+      ]
     },
     {
       "id": "engineering-studio",
@@ -1512,7 +1570,9 @@
         "engineering-base"
       ],
       "directTargetIds": [],
-      "targetIds": []
+      "targetIds": [
+        "cratis-engineering-csharp-conventions"
+      ]
     },
     {
       "id": "engineering-workflows",
@@ -1535,7 +1595,9 @@
         "engineering-base"
       ],
       "directTargetIds": [],
-      "targetIds": []
+      "targetIds": [
+        "cratis-engineering-csharp-conventions"
+      ]
     }
   ],
   "capabilities": [
@@ -3757,45 +3819,104 @@
         "Do not use for React tests.",
         "Do not use for application scenario routing."
       ],
-      "capabilityKind": "unclassified",
-      "invocation": "unclassified",
+      "capabilityKind": "primitive",
+      "invocation": "both",
       "lifecycle": "candidate",
       "approvalState": "candidate",
       "runtimeEligible": false,
       "products": [
-        "cross-product",
+        "arc",
+        "chronicle",
         "specifications"
       ],
       "languages": [
         "csharp"
       ],
       "architectures": {
-        "state": "unclassified",
-        "ids": [],
-        "reason": "Architecture requires reviewed target classification."
+        "state": "applicable",
+        "ids": [
+          "product-neutral"
+        ],
+        "reason": "The Establish/Because/should_ pattern and the for_/when_ hierarchy are the same in application, library, and client repositories."
       },
       "personas": {
-        "state": "unclassified",
-        "ids": [],
-        "reason": "Persona requires reviewed target classification."
+        "state": "applicable",
+        "ids": [
+          "contributor",
+          "developer",
+          "maintainer",
+          "qa"
+        ],
+        "reason": "Contributors, developers, maintainers, and QA all author and review C# specifications."
       },
       "surfaces": {
-        "state": "unclassified",
-        "ids": [],
-        "reason": "Surface requires reviewed target classification."
+        "state": "applicable",
+        "ids": [
+          "backend",
+          "direct-agent-skills",
+          "ide",
+          "pi"
+        ],
+        "reason": "The passive skill guides C# specification source changes from supported agent and IDE surfaces."
       },
       "repositoryProfiles": {
-        "state": "unclassified",
-        "ids": [],
-        "reason": "Repository profile requires reviewed target classification."
+        "state": "applicable",
+        "ids": [
+          "application",
+          "client",
+          "consuming-project",
+          "framework"
+        ],
+        "reason": "Every repository that compiles C# against Cratis packages writes specifications this way."
       },
       "trust": {
         "class": "passive",
-        "assessmentState": "unclassified",
-        "effects": []
+        "assessmentState": "assessed",
+        "effects": [
+          {
+            "id": "create-or-modify-csharp-specification-source",
+            "operation": "modify",
+            "resourceBoundary": "current repository worktree",
+            "scope": "C# specification files and their given/ contexts under the folder the user selected",
+            "dataClassifications": [
+              "internal",
+              "public"
+            ],
+            "reversible": true,
+            "confirmation": {
+              "required": true,
+              "timing": "before-effect",
+              "reason": "The repository owner confirms the specification project and folder before files change."
+            },
+            "authorization": {
+              "required": true,
+              "authority": "Repository maintainer or task owner",
+              "evidenceIds": [
+                "ai-126"
+              ]
+            },
+            "evidenceIds": [
+              "repo-main-b795d53"
+            ],
+            "rollbackOrCompensation": "Restore the prior uncommitted files or revert the dedicated specification commit."
+          }
+        ]
       },
-      "dependencies": [],
-      "authoringContractIds": [],
+      "dependencies": [
+        {
+          "dependencyId": "dotnet",
+          "category": "tool",
+          "strength": "hard",
+          "reason": "The authored specifications must compile and run before the workflow can claim completion.",
+          "missingBehavior": {
+            "action": "block",
+            "description": "Stop before claiming completion when the .NET SDK and the specification project gates are unavailable."
+          }
+        }
+      ],
+      "authoringContractIds": [
+        "cratis-skill-clean-room-v1"
+      ],
       "evidenceIds": [
         "reevaluation-authority",
         "repo-main-b795d53"
@@ -3805,7 +3926,18 @@
         "cratis-specifications-typescript"
       ],
       "bundleIds": [],
-      "profileIds": []
+      "profileIds": [
+        "cratis/application",
+        "cratis/arc",
+        "cratis/chronicle",
+        "cratis/full",
+        "public-application",
+        "public-application-arc-chronicle",
+        "public-application-arc-only",
+        "public-application-chronicle-dotnet",
+        "public-application-react",
+        "public-specifications-dotnet"
+      ]
     },
     {
       "id": "cratis-specifications-typescript",
@@ -3817,45 +3949,101 @@
         "Do not use for C# scenarios.",
         "Do not use for React application slice behavior."
       ],
-      "capabilityKind": "unclassified",
-      "invocation": "unclassified",
+      "capabilityKind": "primitive",
+      "invocation": "both",
       "lifecycle": "candidate",
       "approvalState": "candidate",
       "runtimeEligible": false,
       "products": [
-        "cross-product",
         "specifications"
       ],
       "languages": [
         "typescript"
       ],
       "architectures": {
-        "state": "unclassified",
-        "ids": [],
-        "reason": "Architecture requires reviewed target classification."
+        "state": "applicable",
+        "ids": [
+          "product-neutral"
+        ],
+        "reason": "The given() helper and the for_/when_ hierarchy do not assume an application architecture."
       },
       "personas": {
-        "state": "unclassified",
-        "ids": [],
-        "reason": "Persona requires reviewed target classification."
+        "state": "applicable",
+        "ids": [
+          "contributor",
+          "developer",
+          "maintainer",
+          "qa"
+        ],
+        "reason": "Contributors, developers, maintainers, and QA all author and review TypeScript specifications."
       },
       "surfaces": {
-        "state": "unclassified",
-        "ids": [],
-        "reason": "Surface requires reviewed target classification."
+        "state": "applicable",
+        "ids": [
+          "direct-agent-skills",
+          "frontend",
+          "ide",
+          "pi"
+        ],
+        "reason": "The passive skill guides TypeScript specification source changes from supported agent and IDE surfaces."
       },
       "repositoryProfiles": {
-        "state": "unclassified",
-        "ids": [],
-        "reason": "Repository profile requires reviewed target classification."
+        "state": "applicable",
+        "ids": [
+          "client",
+          "consuming-project",
+          "framework"
+        ],
+        "reason": "The given() specification style is used by the Cratis TypeScript packages and the projects that extend them."
       },
       "trust": {
         "class": "passive",
-        "assessmentState": "unclassified",
-        "effects": []
+        "assessmentState": "assessed",
+        "effects": [
+          {
+            "id": "create-or-modify-typescript-specification-source",
+            "operation": "modify",
+            "resourceBoundary": "current repository worktree",
+            "scope": "TypeScript specification files and their given/ context classes under the folder the user selected",
+            "dataClassifications": [
+              "internal",
+              "public"
+            ],
+            "reversible": true,
+            "confirmation": {
+              "required": true,
+              "timing": "before-effect",
+              "reason": "The repository owner confirms the package and folder before files change."
+            },
+            "authorization": {
+              "required": true,
+              "authority": "Repository maintainer or task owner",
+              "evidenceIds": [
+                "ai-126"
+              ]
+            },
+            "evidenceIds": [
+              "repo-main-b795d53"
+            ],
+            "rollbackOrCompensation": "Restore the prior uncommitted files or revert the dedicated specification commit."
+          }
+        ]
       },
-      "dependencies": [],
-      "authoringContractIds": [],
+      "dependencies": [
+        {
+          "dependencyId": "node",
+          "category": "tool",
+          "strength": "hard",
+          "reason": "The authored specifications must run under the package test command before the workflow can claim completion.",
+          "missingBehavior": {
+            "action": "block",
+            "description": "Stop before claiming completion when the Node toolchain and the package test script are unavailable."
+          }
+        }
+      ],
+      "authoringContractIds": [
+        "cratis-skill-clean-room-v1"
+      ],
       "evidenceIds": [
         "reevaluation-authority",
         "repo-main-b795d53"
@@ -3865,7 +4053,13 @@
         "cratis-specifications-csharp"
       ],
       "bundleIds": [],
-      "profileIds": []
+      "profileIds": [
+        "cratis/application",
+        "cratis/full",
+        "public-application",
+        "public-application-react",
+        "public-specifications-typescript"
+      ]
     },
     {
       "id": "cratis-studio-mcp-safety-guidance",
@@ -3993,8 +4187,8 @@
       "whenNotToUse": [
         "Do not expose broad engineering policy as a public product capability."
       ],
-      "capabilityKind": "unclassified",
-      "invocation": "unclassified",
+      "capabilityKind": "explanation",
+      "invocation": "both",
       "lifecycle": "candidate",
       "approvalState": "candidate",
       "runtimeEligible": false,
@@ -4005,32 +4199,79 @@
         "language-agnostic"
       ],
       "architectures": {
-        "state": "unclassified",
-        "ids": [],
-        "reason": "Architecture requires reviewed target classification."
+        "state": "applicable",
+        "ids": [
+          "product-neutral"
+        ],
+        "reason": "House C# conventions apply to every Cratis repository regardless of the architecture it implements."
       },
       "personas": {
-        "state": "unclassified",
-        "ids": [],
-        "reason": "Persona requires reviewed target classification."
+        "state": "applicable",
+        "ids": [
+          "contributor",
+          "developer",
+          "maintainer"
+        ],
+        "reason": "Contributors, developers, and maintainers apply and review the house C# conventions."
       },
       "surfaces": {
-        "state": "unclassified",
-        "ids": [],
-        "reason": "Surface requires reviewed target classification."
+        "state": "applicable",
+        "ids": [
+          "backend",
+          "direct-agent-skills",
+          "ide",
+          "pi"
+        ],
+        "reason": "The passive skill guides C# source changes from supported agent and IDE surfaces."
       },
       "repositoryProfiles": {
-        "state": "unclassified",
-        "ids": [],
-        "reason": "Repository profile requires reviewed target classification."
+        "state": "applicable",
+        "ids": [
+          "application",
+          "client",
+          "corpus",
+          "framework"
+        ],
+        "reason": "Every Cratis repository that compiles C# follows these conventions; consuming projects own their own style policy."
       },
       "trust": {
         "class": "passive",
-        "assessmentState": "unclassified",
-        "effects": []
+        "assessmentState": "assessed",
+        "effects": [
+          {
+            "id": "modify-csharp-source-for-conventions",
+            "operation": "modify",
+            "resourceBoundary": "current repository worktree",
+            "scope": "the C# source files the user asked to write or bring in line with the conventions",
+            "dataClassifications": [
+              "internal",
+              "public"
+            ],
+            "reversible": true,
+            "confirmation": {
+              "required": true,
+              "timing": "before-effect",
+              "reason": "The repository maintainer confirms which files a convention change may touch before files change."
+            },
+            "authorization": {
+              "required": true,
+              "authority": "Repository maintainer or task owner",
+              "evidenceIds": [
+                "ai-126"
+              ]
+            },
+            "evidenceIds": [
+              "reevaluation-authority",
+              "repo-main-b795d53"
+            ],
+            "rollbackOrCompensation": "Restore the prior uncommitted files or revert the dedicated source commit."
+          }
+        ]
       },
       "dependencies": [],
-      "authoringContractIds": [],
+      "authoringContractIds": [
+        "cratis-skill-clean-room-v1"
+      ],
       "evidenceIds": [
         "reevaluation-authority",
         "repo-main-b795d53"
@@ -4041,7 +4282,28 @@
       "bundleIds": [
         "cratis-engineering-review"
       ],
-      "profileIds": []
+      "profileIds": [
+        "engineering-ai",
+        "engineering-application",
+        "engineering-arc",
+        "engineering-arc-ef-core",
+        "engineering-arc-react",
+        "engineering-base",
+        "engineering-chronicle",
+        "engineering-chronicle-clients",
+        "engineering-chronicle-mcp",
+        "engineering-components",
+        "engineering-cratis-cli",
+        "engineering-documentation",
+        "engineering-fundamentals",
+        "engineering-lens",
+        "engineering-screenplay",
+        "engineering-specifications",
+        "engineering-stage",
+        "engineering-stagehand",
+        "engineering-studio",
+        "engineering-workflows"
+      ]
     },
     {
       "id": "cratis-engineering-docs-add-page",
