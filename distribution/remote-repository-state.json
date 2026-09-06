@@ -15,14 +15,19 @@
       "releaseTagPattern": "dist/vX.Y.Z",
       "note": "The public marketplace lane no longer writes to this repository at all: it stages, verifies, pushes, tags, and releases inside Cratis/AI, and mints no GitHub App token. This repository remains the write target only for the S10-blocked governed release lane, the disabled approved-profile activation job, and the credential-gated fixture and candidate review lane, none of which can execute today.",
       "appliedOutOfBandByRepositoryAdmin": {
-        "state": "PENDING",
+        "state": "BRANCH_AND_TAG_PROTECTION_APPLIED_FIRST_RUN_PENDING",
         "surface": "Cratis/AI",
-        "note": "Branch protection on distribution and tag protection on dist/* are applied by the repository admin through the GitHub API, not by a workflow and not by a pull request, exactly like the protectedEnvironments recorded below. Record the observed protection settings here once they are applied.",
-        "required": [
-          "orphan distribution branch created in Cratis/AI",
-          "distribution protected with force-push disabled, deletion disabled, administrators included, and no human push path",
-          "dist/* tag protection so a release tag is immutable once created",
-          "one real run of the re-pointed Stage Public Marketplace Distribution workflow, and host install evidence re-recorded at the new ref"
+        "appliedOn": "2026-09-06",
+        "appliedBy": "einari",
+        "note": "Branch protection on distribution and tag protection on dist/* were applied by the repository admin through the GitHub API, not by a workflow and not by a pull request, exactly like the protectedEnvironments recorded below.",
+        "observed": {
+          "distributionBranch": "created, seeded with one placeholder commit; allow_force_pushes=false, allow_deletions=false, enforce_admins=true, no push-restriction allowlist so the workflow's GITHUB_TOKEN can still push",
+          "distTagRuleset": "repository ruleset 'Protect dist release tags', target=tag, pattern=refs/tags/dist/*, rules=[deletion, update, non_fast_forward], current_user_can_bypass=never"
+        },
+        "remaining": [
+          "one real run of the re-pointed Stage Public Marketplace Distribution workflow, dispatched from main after #266 merges",
+          "distribution-canary environment approval from woksin for that run's publish job",
+          "host install evidence re-recorded at the new ref under distribution/evidence/"
         ]
       }
     },

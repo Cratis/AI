@@ -30,7 +30,7 @@ it is labeled done or outstanding accordingly.
 | 3 | npm `@cratis` scope ownership and trusted publishing | [Cratis/Workflows#70](https://github.com/Cratis/Workflows/issues/70) | **Done** for `release-passive-previews.yml` — see the caveat in step 3 |
 | 4 | `Cratis/AI.Distribution` GitHub App (`AI_DISTRIBUTION_APP_ID` / `AI_DISTRIBUTION_APP_PRIVATE_KEY`) | [Cratis/Workflows#72](https://github.com/Cratis/Workflows/issues/72) | **Outstanding, and now smaller** — the App is still not installed; the public marketplace lane no longer needs it, three gated workflows still do |
 | 5 | Canary repository and subscriber ring authorization | [Cratis/Workflows#71](https://github.com/Cratis/Workflows/issues/71) | **Outstanding** |
-| 6 | Single-repository re-pointing (protected `distribution` branch, `dist/*` tags) | [#264](https://github.com/Cratis/AI/issues/264) Phase 2 | **Landed in code** ([#266](https://github.com/Cratis/AI/pull/266)) — two configuration items remain, both below |
+| 6 | Single-repository re-pointing (protected `distribution` branch, `dist/*` tags) | [#264](https://github.com/Cratis/AI/issues/264) Phase 2 | **Branch created and protected; code landed in [#266](https://github.com/Cratis/AI/pull/266).** First real dispatch (6b) still outstanding, and needs `distribution-canary` approval from `woksin` |
 | 7 | Archive `Cratis/AI.Distribution` | [#264](https://github.com/Cratis/AI/issues/264) Phase 5 | **Outstanding** — blocked on step 6 |
 | 8 | Marketplace publisher accounts and vendor listing review | [#147](https://github.com/Cratis/AI/issues/147) | **Outstanding** |
 
@@ -163,32 +163,43 @@ profile can leave the basic assurance lane
 **The engineering work has landed in [#266](https://github.com/Cratis/AI/pull/266).**
 Two items remain, and neither can be done from a pull request.
 
-### 6a — create and protect the branch (repository admin, out of band)
+### 6a — create and protect the branch — done 2026-09-06
 
-This is a manual configuration step exactly like steps 1 and 2: a human with
-owner rights applies it through the GitHub API, and no workflow ever creates or
-protects the branch.
+Applied out of band by the repository admin (`einari`), exactly like steps 1
+and 2: through the GitHub API, not a workflow.
 
-1. Create the orphan `distribution` branch in `Cratis/AI`.
-2. Protect it: force-push disabled, deletion disabled, administrators included,
-   and no human push path. Only the release workflow may write it.
-3. Add tag protection for `dist/*` so a release tag is immutable once created.
-4. Confirm the `Cratis/AI` Actions token may create releases and tags.
+1. ✅ Created the orphan `distribution` branch in `Cratis/AI`, seeded with a
+   single "generated, do not edit" placeholder commit.
+2. ✅ Protected it: `allow_force_pushes: false`, `allow_deletions: false`,
+   `enforce_admins: true` (no human push path — not even an owner can force-push
+   or delete without first removing protection). No push-restriction allowlist
+   is set, so the workflow's own `GITHUB_TOKEN` (acting as `github-actions[bot]`)
+   can still push; no human account can push without the same protection change.
+3. ✅ Added a repository ruleset (`Protect dist release tags`, target `tag`,
+   pattern `refs/tags/dist/*`) blocking `deletion`, `update`, and
+   `non_fast_forward` — `current_user_can_bypass: never`, including for owners.
+   Legacy per-tag protection (`/branches/tags/protection`) is retired on GitHub;
+   this is the ruleset equivalent.
+4. ✅ The default `GITHUB_TOKEN` has `contents: write` at the job level in
+   `distribution-public-marketplace.yml`'s `publish` job — no separate
+   confirmation needed beyond that scoping already being correct.
 
-Record the observed settings in
-[`distribution/remote-repository-state.json`](../distribution/remote-repository-state.json)
-under `supersedingDecision.phase2Execution.appliedOutOfBandByRepositoryAdmin`
-once they exist, the same way this page records steps 1 and 2 as `CONFIGURED`.
-
-The staging workflow tolerates the branch not existing yet: it probes for the ref
-and, on a bootstrap run, stages a complete tree with no carried-forward
-candidates and runs the rollback simulation against the staged tree itself. So
-step 6a can be done before or after the first dispatch, but the branch must exist
-and be protected before anyone trusts what lands on it.
+The branch and tag protection are live now, independent of whether/when
+[#266](https://github.com/Cratis/AI/pull/266) merges — they don't depend on the
+workflow code, only on the ref existing.
 
 ### 6b — run the re-pointed workflow once for real
 
-Dispatch **Stage Public Marketplace Distribution**. One run now:
+**Outstanding, and gated on two things:** #266 must be merged (the workflow only
+runs from `main` — `distribution-canary`'s deployment branch policy restricts it
+to `main`), and the `publish` job's `distribution-canary` environment approval
+is required from **`woksin` specifically** (the only registered reviewer,
+`prevent_self_review: false`, no bypass actors configured). A repository admin
+who isn't on that reviewer list cannot approve it without first editing the
+environment's protection rules, which this page does not recommend doing to get
+around the review.
+
+Dispatch **Stage Public Marketplace Distribution** from `main`. One run then:
 
 1. reads `Cratis/AI@distribution` as the current generated state;
 2. stages the complete tree and runs all seven required checks against it;
