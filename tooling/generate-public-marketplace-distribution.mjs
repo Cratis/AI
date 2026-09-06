@@ -61,6 +61,7 @@ export function publicMarketplaceDistributionTag(version) {
         throw new Error("An exact 0.x.y version is required");
     return `dist/v${version}`;
 }
+
 const selectedHarnesses = Object.freeze([
     "agent-skills",
     "agent-plugin",
