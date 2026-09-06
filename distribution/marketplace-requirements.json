@@ -71,7 +71,8 @@
         "plugins/cratis/skills/<skill-name>/SKILL.md"
       ],
       "installCommands": [
-        "/plugin marketplace add <repository>",
+        "/plugin marketplace add Cratis/AI",
+        "/plugin marketplace add Cratis/AI#dist/vX.Y.Z",
         "/plugin install cratis@cratis"
       ],
       "updateCommands": [
@@ -83,7 +84,8 @@
       "constraints": [
         "Marketplace and plugin names use kebab-case.",
         "Relative plugin sources stay inside the marketplace root.",
-        "Generated passive plugins contain skills only and use strict validation."
+        "Generated passive plugins contain skills only and use strict validation.",
+        "The Cratis/AI default branch carries a thin pointer marketplace whose plugin source resolves the immutable dist/vX.Y.Z tag; the generated tree itself lives only on the protected distribution branch."
       ]
     },
     {
@@ -100,7 +102,7 @@
         "plugins/cratis/skills/<skill-name>/SKILL.md"
       ],
       "installCommands": [
-        "codex plugin marketplace add <repository>"
+        "codex plugin marketplace add Cratis/AI --ref dist/vX.Y.Z"
       ],
       "updateCommands": [
         "codex plugin marketplace upgrade cratis"
@@ -128,7 +130,7 @@
         "plugins/cratis/skills/<skill-name>/SKILL.md"
       ],
       "installCommands": [
-        "copilot plugin marketplace add <repository>",
+        "copilot plugin marketplace add Cratis/AI#dist/vX.Y.Z",
         "copilot plugin install cratis@cratis"
       ],
       "updateCommands": [
@@ -158,7 +160,7 @@
         "skills/<skill-name>/SKILL.md"
       ],
       "installCommands": [
-        "gemini extensions install <repository> --ref <immutable-ref>"
+        "gemini extensions install https://github.com/Cratis/AI --ref dist/vX.Y.Z"
       ],
       "updateCommands": [
         "gemini extensions update cratis"
@@ -186,7 +188,7 @@
       ],
       "installCommands": [
         "pi install npm:@cratis/ai@<version>",
-        "pi install git:<repository>@<immutable-ref>"
+        "pi install git:github.com/Cratis/AI@dist/vX.Y.Z"
       ],
       "updateCommands": [
         "pi update npm:@cratis/ai"

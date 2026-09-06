@@ -3,6 +3,12 @@
 
 name: Stage Public Marketplace Distribution
 
+# Generation and every Distribution gate run in the read-only `stage` job.
+# Only `publish` may write, and it writes inside this repository: the protected
+# `distribution` branch, the immutable `dist/vX.Y.Z` tag, and a GitHub Release.
+# The second generated repository is no longer a write target here, so this
+# workflow mints no GitHub App token and reads no AI_DISTRIBUTION_APP_ credential.
+
 on:
   workflow_dispatch:
     inputs:
@@ -22,12 +28,14 @@ permissions:
 
 concurrency:
   group: stage-public-marketplace-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   stage:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    permissions:
+      contents: read
     steps:
       - name: Check out canonical AI source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -36,11 +44,24 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Check out current generated Distribution
+      - name: Resolve the current generated distribution ref
+        id: current
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if gh api "repos/$GITHUB_REPOSITORY/branches/distribution" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check out current generated distribution
+        if: steps.current.outputs.exists == 'true'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          repository: Cratis/AI.Distribution
-          ref: main
+          repository: ${{ github.repository }}
+          ref: distribution
           path: current-distribution
           persist-credentials: false
 
@@ -58,6 +79,7 @@ jobs:
           set -euo pipefail
           [[ "$VERSION" =~ ^0\.[0-9]+\.[0-9]+$ ]]
           [[ "$CANDIDATE_VERSION" =~ ^0\.0\.[0-9]+-candidate\.[0-9]+$ ]]
+          mkdir -p "$GITHUB_WORKSPACE/current-distribution"
           cd source
           node tooling/stage-public-marketplace-repository.mjs \
             "$GITHUB_WORKSPACE/current-distribution" \
@@ -69,9 +91,19 @@ jobs:
             "$RUNNER_TEMP/vendor-portal-handoff"
 
       - name: Verify every Distribution gate
+        env:
+          CURRENT_EXISTS: ${{ steps.current.outputs.exists }}
         run: |
           set -euo pipefail
           validator="$GITHUB_WORKSPACE/source/distribution/repository-control-plane/.github/scripts/verify-generated-distribution.mjs"
+          before_root="$GITHUB_WORKSPACE/current-distribution"
+          if [ "$CURRENT_EXISTS" != "true" ]; then
+            # Bootstrapping the protected branch: there is no previously
+            # published tree to roll back to, so the rollback simulation runs
+            # against the staged tree itself. It still exercises the complete
+            # install, replace, reinstall, digest, and context-preservation path.
+            before_root="$RUNNER_TEMP/staged-distribution"
+          fi
           for check in \
             exact-inventory \
             canonical-byte-parity \
@@ -86,7 +118,7 @@ jobs:
               --check "$check"
             )
             if [ "$check" = "canary-rollback-simulation" ]; then
-              arguments+=(--before-root "$GITHUB_WORKSPACE/current-distribution")
+              arguments+=(--before-root "$before_root")
             fi
             node "$validator" "${arguments[@]}"
           done
@@ -101,3 +133,196 @@ jobs:
           if-no-files-found: error
           include-hidden-files: true
           retention-days: 7
+
+  publish:
+    needs: stage
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: distribution-canary
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Check out canonical AI source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: source
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Resolve the current generated distribution ref
+        id: current
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if gh api "repos/$GITHUB_REPOSITORY/branches/distribution" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check out current generated distribution
+        if: steps.current.outputs.exists == 'true'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ github.repository }}
+          ref: distribution
+          path: current-distribution
+          persist-credentials: false
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+
+      - name: Download the exact marketplace review tree
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v8.0.1
+        with:
+          name: cratis-ai-public-marketplace-${{ inputs.version }}
+          path: ${{ runner.temp }}/review
+
+      - name: Publish the generated tree to the protected distribution branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+          CURRENT_EXISTS: ${{ steps.current.outputs.exists }}
+        run: |
+          set -euo pipefail
+          [[ "$VERSION" =~ ^0\.[0-9]+\.[0-9]+$ ]]
+          gh auth setup-git
+          staged="$RUNNER_TEMP/review/staged-distribution"
+          work="$RUNNER_TEMP/distribution-branch"
+          mkdir -p "$work"
+          git -C "$work" init --quiet --initial-branch distribution
+          git -C "$work" config core.autocrlf false
+          git -C "$work" config user.name "cratis-distribution-bot"
+          git -C "$work" config user.email "distribution-bot@invalid.example"
+          git -C "$work" remote add origin \
+            "https://github.com/$GITHUB_REPOSITORY.git"
+          if [ "$CURRENT_EXISTS" = "true" ]; then
+            git -C "$work" fetch origin distribution
+            git -C "$work" checkout --quiet -B distribution FETCH_HEAD
+          fi
+          rsync -a --delete --exclude=.git "$staged/" "$work/"
+          git -C "$work" add -A
+          git -C "$work" commit --allow-empty \
+            --message "Publish public marketplace distribution $VERSION" \
+            --message "Generated from Cratis/AI@$GITHUB_SHA by ${GITHUB_WORKFLOW}. Machine-written bytes only; never hand-edited."
+          git -C "$work" push origin HEAD:refs/heads/distribution
+          git -C "$work" tag "dist/v$VERSION"
+          git -C "$work" push origin "dist/v$VERSION"
+
+      - name: Verify every Distribution gate on the published branch
+        env:
+          CURRENT_EXISTS: ${{ steps.current.outputs.exists }}
+        run: |
+          set -euo pipefail
+          validator="$GITHUB_WORKSPACE/source/distribution/repository-control-plane/.github/scripts/verify-generated-distribution.mjs"
+          published="$RUNNER_TEMP/distribution-branch"
+          before_root="$GITHUB_WORKSPACE/current-distribution"
+          if [ "$CURRENT_EXISTS" != "true" ]; then
+            before_root="$published"
+          fi
+          for check in \
+            exact-inventory \
+            canonical-byte-parity \
+            native-manifest-parse \
+            checksums \
+            fixture-provenance-record \
+            pack-install-smoke-uninstall \
+            canary-rollback-simulation
+          do
+            arguments=(
+              --root "$published"
+              --check "$check"
+            )
+            if [ "$check" = "canary-rollback-simulation" ]; then
+              arguments+=(--before-root "$before_root")
+            fi
+            node "$validator" "${arguments[@]}"
+          done
+
+      - name: Publish the immutable GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          staged="$RUNNER_TEMP/review/staged-distribution"
+          handoff="$RUNNER_TEMP/review/vendor-portal-handoff"
+          assets="$RUNNER_TEMP/release-assets"
+          mkdir -p "$assets"
+          cp "$staged/SHA256SUMS" "$assets/SHA256SUMS"
+          cp "$staged/provenance.json" "$assets/provenance.json"
+          cp "$staged/distribution-manifest.json" \
+            "$assets/distribution-manifest.json"
+          cp "$staged/marketplace-release.json" \
+            "$assets/marketplace-release.json"
+          cp "$handoff/vendor-portal-handoff.json" \
+            "$assets/vendor-portal-handoff.json"
+          cp "$handoff/SHA256SUMS" "$assets/vendor-portal-handoff.SHA256SUMS"
+          for archive in "$handoff"/*.zip; do
+            cp "$archive" "$assets/$(basename "$archive")"
+          done
+          notes="$RUNNER_TEMP/release-notes.md"
+          {
+            echo "Unsupported \`0.x\` public evaluation distribution."
+            echo
+            echo "Generated from \`Cratis/AI@$GITHUB_SHA\` onto the protected"
+            echo "\`distribution\` branch and tagged \`dist/v$VERSION\`."
+            echo
+            echo "Install commands are in the tagged \`README.md\`. Marketplace"
+            echo "availability does not imply behavior support, broad-rollout"
+            echo "approval, or a stable support claim."
+          } > "$notes"
+          gh release create "dist/v$VERSION" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Cratis AI distribution $VERSION" \
+            --notes-file "$notes" \
+            --verify-tag \
+            "$assets"/*
+
+      - name: Open the marketplace pointer manifest pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          gh auth setup-git
+          work="$RUNNER_TEMP/pointer-manifests"
+          gh repo clone "$GITHUB_REPOSITORY" "$work" -- --branch main
+          node \
+            "$GITHUB_WORKSPACE/source/tooling/generate-marketplace-pointer-manifests.mjs" \
+            "$work" "$VERSION"
+          git -C "$work" add -A
+          if git -C "$work" diff --cached --quiet; then
+            echo "Pointer manifests already reference dist/v$VERSION." \
+              >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          node "$work/tooling/generate-repository-inventory.mjs"
+          git -C "$work" add catalog/v2/repository-inventory.json
+          branch="distribution-pointers/v$VERSION-${GITHUB_SHA:0:12}"
+          git -C "$work" checkout --quiet -b "$branch"
+          git -C "$work" config user.name "cratis-distribution-bot"
+          git -C "$work" config user.email "distribution-bot@invalid.example"
+          git -C "$work" commit \
+            --message "Point marketplace manifests at dist/v$VERSION"
+          git -C "$work" push origin "$branch"
+          body="Generated by \`${GITHUB_WORKFLOW}\` from Cratis/AI@$GITHUB_SHA. Each pointer manifest resolves its plugin from the immutable \`dist/v$VERSION\` tag on the protected \`distribution\` branch, so adding \`Cratis/AI\` as a marketplace never exposes the authored root \`skills/\` tree."
+          if ! gh pr create \
+            --repo "$GITHUB_REPOSITORY" \
+            --base main \
+            --head "$branch" \
+            --label no-release \
+            --title "Point marketplace manifests at dist/v$VERSION" \
+            --body "$body"
+          then
+            {
+              echo "Could not open the pointer manifest pull request."
+              echo "Branch \`$branch\` is pushed; open it by hand at"
+              echo "https://github.com/$GITHUB_REPOSITORY/compare/main...$branch"
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi

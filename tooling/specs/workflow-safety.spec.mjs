@@ -227,7 +227,7 @@ test("Fundamentals preview workflow is read-only short-lived and non-publishing"
         assert.equal(workflow.includes(forbidden), false, forbidden);
 });
 
-test("public marketplace staging is read-only and runs every Distribution gate", () => {
+test("public marketplace generation stays read-only and gates every publish", () => {
     const workflow = readFileSync(
         ".github/workflows/distribution-public-marketplace.yml",
         "utf8",
@@ -235,12 +235,14 @@ test("public marketplace staging is read-only and runs every Distribution gate",
     for (const required of [
         "workflow_dispatch:",
         "permissions:\n  contents: read",
-        "repository: Cratis/AI.Distribution",
+        "repository: ${{ github.repository }}",
+        "ref: distribution",
         "candidate-version:",
         "0.0.2-candidate.1",
         "CANDIDATE_VERSION",
         "stage-public-marketplace-repository.mjs",
         "package-public-marketplace-submissions.mjs",
+        "generate-marketplace-pointer-manifests.mjs",
         "vendor-portal-handoff",
         "exact-inventory",
         "canonical-byte-parity",
@@ -251,16 +253,67 @@ test("public marketplace staging is read-only and runs every Distribution gate",
         "canary-rollback-simulation",
         "include-hidden-files: true",
         "retention-days: 7",
+        "environment: distribution-canary",
+        "rsync -a --delete --exclude=.git",
+        "push origin HEAD:refs/heads/distribution",
+        'git -C "$work" tag "dist/v$VERSION"',
+        'gh release create "dist/v$VERSION"',
+        "--verify-tag",
+        "--label no-release",
     ])
         assert(workflow.includes(required), required);
     for (const forbidden of [
         "id-token: write",
+        "secrets:",
+        "npm publish",
+        "AI_DISTRIBUTION_APP_ID",
+        "AI_DISTRIBUTION_APP_PRIVATE_KEY",
+        "create-github-app-token",
+        "Cratis/AI.Distribution",
+        "--force",
+        "push -f",
+    ])
+        assert.equal(workflow.includes(forbidden), false, forbidden);
+    const [, publish] = workflow.split("  publish:\n");
+    for (const scoped of ["contents: write", "pull-requests: write"]) {
+        assert(publish.includes(scoped), scoped);
+        assert.equal(
+            workflow.slice(0, workflow.indexOf("  publish:\n")).includes(scoped),
+            false,
+            scoped,
+        );
+    }
+});
+
+test("the distribution branch has a live control plane inside Cratis/AI", () => {
+    const workflow = readFileSync(
+        ".github/workflows/verify-distribution-branch.yml",
+        "utf8",
+    );
+    const contract = JSON.parse(
+        readFileSync("distribution/generated-repository-contract.json", "utf8"),
+    );
+    for (const required of [
+        'branches: ["distribution"]',
+        "workflow_dispatch:",
+        "permissions:\n  contents: read",
+        "persist-credentials: false",
+        "ref: distribution",
+        "fail-fast: false",
+        "distribution/repository-control-plane/.github/scripts/verify-generated-distribution.mjs",
+    ])
+        assert(workflow.includes(required), required);
+    for (const check of contract.requiredChecks)
+        assert(workflow.includes(`          - ${check}`), check);
+    for (const forbidden of [
+        "pull_request_target:",
         "contents: write",
+        "id-token: write",
         "pull-requests: write",
         "secrets:",
-        "git push",
-        "gh release",
         "npm publish",
+        "gh release",
+        "git push",
     ])
         assert.equal(workflow.includes(forbidden), false, forbidden);
 });

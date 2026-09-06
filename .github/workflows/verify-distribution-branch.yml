@@ -1,0 +1,119 @@
+# Copyright (c) Cratis. All rights reserved.
+# Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+name: Verify Distribution Branch
+
+# The live copy of the generated-distribution control plane, running inside
+# Cratis/AI against the protected `distribution` branch. It is the standing,
+# out-of-band check: the per-release gate is the pre-push and post-push
+# verification inside `distribution-public-marketplace.yml`.
+#
+# The `distribution` branch also carries the mirrored control-plane copy at
+# `.github/workflows/verify-generated-distribution.yml`, because
+# `distribution/generated-repository-contract.json` admits exactly that path in
+# the generated tree. GitHub resolves a `push` trigger from the workflow files on
+# the pushed ref, so the `push` block below only fires once that mirrored copy
+# matches it; `workflow_dispatch` and `schedule` make this workflow runnable from
+# `main` regardless.
+
+on:
+  push:
+    branches: ["distribution"]
+  schedule:
+    - cron: "23 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-distribution-branch
+  cancel-in-progress: true
+
+jobs:
+  resolve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      exists: ${{ steps.branch.outputs.exists }}
+    steps:
+      - name: Resolve the protected distribution branch
+        id: branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if gh api "repos/$GITHUB_REPOSITORY/branches/distribution" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::The protected distribution branch does not exist yet."
+          fi
+
+  verify:
+    needs: resolve
+    if: needs.resolve.outputs.exists == 'true'
+    name: ${{ matrix.check }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        check:
+          - exact-inventory
+          - canonical-byte-parity
+          - native-manifest-parse
+          - checksums
+          - fixture-provenance-record
+          - pack-install-smoke-uninstall
+          - canary-rollback-simulation
+    steps:
+      - name: Check out the reviewed control plane
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: source
+          persist-credentials: false
+
+      - name: Check out the protected distribution branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: distribution
+          path: current
+          fetch-depth: 2
+          persist-credentials: false
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+
+      - name: Materialize the previous protected state
+        run: |
+          set -euo pipefail
+          previous="$GITHUB_WORKSPACE/previous"
+          mkdir -p "$previous"
+          if git -C "$GITHUB_WORKSPACE/current" rev-parse --verify --quiet HEAD~1 >/dev/null; then
+            git -C "$GITHUB_WORKSPACE/current" archive HEAD~1 \
+              | tar -x -C "$previous"
+          else
+            # The branch has a single commit, so the only state it can roll back
+            # to is itself. The simulation still exercises the complete install,
+            # replace, reinstall, digest, and context-preservation path.
+            git -C "$GITHUB_WORKSPACE/current" archive HEAD | tar -x -C "$previous"
+          fi
+
+      - name: Run exact Distribution check
+        env:
+          CHECK: ${{ matrix.check }}
+        run: |
+          set -euo pipefail
+          validator="$GITHUB_WORKSPACE/source/distribution/repository-control-plane/.github/scripts/verify-generated-distribution.mjs"
+          arguments=(
+            --root "$GITHUB_WORKSPACE/current"
+            --check "$CHECK"
+          )
+          if [ "$CHECK" = "canary-rollback-simulation" ]; then
+            arguments+=(--before-root "$GITHUB_WORKSPACE/previous")
+          fi
+          node "$validator" "${arguments[@]}"

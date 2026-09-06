@@ -539,6 +539,7 @@ const definitions = [
             ".github/workflows/release-approved-ai-profiles.yml",
             ".github/workflows/release-passive-previews.yml",
             ".github/workflows/verify-ai-corpus.yml",
+            ".github/workflows/verify-distribution-branch.yml",
             ".github/workflows/verify-no-work-records.yml",
             ".github/workflows/verify-semver-label.yml",
         ],
@@ -1311,18 +1312,51 @@ const definitions = [
         migrationState: "retain",
         evidenceIds: ["reevaluation-authority"],
     },
+    {
+        id: "marketplace-pointer-manifests",
+        absentUntilGenerated: true,
+        sourcePathPatterns: [
+            ".agents/plugins/marketplace.json",
+            ".claude-plugin/marketplace.json",
+            ".cursor-plugin/marketplace.json",
+            ".github/plugin/marketplace.json",
+        ],
+        artifactType: "repository-metadata",
+        currentOwner: repositoryOwner,
+        targetOwner: repositoryOwner,
+        runtimeEligibility: "repository-only",
+        generatedStatus: "generated",
+        adapterStatus: "none",
+        dependencies: [
+            "distribution/marketplace-requirements.json",
+            "tooling/generate-public-marketplace-distribution.mjs",
+        ],
+        risk: "medium",
+        migrationState: "retain",
+        evidenceIds: ["repo-main-b795d53", "option-a-plus-authority"],
+        generator: "tooling/generate-marketplace-pointer-manifests.mjs",
+    },
 ];
 
-const records = definitions.map((definition) => {
-    const record = { excludePathPatterns: [], ...definition };
+// A record marked `absentUntilGenerated` claims paths that a release workflow
+// commits later, so it is omitted while none of them exist. Every other record
+// must match, because a record that stops matching means a path silently lost
+// its owner.
+const records = definitions.flatMap((definition) => {
+    const { absentUntilGenerated = false, ...rest } = definition;
+    const record = { excludePathPatterns: [], ...rest };
     const paths = expandInventoryRecord(record, universe);
-    if (paths.length === 0)
+    if (paths.length === 0) {
+        if (absentUntilGenerated) return [];
         throw new Error(`Inventory record ${record.id} matches no paths`);
-    return {
-        ...record,
-        expectedPathCount: paths.length,
-        expectedPathsDigest: pathDigest(paths),
-    };
+    }
+    return [
+        {
+            ...record,
+            expectedPathCount: paths.length,
+            expectedPathsDigest: pathDigest(paths),
+        },
+    ];
 });
 
 const output = {

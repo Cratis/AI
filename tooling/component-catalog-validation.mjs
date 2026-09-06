@@ -31,6 +31,21 @@ export const componentCatalogPaths = Object.freeze({
     artifacts: "catalog/v2/artifacts.json",
 });
 
+// Generated marketplace pointer manifests sit inside a host adapter's output
+// prefix but are distribution artifacts, not component projections: they are
+// written by tooling/generate-marketplace-pointer-manifests.mjs and owned by the
+// marketplace-pointer-manifests repository inventory record. Keeping them out of
+// the host output closure is what lets a host discover the marketplace without
+// the projection catalog claiming to have generated it.
+// tooling/specs/public-marketplace-distribution.spec.mjs asserts this list stays
+// identical to the generator's own inventory.
+export const distributionPointerOutputs = new Set([
+    ".agents/plugins/marketplace.json",
+    ".claude-plugin/marketplace.json",
+    ".cursor-plugin/marketplace.json",
+    ".github/plugin/marketplace.json",
+]);
+
 const expectedComponentAnchor =
     "4bdaeb61b53a3e0c8d1812d6e6d0dc5dde2836d21cd9fe499568af4e29cfec4e";
 const expectedProjectionAnchor =
@@ -846,7 +861,9 @@ export function validateComponentProjections(
                             adapterLeaves(root, prefix),
                         ),
                     ),
-                ].sort(compareOrdinal);
+                ]
+                    .filter((path) => !distributionPointerOutputs.has(path))
+                    .sort(compareOrdinal);
                 if (
                     JSON.stringify(actualOutputs) !==
                     JSON.stringify(declaredOutputs)

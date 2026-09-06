@@ -2,15 +2,28 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
+import {
+    mkdirSync,
+    mkdtempSync,
+    readFileSync,
+    readdirSync,
+    rmSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import { execFileSync } from "node:child_process";
 import { validateAgainstSchema } from "../catalog-validation.mjs";
+import { distributionPointerOutputs } from "../component-catalog-validation.mjs";
 import { generateDistributionFixture } from "../generate-distribution-fixture.mjs";
 import {
+    generateMarketplacePointerManifests,
+    marketplacePointerManifestPaths,
+} from "../generate-marketplace-pointer-manifests.mjs";
+import {
     generatePublicMarketplaceDistribution,
+    publicMarketplaceDistributionTag,
+    publicMarketplaceIdentity,
     selectEvaluationEligibleAuthority,
 } from "../generate-public-marketplace-distribution.mjs";
 import { loadPassiveCandidateAuthority } from "../package-passive-candidate-assets.mjs";
@@ -187,7 +200,7 @@ test("marketplace root contains every first-class install shape", () => {
         assert.equal(packageJson.private, true);
         assert.equal(
             packageJson.repository.url,
-            "https://github.com/Cratis/AI.Distribution",
+            "https://github.com/Cratis/AI",
         );
         assert.deepEqual(packageJson.pi.skills, ["./skills"]);
         for (const forbidden of [
@@ -199,14 +212,107 @@ test("marketplace root contains every first-class install shape", () => {
             assert.equal(packageJson[forbidden], undefined, forbidden);
         const readme = readFileSync(join(root, "README.md"), "utf8");
         for (const command of [
-            "/plugin marketplace add Cratis/AI.Distribution",
-            "codex plugin marketplace add Cratis/AI.Distribution --ref v0.2.0",
-            "copilot plugin marketplace add Cratis/AI.Distribution",
-            "gemini extensions install https://github.com/Cratis/AI.Distribution --ref v0.2.0",
-            "pi install git:github.com/Cratis/AI.Distribution@v0.2.0",
+            "/plugin marketplace add Cratis/AI#dist/v0.2.0",
+            "codex plugin marketplace add Cratis/AI --ref dist/v0.2.0",
+            "copilot plugin marketplace add Cratis/AI#dist/v0.2.0",
+            "gemini extensions install https://github.com/Cratis/AI --ref dist/v0.2.0",
+            "pi install git:github.com/Cratis/AI@dist/v0.2.0",
         ])
             assert(readme.includes(command), command);
+        assert.equal(readme.includes("Cratis/AI.Distribution"), false);
     });
+});
+
+test("the marketplace records where its immutable bytes actually live", () => {
+    withTemporaryDirectory((temporaryRoot) => {
+        const root = join(temporaryRoot, "marketplace");
+        const { provenance } = generatePublicMarketplaceDistribution({
+            outputRoot: root,
+            version: "0.2.0",
+        });
+        assert.equal(provenance.canonicalRepository, "Cratis/AI");
+        assert.equal(provenance.distributionRepository, "Cratis/AI");
+        assert.equal(provenance.distributionRef, "dist/v0.2.0");
+        assert.equal(
+            publicMarketplaceIdentity.distributionBranch,
+            "distribution",
+        );
+        assert.equal(
+            publicMarketplaceIdentity.pluginRoot,
+            "plugins/public-cratis-ai",
+        );
+        assert.equal(publicMarketplaceDistributionTag("0.3.0"), "dist/v0.3.0");
+        assert.throws(
+            () => publicMarketplaceDistributionTag("1.0.0"),
+            /exact 0\.x\.y version/,
+        );
+    });
+});
+
+test("default-branch pointer manifests resolve only the immutable tag", () => {
+    withTemporaryDirectory((temporaryRoot) => {
+        const root = join(temporaryRoot, "pointers");
+        mkdirSync(root, { recursive: true });
+        const result = generateMarketplacePointerManifests({
+            outputRoot: root,
+            version: "0.3.0",
+        });
+        assert.deepEqual(result.paths, [...marketplacePointerManifestPaths]);
+        assert.equal(result.tag, "dist/v0.3.0");
+        const requirements = readJson(
+            "distribution/marketplace-requirements.json",
+        );
+        const requiredRoots = new Set(
+            requirements.requirements.flatMap(
+                (requirement) => requirement.requiredRoots,
+            ),
+        );
+        for (const path of marketplacePointerManifestPaths) {
+            assert(requiredRoots.has(path), path);
+            const manifest = readJson(join(root, path));
+            assert.equal(manifest.name, "cratis");
+            assert.equal(manifest.plugins.length, 1);
+            assert.deepEqual(manifest.plugins[0].source, {
+                source: "github",
+                repo: "Cratis/AI",
+                ref: "dist/v0.3.0",
+                path: "plugins/public-cratis-ai",
+            });
+        }
+        // The hosts that read a repository root directly must never be pointed
+        // at the Cratis/AI default branch, or they would discover the authored
+        // root skills/ tree instead of the generated package.
+        for (const forbidden of [
+            "gemini-extension.json",
+            "plugin.json",
+            "package.json",
+        ])
+            assert.equal(
+                marketplacePointerManifestPaths.includes(forbidden),
+                false,
+                forbidden,
+            );
+    });
+});
+
+test("pointer manifests are owned by distribution, not by a host projection", () => {
+    assert.deepEqual(
+        [...distributionPointerOutputs].sort(),
+        [...marketplacePointerManifestPaths],
+    );
+    const inventoryGenerator = readFileSync(
+        "tooling/generate-repository-inventory.mjs",
+        "utf8",
+    );
+    assert(inventoryGenerator.includes('id: "marketplace-pointer-manifests"'));
+    assert(inventoryGenerator.includes("absentUntilGenerated: true"));
+    assert(
+        inventoryGenerator.includes(
+            'generator: "tooling/generate-marketplace-pointer-manifests.mjs"',
+        ),
+    );
+    for (const path of marketplacePointerManifestPaths)
+        assert(inventoryGenerator.includes(`"${path}"`), path);
 });
 
 test("canonical skills and plugin copies remain byte-identical", () => {
@@ -288,10 +394,7 @@ test("OpenAI and Cursor handoff metadata is complete but non-supporting", () => 
         assert(openAi.requiredOwnerInputs.includes("privacy policy URL"));
         assert.equal(openAi.requiredOwnerInputs.includes("logo"), false);
         assert.equal(openAi.supportGranted, false);
-        assert.equal(
-            cursor.repository,
-            "https://github.com/Cratis/AI.Distribution",
-        );
+        assert.equal(cursor.repository, "https://github.com/Cratis/AI");
         assert.equal(cursor.pluginManifest, "plugin.json");
         assert.equal(cursor.supportGranted, false);
     });
@@ -372,6 +475,35 @@ test("complete staged repository passes every protected Distribution check", () 
                 { check, status: "PASS", supporting: false },
             );
         }
+    });
+});
+
+test("bootstrapping an empty distribution branch stages a complete tree", () => {
+    withTemporaryDirectory((temporaryRoot) => {
+        const stagedRoot = join(temporaryRoot, "staged");
+        stagePublicMarketplaceRepository({
+            currentDistributionRoot: join(temporaryRoot, "never-published"),
+            outputRoot: stagedRoot,
+            version: "0.2.0",
+        });
+        for (const check of distributionCheckNames) {
+            assert.deepEqual(
+                verifyDistributionCheck({
+                    root: stagedRoot,
+                    check,
+                    beforeRoot: stagedRoot,
+                }),
+                { check, status: "PASS", supporting: false },
+            );
+        }
+        assert.throws(
+            () =>
+                stagePublicMarketplaceRepository({
+                    outputRoot: join(temporaryRoot, "unreachable"),
+                    version: "0.2.0",
+                }),
+            /currentDistributionRoot is required/,
+        );
     });
 });
 

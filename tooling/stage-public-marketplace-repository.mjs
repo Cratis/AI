@@ -27,6 +27,11 @@ const generatedRepositoryContract = readJson(
     ),
 );
 
+// currentDistributionRoot is the previously published generated tree, read only
+// to carry forward its reviewed candidate bundles. It may be missing or empty
+// the first time the protected Cratis/AI distribution branch is initialized, so
+// an absent path stages a complete tree with no carried-forward candidates
+// instead of failing the bootstrap run.
 export function stagePublicMarketplaceRepository({
     repositoryRoot = defaultRepositoryRoot,
     currentDistributionRoot,
@@ -34,8 +39,8 @@ export function stagePublicMarketplaceRepository({
     version,
     candidateVersion = "0.0.2-candidate.1",
 } = {}) {
-    if (!currentDistributionRoot || !existsSync(currentDistributionRoot))
-        throw new Error("currentDistributionRoot must exist");
+    if (!currentDistributionRoot)
+        throw new Error("currentDistributionRoot is required");
     if (!outputRoot) throw new Error("outputRoot is required");
     const currentRoot = resolve(currentDistributionRoot);
     const root = resolve(outputRoot);

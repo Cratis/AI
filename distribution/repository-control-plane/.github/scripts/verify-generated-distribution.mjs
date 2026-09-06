@@ -643,7 +643,8 @@ function verifyFixtureProvenance(root) {
             manifest.promotionEligible !== false ||
             provenance.state !== "PUBLIC_EVALUATION_MARKETPLACE_NOT_SUPPORT" ||
             provenance.canonicalRepository !== "Cratis/AI" ||
-            provenance.distributionRepository !== "Cratis/AI.Distribution" ||
+            provenance.distributionRepository !== "Cratis/AI" ||
+            provenance.distributionRef !== `dist/v${manifest.version}` ||
             provenance.generator !==
                 "tooling/generate-public-marketplace-distribution.mjs" ||
             provenance.version !== manifest.version ||

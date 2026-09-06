@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "fd8b66fb867a985fc6837607f0f60623c68189790cc8e5d6e12095628d76e47c",
+  "indexDigest": "b6e612619b9bd51413ab3a09a0d2531750b689f8ae8720a157236a3eb497955f",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -268,6 +268,10 @@
     },
     {
       "path": ".github/workflows/verify-ai-corpus.yml",
+      "status": "added"
+    },
+    {
+      "path": ".github/workflows/verify-distribution-branch.yml",
       "status": "added"
     },
     {
@@ -2699,6 +2703,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/generate-marketplace-pointer-manifests.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/generate-mcp-guidance-references.mjs",
       "status": "added"
     },
@@ -3815,6 +3823,7 @@
         ".github/workflows/release-approved-ai-profiles.yml",
         ".github/workflows/release-passive-previews.yml",
         ".github/workflows/verify-ai-corpus.yml",
+        ".github/workflows/verify-distribution-branch.yml",
         ".github/workflows/verify-no-work-records.yml",
         ".github/workflows/verify-semver-label.yml"
       ],
@@ -3834,8 +3843,8 @@
         "repo-main-b795d53",
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 15,
-      "expectedPathsDigest": "e7a40c6e4bd8650f56d99277f622e6bfa82677da93076bf28ef48829c4a5ec57"
+      "expectedPathCount": 16,
+      "expectedPathsDigest": "88c1cc3e84324281c117f22360726e8b839a0bc5938210dedc6f651c9c45166c"
     },
     {
       "excludePathPatterns": [],
@@ -4755,8 +4764,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 82,
-      "expectedPathsDigest": "3c9fb1c83e8ff23d6968d62cfa0b16c6637b41cef412bebdaa07407a59656e9e"
+      "expectedPathCount": 83,
+      "expectedPathsDigest": "15d0941cdb0167a69cc94061edad32d86b4dd7b8bc7d136fc0384bd6d4c12e97"
     },
     {
       "excludePathPatterns": [],

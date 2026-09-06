@@ -34,11 +34,33 @@ const profileId = "public-cratis-ai";
 const packageName = "@cratis/ai";
 const description =
     "Cratis AI skills for event-sourced and CQRS application development";
-const repositoryUrl = "https://github.com/Cratis/AI.Distribution";
+const repositoryUrl = "https://github.com/Cratis/AI";
+const distributionRepository = "Cratis/AI";
 const homepage = "https://cratis.io/ai";
 const openAiDeveloperName = "SINDRE ALSTAD WILTING";
 const brandAssetPath = "distribution/assets/cratis-logo.png";
 const brandProvenancePath = "distribution/assets/cratis-logo.provenance.json";
+
+// The single source of truth for who publishes the public marketplace and where
+// its immutable bytes live. tooling/generate-marketplace-pointer-manifests.mjs
+// reuses these so the thin pointer manifests on the Cratis/AI default branch and
+// the generated tree on the protected distribution branch cannot drift apart.
+export const publicMarketplaceIdentity = Object.freeze({
+    profileId,
+    packageName,
+    description,
+    homepage,
+    repositoryUrl,
+    distributionRepository,
+    distributionBranch: "distribution",
+    pluginRoot: `plugins/${profileId}`,
+});
+
+export function publicMarketplaceDistributionTag(version) {
+    if (!/^0\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)$/.test(version ?? ""))
+        throw new Error("An exact 0.x.y version is required");
+    return `dist/v${version}`;
+}
 const selectedHarnesses = Object.freeze([
     "agent-skills",
     "agent-plugin",
@@ -271,22 +293,27 @@ function mergeRoot(sourceRoot, outputRoot, origins, harness) {
 }
 
 function marketplaceReadme(version) {
+    const tag = publicMarketplaceDistributionTag(version);
     return (
         `# Cratis AI\n\n` +
         `Passive skills for building event-sourced and CQRS applications with Cratis.\n\n` +
+        `These bytes are generated into the protected \`distribution\` branch of ` +
+        `[\`${distributionRepository}\`](${repositoryUrl}) and tagged \`${tag}\`. ` +
+        `Install from the tag; the \`${distributionRepository}\` default branch only carries thin ` +
+        `pointer marketplace manifests that resolve to it.\n\n` +
         `## Install\n\n` +
         `### Claude Code\n\n` +
-        `\`\`\`text\n/plugin marketplace add Cratis/AI.Distribution\n/plugin install ${profileId}@cratis\n\`\`\`\n\n` +
+        `\`\`\`text\n/plugin marketplace add ${distributionRepository}#${tag}\n/plugin install ${profileId}@cratis\n\`\`\`\n\n` +
         `### OpenAI Codex CLI\n\n` +
-        `\`\`\`bash\ncodex plugin marketplace add Cratis/AI.Distribution --ref v${version}\ncodex plugin add ${profileId}@cratis\n\`\`\`\n\n` +
+        `\`\`\`bash\ncodex plugin marketplace add ${distributionRepository} --ref ${tag}\ncodex plugin add ${profileId}@cratis\n\`\`\`\n\n` +
         `### GitHub Copilot CLI\n\n` +
-        `\`\`\`bash\ncopilot plugin marketplace add Cratis/AI.Distribution\ncopilot plugin install ${profileId}@cratis\n\`\`\`\n\n` +
+        `\`\`\`bash\ncopilot plugin marketplace add ${distributionRepository}#${tag}\ncopilot plugin install ${profileId}@cratis\n\`\`\`\n\n` +
         `### Gemini CLI\n\n` +
-        `\`\`\`bash\ngemini extensions install https://github.com/Cratis/AI.Distribution --ref v${version}\n\`\`\`\n\n` +
+        `\`\`\`bash\ngemini extensions install ${repositoryUrl} --ref ${tag}\n\`\`\`\n\n` +
         `### Kiro\n\n` +
-        `Choose **Add Custom Power**, then import \`${repositoryUrl}\`.\n\n` +
+        `Choose **Add Custom Power**, then import \`${repositoryUrl}\` at \`${tag}\`.\n\n` +
         `### Pi\n\n` +
-        `\`\`\`bash\npi install git:github.com/Cratis/AI.Distribution@v${version}\n\`\`\`\n\n` +
+        `\`\`\`bash\npi install git:github.com/${distributionRepository}@${tag}\n\`\`\`\n\n` +
         `### Generic Agent Skills and Agent Plugins\n\n` +
         `Use the root \`skills/\` directory or root \`plugin.json\` from the tagged repository.\n\n` +
         `## Status\n\n` +
@@ -513,7 +540,8 @@ export function generatePublicMarketplaceDistribution({
             schemaVersion: "1.0.0",
             state: "PUBLIC_EVALUATION_MARKETPLACE_NOT_SUPPORT",
             canonicalRepository: "Cratis/AI",
-            distributionRepository: "Cratis/AI.Distribution",
+            distributionRepository,
+            distributionRef: publicMarketplaceDistributionTag(version),
             sourceCommit,
             generator: "tooling/generate-public-marketplace-distribution.mjs",
             version,
