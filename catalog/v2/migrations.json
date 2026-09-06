@@ -739,6 +739,21 @@
       ]
     },
     {
+      "id": "retain-cratis-engineering-decision-record",
+      "kind": "retain",
+      "sourceIds": [
+        "cratis-engineering-decision-record"
+      ],
+      "targetIds": [
+        "cratis-engineering-decision-record"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
       "id": "retain-skill-creator",
       "kind": "retain",
       "sourceIds": [

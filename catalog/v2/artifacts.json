@@ -124,6 +124,7 @@
         "skills": [
           "cratis-engineering-chronicle-kernel-tracing",
           "cratis-engineering-csharp-conventions",
+          "cratis-engineering-decision-record",
           "cratis-engineering-docs-add-page",
           "cratis-engineering-docs-authoring",
           "cratis-engineering-docs-edit-page",
@@ -395,6 +396,7 @@
         "skills": [
           "cratis-engineering-chronicle-kernel-tracing",
           "cratis-engineering-csharp-conventions",
+          "cratis-engineering-decision-record",
           "cratis-engineering-docs-add-page",
           "cratis-engineering-docs-authoring",
           "cratis-engineering-docs-edit-page",
@@ -432,6 +434,9 @@
         "engineering/skills/cratis-engineering-csharp-conventions/references/code-style.md",
         "engineering/skills/cratis-engineering-csharp-conventions/references/domain-philosophy.md",
         "engineering/skills/cratis-engineering-csharp-conventions/references/exceptions-logging-and-di.md",
+        "engineering/skills/cratis-engineering-decision-record/LICENSE",
+        "engineering/skills/cratis-engineering-decision-record/SKILL.md",
+        "engineering/skills/cratis-engineering-decision-record/references/record-format.md",
         "engineering/skills/cratis-engineering-docs-add-page/LICENSE",
         "engineering/skills/cratis-engineering-docs-add-page/SKILL.md",
         "engineering/skills/cratis-engineering-docs-add-page/references/ownership-and-navigation.md",

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generatedBy": "tooling/generate-component-catalogs.mjs",
-  "sourceDigest": "aae0618468853f291c14c8f4fe5ecd73c3710e921a1f830653bd2fecef262fef",
+  "sourceDigest": "e41415db4d283fa60059238716d9252a55e8199c2f7629d093a9af759cfe36be",
   "defaultPolicy": "deny",
   "canonicalSourceRoots": [
     ".ai/agents",
@@ -55,6 +55,7 @@
     ".pi/extensions/subagent",
     "engineering/skills/cratis-engineering-chronicle-kernel-tracing",
     "engineering/skills/cratis-engineering-csharp-conventions",
+    "engineering/skills/cratis-engineering-decision-record",
     "engineering/skills/cratis-engineering-docs-add-page",
     "engineering/skills/cratis-engineering-docs-authoring",
     "engineering/skills/cratis-engineering-docs-edit-page",
@@ -5195,6 +5196,87 @@
       },
       "dependencies": [],
       "hostNeutralPurpose": "Cratis C# engineering conventions",
+      "approval": {
+        "state": "modeled",
+        "evidenceIds": [
+          "reevaluation-authority",
+          "repo-main-b795d53"
+        ]
+      },
+      "releaseBoundary": "engineering-passive",
+      "allowedProjections": [
+        {
+          "hostContract": "any-passive-host",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "passive-private-fixture",
+            "passive-public-package",
+            "provider-compatibility"
+          ]
+        },
+        {
+          "hostContract": "portable-agent-plugins-1-0",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "passive-public-package"
+          ]
+        }
+      ],
+      "forbiddenProjections": [
+        "agent",
+        "subagent",
+        "command",
+        "prompt",
+        "rule",
+        "instruction",
+        "hook",
+        "mcp",
+        "lsp",
+        "executable-host-extension",
+        "static-asset"
+      ],
+      "requiredCanaries": [
+        "projection-shape",
+        "semantic-identity",
+        "source-digest"
+      ],
+      "securityRequirements": {
+        "threatModel": false,
+        "securityReview": false,
+        "executableAssuranceProfile": false
+      }
+    },
+    {
+      "id": "cratis-engineering-decision-record",
+      "kind": "skill",
+      "semanticIdentity": "cratis-engineering-decision-record",
+      "semanticName": "cratis-engineering-decision-record",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-engineering-decision-record",
+      "canonicalSources": [
+        {
+          "path": "engineering/skills/cratis-engineering-decision-record",
+          "digest": "abd478c81ece70facd5007a89853af5a6d47035edaa07dad235112ed38e988ba",
+          "ownership": "owner",
+          "ownerComponentId": "cratis-engineering-decision-record"
+        }
+      ],
+      "contentDigest": "781936efd3b946b5558f6ca3208bf778e255a9c0866f8342177e1b29467fa820",
+      "owner": "reusable Cratis engineering behavior",
+      "audience": "cratis-engineering",
+      "classification": {
+        "artifactClass": "passive-content",
+        "trust": "passive",
+        "passive": true,
+        "executable": false,
+        "effect": "guided-write"
+      },
+      "dependencies": [],
+      "hostNeutralPurpose": "Cratis decision record procedure",
       "approval": {
         "state": "modeled",
         "evidenceIds": [

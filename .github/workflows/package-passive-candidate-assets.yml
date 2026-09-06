@@ -49,8 +49,8 @@ jobs:
           manifest="$RUNNER_TEMP/passive-candidates/candidate-batch.json"
           test "$(node -p "require('$manifest').state")" = \
             "CANDIDATE_REVIEW_BATCH_ONLY"
-          test "$(node -p "require('$manifest').componentCount")" = "137"
-          test "$(node -p "require('$manifest').packagedSkillTargetCount")" = "41"
+          test "$(node -p "require('$manifest').componentCount")" = "169"
+          test "$(node -p "require('$manifest').packagedSkillTargetCount")" = "49"
           test "$(node -p "require('$manifest').skillAssetCount")" = "68"
           test "$(node -p "require('$manifest').nativeAssetCount")" = "4"
           test "$(node -p "require('$manifest').installationSupported")" = "false"

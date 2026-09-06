@@ -57,6 +57,10 @@ const internalTargets = new Map([
     ["add-cratis-docs-page", "cratis-engineering-docs-add-page"],
     ["add-traces", "cratis-engineering-chronicle-kernel-tracing"],
     ["cratis-csharp-standards", "cratis-engineering-csharp-conventions"],
+    [
+        "cratis-engineering-decision-record",
+        "cratis-engineering-decision-record",
+    ],
     ["edit-cratis-docs", "cratis-engineering-docs-edit-page"],
     ["qa-cratis-docs", "cratis-engineering-docs-visual-qa"],
     ["ship-changes", "cratis-engineering-ship-changes"],
@@ -586,6 +590,14 @@ const sourceOverrides = new Map([
             sourcePath: "engineering/skills/cratis-engineering-docs-add-page",
             sourceRevision: "684d03755bacd40af95463b81b4a0c8b9f088ec1",
             evidenceId: "engineering-docs-add-page-source-684d037",
+        },
+    ],
+    [
+        "cratis-engineering-decision-record",
+        {
+            sourcePath: "engineering/skills/cratis-engineering-decision-record",
+            sourceRevision: "1e19bb4e7cb2ad9e827a8d4ad6b16b9f8a3c0060",
+            evidenceId: "engineering-decision-record-source-1e19bb4",
         },
     ],
     [
@@ -1556,6 +1568,18 @@ const profiles = {
         ],
         [],
         "high",
+        false,
+    ],
+    "cratis-engineering-decision-record": [
+        "Cratis decision record procedure",
+        "Use to consult, author, accept, or supersede a decision record in a repository's decisions/ folder.",
+        [
+            "Do not use to summarize a decision that is already recorded.",
+            "Do not use to write session notes, plans, or handovers; those are work records.",
+            "Do not use to edit product documentation.",
+        ],
+        [],
+        "low",
         false,
     ],
     "cratis-engineering-csharp-conventions": [

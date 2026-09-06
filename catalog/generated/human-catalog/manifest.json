@@ -1,17 +1,17 @@
 {
   "schemaVersion": 2,
   "contractVersion": 1,
-  "inputDigest": "e6572cf7e6ccbac0fe54592291e49d079690d6a432e368d99f44eaa4dc9d44f9",
+  "inputDigest": "5f4d51baf71a7627f22eeace72ea229873be593c8e6680d452ba47eaf49a43be",
   "files": [
     {
       "path": "CATALOG.md",
-      "size": 153531,
-      "sha256": "2c53a6ef6a0457e69e7cb096179c7e133d430c859290c65337af9d747e7483c6"
+      "size": 156619,
+      "sha256": "60826aee8c9de325fcbf2ce89a90aa483be5e03c727cfcc0a8638f6a3212413e"
     },
     {
       "path": "catalog.json",
-      "size": 203814,
-      "sha256": "8e222b308e16d9928113b190a95beb65f7186492672b564802f714fb359ffc70"
+      "size": 207305,
+      "sha256": "3674c6f0214b59547c3eda9ca4e45e54e8b1a9ca252371bedb4501ce0454c760"
     }
   ]
 }

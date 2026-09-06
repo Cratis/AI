@@ -35,7 +35,7 @@ test("candidate review batch is deterministic complete and non-releasing", () =>
         assert.deepEqual(second, first);
         assert.equal(first.state, "CANDIDATE_REVIEW_BATCH_ONLY");
         assert.equal(first.componentCount, 169);
-        assert.equal(first.packagedSkillTargetCount, 48);
+        assert.equal(first.packagedSkillTargetCount, 49);
         assert.equal(first.blockedSkillTargetCount, 4);
         assert.equal(first.repositoryOnlyLegacySkillCount, 27);
         assert.equal(first.nativeProjectedComponentCount, 35);

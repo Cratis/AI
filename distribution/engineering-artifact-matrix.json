@@ -32,7 +32,8 @@
         "cratis-engineering-docs-authoring",
         "cratis-engineering-docs-add-page",
         "cratis-engineering-docs-edit-page",
-        "cratis-engineering-csharp-conventions"
+        "cratis-engineering-csharp-conventions",
+        "cratis-engineering-decision-record"
       ],
       "allowedPaths": [
         "engineering/skills/<approved-target>/SKILL.md",
@@ -65,19 +66,23 @@
   "profileIntent": {
     "application": [
       "cratis-engineering-csharp-conventions",
-      "cratis-engineering-ship-changes"
+      "cratis-engineering-ship-changes",
+      "cratis-engineering-decision-record"
     ],
     "framework": [
       "cratis-engineering-csharp-conventions",
       "cratis-engineering-chronicle-kernel-tracing",
-      "cratis-engineering-ship-changes"
+      "cratis-engineering-ship-changes",
+      "cratis-engineering-decision-record"
     ],
     "client": [
       "cratis-engineering-csharp-conventions",
-      "cratis-engineering-ship-changes"
+      "cratis-engineering-ship-changes",
+      "cratis-engineering-decision-record"
     ],
     "corpus": [
       "cratis-engineering-ship-changes",
+      "cratis-engineering-decision-record",
       "skill-creator"
     ],
     "documentation": [
@@ -85,7 +90,8 @@
       "cratis-engineering-docs-add-page",
       "cratis-engineering-docs-edit-page",
       "cratis-engineering-docs-visual-qa",
-      "cratis-engineering-ship-changes"
+      "cratis-engineering-ship-changes",
+      "cratis-engineering-decision-record"
     ]
   },
   "projectOwnedForbiddenPaths": [

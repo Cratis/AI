@@ -401,6 +401,27 @@
       ]
     },
     {
+      "id": "cratis-engineering-decision-record",
+      "sourcePath": "engineering/skills/cratis-engineering-decision-record",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "reusable Cratis engineering behavior",
+      "audience": "cratis-engineering",
+      "bundledPaths": [
+        "engineering/skills/cratis-engineering-decision-record/LICENSE",
+        "engineering/skills/cratis-engineering-decision-record/SKILL.md",
+        "engineering/skills/cratis-engineering-decision-record/references/record-format.md"
+      ],
+      "sourceRevision": "1e19bb4e7cb2ad9e827a8d4ad6b16b9f8a3c0060",
+      "contentDigest": "abd478c81ece70facd5007a89853af5a6d47035edaa07dad235112ed38e988ba",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority",
+        "engineering-decision-record-source-1e19bb4"
+      ]
+    },
+    {
       "id": "cratis-governed-release-methodology",
       "sourcePath": "skills/cratis-governed-release-methodology",
       "artifactType": "agent-skill-source",

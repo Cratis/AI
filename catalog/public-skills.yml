@@ -24,9 +24,9 @@
   },
   "audit": {
     "verifiedOn": "2026-08-20",
-    "currentInventoryCount": 52,
+    "currentInventoryCount": 53,
     "publicCandidateCount": 44,
-    "internalSkillCount": 8,
+    "internalSkillCount": 9,
     "internalSkills": [
       {
         "currentName": "add-cratis-docs-page",
@@ -39,6 +39,10 @@
       {
         "currentName": "cratis-csharp-standards",
         "reason": "Broad C# house conventions are engineering policy; public skills carry only workflow-required C# facts."
+      },
+      {
+        "currentName": "cratis-engineering-decision-record",
+        "reason": "Authored directly under engineering/skills with no legacy twin; the decision-record procedure is Cratis maintainer governance behavior, not a public product capability."
       },
       {
         "currentName": "edit-cratis-docs",

@@ -958,9 +958,10 @@
       "confidentialContentAllowed": false,
       "privateOverlayExpected": true,
       "availableTargets": [
-        "cratis-engineering-csharp-conventions"
+        "cratis-engineering-csharp-conventions",
+        "cratis-engineering-decision-record"
       ],
-      "gapSummary": "Carries the canonical C# house conventions. Universal TypeScript conventions, review behavior, and contribution behavior are still to be reconciled into public-safe passive sources."
+      "gapSummary": "Carries the canonical C# house conventions and the decision-record procedure, which every engineering-* profile inherits by composing this one. Universal TypeScript conventions, review behavior, and contribution behavior are still to be reconciled into public-safe passive sources."
     },
     {
       "id": "engineering-chronicle",
