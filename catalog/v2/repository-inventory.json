@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "25e671d6a178ab8ee2fcf954097c676d75edc92c24bb9049615a62d421c03728",
+  "indexDigest": "61e713a0172eb177abdf4f94c26f8c54629a6d4251850f6551b59bd6849148aa",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -896,6 +896,10 @@
     },
     {
       "path": "distribution/engineering-artifact-matrix.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/evidence/authority-reobservation-2026-09-06.json",
       "status": "added"
     },
     {
@@ -2856,6 +2860,10 @@
     },
     {
       "path": "tooling/engineering-docs-companions-validation.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/evidence-supersession.mjs",
       "status": "added"
     },
     {
@@ -5003,8 +5011,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 70,
-      "expectedPathsDigest": "2e2e109446ee4c6e0f36fa9decdbe03cecf642f1ae2def7f711ac7ec2feedaac"
+      "expectedPathCount": 71,
+      "expectedPathsDigest": "627d1e2fe9226354210f482ebad786207bbc2f29bfe09e73f654149b023d3446"
     },
     {
       "excludePathPatterns": [],
@@ -5133,8 +5141,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 81,
-      "expectedPathsDigest": "1e68465a0a5afa5bf3a507016689416c366e021fa1de02c233d649b46dd68916"
+      "expectedPathCount": 82,
+      "expectedPathsDigest": "f129db247e616a11badf37c595c5ee626b8991cb6a1b236d005a3b6795f25c7b"
     },
     {
       "excludePathPatterns": [],

@@ -169,7 +169,7 @@ When the stream id is known only at runtime, implement `ICanProvideEventStreamId
 
 `ICanProvideEventSourceId.GetEventSourceId()` → a single `EventSourceId`/`EventSourceId<T>`-derived property → a `[Key]` property → else Arc/Chronicle generates one.
 
-⚠️ **Injected read models resolve ONLY by the command's resolved event-source id** — not by the read-model type, and not by "the property that looks like its key." If the read model you need is keyed by a **different** value, direct injection silently hands you the **wrong** instance (or a default-initialized one) — a correctness bug, not a compile error. The three failure shapes: (1) you need a *referenced other* entity (act on A, check B); (2) the command has **multiple** `EventSourceId<T>`-typed properties → ambiguous resolution (never rely on property order); (3) a create command whose id is generated inside `Handle()`. In all three, read by explicit key: `IReadModels.GetInstanceById<T>((EventSourceId)key)`.
+⚠️ **Injected read models resolve ONLY by the command's resolved event-source id** — not by the read-model type, and not by "the property that looks like its key." If the read model you need is keyed by a **different** value, direct injection silently hands you the **wrong** instance — or, when nothing exists for the command's id, `null` (or for a `[Passive]` projection a **default-valued** instance; see *Existence checks* below) — a correctness bug, not a compile error. The three failure shapes: (1) you need a *referenced other* entity (act on A, check B); (2) the command has **multiple** `EventSourceId<T>`-typed properties → ambiguous resolution (never rely on property order); (3) a create command whose id is generated inside `Handle()`. In all three, read by explicit key: `IReadModels.GetInstanceById<T>((EventSourceId)key)`.
 
 ### Validators **[contract]**
 
@@ -236,9 +236,21 @@ public record Author(AuthorId Id, AuthorName Name)
 
 Ladder, first that fits: (1) direct read-model (DCB) injection — only when keyed by the command's own event-source id; (2) a `[Passive]` projection; (3) `IReadModels.GetInstanceById<T>((EventSourceId)key)` for a different/derived key; (4) a materialized projection. A lookup *interface* is justified **only** for a genuine non-key search (e.g. find-by-email) — never to wrap a keyed `GetInstanceById`.
 
-**Existence checks — null vs default:** a read model **with** class-level `[RemovedWith<T>]` returns **default-initialized** values after a removal event (never `null`) for both persisted and passive models — so check a sentinel/flag, not `null`. A read model **without** `[RemovedWith<T>]` that was **never created** resolves to **`null`** from `IReadModels.GetInstanceById<T>`. Match the check to the model.
+### Existence checks — what an absent read model actually resolves to **[contract]**
 
-**Injected-parameter nullability is the required/optional switch:** a nullable `TReadModel?` parameter (on a validator, `Provide()`, or `Handle()`) gets `null` injected for a never-created/removed instance — check `is null`. A **non-nullable** `TReadModel` whose instance does not exist throws **`CannotResolveValidatorDependency`** (non-nullable = "required, must exist").
+`IReadModels.GetInstanceById<T>` is declared `Task<TReadModel>` (non-nullable) yet hands back `default!` when nothing exists, so the compiler gives callers no signal. What "nothing exists" resolves to depends on the **backing** — *not* on whether the model carries `[RemovedWith<T>]`:
+
+| Backing | Never created — no matching event for the key | Removed by a `[RemovedWith<T>]` event |
+| --- | --- | --- |
+| Materialized projection or reducer (**the default**) | `null` | `null` — the sink document is deleted |
+| `[Passive]` **projection** | ⚠️ a **default-valued instance**, never `null` | `null` — the computed state is blanked |
+| `[Passive]` **reducer** | `null` | `null` |
+
+`[RemovedWith<T>]` is therefore not the axis: a removed instance is `null` on **every** backing. The single non-`null` case is a **`[Passive]` projection that was never created** — Chronicle computes it on demand and seeds the initial state from the read model's schema, which fills every non-nullable, non-`string` property with its type default. (It answers `null` only when *no* property yields a schema default — all of them nullable, `string`/`object`, or an enum whose `0` is not a declared member — which is why the behavior looks inconsistent between models, not an escape hatch to design for.)
+
+⚠️ **This is invisible when a status enum's `0` is a real state** ("the state every stream starts in"): absent becomes byte-identical to freshly-created, so a command reads never-invited as already-invited. **Renumbering the enum from `1` is not the fix** — the value is then dropped from the payload and deserializes back to CLR `0` on the client anyway. Carry an explicit existence flag instead: `[SetValue<FirstEvent>(true)] bool Exists`, one `[SetValue<T>]` per event that can be the first for the stream. That is exactly the `[SetValue<T>]`-driven `bool` exception the no-defaults convention above allows for. An explicit `NotSet`/`Unknown` zero member also works, but only because the property stays present and readable; the flag is the robust form. ⚠️ **A spec suite will not catch this** — `CommandScenario`'s read-model harness answers `null` for an unseeded event-source id, which matches production for every row above *except* the passive projection. Cover the absent case by seeding a default-valued instance explicitly, not only `null`.
+
+**Injected-parameter nullability is the required/optional switch:** a nullable `TReadModel?` parameter (on a validator, `Provide()`, or `Handle()`) gets `null` injected for a never-created/removed instance — check `is null`. A **non-nullable** `TReadModel` whose instance does not exist throws **`CannotResolveValidatorDependency`** (non-nullable = "required, must exist"). ⚠️ Both switches ride on the same resolution, so on a **`[Passive]` projection** neither fires for a never-created instance: the nullable parameter receives a default-valued object and the `is null` guard never runs, and the non-nullable one resolves happily. Check the existence flag there, not nullability. Type by-id accessors you write yourself as `Task<T?>` so callers get the compiler signal Chronicle's own signature withholds.
 
 ## Projections **[contract]**
 

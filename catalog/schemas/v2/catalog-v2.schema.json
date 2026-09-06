@@ -1409,6 +1409,7 @@
         "expiresOn": { "type": "string", "format": "date" },
         "applicableVersion": { "$ref": "#/$defs/nonEmptyString" },
         "confidence": { "enum": ["low", "medium", "high"] },
+        "supersedes": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } },
         "immutableRevision": { "$ref": "#/$defs/nonEmptyString" },
         "repositoryPath": { "$ref": "#/$defs/path" },
         "digest": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
