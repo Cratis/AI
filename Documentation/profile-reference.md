@@ -160,8 +160,8 @@ request, and floating versions such as `latest` remain forbidden everywhere.
 | `public-fundamentals` | `@cratis/ai-fundamentals` | First preview source candidate |
 | `public-arc` | `@cratis/ai-arc` | Legacy source migration planned |
 | `public-arc-ef-core` | `@cratis/ai-arc-ef-core` | EF Core migration source requires canonical Arc persistence authority |
-| `public-arc-react` | `@cratis/ai-arc-react` | Legacy source migration planned |
-| `public-components` | `@cratis/ai-components` | Partial legacy sources; content gaps |
+| `public-arc-react` | `@cratis/ai-arc-react` | Preview source candidate; composes `public-arc` |
+| `public-components` | `@cratis/ai-components` | Preview source candidate |
 | `public-chronicle` | `@cratis/ai-chronicle` | Legacy source migration planned |
 | `public-cratis-cli` | `@cratis/ai-cli` | Content gap |
 | `public-cratis-cli-terminal-workbench` | `@cratis/ai-cli-workbench` | Terminal Workbench content gap |
