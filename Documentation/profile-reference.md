@@ -14,6 +14,92 @@ For a generated view with plain-language package descriptions, included skills,
 availability, trust, and evidence, browse the
 [package and capability catalog](../catalog/generated/human-catalog/CATALOG.md).
 
+## What the words on this page mean
+
+This page uses the evidence vocabulary from
+[capability catalog v2](./capability-catalog-v2.md#normalized-evidence). Keep the
+five states apart:
+
+| State | Means |
+| --- | --- |
+| **Authored** | A human wrote it here and it was reviewed — `distribution/profile-catalog.json`, `mcp/`, every skill source |
+| **Generated** | A generator produced it deterministically from authored input — the human catalog, a resolved manifest, a release tree |
+| **Evaluated** | An evaluation ran against it and produced evidence — no profile has passing behavior, trigger, and collision evidence yet |
+| **Supported** | A support claim exists, backed by active install-or-higher evidence — **no profile is supported** |
+| **Unavailable** | There is no such capability, and saying otherwise would be a fabrication — every `content-gap` and `authority-gap` profile below |
+
+Every profile in this reference is authored. None is supported. A profile listed
+here is not an installation claim.
+
+## Resolving a profile
+
+`tooling/resolve-profiles.mjs` is the single resolver. The human catalog, the
+approved-release planner, and anything else that needs to know what a profile
+contains all call it, so the catalog and the packaged release can no longer
+disagree — the divergence
+[Cratis/AI#254](https://github.com/Cratis/AI/issues/254) recorded, where the
+release path read only `availableTargets` and dropped everything reached through
+`composes`.
+
+Run it directly to inspect a resolution:
+
+```bash
+node tooling/resolve-profiles.mjs cratis/chronicle
+```
+
+### What the resolved manifest returns, and why
+
+The manifest is **generated**, deterministic, and explainable. Every field
+answers a question a reviewer would otherwise have to answer by hand.
+
+| Field | Answers |
+| --- | --- |
+| `requested` | What was asked for, deduplicated and ordinally sorted, so two callers asking for the same set get byte-identical output |
+| `audience` | Which channel the whole resolution belongs to; a request that mixes audiences is rejected rather than silently split |
+| `profiles` | The full transitive closure. Each entry carries `version`, `state`, `depth`, `requestedDirectly`, its own `composes`, and `includedBy` |
+| `profiles[].includedBy` | **Why this profile is here** — every profile in the closure that directly composes it. Empty means it was requested directly |
+| `versions` | The version stamp of every profile in the closure, so a release records exactly what it resolved |
+| `skills` | Every included capability, each annotated with `includedBy` — the profiles that contribute it |
+| `mcpServers` | Every included MCP server, in the same shape as skills, plus transport, authentication type, and the passive-versus-executable classification. See [MCP declarations in profiles](./mcp-declarations.md) |
+| `rejected` | **Why something is not here.** Each entry names its `kind`, `id`, the profile that asked (`requiredBy`), and a `reason` string |
+
+A profile that contributes no capability of its own appears in `rejected` as a
+`profile-capability-set` entry naming its state, so an empty package is visible
+rather than surprising.
+
+### What the resolver refuses
+
+These are failures, not exclusions. The resolver throws a
+`ProfileResolutionError` carrying a coded, named reason for each:
+
+| Cause | Reported as |
+| --- | --- |
+| A composition cycle | `COMPOSITION_CYCLE`, with the exact path — `a -> b -> a` |
+| A composed profile that does not exist | `UNKNOWN_PROFILE`, naming the missing id and the profile that required it |
+| A requested profile that does not exist | `UNKNOWN_PROFILE`, naming the request |
+| A composition or a request that crosses the public and engineering audiences | `AUDIENCE_MISMATCH` |
+| A combination the catalog declares mutually exclusive | `INCOMPATIBLE_COMBINATION`, with the declared reason |
+
+The compatibility check is a hook point. The catalog declares no incompatible
+combinations today, and none are invented: adding a
+`compatibility.mutuallyExclusive` array to `distribution/profile-catalog.json` is
+all that is needed to start rejecting one.
+
+Cycle detection is aligned with `graphHasCycle` from
+`tooling/catalog-v2-validation.mjs`, which the resolver also runs over the whole
+composition graph as a second, independent gate.
+
+## Profile versions
+
+Every profile carries an exact SemVer `version`. The release train stays
+**atomic** — `versioning.releaseTrain` is unchanged and
+`releaseOnMerge.maxProfilesPerRelease` is still `1` — and each profile now also
+carries its own version stamp, which is the decision #264 asked to be recorded.
+
+`0.0.0` means no release has been cut from that catalog entry. It is not a
+published version. The exact published version is supplied by the merged release
+request, and floating versions such as `latest` remain forbidden everywhere.
+
 ## Public product profiles
 
 | Profile | Intended package | Current state |
@@ -175,3 +261,48 @@ Executable CLI, Lens, Studio MCP, and Chronicle MCP implementations remain owned
 and distributed by their product repositories. Cratis AI packages only passive
 selection, installation, safety, interpretation, and workflow guidance unless a
 separate executable package is explicitly reviewed.
+
+## MCP servers a profile requires
+
+A profile may name MCP servers in `mcpServers`. Each name must resolve to an
+authored declaration under [`mcp/`](../mcp/README.md), and the resolver includes
+it in the manifest with the same `includedBy` annotation skills get.
+
+| Profile | Requires | Why |
+| --- | --- | --- |
+| `public-chronicle-mcp` | `cratis-chronicle-mcp` | The profile that already carries the Chronicle MCP passive inspection guidance |
+| `cratis/chronicle` | `cratis-chronicle-mcp` | Chronicle MCP inspects a running Chronicle store |
+
+No Arc profile requires it. Doing so would reintroduce exactly the
+Arc-implies-Chronicle coupling the meta-profiles exist to avoid.
+
+**Studio MCP is an extension point only. It is not published and it is not
+shipped.** `mcp/cratis-studio-mcp.json` is `extension-point-not-published` and
+`resolvable: false`; the resolver refuses to place it in any manifest whatever a
+profile asks for, and the validator refuses to let a profile require it. Both are
+asserted in `tooling/specs/mcp-declarations.spec.mjs`. Read
+[MCP declarations in profiles](./mcp-declarations.md) for the full model.
+
+## Subscribing
+
+A consuming repository selects profiles in project-owned `.cratis/ai.json`. The
+`cratis/` namespace derives its channel instead of declaring one:
+
+```json
+{
+  "schemaVersion": "1.0.0",
+  "version": "1.0.0",
+  "profiles": ["cratis/chronicle"],
+  "harnesses": ["claude", "codex", "copilot", "pi"],
+  "updatePolicy": "reviewed-pull-request",
+  "projectContext": ".cratis/PROJECT.md"
+}
+```
+
+The `public-` and `engineering-` namespaces still declare `channel`, and a
+declared channel that contradicts the namespace is rejected. Exact versions and
+`updatePolicy: reviewed-pull-request` are mandatory in every namespace.
+
+Worked examples live under
+[`Documentation/examples/ai-subscriptions/`](./examples/ai-subscriptions).
+The commands and versions in them are illustrative until a package is published.

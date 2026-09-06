@@ -105,6 +105,22 @@ Stagehand, client, customer, infrastructure, roadmap, incident, and repository
 facts remain in repository-local overlays; shared packages may not read or write
 them.
 
+Namespaced `cratis/arc`, `cratis/chronicle`, `cratis/application`, and
+`cratis/full` meta-profiles are the stable names to subscribe to. Composition is
+resolved by one shared resolver, `tooling/resolve-profiles.mjs`, which returns a
+deterministic manifest naming which profile pulled in every profile, skill, and
+MCP server, and why anything was excluded. A profile may also require an MCP
+server; **Studio MCP is an extension point only and is never included**. See
+[the profile reference](./profile-reference.md) and
+[MCP declarations in profiles](./mcp-declarations.md).
+
+Everything in the profile catalog is **authored**. A resolved manifest and the
+package catalog are **generated**. No profile is **evaluated** with passing
+behavior evidence and none is **supported**; every `content-gap` and
+`authority-gap` profile is **unavailable**. Those five words carry the meanings
+[capability catalog v2](./capability-catalog-v2.md#normalized-evidence) gives
+them, and this page never mixes them.
+
 ## Repository subscription
 
 A Cratis repository records intent in project-owned `.cratis/ai.json`. The file
