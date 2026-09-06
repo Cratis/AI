@@ -48,6 +48,7 @@ const supportedSchemaKeywords = new Set([
     "$ref",
     "title",
     "description",
+    "examples",
     "type",
     "additionalProperties",
     "required",

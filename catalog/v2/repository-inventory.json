@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "4f51c69c8846983304ad75b0a66c6ca586a50f38af29848aa29b3e32d3a8fd02",
+  "indexDigest": "7aad36e883b81701a94240712bb781c278472c1a3a89e8ea7e804995fcad2d31",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -3275,6 +3275,14 @@
       "status": "added"
     },
     {
+      "path": "tooling/specs/fixtures/agent-mutation-manifest.invalid.json",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/fixtures/agent-mutation-manifest.valid.json",
+      "status": "added"
+    },
+    {
       "path": "tooling/specs/fundamentals-preview-assets.spec.mjs",
       "status": "added"
     },
@@ -5103,8 +5111,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 64,
-      "expectedPathsDigest": "1f72cccc394224abedd50d4dde016dcc272904750573a9e176b415bed6ca46d5"
+      "expectedPathCount": 66,
+      "expectedPathsDigest": "6b291f22b279719f13534d0180d0d695f02c91332aeb464f87c1f1d42348360f"
     },
     {
       "excludePathPatterns": [],
