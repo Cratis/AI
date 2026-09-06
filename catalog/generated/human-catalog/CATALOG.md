@@ -7,7 +7,7 @@ the right package and understand its skills. It is not source authority
 and does not make a planned package installable.
 
 - Profiles: 62
-- Capabilities: 55
+- Capabilities: 59
 - Installable profiles: 0
 - Ecosystem bindings with support claims: 0
 
@@ -15,8 +15,8 @@ and does not make a planned package installable.
 
 Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.
 
-- Components: 178
-- Passive: 175
+- Components: 182
+- Passive: 179
 - Executable: 3
 - Legacy-retained: 27
 - Existing adapter records: 332
@@ -30,7 +30,7 @@ Modeled or planned components and projections are catalog metadata only; they ar
 
 ### Components by kind
 
-- skill: 82
+- skill: 86
 - agent: 12
 - subagent: 0
 - command: 18
@@ -147,6 +147,10 @@ Every public Cratis capability in one selection: every product, every language, 
 - cratis-arc-query-paging
 - cratis-arc-react-page
 - cratis-chronicle-cli-operations
+- cratis-chronicle-client-dotnet
+- cratis-chronicle-client-elixir
+- cratis-chronicle-client-kotlin
+- cratis-chronicle-client-typescript
 - cratis-chronicle-compliance
 - cratis-chronicle-event-modeling
 - cratis-chronicle-event-type-migration
@@ -315,6 +319,7 @@ The namespaced Chronicle suite: event modeling, compliance, multi-tenancy, and w
 
 #### Included capabilities
 
+- cratis-chronicle-client-dotnet
 - cratis-chronicle-compliance
 - cratis-chronicle-event-modeling
 - cratis-chronicle-event-type-migration
@@ -362,6 +367,7 @@ Every public Cratis suite in one selection, including the Screenplay to Stage mo
 - cratis-arc-observable-query-http
 - cratis-arc-query-paging
 - cratis-arc-react-page
+- cratis-chronicle-client-dotnet
 - cratis-chronicle-compliance
 - cratis-chronicle-event-modeling
 - cratis-chronicle-event-type-migration
@@ -532,6 +538,7 @@ Combined AI guidance for developers using Cratis Fundamentals and Cratis Chronic
 
 #### Included capabilities
 
+- cratis-chronicle-client-dotnet
 - cratis-chronicle-event-modeling
 - cratis-chronicle-event-type-migration
 - cratis-chronicle-projection
@@ -744,9 +751,9 @@ AI guidance for developers building with Cratis Chronicle.
 - **Profile ID:** `public-chronicle-client-dotnet`
 - **Audience:** public
 - **Package:** `@cratis/ai-chronicle-dotnet`
-- **State:** content-gap
+- **State:** preview-source-candidate
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** candidate-package
 
 AI guidance for developers building with Cratis Chronicle.
 
@@ -758,7 +765,7 @@ AI guidance for developers building with Cratis Chronicle.
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-chronicle-client-dotnet
 
 #### Composed profiles
 
@@ -769,9 +776,9 @@ AI guidance for developers building with Cratis Chronicle.
 - **Profile ID:** `public-chronicle-client-elixir`
 - **Audience:** public
 - **Package:** `@cratis/ai-chronicle-elixir`
-- **State:** content-gap
+- **State:** preview-source-candidate
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** candidate-package
 
 AI guidance for developers building with Cratis Chronicle.
 
@@ -783,7 +790,7 @@ AI guidance for developers building with Cratis Chronicle.
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-chronicle-client-elixir
 
 #### Composed profiles
 
@@ -819,9 +826,9 @@ AI guidance for developers building with Cratis Chronicle.
 - **Profile ID:** `public-chronicle-client-kotlin`
 - **Audience:** public
 - **Package:** `@cratis/ai-chronicle-kotlin`
-- **State:** content-gap
+- **State:** preview-source-candidate
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** candidate-package
 
 AI guidance for developers building with Cratis Chronicle.
 
@@ -833,7 +840,7 @@ AI guidance for developers building with Cratis Chronicle.
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-chronicle-client-kotlin
 
 #### Composed profiles
 
@@ -869,9 +876,9 @@ AI guidance for developers building with Cratis Chronicle.
 - **Profile ID:** `public-chronicle-client-typescript`
 - **Audience:** public
 - **Package:** `@cratis/ai-chronicle-typescript`
-- **State:** content-gap
+- **State:** preview-source-candidate
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** candidate-package
 
 AI guidance for developers building with Cratis Chronicle.
 
@@ -883,7 +890,7 @@ AI guidance for developers building with Cratis Chronicle.
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-chronicle-client-typescript
 
 #### Composed profiles
 
@@ -2924,6 +2931,273 @@ Use to inspect a running Chronicle store and, only with explicit confirmation, p
 - cratis
 - public-cratis-cli
 - public-cratis-cli-terminal-workbench
+
+### cratis-chronicle-client-dotnet
+
+- **ID:** `cratis-chronicle-client-dotnet`
+- **Audience:** public
+- **Lifecycle:** candidate
+- **Approval:** candidate
+- **Runtime eligible:** no
+
+#### Purpose — cratis-chronicle-client-dotnet
+
+Chronicle .NET client
+
+#### When to use — cratis-chronicle-client-dotnet
+
+Use when a standalone .NET console, worker, or service connects to a Chronicle server and appends or observes events.
+
+#### When not to use — cratis-chronicle-client-dotnet
+
+- Do not use for Arc applications, where Chronicle is already wired in.
+- Do not use for the Chronicle kernel or for another language's client.
+
+#### Invocation — cratis-chronicle-client-dotnet
+
+- Capability kind: unclassified
+- Invocation: unclassified
+
+#### Applicability — cratis-chronicle-client-dotnet
+
+- Products: chronicle
+- Languages: csharp
+- Architectures: Unclassified — Architecture requires reviewed target classification.
+- Personas: Unclassified — Persona requires reviewed target classification.
+- Surfaces: Unclassified — Surface requires reviewed target classification.
+- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+
+#### Dependencies — cratis-chronicle-client-dotnet
+
+- Unclassified
+
+#### Trust and effects — cratis-chronicle-client-dotnet
+
+- Trust class: passive
+- Assessment: unclassified
+- No assessed effects
+
+#### Evidence and support — cratis-chronicle-client-dotnet
+
+- Authoring contract unclassified
+- Evidence: reevaluation-authority
+- Evidence: repo-main-b795d53
+
+#### Related capabilities — cratis-chronicle-client-dotnet
+
+- cratis-chronicle-client-elixir
+- cratis-chronicle-client-kotlin
+- cratis-chronicle-client-typescript
+
+#### Bundle membership — cratis-chronicle-client-dotnet
+
+- None
+
+#### Profile membership — cratis-chronicle-client-dotnet
+
+- cratis
+- cratis/chronicle
+- cratis/full
+- public-application-chronicle-dotnet
+- public-chronicle-client-dotnet
+
+### cratis-chronicle-client-elixir
+
+- **ID:** `cratis-chronicle-client-elixir`
+- **Audience:** public
+- **Lifecycle:** candidate
+- **Approval:** candidate
+- **Runtime eligible:** no
+
+#### Purpose — cratis-chronicle-client-elixir
+
+Chronicle Elixir client
+
+#### When to use — cratis-chronicle-client-elixir
+
+Use when an Elixir or OTP application connects to a Chronicle server and appends or observes events.
+
+#### When not to use — cratis-chronicle-client-elixir
+
+- Do not use for another language's Chronicle client.
+- Do not use for the Chronicle kernel.
+
+#### Invocation — cratis-chronicle-client-elixir
+
+- Capability kind: unclassified
+- Invocation: unclassified
+
+#### Applicability — cratis-chronicle-client-elixir
+
+- Products: chronicle
+- Languages: elixir
+- Architectures: Unclassified — Architecture requires reviewed target classification.
+- Personas: Unclassified — Persona requires reviewed target classification.
+- Surfaces: Unclassified — Surface requires reviewed target classification.
+- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+
+#### Dependencies — cratis-chronicle-client-elixir
+
+- Unclassified
+
+#### Trust and effects — cratis-chronicle-client-elixir
+
+- Trust class: passive
+- Assessment: unclassified
+- No assessed effects
+
+#### Evidence and support — cratis-chronicle-client-elixir
+
+- Authoring contract unclassified
+- Evidence: reevaluation-authority
+- Evidence: repo-main-b795d53
+
+#### Related capabilities — cratis-chronicle-client-elixir
+
+- cratis-chronicle-client-dotnet
+- cratis-chronicle-client-kotlin
+- cratis-chronicle-client-typescript
+
+#### Bundle membership — cratis-chronicle-client-elixir
+
+- None
+
+#### Profile membership — cratis-chronicle-client-elixir
+
+- cratis
+- public-chronicle-client-elixir
+
+### cratis-chronicle-client-kotlin
+
+- **ID:** `cratis-chronicle-client-kotlin`
+- **Audience:** public
+- **Lifecycle:** candidate
+- **Approval:** candidate
+- **Runtime eligible:** no
+
+#### Purpose — cratis-chronicle-client-kotlin
+
+Chronicle Kotlin and Java client
+
+#### When to use — cratis-chronicle-client-kotlin
+
+Use when a Kotlin or Java application, with or without Spring Boot, connects to a Chronicle server and appends or observes events.
+
+#### When not to use — cratis-chronicle-client-kotlin
+
+- Do not use for another language's Chronicle client.
+- Do not use for the Chronicle kernel.
+
+#### Invocation — cratis-chronicle-client-kotlin
+
+- Capability kind: unclassified
+- Invocation: unclassified
+
+#### Applicability — cratis-chronicle-client-kotlin
+
+- Products: chronicle
+- Languages: kotlin
+- Architectures: Unclassified — Architecture requires reviewed target classification.
+- Personas: Unclassified — Persona requires reviewed target classification.
+- Surfaces: Unclassified — Surface requires reviewed target classification.
+- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+
+#### Dependencies — cratis-chronicle-client-kotlin
+
+- Unclassified
+
+#### Trust and effects — cratis-chronicle-client-kotlin
+
+- Trust class: passive
+- Assessment: unclassified
+- No assessed effects
+
+#### Evidence and support — cratis-chronicle-client-kotlin
+
+- Authoring contract unclassified
+- Evidence: reevaluation-authority
+- Evidence: repo-main-b795d53
+
+#### Related capabilities — cratis-chronicle-client-kotlin
+
+- cratis-chronicle-client-dotnet
+- cratis-chronicle-client-elixir
+- cratis-chronicle-client-typescript
+
+#### Bundle membership — cratis-chronicle-client-kotlin
+
+- None
+
+#### Profile membership — cratis-chronicle-client-kotlin
+
+- cratis
+- public-chronicle-client-kotlin
+
+### cratis-chronicle-client-typescript
+
+- **ID:** `cratis-chronicle-client-typescript`
+- **Audience:** public
+- **Lifecycle:** candidate
+- **Approval:** candidate
+- **Runtime eligible:** no
+
+#### Purpose — cratis-chronicle-client-typescript
+
+Chronicle TypeScript client
+
+#### When to use — cratis-chronicle-client-typescript
+
+Use when a Node.js or TypeScript application connects to a Chronicle server and appends or observes events.
+
+#### When not to use — cratis-chronicle-client-typescript
+
+- Do not use for Arc React frontends or generated Arc proxies.
+- Do not use for another language's Chronicle client.
+
+#### Invocation — cratis-chronicle-client-typescript
+
+- Capability kind: unclassified
+- Invocation: unclassified
+
+#### Applicability — cratis-chronicle-client-typescript
+
+- Products: chronicle
+- Languages: typescript
+- Architectures: Unclassified — Architecture requires reviewed target classification.
+- Personas: Unclassified — Persona requires reviewed target classification.
+- Surfaces: Unclassified — Surface requires reviewed target classification.
+- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+
+#### Dependencies — cratis-chronicle-client-typescript
+
+- Unclassified
+
+#### Trust and effects — cratis-chronicle-client-typescript
+
+- Trust class: passive
+- Assessment: unclassified
+- No assessed effects
+
+#### Evidence and support — cratis-chronicle-client-typescript
+
+- Authoring contract unclassified
+- Evidence: reevaluation-authority
+- Evidence: repo-main-b795d53
+
+#### Related capabilities — cratis-chronicle-client-typescript
+
+- cratis-chronicle-client-dotnet
+- cratis-chronicle-client-elixir
+- cratis-chronicle-client-kotlin
+
+#### Bundle membership — cratis-chronicle-client-typescript
+
+- None
+
+#### Profile membership — cratis-chronicle-client-typescript
+
+- cratis
+- public-chronicle-client-typescript
 
 ### cratis-chronicle-compliance
 

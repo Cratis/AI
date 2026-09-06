@@ -167,7 +167,7 @@ test("catalog records all kinds and honestly declares MCP and LSP empty", () => 
                 .length,
         ]),
     );
-    assert.equal(counts.skill, 82);
+    assert.equal(counts.skill, 86);
     assert.equal(counts.agent, 12);
     assert.equal(counts.command, 18);
     assert.equal(counts.prompt, 18);

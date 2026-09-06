@@ -439,8 +439,11 @@
       "languages": [
         "csharp"
       ],
-      "state": "content-gap",
-      "gapSummary": "Needs authoritative standalone .NET connect, append, read, observe, error, and lifecycle guidance."
+      "state": "preview-source-candidate",
+      "availableTargets": [
+        "cratis-chronicle-client-dotnet"
+      ],
+      "gapSummary": "Standalone .NET connect, append, read, observe, discovery, lifecycle, and error guidance is a canonical source candidate verified against the Chronicle client sources at tag v17.0.1. Arc integration, testing helpers, and compliance operations from a client remain gaps."
     },
     {
       "id": "public-chronicle-client-elixir",
@@ -452,8 +455,11 @@
       "languages": [
         "elixir"
       ],
-      "state": "content-gap",
-      "gapSummary": "Needs Chronicle.Elixir-owned source, OTP, supervision, configuration, error, and lifecycle guidance."
+      "state": "preview-source-candidate",
+      "availableTargets": [
+        "cratis-chronicle-client-elixir"
+      ],
+      "gapSummary": "Chronicle.Elixir-owned OTP, supervision, configuration, append, observation, error, and lifecycle guidance is a canonical source candidate verified against v2.2.0, the version published on Hex. Anything added in the unpublished v2.3.0 tag, telemetry, and test helpers remain gaps."
     },
     {
       "id": "public-chronicle-client-java",
@@ -478,8 +484,11 @@
       "languages": [
         "kotlin"
       ],
-      "state": "content-gap",
-      "gapSummary": "Needs Chronicle.Kotlin-owned source, versions, Gradle/Spring, coroutine, error, and lifecycle guidance."
+      "state": "preview-source-candidate",
+      "availableTargets": [
+        "cratis-chronicle-client-kotlin"
+      ],
+      "gapSummary": "Chronicle.Kotlin-owned versions, Gradle and Spring Boot wiring, coroutine, Java interop, discovery, error, and lifecycle guidance is a canonical source candidate verified against v4.0.0. WebFlux support, read-model reactor discovery, and the testing artifact's scope remain gaps."
     },
     {
       "id": "public-chronicle-client-python",
@@ -504,8 +513,11 @@
       "languages": [
         "typescript"
       ],
-      "state": "content-gap",
-      "gapSummary": "Needs Chronicle.TypeScript-owned source, runtime, transport, error, and lifecycle guidance."
+      "state": "preview-source-candidate",
+      "availableTargets": [
+        "cratis-chronicle-client-typescript"
+      ],
+      "gapSummary": "Chronicle.TypeScript-owned connect, append, observe, discovery, transport, and lifecycle guidance is a canonical source candidate verified against v4.0.0. Browser usage, dependency injection, and model-bound constraints are not supported by the client and remain gaps."
     },
     {
       "id": "public-chronicle-compliance",

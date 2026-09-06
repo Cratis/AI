@@ -38,25 +38,25 @@
       "id": "java",
       "name": "Java",
       "supportStatus": "verification-required",
-      "notes": "Do not add a public skill until the client repository, supported version, API, and toolchain are verified."
+      "notes": "No separate Chronicle Java client repository exists; JVM support is Chronicle.Kotlin's blocking surface. Do not add a Java-specific public skill until a supported Java client exists."
     },
     {
       "id": "kotlin",
       "name": "Kotlin",
-      "supportStatus": "verification-required",
-      "notes": "Do not add a public skill until the client repository, supported version, API, and toolchain are verified."
+      "supportStatus": "current-corpus",
+      "notes": "Verified against Chronicle.Kotlin v4.0.0 (io.cratis:chronicle on Maven Central)."
     },
     {
       "id": "elixir",
       "name": "Elixir",
-      "supportStatus": "verification-required",
-      "notes": "Do not add a public skill until the client repository, supported version, API, and toolchain are verified."
+      "supportStatus": "current-corpus",
+      "notes": "Verified against Chronicle.Elixir v2.2.0 (cratis_chronicle on Hex)."
     },
     {
       "id": "python",
       "name": "Python",
       "supportStatus": "verification-required",
-      "notes": "Do not add a public skill until Chronicle.Python, supported versions, APIs, async behavior, and toolchain are verified."
+      "notes": "Chronicle.Python exists but carries only package scaffolding - no client implementation and no published package. Do not add a public skill until a real client, supported versions, APIs, and toolchain are verified."
     }
   ],
   "products": [
@@ -356,11 +356,14 @@
         },
         {
           "id": "csharp-client",
-          "status": "verification-required",
+          "status": "candidate",
           "languages": [
             "csharp"
           ],
-          "sourceSkills": []
+          "sourceSkills": [
+            "cratis-chronicle-client-dotnet"
+          ],
+          "notes": "Standalone client journey verified against the Chronicle client sources at tag v17.0.1. Arc integration is out of scope."
         },
         {
           "id": "java-client",
@@ -368,32 +371,41 @@
           "languages": [
             "java"
           ],
-          "sourceSkills": []
+          "sourceSkills": [],
+          "notes": "No separate Chronicle Java client repository exists. Java is served by Chronicle.Kotlin's blocking surface, covered by cratis-chronicle-client-kotlin. Keep this an authority gap until a supported Java client exists."
         },
         {
           "id": "kotlin-client",
-          "status": "verification-required",
+          "status": "candidate",
           "languages": [
             "kotlin"
           ],
-          "sourceSkills": []
+          "sourceSkills": [
+            "cratis-chronicle-client-kotlin"
+          ],
+          "notes": "Verified against Chronicle.Kotlin v4.0.0 (io.cratis:chronicle on Maven Central). Covers the Kotlin and Java surfaces of the one JVM client."
         },
         {
           "id": "elixir-client",
-          "status": "verification-required",
+          "status": "candidate",
           "languages": [
             "elixir"
           ],
-          "sourceSkills": []
+          "sourceSkills": [
+            "cratis-chronicle-client-elixir"
+          ],
+          "notes": "Verified against Chronicle.Elixir v2.2.0 (cratis_chronicle on Hex). The v2.3.0 tag was never published to Hex and is deliberately out of scope."
         },
         {
           "id": "typescript-client",
-          "status": "verification-required",
+          "status": "candidate",
           "languages": [
             "typescript"
           ],
-          "sourceSkills": [],
-          "notes": "Requires Chronicle.TypeScript-owned source and version evidence."
+          "sourceSkills": [
+            "cratis-chronicle-client-typescript"
+          ],
+          "notes": "Verified against Chronicle.TypeScript v4.0.0 (@cratis/chronicle on npm)."
         },
         {
           "id": "python-client",
@@ -402,7 +414,7 @@
             "python"
           ],
           "sourceSkills": [],
-          "notes": "Requires Chronicle.Python-owned source and version evidence."
+          "notes": "Chronicle.Python carries package scaffolding only - no client implementation and no published package on PyPI. Requires a real Chronicle.Python-owned client, supported versions, and API evidence."
         },
         {
           "id": "browser-workbench",

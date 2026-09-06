@@ -24,8 +24,8 @@
   },
   "audit": {
     "verifiedOn": "2026-08-20",
-    "currentInventoryCount": 55,
-    "publicCandidateCount": 47,
+    "currentInventoryCount": 59,
+    "publicCandidateCount": 51,
     "internalSkillCount": 8,
     "internalSkills": [
       {
@@ -1437,6 +1437,98 @@
       },
       "reviewNotes": [
         "Authored directly in the canonical tree against Cratis.Stage 3.11.0 and the repository at revision 4f3fc6a. It runs container images and writes generated application source, so its effect assessment is required before any evaluation admission."
+      ]
+    },
+    {
+      "currentName": "cratis-chronicle-client-dotnet",
+      "source": "skills/cratis-chronicle-client-dotnet",
+      "proposedName": "cratis-chronicle-client-dotnet",
+      "disposition": "retain",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "dependencies": {
+        "skills": [],
+        "internalArtifacts": [],
+        "externalTools": [
+          "dotnet"
+        ]
+      },
+      "reviewNotes": [
+        "Authored directly in the canonical tree against the Chronicle client sources at tag v17.0.1. It describes an SDK that connects to a live event store, so its effect assessment is required before any evaluation admission."
+      ]
+    },
+    {
+      "currentName": "cratis-chronicle-client-elixir",
+      "source": "skills/cratis-chronicle-client-elixir",
+      "proposedName": "cratis-chronicle-client-elixir",
+      "disposition": "retain",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "elixir"
+      ],
+      "dependencies": {
+        "skills": [],
+        "internalArtifacts": [],
+        "externalTools": []
+      },
+      "reviewNotes": [
+        "Authored directly in the canonical tree against Chronicle.Elixir at tag v2.2.0, the version published on Hex. The v2.3.0 tag was never published, so nothing introduced there is documented. It describes an SDK that connects to a live event store, so its effect assessment is required before any evaluation admission."
+      ]
+    },
+    {
+      "currentName": "cratis-chronicle-client-kotlin",
+      "source": "skills/cratis-chronicle-client-kotlin",
+      "proposedName": "cratis-chronicle-client-kotlin",
+      "disposition": "retain",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "kotlin"
+      ],
+      "dependencies": {
+        "skills": [],
+        "internalArtifacts": [],
+        "externalTools": []
+      },
+      "reviewNotes": [
+        "Authored directly in the canonical tree against Chronicle.Kotlin at tag v4.0.0. Java guidance is the same client's blocking surface; no separate Java client exists. It describes an SDK that connects to a live event store, so its effect assessment is required before any evaluation admission."
+      ]
+    },
+    {
+      "currentName": "cratis-chronicle-client-typescript",
+      "source": "skills/cratis-chronicle-client-typescript",
+      "proposedName": "cratis-chronicle-client-typescript",
+      "disposition": "retain",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "typescript"
+      ],
+      "dependencies": {
+        "skills": [],
+        "internalArtifacts": [],
+        "externalTools": [
+          "node"
+        ]
+      },
+      "reviewNotes": [
+        "Authored directly in the canonical tree against Chronicle.TypeScript at tag v4.0.0. It describes an SDK that connects to a live event store, so its effect assessment is required before any evaluation admission."
       ]
     }
   ]
