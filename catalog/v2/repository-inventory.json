@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "af8de8000fff5f3033606a96cf40301c0e4ae4c0b6f446273cf6a8f16dddf70d",
+  "indexDigest": "c8b3ec7e3eaabedd450f2968c3a82ddb48ae8eae79f94b1549befa9c65090f27",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -1208,6 +1208,18 @@
     },
     {
       "path": "engineering/skills/cratis-engineering-docs-edit-page/references/source-discovery.md",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-effect-boundaries/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-effect-boundaries/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-effect-boundaries/references/failure-archetypes.md",
       "status": "added"
     },
     {
@@ -4366,8 +4378,8 @@
         "option-a-plus-authority",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 19,
-      "expectedPathsDigest": "aaec5767bf588844e1dc6c371b50919c79b9402f316ba1e47812a9357ee56ce9"
+      "expectedPathCount": 22,
+      "expectedPathsDigest": "bd485d672ca504b9ddf2c84a919c82970de2fb9c65ff278a8edacf3ef901803b"
     },
     {
       "excludePathPatterns": [],
