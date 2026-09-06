@@ -126,7 +126,7 @@ export function packageCandidateReviewBatch({
             state: "CANDIDATE_REVIEW_BATCH_ONLY",
             version,
             sourceCommit: publicManifest.sourceCommit,
-            componentCount: 150,
+            componentCount: 169,
             packagedSkillTargetCount:
                 publicManifest.targetIds.length +
                 engineeringManifest.targetIds.length,

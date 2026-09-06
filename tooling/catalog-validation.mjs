@@ -16,13 +16,30 @@ const catalogPaths = {
     publicSkills: "catalog/public-skills.yml",
     productCoverage: "catalog/product-coverage.yml",
     ecosystemVersions: "catalog/ecosystem-versions.json",
+    vocabulary: "catalog/vocabulary.json",
 };
 
 const schemaPaths = {
     publicSkills: "catalog/schemas/public-skills.schema.json",
     productCoverage: "catalog/schemas/product-coverage.schema.json",
     ecosystemVersions: "catalog/schemas/ecosystem-versions.schema.json",
+    vocabulary: "catalog/schemas/vocabulary.schema.json",
 };
+
+const vocabularyConsumers = Object.freeze([
+    Object.freeze({
+        setName: "readiness.blocker",
+        path: "distribution/preview-readiness.schema.json",
+        pointer: ["properties", "blockers", "items", "properties", "code"],
+    }),
+]);
+
+const vocabularyPatternConsumers = Object.freeze([
+    Object.freeze({
+        path: "catalog/schemas/release-readiness.schema.json",
+        pointer: ["$defs", "id"],
+    }),
+]);
 
 const supportedSchemaKeywords = new Set([
     "$schema",
@@ -31,6 +48,7 @@ const supportedSchemaKeywords = new Set([
     "$ref",
     "title",
     "description",
+    "examples",
     "type",
     "additionalProperties",
     "required",
@@ -180,6 +198,14 @@ function matchesKnownPattern(value, pattern) {
             return /^(?:cratis\/|public-|engineering-)[a-z0-9]+(?:-[a-z0-9]+)*$/.test(
                 value,
             );
+        // The bare `cratis` id is the maximal public bundle, so the two
+        // subscription patterns admit `cratis` alongside every `cratis/*`.
+        case "^(?:cratis(?:/[a-z0-9]+(?:-[a-z0-9]+)*)?|(?:public|engineering)-[a-z0-9]+(?:-[a-z0-9]+)*)$":
+            return /^(?:cratis(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)?|(?:public|engineering)-[a-z0-9]+(?:-[a-z0-9]+)*)$/.test(
+                value,
+            );
+        case "^cratis(?:/[a-z0-9]+(?:-[a-z0-9]+)*)?$":
+            return /^cratis(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)?$/.test(value);
         case "^cratis/[a-z0-9]+(?:-[a-z0-9]+)*$":
             return /^cratis\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value);
         case "^(?:public|engineering)-[a-z0-9]+(?:-[a-z0-9]+)*$":
@@ -645,6 +671,86 @@ export function validateEcosystems(registry) {
     return errors;
 }
 
+function schemaNode(schema, pointer) {
+    return pointer.reduce((current, segment) => current?.[segment], schema);
+}
+
+export function vocabularySetValues(vocabulary, setName) {
+    const set = vocabulary.sets[setName];
+    if (!set) throw new Error(`vocabulary is missing set ${setName}`);
+    return set.values.map((entry) => entry.value);
+}
+
+export function validateVocabulary(vocabulary, root = defaultRepositoryRoot) {
+    const errors = [];
+
+    for (const [setName, set] of Object.entries(vocabulary.sets)) {
+        const values = set.values.map((entry) => entry.value);
+        for (const duplicate of findDuplicates(values))
+            errors.push(`vocabulary set ${setName} repeats value ${duplicate}`);
+        for (const value of values)
+            if (!matchesKnownPattern(value, vocabulary.valuePattern))
+                errors.push(
+                    `vocabulary set ${setName} value ${value} does not match ${vocabulary.valuePattern}`,
+                );
+        for (const entry of set.values) {
+            if (!entry.dispositions) continue;
+            for (const duplicate of findDuplicates(entry.dispositions))
+                errors.push(
+                    `vocabulary set ${setName} value ${entry.value} repeats disposition ${duplicate}`,
+                );
+            for (const disposition of entry.dispositions)
+                if (!matchesKnownPattern(disposition, vocabulary.valuePattern))
+                    errors.push(
+                        `vocabulary set ${setName} disposition ${disposition} does not match ${vocabulary.valuePattern}`,
+                    );
+        }
+    }
+
+    for (const consumer of vocabularyConsumers) {
+        let node = null;
+        try {
+            node = schemaNode(
+                readCatalog(join(root, consumer.path)),
+                consumer.pointer,
+            );
+        } catch (error) {
+            errors.push(`${consumer.path}: ${error.message}`);
+            continue;
+        }
+        if (!Array.isArray(node?.enum)) {
+            errors.push(
+                `${consumer.path}: expected an inline enum bound to vocabulary set ${consumer.setName}`,
+            );
+            continue;
+        }
+        const expected = vocabularySetValues(vocabulary, consumer.setName);
+        if (JSON.stringify(node.enum) !== JSON.stringify(expected))
+            errors.push(
+                `${consumer.path}: inline enum differs from vocabulary set ${consumer.setName}`,
+            );
+    }
+
+    for (const consumer of vocabularyPatternConsumers) {
+        let node = null;
+        try {
+            node = schemaNode(
+                readCatalog(join(root, consumer.path)),
+                consumer.pointer,
+            );
+        } catch (error) {
+            errors.push(`${consumer.path}: ${error.message}`);
+            continue;
+        }
+        if (node?.pattern !== vocabulary.valuePattern)
+            errors.push(
+                `${consumer.path}: value pattern differs from the vocabulary value pattern`,
+            );
+    }
+
+    return errors;
+}
+
 export function validateCatalogs(root = defaultRepositoryRoot) {
     const schemas = {};
     const catalogs = {};
@@ -688,6 +794,7 @@ export function validateCatalogs(root = defaultRepositoryRoot) {
         ),
     );
     errors.push(...validateEcosystems(catalogs.ecosystemVersions));
+    errors.push(...validateVocabulary(catalogs.vocabulary, root));
 
     return errors;
 }

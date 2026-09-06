@@ -1,0 +1,1 @@
+../../.ai/rules/work-records-and-comments.md

@@ -2,6 +2,8 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/Cratis/AI/tooling/agent-mutation-manifest.schema.json",
   "title": "Cratis interactive agent mutation manifest",
+  "description": "A tracked manifest that satisfies this schema lives at tooling/specs/fixtures/agent-mutation-manifest.valid.json, with the same manifest minus its policy block at tooling/specs/fixtures/agent-mutation-manifest.invalid.json. Run `node tooling/agent-mutation-protocol.mjs validate <path>` against either to see the happy path and a refusal.",
+  "examples": ["tooling/specs/fixtures/agent-mutation-manifest.valid.json"],
   "type": "object",
   "additionalProperties": false,
   "required": ["schemaVersion", "runId", "state", "provider", "repository", "resource", "action", "policy", "authorization", "targets"],

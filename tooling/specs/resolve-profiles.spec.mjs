@@ -342,3 +342,37 @@ test("language profiles are composable units that imply no product", () => {
         );
     }
 });
+
+test("the governed release methodology profile carries no product or language", () => {
+    // Release methodology is reusable in any repository, so selecting it must
+    // never drag in Arc, Chronicle, or a language profile the way a product
+    // profile would.
+    const profileId = "public-methodology-governed-releases";
+    const targetId = "cratis-governed-release-methodology";
+    const profileCatalog = readJson("distribution/profile-catalog.json");
+    const profile = profileCatalog.publicProfiles.find(
+        (entry) => entry.id === profileId,
+    );
+    assert(profile, profileId);
+    assert.deepEqual(profile.products, []);
+    assert.deepEqual(profile.languages, []);
+    assert.deepEqual(profile.composes ?? [], []);
+    const manifest = resolveProfiles({ profileCatalog, requested: [profileId] });
+    assert.deepEqual(
+        manifest.profiles.map((entry) => entry.id),
+        [profileId],
+    );
+    assert.deepEqual(manifest.skills, [
+        { id: targetId, includedBy: [profileId] },
+    ]);
+    assert.deepEqual(manifest.mcpServers, []);
+    assert.deepEqual(manifest.rejected, []);
+    assert.deepEqual(resolveTargetsByProfile(profileCatalog).get(profileId), [
+        targetId,
+    ]);
+    const skill = readFileSync(
+        join(repositoryRoot, `skills/${targetId}/SKILL.md`),
+        "utf8",
+    );
+    assert.match(skill, new RegExp(`^name: ${targetId}$`, "mu"));
+});

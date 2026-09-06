@@ -12,11 +12,23 @@ Three layers:
 | Hard block | `PreToolUse` on a write | `scripts/cratis-guard-writes.sh` | zero | exits **2** — the write does not happen |
 | Quality gate | `Stop` | `scripts/cratis-quality-gate.sh` | one build/test run, only when relevant files changed | exits **2** — the turn does not end |
 
-They are wired for Claude Code in [`.claude/settings.json`](../../.claude/settings.json).
+The Claude Code wiring that fires them is tracked here, in
+[`settings.template.json`](./settings.template.json). Claude reads `.claude/settings.json`, which is
+per-machine and gitignored, so activate the hooks by copying the template once:
+
+```bash
+cp .ai/hooks/settings.template.json .claude/settings.json
+```
+
+If you already have a `.claude/settings.json`, merge the template's `hooks` block into it rather
+than overwriting — the rest of that file is yours. Re-copy after the template changes; the copy is
+not a symlink, so it does not update itself. **Edit the template, never the copy**: `.ai/` is the
+source of truth (see [`../rules/managing-ai-rules.md`](../rules/managing-ai-rules.md)), and
+`scripts/validate-ai-setup.sh` checks the template against the script names this page documents.
+
 The markdown files in this folder (`agent-stop.md`, `pre-commit.md`) remain *lifecycle guidance* —
 they describe what a hook should do for tools that have no wiring yet.
 
-> `.ai/` is the source of truth (see [`../rules/managing-ai-rules.md`](../rules/managing-ai-rules.md)).
 > Hooks are the one surface with no folder adapter: Claude reads `.claude/settings.json`,
 > Copilot would read `.github/hooks/*.json`. Only the Claude wiring exists today.
 
@@ -359,6 +371,6 @@ it before committing too.
 
 ## Note on `.claude/settings.local.json`
 
-That file currently carries `allow` entries for `Bash(git push *)` and `Bash(gh pr *)`. Local
-settings take precedence over project settings, so they may override the `ask` entries this
-layer adds in `.claude/settings.json`. Remove them there if you want the confirmation prompt back.
+If that file carries `allow` entries for `Bash(git push *)` and `Bash(gh pr *)`, they win: local
+settings take precedence over project settings, so they override the `ask` entries the template
+puts in `.claude/settings.json`. Remove them there if you want the confirmation prompt back.

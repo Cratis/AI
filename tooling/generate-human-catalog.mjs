@@ -18,6 +18,10 @@ import { fileURLToPath } from "node:url";
 import { compareOrdinal } from "./catalog-ordering.mjs";
 import { readCatalog, validateAgainstSchema } from "./catalog-validation.mjs";
 import { v2SchemaPath } from "./catalog-v2-validation.mjs";
+import {
+    checkModeRequested,
+    runGeneratorCheck,
+} from "./generator-check.mjs";
 import { assertSafeContent } from "./public-artifact-materializer.mjs";
 import { presentProfile } from "./profile-presentation.mjs";
 import { resolveTargetsByProfile } from "./resolve-profiles.mjs";
@@ -777,19 +781,40 @@ export function writeHumanCatalogOutputsAtomically(
     }
 }
 
-function main() {
+export function humanCatalogOutputs() {
     const { contents, humanContract } = buildHumanCatalogOutputs();
     const outputRoot = join(repositoryRoot, humanContract.outputRoot);
-    if (process.argv.includes("--check")) {
-        checkHumanCatalogOutputs(contents, outputRoot);
-        process.stdout.write("Generated human catalog is current.\n");
-    } else {
-        mkdirSync(dirname(outputRoot), { recursive: true });
-        writeHumanCatalogOutputsAtomically(contents, outputRoot);
-        process.stdout.write(
-            `Generated human catalog: ${contents.size} files under ${humanContract.outputRoot}.\n`,
-        );
+    const outputs = new Map(
+        [...contents].map(([path, content]) => [
+            `${humanContract.outputRoot}/${path}`,
+            content,
+        ]),
+    );
+    // A file nobody generates any more is drift too, so the extra paths are
+    // reported by name rather than silently tolerated.
+    const expectedPaths = new Set(contents.keys());
+    const unexpected = currentFiles(outputRoot)
+        .filter((path) => !expectedPaths.has(path))
+        .map((path) => `${humanContract.outputRoot}/${path}`);
+    return { outputs, unexpected };
+}
+
+function main() {
+    if (checkModeRequested()) {
+        process.exitCode = runGeneratorCheck({
+            name: "generate-human-catalog",
+            root: repositoryRoot,
+            build: humanCatalogOutputs,
+        });
+        return;
     }
+    const { contents, humanContract } = buildHumanCatalogOutputs();
+    const outputRoot = join(repositoryRoot, humanContract.outputRoot);
+    mkdirSync(dirname(outputRoot), { recursive: true });
+    writeHumanCatalogOutputsAtomically(contents, outputRoot);
+    process.stdout.write(
+        `Generated human catalog: ${contents.size} files under ${humanContract.outputRoot}.\n`,
+    );
 }
 
 if (

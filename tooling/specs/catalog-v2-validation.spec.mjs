@@ -58,10 +58,10 @@ test("catalog v2 schemas and semantic policy pass for the repository", () => {
     assert.deepEqual(validateV2Catalogs(), []);
 });
 
-test("catalog v2 preserves all 48 sources while split and merge targets are independent", () => {
+test("catalog v2 preserves all 52 sources while split and merge targets are independent", () => {
     const catalogs = loadCatalogs();
-    assert.equal(catalogs.sources.sources.length, 48);
-    assert.equal(catalogs.targets.targets.length, 48);
+    assert.equal(catalogs.sources.sources.length, 52);
+    assert.equal(catalogs.targets.targets.length, 52);
     const split = catalogs.migrations.migrations.find(
         (migration) => migration.kind === "split",
     );
@@ -154,9 +154,12 @@ test("unreviewed targets remain explicitly unclassified and runtime ineligible",
     const catalogs = loadCatalogs();
     const classified = new Set([
         "cratis-fundamentals-concept",
+        "cratis-engineering-csharp-conventions",
         "cratis-engineering-docs-add-page",
         "cratis-engineering-docs-authoring",
         "cratis-engineering-docs-edit-page",
+        "cratis-specifications-csharp",
+        "cratis-specifications-typescript",
     ]);
     for (const target of catalogs.targets.targets) {
         if (classified.has(target.id)) continue;
@@ -1063,7 +1066,7 @@ test("the accepted Option A+ decision still blocks unapproved live targets", () 
     assert.equal(publicCandidate.materializationAllowed, true);
     assert.equal(publicCandidate.runtimeEligible, false);
     assert.equal(publicCandidate.requiresApprovedTargets, false);
-    assert.equal(publicCandidate.componentInventory.skills.length, 37);
+    assert.equal(publicCandidate.componentInventory.skills.length, 41);
     assert(
         !publicCandidate.componentInventory.skills.includes(
             "cratis-chronicle-mcp-inspection",

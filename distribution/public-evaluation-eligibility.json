@@ -94,6 +94,22 @@
       "reason": "effect-assessment-required"
     },
     {
+      "targetId": "cratis-components-accessibility",
+      "reason": "effect-assessment-required"
+    },
+    {
+      "targetId": "cratis-components-schema-editor",
+      "reason": "effect-assessment-required"
+    },
+    {
+      "targetId": "cratis-components-styling",
+      "reason": "effect-assessment-required"
+    },
+    {
+      "targetId": "cratis-governed-release-methodology",
+      "reason": "effect-assessment-required"
+    },
+    {
       "targetId": "cratis-studio-mcp-safety-guidance",
       "reason": "mcp-guidance-materialization-blocked"
     }

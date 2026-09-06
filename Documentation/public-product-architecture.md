@@ -99,8 +99,7 @@ definitions, scripts, evals, tooling, and `.ai/**`.
 
 ## Catalog and schema design
 
-The first pull request introduces three versioned catalogs and matching JSON
-Schemas:
+The repository carries four versioned catalogs and matching JSON Schemas:
 
 - `catalog/public-skills.yml` maps current skills to proposed public skills and
   is the runtime allowlist. A candidate is not an approval.
@@ -108,6 +107,18 @@ Schemas:
   roadmap. A backlog entry is not a support claim.
 - `catalog/ecosystem-versions.json` records version-sensitive ecosystem facts
   and official sources. Every fact has a dated source.
+- `catalog/vocabulary.json` is the authority for the closed value sets used by
+  decision records, work items, verdict requests, verdicts, typed comments, and
+  readiness blockers. Every value carries a one-line meaning.
+
+`catalog/vocabulary.json` exists so a schema, checker, or reference page uses
+one source for a closed set instead of re-typing the enum. A schema that uses
+a set copies the values verbatim; `validateVocabulary` compares each copy with
+the file, so drift fails `node tooling/validate-catalogs.mjs --basic` and names
+the file that drifted. The reviewed values themselves are pinned in
+`tooling/specs/vocabulary.spec.mjs`, so a value cannot be added or removed
+without review. Consuming repositories pin the file by Git commit until an
+engineering package lane exists.
 
 The `.yml` catalogs intentionally use JSON-compatible YAML syntax in this
 dependency-free scaffold. `tooling/catalog-validation.mjs` parses that

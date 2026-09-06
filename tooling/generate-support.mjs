@@ -10,6 +10,11 @@ import {
     loadSupportCatalogs,
     supportPaths,
 } from "./support-validation.mjs";
+import {
+    checkModeRequested,
+    runGeneratorCheck,
+    serializeJson,
+} from "./generator-check.mjs";
 
 const repositoryRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 
@@ -17,19 +22,25 @@ export function generateSupport(root = repositoryRoot) {
     return computeSupport(loadSupportCatalogs(root));
 }
 
+export function supportOutputs(root = repositoryRoot) {
+    return new Map([[supportPaths.support, serializeJson(generateSupport(root))]]);
+}
+
 export function writeSupport(root = repositoryRoot) {
     const support = generateSupport(root);
-    writeFileSync(
-        join(root, supportPaths.support),
-        `${JSON.stringify(support, null, 2)}\n`,
-    );
+    writeFileSync(join(root, supportPaths.support), serializeJson(support));
     return support;
 }
 
-if (
-    process.argv[1] &&
-    resolve(process.argv[1]) === fileURLToPath(import.meta.url)
-) {
+function main() {
+    if (checkModeRequested()) {
+        process.exitCode = runGeneratorCheck({
+            name: "generate-support",
+            root: repositoryRoot,
+            build: () => supportOutputs(),
+        });
+        return;
+    }
     const support = writeSupport();
     process.stdout.write(
         `Generated support: ${support.summary.bindingCount} bindings; ${Object.entries(
@@ -38,4 +49,11 @@ if (
             .map(([tier, count]) => `${tier}=${count}`)
             .join(", ")}; support=${support.summary.supportClaimCount}.\n`,
     );
+}
+
+if (
+    process.argv[1] &&
+    resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+) {
+    main();
 }
