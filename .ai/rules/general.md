@@ -322,3 +322,4 @@ AI-assisted sessions produce working artifacts: plans, handover documents, sessi
 - These artifacts must never enter git history or reach GitHub — not on any branch. If you find one tracked in git, move it into `.ai-work/` and remove it from tracking in a dedicated commit.
 - A genuine follow-up that must survive the session is **not** a work record — suggest opening a GitHub issue for it (or open one when asked) so future work is tracked where everyone can see it, instead of leaving a planning file behind.
 - Knowledge that must outlive the session belongs in the repository's documentation structure through normal review, not in a work record.
+- **A decision log is not a work record.** A decision — a durable choice with a decider and a date — is documentation: it lives in **`decisions/`** (or the repository's documented decisions folder) and is reviewed like any other documentation. A handover may summarize decisions; it never holds the only copy.

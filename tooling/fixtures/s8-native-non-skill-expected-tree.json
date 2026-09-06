@@ -10,8 +10,8 @@
         {
           "path": "AGENTS.md",
           "sourcePath": ".ai/rules/general.md",
-          "size": 30364,
-          "sha256": "0a668a5d4268bda55d997619748acefffaf3df3266bf0d63ba8332339f72d9d2"
+          "size": 30678,
+          "sha256": "e7b3d16b29e97f4061632a55facd6acca728da595d0673115cb6c97683cad2b1"
         }
       ]
     },
@@ -442,8 +442,8 @@
         {
           "path": ".github/copilot-instructions.md",
           "sourcePath": ".ai/rules/general.md",
-          "size": 30364,
-          "sha256": "0a668a5d4268bda55d997619748acefffaf3df3266bf0d63ba8332339f72d9d2"
+          "size": 30678,
+          "sha256": "e7b3d16b29e97f4061632a55facd6acca728da595d0673115cb6c97683cad2b1"
         }
       ]
     }
@@ -455,14 +455,14 @@
       "canonicalOwnerId": "cratis-instruction-general",
       "semanticKind": "instruction",
       "sourcePath": ".ai/rules/general.md",
-      "sourceDigest": "afdb400c06ed35220ac1b625e5060bce9297bd2534e7cea2fd996910b22fb4ac",
+      "sourceDigest": "125b07c6b21c64e5f5c140d69c914cb5910db552d1c530d10f392c27b997d615",
       "outputPath": "devin-hosted-instructions/AGENTS.md",
       "hostId": "devin-hosted",
       "hostAdapterId": "devin-hosted-host-adapter",
       "evidenceIds": [
         "devin-hosted-source-2"
       ],
-      "outputDigest": "0a668a5d4268bda55d997619748acefffaf3df3266bf0d63ba8332339f72d9d2"
+      "outputDigest": "e7b3d16b29e97f4061632a55facd6acca728da595d0673115cb6c97683cad2b1"
     },
     {
       "projectionId": "cratis-instruction-general-to-visual-studio-copilot-instruction",
@@ -470,14 +470,14 @@
       "canonicalOwnerId": "cratis-instruction-general",
       "semanticKind": "instruction",
       "sourcePath": ".ai/rules/general.md",
-      "sourceDigest": "afdb400c06ed35220ac1b625e5060bce9297bd2534e7cea2fd996910b22fb4ac",
+      "sourceDigest": "125b07c6b21c64e5f5c140d69c914cb5910db552d1c530d10f392c27b997d615",
       "outputPath": "visual-studio-copilot-instructions/.github/copilot-instructions.md",
       "hostId": "visual-studio-copilot",
       "hostAdapterId": "visual-studio-copilot-host-adapter",
       "evidenceIds": [
         "visual-studio-copilot-source-2"
       ],
-      "outputDigest": "0a668a5d4268bda55d997619748acefffaf3df3266bf0d63ba8332339f72d9d2"
+      "outputDigest": "e7b3d16b29e97f4061632a55facd6acca728da595d0673115cb6c97683cad2b1"
     },
     {
       "projectionId": "cratis-rule-code-quality-csharp-to-jetbrains-ai-assistant-rule",

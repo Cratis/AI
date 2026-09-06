@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "2c4e94f465249738c9ca230f74294f61d8d6a7b03e20572d31b1d508527e0fb5",
+  "indexDigest": "dbcc431949998213647236bf30cff5e52f59bd6d12acba0594e8360c98f9c28e",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
