@@ -29,6 +29,7 @@ import {
     validateAgainstSchema,
 } from "../catalog-validation.mjs";
 import { validateArtifacts } from "../catalog-v2-validation.mjs";
+import { readComponentInventorySeals } from "../component-inventory-counts.mjs";
 
 function clone(value) {
     return structuredClone(value);
@@ -167,14 +168,12 @@ test("catalog records all kinds and honestly declares MCP and LSP empty", () => 
                 .length,
         ]),
     );
-    assert.equal(counts.skill, 86);
-    assert.equal(counts.agent, 12);
-    assert.equal(counts.command, 18);
-    assert.equal(counts.prompt, 18);
-    assert.equal(counts.rule, 44);
-    assert.equal(counts.instruction, 1);
-    assert.equal(counts.hook, 1);
-    assert.equal(counts["executable-host-extension"], 2);
+    // The authored v1 catalog is checked against the one reviewed seal rather than against a
+    // second copy of the same eight numbers, which is what made this file conflict with every
+    // sibling migration.
+    const seals = readComponentInventorySeals();
+    for (const [kind, expected] of Object.entries(seals.byKind))
+        assert.equal(counts[kind], expected, kind);
     assert.equal(counts.mcp, 0);
     assert.equal(counts.lsp, 0);
     assert(components.declaredEmptyKinds.includes("mcp"));

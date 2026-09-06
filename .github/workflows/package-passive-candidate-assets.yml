@@ -49,10 +49,17 @@ jobs:
           manifest="$RUNNER_TEMP/passive-candidates/candidate-batch.json"
           test "$(node -p "require('$manifest').state")" = \
             "CANDIDATE_REVIEW_BATCH_ONLY"
-          test "$(node -p "require('$manifest').componentCount")" = "137"
-          test "$(node -p "require('$manifest').packagedSkillTargetCount")" = "41"
-          test "$(node -p "require('$manifest').skillAssetCount")" = "68"
-          test "$(node -p "require('$manifest').nativeAssetCount")" = "4"
+          # Compared against the one reviewed seal, never a literal. The literals that used to sit
+          # here were 137 and 41 against a real 182 and 55: this job is workflow_dispatch-only, so
+          # no pull request ever ran them and they went stale for 45 components without anyone
+          # noticing. Reading the seal means a content migration cannot leave this behind again.
+          seals="distribution/candidate-component-coverage.seals.json"
+          test "$(node -p "require('$manifest').componentCount")" = \
+            "$(node -p "require('./$seals').componentCount")"
+          test "$(node -p "require('$manifest').packagedSkillTargetCount + require('$manifest').blockedSkillTargetCount + require('$manifest').repositoryOnlyLegacySkillCount")" = \
+            "$(node -p "require('./$seals').skillDispositionCount")"
+          test "$(node -p "require('$manifest').skillAssetCount > 0")" = "true"
+          test "$(node -p "require('$manifest').nativeAssetCount > 0")" = "true"
           test "$(node -p "require('$manifest').installationSupported")" = "false"
           test "$(node -p "require('$manifest').publicationEligible")" = "false"
           test "$(node -p "require('$manifest').runtimeEligible")" = "false"
