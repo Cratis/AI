@@ -29,7 +29,7 @@ export const s8NativeProjectionPaths = Object.freeze({
 });
 
 const expectedStaticComponentAnchor =
-    "5ddd11585c1dbba3cc0b46216b1c2935d3eec631bad8d40cee6cca62e1db45ca";
+    "33279222468291bd5f71d6d0530ec69a86a964c67df10c5f340b2b6112c8a225";
 const expectedStaticProjectionAnchor =
     "5994bb761eeaf6f44fd5da70af8434f93b5197ccc7325bb9aa536eb1a9bf0056";
 const expectedStaticProjectionHostAnchor =
