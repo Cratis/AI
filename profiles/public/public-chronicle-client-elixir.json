@@ -1,0 +1,13 @@
+{
+  "id": "public-chronicle-client-elixir",
+  "packageName": "@cratis/ai-chronicle-elixir",
+  "version": "0.0.0",
+  "products": [
+    "chronicle"
+  ],
+  "languages": [
+    "elixir"
+  ],
+  "state": "content-gap",
+  "gapSummary": "Needs Chronicle.Elixir-owned source, OTP, supervision, configuration, error, and lifecycle guidance."
+}

@@ -1,0 +1,13 @@
+{
+  "id": "public-chronicle-client-kotlin",
+  "packageName": "@cratis/ai-chronicle-kotlin",
+  "version": "0.0.0",
+  "products": [
+    "chronicle"
+  ],
+  "languages": [
+    "kotlin"
+  ],
+  "state": "content-gap",
+  "gapSummary": "Needs Chronicle.Kotlin-owned source, versions, Gradle/Spring, coroutine, error, and lifecycle guidance."
+}

@@ -1,6 +1,29 @@
 {
   "schemaVersion": "1.0.0",
   "observedAt": "2026-08-22",
+  "supersedingDecision": {
+    "state": "GENERATED_DISTRIBUTION_RETIRED",
+    "issue": "https://github.com/Cratis/AI/issues/264",
+    "plannedState": "MIRROR_PENDING_ARCHIVE",
+    "currentStateRemains": "INITIALIZED_PROTECTED_FIXTURE",
+    "decision": "Cratis/AI is installed directly from its default branch through four committed marketplace manifests that resolve its real skills/ and engineering/ directories. Generated distribution is retired in full: there is no second write target, no release branch, no dist/vX.Y.Z tag namespace, and no generated tree. Cratis/AI.Distribution's published v0.1.0 to v0.3.0 tags keep resolving and are never deleted; the repository is archived rather than mirrored.",
+    "note": "The repository block below still reports the observed live state of Cratis/AI.Distribution. No workflow in Cratis/AI writes to it any more.",
+    "retirementApplied": {
+      "surface": "Cratis/AI",
+      "appliedOn": "2026-09-06",
+      "note": "The distribution branch and the dist/* tag ruleset that had been created on 2026-09-06 were deleted the same day by the repository admin through the GitHub API, before any release ran against them. Neither exists now: GET /repos/Cratis/AI/branches lists no distribution branch and GET /repos/Cratis/AI/rulesets is empty.",
+      "protectedEnvironmentsStillLive": {
+        "npm-stage": "Used by release-passive-previews.yml, the real npm trusted publish for @cratis/ai-fundamentals. Branch policy only; no required reviewer, matching npm-stage-contract.json's environmentApprovalRequired: false.",
+        "distribution-canary": "Still configured with woksin as required reviewer, but no remaining workflow declares it. Whether to delete it is a separate decision."
+      }
+    },
+    "findings": [
+      "The contract in distribution/generated-repository-authority-request.md states that human or deploy-key direct pushes are not an accepted update path, yet commits 5d5c366, 53c607f, and 8f31eb0 in Cratis/AI.Distribution were authored directly by a maintainer rather than by the release bot, because the Cratis/Workflows#72 App is still not installed.",
+      "credential.state is REMOVED_AFTER_ONE_TIME_INITIALIZATION and repository.writeCredentialState is ABSENT_PENDING_PR_RELEASE_BOT, so the second repository never had a compliant automated write path.",
+      "Retirement removes the cross-repository App, the AI_DISTRIBUTION_APP_ID and AI_DISTRIBUTION_APP_PRIVATE_KEY secrets, the duplicated control plane, and both extra branch-protection surfaces."
+    ],
+    "maintainerRunbook": "Documentation/maintainer-marketplace-deployment-runbook.md"
+  },
   "repository": {
     "name": "Cratis/AI.Distribution",
     "url": "https://github.com/Cratis/AI.Distribution",

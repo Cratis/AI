@@ -70,6 +70,21 @@ const displayNameOverrides = new Map([
         "Cratis Chronicle TypeScript Client",
     ],
     ["public-modeling-screenplay-stage", "Cratis Screenplay → Stage"],
+    ["public-language-csharp", "Cratis C# Language Conventions"],
+    ["public-language-elixir", "Cratis Elixir Language Conventions"],
+    ["public-language-kotlin", "Cratis Kotlin Language Conventions"],
+    ["public-language-typescript", "Cratis TypeScript Language Conventions"],
+    ["cratis/application", "Cratis Application Suite"],
+    ["cratis/arc", "Cratis Arc Suite"],
+    ["cratis/chronicle", "Cratis Chronicle Suite"],
+    ["cratis/full", "Cratis Full Suite"],
+]);
+
+const languageProfileLabels = new Map([
+    ["public-language-csharp", "C#"],
+    ["public-language-elixir", "Elixir"],
+    ["public-language-kotlin", "Kotlin"],
+    ["public-language-typescript", "TypeScript"],
 ]);
 
 const descriptionOverrides = new Map([
@@ -97,7 +112,34 @@ const descriptionOverrides = new Map([
         "engineering-documentation",
         "Public-safe documentation authoring guidance for maintainers working across Cratis product repositories.",
     ],
+    [
+        "cratis/application",
+        "The namespaced suite for building a full Cratis application with Arc, Chronicle, Arc React, Components, and Specifications.",
+    ],
+    [
+        "cratis/arc",
+        "The namespaced Arc suite: model-bound commands, queries, EF Core persistence, and identity, with no Chronicle assumptions.",
+    ],
+    [
+        "cratis/chronicle",
+        "The namespaced Chronicle suite: event modeling, compliance, multi-tenancy, and workbench guidance, with no Arc assumptions.",
+    ],
+    [
+        "cratis/full",
+        "Every public Cratis suite in one selection, including the Screenplay to Stage modeling and executable specification handoff.",
+    ],
+    ...[...languageProfileLabels].map(([id, label]) => [
+        id,
+        `Composable language-level ${label} conventions shared across Cratis products. Content completeness is tracked in Cratis/AI#178.`,
+    ]),
 ]);
+
+const intendedForOverrides = new Map(
+    [...languageProfileLabels].map(([id, label]) => [
+        id,
+        `Developers who want ${label} conventions without selecting a Cratis product profile.`,
+    ]),
+);
 
 function joinNatural(values) {
     if (values.length === 0) return "Cratis";
@@ -108,6 +150,7 @@ function joinNatural(values) {
 
 function wordsFromId(profileId) {
     const words = profileId
+        .replace(/^cratis\//, "")
         .replace(/^(?:public|engineering)-/, "")
         .split("-")
         .filter((word) => word !== "cratis")
@@ -145,6 +188,8 @@ export function profileDescription(profile, audience) {
 }
 
 export function profileIntendedFor(profile, audience) {
+    const override = intendedForOverrides.get(profile.id);
+    if (override) return override;
     const products = joinNatural(
         (profile.products ?? []).map(
             (product) => productLabels.get(product) ?? product,

@@ -1,0 +1,13 @@
+{
+  "id": "public-screenplay",
+  "packageName": "@cratis/ai-screenplay",
+  "version": "0.0.0",
+  "products": [
+    "screenplay"
+  ],
+  "languages": [
+    "language-agnostic"
+  ],
+  "state": "content-gap",
+  "gapSummary": "Needs Screenplay-owned authoring, compiler, diagnostics, editor, generation, and model handoff guidance."
+}

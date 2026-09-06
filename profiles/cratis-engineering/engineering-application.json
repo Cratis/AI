@@ -1,0 +1,22 @@
+{
+  "id": "engineering-application",
+  "packageName": "@cratis/ai-engineering-application",
+  "version": "0.0.0",
+  "repositoryKinds": [
+    "application"
+  ],
+  "products": [
+    "fundamentals",
+    "arc",
+    "arc-react",
+    "chronicle",
+    "components"
+  ],
+  "state": "planned-source-migration",
+  "distributionVisibility": "public",
+  "confidentialContentAllowed": false,
+  "privateOverlayExpected": true,
+  "composes": [
+    "engineering-base"
+  ]
+}

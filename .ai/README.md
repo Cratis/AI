@@ -28,10 +28,11 @@ Every rule is one of: **Framework contract** (enforced by Arc/Chronicle source/a
 ## Local rule profiles
 
 The local corpus distinguishes **application** and **framework** rules.
-Versioned distribution uses narrower product and repository profiles from
-[`distribution/profile-catalog.json`](../distribution/profile-catalog.json),
-including Arc, Chronicle, Fundamentals, Components, Studio, Stagehand, clients,
-documentation, and corpus work.
+Versioned distribution uses narrower product and repository profiles, authored
+one file each under `profiles/` and aggregated into
+[`distribution/profile-catalog.json`](../distribution/profile-catalog.json).
+They include Arc, Chronicle, Fundamentals, Components, Studio, Stagehand,
+clients, documentation, and corpus work.
 
 ## Structure
 

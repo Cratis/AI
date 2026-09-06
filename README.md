@@ -33,17 +33,26 @@ It serves two separate audiences:
 
 ## The architecture
 
-| Concern | Owner |
-| --- | --- |
-| Shared AI behavior and profile composition | `Cratis/AI` |
-| Product APIs, versions, and facts | The owning Cratis product repository |
-| Repository-specific context | The consuming repository |
-| Generated immutable packages | `Cratis/AI.Distribution` |
+| Concern | Owner | Notes |
+| --- | --- | --- |
+| Shared AI behavior and profile composition | `Cratis/AI` `main` | The only authoring surface |
+| Product APIs, versions, and facts | The owning Cratis product repository | Unchanged |
+| Repository-specific context | The consuming repository | Unchanged |
+| Marketplace installation | `Cratis/AI` `main` | Four committed marketplace manifests resolve `skills/` and `engineering/` directly |
+| Already published `v0.1.0`–`v0.3.0` | `Cratis/AI.Distribution` | Retired; its tags keep resolving and are never deleted |
 
-Canonical skill and rule behavior is reviewed here. Generated packages flow
-one way to subscribers. Improvements discovered in product repositories flow
-back through issues or pull requests to this repository; generated folders are
-never synchronized bidirectionally.
+Canonical skill and rule behavior is reviewed here. Improvements discovered in
+product repositories flow back through issues or pull requests to this
+repository.
+
+**[Cratis/AI#264](https://github.com/Cratis/AI/issues/264) — generated
+distribution is retired.** There is no second repository, no release branch, no
+`dist/vX.Y.Z` tag namespace, no generated tree, and no checksum or provenance
+file to maintain. A host adds `Cratis/AI` as a marketplace and installs a plugin
+whose source is a real directory on this repository's default branch, so what it
+installs is exactly what a reviewer reads here. Adding a skill under `skills/`
+is the whole deployment. See the
+[maintainer marketplace deployment runbook](Documentation/maintainer-marketplace-deployment-runbook.md).
 
 Read [Cratis AI distribution and subscriptions](Documentation/ai-distribution-and-subscriptions.md)
 for the complete source-of-truth, profile, versioning, pinning, Pi, update,
@@ -54,16 +63,28 @@ rollback, and contribution model.
 ```text
 skills/                 Canonical public skill sources
 engineering/            Canonical Cratis-maintainer skill sources
+mcp/                    MCP server declarations and host configuration mapping
 .ai/                    Legacy corpus being reconciled into profiles
 catalog/                Sources, targets, authority, evidence, and coverage
 distribution/           Profile, artifact, rollout, and publication contracts
-tooling/                Validation and deterministic generation
+tooling/                Resolver, validation, and deterministic generation
 Documentation/          Architecture, contribution, and usage guidance
 ```
 
 `.ai/` remains valuable repository-local guidance but is not a publishable
 package tree. Public and engineering artifacts select exact approved files; they
 never package the repository wholesale.
+
+`mcp/` holds authored, passive MCP server declarations. A declaration records a
+server's identity, reference, transport, authentication type, and host
+configuration mapping; it never carries server bytes or a credential. Chronicle
+MCP is declared; **Studio MCP is an extension point only and is not published or
+shipped**. See [MCP declarations in profiles](Documentation/mcp-declarations.md).
+
+The four marketplace manifests — `.claude-plugin/marketplace.json`,
+`.agents/plugins/marketplace.json`, `.github/plugin/marketplace.json`, and
+`.cursor-plugin/marketplace.json` — are hand-authored files that point hosts at
+`skills/` and `engineering/`. No generated host tree is committed here.
 
 ## Profiles
 
@@ -77,12 +98,23 @@ full application, and Screenplay → Stage boundaries. Public-safe engineering
 profiles cover every Cratis product/repository family; private repositories add
 local overlays rather than receiving confidential shared packages.
 
+Profiles compose recursively through one shared resolver,
+`tooling/resolve-profiles.mjs`. It returns a deterministic manifest that names
+which profile pulled in every profile, skill, and MCP server, and why anything
+was excluded. Namespaced `cratis/arc`, `cratis/chronicle`, `cratis/application`,
+and `cratis/full` meta-profiles are the stable names to subscribe to; the Arc and
+Chronicle decoupling is a property of their composition, not an editorial
+promise. See [the profile reference](Documentation/profile-reference.md).
+
 Browse the generated [package and capability catalog](catalog/generated/human-catalog/CATALOG.md)
 to compare public and maintainer packages, see their included skills, and check
 whether they are planned, candidates, or installable.
 
-See [`distribution/profile-catalog.json`](distribution/profile-catalog.json),
-[Profile reference](Documentation/profile-reference.md),
+Profiles are authored one file each under `profiles/`;
+[`distribution/profile-catalog.json`](distribution/profile-catalog.json) is the
+generated aggregate every consumer reads.
+
+See [Profile reference](Documentation/profile-reference.md),
 [developer adoption](Documentation/adopting-cratis-ai.md),
 [maintainer adoption](Documentation/adopting-cratis-ai-for-maintainers.md), and
 [private repository overlays](Documentation/private-repository-overlays.md),
@@ -200,15 +232,33 @@ unsupported evaluation endpoint.
 
 ## Native marketplace installation
 
+Add this repository as a marketplace and install the plugin. There is no ref,
+version, or tag to pin — the manifests on the default branch resolve the
+`skills/` and `engineering/` directories you can read right here.
+
+```text
+/plugin marketplace add Cratis/AI
+/plugin install cratis@cratis
+```
+
+```bash
+codex plugin marketplace add Cratis/AI
+copilot plugin marketplace add Cratis/AI
+copilot plugin install cratis@cratis
+```
+
+Cratis maintainers can add the maintainer-audience skills from the same
+marketplace with `/plugin install cratis-engineering@cratis`. The `engineering-`
+content identifies its audience; it is not confidential.
+
+Gemini CLI and Pi look for a manifest at a repository root rather than following
+a marketplace manifest, and this repository's root carries neither, so those two
+hosts have no working install today — see the
+[maintainer marketplace deployment runbook](Documentation/maintainer-marketplace-deployment-runbook.md).
+
 [Cratis/AI.Distribution v0.2.1](https://github.com/Cratis/AI.Distribution/releases/tag/v0.2.1)
-is the latest published marketplace. The corrected release policy admits 29
-public skills and excludes five effectful workflows, including live Chronicle
-operations, until their effects are separately assessed and approved. It provides one `public-cratis-ai` root for Agent Skills, Agent Plugin,
-Claude Code, Codex, GitHub Copilot, Gemini CLI, Kiro, and Pi. The Distribution
-README contains exact version-pinned commands. Claude, Codex, Copilot, and Pi
-public install/discovery/remove canaries pass; Gemini gallery discovery is
-enabled. OpenAI and Cursor packages are prepared release assets but still require
-owner-authenticated vendor submission and review.
+was the last generated marketplace release. Its tags keep resolving and are
+never deleted, but it receives no further releases.
 
 This remains an unsupported `0.x` evaluation distribution. Marketplace
 availability does not imply behavior support, broad-rollout approval, or a

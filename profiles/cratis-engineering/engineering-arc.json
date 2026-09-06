@@ -1,0 +1,18 @@
+{
+  "id": "engineering-arc",
+  "packageName": "@cratis/ai-engineering-arc",
+  "version": "0.0.0",
+  "repositoryKinds": [
+    "framework"
+  ],
+  "products": [
+    "arc"
+  ],
+  "state": "planned-source-migration",
+  "distributionVisibility": "public",
+  "confidentialContentAllowed": false,
+  "privateOverlayExpected": true,
+  "composes": [
+    "engineering-base"
+  ]
+}

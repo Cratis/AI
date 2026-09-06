@@ -1,0 +1,16 @@
+{
+  "id": "public-specifications-dotnet",
+  "packageName": "@cratis/ai-specifications-dotnet",
+  "version": "0.0.0",
+  "products": [
+    "specifications"
+  ],
+  "languages": [
+    "csharp"
+  ],
+  "state": "planned-source-migration",
+  "composes": [
+    "public-specifications"
+  ],
+  "gapSummary": "Needs Cratis.Specifications, C# contexts, NSubstitute, assertions, framework specs, and application scenario-family guidance."
+}

@@ -1,0 +1,13 @@
+{
+  "id": "public-specifications",
+  "packageName": "@cratis/ai-specifications",
+  "version": "0.0.0",
+  "products": [
+    "specifications"
+  ],
+  "languages": [
+    "language-agnostic"
+  ],
+  "state": "planned-source-migration",
+  "gapSummary": "Needs canonical language-agnostic Specification by Example philosophy, context hierarchy, naming, observability, and completion guidance."
+}

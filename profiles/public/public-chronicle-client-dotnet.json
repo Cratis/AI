@@ -1,0 +1,13 @@
+{
+  "id": "public-chronicle-client-dotnet",
+  "packageName": "@cratis/ai-chronicle-dotnet",
+  "version": "0.0.0",
+  "products": [
+    "chronicle"
+  ],
+  "languages": [
+    "csharp"
+  ],
+  "state": "content-gap",
+  "gapSummary": "Needs authoritative standalone .NET connect, append, read, observe, error, and lifecycle guidance."
+}

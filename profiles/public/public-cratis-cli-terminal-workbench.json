@@ -1,0 +1,16 @@
+{
+  "id": "public-cratis-cli-terminal-workbench",
+  "packageName": "@cratis/ai-cli-workbench",
+  "version": "0.0.0",
+  "products": [
+    "cli"
+  ],
+  "languages": [
+    "shell"
+  ],
+  "state": "content-gap",
+  "composes": [
+    "public-cratis-cli"
+  ],
+  "gapSummary": "Needs CLI-owned terminal Workbench discovery, navigation, read-only evidence capture, machine output, and separately confirmed recovery/administration guidance."
+}

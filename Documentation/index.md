@@ -23,9 +23,11 @@ harness. The mixed source repository is not itself an installation package.
 | [Capability catalog v2](./capability-catalog-v2.md) | Understand the source, approval, trust, and coverage model behind the generated catalog |
 | [Chronicle MCP passive guidance](./chronicle-mcp-guidance.md) | Understand the classification-only Chronicle skill, evidence boundary, and blocked executable lane |
 | [Studio MCP passive guidance](./studio-mcp-guidance.md) | Understand the public-safe Studio skill, private-fact boundary, and deny-all operation policy |
+| [MCP declarations in profiles](./mcp-declarations.md) | Understand how a profile requires an MCP server, and why Studio MCP is an unpublished extension point |
 | [Native non-skill projections](./native-non-skill-projections.md) | Understand the four repository-only rule/instruction fixture roots and their non-promoting boundary |
 | [Real-host canaries](./real-host-canaries.md) | Understand exact-version isolation, lifecycle phases, blocked outcomes, and non-supporting fixture evidence |
 | [S10 release and marketplace gates](./s10-release-and-marketplace-gates.md) | Understand blocked readiness, external controls, append-only records, and unreachable side effects |
+| [Maintainer marketplace deployment runbook](./maintainer-marketplace-deployment-runbook.md) | Maintainer-only: every account, credential, protection, and listing that must be configured by hand, and which are still outstanding |
 
 ## Repository-local corpus reference
 
@@ -48,7 +50,14 @@ profiles, but they do not describe a supported installation channel:
 - Product facts remain authoritative in the owning product repository.
 - Consuming repositories own `.cratis/PROJECT.md`, `.cratis/ai.json`, and their
   minimal harness bootstraps.
-- `Cratis/AI.Distribution` contains bot-generated immutable artifacts only.
+- `Cratis/AI` is installed directly from its default branch. Four committed
+  marketplace manifests resolve the real `skills/` and `engineering/`
+  directories, so a host installs exactly what a reviewer reads. There is no
+  release branch, no `dist/vX.Y.Z` tag, and no generated tree
+  ([Cratis/AI#264](https://github.com/Cratis/AI/issues/264)).
+- `Cratis/AI.Distribution` receives no further releases and is archived. Its
+  already published `v0.1.0` through `v0.3.0` tags stay resolvable and are never
+  deleted.
 - Repositories pin exact profile versions and update through reviewed pull
   requests.
 - Improvements flow upstream through issues or pull requests; generated folders

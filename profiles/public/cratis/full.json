@@ -1,0 +1,29 @@
+{
+  "id": "cratis/full",
+  "packageName": "@cratis/ai-meta-full",
+  "version": "0.0.0",
+  "products": [
+    "fundamentals",
+    "arc",
+    "arc-react",
+    "chronicle",
+    "components",
+    "entity-framework-core",
+    "screenplay",
+    "stage"
+  ],
+  "languages": [
+    "csharp",
+    "react",
+    "typescript",
+    "language-agnostic"
+  ],
+  "state": "planned-composition",
+  "composes": [
+    "cratis/application",
+    "cratis/arc",
+    "cratis/chronicle",
+    "public-modeling-screenplay-stage"
+  ],
+  "gapSummary": "Everything the public catalog composes today, including the Screenplay to Stage modeling handoff. Deliberately a superset rather than a replacement for the decoupled Arc and Chronicle meta-profiles."
+}

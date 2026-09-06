@@ -1,0 +1,13 @@
+{
+  "id": "public-chronicle-client-typescript",
+  "packageName": "@cratis/ai-chronicle-typescript",
+  "version": "0.0.0",
+  "products": [
+    "chronicle"
+  ],
+  "languages": [
+    "typescript"
+  ],
+  "state": "content-gap",
+  "gapSummary": "Needs Chronicle.TypeScript-owned source, runtime, transport, error, and lifecycle guidance."
+}

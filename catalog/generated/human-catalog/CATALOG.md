@@ -6,7 +6,7 @@ This catalog is generated from reviewed catalog metadata. Use it to find
 the right package and understand its skills. It is not source authority
 and does not make a planned package installable.
 
-- Profiles: 52
+- Profiles: 60
 - Capabilities: 45
 - Installable profiles: 0
 - Ecosystem bindings with support claims: 0
@@ -118,6 +118,114 @@ This matrix reports research and serving disposition only. It is not support, pu
 
 Profiles are the product and maintainer bundles people subscribe to.
 Only profiles marked installable have completed approval.
+
+### Cratis Application Suite
+
+- **Profile ID:** `cratis/application`
+- **Audience:** public
+- **Package:** `@cratis/ai-meta-application`
+- **State:** planned-composition
+- **Installable:** no
+- **Materialization:** composition
+
+The namespaced suite for building a full Cratis application with Arc, Chronicle, Arc React, Components, and Specifications.
+
+**Intended for:** Developers who use Cratis Fundamentals, Cratis Arc, Cratis Arc React, Cratis Chronicle, and Cratis Components.
+
+- Products: fundamentals, arc, arc-react, chronicle, components
+- Languages: csharp, react, typescript
+- Repository kinds: consumer projects
+
+#### Included capabilities
+
+- cratis-fundamentals-concept
+
+#### Composed profiles
+
+- public-application
+
+### Cratis Arc Suite
+
+- **Profile ID:** `cratis/arc`
+- **Audience:** public
+- **Package:** `@cratis/ai-meta-arc`
+- **State:** planned-composition
+- **Installable:** no
+- **Materialization:** composition
+
+The namespaced Arc suite: model-bound commands, queries, EF Core persistence, and identity, with no Chronicle assumptions.
+
+**Intended for:** Developers who use Cratis Fundamentals, Cratis Arc, and Entity Framework Core.
+
+- Products: fundamentals, arc, entity-framework-core
+- Languages: csharp
+- Repository kinds: consumer projects
+
+#### Included capabilities
+
+- cratis-fundamentals-concept
+
+#### Composed profiles
+
+- public-application-arc-only
+- public-arc-ef-core
+- public-arc-identity
+
+### Cratis Chronicle Suite
+
+- **Profile ID:** `cratis/chronicle`
+- **Audience:** public
+- **Package:** `@cratis/ai-meta-chronicle`
+- **State:** planned-composition
+- **Installable:** no
+- **Materialization:** composition
+
+The namespaced Chronicle suite: event modeling, compliance, multi-tenancy, and workbench guidance, with no Arc assumptions.
+
+**Intended for:** Developers who use Cratis Fundamentals and Cratis Chronicle.
+
+- Products: fundamentals, chronicle
+- Languages: csharp, language-agnostic
+- Repository kinds: consumer projects
+
+#### Included capabilities
+
+- cratis-fundamentals-concept
+
+#### Composed profiles
+
+- public-application-chronicle-dotnet
+- public-chronicle-compliance
+- public-chronicle-multi-tenancy
+- public-chronicle-web-workbench
+
+### Cratis Full Suite
+
+- **Profile ID:** `cratis/full`
+- **Audience:** public
+- **Package:** `@cratis/ai-meta-full`
+- **State:** planned-composition
+- **Installable:** no
+- **Materialization:** composition
+
+Every public Cratis suite in one selection, including the Screenplay to Stage modeling and executable specification handoff.
+
+**Intended for:** Developers who use Cratis Fundamentals, Cratis Arc, Cratis Arc React, Cratis Chronicle, Cratis Components, Entity Framework Core, Cratis Screenplay, and Cratis Stage.
+
+- Products: fundamentals, arc, arc-react, chronicle, components, entity-framework-core, screenplay, stage
+- Languages: csharp, react, typescript, language-agnostic
+- Repository kinds: consumer projects
+
+#### Included capabilities
+
+- cratis-fundamentals-concept
+
+#### Composed profiles
+
+- cratis/application
+- cratis/arc
+- cratis/chronicle
+- public-modeling-screenplay-stage
 
 ### Cratis Application Development
 
@@ -733,6 +841,106 @@ Strongly typed Cratis Fundamentals concepts and Chronicle event-source identitie
 #### Included capabilities
 
 - cratis-fundamentals-concept
+
+#### Composed profiles
+
+- None
+
+### Cratis C# Language Conventions
+
+- **Profile ID:** `public-language-csharp`
+- **Audience:** public
+- **Package:** `@cratis/ai-language-csharp`
+- **State:** content-gap
+- **Installable:** no
+- **Materialization:** catalog-only
+
+Composable language-level C# conventions shared across Cratis products. Content completeness is tracked in Cratis/AI#178.
+
+**Intended for:** Developers who want C# conventions without selecting a Cratis product profile.
+
+- Products: shared engineering behavior
+- Languages: csharp
+- Repository kinds: consumer projects
+
+#### Included capabilities
+
+- No approved or candidate capabilities yet
+
+#### Composed profiles
+
+- None
+
+### Cratis Elixir Language Conventions
+
+- **Profile ID:** `public-language-elixir`
+- **Audience:** public
+- **Package:** `@cratis/ai-language-elixir`
+- **State:** content-gap
+- **Installable:** no
+- **Materialization:** catalog-only
+
+Composable language-level Elixir conventions shared across Cratis products. Content completeness is tracked in Cratis/AI#178.
+
+**Intended for:** Developers who want Elixir conventions without selecting a Cratis product profile.
+
+- Products: shared engineering behavior
+- Languages: elixir
+- Repository kinds: consumer projects
+
+#### Included capabilities
+
+- No approved or candidate capabilities yet
+
+#### Composed profiles
+
+- None
+
+### Cratis Kotlin Language Conventions
+
+- **Profile ID:** `public-language-kotlin`
+- **Audience:** public
+- **Package:** `@cratis/ai-language-kotlin`
+- **State:** content-gap
+- **Installable:** no
+- **Materialization:** catalog-only
+
+Composable language-level Kotlin conventions shared across Cratis products. Content completeness is tracked in Cratis/AI#178.
+
+**Intended for:** Developers who want Kotlin conventions without selecting a Cratis product profile.
+
+- Products: shared engineering behavior
+- Languages: kotlin
+- Repository kinds: consumer projects
+
+#### Included capabilities
+
+- No approved or candidate capabilities yet
+
+#### Composed profiles
+
+- None
+
+### Cratis TypeScript Language Conventions
+
+- **Profile ID:** `public-language-typescript`
+- **Audience:** public
+- **Package:** `@cratis/ai-language-typescript`
+- **State:** content-gap
+- **Installable:** no
+- **Materialization:** catalog-only
+
+Composable language-level TypeScript conventions shared across Cratis products. Content completeness is tracked in Cratis/AI#178.
+
+**Intended for:** Developers who want TypeScript conventions without selecting a Cratis product profile.
+
+- Products: shared engineering behavior
+- Languages: typescript
+- Repository kinds: consumer projects
+
+#### Included capabilities
+
+- No approved or candidate capabilities yet
 
 #### Composed profiles
 
@@ -3452,6 +3660,10 @@ Use when creating a ConceptAs&lt;T&gt; value or EventSourceId&lt;T&gt; identity.
 
 #### Profile membership — cratis-fundamentals-concept
 
+- cratis/application
+- cratis/arc
+- cratis/chronicle
+- cratis/full
 - public-application
 - public-application-arc-chronicle
 - public-application-arc-only

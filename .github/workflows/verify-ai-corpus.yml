@@ -8,7 +8,10 @@ on:
         paths:
             - ".ai/**"
             - ".agents/**"
+            - ".claude-plugin/**"
+            - ".cursor-plugin/**"
             - ".github/ISSUE_TEMPLATE/**"
+            - ".github/plugin/**"
             - ".github/workflows/**"
             - "AGENTS.md"
             - "README.md"
@@ -19,6 +22,7 @@ on:
             - "evals/**"
             - "evidence/**"
             - "pilots/**"
+            - "profiles/**"
             - "skills/**"
             - "tooling/**"
     push:
@@ -26,7 +30,10 @@ on:
         paths:
             - ".ai/**"
             - ".agents/**"
+            - ".claude-plugin/**"
+            - ".cursor-plugin/**"
             - ".github/ISSUE_TEMPLATE/**"
+            - ".github/plugin/**"
             - ".github/workflows/**"
             - "AGENTS.md"
             - "README.md"
@@ -37,6 +44,7 @@ on:
             - "evals/**"
             - "evidence/**"
             - "pilots/**"
+            - "profiles/**"
             - "skills/**"
             - "tooling/**"
     workflow_dispatch:
@@ -71,6 +79,7 @@ jobs:
               run: |
                   set -euo pipefail
                   node tooling/harness-registry.mjs
+                  node tooling/generate-profile-catalog.mjs
                   node tooling/generate-catalog-v2.mjs
                   node tooling/generate-support.mjs
                   node tooling/preview-readiness.mjs
@@ -83,6 +92,7 @@ jobs:
                     catalog/generated/human-catalog \
                     distribution/artifact-matrix.json \
                     distribution/engineering-artifact-matrix.json \
+                    distribution/profile-catalog.json \
                     distribution/profile-subscription.schema.json \
                     distribution/preview-readiness.json
 
@@ -110,6 +120,7 @@ jobs:
                   const inputs = [
                     ...files('catalog'),
                     ...files('distribution'),
+                    ...files('profiles'),
                   ].filter((path) =>
                     path.endsWith('.json') ||
                     (path.startsWith('catalog/') && path.endsWith('.yml')));

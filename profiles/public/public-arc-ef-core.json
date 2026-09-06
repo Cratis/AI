@@ -1,0 +1,17 @@
+{
+  "id": "public-arc-ef-core",
+  "packageName": "@cratis/ai-arc-ef-core",
+  "version": "0.0.0",
+  "products": [
+    "arc",
+    "entity-framework-core"
+  ],
+  "languages": [
+    "csharp"
+  ],
+  "state": "planned-source-migration",
+  "composes": [
+    "public-arc"
+  ],
+  "gapSummary": "The EF Core migration legacy source requires canonical Arc persistence, DbContext, migration, specification, and version authority."
+}

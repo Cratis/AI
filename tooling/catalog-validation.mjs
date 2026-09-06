@@ -174,6 +174,14 @@ function matchesKnownPattern(value, pattern) {
             return /^[A-Za-z0-9._-]+\.(?:tar\.gz|tgz)$/.test(value);
         case "^[A-Za-z0-9._-]+\\.tar\\.gz$":
             return /^[A-Za-z0-9._-]+\.tar\.gz$/.test(value);
+        case "^(?:cratis/)?[a-z0-9]+(?:-[a-z0-9]+)*$":
+            return /^(?:cratis\/)?[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value);
+        case "^(?:cratis/|public-|engineering-)[a-z0-9]+(?:-[a-z0-9]+)*$":
+            return /^(?:cratis\/|public-|engineering-)[a-z0-9]+(?:-[a-z0-9]+)*$/.test(
+                value,
+            );
+        case "^cratis/[a-z0-9]+(?:-[a-z0-9]+)*$":
+            return /^cratis\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value);
         case "^(?:public|engineering)-[a-z0-9]+(?:-[a-z0-9]+)*$":
             return /^(?:public|engineering)-[a-z0-9]+(?:-[a-z0-9]+)*$/.test(
                 value,

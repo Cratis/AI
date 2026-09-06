@@ -22,10 +22,27 @@ Four owners cooperate without duplicating authority:
 
 | Concern | Owner | Examples |
 | --- | --- | --- |
-| Shared AI behavior | `Cratis/AI` | Skill workflows, trigger intent, engineering conventions, profile composition |
+| Shared AI behavior | `Cratis/AI` `main` (authored) | Skill workflows, trigger intent, engineering conventions, profile composition, MCP declarations |
 | Product facts | Owning product repository | Arc APIs, Chronicle semantics, Components examples, supported client versions |
 | Project context | Consuming repository | Product mix, profile, credentials, endpoints, local constraints |
-| Generated artifacts | `Cratis/AI.Distribution` | Immutable host packages, manifests, checksums, provenance |
+| Marketplace installation | `Cratis/AI` `main` (authored) | Four committed marketplace manifests resolving the `skills/` and `engineering/` directories |
+
+> **[Cratis/AI#264](https://github.com/Cratis/AI/issues/264) — generated
+> distribution is retired.** `Cratis/AI` is installed directly from its default
+> branch. There is no second repository, no release branch, no `dist/vX.Y.Z` tag
+> namespace, no staged generated tree, and no checksum or provenance file to
+> maintain. A host adds `Cratis/AI` as a marketplace and installs a plugin whose
+> `source` is an ordinary directory here, so what it installs is exactly what a
+> reviewer reads. See the
+> [maintainer marketplace deployment runbook](./maintainer-marketplace-deployment-runbook.md).
+>
+> `Cratis/AI.Distribution` receives no further releases and is archived. Its
+> published `v0.1.0` through `v0.3.0` tags keep resolving, so the evidence
+> records citing them stay valid; its tags are never deleted.
+
+The four owners do not change. What went away is a delivery mechanism, not an
+authority boundary: reviewing what `main` says a skill does is now the same act
+as reviewing what a host installs.
 
 `Cratis/AI` is the canonical source of shared AI behavior. A product repository
 remains authoritative for its code and documentation; an AI skill cannot invent
@@ -71,10 +88,16 @@ Different repositories need different behavior. A Chronicle framework change
 should not load application vertical-slice rules; a Components change should
 not load Orleans guidance; Studio and Stagehand need their own product context.
 
-The profile catalog is [`distribution/profile-catalog.json`](../distribution/profile-catalog.json).
-It defines separate public product, language-client, overlay, composition, and
-public-safe engineering profiles. See the complete
-[Profile reference](./profile-reference.md).
+Profiles are authored one file each under `profiles/`: the shared shell in
+`profiles/manifest.json`, public profiles in `profiles/public/`, and
+public-safe engineering profiles in `profiles/cratis-engineering/`. Together they
+define separate public product, language-client, overlay, composition, and
+engineering profiles.
+
+[`distribution/profile-catalog.json`](../distribution/profile-catalog.json) is
+the generated aggregate of those files, produced by
+`tooling/generate-profile-catalog.mjs` and read by every consumer. Never edit it
+by hand. See the complete [Profile reference](./profile-reference.md).
 
 Public coverage includes Fundamentals, Arc, Arc React, Components, Chronicle,
 Chronicle clients, identity, compliance, multi-tenancy, Cratis CLI, Lens,
@@ -88,6 +111,22 @@ prefix identifies the maintainer audience, not confidentiality. Private Studio,
 Stagehand, client, customer, infrastructure, roadmap, incident, and repository
 facts remain in repository-local overlays; shared packages may not read or write
 them.
+
+Namespaced `cratis/arc`, `cratis/chronicle`, `cratis/application`, and
+`cratis/full` meta-profiles are the stable names to subscribe to. Composition is
+resolved by one shared resolver, `tooling/resolve-profiles.mjs`, which returns a
+deterministic manifest naming which profile pulled in every profile, skill, and
+MCP server, and why anything was excluded. A profile may also require an MCP
+server; **Studio MCP is an extension point only and is never included**. See
+[the profile reference](./profile-reference.md) and
+[MCP declarations in profiles](./mcp-declarations.md).
+
+Everything in the profile catalog is **authored**. A resolved manifest and the
+package catalog are **generated**. No profile is **evaluated** with passing
+behavior evidence and none is **supported**; every `content-gap` and
+`authority-gap` profile is **unavailable**. Those five words carry the meanings
+[capability catalog v2](./capability-catalog-v2.md#normalized-evidence) gives
+them, and this page never mixes them.
 
 ## Repository subscription
 
@@ -157,9 +196,9 @@ The disposable public and engineering evaluations demonstrated:
 This is promising, but it is not a supported Cratis installation path yet. APM
 is pre-1.0, does not support Pi, writes package-managed copies into host skill
 directories, and skipped organization-policy discovery in the disposable
-fixtures because they had no Git remote. Managed adoption therefore waits for
-an immutable package from `Cratis/AI.Distribution`, a real application and
-framework collision/context canary, and fail-closed organization policy.
+fixtures because they had no Git remote. Managed adoption therefore waits for a
+published package, a real application and framework collision/context canary,
+and fail-closed organization policy.
 
 Until those gates pass:
 
@@ -432,11 +471,9 @@ The manual, read-only **Package Passive Candidate Assets** workflow emits one
 atomic candidate-review batch containing the public bundle, engineering bundle,
 and native non-skill snapshots, with a top-level digest-bound manifest and exact
 checksum closure. It uploads that batch for seven days. Reviewed generated
-skill copies use append-only paths under
-`AI.Distribution/candidates/<artifact>/<version>/`; fixture payload replacement
-preserves that root, and repository verification checks each candidate's exact
-inventory, manifest, asset digests, and checksum closure. Every approval,
-installation, publication, runtime, support, and promotion flag remains false.
+skill copies stay inside that batch under `candidates/<artifact>/<version>/`.
+Every approval, installation, publication, runtime, support, and promotion flag
+remains false.
 The workflow additionally emits four deterministic native non-skill review
 snapshots for the 35 rule/instruction components with generated-static
 projections and explicitly records the two rules that have no such contract.
@@ -444,11 +481,10 @@ These snapshots have no package identity or host activation.
 
 Candidate materialization is review coverage—not release materialization, host
 evidence, marketplace availability, or permission to install these bundles into
-a production repository. After the repository-scoped Distribution App is
-configured, the generated-update workflow can open an ordinary reviewed PR for
-one exact candidate version. It requires a new append-only destination, verifies
-the installed Distribution control plane byte-for-byte, runs exact-inventory
-validation, and never auto-merges or performs a release operation.
+a production repository. The bundles are workflow artifacts a reviewer
+downloads; the workflow that used to open a bot pull request into
+`Cratis/AI.Distribution` for one exact candidate version was removed with the
+rest of the cross-repository distribution machinery.
 
 ### Approval-pending Fundamentals review assets
 
@@ -504,16 +540,16 @@ release adds backward-compatible skills or profiles. A major release removes,
 renames, or changes trigger/behavior contracts in a way that requires consumer
 migration.
 
-Generated artifacts are bot-authored in `Cratis/AI.Distribution`. Humans review
-the generated pull request but do not edit generated bytes.
+**The marketplace path publishes nothing.** A host installing `Cratis/AI` reads
+a committed marketplace manifest on `main` and resolves a plugin whose `source`
+is the `skills/` or `engineering/` directory in this repository. There are no
+generated bytes on that path, so there is nothing to keep machine-written and no
+verification control plane to mirror — reviewing the authored file *is* the
+guarantee.
 
-The repository also has one narrow control-plane exception for its exact
-verification workflow and dependency-free validator. Their canonical source
-remains in `Cratis/AI`, they are installed through a bot-authored pull request,
-stay outside package manifests and checksums, and are preserved when generated
-payload bytes are replaced. This does not make `AI.Distribution` an authoring
-repository, and humans still do not patch control-plane or generated artifact
-bytes in place.
+The candidate-review and fixture lanes below still produce generated artifacts
+as local or workflow-artifact output for review. Those are review coverage, not
+a release channel, and nothing publishes them to another repository.
 
 The generated repository is an index and review surface, not one universal
 install root. Every release publishes a separate root archive or immutable ref
@@ -563,7 +599,9 @@ For a product such as Studio or Stagehand:
    and project profile.
 2. Add canonical product/engineering skills in `Cratis/AI`; keep environment
    facts in the product repository.
-3. Add the profile to `distribution/profile-catalog.json`.
+3. Add one profile file under `profiles/public/` or
+   `profiles/cratis-engineering/`, then regenerate the aggregate with
+   `node tooling/generate-profile-catalog.mjs`.
 4. Add focused behavior and host evidence appropriate to its risk.
 5. Generate a profile package from approved targets only.
 6. Canary it in one real product repository.

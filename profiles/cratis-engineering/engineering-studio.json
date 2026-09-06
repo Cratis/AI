@@ -1,0 +1,20 @@
+{
+  "id": "engineering-studio",
+  "packageName": "@cratis/ai-engineering-studio",
+  "version": "0.0.0",
+  "repositoryKinds": [
+    "application",
+    "framework"
+  ],
+  "products": [
+    "studio"
+  ],
+  "state": "content-gap",
+  "distributionVisibility": "public",
+  "confidentialContentAllowed": false,
+  "privateOverlayExpected": true,
+  "composes": [
+    "engineering-base"
+  ],
+  "gapSummary": "Only public-safe Studio engineering behavior belongs here; private architecture, deployment, roadmap, and support details remain repository-local."
+}

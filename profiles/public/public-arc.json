@@ -1,0 +1,13 @@
+{
+  "id": "public-arc",
+  "packageName": "@cratis/ai-arc",
+  "version": "0.0.0",
+  "products": [
+    "arc"
+  ],
+  "languages": [
+    "csharp"
+  ],
+  "state": "planned-source-migration",
+  "gapSummary": "Commands and execution have legacy sources; dedicated queries and separated validation/authorization guidance remain gaps."
+}

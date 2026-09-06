@@ -1,0 +1,13 @@
+{
+  "id": "public-chronicle-client-python",
+  "packageName": "@cratis/ai-chronicle-python",
+  "version": "0.0.0",
+  "products": [
+    "chronicle"
+  ],
+  "languages": [
+    "python"
+  ],
+  "state": "content-gap",
+  "gapSummary": "Needs Chronicle.Python-owned source, environment, async, error, and lifecycle guidance."
+}

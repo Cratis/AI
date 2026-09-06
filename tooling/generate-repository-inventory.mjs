@@ -98,15 +98,11 @@ const unexpectedUntracked = admittedUntracked.filter(
         !(
             /^\.github\/ISSUE_TEMPLATE\//.test(path) ||
             path ===
-                ".github/workflows/distribution-approved-profile-release.yml" ||
-            path ===
                 ".github/workflows/distribution-fundamentals-preview-assets.yml" ||
             path === ".github/workflows/distribution-canary-rollback.yml" ||
             path === ".github/workflows/engineering-distribution-fixture.yml" ||
-            path === ".github/workflows/distribution-generated-update.yml" ||
             path === ".github/workflows/distribution-npm-stage.yml" ||
             path === ".github/workflows/package-passive-candidate-assets.yml" ||
-            path === ".github/workflows/release-approved-ai-profiles.yml" ||
             /^AI-REPOSITORY-REDESIGN-[A-Z0-9-]+\.md$/.test(path) ||
             path === "Documentation/.markdownlint.json" ||
             /^Documentation\/(?:adopting-cratis-ai|adopting-cratis-ai-for-maintainers|ai-distribution-and-subscriptions|capability-catalog-v2|phase-0-verification|private-repository-overlays|portable-compliance|profile-reference|public-product-architecture|skill-authoring-contract|skill-classification-audit|project-context-bootstrap|redesign-foundation-validation|releasing-cratis-ai|source-evidence-contract)\.md$/.test(
@@ -123,7 +119,9 @@ const unexpectedUntracked = admittedUntracked.filter(
             /^engineering\//.test(path) ||
             /^evidence\/source-evidence\//.test(path) ||
             /^evals\//.test(path) ||
+            /^mcp\//.test(path) ||
             /^pilots\//.test(path) ||
+            /^profiles\//.test(path) ||
             /^skills\//.test(path) ||
             /^tooling\//.test(path)
         ),
@@ -527,15 +525,11 @@ const definitions = [
         sourcePathPatterns: [
             ".github/workflows/advanced-assurance-audit.yml",
             ".github/workflows/benchmark-release-generation.yml",
-            ".github/workflows/distribution-approved-profile-release.yml",
             ".github/workflows/distribution-fundamentals-preview-assets.yml",
             ".github/workflows/distribution-canary-rollback.yml",
             ".github/workflows/engineering-distribution-fixture.yml",
-            ".github/workflows/distribution-generated-update.yml",
             ".github/workflows/distribution-npm-stage.yml",
-            ".github/workflows/distribution-public-marketplace.yml",
             ".github/workflows/package-passive-candidate-assets.yml",
-            ".github/workflows/release-approved-ai-profiles.yml",
             ".github/workflows/release-passive-previews.yml",
             ".github/workflows/verify-ai-corpus.yml",
             ".github/workflows/verify-no-work-records.yml",
@@ -744,7 +738,9 @@ const definitions = [
             "Documentation/capability-catalog-v2.md",
             "Documentation/chronicle-mcp-guidance.md",
             "Documentation/ecosystem-support-architecture-review.md",
+            "Documentation/maintainer-marketplace-deployment-runbook.md",
             "Documentation/maintaining-shared-ai-behavior.md",
+            "Documentation/mcp-declarations.md",
             "Documentation/native-non-skill-projections.md",
             "Documentation/real-host-canaries.md",
             "Documentation/s10-release-and-marketplace-gates.md",
@@ -1160,6 +1156,7 @@ const definitions = [
     {
         id: "distribution-foundation",
         sourcePathPatterns: ["distribution/**"],
+        excludePathPatterns: ["distribution/profile-catalog.json"],
         artifactType: "repository-metadata",
         currentOwner: repositoryOwner,
         targetOwner: "Workflows organization mechanics",
@@ -1173,6 +1170,45 @@ const definitions = [
         risk: "high",
         migrationState: "retain",
         evidenceIds: ["option-a-plus-authority"],
+    },
+    {
+        id: "authored-profile-sources",
+        sourcePathPatterns: ["profiles/**"],
+        artifactType: "catalog-schema",
+        currentOwner: repositoryOwner,
+        targetOwner: repositoryOwner,
+        runtimeEligibility: "repository-only",
+        generatedStatus: "source",
+        adapterStatus: "none",
+        dependencies: [
+            "tooling/generate-profile-catalog.mjs",
+            "tooling/profile-subscription-validation.mjs",
+            "tooling/resolve-profiles.mjs",
+        ],
+        risk: "high",
+        migrationState: "retain",
+        evidenceIds: ["option-a-plus-authority", "reevaluation-authority"],
+    },
+    {
+        id: "generated-profile-catalog",
+        sourcePathPatterns: ["distribution/profile-catalog.json"],
+        artifactType: "catalog-schema",
+        currentOwner: repositoryOwner,
+        targetOwner: repositoryOwner,
+        runtimeEligibility: "repository-only",
+        generatedStatus: "generated",
+        adapterStatus: "none",
+        dependencies: [
+            "profiles/cratis-engineering/**",
+            "profiles/manifest.json",
+            "profiles/public/**",
+            "tooling/catalog-ordering.mjs",
+            "tooling/generate-profile-catalog.mjs",
+        ],
+        risk: "high",
+        migrationState: "retain",
+        evidenceIds: ["option-a-plus-authority"],
+        generator: "tooling/generate-profile-catalog.mjs",
     },
     {
         id: "portable-agent-plugins-specification-lock",
@@ -1225,6 +1261,29 @@ const definitions = [
         adapterStatus: "none",
         dependencies: ["catalog/**"],
         risk: "high",
+        migrationState: "retain",
+        evidenceIds: ["reevaluation-authority"],
+    },
+    {
+        id: "mcp-server-declarations",
+        sourcePathPatterns: ["mcp/**"],
+        artifactType: "catalog-schema",
+        currentOwner: publicOwner,
+        targetOwner: publicOwner,
+        runtimeEligibility: "forbidden",
+        generatedStatus: "source",
+        adapterStatus: "none",
+        dependencies: [
+            "catalog/chronicle-mcp-tool-classifications.json",
+            "catalog/mcp-guidance-products.json",
+            "catalog/studio-mcp-tool-classifications.json",
+            "distribution/assurance-lanes.json",
+            "distribution/profile-catalog.json",
+            "tooling/mcp-declaration-validation.mjs",
+            "tooling/resolve-profiles.mjs",
+            "tooling/specifications/agent-plugins/1.0.0/mcp.schema.json",
+        ],
+        risk: "critical",
         migrationState: "retain",
         evidenceIds: ["reevaluation-authority"],
     },
@@ -1285,8 +1344,29 @@ const definitions = [
         migrationState: "retain",
         evidenceIds: ["reevaluation-authority"],
     },
+    {
+        id: "marketplace-pointer-manifests",
+        sourcePathPatterns: [
+            ".agents/plugins/marketplace.json",
+            ".claude-plugin/marketplace.json",
+            ".cursor-plugin/marketplace.json",
+            ".github/plugin/marketplace.json",
+        ],
+        artifactType: "repository-metadata",
+        currentOwner: repositoryOwner,
+        targetOwner: repositoryOwner,
+        runtimeEligibility: "repository-only",
+        generatedStatus: "source",
+        adapterStatus: "none",
+        dependencies: ["distribution/marketplace-requirements.json"],
+        risk: "medium",
+        migrationState: "retain",
+        evidenceIds: ["repo-main-b795d53", "option-a-plus-authority"],
+    },
 ];
 
+// Every record must match at least one path, because a record that stops
+// matching means a path silently lost its owner.
 const records = definitions.map((definition) => {
     const record = { excludePathPatterns: [], ...definition };
     const paths = expandInventoryRecord(record, universe);

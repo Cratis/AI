@@ -1,0 +1,16 @@
+{
+  "id": "public-chronicle-web-workbench",
+  "packageName": "@cratis/ai-chronicle-web-workbench",
+  "version": "0.0.0",
+  "products": [
+    "chronicle"
+  ],
+  "languages": [
+    "language-agnostic"
+  ],
+  "state": "content-gap",
+  "composes": [
+    "public-chronicle"
+  ],
+  "gapSummary": "Needs browser-first events, observers, failed partitions, read models, projected state, evidence capture, redaction, and support escalation guidance."
+}

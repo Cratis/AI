@@ -1,0 +1,18 @@
+{
+  "id": "public-arc-identity",
+  "packageName": "@cratis/ai-arc-identity",
+  "version": "0.0.0",
+  "products": [
+    "arc"
+  ],
+  "languages": [
+    "csharp",
+    "react",
+    "typescript"
+  ],
+  "state": "planned-source-migration",
+  "composes": [
+    "public-arc"
+  ],
+  "gapSummary": "Authentication providers, authorization, claims, frontend identity, and tenancy boundaries must be separated from Chronicle compliance identity."
+}
