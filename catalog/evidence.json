@@ -744,10 +744,10 @@
       "immutableRevision": "fbf76029e4a6593a6a24f939face32b720009198"
     },
     {
-      "id": "source-arc-backend-command-sources-cb53b07",
+      "id": "source-arc-backend-command-sources-c650e09",
       "kind": "repository-snapshot",
-      "locator": "https://github.com/Cratis/AI/tree/cb53b07d666017459295aa9a1ec66030e6bf77b9/skills",
-      "immutableRevision": "cb53b07d666017459295aa9a1ec66030e6bf77b9"
+      "locator": "https://github.com/Cratis/AI/tree/c650e097136ebf11374003d33b4dc6dfd672effd/skills",
+      "immutableRevision": "c650e097136ebf11374003d33b4dc6dfd672effd"
     }
   ],
   "observations": [
@@ -7560,13 +7560,13 @@
       }
     },
     {
-      "id": "arc-backend-command-sources-cb53b07",
-      "sourceId": "source-arc-backend-command-sources-cb53b07",
+      "id": "arc-backend-command-sources-c650e09",
+      "sourceId": "source-arc-backend-command-sources-c650e09",
       "evidenceClass": "hosted",
       "subject": {
         "kind": "artifact",
         "id": "candidate-passive-public-package",
-        "version": "cb53b07d666017459295aa9a1ec66030e6bf77b9"
+        "version": "c650e097136ebf11374003d33b4dc6dfd672effd"
       },
       "bindingIds": [],
       "assertions": [
@@ -7591,9 +7591,9 @@
       ],
       "supersedes": [],
       "legacy": {
-        "officialUrl": "https://github.com/Cratis/AI/tree/cb53b07d666017459295aa9a1ec66030e6bf77b9/skills",
+        "officialUrl": "https://github.com/Cratis/AI/tree/c650e097136ebf11374003d33b4dc6dfd672effd/skills",
         "sourceKind": "repository-snapshot",
-        "applicableVersion": "cb53b07d666017459295aa9a1ec66030e6bf77b9"
+        "applicableVersion": "c650e097136ebf11374003d33b4dc6dfd672effd"
       }
     },
     {

@@ -121,14 +121,14 @@
       "confidence": "high"
     },
     {
-      "id": "arc-backend-command-sources-cb53b07",
-      "officialUrl": "https://github.com/Cratis/AI/tree/cb53b07d666017459295aa9a1ec66030e6bf77b9/skills",
+      "id": "arc-backend-command-sources-c650e09",
+      "officialUrl": "https://github.com/Cratis/AI/tree/c650e097136ebf11374003d33b4dc6dfd672effd/skills",
       "sourceKind": "repository-snapshot",
       "verifiedOn": "2026-09-06",
       "expiresOn": "2027-09-06",
-      "applicableVersion": "cb53b07d666017459295aa9a1ec66030e6bf77b9",
+      "applicableVersion": "c650e097136ebf11374003d33b4dc6dfd672effd",
       "confidence": "high",
-      "immutableRevision": "cb53b07d666017459295aa9a1ec66030e6bf77b9"
+      "immutableRevision": "c650e097136ebf11374003d33b4dc6dfd672effd"
     },
     {
       "id": "augment-auggie-source-1",

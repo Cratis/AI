@@ -332,8 +332,8 @@ const sourceOverrides = new Map([
         name,
         {
             sourcePath: `skills/${targetId}`,
-            sourceRevision: "cb53b07d666017459295aa9a1ec66030e6bf77b9",
-            evidenceId: "arc-backend-command-sources-cb53b07",
+            sourceRevision: "c650e097136ebf11374003d33b4dc6dfd672effd",
+            evidenceId: "arc-backend-command-sources-c650e09",
         },
     ]),
 ]);
