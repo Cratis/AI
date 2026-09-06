@@ -478,6 +478,29 @@ const migratedCanonicalRevision =
 const migratedCanonicalNames = new Set(
     migratedCanonicalSourceNames.map(([name]) => name),
 );
+// The Arc React and Components relocations follow the same rule. They are kept
+// in their own list because several of these names also appear in the packaged
+// and reference-closure lists above, so their entries are applied last.
+const arcReactAndComponentsRevision =
+    "80b1697803ccd2ad641fb6c4d40c905b6706dfde";
+const arcReactAndComponentsSourcePaths = new Map([
+    ["cratis-react-page", "skills/cratis-arc-react-page"],
+    [
+        "stepper-command-dialog",
+        "skills/cratis-components-stepper-command-dialog",
+    ],
+    ["toolbar", "skills/cratis-components-toolbar"],
+    ["write-specs-frontend", "skills/cratis-application-react-specifications"],
+    [
+        "cratis-components-accessibility",
+        "skills/cratis-components-accessibility",
+    ],
+    [
+        "cratis-components-schema-editor",
+        "skills/cratis-components-schema-editor",
+    ],
+    ["cratis-components-styling", "skills/cratis-components-styling"],
+]);
 const sourceOverrides = new Map([
     ...referenceClosureSourceNames
         .filter((name) => !migratedCanonicalNames.has(name))
@@ -609,6 +632,16 @@ const sourceOverrides = new Map([
             evidenceId: "engineering-docs-authoring-source-f58bcf7",
         },
     ],
+    // Keep the Arc React and Components relocations last so they win over the
+    // earlier legacy `.ai/skills` mappings for the same source names.
+    ...[...arcReactAndComponentsSourcePaths].map(([name, sourcePath]) => [
+        name,
+        {
+            sourcePath,
+            sourceRevision: arcReactAndComponentsRevision,
+            evidenceId: "arc-react-and-components-source-80b1697",
+        },
+    ]),
 ]);
 
 function documentationEffect(id, operation, scope, rollback) {
@@ -1344,6 +1377,39 @@ const profiles = {
         "Use when building a canvas-style icon toolbar with active tools or fan-out controls.",
         ["Do not use for ordinary page actions or menus."],
         ["cratis-arc-react-page"],
+        "low",
+        false,
+    ],
+    "cratis-components-schema-editor": [
+        "Cratis Components schema editors",
+        "Use when a UI edits a JSON schema's shape or edits an object instance against a schema.",
+        [
+            "Do not use for a form bound to a generated Arc command.",
+            "Do not use for Chronicle event type migration.",
+        ],
+        ["cratis-arc-react-page", "cratis-chronicle-event-type-migration"],
+        "low",
+        false,
+    ],
+    "cratis-components-styling": [
+        "Cratis Components styling and theming",
+        "Use when setting up stylesheets, tokens, themes, dark mode, or PrimeReact pass-through for a Cratis frontend.",
+        [
+            "Do not use for component API or page composition questions.",
+            "Do not use for accessible naming.",
+        ],
+        ["cratis-arc-react-page", "cratis-components-accessibility"],
+        "low",
+        false,
+    ],
+    "cratis-components-accessibility": [
+        "Cratis Components accessibility",
+        "Use when setting dialog initial focus, supplying accessible names, or correcting invalid ARIA in a Cratis frontend.",
+        [
+            "Do not use as a general WCAG conformance guide.",
+            "Do not use for visual theming.",
+        ],
+        ["cratis-arc-react-page", "cratis-components-styling"],
         "low",
         false,
     ],

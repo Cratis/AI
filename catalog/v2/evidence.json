@@ -141,6 +141,16 @@
       "immutableRevision": "47263222559843c47065be0f124d66ddb02b7c04"
     },
     {
+      "id": "arc-react-and-components-source-80b1697",
+      "officialUrl": "https://github.com/Cratis/AI/tree/80b1697803ccd2ad641fb6c4d40c905b6706dfde/skills",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-09-06",
+      "expiresOn": "2027-09-06",
+      "applicableVersion": "80b1697803ccd2ad641fb6c4d40c905b6706dfde",
+      "confidence": "high",
+      "immutableRevision": "80b1697803ccd2ad641fb6c4d40c905b6706dfde"
+    },
+    {
       "id": "augment-auggie-source-1",
       "officialUrl": "https://docs.augmentcode.com/cli/skills",
       "sourceKind": "official-documentation",

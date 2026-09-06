@@ -184,6 +184,51 @@
       ]
     },
     {
+      "id": "rename-cratis-components-accessibility",
+      "kind": "retain",
+      "sourceIds": [
+        "cratis-components-accessibility"
+      ],
+      "targetIds": [
+        "cratis-components-accessibility"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-cratis-components-schema-editor",
+      "kind": "retain",
+      "sourceIds": [
+        "cratis-components-schema-editor"
+      ],
+      "targetIds": [
+        "cratis-components-schema-editor"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-cratis-components-styling",
+      "kind": "retain",
+      "sourceIds": [
+        "cratis-components-styling"
+      ],
+      "targetIds": [
+        "cratis-components-styling"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
       "id": "rename-cratis-csharp-standards",
       "kind": "rename",
       "sourceIds": [

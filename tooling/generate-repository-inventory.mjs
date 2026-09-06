@@ -166,10 +166,14 @@ function publicSkillRoots() {
         ".ai/skills/auth-and-identity/**",
         ".ai/skills/call-command-from-code/**",
         ".ai/skills/cratis-command/**",
+        ".ai/skills/cratis-react-page/**",
         ".ai/skills/cratis-specs-csharp/**",
         ".ai/skills/cratis-specs-typescript/**",
         ".ai/skills/observable-query-curl/**",
         ".ai/skills/query-paging/**",
+        ".ai/skills/stepper-command-dialog/**",
+        ".ai/skills/toolbar/**",
+        ".ai/skills/write-specs-frontend/**",
         "skills/**",
     ];
 }
