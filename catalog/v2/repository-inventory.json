@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "88cab4319fd5d6324d9c69e5b111c875ac239f8b779b95089fc8f3bc949385f8",
+  "indexDigest": "ffbc10f5a6efd7823a4f621997cf21464887c9870588f6b23431b56036ee8f29",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -2435,6 +2435,250 @@
       "status": "added"
     },
     {
+      "path": "profiles/cratis-engineering/engineering-ai.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/cratis-engineering/engineering-application.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/cratis-engineering/engineering-arc-ef-core.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/cratis-engineering/engineering-arc-react.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/cratis-engineering/engineering-arc.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/cratis-engineering/engineering-base.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/cratis-engineering/engineering-chronicle-clients.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/cratis-engineering/engineering-chronicle-mcp.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/cratis-engineering/engineering-chronicle.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/cratis-engineering/engineering-components.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/cratis-engineering/engineering-cratis-cli.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/cratis-engineering/engineering-documentation.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/cratis-engineering/engineering-fundamentals.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/cratis-engineering/engineering-lens.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/cratis-engineering/engineering-screenplay.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/cratis-engineering/engineering-specifications.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/cratis-engineering/engineering-stage.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/cratis-engineering/engineering-stagehand.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/cratis-engineering/engineering-studio.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/cratis-engineering/engineering-workflows.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/manifest.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/application.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/arc.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/chronicle.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/full.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/public-application-arc-chronicle.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/public-application-arc-only.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/public-application-chronicle-dotnet.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/public-application-react.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/public-application.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/public-arc-ef-core.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/public-arc-identity.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/public-arc-react.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/public-arc.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/public-chronicle-client-dotnet.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/public-chronicle-client-elixir.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/public-chronicle-client-java.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/public-chronicle-client-kotlin.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/public-chronicle-client-python.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/public-chronicle-client-typescript.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/public-chronicle-compliance.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/public-chronicle-mcp.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/public-chronicle-multi-tenancy.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/public-chronicle-web-workbench.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/public-chronicle.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/public-components.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/public-cratis-cli-terminal-workbench.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/public-cratis-cli.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/public-fundamentals.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/public-language-csharp.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/public-language-elixir.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/public-language-kotlin.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/public-language-typescript.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/public-lens.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/public-modeling-screenplay-stage.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/public-screenplay.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/public-specifications-dotnet.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/public-specifications-typescript.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/public-specifications.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/public-stage.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/public-studio.json",
+      "status": "added"
+    },
+    {
       "path": "skills/cratis-chronicle-mcp-inspection/LICENSE",
       "status": "added"
     },
@@ -2708,6 +2952,10 @@
     },
     {
       "path": "tooling/generate-mcp-guidance-references.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/generate-profile-catalog.mjs",
       "status": "added"
     },
     {
@@ -4668,7 +4916,9 @@
       "expectedPathsDigest": "f8ea2e49bee58147fe1520c05b1e2078d4e2c9a9a71162b84c8ea364b8706b81"
     },
     {
-      "excludePathPatterns": [],
+      "excludePathPatterns": [
+        "distribution/profile-catalog.json"
+      ],
       "id": "distribution-foundation",
       "sourcePathPatterns": [
         "distribution/**"
@@ -4688,8 +4938,62 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 73,
-      "expectedPathsDigest": "9e03a1d09ed64c2dc2ea3dfb9c075910373912141c779cf5dbda00e7242a3b7f"
+      "expectedPathCount": 72,
+      "expectedPathsDigest": "5a7309a0881b3b96c15749c5917065be2d0407c4b83418011e78a22e0b042152"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "authored-profile-sources",
+      "sourcePathPatterns": [
+        "profiles/**"
+      ],
+      "artifactType": "catalog-schema",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "tooling/generate-profile-catalog.mjs",
+        "tooling/profile-subscription-validation.mjs",
+        "tooling/resolve-profiles.mjs"
+      ],
+      "risk": "high",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "option-a-plus-authority",
+        "reevaluation-authority"
+      ],
+      "expectedPathCount": 61,
+      "expectedPathsDigest": "16be14192b5d23958408a644ef0771a961688edb9be69c96ab5eb9da25e7fb44"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "generated-profile-catalog",
+      "sourcePathPatterns": [
+        "distribution/profile-catalog.json"
+      ],
+      "artifactType": "catalog-schema",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "generated",
+      "adapterStatus": "none",
+      "dependencies": [
+        "profiles/cratis-engineering/**",
+        "profiles/manifest.json",
+        "profiles/public/**",
+        "tooling/catalog-ordering.mjs",
+        "tooling/generate-profile-catalog.mjs"
+      ],
+      "risk": "high",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "option-a-plus-authority"
+      ],
+      "generator": "tooling/generate-profile-catalog.mjs",
+      "expectedPathCount": 1,
+      "expectedPathsDigest": "bf4c29e8f5e60b5133a368a27b16c7f72391a4207b6c11b7e9f1450aa57de494"
     },
     {
       "excludePathPatterns": [],
@@ -4764,8 +5068,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 83,
-      "expectedPathsDigest": "15d0941cdb0167a69cc94061edad32d86b4dd7b8bc7d136fc0384bd6d4c12e97"
+      "expectedPathCount": 84,
+      "expectedPathsDigest": "2844010a280b1503c72242e1110e326a23cfbe089381f490088f4fa0d384658a"
     },
     {
       "excludePathPatterns": [],

@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "contractVersion": 1,
   "disclaimer": "Catalog inclusion, evaluation evidence, component modeling, planned projection, bundle generation, or publication does not grant runtime permission, emitted bytes, support, or approval.",
-  "inputDigest": "81f088abcc461668e524b29bc347b4918e29c85369ffc53f00b90d267044f149",
+  "inputDigest": "046ecad3a2f3fa219c3883f75dd70708fb59d37990dd818420731c5f21c23605",
   "componentSummary": {
     "disclaimer": "Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.",
     "total": 137,
