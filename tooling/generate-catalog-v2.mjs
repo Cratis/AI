@@ -13,7 +13,7 @@ import {
 } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { compareOrdinal } from "./catalog-ordering.mjs";
+import { compareOrdinal, sortedOrdinal } from "./catalog-ordering.mjs";
 import { readCatalog } from "./catalog-validation.mjs";
 import { artifactForbiddenPathPatterns } from "./harness-registry.mjs";
 import { generateComponentCatalogs } from "./generate-component-catalogs.mjs";
@@ -1754,6 +1754,9 @@ const evidence = normalizedEvidence.observations.map((observation) => {
         expiresOn: observation.validThrough,
         applicableVersion: observation.legacy.applicableVersion,
         confidence: observation.confidence,
+        ...(observation.supersedes.length > 0
+            ? { supersedes: sortedOrdinal(observation.supersedes) }
+            : {}),
         ...(source.immutableRevision
             ? { immutableRevision: source.immutableRevision }
             : {}),

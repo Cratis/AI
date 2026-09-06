@@ -22,6 +22,7 @@ import {
     regularFiles,
     validateComponentCatalogs,
 } from "./component-catalog-validation.mjs";
+import { supersededEvidenceIds } from "./evidence-supersession.mjs";
 
 export const v2CatalogPaths = {
     sources: "catalog/v2/sources.json",
@@ -948,8 +949,21 @@ export function validateEvidenceAndCoverage(
         "ecosystem facts",
         catalogs.evidence.ecosystemFacts.map((fact) => fact.id),
     );
+    const supersededIds = supersededEvidenceIds(
+        catalogs.evidence.evidence,
+        catalogs.evidence.asOf,
+    );
     for (const evidence of catalogs.evidence.evidence) {
-        if (evidence.expiresOn < catalogs.evidence.asOf)
+        for (const supersededId of evidence.supersedes ?? []) {
+            if (!evidenceIds.has(supersededId))
+                errors.push(
+                    `${evidence.id}: unknown superseded evidence ${supersededId}`,
+                );
+        }
+        if (
+            evidence.expiresOn < catalogs.evidence.asOf &&
+            !supersededIds.has(evidence.id)
+        )
             errors.push(
                 `${evidence.id}: evidence expired before the catalog as-of date`,
             );

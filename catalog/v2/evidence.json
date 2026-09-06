@@ -276,6 +276,9 @@
       "expiresOn": "2027-09-02",
       "applicableVersion": "68616b143aeffaeda333553bb4c491f696a0018a",
       "confidence": "high",
+      "supersedes": [
+        "cratis-chronicle-multi-tenancy-source-fbf7602"
+      ],
       "immutableRevision": "68616b143aeffaeda333553bb4c491f696a0018a"
     },
     {
@@ -1092,6 +1095,9 @@
       "expiresOn": "2027-09-02",
       "applicableVersion": "c2f721c2f80321cfba352d8d2e4209a0881ccb63",
       "confidence": "high",
+      "supersedes": [
+        "public-skill-reference-closure-30c813c"
+      ],
       "immutableRevision": "c2f721c2f80321cfba352d8d2e4209a0881ccb63"
     },
     {
@@ -1140,6 +1146,9 @@
       "expiresOn": "2026-12-05",
       "applicableVersion": "authority-reobservation-2026-09-06",
       "confidence": "medium",
+      "supersedes": [
+        "reevaluation-authority"
+      ],
       "repositoryPath": "distribution/evidence/authority-reobservation-2026-09-06.json",
       "digest": "83635d802a9179c921fa803987f4b447ceb921c3778db7601864c8875d530f50"
     },
@@ -1571,6 +1580,9 @@
       "expiresOn": "2026-12-05",
       "applicableVersion": "issue-state-2026-09-06",
       "confidence": "high",
+      "supersedes": [
+        "workflows-68"
+      ],
       "repositoryPath": "distribution/evidence/authority-reobservation-2026-09-06.json",
       "digest": "83635d802a9179c921fa803987f4b447ceb921c3778db7601864c8875d530f50"
     },
