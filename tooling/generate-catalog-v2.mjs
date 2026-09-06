@@ -544,6 +544,16 @@ const modelingLayerSourceNames = [
     "cratis-screenplay-model-authoring",
     "cratis-stage-rendering-and-sandbox",
 ];
+// Cratis/AI#178: the language-native Chronicle client journeys are authored
+// directly in the canonical skill tree too. They have no `.ai/skills` ancestor,
+// so unlike the migrations above these names only ever resolve through here.
+const chronicleClientRevision = "f8cdd82289f334b5c35d2ec0de42cc5175ce8d57";
+const chronicleClientSourceNames = [
+    "cratis-chronicle-client-dotnet",
+    "cratis-chronicle-client-elixir",
+    "cratis-chronicle-client-kotlin",
+    "cratis-chronicle-client-typescript",
+];
 const sourceOverrides = new Map([
     ...referenceClosureSourceNames
         .filter((name) => !migratedCanonicalNames.has(name))
@@ -716,6 +726,14 @@ const sourceOverrides = new Map([
             sourcePath: `skills/${name}`,
             sourceRevision: modelingLayerRevision,
             evidenceId: "modeling-layer-source-authoring-7b85abb",
+        },
+    ]),
+    ...chronicleClientSourceNames.map((name) => [
+        name,
+        {
+            sourcePath: `skills/${name}`,
+            sourceRevision: chronicleClientRevision,
+            evidenceId: "chronicle-language-clients-source-f8cdd82",
         },
     ]),
 ]);
@@ -1111,6 +1129,66 @@ const profiles = {
         [
             "cratis-arc-command-validation",
             "cratis-chronicle-event-specifications",
+        ],
+        "high",
+        false,
+    ],
+    "cratis-chronicle-client-dotnet": [
+        "Chronicle .NET client",
+        "Use when a standalone .NET console, worker, or service connects to a Chronicle server and appends or observes events.",
+        [
+            "Do not use for Arc applications, where Chronicle is already wired in.",
+            "Do not use for the Chronicle kernel or for another language's client.",
+        ],
+        [
+            "cratis-chronicle-client-elixir",
+            "cratis-chronicle-client-kotlin",
+            "cratis-chronicle-client-typescript",
+        ],
+        "high",
+        false,
+    ],
+    "cratis-chronicle-client-elixir": [
+        "Chronicle Elixir client",
+        "Use when an Elixir or OTP application connects to a Chronicle server and appends or observes events.",
+        [
+            "Do not use for another language's Chronicle client.",
+            "Do not use for the Chronicle kernel.",
+        ],
+        [
+            "cratis-chronicle-client-dotnet",
+            "cratis-chronicle-client-kotlin",
+            "cratis-chronicle-client-typescript",
+        ],
+        "high",
+        false,
+    ],
+    "cratis-chronicle-client-kotlin": [
+        "Chronicle Kotlin and Java client",
+        "Use when a Kotlin or Java application, with or without Spring Boot, connects to a Chronicle server and appends or observes events.",
+        [
+            "Do not use for another language's Chronicle client.",
+            "Do not use for the Chronicle kernel.",
+        ],
+        [
+            "cratis-chronicle-client-dotnet",
+            "cratis-chronicle-client-elixir",
+            "cratis-chronicle-client-typescript",
+        ],
+        "high",
+        false,
+    ],
+    "cratis-chronicle-client-typescript": [
+        "Chronicle TypeScript client",
+        "Use when a Node.js or TypeScript application connects to a Chronicle server and appends or observes events.",
+        [
+            "Do not use for Arc React frontends or generated Arc proxies.",
+            "Do not use for another language's Chronicle client.",
+        ],
+        [
+            "cratis-chronicle-client-dotnet",
+            "cratis-chronicle-client-elixir",
+            "cratis-chronicle-client-kotlin",
         ],
         "high",
         false,

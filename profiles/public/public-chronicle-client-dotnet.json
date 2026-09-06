@@ -8,6 +8,9 @@
   "languages": [
     "csharp"
   ],
-  "state": "content-gap",
-  "gapSummary": "Needs authoritative standalone .NET connect, append, read, observe, error, and lifecycle guidance."
+  "state": "preview-source-candidate",
+  "availableTargets": [
+    "cratis-chronicle-client-dotnet"
+  ],
+  "gapSummary": "Standalone .NET connect, append, read, observe, discovery, lifecycle, and error guidance is a canonical source candidate verified against the Chronicle client sources at tag v17.0.1. Arc integration, testing helpers, and compliance operations from a client remain gaps."
 }

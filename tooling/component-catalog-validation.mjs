@@ -46,7 +46,7 @@ export const distributionPointerOutputs = new Set([
 ]);
 
 const expectedComponentAnchor =
-    "f753662227b4ebce02dbb8bd961bc5a20adfbb516be759e27af176102de0013e";
+    "222d111dc1a389d5600a92f7eba6747f6c1aae67eb9228862fd88e4bfa04b7cf";
 const expectedProjectionAnchor =
     "0140b37148e82f2ab33819896d319e5f4c02f14851508313df0b7490fdf16a2b";
 const expectedProjectionHostAnchor =
