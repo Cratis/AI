@@ -12,10 +12,12 @@ import {
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { compareOrdinal } from "./catalog-ordering.mjs";
 import {
+    anchorMismatch,
     defaultRepositoryRoot,
     readCatalog,
     validateAgainstSchema,
 } from "./catalog-validation.mjs";
+import { supersededEvidenceIds } from "./evidence-supersession.mjs";
 
 export const componentCatalogPaths = Object.freeze({
     authoredComponents: "catalog/components.json",
@@ -46,7 +48,7 @@ export const distributionPointerOutputs = new Set([
 ]);
 
 const expectedComponentAnchor =
-    "57bf13df9dc9eb1a5371efd98974a48f965e459792c844e7872c4499d04d7e78";
+    "000112920a860203518da4e8c1e94214e76f53c3a3b008c083d89e3ad0b08749";
 const expectedProjectionAnchor =
     "0140b37148e82f2ab33819896d319e5f4c02f14851508313df0b7490fdf16a2b";
 const expectedProjectionHostAnchor =
@@ -343,9 +345,15 @@ function sourceSignature(component) {
 export function validateComponents(catalogs, root = defaultRepositoryRoot) {
     const errors = [];
     const { components: catalog, evidence, targets } = catalogs;
-    if (semanticAnchor(catalog.components) !== expectedComponentAnchor)
+    const componentAnchor = semanticAnchor(catalog.components);
+    if (componentAnchor !== expectedComponentAnchor)
         errors.push(
-            "component semantic contract differs from the independently reviewed anchor",
+            anchorMismatch(
+                "component semantic contract",
+                expectedComponentAnchor,
+                componentAnchor,
+                "expectedComponentAnchor in tooling/component-catalog-validation.mjs",
+            ),
         );
     const componentIds = new Set(
         catalog.components.map((component) => component.id),
@@ -753,13 +761,25 @@ export function validateComponentProjections(
         assuranceProfiles,
         hostAdapters,
     } = catalogs;
-    if (semanticAnchor(projections.projections) !== expectedProjectionAnchor)
+    const projectionAnchor = semanticAnchor(projections.projections);
+    if (projectionAnchor !== expectedProjectionAnchor)
         errors.push(
-            "component projection semantic contract differs from the independently reviewed anchor",
+            anchorMismatch(
+                "component projection semantic contract",
+                expectedProjectionAnchor,
+                projectionAnchor,
+                "expectedProjectionAnchor in tooling/component-catalog-validation.mjs",
+            ),
         );
-    if (semanticAnchor(projections.hosts) !== expectedProjectionHostAnchor)
+    const projectionHostAnchor = semanticAnchor(projections.hosts);
+    if (projectionHostAnchor !== expectedProjectionHostAnchor)
         errors.push(
-            "component projection host contract differs from the independently reviewed anchor",
+            anchorMismatch(
+                "component projection host contract",
+                expectedProjectionHostAnchor,
+                projectionHostAnchor,
+                "expectedProjectionHostAnchor in tooling/component-catalog-validation.mjs",
+            ),
         );
     const componentsById = new Map(
         components.components.map((component) => [component.id, component]),
@@ -769,6 +789,17 @@ export function validateComponentProjections(
     const evidenceById = new Map(
         evidence.evidence.map((record) => [record.id, record]),
     );
+    // The evidence catalog is append-only, so a renewed observation stays in it forever with an
+    // `expiresOn` that keeps receding into the past. A citation of such a record is not a stale
+    // citation as long as a live replacement covers it, so expiry is read through the supersession
+    // chain here exactly as `validateEvidenceAndCoverage` in tooling/catalog-v2-validation.mjs does.
+    const supersededIds = supersededEvidenceIds(
+        evidence.evidence,
+        evidence.asOf,
+    );
+    const citesExpiredEvidence = (evidenceId) =>
+        evidenceById.get(evidenceId).expiresOn < evidence.asOf &&
+        !supersededIds.has(evidenceId);
     const hostAdaptersById = new Map(
         hostAdapters.hosts.map((adapter) => [adapter.id, adapter]),
     );
@@ -805,7 +836,7 @@ export function validateComponentProjections(
         for (const evidenceId of host.evidenceIds) {
             if (!evidenceIds.has(evidenceId))
                 errors.push(`${host.id}: unknown host evidence ${evidenceId}`);
-            else if (evidenceById.get(evidenceId).expiresOn < evidence.asOf)
+            else if (citesExpiredEvidence(evidenceId))
                 errors.push(`${host.id}: expired host evidence ${evidenceId}`);
         }
         const adapter = host.hostAdapterId
@@ -935,7 +966,7 @@ export function validateComponentProjections(
                 errors.push(
                     `${projection.id}: unknown projection evidence ${evidenceId}`,
                 );
-            else if (evidenceById.get(evidenceId).expiresOn < evidence.asOf)
+            else if (citesExpiredEvidence(evidenceId))
                 errors.push(
                     `${projection.id}: expired projection evidence ${evidenceId}`,
                 );

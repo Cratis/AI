@@ -30,7 +30,7 @@ If you need custom namespace resolution outside Arc tenancy (header, subdomain, 
 
 Observers (projections, reducers, reactors) are instantiated **per namespace**. Consequences:
 
-- A `[OnceOnly]` reactor fires once **per event source within each namespace** (i.e. once per tenant), not globally once — see [reactors.md](https://github.com/Cratis/AI/blob/main/.ai/rules/reactors.md).
+- `[OnceOnly]` is replay-exclusion, not a per-tenant counter: the handler is skipped for every event arriving as part of a replay, and each namespace has its own observer with its own replay state — so replaying one tenant never suppresses another tenant's live delivery. See [reactors.md](https://github.com/Cratis/AI/blob/main/.ai/rules/reactors.md).
 - Projection rewind affects only the target namespace.
 - Each namespace has its own sequence numbers.
 
@@ -43,14 +43,14 @@ Observers (projections, reducers, reactors) are instantiated **per namespace**. 
 | A `[Singleton]` holding `IEventStore`, `IMongoCollection<T>` or a `DbContext` | captures the root scope, so it is pinned to the default namespace forever — and it returns empty results rather than failing (`csharp.md`) |
 | A process-wide or `static` cache of tenant data | shared by every tenant; the key must include the tenant |
 | Reading one namespace and writing another in the same request | accidental cross-namespace access is a bug (intentional bridging is a Translation reactor) |
-| Expecting `[OnceOnly]` to be globally once | it is per-namespace |
+| Expecting `[OnceOnly]` to be exactly-once | it only excludes replay — a recovered failed partition re-delivers and the handler runs again |
 
 ## Quality gate
 
 - [ ] Build is clean.
 - [ ] Tenant resolution is configured and resolves the expected namespace from test requests.
 - [ ] No tenant identifier appears on `[EventType]` records.
-- [ ] `[OnceOnly]` reactors are understood to fire per-namespace.
+- [ ] `[OnceOnly]` reactors are understood to cover replay only, against each namespace's own observer.
 - [ ] No singleton holds tenant-scoped state, and every cache is keyed by tenant (`csharp.md`).
 
 ## See also

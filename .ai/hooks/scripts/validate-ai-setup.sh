@@ -136,6 +136,9 @@ else
     done
     # Every script the README's three-layer table binds to a Claude hook event must be wired.
     # Only those rows: the page also documents validators that CI and the Stop gate run directly.
+    # The single quotes are load-bearing and SC2016 is a false positive here: the backticks are
+    # literal Markdown code fences being matched inside the README, not command substitutions.
+    # shellcheck disable=SC2016
     documented="$(grep -E '`(PreToolUse|PostToolUse|Stop)`' .ai/hooks/README.md \
         | grep -oE '`scripts/[A-Za-z0-9._-]+\.sh`' \
         | sed -e 's|^`scripts/||' -e 's|`$||' | sort -u)"

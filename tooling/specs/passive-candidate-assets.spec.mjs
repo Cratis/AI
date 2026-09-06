@@ -13,6 +13,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import { buildCandidateComponentCoverage } from "../candidate-component-coverage.mjs";
+import { readComponentInventorySeals } from "../component-inventory-counts.mjs";
 import { passiveHarnesses } from "../harness-registry.mjs";
 import {
     packagePassiveCandidateAssets,
@@ -57,7 +58,9 @@ function assertBlocked(manifest) {
 }
 
 test("passive candidate assets package every currently safe target and account for exclusions", () => {
-    assert.equal(passiveHarnesses.length, 34);
+    const seals = readComponentInventorySeals();
+    const { byDisposition } = buildCandidateComponentCoverage();
+    assert(passiveHarnesses.length > 0);
     withTemporaryDirectory((root) => {
         const publicRoot = join(root, "public");
         const engineeringRoot = join(root, "engineering");
@@ -73,22 +76,30 @@ test("passive candidate assets package every currently safe target and account f
         });
         assertBlocked(publicManifest);
         assertBlocked(engineeringManifest);
-        assert.equal(publicManifest.targetIds.length, 49);
-        assert.equal(publicManifest.sourceSkills.length, 49);
-        assert.equal(publicManifest.targetExclusions.length, 2);
-        assert.equal(engineeringManifest.targetIds.length, 6);
-        assert.equal(engineeringManifest.sourceSkills.length, 6);
-        assert.equal(engineeringManifest.targetExclusions.length, 2);
+        // Cross-checked against the coverage document rather than against literals: these two
+        // manifests and that document are built from the same catalogs by different code, so
+        // agreeing is evidence. Restated literals only ever agreed with themselves, and had to be
+        // hand-bumped in every migration.
+        assert.equal(
+            publicManifest.targetIds.length,
+            publicManifest.sourceSkills.length,
+        );
+        assert.equal(
+            engineeringManifest.targetIds.length,
+            engineeringManifest.sourceSkills.length,
+        );
         assert.equal(
             publicManifest.targetIds.length +
-                publicManifest.targetExclusions.length,
-            51,
+                engineeringManifest.targetIds.length,
+            byDisposition["skill-packaged-candidate"],
         );
         assert.equal(
-            engineeringManifest.targetIds.length +
+            publicManifest.targetExclusions.length +
                 engineeringManifest.targetExclusions.length,
-            8,
+            byDisposition["skill-blocked-candidate"],
         );
+        assert(publicManifest.targetIds.length > 0);
+        assert(engineeringManifest.targetIds.length > 0);
         assert.deepEqual(
             publicManifest.targetExclusions.map((item) => item.targetId),
             ["cratis-chronicle-mcp-inspection", "cratis-studio-mcp-safety-guidance"],
@@ -158,7 +169,7 @@ test("passive candidate assets package every currently safe target and account f
                 (item) => item.componentId,
             ),
         ].sort();
-        assert.equal(skillComponentIds.length, 86);
+        assert.equal(skillComponentIds.length, seals.byKind.skill);
         assert.deepEqual(accountedSkillComponentIds, skillComponentIds);
         for (const manifest of [publicManifest, engineeringManifest]) {
             assert.equal(manifest.assets.length, passiveHarnesses.length);
@@ -176,29 +187,17 @@ test("passive candidate assets package every currently safe target and account f
                     "utf8",
                 ),
             );
-            assert.equal(coverage.componentCount, 182);
+            assert.equal(coverage.componentCount, seals.componentCount);
+            for (const [disposition, expected] of Object.entries(
+                seals.byDisposition,
+            ))
+                assert.equal(coverage.byDisposition[disposition], expected);
             assert.equal(
-                coverage.byDisposition["skill-packaged-candidate"],
-                55,
+                coverage.byDisposition["skill-packaged-candidate"] +
+                    coverage.byDisposition["skill-blocked-candidate"] +
+                    coverage.byDisposition["skill-legacy-repository-only"],
+                seals.skillDispositionCount,
             );
-            assert.equal(coverage.byDisposition["skill-blocked-candidate"], 4);
-            assert.equal(
-                coverage.byDisposition["skill-legacy-repository-only"],
-                27,
-            );
-            assert.equal(
-                coverage.byDisposition["native-static-review-projected"],
-                35,
-            );
-            assert.equal(
-                coverage.byDisposition["native-static-unprojected"],
-                10,
-            );
-            assert.equal(
-                coverage.byDisposition["repository-host-adapter-only"],
-                48,
-            );
-            assert.equal(coverage.byDisposition["executable-blocked"], 3);
             assert.equal(coverage.runtimeEligible, false);
             assert.equal(coverage.publicationEligible, false);
             assert.equal(coverage.supportGranted, false);
@@ -400,22 +399,14 @@ test("passive candidate workflow is manual read-only and short-lived", () => {
 });
 
 test("candidate component coverage closes every modeled component kind", () => {
+    const seals = readComponentInventorySeals();
     const coverage = buildCandidateComponentCoverage();
-    assert.equal(coverage.componentCount, 182);
-    assert.deepEqual(coverage.byKind, {
-        agent: 12,
-        command: 18,
-        "executable-host-extension": 2,
-        hook: 1,
-        instruction: 1,
-        prompt: 18,
-        rule: 44,
-        skill: 86,
-    });
-    assert.equal(coverage.records.length, 182);
+    assert.equal(coverage.componentCount, seals.componentCount);
+    assert.deepEqual(coverage.byKind, seals.byKind);
+    assert.equal(coverage.records.length, seals.componentCount);
     assert.equal(
         new Set(coverage.records.map((record) => record.componentId)).size,
-        182,
+        seals.componentCount,
     );
     assert(
         coverage.records
