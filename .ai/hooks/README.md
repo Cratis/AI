@@ -393,8 +393,18 @@ CRATIS_HOOKS_TYPE_REPORT=1 .ai/hooks/scripts/validate-type-references.sh
 ```
 
 Run `bash -n` on every script and `jq .` on every JSON file before committing. The hook scripts are
-kept at **zero** `shellcheck --external-sources --severity=style` findings by a blocking CI job — run
-it before committing too.
+kept at **zero** `shellcheck --external-sources --severity=style` findings by the **Lint the hook
+scripts** step of the `Verify AI Corpus` workflow (`.github/workflows/verify-ai-corpus.yml`), which
+fails the run on any finding at that severity or above. Run the same command before committing:
+
+```bash
+shellcheck --external-sources --severity=style .ai/hooks/scripts/*.sh
+```
+
+The CI step counts the scripts it checked and refuses to pass on an empty population, so a glob that
+stops matching is a failure rather than a silent green. A finding that is genuinely a false positive
+is silenced with a `# shellcheck disable=SC…` directive carrying a comment that says why — never by
+loosening the severity.
 
 ## Note on `.claude/settings.local.json`
 
