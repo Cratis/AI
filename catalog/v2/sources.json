@@ -222,13 +222,13 @@
         "skills/cratis-chronicle-client-dotnet/LICENSE",
         "skills/cratis-chronicle-client-dotnet/SKILL.md"
       ],
-      "sourceRevision": "f625294e16dc44260bf7a02c5044a83d86c1837a",
+      "sourceRevision": "f8cdd82289f334b5c35d2ec0de42cc5175ce8d57",
       "contentDigest": "d6e4a71fbd4c17abd34763e5496419017658e2e0020360cf7262800de794d4b0",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
         "reevaluation-authority",
-        "chronicle-language-clients-source-f625294"
+        "chronicle-language-clients-source-f8cdd82"
       ]
     },
     {
@@ -242,13 +242,13 @@
         "skills/cratis-chronicle-client-elixir/LICENSE",
         "skills/cratis-chronicle-client-elixir/SKILL.md"
       ],
-      "sourceRevision": "f625294e16dc44260bf7a02c5044a83d86c1837a",
-      "contentDigest": "0d6d42e254d645593227da63b902cbdba3881af11f8e0d4b0e9d4651ab1d8620",
+      "sourceRevision": "f8cdd82289f334b5c35d2ec0de42cc5175ce8d57",
+      "contentDigest": "80211437f0e3c6283c6591ba2c6d27feaa623433f67afc4b02a7154bcc333df3",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
         "reevaluation-authority",
-        "chronicle-language-clients-source-f625294"
+        "chronicle-language-clients-source-f8cdd82"
       ]
     },
     {
@@ -262,13 +262,13 @@
         "skills/cratis-chronicle-client-kotlin/LICENSE",
         "skills/cratis-chronicle-client-kotlin/SKILL.md"
       ],
-      "sourceRevision": "f625294e16dc44260bf7a02c5044a83d86c1837a",
+      "sourceRevision": "f8cdd82289f334b5c35d2ec0de42cc5175ce8d57",
       "contentDigest": "8f4e0e605d6be9e76445bf54f757d2a3e3242b3dc55a66754bde72c8074f33d0",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
         "reevaluation-authority",
-        "chronicle-language-clients-source-f625294"
+        "chronicle-language-clients-source-f8cdd82"
       ]
     },
     {
@@ -282,13 +282,13 @@
         "skills/cratis-chronicle-client-typescript/LICENSE",
         "skills/cratis-chronicle-client-typescript/SKILL.md"
       ],
-      "sourceRevision": "f625294e16dc44260bf7a02c5044a83d86c1837a",
+      "sourceRevision": "f8cdd82289f334b5c35d2ec0de42cc5175ce8d57",
       "contentDigest": "5efe57da345f2ae41ca2637812f5188447b2dc92cbb148495979ef573a3c6895",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
         "reevaluation-authority",
-        "chronicle-language-clients-source-f625294"
+        "chronicle-language-clients-source-f8cdd82"
       ]
     },
     {

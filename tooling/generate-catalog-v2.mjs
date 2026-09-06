@@ -539,7 +539,7 @@ const modelingLayerSourceNames = [
 // Cratis/AI#178: the language-native Chronicle client journeys are authored
 // directly in the canonical skill tree too. They have no `.ai/skills` ancestor,
 // so unlike the migrations above these names only ever resolve through here.
-const chronicleClientRevision = "f625294e16dc44260bf7a02c5044a83d86c1837a";
+const chronicleClientRevision = "f8cdd82289f334b5c35d2ec0de42cc5175ce8d57";
 const chronicleClientSourceNames = [
     "cratis-chronicle-client-dotnet",
     "cratis-chronicle-client-elixir",
@@ -708,7 +708,7 @@ const sourceOverrides = new Map([
         {
             sourcePath: `skills/${name}`,
             sourceRevision: chronicleClientRevision,
-            evidenceId: "chronicle-language-clients-source-f625294",
+            evidenceId: "chronicle-language-clients-source-f8cdd82",
         },
     ]),
 ]);

@@ -128,7 +128,7 @@
         "effect": "guided-write"
       },
       "dependencies": [],
-      "hostNeutralPurpose": "Specialist for C# backend code within a vertical slice. Creates the single slice file containing all backend artifacts: commands, events, validators, constraints, read models, projections, and reactors \u2014 all in strict compliance with the vertical slice architecture.",
+      "hostNeutralPurpose": "Specialist for C# backend code within a vertical slice. Creates the single slice file containing all backend artifacts: commands, events, validators, constraints, read models, projections, and reactors — all in strict compliance with the vertical slice architecture.",
       "approval": {
         "state": "modeled",
         "evidenceIds": [
@@ -404,7 +404,7 @@
         "effect": "guided-write"
       },
       "dependencies": [],
-      "hostNeutralPurpose": "Top-level team orchestrator for Cratis-based projects. Receives any high-level goal and assembles the right team of specialist agents to accomplish it \u2014 decomposing work, managing parallel execution, coordinating handoffs, and enforcing quality gates. Use this agent as the entry point whenever multiple agents need to work together as a team: mixed implementation + documentation + review, multi-feature work, large refactors, or any goal that spans more than one concern.",
+      "hostNeutralPurpose": "Top-level team orchestrator for Cratis-based projects. Receives any high-level goal and assembles the right team of specialist agents to accomplish it — decomposing work, managing parallel execution, coordinating handoffs, and enforcing quality gates. Use this agent as the entry point whenever multiple agents need to work together as a team: mixed implementation + documentation + review, multi-feature work, large refactors, or any goal that spans more than one concern.",
       "approval": {
         "state": "modeled",
         "evidenceIds": [
@@ -818,7 +818,7 @@
         "effect": "guided-write"
       },
       "dependencies": [],
-      "hostNeutralPurpose": "Implements a Cratis vertical slice end-to-end \u2014 all backend artifacts in one slice file, BDD specs in when_*/ folders, and the React surface (page and/or command dialog). Use for new slices and for non-trivial slice changes spanning backend and frontend.",
+      "hostNeutralPurpose": "Implements a Cratis vertical slice end-to-end — all backend artifacts in one slice file, BDD specs in when_*/ folders, and the React surface (page and/or command dialog). Use for new slices and for non-trivial slice changes spanning backend and frontend.",
       "approval": {
         "state": "modeled",
         "evidenceIds": [
@@ -2187,12 +2187,12 @@
       "canonicalSources": [
         {
           "path": "skills/cratis-chronicle-client-elixir",
-          "digest": "0d6d42e254d645593227da63b902cbdba3881af11f8e0d4b0e9d4651ab1d8620",
+          "digest": "80211437f0e3c6283c6591ba2c6d27feaa623433f67afc4b02a7154bcc333df3",
           "ownership": "owner",
           "ownerComponentId": "cratis-chronicle-client-elixir"
         }
       ],
-      "contentDigest": "d809d17756125246a593be85946eb0c6d2469233882e8e98f3ad96c179874f5c",
+      "contentDigest": "ff37c6421a661ab5bbfacb93c2381e4730e62200c67f7e167598cdb7113234b8",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -9686,7 +9686,7 @@
         "effect": "guided-write"
       },
       "dependencies": [],
-      "hostNeutralPurpose": "Scaffold a new feature \u2014 folder structure, composition page, routing, and navigation.",
+      "hostNeutralPurpose": "Scaffold a new feature — folder structure, composition page, routing, and navigation.",
       "approval": {
         "state": "modeled",
         "evidenceIds": [
@@ -9893,7 +9893,7 @@
         "effect": "guided-write"
       },
       "dependencies": [],
-      "hostNeutralPurpose": "\"Write documentation following the Di\u00e1taxis framework.\"",
+      "hostNeutralPurpose": "\"Write documentation following the Diátaxis framework.\"",
       "approval": {
         "state": "modeled",
         "evidenceIds": [

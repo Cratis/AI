@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generatedBy": "tooling/generate-component-catalogs.mjs",
-  "sourceDigest": "7e746156aad22a7fa6d5b7c63a59f479588a69e32278e676731a6a7395844321",
+  "sourceDigest": "93038cb8629a0956fbb25a6cf01bdda5d141ab48a0963c53e7def955432962b3",
   "defaultPolicy": "deny",
   "canonicalSourceRoots": [
     ".ai/agents",
@@ -2189,12 +2189,12 @@
       "canonicalSources": [
         {
           "path": "skills/cratis-chronicle-client-elixir",
-          "digest": "0d6d42e254d645593227da63b902cbdba3881af11f8e0d4b0e9d4651ab1d8620",
+          "digest": "80211437f0e3c6283c6591ba2c6d27feaa623433f67afc4b02a7154bcc333df3",
           "ownership": "owner",
           "ownerComponentId": "cratis-chronicle-client-elixir"
         }
       ],
-      "contentDigest": "d809d17756125246a593be85946eb0c6d2469233882e8e98f3ad96c179874f5c",
+      "contentDigest": "ff37c6421a661ab5bbfacb93c2381e4730e62200c67f7e167598cdb7113234b8",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {

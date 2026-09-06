@@ -812,10 +812,10 @@
       "immutableRevision": "7b85abb3c7a1678f42fc4e38bc4c3e27f26b40d9"
     },
     {
-      "id": "source-chronicle-language-clients-source-f625294",
+      "id": "source-chronicle-language-clients-source-f8cdd82",
       "kind": "repository-snapshot",
-      "locator": "https://github.com/Cratis/AI/tree/f625294e16dc44260bf7a02c5044a83d86c1837a/skills",
-      "immutableRevision": "f625294e16dc44260bf7a02c5044a83d86c1837a"
+      "locator": "https://github.com/Cratis/AI/tree/f8cdd82289f334b5c35d2ec0de42cc5175ce8d57/skills",
+      "immutableRevision": "f8cdd82289f334b5c35d2ec0de42cc5175ce8d57"
     }
   ],
   "observations": [
@@ -8099,13 +8099,13 @@
       }
     },
     {
-      "id": "chronicle-language-clients-source-f625294",
-      "sourceId": "source-chronicle-language-clients-source-f625294",
+      "id": "chronicle-language-clients-source-f8cdd82",
+      "sourceId": "source-chronicle-language-clients-source-f8cdd82",
       "evidenceClass": "hosted",
       "subject": {
         "kind": "artifact",
         "id": "candidate-passive-public-package",
-        "version": "f625294e16dc44260bf7a02c5044a83d86c1837a"
+        "version": "f8cdd82289f334b5c35d2ec0de42cc5175ce8d57"
       },
       "bindingIds": [],
       "assertions": [
@@ -8130,9 +8130,9 @@
       ],
       "supersedes": [],
       "legacy": {
-        "officialUrl": "https://github.com/Cratis/AI/tree/f625294e16dc44260bf7a02c5044a83d86c1837a/skills",
+        "officialUrl": "https://github.com/Cratis/AI/tree/f8cdd82289f334b5c35d2ec0de42cc5175ce8d57/skills",
         "sourceKind": "repository-snapshot",
-        "applicableVersion": "f625294e16dc44260bf7a02c5044a83d86c1837a"
+        "applicableVersion": "f8cdd82289f334b5c35d2ec0de42cc5175ce8d57"
       }
     }
   ],
