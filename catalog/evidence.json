@@ -748,6 +748,12 @@
       "kind": "repository-snapshot",
       "locator": "https://github.com/Cratis/AI/tree/c650e097136ebf11374003d33b4dc6dfd672effd/skills",
       "immutableRevision": "c650e097136ebf11374003d33b4dc6dfd672effd"
+    },
+    {
+      "id": "source-arc-ef-core-and-identity-sources-4726322",
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/47263222559843c47065be0f124d66ddb02b7c04/skills",
+      "immutableRevision": "47263222559843c47065be0f124d66ddb02b7c04"
     }
   ],
   "observations": [
@@ -7594,6 +7600,43 @@
         "officialUrl": "https://github.com/Cratis/AI/tree/c650e097136ebf11374003d33b4dc6dfd672effd/skills",
         "sourceKind": "repository-snapshot",
         "applicableVersion": "c650e097136ebf11374003d33b4dc6dfd672effd"
+      }
+    },
+    {
+      "id": "arc-ef-core-and-identity-sources-4726322",
+      "sourceId": "source-arc-ef-core-and-identity-sources-4726322",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "artifact",
+        "id": "candidate-passive-public-package",
+        "version": "47263222559843c47065be0f124d66ddb02b7c04"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "source-provenance",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Source provenance for the Arc EF Core and identity sources migrated into skills/.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-09-06",
+      "validThrough": "2027-09-06",
+      "confidence": "high",
+      "limitations": [
+        "This observation proves source provenance only; it grants no behavior, install, or support assurance."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/47263222559843c47065be0f124d66ddb02b7c04/skills",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "47263222559843c47065be0f124d66ddb02b7c04"
       }
     },
     {

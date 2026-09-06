@@ -75,13 +75,13 @@
         "skills/cratis-arc-ef-core-migration/LICENSE",
         "skills/cratis-arc-ef-core-migration/SKILL.md"
       ],
-      "sourceRevision": "c650e097136ebf11374003d33b4dc6dfd672effd",
+      "sourceRevision": "47263222559843c47065be0f124d66ddb02b7c04",
       "contentDigest": "44c66b394b0551c51a081a19a932e4fcba071b4047051fd6519098da83d4bc0f",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
         "reevaluation-authority",
-        "arc-backend-command-sources-c650e09"
+        "arc-ef-core-and-identity-sources-4726322"
       ]
     },
     {
@@ -177,13 +177,13 @@
         "skills/cratis-arc-authentication-authorization-and-identity/references/local-development.md",
         "skills/cratis-arc-authentication-authorization-and-identity/references/tenancy.md"
       ],
-      "sourceRevision": "c650e097136ebf11374003d33b4dc6dfd672effd",
+      "sourceRevision": "47263222559843c47065be0f124d66ddb02b7c04",
       "contentDigest": "2ec0dd13fea5b6c72118c7a52f71fbecaf8f318f852fd8ee96339c684c6e9932",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
         "reevaluation-authority",
-        "arc-backend-command-sources-c650e09"
+        "arc-ef-core-and-identity-sources-4726322"
       ]
     },
     {

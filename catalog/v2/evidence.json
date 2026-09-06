@@ -131,6 +131,16 @@
       "immutableRevision": "c650e097136ebf11374003d33b4dc6dfd672effd"
     },
     {
+      "id": "arc-ef-core-and-identity-sources-4726322",
+      "officialUrl": "https://github.com/Cratis/AI/tree/47263222559843c47065be0f124d66ddb02b7c04/skills",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-09-06",
+      "expiresOn": "2027-09-06",
+      "applicableVersion": "47263222559843c47065be0f124d66ddb02b7c04",
+      "confidence": "high",
+      "immutableRevision": "47263222559843c47065be0f124d66ddb02b7c04"
+    },
+    {
       "id": "augment-auggie-source-1",
       "officialUrl": "https://docs.augmentcode.com/cli/skills",
       "sourceKind": "official-documentation",

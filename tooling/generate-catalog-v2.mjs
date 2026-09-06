@@ -228,6 +228,22 @@ const arcBackendCommandSources = new Map([
     ["observable-query-curl", "cratis-arc-observable-query-http"],
     ["query-paging", "cratis-arc-query-paging"],
 ]);
+// The revision each migrated source's exact bytes live at, and the observation
+// recording that provenance.
+const arcBackendCommandRevisions = new Map(
+    [...arcBackendCommandSources.keys()].map((name) => [
+        name,
+        ["add-ef-migration", "auth-and-identity"].includes(name)
+            ? {
+                  revision: "47263222559843c47065be0f124d66ddb02b7c04",
+                  evidenceId: "arc-ef-core-and-identity-sources-4726322",
+              }
+            : {
+                  revision: "c650e097136ebf11374003d33b4dc6dfd672effd",
+                  evidenceId: "arc-backend-command-sources-c650e09",
+              },
+    ]),
+);
 const sourceOverrides = new Map([
     ...referenceClosureSourceNames.map((name) => [
         name,
@@ -337,8 +353,8 @@ const sourceOverrides = new Map([
         name,
         {
             sourcePath: `skills/${targetId}`,
-            sourceRevision: "c650e097136ebf11374003d33b4dc6dfd672effd",
-            evidenceId: "arc-backend-command-sources-c650e09",
+            sourceRevision: arcBackendCommandRevisions.get(name).revision,
+            evidenceId: arcBackendCommandRevisions.get(name).evidenceId,
         },
     ]),
 ]);

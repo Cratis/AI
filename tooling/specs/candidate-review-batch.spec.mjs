@@ -37,7 +37,7 @@ test("candidate review batch is deterministic complete and non-releasing", () =>
         assert.equal(first.componentCount, 137);
         assert.equal(first.packagedSkillTargetCount, 41);
         assert.equal(first.blockedSkillTargetCount, 4);
-        assert.equal(first.repositoryOnlyLegacySkillCount, 8);
+        assert.equal(first.repositoryOnlyLegacySkillCount, 10);
         assert.equal(first.nativeProjectedComponentCount, 35);
         assert.equal(first.nativeUnprojectedComponentCount, 2);
         assert.equal(first.skillAssetCount, 68);
