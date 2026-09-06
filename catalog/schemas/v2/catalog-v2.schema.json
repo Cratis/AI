@@ -25,6 +25,16 @@
       "uniqueItems": true,
       "items": { "$ref": "#/$defs/id" }
     },
+    "profileId": {
+      "description": "A distribution profile identifier. The legacy public- and engineering- prefixes stay hyphenated; the cratis/ namespace introduced by Cratis/AI#264 carries a single slash.",
+      "type": "string",
+      "pattern": "^(?:cratis/)?[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "profileIdArray": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/profileId" }
+    },
     "evidenceIds": {
       "type": "array",
       "minItems": 1,
@@ -860,7 +870,7 @@
         "evidenceIds": { "$ref": "#/$defs/evidenceIds" },
         "relatedTargetIds": { "$ref": "#/$defs/idArray" },
         "bundleIds": { "$ref": "#/$defs/idArray" },
-        "profileIds": { "$ref": "#/$defs/idArray" }
+        "profileIds": { "$ref": "#/$defs/profileIdArray" }
       }
     },
     "generatedHumanProfile": {
@@ -872,7 +882,7 @@
         "composes", "directTargetIds", "targetIds"
       ],
       "properties": {
-        "id": { "$ref": "#/$defs/id" },
+        "id": { "$ref": "#/$defs/profileId" },
         "displayName": { "$ref": "#/$defs/nonEmptyString" },
         "description": { "$ref": "#/$defs/nonEmptyString" },
         "intendedFor": { "$ref": "#/$defs/nonEmptyString" },
@@ -884,7 +894,7 @@
         "products": { "$ref": "#/$defs/idArray" },
         "languages": { "$ref": "#/$defs/idArray" },
         "repositoryKinds": { "$ref": "#/$defs/idArray" },
-        "composes": { "$ref": "#/$defs/idArray" },
+        "composes": { "$ref": "#/$defs/profileIdArray" },
         "directTargetIds": { "$ref": "#/$defs/idArray" },
         "targetIds": { "$ref": "#/$defs/idArray" }
       }

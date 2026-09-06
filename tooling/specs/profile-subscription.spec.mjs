@@ -14,7 +14,10 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
-import { validateProfileSubscriptions } from "../profile-subscription-validation.mjs";
+import {
+    deriveSubscriptionChannel,
+    validateProfileSubscriptions,
+} from "../profile-subscription-validation.mjs";
 import { presentProfile } from "../profile-presentation.mjs";
 
 const repositoryRoot = resolve(
@@ -27,6 +30,7 @@ const profileFiles = [
     "catalog/v2/taxonomy.json",
     "Documentation/examples/ai-subscriptions/chronicle-framework.cratis-ai.json",
     "Documentation/examples/ai-subscriptions/cratis-application.cratis-ai.json",
+    "Documentation/examples/ai-subscriptions/cratis-chronicle-suite.cratis-ai.json",
     "Documentation/examples/ai-subscriptions/pi-settings.json",
     "Documentation/examples/private-repository-overlay/.cratis/ai.json",
 ];
@@ -58,9 +62,11 @@ test("profile catalog and project subscriptions pass", () => {
     const catalog = readJson(
         join(repositoryRoot, "distribution/profile-catalog.json"),
     );
-    assert.equal(catalog.publicProfiles.length, 32);
+    assert.equal(catalog.publicProfiles.length, 40);
     assert.equal(catalog.engineeringProfiles.length, 20);
     assert.equal(catalog.versioning.exactPinsRequired, true);
+    assert.equal(catalog.versioning.perProfileVersionStamps, true);
+    assert.equal(catalog.versioning.releaseTrain, "atomic");
     assert.equal(catalog.authority.automaticReverseSyncAllowed, false);
     assert.equal(
         catalog.confidentiality.engineeringPackages,
@@ -184,7 +190,48 @@ test("subscription schema rejects cross-audience profiles", () => {
         );
         assert(
             errors.some((error) =>
-                error.includes("unknown profile engineering-chronicle"),
+                error.includes(
+                    "declared channel public contradicts the derived channel cratis-engineering",
+                ),
+            ),
+        );
+    });
+});
+
+test("cratis namespace subscribes without hand-declaring a channel", () => {
+    const example = readJson(
+        join(
+            repositoryRoot,
+            "Documentation/examples/ai-subscriptions/cratis-chronicle-suite.cratis-ai.json",
+        ),
+    );
+    assert.deepEqual(example.profiles, ["cratis/chronicle"]);
+    assert.equal(Object.hasOwn(example, "channel"), false);
+    assert.equal(example.updatePolicy, "reviewed-pull-request");
+    assert.equal(example.version, "1.0.0");
+    assert.equal(deriveSubscriptionChannel(example.profiles), "public");
+    assert.equal(
+        deriveSubscriptionChannel(["engineering-chronicle"]),
+        "cratis-engineering",
+    );
+    assert.equal(
+        deriveSubscriptionChannel(["cratis/arc", "engineering-chronicle"]),
+        null,
+    );
+});
+
+test("cratis namespace subscription still rejects a floating version", () => {
+    withFixture((root) => {
+        const path = join(
+            root,
+            "Documentation/examples/ai-subscriptions/cratis-chronicle-suite.cratis-ai.json",
+        );
+        const example = readJson(path);
+        example.version = "latest";
+        writeJson(path, example);
+        assert(
+            validateProfileSubscriptions(root).some((error) =>
+                error.includes("version"),
             ),
         );
     });

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "796cccdcf7d964db1c065aa5251c0be23624ebeaac9cef88b5dc1a46235fc9fd",
+  "indexDigest": "03ae0f4cedfa5398e68054d80cf93709e6e8de46bfbc4fd34b4164aa7891e498",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -408,6 +408,10 @@
     },
     {
       "path": "Documentation/examples/ai-subscriptions/cratis-application.cratis-ai.json",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/examples/ai-subscriptions/cratis-chronicle-suite.cratis-ai.json",
       "status": "added"
     },
     {
@@ -2823,6 +2827,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/resolve-profiles.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/run-engineering-docs-authoring-canary.mjs",
       "status": "added"
     },
@@ -3100,6 +3108,10 @@
     },
     {
       "path": "tooling/specs/release-request.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/resolve-profiles.spec.mjs",
       "status": "added"
     },
     {
@@ -4040,8 +4052,8 @@
         "workflows-68",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 27,
-      "expectedPathsDigest": "e64c4acb88b58c14fd3d36f873802f4e29cb52774eb8b06897e3c6247dfd1540"
+      "expectedPathCount": 28,
+      "expectedPathsDigest": "7fc50f5162ac4a0978d67ac1c005c1f9a0f9ac13f86fc566e516d21ab78b5405"
     },
     {
       "excludePathPatterns": [],
@@ -4709,8 +4721,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 80,
-      "expectedPathsDigest": "ba56fdd96ec85d5fe4250f2df1e2cf9c603e54b5ca4840ee56c5d340d965918d"
+      "expectedPathCount": 81,
+      "expectedPathsDigest": "5044ac2f15f4c578c748c83a55459c3542b9a7ce616669bff57dc6a8a6b70cd9"
     },
     {
       "excludePathPatterns": [],
@@ -4733,8 +4745,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 62,
-      "expectedPathsDigest": "1a6bc1f87205f6d5e153f63486bc47b8e5c22a9006b78e07daeddcf75f6d467f"
+      "expectedPathCount": 63,
+      "expectedPathsDigest": "00d0a6a5e48e85c95893d2081714c61bf783f8604d550a1a87454bb073953341"
     },
     {
       "excludePathPatterns": [],

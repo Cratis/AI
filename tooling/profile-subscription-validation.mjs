@@ -15,6 +15,9 @@ const defaultRepositoryRoot = resolve(
     fileURLToPath(new URL("..", import.meta.url)),
 );
 
+const exactSemVerPattern =
+    /^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-(?:0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
+
 function readJson(path, errors) {
     try {
         return JSON.parse(readFileSync(path, "utf8"));
@@ -24,6 +27,25 @@ function readJson(path, errors) {
         );
         return null;
     }
+}
+
+/**
+ * The channel a subscription belongs to. A `cratis/*` selection never declares
+ * one; the legacy prefixes still may, and a declared channel must agree with
+ * the namespace it names.
+ */
+export function deriveSubscriptionChannel(profiles) {
+    if (profiles.length === 0) return null;
+    if (profiles.every((profile) => profile.startsWith("engineering-")))
+        return "cratis-engineering";
+    if (
+        profiles.every(
+            (profile) =>
+                profile.startsWith("public-") || profile.startsWith("cratis/"),
+        )
+    )
+        return "public";
+    return null;
 }
 
 function duplicates(values) {
@@ -145,6 +167,12 @@ export function validateProfileSubscriptions(
             errors.push(`${profile.id}: approved profile has no targets`);
         if (!/^@cratis\/ai-[a-z0-9]+(?:-[a-z0-9]+)*$/.test(profile.packageName))
             errors.push(`${profile.id}: invalid package name`);
+        if (!/^(?:cratis\/|public-|engineering-)[a-z0-9]+(?:-[a-z0-9]+)*$/.test(profile.id))
+            errors.push(`${profile.id}: invalid profile id namespace`);
+        if (!exactSemVerPattern.test(profile.version ?? ""))
+            errors.push(
+                `${profile.id}: profile version must be an exact SemVer stamp`,
+            );
         for (const product of profile.products ?? [])
             if (!knownProducts.has(product))
                 errors.push(`${profile.id}: unknown product ${product}`);
@@ -208,10 +236,25 @@ export function validateProfileSubscriptions(
         errors.push(
             ...validateAgainstSchema(example, schema, schema, relativePath),
         );
+        const derivedChannel = deriveSubscriptionChannel(
+            example.profiles ?? [],
+        );
+        if (!derivedChannel)
+            errors.push(
+                `${relativePath}: profile selection does not resolve to one channel`,
+            );
+        if (
+            Object.hasOwn(example, "channel") &&
+            derivedChannel &&
+            example.channel !== derivedChannel
+        )
+            errors.push(
+                `${relativePath}: declared channel ${example.channel} contradicts the derived channel ${derivedChannel}`,
+            );
         const allowedProfiles = new Set(
-            (example.channel === "public"
-                ? profileCatalog.publicProfiles
-                : profileCatalog.engineeringProfiles
+            (derivedChannel === "cratis-engineering"
+                ? profileCatalog.engineeringProfiles
+                : profileCatalog.publicProfiles
             ).map((profile) => profile.id),
         );
         for (const profile of example.profiles)

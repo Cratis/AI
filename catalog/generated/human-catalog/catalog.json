@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "contractVersion": 1,
   "disclaimer": "Catalog inclusion, evaluation evidence, component modeling, planned projection, bundle generation, or publication does not grant runtime permission, emitted bytes, support, or approval.",
-  "inputDigest": "60d9c32c2350d883b683f850c5e508b4192909aa8fa7ac63bba7af1c7738b1dd",
+  "inputDigest": "81f088abcc461668e524b29bc347b4918e29c85369ffc53f00b90d267044f149",
   "componentSummary": {
     "disclaimer": "Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.",
     "total": 137,
@@ -82,6 +82,134 @@
     "marketplaceAvailabilityClaim": false
   },
   "profiles": [
+    {
+      "id": "cratis/application",
+      "displayName": "Cratis Application Suite",
+      "description": "The namespaced suite for building a full Cratis application with Arc, Chronicle, Arc React, Components, and Specifications.",
+      "intendedFor": "Developers who use Cratis Fundamentals, Cratis Arc, Cratis Arc React, Cratis Chronicle, and Cratis Components.",
+      "audience": "public",
+      "packageName": "@cratis/ai-meta-application",
+      "state": "planned-composition",
+      "installable": false,
+      "materialization": "composition",
+      "products": [
+        "fundamentals",
+        "arc",
+        "arc-react",
+        "chronicle",
+        "components"
+      ],
+      "languages": [
+        "csharp",
+        "react",
+        "typescript"
+      ],
+      "repositoryKinds": [],
+      "composes": [
+        "public-application"
+      ],
+      "directTargetIds": [],
+      "targetIds": [
+        "cratis-fundamentals-concept"
+      ]
+    },
+    {
+      "id": "cratis/arc",
+      "displayName": "Cratis Arc Suite",
+      "description": "The namespaced Arc suite: model-bound commands, queries, EF Core persistence, and identity, with no Chronicle assumptions.",
+      "intendedFor": "Developers who use Cratis Fundamentals, Cratis Arc, and Entity Framework Core.",
+      "audience": "public",
+      "packageName": "@cratis/ai-meta-arc",
+      "state": "planned-composition",
+      "installable": false,
+      "materialization": "composition",
+      "products": [
+        "fundamentals",
+        "arc",
+        "entity-framework-core"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "repositoryKinds": [],
+      "composes": [
+        "public-application-arc-only",
+        "public-arc-ef-core",
+        "public-arc-identity"
+      ],
+      "directTargetIds": [],
+      "targetIds": [
+        "cratis-fundamentals-concept"
+      ]
+    },
+    {
+      "id": "cratis/chronicle",
+      "displayName": "Cratis Chronicle Suite",
+      "description": "The namespaced Chronicle suite: event modeling, compliance, multi-tenancy, and workbench guidance, with no Arc assumptions.",
+      "intendedFor": "Developers who use Cratis Fundamentals and Cratis Chronicle.",
+      "audience": "public",
+      "packageName": "@cratis/ai-meta-chronicle",
+      "state": "planned-composition",
+      "installable": false,
+      "materialization": "composition",
+      "products": [
+        "fundamentals",
+        "chronicle"
+      ],
+      "languages": [
+        "csharp",
+        "language-agnostic"
+      ],
+      "repositoryKinds": [],
+      "composes": [
+        "public-application-chronicle-dotnet",
+        "public-chronicle-compliance",
+        "public-chronicle-multi-tenancy",
+        "public-chronicle-web-workbench"
+      ],
+      "directTargetIds": [],
+      "targetIds": [
+        "cratis-fundamentals-concept"
+      ]
+    },
+    {
+      "id": "cratis/full",
+      "displayName": "Cratis Full Suite",
+      "description": "Every public Cratis suite in one selection, including the Screenplay to Stage modeling and executable specification handoff.",
+      "intendedFor": "Developers who use Cratis Fundamentals, Cratis Arc, Cratis Arc React, Cratis Chronicle, Cratis Components, Entity Framework Core, Cratis Screenplay, and Cratis Stage.",
+      "audience": "public",
+      "packageName": "@cratis/ai-meta-full",
+      "state": "planned-composition",
+      "installable": false,
+      "materialization": "composition",
+      "products": [
+        "fundamentals",
+        "arc",
+        "arc-react",
+        "chronicle",
+        "components",
+        "entity-framework-core",
+        "screenplay",
+        "stage"
+      ],
+      "languages": [
+        "csharp",
+        "react",
+        "typescript",
+        "language-agnostic"
+      ],
+      "repositoryKinds": [],
+      "composes": [
+        "cratis/application",
+        "cratis/arc",
+        "cratis/chronicle",
+        "public-modeling-screenplay-stage"
+      ],
+      "directTargetIds": [],
+      "targetIds": [
+        "cratis-fundamentals-concept"
+      ]
+    },
     {
       "id": "public-application",
       "displayName": "Cratis Application Development",
@@ -668,6 +796,82 @@
       "targetIds": [
         "cratis-fundamentals-concept"
       ]
+    },
+    {
+      "id": "public-language-csharp",
+      "displayName": "Cratis C# Language Conventions",
+      "description": "Composable language-level C# conventions shared across Cratis products. Content completeness is tracked in Cratis/AI#178.",
+      "intendedFor": "Developers who want C# conventions without selecting a Cratis product profile.",
+      "audience": "public",
+      "packageName": "@cratis/ai-language-csharp",
+      "state": "content-gap",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [],
+      "languages": [
+        "csharp"
+      ],
+      "repositoryKinds": [],
+      "composes": [],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "public-language-elixir",
+      "displayName": "Cratis Elixir Language Conventions",
+      "description": "Composable language-level Elixir conventions shared across Cratis products. Content completeness is tracked in Cratis/AI#178.",
+      "intendedFor": "Developers who want Elixir conventions without selecting a Cratis product profile.",
+      "audience": "public",
+      "packageName": "@cratis/ai-language-elixir",
+      "state": "content-gap",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [],
+      "languages": [
+        "elixir"
+      ],
+      "repositoryKinds": [],
+      "composes": [],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "public-language-kotlin",
+      "displayName": "Cratis Kotlin Language Conventions",
+      "description": "Composable language-level Kotlin conventions shared across Cratis products. Content completeness is tracked in Cratis/AI#178.",
+      "intendedFor": "Developers who want Kotlin conventions without selecting a Cratis product profile.",
+      "audience": "public",
+      "packageName": "@cratis/ai-language-kotlin",
+      "state": "content-gap",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [],
+      "languages": [
+        "kotlin"
+      ],
+      "repositoryKinds": [],
+      "composes": [],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "public-language-typescript",
+      "displayName": "Cratis TypeScript Language Conventions",
+      "description": "Composable language-level TypeScript conventions shared across Cratis products. Content completeness is tracked in Cratis/AI#178.",
+      "intendedFor": "Developers who want TypeScript conventions without selecting a Cratis product profile.",
+      "audience": "public",
+      "packageName": "@cratis/ai-language-typescript",
+      "state": "content-gap",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [],
+      "languages": [
+        "typescript"
+      ],
+      "repositoryKinds": [],
+      "composes": [],
+      "directTargetIds": [],
+      "targetIds": []
     },
     {
       "id": "public-lens",
@@ -3344,6 +3548,10 @@
         "cratis-core-review"
       ],
       "profileIds": [
+        "cratis/application",
+        "cratis/arc",
+        "cratis/chronicle",
+        "cratis/full",
         "public-application",
         "public-application-arc-chronicle",
         "public-application-arc-only",

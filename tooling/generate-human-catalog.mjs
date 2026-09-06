@@ -20,6 +20,7 @@ import { readCatalog, validateAgainstSchema } from "./catalog-validation.mjs";
 import { v2SchemaPath } from "./catalog-v2-validation.mjs";
 import { assertSafeContent } from "./public-artifact-materializer.mjs";
 import { presentProfile } from "./profile-presentation.mjs";
+import { resolveTargetsByProfile } from "./resolve-profiles.mjs";
 
 const repositoryRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const inputPaths = [
@@ -200,28 +201,6 @@ function renderProfiles(profiles) {
     ]);
 }
 
-function resolveProfileTargets(profileId, profilesById, cache, resolving) {
-    if (cache.has(profileId)) return cache.get(profileId);
-    if (resolving.has(profileId))
-        throw new Error(`Profile composition cycle: ${profileId}`);
-    const profile = profilesById.get(profileId);
-    if (!profile) throw new Error(`Unknown composed profile: ${profileId}`);
-    resolving.add(profileId);
-    const targets = new Set(profile.directTargetIds);
-    for (const dependency of profile.composes)
-        for (const targetId of resolveProfileTargets(
-            dependency,
-            profilesById,
-            cache,
-            resolving,
-        ))
-            targets.add(targetId);
-    resolving.delete(profileId);
-    const resolved = [...targets].sort(compareOrdinal);
-    cache.set(profileId, resolved);
-    return resolved;
-}
-
 function renderCapability(capability) {
     const sectionSuffix = ` — ${capability.id}`;
     const lines = [
@@ -393,19 +372,11 @@ export function buildHumanCatalogOutputs() {
             presentProfile(profile, "cratis-engineering"),
         ),
     ];
-    const profilesById = new Map(
-        presentedProfiles.map((profile) => [profile.id, profile]),
-    );
-    const profileTargetCache = new Map();
+    const targetsByProfile = resolveTargetsByProfile(profileCatalog);
     const profiles = presentedProfiles
         .map((profile) => ({
             ...profile,
-            targetIds: resolveProfileTargets(
-                profile.id,
-                profilesById,
-                profileTargetCache,
-                new Set(),
-            ),
+            targetIds: targetsByProfile.get(profile.id),
         }))
         .sort(compareAudienceThenId);
     const profileIdsByTarget = new Map();
