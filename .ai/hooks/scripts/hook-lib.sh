@@ -56,15 +56,15 @@ hook_relpath() {
     esac
 }
 
-# Does path $1 match any of the newline-separated globs on stdin?
-#
 # Glob dialect (gitignore/minimatch-like, matched against a repo-relative path):
 #   **/   any number of leading directories (including none)
 #   **    any characters, directory separators included
 #   *     any characters except /
 #   ?     one character except /
-hook_glob_match() {
-    CRATIS_GLOB_PATH="$1" awk '
+#
+# The conversion is an awk source fragment shared by both matchers below rather than
+# copied into each, so the two directions cannot drift apart.
+hook_glob_awk_lib='
         function g2re(g,    out, i, n, c, c2, c3) {
             out = "^"; n = length(g)
             for (i = 1; i <= n; i++) {
@@ -84,10 +84,45 @@ hook_glob_match() {
             }
             return out "$"
         }
+'
+
+# Does path $1 match any of the newline-separated globs on stdin?
+hook_glob_match() {
+    CRATIS_GLOB_PATH="$1" awk "$hook_glob_awk_lib"'
         BEGIN { p = ENVIRON["CRATIS_GLOB_PATH"]; found = 0 }
         { g = $0; sub(/^[ \t]+/, "", g); sub(/[ \t\r]+$/, "", g) }
         g == "" { next }
         { if (p ~ g2re(g)) { found = 1; exit } }
+        END { exit(found ? 0 : 1) }
+    '
+}
+
+# The other direction: print the FIRST newline-separated path on stdin matching any of the
+# newline-separated globs in $1, and exit 0. Prints nothing and exits 1 when none matches,
+# or when $1 holds no glob.
+#
+# hook_glob_match answers "does this one path match?" and costs a process per path, which is
+# right for the handful of changed files a hook sees. Discovery asks the mirror question over
+# every path in the repository, so it gets one awk pass instead of thousands of processes.
+hook_glob_first_match() {
+    CRATIS_GLOBS="$1" awk "$hook_glob_awk_lib"'
+        BEGIN {
+            count = 0
+            n = split(ENVIRON["CRATIS_GLOBS"], globs, "\n")
+            for (i = 1; i <= n; i++) {
+                g = globs[i]; sub(/^[ \t]+/, "", g); sub(/[ \t\r]+$/, "", g)
+                if (g != "") res[++count] = g2re(g)
+            }
+            found = 0
+        }
+        count == 0 { exit }
+        { p = $0; sub(/[ \t\r]+$/, "", p) }
+        p == "" { next }
+        {
+            for (i = 1; i <= count; i++) {
+                if (p ~ res[i]) { print p; found = 1; exit }
+            }
+        }
         END { exit(found ? 0 : 1) }
     '
 }
