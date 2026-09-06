@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "2c4e94f465249738c9ca230f74294f61d8d6a7b03e20572d31b1d508527e0fb5",
+  "indexDigest": "df8928b604f86467fd06f33908262f30d5d2d783367f33abad685155b8b1e7d3",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -812,6 +812,10 @@
     },
     {
       "path": "distribution/engineering-artifact-matrix.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/evidence/authority-reobservation-2026-09-06.json",
       "status": "added"
     },
     {
@@ -4897,8 +4901,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 70,
-      "expectedPathsDigest": "2e2e109446ee4c6e0f36fa9decdbe03cecf642f1ae2def7f711ac7ec2feedaac"
+      "expectedPathCount": 71,
+      "expectedPathsDigest": "627d1e2fe9226354210f482ebad786207bbc2f29bfe09e73f654149b023d3446"
     },
     {
       "excludePathPatterns": [],

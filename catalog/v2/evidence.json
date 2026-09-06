@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "asOf": "2026-09-02",
+  "asOf": "2026-09-06",
   "generatedBy": "tooling/generate-catalog-v2.mjs",
   "evidence": [
     {
@@ -1133,6 +1133,17 @@
       "digest": "d0e76cea34145717ae8874a252b7d4468c43ef102cb9ddc3f2241c0960aa70d5"
     },
     {
+      "id": "reevaluation-authority-2026-09-06",
+      "officialUrl": "https://github.com/Cratis/Workflows/issues/68#issuecomment-5363284054",
+      "sourceKind": "local-evidence-report",
+      "verifiedOn": "2026-09-06",
+      "expiresOn": "2026-12-05",
+      "applicableVersion": "authority-reobservation-2026-09-06",
+      "confidence": "medium",
+      "repositoryPath": "distribution/evidence/authority-reobservation-2026-09-06.json",
+      "digest": "83635d802a9179c921fa803987f4b447ceb921c3778db7601864c8875d530f50"
+    },
+    {
       "id": "replit-agent-source-1",
       "officialUrl": "https://docs.replit.com/learn/agent-skills",
       "sourceKind": "official-documentation",
@@ -1551,6 +1562,17 @@
       "expiresOn": "2026-09-19",
       "applicableVersion": "issue-state-2026-08-20",
       "confidence": "high"
+    },
+    {
+      "id": "workflows-68-2026-09-06",
+      "officialUrl": "https://github.com/Cratis/Workflows/issues/68",
+      "sourceKind": "local-evidence-report",
+      "verifiedOn": "2026-09-06",
+      "expiresOn": "2026-12-05",
+      "applicableVersion": "issue-state-2026-09-06",
+      "confidence": "high",
+      "repositoryPath": "distribution/evidence/authority-reobservation-2026-09-06.json",
+      "digest": "83635d802a9179c921fa803987f4b447ceb921c3778db7601864c8875d530f50"
     },
     {
       "id": "zed-skills-source-1",

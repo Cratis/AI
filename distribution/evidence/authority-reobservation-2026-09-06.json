@@ -1,0 +1,161 @@
+{
+  "schemaVersion": "1.0.0",
+  "reportId": "authority-reobservation-2026-09-06",
+  "observedOn": "2026-09-06",
+  "state": "AUTHORITY_REOBSERVATION_PASS",
+  "purpose": "Re-read the four GitHub authority issues the S0/S1 catalog recorded on 2026-08-20 and confirm the recorded authority is still in force, so the expiring workflows-68 and reevaluation-authority observations can be superseded without changing what they assert.",
+  "method": {
+    "access": "authenticated read-only GitHub API through the gh CLI",
+    "command": "gh issue view <number> --repo <owner>/<repo> --json body,comments,number,state,title,updatedAt,url",
+    "comparedAgainst": "Documentation/evidence/redesign-autonomous-execution-2026-08-20/authority/*.json",
+    "predicates": [
+      "the issue is still open",
+      "the issue body is byte-identical to the 2026-08-20 baseline snapshot",
+      "every comment in the 2026-08-20 baseline snapshot is still present with a byte-identical body",
+      "no comment added since the baseline retracts, narrows, or supersedes the recorded authority"
+    ]
+  },
+  "issues": [
+    {
+      "id": "cratis-workflows-68",
+      "repository": "Cratis/Workflows",
+      "number": 68,
+      "url": "https://github.com/Cratis/Workflows/issues/68",
+      "authorityRole": "organization-authority",
+      "baselineSnapshotPath": "Documentation/evidence/redesign-autonomous-execution-2026-08-20/authority/cratis-workflows-68.json",
+      "baselineSnapshotSha256": "aa00c39c672132d8ca3fac7af58915a070366b8a9a6979677f393ac7f7275c07",
+      "bodySha256": "fcd437ba4eb40adc815186739b1903cef846468612cb933d98670132dcff8af1",
+      "baselineState": "OPEN",
+      "observedState": "OPEN",
+      "baselineUpdatedAt": "2026-08-20T23:25:48Z",
+      "observedUpdatedAt": "2026-08-27T13:38:44Z",
+      "bodyByteIdenticalToBaseline": true,
+      "baselineCommentCount": 2,
+      "observedCommentCount": 22,
+      "baselineCommentsRetainedVerbatim": true,
+      "commentsAddedSinceBaseline": 20,
+      "authorityChangeSinceBaseline": "none"
+    },
+    {
+      "id": "cratis-dotgithub-24",
+      "repository": "Cratis/.github",
+      "number": 24,
+      "url": "https://github.com/Cratis/.github/issues/24",
+      "authorityRole": "organization-authority",
+      "baselineSnapshotPath": "Documentation/evidence/redesign-autonomous-execution-2026-08-20/authority/cratis-dotgithub-24.json",
+      "baselineSnapshotSha256": "642fbc68f31d91a5e1f8123d9cb7d5cfa4d8db8c56281c372c3dcda3a07a699b",
+      "bodySha256": "ed7684cc44b787a2273e20ee3f490da7d456f7ab7016672b6bf93d38f61a81d0",
+      "baselineState": "OPEN",
+      "observedState": "OPEN",
+      "baselineUpdatedAt": "2026-08-20T23:25:50Z",
+      "observedUpdatedAt": "2026-08-27T13:32:37Z",
+      "bodyByteIdenticalToBaseline": true,
+      "baselineCommentCount": 1,
+      "observedCommentCount": 2,
+      "baselineCommentsRetainedVerbatim": true,
+      "commentsAddedSinceBaseline": 1,
+      "authorityChangeSinceBaseline": "none"
+    },
+    {
+      "id": "cratis-ai-126",
+      "repository": "Cratis/AI",
+      "number": 126,
+      "url": "https://github.com/Cratis/AI/issues/126",
+      "authorityRole": "repository-authority",
+      "baselineSnapshotPath": "Documentation/evidence/redesign-autonomous-execution-2026-08-20/authority/cratis-ai-126.json",
+      "baselineSnapshotSha256": "3551d325bb753c0c79cd18134765843bbc0f3bb8bb6f2b448b48423bcd50b911",
+      "bodySha256": "a8b42241ffd45bc7e919f6fd2dc53a42698d4a4d34be732d3176a86bd04766fc",
+      "baselineState": "OPEN",
+      "observedState": "OPEN",
+      "baselineUpdatedAt": "2026-08-20T11:28:05Z",
+      "observedUpdatedAt": "2026-08-27T13:45:26Z",
+      "bodyByteIdenticalToBaseline": true,
+      "baselineCommentCount": 0,
+      "observedCommentCount": 22,
+      "baselineCommentsRetainedVerbatim": true,
+      "commentsAddedSinceBaseline": 22,
+      "authorityChangeSinceBaseline": "none"
+    },
+    {
+      "id": "cratis-ai-127",
+      "repository": "Cratis/AI",
+      "number": 127,
+      "url": "https://github.com/Cratis/AI/issues/127",
+      "authorityRole": "repository-authority",
+      "baselineSnapshotPath": "Documentation/evidence/redesign-autonomous-execution-2026-08-20/authority/cratis-ai-127.json",
+      "baselineSnapshotSha256": "bd5eb066d6ae264ea333df30c3aed71014705f656cf62b5cdb7e07721f983c3d",
+      "bodySha256": "cbcd869e6adffd57741d8508962c0c9baae206778b9457443345ef2fc91d3c4a",
+      "baselineState": "OPEN",
+      "observedState": "OPEN",
+      "baselineUpdatedAt": "2026-08-20T14:34:48Z",
+      "observedUpdatedAt": "2026-08-27T13:45:28Z",
+      "bodyByteIdenticalToBaseline": true,
+      "baselineCommentCount": 0,
+      "observedCommentCount": 2,
+      "baselineCommentsRetainedVerbatim": true,
+      "commentsAddedSinceBaseline": 2,
+      "authorityChangeSinceBaseline": "none"
+    }
+  ],
+  "authorityComments": [
+    {
+      "issue": "cratis-workflows-68",
+      "commentId": "IC_kwDORbufms8AAAABPz99-g",
+      "url": "https://github.com/Cratis/Workflows/issues/68#issuecomment-5356092922",
+      "author": "woksin",
+      "authorAssociation": "MEMBER",
+      "createdAt": "2026-08-20T12:48:00Z",
+      "bodySha256": "1e269c9a8b7dbf39f651af83cc5a8222a19c5517f5d068ca496196803415abf7",
+      "stillPresent": true,
+      "stillByteIdentical": true,
+      "records": "Landed propagation-control toolkit status; keeps the distribution model, canary, wrapper retirement, and freeze lifting open."
+    },
+    {
+      "issue": "cratis-workflows-68",
+      "commentId": "IC_kwDORbufms8AAAABP604Vg",
+      "url": "https://github.com/Cratis/Workflows/issues/68#issuecomment-5363284054",
+      "author": "woksin",
+      "authorAssociation": "MEMBER",
+      "createdAt": "2026-08-20T23:25:48Z",
+      "bodySha256": "801395436c9dc718562fbb07e51b3300154964c1d51f12a06c2247e53e0c24db",
+      "stillPresent": true,
+      "stillByteIdentical": true,
+      "records": "Accepted Option A+ direction and the standing maintainer authorization for autonomous execution of the redesign program that every generated agent-skill source record cites."
+    }
+  ],
+  "results": [
+    {
+      "gate": "all-four-authority-issues-still-open",
+      "status": "PASS"
+    },
+    {
+      "gate": "issue-bodies-byte-identical-to-baseline",
+      "status": "PASS"
+    },
+    {
+      "gate": "baseline-comments-retained-verbatim",
+      "status": "PASS"
+    },
+    {
+      "gate": "option-a-plus-autonomous-execution-authorization-intact",
+      "status": "PASS"
+    },
+    {
+      "gate": "no-authority-retraction-since-baseline",
+      "status": "PASS"
+    }
+  ],
+  "commentsAddedSinceBaseline": {
+    "total": 45,
+    "classification": [
+      "maintainer progress reports referencing merged Cratis/AI pull requests, which restate rather than reduce the recorded authority",
+      "automated acknowledgement comments from the cratis-direct bot, which assert nothing about authority"
+    ],
+    "retractionsOrNarrowings": 0
+  },
+  "limitations": [
+    "This is an authority re-observation only. It re-confirms that the previously recorded grants are still in force and unchanged; it establishes no new grant and changes nothing about what the superseded observations assert.",
+    "It carries no behavior, install, discovery, canary, release, or support assurance, and moves no host binding on the support ladder.",
+    "It is bound to the exact issue states listed here at the recorded timestamps; a later edit, retraction, or close of any listed issue invalidates it."
+  ]
+}
