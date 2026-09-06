@@ -272,6 +272,26 @@
       ]
     },
     {
+      "id": "cratis-governed-release-methodology",
+      "sourcePath": "skills/cratis-governed-release-methodology",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        "skills/cratis-governed-release-methodology/LICENSE",
+        "skills/cratis-governed-release-methodology/SKILL.md"
+      ],
+      "sourceRevision": "59f47a614bd2317ca379d99adfd8036b42d2e64e",
+      "contentDigest": "7cefb600826715cee05f59ec93f5ff3d9dcbf063e8b2b2ccdbb26560170899d5",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority",
+        "governed-release-methodology-source-59f47a6"
+      ]
+    },
+    {
       "id": "cratis-react-page",
       "sourcePath": ".ai/skills/cratis-react-page",
       "artifactType": "agent-skill-source",

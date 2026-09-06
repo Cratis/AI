@@ -713,6 +713,12 @@
       "digest": "d619e16b71976284c5812319a27abc612a92645d817e8a6d88aa27929c75ea9e"
     },
     {
+      "id": "source-governed-release-methodology-source-59f47a6",
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/59f47a614bd2317ca379d99adfd8036b42d2e64e/skills/cratis-governed-release-methodology",
+      "immutableRevision": "59f47a614bd2317ca379d99adfd8036b42d2e64e"
+    },
+    {
       "id": "source-chronicle-mcp-inspection-source-5997b28",
       "kind": "repository-snapshot",
       "locator": "https://github.com/Cratis/AI/tree/5997b28c142d9ee489841894e5d21730da5cb5a5/skills/cratis-chronicle-mcp-inspection",
@@ -7409,6 +7415,43 @@
         "officialUrl": "https://github.com/Cratis/AI/tree/914a84984f7a53663740b8ea1711871e0e294620",
         "sourceKind": "local-evidence-report",
         "applicableVersion": "0.0.0-fixture"
+      }
+    },
+    {
+      "id": "governed-release-methodology-source-59f47a6",
+      "sourceId": "source-governed-release-methodology-source-59f47a6",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "target",
+        "id": "cratis-governed-release-methodology",
+        "version": "59f47a614bd2317ca379d99adfd8036b42d2e64e"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "source-provenance",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Immutable provenance for the Cratis-authored, product- and language-independent release-engineering methodology source. This observation makes no release, publication, promotion, marketplace, installation, runtime, or support claim.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-09-06",
+      "validThrough": "2027-09-06",
+      "confidence": "high",
+      "limitations": [
+        "Provenance covers only the exact skill bytes at this revision. The guidance is advisory: it grants no release authority and no behavior, trigger, collision, or host evidence exists for it."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/59f47a614bd2317ca379d99adfd8036b42d2e64e/skills/cratis-governed-release-methodology",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "59f47a614bd2317ca379d99adfd8036b42d2e64e"
       }
     },
     {

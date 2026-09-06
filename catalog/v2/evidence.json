@@ -633,6 +633,16 @@
       "confidence": "high"
     },
     {
+      "id": "governed-release-methodology-source-59f47a6",
+      "officialUrl": "https://github.com/Cratis/AI/tree/59f47a614bd2317ca379d99adfd8036b42d2e64e/skills/cratis-governed-release-methodology",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-09-06",
+      "expiresOn": "2027-09-06",
+      "applicableVersion": "59f47a614bd2317ca379d99adfd8036b42d2e64e",
+      "confidence": "high",
+      "immutableRevision": "59f47a614bd2317ca379d99adfd8036b42d2e64e"
+    },
+    {
       "id": "grok-bot-plugins-source-1",
       "officialUrl": "https://agent-plugins.org/compatible-clients",
       "sourceKind": "official-documentation",

@@ -73,8 +73,8 @@ test("passive candidate assets package every currently safe target and account f
         });
         assertBlocked(publicManifest);
         assertBlocked(engineeringManifest);
-        assert.equal(publicManifest.targetIds.length, 34);
-        assert.equal(publicManifest.sourceSkills.length, 34);
+        assert.equal(publicManifest.targetIds.length, 35);
+        assert.equal(publicManifest.sourceSkills.length, 35);
         assert.equal(publicManifest.targetExclusions.length, 3);
         assert.equal(engineeringManifest.targetIds.length, 6);
         assert.equal(engineeringManifest.sourceSkills.length, 6);
@@ -82,7 +82,7 @@ test("passive candidate assets package every currently safe target and account f
         assert.equal(
             publicManifest.targetIds.length +
                 publicManifest.targetExclusions.length,
-            37,
+            38,
         );
         assert.equal(
             engineeringManifest.targetIds.length +
@@ -139,7 +139,7 @@ test("passive candidate assets package every currently safe target and account f
                 (item) => item.componentId,
             ),
         ].sort();
-        assert.equal(skillComponentIds.length, 49);
+        assert.equal(skillComponentIds.length, 50);
         assert.deepEqual(accountedSkillComponentIds, skillComponentIds);
         for (const manifest of [publicManifest, engineeringManifest]) {
             assert.equal(manifest.assets.length, passiveHarnesses.length);
@@ -157,10 +157,10 @@ test("passive candidate assets package every currently safe target and account f
                     "utf8",
                 ),
             );
-            assert.equal(coverage.componentCount, 145);
+            assert.equal(coverage.componentCount, 146);
             assert.equal(
                 coverage.byDisposition["skill-packaged-candidate"],
-                40,
+                41,
             );
             assert.equal(coverage.byDisposition["skill-blocked-candidate"], 5);
             assert.equal(
@@ -382,7 +382,7 @@ test("passive candidate workflow is manual read-only and short-lived", () => {
 
 test("candidate component coverage closes every modeled component kind", () => {
     const coverage = buildCandidateComponentCoverage();
-    assert.equal(coverage.componentCount, 145);
+    assert.equal(coverage.componentCount, 146);
     assert.deepEqual(coverage.byKind, {
         agent: 12,
         command: 18,
@@ -391,12 +391,12 @@ test("candidate component coverage closes every modeled component kind", () => {
         instruction: 1,
         prompt: 18,
         rule: 44,
-        skill: 49,
+        skill: 50,
     });
-    assert.equal(coverage.records.length, 145);
+    assert.equal(coverage.records.length, 146);
     assert.equal(
         new Set(coverage.records.map((record) => record.componentId)).size,
-        145,
+        146,
     );
     assert(
         coverage.records
