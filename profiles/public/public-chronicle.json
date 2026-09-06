@@ -9,6 +9,15 @@
     "csharp",
     "language-agnostic"
   ],
-  "state": "planned-source-migration",
-  "gapSummary": "Event modeling, projections, read models, reducers, reactors, metadata, migrations, tenancy, and operations have legacy sources; core client and compliance journeys remain gaps."
+  "state": "preview-source-candidate",
+  "availableTargets": [
+    "cratis-chronicle-event-modeling",
+    "cratis-chronicle-event-type-migration",
+    "cratis-chronicle-projection",
+    "cratis-chronicle-reactor",
+    "cratis-chronicle-read-model",
+    "cratis-chronicle-reducer",
+    "cratis-event-model-diagram"
+  ],
+  "gapSummary": "Event modeling, diagrams, read models, projections, reducers, reactors, and event type migrations are canonical source candidates verified against Chronicle 16.45.2. Event metadata, constraints, and client-specific journeys remain gaps."
 }

@@ -417,8 +417,17 @@
         "csharp",
         "language-agnostic"
       ],
-      "state": "planned-source-migration",
-      "gapSummary": "Event modeling, projections, read models, reducers, reactors, metadata, migrations, tenancy, and operations have legacy sources; core client and compliance journeys remain gaps."
+      "state": "preview-source-candidate",
+      "availableTargets": [
+        "cratis-chronicle-event-modeling",
+        "cratis-chronicle-event-type-migration",
+        "cratis-chronicle-projection",
+        "cratis-chronicle-reactor",
+        "cratis-chronicle-read-model",
+        "cratis-chronicle-reducer",
+        "cratis-event-model-diagram"
+      ],
+      "gapSummary": "Event modeling, diagrams, read models, projections, reducers, reactors, and event type migrations are canonical source candidates verified against Chronicle 16.45.2. Event metadata, constraints, and client-specific journeys remain gaps."
     },
     {
       "id": "public-chronicle-client-dotnet",
@@ -509,11 +518,14 @@
         "csharp",
         "language-agnostic"
       ],
-      "state": "content-gap",
+      "state": "preview-source-candidate",
+      "availableTargets": [
+        "cratis-chronicle-compliance"
+      ],
       "composes": [
         "public-chronicle"
       ],
-      "gapSummary": "Needs subjects, key lifecycle, erasure, retention, redaction, audit, and privacy guidance from authoritative Chronicle sources."
+      "gapSummary": "Personal data marking, subjects, erasure, redaction, and release are canonical source candidates. Retention scheduling, audit reporting, and key custody operations remain gaps."
     },
     {
       "id": "public-chronicle-mcp",
@@ -545,11 +557,14 @@
         "csharp",
         "language-agnostic"
       ],
-      "state": "planned-source-migration",
+      "state": "preview-source-candidate",
+      "availableTargets": [
+        "cratis-chronicle-multi-tenancy"
+      ],
       "composes": [
         "public-chronicle"
       ],
-      "gapSummary": "The namespace-based tenancy legacy source requires canonical authority, isolation, identity, and operational evidence."
+      "gapSummary": "Namespace isolation, resolution, and the code rules for a second tenant are a canonical source candidate. Tenant provisioning and cross-namespace migration operations remain gaps."
     },
     {
       "id": "public-chronicle-web-workbench",
@@ -561,11 +576,14 @@
       "languages": [
         "language-agnostic"
       ],
-      "state": "content-gap",
+      "state": "preview-source-candidate",
+      "availableTargets": [
+        "cratis-chronicle-web-workbench"
+      ],
       "composes": [
         "public-chronicle"
       ],
-      "gapSummary": "Needs browser-first events, observers, failed partitions, read models, projected state, evidence capture, redaction, and support escalation guidance."
+      "gapSummary": "Browser Workbench screens, mutating operations, and exposure decisions are a canonical source candidate. Evidence capture workflows and support escalation remain gaps."
     },
     {
       "id": "public-components",
@@ -598,8 +616,11 @@
       "languages": [
         "shell"
       ],
-      "state": "content-gap",
-      "gapSummary": "Needs setup, contexts, project generation, machine output, read-only inspection, and separately confirmed mutation workflows from Cratis/cli."
+      "state": "preview-source-candidate",
+      "availableTargets": [
+        "cratis-chronicle-cli-operations"
+      ],
+      "gapSummary": "Contexts, connection resolution, machine output, and read-only inspection are a canonical source candidate. Project generation and separately confirmed mutation workflows remain gaps."
     },
     {
       "id": "public-cratis-cli-terminal-workbench",
@@ -611,11 +632,14 @@
       "languages": [
         "shell"
       ],
-      "state": "content-gap",
+      "state": "preview-source-candidate",
+      "availableTargets": [
+        "cratis-cli-terminal-workbench"
+      ],
       "composes": [
         "public-cratis-cli"
       ],
-      "gapSummary": "Needs CLI-owned terminal Workbench discovery, navigation, read-only evidence capture, machine output, and separately confirmed recovery/administration guidance."
+      "gapSummary": "Terminal Workbench discovery, navigation, and read-only evidence capture are a canonical source candidate. Recovery and administration workflows remain gaps."
     },
     {
       "id": "public-fundamentals",
@@ -948,13 +972,17 @@
       "products": [
         "chronicle"
       ],
-      "state": "planned-source-migration",
+      "state": "preview-source-candidate",
       "distributionVisibility": "public",
       "confidentialContentAllowed": false,
       "privateOverlayExpected": true,
+      "availableTargets": [
+        "cratis-engineering-chronicle-kernel-tracing"
+      ],
       "composes": [
         "engineering-base"
-      ]
+      ],
+      "gapSummary": "Kernel tracing is a canonical source candidate. Kernel grain, storage, and observer contributor journeys remain gaps."
     },
     {
       "id": "engineering-chronicle-clients",

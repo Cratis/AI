@@ -2,12 +2,12 @@
   "schemaVersion": 2,
   "contractVersion": 1,
   "disclaimer": "Catalog inclusion, evaluation evidence, component modeling, planned projection, bundle generation, or publication does not grant runtime permission, emitted bytes, support, or approval.",
-  "inputDigest": "958fe419d8fa5181a8e7e542b7ecd905dddcfc3fcb26da7edb5b689b75560c62",
+  "inputDigest": "e6572cf7e6ccbac0fe54592291e49d079690d6a432e368d99f44eaa4dc9d44f9",
   "componentSummary": {
     "disclaimer": "Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.",
-    "total": 162,
+    "total": 175,
     "byKind": {
-      "skill": 66,
+      "skill": 79,
       "agent": 12,
       "subagent": 0,
       "command": 18,
@@ -21,17 +21,17 @@
       "static-asset": 0
     },
     "byTrust": {
-      "passive": 159,
+      "passive": 172,
       "executable": 3
     },
     "byAudience": {
-      "public": 41,
-      "cratis-engineering": 121,
+      "public": 44,
+      "cratis-engineering": 131,
       "repository-only": 0
     },
     "byLifecycle": {
-      "active": 145,
-      "legacy-retained": 17
+      "active": 148,
+      "legacy-retained": 27
     },
     "projections": {
       "total": 402,
@@ -172,12 +172,24 @@
         "cratis-arc-observable-query-http",
         "cratis-arc-query-paging",
         "cratis-arc-react-page",
+        "cratis-chronicle-cli-operations",
+        "cratis-chronicle-compliance",
+        "cratis-chronicle-event-modeling",
+        "cratis-chronicle-event-type-migration",
         "cratis-chronicle-mcp-inspection",
+        "cratis-chronicle-multi-tenancy",
+        "cratis-chronicle-projection",
+        "cratis-chronicle-reactor",
+        "cratis-chronicle-read-model",
+        "cratis-chronicle-reducer",
+        "cratis-chronicle-web-workbench",
+        "cratis-cli-terminal-workbench",
         "cratis-components-accessibility",
         "cratis-components-schema-editor",
         "cratis-components-stepper-command-dialog",
         "cratis-components-styling",
         "cratis-components-toolbar",
+        "cratis-event-model-diagram",
         "cratis-fundamentals-concept",
         "cratis-governed-release-methodology",
         "cratis-specifications-csharp",
@@ -219,11 +231,18 @@
         "cratis-arc-observable-query-http",
         "cratis-arc-query-paging",
         "cratis-arc-react-page",
+        "cratis-chronicle-event-modeling",
+        "cratis-chronicle-event-type-migration",
+        "cratis-chronicle-projection",
+        "cratis-chronicle-reactor",
+        "cratis-chronicle-read-model",
+        "cratis-chronicle-reducer",
         "cratis-components-accessibility",
         "cratis-components-schema-editor",
         "cratis-components-stepper-command-dialog",
         "cratis-components-styling",
         "cratis-components-toolbar",
+        "cratis-event-model-diagram",
         "cratis-fundamentals-concept",
         "cratis-specifications-csharp",
         "cratis-specifications-typescript"
@@ -292,6 +311,16 @@
       ],
       "directTargetIds": [],
       "targetIds": [
+        "cratis-chronicle-compliance",
+        "cratis-chronicle-event-modeling",
+        "cratis-chronicle-event-type-migration",
+        "cratis-chronicle-multi-tenancy",
+        "cratis-chronicle-projection",
+        "cratis-chronicle-reactor",
+        "cratis-chronicle-read-model",
+        "cratis-chronicle-reducer",
+        "cratis-chronicle-web-workbench",
+        "cratis-event-model-diagram",
         "cratis-fundamentals-concept",
         "cratis-specifications-csharp"
       ]
@@ -339,11 +368,21 @@
         "cratis-arc-observable-query-http",
         "cratis-arc-query-paging",
         "cratis-arc-react-page",
+        "cratis-chronicle-compliance",
+        "cratis-chronicle-event-modeling",
+        "cratis-chronicle-event-type-migration",
+        "cratis-chronicle-multi-tenancy",
+        "cratis-chronicle-projection",
+        "cratis-chronicle-reactor",
+        "cratis-chronicle-read-model",
+        "cratis-chronicle-reducer",
+        "cratis-chronicle-web-workbench",
         "cratis-components-accessibility",
         "cratis-components-schema-editor",
         "cratis-components-stepper-command-dialog",
         "cratis-components-styling",
         "cratis-components-toolbar",
+        "cratis-event-model-diagram",
         "cratis-fundamentals-concept",
         "cratis-specifications-csharp",
         "cratis-specifications-typescript"
@@ -389,11 +428,18 @@
         "cratis-arc-observable-query-http",
         "cratis-arc-query-paging",
         "cratis-arc-react-page",
+        "cratis-chronicle-event-modeling",
+        "cratis-chronicle-event-type-migration",
+        "cratis-chronicle-projection",
+        "cratis-chronicle-reactor",
+        "cratis-chronicle-read-model",
+        "cratis-chronicle-reducer",
         "cratis-components-accessibility",
         "cratis-components-schema-editor",
         "cratis-components-stepper-command-dialog",
         "cratis-components-styling",
         "cratis-components-toolbar",
+        "cratis-event-model-diagram",
         "cratis-fundamentals-concept",
         "cratis-specifications-csharp",
         "cratis-specifications-typescript"
@@ -430,6 +476,13 @@
         "cratis-arc-command-execution",
         "cratis-arc-observable-query-http",
         "cratis-arc-query-paging",
+        "cratis-chronicle-event-modeling",
+        "cratis-chronicle-event-type-migration",
+        "cratis-chronicle-projection",
+        "cratis-chronicle-reactor",
+        "cratis-chronicle-read-model",
+        "cratis-chronicle-reducer",
+        "cratis-event-model-diagram",
         "cratis-fundamentals-concept",
         "cratis-specifications-csharp"
       ]
@@ -493,6 +546,13 @@
       ],
       "directTargetIds": [],
       "targetIds": [
+        "cratis-chronicle-event-modeling",
+        "cratis-chronicle-event-type-migration",
+        "cratis-chronicle-projection",
+        "cratis-chronicle-reactor",
+        "cratis-chronicle-read-model",
+        "cratis-chronicle-reducer",
+        "cratis-event-model-diagram",
         "cratis-fundamentals-concept",
         "cratis-specifications-csharp"
       ]
@@ -684,9 +744,9 @@
       "intendedFor": "Developers who use Cratis Chronicle.",
       "audience": "public",
       "packageName": "@cratis/ai-chronicle",
-      "state": "planned-source-migration",
+      "state": "preview-source-candidate",
       "installable": false,
-      "materialization": "catalog-only",
+      "materialization": "candidate-package",
       "products": [
         "chronicle"
       ],
@@ -696,8 +756,24 @@
       ],
       "repositoryKinds": [],
       "composes": [],
-      "directTargetIds": [],
-      "targetIds": []
+      "directTargetIds": [
+        "cratis-chronicle-event-modeling",
+        "cratis-chronicle-event-type-migration",
+        "cratis-chronicle-projection",
+        "cratis-chronicle-reactor",
+        "cratis-chronicle-read-model",
+        "cratis-chronicle-reducer",
+        "cratis-event-model-diagram"
+      ],
+      "targetIds": [
+        "cratis-chronicle-event-modeling",
+        "cratis-chronicle-event-type-migration",
+        "cratis-chronicle-projection",
+        "cratis-chronicle-reactor",
+        "cratis-chronicle-read-model",
+        "cratis-chronicle-reducer",
+        "cratis-event-model-diagram"
+      ]
     },
     {
       "id": "public-chronicle-client-dotnet",
@@ -832,9 +908,9 @@
       "intendedFor": "Developers who use Cratis Chronicle.",
       "audience": "public",
       "packageName": "@cratis/ai-chronicle-compliance",
-      "state": "content-gap",
+      "state": "preview-source-candidate",
       "installable": false,
-      "materialization": "catalog-only",
+      "materialization": "candidate-package",
       "products": [
         "chronicle"
       ],
@@ -846,8 +922,19 @@
       "composes": [
         "public-chronicle"
       ],
-      "directTargetIds": [],
-      "targetIds": []
+      "directTargetIds": [
+        "cratis-chronicle-compliance"
+      ],
+      "targetIds": [
+        "cratis-chronicle-compliance",
+        "cratis-chronicle-event-modeling",
+        "cratis-chronicle-event-type-migration",
+        "cratis-chronicle-projection",
+        "cratis-chronicle-reactor",
+        "cratis-chronicle-read-model",
+        "cratis-chronicle-reducer",
+        "cratis-event-model-diagram"
+      ]
     },
     {
       "id": "public-chronicle-mcp",
@@ -881,9 +968,9 @@
       "intendedFor": "Developers who use Cratis Chronicle.",
       "audience": "public",
       "packageName": "@cratis/ai-chronicle-multi-tenancy",
-      "state": "planned-source-migration",
+      "state": "preview-source-candidate",
       "installable": false,
-      "materialization": "catalog-only",
+      "materialization": "candidate-package",
       "products": [
         "chronicle"
       ],
@@ -895,8 +982,19 @@
       "composes": [
         "public-chronicle"
       ],
-      "directTargetIds": [],
-      "targetIds": []
+      "directTargetIds": [
+        "cratis-chronicle-multi-tenancy"
+      ],
+      "targetIds": [
+        "cratis-chronicle-event-modeling",
+        "cratis-chronicle-event-type-migration",
+        "cratis-chronicle-multi-tenancy",
+        "cratis-chronicle-projection",
+        "cratis-chronicle-reactor",
+        "cratis-chronicle-read-model",
+        "cratis-chronicle-reducer",
+        "cratis-event-model-diagram"
+      ]
     },
     {
       "id": "public-chronicle-web-workbench",
@@ -905,9 +1003,9 @@
       "intendedFor": "Developers who use Cratis Chronicle.",
       "audience": "public",
       "packageName": "@cratis/ai-chronicle-web-workbench",
-      "state": "content-gap",
+      "state": "preview-source-candidate",
       "installable": false,
-      "materialization": "catalog-only",
+      "materialization": "candidate-package",
       "products": [
         "chronicle"
       ],
@@ -918,8 +1016,19 @@
       "composes": [
         "public-chronicle"
       ],
-      "directTargetIds": [],
-      "targetIds": []
+      "directTargetIds": [
+        "cratis-chronicle-web-workbench"
+      ],
+      "targetIds": [
+        "cratis-chronicle-event-modeling",
+        "cratis-chronicle-event-type-migration",
+        "cratis-chronicle-projection",
+        "cratis-chronicle-reactor",
+        "cratis-chronicle-read-model",
+        "cratis-chronicle-reducer",
+        "cratis-chronicle-web-workbench",
+        "cratis-event-model-diagram"
+      ]
     },
     {
       "id": "public-components",
@@ -962,9 +1071,9 @@
       "intendedFor": "Developers who use the Cratis CLI.",
       "audience": "public",
       "packageName": "@cratis/ai-cli",
-      "state": "content-gap",
+      "state": "preview-source-candidate",
       "installable": false,
-      "materialization": "catalog-only",
+      "materialization": "candidate-package",
       "products": [
         "cli"
       ],
@@ -973,8 +1082,12 @@
       ],
       "repositoryKinds": [],
       "composes": [],
-      "directTargetIds": [],
-      "targetIds": []
+      "directTargetIds": [
+        "cratis-chronicle-cli-operations"
+      ],
+      "targetIds": [
+        "cratis-chronicle-cli-operations"
+      ]
     },
     {
       "id": "public-cratis-cli-terminal-workbench",
@@ -983,9 +1096,9 @@
       "intendedFor": "Developers who use the Cratis CLI.",
       "audience": "public",
       "packageName": "@cratis/ai-cli-workbench",
-      "state": "content-gap",
+      "state": "preview-source-candidate",
       "installable": false,
-      "materialization": "catalog-only",
+      "materialization": "candidate-package",
       "products": [
         "cli"
       ],
@@ -996,8 +1109,13 @@
       "composes": [
         "public-cratis-cli"
       ],
-      "directTargetIds": [],
-      "targetIds": []
+      "directTargetIds": [
+        "cratis-cli-terminal-workbench"
+      ],
+      "targetIds": [
+        "cratis-chronicle-cli-operations",
+        "cratis-cli-terminal-workbench"
+      ]
     },
     {
       "id": "public-fundamentals",
@@ -1480,9 +1598,9 @@
       "intendedFor": "Cratis maintainers contributing to Cratis Chronicle in framework projects.",
       "audience": "cratis-engineering",
       "packageName": "@cratis/ai-engineering-chronicle",
-      "state": "planned-source-migration",
+      "state": "preview-source-candidate",
       "installable": false,
-      "materialization": "catalog-only",
+      "materialization": "candidate-package",
       "products": [
         "chronicle"
       ],
@@ -1493,8 +1611,11 @@
       "composes": [
         "engineering-base"
       ],
-      "directTargetIds": [],
+      "directTargetIds": [
+        "cratis-engineering-chronicle-kernel-tracing"
+      ],
       "targetIds": [
+        "cratis-engineering-chronicle-kernel-tracing",
         "cratis-engineering-csharp-conventions"
       ]
     },
@@ -2805,7 +2926,75 @@
         "cratis-arc-observable-query-http"
       ],
       "bundleIds": [],
-      "profileIds": []
+      "profileIds": [
+        "cratis",
+        "public-cratis-cli",
+        "public-cratis-cli-terminal-workbench"
+      ]
+    },
+    {
+      "id": "cratis-chronicle-compliance",
+      "semanticName": "cratis-chronicle-compliance",
+      "audience": "public",
+      "purpose": "Chronicle compliance and personal data",
+      "whenToUse": "Use when an event or read model carries personal data, when a compliance subject must be decided, or when a right-to-erasure request must be executed.",
+      "whenNotToUse": [
+        "Do not use for authentication or authorization.",
+        "Do not use for generic secret handling."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-chronicle-event-modeling",
+        "cratis-fundamentals-concept"
+      ],
+      "bundleIds": [],
+      "profileIds": [
+        "cratis",
+        "cratis/chronicle",
+        "cratis/full",
+        "public-chronicle-compliance"
+      ]
     },
     {
       "id": "cratis-chronicle-event-constraints",
@@ -2991,7 +3180,19 @@
       "bundleIds": [
         "cratis-core-review"
       ],
-      "profileIds": []
+      "profileIds": [
+        "cratis",
+        "cratis/application",
+        "cratis/chronicle",
+        "cratis/full",
+        "public-application",
+        "public-application-arc-chronicle",
+        "public-application-chronicle-dotnet",
+        "public-chronicle",
+        "public-chronicle-compliance",
+        "public-chronicle-multi-tenancy",
+        "public-chronicle-web-workbench"
+      ]
     },
     {
       "id": "cratis-chronicle-event-specifications",
@@ -3114,7 +3315,19 @@
       "bundleIds": [
         "cratis-chronicle-dotnet-review"
       ],
-      "profileIds": []
+      "profileIds": [
+        "cratis",
+        "cratis/application",
+        "cratis/chronicle",
+        "cratis/full",
+        "public-application",
+        "public-application-arc-chronicle",
+        "public-application-chronicle-dotnet",
+        "public-chronicle",
+        "public-chronicle-compliance",
+        "public-chronicle-multi-tenancy",
+        "public-chronicle-web-workbench"
+      ]
     },
     {
       "id": "cratis-chronicle-mcp-inspection",
@@ -3238,7 +3451,12 @@
       "bundleIds": [
         "cratis-chronicle-dotnet-review"
       ],
-      "profileIds": []
+      "profileIds": [
+        "cratis",
+        "cratis/chronicle",
+        "cratis/full",
+        "public-chronicle-multi-tenancy"
+      ]
     },
     {
       "id": "cratis-chronicle-projection",
@@ -3301,7 +3519,19 @@
       "bundleIds": [
         "cratis-chronicle-dotnet-review"
       ],
-      "profileIds": []
+      "profileIds": [
+        "cratis",
+        "cratis/application",
+        "cratis/chronicle",
+        "cratis/full",
+        "public-application",
+        "public-application-arc-chronicle",
+        "public-application-chronicle-dotnet",
+        "public-chronicle",
+        "public-chronicle-compliance",
+        "public-chronicle-multi-tenancy",
+        "public-chronicle-web-workbench"
+      ]
     },
     {
       "id": "cratis-chronicle-reactor",
@@ -3364,7 +3594,19 @@
       "bundleIds": [
         "cratis-chronicle-dotnet-review"
       ],
-      "profileIds": []
+      "profileIds": [
+        "cratis",
+        "cratis/application",
+        "cratis/chronicle",
+        "cratis/full",
+        "public-application",
+        "public-application-arc-chronicle",
+        "public-application-chronicle-dotnet",
+        "public-chronicle",
+        "public-chronicle-compliance",
+        "public-chronicle-multi-tenancy",
+        "public-chronicle-web-workbench"
+      ]
     },
     {
       "id": "cratis-chronicle-read-model",
@@ -3429,7 +3671,19 @@
       "bundleIds": [
         "cratis-chronicle-dotnet-review"
       ],
-      "profileIds": []
+      "profileIds": [
+        "cratis",
+        "cratis/application",
+        "cratis/chronicle",
+        "cratis/full",
+        "public-application",
+        "public-application-arc-chronicle",
+        "public-application-chronicle-dotnet",
+        "public-chronicle",
+        "public-chronicle-compliance",
+        "public-chronicle-multi-tenancy",
+        "public-chronicle-web-workbench"
+      ]
     },
     {
       "id": "cratis-chronicle-read-model-specifications",
@@ -3556,7 +3810,146 @@
       "bundleIds": [
         "cratis-chronicle-dotnet-review"
       ],
-      "profileIds": []
+      "profileIds": [
+        "cratis",
+        "cratis/application",
+        "cratis/chronicle",
+        "cratis/full",
+        "public-application",
+        "public-application-arc-chronicle",
+        "public-application-chronicle-dotnet",
+        "public-chronicle",
+        "public-chronicle-compliance",
+        "public-chronicle-multi-tenancy",
+        "public-chronicle-web-workbench"
+      ]
+    },
+    {
+      "id": "cratis-chronicle-web-workbench",
+      "semanticName": "cratis-chronicle-web-workbench",
+      "audience": "public",
+      "purpose": "Chronicle browser Workbench",
+      "whenToUse": "Use when inspecting or operating a running Chronicle store through the browser Workbench, or deciding whether to expose it.",
+      "whenNotToUse": [
+        "Do not use for application source changes.",
+        "Do not use for the CLI terminal Workbench."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-chronicle-cli-operations",
+        "cratis-cli-terminal-workbench"
+      ],
+      "bundleIds": [],
+      "profileIds": [
+        "cratis",
+        "cratis/chronicle",
+        "cratis/full",
+        "public-chronicle-web-workbench"
+      ]
+    },
+    {
+      "id": "cratis-cli-terminal-workbench",
+      "semanticName": "cratis-cli-terminal-workbench",
+      "audience": "public",
+      "purpose": "Cratis CLI terminal Workbench",
+      "whenToUse": "Use when exploring a running Chronicle store interactively in the terminal rather than answering one question with a single command.",
+      "whenNotToUse": [
+        "Do not use for scripted or machine-readable inspection.",
+        "Do not use for the browser Workbench."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "chronicle",
+        "cli"
+      ],
+      "languages": [
+        "shell"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-chronicle-cli-operations",
+        "cratis-chronicle-web-workbench"
+      ],
+      "bundleIds": [],
+      "profileIds": [
+        "cratis",
+        "public-cratis-cli-terminal-workbench"
+      ]
     },
     {
       "id": "cratis-code-review",
@@ -4016,7 +4409,19 @@
         "cratis-chronicle-event-modeling"
       ],
       "bundleIds": [],
-      "profileIds": []
+      "profileIds": [
+        "cratis",
+        "cratis/application",
+        "cratis/chronicle",
+        "cratis/full",
+        "public-application",
+        "public-application-arc-chronicle",
+        "public-application-chronicle-dotnet",
+        "public-chronicle",
+        "public-chronicle-compliance",
+        "public-chronicle-multi-tenancy",
+        "public-chronicle-web-workbench"
+      ]
     },
     {
       "id": "cratis-fundamentals-concept",
@@ -4768,7 +5173,9 @@
       "bundleIds": [
         "cratis-engineering-review"
       ],
-      "profileIds": []
+      "profileIds": [
+        "engineering-chronicle"
+      ]
     },
     {
       "id": "cratis-engineering-csharp-conventions",

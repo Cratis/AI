@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "a7dec882a3de18a655853b3a7cc9abb9ecfaec9b789bb36606c8146aaf794ff3",
+  "indexDigest": "b35c070045357f8b88ab0ab186d7530d06eb86b020d7f25dfab4e590485fb408",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -1132,6 +1132,14 @@
     },
     {
       "path": "distribution/update-bot-contract.json",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-chronicle-kernel-tracing/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-chronicle-kernel-tracing/SKILL.md",
       "status": "added"
     },
     {
@@ -2903,6 +2911,38 @@
       "status": "added"
     },
     {
+      "path": "skills/cratis-chronicle-cli-operations/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-cli-operations/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-compliance/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-compliance/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-event-modeling/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-event-modeling/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-event-type-migration/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-event-type-migration/SKILL.md",
+      "status": "added"
+    },
+    {
       "path": "skills/cratis-chronicle-mcp-inspection/LICENSE",
       "status": "added"
     },
@@ -2916,6 +2956,74 @@
     },
     {
       "path": "skills/cratis-chronicle-mcp-inspection/references/observational-tools.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-multi-tenancy/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-multi-tenancy/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-projection/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-projection/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-projection/references/fluent-builder.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-projection/references/model-bound-attributes.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-reactor/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-reactor/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-read-model/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-read-model/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-read-model/references/queries.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-reducer/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-reducer/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-web-workbench/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-web-workbench/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-cli-terminal-workbench/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-cli-terminal-workbench/SKILL.md",
       "status": "added"
     },
     {
@@ -2956,6 +3064,14 @@
     },
     {
       "path": "skills/cratis-components-toolbar/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-event-model-diagram/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-event-model-diagram/SKILL.md",
       "status": "added"
     },
     {
@@ -4055,31 +4171,34 @@
         ".ai/skills/add-business-rule/**",
         "skills/cratis-fundamentals-concept/**",
         "skills/cratis-arc-ef-core-migration/**",
-        ".ai/skills/add-projection/**",
-        ".ai/skills/add-reactor/**",
-        ".ai/skills/add-reducer/**",
+        "skills/cratis-chronicle-projection/**",
+        "skills/cratis-chronicle-reactor/**",
+        "skills/cratis-chronicle-reducer/**",
         "skills/cratis-arc-authentication-authorization-and-identity/**",
         "skills/cratis-arc-command-execution/**",
+        "skills/cratis-chronicle-compliance/**",
         "skills/cratis-chronicle-mcp-inspection/**",
+        "skills/cratis-chronicle-web-workbench/**",
+        "skills/cratis-cli-terminal-workbench/**",
         "skills/cratis-arc-command/**",
         "skills/cratis-components-accessibility/**",
         "skills/cratis-components-schema-editor/**",
         "skills/cratis-components-styling/**",
         "skills/cratis-governed-release-methodology/**",
         "skills/cratis-arc-react-page/**",
-        ".ai/skills/cratis-readmodel/**",
+        "skills/cratis-chronicle-read-model/**",
         "skills/cratis-specifications-csharp/**",
         "skills/cratis-specifications-typescript/**",
         "skills/cratis-studio-mcp-safety-guidance/**",
         ".ai/skills/cratis-vertical-slice/**",
-        ".ai/skills/create-event-model/**",
+        "skills/cratis-event-model-diagram/**",
         ".ai/skills/cross-cutting-properties/**",
         ".ai/skills/diagnose-slice/**",
         ".ai/skills/discover-implementations/**",
-        ".ai/skills/event-modeling/**",
-        ".ai/skills/event-type-migrations/**",
-        ".ai/skills/inspect-running-chronicle/**",
-        ".ai/skills/multi-tenancy/**",
+        "skills/cratis-chronicle-event-modeling/**",
+        "skills/cratis-chronicle-event-type-migration/**",
+        "skills/cratis-chronicle-cli-operations/**",
+        "skills/cratis-chronicle-multi-tenancy/**",
         ".ai/skills/new-vertical-slice/**",
         "skills/cratis-arc-observable-query-http/**",
         "skills/cratis-arc-query-paging/**",
@@ -4095,12 +4214,21 @@
         ".ai/skills/write-specs-readmodels/**",
         ".ai/skills/add-concept/**",
         ".ai/skills/add-ef-migration/**",
+        ".ai/skills/add-projection/**",
+        ".ai/skills/add-reactor/**",
+        ".ai/skills/add-reducer/**",
         ".ai/skills/auth-and-identity/**",
         ".ai/skills/call-command-from-code/**",
         ".ai/skills/cratis-command/**",
         ".ai/skills/cratis-react-page/**",
+        ".ai/skills/cratis-readmodel/**",
         ".ai/skills/cratis-specs-csharp/**",
         ".ai/skills/cratis-specs-typescript/**",
+        ".ai/skills/create-event-model/**",
+        ".ai/skills/event-modeling/**",
+        ".ai/skills/event-type-migrations/**",
+        ".ai/skills/inspect-running-chronicle/**",
+        ".ai/skills/multi-tenancy/**",
         ".ai/skills/observable-query-curl/**",
         ".ai/skills/query-paging/**",
         ".ai/skills/stepper-command-dialog/**",
@@ -4124,8 +4252,8 @@
         "workflows-68",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 118,
-      "expectedPathsDigest": "2c238d2c79c64060be2cc87c8b75f8ae6f6a6ccce28087c45ba81605a360b8af"
+      "expectedPathCount": 145,
+      "expectedPathsDigest": "d138fb87b9eaa76712b93ca2e154c8434297a5e5a3cb82c929e3388b917a7a60"
     },
     {
       "excludePathPatterns": [],
@@ -4222,8 +4350,8 @@
         "option-a-plus-authority",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 14,
-      "expectedPathsDigest": "97dfe37bc4e3b800dfe7f84bdf8e100f06147e9906e6a3b828b964e8493ceaf6"
+      "expectedPathCount": 16,
+      "expectedPathsDigest": "60fa65b3eddbd8cd1ed992a9f0d7aa36ee18d97308edffde1b98056b82805c91"
     },
     {
       "excludePathPatterns": [],

@@ -8,11 +8,15 @@
   "products": [
     "chronicle"
   ],
-  "state": "planned-source-migration",
+  "state": "preview-source-candidate",
   "distributionVisibility": "public",
   "confidentialContentAllowed": false,
   "privateOverlayExpected": true,
+  "availableTargets": [
+    "cratis-engineering-chronicle-kernel-tracing"
+  ],
   "composes": [
     "engineering-base"
-  ]
+  ],
+  "gapSummary": "Kernel tracing is a canonical source candidate. Kernel grain, storage, and observer contributor journeys remain gaps."
 }

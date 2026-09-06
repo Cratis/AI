@@ -70,6 +70,10 @@
       "reason": "live-external-destructive-effects-not-admitted"
     },
     {
+      "targetId": "cratis-chronicle-compliance",
+      "reason": "effect-assessment-required"
+    },
+    {
       "targetId": "cratis-chronicle-event-type-migration",
       "reason": "effect-assessment-required"
     },
@@ -79,6 +83,14 @@
     },
     {
       "targetId": "cratis-chronicle-reactor",
+      "reason": "effect-assessment-required"
+    },
+    {
+      "targetId": "cratis-chronicle-web-workbench",
+      "reason": "effect-assessment-required"
+    },
+    {
+      "targetId": "cratis-cli-terminal-workbench",
       "reason": "effect-assessment-required"
     },
     {
