@@ -5,6 +5,7 @@ import { createHash } from "node:crypto";
 import { join } from "node:path";
 import { compareOrdinal } from "./catalog-ordering.mjs";
 import {
+    anchorMismatch,
     defaultRepositoryRoot,
     readCatalog,
     validateAgainstSchema,
@@ -629,7 +630,12 @@ export function validateHostAdapters(catalogs) {
         .digest("hex");
     if (hostAdapterAnchor !== expectedHostAdapterAnchor)
         errors.push(
-            "host adapter semantic contract differs from the independently reviewed anchor",
+            anchorMismatch(
+                "host adapter semantic contract",
+                expectedHostAdapterAnchor,
+                hostAdapterAnchor,
+                "expectedHostAdapterAnchor in tooling/ecosystem-artifact-validation.mjs",
+            ),
         );
     const contractsById = new Map(
         catalogs.ecosystemContracts.ecosystems.map((record) => [

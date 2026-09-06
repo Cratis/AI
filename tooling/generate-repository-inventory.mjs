@@ -775,6 +775,7 @@ const inventoryDefinitions = () => [
     {
         id: "capability-model-documentation",
         sourcePathPatterns: [
+            "Documentation/adding-a-component.md",
             "Documentation/capability-catalog-v2.md",
             "Documentation/chronicle-mcp-guidance.md",
             "Documentation/ecosystem-support-architecture-review.md",
@@ -805,6 +806,8 @@ const inventoryDefinitions = () => [
             "distribution/real-host-canary-matrix.json",
             "distribution/real-host-canary-report.schema.json",
             "tooling/native-non-skill-projections.mjs",
+            "tooling/component-inventory-counts.mjs",
+            "distribution/candidate-component-coverage.seals.json",
             "distribution/s10-release-policy.json",
             "tooling/real-host-canary-contract.mjs",
             "tooling/s10-release-gate-validation.mjs",

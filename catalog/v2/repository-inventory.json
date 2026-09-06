@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "38ce60c0e1dabafe9dc560e5c9f1e1f58475f5e3b44c575347b638aa0f4de07e",
+  "indexDigest": "e51ef4845b8853cf3321ec932f7d5f333701a1fa1e78798090a95f908f2fc0bf",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -56,6 +56,18 @@
     },
     {
       "path": ".ai/hooks/scripts/validate-ai-setup.sh",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/hooks/scripts/validate-package-imports.sh",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/hooks/scripts/validate-package-subpaths.sh",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/hooks/scripts/validate-type-references.sh",
       "status": "modified"
     },
     {
@@ -128,6 +140,10 @@
     },
     {
       "path": ".ai/rules/pull-requests.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/rules/reactors.md",
       "status": "modified"
     },
     {
@@ -388,6 +404,10 @@
     },
     {
       "path": "Documentation/.markdownlint.json",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/adding-a-component.md",
       "status": "added"
     },
     {
@@ -904,6 +924,10 @@
     },
     {
       "path": "distribution/candidate-component-coverage.schema.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/candidate-component-coverage.seals.json",
       "status": "added"
     },
     {
@@ -3287,6 +3311,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/component-inventory-counts.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/deterministic-release-tree.mjs",
       "status": "added"
     },
@@ -3752,6 +3780,10 @@
     },
     {
       "path": "tooling/specs/component-catalog.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/component-inventory-counts.spec.mjs",
       "status": "added"
     },
     {
@@ -4889,6 +4921,7 @@
       "excludePathPatterns": [],
       "id": "capability-model-documentation",
       "sourcePathPatterns": [
+        "Documentation/adding-a-component.md",
         "Documentation/capability-catalog-v2.md",
         "Documentation/chronicle-mcp-guidance.md",
         "Documentation/ecosystem-support-architecture-review.md",
@@ -4919,6 +4952,8 @@
         "distribution/real-host-canary-matrix.json",
         "distribution/real-host-canary-report.schema.json",
         "tooling/native-non-skill-projections.mjs",
+        "tooling/component-inventory-counts.mjs",
+        "distribution/candidate-component-coverage.seals.json",
         "distribution/s10-release-policy.json",
         "tooling/real-host-canary-contract.mjs",
         "tooling/s10-release-gate-validation.mjs"
@@ -4928,8 +4963,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 10,
-      "expectedPathsDigest": "ef3ede2947ed73f3c012dad11b926002ea27f28a2a1260eb8e2ac5d254fe04b2"
+      "expectedPathCount": 11,
+      "expectedPathsDigest": "b952ff83014b3c234b194886b85569d8784ed0b89fcf33b1a028db12b67c52e9"
     },
     {
       "excludePathPatterns": [],
@@ -5481,8 +5516,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 71,
-      "expectedPathsDigest": "627d1e2fe9226354210f482ebad786207bbc2f29bfe09e73f654149b023d3446"
+      "expectedPathCount": 72,
+      "expectedPathsDigest": "18cdafb3fbf3674fcfa02aa87a789d316520bba5ada4ebabfe23836d72988aff"
     },
     {
       "excludePathPatterns": [],
@@ -5611,8 +5646,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 82,
-      "expectedPathsDigest": "f129db247e616a11badf37c595c5ee626b8991cb6a1b236d005a3b6795f25c7b"
+      "expectedPathCount": 83,
+      "expectedPathsDigest": "8a8b99f7d8c272bd452b1cceed71eff380b1a539b0a7aac3e2703383514f15c9"
     },
     {
       "excludePathPatterns": [],
@@ -5665,8 +5700,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 68,
-      "expectedPathsDigest": "15a1e964dc9013f98abe8c6ea01fe88b82144811709cf0b3a533b1cbb7531d86"
+      "expectedPathCount": 69,
+      "expectedPathsDigest": "bbbce8b777c43729581f7e825f210cf0ea719ed9e87c9cd2033dd7def26444b7"
     },
     {
       "excludePathPatterns": [],

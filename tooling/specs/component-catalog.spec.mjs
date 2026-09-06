@@ -29,6 +29,7 @@ import {
     validateAgainstSchema,
 } from "../catalog-validation.mjs";
 import { validateArtifacts } from "../catalog-v2-validation.mjs";
+import { readComponentInventorySeals } from "../component-inventory-counts.mjs";
 
 function clone(value) {
     return structuredClone(value);
@@ -167,14 +168,12 @@ test("catalog records all kinds and honestly declares MCP and LSP empty", () => 
                 .length,
         ]),
     );
-    assert.equal(counts.skill, 88);
-    assert.equal(counts.agent, 12);
-    assert.equal(counts.command, 18);
-    assert.equal(counts.prompt, 18);
-    assert.equal(counts.rule, 44);
-    assert.equal(counts.instruction, 1);
-    assert.equal(counts.hook, 1);
-    assert.equal(counts["executable-host-extension"], 2);
+    // The authored v1 catalog is checked against the one reviewed seal rather than against a
+    // second copy of the same eight numbers, which is what made this file conflict with every
+    // sibling migration.
+    const seals = readComponentInventorySeals();
+    for (const [kind, expected] of Object.entries(seals.byKind))
+        assert.equal(counts[kind], expected, kind);
     assert.equal(counts.mcp, 0);
     assert.equal(counts.lsp, 0);
     assert(components.declaredEmptyKinds.includes("mcp"));
@@ -1038,6 +1037,91 @@ test("executable and passive components cannot share a package identity", () => 
     assert(
         projectionErrors(catalogs).some((error) =>
             error.includes("cannot share package identity"),
+        ),
+    );
+});
+
+// Evidence is append-only, so renewing an observation appends a replacement naming it in
+// `supersedes` while the replaced record stays in the catalog forever with an `expiresOn` that
+// keeps receding into the past. The citation checks therefore have to read expiry through the
+// supersession chain, exactly as `validateEvidenceAndCoverage` does for the flat expiry gate —
+// otherwise every renewal would break every component and host that cites the renewed record.
+// `jetbrains-ai-assistant-source-1` is one of the seven observations expiring in November 2026
+// and is cited from both sides of the projection catalog: the host record and 34 projections.
+const renewableEvidenceId = "jetbrains-ai-assistant-source-1";
+
+function daysFromAsOf(catalogs, days) {
+    const date = new Date(`${catalogs.evidence.asOf}T00:00:00Z`);
+    date.setUTCDate(date.getUTCDate() + days);
+    return date.toISOString().slice(0, 10);
+}
+
+function evidenceRenewal(record, id, verifiedOn, expiresOn) {
+    return {
+        ...clone(record),
+        id,
+        verifiedOn,
+        expiresOn,
+        supersedes: [record.id],
+    };
+}
+
+test("a cited observation stops gating once a live renewal supersedes it", () => {
+    const catalogs = load();
+    const cited = catalogs.evidence.evidence.find(
+        (record) => record.id === renewableEvidenceId,
+    );
+    assert(cited, `${renewableEvidenceId} is no longer in the evidence catalog`);
+    assert(
+        catalogs.projections.hosts.some((host) =>
+            host.evidenceIds.includes(renewableEvidenceId),
+        ),
+        `${renewableEvidenceId} is no longer cited by a host`,
+    );
+    assert(
+        catalogs.projections.projections.some((projection) =>
+            projection.evidenceIds.includes(renewableEvidenceId),
+        ),
+        `${renewableEvidenceId} is no longer cited by a projection`,
+    );
+    assert.deepEqual(projectionErrors(catalogs), []);
+
+    // The gate still bites: an expired citation with no replacement fails from both sides.
+    cited.expiresOn = daysFromAsOf(catalogs, -1);
+    const expired = projectionErrors(catalogs);
+    assert(
+        expired.some((error) =>
+            error.includes(`expired host evidence ${renewableEvidenceId}`),
+        ),
+    );
+    assert(
+        expired.some((error) =>
+            error.includes(`expired projection evidence ${renewableEvidenceId}`),
+        ),
+    );
+
+    // Recording the renewal — without repointing a single citation — clears both.
+    const renewal = evidenceRenewal(
+        cited,
+        `${renewableEvidenceId}-renewal`,
+        daysFromAsOf(catalogs, -1),
+        daysFromAsOf(catalogs, 90),
+    );
+    catalogs.evidence.evidence.push(renewal);
+    assert.deepEqual(projectionErrors(catalogs), []);
+
+    // And a renewal chain that has itself lapsed gates again, so supersession never becomes a
+    // permanent exemption from expiry.
+    renewal.expiresOn = daysFromAsOf(catalogs, -1);
+    const lapsed = projectionErrors(catalogs);
+    assert(
+        lapsed.some((error) =>
+            error.includes(`expired host evidence ${renewableEvidenceId}`),
+        ),
+    );
+    assert(
+        lapsed.some((error) =>
+            error.includes(`expired projection evidence ${renewableEvidenceId}`),
         ),
     );
 });

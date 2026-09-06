@@ -17,6 +17,7 @@ import { fileURLToPath } from "node:url";
 import { compareOrdinal } from "./catalog-ordering.mjs";
 import { packageNativeNonSkillReviewAssets } from "./package-native-non-skill-review-assets.mjs";
 import { packagePassiveCandidateAssets } from "./package-passive-candidate-assets.mjs";
+import { buildCandidateComponentCoverage } from "./candidate-component-coverage.mjs";
 
 const defaultRepositoryRoot = resolve(
     fileURLToPath(new URL("..", import.meta.url)),
@@ -116,6 +117,7 @@ export function packageCandidateReviewBatch({
                 "native-review-assets.json",
             ),
         ];
+        const coverage = buildCandidateComponentCoverage(repositoryRoot);
         const schemaPath = "distribution/candidate-review-batch.schema.json";
         const manifest = {
             schemaVersion: "1.0.0",
@@ -126,7 +128,12 @@ export function packageCandidateReviewBatch({
             state: "CANDIDATE_REVIEW_BATCH_ONLY",
             version,
             sourceCommit: publicManifest.sourceCommit,
-            componentCount: 182,
+            // Derived, not typed. This field used to be the one literal on an object whose
+            // every other count is a `.length`, and it had already been wrong once: the
+            // batch reported a stale total while the coverage document it packages reported
+            // the real one. Reading it from that same document makes the two unable to
+            // disagree.
+            componentCount: coverage.componentCount,
             packagedSkillTargetCount:
                 publicManifest.targetIds.length +
                 engineeringManifest.targetIds.length,

@@ -13,6 +13,7 @@ import { join } from "node:path";
 import { test } from "node:test";
 import { readTarGzip } from "../package-fundamentals-preview-assets.mjs";
 import { packageNativeNonSkillReviewAssets } from "../package-native-non-skill-review-assets.mjs";
+import { readComponentInventorySeals } from "../component-inventory-counts.mjs";
 
 function withTemporaryDirectory(callback) {
     const root = mkdtempSync(join(tmpdir(), "cratis-native-review-assets-"));
@@ -103,7 +104,7 @@ test("native non-skill review assets are deterministic exact and non-installable
         const coverage = JSON.parse(
             readFileSync(join(firstRoot, "component-coverage.json"), "utf8"),
         );
-        assert.equal(coverage.componentCount, 184);
+        assert.equal(coverage.componentCount, readComponentInventorySeals().componentCount);
         const checksums = readFileSync(join(firstRoot, "SHA256SUMS"), "utf8");
         assert(checksums.includes("native-review-assets.json"));
         assert(checksums.includes("native-review-sbom.json"));

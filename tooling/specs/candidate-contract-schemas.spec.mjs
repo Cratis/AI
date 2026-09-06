@@ -115,12 +115,15 @@ test("candidate contract schemas reject grants count drift and unknown fields", 
         const coverage = readJson(
             join(publicRoot, manifest.componentCoveragePath),
         );
-        coverage.componentCount = 183;
+        // The schema no longer pins the corpus size - that is the seal's job, enforced before the
+        // document can be produced - so the shape it still has to reject is a nonsensical size,
+        // not a stale one. The stale-size case is covered by the seal spec below.
+        coverage.componentCount = 0;
         coverage.records[0].supportGranted = true;
         const coverageErrors = validate(coverage, schemas.coverage);
         assert(
             coverageErrors.some((error) =>
-                error.includes("componentCount: expected constant 184"),
+                error.includes("componentCount"),
             ),
         );
         assert(

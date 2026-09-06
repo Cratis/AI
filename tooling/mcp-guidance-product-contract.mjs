@@ -4,6 +4,7 @@
 import { createHash } from "node:crypto";
 import { compareOrdinal } from "./catalog-ordering.mjs";
 import {
+    anchorMismatch,
     validateAgainstSchema,
     validateSchemaVocabulary,
 } from "./catalog-validation.mjs";
@@ -28,9 +29,15 @@ export function validateMcpGuidanceProductContract(products, schema) {
         ...validateSchemaVocabulary(schema),
         ...validateAgainstSchema(products, schema, schema),
     ];
-    if (semanticAnchor(products.products) !== expectedProductAnchor)
+    const productAnchor = semanticAnchor(products.products);
+    if (productAnchor !== expectedProductAnchor)
         errors.push(
-            "MCP guidance product contract differs from the independently reviewed anchor",
+            anchorMismatch(
+                "MCP guidance product contract",
+                expectedProductAnchor,
+                productAnchor,
+                "expectedProductAnchor in tooling/mcp-guidance-product-contract.mjs",
+            ),
         );
     const productIds = products.products
         .map((product) => product.id)

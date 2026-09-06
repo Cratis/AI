@@ -72,6 +72,20 @@ jobs:
               with:
                   node-version: 24
 
+            - name: Lint the hook scripts
+              run: |
+                  set -euo pipefail
+                  shellcheck --version
+                  # Non-vacuity: the gate is worthless if the glob resolves to nothing,
+                  # so count the subjects, refuse an empty population, and print the count.
+                  mapfile -t scripts < <(find .ai/hooks/scripts -maxdepth 1 -name '*.sh' | sort)
+                  if [[ ${#scripts[@]} -eq 0 ]]; then
+                    echo "no hook scripts found under .ai/hooks/scripts — the lint gate would pass vacuously" >&2
+                    exit 2
+                  fi
+                  shellcheck --external-sources --severity=style "${scripts[@]}"
+                  echo "Checked ${#scripts[@]} hook scripts, found 0 shellcheck findings"
+
             - name: Validate the AI corpus
               run: .ai/hooks/scripts/validate-ai-setup.sh
 

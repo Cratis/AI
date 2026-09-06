@@ -102,6 +102,19 @@ export function validateSchemaVocabulary(schema, path = "$") {
     return errors;
 }
 
+// A reviewed anchor is a digest a human approved, so a mismatch is a decision to re-review rather
+// than a defect to fix. The message therefore has to carry everything that decision needs: which
+// contract moved, the digest that was reviewed, the digest the tree computes now, and the constant
+// to re-pin once the diff has been read. Reporting only "differs from the reviewed anchor" made a
+// contributor recompute the sha256 by hand before they could even see what changed.
+// Documentation/adding-a-component.md walks the whole procedure.
+export function anchorMismatch(subject, expected, computed, constantLocation) {
+    return (
+        `${subject} differs from the independently reviewed anchor: ` +
+        `expected ${expected} computed ${computed} — review the diff, then re-pin ${constantLocation}`
+    );
+}
+
 export function readCatalog(path) {
     const content = readFileSync(path, "utf8");
     try {
