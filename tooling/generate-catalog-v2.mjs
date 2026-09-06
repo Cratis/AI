@@ -241,6 +241,12 @@ const sourceOverrides = new Map([
         },
     ],
     [
+        // Authored in this repository and not yet rebound to its own merged
+        // revision, so it deliberately carries no extra source evidence id.
+        "cratis-governed-release-methodology",
+        { sourcePath: "skills/cratis-governed-release-methodology" },
+    ],
+    [
         "add-cratis-docs-page",
         {
             sourcePath: "engineering/skills/cratis-engineering-docs-add-page",
@@ -567,6 +573,17 @@ const engineeringClassifications = new Map([
 ]);
 
 const profiles = {
+    "cratis-governed-release-methodology": [
+        "Governed release methodology",
+        "Use when choosing the assurance tier a release needs, deciding whether checksums, provenance, or an SBOM are warranted, labeling release intent, or judging whether a support claim is backed by evidence.",
+        [
+            "Do not use to run a publish, tag, or promotion operation.",
+            "Do not use for a registry's publish command syntax or credentials.",
+        ],
+        [],
+        "low",
+        false,
+    ],
     "cratis-studio-mcp-safety-guidance": [
         "Studio MCP classification-only safety guidance",
         "Use when classifying a Studio MCP request or interpreting already-redacted output without discovering or invoking an operation.",
@@ -1173,7 +1190,7 @@ const sources = allSkillNames.map((name) => {
         evidenceIds: [
             "repo-main-b795d53",
             "reevaluation-authority",
-            ...(sourceOverride ? [sourceOverride.evidenceId] : []),
+            ...(sourceOverride?.evidenceId ? [sourceOverride.evidenceId] : []),
         ],
     };
 });

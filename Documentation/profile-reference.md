@@ -264,6 +264,21 @@ language selection imply Chronicle, which is the same coupling the Arc and
 Chronicle meta-profiles exist to avoid. Chronicle-specific language guidance
 stays in the Chronicle client profiles above.
 
+## Cross-cutting methodology profiles
+
+Some behavior is neither a product nor a language. It is engineering method that
+holds no matter what the repository ships or what it is written in.
+
+| Profile | Intended package | Scope |
+| --- | --- | --- |
+| `public-methodology-governed-releases` | `@cratis/ai-methodology-governed-releases` | Assurance tiers, evidence ladders, lifecycle phases, supply-chain receipts, semantic-version release intent, canaries, recovery disposition |
+
+This profile carries `products: []` and `languages: []` deliberately, and
+composes nothing, for the same reason the language profiles do: a repository
+that wants release methodology must not be handed Arc, Chronicle, or a language
+profile along with it. `tooling/specs/resolve-profiles.spec.mjs` asserts that
+resolving it alone returns exactly itself and its one capability.
+
 ## Public-safe engineering profiles
 
 All shared engineering packages are public-safe. Confidential facts remain in

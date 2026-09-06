@@ -2,12 +2,12 @@
   "schemaVersion": 2,
   "contractVersion": 1,
   "disclaimer": "Catalog inclusion, evaluation evidence, component modeling, planned projection, bundle generation, or publication does not grant runtime permission, emitted bytes, support, or approval.",
-  "inputDigest": "046ecad3a2f3fa219c3883f75dd70708fb59d37990dd818420731c5f21c23605",
+  "inputDigest": "64bb868a15eb0eb67772cbcde24f0b820b5269d4b3b3a90c6b11fe5dc3ac1258",
   "componentSummary": {
     "disclaimer": "Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.",
-    "total": 137,
+    "total": 138,
     "byKind": {
-      "skill": 49,
+      "skill": 50,
       "agent": 12,
       "subagent": 0,
       "command": 18,
@@ -21,16 +21,16 @@
       "static-asset": 0
     },
     "byTrust": {
-      "passive": 134,
+      "passive": 135,
       "executable": 3
     },
     "byAudience": {
-      "public": 37,
+      "public": 38,
       "cratis-engineering": 100,
       "repository-only": 0
     },
     "byLifecycle": {
-      "active": 133,
+      "active": 134,
       "legacy-retained": 4
     },
     "projections": {
@@ -895,6 +895,27 @@
       "composes": [],
       "directTargetIds": [],
       "targetIds": []
+    },
+    {
+      "id": "public-methodology-governed-releases",
+      "displayName": "Cratis Governed Release Methodology",
+      "description": "Product- and language-independent release-engineering methodology: assurance tiers, evidence ladders, lifecycle phases, supply-chain receipts, semantic-version release intent, canaries, and recovery disposition.",
+      "intendedFor": "Maintainers planning a release in any repository, for any artifact format, without selecting a Cratis product or language profile.",
+      "audience": "public",
+      "packageName": "@cratis/ai-methodology-governed-releases",
+      "state": "owner-review-pending",
+      "installable": false,
+      "materialization": "candidate-package",
+      "products": [],
+      "languages": [],
+      "repositoryKinds": [],
+      "composes": [],
+      "directTargetIds": [
+        "cratis-governed-release-methodology"
+      ],
+      "targetIds": [
+        "cratis-governed-release-methodology"
+      ]
     },
     {
       "id": "public-modeling-screenplay-stage",
@@ -3618,6 +3639,64 @@
         "cratis-core-review"
       ],
       "profileIds": []
+    },
+    {
+      "id": "cratis-governed-release-methodology",
+      "semanticName": "cratis-governed-release-methodology",
+      "audience": "public",
+      "purpose": "Governed release methodology",
+      "whenToUse": "Use when choosing the assurance tier a release needs, deciding whether checksums, provenance, or an SBOM are warranted, labeling release intent, or judging whether a support claim is backed by evidence.",
+      "whenNotToUse": [
+        "Do not use for a registry's publish command syntax or credentials.",
+        "Do not use to run a publish, tag, or promotion operation."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "cross-product"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [],
+      "bundleIds": [],
+      "profileIds": [
+        "public-methodology-governed-releases"
+      ]
     },
     {
       "id": "cratis-performance-review",

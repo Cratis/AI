@@ -6,8 +6,8 @@ This catalog is generated from reviewed catalog metadata. Use it to find
 the right package and understand its skills. It is not source authority
 and does not make a planned package installable.
 
-- Profiles: 60
-- Capabilities: 45
+- Profiles: 61
+- Capabilities: 46
 - Installable profiles: 0
 - Ecosystem bindings with support claims: 0
 
@@ -15,8 +15,8 @@ and does not make a planned package installable.
 
 Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.
 
-- Components: 137
-- Passive: 134
+- Components: 138
+- Passive: 135
 - Executable: 3
 - Legacy-retained: 4
 - Existing adapter records: 316
@@ -30,7 +30,7 @@ Modeled or planned components and projections are catalog metadata only; they ar
 
 ### Components by kind
 
-- skill: 49
+- skill: 50
 - agent: 12
 - subagent: 0
 - command: 18
@@ -966,6 +966,31 @@ AI guidance for developers building with Cratis Lens.
 #### Included capabilities
 
 - No approved or candidate capabilities yet
+
+#### Composed profiles
+
+- None
+
+### Cratis Governed Release Methodology
+
+- **Profile ID:** `public-methodology-governed-releases`
+- **Audience:** public
+- **Package:** `@cratis/ai-methodology-governed-releases`
+- **State:** owner-review-pending
+- **Installable:** no
+- **Materialization:** candidate-package
+
+Product- and language-independent release-engineering methodology: assurance tiers, evidence ladders, lifecycle phases, supply-chain receipts, semantic-version release intent, canaries, and recovery disposition.
+
+**Intended for:** Maintainers planning a release in any repository, for any artifact format, without selecting a Cratis product or language profile.
+
+- Products: shared engineering behavior
+- Languages: language-agnostic
+- Repository kinds: consumer projects
+
+#### Included capabilities
+
+- cratis-governed-release-methodology
 
 #### Composed profiles
 
@@ -3732,6 +3757,69 @@ Use when a service must enumerate all implementations through IInstancesOf&lt;T&
 #### Profile membership — cratis-fundamentals-type-discovery
 
 - None
+
+### cratis-governed-release-methodology
+
+- **ID:** `cratis-governed-release-methodology`
+- **Audience:** public
+- **Lifecycle:** candidate
+- **Approval:** candidate
+- **Runtime eligible:** no
+
+#### Purpose — cratis-governed-release-methodology
+
+Governed release methodology
+
+#### When to use — cratis-governed-release-methodology
+
+Use when choosing the assurance tier a release needs, deciding whether checksums, provenance, or an SBOM are warranted, labeling release intent, or judging whether a support claim is backed by evidence.
+
+#### When not to use — cratis-governed-release-methodology
+
+- Do not use for a registry's publish command syntax or credentials.
+- Do not use to run a publish, tag, or promotion operation.
+
+#### Invocation — cratis-governed-release-methodology
+
+- Capability kind: unclassified
+- Invocation: unclassified
+
+#### Applicability — cratis-governed-release-methodology
+
+- Products: cross-product
+- Languages: language-agnostic
+- Architectures: Unclassified — Architecture requires reviewed target classification.
+- Personas: Unclassified — Persona requires reviewed target classification.
+- Surfaces: Unclassified — Surface requires reviewed target classification.
+- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+
+#### Dependencies — cratis-governed-release-methodology
+
+- Unclassified
+
+#### Trust and effects — cratis-governed-release-methodology
+
+- Trust class: passive
+- Assessment: unclassified
+- No assessed effects
+
+#### Evidence and support — cratis-governed-release-methodology
+
+- Authoring contract unclassified
+- Evidence: reevaluation-authority
+- Evidence: repo-main-b795d53
+
+#### Related capabilities — cratis-governed-release-methodology
+
+- None
+
+#### Bundle membership — cratis-governed-release-methodology
+
+- None
+
+#### Profile membership — cratis-governed-release-methodology
+
+- public-methodology-governed-releases
 
 ### cratis-performance-review
 

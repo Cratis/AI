@@ -157,7 +157,7 @@ test("passive candidate assets package every currently safe target and account f
                     "utf8",
                 ),
             );
-            assert.equal(coverage.componentCount, 137);
+            assert.equal(coverage.componentCount, 138);
             assert.equal(
                 coverage.byDisposition["skill-packaged-candidate"],
                 40,
@@ -391,12 +391,12 @@ test("candidate component coverage closes every modeled component kind", () => {
         instruction: 1,
         prompt: 18,
         rule: 36,
-        skill: 49,
+        skill: 50,
     });
-    assert.equal(coverage.records.length, 137);
+    assert.equal(coverage.records.length, 138);
     assert.equal(
         new Set(coverage.records.map((record) => record.componentId)).size,
-        137,
+        138,
     );
     assert(
         coverage.records

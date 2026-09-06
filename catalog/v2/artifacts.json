@@ -58,6 +58,7 @@
           "cratis-event-model-diagram",
           "cratis-fundamentals-concept",
           "cratis-fundamentals-type-discovery",
+          "cratis-governed-release-methodology",
           "cratis-performance-review",
           "cratis-security-review",
           "cratis-specifications-csharp",
@@ -210,6 +211,7 @@
           "cratis-event-model-diagram",
           "cratis-fundamentals-concept",
           "cratis-fundamentals-type-discovery",
+          "cratis-governed-release-methodology",
           "cratis-performance-review",
           "cratis-security-review",
           "cratis-specifications-csharp",
@@ -314,7 +316,9 @@
         ".ai/skills/write-specs/evals/evals.json",
         ".ai/skills/write-specs/references/EXAMPLES.md",
         "skills/cratis-fundamentals-concept/LICENSE",
-        "skills/cratis-fundamentals-concept/SKILL.md"
+        "skills/cratis-fundamentals-concept/SKILL.md",
+        "skills/cratis-governed-release-methodology/LICENSE",
+        "skills/cratis-governed-release-methodology/SKILL.md"
       ],
       "allowedPathPatterns": [
         "skills/<candidate-source>/SKILL.md",

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "2c4e94f465249738c9ca230f74294f61d8d6a7b03e20572d31b1d508527e0fb5",
+  "indexDigest": "837caec6ce1804a88e7554ccf2f309babdb3a75797280dab8fdb634fa260b8b3",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -2639,6 +2639,10 @@
       "status": "added"
     },
     {
+      "path": "profiles/public/public-methodology-governed-releases.json",
+      "status": "added"
+    },
+    {
       "path": "profiles/public/public-modeling-screenplay-stage.json",
       "status": "added"
     },
@@ -2688,6 +2692,14 @@
     },
     {
       "path": "skills/cratis-fundamentals-concept/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-governed-release-methodology/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-governed-release-methodology/SKILL.md",
       "status": "added"
     },
     {
@@ -3718,6 +3730,7 @@
         ".ai/skills/call-command-from-code/**",
         "skills/cratis-chronicle-mcp-inspection/**",
         ".ai/skills/cratis-command/**",
+        "skills/cratis-governed-release-methodology/**",
         ".ai/skills/cratis-react-page/**",
         ".ai/skills/cratis-readmodel/**",
         ".ai/skills/cratis-specs-csharp/**",
@@ -3764,8 +3777,8 @@
         "workflows-68",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 68,
-      "expectedPathsDigest": "10b4b75a7848dc8b47f553b6f0158fdf8ac2ce6e57b2db3228e5fd8bbf97a73f"
+      "expectedPathCount": 70,
+      "expectedPathsDigest": "c53fea49098a20db4bb01762a9ec596bf83980f198aba1cad4f9bdb77690ce22"
     },
     {
       "excludePathPatterns": [],
@@ -4923,8 +4936,8 @@
         "option-a-plus-authority",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 61,
-      "expectedPathsDigest": "16be14192b5d23958408a644ef0771a961688edb9be69c96ab5eb9da25e7fb44"
+      "expectedPathCount": 62,
+      "expectedPathsDigest": "56c656675ca6a2879022607d33d638d5e69c5197a1486aeffaba24094dd04b8f"
     },
     {
       "excludePathPatterns": [],
