@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "dbcc431949998213647236bf30cff5e52f59bd6d12acba0594e8360c98f9c28e",
+  "indexDigest": "e9955dbfe2359dbfc0c6541f3c147e0862a0d14fd8de88f2323856f1e8589b26",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -671,6 +671,10 @@
       "status": "added"
     },
     {
+      "path": "catalog/schemas/vocabulary.schema.json",
+      "status": "added"
+    },
+    {
       "path": "catalog/studio-mcp-tool-classifications.json",
       "status": "added"
     },
@@ -760,6 +764,10 @@
     },
     {
       "path": "catalog/v2/upstream-companions.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/vocabulary.json",
       "status": "added"
     },
     {
@@ -3395,6 +3403,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/specs/vocabulary.spec.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/specs/work-record-containment.spec.mjs",
       "status": "added"
     },
@@ -4668,7 +4680,9 @@
         "catalog/schemas/artifact-assurance-profiles.schema.json",
         "catalog/schemas/ecosystem-artifact-coverage.schema.json",
         "catalog/schemas/product-coverage.schema.json",
-        "catalog/schemas/public-skills.schema.json"
+        "catalog/schemas/public-skills.schema.json",
+        "catalog/schemas/vocabulary.schema.json",
+        "catalog/vocabulary.json"
       ],
       "artifactType": "catalog-schema",
       "currentOwner": "repository-only authoring/release tooling",
@@ -4684,8 +4698,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 9,
-      "expectedPathsDigest": "add7f934a78773bbfed4ead60726fcb071b6a0fe28126a461ded4c3ddd7ff846"
+      "expectedPathCount": 11,
+      "expectedPathsDigest": "d0685fe6777f2ed2a75045f323db3d153627c40a71b81c24019516fc3cb39883"
     },
     {
       "excludePathPatterns": [],
@@ -5081,8 +5095,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 62,
-      "expectedPathsDigest": "8a17a892951c54bc545116f055347df145dfb1390dbc0f10a8d00760ae45c02f"
+      "expectedPathCount": 63,
+      "expectedPathsDigest": "5bd85d266ea785fc5a6619f375a1bc8200d92db32e2b6585f0bd6d0ee49f032b"
     },
     {
       "excludePathPatterns": [],

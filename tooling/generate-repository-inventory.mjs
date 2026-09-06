@@ -988,6 +988,8 @@ const definitions = [
             "catalog/schemas/ecosystem-artifact-coverage.schema.json",
             "catalog/schemas/product-coverage.schema.json",
             "catalog/schemas/public-skills.schema.json",
+            "catalog/schemas/vocabulary.schema.json",
+            "catalog/vocabulary.json",
         ],
         artifactType: "catalog-schema",
         currentOwner: repositoryOwner,
