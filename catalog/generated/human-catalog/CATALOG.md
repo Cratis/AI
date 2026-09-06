@@ -469,7 +469,7 @@ AI guidance for developers building with Cratis Arc React.
 
 #### Composed profiles
 
-- None
+- public-arc
 
 ### Cratis Chronicle
 
@@ -1272,6 +1272,7 @@ Public-safe contributor guidance for maintainers working on Cratis Arc React. Pr
 #### Composed profiles
 
 - engineering-base
+- engineering-arc
 
 ### Cratis Maintainer Base
 

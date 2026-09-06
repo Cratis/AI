@@ -307,6 +307,9 @@
         "typescript"
       ],
       "state": "planned-source-migration",
+      "composes": [
+        "public-arc"
+      ],
       "gapSummary": "Page, observable query, paging, generated proxy, MVVM, lifecycle, and error-handling guidance require canonical sources."
     },
     {
@@ -791,7 +794,8 @@
       "confidentialContentAllowed": false,
       "privateOverlayExpected": true,
       "composes": [
-        "engineering-base"
+        "engineering-base",
+        "engineering-arc"
       ]
     },
     {

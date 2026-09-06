@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "contractVersion": 1,
   "disclaimer": "Catalog inclusion, evaluation evidence, component modeling, planned projection, bundle generation, or publication does not grant runtime permission, emitted bytes, support, or approval.",
-  "inputDigest": "2d5f5870c4756b70b9e60a7751a728f3d9851dba86bd9bd75629cd0ce102db21",
+  "inputDigest": "e01d840ef9d99d658f560ea896840091f153c11aca65d95ef6942945924cb813",
   "componentSummary": {
     "disclaimer": "Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.",
     "total": 137,
@@ -457,7 +457,9 @@
         "typescript"
       ],
       "repositoryKinds": [],
-      "composes": [],
+      "composes": [
+        "public-arc"
+      ],
       "directTargetIds": [],
       "targetIds": []
     },
@@ -1173,7 +1175,8 @@
         "framework"
       ],
       "composes": [
-        "engineering-base"
+        "engineering-base",
+        "engineering-arc"
       ],
       "directTargetIds": [],
       "targetIds": []
