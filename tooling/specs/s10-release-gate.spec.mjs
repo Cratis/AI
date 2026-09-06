@@ -222,47 +222,11 @@ test("candidate generation cannot accept release authority as an argument", () =
     );
 });
 
-test("every credentialed or publication workflow job is unreachable in blocked mode", () => {
-    const workflow = readFileSync(
-        join(
-            defaultRepositoryRoot,
-            ".github/workflows/release-approved-ai-profiles.yml",
-        ),
-        "utf8",
-    );
-    assert.match(workflow, /^  s10_preflight:/mu);
-    assert.match(workflow, /release_allowed=false/u);
-    assert.match(workflow, /release-merge-topology-validation\.mjs/u);
-    for (const job of [
-        "canary",
-        "distribute",
-        "publish-npm",
-        "cleanup-failed-publication",
-        "promote-and-follow-up",
-        "record-promotion-failure",
-    ]) {
-        const start = workflow.indexOf(`  ${job}:`);
-        const remaining = workflow.slice(start + job.length + 3);
-        const next = remaining.match(/\n  [a-zA-Z0-9_-]+:\n/u);
-        const block = workflow.slice(
-            start,
-            next ? start + job.length + 3 + next.index : undefined,
-        );
-        assert.match(block, /s10_preflight/u);
-        assert.match(block, /release_allowed == 'true'/u);
-    }
-    const distributionWorkflow = readFileSync(
-        join(
-            defaultRepositoryRoot,
-            ".github/workflows/distribution-approved-profile-release.yml",
-        ),
-        "utf8",
-    );
-    assert.doesNotMatch(
-        distributionWorkflow,
-        /          - create-generated-pr/u,
-    );
-    assert.match(distributionWorkflow, /if: \$\{\{ false \}\}/u);
+// The governed release workflows that used to carry the credentialed and
+// publishing jobs are gone, so there is no longer a job to keep unreachable.
+// What survives is the source-level rule: the release generator can never be
+// told to publish through an argument or a workflow event.
+test("release generation cannot take publication authority from its caller", () => {
     assert.doesNotMatch(
         readFileSync(
             join(

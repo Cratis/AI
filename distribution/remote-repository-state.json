@@ -2,39 +2,25 @@
   "schemaVersion": "1.0.0",
   "observedAt": "2026-08-22",
   "supersedingDecision": {
-    "state": "PHASE_2_LANDED_IN_CODE_AWAITING_BRANCH_SETUP",
+    "state": "GENERATED_DISTRIBUTION_RETIRED",
     "issue": "https://github.com/Cratis/AI/issues/264",
     "plannedState": "MIRROR_PENDING_ARCHIVE",
     "currentStateRemains": "INITIALIZED_PROTECTED_FIXTURE",
-    "decision": "Cratis/AI#264 records that this repository becomes a CI-published mirror and is then archived, so already-published v0.1.0 to v0.3.0 install commands and the evidence records that cite its tags keep resolving. The repository and its tags are never deleted.",
-    "note": "The repository block below still reports the observed live state. This record does not change it, and does not change what any validator or workflow does. Applying plannedState is Phase 5 of Cratis/AI#264 and follows the Phase 2 re-pointing work.",
-    "phase2Execution": {
-      "state": "LANDED_IN_CODE_AWAITING_MAINTAINER_BRANCH_SETUP",
-      "pullRequest": "https://github.com/Cratis/AI/pull/266",
-      "generatedRef": "Cratis/AI@distribution",
-      "releaseTagPattern": "dist/vX.Y.Z",
-      "note": "The public marketplace lane no longer writes to this repository at all: it stages, verifies, pushes, tags, and releases inside Cratis/AI, and mints no GitHub App token. This repository remains the write target only for the S10-blocked governed release lane, the disabled approved-profile activation job, and the credential-gated fixture and candidate review lane, none of which can execute today.",
-      "appliedOutOfBandByRepositoryAdmin": {
-        "state": "BRANCH_AND_TAG_PROTECTION_APPLIED_FIRST_RUN_PENDING",
-        "surface": "Cratis/AI",
-        "appliedOn": "2026-09-06",
-        "appliedBy": "einari",
-        "note": "Branch protection on distribution and tag protection on dist/* were applied by the repository admin through the GitHub API, not by a workflow and not by a pull request, exactly like the protectedEnvironments recorded below.",
-        "observed": {
-          "distributionBranch": "created, seeded with one placeholder commit; allow_force_pushes=false, allow_deletions=false, enforce_admins=true, no push-restriction allowlist so the workflow's GITHUB_TOKEN can still push",
-          "distTagRuleset": "repository ruleset 'Protect dist release tags', target=tag, pattern=refs/tags/dist/*, rules=[deletion, update, non_fast_forward], current_user_can_bypass=never"
-        },
-        "remaining": [
-          "one real run of Publish Public Marketplace Distribution, triggered by a push to main that matches publish.yml's paths after #266 merges",
-          "distribution-canary environment approval from woksin for that run's publish job",
-          "host install evidence re-recorded at the new ref under distribution/evidence/"
-        ]
+    "decision": "Cratis/AI is installed directly from its default branch through four committed marketplace manifests that resolve its real skills/ and engineering/ directories. Generated distribution is retired in full: there is no second write target, no release branch, no dist/vX.Y.Z tag namespace, and no generated tree. Cratis/AI.Distribution's published v0.1.0 to v0.3.0 tags keep resolving and are never deleted; the repository is archived rather than mirrored.",
+    "note": "The repository block below still reports the observed live state of Cratis/AI.Distribution. No workflow in Cratis/AI writes to it any more.",
+    "retirementApplied": {
+      "surface": "Cratis/AI",
+      "appliedOn": "2026-09-06",
+      "note": "The distribution branch and the dist/* tag ruleset that had been created on 2026-09-06 were deleted the same day by the repository admin through the GitHub API, before any release ran against them. Neither exists now: GET /repos/Cratis/AI/branches lists no distribution branch and GET /repos/Cratis/AI/rulesets is empty.",
+      "protectedEnvironmentsStillLive": {
+        "npm-stage": "Used by release-passive-previews.yml, the real npm trusted publish for @cratis/ai-fundamentals. Branch policy only; no required reviewer, matching npm-stage-contract.json's environmentApprovalRequired: false.",
+        "distribution-canary": "Still configured with woksin as required reviewer, but no remaining workflow declares it. Whether to delete it is a separate decision."
       }
     },
     "findings": [
       "The contract in distribution/generated-repository-authority-request.md states that human or deploy-key direct pushes are not an accepted update path, yet commits 5d5c366, 53c607f, and 8f31eb0 in Cratis/AI.Distribution were authored directly by a maintainer rather than by the release bot, because the Cratis/Workflows#72 App is still not installed.",
-      "credential.state is REMOVED_AFTER_ONE_TIME_INITIALIZATION and repository.writeCredentialState is ABSENT_PENDING_PR_RELEASE_BOT, so the second repository currently has no compliant automated write path at all.",
-      "Consolidation removes the cross-repository App, the AI_DISTRIBUTION_APP_ID and AI_DISTRIBUTION_APP_PRIVATE_KEY secrets, the duplicated control plane, and one of two branch-protection surfaces."
+      "credential.state is REMOVED_AFTER_ONE_TIME_INITIALIZATION and repository.writeCredentialState is ABSENT_PENDING_PR_RELEASE_BOT, so the second repository never had a compliant automated write path.",
+      "Retirement removes the cross-repository App, the AI_DISTRIBUTION_APP_ID and AI_DISTRIBUTION_APP_PRIVATE_KEY secrets, the duplicated control plane, and both extra branch-protection surfaces."
     ],
     "maintainerRunbook": "Documentation/maintainer-marketplace-deployment-runbook.md"
   },

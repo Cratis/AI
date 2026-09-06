@@ -1,6 +1,8 @@
 {
   "schemaVersion": "1.0.0",
   "verifiedAt": "2026-08-25",
+  "installCommandsRevisedAt": "2026-09-06",
+  "installCommandRevisionNote": "The per-host install commands were rewritten to the plain Cratis/AI form when cross-repository distribution was retired: there is no distribution branch, no dist/vX.Y.Z tag, and no generated tree, and Cratis/AI is installed directly from its default branch. Every requirement's status and verifiedAt still describe the host format and manifest research, which is unchanged. None of them describe the rewritten commands: the install evidence under distribution/evidence/ was collected against refs that no longer exist and has to be re-run per host. requiredRoots still describe the retired generated package layout and are not yet reconciled with the skills/ and engineering/ plugin roots the committed marketplace manifests now name.",
   "requirements": [
     {
       "id": "agent-skills-open-standard",
@@ -72,7 +74,6 @@
       ],
       "installCommands": [
         "/plugin marketplace add Cratis/AI",
-        "/plugin marketplace add Cratis/AI#dist/vX.Y.Z",
         "/plugin install cratis@cratis"
       ],
       "updateCommands": [
@@ -84,8 +85,8 @@
       "constraints": [
         "Marketplace and plugin names use kebab-case.",
         "Relative plugin sources stay inside the marketplace root.",
-        "Generated passive plugins contain skills only and use strict validation.",
-        "The Cratis/AI default branch carries a thin pointer marketplace whose plugin source resolves the exact distribution-branch commit each publish run pushed; the generated tree itself lives only on the protected distribution branch, which is never tagged. The dist/vX.Y.Z tag is the versioned release record on main. The installCommands above still spell the ref as dist/vX.Y.Z and are re-verified per host, with the ref replaced by that commit, as part of the step 6b install evidence in Documentation/maintainer-marketplace-deployment-runbook.md."
+        "Passive plugins contain skills only and use strict validation.",
+        "Cratis/AI is installed directly from its default branch: .claude-plugin/marketplace.json is committed on main and resolves the real skills/ and engineering/ directories with no ref. Install evidence recorded before 2026-09-06 was collected against dist/vX.Y.Z refs on the retired distribution branch and does not carry over; the commands above need fresh per-host evidence."
       ]
     },
     {
@@ -102,7 +103,7 @@
         "plugins/cratis/skills/<skill-name>/SKILL.md"
       ],
       "installCommands": [
-        "codex plugin marketplace add Cratis/AI --ref dist/vX.Y.Z"
+        "codex plugin marketplace add Cratis/AI"
       ],
       "updateCommands": [
         "codex plugin marketplace upgrade cratis"
@@ -113,7 +114,8 @@
       "constraints": [
         "Plugin name is stable kebab-case and manifest paths start with ./ and remain inside the plugin root.",
         "ChatGPT desktop performs local plugin installation and testing; Codex IDE does not support plugins.",
-        "Public submission and workspace publication remain external reviewed gates."
+        "Public submission and workspace publication remain external reviewed gates.",
+        "Cratis/AI is installed directly from its default branch: .agents/plugins/marketplace.json is committed on main and resolves the real skills/ and engineering/ directories with no ref. Install evidence recorded before 2026-09-06 was collected against dist/vX.Y.Z refs on the retired distribution branch and does not carry over; the commands above need fresh per-host evidence."
       ]
     },
     {
@@ -130,7 +132,7 @@
         "plugins/cratis/skills/<skill-name>/SKILL.md"
       ],
       "installCommands": [
-        "copilot plugin marketplace add Cratis/AI#dist/vX.Y.Z",
+        "copilot plugin marketplace add Cratis/AI",
         "copilot plugin install cratis@cratis"
       ],
       "updateCommands": [
@@ -144,7 +146,7 @@
       "constraints": [
         "plugin.json uses the Agent Plugins 1.0 schema and fixed skills/ discovery root.",
         "Marketplace plugin sources are repository-relative; strict validation stays enabled.",
-        "Release installs pin immutable full commit SHAs."
+        "Cratis/AI is installed directly from its default branch: .github/plugin/marketplace.json is committed on main and resolves the real skills/ and engineering/ directories with no ref. Install evidence recorded before 2026-09-06 was collected against dist/vX.Y.Z refs on the retired distribution branch and does not carry over; the commands above need fresh per-host evidence."
       ]
     },
     {
@@ -160,7 +162,7 @@
         "skills/<skill-name>/SKILL.md"
       ],
       "installCommands": [
-        "gemini extensions install https://github.com/Cratis/AI --ref dist/vX.Y.Z"
+        "gemini extensions install https://github.com/Cratis/AI"
       ],
       "updateCommands": [
         "gemini extensions update cratis"
@@ -171,8 +173,8 @@
       "constraints": [
         "Extension name is lowercase letters, digits, and dashes and matches its directory.",
         "gemini-extension.json is at the repository or release-archive root.",
-        "Manifest version matches the GitHub release tag.",
-        "Gemini CLI 0.33.1 linked the public and engineering fixtures, reported their Agent Skills in the extension list, discovered them through gemini skills list, and removed their discovery paths on uninstall."
+        "Gemini CLI 0.33.1 linked the public and engineering fixtures, reported their Agent Skills in the extension list, discovered them through gemini skills list, and removed their discovery paths on uninstall.",
+        "Gemini reads a repository root rather than following a marketplace manifest, and Cratis/AI's default branch carries no root gemini-extension.json today. The install command above is the shape a root manifest would take; it is unverified against the current default branch and needs fresh evidence. Install evidence recorded before 2026-09-06 was collected against dist/vX.Y.Z refs on the retired distribution branch and does not carry over."
       ]
     },
     {
@@ -188,7 +190,7 @@
       ],
       "installCommands": [
         "pi install npm:@cratis/ai@<version>",
-        "pi install git:github.com/Cratis/AI@dist/vX.Y.Z"
+        "pi install git:github.com/Cratis/AI"
       ],
       "updateCommands": [
         "pi update npm:@cratis/ai"
@@ -200,7 +202,8 @@
         "Package behavior was reviewed against installed 0.84.2 documentation; registry evidence records current package version 0.84.3 without claiming a 0.84.3 local lifecycle test.",
         "package.json declares the pi-package keyword and pi.skills allowlist.",
         "The passive package contains no extensions, prompts, themes, lifecycle scripts, or dependencies.",
-        "Temporary, user, project, npm, Git, filter, pin, rollback, and uninstall behavior require smoke evidence."
+        "Temporary, user, project, npm, Git, filter, pin, rollback, and uninstall behavior require smoke evidence.",
+        "Pi reads a repository root rather than following a marketplace manifest, and Cratis/AI's default branch carries no root package.json today. The Git install command above is the shape a root manifest would take; it is unverified against the current default branch and needs fresh evidence. Install evidence recorded before 2026-09-06 was collected against dist/vX.Y.Z refs on the retired distribution branch and does not carry over."
       ]
     },
     {

@@ -1,11 +1,15 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "2ae7720db04613b56b899c3af08080f61aa3c427cc4438cea8165f16363730b8",
+  "indexDigest": "ca11f8253f520e7e5ac9618160303adfbcc31f0284d20c445acf2932de3fc4e6",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
   "changesSinceBase": [
+    {
+      "path": ".agents/plugins/marketplace.json",
+      "status": "added"
+    },
     {
       "path": ".ai/README.md",
       "status": "modified"
@@ -179,6 +183,10 @@
       "status": "modified"
     },
     {
+      "path": ".claude-plugin/marketplace.json",
+      "status": "added"
+    },
+    {
       "path": ".claude/rules/github-actions.md",
       "status": "added"
     },
@@ -187,11 +195,19 @@
       "status": "added"
     },
     {
+      "path": ".cursor-plugin/marketplace.json",
+      "status": "added"
+    },
+    {
       "path": ".gitattributes",
       "status": "added"
     },
     {
       "path": ".github/ISSUE_TEMPLATE/shared-ai-improvement.yml",
+      "status": "added"
+    },
+    {
+      "path": ".github/plugin/marketplace.json",
       "status": "added"
     },
     {
@@ -215,19 +231,11 @@
       "status": "modified"
     },
     {
-      "path": ".github/workflows/distribution-approved-profile-release.yml",
-      "status": "added"
-    },
-    {
       "path": ".github/workflows/distribution-canary-rollback.yml",
       "status": "added"
     },
     {
       "path": ".github/workflows/distribution-fundamentals-preview-assets.yml",
-      "status": "added"
-    },
-    {
-      "path": ".github/workflows/distribution-generated-update.yml",
       "status": "added"
     },
     {
@@ -247,14 +255,6 @@
       "status": "deleted"
     },
     {
-      "path": ".github/workflows/publish.yml",
-      "status": "added"
-    },
-    {
-      "path": ".github/workflows/release-approved-ai-profiles.yml",
-      "status": "added"
-    },
-    {
       "path": ".github/workflows/release-passive-previews.yml",
       "status": "added"
     },
@@ -268,10 +268,6 @@
     },
     {
       "path": ".github/workflows/verify-ai-corpus.yml",
-      "status": "added"
-    },
-    {
-      "path": ".github/workflows/verify-distribution-branch.yml",
       "status": "added"
     },
     {
@@ -1032,14 +1028,6 @@
     },
     {
       "path": "distribution/remote-repository-state.json",
-      "status": "added"
-    },
-    {
-      "path": "distribution/repository-control-plane/.github/scripts/verify-generated-distribution.mjs",
-      "status": "added"
-    },
-    {
-      "path": "distribution/repository-control-plane/.github/workflows/verify-generated-distribution.yml",
       "status": "added"
     },
     {
@@ -2947,19 +2935,11 @@
       "status": "added"
     },
     {
-      "path": "tooling/generate-marketplace-pointer-manifests.mjs",
-      "status": "added"
-    },
-    {
       "path": "tooling/generate-mcp-guidance-references.mjs",
       "status": "added"
     },
     {
       "path": "tooling/generate-profile-catalog.mjs",
-      "status": "added"
-    },
-    {
-      "path": "tooling/generate-public-marketplace-distribution.mjs",
       "status": "added"
     },
     {
@@ -3036,10 +3016,6 @@
     },
     {
       "path": "tooling/package-passive-candidate-assets.mjs",
-      "status": "added"
-    },
-    {
-      "path": "tooling/package-public-marketplace-submissions.mjs",
       "status": "added"
     },
     {
@@ -3251,15 +3227,7 @@
       "status": "added"
     },
     {
-      "path": "tooling/specs/distribution-repository-verification.spec.mjs",
-      "status": "added"
-    },
-    {
       "path": "tooling/specs/distribution-rollout.spec.mjs",
-      "status": "added"
-    },
-    {
-      "path": "tooling/specs/distribution-update-workflow.spec.mjs",
       "status": "added"
     },
     {
@@ -3315,6 +3283,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/specs/marketplace-pointer-manifests.spec.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/specs/mcp-declarations.spec.mjs",
       "status": "added"
     },
@@ -3360,10 +3332,6 @@
     },
     {
       "path": "tooling/specs/public-fundamentals-concept.spec.mjs",
-      "status": "added"
-    },
-    {
-      "path": "tooling/specs/public-marketplace-distribution.spec.mjs",
       "status": "added"
     },
     {
@@ -3436,10 +3404,6 @@
     },
     {
       "path": "tooling/stage-distribution-candidate.mjs",
-      "status": "added"
-    },
-    {
-      "path": "tooling/stage-public-marketplace-repository.mjs",
       "status": "added"
     },
     {
@@ -4060,18 +4024,13 @@
       "sourcePathPatterns": [
         ".github/workflows/advanced-assurance-audit.yml",
         ".github/workflows/benchmark-release-generation.yml",
-        ".github/workflows/distribution-approved-profile-release.yml",
         ".github/workflows/distribution-fundamentals-preview-assets.yml",
         ".github/workflows/distribution-canary-rollback.yml",
         ".github/workflows/engineering-distribution-fixture.yml",
-        ".github/workflows/distribution-generated-update.yml",
         ".github/workflows/distribution-npm-stage.yml",
         ".github/workflows/package-passive-candidate-assets.yml",
-        ".github/workflows/publish.yml",
-        ".github/workflows/release-approved-ai-profiles.yml",
         ".github/workflows/release-passive-previews.yml",
         ".github/workflows/verify-ai-corpus.yml",
-        ".github/workflows/verify-distribution-branch.yml",
         ".github/workflows/verify-no-work-records.yml",
         ".github/workflows/verify-semver-label.yml"
       ],
@@ -4091,8 +4050,8 @@
         "repo-main-b795d53",
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 16,
-      "expectedPathsDigest": "44c7e72fa46439cf05722ab57b30c284376fc06322b7fa82eac71547221dbddc"
+      "expectedPathCount": 11,
+      "expectedPathsDigest": "1996515e8c7e4d6addf73a74be4c578dd2af8656791836d7f982484edc30aeb9"
     },
     {
       "excludePathPatterns": [],
@@ -4938,8 +4897,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 72,
-      "expectedPathsDigest": "5a7309a0881b3b96c15749c5917065be2d0407c4b83418011e78a22e0b042152"
+      "expectedPathCount": 70,
+      "expectedPathsDigest": "2e2e109446ee4c6e0f36fa9decdbe03cecf642f1ae2def7f711ac7ec2feedaac"
     },
     {
       "excludePathPatterns": [],
@@ -5068,8 +5027,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 84,
-      "expectedPathsDigest": "2844010a280b1503c72242e1110e326a23cfbe089381f490088f4fa0d384658a"
+      "expectedPathCount": 80,
+      "expectedPathsDigest": "c0bf5fead4ca823f0d28f18e80333ade4b838c5047d950bfc6562eaddcfaf58d"
     },
     {
       "excludePathPatterns": [],
@@ -5122,8 +5081,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 64,
-      "expectedPathsDigest": "9868d9ea8eaec699c49b80106b7e223bbf65acdd2f3bab770c9c215a716bda80"
+      "expectedPathCount": 62,
+      "expectedPathsDigest": "8a17a892951c54bc545116f055347df145dfb1390dbc0f10a8d00760ae45c02f"
     },
     {
       "excludePathPatterns": [],
@@ -5178,6 +5137,33 @@
       ],
       "expectedPathCount": 31,
       "expectedPathsDigest": "c97727f86b11a9347454a889dbd51208071f4adb652740bc8ce7cc9a759a1dc3"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "marketplace-pointer-manifests",
+      "sourcePathPatterns": [
+        ".agents/plugins/marketplace.json",
+        ".claude-plugin/marketplace.json",
+        ".cursor-plugin/marketplace.json",
+        ".github/plugin/marketplace.json"
+      ],
+      "artifactType": "repository-metadata",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "distribution/marketplace-requirements.json"
+      ],
+      "risk": "medium",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "option-a-plus-authority"
+      ],
+      "expectedPathCount": 4,
+      "expectedPathsDigest": "06837deb5e2b237965163d895dc40a82e0f91646deb2bbcd52ae2038f3830146"
     }
   ]
 }

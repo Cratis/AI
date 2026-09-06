@@ -1,0 +1,34 @@
+{
+  "name": "cratis",
+  "owner": {
+    "name": "Cratis",
+    "url": "https://www.cratis.io"
+  },
+  "metadata": {
+    "description": "Cratis AI skills for building event-sourced and CQRS applications"
+  },
+  "plugins": [
+    {
+      "name": "cratis",
+      "description": "Public Cratis skills for developers building on the Cratis ecosystem",
+      "source": {
+        "source": "github",
+        "repo": "Cratis/AI",
+        "path": "skills"
+      },
+      "strict": false,
+      "skills": "./"
+    },
+    {
+      "name": "cratis-engineering",
+      "description": "Maintainer-audience Cratis engineering skills",
+      "source": {
+        "source": "github",
+        "repo": "Cratis/AI",
+        "path": "engineering"
+      },
+      "strict": false,
+      "skills": "./skills"
+    }
+  ]
+}

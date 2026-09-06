@@ -1,111 +1,55 @@
 # Generated distribution repository authority state
 
-## Superseding decision — Phase 2 landed in code, tracked in Cratis/AI#264
+## Superseding decision — generated distribution is retired, tracked in Cratis/AI#264
 
-> **Everything below this section still describes the lanes that still target
-> this repository.** The public marketplace lane no longer does; see
-> [Phase 2 execution](#phase-2-execution--landed-in-code). The lanes described
-> below — the S10-blocked governed release lane, the disabled approved-profile
-> activation job, and the credential-gated fixture and candidate review lane —
-> are unchanged, and none of them can execute today. No gate, policy mode, or
-> validator behavior is altered.
+> **Everything below this section describes the retired two-repository model.**
+> It is kept as the record of what was built and published, not as a description
+> of how anything is distributed today. Nothing below is read by a workflow any
+> more.
 
-[Cratis/AI#264](https://github.com/Cratis/AI/issues/264) amends
-[Cratis/AI#173](https://github.com/Cratis/AI/issues/173) so that the generated,
-protected `Cratis/AI.Distribution` repository is recorded as a **delivered
-milestone that is now superseded**, not as a permanent architectural fixture.
+`Cratis/AI` is installed directly from its default branch. The four marketplace
+manifests — `.claude-plugin/marketplace.json`, `.agents/plugins/marketplace.json`,
+`.github/plugin/marketplace.json`, and `.cursor-plugin/marketplace.json` — are
+committed on `main` and resolve the real `skills/` and `engineering/`
+directories with no ref. They are the entire distribution surface.
 
-The target end state is one repository:
+There is no second repository, no release branch, no `dist/vX.Y.Z` tag
+namespace, no generated tree, no checksum or provenance file to maintain, and no
+mirrored verification control plane. The workflows and generators that built and
+verified them are removed:
 
-- `Cratis/AI` `main` is the only authoring surface;
-- generated distribution is separated inside `Cratis/AI` by ref and subtree,
-  written only by CI, on a protected orphan branch with immutable `dist/vX.Y.Z`
-  tags;
-- `Cratis/AI.Distribution` becomes a CI-published mirror so the already
-  published `v0.1.0` through `v0.3.0` install commands and the evidence records
-  that cite its tags keep resolving, and is then archived. The repository and its
-  tags are never deleted.
+- `.github/workflows/publish.yml`;
+- `.github/workflows/verify-distribution-branch.yml`;
+- `.github/workflows/distribution-generated-update.yml`;
+- `.github/workflows/distribution-approved-profile-release.yml`;
+- `.github/workflows/release-approved-ai-profiles.yml`;
+- `distribution/repository-control-plane/`;
+- `tooling/generate-public-marketplace-distribution.mjs`,
+  `tooling/stage-public-marketplace-repository.mjs`,
+  `tooling/package-public-marketplace-submissions.mjs`, and
+  `tooling/generate-marketplace-pointer-manifests.mjs`.
 
-The anti-drift guarantee survives the move: branch protection on the generated
-branch, immutable per-release tags, and the existing root-relative,
-dependency-free `verify-generated-distribution.mjs` checks give the same
-generated-only, never-hand-edited property inside one repository.
+The `distribution` branch and its `dist/*` tag ruleset were deleted from
+`Cratis/AI` on 2026-09-06.
 
-### Finding that motivates it
+### Why
 
-The credential lifecycle below states that *human or deploy-key direct pushes are
-not an accepted update path*. In practice, `Cratis/AI.Distribution` commits
-`5d5c366`, `53c607f`, and `8f31eb0` were authored directly by a maintainer
-rather than by the release bot, because the
-[Cratis/Workflows#72](https://github.com/Cratis/Workflows/issues/72) App is still
-not installed. The contract that justifies the second repository is being
-violated in order to keep it alive.
+The content being distributed is markdown — skills, rules, and agent guidance.
+The machinery that grew around it treated it like a versioned software package
+with supply-chain guarantees: a second repository, then a protected branch, a
+staged generated tree, `SHA256SUMS`, `provenance.json`, exact-SemVer release
+tags, and an approval gate with canary rollback simulations. That ceremony was
+disproportionate to the content, and it was the reason installing Cratis AI
+needed a runbook at all.
 
-Consolidation also removes the cross-repository GitHub App, the
-`AI_DISTRIBUTION_APP_ID` and `AI_DISTRIBUTION_APP_PRIVATE_KEY` secrets, the
-duplicated control plane, and one of two branch-protection surfaces.
+A marketplace manifest can name a directory in this repository directly. Claude
+Code, Codex, and GitHub Copilot all resolve a plugin `source` of
+`{"source": "github", "repo": "Cratis/AI", "path": "skills"}` against the
+default branch, so what a host installs is exactly what a reviewer reads on
+`main`.
 
-### Phase 2 execution — landed in code
-
-[Cratis/AI#266](https://github.com/Cratis/AI/pull/266) implements the
-re-pointing for the public marketplace lane. In code, today:
-
-- `publish.yml` runs on a push to `main` that touches the source paths feeding
-  the generated tree. `cratis/release-action` — the same action every other
-  Cratis release uses — computes the version from the merged pull request's
-  release-intent label and creates the canonical `dist/vX.Y.Z` tag and GitHub
-  Release **on `main`**. The workflow then reads `Cratis/AI@distribution` as the
-  current generated state, runs all seven required checks against the staged
-  tree, pushes that tree to `refs/heads/distribution`, re-runs the seven checks
-  against the published branch, and uploads the asset set onto the release the
-  action already created. It mints no GitHub App token and reads no
-  `AI_DISTRIBUTION_APP_*` secret.
-- **The tag and the installable ref are deliberately different.** A single tag
-  name cannot correctly resolve to both the `main` release commit and the
-  generated tree on `distribution`, and `main`'s root still carries the authored
-  `skills/` tree — the exact thing the pointer indirection exists to hide. So
-  `dist/vX.Y.Z` stays on `main` as the versioned, changelog-bearing,
-  asset-hosting record, the `distribution` branch is never tagged, and the
-  host-installable reference is the exact commit SHA that run pushed to it. That
-  SHA is still an immutable pin, never a floating range.
-- `verify-distribution-branch.yml` is a live control plane inside `Cratis/AI`
-  running the same seven checks against the protected branch.
-- `tooling/generate-marketplace-pointer-manifests.mjs` emits the four thin
-  pointer marketplace manifests for the default branch. Each resolves its plugin
-  from that exact `distribution` commit SHA, and `gemini-extension.json`, a root
-  `plugin.json`, and a root `package.json` are deliberately absent so no host
-  discovers the authored root `skills/` tree.
-
-The governed S10 release lane, the disabled approved-profile activation job, and
-the credential-gated fixture and candidate review lane are deliberately left on
-the two-repository shape. They do not merely name a repository — they clone it,
-replace its root with `rsync --delete`, and open, merge, and release against its
-default branch — so a name-only re-point would aim that shape at the `Cratis/AI`
-authoring surface. They stay coherent and inert until they are migrated together
-with the gate that blocks them.
-
-### What is still outstanding
-
-Two things, and neither can be done from a pull request.
-
-**Branch and tag protection are applied out of band by the repository admin**,
-through the GitHub API, exactly like the `distribution-canary` and `npm-stage`
-protected environments recorded in
-[`distribution/remote-repository-state.json`](./remote-repository-state.json) —
-configured by a human, not by a workflow. No workflow creates or protects the
-branch. Required: the orphan `distribution` branch created in `Cratis/AI`;
-protection with force-push disabled, deletion disabled, administrators included,
-and no human push path; and `dist/*` tag protection so a release tag is immutable
-once created. Record the observed settings in `remote-repository-state.json`
-under `supersedingDecision.phase2Execution.appliedOutOfBandByRepositoryAdmin`
-once they exist.
-
-**The first real run has not happened.** One labeled push to `main` touching
-`publish.yml`'s source paths produces the first `Cratis/AI`-hosted release and
-the evidence that hosts install from it. Phase 5 — archiving the mirror — still
-follows after that.
-[Maintainer marketplace deployment runbook](../Documentation/maintainer-marketplace-deployment-runbook.md)
-records exactly what a maintainer must configure by hand.
+`Cratis/AI.Distribution`'s published `v0.1.0` through `v0.3.0` tags keep
+resolving and are never deleted.
 
 ## Initialized repository
 
@@ -140,31 +84,12 @@ removed from `Cratis/AI.Distribution` and `AI_DISTRIBUTION_DEPLOY_KEY` was
 deleted from `Cratis/AI` Actions secrets. No standing distribution write
 credential remains.
 
-Future generated updates need a repository-scoped GitHub App or equivalent bot
-that can create pull requests and, only after separate approval, tags and
-releases. Human or deploy-key direct pushes are not an accepted update path.
-
-`Cratis/AI` contains a reviewed `distribution-generated-update.yml` workflow
-contract for this path. It generates and verifies fixture bytes without
-credentials, and creates a protected generated PR only when the scoped App ID and
-private key from Workflows#72 are configured. Its installation token is narrowed
-to contents and pull-request write access for `AI.Distribution` and is revoked at
-job completion. The workflow cannot push to `main`, tag, release, publish npm, or
-submit a marketplace package.
-
-The same workflow can prepare append-only passive candidate pull requests after
-the repository-scoped App is configured and the Distribution verification
-control plane is present at the exact canonical bytes. Candidate PRs write only
-`candidates/<artifact>/<version>`, require the destination to be absent, run the
-Distribution exact-inventory check before commit, never auto-merge, and do not
-grant release, installation, runtime, publication, support, or promotion.
-
-The generated repository's exact verification workflow and dependency-free
-validator are separate stable control-plane files. Their canonical source
-remains in `Cratis/AI`, they are installed only through a reviewed bot-authored
-pull request, and root payload replacement preserves `.github/`. Control-plane
-files stay outside artifact manifests and checksums and do not become package or
-authoring content.
+The workflow contract that would have made further generated updates — a
+repository-scoped GitHub App creating bot-authored pull requests into
+`Cratis/AI.Distribution`, and the mirrored verification control plane it
+installed there — is removed along with the rest of the generated-distribution
+model. `Cratis/AI` holds no distribution write credential and needs none: the
+marketplace manifests on `main` are ordinary reviewed files.
 
 ## Gates that remain closed
 

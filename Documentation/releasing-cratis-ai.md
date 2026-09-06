@@ -26,52 +26,23 @@ OIDC canary. Future releases do not use a preview tag or require an append-only
 preview request. Package provenance and lifecycle checks continue to grant no
 support, runtime, stable-promotion, or marketplace claim.
 
-## Public multi-marketplace evaluation
+## Public marketplace installation — nothing to release
 
-The `public-cratis-ai` Distribution root merges one immutable skill tree into
-compatible manifests for generic Agent Skills and Agent Plugins, Claude Code,
-OpenAI Codex, GitHub Copilot, Cursor, Gemini CLI, Kiro, and Pi. The generator
-rejects byte-divergent collisions and preserves blocked targets, repository-only
-legacy skills, and native non-skill components as explicit exclusions. A closed,
-deny-by-default evaluation policy explicitly admits 29 public targets and keeps
-five effectful workflows, including live Chronicle operations, out until their
-effects are separately assessed and approved. Every packaged Markdown reference must resolve inside the
-skill or use an explicit external URL.
+Marketplace installation is not a release lane. `Cratis/AI` is added as a
+marketplace and its plugins resolve the `skills/` and `engineering/` directories
+on this repository's default branch, so a merge to `main` is the whole delivery.
+There is no publish workflow, no release branch, no `dist/vX.Y.Z` tag, no staged
+generated tree, and no checksum or provenance file on that path.
 
-Self-hosted GitHub installation is the publication channel for Claude Code,
-Copilot, Gemini CLI, Kiro, generic Agent Plugin hosts, and Pi Git packages. The
-aggregate `@cratis/ai` package manifest is deliberately private and exists only
-to make Pi's Git installation idiomatic; it is not an npm publication identity.
+The four committed manifests — `.claude-plugin/marketplace.json`,
+`.agents/plugins/marketplace.json`, `.github/plugin/marketplace.json`, and
+`.cursor-plugin/marketplace.json` — are the entire surface. See the
+[maintainer marketplace deployment runbook](./maintainer-marketplace-deployment-runbook.md).
+
 OpenAI's universal directory and Cursor's marketplace remain separately prepared
-portal handoffs because those vendors require an authenticated publisher,
-manual submission, and review. The OpenAI handoff also records the owner-supplied
-identity, logo, privacy/terms URLs, country availability, and policy attestations
-that must not be invented by automation. Marketplace availability remains an unsupported
-`0.x.y` evaluation claim; it does not advance S9/S10 or grant support.
-
-The **Publish Public Marketplace Distribution** workflow
-(`.github/workflows/publish.yml`) runs on a push to `main` that touches the
-source paths feeding the generated tree. Its first job hands version computation
-to `cratis/release-action` with `tag-prefix: "dist/v"` — the same action every
-other Cratis release uses — so the version comes from the merged pull request's
-release-intent label rather than a hand-typed input, and the canonical
-`dist/vX.Y.Z` tag and GitHub Release are created on `main`. A read-only `stage`
-job then generates the complete generated repository, runs all seven protected
-Distribution checks, and uploads the exact hidden-file-preserving review tree. A
-separate `publish` job, gated by the `distribution-canary` environment, writes
-the tree to the protected `distribution` branch of `Cratis/AI`, re-runs all seven
-checks against what actually landed, uploads the asset set onto the existing
-release, and opens a `no-release` pull request adding the four thin pointer
-marketplace manifests to `main`. It publishes no package and submits no vendor
-portal; both remain separate gates.
-
-**The release tag and the installable ref are two different things.** A single
-tag name cannot resolve to both the `main` release commit and the generated tree
-on the `distribution` branch, and `main`'s root still carries the authored
-`skills/` tree. So `dist/vX.Y.Z` lives on `main` as the versioned,
-changelog-bearing, asset-hosting record; the `distribution` branch is never
-tagged; and the pointer manifests resolve the exact `distribution` commit SHA
-that run pushed. That SHA is an immutable pin, never a floating range.
+portal handoffs because those vendors require an authenticated publisher, manual
+submission, and review. Marketplace availability remains an unsupported `0.x.y`
+evaluation claim; it does not advance S9/S10 or grant support.
 
 ## Static candidate review before release authority
 

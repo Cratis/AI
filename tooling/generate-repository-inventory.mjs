@@ -98,15 +98,11 @@ const unexpectedUntracked = admittedUntracked.filter(
         !(
             /^\.github\/ISSUE_TEMPLATE\//.test(path) ||
             path ===
-                ".github/workflows/distribution-approved-profile-release.yml" ||
-            path ===
                 ".github/workflows/distribution-fundamentals-preview-assets.yml" ||
             path === ".github/workflows/distribution-canary-rollback.yml" ||
             path === ".github/workflows/engineering-distribution-fixture.yml" ||
-            path === ".github/workflows/distribution-generated-update.yml" ||
             path === ".github/workflows/distribution-npm-stage.yml" ||
             path === ".github/workflows/package-passive-candidate-assets.yml" ||
-            path === ".github/workflows/release-approved-ai-profiles.yml" ||
             /^AI-REPOSITORY-REDESIGN-[A-Z0-9-]+\.md$/.test(path) ||
             path === "Documentation/.markdownlint.json" ||
             /^Documentation\/(?:adopting-cratis-ai|adopting-cratis-ai-for-maintainers|ai-distribution-and-subscriptions|capability-catalog-v2|phase-0-verification|private-repository-overlays|portable-compliance|profile-reference|public-product-architecture|skill-authoring-contract|skill-classification-audit|project-context-bootstrap|redesign-foundation-validation|releasing-cratis-ai|source-evidence-contract)\.md$/.test(
@@ -529,18 +525,13 @@ const definitions = [
         sourcePathPatterns: [
             ".github/workflows/advanced-assurance-audit.yml",
             ".github/workflows/benchmark-release-generation.yml",
-            ".github/workflows/distribution-approved-profile-release.yml",
             ".github/workflows/distribution-fundamentals-preview-assets.yml",
             ".github/workflows/distribution-canary-rollback.yml",
             ".github/workflows/engineering-distribution-fixture.yml",
-            ".github/workflows/distribution-generated-update.yml",
             ".github/workflows/distribution-npm-stage.yml",
             ".github/workflows/package-passive-candidate-assets.yml",
-            ".github/workflows/publish.yml",
-            ".github/workflows/release-approved-ai-profiles.yml",
             ".github/workflows/release-passive-previews.yml",
             ".github/workflows/verify-ai-corpus.yml",
-            ".github/workflows/verify-distribution-branch.yml",
             ".github/workflows/verify-no-work-records.yml",
             ".github/workflows/verify-semver-label.yml",
         ],
@@ -1355,7 +1346,6 @@ const definitions = [
     },
     {
         id: "marketplace-pointer-manifests",
-        absentUntilGenerated: true,
         sourcePathPatterns: [
             ".agents/plugins/marketplace.json",
             ".claude-plugin/marketplace.json",
@@ -1366,38 +1356,27 @@ const definitions = [
         currentOwner: repositoryOwner,
         targetOwner: repositoryOwner,
         runtimeEligibility: "repository-only",
-        generatedStatus: "generated",
+        generatedStatus: "source",
         adapterStatus: "none",
-        dependencies: [
-            "distribution/marketplace-requirements.json",
-            "tooling/generate-public-marketplace-distribution.mjs",
-        ],
+        dependencies: ["distribution/marketplace-requirements.json"],
         risk: "medium",
         migrationState: "retain",
         evidenceIds: ["repo-main-b795d53", "option-a-plus-authority"],
-        generator: "tooling/generate-marketplace-pointer-manifests.mjs",
     },
 ];
 
-// A record marked `absentUntilGenerated` claims paths that a release workflow
-// commits later, so it is omitted while none of them exist. Every other record
-// must match, because a record that stops matching means a path silently lost
-// its owner.
-const records = definitions.flatMap((definition) => {
-    const { absentUntilGenerated = false, ...rest } = definition;
-    const record = { excludePathPatterns: [], ...rest };
+// Every record must match at least one path, because a record that stops
+// matching means a path silently lost its owner.
+const records = definitions.map((definition) => {
+    const record = { excludePathPatterns: [], ...definition };
     const paths = expandInventoryRecord(record, universe);
-    if (paths.length === 0) {
-        if (absentUntilGenerated) return [];
+    if (paths.length === 0)
         throw new Error(`Inventory record ${record.id} matches no paths`);
-    }
-    return [
-        {
-            ...record,
-            expectedPathCount: paths.length,
-            expectedPathsDigest: pathDigest(paths),
-        },
-    ];
+    return {
+        ...record,
+        expectedPathCount: paths.length,
+        expectedPathsDigest: pathDigest(paths),
+    };
 });
 
 const output = {

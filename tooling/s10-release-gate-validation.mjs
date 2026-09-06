@@ -196,58 +196,26 @@ export function validateS10ReleaseGate(root = defaultRepositoryRoot) {
                 `${reportPath}: S9 fixture report must remain inventory-only`,
             );
     }
-    const workflow = readFileSync(
-        join(root, ".github/workflows/release-approved-ai-profiles.yml"),
-        "utf8",
-    );
-    if (
-        !/^ {2}s10_preflight:/mu.test(workflow) ||
-        !workflow.includes("release_allowed=false") ||
-        !workflow.includes("node tooling/s10-release-gate-validation.mjs") ||
-        !workflow.includes("node tooling/release-merge-topology-validation.mjs")
-    )
-        errors.push("release workflow lacks the fixed blocked S10 preflight");
+    // The governed release lane's workflows have been removed along with the
+    // rest of the cross-repository distribution machinery, so there is no
+    // credentialed, publishing, or distribution job left to keep behind the
+    // gate. Any workflow that reintroduces one has to reintroduce its own
+    // reachability proof with it.
     for (const job of sideEffectJobs) {
-        const marker = `  ${job}:`;
-        const start = workflow.indexOf(marker);
-        const remainder =
-            start < 0 ? "" : workflow.slice(start + marker.length);
-        const nextJob = remainder.match(/\n {2}[a-zA-Z0-9_-]+:\n/u);
-        const block =
-            start < 0
-                ? ""
-                : workflow.slice(
-                      start,
-                      nextJob
-                          ? start + marker.length + nextJob.index
-                          : undefined,
-                  );
-        if (
-            start < 0 ||
-            !block.includes("s10_preflight") ||
-            !block.includes("release_allowed == 'true'")
-        )
+        const owners = readdirSync(join(root, ".github/workflows")).filter(
+            (filename) =>
+                new RegExp(`^ {2}${job}:$`, "mu").test(
+                    readFileSync(
+                        join(root, ".github/workflows", filename),
+                        "utf8",
+                    ),
+                ),
+        );
+        if (owners.length > 0)
             errors.push(
                 `${job}: side-effect job is reachable while S10 is blocked`,
             );
     }
-    const distributionWorkflow = readFileSync(
-        join(
-            root,
-            ".github/workflows/distribution-approved-profile-release.yml",
-        ),
-        "utf8",
-    );
-    if (
-        distributionWorkflow.includes("          - create-generated-pr") ||
-        !distributionWorkflow.includes("if: ${{ false }} # S10 blocked") ||
-        !distributionWorkflow.includes(
-            "node tooling/s10-release-gate-validation.mjs",
-        )
-    )
-        errors.push(
-            "distribution PR creation remains reachable while S10 is blocked",
-        );
     const generator = readFileSync(
         join(root, "tooling/generate-approved-profile-release.mjs"),
         "utf8",

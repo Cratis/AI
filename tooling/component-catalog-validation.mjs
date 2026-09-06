@@ -31,14 +31,13 @@ export const componentCatalogPaths = Object.freeze({
     artifacts: "catalog/v2/artifacts.json",
 });
 
-// Generated marketplace pointer manifests sit inside a host adapter's output
-// prefix but are distribution artifacts, not component projections: they are
-// written by tooling/generate-marketplace-pointer-manifests.mjs and owned by the
-// marketplace-pointer-manifests repository inventory record. Keeping them out of
-// the host output closure is what lets a host discover the marketplace without
-// the projection catalog claiming to have generated it.
-// tooling/specs/public-marketplace-distribution.spec.mjs asserts this list stays
-// identical to the generator's own inventory.
+// The marketplace manifests sit inside a host adapter's output prefix but are
+// distribution artifacts, not component projections: they are hand-authored and
+// owned by the marketplace-pointer-manifests repository inventory record.
+// Keeping them out of the host output closure is what lets a host discover the
+// marketplace without the projection catalog claiming to have generated it.
+// tooling/specs/marketplace-pointer-manifests.spec.mjs asserts this list stays
+// identical to the committed set.
 export const distributionPointerOutputs = new Set([
     ".agents/plugins/marketplace.json",
     ".claude-plugin/marketplace.json",

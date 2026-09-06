@@ -80,17 +80,7 @@ test("generated repository contract keeps remote authority and production blocke
     assert.equal(contract.repository.status, "INITIALIZED_PROTECTED_FIXTURE");
     assert.equal(contract.repository.manualAuthoringAllowed, false);
     assert.equal(contract.repository.botOnlyWrites, true);
-    assert.deepEqual(contract.repositoryControlPlane, {
-        sourceRepository: "Cratis/AI",
-        sourceRoot: "distribution/repository-control-plane",
-        allowedPaths: [
-            ".github/scripts/verify-generated-distribution.mjs",
-            ".github/workflows/verify-generated-distribution.yml",
-        ],
-        manifestedAsArtifact: false,
-        preserveDuringPayloadReplacement: true,
-        manualAuthoringAllowed: false,
-    });
+    assert.equal(contract.repositoryControlPlane, undefined);
     assert.deepEqual(contract.repositoryReviewCandidates, {
         root: "candidates",
         artifactIds: [
@@ -108,8 +98,6 @@ test("generated repository contract keeps remote authority and production blocke
         packageName: "@cratis/ai",
         piDistribution: "git-only-private-manifest",
         versionPattern: "^0\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)$",
-        generator: "tooling/generate-public-marketplace-distribution.mjs",
-        stager: "tooling/stage-public-marketplace-repository.mjs",
         sourceArtifactId: "candidate-passive-public-package",
         targetCount: 29,
         selfHostedChannels: [
