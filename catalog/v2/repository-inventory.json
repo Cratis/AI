@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "d03baa4948e9fa4e89646def87c2689107e242bc31e8d04fd6f41b95f10116c0",
+  "indexDigest": "88cab4319fd5d6324d9c69e5b111c875ac239f8b779b95089fc8f3bc949385f8",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -235,10 +235,6 @@
       "status": "added"
     },
     {
-      "path": ".github/workflows/distribution-public-marketplace.yml",
-      "status": "added"
-    },
-    {
       "path": ".github/workflows/engineering-distribution-fixture.yml",
       "status": "added"
     },
@@ -249,6 +245,10 @@
     {
       "path": ".github/workflows/propagate-copilot-instructions.yml",
       "status": "deleted"
+    },
+    {
+      "path": ".github/workflows/publish.yml",
+      "status": "added"
     },
     {
       "path": ".github/workflows/release-approved-ai-profiles.yml",
@@ -3818,8 +3818,8 @@
         ".github/workflows/engineering-distribution-fixture.yml",
         ".github/workflows/distribution-generated-update.yml",
         ".github/workflows/distribution-npm-stage.yml",
-        ".github/workflows/distribution-public-marketplace.yml",
         ".github/workflows/package-passive-candidate-assets.yml",
+        ".github/workflows/publish.yml",
         ".github/workflows/release-approved-ai-profiles.yml",
         ".github/workflows/release-passive-previews.yml",
         ".github/workflows/verify-ai-corpus.yml",
@@ -3844,7 +3844,7 @@
         "option-a-plus-authority"
       ],
       "expectedPathCount": 16,
-      "expectedPathsDigest": "88c1cc3e84324281c117f22360726e8b839a0bc5938210dedc6f651c9c45166c"
+      "expectedPathsDigest": "44c7e72fa46439cf05722ab57b30c284376fc06322b7fa82eac71547221dbddc"
     },
     {
       "excludePathPatterns": [],
