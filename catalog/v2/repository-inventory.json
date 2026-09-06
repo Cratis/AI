@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "cfecd190d3f77e7d263525e08ac2181c928e8ae3687573f89dd01ea7c008424f",
+  "indexDigest": "50e9f7ab66dca145f28f48da10c575997005aa811ac830c28bd9d5a31df10a68",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -32,6 +32,26 @@
     },
     {
       "path": ".ai/hooks/README.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/hooks/scripts/cratis-patterns.json",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/hooks/scripts/cratis-quality-gate.sh",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/hooks/scripts/hook-lib.sh",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/hooks/scripts/quality-gates.json",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/hooks/scripts/type-references-allowlist.txt",
       "status": "modified"
     },
     {
@@ -76,6 +96,10 @@
     },
     {
       "path": ".ai/rules/general.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/rules/git-commits.md",
       "status": "modified"
     },
     {
@@ -340,7 +364,7 @@
     },
     {
       "path": ".github/workflows/update-packages.yml",
-      "status": "modified"
+      "status": "deleted"
     },
     {
       "path": ".github/workflows/verify-ai-corpus.yml",
@@ -4511,27 +4535,6 @@
       "generator": "legacy-manual-adapter-model",
       "expectedPathCount": 4,
       "expectedPathsDigest": "34b01a4f1bff59fa82f81a3a9f91921d17b32c4078a9a49397d926d21664fac3"
-    },
-    {
-      "excludePathPatterns": [],
-      "id": "obsolete-package-update-workflow",
-      "sourcePathPatterns": [
-        ".github/workflows/update-packages.yml"
-      ],
-      "artifactType": "workflow",
-      "currentOwner": "repository-only authoring/release tooling",
-      "targetOwner": "obsolete, with deletion deferred until replacement evidence exists",
-      "runtimeEligibility": "forbidden",
-      "generatedStatus": "source",
-      "adapterStatus": "none",
-      "dependencies": [],
-      "risk": "high",
-      "migrationState": "retire-after-evidence",
-      "evidenceIds": [
-        "ai-126"
-      ],
-      "expectedPathCount": 1,
-      "expectedPathsDigest": "52e108092cd0b572e13f08ef3e67bbe58a19842c9693f59aecb8c69aaf0383f7"
     },
     {
       "excludePathPatterns": [],

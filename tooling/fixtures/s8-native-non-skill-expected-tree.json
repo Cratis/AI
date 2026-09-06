@@ -112,8 +112,8 @@
         {
           "path": ".aiassistant/rules/git-commits.md",
           "sourcePath": ".ai/rules/git-commits.md",
-          "size": 8831,
-          "sha256": "cb7b7fea2d8cfe7eb2407a570dad7c2e63f5e00e653ac0ddeae6bafcc0a2bf6c"
+          "size": 10625,
+          "sha256": "ce6f0b9f6a6834beb7f437381c901755b9e9ed8bfdb7888ac543226ba0423e09"
         },
         {
           "path": ".aiassistant/rules/glossary.md",
@@ -124,8 +124,8 @@
         {
           "path": ".aiassistant/rules/managing-ai-rules.md",
           "sourcePath": ".ai/rules/managing-ai-rules.md",
-          "size": 11789,
-          "sha256": "cabf0df6de4e987b1ebc6cd3ae7607b624a6467314ce683a78ee980fd8a4312f"
+          "size": 14568,
+          "sha256": "e7a9722f1778498df97a30b0b14000344428f5b737e68123b9242226ef61de25"
         },
         {
           "path": ".aiassistant/rules/orleans.md",
@@ -322,8 +322,8 @@
         {
           "path": ".tabnine/guidelines/git-commits.md",
           "sourcePath": ".ai/rules/git-commits.md",
-          "size": 8831,
-          "sha256": "cb7b7fea2d8cfe7eb2407a570dad7c2e63f5e00e653ac0ddeae6bafcc0a2bf6c"
+          "size": 10625,
+          "sha256": "ce6f0b9f6a6834beb7f437381c901755b9e9ed8bfdb7888ac543226ba0423e09"
         },
         {
           "path": ".tabnine/guidelines/glossary.md",
@@ -334,8 +334,8 @@
         {
           "path": ".tabnine/guidelines/managing-ai-rules.md",
           "sourcePath": ".ai/rules/managing-ai-rules.md",
-          "size": 11789,
-          "sha256": "cabf0df6de4e987b1ebc6cd3ae7607b624a6467314ce683a78ee980fd8a4312f"
+          "size": 14568,
+          "sha256": "e7a9722f1778498df97a30b0b14000344428f5b737e68123b9242226ef61de25"
         },
         {
           "path": ".tabnine/guidelines/orleans.md",
@@ -935,14 +935,14 @@
       "canonicalOwnerId": "cratis-rule-git-commits",
       "semanticKind": "rule",
       "sourcePath": ".ai/rules/git-commits.md",
-      "sourceDigest": "2a392f71bcee5f342e207b72e7bcbfef86dbbd7ab638d9984a28b7cce165ea89",
+      "sourceDigest": "c898758adf68fce3b5a9952978ecb3c9054b114276404d1ce7de1a647f4e79e0",
       "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/git-commits.md",
       "hostId": "jetbrains-ai-assistant",
       "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
       "evidenceIds": [
         "jetbrains-ai-assistant-source-1"
       ],
-      "outputDigest": "cb7b7fea2d8cfe7eb2407a570dad7c2e63f5e00e653ac0ddeae6bafcc0a2bf6c"
+      "outputDigest": "ce6f0b9f6a6834beb7f437381c901755b9e9ed8bfdb7888ac543226ba0423e09"
     },
     {
       "projectionId": "cratis-rule-git-commits-to-tabnine-rule",
@@ -950,14 +950,14 @@
       "canonicalOwnerId": "cratis-rule-git-commits",
       "semanticKind": "rule",
       "sourcePath": ".ai/rules/git-commits.md",
-      "sourceDigest": "2a392f71bcee5f342e207b72e7bcbfef86dbbd7ab638d9984a28b7cce165ea89",
+      "sourceDigest": "c898758adf68fce3b5a9952978ecb3c9054b114276404d1ce7de1a647f4e79e0",
       "outputPath": "tabnine-guidelines/.tabnine/guidelines/git-commits.md",
       "hostId": "tabnine",
       "hostAdapterId": "tabnine-host-adapter",
       "evidenceIds": [
         "tabnine-source-1"
       ],
-      "outputDigest": "cb7b7fea2d8cfe7eb2407a570dad7c2e63f5e00e653ac0ddeae6bafcc0a2bf6c"
+      "outputDigest": "ce6f0b9f6a6834beb7f437381c901755b9e9ed8bfdb7888ac543226ba0423e09"
     },
     {
       "projectionId": "cratis-rule-glossary-to-jetbrains-ai-assistant-rule",
@@ -995,14 +995,14 @@
       "canonicalOwnerId": "cratis-rule-managing-ai-rules",
       "semanticKind": "rule",
       "sourcePath": ".ai/rules/managing-ai-rules.md",
-      "sourceDigest": "1b0d84a9d7ec54372c3ac14eb6832a56aa84686841f79a8de2d2fcb57456dbd5",
+      "sourceDigest": "e6866f224db15af72c73355bd1f942dcd6b1be04ed04ec3f286498c347333875",
       "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/managing-ai-rules.md",
       "hostId": "jetbrains-ai-assistant",
       "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
       "evidenceIds": [
         "jetbrains-ai-assistant-source-1"
       ],
-      "outputDigest": "cabf0df6de4e987b1ebc6cd3ae7607b624a6467314ce683a78ee980fd8a4312f"
+      "outputDigest": "e7a9722f1778498df97a30b0b14000344428f5b737e68123b9242226ef61de25"
     },
     {
       "projectionId": "cratis-rule-managing-ai-rules-to-tabnine-rule",
@@ -1010,14 +1010,14 @@
       "canonicalOwnerId": "cratis-rule-managing-ai-rules",
       "semanticKind": "rule",
       "sourcePath": ".ai/rules/managing-ai-rules.md",
-      "sourceDigest": "1b0d84a9d7ec54372c3ac14eb6832a56aa84686841f79a8de2d2fcb57456dbd5",
+      "sourceDigest": "e6866f224db15af72c73355bd1f942dcd6b1be04ed04ec3f286498c347333875",
       "outputPath": "tabnine-guidelines/.tabnine/guidelines/managing-ai-rules.md",
       "hostId": "tabnine",
       "hostAdapterId": "tabnine-host-adapter",
       "evidenceIds": [
         "tabnine-source-1"
       ],
-      "outputDigest": "cabf0df6de4e987b1ebc6cd3ae7607b624a6467314ce683a78ee980fd8a4312f"
+      "outputDigest": "e7a9722f1778498df97a30b0b14000344428f5b737e68123b9242226ef61de25"
     },
     {
       "projectionId": "cratis-rule-orleans-to-jetbrains-ai-assistant-rule",
