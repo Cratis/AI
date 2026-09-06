@@ -13,10 +13,19 @@ import {
 } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { compareOrdinal } from "./catalog-ordering.mjs";
+import { compareOrdinal, sortedOrdinal } from "./catalog-ordering.mjs";
 import { readCatalog } from "./catalog-validation.mjs";
+import {
+    componentCatalogPaths,
+    expectedGeneratedComponentCatalogs,
+} from "./component-catalog-validation.mjs";
 import { artifactForbiddenPathPatterns } from "./harness-registry.mjs";
 import { generateComponentCatalogs } from "./generate-component-catalogs.mjs";
+import {
+    checkModeRequested,
+    runGeneratorCheck,
+    serializeJson,
+} from "./generator-check.mjs";
 
 const repositoryRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const outputRoot = join(repositoryRoot, "catalog/v2");
@@ -1429,12 +1438,12 @@ function digestFiles(paths) {
     return hash.digest("hex");
 }
 
+// Collected rather than written, so importing this module produces no bytes on
+// disk and --check can compare the same values it would have written.
+const generatedOutputs = new Map();
+
 function writeJson(name, value) {
-    mkdirSync(outputRoot, { recursive: true });
-    writeFileSync(
-        join(outputRoot, name),
-        `${JSON.stringify(value, null, 2)}\n`,
-    );
+    generatedOutputs.set(`catalog/v2/${name}`, serializeJson(value));
 }
 
 const publicBySource = new Map();
@@ -2060,6 +2069,9 @@ const evidence = normalizedEvidence.observations.map((observation) => {
         expiresOn: observation.validThrough,
         applicableVersion: observation.legacy.applicableVersion,
         confidence: observation.confidence,
+        ...(observation.supersedes.length > 0
+            ? { supersedes: sortedOrdinal(observation.supersedes) }
+            : {}),
         ...(source.immutableRevision
             ? { immutableRevision: source.immutableRevision }
             : {}),
@@ -2138,8 +2150,54 @@ writeJson("product-coverage.json", {
     languages: coverageLanguages,
     products: coverageProducts,
 });
-generateComponentCatalogs(repositoryRoot);
+export function catalogV2Outputs() {
+    const outputs = new Map(generatedOutputs);
+    const componentCatalogs = expectedGeneratedComponentCatalogs(
+        repositoryRoot,
+    );
+    outputs.set(
+        componentCatalogPaths.generatedComponents,
+        serializeJson(componentCatalogs.components),
+    );
+    outputs.set(
+        componentCatalogPaths.generatedProjections,
+        serializeJson(componentCatalogs.projections),
+    );
+    return outputs;
+}
 
-process.stdout.write(
-    `Generated catalog v2: ${sources.length} sources, ${targets.length} targets, ${migrations.length} migrations, ${evidence.length} evidence records, and ${ecosystemFacts.length} ecosystem facts.\n`,
-);
+export function writeCatalogV2() {
+    mkdirSync(outputRoot, { recursive: true });
+    for (const [name, contents] of generatedOutputs)
+        writeFileSync(join(repositoryRoot, name), contents);
+    generateComponentCatalogs(repositoryRoot);
+    return {
+        sourceCount: sources.length,
+        targetCount: targets.length,
+        migrationCount: migrations.length,
+        evidenceCount: evidence.length,
+        ecosystemFactCount: ecosystemFacts.length,
+    };
+}
+
+function main() {
+    if (checkModeRequested()) {
+        process.exitCode = runGeneratorCheck({
+            name: "generate-catalog-v2",
+            root: repositoryRoot,
+            build: catalogV2Outputs,
+        });
+        return;
+    }
+    const summary = writeCatalogV2();
+    process.stdout.write(
+        `Generated catalog v2: ${summary.sourceCount} sources, ${summary.targetCount} targets, ${summary.migrationCount} migrations, ${summary.evidenceCount} evidence records, and ${summary.ecosystemFactCount} ecosystem facts.\n`,
+    );
+}
+
+if (
+    process.argv[1] &&
+    resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+) {
+    main();
+}

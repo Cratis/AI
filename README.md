@@ -217,6 +217,22 @@ The main workflow runs for canonical skills, engineering content, catalogs,
 distribution contracts, evidence, evaluations, documentation, workflows, and
 tooling.
 
+To ask the same question without writing anything — on a read-only checkout, or
+on a dirty tree where a `git diff` cannot tell your edits from generator drift —
+run the generators in `--check` mode. Each builds its outputs in memory and
+compares them byte for byte with the tracked files: exit `0` current, exit `1`
+drift with the differing paths named, exit `2` could not run.
+
+```bash
+node tooling/harness-registry.mjs --check
+node tooling/generate-catalog-v2.mjs --check
+node tooling/generate-support.mjs --check
+node tooling/preview-readiness.mjs --check
+node tooling/generate-ecosystem-artifact-coverage.mjs --check
+node tooling/generate-human-catalog.mjs --check
+node tooling/generate-repository-inventory.mjs --check
+```
+
 ## Current release state
 
 `@cratis/ai-fundamentals` uses the normal Cratis release flow: exactly one

@@ -161,3 +161,8 @@ artifacts/
 
 # Local AI work artifacts (plans, handovers, session notes) — never tracked
 .ai-work/
+
+# Per-machine Claude Code settings. The tracked hook wiring is
+# .ai/hooks/settings.template.json; these are the copies of it.
+.claude/settings.json
+.claude/settings.local.json

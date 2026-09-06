@@ -826,6 +826,104 @@ test("stale and future-dated evidence fail and unsupported local facts remain ex
     assert(errors.some((error) => error.includes("verified after")));
 });
 
+// Evidence is append-only, so renewing an observation appends a replacement that names it in `supersedes` while
+// the replaced observation stays in the catalog forever with an `expiresOn` that keeps receding into the past.
+// These cover the resulting expiry semantics: history stops gating for exactly as long as a live renewal covers it.
+function renewalOf(record, id, verifiedOn, expiresOn) {
+    return {
+        id,
+        officialUrl: record.officialUrl,
+        sourceKind: record.sourceKind,
+        verifiedOn,
+        expiresOn,
+        applicableVersion: record.applicableVersion,
+        confidence: record.confidence,
+        supersedes: [record.id],
+    };
+}
+
+test("a live renewal retires the expiry of the observation it supersedes", () => {
+    const catalogs = loadCatalogs();
+    const original = catalogs.evidence.evidence[0];
+    original.expiresOn = daysFromAsOf(catalogs, -1);
+    assert(
+        validateEvidenceAndCoverage(catalogs).includes(
+            `${original.id}: evidence expired before the catalog as-of date`,
+        ),
+    );
+    catalogs.evidence.evidence.push(
+        renewalOf(
+            original,
+            `${original.id}-renewal`,
+            daysFromAsOf(catalogs, -1),
+            daysFromAsOf(catalogs, 30),
+        ),
+    );
+    assert.deepEqual(validateEvidenceAndCoverage(catalogs), []);
+});
+
+test("expiry gates again once an entire renewal chain has lapsed", () => {
+    const catalogs = loadCatalogs();
+    const original = catalogs.evidence.evidence[0];
+    original.expiresOn = daysFromAsOf(catalogs, -20);
+    const lapsed = renewalOf(
+        original,
+        `${original.id}-renewal`,
+        daysFromAsOf(catalogs, -20),
+        daysFromAsOf(catalogs, -1),
+    );
+    catalogs.evidence.evidence.push(lapsed);
+    const errors = validateEvidenceAndCoverage(catalogs);
+    assert(
+        errors.includes(
+            `${original.id}: evidence expired before the catalog as-of date`,
+        ),
+    );
+    assert(
+        errors.includes(
+            `${lapsed.id}: evidence expired before the catalog as-of date`,
+        ),
+    );
+    catalogs.evidence.evidence.push(
+        renewalOf(
+            lapsed,
+            `${original.id}-renewal-2`,
+            daysFromAsOf(catalogs, -1),
+            daysFromAsOf(catalogs, 30),
+        ),
+    );
+    assert.deepEqual(validateEvidenceAndCoverage(catalogs), []);
+});
+
+test("evidence cannot supersede an observation the catalog does not carry", () => {
+    const catalogs = loadCatalogs();
+    const evidence = catalogs.evidence.evidence[0];
+    evidence.supersedes = ["missing-evidence"];
+    assert(
+        validateEvidenceAndCoverage(catalogs).includes(
+            `${evidence.id}: unknown superseded evidence missing-evidence`,
+        ),
+    );
+});
+
+test("the v2 evidence projection carries the normalized supersession relation", () => {
+    const normalized = readCatalog(
+        join(defaultRepositoryRoot, "catalog/evidence.json"),
+    );
+    const expected = Object.fromEntries(
+        normalized.observations
+            .filter((observation) => observation.supersedes.length > 0)
+            .map((observation) => [observation.id, [...observation.supersedes]]),
+    );
+    const projected = Object.fromEntries(
+        readCatalog(join(defaultRepositoryRoot, v2CatalogPaths.evidence))
+            .evidence.filter((evidence) => evidence.supersedes)
+            .map((evidence) => [evidence.id, evidence.supersedes]),
+    );
+    assert(Object.keys(expected).length > 0);
+    assert.deepEqual(projected, expected);
+});
+
 test("aggregate validation propagates its repository root to evidence checks", () => {
     const source = readFileSync(
         join(defaultRepositoryRoot, "tooling/catalog-v2-validation.mjs"),

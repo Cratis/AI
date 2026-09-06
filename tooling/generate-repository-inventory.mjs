@@ -10,6 +10,11 @@ import { fileURLToPath } from "node:url";
 import { compareOrdinal, sortedOrdinal } from "./catalog-ordering.mjs";
 import { readCatalog } from "./catalog-validation.mjs";
 import { expandInventoryRecord } from "./catalog-v2-validation.mjs";
+import {
+    checkModeRequested,
+    runGeneratorCheck,
+    serializeJson,
+} from "./generator-check.mjs";
 
 const repositoryRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const outputPath = join(repositoryRoot, "catalog/v2/repository-inventory.json");
@@ -81,73 +86,87 @@ function changesSinceBase(baseRevision) {
 }
 
 const excludedRuntimePrefixes = [".pi/delegate/", ".pi/fusion/", ".pi/tasks/"];
-const tracked = gitPaths(["ls-files", "-z"]);
-const admittedUntracked = gitPaths([
-    "ls-files",
-    "--others",
-    "--exclude-standard",
-    "-z",
-])
-    .filter(
+
+// Reading the working tree happens per run, not at import, so importing this
+// module observes nothing and writes nothing.
+function readPathUniverse() {
+    const tracked = gitPaths(["ls-files", "-z"]);
+    const admittedUntracked = gitPaths([
+        "ls-files",
+        "--others",
+        "--exclude-standard",
+        "-z",
+    ])
+        .filter(
+            (path) =>
+                !excludedRuntimePrefixes.some((prefix) =>
+                    path.startsWith(prefix),
+                ),
+        )
+        .sort(compareOrdinal);
+    const unexpectedUntracked = admittedUntracked.filter(
         (path) =>
-            !excludedRuntimePrefixes.some((prefix) => path.startsWith(prefix)),
-    )
-    .sort(compareOrdinal);
-const unexpectedUntracked = admittedUntracked.filter(
-    (path) =>
-        !(
-            /^\.github\/ISSUE_TEMPLATE\//.test(path) ||
-            path ===
-                ".github/workflows/distribution-fundamentals-preview-assets.yml" ||
-            path === ".github/workflows/distribution-canary-rollback.yml" ||
-            path === ".github/workflows/engineering-distribution-fixture.yml" ||
-            path === ".github/workflows/distribution-npm-stage.yml" ||
-            path === ".github/workflows/package-passive-candidate-assets.yml" ||
-            /^AI-REPOSITORY-REDESIGN-[A-Z0-9-]+\.md$/.test(path) ||
-            path === "Documentation/.markdownlint.json" ||
-            /^Documentation\/(?:adopting-cratis-ai|adopting-cratis-ai-for-maintainers|ai-distribution-and-subscriptions|capability-catalog-v2|phase-0-verification|private-repository-overlays|portable-compliance|profile-reference|public-product-architecture|skill-authoring-contract|skill-classification-audit|project-context-bootstrap|redesign-foundation-validation|releasing-cratis-ai|source-evidence-contract)\.md$/.test(
-                path,
-            ) ||
-            /^Documentation\/examples\/(?:ai-release|ai-subscriptions|private-repository-overlay)\//.test(
-                path,
-            ) ||
-            /^Documentation\/evidence\/redesign-autonomous-execution-2026-08-20\//.test(
-                path,
-            ) ||
-            /^catalog\//.test(path) ||
-            /^distribution\//.test(path) ||
-            /^engineering\//.test(path) ||
-            /^evidence\/source-evidence\//.test(path) ||
-            /^evals\//.test(path) ||
-            /^mcp\//.test(path) ||
-            /^pilots\//.test(path) ||
-            /^profiles\//.test(path) ||
-            /^skills\//.test(path) ||
-            /^tooling\//.test(path)
-        ),
-);
-if (unexpectedUntracked.length > 0) {
-    throw new Error(
-        `Refusing to admit unexpected untracked files: ${unexpectedUntracked.join(", ")}`,
+            !(
+                /^\.github\/ISSUE_TEMPLATE\//.test(path) ||
+                path ===
+                    ".github/workflows/distribution-fundamentals-preview-assets.yml" ||
+                path === ".github/workflows/distribution-canary-rollback.yml" ||
+                path === ".github/workflows/engineering-distribution-fixture.yml" ||
+                path === ".github/workflows/distribution-npm-stage.yml" ||
+                path === ".github/workflows/package-passive-candidate-assets.yml" ||
+                /^AI-REPOSITORY-REDESIGN-[A-Z0-9-]+\.md$/.test(path) ||
+                path === "Documentation/.markdownlint.json" ||
+                /^Documentation\/(?:adopting-cratis-ai|adopting-cratis-ai-for-maintainers|ai-distribution-and-subscriptions|capability-catalog-v2|phase-0-verification|private-repository-overlays|portable-compliance|profile-reference|public-product-architecture|skill-authoring-contract|skill-classification-audit|project-context-bootstrap|redesign-foundation-validation|releasing-cratis-ai|source-evidence-contract)\.md$/.test(
+                    path,
+                ) ||
+                /^Documentation\/examples\/(?:ai-release|ai-subscriptions|private-repository-overlay)\//.test(
+                    path,
+                ) ||
+                /^Documentation\/evidence\/redesign-autonomous-execution-2026-08-20\//.test(
+                    path,
+                ) ||
+                /^catalog\//.test(path) ||
+                /^distribution\//.test(path) ||
+                /^engineering\//.test(path) ||
+                /^evidence\/source-evidence\//.test(path) ||
+                /^evals\//.test(path) ||
+                /^mcp\//.test(path) ||
+                /^pilots\//.test(path) ||
+                /^profiles\//.test(path) ||
+                /^skills\//.test(path) ||
+                /^tooling\//.test(path)
+            ),
     );
+    if (unexpectedUntracked.length > 0) {
+        throw new Error(
+            `Refusing to admit unexpected untracked files: ${unexpectedUntracked.join(", ")}`,
+        );
+    }
+    return {
+        admittedUntracked,
+        universe: [...tracked, ...admittedUntracked],
+    };
 }
-const universe = [...tracked, ...admittedUntracked];
-const v2Sources = readCatalog(join(repositoryRoot, "catalog/v2/sources.json"));
-// A source record whose canonical path has moved into `skills/` no longer
-// contributes its legacy `.ai/skills` root, so each retained twin is named
-// explicitly until Cratis/AI#256 retires it.
-const retainedLegacyPublicSkillRoots = [
-    ".ai/skills/add-concept/**",
-    ".ai/skills/cratis-specs-csharp/**",
-    ".ai/skills/cratis-specs-typescript/**",
-];
-const publicSkillRoots = [
-    ...v2Sources.sources
-        .filter((source) => source.audience === "public")
-        .map((source) => `${source.sourcePath}/**`),
-    ...retainedLegacyPublicSkillRoots,
-    "skills/**",
-];
+
+// Read on demand rather than at import, so an unreadable catalog is reported
+// by the run that needs it instead of exploding while the module loads.
+function publicSkillRoots() {
+    const v2Sources = readCatalog(
+        join(repositoryRoot, "catalog/v2/sources.json"),
+    );
+    return [
+        ...v2Sources.sources
+            .filter((source) => source.audience === "public")
+            .map((source) => `${source.sourcePath}/**`),
+        // A source record whose canonical path has moved into `skills/` no
+        // longer contributes its legacy `.ai/skills` root, so each retained
+        // twin is named explicitly until Cratis/AI#256 retires it.
+        ".ai/skills/add-concept/**",
+        ".ai/skills/cratis-specs-csharp/**",
+        ".ai/skills/cratis-specs-typescript/**",
+        "skills/**",
+    ];
+}
 const legacyEngineeringSkillNames = [
     "add-cratis-docs-page",
     "add-traces",
@@ -158,11 +177,11 @@ const legacyEngineeringSkillNames = [
     "skill-creator",
     "write-documentation",
 ];
-const engineeringSkillRoots = legacyEngineeringSkillNames.map(
-    (name) => `.ai/skills/${name}/**`,
-);
+function engineeringSkillRoots() {
+    return legacyEngineeringSkillNames.map((name) => `.ai/skills/${name}/**`);
+}
 
-const definitions = [
+const inventoryDefinitions = () => [
     {
         id: "root-repository-metadata",
         sourcePathPatterns: [
@@ -335,7 +354,7 @@ const definitions = [
     },
     {
         id: "public-skill-sources-and-resources",
-        sourcePathPatterns: publicSkillRoots,
+        sourcePathPatterns: publicSkillRoots(),
         excludePathPatterns: [
             ".ai/skills/*/evals/**",
             "skills/cratis-chronicle-mcp-inspection/references/**",
@@ -403,7 +422,7 @@ const definitions = [
     },
     {
         id: "engineering-skill-sources-and-resources",
-        sourcePathPatterns: engineeringSkillRoots,
+        sourcePathPatterns: engineeringSkillRoots(),
         excludePathPatterns: [".ai/skills/*/evals/**"],
         artifactType: "skill-source-and-resources",
         currentOwner: engineeringOwner,
@@ -1004,6 +1023,8 @@ const definitions = [
             "catalog/schemas/ecosystem-artifact-coverage.schema.json",
             "catalog/schemas/product-coverage.schema.json",
             "catalog/schemas/public-skills.schema.json",
+            "catalog/schemas/vocabulary.schema.json",
+            "catalog/vocabulary.json",
         ],
         artifactType: "catalog-schema",
         currentOwner: repositoryOwner,
@@ -1381,31 +1402,67 @@ const definitions = [
     },
 ];
 
-// Every record must match at least one path, because a record that stops
-// matching means a path silently lost its owner.
-const records = definitions.map((definition) => {
-    const record = { excludePathPatterns: [], ...definition };
-    const paths = expandInventoryRecord(record, universe);
-    if (paths.length === 0)
-        throw new Error(`Inventory record ${record.id} matches no paths`);
-    return {
-        ...record,
-        expectedPathCount: paths.length,
-        expectedPathsDigest: pathDigest(paths),
-    };
-});
+export function buildRepositoryInventory() {
+    const { admittedUntracked, universe } = readPathUniverse();
 
-const output = {
-    schemaVersion: 2,
-    baseRevision: revision,
-    indexDigest: indexDigest(indexDigestExcludedPaths),
-    indexDigestExcludedPaths,
-    changesSinceBase: changesSinceBase(revision),
-    admittedUntracked,
-    excludedRuntimePrefixes,
-    records,
-};
-writeFileSync(outputPath, `${JSON.stringify(output, null, 2)}\n`);
-process.stdout.write(
-    `Generated repository inventory: ${records.length} groups account for ${universe.length} tracked and admitted paths.\n`,
-);
+    // Every record must match at least one path, because a record that stops
+    // matching means a path silently lost its owner.
+    const records = inventoryDefinitions().map((definition) => {
+        const record = { excludePathPatterns: [], ...definition };
+        const paths = expandInventoryRecord(record, universe);
+        if (paths.length === 0)
+            throw new Error(`Inventory record ${record.id} matches no paths`);
+        return {
+            ...record,
+            expectedPathCount: paths.length,
+            expectedPathsDigest: pathDigest(paths),
+        };
+    });
+
+    return {
+        inventory: {
+            schemaVersion: 2,
+            baseRevision: revision,
+            indexDigest: indexDigest(indexDigestExcludedPaths),
+            indexDigestExcludedPaths,
+            changesSinceBase: changesSinceBase(revision),
+            admittedUntracked,
+            excludedRuntimePrefixes,
+            records,
+        },
+        pathCount: universe.length,
+    };
+}
+
+export function repositoryInventoryOutputs() {
+    const { inventory } = buildRepositoryInventory();
+    return new Map([[inventoryOutputPath, serializeJson(inventory)]]);
+}
+
+export function writeRepositoryInventory() {
+    const { inventory, pathCount } = buildRepositoryInventory();
+    writeFileSync(outputPath, serializeJson(inventory));
+    return { inventory, pathCount };
+}
+
+function main() {
+    if (checkModeRequested()) {
+        process.exitCode = runGeneratorCheck({
+            name: "generate-repository-inventory",
+            root: repositoryRoot,
+            build: repositoryInventoryOutputs,
+        });
+        return;
+    }
+    const { inventory, pathCount } = writeRepositoryInventory();
+    process.stdout.write(
+        `Generated repository inventory: ${inventory.records.length} groups account for ${pathCount} tracked and admitted paths.\n`,
+    );
+}
+
+if (
+    process.argv[1] &&
+    resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+) {
+    main();
+}

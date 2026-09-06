@@ -2,17 +2,17 @@
   "schemaVersion": 2,
   "contractVersion": 1,
   "disclaimer": "Catalog inclusion, evaluation evidence, component modeling, planned projection, bundle generation, or publication does not grant runtime permission, emitted bytes, support, or approval.",
-  "inputDigest": "d6379f34bf504bb1910dd357633b694fe1369c437309287c45ecb62214edfb8e",
+  "inputDigest": "e294eda606246952abf37cb11f253698f59dd074b6da672d44914dee1a8c560d",
   "componentSummary": {
     "disclaimer": "Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.",
-    "total": 140,
+    "total": 148,
     "byKind": {
       "skill": 52,
       "agent": 12,
       "subagent": 0,
       "command": 18,
       "prompt": 18,
-      "rule": 36,
+      "rule": 44,
       "instruction": 1,
       "hook": 1,
       "mcp": 0,
@@ -21,33 +21,33 @@
       "static-asset": 0
     },
     "byTrust": {
-      "passive": 137,
+      "passive": 145,
       "executable": 3
     },
     "byAudience": {
       "public": 37,
-      "cratis-engineering": 103,
+      "cratis-engineering": 111,
       "repository-only": 0
     },
     "byLifecycle": {
-      "active": 133,
+      "active": 141,
       "legacy-retained": 7
     },
     "projections": {
-      "total": 386,
+      "total": 402,
       "byState": {
         "planned": 0,
         "blocked": 0,
-        "existing": 316,
+        "existing": 332,
         "generated-static": 70
       },
       "byActivation": {
-        "active": 313,
+        "active": 329,
         "inert": 3,
         "none": 70
       },
       "byApproval": {
-        "modeled": 383,
+        "modeled": 399,
         "approved": 0,
         "blocked": 3
       }

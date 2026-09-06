@@ -5,6 +5,11 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+    checkModeRequested,
+    runGeneratorCheck,
+    serializeJson,
+} from "./generator-check.mjs";
 
 const passivePublicArtifactClass = "passive-public-package";
 
@@ -784,11 +789,7 @@ function readJson(path) {
     return JSON.parse(readFileSync(path, "utf8"));
 }
 
-function writeJson(path, value) {
-    writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`);
-}
-
-function synchronizeSubscriptionHarnessEnum(path) {
+function subscriptionHarnessEnumContent(path) {
     const content = readFileSync(path, "utf8");
     const harnessProperty = content.indexOf('    "harnesses": {');
     const enumStart = content.indexOf('        "enum": [', harnessProperty);
@@ -802,22 +803,20 @@ function synchronizeSubscriptionHarnessEnum(path) {
                 `          ${JSON.stringify(id)}${index === subscriptionHarnessIds.length - 1 ? "" : ","}`,
         ),
     ].join("\n");
-    writeFileSync(
-        path,
-        `${content.slice(0, enumStart)}${replacement}${content.slice(enumEnd)}`,
-    );
+    return `${content.slice(0, enumStart)}${replacement}${content.slice(enumEnd)}`;
 }
 
-export function synchronizeHarnessRegistrySurfaces(repositoryRoot) {
+// The bytes the registry would write, built without writing any of them, so
+// --check compares exactly what the write path would have produced.
+export function harnessRegistrySurfaceOutputs(repositoryRoot) {
     const root = resolve(repositoryRoot);
-    const schemaPath = join(
-        root,
-        "distribution/profile-subscription.schema.json",
-    );
-    synchronizeSubscriptionHarnessEnum(schemaPath);
+    const subscriptionSchemaPath =
+        "distribution/profile-subscription.schema.json";
+    const artifactMatrixPath = "distribution/artifact-matrix.json";
+    const engineeringMatrixPath =
+        "distribution/engineering-artifact-matrix.json";
 
-    const artifactMatrixPath = join(root, "distribution/artifact-matrix.json");
-    const artifactMatrix = readJson(artifactMatrixPath);
+    const artifactMatrix = readJson(join(root, artifactMatrixPath));
     const targets = new Map(
         artifactMatrix.targets.map((target) => [target.id, target]),
     );
@@ -829,27 +828,51 @@ export function synchronizeHarnessRegistrySurfaces(repositoryRoot) {
             );
         target.outputRoot = harness.fixtureOutputRoot;
     }
-    writeJson(artifactMatrixPath, artifactMatrix);
 
-    const engineeringMatrixPath = join(
-        root,
-        "distribution/engineering-artifact-matrix.json",
-    );
-    const engineeringMatrix = readJson(engineeringMatrixPath);
+    const engineeringMatrix = readJson(join(root, engineeringMatrixPath));
     engineeringMatrix.projectOwnedForbiddenPaths = [
         ...forbiddenPathPolicy.projectOwnedPaths,
     ];
     engineeringMatrix.alwaysForbiddenPaths = [
         ...forbiddenPathPolicy.engineeringAlwaysPatterns,
     ];
-    writeJson(engineeringMatrixPath, engineeringMatrix);
+
+    return new Map([
+        [
+            subscriptionSchemaPath,
+            subscriptionHarnessEnumContent(join(root, subscriptionSchemaPath)),
+        ],
+        [artifactMatrixPath, serializeJson(artifactMatrix)],
+        [engineeringMatrixPath, serializeJson(engineeringMatrix)],
+    ]);
+}
+
+export function synchronizeHarnessRegistrySurfaces(repositoryRoot) {
+    const root = resolve(repositoryRoot);
+    const outputs = harnessRegistrySurfaceOutputs(root);
+    for (const [path, contents] of outputs)
+        writeFileSync(join(root, path), contents);
+    return outputs;
 }
 
 const defaultRepositoryRoot = resolve(
     fileURLToPath(new URL("..", import.meta.url)),
 );
+
+function main() {
+    if (checkModeRequested()) {
+        process.exitCode = runGeneratorCheck({
+            name: "harness-registry",
+            root: defaultRepositoryRoot,
+            build: () => harnessRegistrySurfaceOutputs(defaultRepositoryRoot),
+        });
+        return;
+    }
+    synchronizeHarnessRegistrySurfaces(defaultRepositoryRoot);
+}
+
 if (
     process.argv[1] &&
     resolve(process.argv[1]) === fileURLToPath(import.meta.url)
 )
-    synchronizeHarnessRegistrySurfaces(defaultRepositoryRoot);
+    main();
