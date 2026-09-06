@@ -50,9 +50,15 @@ that must not be invented by automation. Marketplace availability remains an uns
 `0.x.y` evaluation claim; it does not advance S9/S10 or grant support.
 
 The manual **Stage Public Marketplace Distribution** workflow generates the
-complete `Cratis/AI.Distribution` repository candidate, runs all seven protected
-Distribution checks, and uploads the exact hidden-file-preserving review tree.
-It has read-only permissions and cannot push, publish, or submit vendor portals.
+complete generated repository, runs all seven protected Distribution checks, and
+uploads the exact hidden-file-preserving review tree. Generation and verification
+run in a read-only `stage` job. A separate `publish` job, gated by the
+`distribution-canary` environment, then writes the tree to the protected
+`distribution` branch of `Cratis/AI`, creates the immutable `dist/vX.Y.Z` tag,
+re-runs all seven checks against what actually landed, publishes the GitHub
+release with its asset set, and opens a `no-release` pull request adding the four
+thin pointer marketplace manifests to `main`. It publishes no package and submits
+no vendor portal; both remain separate gates.
 
 ## Static candidate review before release authority
 

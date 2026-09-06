@@ -28,15 +28,18 @@ it is labeled done or outstanding accordingly.
 | 1 | `distribution-canary` protected environment | [#181](https://github.com/Cratis/AI/issues/181) | **Done** — `CONFIGURED`, reviewer `woksin`, branch `main` |
 | 2 | `npm-stage` protected environment | [#181](https://github.com/Cratis/AI/issues/181) | **Done** — `CONFIGURED`, reviewer `woksin`, branch `main` |
 | 3 | npm `@cratis` scope ownership and trusted publishing | [Cratis/Workflows#70](https://github.com/Cratis/Workflows/issues/70) | **Done** for `release-passive-previews.yml` — see the caveat in step 3 |
-| 4 | `Cratis/AI.Distribution` GitHub App (`AI_DISTRIBUTION_APP_ID` / `AI_DISTRIBUTION_APP_PRIVATE_KEY`) | [Cratis/Workflows#72](https://github.com/Cratis/Workflows/issues/72) | **Outstanding** — the App is not installed; three commits were hand-authored instead |
+| 4 | `Cratis/AI.Distribution` GitHub App (`AI_DISTRIBUTION_APP_ID` / `AI_DISTRIBUTION_APP_PRIVATE_KEY`) | [Cratis/Workflows#72](https://github.com/Cratis/Workflows/issues/72) | **Outstanding, and now smaller** — the App is still not installed; the public marketplace lane no longer needs it, three gated workflows still do |
 | 5 | Canary repository and subscriber ring authorization | [Cratis/Workflows#71](https://github.com/Cratis/Workflows/issues/71) | **Outstanding** |
-| 6 | Single-repository re-pointing (protected `distribution` branch, `dist/*` tags) | [#264](https://github.com/Cratis/AI/issues/264) Phase 2 | **Outstanding** |
+| 6 | Single-repository re-pointing (protected `distribution` branch, `dist/*` tags) | [#264](https://github.com/Cratis/AI/issues/264) Phase 2 | **Landed in code** ([#266](https://github.com/Cratis/AI/pull/266)) — two configuration items remain, both below |
 | 7 | Archive `Cratis/AI.Distribution` | [#264](https://github.com/Cratis/AI/issues/264) Phase 5 | **Outstanding** — blocked on step 6 |
 | 8 | Marketplace publisher accounts and vendor listing review | [#147](https://github.com/Cratis/AI/issues/147) | **Outstanding** |
 
-Steps 4 and 6 interact: doing step 6 first **removes** most of step 4, because a
-same-repository write needs no cross-repository App. Do not install the App for
-`Cratis/AI.Distribution` and then immediately retire it.
+Steps 4 and 6 interact, and step 6's engineering half is now done: the public
+marketplace lane writes inside `Cratis/AI` with its own `contents: write` token
+and needs no cross-repository App. The App is still required by the three lanes
+listed in step 4, all of which are separately blocked. Do not install it for
+`Cratis/AI.Distribution` unless you need one of those blocked lanes to run before
+they are migrated too.
 
 ## 1 and 2 — protected environments
 
@@ -60,9 +63,15 @@ Rules to keep when you touch them:
   reviewer there, update that field in the same change so the contract stops
   disagreeing with reality.
 
-**If step 6 lands**, add the same protection posture to the new generated branch:
-branch protection on `distribution` with force-push and deletion disabled and no
-human push path, and tag protection on `dist/*` so a release tag is immutable.
+**Step 6's code has landed**, so the same protection posture is now owed to the
+new generated branch: branch protection on `distribution` with force-push and
+deletion disabled and no human push path, and tag protection on `dist/*` so a
+release tag is immutable. Apply it the same way — by hand, through the API — and
+record it alongside these two environments. Step 6a below is that item.
+
+The `publish` job of `distribution-public-marketplace.yml` runs in
+`distribution-canary`, so the same reviewer already gates every write to the
+protected branch, the `dist/*` tag, and the GitHub release.
 
 ## 3 — npm trusted publishing
 
@@ -116,14 +125,17 @@ publish to npm, and cannot submit a marketplace package.
 Both secrets live in `Cratis/AI` Actions secrets:
 `AI_DISTRIBUTION_APP_ID` and `AI_DISTRIBUTION_APP_PRIVATE_KEY`.
 
-`distribution-public-marketplace.yml` additionally checks out
-`Cratis/AI.Distribution` **read-only** with `persist-credentials: false`; that
-job needs no App because it only reads the current generated tree.
+`distribution-public-marketplace.yml` **no longer appears in that table.** Since
+[#266](https://github.com/Cratis/AI/pull/266) it reads and writes only
+`Cratis/AI`: it checks out `Cratis/AI@distribution` read-only with
+`persist-credentials: false` in its `stage` job, and its `publish` job writes the
+protected branch, the `dist/vX.Y.Z` tag, and the GitHub release with the
+workflow's own `${{ github.token }}` under job-scoped `contents: write`. It
+references neither secret.
 
-**Read this before installing the App.** Step 6 removes this entire item: with a
-generated ref inside `Cratis/AI`, the release workflow writes with its own
-`contents: write` token and both secrets are deleted. Install the App only if you
-need the two-repository pipeline to work before the consolidation lands.
+**Read this before installing the App.** Step 6 removes the rest of this item
+too, once the three remaining lanes are migrated. Install the App only if you
+need one of those blocked two-repository lanes to work before that happens.
 
 ## 5 — canary and subscriber authorization
 
@@ -148,46 +160,86 @@ profile can leave the basic assurance lane
 
 ## 6 — single-repository re-pointing (Phase 2 of #264)
 
-**Outstanding, and deliberately not attempted in the pull request that added
-this page.** It changes live publishing.
+**The engineering work has landed in [#266](https://github.com/Cratis/AI/pull/266).**
+Two items remain, and neither can be done from a pull request.
 
-What a maintainer must do by hand:
+### 6a — create and protect the branch (repository admin, out of band)
 
-1. Create the orphan `distribution` branch in `Cratis/AI` and protect it:
-   force-push disabled, deletion disabled, administrators included, and no human
-   push path. Only the release workflow may write it.
-2. Add tag protection for `dist/*` so a release tag is immutable once created.
-3. Confirm the `Cratis/AI` Actions token may create releases and tags.
+This is a manual configuration step exactly like steps 1 and 2: a human with
+owner rights applies it through the GitHub API, and no workflow ever creates or
+protects the branch.
 
-What then becomes ordinary engineering work:
+1. Create the orphan `distribution` branch in `Cratis/AI`.
+2. Protect it: force-push disabled, deletion disabled, administrators included,
+   and no human push path. Only the release workflow may write it.
+3. Add tag protection for `dist/*` so a release tag is immutable once created.
+4. Confirm the `Cratis/AI` Actions token may create releases and tags.
 
-- point `tooling/stage-public-marketplace-repository.mjs` at
-  `Cratis/AI@distribution` instead of taking `Cratis/AI.Distribution` as the
-  current distribution root;
-- delete the `actions/create-github-app-token` steps and both
-  `AI_DISTRIBUTION_*` inputs from `distribution-generated-update.yml`, and delete
-  the `cmp`-based control-plane mirroring step;
-- move `distribution/repository-control-plane/.github/workflows/verify-generated-distribution.yml`
-  into `.github/workflows/`, scoped to the `distribution` branch and to
-  `generated/**` on `main`, keeping all seven required checks —
-  `exact-inventory`, `canonical-byte-parity`, `native-manifest-parse`,
-  `checksums`, `fixture-provenance-record`, `pack-install-smoke-uninstall`,
-  `canary-rollback-simulation`;
-- extend `release-approved-ai-profiles.yml` to push the generated tree, create
-  the `dist/vX.Y.Z` tag, and attach the asset set the `verify` job already
-  builds;
-- generate the four thin pointer manifests at `main` root, and **not**
-  `gemini-extension.json`, root `plugin.json`, or root `package.json`, so no host
-  discovers the authored root `skills/` tree;
-- update `distribution/marketplace-requirements.json` install, update, and
-  uninstall commands to the `Cratis/AI` forms and re-run the host preflights
-  recorded under `distribution/evidence/s9-*`.
+Record the observed settings in
+[`distribution/remote-repository-state.json`](../distribution/remote-repository-state.json)
+under `supersedingDecision.phase2Execution.appliedOutOfBandByRepositoryAdmin`
+once they exist, the same way this page records steps 1 and 2 as `CONFIGURED`.
+
+The staging workflow tolerates the branch not existing yet: it probes for the ref
+and, on a bootstrap run, stages a complete tree with no carried-forward
+candidates and runs the rollback simulation against the staged tree itself. So
+step 6a can be done before or after the first dispatch, but the branch must exist
+and be protected before anyone trusts what lands on it.
+
+### 6b — run the re-pointed workflow once for real
+
+Dispatch **Stage Public Marketplace Distribution**. One run now:
+
+1. reads `Cratis/AI@distribution` as the current generated state;
+2. stages the complete tree and runs all seven required checks against it;
+3. pushes it to `refs/heads/distribution` and creates `dist/vX.Y.Z`;
+4. re-runs all seven checks against the published branch;
+5. publishes the GitHub release at that tag with `SHA256SUMS`,
+   `provenance.json`, `distribution-manifest.json`, `marketplace-release.json`,
+   and the vendor-portal handoff archives; and
+6. opens a `no-release` pull request adding the four thin pointer marketplace
+   manifests to `main`.
 
 Then re-run the host install evidence at the new ref for Claude Code, Codex,
 Copilot, Gemini, Pi, Cursor, and Kiro, and record it under
 `distribution/evidence/` in the existing format — including the negative test
 that adding `Cratis/AI` as a marketplace does **not** surface the authored root
 `skills/` tree.
+
+### What already landed in code
+
+- `distribution-public-marketplace.yml` reads `Cratis/AI@distribution`, stages,
+  verifies, pushes, tags, re-verifies, releases, and opens the pointer pull
+  request. Generation and verification stay in a read-only `stage` job;
+  `contents: write` and `pull-requests: write` are scoped to the `publish` job,
+  which is gated by the `distribution-canary` environment.
+- `.github/workflows/verify-distribution-branch.yml` is a live control plane in
+  `Cratis/AI` running all seven required checks — `exact-inventory`,
+  `canonical-byte-parity`, `native-manifest-parse`, `checksums`,
+  `fixture-provenance-record`, `pack-install-smoke-uninstall`,
+  `canary-rollback-simulation` — against the protected branch. The reviewed
+  source under `distribution/repository-control-plane/` is unchanged and still
+  mirrors into the generated tree.
+- `tooling/generate-marketplace-pointer-manifests.mjs` emits the four pointer
+  manifests, and **not** `gemini-extension.json`, root `plugin.json`, or root
+  `package.json`, so no host discovers the authored root `skills/` tree.
+- `distribution/marketplace-requirements.json` records the `Cratis/AI` install,
+  update, and uninstall commands; the host preflights under
+  `distribution/evidence/s9-*` still need re-running at the new ref as part of
+  step 6b.
+
+### What was deliberately not re-pointed
+
+`release-approved-ai-profiles.yml`, `distribution-approved-profile-release.yml`,
+and `distribution-generated-update.yml` still target `Cratis/AI.Distribution`.
+They do not merely name a repository: each one clones it, replaces its root with
+`rsync --delete`, and opens, merges, or releases against its default branch. A
+name-only re-point would aim that shape at the `Cratis/AI` authoring surface,
+which is the exact outcome the ref-and-subtree boundary exists to prevent. All
+three are separately blocked today — by the S10 policy, by a hard-disabled
+activation job, and by the uninstalled App respectively — so leaving them
+coherent and inert is safer than leaving them half-migrated. Migrate them
+together with whatever unblocks them.
 
 ## 7 — archive `Cratis/AI.Distribution` (Phase 5 of #264)
 
@@ -232,7 +284,9 @@ implies behavior support, broad-rollout approval, or a stable support claim.
 
 ## Order to work in
 
-1. Step 6 first if you are going to do it at all — it deletes step 4's work.
+1. Step 6a, then 6b — the code is already there, so this is now the shortest path
+   to a `Cratis/AI`-hosted release, and it keeps deleting step 4's remaining
+   work.
 2. Step 5, so a release can produce real lifecycle evidence.
 3. Step 3's second trusted publisher, so the governed release lane can publish.
 4. Step 7, once nothing live cites the mirror.

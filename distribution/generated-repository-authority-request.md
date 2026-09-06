@@ -1,10 +1,14 @@
 # Generated distribution repository authority state
 
-## Superseding decision — planned, tracked in Cratis/AI#264
+## Superseding decision — Phase 2 landed in code, tracked in Cratis/AI#264
 
-> **Everything below this section still describes the pipeline that runs today.**
-> This section records a decision, not a change. No contract field, validator,
-> or workflow behavior is altered by it.
+> **Everything below this section still describes the lanes that still target
+> this repository.** The public marketplace lane no longer does; see
+> [Phase 2 execution](#phase-2-execution--landed-in-code). The lanes described
+> below — the S10-blocked governed release lane, the disabled approved-profile
+> activation job, and the credential-gated fixture and candidate review lane —
+> are unchanged, and none of them can execute today. No gate, policy mode, or
+> validator behavior is altered.
 
 [Cratis/AI#264](https://github.com/Cratis/AI/issues/264) amends
 [Cratis/AI#173](https://github.com/Cratis/AI/issues/173) so that the generated,
@@ -41,13 +45,53 @@ Consolidation also removes the cross-repository GitHub App, the
 `AI_DISTRIBUTION_APP_ID` and `AI_DISTRIBUTION_APP_PRIVATE_KEY` secrets, the
 duplicated control plane, and one of two branch-protection surfaces.
 
+### Phase 2 execution — landed in code
+
+[Cratis/AI#266](https://github.com/Cratis/AI/pull/266) implements the
+re-pointing for the public marketplace lane. In code, today:
+
+- `distribution-public-marketplace.yml` reads `Cratis/AI@distribution` as the
+  current generated state, runs all seven required checks against the staged
+  tree, pushes that tree to `refs/heads/distribution`, creates the immutable
+  `dist/vX.Y.Z` tag, re-runs the seven checks against the published branch, and
+  publishes the GitHub release that now carries the asset set. It mints no
+  GitHub App token and reads no `AI_DISTRIBUTION_APP_*` secret.
+- `verify-distribution-branch.yml` is a live control plane inside `Cratis/AI`
+  running the same seven checks against the protected branch.
+- `tooling/generate-marketplace-pointer-manifests.mjs` emits the four thin
+  pointer marketplace manifests for the default branch. Each resolves its plugin
+  from the immutable tag, and `gemini-extension.json`, a root `plugin.json`, and
+  a root `package.json` are deliberately absent so no host discovers the
+  authored root `skills/` tree.
+
+The governed S10 release lane, the disabled approved-profile activation job, and
+the credential-gated fixture and candidate review lane are deliberately left on
+the two-repository shape. They do not merely name a repository — they clone it,
+replace its root with `rsync --delete`, and open, merge, and release against its
+default branch — so a name-only re-point would aim that shape at the `Cratis/AI`
+authoring surface. They stay coherent and inert until they are migrated together
+with the gate that blocks them.
+
 ### What is still outstanding
 
-Executing the decision is Phase 2 and Phase 5 of Cratis/AI#264 and needs
-maintainer action that cannot be taken from a pull request: creating and
-protecting the orphan `distribution` branch, re-pointing the release workflows,
-moving the verification control plane, re-running the host install evidence at
-the new ref, and archiving the mirror.
+Two things, and neither can be done from a pull request.
+
+**Branch and tag protection are applied out of band by the repository admin**,
+through the GitHub API, exactly like the `distribution-canary` and `npm-stage`
+protected environments recorded in
+[`distribution/remote-repository-state.json`](./remote-repository-state.json) —
+configured by a human, not by a workflow. No workflow creates or protects the
+branch. Required: the orphan `distribution` branch created in `Cratis/AI`;
+protection with force-push disabled, deletion disabled, administrators included,
+and no human push path; and `dist/*` tag protection so a release tag is immutable
+once created. Record the observed settings in `remote-repository-state.json`
+under `supersedingDecision.phase2Execution.appliedOutOfBandByRepositoryAdmin`
+once they exist.
+
+**The first real run has not happened.** Running the re-pointed
+`distribution-public-marketplace.yml` once produces the first `Cratis/AI`-hosted
+release and the evidence that hosts install from it. Phase 5 — archiving the
+mirror — still follows after that.
 [Maintainer marketplace deployment runbook](../Documentation/maintainer-marketplace-deployment-runbook.md)
 records exactly what a maintainer must configure by hand.
 

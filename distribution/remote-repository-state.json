@@ -2,12 +2,30 @@
   "schemaVersion": "1.0.0",
   "observedAt": "2026-08-22",
   "supersedingDecision": {
-    "state": "RECORDED_NOT_YET_EXECUTED",
+    "state": "PHASE_2_LANDED_IN_CODE_AWAITING_BRANCH_SETUP",
     "issue": "https://github.com/Cratis/AI/issues/264",
     "plannedState": "MIRROR_PENDING_ARCHIVE",
     "currentStateRemains": "INITIALIZED_PROTECTED_FIXTURE",
     "decision": "Cratis/AI#264 records that this repository becomes a CI-published mirror and is then archived, so already-published v0.1.0 to v0.3.0 install commands and the evidence records that cite its tags keep resolving. The repository and its tags are never deleted.",
     "note": "The repository block below still reports the observed live state. This record does not change it, and does not change what any validator or workflow does. Applying plannedState is Phase 5 of Cratis/AI#264 and follows the Phase 2 re-pointing work.",
+    "phase2Execution": {
+      "state": "LANDED_IN_CODE_AWAITING_MAINTAINER_BRANCH_SETUP",
+      "pullRequest": "https://github.com/Cratis/AI/pull/266",
+      "generatedRef": "Cratis/AI@distribution",
+      "releaseTagPattern": "dist/vX.Y.Z",
+      "note": "The public marketplace lane no longer writes to this repository at all: it stages, verifies, pushes, tags, and releases inside Cratis/AI, and mints no GitHub App token. This repository remains the write target only for the S10-blocked governed release lane, the disabled approved-profile activation job, and the credential-gated fixture and candidate review lane, none of which can execute today.",
+      "appliedOutOfBandByRepositoryAdmin": {
+        "state": "PENDING",
+        "surface": "Cratis/AI",
+        "note": "Branch protection on distribution and tag protection on dist/* are applied by the repository admin through the GitHub API, not by a workflow and not by a pull request, exactly like the protectedEnvironments recorded below. Record the observed protection settings here once they are applied.",
+        "required": [
+          "orphan distribution branch created in Cratis/AI",
+          "distribution protected with force-push disabled, deletion disabled, administrators included, and no human push path",
+          "dist/* tag protection so a release tag is immutable once created",
+          "one real run of the re-pointed Stage Public Marketplace Distribution workflow, and host install evidence re-recorded at the new ref"
+        ]
+      }
+    },
     "findings": [
       "The contract in distribution/generated-repository-authority-request.md states that human or deploy-key direct pushes are not an accepted update path, yet commits 5d5c366, 53c607f, and 8f31eb0 in Cratis/AI.Distribution were authored directly by a maintainer rather than by the release bot, because the Cratis/Workflows#72 App is still not installed.",
       "credential.state is REMOVED_AFTER_ONE_TIME_INITIALIZATION and repository.writeCredentialState is ABSENT_PENDING_PR_RELEASE_BOT, so the second repository currently has no compliant automated write path at all.",

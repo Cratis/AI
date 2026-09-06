@@ -50,10 +50,15 @@ profiles, but they do not describe a supported installation channel:
 - Product facts remain authoritative in the owning product repository.
 - Consuming repositories own `.cratis/PROJECT.md`, `.cratis/ai.json`, and their
   minimal harness bootstraps.
-- `Cratis/AI.Distribution` contains bot-generated immutable artifacts only.
-  Planned — [Cratis/AI#264](https://github.com/Cratis/AI/issues/264): those
-  artifacts move to a generated ref inside `Cratis/AI`, and the second
-  repository becomes a CI-published mirror pending archive.
+- Generated immutable artifacts live at a generated ref inside `Cratis/AI` — the
+  protected, CI-written `distribution` branch and immutable `dist/vX.Y.Z` tags
+  ([Cratis/AI#264](https://github.com/Cratis/AI/issues/264)). The code for this
+  has landed; the first real run waits on the maintainer creating and protecting
+  the branch.
+- `Cratis/AI.Distribution` contains bot-generated immutable artifacts only. It
+  keeps the already published `v0.1.0` through `v0.3.0` resolvable, still hosts
+  the blocked governed release lane, and becomes a CI-published mirror pending
+  archive.
 - Repositories pin exact profile versions and update through reviewed pull
   requests.
 - Improvements flow upstream through issues or pull requests; generated folders
