@@ -36,7 +36,7 @@
         "artifacts": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
       }
     },
-    "componentCount": { "const": 179 },
+    "componentCount": { "const": 182 },
     "byKind": {
       "type": "object",
       "additionalProperties": false,
@@ -49,7 +49,7 @@
         "instruction": { "const": 1 },
         "prompt": { "const": 18 },
         "rule": { "const": 44 },
-        "skill": { "const": 83 }
+        "skill": { "const": 86 }
       }
     },
     "byDisposition": {
@@ -69,15 +69,15 @@
         "native-static-review-projected": { "const": 35 },
         "native-static-unprojected": { "const": 10 },
         "repository-host-adapter-only": { "const": 48 },
-        "skill-blocked-candidate": { "type": "integer", "minimum": 0, "maximum": 83 },
+        "skill-blocked-candidate": { "type": "integer", "minimum": 0, "maximum": 86 },
         "skill-legacy-repository-only": { "const": 27 },
-        "skill-packaged-candidate": { "type": "integer", "minimum": 0, "maximum": 83 }
+        "skill-packaged-candidate": { "type": "integer", "minimum": 0, "maximum": 86 }
       }
     },
     "records": {
       "type": "array",
-      "minItems": 169,
-      "maxItems": 179,
+      "minItems": 178,
+      "maxItems": 182,
       "uniqueItems": true,
       "items": {
         "type": "object",

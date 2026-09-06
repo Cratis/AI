@@ -69,11 +69,18 @@ catalog/                Sources, targets, authority, evidence, and coverage
 distribution/           Profile, artifact, rollout, and publication contracts
 tooling/                Resolver, validation, and deterministic generation
 Documentation/          Architecture, contribution, and usage guidance
+.claude/ .github/ .agents/ .pi/   Repository-local host adapters into .ai/
 ```
+
+There is no application here: no `Source/`, no solution, no `package.json`. This
+repository is markdown, JSON, and the JavaScript under `tooling/` that validates
+and generates from them.
 
 `.ai/` remains valuable repository-local guidance but is not a publishable
 package tree. Public and engineering artifacts select exact approved files; they
-never package the repository wholesale.
+never package the repository wholesale. The adapter trees are local wiring for
+the hosts a maintainer uses *in* this repository — never a package payload; see
+[`managing-ai-rules.md`](.ai/rules/managing-ai-rules.md).
 
 `mcp/` holds authored, passive MCP server declarations. A declaration records a
 server's identity, reference, transport, authentication type, and host
@@ -153,6 +160,12 @@ pi install -l npm:@cratis/ai-engineering-chronicle@1.0.0
 Project installation writes `.pi/settings.json`; after project trust, Pi
 installs missing exact packages automatically. Pinned packages do not float.
 Update and rollback change the exact version through a reviewed pull request.
+
+This repository's own `.pi/` tree is **not** that package and is never
+propagated: `.pi/agents/` and `.pi/prompts/` are local symlink adapters into
+`.ai/`, `.pi/extensions/` is repository-owned host-extension source, and `.pi/**`
+is a forbidden path in every generated artifact. See
+[`managing-ai-rules.md`](.ai/rules/managing-ai-rules.md#pi--pi).
 
 These commands describe the released workflow and are not available until the
 packages exist. See the [Pi package workflow](Documentation/ai-distribution-and-subscriptions.md#pi-package-workflow).

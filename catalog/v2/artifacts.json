@@ -69,10 +69,13 @@
           "cratis-fundamentals-concept",
           "cratis-fundamentals-type-discovery",
           "cratis-governed-release-methodology",
+          "cratis-lens-browser-extension",
           "cratis-performance-review",
+          "cratis-screenplay-model-authoring",
           "cratis-security-review",
           "cratis-specifications-csharp",
           "cratis-specifications-typescript",
+          "cratis-stage-rendering-and-sandbox",
           "cratis-studio-mcp-safety-guidance"
         ],
         "agents": [],
@@ -233,10 +236,13 @@
           "cratis-fundamentals-concept",
           "cratis-fundamentals-type-discovery",
           "cratis-governed-release-methodology",
+          "cratis-lens-browser-extension",
           "cratis-performance-review",
+          "cratis-screenplay-model-authoring",
           "cratis-security-review",
           "cratis-specifications-csharp",
-          "cratis-specifications-typescript"
+          "cratis-specifications-typescript",
+          "cratis-stage-rendering-and-sandbox"
         ],
         "agents": [],
         "subagents": [],
@@ -363,6 +369,10 @@
         "skills/cratis-fundamentals-concept/SKILL.md",
         "skills/cratis-governed-release-methodology/LICENSE",
         "skills/cratis-governed-release-methodology/SKILL.md",
+        "skills/cratis-lens-browser-extension/LICENSE",
+        "skills/cratis-lens-browser-extension/SKILL.md",
+        "skills/cratis-screenplay-model-authoring/LICENSE",
+        "skills/cratis-screenplay-model-authoring/SKILL.md",
         "skills/cratis-specifications-csharp/LICENSE",
         "skills/cratis-specifications-csharp/SKILL.md",
         "skills/cratis-specifications-csharp/references/application-scenarios.md",
@@ -370,7 +380,9 @@
         "skills/cratis-specifications-csharp/references/integration-specs.md",
         "skills/cratis-specifications-typescript/LICENSE",
         "skills/cratis-specifications-typescript/SKILL.md",
-        "skills/cratis-specifications-typescript/references/typescript-patterns.md"
+        "skills/cratis-specifications-typescript/references/typescript-patterns.md",
+        "skills/cratis-stage-rendering-and-sandbox/LICENSE",
+        "skills/cratis-stage-rendering-and-sandbox/SKILL.md"
       ],
       "allowedPathPatterns": [
         "skills/<candidate-source>/SKILL.md",

@@ -176,9 +176,9 @@ export function buildCandidateComponentCoverage(
         ].includes(record.disposition),
     ).length;
     if (
-        records.length !== 179 ||
+        records.length !== 182 ||
         new Set(componentIds).size !== records.length ||
-        skillDispositionCount !== 83 ||
+        skillDispositionCount !== 86 ||
         records.filter(
             (record) => record.disposition === "skill-legacy-repository-only",
         ).length !== 27 ||

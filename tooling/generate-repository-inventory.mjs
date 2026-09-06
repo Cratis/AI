@@ -561,20 +561,6 @@ const inventoryDefinitions = () => [
         generator: "legacy-manual-adapter-model",
     },
     {
-        id: "obsolete-package-update-workflow",
-        sourcePathPatterns: [".github/workflows/update-packages.yml"],
-        artifactType: "workflow",
-        currentOwner: repositoryOwner,
-        targetOwner: obsoleteOwner,
-        runtimeEligibility: "forbidden",
-        generatedStatus: "source",
-        adapterStatus: "none",
-        dependencies: [],
-        risk: "high",
-        migrationState: "retire-after-evidence",
-        evidenceIds: ["ai-126"],
-    },
-    {
         id: "repository-validation-workflow",
         sourcePathPatterns: [
             ".github/workflows/advanced-assurance-audit.yml",

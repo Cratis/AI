@@ -7,7 +7,7 @@ the right package and understand its skills. It is not source authority
 and does not make a planned package installable.
 
 - Profiles: 62
-- Capabilities: 56
+- Capabilities: 59
 - Installable profiles: 0
 - Ecosystem bindings with support claims: 0
 
@@ -15,8 +15,8 @@ and does not make a planned package installable.
 
 Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.
 
-- Components: 179
-- Passive: 176
+- Components: 182
+- Passive: 179
 - Executable: 3
 - Legacy-retained: 27
 - Existing adapter records: 332
@@ -30,7 +30,7 @@ Modeled or planned components and projections are catalog metadata only; they ar
 
 ### Components by kind
 
-- skill: 83
+- skill: 86
 - agent: 12
 - subagent: 0
 - command: 18
@@ -170,8 +170,11 @@ Every public Cratis capability in one selection: every product, every language, 
 - cratis-event-model-diagram
 - cratis-fundamentals-concept
 - cratis-governed-release-methodology
+- cratis-lens-browser-extension
+- cratis-screenplay-model-authoring
 - cratis-specifications-csharp
 - cratis-specifications-typescript
+- cratis-stage-rendering-and-sandbox
 - cratis-studio-mcp-safety-guidance
 
 #### Composed profiles
@@ -381,8 +384,10 @@ Every public Cratis suite in one selection, including the Screenplay to Stage mo
 - cratis-components-toolbar
 - cratis-event-model-diagram
 - cratis-fundamentals-concept
+- cratis-screenplay-model-authoring
 - cratis-specifications-csharp
 - cratis-specifications-typescript
+- cratis-stage-rendering-and-sandbox
 
 #### Composed profiles
 
@@ -1222,9 +1227,9 @@ Composable language-level TypeScript conventions shared across Cratis products. 
 - **Profile ID:** `public-lens`
 - **Audience:** public
 - **Package:** `@cratis/ai-lens`
-- **State:** content-gap
+- **State:** preview-source-candidate
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** candidate-package
 
 AI guidance for developers building with Cratis Lens.
 
@@ -1236,7 +1241,7 @@ AI guidance for developers building with Cratis Lens.
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-lens-browser-extension
 
 #### Composed profiles
 
@@ -1286,7 +1291,8 @@ Combined AI guidance for developers using Cratis Screenplay and Cratis Stage in 
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-screenplay-model-authoring
+- cratis-stage-rendering-and-sandbox
 
 #### Composed profiles
 
@@ -1298,9 +1304,9 @@ Combined AI guidance for developers using Cratis Screenplay and Cratis Stage in 
 - **Profile ID:** `public-screenplay`
 - **Audience:** public
 - **Package:** `@cratis/ai-screenplay`
-- **State:** content-gap
+- **State:** preview-source-candidate
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** candidate-package
 
 AI guidance for developers building with Cratis Screenplay.
 
@@ -1312,7 +1318,7 @@ AI guidance for developers building with Cratis Screenplay.
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-screenplay-model-authoring
 
 #### Composed profiles
 
@@ -1398,9 +1404,9 @@ AI guidance for developers building with Cratis Specifications.
 - **Profile ID:** `public-stage`
 - **Audience:** public
 - **Package:** `@cratis/ai-stage`
-- **State:** content-gap
+- **State:** preview-source-candidate
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** candidate-package
 
 AI guidance for developers building with Cratis Stage.
 
@@ -1412,7 +1418,7 @@ AI guidance for developers building with Cratis Stage.
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-stage-rendering-and-sandbox
 
 #### Composed profiles
 
@@ -4916,6 +4922,71 @@ Use when choosing the assurance tier a release needs, deciding whether checksums
 - cratis
 - public-methodology-governed-releases
 
+### cratis-lens-browser-extension
+
+- **ID:** `cratis-lens-browser-extension`
+- **Audience:** public
+- **Lifecycle:** candidate
+- **Approval:** candidate
+- **Runtime eligible:** no
+
+#### Purpose — cratis-lens-browser-extension
+
+Cratis Lens browser extension
+
+#### When to use — cratis-lens-browser-extension
+
+Use when setting up Lens against a running Arc application, when it does not detect the app, or when a switched user or tenant does not take effect.
+
+#### When not to use — cratis-lens-browser-extension
+
+- Do not use for Chronicle event-store inspection.
+- Do not use for production authentication or authorization design.
+
+#### Invocation — cratis-lens-browser-extension
+
+- Capability kind: unclassified
+- Invocation: unclassified
+
+#### Applicability — cratis-lens-browser-extension
+
+- Products: arc, lens
+- Languages: csharp, typescript
+- Architectures: Unclassified — Architecture requires reviewed target classification.
+- Personas: Unclassified — Persona requires reviewed target classification.
+- Surfaces: Unclassified — Surface requires reviewed target classification.
+- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+
+#### Dependencies — cratis-lens-browser-extension
+
+- Unclassified
+
+#### Trust and effects — cratis-lens-browser-extension
+
+- Trust class: passive
+- Assessment: unclassified
+- No assessed effects
+
+#### Evidence and support — cratis-lens-browser-extension
+
+- Authoring contract unclassified
+- Evidence: reevaluation-authority
+- Evidence: repo-main-b795d53
+
+#### Related capabilities — cratis-lens-browser-extension
+
+- cratis-arc-authentication-authorization-and-identity
+- cratis-arc-command-execution
+
+#### Bundle membership — cratis-lens-browser-extension
+
+- None
+
+#### Profile membership — cratis-lens-browser-extension
+
+- cratis
+- public-lens
+
 ### cratis-performance-review
 
 - **ID:** `cratis-performance-review`
@@ -4979,6 +5050,73 @@ Use for focused Chronicle, database, .NET, or React scalability analysis.
 #### Profile membership — cratis-performance-review
 
 - None
+
+### cratis-screenplay-model-authoring
+
+- **ID:** `cratis-screenplay-model-authoring`
+- **Audience:** public
+- **Lifecycle:** candidate
+- **Approval:** candidate
+- **Runtime eligible:** no
+
+#### Purpose — cratis-screenplay-model-authoring
+
+Screenplay .play model authoring
+
+#### When to use — cratis-screenplay-model-authoring
+
+Use when writing, reviewing, or compiling a Screenplay .play file, or when deciding whether a construct is safe to model.
+
+#### When not to use — cratis-screenplay-model-authoring
+
+- Do not use for hand-written Arc or Chronicle source.
+- Do not use to render a model into an application.
+
+#### Invocation — cratis-screenplay-model-authoring
+
+- Capability kind: unclassified
+- Invocation: unclassified
+
+#### Applicability — cratis-screenplay-model-authoring
+
+- Products: screenplay
+- Languages: language-agnostic
+- Architectures: Unclassified — Architecture requires reviewed target classification.
+- Personas: Unclassified — Persona requires reviewed target classification.
+- Surfaces: Unclassified — Surface requires reviewed target classification.
+- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+
+#### Dependencies — cratis-screenplay-model-authoring
+
+- Unclassified
+
+#### Trust and effects — cratis-screenplay-model-authoring
+
+- Trust class: passive
+- Assessment: unclassified
+- No assessed effects
+
+#### Evidence and support — cratis-screenplay-model-authoring
+
+- Authoring contract unclassified
+- Evidence: reevaluation-authority
+- Evidence: repo-main-b795d53
+
+#### Related capabilities — cratis-screenplay-model-authoring
+
+- cratis-event-model-diagram
+- cratis-stage-rendering-and-sandbox
+
+#### Bundle membership — cratis-screenplay-model-authoring
+
+- None
+
+#### Profile membership — cratis-screenplay-model-authoring
+
+- cratis
+- cratis/full
+- public-modeling-screenplay-stage
+- public-screenplay
 
 ### cratis-security-review
 
@@ -5186,6 +5324,72 @@ Use for framework or package TypeScript Specification by Example tests.
 - public-application
 - public-application-react
 - public-specifications-typescript
+
+### cratis-stage-rendering-and-sandbox
+
+- **ID:** `cratis-stage-rendering-and-sandbox`
+- **Audience:** public
+- **Lifecycle:** candidate
+- **Approval:** candidate
+- **Runtime eligible:** no
+
+#### Purpose — cratis-stage-rendering-and-sandbox
+
+Stage rendering and sandbox
+
+#### When to use — cratis-stage-rendering-and-sandbox
+
+Use when deciding whether Stage can render a Screenplay model, when interpreting a blocked render plan, or when running the sandbox or specification containers.
+
+#### When not to use — cratis-stage-rendering-and-sandbox
+
+- Do not use for authoring the .play model itself.
+- Do not use for hand-written Arc or Chronicle source.
+
+#### Invocation — cratis-stage-rendering-and-sandbox
+
+- Capability kind: unclassified
+- Invocation: unclassified
+
+#### Applicability — cratis-stage-rendering-and-sandbox
+
+- Products: screenplay, stage
+- Languages: csharp, language-agnostic
+- Architectures: Unclassified — Architecture requires reviewed target classification.
+- Personas: Unclassified — Persona requires reviewed target classification.
+- Surfaces: Unclassified — Surface requires reviewed target classification.
+- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+
+#### Dependencies — cratis-stage-rendering-and-sandbox
+
+- Unclassified
+
+#### Trust and effects — cratis-stage-rendering-and-sandbox
+
+- Trust class: passive
+- Assessment: unclassified
+- No assessed effects
+
+#### Evidence and support — cratis-stage-rendering-and-sandbox
+
+- Authoring contract unclassified
+- Evidence: reevaluation-authority
+- Evidence: repo-main-b795d53
+
+#### Related capabilities — cratis-stage-rendering-and-sandbox
+
+- cratis-screenplay-model-authoring
+
+#### Bundle membership — cratis-stage-rendering-and-sandbox
+
+- None
+
+#### Profile membership — cratis-stage-rendering-and-sandbox
+
+- cratis
+- cratis/full
+- public-modeling-screenplay-stage
+- public-stage
 
 ### cratis-studio-mcp-safety-guidance
 

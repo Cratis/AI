@@ -120,7 +120,7 @@ test("candidate contract schemas reject grants count drift and unknown fields", 
         const coverageErrors = validate(coverage, schemas.coverage);
         assert(
             coverageErrors.some((error) =>
-                error.includes("componentCount: expected constant 179"),
+                error.includes("componentCount: expected constant 182"),
             ),
         );
         assert(

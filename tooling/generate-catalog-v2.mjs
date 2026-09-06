@@ -527,30 +527,25 @@ const chronicleMigrationSourcePaths = new Map([
     ["inspect-running-chronicle", "skills/cratis-chronicle-cli-operations"],
     ["multi-tenancy", "skills/cratis-chronicle-multi-tenancy"],
 ]);
+// Cratis/AI#179: the Lens, Screenplay, and Stage skills were authored directly in
+// the canonical skill tree. Nothing was migrated, because no corpus content
+// existed for any of the three products.
+const modelingLayerRevision = "7b85abb3c7a1678f42fc4e38bc4c3e27f26b40d9";
+const modelingLayerSourceNames = [
+    "cratis-lens-browser-extension",
+    "cratis-screenplay-model-authoring",
+    "cratis-stage-rendering-and-sandbox",
+];
 // Cratis/AI#178: the language-native Chronicle client journeys are authored
-// directly in the canonical skill tree. They have no `.ai/skills` ancestor, so
-// unlike the migrations above these names only ever resolve through this map.
-const chronicleClientRevision =
-    "f625294e16dc44260bf7a02c5044a83d86c1837a";
-const chronicleClientEvidenceId = "chronicle-language-clients-source-f625294";
-const chronicleClientSourcePaths = new Map([
-    [
-        "cratis-chronicle-client-dotnet",
-        "skills/cratis-chronicle-client-dotnet",
-    ],
-    [
-        "cratis-chronicle-client-elixir",
-        "skills/cratis-chronicle-client-elixir",
-    ],
-    [
-        "cratis-chronicle-client-kotlin",
-        "skills/cratis-chronicle-client-kotlin",
-    ],
-    [
-        "cratis-chronicle-client-typescript",
-        "skills/cratis-chronicle-client-typescript",
-    ],
-]);
+// directly in the canonical skill tree too. They have no `.ai/skills` ancestor,
+// so unlike the migrations above these names only ever resolve through here.
+const chronicleClientRevision = "f625294e16dc44260bf7a02c5044a83d86c1837a";
+const chronicleClientSourceNames = [
+    "cratis-chronicle-client-dotnet",
+    "cratis-chronicle-client-elixir",
+    "cratis-chronicle-client-kotlin",
+    "cratis-chronicle-client-typescript",
+];
 const sourceOverrides = new Map([
     ...referenceClosureSourceNames
         .filter((name) => !migratedCanonicalNames.has(name))
@@ -700,12 +695,20 @@ const sourceOverrides = new Map([
             evidenceId: "chronicle-core-source-migration-3d85719",
         },
     ]),
-    ...[...chronicleClientSourcePaths].map(([name, sourcePath]) => [
+    ...modelingLayerSourceNames.map((name) => [
         name,
         {
-            sourcePath,
+            sourcePath: `skills/${name}`,
+            sourceRevision: modelingLayerRevision,
+            evidenceId: "modeling-layer-source-authoring-7b85abb",
+        },
+    ]),
+    ...chronicleClientSourceNames.map((name) => [
+        name,
+        {
+            sourcePath: `skills/${name}`,
             sourceRevision: chronicleClientRevision,
-            evidenceId: chronicleClientEvidenceId,
+            evidenceId: "chronicle-language-clients-source-f625294",
         },
     ]),
 ]);
@@ -1185,6 +1188,42 @@ const profiles = {
         ],
         ["cratis-chronicle-cli-operations", "cratis-cli-terminal-workbench"],
         "critical",
+        true,
+    ],
+    "cratis-lens-browser-extension": [
+        "Cratis Lens browser extension",
+        "Use when setting up Lens against a running Arc application, when it does not detect the app, or when a switched user or tenant does not take effect.",
+        [
+            "Do not use for production authentication or authorization design.",
+            "Do not use for Chronicle event-store inspection.",
+        ],
+        [
+            "cratis-arc-authentication-authorization-and-identity",
+            "cratis-arc-command-execution",
+        ],
+        "high",
+        true,
+    ],
+    "cratis-screenplay-model-authoring": [
+        "Screenplay .play model authoring",
+        "Use when writing, reviewing, or compiling a Screenplay .play file, or when deciding whether a construct is safe to model.",
+        [
+            "Do not use to render a model into an application.",
+            "Do not use for hand-written Arc or Chronicle source.",
+        ],
+        ["cratis-event-model-diagram", "cratis-stage-rendering-and-sandbox"],
+        "medium",
+        false,
+    ],
+    "cratis-stage-rendering-and-sandbox": [
+        "Stage rendering and sandbox",
+        "Use when deciding whether Stage can render a Screenplay model, when interpreting a blocked render plan, or when running the sandbox or specification containers.",
+        [
+            "Do not use for authoring the .play model itself.",
+            "Do not use for hand-written Arc or Chronicle source.",
+        ],
+        ["cratis-screenplay-model-authoring"],
+        "high",
         true,
     ],
     "cratis-cli-terminal-workbench": [

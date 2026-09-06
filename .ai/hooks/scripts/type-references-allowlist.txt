@@ -1,7 +1,9 @@
 # Names validate-type-references.sh must never warn about.
 #
-# The Tier 3 index is built from the XML documentation of the Cratis NuGet packages this repository
-# pins, and from what the corpus and `Source/**/*.cs` declare for themselves. Everything below is a
+# The Tier 3 index is built from the XML documentation of the Cratis NuGet packages the consuming
+# repository pins, and from what the corpus and that repository's own `Source/**/*.cs` declare for
+# themselves. (`Cratis/AI` itself is a corpus with no C# source, so only the corpus half
+# contributes here and the package half is skipped in silence.) Everything below is a
 # name that is genuinely real and genuinely outside that index — a .NET attribute from an ecosystem
 # whose package ships no XML docs, a Chronicle *Kernel* internal that is in no client package, or a
 # TypeScript API in a repository whose index only covers .NET assemblies.
