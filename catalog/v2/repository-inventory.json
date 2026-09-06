@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "7d7d2fa32c21ed0a6af9b8a5891e933c8f2067bb07e1eb49f4dda2587cb5679e",
+  "indexDigest": "61e713a0172eb177abdf4f94c26f8c54629a6d4251850f6551b59bd6849148aa",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -31,8 +31,24 @@
       "status": "modified"
     },
     {
+      "path": ".ai/hooks/README.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/hooks/scripts/validate-ai-setup.sh",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/hooks/settings.template.json",
+      "status": "added"
+    },
+    {
       "path": ".ai/prompts/ship-changes.prompt.md",
       "status": "modified"
+    },
+    {
+      "path": ".ai/rules/capability-is-not-authority.md",
+      "status": "added"
     },
     {
       "path": ".ai/rules/concepts.md",
@@ -43,8 +59,20 @@
       "status": "modified"
     },
     {
+      "path": ".ai/rules/decision-records.md",
+      "status": "added"
+    },
+    {
       "path": ".ai/rules/dialogs.md",
       "status": "modified"
+    },
+    {
+      "path": ".ai/rules/engineering-recipe-skeleton.md",
+      "status": "added"
+    },
+    {
+      "path": ".ai/rules/exit-codes-and-wrappers.md",
+      "status": "added"
     },
     {
       "path": ".ai/rules/general.md",
@@ -59,6 +87,14 @@
       "status": "modified"
     },
     {
+      "path": ".ai/rules/guards-and-fuses.md",
+      "status": "added"
+    },
+    {
+      "path": ".ai/rules/human-verdicts.md",
+      "status": "added"
+    },
+    {
       "path": ".ai/rules/local-work-artifacts.md",
       "status": "added"
     },
@@ -71,8 +107,16 @@
       "status": "modified"
     },
     {
+      "path": ".ai/rules/verification-discipline.md",
+      "status": "added"
+    },
+    {
       "path": ".ai/rules/vertical-slices.md",
       "status": "modified"
+    },
+    {
+      "path": ".ai/rules/work-records-and-comments.md",
+      "status": "added"
     },
     {
       "path": ".ai/skills/add-business-rule/SKILL.md",
@@ -187,11 +231,43 @@
       "status": "added"
     },
     {
+      "path": ".claude/rules/capability-is-not-authority.md",
+      "status": "added"
+    },
+    {
+      "path": ".claude/rules/decision-records.md",
+      "status": "added"
+    },
+    {
+      "path": ".claude/rules/engineering-recipe-skeleton.md",
+      "status": "added"
+    },
+    {
+      "path": ".claude/rules/exit-codes-and-wrappers.md",
+      "status": "added"
+    },
+    {
       "path": ".claude/rules/github-actions.md",
       "status": "added"
     },
     {
+      "path": ".claude/rules/guards-and-fuses.md",
+      "status": "added"
+    },
+    {
+      "path": ".claude/rules/human-verdicts.md",
+      "status": "added"
+    },
+    {
       "path": ".claude/rules/local-work-artifacts.md",
+      "status": "added"
+    },
+    {
+      "path": ".claude/rules/verification-discipline.md",
+      "status": "added"
+    },
+    {
+      "path": ".claude/rules/work-records-and-comments.md",
       "status": "added"
     },
     {
@@ -671,6 +747,10 @@
       "status": "added"
     },
     {
+      "path": "catalog/schemas/vocabulary.schema.json",
+      "status": "added"
+    },
+    {
       "path": "catalog/studio-mcp-tool-classifications.json",
       "status": "added"
     },
@@ -760,6 +840,10 @@
     },
     {
       "path": "catalog/v2/upstream-companions.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/vocabulary.json",
       "status": "added"
     },
     {
@@ -2963,6 +3047,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/generator-check.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/grade-engineering-docs-authoring-evaluation.mjs",
       "status": "added"
     },
@@ -3271,6 +3359,14 @@
       "status": "added"
     },
     {
+      "path": "tooling/specs/fixtures/agent-mutation-manifest.invalid.json",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/fixtures/agent-mutation-manifest.valid.json",
+      "status": "added"
+    },
+    {
       "path": "tooling/specs/fundamentals-preview-assets.spec.mjs",
       "status": "added"
     },
@@ -3280,6 +3376,10 @@
     },
     {
       "path": "tooling/specs/generated-distribution-repository.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/generator-check.spec.mjs",
       "status": "added"
     },
     {
@@ -3400,6 +3500,10 @@
     },
     {
       "path": "tooling/specs/support-validation.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/vocabulary.spec.mjs",
       "status": "added"
     },
     {
@@ -3584,8 +3688,8 @@
         "repo-main-b795d53",
         "ai-126"
       ],
-      "expectedPathCount": 36,
-      "expectedPathsDigest": "3d3ef1ea14bba42811b1b08628aa1e145365665d41d1035c3248c61d421f1d4b"
+      "expectedPathCount": 44,
+      "expectedPathsDigest": "56ea7e6f3f2e44b89a9b7a8d83d7a3c79844fa48063467a6f05f3d88786fdda4"
     },
     {
       "excludePathPatterns": [],
@@ -3681,8 +3785,8 @@
         "repo-main-b795d53",
         "ai-126"
       ],
-      "expectedPathCount": 14,
-      "expectedPathsDigest": "bad82a4ca327684526057da05d262423e0d6ce94e2f711c68c334f9094556cd9"
+      "expectedPathCount": 15,
+      "expectedPathsDigest": "4228d04947edd2941b3ab38db6f9d1f469dfd8c91cb84d0c856ceca0c9de8dc8"
     },
     {
       "excludePathPatterns": [],
@@ -3919,8 +4023,8 @@
         "reevaluation-authority"
       ],
       "generator": "legacy-manual-adapter-model",
-      "expectedPathCount": 59,
-      "expectedPathsDigest": "9683f84dcc88eadab7de73b4c2c60aee649d79c3497a950e17cf0bc9a8a658f9"
+      "expectedPathCount": 67,
+      "expectedPathsDigest": "1f298673776b30249dd5c9180c9b6bb7bbbe4443ef07568becb42ec10ae19de7"
     },
     {
       "excludePathPatterns": [],
@@ -4676,7 +4780,9 @@
         "catalog/schemas/artifact-assurance-profiles.schema.json",
         "catalog/schemas/ecosystem-artifact-coverage.schema.json",
         "catalog/schemas/product-coverage.schema.json",
-        "catalog/schemas/public-skills.schema.json"
+        "catalog/schemas/public-skills.schema.json",
+        "catalog/schemas/vocabulary.schema.json",
+        "catalog/vocabulary.json"
       ],
       "artifactType": "catalog-schema",
       "currentOwner": "repository-only authoring/release tooling",
@@ -4692,8 +4798,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 9,
-      "expectedPathsDigest": "add7f934a78773bbfed4ead60726fcb071b6a0fe28126a461ded4c3ddd7ff846"
+      "expectedPathCount": 11,
+      "expectedPathsDigest": "d0685fe6777f2ed2a75045f323db3d153627c40a71b81c24019516fc3cb39883"
     },
     {
       "excludePathPatterns": [],
@@ -5035,8 +5141,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 81,
-      "expectedPathsDigest": "d7d9ffb363bd54b6cc52a7caf5c79018a98df01811c029fb7337ec014f3b8487"
+      "expectedPathCount": 82,
+      "expectedPathsDigest": "f129db247e616a11badf37c595c5ee626b8991cb6a1b236d005a3b6795f25c7b"
     },
     {
       "excludePathPatterns": [],
@@ -5089,8 +5195,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 62,
-      "expectedPathsDigest": "8a17a892951c54bc545116f055347df145dfb1390dbc0f10a8d00760ae45c02f"
+      "expectedPathCount": 66,
+      "expectedPathsDigest": "6b291f22b279719f13534d0180d0d695f02c91332aeb464f87c1f1d42348360f"
     },
     {
       "excludePathPatterns": [],

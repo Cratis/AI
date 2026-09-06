@@ -290,6 +290,14 @@ All gates pass before merging, opening a PR, or marking a slice complete — exc
 | Inspecting or operating a **running** Chronicle store (failed partitions, replays, browsing events) with the `cratis` CLI | the **inspect-running-chronicle** skill |
 | EF Core read models / migrations | `efcore.md`, `efcore.specs.md` |
 | PRs / commits | `pull-requests.md`, `git-commits.md` |
+| Reading, citing and superseding a decision record | `decision-records.md` |
+| Whether you are allowed to do the thing you are able to do | `capability-is-not-authority.md` |
+| What must stop and ask a human | `human-verdicts.md` |
+| What counts as evidence that something works | `verification-discipline.md` |
+| `next:` / `blocker:` values and when a comment is warranted | `work-records-and-comments.md` |
+| Exit-code meaning and wrappers that lose a verdict | `exit-codes-and-wrappers.md` |
+| Writing a scan, allowlist or destructive pass that cannot pass vacuously | `guards-and-fuses.md` |
+| The section skeleton every engineering recipe follows | `engineering-recipe-skeleton.md` |
 | Event modeling / schema migration / calling commands from code / paging / cross-cutting metadata / multi-tenancy | the matching skills |
 | Step-by-step recipes | `.ai/skills/` |
 
@@ -322,3 +330,4 @@ AI-assisted sessions produce working artifacts: plans, handover documents, sessi
 - These artifacts must never enter git history or reach GitHub — not on any branch. If you find one tracked in git, move it into `.ai-work/` and remove it from tracking in a dedicated commit.
 - A genuine follow-up that must survive the session is **not** a work record — suggest opening a GitHub issue for it (or open one when asked) so future work is tracked where everyone can see it, instead of leaving a planning file behind.
 - Knowledge that must outlive the session belongs in the repository's documentation structure through normal review, not in a work record.
+- **A decision log is not a work record.** A decision — a durable choice with a decider and a date — is documentation: it lives in **`decisions/`** (or the repository's documented decisions folder) and is reviewed like any other documentation. A handover may summarize decisions; it never holds the only copy.

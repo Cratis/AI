@@ -93,7 +93,7 @@ export function packageNativeNonSkillReviewAssets({
             }));
         if (
             componentRecords.length !== 35 ||
-            componentExclusions.length !== 2
+            componentExclusions.length !== 10
         ) {
             throw new Error("Native review component accounting changed");
         }

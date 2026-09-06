@@ -60,6 +60,28 @@ const digests = {
         "e76e30d0349a7e178d821d05796b17b161deaf814cf77e885062320eb86e8fdf",
     [`${evaluationRoot}/cases.jsonl`]:
         "adfe988856479a8db31c8085a6c241d4c51644b6a7f681c84bcd5d14addeb6d1",
+    [`${evaluationRoot}/evaluation-plan.json`]:
+        "6810dbf0a19d14e98d8cb8cef2637c5beb8341dca85b3af6bf1a0c45fa8c67c7",
+    [`${evaluationRoot}/evaluation-review.json`]:
+        "e48188caf0e52a9c39a6a7ebee7844e928ed590e04955b45cdb00d8dfb6690f8",
+    [`${evaluationRoot}/evaluation-summary.json`]:
+        "86f1477bf6a0d51d4e23f3fd6049e934715f4dea7f22aa4f2c2bb43961c1d94d",
+    [`${evaluationRoot}/frozen-prompt.md`]:
+        "244b589d8a9f6d3f39aa608efb99b12cda8347bec186db6ebdc949c07185a9d7",
+    [`${evaluationRoot}/grading.json`]:
+        "84df3013a68bfe8da98b60eeccee0376b33387715c9095b7009f67e90779d4d6",
+    [`${evaluationRoot}/held-out-cases.jsonl`]:
+        "27dcc86c99e017874d00d2331407958cfd4799b7ea27760d257066f1613fb50b",
+    [`${evaluationRoot}/held-out-evaluation-plan.json`]:
+        "ae128a0741c6e86e1be4e0c254b6a3f1d825311f3cf99e0c964bc0f8dcadb945",
+    [`${evaluationRoot}/held-out-grading.json`]:
+        "74b295fd7987ed15ffb5e371fa3286b5881a2c242a3880d5a2d996853e45394a",
+    [`${evaluationRoot}/held-out-prompt.md`]:
+        "a91c69af8aec81b9568e298ab77e18ed5e60d0d09f8bdc40b80c1e5d2373fc11",
+    [`${evaluationRoot}/runs/manifest.json`]:
+        "1392e0c1b4df87336d1db6a819599f1f3af0bdc229569eb742d8f2eaf4257e3c",
+    [`${evaluationRoot}/held-out-runs/manifest.json`]:
+        "407983f37b6cf92b67a1ba45ed71ca96845d99d351ef0b7d5e03c4f9c92a3c70",
 };
 
 function sha256(content) {

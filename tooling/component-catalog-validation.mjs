@@ -46,9 +46,9 @@ export const distributionPointerOutputs = new Set([
 ]);
 
 const expectedComponentAnchor =
-    "d42cef97aecc01dca6e86871ceaa46972965154953c23a1eab59870a7dc0bf7a";
+    "bad14e3bd7e7c5816f26c1af7618c626727dcfd25bdfa8ae3f3beecbebfe9c53";
 const expectedProjectionAnchor =
-    "70f3e05988839ba21247eff528709caf4738f2aa7f637e05e28658ff05902027";
+    "3afbe16f2bf6faef73a7aeb4664083a81de5b19909353c78a4e6f637ab0e84e0";
 const expectedProjectionHostAnchor =
     "9735e6fd6a1b15e92086df6fda6cb4a988094c37c26e11bddf0518d5d3fdeba2";
 
@@ -1205,10 +1205,10 @@ export function validateComponentProjections(
     );
     if (
         projections.hosts.length !== 9 ||
-        projections.projections.length !== 386 ||
+        projections.projections.length !== 402 ||
         projections.projections.filter(
             (projection) => projection.state === "existing",
-        ).length !== 316 ||
+        ).length !== 332 ||
         generatedStatic.length !== 70 ||
         generatedCounts["jetbrains-ai-assistant"] !== 34 ||
         generatedCounts.tabnine !== 34 ||
