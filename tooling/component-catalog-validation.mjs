@@ -16,6 +16,7 @@ import {
     readCatalog,
     validateAgainstSchema,
 } from "./catalog-validation.mjs";
+import { supersededEvidenceIds } from "./evidence-supersession.mjs";
 
 export const componentCatalogPaths = Object.freeze({
     authoredComponents: "catalog/components.json",
@@ -769,6 +770,17 @@ export function validateComponentProjections(
     const evidenceById = new Map(
         evidence.evidence.map((record) => [record.id, record]),
     );
+    // The evidence catalog is append-only, so a renewed observation stays in it forever with an
+    // `expiresOn` that keeps receding into the past. A citation of such a record is not a stale
+    // citation as long as a live replacement covers it, so expiry is read through the supersession
+    // chain here exactly as `validateEvidenceAndCoverage` in tooling/catalog-v2-validation.mjs does.
+    const supersededIds = supersededEvidenceIds(
+        evidence.evidence,
+        evidence.asOf,
+    );
+    const citesExpiredEvidence = (evidenceId) =>
+        evidenceById.get(evidenceId).expiresOn < evidence.asOf &&
+        !supersededIds.has(evidenceId);
     const hostAdaptersById = new Map(
         hostAdapters.hosts.map((adapter) => [adapter.id, adapter]),
     );
@@ -805,7 +817,7 @@ export function validateComponentProjections(
         for (const evidenceId of host.evidenceIds) {
             if (!evidenceIds.has(evidenceId))
                 errors.push(`${host.id}: unknown host evidence ${evidenceId}`);
-            else if (evidenceById.get(evidenceId).expiresOn < evidence.asOf)
+            else if (citesExpiredEvidence(evidenceId))
                 errors.push(`${host.id}: expired host evidence ${evidenceId}`);
         }
         const adapter = host.hostAdapterId
@@ -935,7 +947,7 @@ export function validateComponentProjections(
                 errors.push(
                     `${projection.id}: unknown projection evidence ${evidenceId}`,
                 );
-            else if (evidenceById.get(evidenceId).expiresOn < evidence.asOf)
+            else if (citesExpiredEvidence(evidenceId))
                 errors.push(
                     `${projection.id}: expired projection evidence ${evidenceId}`,
                 );
