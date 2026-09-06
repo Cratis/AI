@@ -6,7 +6,7 @@ name: Verify Distribution Branch
 # The live copy of the generated-distribution control plane, running inside
 # Cratis/AI against the protected `distribution` branch. It is the standing,
 # out-of-band check: the per-release gate is the pre-push and post-push
-# verification inside `distribution-public-marketplace.yml`.
+# verification inside `publish.yml`.
 #
 # The `distribution` branch also carries the mirrored control-plane copy at
 # `.github/workflows/verify-generated-distribution.yml`, because

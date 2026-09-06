@@ -227,22 +227,27 @@ test("Fundamentals preview workflow is read-only short-lived and non-publishing"
         assert.equal(workflow.includes(forbidden), false, forbidden);
 });
 
-test("public marketplace generation stays read-only and gates every publish", () => {
-    const workflow = readFileSync(
-        ".github/workflows/distribution-public-marketplace.yml",
-        "utf8",
-    );
+test("public marketplace publish takes its version from the Cratis release action", () => {
+    const workflow = readFileSync(".github/workflows/publish.yml", "utf8");
     for (const required of [
-        "workflow_dispatch:",
+        "name: Publish Public Marketplace Distribution",
+        'branches: ["main"]',
         "permissions:\n  contents: read",
+        "cratis/release-action@bdaded342eb31b52b48dca0611f0214794f8c655",
+        'tag-prefix: "dist/v"',
+        "publish: ${{ steps.release.outputs.should-publish }}",
+        "version: ${{ steps.release.outputs.version }}",
+        "needs.release.outputs.publish == 'true'",
+        "needs: [release, stage]",
         "repository: ${{ github.repository }}",
         "ref: distribution",
-        "candidate-version:",
-        "0.0.2-candidate.1",
-        "CANDIDATE_VERSION",
+        "CANDIDATE_VERSION: 0.0.${{ github.run_number }}-candidate.1",
+        '[[ "$VERSION" =~ ^0\\.[0-9]+\\.[0-9]+$ ]]',
+        '[[ "$CANDIDATE_VERSION" =~ ^0\\.0\\.[0-9]+-candidate\\.[0-9]+$ ]]',
         "stage-public-marketplace-repository.mjs",
         "package-public-marketplace-submissions.mjs",
         "generate-marketplace-pointer-manifests.mjs",
+        '"$work" "$VERSION" "$DISTRIBUTION_SHA"',
         "vendor-portal-handoff",
         "exact-inventory",
         "canonical-byte-parity",
@@ -256,13 +261,23 @@ test("public marketplace generation stays read-only and gates every publish", ()
         "environment: distribution-canary",
         "rsync -a --delete --exclude=.git",
         "push origin HEAD:refs/heads/distribution",
-        'git -C "$work" tag "dist/v$VERSION"',
-        'gh release create "dist/v$VERSION"',
-        "--verify-tag",
+        'echo "sha=$(git -C "$work" rev-parse HEAD)" >> "$GITHUB_OUTPUT"',
+        'gh release upload "dist/v$VERSION"',
+        "--clobber",
+        'gh release edit "dist/v$VERSION"',
         "--label no-release",
     ])
         assert(workflow.includes(required), required);
     for (const forbidden of [
+        // The version is computed, never typed in, so there is no dispatch
+        // input left to read.
+        "workflow_dispatch:",
+        "inputs.version",
+        "inputs.candidate-version",
+        // dist/vX.Y.Z is created on main by the release action. Applying it to
+        // the generated branch too would make one tag name resolve to two trees.
+        'git -C "$work" tag "dist/v$VERSION"',
+        'gh release create "dist/v$VERSION"',
         "id-token: write",
         "secrets:",
         "npm publish",
@@ -274,15 +289,18 @@ test("public marketplace generation stays read-only and gates every publish", ()
         "push -f",
     ])
         assert.equal(workflow.includes(forbidden), false, forbidden);
+    const beforePublish = workflow.slice(0, workflow.indexOf("  publish:\n"));
     const [, publish] = workflow.split("  publish:\n");
-    for (const scoped of ["contents: write", "pull-requests: write"]) {
+    for (const scoped of ["contents: write", "pull-requests: write"])
         assert(publish.includes(scoped), scoped);
-        assert.equal(
-            workflow.slice(0, workflow.indexOf("  publish:\n")).includes(scoped),
-            false,
-            scoped,
-        );
-    }
+    // pull-requests: write belongs to publish alone. contents: write is scoped
+    // to release (the tag and release on main) and publish (the protected
+    // branch); the stage job that generates and verifies stays read-only, and
+    // neither appears at workflow level.
+    assert.equal(beforePublish.includes("pull-requests: write"), false);
+    const [, stage] = beforePublish.split("  stage:\n");
+    assert(stage.includes("permissions:\n      contents: read"));
+    assert.equal(stage.includes("contents: write"), false);
 });
 
 test("the distribution branch has a live control plane inside Cratis/AI", () => {

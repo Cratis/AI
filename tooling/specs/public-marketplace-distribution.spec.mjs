@@ -17,6 +17,7 @@ import { validateAgainstSchema } from "../catalog-validation.mjs";
 import { distributionPointerOutputs } from "../component-catalog-validation.mjs";
 import { generateDistributionFixture } from "../generate-distribution-fixture.mjs";
 import {
+    createMarketplacePointerManifests,
     generateMarketplacePointerManifests,
     marketplacePointerManifestPaths,
 } from "../generate-marketplace-pointer-manifests.mjs";
@@ -249,7 +250,7 @@ test("the marketplace records where its immutable bytes actually live", () => {
     });
 });
 
-test("default-branch pointer manifests resolve only the immutable tag", () => {
+test("default-branch pointer manifests resolve only an immutable ref", () => {
     withTemporaryDirectory((temporaryRoot) => {
         const root = join(temporaryRoot, "pointers");
         mkdirSync(root, { recursive: true });
@@ -259,6 +260,7 @@ test("default-branch pointer manifests resolve only the immutable tag", () => {
         });
         assert.deepEqual(result.paths, [...marketplacePointerManifestPaths]);
         assert.equal(result.tag, "dist/v0.3.0");
+        assert.equal(result.ref, "dist/v0.3.0");
         const requirements = readJson(
             "distribution/marketplace-requirements.json",
         );
@@ -292,6 +294,39 @@ test("default-branch pointer manifests resolve only the immutable tag", () => {
                 false,
                 forbidden,
             );
+    });
+});
+
+// The publish workflow passes the exact distribution-branch commit it just
+// pushed, because dist/vX.Y.Z is created on main by cratis/release-action and is
+// never applied to the distribution branch. The version keeps driving every
+// display field; only the install pointer moves to the commit.
+test("an explicit ref pins the install pointer without changing the version", () => {
+    withTemporaryDirectory((temporaryRoot) => {
+        const root = join(temporaryRoot, "pointers");
+        mkdirSync(root, { recursive: true });
+        const sha = "5f2c0a1b9d3e4f6a7b8c9d0e1f2a3b4c5d6e7f80";
+        const result = generateMarketplacePointerManifests({
+            outputRoot: root,
+            version: "0.3.0",
+            ref: sha,
+        });
+        assert.equal(result.tag, "dist/v0.3.0");
+        assert.equal(result.ref, sha);
+        for (const path of marketplacePointerManifestPaths) {
+            const manifest = readJson(join(root, path));
+            assert.equal(manifest.plugins[0].source.ref, sha);
+            assert.equal(manifest.plugins[0].source.repo, "Cratis/AI");
+        }
+        const portable = readJson(join(root, ".claude-plugin/marketplace.json"));
+        assert.equal(portable.metadata.version, "0.3.0");
+        assert.equal(portable.plugins[0].version, "0.3.0");
+        // The 0.x cap holds whether or not a ref overrides the pointer.
+        assert.throws(
+            () =>
+                createMarketplacePointerManifests("1.0.0", sha),
+            /exact 0\.x\.y version/,
+        );
     });
 });
 

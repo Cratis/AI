@@ -25,14 +25,16 @@ Four owners cooperate without duplicating authority:
 | Shared AI behavior | `Cratis/AI` `main` (authored) | Skill workflows, trigger intent, engineering conventions, profile composition, MCP declarations |
 | Product facts | Owning product repository | Arc APIs, Chronicle semantics, Components examples, supported client versions |
 | Project context | Consuming repository | Product mix, profile, credentials, endpoints, local constraints |
-| Generated artifacts | `Cratis/AI` at a generated ref | Immutable host packages, manifests, checksums, provenance on the protected `distribution` branch at `dist/vX.Y.Z` |
+| Generated artifacts | `Cratis/AI` at a generated ref | Immutable host packages, manifests, checksums, provenance on the protected `distribution` branch, pinned by exact commit and recorded in the `dist/vX.Y.Z` release on `main` |
 
 > **[Cratis/AI#264](https://github.com/Cratis/AI/issues/264) — the code lands
 > here; the first real run is pending branch setup.** The public marketplace lane
-> now stages, verifies, pushes, tags, and releases inside `Cratis/AI`, on the
-> protected `distribution` branch with immutable `dist/vX.Y.Z` tags. What remains
-> is configuration a maintainer applies by hand — creating and protecting the
-> branch and the `dist/*` tag namespace, then dispatching the workflow once. See
+> now stages, verifies, pushes, and releases inside `Cratis/AI`, on the protected
+> `distribution` branch, with the `dist/vX.Y.Z` tag and release created on `main`
+> by `cratis/release-action` and the installable ref being the exact
+> `distribution` commit each run pushes. What remains is configuration a
+> maintainer applies by hand — creating and protecting the branch and the
+> `dist/*` tag namespace, then letting one labeled push to `main` run it. See
 > the
 > [maintainer marketplace deployment runbook](./maintainer-marketplace-deployment-runbook.md).
 >

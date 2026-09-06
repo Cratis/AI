@@ -25,7 +25,7 @@ package bytes back into `Cratis/AI`.
 | Product fact | Owning product repository | Arc API, Chronicle behavior, Components usage, supported client version |
 | Project context | Consuming repository | Product mix, build commands, local restrictions, endpoints without credential values |
 | Private behavior | Consuming private repository | Unreleased architecture, incidents, infrastructure, customer or repository-specific workflow |
-| Generated package bytes | `Cratis/AI` at the protected `distribution` ref | Host package, manifest, checksum, provenance, native projection, tagged `dist/vX.Y.Z` |
+| Generated package bytes | `Cratis/AI` at the protected `distribution` ref | Host package, manifest, checksum, provenance, native projection, pinned by exact commit and released as `dist/vX.Y.Z` on `main` |
 | Promotion and subscriber updates | `Cratis/Workflows` | Canary, pin update, rollback, emergency disable, update pull request |
 
 A skill can explain an authoritative product fact, but it cannot become a
@@ -38,7 +38,7 @@ shared AI change to the product's immutable revision.
 graph LR
     Product[Product repository\nproduct facts] -->|immutable revision| AI[Cratis/AI\ncanonical behavior]
     Consumer[Consuming repository\nobservation or proposal] -->|reviewed improvement proposal| AI
-    AI -->|evaluate, approve, generate| Distribution[Cratis/AI@distribution\nimmutable generated artifacts at dist/vX.Y.Z]
+    AI -->|evaluate, approve, generate| Distribution[Cratis/AI@distribution\nimmutable generated artifacts pinned by exact commit]
     Distribution -->|exact version| Update[Reviewed subscriber update PR]
     Update --> Consumer
     Consumer -->|repository-specific gates| Adopted[Updated stable pin]

@@ -30,7 +30,7 @@ it is labeled done or outstanding accordingly.
 | 3 | npm `@cratis` scope ownership and trusted publishing | [Cratis/Workflows#70](https://github.com/Cratis/Workflows/issues/70) | **Done** for `release-passive-previews.yml` — see the caveat in step 3 |
 | 4 | `Cratis/AI.Distribution` GitHub App (`AI_DISTRIBUTION_APP_ID` / `AI_DISTRIBUTION_APP_PRIVATE_KEY`) | [Cratis/Workflows#72](https://github.com/Cratis/Workflows/issues/72) | **Outstanding, and now smaller** — the App is still not installed; the public marketplace lane no longer needs it, three gated workflows still do |
 | 5 | Canary repository and subscriber ring authorization | [Cratis/Workflows#71](https://github.com/Cratis/Workflows/issues/71) | **Outstanding** |
-| 6 | Single-repository re-pointing (protected `distribution` branch, `dist/*` tags) | [#264](https://github.com/Cratis/AI/issues/264) Phase 2 | **Branch created and protected; code landed in [#266](https://github.com/Cratis/AI/pull/266).** First real dispatch (6b) still outstanding, and needs `distribution-canary` approval from `woksin` |
+| 6 | Single-repository re-pointing (protected `distribution` branch, `dist/*` tags) | [#264](https://github.com/Cratis/AI/issues/264) Phase 2 | **Branch created and protected; code landed in [#266](https://github.com/Cratis/AI/pull/266).** First real run (6b) still outstanding, and needs `distribution-canary` approval from `woksin` |
 | 7 | Archive `Cratis/AI.Distribution` | [#264](https://github.com/Cratis/AI/issues/264) Phase 5 | **Outstanding** — blocked on step 6 |
 | 8 | Marketplace publisher accounts and vendor listing review | [#147](https://github.com/Cratis/AI/issues/147) | **Outstanding** |
 
@@ -69,9 +69,10 @@ deletion disabled and no human push path, and tag protection on `dist/*` so a
 release tag is immutable. Apply it the same way — by hand, through the API — and
 record it alongside these two environments. Step 6a below is that item.
 
-The `publish` job of `distribution-public-marketplace.yml` runs in
-`distribution-canary`, so the same reviewer already gates every write to the
-protected branch, the `dist/*` tag, and the GitHub release.
+The `publish` job of `publish.yml` runs in `distribution-canary`, so the same
+reviewer already gates every write to the protected branch and every asset added
+to the GitHub release. The `dist/vX.Y.Z` tag itself is created earlier, by the
+`release` job on `main`, before that approval — see step 6b.
 
 ## 3 — npm trusted publishing
 
@@ -94,6 +95,11 @@ also runs `npm publish --provenance` from the `npm-stage` environment. Before
 the governed release lane can publish, either register a second trusted
 publisher for `release-approved-ai-profiles.yml` or move the publish step into
 the already-registered workflow. Renaming either file breaks publishing.
+
+This lock is why `release-passive-previews.yml` keeps its name while every other
+Cratis release workflow is called `publish.yml`. The public marketplace lane
+publishes nothing to npm, so it carries no such binding and was renamed to
+`.github/workflows/publish.yml` to match Chronicle and Studio.
 
 The publish job also requires npm **11.5.1 or newer** (asserted at runtime) and
 Node 24 in the workflow.
@@ -125,13 +131,14 @@ publish to npm, and cannot submit a marketplace package.
 Both secrets live in `Cratis/AI` Actions secrets:
 `AI_DISTRIBUTION_APP_ID` and `AI_DISTRIBUTION_APP_PRIVATE_KEY`.
 
-`distribution-public-marketplace.yml` **no longer appears in that table.** Since
+`publish.yml` **no longer appears in that table.** Since
 [#266](https://github.com/Cratis/AI/pull/266) it reads and writes only
-`Cratis/AI`: it checks out `Cratis/AI@distribution` read-only with
+`Cratis/AI`: its `release` job creates the `dist/vX.Y.Z` tag and GitHub Release
+on `main`, it checks out `Cratis/AI@distribution` read-only with
 `persist-credentials: false` in its `stage` job, and its `publish` job writes the
-protected branch, the `dist/vX.Y.Z` tag, and the GitHub release with the
-workflow's own `${{ github.token }}` under job-scoped `contents: write`. It
-references neither secret.
+protected branch and the release assets with the workflow's own
+`${{ github.token }}` under job-scoped `contents: write`. It references neither
+secret.
 
 **Read this before installing the App.** Step 6 removes the rest of this item
 too, once the three remaining lanes are migrated. Install the App only if you
@@ -181,8 +188,8 @@ and 2: through the GitHub API, not a workflow.
    Legacy per-tag protection (`/branches/tags/protection`) is retired on GitHub;
    this is the ruleset equivalent.
 4. ✅ The default `GITHUB_TOKEN` has `contents: write` at the job level in
-   `distribution-public-marketplace.yml`'s `publish` job — no separate
-   confirmation needed beyond that scoping already being correct.
+   `publish.yml`'s `release` and `publish` jobs — no separate confirmation needed
+   beyond that scoping already being correct.
 
 The branch and tag protection are live now, independent of whether/when
 [#266](https://github.com/Cratis/AI/pull/266) merges — they don't depend on the
@@ -199,31 +206,59 @@ who isn't on that reviewer list cannot approve it without first editing the
 environment's protection rules, which this page does not recommend doing to get
 around the review.
 
-Dispatch **Stage Public Marketplace Distribution** from `main`. One run then:
+**There is nothing to dispatch by hand any more.** `publish.yml` triggers on a
+push to `main` touching the source paths that feed the generated tree
+(`catalog/**`, `distribution/**`, `mcp/**`, `skills/**`, `tooling/**`, the four
+marketplace manifest roots, and the workflow itself). Merging #266 is itself such
+a push. One run then:
 
-1. reads `Cratis/AI@distribution` as the current generated state;
-2. stages the complete tree and runs all seven required checks against it;
-3. pushes it to `refs/heads/distribution` and creates `dist/vX.Y.Z`;
-4. re-runs all seven checks against the published branch;
-5. publishes the GitHub release at that tag with `SHA256SUMS`,
-   `provenance.json`, `distribution-manifest.json`, `marketplace-release.json`,
-   and the vendor-portal handoff archives; and
-6. opens a `no-release` pull request adding the four thin pointer marketplace
-   manifests to `main`.
+1. runs `cratis/release-action` with `tag-prefix: "dist/v"`, which reads the
+   merged pull request's release-intent label, computes the version, and creates
+   the `dist/vX.Y.Z` tag and GitHub Release **on `main`**. A `no-release` pull
+   request stops here — `should-publish` is `false` and both later jobs skip;
+2. reads `Cratis/AI@distribution` as the current generated state;
+3. stages the complete tree and runs all seven required checks against it;
+4. pushes it to `refs/heads/distribution` and records that exact commit SHA;
+5. re-runs all seven checks against the published branch;
+6. uploads `SHA256SUMS`, `provenance.json`, `distribution-manifest.json`,
+   `marketplace-release.json`, and the vendor-portal handoff archives onto the
+   release the `release` job already created, and rewrites its notes to name the
+   `distribution` commit; and
+7. opens a `no-release` pull request pointing the four thin marketplace
+   manifests on `main` at that commit SHA.
 
-Then re-run the host install evidence at the new ref for Claude Code, Codex,
-Copilot, Gemini, Pi, Cursor, and Kiro, and record it under
+Then re-run the host install evidence at the new `distribution` commit for Claude
+Code, Codex, Copilot, Gemini, Pi, Cursor, and Kiro, and record it under
 `distribution/evidence/` in the existing format — including the negative test
 that adding `Cratis/AI` as a marketplace does **not** surface the authored root
 `skills/` tree.
 
+#### Why there is no tag on the `distribution` branch
+
+`cratis/release-action` creates its tag on the commit that triggered the run,
+which is on `main`. That is right for Chronicle and Studio, where the released
+artifact *is* the main-branch source, but it is wrong here: `main`'s root still
+carries the authored `skills/` tree, and the whole point of the pointer-manifest
+indirection is that a host installing from `Cratis/AI` never sees it. One tag
+name cannot resolve to both the `main` release commit and the generated tree on
+`distribution`, so the split is deliberate — **`dist/vX.Y.Z` is the versioned,
+changelog-bearing, asset-hosting record on `main`, and the installable reference
+is the exact `distribution` commit SHA recorded in that release and in the
+pointer manifests.** The `distribution` branch never gets a tag. A commit SHA is
+still an exact immutable pin — it satisfies the "never a floating range" rule of
+[#173](https://github.com/Cratis/AI/issues/173) — it simply is not a friendly
+name. If you are hunting for `dist/v0.3.0` on the `distribution` branch, it is
+not missing; it was never meant to be there.
+
 ### What already landed in code
 
-- `distribution-public-marketplace.yml` reads `Cratis/AI@distribution`, stages,
-  verifies, pushes, tags, re-verifies, releases, and opens the pointer pull
-  request. Generation and verification stay in a read-only `stage` job;
-  `contents: write` and `pull-requests: write` are scoped to the `publish` job,
-  which is gated by the `distribution-canary` environment.
+- `publish.yml` computes the version with `cratis/release-action`, reads
+  `Cratis/AI@distribution`, stages, verifies, pushes, re-verifies, attaches the
+  release assets, and opens the pointer pull request. Generation and verification
+  stay in a read-only `stage` job; `contents: write` is scoped to the `release`
+  job (which creates the tag and release on `main`) and the `publish` job, and
+  `pull-requests: write` to `publish` alone, which is gated by the
+  `distribution-canary` environment.
 - `.github/workflows/verify-distribution-branch.yml` is a live control plane in
   `Cratis/AI` running all seven required checks — `exact-inventory`,
   `canonical-byte-parity`, `native-manifest-parse`, `checksums`,
@@ -241,9 +276,9 @@ that adding `Cratis/AI` as a marketplace does **not** surface the authored root
   branches: ["distribution"]` block on `verify-distribution-branch.yml` fires
   only once a matching copy exists on that branch. Until then it runs on
   `workflow_dispatch` and its weekly schedule, and the authoritative per-release
-  gate is the pre-push and post-push verification inside
-  `distribution-public-marketplace.yml`, which runs all seven checks twice on
-  every release. If you want a genuine per-push check on the branch as well, the
+  gate is the pre-push and post-push verification inside `publish.yml`, which
+  runs all seven checks twice on every release. If you want a genuine per-push
+  check on the branch as well, the
   one-line change is adding `distribution` to the push branches of
   `distribution/repository-control-plane/.github/workflows/verify-generated-distribution.yml`,
   which is deliberately left alone here because it is also the byte-for-byte

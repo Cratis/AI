@@ -25,7 +25,7 @@
           "distTagRuleset": "repository ruleset 'Protect dist release tags', target=tag, pattern=refs/tags/dist/*, rules=[deletion, update, non_fast_forward], current_user_can_bypass=never"
         },
         "remaining": [
-          "one real run of the re-pointed Stage Public Marketplace Distribution workflow, dispatched from main after #266 merges",
+          "one real run of Publish Public Marketplace Distribution, triggered by a push to main that matches publish.yml's paths after #266 merges",
           "distribution-canary environment approval from woksin for that run's publish job",
           "host install evidence re-recorded at the new ref under distribution/evidence/"
         ]

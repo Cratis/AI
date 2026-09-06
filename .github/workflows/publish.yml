@@ -1,37 +1,83 @@
 # Copyright (c) Cratis. All rights reserved.
 # Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-name: Stage Public Marketplace Distribution
+name: Publish Public Marketplace Distribution
 
 # Generation and every Distribution gate run in the read-only `stage` job.
 # Only `publish` may write, and it writes inside this repository: the protected
-# `distribution` branch, the immutable `dist/vX.Y.Z` tag, and a GitHub Release.
-# The second generated repository is no longer a write target here, so this
-# workflow mints no GitHub App token and reads no AI_DISTRIBUTION_APP_ credential.
+# `distribution` branch and the GitHub Release. The second generated repository
+# is no longer a write target here, so this workflow mints no GitHub App token
+# and reads no AI_DISTRIBUTION_APP_ credential.
+#
+# The tag and the installable ref are deliberately two different things.
+# `cratis/release-action` computes the version and creates the canonical
+# `dist/vX.Y.Z` tag and GitHub Release on `main`, which is the versioned,
+# changelog-bearing, asset-hosting record. That tag must never be applied to the
+# `distribution` branch, so the host-installable reference is instead the exact
+# commit SHA this run pushes to that branch — still an immutable pin, just not a
+# friendly tag name. The pointer manifests on `main` therefore resolve
+# `distribution@<sha>`, never `dist/vX.Y.Z`.
 
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: Unsupported public evaluation version (0.x.y)
-        required: true
-        default: 0.3.0
-        type: string
-      candidate-version:
-        description: Immutable corrected candidate review version
-        required: true
-        default: 0.0.2-candidate.1
-        type: string
+  push:
+    branches: ["main"]
+    paths:
+      - "catalog/**"
+      - "distribution/**"
+      - "mcp/**"
+      - "skills/**"
+      - "tooling/**"
+      - ".claude-plugin/**"
+      - ".agents/plugins/**"
+      - ".github/plugin/**"
+      - ".cursor-plugin/**"
+      - ".github/workflows/publish.yml"
 
 permissions:
   contents: read
 
 concurrency:
-  group: stage-public-marketplace-${{ github.ref }}
+  group: publish-public-marketplace-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    outputs:
+      publish: ${{ steps.release.outputs.should-publish }}
+      version: ${{ steps.release.outputs.version }}
+    steps:
+      - name: Check out the canonical repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Determine release from the merged pull request
+        id: release
+        uses: cratis/release-action@bdaded342eb31b52b48dca0611f0214794f8c655 # v1.2.0
+        with:
+          tag-prefix: "dist/v"
+          release-notes: |
+            Unsupported `0.x` public evaluation distribution.
+
+            Generated from `Cratis/AI@${{ github.sha }}` onto the protected
+            `distribution` branch. This tag and release live on `main`; the
+            host-installable reference is the exact `distribution` branch commit
+            recorded by the marketplace pointer manifests, because no tag is ever
+            applied to that branch.
+
+            Install, update, and uninstall commands live in
+            `Documentation/maintainer-marketplace-deployment-runbook.md`.
+
+            Marketplace availability does not imply behavior support,
+            broad-rollout approval, or a stable support claim.
+
   stage:
+    needs: release
+    if: needs.release.outputs.publish == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -73,8 +119,8 @@ jobs:
 
       - name: Generate complete marketplace repository
         env:
-          VERSION: ${{ inputs.version }}
-          CANDIDATE_VERSION: ${{ inputs.candidate-version }}
+          VERSION: ${{ needs.release.outputs.version }}
+          CANDIDATE_VERSION: 0.0.${{ github.run_number }}-candidate.1
         run: |
           set -euo pipefail
           [[ "$VERSION" =~ ^0\.[0-9]+\.[0-9]+$ ]]
@@ -126,7 +172,7 @@ jobs:
       - name: Upload exact marketplace review tree
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v7.0.1
         with:
-          name: cratis-ai-public-marketplace-${{ inputs.version }}
+          name: cratis-ai-public-marketplace-${{ needs.release.outputs.version }}
           path: |
             ${{ runner.temp }}/staged-distribution
             ${{ runner.temp }}/vendor-portal-handoff
@@ -135,7 +181,8 @@ jobs:
           retention-days: 7
 
   publish:
-    needs: stage
+    needs: [release, stage]
+    if: needs.release.outputs.publish == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: distribution-canary
@@ -180,13 +227,14 @@ jobs:
       - name: Download the exact marketplace review tree
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v8.0.1
         with:
-          name: cratis-ai-public-marketplace-${{ inputs.version }}
+          name: cratis-ai-public-marketplace-${{ needs.release.outputs.version }}
           path: ${{ runner.temp }}/review
 
       - name: Publish the generated tree to the protected distribution branch
+        id: published
         env:
           GH_TOKEN: ${{ github.token }}
-          VERSION: ${{ inputs.version }}
+          VERSION: ${{ needs.release.outputs.version }}
           CURRENT_EXISTS: ${{ steps.current.outputs.exists }}
         run: |
           set -euo pipefail
@@ -211,8 +259,10 @@ jobs:
             --message "Publish public marketplace distribution $VERSION" \
             --message "Generated from Cratis/AI@$GITHUB_SHA by ${GITHUB_WORKFLOW}. Machine-written bytes only; never hand-edited."
           git -C "$work" push origin HEAD:refs/heads/distribution
-          git -C "$work" tag "dist/v$VERSION"
-          git -C "$work" push origin "dist/v$VERSION"
+          # The canonical dist/v$VERSION tag belongs to the release commit on
+          # main and is never applied here. This exact commit is the immutable
+          # ref every host installs from.
+          echo "sha=$(git -C "$work" rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Verify every Distribution gate on the published branch
         env:
@@ -244,10 +294,10 @@ jobs:
             node "$validator" "${arguments[@]}"
           done
 
-      - name: Publish the immutable GitHub release
+      - name: Attach the generated distribution assets to the release
         env:
           GH_TOKEN: ${{ github.token }}
-          VERSION: ${{ inputs.version }}
+          VERSION: ${{ needs.release.outputs.version }}
         run: |
           set -euo pipefail
           staged="$RUNNER_TEMP/review/staged-distribution"
@@ -266,28 +316,46 @@ jobs:
           for archive in "$handoff"/*.zip; do
             cp "$archive" "$assets/$(basename "$archive")"
           done
+          # The release already exists: cratis/release-action created it on the
+          # main commit that triggered this run.
+          gh release upload "dist/v$VERSION" "$assets"/* \
+            --repo "$GITHUB_REPOSITORY" \
+            --clobber
+
+      - name: Record the installable distribution commit in the release notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.release.outputs.version }}
+          DISTRIBUTION_SHA: ${{ steps.published.outputs.sha }}
+        run: |
+          set -euo pipefail
           notes="$RUNNER_TEMP/release-notes.md"
           {
             echo "Unsupported \`0.x\` public evaluation distribution."
             echo
             echo "Generated from \`Cratis/AI@$GITHUB_SHA\` onto the protected"
-            echo "\`distribution\` branch and tagged \`dist/v$VERSION\`."
+            echo "\`distribution\` branch as commit \`$DISTRIBUTION_SHA\`."
             echo
-            echo "Install commands are in the tagged \`README.md\`. Marketplace"
-            echo "availability does not imply behavior support, broad-rollout"
-            echo "approval, or a stable support claim."
+            echo "This tag and release live on \`main\`. The installable ref is"
+            echo "the \`distribution\` branch commit above — that branch is never"
+            echo "tagged, so \`dist/v$VERSION\` must not be used as an install"
+            echo "pointer."
+            echo
+            echo "Install commands are in"
+            echo "\`Documentation/maintainer-marketplace-deployment-runbook.md\`."
+            echo "Marketplace availability does not imply behavior support,"
+            echo "broad-rollout approval, or a stable support claim."
           } > "$notes"
-          gh release create "dist/v$VERSION" \
+          gh release edit "dist/v$VERSION" \
             --repo "$GITHUB_REPOSITORY" \
             --title "Cratis AI distribution $VERSION" \
-            --notes-file "$notes" \
-            --verify-tag \
-            "$assets"/*
+            --notes-file "$notes"
 
       - name: Open the marketplace pointer manifest pull request
         env:
           GH_TOKEN: ${{ github.token }}
-          VERSION: ${{ inputs.version }}
+          VERSION: ${{ needs.release.outputs.version }}
+          DISTRIBUTION_SHA: ${{ steps.published.outputs.sha }}
         run: |
           set -euo pipefail
           gh auth setup-git
@@ -295,10 +363,10 @@ jobs:
           gh repo clone "$GITHUB_REPOSITORY" "$work" -- --branch main
           node \
             "$GITHUB_WORKSPACE/source/tooling/generate-marketplace-pointer-manifests.mjs" \
-            "$work" "$VERSION"
+            "$work" "$VERSION" "$DISTRIBUTION_SHA"
           git -C "$work" add -A
           if git -C "$work" diff --cached --quiet; then
-            echo "Pointer manifests already reference dist/v$VERSION." \
+            echo "Pointer manifests already reference distribution@$DISTRIBUTION_SHA." \
               >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
@@ -309,15 +377,15 @@ jobs:
           git -C "$work" config user.name "cratis-distribution-bot"
           git -C "$work" config user.email "distribution-bot@invalid.example"
           git -C "$work" commit \
-            --message "Point marketplace manifests at dist/v$VERSION"
+            --message "Point marketplace manifests at distribution@${DISTRIBUTION_SHA:0:12}"
           git -C "$work" push origin "$branch"
-          body="Generated by \`${GITHUB_WORKFLOW}\` from Cratis/AI@$GITHUB_SHA. Each pointer manifest resolves its plugin from the immutable \`dist/v$VERSION\` tag on the protected \`distribution\` branch, so adding \`Cratis/AI\` as a marketplace never exposes the authored root \`skills/\` tree."
+          body="Generated by \`${GITHUB_WORKFLOW}\` from Cratis/AI@$GITHUB_SHA for release \`dist/v$VERSION\`. Each pointer manifest resolves its plugin from the exact commit \`$DISTRIBUTION_SHA\` on the protected \`distribution\` branch, so adding \`Cratis/AI\` as a marketplace never exposes the authored root \`skills/\` tree. The installable ref is that commit SHA, not the \`dist/v$VERSION\` tag: that tag is the versioned record on \`main\` and is never applied to the \`distribution\` branch."
           if ! gh pr create \
             --repo "$GITHUB_REPOSITORY" \
             --base main \
             --head "$branch" \
             --label no-release \
-            --title "Point marketplace manifests at dist/v$VERSION" \
+            --title "Point marketplace manifests at distribution@${DISTRIBUTION_SHA:0:12}" \
             --body "$body"
           then
             {

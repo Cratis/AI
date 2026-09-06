@@ -85,7 +85,7 @@
         "Marketplace and plugin names use kebab-case.",
         "Relative plugin sources stay inside the marketplace root.",
         "Generated passive plugins contain skills only and use strict validation.",
-        "The Cratis/AI default branch carries a thin pointer marketplace whose plugin source resolves the immutable dist/vX.Y.Z tag; the generated tree itself lives only on the protected distribution branch."
+        "The Cratis/AI default branch carries a thin pointer marketplace whose plugin source resolves the exact distribution-branch commit each publish run pushed; the generated tree itself lives only on the protected distribution branch, which is never tagged. The dist/vX.Y.Z tag is the versioned release record on main. The installCommands above still spell the ref as dist/vX.Y.Z and are re-verified per host, with the ref replaced by that commit, as part of the step 6b install evidence in Documentation/maintainer-marketplace-deployment-runbook.md."
       ]
     },
     {

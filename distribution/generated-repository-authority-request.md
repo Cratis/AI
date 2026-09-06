@@ -50,19 +50,31 @@ duplicated control plane, and one of two branch-protection surfaces.
 [Cratis/AI#266](https://github.com/Cratis/AI/pull/266) implements the
 re-pointing for the public marketplace lane. In code, today:
 
-- `distribution-public-marketplace.yml` reads `Cratis/AI@distribution` as the
+- `publish.yml` runs on a push to `main` that touches the source paths feeding
+  the generated tree. `cratis/release-action` — the same action every other
+  Cratis release uses — computes the version from the merged pull request's
+  release-intent label and creates the canonical `dist/vX.Y.Z` tag and GitHub
+  Release **on `main`**. The workflow then reads `Cratis/AI@distribution` as the
   current generated state, runs all seven required checks against the staged
-  tree, pushes that tree to `refs/heads/distribution`, creates the immutable
-  `dist/vX.Y.Z` tag, re-runs the seven checks against the published branch, and
-  publishes the GitHub release that now carries the asset set. It mints no
-  GitHub App token and reads no `AI_DISTRIBUTION_APP_*` secret.
+  tree, pushes that tree to `refs/heads/distribution`, re-runs the seven checks
+  against the published branch, and uploads the asset set onto the release the
+  action already created. It mints no GitHub App token and reads no
+  `AI_DISTRIBUTION_APP_*` secret.
+- **The tag and the installable ref are deliberately different.** A single tag
+  name cannot correctly resolve to both the `main` release commit and the
+  generated tree on `distribution`, and `main`'s root still carries the authored
+  `skills/` tree — the exact thing the pointer indirection exists to hide. So
+  `dist/vX.Y.Z` stays on `main` as the versioned, changelog-bearing,
+  asset-hosting record, the `distribution` branch is never tagged, and the
+  host-installable reference is the exact commit SHA that run pushed to it. That
+  SHA is still an immutable pin, never a floating range.
 - `verify-distribution-branch.yml` is a live control plane inside `Cratis/AI`
   running the same seven checks against the protected branch.
 - `tooling/generate-marketplace-pointer-manifests.mjs` emits the four thin
   pointer marketplace manifests for the default branch. Each resolves its plugin
-  from the immutable tag, and `gemini-extension.json`, a root `plugin.json`, and
-  a root `package.json` are deliberately absent so no host discovers the
-  authored root `skills/` tree.
+  from that exact `distribution` commit SHA, and `gemini-extension.json`, a root
+  `plugin.json`, and a root `package.json` are deliberately absent so no host
+  discovers the authored root `skills/` tree.
 
 The governed S10 release lane, the disabled approved-profile activation job, and
 the credential-gated fixture and candidate review lane are deliberately left on
@@ -88,10 +100,10 @@ once created. Record the observed settings in `remote-repository-state.json`
 under `supersedingDecision.phase2Execution.appliedOutOfBandByRepositoryAdmin`
 once they exist.
 
-**The first real run has not happened.** Running the re-pointed
-`distribution-public-marketplace.yml` once produces the first `Cratis/AI`-hosted
-release and the evidence that hosts install from it. Phase 5 — archiving the
-mirror — still follows after that.
+**The first real run has not happened.** One labeled push to `main` touching
+`publish.yml`'s source paths produces the first `Cratis/AI`-hosted release and
+the evidence that hosts install from it. Phase 5 — archiving the mirror — still
+follows after that.
 [Maintainer marketplace deployment runbook](../Documentation/maintainer-marketplace-deployment-runbook.md)
 records exactly what a maintainer must configure by hand.
 

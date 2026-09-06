@@ -20,9 +20,9 @@
       "generatedRef": "distribution",
       "releaseTagPattern": "dist/vX.Y.Z",
       "landedInCode": [
-        ".github/workflows/distribution-public-marketplace.yml reads Cratis/AI@distribution as the current generated state, verifies the staged tree, pushes it to refs/heads/distribution, creates the immutable dist/vX.Y.Z tag, re-verifies the published branch, and publishes the GitHub release that now carries the asset set",
+        ".github/workflows/publish.yml runs on push to main, takes its version from cratis/release-action with tag-prefix dist/v so the canonical dist/vX.Y.Z tag and GitHub release are created on main, reads Cratis/AI@distribution as the current generated state, verifies the staged tree, pushes it to refs/heads/distribution, re-verifies the published branch, uploads the asset set onto the existing release, and records the pushed distribution-branch commit SHA as the installable ref",
         ".github/workflows/verify-distribution-branch.yml runs all seven required checks against the protected branch from Cratis/AI itself",
-        "tooling/generate-marketplace-pointer-manifests.mjs emits the four thin pointer marketplace manifests whose plugin source resolves the immutable tag, so the Cratis/AI default branch never exposes the authored root skills tree",
+        "tooling/generate-marketplace-pointer-manifests.mjs emits the four thin pointer marketplace manifests whose plugin source resolves the exact distribution-branch commit the publish run pushed, so the Cratis/AI default branch never exposes the authored root skills tree",
         "tooling/generate-public-marketplace-distribution.mjs records distributionRepository Cratis/AI and distributionRef dist/vX.Y.Z, and the control-plane validator enforces both",
         "tooling/stage-public-marketplace-repository.mjs stages a complete tree when the distribution branch does not exist yet, so the first bootstrap run can initialize it"
       ],
@@ -39,7 +39,7 @@
           "create the orphan distribution branch in Cratis/AI",
           "protect distribution with force-push disabled, deletion disabled, administrators included, and no human push path",
           "protect the dist/* tag namespace so a release tag is immutable once created",
-          "run the re-pointed Stage Public Marketplace Distribution workflow once to produce the first Cratis/AI-hosted release and re-run the host install evidence at the new ref"
+          "land one push to main that matches publish.yml's paths under a release-intent label, so Publish Public Marketplace Distribution produces the first Cratis/AI-hosted release, and re-run the host install evidence at the new distribution-branch commit"
         ]
       }
     },

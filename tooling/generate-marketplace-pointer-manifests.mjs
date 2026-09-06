@@ -11,9 +11,15 @@ import {
 } from "./generate-public-marketplace-distribution.mjs";
 
 // The Cratis/AI default branch carries only these four thin marketplace
-// manifests. Every one of them resolves its plugin from the immutable
-// dist/vX.Y.Z tag on the protected distribution branch, so adding Cratis/AI as a
-// marketplace never exposes the authored root skills/ tree.
+// manifests. Every one of them resolves its plugin from an immutable ref on the
+// protected distribution branch, so adding Cratis/AI as a marketplace never
+// exposes the authored root skills/ tree.
+//
+// The publish workflow passes the exact distribution-branch commit SHA it just
+// pushed as `ref`, because the canonical dist/vX.Y.Z tag is created on main by
+// cratis/release-action and is never applied to the distribution branch. When
+// `ref` is omitted the tag-derived value is used, which keeps every caller that
+// only knows a version working and documents the intended shape.
 //
 // gemini-extension.json, a root plugin.json, and a root package.json are
 // deliberately absent: those hosts read a repository root directly rather than
@@ -26,19 +32,23 @@ export const marketplacePointerManifestPaths = Object.freeze([
     ".github/plugin/marketplace.json",
 ]);
 
-function taggedSource(tag) {
+function pinnedSource(ref) {
     return {
         source: "github",
         repo: publicMarketplaceIdentity.distributionRepository,
-        ref: tag,
+        ref,
         path: publicMarketplaceIdentity.pluginRoot,
     };
 }
 
-export function createMarketplacePointerManifests(version) {
+export function createMarketplacePointerManifests(version, ref) {
+    // Derive the tag unconditionally: it is what validates that the version is
+    // an exact 0.x.y, and that cap must hold whether or not a ref overrides the
+    // install pointer.
     const tag = publicMarketplaceDistributionTag(version);
+    const resolved = ref ?? tag;
     const { profileId, description } = publicMarketplaceIdentity;
-    const source = taggedSource(tag);
+    const source = pinnedSource(resolved);
     const portable = (extra) => ({
         name: "cratis",
         owner: { name: "Cratis" },
@@ -81,10 +91,11 @@ export function createMarketplacePointerManifests(version) {
 export function generateMarketplacePointerManifests({
     outputRoot,
     version,
+    ref,
 } = {}) {
     if (!outputRoot) throw new Error("outputRoot is required");
     const root = resolve(outputRoot);
-    const manifests = createMarketplacePointerManifests(version);
+    const manifests = createMarketplacePointerManifests(version, ref);
     const paths = [...manifests.keys()].sort();
     if (
         JSON.stringify(paths) !==
@@ -99,25 +110,28 @@ export function generateMarketplacePointerManifests({
             `${JSON.stringify(manifests.get(path), null, 2)}\n`,
         );
     }
+    const tag = publicMarketplaceDistributionTag(version);
     return {
         version,
-        tag: publicMarketplaceDistributionTag(version),
+        tag,
+        ref: ref ?? tag,
         repository: publicMarketplaceIdentity.distributionRepository,
         paths,
     };
 }
 
 function main() {
-    const [outputRoot, version] = process.argv.slice(2);
+    const [outputRoot, version, ref] = process.argv.slice(2);
     try {
         if (!outputRoot || !existsSync(outputRoot))
             throw new Error("An existing output root is required");
         const result = generateMarketplacePointerManifests({
             outputRoot,
             version,
+            ref,
         });
         process.stdout.write(
-            `Generated ${result.paths.length} marketplace pointer manifests for ${result.repository}@${result.tag}.\n`,
+            `Generated ${result.paths.length} marketplace pointer manifests for ${result.repository}@${result.ref} (release ${result.tag}).\n`,
         );
     } catch (error) {
         process.stderr.write(
