@@ -16,7 +16,8 @@
   "privateOverlayExpected": true,
   "availableTargets": [
     "cratis-engineering-csharp-conventions",
-    "cratis-engineering-decision-record"
+    "cratis-engineering-decision-record",
+    "cratis-engineering-effect-boundaries"
   ],
-  "gapSummary": "Carries the canonical C# house conventions and the decision-record procedure, which every engineering-* profile inherits by composing this one. Universal TypeScript conventions, review behavior, and contribution behavior are still to be reconciled into public-safe passive sources."
+  "gapSummary": "Carries the canonical C# house conventions, the decision-record procedure, and the effect-boundary failure contract, which every engineering-* profile inherits by composing this one. Universal TypeScript conventions, review behavior, and contribution behavior are still to be reconciled into public-safe passive sources."
 }

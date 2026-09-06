@@ -754,6 +754,21 @@
       ]
     },
     {
+      "id": "retain-cratis-engineering-effect-boundaries",
+      "kind": "retain",
+      "sourceIds": [
+        "cratis-engineering-effect-boundaries"
+      ],
+      "targetIds": [
+        "cratis-engineering-effect-boundaries"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
       "id": "retain-skill-creator",
       "kind": "retain",
       "sourceIds": [

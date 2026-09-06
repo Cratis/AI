@@ -129,6 +129,7 @@
           "cratis-engineering-docs-authoring",
           "cratis-engineering-docs-edit-page",
           "cratis-engineering-docs-visual-qa",
+          "cratis-engineering-effect-boundaries",
           "cratis-engineering-ship-changes",
           "skill-creator"
         ],
@@ -400,6 +401,7 @@
           "cratis-engineering-docs-add-page",
           "cratis-engineering-docs-authoring",
           "cratis-engineering-docs-edit-page",
+          "cratis-engineering-effect-boundaries",
           "cratis-engineering-ship-changes"
         ],
         "agents": [],
@@ -445,7 +447,10 @@
         "engineering/skills/cratis-engineering-docs-authoring/references/site-format.md",
         "engineering/skills/cratis-engineering-docs-edit-page/LICENSE",
         "engineering/skills/cratis-engineering-docs-edit-page/SKILL.md",
-        "engineering/skills/cratis-engineering-docs-edit-page/references/source-discovery.md"
+        "engineering/skills/cratis-engineering-docs-edit-page/references/source-discovery.md",
+        "engineering/skills/cratis-engineering-effect-boundaries/LICENSE",
+        "engineering/skills/cratis-engineering-effect-boundaries/SKILL.md",
+        "engineering/skills/cratis-engineering-effect-boundaries/references/failure-archetypes.md"
       ],
       "allowedPathPatterns": [
         "skills/<candidate-source>/SKILL.md",

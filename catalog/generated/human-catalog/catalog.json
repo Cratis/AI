@@ -2,12 +2,12 @@
   "schemaVersion": 2,
   "contractVersion": 1,
   "disclaimer": "Catalog inclusion, evaluation evidence, component modeling, planned projection, bundle generation, or publication does not grant runtime permission, emitted bytes, support, or approval.",
-  "inputDigest": "5f4d51baf71a7627f22eeace72ea229873be593c8e6680d452ba47eaf49a43be",
+  "inputDigest": "f6f4db5774cb33b86a5cf7d8d89003b95acb4e696e8beab4dbf4ff2dc3e15cc7",
   "componentSummary": {
     "disclaimer": "Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.",
-    "total": 176,
+    "total": 177,
     "byKind": {
-      "skill": 80,
+      "skill": 81,
       "agent": 12,
       "subagent": 0,
       "command": 18,
@@ -21,16 +21,16 @@
       "static-asset": 0
     },
     "byTrust": {
-      "passive": 173,
+      "passive": 174,
       "executable": 3
     },
     "byAudience": {
       "public": 44,
-      "cratis-engineering": 132,
+      "cratis-engineering": 133,
       "repository-only": 0
     },
     "byLifecycle": {
-      "active": 149,
+      "active": 150,
       "legacy-retained": 27
     },
     "projections": {
@@ -1454,7 +1454,8 @@
       "directTargetIds": [],
       "targetIds": [
         "cratis-engineering-csharp-conventions",
-        "cratis-engineering-decision-record"
+        "cratis-engineering-decision-record",
+        "cratis-engineering-effect-boundaries"
       ]
     },
     {
@@ -1484,7 +1485,8 @@
       "directTargetIds": [],
       "targetIds": [
         "cratis-engineering-csharp-conventions",
-        "cratis-engineering-decision-record"
+        "cratis-engineering-decision-record",
+        "cratis-engineering-effect-boundaries"
       ]
     },
     {
@@ -1510,7 +1512,8 @@
       "directTargetIds": [],
       "targetIds": [
         "cratis-engineering-csharp-conventions",
-        "cratis-engineering-decision-record"
+        "cratis-engineering-decision-record",
+        "cratis-engineering-effect-boundaries"
       ]
     },
     {
@@ -1539,7 +1542,8 @@
       "directTargetIds": [],
       "targetIds": [
         "cratis-engineering-csharp-conventions",
-        "cratis-engineering-decision-record"
+        "cratis-engineering-decision-record",
+        "cratis-engineering-effect-boundaries"
       ]
     },
     {
@@ -1566,7 +1570,8 @@
       "directTargetIds": [],
       "targetIds": [
         "cratis-engineering-csharp-conventions",
-        "cratis-engineering-decision-record"
+        "cratis-engineering-decision-record",
+        "cratis-engineering-effect-boundaries"
       ]
     },
     {
@@ -1591,11 +1596,13 @@
       "composes": [],
       "directTargetIds": [
         "cratis-engineering-csharp-conventions",
-        "cratis-engineering-decision-record"
+        "cratis-engineering-decision-record",
+        "cratis-engineering-effect-boundaries"
       ],
       "targetIds": [
         "cratis-engineering-csharp-conventions",
-        "cratis-engineering-decision-record"
+        "cratis-engineering-decision-record",
+        "cratis-engineering-effect-boundaries"
       ]
     },
     {
@@ -1624,7 +1631,8 @@
       "targetIds": [
         "cratis-engineering-chronicle-kernel-tracing",
         "cratis-engineering-csharp-conventions",
-        "cratis-engineering-decision-record"
+        "cratis-engineering-decision-record",
+        "cratis-engineering-effect-boundaries"
       ]
     },
     {
@@ -1656,7 +1664,8 @@
       "directTargetIds": [],
       "targetIds": [
         "cratis-engineering-csharp-conventions",
-        "cratis-engineering-decision-record"
+        "cratis-engineering-decision-record",
+        "cratis-engineering-effect-boundaries"
       ]
     },
     {
@@ -1682,7 +1691,8 @@
       "directTargetIds": [],
       "targetIds": [
         "cratis-engineering-csharp-conventions",
-        "cratis-engineering-decision-record"
+        "cratis-engineering-decision-record",
+        "cratis-engineering-effect-boundaries"
       ]
     },
     {
@@ -1708,7 +1718,8 @@
       "directTargetIds": [],
       "targetIds": [
         "cratis-engineering-csharp-conventions",
-        "cratis-engineering-decision-record"
+        "cratis-engineering-decision-record",
+        "cratis-engineering-effect-boundaries"
       ]
     },
     {
@@ -1734,7 +1745,8 @@
       "directTargetIds": [],
       "targetIds": [
         "cratis-engineering-csharp-conventions",
-        "cratis-engineering-decision-record"
+        "cratis-engineering-decision-record",
+        "cratis-engineering-effect-boundaries"
       ]
     },
     {
@@ -1763,7 +1775,8 @@
       "targetIds": [
         "cratis-engineering-csharp-conventions",
         "cratis-engineering-decision-record",
-        "cratis-engineering-docs-authoring"
+        "cratis-engineering-docs-authoring",
+        "cratis-engineering-effect-boundaries"
       ]
     },
     {
@@ -1789,7 +1802,8 @@
       "directTargetIds": [],
       "targetIds": [
         "cratis-engineering-csharp-conventions",
-        "cratis-engineering-decision-record"
+        "cratis-engineering-decision-record",
+        "cratis-engineering-effect-boundaries"
       ]
     },
     {
@@ -1815,7 +1829,8 @@
       "directTargetIds": [],
       "targetIds": [
         "cratis-engineering-csharp-conventions",
-        "cratis-engineering-decision-record"
+        "cratis-engineering-decision-record",
+        "cratis-engineering-effect-boundaries"
       ]
     },
     {
@@ -1841,7 +1856,8 @@
       "directTargetIds": [],
       "targetIds": [
         "cratis-engineering-csharp-conventions",
-        "cratis-engineering-decision-record"
+        "cratis-engineering-decision-record",
+        "cratis-engineering-effect-boundaries"
       ]
     },
     {
@@ -1869,7 +1885,8 @@
       "directTargetIds": [],
       "targetIds": [
         "cratis-engineering-csharp-conventions",
-        "cratis-engineering-decision-record"
+        "cratis-engineering-decision-record",
+        "cratis-engineering-effect-boundaries"
       ]
     },
     {
@@ -1895,7 +1912,8 @@
       "directTargetIds": [],
       "targetIds": [
         "cratis-engineering-csharp-conventions",
-        "cratis-engineering-decision-record"
+        "cratis-engineering-decision-record",
+        "cratis-engineering-effect-boundaries"
       ]
     },
     {
@@ -1922,7 +1940,8 @@
       "directTargetIds": [],
       "targetIds": [
         "cratis-engineering-csharp-conventions",
-        "cratis-engineering-decision-record"
+        "cratis-engineering-decision-record",
+        "cratis-engineering-effect-boundaries"
       ]
     },
     {
@@ -1949,7 +1968,8 @@
       "directTargetIds": [],
       "targetIds": [
         "cratis-engineering-csharp-conventions",
-        "cratis-engineering-decision-record"
+        "cratis-engineering-decision-record",
+        "cratis-engineering-effect-boundaries"
       ]
     },
     {
@@ -1975,7 +1995,8 @@
       "directTargetIds": [],
       "targetIds": [
         "cratis-engineering-csharp-conventions",
-        "cratis-engineering-decision-record"
+        "cratis-engineering-decision-record",
+        "cratis-engineering-effect-boundaries"
       ]
     }
   ],
@@ -5875,6 +5896,85 @@
         "cratis-engineering-review"
       ],
       "profileIds": []
+    },
+    {
+      "id": "cratis-engineering-effect-boundaries",
+      "semanticName": "cratis-engineering-effect-boundaries",
+      "audience": "cratis-engineering",
+      "purpose": "Cratis effect-boundary failure discipline",
+      "whenToUse": "Use when writing or reviewing code that publishes, persists, generates, propagates, or releases, and a degraded run could still report success.",
+      "whenNotToUse": [
+        "Do not use for style, naming, or structure questions.",
+        "Do not use to decide whether an operation should exist at all."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "cratis-engineering"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [
+        "cratis-engineering-csharp-conventions"
+      ],
+      "bundleIds": [],
+      "profileIds": [
+        "engineering-ai",
+        "engineering-application",
+        "engineering-arc",
+        "engineering-arc-ef-core",
+        "engineering-arc-react",
+        "engineering-base",
+        "engineering-chronicle",
+        "engineering-chronicle-clients",
+        "engineering-chronicle-mcp",
+        "engineering-components",
+        "engineering-cratis-cli",
+        "engineering-documentation",
+        "engineering-fundamentals",
+        "engineering-lens",
+        "engineering-screenplay",
+        "engineering-specifications",
+        "engineering-stage",
+        "engineering-stagehand",
+        "engineering-studio",
+        "engineering-workflows"
+      ]
     },
     {
       "id": "cratis-engineering-ship-changes",

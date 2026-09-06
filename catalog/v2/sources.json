@@ -422,6 +422,27 @@
       ]
     },
     {
+      "id": "cratis-engineering-effect-boundaries",
+      "sourcePath": "engineering/skills/cratis-engineering-effect-boundaries",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "reusable Cratis engineering behavior",
+      "audience": "cratis-engineering",
+      "bundledPaths": [
+        "engineering/skills/cratis-engineering-effect-boundaries/LICENSE",
+        "engineering/skills/cratis-engineering-effect-boundaries/SKILL.md",
+        "engineering/skills/cratis-engineering-effect-boundaries/references/failure-archetypes.md"
+      ],
+      "sourceRevision": "56e0a3d3b257c61f211eae7300cc08669b90b41d",
+      "contentDigest": "4b2170d831e2a58ca52b82f39723486ff19c8f74eda91d3d71bc69186a5de413",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority",
+        "engineering-effect-boundaries-source-56e0a3d"
+      ]
+    },
+    {
       "id": "cratis-governed-release-methodology",
       "sourcePath": "skills/cratis-governed-release-methodology",
       "artifactType": "agent-skill-source",

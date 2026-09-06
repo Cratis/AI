@@ -61,6 +61,10 @@ const internalTargets = new Map([
         "cratis-engineering-decision-record",
         "cratis-engineering-decision-record",
     ],
+    [
+        "cratis-engineering-effect-boundaries",
+        "cratis-engineering-effect-boundaries",
+    ],
     ["edit-cratis-docs", "cratis-engineering-docs-edit-page"],
     ["qa-cratis-docs", "cratis-engineering-docs-visual-qa"],
     ["ship-changes", "cratis-engineering-ship-changes"],
@@ -598,6 +602,15 @@ const sourceOverrides = new Map([
             sourcePath: "engineering/skills/cratis-engineering-decision-record",
             sourceRevision: "1e19bb4e7cb2ad9e827a8d4ad6b16b9f8a3c0060",
             evidenceId: "engineering-decision-record-source-1e19bb4",
+        },
+    ],
+    [
+        "cratis-engineering-effect-boundaries",
+        {
+            sourcePath:
+                "engineering/skills/cratis-engineering-effect-boundaries",
+            sourceRevision: "56e0a3d3b257c61f211eae7300cc08669b90b41d",
+            evidenceId: "engineering-effect-boundaries-source-56e0a3d",
         },
     ],
     [
@@ -1568,6 +1581,17 @@ const profiles = {
         ],
         [],
         "high",
+        false,
+    ],
+    "cratis-engineering-effect-boundaries": [
+        "Cratis effect-boundary failure discipline",
+        "Use when writing or reviewing code that publishes, persists, generates, propagates, or releases, and a degraded run could still report success.",
+        [
+            "Do not use for style, naming, or structure questions.",
+            "Do not use to decide whether an operation should exist at all.",
+        ],
+        ["cratis-engineering-csharp-conventions"],
+        "medium",
         false,
     ],
     "cratis-engineering-decision-record": [

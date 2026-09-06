@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generatedBy": "tooling/generate-component-catalogs.mjs",
-  "sourceDigest": "e41415db4d283fa60059238716d9252a55e8199c2f7629d093a9af759cfe36be",
+  "sourceDigest": "33522b1c8c11baebe65f8f1c1ae7f99a978601e4db640e0f8128567699c0ba6d",
   "defaultPolicy": "deny",
   "canonicalSourceRoots": [
     ".ai/agents",
@@ -56,6 +56,7 @@
     "engineering/skills/cratis-engineering-chronicle-kernel-tracing",
     "engineering/skills/cratis-engineering-csharp-conventions",
     "engineering/skills/cratis-engineering-decision-record",
+    "engineering/skills/cratis-engineering-effect-boundaries",
     "engineering/skills/cratis-engineering-docs-add-page",
     "engineering/skills/cratis-engineering-docs-authoring",
     "engineering/skills/cratis-engineering-docs-edit-page",
@@ -5277,6 +5278,87 @@
       },
       "dependencies": [],
       "hostNeutralPurpose": "Cratis decision record procedure",
+      "approval": {
+        "state": "modeled",
+        "evidenceIds": [
+          "reevaluation-authority",
+          "repo-main-b795d53"
+        ]
+      },
+      "releaseBoundary": "engineering-passive",
+      "allowedProjections": [
+        {
+          "hostContract": "any-passive-host",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "passive-private-fixture",
+            "passive-public-package",
+            "provider-compatibility"
+          ]
+        },
+        {
+          "hostContract": "portable-agent-plugins-1-0",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "passive-public-package"
+          ]
+        }
+      ],
+      "forbiddenProjections": [
+        "agent",
+        "subagent",
+        "command",
+        "prompt",
+        "rule",
+        "instruction",
+        "hook",
+        "mcp",
+        "lsp",
+        "executable-host-extension",
+        "static-asset"
+      ],
+      "requiredCanaries": [
+        "projection-shape",
+        "semantic-identity",
+        "source-digest"
+      ],
+      "securityRequirements": {
+        "threatModel": false,
+        "securityReview": false,
+        "executableAssuranceProfile": false
+      }
+    },
+    {
+      "id": "cratis-engineering-effect-boundaries",
+      "kind": "skill",
+      "semanticIdentity": "cratis-engineering-effect-boundaries",
+      "semanticName": "cratis-engineering-effect-boundaries",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-engineering-effect-boundaries",
+      "canonicalSources": [
+        {
+          "path": "engineering/skills/cratis-engineering-effect-boundaries",
+          "digest": "4b2170d831e2a58ca52b82f39723486ff19c8f74eda91d3d71bc69186a5de413",
+          "ownership": "owner",
+          "ownerComponentId": "cratis-engineering-effect-boundaries"
+        }
+      ],
+      "contentDigest": "04118751f4b0e8a271aa78d980e75dbdb1dc22c8971276586b196189b7509be1",
+      "owner": "reusable Cratis engineering behavior",
+      "audience": "cratis-engineering",
+      "classification": {
+        "artifactClass": "passive-content",
+        "trust": "passive",
+        "passive": true,
+        "executable": false,
+        "effect": "guided-write"
+      },
+      "dependencies": [],
+      "hostNeutralPurpose": "Cratis effect-boundary failure discipline",
       "approval": {
         "state": "modeled",
         "evidenceIds": [

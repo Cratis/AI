@@ -227,11 +227,11 @@ export function validateSources(catalogs, root) {
     ];
     if (!equalStringSets(sourceIds, v1Ids))
         errors.push(
-            "catalog v2 sources must preserve all 53 authored skill sources exactly once",
+            "catalog v2 sources must preserve all 54 authored skill sources exactly once",
         );
-    if (sourceIds.length !== 53)
+    if (sourceIds.length !== 54)
         errors.push(
-            `catalog v2 must contain 53 sources; found ${sourceIds.length}`,
+            `catalog v2 must contain 54 sources; found ${sourceIds.length}`,
         );
     for (const source of catalogs.sources.sources) {
         if (source.publicationApproval)
