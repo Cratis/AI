@@ -95,7 +95,7 @@ test("schema number bounds enforce both minimum and maximum", () => {
 test("public catalog starts deny-by-default with no runtime-approved candidates", () => {
     const catalog = readCatalog(publicCatalogPath);
     assert.equal(catalog.defaultPolicy, "deny");
-    assert.equal(catalog.skills.length, 40);
+    assert.equal(catalog.skills.length, 38);
     assert.equal(catalog.audit.internalSkills.length, 8);
     assert(
         catalog.skills.every(

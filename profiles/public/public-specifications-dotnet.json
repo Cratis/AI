@@ -8,9 +8,12 @@
   "languages": [
     "csharp"
   ],
-  "state": "planned-source-migration",
+  "state": "preview-source-candidate",
+  "availableTargets": [
+    "cratis-specifications-csharp"
+  ],
   "composes": [
     "public-specifications"
   ],
-  "gapSummary": "Needs Cratis.Specifications, C# contexts, NSubstitute, assertions, framework specs, and application scenario-family guidance."
+  "gapSummary": "Carries the canonical C# Specification by Example capability at verified Cratis.Specifications, Arc.Testing, and Chronicle.Testing versions. The application scenario-family skills remain legacy candidates."
 }

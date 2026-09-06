@@ -24,8 +24,8 @@
   },
   "audit": {
     "verifiedOn": "2026-08-20",
-    "currentInventoryCount": 48,
-    "publicCandidateCount": 40,
+    "currentInventoryCount": 49,
+    "publicCandidateCount": 41,
     "internalSkillCount": 8,
     "internalSkills": [
       {
@@ -430,6 +430,28 @@
       },
       "reviewNotes": [
         "Classification-only public-safe guidance. No Studio MCP implementation authority, operation, prompt, resource, schema, transport, or invocation is admitted."
+      ]
+    },
+    {
+      "currentName": "cratis-governed-release-methodology",
+      "source": "skills/cratis-governed-release-methodology",
+      "proposedName": "cratis-governed-release-methodology",
+      "disposition": "retain",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "cross-product"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "dependencies": {
+        "skills": [],
+        "internalArtifacts": [],
+        "externalTools": []
+      },
+      "reviewNotes": [
+        "Product- and language-independent release-engineering methodology. Advisory only: it grants no release, publication, promotion, or support authority and performs no release operation."
       ]
     },
     {

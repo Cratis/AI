@@ -15,8 +15,17 @@ import { join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { compareOrdinal, sortedOrdinal } from "./catalog-ordering.mjs";
 import { readCatalog } from "./catalog-validation.mjs";
+import {
+    componentCatalogPaths,
+    expectedGeneratedComponentCatalogs,
+} from "./component-catalog-validation.mjs";
 import { artifactForbiddenPathPatterns } from "./harness-registry.mjs";
 import { generateComponentCatalogs } from "./generate-component-catalogs.mjs";
+import {
+    checkModeRequested,
+    runGeneratorCheck,
+    serializeJson,
+} from "./generator-check.mjs";
 
 const repositoryRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const outputRoot = join(repositoryRoot, "catalog/v2");
@@ -171,6 +180,199 @@ const publicClassifications = new Map([
             ],
         },
     ],
+    [
+        "cratis-specifications-csharp",
+        {
+            capabilityKind: "primitive",
+            invocation: "both",
+            products: ["arc", "chronicle", "specifications"],
+            languages: ["csharp"],
+            architectures: {
+                state: "applicable",
+                ids: ["product-neutral"],
+                reason: "The Establish/Because/should_ pattern and the for_/when_ hierarchy are the same in application, library, and client repositories.",
+            },
+            personas: {
+                state: "applicable",
+                ids: ["contributor", "developer", "maintainer", "qa"],
+                reason: "Contributors, developers, maintainers, and QA all author and review C# specifications.",
+            },
+            surfaces: {
+                state: "applicable",
+                ids: ["backend", "direct-agent-skills", "ide", "pi"],
+                reason: "The passive skill guides C# specification source changes from supported agent and IDE surfaces.",
+            },
+            repositoryProfiles: {
+                state: "applicable",
+                ids: [
+                    "application",
+                    "client",
+                    "consuming-project",
+                    "framework",
+                ],
+                reason: "Every repository that compiles C# against Cratis packages writes specifications this way.",
+            },
+            trust: {
+                class: "passive",
+                assessmentState: "assessed",
+                effects: [
+                    {
+                        id: "create-or-modify-csharp-specification-source",
+                        operation: "modify",
+                        resourceBoundary: "current repository worktree",
+                        scope: "C# specification files and their given/ contexts under the folder the user selected",
+                        dataClassifications: ["internal", "public"],
+                        reversible: true,
+                        rollbackOrCompensation:
+                            "Restore the prior uncommitted files or revert the dedicated specification commit.",
+                        confirmation: {
+                            required: true,
+                            timing: "before-effect",
+                            reason: "The repository owner confirms the specification project and folder before files change.",
+                        },
+                        authorization: {
+                            required: true,
+                            authority: "Repository maintainer or task owner",
+                            evidenceIds: ["ai-126"],
+                        },
+                        evidenceIds: ["repo-main-b795d53"],
+                    },
+                ],
+            },
+            security: {
+                executable: false,
+                destructive: false,
+                risk: "low",
+                disposition: "pending",
+                evidenceIds: [],
+            },
+            dependencyEdges: [
+                {
+                    dependencyId: "dotnet",
+                    category: "tool",
+                    strength: "hard",
+                    reason: "The authored specifications must compile and run before the workflow can claim completion.",
+                    missingBehavior: {
+                        action: "block",
+                        description:
+                            "Stop before claiming completion when the .NET SDK and the specification project gates are unavailable.",
+                    },
+                },
+            ],
+            targetDependencies: [],
+            internalArtifacts: [],
+            sourceContractIds: [
+                "cratis-arc-source",
+                "cratis-chronicle-source",
+                "cratis-specifications-source",
+            ],
+            sourceAuthoritySubjects: [
+                "api",
+                "documentation",
+                "examples",
+                "versions",
+            ],
+            authoringContractIds: ["cratis-skill-clean-room-v1"],
+            runtimeAllowed: [
+                "SKILL.md",
+                "references/**",
+                "assets/**",
+                "LICENSE*",
+            ],
+        },
+    ],
+    [
+        "cratis-specifications-typescript",
+        {
+            capabilityKind: "primitive",
+            invocation: "both",
+            products: ["specifications"],
+            languages: ["typescript"],
+            architectures: {
+                state: "applicable",
+                ids: ["product-neutral"],
+                reason: "The given() helper and the for_/when_ hierarchy do not assume an application architecture.",
+            },
+            personas: {
+                state: "applicable",
+                ids: ["contributor", "developer", "maintainer", "qa"],
+                reason: "Contributors, developers, maintainers, and QA all author and review TypeScript specifications.",
+            },
+            surfaces: {
+                state: "applicable",
+                ids: ["direct-agent-skills", "frontend", "ide", "pi"],
+                reason: "The passive skill guides TypeScript specification source changes from supported agent and IDE surfaces.",
+            },
+            repositoryProfiles: {
+                state: "applicable",
+                ids: ["client", "consuming-project", "framework"],
+                reason: "The given() specification style is used by the Cratis TypeScript packages and the projects that extend them.",
+            },
+            trust: {
+                class: "passive",
+                assessmentState: "assessed",
+                effects: [
+                    {
+                        id: "create-or-modify-typescript-specification-source",
+                        operation: "modify",
+                        resourceBoundary: "current repository worktree",
+                        scope: "TypeScript specification files and their given/ context classes under the folder the user selected",
+                        dataClassifications: ["internal", "public"],
+                        reversible: true,
+                        rollbackOrCompensation:
+                            "Restore the prior uncommitted files or revert the dedicated specification commit.",
+                        confirmation: {
+                            required: true,
+                            timing: "before-effect",
+                            reason: "The repository owner confirms the package and folder before files change.",
+                        },
+                        authorization: {
+                            required: true,
+                            authority: "Repository maintainer or task owner",
+                            evidenceIds: ["ai-126"],
+                        },
+                        evidenceIds: ["repo-main-b795d53"],
+                    },
+                ],
+            },
+            security: {
+                executable: false,
+                destructive: false,
+                risk: "low",
+                disposition: "pending",
+                evidenceIds: [],
+            },
+            dependencyEdges: [
+                {
+                    dependencyId: "node",
+                    category: "tool",
+                    strength: "hard",
+                    reason: "The authored specifications must run under the package test command before the workflow can claim completion.",
+                    missingBehavior: {
+                        action: "block",
+                        description:
+                            "Stop before claiming completion when the Node toolchain and the package test script are unavailable.",
+                    },
+                },
+            ],
+            targetDependencies: [],
+            internalArtifacts: [],
+            sourceContractIds: ["cratis-specifications-source"],
+            sourceAuthoritySubjects: [
+                "api",
+                "documentation",
+                "examples",
+                "versions",
+            ],
+            authoringContractIds: ["cratis-skill-clean-room-v1"],
+            runtimeAllowed: [
+                "SKILL.md",
+                "references/**",
+                "assets/**",
+                "LICENSE*",
+            ],
+        },
+    ],
 ]);
 
 const referenceClosureSourceNames = [
@@ -207,25 +409,69 @@ const normalizedPackagedSourceNames = [
     "query-paging",
     "toolbar",
 ];
+// Skills whose canonical source has moved out of the legacy `.ai/skills` tree.
+// The legacy twin is retained until Cratis/AI#256 sequences its retirement, but
+// the catalog source record — and therefore the shipped bytes — binds to the
+// canonical tree at the revision that introduced it.
+const migratedCanonicalSourceNames = [
+    [
+        "cratis-specs-csharp",
+        "skills/cratis-specifications-csharp",
+        "cratis-specifications-csharp-source-ee5c566",
+    ],
+    [
+        "cratis-specs-typescript",
+        "skills/cratis-specifications-typescript",
+        "cratis-specifications-typescript-source-ee5c566",
+    ],
+    [
+        "cratis-csharp-standards",
+        "engineering/skills/cratis-engineering-csharp-conventions",
+        "cratis-engineering-csharp-conventions-source-ee5c566",
+    ],
+];
+const migratedCanonicalRevision =
+    "ee5c566e4685b26823ae858545495d13615f7af9";
+const migratedCanonicalNames = new Set(
+    migratedCanonicalSourceNames.map(([name]) => name),
+);
+// The Arc React and Components relocations follow the same rule. They are kept
+// in their own list because several of these names also appear in the packaged
+// and reference-closure lists above, so their entries are applied last.
 const arcReactAndComponentsRevision =
     "80b1697803ccd2ad641fb6c4d40c905b6706dfde";
 const arcReactAndComponentsSourcePaths = new Map([
     ["cratis-react-page", "skills/cratis-arc-react-page"],
-    ["stepper-command-dialog", "skills/cratis-components-stepper-command-dialog"],
+    [
+        "stepper-command-dialog",
+        "skills/cratis-components-stepper-command-dialog",
+    ],
     ["toolbar", "skills/cratis-components-toolbar"],
     ["write-specs-frontend", "skills/cratis-application-react-specifications"],
-    ["cratis-components-accessibility", "skills/cratis-components-accessibility"],
-    ["cratis-components-schema-editor", "skills/cratis-components-schema-editor"],
+    [
+        "cratis-components-accessibility",
+        "skills/cratis-components-accessibility",
+    ],
+    [
+        "cratis-components-schema-editor",
+        "skills/cratis-components-schema-editor",
+    ],
     ["cratis-components-styling", "skills/cratis-components-styling"],
 ]);
 const sourceOverrides = new Map([
-    ...referenceClosureSourceNames.map((name) => [
+    ...referenceClosureSourceNames
+        .filter((name) => !migratedCanonicalNames.has(name))
+        .map((name) => [
+            name,
+            {
+                sourcePath: `.ai/skills/${name}`,
+                sourceRevision: "c2f721c2f80321cfba352d8d2e4209a0881ccb63",
+                evidenceId: "public-skill-reference-closure-c2f721c",
+            },
+        ]),
+    ...migratedCanonicalSourceNames.map(([name, sourcePath, evidenceId]) => [
         name,
-        {
-            sourcePath: `.ai/skills/${name}`,
-            sourceRevision: "c2f721c2f80321cfba352d8d2e4209a0881ccb63",
-            evidenceId: "public-skill-reference-closure-c2f721c",
-        },
+        { sourcePath, sourceRevision: migratedCanonicalRevision, evidenceId },
     ]),
     [
         "cratis-studio-mcp-safety-guidance",
@@ -249,6 +495,14 @@ const sourceOverrides = new Map([
             sourcePath: "skills/cratis-fundamentals-concept",
             sourceRevision: "b53caa555b9a3f05ba1462b86202fe3ccb8a9470",
             evidenceId: "public-fundamentals-concept-source-b53caa5",
+        },
+    ],
+    [
+        "cratis-governed-release-methodology",
+        {
+            sourcePath: "skills/cratis-governed-release-methodology",
+            sourceRevision: "59f47a614bd2317ca379d99adfd8036b42d2e64e",
+            evidenceId: "governed-release-methodology-source-59f47a6",
         },
     ],
     [
@@ -585,9 +839,101 @@ const engineeringClassifications = new Map([
             ],
         },
     ],
+    [
+        "cratis-engineering-csharp-conventions",
+        {
+            capabilityKind: "explanation",
+            invocation: "both",
+            architectures: {
+                state: "applicable",
+                ids: ["product-neutral"],
+                reason: "House C# conventions apply to every Cratis repository regardless of the architecture it implements.",
+            },
+            personas: {
+                state: "applicable",
+                ids: ["contributor", "developer", "maintainer"],
+                reason: "Contributors, developers, and maintainers apply and review the house C# conventions.",
+            },
+            surfaces: {
+                state: "applicable",
+                ids: ["backend", "direct-agent-skills", "ide", "pi"],
+                reason: "The passive skill guides C# source changes from supported agent and IDE surfaces.",
+            },
+            repositoryProfiles: {
+                state: "applicable",
+                ids: [
+                    "application",
+                    "client",
+                    "corpus",
+                    "framework",
+                ],
+                reason: "Every Cratis repository that compiles C# follows these conventions; consuming projects own their own style policy.",
+            },
+            trust: {
+                class: "passive",
+                assessmentState: "assessed",
+                effects: [
+                    {
+                        id: "modify-csharp-source-for-conventions",
+                        operation: "modify",
+                        resourceBoundary: "current repository worktree",
+                        scope: "the C# source files the user asked to write or bring in line with the conventions",
+                        dataClassifications: ["internal", "public"],
+                        reversible: true,
+                        rollbackOrCompensation:
+                            "Restore the prior uncommitted files or revert the dedicated source commit.",
+                        confirmation: {
+                            required: true,
+                            timing: "before-effect",
+                            reason: "The repository maintainer confirms which files a convention change may touch before files change.",
+                        },
+                        authorization: {
+                            required: true,
+                            authority: "Repository maintainer or task owner",
+                            evidenceIds: ["ai-126"],
+                        },
+                        evidenceIds: [
+                            "repo-main-b795d53",
+                            "reevaluation-authority",
+                        ],
+                    },
+                ],
+            },
+            security: {
+                executable: false,
+                destructive: false,
+                risk: "low",
+                disposition: "pending",
+                evidenceIds: [],
+            },
+            dependencyEdges: [],
+            targetDependencies: [],
+            internalArtifacts: [],
+            sourceContractIds: ["cratis-ai-composition"],
+            sourceAuthoritySubjects: ["capability-composition"],
+            authoringContractIds: ["cratis-skill-clean-room-v1"],
+            runtimeAllowed: [
+                "SKILL.md",
+                "references/**",
+                "assets/**",
+                "LICENSE*",
+            ],
+        },
+    ],
 ]);
 
 const profiles = {
+    "cratis-governed-release-methodology": [
+        "Governed release methodology",
+        "Use when choosing the assurance tier a release needs, deciding whether checksums, provenance, or an SBOM are warranted, labeling release intent, or judging whether a support claim is backed by evidence.",
+        [
+            "Do not use to run a publish, tag, or promotion operation.",
+            "Do not use for a registry's publish command syntax or credentials.",
+        ],
+        [],
+        "low",
+        false,
+    ],
     "cratis-studio-mcp-safety-guidance": [
         "Studio MCP classification-only safety guidance",
         "Use when classifying a Studio MCP request or interpreting already-redacted output without discovering or invoking an operation.",
@@ -1177,12 +1523,12 @@ function digestFiles(paths) {
     return hash.digest("hex");
 }
 
+// Collected rather than written, so importing this module produces no bytes on
+// disk and --check can compare the same values it would have written.
+const generatedOutputs = new Map();
+
 function writeJson(name, value) {
-    mkdirSync(outputRoot, { recursive: true });
-    writeFileSync(
-        join(outputRoot, name),
-        `${JSON.stringify(value, null, 2)}\n`,
-    );
+    generatedOutputs.set(`catalog/v2/${name}`, serializeJson(value));
 }
 
 const publicBySource = new Map();
@@ -1227,9 +1573,6 @@ const sources = allSkillNames.map((name) => {
         evidenceIds: [
             "repo-main-b795d53",
             "reevaluation-authority",
-            // An override may relocate a source to its canonical `skills/` path
-            // without asserting additional evidence; the exact source revision
-            // above remains the binding provenance for those relocations.
             ...(sourceOverride?.evidenceId ? [sourceOverride.evidenceId] : []),
         ],
     };
@@ -1892,8 +2235,54 @@ writeJson("product-coverage.json", {
     languages: coverageLanguages,
     products: coverageProducts,
 });
-generateComponentCatalogs(repositoryRoot);
+export function catalogV2Outputs() {
+    const outputs = new Map(generatedOutputs);
+    const componentCatalogs = expectedGeneratedComponentCatalogs(
+        repositoryRoot,
+    );
+    outputs.set(
+        componentCatalogPaths.generatedComponents,
+        serializeJson(componentCatalogs.components),
+    );
+    outputs.set(
+        componentCatalogPaths.generatedProjections,
+        serializeJson(componentCatalogs.projections),
+    );
+    return outputs;
+}
 
-process.stdout.write(
-    `Generated catalog v2: ${sources.length} sources, ${targets.length} targets, ${migrations.length} migrations, ${evidence.length} evidence records, and ${ecosystemFacts.length} ecosystem facts.\n`,
-);
+export function writeCatalogV2() {
+    mkdirSync(outputRoot, { recursive: true });
+    for (const [name, contents] of generatedOutputs)
+        writeFileSync(join(repositoryRoot, name), contents);
+    generateComponentCatalogs(repositoryRoot);
+    return {
+        sourceCount: sources.length,
+        targetCount: targets.length,
+        migrationCount: migrations.length,
+        evidenceCount: evidence.length,
+        ecosystemFactCount: ecosystemFacts.length,
+    };
+}
+
+function main() {
+    if (checkModeRequested()) {
+        process.exitCode = runGeneratorCheck({
+            name: "generate-catalog-v2",
+            root: repositoryRoot,
+            build: catalogV2Outputs,
+        });
+        return;
+    }
+    const summary = writeCatalogV2();
+    process.stdout.write(
+        `Generated catalog v2: ${summary.sourceCount} sources, ${summary.targetCount} targets, ${summary.migrationCount} migrations, ${summary.evidenceCount} evidence records, and ${summary.ecosystemFactCount} ecosystem facts.\n`,
+    );
+}
+
+if (
+    process.argv[1] &&
+    resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+) {
+    main();
+}

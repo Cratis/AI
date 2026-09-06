@@ -9,6 +9,11 @@ import {
     validateAgainstSchema,
     validateSchemaVocabulary,
 } from "./catalog-validation.mjs";
+import {
+    checkModeRequested,
+    runGeneratorCheck,
+    serializeJson,
+} from "./generator-check.mjs";
 
 const defaultRepositoryRoot = resolve(
     fileURLToPath(new URL("..", import.meta.url)),
@@ -228,18 +233,37 @@ export function validatePreviewReadiness(
     }
 }
 
+export function previewReadinessOutputs(
+    repositoryRoot = defaultRepositoryRoot,
+) {
+    return new Map([
+        [
+            "distribution/preview-readiness.json",
+            serializeJson(buildPreviewReadiness(repositoryRoot)),
+        ],
+    ]);
+}
+
 export function generatePreviewReadiness(
     repositoryRoot = defaultRepositoryRoot,
 ) {
     const readiness = buildPreviewReadiness(repositoryRoot);
     writeFileSync(
         join(repositoryRoot, "distribution/preview-readiness.json"),
-        `${JSON.stringify(readiness, null, 2)}\n`,
+        serializeJson(readiness),
     );
     return readiness;
 }
 
 function main() {
+    if (checkModeRequested()) {
+        process.exitCode = runGeneratorCheck({
+            name: "preview-readiness",
+            root: defaultRepositoryRoot,
+            build: () => previewReadinessOutputs(),
+        });
+        return;
+    }
     try {
         const readiness = generatePreviewReadiness();
         process.stdout.write(

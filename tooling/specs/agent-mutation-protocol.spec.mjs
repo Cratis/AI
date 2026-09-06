@@ -2,14 +2,38 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
 import { test } from "node:test";
+import { fileURLToPath } from "node:url";
 import {
     issuePreStateFingerprint,
     mutationManifestDigest,
     renderInversePayload,
     validateMutationManifest,
 } from "../agent-mutation-protocol.mjs";
+
+const repositoryRoot = resolve(
+    dirname(fileURLToPath(import.meta.url)),
+    "../..",
+);
+const validFixturePath =
+    "tooling/specs/fixtures/agent-mutation-manifest.valid.json";
+const invalidFixturePath =
+    "tooling/specs/fixtures/agent-mutation-manifest.invalid.json";
+
+function readFixture(path) {
+    return JSON.parse(readFileSync(join(repositoryRoot, path), "utf8"));
+}
+
+function runProtocol(...args) {
+    return spawnSync(
+        process.execPath,
+        ["tooling/agent-mutation-protocol.mjs", ...args],
+        { cwd: repositoryRoot, encoding: "utf8" },
+    );
+}
 
 function manifestFor({
     labels = ["bug"],
@@ -165,4 +189,43 @@ test("shared mutation tooling validates and renders but cannot execute effects",
         "separately authorized operation",
     ])
         assert(general.includes(required), required);
+});
+
+test("the tracked fixtures are what the in-memory manifests describe", () => {
+    assert.deepEqual(readFixture(validFixturePath), manifestFor());
+    const invalid = readFixture(invalidFixturePath);
+    assert.equal(Object.hasOwn(invalid, "policy"), false);
+    assert.deepEqual(
+        validateMutationManifest(readFixture(validFixturePath)),
+        [],
+    );
+    assert(validateMutationManifest(invalid).length > 0);
+});
+
+test("the manifest schema points at the tracked positive fixture", () => {
+    const schema = readFixture("tooling/agent-mutation-manifest.schema.json");
+    assert.deepEqual(schema.examples, [validFixturePath]);
+    assert(schema.description.includes(invalidFixturePath));
+});
+
+test("the CLI accepts the tracked fixture on disk and refuses its invalid sibling", () => {
+    const accepted = runProtocol("validate", validFixturePath);
+    assert.equal(accepted.status, 0, accepted.stderr);
+    assert.equal(accepted.stdout, "Mutation manifest is valid.\n");
+
+    const refused = runProtocol("validate", invalidFixturePath);
+    assert.notEqual(refused.status, 0);
+    assert(refused.stderr.includes("missing required property policy"));
+    assert.equal(refused.stdout, "");
+
+    const digest = runProtocol("digest", validFixturePath);
+    assert.equal(digest.status, 0, digest.stderr);
+    assert.match(digest.stdout.trim(), /^[0-9a-f]{64}$/);
+
+    const inverse = runProtocol("render-inverse", validFixturePath);
+    assert.equal(inverse.status, 0, inverse.stderr);
+    assert.equal(
+        JSON.parse(inverse.stdout).state,
+        "REVERSAL_PAYLOAD_PREPARED",
+    );
 });

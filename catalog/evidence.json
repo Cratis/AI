@@ -713,6 +713,12 @@
       "digest": "d619e16b71976284c5812319a27abc612a92645d817e8a6d88aa27929c75ea9e"
     },
     {
+      "id": "source-governed-release-methodology-source-59f47a6",
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/59f47a614bd2317ca379d99adfd8036b42d2e64e/skills/cratis-governed-release-methodology",
+      "immutableRevision": "59f47a614bd2317ca379d99adfd8036b42d2e64e"
+    },
+    {
       "id": "source-chronicle-mcp-inspection-source-5997b28",
       "kind": "repository-snapshot",
       "locator": "https://github.com/Cratis/AI/tree/5997b28c142d9ee489841894e5d21730da5cb5a5/skills/cratis-chronicle-mcp-inspection",
@@ -756,6 +762,24 @@
       "locator": "https://github.com/Cratis/Workflows/issues/68#issuecomment-5363284054",
       "repositoryPath": "distribution/evidence/authority-reobservation-2026-09-06.json",
       "digest": "83635d802a9179c921fa803987f4b447ceb921c3778db7601864c8875d530f50"
+    },
+    {
+      "id": "source-cratis-specifications-csharp-source-ee5c566",
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/ee5c566e4685b26823ae858545495d13615f7af9/skills/cratis-specifications-csharp",
+      "immutableRevision": "ee5c566e4685b26823ae858545495d13615f7af9"
+    },
+    {
+      "id": "source-cratis-specifications-typescript-source-ee5c566",
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/ee5c566e4685b26823ae858545495d13615f7af9/skills/cratis-specifications-typescript",
+      "immutableRevision": "ee5c566e4685b26823ae858545495d13615f7af9"
+    },
+    {
+      "id": "source-cratis-engineering-csharp-conventions-source-ee5c566",
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/ee5c566e4685b26823ae858545495d13615f7af9/engineering/skills/cratis-engineering-csharp-conventions",
+      "immutableRevision": "ee5c566e4685b26823ae858545495d13615f7af9"
     },
     {
       "id": "source-arc-react-and-components-source-80b1697",
@@ -7418,6 +7442,43 @@
       }
     },
     {
+      "id": "governed-release-methodology-source-59f47a6",
+      "sourceId": "source-governed-release-methodology-source-59f47a6",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "target",
+        "id": "cratis-governed-release-methodology",
+        "version": "59f47a614bd2317ca379d99adfd8036b42d2e64e"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "source-provenance",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Immutable provenance for the Cratis-authored, product- and language-independent release-engineering methodology source. This observation makes no release, publication, promotion, marketplace, installation, runtime, or support claim.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-09-06",
+      "validThrough": "2027-09-06",
+      "confidence": "high",
+      "limitations": [
+        "Provenance covers only the exact skill bytes at this revision. The guidance is advisory: it grants no release authority and no behavior, trigger, collision, or host evidence exists for it."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/59f47a614bd2317ca379d99adfd8036b42d2e64e/skills/cratis-governed-release-methodology",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "59f47a614bd2317ca379d99adfd8036b42d2e64e"
+      }
+    },
+    {
       "id": "chronicle-mcp-inspection-source-5997b28",
       "sourceId": "source-chronicle-mcp-inspection-source-5997b28",
       "evidenceClass": "hosted",
@@ -7668,6 +7729,117 @@
         "officialUrl": "https://github.com/Cratis/Workflows/issues/68#issuecomment-5363284054",
         "sourceKind": "local-evidence-report",
         "applicableVersion": "authority-reobservation-2026-09-06"
+      }
+    },
+    {
+      "id": "cratis-specifications-csharp-source-ee5c566",
+      "sourceId": "source-cratis-specifications-csharp-source-ee5c566",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "target",
+        "id": "cratis-specifications-csharp",
+        "version": "ee5c566e4685b26823ae858545495d13615f7af9"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "source-provenance",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Canonical skills/cratis-specifications-csharp skill source migrated from the legacy .ai/skills tree at ee5c566.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-09-06",
+      "validThrough": "2027-09-06",
+      "confidence": "high",
+      "limitations": [
+        "This observation is limited to its exact recorded subject, version, digest, scope, and environment and grants no unrecorded assurance."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/ee5c566e4685b26823ae858545495d13615f7af9/skills/cratis-specifications-csharp",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "ee5c566e4685b26823ae858545495d13615f7af9"
+      }
+    },
+    {
+      "id": "cratis-specifications-typescript-source-ee5c566",
+      "sourceId": "source-cratis-specifications-typescript-source-ee5c566",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "target",
+        "id": "cratis-specifications-typescript",
+        "version": "ee5c566e4685b26823ae858545495d13615f7af9"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "source-provenance",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Canonical skills/cratis-specifications-typescript skill source migrated from the legacy .ai/skills tree at ee5c566.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-09-06",
+      "validThrough": "2027-09-06",
+      "confidence": "high",
+      "limitations": [
+        "This observation is limited to its exact recorded subject, version, digest, scope, and environment and grants no unrecorded assurance."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/ee5c566e4685b26823ae858545495d13615f7af9/skills/cratis-specifications-typescript",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "ee5c566e4685b26823ae858545495d13615f7af9"
+      }
+    },
+    {
+      "id": "cratis-engineering-csharp-conventions-source-ee5c566",
+      "sourceId": "source-cratis-engineering-csharp-conventions-source-ee5c566",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "target",
+        "id": "cratis-engineering-csharp-conventions",
+        "version": "ee5c566e4685b26823ae858545495d13615f7af9"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "source-provenance",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Canonical engineering/skills/cratis-engineering-csharp-conventions skill source migrated from the legacy .ai/skills tree at ee5c566.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-09-06",
+      "validThrough": "2027-09-06",
+      "confidence": "high",
+      "limitations": [
+        "This observation is limited to its exact recorded subject, version, digest, scope, and environment and grants no unrecorded assurance."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/ee5c566e4685b26823ae858545495d13615f7af9/engineering/skills/cratis-engineering-csharp-conventions",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "ee5c566e4685b26823ae858545495d13615f7af9"
       }
     },
     {

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "1ed19be03b31846b17f305176e22e62341156fb9dcd4c4410e9d0931982ee663",
+  "indexDigest": "bc697bf84242dce6a2fdb6c8d247fe13de82b723b15c2cb7be99acb349d6427f",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -31,8 +31,24 @@
       "status": "modified"
     },
     {
+      "path": ".ai/hooks/README.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/hooks/scripts/validate-ai-setup.sh",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/hooks/settings.template.json",
+      "status": "added"
+    },
+    {
       "path": ".ai/prompts/ship-changes.prompt.md",
       "status": "modified"
+    },
+    {
+      "path": ".ai/rules/capability-is-not-authority.md",
+      "status": "added"
     },
     {
       "path": ".ai/rules/concepts.md",
@@ -43,8 +59,20 @@
       "status": "modified"
     },
     {
+      "path": ".ai/rules/decision-records.md",
+      "status": "added"
+    },
+    {
       "path": ".ai/rules/dialogs.md",
       "status": "modified"
+    },
+    {
+      "path": ".ai/rules/engineering-recipe-skeleton.md",
+      "status": "added"
+    },
+    {
+      "path": ".ai/rules/exit-codes-and-wrappers.md",
+      "status": "added"
     },
     {
       "path": ".ai/rules/general.md",
@@ -59,6 +87,14 @@
       "status": "modified"
     },
     {
+      "path": ".ai/rules/guards-and-fuses.md",
+      "status": "added"
+    },
+    {
+      "path": ".ai/rules/human-verdicts.md",
+      "status": "added"
+    },
+    {
       "path": ".ai/rules/local-work-artifacts.md",
       "status": "added"
     },
@@ -71,8 +107,16 @@
       "status": "modified"
     },
     {
+      "path": ".ai/rules/verification-discipline.md",
+      "status": "added"
+    },
+    {
       "path": ".ai/rules/vertical-slices.md",
       "status": "modified"
+    },
+    {
+      "path": ".ai/rules/work-records-and-comments.md",
+      "status": "added"
     },
     {
       "path": ".ai/skills/add-business-rule/SKILL.md",
@@ -187,11 +231,43 @@
       "status": "added"
     },
     {
+      "path": ".claude/rules/capability-is-not-authority.md",
+      "status": "added"
+    },
+    {
+      "path": ".claude/rules/decision-records.md",
+      "status": "added"
+    },
+    {
+      "path": ".claude/rules/engineering-recipe-skeleton.md",
+      "status": "added"
+    },
+    {
+      "path": ".claude/rules/exit-codes-and-wrappers.md",
+      "status": "added"
+    },
+    {
       "path": ".claude/rules/github-actions.md",
       "status": "added"
     },
     {
+      "path": ".claude/rules/guards-and-fuses.md",
+      "status": "added"
+    },
+    {
+      "path": ".claude/rules/human-verdicts.md",
+      "status": "added"
+    },
+    {
       "path": ".claude/rules/local-work-artifacts.md",
+      "status": "added"
+    },
+    {
+      "path": ".claude/rules/verification-discipline.md",
+      "status": "added"
+    },
+    {
+      "path": ".claude/rules/work-records-and-comments.md",
       "status": "added"
     },
     {
@@ -671,6 +747,10 @@
       "status": "added"
     },
     {
+      "path": "catalog/schemas/vocabulary.schema.json",
+      "status": "added"
+    },
+    {
       "path": "catalog/studio-mcp-tool-classifications.json",
       "status": "added"
     },
@@ -760,6 +840,10 @@
     },
     {
       "path": "catalog/v2/upstream-companions.json",
+      "status": "added"
+    },
+    {
+      "path": "catalog/vocabulary.json",
       "status": "added"
     },
     {
@@ -1048,6 +1132,26 @@
     },
     {
       "path": "distribution/update-bot-contract.json",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-csharp-conventions/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-csharp-conventions/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-csharp-conventions/references/code-style.md",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-csharp-conventions/references/domain-philosophy.md",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-csharp-conventions/references/exceptions-logging-and-di.md",
       "status": "added"
     },
     {
@@ -2511,6 +2615,10 @@
       "status": "added"
     },
     {
+      "path": "profiles/public/cratis.json",
+      "status": "added"
+    },
+    {
       "path": "profiles/public/cratis/application.json",
       "status": "added"
     },
@@ -2643,6 +2751,10 @@
       "status": "added"
     },
     {
+      "path": "profiles/public/public-methodology-governed-releases.json",
+      "status": "added"
+    },
+    {
       "path": "profiles/public/public-modeling-screenplay-stage.json",
       "status": "added"
     },
@@ -2768,6 +2880,46 @@
     },
     {
       "path": "skills/cratis-fundamentals-concept/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-governed-release-methodology/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-governed-release-methodology/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-specifications-csharp/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-specifications-csharp/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-specifications-csharp/references/application-scenarios.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-specifications-csharp/references/csharp-patterns.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-specifications-csharp/references/integration-specs.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-specifications-typescript/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-specifications-typescript/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-specifications-typescript/references/typescript-patterns.md",
       "status": "added"
     },
     {
@@ -3039,6 +3191,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/generator-check.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/grade-engineering-docs-authoring-evaluation.mjs",
       "status": "added"
     },
@@ -3295,6 +3451,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/specs/cratis-meta-profile-completeness.spec.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/specs/deterministic-release-tree.spec.mjs",
       "status": "added"
     },
@@ -3347,6 +3507,14 @@
       "status": "added"
     },
     {
+      "path": "tooling/specs/fixtures/agent-mutation-manifest.invalid.json",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/fixtures/agent-mutation-manifest.valid.json",
+      "status": "added"
+    },
+    {
       "path": "tooling/specs/fundamentals-preview-assets.spec.mjs",
       "status": "added"
     },
@@ -3356,6 +3524,10 @@
     },
     {
       "path": "tooling/specs/generated-distribution-repository.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/generator-check.spec.mjs",
       "status": "added"
     },
     {
@@ -3476,6 +3648,10 @@
     },
     {
       "path": "tooling/specs/support-validation.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/vocabulary.spec.mjs",
       "status": "added"
     },
     {
@@ -3660,8 +3836,8 @@
         "repo-main-b795d53",
         "ai-126"
       ],
-      "expectedPathCount": 36,
-      "expectedPathsDigest": "3d3ef1ea14bba42811b1b08628aa1e145365665d41d1035c3248c61d421f1d4b"
+      "expectedPathCount": 44,
+      "expectedPathsDigest": "56ea7e6f3f2e44b89a9b7a8d83d7a3c79844fa48063467a6f05f3d88786fdda4"
     },
     {
       "excludePathPatterns": [],
@@ -3757,8 +3933,8 @@
         "repo-main-b795d53",
         "ai-126"
       ],
-      "expectedPathCount": 14,
-      "expectedPathsDigest": "bad82a4ca327684526057da05d262423e0d6ce94e2f711c68c334f9094556cd9"
+      "expectedPathCount": 15,
+      "expectedPathsDigest": "4228d04947edd2941b3ab38db6f9d1f469dfd8c91cb84d0c856ceca0c9de8dc8"
     },
     {
       "excludePathPatterns": [],
@@ -3805,10 +3981,11 @@
         "skills/cratis-components-accessibility/**",
         "skills/cratis-components-schema-editor/**",
         "skills/cratis-components-styling/**",
+        "skills/cratis-governed-release-methodology/**",
         "skills/cratis-arc-react-page/**",
         ".ai/skills/cratis-readmodel/**",
-        ".ai/skills/cratis-specs-csharp/**",
-        ".ai/skills/cratis-specs-typescript/**",
+        "skills/cratis-specifications-csharp/**",
+        "skills/cratis-specifications-typescript/**",
         "skills/cratis-studio-mcp-safety-guidance/**",
         ".ai/skills/cratis-vertical-slice/**",
         ".ai/skills/create-event-model/**",
@@ -3834,6 +4011,8 @@
         ".ai/skills/write-specs-readmodels/**",
         ".ai/skills/add-concept/**",
         ".ai/skills/cratis-react-page/**",
+        ".ai/skills/cratis-specs-csharp/**",
+        ".ai/skills/cratis-specs-typescript/**",
         ".ai/skills/stepper-command-dialog/**",
         ".ai/skills/toolbar/**",
         ".ai/skills/write-specs-frontend/**",
@@ -3848,15 +4027,15 @@
       "dependencies": [
         "catalog/v2/targets.json"
       ],
-      "risk": "critical",
-      "migrationState": "blocked-by-distribution-decision",
+      "risk": "high",
+      "migrationState": "retire-after-evidence",
       "evidenceIds": [
         "repo-main-b795d53",
         "workflows-68",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 87,
-      "expectedPathsDigest": "c22c4760ab3f3c0073a0eabe1c0f6a390a4af8cf54293a493e52c0b351c32774"
+      "expectedPathCount": 97,
+      "expectedPathsDigest": "5daf88c370e53a23f4b57bd89580dc6904743f64161ab37e24a5e2ba41200457"
     },
     {
       "excludePathPatterns": [],
@@ -3889,7 +4068,7 @@
         "tooling/support-validation.mjs"
       ],
       "risk": "critical",
-      "migrationState": "blocked-by-distribution-decision",
+      "migrationState": "retain",
       "evidenceIds": [
         "chronicle-mcp-inspection-source-5997b28",
         "studio-mcp-safety-guidance-source-f96eab8"
@@ -3953,8 +4132,8 @@
         "option-a-plus-authority",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 9,
-      "expectedPathsDigest": "8d3836987b9ad3075a797d6bdd086de34432c3a944bda2393b5aa44d46472009"
+      "expectedPathCount": 14,
+      "expectedPathsDigest": "97dfe37bc4e3b800dfe7f84bdf8e100f06147e9906e6a3b828b964e8493ceaf6"
     },
     {
       "excludePathPatterns": [],
@@ -4002,8 +4181,8 @@
         "reevaluation-authority"
       ],
       "generator": "legacy-manual-adapter-model",
-      "expectedPathCount": 59,
-      "expectedPathsDigest": "9683f84dcc88eadab7de73b4c2c60aee649d79c3497a950e17cf0bc9a8a658f9"
+      "expectedPathCount": 67,
+      "expectedPathsDigest": "1f298673776b30249dd5c9180c9b6bb7bbbe4443ef07568becb42ec10ae19de7"
     },
     {
       "excludePathPatterns": [],
@@ -4759,7 +4938,9 @@
         "catalog/schemas/artifact-assurance-profiles.schema.json",
         "catalog/schemas/ecosystem-artifact-coverage.schema.json",
         "catalog/schemas/product-coverage.schema.json",
-        "catalog/schemas/public-skills.schema.json"
+        "catalog/schemas/public-skills.schema.json",
+        "catalog/schemas/vocabulary.schema.json",
+        "catalog/vocabulary.json"
       ],
       "artifactType": "catalog-schema",
       "currentOwner": "repository-only authoring/release tooling",
@@ -4775,8 +4956,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 9,
-      "expectedPathsDigest": "add7f934a78773bbfed4ead60726fcb071b6a0fe28126a461ded4c3ddd7ff846"
+      "expectedPathCount": 11,
+      "expectedPathsDigest": "d0685fe6777f2ed2a75045f323db3d153627c40a71b81c24019516fc3cb39883"
     },
     {
       "excludePathPatterns": [],
@@ -5014,8 +5195,8 @@
         "option-a-plus-authority",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 61,
-      "expectedPathsDigest": "16be14192b5d23958408a644ef0771a961688edb9be69c96ab5eb9da25e7fb44"
+      "expectedPathCount": 63,
+      "expectedPathsDigest": "b1e43a33051649d8238f67a8578d6acec2f6b05af7bf0aece2620225d2a8405c"
     },
     {
       "excludePathPatterns": [],
@@ -5118,8 +5299,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 81,
-      "expectedPathsDigest": "d7d9ffb363bd54b6cc52a7caf5c79018a98df01811c029fb7337ec014f3b8487"
+      "expectedPathCount": 82,
+      "expectedPathsDigest": "f129db247e616a11badf37c595c5ee626b8991cb6a1b236d005a3b6795f25c7b"
     },
     {
       "excludePathPatterns": [],
@@ -5172,8 +5353,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 62,
-      "expectedPathsDigest": "8a17a892951c54bc545116f055347df145dfb1390dbc0f10a8d00760ae45c02f"
+      "expectedPathCount": 67,
+      "expectedPathsDigest": "433f04cd1b5c287460c01fb0506f36e0ea632c90d7adcbc94525156fd9d603e7"
     },
     {
       "excludePathPatterns": [],

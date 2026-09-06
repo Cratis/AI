@@ -116,6 +116,36 @@ for hook in .ai/hooks/pre-commit.md .ai/hooks/agent-stop.md; do
     [[ -e "$hook" ]] || fail "missing hook file: $hook"
 done
 
+# ── Hook wiring: the tracked template, the scripts it names, and the README must agree.
+#    Claude reads .claude/settings.json, which is per-machine and gitignored, so the template
+#    under .ai/hooks is the tracked wiring. A script renamed in one place and not the other
+#    would silently stop firing, so the names are compared in both directions. ──
+template=".ai/hooks/settings.template.json"
+if [[ ! -f "$template" ]]; then
+    fail "$template: missing tracked hook wiring (.claude/settings.json is per-machine)"
+else
+    # Every script the wiring names must exist, be executable, and be documented.
+    wired="$(grep -oE '\.ai/hooks/scripts/[A-Za-z0-9._-]+\.sh' "$template" | sed 's|.*/||' | sort -u)"
+    [[ -n "$wired" ]] || fail "$template: names no hook script"
+    for name in $wired; do
+        script=".ai/hooks/scripts/$name"
+        if [[ ! -f "$script" ]]; then fail "$template: wires missing hook script $name"
+        elif [[ ! -x "$script" ]]; then fail "$script: wired hook script is not executable"; fi
+        grep -q "scripts/$name" .ai/hooks/README.md \
+            || fail ".ai/hooks/README.md: does not document wired hook script $name"
+    done
+    # Every script the README's three-layer table binds to a Claude hook event must be wired.
+    # Only those rows: the page also documents validators that CI and the Stop gate run directly.
+    documented="$(grep -E '`(PreToolUse|PostToolUse|Stop)`' .ai/hooks/README.md \
+        | grep -oE '`scripts/[A-Za-z0-9._-]+\.sh`' \
+        | sed -e 's|^`scripts/||' -e 's|`$||' | sort -u)"
+    [[ -n "$documented" ]] || fail ".ai/hooks/README.md: documents no hook script for any event"
+    for name in $documented; do
+        grep -q "\.ai/hooks/scripts/$name" "$template" \
+            || fail "$template: README documents hook script $name but the wiring does not name it"
+    done
+fi
+
 # ── Content drift guards (WARN only — heuristic, never block on a false positive) ──
 if grep -rnE '\.AutoMap\(\)' .ai/rules .ai/skills .ai/agents 2>/dev/null \
         | grep -vE ':[0-9]+:[[:space:]]*#' \

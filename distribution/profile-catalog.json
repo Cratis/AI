@@ -39,6 +39,82 @@
   },
   "publicProfiles": [
     {
+      "id": "cratis",
+      "packageName": "@cratis/ai-meta-cratis",
+      "version": "0.0.0",
+      "products": [
+        "arc",
+        "arc-react",
+        "chronicle",
+        "chronicle-mcp",
+        "cli",
+        "components",
+        "entity-framework-core",
+        "fundamentals",
+        "lens",
+        "screenplay",
+        "specifications",
+        "stage",
+        "studio"
+      ],
+      "languages": [
+        "csharp",
+        "elixir",
+        "java",
+        "kotlin",
+        "language-agnostic",
+        "python",
+        "react",
+        "shell",
+        "typescript"
+      ],
+      "state": "planned-composition",
+      "composes": [
+        "cratis/application",
+        "cratis/arc",
+        "cratis/chronicle",
+        "cratis/full",
+        "public-application",
+        "public-application-arc-chronicle",
+        "public-application-arc-only",
+        "public-application-chronicle-dotnet",
+        "public-application-react",
+        "public-arc",
+        "public-arc-ef-core",
+        "public-arc-identity",
+        "public-arc-react",
+        "public-chronicle",
+        "public-chronicle-client-dotnet",
+        "public-chronicle-client-elixir",
+        "public-chronicle-client-java",
+        "public-chronicle-client-kotlin",
+        "public-chronicle-client-python",
+        "public-chronicle-client-typescript",
+        "public-chronicle-compliance",
+        "public-chronicle-mcp",
+        "public-chronicle-multi-tenancy",
+        "public-chronicle-web-workbench",
+        "public-components",
+        "public-cratis-cli",
+        "public-cratis-cli-terminal-workbench",
+        "public-fundamentals",
+        "public-language-csharp",
+        "public-language-elixir",
+        "public-language-kotlin",
+        "public-language-typescript",
+        "public-lens",
+        "public-methodology-governed-releases",
+        "public-modeling-screenplay-stage",
+        "public-screenplay",
+        "public-specifications",
+        "public-specifications-dotnet",
+        "public-specifications-typescript",
+        "public-stage",
+        "public-studio"
+      ],
+      "gapSummary": "The maximal public bundle: every public profile in this repository, listed explicitly rather than reached through the narrower cratis/* meta-profiles, so a new public profile is missing from it only if someone forgets to add it and tooling/specs/cratis-meta-profile-completeness.spec.mjs then fails by name. Composes no cratis-engineering profile; the maintainer audience is never reachable from a public request."
+    },
+    {
       "id": "cratis/application",
       "packageName": "@cratis/ai-meta-application",
       "version": "0.0.0",
@@ -604,6 +680,18 @@
       "gapSummary": "Needs Lens-owned setup, diagnostics, inspection, interpretation, safety, and contribution journeys."
     },
     {
+      "id": "public-methodology-governed-releases",
+      "packageName": "@cratis/ai-methodology-governed-releases",
+      "version": "0.0.0",
+      "products": [],
+      "languages": [],
+      "state": "owner-review-pending",
+      "availableTargets": [
+        "cratis-governed-release-methodology"
+      ],
+      "gapSummary": "Complete release-engineering methodology awaiting owner review; the remaining gap is review and catalog-v2 target classification, not content. Products and languages are deliberately empty and this entry deliberately composes nothing: assurance tiers, evidence ladders, lifecycle phases, supply-chain receipts, semver release-intent labeling, canary-before-promotion, and recovery disposition are independent of which product ships and which language builds it, so selecting it must never imply Arc, Chronicle, or a language profile."
+    },
+    {
       "id": "public-modeling-screenplay-stage",
       "packageName": "@cratis/ai-modeling-screenplay-stage",
       "version": "0.0.0",
@@ -657,11 +745,14 @@
       "languages": [
         "csharp"
       ],
-      "state": "planned-source-migration",
+      "state": "preview-source-candidate",
+      "availableTargets": [
+        "cratis-specifications-csharp"
+      ],
       "composes": [
         "public-specifications"
       ],
-      "gapSummary": "Needs Cratis.Specifications, C# contexts, NSubstitute, assertions, framework specs, and application scenario-family guidance."
+      "gapSummary": "Carries the canonical C# Specification by Example capability at verified Cratis.Specifications, Arc.Testing, and Chronicle.Testing versions. The application scenario-family skills remain legacy candidates."
     },
     {
       "id": "public-specifications-typescript",
@@ -674,11 +765,14 @@
         "typescript",
         "react"
       ],
-      "state": "planned-source-migration",
+      "state": "preview-source-candidate",
+      "availableTargets": [
+        "cratis-specifications-typescript"
+      ],
       "composes": [
         "public-specifications"
       ],
-      "gapSummary": "Needs Vitest/Mocha structure, Chai, Sinon, view-model, React, and shared philosophy mapping."
+      "gapSummary": "Carries the canonical given()/Chai/Sinon TypeScript specification capability. React application behavior specifications remain a legacy candidate."
     },
     {
       "id": "public-stage",
@@ -821,11 +915,14 @@
         "corpus"
       ],
       "products": [],
-      "state": "planned-source-migration",
+      "state": "preview-source-candidate",
       "distributionVisibility": "public",
       "confidentialContentAllowed": false,
       "privateOverlayExpected": true,
-      "gapSummary": "Universal C#/TypeScript, Specification by Example, review, documentation, and contribution behavior must be reconciled into public-safe passive sources."
+      "availableTargets": [
+        "cratis-engineering-csharp-conventions"
+      ],
+      "gapSummary": "Carries the canonical C# house conventions. Universal TypeScript conventions, review behavior, and contribution behavior are still to be reconciled into public-safe passive sources."
     },
     {
       "id": "engineering-chronicle",
