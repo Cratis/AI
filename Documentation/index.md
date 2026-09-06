@@ -27,6 +27,7 @@ harness. The mixed source repository is not itself an installation package.
 | [Native non-skill projections](./native-non-skill-projections.md) | Understand the four repository-only rule/instruction fixture roots and their non-promoting boundary |
 | [Real-host canaries](./real-host-canaries.md) | Understand exact-version isolation, lifecycle phases, blocked outcomes, and non-supporting fixture evidence |
 | [S10 release and marketplace gates](./s10-release-and-marketplace-gates.md) | Understand blocked readiness, external controls, append-only records, and unreachable side effects |
+| [Maintainer marketplace deployment runbook](./maintainer-marketplace-deployment-runbook.md) | Maintainer-only: every account, credential, protection, and listing that must be configured by hand, and which are still outstanding |
 
 ## Repository-local corpus reference
 
@@ -50,6 +51,9 @@ profiles, but they do not describe a supported installation channel:
 - Consuming repositories own `.cratis/PROJECT.md`, `.cratis/ai.json`, and their
   minimal harness bootstraps.
 - `Cratis/AI.Distribution` contains bot-generated immutable artifacts only.
+  Planned — [Cratis/AI#264](https://github.com/Cratis/AI/issues/264): those
+  artifacts move to a generated ref inside `Cratis/AI`, and the second
+  repository becomes a CI-published mirror pending archive.
 - Repositories pin exact profile versions and update through reviewed pull
   requests.
 - Improvements flow upstream through issues or pull requests; generated folders

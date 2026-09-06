@@ -1,5 +1,56 @@
 # Generated distribution repository authority state
 
+## Superseding decision — planned, tracked in Cratis/AI#264
+
+> **Everything below this section still describes the pipeline that runs today.**
+> This section records a decision, not a change. No contract field, validator,
+> or workflow behavior is altered by it.
+
+[Cratis/AI#264](https://github.com/Cratis/AI/issues/264) amends
+[Cratis/AI#173](https://github.com/Cratis/AI/issues/173) so that the generated,
+protected `Cratis/AI.Distribution` repository is recorded as a **delivered
+milestone that is now superseded**, not as a permanent architectural fixture.
+
+The target end state is one repository:
+
+- `Cratis/AI` `main` is the only authoring surface;
+- generated distribution is separated inside `Cratis/AI` by ref and subtree,
+  written only by CI, on a protected orphan branch with immutable `dist/vX.Y.Z`
+  tags;
+- `Cratis/AI.Distribution` becomes a CI-published mirror so the already
+  published `v0.1.0` through `v0.3.0` install commands and the evidence records
+  that cite its tags keep resolving, and is then archived. The repository and its
+  tags are never deleted.
+
+The anti-drift guarantee survives the move: branch protection on the generated
+branch, immutable per-release tags, and the existing root-relative,
+dependency-free `verify-generated-distribution.mjs` checks give the same
+generated-only, never-hand-edited property inside one repository.
+
+### Finding that motivates it
+
+The credential lifecycle below states that *human or deploy-key direct pushes are
+not an accepted update path*. In practice, `Cratis/AI.Distribution` commits
+`5d5c366`, `53c607f`, and `8f31eb0` were authored directly by a maintainer
+rather than by the release bot, because the
+[Cratis/Workflows#72](https://github.com/Cratis/Workflows/issues/72) App is still
+not installed. The contract that justifies the second repository is being
+violated in order to keep it alive.
+
+Consolidation also removes the cross-repository GitHub App, the
+`AI_DISTRIBUTION_APP_ID` and `AI_DISTRIBUTION_APP_PRIVATE_KEY` secrets, the
+duplicated control plane, and one of two branch-protection surfaces.
+
+### What is still outstanding
+
+Executing the decision is Phase 2 and Phase 5 of Cratis/AI#264 and needs
+maintainer action that cannot be taken from a pull request: creating and
+protecting the orphan `distribution` branch, re-pointing the release workflows,
+moving the verification control plane, re-running the host install evidence at
+the new ref, and archiving the mirror.
+[Maintainer marketplace deployment runbook](../Documentation/maintainer-marketplace-deployment-runbook.md)
+records exactly what a maintainer must configure by hand.
+
 ## Initialized repository
 
 Public repository [`Cratis/AI.Distribution`](https://github.com/Cratis/AI.Distribution)

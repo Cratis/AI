@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "59a0bca075f4e14d1ec24755a116b4f62a4378fed84dde944c4b1601ab735ec1",
+  "indexDigest": "9fb892b6e378ae290b915e2beb9888d8d0297e462b947bec5ba4237447ed2e73",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -461,6 +461,10 @@
     {
       "path": "Documentation/instructions.md",
       "status": "modified"
+    },
+    {
+      "path": "Documentation/maintainer-marketplace-deployment-runbook.md",
+      "status": "added"
     },
     {
       "path": "Documentation/maintaining-shared-ai-behavior.md",
@@ -4090,6 +4094,7 @@
         "Documentation/capability-catalog-v2.md",
         "Documentation/chronicle-mcp-guidance.md",
         "Documentation/ecosystem-support-architecture-review.md",
+        "Documentation/maintainer-marketplace-deployment-runbook.md",
         "Documentation/maintaining-shared-ai-behavior.md",
         "Documentation/mcp-declarations.md",
         "Documentation/native-non-skill-projections.md",
@@ -4125,8 +4130,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 9,
-      "expectedPathsDigest": "53712022848579f190e4a824a5c5d066605351318244ecb12533159447fde5f1"
+      "expectedPathCount": 10,
+      "expectedPathsDigest": "ef3ede2947ed73f3c012dad11b926002ea27f28a2a1260eb8e2ac5d254fe04b2"
     },
     {
       "excludePathPatterns": [],

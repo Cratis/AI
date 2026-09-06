@@ -1,6 +1,20 @@
 {
   "schemaVersion": "1.0.0",
   "observedAt": "2026-08-22",
+  "supersedingDecision": {
+    "state": "RECORDED_NOT_YET_EXECUTED",
+    "issue": "https://github.com/Cratis/AI/issues/264",
+    "plannedState": "MIRROR_PENDING_ARCHIVE",
+    "currentStateRemains": "INITIALIZED_PROTECTED_FIXTURE",
+    "decision": "Cratis/AI#264 records that this repository becomes a CI-published mirror and is then archived, so already-published v0.1.0 to v0.3.0 install commands and the evidence records that cite its tags keep resolving. The repository and its tags are never deleted.",
+    "note": "The repository block below still reports the observed live state. This record does not change it, and does not change what any validator or workflow does. Applying plannedState is Phase 5 of Cratis/AI#264 and follows the Phase 2 re-pointing work.",
+    "findings": [
+      "The contract in distribution/generated-repository-authority-request.md states that human or deploy-key direct pushes are not an accepted update path, yet commits 5d5c366, 53c607f, and 8f31eb0 in Cratis/AI.Distribution were authored directly by a maintainer rather than by the release bot, because the Cratis/Workflows#72 App is still not installed.",
+      "credential.state is REMOVED_AFTER_ONE_TIME_INITIALIZATION and repository.writeCredentialState is ABSENT_PENDING_PR_RELEASE_BOT, so the second repository currently has no compliant automated write path at all.",
+      "Consolidation removes the cross-repository App, the AI_DISTRIBUTION_APP_ID and AI_DISTRIBUTION_APP_PRIVATE_KEY secrets, the duplicated control plane, and one of two branch-protection surfaces."
+    ],
+    "maintainerRunbook": "Documentation/maintainer-marketplace-deployment-runbook.md"
+  },
   "repository": {
     "name": "Cratis/AI.Distribution",
     "url": "https://github.com/Cratis/AI.Distribution",

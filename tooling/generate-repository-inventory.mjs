@@ -745,6 +745,7 @@ const definitions = [
             "Documentation/capability-catalog-v2.md",
             "Documentation/chronicle-mcp-guidance.md",
             "Documentation/ecosystem-support-architecture-review.md",
+            "Documentation/maintainer-marketplace-deployment-runbook.md",
             "Documentation/maintaining-shared-ai-behavior.md",
             "Documentation/mcp-declarations.md",
             "Documentation/native-non-skill-projections.md",
