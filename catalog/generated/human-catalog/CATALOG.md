@@ -6,8 +6,8 @@ This catalog is generated from reviewed catalog metadata. Use it to find
 the right package and understand its skills. It is not source authority
 and does not make a planned package installable.
 
-- Profiles: 60
-- Capabilities: 45
+- Profiles: 62
+- Capabilities: 46
 - Installable profiles: 0
 - Ecosystem bindings with support claims: 0
 
@@ -15,8 +15,8 @@ and does not make a planned package installable.
 
 Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.
 
-- Components: 148
-- Passive: 145
+- Components: 149
+- Passive: 146
 - Executable: 3
 - Legacy-retained: 7
 - Existing adapter records: 332
@@ -30,7 +30,7 @@ Modeled or planned components and projections are catalog metadata only; they ar
 
 ### Components by kind
 
-- skill: 52
+- skill: 53
 - agent: 12
 - subagent: 0
 - command: 18
@@ -118,6 +118,76 @@ This matrix reports research and serving disposition only. It is not support, pu
 
 Profiles are the product and maintainer bundles people subscribe to.
 Only profiles marked installable have completed approval.
+
+### Cratis Complete Suite
+
+- **Profile ID:** `cratis`
+- **Audience:** public
+- **Package:** `@cratis/ai-meta-cratis`
+- **State:** planned-composition
+- **Installable:** no
+- **Materialization:** composition
+
+Every public Cratis capability in one selection: every product, every language, and every cross-cutting methodology this repository publishes, with nothing left out.
+
+**Intended for:** Developers and teams who want the whole public Cratis corpus in one subscription, without choosing between products, languages, or methodology.
+
+- Products: arc, arc-react, chronicle, chronicle-mcp, cli, components, entity-framework-core, fundamentals, lens, screenplay, specifications, stage, studio
+- Languages: csharp, elixir, java, kotlin, language-agnostic, python, react, shell, typescript
+- Repository kinds: consumer projects
+
+#### Included capabilities
+
+- cratis-chronicle-mcp-inspection
+- cratis-fundamentals-concept
+- cratis-governed-release-methodology
+- cratis-specifications-csharp
+- cratis-specifications-typescript
+- cratis-studio-mcp-safety-guidance
+
+#### Composed profiles
+
+- cratis/application
+- cratis/arc
+- cratis/chronicle
+- cratis/full
+- public-application
+- public-application-arc-chronicle
+- public-application-arc-only
+- public-application-chronicle-dotnet
+- public-application-react
+- public-arc
+- public-arc-ef-core
+- public-arc-identity
+- public-arc-react
+- public-chronicle
+- public-chronicle-client-dotnet
+- public-chronicle-client-elixir
+- public-chronicle-client-java
+- public-chronicle-client-kotlin
+- public-chronicle-client-python
+- public-chronicle-client-typescript
+- public-chronicle-compliance
+- public-chronicle-mcp
+- public-chronicle-multi-tenancy
+- public-chronicle-web-workbench
+- public-components
+- public-cratis-cli
+- public-cratis-cli-terminal-workbench
+- public-fundamentals
+- public-language-csharp
+- public-language-elixir
+- public-language-kotlin
+- public-language-typescript
+- public-lens
+- public-methodology-governed-releases
+- public-modeling-screenplay-stage
+- public-screenplay
+- public-specifications
+- public-specifications-dotnet
+- public-specifications-typescript
+- public-stage
+- public-studio
 
 ### Cratis Application Suite
 
@@ -979,6 +1049,31 @@ AI guidance for developers building with Cratis Lens.
 #### Included capabilities
 
 - No approved or candidate capabilities yet
+
+#### Composed profiles
+
+- None
+
+### Cratis Governed Release Methodology
+
+- **Profile ID:** `public-methodology-governed-releases`
+- **Audience:** public
+- **Package:** `@cratis/ai-methodology-governed-releases`
+- **State:** owner-review-pending
+- **Installable:** no
+- **Materialization:** candidate-package
+
+Product- and language-independent release-engineering methodology: assurance tiers, evidence ladders, lifecycle phases, supply-chain receipts, semantic-version release intent, canaries, and recovery disposition.
+
+**Intended for:** Maintainers planning a release in any repository, for any artifact format, without selecting a Cratis product or language profile.
+
+- Products: shared engineering behavior
+- Languages: language-agnostic
+- Repository kinds: consumer projects
+
+#### Included capabilities
+
+- cratis-governed-release-methodology
 
 #### Composed profiles
 
@@ -2963,6 +3058,7 @@ Use when classifying a Chronicle MCP inspection request or interpreting already-
 
 #### Profile membership — cratis-chronicle-mcp-inspection
 
+- cratis
 - public-chronicle-mcp
 
 ### cratis-chronicle-multi-tenancy
@@ -3674,6 +3770,7 @@ Use when creating a ConceptAs&lt;T&gt; value or EventSourceId&lt;T&gt; identity.
 
 #### Profile membership — cratis-fundamentals-concept
 
+- cratis
 - cratis/application
 - cratis/arc
 - cratis/chronicle
@@ -3746,6 +3843,70 @@ Use when a service must enumerate all implementations through IInstancesOf&lt;T&
 #### Profile membership — cratis-fundamentals-type-discovery
 
 - None
+
+### cratis-governed-release-methodology
+
+- **ID:** `cratis-governed-release-methodology`
+- **Audience:** public
+- **Lifecycle:** candidate
+- **Approval:** candidate
+- **Runtime eligible:** no
+
+#### Purpose — cratis-governed-release-methodology
+
+Governed release methodology
+
+#### When to use — cratis-governed-release-methodology
+
+Use when choosing the assurance tier a release needs, deciding whether checksums, provenance, or an SBOM are warranted, labeling release intent, or judging whether a support claim is backed by evidence.
+
+#### When not to use — cratis-governed-release-methodology
+
+- Do not use for a registry's publish command syntax or credentials.
+- Do not use to run a publish, tag, or promotion operation.
+
+#### Invocation — cratis-governed-release-methodology
+
+- Capability kind: unclassified
+- Invocation: unclassified
+
+#### Applicability — cratis-governed-release-methodology
+
+- Products: cross-product
+- Languages: language-agnostic
+- Architectures: Unclassified — Architecture requires reviewed target classification.
+- Personas: Unclassified — Persona requires reviewed target classification.
+- Surfaces: Unclassified — Surface requires reviewed target classification.
+- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+
+#### Dependencies — cratis-governed-release-methodology
+
+- Unclassified
+
+#### Trust and effects — cratis-governed-release-methodology
+
+- Trust class: passive
+- Assessment: unclassified
+- No assessed effects
+
+#### Evidence and support — cratis-governed-release-methodology
+
+- Authoring contract unclassified
+- Evidence: reevaluation-authority
+- Evidence: repo-main-b795d53
+
+#### Related capabilities — cratis-governed-release-methodology
+
+- None
+
+#### Bundle membership — cratis-governed-release-methodology
+
+- None
+
+#### Profile membership — cratis-governed-release-methodology
+
+- cratis
+- public-methodology-governed-releases
 
 ### cratis-performance-review
 
@@ -3937,6 +4098,7 @@ Use for framework or library C# Specification by Example tests.
 
 #### Profile membership — cratis-specifications-csharp
 
+- cratis
 - cratis/application
 - cratis/arc
 - cratis/chronicle
@@ -4010,6 +4172,7 @@ Use for framework or package TypeScript Specification by Example tests.
 
 #### Profile membership — cratis-specifications-typescript
 
+- cratis
 - cratis/application
 - cratis/full
 - public-application
@@ -4077,6 +4240,7 @@ Use when classifying a Studio MCP request or interpreting already-redacted outpu
 
 #### Profile membership — cratis-studio-mcp-safety-guidance
 
+- cratis
 - public-studio
 
 ### cratis-engineering-chronicle-kernel-tracing

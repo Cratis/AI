@@ -199,6 +199,21 @@
       ]
     },
     {
+      "id": "rename-cratis-governed-release-methodology",
+      "kind": "retain",
+      "sourceIds": [
+        "cratis-governed-release-methodology"
+      ],
+      "targetIds": [
+        "cratis-governed-release-methodology"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
       "id": "rename-cratis-react-page",
       "kind": "rename",
       "sourceIds": [

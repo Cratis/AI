@@ -2,12 +2,12 @@
   "schemaVersion": 2,
   "contractVersion": 1,
   "disclaimer": "Catalog inclusion, evaluation evidence, component modeling, planned projection, bundle generation, or publication does not grant runtime permission, emitted bytes, support, or approval.",
-  "inputDigest": "e294eda606246952abf37cb11f253698f59dd074b6da672d44914dee1a8c560d",
+  "inputDigest": "2223a0c131ebf1cb005ff6651c455bf00c164f4f04d98f877b5b13033ab190c7",
   "componentSummary": {
     "disclaimer": "Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.",
-    "total": 148,
+    "total": 149,
     "byKind": {
-      "skill": 52,
+      "skill": 53,
       "agent": 12,
       "subagent": 0,
       "command": 18,
@@ -21,16 +21,16 @@
       "static-asset": 0
     },
     "byTrust": {
-      "passive": 145,
+      "passive": 146,
       "executable": 3
     },
     "byAudience": {
-      "public": 37,
+      "public": 38,
       "cratis-engineering": 111,
       "repository-only": 0
     },
     "byLifecycle": {
-      "active": 141,
+      "active": 142,
       "legacy-retained": 7
     },
     "projections": {
@@ -82,6 +82,96 @@
     "marketplaceAvailabilityClaim": false
   },
   "profiles": [
+    {
+      "id": "cratis",
+      "displayName": "Cratis Complete Suite",
+      "description": "Every public Cratis capability in one selection: every product, every language, and every cross-cutting methodology this repository publishes, with nothing left out.",
+      "intendedFor": "Developers and teams who want the whole public Cratis corpus in one subscription, without choosing between products, languages, or methodology.",
+      "audience": "public",
+      "packageName": "@cratis/ai-meta-cratis",
+      "state": "planned-composition",
+      "installable": false,
+      "materialization": "composition",
+      "products": [
+        "arc",
+        "arc-react",
+        "chronicle",
+        "chronicle-mcp",
+        "cli",
+        "components",
+        "entity-framework-core",
+        "fundamentals",
+        "lens",
+        "screenplay",
+        "specifications",
+        "stage",
+        "studio"
+      ],
+      "languages": [
+        "csharp",
+        "elixir",
+        "java",
+        "kotlin",
+        "language-agnostic",
+        "python",
+        "react",
+        "shell",
+        "typescript"
+      ],
+      "repositoryKinds": [],
+      "composes": [
+        "cratis/application",
+        "cratis/arc",
+        "cratis/chronicle",
+        "cratis/full",
+        "public-application",
+        "public-application-arc-chronicle",
+        "public-application-arc-only",
+        "public-application-chronicle-dotnet",
+        "public-application-react",
+        "public-arc",
+        "public-arc-ef-core",
+        "public-arc-identity",
+        "public-arc-react",
+        "public-chronicle",
+        "public-chronicle-client-dotnet",
+        "public-chronicle-client-elixir",
+        "public-chronicle-client-java",
+        "public-chronicle-client-kotlin",
+        "public-chronicle-client-python",
+        "public-chronicle-client-typescript",
+        "public-chronicle-compliance",
+        "public-chronicle-mcp",
+        "public-chronicle-multi-tenancy",
+        "public-chronicle-web-workbench",
+        "public-components",
+        "public-cratis-cli",
+        "public-cratis-cli-terminal-workbench",
+        "public-fundamentals",
+        "public-language-csharp",
+        "public-language-elixir",
+        "public-language-kotlin",
+        "public-language-typescript",
+        "public-lens",
+        "public-methodology-governed-releases",
+        "public-modeling-screenplay-stage",
+        "public-screenplay",
+        "public-specifications",
+        "public-specifications-dotnet",
+        "public-specifications-typescript",
+        "public-stage",
+        "public-studio"
+      ],
+      "directTargetIds": [],
+      "targetIds": [
+        "cratis-chronicle-mcp-inspection",
+        "cratis-fundamentals-concept",
+        "cratis-governed-release-methodology",
+        "cratis-specifications-csharp",
+        "cratis-specifications-typescript",
+        "cratis-studio-mcp-safety-guidance"
+      ]
+    },
     {
       "id": "cratis/application",
       "displayName": "Cratis Application Suite",
@@ -908,6 +998,27 @@
       "composes": [],
       "directTargetIds": [],
       "targetIds": []
+    },
+    {
+      "id": "public-methodology-governed-releases",
+      "displayName": "Cratis Governed Release Methodology",
+      "description": "Product- and language-independent release-engineering methodology: assurance tiers, evidence ladders, lifecycle phases, supply-chain receipts, semantic-version release intent, canaries, and recovery disposition.",
+      "intendedFor": "Maintainers planning a release in any repository, for any artifact format, without selecting a Cratis product or language profile.",
+      "audience": "public",
+      "packageName": "@cratis/ai-methodology-governed-releases",
+      "state": "owner-review-pending",
+      "installable": false,
+      "materialization": "candidate-package",
+      "products": [],
+      "languages": [],
+      "repositoryKinds": [],
+      "composes": [],
+      "directTargetIds": [
+        "cratis-governed-release-methodology"
+      ],
+      "targetIds": [
+        "cratis-governed-release-methodology"
+      ]
     },
     {
       "id": "public-modeling-screenplay-stage",
@@ -2861,6 +2972,7 @@
       ],
       "bundleIds": [],
       "profileIds": [
+        "cratis",
         "public-chronicle-mcp"
       ]
     },
@@ -3610,6 +3722,7 @@
         "cratis-core-review"
       ],
       "profileIds": [
+        "cratis",
         "cratis/application",
         "cratis/arc",
         "cratis/chronicle",
@@ -3680,6 +3793,65 @@
         "cratis-core-review"
       ],
       "profileIds": []
+    },
+    {
+      "id": "cratis-governed-release-methodology",
+      "semanticName": "cratis-governed-release-methodology",
+      "audience": "public",
+      "purpose": "Governed release methodology",
+      "whenToUse": "Use when choosing the assurance tier a release needs, deciding whether checksums, provenance, or an SBOM are warranted, labeling release intent, or judging whether a support claim is backed by evidence.",
+      "whenNotToUse": [
+        "Do not use for a registry's publish command syntax or credentials.",
+        "Do not use to run a publish, tag, or promotion operation."
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "approvalState": "candidate",
+      "runtimeEligible": false,
+      "products": [
+        "cross-product"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencies": [],
+      "authoringContractIds": [],
+      "evidenceIds": [
+        "reevaluation-authority",
+        "repo-main-b795d53"
+      ],
+      "relatedTargetIds": [],
+      "bundleIds": [],
+      "profileIds": [
+        "cratis",
+        "public-methodology-governed-releases"
+      ]
     },
     {
       "id": "cratis-performance-review",
@@ -3927,6 +4099,7 @@
       ],
       "bundleIds": [],
       "profileIds": [
+        "cratis",
         "cratis/application",
         "cratis/arc",
         "cratis/chronicle",
@@ -4054,6 +4227,7 @@
       ],
       "bundleIds": [],
       "profileIds": [
+        "cratis",
         "cratis/application",
         "cratis/full",
         "public-application",
@@ -4118,6 +4292,7 @@
       ],
       "bundleIds": [],
       "profileIds": [
+        "cratis",
         "public-studio"
       ]
     },

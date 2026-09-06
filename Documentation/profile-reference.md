@@ -27,6 +27,7 @@ profiles/
 ├── public/                          audience "public"
 │   ├── public-fundamentals.json
 │   ├── …
+│   ├── cratis.json                  id: cratis — the bare id, a file, not a folder
 │   └── cratis/                      an id containing "/" is a real subdirectory
 │       ├── arc.json                 id: cratis/arc
 │       ├── chronicle.json
@@ -230,6 +231,10 @@ compose the existing composition profiles and add no capability of their own, so
 the Arc-versus-Chronicle decoupling below is a property of the composition, not
 an editorial promise.
 
+Each one below is deliberately **scoped**. If you want everything instead, that
+is [`cratis`](#cratis--the-maximal-public-bundle) — the bare id, described in
+the next section.
+
 | Profile | Intended package | Composition | Chronicle implied | Arc implied |
 | --- | --- | --- | --- | --- |
 | `cratis/arc` | `@cratis/ai-meta-arc` | `public-application-arc-only` + `public-arc-ef-core` + `public-arc-identity` | No | Yes |
@@ -240,6 +245,71 @@ an editorial promise.
 `cratis/full` is a diamond over the other three: every profile it reaches
 transitively appears exactly once in a resolved manifest, annotated with each
 meta-profile that pulled it in.
+
+## `cratis` — the maximal public bundle
+
+| Profile | Intended package | Composition | Chronicle implied | Arc implied |
+| --- | --- | --- | --- | --- |
+| `cratis` | `@cratis/ai-meta-cratis` | Every other public profile, listed one by one | Yes | Yes |
+
+`cratis` is the one **bare** id in the catalog — not `cratis/something`. It is
+the root of the namespace and it means what it says: requesting it resolves to
+**every** public capability this repository offers, with no product and no
+language excluded.
+
+It exists because "full" was never full. The [namespaced
+meta-profiles](#namespaced-meta-profiles) above are scoped compositions, and
+`cratis/full` composes only the other three plus the Screenplay-to-Stage
+handoff — which reaches 24 of the 42 public profiles and misses the other 18
+entirely, including all four language profiles, Lens, the CLI, Studio, and
+Chronicle MCP. Those are real public capabilities with no meta-profile that
+reaches them, so a repository wanting everything had no single name to ask for.
+
+**Its `composes` array lists every public profile id directly**, including the
+four `cratis/*` meta-profiles and every leaf they already reach. The redundancy
+is deliberate. `tooling/resolve-profiles.mjs` deduplicates the closure and
+detects cycles, so a profile reached three ways still appears exactly once in a
+resolved manifest — and a flat, exhaustive list is far easier to keep correct
+than a hand-minimized one where "already covered transitively" is a claim
+nobody re-checks.
+
+`products` and `languages` follow the same convention as `cratis/full`: real
+taxonomy ids rather than an empty "applies everywhere" marker. Because this
+profile composes the whole catalog, they are the full union — all thirteen
+products and all nine languages.
+
+`cratis` composes **no** `engineering-*` profile, and it never will. The
+resolver rejects audience-crossing composition outright, so a public request
+cannot reach maintainer-audience content by any route; the guarantee is
+structural, not editorial.
+
+### The completeness guarantee is enforced, not promised
+
+`tooling/specs/cratis-meta-profile-completeness.spec.mjs` reads
+`profiles/public/` recursively **at spec-run time** and asserts that resolving
+`cratis` yields exactly that id set. There is no hardcoded list to go stale.
+Add a public profile and forget to add it to `cratis.json`, and the spec fails
+naming the exact missing id:
+
+```text
+profiles/public/cratis.json is not the maximal public bundle:
+add these ids to its "composes" array:
+  public-brand-new-thing
+```
+
+The same file also asserts that `cratis` stays a strict superset of all four
+narrower meta-profiles, that its closure reaches every `availableTargets`
+capability any public profile declares, and that everything the resolver
+rejects is an honestly empty profile rather than an unreachable capability.
+
+Subscribing is the same as any other profile, and the channel is derived rather
+than declared:
+
+```json
+{
+  "profiles": ["cratis"]
+}
+```
 
 ## Language profiles
 
@@ -263,6 +333,21 @@ They deliberately compose no product profile. Wiring
 language selection imply Chronicle, which is the same coupling the Arc and
 Chronicle meta-profiles exist to avoid. Chronicle-specific language guidance
 stays in the Chronicle client profiles above.
+
+## Cross-cutting methodology profiles
+
+Some behavior is neither a product nor a language. It is engineering method that
+holds no matter what the repository ships or what it is written in.
+
+| Profile | Intended package | Scope |
+| --- | --- | --- |
+| `public-methodology-governed-releases` | `@cratis/ai-methodology-governed-releases` | Assurance tiers, evidence ladders, lifecycle phases, supply-chain receipts, semantic-version release intent, canaries, recovery disposition |
+
+This profile carries `products: []` and `languages: []` deliberately, and
+composes nothing, for the same reason the language profiles do: a repository
+that wants release methodology must not be handed Arc, Chronicle, or a language
+profile along with it. `tooling/specs/resolve-profiles.spec.mjs` asserts that
+resolving it alone returns exactly itself and its one capability.
 
 ## Public-safe engineering profiles
 

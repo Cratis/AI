@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "f10c0fadad442428b92d8b1d003e35182ac4770db835549768089dbcd87ea52f",
+  "indexDigest": "475ad33ed0da3b26c01f7b1e893613b34f245f25e3cc3beaed7334d0646100e9",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -2615,6 +2615,10 @@
       "status": "added"
     },
     {
+      "path": "profiles/public/cratis.json",
+      "status": "added"
+    },
+    {
       "path": "profiles/public/cratis/application.json",
       "status": "added"
     },
@@ -2747,6 +2751,10 @@
       "status": "added"
     },
     {
+      "path": "profiles/public/public-methodology-governed-releases.json",
+      "status": "added"
+    },
+    {
       "path": "profiles/public/public-modeling-screenplay-stage.json",
       "status": "added"
     },
@@ -2796,6 +2804,14 @@
     },
     {
       "path": "skills/cratis-fundamentals-concept/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-governed-release-methodology/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-governed-release-methodology/SKILL.md",
       "status": "added"
     },
     {
@@ -3359,6 +3375,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/specs/cratis-meta-profile-completeness.spec.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/specs/deterministic-release-tree.spec.mjs",
       "status": "added"
     },
@@ -3882,6 +3902,7 @@
         ".ai/skills/call-command-from-code/**",
         "skills/cratis-chronicle-mcp-inspection/**",
         ".ai/skills/cratis-command/**",
+        "skills/cratis-governed-release-methodology/**",
         ".ai/skills/cratis-react-page/**",
         ".ai/skills/cratis-readmodel/**",
         "skills/cratis-specifications-csharp/**",
@@ -3930,8 +3951,8 @@
         "workflows-68",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 76,
-      "expectedPathsDigest": "559c81b75a2e1fba780ad4351718693929b0082eb7ec75c2a53b28750dec4bc7"
+      "expectedPathCount": 78,
+      "expectedPathsDigest": "871bf9cd0a97dc2cca6f68d7407dfcf18f6574f5b61f705894910f1125b2169d"
     },
     {
       "excludePathPatterns": [],
@@ -5091,8 +5112,8 @@
         "option-a-plus-authority",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 61,
-      "expectedPathsDigest": "16be14192b5d23958408a644ef0771a961688edb9be69c96ab5eb9da25e7fb44"
+      "expectedPathCount": 63,
+      "expectedPathsDigest": "b1e43a33051649d8238f67a8578d6acec2f6b05af7bf0aece2620225d2a8405c"
     },
     {
       "excludePathPatterns": [],
@@ -5249,8 +5270,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 66,
-      "expectedPathsDigest": "6b291f22b279719f13534d0180d0d695f02c91332aeb464f87c1f1d42348360f"
+      "expectedPathCount": 67,
+      "expectedPathsDigest": "433f04cd1b5c287460c01fb0506f36e0ea632c90d7adcbc94525156fd9d603e7"
     },
     {
       "excludePathPatterns": [],

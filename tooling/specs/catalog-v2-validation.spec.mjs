@@ -58,10 +58,10 @@ test("catalog v2 schemas and semantic policy pass for the repository", () => {
     assert.deepEqual(validateV2Catalogs(), []);
 });
 
-test("catalog v2 preserves all 45 sources while split and merge targets are independent", () => {
+test("catalog v2 preserves all 46 sources while split and merge targets are independent", () => {
     const catalogs = loadCatalogs();
-    assert.equal(catalogs.sources.sources.length, 45);
-    assert.equal(catalogs.targets.targets.length, 45);
+    assert.equal(catalogs.sources.sources.length, 46);
+    assert.equal(catalogs.targets.targets.length, 46);
     const split = catalogs.migrations.migrations.find(
         (migration) => migration.kind === "split",
     );
@@ -1066,7 +1066,7 @@ test("the accepted Option A+ decision still blocks unapproved live targets", () 
     assert.equal(publicCandidate.materializationAllowed, true);
     assert.equal(publicCandidate.runtimeEligible, false);
     assert.equal(publicCandidate.requiresApprovedTargets, false);
-    assert.equal(publicCandidate.componentInventory.skills.length, 34);
+    assert.equal(publicCandidate.componentInventory.skills.length, 35);
     assert(
         !publicCandidate.componentInventory.skills.includes(
             "cratis-chronicle-mcp-inspection",
