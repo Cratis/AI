@@ -29,7 +29,8 @@
   },
   "workflow": {
     "path": ".github/workflows/distribution-npm-stage.yml",
-    "productionPath": ".github/workflows/release-approved-ai-profiles.yml",
+    "productionPath": ".github/workflows/release-passive-previews.yml",
+    "productionPathNote": "Corrected on 2026-09-06 (Cratis/AI#258, moved here from Cratis/AI#187's closure). This field named .github/workflows/release-approved-ai-profiles.yml, which Cratis/AI#266 deleted with the rest of the generated-distribution pipeline. The workflow that publishes the production package name is release-passive-previews.yml - the same workflow packageReleasePath names and the one the npm trusted publisher binds - so there is no separate approved-profile production lane any more.",
     "currentOperation": "PUBLISH_MERGED_LABELED_PULL_REQUEST",
     "environment": "npm-stage",
     "environmentApprovalRequired": false,

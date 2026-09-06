@@ -1,6 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "state": "WORKFLOW_READY_CREDENTIALS_MISSING",
+  "state": "RETIRED_WITH_GENERATED_DISTRIBUTION",
+  "supersedingDecision": {
+    "observedOn": "2026-09-06",
+    "reobservationIssue": "https://github.com/Cratis/AI/issues/258",
+    "decisionIssue": "https://github.com/Cratis/AI/issues/264",
+    "previousState": "WORKFLOW_READY_CREDENTIALS_MISSING",
+    "everyFieldBelowStillDescribesTodaysPipeline": false,
+    "retiredWorkflow": ".github/workflows/distribution-generated-update.yml",
+    "note": "The workflow this contract governs, .github/workflows/distribution-generated-update.yml, was deleted by Cratis/AI#266 along with the rest of the generated-distribution pipeline. The previous state claimed the workflow was ready and only the credentials were missing; neither the workflow nor the App will exist, so the credentials are not pending work. The fields below are kept as the record of what was designed, not as a description of anything that runs. No tooling reads this file."
+  },
   "trackingIssue": "https://github.com/Cratis/Workflows/issues/72",
   "githubApp": {
     "installationScope": [
@@ -17,7 +26,7 @@
     "configured": false
   },
   "workflow": {
-    "path": ".github/workflows/distribution-generated-update.yml",
+    "path": null,
     "environment": "distribution-canary",
     "sourceBranch": "main",
     "targetRepository": "Cratis/AI.Distribution",

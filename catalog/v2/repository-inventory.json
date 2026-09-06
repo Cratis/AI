@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "b35c070045357f8b88ab0ab186d7530d06eb86b020d7f25dfab4e590485fb408",
+  "indexDigest": "704278442e4838f0ee031c787e53dc3beff84f381bd6b219df57122689f20469",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -3675,6 +3675,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/specs/distribution-state-consistency.spec.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/specs/domain-expert-event-modeling-pilot.spec.mjs",
       "status": "added"
     },
@@ -5571,8 +5575,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 67,
-      "expectedPathsDigest": "433f04cd1b5c287460c01fb0506f36e0ea632c90d7adcbc94525156fd9d603e7"
+      "expectedPathCount": 68,
+      "expectedPathsDigest": "15a1e964dc9013f98abe8c6ea01fe88b82144811709cf0b3a533b1cbb7531d86"
     },
     {
       "excludePathPatterns": [],
