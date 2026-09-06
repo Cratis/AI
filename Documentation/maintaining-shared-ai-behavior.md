@@ -25,7 +25,7 @@ package bytes back into `Cratis/AI`.
 | Product fact | Owning product repository | Arc API, Chronicle behavior, Components usage, supported client version |
 | Project context | Consuming repository | Product mix, build commands, local restrictions, endpoints without credential values |
 | Private behavior | Consuming private repository | Unreleased architecture, incidents, infrastructure, customer or repository-specific workflow |
-| Generated package bytes | `Cratis/AI` at the protected `distribution` ref | Host package, manifest, checksum, provenance, native projection, pinned by exact commit and released as `dist/vX.Y.Z` on `main` |
+| Marketplace installation | `Cratis/AI` `main` | Four committed marketplace manifests resolving the `skills/` and `engineering/` directories, with no ref |
 | Promotion and subscriber updates | `Cratis/Workflows` | Canary, pin update, rollback, emergency disable, update pull request |
 
 A skill can explain an authoritative product fact, but it cannot become a
