@@ -103,7 +103,7 @@ test("native non-skill review assets are deterministic exact and non-installable
         const coverage = JSON.parse(
             readFileSync(join(firstRoot, "component-coverage.json"), "utf8"),
         );
-        assert.equal(coverage.componentCount, 156);
+        assert.equal(coverage.componentCount, 169);
         const checksums = readFileSync(join(firstRoot, "SHA256SUMS"), "utf8");
         assert(checksums.includes("native-review-assets.json"));
         assert(checksums.includes("native-review-sbom.json"));

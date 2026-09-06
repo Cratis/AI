@@ -9,9 +9,12 @@
     "csharp",
     "language-agnostic"
   ],
-  "state": "content-gap",
+  "state": "preview-source-candidate",
+  "availableTargets": [
+    "cratis-chronicle-compliance"
+  ],
   "composes": [
     "public-chronicle"
   ],
-  "gapSummary": "Needs subjects, key lifecycle, erasure, retention, redaction, audit, and privacy guidance from authoritative Chronicle sources."
+  "gapSummary": "Personal data marking, subjects, erasure, redaction, and release are canonical source candidates. Retention scheduling, audit reporting, and key custody operations remain gaps."
 }

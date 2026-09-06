@@ -34,10 +34,10 @@ test("candidate review batch is deterministic complete and non-releasing", () =>
         const second = packageCandidateReviewBatch({ outputRoot: secondRoot });
         assert.deepEqual(second, first);
         assert.equal(first.state, "CANDIDATE_REVIEW_BATCH_ONLY");
-        assert.equal(first.componentCount, 156);
-        assert.equal(first.packagedSkillTargetCount, 44);
+        assert.equal(first.componentCount, 169);
+        assert.equal(first.packagedSkillTargetCount, 47);
         assert.equal(first.blockedSkillTargetCount, 5);
-        assert.equal(first.repositoryOnlyLegacySkillCount, 11);
+        assert.equal(first.repositoryOnlyLegacySkillCount, 21);
         assert.equal(first.nativeProjectedComponentCount, 35);
         assert.equal(first.nativeUnprojectedComponentCount, 10);
         assert.equal(first.skillAssetCount, 68);

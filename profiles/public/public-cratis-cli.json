@@ -8,6 +8,9 @@
   "languages": [
     "shell"
   ],
-  "state": "content-gap",
-  "gapSummary": "Needs setup, contexts, project generation, machine output, read-only inspection, and separately confirmed mutation workflows from Cratis/cli."
+  "state": "preview-source-candidate",
+  "availableTargets": [
+    "cratis-chronicle-cli-operations"
+  ],
+  "gapSummary": "Contexts, connection resolution, machine output, and read-only inspection are a canonical source candidate. Project generation and separately confirmed mutation workflows remain gaps."
 }

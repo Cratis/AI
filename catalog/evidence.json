@@ -786,6 +786,12 @@
       "kind": "repository-snapshot",
       "locator": "https://github.com/Cratis/AI/tree/80b1697803ccd2ad641fb6c4d40c905b6706dfde/skills",
       "immutableRevision": "80b1697803ccd2ad641fb6c4d40c905b6706dfde"
+    },
+    {
+      "id": "source-chronicle-core-source-migration-3d85719",
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/3d857190964d7ae45b4a49b4adda0cad9f569444/skills",
+      "immutableRevision": "3d857190964d7ae45b4a49b4adda0cad9f569444"
     }
   ],
   "observations": [
@@ -7918,6 +7924,43 @@
         "officialUrl": "https://github.com/Cratis/AI/tree/80b1697803ccd2ad641fb6c4d40c905b6706dfde/skills",
         "sourceKind": "repository-snapshot",
         "applicableVersion": "80b1697803ccd2ad641fb6c4d40c905b6706dfde"
+      }
+    },
+    {
+      "id": "chronicle-core-source-migration-3d85719",
+      "sourceId": "source-chronicle-core-source-migration-3d85719",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "artifact",
+        "id": "candidate-passive-public-package",
+        "version": "3d857190964d7ae45b4a49b4adda0cad9f569444"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "source-provenance",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Source provenance for the Chronicle core, tenancy, operations, compliance, Workbench, and kernel-tracing skills in the canonical skill trees.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-09-06",
+      "validThrough": "2027-09-06",
+      "confidence": "high",
+      "limitations": [
+        "This observation proves source provenance for the recorded skill sources only; it grants no behavior, evaluation, or support assurance."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/3d857190964d7ae45b4a49b4adda0cad9f569444/skills",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "3d857190964d7ae45b4a49b4adda0cad9f569444"
       }
     }
   ],

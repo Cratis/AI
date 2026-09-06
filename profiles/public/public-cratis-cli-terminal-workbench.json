@@ -8,9 +8,12 @@
   "languages": [
     "shell"
   ],
-  "state": "content-gap",
+  "state": "preview-source-candidate",
+  "availableTargets": [
+    "cratis-cli-terminal-workbench"
+  ],
   "composes": [
     "public-cratis-cli"
   ],
-  "gapSummary": "Needs CLI-owned terminal Workbench discovery, navigation, read-only evidence capture, machine output, and separately confirmed recovery/administration guidance."
+  "gapSummary": "Terminal Workbench discovery, navigation, and read-only evidence capture are a canonical source candidate. Recovery and administration workflows remain gaps."
 }
