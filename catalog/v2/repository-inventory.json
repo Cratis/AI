@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "c7647fb9c62fdf0890c99daec454470f2c46b530611d3b41958b5f978739cc6a",
+  "indexDigest": "fe80c53fca8c69fd2896aca8b601bd224cc5bf7beed696d05d7c7c46a195ba78",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -2667,6 +2667,34 @@
       "status": "added"
     },
     {
+      "path": "skills/cratis-arc-authentication-authorization-and-identity/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-authentication-authorization-and-identity/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-authentication-authorization-and-identity/references/authentication.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-authentication-authorization-and-identity/references/authorization.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-authentication-authorization-and-identity/references/frontend.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-authentication-authorization-and-identity/references/local-development.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-authentication-authorization-and-identity/references/tenancy.md",
+      "status": "added"
+    },
+    {
       "path": "skills/cratis-arc-command-execution/LICENSE",
       "status": "added"
     },
@@ -2696,6 +2724,14 @@
     },
     {
       "path": "skills/cratis-arc-command/references/read-model-injection.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-ef-core-migration/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-ef-core-migration/SKILL.md",
       "status": "added"
     },
     {
@@ -3758,11 +3794,11 @@
       "sourcePathPatterns": [
         ".ai/skills/add-business-rule/**",
         "skills/cratis-fundamentals-concept/**",
-        ".ai/skills/add-ef-migration/**",
+        "skills/cratis-arc-ef-core-migration/**",
         ".ai/skills/add-projection/**",
         ".ai/skills/add-reactor/**",
         ".ai/skills/add-reducer/**",
-        ".ai/skills/auth-and-identity/**",
+        "skills/cratis-arc-authentication-authorization-and-identity/**",
         "skills/cratis-arc-command-execution/**",
         "skills/cratis-chronicle-mcp-inspection/**",
         "skills/cratis-arc-command/**",
@@ -3794,6 +3830,8 @@
         ".ai/skills/write-specs-frontend/**",
         ".ai/skills/write-specs-readmodels/**",
         ".ai/skills/add-concept/**",
+        ".ai/skills/add-ef-migration/**",
+        ".ai/skills/auth-and-identity/**",
         ".ai/skills/call-command-from-code/**",
         ".ai/skills/cratis-command/**",
         ".ai/skills/observable-query-curl/**",
@@ -3816,8 +3854,8 @@
         "workflows-68",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 80,
-      "expectedPathsDigest": "97d9cdba36a1fa0432e7768032567cd7c4257073c16e5eeebe9f3ac7a67114f1"
+      "expectedPathCount": 89,
+      "expectedPathsDigest": "b5f005bed0378e66e24501cb7f3fbf760a72a53f1d78e6748db5afb63e62ce6d"
     },
     {
       "excludePathPatterns": [],

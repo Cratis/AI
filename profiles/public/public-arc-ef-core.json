@@ -9,9 +9,12 @@
   "languages": [
     "csharp"
   ],
-  "state": "planned-source-migration",
+  "state": "preview-source-candidate",
+  "availableTargets": [
+    "cratis-arc-ef-core-migration"
+  ],
   "composes": [
     "public-arc"
   ],
-  "gapSummary": "The EF Core migration legacy source requires canonical Arc persistence, DbContext, migration, specification, and version authority."
+  "gapSummary": "EF Core DbContext base types, command-side read model resolution, cross-database migration column helpers, and JSON columns are canonical. Chronicle-to-EF read-model modeling and provider operations remain gaps."
 }

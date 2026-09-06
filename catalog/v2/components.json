@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generatedBy": "tooling/generate-component-catalogs.mjs",
-  "sourceDigest": "948256b7ce9d7fb01a6c2d2a596ad507b6378ae86322a0017b10666b26e9423d",
+  "sourceDigest": "be6ac88d5a8188bcf15bba21b55ea68e5f67e0cbeb229d6bd9ed3d2c86e14e86",
   "defaultPolicy": "deny",
   "canonicalSourceRoots": [
     ".ai/agents",
@@ -56,8 +56,10 @@
     "engineering/skills/cratis-engineering-docs-add-page",
     "engineering/skills/cratis-engineering-docs-authoring",
     "engineering/skills/cratis-engineering-docs-edit-page",
+    "skills/cratis-arc-authentication-authorization-and-identity",
     "skills/cratis-arc-command",
     "skills/cratis-arc-command-execution",
+    "skills/cratis-arc-ef-core-migration",
     "skills/cratis-arc-observable-query-http",
     "skills/cratis-arc-query-paging",
     "skills/cratis-chronicle-mcp-inspection",
@@ -1248,18 +1250,18 @@
       "id": "cratis-arc-authentication-authorization-and-identity",
       "kind": "skill",
       "semanticIdentity": "cratis-arc-authentication-authorization-and-identity",
-      "semanticName": "cratis-arc-authentication-authorization-and-identity",
+      "semanticName": "Arc authentication, authorization, and identity",
       "lifecycle": "active",
       "distributionTargetId": "cratis-arc-authentication-authorization-and-identity",
       "canonicalSources": [
         {
-          "path": ".ai/skills/auth-and-identity",
-          "digest": "1980b45f2ac70c4b03858923b022ec4cbb470718fc5b72cc93efc799a7bbd81d",
+          "path": "skills/cratis-arc-authentication-authorization-and-identity",
+          "digest": "2ec0dd13fea5b6c72118c7a52f71fbecaf8f318f852fd8ee96339c684c6e9932",
           "ownership": "owner",
           "ownerComponentId": "cratis-arc-authentication-authorization-and-identity"
         }
       ],
-      "contentDigest": "59a7da140408368253bf224defde27dbb20ce8468e6e0a44dd057fc1eda8272a",
+      "contentDigest": "fe4ca0d087703eca1798c157d3157272332355db2c0996803da89e855ab7f44a",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -1269,12 +1271,8 @@
         "executable": false,
         "effect": "guided-write"
       },
-      "dependencies": [
-        "cratis-arc-command",
-        "cratis-arc-react-page",
-        "cratis-chronicle-multi-tenancy"
-      ],
-      "hostNeutralPurpose": "Arc authentication, authorization, and identity",
+      "dependencies": [],
+      "hostNeutralPurpose": "Wire Arc authentication, authorization, identity details, and tenant resolution",
       "approval": {
         "state": "modeled",
         "evidenceIds": [
@@ -1579,18 +1577,18 @@
       "id": "cratis-arc-ef-core-migration",
       "kind": "skill",
       "semanticIdentity": "cratis-arc-ef-core-migration",
-      "semanticName": "cratis-arc-ef-core-migration",
+      "semanticName": "Arc EF Core migrations",
       "lifecycle": "active",
       "distributionTargetId": "cratis-arc-ef-core-migration",
       "canonicalSources": [
         {
-          "path": ".ai/skills/add-ef-migration",
-          "digest": "56005db12405112a042fe018a44607e88e7369d38ab0e03056eb35346f3359fe",
+          "path": "skills/cratis-arc-ef-core-migration",
+          "digest": "44c66b394b0551c51a081a19a932e4fcba071b4047051fd6519098da83d4bc0f",
           "ownership": "owner",
           "ownerComponentId": "cratis-arc-ef-core-migration"
         }
       ],
-      "contentDigest": "191009a617374e0bd5a94102cb4c88bd2ea04e11a8a95dc4abba98b8cc1672a4",
+      "contentDigest": "a9da67058815a44eca6000d1492c77b179578f8fc301e6959f3a3e5c337e5c16",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -1600,10 +1598,8 @@
         "executable": false,
         "effect": "guided-write"
       },
-      "dependencies": [
-        "cratis-specifications-csharp"
-      ],
-      "hostNeutralPurpose": "Arc EF Core migrations",
+      "dependencies": [],
+      "hostNeutralPurpose": "Change an Entity Framework Core schema behind an Arc application",
       "approval": {
         "state": "modeled",
         "evidenceIds": [
@@ -5642,6 +5638,152 @@
         "cratis-engineering-docs-add-page"
       ],
       "hostNeutralPurpose": "Retained repository-local documentation page creation guidance",
+      "approval": {
+        "state": "modeled",
+        "evidenceIds": [
+          "reevaluation-authority",
+          "repo-main-b795d53"
+        ]
+      },
+      "releaseBoundary": "repository-only",
+      "allowedProjections": [
+        {
+          "hostContract": "any-passive-host",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "provider-compatibility"
+          ]
+        }
+      ],
+      "forbiddenProjections": [
+        "agent",
+        "subagent",
+        "command",
+        "prompt",
+        "rule",
+        "instruction",
+        "hook",
+        "mcp",
+        "lsp",
+        "executable-host-extension",
+        "static-asset"
+      ],
+      "requiredCanaries": [
+        "host-discovery",
+        "projection-shape",
+        "semantic-identity",
+        "source-digest"
+      ],
+      "securityRequirements": {
+        "threatModel": false,
+        "securityReview": false,
+        "executableAssuranceProfile": false
+      }
+    },
+    {
+      "id": "cratis-legacy-add-ef-migration",
+      "kind": "skill",
+      "semanticIdentity": "cratis-legacy-add-ef-migration",
+      "semanticName": "Legacy add-ef-migration host skill",
+      "lifecycle": "legacy-retained",
+      "distributionTargetId": null,
+      "canonicalSources": [
+        {
+          "path": ".ai/skills/add-ef-migration",
+          "digest": "56005db12405112a042fe018a44607e88e7369d38ab0e03056eb35346f3359fe",
+          "ownership": "owner",
+          "ownerComponentId": "cratis-legacy-add-ef-migration"
+        }
+      ],
+      "contentDigest": "191009a617374e0bd5a94102cb4c88bd2ea04e11a8a95dc4abba98b8cc1672a4",
+      "owner": "reusable Cratis engineering behavior",
+      "audience": "cratis-engineering",
+      "classification": {
+        "artifactClass": "passive-content",
+        "trust": "passive",
+        "passive": true,
+        "executable": false,
+        "effect": "guided-write"
+      },
+      "dependencies": [
+        "cratis-arc-ef-core-migration"
+      ],
+      "hostNeutralPurpose": "Retained repository-local add-ef-migration guidance",
+      "approval": {
+        "state": "modeled",
+        "evidenceIds": [
+          "reevaluation-authority",
+          "repo-main-b795d53"
+        ]
+      },
+      "releaseBoundary": "repository-only",
+      "allowedProjections": [
+        {
+          "hostContract": "any-passive-host",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "provider-compatibility"
+          ]
+        }
+      ],
+      "forbiddenProjections": [
+        "agent",
+        "subagent",
+        "command",
+        "prompt",
+        "rule",
+        "instruction",
+        "hook",
+        "mcp",
+        "lsp",
+        "executable-host-extension",
+        "static-asset"
+      ],
+      "requiredCanaries": [
+        "host-discovery",
+        "projection-shape",
+        "semantic-identity",
+        "source-digest"
+      ],
+      "securityRequirements": {
+        "threatModel": false,
+        "securityReview": false,
+        "executableAssuranceProfile": false
+      }
+    },
+    {
+      "id": "cratis-legacy-auth-and-identity",
+      "kind": "skill",
+      "semanticIdentity": "cratis-legacy-auth-and-identity",
+      "semanticName": "Legacy auth-and-identity host skill",
+      "lifecycle": "legacy-retained",
+      "distributionTargetId": null,
+      "canonicalSources": [
+        {
+          "path": ".ai/skills/auth-and-identity",
+          "digest": "1980b45f2ac70c4b03858923b022ec4cbb470718fc5b72cc93efc799a7bbd81d",
+          "ownership": "owner",
+          "ownerComponentId": "cratis-legacy-auth-and-identity"
+        }
+      ],
+      "contentDigest": "59a7da140408368253bf224defde27dbb20ce8468e6e0a44dd057fc1eda8272a",
+      "owner": "reusable Cratis engineering behavior",
+      "audience": "cratis-engineering",
+      "classification": {
+        "artifactClass": "passive-content",
+        "trust": "passive",
+        "passive": true,
+        "executable": false,
+        "effect": "guided-write"
+      },
+      "dependencies": [
+        "cratis-arc-authentication-authorization-and-identity"
+      ],
+      "hostNeutralPurpose": "Retained repository-local auth-and-identity guidance",
       "approval": {
         "state": "modeled",
         "evidenceIds": [

@@ -138,6 +138,8 @@ const v2Sources = readCatalog(join(repositoryRoot, "catalog/v2/sources.json"));
 // the legacy bytes need admitting explicitly until they are retired.
 const retainedLegacyPublicSkillNames = [
     "add-concept",
+    "add-ef-migration",
+    "auth-and-identity",
     "call-command-from-code",
     "cratis-command",
     "observable-query-curl",

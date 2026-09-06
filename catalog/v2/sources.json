@@ -66,21 +66,22 @@
     },
     {
       "id": "add-ef-migration",
-      "sourcePath": ".ai/skills/add-ef-migration",
+      "sourcePath": "skills/cratis-arc-ef-core-migration",
       "artifactType": "agent-skill-source",
       "currentOwner": "reusable Cratis engineering behavior",
       "targetOwner": "public Cratis product capability",
       "audience": "public",
       "bundledPaths": [
-        ".ai/skills/add-ef-migration/SKILL.md"
+        "skills/cratis-arc-ef-core-migration/LICENSE",
+        "skills/cratis-arc-ef-core-migration/SKILL.md"
       ],
-      "sourceRevision": "c2f721c2f80321cfba352d8d2e4209a0881ccb63",
-      "contentDigest": "56005db12405112a042fe018a44607e88e7369d38ab0e03056eb35346f3359fe",
+      "sourceRevision": "c650e097136ebf11374003d33b4dc6dfd672effd",
+      "contentDigest": "44c66b394b0551c51a081a19a932e4fcba071b4047051fd6519098da83d4bc0f",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
         "reevaluation-authority",
-        "public-skill-reference-closure-c2f721c"
+        "arc-backend-command-sources-c650e09"
       ]
     },
     {
@@ -162,26 +163,27 @@
     },
     {
       "id": "auth-and-identity",
-      "sourcePath": ".ai/skills/auth-and-identity",
+      "sourcePath": "skills/cratis-arc-authentication-authorization-and-identity",
       "artifactType": "agent-skill-source",
       "currentOwner": "reusable Cratis engineering behavior",
       "targetOwner": "public Cratis product capability",
       "audience": "public",
       "bundledPaths": [
-        ".ai/skills/auth-and-identity/SKILL.md",
-        ".ai/skills/auth-and-identity/references/authentication.md",
-        ".ai/skills/auth-and-identity/references/authorization.md",
-        ".ai/skills/auth-and-identity/references/backend-identity.md",
-        ".ai/skills/auth-and-identity/references/frontend.md",
-        ".ai/skills/auth-and-identity/references/local-development.md"
+        "skills/cratis-arc-authentication-authorization-and-identity/LICENSE",
+        "skills/cratis-arc-authentication-authorization-and-identity/SKILL.md",
+        "skills/cratis-arc-authentication-authorization-and-identity/references/authentication.md",
+        "skills/cratis-arc-authentication-authorization-and-identity/references/authorization.md",
+        "skills/cratis-arc-authentication-authorization-and-identity/references/frontend.md",
+        "skills/cratis-arc-authentication-authorization-and-identity/references/local-development.md",
+        "skills/cratis-arc-authentication-authorization-and-identity/references/tenancy.md"
       ],
-      "sourceRevision": "6ec724752023b7c1639b01e33d700d84d04fcfc3",
-      "contentDigest": "1980b45f2ac70c4b03858923b022ec4cbb470718fc5b72cc93efc799a7bbd81d",
+      "sourceRevision": "c650e097136ebf11374003d33b4dc6dfd672effd",
+      "contentDigest": "2ec0dd13fea5b6c72118c7a52f71fbecaf8f318f852fd8ee96339c684c6e9932",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
         "reevaluation-authority",
-        "public-effect-guidance-boundary-source-6ec7247"
+        "arc-backend-command-sources-c650e09"
       ]
     },
     {

@@ -2,12 +2,12 @@
   "schemaVersion": 2,
   "contractVersion": 1,
   "disclaimer": "Catalog inclusion, evaluation evidence, component modeling, planned projection, bundle generation, or publication does not grant runtime permission, emitted bytes, support, or approval.",
-  "inputDigest": "7a0d3cbb15855ff11610c1f4a189807db1dc481d01b77aa5e2cfb7e1bf84657f",
+  "inputDigest": "711f309075dde6bae4c38e47d8692013a96ed04b6cc4ca4451b88071087dc0b8",
   "componentSummary": {
     "disclaimer": "Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.",
-    "total": 141,
+    "total": 143,
     "byKind": {
-      "skill": 53,
+      "skill": 55,
       "agent": 12,
       "subagent": 0,
       "command": 18,
@@ -21,17 +21,17 @@
       "static-asset": 0
     },
     "byTrust": {
-      "passive": 138,
+      "passive": 140,
       "executable": 3
     },
     "byAudience": {
       "public": 37,
-      "cratis-engineering": 104,
+      "cratis-engineering": 106,
       "repository-only": 0
     },
     "byLifecycle": {
       "active": 133,
-      "legacy-retained": 8
+      "legacy-retained": 10
     },
     "projections": {
       "total": 386,
@@ -143,8 +143,10 @@
       ],
       "directTargetIds": [],
       "targetIds": [
+        "cratis-arc-authentication-authorization-and-identity",
         "cratis-arc-command",
         "cratis-arc-command-execution",
+        "cratis-arc-ef-core-migration",
         "cratis-arc-observable-query-http",
         "cratis-arc-query-paging",
         "cratis-fundamentals-concept"
@@ -215,8 +217,10 @@
       ],
       "directTargetIds": [],
       "targetIds": [
+        "cratis-arc-authentication-authorization-and-identity",
         "cratis-arc-command",
         "cratis-arc-command-execution",
+        "cratis-arc-ef-core-migration",
         "cratis-arc-observable-query-http",
         "cratis-arc-query-paging",
         "cratis-fundamentals-concept"
@@ -437,9 +441,9 @@
       "intendedFor": "Developers who use Cratis Arc and Entity Framework Core.",
       "audience": "public",
       "packageName": "@cratis/ai-arc-ef-core",
-      "state": "planned-source-migration",
+      "state": "preview-source-candidate",
       "installable": false,
-      "materialization": "catalog-only",
+      "materialization": "candidate-package",
       "products": [
         "arc",
         "entity-framework-core"
@@ -451,10 +455,13 @@
       "composes": [
         "public-arc"
       ],
-      "directTargetIds": [],
+      "directTargetIds": [
+        "cratis-arc-ef-core-migration"
+      ],
       "targetIds": [
         "cratis-arc-command",
         "cratis-arc-command-execution",
+        "cratis-arc-ef-core-migration",
         "cratis-arc-observable-query-http",
         "cratis-arc-query-paging"
       ]
@@ -466,9 +473,9 @@
       "intendedFor": "Developers who use Cratis Arc.",
       "audience": "public",
       "packageName": "@cratis/ai-arc-identity",
-      "state": "planned-source-migration",
+      "state": "preview-source-candidate",
       "installable": false,
-      "materialization": "catalog-only",
+      "materialization": "candidate-package",
       "products": [
         "arc"
       ],
@@ -481,8 +488,11 @@
       "composes": [
         "public-arc"
       ],
-      "directTargetIds": [],
+      "directTargetIds": [
+        "cratis-arc-authentication-authorization-and-identity"
+      ],
       "targetIds": [
+        "cratis-arc-authentication-authorization-and-identity",
         "cratis-arc-command",
         "cratis-arc-command-execution",
         "cratis-arc-observable-query-http",
@@ -1919,7 +1929,11 @@
       "bundleIds": [
         "cratis-arc-backend-review"
       ],
-      "profileIds": []
+      "profileIds": [
+        "cratis/arc",
+        "cratis/full",
+        "public-arc-identity"
+      ]
     },
     {
       "id": "cratis-arc-command",
@@ -2196,7 +2210,11 @@
       "bundleIds": [
         "cratis-arc-backend-review"
       ],
-      "profileIds": []
+      "profileIds": [
+        "cratis/arc",
+        "cratis/full",
+        "public-arc-ef-core"
+      ]
     },
     {
       "id": "cratis-arc-observable-query-http",

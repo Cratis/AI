@@ -15,10 +15,10 @@ and does not make a planned package installable.
 
 Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.
 
-- Components: 141
-- Passive: 138
+- Components: 143
+- Passive: 140
 - Executable: 3
-- Legacy-retained: 8
+- Legacy-retained: 10
 - Existing adapter records: 316
 - Generated static fixture projections: 70
 - Active host projections: 313
@@ -30,7 +30,7 @@ Modeled or planned components and projections are catalog metadata only; they ar
 
 ### Components by kind
 
-- skill: 53
+- skill: 55
 - agent: 12
 - subagent: 0
 - command: 18
@@ -167,8 +167,10 @@ The namespaced Arc suite: model-bound commands, queries, EF Core persistence, an
 
 #### Included capabilities
 
+- cratis-arc-authentication-authorization-and-identity
 - cratis-arc-command
 - cratis-arc-command-execution
+- cratis-arc-ef-core-migration
 - cratis-arc-observable-query-http
 - cratis-arc-query-paging
 - cratis-fundamentals-concept
@@ -226,8 +228,10 @@ Every public Cratis suite in one selection, including the Screenplay to Stage mo
 
 #### Included capabilities
 
+- cratis-arc-authentication-authorization-and-identity
 - cratis-arc-command
 - cratis-arc-command-execution
+- cratis-arc-ef-core-migration
 - cratis-arc-observable-query-http
 - cratis-arc-query-paging
 - cratis-fundamentals-concept
@@ -432,9 +436,9 @@ AI guidance for developers building with Cratis Arc.
 - **Profile ID:** `public-arc-ef-core`
 - **Audience:** public
 - **Package:** `@cratis/ai-arc-ef-core`
-- **State:** planned-source-migration
+- **State:** preview-source-candidate
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** candidate-package
 
 AI guidance for developers building with Cratis Arc and Entity Framework Core.
 
@@ -448,6 +452,7 @@ AI guidance for developers building with Cratis Arc and Entity Framework Core.
 
 - cratis-arc-command
 - cratis-arc-command-execution
+- cratis-arc-ef-core-migration
 - cratis-arc-observable-query-http
 - cratis-arc-query-paging
 
@@ -460,9 +465,9 @@ AI guidance for developers building with Cratis Arc and Entity Framework Core.
 - **Profile ID:** `public-arc-identity`
 - **Audience:** public
 - **Package:** `@cratis/ai-arc-identity`
-- **State:** planned-source-migration
+- **State:** preview-source-candidate
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** candidate-package
 
 AI guidance for developers building with Cratis Arc.
 
@@ -474,6 +479,7 @@ AI guidance for developers building with Cratis Arc.
 
 #### Included capabilities
 
+- cratis-arc-authentication-authorization-and-identity
 - cratis-arc-command
 - cratis-arc-command-execution
 - cratis-arc-observable-query-http
@@ -2019,7 +2025,9 @@ Use for Arc identity providers, endpoint protection, roles, or frontend identity
 
 #### Profile membership — cratis-arc-authentication-authorization-and-identity
 
-- None
+- cratis/arc
+- cratis/full
+- public-arc-identity
 
 ### cratis-arc-command
 
@@ -2299,7 +2307,9 @@ Use when adding or changing an EF Core schema in a Cratis application.
 
 #### Profile membership — cratis-arc-ef-core-migration
 
-- None
+- cratis/arc
+- cratis/full
+- public-arc-ef-core
 
 ### cratis-arc-observable-query-http
 

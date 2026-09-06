@@ -218,6 +218,11 @@ const normalizedPackagedSourceNames = [
 // `cratis-chronicle-event-constraints`. A source record names exactly one path,
 // so the two have to migrate together.
 const arcBackendCommandSources = new Map([
+    ["add-ef-migration", "cratis-arc-ef-core-migration"],
+    [
+        "auth-and-identity",
+        "cratis-arc-authentication-authorization-and-identity",
+    ],
     ["call-command-from-code", "cratis-arc-command-execution"],
     ["cratis-command", "cratis-arc-command"],
     ["observable-query-curl", "cratis-arc-observable-query-http"],
