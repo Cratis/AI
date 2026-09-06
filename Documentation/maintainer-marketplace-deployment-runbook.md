@@ -217,9 +217,26 @@ that adding `Cratis/AI` as a marketplace does **not** surface the authored root
   `Cratis/AI` running all seven required checks — `exact-inventory`,
   `canonical-byte-parity`, `native-manifest-parse`, `checksums`,
   `fixture-provenance-record`, `pack-install-smoke-uninstall`,
-  `canary-rollback-simulation` — against the protected branch. The reviewed
-  source under `distribution/repository-control-plane/` is unchanged and still
-  mirrors into the generated tree.
+  `canary-rollback-simulation` — against the protected branch, using the
+  reviewed validator from `main`. The mirrored workflow under
+  `distribution/repository-control-plane/` is unchanged; its validator gained one
+  assertion, that a marketplace provenance record names `Cratis/AI` and the
+  matching `dist/vX.Y.Z` ref.
+
+  **Know this before you rely on the `push` trigger.** GitHub resolves a `push`
+  workflow from the files on the *pushed* ref, and the generated tree carries its
+  own mirrored `verify-generated-distribution.yml` — the only `.github/`
+  workflow the generated-repository contract admits there. So the `push:
+  branches: ["distribution"]` block on `verify-distribution-branch.yml` fires
+  only once a matching copy exists on that branch. Until then it runs on
+  `workflow_dispatch` and its weekly schedule, and the authoritative per-release
+  gate is the pre-push and post-push verification inside
+  `distribution-public-marketplace.yml`, which runs all seven checks twice on
+  every release. If you want a genuine per-push check on the branch as well, the
+  one-line change is adding `distribution` to the push branches of
+  `distribution/repository-control-plane/.github/workflows/verify-generated-distribution.yml`,
+  which is deliberately left alone here because it is also the byte-for-byte
+  mirror target for `Cratis/AI.Distribution`.
 - `tooling/generate-marketplace-pointer-manifests.mjs` emits the four pointer
   manifests, and **not** `gemini-extension.json`, root `plugin.json`, or root
   `package.json`, so no host discovers the authored root `skills/` tree.
