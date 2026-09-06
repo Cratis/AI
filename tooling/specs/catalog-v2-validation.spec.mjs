@@ -1066,7 +1066,7 @@ test("the accepted Option A+ decision still blocks unapproved live targets", () 
     assert.equal(publicCandidate.materializationAllowed, true);
     assert.equal(publicCandidate.runtimeEligible, false);
     assert.equal(publicCandidate.requiresApprovedTargets, false);
-    assert.equal(publicCandidate.componentInventory.skills.length, 41);
+    assert.equal(publicCandidate.componentInventory.skills.length, 42);
     assert(
         !publicCandidate.componentInventory.skills.includes(
             "cratis-chronicle-mcp-inspection",
@@ -1078,15 +1078,11 @@ test("the accepted Option A+ decision still blocks unapproved live targets", () 
         ),
     );
     assert(
-        !publicCandidate.componentInventory.skills.includes(
+        publicCandidate.componentInventory.skills.includes(
             "cratis-arc-observable-query-http",
         ),
     );
     assert.deepEqual(publicCandidate.targetExclusions, [
-        {
-            targetId: "cratis-arc-observable-query-http",
-            reason: "private-or-local-content",
-        },
         {
             targetId: "cratis-chronicle-mcp-inspection",
             reason: "mcp-guidance-materialization-blocked",

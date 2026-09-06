@@ -413,6 +413,9 @@ const normalizedPackagedSourceNames = [
 // The legacy twin is retained until Cratis/AI#256 sequences its retirement, but
 // the catalog source record — and therefore the shipped bytes — binds to the
 // canonical tree at the revision that introduced it.
+const arcBackendCommandRevision = "c650e097136ebf11374003d33b4dc6dfd672effd";
+const arcEfCoreAndIdentityRevision =
+    "47263222559843c47065be0f124d66ddb02b7c04";
 const migratedCanonicalSourceNames = [
     [
         "cratis-specs-csharp",
@@ -428,6 +431,46 @@ const migratedCanonicalSourceNames = [
         "cratis-csharp-standards",
         "engineering/skills/cratis-engineering-csharp-conventions",
         "cratis-engineering-csharp-conventions-source-ee5c566",
+    ],
+    // `add-business-rule` is deliberately absent: it is the one legacy source two
+    // targets read from, `cratis-arc-command-validation` and
+    // `cratis-chronicle-event-constraints`. A source record names exactly one
+    // path, so the two have to migrate together.
+    [
+        "cratis-command",
+        "skills/cratis-arc-command",
+        "arc-backend-command-sources-c650e09",
+        arcBackendCommandRevision,
+    ],
+    [
+        "call-command-from-code",
+        "skills/cratis-arc-command-execution",
+        "arc-backend-command-sources-c650e09",
+        arcBackendCommandRevision,
+    ],
+    [
+        "query-paging",
+        "skills/cratis-arc-query-paging",
+        "arc-backend-command-sources-c650e09",
+        arcBackendCommandRevision,
+    ],
+    [
+        "observable-query-curl",
+        "skills/cratis-arc-observable-query-http",
+        "arc-backend-command-sources-c650e09",
+        arcBackendCommandRevision,
+    ],
+    [
+        "add-ef-migration",
+        "skills/cratis-arc-ef-core-migration",
+        "arc-ef-core-and-identity-sources-4726322",
+        arcEfCoreAndIdentityRevision,
+    ],
+    [
+        "auth-and-identity",
+        "skills/cratis-arc-authentication-authorization-and-identity",
+        "arc-ef-core-and-identity-sources-4726322",
+        arcEfCoreAndIdentityRevision,
     ],
 ];
 const migratedCanonicalRevision =
@@ -495,10 +538,16 @@ const sourceOverrides = new Map([
                 evidenceId: "public-skill-reference-closure-c2f721c",
             },
         ]),
-    ...migratedCanonicalSourceNames.map(([name, sourcePath, evidenceId]) => [
-        name,
-        { sourcePath, sourceRevision: migratedCanonicalRevision, evidenceId },
-    ]),
+    ...migratedCanonicalSourceNames.map(
+        ([name, sourcePath, evidenceId, revision]) => [
+            name,
+            {
+                sourcePath,
+                sourceRevision: revision ?? migratedCanonicalRevision,
+                evidenceId,
+            },
+        ],
+    ),
     [
         "cratis-studio-mcp-safety-guidance",
         {
@@ -547,30 +596,36 @@ const sourceOverrides = new Map([
             evidenceId: "engineering-docs-edit-page-source-684d037",
         },
     ],
-    ...["auth-and-identity", "event-modeling"].map((name) => [
-        name,
-        {
-            sourcePath: `.ai/skills/${name}`,
-            sourceRevision: "6ec724752023b7c1639b01e33d700d84d04fcfc3",
-            evidenceId: "public-effect-guidance-boundary-source-6ec7247",
-        },
-    ]),
-    ...causationGuidanceSourceNames.map((name) => [
-        name,
-        {
-            sourcePath: `.ai/skills/${name}`,
-            sourceRevision: "afbe46fc7c87ab110df7f1983a0ca174ef0f6aac",
-            evidenceId: "command-causation-guidance-source-afbe46f",
-        },
-    ]),
-    ...normalizedPackagedSourceNames.map((name) => [
-        name,
-        {
-            sourcePath: `.ai/skills/${name}`,
-            sourceRevision: "23efb73a14eb367a2dd0e745caed171f67f3d550",
-            evidenceId: "public-skill-markdown-normalization-source-23efb73",
-        },
-    ]),
+    ...["auth-and-identity", "event-modeling"]
+        .filter((name) => !migratedCanonicalNames.has(name))
+        .map((name) => [
+            name,
+            {
+                sourcePath: `.ai/skills/${name}`,
+                sourceRevision: "6ec724752023b7c1639b01e33d700d84d04fcfc3",
+                evidenceId: "public-effect-guidance-boundary-source-6ec7247",
+            },
+        ]),
+    ...causationGuidanceSourceNames
+        .filter((name) => !migratedCanonicalNames.has(name))
+        .map((name) => [
+            name,
+            {
+                sourcePath: `.ai/skills/${name}`,
+                sourceRevision: "afbe46fc7c87ab110df7f1983a0ca174ef0f6aac",
+                evidenceId: "command-causation-guidance-source-afbe46f",
+            },
+        ]),
+    ...normalizedPackagedSourceNames
+        .filter((name) => !migratedCanonicalNames.has(name))
+        .map((name) => [
+            name,
+            {
+                sourcePath: `.ai/skills/${name}`,
+                sourceRevision: "23efb73a14eb367a2dd0e745caed171f67f3d550",
+                evidenceId: "public-skill-markdown-normalization-source-23efb73",
+            },
+        ]),
     [
         "inspect-running-chronicle",
         {
@@ -1941,7 +1996,6 @@ const engineeringTargetIds = targets
     .filter((target) => target.audience === "cratis-engineering")
     .map((target) => target.id);
 const candidateTargetExclusions = new Map([
-    ["cratis-arc-observable-query-http", "private-or-local-content"],
     ["cratis-chronicle-mcp-inspection", "mcp-guidance-materialization-blocked"],
     ["cratis-engineering-docs-visual-qa", "private-or-local-content"],
     ["skill-creator", "incomplete-resource-and-license-closure"],

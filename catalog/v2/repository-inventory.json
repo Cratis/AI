@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "d17d6e1468f486fc4d223455351c0f4b851ee8d92e0f481f8b51282f52b3a1a1",
+  "indexDigest": "b35c070045357f8b88ab0ab186d7530d06eb86b020d7f25dfab4e590485fb408",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -2799,6 +2799,90 @@
       "status": "added"
     },
     {
+      "path": "skills/cratis-arc-authentication-authorization-and-identity/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-authentication-authorization-and-identity/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-authentication-authorization-and-identity/references/authentication.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-authentication-authorization-and-identity/references/authorization.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-authentication-authorization-and-identity/references/frontend.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-authentication-authorization-and-identity/references/local-development.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-authentication-authorization-and-identity/references/tenancy.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-command-execution/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-command-execution/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-command/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-command/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-command/references/command-result.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-command/references/handler-shapes.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-command/references/proxy-generation.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-command/references/read-model-injection.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-ef-core-migration/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-ef-core-migration/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-observable-query-http/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-observable-query-http/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-query-paging/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-query-paging/SKILL.md",
+      "status": "added"
+    },
+    {
       "path": "skills/cratis-arc-react-page/LICENSE",
       "status": "added"
     },
@@ -4086,17 +4170,17 @@
       "sourcePathPatterns": [
         ".ai/skills/add-business-rule/**",
         "skills/cratis-fundamentals-concept/**",
-        ".ai/skills/add-ef-migration/**",
+        "skills/cratis-arc-ef-core-migration/**",
         "skills/cratis-chronicle-projection/**",
         "skills/cratis-chronicle-reactor/**",
         "skills/cratis-chronicle-reducer/**",
-        ".ai/skills/auth-and-identity/**",
-        ".ai/skills/call-command-from-code/**",
+        "skills/cratis-arc-authentication-authorization-and-identity/**",
+        "skills/cratis-arc-command-execution/**",
         "skills/cratis-chronicle-compliance/**",
         "skills/cratis-chronicle-mcp-inspection/**",
         "skills/cratis-chronicle-web-workbench/**",
         "skills/cratis-cli-terminal-workbench/**",
-        ".ai/skills/cratis-command/**",
+        "skills/cratis-arc-command/**",
         "skills/cratis-components-accessibility/**",
         "skills/cratis-components-schema-editor/**",
         "skills/cratis-components-styling/**",
@@ -4116,8 +4200,8 @@
         "skills/cratis-chronicle-cli-operations/**",
         "skills/cratis-chronicle-multi-tenancy/**",
         ".ai/skills/new-vertical-slice/**",
-        ".ai/skills/observable-query-curl/**",
-        ".ai/skills/query-paging/**",
+        "skills/cratis-arc-observable-query-http/**",
+        "skills/cratis-arc-query-paging/**",
         ".ai/skills/review-code/**",
         ".ai/skills/review-performance/**",
         ".ai/skills/review-security/**",
@@ -4129,9 +4213,13 @@
         "skills/cratis-application-react-specifications/**",
         ".ai/skills/write-specs-readmodels/**",
         ".ai/skills/add-concept/**",
+        ".ai/skills/add-ef-migration/**",
         ".ai/skills/add-projection/**",
         ".ai/skills/add-reactor/**",
         ".ai/skills/add-reducer/**",
+        ".ai/skills/auth-and-identity/**",
+        ".ai/skills/call-command-from-code/**",
+        ".ai/skills/cratis-command/**",
         ".ai/skills/cratis-react-page/**",
         ".ai/skills/cratis-readmodel/**",
         ".ai/skills/cratis-specs-csharp/**",
@@ -4141,6 +4229,8 @@
         ".ai/skills/event-type-migrations/**",
         ".ai/skills/inspect-running-chronicle/**",
         ".ai/skills/multi-tenancy/**",
+        ".ai/skills/observable-query-curl/**",
+        ".ai/skills/query-paging/**",
         ".ai/skills/stepper-command-dialog/**",
         ".ai/skills/toolbar/**",
         ".ai/skills/write-specs-frontend/**",
@@ -4162,8 +4252,8 @@
         "workflows-68",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 124,
-      "expectedPathsDigest": "4a02513263071eeb768055f6399275be73fe0f1c9b10075bd516211ff58f44d3"
+      "expectedPathCount": 145,
+      "expectedPathsDigest": "d138fb87b9eaa76712b93ca2e154c8434297a5e5a3cb82c929e3388b917a7a60"
     },
     {
       "excludePathPatterns": [],

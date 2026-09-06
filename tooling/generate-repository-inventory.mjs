@@ -162,9 +162,13 @@ function publicSkillRoots() {
         // longer contributes its legacy `.ai/skills` root, so each retained
         // twin is named explicitly until Cratis/AI#256 retires it.
         ".ai/skills/add-concept/**",
+        ".ai/skills/add-ef-migration/**",
         ".ai/skills/add-projection/**",
         ".ai/skills/add-reactor/**",
         ".ai/skills/add-reducer/**",
+        ".ai/skills/auth-and-identity/**",
+        ".ai/skills/call-command-from-code/**",
+        ".ai/skills/cratis-command/**",
         ".ai/skills/cratis-react-page/**",
         ".ai/skills/cratis-readmodel/**",
         ".ai/skills/cratis-specs-csharp/**",
@@ -174,6 +178,8 @@ function publicSkillRoots() {
         ".ai/skills/event-type-migrations/**",
         ".ai/skills/inspect-running-chronicle/**",
         ".ai/skills/multi-tenancy/**",
+        ".ai/skills/observable-query-curl/**",
+        ".ai/skills/query-paging/**",
         ".ai/skills/stepper-command-dialog/**",
         ".ai/skills/toolbar/**",
         ".ai/skills/write-specs-frontend/**",

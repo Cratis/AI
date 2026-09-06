@@ -10,9 +10,12 @@
     "react",
     "typescript"
   ],
-  "state": "planned-source-migration",
+  "state": "preview-source-candidate",
+  "availableTargets": [
+    "cratis-arc-authentication-authorization-and-identity"
+  ],
   "composes": [
     "public-arc"
   ],
-  "gapSummary": "Authentication providers, authorization, claims, frontend identity, and tenancy boundaries must be separated from Chronicle compliance identity."
+  "gapSummary": "Identity details, the shipped authorization attributes, the forwarded-principal authentication contract, tenant resolution, and the React identity surface are canonical. Token validation, sign-in flows, and Chronicle compliance identity remain gaps."
 }

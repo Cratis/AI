@@ -167,7 +167,7 @@ test("catalog records all kinds and honestly declares MCP and LSP empty", () => 
                 .length,
         ]),
     );
-    assert.equal(counts.skill, 73);
+    assert.equal(counts.skill, 79);
     assert.equal(counts.agent, 12);
     assert.equal(counts.command, 18);
     assert.equal(counts.prompt, 18);
@@ -321,7 +321,7 @@ test("retained legacy host skills are explicit unbound components", () => {
     const legacy = catalogs.components.components.filter(
         (component) => component.lifecycle === "legacy-retained",
     );
-    assert.equal(legacy.length, 21);
+    assert.equal(legacy.length, 27);
     assert(
         legacy.every(
             (component) =>
