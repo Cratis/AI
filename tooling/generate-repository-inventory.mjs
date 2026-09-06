@@ -125,6 +125,7 @@ const unexpectedUntracked = admittedUntracked.filter(
             /^evals\//.test(path) ||
             /^mcp\//.test(path) ||
             /^pilots\//.test(path) ||
+            /^profiles\//.test(path) ||
             /^skills\//.test(path) ||
             /^tooling\//.test(path)
         ),
@@ -1164,6 +1165,7 @@ const definitions = [
     {
         id: "distribution-foundation",
         sourcePathPatterns: ["distribution/**"],
+        excludePathPatterns: ["distribution/profile-catalog.json"],
         artifactType: "repository-metadata",
         currentOwner: repositoryOwner,
         targetOwner: "Workflows organization mechanics",
@@ -1177,6 +1179,45 @@ const definitions = [
         risk: "high",
         migrationState: "retain",
         evidenceIds: ["option-a-plus-authority"],
+    },
+    {
+        id: "authored-profile-sources",
+        sourcePathPatterns: ["profiles/**"],
+        artifactType: "catalog-schema",
+        currentOwner: repositoryOwner,
+        targetOwner: repositoryOwner,
+        runtimeEligibility: "repository-only",
+        generatedStatus: "source",
+        adapterStatus: "none",
+        dependencies: [
+            "tooling/generate-profile-catalog.mjs",
+            "tooling/profile-subscription-validation.mjs",
+            "tooling/resolve-profiles.mjs",
+        ],
+        risk: "high",
+        migrationState: "retain",
+        evidenceIds: ["option-a-plus-authority", "reevaluation-authority"],
+    },
+    {
+        id: "generated-profile-catalog",
+        sourcePathPatterns: ["distribution/profile-catalog.json"],
+        artifactType: "catalog-schema",
+        currentOwner: repositoryOwner,
+        targetOwner: repositoryOwner,
+        runtimeEligibility: "repository-only",
+        generatedStatus: "generated",
+        adapterStatus: "none",
+        dependencies: [
+            "profiles/cratis-engineering/**",
+            "profiles/manifest.json",
+            "profiles/public/**",
+            "tooling/catalog-ordering.mjs",
+            "tooling/generate-profile-catalog.mjs",
+        ],
+        risk: "high",
+        migrationState: "retain",
+        evidenceIds: ["option-a-plus-authority"],
+        generator: "tooling/generate-profile-catalog.mjs",
     },
     {
         id: "portable-agent-plugins-specification-lock",

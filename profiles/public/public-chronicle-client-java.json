@@ -1,0 +1,13 @@
+{
+  "id": "public-chronicle-client-java",
+  "packageName": "@cratis/ai-chronicle-java",
+  "version": "0.0.0",
+  "products": [
+    "chronicle"
+  ],
+  "languages": [
+    "java"
+  ],
+  "state": "authority-gap",
+  "gapSummary": "No authoritative supported Chronicle Java client repository was verified; do not synthesize one from Kotlin or .NET."
+}

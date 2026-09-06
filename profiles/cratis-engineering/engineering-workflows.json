@@ -1,0 +1,18 @@
+{
+  "id": "engineering-workflows",
+  "packageName": "@cratis/ai-engineering-workflows",
+  "version": "0.0.0",
+  "repositoryKinds": [
+    "corpus"
+  ],
+  "products": [
+    "workflows"
+  ],
+  "state": "content-gap",
+  "distributionVisibility": "public",
+  "confidentialContentAllowed": false,
+  "privateOverlayExpected": true,
+  "composes": [
+    "engineering-base"
+  ]
+}

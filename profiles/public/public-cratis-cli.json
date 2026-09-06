@@ -1,0 +1,13 @@
+{
+  "id": "public-cratis-cli",
+  "packageName": "@cratis/ai-cli",
+  "version": "0.0.0",
+  "products": [
+    "cli"
+  ],
+  "languages": [
+    "shell"
+  ],
+  "state": "content-gap",
+  "gapSummary": "Needs setup, contexts, project generation, machine output, read-only inspection, and separately confirmed mutation workflows from Cratis/cli."
+}

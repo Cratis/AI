@@ -1,0 +1,11 @@
+{
+  "id": "public-language-kotlin",
+  "packageName": "@cratis/ai-language-kotlin",
+  "version": "0.0.0",
+  "products": [],
+  "languages": [
+    "kotlin"
+  ],
+  "state": "content-gap",
+  "gapSummary": "Composition mechanism only. Language-level Kotlin conventions are content owned by Cratis/AI#178; Chronicle-specific Kotlin guidance stays in public-chronicle-client-kotlin so a language selection never implies Chronicle."
+}

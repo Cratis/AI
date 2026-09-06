@@ -1,0 +1,17 @@
+{
+  "id": "public-chronicle-compliance",
+  "packageName": "@cratis/ai-chronicle-compliance",
+  "version": "0.0.0",
+  "products": [
+    "chronicle"
+  ],
+  "languages": [
+    "csharp",
+    "language-agnostic"
+  ],
+  "state": "content-gap",
+  "composes": [
+    "public-chronicle"
+  ],
+  "gapSummary": "Needs subjects, key lifecycle, erasure, retention, redaction, audit, and privacy guidance from authoritative Chronicle sources."
+}

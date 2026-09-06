@@ -14,6 +14,59 @@ For a generated view with plain-language package descriptions, included skills,
 availability, trust, and evidence, browse the
 [package and capability catalog](../catalog/generated/human-catalog/CATALOG.md).
 
+## Where a profile lives
+
+Every profile is **one file**. Reviewing a profile means opening that file, not
+finding it inside a seven-hundred-line array.
+
+```text
+profiles/
+├── manifest.json                    the shared shell: schema version, state, owning
+│                                    repositories, versioning, authority,
+│                                    confidentiality, subscription, contribution flow
+├── public/                          audience "public"
+│   ├── public-fundamentals.json
+│   ├── …
+│   └── cratis/                      an id containing "/" is a real subdirectory
+│       ├── arc.json                 id: cratis/arc
+│       ├── chronicle.json
+│       ├── application.json
+│       └── full.json
+└── cratis-engineering/              audience "cratis-engineering"
+    ├── engineering-base.json
+    └── …
+```
+
+The two audience directory names are the resolver's own vocabulary:
+`indexProfiles` in `tooling/resolve-profiles.mjs` assigns `public` to everything
+in `profiles/public/` and `cratis-engineering` to everything in
+`profiles/cratis-engineering/`. A profile's id is exactly its path under its
+audience directory with `.json` removed, and the generator refuses a file whose
+declared `id` disagrees, so no two files can claim the same profile.
+
+Each file carries the whole profile object, `id` included, so it stands alone and
+stays valid JSON on its own.
+
+### `distribution/profile-catalog.json` is generated
+
+`distribution/profile-catalog.json` is the **aggregate**, produced by
+`tooling/generate-profile-catalog.mjs` from `profiles/manifest.json` plus every
+profile file, with each audience array ordinally sorted by id. It stays committed
+because every consumer — the resolver, the human catalog, the release planner,
+the subscription validator — reads a real file on disk.
+
+It is never hand-edited. Change a profile in its own file and regenerate:
+
+```bash
+node tooling/generate-profile-catalog.mjs
+```
+
+CI runs the generator and then `git diff --exit-code` over the aggregate, so an
+edit made in the wrong place fails rather than surviving. The repository
+inventory records the aggregate as `generated-profile-catalog` with
+`generatedStatus: "generated"`, and the profile sources as
+`authored-profile-sources`.
+
 ## What the words on this page mean
 
 This page uses the evidence vocabulary from
@@ -22,8 +75,8 @@ five states apart:
 
 | State | Means |
 | --- | --- |
-| **Authored** | A human wrote it here and it was reviewed — `distribution/profile-catalog.json`, `mcp/`, every skill source |
-| **Generated** | A generator produced it deterministically from authored input — the human catalog, a resolved manifest, a release tree |
+| **Authored** | A human wrote it here and it was reviewed — `profiles/`, `mcp/`, every skill source |
+| **Generated** | A generator produced it deterministically from authored input — `distribution/profile-catalog.json`, the human catalog, a resolved manifest, a release tree |
 | **Evaluated** | An evaluation ran against it and produced evidence — no profile has passing behavior, trigger, and collision evidence yet |
 | **Supported** | A support claim exists, backed by active install-or-higher evidence — **no profile is supported** |
 | **Unavailable** | There is no such capability, and saying otherwise would be a fabrication — every `content-gap` and `authority-gap` profile below |
@@ -82,8 +135,8 @@ These are failures, not exclusions. The resolver throws a
 
 The compatibility check is a hook point. The catalog declares no incompatible
 combinations today, and none are invented: adding a
-`compatibility.mutuallyExclusive` array to `distribution/profile-catalog.json` is
-all that is needed to start rejecting one.
+`compatibility.mutuallyExclusive` array to `profiles/manifest.json` is all that
+is needed to start rejecting one.
 
 Cycle detection is aligned with `graphHasCycle` from
 `tooling/catalog-v2-validation.mjs`, which the resolver also runs over the whole

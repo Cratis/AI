@@ -1,0 +1,18 @@
+{
+  "id": "engineering-fundamentals",
+  "packageName": "@cratis/ai-engineering-fundamentals",
+  "version": "0.0.0",
+  "repositoryKinds": [
+    "framework"
+  ],
+  "products": [
+    "fundamentals"
+  ],
+  "state": "planned-source-migration",
+  "distributionVisibility": "public",
+  "confidentialContentAllowed": false,
+  "privateOverlayExpected": true,
+  "composes": [
+    "engineering-base"
+  ]
+}

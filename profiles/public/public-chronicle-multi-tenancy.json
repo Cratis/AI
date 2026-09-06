@@ -1,0 +1,17 @@
+{
+  "id": "public-chronicle-multi-tenancy",
+  "packageName": "@cratis/ai-chronicle-multi-tenancy",
+  "version": "0.0.0",
+  "products": [
+    "chronicle"
+  ],
+  "languages": [
+    "csharp",
+    "language-agnostic"
+  ],
+  "state": "planned-source-migration",
+  "composes": [
+    "public-chronicle"
+  ],
+  "gapSummary": "The namespace-based tenancy legacy source requires canonical authority, isolation, identity, and operational evidence."
+}

@@ -117,8 +117,11 @@ Browse the generated [package and capability catalog](catalog/generated/human-ca
 to compare public and maintainer packages, see their included skills, and check
 whether they are planned, candidates, or installable.
 
-See [`distribution/profile-catalog.json`](distribution/profile-catalog.json),
-[Profile reference](Documentation/profile-reference.md),
+Profiles are authored one file each under `profiles/`;
+[`distribution/profile-catalog.json`](distribution/profile-catalog.json) is the
+generated aggregate every consumer reads.
+
+See [Profile reference](Documentation/profile-reference.md),
 [developer adoption](Documentation/adopting-cratis-ai.md),
 [maintainer adoption](Documentation/adopting-cratis-ai-for-maintainers.md), and
 [private repository overlays](Documentation/private-repository-overlays.md),

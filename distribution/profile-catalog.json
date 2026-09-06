@@ -39,353 +39,39 @@
   },
   "publicProfiles": [
     {
-      "id": "public-fundamentals",
-      "packageName": "@cratis/ai-fundamentals",
+      "id": "cratis/application",
+      "packageName": "@cratis/ai-meta-application",
       "version": "0.0.0",
-      "products": ["fundamentals", "chronicle"],
-      "languages": ["csharp"],
-      "state": "preview-source-candidate",
-      "availableTargets": ["cratis-fundamentals-concept"],
-      "gapSummary": "The first candidate combines Fundamentals value concepts with Chronicle stream identities at exact verified versions; type discovery remains a legacy candidate."
-    },
-    {
-      "id": "public-arc",
-      "packageName": "@cratis/ai-arc",
-      "version": "0.0.0",
-      "products": ["arc"],
-      "languages": ["csharp"],
-      "state": "planned-source-migration",
-      "gapSummary": "Commands and execution have legacy sources; dedicated queries and separated validation/authorization guidance remain gaps."
-    },
-    {
-      "id": "public-arc-ef-core",
-      "packageName": "@cratis/ai-arc-ef-core",
-      "version": "0.0.0",
-      "products": ["arc", "entity-framework-core"],
-      "languages": ["csharp"],
-      "state": "planned-source-migration",
-      "composes": ["public-arc"],
-      "gapSummary": "The EF Core migration legacy source requires canonical Arc persistence, DbContext, migration, specification, and version authority."
-    },
-    {
-      "id": "public-arc-react",
-      "packageName": "@cratis/ai-arc-react",
-      "version": "0.0.0",
-      "products": ["arc-react"],
-      "languages": ["react", "typescript"],
-      "state": "planned-source-migration",
-      "gapSummary": "Page, observable query, paging, generated proxy, MVVM, lifecycle, and error-handling guidance require canonical sources."
-    },
-    {
-      "id": "public-components",
-      "packageName": "@cratis/ai-components",
-      "version": "0.0.0",
-      "products": ["components"],
-      "languages": ["react", "typescript"],
-      "state": "planned-source-migration",
-      "gapSummary": "Toolbar and stepper sources exist; forms, dialogs, DataPage, tables, styling, accessibility, and schema editors remain incomplete."
-    },
-    {
-      "id": "public-chronicle",
-      "packageName": "@cratis/ai-chronicle",
-      "version": "0.0.0",
-      "products": ["chronicle"],
-      "languages": ["csharp", "language-agnostic"],
-      "state": "planned-source-migration",
-      "gapSummary": "Event modeling, projections, read models, reducers, reactors, metadata, migrations, tenancy, and operations have legacy sources; core client and compliance journeys remain gaps."
-    },
-    {
-      "id": "public-chronicle-client-dotnet",
-      "packageName": "@cratis/ai-chronicle-dotnet",
-      "version": "0.0.0",
-      "products": ["chronicle"],
-      "languages": ["csharp"],
-      "state": "content-gap",
-      "gapSummary": "Needs authoritative standalone .NET connect, append, read, observe, error, and lifecycle guidance."
-    },
-    {
-      "id": "public-chronicle-client-kotlin",
-      "packageName": "@cratis/ai-chronicle-kotlin",
-      "version": "0.0.0",
-      "products": ["chronicle"],
-      "languages": ["kotlin"],
-      "state": "content-gap",
-      "gapSummary": "Needs Chronicle.Kotlin-owned source, versions, Gradle/Spring, coroutine, error, and lifecycle guidance."
-    },
-    {
-      "id": "public-chronicle-client-elixir",
-      "packageName": "@cratis/ai-chronicle-elixir",
-      "version": "0.0.0",
-      "products": ["chronicle"],
-      "languages": ["elixir"],
-      "state": "content-gap",
-      "gapSummary": "Needs Chronicle.Elixir-owned source, OTP, supervision, configuration, error, and lifecycle guidance."
-    },
-    {
-      "id": "public-chronicle-client-typescript",
-      "packageName": "@cratis/ai-chronicle-typescript",
-      "version": "0.0.0",
-      "products": ["chronicle"],
-      "languages": ["typescript"],
-      "state": "content-gap",
-      "gapSummary": "Needs Chronicle.TypeScript-owned source, runtime, transport, error, and lifecycle guidance."
-    },
-    {
-      "id": "public-chronicle-client-python",
-      "packageName": "@cratis/ai-chronicle-python",
-      "version": "0.0.0",
-      "products": ["chronicle"],
-      "languages": ["python"],
-      "state": "content-gap",
-      "gapSummary": "Needs Chronicle.Python-owned source, environment, async, error, and lifecycle guidance."
-    },
-    {
-      "id": "public-chronicle-client-java",
-      "packageName": "@cratis/ai-chronicle-java",
-      "version": "0.0.0",
-      "products": ["chronicle"],
-      "languages": ["java"],
-      "state": "authority-gap",
-      "gapSummary": "No authoritative supported Chronicle Java client repository was verified; do not synthesize one from Kotlin or .NET."
-    },
-    {
-      "id": "public-arc-identity",
-      "packageName": "@cratis/ai-arc-identity",
-      "version": "0.0.0",
-      "products": ["arc"],
-      "languages": ["csharp", "react", "typescript"],
-      "state": "planned-source-migration",
-      "composes": ["public-arc"],
-      "gapSummary": "Authentication providers, authorization, claims, frontend identity, and tenancy boundaries must be separated from Chronicle compliance identity."
-    },
-    {
-      "id": "public-chronicle-compliance",
-      "packageName": "@cratis/ai-chronicle-compliance",
-      "version": "0.0.0",
-      "products": ["chronicle"],
-      "languages": ["csharp", "language-agnostic"],
-      "state": "content-gap",
-      "composes": ["public-chronicle"],
-      "gapSummary": "Needs subjects, key lifecycle, erasure, retention, redaction, audit, and privacy guidance from authoritative Chronicle sources."
-    },
-    {
-      "id": "public-chronicle-multi-tenancy",
-      "packageName": "@cratis/ai-chronicle-multi-tenancy",
-      "version": "0.0.0",
-      "products": ["chronicle"],
-      "languages": ["csharp", "language-agnostic"],
-      "state": "planned-source-migration",
-      "composes": ["public-chronicle"],
-      "gapSummary": "The namespace-based tenancy legacy source requires canonical authority, isolation, identity, and operational evidence."
-    },
-    {
-      "id": "public-cratis-cli",
-      "packageName": "@cratis/ai-cli",
-      "version": "0.0.0",
-      "products": ["cli"],
-      "languages": ["shell"],
-      "state": "content-gap",
-      "gapSummary": "Needs setup, contexts, project generation, machine output, read-only inspection, and separately confirmed mutation workflows from Cratis/cli."
-    },
-    {
-      "id": "public-cratis-cli-terminal-workbench",
-      "packageName": "@cratis/ai-cli-workbench",
-      "version": "0.0.0",
-      "products": ["cli"],
-      "languages": ["shell"],
-      "state": "content-gap",
-      "composes": ["public-cratis-cli"],
-      "gapSummary": "Needs CLI-owned terminal Workbench discovery, navigation, read-only evidence capture, machine output, and separately confirmed recovery/administration guidance."
-    },
-    {
-      "id": "public-lens",
-      "packageName": "@cratis/ai-lens",
-      "version": "0.0.0",
-      "products": ["lens"],
-      "languages": ["csharp", "typescript", "language-agnostic"],
-      "state": "content-gap",
-      "gapSummary": "Needs Lens-owned setup, diagnostics, inspection, interpretation, safety, and contribution journeys."
-    },
-    {
-      "id": "public-screenplay",
-      "packageName": "@cratis/ai-screenplay",
-      "version": "0.0.0",
-      "products": ["screenplay"],
-      "languages": ["language-agnostic"],
-      "state": "content-gap",
-      "gapSummary": "Needs Screenplay-owned authoring, compiler, diagnostics, editor, generation, and model handoff guidance."
-    },
-    {
-      "id": "public-stage",
-      "packageName": "@cratis/ai-stage",
-      "version": "0.0.0",
-      "products": ["stage"],
-      "languages": ["language-agnostic"],
-      "state": "content-gap",
-      "gapSummary": "Needs Stage-owned runtime, executable specification, workbench, result, and CI guidance."
-    },
-    {
-      "id": "public-studio",
-      "packageName": "@cratis/ai-studio",
-      "version": "0.0.0",
-      "products": ["studio"],
-      "languages": ["language-agnostic"],
-      "state": "preview-source-candidate",
-      "availableTargets": ["cratis-studio-mcp-safety-guidance"],
-      "gapSummary": "Contains a classification-only public-safe MCP source candidate. No Studio MCP implementation authority or operation is admitted; onboarding, modeling, support, redaction, executable behavior, and private implementation remain gaps."
-    },
-    {
-      "id": "public-chronicle-mcp",
-      "packageName": "@cratis/ai-chronicle-mcp",
-      "version": "0.0.0",
-      "products": ["chronicle-mcp"],
-      "languages": ["language-agnostic"],
-      "state": "preview-source-candidate",
-      "availableTargets": ["cratis-chronicle-mcp-inspection"],
-      "mcpServers": ["cratis-chronicle-mcp"],
-      "gapSummary": "Contains a classification-only passive source candidate. No Chronicle.Mcp tool or prompt is admitted or invocable; installation, executable behavior, schemas, credentials, output controls, and mutations remain gaps."
-    },
-    {
-      "id": "public-chronicle-web-workbench",
-      "packageName": "@cratis/ai-chronicle-web-workbench",
-      "version": "0.0.0",
-      "products": ["chronicle"],
-      "languages": ["language-agnostic"],
-      "state": "content-gap",
-      "composes": ["public-chronicle"],
-      "gapSummary": "Needs browser-first events, observers, failed partitions, read models, projected state, evidence capture, redaction, and support escalation guidance."
-    },
-    {
-      "id": "public-specifications",
-      "packageName": "@cratis/ai-specifications",
-      "version": "0.0.0",
-      "products": ["specifications"],
-      "languages": ["language-agnostic"],
-      "state": "planned-source-migration",
-      "gapSummary": "Needs canonical language-agnostic Specification by Example philosophy, context hierarchy, naming, observability, and completion guidance."
-    },
-    {
-      "id": "public-specifications-dotnet",
-      "packageName": "@cratis/ai-specifications-dotnet",
-      "version": "0.0.0",
-      "products": ["specifications"],
-      "languages": ["csharp"],
-      "state": "planned-source-migration",
-      "composes": ["public-specifications"],
-      "gapSummary": "Needs Cratis.Specifications, C# contexts, NSubstitute, assertions, framework specs, and application scenario-family guidance."
-    },
-    {
-      "id": "public-specifications-typescript",
-      "packageName": "@cratis/ai-specifications-typescript",
-      "version": "0.0.0",
-      "products": ["specifications"],
-      "languages": ["typescript", "react"],
-      "state": "planned-source-migration",
-      "composes": ["public-specifications"],
-      "gapSummary": "Needs Vitest/Mocha structure, Chai, Sinon, view-model, React, and shared philosophy mapping."
-    },
-    {
-      "id": "public-application-arc-only",
-      "packageName": "@cratis/ai-application-arc",
-      "version": "0.0.0",
-      "products": ["fundamentals", "arc"],
-      "languages": ["csharp"],
+      "products": [
+        "fundamentals",
+        "arc",
+        "arc-react",
+        "chronicle",
+        "components"
+      ],
+      "languages": [
+        "csharp",
+        "react",
+        "typescript"
+      ],
       "state": "planned-composition",
-      "composes": ["public-fundamentals", "public-arc", "public-specifications-dotnet"],
-      "gapSummary": "Must preserve Arc-only commands, queries, validation, authorization, and persistence without Chronicle assumptions."
-    },
-    {
-      "id": "public-application-chronicle-dotnet",
-      "packageName": "@cratis/ai-application-chronicle-dotnet",
-      "version": "0.0.0",
-      "products": ["fundamentals", "chronicle"],
-      "languages": ["csharp"],
-      "state": "planned-composition",
-      "composes": ["public-fundamentals", "public-chronicle", "public-chronicle-client-dotnet", "public-specifications-dotnet"],
-      "gapSummary": "Chronicle-only .NET application journey without Arc requires approved component profiles."
-    },
-    {
-      "id": "public-application-arc-chronicle",
-      "packageName": "@cratis/ai-application-arc-chronicle",
-      "version": "0.0.0",
-      "products": ["fundamentals", "arc", "chronicle"],
-      "languages": ["csharp"],
-      "state": "planned-composition",
-      "composes": ["public-fundamentals", "public-arc", "public-chronicle", "public-specifications-dotnet"],
-      "gapSummary": "Backend Arc plus Chronicle composition requires approved Arc-only and Chronicle boundaries."
-    },
-    {
-      "id": "public-application-react",
-      "packageName": "@cratis/ai-application-react",
-      "version": "0.0.0",
-      "products": ["fundamentals", "arc", "arc-react", "components"],
-      "languages": ["csharp", "react", "typescript"],
-      "state": "planned-composition",
-      "composes": ["public-fundamentals", "public-arc", "public-arc-react", "public-components", "public-specifications-dotnet", "public-specifications-typescript"],
-      "gapSummary": "Arc React and Components application composition requires approved generated-client, MVVM, forms, dialogs, tables, and spec profiles."
-    },
-    {
-      "id": "public-application",
-      "packageName": "@cratis/ai-application",
-      "version": "0.0.0",
-      "products": ["fundamentals", "arc", "arc-react", "chronicle", "components"],
-      "languages": ["csharp", "react", "typescript"],
-      "state": "planned-composition",
-      "composes": ["public-fundamentals", "public-arc", "public-arc-react", "public-chronicle", "public-components", "public-specifications-dotnet", "public-specifications-typescript"],
-      "gapSummary": "The full application profile becomes publishable only after every component profile has approved targets."
-    },
-    {
-      "id": "public-modeling-screenplay-stage",
-      "packageName": "@cratis/ai-modeling-screenplay-stage",
-      "version": "0.0.0",
-      "products": ["screenplay", "stage"],
-      "languages": ["language-agnostic"],
-      "state": "planned-composition",
-      "composes": ["public-screenplay", "public-stage"],
-      "gapSummary": "Needs authoritative model authoring through runtime/executable specification handoff evidence."
-    },
-    {
-      "id": "public-language-csharp",
-      "packageName": "@cratis/ai-language-csharp",
-      "version": "0.0.0",
-      "products": [],
-      "languages": ["csharp"],
-      "state": "content-gap",
-      "gapSummary": "Composition mechanism only. Language-level C# conventions are content owned by Cratis/AI#178; this entry deliberately composes no product profile so a language selection never implies Arc or Chronicle."
-    },
-    {
-      "id": "public-language-typescript",
-      "packageName": "@cratis/ai-language-typescript",
-      "version": "0.0.0",
-      "products": [],
-      "languages": ["typescript"],
-      "state": "content-gap",
-      "gapSummary": "Composition mechanism only. Language-level TypeScript conventions are content owned by Cratis/AI#178; this entry deliberately composes no product profile so a language selection never implies Arc React or Components."
-    },
-    {
-      "id": "public-language-kotlin",
-      "packageName": "@cratis/ai-language-kotlin",
-      "version": "0.0.0",
-      "products": [],
-      "languages": ["kotlin"],
-      "state": "content-gap",
-      "gapSummary": "Composition mechanism only. Language-level Kotlin conventions are content owned by Cratis/AI#178; Chronicle-specific Kotlin guidance stays in public-chronicle-client-kotlin so a language selection never implies Chronicle."
-    },
-    {
-      "id": "public-language-elixir",
-      "packageName": "@cratis/ai-language-elixir",
-      "version": "0.0.0",
-      "products": [],
-      "languages": ["elixir"],
-      "state": "content-gap",
-      "gapSummary": "Composition mechanism only. Language-level Elixir conventions are content owned by Cratis/AI#178; Chronicle-specific Elixir guidance stays in public-chronicle-client-elixir so a language selection never implies Chronicle."
+      "composes": [
+        "public-application"
+      ],
+      "gapSummary": "The stable namespaced alias for the full Arc + Chronicle + React + Components application composition. It adds no capability of its own."
     },
     {
       "id": "cratis/arc",
       "packageName": "@cratis/ai-meta-arc",
       "version": "0.0.0",
-      "products": ["fundamentals", "arc", "entity-framework-core"],
-      "languages": ["csharp"],
+      "products": [
+        "fundamentals",
+        "arc",
+        "entity-framework-core"
+      ],
+      "languages": [
+        "csharp"
+      ],
       "state": "planned-composition",
       "composes": [
         "public-application-arc-only",
@@ -398,8 +84,14 @@
       "id": "cratis/chronicle",
       "packageName": "@cratis/ai-meta-chronicle",
       "version": "0.0.0",
-      "products": ["fundamentals", "chronicle"],
-      "languages": ["csharp", "language-agnostic"],
+      "products": [
+        "fundamentals",
+        "chronicle"
+      ],
+      "languages": [
+        "csharp",
+        "language-agnostic"
+      ],
       "state": "planned-composition",
       "composes": [
         "public-application-chronicle-dotnet",
@@ -407,24 +99,10 @@
         "public-chronicle-multi-tenancy",
         "public-chronicle-web-workbench"
       ],
-      "mcpServers": ["cratis-chronicle-mcp"],
-      "gapSummary": "Chronicle without Arc. This meta-profile must never compose an Arc profile; use cratis/arc or cratis/application when a solution needs both."
-    },
-    {
-      "id": "cratis/application",
-      "packageName": "@cratis/ai-meta-application",
-      "version": "0.0.0",
-      "products": [
-        "fundamentals",
-        "arc",
-        "arc-react",
-        "chronicle",
-        "components"
+      "mcpServers": [
+        "cratis-chronicle-mcp"
       ],
-      "languages": ["csharp", "react", "typescript"],
-      "state": "planned-composition",
-      "composes": ["public-application"],
-      "gapSummary": "The stable namespaced alias for the full Arc + Chronicle + React + Components application composition. It adds no capability of its own."
+      "gapSummary": "Chronicle without Arc. This meta-profile must never compose an Arc profile; use cratis/arc or cratis/application when a solution needs both."
     },
     {
       "id": "cratis/full",
@@ -440,7 +118,12 @@
         "screenplay",
         "stage"
       ],
-      "languages": ["csharp", "react", "typescript", "language-agnostic"],
+      "languages": [
+        "csharp",
+        "react",
+        "typescript",
+        "language-agnostic"
+      ],
       "state": "planned-composition",
       "composes": [
         "cratis/application",
@@ -449,14 +132,679 @@
         "public-modeling-screenplay-stage"
       ],
       "gapSummary": "Everything the public catalog composes today, including the Screenplay to Stage modeling handoff. Deliberately a superset rather than a replacement for the decoupled Arc and Chronicle meta-profiles."
+    },
+    {
+      "id": "public-application",
+      "packageName": "@cratis/ai-application",
+      "version": "0.0.0",
+      "products": [
+        "fundamentals",
+        "arc",
+        "arc-react",
+        "chronicle",
+        "components"
+      ],
+      "languages": [
+        "csharp",
+        "react",
+        "typescript"
+      ],
+      "state": "planned-composition",
+      "composes": [
+        "public-fundamentals",
+        "public-arc",
+        "public-arc-react",
+        "public-chronicle",
+        "public-components",
+        "public-specifications-dotnet",
+        "public-specifications-typescript"
+      ],
+      "gapSummary": "The full application profile becomes publishable only after every component profile has approved targets."
+    },
+    {
+      "id": "public-application-arc-chronicle",
+      "packageName": "@cratis/ai-application-arc-chronicle",
+      "version": "0.0.0",
+      "products": [
+        "fundamentals",
+        "arc",
+        "chronicle"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "state": "planned-composition",
+      "composes": [
+        "public-fundamentals",
+        "public-arc",
+        "public-chronicle",
+        "public-specifications-dotnet"
+      ],
+      "gapSummary": "Backend Arc plus Chronicle composition requires approved Arc-only and Chronicle boundaries."
+    },
+    {
+      "id": "public-application-arc-only",
+      "packageName": "@cratis/ai-application-arc",
+      "version": "0.0.0",
+      "products": [
+        "fundamentals",
+        "arc"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "state": "planned-composition",
+      "composes": [
+        "public-fundamentals",
+        "public-arc",
+        "public-specifications-dotnet"
+      ],
+      "gapSummary": "Must preserve Arc-only commands, queries, validation, authorization, and persistence without Chronicle assumptions."
+    },
+    {
+      "id": "public-application-chronicle-dotnet",
+      "packageName": "@cratis/ai-application-chronicle-dotnet",
+      "version": "0.0.0",
+      "products": [
+        "fundamentals",
+        "chronicle"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "state": "planned-composition",
+      "composes": [
+        "public-fundamentals",
+        "public-chronicle",
+        "public-chronicle-client-dotnet",
+        "public-specifications-dotnet"
+      ],
+      "gapSummary": "Chronicle-only .NET application journey without Arc requires approved component profiles."
+    },
+    {
+      "id": "public-application-react",
+      "packageName": "@cratis/ai-application-react",
+      "version": "0.0.0",
+      "products": [
+        "fundamentals",
+        "arc",
+        "arc-react",
+        "components"
+      ],
+      "languages": [
+        "csharp",
+        "react",
+        "typescript"
+      ],
+      "state": "planned-composition",
+      "composes": [
+        "public-fundamentals",
+        "public-arc",
+        "public-arc-react",
+        "public-components",
+        "public-specifications-dotnet",
+        "public-specifications-typescript"
+      ],
+      "gapSummary": "Arc React and Components application composition requires approved generated-client, MVVM, forms, dialogs, tables, and spec profiles."
+    },
+    {
+      "id": "public-arc",
+      "packageName": "@cratis/ai-arc",
+      "version": "0.0.0",
+      "products": [
+        "arc"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "state": "planned-source-migration",
+      "gapSummary": "Commands and execution have legacy sources; dedicated queries and separated validation/authorization guidance remain gaps."
+    },
+    {
+      "id": "public-arc-ef-core",
+      "packageName": "@cratis/ai-arc-ef-core",
+      "version": "0.0.0",
+      "products": [
+        "arc",
+        "entity-framework-core"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "state": "planned-source-migration",
+      "composes": [
+        "public-arc"
+      ],
+      "gapSummary": "The EF Core migration legacy source requires canonical Arc persistence, DbContext, migration, specification, and version authority."
+    },
+    {
+      "id": "public-arc-identity",
+      "packageName": "@cratis/ai-arc-identity",
+      "version": "0.0.0",
+      "products": [
+        "arc"
+      ],
+      "languages": [
+        "csharp",
+        "react",
+        "typescript"
+      ],
+      "state": "planned-source-migration",
+      "composes": [
+        "public-arc"
+      ],
+      "gapSummary": "Authentication providers, authorization, claims, frontend identity, and tenancy boundaries must be separated from Chronicle compliance identity."
+    },
+    {
+      "id": "public-arc-react",
+      "packageName": "@cratis/ai-arc-react",
+      "version": "0.0.0",
+      "products": [
+        "arc-react"
+      ],
+      "languages": [
+        "react",
+        "typescript"
+      ],
+      "state": "planned-source-migration",
+      "gapSummary": "Page, observable query, paging, generated proxy, MVVM, lifecycle, and error-handling guidance require canonical sources."
+    },
+    {
+      "id": "public-chronicle",
+      "packageName": "@cratis/ai-chronicle",
+      "version": "0.0.0",
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "csharp",
+        "language-agnostic"
+      ],
+      "state": "planned-source-migration",
+      "gapSummary": "Event modeling, projections, read models, reducers, reactors, metadata, migrations, tenancy, and operations have legacy sources; core client and compliance journeys remain gaps."
+    },
+    {
+      "id": "public-chronicle-client-dotnet",
+      "packageName": "@cratis/ai-chronicle-dotnet",
+      "version": "0.0.0",
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "state": "content-gap",
+      "gapSummary": "Needs authoritative standalone .NET connect, append, read, observe, error, and lifecycle guidance."
+    },
+    {
+      "id": "public-chronicle-client-elixir",
+      "packageName": "@cratis/ai-chronicle-elixir",
+      "version": "0.0.0",
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "elixir"
+      ],
+      "state": "content-gap",
+      "gapSummary": "Needs Chronicle.Elixir-owned source, OTP, supervision, configuration, error, and lifecycle guidance."
+    },
+    {
+      "id": "public-chronicle-client-java",
+      "packageName": "@cratis/ai-chronicle-java",
+      "version": "0.0.0",
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "java"
+      ],
+      "state": "authority-gap",
+      "gapSummary": "No authoritative supported Chronicle Java client repository was verified; do not synthesize one from Kotlin or .NET."
+    },
+    {
+      "id": "public-chronicle-client-kotlin",
+      "packageName": "@cratis/ai-chronicle-kotlin",
+      "version": "0.0.0",
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "kotlin"
+      ],
+      "state": "content-gap",
+      "gapSummary": "Needs Chronicle.Kotlin-owned source, versions, Gradle/Spring, coroutine, error, and lifecycle guidance."
+    },
+    {
+      "id": "public-chronicle-client-python",
+      "packageName": "@cratis/ai-chronicle-python",
+      "version": "0.0.0",
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "python"
+      ],
+      "state": "content-gap",
+      "gapSummary": "Needs Chronicle.Python-owned source, environment, async, error, and lifecycle guidance."
+    },
+    {
+      "id": "public-chronicle-client-typescript",
+      "packageName": "@cratis/ai-chronicle-typescript",
+      "version": "0.0.0",
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "typescript"
+      ],
+      "state": "content-gap",
+      "gapSummary": "Needs Chronicle.TypeScript-owned source, runtime, transport, error, and lifecycle guidance."
+    },
+    {
+      "id": "public-chronicle-compliance",
+      "packageName": "@cratis/ai-chronicle-compliance",
+      "version": "0.0.0",
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "csharp",
+        "language-agnostic"
+      ],
+      "state": "content-gap",
+      "composes": [
+        "public-chronicle"
+      ],
+      "gapSummary": "Needs subjects, key lifecycle, erasure, retention, redaction, audit, and privacy guidance from authoritative Chronicle sources."
+    },
+    {
+      "id": "public-chronicle-mcp",
+      "packageName": "@cratis/ai-chronicle-mcp",
+      "version": "0.0.0",
+      "products": [
+        "chronicle-mcp"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "state": "preview-source-candidate",
+      "availableTargets": [
+        "cratis-chronicle-mcp-inspection"
+      ],
+      "mcpServers": [
+        "cratis-chronicle-mcp"
+      ],
+      "gapSummary": "Contains a classification-only passive source candidate. No Chronicle.Mcp tool or prompt is admitted or invocable; installation, executable behavior, schemas, credentials, output controls, and mutations remain gaps."
+    },
+    {
+      "id": "public-chronicle-multi-tenancy",
+      "packageName": "@cratis/ai-chronicle-multi-tenancy",
+      "version": "0.0.0",
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "csharp",
+        "language-agnostic"
+      ],
+      "state": "planned-source-migration",
+      "composes": [
+        "public-chronicle"
+      ],
+      "gapSummary": "The namespace-based tenancy legacy source requires canonical authority, isolation, identity, and operational evidence."
+    },
+    {
+      "id": "public-chronicle-web-workbench",
+      "packageName": "@cratis/ai-chronicle-web-workbench",
+      "version": "0.0.0",
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "state": "content-gap",
+      "composes": [
+        "public-chronicle"
+      ],
+      "gapSummary": "Needs browser-first events, observers, failed partitions, read models, projected state, evidence capture, redaction, and support escalation guidance."
+    },
+    {
+      "id": "public-components",
+      "packageName": "@cratis/ai-components",
+      "version": "0.0.0",
+      "products": [
+        "components"
+      ],
+      "languages": [
+        "react",
+        "typescript"
+      ],
+      "state": "planned-source-migration",
+      "gapSummary": "Toolbar and stepper sources exist; forms, dialogs, DataPage, tables, styling, accessibility, and schema editors remain incomplete."
+    },
+    {
+      "id": "public-cratis-cli",
+      "packageName": "@cratis/ai-cli",
+      "version": "0.0.0",
+      "products": [
+        "cli"
+      ],
+      "languages": [
+        "shell"
+      ],
+      "state": "content-gap",
+      "gapSummary": "Needs setup, contexts, project generation, machine output, read-only inspection, and separately confirmed mutation workflows from Cratis/cli."
+    },
+    {
+      "id": "public-cratis-cli-terminal-workbench",
+      "packageName": "@cratis/ai-cli-workbench",
+      "version": "0.0.0",
+      "products": [
+        "cli"
+      ],
+      "languages": [
+        "shell"
+      ],
+      "state": "content-gap",
+      "composes": [
+        "public-cratis-cli"
+      ],
+      "gapSummary": "Needs CLI-owned terminal Workbench discovery, navigation, read-only evidence capture, machine output, and separately confirmed recovery/administration guidance."
+    },
+    {
+      "id": "public-fundamentals",
+      "packageName": "@cratis/ai-fundamentals",
+      "version": "0.0.0",
+      "products": [
+        "fundamentals",
+        "chronicle"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "state": "preview-source-candidate",
+      "availableTargets": [
+        "cratis-fundamentals-concept"
+      ],
+      "gapSummary": "The first candidate combines Fundamentals value concepts with Chronicle stream identities at exact verified versions; type discovery remains a legacy candidate."
+    },
+    {
+      "id": "public-language-csharp",
+      "packageName": "@cratis/ai-language-csharp",
+      "version": "0.0.0",
+      "products": [],
+      "languages": [
+        "csharp"
+      ],
+      "state": "content-gap",
+      "gapSummary": "Composition mechanism only. Language-level C# conventions are content owned by Cratis/AI#178; this entry deliberately composes no product profile so a language selection never implies Arc or Chronicle."
+    },
+    {
+      "id": "public-language-elixir",
+      "packageName": "@cratis/ai-language-elixir",
+      "version": "0.0.0",
+      "products": [],
+      "languages": [
+        "elixir"
+      ],
+      "state": "content-gap",
+      "gapSummary": "Composition mechanism only. Language-level Elixir conventions are content owned by Cratis/AI#178; Chronicle-specific Elixir guidance stays in public-chronicle-client-elixir so a language selection never implies Chronicle."
+    },
+    {
+      "id": "public-language-kotlin",
+      "packageName": "@cratis/ai-language-kotlin",
+      "version": "0.0.0",
+      "products": [],
+      "languages": [
+        "kotlin"
+      ],
+      "state": "content-gap",
+      "gapSummary": "Composition mechanism only. Language-level Kotlin conventions are content owned by Cratis/AI#178; Chronicle-specific Kotlin guidance stays in public-chronicle-client-kotlin so a language selection never implies Chronicle."
+    },
+    {
+      "id": "public-language-typescript",
+      "packageName": "@cratis/ai-language-typescript",
+      "version": "0.0.0",
+      "products": [],
+      "languages": [
+        "typescript"
+      ],
+      "state": "content-gap",
+      "gapSummary": "Composition mechanism only. Language-level TypeScript conventions are content owned by Cratis/AI#178; this entry deliberately composes no product profile so a language selection never implies Arc React or Components."
+    },
+    {
+      "id": "public-lens",
+      "packageName": "@cratis/ai-lens",
+      "version": "0.0.0",
+      "products": [
+        "lens"
+      ],
+      "languages": [
+        "csharp",
+        "typescript",
+        "language-agnostic"
+      ],
+      "state": "content-gap",
+      "gapSummary": "Needs Lens-owned setup, diagnostics, inspection, interpretation, safety, and contribution journeys."
+    },
+    {
+      "id": "public-modeling-screenplay-stage",
+      "packageName": "@cratis/ai-modeling-screenplay-stage",
+      "version": "0.0.0",
+      "products": [
+        "screenplay",
+        "stage"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "state": "planned-composition",
+      "composes": [
+        "public-screenplay",
+        "public-stage"
+      ],
+      "gapSummary": "Needs authoritative model authoring through runtime/executable specification handoff evidence."
+    },
+    {
+      "id": "public-screenplay",
+      "packageName": "@cratis/ai-screenplay",
+      "version": "0.0.0",
+      "products": [
+        "screenplay"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "state": "content-gap",
+      "gapSummary": "Needs Screenplay-owned authoring, compiler, diagnostics, editor, generation, and model handoff guidance."
+    },
+    {
+      "id": "public-specifications",
+      "packageName": "@cratis/ai-specifications",
+      "version": "0.0.0",
+      "products": [
+        "specifications"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "state": "planned-source-migration",
+      "gapSummary": "Needs canonical language-agnostic Specification by Example philosophy, context hierarchy, naming, observability, and completion guidance."
+    },
+    {
+      "id": "public-specifications-dotnet",
+      "packageName": "@cratis/ai-specifications-dotnet",
+      "version": "0.0.0",
+      "products": [
+        "specifications"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "state": "planned-source-migration",
+      "composes": [
+        "public-specifications"
+      ],
+      "gapSummary": "Needs Cratis.Specifications, C# contexts, NSubstitute, assertions, framework specs, and application scenario-family guidance."
+    },
+    {
+      "id": "public-specifications-typescript",
+      "packageName": "@cratis/ai-specifications-typescript",
+      "version": "0.0.0",
+      "products": [
+        "specifications"
+      ],
+      "languages": [
+        "typescript",
+        "react"
+      ],
+      "state": "planned-source-migration",
+      "composes": [
+        "public-specifications"
+      ],
+      "gapSummary": "Needs Vitest/Mocha structure, Chai, Sinon, view-model, React, and shared philosophy mapping."
+    },
+    {
+      "id": "public-stage",
+      "packageName": "@cratis/ai-stage",
+      "version": "0.0.0",
+      "products": [
+        "stage"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "state": "content-gap",
+      "gapSummary": "Needs Stage-owned runtime, executable specification, workbench, result, and CI guidance."
+    },
+    {
+      "id": "public-studio",
+      "packageName": "@cratis/ai-studio",
+      "version": "0.0.0",
+      "products": [
+        "studio"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "state": "preview-source-candidate",
+      "availableTargets": [
+        "cratis-studio-mcp-safety-guidance"
+      ],
+      "gapSummary": "Contains a classification-only public-safe MCP source candidate. No Studio MCP implementation authority or operation is admitted; onboarding, modeling, support, redaction, executable behavior, and private implementation remain gaps."
     }
   ],
   "engineeringProfiles": [
     {
+      "id": "engineering-ai",
+      "packageName": "@cratis/ai-engineering-ai",
+      "version": "0.0.0",
+      "repositoryKinds": [
+        "corpus"
+      ],
+      "products": [
+        "ai"
+      ],
+      "state": "planned-source-migration",
+      "distributionVisibility": "public",
+      "confidentialContentAllowed": false,
+      "privateOverlayExpected": true,
+      "composes": [
+        "engineering-base"
+      ]
+    },
+    {
+      "id": "engineering-application",
+      "packageName": "@cratis/ai-engineering-application",
+      "version": "0.0.0",
+      "repositoryKinds": [
+        "application"
+      ],
+      "products": [
+        "fundamentals",
+        "arc",
+        "arc-react",
+        "chronicle",
+        "components"
+      ],
+      "state": "planned-source-migration",
+      "distributionVisibility": "public",
+      "confidentialContentAllowed": false,
+      "privateOverlayExpected": true,
+      "composes": [
+        "engineering-base"
+      ]
+    },
+    {
+      "id": "engineering-arc",
+      "packageName": "@cratis/ai-engineering-arc",
+      "version": "0.0.0",
+      "repositoryKinds": [
+        "framework"
+      ],
+      "products": [
+        "arc"
+      ],
+      "state": "planned-source-migration",
+      "distributionVisibility": "public",
+      "confidentialContentAllowed": false,
+      "privateOverlayExpected": true,
+      "composes": [
+        "engineering-base"
+      ]
+    },
+    {
+      "id": "engineering-arc-ef-core",
+      "packageName": "@cratis/ai-engineering-arc-ef-core",
+      "version": "0.0.0",
+      "repositoryKinds": [
+        "application",
+        "framework"
+      ],
+      "products": [
+        "arc",
+        "entity-framework-core"
+      ],
+      "state": "planned-source-migration",
+      "distributionVisibility": "public",
+      "confidentialContentAllowed": false,
+      "privateOverlayExpected": true,
+      "composes": [
+        "engineering-base",
+        "engineering-arc"
+      ]
+    },
+    {
+      "id": "engineering-arc-react",
+      "packageName": "@cratis/ai-engineering-arc-react",
+      "version": "0.0.0",
+      "repositoryKinds": [
+        "framework"
+      ],
+      "products": [
+        "arc-react"
+      ],
+      "state": "content-gap",
+      "distributionVisibility": "public",
+      "confidentialContentAllowed": false,
+      "privateOverlayExpected": true,
+      "composes": [
+        "engineering-base"
+      ]
+    },
+    {
       "id": "engineering-base",
       "packageName": "@cratis/ai-engineering-base",
       "version": "0.0.0",
-      "repositoryKinds": ["application", "framework", "client", "documentation", "corpus"],
+      "repositoryKinds": [
+        "application",
+        "framework",
+        "client",
+        "documentation",
+        "corpus"
+      ],
       "products": [],
       "state": "planned-source-migration",
       "distributionVisibility": "public",
@@ -465,236 +813,272 @@
       "gapSummary": "Universal C#/TypeScript, Specification by Example, review, documentation, and contribution behavior must be reconciled into public-safe passive sources."
     },
     {
-      "id": "engineering-application",
-      "packageName": "@cratis/ai-engineering-application",
-      "version": "0.0.0",
-      "repositoryKinds": ["application"],
-      "products": ["fundamentals", "arc", "arc-react", "chronicle", "components"],
-      "state": "planned-source-migration",
-      "distributionVisibility": "public",
-      "confidentialContentAllowed": false,
-      "privateOverlayExpected": true,
-      "composes": ["engineering-base"]
-    },
-    {
-      "id": "engineering-fundamentals",
-      "packageName": "@cratis/ai-engineering-fundamentals",
-      "version": "0.0.0",
-      "repositoryKinds": ["framework"],
-      "products": ["fundamentals"],
-      "state": "planned-source-migration",
-      "distributionVisibility": "public",
-      "confidentialContentAllowed": false,
-      "privateOverlayExpected": true,
-      "composes": ["engineering-base"]
-    },
-    {
-      "id": "engineering-arc",
-      "packageName": "@cratis/ai-engineering-arc",
-      "version": "0.0.0",
-      "repositoryKinds": ["framework"],
-      "products": ["arc"],
-      "state": "planned-source-migration",
-      "distributionVisibility": "public",
-      "confidentialContentAllowed": false,
-      "privateOverlayExpected": true,
-      "composes": ["engineering-base"]
-    },
-    {
-      "id": "engineering-arc-ef-core",
-      "packageName": "@cratis/ai-engineering-arc-ef-core",
-      "version": "0.0.0",
-      "repositoryKinds": ["application", "framework"],
-      "products": ["arc", "entity-framework-core"],
-      "state": "planned-source-migration",
-      "distributionVisibility": "public",
-      "confidentialContentAllowed": false,
-      "privateOverlayExpected": true,
-      "composes": ["engineering-base", "engineering-arc"]
-    },
-    {
-      "id": "engineering-arc-react",
-      "packageName": "@cratis/ai-engineering-arc-react",
-      "version": "0.0.0",
-      "repositoryKinds": ["framework"],
-      "products": ["arc-react"],
-      "state": "content-gap",
-      "distributionVisibility": "public",
-      "confidentialContentAllowed": false,
-      "privateOverlayExpected": true,
-      "composes": ["engineering-base"]
-    },
-    {
-      "id": "engineering-components",
-      "packageName": "@cratis/ai-engineering-components",
-      "version": "0.0.0",
-      "repositoryKinds": ["framework"],
-      "products": ["components"],
-      "state": "planned-source-migration",
-      "distributionVisibility": "public",
-      "confidentialContentAllowed": false,
-      "privateOverlayExpected": true,
-      "composes": ["engineering-base"]
-    },
-    {
       "id": "engineering-chronicle",
       "packageName": "@cratis/ai-engineering-chronicle",
       "version": "0.0.0",
-      "repositoryKinds": ["framework"],
-      "products": ["chronicle"],
+      "repositoryKinds": [
+        "framework"
+      ],
+      "products": [
+        "chronicle"
+      ],
       "state": "planned-source-migration",
       "distributionVisibility": "public",
       "confidentialContentAllowed": false,
       "privateOverlayExpected": true,
-      "composes": ["engineering-base"]
+      "composes": [
+        "engineering-base"
+      ]
     },
     {
       "id": "engineering-chronicle-clients",
       "packageName": "@cratis/ai-engineering-chronicle-clients",
       "version": "0.0.0",
-      "repositoryKinds": ["client"],
-      "products": ["chronicle"],
-      "languages": ["csharp", "kotlin", "elixir", "typescript", "python"],
+      "repositoryKinds": [
+        "client"
+      ],
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "csharp",
+        "kotlin",
+        "elixir",
+        "typescript",
+        "python"
+      ],
       "state": "content-gap",
       "distributionVisibility": "public",
       "confidentialContentAllowed": false,
       "privateOverlayExpected": true,
-      "composes": ["engineering-base"]
-    },
-    {
-      "id": "engineering-cratis-cli",
-      "packageName": "@cratis/ai-engineering-cli",
-      "version": "0.0.0",
-      "repositoryKinds": ["framework"],
-      "products": ["cli"],
-      "state": "content-gap",
-      "distributionVisibility": "public",
-      "confidentialContentAllowed": false,
-      "privateOverlayExpected": true,
-      "composes": ["engineering-base"]
-    },
-    {
-      "id": "engineering-lens",
-      "packageName": "@cratis/ai-engineering-lens",
-      "version": "0.0.0",
-      "repositoryKinds": ["framework"],
-      "products": ["lens"],
-      "state": "content-gap",
-      "distributionVisibility": "public",
-      "confidentialContentAllowed": false,
-      "privateOverlayExpected": true,
-      "composes": ["engineering-base"]
-    },
-    {
-      "id": "engineering-screenplay",
-      "packageName": "@cratis/ai-engineering-screenplay",
-      "version": "0.0.0",
-      "repositoryKinds": ["framework"],
-      "products": ["screenplay"],
-      "state": "content-gap",
-      "distributionVisibility": "public",
-      "confidentialContentAllowed": false,
-      "privateOverlayExpected": true,
-      "composes": ["engineering-base"]
-    },
-    {
-      "id": "engineering-stage",
-      "packageName": "@cratis/ai-engineering-stage",
-      "version": "0.0.0",
-      "repositoryKinds": ["framework"],
-      "products": ["stage"],
-      "state": "content-gap",
-      "distributionVisibility": "public",
-      "confidentialContentAllowed": false,
-      "privateOverlayExpected": true,
-      "composes": ["engineering-base"]
-    },
-    {
-      "id": "engineering-studio",
-      "packageName": "@cratis/ai-engineering-studio",
-      "version": "0.0.0",
-      "repositoryKinds": ["application", "framework"],
-      "products": ["studio"],
-      "state": "content-gap",
-      "distributionVisibility": "public",
-      "confidentialContentAllowed": false,
-      "privateOverlayExpected": true,
-      "composes": ["engineering-base"],
-      "gapSummary": "Only public-safe Studio engineering behavior belongs here; private architecture, deployment, roadmap, and support details remain repository-local."
-    },
-    {
-      "id": "engineering-stagehand",
-      "packageName": "@cratis/ai-engineering-stagehand",
-      "version": "0.0.0",
-      "repositoryKinds": ["framework", "corpus"],
-      "products": ["stagehand"],
-      "state": "content-gap",
-      "distributionVisibility": "public",
-      "confidentialContentAllowed": false,
-      "privateOverlayExpected": true,
-      "composes": ["engineering-base"],
-      "gapSummary": "Only public-safe Stagehand engineering behavior belongs here; private infrastructure and operational details remain repository-local."
+      "composes": [
+        "engineering-base"
+      ]
     },
     {
       "id": "engineering-chronicle-mcp",
       "packageName": "@cratis/ai-engineering-chronicle-mcp",
       "version": "0.0.0",
-      "repositoryKinds": ["framework"],
-      "products": ["chronicle-mcp"],
+      "repositoryKinds": [
+        "framework"
+      ],
+      "products": [
+        "chronicle-mcp"
+      ],
       "state": "content-gap",
       "distributionVisibility": "public",
       "confidentialContentAllowed": false,
       "privateOverlayExpected": true,
-      "composes": ["engineering-base"]
+      "composes": [
+        "engineering-base"
+      ]
     },
     {
-      "id": "engineering-specifications",
-      "packageName": "@cratis/ai-engineering-specifications",
+      "id": "engineering-components",
+      "packageName": "@cratis/ai-engineering-components",
       "version": "0.0.0",
-      "repositoryKinds": ["application", "framework", "client"],
-      "products": ["specifications"],
+      "repositoryKinds": [
+        "framework"
+      ],
+      "products": [
+        "components"
+      ],
       "state": "planned-source-migration",
       "distributionVisibility": "public",
       "confidentialContentAllowed": false,
       "privateOverlayExpected": true,
-      "composes": ["engineering-base"]
+      "composes": [
+        "engineering-base"
+      ]
+    },
+    {
+      "id": "engineering-cratis-cli",
+      "packageName": "@cratis/ai-engineering-cli",
+      "version": "0.0.0",
+      "repositoryKinds": [
+        "framework"
+      ],
+      "products": [
+        "cli"
+      ],
+      "state": "content-gap",
+      "distributionVisibility": "public",
+      "confidentialContentAllowed": false,
+      "privateOverlayExpected": true,
+      "composes": [
+        "engineering-base"
+      ]
     },
     {
       "id": "engineering-documentation",
       "packageName": "@cratis/ai-engineering-documentation",
       "version": "0.0.0",
-      "repositoryKinds": ["documentation"],
-      "products": ["documentation"],
+      "repositoryKinds": [
+        "documentation"
+      ],
+      "products": [
+        "documentation"
+      ],
       "state": "owner-review-pending",
       "distributionVisibility": "public",
       "confidentialContentAllowed": false,
       "privateOverlayExpected": true,
-      "availableTargets": ["cratis-engineering-docs-authoring"],
-      "composes": ["engineering-base"]
+      "availableTargets": [
+        "cratis-engineering-docs-authoring"
+      ],
+      "composes": [
+        "engineering-base"
+      ]
     },
     {
-      "id": "engineering-ai",
-      "packageName": "@cratis/ai-engineering-ai",
+      "id": "engineering-fundamentals",
+      "packageName": "@cratis/ai-engineering-fundamentals",
       "version": "0.0.0",
-      "repositoryKinds": ["corpus"],
-      "products": ["ai"],
+      "repositoryKinds": [
+        "framework"
+      ],
+      "products": [
+        "fundamentals"
+      ],
       "state": "planned-source-migration",
       "distributionVisibility": "public",
       "confidentialContentAllowed": false,
       "privateOverlayExpected": true,
-      "composes": ["engineering-base"]
+      "composes": [
+        "engineering-base"
+      ]
+    },
+    {
+      "id": "engineering-lens",
+      "packageName": "@cratis/ai-engineering-lens",
+      "version": "0.0.0",
+      "repositoryKinds": [
+        "framework"
+      ],
+      "products": [
+        "lens"
+      ],
+      "state": "content-gap",
+      "distributionVisibility": "public",
+      "confidentialContentAllowed": false,
+      "privateOverlayExpected": true,
+      "composes": [
+        "engineering-base"
+      ]
+    },
+    {
+      "id": "engineering-screenplay",
+      "packageName": "@cratis/ai-engineering-screenplay",
+      "version": "0.0.0",
+      "repositoryKinds": [
+        "framework"
+      ],
+      "products": [
+        "screenplay"
+      ],
+      "state": "content-gap",
+      "distributionVisibility": "public",
+      "confidentialContentAllowed": false,
+      "privateOverlayExpected": true,
+      "composes": [
+        "engineering-base"
+      ]
+    },
+    {
+      "id": "engineering-specifications",
+      "packageName": "@cratis/ai-engineering-specifications",
+      "version": "0.0.0",
+      "repositoryKinds": [
+        "application",
+        "framework",
+        "client"
+      ],
+      "products": [
+        "specifications"
+      ],
+      "state": "planned-source-migration",
+      "distributionVisibility": "public",
+      "confidentialContentAllowed": false,
+      "privateOverlayExpected": true,
+      "composes": [
+        "engineering-base"
+      ]
+    },
+    {
+      "id": "engineering-stage",
+      "packageName": "@cratis/ai-engineering-stage",
+      "version": "0.0.0",
+      "repositoryKinds": [
+        "framework"
+      ],
+      "products": [
+        "stage"
+      ],
+      "state": "content-gap",
+      "distributionVisibility": "public",
+      "confidentialContentAllowed": false,
+      "privateOverlayExpected": true,
+      "composes": [
+        "engineering-base"
+      ]
+    },
+    {
+      "id": "engineering-stagehand",
+      "packageName": "@cratis/ai-engineering-stagehand",
+      "version": "0.0.0",
+      "repositoryKinds": [
+        "framework",
+        "corpus"
+      ],
+      "products": [
+        "stagehand"
+      ],
+      "state": "content-gap",
+      "distributionVisibility": "public",
+      "confidentialContentAllowed": false,
+      "privateOverlayExpected": true,
+      "composes": [
+        "engineering-base"
+      ],
+      "gapSummary": "Only public-safe Stagehand engineering behavior belongs here; private infrastructure and operational details remain repository-local."
+    },
+    {
+      "id": "engineering-studio",
+      "packageName": "@cratis/ai-engineering-studio",
+      "version": "0.0.0",
+      "repositoryKinds": [
+        "application",
+        "framework"
+      ],
+      "products": [
+        "studio"
+      ],
+      "state": "content-gap",
+      "distributionVisibility": "public",
+      "confidentialContentAllowed": false,
+      "privateOverlayExpected": true,
+      "composes": [
+        "engineering-base"
+      ],
+      "gapSummary": "Only public-safe Studio engineering behavior belongs here; private architecture, deployment, roadmap, and support details remain repository-local."
     },
     {
       "id": "engineering-workflows",
       "packageName": "@cratis/ai-engineering-workflows",
       "version": "0.0.0",
-      "repositoryKinds": ["corpus"],
-      "products": ["workflows"],
+      "repositoryKinds": [
+        "corpus"
+      ],
+      "products": [
+        "workflows"
+      ],
       "state": "content-gap",
       "distributionVisibility": "public",
       "confidentialContentAllowed": false,
       "privateOverlayExpected": true,
-      "composes": ["engineering-base"]
+      "composes": [
+        "engineering-base"
+      ]
     }
   ],
   "subscription": {

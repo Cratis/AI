@@ -1,0 +1,11 @@
+{
+  "id": "public-language-csharp",
+  "packageName": "@cratis/ai-language-csharp",
+  "version": "0.0.0",
+  "products": [],
+  "languages": [
+    "csharp"
+  ],
+  "state": "content-gap",
+  "gapSummary": "Composition mechanism only. Language-level C# conventions are content owned by Cratis/AI#178; this entry deliberately composes no product profile so a language selection never implies Arc or Chronicle."
+}

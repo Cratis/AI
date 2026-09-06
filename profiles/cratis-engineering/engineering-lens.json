@@ -1,0 +1,18 @@
+{
+  "id": "engineering-lens",
+  "packageName": "@cratis/ai-engineering-lens",
+  "version": "0.0.0",
+  "repositoryKinds": [
+    "framework"
+  ],
+  "products": [
+    "lens"
+  ],
+  "state": "content-gap",
+  "distributionVisibility": "public",
+  "confidentialContentAllowed": false,
+  "privateOverlayExpected": true,
+  "composes": [
+    "engineering-base"
+  ]
+}

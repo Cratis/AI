@@ -1,0 +1,19 @@
+{
+  "id": "public-application-arc-only",
+  "packageName": "@cratis/ai-application-arc",
+  "version": "0.0.0",
+  "products": [
+    "fundamentals",
+    "arc"
+  ],
+  "languages": [
+    "csharp"
+  ],
+  "state": "planned-composition",
+  "composes": [
+    "public-fundamentals",
+    "public-arc",
+    "public-specifications-dotnet"
+  ],
+  "gapSummary": "Must preserve Arc-only commands, queries, validation, authorization, and persistence without Chronicle assumptions."
+}

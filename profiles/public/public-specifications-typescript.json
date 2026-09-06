@@ -1,0 +1,17 @@
+{
+  "id": "public-specifications-typescript",
+  "packageName": "@cratis/ai-specifications-typescript",
+  "version": "0.0.0",
+  "products": [
+    "specifications"
+  ],
+  "languages": [
+    "typescript",
+    "react"
+  ],
+  "state": "planned-source-migration",
+  "composes": [
+    "public-specifications"
+  ],
+  "gapSummary": "Needs Vitest/Mocha structure, Chai, Sinon, view-model, React, and shared philosophy mapping."
+}

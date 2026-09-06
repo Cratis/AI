@@ -1,0 +1,20 @@
+{
+  "id": "public-application-chronicle-dotnet",
+  "packageName": "@cratis/ai-application-chronicle-dotnet",
+  "version": "0.0.0",
+  "products": [
+    "fundamentals",
+    "chronicle"
+  ],
+  "languages": [
+    "csharp"
+  ],
+  "state": "planned-composition",
+  "composes": [
+    "public-fundamentals",
+    "public-chronicle",
+    "public-chronicle-client-dotnet",
+    "public-specifications-dotnet"
+  ],
+  "gapSummary": "Chronicle-only .NET application journey without Arc requires approved component profiles."
+}

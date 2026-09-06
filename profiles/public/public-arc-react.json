@@ -1,0 +1,14 @@
+{
+  "id": "public-arc-react",
+  "packageName": "@cratis/ai-arc-react",
+  "version": "0.0.0",
+  "products": [
+    "arc-react"
+  ],
+  "languages": [
+    "react",
+    "typescript"
+  ],
+  "state": "planned-source-migration",
+  "gapSummary": "Page, observable query, paging, generated proxy, MVVM, lifecycle, and error-handling guidance require canonical sources."
+}

@@ -1,0 +1,25 @@
+{
+  "id": "engineering-chronicle-clients",
+  "packageName": "@cratis/ai-engineering-chronicle-clients",
+  "version": "0.0.0",
+  "repositoryKinds": [
+    "client"
+  ],
+  "products": [
+    "chronicle"
+  ],
+  "languages": [
+    "csharp",
+    "kotlin",
+    "elixir",
+    "typescript",
+    "python"
+  ],
+  "state": "content-gap",
+  "distributionVisibility": "public",
+  "confidentialContentAllowed": false,
+  "privateOverlayExpected": true,
+  "composes": [
+    "engineering-base"
+  ]
+}

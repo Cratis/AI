@@ -1,0 +1,14 @@
+{
+  "id": "public-components",
+  "packageName": "@cratis/ai-components",
+  "version": "0.0.0",
+  "products": [
+    "components"
+  ],
+  "languages": [
+    "react",
+    "typescript"
+  ],
+  "state": "planned-source-migration",
+  "gapSummary": "Toolbar and stepper sources exist; forms, dialogs, DataPage, tables, styling, accessibility, and schema editors remain incomplete."
+}

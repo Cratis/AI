@@ -1,0 +1,14 @@
+{
+  "id": "public-chronicle",
+  "packageName": "@cratis/ai-chronicle",
+  "version": "0.0.0",
+  "products": [
+    "chronicle"
+  ],
+  "languages": [
+    "csharp",
+    "language-agnostic"
+  ],
+  "state": "planned-source-migration",
+  "gapSummary": "Event modeling, projections, read models, reducers, reactors, metadata, migrations, tenancy, and operations have legacy sources; core client and compliance journeys remain gaps."
+}

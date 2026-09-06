@@ -243,8 +243,9 @@ test("profile catalog rejects unknown composition and authority drift", () => {
         const catalog = readJson(path);
         catalog.authority.automaticReverseSyncAllowed = true;
         catalog.confidentiality.confidentialSharedPackagesAllowed = true;
-        catalog.engineeringProfiles[0].confidentialContentAllowed = true;
-        catalog.engineeringProfiles[0].composes = ["engineering-missing"];
+        const drifted = catalog.engineeringProfiles[0];
+        drifted.confidentialContentAllowed = true;
+        drifted.composes = ["engineering-missing"];
         writeJson(path, catalog);
         const errors = validateProfileSubscriptions(root);
         assert(
@@ -254,7 +255,7 @@ test("profile catalog rejects unknown composition and authority drift", () => {
         );
         assert(
             errors.includes(
-                "engineering-base: unknown composed profile engineering-missing",
+                `${drifted.id}: unknown composed profile engineering-missing`,
             ),
         );
     });

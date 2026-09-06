@@ -92,10 +92,16 @@ Different repositories need different behavior. A Chronicle framework change
 should not load application vertical-slice rules; a Components change should
 not load Orleans guidance; Studio and Stagehand need their own product context.
 
-The profile catalog is [`distribution/profile-catalog.json`](../distribution/profile-catalog.json).
-It defines separate public product, language-client, overlay, composition, and
-public-safe engineering profiles. See the complete
-[Profile reference](./profile-reference.md).
+Profiles are authored one file each under `profiles/`: the shared shell in
+`profiles/manifest.json`, public profiles in `profiles/public/`, and
+public-safe engineering profiles in `profiles/cratis-engineering/`. Together they
+define separate public product, language-client, overlay, composition, and
+engineering profiles.
+
+[`distribution/profile-catalog.json`](../distribution/profile-catalog.json) is
+the generated aggregate of those files, produced by
+`tooling/generate-profile-catalog.mjs` and read by every consumer. Never edit it
+by hand. See the complete [Profile reference](./profile-reference.md).
 
 Public coverage includes Fundamentals, Arc, Arc React, Components, Chronicle,
 Chronicle clients, identity, compliance, multi-tenancy, Cratis CLI, Lens,
@@ -603,7 +609,9 @@ For a product such as Studio or Stagehand:
    and project profile.
 2. Add canonical product/engineering skills in `Cratis/AI`; keep environment
    facts in the product repository.
-3. Add the profile to `distribution/profile-catalog.json`.
+3. Add one profile file under `profiles/public/` or
+   `profiles/cratis-engineering/`, then regenerate the aggregate with
+   `node tooling/generate-profile-catalog.mjs`.
 4. Add focused behavior and host evidence appropriate to its risk.
 5. Generate a profile package from approved targets only.
 6. Canary it in one real product repository.

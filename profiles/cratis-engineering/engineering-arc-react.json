@@ -1,0 +1,18 @@
+{
+  "id": "engineering-arc-react",
+  "packageName": "@cratis/ai-engineering-arc-react",
+  "version": "0.0.0",
+  "repositoryKinds": [
+    "framework"
+  ],
+  "products": [
+    "arc-react"
+  ],
+  "state": "content-gap",
+  "distributionVisibility": "public",
+  "confidentialContentAllowed": false,
+  "privateOverlayExpected": true,
+  "composes": [
+    "engineering-base"
+  ]
+}

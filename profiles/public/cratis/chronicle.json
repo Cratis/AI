@@ -1,0 +1,24 @@
+{
+  "id": "cratis/chronicle",
+  "packageName": "@cratis/ai-meta-chronicle",
+  "version": "0.0.0",
+  "products": [
+    "fundamentals",
+    "chronicle"
+  ],
+  "languages": [
+    "csharp",
+    "language-agnostic"
+  ],
+  "state": "planned-composition",
+  "composes": [
+    "public-application-chronicle-dotnet",
+    "public-chronicle-compliance",
+    "public-chronicle-multi-tenancy",
+    "public-chronicle-web-workbench"
+  ],
+  "mcpServers": [
+    "cratis-chronicle-mcp"
+  ],
+  "gapSummary": "Chronicle without Arc. This meta-profile must never compose an Arc profile; use cratis/arc or cratis/application when a solution needs both."
+}

@@ -1,0 +1,15 @@
+{
+  "id": "public-lens",
+  "packageName": "@cratis/ai-lens",
+  "version": "0.0.0",
+  "products": [
+    "lens"
+  ],
+  "languages": [
+    "csharp",
+    "typescript",
+    "language-agnostic"
+  ],
+  "state": "content-gap",
+  "gapSummary": "Needs Lens-owned setup, diagnostics, inspection, interpretation, safety, and contribution journeys."
+}

@@ -1,0 +1,13 @@
+{
+  "id": "public-stage",
+  "packageName": "@cratis/ai-stage",
+  "version": "0.0.0",
+  "products": [
+    "stage"
+  ],
+  "languages": [
+    "language-agnostic"
+  ],
+  "state": "content-gap",
+  "gapSummary": "Needs Stage-owned runtime, executable specification, workbench, result, and CI guidance."
+}

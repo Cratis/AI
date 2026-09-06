@@ -1,0 +1,22 @@
+{
+  "id": "cratis/application",
+  "packageName": "@cratis/ai-meta-application",
+  "version": "0.0.0",
+  "products": [
+    "fundamentals",
+    "arc",
+    "arc-react",
+    "chronicle",
+    "components"
+  ],
+  "languages": [
+    "csharp",
+    "react",
+    "typescript"
+  ],
+  "state": "planned-composition",
+  "composes": [
+    "public-application"
+  ],
+  "gapSummary": "The stable namespaced alias for the full Arc + Chronicle + React + Components application composition. It adds no capability of its own."
+}

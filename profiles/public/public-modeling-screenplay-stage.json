@@ -1,0 +1,18 @@
+{
+  "id": "public-modeling-screenplay-stage",
+  "packageName": "@cratis/ai-modeling-screenplay-stage",
+  "version": "0.0.0",
+  "products": [
+    "screenplay",
+    "stage"
+  ],
+  "languages": [
+    "language-agnostic"
+  ],
+  "state": "planned-composition",
+  "composes": [
+    "public-screenplay",
+    "public-stage"
+  ],
+  "gapSummary": "Needs authoritative model authoring through runtime/executable specification handoff evidence."
+}
