@@ -414,9 +414,21 @@ function validatePublicSkills(catalog, coverage, root) {
         .filter((skill) => skill.source.startsWith("skills/"))
         .map((skill) => skill.currentName)
         .filter((name) => !legacyDirectories.includes(name));
+    // A maintainer-audience skill authored directly under engineering/skills/
+    // has no legacy .ai/skills twin. It counts towards the inventory only when
+    // the canonical directory actually exists, so a catalogued name that
+    // matches nothing on disk still fails the exact-account check below.
+    const engineeringCanonicalNames = catalog.audit.internalSkills
+        .map((skill) => skill.currentName)
+        .filter(
+            (name) =>
+                !legacyDirectories.includes(name) &&
+                existsSync(join(root, "engineering/skills", name)),
+        );
     const currentDirectories = [
         ...legacyDirectories,
         ...directCanonicalNames,
+        ...engineeringCanonicalNames,
     ].sort();
     const publicNames = catalog.skills.map((skill) => skill.currentName);
     const internalNames = catalog.audit.internalSkills.map(

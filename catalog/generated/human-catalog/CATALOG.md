@@ -7,7 +7,7 @@ the right package and understand its skills. It is not source authority
 and does not make a planned package installable.
 
 - Profiles: 62
-- Capabilities: 59
+- Capabilities: 61
 - Installable profiles: 0
 - Ecosystem bindings with support claims: 0
 
@@ -15,8 +15,8 @@ and does not make a planned package installable.
 
 Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.
 
-- Components: 182
-- Passive: 179
+- Components: 184
+- Passive: 181
 - Executable: 3
 - Legacy-retained: 27
 - Existing adapter records: 332
@@ -30,7 +30,7 @@ Modeled or planned components and projections are catalog metadata only; they ar
 
 ### Components by kind
 
-- skill: 86
+- skill: 88
 - agent: 12
 - subagent: 0
 - command: 18
@@ -1469,6 +1469,8 @@ Public-safe contributor guidance for maintainers working on Cratis AI. Private r
 #### Included capabilities
 
 - cratis-engineering-csharp-conventions
+- cratis-engineering-decision-record
+- cratis-engineering-effect-boundaries
 
 #### Composed profiles
 
@@ -1494,6 +1496,8 @@ Public-safe contributor guidance for maintainers working on Cratis Fundamentals,
 #### Included capabilities
 
 - cratis-engineering-csharp-conventions
+- cratis-engineering-decision-record
+- cratis-engineering-effect-boundaries
 
 #### Composed profiles
 
@@ -1519,6 +1523,8 @@ Public-safe contributor guidance for maintainers working on Cratis Arc. Private 
 #### Included capabilities
 
 - cratis-engineering-csharp-conventions
+- cratis-engineering-decision-record
+- cratis-engineering-effect-boundaries
 
 #### Composed profiles
 
@@ -1544,6 +1550,8 @@ Public-safe contributor guidance for maintainers working on Cratis Arc and Entit
 #### Included capabilities
 
 - cratis-engineering-csharp-conventions
+- cratis-engineering-decision-record
+- cratis-engineering-effect-boundaries
 
 #### Composed profiles
 
@@ -1570,6 +1578,8 @@ Public-safe contributor guidance for maintainers working on Cratis Arc React. Pr
 #### Included capabilities
 
 - cratis-engineering-csharp-conventions
+- cratis-engineering-decision-record
+- cratis-engineering-effect-boundaries
 
 #### Composed profiles
 
@@ -1596,6 +1606,8 @@ Public-safe shared engineering conventions for contributors across Cratis reposi
 #### Included capabilities
 
 - cratis-engineering-csharp-conventions
+- cratis-engineering-decision-record
+- cratis-engineering-effect-boundaries
 
 #### Composed profiles
 
@@ -1622,6 +1634,8 @@ Public-safe contributor guidance for maintainers working on Cratis Chronicle. Pr
 
 - cratis-engineering-chronicle-kernel-tracing
 - cratis-engineering-csharp-conventions
+- cratis-engineering-decision-record
+- cratis-engineering-effect-boundaries
 
 #### Composed profiles
 
@@ -1647,6 +1661,8 @@ Public-safe contributor guidance for maintainers working on Cratis Chronicle. Pr
 #### Included capabilities
 
 - cratis-engineering-csharp-conventions
+- cratis-engineering-decision-record
+- cratis-engineering-effect-boundaries
 
 #### Composed profiles
 
@@ -1672,6 +1688,8 @@ Public-safe contributor guidance for maintainers working on Chronicle MCP. Priva
 #### Included capabilities
 
 - cratis-engineering-csharp-conventions
+- cratis-engineering-decision-record
+- cratis-engineering-effect-boundaries
 
 #### Composed profiles
 
@@ -1697,6 +1715,8 @@ Public-safe contributor guidance for maintainers working on Cratis Components. P
 #### Included capabilities
 
 - cratis-engineering-csharp-conventions
+- cratis-engineering-decision-record
+- cratis-engineering-effect-boundaries
 
 #### Composed profiles
 
@@ -1722,6 +1742,8 @@ Public-safe contributor guidance for maintainers working on the Cratis CLI. Priv
 #### Included capabilities
 
 - cratis-engineering-csharp-conventions
+- cratis-engineering-decision-record
+- cratis-engineering-effect-boundaries
 
 #### Composed profiles
 
@@ -1747,7 +1769,9 @@ Public-safe documentation authoring guidance for maintainers working across Crat
 #### Included capabilities
 
 - cratis-engineering-csharp-conventions
+- cratis-engineering-decision-record
 - cratis-engineering-docs-authoring
+- cratis-engineering-effect-boundaries
 
 #### Composed profiles
 
@@ -1773,6 +1797,8 @@ Public-safe contributor guidance for maintainers working on Cratis Fundamentals.
 #### Included capabilities
 
 - cratis-engineering-csharp-conventions
+- cratis-engineering-decision-record
+- cratis-engineering-effect-boundaries
 
 #### Composed profiles
 
@@ -1798,6 +1824,8 @@ Public-safe contributor guidance for maintainers working on Cratis Lens. Private
 #### Included capabilities
 
 - cratis-engineering-csharp-conventions
+- cratis-engineering-decision-record
+- cratis-engineering-effect-boundaries
 
 #### Composed profiles
 
@@ -1823,6 +1851,8 @@ Public-safe contributor guidance for maintainers working on Cratis Screenplay. P
 #### Included capabilities
 
 - cratis-engineering-csharp-conventions
+- cratis-engineering-decision-record
+- cratis-engineering-effect-boundaries
 
 #### Composed profiles
 
@@ -1848,6 +1878,8 @@ Public-safe contributor guidance for maintainers working on Cratis Specification
 #### Included capabilities
 
 - cratis-engineering-csharp-conventions
+- cratis-engineering-decision-record
+- cratis-engineering-effect-boundaries
 
 #### Composed profiles
 
@@ -1873,6 +1905,8 @@ Public-safe contributor guidance for maintainers working on Cratis Stage. Privat
 #### Included capabilities
 
 - cratis-engineering-csharp-conventions
+- cratis-engineering-decision-record
+- cratis-engineering-effect-boundaries
 
 #### Composed profiles
 
@@ -1898,6 +1932,8 @@ Public-safe contributor guidance for maintainers working on Cratis Stagehand. Pr
 #### Included capabilities
 
 - cratis-engineering-csharp-conventions
+- cratis-engineering-decision-record
+- cratis-engineering-effect-boundaries
 
 #### Composed profiles
 
@@ -1923,6 +1959,8 @@ Public-safe contributor guidance for maintainers working on Cratis Studio. Priva
 #### Included capabilities
 
 - cratis-engineering-csharp-conventions
+- cratis-engineering-decision-record
+- cratis-engineering-effect-boundaries
 
 #### Composed profiles
 
@@ -1948,6 +1986,8 @@ Public-safe contributor guidance for maintainers working on Cratis Workflows. Pr
 #### Included capabilities
 
 - cratis-engineering-csharp-conventions
+- cratis-engineering-decision-record
+- cratis-engineering-effect-boundaries
 
 #### Composed profiles
 
@@ -5598,6 +5638,89 @@ Use for Cratis-maintainer C# house standards and review policy.
 - engineering-studio
 - engineering-workflows
 
+### cratis-engineering-decision-record
+
+- **ID:** `cratis-engineering-decision-record`
+- **Audience:** cratis-engineering
+- **Lifecycle:** candidate
+- **Approval:** candidate
+- **Runtime eligible:** no
+
+#### Purpose — cratis-engineering-decision-record
+
+Cratis decision record procedure
+
+#### When to use — cratis-engineering-decision-record
+
+Use to consult, author, accept, or supersede a decision record in a repository's decisions/ folder.
+
+#### When not to use — cratis-engineering-decision-record
+
+- Do not use to edit product documentation.
+- Do not use to summarize a decision that is already recorded.
+- Do not use to write session notes, plans, or handovers; those are work records.
+
+#### Invocation — cratis-engineering-decision-record
+
+- Capability kind: unclassified
+- Invocation: unclassified
+
+#### Applicability — cratis-engineering-decision-record
+
+- Products: cratis-engineering
+- Languages: language-agnostic
+- Architectures: Unclassified — Architecture requires reviewed target classification.
+- Personas: Unclassified — Persona requires reviewed target classification.
+- Surfaces: Unclassified — Surface requires reviewed target classification.
+- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+
+#### Dependencies — cratis-engineering-decision-record
+
+- Unclassified
+
+#### Trust and effects — cratis-engineering-decision-record
+
+- Trust class: passive
+- Assessment: unclassified
+- No assessed effects
+
+#### Evidence and support — cratis-engineering-decision-record
+
+- Authoring contract unclassified
+- Evidence: reevaluation-authority
+- Evidence: repo-main-b795d53
+
+#### Related capabilities — cratis-engineering-decision-record
+
+- None
+
+#### Bundle membership — cratis-engineering-decision-record
+
+- None
+
+#### Profile membership — cratis-engineering-decision-record
+
+- engineering-ai
+- engineering-application
+- engineering-arc
+- engineering-arc-ef-core
+- engineering-arc-react
+- engineering-base
+- engineering-chronicle
+- engineering-chronicle-clients
+- engineering-chronicle-mcp
+- engineering-components
+- engineering-cratis-cli
+- engineering-documentation
+- engineering-fundamentals
+- engineering-lens
+- engineering-screenplay
+- engineering-specifications
+- engineering-stage
+- engineering-stagehand
+- engineering-studio
+- engineering-workflows
+
 ### cratis-engineering-docs-add-page
 
 - **ID:** `cratis-engineering-docs-add-page`
@@ -5854,6 +5977,88 @@ Use by Cratis maintainers to render and inspect documentation in light and dark 
 #### Profile membership — cratis-engineering-docs-visual-qa
 
 - None
+
+### cratis-engineering-effect-boundaries
+
+- **ID:** `cratis-engineering-effect-boundaries`
+- **Audience:** cratis-engineering
+- **Lifecycle:** candidate
+- **Approval:** candidate
+- **Runtime eligible:** no
+
+#### Purpose — cratis-engineering-effect-boundaries
+
+Cratis effect-boundary failure discipline
+
+#### When to use — cratis-engineering-effect-boundaries
+
+Use when writing or reviewing code that publishes, persists, generates, propagates, or releases, and a degraded run could still report success.
+
+#### When not to use — cratis-engineering-effect-boundaries
+
+- Do not use for style, naming, or structure questions.
+- Do not use to decide whether an operation should exist at all.
+
+#### Invocation — cratis-engineering-effect-boundaries
+
+- Capability kind: unclassified
+- Invocation: unclassified
+
+#### Applicability — cratis-engineering-effect-boundaries
+
+- Products: cratis-engineering
+- Languages: language-agnostic
+- Architectures: Unclassified — Architecture requires reviewed target classification.
+- Personas: Unclassified — Persona requires reviewed target classification.
+- Surfaces: Unclassified — Surface requires reviewed target classification.
+- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+
+#### Dependencies — cratis-engineering-effect-boundaries
+
+- Unclassified
+
+#### Trust and effects — cratis-engineering-effect-boundaries
+
+- Trust class: passive
+- Assessment: unclassified
+- No assessed effects
+
+#### Evidence and support — cratis-engineering-effect-boundaries
+
+- Authoring contract unclassified
+- Evidence: reevaluation-authority
+- Evidence: repo-main-b795d53
+
+#### Related capabilities — cratis-engineering-effect-boundaries
+
+- cratis-engineering-csharp-conventions
+
+#### Bundle membership — cratis-engineering-effect-boundaries
+
+- None
+
+#### Profile membership — cratis-engineering-effect-boundaries
+
+- engineering-ai
+- engineering-application
+- engineering-arc
+- engineering-arc-ef-core
+- engineering-arc-react
+- engineering-base
+- engineering-chronicle
+- engineering-chronicle-clients
+- engineering-chronicle-mcp
+- engineering-components
+- engineering-cratis-cli
+- engineering-documentation
+- engineering-fundamentals
+- engineering-lens
+- engineering-screenplay
+- engineering-specifications
+- engineering-stage
+- engineering-stagehand
+- engineering-studio
+- engineering-workflows
 
 ### cratis-engineering-ship-changes
 

@@ -816,6 +816,18 @@
       "kind": "repository-snapshot",
       "locator": "https://github.com/Cratis/AI/tree/f8cdd82289f334b5c35d2ec0de42cc5175ce8d57/skills",
       "immutableRevision": "f8cdd82289f334b5c35d2ec0de42cc5175ce8d57"
+    },
+    {
+      "id": "source-engineering-decision-record-source-1e19bb4",
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/1e19bb4e7cb2ad9e827a8d4ad6b16b9f8a3c0060/engineering/skills/cratis-engineering-decision-record",
+      "immutableRevision": "1e19bb4e7cb2ad9e827a8d4ad6b16b9f8a3c0060"
+    },
+    {
+      "id": "source-engineering-effect-boundaries-source-56e0a3d",
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/56e0a3d3b257c61f211eae7300cc08669b90b41d/engineering/skills/cratis-engineering-effect-boundaries",
+      "immutableRevision": "56e0a3d3b257c61f211eae7300cc08669b90b41d"
     }
   ],
   "observations": [
@@ -8133,6 +8145,80 @@
         "officialUrl": "https://github.com/Cratis/AI/tree/f8cdd82289f334b5c35d2ec0de42cc5175ce8d57/skills",
         "sourceKind": "repository-snapshot",
         "applicableVersion": "f8cdd82289f334b5c35d2ec0de42cc5175ce8d57"
+      }
+    },
+    {
+      "id": "engineering-decision-record-source-1e19bb4",
+      "sourceId": "source-engineering-decision-record-source-1e19bb4",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "target",
+        "id": "cratis-engineering-decision-record",
+        "version": "1e19bb4e7cb2ad9e827a8d4ad6b16b9f8a3c0060"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "source-provenance",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Source provenance for the authored decision-record engineering skill in engineering/skills/cratis-engineering-decision-record.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-09-06",
+      "validThrough": "2027-09-06",
+      "confidence": "high",
+      "limitations": [
+        "This observation proves source provenance for the recorded skill bytes only; it grants no behavior, evaluation, or support assurance."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/1e19bb4e7cb2ad9e827a8d4ad6b16b9f8a3c0060/engineering/skills/cratis-engineering-decision-record",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "1e19bb4e7cb2ad9e827a8d4ad6b16b9f8a3c0060"
+      }
+    },
+    {
+      "id": "engineering-effect-boundaries-source-56e0a3d",
+      "sourceId": "source-engineering-effect-boundaries-source-56e0a3d",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "target",
+        "id": "cratis-engineering-effect-boundaries",
+        "version": "56e0a3d3b257c61f211eae7300cc08669b90b41d"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "source-provenance",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Source provenance for the authored effect-boundary engineering skill in engineering/skills/cratis-engineering-effect-boundaries.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-09-06",
+      "validThrough": "2027-09-06",
+      "confidence": "high",
+      "limitations": [
+        "This observation proves source provenance for the recorded skill bytes only; it grants no behavior, evaluation, or support assurance."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/56e0a3d3b257c61f211eae7300cc08669b90b41d/engineering/skills/cratis-engineering-effect-boundaries",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "56e0a3d3b257c61f211eae7300cc08669b90b41d"
       }
     }
   ],

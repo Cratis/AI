@@ -58,10 +58,10 @@ test("catalog v2 schemas and semantic policy pass for the repository", () => {
     assert.deepEqual(validateV2Catalogs(), []);
 });
 
-test("catalog v2 preserves all 59 sources while split and merge targets are independent", () => {
+test("catalog v2 preserves all 61 sources while split and merge targets are independent", () => {
     const catalogs = loadCatalogs();
-    assert.equal(catalogs.sources.sources.length, 59);
-    assert.equal(catalogs.targets.targets.length, 59);
+    assert.equal(catalogs.sources.sources.length, 61);
+    assert.equal(catalogs.targets.targets.length, 61);
     const split = catalogs.migrations.migrations.find(
         (migration) => migration.kind === "split",
     );
@@ -1097,7 +1097,7 @@ test("the accepted Option A+ decision still blocks unapproved live targets", () 
     assert.equal(engineeringCandidate.materializationAllowed, true);
     assert.equal(engineeringCandidate.runtimeEligible, false);
     assert.equal(engineeringCandidate.requiresApprovedTargets, false);
-    assert.equal(engineeringCandidate.componentInventory.skills.length, 6);
+    assert.equal(engineeringCandidate.componentInventory.skills.length, 8);
     assert.deepEqual(engineeringCandidate.targetExclusions, [
         {
             targetId: "cratis-engineering-docs-visual-qa",

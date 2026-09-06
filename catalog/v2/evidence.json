@@ -483,6 +483,16 @@
       "digest": "3b6fa1b0458eaf6c7305f68fc475e16e9ad2dd78f25cf0db3dea7bedd505f8f1"
     },
     {
+      "id": "engineering-decision-record-source-1e19bb4",
+      "officialUrl": "https://github.com/Cratis/AI/tree/1e19bb4e7cb2ad9e827a8d4ad6b16b9f8a3c0060/engineering/skills/cratis-engineering-decision-record",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-09-06",
+      "expiresOn": "2027-09-06",
+      "applicableVersion": "1e19bb4e7cb2ad9e827a8d4ad6b16b9f8a3c0060",
+      "confidence": "high",
+      "immutableRevision": "1e19bb4e7cb2ad9e827a8d4ad6b16b9f8a3c0060"
+    },
+    {
       "id": "engineering-docs-add-page-source-684d037",
       "officialUrl": "https://github.com/Cratis/AI/tree/684d03755bacd40af95463b81b4a0c8b9f088ec1/engineering/skills/cratis-engineering-docs-add-page",
       "sourceKind": "repository-snapshot",
@@ -522,6 +532,16 @@
       "applicableVersion": "684d03755bacd40af95463b81b4a0c8b9f088ec1",
       "confidence": "high",
       "immutableRevision": "684d03755bacd40af95463b81b4a0c8b9f088ec1"
+    },
+    {
+      "id": "engineering-effect-boundaries-source-56e0a3d",
+      "officialUrl": "https://github.com/Cratis/AI/tree/56e0a3d3b257c61f211eae7300cc08669b90b41d/engineering/skills/cratis-engineering-effect-boundaries",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-09-06",
+      "expiresOn": "2027-09-06",
+      "applicableVersion": "56e0a3d3b257c61f211eae7300cc08669b90b41d",
+      "confidence": "high",
+      "immutableRevision": "56e0a3d3b257c61f211eae7300cc08669b90b41d"
     },
     {
       "id": "engineering-ship-changes-no-effect-source-6b5388d",

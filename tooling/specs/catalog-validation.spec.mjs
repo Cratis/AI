@@ -96,7 +96,7 @@ test("public catalog starts deny-by-default with no runtime-approved candidates"
     const catalog = readCatalog(publicCatalogPath);
     assert.equal(catalog.defaultPolicy, "deny");
     assert.equal(catalog.skills.length, 51);
-    assert.equal(catalog.audit.internalSkills.length, 8);
+    assert.equal(catalog.audit.internalSkills.length, 10);
     assert(
         catalog.skills.every(
             (skill) => skill.publicationStatus === "candidate",

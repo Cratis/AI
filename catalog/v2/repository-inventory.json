@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "bbbdbc99425b6d3b30b488a84c39d3096f08e03e1c78511640685412d09cad2c",
+  "indexDigest": "e51ef4845b8853cf3321ec932f7d5f333701a1fa1e78798090a95f908f2fc0bf",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -1211,6 +1211,18 @@
       "status": "added"
     },
     {
+      "path": "engineering/skills/cratis-engineering-decision-record/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-decision-record/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-decision-record/references/record-format.md",
+      "status": "added"
+    },
+    {
       "path": "engineering/skills/cratis-engineering-docs-add-page/LICENSE",
       "status": "added"
     },
@@ -1244,6 +1256,18 @@
     },
     {
       "path": "engineering/skills/cratis-engineering-docs-edit-page/references/source-discovery.md",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-effect-boundaries/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-effect-boundaries/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-effect-boundaries/references/failure-archetypes.md",
       "status": "added"
     },
     {
@@ -3787,6 +3811,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/specs/distribution-state-consistency.spec.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/specs/domain-expert-event-modeling-pilot.spec.mjs",
       "status": "added"
     },
@@ -4469,8 +4497,8 @@
         "option-a-plus-authority",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 16,
-      "expectedPathsDigest": "60fa65b3eddbd8cd1ed992a9f0d7aa36ee18d97308edffde1b98056b82805c91"
+      "expectedPathCount": 22,
+      "expectedPathsDigest": "bd485d672ca504b9ddf2c84a919c82970de2fb9c65ff278a8edacf3ef901803b"
     },
     {
       "excludePathPatterns": [],
@@ -5672,8 +5700,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 68,
-      "expectedPathsDigest": "4759328ec9f6ce097796b402abb24368fbd01c6bcb74387032e36f949f5b1902"
+      "expectedPathCount": 69,
+      "expectedPathsDigest": "bbbce8b777c43729581f7e825f210cf0ea719ed9e87c9cd2033dd7def26444b7"
     },
     {
       "excludePathPatterns": [],

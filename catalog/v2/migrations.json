@@ -844,6 +844,36 @@
       ]
     },
     {
+      "id": "retain-cratis-engineering-decision-record",
+      "kind": "retain",
+      "sourceIds": [
+        "cratis-engineering-decision-record"
+      ],
+      "targetIds": [
+        "cratis-engineering-decision-record"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "retain-cratis-engineering-effect-boundaries",
+      "kind": "retain",
+      "sourceIds": [
+        "cratis-engineering-effect-boundaries"
+      ],
+      "targetIds": [
+        "cratis-engineering-effect-boundaries"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
       "id": "retain-skill-creator",
       "kind": "retain",
       "sourceIds": [

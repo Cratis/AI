@@ -1,6 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "observedAt": "2026-08-22",
+  "observedAt": "2026-09-06",
+  "previouslyObservedAt": "2026-08-22",
+  "reobservation": {
+    "issue": "https://github.com/Cratis/AI/issues/258",
+    "note": "Re-observed because the 2026-08-22 blocker list had been overtaken by npm-stage-contract.json. Only the npm ownership and trusted-publisher blocker changed; the other four were re-checked against the repository and still hold. This block is a point-in-time observation, not generated output.",
+    "checkedAgainst": [
+      "distribution/npm-stage-contract.json",
+      "distribution/release-approvals.json"
+    ]
+  },
   "supersedingDecision": {
     "state": "GENERATED_DISTRIBUTION_RETIRED",
     "issue": "https://github.com/Cratis/AI/issues/264",
@@ -70,8 +79,21 @@
     "NO_PR_RELEASE_CAPABLE_BOT_IDENTITY",
     "NO_APPROVED_PUBLIC_TARGETS",
     "NO_APPROVED_PRODUCT_SOURCE_CONTRACTS",
-    "NO_NPM_PACKAGE_OWNERSHIP_OR_TRUSTED_PUBLISHER",
     "NO_PRODUCTION_CANARY_OR_ROLLBACK_EVIDENCE"
+  ],
+  "remainingBlockerEvidence": {
+    "NO_PR_RELEASE_CAPABLE_BOT_IDENTITY": "credential.state is REMOVED_AFTER_ONE_TIME_INITIALIZATION and repository.writeCredentialState is ABSENT_PENDING_PR_RELEASE_BOT. Permanently true after Cratis/AI#266: the cross-repository App and its AI_DISTRIBUTION_APP_* secrets were removed and no workflow writes to a second repository any more.",
+    "NO_APPROVED_PUBLIC_TARGETS": "distribution/release-approvals.json carries defaultPolicy deny with an empty targetApprovals array, and every target in catalog/v2/targets.json is approval.state candidate.",
+    "NO_APPROVED_PRODUCT_SOURCE_CONTRACTS": "distribution/release-approvals.json carries an empty sourceContractApprovals array.",
+    "NO_PRODUCTION_CANARY_OR_ROLLBACK_EVIDENCE": "distribution/rollout-policy.json keeps canary.productionTargetsEnabled false, and the only rollback evidence is the local fixture simulation in distribution/evidence/local-canary-rollback-2026-08-22.json."
+  },
+  "resolvedBlockers": [
+    {
+      "code": "NO_NPM_PACKAGE_OWNERSHIP_OR_TRUSTED_PUBLISHER",
+      "resolvedOn": "2026-08-27",
+      "recordedIn": "distribution/npm-stage-contract.json",
+      "evidence": "package.publicOwnershipConfirmed and workflow.trustedPublisherConfigured are both true; package.ownerSetupEvidence records the 2026-08-27 owner attestation, and the trusted publisher is bound to .github/workflows/release-passive-previews.yml in the npm-stage environment."
+    }
   ],
   "publicationEligible": false,
   "promotionEligible": false,
