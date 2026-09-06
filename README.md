@@ -69,7 +69,7 @@ catalog/                Sources, targets, authority, evidence, and coverage
 distribution/           Profile, artifact, rollout, and publication contracts
 tooling/                Resolver, validation, and deterministic generation
 Documentation/          Architecture, contribution, and usage guidance
-.claude/ .github/ .agents/ .pi/   Repository-local host adapters into `.ai/`
+.claude/ .github/ .agents/ .pi/   Repository-local host adapters into .ai/
 ```
 
 There is no application here: no `Source/`, no solution, no `package.json`. This
