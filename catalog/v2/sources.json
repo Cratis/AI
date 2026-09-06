@@ -421,6 +421,26 @@
       ]
     },
     {
+      "id": "cratis-lens-browser-extension",
+      "sourcePath": "skills/cratis-lens-browser-extension",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        "skills/cratis-lens-browser-extension/LICENSE",
+        "skills/cratis-lens-browser-extension/SKILL.md"
+      ],
+      "sourceRevision": "7b85abb3c7a1678f42fc4e38bc4c3e27f26b40d9",
+      "contentDigest": "5a32ca5f08eb8d16b37828c665a7b0374f81500c2d7b423a67bbc7f007d1a4db",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority",
+        "modeling-layer-source-authoring-7b85abb"
+      ]
+    },
+    {
       "id": "cratis-react-page",
       "sourcePath": "skills/cratis-arc-react-page",
       "artifactType": "agent-skill-source",
@@ -467,6 +487,26 @@
       ]
     },
     {
+      "id": "cratis-screenplay-model-authoring",
+      "sourcePath": "skills/cratis-screenplay-model-authoring",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        "skills/cratis-screenplay-model-authoring/LICENSE",
+        "skills/cratis-screenplay-model-authoring/SKILL.md"
+      ],
+      "sourceRevision": "7b85abb3c7a1678f42fc4e38bc4c3e27f26b40d9",
+      "contentDigest": "cc3b83cc50dab5938ad6f9f61e1df6ff12030807600382c1f4faa5bafea7bb97",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority",
+        "modeling-layer-source-authoring-7b85abb"
+      ]
+    },
+    {
       "id": "cratis-specs-csharp",
       "sourcePath": "skills/cratis-specifications-csharp",
       "artifactType": "agent-skill-source",
@@ -508,6 +548,26 @@
         "repo-main-b795d53",
         "reevaluation-authority",
         "cratis-specifications-typescript-source-ee5c566"
+      ]
+    },
+    {
+      "id": "cratis-stage-rendering-and-sandbox",
+      "sourcePath": "skills/cratis-stage-rendering-and-sandbox",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        "skills/cratis-stage-rendering-and-sandbox/LICENSE",
+        "skills/cratis-stage-rendering-and-sandbox/SKILL.md"
+      ],
+      "sourceRevision": "7b85abb3c7a1678f42fc4e38bc4c3e27f26b40d9",
+      "contentDigest": "616ddce1523e455c47fa1770f3556a31e8b2955ce3ad49fa33acf27cd8cea0ed",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority",
+        "modeling-layer-source-authoring-7b85abb"
       ]
     },
     {

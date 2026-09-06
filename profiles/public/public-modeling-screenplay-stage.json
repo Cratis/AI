@@ -14,5 +14,5 @@
     "public-screenplay",
     "public-stage"
   ],
-  "gapSummary": "Needs authoritative model authoring through runtime/executable specification handoff evidence."
+  "gapSummary": "Composes the canonical Screenplay authoring and Stage rendering sources, and carries no source of its own. The handoff between them is documented only as the boundary each side states about the other; an end-to-end authored-model-to-rendered-application walkthrough and its evidence remain gaps."
 }
