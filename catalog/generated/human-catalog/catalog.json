@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "contractVersion": 1,
   "disclaimer": "Catalog inclusion, evaluation evidence, component modeling, planned projection, bundle generation, or publication does not grant runtime permission, emitted bytes, support, or approval.",
-  "inputDigest": "3acc1104bb245f89dc5f2e94bb579437d922b488e890fae4f55318b51f056c19",
+  "inputDigest": "c61d952133d20e88afbb52a453a4575fdb74480c58ee80523283849e6594dc4c",
   "componentSummary": {
     "disclaimer": "Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.",
     "total": 138,
@@ -82,6 +82,94 @@
     "marketplaceAvailabilityClaim": false
   },
   "profiles": [
+    {
+      "id": "cratis",
+      "displayName": "Cratis Complete Suite",
+      "description": "Every public Cratis capability in one selection: every product, every language, and every cross-cutting methodology this repository publishes, with nothing left out.",
+      "intendedFor": "Developers and teams who want the whole public Cratis corpus in one subscription, without choosing between products, languages, or methodology.",
+      "audience": "public",
+      "packageName": "@cratis/ai-meta-cratis",
+      "state": "planned-composition",
+      "installable": false,
+      "materialization": "composition",
+      "products": [
+        "arc",
+        "arc-react",
+        "chronicle",
+        "chronicle-mcp",
+        "cli",
+        "components",
+        "entity-framework-core",
+        "fundamentals",
+        "lens",
+        "screenplay",
+        "specifications",
+        "stage",
+        "studio"
+      ],
+      "languages": [
+        "csharp",
+        "elixir",
+        "java",
+        "kotlin",
+        "language-agnostic",
+        "python",
+        "react",
+        "shell",
+        "typescript"
+      ],
+      "repositoryKinds": [],
+      "composes": [
+        "cratis/application",
+        "cratis/arc",
+        "cratis/chronicle",
+        "cratis/full",
+        "public-application",
+        "public-application-arc-chronicle",
+        "public-application-arc-only",
+        "public-application-chronicle-dotnet",
+        "public-application-react",
+        "public-arc",
+        "public-arc-ef-core",
+        "public-arc-identity",
+        "public-arc-react",
+        "public-chronicle",
+        "public-chronicle-client-dotnet",
+        "public-chronicle-client-elixir",
+        "public-chronicle-client-java",
+        "public-chronicle-client-kotlin",
+        "public-chronicle-client-python",
+        "public-chronicle-client-typescript",
+        "public-chronicle-compliance",
+        "public-chronicle-mcp",
+        "public-chronicle-multi-tenancy",
+        "public-chronicle-web-workbench",
+        "public-components",
+        "public-cratis-cli",
+        "public-cratis-cli-terminal-workbench",
+        "public-fundamentals",
+        "public-language-csharp",
+        "public-language-elixir",
+        "public-language-kotlin",
+        "public-language-typescript",
+        "public-lens",
+        "public-methodology-governed-releases",
+        "public-modeling-screenplay-stage",
+        "public-screenplay",
+        "public-specifications",
+        "public-specifications-dotnet",
+        "public-specifications-typescript",
+        "public-stage",
+        "public-studio"
+      ],
+      "directTargetIds": [],
+      "targetIds": [
+        "cratis-chronicle-mcp-inspection",
+        "cratis-fundamentals-concept",
+        "cratis-governed-release-methodology",
+        "cratis-studio-mcp-safety-guidance"
+      ]
+    },
     {
       "id": "cratis/application",
       "displayName": "Cratis Application Suite",
@@ -2820,6 +2908,7 @@
       ],
       "bundleIds": [],
       "profileIds": [
+        "cratis",
         "public-chronicle-mcp"
       ]
     },
@@ -3569,6 +3658,7 @@
         "cratis-core-review"
       ],
       "profileIds": [
+        "cratis",
         "cratis/application",
         "cratis/arc",
         "cratis/chronicle",
@@ -3695,6 +3785,7 @@
       "relatedTargetIds": [],
       "bundleIds": [],
       "profileIds": [
+        "cratis",
         "public-methodology-governed-releases"
       ]
     },
@@ -4003,6 +4094,7 @@
       ],
       "bundleIds": [],
       "profileIds": [
+        "cratis",
         "public-studio"
       ]
     },

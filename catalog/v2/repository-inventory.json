@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "951c7a8bfe5c5ced24d089c5f05db1f99e86a4fbd4d41861454ccbc42c037f8f",
+  "indexDigest": "275a6cc799b3a69f8e117bcae3c4de22bac7ecd14676a24f6491c1e20df72cbc",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -2507,6 +2507,10 @@
       "status": "added"
     },
     {
+      "path": "profiles/public/cratis.json",
+      "status": "added"
+    },
+    {
       "path": "profiles/public/cratis/application.json",
       "status": "added"
     },
@@ -3220,6 +3224,10 @@
     },
     {
       "path": "tooling/specs/component-catalog.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/cratis-meta-profile-completeness.spec.mjs",
       "status": "added"
     },
     {
@@ -4936,8 +4944,8 @@
         "option-a-plus-authority",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 62,
-      "expectedPathsDigest": "56c656675ca6a2879022607d33d638d5e69c5197a1486aeffaba24094dd04b8f"
+      "expectedPathCount": 63,
+      "expectedPathsDigest": "b1e43a33051649d8238f67a8578d6acec2f6b05af7bf0aece2620225d2a8405c"
     },
     {
       "excludePathPatterns": [],
@@ -5094,8 +5102,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 62,
-      "expectedPathsDigest": "8a17a892951c54bc545116f055347df145dfb1390dbc0f10a8d00760ae45c02f"
+      "expectedPathCount": 63,
+      "expectedPathsDigest": "eee2604d1d75ffad87ffeed904598d90be8e85855ffdea163d3a7970d6a32dd0"
     },
     {
       "excludePathPatterns": [],

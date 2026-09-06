@@ -78,6 +78,7 @@ const displayNameOverrides = new Map([
     ["public-language-elixir", "Cratis Elixir Language Conventions"],
     ["public-language-kotlin", "Cratis Kotlin Language Conventions"],
     ["public-language-typescript", "Cratis TypeScript Language Conventions"],
+    ["cratis", "Cratis Complete Suite"],
     ["cratis/application", "Cratis Application Suite"],
     ["cratis/arc", "Cratis Arc Suite"],
     ["cratis/chronicle", "Cratis Chronicle Suite"],
@@ -121,6 +122,10 @@ const descriptionOverrides = new Map([
         "Product- and language-independent release-engineering methodology: assurance tiers, evidence ladders, lifecycle phases, supply-chain receipts, semantic-version release intent, canaries, and recovery disposition.",
     ],
     [
+        "cratis",
+        "Every public Cratis capability in one selection: every product, every language, and every cross-cutting methodology this repository publishes, with nothing left out.",
+    ],
+    [
         "cratis/application",
         "The namespaced suite for building a full Cratis application with Arc, Chronicle, Arc React, Components, and Specifications.",
     ],
@@ -143,6 +148,10 @@ const descriptionOverrides = new Map([
 ]);
 
 const intendedForOverrides = new Map([
+    [
+        "cratis",
+        "Developers and teams who want the whole public Cratis corpus in one subscription, without choosing between products, languages, or methodology.",
+    ],
     [
         "public-methodology-governed-releases",
         "Maintainers planning a release in any repository, for any artifact format, without selecting a Cratis product or language profile.",

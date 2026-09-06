@@ -41,7 +41,9 @@ export function deriveSubscriptionChannel(profiles) {
     if (
         profiles.every(
             (profile) =>
-                profile.startsWith("public-") || profile.startsWith("cratis/"),
+                profile.startsWith("public-") ||
+                profile === "cratis" ||
+                profile.startsWith("cratis/"),
         )
     )
         return "public";
@@ -167,7 +169,14 @@ export function validateProfileSubscriptions(
             errors.push(`${profile.id}: approved profile has no targets`);
         if (!/^@cratis\/ai-[a-z0-9]+(?:-[a-z0-9]+)*$/.test(profile.packageName))
             errors.push(`${profile.id}: invalid package name`);
-        if (!/^(?:cratis\/|public-|engineering-)[a-z0-9]+(?:-[a-z0-9]+)*$/.test(profile.id))
+        // `cratis` is the one bare id: the root of the namespace, and the
+        // maximal public bundle. Everything else stays namespaced under
+        // `cratis/`, `public-`, or `engineering-`.
+        if (
+            !/^(?:cratis(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)?|(?:public|engineering)-[a-z0-9]+(?:-[a-z0-9]+)*)$/.test(
+                profile.id,
+            )
+        )
             errors.push(`${profile.id}: invalid profile id namespace`);
         if (!exactSemVerPattern.test(profile.version ?? ""))
             errors.push(

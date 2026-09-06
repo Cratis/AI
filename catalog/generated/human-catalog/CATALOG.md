@@ -6,7 +6,7 @@ This catalog is generated from reviewed catalog metadata. Use it to find
 the right package and understand its skills. It is not source authority
 and does not make a planned package installable.
 
-- Profiles: 61
+- Profiles: 62
 - Capabilities: 46
 - Installable profiles: 0
 - Ecosystem bindings with support claims: 0
@@ -118,6 +118,74 @@ This matrix reports research and serving disposition only. It is not support, pu
 
 Profiles are the product and maintainer bundles people subscribe to.
 Only profiles marked installable have completed approval.
+
+### Cratis Complete Suite
+
+- **Profile ID:** `cratis`
+- **Audience:** public
+- **Package:** `@cratis/ai-meta-cratis`
+- **State:** planned-composition
+- **Installable:** no
+- **Materialization:** composition
+
+Every public Cratis capability in one selection: every product, every language, and every cross-cutting methodology this repository publishes, with nothing left out.
+
+**Intended for:** Developers and teams who want the whole public Cratis corpus in one subscription, without choosing between products, languages, or methodology.
+
+- Products: arc, arc-react, chronicle, chronicle-mcp, cli, components, entity-framework-core, fundamentals, lens, screenplay, specifications, stage, studio
+- Languages: csharp, elixir, java, kotlin, language-agnostic, python, react, shell, typescript
+- Repository kinds: consumer projects
+
+#### Included capabilities
+
+- cratis-chronicle-mcp-inspection
+- cratis-fundamentals-concept
+- cratis-governed-release-methodology
+- cratis-studio-mcp-safety-guidance
+
+#### Composed profiles
+
+- cratis/application
+- cratis/arc
+- cratis/chronicle
+- cratis/full
+- public-application
+- public-application-arc-chronicle
+- public-application-arc-only
+- public-application-chronicle-dotnet
+- public-application-react
+- public-arc
+- public-arc-ef-core
+- public-arc-identity
+- public-arc-react
+- public-chronicle
+- public-chronicle-client-dotnet
+- public-chronicle-client-elixir
+- public-chronicle-client-java
+- public-chronicle-client-kotlin
+- public-chronicle-client-python
+- public-chronicle-client-typescript
+- public-chronicle-compliance
+- public-chronicle-mcp
+- public-chronicle-multi-tenancy
+- public-chronicle-web-workbench
+- public-components
+- public-cratis-cli
+- public-cratis-cli-terminal-workbench
+- public-fundamentals
+- public-language-csharp
+- public-language-elixir
+- public-language-kotlin
+- public-language-typescript
+- public-lens
+- public-methodology-governed-releases
+- public-modeling-screenplay-stage
+- public-screenplay
+- public-specifications
+- public-specifications-dotnet
+- public-specifications-typescript
+- public-stage
+- public-studio
 
 ### Cratis Application Suite
 
@@ -2974,6 +3042,7 @@ Use when classifying a Chronicle MCP inspection request or interpreting already-
 
 #### Profile membership — cratis-chronicle-mcp-inspection
 
+- cratis
 - public-chronicle-mcp
 
 ### cratis-chronicle-multi-tenancy
@@ -3685,6 +3754,7 @@ Use when creating a ConceptAs&lt;T&gt; value or EventSourceId&lt;T&gt; identity.
 
 #### Profile membership — cratis-fundamentals-concept
 
+- cratis
 - cratis/application
 - cratis/arc
 - cratis/chronicle
@@ -3819,6 +3889,7 @@ Use when choosing the assurance tier a release needs, deciding whether checksums
 
 #### Profile membership — cratis-governed-release-methodology
 
+- cratis
 - public-methodology-governed-releases
 
 ### cratis-performance-review
@@ -4138,6 +4209,7 @@ Use when classifying a Studio MCP request or interpreting already-redacted outpu
 
 #### Profile membership — cratis-studio-mcp-safety-guidance
 
+- cratis
 - public-studio
 
 ### cratis-engineering-chronicle-kernel-tracing

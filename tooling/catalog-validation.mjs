@@ -180,6 +180,14 @@ function matchesKnownPattern(value, pattern) {
             return /^(?:cratis\/|public-|engineering-)[a-z0-9]+(?:-[a-z0-9]+)*$/.test(
                 value,
             );
+        // The bare `cratis` id is the maximal public bundle, so the two
+        // subscription patterns admit `cratis` alongside every `cratis/*`.
+        case "^(?:cratis(?:/[a-z0-9]+(?:-[a-z0-9]+)*)?|(?:public|engineering)-[a-z0-9]+(?:-[a-z0-9]+)*)$":
+            return /^(?:cratis(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)?|(?:public|engineering)-[a-z0-9]+(?:-[a-z0-9]+)*)$/.test(
+                value,
+            );
+        case "^cratis(?:/[a-z0-9]+(?:-[a-z0-9]+)*)?$":
+            return /^cratis(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)?$/.test(value);
         case "^cratis/[a-z0-9]+(?:-[a-z0-9]+)*$":
             return /^cratis\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value);
         case "^(?:public|engineering)-[a-z0-9]+(?:-[a-z0-9]+)*$":
