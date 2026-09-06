@@ -61,7 +61,9 @@ function profileFiles(root, relativePath = "") {
     for (const entry of readdirSync(join(root, relativePath), {
         withFileTypes: true,
     })) {
-        const child = relativePath ? `${relativePath}/${entry.name}` : entry.name;
+        const child = relativePath
+            ? `${relativePath}/${entry.name}`
+            : entry.name;
         if (entry.isDirectory()) paths.push(...profileFiles(root, child));
         else if (entry.isFile() && entry.name.endsWith(".json"))
             paths.push(child);
@@ -89,9 +91,7 @@ export function readAudienceProfiles(repositoryRoot, directory) {
             );
         return profile;
     });
-    return profiles.sort((left, right) =>
-        compareOrdinal(left.id, right.id),
-    );
+    return profiles.sort((left, right) => compareOrdinal(left.id, right.id));
 }
 
 /**
@@ -115,7 +115,10 @@ export function buildProfileCatalog(repositoryRoot = defaultRepositoryRoot) {
     for (const [field, value] of Object.entries(manifest)) {
         catalog[field] = value;
         if (field !== profileArraysFollowField) continue;
-        for (const { field: profileField, directory } of profileAudienceDirectories)
+        for (const {
+            field: profileField,
+            directory,
+        } of profileAudienceDirectories)
             catalog[profileField] = readAudienceProfiles(root, directory);
     }
     return catalog;
@@ -123,7 +126,10 @@ export function buildProfileCatalog(repositoryRoot = defaultRepositoryRoot) {
 
 function main() {
     const catalog = buildProfileCatalog();
-    writeFileSync(join(defaultRepositoryRoot, profileCatalogPath), json(catalog));
+    writeFileSync(
+        join(defaultRepositoryRoot, profileCatalogPath),
+        json(catalog),
+    );
     process.stdout.write(
         `Generated profile catalog: ${catalog.publicProfiles.length} public and ${catalog.engineeringProfiles.length} engineering profiles from ${profileSourceRoot}/.\n`,
     );
