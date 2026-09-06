@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "59fcdd00f00b91ae07e31feaf4168dccac5950b3bc3b2c86ee5284a40726c782",
+  "indexDigest": "7223d5dd952721dda1ca57b198960838834652d9b8dbab112038927896953f85",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -392,6 +392,10 @@
     },
     {
       "path": "Documentation/.markdownlint.json",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/adding-a-component.md",
       "status": "added"
     },
     {
@@ -4877,6 +4881,7 @@
       "excludePathPatterns": [],
       "id": "capability-model-documentation",
       "sourcePathPatterns": [
+        "Documentation/adding-a-component.md",
         "Documentation/capability-catalog-v2.md",
         "Documentation/chronicle-mcp-guidance.md",
         "Documentation/ecosystem-support-architecture-review.md",
@@ -4907,6 +4912,8 @@
         "distribution/real-host-canary-matrix.json",
         "distribution/real-host-canary-report.schema.json",
         "tooling/native-non-skill-projections.mjs",
+        "tooling/component-inventory-counts.mjs",
+        "distribution/candidate-component-coverage.seals.json",
         "distribution/s10-release-policy.json",
         "tooling/real-host-canary-contract.mjs",
         "tooling/s10-release-gate-validation.mjs"
@@ -4916,8 +4923,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 10,
-      "expectedPathsDigest": "ef3ede2947ed73f3c012dad11b926002ea27f28a2a1260eb8e2ac5d254fe04b2"
+      "expectedPathCount": 11,
+      "expectedPathsDigest": "b952ff83014b3c234b194886b85569d8784ed0b89fcf33b1a028db12b67c52e9"
     },
     {
       "excludePathPatterns": [],
