@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "03ae0f4cedfa5398e68054d80cf93709e6e8de46bfbc4fd34b4164aa7891e498",
+  "indexDigest": "59a0bca075f4e14d1ec24755a116b4f62a4378fed84dde944c4b1601ab735ec1",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -464,6 +464,10 @@
     },
     {
       "path": "Documentation/maintaining-shared-ai-behavior.md",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/mcp-declarations.md",
       "status": "added"
     },
     {
@@ -2343,6 +2347,22 @@
       "status": "added"
     },
     {
+      "path": "mcp/README.md",
+      "status": "added"
+    },
+    {
+      "path": "mcp/cratis-chronicle-mcp.json",
+      "status": "added"
+    },
+    {
+      "path": "mcp/cratis-studio-mcp.json",
+      "status": "added"
+    },
+    {
+      "path": "mcp/mcp-server-declaration.schema.json",
+      "status": "added"
+    },
+    {
       "path": "pilots/application-slice-diagnostics/PILOT.md",
       "status": "added"
     },
@@ -2719,6 +2739,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/mcp-declaration-validation.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/mcp-guidance-product-contract.mjs",
       "status": "added"
     },
@@ -3028,6 +3052,10 @@
     },
     {
       "path": "tooling/specs/human-catalog.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/mcp-declarations.spec.mjs",
       "status": "added"
     },
     {
@@ -4063,6 +4091,7 @@
         "Documentation/chronicle-mcp-guidance.md",
         "Documentation/ecosystem-support-architecture-review.md",
         "Documentation/maintaining-shared-ai-behavior.md",
+        "Documentation/mcp-declarations.md",
         "Documentation/native-non-skill-projections.md",
         "Documentation/real-host-canaries.md",
         "Documentation/s10-release-and-marketplace-gates.md",
@@ -4096,8 +4125,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 8,
-      "expectedPathsDigest": "bff60e5d5b57a3147d80020a89bb3afbeab7fb029099d5dc70136abff29e7610"
+      "expectedPathCount": 9,
+      "expectedPathsDigest": "53712022848579f190e4a824a5c5d066605351318244ecb12533159447fde5f1"
     },
     {
       "excludePathPatterns": [],
@@ -4721,8 +4750,38 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 81,
-      "expectedPathsDigest": "5044ac2f15f4c578c748c83a55459c3542b9a7ce616669bff57dc6a8a6b70cd9"
+      "expectedPathCount": 82,
+      "expectedPathsDigest": "3c9fb1c83e8ff23d6968d62cfa0b16c6637b41cef412bebdaa07407a59656e9e"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "mcp-server-declarations",
+      "sourcePathPatterns": [
+        "mcp/**"
+      ],
+      "artifactType": "catalog-schema",
+      "currentOwner": "public Cratis product capability",
+      "targetOwner": "public Cratis product capability",
+      "runtimeEligibility": "forbidden",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "catalog/chronicle-mcp-tool-classifications.json",
+        "catalog/mcp-guidance-products.json",
+        "catalog/studio-mcp-tool-classifications.json",
+        "distribution/assurance-lanes.json",
+        "distribution/profile-catalog.json",
+        "tooling/mcp-declaration-validation.mjs",
+        "tooling/resolve-profiles.mjs",
+        "tooling/specifications/agent-plugins/1.0.0/mcp.schema.json"
+      ],
+      "risk": "critical",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "reevaluation-authority"
+      ],
+      "expectedPathCount": 4,
+      "expectedPathsDigest": "ecc61c8c7fe90c8d9e2efc9d80dcd76acb257441650fc2391ddb45ea807d1b42"
     },
     {
       "excludePathPatterns": [],
@@ -4745,8 +4804,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 63,
-      "expectedPathsDigest": "00d0a6a5e48e85c95893d2081714c61bf783f8604d550a1a87454bb073953341"
+      "expectedPathCount": 64,
+      "expectedPathsDigest": "9868d9ea8eaec699c49b80106b7e223bbf65acdd2f3bab770c9c215a716bda80"
     },
     {
       "excludePathPatterns": [],

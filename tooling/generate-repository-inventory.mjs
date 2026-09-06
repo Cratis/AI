@@ -123,6 +123,7 @@ const unexpectedUntracked = admittedUntracked.filter(
             /^engineering\//.test(path) ||
             /^evidence\/source-evidence\//.test(path) ||
             /^evals\//.test(path) ||
+            /^mcp\//.test(path) ||
             /^pilots\//.test(path) ||
             /^skills\//.test(path) ||
             /^tooling\//.test(path)
@@ -745,6 +746,7 @@ const definitions = [
             "Documentation/chronicle-mcp-guidance.md",
             "Documentation/ecosystem-support-architecture-review.md",
             "Documentation/maintaining-shared-ai-behavior.md",
+            "Documentation/mcp-declarations.md",
             "Documentation/native-non-skill-projections.md",
             "Documentation/real-host-canaries.md",
             "Documentation/s10-release-and-marketplace-gates.md",
@@ -1225,6 +1227,29 @@ const definitions = [
         adapterStatus: "none",
         dependencies: ["catalog/**"],
         risk: "high",
+        migrationState: "retain",
+        evidenceIds: ["reevaluation-authority"],
+    },
+    {
+        id: "mcp-server-declarations",
+        sourcePathPatterns: ["mcp/**"],
+        artifactType: "catalog-schema",
+        currentOwner: publicOwner,
+        targetOwner: publicOwner,
+        runtimeEligibility: "forbidden",
+        generatedStatus: "source",
+        adapterStatus: "none",
+        dependencies: [
+            "catalog/chronicle-mcp-tool-classifications.json",
+            "catalog/mcp-guidance-products.json",
+            "catalog/studio-mcp-tool-classifications.json",
+            "distribution/assurance-lanes.json",
+            "distribution/profile-catalog.json",
+            "tooling/mcp-declaration-validation.mjs",
+            "tooling/resolve-profiles.mjs",
+            "tooling/specifications/agent-plugins/1.0.0/mcp.schema.json",
+        ],
+        risk: "critical",
         migrationState: "retain",
         evidenceIds: ["reevaluation-authority"],
     },

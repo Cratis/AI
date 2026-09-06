@@ -21,6 +21,7 @@ import { validateSupportCatalogs } from "./support-validation.mjs";
 import { validateReleaseAssurancePolicy } from "./release-assurance-validation.mjs";
 import { validateChronicleMcpGuidance } from "./chronicle-mcp-guidance-validation.mjs";
 import { validateMcpGuidanceProducts } from "./mcp-guidance-validation.mjs";
+import { validateMcpDeclarations } from "./mcp-declaration-validation.mjs";
 import { validateNativeNonSkillProjectionContract } from "./native-non-skill-projections.mjs";
 import {
     loadRealHostCanaryContracts,
@@ -56,6 +57,7 @@ const basicErrors = [
     ...validateReleaseAssurancePolicy(),
     ...validateChronicleMcpGuidance(),
     ...validateMcpGuidanceProducts(),
+    ...validateMcpDeclarations(),
     ...validateNativeNonSkillProjectionContract(),
     ...validateSpecificationLock().map((diagnostic) =>
         formatComplianceDiagnostics([diagnostic]),
@@ -80,7 +82,7 @@ if (errors.length > 0) {
 } else {
     process.stdout.write(
         basicMode
-            ? "Basic catalog validation passed: packaging, passive preview lanes, portable standards, MCP deny rules, native projections, and distribution profiles are valid.\n"
+            ? "Basic catalog validation passed: packaging, passive preview lanes, portable standards, MCP deny rules, MCP server declarations, native projections, and distribution profiles are valid.\n"
             : "Governed catalog validation passed: basic packaging plus normalized evidence, computed support, source evidence, real-host canaries, blocked S10 readiness, lifecycle, and marketplace contracts are valid.\n",
     );
 }
