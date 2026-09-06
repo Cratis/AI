@@ -207,6 +207,22 @@ const normalizedPackagedSourceNames = [
     "query-paging",
     "toolbar",
 ];
+// The Arc backend command and query capabilities now live under `skills/` as
+// self-contained canonical sources. Their legacy `.ai/skills` directories are
+// retained but no longer own a distribution target, so the source record names
+// the migrated path and the revision that introduced it. These entries come last
+// in the map on purpose: the legacy lists above still contain the same names,
+// and last write wins.
+// `add-business-rule` is deliberately absent: it is the one legacy source two
+// targets read from, `cratis-arc-command-validation` and
+// `cratis-chronicle-event-constraints`. A source record names exactly one path,
+// so the two have to migrate together.
+const arcBackendCommandSources = new Map([
+    ["call-command-from-code", "cratis-arc-command-execution"],
+    ["cratis-command", "cratis-arc-command"],
+    ["observable-query-curl", "cratis-arc-observable-query-http"],
+    ["query-paging", "cratis-arc-query-paging"],
+]);
 const sourceOverrides = new Map([
     ...referenceClosureSourceNames.map((name) => [
         name,
@@ -312,6 +328,14 @@ const sourceOverrides = new Map([
             evidenceId: "engineering-docs-authoring-source-f58bcf7",
         },
     ],
+    ...[...arcBackendCommandSources].map(([name, targetId]) => [
+        name,
+        {
+            sourcePath: `skills/${targetId}`,
+            sourceRevision: "cb53b07d666017459295aa9a1ec66030e6bf77b9",
+            evidenceId: "arc-backend-command-sources-cb53b07",
+        },
+    ]),
 ]);
 
 function documentationEffect(id, operation, scope, rollback) {
@@ -1474,7 +1498,6 @@ const engineeringTargetIds = targets
     .filter((target) => target.audience === "cratis-engineering")
     .map((target) => target.id);
 const candidateTargetExclusions = new Map([
-    ["cratis-arc-observable-query-http", "private-or-local-content"],
     ["cratis-chronicle-mcp-inspection", "mcp-guidance-materialization-blocked"],
     ["cratis-engineering-docs-visual-qa", "private-or-local-content"],
     ["skill-creator", "incomplete-resource-and-license-closure"],

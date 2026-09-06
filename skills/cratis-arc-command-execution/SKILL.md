@@ -142,5 +142,5 @@ justification rather than mis-marking it to silence the warning.
 
 - Defining the command or choosing its `Handle()` return shape:
   `cratis-arc-command`.
-- Adding or changing a rule: `cratis-arc-command-validation`.
+- Adding or changing a rule: the Arc command validation guidance.
 - Designing what a reactor should observe: the Chronicle reactor guidance.

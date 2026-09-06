@@ -133,11 +133,21 @@ if (unexpectedUntracked.length > 0) {
 }
 const universe = [...tracked, ...admittedUntracked];
 const v2Sources = readCatalog(join(repositoryRoot, "catalog/v2/sources.json"));
+// Legacy `.ai/skills` directories that are retained after their capability moved
+// to a canonical source under `skills/`. The source record names the new path, so
+// the legacy bytes need admitting explicitly until they are retired.
+const retainedLegacyPublicSkillNames = [
+    "add-concept",
+    "call-command-from-code",
+    "cratis-command",
+    "observable-query-curl",
+    "query-paging",
+];
 const publicSkillRoots = [
     ...v2Sources.sources
         .filter((source) => source.audience === "public")
         .map((source) => `${source.sourcePath}/**`),
-    ".ai/skills/add-concept/**",
+    ...retainedLegacyPublicSkillNames.map((name) => `.ai/skills/${name}/**`),
     "skills/**",
 ];
 const legacyEngineeringSkillNames = [

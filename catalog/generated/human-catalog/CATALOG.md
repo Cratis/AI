@@ -15,10 +15,10 @@ and does not make a planned package installable.
 
 Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.
 
-- Components: 142
-- Passive: 139
+- Components: 141
+- Passive: 138
 - Executable: 3
-- Legacy-retained: 9
+- Legacy-retained: 8
 - Existing adapter records: 316
 - Generated static fixture projections: 70
 - Active host projections: 313
@@ -30,7 +30,7 @@ Modeled or planned components and projections are catalog metadata only; they ar
 
 ### Components by kind
 
-- skill: 54
+- skill: 53
 - agent: 12
 - subagent: 0
 - command: 18
@@ -55,7 +55,7 @@ Modeled or planned components and projections are catalog metadata only; they ar
 
 ## Computed ecosystem support
 
-As of 2026-09-02, technical tiers are computed from active normalized evidence; expired and future evidence cannot satisfy gates. Marketplace listing is orthogonal.
+As of 2026-09-06, technical tiers are computed from active normalized evidence; expired and future evidence cannot satisfy gates. Marketplace listing is orthogonal.
 
 - unsupported: 0
 - documented: 24
@@ -140,7 +140,6 @@ The namespaced suite for building a full Cratis application with Arc, Chronicle,
 
 - cratis-arc-command
 - cratis-arc-command-execution
-- cratis-arc-command-validation
 - cratis-arc-observable-query-http
 - cratis-arc-query-paging
 - cratis-fundamentals-concept
@@ -170,7 +169,6 @@ The namespaced Arc suite: model-bound commands, queries, EF Core persistence, an
 
 - cratis-arc-command
 - cratis-arc-command-execution
-- cratis-arc-command-validation
 - cratis-arc-observable-query-http
 - cratis-arc-query-paging
 - cratis-fundamentals-concept
@@ -230,7 +228,6 @@ Every public Cratis suite in one selection, including the Screenplay to Stage mo
 
 - cratis-arc-command
 - cratis-arc-command-execution
-- cratis-arc-command-validation
 - cratis-arc-observable-query-http
 - cratis-arc-query-paging
 - cratis-fundamentals-concept
@@ -263,7 +260,6 @@ End-to-end guidance for building Cratis applications with Arc, Chronicle, React,
 
 - cratis-arc-command
 - cratis-arc-command-execution
-- cratis-arc-command-validation
 - cratis-arc-observable-query-http
 - cratis-arc-query-paging
 - cratis-fundamentals-concept
@@ -299,7 +295,6 @@ Combined AI guidance for developers using Cratis Fundamentals, Cratis Arc, and C
 
 - cratis-arc-command
 - cratis-arc-command-execution
-- cratis-arc-command-validation
 - cratis-arc-observable-query-http
 - cratis-arc-query-paging
 - cratis-fundamentals-concept
@@ -332,7 +327,6 @@ Combined AI guidance for developers using Cratis Fundamentals and Cratis Arc in 
 
 - cratis-arc-command
 - cratis-arc-command-execution
-- cratis-arc-command-validation
 - cratis-arc-observable-query-http
 - cratis-arc-query-paging
 - cratis-fundamentals-concept
@@ -392,7 +386,6 @@ Combined AI guidance for developers using Cratis Fundamentals, Cratis Arc, Crati
 
 - cratis-arc-command
 - cratis-arc-command-execution
-- cratis-arc-command-validation
 - cratis-arc-observable-query-http
 - cratis-arc-query-paging
 - cratis-fundamentals-concept
@@ -427,7 +420,6 @@ AI guidance for developers building with Cratis Arc.
 
 - cratis-arc-command
 - cratis-arc-command-execution
-- cratis-arc-command-validation
 - cratis-arc-observable-query-http
 - cratis-arc-query-paging
 
@@ -456,7 +448,6 @@ AI guidance for developers building with Cratis Arc and Entity Framework Core.
 
 - cratis-arc-command
 - cratis-arc-command-execution
-- cratis-arc-command-validation
 - cratis-arc-observable-query-http
 - cratis-arc-query-paging
 
@@ -485,7 +476,6 @@ AI guidance for developers building with Cratis Arc.
 
 - cratis-arc-command
 - cratis-arc-command-execution
-- cratis-arc-command-validation
 - cratis-arc-observable-query-http
 - cratis-arc-query-paging
 
@@ -514,7 +504,6 @@ AI guidance for developers building with Cratis Arc React.
 
 - cratis-arc-command
 - cratis-arc-command-execution
-- cratis-arc-command-validation
 - cratis-arc-observable-query-http
 - cratis-arc-query-paging
 
@@ -2245,17 +2234,7 @@ Use when adding validation or state-dependent rejection to an existing Arc comma
 
 #### Profile membership — cratis-arc-command-validation
 
-- cratis/application
-- cratis/arc
-- cratis/full
-- public-application
-- public-application-arc-chronicle
-- public-application-arc-only
-- public-application-react
-- public-arc
-- public-arc-ef-core
-- public-arc-identity
-- public-arc-react
+- None
 
 ### cratis-arc-ef-core-migration
 

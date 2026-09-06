@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "00be3c96aff43bdc23aa93e382e5280472ad4db4c4dc3f0bb658c8c6144df109",
+  "indexDigest": "bac3c643742374b740855d63ae012f8b88c458945c173ae6a0b32144df94f55f",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -2675,14 +2675,6 @@
       "status": "added"
     },
     {
-      "path": "skills/cratis-arc-command-validation/LICENSE",
-      "status": "added"
-    },
-    {
-      "path": "skills/cratis-arc-command-validation/SKILL.md",
-      "status": "added"
-    },
-    {
       "path": "skills/cratis-arc-command/LICENSE",
       "status": "added"
     },
@@ -2700,6 +2692,10 @@
     },
     {
       "path": "skills/cratis-arc-command/references/proxy-generation.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-command/references/read-model-injection.md",
       "status": "added"
     },
     {
@@ -3767,9 +3763,9 @@
         ".ai/skills/add-reactor/**",
         ".ai/skills/add-reducer/**",
         ".ai/skills/auth-and-identity/**",
-        ".ai/skills/call-command-from-code/**",
+        "skills/cratis-arc-command-execution/**",
         "skills/cratis-chronicle-mcp-inspection/**",
-        ".ai/skills/cratis-command/**",
+        "skills/cratis-arc-command/**",
         ".ai/skills/cratis-react-page/**",
         ".ai/skills/cratis-readmodel/**",
         ".ai/skills/cratis-specs-csharp/**",
@@ -3785,8 +3781,8 @@
         ".ai/skills/inspect-running-chronicle/**",
         ".ai/skills/multi-tenancy/**",
         ".ai/skills/new-vertical-slice/**",
-        ".ai/skills/observable-query-curl/**",
-        ".ai/skills/query-paging/**",
+        "skills/cratis-arc-observable-query-http/**",
+        "skills/cratis-arc-query-paging/**",
         ".ai/skills/review-code/**",
         ".ai/skills/review-performance/**",
         ".ai/skills/review-security/**",
@@ -3798,6 +3794,10 @@
         ".ai/skills/write-specs-frontend/**",
         ".ai/skills/write-specs-readmodels/**",
         ".ai/skills/add-concept/**",
+        ".ai/skills/call-command-from-code/**",
+        ".ai/skills/cratis-command/**",
+        ".ai/skills/observable-query-curl/**",
+        ".ai/skills/query-paging/**",
         "skills/**"
       ],
       "artifactType": "skill-source-and-resources",
@@ -3816,8 +3816,8 @@
         "workflows-68",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 81,
-      "expectedPathsDigest": "8607d3e6d238f83f588042d116b271053981be008adc3171990e5bc2e7467581"
+      "expectedPathCount": 80,
+      "expectedPathsDigest": "97d9cdba36a1fa0432e7768032567cd7c4257073c16e5eeebe9f3ac7a67114f1"
     },
     {
       "excludePathPatterns": [],

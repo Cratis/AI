@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "asOf": "2026-09-02",
+  "asOf": "2026-09-06",
   "generatedBy": "tooling/generate-catalog-v2.mjs",
   "evidence": [
     {
@@ -119,6 +119,16 @@
       "expiresOn": "2026-11-23",
       "applicableVersion": "current-documentation-2026-08-25",
       "confidence": "high"
+    },
+    {
+      "id": "arc-backend-command-sources-cb53b07",
+      "officialUrl": "https://github.com/Cratis/AI/tree/cb53b07d666017459295aa9a1ec66030e6bf77b9/skills",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-09-06",
+      "expiresOn": "2027-09-06",
+      "applicableVersion": "cb53b07d666017459295aa9a1ec66030e6bf77b9",
+      "confidence": "high",
+      "immutableRevision": "cb53b07d666017459295aa9a1ec66030e6bf77b9"
     },
     {
       "id": "augment-auggie-source-1",

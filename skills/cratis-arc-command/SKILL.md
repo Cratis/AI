@@ -172,11 +172,10 @@ public record Open<Thing>(<ThingId> Id, <OwnerId> OwnerId)
 
 An Arc read model can also be injected directly into `Provide`, `Handle`, or a
 `CommandValidator<T>` — but only by **the command's own resolved key**. Reading a
-read model keyed by anything else needs an explicit by-id read. Read the
-existence rules in the `cratis-arc-command-validation` skill before relying on a
-directly injected read model: a non-nullable parameter that does not resolve
-throws `CannotResolveValidatorDependency`, and an absent instance does not always
-arrive as `null`.
+read model keyed by anything else needs an explicit by-id read, and an absent
+instance does not always arrive as `null`. Read
+[read-model injection](references/read-model-injection.md) before relying on a
+directly injected read model.
 
 ## Decide what the causation chain may record
 
@@ -261,7 +260,8 @@ Components guidance, not to this skill.
 
 ## Route near misses
 
-- Adding or changing a rule on an existing command: `cratis-arc-command-validation`.
+- Adding or changing a rule on an existing command: the Arc command validation
+  guidance.
 - Executing an existing command from backend code: `cratis-arc-command-execution`.
 - Append-time uniqueness or concurrency constraints: the Chronicle event
   constraints guidance.

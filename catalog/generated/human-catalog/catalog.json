@@ -2,12 +2,12 @@
   "schemaVersion": 2,
   "contractVersion": 1,
   "disclaimer": "Catalog inclusion, evaluation evidence, component modeling, planned projection, bundle generation, or publication does not grant runtime permission, emitted bytes, support, or approval.",
-  "inputDigest": "91d5fb21966a2ed025521a869b4ae14ac18cf94aa3579ab318b127281ab0d90d",
+  "inputDigest": "67bd24b684a8c8e2e08b2ae0973425725617ba81c67ea927f58158834cadb5a8",
   "componentSummary": {
     "disclaimer": "Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.",
-    "total": 142,
+    "total": 141,
     "byKind": {
-      "skill": 54,
+      "skill": 53,
       "agent": 12,
       "subagent": 0,
       "command": 18,
@@ -21,17 +21,17 @@
       "static-asset": 0
     },
     "byTrust": {
-      "passive": 139,
+      "passive": 138,
       "executable": 3
     },
     "byAudience": {
       "public": 37,
-      "cratis-engineering": 105,
+      "cratis-engineering": 104,
       "repository-only": 0
     },
     "byLifecycle": {
       "active": 133,
-      "legacy-retained": 9
+      "legacy-retained": 8
     },
     "projections": {
       "total": 386,
@@ -112,7 +112,6 @@
       "targetIds": [
         "cratis-arc-command",
         "cratis-arc-command-execution",
-        "cratis-arc-command-validation",
         "cratis-arc-observable-query-http",
         "cratis-arc-query-paging",
         "cratis-fundamentals-concept"
@@ -146,7 +145,6 @@
       "targetIds": [
         "cratis-arc-command",
         "cratis-arc-command-execution",
-        "cratis-arc-command-validation",
         "cratis-arc-observable-query-http",
         "cratis-arc-query-paging",
         "cratis-fundamentals-concept"
@@ -219,7 +217,6 @@
       "targetIds": [
         "cratis-arc-command",
         "cratis-arc-command-execution",
-        "cratis-arc-command-validation",
         "cratis-arc-observable-query-http",
         "cratis-arc-query-paging",
         "cratis-fundamentals-concept"
@@ -261,7 +258,6 @@
       "targetIds": [
         "cratis-arc-command",
         "cratis-arc-command-execution",
-        "cratis-arc-command-validation",
         "cratis-arc-observable-query-http",
         "cratis-arc-query-paging",
         "cratis-fundamentals-concept"
@@ -296,7 +292,6 @@
       "targetIds": [
         "cratis-arc-command",
         "cratis-arc-command-execution",
-        "cratis-arc-command-validation",
         "cratis-arc-observable-query-http",
         "cratis-arc-query-paging",
         "cratis-fundamentals-concept"
@@ -329,7 +324,6 @@
       "targetIds": [
         "cratis-arc-command",
         "cratis-arc-command-execution",
-        "cratis-arc-command-validation",
         "cratis-arc-observable-query-http",
         "cratis-arc-query-paging",
         "cratis-fundamentals-concept"
@@ -398,7 +392,6 @@
       "targetIds": [
         "cratis-arc-command",
         "cratis-arc-command-execution",
-        "cratis-arc-command-validation",
         "cratis-arc-observable-query-http",
         "cratis-arc-query-paging",
         "cratis-fundamentals-concept"
@@ -427,14 +420,12 @@
       "directTargetIds": [
         "cratis-arc-command",
         "cratis-arc-command-execution",
-        "cratis-arc-command-validation",
         "cratis-arc-observable-query-http",
         "cratis-arc-query-paging"
       ],
       "targetIds": [
         "cratis-arc-command",
         "cratis-arc-command-execution",
-        "cratis-arc-command-validation",
         "cratis-arc-observable-query-http",
         "cratis-arc-query-paging"
       ]
@@ -464,7 +455,6 @@
       "targetIds": [
         "cratis-arc-command",
         "cratis-arc-command-execution",
-        "cratis-arc-command-validation",
         "cratis-arc-observable-query-http",
         "cratis-arc-query-paging"
       ]
@@ -495,7 +485,6 @@
       "targetIds": [
         "cratis-arc-command",
         "cratis-arc-command-execution",
-        "cratis-arc-command-validation",
         "cratis-arc-observable-query-http",
         "cratis-arc-query-paging"
       ]
@@ -525,7 +514,6 @@
       "targetIds": [
         "cratis-arc-command",
         "cratis-arc-command-execution",
-        "cratis-arc-command-validation",
         "cratis-arc-observable-query-http",
         "cratis-arc-query-paging"
       ]
@@ -2145,19 +2133,7 @@
       "bundleIds": [
         "cratis-arc-backend-review"
       ],
-      "profileIds": [
-        "cratis/application",
-        "cratis/arc",
-        "cratis/full",
-        "public-application",
-        "public-application-arc-chronicle",
-        "public-application-arc-only",
-        "public-application-react",
-        "public-arc",
-        "public-arc-ef-core",
-        "public-arc-identity",
-        "public-arc-react"
-      ]
+      "profileIds": []
     },
     {
       "id": "cratis-arc-ef-core-migration",

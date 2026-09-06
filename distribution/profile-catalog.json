@@ -263,11 +263,10 @@
       "availableTargets": [
         "cratis-arc-command",
         "cratis-arc-command-execution",
-        "cratis-arc-command-validation",
         "cratis-arc-observable-query-http",
         "cratis-arc-query-paging"
       ],
-      "gapSummary": "Command definition, validation, pipeline execution, query paging, and observable-query HTTP inspection are canonical. Dedicated query authoring, read-model design, and separated authorization guidance remain gaps."
+      "gapSummary": "Command definition, pipeline execution, query paging, and observable-query HTTP inspection are canonical. Command validation still shares one legacy source with the Chronicle event-constraints target and migrates with it; dedicated query authoring, read-model design, and separated authorization guidance remain gaps."
     },
     {
       "id": "public-arc-ef-core",

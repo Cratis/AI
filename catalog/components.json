@@ -56,7 +56,6 @@
     "engineering/skills/cratis-engineering-docs-edit-page",
     "skills/cratis-arc-command",
     "skills/cratis-arc-command-execution",
-    "skills/cratis-arc-command-validation",
     "skills/cratis-arc-observable-query-http",
     "skills/cratis-arc-query-paging",
     "skills/cratis-chronicle-mcp-inspection",
@@ -1338,12 +1337,12 @@
       "canonicalSources": [
         {
           "path": "skills/cratis-arc-command",
-          "digest": "883b8eb2cd8bb3846ca7f1b36608e87efca8914360c718189defe4d9ec89be41",
+          "digest": "ec603ed0acee9ddc5ab0f163b60d334ab4b191023388b44503cfdab7f1e75ec6",
           "ownership": "owner",
           "ownerComponentId": "cratis-arc-command"
         }
       ],
-      "contentDigest": "a119305a8c1bfbd4e7883bc2e331dd46fbd03893b57fc0c0357ab22c636a5b92",
+      "contentDigest": "78cf1e557456f9e40519dd4a63710809614cc211cc3007d262b7eb93376ab0ff",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -1419,12 +1418,12 @@
       "canonicalSources": [
         {
           "path": "skills/cratis-arc-command-execution",
-          "digest": "b7e16ddbd132a0cf170d8e0b5bb579bbf1453a4e5166c221dec22c55837ac98a",
+          "digest": "4b8f12ffbf5b1c3221edbf5cd989604dcd9fad7515633fe0fa56f7ef61b5e527",
           "ownership": "owner",
           "ownerComponentId": "cratis-arc-command-execution"
         }
       ],
-      "contentDigest": "c9175a97631bf362f347325be296d95e2ac9e8dc6fe213bfc069bcdfc9264f57",
+      "contentDigest": "86e1072de71870f1900f79055938a3fdc26a5a08fc8e876a427f3a58dd029e8d",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -1494,18 +1493,18 @@
       "id": "cratis-arc-command-validation",
       "kind": "skill",
       "semanticIdentity": "cratis-arc-command-validation",
-      "semanticName": "Arc command validation",
+      "semanticName": "cratis-arc-command-validation",
       "lifecycle": "active",
       "distributionTargetId": "cratis-arc-command-validation",
       "canonicalSources": [
         {
-          "path": "skills/cratis-arc-command-validation",
-          "digest": "e9900a498ee0791ebb0ba1dd5ba988014edefa36dbf643bb0c95ed87a295c7e9",
+          "path": ".ai/skills/add-business-rule",
+          "digest": "7aff5f2a3586a74b046a51a4c9f0f6ad5ec6a95bed5eb40ea383ef588b1eba76",
           "ownership": "owner",
           "ownerComponentId": "cratis-arc-command-validation"
         }
       ],
-      "contentDigest": "6a7596a639c00f69f119af66db7ea708a132e383bd3277b48a10010728d01c76",
+      "contentDigest": "16928b6e11edd80ddf14db0d4e1f0ed299da1c33edd077c52e53c01cd1f2b3a5",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -1515,8 +1514,11 @@
         "executable": false,
         "effect": "guided-write"
       },
-      "dependencies": [],
-      "hostNeutralPurpose": "Add or change a rule on an existing Arc command",
+      "dependencies": [
+        "cratis-arc-command",
+        "cratis-fundamentals-concept"
+      ],
+      "hostNeutralPurpose": "Arc command validation",
       "approval": {
         "state": "modeled",
         "evidenceIds": [
@@ -2079,7 +2081,7 @@
           "path": ".ai/skills/add-business-rule",
           "digest": "7aff5f2a3586a74b046a51a4c9f0f6ad5ec6a95bed5eb40ea383ef588b1eba76",
           "ownership": "shared-reference",
-          "ownerComponentId": "cratis-legacy-add-business-rule"
+          "ownerComponentId": "cratis-arc-command-validation"
         }
       ],
       "contentDigest": "16928b6e11edd80ddf14db0d4e1f0ed299da1c33edd077c52e53c01cd1f2b3a5",
@@ -5526,79 +5528,6 @@
         "static-asset"
       ],
       "requiredCanaries": [
-        "projection-shape",
-        "semantic-identity",
-        "source-digest"
-      ],
-      "securityRequirements": {
-        "threatModel": false,
-        "securityReview": false,
-        "executableAssuranceProfile": false
-      }
-    },
-    {
-      "id": "cratis-legacy-add-business-rule",
-      "kind": "skill",
-      "semanticIdentity": "cratis-legacy-add-business-rule",
-      "semanticName": "Legacy add-business-rule host skill",
-      "lifecycle": "legacy-retained",
-      "distributionTargetId": null,
-      "canonicalSources": [
-        {
-          "path": ".ai/skills/add-business-rule",
-          "digest": "7aff5f2a3586a74b046a51a4c9f0f6ad5ec6a95bed5eb40ea383ef588b1eba76",
-          "ownership": "owner",
-          "ownerComponentId": "cratis-legacy-add-business-rule"
-        }
-      ],
-      "contentDigest": "16928b6e11edd80ddf14db0d4e1f0ed299da1c33edd077c52e53c01cd1f2b3a5",
-      "owner": "reusable Cratis engineering behavior",
-      "audience": "cratis-engineering",
-      "classification": {
-        "artifactClass": "passive-content",
-        "trust": "passive",
-        "passive": true,
-        "executable": false,
-        "effect": "guided-write"
-      },
-      "dependencies": [
-        "cratis-arc-command-validation"
-      ],
-      "hostNeutralPurpose": "Retained repository-local add-business-rule guidance",
-      "approval": {
-        "state": "modeled",
-        "evidenceIds": [
-          "reevaluation-authority",
-          "repo-main-b795d53"
-        ]
-      },
-      "releaseBoundary": "repository-only",
-      "allowedProjections": [
-        {
-          "hostContract": "any-passive-host",
-          "kinds": [
-            "skill"
-          ],
-          "artifactClasses": [
-            "provider-compatibility"
-          ]
-        }
-      ],
-      "forbiddenProjections": [
-        "agent",
-        "subagent",
-        "command",
-        "prompt",
-        "rule",
-        "instruction",
-        "hook",
-        "mcp",
-        "lsp",
-        "executable-host-extension",
-        "static-asset"
-      ],
-      "requiredCanaries": [
-        "host-discovery",
         "projection-shape",
         "semantic-identity",
         "source-digest"

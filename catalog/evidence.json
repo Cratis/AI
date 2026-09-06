@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "asOf": "2026-09-02",
+  "asOf": "2026-09-06",
   "defaultPolicy": "deny",
   "sources": [
     {
@@ -742,6 +742,12 @@
       "kind": "repository-snapshot",
       "locator": "https://github.com/Cratis/AI/tree/fbf76029e4a6593a6a24f939face32b720009198/.ai/skills/multi-tenancy",
       "immutableRevision": "fbf76029e4a6593a6a24f939face32b720009198"
+    },
+    {
+      "id": "source-arc-backend-command-sources-cb53b07",
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/cb53b07d666017459295aa9a1ec66030e6bf77b9/skills",
+      "immutableRevision": "cb53b07d666017459295aa9a1ec66030e6bf77b9"
     }
   ],
   "observations": [
@@ -7551,6 +7557,43 @@
         "officialUrl": "https://github.com/Cratis/AI/tree/fbf76029e4a6593a6a24f939face32b720009198/.ai/skills/multi-tenancy",
         "sourceKind": "repository-snapshot",
         "applicableVersion": "fbf76029e4a6593a6a24f939face32b720009198"
+      }
+    },
+    {
+      "id": "arc-backend-command-sources-cb53b07",
+      "sourceId": "source-arc-backend-command-sources-cb53b07",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "artifact",
+        "id": "candidate-passive-public-package",
+        "version": "cb53b07d666017459295aa9a1ec66030e6bf77b9"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "source-provenance",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Source provenance for the Arc backend command and query sources migrated into skills/.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-09-06",
+      "validThrough": "2027-09-06",
+      "confidence": "high",
+      "limitations": [
+        "This observation proves source provenance only; it grants no behavior, install, or support assurance."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/cb53b07d666017459295aa9a1ec66030e6bf77b9/skills",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "cb53b07d666017459295aa9a1ec66030e6bf77b9"
       }
     },
     {

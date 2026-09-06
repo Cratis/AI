@@ -186,21 +186,22 @@
     },
     {
       "id": "call-command-from-code",
-      "sourcePath": ".ai/skills/call-command-from-code",
+      "sourcePath": "skills/cratis-arc-command-execution",
       "artifactType": "agent-skill-source",
       "currentOwner": "reusable Cratis engineering behavior",
       "targetOwner": "public Cratis product capability",
       "audience": "public",
       "bundledPaths": [
-        ".ai/skills/call-command-from-code/SKILL.md"
+        "skills/cratis-arc-command-execution/LICENSE",
+        "skills/cratis-arc-command-execution/SKILL.md"
       ],
-      "sourceRevision": "23efb73a14eb367a2dd0e745caed171f67f3d550",
-      "contentDigest": "bc60327237bef1659fd508793d24bb86ff2221e8d2c409ff9539cc57d11584ba",
+      "sourceRevision": "cb53b07d666017459295aa9a1ec66030e6bf77b9",
+      "contentDigest": "4b8f12ffbf5b1c3221edbf5cd989604dcd9fad7515633fe0fa56f7ef61b5e527",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
         "reevaluation-authority",
-        "public-skill-markdown-normalization-source-23efb73"
+        "arc-backend-command-sources-cb53b07"
       ]
     },
     {
@@ -227,26 +228,26 @@
     },
     {
       "id": "cratis-command",
-      "sourcePath": ".ai/skills/cratis-command",
+      "sourcePath": "skills/cratis-arc-command",
       "artifactType": "agent-skill-source",
       "currentOwner": "reusable Cratis engineering behavior",
       "targetOwner": "public Cratis product capability",
       "audience": "public",
       "bundledPaths": [
-        ".ai/skills/cratis-command/SKILL.md",
-        ".ai/skills/cratis-command/evals/evals.json",
-        ".ai/skills/cratis-command/references/command-dialog.md",
-        ".ai/skills/cratis-command/references/command-result.md",
-        ".ai/skills/cratis-command/references/proxy-setup.md",
-        ".ai/skills/cratis-command/references/validation.md"
+        "skills/cratis-arc-command/LICENSE",
+        "skills/cratis-arc-command/SKILL.md",
+        "skills/cratis-arc-command/references/command-result.md",
+        "skills/cratis-arc-command/references/handler-shapes.md",
+        "skills/cratis-arc-command/references/proxy-generation.md",
+        "skills/cratis-arc-command/references/read-model-injection.md"
       ],
-      "sourceRevision": "afbe46fc7c87ab110df7f1983a0ca174ef0f6aac",
-      "contentDigest": "2f97a3c740b96273326783de74a3479d6ff972dda8df733d39dc5111da1753da",
+      "sourceRevision": "cb53b07d666017459295aa9a1ec66030e6bf77b9",
+      "contentDigest": "ec603ed0acee9ddc5ab0f163b60d334ab4b191023388b44503cfdab7f1e75ec6",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
         "reevaluation-authority",
-        "command-causation-guidance-source-afbe46f"
+        "arc-backend-command-sources-cb53b07"
       ]
     },
     {
@@ -598,20 +599,22 @@
     },
     {
       "id": "observable-query-curl",
-      "sourcePath": ".ai/skills/observable-query-curl",
+      "sourcePath": "skills/cratis-arc-observable-query-http",
       "artifactType": "agent-skill-source",
       "currentOwner": "reusable Cratis engineering behavior",
       "targetOwner": "public Cratis product capability",
       "audience": "public",
       "bundledPaths": [
-        ".ai/skills/observable-query-curl/SKILL.md"
+        "skills/cratis-arc-observable-query-http/LICENSE",
+        "skills/cratis-arc-observable-query-http/SKILL.md"
       ],
-      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-      "contentDigest": "bdda610b40779905a2b93c858e06e9829c2d1f7306e2a780e6c8500d17932914",
+      "sourceRevision": "cb53b07d666017459295aa9a1ec66030e6bf77b9",
+      "contentDigest": "00593cbc2773c1d8e4054211658e1296ab8cd85589f4240eae420285e94fa2a1",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "arc-backend-command-sources-cb53b07"
       ]
     },
     {
@@ -634,21 +637,22 @@
     },
     {
       "id": "query-paging",
-      "sourcePath": ".ai/skills/query-paging",
+      "sourcePath": "skills/cratis-arc-query-paging",
       "artifactType": "agent-skill-source",
       "currentOwner": "reusable Cratis engineering behavior",
       "targetOwner": "public Cratis product capability",
       "audience": "public",
       "bundledPaths": [
-        ".ai/skills/query-paging/SKILL.md"
+        "skills/cratis-arc-query-paging/LICENSE",
+        "skills/cratis-arc-query-paging/SKILL.md"
       ],
-      "sourceRevision": "23efb73a14eb367a2dd0e745caed171f67f3d550",
-      "contentDigest": "ab1c37b6b14b57454530bc6e282d6c73deae26f73745fb5bac28b4d9e2481df8",
+      "sourceRevision": "cb53b07d666017459295aa9a1ec66030e6bf77b9",
+      "contentDigest": "de4bcc7a221cb66d48971a625c921d87d9180d7d0e1a5919893004db1c75ed52",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
         "reevaluation-authority",
-        "public-skill-markdown-normalization-source-23efb73"
+        "arc-backend-command-sources-cb53b07"
       ]
     },
     {
