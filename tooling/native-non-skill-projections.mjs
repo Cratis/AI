@@ -8,6 +8,7 @@ import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { compareOrdinal } from "./catalog-ordering.mjs";
 import {
+    anchorMismatch,
     defaultRepositoryRoot,
     readCatalog,
     validateAgainstSchema,
@@ -128,20 +129,39 @@ export function buildNativeNonSkillProjectionPlan(
             projectionSchema,
         ),
     ];
-    if (
-        semanticAnchor(
-            components.components.filter((component) =>
-                selectedComponentIds.has(component.id),
+    // Reported one anchor at a time: a single "one of these three moved" line made a contributor
+    // recompute all three by hand to find out which, and none of them printed what they computed.
+    const staticAnchors = [
+        [
+            "S8 static component metadata",
+            expectedStaticComponentAnchor,
+            semanticAnchor(
+                components.components.filter((component) =>
+                    selectedComponentIds.has(component.id),
+                ),
             ),
-        ) !== expectedStaticComponentAnchor ||
-        semanticAnchor(selected) !== expectedStaticProjectionAnchor ||
-        semanticAnchor(
-            projections.hosts.filter((host) => selectedHostIds.has(host.id)),
-        ) !== expectedStaticProjectionHostAnchor
-    )
-        metadataErrors.push(
-            "S8 component or projection metadata differs from the reviewed anchors",
-        );
+            "expectedStaticComponentAnchor in tooling/native-non-skill-projections.mjs",
+        ],
+        [
+            "S8 static projection metadata",
+            expectedStaticProjectionAnchor,
+            semanticAnchor(selected),
+            "expectedStaticProjectionAnchor in tooling/native-non-skill-projections.mjs",
+        ],
+        [
+            "S8 static projection host metadata",
+            expectedStaticProjectionHostAnchor,
+            semanticAnchor(
+                projections.hosts.filter((host) => selectedHostIds.has(host.id)),
+            ),
+            "expectedStaticProjectionHostAnchor in tooling/native-non-skill-projections.mjs",
+        ],
+    ];
+    for (const [subject, expected, computed, constantLocation] of staticAnchors)
+        if (expected !== computed)
+            metadataErrors.push(
+                anchorMismatch(subject, expected, computed, constantLocation),
+            );
     if (metadataErrors.length > 0)
         throw new Error(
             `Component metadata blocks S8 generation: ${metadataErrors.join("; ")}`,

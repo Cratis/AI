@@ -12,6 +12,7 @@ import {
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { compareOrdinal } from "./catalog-ordering.mjs";
 import {
+    anchorMismatch,
     defaultRepositoryRoot,
     readCatalog,
     validateAgainstSchema,
@@ -344,9 +345,15 @@ function sourceSignature(component) {
 export function validateComponents(catalogs, root = defaultRepositoryRoot) {
     const errors = [];
     const { components: catalog, evidence, targets } = catalogs;
-    if (semanticAnchor(catalog.components) !== expectedComponentAnchor)
+    const componentAnchor = semanticAnchor(catalog.components);
+    if (componentAnchor !== expectedComponentAnchor)
         errors.push(
-            "component semantic contract differs from the independently reviewed anchor",
+            anchorMismatch(
+                "component semantic contract",
+                expectedComponentAnchor,
+                componentAnchor,
+                "expectedComponentAnchor in tooling/component-catalog-validation.mjs",
+            ),
         );
     const componentIds = new Set(
         catalog.components.map((component) => component.id),
@@ -754,13 +761,25 @@ export function validateComponentProjections(
         assuranceProfiles,
         hostAdapters,
     } = catalogs;
-    if (semanticAnchor(projections.projections) !== expectedProjectionAnchor)
+    const projectionAnchor = semanticAnchor(projections.projections);
+    if (projectionAnchor !== expectedProjectionAnchor)
         errors.push(
-            "component projection semantic contract differs from the independently reviewed anchor",
+            anchorMismatch(
+                "component projection semantic contract",
+                expectedProjectionAnchor,
+                projectionAnchor,
+                "expectedProjectionAnchor in tooling/component-catalog-validation.mjs",
+            ),
         );
-    if (semanticAnchor(projections.hosts) !== expectedProjectionHostAnchor)
+    const projectionHostAnchor = semanticAnchor(projections.hosts);
+    if (projectionHostAnchor !== expectedProjectionHostAnchor)
         errors.push(
-            "component projection host contract differs from the independently reviewed anchor",
+            anchorMismatch(
+                "component projection host contract",
+                expectedProjectionHostAnchor,
+                projectionHostAnchor,
+                "expectedProjectionHostAnchor in tooling/component-catalog-validation.mjs",
+            ),
         );
     const componentsById = new Map(
         components.components.map((component) => [component.id, component]),
