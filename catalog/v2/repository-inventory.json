@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "7223d5dd952721dda1ca57b198960838834652d9b8dbab112038927896953f85",
+  "indexDigest": "bbbdbc99425b6d3b30b488a84c39d3096f08e03e1c78511640685412d09cad2c",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -56,6 +56,18 @@
     },
     {
       "path": ".ai/hooks/scripts/validate-ai-setup.sh",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/hooks/scripts/validate-package-imports.sh",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/hooks/scripts/validate-package-subpaths.sh",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/hooks/scripts/validate-type-references.sh",
       "status": "modified"
     },
     {

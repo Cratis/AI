@@ -406,6 +406,12 @@ stops matching is a failure rather than a silent green. A finding that is genuin
 is silenced with a `# shellcheck disable=SC…` directive carrying a comment that says why — never by
 loosening the severity.
 
+The step uses whatever shellcheck the runner image ships, and prints its version first. Different
+versions genuinely disagree: 0.9.0 flags `A && B || C` (SC2015) where 0.11.0 does not, so a local
+run can be green while CI is red. The scripts are currently clean under **both** 0.9.0 and 0.11.0.
+If a runner image upgrade introduces a new finding, fix the script — the version line at the top of
+the step log says which version changed its mind.
+
 ## Note on `.claude/settings.local.json`
 
 If that file carries `allow` entries for `Bash(git push *)` and `Bash(gh pr *)`, they win: local
