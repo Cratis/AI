@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "fc7d7a62a3aec9ae0da9a3fee9bc7dbe2d18acc654d6d495a77b8c51ac8ea427",
+  "indexDigest": "20ad93ddf81ba83d375b60e0039a41fd5fa0c16042b57c91d430c2b2cc305543",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -128,6 +128,10 @@
     },
     {
       "path": ".ai/rules/pull-requests.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/rules/reactors.md",
       "status": "modified"
     },
     {
