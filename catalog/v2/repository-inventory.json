@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "704278442e4838f0ee031c787e53dc3beff84f381bd6b219df57122689f20469",
+  "indexDigest": "2a2eb5f03a8a6d0e6209cea7ce42fc02a0cfb08332612fafd5dfa4d2839c25f9",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -1160,6 +1160,18 @@
     },
     {
       "path": "engineering/skills/cratis-engineering-csharp-conventions/references/exceptions-logging-and-di.md",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-decision-record/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-decision-record/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-decision-record/references/record-format.md",
       "status": "added"
     },
     {
@@ -4354,8 +4366,8 @@
         "option-a-plus-authority",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 16,
-      "expectedPathsDigest": "60fa65b3eddbd8cd1ed992a9f0d7aa36ee18d97308edffde1b98056b82805c91"
+      "expectedPathCount": 19,
+      "expectedPathsDigest": "aaec5767bf588844e1dc6c371b50919c79b9402f316ba1e47812a9357ee56ce9"
     },
     {
       "excludePathPatterns": [],
