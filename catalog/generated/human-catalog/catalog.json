@@ -2,12 +2,12 @@
   "schemaVersion": 2,
   "contractVersion": 1,
   "disclaimer": "Catalog inclusion, evaluation evidence, component modeling, planned projection, bundle generation, or publication does not grant runtime permission, emitted bytes, support, or approval.",
-  "inputDigest": "e01d840ef9d99d658f560ea896840091f153c11aca65d95ef6942945924cb813",
+  "inputDigest": "91d5fb21966a2ed025521a869b4ae14ac18cf94aa3579ab318b127281ab0d90d",
   "componentSummary": {
     "disclaimer": "Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.",
-    "total": 137,
+    "total": 142,
     "byKind": {
-      "skill": 49,
+      "skill": 54,
       "agent": 12,
       "subagent": 0,
       "command": 18,
@@ -21,17 +21,17 @@
       "static-asset": 0
     },
     "byTrust": {
-      "passive": 134,
+      "passive": 139,
       "executable": 3
     },
     "byAudience": {
       "public": 37,
-      "cratis-engineering": 100,
+      "cratis-engineering": 105,
       "repository-only": 0
     },
     "byLifecycle": {
       "active": 133,
-      "legacy-retained": 4
+      "legacy-retained": 9
     },
     "projections": {
       "total": 386,
@@ -110,6 +110,11 @@
       ],
       "directTargetIds": [],
       "targetIds": [
+        "cratis-arc-command",
+        "cratis-arc-command-execution",
+        "cratis-arc-command-validation",
+        "cratis-arc-observable-query-http",
+        "cratis-arc-query-paging",
         "cratis-fundamentals-concept"
       ]
     },
@@ -139,6 +144,11 @@
       ],
       "directTargetIds": [],
       "targetIds": [
+        "cratis-arc-command",
+        "cratis-arc-command-execution",
+        "cratis-arc-command-validation",
+        "cratis-arc-observable-query-http",
+        "cratis-arc-query-paging",
         "cratis-fundamentals-concept"
       ]
     },
@@ -207,6 +217,11 @@
       ],
       "directTargetIds": [],
       "targetIds": [
+        "cratis-arc-command",
+        "cratis-arc-command-execution",
+        "cratis-arc-command-validation",
+        "cratis-arc-observable-query-http",
+        "cratis-arc-query-paging",
         "cratis-fundamentals-concept"
       ]
     },
@@ -244,6 +259,11 @@
       ],
       "directTargetIds": [],
       "targetIds": [
+        "cratis-arc-command",
+        "cratis-arc-command-execution",
+        "cratis-arc-command-validation",
+        "cratis-arc-observable-query-http",
+        "cratis-arc-query-paging",
         "cratis-fundamentals-concept"
       ]
     },
@@ -274,6 +294,11 @@
       ],
       "directTargetIds": [],
       "targetIds": [
+        "cratis-arc-command",
+        "cratis-arc-command-execution",
+        "cratis-arc-command-validation",
+        "cratis-arc-observable-query-http",
+        "cratis-arc-query-paging",
         "cratis-fundamentals-concept"
       ]
     },
@@ -302,6 +327,11 @@
       ],
       "directTargetIds": [],
       "targetIds": [
+        "cratis-arc-command",
+        "cratis-arc-command-execution",
+        "cratis-arc-command-validation",
+        "cratis-arc-observable-query-http",
+        "cratis-arc-query-paging",
         "cratis-fundamentals-concept"
       ]
     },
@@ -366,6 +396,11 @@
       ],
       "directTargetIds": [],
       "targetIds": [
+        "cratis-arc-command",
+        "cratis-arc-command-execution",
+        "cratis-arc-command-validation",
+        "cratis-arc-observable-query-http",
+        "cratis-arc-query-paging",
         "cratis-fundamentals-concept"
       ]
     },
@@ -376,19 +411,33 @@
       "intendedFor": "Developers who use Cratis Arc.",
       "audience": "public",
       "packageName": "@cratis/ai-arc",
-      "state": "planned-source-migration",
+      "state": "preview-source-candidate",
       "installable": false,
-      "materialization": "catalog-only",
+      "materialization": "candidate-package",
       "products": [
         "arc"
       ],
       "languages": [
-        "csharp"
+        "csharp",
+        "typescript",
+        "shell"
       ],
       "repositoryKinds": [],
       "composes": [],
-      "directTargetIds": [],
-      "targetIds": []
+      "directTargetIds": [
+        "cratis-arc-command",
+        "cratis-arc-command-execution",
+        "cratis-arc-command-validation",
+        "cratis-arc-observable-query-http",
+        "cratis-arc-query-paging"
+      ],
+      "targetIds": [
+        "cratis-arc-command",
+        "cratis-arc-command-execution",
+        "cratis-arc-command-validation",
+        "cratis-arc-observable-query-http",
+        "cratis-arc-query-paging"
+      ]
     },
     {
       "id": "public-arc-ef-core",
@@ -412,7 +461,13 @@
         "public-arc"
       ],
       "directTargetIds": [],
-      "targetIds": []
+      "targetIds": [
+        "cratis-arc-command",
+        "cratis-arc-command-execution",
+        "cratis-arc-command-validation",
+        "cratis-arc-observable-query-http",
+        "cratis-arc-query-paging"
+      ]
     },
     {
       "id": "public-arc-identity",
@@ -437,7 +492,13 @@
         "public-arc"
       ],
       "directTargetIds": [],
-      "targetIds": []
+      "targetIds": [
+        "cratis-arc-command",
+        "cratis-arc-command-execution",
+        "cratis-arc-command-validation",
+        "cratis-arc-observable-query-http",
+        "cratis-arc-query-paging"
+      ]
     },
     {
       "id": "public-arc-react",
@@ -461,7 +522,13 @@
         "public-arc"
       ],
       "directTargetIds": [],
-      "targetIds": []
+      "targetIds": [
+        "cratis-arc-command",
+        "cratis-arc-command-execution",
+        "cratis-arc-command-validation",
+        "cratis-arc-observable-query-http",
+        "cratis-arc-query-paging"
+      ]
     },
     {
       "id": "public-chronicle",
@@ -1930,7 +1997,19 @@
       "bundleIds": [
         "cratis-arc-backend-review"
       ],
-      "profileIds": []
+      "profileIds": [
+        "cratis/application",
+        "cratis/arc",
+        "cratis/full",
+        "public-application",
+        "public-application-arc-chronicle",
+        "public-application-arc-only",
+        "public-application-react",
+        "public-arc",
+        "public-arc-ef-core",
+        "public-arc-identity",
+        "public-arc-react"
+      ]
     },
     {
       "id": "cratis-arc-command-execution",
@@ -1991,7 +2070,19 @@
       "bundleIds": [
         "cratis-arc-backend-review"
       ],
-      "profileIds": []
+      "profileIds": [
+        "cratis/application",
+        "cratis/arc",
+        "cratis/full",
+        "public-application",
+        "public-application-arc-chronicle",
+        "public-application-arc-only",
+        "public-application-react",
+        "public-arc",
+        "public-arc-ef-core",
+        "public-arc-identity",
+        "public-arc-react"
+      ]
     },
     {
       "id": "cratis-arc-command-validation",
@@ -2054,7 +2145,19 @@
       "bundleIds": [
         "cratis-arc-backend-review"
       ],
-      "profileIds": []
+      "profileIds": [
+        "cratis/application",
+        "cratis/arc",
+        "cratis/full",
+        "public-application",
+        "public-application-arc-chronicle",
+        "public-application-arc-only",
+        "public-application-react",
+        "public-arc",
+        "public-arc-ef-core",
+        "public-arc-identity",
+        "public-arc-react"
+      ]
     },
     {
       "id": "cratis-arc-ef-core-migration",
@@ -2178,7 +2281,19 @@
         "cratis-chronicle-read-model"
       ],
       "bundleIds": [],
-      "profileIds": []
+      "profileIds": [
+        "cratis/application",
+        "cratis/arc",
+        "cratis/full",
+        "public-application",
+        "public-application-arc-chronicle",
+        "public-application-arc-only",
+        "public-application-react",
+        "public-arc",
+        "public-arc-ef-core",
+        "public-arc-identity",
+        "public-arc-react"
+      ]
     },
     {
       "id": "cratis-arc-query-paging",
@@ -2243,7 +2358,19 @@
       "bundleIds": [
         "cratis-arc-backend-review"
       ],
-      "profileIds": []
+      "profileIds": [
+        "cratis/application",
+        "cratis/arc",
+        "cratis/full",
+        "public-application",
+        "public-application-arc-chronicle",
+        "public-application-arc-only",
+        "public-application-react",
+        "public-arc",
+        "public-arc-ef-core",
+        "public-arc-identity",
+        "public-arc-react"
+      ]
     },
     {
       "id": "cratis-arc-react-feature-scaffolding",

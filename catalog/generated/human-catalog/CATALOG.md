@@ -15,10 +15,10 @@ and does not make a planned package installable.
 
 Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.
 
-- Components: 137
-- Passive: 134
+- Components: 142
+- Passive: 139
 - Executable: 3
-- Legacy-retained: 4
+- Legacy-retained: 9
 - Existing adapter records: 316
 - Generated static fixture projections: 70
 - Active host projections: 313
@@ -30,7 +30,7 @@ Modeled or planned components and projections are catalog metadata only; they ar
 
 ### Components by kind
 
-- skill: 49
+- skill: 54
 - agent: 12
 - subagent: 0
 - command: 18
@@ -138,6 +138,11 @@ The namespaced suite for building a full Cratis application with Arc, Chronicle,
 
 #### Included capabilities
 
+- cratis-arc-command
+- cratis-arc-command-execution
+- cratis-arc-command-validation
+- cratis-arc-observable-query-http
+- cratis-arc-query-paging
 - cratis-fundamentals-concept
 
 #### Composed profiles
@@ -163,6 +168,11 @@ The namespaced Arc suite: model-bound commands, queries, EF Core persistence, an
 
 #### Included capabilities
 
+- cratis-arc-command
+- cratis-arc-command-execution
+- cratis-arc-command-validation
+- cratis-arc-observable-query-http
+- cratis-arc-query-paging
 - cratis-fundamentals-concept
 
 #### Composed profiles
@@ -218,6 +228,11 @@ Every public Cratis suite in one selection, including the Screenplay to Stage mo
 
 #### Included capabilities
 
+- cratis-arc-command
+- cratis-arc-command-execution
+- cratis-arc-command-validation
+- cratis-arc-observable-query-http
+- cratis-arc-query-paging
 - cratis-fundamentals-concept
 
 #### Composed profiles
@@ -246,6 +261,11 @@ End-to-end guidance for building Cratis applications with Arc, Chronicle, React,
 
 #### Included capabilities
 
+- cratis-arc-command
+- cratis-arc-command-execution
+- cratis-arc-command-validation
+- cratis-arc-observable-query-http
+- cratis-arc-query-paging
 - cratis-fundamentals-concept
 
 #### Composed profiles
@@ -277,6 +297,11 @@ Combined AI guidance for developers using Cratis Fundamentals, Cratis Arc, and C
 
 #### Included capabilities
 
+- cratis-arc-command
+- cratis-arc-command-execution
+- cratis-arc-command-validation
+- cratis-arc-observable-query-http
+- cratis-arc-query-paging
 - cratis-fundamentals-concept
 
 #### Composed profiles
@@ -305,6 +330,11 @@ Combined AI guidance for developers using Cratis Fundamentals and Cratis Arc in 
 
 #### Included capabilities
 
+- cratis-arc-command
+- cratis-arc-command-execution
+- cratis-arc-command-validation
+- cratis-arc-observable-query-http
+- cratis-arc-query-paging
 - cratis-fundamentals-concept
 
 #### Composed profiles
@@ -360,6 +390,11 @@ Combined AI guidance for developers using Cratis Fundamentals, Cratis Arc, Crati
 
 #### Included capabilities
 
+- cratis-arc-command
+- cratis-arc-command-execution
+- cratis-arc-command-validation
+- cratis-arc-observable-query-http
+- cratis-arc-query-paging
 - cratis-fundamentals-concept
 
 #### Composed profiles
@@ -376,21 +411,25 @@ Combined AI guidance for developers using Cratis Fundamentals, Cratis Arc, Crati
 - **Profile ID:** `public-arc`
 - **Audience:** public
 - **Package:** `@cratis/ai-arc`
-- **State:** planned-source-migration
+- **State:** preview-source-candidate
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** candidate-package
 
 AI guidance for developers building with Cratis Arc.
 
 **Intended for:** Developers who use Cratis Arc.
 
 - Products: arc
-- Languages: csharp
+- Languages: csharp, typescript, shell
 - Repository kinds: consumer projects
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-arc-command
+- cratis-arc-command-execution
+- cratis-arc-command-validation
+- cratis-arc-observable-query-http
+- cratis-arc-query-paging
 
 #### Composed profiles
 
@@ -415,7 +454,11 @@ AI guidance for developers building with Cratis Arc and Entity Framework Core.
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-arc-command
+- cratis-arc-command-execution
+- cratis-arc-command-validation
+- cratis-arc-observable-query-http
+- cratis-arc-query-paging
 
 #### Composed profiles
 
@@ -440,7 +483,11 @@ AI guidance for developers building with Cratis Arc.
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-arc-command
+- cratis-arc-command-execution
+- cratis-arc-command-validation
+- cratis-arc-observable-query-http
+- cratis-arc-query-paging
 
 #### Composed profiles
 
@@ -465,7 +512,11 @@ AI guidance for developers building with Cratis Arc React.
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-arc-command
+- cratis-arc-command-execution
+- cratis-arc-command-validation
+- cratis-arc-observable-query-http
+- cratis-arc-query-paging
 
 #### Composed profiles
 
@@ -2045,7 +2096,17 @@ Use when defining an Arc command and its generated full-stack proxy workflow.
 
 #### Profile membership — cratis-arc-command
 
-- None
+- cratis/application
+- cratis/arc
+- cratis/full
+- public-application
+- public-application-arc-chronicle
+- public-application-arc-only
+- public-application-react
+- public-arc
+- public-arc-ef-core
+- public-arc-identity
+- public-arc-react
 
 ### cratis-arc-command-execution
 
@@ -2109,7 +2170,17 @@ Use when backend code must execute an existing Arc command through ICommandPipel
 
 #### Profile membership — cratis-arc-command-execution
 
-- None
+- cratis/application
+- cratis/arc
+- cratis/full
+- public-application
+- public-application-arc-chronicle
+- public-application-arc-only
+- public-application-react
+- public-arc
+- public-arc-ef-core
+- public-arc-identity
+- public-arc-react
 
 ### cratis-arc-command-validation
 
@@ -2174,7 +2245,17 @@ Use when adding validation or state-dependent rejection to an existing Arc comma
 
 #### Profile membership — cratis-arc-command-validation
 
-- None
+- cratis/application
+- cratis/arc
+- cratis/full
+- public-application
+- public-application-arc-chronicle
+- public-application-arc-only
+- public-application-react
+- public-arc
+- public-arc-ef-core
+- public-arc-identity
+- public-arc-react
 
 ### cratis-arc-ef-core-migration
 
@@ -2305,7 +2386,17 @@ Use when inspecting Arc observable query SSE or streaming behavior with curl or 
 
 #### Profile membership — cratis-arc-observable-query-http
 
-- None
+- cratis/application
+- cratis/arc
+- cratis/full
+- public-application
+- public-application-arc-chronicle
+- public-application-arc-only
+- public-application-react
+- public-arc
+- public-arc-ef-core
+- public-arc-identity
+- public-arc-react
 
 ### cratis-arc-query-paging
 
@@ -2370,7 +2461,17 @@ Use when adding server-side paging and sorting to an Arc read-model query.
 
 #### Profile membership — cratis-arc-query-paging
 
-- None
+- cratis/application
+- cratis/arc
+- cratis/full
+- public-application
+- public-application-arc-chronicle
+- public-application-arc-only
+- public-application-react
+- public-arc
+- public-arc-ef-core
+- public-arc-identity
+- public-arc-react
 
 ### cratis-arc-react-feature-scaffolding
 

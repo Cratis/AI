@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generatedBy": "tooling/generate-component-catalogs.mjs",
-  "sourceDigest": "21d89959cb46dd53fd48f8eabcfe5d4e047d15b78273b0c23fa9cb34d294fb1c",
+  "sourceDigest": "dc92a4d5a02de958c2a1d88d2fe8f6390f9f905a8ac7292a9d0430ba7bce5d1b",
   "defaultPolicy": "deny",
   "canonicalSourceRoots": [
     ".ai/agents",
@@ -56,6 +56,11 @@
     "engineering/skills/cratis-engineering-docs-add-page",
     "engineering/skills/cratis-engineering-docs-authoring",
     "engineering/skills/cratis-engineering-docs-edit-page",
+    "skills/cratis-arc-command",
+    "skills/cratis-arc-command-execution",
+    "skills/cratis-arc-command-validation",
+    "skills/cratis-arc-observable-query-http",
+    "skills/cratis-arc-query-paging",
     "skills/cratis-chronicle-mcp-inspection",
     "skills/cratis-fundamentals-concept",
     "skills/cratis-studio-mcp-safety-guidance"
@@ -1329,18 +1334,18 @@
       "id": "cratis-arc-command",
       "kind": "skill",
       "semanticIdentity": "cratis-arc-command",
-      "semanticName": "cratis-arc-command",
+      "semanticName": "Arc command definition",
       "lifecycle": "active",
       "distributionTargetId": "cratis-arc-command",
       "canonicalSources": [
         {
-          "path": ".ai/skills/cratis-command",
-          "digest": "2f97a3c740b96273326783de74a3479d6ff972dda8df733d39dc5111da1753da",
+          "path": "skills/cratis-arc-command",
+          "digest": "883b8eb2cd8bb3846ca7f1b36608e87efca8914360c718189defe4d9ec89be41",
           "ownership": "owner",
           "ownerComponentId": "cratis-arc-command"
         }
       ],
-      "contentDigest": "c6b6a8e61c97187b7359c15eb01268d5ad3513fe59378d32152efbcd0c4d5fb7",
+      "contentDigest": "a119305a8c1bfbd4e7883bc2e331dd46fbd03893b57fc0c0357ab22c636a5b92",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -1350,12 +1355,8 @@
         "executable": false,
         "effect": "guided-write"
       },
-      "dependencies": [
-        "cratis-arc-command-validation",
-        "cratis-chronicle-event-constraints",
-        "cratis-fundamentals-concept"
-      ],
-      "hostNeutralPurpose": "Arc command definition",
+      "dependencies": [],
+      "hostNeutralPurpose": "Define an Arc command, its Handle return shape, and its generated proxy",
       "approval": {
         "state": "modeled",
         "evidenceIds": [
@@ -1414,18 +1415,18 @@
       "id": "cratis-arc-command-execution",
       "kind": "skill",
       "semanticIdentity": "cratis-arc-command-execution",
-      "semanticName": "cratis-arc-command-execution",
+      "semanticName": "Arc command pipeline execution",
       "lifecycle": "active",
       "distributionTargetId": "cratis-arc-command-execution",
       "canonicalSources": [
         {
-          "path": ".ai/skills/call-command-from-code",
-          "digest": "bc60327237bef1659fd508793d24bb86ff2221e8d2c409ff9539cc57d11584ba",
+          "path": "skills/cratis-arc-command-execution",
+          "digest": "b7e16ddbd132a0cf170d8e0b5bb579bbf1453a4e5166c221dec22c55837ac98a",
           "ownership": "owner",
           "ownerComponentId": "cratis-arc-command-execution"
         }
       ],
-      "contentDigest": "b6829f15d2f964b19d77f336cdb2f3c426255e08678308c0b14ba4efabbc4413",
+      "contentDigest": "c9175a97631bf362f347325be296d95e2ac9e8dc6fe213bfc069bcdfc9264f57",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -1435,10 +1436,8 @@
         "executable": false,
         "effect": "guided-write"
       },
-      "dependencies": [
-        "cratis-arc-command"
-      ],
-      "hostNeutralPurpose": "Arc command pipeline execution",
+      "dependencies": [],
+      "hostNeutralPurpose": "Execute an existing Arc command from backend code through ICommandPipeline",
       "approval": {
         "state": "modeled",
         "evidenceIds": [
@@ -1497,18 +1496,18 @@
       "id": "cratis-arc-command-validation",
       "kind": "skill",
       "semanticIdentity": "cratis-arc-command-validation",
-      "semanticName": "cratis-arc-command-validation",
+      "semanticName": "Arc command validation",
       "lifecycle": "active",
       "distributionTargetId": "cratis-arc-command-validation",
       "canonicalSources": [
         {
-          "path": ".ai/skills/add-business-rule",
-          "digest": "7aff5f2a3586a74b046a51a4c9f0f6ad5ec6a95bed5eb40ea383ef588b1eba76",
+          "path": "skills/cratis-arc-command-validation",
+          "digest": "e9900a498ee0791ebb0ba1dd5ba988014edefa36dbf643bb0c95ed87a295c7e9",
           "ownership": "owner",
           "ownerComponentId": "cratis-arc-command-validation"
         }
       ],
-      "contentDigest": "16928b6e11edd80ddf14db0d4e1f0ed299da1c33edd077c52e53c01cd1f2b3a5",
+      "contentDigest": "6a7596a639c00f69f119af66db7ea708a132e383bd3277b48a10010728d01c76",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -1518,11 +1517,8 @@
         "executable": false,
         "effect": "guided-write"
       },
-      "dependencies": [
-        "cratis-arc-command",
-        "cratis-fundamentals-concept"
-      ],
-      "hostNeutralPurpose": "Arc command validation",
+      "dependencies": [],
+      "hostNeutralPurpose": "Add or change a rule on an existing Arc command",
       "approval": {
         "state": "modeled",
         "evidenceIds": [
@@ -1664,18 +1660,18 @@
       "id": "cratis-arc-observable-query-http",
       "kind": "skill",
       "semanticIdentity": "cratis-arc-observable-query-http",
-      "semanticName": "cratis-arc-observable-query-http",
+      "semanticName": "Arc observable-query HTTP diagnostics",
       "lifecycle": "active",
       "distributionTargetId": "cratis-arc-observable-query-http",
       "canonicalSources": [
         {
-          "path": ".ai/skills/observable-query-curl",
-          "digest": "bdda610b40779905a2b93c858e06e9829c2d1f7306e2a780e6c8500d17932914",
+          "path": "skills/cratis-arc-observable-query-http",
+          "digest": "00593cbc2773c1d8e4054211658e1296ab8cd85589f4240eae420285e94fa2a1",
           "ownership": "owner",
           "ownerComponentId": "cratis-arc-observable-query-http"
         }
       ],
-      "contentDigest": "46566c5c7f7407b5fa20ddb57f0792eb70d97cd65656ce1c94fc4032191e1c70",
+      "contentDigest": "d3aa1fe62cf65b08340cdb2e022a368b4a51ee66aa5e07b95ba8fb963363960f",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -1685,11 +1681,8 @@
         "executable": false,
         "effect": "guided-write"
       },
-      "dependencies": [
-        "cratis-arc-query-paging",
-        "cratis-chronicle-read-model"
-      ],
-      "hostNeutralPurpose": "Arc observable-query HTTP diagnostics",
+      "dependencies": [],
+      "hostNeutralPurpose": "Inspect an Arc observable query over plain HTTP, SSE, or long polling",
       "approval": {
         "state": "modeled",
         "evidenceIds": [
@@ -1748,18 +1741,18 @@
       "id": "cratis-arc-query-paging",
       "kind": "skill",
       "semanticIdentity": "cratis-arc-query-paging",
-      "semanticName": "cratis-arc-query-paging",
+      "semanticName": "Arc query paging",
       "lifecycle": "active",
       "distributionTargetId": "cratis-arc-query-paging",
       "canonicalSources": [
         {
-          "path": ".ai/skills/query-paging",
-          "digest": "ab1c37b6b14b57454530bc6e282d6c73deae26f73745fb5bac28b4d9e2481df8",
+          "path": "skills/cratis-arc-query-paging",
+          "digest": "de4bcc7a221cb66d48971a625c921d87d9180d7d0e1a5919893004db1c75ed52",
           "ownership": "owner",
           "ownerComponentId": "cratis-arc-query-paging"
         }
       ],
-      "contentDigest": "f67d0da622f3ebb478f735b6c30fd45c14938f3896786146ca272c8639ea77e8",
+      "contentDigest": "b01c076cfeb1457567596efc77ed8f7e2b51d1e60d8f953f87895a64135429a9",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -1769,11 +1762,8 @@
         "executable": false,
         "effect": "guided-write"
       },
-      "dependencies": [
-        "cratis-arc-react-page",
-        "cratis-chronicle-read-model"
-      ],
-      "hostNeutralPurpose": "Arc query paging",
+      "dependencies": [],
+      "hostNeutralPurpose": "Add server-side paging and sorting to an Arc read-model query",
       "approval": {
         "state": "modeled",
         "evidenceIds": [
@@ -2091,7 +2081,7 @@
           "path": ".ai/skills/add-business-rule",
           "digest": "7aff5f2a3586a74b046a51a4c9f0f6ad5ec6a95bed5eb40ea383ef588b1eba76",
           "ownership": "shared-reference",
-          "ownerComponentId": "cratis-arc-command-validation"
+          "ownerComponentId": "cratis-legacy-add-business-rule"
         }
       ],
       "contentDigest": "16928b6e11edd80ddf14db0d4e1f0ed299da1c33edd077c52e53c01cd1f2b3a5",
@@ -5549,6 +5539,79 @@
       }
     },
     {
+      "id": "cratis-legacy-add-business-rule",
+      "kind": "skill",
+      "semanticIdentity": "cratis-legacy-add-business-rule",
+      "semanticName": "Legacy add-business-rule host skill",
+      "lifecycle": "legacy-retained",
+      "distributionTargetId": null,
+      "canonicalSources": [
+        {
+          "path": ".ai/skills/add-business-rule",
+          "digest": "7aff5f2a3586a74b046a51a4c9f0f6ad5ec6a95bed5eb40ea383ef588b1eba76",
+          "ownership": "owner",
+          "ownerComponentId": "cratis-legacy-add-business-rule"
+        }
+      ],
+      "contentDigest": "16928b6e11edd80ddf14db0d4e1f0ed299da1c33edd077c52e53c01cd1f2b3a5",
+      "owner": "reusable Cratis engineering behavior",
+      "audience": "cratis-engineering",
+      "classification": {
+        "artifactClass": "passive-content",
+        "trust": "passive",
+        "passive": true,
+        "executable": false,
+        "effect": "guided-write"
+      },
+      "dependencies": [
+        "cratis-arc-command-validation"
+      ],
+      "hostNeutralPurpose": "Retained repository-local add-business-rule guidance",
+      "approval": {
+        "state": "modeled",
+        "evidenceIds": [
+          "reevaluation-authority",
+          "repo-main-b795d53"
+        ]
+      },
+      "releaseBoundary": "repository-only",
+      "allowedProjections": [
+        {
+          "hostContract": "any-passive-host",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "provider-compatibility"
+          ]
+        }
+      ],
+      "forbiddenProjections": [
+        "agent",
+        "subagent",
+        "command",
+        "prompt",
+        "rule",
+        "instruction",
+        "hook",
+        "mcp",
+        "lsp",
+        "executable-host-extension",
+        "static-asset"
+      ],
+      "requiredCanaries": [
+        "host-discovery",
+        "projection-shape",
+        "semantic-identity",
+        "source-digest"
+      ],
+      "securityRequirements": {
+        "threatModel": false,
+        "securityReview": false,
+        "executableAssuranceProfile": false
+      }
+    },
+    {
       "id": "cratis-legacy-add-concept",
       "kind": "skill",
       "semanticIdentity": "cratis-legacy-add-concept",
@@ -5695,6 +5758,152 @@
       }
     },
     {
+      "id": "cratis-legacy-call-command-from-code",
+      "kind": "skill",
+      "semanticIdentity": "cratis-legacy-call-command-from-code",
+      "semanticName": "Legacy call-command-from-code host skill",
+      "lifecycle": "legacy-retained",
+      "distributionTargetId": null,
+      "canonicalSources": [
+        {
+          "path": ".ai/skills/call-command-from-code",
+          "digest": "bc60327237bef1659fd508793d24bb86ff2221e8d2c409ff9539cc57d11584ba",
+          "ownership": "owner",
+          "ownerComponentId": "cratis-legacy-call-command-from-code"
+        }
+      ],
+      "contentDigest": "b6829f15d2f964b19d77f336cdb2f3c426255e08678308c0b14ba4efabbc4413",
+      "owner": "reusable Cratis engineering behavior",
+      "audience": "cratis-engineering",
+      "classification": {
+        "artifactClass": "passive-content",
+        "trust": "passive",
+        "passive": true,
+        "executable": false,
+        "effect": "guided-write"
+      },
+      "dependencies": [
+        "cratis-arc-command-execution"
+      ],
+      "hostNeutralPurpose": "Retained repository-local call-command-from-code guidance",
+      "approval": {
+        "state": "modeled",
+        "evidenceIds": [
+          "reevaluation-authority",
+          "repo-main-b795d53"
+        ]
+      },
+      "releaseBoundary": "repository-only",
+      "allowedProjections": [
+        {
+          "hostContract": "any-passive-host",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "provider-compatibility"
+          ]
+        }
+      ],
+      "forbiddenProjections": [
+        "agent",
+        "subagent",
+        "command",
+        "prompt",
+        "rule",
+        "instruction",
+        "hook",
+        "mcp",
+        "lsp",
+        "executable-host-extension",
+        "static-asset"
+      ],
+      "requiredCanaries": [
+        "host-discovery",
+        "projection-shape",
+        "semantic-identity",
+        "source-digest"
+      ],
+      "securityRequirements": {
+        "threatModel": false,
+        "securityReview": false,
+        "executableAssuranceProfile": false
+      }
+    },
+    {
+      "id": "cratis-legacy-cratis-command",
+      "kind": "skill",
+      "semanticIdentity": "cratis-legacy-cratis-command",
+      "semanticName": "Legacy cratis-command host skill",
+      "lifecycle": "legacy-retained",
+      "distributionTargetId": null,
+      "canonicalSources": [
+        {
+          "path": ".ai/skills/cratis-command",
+          "digest": "2f97a3c740b96273326783de74a3479d6ff972dda8df733d39dc5111da1753da",
+          "ownership": "owner",
+          "ownerComponentId": "cratis-legacy-cratis-command"
+        }
+      ],
+      "contentDigest": "c6b6a8e61c97187b7359c15eb01268d5ad3513fe59378d32152efbcd0c4d5fb7",
+      "owner": "reusable Cratis engineering behavior",
+      "audience": "cratis-engineering",
+      "classification": {
+        "artifactClass": "passive-content",
+        "trust": "passive",
+        "passive": true,
+        "executable": false,
+        "effect": "guided-write"
+      },
+      "dependencies": [
+        "cratis-arc-command"
+      ],
+      "hostNeutralPurpose": "Retained repository-local cratis-command guidance",
+      "approval": {
+        "state": "modeled",
+        "evidenceIds": [
+          "reevaluation-authority",
+          "repo-main-b795d53"
+        ]
+      },
+      "releaseBoundary": "repository-only",
+      "allowedProjections": [
+        {
+          "hostContract": "any-passive-host",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "provider-compatibility"
+          ]
+        }
+      ],
+      "forbiddenProjections": [
+        "agent",
+        "subagent",
+        "command",
+        "prompt",
+        "rule",
+        "instruction",
+        "hook",
+        "mcp",
+        "lsp",
+        "executable-host-extension",
+        "static-asset"
+      ],
+      "requiredCanaries": [
+        "host-discovery",
+        "projection-shape",
+        "semantic-identity",
+        "source-digest"
+      ],
+      "securityRequirements": {
+        "threatModel": false,
+        "securityReview": false,
+        "executableAssuranceProfile": false
+      }
+    },
+    {
       "id": "cratis-legacy-edit-cratis-docs",
       "kind": "skill",
       "semanticIdentity": "cratis-legacy-edit-cratis-docs",
@@ -5723,6 +5932,152 @@
         "cratis-engineering-docs-edit-page"
       ],
       "hostNeutralPurpose": "Retained repository-local documentation editing guidance",
+      "approval": {
+        "state": "modeled",
+        "evidenceIds": [
+          "reevaluation-authority",
+          "repo-main-b795d53"
+        ]
+      },
+      "releaseBoundary": "repository-only",
+      "allowedProjections": [
+        {
+          "hostContract": "any-passive-host",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "provider-compatibility"
+          ]
+        }
+      ],
+      "forbiddenProjections": [
+        "agent",
+        "subagent",
+        "command",
+        "prompt",
+        "rule",
+        "instruction",
+        "hook",
+        "mcp",
+        "lsp",
+        "executable-host-extension",
+        "static-asset"
+      ],
+      "requiredCanaries": [
+        "host-discovery",
+        "projection-shape",
+        "semantic-identity",
+        "source-digest"
+      ],
+      "securityRequirements": {
+        "threatModel": false,
+        "securityReview": false,
+        "executableAssuranceProfile": false
+      }
+    },
+    {
+      "id": "cratis-legacy-observable-query-curl",
+      "kind": "skill",
+      "semanticIdentity": "cratis-legacy-observable-query-curl",
+      "semanticName": "Legacy observable-query-curl host skill",
+      "lifecycle": "legacy-retained",
+      "distributionTargetId": null,
+      "canonicalSources": [
+        {
+          "path": ".ai/skills/observable-query-curl",
+          "digest": "bdda610b40779905a2b93c858e06e9829c2d1f7306e2a780e6c8500d17932914",
+          "ownership": "owner",
+          "ownerComponentId": "cratis-legacy-observable-query-curl"
+        }
+      ],
+      "contentDigest": "46566c5c7f7407b5fa20ddb57f0792eb70d97cd65656ce1c94fc4032191e1c70",
+      "owner": "reusable Cratis engineering behavior",
+      "audience": "cratis-engineering",
+      "classification": {
+        "artifactClass": "passive-content",
+        "trust": "passive",
+        "passive": true,
+        "executable": false,
+        "effect": "guided-write"
+      },
+      "dependencies": [
+        "cratis-arc-observable-query-http"
+      ],
+      "hostNeutralPurpose": "Retained repository-local observable-query-curl guidance",
+      "approval": {
+        "state": "modeled",
+        "evidenceIds": [
+          "reevaluation-authority",
+          "repo-main-b795d53"
+        ]
+      },
+      "releaseBoundary": "repository-only",
+      "allowedProjections": [
+        {
+          "hostContract": "any-passive-host",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "provider-compatibility"
+          ]
+        }
+      ],
+      "forbiddenProjections": [
+        "agent",
+        "subagent",
+        "command",
+        "prompt",
+        "rule",
+        "instruction",
+        "hook",
+        "mcp",
+        "lsp",
+        "executable-host-extension",
+        "static-asset"
+      ],
+      "requiredCanaries": [
+        "host-discovery",
+        "projection-shape",
+        "semantic-identity",
+        "source-digest"
+      ],
+      "securityRequirements": {
+        "threatModel": false,
+        "securityReview": false,
+        "executableAssuranceProfile": false
+      }
+    },
+    {
+      "id": "cratis-legacy-query-paging",
+      "kind": "skill",
+      "semanticIdentity": "cratis-legacy-query-paging",
+      "semanticName": "Legacy query-paging host skill",
+      "lifecycle": "legacy-retained",
+      "distributionTargetId": null,
+      "canonicalSources": [
+        {
+          "path": ".ai/skills/query-paging",
+          "digest": "ab1c37b6b14b57454530bc6e282d6c73deae26f73745fb5bac28b4d9e2481df8",
+          "ownership": "owner",
+          "ownerComponentId": "cratis-legacy-query-paging"
+        }
+      ],
+      "contentDigest": "f67d0da622f3ebb478f735b6c30fd45c14938f3896786146ca272c8639ea77e8",
+      "owner": "reusable Cratis engineering behavior",
+      "audience": "cratis-engineering",
+      "classification": {
+        "artifactClass": "passive-content",
+        "trust": "passive",
+        "passive": true,
+        "executable": false,
+        "effect": "guided-write"
+      },
+      "dependencies": [
+        "cratis-arc-query-paging"
+      ],
+      "hostNeutralPurpose": "Retained repository-local query-paging guidance",
       "approval": {
         "state": "modeled",
         "evidenceIds": [

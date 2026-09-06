@@ -255,10 +255,19 @@
         "arc"
       ],
       "languages": [
-        "csharp"
+        "csharp",
+        "typescript",
+        "shell"
       ],
-      "state": "planned-source-migration",
-      "gapSummary": "Commands and execution have legacy sources; dedicated queries and separated validation/authorization guidance remain gaps."
+      "state": "preview-source-candidate",
+      "availableTargets": [
+        "cratis-arc-command",
+        "cratis-arc-command-execution",
+        "cratis-arc-command-validation",
+        "cratis-arc-observable-query-http",
+        "cratis-arc-query-paging"
+      ],
+      "gapSummary": "Command definition, validation, pipeline execution, query paging, and observable-query HTTP inspection are canonical. Dedicated query authoring, read-model design, and separated authorization guidance remain gaps."
     },
     {
       "id": "public-arc-ef-core",
