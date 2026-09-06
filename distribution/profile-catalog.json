@@ -382,8 +382,15 @@
         "react",
         "typescript"
       ],
-      "state": "planned-source-migration",
-      "gapSummary": "Page, observable query, paging, generated proxy, MVVM, lifecycle, and error-handling guidance require canonical sources."
+      "state": "preview-source-candidate",
+      "composes": [
+        "public-arc"
+      ],
+      "availableTargets": [
+        "cratis-application-react-specifications",
+        "cratis-arc-react-page"
+      ],
+      "gapSummary": "Page composition, generated proxy hooks, observable queries, paging, MVVM, and frontend specifications are covered; dedicated identity and error-boundary guidance remain gaps."
     },
     {
       "id": "public-chronicle",
@@ -557,8 +564,15 @@
         "react",
         "typescript"
       ],
-      "state": "planned-source-migration",
-      "gapSummary": "Toolbar and stepper sources exist; forms, dialogs, DataPage, tables, styling, accessibility, and schema editors remain incomplete."
+      "state": "preview-source-candidate",
+      "availableTargets": [
+        "cratis-components-accessibility",
+        "cratis-components-schema-editor",
+        "cratis-components-stepper-command-dialog",
+        "cratis-components-styling",
+        "cratis-components-toolbar"
+      ],
+      "gapSummary": "Toolbars, stepper dialogs, schema editors, styling, and accessibility are covered; dedicated canvas, pivot viewer, and time machine guidance remain gaps."
     },
     {
       "id": "public-cratis-cli",
@@ -885,6 +899,7 @@
       "confidentialContentAllowed": false,
       "privateOverlayExpected": true,
       "composes": [
+        "engineering-arc",
         "engineering-base"
       ]
     },

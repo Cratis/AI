@@ -627,7 +627,17 @@ test("future admission requires subject-specific active revision and digest evid
 test("standalone generation rejects invalid auxiliary authority catalogs", () => {
     const inputs = validationInputs();
     const supportCatalogs = clone(loadSupportCatalogs());
-    supportCatalogs.evidence.observations.pop();
+    // Drop a protected baseline observation rather than whichever record
+    // happens to be last: append-only evidence growth adds unprotected records
+    // at the end, and removing one of those is legitimately not an error.
+    const baseline = readCatalog(
+        join(defaultRepositoryRoot, "catalog/evidence-baseline.json"),
+    );
+    const protectedObservationId = baseline.observationIds[0];
+    supportCatalogs.evidence.observations =
+        supportCatalogs.evidence.observations.filter(
+            (observation) => observation.id !== protectedObservationId,
+        );
     inputs.evidence = supportCatalogs.evidence;
     const errors = validateChronicleMcpGenerationInputs(
         defaultRepositoryRoot,

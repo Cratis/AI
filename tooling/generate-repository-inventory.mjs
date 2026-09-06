@@ -162,8 +162,12 @@ function publicSkillRoots() {
         // longer contributes its legacy `.ai/skills` root, so each retained
         // twin is named explicitly until Cratis/AI#256 retires it.
         ".ai/skills/add-concept/**",
+        ".ai/skills/cratis-react-page/**",
         ".ai/skills/cratis-specs-csharp/**",
         ".ai/skills/cratis-specs-typescript/**",
+        ".ai/skills/stepper-command-dialog/**",
+        ".ai/skills/toolbar/**",
+        ".ai/skills/write-specs-frontend/**",
         "skills/**",
     ];
 }

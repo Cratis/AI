@@ -1062,78 +1062,6 @@
       ]
     },
     {
-      "id": "cratis-application-react-specifications-to-claude-code-skill",
-      "componentId": "cratis-application-react-specifications",
-      "hostId": "claude-code",
-      "projectedKind": "skill",
-      "artifactClass": "provider-compatibility",
-      "assuranceProfileId": "provider-compatibility-v1",
-      "packageIdentity": null,
-      "state": "existing",
-      "hostActivation": "active",
-      "adapterType": "symlink",
-      "outputPaths": [
-        ".claude/skills"
-      ],
-      "approval": "modeled",
-      "evidenceIds": [
-        "repo-main-b795d53"
-      ],
-      "securityRequirements": [],
-      "requiredCanaries": [
-        "projection-shape",
-        "source-digest"
-      ]
-    },
-    {
-      "id": "cratis-application-react-specifications-to-codex-skill",
-      "componentId": "cratis-application-react-specifications",
-      "hostId": "codex",
-      "projectedKind": "skill",
-      "artifactClass": "provider-compatibility",
-      "assuranceProfileId": "provider-compatibility-v1",
-      "packageIdentity": null,
-      "state": "existing",
-      "hostActivation": "active",
-      "adapterType": "symlink",
-      "outputPaths": [
-        ".agents/skills"
-      ],
-      "approval": "modeled",
-      "evidenceIds": [
-        "repo-main-b795d53"
-      ],
-      "securityRequirements": [],
-      "requiredCanaries": [
-        "projection-shape",
-        "source-digest"
-      ]
-    },
-    {
-      "id": "cratis-application-react-specifications-to-github-copilot-skill",
-      "componentId": "cratis-application-react-specifications",
-      "hostId": "github-copilot",
-      "projectedKind": "skill",
-      "artifactClass": "provider-compatibility",
-      "assuranceProfileId": "provider-compatibility-v1",
-      "packageIdentity": null,
-      "state": "existing",
-      "hostActivation": "active",
-      "adapterType": "symlink",
-      "outputPaths": [
-        ".github/skills"
-      ],
-      "approval": "modeled",
-      "evidenceIds": [
-        "repo-main-b795d53"
-      ],
-      "securityRequirements": [],
-      "requiredCanaries": [
-        "projection-shape",
-        "source-digest"
-      ]
-    },
-    {
       "id": "cratis-application-slice-diagnostics-to-claude-code-skill",
       "componentId": "cratis-application-slice-diagnostics",
       "hostId": "claude-code",
@@ -1904,78 +1832,6 @@
     {
       "id": "cratis-arc-react-feature-scaffolding-to-github-copilot-skill",
       "componentId": "cratis-arc-react-feature-scaffolding",
-      "hostId": "github-copilot",
-      "projectedKind": "skill",
-      "artifactClass": "provider-compatibility",
-      "assuranceProfileId": "provider-compatibility-v1",
-      "packageIdentity": null,
-      "state": "existing",
-      "hostActivation": "active",
-      "adapterType": "symlink",
-      "outputPaths": [
-        ".github/skills"
-      ],
-      "approval": "modeled",
-      "evidenceIds": [
-        "repo-main-b795d53"
-      ],
-      "securityRequirements": [],
-      "requiredCanaries": [
-        "projection-shape",
-        "source-digest"
-      ]
-    },
-    {
-      "id": "cratis-arc-react-page-to-claude-code-skill",
-      "componentId": "cratis-arc-react-page",
-      "hostId": "claude-code",
-      "projectedKind": "skill",
-      "artifactClass": "provider-compatibility",
-      "assuranceProfileId": "provider-compatibility-v1",
-      "packageIdentity": null,
-      "state": "existing",
-      "hostActivation": "active",
-      "adapterType": "symlink",
-      "outputPaths": [
-        ".claude/skills"
-      ],
-      "approval": "modeled",
-      "evidenceIds": [
-        "repo-main-b795d53"
-      ],
-      "securityRequirements": [],
-      "requiredCanaries": [
-        "projection-shape",
-        "source-digest"
-      ]
-    },
-    {
-      "id": "cratis-arc-react-page-to-codex-skill",
-      "componentId": "cratis-arc-react-page",
-      "hostId": "codex",
-      "projectedKind": "skill",
-      "artifactClass": "provider-compatibility",
-      "assuranceProfileId": "provider-compatibility-v1",
-      "packageIdentity": null,
-      "state": "existing",
-      "hostActivation": "active",
-      "adapterType": "symlink",
-      "outputPaths": [
-        ".agents/skills"
-      ],
-      "approval": "modeled",
-      "evidenceIds": [
-        "repo-main-b795d53"
-      ],
-      "securityRequirements": [],
-      "requiredCanaries": [
-        "projection-shape",
-        "source-digest"
-      ]
-    },
-    {
-      "id": "cratis-arc-react-page-to-github-copilot-skill",
-      "componentId": "cratis-arc-react-page",
       "hostId": "github-copilot",
       "projectedKind": "skill",
       "artifactClass": "provider-compatibility",
@@ -3366,150 +3222,6 @@
       ]
     },
     {
-      "id": "cratis-components-stepper-command-dialog-to-claude-code-skill",
-      "componentId": "cratis-components-stepper-command-dialog",
-      "hostId": "claude-code",
-      "projectedKind": "skill",
-      "artifactClass": "provider-compatibility",
-      "assuranceProfileId": "provider-compatibility-v1",
-      "packageIdentity": null,
-      "state": "existing",
-      "hostActivation": "active",
-      "adapterType": "symlink",
-      "outputPaths": [
-        ".claude/skills"
-      ],
-      "approval": "modeled",
-      "evidenceIds": [
-        "repo-main-b795d53"
-      ],
-      "securityRequirements": [],
-      "requiredCanaries": [
-        "projection-shape",
-        "source-digest"
-      ]
-    },
-    {
-      "id": "cratis-components-stepper-command-dialog-to-codex-skill",
-      "componentId": "cratis-components-stepper-command-dialog",
-      "hostId": "codex",
-      "projectedKind": "skill",
-      "artifactClass": "provider-compatibility",
-      "assuranceProfileId": "provider-compatibility-v1",
-      "packageIdentity": null,
-      "state": "existing",
-      "hostActivation": "active",
-      "adapterType": "symlink",
-      "outputPaths": [
-        ".agents/skills"
-      ],
-      "approval": "modeled",
-      "evidenceIds": [
-        "repo-main-b795d53"
-      ],
-      "securityRequirements": [],
-      "requiredCanaries": [
-        "projection-shape",
-        "source-digest"
-      ]
-    },
-    {
-      "id": "cratis-components-stepper-command-dialog-to-github-copilot-skill",
-      "componentId": "cratis-components-stepper-command-dialog",
-      "hostId": "github-copilot",
-      "projectedKind": "skill",
-      "artifactClass": "provider-compatibility",
-      "assuranceProfileId": "provider-compatibility-v1",
-      "packageIdentity": null,
-      "state": "existing",
-      "hostActivation": "active",
-      "adapterType": "symlink",
-      "outputPaths": [
-        ".github/skills"
-      ],
-      "approval": "modeled",
-      "evidenceIds": [
-        "repo-main-b795d53"
-      ],
-      "securityRequirements": [],
-      "requiredCanaries": [
-        "projection-shape",
-        "source-digest"
-      ]
-    },
-    {
-      "id": "cratis-components-toolbar-to-claude-code-skill",
-      "componentId": "cratis-components-toolbar",
-      "hostId": "claude-code",
-      "projectedKind": "skill",
-      "artifactClass": "provider-compatibility",
-      "assuranceProfileId": "provider-compatibility-v1",
-      "packageIdentity": null,
-      "state": "existing",
-      "hostActivation": "active",
-      "adapterType": "symlink",
-      "outputPaths": [
-        ".claude/skills"
-      ],
-      "approval": "modeled",
-      "evidenceIds": [
-        "repo-main-b795d53"
-      ],
-      "securityRequirements": [],
-      "requiredCanaries": [
-        "projection-shape",
-        "source-digest"
-      ]
-    },
-    {
-      "id": "cratis-components-toolbar-to-codex-skill",
-      "componentId": "cratis-components-toolbar",
-      "hostId": "codex",
-      "projectedKind": "skill",
-      "artifactClass": "provider-compatibility",
-      "assuranceProfileId": "provider-compatibility-v1",
-      "packageIdentity": null,
-      "state": "existing",
-      "hostActivation": "active",
-      "adapterType": "symlink",
-      "outputPaths": [
-        ".agents/skills"
-      ],
-      "approval": "modeled",
-      "evidenceIds": [
-        "repo-main-b795d53"
-      ],
-      "securityRequirements": [],
-      "requiredCanaries": [
-        "projection-shape",
-        "source-digest"
-      ]
-    },
-    {
-      "id": "cratis-components-toolbar-to-github-copilot-skill",
-      "componentId": "cratis-components-toolbar",
-      "hostId": "github-copilot",
-      "projectedKind": "skill",
-      "artifactClass": "provider-compatibility",
-      "assuranceProfileId": "provider-compatibility-v1",
-      "packageIdentity": null,
-      "state": "existing",
-      "hostActivation": "active",
-      "adapterType": "symlink",
-      "outputPaths": [
-        ".github/skills"
-      ],
-      "approval": "modeled",
-      "evidenceIds": [
-        "repo-main-b795d53"
-      ],
-      "securityRequirements": [],
-      "requiredCanaries": [
-        "projection-shape",
-        "source-digest"
-      ]
-    },
-    {
       "id": "cratis-engineering-chronicle-kernel-tracing-to-claude-code-skill",
       "componentId": "cratis-engineering-chronicle-kernel-tracing",
       "hostId": "claude-code",
@@ -4262,6 +3974,78 @@
       ]
     },
     {
+      "id": "cratis-legacy-cratis-react-page-to-claude-code-skill",
+      "componentId": "cratis-legacy-cratis-react-page",
+      "hostId": "claude-code",
+      "projectedKind": "skill",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "existing",
+      "hostActivation": "active",
+      "adapterType": "symlink",
+      "outputPaths": [
+        ".claude/skills"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "repo-main-b795d53"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest"
+      ]
+    },
+    {
+      "id": "cratis-legacy-cratis-react-page-to-codex-skill",
+      "componentId": "cratis-legacy-cratis-react-page",
+      "hostId": "codex",
+      "projectedKind": "skill",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "existing",
+      "hostActivation": "active",
+      "adapterType": "symlink",
+      "outputPaths": [
+        ".agents/skills"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "repo-main-b795d53"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest"
+      ]
+    },
+    {
+      "id": "cratis-legacy-cratis-react-page-to-github-copilot-skill",
+      "componentId": "cratis-legacy-cratis-react-page",
+      "hostId": "github-copilot",
+      "projectedKind": "skill",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "existing",
+      "hostActivation": "active",
+      "adapterType": "symlink",
+      "outputPaths": [
+        ".github/skills"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "repo-main-b795d53"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest"
+      ]
+    },
+    {
       "id": "cratis-legacy-cratis-specs-csharp-to-claude-code-skill",
       "componentId": "cratis-legacy-cratis-specs-csharp",
       "hostId": "claude-code",
@@ -4478,6 +4262,150 @@
       ]
     },
     {
+      "id": "cratis-legacy-stepper-command-dialog-to-claude-code-skill",
+      "componentId": "cratis-legacy-stepper-command-dialog",
+      "hostId": "claude-code",
+      "projectedKind": "skill",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "existing",
+      "hostActivation": "active",
+      "adapterType": "symlink",
+      "outputPaths": [
+        ".claude/skills"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "repo-main-b795d53"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest"
+      ]
+    },
+    {
+      "id": "cratis-legacy-stepper-command-dialog-to-codex-skill",
+      "componentId": "cratis-legacy-stepper-command-dialog",
+      "hostId": "codex",
+      "projectedKind": "skill",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "existing",
+      "hostActivation": "active",
+      "adapterType": "symlink",
+      "outputPaths": [
+        ".agents/skills"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "repo-main-b795d53"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest"
+      ]
+    },
+    {
+      "id": "cratis-legacy-stepper-command-dialog-to-github-copilot-skill",
+      "componentId": "cratis-legacy-stepper-command-dialog",
+      "hostId": "github-copilot",
+      "projectedKind": "skill",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "existing",
+      "hostActivation": "active",
+      "adapterType": "symlink",
+      "outputPaths": [
+        ".github/skills"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "repo-main-b795d53"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest"
+      ]
+    },
+    {
+      "id": "cratis-legacy-toolbar-to-claude-code-skill",
+      "componentId": "cratis-legacy-toolbar",
+      "hostId": "claude-code",
+      "projectedKind": "skill",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "existing",
+      "hostActivation": "active",
+      "adapterType": "symlink",
+      "outputPaths": [
+        ".claude/skills"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "repo-main-b795d53"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest"
+      ]
+    },
+    {
+      "id": "cratis-legacy-toolbar-to-codex-skill",
+      "componentId": "cratis-legacy-toolbar",
+      "hostId": "codex",
+      "projectedKind": "skill",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "existing",
+      "hostActivation": "active",
+      "adapterType": "symlink",
+      "outputPaths": [
+        ".agents/skills"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "repo-main-b795d53"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest"
+      ]
+    },
+    {
+      "id": "cratis-legacy-toolbar-to-github-copilot-skill",
+      "componentId": "cratis-legacy-toolbar",
+      "hostId": "github-copilot",
+      "projectedKind": "skill",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "existing",
+      "hostActivation": "active",
+      "adapterType": "symlink",
+      "outputPaths": [
+        ".github/skills"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "repo-main-b795d53"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest"
+      ]
+    },
+    {
       "id": "cratis-legacy-write-documentation-to-claude-code-skill",
       "componentId": "cratis-legacy-write-documentation",
       "hostId": "claude-code",
@@ -4528,6 +4456,78 @@
     {
       "id": "cratis-legacy-write-documentation-to-github-copilot-skill",
       "componentId": "cratis-legacy-write-documentation",
+      "hostId": "github-copilot",
+      "projectedKind": "skill",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "existing",
+      "hostActivation": "active",
+      "adapterType": "symlink",
+      "outputPaths": [
+        ".github/skills"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "repo-main-b795d53"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest"
+      ]
+    },
+    {
+      "id": "cratis-legacy-write-specs-frontend-to-claude-code-skill",
+      "componentId": "cratis-legacy-write-specs-frontend",
+      "hostId": "claude-code",
+      "projectedKind": "skill",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "existing",
+      "hostActivation": "active",
+      "adapterType": "symlink",
+      "outputPaths": [
+        ".claude/skills"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "repo-main-b795d53"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest"
+      ]
+    },
+    {
+      "id": "cratis-legacy-write-specs-frontend-to-codex-skill",
+      "componentId": "cratis-legacy-write-specs-frontend",
+      "hostId": "codex",
+      "projectedKind": "skill",
+      "artifactClass": "provider-compatibility",
+      "assuranceProfileId": "provider-compatibility-v1",
+      "packageIdentity": null,
+      "state": "existing",
+      "hostActivation": "active",
+      "adapterType": "symlink",
+      "outputPaths": [
+        ".agents/skills"
+      ],
+      "approval": "modeled",
+      "evidenceIds": [
+        "repo-main-b795d53"
+      ],
+      "securityRequirements": [],
+      "requiredCanaries": [
+        "projection-shape",
+        "source-digest"
+      ]
+    },
+    {
+      "id": "cratis-legacy-write-specs-frontend-to-github-copilot-skill",
+      "componentId": "cratis-legacy-write-specs-frontend",
       "hostId": "github-copilot",
       "projectedKind": "skill",
       "artifactClass": "provider-compatibility",

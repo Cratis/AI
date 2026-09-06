@@ -3493,6 +3493,256 @@
       "includeInRuntime": false
     },
     {
+      "id": "cratis-components-accessibility",
+      "semanticName": "cratis-components-accessibility",
+      "sourceSkillIds": [
+        "cratis-components-accessibility"
+      ],
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "products": [
+        "components"
+      ],
+      "languages": [
+        "react",
+        "typescript"
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencyClassificationState": "unclassified",
+      "dependencyEdges": [],
+      "sourceContractState": "unclassified",
+      "sourceContractIds": [],
+      "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
+      "capability": "Cratis Components accessibility",
+      "positiveTriggerIntent": "Use when setting dialog initial focus, supplying accessible names, or correcting invalid ARIA in a Cratis frontend.",
+      "nearMissExclusions": [
+        "Do not use as a general WCAG conformance guide.",
+        "Do not use for visual theming."
+      ],
+      "collisionSet": [
+        "cratis-arc-react-page",
+        "cratis-components-styling"
+      ],
+      "dependencies": {
+        "targets": [
+          "cratis-arc-react-page"
+        ],
+        "internalArtifacts": [],
+        "externalTools": [
+          "node"
+        ]
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "low",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-components-schema-editor",
+      "semanticName": "cratis-components-schema-editor",
+      "sourceSkillIds": [
+        "cratis-components-schema-editor"
+      ],
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "products": [
+        "components"
+      ],
+      "languages": [
+        "react",
+        "typescript"
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencyClassificationState": "unclassified",
+      "dependencyEdges": [],
+      "sourceContractState": "unclassified",
+      "sourceContractIds": [],
+      "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
+      "capability": "Cratis Components schema editors",
+      "positiveTriggerIntent": "Use when a UI edits a JSON schema's shape or edits an object instance against a schema.",
+      "nearMissExclusions": [
+        "Do not use for a form bound to a generated Arc command.",
+        "Do not use for Chronicle event type migration."
+      ],
+      "collisionSet": [
+        "cratis-arc-react-page",
+        "cratis-chronicle-event-type-migration"
+      ],
+      "dependencies": {
+        "targets": [
+          "cratis-arc-react-page"
+        ],
+        "internalArtifacts": [],
+        "externalTools": [
+          "node"
+        ]
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "low",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
       "id": "cratis-components-stepper-command-dialog",
       "semanticName": "cratis-components-stepper-command-dialog",
       "sourceSkillIds": [
@@ -3588,6 +3838,131 @@
         "executable": false,
         "destructive": false,
         "risk": "medium",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
+      "id": "cratis-components-styling",
+      "semanticName": "cratis-components-styling",
+      "sourceSkillIds": [
+        "cratis-components-styling"
+      ],
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "products": [
+        "components"
+      ],
+      "languages": [
+        "react",
+        "typescript"
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencyClassificationState": "unclassified",
+      "dependencyEdges": [],
+      "sourceContractState": "unclassified",
+      "sourceContractIds": [],
+      "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
+      "capability": "Cratis Components styling and theming",
+      "positiveTriggerIntent": "Use when setting up stylesheets, tokens, themes, dark mode, or PrimeReact pass-through for a Cratis frontend.",
+      "nearMissExclusions": [
+        "Do not use for component API or page composition questions.",
+        "Do not use for accessible naming."
+      ],
+      "collisionSet": [
+        "cratis-arc-react-page",
+        "cratis-components-accessibility"
+      ],
+      "dependencies": {
+        "targets": [
+          "cratis-arc-react-page"
+        ],
+        "internalArtifacts": [],
+        "externalTools": [
+          "node"
+        ]
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "low",
         "disposition": "pending",
         "evidenceIds": []
       },

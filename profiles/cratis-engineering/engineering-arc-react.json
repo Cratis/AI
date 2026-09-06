@@ -13,6 +13,7 @@
   "confidentialContentAllowed": false,
   "privateOverlayExpected": true,
   "composes": [
+    "engineering-arc",
     "engineering-base"
   ]
 }
