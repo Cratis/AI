@@ -10,10 +10,13 @@
   ],
   "state": "preview-source-candidate",
   "availableTargets": [
+    "cratis-application-slice-specifications",
+    "cratis-chronicle-event-specifications",
+    "cratis-chronicle-read-model-specifications",
     "cratis-specifications-csharp"
   ],
   "composes": [
     "public-specifications"
   ],
-  "gapSummary": "Carries the canonical C# Specification by Example capability at verified Cratis.Specifications, Arc.Testing, and Chronicle.Testing versions. The application scenario-family skills remain legacy candidates."
+  "gapSummary": "Carries the canonical C# Specification by Example capability at verified Cratis.Specifications, Arc.Testing, and Chronicle.Testing versions, together with the application scenario family: slice routing, CommandScenario, EventScenario, and ReadModelScenario. Out-of-process host and transport specifications remain a gap."
 }

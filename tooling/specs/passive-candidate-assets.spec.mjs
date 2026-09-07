@@ -20,6 +20,10 @@ import {
     passiveCandidateConfigurations,
 } from "../package-passive-candidate-assets.mjs";
 import { readTarGzip } from "../package-fundamentals-preview-assets.mjs";
+import {
+    defaultRepositoryRoot,
+    readCatalog,
+} from "../catalog-validation.mjs";
 
 function withTemporaryDirectory(callback) {
     const root = mkdtempSync(join(tmpdir(), "cratis-passive-candidates-"));
@@ -80,13 +84,35 @@ test("passive candidate assets package every currently safe target and account f
         // manifests and that document are built from the same catalogs by different code, so
         // agreeing is evidence. Restated literals only ever agreed with themselves, and had to be
         // hand-bumped in every migration.
-        assert.equal(
-            publicManifest.targetIds.length,
-            publicManifest.sourceSkills.length,
+        // A manifest's sources are exactly the deduped union of its targets'
+        // sources, derived here from the catalogs so the manifest and the
+        // catalogs have to agree rather than the spec agreeing with itself.
+        //
+        // This used to assert the two counts were equal. That was never an
+        // invariant — it held only because the pending `add-business-rule` split
+        // (one source, two targets) exactly cancelled the vertical-slice merge
+        // (two sources, one target). Executing the split in Cratis/AI#175 and
+        // #177 removed the cancelling anomaly and the equality with it.
+        const targets = readCatalog(
+            join(defaultRepositoryRoot, "catalog/v2/targets.json"),
+        ).targets;
+        const sourcesForTargets = (targetIds) =>
+            [
+                ...new Set(
+                    targetIds.flatMap(
+                        (id) =>
+                            targets.find((target) => target.id === id)
+                                .sourceSkillIds,
+                    ),
+                ),
+            ].sort();
+        assert.deepEqual(
+            publicManifest.sourceSkills.map((source) => source.sourceId).sort(),
+            sourcesForTargets(publicManifest.targetIds),
         );
-        assert.equal(
-            engineeringManifest.targetIds.length,
-            engineeringManifest.sourceSkills.length,
+        assert.deepEqual(
+            engineeringManifest.sourceSkills.map((source) => source.sourceId).sort(),
+            sourcesForTargets(engineeringManifest.targetIds),
         );
         assert.equal(
             publicManifest.targetIds.length +
@@ -120,6 +146,7 @@ test("passive candidate assets package every currently safe target and account f
                 (item) => item.componentId,
             ),
             [
+                "cratis-legacy-add-business-rule",
                 "cratis-legacy-add-concept",
                 "cratis-legacy-add-cratis-docs-page",
                 "cratis-legacy-add-ef-migration",
@@ -136,6 +163,7 @@ test("passive candidate assets package every currently safe target and account f
                 "cratis-legacy-cratis-specs-csharp",
                 "cratis-legacy-cratis-specs-typescript",
                 "cratis-legacy-create-event-model",
+                "cratis-legacy-discover-implementations",
                 "cratis-legacy-edit-cratis-docs",
                 "cratis-legacy-event-modeling",
                 "cratis-legacy-event-type-migrations",
@@ -143,10 +171,16 @@ test("passive candidate assets package every currently safe target and account f
                 "cratis-legacy-multi-tenancy",
                 "cratis-legacy-observable-query-curl",
                 "cratis-legacy-query-paging",
+                "cratis-legacy-review-code",
+                "cratis-legacy-review-performance",
+                "cratis-legacy-review-security",
                 "cratis-legacy-stepper-command-dialog",
                 "cratis-legacy-toolbar",
                 "cratis-legacy-write-documentation",
+                "cratis-legacy-write-specs",
+                "cratis-legacy-write-specs-events",
                 "cratis-legacy-write-specs-frontend",
+                "cratis-legacy-write-specs-readmodels",
             ],
         );
         const skillComponentIds = JSON.parse(

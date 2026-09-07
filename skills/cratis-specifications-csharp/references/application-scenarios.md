@@ -42,9 +42,9 @@ public class and_<condition> : Specification
 #endif
 ```
 
-`CommandScenario<TCommand>` exposes exactly `Services`, `Context`, `Execute`,
-and `Validate`. Everything else is configured through `Services` and asserted
-with extension methods.
+`CommandScenario<TCommand>` itself exposes exactly `Services`, `Context`,
+`Execute`, and `Validate`. Everything else — seeding, the event log, and the
+assertions — arrives as extension members from `Cratis.Arc.Chronicle.Testing`.
 
 - **Event assertions** are extension methods keyed by command *and* event type:
   `ShouldHaveAppendedEvent<TCommand, TEvent>(eventSourceId)`, its
@@ -59,9 +59,15 @@ with extension methods.
   `ShouldHaveValidationErrorFor(message)`, `ShouldBeAuthorized()`,
   `ShouldNotBeAuthorized()`, `ShouldHaveExceptions()`,
   `ShouldNotHaveExceptions()`.
-- **There is no `Given` or `Events` on a command scenario.** Seed prior state
-  through `_scenario.Services` — substitute `IReadModels` and register it, or
-  register projections with `AddReadModels(…)`.
+- **Seed prior state through `Given`.** With `Cratis.Arc.Chronicle.Testing`
+  referenced, a command scenario carries a Chronicle-backed `Given` builder as an
+  extension member, alongside `EventScenario`, `EventLog`, `EventSequence` and
+  `AppendedEvents`. `Given.ForEventSource(id).Events(…)` seeds the events an
+  injected read model is then materialized from by its own projection or
+  reducer; `Given.ForEventSource(id).ReadModel(instance)` pins a specific
+  read-model value instead. Both return `void`. Prefer seeding events — it
+  exercises the projection production depends on, so the specification cannot
+  pass against a read-model shape the projection never produces.
 - **Validator and `Provide()` dependencies** are registered in
   `_scenario.Services`; the concrete validator is discovered automatically.
 
@@ -113,6 +119,11 @@ and `ShouldNotHaveConstraintViolations()`,
 `ShouldHaveConstraintViolationFor(name)`,
 `ShouldHaveConcurrencyViolations()` and its negation, `ShouldHaveErrors()` and
 its negation. Assert the constraint **name**, never the message.
+
+⚠️ `EventScenario` wires a no-op concurrency-scope strategy, so a concurrency
+violation can never occur inside it. `ShouldHaveConcurrencyViolations()` cannot
+pass there and its negation passes vacuously — specify concurrency against the
+real kernel with an out-of-process integration specification instead.
 
 ## `ReadModelScenario<TReadModel>`
 

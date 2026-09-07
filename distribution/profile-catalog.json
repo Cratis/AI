@@ -98,6 +98,7 @@
         "public-cratis-cli",
         "public-cratis-cli-terminal-workbench",
         "public-fundamentals",
+        "public-fundamentals-type-discovery",
         "public-language-csharp",
         "public-language-elixir",
         "public-language-kotlin",
@@ -105,6 +106,7 @@
         "public-lens",
         "public-methodology-governed-releases",
         "public-modeling-screenplay-stage",
+        "public-review",
         "public-screenplay",
         "public-specifications",
         "public-specifications-dotnet",
@@ -339,10 +341,11 @@
       "availableTargets": [
         "cratis-arc-command",
         "cratis-arc-command-execution",
+        "cratis-arc-command-validation",
         "cratis-arc-observable-query-http",
         "cratis-arc-query-paging"
       ],
-      "gapSummary": "Command definition, pipeline execution, query paging, and observable-query HTTP inspection are canonical. Command validation still shares one legacy source with the Chronicle event-constraints target and migrates with it; dedicated query authoring, read-model design, and separated authorization guidance remain gaps."
+      "gapSummary": "Command definition, validation, pipeline execution, query paging, and observable-query HTTP inspection are canonical, verified against Arc 22.10.4. Command validation no longer shares a legacy source with the Chronicle event-constraints target; each half now owns its own file. Dedicated query authoring, read-model design, and separated authorization guidance remain gaps."
     },
     {
       "id": "public-arc-ef-core",
@@ -419,6 +422,7 @@
       ],
       "state": "preview-source-candidate",
       "availableTargets": [
+        "cratis-chronicle-event-constraints",
         "cratis-chronicle-event-modeling",
         "cratis-chronicle-event-type-migration",
         "cratis-chronicle-projection",
@@ -427,7 +431,7 @@
         "cratis-chronicle-reducer",
         "cratis-event-model-diagram"
       ],
-      "gapSummary": "Event modeling, diagrams, read models, projections, reducers, reactors, and event type migrations are canonical source candidates verified against Chronicle 16.45.2. Event metadata, constraints, and client-specific journeys remain gaps."
+      "gapSummary": "Event modeling, diagrams, read models, projections, reducers, reactors, event type migrations, and append-time constraints are canonical source candidates verified against Chronicle 16.45.2. Event metadata and client-specific journeys remain gaps."
     },
     {
       "id": "public-chronicle-client-dotnet",
@@ -668,7 +672,26 @@
       "availableTargets": [
         "cratis-fundamentals-concept"
       ],
-      "gapSummary": "The first candidate combines Fundamentals value concepts with Chronicle stream identities at exact verified versions; type discovery remains a legacy candidate."
+      "gapSummary": "The first candidate combines Fundamentals value concepts with Chronicle stream identities at exact verified versions. Convention-based implementation discovery now ships as public-fundamentals-type-discovery rather than here, because this profile is the pinned passive-preview package and its authority requires exactly one target; serialization and the remaining Fundamentals primitives are gaps."
+    },
+    {
+      "id": "public-fundamentals-type-discovery",
+      "packageName": "@cratis/ai-fundamentals-type-discovery",
+      "version": "0.0.0",
+      "products": [
+        "fundamentals"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "state": "preview-source-candidate",
+      "availableTargets": [
+        "cratis-fundamentals-type-discovery"
+      ],
+      "composes": [
+        "public-fundamentals"
+      ],
+      "gapSummary": "Convention-based implementation discovery through IInstancesOf<T> and the [Singleton]/[Scoped] lifetime conventions, verified against Cratis.Fundamentals 7.18.2. It is a profile of its own rather than a second target on public-fundamentals because that profile is the selected passive-preview package, whose authority pins it to exactly one target. Serialization and the remaining Fundamentals primitives are gaps."
     },
     {
       "id": "public-language-csharp",
@@ -763,6 +786,26 @@
       "gapSummary": "Composes the canonical Screenplay authoring and Stage rendering sources, and carries no source of its own. The handoff between them is documented only as the boundary each side states about the other; an end-to-end authored-model-to-rendered-application walkthrough and its evidence remain gaps."
     },
     {
+      "id": "public-review",
+      "packageName": "@cratis/ai-review",
+      "version": "0.0.0",
+      "products": [
+        "cross-product"
+      ],
+      "languages": [
+        "csharp",
+        "typescript",
+        "react"
+      ],
+      "state": "preview-source-candidate",
+      "availableTargets": [
+        "cratis-code-review",
+        "cratis-performance-review",
+        "cratis-security-review"
+      ],
+      "gapSummary": "General, performance, and security review criteria for a Cratis application, verified against Arc 22.10.4, Chronicle 16.45.2, and Fundamentals 7.18.2. It deliberately composes nothing: a reviewer reads code they did not write and must not be forced to install every product profile to do it, so selecting this must never imply Arc, Chronicle, or Components. Review of a Cratis framework repository itself, rather than an application built on one, remains a gap."
+    },
+    {
       "id": "public-screenplay",
       "packageName": "@cratis/ai-screenplay",
       "version": "0.0.0",
@@ -788,8 +831,11 @@
       "languages": [
         "language-agnostic"
       ],
-      "state": "planned-source-migration",
-      "gapSummary": "Needs canonical language-agnostic Specification by Example philosophy, context hierarchy, naming, observability, and completion guidance."
+      "state": "preview-source-candidate",
+      "availableTargets": [
+        "cratis-specification-by-example"
+      ],
+      "gapSummary": "Carries the language-agnostic Specification by Example capability: naming, the for_/when_/and_ sentence path, layered given/ contexts, what not to specify, observable outcomes, and completion. Grounded in the Cratis.Specifications CRSPEC analyzers, which make the same rules machine-enforced in C#. Observability guidance beyond the no-sleep and no-message-string rules remains a gap."
     },
     {
       "id": "public-specifications-dotnet",
@@ -803,12 +849,15 @@
       ],
       "state": "preview-source-candidate",
       "availableTargets": [
+        "cratis-application-slice-specifications",
+        "cratis-chronicle-event-specifications",
+        "cratis-chronicle-read-model-specifications",
         "cratis-specifications-csharp"
       ],
       "composes": [
         "public-specifications"
       ],
-      "gapSummary": "Carries the canonical C# Specification by Example capability at verified Cratis.Specifications, Arc.Testing, and Chronicle.Testing versions. The application scenario-family skills remain legacy candidates."
+      "gapSummary": "Carries the canonical C# Specification by Example capability at verified Cratis.Specifications, Arc.Testing, and Chronicle.Testing versions, together with the application scenario family: slice routing, CommandScenario, EventScenario, and ReadModelScenario. Out-of-process host and transport specifications remain a gap."
     },
     {
       "id": "public-specifications-typescript",

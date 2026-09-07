@@ -193,14 +193,13 @@
             "add-business-rule"
           ],
           "targetIds": [
-            "cratis-arc-command-validation",
-            "cratis-chronicle-event-constraints"
+            "cratis-arc-command-validation"
           ],
           "evidenceIds": [
             "repo-main-b795d53",
             "reevaluation-authority"
           ],
-          "notes": "The current add-business-rule source will be split so this capability does not compete with Chronicle event constraints."
+          "notes": "The add-business-rule source has been split; its Arc half is now skills/cratis-arc-command-validation and no longer competes with Chronicle event constraints."
         },
         {
           "id": "command-execution",
@@ -266,8 +265,7 @@
             "add-business-rule"
           ],
           "targetIds": [
-            "cratis-arc-command-validation",
-            "cratis-chronicle-event-constraints"
+            "cratis-arc-command-validation"
           ],
           "evidenceIds": [
             "repo-main-b795d53",
@@ -527,17 +525,16 @@
             "csharp"
           ],
           "sourceSkillIds": [
-            "add-business-rule"
+            "cratis-chronicle-event-constraints"
           ],
           "targetIds": [
-            "cratis-arc-command-validation",
             "cratis-chronicle-event-constraints"
           ],
           "evidenceIds": [
             "repo-main-b795d53",
             "reevaluation-authority"
           ],
-          "notes": "The current add-business-rule source will be split into a focused Chronicle constraints skill."
+          "notes": "The Chronicle half of the executed add-business-rule split; it owns its own source file."
         },
         {
           "id": "event-metadata",
@@ -982,6 +979,24 @@
         "reevaluation-authority"
       ],
       "capabilities": [
+        {
+          "id": "language-agnostic-specification-by-example",
+          "coverageState": "source-candidate",
+          "claimState": "unclaimed",
+          "languages": [
+            "language-agnostic"
+          ],
+          "sourceSkillIds": [
+            "cratis-specification-by-example"
+          ],
+          "targetIds": [
+            "cratis-specification-by-example"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
         {
           "id": "csharp-bdd",
           "coverageState": "source-candidate",

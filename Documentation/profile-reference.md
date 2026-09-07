@@ -195,9 +195,25 @@ and host evidence from its owning repository.
 | `public-arc-identity` | `@cratis/ai-arc-identity` | Authentication providers, authorization, claims, frontend identity |
 | `public-chronicle-compliance` | `@cratis/ai-chronicle-compliance` | Subjects, keys, erasure, retention, privacy, audit |
 | `public-chronicle-multi-tenancy` | `@cratis/ai-chronicle-multi-tenancy` | Chronicle namespace isolation and tenant resolution |
+| `public-fundamentals-type-discovery` | `@cratis/ai-fundamentals-type-discovery` | `IInstancesOf<T>` implementation discovery and the DI lifetime conventions |
 
 These remain separate because identity has different meanings across Arc,
 Chronicle compliance, event-source identities, and product-specific roles.
+
+`public-fundamentals-type-discovery` is separate for a different reason:
+`public-fundamentals` is the selected passive-preview package, and the preview
+authority pins it to exactly one target. A second skill added there would change
+what the already-requested preview publishes.
+
+## Review profiles
+
+| Profile | Intended package | Scope |
+| --- | --- | --- |
+| `public-review` | `@cratis/ai-review` | General, performance, and security review criteria for a Cratis application |
+
+It composes nothing on purpose. A reviewer reads code they did not write, and
+selecting review criteria must not imply installing Arc, Chronicle, or
+Components guidance.
 
 ## Specification by Example profiles
 
