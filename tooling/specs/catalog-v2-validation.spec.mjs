@@ -58,34 +58,49 @@ test("catalog v2 schemas and semantic policy pass for the repository", () => {
     assert.deepEqual(validateV2Catalogs(), []);
 });
 
-test("catalog v2 preserves all 61 sources while split and merge targets are independent", () => {
+test("catalog v2 preserves every reviewed source and keeps merge targets independent", () => {
     const catalogs = loadCatalogs();
-    assert.equal(catalogs.sources.sources.length, 61);
-    assert.equal(catalogs.targets.targets.length, 61);
-    const split = catalogs.migrations.migrations.find(
-        (migration) => migration.kind === "split",
-    );
+    const reviewed = readCatalog(
+        join(defaultRepositoryRoot, "catalog/public-skills.yml"),
+    ).audit.currentInventoryCount;
+    assert.equal(catalogs.sources.sources.length, reviewed);
+    assert(catalogs.targets.targets.length > 0);
     const merge = catalogs.migrations.migrations.find(
         (migration) => migration.kind === "merge",
     );
-    assert.deepEqual(split.sourceIds, ["add-business-rule"]);
-    assert.deepEqual(split.targetIds, [
-        "cratis-arc-command-validation",
-        "cratis-chronicle-event-constraints",
-    ]);
     assert.deepEqual(merge.sourceIds, [
         "cratis-vertical-slice",
         "new-vertical-slice",
     ]);
     assert.deepEqual(merge.targetIds, ["cratis-application-vertical-slice"]);
-    assert.notEqual(
-        catalogs.targets.targets.find(
-            (target) => target.id === split.targetIds[0],
+});
+
+// Cratis/AI#175 and #177 both deferred `add-business-rule` because one source
+// record names one path, so a shared split source could not give each half its
+// own bytes. The split is now executed, and this is what "executed" has to mean:
+// no split migration remains, and each half is byte-sourced from its own file.
+test("the add-business-rule split is executed rather than pending", () => {
+    const catalogs = loadCatalogs();
+    assert.equal(
+        catalogs.migrations.migrations.find(
+            (migration) => migration.kind === "split",
         ),
-        catalogs.targets.targets.find(
-            (target) => target.id === split.targetIds[1],
-        ),
+        undefined,
     );
+    const halves = [
+        "cratis-arc-command-validation",
+        "cratis-chronicle-event-constraints",
+    ].map((id) => catalogs.targets.targets.find((target) => target.id === id));
+    assert(halves.every((target) => target?.sourceSkillIds.length === 1));
+    const [validationSource, constraintSource] = halves.map(
+        (target) =>
+            catalogs.sources.sources.find(
+                (source) => source.id === target.sourceSkillIds[0],
+            ).sourcePath,
+    );
+    assert.equal(validationSource, "skills/cratis-arc-command-validation");
+    assert.equal(constraintSource, "skills/cratis-chronicle-event-constraints");
+    assert.notEqual(validationSource, constraintSource);
 });
 
 test("Chronicle MCP guidance target is provenance-bound but remains unclassified and denied", () => {
@@ -1066,7 +1081,7 @@ test("the accepted Option A+ decision still blocks unapproved live targets", () 
     assert.equal(publicCandidate.materializationAllowed, true);
     assert.equal(publicCandidate.runtimeEligible, false);
     assert.equal(publicCandidate.requiresApprovedTargets, false);
-    assert.equal(publicCandidate.componentInventory.skills.length, 49);
+    assert.equal(publicCandidate.componentInventory.skills.length, 50);
     assert(
         !publicCandidate.componentInventory.skills.includes(
             "cratis-chronicle-mcp-inspection",

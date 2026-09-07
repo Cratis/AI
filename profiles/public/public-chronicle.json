@@ -11,6 +11,7 @@
   ],
   "state": "preview-source-candidate",
   "availableTargets": [
+    "cratis-chronicle-event-constraints",
     "cratis-chronicle-event-modeling",
     "cratis-chronicle-event-type-migration",
     "cratis-chronicle-projection",
@@ -19,5 +20,5 @@
     "cratis-chronicle-reducer",
     "cratis-event-model-diagram"
   ],
-  "gapSummary": "Event modeling, diagrams, read models, projections, reducers, reactors, and event type migrations are canonical source candidates verified against Chronicle 16.45.2. Event metadata, constraints, and client-specific journeys remain gaps."
+  "gapSummary": "Event modeling, diagrams, read models, projections, reducers, reactors, event type migrations, and append-time constraints are canonical source candidates verified against Chronicle 16.45.2. Event metadata and client-specific journeys remain gaps."
 }

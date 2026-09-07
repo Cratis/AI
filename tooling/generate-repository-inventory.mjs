@@ -161,6 +161,7 @@ function publicSkillRoots() {
         // A source record whose canonical path has moved into `skills/` no
         // longer contributes its legacy `.ai/skills` root, so each retained
         // twin is named explicitly until Cratis/AI#256 retires it.
+        ".ai/skills/add-business-rule/**",
         ".ai/skills/add-concept/**",
         ".ai/skills/add-ef-migration/**",
         ".ai/skills/add-projection/**",
@@ -174,15 +175,22 @@ function publicSkillRoots() {
         ".ai/skills/cratis-specs-csharp/**",
         ".ai/skills/cratis-specs-typescript/**",
         ".ai/skills/create-event-model/**",
+        ".ai/skills/discover-implementations/**",
         ".ai/skills/event-modeling/**",
         ".ai/skills/event-type-migrations/**",
         ".ai/skills/inspect-running-chronicle/**",
         ".ai/skills/multi-tenancy/**",
         ".ai/skills/observable-query-curl/**",
         ".ai/skills/query-paging/**",
+        ".ai/skills/review-code/**",
+        ".ai/skills/review-performance/**",
+        ".ai/skills/review-security/**",
         ".ai/skills/stepper-command-dialog/**",
         ".ai/skills/toolbar/**",
+        ".ai/skills/write-specs/**",
+        ".ai/skills/write-specs-events/**",
         ".ai/skills/write-specs-frontend/**",
+        ".ai/skills/write-specs-readmodels/**",
         "skills/**",
     ];
 }

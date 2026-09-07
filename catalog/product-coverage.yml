@@ -109,7 +109,7 @@
           "sourceSkills": [
             "add-business-rule"
           ],
-          "notes": "The current add-business-rule source will be split so this capability does not compete with Chronicle event constraints."
+          "notes": "The add-business-rule source has been split; its Arc half is now skills/cratis-arc-command-validation and no longer competes with Chronicle event constraints."
         },
         {
           "id": "command-execution",
@@ -300,9 +300,9 @@
             "csharp"
           ],
           "sourceSkills": [
-            "add-business-rule"
+            "cratis-chronicle-event-constraints"
           ],
-          "notes": "The current add-business-rule source will be split into a focused Chronicle constraints skill."
+          "notes": "The Chronicle half of the executed add-business-rule split; it owns its own source file."
         },
         {
           "id": "event-metadata",
@@ -562,6 +562,16 @@
       "id": "specifications",
       "name": "Cratis.Specifications",
       "capabilities": [
+        {
+          "id": "language-agnostic-specification-by-example",
+          "status": "candidate",
+          "languages": [
+            "language-agnostic"
+          ],
+          "sourceSkills": [
+            "cratis-specification-by-example"
+          ]
+        },
         {
           "id": "csharp-bdd",
           "status": "candidate",

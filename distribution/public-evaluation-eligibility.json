@@ -134,6 +134,10 @@
       "reason": "effect-assessment-required"
     },
     {
+      "targetId": "cratis-specification-by-example",
+      "reason": "effect-assessment-required"
+    },
+    {
       "targetId": "cratis-stage-rendering-and-sandbox",
       "reason": "effect-assessment-required"
     },

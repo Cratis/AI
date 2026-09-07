@@ -62,7 +62,7 @@ test("profile catalog and project subscriptions pass", () => {
     const catalog = readJson(
         join(repositoryRoot, "distribution/profile-catalog.json"),
     );
-    assert.equal(catalog.publicProfiles.length, 42);
+    assert.equal(catalog.publicProfiles.length, 44);
     assert.equal(catalog.engineeringProfiles.length, 20);
     assert.equal(catalog.versioning.exactPinsRequired, true);
     assert.equal(catalog.versioning.perProfileVersionStamps, true);

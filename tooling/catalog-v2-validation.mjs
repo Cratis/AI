@@ -227,11 +227,26 @@ export function validateSources(catalogs, root) {
     ];
     if (!equalStringSets(sourceIds, v1Ids))
         errors.push(
-            "catalog v2 sources must preserve all 61 authored skill sources exactly once",
+            `catalog v2 sources must preserve all ${v1Ids.length} authored skill sources exactly once`,
         );
-    if (sourceIds.length !== 61)
+    // The corpus size is reviewed once, in the `audit` block of
+    // `catalog/public-skills.yml`, rather than restated as a literal here — the
+    // same one-derivation-one-seal shape Cratis/AI#280 gave the component counts.
+    // The audit is only a checkpoint if it is internally consistent, so its two
+    // halves are checked against its own total before anything is compared to it.
+    const { currentInventoryCount, publicCandidateCount, internalSkillCount } =
+        v1.audit;
+    if (publicCandidateCount + internalSkillCount !== currentInventoryCount)
         errors.push(
-            `catalog v2 must contain 61 sources; found ${sourceIds.length}`,
+            `the public skills audit is internally inconsistent: ${publicCandidateCount} public plus ${internalSkillCount} internal is not ${currentInventoryCount}`,
+        );
+    if (v1.skills.length !== publicCandidateCount)
+        errors.push(
+            `the public skills audit reviews ${publicCandidateCount} public candidates; the catalog has ${v1.skills.length}`,
+        );
+    if (sourceIds.length !== currentInventoryCount)
+        errors.push(
+            `catalog v2 must contain ${currentInventoryCount} sources; found ${sourceIds.length}`,
         );
     for (const source of catalogs.sources.sources) {
         if (source.publicationApproval)

@@ -23,9 +23,9 @@
     ]
   },
   "audit": {
-    "verifiedOn": "2026-08-20",
-    "currentInventoryCount": 61,
-    "publicCandidateCount": 51,
+    "verifiedOn": "2026-09-06",
+    "currentInventoryCount": 63,
+    "publicCandidateCount": 53,
     "internalSkillCount": 10,
     "internalSkills": [
       {
@@ -75,7 +75,7 @@
       "currentName": "add-business-rule",
       "source": ".ai/skills/add-business-rule",
       "proposedName": "cratis-arc-command-validation",
-      "disposition": "split-review",
+      "disposition": "rename",
       "publicationStatus": "candidate",
       "includeInRuntime": false,
       "products": [
@@ -99,11 +99,7 @@
         ]
       },
       "reviewNotes": [
-        "Split command validation and state checks from Chronicle event-store uniqueness and constraints; share factual references without competing trigger intent."
-      ],
-      "splitTargets": [
-        "cratis-arc-command-validation",
-        "cratis-chronicle-event-constraints"
+        "The reviewed split has been executed: Arc-level command rejection is now skills/cratis-arc-command-validation and Chronicle append-time uniqueness is its own source, skills/cratis-chronicle-event-constraints. Each half owns its own bytes, so neither target reads the other's inventory."
       ]
     },
     {
@@ -1537,6 +1533,55 @@
       },
       "reviewNotes": [
         "Authored directly in the canonical tree against Chronicle.TypeScript at tag v4.0.0. It describes an SDK that connects to a live event store, so its effect assessment is required before any evaluation admission."
+      ]
+    },
+    {
+      "currentName": "cratis-chronicle-event-constraints",
+      "source": "skills/cratis-chronicle-event-constraints",
+      "proposedName": "cratis-chronicle-event-constraints",
+      "disposition": "retain",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "chronicle",
+        "application"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "dependencies": {
+        "skills": [
+          "add-concept"
+        ],
+        "internalArtifacts": [],
+        "externalTools": [
+          "dotnet"
+        ]
+      },
+      "reviewNotes": [
+        "The Chronicle half of the reviewed add-business-rule split, now its own source so the target's byte inventory is its own file. Re-verified against Chronicle 16.45.2; the append-time uniqueness guidance is preserved and corrected, not redirected."
+      ]
+    },
+    {
+      "currentName": "cratis-specification-by-example",
+      "source": "skills/cratis-specification-by-example",
+      "proposedName": "cratis-specification-by-example",
+      "disposition": "retain",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "specifications"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "dependencies": {
+        "skills": [],
+        "internalArtifacts": [],
+        "externalTools": []
+      },
+      "reviewNotes": [
+        "Authored directly in the canonical tree so public-specifications stops resolving with zero skills of its own. Language-agnostic by construction: naming, structure, scope and completion, with the Cratis.Specifications CRSPEC analyzers cited as what makes the rules machine-enforced in C#."
       ]
     }
   ]

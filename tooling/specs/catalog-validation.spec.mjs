@@ -95,8 +95,11 @@ test("schema number bounds enforce both minimum and maximum", () => {
 test("public catalog starts deny-by-default with no runtime-approved candidates", () => {
     const catalog = readCatalog(publicCatalogPath);
     assert.equal(catalog.defaultPolicy, "deny");
-    assert.equal(catalog.skills.length, 51);
-    assert.equal(catalog.audit.internalSkills.length, 10);
+    assert.equal(catalog.skills.length, catalog.audit.publicCandidateCount);
+    assert.equal(
+        catalog.audit.internalSkills.length,
+        catalog.audit.internalSkillCount,
+    );
     assert(
         catalog.skills.every(
             (skill) => skill.publicationStatus === "candidate",
@@ -131,17 +134,27 @@ test("Studio MCP candidate remains public-safe, classification-only, and denied"
     assert.deepEqual(guidance.dependencies.externalTools, []);
 });
 
-test("business-rule source records the approved split review", () => {
+test("the reviewed business-rule split left two independently sourced halves", () => {
     const catalog = readCatalog(publicCatalogPath);
     const businessRules = catalog.skills.find(
         (skill) => skill.currentName === "add-business-rule",
     );
+    const constraints = catalog.skills.find(
+        (skill) => skill.currentName === "cratis-chronicle-event-constraints",
+    );
 
-    assert.equal(businessRules.disposition, "split-review");
-    assert.deepEqual(businessRules.splitTargets, [
-        "cratis-arc-command-validation",
-        "cratis-chronicle-event-constraints",
-    ]);
+    // The reviewed decision was that this one legacy source becomes two targets.
+    // Executing it means neither entry claims the other's target any more, and
+    // the Chronicle half stands on its own source path.
+    assert.equal(businessRules.disposition, "rename");
+    assert.equal(businessRules.proposedName, "cratis-arc-command-validation");
+    assert.equal(businessRules.splitTargets, undefined);
+    assert.equal(constraints.disposition, "retain");
+    assert.equal(
+        constraints.source,
+        "skills/cratis-chronicle-event-constraints",
+    );
+    assert.deepEqual(constraints.products, ["chronicle", "application"]);
 });
 
 test("vertical-slice duplicate target is explicitly limited to one merge review", () => {

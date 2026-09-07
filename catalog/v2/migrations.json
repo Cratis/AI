@@ -19,6 +19,21 @@
       ]
     },
     {
+      "id": "rename-add-business-rule",
+      "kind": "rename",
+      "sourceIds": [
+        "add-business-rule"
+      ],
+      "targetIds": [
+        "cratis-arc-command-validation"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
       "id": "rename-add-concept",
       "kind": "rename",
       "sourceIds": [
@@ -229,6 +244,21 @@
       ]
     },
     {
+      "id": "rename-cratis-chronicle-event-constraints",
+      "kind": "retain",
+      "sourceIds": [
+        "cratis-chronicle-event-constraints"
+      ],
+      "targetIds": [
+        "cratis-chronicle-event-constraints"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
       "id": "rename-cratis-chronicle-mcp-inspection",
       "kind": "retain",
       "sourceIds": [
@@ -416,6 +446,21 @@
       ],
       "targetIds": [
         "cratis-screenplay-model-authoring"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
+      "id": "rename-cratis-specification-by-example",
+      "kind": "retain",
+      "sourceIds": [
+        "cratis-specification-by-example"
+      ],
+      "targetIds": [
+        "cratis-specification-by-example"
       ],
       "state": "proposed",
       "evaluationEvidenceIds": [],
@@ -883,22 +928,6 @@
         "skill-creator"
       ],
       "state": "proposed",
-      "evaluationEvidenceIds": [],
-      "evidenceIds": [
-        "reevaluation-authority"
-      ]
-    },
-    {
-      "id": "split-add-business-rule",
-      "kind": "split",
-      "sourceIds": [
-        "add-business-rule"
-      ],
-      "targetIds": [
-        "cratis-arc-command-validation",
-        "cratis-chronicle-event-constraints"
-      ],
-      "state": "evaluation-required",
       "evaluationEvidenceIds": [],
       "evidenceIds": [
         "reevaluation-authority"

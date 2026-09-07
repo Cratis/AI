@@ -440,10 +440,6 @@ const migratedCanonicalSourceNames = [
         "engineering/skills/cratis-engineering-csharp-conventions",
         "cratis-engineering-csharp-conventions-source-ee5c566",
     ],
-    // `add-business-rule` is deliberately absent: it is the one legacy source two
-    // targets read from, `cratis-arc-command-validation` and
-    // `cratis-chronicle-event-constraints`. A source record names exactly one
-    // path, so the two have to migrate together.
     [
         "cratis-command",
         "skills/cratis-arc-command",
@@ -535,6 +531,49 @@ const chronicleMigrationSourcePaths = new Map([
     ["inspect-running-chronicle", "skills/cratis-chronicle-cli-operations"],
     ["multi-tenancy", "skills/cratis-chronicle-multi-tenancy"],
 ]);
+// Cratis/AI#174, #175 and #177: the specification, review and discovery skills,
+// and both halves of the `add-business-rule` split, now live in the canonical
+// skill tree. Several of these names also appear in the lists above, so their
+// entries are applied last.
+//
+// `add-business-rule` was the one legacy source two targets read from. A source
+// record names exactly one path and `validateMigrations` requires every target to
+// be produced by exactly one migration, so a shared split source cannot give each
+// half its own bytes — which is why #175 and #177 both deferred it. The reviewed
+// split is now executed rather than pending: `add-business-rule` renames to
+// `cratis-arc-command-validation`, and `cratis-chronicle-event-constraints`
+// becomes its own source. The reviewed intent is unchanged and recorded on the
+// `add-business-rule` entry in `catalog/public-skills.yml`.
+const specificationsAndConstraintsRevision =
+    "7f2597e0e07d01923eef8f6912cdb6864ce5dbd7";
+const specificationsAndConstraintsSourcePaths = new Map([
+    ["add-business-rule", "skills/cratis-arc-command-validation"],
+    // Already canonical, re-pinned here because the same change corrected two
+    // claims in its `application-scenarios.md` reference that the re-verification
+    // disproved: `CommandScenario<T>` does carry a `Given` builder, and
+    // `EventScenario` cannot produce a concurrency violation.
+    ["cratis-specs-csharp", "skills/cratis-specifications-csharp"],
+    ["discover-implementations", "skills/cratis-fundamentals-type-discovery"],
+    ["review-code", "skills/cratis-code-review"],
+    ["review-performance", "skills/cratis-performance-review"],
+    ["review-security", "skills/cratis-security-review"],
+    ["write-specs", "skills/cratis-application-slice-specifications"],
+    [
+        "write-specs-events",
+        "skills/cratis-chronicle-event-specifications",
+    ],
+    [
+        "write-specs-readmodels",
+        "skills/cratis-chronicle-read-model-specifications",
+    ],
+]);
+// Authored directly in the canonical tree in the same change: the Chronicle half
+// of the executed split, and the language-agnostic specification skill that stops
+// `public-specifications` resolving with zero skills of its own.
+const specificationsAndConstraintsAuthoredNames = [
+    "cratis-chronicle-event-constraints",
+    "cratis-specification-by-example",
+];
 // Cratis/AI#179: the Lens, Screenplay, and Stage skills were authored directly in
 // the canonical skill tree. Nothing was migrated, because no corpus content
 // existed for any of the three products.
@@ -734,6 +773,22 @@ const sourceOverrides = new Map([
             sourcePath: `skills/${name}`,
             sourceRevision: chronicleClientRevision,
             evidenceId: "chronicle-language-clients-source-f8cdd82",
+        },
+    ]),
+    // Kept last so they win over the legacy `.ai/skills` mappings for the same
+    // source names in the lists above.
+    ...[
+        ...specificationsAndConstraintsSourcePaths,
+        ...specificationsAndConstraintsAuthoredNames.map((name) => [
+            name,
+            `skills/${name}`,
+        ]),
+    ].map(([name, sourcePath]) => [
+        name,
+        {
+            sourcePath,
+            sourceRevision: specificationsAndConstraintsRevision,
+            evidenceId: "specifications-and-constraints-source-7f2597e",
         },
     ]),
 ]);
@@ -1377,6 +1432,20 @@ const profiles = {
             "cratis-arc-query-paging",
         ],
         "high",
+        false,
+    ],
+    "cratis-specification-by-example": [
+        "Cratis specification by example",
+        "Use to decide how a specification is structured, named, and scoped, in any language.",
+        [
+            "Do not use for the C# or TypeScript mechanics of writing one.",
+            "Do not use to decide what the behavior under specification should be.",
+        ],
+        [
+            "cratis-specifications-csharp",
+            "cratis-specifications-typescript",
+        ],
+        "low",
         false,
     ],
     "cratis-specifications-csharp": [
@@ -2123,16 +2192,6 @@ for (const skill of v1Public.skills) {
             kind: "merge",
             sourceIds: ["cratis-vertical-slice", "new-vertical-slice"],
             targetIds: ["cratis-application-vertical-slice"],
-            state: "evaluation-required",
-            evaluationEvidenceIds: [],
-            evidenceIds: ["reevaluation-authority"],
-        });
-    } else if (skill.currentName === "add-business-rule") {
-        migrations.push({
-            id: "split-add-business-rule",
-            kind: "split",
-            sourceIds: [skill.currentName],
-            targetIds: skill.splitTargets,
             state: "evaluation-required",
             evaluationEvidenceIds: [],
             evidenceIds: ["reevaluation-authority"],

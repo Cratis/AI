@@ -48,9 +48,9 @@ export const distributionPointerOutputs = new Set([
 ]);
 
 const expectedComponentAnchor =
-    "78c3d0cc02e1e3b04d6e0fccc46e244e641c97a37d0e22d25b8110a3ab09dc4c";
+    "7841f2d7795eda71a844096b1d1632bfb66a5bd09335ded98c044833511f08b0";
 const expectedProjectionAnchor =
-    "0140b37148e82f2ab33819896d319e5f4c02f14851508313df0b7490fdf16a2b";
+    "7fd427600ace6fd0a8785a8e2f3eb5a5d3948461c0de7e6430f66610d806716c";
 const expectedProjectionHostAnchor =
     "9735e6fd6a1b15e92086df6fda6cb4a988094c37c26e11bddf0518d5d3fdeba2";
 
@@ -1236,10 +1236,15 @@ export function validateComponentProjections(
     );
     if (
         projections.hosts.length !== 9 ||
-        projections.projections.length !== 402 ||
+        // 399 rather than 402 since Cratis/AI#175 and #177: `add-business-rule`
+        // was one directory projected into three host adapters, but both halves
+        // of its pending split modeled the same three, so every adapter was
+        // counted twice. Executing the split leaves the three on the retained
+        // legacy twin exactly once.
+        projections.projections.length !== 399 ||
         projections.projections.filter(
             (projection) => projection.state === "existing",
-        ).length !== 332 ||
+        ).length !== 329 ||
         generatedStatic.length !== 70 ||
         generatedCounts["jetbrains-ai-assistant"] !== 34 ||
         generatedCounts.tabnine !== 34 ||

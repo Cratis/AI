@@ -239,12 +239,12 @@ test("S8 adds exactly 70 passive generated-static non-skill projections", () => 
         (projection) => projection.state === "generated-static",
     );
     assert.equal(catalogs.projections.hosts.length, 9);
-    assert.equal(catalogs.projections.projections.length, 402);
+    assert.equal(catalogs.projections.projections.length, 399);
     assert.equal(
         catalogs.projections.projections.filter(
             (projection) => projection.state === "existing",
         ).length,
-        332,
+        329,
     );
     assert.equal(generated.length, 70);
     assert.equal(
@@ -320,7 +320,7 @@ test("retained legacy host skills are explicit unbound components", () => {
     const legacy = catalogs.components.components.filter(
         (component) => component.lifecycle === "legacy-retained",
     );
-    assert.equal(legacy.length, 27);
+    assert.equal(legacy.length, 35);
     assert(
         legacy.every(
             (component) =>

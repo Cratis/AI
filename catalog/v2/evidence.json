@@ -1600,6 +1600,16 @@
       "confidence": "high"
     },
     {
+      "id": "specifications-and-constraints-source-7f2597e",
+      "officialUrl": "https://github.com/Cratis/AI/tree/7f2597e0e07d01923eef8f6912cdb6864ce5dbd7/skills",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-09-06",
+      "expiresOn": "2027-09-06",
+      "applicableVersion": "7f2597e0e07d01923eef8f6912cdb6864ce5dbd7",
+      "confidence": "high",
+      "immutableRevision": "7f2597e0e07d01923eef8f6912cdb6864ce5dbd7"
+    },
+    {
       "id": "studio-mcp-safety-guidance-source-f96eab8",
       "officialUrl": "https://github.com/Cratis/AI/tree/f96eab8109ec0bb2d4aed6f1e893c2402a9a161a/skills/cratis-studio-mcp-safety-guidance",
       "sourceKind": "repository-snapshot",
