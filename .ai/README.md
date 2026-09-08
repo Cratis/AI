@@ -40,13 +40,14 @@ clients, documentation, and corpus work.
 
 ## Tool integration (adapters)
 
-Each adapter resolves to its canonical `.ai/` file. It may be a **symlink** or a **path-reference file** (a small file whose body is the relative target path) — both forms are accepted; what matters is that it resolves to the right canonical file.
+Legacy Copilot/Claude/Codex adapters use **symlinks** or **path-reference files** to their canonical `.ai/` sources. Pi agent adapters are instead generated real files from this checkout’s own `.ai/agents`; their generated bodies are not independent authoring sources.
 
 Each tool has its own conventions, so adapters differ by surface (see `rules/managing-ai-rules.md` for the full table):
 
 - **GitHub Copilot** — `copilot-instructions.md` + `instructions/<n>.instructions.md` (rules); `agents/<n>.agent.md` (per-file, `.agent.md` suffix); `prompts/` + `skills/` (folder symlinks); hooks as `.github/hooks/*.json`.
 - **Claude Code** — `CLAUDE.md` + `rules/<n>.md` (rules); `commands/<n>.md` (slash commands, from `.ai/prompts`); `agents/` + `skills/` (folder symlinks); hooks in `.claude/settings.json`.
 - **Codex** — root `AGENTS.md` → `.ai/rules/general.md`; `.agents/skills` → `.ai/skills`.
+- **Pi agents** — generated real `.pi/agents/*.md` files; never edit them or their manifest directly. Use the reviewed `Cratis/AI` generator from an explicitly available checkout, with an absolute `--repo` for this repository and no automatic download/broadcast. See [the generator procedure](rules/managing-ai-rules.md#pi-generated-local-agent-adapters). Every generated adapter sets `extensions: false` and `skills: false`; planners/coordinators return plans to the parent rather than executing or delegating them.
 
 `.ai/hooks/*.md` are **lifecycle guidance**, not wired hooks (markdown isn't a hook format for either tool); enforce them via each tool's real hook mechanism above.
 
