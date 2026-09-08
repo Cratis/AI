@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generatedBy": "tooling/generate-component-catalogs.mjs",
-  "sourceDigest": "0a639890ab3aed71a1b96178797462309b9887db98c2dcd4b1d5ca1bb0933ee1",
+  "sourceDigest": "e0073498e534bb6b5aaedd686b67aa4819d5ec227e7954ba3d8a7bb4d733b1b1",
   "defaultPolicy": "deny",
   "supportClaim": false,
   "hosts": [
@@ -257,7 +257,7 @@
       "packageIdentity": null,
       "state": "existing",
       "hostActivation": "active",
-      "adapterType": "symlink",
+      "adapterType": "generated",
       "outputPaths": [
         ".pi/agents/backend-developer.md"
       ],
@@ -329,7 +329,7 @@
       "packageIdentity": null,
       "state": "existing",
       "hostActivation": "active",
-      "adapterType": "symlink",
+      "adapterType": "generated",
       "outputPaths": [
         ".pi/agents/code-reviewer.md"
       ],
@@ -401,7 +401,7 @@
       "packageIdentity": null,
       "state": "existing",
       "hostActivation": "active",
-      "adapterType": "symlink",
+      "adapterType": "generated",
       "outputPaths": [
         ".pi/agents/coordinator.md"
       ],
@@ -473,7 +473,7 @@
       "packageIdentity": null,
       "state": "existing",
       "hostActivation": "active",
-      "adapterType": "symlink",
+      "adapterType": "generated",
       "outputPaths": [
         ".pi/agents/frontend-developer.md"
       ],
@@ -545,7 +545,7 @@
       "packageIdentity": null,
       "state": "existing",
       "hostActivation": "active",
-      "adapterType": "symlink",
+      "adapterType": "generated",
       "outputPaths": [
         ".pi/agents/orchestrator.md"
       ],
@@ -617,7 +617,7 @@
       "packageIdentity": null,
       "state": "existing",
       "hostActivation": "active",
-      "adapterType": "symlink",
+      "adapterType": "generated",
       "outputPaths": [
         ".pi/agents/performance-reviewer.md"
       ],
@@ -689,7 +689,7 @@
       "packageIdentity": null,
       "state": "existing",
       "hostActivation": "active",
-      "adapterType": "symlink",
+      "adapterType": "generated",
       "outputPaths": [
         ".pi/agents/planner.md"
       ],
@@ -761,7 +761,7 @@
       "packageIdentity": null,
       "state": "existing",
       "hostActivation": "active",
-      "adapterType": "symlink",
+      "adapterType": "generated",
       "outputPaths": [
         ".pi/agents/repository-investigation-reviewer.md"
       ],
@@ -833,7 +833,7 @@
       "packageIdentity": null,
       "state": "existing",
       "hostActivation": "active",
-      "adapterType": "symlink",
+      "adapterType": "generated",
       "outputPaths": [
         ".pi/agents/repository-investigator.md"
       ],
@@ -905,7 +905,7 @@
       "packageIdentity": null,
       "state": "existing",
       "hostActivation": "active",
-      "adapterType": "symlink",
+      "adapterType": "generated",
       "outputPaths": [
         ".pi/agents/security-reviewer.md"
       ],
@@ -977,7 +977,7 @@
       "packageIdentity": null,
       "state": "existing",
       "hostActivation": "active",
-      "adapterType": "symlink",
+      "adapterType": "generated",
       "outputPaths": [
         ".pi/agents/slice-implementer.md"
       ],
@@ -1049,7 +1049,7 @@
       "packageIdentity": null,
       "state": "existing",
       "hostActivation": "active",
-      "adapterType": "symlink",
+      "adapterType": "generated",
       "outputPaths": [
         ".pi/agents/spec-writer.md"
       ],

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generatedBy": "tooling/generate-component-catalogs.mjs",
-  "sourceDigest": "77013cdf74f5a4d2fb13a9d46e866d43bea18c1b4b2092d696a1fc9a617dcfcb",
+  "sourceDigest": "e1a534db8c663796410dc550db49a29dd59c4f1c80913d7d4901ebce7c3370c0",
   "defaultPolicy": "deny",
   "canonicalSourceRoots": [
     ".ai/agents",
@@ -126,12 +126,12 @@
       "canonicalSources": [
         {
           "path": ".ai/agents/backend-developer.md",
-          "digest": "f64d39703ab565b64f326fd0d03a9d70030e80a1c7803f3318c323c2506bcba2",
+          "digest": "aaf711c281eaca3209c73ebbf4cfe69f1346083b179e766138d8693fb0b64564",
           "ownership": "owner",
           "ownerComponentId": "cratis-agent-backend-developer"
         }
       ],
-      "contentDigest": "0bf131ab96157bdad2f93fbfe92551f43eb74b066fffad8cbbad02e280163799",
+      "contentDigest": "8b0ad2f6e3587be658dae796712bab5abf25e65e55fdba9f4a93dbbcf12f349e",
       "owner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "classification": {
@@ -195,12 +195,12 @@
       "canonicalSources": [
         {
           "path": ".ai/agents/code-reviewer.md",
-          "digest": "fa5b86450ea9d6be315efa949cf2c90cf91196c95b3e8eb3905ef6674b60f8f0",
+          "digest": "975944d6725325faaa10c7a6905c6917c40968c9462927c91f29294b5c00690a",
           "ownership": "owner",
           "ownerComponentId": "cratis-agent-code-reviewer"
         }
       ],
-      "contentDigest": "1a8d29c60ab07115da08dd96a2b7f82bb4c098e9177136bd471a5814fac2eb71",
+      "contentDigest": "55b71089854b116e5a19002fa53b0760442d14946a78b073bf75b43309b77c03",
       "owner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "classification": {
@@ -264,12 +264,12 @@
       "canonicalSources": [
         {
           "path": ".ai/agents/coordinator.md",
-          "digest": "4a1545d70f66e0f674b9d89e7076b151e5eca2c3ffb66ab8af0722350b89f364",
+          "digest": "b53a7a5ef0ab6ab63e85550717e01b848b82dc174e89aa36490d1df7a61c8bc9",
           "ownership": "owner",
           "ownerComponentId": "cratis-agent-coordinator"
         }
       ],
-      "contentDigest": "943d9e412f578b78b0f5aadf181f17d941d301f0c4ff16ddce83d85dc8b3938a",
+      "contentDigest": "15d2de5d96be766915a195d727087cc921ea085f0c5e894aeb478540a7b7e6c6",
       "owner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "classification": {
@@ -333,12 +333,12 @@
       "canonicalSources": [
         {
           "path": ".ai/agents/frontend-developer.md",
-          "digest": "447997824b7b7ef9177944814f58bfaa9981d5ea24a7d0e3fceecdc180edca1c",
+          "digest": "1758c3e6a8349d169839a0dd05708a6b3db8a332bd4da6270f85f648db1ef0bc",
           "ownership": "owner",
           "ownerComponentId": "cratis-agent-frontend-developer"
         }
       ],
-      "contentDigest": "5097fef37d3edbf6b9925009b50576175039afbb56ddfadf59ea517fb8c941cb",
+      "contentDigest": "2f56f34584c6185e13559cc8ac517f0c407bb67e828e28a7ad4f63ab6a93d68e",
       "owner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "classification": {
@@ -402,12 +402,12 @@
       "canonicalSources": [
         {
           "path": ".ai/agents/orchestrator.md",
-          "digest": "d76424b5b3ac34a658769a86b0dc5cad8186b75b4818122fb3d5256914587393",
+          "digest": "993cae0153ff7d3c09b6ff9e155685f1ffc1e87786a46350e918bc44885b288f",
           "ownership": "owner",
           "ownerComponentId": "cratis-agent-orchestrator"
         }
       ],
-      "contentDigest": "ab639b9820648dc07aefc9ab83a2908543f75c12ce7f4e41e324fdfaa2357fbe",
+      "contentDigest": "2c2edfbbbc7b8459aeab74f286729e0779b679c9049d4f9778a991ea882778d2",
       "owner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "classification": {
@@ -471,12 +471,12 @@
       "canonicalSources": [
         {
           "path": ".ai/agents/performance-reviewer.md",
-          "digest": "4f714ece16ccc3fee9bb3d78748d4b6a784719b3088a9cd1e2a70429f3d0710e",
+          "digest": "127ee8d34f97640eb08e749630e02f44847f7159008012ff14d7077b92deedae",
           "ownership": "owner",
           "ownerComponentId": "cratis-agent-performance-reviewer"
         }
       ],
-      "contentDigest": "720fd250aa977cdd381a3b42272d7dd55534181f048d748be9a88b233a9c31c9",
+      "contentDigest": "f7f88d41d1d4fa115348c795c2fbba9f04a68029ac37157a4568240d2d7709d2",
       "owner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "classification": {
@@ -540,12 +540,12 @@
       "canonicalSources": [
         {
           "path": ".ai/agents/planner.md",
-          "digest": "792578f3ed8cf560bbf6ce4c68080bfd38e837eb2ff24698be3a9b14b6401d44",
+          "digest": "8470b7e0cf34fa6fa2a5c1dd6652aa5774ebfb529916653b6fefa54d2d1f059c",
           "ownership": "owner",
           "ownerComponentId": "cratis-agent-planner"
         }
       ],
-      "contentDigest": "24749b2543d5023c73b7435d695685ccc7fb0941cc5c3602ebd81d848b01cbae",
+      "contentDigest": "d247166827a9f607b766c78f8b99ce2fc4068ec051bcbc4f5a67deacc2135b00",
       "owner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "classification": {
@@ -747,12 +747,12 @@
       "canonicalSources": [
         {
           "path": ".ai/agents/security-reviewer.md",
-          "digest": "3f5b0e195be87f03638621bb1a91c3eded5697312781465a88ac6902d6f61148",
+          "digest": "325006e44157aba9e338c8a3ed0338ac3f9b86f1beb89274a605c60c6bbe392d",
           "ownership": "owner",
           "ownerComponentId": "cratis-agent-security-reviewer"
         }
       ],
-      "contentDigest": "470a0ec7640020c1f9c1571cbe8656a6e51171b86dd03c9f32ff47fd2f827d1c",
+      "contentDigest": "9e34272f1f846aec705a7eb0e1fecaec374dd18165e60c59bb1ad8b4f77eba76",
       "owner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "classification": {
@@ -816,12 +816,12 @@
       "canonicalSources": [
         {
           "path": ".ai/agents/slice-implementer.md",
-          "digest": "f46ff0fa89bff6a11da17fc0630f9c83bf422bbf4ec172e96efb208a0e91e9b7",
+          "digest": "0a4713ab6c9c15d77a747e1b10bcaf70336a5a9c805899efe6e66da43c8df2b0",
           "ownership": "owner",
           "ownerComponentId": "cratis-agent-slice-implementer"
         }
       ],
-      "contentDigest": "5a0cbb835b33844f7029254b4afa6fc0ed1139e7a459aa20bba15e22dd1d6b24",
+      "contentDigest": "4f839c4e82b50a2ed77c669d9b34630c6f43438cb8fb5f7d1618d2b9fe0a16cb",
       "owner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "classification": {
@@ -885,12 +885,12 @@
       "canonicalSources": [
         {
           "path": ".ai/agents/spec-writer.md",
-          "digest": "4d50d03bc85f331e2932d6aa16e3cd453918c375c7ab4244170928cc0d42ce37",
+          "digest": "03ac2043c3ff691a310234f31cfa5193d73f1eccbb85c7671b72b88838ee7dec",
           "ownership": "owner",
           "ownerComponentId": "cratis-agent-spec-writer"
         }
       ],
-      "contentDigest": "dd604772284f2d34e4ebbdcecaaff866eca4b4f070f80cef0b51fd4f68a885e8",
+      "contentDigest": "b5d4bd411441dfaea89db9625f3fef32340c8e9855abba40ea515c627f085a1f",
       "owner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "classification": {
@@ -6094,12 +6094,12 @@
       "canonicalSources": [
         {
           "path": ".ai/skills/ship-changes",
-          "digest": "50da7fc943211e31a11dffd64df4685470b16b8feef91e46f8aaa867ad4bd61c",
+          "digest": "d707392ab648aec8d114e7941a85293bf302c2435d1d19fb7e270765abc6c2a0",
           "ownership": "owner",
           "ownerComponentId": "cratis-engineering-ship-changes"
         }
       ],
-      "contentDigest": "73c32c8c0f37e88eacf6df8f18d89f6ce4267973a601df47f30b511f3d9c28fd",
+      "contentDigest": "4ef4b530bf18dd8ab2effdd195a318f3ab71fc4f5f1b7ed5487bc018dc6b3e12",
       "owner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "classification": {
@@ -6505,12 +6505,12 @@
       "canonicalSources": [
         {
           "path": ".ai/hooks",
-          "digest": "4af97b7892bd8e5156ea09c6ee23cfc94f053d31f561f1ba9404bf0793c7f108",
+          "digest": "ddf1782a8690c68d38d6761970580091c6af20dd7f1076385ab0407e2fcaf575",
           "ownership": "owner",
           "ownerComponentId": "cratis-hooks"
         }
       ],
-      "contentDigest": "d9ce1948d2ed19d2db9815f860df484bb02ded399d253db57df0a90ae5f18ce0",
+      "contentDigest": "face76f5bbd6dc92f2582158f97915120f825ee62ab5b373d8b5e8d3f86aa189",
       "owner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "classification": {
@@ -6585,12 +6585,12 @@
       "canonicalSources": [
         {
           "path": ".ai/rules/general.md",
-          "digest": "b16d907878f8e650582b65597c6e6ccbb43989a22dd378a4dcd936c62a9c4094",
+          "digest": "46663c693a178e6ba5e9e38873f11ef1b6f97aabe591e698eaf99f8ceb26293d",
           "ownership": "owner",
           "ownerComponentId": "cratis-instruction-general"
         }
       ],
-      "contentDigest": "868563ebd7cc6484872dc10297852ad327e552bb363bea93fb18fcd1d80bfebb",
+      "contentDigest": "b5463eda0686475727b8acfa2ac372fcb754f6adab7f3c7830de129826c583d7",
       "owner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "classification": {
@@ -12500,12 +12500,12 @@
       "canonicalSources": [
         {
           "path": ".ai/rules/managing-ai-rules.md",
-          "digest": "e6866f224db15af72c73355bd1f942dcd6b1be04ed04ec3f286498c347333875",
+          "digest": "f610d0360e7aa0c262a92eb8babf0b67a2f7b93bd37049449315ed0c51fee87c",
           "ownership": "owner",
           "ownerComponentId": "cratis-rule-managing-ai-rules"
         }
       ],
-      "contentDigest": "77fe979d601733ec6a00b91ece30b69a772442001cc186d0813540f00794fd76",
+      "contentDigest": "1bab78eb772e1983ca4145aefa1c37bc72e346ab4f5f4211d1731816af41bbb3",
       "owner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "classification": {
@@ -12638,12 +12638,12 @@
       "canonicalSources": [
         {
           "path": ".ai/rules/pull-requests.md",
-          "digest": "d8cd50022c2e5a964f73870b8c33c5f6425748f27f4f7bc764740a21f65d761a",
+          "digest": "d35f41051fb59cf6365415eba21df01bfd5d9ef0e906bb693112b03fc681405f",
           "ownership": "owner",
           "ownerComponentId": "cratis-rule-pull-requests"
         }
       ],
-      "contentDigest": "89e72d3b5d92afd66a3929dc223cfca29c81828774258b223c213a80706f62be",
+      "contentDigest": "f6be9c501c9e75e390ed01d0cfe5da12d5d66a7d2704f436c76b33d399511031",
       "owner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "classification": {
