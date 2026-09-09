@@ -11,6 +11,11 @@
     {
       "name": "cratis",
       "description": "Public Cratis skills for developers building on the Cratis ecosystem",
+      "version": "0.1.0",
+      "author": { "name": "Cratis", "url": "https://www.cratis.io" },
+      "homepage": "https://github.com/Cratis/AI",
+      "repository": "https://github.com/Cratis/AI",
+      "license": "MIT",
       "source": {
         "source": "github",
         "repo": "Cratis/AI",
@@ -22,13 +27,16 @@
     {
       "name": "cratis-engineering",
       "description": "Maintainer-audience Cratis engineering skills",
+      "version": "0.1.0",
+      "author": { "name": "Cratis", "url": "https://www.cratis.io" },
+      "homepage": "https://github.com/Cratis/AI",
+      "repository": "https://github.com/Cratis/AI",
+      "license": "MIT",
       "source": {
         "source": "github",
         "repo": "Cratis/AI",
         "path": "engineering"
-      },
-      "strict": false,
-      "skills": "./skills"
+      }
     }
   ]
 }

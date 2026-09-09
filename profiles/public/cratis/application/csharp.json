@@ -1,0 +1,23 @@
+{
+  "id": "cratis/application/csharp",
+  "packageName": "@cratis/ai-meta-application-csharp",
+  "version": "0.0.0",
+  "products": [
+    "fundamentals",
+    "arc",
+    "arc-react",
+    "chronicle",
+    "components"
+  ],
+  "languages": [
+    "csharp",
+    "react",
+    "typescript"
+  ],
+  "state": "planned-composition",
+  "composes": [
+    "public-application",
+    "public-language-csharp"
+  ],
+  "gapSummary": "The full Arc plus Chronicle plus React plus Components application in C#: the whole public-application journey plus C# conventions. Arc, Arc React, and Components imply Chronicle here by composition; the decoupled choices remain cratis/arc/csharp and cratis/chronicle/csharp."
+}

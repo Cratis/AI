@@ -1,0 +1,17 @@
+{
+  "id": "cratis/chronicle/elixir",
+  "packageName": "@cratis/ai-meta-chronicle-elixir",
+  "version": "0.0.0",
+  "products": [
+    "chronicle"
+  ],
+  "languages": [
+    "elixir"
+  ],
+  "state": "planned-composition",
+  "composes": [
+    "public-chronicle-client-elixir",
+    "public-language-elixir"
+  ],
+  "gapSummary": "Chronicle without Arc, in Elixir. The Chronicle.Elixir client requires canonical Chronicle.Elixir authority before its content can land, so this meta-profile resolves empty today and fills in when that authority approves. This meta-profile must never compose an Arc profile."
+}

@@ -8,11 +8,17 @@
   ],
   "languages": [
     "csharp",
+    "kotlin",
+    "elixir",
+    "typescript",
     "language-agnostic"
   ],
   "state": "planned-composition",
   "composes": [
-    "public-application-chronicle-dotnet",
+    "cratis/chronicle/csharp",
+    "cratis/chronicle/elixir",
+    "cratis/chronicle/kotlin",
+    "cratis/chronicle/typescript",
     "public-chronicle-compliance",
     "public-chronicle-multi-tenancy",
     "public-chronicle-web-workbench"
@@ -20,5 +26,5 @@
   "mcpServers": [
     "cratis-chronicle-mcp"
   ],
-  "gapSummary": "Chronicle without Arc. This meta-profile must never compose an Arc profile; use cratis/arc or cratis/application when a solution needs both."
+  "gapSummary": "Chronicle without Arc, across every client language: the language-scoped cells plus the language-agnostic compliance, multi-tenancy, and web workbench overlays and the Chronicle MCP server. This meta-profile must never compose an Arc profile; use cratis/arc or cratis/application when a solution needs both."
 }

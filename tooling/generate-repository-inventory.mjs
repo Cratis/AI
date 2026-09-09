@@ -1417,6 +1417,25 @@ const inventoryDefinitions = () => [
         migrationState: "retain",
         evidenceIds: ["repo-main-b795d53", "option-a-plus-authority"],
     },
+    {
+        id: "engineering-plugin-manifests",
+        sourcePathPatterns: [
+            "engineering/.claude-plugin/plugin.json",
+            "engineering/.codex-plugin/plugin.json",
+            "engineering/.cursor-plugin/plugin.json",
+            "engineering/.github/plugin/plugin.json",
+        ],
+        artifactType: "repository-metadata",
+        currentOwner: repositoryOwner,
+        targetOwner: repositoryOwner,
+        runtimeEligibility: "repository-only",
+        generatedStatus: "source",
+        adapterStatus: "none",
+        dependencies: [".claude-plugin/marketplace.json"],
+        risk: "medium",
+        migrationState: "retain",
+        evidenceIds: ["repo-main-b795d53", "option-a-plus-authority"],
+    },
 ];
 
 export function buildRepositoryInventory() {

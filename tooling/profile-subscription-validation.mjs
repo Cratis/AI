@@ -171,9 +171,10 @@ export function validateProfileSubscriptions(
             errors.push(`${profile.id}: invalid package name`);
         // `cratis` is the one bare id: the root of the namespace, and the
         // maximal public bundle. Everything else stays namespaced under
-        // `cratis/`, `public-`, or `engineering-`.
+        // `cratis/`, `public-`, or `engineering-`, with the language-scoped
+        // meta cells at depth two (cratis/<product>/<language>).
         if (
-            !/^(?:cratis(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)?|(?:public|engineering)-[a-z0-9]+(?:-[a-z0-9]+)*)$/.test(
+            !/^(?:cratis(?:\/[a-z0-9]+(?:-[a-z0-9]+)*){0,2}|(?:public|engineering)-[a-z0-9]+(?:-[a-z0-9]+)*)$/.test(
                 profile.id,
             )
         )

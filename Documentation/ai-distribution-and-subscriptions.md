@@ -113,7 +113,11 @@ facts remain in repository-local overlays; shared packages may not read or write
 them.
 
 Namespaced `cratis/arc`, `cratis/chronicle`, `cratis/application`, and
-`cratis/full` meta-profiles are the stable names to subscribe to. Composition is
+`cratis/full` meta-profiles are the stable names to subscribe to. Each carries a
+language dimension — `cratis/chronicle/kotlin`, `cratis/application/csharp` —
+scoped to one language, with Arc support limited to C# and Kotlin and the Arc
+side removed from the TypeScript and Elixir application cells until Arc supports
+those languages. Composition is
 resolved by one shared resolver, `tooling/resolve-profiles.mjs`, which returns a
 deterministic manifest naming which profile pulled in every profile, skill, and
 MCP server, and why anything was excluded. A profile may also require an MCP

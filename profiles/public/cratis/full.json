@@ -9,21 +9,24 @@
     "chronicle",
     "components",
     "entity-framework-core",
+    "specifications",
     "screenplay",
     "stage"
   ],
   "languages": [
     "csharp",
-    "react",
+    "kotlin",
+    "elixir",
     "typescript",
+    "react",
     "language-agnostic"
   ],
   "state": "planned-composition",
   "composes": [
-    "cratis/application",
-    "cratis/arc",
-    "cratis/chronicle",
-    "public-modeling-screenplay-stage"
+    "cratis/full/csharp",
+    "cratis/full/elixir",
+    "cratis/full/kotlin",
+    "cratis/full/typescript"
   ],
-  "gapSummary": "Everything the public catalog composes today, including the Screenplay to Stage modeling handoff. Deliberately a superset rather than a replacement for the decoupled Arc and Chronicle meta-profiles."
+  "gapSummary": "Everything the public catalog composes, one cell per supported language, each carrying the Screenplay to Stage modeling handoff. Deliberately a superset of the decoupled Arc and Chronicle meta-profiles; the bare cratis profile remains the only maximal bundle."
 }

@@ -1,0 +1,21 @@
+{
+  "id": "cratis/chronicle/csharp",
+  "packageName": "@cratis/ai-meta-chronicle-csharp",
+  "version": "0.0.0",
+  "products": [
+    "fundamentals",
+    "chronicle"
+  ],
+  "languages": [
+    "csharp",
+    "language-agnostic"
+  ],
+  "state": "planned-composition",
+  "composes": [
+    "public-application-chronicle-dotnet",
+    "public-chronicle-compliance",
+    "public-chronicle-multi-tenancy",
+    "public-language-csharp"
+  ],
+  "gapSummary": "Chronicle without Arc, in C#: the .NET-only Chronicle application journey with the compliance and multi-tenancy overlays and C# conventions. The web workbench and the Chronicle MCP server stay on the unscoped cratis/chronicle because they are language-agnostic tools. This meta-profile must never compose an Arc profile."
+}

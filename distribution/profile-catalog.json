@@ -71,15 +71,30 @@
       "state": "planned-composition",
       "composes": [
         "cratis/application",
+        "cratis/application/csharp",
+        "cratis/application/elixir",
+        "cratis/application/kotlin",
+        "cratis/application/typescript",
         "cratis/arc",
+        "cratis/arc/csharp",
+        "cratis/arc/kotlin",
         "cratis/chronicle",
+        "cratis/chronicle/csharp",
+        "cratis/chronicle/elixir",
+        "cratis/chronicle/kotlin",
+        "cratis/chronicle/typescript",
         "cratis/full",
+        "cratis/full/csharp",
+        "cratis/full/elixir",
+        "cratis/full/kotlin",
+        "cratis/full/typescript",
         "public-application",
         "public-application-arc-chronicle",
         "public-application-arc-only",
         "public-application-chronicle-dotnet",
         "public-application-react",
         "public-arc",
+        "public-arc-client-kotlin",
         "public-arc-ef-core",
         "public-arc-identity",
         "public-arc-react",
@@ -125,6 +140,34 @@
         "arc",
         "arc-react",
         "chronicle",
+        "components",
+        "specifications"
+      ],
+      "languages": [
+        "csharp",
+        "kotlin",
+        "elixir",
+        "typescript",
+        "react"
+      ],
+      "state": "planned-composition",
+      "composes": [
+        "cratis/application/csharp",
+        "cratis/application/elixir",
+        "cratis/application/kotlin",
+        "cratis/application/typescript"
+      ],
+      "gapSummary": "The stable namespaced alias for the Cratis application composition, one cell per supported language. It adds no capability of its own. Cells for languages Arc does not support yet carry the Chronicle-only application journey."
+    },
+    {
+      "id": "cratis/application/csharp",
+      "packageName": "@cratis/ai-meta-application-csharp",
+      "version": "0.0.0",
+      "products": [
+        "fundamentals",
+        "arc",
+        "arc-react",
+        "chronicle",
         "components"
       ],
       "languages": [
@@ -134,9 +177,66 @@
       ],
       "state": "planned-composition",
       "composes": [
-        "public-application"
+        "public-application",
+        "public-language-csharp"
       ],
-      "gapSummary": "The stable namespaced alias for the full Arc + Chronicle + React + Components application composition. It adds no capability of its own."
+      "gapSummary": "The full Arc plus Chronicle plus React plus Components application in C#: the whole public-application journey plus C# conventions. Arc, Arc React, and Components imply Chronicle here by composition; the decoupled choices remain cratis/arc/csharp and cratis/chronicle/csharp."
+    },
+    {
+      "id": "cratis/application/elixir",
+      "packageName": "@cratis/ai-meta-application-elixir",
+      "version": "0.0.0",
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "elixir"
+      ],
+      "state": "planned-composition",
+      "composes": [
+        "public-chronicle-client-elixir",
+        "public-language-elixir"
+      ],
+      "gapSummary": "The Cratis application in Elixir. Arc does not support Elixir yet, so the Arc side is removed for now and this cell composes the Chronicle Elixir client plus Elixir conventions. It resolves empty today and fills in when the Chronicle.Elixir client authority approves."
+    },
+    {
+      "id": "cratis/application/kotlin",
+      "packageName": "@cratis/ai-meta-application-kotlin",
+      "version": "0.0.0",
+      "products": [
+        "arc",
+        "chronicle"
+      ],
+      "languages": [
+        "kotlin"
+      ],
+      "state": "planned-composition",
+      "composes": [
+        "public-arc-client-kotlin",
+        "public-chronicle-client-kotlin",
+        "public-language-kotlin"
+      ],
+      "gapSummary": "The Cratis application in Kotlin: the Arc.Kotlin backend with the Chronicle.Kotlin client. The frontend journey (Arc React and Components) is not language-scoped yet, so this cell carries backend and client content only. Java consumers are served through the same JVM artifacts via Kotlin interoperability."
+    },
+    {
+      "id": "cratis/application/typescript",
+      "packageName": "@cratis/ai-meta-application-typescript",
+      "version": "0.0.0",
+      "products": [
+        "chronicle",
+        "specifications"
+      ],
+      "languages": [
+        "typescript",
+        "react"
+      ],
+      "state": "planned-composition",
+      "composes": [
+        "public-chronicle-client-typescript",
+        "public-language-typescript",
+        "public-specifications-typescript"
+      ],
+      "gapSummary": "The Cratis application in TypeScript. Arc does not support TypeScript yet, so the Arc side is removed for now and this cell composes the Chronicle TypeScript client, TypeScript conventions, and the TypeScript specification family. It becomes an Arc-including application cell when Arc supports the language."
     },
     {
       "id": "cratis/arc",
@@ -148,19 +248,91 @@
         "entity-framework-core"
       ],
       "languages": [
-        "csharp"
+        "csharp",
+        "react",
+        "typescript",
+        "kotlin"
+      ],
+      "state": "planned-composition",
+      "composes": [
+        "cratis/arc/csharp",
+        "cratis/arc/kotlin"
+      ],
+      "gapSummary": "Arc without Chronicle, across every language Arc supports. Composes the language-scoped cells rather than restating them. This meta-profile must never compose a Chronicle profile; use cratis/chronicle or cratis/application when a solution needs both."
+    },
+    {
+      "id": "cratis/arc/csharp",
+      "packageName": "@cratis/ai-meta-arc-csharp",
+      "version": "0.0.0",
+      "products": [
+        "fundamentals",
+        "arc",
+        "entity-framework-core"
+      ],
+      "languages": [
+        "csharp",
+        "react",
+        "typescript"
       ],
       "state": "planned-composition",
       "composes": [
         "public-application-arc-only",
         "public-arc-ef-core",
-        "public-arc-identity"
+        "public-arc-identity",
+        "public-language-csharp"
       ],
-      "gapSummary": "Arc without Chronicle. This meta-profile must never compose a Chronicle profile; use cratis/chronicle or cratis/application when a solution needs both."
+      "gapSummary": "Arc without Chronicle, in C#: the Arc-only application journey, EF Core persistence, and identity overlays, plus C# language conventions. This meta-profile must never compose a Chronicle profile; use cratis/chronicle or cratis/application when a solution needs both."
+    },
+    {
+      "id": "cratis/arc/kotlin",
+      "packageName": "@cratis/ai-meta-arc-kotlin",
+      "version": "0.0.0",
+      "products": [
+        "arc"
+      ],
+      "languages": [
+        "kotlin"
+      ],
+      "state": "planned-composition",
+      "composes": [
+        "public-arc-client-kotlin",
+        "public-language-kotlin"
+      ],
+      "gapSummary": "Arc without Chronicle, in Kotlin, authored against Arc.Kotlin. The Arc client guidance is a content gap until skills are verified against the Arc.Kotlin repository, so today the language profile contributes conventions only. This meta-profile must never compose a Chronicle profile."
     },
     {
       "id": "cratis/chronicle",
       "packageName": "@cratis/ai-meta-chronicle",
+      "version": "0.0.0",
+      "products": [
+        "fundamentals",
+        "chronicle"
+      ],
+      "languages": [
+        "csharp",
+        "kotlin",
+        "elixir",
+        "typescript",
+        "language-agnostic"
+      ],
+      "state": "planned-composition",
+      "composes": [
+        "cratis/chronicle/csharp",
+        "cratis/chronicle/elixir",
+        "cratis/chronicle/kotlin",
+        "cratis/chronicle/typescript",
+        "public-chronicle-compliance",
+        "public-chronicle-multi-tenancy",
+        "public-chronicle-web-workbench"
+      ],
+      "mcpServers": [
+        "cratis-chronicle-mcp"
+      ],
+      "gapSummary": "Chronicle without Arc, across every client language: the language-scoped cells plus the language-agnostic compliance, multi-tenancy, and web workbench overlays and the Chronicle MCP server. This meta-profile must never compose an Arc profile; use cratis/arc or cratis/application when a solution needs both."
+    },
+    {
+      "id": "cratis/chronicle/csharp",
+      "packageName": "@cratis/ai-meta-chronicle-csharp",
       "version": "0.0.0",
       "products": [
         "fundamentals",
@@ -175,16 +347,96 @@
         "public-application-chronicle-dotnet",
         "public-chronicle-compliance",
         "public-chronicle-multi-tenancy",
-        "public-chronicle-web-workbench"
+        "public-language-csharp"
       ],
-      "mcpServers": [
-        "cratis-chronicle-mcp"
+      "gapSummary": "Chronicle without Arc, in C#: the .NET-only Chronicle application journey with the compliance and multi-tenancy overlays and C# conventions. The web workbench and the Chronicle MCP server stay on the unscoped cratis/chronicle because they are language-agnostic tools. This meta-profile must never compose an Arc profile."
+    },
+    {
+      "id": "cratis/chronicle/elixir",
+      "packageName": "@cratis/ai-meta-chronicle-elixir",
+      "version": "0.0.0",
+      "products": [
+        "chronicle"
       ],
-      "gapSummary": "Chronicle without Arc. This meta-profile must never compose an Arc profile; use cratis/arc or cratis/application when a solution needs both."
+      "languages": [
+        "elixir"
+      ],
+      "state": "planned-composition",
+      "composes": [
+        "public-chronicle-client-elixir",
+        "public-language-elixir"
+      ],
+      "gapSummary": "Chronicle without Arc, in Elixir. The Chronicle.Elixir client requires canonical Chronicle.Elixir authority before its content can land, so this meta-profile resolves empty today and fills in when that authority approves. This meta-profile must never compose an Arc profile."
+    },
+    {
+      "id": "cratis/chronicle/kotlin",
+      "packageName": "@cratis/ai-meta-chronicle-kotlin",
+      "version": "0.0.0",
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "kotlin"
+      ],
+      "state": "planned-composition",
+      "composes": [
+        "public-chronicle-client-kotlin",
+        "public-language-kotlin"
+      ],
+      "gapSummary": "Chronicle without Arc, in Kotlin: the Chronicle.Kotlin client plus Kotlin conventions. Java consumers are served through the same JVM artifacts via Kotlin interoperability, exactly as the Chronicle.Kotlin documentation describes. Compliance, multi-tenancy, the web workbench, and the Chronicle MCP server stay on the unscoped cratis/chronicle. This meta-profile must never compose an Arc profile."
+    },
+    {
+      "id": "cratis/chronicle/typescript",
+      "packageName": "@cratis/ai-meta-chronicle-typescript",
+      "version": "0.0.0",
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "typescript"
+      ],
+      "state": "planned-composition",
+      "composes": [
+        "public-chronicle-client-typescript",
+        "public-language-typescript"
+      ],
+      "gapSummary": "Chronicle without Arc, in TypeScript. The Chronicle.TypeScript client requires canonical Chronicle.TypeScript authority before its content can land, so this meta-profile resolves empty today and fills in when that authority approves. This meta-profile must never compose an Arc profile."
     },
     {
       "id": "cratis/full",
       "packageName": "@cratis/ai-meta-full",
+      "version": "0.0.0",
+      "products": [
+        "fundamentals",
+        "arc",
+        "arc-react",
+        "chronicle",
+        "components",
+        "entity-framework-core",
+        "specifications",
+        "screenplay",
+        "stage"
+      ],
+      "languages": [
+        "csharp",
+        "kotlin",
+        "elixir",
+        "typescript",
+        "react",
+        "language-agnostic"
+      ],
+      "state": "planned-composition",
+      "composes": [
+        "cratis/full/csharp",
+        "cratis/full/elixir",
+        "cratis/full/kotlin",
+        "cratis/full/typescript"
+      ],
+      "gapSummary": "Everything the public catalog composes, one cell per supported language, each carrying the Screenplay to Stage modeling handoff. Deliberately a superset of the decoupled Arc and Chronicle meta-profiles; the bare cratis profile remains the only maximal bundle."
+    },
+    {
+      "id": "cratis/full/csharp",
+      "packageName": "@cratis/ai-meta-full-csharp",
       "version": "0.0.0",
       "products": [
         "fundamentals",
@@ -204,12 +456,79 @@
       ],
       "state": "planned-composition",
       "composes": [
-        "cratis/application",
-        "cratis/arc",
-        "cratis/chronicle",
+        "cratis/application/csharp",
+        "cratis/arc/csharp",
+        "cratis/chronicle/csharp",
         "public-modeling-screenplay-stage"
       ],
-      "gapSummary": "Everything the public catalog composes today, including the Screenplay to Stage modeling handoff. Deliberately a superset rather than a replacement for the decoupled Arc and Chronicle meta-profiles."
+      "gapSummary": "Everything the public catalog composes for C#: the Arc application, the Arc-only overlays, the Chronicle .NET journey, and the Screenplay to Stage modeling handoff, reached through the language-scoped cells rather than restated."
+    },
+    {
+      "id": "cratis/full/elixir",
+      "packageName": "@cratis/ai-meta-full-elixir",
+      "version": "0.0.0",
+      "products": [
+        "chronicle",
+        "screenplay",
+        "stage"
+      ],
+      "languages": [
+        "elixir",
+        "language-agnostic"
+      ],
+      "state": "planned-composition",
+      "composes": [
+        "cratis/application/elixir",
+        "cratis/chronicle/elixir",
+        "public-modeling-screenplay-stage"
+      ],
+      "gapSummary": "Everything the public catalog composes for Elixir: the Elixir application and Chronicle cells, which resolve empty until the Chronicle.Elixir client authority approves, plus the Screenplay to Stage modeling handoff. There is deliberately no cratis/arc/elixir: Arc does not support Elixir yet."
+    },
+    {
+      "id": "cratis/full/kotlin",
+      "packageName": "@cratis/ai-meta-full-kotlin",
+      "version": "0.0.0",
+      "products": [
+        "arc",
+        "chronicle",
+        "screenplay",
+        "stage"
+      ],
+      "languages": [
+        "kotlin",
+        "language-agnostic"
+      ],
+      "state": "planned-composition",
+      "composes": [
+        "cratis/application/kotlin",
+        "cratis/arc/kotlin",
+        "cratis/chronicle/kotlin",
+        "public-modeling-screenplay-stage"
+      ],
+      "gapSummary": "Everything the public catalog composes for Kotlin: the Arc.Kotlin and Chronicle.Kotlin cells plus the Screenplay to Stage modeling handoff. The Arc client guidance is a content gap until it is verified against the Arc.Kotlin repository."
+    },
+    {
+      "id": "cratis/full/typescript",
+      "packageName": "@cratis/ai-meta-full-typescript",
+      "version": "0.0.0",
+      "products": [
+        "chronicle",
+        "specifications",
+        "screenplay",
+        "stage"
+      ],
+      "languages": [
+        "typescript",
+        "react",
+        "language-agnostic"
+      ],
+      "state": "planned-composition",
+      "composes": [
+        "cratis/application/typescript",
+        "cratis/chronicle/typescript",
+        "public-modeling-screenplay-stage"
+      ],
+      "gapSummary": "Everything the public catalog composes for TypeScript: the TypeScript application (Chronicle client and specifications while Arc support is pending), the Chronicle TypeScript cell, and the Screenplay to Stage modeling handoff. There is deliberately no cratis/arc/typescript: Arc does not support TypeScript yet."
     },
     {
       "id": "public-application",
@@ -346,6 +665,19 @@
         "cratis-arc-query-paging"
       ],
       "gapSummary": "Command definition, validation, pipeline execution, query paging, and observable-query HTTP inspection are canonical, verified against Arc 22.10.4. Command validation no longer shares a legacy source with the Chronicle event-constraints target; each half now owns its own file. Dedicated query authoring, read-model design, and separated authorization guidance remain gaps."
+    },
+    {
+      "id": "public-arc-client-kotlin",
+      "packageName": "@cratis/ai-arc-client-kotlin",
+      "version": "0.0.0",
+      "products": [
+        "arc"
+      ],
+      "languages": [
+        "kotlin"
+      ],
+      "state": "content-gap",
+      "gapSummary": "Arc.Kotlin (github.com/cratis/arc.kotlin) owns Arc backend support for Kotlin, including the JVM interoperability that also serves Java consumers the way Chronicle.Kotlin documents it. AI guidance has not been authored here yet; this entry reserves the profile so cratis/arc/kotlin has an honest anchor, and it contributes no capability until skills are verified against the Arc.Kotlin repository."
     },
     {
       "id": "public-arc-ef-core",

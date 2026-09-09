@@ -205,22 +205,28 @@ function matchesKnownPattern(value, pattern) {
             return /^[A-Za-z0-9._-]+\.(?:tar\.gz|tgz)$/.test(value);
         case "^[A-Za-z0-9._-]+\\.tar\\.gz$":
             return /^[A-Za-z0-9._-]+\.tar\.gz$/.test(value);
-        case "^(?:cratis/)?[a-z0-9]+(?:-[a-z0-9]+)*$":
-            return /^(?:cratis\/)?[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value);
+        case "^(?:cratis(?:/[a-z0-9]+(?:-[a-z0-9]+)*){0,2}|[a-z0-9]+(?:-[a-z0-9]+)*)$":
+            return /^(?:cratis(?:\/[a-z0-9]+(?:-[a-z0-9]+)*){0,2}|[a-z0-9]+(?:-[a-z0-9]+)*)$/.test(
+                value,
+            );
         case "^(?:cratis/|public-|engineering-)[a-z0-9]+(?:-[a-z0-9]+)*$":
             return /^(?:cratis\/|public-|engineering-)[a-z0-9]+(?:-[a-z0-9]+)*$/.test(
                 value,
             );
-        // The bare `cratis` id is the maximal public bundle, so the two
-        // subscription patterns admit `cratis` alongside every `cratis/*`.
-        case "^(?:cratis(?:/[a-z0-9]+(?:-[a-z0-9]+)*)?|(?:public|engineering)-[a-z0-9]+(?:-[a-z0-9]+)*)$":
-            return /^(?:cratis(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)?|(?:public|engineering)-[a-z0-9]+(?:-[a-z0-9]+)*)$/.test(
+        // The bare `cratis` id is the point: the root of the namespace, and
+        // the maximal public bundle. The subscription patterns admit `cratis`
+        // alongside every `cratis/*` meta-profile, including the
+        // language-scoped cells at depth two.
+        case "^(?:cratis(?:/[a-z0-9]+(?:-[a-z0-9]+)*){0,2}|(?:public|engineering)-[a-z0-9]+(?:-[a-z0-9]+)*)$":
+            return /^(?:cratis(?:\/[a-z0-9]+(?:-[a-z0-9]+)*){0,2}|(?:public|engineering)-[a-z0-9]+(?:-[a-z0-9]+)*)$/.test(
                 value,
             );
-        case "^cratis(?:/[a-z0-9]+(?:-[a-z0-9]+)*)?$":
-            return /^cratis(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)?$/.test(value);
-        case "^cratis/[a-z0-9]+(?:-[a-z0-9]+)*$":
-            return /^cratis\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value);
+        case "^cratis(?:/[a-z0-9]+(?:-[a-z0-9]+)*){0,2}$":
+            return /^cratis(?:\/[a-z0-9]+(?:-[a-z0-9]+)*){0,2}$/.test(value);
+        case "^cratis/[a-z0-9]+(?:-[a-z0-9]+)*(?:/[a-z0-9]+(?:-[a-z0-9]+)*)?$":
+            return /^cratis\/[a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)?$/.test(
+                value,
+            );
         case "^(?:public|engineering)-[a-z0-9]+(?:-[a-z0-9]+)*$":
             return /^(?:public|engineering)-[a-z0-9]+(?:-[a-z0-9]+)*$/.test(
                 value,

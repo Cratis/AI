@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "1.0.0",
+  "version": "1.0.0",
+  "profiles": [
+    "cratis/chronicle/kotlin"
+  ],
+  "harnesses": [
+    "claude",
+    "codex",
+    "copilot",
+    "pi"
+  ],
+  "updatePolicy": "reviewed-pull-request",
+  "projectContext": ".cratis/PROJECT.md"
+}
