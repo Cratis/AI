@@ -30,9 +30,15 @@ profiles/
 │   ├── cratis.json                  id: cratis — the bare id, a file, not a folder
 │   └── cratis/                      an id containing "/" is a real subdirectory
 │       ├── arc.json                 id: cratis/arc
+│       ├── arc/
+│       │   ├── csharp.json          id: cratis/arc/csharp — a language-scoped cell
+│       │   └── kotlin.json
 │       ├── chronicle.json
+│       ├── chronicle/…
 │       ├── application.json
-│       └── full.json
+│       ├── application/…
+│       ├── full.json
+│       └── full/…
 └── cratis-engineering/              audience "cratis-engineering"
     ├── engineering-base.json
     └── …
@@ -160,6 +166,7 @@ request, and floating versions such as `latest` remain forbidden everywhere.
 | --- | --- | --- |
 | `public-fundamentals` | `@cratis/ai-fundamentals` | First preview source candidate |
 | `public-arc` | `@cratis/ai-arc` | Legacy source migration planned |
+| `public-arc-client-kotlin` | `@cratis/ai-arc-client-kotlin` | Content gap; anchored to [Cratis Arc.Kotlin](https://github.com/cratis/arc.kotlin) until guidance is verified |
 | `public-arc-ef-core` | `@cratis/ai-arc-ef-core` | EF Core migration source requires canonical Arc persistence authority |
 | `public-arc-react` | `@cratis/ai-arc-react` | Preview source candidate; composes `public-arc` |
 | `public-components` | `@cratis/ai-components` | Preview source candidate |
@@ -247,20 +254,65 @@ compose the existing composition profiles and add no capability of their own, so
 the Arc-versus-Chronicle decoupling below is a property of the composition, not
 an editorial promise.
 
-Each one below is deliberately **scoped**. If you want everything instead, that
-is [`cratis`](#cratis--the-maximal-public-bundle) — the bare id, described in
-the next section.
+The namespace carries **two dimensions**: product and language.
 
-| Profile | Intended package | Composition | Chronicle implied | Arc implied |
+- `cratis/<product>` — everything for one product (`arc`, `chronicle`,
+  `application`, `full`), across every language it supports.
+- `cratis/<product>/<language>` — a **language-scoped cell**: that product, in
+  that language. The language means the language you write that side of the
+  stack in.
+
+Language support today:
+
+- **Arc** supports **C#** and **Kotlin** ([Arc.Kotlin](https://github.com/cratis/arc.kotlin)).
+  There is deliberately no `cratis/arc/typescript` or `cratis/arc/elixir` yet.
+- **Chronicle** has clients in **C#** (.NET), **Kotlin**, **Elixir**, and
+  **TypeScript**. Java consumers are served through the Kotlin client's JVM
+  interoperability, so there is no separate `java` dimension; Python has no
+  client yet, so there is no `python` dimension either.
+- **`application` and `full`** mean the same in every language. For languages
+  Arc does not support yet (TypeScript, Elixir), the Arc side is removed for
+  now and the cell carries the Chronicle-only application journey. The cells
+  become Arc-including when Arc supports those languages.
+
+| Unscoped product meta | Intended package | Composition | Chronicle implied | Arc implied |
 | --- | --- | --- | --- | --- |
-| `cratis/arc` | `@cratis/ai-meta-arc` | `public-application-arc-only` + `public-arc-ef-core` + `public-arc-identity` | No | Yes |
-| `cratis/chronicle` | `@cratis/ai-meta-chronicle` | `public-application-chronicle-dotnet` + `public-chronicle-compliance` + `public-chronicle-multi-tenancy` + `public-chronicle-web-workbench` | Yes | No |
-| `cratis/application` | `@cratis/ai-meta-application` | `public-application` | Yes | Yes |
-| `cratis/full` | `@cratis/ai-meta-full` | `cratis/application` + `cratis/arc` + `cratis/chronicle` + `public-modeling-screenplay-stage` | Yes | Yes |
+| `cratis/arc` | `@cratis/ai-meta-arc` | `cratis/arc/csharp` + `cratis/arc/kotlin` | No | Yes |
+| `cratis/chronicle` | `@cratis/ai-meta-chronicle` | the four `cratis/chronicle/<language>` cells + `public-chronicle-compliance` + `public-chronicle-multi-tenancy` + `public-chronicle-web-workbench` (+ the `cratis-chronicle-mcp` server) | Yes | No |
+| `cratis/application` | `@cratis/ai-meta-application` | the four `cratis/application/<language>` cells | Yes | Yes |
+| `cratis/full` | `@cratis/ai-meta-full` | the four `cratis/full/<language>` cells | Yes | Yes |
 
-`cratis/full` is a diamond over the other three: every profile it reaches
-transitively appears exactly once in a resolved manifest, annotated with each
-meta-profile that pulled it in.
+### Language-scoped cells
+
+| Cell | Intended package | Composition |
+| --- | --- | --- |
+| `cratis/arc/csharp` | `@cratis/ai-meta-arc-csharp` | `public-application-arc-only` + `public-arc-ef-core` + `public-arc-identity` + `public-language-csharp` |
+| `cratis/arc/kotlin` | `@cratis/ai-meta-arc-kotlin` | `public-arc-client-kotlin` + `public-language-kotlin` (empty until Arc.Kotlin guidance is verified) |
+| `cratis/chronicle/csharp` | `@cratis/ai-meta-chronicle-csharp` | `public-application-chronicle-dotnet` + `public-chronicle-compliance` + `public-chronicle-multi-tenancy` + `public-language-csharp` |
+| `cratis/chronicle/kotlin` | `@cratis/ai-meta-chronicle-kotlin` | `public-chronicle-client-kotlin` + `public-language-kotlin` |
+| `cratis/chronicle/elixir` | `@cratis/ai-meta-chronicle-elixir` | `public-chronicle-client-elixir` + `public-language-elixir` (resolves empty until client authority approves) |
+| `cratis/chronicle/typescript` | `@cratis/ai-meta-chronicle-typescript` | `public-chronicle-client-typescript` + `public-language-typescript` (resolves empty until client authority approves) |
+| `cratis/application/csharp` | `@cratis/ai-meta-application-csharp` | `public-application` + `public-language-csharp` |
+| `cratis/application/kotlin` | `@cratis/ai-meta-application-kotlin` | `public-arc-client-kotlin` + `public-chronicle-client-kotlin` + `public-language-kotlin` |
+| `cratis/application/typescript` | `@cratis/ai-meta-application-typescript` | `public-chronicle-client-typescript` + `public-language-typescript` + `public-specifications-typescript` (Arc removed for now) |
+| `cratis/application/elixir` | `@cratis/ai-meta-application-elixir` | `public-chronicle-client-elixir` + `public-language-elixir` (Arc removed for now) |
+| `cratis/full/csharp` | `@cratis/ai-meta-full-csharp` | `cratis/application/csharp` + `cratis/arc/csharp` + `cratis/chronicle/csharp` + `public-modeling-screenplay-stage` |
+| `cratis/full/kotlin` | `@cratis/ai-meta-full-kotlin` | `cratis/application/kotlin` + `cratis/arc/kotlin` + `cratis/chronicle/kotlin` + `public-modeling-screenplay-stage` |
+| `cratis/full/typescript` | `@cratis/ai-meta-full-typescript` | `cratis/application/typescript` + `cratis/chronicle/typescript` + `public-modeling-screenplay-stage` (no `cratis/arc/typescript` exists) |
+| `cratis/full/elixir` | `@cratis/ai-meta-full-elixir` | `cratis/application/elixir` + `cratis/chronicle/elixir` + `public-modeling-screenplay-stage` (no `cratis/arc/elixir` exists) |
+
+Two honesty rules hold across the matrix. A cell whose product has no real
+surface in that language either does not exist (`cratis/arc/typescript`) or
+resolves to an honestly empty package (`cratis/arc/kotlin` before its guidance
+lands) — the resolver reports every such empty as a visible
+`profile-capability-set` rejection, never as silent absence. And the
+language-agnostic Chronicle tools — compliance, multi-tenancy, the web
+workbench, and the Chronicle MCP server — stay on the unscoped
+`cratis/chronicle` rather than being duplicated into every cell.
+
+`cratis/full` is a diamond over the other three products: every profile it
+reaches transitively appears exactly once in a resolved manifest, annotated with
+each meta-profile that pulled it in.
 
 ## `cratis` — the maximal public bundle
 
@@ -275,19 +327,20 @@ language excluded.
 
 It exists because "full" was never full. The [namespaced
 meta-profiles](#namespaced-meta-profiles) above are scoped compositions, and
-`cratis/full` composes only the other three plus the Screenplay-to-Stage
-handoff — which reaches 24 of the 42 public profiles and misses the other 18
-entirely, including all four language profiles, Lens, the CLI, Studio, and
-Chronicle MCP. Those are real public capabilities with no meta-profile that
+even `cratis/full` — which composes one language-scoped cell per supported
+language — reaches 42 of the 59 public profiles and misses the other 17,
+among them Studio, Lens, the CLI and its workbench, review, the governed-release
+methodology, the Chronicle MCP, the web workbench, and the Java and Python
+Chronicle clients. Those are real public capabilities with no meta-profile that
 reaches them, so a repository wanting everything had no single name to ask for.
 
-**Its `composes` array lists every public profile id directly**, including the
-four `cratis/*` meta-profiles and every leaf they already reach. The redundancy
-is deliberate. `tooling/resolve-profiles.mjs` deduplicates the closure and
-detects cycles, so a profile reached three ways still appears exactly once in a
-resolved manifest — and a flat, exhaustive list is far easier to keep correct
-than a hand-minimized one where "already covered transitively" is a claim
-nobody re-checks.
+**Its `composes` array lists every public profile id directly**, including every
+`cratis/*` meta-profile, every language-scoped cell, and every leaf they already
+reach. The redundancy is deliberate. `tooling/resolve-profiles.mjs` deduplicates
+the closure and detects cycles, so a profile reached three ways still appears
+exactly once in a resolved manifest — and a flat, exhaustive list is far easier
+to keep correct than a hand-minimized one where "already covered transitively"
+is a claim nobody re-checks.
 
 `products` and `languages` follow the same convention as `cratis/full`: real
 taxonomy ids rather than an empty "applies everywhere" marker. Because this
@@ -440,13 +493,27 @@ asserted in `tooling/specs/mcp-declarations.spec.mjs`. Read
 ## Subscribing
 
 A consuming repository selects profiles in project-owned `.cratis/ai.json`. The
-`cratis/` namespace derives its channel instead of declaring one:
+`cratis/` namespace derives its channel instead of declaring one, and a
+language-scoped cell subscribes exactly like any other meta-profile:
 
 ```json
 {
   "schemaVersion": "1.0.0",
   "version": "1.0.0",
   "profiles": ["cratis/chronicle"],
+  "harnesses": ["claude", "codex", "copilot", "pi"],
+  "updatePolicy": "reviewed-pull-request",
+  "projectContext": ".cratis/PROJECT.md"
+}
+```
+
+A Kotlin Chronicle client repository scopes that down to one language:
+
+```json
+{
+  "schemaVersion": "1.0.0",
+  "version": "1.0.0",
+  "profiles": ["cratis/chronicle/kotlin"],
   "harnesses": ["claude", "codex", "copilot", "pi"],
   "updatePolicy": "reviewed-pull-request",
   "projectContext": ".cratis/PROJECT.md"

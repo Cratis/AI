@@ -111,7 +111,17 @@ which profile pulled in every profile, skill, and MCP server, and why anything
 was excluded. Namespaced `cratis/arc`, `cratis/chronicle`, `cratis/application`,
 and `cratis/full` meta-profiles are the stable names to subscribe to; the Arc and
 Chronicle decoupling is a property of their composition, not an editorial
-promise. See [the profile reference](Documentation/profile-reference.md).
+promise.
+
+Each meta-profile also carries a **language dimension** — `cratis/arc/csharp`,
+`cratis/arc/kotlin`, `cratis/chronicle/csharp`, `cratis/chronicle/kotlin`,
+`cratis/chronicle/elixir`, `cratis/chronicle/typescript`, and the matching
+`application` and `full` cells — where the language means the language you write
+that side of the stack in. Arc supports C# and Kotlin (Arc.Kotlin); for
+TypeScript and Elixir the Arc side is removed from the application and full
+cells until Arc supports those languages, and Java is served through the Kotlin
+clients' JVM interoperability. See [the profile
+reference](Documentation/profile-reference.md).
 
 Browse the generated [package and capability catalog](catalog/generated/human-catalog/CATALOG.md)
 to compare public and maintainer packages, see their included skills, and check
