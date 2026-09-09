@@ -1,5 +1,7 @@
 # Studio MCP passive guidance boundary
 
+> **Audience:** Maintainers of Cratis/AI — public-safe Studio MCP guidance. Not required for adopting Cratis AI.
+
 **Status:** Classification-only public-safe source candidate; no implementation operation admitted
 
 ## Public safety boundary
@@ -50,5 +52,5 @@ target and effect classified.
 - target, profile, materialization, runtime, support, publication, promotion,
   and marketplace approval
 
-The `public-studio` profile remains a source candidate with unresolved public
+The `cratis/studio` profile remains a source candidate with unresolved public
 onboarding, modeling, support, redaction, and implementation-authority gaps.

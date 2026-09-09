@@ -1,5 +1,7 @@
 # Release Cratis AI
 
+> **Audience:** Maintainers of Cratis/AI — release process. Not required for adopting Cratis AI.
+>
 > **Normal support-free `0.x.y` package releases are enabled; governed S10 remains blocked.**
 Candidate review is available now. Passive `0.x.y` packages use the basic lane;
 a `1.0.0` release and stable support use the governed lane and its complete
@@ -14,7 +16,7 @@ tracked in [AI#181](https://github.com/Cratis/AI/issues/181).
 
 ## Passive `0.x.y` release lane
 
-`public-fundamentals` is the first package. Pull requests must carry exactly one
+`cratis/fundamentals` is the first package. Pull requests must carry exactly one
 `major`, `minor`, `patch`, or `no-release` label. The shared Cratis release action
 derives the next version after merge; while this lane is active, publication
 accepts only `0.x.y`. The package is generated from the exact immutable source,
@@ -91,10 +93,10 @@ Create `distribution/releases/v<version>.json`:
   "artifactDigest": "<64-character-artifact-digest>",
   "prerequisiteEvidenceIds": ["<existing-prerequisite-evidence>"],
   "mergeStrategy": "merge-commit",
-  "profiles": ["public-fundamentals"],
+  "profiles": ["cratis/fundamentals"],
   "canaries": [
     {
-      "profileId": "public-fundamentals",
+      "profileId": "cratis/fundamentals",
       "canaryId": "samples-chronicle-backend"
     }
   ],

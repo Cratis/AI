@@ -20,17 +20,17 @@ skills and the subscription records the intended scope.
 
 | Repository scenario | Start with |
 | --- | --- |
-| Fundamentals library consumer | `public-fundamentals` |
+| Fundamentals library consumer | `cratis/fundamentals` |
 | Arc backend without Chronicle | `cratis/arc` (language-scoped: `cratis/arc/csharp`, `cratis/arc/kotlin`) |
-| Chronicle-only .NET application | `public-application-chronicle-dotnet` or `cratis/chronicle/csharp` |
+| Chronicle-only .NET application | `cratis/application/chronicle-dotnet` or `cratis/chronicle/csharp` |
 | Chronicle client in Kotlin | `cratis/chronicle/kotlin` |
 | Chronicle client in TypeScript or Elixir | `cratis/chronicle/typescript`, `cratis/chronicle/elixir` |
-| Arc + React + Components without Chronicle | `public-application-react` |
-| Full Arc + Chronicle + React application | `public-application` or `cratis/application/csharp` |
+| Arc + React + Components without Chronicle | `cratis/application/react` |
+| Full Arc + Chronicle + React application | `cratis/application` or `cratis/application/csharp` |
 | Application in a language Arc does not support yet | `cratis/application/typescript`, `cratis/application/elixir` |
-| Specification library or test project | `public-specifications-dotnet` or `public-specifications-typescript` |
-| Cratis Chronicle framework repository | `engineering-chronicle` |
-| Private Studio repository | `engineering-studio` plus a private local overlay |
+| Specification library or test project | `cratis/specifications/dotnet` or `cratis/specifications/typescript` |
+| Cratis Chronicle framework repository | `cratis/engineering` |
+| Private Studio repository | `cratis/engineering` plus a private local overlay |
 
 Browse the generated
 [package and capability catalog](../catalog/generated/human-catalog/CATALOG.md)
@@ -47,7 +47,7 @@ floating ranges.
   "schemaVersion": "1.0.0",
   "channel": "public",
   "version": "1.0.0",
-  "profiles": ["public-application-arc-only"],
+  "profiles": ["cratis/application/arc-only"],
   "harnesses": ["claude", "codex", "copilot", "pi"],
   "updatePolicy": "reviewed-pull-request",
   "projectContext": ".cratis/PROJECT.md"

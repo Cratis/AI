@@ -1,5 +1,7 @@
 # Adding or changing a component
 
+> **Audience:** Maintainers of Cratis/AI — corpus change procedure. Not required for adopting Cratis AI.
+
 **Status:** Maintainer procedure for `Cratis/AI` itself; not an installation or support claim
 
 Adding a skill, rule, agent, prompt, hook or host extension — or editing the bytes

@@ -130,7 +130,7 @@ skills enters a public product-profile package such as
 
 ### Chronicle contributor and operations skills
 
- 1. **`add-traces` → `cratis-engineering-chronicle-kernel-tracing`** —
+ 1. **`add-traces` → `cratis-cratis/engineering-kernel-tracing`** —
     Engineering-owned. It names transient kernel files, compatibility-shim
     cleanup, and package-version work, making it repository contributor
     guidance rather than a public product capability. Evidence:

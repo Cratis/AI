@@ -144,7 +144,7 @@ A consuming repository will pin profiles in project-owned `.cratis/ai.json`:
   "schemaVersion": "1.0.0",
   "channel": "cratis-engineering",
   "version": "1.0.0",
-  "profiles": ["engineering-chronicle"],
+  "profiles": ["cratis/engineering"],
   "harnesses": ["claude", "codex", "copilot", "pi"],
   "updatePolicy": "reviewed-pull-request",
   "projectContext": ".cratis/PROJECT.md"
@@ -160,11 +160,11 @@ Pi is a first-class distribution target. Released profiles will be ordinary
 versioned Pi packages containing passive skills and references:
 
 ```bash
-# User-wide maintainer base
-pi install npm:@cratis/ai-engineering-base@1.0.0
+# User-wide maintainer profile
+pi install npm:@cratis/ai-engineering@1.0.0
 
 # Exact project profile pin
-pi install -l npm:@cratis/ai-engineering-chronicle@1.0.0
+pi install -l npm:@cratis/ai-engineering@1.0.0
 ```
 
 Project installation writes `.pi/settings.json`; after project trust, Pi

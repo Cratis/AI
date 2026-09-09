@@ -1,5 +1,7 @@
 # Native non-skill static projections
 
+> **Audience:** Maintainers of Cratis/AI — repository-only fixture roots. Not required for adopting Cratis AI.
+
 **Status:** Repository-only generated fixtures; no installation or support claim
 
 ## Purpose

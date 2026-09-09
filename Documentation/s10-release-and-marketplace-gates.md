@@ -1,5 +1,7 @@
 # S10 release and marketplace gates
 
+> **Audience:** Maintainers of Cratis/AI — release gates. Not required for adopting Cratis AI.
+
 **Status:** Governed-support contract implemented and sidelined; activation blocked
 
 S10 is not required for candidate review or passive preview publication. It is

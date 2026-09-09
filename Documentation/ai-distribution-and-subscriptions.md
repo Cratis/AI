@@ -1,5 +1,7 @@
 # Cratis AI distribution and subscriptions
 
+> **Audience:** Maintainers of Cratis/AI — the full distribution and subscription model. Adopters need the harness guide and scenarios, not this page.
+
 Cratis AI has one controlled source for shared AI behavior, product-specific
 profiles, immutable releases, and reviewed downstream updates. It does not use
 folder propagation or automatic two-way synchronization.
@@ -53,6 +55,17 @@ A consuming repository never becomes a package publisher. It selects profiles,
 pins a version, owns its project context, and receives reviewed update pull
 requests.
 
+> **Where this stands today:** the versioned flow described on this page —
+> exact-version Pi packages, reviewed update pull requests, rollback by pin —
+> is **designed and tool-verified but not published**. No versioned profile
+> package exists yet (`profiles/manifest.json` still says
+> `DESIGNED_RELEASES_NOT_YET_PUBLISHED`); the only published package is the
+> unsupported `@cratis/ai-fundamentals` `0.x` evaluation. Until the first
+> governed release, hosts install straight off the `Cratis/AI` default branch
+> through the committed marketplace manifests. The Pi commands below show the
+> designed post-release workflow, not something you can run for every profile
+> today.
+
 ## Assurance lanes
 
 Packaging and support use separate lanes so passive previews can iterate without
@@ -78,7 +91,7 @@ than gating ordinary candidate and passive-preview generation.
 The authored policy is
 [`distribution/assurance-lanes.json`](../distribution/assurance-lanes.json).
 Generated [`preview-readiness.json`](../distribution/preview-readiness.json)
-currently confirms that `public-fundamentals` is statically ready and lists only
+currently confirms that `cratis/fundamentals` is statically ready and lists only
 the remaining basic owner-setup blockers. Governed readiness remains separately
 `BLOCKED` and available for later graduation.
 
@@ -105,12 +118,16 @@ Screenplay, Stage, public Studio, Chronicle MCP guidance, and Specifications.
 Composition profiles preserve Arc-only, Chronicle-only, Arc + Chronicle, React,
 full application, and Screenplay → Stage boundaries.
 
-Engineering profiles add public-safe contributor behavior for each Cratis
-product/repository family and compose `engineering-base`. The `engineering-`
-prefix identifies the maintainer audience, not confidentiality. Private Studio,
-Stagehand, client, customer, infrastructure, roadmap, incident, and repository
-facts remain in repository-local overlays; shared packages may not read or write
-them.
+The engineering audience is one profile: `cratis/engineering`, the general
+Cratis-maintainer conventions (C# house style, decision records, effect
+boundaries, shared documentation authoring). It deliberately carries no
+product-specific contributor guidance — that lives in the owning product
+repository as repository-local skills (the Chronicle kernel-tracing procedure,
+for example, lives in the Chronicle repository). The maintainer audience is
+identified by the profile itself, never by confidentiality: everything shared
+is public-safe, and private Studio, Stagehand, client, customer,
+infrastructure, roadmap, incident, and repository facts remain in
+repository-local overlays that shared packages may not read or write.
 
 Namespaced `cratis/arc`, `cratis/chronicle`, `cratis/application`, and
 `cratis/full` meta-profiles are the stable names to subscribe to. Each carries a
@@ -145,7 +162,7 @@ Chronicle framework example:
   "schemaVersion": "1.0.0",
   "channel": "cratis-engineering",
   "version": "1.0.0",
-  "profiles": ["engineering-chronicle"],
+  "profiles": ["cratis/engineering"],
   "harnesses": ["claude", "codex", "copilot", "pi"],
   "updatePolicy": "reviewed-pull-request",
   "projectContext": ".cratis/PROJECT.md"
@@ -159,7 +176,7 @@ Full application example:
   "schemaVersion": "1.0.0",
   "channel": "public",
   "version": "1.0.0",
-  "profiles": ["public-application"],
+  "profiles": ["cratis/application"],
   "harnesses": ["claude", "codex", "copilot", "pi"],
   "updatePolicy": "reviewed-pull-request",
   "projectContext": ".cratis/PROJECT.md"
@@ -229,7 +246,7 @@ packages remain passive and are reviewed before publication.
 A maintainer may install a passive base profile globally after release:
 
 ```bash
-pi install npm:@cratis/ai-engineering-base@1.0.0
+pi install npm:@cratis/ai-engineering@1.0.0
 ```
 
 This writes the exact package source to `~/.pi/agent/settings.json`.
@@ -240,7 +257,7 @@ A Chronicle repository pins its profile in project scope:
 
 ```bash
 cd Chronicle
-pi install -l npm:@cratis/ai-engineering-chronicle@1.0.0
+pi install -l npm:@cratis/ai-engineering@1.0.0
 ```
 
 Pi writes `.pi/settings.json`. Commit that file after review. When another
@@ -251,7 +268,7 @@ Expected settings shape:
 ```json
 {
   "packages": [
-    "npm:@cratis/ai-engineering-chronicle@1.0.0"
+    "npm:@cratis/ai-engineering@1.0.0"
   ],
   "enableSkillCommands": true
 }
@@ -291,7 +308,7 @@ changes both `.cratis/ai.json` and `.pi/settings.json` to the new exact version.
 Then run:
 
 ```bash
-pi install -l npm:@cratis/ai-engineering-chronicle@1.1.0
+pi install -l npm:@cratis/ai-engineering@1.1.0
 pi list
 ```
 
@@ -313,7 +330,7 @@ For example:
 # Repository AI bootstrap
 
 Read `.cratis/PROJECT.md` before changing code. For Cratis framework work, load
-the `cratis-engineering-chronicle-profile` skill before planning or editing.
+the `cratis-cratis/engineering-profile` skill before planning or editing.
 ```
 
 The profile skill contains generated references to shared conventions. Product
@@ -403,14 +420,14 @@ that root. Representative examples are:
 ```text
 # Claude Code interactive commands
 /plugin marketplace add <extracted-claude-root>
-/plugin install engineering-chronicle@cratis
+/plugin install cratis/engineering@cratis
 
 # Codex
 codex plugin marketplace add <extracted-codex-root>
 
 # GitHub Copilot CLI
 copilot plugin marketplace add <extracted-copilot-root>
-copilot plugin install engineering-chronicle@cratis
+copilot plugin install cratis/engineering@cratis
 
 # Gemini CLI local verification before remote publication
 gemini extensions link <extracted-gemini-root>
@@ -560,9 +577,9 @@ install root. Every release publishes a separate root archive or immutable ref
 for each profile and harness, for example:
 
 ```text
-cratis-ai-engineering-chronicle-1.0.0-pi.tgz
-cratis-ai-engineering-chronicle-1.0.0-claude.tar.gz
-cratis-ai-engineering-chronicle-1.0.0-codex.tar.gz
+cratis-ai-cratis/engineering-1.0.0-pi.tgz
+cratis-ai-cratis/engineering-1.0.0-claude.tar.gz
+cratis-ai-cratis/engineering-1.0.0-codex.tar.gz
 ```
 
 Each host receives its manifest at that artifact's root. Release verification

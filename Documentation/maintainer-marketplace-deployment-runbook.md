@@ -1,5 +1,7 @@
 # Maintainer runbook — installing Cratis AI, and getting it listed
 
+> **Audience:** Maintainers of Cratis/AI — manual marketplace deployment steps. Not required for adopting Cratis AI.
+
 Audience: a Cratis maintainer with owner rights.
 
 Two separate things:
