@@ -186,10 +186,12 @@ test("the maximal public bundle never reaches the engineering audience", () => {
 });
 
 test("cratis is a strict superset of every other meta-profile", () => {
-    // cratis/full alone reaches 24 of the public profiles. The bare `cratis`
-    // exists because "everything" has to mean everything, so each narrower
-    // meta-profile must be a subset of it rather than a sibling with content
-    // of its own.
+    // cratis/full alone reaches only part of the public profiles. The bare
+    // `cratis` exists because "everything" has to mean everything, so each
+    // narrower meta-profile — the unscoped products and every language-scoped
+    // cell — must be a subset of it rather than a sibling with content of its
+    // own. The meta ids are discovered from disk, so adding cratis/<new>
+    // brings it under this guarantee without editing this file.
     const profileCatalog = readJson("distribution/profile-catalog.json");
     const everything = new Set(
         resolveProfiles({
@@ -197,15 +199,14 @@ test("cratis is a strict superset of every other meta-profile", () => {
             requested: [metaProfileId],
         }).profiles.map((entry) => entry.id),
     );
-    for (const narrower of [
-        "cratis/application",
-        "cratis/arc",
-        "cratis/chronicle",
-        "cratis/full",
-    ]) {
+    const narrower = publicProfileIdsOnDisk().filter(
+        (id) => id.startsWith("cratis/"),
+    );
+    assert(narrower.length > 0, "the cratis namespace must not go empty");
+    for (const meta of narrower) {
         const closure = resolveProfiles({
             profileCatalog,
-            requested: [narrower],
+            requested: [meta],
         }).profiles.map((entry) => entry.id);
         const escaped = closure.filter((id) => !everything.has(id));
         assert.deepEqual(
@@ -214,13 +215,13 @@ test("cratis is a strict superset of every other meta-profile", () => {
             escaped.length === 0
                 ? ""
                 : report(
-                      `${narrower} reaches profiles ${metaProfileId} does not`,
+                      `${meta} reaches profiles ${metaProfileId} does not`,
                       escaped,
                   ),
         );
         assert(
             everything.size > closure.length,
-            `${metaProfileId} must be strictly larger than ${narrower}`,
+            `${metaProfileId} must be strictly larger than ${meta}`,
         );
     }
 });

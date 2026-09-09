@@ -4115,7 +4115,28 @@
       "status": "added"
     }
   ],
-  "admittedUntracked": [],
+  "admittedUntracked": [
+    "Documentation/examples/ai-subscriptions/chronicle-kotlin-language-scoped.cratis-ai.json",
+    "engineering/.claude-plugin/plugin.json",
+    "engineering/.codex-plugin/plugin.json",
+    "engineering/.cursor-plugin/plugin.json",
+    "engineering/.github/plugin/plugin.json",
+    "profiles/public/cratis/application/csharp.json",
+    "profiles/public/cratis/application/elixir.json",
+    "profiles/public/cratis/application/kotlin.json",
+    "profiles/public/cratis/application/typescript.json",
+    "profiles/public/cratis/arc/csharp.json",
+    "profiles/public/cratis/arc/kotlin.json",
+    "profiles/public/cratis/chronicle/csharp.json",
+    "profiles/public/cratis/chronicle/elixir.json",
+    "profiles/public/cratis/chronicle/kotlin.json",
+    "profiles/public/cratis/chronicle/typescript.json",
+    "profiles/public/cratis/full/csharp.json",
+    "profiles/public/cratis/full/elixir.json",
+    "profiles/public/cratis/full/kotlin.json",
+    "profiles/public/cratis/full/typescript.json",
+    "profiles/public/public-arc-client-kotlin.json"
+  ],
   "excludedRuntimePrefixes": [
     ".pi/delegate/",
     ".pi/fusion/",
@@ -5012,8 +5033,8 @@
         "workflows-68",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 28,
-      "expectedPathsDigest": "7fc50f5162ac4a0978d67ac1c005c1f9a0f9ac13f86fc566e516d21ab78b5405"
+      "expectedPathCount": 29,
+      "expectedPathsDigest": "e87726483947a744c9adbb2e4cc14b5cb709ee7cd71f0a219b5b9ad71905e420"
     },
     {
       "excludePathPatterns": [],
@@ -5640,8 +5661,8 @@
         "option-a-plus-authority",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 65,
-      "expectedPathsDigest": "1c2577e28e33688ea05b05b5f1268e67d230573acf52abf873f2344410f1a91f"
+      "expectedPathCount": 80,
+      "expectedPathsDigest": "e47dd6174b75d017e1b96e5a4b5a2a63e9f751fed4ad48e1f4265b9951acebc1"
     },
     {
       "excludePathPatterns": [],
@@ -5881,6 +5902,33 @@
       ],
       "expectedPathCount": 4,
       "expectedPathsDigest": "06837deb5e2b237965163d895dc40a82e0f91646deb2bbcd52ae2038f3830146"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "engineering-plugin-manifests",
+      "sourcePathPatterns": [
+        "engineering/.claude-plugin/plugin.json",
+        "engineering/.codex-plugin/plugin.json",
+        "engineering/.cursor-plugin/plugin.json",
+        "engineering/.github/plugin/plugin.json"
+      ],
+      "artifactType": "repository-metadata",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        ".claude-plugin/marketplace.json"
+      ],
+      "risk": "medium",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "option-a-plus-authority"
+      ],
+      "expectedPathCount": 4,
+      "expectedPathsDigest": "412ccdec41d406ac82c7d3832776229c8475b1251f394d2b030851b6bbdde62b"
     }
   ]
 }

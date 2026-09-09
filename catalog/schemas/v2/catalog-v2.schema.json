@@ -26,9 +26,9 @@
       "items": { "$ref": "#/$defs/id" }
     },
     "profileId": {
-      "description": "A distribution profile identifier. The legacy public- and engineering- prefixes stay hyphenated; the cratis/ namespace introduced by Cratis/AI#264 carries a single slash.",
+      "description": "A distribution profile identifier. The legacy public- and engineering- prefixes stay hyphenated; the cratis/ namespace introduced by Cratis/AI#264 carries the profile path under its audience directory: one segment for a product or composition meta-profile (cratis/chronicle) and two for a language-scoped cell (cratis/chronicle/kotlin). Depth is capped at two.",
       "type": "string",
-      "pattern": "^(?:cratis/)?[a-z0-9]+(?:-[a-z0-9]+)*$"
+      "pattern": "^(?:cratis(?:/[a-z0-9]+(?:-[a-z0-9]+)*){0,2}|[a-z0-9]+(?:-[a-z0-9]+)*)$"
     },
     "profileIdArray": {
       "type": "array",

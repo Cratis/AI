@@ -1,0 +1,20 @@
+{
+  "id": "cratis/application/typescript",
+  "packageName": "@cratis/ai-meta-application-typescript",
+  "version": "0.0.0",
+  "products": [
+    "chronicle",
+    "specifications"
+  ],
+  "languages": [
+    "typescript",
+    "react"
+  ],
+  "state": "planned-composition",
+  "composes": [
+    "public-chronicle-client-typescript",
+    "public-language-typescript",
+    "public-specifications-typescript"
+  ],
+  "gapSummary": "The Cratis application in TypeScript. Arc does not support TypeScript yet, so the Arc side is removed for now and this cell composes the Chronicle TypeScript client, TypeScript conventions, and the TypeScript specification family. It becomes an Arc-including application cell when Arc supports the language."
+}

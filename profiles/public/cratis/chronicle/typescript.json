@@ -1,0 +1,17 @@
+{
+  "id": "cratis/chronicle/typescript",
+  "packageName": "@cratis/ai-meta-chronicle-typescript",
+  "version": "0.0.0",
+  "products": [
+    "chronicle"
+  ],
+  "languages": [
+    "typescript"
+  ],
+  "state": "planned-composition",
+  "composes": [
+    "public-chronicle-client-typescript",
+    "public-language-typescript"
+  ],
+  "gapSummary": "Chronicle without Arc, in TypeScript. The Chronicle.TypeScript client requires canonical Chronicle.TypeScript authority before its content can land, so this meta-profile resolves empty today and fills in when that authority approves. This meta-profile must never compose an Arc profile."
+}

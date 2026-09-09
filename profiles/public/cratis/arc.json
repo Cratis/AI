@@ -8,13 +8,15 @@
     "entity-framework-core"
   ],
   "languages": [
-    "csharp"
+    "csharp",
+    "react",
+    "typescript",
+    "kotlin"
   ],
   "state": "planned-composition",
   "composes": [
-    "public-application-arc-only",
-    "public-arc-ef-core",
-    "public-arc-identity"
+    "cratis/arc/csharp",
+    "cratis/arc/kotlin"
   ],
-  "gapSummary": "Arc without Chronicle. This meta-profile must never compose a Chronicle profile; use cratis/chronicle or cratis/application when a solution needs both."
+  "gapSummary": "Arc without Chronicle, across every language Arc supports. Composes the language-scoped cells rather than restating them. This meta-profile must never compose a Chronicle profile; use cratis/chronicle or cratis/application when a solution needs both."
 }

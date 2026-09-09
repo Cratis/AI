@@ -1,0 +1,23 @@
+{
+  "id": "cratis/full/typescript",
+  "packageName": "@cratis/ai-meta-full-typescript",
+  "version": "0.0.0",
+  "products": [
+    "chronicle",
+    "specifications",
+    "screenplay",
+    "stage"
+  ],
+  "languages": [
+    "typescript",
+    "react",
+    "language-agnostic"
+  ],
+  "state": "planned-composition",
+  "composes": [
+    "cratis/application/typescript",
+    "cratis/chronicle/typescript",
+    "public-modeling-screenplay-stage"
+  ],
+  "gapSummary": "Everything the public catalog composes for TypeScript: the TypeScript application (Chronicle client and specifications while Arc support is pending), the Chronicle TypeScript cell, and the Screenplay to Stage modeling handoff. There is deliberately no cratis/arc/typescript: Arc does not support TypeScript yet."
+}

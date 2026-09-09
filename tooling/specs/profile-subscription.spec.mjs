@@ -6,6 +6,7 @@ import {
     cpSync,
     mkdtempSync,
     mkdirSync,
+    readdirSync,
     readFileSync,
     rmSync,
     writeFileSync,
@@ -57,13 +58,34 @@ function writeJson(path, value) {
     writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`);
 }
 
+/** Profile count from the source tree, so adding a profile never stale-dates this guard. */
+function countProfileFiles(relativePath = "") {
+    let count = 0;
+    for (const entry of readdirSync(join(repositoryRoot, "profiles", relativePath), {
+        withFileTypes: true,
+    })) {
+        if (entry.isDirectory())
+            count += countProfileFiles(join(relativePath, entry.name));
+        else if (entry.isFile() && entry.name.endsWith(".json")) count += 1;
+    }
+    return count;
+}
+
 test("profile catalog and project subscriptions pass", () => {
     assert.deepEqual(validateProfileSubscriptions(repositoryRoot), []);
     const catalog = readJson(
         join(repositoryRoot, "distribution/profile-catalog.json"),
     );
-    assert.equal(catalog.publicProfiles.length, 44);
-    assert.equal(catalog.engineeringProfiles.length, 20);
+    assert.equal(
+        catalog.publicProfiles.length,
+        countProfileFiles("public"),
+        "publicProfiles must match the profiles/public source tree",
+    );
+    assert.equal(
+        catalog.engineeringProfiles.length,
+        countProfileFiles("cratis-engineering"),
+        "engineeringProfiles must match the profiles/cratis-engineering source tree",
+    );
     assert.equal(catalog.versioning.exactPinsRequired, true);
     assert.equal(catalog.versioning.perProfileVersionStamps, true);
     assert.equal(catalog.versioning.releaseTrain, "atomic");
