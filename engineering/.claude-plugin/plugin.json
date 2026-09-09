@@ -1,0 +1,7 @@
+{
+  "name": "cratis-engineering",
+  "version": "0.1.0",
+  "description": "Maintainer-audience Cratis engineering skills",
+  "author": { "name": "Cratis", "url": "https://www.cratis.io" },
+  "skills": "./skills"
+}
