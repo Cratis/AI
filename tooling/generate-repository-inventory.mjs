@@ -723,6 +723,24 @@ const inventoryDefinitions = () => [
         ],
     },
     {
+        id: "adopter-documentation",
+        sourcePathPatterns: [
+            "Documentation/concepts.md",
+            "Documentation/harnesses.md",
+            "Documentation/scenarios/**",
+        ],
+        artifactType: "documentation",
+        currentOwner: repositoryOwner,
+        targetOwner: repositoryOwner,
+        runtimeEligibility: "repository-only",
+        generatedStatus: "source",
+        adapterStatus: "none",
+        dependencies: ["workflows-68", "option-a-plus-authority"],
+        risk: "low",
+        migrationState: "retain",
+        evidenceIds: ["repo-main-b795d53", "reevaluation-authority"],
+    },
+    {
         id: "legacy-documentation",
         sourcePathPatterns: [
             "Documentation/.markdownlint.json",

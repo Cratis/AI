@@ -4,7 +4,7 @@
   "state": "READY_FOR_PREVIEW_REQUEST",
   "lane": "passive-preview",
   "assuranceMode": "basic",
-  "profileId": "public-fundamentals",
+  "profileId": "cratis/fundamentals",
   "packageName": "@cratis/ai-fundamentals",
   "targetIds": [
     "cratis-fundamentals-concept"

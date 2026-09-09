@@ -147,26 +147,6 @@
       ]
     },
     {
-      "id": "add-traces",
-      "sourcePath": "engineering/skills/cratis-engineering-chronicle-kernel-tracing",
-      "artifactType": "agent-skill-source",
-      "currentOwner": "reusable Cratis engineering behavior",
-      "targetOwner": "reusable Cratis engineering behavior",
-      "audience": "cratis-engineering",
-      "bundledPaths": [
-        "engineering/skills/cratis-engineering-chronicle-kernel-tracing/LICENSE",
-        "engineering/skills/cratis-engineering-chronicle-kernel-tracing/SKILL.md"
-      ],
-      "sourceRevision": "3d857190964d7ae45b4a49b4adda0cad9f569444",
-      "contentDigest": "1e74f56d3391d67f34434cdd06fc1a1a5136fb060ac7cd60cb704d4e2cf14798",
-      "publicationApproval": false,
-      "evidenceIds": [
-        "repo-main-b795d53",
-        "reevaluation-authority",
-        "chronicle-core-source-migration-3d85719"
-      ]
-    },
-    {
       "id": "auth-and-identity",
       "sourcePath": "skills/cratis-arc-authentication-authorization-and-identity",
       "artifactType": "agent-skill-source",

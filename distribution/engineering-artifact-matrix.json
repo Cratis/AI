@@ -48,7 +48,6 @@
       "trust": "PASSIVE_EFFECTFUL",
       "state": "PLANNED_DISABLED_SEPARATE_REVIEW",
       "targetIds": [
-        "cratis-engineering-chronicle-kernel-tracing",
         "cratis-engineering-docs-visual-qa",
         "cratis-engineering-ship-changes"
       ],
@@ -73,7 +72,6 @@
     ],
     "framework": [
       "cratis-engineering-csharp-conventions",
-      "cratis-engineering-chronicle-kernel-tracing",
       "cratis-engineering-ship-changes",
       "cratis-engineering-decision-record",
       "cratis-engineering-effect-boundaries"

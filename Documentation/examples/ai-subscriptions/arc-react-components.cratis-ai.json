@@ -3,7 +3,7 @@
   "channel": "public",
   "version": "1.0.0",
   "profiles": [
-    "public-application-react"
+    "cratis/application/react"
   ],
   "harnesses": [
     "claude",

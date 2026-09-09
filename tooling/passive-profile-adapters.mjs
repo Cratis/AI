@@ -112,7 +112,7 @@ function assertInputs({
         )
     )
         throw new Error("Profile release version must be exact SemVer");
-    if (!/^(?:public|engineering)-[a-z0-9]+(?:-[a-z0-9]+)*$/.test(profileId))
+    if (!/^cratis(?:\/[a-z0-9]+(?:-[a-z0-9]+)*){0,3}$/.test(profileId))
         throw new Error("Profile id is invalid");
     if (!/^@cratis\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(packageName))
         throw new Error("Profile package name is invalid");
@@ -189,6 +189,10 @@ function metadataFilesForHarness(harness, options) {
         homepage = "https://cratis.io/ai",
         repositoryUrl = "https://github.com/Cratis/AI",
     } = options;
+    // Plugin names and path segments never carry the namespace slash: the
+    // profile id cratis/fundamentals projects as the plugin name
+    // cratis-fundamentals everywhere a host filesystem or manifest sees it.
+    const pluginName = options.pluginName ?? profileId.replaceAll("/", "-");
     const files = [];
     const add = (path, value) => {
         const sourcePath = `metadata/${harness.id}/${path}`;
@@ -199,7 +203,7 @@ function metadataFilesForHarness(harness, options) {
             add(
                 "plugin.json",
                 createAgentPluginManifest({
-                    name: profileId,
+                    name: pluginName,
                     version,
                     description,
                     homepage,
@@ -211,15 +215,15 @@ function metadataFilesForHarness(harness, options) {
             add(
                 ".claude-plugin/marketplace.json",
                 createClaudeMarketplace({
-                    name: profileId,
+                    name: pluginName,
                     version,
                     description,
                 }),
             );
             add(
-                `plugins/${profileId}/.claude-plugin/plugin.json`,
+                `plugins/${pluginName}/.claude-plugin/plugin.json`,
                 createClaudePluginManifest({
-                    name: profileId,
+                    name: pluginName,
                     version,
                     description,
                 }),
@@ -231,10 +235,10 @@ function metadataFilesForHarness(harness, options) {
                 interface: { displayName: "Cratis" },
                 plugins: [
                     {
-                        name: profileId,
+                        name: pluginName,
                         source: {
                             source: "local",
-                            path: `./plugins/${profileId}`,
+                            path: `./plugins/${pluginName}`,
                         },
                         policy: {
                             installation: codexInstallationPolicy,
@@ -246,8 +250,8 @@ function metadataFilesForHarness(harness, options) {
                     },
                 ],
             });
-            add(`plugins/${profileId}/.codex-plugin/plugin.json`, {
-                name: profileId,
+            add(`plugins/${pluginName}/.codex-plugin/plugin.json`, {
+                name: pluginName,
                 version,
                 description,
                 skills: "./skills/",
@@ -265,19 +269,19 @@ function metadataFilesForHarness(harness, options) {
                     metadata: { description, version },
                     plugins: [
                         {
-                            name: profileId,
+                            name: pluginName,
                             description,
                             version,
-                            source: `./plugins/${profileId}`,
+                            source: `./plugins/${pluginName}`,
                             ...(cursor ? {} : { strict: true }),
                         },
                     ],
                 },
             );
             add(
-                `plugins/${profileId}/plugin.json`,
+                `plugins/${pluginName}/plugin.json`,
                 createAgentPluginManifest({
-                    name: profileId,
+                    name: pluginName,
                     version,
                     description,
                     homepage,
@@ -288,7 +292,7 @@ function metadataFilesForHarness(harness, options) {
         }
         case "direct-skills-manifest":
             add("gemini-extension.json", {
-                name: profileId,
+                name: pluginName,
                 version,
                 description,
             });
@@ -492,11 +496,12 @@ export function createPassiveFixtureProjection(options) {
 
 /** Builds the single logical-skill-tree and explicit registry projections used by passive releases. */
 export function createPassiveProfileProjection(options) {
+    const pluginName = options.pluginName ?? options.profileId.replaceAll("/", "-");
     const logicalSkillFiles = skillLogicalFiles(options.skills);
     const metadataByHarness = new Map(
         harnesses.map((harness) => [
             harness.id,
-            metadataFilesForHarness(harness, options),
+            metadataFilesForHarness(harness, { ...options, pluginName }),
         ]),
     );
     const logicalTree = createLogicalTree({
@@ -510,7 +515,7 @@ export function createPassiveProfileProjection(options) {
         metrics: options.metrics,
     });
     const roots = harnesses.flatMap((harness) =>
-        profileProjectionRoots(harness.id, options.profileId).map(
+        profileProjectionRoots(harness.id, pluginName).map(
             (projection) => ({
                 id: projection.id,
                 root: projection.outputRoot,
@@ -646,6 +651,7 @@ function generatePassiveProfileAdaptersCore(options) {
         piPrivate,
         metrics,
     });
+    const pluginName = profileId.replaceAll("/", "-");
     const validation = writeProjectedRoot(root, projected, {
         concurrency: options.concurrency ?? 1,
         metrics,
@@ -676,7 +682,7 @@ function generatePassiveProfileAdaptersCore(options) {
         for (const harnessRoot of harnessRoots) {
             const descriptor = profileProjectionRoots(
                 harness.id,
-                profileId,
+                pluginName,
             ).find((candidate) => candidate.id === harnessRoot.id);
             if (!descriptor)
                 throw new Error(
@@ -698,7 +704,7 @@ function generatePassiveProfileAdaptersCore(options) {
             ) {
                 const portableRoot =
                     harness.adapterKind === "portable-plugin-marketplace"
-                        ? join(artifactRoot, `plugins/${profileId}`)
+                        ? join(artifactRoot, `plugins/${pluginName}`)
                         : artifactRoot;
                 const validationResult = validateCratisPassiveProfile(
                     portableRoot,

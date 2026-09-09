@@ -1,17 +1,17 @@
 {
-  "id": "cratis/application/elixir",
-  "packageName": "@cratis/ai-meta-application-elixir",
-  "version": "0.0.0",
-  "products": [
-    "chronicle"
-  ],
-  "languages": [
-    "elixir"
-  ],
-  "state": "planned-composition",
-  "composes": [
-    "public-chronicle-client-elixir",
-    "public-language-elixir"
-  ],
-  "gapSummary": "The Cratis application in Elixir. Arc does not support Elixir yet, so the Arc side is removed for now and this cell composes the Chronicle Elixir client plus Elixir conventions. It resolves empty today and fills in when the Chronicle.Elixir client authority approves."
+    "id": "cratis/application/elixir",
+    "packageName": "@cratis/ai-meta-application-elixir",
+    "version": "0.0.0",
+    "products": [
+        "chronicle"
+    ],
+    "languages": [
+        "elixir"
+    ],
+    "state": "planned-composition",
+    "composes": [
+        "cratis/chronicle/client-elixir",
+        "cratis/language/elixir"
+    ],
+    "gapSummary": "The Cratis application in Elixir. Arc does not support Elixir yet, so the Arc side is removed for now and this cell composes the Chronicle Elixir client plus Elixir conventions. It resolves empty today and fills in when the Chronicle.Elixir client authority approves."
 }

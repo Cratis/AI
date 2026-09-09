@@ -1,28 +1,35 @@
 {
-  "id": "cratis/application",
-  "packageName": "@cratis/ai-meta-application",
-  "version": "0.0.0",
-  "products": [
-    "fundamentals",
-    "arc",
-    "arc-react",
-    "chronicle",
-    "components",
-    "specifications"
-  ],
-  "languages": [
-    "csharp",
-    "kotlin",
-    "elixir",
-    "typescript",
-    "react"
-  ],
-  "state": "planned-composition",
-  "composes": [
-    "cratis/application/csharp",
-    "cratis/application/elixir",
-    "cratis/application/kotlin",
-    "cratis/application/typescript"
-  ],
-  "gapSummary": "The stable namespaced alias for the Cratis application composition, one cell per supported language. It adds no capability of its own. Cells for languages Arc does not support yet carry the Chronicle-only application journey."
+    "id": "cratis/application",
+    "packageName": "@cratis/ai-application",
+    "version": "0.0.0",
+    "products": [
+        "arc",
+        "arc-react",
+        "chronicle",
+        "components",
+        "fundamentals",
+        "specifications"
+    ],
+    "languages": [
+        "csharp",
+        "elixir",
+        "kotlin",
+        "react",
+        "typescript"
+    ],
+    "state": "planned-composition",
+    "composes": [
+        "cratis/application/csharp",
+        "cratis/application/elixir",
+        "cratis/application/kotlin",
+        "cratis/application/typescript",
+        "cratis/arc/core",
+        "cratis/arc/react",
+        "cratis/chronicle/core",
+        "cratis/components",
+        "cratis/fundamentals",
+        "cratis/specifications/dotnet",
+        "cratis/specifications/typescript"
+    ],
+    "gapSummary": "The namespaced application composition: the component profiles (Fundamentals, Arc, Arc React, Chronicle, Components, Specifications) and one cell per supported language. It adds no capability of its own; cells for languages Arc does not support yet carry the Chronicle-only application journey. The full application profile becomes publishable only after every component profile has approved targets."
 }

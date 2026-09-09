@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generatedBy": "tooling/generate-component-catalogs.mjs",
-  "sourceDigest": "40e153ad987017258937d08e691d05ec6d4e3b2f55b86a57ab7b8c7ad8446790",
+  "sourceDigest": "86771bceca2bf2627f24adeb3808e538d4ba0db8c2f9ec6cfdb70e564cc543e0",
   "defaultPolicy": "deny",
   "canonicalSourceRoots": [
     ".ai/agents",
@@ -53,7 +53,6 @@
     ".ai/skills/write-specs-readmodels",
     ".pi/extensions/cratis-hooks",
     ".pi/extensions/subagent",
-    "engineering/skills/cratis-engineering-chronicle-kernel-tracing",
     "engineering/skills/cratis-engineering-csharp-conventions",
     "engineering/skills/cratis-engineering-decision-record",
     "engineering/skills/cratis-engineering-docs-add-page",
@@ -5431,87 +5430,6 @@
       }
     },
     {
-      "id": "cratis-engineering-chronicle-kernel-tracing",
-      "kind": "skill",
-      "semanticIdentity": "cratis-engineering-chronicle-kernel-tracing",
-      "semanticName": "cratis-engineering-chronicle-kernel-tracing",
-      "lifecycle": "active",
-      "distributionTargetId": "cratis-engineering-chronicle-kernel-tracing",
-      "canonicalSources": [
-        {
-          "path": "engineering/skills/cratis-engineering-chronicle-kernel-tracing",
-          "digest": "1e74f56d3391d67f34434cdd06fc1a1a5136fb060ac7cd60cb704d4e2cf14798",
-          "ownership": "owner",
-          "ownerComponentId": "cratis-engineering-chronicle-kernel-tracing"
-        }
-      ],
-      "contentDigest": "86f9dab4f4b88863c9249af652561b68c5ad8c96a66d2f24d15b31794d1435c7",
-      "owner": "reusable Cratis engineering behavior",
-      "audience": "cratis-engineering",
-      "classification": {
-        "artifactClass": "passive-content",
-        "trust": "passive",
-        "passive": true,
-        "executable": false,
-        "effect": "guided-write"
-      },
-      "dependencies": [],
-      "hostNeutralPurpose": "Chronicle Kernel tracing maintenance",
-      "approval": {
-        "state": "modeled",
-        "evidenceIds": [
-          "reevaluation-authority",
-          "repo-main-b795d53"
-        ]
-      },
-      "releaseBoundary": "engineering-passive",
-      "allowedProjections": [
-        {
-          "hostContract": "any-passive-host",
-          "kinds": [
-            "skill"
-          ],
-          "artifactClasses": [
-            "passive-private-fixture",
-            "passive-public-package",
-            "provider-compatibility"
-          ]
-        },
-        {
-          "hostContract": "portable-agent-plugins-1-0",
-          "kinds": [
-            "skill"
-          ],
-          "artifactClasses": [
-            "passive-public-package"
-          ]
-        }
-      ],
-      "forbiddenProjections": [
-        "agent",
-        "subagent",
-        "command",
-        "prompt",
-        "rule",
-        "instruction",
-        "hook",
-        "mcp",
-        "lsp",
-        "executable-host-extension",
-        "static-asset"
-      ],
-      "requiredCanaries": [
-        "projection-shape",
-        "semantic-identity",
-        "source-digest"
-      ],
-      "securityRequirements": {
-        "threatModel": false,
-        "securityReview": false,
-        "executableAssuranceProfile": false
-      }
-    },
-    {
       "id": "cratis-engineering-csharp-conventions",
       "kind": "skill",
       "semanticIdentity": "cratis-engineering-csharp-conventions",
@@ -7180,10 +7098,8 @@
         "executable": false,
         "effect": "guided-write"
       },
-      "dependencies": [
-        "cratis-engineering-chronicle-kernel-tracing"
-      ],
-      "hostNeutralPurpose": "Retained repository-local kernel tracing guidance",
+      "dependencies": [],
+      "hostNeutralPurpose": "Retained repository-local kernel tracing guidance; the distribution twin now lives in the Chronicle repository as repo-local contributor guidance",
       "approval": {
         "state": "modeled",
         "evidenceIds": [

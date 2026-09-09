@@ -128,7 +128,7 @@
           "uniqueItems": true,
           "items": {
             "type": "string",
-            "pattern": "^(?:cratis/|public-|engineering-)[a-z0-9]+(?:-[a-z0-9]+)*$"
+            "pattern": "^cratis(?:/[a-z0-9]+(?:-[a-z0-9]+)*){0,3}$"
           }
         },
         "capabilities": {

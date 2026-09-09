@@ -223,7 +223,13 @@ export function validateSources(catalogs, root) {
     const v1 = readCatalog(join(root, "catalog/public-skills.yml"));
     const v1Ids = [
         ...v1.skills.map((skill) => skill.currentName),
-        ...v1.audit.internalSkills.map((skill) => skill.currentName),
+        ...v1.audit.internalSkills
+            .filter(
+                (skill) =>
+                    skill.distributionProjection !==
+                    "retired-to-owning-repository",
+            )
+            .map((skill) => skill.currentName),
     ];
     if (!equalStringSets(sourceIds, v1Ids))
         errors.push(
@@ -244,9 +250,17 @@ export function validateSources(catalogs, root) {
         errors.push(
             `the public skills audit reviews ${publicCandidateCount} public candidates; the catalog has ${v1.skills.length}`,
         );
-    if (sourceIds.length !== currentInventoryCount)
+    // A legacy skill marked retired-to-owning-repository keeps its place in
+    // the inventory audit but no longer projects into the v2 catalog: its
+    // distribution twin moved to the owning product repository.
+    const retiredInternalSkills = v1.audit.internalSkills.filter(
+        (skill) => skill.distributionProjection === "retired-to-owning-repository",
+    ).length;
+    const expectedSourceCount =
+        currentInventoryCount - retiredInternalSkills;
+    if (sourceIds.length !== expectedSourceCount)
         errors.push(
-            `catalog v2 must contain ${currentInventoryCount} sources; found ${sourceIds.length}`,
+            `catalog v2 must contain ${expectedSourceCount} sources (${currentInventoryCount} inventory minus ${retiredInternalSkills} retired); found ${sourceIds.length}`,
         );
     for (const source of catalogs.sources.sources) {
         if (source.publicationApproval)

@@ -51,74 +51,85 @@ const productLabels = new Map([
 ]);
 
 const displayNameOverrides = new Map([
-    ["public-application", "Cratis Application Development"],
-    ["public-application-arc-chronicle", "Cratis Arc + Chronicle Application"],
-    ["public-application-arc-only", "Cratis Arc Application"],
+    ["cratis/application/arc-chronicle", "Cratis Arc + Chronicle Application"],
+    ["cratis/application/arc-only", "Cratis Arc Application"],
     [
-        "public-application-chronicle-dotnet",
+        "cratis/application/chronicle-dotnet",
         "Cratis Chronicle .NET Application",
     ],
-    ["public-application-react", "Cratis React Application"],
-    ["public-arc-ef-core", "Cratis Arc with EF Core"],
-    ["public-chronicle-client-dotnet", "Cratis Chronicle .NET Client"],
-    ["public-chronicle-client-elixir", "Cratis Chronicle Elixir Client"],
-    ["public-chronicle-client-java", "Cratis Chronicle Java Client"],
-    ["public-chronicle-client-kotlin", "Cratis Chronicle Kotlin Client"],
-    ["public-chronicle-client-python", "Cratis Chronicle Python Client"],
+    ["cratis/application/react", "Cratis React Application"],
+    ["cratis/arc/ef-core", "Cratis Arc with EF Core"],
     [
-        "public-chronicle-client-typescript",
+        "cratis/chronicle/client-dotnet",
+        "Cratis Chronicle .NET Client",
+    ],
+    [
+        "cratis/chronicle/client-elixir",
+        "Cratis Chronicle Elixir Client",
+    ],
+    [
+        "cratis/chronicle/client-java",
+        "Cratis Chronicle Java Client",
+    ],
+    [
+        "cratis/chronicle/client-kotlin",
+        "Cratis Chronicle Kotlin Client",
+    ],
+    [
+        "cratis/chronicle/client-python",
+        "Cratis Chronicle Python Client",
+    ],
+    [
+        "cratis/chronicle/client-typescript",
         "Cratis Chronicle TypeScript Client",
     ],
-    ["public-modeling-screenplay-stage", "Cratis Screenplay → Stage"],
+    ["cratis/modeling/screenplay-stage", "Cratis Screenplay → Stage"],
     [
-        "public-methodology-governed-releases",
+        "cratis/methodology/governed-releases",
         "Cratis Governed Release Methodology",
     ],
-    ["public-language-csharp", "Cratis C# Language Conventions"],
-    ["public-language-elixir", "Cratis Elixir Language Conventions"],
-    ["public-language-kotlin", "Cratis Kotlin Language Conventions"],
-    ["public-language-typescript", "Cratis TypeScript Language Conventions"],
+    ["cratis/language/csharp", "Cratis C# Language Conventions"],
+    ["cratis/language/elixir", "Cratis Elixir Language Conventions"],
+    ["cratis/language/kotlin", "Cratis Kotlin Language Conventions"],
+    ["cratis/language/typescript", "Cratis TypeScript Language Conventions"],
     ["cratis", "Cratis Complete Suite"],
     ["cratis/application", "Cratis Application Suite"],
     ["cratis/arc", "Cratis Arc Suite"],
     ["cratis/chronicle", "Cratis Chronicle Suite"],
     ["cratis/full", "Cratis Full Suite"],
+    ["cratis/engineering", "Cratis Maintainer Engineering"],
 ]);
 
 const languageProfileLabels = new Map([
-    ["public-language-csharp", "C#"],
-    ["public-language-elixir", "Elixir"],
-    ["public-language-kotlin", "Kotlin"],
-    ["public-language-typescript", "TypeScript"],
+    ["cratis/language/csharp", "C#"],
+    ["cratis/language/elixir", "Elixir"],
+    ["cratis/language/kotlin", "Kotlin"],
+    ["cratis/language/typescript", "TypeScript"],
 ]);
 
 const descriptionOverrides = new Map([
     [
-        "public-studio",
+        "cratis/studio",
         "Classification-only public-safe guidance for Studio MCP requests and already-redacted output; no implementation operation is admitted or invocable.",
     ],
     [
-        "public-chronicle-mcp",
+        "cratis/chronicle/mcp",
         "Classification-only passive guidance for Chronicle MCP inspection requests and already-redacted output; no tool or prompt is admitted or invocable.",
     ],
     [
-        "public-fundamentals",
+        "cratis/fundamentals",
         "Strongly typed Cratis Fundamentals concepts and Chronicle event-source identities for C# projects.",
     ],
     [
-        "public-application",
+        "cratis/application",
         "End-to-end guidance for building Cratis applications with Arc, Chronicle, React, Components, and Specifications.",
     ],
     [
-        "engineering-base",
+        "cratis/engineering",
         "Public-safe shared engineering conventions for contributors across Cratis repositories.",
     ],
     [
-        "engineering-documentation",
-        "Public-safe documentation authoring guidance for maintainers working across Cratis product repositories.",
-    ],
-    [
-        "public-methodology-governed-releases",
+        "cratis/methodology/governed-releases",
         "Product- and language-independent release-engineering methodology: assurance tiers, evidence ladders, lifecycle phases, supply-chain receipts, semantic-version release intent, canaries, and recovery disposition.",
     ],
     [
@@ -153,7 +164,7 @@ const intendedForOverrides = new Map([
         "Developers and teams who want the whole public Cratis corpus in one subscription, without choosing between products, languages, or methodology.",
     ],
     [
-        "public-methodology-governed-releases",
+        "cratis/methodology/governed-releases",
         "Maintainers planning a release in any repository, for any artifact format, without selecting a Cratis product or language profile.",
     ],
     ...[...languageProfileLabels].map(([id, label]) => [
@@ -172,8 +183,7 @@ function joinNatural(values) {
 function wordsFromId(profileId) {
     const words = profileId
         .replace(/^cratis\//, "")
-        .replace(/^(?:public|engineering)-/, "")
-        .split("-")
+        .split("[-/]")
         .filter((word) => word !== "cratis")
         .map(
             (word) =>
@@ -187,7 +197,6 @@ export function profileDisplayName(profile, audience) {
     const override = displayNameOverrides.get(profile.id);
     if (override) return override;
     const words = wordsFromId(profile.id);
-    if (profile.id === "engineering-base") return "Cratis Maintainer Base";
     if (audience === "cratis-engineering")
         return `Cratis ${words.join(" ")} Maintainer`;
     return `Cratis ${words.join(" ")}`;

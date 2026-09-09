@@ -2,12 +2,12 @@
   "schemaVersion": 2,
   "contractVersion": 1,
   "disclaimer": "Catalog inclusion, evaluation evidence, component modeling, planned projection, bundle generation, or publication does not grant runtime permission, emitted bytes, support, or approval.",
-  "inputDigest": "5aa5288950d0963d33c00c87bdc5daab3eb36dd74eecf10fa5701fb7e0eb5078",
+  "inputDigest": "ed59f8765736ad9aa5cacfca3eafed87840040d664a819da7932ed9a595a1105",
   "componentSummary": {
     "disclaimer": "Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.",
-    "total": 193,
+    "total": 192,
     "byKind": {
-      "skill": 97,
+      "skill": 96,
       "agent": 12,
       "subagent": 0,
       "command": 18,
@@ -21,16 +21,16 @@
       "static-asset": 0
     },
     "byTrust": {
-      "passive": 190,
+      "passive": 189,
       "executable": 3
     },
     "byAudience": {
       "public": 52,
-      "cratis-engineering": 141,
+      "cratis-engineering": 140,
       "repository-only": 0
     },
     "byLifecycle": {
-      "active": 158,
+      "active": 157,
       "legacy-retained": 35
     },
     "projections": {
@@ -121,63 +121,62 @@
       "repositoryKinds": [],
       "composes": [
         "cratis/application",
+        "cratis/application/arc-chronicle",
+        "cratis/application/arc-only",
+        "cratis/application/chronicle-dotnet",
         "cratis/application/csharp",
         "cratis/application/elixir",
         "cratis/application/kotlin",
+        "cratis/application/react",
         "cratis/application/typescript",
         "cratis/arc",
+        "cratis/arc/client-kotlin",
+        "cratis/arc/core",
         "cratis/arc/csharp",
+        "cratis/arc/ef-core",
+        "cratis/arc/identity",
         "cratis/arc/kotlin",
+        "cratis/arc/react",
         "cratis/chronicle",
+        "cratis/chronicle/client-dotnet",
+        "cratis/chronicle/client-elixir",
+        "cratis/chronicle/client-java",
+        "cratis/chronicle/client-kotlin",
+        "cratis/chronicle/client-python",
+        "cratis/chronicle/client-typescript",
+        "cratis/chronicle/compliance",
+        "cratis/chronicle/core",
         "cratis/chronicle/csharp",
         "cratis/chronicle/elixir",
         "cratis/chronicle/kotlin",
+        "cratis/chronicle/mcp",
+        "cratis/chronicle/multi-tenancy",
         "cratis/chronicle/typescript",
+        "cratis/chronicle/web-workbench",
+        "cratis/cli",
+        "cratis/cli/terminal-workbench",
+        "cratis/components",
         "cratis/full",
         "cratis/full/csharp",
         "cratis/full/elixir",
         "cratis/full/kotlin",
         "cratis/full/typescript",
-        "public-application",
-        "public-application-arc-chronicle",
-        "public-application-arc-only",
-        "public-application-chronicle-dotnet",
-        "public-application-react",
-        "public-arc",
-        "public-arc-client-kotlin",
-        "public-arc-ef-core",
-        "public-arc-identity",
-        "public-arc-react",
-        "public-chronicle",
-        "public-chronicle-client-dotnet",
-        "public-chronicle-client-elixir",
-        "public-chronicle-client-java",
-        "public-chronicle-client-kotlin",
-        "public-chronicle-client-python",
-        "public-chronicle-client-typescript",
-        "public-chronicle-compliance",
-        "public-chronicle-mcp",
-        "public-chronicle-multi-tenancy",
-        "public-chronicle-web-workbench",
-        "public-components",
-        "public-cratis-cli",
-        "public-cratis-cli-terminal-workbench",
-        "public-fundamentals",
-        "public-fundamentals-type-discovery",
-        "public-language-csharp",
-        "public-language-elixir",
-        "public-language-kotlin",
-        "public-language-typescript",
-        "public-lens",
-        "public-methodology-governed-releases",
-        "public-modeling-screenplay-stage",
-        "public-review",
-        "public-screenplay",
-        "public-specifications",
-        "public-specifications-dotnet",
-        "public-specifications-typescript",
-        "public-stage",
-        "public-studio"
+        "cratis/fundamentals",
+        "cratis/fundamentals/type-discovery",
+        "cratis/language/csharp",
+        "cratis/language/elixir",
+        "cratis/language/kotlin",
+        "cratis/language/typescript",
+        "cratis/lens",
+        "cratis/methodology/governed-releases",
+        "cratis/modeling/screenplay-stage",
+        "cratis/review",
+        "cratis/screenplay",
+        "cratis/specifications",
+        "cratis/specifications/dotnet",
+        "cratis/specifications/typescript",
+        "cratis/stage",
+        "cratis/studio"
       ],
       "directTargetIds": [],
       "targetIds": [
@@ -235,56 +234,69 @@
       "id": "cratis/application",
       "displayName": "Cratis Application Suite",
       "description": "The namespaced suite for building a full Cratis application with Arc, Chronicle, Arc React, Components, and Specifications.",
-      "intendedFor": "Developers who use Cratis Fundamentals, Cratis Arc, Cratis Arc React, Cratis Chronicle, Cratis Components, and Cratis Specifications.",
+      "intendedFor": "Developers who use Cratis Arc, Cratis Arc React, Cratis Chronicle, Cratis Components, Cratis Fundamentals, and Cratis Specifications.",
       "audience": "public",
-      "packageName": "@cratis/ai-meta-application",
+      "packageName": "@cratis/ai-application",
       "state": "planned-composition",
       "installable": false,
       "materialization": "composition",
       "products": [
-        "fundamentals",
         "arc",
         "arc-react",
         "chronicle",
         "components",
+        "fundamentals",
         "specifications"
       ],
       "languages": [
         "csharp",
-        "kotlin",
         "elixir",
-        "typescript",
-        "react"
+        "kotlin",
+        "react",
+        "typescript"
       ],
       "repositoryKinds": [],
       "composes": [
         "cratis/application/csharp",
         "cratis/application/elixir",
         "cratis/application/kotlin",
-        "cratis/application/typescript"
+        "cratis/application/typescript",
+        "cratis/arc/core",
+        "cratis/arc/react",
+        "cratis/chronicle/core",
+        "cratis/components",
+        "cratis/fundamentals",
+        "cratis/specifications/dotnet",
+        "cratis/specifications/typescript"
       ],
       "directTargetIds": [],
       "targetIds": [
         "cratis-application-react-specifications",
         "cratis-application-slice-specifications",
+        "cratis-arc-authentication-authorization-and-identity",
         "cratis-arc-command",
         "cratis-arc-command-execution",
         "cratis-arc-command-validation",
+        "cratis-arc-ef-core-migration",
         "cratis-arc-observable-query-http",
         "cratis-arc-query-paging",
         "cratis-arc-react-page",
+        "cratis-chronicle-client-dotnet",
         "cratis-chronicle-client-elixir",
         "cratis-chronicle-client-kotlin",
         "cratis-chronicle-client-typescript",
+        "cratis-chronicle-compliance",
         "cratis-chronicle-event-constraints",
         "cratis-chronicle-event-modeling",
         "cratis-chronicle-event-specifications",
         "cratis-chronicle-event-type-migration",
+        "cratis-chronicle-multi-tenancy",
         "cratis-chronicle-projection",
         "cratis-chronicle-reactor",
         "cratis-chronicle-read-model",
         "cratis-chronicle-read-model-specifications",
         "cratis-chronicle-reducer",
+        "cratis-chronicle-web-workbench",
         "cratis-components-accessibility",
         "cratis-components-schema-editor",
         "cratis-components-stepper-command-dialog",
@@ -295,6 +307,135 @@
         "cratis-specification-by-example",
         "cratis-specifications-csharp",
         "cratis-specifications-typescript"
+      ]
+    },
+    {
+      "id": "cratis/application/arc-chronicle",
+      "displayName": "Cratis Arc + Chronicle Application",
+      "description": "Combined AI guidance for developers using Cratis Fundamentals, Cratis Arc, and Cratis Chronicle in one solution.",
+      "intendedFor": "Developers who use Cratis Fundamentals, Cratis Arc, and Cratis Chronicle.",
+      "audience": "public",
+      "packageName": "@cratis/ai-application-arc-chronicle",
+      "state": "planned-composition",
+      "installable": false,
+      "materialization": "composition",
+      "products": [
+        "fundamentals",
+        "arc",
+        "chronicle"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "repositoryKinds": [],
+      "composes": [
+        "cratis/arc/core",
+        "cratis/chronicle/core",
+        "cratis/fundamentals",
+        "cratis/specifications/dotnet"
+      ],
+      "directTargetIds": [],
+      "targetIds": [
+        "cratis-application-slice-specifications",
+        "cratis-arc-command",
+        "cratis-arc-command-execution",
+        "cratis-arc-command-validation",
+        "cratis-arc-observable-query-http",
+        "cratis-arc-query-paging",
+        "cratis-chronicle-event-constraints",
+        "cratis-chronicle-event-modeling",
+        "cratis-chronicle-event-specifications",
+        "cratis-chronicle-event-type-migration",
+        "cratis-chronicle-projection",
+        "cratis-chronicle-reactor",
+        "cratis-chronicle-read-model",
+        "cratis-chronicle-read-model-specifications",
+        "cratis-chronicle-reducer",
+        "cratis-event-model-diagram",
+        "cratis-fundamentals-concept",
+        "cratis-specification-by-example",
+        "cratis-specifications-csharp"
+      ]
+    },
+    {
+      "id": "cratis/application/arc-only",
+      "displayName": "Cratis Arc Application",
+      "description": "Combined AI guidance for developers using Cratis Fundamentals and Cratis Arc in one solution.",
+      "intendedFor": "Developers who use Cratis Fundamentals and Cratis Arc.",
+      "audience": "public",
+      "packageName": "@cratis/ai-application-arc",
+      "state": "planned-composition",
+      "installable": false,
+      "materialization": "composition",
+      "products": [
+        "fundamentals",
+        "arc"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "repositoryKinds": [],
+      "composes": [
+        "cratis/arc/core",
+        "cratis/fundamentals",
+        "cratis/specifications/dotnet"
+      ],
+      "directTargetIds": [],
+      "targetIds": [
+        "cratis-application-slice-specifications",
+        "cratis-arc-command",
+        "cratis-arc-command-execution",
+        "cratis-arc-command-validation",
+        "cratis-arc-observable-query-http",
+        "cratis-arc-query-paging",
+        "cratis-chronicle-event-specifications",
+        "cratis-chronicle-read-model-specifications",
+        "cratis-fundamentals-concept",
+        "cratis-specification-by-example",
+        "cratis-specifications-csharp"
+      ]
+    },
+    {
+      "id": "cratis/application/chronicle-dotnet",
+      "displayName": "Cratis Chronicle .NET Application",
+      "description": "Combined AI guidance for developers using Cratis Fundamentals and Cratis Chronicle in one solution.",
+      "intendedFor": "Developers who use Cratis Fundamentals and Cratis Chronicle.",
+      "audience": "public",
+      "packageName": "@cratis/ai-application-chronicle-dotnet",
+      "state": "planned-composition",
+      "installable": false,
+      "materialization": "composition",
+      "products": [
+        "fundamentals",
+        "chronicle"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "repositoryKinds": [],
+      "composes": [
+        "cratis/chronicle/client-dotnet",
+        "cratis/chronicle/core",
+        "cratis/fundamentals",
+        "cratis/specifications/dotnet"
+      ],
+      "directTargetIds": [],
+      "targetIds": [
+        "cratis-application-slice-specifications",
+        "cratis-chronicle-client-dotnet",
+        "cratis-chronicle-event-constraints",
+        "cratis-chronicle-event-modeling",
+        "cratis-chronicle-event-specifications",
+        "cratis-chronicle-event-type-migration",
+        "cratis-chronicle-projection",
+        "cratis-chronicle-reactor",
+        "cratis-chronicle-read-model",
+        "cratis-chronicle-read-model-specifications",
+        "cratis-chronicle-reducer",
+        "cratis-event-model-diagram",
+        "cratis-fundamentals-concept",
+        "cratis-specification-by-example",
+        "cratis-specifications-csharp"
       ]
     },
     {
@@ -321,28 +462,43 @@
       ],
       "repositoryKinds": [],
       "composes": [
-        "public-application",
-        "public-language-csharp"
+        "cratis/arc",
+        "cratis/arc/react",
+        "cratis/chronicle",
+        "cratis/components",
+        "cratis/fundamentals",
+        "cratis/language/csharp",
+        "cratis/specifications/dotnet",
+        "cratis/specifications/typescript"
       ],
       "directTargetIds": [],
       "targetIds": [
         "cratis-application-react-specifications",
         "cratis-application-slice-specifications",
+        "cratis-arc-authentication-authorization-and-identity",
         "cratis-arc-command",
         "cratis-arc-command-execution",
         "cratis-arc-command-validation",
+        "cratis-arc-ef-core-migration",
         "cratis-arc-observable-query-http",
         "cratis-arc-query-paging",
         "cratis-arc-react-page",
+        "cratis-chronicle-client-dotnet",
+        "cratis-chronicle-client-elixir",
+        "cratis-chronicle-client-kotlin",
+        "cratis-chronicle-client-typescript",
+        "cratis-chronicle-compliance",
         "cratis-chronicle-event-constraints",
         "cratis-chronicle-event-modeling",
         "cratis-chronicle-event-specifications",
         "cratis-chronicle-event-type-migration",
+        "cratis-chronicle-multi-tenancy",
         "cratis-chronicle-projection",
         "cratis-chronicle-reactor",
         "cratis-chronicle-read-model",
         "cratis-chronicle-read-model-specifications",
         "cratis-chronicle-reducer",
+        "cratis-chronicle-web-workbench",
         "cratis-components-accessibility",
         "cratis-components-schema-editor",
         "cratis-components-stepper-command-dialog",
@@ -373,8 +529,8 @@
       ],
       "repositoryKinds": [],
       "composes": [
-        "public-chronicle-client-elixir",
-        "public-language-elixir"
+        "cratis/chronicle/client-elixir",
+        "cratis/language/elixir"
       ],
       "directTargetIds": [],
       "targetIds": [
@@ -400,13 +556,66 @@
       ],
       "repositoryKinds": [],
       "composes": [
-        "public-arc-client-kotlin",
-        "public-chronicle-client-kotlin",
-        "public-language-kotlin"
+        "cratis/arc/client-kotlin",
+        "cratis/chronicle/client-kotlin",
+        "cratis/language/kotlin"
       ],
       "directTargetIds": [],
       "targetIds": [
         "cratis-chronicle-client-kotlin"
+      ]
+    },
+    {
+      "id": "cratis/application/react",
+      "displayName": "Cratis React Application",
+      "description": "Combined AI guidance for developers using Cratis Fundamentals, Cratis Arc, Cratis Arc React, and Cratis Components in one solution.",
+      "intendedFor": "Developers who use Cratis Fundamentals, Cratis Arc, Cratis Arc React, and Cratis Components.",
+      "audience": "public",
+      "packageName": "@cratis/ai-application-react",
+      "state": "planned-composition",
+      "installable": false,
+      "materialization": "composition",
+      "products": [
+        "fundamentals",
+        "arc",
+        "arc-react",
+        "components"
+      ],
+      "languages": [
+        "csharp",
+        "react",
+        "typescript"
+      ],
+      "repositoryKinds": [],
+      "composes": [
+        "cratis/arc/core",
+        "cratis/arc/react",
+        "cratis/components",
+        "cratis/fundamentals",
+        "cratis/specifications/dotnet",
+        "cratis/specifications/typescript"
+      ],
+      "directTargetIds": [],
+      "targetIds": [
+        "cratis-application-react-specifications",
+        "cratis-application-slice-specifications",
+        "cratis-arc-command",
+        "cratis-arc-command-execution",
+        "cratis-arc-command-validation",
+        "cratis-arc-observable-query-http",
+        "cratis-arc-query-paging",
+        "cratis-arc-react-page",
+        "cratis-chronicle-event-specifications",
+        "cratis-chronicle-read-model-specifications",
+        "cratis-components-accessibility",
+        "cratis-components-schema-editor",
+        "cratis-components-stepper-command-dialog",
+        "cratis-components-styling",
+        "cratis-components-toolbar",
+        "cratis-fundamentals-concept",
+        "cratis-specification-by-example",
+        "cratis-specifications-csharp",
+        "cratis-specifications-typescript"
       ]
     },
     {
@@ -429,9 +638,9 @@
       ],
       "repositoryKinds": [],
       "composes": [
-        "public-chronicle-client-typescript",
-        "public-language-typescript",
-        "public-specifications-typescript"
+        "cratis/chronicle/client-typescript",
+        "cratis/language/typescript",
+        "cratis/specifications/typescript"
       ],
       "directTargetIds": [],
       "targetIds": [
@@ -484,6 +693,62 @@
       ]
     },
     {
+      "id": "cratis/arc/client-kotlin",
+      "displayName": "Cratis Arc/client-kotlin",
+      "description": "AI guidance for developers building with Cratis Arc.",
+      "intendedFor": "Developers who use Cratis Arc.",
+      "audience": "public",
+      "packageName": "@cratis/ai-arc-client-kotlin",
+      "state": "content-gap",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "arc"
+      ],
+      "languages": [
+        "kotlin"
+      ],
+      "repositoryKinds": [],
+      "composes": [],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "cratis/arc/core",
+      "displayName": "Cratis Arc/core",
+      "description": "AI guidance for developers building with Cratis Arc.",
+      "intendedFor": "Developers who use Cratis Arc.",
+      "audience": "public",
+      "packageName": "@cratis/ai-arc",
+      "state": "preview-source-candidate",
+      "installable": false,
+      "materialization": "candidate-package",
+      "products": [
+        "arc"
+      ],
+      "languages": [
+        "csharp",
+        "typescript",
+        "shell"
+      ],
+      "repositoryKinds": [],
+      "composes": [],
+      "directTargetIds": [
+        "cratis-arc-command",
+        "cratis-arc-command-execution",
+        "cratis-arc-command-validation",
+        "cratis-arc-observable-query-http",
+        "cratis-arc-query-paging"
+      ],
+      "targetIds": [
+        "cratis-arc-command",
+        "cratis-arc-command-execution",
+        "cratis-arc-command-validation",
+        "cratis-arc-observable-query-http",
+        "cratis-arc-query-paging"
+      ]
+    },
+    {
       "id": "cratis/arc/csharp",
       "displayName": "Cratis Arc/csharp",
       "description": "Combined AI guidance for developers using Cratis Fundamentals, Cratis Arc, and Entity Framework Core in one solution.",
@@ -505,10 +770,10 @@
       ],
       "repositoryKinds": [],
       "composes": [
-        "public-application-arc-only",
-        "public-arc-ef-core",
-        "public-arc-identity",
-        "public-language-csharp"
+        "cratis/application/arc-only",
+        "cratis/arc/ef-core",
+        "cratis/arc/identity",
+        "cratis/language/csharp"
       ],
       "directTargetIds": [],
       "targetIds": [
@@ -525,6 +790,73 @@
         "cratis-fundamentals-concept",
         "cratis-specification-by-example",
         "cratis-specifications-csharp"
+      ]
+    },
+    {
+      "id": "cratis/arc/ef-core",
+      "displayName": "Cratis Arc with EF Core",
+      "description": "AI guidance for developers building with Cratis Arc and Entity Framework Core.",
+      "intendedFor": "Developers who use Cratis Arc and Entity Framework Core.",
+      "audience": "public",
+      "packageName": "@cratis/ai-arc-ef-core",
+      "state": "preview-source-candidate",
+      "installable": false,
+      "materialization": "candidate-package",
+      "products": [
+        "arc",
+        "entity-framework-core"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "repositoryKinds": [],
+      "composes": [
+        "cratis/arc/core"
+      ],
+      "directTargetIds": [
+        "cratis-arc-ef-core-migration"
+      ],
+      "targetIds": [
+        "cratis-arc-command",
+        "cratis-arc-command-execution",
+        "cratis-arc-command-validation",
+        "cratis-arc-ef-core-migration",
+        "cratis-arc-observable-query-http",
+        "cratis-arc-query-paging"
+      ]
+    },
+    {
+      "id": "cratis/arc/identity",
+      "displayName": "Cratis Arc/identity",
+      "description": "AI guidance for developers building with Cratis Arc.",
+      "intendedFor": "Developers who use Cratis Arc.",
+      "audience": "public",
+      "packageName": "@cratis/ai-arc-identity",
+      "state": "preview-source-candidate",
+      "installable": false,
+      "materialization": "candidate-package",
+      "products": [
+        "arc"
+      ],
+      "languages": [
+        "csharp",
+        "react",
+        "typescript"
+      ],
+      "repositoryKinds": [],
+      "composes": [
+        "cratis/arc/core"
+      ],
+      "directTargetIds": [
+        "cratis-arc-authentication-authorization-and-identity"
+      ],
+      "targetIds": [
+        "cratis-arc-authentication-authorization-and-identity",
+        "cratis-arc-command",
+        "cratis-arc-command-execution",
+        "cratis-arc-command-validation",
+        "cratis-arc-observable-query-http",
+        "cratis-arc-query-paging"
       ]
     },
     {
@@ -545,11 +877,46 @@
       ],
       "repositoryKinds": [],
       "composes": [
-        "public-arc-client-kotlin",
-        "public-language-kotlin"
+        "cratis/arc/client-kotlin",
+        "cratis/language/kotlin"
       ],
       "directTargetIds": [],
       "targetIds": []
+    },
+    {
+      "id": "cratis/arc/react",
+      "displayName": "Cratis Arc/react",
+      "description": "AI guidance for developers building with Cratis Arc React.",
+      "intendedFor": "Developers who use Cratis Arc React.",
+      "audience": "public",
+      "packageName": "@cratis/ai-arc-react",
+      "state": "preview-source-candidate",
+      "installable": false,
+      "materialization": "candidate-package",
+      "products": [
+        "arc-react"
+      ],
+      "languages": [
+        "react",
+        "typescript"
+      ],
+      "repositoryKinds": [],
+      "composes": [
+        "cratis/arc/core"
+      ],
+      "directTargetIds": [
+        "cratis-application-react-specifications",
+        "cratis-arc-react-page"
+      ],
+      "targetIds": [
+        "cratis-application-react-specifications",
+        "cratis-arc-command",
+        "cratis-arc-command-execution",
+        "cratis-arc-command-validation",
+        "cratis-arc-observable-query-http",
+        "cratis-arc-query-paging",
+        "cratis-arc-react-page"
+      ]
     },
     {
       "id": "cratis/chronicle",
@@ -574,13 +941,13 @@
       ],
       "repositoryKinds": [],
       "composes": [
+        "cratis/chronicle/compliance",
         "cratis/chronicle/csharp",
         "cratis/chronicle/elixir",
         "cratis/chronicle/kotlin",
+        "cratis/chronicle/multi-tenancy",
         "cratis/chronicle/typescript",
-        "public-chronicle-compliance",
-        "public-chronicle-multi-tenancy",
-        "public-chronicle-web-workbench"
+        "cratis/chronicle/web-workbench"
       ],
       "directTargetIds": [],
       "targetIds": [
@@ -608,6 +975,224 @@
       ]
     },
     {
+      "id": "cratis/chronicle/client-dotnet",
+      "displayName": "Cratis Chronicle .NET Client",
+      "description": "AI guidance for developers building with Cratis Chronicle.",
+      "intendedFor": "Developers who use Cratis Chronicle.",
+      "audience": "public",
+      "packageName": "@cratis/ai-chronicle-dotnet",
+      "state": "preview-source-candidate",
+      "installable": false,
+      "materialization": "candidate-package",
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "csharp"
+      ],
+      "repositoryKinds": [],
+      "composes": [],
+      "directTargetIds": [
+        "cratis-chronicle-client-dotnet"
+      ],
+      "targetIds": [
+        "cratis-chronicle-client-dotnet"
+      ]
+    },
+    {
+      "id": "cratis/chronicle/client-elixir",
+      "displayName": "Cratis Chronicle Elixir Client",
+      "description": "AI guidance for developers building with Cratis Chronicle.",
+      "intendedFor": "Developers who use Cratis Chronicle.",
+      "audience": "public",
+      "packageName": "@cratis/ai-chronicle-elixir",
+      "state": "preview-source-candidate",
+      "installable": false,
+      "materialization": "candidate-package",
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "elixir"
+      ],
+      "repositoryKinds": [],
+      "composes": [],
+      "directTargetIds": [
+        "cratis-chronicle-client-elixir"
+      ],
+      "targetIds": [
+        "cratis-chronicle-client-elixir"
+      ]
+    },
+    {
+      "id": "cratis/chronicle/client-java",
+      "displayName": "Cratis Chronicle Java Client",
+      "description": "AI guidance for developers building with Cratis Chronicle.",
+      "intendedFor": "Developers who use Cratis Chronicle.",
+      "audience": "public",
+      "packageName": "@cratis/ai-chronicle-java",
+      "state": "authority-gap",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "java"
+      ],
+      "repositoryKinds": [],
+      "composes": [],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "cratis/chronicle/client-kotlin",
+      "displayName": "Cratis Chronicle Kotlin Client",
+      "description": "AI guidance for developers building with Cratis Chronicle.",
+      "intendedFor": "Developers who use Cratis Chronicle.",
+      "audience": "public",
+      "packageName": "@cratis/ai-chronicle-kotlin",
+      "state": "preview-source-candidate",
+      "installable": false,
+      "materialization": "candidate-package",
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "kotlin"
+      ],
+      "repositoryKinds": [],
+      "composes": [],
+      "directTargetIds": [
+        "cratis-chronicle-client-kotlin"
+      ],
+      "targetIds": [
+        "cratis-chronicle-client-kotlin"
+      ]
+    },
+    {
+      "id": "cratis/chronicle/client-python",
+      "displayName": "Cratis Chronicle Python Client",
+      "description": "AI guidance for developers building with Cratis Chronicle.",
+      "intendedFor": "Developers who use Cratis Chronicle.",
+      "audience": "public",
+      "packageName": "@cratis/ai-chronicle-python",
+      "state": "content-gap",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "python"
+      ],
+      "repositoryKinds": [],
+      "composes": [],
+      "directTargetIds": [],
+      "targetIds": []
+    },
+    {
+      "id": "cratis/chronicle/client-typescript",
+      "displayName": "Cratis Chronicle TypeScript Client",
+      "description": "AI guidance for developers building with Cratis Chronicle.",
+      "intendedFor": "Developers who use Cratis Chronicle.",
+      "audience": "public",
+      "packageName": "@cratis/ai-chronicle-typescript",
+      "state": "preview-source-candidate",
+      "installable": false,
+      "materialization": "candidate-package",
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "typescript"
+      ],
+      "repositoryKinds": [],
+      "composes": [],
+      "directTargetIds": [
+        "cratis-chronicle-client-typescript"
+      ],
+      "targetIds": [
+        "cratis-chronicle-client-typescript"
+      ]
+    },
+    {
+      "id": "cratis/chronicle/compliance",
+      "displayName": "Cratis Chronicle/compliance",
+      "description": "AI guidance for developers building with Cratis Chronicle.",
+      "intendedFor": "Developers who use Cratis Chronicle.",
+      "audience": "public",
+      "packageName": "@cratis/ai-chronicle-compliance",
+      "state": "preview-source-candidate",
+      "installable": false,
+      "materialization": "candidate-package",
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "csharp",
+        "language-agnostic"
+      ],
+      "repositoryKinds": [],
+      "composes": [
+        "cratis/chronicle/core"
+      ],
+      "directTargetIds": [
+        "cratis-chronicle-compliance"
+      ],
+      "targetIds": [
+        "cratis-chronicle-compliance",
+        "cratis-chronicle-event-constraints",
+        "cratis-chronicle-event-modeling",
+        "cratis-chronicle-event-type-migration",
+        "cratis-chronicle-projection",
+        "cratis-chronicle-reactor",
+        "cratis-chronicle-read-model",
+        "cratis-chronicle-reducer",
+        "cratis-event-model-diagram"
+      ]
+    },
+    {
+      "id": "cratis/chronicle/core",
+      "displayName": "Cratis Chronicle/core",
+      "description": "AI guidance for developers building with Cratis Chronicle.",
+      "intendedFor": "Developers who use Cratis Chronicle.",
+      "audience": "public",
+      "packageName": "@cratis/ai-chronicle",
+      "state": "preview-source-candidate",
+      "installable": false,
+      "materialization": "candidate-package",
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "csharp",
+        "language-agnostic"
+      ],
+      "repositoryKinds": [],
+      "composes": [],
+      "directTargetIds": [
+        "cratis-chronicle-event-constraints",
+        "cratis-chronicle-event-modeling",
+        "cratis-chronicle-event-type-migration",
+        "cratis-chronicle-projection",
+        "cratis-chronicle-reactor",
+        "cratis-chronicle-read-model",
+        "cratis-chronicle-reducer",
+        "cratis-event-model-diagram"
+      ],
+      "targetIds": [
+        "cratis-chronicle-event-constraints",
+        "cratis-chronicle-event-modeling",
+        "cratis-chronicle-event-type-migration",
+        "cratis-chronicle-projection",
+        "cratis-chronicle-reactor",
+        "cratis-chronicle-read-model",
+        "cratis-chronicle-reducer",
+        "cratis-event-model-diagram"
+      ]
+    },
+    {
       "id": "cratis/chronicle/csharp",
       "displayName": "Cratis Chronicle/csharp",
       "description": "Combined AI guidance for developers using Cratis Fundamentals and Cratis Chronicle in one solution.",
@@ -627,10 +1212,10 @@
       ],
       "repositoryKinds": [],
       "composes": [
-        "public-application-chronicle-dotnet",
-        "public-chronicle-compliance",
-        "public-chronicle-multi-tenancy",
-        "public-language-csharp"
+        "cratis/application/chronicle-dotnet",
+        "cratis/chronicle/compliance",
+        "cratis/chronicle/multi-tenancy",
+        "cratis/language/csharp"
       ],
       "directTargetIds": [],
       "targetIds": [
@@ -671,8 +1256,8 @@
       ],
       "repositoryKinds": [],
       "composes": [
-        "public-chronicle-client-elixir",
-        "public-language-elixir"
+        "cratis/chronicle/client-elixir",
+        "cratis/language/elixir"
       ],
       "directTargetIds": [],
       "targetIds": [
@@ -697,12 +1282,73 @@
       ],
       "repositoryKinds": [],
       "composes": [
-        "public-chronicle-client-kotlin",
-        "public-language-kotlin"
+        "cratis/chronicle/client-kotlin",
+        "cratis/language/kotlin"
       ],
       "directTargetIds": [],
       "targetIds": [
         "cratis-chronicle-client-kotlin"
+      ]
+    },
+    {
+      "id": "cratis/chronicle/mcp",
+      "displayName": "Cratis Chronicle/mcp",
+      "description": "Classification-only passive guidance for Chronicle MCP inspection requests and already-redacted output; no tool or prompt is admitted or invocable.",
+      "intendedFor": "Developers who use Chronicle MCP.",
+      "audience": "public",
+      "packageName": "@cratis/ai-chronicle-mcp",
+      "state": "preview-source-candidate",
+      "installable": false,
+      "materialization": "candidate-package",
+      "products": [
+        "chronicle-mcp"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "repositoryKinds": [],
+      "composes": [],
+      "directTargetIds": [
+        "cratis-chronicle-mcp-inspection"
+      ],
+      "targetIds": [
+        "cratis-chronicle-mcp-inspection"
+      ]
+    },
+    {
+      "id": "cratis/chronicle/multi-tenancy",
+      "displayName": "Cratis Chronicle/multi-tenancy",
+      "description": "AI guidance for developers building with Cratis Chronicle.",
+      "intendedFor": "Developers who use Cratis Chronicle.",
+      "audience": "public",
+      "packageName": "@cratis/ai-chronicle-multi-tenancy",
+      "state": "preview-source-candidate",
+      "installable": false,
+      "materialization": "candidate-package",
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "csharp",
+        "language-agnostic"
+      ],
+      "repositoryKinds": [],
+      "composes": [
+        "cratis/chronicle/core"
+      ],
+      "directTargetIds": [
+        "cratis-chronicle-multi-tenancy"
+      ],
+      "targetIds": [
+        "cratis-chronicle-event-constraints",
+        "cratis-chronicle-event-modeling",
+        "cratis-chronicle-event-type-migration",
+        "cratis-chronicle-multi-tenancy",
+        "cratis-chronicle-projection",
+        "cratis-chronicle-reactor",
+        "cratis-chronicle-read-model",
+        "cratis-chronicle-reducer",
+        "cratis-event-model-diagram"
       ]
     },
     {
@@ -723,12 +1369,134 @@
       ],
       "repositoryKinds": [],
       "composes": [
-        "public-chronicle-client-typescript",
-        "public-language-typescript"
+        "cratis/chronicle/client-typescript",
+        "cratis/language/typescript"
       ],
       "directTargetIds": [],
       "targetIds": [
         "cratis-chronicle-client-typescript"
+      ]
+    },
+    {
+      "id": "cratis/chronicle/web-workbench",
+      "displayName": "Cratis Chronicle/web-workbench",
+      "description": "AI guidance for developers building with Cratis Chronicle.",
+      "intendedFor": "Developers who use Cratis Chronicle.",
+      "audience": "public",
+      "packageName": "@cratis/ai-chronicle-web-workbench",
+      "state": "preview-source-candidate",
+      "installable": false,
+      "materialization": "candidate-package",
+      "products": [
+        "chronicle"
+      ],
+      "languages": [
+        "language-agnostic"
+      ],
+      "repositoryKinds": [],
+      "composes": [
+        "cratis/chronicle/core"
+      ],
+      "directTargetIds": [
+        "cratis-chronicle-web-workbench"
+      ],
+      "targetIds": [
+        "cratis-chronicle-event-constraints",
+        "cratis-chronicle-event-modeling",
+        "cratis-chronicle-event-type-migration",
+        "cratis-chronicle-projection",
+        "cratis-chronicle-reactor",
+        "cratis-chronicle-read-model",
+        "cratis-chronicle-reducer",
+        "cratis-chronicle-web-workbench",
+        "cratis-event-model-diagram"
+      ]
+    },
+    {
+      "id": "cratis/cli",
+      "displayName": "Cratis CLI",
+      "description": "AI guidance for developers building with the Cratis CLI.",
+      "intendedFor": "Developers who use the Cratis CLI.",
+      "audience": "public",
+      "packageName": "@cratis/ai-cli",
+      "state": "preview-source-candidate",
+      "installable": false,
+      "materialization": "candidate-package",
+      "products": [
+        "cli"
+      ],
+      "languages": [
+        "shell"
+      ],
+      "repositoryKinds": [],
+      "composes": [],
+      "directTargetIds": [
+        "cratis-chronicle-cli-operations"
+      ],
+      "targetIds": [
+        "cratis-chronicle-cli-operations"
+      ]
+    },
+    {
+      "id": "cratis/cli/terminal-workbench",
+      "displayName": "Cratis Cli/terminal-workbench",
+      "description": "AI guidance for developers building with the Cratis CLI.",
+      "intendedFor": "Developers who use the Cratis CLI.",
+      "audience": "public",
+      "packageName": "@cratis/ai-cli-workbench",
+      "state": "preview-source-candidate",
+      "installable": false,
+      "materialization": "candidate-package",
+      "products": [
+        "cli"
+      ],
+      "languages": [
+        "shell"
+      ],
+      "repositoryKinds": [],
+      "composes": [
+        "cratis/cli"
+      ],
+      "directTargetIds": [
+        "cratis-cli-terminal-workbench"
+      ],
+      "targetIds": [
+        "cratis-chronicle-cli-operations",
+        "cratis-cli-terminal-workbench"
+      ]
+    },
+    {
+      "id": "cratis/components",
+      "displayName": "Cratis Components",
+      "description": "AI guidance for developers building with Cratis Components.",
+      "intendedFor": "Developers who use Cratis Components.",
+      "audience": "public",
+      "packageName": "@cratis/ai-components",
+      "state": "preview-source-candidate",
+      "installable": false,
+      "materialization": "candidate-package",
+      "products": [
+        "components"
+      ],
+      "languages": [
+        "react",
+        "typescript"
+      ],
+      "repositoryKinds": [],
+      "composes": [],
+      "directTargetIds": [
+        "cratis-components-accessibility",
+        "cratis-components-schema-editor",
+        "cratis-components-stepper-command-dialog",
+        "cratis-components-styling",
+        "cratis-components-toolbar"
+      ],
+      "targetIds": [
+        "cratis-components-accessibility",
+        "cratis-components-schema-editor",
+        "cratis-components-stepper-command-dialog",
+        "cratis-components-styling",
+        "cratis-components-toolbar"
       ]
     },
     {
@@ -794,6 +1562,7 @@
         "cratis-chronicle-read-model",
         "cratis-chronicle-read-model-specifications",
         "cratis-chronicle-reducer",
+        "cratis-chronicle-web-workbench",
         "cratis-components-accessibility",
         "cratis-components-schema-editor",
         "cratis-components-stepper-command-dialog",
@@ -839,7 +1608,7 @@
         "cratis/application/csharp",
         "cratis/arc/csharp",
         "cratis/chronicle/csharp",
-        "public-modeling-screenplay-stage"
+        "cratis/modeling/screenplay-stage"
       ],
       "directTargetIds": [],
       "targetIds": [
@@ -854,6 +1623,9 @@
         "cratis-arc-query-paging",
         "cratis-arc-react-page",
         "cratis-chronicle-client-dotnet",
+        "cratis-chronicle-client-elixir",
+        "cratis-chronicle-client-kotlin",
+        "cratis-chronicle-client-typescript",
         "cratis-chronicle-compliance",
         "cratis-chronicle-event-constraints",
         "cratis-chronicle-event-modeling",
@@ -865,6 +1637,7 @@
         "cratis-chronicle-read-model",
         "cratis-chronicle-read-model-specifications",
         "cratis-chronicle-reducer",
+        "cratis-chronicle-web-workbench",
         "cratis-components-accessibility",
         "cratis-components-schema-editor",
         "cratis-components-stepper-command-dialog",
@@ -902,7 +1675,7 @@
       "composes": [
         "cratis/application/elixir",
         "cratis/chronicle/elixir",
-        "public-modeling-screenplay-stage"
+        "cratis/modeling/screenplay-stage"
       ],
       "directTargetIds": [],
       "targetIds": [
@@ -936,7 +1709,7 @@
         "cratis/application/kotlin",
         "cratis/arc/kotlin",
         "cratis/chronicle/kotlin",
-        "public-modeling-screenplay-stage"
+        "cratis/modeling/screenplay-stage"
       ],
       "directTargetIds": [],
       "targetIds": [
@@ -970,7 +1743,7 @@
       "composes": [
         "cratis/application/typescript",
         "cratis/chronicle/typescript",
-        "public-modeling-screenplay-stage"
+        "cratis/modeling/screenplay-stage"
       ],
       "directTargetIds": [],
       "targetIds": [
@@ -982,811 +1755,7 @@
       ]
     },
     {
-      "id": "public-application",
-      "displayName": "Cratis Application Development",
-      "description": "End-to-end guidance for building Cratis applications with Arc, Chronicle, React, Components, and Specifications.",
-      "intendedFor": "Developers who use Cratis Fundamentals, Cratis Arc, Cratis Arc React, Cratis Chronicle, and Cratis Components.",
-      "audience": "public",
-      "packageName": "@cratis/ai-application",
-      "state": "planned-composition",
-      "installable": false,
-      "materialization": "composition",
-      "products": [
-        "fundamentals",
-        "arc",
-        "arc-react",
-        "chronicle",
-        "components"
-      ],
-      "languages": [
-        "csharp",
-        "react",
-        "typescript"
-      ],
-      "repositoryKinds": [],
-      "composes": [
-        "public-fundamentals",
-        "public-arc",
-        "public-arc-react",
-        "public-chronicle",
-        "public-components",
-        "public-specifications-dotnet",
-        "public-specifications-typescript"
-      ],
-      "directTargetIds": [],
-      "targetIds": [
-        "cratis-application-react-specifications",
-        "cratis-application-slice-specifications",
-        "cratis-arc-command",
-        "cratis-arc-command-execution",
-        "cratis-arc-command-validation",
-        "cratis-arc-observable-query-http",
-        "cratis-arc-query-paging",
-        "cratis-arc-react-page",
-        "cratis-chronicle-event-constraints",
-        "cratis-chronicle-event-modeling",
-        "cratis-chronicle-event-specifications",
-        "cratis-chronicle-event-type-migration",
-        "cratis-chronicle-projection",
-        "cratis-chronicle-reactor",
-        "cratis-chronicle-read-model",
-        "cratis-chronicle-read-model-specifications",
-        "cratis-chronicle-reducer",
-        "cratis-components-accessibility",
-        "cratis-components-schema-editor",
-        "cratis-components-stepper-command-dialog",
-        "cratis-components-styling",
-        "cratis-components-toolbar",
-        "cratis-event-model-diagram",
-        "cratis-fundamentals-concept",
-        "cratis-specification-by-example",
-        "cratis-specifications-csharp",
-        "cratis-specifications-typescript"
-      ]
-    },
-    {
-      "id": "public-application-arc-chronicle",
-      "displayName": "Cratis Arc + Chronicle Application",
-      "description": "Combined AI guidance for developers using Cratis Fundamentals, Cratis Arc, and Cratis Chronicle in one solution.",
-      "intendedFor": "Developers who use Cratis Fundamentals, Cratis Arc, and Cratis Chronicle.",
-      "audience": "public",
-      "packageName": "@cratis/ai-application-arc-chronicle",
-      "state": "planned-composition",
-      "installable": false,
-      "materialization": "composition",
-      "products": [
-        "fundamentals",
-        "arc",
-        "chronicle"
-      ],
-      "languages": [
-        "csharp"
-      ],
-      "repositoryKinds": [],
-      "composes": [
-        "public-fundamentals",
-        "public-arc",
-        "public-chronicle",
-        "public-specifications-dotnet"
-      ],
-      "directTargetIds": [],
-      "targetIds": [
-        "cratis-application-slice-specifications",
-        "cratis-arc-command",
-        "cratis-arc-command-execution",
-        "cratis-arc-command-validation",
-        "cratis-arc-observable-query-http",
-        "cratis-arc-query-paging",
-        "cratis-chronicle-event-constraints",
-        "cratis-chronicle-event-modeling",
-        "cratis-chronicle-event-specifications",
-        "cratis-chronicle-event-type-migration",
-        "cratis-chronicle-projection",
-        "cratis-chronicle-reactor",
-        "cratis-chronicle-read-model",
-        "cratis-chronicle-read-model-specifications",
-        "cratis-chronicle-reducer",
-        "cratis-event-model-diagram",
-        "cratis-fundamentals-concept",
-        "cratis-specification-by-example",
-        "cratis-specifications-csharp"
-      ]
-    },
-    {
-      "id": "public-application-arc-only",
-      "displayName": "Cratis Arc Application",
-      "description": "Combined AI guidance for developers using Cratis Fundamentals and Cratis Arc in one solution.",
-      "intendedFor": "Developers who use Cratis Fundamentals and Cratis Arc.",
-      "audience": "public",
-      "packageName": "@cratis/ai-application-arc",
-      "state": "planned-composition",
-      "installable": false,
-      "materialization": "composition",
-      "products": [
-        "fundamentals",
-        "arc"
-      ],
-      "languages": [
-        "csharp"
-      ],
-      "repositoryKinds": [],
-      "composes": [
-        "public-fundamentals",
-        "public-arc",
-        "public-specifications-dotnet"
-      ],
-      "directTargetIds": [],
-      "targetIds": [
-        "cratis-application-slice-specifications",
-        "cratis-arc-command",
-        "cratis-arc-command-execution",
-        "cratis-arc-command-validation",
-        "cratis-arc-observable-query-http",
-        "cratis-arc-query-paging",
-        "cratis-chronicle-event-specifications",
-        "cratis-chronicle-read-model-specifications",
-        "cratis-fundamentals-concept",
-        "cratis-specification-by-example",
-        "cratis-specifications-csharp"
-      ]
-    },
-    {
-      "id": "public-application-chronicle-dotnet",
-      "displayName": "Cratis Chronicle .NET Application",
-      "description": "Combined AI guidance for developers using Cratis Fundamentals and Cratis Chronicle in one solution.",
-      "intendedFor": "Developers who use Cratis Fundamentals and Cratis Chronicle.",
-      "audience": "public",
-      "packageName": "@cratis/ai-application-chronicle-dotnet",
-      "state": "planned-composition",
-      "installable": false,
-      "materialization": "composition",
-      "products": [
-        "fundamentals",
-        "chronicle"
-      ],
-      "languages": [
-        "csharp"
-      ],
-      "repositoryKinds": [],
-      "composes": [
-        "public-fundamentals",
-        "public-chronicle",
-        "public-chronicle-client-dotnet",
-        "public-specifications-dotnet"
-      ],
-      "directTargetIds": [],
-      "targetIds": [
-        "cratis-application-slice-specifications",
-        "cratis-chronicle-client-dotnet",
-        "cratis-chronicle-event-constraints",
-        "cratis-chronicle-event-modeling",
-        "cratis-chronicle-event-specifications",
-        "cratis-chronicle-event-type-migration",
-        "cratis-chronicle-projection",
-        "cratis-chronicle-reactor",
-        "cratis-chronicle-read-model",
-        "cratis-chronicle-read-model-specifications",
-        "cratis-chronicle-reducer",
-        "cratis-event-model-diagram",
-        "cratis-fundamentals-concept",
-        "cratis-specification-by-example",
-        "cratis-specifications-csharp"
-      ]
-    },
-    {
-      "id": "public-application-react",
-      "displayName": "Cratis React Application",
-      "description": "Combined AI guidance for developers using Cratis Fundamentals, Cratis Arc, Cratis Arc React, and Cratis Components in one solution.",
-      "intendedFor": "Developers who use Cratis Fundamentals, Cratis Arc, Cratis Arc React, and Cratis Components.",
-      "audience": "public",
-      "packageName": "@cratis/ai-application-react",
-      "state": "planned-composition",
-      "installable": false,
-      "materialization": "composition",
-      "products": [
-        "fundamentals",
-        "arc",
-        "arc-react",
-        "components"
-      ],
-      "languages": [
-        "csharp",
-        "react",
-        "typescript"
-      ],
-      "repositoryKinds": [],
-      "composes": [
-        "public-fundamentals",
-        "public-arc",
-        "public-arc-react",
-        "public-components",
-        "public-specifications-dotnet",
-        "public-specifications-typescript"
-      ],
-      "directTargetIds": [],
-      "targetIds": [
-        "cratis-application-react-specifications",
-        "cratis-application-slice-specifications",
-        "cratis-arc-command",
-        "cratis-arc-command-execution",
-        "cratis-arc-command-validation",
-        "cratis-arc-observable-query-http",
-        "cratis-arc-query-paging",
-        "cratis-arc-react-page",
-        "cratis-chronicle-event-specifications",
-        "cratis-chronicle-read-model-specifications",
-        "cratis-components-accessibility",
-        "cratis-components-schema-editor",
-        "cratis-components-stepper-command-dialog",
-        "cratis-components-styling",
-        "cratis-components-toolbar",
-        "cratis-fundamentals-concept",
-        "cratis-specification-by-example",
-        "cratis-specifications-csharp",
-        "cratis-specifications-typescript"
-      ]
-    },
-    {
-      "id": "public-arc",
-      "displayName": "Cratis Arc",
-      "description": "AI guidance for developers building with Cratis Arc.",
-      "intendedFor": "Developers who use Cratis Arc.",
-      "audience": "public",
-      "packageName": "@cratis/ai-arc",
-      "state": "preview-source-candidate",
-      "installable": false,
-      "materialization": "candidate-package",
-      "products": [
-        "arc"
-      ],
-      "languages": [
-        "csharp",
-        "typescript",
-        "shell"
-      ],
-      "repositoryKinds": [],
-      "composes": [],
-      "directTargetIds": [
-        "cratis-arc-command",
-        "cratis-arc-command-execution",
-        "cratis-arc-command-validation",
-        "cratis-arc-observable-query-http",
-        "cratis-arc-query-paging"
-      ],
-      "targetIds": [
-        "cratis-arc-command",
-        "cratis-arc-command-execution",
-        "cratis-arc-command-validation",
-        "cratis-arc-observable-query-http",
-        "cratis-arc-query-paging"
-      ]
-    },
-    {
-      "id": "public-arc-client-kotlin",
-      "displayName": "Cratis Arc Client Kotlin",
-      "description": "AI guidance for developers building with Cratis Arc.",
-      "intendedFor": "Developers who use Cratis Arc.",
-      "audience": "public",
-      "packageName": "@cratis/ai-arc-client-kotlin",
-      "state": "content-gap",
-      "installable": false,
-      "materialization": "catalog-only",
-      "products": [
-        "arc"
-      ],
-      "languages": [
-        "kotlin"
-      ],
-      "repositoryKinds": [],
-      "composes": [],
-      "directTargetIds": [],
-      "targetIds": []
-    },
-    {
-      "id": "public-arc-ef-core",
-      "displayName": "Cratis Arc with EF Core",
-      "description": "AI guidance for developers building with Cratis Arc and Entity Framework Core.",
-      "intendedFor": "Developers who use Cratis Arc and Entity Framework Core.",
-      "audience": "public",
-      "packageName": "@cratis/ai-arc-ef-core",
-      "state": "preview-source-candidate",
-      "installable": false,
-      "materialization": "candidate-package",
-      "products": [
-        "arc",
-        "entity-framework-core"
-      ],
-      "languages": [
-        "csharp"
-      ],
-      "repositoryKinds": [],
-      "composes": [
-        "public-arc"
-      ],
-      "directTargetIds": [
-        "cratis-arc-ef-core-migration"
-      ],
-      "targetIds": [
-        "cratis-arc-command",
-        "cratis-arc-command-execution",
-        "cratis-arc-command-validation",
-        "cratis-arc-ef-core-migration",
-        "cratis-arc-observable-query-http",
-        "cratis-arc-query-paging"
-      ]
-    },
-    {
-      "id": "public-arc-identity",
-      "displayName": "Cratis Arc Identity",
-      "description": "AI guidance for developers building with Cratis Arc.",
-      "intendedFor": "Developers who use Cratis Arc.",
-      "audience": "public",
-      "packageName": "@cratis/ai-arc-identity",
-      "state": "preview-source-candidate",
-      "installable": false,
-      "materialization": "candidate-package",
-      "products": [
-        "arc"
-      ],
-      "languages": [
-        "csharp",
-        "react",
-        "typescript"
-      ],
-      "repositoryKinds": [],
-      "composes": [
-        "public-arc"
-      ],
-      "directTargetIds": [
-        "cratis-arc-authentication-authorization-and-identity"
-      ],
-      "targetIds": [
-        "cratis-arc-authentication-authorization-and-identity",
-        "cratis-arc-command",
-        "cratis-arc-command-execution",
-        "cratis-arc-command-validation",
-        "cratis-arc-observable-query-http",
-        "cratis-arc-query-paging"
-      ]
-    },
-    {
-      "id": "public-arc-react",
-      "displayName": "Cratis Arc React",
-      "description": "AI guidance for developers building with Cratis Arc React.",
-      "intendedFor": "Developers who use Cratis Arc React.",
-      "audience": "public",
-      "packageName": "@cratis/ai-arc-react",
-      "state": "preview-source-candidate",
-      "installable": false,
-      "materialization": "candidate-package",
-      "products": [
-        "arc-react"
-      ],
-      "languages": [
-        "react",
-        "typescript"
-      ],
-      "repositoryKinds": [],
-      "composes": [
-        "public-arc"
-      ],
-      "directTargetIds": [
-        "cratis-application-react-specifications",
-        "cratis-arc-react-page"
-      ],
-      "targetIds": [
-        "cratis-application-react-specifications",
-        "cratis-arc-command",
-        "cratis-arc-command-execution",
-        "cratis-arc-command-validation",
-        "cratis-arc-observable-query-http",
-        "cratis-arc-query-paging",
-        "cratis-arc-react-page"
-      ]
-    },
-    {
-      "id": "public-chronicle",
-      "displayName": "Cratis Chronicle",
-      "description": "AI guidance for developers building with Cratis Chronicle.",
-      "intendedFor": "Developers who use Cratis Chronicle.",
-      "audience": "public",
-      "packageName": "@cratis/ai-chronicle",
-      "state": "preview-source-candidate",
-      "installable": false,
-      "materialization": "candidate-package",
-      "products": [
-        "chronicle"
-      ],
-      "languages": [
-        "csharp",
-        "language-agnostic"
-      ],
-      "repositoryKinds": [],
-      "composes": [],
-      "directTargetIds": [
-        "cratis-chronicle-event-constraints",
-        "cratis-chronicle-event-modeling",
-        "cratis-chronicle-event-type-migration",
-        "cratis-chronicle-projection",
-        "cratis-chronicle-reactor",
-        "cratis-chronicle-read-model",
-        "cratis-chronicle-reducer",
-        "cratis-event-model-diagram"
-      ],
-      "targetIds": [
-        "cratis-chronicle-event-constraints",
-        "cratis-chronicle-event-modeling",
-        "cratis-chronicle-event-type-migration",
-        "cratis-chronicle-projection",
-        "cratis-chronicle-reactor",
-        "cratis-chronicle-read-model",
-        "cratis-chronicle-reducer",
-        "cratis-event-model-diagram"
-      ]
-    },
-    {
-      "id": "public-chronicle-client-dotnet",
-      "displayName": "Cratis Chronicle .NET Client",
-      "description": "AI guidance for developers building with Cratis Chronicle.",
-      "intendedFor": "Developers who use Cratis Chronicle.",
-      "audience": "public",
-      "packageName": "@cratis/ai-chronicle-dotnet",
-      "state": "preview-source-candidate",
-      "installable": false,
-      "materialization": "candidate-package",
-      "products": [
-        "chronicle"
-      ],
-      "languages": [
-        "csharp"
-      ],
-      "repositoryKinds": [],
-      "composes": [],
-      "directTargetIds": [
-        "cratis-chronicle-client-dotnet"
-      ],
-      "targetIds": [
-        "cratis-chronicle-client-dotnet"
-      ]
-    },
-    {
-      "id": "public-chronicle-client-elixir",
-      "displayName": "Cratis Chronicle Elixir Client",
-      "description": "AI guidance for developers building with Cratis Chronicle.",
-      "intendedFor": "Developers who use Cratis Chronicle.",
-      "audience": "public",
-      "packageName": "@cratis/ai-chronicle-elixir",
-      "state": "preview-source-candidate",
-      "installable": false,
-      "materialization": "candidate-package",
-      "products": [
-        "chronicle"
-      ],
-      "languages": [
-        "elixir"
-      ],
-      "repositoryKinds": [],
-      "composes": [],
-      "directTargetIds": [
-        "cratis-chronicle-client-elixir"
-      ],
-      "targetIds": [
-        "cratis-chronicle-client-elixir"
-      ]
-    },
-    {
-      "id": "public-chronicle-client-java",
-      "displayName": "Cratis Chronicle Java Client",
-      "description": "AI guidance for developers building with Cratis Chronicle.",
-      "intendedFor": "Developers who use Cratis Chronicle.",
-      "audience": "public",
-      "packageName": "@cratis/ai-chronicle-java",
-      "state": "authority-gap",
-      "installable": false,
-      "materialization": "catalog-only",
-      "products": [
-        "chronicle"
-      ],
-      "languages": [
-        "java"
-      ],
-      "repositoryKinds": [],
-      "composes": [],
-      "directTargetIds": [],
-      "targetIds": []
-    },
-    {
-      "id": "public-chronicle-client-kotlin",
-      "displayName": "Cratis Chronicle Kotlin Client",
-      "description": "AI guidance for developers building with Cratis Chronicle.",
-      "intendedFor": "Developers who use Cratis Chronicle.",
-      "audience": "public",
-      "packageName": "@cratis/ai-chronicle-kotlin",
-      "state": "preview-source-candidate",
-      "installable": false,
-      "materialization": "candidate-package",
-      "products": [
-        "chronicle"
-      ],
-      "languages": [
-        "kotlin"
-      ],
-      "repositoryKinds": [],
-      "composes": [],
-      "directTargetIds": [
-        "cratis-chronicle-client-kotlin"
-      ],
-      "targetIds": [
-        "cratis-chronicle-client-kotlin"
-      ]
-    },
-    {
-      "id": "public-chronicle-client-python",
-      "displayName": "Cratis Chronicle Python Client",
-      "description": "AI guidance for developers building with Cratis Chronicle.",
-      "intendedFor": "Developers who use Cratis Chronicle.",
-      "audience": "public",
-      "packageName": "@cratis/ai-chronicle-python",
-      "state": "content-gap",
-      "installable": false,
-      "materialization": "catalog-only",
-      "products": [
-        "chronicle"
-      ],
-      "languages": [
-        "python"
-      ],
-      "repositoryKinds": [],
-      "composes": [],
-      "directTargetIds": [],
-      "targetIds": []
-    },
-    {
-      "id": "public-chronicle-client-typescript",
-      "displayName": "Cratis Chronicle TypeScript Client",
-      "description": "AI guidance for developers building with Cratis Chronicle.",
-      "intendedFor": "Developers who use Cratis Chronicle.",
-      "audience": "public",
-      "packageName": "@cratis/ai-chronicle-typescript",
-      "state": "preview-source-candidate",
-      "installable": false,
-      "materialization": "candidate-package",
-      "products": [
-        "chronicle"
-      ],
-      "languages": [
-        "typescript"
-      ],
-      "repositoryKinds": [],
-      "composes": [],
-      "directTargetIds": [
-        "cratis-chronicle-client-typescript"
-      ],
-      "targetIds": [
-        "cratis-chronicle-client-typescript"
-      ]
-    },
-    {
-      "id": "public-chronicle-compliance",
-      "displayName": "Cratis Chronicle Compliance",
-      "description": "AI guidance for developers building with Cratis Chronicle.",
-      "intendedFor": "Developers who use Cratis Chronicle.",
-      "audience": "public",
-      "packageName": "@cratis/ai-chronicle-compliance",
-      "state": "preview-source-candidate",
-      "installable": false,
-      "materialization": "candidate-package",
-      "products": [
-        "chronicle"
-      ],
-      "languages": [
-        "csharp",
-        "language-agnostic"
-      ],
-      "repositoryKinds": [],
-      "composes": [
-        "public-chronicle"
-      ],
-      "directTargetIds": [
-        "cratis-chronicle-compliance"
-      ],
-      "targetIds": [
-        "cratis-chronicle-compliance",
-        "cratis-chronicle-event-constraints",
-        "cratis-chronicle-event-modeling",
-        "cratis-chronicle-event-type-migration",
-        "cratis-chronicle-projection",
-        "cratis-chronicle-reactor",
-        "cratis-chronicle-read-model",
-        "cratis-chronicle-reducer",
-        "cratis-event-model-diagram"
-      ]
-    },
-    {
-      "id": "public-chronicle-mcp",
-      "displayName": "Cratis Chronicle MCP",
-      "description": "Classification-only passive guidance for Chronicle MCP inspection requests and already-redacted output; no tool or prompt is admitted or invocable.",
-      "intendedFor": "Developers who use Chronicle MCP.",
-      "audience": "public",
-      "packageName": "@cratis/ai-chronicle-mcp",
-      "state": "preview-source-candidate",
-      "installable": false,
-      "materialization": "candidate-package",
-      "products": [
-        "chronicle-mcp"
-      ],
-      "languages": [
-        "language-agnostic"
-      ],
-      "repositoryKinds": [],
-      "composes": [],
-      "directTargetIds": [
-        "cratis-chronicle-mcp-inspection"
-      ],
-      "targetIds": [
-        "cratis-chronicle-mcp-inspection"
-      ]
-    },
-    {
-      "id": "public-chronicle-multi-tenancy",
-      "displayName": "Cratis Chronicle Multi Tenancy",
-      "description": "AI guidance for developers building with Cratis Chronicle.",
-      "intendedFor": "Developers who use Cratis Chronicle.",
-      "audience": "public",
-      "packageName": "@cratis/ai-chronicle-multi-tenancy",
-      "state": "preview-source-candidate",
-      "installable": false,
-      "materialization": "candidate-package",
-      "products": [
-        "chronicle"
-      ],
-      "languages": [
-        "csharp",
-        "language-agnostic"
-      ],
-      "repositoryKinds": [],
-      "composes": [
-        "public-chronicle"
-      ],
-      "directTargetIds": [
-        "cratis-chronicle-multi-tenancy"
-      ],
-      "targetIds": [
-        "cratis-chronicle-event-constraints",
-        "cratis-chronicle-event-modeling",
-        "cratis-chronicle-event-type-migration",
-        "cratis-chronicle-multi-tenancy",
-        "cratis-chronicle-projection",
-        "cratis-chronicle-reactor",
-        "cratis-chronicle-read-model",
-        "cratis-chronicle-reducer",
-        "cratis-event-model-diagram"
-      ]
-    },
-    {
-      "id": "public-chronicle-web-workbench",
-      "displayName": "Cratis Chronicle Web Workbench",
-      "description": "AI guidance for developers building with Cratis Chronicle.",
-      "intendedFor": "Developers who use Cratis Chronicle.",
-      "audience": "public",
-      "packageName": "@cratis/ai-chronicle-web-workbench",
-      "state": "preview-source-candidate",
-      "installable": false,
-      "materialization": "candidate-package",
-      "products": [
-        "chronicle"
-      ],
-      "languages": [
-        "language-agnostic"
-      ],
-      "repositoryKinds": [],
-      "composes": [
-        "public-chronicle"
-      ],
-      "directTargetIds": [
-        "cratis-chronicle-web-workbench"
-      ],
-      "targetIds": [
-        "cratis-chronicle-event-constraints",
-        "cratis-chronicle-event-modeling",
-        "cratis-chronicle-event-type-migration",
-        "cratis-chronicle-projection",
-        "cratis-chronicle-reactor",
-        "cratis-chronicle-read-model",
-        "cratis-chronicle-reducer",
-        "cratis-chronicle-web-workbench",
-        "cratis-event-model-diagram"
-      ]
-    },
-    {
-      "id": "public-components",
-      "displayName": "Cratis Components",
-      "description": "AI guidance for developers building with Cratis Components.",
-      "intendedFor": "Developers who use Cratis Components.",
-      "audience": "public",
-      "packageName": "@cratis/ai-components",
-      "state": "preview-source-candidate",
-      "installable": false,
-      "materialization": "candidate-package",
-      "products": [
-        "components"
-      ],
-      "languages": [
-        "react",
-        "typescript"
-      ],
-      "repositoryKinds": [],
-      "composes": [],
-      "directTargetIds": [
-        "cratis-components-accessibility",
-        "cratis-components-schema-editor",
-        "cratis-components-stepper-command-dialog",
-        "cratis-components-styling",
-        "cratis-components-toolbar"
-      ],
-      "targetIds": [
-        "cratis-components-accessibility",
-        "cratis-components-schema-editor",
-        "cratis-components-stepper-command-dialog",
-        "cratis-components-styling",
-        "cratis-components-toolbar"
-      ]
-    },
-    {
-      "id": "public-cratis-cli",
-      "displayName": "Cratis CLI",
-      "description": "AI guidance for developers building with the Cratis CLI.",
-      "intendedFor": "Developers who use the Cratis CLI.",
-      "audience": "public",
-      "packageName": "@cratis/ai-cli",
-      "state": "preview-source-candidate",
-      "installable": false,
-      "materialization": "candidate-package",
-      "products": [
-        "cli"
-      ],
-      "languages": [
-        "shell"
-      ],
-      "repositoryKinds": [],
-      "composes": [],
-      "directTargetIds": [
-        "cratis-chronicle-cli-operations"
-      ],
-      "targetIds": [
-        "cratis-chronicle-cli-operations"
-      ]
-    },
-    {
-      "id": "public-cratis-cli-terminal-workbench",
-      "displayName": "Cratis CLI Terminal Workbench",
-      "description": "AI guidance for developers building with the Cratis CLI.",
-      "intendedFor": "Developers who use the Cratis CLI.",
-      "audience": "public",
-      "packageName": "@cratis/ai-cli-workbench",
-      "state": "preview-source-candidate",
-      "installable": false,
-      "materialization": "candidate-package",
-      "products": [
-        "cli"
-      ],
-      "languages": [
-        "shell"
-      ],
-      "repositoryKinds": [],
-      "composes": [
-        "public-cratis-cli"
-      ],
-      "directTargetIds": [
-        "cratis-cli-terminal-workbench"
-      ],
-      "targetIds": [
-        "cratis-chronicle-cli-operations",
-        "cratis-cli-terminal-workbench"
-      ]
-    },
-    {
-      "id": "public-fundamentals",
+      "id": "cratis/fundamentals",
       "displayName": "Cratis Fundamentals",
       "description": "Strongly typed Cratis Fundamentals concepts and Chronicle event-source identities for C# projects.",
       "intendedFor": "Developers who use Cratis Fundamentals and Cratis Chronicle.",
@@ -1812,8 +1781,8 @@
       ]
     },
     {
-      "id": "public-fundamentals-type-discovery",
-      "displayName": "Cratis Fundamentals Type Discovery",
+      "id": "cratis/fundamentals/type-discovery",
+      "displayName": "Cratis Fundamentals/type-discovery",
       "description": "AI guidance for developers building with Cratis Fundamentals.",
       "intendedFor": "Developers who use Cratis Fundamentals.",
       "audience": "public",
@@ -1829,7 +1798,7 @@
       ],
       "repositoryKinds": [],
       "composes": [
-        "public-fundamentals"
+        "cratis/fundamentals"
       ],
       "directTargetIds": [
         "cratis-fundamentals-type-discovery"
@@ -1840,7 +1809,7 @@
       ]
     },
     {
-      "id": "public-language-csharp",
+      "id": "cratis/language/csharp",
       "displayName": "Cratis C# Language Conventions",
       "description": "Composable language-level C# conventions shared across Cratis products. Content completeness is tracked in Cratis/AI#178.",
       "intendedFor": "Developers who want C# conventions without selecting a Cratis product profile.",
@@ -1859,7 +1828,7 @@
       "targetIds": []
     },
     {
-      "id": "public-language-elixir",
+      "id": "cratis/language/elixir",
       "displayName": "Cratis Elixir Language Conventions",
       "description": "Composable language-level Elixir conventions shared across Cratis products. Content completeness is tracked in Cratis/AI#178.",
       "intendedFor": "Developers who want Elixir conventions without selecting a Cratis product profile.",
@@ -1878,7 +1847,7 @@
       "targetIds": []
     },
     {
-      "id": "public-language-kotlin",
+      "id": "cratis/language/kotlin",
       "displayName": "Cratis Kotlin Language Conventions",
       "description": "Composable language-level Kotlin conventions shared across Cratis products. Content completeness is tracked in Cratis/AI#178.",
       "intendedFor": "Developers who want Kotlin conventions without selecting a Cratis product profile.",
@@ -1897,7 +1866,7 @@
       "targetIds": []
     },
     {
-      "id": "public-language-typescript",
+      "id": "cratis/language/typescript",
       "displayName": "Cratis TypeScript Language Conventions",
       "description": "Composable language-level TypeScript conventions shared across Cratis products. Content completeness is tracked in Cratis/AI#178.",
       "intendedFor": "Developers who want TypeScript conventions without selecting a Cratis product profile.",
@@ -1916,7 +1885,7 @@
       "targetIds": []
     },
     {
-      "id": "public-lens",
+      "id": "cratis/lens",
       "displayName": "Cratis Lens",
       "description": "AI guidance for developers building with Cratis Lens.",
       "intendedFor": "Developers who use Cratis Lens.",
@@ -1943,7 +1912,7 @@
       ]
     },
     {
-      "id": "public-methodology-governed-releases",
+      "id": "cratis/methodology/governed-releases",
       "displayName": "Cratis Governed Release Methodology",
       "description": "Product- and language-independent release-engineering methodology: assurance tiers, evidence ladders, lifecycle phases, supply-chain receipts, semantic-version release intent, canaries, and recovery disposition.",
       "intendedFor": "Maintainers planning a release in any repository, for any artifact format, without selecting a Cratis product or language profile.",
@@ -1964,7 +1933,7 @@
       ]
     },
     {
-      "id": "public-modeling-screenplay-stage",
+      "id": "cratis/modeling/screenplay-stage",
       "displayName": "Cratis Screenplay → Stage",
       "description": "Combined AI guidance for developers using Cratis Screenplay and Cratis Stage in one solution.",
       "intendedFor": "Developers who use Cratis Screenplay and Cratis Stage.",
@@ -1982,8 +1951,8 @@
       ],
       "repositoryKinds": [],
       "composes": [
-        "public-screenplay",
-        "public-stage"
+        "cratis/screenplay",
+        "cratis/stage"
       ],
       "directTargetIds": [],
       "targetIds": [
@@ -1992,7 +1961,7 @@
       ]
     },
     {
-      "id": "public-review",
+      "id": "cratis/review",
       "displayName": "Cratis Review",
       "description": "AI guidance for developers building with cross-product.",
       "intendedFor": "Developers who use cross-product.",
@@ -2023,7 +1992,7 @@
       ]
     },
     {
-      "id": "public-screenplay",
+      "id": "cratis/screenplay",
       "displayName": "Cratis Screenplay",
       "description": "AI guidance for developers building with Cratis Screenplay.",
       "intendedFor": "Developers who use Cratis Screenplay.",
@@ -2048,7 +2017,7 @@
       ]
     },
     {
-      "id": "public-specifications",
+      "id": "cratis/specifications",
       "displayName": "Cratis Specifications",
       "description": "AI guidance for developers building with Cratis Specifications.",
       "intendedFor": "Developers who use Cratis Specifications.",
@@ -2073,8 +2042,8 @@
       ]
     },
     {
-      "id": "public-specifications-dotnet",
-      "displayName": "Cratis Specifications .NET",
+      "id": "cratis/specifications/dotnet",
+      "displayName": "Cratis Specifications/dotnet",
       "description": "AI guidance for developers building with Cratis Specifications.",
       "intendedFor": "Developers who use Cratis Specifications.",
       "audience": "public",
@@ -2090,7 +2059,7 @@
       ],
       "repositoryKinds": [],
       "composes": [
-        "public-specifications"
+        "cratis/specifications"
       ],
       "directTargetIds": [
         "cratis-application-slice-specifications",
@@ -2107,8 +2076,8 @@
       ]
     },
     {
-      "id": "public-specifications-typescript",
-      "displayName": "Cratis Specifications TypeScript",
+      "id": "cratis/specifications/typescript",
+      "displayName": "Cratis Specifications/typescript",
       "description": "AI guidance for developers building with Cratis Specifications.",
       "intendedFor": "Developers who use Cratis Specifications.",
       "audience": "public",
@@ -2125,7 +2094,7 @@
       ],
       "repositoryKinds": [],
       "composes": [
-        "public-specifications"
+        "cratis/specifications"
       ],
       "directTargetIds": [
         "cratis-specifications-typescript"
@@ -2136,7 +2105,7 @@
       ]
     },
     {
-      "id": "public-stage",
+      "id": "cratis/stage",
       "displayName": "Cratis Stage",
       "description": "AI guidance for developers building with Cratis Stage.",
       "intendedFor": "Developers who use Cratis Stage.",
@@ -2161,7 +2130,7 @@
       ]
     },
     {
-      "id": "public-studio",
+      "id": "cratis/studio",
       "displayName": "Cratis Studio",
       "description": "Classification-only public-safe guidance for Studio MCP requests and already-redacted output; no implementation operation is admitted or invocable.",
       "intendedFor": "Developers who use Cratis Studio.",
@@ -2186,155 +2155,12 @@
       ]
     },
     {
-      "id": "engineering-ai",
-      "displayName": "Cratis AI Maintainer",
-      "description": "Public-safe contributor guidance for maintainers working on Cratis AI. Private repository details remain local.",
-      "intendedFor": "Cratis maintainers contributing to Cratis AI in corpus repositories.",
-      "audience": "cratis-engineering",
-      "packageName": "@cratis/ai-engineering-ai",
-      "state": "planned-source-migration",
-      "installable": false,
-      "materialization": "catalog-only",
-      "products": [
-        "ai"
-      ],
-      "languages": [],
-      "repositoryKinds": [
-        "corpus"
-      ],
-      "composes": [
-        "engineering-base"
-      ],
-      "directTargetIds": [],
-      "targetIds": [
-        "cratis-engineering-csharp-conventions",
-        "cratis-engineering-decision-record",
-        "cratis-engineering-effect-boundaries"
-      ]
-    },
-    {
-      "id": "engineering-application",
-      "displayName": "Cratis Application Maintainer",
-      "description": "Public-safe contributor guidance for maintainers working on Cratis Fundamentals, Cratis Arc, Cratis Arc React, Cratis Chronicle, and Cratis Components. Private repository details remain local.",
-      "intendedFor": "Cratis maintainers contributing to Cratis Fundamentals, Cratis Arc, Cratis Arc React, Cratis Chronicle, and Cratis Components in application projects.",
-      "audience": "cratis-engineering",
-      "packageName": "@cratis/ai-engineering-application",
-      "state": "planned-source-migration",
-      "installable": false,
-      "materialization": "catalog-only",
-      "products": [
-        "fundamentals",
-        "arc",
-        "arc-react",
-        "chronicle",
-        "components"
-      ],
-      "languages": [],
-      "repositoryKinds": [
-        "application"
-      ],
-      "composes": [
-        "engineering-base"
-      ],
-      "directTargetIds": [],
-      "targetIds": [
-        "cratis-engineering-csharp-conventions",
-        "cratis-engineering-decision-record",
-        "cratis-engineering-effect-boundaries"
-      ]
-    },
-    {
-      "id": "engineering-arc",
-      "displayName": "Cratis Arc Maintainer",
-      "description": "Public-safe contributor guidance for maintainers working on Cratis Arc. Private repository details remain local.",
-      "intendedFor": "Cratis maintainers contributing to Cratis Arc in framework projects.",
-      "audience": "cratis-engineering",
-      "packageName": "@cratis/ai-engineering-arc",
-      "state": "planned-source-migration",
-      "installable": false,
-      "materialization": "catalog-only",
-      "products": [
-        "arc"
-      ],
-      "languages": [],
-      "repositoryKinds": [
-        "framework"
-      ],
-      "composes": [
-        "engineering-base"
-      ],
-      "directTargetIds": [],
-      "targetIds": [
-        "cratis-engineering-csharp-conventions",
-        "cratis-engineering-decision-record",
-        "cratis-engineering-effect-boundaries"
-      ]
-    },
-    {
-      "id": "engineering-arc-ef-core",
-      "displayName": "Cratis Arc EF Core Maintainer",
-      "description": "Public-safe contributor guidance for maintainers working on Cratis Arc and Entity Framework Core. Private repository details remain local.",
-      "intendedFor": "Cratis maintainers contributing to Cratis Arc and Entity Framework Core in application projects and framework projects.",
-      "audience": "cratis-engineering",
-      "packageName": "@cratis/ai-engineering-arc-ef-core",
-      "state": "planned-source-migration",
-      "installable": false,
-      "materialization": "catalog-only",
-      "products": [
-        "arc",
-        "entity-framework-core"
-      ],
-      "languages": [],
-      "repositoryKinds": [
-        "application",
-        "framework"
-      ],
-      "composes": [
-        "engineering-base",
-        "engineering-arc"
-      ],
-      "directTargetIds": [],
-      "targetIds": [
-        "cratis-engineering-csharp-conventions",
-        "cratis-engineering-decision-record",
-        "cratis-engineering-effect-boundaries"
-      ]
-    },
-    {
-      "id": "engineering-arc-react",
-      "displayName": "Cratis Arc React Maintainer",
-      "description": "Public-safe contributor guidance for maintainers working on Cratis Arc React. Private repository details remain local.",
-      "intendedFor": "Cratis maintainers contributing to Cratis Arc React in framework projects.",
-      "audience": "cratis-engineering",
-      "packageName": "@cratis/ai-engineering-arc-react",
-      "state": "content-gap",
-      "installable": false,
-      "materialization": "catalog-only",
-      "products": [
-        "arc-react"
-      ],
-      "languages": [],
-      "repositoryKinds": [
-        "framework"
-      ],
-      "composes": [
-        "engineering-arc",
-        "engineering-base"
-      ],
-      "directTargetIds": [],
-      "targetIds": [
-        "cratis-engineering-csharp-conventions",
-        "cratis-engineering-decision-record",
-        "cratis-engineering-effect-boundaries"
-      ]
-    },
-    {
-      "id": "engineering-base",
-      "displayName": "Cratis Maintainer Base",
+      "id": "cratis/engineering",
+      "displayName": "Cratis Maintainer Engineering",
       "description": "Public-safe shared engineering conventions for contributors across Cratis repositories.",
       "intendedFor": "Cratis maintainers contributing to Cratis in application projects, framework projects, client projects, documentation projects, and corpus repositories.",
       "audience": "cratis-engineering",
-      "packageName": "@cratis/ai-engineering-base",
+      "packageName": "@cratis/ai-engineering",
       "state": "preview-source-candidate",
       "installable": false,
       "materialization": "candidate-package",
@@ -2351,405 +2177,13 @@
       "directTargetIds": [
         "cratis-engineering-csharp-conventions",
         "cratis-engineering-decision-record",
+        "cratis-engineering-docs-authoring",
         "cratis-engineering-effect-boundaries"
-      ],
-      "targetIds": [
-        "cratis-engineering-csharp-conventions",
-        "cratis-engineering-decision-record",
-        "cratis-engineering-effect-boundaries"
-      ]
-    },
-    {
-      "id": "engineering-chronicle",
-      "displayName": "Cratis Chronicle Maintainer",
-      "description": "Public-safe contributor guidance for maintainers working on Cratis Chronicle. Private repository details remain local.",
-      "intendedFor": "Cratis maintainers contributing to Cratis Chronicle in framework projects.",
-      "audience": "cratis-engineering",
-      "packageName": "@cratis/ai-engineering-chronicle",
-      "state": "preview-source-candidate",
-      "installable": false,
-      "materialization": "candidate-package",
-      "products": [
-        "chronicle"
-      ],
-      "languages": [],
-      "repositoryKinds": [
-        "framework"
-      ],
-      "composes": [
-        "engineering-base"
-      ],
-      "directTargetIds": [
-        "cratis-engineering-chronicle-kernel-tracing"
-      ],
-      "targetIds": [
-        "cratis-engineering-chronicle-kernel-tracing",
-        "cratis-engineering-csharp-conventions",
-        "cratis-engineering-decision-record",
-        "cratis-engineering-effect-boundaries"
-      ]
-    },
-    {
-      "id": "engineering-chronicle-clients",
-      "displayName": "Cratis Chronicle Clients Maintainer",
-      "description": "Public-safe contributor guidance for maintainers working on Cratis Chronicle. Private repository details remain local.",
-      "intendedFor": "Cratis maintainers contributing to Cratis Chronicle in client projects.",
-      "audience": "cratis-engineering",
-      "packageName": "@cratis/ai-engineering-chronicle-clients",
-      "state": "content-gap",
-      "installable": false,
-      "materialization": "catalog-only",
-      "products": [
-        "chronicle"
-      ],
-      "languages": [
-        "csharp",
-        "kotlin",
-        "elixir",
-        "typescript",
-        "python"
-      ],
-      "repositoryKinds": [
-        "client"
-      ],
-      "composes": [
-        "engineering-base"
-      ],
-      "directTargetIds": [],
-      "targetIds": [
-        "cratis-engineering-csharp-conventions",
-        "cratis-engineering-decision-record",
-        "cratis-engineering-effect-boundaries"
-      ]
-    },
-    {
-      "id": "engineering-chronicle-mcp",
-      "displayName": "Cratis Chronicle MCP Maintainer",
-      "description": "Public-safe contributor guidance for maintainers working on Chronicle MCP. Private repository details remain local.",
-      "intendedFor": "Cratis maintainers contributing to Chronicle MCP in framework projects.",
-      "audience": "cratis-engineering",
-      "packageName": "@cratis/ai-engineering-chronicle-mcp",
-      "state": "content-gap",
-      "installable": false,
-      "materialization": "catalog-only",
-      "products": [
-        "chronicle-mcp"
-      ],
-      "languages": [],
-      "repositoryKinds": [
-        "framework"
-      ],
-      "composes": [
-        "engineering-base"
-      ],
-      "directTargetIds": [],
-      "targetIds": [
-        "cratis-engineering-csharp-conventions",
-        "cratis-engineering-decision-record",
-        "cratis-engineering-effect-boundaries"
-      ]
-    },
-    {
-      "id": "engineering-components",
-      "displayName": "Cratis Components Maintainer",
-      "description": "Public-safe contributor guidance for maintainers working on Cratis Components. Private repository details remain local.",
-      "intendedFor": "Cratis maintainers contributing to Cratis Components in framework projects.",
-      "audience": "cratis-engineering",
-      "packageName": "@cratis/ai-engineering-components",
-      "state": "planned-source-migration",
-      "installable": false,
-      "materialization": "catalog-only",
-      "products": [
-        "components"
-      ],
-      "languages": [],
-      "repositoryKinds": [
-        "framework"
-      ],
-      "composes": [
-        "engineering-base"
-      ],
-      "directTargetIds": [],
-      "targetIds": [
-        "cratis-engineering-csharp-conventions",
-        "cratis-engineering-decision-record",
-        "cratis-engineering-effect-boundaries"
-      ]
-    },
-    {
-      "id": "engineering-cratis-cli",
-      "displayName": "Cratis CLI Maintainer",
-      "description": "Public-safe contributor guidance for maintainers working on the Cratis CLI. Private repository details remain local.",
-      "intendedFor": "Cratis maintainers contributing to the Cratis CLI in framework projects.",
-      "audience": "cratis-engineering",
-      "packageName": "@cratis/ai-engineering-cli",
-      "state": "content-gap",
-      "installable": false,
-      "materialization": "catalog-only",
-      "products": [
-        "cli"
-      ],
-      "languages": [],
-      "repositoryKinds": [
-        "framework"
-      ],
-      "composes": [
-        "engineering-base"
-      ],
-      "directTargetIds": [],
-      "targetIds": [
-        "cratis-engineering-csharp-conventions",
-        "cratis-engineering-decision-record",
-        "cratis-engineering-effect-boundaries"
-      ]
-    },
-    {
-      "id": "engineering-documentation",
-      "displayName": "Cratis Documentation Maintainer",
-      "description": "Public-safe documentation authoring guidance for maintainers working across Cratis product repositories.",
-      "intendedFor": "Cratis maintainers contributing to Cratis documentation in documentation projects.",
-      "audience": "cratis-engineering",
-      "packageName": "@cratis/ai-engineering-documentation",
-      "state": "owner-review-pending",
-      "installable": false,
-      "materialization": "candidate-package",
-      "products": [
-        "documentation"
-      ],
-      "languages": [],
-      "repositoryKinds": [
-        "documentation"
-      ],
-      "composes": [
-        "engineering-base"
-      ],
-      "directTargetIds": [
-        "cratis-engineering-docs-authoring"
       ],
       "targetIds": [
         "cratis-engineering-csharp-conventions",
         "cratis-engineering-decision-record",
         "cratis-engineering-docs-authoring",
-        "cratis-engineering-effect-boundaries"
-      ]
-    },
-    {
-      "id": "engineering-fundamentals",
-      "displayName": "Cratis Fundamentals Maintainer",
-      "description": "Public-safe contributor guidance for maintainers working on Cratis Fundamentals. Private repository details remain local.",
-      "intendedFor": "Cratis maintainers contributing to Cratis Fundamentals in framework projects.",
-      "audience": "cratis-engineering",
-      "packageName": "@cratis/ai-engineering-fundamentals",
-      "state": "planned-source-migration",
-      "installable": false,
-      "materialization": "catalog-only",
-      "products": [
-        "fundamentals"
-      ],
-      "languages": [],
-      "repositoryKinds": [
-        "framework"
-      ],
-      "composes": [
-        "engineering-base"
-      ],
-      "directTargetIds": [],
-      "targetIds": [
-        "cratis-engineering-csharp-conventions",
-        "cratis-engineering-decision-record",
-        "cratis-engineering-effect-boundaries"
-      ]
-    },
-    {
-      "id": "engineering-lens",
-      "displayName": "Cratis Lens Maintainer",
-      "description": "Public-safe contributor guidance for maintainers working on Cratis Lens. Private repository details remain local.",
-      "intendedFor": "Cratis maintainers contributing to Cratis Lens in framework projects.",
-      "audience": "cratis-engineering",
-      "packageName": "@cratis/ai-engineering-lens",
-      "state": "content-gap",
-      "installable": false,
-      "materialization": "catalog-only",
-      "products": [
-        "lens"
-      ],
-      "languages": [],
-      "repositoryKinds": [
-        "framework"
-      ],
-      "composes": [
-        "engineering-base"
-      ],
-      "directTargetIds": [],
-      "targetIds": [
-        "cratis-engineering-csharp-conventions",
-        "cratis-engineering-decision-record",
-        "cratis-engineering-effect-boundaries"
-      ]
-    },
-    {
-      "id": "engineering-screenplay",
-      "displayName": "Cratis Screenplay Maintainer",
-      "description": "Public-safe contributor guidance for maintainers working on Cratis Screenplay. Private repository details remain local.",
-      "intendedFor": "Cratis maintainers contributing to Cratis Screenplay in framework projects.",
-      "audience": "cratis-engineering",
-      "packageName": "@cratis/ai-engineering-screenplay",
-      "state": "content-gap",
-      "installable": false,
-      "materialization": "catalog-only",
-      "products": [
-        "screenplay"
-      ],
-      "languages": [],
-      "repositoryKinds": [
-        "framework"
-      ],
-      "composes": [
-        "engineering-base"
-      ],
-      "directTargetIds": [],
-      "targetIds": [
-        "cratis-engineering-csharp-conventions",
-        "cratis-engineering-decision-record",
-        "cratis-engineering-effect-boundaries"
-      ]
-    },
-    {
-      "id": "engineering-specifications",
-      "displayName": "Cratis Specifications Maintainer",
-      "description": "Public-safe contributor guidance for maintainers working on Cratis Specifications. Private repository details remain local.",
-      "intendedFor": "Cratis maintainers contributing to Cratis Specifications in application projects, framework projects, and client projects.",
-      "audience": "cratis-engineering",
-      "packageName": "@cratis/ai-engineering-specifications",
-      "state": "planned-source-migration",
-      "installable": false,
-      "materialization": "catalog-only",
-      "products": [
-        "specifications"
-      ],
-      "languages": [],
-      "repositoryKinds": [
-        "application",
-        "framework",
-        "client"
-      ],
-      "composes": [
-        "engineering-base"
-      ],
-      "directTargetIds": [],
-      "targetIds": [
-        "cratis-engineering-csharp-conventions",
-        "cratis-engineering-decision-record",
-        "cratis-engineering-effect-boundaries"
-      ]
-    },
-    {
-      "id": "engineering-stage",
-      "displayName": "Cratis Stage Maintainer",
-      "description": "Public-safe contributor guidance for maintainers working on Cratis Stage. Private repository details remain local.",
-      "intendedFor": "Cratis maintainers contributing to Cratis Stage in framework projects.",
-      "audience": "cratis-engineering",
-      "packageName": "@cratis/ai-engineering-stage",
-      "state": "content-gap",
-      "installable": false,
-      "materialization": "catalog-only",
-      "products": [
-        "stage"
-      ],
-      "languages": [],
-      "repositoryKinds": [
-        "framework"
-      ],
-      "composes": [
-        "engineering-base"
-      ],
-      "directTargetIds": [],
-      "targetIds": [
-        "cratis-engineering-csharp-conventions",
-        "cratis-engineering-decision-record",
-        "cratis-engineering-effect-boundaries"
-      ]
-    },
-    {
-      "id": "engineering-stagehand",
-      "displayName": "Cratis Stagehand Maintainer",
-      "description": "Public-safe contributor guidance for maintainers working on Cratis Stagehand. Private repository details remain local.",
-      "intendedFor": "Cratis maintainers contributing to Cratis Stagehand in framework projects and corpus repositories.",
-      "audience": "cratis-engineering",
-      "packageName": "@cratis/ai-engineering-stagehand",
-      "state": "content-gap",
-      "installable": false,
-      "materialization": "catalog-only",
-      "products": [
-        "stagehand"
-      ],
-      "languages": [],
-      "repositoryKinds": [
-        "framework",
-        "corpus"
-      ],
-      "composes": [
-        "engineering-base"
-      ],
-      "directTargetIds": [],
-      "targetIds": [
-        "cratis-engineering-csharp-conventions",
-        "cratis-engineering-decision-record",
-        "cratis-engineering-effect-boundaries"
-      ]
-    },
-    {
-      "id": "engineering-studio",
-      "displayName": "Cratis Studio Maintainer",
-      "description": "Public-safe contributor guidance for maintainers working on Cratis Studio. Private repository details remain local.",
-      "intendedFor": "Cratis maintainers contributing to Cratis Studio in application projects and framework projects.",
-      "audience": "cratis-engineering",
-      "packageName": "@cratis/ai-engineering-studio",
-      "state": "content-gap",
-      "installable": false,
-      "materialization": "catalog-only",
-      "products": [
-        "studio"
-      ],
-      "languages": [],
-      "repositoryKinds": [
-        "application",
-        "framework"
-      ],
-      "composes": [
-        "engineering-base"
-      ],
-      "directTargetIds": [],
-      "targetIds": [
-        "cratis-engineering-csharp-conventions",
-        "cratis-engineering-decision-record",
-        "cratis-engineering-effect-boundaries"
-      ]
-    },
-    {
-      "id": "engineering-workflows",
-      "displayName": "Cratis Workflows Maintainer",
-      "description": "Public-safe contributor guidance for maintainers working on Cratis Workflows. Private repository details remain local.",
-      "intendedFor": "Cratis maintainers contributing to Cratis Workflows in corpus repositories.",
-      "audience": "cratis-engineering",
-      "packageName": "@cratis/ai-engineering-workflows",
-      "state": "content-gap",
-      "installable": false,
-      "materialization": "catalog-only",
-      "products": [
-        "workflows"
-      ],
-      "languages": [],
-      "repositoryKinds": [
-        "corpus"
-      ],
-      "composes": [
-        "engineering-base"
-      ],
-      "directTargetIds": [],
-      "targetIds": [
-        "cratis-engineering-csharp-conventions",
-        "cratis-engineering-decision-record",
         "cratis-engineering-effect-boundaries"
       ]
     }
@@ -2822,11 +2256,10 @@
         "cratis",
         "cratis/application",
         "cratis/application/csharp",
+        "cratis/application/react",
+        "cratis/arc/react",
         "cratis/full",
-        "cratis/full/csharp",
-        "public-application",
-        "public-application-react",
-        "public-arc-react"
+        "cratis/full/csharp"
       ]
     },
     {
@@ -2959,19 +2392,18 @@
       "profileIds": [
         "cratis",
         "cratis/application",
+        "cratis/application/arc-chronicle",
+        "cratis/application/arc-only",
+        "cratis/application/chronicle-dotnet",
         "cratis/application/csharp",
+        "cratis/application/react",
         "cratis/arc",
         "cratis/arc/csharp",
         "cratis/chronicle",
         "cratis/chronicle/csharp",
         "cratis/full",
         "cratis/full/csharp",
-        "public-application",
-        "public-application-arc-chronicle",
-        "public-application-arc-only",
-        "public-application-chronicle-dotnet",
-        "public-application-react",
-        "public-specifications-dotnet"
+        "cratis/specifications/dotnet"
       ]
     },
     {
@@ -3104,11 +2536,13 @@
       ],
       "profileIds": [
         "cratis",
+        "cratis/application",
+        "cratis/application/csharp",
         "cratis/arc",
         "cratis/arc/csharp",
+        "cratis/arc/identity",
         "cratis/full",
-        "cratis/full/csharp",
-        "public-arc-identity"
+        "cratis/full/csharp"
       ]
     },
     {
@@ -3177,19 +2611,18 @@
       "profileIds": [
         "cratis",
         "cratis/application",
+        "cratis/application/arc-chronicle",
+        "cratis/application/arc-only",
         "cratis/application/csharp",
+        "cratis/application/react",
         "cratis/arc",
+        "cratis/arc/core",
         "cratis/arc/csharp",
+        "cratis/arc/ef-core",
+        "cratis/arc/identity",
+        "cratis/arc/react",
         "cratis/full",
-        "cratis/full/csharp",
-        "public-application",
-        "public-application-arc-chronicle",
-        "public-application-arc-only",
-        "public-application-react",
-        "public-arc",
-        "public-arc-ef-core",
-        "public-arc-identity",
-        "public-arc-react"
+        "cratis/full/csharp"
       ]
     },
     {
@@ -3254,19 +2687,18 @@
       "profileIds": [
         "cratis",
         "cratis/application",
+        "cratis/application/arc-chronicle",
+        "cratis/application/arc-only",
         "cratis/application/csharp",
+        "cratis/application/react",
         "cratis/arc",
+        "cratis/arc/core",
         "cratis/arc/csharp",
+        "cratis/arc/ef-core",
+        "cratis/arc/identity",
+        "cratis/arc/react",
         "cratis/full",
-        "cratis/full/csharp",
-        "public-application",
-        "public-application-arc-chronicle",
-        "public-application-arc-only",
-        "public-application-react",
-        "public-arc",
-        "public-arc-ef-core",
-        "public-arc-identity",
-        "public-arc-react"
+        "cratis/full/csharp"
       ]
     },
     {
@@ -3333,19 +2765,18 @@
       "profileIds": [
         "cratis",
         "cratis/application",
+        "cratis/application/arc-chronicle",
+        "cratis/application/arc-only",
         "cratis/application/csharp",
+        "cratis/application/react",
         "cratis/arc",
+        "cratis/arc/core",
         "cratis/arc/csharp",
+        "cratis/arc/ef-core",
+        "cratis/arc/identity",
+        "cratis/arc/react",
         "cratis/full",
-        "cratis/full/csharp",
-        "public-application",
-        "public-application-arc-chronicle",
-        "public-application-arc-only",
-        "public-application-react",
-        "public-arc",
-        "public-arc-ef-core",
-        "public-arc-identity",
-        "public-arc-react"
+        "cratis/full/csharp"
       ]
     },
     {
@@ -3411,11 +2842,13 @@
       ],
       "profileIds": [
         "cratis",
+        "cratis/application",
+        "cratis/application/csharp",
         "cratis/arc",
         "cratis/arc/csharp",
+        "cratis/arc/ef-core",
         "cratis/full",
-        "cratis/full/csharp",
-        "public-arc-ef-core"
+        "cratis/full/csharp"
       ]
     },
     {
@@ -3480,19 +2913,18 @@
       "profileIds": [
         "cratis",
         "cratis/application",
+        "cratis/application/arc-chronicle",
+        "cratis/application/arc-only",
         "cratis/application/csharp",
+        "cratis/application/react",
         "cratis/arc",
+        "cratis/arc/core",
         "cratis/arc/csharp",
+        "cratis/arc/ef-core",
+        "cratis/arc/identity",
+        "cratis/arc/react",
         "cratis/full",
-        "cratis/full/csharp",
-        "public-application",
-        "public-application-arc-chronicle",
-        "public-application-arc-only",
-        "public-application-react",
-        "public-arc",
-        "public-arc-ef-core",
-        "public-arc-identity",
-        "public-arc-react"
+        "cratis/full/csharp"
       ]
     },
     {
@@ -3561,19 +2993,18 @@
       "profileIds": [
         "cratis",
         "cratis/application",
+        "cratis/application/arc-chronicle",
+        "cratis/application/arc-only",
         "cratis/application/csharp",
+        "cratis/application/react",
         "cratis/arc",
+        "cratis/arc/core",
         "cratis/arc/csharp",
+        "cratis/arc/ef-core",
+        "cratis/arc/identity",
+        "cratis/arc/react",
         "cratis/full",
-        "cratis/full/csharp",
-        "public-application",
-        "public-application-arc-chronicle",
-        "public-application-arc-only",
-        "public-application-react",
-        "public-arc",
-        "public-arc-ef-core",
-        "public-arc-identity",
-        "public-arc-react"
+        "cratis/full/csharp"
       ]
     },
     {
@@ -3708,11 +3139,10 @@
         "cratis",
         "cratis/application",
         "cratis/application/csharp",
+        "cratis/application/react",
+        "cratis/arc/react",
         "cratis/full",
-        "cratis/full/csharp",
-        "public-application",
-        "public-application-react",
-        "public-arc-react"
+        "cratis/full/csharp"
       ]
     },
     {
@@ -3775,8 +3205,8 @@
       "bundleIds": [],
       "profileIds": [
         "cratis",
-        "public-cratis-cli",
-        "public-cratis-cli-terminal-workbench"
+        "cratis/cli",
+        "cratis/cli/terminal-workbench"
       ]
     },
     {
@@ -3839,12 +3269,14 @@
       "bundleIds": [],
       "profileIds": [
         "cratis",
+        "cratis/application",
+        "cratis/application/chronicle-dotnet",
+        "cratis/application/csharp",
         "cratis/chronicle",
+        "cratis/chronicle/client-dotnet",
         "cratis/chronicle/csharp",
         "cratis/full",
-        "cratis/full/csharp",
-        "public-application-chronicle-dotnet",
-        "public-chronicle-client-dotnet"
+        "cratis/full/csharp"
       ]
     },
     {
@@ -3908,12 +3340,14 @@
       "profileIds": [
         "cratis",
         "cratis/application",
+        "cratis/application/csharp",
         "cratis/application/elixir",
         "cratis/chronicle",
+        "cratis/chronicle/client-elixir",
         "cratis/chronicle/elixir",
         "cratis/full",
-        "cratis/full/elixir",
-        "public-chronicle-client-elixir"
+        "cratis/full/csharp",
+        "cratis/full/elixir"
       ]
     },
     {
@@ -3977,12 +3411,14 @@
       "profileIds": [
         "cratis",
         "cratis/application",
+        "cratis/application/csharp",
         "cratis/application/kotlin",
         "cratis/chronicle",
+        "cratis/chronicle/client-kotlin",
         "cratis/chronicle/kotlin",
         "cratis/full",
-        "cratis/full/kotlin",
-        "public-chronicle-client-kotlin"
+        "cratis/full/csharp",
+        "cratis/full/kotlin"
       ]
     },
     {
@@ -4046,12 +3482,14 @@
       "profileIds": [
         "cratis",
         "cratis/application",
+        "cratis/application/csharp",
         "cratis/application/typescript",
         "cratis/chronicle",
+        "cratis/chronicle/client-typescript",
         "cratis/chronicle/typescript",
         "cratis/full",
-        "cratis/full/typescript",
-        "public-chronicle-client-typescript"
+        "cratis/full/csharp",
+        "cratis/full/typescript"
       ]
     },
     {
@@ -4113,11 +3551,13 @@
       "bundleIds": [],
       "profileIds": [
         "cratis",
+        "cratis/application",
+        "cratis/application/csharp",
         "cratis/chronicle",
+        "cratis/chronicle/compliance",
         "cratis/chronicle/csharp",
         "cratis/full",
-        "cratis/full/csharp",
-        "public-chronicle-compliance"
+        "cratis/full/csharp"
       ]
     },
     {
@@ -4184,18 +3624,17 @@
       "profileIds": [
         "cratis",
         "cratis/application",
+        "cratis/application/arc-chronicle",
+        "cratis/application/chronicle-dotnet",
         "cratis/application/csharp",
         "cratis/chronicle",
+        "cratis/chronicle/compliance",
+        "cratis/chronicle/core",
         "cratis/chronicle/csharp",
+        "cratis/chronicle/multi-tenancy",
+        "cratis/chronicle/web-workbench",
         "cratis/full",
-        "cratis/full/csharp",
-        "public-application",
-        "public-application-arc-chronicle",
-        "public-application-chronicle-dotnet",
-        "public-chronicle",
-        "public-chronicle-compliance",
-        "public-chronicle-multi-tenancy",
-        "public-chronicle-web-workbench"
+        "cratis/full/csharp"
       ]
     },
     {
@@ -4321,18 +3760,17 @@
       "profileIds": [
         "cratis",
         "cratis/application",
+        "cratis/application/arc-chronicle",
+        "cratis/application/chronicle-dotnet",
         "cratis/application/csharp",
         "cratis/chronicle",
+        "cratis/chronicle/compliance",
+        "cratis/chronicle/core",
         "cratis/chronicle/csharp",
+        "cratis/chronicle/multi-tenancy",
+        "cratis/chronicle/web-workbench",
         "cratis/full",
-        "cratis/full/csharp",
-        "public-application",
-        "public-application-arc-chronicle",
-        "public-application-chronicle-dotnet",
-        "public-chronicle",
-        "public-chronicle-compliance",
-        "public-chronicle-multi-tenancy",
-        "public-chronicle-web-workbench"
+        "cratis/full/csharp"
       ]
     },
     {
@@ -4398,19 +3836,18 @@
       "profileIds": [
         "cratis",
         "cratis/application",
+        "cratis/application/arc-chronicle",
+        "cratis/application/arc-only",
+        "cratis/application/chronicle-dotnet",
         "cratis/application/csharp",
+        "cratis/application/react",
         "cratis/arc",
         "cratis/arc/csharp",
         "cratis/chronicle",
         "cratis/chronicle/csharp",
         "cratis/full",
         "cratis/full/csharp",
-        "public-application",
-        "public-application-arc-chronicle",
-        "public-application-arc-only",
-        "public-application-chronicle-dotnet",
-        "public-application-react",
-        "public-specifications-dotnet"
+        "cratis/specifications/dotnet"
       ]
     },
     {
@@ -4475,18 +3912,17 @@
       "profileIds": [
         "cratis",
         "cratis/application",
+        "cratis/application/arc-chronicle",
+        "cratis/application/chronicle-dotnet",
         "cratis/application/csharp",
         "cratis/chronicle",
+        "cratis/chronicle/compliance",
+        "cratis/chronicle/core",
         "cratis/chronicle/csharp",
+        "cratis/chronicle/multi-tenancy",
+        "cratis/chronicle/web-workbench",
         "cratis/full",
-        "cratis/full/csharp",
-        "public-application",
-        "public-application-arc-chronicle",
-        "public-application-chronicle-dotnet",
-        "public-chronicle",
-        "public-chronicle-compliance",
-        "public-chronicle-multi-tenancy",
-        "public-chronicle-web-workbench"
+        "cratis/full/csharp"
       ]
     },
     {
@@ -4548,7 +3984,7 @@
       "bundleIds": [],
       "profileIds": [
         "cratis",
-        "public-chronicle-mcp"
+        "cratis/chronicle/mcp"
       ]
     },
     {
@@ -4613,11 +4049,13 @@
       ],
       "profileIds": [
         "cratis",
+        "cratis/application",
+        "cratis/application/csharp",
         "cratis/chronicle",
         "cratis/chronicle/csharp",
+        "cratis/chronicle/multi-tenancy",
         "cratis/full",
-        "cratis/full/csharp",
-        "public-chronicle-multi-tenancy"
+        "cratis/full/csharp"
       ]
     },
     {
@@ -4684,18 +4122,17 @@
       "profileIds": [
         "cratis",
         "cratis/application",
+        "cratis/application/arc-chronicle",
+        "cratis/application/chronicle-dotnet",
         "cratis/application/csharp",
         "cratis/chronicle",
+        "cratis/chronicle/compliance",
+        "cratis/chronicle/core",
         "cratis/chronicle/csharp",
+        "cratis/chronicle/multi-tenancy",
+        "cratis/chronicle/web-workbench",
         "cratis/full",
-        "cratis/full/csharp",
-        "public-application",
-        "public-application-arc-chronicle",
-        "public-application-chronicle-dotnet",
-        "public-chronicle",
-        "public-chronicle-compliance",
-        "public-chronicle-multi-tenancy",
-        "public-chronicle-web-workbench"
+        "cratis/full/csharp"
       ]
     },
     {
@@ -4762,18 +4199,17 @@
       "profileIds": [
         "cratis",
         "cratis/application",
+        "cratis/application/arc-chronicle",
+        "cratis/application/chronicle-dotnet",
         "cratis/application/csharp",
         "cratis/chronicle",
+        "cratis/chronicle/compliance",
+        "cratis/chronicle/core",
         "cratis/chronicle/csharp",
+        "cratis/chronicle/multi-tenancy",
+        "cratis/chronicle/web-workbench",
         "cratis/full",
-        "cratis/full/csharp",
-        "public-application",
-        "public-application-arc-chronicle",
-        "public-application-chronicle-dotnet",
-        "public-chronicle",
-        "public-chronicle-compliance",
-        "public-chronicle-multi-tenancy",
-        "public-chronicle-web-workbench"
+        "cratis/full/csharp"
       ]
     },
     {
@@ -4842,18 +4278,17 @@
       "profileIds": [
         "cratis",
         "cratis/application",
+        "cratis/application/arc-chronicle",
+        "cratis/application/chronicle-dotnet",
         "cratis/application/csharp",
         "cratis/chronicle",
+        "cratis/chronicle/compliance",
+        "cratis/chronicle/core",
         "cratis/chronicle/csharp",
+        "cratis/chronicle/multi-tenancy",
+        "cratis/chronicle/web-workbench",
         "cratis/full",
-        "cratis/full/csharp",
-        "public-application",
-        "public-application-arc-chronicle",
-        "public-application-chronicle-dotnet",
-        "public-chronicle",
-        "public-chronicle-compliance",
-        "public-chronicle-multi-tenancy",
-        "public-chronicle-web-workbench"
+        "cratis/full/csharp"
       ]
     },
     {
@@ -4921,19 +4356,18 @@
       "profileIds": [
         "cratis",
         "cratis/application",
+        "cratis/application/arc-chronicle",
+        "cratis/application/arc-only",
+        "cratis/application/chronicle-dotnet",
         "cratis/application/csharp",
+        "cratis/application/react",
         "cratis/arc",
         "cratis/arc/csharp",
         "cratis/chronicle",
         "cratis/chronicle/csharp",
         "cratis/full",
         "cratis/full/csharp",
-        "public-application",
-        "public-application-arc-chronicle",
-        "public-application-arc-only",
-        "public-application-chronicle-dotnet",
-        "public-application-react",
-        "public-specifications-dotnet"
+        "cratis/specifications/dotnet"
       ]
     },
     {
@@ -5000,18 +4434,17 @@
       "profileIds": [
         "cratis",
         "cratis/application",
+        "cratis/application/arc-chronicle",
+        "cratis/application/chronicle-dotnet",
         "cratis/application/csharp",
         "cratis/chronicle",
+        "cratis/chronicle/compliance",
+        "cratis/chronicle/core",
         "cratis/chronicle/csharp",
+        "cratis/chronicle/multi-tenancy",
+        "cratis/chronicle/web-workbench",
         "cratis/full",
-        "cratis/full/csharp",
-        "public-application",
-        "public-application-arc-chronicle",
-        "public-application-chronicle-dotnet",
-        "public-chronicle",
-        "public-chronicle-compliance",
-        "public-chronicle-multi-tenancy",
-        "public-chronicle-web-workbench"
+        "cratis/full/csharp"
       ]
     },
     {
@@ -5073,8 +4506,12 @@
       "bundleIds": [],
       "profileIds": [
         "cratis",
+        "cratis/application",
+        "cratis/application/csharp",
         "cratis/chronicle",
-        "public-chronicle-web-workbench"
+        "cratis/chronicle/web-workbench",
+        "cratis/full",
+        "cratis/full/csharp"
       ]
     },
     {
@@ -5137,7 +4574,7 @@
       "bundleIds": [],
       "profileIds": [
         "cratis",
-        "public-cratis-cli-terminal-workbench"
+        "cratis/cli/terminal-workbench"
       ]
     },
     {
@@ -5202,7 +4639,7 @@
       ],
       "profileIds": [
         "cratis",
-        "public-review"
+        "cratis/review"
       ]
     },
     {
@@ -5267,11 +4704,10 @@
         "cratis",
         "cratis/application",
         "cratis/application/csharp",
+        "cratis/application/react",
+        "cratis/components",
         "cratis/full",
-        "cratis/full/csharp",
-        "public-application",
-        "public-application-react",
-        "public-components"
+        "cratis/full/csharp"
       ]
     },
     {
@@ -5336,11 +4772,10 @@
         "cratis",
         "cratis/application",
         "cratis/application/csharp",
+        "cratis/application/react",
+        "cratis/components",
         "cratis/full",
-        "cratis/full/csharp",
-        "public-application",
-        "public-application-react",
-        "public-components"
+        "cratis/full/csharp"
       ]
     },
     {
@@ -5408,11 +4843,10 @@
         "cratis",
         "cratis/application",
         "cratis/application/csharp",
+        "cratis/application/react",
+        "cratis/components",
         "cratis/full",
-        "cratis/full/csharp",
-        "public-application",
-        "public-application-react",
-        "public-components"
+        "cratis/full/csharp"
       ]
     },
     {
@@ -5477,11 +4911,10 @@
         "cratis",
         "cratis/application",
         "cratis/application/csharp",
+        "cratis/application/react",
+        "cratis/components",
         "cratis/full",
-        "cratis/full/csharp",
-        "public-application",
-        "public-application-react",
-        "public-components"
+        "cratis/full/csharp"
       ]
     },
     {
@@ -5546,11 +4979,10 @@
         "cratis",
         "cratis/application",
         "cratis/application/csharp",
+        "cratis/application/react",
+        "cratis/components",
         "cratis/full",
-        "cratis/full/csharp",
-        "public-application",
-        "public-application-react",
-        "public-components"
+        "cratis/full/csharp"
       ]
     },
     {
@@ -5614,18 +5046,17 @@
       "profileIds": [
         "cratis",
         "cratis/application",
+        "cratis/application/arc-chronicle",
+        "cratis/application/chronicle-dotnet",
         "cratis/application/csharp",
         "cratis/chronicle",
+        "cratis/chronicle/compliance",
+        "cratis/chronicle/core",
         "cratis/chronicle/csharp",
+        "cratis/chronicle/multi-tenancy",
+        "cratis/chronicle/web-workbench",
         "cratis/full",
-        "cratis/full/csharp",
-        "public-application",
-        "public-application-arc-chronicle",
-        "public-application-chronicle-dotnet",
-        "public-chronicle",
-        "public-chronicle-compliance",
-        "public-chronicle-multi-tenancy",
-        "public-chronicle-web-workbench"
+        "cratis/full/csharp"
       ]
     },
     {
@@ -5751,20 +5182,19 @@
       "profileIds": [
         "cratis",
         "cratis/application",
+        "cratis/application/arc-chronicle",
+        "cratis/application/arc-only",
+        "cratis/application/chronicle-dotnet",
         "cratis/application/csharp",
+        "cratis/application/react",
         "cratis/arc",
         "cratis/arc/csharp",
         "cratis/chronicle",
         "cratis/chronicle/csharp",
         "cratis/full",
         "cratis/full/csharp",
-        "public-application",
-        "public-application-arc-chronicle",
-        "public-application-arc-only",
-        "public-application-chronicle-dotnet",
-        "public-application-react",
-        "public-fundamentals",
-        "public-fundamentals-type-discovery"
+        "cratis/fundamentals",
+        "cratis/fundamentals/type-discovery"
       ]
     },
     {
@@ -5826,7 +5256,7 @@
       ],
       "profileIds": [
         "cratis",
-        "public-fundamentals-type-discovery"
+        "cratis/fundamentals/type-discovery"
       ]
     },
     {
@@ -5885,7 +5315,7 @@
       "bundleIds": [],
       "profileIds": [
         "cratis",
-        "public-methodology-governed-releases"
+        "cratis/methodology/governed-releases"
       ]
     },
     {
@@ -5949,7 +5379,7 @@
       "bundleIds": [],
       "profileIds": [
         "cratis",
-        "public-lens"
+        "cratis/lens"
       ]
     },
     {
@@ -6016,7 +5446,7 @@
       ],
       "profileIds": [
         "cratis",
-        "public-review"
+        "cratis/review"
       ]
     },
     {
@@ -6083,8 +5513,8 @@
         "cratis/full/elixir",
         "cratis/full/kotlin",
         "cratis/full/typescript",
-        "public-modeling-screenplay-stage",
-        "public-screenplay"
+        "cratis/modeling/screenplay-stage",
+        "cratis/screenplay"
       ]
     },
     {
@@ -6151,7 +5581,7 @@
       ],
       "profileIds": [
         "cratis",
-        "public-review"
+        "cratis/review"
       ]
     },
     {
@@ -6214,7 +5644,11 @@
       "profileIds": [
         "cratis",
         "cratis/application",
+        "cratis/application/arc-chronicle",
+        "cratis/application/arc-only",
+        "cratis/application/chronicle-dotnet",
         "cratis/application/csharp",
+        "cratis/application/react",
         "cratis/application/typescript",
         "cratis/arc",
         "cratis/arc/csharp",
@@ -6223,14 +5657,9 @@
         "cratis/full",
         "cratis/full/csharp",
         "cratis/full/typescript",
-        "public-application",
-        "public-application-arc-chronicle",
-        "public-application-arc-only",
-        "public-application-chronicle-dotnet",
-        "public-application-react",
-        "public-specifications",
-        "public-specifications-dotnet",
-        "public-specifications-typescript"
+        "cratis/specifications",
+        "cratis/specifications/dotnet",
+        "cratis/specifications/typescript"
       ]
     },
     {
@@ -6353,19 +5782,18 @@
       "profileIds": [
         "cratis",
         "cratis/application",
+        "cratis/application/arc-chronicle",
+        "cratis/application/arc-only",
+        "cratis/application/chronicle-dotnet",
         "cratis/application/csharp",
+        "cratis/application/react",
         "cratis/arc",
         "cratis/arc/csharp",
         "cratis/chronicle",
         "cratis/chronicle/csharp",
         "cratis/full",
         "cratis/full/csharp",
-        "public-application",
-        "public-application-arc-chronicle",
-        "public-application-arc-only",
-        "public-application-chronicle-dotnet",
-        "public-application-react",
-        "public-specifications-dotnet"
+        "cratis/specifications/dotnet"
       ]
     },
     {
@@ -6486,13 +5914,12 @@
         "cratis",
         "cratis/application",
         "cratis/application/csharp",
+        "cratis/application/react",
         "cratis/application/typescript",
         "cratis/full",
         "cratis/full/csharp",
         "cratis/full/typescript",
-        "public-application",
-        "public-application-react",
-        "public-specifications-typescript"
+        "cratis/specifications/typescript"
       ]
     },
     {
@@ -6560,8 +5987,8 @@
         "cratis/full/elixir",
         "cratis/full/kotlin",
         "cratis/full/typescript",
-        "public-modeling-screenplay-stage",
-        "public-stage"
+        "cratis/modeling/screenplay-stage",
+        "cratis/stage"
       ]
     },
     {
@@ -6622,66 +6049,7 @@
       "bundleIds": [],
       "profileIds": [
         "cratis",
-        "public-studio"
-      ]
-    },
-    {
-      "id": "cratis-engineering-chronicle-kernel-tracing",
-      "semanticName": "cratis-engineering-chronicle-kernel-tracing",
-      "audience": "cratis-engineering",
-      "purpose": "Chronicle Kernel tracing maintenance",
-      "whenToUse": "Use by Chronicle framework maintainers to add generated OpenTelemetry traces.",
-      "whenNotToUse": [
-        "Do not use for application telemetry or generic OpenTelemetry setup."
-      ],
-      "capabilityKind": "unclassified",
-      "invocation": "unclassified",
-      "lifecycle": "candidate",
-      "approvalState": "candidate",
-      "runtimeEligible": false,
-      "products": [
-        "cratis-engineering"
-      ],
-      "languages": [
-        "language-agnostic"
-      ],
-      "architectures": {
-        "state": "unclassified",
-        "ids": [],
-        "reason": "Architecture requires reviewed target classification."
-      },
-      "personas": {
-        "state": "unclassified",
-        "ids": [],
-        "reason": "Persona requires reviewed target classification."
-      },
-      "surfaces": {
-        "state": "unclassified",
-        "ids": [],
-        "reason": "Surface requires reviewed target classification."
-      },
-      "repositoryProfiles": {
-        "state": "unclassified",
-        "ids": [],
-        "reason": "Repository profile requires reviewed target classification."
-      },
-      "trust": {
-        "class": "passive",
-        "assessmentState": "unclassified",
-        "effects": []
-      },
-      "dependencies": [],
-      "authoringContractIds": [],
-      "evidenceIds": [
-        "reevaluation-authority",
-        "repo-main-b795d53"
-      ],
-      "relatedTargetIds": [],
-      "bundleIds": [
-        "cratis-engineering-review"
-      ],
-      "profileIds": [
-        "engineering-chronicle"
+        "cratis/studio"
       ]
     },
     {
@@ -6789,26 +6157,7 @@
         "cratis-engineering-review"
       ],
       "profileIds": [
-        "engineering-ai",
-        "engineering-application",
-        "engineering-arc",
-        "engineering-arc-ef-core",
-        "engineering-arc-react",
-        "engineering-base",
-        "engineering-chronicle",
-        "engineering-chronicle-clients",
-        "engineering-chronicle-mcp",
-        "engineering-components",
-        "engineering-cratis-cli",
-        "engineering-documentation",
-        "engineering-fundamentals",
-        "engineering-lens",
-        "engineering-screenplay",
-        "engineering-specifications",
-        "engineering-stage",
-        "engineering-stagehand",
-        "engineering-studio",
-        "engineering-workflows"
+        "cratis/engineering"
       ]
     },
     {
@@ -6867,26 +6216,7 @@
       "relatedTargetIds": [],
       "bundleIds": [],
       "profileIds": [
-        "engineering-ai",
-        "engineering-application",
-        "engineering-arc",
-        "engineering-arc-ef-core",
-        "engineering-arc-react",
-        "engineering-base",
-        "engineering-chronicle",
-        "engineering-chronicle-clients",
-        "engineering-chronicle-mcp",
-        "engineering-components",
-        "engineering-cratis-cli",
-        "engineering-documentation",
-        "engineering-fundamentals",
-        "engineering-lens",
-        "engineering-screenplay",
-        "engineering-specifications",
-        "engineering-stage",
-        "engineering-stagehand",
-        "engineering-studio",
-        "engineering-workflows"
+        "cratis/engineering"
       ]
     },
     {
@@ -7174,7 +6504,7 @@
         "cratis-engineering-review"
       ],
       "profileIds": [
-        "engineering-documentation"
+        "cratis/engineering"
       ]
     },
     {
@@ -7419,26 +6749,7 @@
       ],
       "bundleIds": [],
       "profileIds": [
-        "engineering-ai",
-        "engineering-application",
-        "engineering-arc",
-        "engineering-arc-ef-core",
-        "engineering-arc-react",
-        "engineering-base",
-        "engineering-chronicle",
-        "engineering-chronicle-clients",
-        "engineering-chronicle-mcp",
-        "engineering-components",
-        "engineering-cratis-cli",
-        "engineering-documentation",
-        "engineering-fundamentals",
-        "engineering-lens",
-        "engineering-screenplay",
-        "engineering-specifications",
-        "engineering-stage",
-        "engineering-stagehand",
-        "engineering-studio",
-        "engineering-workflows"
+        "cratis/engineering"
       ]
     },
     {

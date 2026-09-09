@@ -55,7 +55,6 @@ if (targetApprovals.size !== releaseApprovals.targetApprovals.length)
 
 const internalTargets = new Map([
     ["add-cratis-docs-page", "cratis-engineering-docs-add-page"],
-    ["add-traces", "cratis-engineering-chronicle-kernel-tracing"],
     ["cratis-csharp-standards", "cratis-engineering-csharp-conventions"],
     [
         "cratis-engineering-decision-record",
@@ -505,8 +504,8 @@ const arcReactAndComponentsSourcePaths = new Map([
     ],
     ["cratis-components-styling", "skills/cratis-components-styling"],
 ]);
-// Cratis/AI#177: the Chronicle core, tenancy, operations, compliance, Workbench,
-// and kernel-tracing skills now live in the canonical skill trees. Several of
+// Cratis/AI#177: the Chronicle core, tenancy, operations, compliance, and
+// Workbench skills now live in the canonical skill trees. Several of
 // these names also appear in the lists above, so their entries are applied last.
 const chronicleMigrationRevision =
     "3d857190964d7ae45b4a49b4adda0cad9f569444";
@@ -514,10 +513,6 @@ const chronicleMigrationSourcePaths = new Map([
     ["add-projection", "skills/cratis-chronicle-projection"],
     ["add-reactor", "skills/cratis-chronicle-reactor"],
     ["add-reducer", "skills/cratis-chronicle-reducer"],
-    [
-        "add-traces",
-        "engineering/skills/cratis-engineering-chronicle-kernel-tracing",
-    ],
     ["cratis-chronicle-compliance", "skills/cratis-chronicle-compliance"],
     [
         "cratis-chronicle-web-workbench",
@@ -1771,16 +1766,6 @@ const profiles = {
             "cratis-engineering-docs-authoring",
         ],
         "medium",
-        false,
-    ],
-    "cratis-engineering-chronicle-kernel-tracing": [
-        "Chronicle Kernel tracing maintenance",
-        "Use by Chronicle framework maintainers to add generated OpenTelemetry traces.",
-        [
-            "Do not use for application telemetry or generic OpenTelemetry setup.",
-        ],
-        [],
-        "high",
         false,
     ],
     "cratis-engineering-effect-boundaries": [

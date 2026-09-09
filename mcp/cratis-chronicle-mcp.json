@@ -30,7 +30,7 @@
     "note": "Connection authority is delegated to the host and the server, exactly as the passive inspection guidance already phrases it. Cratis AI stores no connection string, no store identity, and no credential of any kind."
   },
   "requires": {
-    "profileIds": ["public-chronicle-mcp", "cratis/chronicle"],
+    "profileIds": ["cratis/chronicle/mcp", "cratis/chronicle"],
     "capabilities": ["running-chronicle-store"],
     "guidanceSkillIds": ["cratis-chronicle-mcp-inspection"]
   },

@@ -124,21 +124,6 @@
       ]
     },
     {
-      "id": "rename-add-traces",
-      "kind": "rename",
-      "sourceIds": [
-        "add-traces"
-      ],
-      "targetIds": [
-        "cratis-engineering-chronicle-kernel-tracing"
-      ],
-      "state": "proposed",
-      "evaluationEvidenceIds": [],
-      "evidenceIds": [
-        "reevaluation-authority"
-      ]
-    },
-    {
       "id": "rename-auth-and-identity",
       "kind": "rename",
       "sourceIds": [

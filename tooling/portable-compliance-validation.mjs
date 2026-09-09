@@ -2072,7 +2072,7 @@ export function validateAgentPluginArtifact(
     if (rootValid && mode === passiveProfile) {
         if (
             typeof expectedProfileId !== "string" ||
-            (!/^(?:public|engineering)-[a-z0-9]+(?:-[a-z0-9]+)*$/.test(
+            (!/^cratis(?:\/[a-z0-9]+(?:-[a-z0-9]+)*){0,3}$/.test(
                 expectedProfileId,
             ) &&
                 !(
@@ -2100,7 +2100,10 @@ export function validateAgentPluginArtifact(
                     { fatal: true },
                 ),
             );
-        if (manifestResult.manifest?.name !== expectedProfileId)
+        if (
+            manifestResult.manifest?.name !==
+            expectedProfileId.replaceAll("/", "-")
+        )
             diagnostics.push(
                 diagnostic(
                     "PASSIVE_PROFILE_PARITY_MISMATCH",

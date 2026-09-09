@@ -2,7 +2,7 @@
 
 Read `.cratis/PROJECT.md` before planning or changing code.
 
-Use the pinned shared `engineering-studio` profile for public-safe Cratis
+Use the pinned shared `cratis/engineering` profile for public-safe Cratis
 contributor behavior. Use repository-local skills under `.agents/skills` only
 for private Studio workflows.
 

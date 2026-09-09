@@ -1,0 +1,19 @@
+{
+    "id": "cratis/fundamentals/type-discovery",
+    "packageName": "@cratis/ai-fundamentals-type-discovery",
+    "version": "0.0.0",
+    "products": [
+        "fundamentals"
+    ],
+    "languages": [
+        "csharp"
+    ],
+    "state": "preview-source-candidate",
+    "availableTargets": [
+        "cratis-fundamentals-type-discovery"
+    ],
+    "composes": [
+        "cratis/fundamentals"
+    ],
+    "gapSummary": "Convention-based implementation discovery through IInstancesOf<T> and the [Singleton]/[Scoped] lifetime conventions, verified against Cratis.Fundamentals 7.18.2. It is a profile of its own rather than a second target on cratis/fundamentals because that profile is the selected passive-preview package, whose authority pins it to exactly one target. Serialization and the remaining Fundamentals primitives are gaps."
+}

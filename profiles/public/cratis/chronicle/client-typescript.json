@@ -1,0 +1,16 @@
+{
+    "id": "cratis/chronicle/client-typescript",
+    "packageName": "@cratis/ai-chronicle-typescript",
+    "version": "0.0.0",
+    "products": [
+        "chronicle"
+    ],
+    "languages": [
+        "typescript"
+    ],
+    "state": "preview-source-candidate",
+    "availableTargets": [
+        "cratis-chronicle-client-typescript"
+    ],
+    "gapSummary": "Chronicle.TypeScript-owned connect, append, observe, discovery, transport, and lifecycle guidance is a canonical source candidate verified against v4.0.0. Browser usage, dependency injection, and model-bound constraints are not supported by the client and remain gaps."
+}

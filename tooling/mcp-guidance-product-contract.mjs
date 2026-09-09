@@ -10,7 +10,7 @@ import {
 } from "./catalog-validation.mjs";
 
 const expectedProductAnchor =
-    "d86b3c4e39c5e9e8f92b15a83dc502dfe8b9331128d9df3d5bb663206a62ad62";
+    "24f545c106a70371ba6202baaa1c76357f3bbc19ad05e33bff4c3050b350d339";
 const expectedProductIds = Object.freeze(["chronicle-mcp", "studio"]);
 
 function semanticAnchor(records) {

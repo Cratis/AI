@@ -29,7 +29,7 @@ const profileFiles = [
     "distribution/profile-catalog.json",
     "distribution/profile-subscription.schema.json",
     "catalog/v2/taxonomy.json",
-    "Documentation/examples/ai-subscriptions/chronicle-framework.cratis-ai.json",
+    "Documentation/examples/ai-subscriptions/cratis-engineering.cratis-ai.json",
     "Documentation/examples/ai-subscriptions/cratis-application.cratis-ai.json",
     "Documentation/examples/ai-subscriptions/cratis-chronicle-suite.cratis-ai.json",
     "Documentation/examples/ai-subscriptions/pi-settings.json",
@@ -145,9 +145,9 @@ test("private repository overlay composes public-safe package and local facts", 
         join(root, ".agents/skills/studio-local-release/SKILL.md"),
         "utf8",
     );
-    assert.deepEqual(subscription.profiles, ["engineering-studio"]);
+    assert.deepEqual(subscription.profiles, ["cratis/engineering"]);
     assert.deepEqual(piSettings.packages, [
-        "npm:@cratis/ai-engineering-studio@1.0.0",
+        "npm:@cratis/ai-engineering@1.0.0",
     ]);
     assert(agents.includes("repository-local skills"));
     assert(project.includes("private Studio implementation behavior"));
@@ -159,17 +159,17 @@ test("profile subscription rejects floating versions and unknown profiles", () =
     withFixture((root) => {
         const path = join(
             root,
-            "Documentation/examples/ai-subscriptions/chronicle-framework.cratis-ai.json",
+            "Documentation/examples/ai-subscriptions/cratis-engineering.cratis-ai.json",
         );
         const example = readJson(path);
         example.version = "latest";
-        example.profiles = ["engineering-framework-unknown"];
+        example.profiles = ["cratis/engineering-unknown"];
         writeJson(path, example);
         const errors = validateProfileSubscriptions(root);
         assert(errors.some((error) => error.includes("version")));
         assert(
             errors.some((error) =>
-                error.includes("unknown profile engineering-framework-unknown"),
+                error.includes("unknown profile cratis/engineering-unknown"),
             ),
         );
     });
@@ -202,7 +202,7 @@ test("subscription schema rejects cross-audience profiles", () => {
             "Documentation/examples/ai-subscriptions/cratis-application.cratis-ai.json",
         );
         const example = readJson(path);
-        example.profiles = ["engineering-chronicle"];
+        example.profiles = ["cratis/engineering"];
         writeJson(path, example);
         const errors = validateProfileSubscriptions(root);
         assert(
@@ -233,11 +233,11 @@ test("cratis namespace subscribes without hand-declaring a channel", () => {
     assert.equal(example.version, "1.0.0");
     assert.equal(deriveSubscriptionChannel(example.profiles), "public");
     assert.equal(
-        deriveSubscriptionChannel(["engineering-chronicle"]),
+        deriveSubscriptionChannel(["cratis/engineering"]),
         "cratis-engineering",
     );
     assert.equal(
-        deriveSubscriptionChannel(["cratis/arc", "engineering-chronicle"]),
+        deriveSubscriptionChannel(["cratis/arc", "cratis/engineering"]),
         null,
     );
 });

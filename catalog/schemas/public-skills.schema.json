@@ -21,19 +21,28 @@
     "runtimePayloadPolicy": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["allowed", "forbidden"],
+      "required": [
+        "allowed",
+        "forbidden"
+      ],
       "properties": {
         "allowed": {
           "type": "array",
           "minItems": 1,
           "uniqueItems": true,
-          "items": { "type": "string", "minLength": 1 }
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
         },
         "forbidden": {
           "type": "array",
           "minItems": 1,
           "uniqueItems": true,
-          "items": { "type": "string", "minLength": 1 }
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
         }
       }
     },
@@ -48,20 +57,46 @@
         "internalSkills"
       ],
       "properties": {
-        "verifiedOn": { "type": "string", "format": "date" },
-        "currentInventoryCount": { "type": "integer", "minimum": 0 },
-        "publicCandidateCount": { "type": "integer", "minimum": 0 },
-        "internalSkillCount": { "type": "integer", "minimum": 0 },
+        "verifiedOn": {
+          "type": "string",
+          "format": "date"
+        },
+        "currentInventoryCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "publicCandidateCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "internalSkillCount": {
+          "type": "integer",
+          "minimum": 0
+        },
         "internalSkills": {
           "type": "array",
           "uniqueItems": true,
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["currentName", "reason"],
+            "required": [
+              "currentName",
+              "reason"
+            ],
             "properties": {
-              "currentName": { "$ref": "#/$defs/currentName" },
-              "reason": { "type": "string", "minLength": 1 }
+              "currentName": {
+                "$ref": "#/$defs/currentName"
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1
+              },
+              "distributionProjection": {
+                "type": "string",
+                "enum": [
+                  "retired-to-owning-repository"
+                ]
+              }
             }
           }
         }
@@ -86,66 +121,102 @@
           "reviewNotes"
         ],
         "properties": {
-          "currentName": { "$ref": "#/$defs/currentName" },
+          "currentName": {
+            "$ref": "#/$defs/currentName"
+          },
           "source": {
             "type": "string",
             "pattern": "^(\\.ai/skills|skills)/[a-z0-9]+(?:-[a-z0-9]+)*$"
           },
-          "proposedName": { "$ref": "#/$defs/publicName" },
+          "proposedName": {
+            "$ref": "#/$defs/publicName"
+          },
           "disposition": {
-            "enum": ["rename", "retain", "merge-review", "split-review"]
+            "enum": [
+              "rename",
+              "retain",
+              "merge-review",
+              "split-review"
+            ]
           },
           "splitTargets": {
             "type": "array",
             "minItems": 2,
             "uniqueItems": true,
-            "items": { "$ref": "#/$defs/publicName" }
+            "items": {
+              "$ref": "#/$defs/publicName"
+            }
           },
           "mergeGroup": {
             "type": "string",
             "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
           },
           "publicationStatus": {
-            "enum": ["candidate", "approved", "rejected"]
+            "enum": [
+              "candidate",
+              "approved",
+              "rejected"
+            ]
           },
-          "includeInRuntime": { "type": "boolean" },
+          "includeInRuntime": {
+            "type": "boolean"
+          },
           "products": {
             "type": "array",
             "minItems": 1,
             "uniqueItems": true,
-            "items": { "$ref": "#/$defs/catalogId" }
+            "items": {
+              "$ref": "#/$defs/catalogId"
+            }
           },
           "languages": {
             "type": "array",
             "minItems": 1,
             "uniqueItems": true,
-            "items": { "$ref": "#/$defs/catalogId" }
+            "items": {
+              "$ref": "#/$defs/catalogId"
+            }
           },
           "dependencies": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["skills", "internalArtifacts", "externalTools"],
+            "required": [
+              "skills",
+              "internalArtifacts",
+              "externalTools"
+            ],
             "properties": {
               "skills": {
                 "type": "array",
                 "uniqueItems": true,
-                "items": { "$ref": "#/$defs/currentName" }
+                "items": {
+                  "$ref": "#/$defs/currentName"
+                }
               },
               "internalArtifacts": {
                 "type": "array",
                 "uniqueItems": true,
-                "items": { "type": "string", "minLength": 1 }
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
               },
               "externalTools": {
                 "type": "array",
                 "uniqueItems": true,
-                "items": { "type": "string", "minLength": 1 }
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
               }
             }
           },
           "reviewNotes": {
             "type": "array",
-            "items": { "type": "string", "minLength": 1 }
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
           }
         }
       }

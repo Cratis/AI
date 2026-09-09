@@ -669,7 +669,7 @@ export function validateChronicleMcpGuidance(
         )
             errors.push(`${binding.id}: MCP binding must remain no-output`);
     const publicProfile = profiles.publicProfiles.find(
-        (profile) => profile.id === "public-chronicle-mcp",
+        (profile) => profile.id === "cratis/chronicle/mcp",
     );
     if (
         publicProfile?.state !== "preview-source-candidate" ||
@@ -686,7 +686,7 @@ export function validateChronicleMcpGuidance(
                 approval.targetId === "cratis-chronicle-mcp-inspection",
         ) ||
         releaseApprovals.profileApprovals.some(
-            (approval) => approval.profileId === "public-chronicle-mcp",
+            (approval) => approval.profileId === "cratis/chronicle/mcp",
         )
     )
         errors.push(

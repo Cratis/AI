@@ -60,10 +60,13 @@ test("catalog v2 schemas and semantic policy pass for the repository", () => {
 
 test("catalog v2 preserves every reviewed source and keeps merge targets independent", () => {
     const catalogs = loadCatalogs();
-    const reviewed = readCatalog(
+    const audit = readCatalog(
         join(defaultRepositoryRoot, "catalog/public-skills.yml"),
-    ).audit.currentInventoryCount;
-    assert.equal(catalogs.sources.sources.length, reviewed);
+    ).audit;
+    const retired = audit.internalSkills.filter(
+        (skill) => skill.distributionProjection === "retired-to-owning-repository",
+    ).length;
+    assert.equal(catalogs.sources.sources.length, audit.currentInventoryCount - retired);
     assert(catalogs.targets.targets.length > 0);
     const merge = catalogs.migrations.migrations.find(
         (migration) => migration.kind === "merge",
@@ -1112,7 +1115,7 @@ test("the accepted Option A+ decision still blocks unapproved live targets", () 
     assert.equal(engineeringCandidate.materializationAllowed, true);
     assert.equal(engineeringCandidate.runtimeEligible, false);
     assert.equal(engineeringCandidate.requiresApprovedTargets, false);
-    assert.equal(engineeringCandidate.componentInventory.skills.length, 8);
+    assert.equal(engineeringCandidate.componentInventory.skills.length, 7);
     assert.deepEqual(engineeringCandidate.targetExclusions, [
         {
             targetId: "cratis-engineering-docs-visual-qa",

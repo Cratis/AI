@@ -1,17 +1,17 @@
 {
-  "id": "cratis/chronicle/kotlin",
-  "packageName": "@cratis/ai-meta-chronicle-kotlin",
-  "version": "0.0.0",
-  "products": [
-    "chronicle"
-  ],
-  "languages": [
-    "kotlin"
-  ],
-  "state": "planned-composition",
-  "composes": [
-    "public-chronicle-client-kotlin",
-    "public-language-kotlin"
-  ],
-  "gapSummary": "Chronicle without Arc, in Kotlin: the Chronicle.Kotlin client plus Kotlin conventions. Java consumers are served through the same JVM artifacts via Kotlin interoperability, exactly as the Chronicle.Kotlin documentation describes. Compliance, multi-tenancy, the web workbench, and the Chronicle MCP server stay on the unscoped cratis/chronicle. This meta-profile must never compose an Arc profile."
+    "id": "cratis/chronicle/kotlin",
+    "packageName": "@cratis/ai-meta-chronicle-kotlin",
+    "version": "0.0.0",
+    "products": [
+        "chronicle"
+    ],
+    "languages": [
+        "kotlin"
+    ],
+    "state": "planned-composition",
+    "composes": [
+        "cratis/chronicle/client-kotlin",
+        "cratis/language/kotlin"
+    ],
+    "gapSummary": "Chronicle without Arc, in Kotlin: the Chronicle.Kotlin client plus Kotlin conventions. Java consumers are served through the same JVM artifacts via Kotlin interoperability, exactly as the Chronicle.Kotlin documentation describes. Compliance, multi-tenancy, the web workbench, and the Chronicle MCP server stay on the unscoped cratis/chronicle. This meta-profile must never compose an Arc profile."
 }

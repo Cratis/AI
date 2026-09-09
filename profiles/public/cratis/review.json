@@ -1,0 +1,20 @@
+{
+    "id": "cratis/review",
+    "packageName": "@cratis/ai-review",
+    "version": "0.0.0",
+    "products": [
+        "cross-product"
+    ],
+    "languages": [
+        "csharp",
+        "typescript",
+        "react"
+    ],
+    "state": "preview-source-candidate",
+    "availableTargets": [
+        "cratis-code-review",
+        "cratis-performance-review",
+        "cratis-security-review"
+    ],
+    "gapSummary": "General, performance, and security review criteria for a Cratis application, verified against Arc 22.10.4, Chronicle 16.45.2, and Fundamentals 7.18.2. It deliberately composes nothing: a reviewer reads code they did not write and must not be forced to install every product profile to do it, so selecting this must never imply Arc, Chronicle, or Components. Review of a Cratis framework repository itself, rather than an application built on one, remains a gap."
+}
