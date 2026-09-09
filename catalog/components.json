@@ -6092,12 +6092,12 @@
       "canonicalSources": [
         {
           "path": ".ai/skills/ship-changes",
-          "digest": "d707392ab648aec8d114e7941a85293bf302c2435d1d19fb7e270765abc6c2a0",
+          "digest": "def7578f965cc989967df312274324c591b7ca88c5ee98d7293f53e011a7dd0a",
           "ownership": "owner",
           "ownerComponentId": "cratis-engineering-ship-changes"
         }
       ],
-      "contentDigest": "4ef4b530bf18dd8ab2effdd195a318f3ab71fc4f5f1b7ed5487bc018dc6b3e12",
+      "contentDigest": "3de6c3d451c9abf8612cee6e62b71464ab84b9f401dd1a0bf1b9b59167043d45",
       "owner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "classification": {

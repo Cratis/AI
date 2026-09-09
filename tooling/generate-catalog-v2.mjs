@@ -729,8 +729,8 @@ const sourceOverrides = new Map([
         "ship-changes",
         {
             sourcePath: ".ai/skills/ship-changes",
-            sourceRevision: "f5f215fee9ba5ad95ea5b4d512d5730229dda49d",
-            evidenceId: "engineering-ship-changes-scoped-operations-f5f215f",
+            sourceRevision: "c29984acd8d55ca61b1bc3e918ef11627db8b06d",
+            evidenceId: "engineering-ship-changes-merged-branch-cleanup-c29984a",
         },
     ],
     [

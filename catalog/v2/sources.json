@@ -1122,13 +1122,13 @@
         ".ai/skills/ship-changes/SKILL.md",
         ".ai/skills/ship-changes/evals/evals.json"
       ],
-      "sourceRevision": "f5f215fee9ba5ad95ea5b4d512d5730229dda49d",
-      "contentDigest": "d707392ab648aec8d114e7941a85293bf302c2435d1d19fb7e270765abc6c2a0",
+      "sourceRevision": "c29984acd8d55ca61b1bc3e918ef11627db8b06d",
+      "contentDigest": "def7578f965cc989967df312274324c591b7ca88c5ee98d7293f53e011a7dd0a",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
         "reevaluation-authority",
-        "engineering-ship-changes-scoped-operations-f5f215f"
+        "engineering-ship-changes-merged-branch-cleanup-c29984a"
       ]
     },
     {

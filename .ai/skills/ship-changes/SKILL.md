@@ -3,7 +3,8 @@ name: ship-changes
 description: >
   Use when asked to commit, push, create a PR, ship, or land changes. Stop at
   the requested verb; separately authorize merge, publication, issue effects,
-  label mutations, and branch deletion. Preserve history and explicit staging.
+  and label mutations. Deleting the merged PR branch is the standard final
+  step. Preserve history and explicit staging.
 
 ---
 
@@ -21,7 +22,18 @@ The requested verb is the stopping point, not permission for the whole workflow:
 - **PR-only:** prepare/open the requested PR and report required checks; stop before merge.
 - **Ship/land:** clarify the exact intended endpoint and effects. These words alone do not authorize destructive or notification-bearing effects.
 
-Merge, issue comments or closure, label mutations (especially labels that trigger publication/releases), publication, and local or remote branch deletion each require separate explicit authorization for exact targets and effects. Apply the repository's current mutation protocol and stricter local/private gates; tool access and inverse escrow alone supply no authority. For destructive/bulk effects, prepare an exact dry-run, capture pre-state and deterministic inverse escrow in ignored `.ai-work/`, obtain approval, recheck preconditions, and record/read back outcomes through the approved repository-owned adapter. If a required adapter, safe inverse/compensation, or authorization is missing, stop. Preserve any stricter prohibition below.
+Merge, issue comments or closure, label mutations (especially labels that
+trigger publication/releases), and publication each require separate explicit
+authorization for exact targets and effects. Deleting the PR branch after a
+verified successful merge is the one standard cleanup step (step 10) and needs
+no separate authorization. Apply the repository's current mutation protocol and
+stricter local/private gates; tool access and inverse escrow alone supply no
+authority. For destructive/bulk effects, prepare an exact dry-run, capture
+pre-state and deterministic inverse escrow in ignored `.ai-work/`, obtain
+approval, recheck preconditions, and record/read back outcomes through the
+approved repository-owned adapter. If a required adapter, safe
+inverse/compensation, or authorization is missing, stop. Preserve any stricter
+prohibition below.
 
 Never rewrite history: no amend, rebase, squash merge, hard reset, force-push, or forced branch deletion. Use new commits, revert, cherry-pick, and merge instead. A request to ship does not override this prohibition.
 
@@ -260,15 +272,34 @@ separate public repo (check canonical `.cratis/PROJECT.md`; `.agents/PROJECT.md`
   comment or closure stays behind the owning tracker repository's exact effect
   policy.
 
-## Step 10 — Clean up the branch
+## Step 10 — Delete the merged branch
 
-Branch deletion is optional, not completion criteria. Only after a verified merge
-and separate explicit authorization for each exact local/remote ref may cleanup
-proceed through the repository’s mutation protocol. Capture pre-state and inverse
-escrow, recheck refs immediately before each action, and read back each outcome.
-Do not batch checkout, pull, and deletion into one unreviewed command. Use only
-`git branch -d`, never `-D`; stop if it refuses or any ref/precondition drifts.
-Leave branches intact and report pending cleanup when authorization is absent.
+After a verified successful merge, deleting the PR branch — locally and on the
+remote — is the standard final step of the ship flow. It requires no separate
+authorization, because a true merge commit keeps every branch commit reachable
+from `main`; nothing is lost.
+
+Verify the merge before deleting anything, then delete remote first, local
+second:
+
+```bash
+git fetch origin
+git merge-base --is-ancestor <branch-name> origin/main   # must exit 0
+git push origin --delete <branch-name>
+git branch -d <branch-name>
+```
+
+Rules:
+
+- Safe deletion only. `git branch -d` refuses to delete an unmerged branch —
+  if it refuses, that is a stop-and-report signal, never a reason to reach for
+  `-D`. Never force-delete the remote ref either.
+- Delete only after verification, and recheck the ref immediately before each
+  action; if any precondition drifts, stop and report.
+- Nothing is deleted at the earlier stopping points: commit-only, push-only, and
+  PR-only endpoints leave the branch in place.
+- If the remote branch was already removed (some hosts delete it on merge),
+  delete the local branch and note the remote was already gone.
 
 ## Full example sequence
 
@@ -287,11 +318,17 @@ git push -u origin <authorized-branch>
 # Only when PR creation was requested: use the reviewed template/body.
 gh pr create --base main --head <authorized-branch> --body-file <reviewed-body-path>
 # STOP before merge for PR-only. Report relevant required checks.
+
+# After a separately authorized merge: step 10 deletes the merged branch.
+git fetch origin
+git merge-base --is-ancestor <authorized-branch> origin/main
+git push origin --delete <authorized-branch>
+git branch -d <authorized-branch>
 ```
 
-A release-intent label, merge, issue comment/closure, or branch deletion is not an
-implied next command. First obtain separate explicit authorization for the exact
-effect and satisfy the authorization, current workflow, and mutation gates above.
+A release-intent label, merge, or issue effect is not an implied next command.
+Deleting the merged branch after a verified merge is the one standard step 10
+cleanup; every other effect waits for its own authorization.
 
 ## Common mistakes to avoid
 
@@ -302,4 +339,4 @@ effect and satisfy the authorization, current workflow, and mutation gates above
 - **Never push directly to `main`** — always go through the branch + PR flow.
 - **Never assume issue-effect authority** — prepare the exact post-merge disposition in step 9; an owning repository adapter and operation profile must authorize any later comment or closure.
 - **Never put `Closes #N` / `Fixes #N` in the PR body** — the release notes are the body verbatim.
-- **Never delete branches automatically** — leave local/remote refs intact unless their exact deletion is separately authorized after verified merge.
+- **Never force-delete a branch** — after a verified merge, delete the PR branch with safe deletion (`git branch -d`, `git push origin --delete`); if a deletion refuses, stop and report instead of reaching for `-D`.
