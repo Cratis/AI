@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "f367fa17fc589c11443aaa88d5c4cf16d09d1ddda6bf200bdd581e5a96519214",
+  "indexDigest": "db95c0ada115e81a17ca9cfbcd2c77ad30fe2b0c17d2bf50096be20d38856b00",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -15,7 +15,19 @@
       "status": "modified"
     },
     {
+      "path": ".ai/agents/backend-developer.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/agents/code-reviewer.md",
+      "status": "modified"
+    },
+    {
       "path": ".ai/agents/coordinator.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/agents/frontend-developer.md",
       "status": "modified"
     },
     {
@@ -31,7 +43,23 @@
       "status": "modified"
     },
     {
+      "path": ".ai/agents/security-reviewer.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/agents/slice-implementer.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/agents/spec-writer.md",
+      "status": "modified"
+    },
+    {
       "path": ".ai/hooks/README.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/hooks/pre-commit.md",
       "status": "modified"
     },
     {
@@ -401,6 +429,58 @@
     {
       "path": ".gitleaks.toml",
       "status": "added"
+    },
+    {
+      "path": ".pi/agents/.generated.json",
+      "status": "added"
+    },
+    {
+      "path": ".pi/agents/backend-developer.md",
+      "status": "type-changed"
+    },
+    {
+      "path": ".pi/agents/code-reviewer.md",
+      "status": "type-changed"
+    },
+    {
+      "path": ".pi/agents/coordinator.md",
+      "status": "type-changed"
+    },
+    {
+      "path": ".pi/agents/frontend-developer.md",
+      "status": "type-changed"
+    },
+    {
+      "path": ".pi/agents/orchestrator.md",
+      "status": "type-changed"
+    },
+    {
+      "path": ".pi/agents/performance-reviewer.md",
+      "status": "type-changed"
+    },
+    {
+      "path": ".pi/agents/planner.md",
+      "status": "type-changed"
+    },
+    {
+      "path": ".pi/agents/repository-investigation-reviewer.md",
+      "status": "type-changed"
+    },
+    {
+      "path": ".pi/agents/repository-investigator.md",
+      "status": "type-changed"
+    },
+    {
+      "path": ".pi/agents/security-reviewer.md",
+      "status": "type-changed"
+    },
+    {
+      "path": ".pi/agents/slice-implementer.md",
+      "status": "type-changed"
+    },
+    {
+      "path": ".pi/agents/spec-writer.md",
+      "status": "type-changed"
     },
     {
       "path": "Documentation/.markdownlint.json",
@@ -3683,6 +3763,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/pi-agent-adapters.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/portable-compliance-validation.mjs",
       "status": "added"
     },
@@ -3988,6 +4072,10 @@
     },
     {
       "path": "tooling/specs/passive-candidate-assets.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/pi-agent-adapters.spec.mjs",
       "status": "added"
     },
     {
@@ -4820,8 +4908,8 @@
       "currentOwner": "reusable Cratis engineering behavior",
       "targetOwner": "Ensemble",
       "runtimeEligibility": "forbidden",
-      "generatedStatus": "derived",
-      "adapterStatus": "symlink-adapter",
+      "generatedStatus": "generated",
+      "adapterStatus": "adapter",
       "dependencies": [
         ".ai/agents/repository-investigation-reviewer.md",
         ".ai/agents/repository-investigator.md"
@@ -4831,7 +4919,7 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "generator": "legacy-manual-adapter-model",
+      "generator": "tooling/pi-agent-adapters.mjs",
       "expectedPathCount": 2,
       "expectedPathsDigest": "9943d480016084007628f58d5db9b4fdd1d238eda9564063bc5447e0e39112d9"
     },
@@ -4848,8 +4936,8 @@
       "currentOwner": "reusable Cratis engineering behavior",
       "targetOwner": "reusable Cratis engineering behavior",
       "runtimeEligibility": "forbidden",
-      "generatedStatus": "derived",
-      "adapterStatus": "symlink-adapter",
+      "generatedStatus": "generated",
+      "adapterStatus": "adapter",
       "dependencies": [
         ".ai/agents/**"
       ],
@@ -4858,9 +4946,9 @@
       "evidenceIds": [
         "workflows-68"
       ],
-      "generator": "legacy-manual-adapter-model",
-      "expectedPathCount": 10,
-      "expectedPathsDigest": "59159764500d1d8b3f15f7babf2bd0cded4abab3b5c35a6c7d2262fd2a12454c"
+      "generator": "tooling/pi-agent-adapters.mjs",
+      "expectedPathCount": 11,
+      "expectedPathsDigest": "d0ddbe9559c48588a48434fec7f4009427d320b3acc2806d1de5b83ff3b8f946"
     },
     {
       "excludePathPatterns": [],
@@ -5765,8 +5853,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 83,
-      "expectedPathsDigest": "8a8b99f7d8c272bd452b1cceed71eff380b1a539b0a7aac3e2703383514f15c9"
+      "expectedPathCount": 84,
+      "expectedPathsDigest": "791e6fe30249fbbb6e419d177dde10b937b5c5c72813d926a2c391eb24235dc7"
     },
     {
       "excludePathPatterns": [],
@@ -5819,8 +5907,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 69,
-      "expectedPathsDigest": "bbbce8b777c43729581f7e825f210cf0ea719ed9e87c9cd2033dd7def26444b7"
+      "expectedPathCount": 70,
+      "expectedPathsDigest": "8c868960d18acc95357cbd16ddd8eff863d9db8e8dd6e9d0ea9f1c620139cb0f"
     },
     {
       "excludePathPatterns": [],

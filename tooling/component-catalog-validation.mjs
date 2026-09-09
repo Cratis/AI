@@ -18,6 +18,10 @@ import {
     validateAgainstSchema,
 } from "./catalog-validation.mjs";
 import { supersededEvidenceIds } from "./evidence-supersession.mjs";
+import {
+    digest as digestPiAgentAdapter,
+    renderAdapter,
+} from "./pi-agent-adapters.mjs";
 
 export const componentCatalogPaths = Object.freeze({
     authoredComponents: "catalog/components.json",
@@ -48,9 +52,9 @@ export const distributionPointerOutputs = new Set([
 ]);
 
 const expectedComponentAnchor =
-    "7841f2d7795eda71a844096b1d1632bfb66a5bd09335ded98c044833511f08b0";
+    "30323ccaa39916b638898cd53361a26363dc09580f420e6cd09f8a4b9b1ef152";
 const expectedProjectionAnchor =
-    "7fd427600ace6fd0a8785a8e2f3eb5a5d3948461c0de7e6430f66610d806716c";
+    "b896dcb363e9b52ae5a20985cd2706e730d7569ce93d0ee1755f5c59dadb24b9";
 const expectedProjectionHostAnchor =
     "9735e6fd6a1b15e92086df6fda6cb4a988094c37c26e11bddf0518d5d3fdeba2";
 
@@ -333,6 +337,124 @@ function projectionOutputMatchesHost(host, path) {
     return host.allowedOutputPrefixes.some(
         (prefix) => path === prefix || path.startsWith(`${prefix}/`),
     );
+}
+
+const piGeneratedAgentManifestPath = ".pi/agents/.generated.json";
+
+function isPiGeneratedAgentProjection(projection, host) {
+    return (
+        projection.state === "existing" &&
+        projection.adapterType === "generated" &&
+        projection.hostId === "pi" &&
+        host?.contract === "pi" &&
+        host.materialization === "repository-existing" &&
+        projection.projectedKind === "agent" &&
+        projection.hostActivation === "active"
+    );
+}
+
+function piGeneratedAgentFilename(projection) {
+    if (projection.outputPaths.length !== 1) return null;
+    const match = /^\.pi\/agents\/([a-z]+(?:-[a-z]+)*\.md)$/.exec(
+        projection.outputPaths[0],
+    );
+    return match?.[1] ?? null;
+}
+
+function validatePiGeneratedAgentOutputs(
+    root,
+    generatedPiAgentProjections,
+    componentsById,
+) {
+    const errors = [];
+    const expectedManifestOutputs = {};
+    for (const projection of generatedPiAgentProjections) {
+        const component = componentsById.get(projection.componentId);
+        const filename = piGeneratedAgentFilename(projection);
+        if (!filename) {
+            errors.push(
+                `${projection.id}: generated Pi agent requires one .pi/agents/name.md output`,
+            );
+            continue;
+        }
+        const sourcePath = `.ai/agents/${filename}`;
+        if (
+            component?.kind !== "agent" ||
+            component.canonicalSources.length !== 1 ||
+            component.canonicalSources[0].path !== sourcePath
+        ) {
+            errors.push(
+                `${projection.id}: generated Pi agent source must be the component .ai/agents/${filename} canonical file`,
+            );
+            continue;
+        }
+        const outputPath = `.pi/agents/${filename}`;
+        try {
+            const source = join(root, sourcePath);
+            const output = join(root, outputPath);
+            if (!existsSync(source) || lstatSync(source).isSymbolicLink())
+                throw new Error(`canonical source is missing or symlink: ${sourcePath}`);
+            if (!existsSync(output) || lstatSync(output).isSymbolicLink())
+                throw new Error(`generated output is missing or symlink: ${outputPath}`);
+            if (!lstatSync(source).isFile())
+                throw new Error(`canonical source is not a regular file: ${sourcePath}`);
+            if (!lstatSync(output).isFile())
+                throw new Error(`generated output is not a regular file: ${outputPath}`);
+            const rendered = renderAdapter(
+                filename,
+                readFileSync(source, "utf8"),
+            );
+            const actual = readFileSync(output, "utf8");
+            if (actual !== rendered)
+                errors.push(
+                    `${projection.id}: generated Pi agent output is not byte-exact: ${outputPath}`,
+                );
+            expectedManifestOutputs[filename] = digestPiAgentAdapter(rendered);
+        } catch (error) {
+            errors.push(
+                `${projection.id}: generated Pi agent validation failed for ${outputPath}: ${error.message}`,
+            );
+        }
+    }
+    try {
+        const manifestPath = join(root, piGeneratedAgentManifestPath);
+        if (!existsSync(manifestPath))
+            throw new Error(`${piGeneratedAgentManifestPath} is missing`);
+        const stat = lstatSync(manifestPath);
+        if (!stat.isFile() || stat.isSymbolicLink())
+            throw new Error(`${piGeneratedAgentManifestPath} is not a regular file`);
+        const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+        if (
+            manifest.version !== 1 ||
+            Object.keys(manifest).sort(compareOrdinal).join(",") !==
+                "outputs,version" ||
+            !manifest.outputs ||
+            Array.isArray(manifest.outputs) ||
+            typeof manifest.outputs !== "object"
+        )
+            throw new Error("unsupported generated Pi agent manifest shape");
+        if (
+            JSON.stringify(
+                Object.keys(manifest.outputs).sort(compareOrdinal),
+            ) !==
+            JSON.stringify(
+                Object.keys(expectedManifestOutputs).sort(compareOrdinal),
+            )
+        )
+            throw new Error(
+                "generated Pi agent manifest output keys do not match declared projections",
+            );
+        for (const [filename, expectedDigest] of Object.entries(
+            expectedManifestOutputs,
+        ))
+            if (manifest.outputs[filename] !== expectedDigest)
+                throw new Error(
+                    `generated Pi agent manifest digest mismatch for ${filename}`,
+                );
+    } catch (error) {
+        errors.push(`pi: generated Pi agent manifest validation failed: ${error.message}`);
+    }
+    return errors;
 }
 
 function sourceSignature(component) {
@@ -832,6 +954,26 @@ export function validateComponentProjections(
             uses.push(projection);
             outputUses.set(outputPath, uses);
         }
+    const generatedPiAgentProjections = projections.projections.filter(
+        (projection) =>
+            isPiGeneratedAgentProjection(
+                projection,
+                hostsById.get(projection.hostId),
+            ),
+    );
+    const allowedGeneratedProvenanceOutputs = new Set(
+        generatedPiAgentProjections.length > 0
+            ? [piGeneratedAgentManifestPath]
+            : [],
+    );
+    if (generatedPiAgentProjections.length > 0)
+        errors.push(
+            ...validatePiGeneratedAgentOutputs(
+                root,
+                generatedPiAgentProjections,
+                componentsById,
+            ),
+        );
     for (const host of projections.hosts) {
         for (const evidenceId of host.evidenceIds) {
             if (!evidenceIds.has(evidenceId))
@@ -892,7 +1034,11 @@ export function validateComponentProjections(
                         ),
                     ),
                 ]
-                    .filter((path) => !distributionPointerOutputs.has(path))
+                    .filter(
+                        (path) =>
+                            !distributionPointerOutputs.has(path) &&
+                            !(host.id === "pi" && allowedGeneratedProvenanceOutputs.has(path)),
+                    )
                     .sort(compareOrdinal);
                 if (
                     JSON.stringify(actualOutputs) !==
@@ -1008,6 +1154,13 @@ export function validateComponentProjections(
                 );
         }
         if (projection.state === "existing") {
+            if (
+                projection.adapterType === "generated" &&
+                !isPiGeneratedAgentProjection(projection, host)
+            )
+                errors.push(
+                    `${projection.id}: generated existing adapter is only supported for repository-existing Pi agent outputs`,
+                );
             const expectedActivation =
                 projection.adapterType === "path-reference"
                     ? "inert"

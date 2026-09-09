@@ -622,8 +622,8 @@ const inventoryDefinitions = () => [
         currentOwner: engineeringOwner,
         targetOwner: ensembleOwner,
         runtimeEligibility: "forbidden",
-        generatedStatus: "derived",
-        adapterStatus: "symlink-adapter",
+        generatedStatus: "generated",
+        adapterStatus: "adapter",
         dependencies: [
             ".ai/agents/repository-investigation-reviewer.md",
             ".ai/agents/repository-investigator.md",
@@ -631,10 +631,11 @@ const inventoryDefinitions = () => [
         risk: "high",
         migrationState: "move-deferred",
         evidenceIds: ["reevaluation-authority"],
-        generator: "legacy-manual-adapter-model",
+        generator: "tooling/pi-agent-adapters.mjs",
     },
     {
         id: "pi-engineering-agent-adapters",
+        // Includes the provenance manifest once; it is not a runtime agent.
         sourcePathPatterns: [".pi/agents/**"],
         excludePathPatterns: [
             ".pi/agents/repository-investigation-reviewer.md",
@@ -644,13 +645,13 @@ const inventoryDefinitions = () => [
         currentOwner: engineeringOwner,
         targetOwner: engineeringOwner,
         runtimeEligibility: "forbidden",
-        generatedStatus: "derived",
-        adapterStatus: "symlink-adapter",
+        generatedStatus: "generated",
+        adapterStatus: "adapter",
         dependencies: [".ai/agents/**"],
         risk: "high",
         migrationState: "retire-after-evidence",
         evidenceIds: ["workflows-68"],
-        generator: "legacy-manual-adapter-model",
+        generator: "tooling/pi-agent-adapters.mjs",
     },
     {
         id: "pi-prompt-adapters",

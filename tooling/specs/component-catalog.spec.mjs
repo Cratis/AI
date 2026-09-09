@@ -6,6 +6,7 @@ import { execFileSync } from "node:child_process";
 import {
     mkdtempSync,
     mkdirSync,
+    readFileSync,
     rmSync,
     symlinkSync,
     writeFileSync,
@@ -30,6 +31,10 @@ import {
 } from "../catalog-validation.mjs";
 import { validateArtifacts } from "../catalog-v2-validation.mjs";
 import { readComponentInventorySeals } from "../component-inventory-counts.mjs";
+import {
+    digest as digestPiAgentAdapter,
+    renderAdapter,
+} from "../pi-agent-adapters.mjs";
 
 function clone(value) {
     return structuredClone(value);
@@ -142,6 +147,61 @@ function syntheticCatalog(component) {
 
 function projectionErrors(catalogs) {
     return validateComponentProjections(catalogs, defaultRepositoryRoot);
+}
+
+function piGeneratedAgentFixture() {
+    const sourceRoot = defaultRepositoryRoot;
+    const root = mkdtempSync(join(tmpdir(), "cratis-pi-generated-agent-"));
+    mkdirSync(join(root, ".ai/agents"), { recursive: true });
+    mkdirSync(join(root, ".pi/agents"), { recursive: true });
+    const catalogs = load();
+    const projection = clone(
+        catalogs.projections.projections.find(
+            (candidate) =>
+                candidate.hostId === "pi" &&
+                candidate.projectedKind === "agent" &&
+                candidate.adapterType === "generated",
+        ),
+    );
+    const component = clone(
+        catalogs.components.components.find(
+            (candidate) => candidate.id === projection.componentId,
+        ),
+    );
+    const host = clone(
+        catalogs.projections.hosts.find((candidate) => candidate.id === "pi"),
+    );
+    catalogs.components.components = [component];
+    catalogs.projections.hosts = [host];
+    catalogs.projections.projections = [projection];
+    const filename = projection.outputPaths[0].split("/").at(-1);
+    const sourcePath = join(root, ".ai/agents", filename);
+    const source = readFileSync(
+        join(sourceRoot, component.canonicalSources[0].path),
+        "utf8",
+    );
+    writeFileSync(sourcePath, source);
+    const rendered = renderAdapter(filename, source);
+    writeFileSync(join(root, ".pi/agents", filename), rendered);
+    writeFileSync(
+        join(root, ".pi/agents/.generated.json"),
+        `${JSON.stringify(
+            { version: 1, outputs: { [filename]: digestPiAgentAdapter(rendered) } },
+            null,
+            2,
+        )}\n`,
+    );
+    return { catalogs, root, filename, projection, rendered };
+}
+
+function piGeneratedErrors(mutator = () => {}) {
+    const fixture = piGeneratedAgentFixture();
+    try {
+        mutator(fixture);
+        return validateComponentProjections(fixture.catalogs, fixture.root);
+    } finally {
+        rmSync(fixture.root, { recursive: true, force: true });
+    }
 }
 
 test("component catalogs are closed, exact, generated, and fail closed", () => {
@@ -747,6 +807,94 @@ test("host output and shared symlink closure reject unmodeled exposure", () => {
     assert(
         errors.some((error) =>
             error.includes("shared output is not explicitly declared"),
+        ),
+    );
+});
+
+test("Pi generated agent projections are existing active generated adapters", () => {
+    const catalogs = load();
+    const piAgents = catalogs.projections.projections.filter(
+        (projection) =>
+            projection.hostId === "pi" &&
+            projection.projectedKind === "agent" &&
+            projection.outputPaths[0]?.startsWith(".pi/agents/"),
+    );
+    assert.equal(piAgents.length, 12);
+    assert(
+        piAgents.every(
+            (projection) =>
+                projection.state === "existing" &&
+                projection.hostActivation === "active" &&
+                projection.adapterType === "generated" &&
+                projection.approval === "modeled",
+        ),
+    );
+    assert.deepEqual(projectionErrors(catalogs), []);
+});
+
+test("Pi generated agent validation rejects unsafe or stale generated outputs", () => {
+    assert(
+        piGeneratedErrors(({ root, filename }) => {
+            rmSync(join(root, ".pi/agents", filename));
+            symlinkSync(
+                `../../.ai/agents/${filename}`,
+                join(root, ".pi/agents", filename),
+            );
+        }).some((error) => error.includes("output is missing or symlink")),
+    );
+    assert(
+        piGeneratedErrors(({ root, filename, rendered }) => {
+            writeFileSync(
+                join(root, ".pi/agents", filename),
+                rendered.replace("extensions: false", "extensions: true"),
+            );
+        }).some((error) => error.includes("not byte-exact")),
+    );
+    assert(
+        piGeneratedErrors(({ root }) => {
+            rmSync(join(root, ".pi/agents/.generated.json"));
+        }).some((error) => error.includes(".generated.json is missing")),
+    );
+    assert(
+        piGeneratedErrors(({ root, filename }) => {
+            writeFileSync(
+                join(root, ".pi/agents/.generated.json"),
+                `${JSON.stringify({ version: 1, outputs: { [filename]: "0".repeat(64) } })}\n`,
+            );
+        }).some((error) => error.includes("manifest digest mismatch")),
+    );
+    assert(
+        piGeneratedErrors(({ root, filename, rendered }) => {
+            writeFileSync(
+                join(root, ".pi/agents/.generated.json"),
+                `${JSON.stringify({ version: 1, outputs: { [filename]: digestPiAgentAdapter(rendered), "extra.md": digestPiAgentAdapter(rendered) } })}\n`,
+            );
+        }).some((error) => error.includes("manifest output keys")),
+    );
+    assert(
+        piGeneratedErrors(({ root }) => {
+            writeFileSync(
+                join(root, ".pi/agents/.generated.json"),
+                `${JSON.stringify({ version: 1, outputs: {} })}\n`,
+            );
+        }).some((error) => error.includes("manifest output keys")),
+    );
+    assert(
+        piGeneratedErrors(({ catalogs }) => {
+            catalogs.projections.projections[0].hostId = "claude-code";
+        }).some((error) =>
+            error.includes(
+                "generated existing adapter is only supported for repository-existing Pi agent outputs",
+            ),
+        ),
+    );
+    assert(
+        piGeneratedErrors(({ catalogs }) => {
+            catalogs.projections.projections[0].projectedKind = "prompt";
+        }).some((error) =>
+            error.includes(
+                "generated existing adapter is only supported for repository-existing Pi agent outputs",
+            ),
         ),
     );
 });

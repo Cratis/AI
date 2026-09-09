@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "asOf": "2026-09-06",
+  "asOf": "2026-09-08",
   "defaultPolicy": "deny",
   "ecosystems": [
     {
