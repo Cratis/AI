@@ -1,5 +1,7 @@
 # MCP declarations in profiles
 
+> **Audience:** Maintainers of Cratis/AI — how profiles require MCP servers. Not required for adopting Cratis AI.
+
 A profile can say which MCP servers it needs. It says so by naming a
 **declaration** under [`mcp/`](../mcp/README.md), and by nothing else.
 
@@ -114,7 +116,7 @@ they are: no tool or prompt is admitted, and `authorityState` remains
 `NO_ADMITTED_TOOL_EFFECT_EVIDENCE`. The declaration says what the server *is*;
 the classification catalog still says nothing may be invoked.
 
-`public-chronicle-mcp` and `cratis/chronicle` are the profiles that require it.
+`cratis/chronicle/mcp` and `cratis/chronicle` are the profiles that require it.
 Arc profiles deliberately do not: Chronicle MCP inspects a running Chronicle
 store, and requiring it from an Arc profile would reintroduce exactly the
 Arc-implies-Chronicle coupling the meta-profiles exist to avoid.

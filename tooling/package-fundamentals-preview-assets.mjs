@@ -27,7 +27,7 @@ import { createReleaseContext } from "./release-context.mjs";
 const defaultRepositoryRoot = resolve(
     fileURLToPath(new URL("..", import.meta.url)),
 );
-const profileId = "public-fundamentals";
+const profileId = "cratis/fundamentals";
 const targetId = "cratis-fundamentals-concept";
 const sourceId = "add-concept";
 const artifactId = "cratis-fundamentals-concept-preview";
@@ -313,7 +313,7 @@ export function packageFundamentalsPreviewAssets({
             const harnessRoot = join(stageRoot, adapterManifest.roots[harness]);
             const paths = walkFiles(harnessRoot).sort();
             const extension = harness === "pi" ? "tgz" : "tar.gz";
-            const filename = `cratis-ai-${profileId}-${version}-${harness}.${extension}`;
+            const filename = `cratis-ai-${profileId.replaceAll("/", "-")}-${version}-${harness}.${extension}`;
             const pathPrefix = harness === "pi" ? "package" : "";
             const content = createTarGzip(harnessRoot, paths, pathPrefix);
             const archiveFiles = readTarGzip(content);

@@ -4,11 +4,14 @@ Profiles are generated views over approved capabilities. They do not create a
 second authored copy of a skill. Every package listed here remains planned until
 its profile and targets are explicitly approved.
 
-The `public-` and `engineering-` prefixes identify the subscription channel and
-audience. They do not indicate repository or package confidentiality. The
-`cratis/` namespace added by [Cratis/AI#264](https://github.com/Cratis/AI/issues/264)
-is a third, channel-free namespace: a `cratis/*` selection derives the public
-channel instead of declaring it.
+Every profile id lives in the `cratis/` namespace. `cratis` is the one bare id —
+the maximal public bundle — and everything else is namespaced under it:
+`cratis/chronicle`, `cratis/chronicle/kotlin`, `cratis/language/csharp`,
+`cratis/engineering`. The namespace does not indicate repository or package
+confidentiality; it is the one consumer-facing naming scheme. The only
+engineering profile is `cratis/engineering`, and it carries general Cratis
+maintainer guidance only — product-specific contributor guidance lives in the
+owning product repository.
 
 For a generated view with plain-language package descriptions, included skills,
 availability, trust, and evidence, browse the
@@ -25,23 +28,25 @@ profiles/
 │                                    repositories, versioning, authority,
 │                                    confidentiality, subscription, contribution flow
 ├── public/                          audience "public"
-│   ├── public-fundamentals.json
-│   ├── …
 │   ├── cratis.json                  id: cratis — the bare id, a file, not a folder
 │   └── cratis/                      an id containing "/" is a real subdirectory
+│       ├── fundamentals.json        id: cratis/fundamentals
+│       ├── fundamentals/
+│       │   └── type-discovery.json  id: cratis/fundamentals/type-discovery
 │       ├── arc.json                 id: cratis/arc
 │       ├── arc/
+│       │   ├── core.json            id: cratis/arc/core — the Arc capability base
 │       │   ├── csharp.json          id: cratis/arc/csharp — a language-scoped cell
 │       │   └── kotlin.json
-│       ├── chronicle.json
+│       ├── chronicle.json           id: cratis/chronicle
 │       ├── chronicle/…
 │       ├── application.json
 │       ├── application/…
 │       ├── full.json
 │       └── full/…
 └── cratis-engineering/              audience "cratis-engineering"
-    ├── engineering-base.json
-    └── …
+    └── cratis/
+        └── engineering.json         id: cratis/engineering — the single profile
 ```
 
 The two audience directory names are the resolver's own vocabulary:
@@ -164,32 +169,37 @@ request, and floating versions such as `latest` remain forbidden everywhere.
 
 | Profile | Intended package | Current state |
 | --- | --- | --- |
-| `public-fundamentals` | `@cratis/ai-fundamentals` | First preview source candidate |
-| `public-arc` | `@cratis/ai-arc` | Legacy source migration planned |
-| `public-arc-client-kotlin` | `@cratis/ai-arc-client-kotlin` | Content gap; anchored to [Cratis Arc.Kotlin](https://github.com/cratis/arc.kotlin) until guidance is verified |
-| `public-arc-ef-core` | `@cratis/ai-arc-ef-core` | EF Core migration source requires canonical Arc persistence authority |
-| `public-arc-react` | `@cratis/ai-arc-react` | Preview source candidate; composes `public-arc` |
-| `public-components` | `@cratis/ai-components` | Preview source candidate |
-| `public-chronicle` | `@cratis/ai-chronicle` | Legacy source migration planned |
-| `public-cratis-cli` | `@cratis/ai-cli` | Content gap |
-| `public-cratis-cli-terminal-workbench` | `@cratis/ai-cli-workbench` | Terminal Workbench content gap |
-| `public-chronicle-web-workbench` | `@cratis/ai-chronicle-web-workbench` | Browser Workbench content gap |
-| `public-lens` | `@cratis/ai-lens` | Content gap |
-| `public-screenplay` | `@cratis/ai-screenplay` | Content gap |
-| `public-stage` | `@cratis/ai-stage` | Content gap |
-| `public-studio` | `@cratis/ai-studio` | Classification-only public-safe MCP source candidate; no implementation operation admitted |
-| `public-chronicle-mcp` | `@cratis/ai-chronicle-mcp` | Classification-only passive source candidate; no tool or prompt admitted, executable server remains product-owned |
+| `cratis/fundamentals` | `@cratis/ai-fundamentals` | First preview source candidate |
+| `cratis/arc/core` | `@cratis/ai-arc` | Preview source candidate; the Arc capability base |
+| `cratis/arc/client-kotlin` | `@cratis/ai-arc-client-kotlin` | Content gap; anchored to [Cratis Arc.Kotlin](https://github.com/cratis/arc.kotlin) until guidance is verified |
+| `cratis/arc/ef-core` | `@cratis/ai-arc-ef-core` | EF Core migration source requires canonical Arc persistence authority |
+| `cratis/arc/react` | `@cratis/ai-arc-react` | Preview source candidate; composes `cratis/arc/core` |
+| `cratis/components` | `@cratis/ai-components` | Preview source candidate |
+| `cratis/chronicle/core` | `@cratis/ai-chronicle` | Preview source candidate; the Chronicle capability base |
+| `cratis/cli` | `@cratis/ai-cli` | Content gap |
+| `cratis/cli/terminal-workbench` | `@cratis/ai-cli-workbench` | Terminal Workbench content gap |
+| `cratis/chronicle/web-workbench` | `@cratis/ai-chronicle-web-workbench` | Browser Workbench content gap |
+| `cratis/lens` | `@cratis/ai-lens` | Content gap |
+| `cratis/screenplay` | `@cratis/ai-screenplay` | Content gap |
+| `cratis/stage` | `@cratis/ai-stage` | Content gap |
+| `cratis/studio` | `@cratis/ai-studio` | Classification-only public-safe MCP source candidate; no implementation operation admitted |
+| `cratis/chronicle/mcp` | `@cratis/ai-chronicle-mcp` | Classification-only passive source candidate; no tool or prompt admitted, executable server remains product-owned |
+
+`cratis/arc/core` and `cratis/chronicle/core` carry the language-agnostic
+capability base of their product. The unscoped `cratis/arc` and
+`cratis/chronicle` compositions include them through the overlays and
+language-scoped cells that compose them.
 
 ## Chronicle client profiles
 
 | Profile | Intended package | Authority state |
 | --- | --- | --- |
-| `public-chronicle-client-dotnet` | `@cratis/ai-chronicle-dotnet` | Content gap |
-| `public-chronicle-client-kotlin` | `@cratis/ai-chronicle-kotlin` | Chronicle.Kotlin authority required |
-| `public-chronicle-client-elixir` | `@cratis/ai-chronicle-elixir` | Chronicle.Elixir authority required |
-| `public-chronicle-client-typescript` | `@cratis/ai-chronicle-typescript` | Chronicle.TypeScript authority required |
-| `public-chronicle-client-python` | `@cratis/ai-chronicle-python` | Chronicle.Python authority required |
-| `public-chronicle-client-java` | `@cratis/ai-chronicle-java` | Authority gap; no verified Java client |
+| `cratis/chronicle/client-dotnet` | `@cratis/ai-chronicle-dotnet` | Content gap |
+| `cratis/chronicle/client-kotlin` | `@cratis/ai-chronicle-kotlin` | Chronicle.Kotlin authority required |
+| `cratis/chronicle/client-elixir` | `@cratis/ai-chronicle-elixir` | Chronicle.Elixir authority required |
+| `cratis/chronicle/client-typescript` | `@cratis/ai-chronicle-typescript` | Chronicle.TypeScript authority required |
+| `cratis/chronicle/client-python` | `@cratis/ai-chronicle-python` | Chronicle.Python authority required |
+| `cratis/chronicle/client-java` | `@cratis/ai-chronicle-java` | Authority gap; no verified Java client |
 
 Do not translate .NET guidance into another language and call it client support.
 Each client profile requires language-native API, toolchain, error, lifecycle,
@@ -199,16 +209,16 @@ and host evidence from its owning repository.
 
 | Profile | Intended package | Scope |
 | --- | --- | --- |
-| `public-arc-identity` | `@cratis/ai-arc-identity` | Authentication providers, authorization, claims, frontend identity |
-| `public-chronicle-compliance` | `@cratis/ai-chronicle-compliance` | Subjects, keys, erasure, retention, privacy, audit |
-| `public-chronicle-multi-tenancy` | `@cratis/ai-chronicle-multi-tenancy` | Chronicle namespace isolation and tenant resolution |
-| `public-fundamentals-type-discovery` | `@cratis/ai-fundamentals-type-discovery` | `IInstancesOf<T>` implementation discovery and the DI lifetime conventions |
+| `cratis/arc/identity` | `@cratis/ai-arc-identity` | Authentication providers, authorization, claims, frontend identity |
+| `cratis/chronicle/compliance` | `@cratis/ai-chronicle-compliance` | Subjects, keys, erasure, retention, privacy, audit |
+| `cratis/chronicle/multi-tenancy` | `@cratis/ai-chronicle-multi-tenancy` | Chronicle namespace isolation and tenant resolution |
+| `cratis/fundamentals/type-discovery` | `@cratis/ai-fundamentals-type-discovery` | `IInstancesOf<T>` implementation discovery and the DI lifetime conventions |
 
 These remain separate because identity has different meanings across Arc,
 Chronicle compliance, event-source identities, and product-specific roles.
 
-`public-fundamentals-type-discovery` is separate for a different reason:
-`public-fundamentals` is the selected passive-preview package, and the preview
+`cratis/fundamentals/type-discovery` is separate for a different reason:
+`cratis/fundamentals` is the selected passive-preview package, and the preview
 authority pins it to exactly one target. A second skill added there would change
 what the already-requested preview publishes.
 
@@ -216,7 +226,7 @@ what the already-requested preview publishes.
 
 | Profile | Intended package | Scope |
 | --- | --- | --- |
-| `public-review` | `@cratis/ai-review` | General, performance, and security review criteria for a Cratis application |
+| `cratis/review` | `@cratis/ai-review` | General, performance, and security review criteria for a Cratis application |
 
 It composes nothing on purpose. A reviewer reads code they did not write, and
 selecting review criteria must not imply installing Arc, Chronicle, or
@@ -226,9 +236,9 @@ Components guidance.
 
 | Profile | Intended package | Scope |
 | --- | --- | --- |
-| `public-specifications` | `@cratis/ai-specifications` | Language-agnostic philosophy, contexts, naming, observability |
-| `public-specifications-dotnet` | `@cratis/ai-specifications-dotnet` | Cratis.Specifications, C#, NSubstitute, scenario families |
-| `public-specifications-typescript` | `@cratis/ai-specifications-typescript` | TypeScript/React, Vitest, Chai, Sinon, view models |
+| `cratis/specifications` | `@cratis/ai-specifications` | Language-agnostic philosophy, contexts, naming, observability |
+| `cratis/specifications/dotnet` | `@cratis/ai-specifications-dotnet` | Cratis.Specifications, C#, NSubstitute, scenario families |
+| `cratis/specifications/typescript` | `@cratis/ai-specifications-typescript` | TypeScript/React, Vitest, Chai, Sinon, view models |
 
 Language-specific profiles compose the shared philosophy rather than restating
 it independently.
@@ -237,12 +247,11 @@ it independently.
 
 | Profile | Intended package | Composition |
 | --- | --- | --- |
-| `public-application-arc-only` | `@cratis/ai-application-arc` | Fundamentals + Arc + .NET specifications; no Chronicle assumptions |
-| `public-application-chronicle-dotnet` | `@cratis/ai-application-chronicle-dotnet` | Fundamentals + Chronicle + .NET client/specifications; no Arc assumptions |
-| `public-application-arc-chronicle` | `@cratis/ai-application-arc-chronicle` | Fundamentals + Arc + Chronicle backend |
-| `public-application-react` | `@cratis/ai-application-react` | Fundamentals + Arc + Arc React + Components + specifications |
-| `public-application` | `@cratis/ai-application` | Full Arc + Chronicle + React + Components application |
-| `public-modeling-screenplay-stage` | `@cratis/ai-modeling-screenplay-stage` | Screenplay authoring through Stage runtime/specification handoff |
+| `cratis/application/arc-only` | `@cratis/ai-application-arc` | Fundamentals + Arc + .NET specifications; no Chronicle assumptions |
+| `cratis/application/chronicle-dotnet` | `@cratis/ai-application-chronicle-dotnet` | Fundamentals + Chronicle + .NET client/specifications; no Arc assumptions |
+| `cratis/application/arc-chronicle` | `@cratis/ai-application-arc-chronicle` | Fundamentals + Arc + Chronicle backend |
+| `cratis/application/react` | `@cratis/ai-application-react` | Fundamentals + Arc + Arc React + Components + specifications |
+| `cratis/modeling/screenplay-stage` | `@cratis/ai-modeling-screenplay-stage` | Screenplay authoring through Stage runtime/specification handoff |
 
 Composition packages contain generated views of approved component skills, not
 separately authored copies.
@@ -250,9 +259,9 @@ separately authored copies.
 ## Namespaced meta-profiles
 
 Meta-profiles are the stable names a consuming repository subscribes to. They
-compose the existing composition profiles and add no capability of their own, so
-the Arc-versus-Chronicle decoupling below is a property of the composition, not
-an editorial promise.
+compose the profiles above and add no capability of their own, so the
+Arc-versus-Chronicle decoupling below is a property of the composition, not an
+editorial promise.
 
 The namespace carries **two dimensions**: product and language.
 
@@ -265,11 +274,11 @@ The namespace carries **two dimensions**: product and language.
 Language support today:
 
 - **Arc** supports **C#** and **Kotlin** ([Arc.Kotlin](https://github.com/cratis/arc.kotlin)).
-  There is deliberately no `cratis/arc/typescript` or `cratis/arc/elixir` yet.
+  There is deliberately no `cratis/arc/typescript` or `cratis/arc/elixir` cell yet.
 - **Chronicle** has clients in **C#** (.NET), **Kotlin**, **Elixir**, and
   **TypeScript**. Java consumers are served through the Kotlin client's JVM
-  interoperability, so there is no separate `java` dimension; Python has no
-  client yet, so there is no `python` dimension either.
+  interoperability, so there is no separate `java` cell; Python has no client
+  yet, so there is no `python` cell either.
 - **`application` and `full`** mean the same in every language. For languages
   Arc does not support yet (TypeScript, Elixir), the Arc side is removed for
   now and the cell carries the Chronicle-only application journey. The cells
@@ -278,28 +287,33 @@ Language support today:
 | Unscoped product meta | Intended package | Composition | Chronicle implied | Arc implied |
 | --- | --- | --- | --- | --- |
 | `cratis/arc` | `@cratis/ai-meta-arc` | `cratis/arc/csharp` + `cratis/arc/kotlin` | No | Yes |
-| `cratis/chronicle` | `@cratis/ai-meta-chronicle` | the four `cratis/chronicle/<language>` cells + `public-chronicle-compliance` + `public-chronicle-multi-tenancy` + `public-chronicle-web-workbench` (+ the `cratis-chronicle-mcp` server) | Yes | No |
-| `cratis/application` | `@cratis/ai-meta-application` | the four `cratis/application/<language>` cells | Yes | Yes |
+| `cratis/chronicle` | `@cratis/ai-meta-chronicle` | the four `cratis/chronicle/<language>` cells + `cratis/chronicle/compliance` + `cratis/chronicle/multi-tenancy` + `cratis/chronicle/web-workbench` (+ the `cratis-chronicle-mcp` server) | Yes | No |
+| `cratis/application` | `@cratis/ai-application` | the four `cratis/application/<language>` cells plus the application component profiles (Fundamentals, Arc, Arc React, Chronicle, Components, Specifications) | Yes | Yes |
 | `cratis/full` | `@cratis/ai-meta-full` | the four `cratis/full/<language>` cells | Yes | Yes |
+
+`cratis/application` is the merged application composition: the component
+profiles and the language cells in one profile. The C# cell reaches the
+components directly rather than composing `cratis/application`, which keeps the
+composition graph acyclic while preserving the same closure.
 
 ### Language-scoped cells
 
 | Cell | Intended package | Composition |
 | --- | --- | --- |
-| `cratis/arc/csharp` | `@cratis/ai-meta-arc-csharp` | `public-application-arc-only` + `public-arc-ef-core` + `public-arc-identity` + `public-language-csharp` |
-| `cratis/arc/kotlin` | `@cratis/ai-meta-arc-kotlin` | `public-arc-client-kotlin` + `public-language-kotlin` (empty until Arc.Kotlin guidance is verified) |
-| `cratis/chronicle/csharp` | `@cratis/ai-meta-chronicle-csharp` | `public-application-chronicle-dotnet` + `public-chronicle-compliance` + `public-chronicle-multi-tenancy` + `public-language-csharp` |
-| `cratis/chronicle/kotlin` | `@cratis/ai-meta-chronicle-kotlin` | `public-chronicle-client-kotlin` + `public-language-kotlin` |
-| `cratis/chronicle/elixir` | `@cratis/ai-meta-chronicle-elixir` | `public-chronicle-client-elixir` + `public-language-elixir` (resolves empty until client authority approves) |
-| `cratis/chronicle/typescript` | `@cratis/ai-meta-chronicle-typescript` | `public-chronicle-client-typescript` + `public-language-typescript` (resolves empty until client authority approves) |
-| `cratis/application/csharp` | `@cratis/ai-meta-application-csharp` | `public-application` + `public-language-csharp` |
-| `cratis/application/kotlin` | `@cratis/ai-meta-application-kotlin` | `public-arc-client-kotlin` + `public-chronicle-client-kotlin` + `public-language-kotlin` |
-| `cratis/application/typescript` | `@cratis/ai-meta-application-typescript` | `public-chronicle-client-typescript` + `public-language-typescript` + `public-specifications-typescript` (Arc removed for now) |
-| `cratis/application/elixir` | `@cratis/ai-meta-application-elixir` | `public-chronicle-client-elixir` + `public-language-elixir` (Arc removed for now) |
-| `cratis/full/csharp` | `@cratis/ai-meta-full-csharp` | `cratis/application/csharp` + `cratis/arc/csharp` + `cratis/chronicle/csharp` + `public-modeling-screenplay-stage` |
-| `cratis/full/kotlin` | `@cratis/ai-meta-full-kotlin` | `cratis/application/kotlin` + `cratis/arc/kotlin` + `cratis/chronicle/kotlin` + `public-modeling-screenplay-stage` |
-| `cratis/full/typescript` | `@cratis/ai-meta-full-typescript` | `cratis/application/typescript` + `cratis/chronicle/typescript` + `public-modeling-screenplay-stage` (no `cratis/arc/typescript` exists) |
-| `cratis/full/elixir` | `@cratis/ai-meta-full-elixir` | `cratis/application/elixir` + `cratis/chronicle/elixir` + `public-modeling-screenplay-stage` (no `cratis/arc/elixir` exists) |
+| `cratis/arc/csharp` | `@cratis/ai-meta-arc-csharp` | `cratis/application/arc-only` + `cratis/arc/ef-core` + `cratis/arc/identity` + `cratis/language/csharp` |
+| `cratis/arc/kotlin` | `@cratis/ai-meta-arc-kotlin` | `cratis/arc/client-kotlin` + `cratis/language/kotlin` (empty until Arc.Kotlin guidance is verified) |
+| `cratis/chronicle/csharp` | `@cratis/ai-meta-chronicle-csharp` | `cratis/application/chronicle-dotnet` + `cratis/chronicle/compliance` + `cratis/chronicle/multi-tenancy` + `cratis/language/csharp` |
+| `cratis/chronicle/kotlin` | `@cratis/ai-meta-chronicle-kotlin` | `cratis/chronicle/client-kotlin` + `cratis/language/kotlin` |
+| `cratis/chronicle/elixir` | `@cratis/ai-meta-chronicle-elixir` | `cratis/chronicle/client-elixir` + `cratis/language/elixir` (resolves empty until client authority approves) |
+| `cratis/chronicle/typescript` | `@cratis/ai-meta-chronicle-typescript` | `cratis/chronicle/client-typescript` + `cratis/language/typescript` (resolves empty until client authority approves) |
+| `cratis/application/csharp` | `@cratis/ai-meta-application-csharp` | the application component profiles + `cratis/language/csharp` |
+| `cratis/application/kotlin` | `@cratis/ai-meta-application-kotlin` | `cratis/arc/client-kotlin` + `cratis/chronicle/client-kotlin` + `cratis/language/kotlin` |
+| `cratis/application/typescript` | `@cratis/ai-meta-application-typescript` | `cratis/chronicle/client-typescript` + `cratis/language/typescript` + `cratis/specifications/typescript` (Arc removed for now) |
+| `cratis/application/elixir` | `@cratis/ai-meta-application-elixir` | `cratis/chronicle/client-elixir` + `cratis/language/elixir` (Arc removed for now) |
+| `cratis/full/csharp` | `@cratis/ai-meta-full-csharp` | `cratis/application/csharp` + `cratis/arc/csharp` + `cratis/chronicle/csharp` + `cratis/modeling/screenplay-stage` |
+| `cratis/full/kotlin` | `@cratis/ai-meta-full-kotlin` | `cratis/application/kotlin` + `cratis/arc/kotlin` + `cratis/chronicle/kotlin` + `cratis/modeling/screenplay-stage` |
+| `cratis/full/typescript` | `@cratis/ai-meta-full-typescript` | `cratis/application/typescript` + `cratis/chronicle/typescript` + `cratis/modeling/screenplay-stage` (no `cratis/arc/typescript` exists) |
+| `cratis/full/elixir` | `@cratis/ai-meta-full-elixir` | `cratis/application/elixir` + `cratis/chronicle/elixir` + `cratis/modeling/screenplay-stage` (no `cratis/arc/elixir` exists) |
 
 Two honesty rules hold across the matrix. A cell whose product has no real
 surface in that language either does not exist (`cratis/arc/typescript`) or
@@ -328,11 +342,11 @@ language excluded.
 It exists because "full" was never full. The [namespaced
 meta-profiles](#namespaced-meta-profiles) above are scoped compositions, and
 even `cratis/full` — which composes one language-scoped cell per supported
-language — reaches 42 of the 59 public profiles and misses the other 17,
+language — reaches 44 of the 58 public profiles and misses the other 14,
 among them Studio, Lens, the CLI and its workbench, review, the governed-release
-methodology, the Chronicle MCP, the web workbench, and the Java and Python
-Chronicle clients. Those are real public capabilities with no meta-profile that
-reaches them, so a repository wanting everything had no single name to ask for.
+methodology, and the Java and Python Chronicle clients. Those are real public
+capabilities with no meta-profile that reaches them, so a repository wanting
+everything had no single name to ask for.
 
 **Its `composes` array lists every public profile id directly**, including every
 `cratis/*` meta-profile, every language-scoped cell, and every leaf they already
@@ -347,10 +361,10 @@ taxonomy ids rather than an empty "applies everywhere" marker. Because this
 profile composes the whole catalog, they are the full union — all thirteen
 products and all nine languages.
 
-`cratis` composes **no** `engineering-*` profile, and it never will. The
-resolver rejects audience-crossing composition outright, so a public request
-cannot reach maintainer-audience content by any route; the guarantee is
-structural, not editorial.
+`cratis` composes **no** engineering profile, and it never will. The resolver
+rejects audience-crossing composition outright, so a public request cannot reach
+maintainer-audience content by any route; the guarantee is structural, not
+editorial.
 
 ### The completeness guarantee is enforced, not promised
 
@@ -363,13 +377,13 @@ naming the exact missing id:
 ```text
 profiles/public/cratis.json is not the maximal public bundle:
 add these ids to its "composes" array:
-  public-brand-new-thing
+  cratis/brand-new-thing
 ```
 
-The same file also asserts that `cratis` stays a strict superset of all four
-narrower meta-profiles, that its closure reaches every `availableTargets`
-capability any public profile declares, and that everything the resolver
-rejects is an honestly empty profile rather than an unreachable capability.
+The same file also asserts that `cratis` stays a strict superset of every other
+meta-profile, that its closure reaches every `availableTargets` capability any
+public profile declares, and that everything the resolver rejects is an honestly
+empty profile rather than an unreachable capability.
 
 Subscribing is the same as any other profile, and the channel is derived rather
 than declared:
@@ -387,10 +401,10 @@ profile. These entries make it a composable unit.
 
 | Profile | Intended package | Language |
 | --- | --- | --- |
-| `public-language-csharp` | `@cratis/ai-language-csharp` | C# |
-| `public-language-typescript` | `@cratis/ai-language-typescript` | TypeScript |
-| `public-language-kotlin` | `@cratis/ai-language-kotlin` | Kotlin |
-| `public-language-elixir` | `@cratis/ai-language-elixir` | Elixir |
+| `cratis/language/csharp` | `@cratis/ai-language-csharp` | C# |
+| `cratis/language/typescript` | `@cratis/ai-language-typescript` | TypeScript |
+| `cratis/language/kotlin` | `@cratis/ai-language-kotlin` | Kotlin |
+| `cratis/language/elixir` | `@cratis/ai-language-elixir` | Elixir |
 
 These are the **composition mechanism only**. Their content — and honesty about
 languages with no verified client — stays owned by
@@ -398,7 +412,7 @@ languages with no verified client — stays owned by
 currently `content-gap` and carries no capability.
 
 They deliberately compose no product profile. Wiring
-`public-language-kotlin` to `public-chronicle-client-kotlin` would make a
+`cratis/language/kotlin` to `cratis/chronicle/client-kotlin` would make a
 language selection imply Chronicle, which is the same coupling the Arc and
 Chronicle meta-profiles exist to avoid. Chronicle-specific language guidance
 stays in the Chronicle client profiles above.
@@ -410,7 +424,7 @@ holds no matter what the repository ships or what it is written in.
 
 | Profile | Intended package | Scope |
 | --- | --- | --- |
-| `public-methodology-governed-releases` | `@cratis/ai-methodology-governed-releases` | Assurance tiers, evidence ladders, lifecycle phases, supply-chain receipts, semantic-version release intent, canaries, recovery disposition |
+| `cratis/methodology/governed-releases` | `@cratis/ai-methodology-governed-releases` | Assurance tiers, evidence ladders, lifecycle phases, supply-chain receipts, semantic-version release intent, canaries, recovery disposition |
 
 This profile carries `products: []` and `languages: []` deliberately, and
 composes nothing, for the same reason the language profiles do: a repository
@@ -418,38 +432,31 @@ that wants release methodology must not be handed Arc, Chronicle, or a language
 profile along with it. `tooling/specs/resolve-profiles.spec.mjs` asserts that
 resolving it alone returns exactly itself and its one capability.
 
-## Public-safe engineering profiles
+## `cratis/engineering` — the single engineering profile
 
 All shared engineering packages are public-safe. Confidential facts remain in
 repository-local overlays.
 
 | Profile | Intended package |
 | --- | --- |
-| `engineering-base` | `@cratis/ai-engineering-base` |
-| `engineering-application` | `@cratis/ai-engineering-application` |
-| `engineering-fundamentals` | `@cratis/ai-engineering-fundamentals` |
-| `engineering-arc` | `@cratis/ai-engineering-arc` |
-| `engineering-arc-ef-core` | `@cratis/ai-engineering-arc-ef-core` |
-| `engineering-arc-react` | `@cratis/ai-engineering-arc-react` |
-| `engineering-components` | `@cratis/ai-engineering-components` |
-| `engineering-chronicle` | `@cratis/ai-engineering-chronicle` |
-| `engineering-chronicle-clients` | `@cratis/ai-engineering-chronicle-clients` |
-| `engineering-cratis-cli` | `@cratis/ai-engineering-cli` |
-| `engineering-lens` | `@cratis/ai-engineering-lens` |
-| `engineering-screenplay` | `@cratis/ai-engineering-screenplay` |
-| `engineering-stage` | `@cratis/ai-engineering-stage` |
-| `engineering-studio` | `@cratis/ai-engineering-studio` |
-| `engineering-stagehand` | `@cratis/ai-engineering-stagehand` |
-| `engineering-chronicle-mcp` | `@cratis/ai-engineering-chronicle-mcp` |
-| `engineering-specifications` | `@cratis/ai-engineering-specifications` |
-| `engineering-documentation` | `@cratis/ai-engineering-documentation` |
-| `engineering-ai` | `@cratis/ai-engineering-ai` |
-| `engineering-workflows` | `@cratis/ai-engineering-workflows` |
+| `cratis/engineering` | `@cratis/ai-engineering` |
 
-Every engineering profile composes `engineering-base`. Studio and Stagehand
-packages may contain only public-safe contribution behavior. Their private
-architecture, deployment, roadmap, infrastructure, support, and incident
-workflows stay local to their private repositories.
+`cratis/engineering` is the **one** maintainer-audience profile: the canonical
+C# house conventions, the decision-record procedure, the effect-boundary failure
+contract, and the shared documentation authoring guidance, for every repository
+kind Cratis maintains — application, framework, client, documentation, and
+corpus repositories alike.
+
+It deliberately carries **no product-specific contributor guidance**. Guidance
+that only makes sense inside one product repository — for example the Chronicle
+kernel tracing procedure built on the `Cratis.Traces` `[Span]` source generator —
+lives in the owning product repository as repository-local skills under its own
+`.agents/skills/`, maintained and reviewed by that repository's owners. The
+shared profile stays general; the product repositories own their depth.
+
+Studio and Stagehand private architecture, deployment, roadmap, infrastructure,
+support, and incident workflows likewise stay local to their private
+repositories.
 
 ## Trust and publication
 
@@ -477,7 +484,7 @@ it in the manifest with the same `includedBy` annotation skills get.
 
 | Profile | Requires | Why |
 | --- | --- | --- |
-| `public-chronicle-mcp` | `cratis-chronicle-mcp` | The profile that already carries the Chronicle MCP passive inspection guidance |
+| `cratis/chronicle/mcp` | `cratis-chronicle-mcp` | The profile that already carries the Chronicle MCP passive inspection guidance |
 | `cratis/chronicle` | `cratis-chronicle-mcp` | Chronicle MCP inspects a running Chronicle store |
 
 No Arc profile requires it. Doing so would reintroduce exactly the
@@ -492,9 +499,11 @@ asserted in `tooling/specs/mcp-declarations.spec.mjs`. Read
 
 ## Subscribing
 
-A consuming repository selects profiles in project-owned `.cratis/ai.json`. The
-`cratis/` namespace derives its channel instead of declaring one, and a
-language-scoped cell subscribes exactly like any other meta-profile:
+A consuming repository selects profiles in project-owned `.cratis/ai.json`. Every
+profile derives its channel from the namespace: `cratis/engineering` derives the
+`cratis-engineering` channel, everything else under `cratis` derives `public`,
+and a declared channel that contradicts the derived one is rejected. A
+language-scoped cell subscribes exactly like any other profile:
 
 ```json
 {
@@ -520,10 +529,8 @@ A Kotlin Chronicle client repository scopes that down to one language:
 }
 ```
 
-The `public-` and `engineering-` namespaces still declare `channel`, and a
-declared channel that contradicts the namespace is rejected. Exact versions and
-`updatePolicy: reviewed-pull-request` are mandatory in every namespace.
+Exact versions and `updatePolicy: reviewed-pull-request` are mandatory.
 
 Worked examples live under
-[`Documentation/examples/ai-subscriptions/`](./examples/ai-subscriptions).
+[`Documentation/examples/ai-subscriptions/`](./examples/ai-subscriptions/README.md).
 The commands and versions in them are illustrative until a package is published.

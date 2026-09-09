@@ -14,7 +14,7 @@
     "state": { "const": "PASSIVE_CANDIDATE_REVIEW_ONLY" },
     "artifactId": { "enum": ["candidate-passive-public-package", "candidate-passive-engineering-package"] },
     "audience": { "enum": ["public", "cratis-engineering"] },
-    "bundleId": { "enum": ["public-all-candidate", "engineering-all-candidate"] },
+    "bundleId": { "enum": ["cratis/all-candidate", "cratis/engineering/all-candidate"] },
     "packageName": { "enum": ["@cratis/ai-public-candidate", "@cratis/ai-engineering-candidate"] },
     "version": { "type": "string", "pattern": "^0\\.0\\.(?:0|[1-9][0-9]*)-candidate\\.(?:0|[1-9][0-9]*)$" },
     "sourceCommit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },

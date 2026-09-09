@@ -273,7 +273,7 @@ test("a profile cannot require the unpublished Studio extension point", () => {
             "distribution/profile-catalog.json",
         );
         profileCatalog.publicProfiles.find(
-            (profile) => profile.id === "public-studio",
+            (profile) => profile.id === "cratis/studio",
         ).mcpServers = ["cratis-studio-mcp"];
         writeJson(root, "distribution/profile-catalog.json", profileCatalog);
         const errors = validateMcpDeclarations(root);
@@ -295,13 +295,13 @@ test("a profile cannot require an undeclared MCP server", () => {
             "distribution/profile-catalog.json",
         );
         profileCatalog.publicProfiles.find(
-            (profile) => profile.id === "public-studio",
+            (profile) => profile.id === "cratis/studio",
         ).mcpServers = ["cratis-absent-mcp"];
         writeJson(root, "distribution/profile-catalog.json", profileCatalog);
         assert(
             validateMcpDeclarations(root).some((error) =>
                 error.includes(
-                    "public-studio: requires undeclared MCP server cratis-absent-mcp",
+                    "cratis/studio: requires undeclared MCP server cratis-absent-mcp",
                 ),
             ),
         );

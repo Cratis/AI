@@ -83,7 +83,7 @@ export function buildReleaseInstructions(plan, harnesses) {
         .filter((harness) => harness !== "pi")
         .map(
             (harness) =>
-                `- ${harness}: \`cratis-ai-${plan.profileId}-${plan.version}-${harness}.tar.gz\``,
+                `- ${harness}: \`cratis-ai-${plan.profileId.replaceAll("/", "-")}-${plan.version}-${harness}.tar.gz\``,
         );
     return [
         `# ${plan.displayName} ${plan.version}`,

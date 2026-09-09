@@ -40,7 +40,7 @@ export function benchmarkReleaseGeneration({ concurrency = 1 } = {}) {
         const manifest = generatePassiveProfileAdapters({
             outputRoot,
             version: "0.0.0-benchmark",
-            profileId: "public-fundamentals",
+            profileId: "cratis/fundamentals",
             packageName: "@cratis/ai-fundamentals",
             description: "Deterministic release generation benchmark",
             skills: [

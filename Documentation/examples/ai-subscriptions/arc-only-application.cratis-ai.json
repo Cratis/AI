@@ -3,7 +3,7 @@
   "channel": "public",
   "version": "1.0.0",
   "profiles": [
-    "public-application-arc-only"
+    "cratis/application/arc-only"
   ],
   "harnesses": [
     "claude",

@@ -1,5 +1,7 @@
 # Chronicle MCP passive guidance boundary
 
+> **Audience:** Maintainers of Cratis/AI — classification-only Chronicle MCP guidance. Not required for adopting Cratis AI.
+
 **Status:** Classification-only source candidate; no tool or prompt admission
 
 ## Why the boundary exists

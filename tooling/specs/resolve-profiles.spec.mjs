@@ -241,8 +241,8 @@ test("the real catalog agrees between the packaging path and the human catalog",
         "catalog/generated/human-catalog/catalog.json",
     );
     for (const profileId of [
-        "public-application-arc-chronicle",
-        "public-application",
+        "cratis/application/arc-chronicle",
+        "cratis/application",
         "cratis/full",
     ]) {
         const plan = buildApprovedProfileReleasePlan({
@@ -273,9 +273,9 @@ test("the real catalog resolves the cratis namespace without duplication", () =>
     assert.equal(new Set(ids).size, ids.length);
     assert.deepEqual(ids, [...ids].sort());
     const fundamentals = manifest.profiles.find(
-        (entry) => entry.id === "public-fundamentals",
+        (entry) => entry.id === "cratis/fundamentals",
     );
-    assert(fundamentals.includedBy.length > 1, "diamond over public-fundamentals");
+    assert(fundamentals.includedBy.length > 1, "diamond over cratis/fundamentals");
     assert.equal(manifest.audience, "public");
     assert(
         manifest.versions.every((entry) => entry.version === "0.0.0"),
@@ -293,15 +293,15 @@ test("Arc and Chronicle meta-profiles stay decoupled", () => {
         profileCatalog,
         requested: ["cratis/chronicle"],
     }).profiles.map((entry) => entry.id);
-    assert(arc.includes("public-arc"));
+    assert(arc.includes("cratis/arc/core"));
     assert.equal(
-        arc.some((id) => id.startsWith("public-chronicle")),
+        arc.some((id) => id.startsWith("cratis/chronicle")),
         false,
         "cratis/arc must not imply Chronicle",
     );
-    assert(chronicle.includes("public-chronicle"));
+    assert(chronicle.includes("cratis/chronicle/core"));
     assert.equal(
-        chronicle.some((id) => id.startsWith("public-arc")),
+        chronicle.some((id) => id.startsWith("cratis/arc")),
         false,
         "cratis/chronicle must not imply Arc",
     );
@@ -310,10 +310,10 @@ test("Arc and Chronicle meta-profiles stay decoupled", () => {
 test("language profiles are composable units that imply no product", () => {
     const profileCatalog = readJson("distribution/profile-catalog.json");
     for (const [profileId, language] of [
-        ["public-language-csharp", "csharp"],
-        ["public-language-typescript", "typescript"],
-        ["public-language-kotlin", "kotlin"],
-        ["public-language-elixir", "elixir"],
+        ["cratis/language/csharp", "csharp"],
+        ["cratis/language/typescript", "typescript"],
+        ["cratis/language/kotlin", "kotlin"],
+        ["cratis/language/elixir", "elixir"],
     ]) {
         const manifest = resolveProfiles({
             profileCatalog,
@@ -347,7 +347,7 @@ test("the governed release methodology profile carries no product or language", 
     // Release methodology is reusable in any repository, so selecting it must
     // never drag in Arc, Chronicle, or a language profile the way a product
     // profile would.
-    const profileId = "public-methodology-governed-releases";
+    const profileId = "cratis/methodology/governed-releases";
     const targetId = "cratis-governed-release-methodology";
     const profileCatalog = readJson("distribution/profile-catalog.json");
     const profile = profileCatalog.publicProfiles.find(

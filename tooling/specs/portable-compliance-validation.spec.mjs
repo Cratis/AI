@@ -66,7 +66,7 @@ function assertCode(result, code) {
 
 function validatePassive(root) {
     return validateCratisPassiveProfile(root, {
-        profileId: "public-example",
+        profileId: "cratis/example",
         version: "1.2.3",
     });
 }
@@ -176,7 +176,7 @@ test("manifest-only plugin passes universal and fails passive only for skills", 
     assert.deepEqual(universal.diagnostics, []);
     assert.equal(universal.mcp.present, false);
     const passive = validateCratisPassiveProfile(root, {
-        profileId: "public-manifest-only",
+        profileId: "cratis/manifest-only",
         version: "1.0.0",
     });
     assert.deepEqual(codes(passive), ["PASSIVE_SKILL_REQUIRED"]);

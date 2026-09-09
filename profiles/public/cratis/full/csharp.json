@@ -1,29 +1,29 @@
 {
-  "id": "cratis/full/csharp",
-  "packageName": "@cratis/ai-meta-full-csharp",
-  "version": "0.0.0",
-  "products": [
-    "fundamentals",
-    "arc",
-    "arc-react",
-    "chronicle",
-    "components",
-    "entity-framework-core",
-    "screenplay",
-    "stage"
-  ],
-  "languages": [
-    "csharp",
-    "react",
-    "typescript",
-    "language-agnostic"
-  ],
-  "state": "planned-composition",
-  "composes": [
-    "cratis/application/csharp",
-    "cratis/arc/csharp",
-    "cratis/chronicle/csharp",
-    "public-modeling-screenplay-stage"
-  ],
-  "gapSummary": "Everything the public catalog composes for C#: the Arc application, the Arc-only overlays, the Chronicle .NET journey, and the Screenplay to Stage modeling handoff, reached through the language-scoped cells rather than restated."
+    "id": "cratis/full/csharp",
+    "packageName": "@cratis/ai-meta-full-csharp",
+    "version": "0.0.0",
+    "products": [
+        "fundamentals",
+        "arc",
+        "arc-react",
+        "chronicle",
+        "components",
+        "entity-framework-core",
+        "screenplay",
+        "stage"
+    ],
+    "languages": [
+        "csharp",
+        "react",
+        "typescript",
+        "language-agnostic"
+    ],
+    "state": "planned-composition",
+    "composes": [
+        "cratis/application/csharp",
+        "cratis/arc/csharp",
+        "cratis/chronicle/csharp",
+        "cratis/modeling/screenplay-stage"
+    ],
+    "gapSummary": "Everything the public catalog composes for C#: the Arc application, the Arc-only overlays, the Chronicle .NET journey, and the Screenplay to Stage modeling handoff, reached through the language-scoped cells rather than restated."
 }

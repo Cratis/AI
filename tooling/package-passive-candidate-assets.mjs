@@ -38,14 +38,14 @@ const defaultRepositoryRoot = resolve(
 export const passiveCandidateConfigurations = Object.freeze({
     "candidate-passive-public-package": Object.freeze({
         audience: "public",
-        bundleId: "public-all-candidate",
+        bundleId: "cratis/all-candidate",
         packageName: "@cratis/ai-public-candidate",
         description:
             "Non-publishable review bundle of every currently modeled public-safe passive Cratis skill candidate.",
     }),
     "candidate-passive-engineering-package": Object.freeze({
         audience: "cratis-engineering",
-        bundleId: "engineering-all-candidate",
+        bundleId: "cratis/engineering/all-candidate",
         packageName: "@cratis/ai-engineering-candidate",
         description:
             "Non-publishable review bundle of every currently modeled public-safe passive Cratis engineering skill candidate.",
@@ -322,7 +322,7 @@ export function packagePassiveCandidateAssets({
             const paths = walkFiles(harnessRoot).sort(compareOrdinal);
             const extension = harness === "pi" ? "tgz" : "tar.gz";
             const filename =
-                `cratis-ai-${authority.configuration.bundleId}-${version}-` +
+                `cratis-ai-${authority.configuration.bundleId.replaceAll("/", "-")}-${version}-` +
                 `${harness}.${extension}`;
             const pathPrefix = harness === "pi" ? "package" : "";
             const content = createTarGzip(harnessRoot, paths, pathPrefix);

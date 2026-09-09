@@ -223,6 +223,12 @@ function matchesKnownPattern(value, pattern) {
             );
         case "^cratis(?:/[a-z0-9]+(?:-[a-z0-9]+)*){0,2}$":
             return /^cratis(?:\/[a-z0-9]+(?:-[a-z0-9]+)*){0,2}$/.test(value);
+        case "^cratis(?:/[a-z0-9]+(?:-[a-z0-9]+)*){0,3}$":
+            return /^cratis(?:\/[a-z0-9]+(?:-[a-z0-9]+)*){0,3}$/.test(value);
+        case "^(?!cratis/engineering$)cratis(?:/[a-z0-9]+(?:-[a-z0-9]+)*){0,3}$":
+            return /^(?!cratis\/engineering$)cratis(?:\/[a-z0-9]+(?:-[a-z0-9]+)*){0,3}$/.test(
+                value,
+            );
         case "^cratis/[a-z0-9]+(?:-[a-z0-9]+)*(?:/[a-z0-9]+(?:-[a-z0-9]+)*)?$":
             return /^cratis\/[a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)?$/.test(
                 value,

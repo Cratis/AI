@@ -130,7 +130,6 @@
       "runtimeEligible": false,
       "componentInventory": {
         "skills": [
-          "cratis-engineering-chronicle-kernel-tracing",
           "cratis-engineering-csharp-conventions",
           "cratis-engineering-decision-record",
           "cratis-engineering-docs-add-page",
@@ -433,7 +432,6 @@
       "runtimeEligible": false,
       "componentInventory": {
         "skills": [
-          "cratis-engineering-chronicle-kernel-tracing",
           "cratis-engineering-csharp-conventions",
           "cratis-engineering-decision-record",
           "cratis-engineering-docs-add-page",
@@ -467,8 +465,6 @@
       "exactSourcePaths": [
         ".ai/skills/ship-changes/SKILL.md",
         ".ai/skills/ship-changes/evals/evals.json",
-        "engineering/skills/cratis-engineering-chronicle-kernel-tracing/LICENSE",
-        "engineering/skills/cratis-engineering-chronicle-kernel-tracing/SKILL.md",
         "engineering/skills/cratis-engineering-csharp-conventions/LICENSE",
         "engineering/skills/cratis-engineering-csharp-conventions/SKILL.md",
         "engineering/skills/cratis-engineering-csharp-conventions/references/code-style.md",

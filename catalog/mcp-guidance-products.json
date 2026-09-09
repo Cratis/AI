@@ -12,7 +12,9 @@
       "blockedReferencePath": "skills/cratis-chronicle-mcp-inspection/references/blocked-tools.md",
       "componentId": "cratis-chronicle-mcp-inspection",
       "sourceContractId": "cratis-chronicle-mcp-source",
-      "profileIds": ["public-chronicle-mcp"],
+      "profileIds": [
+        "cratis/chronicle/mcp"
+      ],
       "privateImplementationFactsAllowed": false
     },
     {
@@ -25,7 +27,9 @@
       "blockedReferencePath": "skills/cratis-studio-mcp-safety-guidance/references/blocked-tools.md",
       "componentId": "cratis-studio-mcp-safety-guidance",
       "sourceContractId": null,
-      "profileIds": ["public-studio"],
+      "profileIds": [
+        "cratis/studio"
+      ],
       "privateImplementationFactsAllowed": false
     }
   ]

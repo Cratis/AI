@@ -11,7 +11,7 @@ import {
 } from "../profile-presentation.mjs";
 
 const fundamentals = {
-    id: "public-fundamentals",
+    id: "cratis/fundamentals",
     packageName: "@cratis/ai-fundamentals",
     products: ["fundamentals", "chronicle"],
     languages: ["csharp"],
@@ -19,13 +19,18 @@ const fundamentals = {
     availableTargets: ["cratis-fundamentals-concept"],
 };
 
-const engineeringChronicle = {
-    id: "engineering-chronicle",
-    packageName: "@cratis/ai-engineering-chronicle",
-    products: ["chronicle"],
-    repositoryKinds: ["framework"],
-    state: "planned-source-migration",
-    composes: ["engineering-base"],
+const engineering = {
+    id: "cratis/engineering",
+    packageName: "@cratis/ai-engineering",
+    products: [],
+    repositoryKinds: ["application", "framework", "client", "documentation", "corpus"],
+    state: "preview-source-candidate",
+    availableTargets: [
+        "cratis-engineering-csharp-conventions",
+        "cratis-engineering-decision-record",
+        "cratis-engineering-docs-authoring",
+        "cratis-engineering-effect-boundaries",
+    ],
 };
 
 test("profile presentation gives packages useful developer-facing descriptions", () => {
@@ -48,7 +53,7 @@ test("profile presentation gives packages useful developer-facing descriptions",
 
 test("Chronicle MCP profile presentation denies tool and prompt invocation", () => {
     const profile = {
-        id: "public-chronicle-mcp",
+        id: "cratis/chronicle/mcp",
         packageName: "@cratis/ai-chronicle-mcp",
         products: ["chronicle-mcp"],
         languages: ["language-agnostic"],
@@ -62,7 +67,7 @@ test("Chronicle MCP profile presentation denies tool and prompt invocation", () 
 
 test("Studio profile presentation denies implementation operation admission", () => {
     const profile = {
-        id: "public-studio",
+        id: "cratis/studio",
         packageName: "@cratis/ai-studio",
         products: ["studio"],
         languages: ["language-agnostic"],
@@ -76,17 +81,16 @@ test("Studio profile presentation denies implementation operation admission", ()
 
 test("engineering profile descriptions are public-safe and audience-specific", () => {
     assert.equal(
-        profileDisplayName(engineeringChronicle, "cratis-engineering"),
-        "Cratis Chronicle Maintainer",
+        profileDisplayName(engineering, "cratis-engineering"),
+        "Cratis Maintainer Engineering",
     );
     const presentation = presentProfile(
-        engineeringChronicle,
+        engineering,
         "cratis-engineering",
     );
-    assert.match(presentation.description, /Public-safe contributor guidance/);
-    assert.match(presentation.description, /Private repository details remain local/);
+    assert.match(presentation.description, /Public-safe shared engineering conventions/);
     assert.match(presentation.intendedFor, /Cratis maintainers/);
-    assert.equal(presentation.materialization, "catalog-only");
+    assert.equal(presentation.materialization, "candidate-package");
 });
 
 test("only approved profiles are presented as installable packages", () => {

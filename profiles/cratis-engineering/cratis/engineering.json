@@ -1,0 +1,24 @@
+{
+    "id": "cratis/engineering",
+    "packageName": "@cratis/ai-engineering",
+    "version": "0.0.0",
+    "repositoryKinds": [
+        "application",
+        "framework",
+        "client",
+        "documentation",
+        "corpus"
+    ],
+    "products": [],
+    "state": "preview-source-candidate",
+    "distributionVisibility": "public",
+    "confidentialContentAllowed": false,
+    "privateOverlayExpected": true,
+    "availableTargets": [
+        "cratis-engineering-csharp-conventions",
+        "cratis-engineering-decision-record",
+        "cratis-engineering-docs-authoring",
+        "cratis-engineering-effect-boundaries"
+    ],
+    "gapSummary": "The single general Cratis-maintainer engineering profile: canonical C# house conventions, the decision-record procedure, the effect-boundary failure contract, and the shared documentation authoring guidance, for every repository kind Cratis maintains. Product-specific contributor guidance (for example Chronicle kernel tracing) lives in the owning product repository, never here. Universal TypeScript conventions, review behavior, and contribution behavior are still to be reconciled into public-safe passive sources."
+}

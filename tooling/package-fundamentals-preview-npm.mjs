@@ -28,7 +28,7 @@ import { buildPreviewReadiness } from "./preview-readiness.mjs";
 const defaultRepositoryRoot = resolve(
     fileURLToPath(new URL("..", import.meta.url)),
 );
-const profileId = "public-fundamentals";
+const profileId = "cratis/fundamentals";
 const packageName = "@cratis/ai-fundamentals";
 
 function sha256(content) {
@@ -256,7 +256,7 @@ export function packageFundamentalsNpmRelease({
         version,
         readiness: buildPreviewReadiness(repositoryRoot),
         request: {
-            id: `public-fundamentals-${version.replaceAll(".", "-")}`,
+            id: `cratis-fundamentals-${version.replaceAll(".", "-")}`,
             state: "release-on-merge",
             profileId,
             packageName,

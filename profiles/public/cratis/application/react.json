@@ -1,0 +1,26 @@
+{
+    "id": "cratis/application/react",
+    "packageName": "@cratis/ai-application-react",
+    "version": "0.0.0",
+    "products": [
+        "fundamentals",
+        "arc",
+        "arc-react",
+        "components"
+    ],
+    "languages": [
+        "csharp",
+        "react",
+        "typescript"
+    ],
+    "state": "planned-composition",
+    "composes": [
+        "cratis/arc/core",
+        "cratis/arc/react",
+        "cratis/components",
+        "cratis/fundamentals",
+        "cratis/specifications/dotnet",
+        "cratis/specifications/typescript"
+    ],
+    "gapSummary": "Arc React and Components application composition requires approved generated-client, MVVM, forms, dialogs, tables, and spec profiles."
+}

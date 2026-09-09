@@ -51,7 +51,6 @@
     ".ai/skills/write-specs-readmodels",
     ".pi/extensions/cratis-hooks",
     ".pi/extensions/subagent",
-    "engineering/skills/cratis-engineering-chronicle-kernel-tracing",
     "engineering/skills/cratis-engineering-csharp-conventions",
     "engineering/skills/cratis-engineering-decision-record",
     "engineering/skills/cratis-engineering-docs-add-page",
@@ -140,7 +139,7 @@
         "effect": "guided-write"
       },
       "dependencies": [],
-      "hostNeutralPurpose": "Specialist for C# backend code within a vertical slice. Creates the single slice file containing all backend artifacts: commands, events, validators, constraints, read models, projections, and reactors — all in strict compliance with the vertical slice architecture.",
+      "hostNeutralPurpose": "Specialist for C# backend code within a vertical slice. Creates the single slice file containing all backend artifacts: commands, events, validators, constraints, read models, projections, and reactors \u2014 all in strict compliance with the vertical slice architecture.",
       "approval": {
         "state": "modeled",
         "evidenceIds": [
@@ -416,7 +415,7 @@
         "effect": "guided-write"
       },
       "dependencies": [],
-      "hostNeutralPurpose": "Top-level team orchestrator for Cratis-based projects. Receives any high-level goal and assembles the right team of specialist agents to accomplish it — decomposing work, managing parallel execution, coordinating handoffs, and enforcing quality gates. Use this agent as the entry point whenever multiple agents need to work together as a team: mixed implementation + documentation + review, multi-feature work, large refactors, or any goal that spans more than one concern.",
+      "hostNeutralPurpose": "Top-level team orchestrator for Cratis-based projects. Receives any high-level goal and assembles the right team of specialist agents to accomplish it \u2014 decomposing work, managing parallel execution, coordinating handoffs, and enforcing quality gates. Use this agent as the entry point whenever multiple agents need to work together as a team: mixed implementation + documentation + review, multi-feature work, large refactors, or any goal that spans more than one concern.",
       "approval": {
         "state": "modeled",
         "evidenceIds": [
@@ -830,7 +829,7 @@
         "effect": "guided-write"
       },
       "dependencies": [],
-      "hostNeutralPurpose": "Implements a Cratis vertical slice end-to-end — all backend artifacts in one slice file, BDD specs in when_*/ folders, and the React surface (page and/or command dialog). Use for new slices and for non-trivial slice changes spanning backend and frontend.",
+      "hostNeutralPurpose": "Implements a Cratis vertical slice end-to-end \u2014 all backend artifacts in one slice file, BDD specs in when_*/ folders, and the React surface (page and/or command dialog). Use for new slices and for non-trivial slice changes spanning backend and frontend.",
       "approval": {
         "state": "modeled",
         "evidenceIds": [
@@ -5429,87 +5428,6 @@
       }
     },
     {
-      "id": "cratis-engineering-chronicle-kernel-tracing",
-      "kind": "skill",
-      "semanticIdentity": "cratis-engineering-chronicle-kernel-tracing",
-      "semanticName": "cratis-engineering-chronicle-kernel-tracing",
-      "lifecycle": "active",
-      "distributionTargetId": "cratis-engineering-chronicle-kernel-tracing",
-      "canonicalSources": [
-        {
-          "path": "engineering/skills/cratis-engineering-chronicle-kernel-tracing",
-          "digest": "1e74f56d3391d67f34434cdd06fc1a1a5136fb060ac7cd60cb704d4e2cf14798",
-          "ownership": "owner",
-          "ownerComponentId": "cratis-engineering-chronicle-kernel-tracing"
-        }
-      ],
-      "contentDigest": "86f9dab4f4b88863c9249af652561b68c5ad8c96a66d2f24d15b31794d1435c7",
-      "owner": "reusable Cratis engineering behavior",
-      "audience": "cratis-engineering",
-      "classification": {
-        "artifactClass": "passive-content",
-        "trust": "passive",
-        "passive": true,
-        "executable": false,
-        "effect": "guided-write"
-      },
-      "dependencies": [],
-      "hostNeutralPurpose": "Chronicle Kernel tracing maintenance",
-      "approval": {
-        "state": "modeled",
-        "evidenceIds": [
-          "reevaluation-authority",
-          "repo-main-b795d53"
-        ]
-      },
-      "releaseBoundary": "engineering-passive",
-      "allowedProjections": [
-        {
-          "hostContract": "any-passive-host",
-          "kinds": [
-            "skill"
-          ],
-          "artifactClasses": [
-            "passive-private-fixture",
-            "passive-public-package",
-            "provider-compatibility"
-          ]
-        },
-        {
-          "hostContract": "portable-agent-plugins-1-0",
-          "kinds": [
-            "skill"
-          ],
-          "artifactClasses": [
-            "passive-public-package"
-          ]
-        }
-      ],
-      "forbiddenProjections": [
-        "agent",
-        "subagent",
-        "command",
-        "prompt",
-        "rule",
-        "instruction",
-        "hook",
-        "mcp",
-        "lsp",
-        "executable-host-extension",
-        "static-asset"
-      ],
-      "requiredCanaries": [
-        "projection-shape",
-        "semantic-identity",
-        "source-digest"
-      ],
-      "securityRequirements": {
-        "threatModel": false,
-        "securityReview": false,
-        "executableAssuranceProfile": false
-      }
-    },
-    {
       "id": "cratis-engineering-csharp-conventions",
       "kind": "skill",
       "semanticIdentity": "cratis-engineering-csharp-conventions",
@@ -7178,10 +7096,8 @@
         "executable": false,
         "effect": "guided-write"
       },
-      "dependencies": [
-        "cratis-engineering-chronicle-kernel-tracing"
-      ],
-      "hostNeutralPurpose": "Retained repository-local kernel tracing guidance",
+      "dependencies": [],
+      "hostNeutralPurpose": "Retained repository-local kernel tracing guidance; the distribution twin now lives in the Chronicle repository as repo-local contributor guidance",
       "approval": {
         "state": "modeled",
         "evidenceIds": [
@@ -10444,7 +10360,7 @@
         "effect": "guided-write"
       },
       "dependencies": [],
-      "hostNeutralPurpose": "Scaffold a new feature — folder structure, composition page, routing, and navigation.",
+      "hostNeutralPurpose": "Scaffold a new feature \u2014 folder structure, composition page, routing, and navigation.",
       "approval": {
         "state": "modeled",
         "evidenceIds": [
@@ -10651,7 +10567,7 @@
         "effect": "guided-write"
       },
       "dependencies": [],
-      "hostNeutralPurpose": "\"Write documentation following the Diátaxis framework.\"",
+      "hostNeutralPurpose": "\"Write documentation following the Di\u00e1taxis framework.\"",
       "approval": {
         "state": "modeled",
         "evidenceIds": [

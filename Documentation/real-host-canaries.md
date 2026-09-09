@@ -1,5 +1,7 @@
 # Real-host canary contracts
 
+> **Audience:** Maintainers of Cratis/AI — canary lifecycle and evidence. Not required for adopting Cratis AI.
+
 **Status:** Deny-by-default local fixture framework; no support promotion
 
 ## Why real-host evidence is separate

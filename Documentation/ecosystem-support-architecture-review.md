@@ -1,5 +1,7 @@
 # Review the Cratis AI ecosystem-support architecture
 
+> **Audience:** Maintainers of Cratis/AI — an idea-level review record. Not required for adopting Cratis AI.
+
 This page is the maintainer-level review surface for the ecosystem-support
 foundation. Review the architectural decisions, compatibility boundaries, and
 truthful support state here; the generated catalogs remain available when an

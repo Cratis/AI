@@ -1,0 +1,13 @@
+{
+    "id": "cratis/arc/client-kotlin",
+    "packageName": "@cratis/ai-arc-client-kotlin",
+    "version": "0.0.0",
+    "products": [
+        "arc"
+    ],
+    "languages": [
+        "kotlin"
+    ],
+    "state": "content-gap",
+    "gapSummary": "Arc.Kotlin (github.com/cratis/arc.kotlin) owns Arc backend support for Kotlin, including the JVM interoperability that also serves Java consumers the way Chronicle.Kotlin documents it. AI guidance has not been authored here yet; this entry reserves the profile so cratis/arc/kotlin has an honest anchor, and it contributes no capability until skills are verified against the Arc.Kotlin repository."
+}

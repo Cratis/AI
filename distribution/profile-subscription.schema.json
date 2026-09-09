@@ -4,7 +4,7 @@
   "title": "Cratis AI profile subscription",
   "type": "object",
   "additionalProperties": false,
-  "description": "A project-owned Cratis AI subscription. The legacy public- and engineering- namespaces declare their channel; the cratis/ namespace introduced by Cratis/AI#264 derives it, so channel is optional there and never hand-declared twice.",
+  "description": "A project-owned Cratis AI subscription. Every profile id lives in the cratis namespace: cratis/engineering derives the cratis-engineering channel and everything else derives the public channel, so channel is optional and never hand-declared twice.",
   "required": [
     "schemaVersion",
     "version",
@@ -15,8 +15,7 @@
   ],
   "oneOf": [
     {
-      "title": "Declared public channel",
-      "required": ["channel"],
+      "title": "Derived public channel",
       "properties": {
         "channel": {
           "const": "public"
@@ -24,33 +23,20 @@
         "profiles": {
           "items": {
             "type": "string",
-            "pattern": "^public-[a-z0-9]+(?:-[a-z0-9]+)*$"
+            "pattern": "^(?!cratis/engineering$)cratis(?:/[a-z0-9]+(?:-[a-z0-9]+)*){0,3}$"
           }
         }
       }
     },
     {
-      "title": "Declared Cratis engineering channel",
-      "required": ["channel"],
+      "title": "Derived Cratis engineering channel",
       "properties": {
         "channel": {
           "const": "cratis-engineering"
         },
         "profiles": {
           "items": {
-            "type": "string",
-            "pattern": "^engineering-[a-z0-9]+(?:-[a-z0-9]+)*$"
-          }
-        }
-      }
-    },
-    {
-      "title": "Derived channel from the cratis namespace",
-      "properties": {
-        "profiles": {
-          "items": {
-            "type": "string",
-            "pattern": "^cratis(?:/[a-z0-9]+(?:-[a-z0-9]+)*){0,2}$"
+            "const": "cratis/engineering"
           }
         }
       }
@@ -61,7 +47,7 @@
       "const": "1.0.0"
     },
     "channel": {
-      "description": "Optional. Required with the public- and engineering- namespaces; derived from the profile namespace otherwise.",
+      "description": "Optional; derived from the profile namespace. Must agree with the derived channel when present.",
       "enum": ["public", "cratis-engineering"]
     },
     "version": {
@@ -74,7 +60,7 @@
       "uniqueItems": true,
       "items": {
         "type": "string",
-        "pattern": "^(?:cratis(?:/[a-z0-9]+(?:-[a-z0-9]+)*){0,2}|(?:public|engineering)-[a-z0-9]+(?:-[a-z0-9]+)*)$"
+        "pattern": "^cratis(?:/[a-z0-9]+(?:-[a-z0-9]+)*){0,3}$"
       }
     },
     "harnesses": {

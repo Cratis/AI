@@ -34,7 +34,8 @@
       },
       {
         "currentName": "add-traces",
-        "reason": "Chronicle kernel repository tracing and package maintenance is Cratis engineering contributor guidance."
+        "reason": "Chronicle kernel repository tracing and package maintenance is Cratis engineering contributor guidance.",
+        "distributionProjection": "retired-to-owning-repository"
       },
       {
         "currentName": "cratis-csharp-standards",

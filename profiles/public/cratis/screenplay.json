@@ -1,0 +1,16 @@
+{
+    "id": "cratis/screenplay",
+    "packageName": "@cratis/ai-screenplay",
+    "version": "0.0.0",
+    "products": [
+        "screenplay"
+    ],
+    "languages": [
+        "language-agnostic"
+    ],
+    "state": "preview-source-candidate",
+    "availableTargets": [
+        "cratis-screenplay-model-authoring"
+    ],
+    "gapSummary": "The .play file shape, the constructs the compiler accepts, the screenplay dotnet tool, and the boundary between what parses and what the executable semantic model admits are canonical. The full construct reference, PDL and CDL authoring, the printer and workspace APIs, and editor and language-service integration remain gaps."
+}

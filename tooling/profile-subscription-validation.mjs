@@ -30,20 +30,24 @@ function readJson(path, errors) {
 }
 
 /**
- * The channel a subscription belongs to. A `cratis/*` selection never declares
- * one; the legacy prefixes still may, and a declared channel must agree with
- * the namespace it names.
+ * The channel a subscription belongs to. Every profile lives under the
+ * `cratis` namespace: `cratis/engineering` alone derives the engineering
+ * channel, `cratis` and every other `cratis/*` id derive the public channel,
+ * and mixing the two resolves to no channel at all. A declared channel must
+ * agree with the derived one.
  */
 export function deriveSubscriptionChannel(profiles) {
     if (profiles.length === 0) return null;
-    if (profiles.every((profile) => profile.startsWith("engineering-")))
-        return "cratis-engineering";
+    const engineeringCount = profiles.filter(
+        (profile) => profile === "cratis/engineering",
+    ).length;
+    if (engineeringCount > 0)
+        return engineeringCount === profiles.length
+            ? "cratis-engineering"
+            : null;
     if (
         profiles.every(
-            (profile) =>
-                profile.startsWith("public-") ||
-                profile === "cratis" ||
-                profile.startsWith("cratis/"),
+            (profile) => profile === "cratis" || profile.startsWith("cratis/"),
         )
     )
         return "public";
@@ -171,10 +175,11 @@ export function validateProfileSubscriptions(
             errors.push(`${profile.id}: invalid package name`);
         // `cratis` is the one bare id: the root of the namespace, and the
         // maximal public bundle. Everything else stays namespaced under
-        // `cratis/`, `public-`, or `engineering-`, with the language-scoped
-        // meta cells at depth two (cratis/<product>/<language>).
+        // `cratis/`, with the language-scoped meta cells and the client/cli
+        // sub-profiles at depth two or three
+        // (cratis/<product>/<group>/<name>).
         if (
-            !/^(?:cratis(?:\/[a-z0-9]+(?:-[a-z0-9]+)*){0,2}|(?:public|engineering)-[a-z0-9]+(?:-[a-z0-9]+)*)$/.test(
+            !/^(?:cratis(?:\/[a-z0-9]+(?:-[a-z0-9]+)*){0,3})$/.test(
                 profile.id,
             )
         )
@@ -289,14 +294,14 @@ export function validateProfileSubscriptions(
         "Documentation/examples/ai-subscriptions/pi-settings.json";
     const piSettings = readJson(join(repositoryRoot, piSettingsPath), errors);
     const chronicleSubscription = parsedExamples.get(
-        "Documentation/examples/ai-subscriptions/chronicle-framework.cratis-ai.json",
+        "Documentation/examples/ai-subscriptions/cratis-engineering.cratis-ai.json",
     );
     if (
         !piSettings ||
         !chronicleSubscription ||
         JSON.stringify(piSettings.packages) !==
             JSON.stringify([
-                `npm:@cratis/ai-engineering-chronicle@${chronicleSubscription.version}`,
+                `npm:@cratis/ai-engineering@${chronicleSubscription.version}`,
             ]) ||
         piSettings.enableSkillCommands !== true ||
         Object.hasOwn(piSettings, "extensions")

@@ -1,5 +1,7 @@
 # Maintain shared Cratis AI behavior
 
+> **Audience:** Maintainers of Cratis/AI — ownership and upstream-improvement workflow. Not required for adopting Cratis AI.
+
 This guide explains how Cratis maintainers improve shared AI behavior while
 working in product, application, framework, documentation, or private
 repositories.

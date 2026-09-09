@@ -1,28 +1,31 @@
 {
-  "$comment": "The one reviewed record of how large the component corpus is. Every count that used to be a literal in tooling/, distribution/*.schema.json, tooling/specs/ and .github/workflows/ is read from here or derived from the inventory; nothing else restates a number. A content migration bumps this file and nothing else. Recompute with: node tooling/component-inventory-counts.mjs --print",
-  "schemaVersion": "1.0.0",
-  "state": "REVIEWED_COMPONENT_INVENTORY_SEAL",
-  "componentCount": 193,
-  "byKind": {
-    "agent": 12,
-    "command": 18,
-    "executable-host-extension": 2,
-    "hook": 1,
-    "instruction": 1,
-    "prompt": 18,
-    "rule": 44,
-    "skill": 97
-  },
-  "byDisposition": {
-    "executable-blocked": 3,
-    "native-static-review-projected": 35,
-    "native-static-unprojected": 10,
-    "repository-host-adapter-only": 48,
-    "skill-legacy-repository-only": 35
-  },
-  "floatingDispositions": {
-    "$comment": "skill-packaged-candidate and skill-blocked-candidate move when a skill is promoted from blocked to packaged without the corpus changing size, so they are not sealed individually. Their sum with skill-legacy-repository-only is sealed as skillDispositionCount instead.",
-    "ids": ["skill-blocked-candidate", "skill-packaged-candidate"]
-  },
-  "skillDispositionCount": 97
+    "$comment": "The one reviewed record of how large the component corpus is. Every count that used to be a literal in tooling/, distribution/*.schema.json, tooling/specs/ and .github/workflows/ is read from here or derived from the inventory; nothing else restates a number. A content migration bumps this file and nothing else. Recompute with: node tooling/component-inventory-counts.mjs --print",
+    "schemaVersion": "1.0.0",
+    "state": "REVIEWED_COMPONENT_INVENTORY_SEAL",
+    "componentCount": 192,
+    "byKind": {
+        "agent": 12,
+        "command": 18,
+        "executable-host-extension": 2,
+        "hook": 1,
+        "instruction": 1,
+        "prompt": 18,
+        "rule": 44,
+        "skill": 96
+    },
+    "byDisposition": {
+        "executable-blocked": 3,
+        "native-static-review-projected": 35,
+        "native-static-unprojected": 10,
+        "repository-host-adapter-only": 48,
+        "skill-legacy-repository-only": 35
+    },
+    "floatingDispositions": {
+        "$comment": "skill-packaged-candidate and skill-blocked-candidate move when a skill is promoted from blocked to packaged without the corpus changing size, so they are not sealed individually. Their sum with skill-legacy-repository-only is sealed as skillDispositionCount instead.",
+        "ids": [
+            "skill-blocked-candidate",
+            "skill-packaged-candidate"
+        ]
+    },
+    "skillDispositionCount": 96
 }

@@ -1,0 +1,21 @@
+{
+    "id": "cratis/components",
+    "packageName": "@cratis/ai-components",
+    "version": "0.0.0",
+    "products": [
+        "components"
+    ],
+    "languages": [
+        "react",
+        "typescript"
+    ],
+    "state": "preview-source-candidate",
+    "availableTargets": [
+        "cratis-components-accessibility",
+        "cratis-components-schema-editor",
+        "cratis-components-stepper-command-dialog",
+        "cratis-components-styling",
+        "cratis-components-toolbar"
+    ],
+    "gapSummary": "Toolbars, stepper dialogs, schema editors, styling, and accessibility are covered; dedicated canvas, pivot viewer, and time machine guidance remain gaps."
+}

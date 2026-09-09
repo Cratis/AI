@@ -15,7 +15,9 @@
       "selectedSoftOrOptionalTargetIds": [],
       "missingCapabilityIds": [],
       "publishable": false,
-      "evidenceIds": ["ecosystem-use-cases"]
+      "evidenceIds": [
+        "ecosystem-use-cases"
+      ]
     },
     {
       "id": "cratis-arc-backend-review",
@@ -31,9 +33,15 @@
         "cratis-arc-query-paging"
       ],
       "selectedSoftOrOptionalTargetIds": [],
-      "missingCapabilityIds": ["arc-query", "arc-validation", "arc-authorization"],
+      "missingCapabilityIds": [
+        "arc-query",
+        "arc-validation",
+        "arc-authorization"
+      ],
       "publishable": false,
-      "evidenceIds": ["ecosystem-use-cases"]
+      "evidenceIds": [
+        "ecosystem-use-cases"
+      ]
     },
     {
       "id": "cratis-chronicle-dotnet-review",
@@ -51,9 +59,14 @@
         "cratis-chronicle-reducer"
       ],
       "selectedSoftOrOptionalTargetIds": [],
-      "missingCapabilityIds": ["chronicle-dotnet-client", "chronicle-compliance"],
+      "missingCapabilityIds": [
+        "chronicle-dotnet-client",
+        "chronicle-compliance"
+      ],
       "publishable": false,
-      "evidenceIds": ["ecosystem-use-cases"]
+      "evidenceIds": [
+        "ecosystem-use-cases"
+      ]
     },
     {
       "id": "cratis-application-full-stack-review",
@@ -71,9 +84,15 @@
         "cratis-components-toolbar"
       ],
       "selectedSoftOrOptionalTargetIds": [],
-      "missingCapabilityIds": ["arc-react-client", "components-dialog", "components-data-page"],
+      "missingCapabilityIds": [
+        "arc-react-client",
+        "components-dialog",
+        "components-data-page"
+      ],
       "publishable": false,
-      "evidenceIds": ["ecosystem-use-cases"]
+      "evidenceIds": [
+        "ecosystem-use-cases"
+      ]
     },
     {
       "id": "cratis-review-capabilities",
@@ -88,7 +107,9 @@
       "selectedSoftOrOptionalTargetIds": [],
       "missingCapabilityIds": [],
       "publishable": false,
-      "evidenceIds": ["third-party-skills-evaluation"]
+      "evidenceIds": [
+        "third-party-skills-evaluation"
+      ]
     },
     {
       "id": "cratis-engineering-review",
@@ -96,7 +117,6 @@
       "state": "draft",
       "audience": "cratis-engineering",
       "rootTargetIds": [
-        "cratis-engineering-chronicle-kernel-tracing",
         "cratis-engineering-csharp-conventions",
         "cratis-engineering-docs-add-page",
         "cratis-engineering-docs-authoring",
@@ -108,7 +128,9 @@
       "selectedSoftOrOptionalTargetIds": [],
       "missingCapabilityIds": [],
       "publishable": false,
-      "evidenceIds": ["option-a-plus-authority"]
+      "evidenceIds": [
+        "option-a-plus-authority"
+      ]
     }
   ]
 }
