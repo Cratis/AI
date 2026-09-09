@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "asOf": "2026-09-02",
+  "asOf": "2026-09-09",
   "defaultPolicy": "deny",
   "sources": [
     {
@@ -116,6 +116,18 @@
       "kind": "repository-snapshot",
       "locator": "https://github.com/Cratis/AI/tree/6b5388ddc660e8c9ddae0d7aa3ef3b5581a9f979/.ai/skills/ship-changes",
       "immutableRevision": "6b5388ddc660e8c9ddae0d7aa3ef3b5581a9f979"
+    },
+    {
+      "id": "source-shared-documentation-guidance-source-c0a9255",
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/c0a9255bae2a53face9d98de7430a93d3044188d/.ai",
+      "immutableRevision": "c0a9255bae2a53face9d98de7430a93d3044188d"
+    },
+    {
+      "id": "source-arc-documentation-authoring-pr-2679",
+      "kind": "official-repository",
+      "locator": "https://github.com/Cratis/Arc/pull/2679",
+      "immutableRevision": "83a15447172e142be43580b852d215b2118b284e"
     },
     {
       "id": "source-chronicle-event-type-migrations-value-map-source-ed28ee6",
@@ -1626,6 +1638,82 @@
         "officialUrl": "https://github.com/Cratis/AI/tree/f58bcf7f5cc9fc0e11305ada3b5ecb6fa20953e9/engineering/skills/cratis-engineering-docs-authoring",
         "sourceKind": "repository-snapshot",
         "applicableVersion": "f58bcf7f5cc9fc0e11305ada3b5ecb6fa20953e9"
+      }
+    },
+    {
+      "id": "shared-documentation-guidance-source-c0a9255",
+      "sourceId": "source-shared-documentation-guidance-source-c0a9255",
+      "evidenceClass": "local",
+      "subject": {
+        "kind": "repository",
+        "id": "cratis-ai",
+        "version": "c0a9255bae2a53face9d98de7430a93d3044188d"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "source-provenance",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Source provenance for the shared documentation guidance committed at c0a9255bae2a53face9d98de7430a93d3044188d after comparing merged Arc PR #2679 (83a15447172e142be43580b852d215b2118b284e) with the current Documentation/web synchronization, component, navigation, Markdown-export, and verification behavior.",
+      "environment": {
+        "operatingSystem": "macOS",
+        "architecture": "arm64",
+        "isolation": "consumer-worktree"
+      },
+      "observedOn": "2026-09-09",
+      "validThrough": "2027-09-09",
+      "confidence": "high",
+      "limitations": [
+        "This observation proves source provenance and reviewed documentation-contract alignment only; it grants no runtime support, release readiness, distribution approval, or publication authority.",
+        "Chronicle client-tab expansion and product-specific Components policy were outside the shared guidance scope."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/Arc/pull/2679",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "c0a9255bae2a53face9d98de7430a93d3044188d"
+      }
+    },
+    {
+      "id": "arc-documentation-authoring-pr-2679",
+      "sourceId": "source-arc-documentation-authoring-pr-2679",
+      "evidenceClass": "hosted",
+      "subject": {
+        "kind": "source-contract",
+        "id": "shared-documentation-guidance",
+        "version": "83a15447172e142be43580b852d215b2118b284e"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "documentation",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Merged Arc PR #2679 provides reviewed evidence for documentation ownership, Markdown/MDX authoring hazards, Starlight asides and component imports, landing collisions, navigation, local and sibling-site gates, raw Markdown consumers, and extension-receiver-specific examples.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-09-09",
+      "validThrough": "2027-09-09",
+      "confidence": "high",
+      "limitations": [
+        "The Arc pull request is product-specific evidence; shared guidance was generalized only after inspecting the current multi-product Documentation/web site.",
+        "This evidence does not authorize distribution, publication, or product-specific policy outside the reviewed contract."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/Arc/pull/2679",
+        "sourceKind": "official-repository",
+        "applicableVersion": "83a15447172e142be43580b852d215b2118b284e"
       }
     },
     {

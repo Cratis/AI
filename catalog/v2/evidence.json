@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "asOf": "2026-09-02",
+  "asOf": "2026-09-09",
   "generatedBy": "tooling/generate-catalog-v2.mjs",
   "evidence": [
     {
@@ -119,6 +119,16 @@
       "expiresOn": "2026-11-23",
       "applicableVersion": "current-documentation-2026-08-25",
       "confidence": "high"
+    },
+    {
+      "id": "arc-documentation-authoring-pr-2679",
+      "officialUrl": "https://github.com/Cratis/Arc/pull/2679",
+      "sourceKind": "official-repository",
+      "verifiedOn": "2026-09-09",
+      "expiresOn": "2027-09-09",
+      "applicableVersion": "83a15447172e142be43580b852d215b2118b284e",
+      "confidence": "high",
+      "immutableRevision": "83a15447172e142be43580b852d215b2118b284e"
     },
     {
       "id": "augment-auggie-source-1",
@@ -1440,6 +1450,16 @@
       "confidence": "high",
       "repositoryPath": "distribution/evidence/s8-native-non-skill-static-generation-2026-08-25.json",
       "digest": "9f56390ab36221d425a5d238d1e5d202d8eb8760537d39256edf014581e8590d"
+    },
+    {
+      "id": "shared-documentation-guidance-source-c0a9255",
+      "officialUrl": "https://github.com/Cratis/Arc/pull/2679",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-09-09",
+      "expiresOn": "2027-09-09",
+      "applicableVersion": "c0a9255bae2a53face9d98de7430a93d3044188d",
+      "confidence": "high",
+      "immutableRevision": "c0a9255bae2a53face9d98de7430a93d3044188d"
     },
     {
       "id": "sourcegraph-cody-source-1",

@@ -64,20 +64,20 @@
         {
           "path": ".aiassistant/rules/documentation-structure-and-formatting.md",
           "sourcePath": ".ai/rules/documentation-structure-and-formatting.md",
-          "size": 4938,
-          "sha256": "ab6f79aab44035f03d89fc92fd3319d99f7e782b3d8da0ceba1778c557007f25"
+          "size": 10281,
+          "sha256": "1e158701c059246a507b8d618a7b0af5c2d797f9931b90f7944b821b91895522"
         },
         {
           "path": ".aiassistant/rules/documentation.md",
           "sourcePath": ".ai/rules/documentation.md",
-          "size": 7763,
-          "sha256": "f861fc90a20ad7747812d1a2810223024fd56ecff924a41db6d105bcd04fa316"
+          "size": 7369,
+          "sha256": "0709c22b6550286b5ba76f4e6227773c87d16bfdbfbc025585945abf302ed308"
         },
         {
           "path": ".aiassistant/rules/editing-cratis-docs.md",
           "sourcePath": ".ai/rules/editing-cratis-docs.md",
-          "size": 4502,
-          "sha256": "d3a78a5ec35dac52aec365a02b3f87d4d0c6a01ca9a240168f17b36a571c6f35"
+          "size": 4993,
+          "sha256": "e69640e4a76fae4b326e26d77872536c048d6f2ba20b72fa2ccf6c2034e6c11f"
         },
         {
           "path": ".aiassistant/rules/efcore.md",
@@ -214,14 +214,14 @@
         {
           "path": ".aiassistant/rules/writing-correct-examples.md",
           "sourcePath": ".ai/rules/writing-correct-examples.md",
-          "size": 4359,
-          "sha256": "593e0bc73b1117699011033455d9d5c56aaff9c08e6c03187c0e55d3e3105a7b"
+          "size": 4669,
+          "sha256": "ad84a39e0ef32c3534cd8bf9ab816cd940854494a7fd951670e205bb129b3f0c"
         },
         {
           "path": ".aiassistant/rules/writing-cratis-docs.md",
           "sourcePath": ".ai/rules/writing-cratis-docs.md",
-          "size": 5622,
-          "sha256": "e30478e5eb29cac704e04b5605ea649e1e9405c934ff220ecc3d586e62834fd0"
+          "size": 4995,
+          "sha256": "ef4544a2d60547bca03f49058f6964cc000b6c3098102b24e48faec7abaafe93"
         }
       ]
     },
@@ -274,20 +274,20 @@
         {
           "path": ".tabnine/guidelines/documentation-structure-and-formatting.md",
           "sourcePath": ".ai/rules/documentation-structure-and-formatting.md",
-          "size": 4938,
-          "sha256": "ab6f79aab44035f03d89fc92fd3319d99f7e782b3d8da0ceba1778c557007f25"
+          "size": 10281,
+          "sha256": "1e158701c059246a507b8d618a7b0af5c2d797f9931b90f7944b821b91895522"
         },
         {
           "path": ".tabnine/guidelines/documentation.md",
           "sourcePath": ".ai/rules/documentation.md",
-          "size": 7763,
-          "sha256": "f861fc90a20ad7747812d1a2810223024fd56ecff924a41db6d105bcd04fa316"
+          "size": 7369,
+          "sha256": "0709c22b6550286b5ba76f4e6227773c87d16bfdbfbc025585945abf302ed308"
         },
         {
           "path": ".tabnine/guidelines/editing-cratis-docs.md",
           "sourcePath": ".ai/rules/editing-cratis-docs.md",
-          "size": 4502,
-          "sha256": "d3a78a5ec35dac52aec365a02b3f87d4d0c6a01ca9a240168f17b36a571c6f35"
+          "size": 4993,
+          "sha256": "e69640e4a76fae4b326e26d77872536c048d6f2ba20b72fa2ccf6c2034e6c11f"
         },
         {
           "path": ".tabnine/guidelines/efcore.md",
@@ -424,14 +424,14 @@
         {
           "path": ".tabnine/guidelines/writing-correct-examples.md",
           "sourcePath": ".ai/rules/writing-correct-examples.md",
-          "size": 4359,
-          "sha256": "593e0bc73b1117699011033455d9d5c56aaff9c08e6c03187c0e55d3e3105a7b"
+          "size": 4669,
+          "sha256": "ad84a39e0ef32c3534cd8bf9ab816cd940854494a7fd951670e205bb129b3f0c"
         },
         {
           "path": ".tabnine/guidelines/writing-cratis-docs.md",
           "sourcePath": ".ai/rules/writing-cratis-docs.md",
-          "size": 5622,
-          "sha256": "e30478e5eb29cac704e04b5605ea649e1e9405c934ff220ecc3d586e62834fd0"
+          "size": 4995,
+          "sha256": "ef4544a2d60547bca03f49058f6964cc000b6c3098102b24e48faec7abaafe93"
         }
       ]
     },
@@ -695,14 +695,14 @@
       "canonicalOwnerId": "cratis-rule-documentation-structure-and-formatting",
       "semanticKind": "rule",
       "sourcePath": ".ai/rules/documentation-structure-and-formatting.md",
-      "sourceDigest": "688d40eee9d88fa5cb1fb82a56829083726d27f356c48e42cf082d2e33a3412c",
+      "sourceDigest": "dd3ecbe3f5b05436e8cd9ddd4fa3096e105ba0d8e8c8723eb451595a4067f508",
       "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/documentation-structure-and-formatting.md",
       "hostId": "jetbrains-ai-assistant",
       "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
       "evidenceIds": [
         "jetbrains-ai-assistant-source-1"
       ],
-      "outputDigest": "ab6f79aab44035f03d89fc92fd3319d99f7e782b3d8da0ceba1778c557007f25"
+      "outputDigest": "1e158701c059246a507b8d618a7b0af5c2d797f9931b90f7944b821b91895522"
     },
     {
       "projectionId": "cratis-rule-documentation-structure-and-formatting-to-tabnine-rule",
@@ -710,14 +710,14 @@
       "canonicalOwnerId": "cratis-rule-documentation-structure-and-formatting",
       "semanticKind": "rule",
       "sourcePath": ".ai/rules/documentation-structure-and-formatting.md",
-      "sourceDigest": "688d40eee9d88fa5cb1fb82a56829083726d27f356c48e42cf082d2e33a3412c",
+      "sourceDigest": "dd3ecbe3f5b05436e8cd9ddd4fa3096e105ba0d8e8c8723eb451595a4067f508",
       "outputPath": "tabnine-guidelines/.tabnine/guidelines/documentation-structure-and-formatting.md",
       "hostId": "tabnine",
       "hostAdapterId": "tabnine-host-adapter",
       "evidenceIds": [
         "tabnine-source-1"
       ],
-      "outputDigest": "ab6f79aab44035f03d89fc92fd3319d99f7e782b3d8da0ceba1778c557007f25"
+      "outputDigest": "1e158701c059246a507b8d618a7b0af5c2d797f9931b90f7944b821b91895522"
     },
     {
       "projectionId": "cratis-rule-documentation-to-jetbrains-ai-assistant-rule",
@@ -725,14 +725,14 @@
       "canonicalOwnerId": "cratis-rule-documentation",
       "semanticKind": "rule",
       "sourcePath": ".ai/rules/documentation.md",
-      "sourceDigest": "001ea7c6e6e830ed807895502c968181dfa5c2a3beff7d3c241375b46c5df55a",
+      "sourceDigest": "d3a33112183e342bfebb78fff66007f911f1a843438e458584dac6ec3df7ec30",
       "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/documentation.md",
       "hostId": "jetbrains-ai-assistant",
       "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
       "evidenceIds": [
         "jetbrains-ai-assistant-source-1"
       ],
-      "outputDigest": "f861fc90a20ad7747812d1a2810223024fd56ecff924a41db6d105bcd04fa316"
+      "outputDigest": "0709c22b6550286b5ba76f4e6227773c87d16bfdbfbc025585945abf302ed308"
     },
     {
       "projectionId": "cratis-rule-documentation-to-tabnine-rule",
@@ -740,14 +740,14 @@
       "canonicalOwnerId": "cratis-rule-documentation",
       "semanticKind": "rule",
       "sourcePath": ".ai/rules/documentation.md",
-      "sourceDigest": "001ea7c6e6e830ed807895502c968181dfa5c2a3beff7d3c241375b46c5df55a",
+      "sourceDigest": "d3a33112183e342bfebb78fff66007f911f1a843438e458584dac6ec3df7ec30",
       "outputPath": "tabnine-guidelines/.tabnine/guidelines/documentation.md",
       "hostId": "tabnine",
       "hostAdapterId": "tabnine-host-adapter",
       "evidenceIds": [
         "tabnine-source-1"
       ],
-      "outputDigest": "f861fc90a20ad7747812d1a2810223024fd56ecff924a41db6d105bcd04fa316"
+      "outputDigest": "0709c22b6550286b5ba76f4e6227773c87d16bfdbfbc025585945abf302ed308"
     },
     {
       "projectionId": "cratis-rule-editing-cratis-docs-to-jetbrains-ai-assistant-rule",
@@ -755,14 +755,14 @@
       "canonicalOwnerId": "cratis-rule-editing-cratis-docs",
       "semanticKind": "rule",
       "sourcePath": ".ai/rules/editing-cratis-docs.md",
-      "sourceDigest": "d0489bf9cfa17bc35ea220b3ed6b2ccdc5043b9a96cb78a119fc15782a7b2174",
+      "sourceDigest": "f1f4f8e15fab0569aaf563c17f9c02aa1eab91795fc18bfcbab4d7fe0444990a",
       "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/editing-cratis-docs.md",
       "hostId": "jetbrains-ai-assistant",
       "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
       "evidenceIds": [
         "jetbrains-ai-assistant-source-1"
       ],
-      "outputDigest": "d3a78a5ec35dac52aec365a02b3f87d4d0c6a01ca9a240168f17b36a571c6f35"
+      "outputDigest": "e69640e4a76fae4b326e26d77872536c048d6f2ba20b72fa2ccf6c2034e6c11f"
     },
     {
       "projectionId": "cratis-rule-editing-cratis-docs-to-tabnine-rule",
@@ -770,14 +770,14 @@
       "canonicalOwnerId": "cratis-rule-editing-cratis-docs",
       "semanticKind": "rule",
       "sourcePath": ".ai/rules/editing-cratis-docs.md",
-      "sourceDigest": "d0489bf9cfa17bc35ea220b3ed6b2ccdc5043b9a96cb78a119fc15782a7b2174",
+      "sourceDigest": "f1f4f8e15fab0569aaf563c17f9c02aa1eab91795fc18bfcbab4d7fe0444990a",
       "outputPath": "tabnine-guidelines/.tabnine/guidelines/editing-cratis-docs.md",
       "hostId": "tabnine",
       "hostAdapterId": "tabnine-host-adapter",
       "evidenceIds": [
         "tabnine-source-1"
       ],
-      "outputDigest": "d3a78a5ec35dac52aec365a02b3f87d4d0c6a01ca9a240168f17b36a571c6f35"
+      "outputDigest": "e69640e4a76fae4b326e26d77872536c048d6f2ba20b72fa2ccf6c2034e6c11f"
     },
     {
       "projectionId": "cratis-rule-efcore-specs-to-jetbrains-ai-assistant-rule",
@@ -1445,14 +1445,14 @@
       "canonicalOwnerId": "cratis-rule-writing-correct-examples",
       "semanticKind": "rule",
       "sourcePath": ".ai/rules/writing-correct-examples.md",
-      "sourceDigest": "48d8399ebf2a3bb645390116eb1fdeea61002eb90a6271b022cfab50a9ec0389",
+      "sourceDigest": "b828a583dce71c9beba8887a666f77fdc282f73d5a172de489479e02f4570d61",
       "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/writing-correct-examples.md",
       "hostId": "jetbrains-ai-assistant",
       "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
       "evidenceIds": [
         "jetbrains-ai-assistant-source-1"
       ],
-      "outputDigest": "593e0bc73b1117699011033455d9d5c56aaff9c08e6c03187c0e55d3e3105a7b"
+      "outputDigest": "ad84a39e0ef32c3534cd8bf9ab816cd940854494a7fd951670e205bb129b3f0c"
     },
     {
       "projectionId": "cratis-rule-writing-correct-examples-to-tabnine-rule",
@@ -1460,14 +1460,14 @@
       "canonicalOwnerId": "cratis-rule-writing-correct-examples",
       "semanticKind": "rule",
       "sourcePath": ".ai/rules/writing-correct-examples.md",
-      "sourceDigest": "48d8399ebf2a3bb645390116eb1fdeea61002eb90a6271b022cfab50a9ec0389",
+      "sourceDigest": "b828a583dce71c9beba8887a666f77fdc282f73d5a172de489479e02f4570d61",
       "outputPath": "tabnine-guidelines/.tabnine/guidelines/writing-correct-examples.md",
       "hostId": "tabnine",
       "hostAdapterId": "tabnine-host-adapter",
       "evidenceIds": [
         "tabnine-source-1"
       ],
-      "outputDigest": "593e0bc73b1117699011033455d9d5c56aaff9c08e6c03187c0e55d3e3105a7b"
+      "outputDigest": "ad84a39e0ef32c3534cd8bf9ab816cd940854494a7fd951670e205bb129b3f0c"
     },
     {
       "projectionId": "cratis-rule-writing-cratis-docs-to-jetbrains-ai-assistant-rule",
@@ -1475,14 +1475,14 @@
       "canonicalOwnerId": "cratis-rule-writing-cratis-docs",
       "semanticKind": "rule",
       "sourcePath": ".ai/rules/writing-cratis-docs.md",
-      "sourceDigest": "5eb1284bd46b9edc396cf85d7ed62abd4dc7b6f923a91563a66c768bb18aef9d",
+      "sourceDigest": "a7f7e4361b74dec31538066d28bc1eaa30b47d4b13968212faf62650c631d998",
       "outputPath": "jetbrains-ai-assistant-rules/.aiassistant/rules/writing-cratis-docs.md",
       "hostId": "jetbrains-ai-assistant",
       "hostAdapterId": "jetbrains-ai-assistant-host-adapter",
       "evidenceIds": [
         "jetbrains-ai-assistant-source-1"
       ],
-      "outputDigest": "e30478e5eb29cac704e04b5605ea649e1e9405c934ff220ecc3d586e62834fd0"
+      "outputDigest": "ef4544a2d60547bca03f49058f6964cc000b6c3098102b24e48faec7abaafe93"
     },
     {
       "projectionId": "cratis-rule-writing-cratis-docs-to-tabnine-rule",
@@ -1490,14 +1490,14 @@
       "canonicalOwnerId": "cratis-rule-writing-cratis-docs",
       "semanticKind": "rule",
       "sourcePath": ".ai/rules/writing-cratis-docs.md",
-      "sourceDigest": "5eb1284bd46b9edc396cf85d7ed62abd4dc7b6f923a91563a66c768bb18aef9d",
+      "sourceDigest": "a7f7e4361b74dec31538066d28bc1eaa30b47d4b13968212faf62650c631d998",
       "outputPath": "tabnine-guidelines/.tabnine/guidelines/writing-cratis-docs.md",
       "hostId": "tabnine",
       "hostAdapterId": "tabnine-host-adapter",
       "evidenceIds": [
         "tabnine-source-1"
       ],
-      "outputDigest": "e30478e5eb29cac704e04b5605ea649e1e9405c934ff220ecc3d586e62834fd0"
+      "outputDigest": "ef4544a2d60547bca03f49058f6964cc000b6c3098102b24e48faec7abaafe93"
     }
   ],
   "rootCount": 4,
