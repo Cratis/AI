@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "db95c0ada115e81a17ca9cfbcd2c77ad30fe2b0c17d2bf50096be20d38856b00",
+  "indexDigest": "8650ecaec6698c44726c076f012b7f807b387ea4e7a7500545331844d7b80383",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -604,6 +604,10 @@
     },
     {
       "path": "Documentation/examples/ai-subscriptions/chronicle-kotlin-client.cratis-ai.json",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/examples/ai-subscriptions/chronicle-kotlin-language-scoped.cratis-ai.json",
       "status": "added"
     },
     {
@@ -1260,6 +1264,22 @@
     },
     {
       "path": "distribution/update-bot-contract.json",
+      "status": "added"
+    },
+    {
+      "path": "engineering/.claude-plugin/plugin.json",
+      "status": "added"
+    },
+    {
+      "path": "engineering/.codex-plugin/plugin.json",
+      "status": "added"
+    },
+    {
+      "path": "engineering/.cursor-plugin/plugin.json",
+      "status": "added"
+    },
+    {
+      "path": "engineering/.github/plugin/plugin.json",
       "status": "added"
     },
     {
@@ -2783,7 +2803,31 @@
       "status": "added"
     },
     {
+      "path": "profiles/public/cratis/application/csharp.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/application/elixir.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/application/kotlin.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/application/typescript.json",
+      "status": "added"
+    },
+    {
       "path": "profiles/public/cratis/arc.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/arc/csharp.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/arc/kotlin.json",
       "status": "added"
     },
     {
@@ -2791,7 +2835,39 @@
       "status": "added"
     },
     {
+      "path": "profiles/public/cratis/chronicle/csharp.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/chronicle/elixir.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/chronicle/kotlin.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/chronicle/typescript.json",
+      "status": "added"
+    },
+    {
       "path": "profiles/public/cratis/full.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/full/csharp.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/full/elixir.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/full/kotlin.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/full/typescript.json",
       "status": "added"
     },
     {
@@ -2812,6 +2888,10 @@
     },
     {
       "path": "profiles/public/public-application.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/public-arc-client-kotlin.json",
       "status": "added"
     },
     {
@@ -4203,28 +4283,7 @@
       "status": "added"
     }
   ],
-  "admittedUntracked": [
-    "Documentation/examples/ai-subscriptions/chronicle-kotlin-language-scoped.cratis-ai.json",
-    "engineering/.claude-plugin/plugin.json",
-    "engineering/.codex-plugin/plugin.json",
-    "engineering/.cursor-plugin/plugin.json",
-    "engineering/.github/plugin/plugin.json",
-    "profiles/public/cratis/application/csharp.json",
-    "profiles/public/cratis/application/elixir.json",
-    "profiles/public/cratis/application/kotlin.json",
-    "profiles/public/cratis/application/typescript.json",
-    "profiles/public/cratis/arc/csharp.json",
-    "profiles/public/cratis/arc/kotlin.json",
-    "profiles/public/cratis/chronicle/csharp.json",
-    "profiles/public/cratis/chronicle/elixir.json",
-    "profiles/public/cratis/chronicle/kotlin.json",
-    "profiles/public/cratis/chronicle/typescript.json",
-    "profiles/public/cratis/full/csharp.json",
-    "profiles/public/cratis/full/elixir.json",
-    "profiles/public/cratis/full/kotlin.json",
-    "profiles/public/cratis/full/typescript.json",
-    "profiles/public/public-arc-client-kotlin.json"
-  ],
+  "admittedUntracked": [],
   "excludedRuntimePrefixes": [
     ".pi/delegate/",
     ".pi/fusion/",
