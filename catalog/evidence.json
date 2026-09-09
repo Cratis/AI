@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "asOf": "2026-09-08",
+  "asOf": "2026-09-09",
   "defaultPolicy": "deny",
   "sources": [
     {
@@ -123,6 +123,13 @@
       "locator": "https://github.com/Cratis/AI/tree/f5f215fee9ba5ad95ea5b4d512d5730229dda49d/.ai/skills/ship-changes",
       "immutableRevision": "f5f215fee9ba5ad95ea5b4d512d5730229dda49d",
       "digest": "d707392ab648aec8d114e7941a85293bf302c2435d1d19fb7e270765abc6c2a0"
+    },
+    {
+      "id": "source-engineering-ship-changes-merged-branch-cleanup-c29984a",
+      "kind": "repository-snapshot",
+      "locator": "https://github.com/Cratis/AI/tree/c29984acd8d55ca61b1bc3e918ef11627db8b06d/.ai/skills/ship-changes",
+      "immutableRevision": "c29984acd8d55ca61b1bc3e918ef11627db8b06d",
+      "digest": "def7578f965cc989967df312274324c591b7ca88c5ee98d7293f53e011a7dd0a"
     },
     {
       "id": "source-chronicle-event-type-migrations-value-map-source-ed28ee6",
@@ -1617,6 +1624,46 @@
         "officialUrl": "https://github.com/Cratis/AI/tree/f5f215fee9ba5ad95ea5b4d512d5730229dda49d/.ai/skills/ship-changes",
         "sourceKind": "repository-snapshot",
         "applicableVersion": "f5f215fee9ba5ad95ea5b4d512d5730229dda49d"
+      }
+    },
+    {
+      "id": "engineering-ship-changes-merged-branch-cleanup-c29984a",
+      "sourceId": "source-engineering-ship-changes-merged-branch-cleanup-c29984a",
+      "evidenceClass": "local",
+      "subject": {
+        "kind": "target",
+        "id": "cratis-engineering-ship-changes",
+        "version": "c29984acd8d55ca61b1bc3e918ef11627db8b06d",
+        "digest": "def7578f965cc989967df312274324c591b7ca88c5ee98d7293f53e011a7dd0a"
+      },
+      "bindingIds": [],
+      "assertions": [
+        {
+          "assuranceId": "source-provenance",
+          "outcome": "pass",
+          "supporting": true,
+          "claimIds": []
+        }
+      ],
+      "scope": "Compared the exact bundled ship-changes paths and bytes in the local publication worktree with immutable commit c29984acd8d55ca61b1bc3e918ef11627db8b06d, and recomputed the catalog content digest. Source provenance only.",
+      "environment": {
+        "operatingSystem": "not-recorded",
+        "architecture": "not-recorded",
+        "isolation": "not-recorded"
+      },
+      "observedOn": "2026-09-09",
+      "validThrough": "2027-09-09",
+      "confidence": "high",
+      "limitations": [
+        "Local source inspection only; this is not hosted or consumer execution evidence.",
+        "The synchronized catalog snapshot advances for this source record; existing per-source verification dates and external facts are unchanged and were not reverified by this observation.",
+        "No installation, behavioral, release-readiness, or publication approval is granted."
+      ],
+      "supersedes": [],
+      "legacy": {
+        "officialUrl": "https://github.com/Cratis/AI/tree/c29984acd8d55ca61b1bc3e918ef11627db8b06d/.ai/skills/ship-changes",
+        "sourceKind": "repository-snapshot",
+        "applicableVersion": "c29984acd8d55ca61b1bc3e918ef11627db8b06d"
       }
     },
     {

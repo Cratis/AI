@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "asOf": "2026-09-08",
+  "asOf": "2026-09-09",
   "generatedBy": "tooling/generate-catalog-v2.mjs",
   "evidence": [
     {
@@ -542,6 +542,17 @@
       "applicableVersion": "56e0a3d3b257c61f211eae7300cc08669b90b41d",
       "confidence": "high",
       "immutableRevision": "56e0a3d3b257c61f211eae7300cc08669b90b41d"
+    },
+    {
+      "id": "engineering-ship-changes-merged-branch-cleanup-c29984a",
+      "officialUrl": "https://github.com/Cratis/AI/tree/c29984acd8d55ca61b1bc3e918ef11627db8b06d/.ai/skills/ship-changes",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-09-09",
+      "expiresOn": "2027-09-09",
+      "applicableVersion": "c29984acd8d55ca61b1bc3e918ef11627db8b06d",
+      "confidence": "high",
+      "immutableRevision": "c29984acd8d55ca61b1bc3e918ef11627db8b06d",
+      "digest": "def7578f965cc989967df312274324c591b7ca88c5ee98d7293f53e011a7dd0a"
     },
     {
       "id": "engineering-ship-changes-no-effect-source-6b5388d",
