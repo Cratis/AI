@@ -3,7 +3,7 @@
 Free, MIT-licensed AI skills, rules, and agent guidance for building
 event-sourced and CQRS applications with the [Cratis](https://www.cratis.io)
 ecosystem. The only published package today is
-`@cratis/ai-fundamentals` — a stable release carrying the whole public
+`@cratis/pi` — a stable release carrying the whole public
 skills directory.
 
 Cratis AI is the controlled source for shared AI skills, engineering guidance,
@@ -16,7 +16,7 @@ It serves two separate audiences:
 - **Cratis maintainers** receive separate engineering profiles for application,
   framework, client, documentation, Studio, Stagehand, and corpus repositories.
 
-> **Current status:** the supported delivery today is the `@cratis/ai-fundamentals`
+> **Current status:** the supported delivery today is the `@cratis/pi`
 > npm package — the whole public skills directory, giving Pi the same content
 > as the marketplace harnesses — and the marketplace plugins; versioned
 > per-profile packages remain in review. Deterministic
@@ -261,7 +261,7 @@ node tooling/generate-repository-inventory.mjs --check
 
 ## Current release state
 
-`@cratis/ai-fundamentals` uses the normal Cratis release flow: exactly one
+`@cratis/pi` uses the normal Cratis release flow: exactly one
 `major`, `minor`, `patch`, or `no-release` pull-request label, followed by an
 automatic release from protected `main`. Releases publish supported stable
 versions (`1.0.0` and newer) to npm `latest` through trusted OIDC.

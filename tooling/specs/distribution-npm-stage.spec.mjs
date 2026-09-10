@@ -25,7 +25,7 @@ const workflow = readFileSync(
 test("npm stage contract enables normal support-free stable releases", () => {
     assert.equal(contract.state, "NORMAL_STABLE_RELEASES_ENABLED");
     assert.equal(contract.package.fixtureName, "@cratis/ai");
-    assert.equal(contract.package.productionName, "@cratis/ai-fundamentals");
+    assert.equal(contract.package.productionName, "@cratis/pi");
     assert.equal(contract.package.fixturePrivate, true);
     assert.equal(contract.package.publicOwnershipConfirmed, true);
     assert.equal(contract.package.bootstrapVersion, "0.0.0-bootstrap.0");

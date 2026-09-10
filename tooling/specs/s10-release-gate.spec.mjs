@@ -170,7 +170,7 @@ test("production lifecycle requires complete non-synthetic A-to-B-to-A evidence"
         sourceRevision: "c".repeat(40),
         artifactId: "release-artifact",
         artifactDigest: digestA,
-        packageName: "@cratis/ai-fundamentals",
+        packageName: "@cratis/pi",
         versionA: "1.0.0",
         versionB: "1.1.0",
         profileId: "public-fundamentals",

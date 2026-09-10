@@ -31,7 +31,7 @@ The eight engineering classifications are:
 
 The engineering source remains public under `engineering/`, but none of these
 skills enters a public product-profile package such as
-`@cratis/ai-fundamentals` or its Agent Plugin artifact.
+`@cratis/pi` or its Agent Plugin artifact.
 
 ## Audit of all current skills
 

@@ -12,7 +12,7 @@ There are two ways to bring Cratis AI into a repository, and they compose:
   `.cratis/ai.json`, pinned to exact versions, with updates arriving as reviewed
   pull requests.
 
-Per-profile packages beyond `@cratis/ai-fundamentals` release as each profile
+Per-profile packages beyond `@cratis/pi` release as each profile
 passes its preview gates; until then, the marketplace plugin delivers the
 skills and the subscription records the intended scope.
 
@@ -97,7 +97,7 @@ package skills directly.
 Install the published package:
 
 ```bash
-pi install -l npm:@cratis/ai-fundamentals
+pi install -l npm:@cratis/pi
 pi list
 ```
 
@@ -161,7 +161,7 @@ Updates arrive as normal pull requests. Review changes to:
 For Pi, update to the latest published release:
 
 ```bash
-pi install -l npm:@cratis/ai-fundamentals
+pi install -l npm:@cratis/pi
 ```
 
 Rollback restores the previous exact version in `.cratis/ai.json` and

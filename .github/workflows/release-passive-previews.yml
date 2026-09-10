@@ -81,7 +81,7 @@ jobs:
           test "$(node -p "require('$manifest').distTag")" = "latest"
           test "$(node -p "require('$manifest').supportGranted")" = "true"
           node tooling/smoke-fundamentals-preview-npm.mjs \
-            "$RUNNER_TEMP/fundamentals-npm/cratis-ai-fundamentals-$VERSION.tgz" \
+            "$RUNNER_TEMP/fundamentals-npm/cratis-pi-$VERSION.tgz" \
             "$VERSION"
 
       - name: Publish through npm trusted OIDC
@@ -89,5 +89,5 @@ jobs:
           VERSION: ${{ needs.release.outputs.version }}
         run: |
           set -euo pipefail
-          archive="$RUNNER_TEMP/fundamentals-npm/cratis-ai-fundamentals-$VERSION.tgz"
+          archive="$RUNNER_TEMP/fundamentals-npm/cratis-pi-$VERSION.tgz"
           npm publish --provenance --access public --tag latest "$archive"

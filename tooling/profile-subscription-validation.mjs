@@ -175,7 +175,14 @@ export function validateProfileSubscriptions(
             (profile.availableTargets?.length ?? 0) === 0
         )
             errors.push(`${profile.id}: approved profile has no targets`);
-        if (!/^@cratis\/ai-[a-z0-9]+(?:-[a-z0-9]+)*$/.test(profile.packageName))
+        // Profile packages share the `@cratis/ai-*` family. `@cratis/pi` is the
+        // one carve-out: the whole-bundle Pi delivery package (formerly
+        // `@cratis/ai-fundamentals`).
+        if (
+            !/^@cratis\/(?:ai-[a-z0-9]+(?:-[a-z0-9]+)*|pi)$/.test(
+                profile.packageName,
+            )
+        )
             errors.push(`${profile.id}: invalid package name`);
         // `cratis` is the one bare id: the root of the namespace, and the
         // maximal public bundle. Everything else stays namespaced under

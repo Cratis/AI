@@ -1698,7 +1698,7 @@ Combined AI guidance for developers using Cratis Chronicle, Cratis Specification
 
 - **Profile ID:** `cratis/fundamentals`
 - **Audience:** public
-- **Package:** `@cratis/ai-fundamentals`
+- **Package:** `@cratis/pi`
 - **State:** preview-source-candidate
 - **Installable:** no
 - **Materialization:** candidate-package

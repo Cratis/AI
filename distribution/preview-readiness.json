@@ -5,7 +5,7 @@
   "lane": "passive-preview",
   "assuranceMode": "basic",
   "profileId": "cratis/fundamentals",
-  "packageName": "@cratis/ai-fundamentals",
+  "packageName": "@cratis/pi",
   "targetIds": [
     "cratis-fundamentals-concept"
   ],

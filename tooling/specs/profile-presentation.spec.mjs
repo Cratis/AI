@@ -12,7 +12,7 @@ import {
 
 const fundamentals = {
     id: "cratis/fundamentals",
-    packageName: "@cratis/ai-fundamentals",
+    packageName: "@cratis/pi",
     products: ["fundamentals", "chronicle"],
     languages: ["csharp"],
     state: "preview-source-candidate",

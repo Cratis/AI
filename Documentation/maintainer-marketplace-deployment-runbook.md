@@ -267,7 +267,7 @@ and the same with `path: "engineering"`. Hand-authored, no generator.
 - Install evidence under `distribution/evidence/s9-*` was recorded against
   the deleted `distribution` branch and needs re-running per host.
 
-## What actually publishes: `@cratis/ai-fundamentals`
+## What actually publishes: `@cratis/pi`
 
 [`release-passive-previews.yml`](../.github/workflows/release-passive-previews.yml)
 publishes the npm package on merge to `main` under a release-intent label.

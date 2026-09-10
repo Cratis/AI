@@ -26,7 +26,7 @@ GitHub Copilot: copilot plugin marketplace add Cratis/AI
 Cursor:        resolves the same skills through its committed
                marketplace manifest — no extra install step.
 
-Pi (npm):      pi install -l npm:@cratis/ai-fundamentals
+Pi (npm):      pi install -l npm:@cratis/pi
 ```
 
 The same marketplace also carries a separate maintainer plugin,
@@ -134,7 +134,7 @@ profiles, but they do not describe a supported installation channel:
   packages, reviewed update pull requests, rollback by version pin — is
   designed but not published yet. Until it ships, the marketplace installs
   straight off the default branch, and the only published package is
-  `@cratis/ai-fundamentals` on npm — a stable release carrying the whole
+  `@cratis/pi` on npm — a stable release carrying the whole
   public skill set.
 - **Vendor marketplace listing is pending.** Adding `Cratis/AI` as a
   marketplace works now; being *listed* in a vendor's own marketplace UI — so

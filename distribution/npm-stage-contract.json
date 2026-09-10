@@ -4,7 +4,7 @@
   "trackingIssue": "https://github.com/Cratis/Workflows/issues/70",
   "package": {
     "fixtureName": "@cratis/ai",
-    "productionName": "@cratis/ai-fundamentals",
+    "productionName": "@cratis/pi",
     "fixturePrivate": true,
     "lifecycleScriptsAllowed": false,
     "dependenciesAllowed": false,
