@@ -6,6 +6,7 @@ const wordLabels = new Map([
     ["arc", "Arc"],
     ["cli", "CLI"],
     ["components", "Components"],
+    ["csharp", "C#"],
     ["compliance", "Compliance"],
     ["dotnet", ".NET"],
     ["ef", "EF"],
@@ -98,6 +99,11 @@ const displayNameOverrides = new Map([
     ["cratis/chronicle", "Cratis Chronicle Suite"],
     ["cratis/full", "Cratis Full Suite"],
     ["cratis/engineering", "Cratis Maintainer Engineering"],
+    ["cratis/engineering/csharp", "Cratis Maintainer Engineering — C#"],
+    ["cratis/engineering/typescript", "Cratis Maintainer Engineering — TypeScript"],
+    ["cratis/engineering/kotlin", "Cratis Maintainer Engineering — Kotlin"],
+    ["cratis/engineering/elixir", "Cratis Maintainer Engineering — Elixir"],
+    ["cratis/engineering/react", "Cratis Maintainer Engineering — React"],
 ]);
 
 const languageProfileLabels = new Map([
@@ -126,7 +132,11 @@ const descriptionOverrides = new Map([
     ],
     [
         "cratis/engineering",
-        "Public-safe shared engineering conventions for contributors across Cratis repositories.",
+        "Public-safe shared engineering conventions for contributors across Cratis repositories, split by language so a repository loads only the conventions it writes in.",
+    ],
+    [
+        "cratis/engineering/csharp",
+        "The C# maintainer conventions plus the language-agnostic decision-record, effect-boundary, and documentation-authoring procedures.",
     ],
     [
         "cratis/methodology/governed-releases",

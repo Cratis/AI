@@ -182,13 +182,13 @@
         "skills/cratis-arc-command-execution/LICENSE",
         "skills/cratis-arc-command-execution/SKILL.md"
       ],
-      "sourceRevision": "c650e097136ebf11374003d33b4dc6dfd672effd",
-      "contentDigest": "4b8f12ffbf5b1c3221edbf5cd989604dcd9fad7515633fe0fa56f7ef61b5e527",
+      "sourceRevision": "9f527497f2a262a0389146309c66adbeaffe6877",
+      "contentDigest": "4a32e164a85a67b69acbe9262d67c90cb0740d6ae85031f3726356c73aa600c5",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
         "reevaluation-authority",
-        "arc-backend-command-sources-c650e09"
+        "arc-backend-command-sources-9f52749"
       ]
     },
     {
@@ -388,13 +388,13 @@
         "skills/cratis-arc-command/references/proxy-generation.md",
         "skills/cratis-arc-command/references/read-model-injection.md"
       ],
-      "sourceRevision": "c650e097136ebf11374003d33b4dc6dfd672effd",
+      "sourceRevision": "9f527497f2a262a0389146309c66adbeaffe6877",
       "contentDigest": "ec603ed0acee9ddc5ab0f163b60d334ab4b191023388b44503cfdab7f1e75ec6",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
         "reevaluation-authority",
-        "arc-backend-command-sources-c650e09"
+        "arc-backend-command-sources-9f52749"
       ]
     },
     {
@@ -478,6 +478,26 @@
         "repo-main-b795d53",
         "reevaluation-authority",
         "cratis-engineering-csharp-conventions-source-ee5c566"
+      ]
+    },
+    {
+      "id": "cratis-documentation-writing",
+      "sourcePath": "skills/cratis-documentation-writing",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        "skills/cratis-documentation-writing/LICENSE",
+        "skills/cratis-documentation-writing/SKILL.md"
+      ],
+      "sourceRevision": "171db1709bcd2131e31250de007b014d20ed3345",
+      "contentDigest": "f717f4fc5120cbf67cff9a86a50182cf86292d466cfc7b903bf56fe307e17860",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority",
+        "documentation-writing-source-171db17"
       ]
     },
     {
@@ -805,13 +825,13 @@
       "bundledPaths": [
         ".ai/skills/diagnose-slice/SKILL.md"
       ],
-      "sourceRevision": "23efb73a14eb367a2dd0e745caed171f67f3d550",
-      "contentDigest": "e26faf85efb0fa2541b773a5307f28744cf029fee9af8f5243237e661bb8892b",
+      "sourceRevision": "9f527497f2a262a0389146309c66adbeaffe6877",
+      "contentDigest": "7750d8cc05009227d759faf74e2a9a226c9319a36dc3de8128e59ab489a3df17",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
         "reevaluation-authority",
-        "public-skill-markdown-normalization-source-23efb73"
+        "diagnose-slice-source-9f52749"
       ]
     },
     {
@@ -966,13 +986,13 @@
         "skills/cratis-arc-observable-query-http/LICENSE",
         "skills/cratis-arc-observable-query-http/SKILL.md"
       ],
-      "sourceRevision": "c650e097136ebf11374003d33b4dc6dfd672effd",
+      "sourceRevision": "9f527497f2a262a0389146309c66adbeaffe6877",
       "contentDigest": "00593cbc2773c1d8e4054211658e1296ab8cd85589f4240eae420285e94fa2a1",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
         "reevaluation-authority",
-        "arc-backend-command-sources-c650e09"
+        "arc-backend-command-sources-9f52749"
       ]
     },
     {
@@ -1004,13 +1024,13 @@
         "skills/cratis-arc-query-paging/LICENSE",
         "skills/cratis-arc-query-paging/SKILL.md"
       ],
-      "sourceRevision": "c650e097136ebf11374003d33b4dc6dfd672effd",
+      "sourceRevision": "9f527497f2a262a0389146309c66adbeaffe6877",
       "contentDigest": "de4bcc7a221cb66d48971a625c921d87d9180d7d0e1a5919893004db1c75ed52",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
         "reevaluation-authority",
-        "arc-backend-command-sources-c650e09"
+        "arc-backend-command-sources-9f52749"
       ]
     },
     {

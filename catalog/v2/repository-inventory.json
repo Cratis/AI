@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "27aa0a3663b609cd9eb21a1adefd9704e47eb88c09fc9c1d7d9dda978a9bb5bd",
+  "indexDigest": "3aeb9a407068961a43842bf75a33741eea2c3168d2602ba471d15ac0135dbfba",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -61,6 +61,10 @@
     {
       "path": ".ai/hooks/pre-commit.md",
       "status": "modified"
+    },
+    {
+      "path": ".ai/hooks/scripts/cratis-nuget-pins.txt",
+      "status": "added"
     },
     {
       "path": ".ai/hooks/scripts/cratis-patterns.json",
@@ -523,7 +527,15 @@
       "status": "added"
     },
     {
+      "path": "Documentation/corpus-generations.md",
+      "status": "added"
+    },
+    {
       "path": "Documentation/ecosystem-support-architecture-review.md",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/evaluation-evidence-protocol.md",
       "status": "added"
     },
     {
@@ -1155,6 +1167,10 @@
       "status": "added"
     },
     {
+      "path": "distribution/expectation-case.schema.json",
+      "status": "added"
+    },
+    {
       "path": "distribution/generated-repository-authority-request.md",
       "status": "added"
     },
@@ -1420,6 +1436,10 @@
     },
     {
       "path": "evals/application-slice-diagnostics/profile-fixtures/manifest.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-decision-record/expectations.json",
       "status": "added"
     },
     {
@@ -2735,6 +2755,30 @@
       "status": "added"
     },
     {
+      "path": "profiles/cratis-engineering/cratis/engineering/core.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/cratis-engineering/cratis/engineering/csharp.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/cratis-engineering/cratis/engineering/elixir.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/cratis-engineering/cratis/engineering/kotlin.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/cratis-engineering/cratis/engineering/react.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/cratis-engineering/cratis/engineering/typescript.json",
+      "status": "added"
+    },
+    {
       "path": "profiles/manifest.json",
       "status": "added"
     },
@@ -2884,6 +2928,10 @@
     },
     {
       "path": "profiles/public/cratis/components.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/documentation.json",
       "status": "added"
     },
     {
@@ -3327,6 +3375,14 @@
       "status": "added"
     },
     {
+      "path": "skills/cratis-documentation-writing/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-documentation-writing/SKILL.md",
+      "status": "added"
+    },
+    {
       "path": "skills/cratis-event-model-diagram/LICENSE",
       "status": "added"
     },
@@ -3528,6 +3584,10 @@
     },
     {
       "path": "tooling/evidence-supersession.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/expectation-cases-validation.mjs",
       "status": "added"
     },
     {
@@ -4469,8 +4529,8 @@
         "repo-main-b795d53",
         "ai-126"
       ],
-      "expectedPathCount": 15,
-      "expectedPathsDigest": "4228d04947edd2941b3ab38db6f9d1f469dfd8c91cb84d0c856ceca0c9de8dc8"
+      "expectedPathCount": 16,
+      "expectedPathsDigest": "a671e91adf336febe460e88f5a9cd939833bfd281f62a09ed4277fe7f2fe266c"
     },
     {
       "excludePathPatterns": [],
@@ -4525,6 +4585,7 @@
         "skills/cratis-components-accessibility/**",
         "skills/cratis-components-schema-editor/**",
         "skills/cratis-components-styling/**",
+        "skills/cratis-documentation-writing/**",
         "skills/cratis-governed-release-methodology/**",
         "skills/cratis-lens-browser-extension/**",
         "skills/cratis-arc-react-page/**",
@@ -4605,8 +4666,8 @@
         "workflows-68",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 179,
-      "expectedPathsDigest": "d8e761f22c7ab19d78170be7faeed184b58ee71e1d34fda77974048d123197f2"
+      "expectedPathCount": 181,
+      "expectedPathsDigest": "09c48fbf79dbcb23d9bd25880b0d040730c0bc09ba32c67656641357825c73f6"
     },
     {
       "excludePathPatterns": [],
@@ -5056,7 +5117,9 @@
       "sourcePathPatterns": [
         "Documentation/concepts.md",
         "Documentation/harnesses.md",
-        "Documentation/scenarios/**"
+        "Documentation/scenarios/**",
+        "Documentation/evaluation-evidence-protocol.md",
+        "Documentation/corpus-generations.md"
       ],
       "artifactType": "documentation",
       "currentOwner": "repository-only authoring/release tooling",
@@ -5074,8 +5137,8 @@
         "repo-main-b795d53",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 7,
-      "expectedPathsDigest": "ff88714c5a0ecb1619eb766bd5cbc08baf49ddd650ea73426094e88ab22072a3"
+      "expectedPathCount": 9,
+      "expectedPathsDigest": "28a9f3d819eda95d9d4be7cf8bf7587df64d5d240ffc394792cde0a71febc9c7"
     },
     {
       "excludePathPatterns": [],
@@ -5247,6 +5310,30 @@
       ],
       "expectedPathCount": 6,
       "expectedPathsDigest": "3068f98ed419cf289957ed3ef997b37b21676d2f463aece2806b76cf2c99a22a"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "decision-record-expectation-cases",
+      "sourcePathPatterns": [
+        "evals/cratis-engineering-decision-record/**"
+      ],
+      "artifactType": "evaluation",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "reusable Cratis engineering behavior",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "engineering/skills/cratis-engineering-decision-record/**"
+      ],
+      "risk": "low",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "expectedPathCount": 1,
+      "expectedPathsDigest": "03ec23e8e2ba3a43ba114de8f461ad8046e0aa9eda3a2f7d390649fbcacbb820"
     },
     {
       "excludePathPatterns": [],
@@ -5749,8 +5836,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 72,
-      "expectedPathsDigest": "18cdafb3fbf3674fcfa02aa87a789d316520bba5ada4ebabfe23836d72988aff"
+      "expectedPathCount": 73,
+      "expectedPathsDigest": "bd235326420f6fc2fdaefe916ac923a2d516cb55829279b6a42a246ef2500a46"
     },
     {
       "excludePathPatterns": [],
@@ -5775,8 +5862,8 @@
         "option-a-plus-authority",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 60,
-      "expectedPathsDigest": "f4844928ca2555211c0715252d0b41886bb47e1b6a33646bcb38f174d6cd4f76"
+      "expectedPathCount": 67,
+      "expectedPathsDigest": "8a551a4d50aa49a8219198445eaf20829b242d60d4936133b1e74c7481a183b9"
     },
     {
       "excludePathPatterns": [],
@@ -5879,8 +5966,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 84,
-      "expectedPathsDigest": "791e6fe30249fbbb6e419d177dde10b937b5c5c72813d926a2c391eb24235dc7"
+      "expectedPathCount": 85,
+      "expectedPathsDigest": "ef598cf059dd0a547da2b1fbd0e1ca3fb0b0c7ab2907678498c3be49ae2b7c90"
     },
     {
       "excludePathPatterns": [],

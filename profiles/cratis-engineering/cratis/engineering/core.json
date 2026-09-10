@@ -1,0 +1,26 @@
+{
+    "version": "0.0.0",
+    "repositoryKinds": [
+        "application",
+        "framework",
+        "client",
+        "documentation",
+        "corpus"
+    ],
+    "products": [],
+    "distributionVisibility": "public",
+    "confidentialContentAllowed": false,
+    "privateOverlayExpected": true,
+    "id": "cratis/engineering/core",
+    "packageName": "@cratis/ai-engineering-core",
+    "languages": [
+        "language-agnostic"
+    ],
+    "state": "preview-source-candidate",
+    "availableTargets": [
+        "cratis-engineering-decision-record",
+        "cratis-engineering-docs-authoring",
+        "cratis-engineering-effect-boundaries"
+    ],
+    "gapSummary": "The language-agnostic maintainer procedures every engineering cell composes: the decision-record procedure, the effect-boundary failure contract, and the shared documentation authoring guidance. Review behavior and contribution behavior are still to be reconciled into public-safe passive sources."
+}

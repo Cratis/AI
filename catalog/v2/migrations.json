@@ -364,6 +364,21 @@
       ]
     },
     {
+      "id": "rename-cratis-documentation-writing",
+      "kind": "retain",
+      "sourceIds": [
+        "cratis-documentation-writing"
+      ],
+      "targetIds": [
+        "cratis-documentation-writing"
+      ],
+      "state": "proposed",
+      "evaluationEvidenceIds": [],
+      "evidenceIds": [
+        "reevaluation-authority"
+      ]
+    },
+    {
       "id": "rename-cratis-governed-release-methodology",
       "kind": "retain",
       "sourceIds": [

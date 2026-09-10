@@ -222,6 +222,18 @@ Chronicle compliance, event-source identities, and product-specific roles.
 authority pins it to exactly one target. A second skill added there would change
 what the already-requested preview publishes.
 
+## Documentation profile
+
+| Profile | Intended package | Scope |
+| --- | --- | --- |
+| `cratis/documentation` | `@cratis/ai-documentation` | Diátaxis documentation-writing guidance: classify a page as tutorial, how-to, reference, or explanation, then draft it in that style |
+
+Like the language profiles, it composes nothing and implies no product: a
+repository bundles `cratis/documentation` next to whichever product or language
+profiles it already uses when it wants documentation-writing guidance for its
+own docs. The internal Cratis multi-repository docs workflow (placement,
+navigation wiring, rendering) stays with `cratis/engineering`.
+
 ## Review profiles
 
 | Profile | Intended package | Scope |
@@ -432,27 +444,37 @@ that wants release methodology must not be handed Arc, Chronicle, or a language
 profile along with it. `tooling/specs/resolve-profiles.spec.mjs` asserts that
 resolving it alone returns exactly itself and its one capability.
 
-## `cratis/engineering` — the single engineering profile
+## `cratis/engineering` — the engineering profiles, split by language
 
 All shared engineering packages are public-safe. Confidential facts remain in
-repository-local overlays.
+repository-local overlays. The whole `cratis/engineering` subtree derives the
+engineering channel; it never mixes with public profiles in one subscription.
 
-| Profile | Intended package |
-| --- | --- |
-| `cratis/engineering` | `@cratis/ai-engineering` |
+| Profile | Intended package | Carries |
+| --- | --- | --- |
+| `cratis/engineering/core` | `@cratis/ai-engineering-core` | The language-agnostic procedures: decision records, effect boundaries, documentation authoring |
+| `cratis/engineering/csharp` | `@cratis/ai-engineering-csharp` | The C# house conventions, plus the core |
+| `cratis/engineering/typescript` | `@cratis/ai-engineering-typescript` | Reserved: TypeScript conventions, plus the core (content gap until authored) |
+| `cratis/engineering/kotlin` | `@cratis/ai-engineering-kotlin` | Reserved: Kotlin conventions, plus the core (content gap until authored) |
+| `cratis/engineering/elixir` | `@cratis/ai-engineering-elixir` | Reserved: Elixir conventions, plus the core (content gap until authored) |
+| `cratis/engineering/react` | `@cratis/ai-engineering-react` | Reserved: React conventions, plus the core (content gap until authored) |
+| `cratis/engineering` | `@cratis/ai-engineering` | The umbrella: the core plus every language cell |
 
-`cratis/engineering` is the **one** maintainer-audience profile: the canonical
-C# house conventions, the decision-record procedure, the effect-boundary failure
-contract, and the shared documentation authoring guidance, for every repository
-kind Cratis maintains — application, framework, client, documentation, and
-corpus repositories alike.
+A repository that writes one language subscribes to its **cell** —
+`cratis/engineering/csharp` for a C# repository — and loads the conventions for
+the language it actually writes rather than every language at once. The
+umbrella exists as the one obvious everything-selection for tooling and for
+repositories that genuinely span languages, not as the default. Every cell
+composes the core, so the decision-record, effect-boundary, and
+documentation-authoring procedures come along regardless.
 
-It deliberately carries **no product-specific contributor guidance**. Guidance
-that only makes sense inside one product repository — for example the Chronicle
-kernel tracing procedure built on the `Cratis.Traces` `[Span]` source generator —
-lives in the owning product repository as repository-local skills under its own
-`.agents/skills/`, maintained and reviewed by that repository's owners. The
-shared profile stays general; the product repositories own their depth.
+The engineering subtree deliberately carries **no product-specific contributor
+guidance**. Guidance that only makes sense inside one product repository — for
+example the Chronicle kernel tracing procedure built on the `Cratis.Traces`
+`[Span]` source generator — lives in the owning product repository as
+repository-local skills under its own `.agents/skills/`, maintained and
+reviewed by that repository's owners. The shared profiles stay general; the
+product repositories own their depth.
 
 Studio and Stagehand private architecture, deployment, roadmap, infrastructure,
 support, and incident workflows likewise stay local to their private

@@ -1,6 +1,7 @@
 {
   "schemaVersion": "1.0.0",
   "caseId": "s9-claude-version-preflight-blocked",
+  "provenance": "hand",
   "state": "BLOCKED",
   "observedOn": "2026-08-26",
   "sourceRevision": "2e913c45a497dcf6109e44df3352ba134304656b",
@@ -143,12 +144,13 @@
     }
   ],
   "limitations": [
+    "Hand-authored version-preflight report; produced before the runner gained --preflight-only (#262).",
     "The tested artifact is a synthetic local fixture and cannot satisfy install-tested or higher support assurance.",
     "Package listing is not treated as skill discovery.",
     "No positive or negative model behavior case is admitted.",
     "No genuine host-managed update or rollback contract is admitted."
   ],
-  "reportPayloadDigest": "e1a846eaaf77304eabcd748854816ce77ef3a87fba7ebadbb7b4f7eb0257a017",
+  "reportPayloadDigest": "366460b13b957aaa4d445f8cc6e7422f6fdf956934cb65a8e9ccb6854ed27a98",
   "installationEligible": false,
   "marketplaceAvailabilityClaim": false,
   "supportGranted": false,

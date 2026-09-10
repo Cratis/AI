@@ -61,27 +61,44 @@
   ],
   "products": [
     {
-      "id": "fundamentals",
-      "name": "Cratis Fundamentals",
+      "id": "application",
+      "name": "Cratis application architecture",
       "capabilities": [
         {
-          "id": "concepts",
+          "id": "vertical-slices",
           "status": "candidate",
           "languages": [
-            "csharp"
+            "csharp",
+            "react",
+            "typescript"
           ],
           "sourceSkills": [
-            "add-concept"
+            "cratis-vertical-slice",
+            "new-vertical-slice"
+          ],
+          "notes": "The two current skills are a merge experiment, not an approved merge."
+        },
+        {
+          "id": "feature-scaffolding",
+          "status": "candidate",
+          "languages": [
+            "csharp",
+            "react",
+            "typescript"
+          ],
+          "sourceSkills": [
+            "scaffold-feature"
           ]
         },
         {
-          "id": "type-discovery",
+          "id": "slice-diagnostics",
           "status": "candidate",
           "languages": [
-            "csharp"
+            "csharp",
+            "typescript"
           ],
           "sourceSkills": [
-            "discover-implementations"
+            "diagnose-slice"
           ]
         }
       ]
@@ -428,6 +445,84 @@
       ]
     },
     {
+      "id": "chronicle-mcp",
+      "name": "Chronicle MCP",
+      "capabilities": [
+        {
+          "id": "installation-and-selection",
+          "status": "backlog",
+          "languages": [
+            "language-agnostic"
+          ],
+          "sourceSkills": []
+        },
+        {
+          "id": "safe-use-and-interpretation",
+          "status": "partial",
+          "languages": [
+            "language-agnostic"
+          ],
+          "sourceSkills": [
+            "cratis-chronicle-mcp-inspection"
+          ],
+          "notes": "Generic classification and interpretation guidance only. No Chronicle.Mcp tool or prompt is admitted or invocable; executable tools, schemas, credentials, mutations, installation, and server behavior remain Chronicle.Mcp-owned gaps."
+        }
+      ]
+    },
+    {
+      "id": "cli",
+      "name": "Cratis CLI",
+      "capabilities": [
+        {
+          "id": "chronicle-inspection",
+          "status": "partial",
+          "languages": [
+            "shell"
+          ],
+          "sourceSkills": [
+            "inspect-running-chronicle"
+          ]
+        },
+        {
+          "id": "setup",
+          "status": "backlog",
+          "languages": [
+            "shell"
+          ],
+          "sourceSkills": []
+        },
+        {
+          "id": "project-generation",
+          "status": "backlog",
+          "languages": [
+            "shell"
+          ],
+          "sourceSkills": []
+        },
+        {
+          "id": "diagnostics",
+          "status": "partial",
+          "languages": [
+            "shell",
+            "csharp"
+          ],
+          "sourceSkills": [
+            "diagnose-slice",
+            "inspect-running-chronicle"
+          ]
+        },
+        {
+          "id": "terminal-workbench",
+          "status": "backlog",
+          "languages": [
+            "shell"
+          ],
+          "sourceSkills": [],
+          "notes": "Needs CLI-owned terminal Workbench discovery, read-only evidence capture, machine output, and separately confirmed recovery/administration guidance."
+        }
+      ]
+    },
+    {
       "id": "components",
       "name": "Cratis Components",
       "capabilities": [
@@ -506,156 +601,69 @@
       ]
     },
     {
-      "id": "cli",
-      "name": "Cratis CLI",
+      "id": "cross-product",
+      "name": "Cross-product engineering",
       "capabilities": [
         {
-          "id": "chronicle-inspection",
+          "id": "code-review",
           "status": "partial",
           "languages": [
-            "shell"
+            "csharp",
+            "typescript"
           ],
           "sourceSkills": [
-            "inspect-running-chronicle"
-          ]
-        },
-        {
-          "id": "setup",
-          "status": "backlog",
-          "languages": [
-            "shell"
+            "review-code"
           ],
-          "sourceSkills": []
+          "notes": "Currently depends on the internal rule corpus."
         },
         {
-          "id": "project-generation",
-          "status": "backlog",
-          "languages": [
-            "shell"
-          ],
-          "sourceSkills": []
-        },
-        {
-          "id": "diagnostics",
+          "id": "performance-review",
           "status": "partial",
           "languages": [
-            "shell",
-            "csharp"
+            "csharp",
+            "typescript"
           ],
           "sourceSkills": [
-            "diagnose-slice",
-            "inspect-running-chronicle"
-          ]
+            "review-performance"
+          ],
+          "notes": "Currently depends on the internal rule corpus."
         },
         {
-          "id": "terminal-workbench",
+          "id": "security-review",
+          "status": "partial",
+          "languages": [
+            "csharp",
+            "typescript"
+          ],
+          "sourceSkills": [
+            "review-security"
+          ],
+          "notes": "Currently depends on the internal rule corpus."
+        },
+        {
+          "id": "getting-started",
           "status": "backlog",
           "languages": [
-            "shell"
+            "csharp",
+            "typescript"
           ],
-          "sourceSkills": [],
-          "notes": "Needs CLI-owned terminal Workbench discovery, read-only evidence capture, machine output, and separately confirmed recovery/administration guidance."
+          "sourceSkills": []
         }
       ]
     },
     {
-      "id": "specifications",
-      "name": "Cratis.Specifications",
+      "id": "documentation",
+      "name": "Cratis Documentation",
       "capabilities": [
         {
-          "id": "language-agnostic-specification-by-example",
+          "id": "writing",
           "status": "candidate",
           "languages": [
+            "markdown",
             "language-agnostic"
           ],
           "sourceSkills": [
-            "cratis-specification-by-example"
-          ]
-        },
-        {
-          "id": "csharp-bdd",
-          "status": "candidate",
-          "languages": [
-            "csharp"
-          ],
-          "sourceSkills": [
-            "cratis-specs-csharp"
-          ]
-        },
-        {
-          "id": "typescript-bdd",
-          "status": "candidate",
-          "languages": [
-            "typescript"
-          ],
-          "sourceSkills": [
-            "cratis-specs-typescript"
-          ]
-        },
-        {
-          "id": "application-scenarios",
-          "status": "candidate",
-          "languages": [
-            "csharp"
-          ],
-          "sourceSkills": [
-            "write-specs",
-            "write-specs-events",
-            "write-specs-readmodels"
-          ]
-        },
-        {
-          "id": "react-specifications",
-          "status": "candidate",
-          "languages": [
-            "react",
-            "typescript"
-          ],
-          "sourceSkills": [
-            "write-specs-frontend"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "application",
-      "name": "Cratis application architecture",
-      "capabilities": [
-        {
-          "id": "vertical-slices",
-          "status": "candidate",
-          "languages": [
-            "csharp",
-            "react",
-            "typescript"
-          ],
-          "sourceSkills": [
-            "cratis-vertical-slice",
-            "new-vertical-slice"
-          ],
-          "notes": "The two current skills are a merge experiment, not an approved merge."
-        },
-        {
-          "id": "feature-scaffolding",
-          "status": "candidate",
-          "languages": [
-            "csharp",
-            "react",
-            "typescript"
-          ],
-          "sourceSkills": [
-            "scaffold-feature"
-          ]
-        },
-        {
-          "id": "slice-diagnostics",
-          "status": "candidate",
-          "languages": [
-            "csharp",
-            "typescript"
-          ],
-          "sourceSkills": [
-            "diagnose-slice"
+            "cratis-documentation-writing"
           ]
         }
       ]
@@ -672,6 +680,32 @@
           ],
           "sourceSkills": [
             "add-ef-migration"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fundamentals",
+      "name": "Cratis Fundamentals",
+      "capabilities": [
+        {
+          "id": "concepts",
+          "status": "candidate",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkills": [
+            "add-concept"
+          ]
+        },
+        {
+          "id": "type-discovery",
+          "status": "candidate",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkills": [
+            "discover-implementations"
           ]
         }
       ]
@@ -740,6 +774,65 @@
       ]
     },
     {
+      "id": "specifications",
+      "name": "Cratis.Specifications",
+      "capabilities": [
+        {
+          "id": "language-agnostic-specification-by-example",
+          "status": "candidate",
+          "languages": [
+            "language-agnostic"
+          ],
+          "sourceSkills": [
+            "cratis-specification-by-example"
+          ]
+        },
+        {
+          "id": "csharp-bdd",
+          "status": "candidate",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkills": [
+            "cratis-specs-csharp"
+          ]
+        },
+        {
+          "id": "typescript-bdd",
+          "status": "candidate",
+          "languages": [
+            "typescript"
+          ],
+          "sourceSkills": [
+            "cratis-specs-typescript"
+          ]
+        },
+        {
+          "id": "application-scenarios",
+          "status": "candidate",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkills": [
+            "write-specs",
+            "write-specs-events",
+            "write-specs-readmodels"
+          ]
+        },
+        {
+          "id": "react-specifications",
+          "status": "candidate",
+          "languages": [
+            "react",
+            "typescript"
+          ],
+          "sourceSkills": [
+            "write-specs-frontend"
+          ]
+        }
+      ]
+    },
+    {
       "id": "stage",
       "name": "Cratis Stage",
       "capabilities": [
@@ -800,82 +893,6 @@
           ],
           "sourceSkills": [],
           "notes": "Only public-safe behavior belongs in shared profiles; private Studio implementation remains repository-local."
-        }
-      ]
-    },
-    {
-      "id": "chronicle-mcp",
-      "name": "Chronicle MCP",
-      "capabilities": [
-        {
-          "id": "installation-and-selection",
-          "status": "backlog",
-          "languages": [
-            "language-agnostic"
-          ],
-          "sourceSkills": []
-        },
-        {
-          "id": "safe-use-and-interpretation",
-          "status": "partial",
-          "languages": [
-            "language-agnostic"
-          ],
-          "sourceSkills": [
-            "cratis-chronicle-mcp-inspection"
-          ],
-          "notes": "Generic classification and interpretation guidance only. No Chronicle.Mcp tool or prompt is admitted or invocable; executable tools, schemas, credentials, mutations, installation, and server behavior remain Chronicle.Mcp-owned gaps."
-        }
-      ]
-    },
-    {
-      "id": "cross-product",
-      "name": "Cross-product engineering",
-      "capabilities": [
-        {
-          "id": "code-review",
-          "status": "partial",
-          "languages": [
-            "csharp",
-            "typescript"
-          ],
-          "sourceSkills": [
-            "review-code"
-          ],
-          "notes": "Currently depends on the internal rule corpus."
-        },
-        {
-          "id": "performance-review",
-          "status": "partial",
-          "languages": [
-            "csharp",
-            "typescript"
-          ],
-          "sourceSkills": [
-            "review-performance"
-          ],
-          "notes": "Currently depends on the internal rule corpus."
-        },
-        {
-          "id": "security-review",
-          "status": "partial",
-          "languages": [
-            "csharp",
-            "typescript"
-          ],
-          "sourceSkills": [
-            "review-security"
-          ],
-          "notes": "Currently depends on the internal rule corpus."
-        },
-        {
-          "id": "getting-started",
-          "status": "backlog",
-          "languages": [
-            "csharp",
-            "typescript"
-          ],
-          "sourceSkills": []
         }
       ]
     }

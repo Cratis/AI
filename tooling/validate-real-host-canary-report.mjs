@@ -52,10 +52,32 @@ export function validateCheckedInRealHostCanaryReports(
         }
     }
     const caseIds = new Set();
+    const runnerCaseIdPattern =
+        /^s9-[a-z0-9]+(?:-[a-z0-9]+)*-(?:local-fixture|version-preflight)-[a-z0-9]+(?:-[a-z0-9]+)*$/u;
     for (const { name, report } of reports) {
         if (caseIds.has(report.caseId))
             errors.push(`${name}: duplicate canary caseId ${report.caseId}`);
         caseIds.add(report.caseId);
+        // #262: a report claims who produced it, and the claim is checkable. A
+        // runner report's case id must be one of the runner's own formats; a
+        // hand report is marked as such and may carry any well-formed id.
+        if (report.provenance === "runner") {
+            if (!runnerCaseIdPattern.test(report.caseId))
+                errors.push(
+                    `${name}: runner report caseId ${report.caseId} matches no runner format (expected s9-<host>-local-fixture-<attempt> or s9-<host>-version-preflight-<attempt>)`,
+                );
+        } else if (report.provenance === "hand") {
+            if (!report.limitations?.some((limitation) =>
+                limitation.toLowerCase().includes("hand-authored"),
+            ))
+                errors.push(
+                    `${name}: hand report must say so in limitations (who authored it and why the runner could not)`,
+                );
+        } else {
+            errors.push(
+                `${name}: provenance must be "runner" or "hand" (#262)`,
+            );
+        }
     }
     for (const { name, report } of reports)
         if (report.supersededBy && !caseIds.has(report.supersededBy))

@@ -2,7 +2,7 @@
     "$comment": "The one reviewed record of how large the component corpus is. Every count that used to be a literal in tooling/, distribution/*.schema.json, tooling/specs/ and .github/workflows/ is read from here or derived from the inventory; nothing else restates a number. A content migration bumps this file and nothing else. Recompute with: node tooling/component-inventory-counts.mjs --print",
     "schemaVersion": "1.0.0",
     "state": "REVIEWED_COMPONENT_INVENTORY_SEAL",
-    "componentCount": 192,
+    "componentCount": 193,
     "byKind": {
         "agent": 12,
         "command": 18,
@@ -11,7 +11,7 @@
         "instruction": 1,
         "prompt": 18,
         "rule": 44,
-        "skill": 96
+        "skill": 97
     },
     "byDisposition": {
         "executable-blocked": 3,
@@ -27,5 +27,5 @@
             "skill-packaged-candidate"
         ]
     },
-    "skillDispositionCount": 96
+    "skillDispositionCount": 97
 }

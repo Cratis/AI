@@ -21,6 +21,8 @@
 # model-bound query) or in non-Cratis illustrations.
 FromServices
 HttpGet
+HttpPost
+FromBody
 
 # --- System.ComponentModel.DataAnnotations, from the base class library ---------------------------
 # Same reason: BCL, ref pack, no XML docs. Cited when contrasting DataAnnotations validation with
@@ -47,6 +49,11 @@ StorageProvider
 # can read knows about them.
 WellKnown
 
+# --- xUnit -----------------------------------------------------------------------------------------
+# `[Fact]` is xUnit's test attribute. The pinned Cratis packages never reference the test framework,
+# so its attributes cannot appear in this guard's index no matter how wide the pin list grows.
+Fact
+
 # --- The `cratis` CLI -----------------------------------------------------------------------------
 # `[CliCommand]` and `[CliExample]` are `Cratis.Cli.Registration` attributes — verified present as
 # `T:Cratis.Cli.Registration.CliCommandAttribute` / `...CliExampleAttribute` in the Cratis/cli build
@@ -57,6 +64,8 @@ CliExample
 
 # --- Cratis TypeScript ----------------------------------------------------------------------------
 # `JsonSerializer` is `@cratis/fundamentals`' TypeScript serializer, referenced from the frontend
-# identity guidance. This guard indexes .NET assemblies only; named TypeScript imports are Tier 2's
-# question, and a bare TypeScript class name is nobody's.
+# identity guidance. `ObservableQuery` is the TypeScript class the Arc proxy generator emits for
+# `ISubject<T>` query return types. This guard indexes .NET assemblies only; named TypeScript
+# imports are Tier 2's question, and a bare TypeScript class name is nobody's.
 JsonSerializer
+ObservableQuery

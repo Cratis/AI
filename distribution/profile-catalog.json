@@ -106,6 +106,7 @@
         "cratis/cli",
         "cratis/cli/terminal-workbench",
         "cratis/components",
+        "cratis/documentation",
         "cratis/full",
         "cratis/full/csharp",
         "cratis/full/elixir",
@@ -846,6 +847,23 @@
       "gapSummary": "Toolbars, stepper dialogs, schema editors, styling, and accessibility are covered; dedicated canvas, pivot viewer, and time machine guidance remain gaps."
     },
     {
+      "id": "cratis/documentation",
+      "packageName": "@cratis/ai-documentation",
+      "version": "0.0.0",
+      "products": [
+        "documentation"
+      ],
+      "languages": [
+        "markdown",
+        "language-agnostic"
+      ],
+      "state": "preview-source-candidate",
+      "availableTargets": [
+        "cratis-documentation-writing"
+      ],
+      "gapSummary": "Diátaxis documentation-writing guidance — classification into tutorial, how-to, reference, and explanation, structure, prose style, complete runnable examples, and diagrams — for anyone documenting a Cratis-based project. Bundles cleanly next to any product or language profile because it composes nothing and implies none. Repository-specific placement, navigation wiring, and the internal Cratis docs workflow remain with cratis/engineering, not here."
+    },
+    {
       "id": "cratis/full",
       "packageName": "@cratis/ai-meta-full",
       "version": "0.0.0",
@@ -1230,8 +1248,6 @@
   ],
   "engineeringProfiles": [
     {
-      "id": "cratis/engineering",
-      "packageName": "@cratis/ai-engineering",
       "version": "0.0.0",
       "repositoryKinds": [
         "application",
@@ -1241,17 +1257,178 @@
         "corpus"
       ],
       "products": [],
-      "state": "preview-source-candidate",
       "distributionVisibility": "public",
       "confidentialContentAllowed": false,
       "privateOverlayExpected": true,
+      "id": "cratis/engineering",
+      "packageName": "@cratis/ai-engineering",
+      "languages": [
+        "csharp",
+        "typescript",
+        "kotlin",
+        "elixir",
+        "react",
+        "language-agnostic"
+      ],
+      "state": "planned-composition",
+      "composes": [
+        "cratis/engineering/core",
+        "cratis/engineering/csharp",
+        "cratis/engineering/elixir",
+        "cratis/engineering/kotlin",
+        "cratis/engineering/react",
+        "cratis/engineering/typescript"
+      ],
+      "gapSummary": "The whole maintainer engineering profile: the language-agnostic core plus every language cell. A repository that writes one language should subscribe to its cratis/engineering/<language> cell instead - the umbrella exists as the one obvious everything-selection, not as the default. Product-specific contributor guidance (for example Chronicle kernel tracing) lives in the owning product repository, never here."
+    },
+    {
+      "version": "0.0.0",
+      "repositoryKinds": [
+        "application",
+        "framework",
+        "client",
+        "documentation",
+        "corpus"
+      ],
+      "products": [],
+      "distributionVisibility": "public",
+      "confidentialContentAllowed": false,
+      "privateOverlayExpected": true,
+      "id": "cratis/engineering/core",
+      "packageName": "@cratis/ai-engineering-core",
+      "languages": [
+        "language-agnostic"
+      ],
+      "state": "preview-source-candidate",
       "availableTargets": [
-        "cratis-engineering-csharp-conventions",
         "cratis-engineering-decision-record",
         "cratis-engineering-docs-authoring",
         "cratis-engineering-effect-boundaries"
       ],
-      "gapSummary": "The single general Cratis-maintainer engineering profile: canonical C# house conventions, the decision-record procedure, the effect-boundary failure contract, and the shared documentation authoring guidance, for every repository kind Cratis maintains. Product-specific contributor guidance (for example Chronicle kernel tracing) lives in the owning product repository, never here. Universal TypeScript conventions, review behavior, and contribution behavior are still to be reconciled into public-safe passive sources."
+      "gapSummary": "The language-agnostic maintainer procedures every engineering cell composes: the decision-record procedure, the effect-boundary failure contract, and the shared documentation authoring guidance. Review behavior and contribution behavior are still to be reconciled into public-safe passive sources."
+    },
+    {
+      "version": "0.0.0",
+      "repositoryKinds": [
+        "application",
+        "framework",
+        "client",
+        "documentation",
+        "corpus"
+      ],
+      "products": [],
+      "distributionVisibility": "public",
+      "confidentialContentAllowed": false,
+      "privateOverlayExpected": true,
+      "id": "cratis/engineering/csharp",
+      "packageName": "@cratis/ai-engineering-csharp",
+      "languages": [
+        "csharp"
+      ],
+      "state": "preview-source-candidate",
+      "composes": [
+        "cratis/engineering/core"
+      ],
+      "availableTargets": [
+        "cratis-engineering-csharp-conventions"
+      ],
+      "gapSummary": "Canonical C# house conventions for Cratis maintainers. Kotlin and TypeScript cell conventions are authored as their own sources; this cell carries the C# set only, so a repository loads the conventions for the language it actually writes."
+    },
+    {
+      "version": "0.0.0",
+      "repositoryKinds": [
+        "application",
+        "framework",
+        "client",
+        "documentation",
+        "corpus"
+      ],
+      "products": [],
+      "distributionVisibility": "public",
+      "confidentialContentAllowed": false,
+      "privateOverlayExpected": true,
+      "id": "cratis/engineering/elixir",
+      "packageName": "@cratis/ai-engineering-elixir",
+      "languages": [
+        "elixir"
+      ],
+      "state": "content-gap",
+      "composes": [
+        "cratis/engineering/core"
+      ],
+      "gapSummary": "Reserved for the Elixir maintainer conventions, to be verified against the Elixir repositories Cratis maintains. Until they land this cell composes the core only."
+    },
+    {
+      "version": "0.0.0",
+      "repositoryKinds": [
+        "application",
+        "framework",
+        "client",
+        "documentation",
+        "corpus"
+      ],
+      "products": [],
+      "distributionVisibility": "public",
+      "confidentialContentAllowed": false,
+      "privateOverlayExpected": true,
+      "id": "cratis/engineering/kotlin",
+      "packageName": "@cratis/ai-engineering-kotlin",
+      "languages": [
+        "kotlin"
+      ],
+      "state": "content-gap",
+      "composes": [
+        "cratis/engineering/core"
+      ],
+      "gapSummary": "Reserved for the Kotlin maintainer conventions, to be verified against the Kotlin repositories Cratis maintains. Until they land this cell composes the core only."
+    },
+    {
+      "version": "0.0.0",
+      "repositoryKinds": [
+        "application",
+        "framework",
+        "client",
+        "documentation",
+        "corpus"
+      ],
+      "products": [],
+      "distributionVisibility": "public",
+      "confidentialContentAllowed": false,
+      "privateOverlayExpected": true,
+      "id": "cratis/engineering/react",
+      "packageName": "@cratis/ai-engineering-react",
+      "languages": [
+        "react"
+      ],
+      "state": "content-gap",
+      "composes": [
+        "cratis/engineering/core"
+      ],
+      "gapSummary": "Reserved for the React maintainer conventions (component library and frontend repository work), to be verified against the React repositories Cratis maintains. Until they land this cell composes the core only."
+    },
+    {
+      "version": "0.0.0",
+      "repositoryKinds": [
+        "application",
+        "framework",
+        "client",
+        "documentation",
+        "corpus"
+      ],
+      "products": [],
+      "distributionVisibility": "public",
+      "confidentialContentAllowed": false,
+      "privateOverlayExpected": true,
+      "id": "cratis/engineering/typescript",
+      "packageName": "@cratis/ai-engineering-typescript",
+      "languages": [
+        "typescript"
+      ],
+      "state": "content-gap",
+      "composes": [
+        "cratis/engineering/core"
+      ],
+      "gapSummary": "Reserved for the TypeScript maintainer conventions. Universal TypeScript conventions are still to be reconciled into public-safe passive sources; until they land this cell composes the core only and resolves its language guidance honestly empty."
     }
   ],
   "subscription": {

@@ -134,6 +134,7 @@ export function runRealHostCanary({
     networkAvailable = networkSandboxAvailable(),
     environmentOptIn = process.env.CRATIS_S9_REAL_HOST_CANARY === "1",
     observedOn = new Date().toISOString().slice(0, 10),
+    preflightOnly = false,
 }) {
     if (!attemptId || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/u.test(attemptId))
         throw new Error("A normalized --attempt-id is required");
@@ -175,7 +176,10 @@ export function runRealHostCanary({
             : resolveExecutable(host.executable);
         const base = {
             schemaVersion: "1.0.0",
-            caseId: `s9-${host.id}-local-fixture-${attemptId}`,
+            caseId: preflightOnly
+                ? `s9-${host.id}-version-preflight-${attemptId}`
+                : `s9-${host.id}-local-fixture-${attemptId}`,
+            provenance: "runner",
             attemptId,
             supersededBy,
             state: "BLOCKED",
@@ -265,6 +269,19 @@ export function runRealHostCanary({
                     "preflight",
                     "BLOCKED_HOST_VERSION_MISMATCH",
                     `Observed ${observedVersion || "no version"}.`,
+                    commandEvidence(versionCommand, pathContext),
+                );
+            } else if (preflightOnly) {
+                // A preflight-only run stops after the version check: the pin
+                // matched, and everything beyond needs the full canary. #262.
+                base.phases = blockedPhases(
+                    "BLOCKED_NOT_RUN",
+                    "Preflight-only run: the host version matches; run the full canary for lifecycle evidence.",
+                );
+                base.phases[0] = phase(
+                    "preflight",
+                    "PASS",
+                    `Observed ${observedVersion}.`,
                     commandEvidence(versionCommand, pathContext),
                 );
             } else if (host.id !== "pi") {
@@ -403,6 +420,7 @@ function parseArguments(argv) {
         else if (value === "--superseded-by")
             options.supersededBy = argv[++index];
         else if (value === "--allow-real-host") options.allowRealHost = true;
+        else if (value === "--preflight-only") options.preflightOnly = true;
         else throw new Error(`Unknown argument ${value}`);
     }
     if (!options.hostId) throw new Error("--host is required");

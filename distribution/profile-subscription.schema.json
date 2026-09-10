@@ -4,7 +4,7 @@
   "title": "Cratis AI profile subscription",
   "type": "object",
   "additionalProperties": false,
-  "description": "A project-owned Cratis AI subscription. Every profile id lives in the cratis namespace: cratis/engineering derives the cratis-engineering channel and everything else derives the public channel, so channel is optional and never hand-declared twice.",
+  "description": "A project-owned Cratis AI subscription. Every profile id lives in the cratis namespace: the cratis/engineering subtree (umbrella, core, and language cells) derives the cratis-engineering channel and everything else derives the public channel, so channel is optional and never hand-declared twice.",
   "required": [
     "schemaVersion",
     "version",
@@ -23,7 +23,7 @@
         "profiles": {
           "items": {
             "type": "string",
-            "pattern": "^(?!cratis/engineering$)cratis(?:/[a-z0-9]+(?:-[a-z0-9]+)*){0,3}$"
+            "pattern": "^(?!cratis/engineering(?:/|$))cratis(?:/[a-z0-9]+(?:-[a-z0-9]+)*){0,3}$"
           }
         }
       }
@@ -36,7 +36,8 @@
         },
         "profiles": {
           "items": {
-            "const": "cratis/engineering"
+            "type": "string",
+            "pattern": "^cratis/engineering(?:/[a-z0-9]+(?:-[a-z0-9]+)*){0,2}$"
           }
         }
       }

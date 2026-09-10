@@ -16,7 +16,12 @@ Components, …) rather than building an application on them.
    [harness guide](../harnesses.md)). The `cratis-engineering` plugin carries
    the general engineering skills: C# house conventions, the decision-record
    procedure, the effect-boundary failure contract, and shared documentation
-   authoring guidance.
+   authoring guidance. The profile side is split by language — subscribe to
+   the cell for the language your repository writes
+   (`cratis/engineering/csharp`, `cratis/engineering/typescript`, …) so you
+   load that language's conventions and the shared procedures rather than
+   every language at once; the `cratis/engineering` umbrella remains the
+   everything-selection.
 
 2. Start your agent from the repository root so it reads that repository's
    `AGENTS.md` and its own local rules first. Cratis repositories carry their

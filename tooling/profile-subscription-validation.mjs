@@ -31,15 +31,15 @@ function readJson(path, errors) {
 
 /**
  * The channel a subscription belongs to. Every profile lives under the
- * `cratis` namespace: `cratis/engineering` alone derives the engineering
- * channel, `cratis` and every other `cratis/*` id derive the public channel,
- * and mixing the two resolves to no channel at all. A declared channel must
- * agree with the derived one.
+ * `cratis` namespace: the whole `cratis/engineering` subtree (the umbrella,
+ * its core, and every language cell) derives the engineering channel, every
+ * other `cratis` id derives the public channel, and mixing the two resolves
+ * to no channel at all. A declared channel must agree with the derived one.
  */
 export function deriveSubscriptionChannel(profiles) {
     if (profiles.length === 0) return null;
-    const engineeringCount = profiles.filter(
-        (profile) => profile === "cratis/engineering",
+    const engineeringCount = profiles.filter((profile) =>
+        profile === "cratis/engineering" || profile.startsWith("cratis/engineering/"),
     ).length;
     if (engineeringCount > 0)
         return engineeringCount === profiles.length
