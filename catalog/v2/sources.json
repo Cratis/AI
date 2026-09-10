@@ -481,6 +481,25 @@
       ]
     },
     {
+      "id": "cratis-documentation-writing",
+      "sourcePath": "skills/cratis-documentation-writing",
+      "artifactType": "agent-skill-source",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "public Cratis product capability",
+      "audience": "public",
+      "bundledPaths": [
+        "skills/cratis-documentation-writing/LICENSE",
+        "skills/cratis-documentation-writing/SKILL.md"
+      ],
+      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "contentDigest": "f717f4fc5120cbf67cff9a86a50182cf86292d466cfc7b903bf56fe307e17860",
+      "publicationApproval": false,
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ]
+    },
+    {
       "id": "cratis-engineering-decision-record",
       "sourcePath": "engineering/skills/cratis-engineering-decision-record",
       "artifactType": "agent-skill-source",

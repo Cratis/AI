@@ -111,25 +111,49 @@
   ],
   "products": [
     {
-      "id": "fundamentals",
-      "name": "Cratis Fundamentals",
+      "id": "application",
+      "name": "Cratis application architecture",
       "evidenceIds": [
         "repo-main-b795d53",
         "reevaluation-authority"
       ],
       "capabilities": [
         {
-          "id": "concepts",
+          "id": "vertical-slices",
           "coverageState": "source-candidate",
           "claimState": "unclaimed",
           "languages": [
-            "csharp"
+            "csharp",
+            "react",
+            "typescript"
           ],
           "sourceSkillIds": [
-            "add-concept"
+            "cratis-vertical-slice",
+            "new-vertical-slice"
           ],
           "targetIds": [
-            "cratis-fundamentals-concept"
+            "cratis-application-vertical-slice"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ],
+          "notes": "The two current skills are a merge experiment, not an approved merge."
+        },
+        {
+          "id": "feature-scaffolding",
+          "coverageState": "source-candidate",
+          "claimState": "unclaimed",
+          "languages": [
+            "csharp",
+            "react",
+            "typescript"
+          ],
+          "sourceSkillIds": [
+            "scaffold-feature"
+          ],
+          "targetIds": [
+            "cratis-arc-react-feature-scaffolding"
           ],
           "evidenceIds": [
             "repo-main-b795d53",
@@ -137,17 +161,18 @@
           ]
         },
         {
-          "id": "type-discovery",
+          "id": "slice-diagnostics",
           "coverageState": "source-candidate",
           "claimState": "unclaimed",
           "languages": [
-            "csharp"
+            "csharp",
+            "typescript"
           ],
           "sourceSkillIds": [
-            "discover-implementations"
+            "diagnose-slice"
           ],
           "targetIds": [
-            "cratis-fundamentals-type-discovery"
+            "cratis-application-slice-diagnostics"
           ],
           "evidenceIds": [
             "repo-main-b795d53",
@@ -748,6 +773,141 @@
       ]
     },
     {
+      "id": "chronicle-mcp",
+      "name": "Chronicle MCP",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "capabilities": [
+        {
+          "id": "installation-and-selection",
+          "coverageState": "gap",
+          "claimState": "unclaimed",
+          "languages": [
+            "language-agnostic"
+          ],
+          "sourceSkillIds": [],
+          "targetIds": [],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "safe-use-and-interpretation",
+          "coverageState": "partial",
+          "claimState": "unclaimed",
+          "languages": [
+            "language-agnostic"
+          ],
+          "sourceSkillIds": [
+            "cratis-chronicle-mcp-inspection"
+          ],
+          "targetIds": [
+            "cratis-chronicle-mcp-inspection"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ],
+          "notes": "Generic classification and interpretation guidance only. No Chronicle.Mcp tool or prompt is admitted or invocable; executable tools, schemas, credentials, mutations, installation, and server behavior remain Chronicle.Mcp-owned gaps."
+        }
+      ]
+    },
+    {
+      "id": "cli",
+      "name": "Cratis CLI",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "capabilities": [
+        {
+          "id": "chronicle-inspection",
+          "coverageState": "partial",
+          "claimState": "unclaimed",
+          "languages": [
+            "shell"
+          ],
+          "sourceSkillIds": [
+            "inspect-running-chronicle"
+          ],
+          "targetIds": [
+            "cratis-chronicle-cli-operations"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "setup",
+          "coverageState": "gap",
+          "claimState": "unclaimed",
+          "languages": [
+            "shell"
+          ],
+          "sourceSkillIds": [],
+          "targetIds": [],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "project-generation",
+          "coverageState": "gap",
+          "claimState": "unclaimed",
+          "languages": [
+            "shell"
+          ],
+          "sourceSkillIds": [],
+          "targetIds": [],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "diagnostics",
+          "coverageState": "partial",
+          "claimState": "unclaimed",
+          "languages": [
+            "shell",
+            "csharp"
+          ],
+          "sourceSkillIds": [
+            "diagnose-slice",
+            "inspect-running-chronicle"
+          ],
+          "targetIds": [
+            "cratis-application-slice-diagnostics",
+            "cratis-chronicle-cli-operations"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "terminal-workbench",
+          "coverageState": "gap",
+          "claimState": "unclaimed",
+          "languages": [
+            "shell"
+          ],
+          "sourceSkillIds": [],
+          "targetIds": [],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ],
+          "notes": "Needs CLI-owned terminal Workbench discovery, read-only evidence capture, machine output, and separately confirmed recovery/administration guidance."
+        }
+      ]
+    },
+    {
       "id": "components",
       "name": "Cratis Components",
       "evidenceIds": [
@@ -880,265 +1040,111 @@
       ]
     },
     {
-      "id": "cli",
-      "name": "Cratis CLI",
+      "id": "cross-product",
+      "name": "Cross-product engineering",
       "evidenceIds": [
         "repo-main-b795d53",
         "reevaluation-authority"
       ],
       "capabilities": [
         {
-          "id": "chronicle-inspection",
+          "id": "code-review",
           "coverageState": "partial",
           "claimState": "unclaimed",
           "languages": [
-            "shell"
+            "csharp",
+            "typescript"
           ],
           "sourceSkillIds": [
-            "inspect-running-chronicle"
+            "review-code"
           ],
           "targetIds": [
-            "cratis-chronicle-cli-operations"
+            "cratis-code-review"
           ],
           "evidenceIds": [
             "repo-main-b795d53",
             "reevaluation-authority"
-          ]
-        },
-        {
-          "id": "setup",
-          "coverageState": "gap",
-          "claimState": "unclaimed",
-          "languages": [
-            "shell"
           ],
-          "sourceSkillIds": [],
-          "targetIds": [],
-          "evidenceIds": [
-            "repo-main-b795d53",
-            "reevaluation-authority"
-          ]
+          "notes": "Currently depends on the internal rule corpus."
         },
         {
-          "id": "project-generation",
-          "coverageState": "gap",
-          "claimState": "unclaimed",
-          "languages": [
-            "shell"
-          ],
-          "sourceSkillIds": [],
-          "targetIds": [],
-          "evidenceIds": [
-            "repo-main-b795d53",
-            "reevaluation-authority"
-          ]
-        },
-        {
-          "id": "diagnostics",
+          "id": "performance-review",
           "coverageState": "partial",
           "claimState": "unclaimed",
           "languages": [
-            "shell",
-            "csharp"
+            "csharp",
+            "typescript"
           ],
           "sourceSkillIds": [
-            "diagnose-slice",
-            "inspect-running-chronicle"
+            "review-performance"
           ],
           "targetIds": [
-            "cratis-application-slice-diagnostics",
-            "cratis-chronicle-cli-operations"
+            "cratis-performance-review"
           ],
           "evidenceIds": [
             "repo-main-b795d53",
             "reevaluation-authority"
-          ]
+          ],
+          "notes": "Currently depends on the internal rule corpus."
         },
         {
-          "id": "terminal-workbench",
+          "id": "security-review",
+          "coverageState": "partial",
+          "claimState": "unclaimed",
+          "languages": [
+            "csharp",
+            "typescript"
+          ],
+          "sourceSkillIds": [
+            "review-security"
+          ],
+          "targetIds": [
+            "cratis-security-review"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ],
+          "notes": "Currently depends on the internal rule corpus."
+        },
+        {
+          "id": "getting-started",
           "coverageState": "gap",
           "claimState": "unclaimed",
           "languages": [
-            "shell"
+            "csharp",
+            "typescript"
           ],
           "sourceSkillIds": [],
           "targetIds": [],
           "evidenceIds": [
             "repo-main-b795d53",
             "reevaluation-authority"
-          ],
-          "notes": "Needs CLI-owned terminal Workbench discovery, read-only evidence capture, machine output, and separately confirmed recovery/administration guidance."
+          ]
         }
       ]
     },
     {
-      "id": "specifications",
-      "name": "Cratis.Specifications",
+      "id": "documentation",
+      "name": "Cratis Documentation",
       "evidenceIds": [
         "repo-main-b795d53",
         "reevaluation-authority"
       ],
       "capabilities": [
         {
-          "id": "language-agnostic-specification-by-example",
+          "id": "writing",
           "coverageState": "source-candidate",
           "claimState": "unclaimed",
           "languages": [
+            "markdown",
             "language-agnostic"
           ],
           "sourceSkillIds": [
-            "cratis-specification-by-example"
+            "cratis-documentation-writing"
           ],
           "targetIds": [
-            "cratis-specification-by-example"
-          ],
-          "evidenceIds": [
-            "repo-main-b795d53",
-            "reevaluation-authority"
-          ]
-        },
-        {
-          "id": "csharp-bdd",
-          "coverageState": "source-candidate",
-          "claimState": "unclaimed",
-          "languages": [
-            "csharp"
-          ],
-          "sourceSkillIds": [
-            "cratis-specs-csharp"
-          ],
-          "targetIds": [
-            "cratis-specifications-csharp"
-          ],
-          "evidenceIds": [
-            "repo-main-b795d53",
-            "reevaluation-authority"
-          ]
-        },
-        {
-          "id": "typescript-bdd",
-          "coverageState": "source-candidate",
-          "claimState": "unclaimed",
-          "languages": [
-            "typescript"
-          ],
-          "sourceSkillIds": [
-            "cratis-specs-typescript"
-          ],
-          "targetIds": [
-            "cratis-specifications-typescript"
-          ],
-          "evidenceIds": [
-            "repo-main-b795d53",
-            "reevaluation-authority"
-          ]
-        },
-        {
-          "id": "application-scenarios",
-          "coverageState": "source-candidate",
-          "claimState": "unclaimed",
-          "languages": [
-            "csharp"
-          ],
-          "sourceSkillIds": [
-            "write-specs",
-            "write-specs-events",
-            "write-specs-readmodels"
-          ],
-          "targetIds": [
-            "cratis-application-slice-specifications",
-            "cratis-chronicle-event-specifications",
-            "cratis-chronicle-read-model-specifications"
-          ],
-          "evidenceIds": [
-            "repo-main-b795d53",
-            "reevaluation-authority"
-          ]
-        },
-        {
-          "id": "react-specifications",
-          "coverageState": "source-candidate",
-          "claimState": "unclaimed",
-          "languages": [
-            "react",
-            "typescript"
-          ],
-          "sourceSkillIds": [
-            "write-specs-frontend"
-          ],
-          "targetIds": [
-            "cratis-application-react-specifications"
-          ],
-          "evidenceIds": [
-            "repo-main-b795d53",
-            "reevaluation-authority"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "application",
-      "name": "Cratis application architecture",
-      "evidenceIds": [
-        "repo-main-b795d53",
-        "reevaluation-authority"
-      ],
-      "capabilities": [
-        {
-          "id": "vertical-slices",
-          "coverageState": "source-candidate",
-          "claimState": "unclaimed",
-          "languages": [
-            "csharp",
-            "react",
-            "typescript"
-          ],
-          "sourceSkillIds": [
-            "cratis-vertical-slice",
-            "new-vertical-slice"
-          ],
-          "targetIds": [
-            "cratis-application-vertical-slice"
-          ],
-          "evidenceIds": [
-            "repo-main-b795d53",
-            "reevaluation-authority"
-          ],
-          "notes": "The two current skills are a merge experiment, not an approved merge."
-        },
-        {
-          "id": "feature-scaffolding",
-          "coverageState": "source-candidate",
-          "claimState": "unclaimed",
-          "languages": [
-            "csharp",
-            "react",
-            "typescript"
-          ],
-          "sourceSkillIds": [
-            "scaffold-feature"
-          ],
-          "targetIds": [
-            "cratis-arc-react-feature-scaffolding"
-          ],
-          "evidenceIds": [
-            "repo-main-b795d53",
-            "reevaluation-authority"
-          ]
-        },
-        {
-          "id": "slice-diagnostics",
-          "coverageState": "source-candidate",
-          "claimState": "unclaimed",
-          "languages": [
-            "csharp",
-            "typescript"
-          ],
-          "sourceSkillIds": [
-            "diagnose-slice"
-          ],
-          "targetIds": [
-            "cratis-application-slice-diagnostics"
+            "cratis-documentation-writing"
           ],
           "evidenceIds": [
             "repo-main-b795d53",
@@ -1167,6 +1173,52 @@
           ],
           "targetIds": [
             "cratis-arc-ef-core-migration"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fundamentals",
+      "name": "Cratis Fundamentals",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "capabilities": [
+        {
+          "id": "concepts",
+          "coverageState": "source-candidate",
+          "claimState": "unclaimed",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkillIds": [
+            "add-concept"
+          ],
+          "targetIds": [
+            "cratis-fundamentals-concept"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "type-discovery",
+          "coverageState": "source-candidate",
+          "claimState": "unclaimed",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkillIds": [
+            "discover-implementations"
+          ],
+          "targetIds": [
+            "cratis-fundamentals-type-discovery"
           ],
           "evidenceIds": [
             "repo-main-b795d53",
@@ -1283,6 +1335,111 @@
       ]
     },
     {
+      "id": "specifications",
+      "name": "Cratis.Specifications",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "capabilities": [
+        {
+          "id": "language-agnostic-specification-by-example",
+          "coverageState": "source-candidate",
+          "claimState": "unclaimed",
+          "languages": [
+            "language-agnostic"
+          ],
+          "sourceSkillIds": [
+            "cratis-specification-by-example"
+          ],
+          "targetIds": [
+            "cratis-specification-by-example"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "csharp-bdd",
+          "coverageState": "source-candidate",
+          "claimState": "unclaimed",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkillIds": [
+            "cratis-specs-csharp"
+          ],
+          "targetIds": [
+            "cratis-specifications-csharp"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "typescript-bdd",
+          "coverageState": "source-candidate",
+          "claimState": "unclaimed",
+          "languages": [
+            "typescript"
+          ],
+          "sourceSkillIds": [
+            "cratis-specs-typescript"
+          ],
+          "targetIds": [
+            "cratis-specifications-typescript"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "application-scenarios",
+          "coverageState": "source-candidate",
+          "claimState": "unclaimed",
+          "languages": [
+            "csharp"
+          ],
+          "sourceSkillIds": [
+            "write-specs",
+            "write-specs-events",
+            "write-specs-readmodels"
+          ],
+          "targetIds": [
+            "cratis-application-slice-specifications",
+            "cratis-chronicle-event-specifications",
+            "cratis-chronicle-read-model-specifications"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        },
+        {
+          "id": "react-specifications",
+          "coverageState": "source-candidate",
+          "claimState": "unclaimed",
+          "languages": [
+            "react",
+            "typescript"
+          ],
+          "sourceSkillIds": [
+            "write-specs-frontend"
+          ],
+          "targetIds": [
+            "cratis-application-react-specifications"
+          ],
+          "evidenceIds": [
+            "repo-main-b795d53",
+            "reevaluation-authority"
+          ]
+        }
+      ]
+    },
+    {
       "id": "stage",
       "name": "Cratis Stage",
       "evidenceIds": [
@@ -1389,134 +1546,6 @@
             "reevaluation-authority"
           ],
           "notes": "Only public-safe behavior belongs in shared profiles; private Studio implementation remains repository-local."
-        }
-      ]
-    },
-    {
-      "id": "chronicle-mcp",
-      "name": "Chronicle MCP",
-      "evidenceIds": [
-        "repo-main-b795d53",
-        "reevaluation-authority"
-      ],
-      "capabilities": [
-        {
-          "id": "installation-and-selection",
-          "coverageState": "gap",
-          "claimState": "unclaimed",
-          "languages": [
-            "language-agnostic"
-          ],
-          "sourceSkillIds": [],
-          "targetIds": [],
-          "evidenceIds": [
-            "repo-main-b795d53",
-            "reevaluation-authority"
-          ]
-        },
-        {
-          "id": "safe-use-and-interpretation",
-          "coverageState": "partial",
-          "claimState": "unclaimed",
-          "languages": [
-            "language-agnostic"
-          ],
-          "sourceSkillIds": [
-            "cratis-chronicle-mcp-inspection"
-          ],
-          "targetIds": [
-            "cratis-chronicle-mcp-inspection"
-          ],
-          "evidenceIds": [
-            "repo-main-b795d53",
-            "reevaluation-authority"
-          ],
-          "notes": "Generic classification and interpretation guidance only. No Chronicle.Mcp tool or prompt is admitted or invocable; executable tools, schemas, credentials, mutations, installation, and server behavior remain Chronicle.Mcp-owned gaps."
-        }
-      ]
-    },
-    {
-      "id": "cross-product",
-      "name": "Cross-product engineering",
-      "evidenceIds": [
-        "repo-main-b795d53",
-        "reevaluation-authority"
-      ],
-      "capabilities": [
-        {
-          "id": "code-review",
-          "coverageState": "partial",
-          "claimState": "unclaimed",
-          "languages": [
-            "csharp",
-            "typescript"
-          ],
-          "sourceSkillIds": [
-            "review-code"
-          ],
-          "targetIds": [
-            "cratis-code-review"
-          ],
-          "evidenceIds": [
-            "repo-main-b795d53",
-            "reevaluation-authority"
-          ],
-          "notes": "Currently depends on the internal rule corpus."
-        },
-        {
-          "id": "performance-review",
-          "coverageState": "partial",
-          "claimState": "unclaimed",
-          "languages": [
-            "csharp",
-            "typescript"
-          ],
-          "sourceSkillIds": [
-            "review-performance"
-          ],
-          "targetIds": [
-            "cratis-performance-review"
-          ],
-          "evidenceIds": [
-            "repo-main-b795d53",
-            "reevaluation-authority"
-          ],
-          "notes": "Currently depends on the internal rule corpus."
-        },
-        {
-          "id": "security-review",
-          "coverageState": "partial",
-          "claimState": "unclaimed",
-          "languages": [
-            "csharp",
-            "typescript"
-          ],
-          "sourceSkillIds": [
-            "review-security"
-          ],
-          "targetIds": [
-            "cratis-security-review"
-          ],
-          "evidenceIds": [
-            "repo-main-b795d53",
-            "reevaluation-authority"
-          ],
-          "notes": "Currently depends on the internal rule corpus."
-        },
-        {
-          "id": "getting-started",
-          "coverageState": "gap",
-          "claimState": "unclaimed",
-          "languages": [
-            "csharp",
-            "typescript"
-          ],
-          "sourceSkillIds": [],
-          "targetIds": [],
-          "evidenceIds": [
-            "repo-main-b795d53",
-            "reevaluation-authority"
-          ]
         }
       ]
     }

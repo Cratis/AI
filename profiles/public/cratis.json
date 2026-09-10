@@ -66,6 +66,7 @@
         "cratis/cli",
         "cratis/cli/terminal-workbench",
         "cratis/components",
+        "cratis/documentation",
         "cratis/full",
         "cratis/full/csharp",
         "cratis/full/elixir",

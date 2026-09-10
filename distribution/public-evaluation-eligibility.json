@@ -122,6 +122,10 @@
       "reason": "effect-assessment-required"
     },
     {
+      "targetId": "cratis-documentation-writing",
+      "reason": "effect-assessment-required"
+    },
+    {
       "targetId": "cratis-governed-release-methodology",
       "reason": "effect-assessment-required"
     },

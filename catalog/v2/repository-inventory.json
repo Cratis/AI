@@ -4223,7 +4223,11 @@
       "status": "added"
     }
   ],
-  "admittedUntracked": [],
+  "admittedUntracked": [
+    "profiles/public/cratis/documentation.json",
+    "skills/cratis-documentation-writing/LICENSE",
+    "skills/cratis-documentation-writing/SKILL.md"
+  ],
   "excludedRuntimePrefixes": [
     ".pi/delegate/",
     ".pi/fusion/",
@@ -4525,6 +4529,7 @@
         "skills/cratis-components-accessibility/**",
         "skills/cratis-components-schema-editor/**",
         "skills/cratis-components-styling/**",
+        "skills/cratis-documentation-writing/**",
         "skills/cratis-governed-release-methodology/**",
         "skills/cratis-lens-browser-extension/**",
         "skills/cratis-arc-react-page/**",
@@ -4605,8 +4610,8 @@
         "workflows-68",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 179,
-      "expectedPathsDigest": "d8e761f22c7ab19d78170be7faeed184b58ee71e1d34fda77974048d123197f2"
+      "expectedPathCount": 181,
+      "expectedPathsDigest": "09c48fbf79dbcb23d9bd25880b0d040730c0bc09ba32c67656641357825c73f6"
     },
     {
       "excludePathPatterns": [],
@@ -5775,8 +5780,8 @@
         "option-a-plus-authority",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 60,
-      "expectedPathsDigest": "f4844928ca2555211c0715252d0b41886bb47e1b6a33646bcb38f174d6cd4f76"
+      "expectedPathCount": 61,
+      "expectedPathsDigest": "f8c290536d48e82e80b26178cf6095507e9b34fef7ee5f920eebea38c711c602"
     },
     {
       "excludePathPatterns": [],

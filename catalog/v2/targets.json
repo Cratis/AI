@@ -4968,6 +4968,124 @@
       "includeInRuntime": false
     },
     {
+      "id": "cratis-documentation-writing",
+      "semanticName": "cratis-documentation-writing",
+      "sourceSkillIds": [
+        "cratis-documentation-writing"
+      ],
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "products": [
+        "documentation"
+      ],
+      "languages": [
+        "language-agnostic",
+        "markdown"
+      ],
+      "capabilityKind": "unclassified",
+      "invocation": "unclassified",
+      "lifecycle": "candidate",
+      "architectures": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Architecture requires reviewed target classification."
+      },
+      "personas": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Persona requires reviewed target classification."
+      },
+      "surfaces": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Surface requires reviewed target classification."
+      },
+      "repositoryProfiles": {
+        "state": "unclassified",
+        "ids": [],
+        "reason": "Repository profile requires reviewed target classification."
+      },
+      "trust": {
+        "class": "passive",
+        "assessmentState": "unclassified",
+        "effects": []
+      },
+      "dependencyClassificationState": "unclassified",
+      "dependencyEdges": [],
+      "sourceContractState": "unclassified",
+      "sourceContractIds": [],
+      "sourceAuthoritySubjects": [],
+      "authoringContractState": "unclassified",
+      "authoringContractIds": [],
+      "capability": "Documentation writing",
+      "positiveTriggerIntent": "Use when creating or reworking a documentation page: deciding whether it is a tutorial, how-to guide, reference, or explanation, then drafting it in that style with complete runnable examples.",
+      "nearMissExclusions": [
+        "Do not use for code generation, build, or release operations.",
+        "Do not use to invent API facts the code does not show; verify against the product."
+      ],
+      "collisionSet": [],
+      "dependencies": {
+        "targets": [],
+        "internalArtifacts": [],
+        "externalTools": []
+      },
+      "runtimePayloadPolicy": {
+        "allowed": [
+          "SKILL.md",
+          "references/**",
+          "assets/**",
+          "LICENSE*"
+        ],
+        "forbidden": [
+          "scripts/**",
+          "evals/**",
+          "rules/**",
+          "agents/**",
+          "prompts/**",
+          "commands/**",
+          "hooks/**",
+          "lsp/**",
+          "tooling/**",
+          "workflows/**",
+          "local-configuration/**"
+        ]
+      },
+      "security": {
+        "executable": false,
+        "destructive": false,
+        "risk": "low",
+        "disposition": "pending",
+        "evidenceIds": []
+      },
+      "evaluations": {
+        "behavior": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "positiveTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "negativeTrigger": {
+          "status": "missing",
+          "evidenceIds": []
+        },
+        "collision": {
+          "status": "missing",
+          "evidenceIds": []
+        }
+      },
+      "approval": {
+        "state": "candidate",
+        "evidenceIds": []
+      },
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "includeInRuntime": false
+    },
+    {
       "id": "cratis-engineering-csharp-conventions",
       "semanticName": "cratis-engineering-csharp-conventions",
       "sourceSkillIds": [

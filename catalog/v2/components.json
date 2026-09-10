@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generatedBy": "tooling/generate-component-catalogs.mjs",
-  "sourceDigest": "86771bceca2bf2627f24adeb3808e538d4ba0db8c2f9ec6cfdb70e564cc543e0",
+  "sourceDigest": "2cd1401ead7ebc1769d012781cd3de692b97ac5d532f37676ce6d164a2e704f0",
   "defaultPolicy": "deny",
   "canonicalSourceRoots": [
     ".ai/agents",
@@ -94,6 +94,7 @@
     "skills/cratis-components-stepper-command-dialog",
     "skills/cratis-components-styling",
     "skills/cratis-components-toolbar",
+    "skills/cratis-documentation-writing",
     "skills/cratis-event-model-diagram",
     "skills/cratis-fundamentals-concept",
     "skills/cratis-fundamentals-type-discovery",
@@ -5430,6 +5431,86 @@
       }
     },
     {
+      "id": "cratis-documentation-writing",
+      "kind": "skill",
+      "semanticIdentity": "cratis-documentation-writing",
+      "semanticName": "Diataxis documentation writing",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-documentation-writing",
+      "canonicalSources": [
+        {
+          "path": "skills/cratis-documentation-writing",
+          "digest": "f717f4fc5120cbf67cff9a86a50182cf86292d466cfc7b903bf56fe307e17860",
+          "ownership": "owner",
+          "ownerComponentId": "cratis-documentation-writing"
+        }
+      ],
+      "contentDigest": "d9ab92f70ad69749ceb28ad08d31f57903c6cd4b12cfd4596c6d1c1788737d31",
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "classification": {
+        "artifactClass": "passive-content",
+        "trust": "passive",
+        "passive": true,
+        "executable": false,
+        "effect": "guided-write"
+      },
+      "dependencies": [],
+      "hostNeutralPurpose": "Classify a documentation page by Diataxis type (tutorial, how-to, reference, explanation) and draft it in that style with complete runnable examples",
+      "approval": {
+        "state": "modeled",
+        "evidenceIds": [
+          "repo-main-b795d53"
+        ]
+      },
+      "releaseBoundary": "public-passive",
+      "allowedProjections": [
+        {
+          "hostContract": "any-passive-host",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "passive-private-fixture",
+            "passive-public-package",
+            "provider-compatibility"
+          ]
+        },
+        {
+          "hostContract": "portable-agent-plugins-1-0",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "passive-public-package"
+          ]
+        }
+      ],
+      "forbiddenProjections": [
+        "agent",
+        "subagent",
+        "command",
+        "prompt",
+        "rule",
+        "instruction",
+        "hook",
+        "mcp",
+        "lsp",
+        "executable-host-extension",
+        "static-asset"
+      ],
+      "requiredCanaries": [
+        "projection-shape",
+        "semantic-identity",
+        "source-digest"
+      ],
+      "securityRequirements": {
+        "threatModel": false,
+        "securityReview": false,
+        "executableAssuranceProfile": false
+      }
+    },
+    {
       "id": "cratis-engineering-csharp-conventions",
       "kind": "skill",
       "semanticIdentity": "cratis-engineering-csharp-conventions",
@@ -5537,87 +5618,6 @@
       },
       "dependencies": [],
       "hostNeutralPurpose": "Cratis decision record procedure",
-      "approval": {
-        "state": "modeled",
-        "evidenceIds": [
-          "reevaluation-authority",
-          "repo-main-b795d53"
-        ]
-      },
-      "releaseBoundary": "engineering-passive",
-      "allowedProjections": [
-        {
-          "hostContract": "any-passive-host",
-          "kinds": [
-            "skill"
-          ],
-          "artifactClasses": [
-            "passive-private-fixture",
-            "passive-public-package",
-            "provider-compatibility"
-          ]
-        },
-        {
-          "hostContract": "portable-agent-plugins-1-0",
-          "kinds": [
-            "skill"
-          ],
-          "artifactClasses": [
-            "passive-public-package"
-          ]
-        }
-      ],
-      "forbiddenProjections": [
-        "agent",
-        "subagent",
-        "command",
-        "prompt",
-        "rule",
-        "instruction",
-        "hook",
-        "mcp",
-        "lsp",
-        "executable-host-extension",
-        "static-asset"
-      ],
-      "requiredCanaries": [
-        "projection-shape",
-        "semantic-identity",
-        "source-digest"
-      ],
-      "securityRequirements": {
-        "threatModel": false,
-        "securityReview": false,
-        "executableAssuranceProfile": false
-      }
-    },
-    {
-      "id": "cratis-engineering-effect-boundaries",
-      "kind": "skill",
-      "semanticIdentity": "cratis-engineering-effect-boundaries",
-      "semanticName": "cratis-engineering-effect-boundaries",
-      "lifecycle": "active",
-      "distributionTargetId": "cratis-engineering-effect-boundaries",
-      "canonicalSources": [
-        {
-          "path": "engineering/skills/cratis-engineering-effect-boundaries",
-          "digest": "4b2170d831e2a58ca52b82f39723486ff19c8f74eda91d3d71bc69186a5de413",
-          "ownership": "owner",
-          "ownerComponentId": "cratis-engineering-effect-boundaries"
-        }
-      ],
-      "contentDigest": "04118751f4b0e8a271aa78d980e75dbdb1dc22c8971276586b196189b7509be1",
-      "owner": "reusable Cratis engineering behavior",
-      "audience": "cratis-engineering",
-      "classification": {
-        "artifactClass": "passive-content",
-        "trust": "passive",
-        "passive": true,
-        "executable": false,
-        "effect": "guided-write"
-      },
-      "dependencies": [],
-      "hostNeutralPurpose": "Cratis effect-boundary failure discipline",
       "approval": {
         "state": "modeled",
         "evidenceIds": [
@@ -5948,6 +5948,87 @@
       },
       "dependencies": [],
       "hostNeutralPurpose": "Cratis documentation visual QA",
+      "approval": {
+        "state": "modeled",
+        "evidenceIds": [
+          "reevaluation-authority",
+          "repo-main-b795d53"
+        ]
+      },
+      "releaseBoundary": "engineering-passive",
+      "allowedProjections": [
+        {
+          "hostContract": "any-passive-host",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "passive-private-fixture",
+            "passive-public-package",
+            "provider-compatibility"
+          ]
+        },
+        {
+          "hostContract": "portable-agent-plugins-1-0",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "passive-public-package"
+          ]
+        }
+      ],
+      "forbiddenProjections": [
+        "agent",
+        "subagent",
+        "command",
+        "prompt",
+        "rule",
+        "instruction",
+        "hook",
+        "mcp",
+        "lsp",
+        "executable-host-extension",
+        "static-asset"
+      ],
+      "requiredCanaries": [
+        "projection-shape",
+        "semantic-identity",
+        "source-digest"
+      ],
+      "securityRequirements": {
+        "threatModel": false,
+        "securityReview": false,
+        "executableAssuranceProfile": false
+      }
+    },
+    {
+      "id": "cratis-engineering-effect-boundaries",
+      "kind": "skill",
+      "semanticIdentity": "cratis-engineering-effect-boundaries",
+      "semanticName": "cratis-engineering-effect-boundaries",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-engineering-effect-boundaries",
+      "canonicalSources": [
+        {
+          "path": "engineering/skills/cratis-engineering-effect-boundaries",
+          "digest": "4b2170d831e2a58ca52b82f39723486ff19c8f74eda91d3d71bc69186a5de413",
+          "ownership": "owner",
+          "ownerComponentId": "cratis-engineering-effect-boundaries"
+        }
+      ],
+      "contentDigest": "04118751f4b0e8a271aa78d980e75dbdb1dc22c8971276586b196189b7509be1",
+      "owner": "reusable Cratis engineering behavior",
+      "audience": "cratis-engineering",
+      "classification": {
+        "artifactClass": "passive-content",
+        "trust": "passive",
+        "passive": true,
+        "executable": false,
+        "effect": "guided-write"
+      },
+      "dependencies": [],
+      "hostNeutralPurpose": "Cratis effect-boundary failure discipline",
       "approval": {
         "state": "modeled",
         "evidenceIds": [
@@ -13882,6 +13963,87 @@
       }
     },
     {
+      "id": "cratis-specification-by-example",
+      "kind": "skill",
+      "semanticIdentity": "cratis-specification-by-example",
+      "semanticName": "cratis-specification-by-example",
+      "lifecycle": "active",
+      "distributionTargetId": "cratis-specification-by-example",
+      "canonicalSources": [
+        {
+          "path": "skills/cratis-specification-by-example",
+          "digest": "03c4d0eacce659ea19da9b7fd8afdbc692a280e126be1684c8f4b221ca821e21",
+          "ownership": "owner",
+          "ownerComponentId": "cratis-specification-by-example"
+        }
+      ],
+      "contentDigest": "20376648527aa376e9751432a621f132bd74407cd171b16806f4dca34172a800",
+      "owner": "public Cratis product capability",
+      "audience": "public",
+      "classification": {
+        "artifactClass": "passive-content",
+        "trust": "passive",
+        "passive": true,
+        "executable": false,
+        "effect": "guided-write"
+      },
+      "dependencies": [],
+      "hostNeutralPurpose": "Cratis specification by example",
+      "approval": {
+        "state": "modeled",
+        "evidenceIds": [
+          "reevaluation-authority",
+          "repo-main-b795d53"
+        ]
+      },
+      "releaseBoundary": "public-passive",
+      "allowedProjections": [
+        {
+          "hostContract": "any-passive-host",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "passive-private-fixture",
+            "passive-public-package",
+            "provider-compatibility"
+          ]
+        },
+        {
+          "hostContract": "portable-agent-plugins-1-0",
+          "kinds": [
+            "skill"
+          ],
+          "artifactClasses": [
+            "passive-public-package"
+          ]
+        }
+      ],
+      "forbiddenProjections": [
+        "agent",
+        "subagent",
+        "command",
+        "prompt",
+        "rule",
+        "instruction",
+        "hook",
+        "mcp",
+        "lsp",
+        "executable-host-extension",
+        "static-asset"
+      ],
+      "requiredCanaries": [
+        "projection-shape",
+        "semantic-identity",
+        "source-digest"
+      ],
+      "securityRequirements": {
+        "threatModel": false,
+        "securityReview": false,
+        "executableAssuranceProfile": false
+      }
+    },
+    {
       "id": "cratis-specifications-csharp",
       "kind": "skill",
       "semanticIdentity": "cratis-specifications-csharp",
@@ -14243,87 +14405,6 @@
         ]
       },
       "releaseBoundary": "engineering-passive",
-      "allowedProjections": [
-        {
-          "hostContract": "any-passive-host",
-          "kinds": [
-            "skill"
-          ],
-          "artifactClasses": [
-            "passive-private-fixture",
-            "passive-public-package",
-            "provider-compatibility"
-          ]
-        },
-        {
-          "hostContract": "portable-agent-plugins-1-0",
-          "kinds": [
-            "skill"
-          ],
-          "artifactClasses": [
-            "passive-public-package"
-          ]
-        }
-      ],
-      "forbiddenProjections": [
-        "agent",
-        "subagent",
-        "command",
-        "prompt",
-        "rule",
-        "instruction",
-        "hook",
-        "mcp",
-        "lsp",
-        "executable-host-extension",
-        "static-asset"
-      ],
-      "requiredCanaries": [
-        "projection-shape",
-        "semantic-identity",
-        "source-digest"
-      ],
-      "securityRequirements": {
-        "threatModel": false,
-        "securityReview": false,
-        "executableAssuranceProfile": false
-      }
-    },
-    {
-      "id": "cratis-specification-by-example",
-      "kind": "skill",
-      "semanticIdentity": "cratis-specification-by-example",
-      "semanticName": "cratis-specification-by-example",
-      "lifecycle": "active",
-      "distributionTargetId": "cratis-specification-by-example",
-      "canonicalSources": [
-        {
-          "path": "skills/cratis-specification-by-example",
-          "digest": "03c4d0eacce659ea19da9b7fd8afdbc692a280e126be1684c8f4b221ca821e21",
-          "ownership": "owner",
-          "ownerComponentId": "cratis-specification-by-example"
-        }
-      ],
-      "contentDigest": "20376648527aa376e9751432a621f132bd74407cd171b16806f4dca34172a800",
-      "owner": "public Cratis product capability",
-      "audience": "public",
-      "classification": {
-        "artifactClass": "passive-content",
-        "trust": "passive",
-        "passive": true,
-        "executable": false,
-        "effect": "guided-write"
-      },
-      "dependencies": [],
-      "hostNeutralPurpose": "Cratis specification by example",
-      "approval": {
-        "state": "modeled",
-        "evidenceIds": [
-          "reevaluation-authority",
-          "repo-main-b795d53"
-        ]
-      },
-      "releaseBoundary": "public-passive",
       "allowedProjections": [
         {
           "hostContract": "any-passive-host",

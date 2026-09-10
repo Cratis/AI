@@ -6,8 +6,8 @@ This catalog is generated from reviewed catalog metadata. Use it to find
 the right package and understand its skills. It is not source authority
 and does not make a planned package installable.
 
-- Profiles: 59
-- Capabilities: 61
+- Profiles: 60
+- Capabilities: 62
 - Installable profiles: 0
 - Ecosystem bindings with support claims: 0
 
@@ -15,8 +15,8 @@ and does not make a planned package installable.
 
 Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.
 
-- Components: 192
-- Passive: 189
+- Components: 193
+- Passive: 190
 - Executable: 3
 - Legacy-retained: 35
 - Existing adapter records: 329
@@ -30,7 +30,7 @@ Modeled or planned components and projections are catalog metadata only; they ar
 
 ### Components by kind
 
-- skill: 96
+- skill: 97
 - agent: 12
 - subagent: 0
 - command: 18
@@ -173,6 +173,7 @@ Every public Cratis capability in one selection: every product, every language, 
 - cratis-components-stepper-command-dialog
 - cratis-components-styling
 - cratis-components-toolbar
+- cratis-documentation-writing
 - cratis-event-model-diagram
 - cratis-fundamentals-concept
 - cratis-fundamentals-type-discovery
@@ -225,6 +226,7 @@ Every public Cratis capability in one selection: every product, every language, 
 - cratis/cli
 - cratis/cli/terminal-workbench
 - cratis/components
+- cratis/documentation
 - cratis/full
 - cratis/full/csharp
 - cratis/full/elixir
@@ -1442,6 +1444,31 @@ AI guidance for developers building with Cratis Components.
 - cratis-components-stepper-command-dialog
 - cratis-components-styling
 - cratis-components-toolbar
+
+#### Composed profiles
+
+- None
+
+### Cratis Documentation
+
+- **Profile ID:** `cratis/documentation`
+- **Audience:** public
+- **Package:** `@cratis/ai-documentation`
+- **State:** preview-source-candidate
+- **Installable:** no
+- **Materialization:** candidate-package
+
+AI guidance for developers building with Cratis documentation.
+
+**Intended for:** Developers who use Cratis documentation.
+
+- Products: documentation
+- Languages: markdown, language-agnostic
+- Repository kinds: consumer projects
+
+#### Included capabilities
+
+- cratis-documentation-writing
 
 #### Composed profiles
 
@@ -4934,6 +4961,70 @@ Use when building a canvas-style icon toolbar with active tools or fan-out contr
 - cratis/components
 - cratis/full
 - cratis/full/csharp
+
+### cratis-documentation-writing
+
+- **ID:** `cratis-documentation-writing`
+- **Audience:** public
+- **Lifecycle:** candidate
+- **Approval:** candidate
+- **Runtime eligible:** no
+
+#### Purpose — cratis-documentation-writing
+
+Documentation writing
+
+#### When to use — cratis-documentation-writing
+
+Use when creating or reworking a documentation page: deciding whether it is a tutorial, how-to guide, reference, or explanation, then drafting it in that style with complete runnable examples.
+
+#### When not to use — cratis-documentation-writing
+
+- Do not use for code generation, build, or release operations.
+- Do not use to invent API facts the code does not show; verify against the product.
+
+#### Invocation — cratis-documentation-writing
+
+- Capability kind: unclassified
+- Invocation: unclassified
+
+#### Applicability — cratis-documentation-writing
+
+- Products: documentation
+- Languages: language-agnostic, markdown
+- Architectures: Unclassified — Architecture requires reviewed target classification.
+- Personas: Unclassified — Persona requires reviewed target classification.
+- Surfaces: Unclassified — Surface requires reviewed target classification.
+- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+
+#### Dependencies — cratis-documentation-writing
+
+- Unclassified
+
+#### Trust and effects — cratis-documentation-writing
+
+- Trust class: passive
+- Assessment: unclassified
+- No assessed effects
+
+#### Evidence and support — cratis-documentation-writing
+
+- Authoring contract unclassified
+- Evidence: reevaluation-authority
+- Evidence: repo-main-b795d53
+
+#### Related capabilities — cratis-documentation-writing
+
+- None
+
+#### Bundle membership — cratis-documentation-writing
+
+- None
+
+#### Profile membership — cratis-documentation-writing
+
+- cratis
+- cratis/documentation
 
 ### cratis-event-model-diagram
 

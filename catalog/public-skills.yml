@@ -24,8 +24,8 @@
   },
   "audit": {
     "verifiedOn": "2026-09-06",
-    "currentInventoryCount": 63,
-    "publicCandidateCount": 53,
+    "currentInventoryCount": 64,
+    "publicCandidateCount": 54,
     "internalSkillCount": 10,
     "internalSkills": [
       {
@@ -457,6 +457,29 @@
       },
       "reviewNotes": [
         "Product- and language-independent release-engineering methodology. Advisory only: it grants no release, publication, promotion, or support authority and performs no release operation."
+      ]
+    },
+    {
+      "currentName": "cratis-documentation-writing",
+      "source": "skills/cratis-documentation-writing",
+      "proposedName": "cratis-documentation-writing",
+      "disposition": "retain",
+      "publicationStatus": "candidate",
+      "includeInRuntime": false,
+      "products": [
+        "documentation"
+      ],
+      "languages": [
+        "markdown",
+        "language-agnostic"
+      ],
+      "dependencies": {
+        "skills": [],
+        "internalArtifacts": [],
+        "externalTools": []
+      },
+      "reviewNotes": [
+        "Diataxis documentation-writing guidance, generalized from the internal authoring practice into public-safe, system-agnostic form. The internal multi-repository placement and navigation workflow deliberately stays in the engineering audience."
       ]
     },
     {

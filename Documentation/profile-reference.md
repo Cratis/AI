@@ -222,6 +222,18 @@ Chronicle compliance, event-source identities, and product-specific roles.
 authority pins it to exactly one target. A second skill added there would change
 what the already-requested preview publishes.
 
+## Documentation profile
+
+| Profile | Intended package | Scope |
+| --- | --- | --- |
+| `cratis/documentation` | `@cratis/ai-documentation` | Diátaxis documentation-writing guidance: classify a page as tutorial, how-to, reference, or explanation, then draft it in that style |
+
+Like the language profiles, it composes nothing and implies no product: a
+repository bundles `cratis/documentation` next to whichever product or language
+profiles it already uses when it wants documentation-writing guidance for its
+own docs. The internal Cratis multi-repository docs workflow (placement,
+navigation wiring, rendering) stays with `cratis/engineering`.
+
 ## Review profiles
 
 | Profile | Intended package | Scope |

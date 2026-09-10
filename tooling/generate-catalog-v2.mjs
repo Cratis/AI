@@ -642,6 +642,14 @@ const sourceOverrides = new Map([
         },
     ],
     [
+        // Authored in this repository and not yet rebound to its own merged
+        // revision, so it deliberately carries no extra source evidence id.
+        "cratis-documentation-writing",
+        {
+            sourcePath: "skills/cratis-documentation-writing",
+        },
+    ],
+    [
         "add-cratis-docs-page",
         {
             sourcePath: "engineering/skills/cratis-engineering-docs-add-page",
@@ -1122,6 +1130,17 @@ const engineeringClassifications = new Map([
 ]);
 
 const profiles = {
+    "cratis-documentation-writing": [
+        "Documentation writing",
+        "Use when creating or reworking a documentation page: deciding whether it is a tutorial, how-to guide, reference, or explanation, then drafting it in that style with complete runnable examples.",
+        [
+            "Do not use for code generation, build, or release operations.",
+            "Do not use to invent API facts the code does not show; verify against the product.",
+        ],
+        [],
+        "low",
+        false,
+    ],
     "cratis-governed-release-methodology": [
         "Governed release methodology",
         "Use when choosing the assurance tier a release needs, deciding whether checksums, provenance, or an SBOM are warranted, labeling release intent, or judging whether a support claim is backed by evidence.",
