@@ -8,6 +8,7 @@ import {
     mkdirSync,
     mkdtempSync,
     readFileSync,
+    readdirSync,
     rmSync,
     writeFileSync,
 } from "node:fs";
@@ -58,6 +59,20 @@ function assertInstalled(consumerRoot, expectedVersion) {
         )
     )
         throw new Error("Installed preview package discovery failed");
+    // The package is the whole public bundle, not the single concept skill:
+    // every bundled skill directory must carry a SKILL.md.
+    const bundledSkills = readdirSync(join(packageRoot, "skills"), {
+        withFileTypes: true,
+    }).filter((entry) => entry.isDirectory());
+    if (
+        bundledSkills.length < 2 ||
+        bundledSkills.some(
+            (entry) =>
+                !entry.isDirectory() ||
+                !existsSync(join(packageRoot, "skills", entry.name, "SKILL.md")),
+        )
+    )
+        throw new Error("Installed preview package bundle discovery failed");
 }
 
 function install(archivePath, consumerRoot, environment) {
