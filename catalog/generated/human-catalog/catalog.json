@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "contractVersion": 1,
   "disclaimer": "Catalog inclusion, evaluation evidence, component modeling, planned projection, bundle generation, or publication does not grant runtime permission, emitted bytes, support, or approval.",
-  "inputDigest": "19722304a0e9dcaba71d9ffb73e40afecb0f0a47690cbbfb0b73932eedb1fe9c",
+  "inputDigest": "8b13d323e1bfa90a0af97bba0aa644ce92d877513d6c778a44ee78868979ff13",
   "componentSummary": {
     "disclaimer": "Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.",
     "total": 193,
@@ -34,20 +34,20 @@
       "legacy-retained": 35
     },
     "projections": {
-      "total": 399,
+      "total": 398,
       "byState": {
         "planned": 0,
         "blocked": 0,
-        "existing": 329,
+        "existing": 328,
         "generated-static": 70
       },
       "byActivation": {
-        "active": 326,
+        "active": 325,
         "inert": 3,
         "none": 70
       },
       "byApproval": {
-        "modeled": 396,
+        "modeled": 395,
         "approved": 0,
         "blocked": 3
       }

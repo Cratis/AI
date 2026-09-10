@@ -115,6 +115,10 @@ function readPathUniverse() {
                 path === ".github/workflows/distribution-npm-stage.yml" ||
                 path === ".github/workflows/package-passive-candidate-assets.yml" ||
                 /^AI-REPOSITORY-REDESIGN-[A-Z0-9-]+\.md$/.test(path) ||
+                path === ".cratis/PROJECT.md" ||
+                path === ".cratis/ai.json" ||
+                path === "CLAUDE.md" ||
+                path === "GEMINI.md" ||
                 path === "Documentation/.markdownlint.json" ||
                 /^Documentation\/(?:adopting-cratis-ai|adopting-cratis-ai-for-maintainers|ai-distribution-and-subscriptions|capability-catalog-v2|phase-0-verification|private-repository-overlays|portable-compliance|profile-reference|public-product-architecture|skill-authoring-contract|skill-classification-audit|project-context-bootstrap|redesign-foundation-validation|releasing-cratis-ai|source-evidence-contract)\.md$/.test(
                     path,
@@ -230,19 +234,49 @@ const inventoryDefinitions = () => [
         evidenceIds: ["repo-main-b795d53"],
     },
     {
-        id: "root-instruction-adapter",
-        sourcePathPatterns: ["AGENTS.md"],
-        artifactType: "adapter",
+        id: "root-context-bootstrap",
+        sourcePathPatterns: ["AGENTS.md", "CLAUDE.md", "GEMINI.md"],
+        artifactType: "instruction",
         currentOwner: engineeringOwner,
-        targetOwner: obsoleteOwner,
+        targetOwner: engineeringOwner,
         runtimeEligibility: "forbidden",
-        generatedStatus: "derived",
-        adapterStatus: "symlink-adapter",
-        dependencies: [".ai/rules/general.md"],
-        risk: "high",
-        migrationState: "retire-after-evidence",
-        evidenceIds: ["workflows-68", "reevaluation-authority"],
-        generator: "legacy-manual-adapter-model",
+        generatedStatus: "source",
+        adapterStatus: "none",
+        dependencies: [".cratis/PROJECT.md"],
+        risk: "low",
+        migrationState: "retain",
+        evidenceIds: ["workflows-68", "ai-256"],
+    },
+    {
+        id: "project-context",
+        sourcePathPatterns: [".cratis/PROJECT.md"],
+        artifactType: "instruction",
+        currentOwner: engineeringOwner,
+        targetOwner: engineeringOwner,
+        runtimeEligibility: "forbidden",
+        generatedStatus: "source",
+        adapterStatus: "none",
+        dependencies: ["Documentation/project-context-bootstrap.md"],
+        risk: "low",
+        migrationState: "retain",
+        evidenceIds: ["workflows-68", "ai-256"],
+    },
+    {
+        id: "project-context-subscription",
+        sourcePathPatterns: [".cratis/ai.json"],
+        artifactType: "repository-metadata",
+        currentOwner: engineeringOwner,
+        targetOwner: engineeringOwner,
+        runtimeEligibility: "forbidden",
+        generatedStatus: "source",
+        adapterStatus: "none",
+        dependencies: [
+            "distribution/profile-subscription.schema.json",
+            "Documentation/project-context-bootstrap.md",
+        ],
+        risk: "low",
+        migrationState: "retain",
+        evidenceIds: ["workflows-68", "ai-256"],
     },
     {
         id: "root-skill-adapter",
@@ -478,6 +512,20 @@ const inventoryDefinitions = () => [
         risk: "high",
         migrationState: "retain",
         evidenceIds: ["option-a-plus-authority", "reevaluation-authority"],
+    },
+    {
+        id: "engineering-staged-migrated-sources",
+        sourcePathPatterns: ["engineering/sources-staged/**"],
+        artifactType: "documentation",
+        currentOwner: engineeringOwner,
+        targetOwner: engineeringOwner,
+        runtimeEligibility: "forbidden",
+        generatedStatus: "source",
+        adapterStatus: "none",
+        dependencies: ["Documentation/corpus-generations.md"],
+        risk: "medium",
+        migrationState: "classify-in-place",
+        evidenceIds: ["ai-256"],
     },
     {
         id: "skill-evaluations",
