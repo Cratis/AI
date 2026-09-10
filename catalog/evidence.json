@@ -10299,7 +10299,7 @@
         },
         {
             "repositoryPath": "distribution/evidence/s9-pi-attempt-3-current-2026-08-26.json",
-            "digest": "1ba95cdfe2b58653061fb4afa4bf43f40ebbcc0b626a340dd658297c3d2c531c",
+            "digest": "ffdc6817ae936c2c12603be9815e0581d340e53b021b3d2075c56d39dbe0fd4a",
             "role": "inventory-only",
             "observationIds": [],
             "reason": "Preserves the exact Pi 0.84.3 denied-egress fixture run at committed runner revision 1a9af3d. It remains inventory-only because it is future-dated relative to catalog asOf and synthetic fixtures cannot support assurance."
