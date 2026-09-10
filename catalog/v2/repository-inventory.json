@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "9746c18027479d58bf56ec4f5bc78e8eb7d241046b90e30fcfe2317ade25b684",
+  "indexDigest": "ebdc8c5f9eeefcce6ce655efdbbb3c6518e4aa94a58df1f2d04963b2783f13c6",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -524,6 +524,10 @@
     },
     {
       "path": "Documentation/concepts.md",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/corpus-generations.md",
       "status": "added"
     },
     {
@@ -5090,7 +5094,8 @@
         "Documentation/concepts.md",
         "Documentation/harnesses.md",
         "Documentation/scenarios/**",
-        "Documentation/evaluation-evidence-protocol.md"
+        "Documentation/evaluation-evidence-protocol.md",
+        "Documentation/corpus-generations.md"
       ],
       "artifactType": "documentation",
       "currentOwner": "repository-only authoring/release tooling",
@@ -5108,8 +5113,8 @@
         "repo-main-b795d53",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 8,
-      "expectedPathsDigest": "f54939f44fcee2c39ca51b183e1792f733a8d6b5d8db90b3783e9a18bcf13673"
+      "expectedPathCount": 9,
+      "expectedPathsDigest": "28a9f3d819eda95d9d4be7cf8bf7587df64d5d240ffc394792cde0a71febc9c7"
     },
     {
       "excludePathPatterns": [],

@@ -729,6 +729,7 @@ const inventoryDefinitions = () => [
             "Documentation/harnesses.md",
             "Documentation/scenarios/**",
             "Documentation/evaluation-evidence-protocol.md",
+            "Documentation/corpus-generations.md",
         ],
         artifactType: "documentation",
         currentOwner: repositoryOwner,
