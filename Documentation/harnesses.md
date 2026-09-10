@@ -85,8 +85,8 @@ Cursor-specific fork of the content.
 
 ## Pi via npm
 
-Pi installs ordinary npm packages. Today the published package is the
-unsupported `@cratis/ai-fundamentals` `0.x` evaluation — the Fundamentals
+Pi installs ordinary npm packages. Today the published package is
+`@cratis/ai-fundamentals` `1.0.0` — the Fundamentals
 concept guidance, not the whole bundle:
 
 ```bash
@@ -116,8 +116,7 @@ in [ecosystem support](./ecosystem-support-architecture-review.md).
 
 ## Status
 
-- All installs are **unsupported `0.x` evaluation** quality until the governed
-  release gates pass.
+- Installs ship as the supported `1.0.0` release.
 - The versioned per-profile package flow (exact pins arriving as reviewed pull
   requests) is designed but not published; today the marketplace follows the
   `Cratis/AI` default branch, and npm carries only `@cratis/ai-fundamentals`.

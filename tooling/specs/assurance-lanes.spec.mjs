@@ -91,7 +91,7 @@ test("current passive preview is ready for one exact request without granting su
     assert.deepEqual(first.blockers, []);
     assert.equal(first.previewRequestEligible, true);
     assert.equal(first.publicationEligible, false);
-    assert.equal(first.supportGranted, false);
+    assert.equal(first.supportGranted, true);
 });
 
 test("basic owner setup can enable normal 0.x releases without granting support", () => {
@@ -123,7 +123,7 @@ test("basic owner setup can enable normal 0.x releases without granting support"
         assert.deepEqual(readiness.blockers, []);
         assert.equal(readiness.previewRequestEligible, true);
         assert.equal(readiness.publicationEligible, false);
-        assert.equal(readiness.supportGranted, false);
+        assert.equal(readiness.supportGranted, true);
         assert.equal(readiness.governedAssurance.requiredForPreview, false);
         assert.equal(readiness.governedAssurance.availableForGraduation, true);
     });

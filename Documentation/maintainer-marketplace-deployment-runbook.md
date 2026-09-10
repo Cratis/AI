@@ -9,7 +9,10 @@ Two separate things:
 - **Installing** — works today, zero setup, covered below.
 - **Getting listed** in a host's own marketplace UI (so someone who doesn't
   already know `Cratis/AI` exists can find it) — a manual, per-vendor
-  submission. Nothing is submitted yet. Tracked in
+  submission. Status: **Anthropic and Cursor submissions opened** by the
+  maintainer (2026-09); the **Copilot PR is prepared below, ready to open**;
+  **Codex is blocked** on non-repository inputs (identity verification, legal
+  pages, logo). Tracked in
   [Cratis/AI#147](https://github.com/Cratis/AI/issues/147). Guides below.
 
 ## Installing
@@ -76,6 +79,12 @@ follow-up, not something to do speculatively before a vendor asks for it.
 
 ### Claude
 
+**Submission opened by the maintainer (2026-09).** The form values below stay
+as the record of what was filled in. The listing points back at this repo's
+root marketplace, so the manifests on `main` are the live definition — the
+review outcome also settles the manifest question for the Copilot PR (see
+below).
+
 1. Submit: **[platform.claude.com/plugins/submit](https://platform.claude.com/plugins/submit)**.
    Fill in the form exactly like this:
 
@@ -134,6 +143,37 @@ verification in the OpenAI Platform.
 
 MCP tab doesn't apply — Cratis AI ships passive skills only, no MCP server.
 
+**Ready-to-paste answers** — the two fields draftable without legal or design
+input; everything else marked Missing above needs a human decision first.
+
+Starter prompts:
+
+- `Implement a new vertical slice — command, events, projection, React page — following Cratis conventions`
+- `Write BDD specs for an event-sourced command or read model`
+- `Review this pull request against Cratis architecture, security, and performance conventions`
+- `Add a strongly typed domain concept with invariants that travel with the value`
+- `Diagnose why a read model is not updating from appended events`
+
+Test cases (5 positive / 3 negative):
+
+- *Positive:* asking for a new vertical slice yields backend-first work —
+  command + validator + events, then specs, then React from generated
+  proxies.
+- *Positive:* asking for command specs yields `CommandScenario` specs under a
+  `for_/when_/` hierarchy with past-tense event names.
+- *Positive:* asking for a PR review checks the slice against the
+  architecture, security, and performance rule sets and cites them.
+- *Positive:* asking for a domain value yields a `ConceptAs<T>` /
+  `EventSourceId<T>` type with a `ConceptValidator<T>`, not a raw primitive.
+- *Positive:* asking about a stale read model walks a symptom → cause →
+  owning rule/skill flow instead of guessing.
+- *Negative:* asking to bypass event sourcing (write directly to the read
+  model store) is corrected to the convention, not complied with.
+- *Negative:* asking to publish, push, or bulk-mutate external state without
+  explicit authorization stops at the requested verb (ship-changes policy).
+- *Negative:* asking to hand-edit a generated proxy file is refused; fixing
+  the C# source and rebuilding is prescribed instead.
+
 The privacy policy and terms-of-service pages are legal documents — draft and
 publish those as a deliberate decision, not something to improvise into
 existence to unblock a submission. Until those three "Missing" rows are
@@ -155,7 +195,7 @@ review. No portal, no extra fields.
    {
      "name": "cratis",
      "description": "Public Cratis skills for developers building event-sourced CQRS applications with Cratis Chronicle and Arc — vertical slices, BDD specs, and a React + Cratis Components frontend.",
-     "version": "0.1.0",
+     "version": "1.0.0",
      "author": { "name": "Cratis", "url": "https://www.cratis.io" },
      "homepage": "https://github.com/Cratis/AI",
      "repository": "https://github.com/Cratis/AI",
@@ -164,24 +204,27 @@ review. No portal, no extra fields.
    }
    ```
 
-2. Open the PR. Not opened yet — hold until the `cratis` manifest question
-   above is resolved: `github/copilot-plugins`' own accepted listings (e.g.
-   `microsoft/work-iq`) all carry a real `.github/plugin/plugin.json` in the
-   plugin root, which `cratis` doesn't have.
+2. PR **prepared, not yet opened**. The one open question is whether
+   `github/copilot-plugins`' review accepts the manifest-only shim — their
+   own accepted listings (e.g. `microsoft/work-iq`) all carry a real
+   `.github/plugin/plugin.json` in the plugin root, which `cratis` doesn't
+   have. The in-flight Anthropic submission answers the same question first:
+   **if Anthropic accepts, open this PR as-is; if a reviewer rejects over the
+   missing manifest, do the `skills/` restructure first** (nest the skills
+   under a wrapper matching `engineering/`, add the four `plugin.json` files,
+   update `catalog/components.json` and the generators/specs that watch the
+   paths — a deliberate ~100-file change, not a speculative one).
 
 Docs: [finding and installing plugins](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/plugins-finding-installing)
 
 ### Cursor
 
-**Could not verify the actual form fields** — `cursor.com/marketplace/publish`
-is a client-rendered app page behind sign-in; fetching it only returns the
-site's nav shell, not the form. Screenshot it once you're signed in and on
-the real form, the same way you did for Claude, and I'll fill in the exact
-values — I don't want to guess field labels on a form I haven't seen.
+**Submission opened by the maintainer (2026-09).** The form could not be
+verified from outside (`cursor.com/marketplace/publish` is a client-rendered
+app behind sign-in), so no field values are recorded here.
 
-1. Sign in and reach: **[cursor.com/marketplace/publish](https://cursor.com/marketplace/publish)**
-2. Every future update needs a fresh manual review on Cursor's side — this
-   one never becomes hands-off, no matter what we automate.
+Every future update needs a fresh manual review on Cursor's side — this one
+never becomes hands-off, no matter what we automate.
 
 Note: Cursor has no free/individual self-hosted install path either (unlike
 the other three) — adding a repo as a source requires a Team/Enterprise
@@ -192,7 +235,7 @@ admin. Docs: [marketplace](https://cursor.com/marketplace)
 Claude, Codex, and Copilot listings point back at this repo — once accepted,
 no repeat pushes needed. Cursor's mandatory per-update review means it can't
 be made fully automatic. The `version` field needed for that is now in place
-(`0.1.0`, tracked by `tooling/specs/marketplace-pointer-manifests.spec.mjs`)
+(`1.0.0`, tracked by `tooling/specs/marketplace-pointer-manifests.spec.mjs`)
 — bump it by hand on future releases; nothing runs that automatically yet.
 
 ## Reference: the manifest files
@@ -207,8 +250,10 @@ be made fully automatic. The `version` field needed for that is now in place
 Each declares two plugins: `source: {"source": "github", "repo": "Cratis/AI", "path": "skills"}`
 and the same with `path: "engineering"`. Hand-authored, no generator.
 
-- `strict: false` on every entry — `skills/` and `engineering/` carry no
-  `plugin.json`, so the marketplace entry is the whole definition.
+- `strict: false` (plus `skills: "./"`) **only on the `cratis` entry** —
+  `skills/` carries no `plugin.json` yet, so the marketplace entry is the
+  whole definition for it. `cratis-engineering` has real per-host manifests
+  and uses default strict behavior.
 - Adding a skill under `skills/` or `engineering/skills/` is the entire
   deployment — live for every host on the next merge to `main`. Editing a
   manifest is only needed to add/rename a *plugin*.
@@ -231,7 +276,8 @@ publishes the npm package on merge to `main` under a release-intent label.
   filename, org `Cratis`, repo `AI`, environment `npm-stage`. **Renaming the
   file breaks publishing.**
 - `id-token: write` scoped to the publish job only (`tooling/specs/workflow-safety.spec.mjs` asserts this).
-- Stays on `0.x.y`, publishes to npm `latest`. Needs npm ≥11.5.1, Node 24.
+- Publishes stable `1.0.0`-or-newer versions to npm `latest` — label the
+  release PR `major` for the `1.0.0` bump. Needs npm ≥11.5.1, Node 24.
 
 | Environment | State | Used by |
 | --- | --- | --- |
@@ -248,5 +294,5 @@ publishes the npm package on merge to `main` under a release-intent label.
   **Never delete the repo or its tags** (`v0.1.0`–`v0.3.0` must stay
   resolvable).
 
-A live marketplace listing never implies behavior support or a stability
-claim — that's a separate approval.
+A live marketplace listing carries the same support as the supported stable
+`1.0.0` release it resolves from this repository's default branch.

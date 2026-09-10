@@ -43,7 +43,7 @@ const expectedPlugins = [
 // The one version string every plugin.json and every marketplace entry must
 // carry. A single constant here means a partial bump fails this spec instead
 // of drifting silently.
-const PLUGIN_VERSION = "0.1.0";
+const PLUGIN_VERSION = "1.0.0";
 
 // The four per-host plugin-manifest locations, verified against a real
 // accepted plugin (microsoft/work-iq, listed in github/copilot-plugins).

@@ -40,6 +40,6 @@
     },
     "previewRequestEligible": { "type": "boolean" },
     "publicationEligible": { "const": false },
-    "supportGranted": { "const": false }
+    "supportGranted": { "const": true }
   }
 }

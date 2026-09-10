@@ -8,7 +8,7 @@ Until the first governed release, marketplace installs follow the
 `Cratis/AI` default branch ([Cratis/AI#264](https://github.com/Cratis/AI/issues/264)).
 Updating means reinstalling or updating the plugin; rolling back means
 uninstalling. There is no version to pin yet, and the only published package
-is the unsupported `@cratis/ai-fundamentals` `0.x` evaluation on npm — for
+is `@cratis/ai-fundamentals` `1.0.0` on npm — for
 that one, Pi's exact pins already work:
 
 ```bash
@@ -40,8 +40,7 @@ If you installed the plugin as a solo developer and never pinned anything,
 ## Status
 
 - Versioned releases: **designed, not published**. Install from `main` today.
-- The `@cratis/ai-fundamentals` `0.x` npm package is an unsupported
-  evaluation; a `1.0` supported release still has to pass the governed
-  release gates.
+- The `@cratis/ai-fundamentals` npm package ships as the supported
+  `1.0.0` release.
 - See [distribution and subscriptions](../ai-distribution-and-subscriptions.md)
   for the complete versioning and authority model.

@@ -2,31 +2,32 @@
 
 > **Audience:** Maintainers of Cratis/AI — release process. Not required for adopting Cratis AI.
 >
-> **Normal support-free `0.x.y` package releases are enabled; governed S10 remains blocked.**
-Candidate review is available now. Passive `0.x.y` packages use the basic lane;
-a `1.0.0` release and stable support use the governed lane and its complete
-S9/S10 assurance.
+> **Supported stable releases (`1.0.0` and newer) are enabled; governed S10 remains blocked.**
+Candidate review is available now. Stable releases publish supported packages;
+the governed lane and its complete S9/S10 assurance remain reserved for
+executable/MCP behavior and broad automated rollout.
 
 A merged, labeled release pull request is the sole recurring human approval.
-There is no second environment approval. A `0.x.y` package can never claim
-`supported`; that claim requires graduation to governed assurance.
+There is no second environment approval. Basic-lane releases ship as supported
+stable versions; executable/MCP support claims still require graduation to
+governed assurance.
 
 One-time external App, registry, canary-scope, and marketplace account setup is
 tracked in [AI#181](https://github.com/Cratis/AI/issues/181).
 
-## Passive `0.x.y` release lane
+## Passive stable release lane
 
 `cratis/fundamentals` is the first package. Pull requests must carry exactly one
 `major`, `minor`, `patch`, or `no-release` label. The shared Cratis release action
 derives the next version after merge; while this lane is active, publication
-accepts only `0.x.y`. The package is generated from the exact immutable source,
+accepts only stable `1.0.0`-or-newer versions. The package is generated from the exact immutable source,
 passes checksum and install/discovery/uninstall verification, and publishes to
 npm `latest` through the main-only `npm-stage` OIDC environment.
 
 The historical `0.1.0-preview.1` request remains an immutable record of the first
 OIDC canary. Future releases do not use a preview tag or require an append-only
-preview request. Package provenance and lifecycle checks continue to grant no
-support, runtime, stable-promotion, or marketplace claim.
+preview request. Runtime, stable-promotion, and marketplace-automation claims
+continue to require their own gates.
 
 ## Public marketplace installation — nothing to release
 
@@ -43,8 +44,8 @@ The four committed manifests — `.claude-plugin/marketplace.json`,
 
 OpenAI's universal directory and Cursor's marketplace remain separately prepared
 portal handoffs because those vendors require an authenticated publisher, manual
-submission, and review. Marketplace availability remains an unsupported `0.x.y`
-evaluation claim; it does not advance S9/S10 or grant support.
+submission, and review. Marketplace availability grants no support;
+it does not advance S9/S10.
 
 ## Static candidate review before release authority
 

@@ -101,7 +101,7 @@ test("Fundamentals package uses the normal labeled Cratis release flow", () => {
         "needs.release.outputs.publish == 'true'",
         "environment: npm-stage",
         "id-token: write",
-        '[[ "$VERSION" =~ ^0\\.[0-9]+\\.[0-9]+$ ]]',
+        '[[ "$VERSION" =~ ^[1-9][0-9]*\\.[0-9]+\\.[0-9]+$ ]]',
         "package-fundamentals-preview-npm.mjs",
         "smoke-fundamentals-preview-npm.mjs",
         "npm publish --provenance --access public --tag latest",

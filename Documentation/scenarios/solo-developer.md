@@ -42,5 +42,4 @@ drift from the reviewed source.
 
 - Installing today means following the `Cratis/AI` default branch. The
   versioned-release flow is designed but not published yet.
-- Everything is an unsupported `0.x` evaluation until the governed release
-  gates pass.
+- Everything ships as the supported `1.0.0` release.

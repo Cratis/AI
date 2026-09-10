@@ -32,7 +32,7 @@ function approvedInputs() {
         ),
     });
     const profile = inputs.profileCatalog.publicProfiles.find(
-        (candidate) => candidate.id === "public-fundamentals",
+        (candidate) => candidate.id === "cratis/fundamentals",
     );
     profile.state = "approved";
     const target = inputs.targets.find(
@@ -98,6 +98,13 @@ test("approved profile plan still cannot bypass blocked S10 readiness", () => {
     const request = readJson(
         "Documentation/examples/ai-release/v0.1.0-preview.1.json",
     );
+    // The example is the immutable record of the first canary, requested under
+    // the since-renamed profile id; normalize it to the current catalog.
+    request.profiles = ["cratis/fundamentals"];
+    request.canaries = request.canaries.map((canary) => ({
+        ...canary,
+        profileId: "cratis/fundamentals",
+    }));
     request.prerequisiteEvidenceIds = ["option-a-plus-authority"];
     const inputs = approvedInputs();
     const preflight = {
@@ -131,7 +138,7 @@ test("approved profile plan still cannot bypass blocked S10 readiness", () => {
     );
     assert.equal(result.plans.length, 1);
     assert.equal(result.plans[0].state, "READY_FOR_BOT_MATERIALIZATION");
-    assert.equal(result.plans[0].profileId, "public-fundamentals");
+    assert.equal(result.plans[0].profileId, "cratis/fundamentals");
     request.artifactDigest = "c".repeat(64);
     request.prerequisiteEvidenceIds = ["reevaluation-authority"];
     const mismatched = validateReleaseRequest(
