@@ -69,10 +69,10 @@
             "locator": "https://ampcode.com/news/neo"
         },
         {
-            "id": "source-arc-backend-command-sources-c650e09",
+            "id": "source-arc-backend-command-sources-9f52749",
             "kind": "repository-snapshot",
-            "locator": "https://github.com/Cratis/AI/tree/c650e097136ebf11374003d33b4dc6dfd672effd/skills",
-            "immutableRevision": "c650e097136ebf11374003d33b4dc6dfd672effd"
+            "locator": "https://github.com/Cratis/AI/tree/9f527497f2a262a0389146309c66adbeaffe6877",
+            "immutableRevision": "9f527497f2a262a0389146309c66adbeaffe6877"
         },
         {
             "id": "source-arc-ef-core-and-identity-sources-4726322",
@@ -262,6 +262,12 @@
             "id": "source-devin-hosted-source-2",
             "kind": "official-documentation",
             "locator": "https://docs.devin.ai/onboard-devin/agents-md"
+        },
+        {
+            "id": "source-diagnose-slice-source-9f52749",
+            "kind": "repository-snapshot",
+            "locator": "https://github.com/Cratis/AI/tree/9f527497f2a262a0389146309c66adbeaffe6877/.ai/skills/diagnose-slice",
+            "immutableRevision": "9f527497f2a262a0389146309c66adbeaffe6877"
         },
         {
             "id": "source-documentation-writing-source-171db17",
@@ -1395,13 +1401,13 @@
             }
         },
         {
-            "id": "arc-backend-command-sources-c650e09",
-            "sourceId": "source-arc-backend-command-sources-c650e09",
+            "id": "arc-backend-command-sources-9f52749",
+            "sourceId": "source-arc-backend-command-sources-9f52749",
             "evidenceClass": "hosted",
             "subject": {
                 "kind": "artifact",
                 "id": "candidate-passive-public-package",
-                "version": "c650e097136ebf11374003d33b4dc6dfd672effd"
+                "version": "9f527497f2a262a0389146309c66adbeaffe6877"
             },
             "bindingIds": [],
             "assertions": [
@@ -1418,15 +1424,15 @@
                 "architecture": "not-recorded",
                 "isolation": "not-recorded"
             },
-            "observedOn": "2026-09-06",
-            "validThrough": "2027-09-06",
+            "observedOn": "2026-09-10",
+            "validThrough": "2027-09-10",
             "confidence": "high",
             "limitations": [
                 "This observation proves source provenance only; it grants no behavior, install, or support assurance."
             ],
             "supersedes": [],
             "legacy": {
-                "officialUrl": "https://github.com/Cratis/AI/tree/c650e097136ebf11374003d33b4dc6dfd672effd/skills",
+                "officialUrl": "https://github.com/Cratis/AI/tree/9f527497f2a262a0389146309c66adbeaffe6877",
                 "sourceKind": "repository-snapshot",
                 "applicableVersion": "c650e097136ebf11374003d33b4dc6dfd672effd"
             }
@@ -2870,6 +2876,51 @@
                 "officialUrl": "https://docs.devin.ai/onboard-devin/agents-md",
                 "sourceKind": "official-documentation",
                 "applicableVersion": "current-documentation-2026-08-25"
+            }
+        },
+        {
+            "id": "diagnose-slice-source-9f52749",
+            "sourceId": "source-diagnose-slice-source-9f52749",
+            "evidenceClass": "hosted",
+            "subject": {
+                "kind": "target",
+                "id": "cratis-application-slice-diagnostics",
+                "version": "9f527497f2a262a0389146309c66adbeaffe6877"
+            },
+            "bindingIds": [],
+            "assertions": [
+                {
+                    "assuranceId": "source-provenance",
+                    "outcome": "pass",
+                    "supporting": true,
+                    "claimIds": []
+                }
+            ],
+            "scope": "Immutable provenance for the diagnose-slice source after removing the fabricated ReactorSideEffect claim and correcting the EventForEventSourceId guidance. This observation makes no release, publication, promotion, marketplace, installation, runtime, or support claim.",
+            "environment": {
+                "operatingSystem": "not-recorded",
+                "architecture": "not-recorded",
+                "isolation": "not-recorded"
+            },
+            "observedOn": "2026-09-10",
+            "validThrough": "2027-09-10",
+            "confidence": "high",
+            "limitations": [
+                "Provenance covers only the exact skill bytes at this revision. The guidance is advisory: it grants no release authority and no behavior, trigger, collision, or host evidence exists for it."
+            ],
+            "supersedes": [
+                "public-skill-markdown-normalization-source-23efb73"
+            ],
+            "legacy": {
+                "officialUrl": "https://github.com/Cratis/AI/tree/9f527497f2a262a0389146309c66adbeaffe6877/.ai/skills/diagnose-slice",
+                "sourceKind": "repository-snapshot",
+                "applicableVersion": "0.0.0-fixture"
+            },
+            "correction": {
+                "reason": "Removes the fabricated ReactorSideEffect type and corrects the EventForEventSourceId guidance in the recovery row, following up #279 (PR #286).",
+                "reviewer": "einari",
+                "reviewedOn": "2026-09-10",
+                "replacementIdentity": "diagnose-slice-source-9f52749"
             }
         },
         {

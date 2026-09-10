@@ -121,14 +121,14 @@
       "confidence": "high"
     },
     {
-      "id": "arc-backend-command-sources-c650e09",
-      "officialUrl": "https://github.com/Cratis/AI/tree/c650e097136ebf11374003d33b4dc6dfd672effd/skills",
+      "id": "arc-backend-command-sources-9f52749",
+      "officialUrl": "https://github.com/Cratis/AI/tree/9f527497f2a262a0389146309c66adbeaffe6877",
       "sourceKind": "repository-snapshot",
-      "verifiedOn": "2026-09-06",
-      "expiresOn": "2027-09-06",
+      "verifiedOn": "2026-09-10",
+      "expiresOn": "2027-09-10",
       "applicableVersion": "c650e097136ebf11374003d33b4dc6dfd672effd",
       "confidence": "high",
-      "immutableRevision": "c650e097136ebf11374003d33b4dc6dfd672effd"
+      "immutableRevision": "9f527497f2a262a0389146309c66adbeaffe6877"
     },
     {
       "id": "arc-ef-core-and-identity-sources-4726322",
@@ -470,6 +470,19 @@
       "expiresOn": "2026-11-23",
       "applicableVersion": "current-documentation-2026-08-25",
       "confidence": "high"
+    },
+    {
+      "id": "diagnose-slice-source-9f52749",
+      "officialUrl": "https://github.com/Cratis/AI/tree/9f527497f2a262a0389146309c66adbeaffe6877/.ai/skills/diagnose-slice",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-09-10",
+      "expiresOn": "2027-09-10",
+      "applicableVersion": "0.0.0-fixture",
+      "confidence": "high",
+      "supersedes": [
+        "public-skill-markdown-normalization-source-23efb73"
+      ],
+      "immutableRevision": "9f527497f2a262a0389146309c66adbeaffe6877"
     },
     {
       "id": "documentation-writing-source-171db17",

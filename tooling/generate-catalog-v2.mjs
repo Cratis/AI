@@ -420,7 +420,7 @@ const normalizedPackagedSourceNames = [
 // The legacy twin is retained until Cratis/AI#256 sequences its retirement, but
 // the catalog source record — and therefore the shipped bytes — binds to the
 // canonical tree at the revision that introduced it.
-const arcBackendCommandRevision = "c650e097136ebf11374003d33b4dc6dfd672effd";
+const arcBackendCommandRevision = "9f527497f2a262a0389146309c66adbeaffe6877";
 const arcEfCoreAndIdentityRevision =
     "47263222559843c47065be0f124d66ddb02b7c04";
 const migratedCanonicalSourceNames = [
@@ -442,25 +442,25 @@ const migratedCanonicalSourceNames = [
     [
         "cratis-command",
         "skills/cratis-arc-command",
-        "arc-backend-command-sources-c650e09",
+        "arc-backend-command-sources-9f52749",
         arcBackendCommandRevision,
     ],
     [
         "call-command-from-code",
         "skills/cratis-arc-command-execution",
-        "arc-backend-command-sources-c650e09",
+        "arc-backend-command-sources-9f52749",
         arcBackendCommandRevision,
     ],
     [
         "query-paging",
         "skills/cratis-arc-query-paging",
-        "arc-backend-command-sources-c650e09",
+        "arc-backend-command-sources-9f52749",
         arcBackendCommandRevision,
     ],
     [
         "observable-query-curl",
         "skills/cratis-arc-observable-query-http",
-        "arc-backend-command-sources-c650e09",
+        "arc-backend-command-sources-9f52749",
         arcBackendCommandRevision,
     ],
     [
@@ -712,6 +712,14 @@ const sourceOverrides = new Map([
                 evidenceId: "public-skill-markdown-normalization-source-23efb73",
             },
         ]),
+    [
+        "diagnose-slice",
+        {
+            sourcePath: ".ai/skills/diagnose-slice",
+            sourceRevision: "9f527497f2a262a0389146309c66adbeaffe6877",
+            evidenceId: "diagnose-slice-source-9f52749",
+        },
+    ],
     [
         "inspect-running-chronicle",
         {

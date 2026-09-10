@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generatedBy": "tooling/generate-component-catalogs.mjs",
-  "sourceDigest": "2cd1401ead7ebc1769d012781cd3de692b97ac5d532f37676ce6d164a2e704f0",
+  "sourceDigest": "e70ac1eb40b59f000f9a5743a67e0b3527e99fdcd76d81514fc6ac0650687639",
   "defaultPolicy": "deny",
   "canonicalSourceRoots": [
     ".ai/agents",
@@ -1038,12 +1038,12 @@
       "canonicalSources": [
         {
           "path": ".ai/skills/diagnose-slice",
-          "digest": "e26faf85efb0fa2541b773a5307f28744cf029fee9af8f5243237e661bb8892b",
+          "digest": "7750d8cc05009227d759faf74e2a9a226c9319a36dc3de8128e59ab489a3df17",
           "ownership": "owner",
           "ownerComponentId": "cratis-application-slice-diagnostics"
         }
       ],
-      "contentDigest": "c41e4b9feade580aabaa101db60af7948f465a63d1dac4e7f2a58a3e7faf18c7",
+      "contentDigest": "bf5d269877bbaa4bcde3eaa590493acae60ae2ed67d54d44f221d3ab3ba2fb69",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
@@ -1461,12 +1461,12 @@
       "canonicalSources": [
         {
           "path": "skills/cratis-arc-command-execution",
-          "digest": "4b8f12ffbf5b1c3221edbf5cd989604dcd9fad7515633fe0fa56f7ef61b5e527",
+          "digest": "4a32e164a85a67b69acbe9262d67c90cb0740d6ae85031f3726356c73aa600c5",
           "ownership": "owner",
           "ownerComponentId": "cratis-arc-command-execution"
         }
       ],
-      "contentDigest": "86e1072de71870f1900f79055938a3fdc26a5a08fc8e876a427f3a58dd029e8d",
+      "contentDigest": "46743c5804e7c6f1623de303f6b728ba8b58d3ce623477d195d9d13fcace33c9",
       "owner": "public Cratis product capability",
       "audience": "public",
       "classification": {
