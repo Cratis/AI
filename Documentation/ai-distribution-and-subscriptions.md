@@ -59,12 +59,11 @@ requests.
 > exact-version Pi packages, reviewed update pull requests, rollback by pin —
 > is **designed and tool-verified but not published**. No versioned profile
 > package exists yet (`profiles/manifest.json` still says
-> `DESIGNED_RELEASES_NOT_YET_PUBLISHED`); the only published package is the
-> unsupported `@cratis/ai-fundamentals` `0.x` evaluation. Until the first
-> governed release, hosts install straight off the `Cratis/AI` default branch
-> through the committed marketplace manifests. The Pi commands below show the
-> designed post-release workflow, not something you can run for every profile
-> today.
+> `DESIGNED_RELEASES_NOT_YET_PUBLISHED`); the only published package is
+> `@cratis/ai-fundamentals` `1.0.0`. Hosts install straight off the `Cratis/AI`
+> default branch through the committed marketplace manifests. The Pi commands
+> below show the designed post-release workflow, not something you can run for
+> every profile today.
 
 ## Assurance lanes
 
