@@ -10,7 +10,7 @@ function read(path) {
 }
 
 const general = read(".ai/rules/general.md");
-const agents = read("AGENTS.md");
+const agentsBootstrap = read("AGENTS.md");
 const claude = read(".claude/CLAUDE.md");
 const pullRequests = read(".ai/rules/pull-requests.md");
 const shipSkill = read(".ai/skills/ship-changes/SKILL.md");
@@ -33,9 +33,13 @@ function assertNoIssueMutationInstruction(path, content) {
 }
 
 test("repository intake is transient and no-effect in every always-on adapter", () => {
-    assert.equal(agents, general);
+    // The root AGENTS.md is the project-owned bootstrap (Cratis/Workflows#68):
+    // it points at .cratis/PROJECT.md and carries no corpus bytes. The corpus
+    // general rules stay served through the always-on .claude adapter here.
+    assert.match(agentsBootstrap, /\.cratis\/PROJECT\.md/);
+    assert.equal(agentsBootstrap.includes("# Cratis — Project Instructions"), false);
     assert.equal(claude, general);
-    for (const content of [general, agents, claude]) {
+    for (const content of [general, claude]) {
         assert.match(content, /## New Repository Strategy Intake/);
         assert.match(
             content,

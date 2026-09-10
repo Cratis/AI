@@ -299,12 +299,14 @@ test("S8 adds exactly 70 passive generated-static non-skill projections", () => 
         (projection) => projection.state === "generated-static",
     );
     assert.equal(catalogs.projections.hosts.length, 9);
-    assert.equal(catalogs.projections.projections.length, 399);
+    // 398/328 since Cratis/AI#256: the root AGENTS.md codex symlink adapter
+    // was retired; AGENTS.md is the project-owned bootstrap now.
+    assert.equal(catalogs.projections.projections.length, 398);
     assert.equal(
         catalogs.projections.projections.filter(
             (projection) => projection.state === "existing",
         ).length,
-        329,
+        328,
     );
     assert.equal(generated.length, 70);
     assert.equal(

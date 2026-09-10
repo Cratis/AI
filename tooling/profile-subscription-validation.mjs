@@ -34,7 +34,11 @@ function readJson(path, errors) {
  * `cratis` namespace: the whole `cratis/engineering` subtree (the umbrella,
  * its core, and every language cell) derives the engineering channel, every
  * other `cratis` id derives the public channel, and mixing the two resolves
- * to no channel at all. A declared channel must agree with the derived one.
+ * to no single channel. A mixed selection is a valid subscription — a
+ * repository may combine public profiles such as `cratis/documentation` with
+ * maintainer engineering cells — it simply derives no `channel` value, so a
+ * declared channel must agree with the derived one on single-channel
+ * selections and must be absent on mixed ones.
  */
 export function deriveSubscriptionChannel(profiles) {
     if (profiles.length === 0) return null;
@@ -251,12 +255,22 @@ export function validateProfileSubscriptions(
         errors.push(
             ...validateAgainstSchema(example, schema, schema, relativePath),
         );
-        const derivedChannel = deriveSubscriptionChannel(
-            example.profiles ?? [],
-        );
-        if (!derivedChannel)
+        const profiles = example.profiles ?? [];
+        const derivedChannel = deriveSubscriptionChannel(profiles);
+        const engineeringCount = profiles.filter(
+            (profile) =>
+                profile === "cratis/engineering" ||
+                profile.startsWith("cratis/engineering/"),
+        ).length;
+        const mixedSelection =
+            engineeringCount > 0 && engineeringCount < profiles.length;
+        if (!derivedChannel && !mixedSelection)
             errors.push(
                 `${relativePath}: profile selection does not resolve to one channel`,
+            );
+        if (mixedSelection && Object.hasOwn(example, "channel"))
+            errors.push(
+                `${relativePath}: a mixed public and engineering selection derives no single channel; leave channel unset`,
             );
         if (
             Object.hasOwn(example, "channel") &&
@@ -266,14 +280,8 @@ export function validateProfileSubscriptions(
             errors.push(
                 `${relativePath}: declared channel ${example.channel} contradicts the derived channel ${derivedChannel}`,
             );
-        const allowedProfiles = new Set(
-            (derivedChannel === "cratis-engineering"
-                ? profileCatalog.engineeringProfiles
-                : profileCatalog.publicProfiles
-            ).map((profile) => profile.id),
-        );
-        for (const profile of example.profiles)
-            if (!allowedProfiles.has(profile))
+        for (const profile of profiles)
+            if (!knownProfiles.has(profile))
                 errors.push(`${relativePath}: unknown profile ${profile}`);
         for (const harness of example.harnesses) {
             try {

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generatedBy": "tooling/generate-component-catalogs.mjs",
-  "sourceDigest": "e0073498e534bb6b5aaedd686b67aa4819d5ec227e7954ba3d8a7bb4d733b1b1",
+  "sourceDigest": "65ece4839195c242ddab2929eb35b385169cf5e7e951bed742e7b85285264816",
   "defaultPolicy": "deny",
   "supportClaim": false,
   "hosts": [
@@ -45,8 +45,7 @@
         "skill"
       ],
       "allowedOutputPrefixes": [
-        ".agents",
-        "AGENTS.md"
+        ".agents"
       ],
       "sharedSymlinkOutputs": [
         ".agents/skills"
@@ -1970,30 +1969,6 @@
       "adapterType": "symlink",
       "outputPaths": [
         ".claude/CLAUDE.md"
-      ],
-      "approval": "modeled",
-      "evidenceIds": [
-        "repo-main-b795d53"
-      ],
-      "securityRequirements": [],
-      "requiredCanaries": [
-        "projection-shape",
-        "source-digest"
-      ]
-    },
-    {
-      "id": "cratis-instruction-general-to-codex-instruction",
-      "componentId": "cratis-instruction-general",
-      "hostId": "codex",
-      "projectedKind": "instruction",
-      "artifactClass": "provider-compatibility",
-      "assuranceProfileId": "provider-compatibility-v1",
-      "packageIdentity": null,
-      "state": "existing",
-      "hostActivation": "active",
-      "adapterType": "symlink",
-      "outputPaths": [
-        "AGENTS.md"
       ],
       "approval": "modeled",
       "evidenceIds": [
