@@ -45,7 +45,7 @@ function packageVersion(consumerRoot) {
         readFileSync(
             join(
                 consumerRoot,
-                "node_modules/@cratis/ai-fundamentals/package.json",
+                "node_modules/@cratis/pi/package.json",
             ),
             "utf8",
         ),
@@ -279,7 +279,7 @@ test("Fundamentals preview assets are deterministic and non-publishable", () => 
         const piPackage = JSON.parse(
             piFiles.get("package/package.json").toString("utf8"),
         );
-        assert.equal(piPackage.name, "@cratis/ai-fundamentals");
+        assert.equal(piPackage.name, "@cratis/pi");
         assert.equal(piPackage.private, true);
         assert.equal(piPackage.scripts, undefined);
         assert.equal(piPackage.dependencies, undefined);
@@ -392,7 +392,7 @@ test("Pi npm preview asset updates rolls back uninstalls and preserves context",
             "npm",
             [
                 "uninstall",
-                "@cratis/ai-fundamentals",
+                "@cratis/pi",
                 "--ignore-scripts",
                 "--no-audit",
                 "--no-fund",
@@ -400,7 +400,7 @@ test("Pi npm preview asset updates rolls back uninstalls and preserves context",
             { cwd: consumer, stdio: "pipe" },
         );
         assert.equal(
-            existsSync(join(consumer, "node_modules/@cratis/ai-fundamentals")),
+            existsSync(join(consumer, "node_modules/@cratis/pi")),
             false,
         );
         for (const [path, content] of Object.entries(context))

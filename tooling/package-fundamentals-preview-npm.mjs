@@ -31,9 +31,9 @@ const defaultRepositoryRoot = resolve(
     fileURLToPath(new URL("..", import.meta.url)),
 );
 const profileId = "cratis/fundamentals";
-const packageName = "@cratis/ai-fundamentals";
+const packageName = "@cratis/pi";
 const bundleDescription =
-    "Cratis AI skills for building event-sourced and CQRS applications";
+    "The whole public Cratis AI skill set for building event-sourced and CQRS applications, delivered as a passive Pi package";
 const publicSkillsRoot = "skills";
 
 function sha256(content) {
@@ -143,37 +143,40 @@ Copyright (c) Cratis. All rights reserved.
 Licensed under the MIT license. See LICENSE in this package for full license information.
 -->
 
-# @cratis/ai-fundamentals
+# @cratis/pi
 
-Passive AI skills for the Cratis ecosystem: the same public skill set the
+Passive AI skills for the Cratis ecosystem: the whole public skill set the
 Cratis marketplace installs deliver, wrapped as a Pi npm package. Fundamentals,
 Chronicle, Arc, Components, specifications, reviews, and more arrive as
 passive markdown skills — no hooks, no executable code, no MCP server.
+
+This package was previously published as \`@cratis/ai-fundamentals\`; that name
+is deprecated in favor of \`@cratis/pi\`.
 
 ## Install
 
 Install globally:
 
 \`\`\`bash
-pi install npm:@cratis/ai-fundamentals
+pi install npm:@cratis/pi
 \`\`\`
 
 Install it for one trusted project:
 
 \`\`\`bash
-pi install -l npm:@cratis/ai-fundamentals
+pi install -l npm:@cratis/pi
 \`\`\`
 
 Try it for one Pi run without changing settings:
 
 \`\`\`bash
-pi -e npm:@cratis/ai-fundamentals
+pi -e npm:@cratis/pi
 \`\`\`
 
 ## Update or remove
 
-Update to the latest published release with \`pi install npm:@cratis/ai-fundamentals\`.
-Remove the package with \`pi remove npm:@cratis/ai-fundamentals\`.
+Update to the latest published release with \`pi install npm:@cratis/pi\`.
+Remove the package with \`pi remove npm:@cratis/pi\`.
 
 ## Status
 
@@ -292,7 +295,7 @@ export function materializeFundamentalsPreviewNpmAsset({
         };
         if (!isDeepStrictEqual(packageJson, expectedPackageJson))
             throw new Error("Generated npm package metadata is unsafe");
-        const filename = `cratis-ai-fundamentals-${version}.tgz`;
+        const filename = `cratis-pi-${version}.tgz`;
         const content = createTarGzip(piRoot, paths, "package");
         const archive = readTarGzip(content);
         for (const path of paths) {

@@ -86,19 +86,20 @@ Cursor-specific fork of the content.
 ## Pi via npm
 
 Pi installs ordinary npm packages. The published package is the stable
-`@cratis/ai-fundamentals` release — the whole public skills directory, the
+`@cratis/pi` release — the whole public skills directory, the
 same content the marketplace installs deliver:
 
 ```bash
 # Project-scoped, installed version recorded in .pi/settings.json
-pi install -l npm:@cratis/ai-fundamentals
+pi install -l npm:@cratis/pi
 
 # User-wide
-pi install npm:@cratis/ai-fundamentals
+pi install npm:@cratis/pi
 ```
 
 Commit `.pi/settings.json` after review; uninstalling removes the package and
-touches nothing else.
+touches nothing else. The package was previously published as
+`@cratis/ai-fundamentals`; that name is deprecated in favor of `@cratis/pi`.
 
 ## Pending: Kiro, Junie, Gemini CLI
 
@@ -120,7 +121,7 @@ in [ecosystem support](./ecosystem-support-architecture-review.md).
 - The versioned per-profile package flow (exact pins arriving as reviewed pull
   requests) is designed but not published; today the marketplace follows the
   `Cratis/AI` default branch, and npm carries the whole-bundle
-  `@cratis/ai-fundamentals`.
+  `@cratis/pi`.
 - Being listed in a vendor's own marketplace UI — findable by search — is a
   separate, still-pending manual submission per host
   ([Cratis/AI#147](https://github.com/Cratis/AI/issues/147)). Adding

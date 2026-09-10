@@ -12,7 +12,7 @@
     "lane": { "const": "passive-preview" },
     "assuranceMode": { "const": "basic" },
     "profileId": { "const": "cratis/fundamentals" },
-    "packageName": { "const": "@cratis/ai-fundamentals" },
+    "packageName": { "const": "@cratis/pi" },
     "targetIds": { "type": "array", "minItems": 1, "maxItems": 1, "uniqueItems": true, "items": { "const": "cratis-fundamentals-concept" } },
     "staticCandidateReady": { "const": true },
     "blockers": {

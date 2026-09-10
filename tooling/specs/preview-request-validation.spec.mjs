@@ -32,7 +32,7 @@ test("preview request schema rejects support claims unknown fields and multiple 
         id: "public-fundamentals-0-1-0-preview-1",
         state: "preview-on-merge",
         profileId: "public-fundamentals",
-        packageName: "@cratis/ai-fundamentals",
+        packageName: "@cratis/pi",
         version: "0.1.0-preview.1",
         sourceRevision: "a".repeat(40),
         sourceContentDigest: "b".repeat(64),

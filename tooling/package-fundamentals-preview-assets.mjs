@@ -31,7 +31,7 @@ const profileId = "cratis/fundamentals";
 const targetId = "cratis-fundamentals-concept";
 const sourceId = "add-concept";
 const artifactId = "cratis-fundamentals-concept-preview";
-const packageName = "@cratis/ai-fundamentals";
+const packageName = "@cratis/pi";
 const requiredSourceRevision = "b53caa555b9a3f05ba1462b86202fe3ccb8a9470";
 const requiredSourceContentDigest =
     "9e537c48a95c414709008c69ebfb616354d60992578ddd9da3d7dc7308c42caa";

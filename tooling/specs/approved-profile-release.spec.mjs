@@ -149,7 +149,7 @@ test("approved plan requires every authority security and evidence gate", () => 
     assert.equal(plan.state, "READY_FOR_BOT_MATERIALIZATION");
     assert.deepEqual(plan.blockers, []);
     assert.deepEqual(plan.targetIds, ["cratis-fundamentals-concept"]);
-    assert.equal(plan.packageName, "@cratis/ai-fundamentals");
+    assert.equal(plan.packageName, "@cratis/pi");
     assert.equal(plan.displayName, "Cratis Fundamentals");
     assert.equal(
         plan.description,
@@ -175,7 +175,7 @@ test("approved plan requires every authority security and evidence gate", () => 
     const instructions = buildReleaseInstructions(plan, passiveHarnesses);
     assert.match(
         instructions,
-        /pi install -l npm:@cratis\/ai-fundamentals@1\.0\.0-preview\.1\+build\.7/,
+        /pi install -l npm:@cratis\/pi@1\.0\.0-preview\.1\+build\.7/,
     );
     assert.match(instructions, /sha256sum -c SHA256SUMS/);
     assert.match(instructions, /support-matrix\.json/);

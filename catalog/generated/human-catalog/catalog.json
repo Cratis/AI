@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "contractVersion": 1,
   "disclaimer": "Catalog inclusion, evaluation evidence, component modeling, planned projection, bundle generation, or publication does not grant runtime permission, emitted bytes, support, or approval.",
-  "inputDigest": "317b21534de97ee0795fbcb4e801085b86032b1d7de3cdba6210806b8e5a1c96",
+  "inputDigest": "871489abeb25ca6d8257ca762f91957243a66fa65372f377611e23b089caeec9",
   "componentSummary": {
     "disclaimer": "Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.",
     "total": 193,
@@ -1788,7 +1788,7 @@
       "description": "Strongly typed Cratis Fundamentals concepts and Chronicle event-source identities for C# projects.",
       "intendedFor": "Developers who use Cratis Fundamentals and Cratis Chronicle.",
       "audience": "public",
-      "packageName": "@cratis/ai-fundamentals",
+      "packageName": "@cratis/pi",
       "state": "preview-source-candidate",
       "installable": false,
       "materialization": "candidate-package",

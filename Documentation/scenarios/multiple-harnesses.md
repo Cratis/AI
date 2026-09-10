@@ -14,7 +14,7 @@ separate multi-harness topic — per-harness getting started lives in the
    installed version recorded in `.pi/settings.json`:
 
    ```bash
-   pi install -l npm:@cratis/ai-fundamentals
+   pi install -l npm:@cratis/pi
    ```
 
 3. The repository commits `.cratis/ai.json` as the one neutral record of
@@ -44,7 +44,7 @@ enough.
 ## Status
 
 - Per-host package availability differs today: marketplace hosts follow
-  `Cratis/AI` `main`; npm/Pi carries `@cratis/ai-fundamentals` `1.0.0`;
+  `Cratis/AI` `main`; npm/Pi carries `@cratis/pi` `1.0.0`;
   Kiro, Junie, and Gemini CLI are
   pending (see the harness guide).
 - The versioned flow that would pin every harness to one reviewed release is

@@ -99,7 +99,7 @@ test("basic owner setup can enable normal 0.x releases without granting support"
         const lanes = readJson(root, "distribution/assurance-lanes.json");
         writeJson(root, "distribution/assurance-lanes.json", lanes);
         const npm = readJson(root, "distribution/npm-stage-contract.json");
-        npm.package.productionName = "@cratis/ai-fundamentals";
+        npm.package.productionName = "@cratis/pi";
         npm.package.publicOwnershipConfirmed = true;
         npm.package.latestTagSafe = true;
         npm.workflow.trustedPublisherConfigured = true;

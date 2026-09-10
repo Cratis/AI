@@ -41,7 +41,7 @@ export function benchmarkReleaseGeneration({ concurrency = 1 } = {}) {
             outputRoot,
             version: "0.0.0-benchmark",
             profileId: "cratis/fundamentals",
-            packageName: "@cratis/ai-fundamentals",
+            packageName: "@cratis/pi",
             description: "Deterministic release generation benchmark",
             skills: [
                 { name: "cratis-fundamentals-concept", files: sourceFiles },

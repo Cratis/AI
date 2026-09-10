@@ -16,7 +16,7 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const packageName = "@cratis/ai-fundamentals";
+const packageName = "@cratis/pi";
 
 function npm(arguments_, cwd, environment) {
     return execFileSync("npm", arguments_, {
@@ -28,7 +28,7 @@ function npm(arguments_, cwd, environment) {
 }
 
 function installedPackageRoot(consumerRoot) {
-    return join(consumerRoot, "node_modules", "@cratis", "ai-fundamentals");
+    return join(consumerRoot, "node_modules", "@cratis", "pi");
 }
 
 function assertInstalled(consumerRoot, expectedVersion) {

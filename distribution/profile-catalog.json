@@ -993,7 +993,7 @@
     },
     {
       "id": "cratis/fundamentals",
-      "packageName": "@cratis/ai-fundamentals",
+      "packageName": "@cratis/pi",
       "version": "0.0.0",
       "products": [
         "fundamentals",
@@ -1006,7 +1006,7 @@
       "availableTargets": [
         "cratis-fundamentals-concept"
       ],
-      "gapSummary": "The first candidate combines Fundamentals value concepts with Chronicle stream identities at exact verified versions. Convention-based implementation discovery now ships as cratis/fundamentals/type-discovery rather than here, because this profile is the pinned passive-preview package and its authority requires exactly one target; serialization and the remaining Fundamentals primitives are gaps."
+      "gapSummary": "The first candidate combines Fundamentals value concepts with Chronicle stream identities at exact verified versions. Convention-based implementation discovery now ships as cratis/fundamentals/type-discovery rather than here, because this profile is the pinned passive-preview package and its authority requires exactly one target; serialization and the remaining Fundamentals primitives are gaps. Since the whole-bundle release the profile's package also delivers every public skill to Pi; the name changed from @cratis/ai-fundamentals to @cratis/pi to match."
     },
     {
       "id": "cratis/fundamentals/type-discovery",

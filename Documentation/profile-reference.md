@@ -169,7 +169,7 @@ request, and floating versions such as `latest` remain forbidden everywhere.
 
 | Profile | Intended package | Current state |
 | --- | --- | --- |
-| `cratis/fundamentals` | `@cratis/ai-fundamentals` | Published npm package; authority for the whole-bundle release |
+| `cratis/fundamentals` | `@cratis/pi` | Published npm package; authority for the whole-bundle release |
 | `cratis/arc/core` | `@cratis/ai-arc` | Preview source candidate; the Arc capability base |
 | `cratis/arc/client-kotlin` | `@cratis/ai-arc-client-kotlin` | Content gap; anchored to [Cratis Arc.Kotlin](https://github.com/cratis/arc.kotlin) until guidance is verified |
 | `cratis/arc/ef-core` | `@cratis/ai-arc-ef-core` | EF Core migration source requires canonical Arc persistence authority |

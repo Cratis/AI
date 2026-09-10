@@ -36,7 +36,7 @@
       "required": ["profileId", "packageName", "requiredStatusContext", "protectedEnvironment"],
       "properties": {
         "profileId": { "const": "cratis/fundamentals" },
-        "packageName": { "const": "@cratis/ai-fundamentals" },
+        "packageName": { "const": "@cratis/pi" },
         "requiredStatusContext": { "const": "release-intent / verify" },
         "protectedEnvironment": { "const": "npm-stage" }
       }
