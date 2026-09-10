@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generatedBy": "tooling/generate-component-catalogs.mjs",
-  "sourceDigest": "e70ac1eb40b59f000f9a5743a67e0b3527e99fdcd76d81514fc6ac0650687639",
+  "sourceDigest": "4aef37affb93c3ab572aecbf8cc78edcfd3195b69dbe29e7c23132ff0561f1b9",
   "defaultPolicy": "deny",
   "canonicalSourceRoots": [
     ".ai/agents",
@@ -6504,12 +6504,12 @@
       "canonicalSources": [
         {
           "path": ".ai/hooks",
-          "digest": "ddf1782a8690c68d38d6761970580091c6af20dd7f1076385ab0407e2fcaf575",
+          "digest": "d14492111a91ddf272cf13b01999b6d9a359000e9e6b673f33ff108e078955a4",
           "ownership": "owner",
           "ownerComponentId": "cratis-hooks"
         }
       ],
-      "contentDigest": "face76f5bbd6dc92f2582158f97915120f825ee62ab5b373d8b5e8d3f86aa189",
+      "contentDigest": "490ee34643e29b0dd8b85aa3e539caef2984b7e19140217f70fbf0280a6ab176",
       "owner": "reusable Cratis engineering behavior",
       "audience": "cratis-engineering",
       "classification": {

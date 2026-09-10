@@ -12,6 +12,7 @@ import { validateEngineeringDocsAuthoring } from "./engineering-docs-authoring-v
 import { validateEngineeringDistributionConfiguration } from "./generate-engineering-distribution-fixture.mjs";
 import { validateEngineeringDocsCompanions } from "./engineering-docs-companions-validation.mjs";
 import { validateProfileSubscriptions } from "./profile-subscription-validation.mjs";
+import { validateExpectationCases } from "./expectation-cases-validation.mjs";
 import { validatePreviewReadiness } from "./preview-readiness.mjs";
 import { validatePreviewRequests } from "./preview-request-validation.mjs";
 import { validateReleaseRequests } from "./release-request-validation.mjs";
@@ -48,6 +49,7 @@ const basicErrors = [
     ...validateEngineeringDistributionConfiguration(),
     ...validateEngineeringDocsCompanions(),
     ...validateProfileSubscriptions(),
+    ...validateExpectationCases(),
     ...validatePreviewReadiness(),
     ...validatePreviewRequests(),
     ...validateReleaseApprovals(),
