@@ -195,26 +195,35 @@ test("subscription schema enforces exact SemVer pins", () => {
     });
 });
 
-test("subscription schema rejects cross-audience profiles", () => {
+test("subscription schema accepts mixed public and engineering selections", () => {
     withFixture((root) => {
         const path = join(
             root,
             "Documentation/examples/ai-subscriptions/cratis-application.cratis-ai.json",
         );
         const example = readJson(path);
-        example.profiles = ["cratis/engineering"];
+        example.profiles = [
+            "cratis/documentation",
+            "cratis/engineering/csharp",
+        ];
+        delete example.channel;
         writeJson(path, example);
         const errors = validateProfileSubscriptions(root);
         assert(
-            errors.some((error) =>
-                error.includes("expected exactly one matching oneOf branch"),
-            ),
+            errors.every((error) => !error.includes("channel")),
+            `mixed selection must not produce channel errors: ${errors.join("; ")}`,
         );
         assert(
-            errors.some((error) =>
-                error.includes(
-                    "declared channel public contradicts the derived channel cratis-engineering",
-                ),
+            errors.every(
+                (error) => !error.includes("oneOf branch"),
+            ),
+            `mixed selection must satisfy the schema: ${errors.join("; ")}`,
+        );
+        example.channel = "public";
+        writeJson(path, example);
+        assert(
+            validateProfileSubscriptions(root).some((error) =>
+                error.includes("leave channel unset"),
             ),
         );
     });
@@ -240,6 +249,22 @@ test("cratis namespace subscribes without hand-declaring a channel", () => {
         deriveSubscriptionChannel(["cratis/arc", "cratis/engineering"]),
         null,
     );
+});
+
+test("mixed subscriptions validate against the committed example", () => {
+    const example = readJson(
+        join(
+            repositoryRoot,
+            "Documentation/examples/ai-subscriptions/mixed-documentation-and-engineering.cratis-ai.json",
+        ),
+    );
+    assert.deepEqual(example.profiles, [
+        "cratis/documentation",
+        "cratis/engineering/csharp",
+        "cratis/application/csharp",
+    ]);
+    assert.equal(Object.hasOwn(example, "channel"), false);
+    assert.deepEqual(validateProfileSubscriptions(repositoryRoot), []);
 });
 
 test("cratis namespace subscription still rejects a floating version", () => {

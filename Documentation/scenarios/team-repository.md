@@ -31,8 +31,12 @@ A `.cratis/ai.json` looks like this:
 Name the profile after the narrowest true description of the repository —
 `cratis/arc/csharp`, `cratis/chronicle`, `cratis/application` — every id and
 its composition is listed in the [profile reference](../profile-reference.md).
-`cratis/engineering` is the one maintainer-audience profile; it never mixes
-with the public ones in the same subscription.
+The `cratis/engineering` subtree is the maintainer-audience channel. A
+subscription may deliberately combine it with public profiles: Cratis's own
+repositories standardly carry `cratis/documentation` next to their
+`cratis/engineering/<language>` cell, and application repositories add their
+`cratis/application/<language>` cells. Such a mixed selection derives no
+single channel and omits `channel`; each channel resolves separately.
 
 ## What you get
 

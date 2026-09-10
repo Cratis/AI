@@ -4,7 +4,7 @@
   "title": "Cratis AI profile subscription",
   "type": "object",
   "additionalProperties": false,
-  "description": "A project-owned Cratis AI subscription. Every profile id lives in the cratis namespace: the cratis/engineering subtree (umbrella, core, and language cells) derives the cratis-engineering channel and everything else derives the public channel, so channel is optional and never hand-declared twice.",
+  "description": "A project-owned Cratis AI subscription. Every profile id lives in the cratis namespace: the cratis/engineering subtree (umbrella, core, and language cells) derives the cratis-engineering channel and everything else derives the public channel. A selection from one channel may declare that channel; a selection that deliberately mixes the two (for example cratis/documentation plus an engineering cell) is valid and leaves channel unset, because it no longer derives exactly one.",
   "required": [
     "schemaVersion",
     "version",
@@ -41,6 +41,30 @@
           }
         }
       }
+    },
+    {
+      "title": "Mixed public and Cratis engineering channels",
+      "description": "A repository may combine public profiles (documentation, application cells, clients) with maintainer engineering cells in one subscription. Each channel is resolved separately; the subscription derives no single channel, so channel must stay unset.",
+      "properties": {
+        "channel": false,
+        "profiles": {
+          "minItems": 2,
+          "allOf": [
+            {
+              "contains": {
+                "type": "string",
+                "pattern": "^cratis/engineering(?:/[a-z0-9]+(?:-[a-z0-9]+)*){0,2}$"
+              }
+            },
+            {
+              "contains": {
+                "type": "string",
+                "pattern": "^(?!cratis/engineering(?:/|$))cratis(?:/[a-z0-9]+(?:-[a-z0-9]+)*){0,3}$"
+              }
+            }
+          ]
+        }
+      }
     }
   ],
   "properties": {
@@ -48,7 +72,7 @@
       "const": "1.0.0"
     },
     "channel": {
-      "description": "Optional; derived from the profile namespace. Must agree with the derived channel when present.",
+      "description": "Optional; derived from the profile namespace. Must agree with the derived channel when the selection is single-channel, and must be absent when the selection mixes the public and engineering channels.",
       "enum": ["public", "cratis-engineering"]
     },
     "version": {

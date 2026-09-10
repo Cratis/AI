@@ -67,6 +67,15 @@
       "confidence": "high"
     },
     {
+      "id": "ai-256",
+      "officialUrl": "https://github.com/Cratis/AI/issues/256",
+      "sourceKind": "repository-authority",
+      "verifiedOn": "2026-09-10",
+      "expiresOn": "2026-12-09",
+      "applicableVersion": "issue-state-2026-09-10",
+      "confidence": "high"
+    },
+    {
       "id": "aider-source-1",
       "officialUrl": "https://aider.chat/docs/usage/conventions.html",
       "sourceKind": "official-documentation",

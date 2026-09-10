@@ -9,29 +9,34 @@ review the intended adoption contract.
 
 ## Select shared engineering profiles
 
-Choose the narrowest product/repository profile:
+Choose the narrowest cell for the language(s) the repository actually writes,
+and carry `cratis/documentation` next to it so documentation-writing guidance
+arrives with everything else. A subscription deliberately mixes the public and
+engineering channels in that case and leaves `channel` unset.
 
-| Repository | Shared profile |
+| Repository | Shared profiles |
 | --- | --- |
-| Cratis/Fundamentals | `cratis/engineering` |
-| Cratis/Arc backend | `cratis/engineering` |
-| Arc React packages | `cratis/engineering` |
-| Cratis/Components | `cratis/engineering` |
-| Cratis/Chronicle kernel | `cratis/engineering` |
-| Chronicle client repository | `cratis/engineering` |
-| Cratis/cli | `cratis/engineering` |
-| Cratis/Lens | `cratis/engineering` |
-| Cratis/Screenplay | `cratis/engineering` |
-| Cratis/Stage | `cratis/engineering` |
-| Cratis/Specifications | `cratis/engineering` |
-| Documentation | `cratis/engineering` |
-| Cratis/AI | `cratis/engineering` |
-| Cratis/Workflows | `cratis/engineering` |
-| Private Studio repository | `cratis/engineering` plus local overlay |
-| Private Stagehand repository | `cratis/engineering` plus local overlay |
+| Cratis/Fundamentals | `cratis/engineering/csharp` + `cratis/documentation` |
+| Cratis/Arc backend | `cratis/engineering/csharp` + `cratis/documentation` |
+| Arc React packages | `cratis/engineering/react` + `cratis/documentation` |
+| Cratis/Components | `cratis/engineering/react` + `cratis/engineering/typescript` + `cratis/documentation` |
+| Cratis/Chronicle kernel | `cratis/engineering/csharp` + `cratis/engineering/react` + `cratis/application/csharp` + `cratis/application/react` + `cratis/documentation` |
+| Chronicle client repository | the client's language cell + `cratis/documentation` |
+| Cratis/cli | `cratis/engineering/csharp` + `cratis/documentation` |
+| Cratis/Lens | `cratis/engineering/react` + `cratis/engineering/typescript` + `cratis/documentation` |
+| Cratis/Screenplay | `cratis/engineering/csharp` + `cratis/documentation` |
+| Cratis/Stage | `cratis/engineering/csharp` + `cratis/documentation` |
+| Cratis/Specifications | `cratis/engineering/csharp` + `cratis/documentation` |
+| Documentation | `cratis/engineering/typescript` + `cratis/documentation` |
+| Cratis/AI | `cratis/engineering/typescript` + `cratis/documentation` |
+| Cratis/Workflows | `cratis/engineering/core` + `cratis/documentation` |
+| Private Studio repository | the cells above plus `cratis/application/csharp` and `cratis/application/react`, and a local overlay |
+| Private Stagehand repository | the cells above plus `cratis/application/react` and `cratis/application/csharp`, and a local overlay |
 
-Every engineering profile composes `cratis/engineering`. A generated profile
-artifact contains only approved public-safe skills and references. Browse the
+Every engineering cell composes `cratis/engineering/core`, so the
+decision-record, effect-boundary, and documentation-authoring procedures come
+along regardless. A generated profile artifact contains only approved
+public-safe skills and references. Browse the
 [package and capability catalog](../catalog/generated/human-catalog/CATALOG.md)
 to see each maintainer package, its included skills, and current availability.
 
@@ -45,15 +50,22 @@ to see each maintainer package, its included skills, and current availability.
 6. Run the repository's own build, specification, documentation, security, and
    release gates.
 
-Example Chronicle framework subscription:
+Example Chronicle repository subscription (mixed public and engineering
+channels — note the absent `channel`, which a mixed selection does not
+derive):
 
 ```json
 {
   "schemaVersion": "1.0.0",
-  "channel": "cratis-engineering",
   "version": "1.0.0",
-  "profiles": ["cratis/engineering"],
-  "harnesses": ["claude", "codex", "copilot", "pi"],
+  "profiles": [
+    "cratis/documentation",
+    "cratis/engineering/csharp",
+    "cratis/engineering/react",
+    "cratis/application/csharp",
+    "cratis/application/react"
+  ],
+  "harnesses": ["claude", "codex", "copilot", "cursor", "pi"],
   "updatePolicy": "reviewed-pull-request",
   "projectContext": ".cratis/PROJECT.md"
 }

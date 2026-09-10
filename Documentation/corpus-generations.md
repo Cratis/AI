@@ -39,24 +39,37 @@ day — verify before acting on them.
 | `Cratis/StudioIssues` | none observed | No corpus in the local checkout — verify |
 | `cratis.github.io` | **unverified** | Not checked out locally |
 
-No repository carries a `.cratis/ai.json` subscription yet; the subscription
-controller has no live target until the versioned flow publishes (#255, #181).
+No repository carried a `.cratis/ai.json` subscription before the adoption; the
+subscription controller has no live versioned target until the versioned flow
+publishes (#255, #181), so the committed files record intended scope.
 
-## Migration order (#256)
+## Migration state after the 2026-09-10 fleet adoption (#256)
 
-1. **Repositories that build code** (`Chronicle.Kotlin`, `Chronicle.Elixir`,
-   `Chronicle.TypeScript`): upgrade to the two-profile corpus — copy the
-   current rule set, keep repository-local skills, each as one PR in that
-   repository referencing #256.
-2. **Repositories that only carry conventions** (`Ante`, `Dockerfiles`,
-   `Cratis/.github`, `cratis.github.io`): prefer the marketplace plugins over
-   any local tree — delete the propagated `.ai/` copy once nothing references
-   it, or move to a subscription when the versioned flow publishes.
-3. **`cratis.studio`**: private; keep the local overlay minimal and take the
-   public behavior from the marketplace.
-4. In this repository, legacy `.ai/skills` retirement continues skill by
-   skill: a canonical twin replaces the legacy source, the audit row moves,
-   the twin is deleted.
+The fleet adoption landed: **every active Cratis repository** now carries the
+subscription generation — a committed `.cratis/ai.json`, a canonical
+`.cratis/PROJECT.md`, and the minimal `AGENTS.md`/`CLAUDE.md`/`GEMINI.md`
+bootstraps — with **no local `.ai/` corpus tree** and **no generated tool
+adapters**. Shared behavior arrives through the marketplace plugins and, once
+the versioned flow publishes, the exact-version packages the subscription
+pins. The legacy propagation, broadcast, and reverse-sync workflows are
+removed from every repository and from `Cratis/Workflows`.
+
+What the retirement did with repository-unique corpus content:
+
+- **General content** (Arc.Kotlin's Kotlin/JVM language rules; the Studio and
+  Stagehand upstream-issue and issue-writing discipline) moved into this
+  repository under `engineering/sources-staged/` awaiting skill authoring.
+- **Repository-specific rules** became sections of the owning repository's
+  `.cratis/PROJECT.md`.
+- **Repository-local skills** moved to the owning repository's
+  `.agents/skills/` overlay, the documented project-owned location.
+- Everything else in the per-repository `.ai/` trees was a stale copy of this
+  repository's corpus or content already superseded here; nothing unique was
+  lost.
+
+In this repository, legacy `.ai/skills` retirement continues skill by
+skill: a canonical twin replaces the legacy source, the audit row moves,
+the twin is deleted.
 
 Update this page when a repository's generation changes — it is the record
 issue #256 asked for, and an unrecorded migration is an unfinished one.

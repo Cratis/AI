@@ -34,6 +34,11 @@
             "locator": "https://github.com/Cratis/AI/issues/126"
         },
         {
+            "id": "source-ai-256",
+            "kind": "repository-authority",
+            "locator": "https://github.com/Cratis/AI/issues/256"
+        },
+        {
             "id": "source-ai-127",
             "kind": "repository-authority",
             "locator": "https://github.com/Cratis/AI/issues/127"
@@ -8450,6 +8455,43 @@
                 "officialUrl": "https://cli.github.com/manual/gh_skill_install",
                 "sourceKind": "official-documentation",
                 "applicableVersion": "current-documentation-2026-08-20"
+            }
+        },
+        {
+            "id": "ai-256",
+            "sourceId": "source-ai-256",
+            "evidenceClass": "hosted",
+            "subject": {
+                "kind": "repository",
+                "id": "cratis-ai",
+                "version": "issue-state-2026-09-10"
+            },
+            "bindingIds": [],
+            "assertions": [
+                {
+                    "assuranceId": "authority",
+                    "outcome": "pass",
+                    "supporting": true,
+                    "claimIds": []
+                }
+            ],
+            "scope": "Authority for the #256 corpus retirement: general content migrated from consuming repositories into this repository, repository-specific content kept in the owning repository.",
+            "environment": {
+                "operatingSystem": "not-recorded",
+                "architecture": "not-recorded",
+                "isolation": "not-recorded"
+            },
+            "observedOn": "2026-09-10",
+            "validThrough": "2026-12-09",
+            "confidence": "high",
+            "limitations": [
+                "This observation is limited to its exact recorded subject, version, digest, scope, and environment and grants no unrecorded assurance."
+            ],
+            "supersedes": [],
+            "legacy": {
+                "officialUrl": "https://github.com/Cratis/AI/issues/256",
+                "sourceKind": "repository-authority",
+                "applicableVersion": "issue-state-2026-09-10"
             }
         }
     ],
