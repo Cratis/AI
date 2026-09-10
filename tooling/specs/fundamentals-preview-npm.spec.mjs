@@ -29,9 +29,9 @@ function withTemporaryDirectory(callback) {
 }
 
 const request = Object.freeze({
-    id: "public-fundamentals-0-1-0-preview-1",
+    id: "cratis-fundamentals-0-1-0-preview-1",
     state: "preview-on-merge",
-    profileId: "public-fundamentals",
+    profileId: "cratis/fundamentals",
     packageName: "@cratis/ai-fundamentals",
     version: "0.1.0-preview.1",
     sourceRevision: "b53caa555b9a3f05ba1462b86202fe3ccb8a9470",
@@ -45,7 +45,7 @@ const request = Object.freeze({
 const ready = Object.freeze({
     state: "READY_FOR_PREVIEW_REQUEST",
     assuranceMode: "basic",
-    profileId: "public-fundamentals",
+    profileId: "cratis/fundamentals",
     packageName: "@cratis/ai-fundamentals",
     previewRequestEligible: true,
     supportGranted: false,
@@ -133,7 +133,7 @@ test("public preview archive passes exact lifecycle and A-to-B-to-A transition",
     withTemporaryDirectory((root) => {
         const previousRequest = {
             ...request,
-            id: "public-fundamentals-0-1-0-preview-0",
+            id: "cratis-fundamentals-0-1-0-preview-0",
             version: "0.1.0-preview.0",
         };
         const previous = materializeFundamentalsPreviewNpmAsset({

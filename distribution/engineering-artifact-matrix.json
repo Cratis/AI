@@ -32,7 +32,9 @@
         "cratis-engineering-docs-authoring",
         "cratis-engineering-docs-add-page",
         "cratis-engineering-docs-edit-page",
-        "cratis-engineering-csharp-conventions"
+        "cratis-engineering-csharp-conventions",
+        "cratis-engineering-decision-record",
+        "cratis-engineering-effect-boundaries"
       ],
       "allowedPaths": [
         "engineering/skills/<approved-target>/SKILL.md",
@@ -46,7 +48,6 @@
       "trust": "PASSIVE_EFFECTFUL",
       "state": "PLANNED_DISABLED_SEPARATE_REVIEW",
       "targetIds": [
-        "cratis-engineering-chronicle-kernel-tracing",
         "cratis-engineering-docs-visual-qa",
         "cratis-engineering-ship-changes"
       ],
@@ -65,19 +66,26 @@
   "profileIntent": {
     "application": [
       "cratis-engineering-csharp-conventions",
-      "cratis-engineering-ship-changes"
+      "cratis-engineering-ship-changes",
+      "cratis-engineering-decision-record",
+      "cratis-engineering-effect-boundaries"
     ],
     "framework": [
       "cratis-engineering-csharp-conventions",
-      "cratis-engineering-chronicle-kernel-tracing",
-      "cratis-engineering-ship-changes"
+      "cratis-engineering-ship-changes",
+      "cratis-engineering-decision-record",
+      "cratis-engineering-effect-boundaries"
     ],
     "client": [
       "cratis-engineering-csharp-conventions",
-      "cratis-engineering-ship-changes"
+      "cratis-engineering-ship-changes",
+      "cratis-engineering-decision-record",
+      "cratis-engineering-effect-boundaries"
     ],
     "corpus": [
       "cratis-engineering-ship-changes",
+      "cratis-engineering-decision-record",
+      "cratis-engineering-effect-boundaries",
       "skill-creator"
     ],
     "documentation": [
@@ -85,7 +93,9 @@
       "cratis-engineering-docs-add-page",
       "cratis-engineering-docs-edit-page",
       "cratis-engineering-docs-visual-qa",
-      "cratis-engineering-ship-changes"
+      "cratis-engineering-ship-changes",
+      "cratis-engineering-decision-record",
+      "cratis-engineering-effect-boundaries"
     ]
   },
   "projectOwnedForbiddenPaths": [

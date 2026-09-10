@@ -33,8 +33,8 @@ public Task MethodName(TEvent @event, EventContext context)
 ```
 
 - **First parameter** — the event type. This determines which events the method subscribes to.
-- **Second parameter** — `EventContext` (optional). Omit if event metadata is not needed. A reactor method takes no more than two parameters.
-- **Return type** — `Task` or `void`, or a side-effect type (`TEvent`, `ReactorSideEffect`, or a collection of either) returned directly (sync) or wrapped in `Task<...>` (async). Prefer `Task`/async for real side effects, but synchronous returns are fully supported — there is no "always async" requirement.
+- **Second parameter onward** — dependencies, resolved when the method is invoked: `EventContext`, a read model, or a service. All are optional and there is no limit on how many; see [Taking Dependencies](#taking-dependencies). The analyzer constrains their *kind*, not their count — a primitive, value type or `string` after the first parameter is flagged because it cannot be resolved.
+- **Return type** — `Task` or `void`, or a side-effect type (`TEvent`, `EventForEventSourceId`, or an `IEnumerable<>` of either — or of `object` to mix them) returned directly (sync) or wrapped in `Task<...>` (async). Prefer `Task`/async for real side effects, but synchronous returns are fully supported — there is no "always async" requirement.
 - **Method name** — can be anything descriptive. The name is for readability, not dispatch.
 
 ## Handling replay differently — `[Replay]`
@@ -147,7 +147,7 @@ public Task<IEnumerable<EventForEventSourceId>> Handle(AnEvent @event, EventCont
 
 ### Cross-stream via `EventForEventSourceId`
 
-To append a side-effect event to a **different** event source, return `EventForEventSourceId(id, @event)` (single or `IEnumerable<EventForEventSourceId>`) — the same cross-stream wrapper a command `Handle()` uses. Reach for `ReactorSideEffect` instead when you also need to set the `EventSequenceId`, stream type, source type, or `Subject`.
+To append a side-effect event to a **different** event source, return `EventForEventSourceId(id, @event)` (single or `IEnumerable<EventForEventSourceId>`) — the same cross-stream wrapper a command `Handle()` uses. The wrapper is self-describing, so it is also where you set the event stream type and id, source type, `Subject`, occurred time, tags and causation; set only the ones you need and the rest take the append defaults.
 
 ```csharp
 public Task<IEnumerable<EventForEventSourceId>> Handle(AnEvent @event, EventContext context) =>
@@ -157,7 +157,7 @@ public Task<IEnumerable<EventForEventSourceId>> Handle(AnEvent @event, EventCont
     ]);
 ```
 
-> **Chronicle version note:** reactor side-effect handling of `EventForEventSourceId` wrappers ships in an upcoming Chronicle release. On earlier versions, target another event source with `ReactorSideEffect { EventSourceId = … }` instead.
+> **Chronicle version note:** reactor side-effect handling of `EventForEventSourceId` wrappers has shipped since Chronicle 15.35.
 
 ## External event stores (outbox / inbox)
 
@@ -174,7 +174,7 @@ The default is fire-and-forget. When a caller's correctness depends on all obser
 
 ## Critical Rules
 
-1. **Idempotent** — Reactors may be called more than once for the same event (e.g. during replay or recovery). Design accordingly. For a side effect that must **not** repeat on replay (emails, payments, external writes), mark the handler method `[OnceOnly]` so Chronicle fires it a single time per event source.
+1. **Idempotent** — Reactors may be called more than once for the same event (e.g. during replay or recovery). Design accordingly. For a side effect that must **not** repeat on replay (emails, payments, external writes), mark the handler method `[OnceOnly]` — Chronicle then skips that handler for every event arriving as part of a **replay** (observer rewind, redaction, revision). That is the whole of it: `[OnceOnly]` is replay-exclusion, **not** exactly-once and **not** a per-event-source counter. Recovering a failed partition re-delivers the event as an ordinary observation, so the handler runs again — which is the point of a retry. When the side effect must survive that retry too, take a `ReactorDelivery` parameter alongside the attribute and keep a receipt under its identity, which is stable across the failure and the recovery.
 2. **Use event data directly** — Never query the read model back inside a reactor. The event contains all the information you need.
 3. **Return events instead of injecting IEventLog** — If the reactor needs to produce new events, return them directly as `Task<TEvent>`, `Task<EventForEventSourceId>`, or a collection thereof. For commands in other slices, inject `ICommandPipeline` and execute a command. Avoid injecting `IEventLog` directly into a reactor.
 4. **Single responsibility** — Each reactor class should have a focused purpose. Multiple handler methods in one reactor are fine if they serve the same automation concern.

@@ -1,0 +1,29 @@
+{
+    "id": "cratis/application/csharp",
+    "packageName": "@cratis/ai-meta-application-csharp",
+    "version": "0.0.0",
+    "products": [
+        "fundamentals",
+        "arc",
+        "arc-react",
+        "chronicle",
+        "components"
+    ],
+    "languages": [
+        "csharp",
+        "react",
+        "typescript"
+    ],
+    "state": "planned-composition",
+    "composes": [
+        "cratis/arc",
+        "cratis/arc/react",
+        "cratis/chronicle",
+        "cratis/components",
+        "cratis/fundamentals",
+        "cratis/language/csharp",
+        "cratis/specifications/dotnet",
+        "cratis/specifications/typescript"
+    ],
+    "gapSummary": "The full Arc plus Chronicle plus React plus Components application in C#: the application component profiles (Fundamentals, Arc, Arc React, Chronicle, Components, .NET Specifications) plus C# conventions, expanded here rather than composed through cratis/application so the composition graph stays acyclic. Arc, Arc React, and Components imply Chronicle here by composition; the decoupled choices remain cratis/arc/csharp and cratis/chronicle/csharp."
+}

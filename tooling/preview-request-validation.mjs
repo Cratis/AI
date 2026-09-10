@@ -17,6 +17,27 @@ const defaultRepositoryRoot = resolve(
     fileURLToPath(new URL("..", import.meta.url)),
 );
 
+/**
+ * Profile ids were renamed into the `cratis/` namespace. Preview request
+ * records are pointers, so they follow the rename, while the append-only
+ * history check compares through this explicit, reviewed map instead of
+ * silently treating the rename as a new request.
+ */
+const renamedProfileIds = new Map([
+    ["public-fundamentals", "cratis/fundamentals"],
+]);
+const renamedRequestIds = new Map([
+    ["public-fundamentals-0-1-0-preview-1", "cratis-fundamentals-0-1-0-preview-1"],
+]);
+
+function normalizeHistoricalRequest(request) {
+    return {
+        ...request,
+        id: renamedRequestIds.get(request.id) ?? request.id,
+        profileId: renamedProfileIds.get(request.profileId) ?? request.profileId,
+    };
+}
+
 function readJson(root, path) {
     try {
         return JSON.parse(readFileSync(join(root, path), "utf8"));
@@ -117,7 +138,8 @@ export function validatePreviewRequests(
                 errors.push(`${path}.sourceRevision: must be an ancestor commit`);
             }
         }
-        const expectedId = `${request.profileId}-${request.version.replaceAll(".", "-")}`;
+        const expectedId = `${request.profileId
+            .replaceAll("/", "-")}-${request.version.replaceAll(".", "-")}`;
         if (request.id !== expectedId)
             errors.push(`${path}.id: must equal ${expectedId}`);
     }
@@ -125,7 +147,9 @@ export function validatePreviewRequests(
         errors.push("At least one passive preview request is required");
     const previous = requestsAtRevision(root, baseRevision);
     if (previous) {
-        const previousRequests = previous.requests ?? [];
+        const previousRequests = (previous.requests ?? []).map(
+            normalizeHistoricalRequest,
+        );
         const unchanged =
             JSON.stringify(requests.requests) ===
             JSON.stringify(previousRequests);

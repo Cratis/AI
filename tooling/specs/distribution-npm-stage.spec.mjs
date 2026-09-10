@@ -74,7 +74,7 @@ test("npm stage contract enables normal support-free 0.x releases", () => {
     );
     assert.equal(
         contract.workflow.productionPath,
-        ".github/workflows/release-approved-ai-profiles.yml",
+        ".github/workflows/release-passive-previews.yml",
     );
     assert.equal(contract.workflow.environmentApprovalRequired, false);
     assert.equal(contract.releaseEligible, true);

@@ -1,0 +1,243 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cratis/AI/blob/main/mcp/mcp-server-declaration.schema.json",
+  "title": "Cratis AI MCP server declaration",
+  "description": "A declaration records the identity, reference, transport, authentication type, required profiles, and host configuration mapping of an MCP server. A declaration is passive configuration metadata. It never carries server bytes, a credential, or an invocation payload, and it never by itself authorizes installation, configuration, or invocation.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "id",
+    "displayName",
+    "product",
+    "status",
+    "resolvable",
+    "owner",
+    "reference",
+    "transport",
+    "authentication",
+    "requires",
+    "hostConfigurationMapping",
+    "classification",
+    "distributionBoundary"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "id": {
+      "description": "Stable identity. A profile refers to a server by this id and by nothing else.",
+      "type": "string",
+      "pattern": "^cratis-[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "displayName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "product": {
+      "description": "The taxonomy product id that owns the server implementation.",
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "status": {
+      "description": "declared-not-published: the identity and host mapping are declared, the server is still owned and distributed by its product repository. extension-point-not-published: the declaration exists only so a future server has a defined shape, and it is never included in a resolved manifest or a generated package.",
+      "enum": ["declared-not-published", "extension-point-not-published"]
+    },
+    "resolvable": {
+      "description": "Whether tooling/resolve-profiles.mjs may include this server in a resolved manifest. Must be false for an extension point.",
+      "type": "boolean"
+    },
+    "authorityState": {
+      "type": "string",
+      "minLength": 1
+    },
+    "defaultDisposition": {
+      "enum": ["evidence-blocked", "passive-allowed"]
+    },
+    "owner": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository", "component", "distributedByCratisAi"],
+      "properties": {
+        "repository": { "type": "string", "minLength": 1 },
+        "component": { "type": "string", "minLength": 1 },
+        "distributedByCratisAi": { "type": "boolean" }
+      }
+    },
+    "reference": {
+      "description": "How the server is obtained. Cratis AI records the authority that answers the question; it does not answer it.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "resolutionAuthority", "note"],
+      "properties": {
+        "kind": {
+          "enum": [
+            "product-owned-package",
+            "product-owned-endpoint",
+            "not-declared"
+          ]
+        },
+        "packageReference": { "type": "string", "minLength": 1 },
+        "endpoint": { "type": "string", "minLength": 1 },
+        "resolutionAuthority": { "type": "string", "minLength": 1 },
+        "note": { "type": "string", "minLength": 1 }
+      }
+    },
+    "transport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["declared", "alternatives", "evidenceState"],
+      "properties": {
+        "declared": { "enum": ["stdio", "streamable-http", "sse"] },
+        "alternatives": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "enum": ["stdio", "streamable-http", "sse"] }
+        },
+        "evidenceState": {
+          "enum": ["verified", "unverified-pending-source-contract"]
+        }
+      }
+    },
+    "authentication": {
+      "description": "Authentication is always delegated. Cratis AI never emits a credential, a token, or a credential-shaped placeholder into a declaration or a generated package.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "credentialHandling",
+        "credentialsEmittedByCratisAi",
+        "note"
+      ],
+      "properties": {
+        "type": { "enum": ["delegated", "none"] },
+        "credentialHandling": {
+          "const": "delegated-to-host-and-server"
+        },
+        "credentialsEmittedByCratisAi": { "const": false },
+        "note": { "type": "string", "minLength": 1 }
+      }
+    },
+    "requires": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["profileIds", "capabilities", "guidanceSkillIds"],
+      "properties": {
+        "profileIds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^cratis(?:/[a-z0-9]+(?:-[a-z0-9]+)*){0,3}$"
+          }
+        },
+        "capabilities": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          }
+        },
+        "guidanceSkillIds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^cratis-[a-z0-9]+(?:-[a-z0-9]+)*$"
+          }
+        }
+      }
+    },
+    "hostConfigurationMapping": {
+      "description": "Where each host would read this server if a maintainer ever enabled emission. emissionAllowed is false everywhere until the governed assurance lane admits the server.",
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "host",
+          "configurationFile",
+          "serverKey",
+          "serverType",
+          "emissionAllowed"
+        ],
+        "properties": {
+          "host": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          },
+          "configurationFile": { "type": "string", "minLength": 1 },
+          "serverKey": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          },
+          "serverType": { "enum": ["stdio", "streamable-http", "sse"] },
+          "specification": { "type": "string", "minLength": 1 },
+          "emissionAllowed": { "const": false },
+          "note": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "classification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "declarationContentClass",
+        "serverImplementationClass",
+        "assuranceLane",
+        "emission"
+      ],
+      "properties": {
+        "declarationContentClass": {
+          "description": "The declaration file itself. It is passive configuration metadata, never executable code.",
+          "const": "passive-configuration"
+        },
+        "serverImplementationClass": {
+          "description": "The server the declaration points at. It is executable code owned by its product repository.",
+          "const": "executable-code"
+        },
+        "assuranceLane": {
+          "description": "distribution/assurance-lanes.json already requires the governed lane for MCP operation.",
+          "const": "governed-support"
+        },
+        "emission": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "classificationReferencesAllowed",
+            "executableAllowed",
+            "installationAllowed",
+            "invocationAllowed",
+            "promptInvocationAllowed",
+            "runtimeConfigurationAllowed",
+            "serverBytesAllowed"
+          ],
+          "properties": {
+            "classificationReferencesAllowed": { "type": "boolean" },
+            "executableAllowed": { "const": false },
+            "installationAllowed": { "const": false },
+            "invocationAllowed": { "const": false },
+            "promptInvocationAllowed": { "const": false },
+            "runtimeConfigurationAllowed": { "const": false },
+            "serverBytesAllowed": { "const": false }
+          }
+        }
+      }
+    },
+    "distributionBoundary": {
+      "description": "How a generated package must treat this declaration. Whether the declaration is admitted into a passive package is a release-process decision owned by Phase 2 of Cratis/AI#264; the classification above is what such a decision has to honor.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["passivePackageInclusion", "note"],
+      "properties": {
+        "passivePackageInclusion": {
+          "enum": ["excluded-pending-release-process-decision"]
+        },
+        "note": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

@@ -1,5 +1,7 @@
 # Capability catalog v2 model
 
+> **Audience:** Maintainers of Cratis/AI — the source, approval, trust, and coverage model. Not required for adopting Cratis AI.
+
 **Status:** Authoring and review contract; no runtime approval
 
 ## Purpose

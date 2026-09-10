@@ -1,5 +1,7 @@
 # Cratis skill-authoring contract
 
+> **Audience:** Maintainers of Cratis/AI — authoring contract. Not required for adopting Cratis AI.
+
 **Status:** Active authoring gate; not a runtime capability
 
 ## Purpose

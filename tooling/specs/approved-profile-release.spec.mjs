@@ -57,7 +57,7 @@ function repositoryInputs() {
 
 test("current catalogs fail closed before approved materialization", () => {
     const plan = buildApprovedProfileReleasePlan({
-        profileId: "public-fundamentals",
+        profileId: "cratis/fundamentals",
         version: "1.0.0-preview.1",
         ...repositoryInputs(),
     });
@@ -75,7 +75,7 @@ test("current catalogs fail closed before approved materialization", () => {
             () =>
                 generateApprovedProfileRelease({
                     outputRoot,
-                    profileId: "public-fundamentals",
+                    profileId: "cratis/fundamentals",
                     version: "1.0.0-preview.1",
                 }),
             /Approved profile release is blocked/,
@@ -87,7 +87,7 @@ test("current catalogs fail closed before approved materialization", () => {
 test("approved plan requires every authority security and evidence gate", () => {
     const inputs = clone(repositoryInputs());
     const profile = inputs.profileCatalog.publicProfiles.find(
-        (candidate) => candidate.id === "public-fundamentals",
+        (candidate) => candidate.id === "cratis/fundamentals",
     );
     profile.state = "approved";
     const target = inputs.targets.find(
@@ -181,7 +181,7 @@ test("approved plan requires every authority security and evidence gate", () => 
     assert.match(instructions, /support-matrix\.json/);
     assert.match(
         instructions,
-        /cratis-ai-public-fundamentals-1\.0\.0-preview\.1\+build\.7-agent-plugin\.tar\.gz/,
+        /cratis-ai-cratis-fundamentals-1\.0\.0-preview\.1\+build\.7-agent-plugin\.tar\.gz/,
     );
 
     const source = inputs.sources.find(
@@ -231,7 +231,7 @@ test("passive adapter materializer rejects unsafe or mismatched skill input", ()
     withTemporaryDirectory((root) => {
         const base = {
             version: "1.0.0",
-            profileId: "public-example",
+            profileId: "cratis/example",
             packageName: "@cratis/ai-example",
             description: "Example",
         };
@@ -322,7 +322,7 @@ test("passive compliance failure removes the incomplete generated candidate", ()
                 generatePassiveProfileAdapters({
                     outputRoot,
                     version: "1.0.0",
-                    profileId: "public-example",
+                    profileId: "cratis/example",
                     packageName: "@cratis/ai-example",
                     description: "Example",
                     skills: [
@@ -352,7 +352,7 @@ test("every generation failure removes only newly-created output", () => {
             generatePassiveProfileAdapters({
                 outputRoot,
                 version: "1.0.0",
-                profileId: "public-example",
+                profileId: "cratis/example",
                 packageName: "@cratis/ai-example",
                 description: "Example",
                 skills: [
@@ -383,7 +383,7 @@ test("every generation failure removes only newly-created output", () => {
                 generatePassiveProfileAdapters({
                     outputRoot,
                     version: "1.0.0",
-                    profileId: "public-example",
+                    profileId: "cratis/example",
                     packageName: "@cratis/ai-example",
                     description: "Example",
                     skills: [],
@@ -427,7 +427,7 @@ test("passive adapter materializer emits one install root per harness", () => {
         const manifest = generatePassiveProfileAdapters({
             outputRoot,
             version: "1.2.3-preview.1",
-            profileId: "public-example",
+            profileId: "cratis/example",
             packageName: "@cratis/ai-example",
             description: "Cratis example profile",
             skills: [
@@ -481,13 +481,13 @@ test("passive adapter materializer emits one install root per harness", () => {
         const copilotPlugin = readJson(
             join(
                 outputRoot,
-                "harnesses/copilot/plugins/public-example/plugin.json",
+                "harnesses/copilot/plugins/cratis-example/plugin.json",
             ),
         );
         const cursorPlugin = readJson(
             join(
                 outputRoot,
-                "harnesses/cursor/plugins/public-example/plugin.json",
+                "harnesses/cursor/plugins/cratis-example/plugin.json",
             ),
         );
         const kiroPlugin = readJson(
@@ -496,7 +496,7 @@ test("passive adapter materializer emits one install root per harness", () => {
         const claudePlugin = readJson(
             join(
                 outputRoot,
-                "harnesses/claude/plugins/public-example/.claude-plugin/plugin.json",
+                "harnesses/claude/plugins/cratis-example/.claude-plugin/plugin.json",
             ),
         );
         const grokMarketplace = readJson(
@@ -505,7 +505,7 @@ test("passive adapter materializer emits one install root per harness", () => {
         const grokPlugin = readJson(
             join(
                 outputRoot,
-                "harnesses/grok/plugins/public-example/.claude-plugin/plugin.json",
+                "harnesses/grok/plugins/cratis-example/.claude-plugin/plugin.json",
             ),
         );
         const junieMarketplace = readJson(
@@ -514,7 +514,7 @@ test("passive adapter materializer emits one install root per harness", () => {
         const juniePlugin = readJson(
             join(
                 outputRoot,
-                "harnesses/junie/plugins/public-example/.claude-plugin/plugin.json",
+                "harnesses/junie/plugins/cratis-example/.claude-plugin/plugin.json",
             ),
         );
         assert.deepEqual(copilotPlugin, portablePlugin);
@@ -522,11 +522,11 @@ test("passive adapter materializer emits one install root per harness", () => {
         assert.deepEqual(kiroPlugin, portablePlugin);
         assert.equal(
             grokMarketplace.plugins[0].source,
-            "./plugins/public-example",
+            "./plugins/cratis-example",
         );
         assert.equal(
             junieMarketplace.plugins[0].source,
-            "./plugins/public-example",
+            "./plugins/cratis-example",
         );
         assert.deepEqual(grokPlugin, claudePlugin);
         assert.deepEqual(juniePlugin, claudePlugin);
@@ -569,7 +569,7 @@ test("passive adapter materializer emits one install root per harness", () => {
             readFileSync(
                 join(
                     outputRoot,
-                    "harnesses/grok/plugins/public-example/skills/cratis-example/SKILL.md",
+                    "harnesses/grok/plugins/cratis-example/skills/cratis-example/SKILL.md",
                 ),
             ).equals(skillBytes),
             true,

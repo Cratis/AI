@@ -1,0 +1,22 @@
+{
+  "id": "cratis/arc",
+  "packageName": "@cratis/ai-meta-arc",
+  "version": "0.0.0",
+  "products": [
+    "fundamentals",
+    "arc",
+    "entity-framework-core"
+  ],
+  "languages": [
+    "csharp",
+    "react",
+    "typescript",
+    "kotlin"
+  ],
+  "state": "planned-composition",
+  "composes": [
+    "cratis/arc/csharp",
+    "cratis/arc/kotlin"
+  ],
+  "gapSummary": "Arc without Chronicle, across every language Arc supports. Composes the language-scoped cells rather than restating them. This meta-profile must never compose a Chronicle profile; use cratis/chronicle or cratis/application when a solution needs both."
+}

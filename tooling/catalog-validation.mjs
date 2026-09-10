@@ -16,13 +16,30 @@ const catalogPaths = {
     publicSkills: "catalog/public-skills.yml",
     productCoverage: "catalog/product-coverage.yml",
     ecosystemVersions: "catalog/ecosystem-versions.json",
+    vocabulary: "catalog/vocabulary.json",
 };
 
 const schemaPaths = {
     publicSkills: "catalog/schemas/public-skills.schema.json",
     productCoverage: "catalog/schemas/product-coverage.schema.json",
     ecosystemVersions: "catalog/schemas/ecosystem-versions.schema.json",
+    vocabulary: "catalog/schemas/vocabulary.schema.json",
 };
+
+const vocabularyConsumers = Object.freeze([
+    Object.freeze({
+        setName: "readiness.blocker",
+        path: "distribution/preview-readiness.schema.json",
+        pointer: ["properties", "blockers", "items", "properties", "code"],
+    }),
+]);
+
+const vocabularyPatternConsumers = Object.freeze([
+    Object.freeze({
+        path: "catalog/schemas/release-readiness.schema.json",
+        pointer: ["$defs", "id"],
+    }),
+]);
 
 const supportedSchemaKeywords = new Set([
     "$schema",
@@ -31,6 +48,7 @@ const supportedSchemaKeywords = new Set([
     "$ref",
     "title",
     "description",
+    "examples",
     "type",
     "additionalProperties",
     "required",
@@ -82,6 +100,19 @@ export function validateSchemaVocabulary(schema, path = "$") {
         }
     }
     return errors;
+}
+
+// A reviewed anchor is a digest a human approved, so a mismatch is a decision to re-review rather
+// than a defect to fix. The message therefore has to carry everything that decision needs: which
+// contract moved, the digest that was reviewed, the digest the tree computes now, and the constant
+// to re-pin once the diff has been read. Reporting only "differs from the reviewed anchor" made a
+// contributor recompute the sha256 by hand before they could even see what changed.
+// Documentation/adding-a-component.md walks the whole procedure.
+export function anchorMismatch(subject, expected, computed, constantLocation) {
+    return (
+        `${subject} differs from the independently reviewed anchor: ` +
+        `expected ${expected} computed ${computed} — review the diff, then re-pin ${constantLocation}`
+    );
 }
 
 export function readCatalog(path) {
@@ -174,6 +205,42 @@ function matchesKnownPattern(value, pattern) {
             return /^[A-Za-z0-9._-]+\.(?:tar\.gz|tgz)$/.test(value);
         case "^[A-Za-z0-9._-]+\\.tar\\.gz$":
             return /^[A-Za-z0-9._-]+\.tar\.gz$/.test(value);
+        case "^(?:cratis(?:/[a-z0-9]+(?:-[a-z0-9]+)*){0,2}|[a-z0-9]+(?:-[a-z0-9]+)*)$":
+            return /^(?:cratis(?:\/[a-z0-9]+(?:-[a-z0-9]+)*){0,2}|[a-z0-9]+(?:-[a-z0-9]+)*)$/.test(
+                value,
+            );
+        case "^(?:cratis/|public-|engineering-)[a-z0-9]+(?:-[a-z0-9]+)*$":
+            return /^(?:cratis\/|public-|engineering-)[a-z0-9]+(?:-[a-z0-9]+)*$/.test(
+                value,
+            );
+        // The bare `cratis` id is the point: the root of the namespace, and
+        // the maximal public bundle. The subscription patterns admit `cratis`
+        // alongside every `cratis/*` meta-profile, including the
+        // language-scoped cells at depth two.
+        case "^(?:cratis(?:/[a-z0-9]+(?:-[a-z0-9]+)*){0,2}|(?:public|engineering)-[a-z0-9]+(?:-[a-z0-9]+)*)$":
+            return /^(?:cratis(?:\/[a-z0-9]+(?:-[a-z0-9]+)*){0,2}|(?:public|engineering)-[a-z0-9]+(?:-[a-z0-9]+)*)$/.test(
+                value,
+            );
+        case "^cratis(?:/[a-z0-9]+(?:-[a-z0-9]+)*){0,2}$":
+            return /^cratis(?:\/[a-z0-9]+(?:-[a-z0-9]+)*){0,2}$/.test(value);
+        case "^cratis(?:/[a-z0-9]+(?:-[a-z0-9]+)*){0,3}$":
+            return /^cratis(?:\/[a-z0-9]+(?:-[a-z0-9]+)*){0,3}$/.test(value);
+        case "^(?!cratis/engineering$)cratis(?:/[a-z0-9]+(?:-[a-z0-9]+)*){0,3}$":
+            return /^(?!cratis\/engineering$)cratis(?:\/[a-z0-9]+(?:-[a-z0-9]+)*){0,3}$/.test(
+                value,
+            );
+        case "^(?!cratis/engineering(?:/|$))cratis(?:/[a-z0-9]+(?:-[a-z0-9]+)*){0,3}$":
+            return /^(?!cratis\/engineering(?:\/|$))cratis(?:\/[a-z0-9]+(?:-[a-z0-9]+)*){0,3}$/.test(
+                value,
+            );
+        case "^cratis/engineering(?:/[a-z0-9]+(?:-[a-z0-9]+)*){0,2}$":
+            return /^cratis\/engineering(?:\/[a-z0-9]+(?:-[a-z0-9]+)*){0,2}$/.test(
+                value,
+            );
+        case "^cratis/[a-z0-9]+(?:-[a-z0-9]+)*(?:/[a-z0-9]+(?:-[a-z0-9]+)*)?$":
+            return /^cratis\/[a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)?$/.test(
+                value,
+            );
         case "^(?:public|engineering)-[a-z0-9]+(?:-[a-z0-9]+)*$":
             return /^(?:public|engineering)-[a-z0-9]+(?:-[a-z0-9]+)*$/.test(
                 value,
@@ -367,9 +434,21 @@ function validatePublicSkills(catalog, coverage, root) {
         .filter((skill) => skill.source.startsWith("skills/"))
         .map((skill) => skill.currentName)
         .filter((name) => !legacyDirectories.includes(name));
+    // A maintainer-audience skill authored directly under engineering/skills/
+    // has no legacy .ai/skills twin. It counts towards the inventory only when
+    // the canonical directory actually exists, so a catalogued name that
+    // matches nothing on disk still fails the exact-account check below.
+    const engineeringCanonicalNames = catalog.audit.internalSkills
+        .map((skill) => skill.currentName)
+        .filter(
+            (name) =>
+                !legacyDirectories.includes(name) &&
+                existsSync(join(root, "engineering/skills", name)),
+        );
     const currentDirectories = [
         ...legacyDirectories,
         ...directCanonicalNames,
+        ...engineeringCanonicalNames,
     ].sort();
     const publicNames = catalog.skills.map((skill) => skill.currentName);
     const internalNames = catalog.audit.internalSkills.map(
@@ -637,6 +716,86 @@ export function validateEcosystems(registry) {
     return errors;
 }
 
+function schemaNode(schema, pointer) {
+    return pointer.reduce((current, segment) => current?.[segment], schema);
+}
+
+export function vocabularySetValues(vocabulary, setName) {
+    const set = vocabulary.sets[setName];
+    if (!set) throw new Error(`vocabulary is missing set ${setName}`);
+    return set.values.map((entry) => entry.value);
+}
+
+export function validateVocabulary(vocabulary, root = defaultRepositoryRoot) {
+    const errors = [];
+
+    for (const [setName, set] of Object.entries(vocabulary.sets)) {
+        const values = set.values.map((entry) => entry.value);
+        for (const duplicate of findDuplicates(values))
+            errors.push(`vocabulary set ${setName} repeats value ${duplicate}`);
+        for (const value of values)
+            if (!matchesKnownPattern(value, vocabulary.valuePattern))
+                errors.push(
+                    `vocabulary set ${setName} value ${value} does not match ${vocabulary.valuePattern}`,
+                );
+        for (const entry of set.values) {
+            if (!entry.dispositions) continue;
+            for (const duplicate of findDuplicates(entry.dispositions))
+                errors.push(
+                    `vocabulary set ${setName} value ${entry.value} repeats disposition ${duplicate}`,
+                );
+            for (const disposition of entry.dispositions)
+                if (!matchesKnownPattern(disposition, vocabulary.valuePattern))
+                    errors.push(
+                        `vocabulary set ${setName} disposition ${disposition} does not match ${vocabulary.valuePattern}`,
+                    );
+        }
+    }
+
+    for (const consumer of vocabularyConsumers) {
+        let node = null;
+        try {
+            node = schemaNode(
+                readCatalog(join(root, consumer.path)),
+                consumer.pointer,
+            );
+        } catch (error) {
+            errors.push(`${consumer.path}: ${error.message}`);
+            continue;
+        }
+        if (!Array.isArray(node?.enum)) {
+            errors.push(
+                `${consumer.path}: expected an inline enum bound to vocabulary set ${consumer.setName}`,
+            );
+            continue;
+        }
+        const expected = vocabularySetValues(vocabulary, consumer.setName);
+        if (JSON.stringify(node.enum) !== JSON.stringify(expected))
+            errors.push(
+                `${consumer.path}: inline enum differs from vocabulary set ${consumer.setName}`,
+            );
+    }
+
+    for (const consumer of vocabularyPatternConsumers) {
+        let node = null;
+        try {
+            node = schemaNode(
+                readCatalog(join(root, consumer.path)),
+                consumer.pointer,
+            );
+        } catch (error) {
+            errors.push(`${consumer.path}: ${error.message}`);
+            continue;
+        }
+        if (node?.pattern !== vocabulary.valuePattern)
+            errors.push(
+                `${consumer.path}: value pattern differs from the vocabulary value pattern`,
+            );
+    }
+
+    return errors;
+}
+
 export function validateCatalogs(root = defaultRepositoryRoot) {
     const schemas = {};
     const catalogs = {};
@@ -680,6 +839,7 @@ export function validateCatalogs(root = defaultRepositoryRoot) {
         ),
     );
     errors.push(...validateEcosystems(catalogs.ecosystemVersions));
+    errors.push(...validateVocabulary(catalogs.vocabulary, root));
 
     return errors;
 }

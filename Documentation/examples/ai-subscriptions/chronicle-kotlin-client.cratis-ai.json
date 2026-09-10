@@ -3,7 +3,7 @@
   "channel": "public",
   "version": "1.0.0",
   "profiles": [
-    "public-chronicle-client-kotlin"
+    "cratis/chronicle/client-kotlin"
   ],
   "harnesses": [
     "claude",

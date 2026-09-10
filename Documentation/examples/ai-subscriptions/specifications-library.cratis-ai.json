@@ -3,7 +3,7 @@
   "channel": "public",
   "version": "1.0.0",
   "profiles": [
-    "public-specifications-dotnet"
+    "cratis/specifications/dotnet"
   ],
   "harnesses": [
     "claude",

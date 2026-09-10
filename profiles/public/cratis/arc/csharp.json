@@ -1,0 +1,23 @@
+{
+    "id": "cratis/arc/csharp",
+    "packageName": "@cratis/ai-meta-arc-csharp",
+    "version": "0.0.0",
+    "products": [
+        "fundamentals",
+        "arc",
+        "entity-framework-core"
+    ],
+    "languages": [
+        "csharp",
+        "react",
+        "typescript"
+    ],
+    "state": "planned-composition",
+    "composes": [
+        "cratis/application/arc-only",
+        "cratis/arc/ef-core",
+        "cratis/arc/identity",
+        "cratis/language/csharp"
+    ],
+    "gapSummary": "Arc without Chronicle, in C#: the Arc-only application journey, EF Core persistence, and identity overlays, plus C# language conventions. This meta-profile must never compose a Chronicle profile; use cratis/chronicle or cratis/application when a solution needs both."
+}

@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "1.1.0",
+  "state": "DESIGNED_RELEASES_NOT_YET_PUBLISHED",
+  "sourceRepository": "https://github.com/Cratis/AI",
+  "generatedRepository": "https://github.com/Cratis/AI.Distribution",
+  "homepage": "https://cratis.io/ai",
+  "versioning": {
+    "strategy": "semver",
+    "releaseTrain": "atomic",
+    "exactPinsRequired": true,
+    "floatingVersionsAllowed": false,
+    "updateMechanism": "reviewed-pull-request",
+    "perProfileVersionStamps": true,
+    "unreleasedProfileVersion": "0.0.0",
+    "perProfileVersionNote": "Cratis/AI#264 decision: the release train stays atomic and every profile carries its own version stamp. A profile still reading 0.0.0 has never been cut from this catalog; the exact published version is supplied by the merged release request."
+  },
+  "authority": {
+    "sharedBehaviorOwner": "Cratis/AI",
+    "productFactOwner": "owning Cratis product repository",
+    "projectContextOwner": "consuming repository",
+    "generatedArtifactOwner": "Cratis/AI.Distribution",
+    "directGeneratedEditsAllowed": false,
+    "automaticReverseSyncAllowed": false
+  },
+  "confidentiality": {
+    "publicProductPackages": "public-safe-only",
+    "engineeringPackages": "public-safe-only",
+    "engineeringPrefixImpliesConfidentiality": false,
+    "confidentialSharedPackagesAllowed": false,
+    "privateFactsOwner": "consuming private repository",
+    "privateOverlayPaths": [
+      "AGENTS.md",
+      ".cratis/PROJECT.md",
+      ".agents/skills/**",
+      "host-native project adapters"
+    ],
+    "packageMayReadOrWritePrivateOverlay": false,
+    "upstreamRule": "generalize and remove private facts before proposing a Cratis/AI change"
+  },
+  "subscription": {
+    "projectFile": ".cratis/ai.json",
+    "projectOwned": true,
+    "packageWritesProjectContext": false,
+    "profileSelectionRequired": true,
+    "exactVersionRequired": true
+  },
+  "contributionFlow": {
+    "consumerRepositoriesPublishPackages": false,
+    "consumerRepositoriesPushGeneratedBytes": false,
+    "improvementPath": "source repository issue or pull request to Cratis/AI",
+    "requiredEvidence": [
+      "originating repository",
+      "immutable source revision",
+      "affected profiles and products",
+      "behavior or authority evidence",
+      "migration and compatibility impact"
+    ],
+    "privateImprovementRule": "keep repository-specific or confidential behavior local; upstream only generalized public-safe behavior",
+    "downstreamDelivery": "new immutable release followed by reviewed subscriber update pull requests"
+  }
+}

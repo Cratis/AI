@@ -1,0 +1,19 @@
+{
+    "id": "cratis/chronicle/mcp",
+    "packageName": "@cratis/ai-chronicle-mcp",
+    "version": "0.0.0",
+    "products": [
+        "chronicle-mcp"
+    ],
+    "languages": [
+        "language-agnostic"
+    ],
+    "state": "preview-source-candidate",
+    "availableTargets": [
+        "cratis-chronicle-mcp-inspection"
+    ],
+    "mcpServers": [
+        "cratis-chronicle-mcp"
+    ],
+    "gapSummary": "Contains a classification-only passive source candidate. No Chronicle.Mcp tool or prompt is admitted or invocable; installation, executable behavior, schemas, credentials, output controls, and mutations remain gaps."
+}

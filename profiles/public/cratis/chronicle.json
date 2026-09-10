@@ -1,0 +1,30 @@
+{
+    "id": "cratis/chronicle",
+    "packageName": "@cratis/ai-meta-chronicle",
+    "version": "0.0.0",
+    "products": [
+        "fundamentals",
+        "chronicle"
+    ],
+    "languages": [
+        "csharp",
+        "kotlin",
+        "elixir",
+        "typescript",
+        "language-agnostic"
+    ],
+    "state": "planned-composition",
+    "composes": [
+        "cratis/chronicle/compliance",
+        "cratis/chronicle/csharp",
+        "cratis/chronicle/elixir",
+        "cratis/chronicle/kotlin",
+        "cratis/chronicle/multi-tenancy",
+        "cratis/chronicle/typescript",
+        "cratis/chronicle/web-workbench"
+    ],
+    "mcpServers": [
+        "cratis-chronicle-mcp"
+    ],
+    "gapSummary": "Chronicle without Arc, across every client language: the language-scoped cells plus the language-agnostic compliance, multi-tenancy, and web workbench overlays and the Chronicle MCP server. This meta-profile must never compose an Arc profile; use cratis/arc or cratis/application when a solution needs both."
+}

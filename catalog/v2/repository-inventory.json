@@ -1,17 +1,33 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "6711fc67244be4008803cf44fb8f2de8c8ab27d657b6e7664c20c312cbc05848",
+  "indexDigest": "50f84cdf53c3e0c22cf4c09ec4bf8080a2e9cc62eab3f5f6cf4b419076c5059d",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
   "changesSinceBase": [
     {
+      "path": ".agents/plugins/marketplace.json",
+      "status": "added"
+    },
+    {
       "path": ".ai/README.md",
       "status": "modified"
     },
     {
+      "path": ".ai/agents/backend-developer.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/agents/code-reviewer.md",
+      "status": "modified"
+    },
+    {
       "path": ".ai/agents/coordinator.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/agents/frontend-developer.md",
       "status": "modified"
     },
     {
@@ -27,8 +43,76 @@
       "status": "modified"
     },
     {
+      "path": ".ai/agents/security-reviewer.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/agents/slice-implementer.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/agents/spec-writer.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/hooks/README.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/hooks/pre-commit.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/hooks/scripts/cratis-nuget-pins.txt",
+      "status": "added"
+    },
+    {
+      "path": ".ai/hooks/scripts/cratis-patterns.json",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/hooks/scripts/cratis-quality-gate.sh",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/hooks/scripts/hook-lib.sh",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/hooks/scripts/quality-gates.json",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/hooks/scripts/type-references-allowlist.txt",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/hooks/scripts/validate-ai-setup.sh",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/hooks/scripts/validate-package-imports.sh",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/hooks/scripts/validate-package-subpaths.sh",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/hooks/scripts/validate-type-references.sh",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/hooks/settings.template.json",
+      "status": "added"
+    },
+    {
       "path": ".ai/prompts/ship-changes.prompt.md",
       "status": "modified"
+    },
+    {
+      "path": ".ai/rules/capability-is-not-authority.md",
+      "status": "added"
     },
     {
       "path": ".ai/rules/concepts.md",
@@ -37,6 +121,10 @@
     {
       "path": ".ai/rules/csharp.md",
       "status": "modified"
+    },
+    {
+      "path": ".ai/rules/decision-records.md",
+      "status": "added"
     },
     {
       "path": ".ai/rules/dialogs.md",
@@ -55,7 +143,19 @@
       "status": "modified"
     },
     {
+      "path": ".ai/rules/engineering-recipe-skeleton.md",
+      "status": "added"
+    },
+    {
+      "path": ".ai/rules/exit-codes-and-wrappers.md",
+      "status": "added"
+    },
+    {
       "path": ".ai/rules/general.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/rules/git-commits.md",
       "status": "modified"
     },
     {
@@ -65,6 +165,14 @@
     {
       "path": ".ai/rules/glossary.md",
       "status": "modified"
+    },
+    {
+      "path": ".ai/rules/guards-and-fuses.md",
+      "status": "added"
+    },
+    {
+      "path": ".ai/rules/human-verdicts.md",
+      "status": "added"
     },
     {
       "path": ".ai/rules/local-work-artifacts.md",
@@ -79,8 +187,20 @@
       "status": "modified"
     },
     {
+      "path": ".ai/rules/reactors.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/rules/verification-discipline.md",
+      "status": "added"
+    },
+    {
       "path": ".ai/rules/vertical-slices.md",
       "status": "modified"
+    },
+    {
+      "path": ".ai/rules/work-records-and-comments.md",
+      "status": "added"
     },
     {
       "path": ".ai/rules/writing-correct-examples.md",
@@ -219,11 +339,51 @@
       "status": "modified"
     },
     {
+      "path": ".claude-plugin/marketplace.json",
+      "status": "added"
+    },
+    {
+      "path": ".claude/rules/capability-is-not-authority.md",
+      "status": "added"
+    },
+    {
+      "path": ".claude/rules/decision-records.md",
+      "status": "added"
+    },
+    {
+      "path": ".claude/rules/engineering-recipe-skeleton.md",
+      "status": "added"
+    },
+    {
+      "path": ".claude/rules/exit-codes-and-wrappers.md",
+      "status": "added"
+    },
+    {
       "path": ".claude/rules/github-actions.md",
       "status": "added"
     },
     {
+      "path": ".claude/rules/guards-and-fuses.md",
+      "status": "added"
+    },
+    {
+      "path": ".claude/rules/human-verdicts.md",
+      "status": "added"
+    },
+    {
       "path": ".claude/rules/local-work-artifacts.md",
+      "status": "added"
+    },
+    {
+      "path": ".claude/rules/verification-discipline.md",
+      "status": "added"
+    },
+    {
+      "path": ".claude/rules/work-records-and-comments.md",
+      "status": "added"
+    },
+    {
+      "path": ".cursor-plugin/marketplace.json",
       "status": "added"
     },
     {
@@ -232,6 +392,10 @@
     },
     {
       "path": ".github/ISSUE_TEMPLATE/shared-ai-improvement.yml",
+      "status": "added"
+    },
+    {
+      "path": ".github/plugin/marketplace.json",
       "status": "added"
     },
     {
@@ -255,10 +419,6 @@
       "status": "modified"
     },
     {
-      "path": ".github/workflows/distribution-approved-profile-release.yml",
-      "status": "added"
-    },
-    {
       "path": ".github/workflows/distribution-canary-rollback.yml",
       "status": "added"
     },
@@ -267,15 +427,7 @@
       "status": "added"
     },
     {
-      "path": ".github/workflows/distribution-generated-update.yml",
-      "status": "added"
-    },
-    {
       "path": ".github/workflows/distribution-npm-stage.yml",
-      "status": "added"
-    },
-    {
-      "path": ".github/workflows/distribution-public-marketplace.yml",
       "status": "added"
     },
     {
@@ -291,10 +443,6 @@
       "status": "deleted"
     },
     {
-      "path": ".github/workflows/release-approved-ai-profiles.yml",
-      "status": "added"
-    },
-    {
       "path": ".github/workflows/release-passive-previews.yml",
       "status": "added"
     },
@@ -304,7 +452,7 @@
     },
     {
       "path": ".github/workflows/update-packages.yml",
-      "status": "modified"
+      "status": "deleted"
     },
     {
       "path": ".github/workflows/verify-ai-corpus.yml",
@@ -327,7 +475,63 @@
       "status": "added"
     },
     {
+      "path": ".pi/agents/.generated.json",
+      "status": "added"
+    },
+    {
+      "path": ".pi/agents/backend-developer.md",
+      "status": "type-changed"
+    },
+    {
+      "path": ".pi/agents/code-reviewer.md",
+      "status": "type-changed"
+    },
+    {
+      "path": ".pi/agents/coordinator.md",
+      "status": "type-changed"
+    },
+    {
+      "path": ".pi/agents/frontend-developer.md",
+      "status": "type-changed"
+    },
+    {
+      "path": ".pi/agents/orchestrator.md",
+      "status": "type-changed"
+    },
+    {
+      "path": ".pi/agents/performance-reviewer.md",
+      "status": "type-changed"
+    },
+    {
+      "path": ".pi/agents/planner.md",
+      "status": "type-changed"
+    },
+    {
+      "path": ".pi/agents/repository-investigation-reviewer.md",
+      "status": "type-changed"
+    },
+    {
+      "path": ".pi/agents/repository-investigator.md",
+      "status": "type-changed"
+    },
+    {
+      "path": ".pi/agents/security-reviewer.md",
+      "status": "type-changed"
+    },
+    {
+      "path": ".pi/agents/slice-implementer.md",
+      "status": "type-changed"
+    },
+    {
+      "path": ".pi/agents/spec-writer.md",
+      "status": "type-changed"
+    },
+    {
       "path": "Documentation/.markdownlint.json",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/adding-a-component.md",
       "status": "added"
     },
     {
@@ -359,7 +563,19 @@
       "status": "added"
     },
     {
+      "path": "Documentation/concepts.md",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/corpus-generations.md",
+      "status": "added"
+    },
+    {
       "path": "Documentation/ecosystem-support-architecture-review.md",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/evaluation-evidence-protocol.md",
       "status": "added"
     },
     {
@@ -431,6 +647,10 @@
       "status": "added"
     },
     {
+      "path": "Documentation/examples/ai-subscriptions/README.md",
+      "status": "added"
+    },
+    {
       "path": "Documentation/examples/ai-subscriptions/arc-only-application.cratis-ai.json",
       "status": "added"
     },
@@ -439,11 +659,11 @@
       "status": "added"
     },
     {
-      "path": "Documentation/examples/ai-subscriptions/chronicle-framework.cratis-ai.json",
+      "path": "Documentation/examples/ai-subscriptions/chronicle-kotlin-client.cratis-ai.json",
       "status": "added"
     },
     {
-      "path": "Documentation/examples/ai-subscriptions/chronicle-kotlin-client.cratis-ai.json",
+      "path": "Documentation/examples/ai-subscriptions/chronicle-kotlin-language-scoped.cratis-ai.json",
       "status": "added"
     },
     {
@@ -451,11 +671,15 @@
       "status": "added"
     },
     {
-      "path": "Documentation/examples/ai-subscriptions/pi-settings.json",
+      "path": "Documentation/examples/ai-subscriptions/cratis-chronicle-suite.cratis-ai.json",
       "status": "added"
     },
     {
-      "path": "Documentation/examples/ai-subscriptions/private-studio.cratis-ai.json",
+      "path": "Documentation/examples/ai-subscriptions/cratis-engineering.cratis-ai.json",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/examples/ai-subscriptions/pi-settings.json",
       "status": "added"
     },
     {
@@ -487,6 +711,10 @@
       "status": "added"
     },
     {
+      "path": "Documentation/harnesses.md",
+      "status": "added"
+    },
+    {
       "path": "Documentation/index.md",
       "status": "modified"
     },
@@ -499,7 +727,15 @@
       "status": "modified"
     },
     {
+      "path": "Documentation/maintainer-marketplace-deployment-runbook.md",
+      "status": "added"
+    },
+    {
       "path": "Documentation/maintaining-shared-ai-behavior.md",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/mcp-declarations.md",
       "status": "added"
     },
     {
@@ -548,6 +784,26 @@
     },
     {
       "path": "Documentation/s10-release-and-marketplace-gates.md",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/scenarios/cratis-maintainer.md",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/scenarios/multiple-harnesses.md",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/scenarios/solo-developer.md",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/scenarios/team-repository.md",
+      "status": "added"
+    },
+    {
+      "path": "Documentation/scenarios/updates-and-rollback.md",
       "status": "added"
     },
     {
@@ -699,6 +955,10 @@
       "status": "added"
     },
     {
+      "path": "catalog/schemas/vocabulary.schema.json",
+      "status": "added"
+    },
+    {
       "path": "catalog/studio-mcp-tool-classifications.json",
       "status": "added"
     },
@@ -791,6 +1051,10 @@
       "status": "added"
     },
     {
+      "path": "catalog/vocabulary.json",
+      "status": "added"
+    },
+    {
       "path": "distribution/apm-managed-install-evaluation.json",
       "status": "added"
     },
@@ -827,6 +1091,10 @@
       "status": "added"
     },
     {
+      "path": "distribution/candidate-component-coverage.seals.json",
+      "status": "added"
+    },
+    {
       "path": "distribution/candidate-review-batch.schema.json",
       "status": "added"
     },
@@ -840,6 +1108,10 @@
     },
     {
       "path": "distribution/engineering-artifact-matrix.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/evidence/authority-reobservation-2026-09-06.json",
       "status": "added"
     },
     {
@@ -932,6 +1204,10 @@
     },
     {
       "path": "distribution/evidence/s9-pi-attempt-3-current-2026-08-26.json",
+      "status": "added"
+    },
+    {
+      "path": "distribution/expectation-case.schema.json",
       "status": "added"
     },
     {
@@ -1059,14 +1335,6 @@
       "status": "added"
     },
     {
-      "path": "distribution/repository-control-plane/.github/scripts/verify-generated-distribution.mjs",
-      "status": "added"
-    },
-    {
-      "path": "distribution/repository-control-plane/.github/workflows/verify-generated-distribution.yml",
-      "status": "added"
-    },
-    {
       "path": "distribution/rollout-policy.json",
       "status": "added"
     },
@@ -1080,6 +1348,54 @@
     },
     {
       "path": "distribution/update-bot-contract.json",
+      "status": "added"
+    },
+    {
+      "path": "engineering/.claude-plugin/plugin.json",
+      "status": "added"
+    },
+    {
+      "path": "engineering/.codex-plugin/plugin.json",
+      "status": "added"
+    },
+    {
+      "path": "engineering/.cursor-plugin/plugin.json",
+      "status": "added"
+    },
+    {
+      "path": "engineering/.github/plugin/plugin.json",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-csharp-conventions/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-csharp-conventions/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-csharp-conventions/references/code-style.md",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-csharp-conventions/references/domain-philosophy.md",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-csharp-conventions/references/exceptions-logging-and-di.md",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-decision-record/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-decision-record/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-decision-record/references/record-format.md",
       "status": "added"
     },
     {
@@ -1119,6 +1435,18 @@
       "status": "added"
     },
     {
+      "path": "engineering/skills/cratis-engineering-effect-boundaries/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-effect-boundaries/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "engineering/skills/cratis-engineering-effect-boundaries/references/failure-archetypes.md",
+      "status": "added"
+    },
+    {
       "path": "evals/application-slice-diagnostics/assertions.json",
       "status": "added"
     },
@@ -1148,6 +1476,10 @@
     },
     {
       "path": "evals/application-slice-diagnostics/profile-fixtures/manifest.json",
+      "status": "added"
+    },
+    {
+      "path": "evals/cratis-engineering-decision-record/expectations.json",
       "status": "added"
     },
     {
@@ -2379,6 +2711,22 @@
       "status": "added"
     },
     {
+      "path": "mcp/README.md",
+      "status": "added"
+    },
+    {
+      "path": "mcp/cratis-chronicle-mcp.json",
+      "status": "added"
+    },
+    {
+      "path": "mcp/cratis-studio-mcp.json",
+      "status": "added"
+    },
+    {
+      "path": "mcp/mcp-server-declaration.schema.json",
+      "status": "added"
+    },
+    {
       "path": "pilots/application-slice-diagnostics/PILOT.md",
       "status": "added"
     },
@@ -2443,6 +2791,490 @@
       "status": "added"
     },
     {
+      "path": "profiles/cratis-engineering/cratis/engineering.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/cratis-engineering/cratis/engineering/core.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/cratis-engineering/cratis/engineering/csharp.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/cratis-engineering/cratis/engineering/elixir.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/cratis-engineering/cratis/engineering/kotlin.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/cratis-engineering/cratis/engineering/react.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/cratis-engineering/cratis/engineering/typescript.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/manifest.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/application.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/application/arc-chronicle.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/application/arc-only.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/application/chronicle-dotnet.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/application/csharp.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/application/elixir.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/application/kotlin.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/application/react.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/application/typescript.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/arc.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/arc/client-kotlin.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/arc/core.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/arc/csharp.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/arc/ef-core.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/arc/identity.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/arc/kotlin.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/arc/react.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/chronicle.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/chronicle/client-dotnet.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/chronicle/client-elixir.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/chronicle/client-java.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/chronicle/client-kotlin.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/chronicle/client-python.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/chronicle/client-typescript.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/chronicle/compliance.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/chronicle/core.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/chronicle/csharp.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/chronicle/elixir.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/chronicle/kotlin.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/chronicle/mcp.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/chronicle/multi-tenancy.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/chronicle/typescript.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/chronicle/web-workbench.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/cli.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/cli/terminal-workbench.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/components.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/documentation.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/full.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/full/csharp.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/full/elixir.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/full/kotlin.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/full/typescript.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/fundamentals.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/fundamentals/type-discovery.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/language/csharp.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/language/elixir.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/language/kotlin.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/language/typescript.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/lens.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/methodology/governed-releases.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/modeling/screenplay-stage.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/review.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/screenplay.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/specifications.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/specifications/dotnet.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/specifications/typescript.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/stage.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/public/cratis/studio.json",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-application-react-specifications/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-application-react-specifications/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-application-slice-specifications/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-application-slice-specifications/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-authentication-authorization-and-identity/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-authentication-authorization-and-identity/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-authentication-authorization-and-identity/references/authentication.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-authentication-authorization-and-identity/references/authorization.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-authentication-authorization-and-identity/references/frontend.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-authentication-authorization-and-identity/references/local-development.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-authentication-authorization-and-identity/references/tenancy.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-command-execution/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-command-execution/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-command-validation/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-command-validation/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-command/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-command/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-command/references/command-result.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-command/references/handler-shapes.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-command/references/proxy-generation.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-command/references/read-model-injection.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-ef-core-migration/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-ef-core-migration/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-observable-query-http/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-observable-query-http/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-query-paging/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-query-paging/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-react-page/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-react-page/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-react-page/references/data-page.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-react-page/references/data-tables.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-react-page/references/dialogs.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-react-page/references/mvvm.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-arc-react-page/references/queries-and-commands.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-cli-operations/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-cli-operations/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-client-dotnet/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-client-dotnet/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-client-elixir/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-client-elixir/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-client-kotlin/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-client-kotlin/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-client-typescript/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-client-typescript/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-compliance/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-compliance/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-event-constraints/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-event-constraints/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-event-modeling/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-event-modeling/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-event-specifications/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-event-specifications/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-event-type-migration/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-event-type-migration/SKILL.md",
+      "status": "added"
+    },
+    {
       "path": "skills/cratis-chronicle-mcp-inspection/LICENSE",
       "status": "added"
     },
@@ -2459,11 +3291,247 @@
       "status": "added"
     },
     {
+      "path": "skills/cratis-chronicle-multi-tenancy/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-multi-tenancy/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-projection/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-projection/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-projection/references/fluent-builder.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-projection/references/model-bound-attributes.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-reactor/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-reactor/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-read-model-specifications/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-read-model-specifications/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-read-model/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-read-model/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-read-model/references/queries.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-reducer/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-reducer/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-web-workbench/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-chronicle-web-workbench/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-cli-terminal-workbench/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-cli-terminal-workbench/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-code-review/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-code-review/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-components-accessibility/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-components-accessibility/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-components-schema-editor/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-components-schema-editor/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-components-stepper-command-dialog/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-components-stepper-command-dialog/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-components-styling/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-components-styling/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-components-toolbar/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-components-toolbar/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-documentation-writing/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-documentation-writing/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-event-model-diagram/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-event-model-diagram/SKILL.md",
+      "status": "added"
+    },
+    {
       "path": "skills/cratis-fundamentals-concept/LICENSE",
       "status": "added"
     },
     {
       "path": "skills/cratis-fundamentals-concept/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-fundamentals-type-discovery/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-fundamentals-type-discovery/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-governed-release-methodology/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-governed-release-methodology/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-lens-browser-extension/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-lens-browser-extension/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-performance-review/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-performance-review/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-screenplay-model-authoring/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-screenplay-model-authoring/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-security-review/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-security-review/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-specification-by-example/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-specification-by-example/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-specifications-csharp/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-specifications-csharp/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-specifications-csharp/references/application-scenarios.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-specifications-csharp/references/csharp-patterns.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-specifications-csharp/references/integration-specs.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-specifications-typescript/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-specifications-typescript/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-specifications-typescript/references/typescript-patterns.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-stage-rendering-and-sandbox/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-stage-rendering-and-sandbox/SKILL.md",
       "status": "added"
     },
     {
@@ -2527,6 +3595,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/component-inventory-counts.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/deterministic-release-tree.mjs",
       "status": "added"
     },
@@ -2548,6 +3620,14 @@
     },
     {
       "path": "tooling/engineering-docs-companions-validation.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/evidence-supersession.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/expectation-cases-validation.mjs",
       "status": "added"
     },
     {
@@ -2715,7 +3795,7 @@
       "status": "added"
     },
     {
-      "path": "tooling/generate-public-marketplace-distribution.mjs",
+      "path": "tooling/generate-profile-catalog.mjs",
       "status": "added"
     },
     {
@@ -2728,6 +3808,10 @@
     },
     {
       "path": "tooling/generate-support.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/generator-check.mjs",
       "status": "added"
     },
     {
@@ -2752,6 +3836,10 @@
     },
     {
       "path": "tooling/marketplace-publication-validation.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/mcp-declaration-validation.mjs",
       "status": "added"
     },
     {
@@ -2791,11 +3879,11 @@
       "status": "added"
     },
     {
-      "path": "tooling/package-public-marketplace-submissions.mjs",
+      "path": "tooling/passive-profile-adapters.mjs",
       "status": "added"
     },
     {
-      "path": "tooling/passive-profile-adapters.mjs",
+      "path": "tooling/pi-agent-adapters.mjs",
       "status": "added"
     },
     {
@@ -2860,6 +3948,10 @@
     },
     {
       "path": "tooling/release-request-validation.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/resolve-profiles.mjs",
       "status": "added"
     },
     {
@@ -2983,6 +4075,14 @@
       "status": "added"
     },
     {
+      "path": "tooling/specs/component-inventory-counts.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/cratis-meta-profile-completeness.spec.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/specs/deterministic-release-tree.spec.mjs",
       "status": "added"
     },
@@ -2999,15 +4099,11 @@
       "status": "added"
     },
     {
-      "path": "tooling/specs/distribution-repository-verification.spec.mjs",
-      "status": "added"
-    },
-    {
       "path": "tooling/specs/distribution-rollout.spec.mjs",
       "status": "added"
     },
     {
-      "path": "tooling/specs/distribution-update-workflow.spec.mjs",
+      "path": "tooling/specs/distribution-state-consistency.spec.mjs",
       "status": "added"
     },
     {
@@ -3043,6 +4139,14 @@
       "status": "added"
     },
     {
+      "path": "tooling/specs/fixtures/agent-mutation-manifest.invalid.json",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/fixtures/agent-mutation-manifest.valid.json",
+      "status": "added"
+    },
+    {
       "path": "tooling/specs/fundamentals-preview-assets.spec.mjs",
       "status": "added"
     },
@@ -3055,11 +4159,23 @@
       "status": "added"
     },
     {
+      "path": "tooling/specs/generator-check.spec.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/specs/harness-registry.spec.mjs",
       "status": "added"
     },
     {
       "path": "tooling/specs/human-catalog.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/marketplace-pointer-manifests.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/mcp-declarations.spec.mjs",
       "status": "added"
     },
     {
@@ -3076,6 +4192,10 @@
     },
     {
       "path": "tooling/specs/passive-candidate-assets.spec.mjs",
+      "status": "added"
+    },
+    {
+      "path": "tooling/specs/pi-agent-adapters.spec.mjs",
       "status": "added"
     },
     {
@@ -3104,10 +4224,6 @@
     },
     {
       "path": "tooling/specs/public-fundamentals-concept.spec.mjs",
-      "status": "added"
-    },
-    {
-      "path": "tooling/specs/public-marketplace-distribution.spec.mjs",
       "status": "added"
     },
     {
@@ -3143,6 +4259,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/specs/resolve-profiles.spec.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/specs/s10-release-gate.spec.mjs",
       "status": "added"
     },
@@ -3167,6 +4287,10 @@
       "status": "added"
     },
     {
+      "path": "tooling/specs/vocabulary.spec.mjs",
+      "status": "added"
+    },
+    {
       "path": "tooling/specs/work-record-containment.spec.mjs",
       "status": "added"
     },
@@ -3176,10 +4300,6 @@
     },
     {
       "path": "tooling/stage-distribution-candidate.mjs",
-      "status": "added"
-    },
-    {
-      "path": "tooling/stage-public-marketplace-repository.mjs",
       "status": "added"
     },
     {
@@ -3352,8 +4472,8 @@
         "repo-main-b795d53",
         "ai-126"
       ],
-      "expectedPathCount": 36,
-      "expectedPathsDigest": "3d3ef1ea14bba42811b1b08628aa1e145365665d41d1035c3248c61d421f1d4b"
+      "expectedPathCount": 44,
+      "expectedPathsDigest": "56ea7e6f3f2e44b89a9b7a8d83d7a3c79844fa48063467a6f05f3d88786fdda4"
     },
     {
       "excludePathPatterns": [],
@@ -3449,8 +4569,8 @@
         "repo-main-b795d53",
         "ai-126"
       ],
-      "expectedPathCount": 14,
-      "expectedPathsDigest": "bad82a4ca327684526057da05d262423e0d6ce94e2f711c68c334f9094556cd9"
+      "expectedPathCount": 16,
+      "expectedPathsDigest": "a671e91adf336febe460e88f5a9cd939833bfd281f62a09ed4277fe7f2fe266c"
     },
     {
       "excludePathPatterns": [],
@@ -3484,44 +4604,90 @@
       ],
       "id": "public-skill-sources-and-resources",
       "sourcePathPatterns": [
-        ".ai/skills/add-business-rule/**",
+        "skills/cratis-arc-command-validation/**",
         "skills/cratis-fundamentals-concept/**",
+        "skills/cratis-arc-ef-core-migration/**",
+        "skills/cratis-chronicle-projection/**",
+        "skills/cratis-chronicle-reactor/**",
+        "skills/cratis-chronicle-reducer/**",
+        "skills/cratis-arc-authentication-authorization-and-identity/**",
+        "skills/cratis-arc-command-execution/**",
+        "skills/cratis-chronicle-client-dotnet/**",
+        "skills/cratis-chronicle-client-elixir/**",
+        "skills/cratis-chronicle-client-kotlin/**",
+        "skills/cratis-chronicle-client-typescript/**",
+        "skills/cratis-chronicle-compliance/**",
+        "skills/cratis-chronicle-event-constraints/**",
+        "skills/cratis-chronicle-mcp-inspection/**",
+        "skills/cratis-chronicle-web-workbench/**",
+        "skills/cratis-cli-terminal-workbench/**",
+        "skills/cratis-arc-command/**",
+        "skills/cratis-components-accessibility/**",
+        "skills/cratis-components-schema-editor/**",
+        "skills/cratis-components-styling/**",
+        "skills/cratis-documentation-writing/**",
+        "skills/cratis-governed-release-methodology/**",
+        "skills/cratis-lens-browser-extension/**",
+        "skills/cratis-arc-react-page/**",
+        "skills/cratis-chronicle-read-model/**",
+        "skills/cratis-screenplay-model-authoring/**",
+        "skills/cratis-specification-by-example/**",
+        "skills/cratis-specifications-csharp/**",
+        "skills/cratis-specifications-typescript/**",
+        "skills/cratis-stage-rendering-and-sandbox/**",
+        "skills/cratis-studio-mcp-safety-guidance/**",
+        ".ai/skills/cratis-vertical-slice/**",
+        "skills/cratis-event-model-diagram/**",
+        ".ai/skills/cross-cutting-properties/**",
+        ".ai/skills/diagnose-slice/**",
+        "skills/cratis-fundamentals-type-discovery/**",
+        "skills/cratis-chronicle-event-modeling/**",
+        "skills/cratis-chronicle-event-type-migration/**",
+        "skills/cratis-chronicle-cli-operations/**",
+        "skills/cratis-chronicle-multi-tenancy/**",
+        ".ai/skills/new-vertical-slice/**",
+        "skills/cratis-arc-observable-query-http/**",
+        "skills/cratis-arc-query-paging/**",
+        "skills/cratis-code-review/**",
+        "skills/cratis-performance-review/**",
+        "skills/cratis-security-review/**",
+        ".ai/skills/scaffold-feature/**",
+        "skills/cratis-components-stepper-command-dialog/**",
+        "skills/cratis-components-toolbar/**",
+        "skills/cratis-application-slice-specifications/**",
+        "skills/cratis-chronicle-event-specifications/**",
+        "skills/cratis-application-react-specifications/**",
+        "skills/cratis-chronicle-read-model-specifications/**",
+        ".ai/skills/add-business-rule/**",
+        ".ai/skills/add-concept/**",
         ".ai/skills/add-ef-migration/**",
         ".ai/skills/add-projection/**",
         ".ai/skills/add-reactor/**",
         ".ai/skills/add-reducer/**",
         ".ai/skills/auth-and-identity/**",
         ".ai/skills/call-command-from-code/**",
-        "skills/cratis-chronicle-mcp-inspection/**",
         ".ai/skills/cratis-command/**",
         ".ai/skills/cratis-react-page/**",
         ".ai/skills/cratis-readmodel/**",
         ".ai/skills/cratis-specs-csharp/**",
         ".ai/skills/cratis-specs-typescript/**",
-        "skills/cratis-studio-mcp-safety-guidance/**",
-        ".ai/skills/cratis-vertical-slice/**",
         ".ai/skills/create-event-model/**",
-        ".ai/skills/cross-cutting-properties/**",
-        ".ai/skills/diagnose-slice/**",
         ".ai/skills/discover-implementations/**",
         ".ai/skills/event-modeling/**",
         ".ai/skills/event-type-migrations/**",
         ".ai/skills/inspect-running-chronicle/**",
         ".ai/skills/multi-tenancy/**",
-        ".ai/skills/new-vertical-slice/**",
         ".ai/skills/observable-query-curl/**",
         ".ai/skills/query-paging/**",
         ".ai/skills/review-code/**",
         ".ai/skills/review-performance/**",
         ".ai/skills/review-security/**",
-        ".ai/skills/scaffold-feature/**",
         ".ai/skills/stepper-command-dialog/**",
         ".ai/skills/toolbar/**",
         ".ai/skills/write-specs/**",
         ".ai/skills/write-specs-events/**",
         ".ai/skills/write-specs-frontend/**",
         ".ai/skills/write-specs-readmodels/**",
-        ".ai/skills/add-concept/**",
         "skills/**"
       ],
       "artifactType": "skill-source-and-resources",
@@ -3533,15 +4699,15 @@
       "dependencies": [
         "catalog/v2/targets.json"
       ],
-      "risk": "critical",
-      "migrationState": "blocked-by-distribution-decision",
+      "risk": "high",
+      "migrationState": "retire-after-evidence",
       "evidenceIds": [
         "repo-main-b795d53",
         "workflows-68",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 68,
-      "expectedPathsDigest": "10b4b75a7848dc8b47f553b6f0158fdf8ac2ce6e57b2db3228e5fd8bbf97a73f"
+      "expectedPathCount": 181,
+      "expectedPathsDigest": "09c48fbf79dbcb23d9bd25880b0d040730c0bc09ba32c67656641357825c73f6"
     },
     {
       "excludePathPatterns": [],
@@ -3574,7 +4740,7 @@
         "tooling/support-validation.mjs"
       ],
       "risk": "critical",
-      "migrationState": "blocked-by-distribution-decision",
+      "migrationState": "retain",
       "evidenceIds": [
         "chronicle-mcp-inspection-source-5997b28",
         "studio-mcp-safety-guidance-source-f96eab8"
@@ -3638,8 +4804,8 @@
         "option-a-plus-authority",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 9,
-      "expectedPathsDigest": "8d3836987b9ad3075a797d6bdd086de34432c3a944bda2393b5aa44d46472009"
+      "expectedPathCount": 20,
+      "expectedPathsDigest": "87680b04a4896de3879dd376482c17e950c709d3841b91ab5e2364c2b0d8d6fc"
     },
     {
       "excludePathPatterns": [],
@@ -3687,8 +4853,8 @@
         "reevaluation-authority"
       ],
       "generator": "legacy-manual-adapter-model",
-      "expectedPathCount": 59,
-      "expectedPathsDigest": "9683f84dcc88eadab7de73b4c2c60aee649d79c3497a950e17cf0bc9a8a658f9"
+      "expectedPathCount": 67,
+      "expectedPathsDigest": "1f298673776b30249dd5c9180c9b6bb7bbbe4443ef07568becb42ec10ae19de7"
     },
     {
       "excludePathPatterns": [],
@@ -3775,40 +4941,15 @@
     },
     {
       "excludePathPatterns": [],
-      "id": "obsolete-package-update-workflow",
-      "sourcePathPatterns": [
-        ".github/workflows/update-packages.yml"
-      ],
-      "artifactType": "workflow",
-      "currentOwner": "repository-only authoring/release tooling",
-      "targetOwner": "obsolete, with deletion deferred until replacement evidence exists",
-      "runtimeEligibility": "forbidden",
-      "generatedStatus": "source",
-      "adapterStatus": "none",
-      "dependencies": [],
-      "risk": "high",
-      "migrationState": "retire-after-evidence",
-      "evidenceIds": [
-        "ai-126"
-      ],
-      "expectedPathCount": 1,
-      "expectedPathsDigest": "52e108092cd0b572e13f08ef3e67bbe58a19842c9693f59aecb8c69aaf0383f7"
-    },
-    {
-      "excludePathPatterns": [],
       "id": "repository-validation-workflow",
       "sourcePathPatterns": [
         ".github/workflows/advanced-assurance-audit.yml",
         ".github/workflows/benchmark-release-generation.yml",
-        ".github/workflows/distribution-approved-profile-release.yml",
         ".github/workflows/distribution-fundamentals-preview-assets.yml",
         ".github/workflows/distribution-canary-rollback.yml",
         ".github/workflows/engineering-distribution-fixture.yml",
-        ".github/workflows/distribution-generated-update.yml",
         ".github/workflows/distribution-npm-stage.yml",
-        ".github/workflows/distribution-public-marketplace.yml",
         ".github/workflows/package-passive-candidate-assets.yml",
-        ".github/workflows/release-approved-ai-profiles.yml",
         ".github/workflows/release-passive-previews.yml",
         ".github/workflows/verify-ai-corpus.yml",
         ".github/workflows/verify-no-work-records.yml",
@@ -3830,8 +4971,8 @@
         "repo-main-b795d53",
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 15,
-      "expectedPathsDigest": "e7a40c6e4bd8650f56d99277f622e6bfa82677da93076bf28ef48829c4a5ec57"
+      "expectedPathCount": 11,
+      "expectedPathsDigest": "1996515e8c7e4d6addf73a74be4c578dd2af8656791836d7f982484edc30aeb9"
     },
     {
       "excludePathPatterns": [],
@@ -3867,8 +5008,8 @@
       "currentOwner": "reusable Cratis engineering behavior",
       "targetOwner": "Ensemble",
       "runtimeEligibility": "forbidden",
-      "generatedStatus": "derived",
-      "adapterStatus": "symlink-adapter",
+      "generatedStatus": "generated",
+      "adapterStatus": "adapter",
       "dependencies": [
         ".ai/agents/repository-investigation-reviewer.md",
         ".ai/agents/repository-investigator.md"
@@ -3878,7 +5019,7 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "generator": "legacy-manual-adapter-model",
+      "generator": "tooling/pi-agent-adapters.mjs",
       "expectedPathCount": 2,
       "expectedPathsDigest": "9943d480016084007628f58d5db9b4fdd1d238eda9564063bc5447e0e39112d9"
     },
@@ -3895,8 +5036,8 @@
       "currentOwner": "reusable Cratis engineering behavior",
       "targetOwner": "reusable Cratis engineering behavior",
       "runtimeEligibility": "forbidden",
-      "generatedStatus": "derived",
-      "adapterStatus": "symlink-adapter",
+      "generatedStatus": "generated",
+      "adapterStatus": "adapter",
       "dependencies": [
         ".ai/agents/**"
       ],
@@ -3905,9 +5046,9 @@
       "evidenceIds": [
         "workflows-68"
       ],
-      "generator": "legacy-manual-adapter-model",
-      "expectedPathCount": 10,
-      "expectedPathsDigest": "59159764500d1d8b3f15f7babf2bd0cded4abab3b5c35a6c7d2262fd2a12454c"
+      "generator": "tooling/pi-agent-adapters.mjs",
+      "expectedPathCount": 11,
+      "expectedPathsDigest": "d0ddbe9559c48588a48434fec7f4009427d320b3acc2806d1de5b83ff3b8f946"
     },
     {
       "excludePathPatterns": [],
@@ -4012,6 +5153,35 @@
     },
     {
       "excludePathPatterns": [],
+      "id": "adopter-documentation",
+      "sourcePathPatterns": [
+        "Documentation/concepts.md",
+        "Documentation/harnesses.md",
+        "Documentation/scenarios/**",
+        "Documentation/evaluation-evidence-protocol.md",
+        "Documentation/corpus-generations.md"
+      ],
+      "artifactType": "documentation",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "workflows-68",
+        "option-a-plus-authority"
+      ],
+      "risk": "low",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "expectedPathCount": 9,
+      "expectedPathsDigest": "28a9f3d819eda95d9d4be7cf8bf7587df64d5d240ffc394792cde0a71febc9c7"
+    },
+    {
+      "excludePathPatterns": [],
       "id": "legacy-documentation",
       "sourcePathPatterns": [
         "Documentation/.markdownlint.json",
@@ -4080,17 +5250,20 @@
         "workflows-68",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 27,
-      "expectedPathsDigest": "e64c4acb88b58c14fd3d36f873802f4e29cb52774eb8b06897e3c6247dfd1540"
+      "expectedPathCount": 29,
+      "expectedPathsDigest": "4297439841da17615086d138751286f28a43ad67ced1270512e383e720938618"
     },
     {
       "excludePathPatterns": [],
       "id": "capability-model-documentation",
       "sourcePathPatterns": [
+        "Documentation/adding-a-component.md",
         "Documentation/capability-catalog-v2.md",
         "Documentation/chronicle-mcp-guidance.md",
         "Documentation/ecosystem-support-architecture-review.md",
+        "Documentation/maintainer-marketplace-deployment-runbook.md",
         "Documentation/maintaining-shared-ai-behavior.md",
+        "Documentation/mcp-declarations.md",
         "Documentation/native-non-skill-projections.md",
         "Documentation/real-host-canaries.md",
         "Documentation/s10-release-and-marketplace-gates.md",
@@ -4115,6 +5288,8 @@
         "distribution/real-host-canary-matrix.json",
         "distribution/real-host-canary-report.schema.json",
         "tooling/native-non-skill-projections.mjs",
+        "tooling/component-inventory-counts.mjs",
+        "distribution/candidate-component-coverage.seals.json",
         "distribution/s10-release-policy.json",
         "tooling/real-host-canary-contract.mjs",
         "tooling/s10-release-gate-validation.mjs"
@@ -4124,8 +5299,8 @@
       "evidenceIds": [
         "option-a-plus-authority"
       ],
-      "expectedPathCount": 8,
-      "expectedPathsDigest": "bff60e5d5b57a3147d80020a89bb3afbeab7fb029099d5dc70136abff29e7610"
+      "expectedPathCount": 11,
+      "expectedPathsDigest": "b952ff83014b3c234b194886b85569d8784ed0b89fcf33b1a028db12b67c52e9"
     },
     {
       "excludePathPatterns": [],
@@ -4175,6 +5350,30 @@
       ],
       "expectedPathCount": 6,
       "expectedPathsDigest": "3068f98ed419cf289957ed3ef997b37b21676d2f463aece2806b76cf2c99a22a"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "decision-record-expectation-cases",
+      "sourcePathPatterns": [
+        "evals/cratis-engineering-decision-record/**"
+      ],
+      "artifactType": "evaluation",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "reusable Cratis engineering behavior",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "engineering/skills/cratis-engineering-decision-record/**"
+      ],
+      "risk": "low",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "reevaluation-authority"
+      ],
+      "expectedPathCount": 1,
+      "expectedPathsDigest": "03ec23e8e2ba3a43ba114de8f461ad8046e0aa9eda3a2f7d390649fbcacbb820"
     },
     {
       "excludePathPatterns": [],
@@ -4446,7 +5645,9 @@
         "catalog/schemas/artifact-assurance-profiles.schema.json",
         "catalog/schemas/ecosystem-artifact-coverage.schema.json",
         "catalog/schemas/product-coverage.schema.json",
-        "catalog/schemas/public-skills.schema.json"
+        "catalog/schemas/public-skills.schema.json",
+        "catalog/schemas/vocabulary.schema.json",
+        "catalog/vocabulary.json"
       ],
       "artifactType": "catalog-schema",
       "currentOwner": "repository-only authoring/release tooling",
@@ -4462,8 +5663,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 9,
-      "expectedPathsDigest": "add7f934a78773bbfed4ead60726fcb071b6a0fe28126a461ded4c3ddd7ff846"
+      "expectedPathCount": 11,
+      "expectedPathsDigest": "d0685fe6777f2ed2a75045f323db3d153627c40a71b81c24019516fc3cb39883"
     },
     {
       "excludePathPatterns": [],
@@ -4653,7 +5854,9 @@
       "expectedPathsDigest": "f8ea2e49bee58147fe1520c05b1e2078d4e2c9a9a71162b84c8ea364b8706b81"
     },
     {
-      "excludePathPatterns": [],
+      "excludePathPatterns": [
+        "distribution/profile-catalog.json"
+      ],
       "id": "distribution-foundation",
       "sourcePathPatterns": [
         "distribution/**"
@@ -4674,7 +5877,61 @@
         "option-a-plus-authority"
       ],
       "expectedPathCount": 73,
-      "expectedPathsDigest": "9e03a1d09ed64c2dc2ea3dfb9c075910373912141c779cf5dbda00e7242a3b7f"
+      "expectedPathsDigest": "bd235326420f6fc2fdaefe916ac923a2d516cb55829279b6a42a246ef2500a46"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "authored-profile-sources",
+      "sourcePathPatterns": [
+        "profiles/**"
+      ],
+      "artifactType": "catalog-schema",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "tooling/generate-profile-catalog.mjs",
+        "tooling/profile-subscription-validation.mjs",
+        "tooling/resolve-profiles.mjs"
+      ],
+      "risk": "high",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "option-a-plus-authority",
+        "reevaluation-authority"
+      ],
+      "expectedPathCount": 67,
+      "expectedPathsDigest": "8a551a4d50aa49a8219198445eaf20829b242d60d4936133b1e74c7481a183b9"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "generated-profile-catalog",
+      "sourcePathPatterns": [
+        "distribution/profile-catalog.json"
+      ],
+      "artifactType": "catalog-schema",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "generated",
+      "adapterStatus": "none",
+      "dependencies": [
+        "profiles/cratis-engineering/**",
+        "profiles/manifest.json",
+        "profiles/public/**",
+        "tooling/catalog-ordering.mjs",
+        "tooling/generate-profile-catalog.mjs"
+      ],
+      "risk": "high",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "option-a-plus-authority"
+      ],
+      "generator": "tooling/generate-profile-catalog.mjs",
+      "expectedPathCount": 1,
+      "expectedPathsDigest": "bf4c29e8f5e60b5133a368a27b16c7f72391a4207b6c11b7e9f1450aa57de494"
     },
     {
       "excludePathPatterns": [],
@@ -4749,8 +6006,38 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 80,
-      "expectedPathsDigest": "ba56fdd96ec85d5fe4250f2df1e2cf9c603e54b5ca4840ee56c5d340d965918d"
+      "expectedPathCount": 85,
+      "expectedPathsDigest": "ef598cf059dd0a547da2b1fbd0e1ca3fb0b0c7ab2907678498c3be49ae2b7c90"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "mcp-server-declarations",
+      "sourcePathPatterns": [
+        "mcp/**"
+      ],
+      "artifactType": "catalog-schema",
+      "currentOwner": "public Cratis product capability",
+      "targetOwner": "public Cratis product capability",
+      "runtimeEligibility": "forbidden",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "catalog/chronicle-mcp-tool-classifications.json",
+        "catalog/mcp-guidance-products.json",
+        "catalog/studio-mcp-tool-classifications.json",
+        "distribution/assurance-lanes.json",
+        "distribution/profile-catalog.json",
+        "tooling/mcp-declaration-validation.mjs",
+        "tooling/resolve-profiles.mjs",
+        "tooling/specifications/agent-plugins/1.0.0/mcp.schema.json"
+      ],
+      "risk": "critical",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "reevaluation-authority"
+      ],
+      "expectedPathCount": 4,
+      "expectedPathsDigest": "ecc61c8c7fe90c8d9e2efc9d80dcd76acb257441650fc2391ddb45ea807d1b42"
     },
     {
       "excludePathPatterns": [],
@@ -4773,8 +6060,8 @@
       "evidenceIds": [
         "reevaluation-authority"
       ],
-      "expectedPathCount": 62,
-      "expectedPathsDigest": "1a6bc1f87205f6d5e153f63486bc47b8e5c22a9006b78e07daeddcf75f6d467f"
+      "expectedPathCount": 70,
+      "expectedPathsDigest": "8c868960d18acc95357cbd16ddd8eff863d9db8e8dd6e9d0ea9f1c620139cb0f"
     },
     {
       "excludePathPatterns": [],
@@ -4829,6 +6116,60 @@
       ],
       "expectedPathCount": 31,
       "expectedPathsDigest": "c97727f86b11a9347454a889dbd51208071f4adb652740bc8ce7cc9a759a1dc3"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "marketplace-pointer-manifests",
+      "sourcePathPatterns": [
+        ".agents/plugins/marketplace.json",
+        ".claude-plugin/marketplace.json",
+        ".cursor-plugin/marketplace.json",
+        ".github/plugin/marketplace.json"
+      ],
+      "artifactType": "repository-metadata",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "distribution/marketplace-requirements.json"
+      ],
+      "risk": "medium",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "option-a-plus-authority"
+      ],
+      "expectedPathCount": 4,
+      "expectedPathsDigest": "06837deb5e2b237965163d895dc40a82e0f91646deb2bbcd52ae2038f3830146"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "engineering-plugin-manifests",
+      "sourcePathPatterns": [
+        "engineering/.claude-plugin/plugin.json",
+        "engineering/.codex-plugin/plugin.json",
+        "engineering/.cursor-plugin/plugin.json",
+        "engineering/.github/plugin/plugin.json"
+      ],
+      "artifactType": "repository-metadata",
+      "currentOwner": "repository-only authoring/release tooling",
+      "targetOwner": "repository-only authoring/release tooling",
+      "runtimeEligibility": "repository-only",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        ".claude-plugin/marketplace.json"
+      ],
+      "risk": "medium",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "repo-main-b795d53",
+        "option-a-plus-authority"
+      ],
+      "expectedPathCount": 4,
+      "expectedPathsDigest": "412ccdec41d406ac82c7d3832776229c8475b1251f394d2b030851b6bbdde62b"
     }
   ]
 }

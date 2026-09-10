@@ -8,7 +8,10 @@ on:
         paths:
             - ".ai/**"
             - ".agents/**"
+            - ".claude-plugin/**"
+            - ".cursor-plugin/**"
             - ".github/ISSUE_TEMPLATE/**"
+            - ".github/plugin/**"
             - ".github/workflows/**"
             - "AGENTS.md"
             - "README.md"
@@ -19,6 +22,7 @@ on:
             - "evals/**"
             - "evidence/**"
             - "pilots/**"
+            - "profiles/**"
             - "skills/**"
             - "tooling/**"
     push:
@@ -26,7 +30,10 @@ on:
         paths:
             - ".ai/**"
             - ".agents/**"
+            - ".claude-plugin/**"
+            - ".cursor-plugin/**"
             - ".github/ISSUE_TEMPLATE/**"
+            - ".github/plugin/**"
             - ".github/workflows/**"
             - "AGENTS.md"
             - "README.md"
@@ -37,6 +44,7 @@ on:
             - "evals/**"
             - "evidence/**"
             - "pilots/**"
+            - "profiles/**"
             - "skills/**"
             - "tooling/**"
     workflow_dispatch:
@@ -64,13 +72,39 @@ jobs:
               with:
                   node-version: 24
 
+            - name: Lint the hook scripts
+              run: |
+                  set -euo pipefail
+                  shellcheck --version
+                  # Non-vacuity: the gate is worthless if the glob resolves to nothing,
+                  # so count the subjects, refuse an empty population, and print the count.
+                  mapfile -t scripts < <(find .ai/hooks/scripts -maxdepth 1 -name '*.sh' | sort)
+                  if [[ ${#scripts[@]} -eq 0 ]]; then
+                    echo "no hook scripts found under .ai/hooks/scripts — the lint gate would pass vacuously" >&2
+                    exit 2
+                  fi
+                  shellcheck --external-sources --severity=style "${scripts[@]}"
+                  echo "Checked ${#scripts[@]} hook scripts, found 0 shellcheck findings"
+
             - name: Validate the AI corpus
               run: .ai/hooks/scripts/validate-ai-setup.sh
+
+            - name: Check generated catalogs read-only
+              run: |
+                  set -euo pipefail
+                  node tooling/harness-registry.mjs --check
+                  node tooling/generate-catalog-v2.mjs --check
+                  node tooling/generate-support.mjs --check
+                  node tooling/preview-readiness.mjs --check
+                  node tooling/generate-ecosystem-artifact-coverage.mjs --check
+                  node tooling/generate-human-catalog.mjs --check
+                  node tooling/generate-repository-inventory.mjs --check
 
             - name: Verify generated catalogs are current
               run: |
                   set -euo pipefail
                   node tooling/harness-registry.mjs
+                  node tooling/generate-profile-catalog.mjs
                   node tooling/generate-catalog-v2.mjs
                   node tooling/generate-support.mjs
                   node tooling/preview-readiness.mjs
@@ -83,6 +117,7 @@ jobs:
                     catalog/generated/human-catalog \
                     distribution/artifact-matrix.json \
                     distribution/engineering-artifact-matrix.json \
+                    distribution/profile-catalog.json \
                     distribution/profile-subscription.schema.json \
                     distribution/preview-readiness.json
 
@@ -110,6 +145,7 @@ jobs:
                   const inputs = [
                     ...files('catalog'),
                     ...files('distribution'),
+                    ...files('profiles'),
                   ].filter((path) =>
                     path.endsWith('.json') ||
                     (path.startsWith('catalog/') && path.endsWith('.yml')));

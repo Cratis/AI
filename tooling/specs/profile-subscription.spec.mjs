@@ -6,6 +6,7 @@ import {
     cpSync,
     mkdtempSync,
     mkdirSync,
+    readdirSync,
     readFileSync,
     rmSync,
     writeFileSync,
@@ -14,7 +15,10 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
-import { validateProfileSubscriptions } from "../profile-subscription-validation.mjs";
+import {
+    deriveSubscriptionChannel,
+    validateProfileSubscriptions,
+} from "../profile-subscription-validation.mjs";
 import { presentProfile } from "../profile-presentation.mjs";
 
 const repositoryRoot = resolve(
@@ -25,8 +29,9 @@ const profileFiles = [
     "distribution/profile-catalog.json",
     "distribution/profile-subscription.schema.json",
     "catalog/v2/taxonomy.json",
-    "Documentation/examples/ai-subscriptions/chronicle-framework.cratis-ai.json",
+    "Documentation/examples/ai-subscriptions/cratis-engineering.cratis-ai.json",
     "Documentation/examples/ai-subscriptions/cratis-application.cratis-ai.json",
+    "Documentation/examples/ai-subscriptions/cratis-chronicle-suite.cratis-ai.json",
     "Documentation/examples/ai-subscriptions/pi-settings.json",
     "Documentation/examples/private-repository-overlay/.cratis/ai.json",
 ];
@@ -53,14 +58,37 @@ function writeJson(path, value) {
     writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`);
 }
 
+/** Profile count from the source tree, so adding a profile never stale-dates this guard. */
+function countProfileFiles(relativePath = "") {
+    let count = 0;
+    for (const entry of readdirSync(join(repositoryRoot, "profiles", relativePath), {
+        withFileTypes: true,
+    })) {
+        if (entry.isDirectory())
+            count += countProfileFiles(join(relativePath, entry.name));
+        else if (entry.isFile() && entry.name.endsWith(".json")) count += 1;
+    }
+    return count;
+}
+
 test("profile catalog and project subscriptions pass", () => {
     assert.deepEqual(validateProfileSubscriptions(repositoryRoot), []);
     const catalog = readJson(
         join(repositoryRoot, "distribution/profile-catalog.json"),
     );
-    assert.equal(catalog.publicProfiles.length, 32);
-    assert.equal(catalog.engineeringProfiles.length, 20);
+    assert.equal(
+        catalog.publicProfiles.length,
+        countProfileFiles("public"),
+        "publicProfiles must match the profiles/public source tree",
+    );
+    assert.equal(
+        catalog.engineeringProfiles.length,
+        countProfileFiles("cratis-engineering"),
+        "engineeringProfiles must match the profiles/cratis-engineering source tree",
+    );
     assert.equal(catalog.versioning.exactPinsRequired, true);
+    assert.equal(catalog.versioning.perProfileVersionStamps, true);
+    assert.equal(catalog.versioning.releaseTrain, "atomic");
     assert.equal(catalog.authority.automaticReverseSyncAllowed, false);
     assert.equal(
         catalog.confidentiality.engineeringPackages,
@@ -117,9 +145,9 @@ test("private repository overlay composes public-safe package and local facts", 
         join(root, ".agents/skills/studio-local-release/SKILL.md"),
         "utf8",
     );
-    assert.deepEqual(subscription.profiles, ["engineering-studio"]);
+    assert.deepEqual(subscription.profiles, ["cratis/engineering"]);
     assert.deepEqual(piSettings.packages, [
-        "npm:@cratis/ai-engineering-studio@1.0.0",
+        "npm:@cratis/ai-engineering@1.0.0",
     ]);
     assert(agents.includes("repository-local skills"));
     assert(project.includes("private Studio implementation behavior"));
@@ -131,17 +159,17 @@ test("profile subscription rejects floating versions and unknown profiles", () =
     withFixture((root) => {
         const path = join(
             root,
-            "Documentation/examples/ai-subscriptions/chronicle-framework.cratis-ai.json",
+            "Documentation/examples/ai-subscriptions/cratis-engineering.cratis-ai.json",
         );
         const example = readJson(path);
         example.version = "latest";
-        example.profiles = ["engineering-framework-unknown"];
+        example.profiles = ["cratis/engineering-unknown"];
         writeJson(path, example);
         const errors = validateProfileSubscriptions(root);
         assert(errors.some((error) => error.includes("version")));
         assert(
             errors.some((error) =>
-                error.includes("unknown profile engineering-framework-unknown"),
+                error.includes("unknown profile cratis/engineering-unknown"),
             ),
         );
     });
@@ -174,7 +202,7 @@ test("subscription schema rejects cross-audience profiles", () => {
             "Documentation/examples/ai-subscriptions/cratis-application.cratis-ai.json",
         );
         const example = readJson(path);
-        example.profiles = ["engineering-chronicle"];
+        example.profiles = ["cratis/engineering"];
         writeJson(path, example);
         const errors = validateProfileSubscriptions(root);
         assert(
@@ -184,7 +212,48 @@ test("subscription schema rejects cross-audience profiles", () => {
         );
         assert(
             errors.some((error) =>
-                error.includes("unknown profile engineering-chronicle"),
+                error.includes(
+                    "declared channel public contradicts the derived channel cratis-engineering",
+                ),
+            ),
+        );
+    });
+});
+
+test("cratis namespace subscribes without hand-declaring a channel", () => {
+    const example = readJson(
+        join(
+            repositoryRoot,
+            "Documentation/examples/ai-subscriptions/cratis-chronicle-suite.cratis-ai.json",
+        ),
+    );
+    assert.deepEqual(example.profiles, ["cratis/chronicle"]);
+    assert.equal(Object.hasOwn(example, "channel"), false);
+    assert.equal(example.updatePolicy, "reviewed-pull-request");
+    assert.equal(example.version, "1.0.0");
+    assert.equal(deriveSubscriptionChannel(example.profiles), "public");
+    assert.equal(
+        deriveSubscriptionChannel(["cratis/engineering"]),
+        "cratis-engineering",
+    );
+    assert.equal(
+        deriveSubscriptionChannel(["cratis/arc", "cratis/engineering"]),
+        null,
+    );
+});
+
+test("cratis namespace subscription still rejects a floating version", () => {
+    withFixture((root) => {
+        const path = join(
+            root,
+            "Documentation/examples/ai-subscriptions/cratis-chronicle-suite.cratis-ai.json",
+        );
+        const example = readJson(path);
+        example.version = "latest";
+        writeJson(path, example);
+        assert(
+            validateProfileSubscriptions(root).some((error) =>
+                error.includes("version"),
             ),
         );
     });
@@ -196,8 +265,9 @@ test("profile catalog rejects unknown composition and authority drift", () => {
         const catalog = readJson(path);
         catalog.authority.automaticReverseSyncAllowed = true;
         catalog.confidentiality.confidentialSharedPackagesAllowed = true;
-        catalog.engineeringProfiles[0].confidentialContentAllowed = true;
-        catalog.engineeringProfiles[0].composes = ["engineering-missing"];
+        const drifted = catalog.engineeringProfiles[0];
+        drifted.confidentialContentAllowed = true;
+        drifted.composes = ["engineering-missing"];
         writeJson(path, catalog);
         const errors = validateProfileSubscriptions(root);
         assert(
@@ -207,7 +277,7 @@ test("profile catalog rejects unknown composition and authority drift", () => {
         );
         assert(
             errors.includes(
-                "engineering-base: unknown composed profile engineering-missing",
+                `${drifted.id}: unknown composed profile engineering-missing`,
             ),
         );
     });

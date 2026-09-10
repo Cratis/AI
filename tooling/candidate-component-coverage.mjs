@@ -6,6 +6,10 @@ import { readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { compareOrdinal } from "./catalog-ordering.mjs";
+import {
+    assertComponentInventorySeals,
+    componentInventoryCounts,
+} from "./component-inventory-counts.mjs";
 
 const defaultRepositoryRoot = resolve(
     fileURLToPath(new URL("..", import.meta.url)),
@@ -25,19 +29,12 @@ function sha256(content) {
     return createHash("sha256").update(content).digest("hex");
 }
 
-function countBy(records, selector) {
-    const counts = new Map();
-    for (const record of records) {
-        const value = selector(record);
-        counts.set(value, (counts.get(value) ?? 0) + 1);
-    }
-    return Object.fromEntries(
-        [...counts].sort(([left], [right]) => compareOrdinal(left, right)),
-    );
-}
-
+// `assertSeals` exists for exactly one caller: `component-inventory-counts.mjs --print`, which has
+// to be able to report the real counts after a migration precisely because the seal is stale. Every
+// other caller takes the default and stays fail-closed.
 export function buildCandidateComponentCoverage(
     repositoryRoot = defaultRepositoryRoot,
+    { assertSeals = true } = {},
 ) {
     const root = resolve(repositoryRoot);
     const paths = {
@@ -168,34 +165,14 @@ export function buildCandidateComponentCoverage(
         compareOrdinal(left.componentId, right.componentId),
     );
     const componentIds = records.map((record) => record.componentId);
-    const skillDispositionCount = records.filter((record) =>
-        [
-            "skill-packaged-candidate",
-            "skill-blocked-candidate",
-            "skill-legacy-repository-only",
-        ].includes(record.disposition),
-    ).length;
-    if (
-        records.length !== 137 ||
-        new Set(componentIds).size !== records.length ||
-        skillDispositionCount !== 49 ||
-        records.filter(
-            (record) => record.disposition === "skill-legacy-repository-only",
-        ).length !== 4 ||
-        records.filter(
-            (record) => record.disposition === "native-static-review-projected",
-        ).length !== 35 ||
-        records.filter(
-            (record) => record.disposition === "native-static-unprojected",
-        ).length !== 2 ||
-        records.filter(
-            (record) => record.disposition === "repository-host-adapter-only",
-        ).length !== 48 ||
-        records.filter((record) => record.disposition === "executable-blocked")
-            .length !== 3
-    ) {
-        throw new Error("Candidate component coverage closure changed");
-    }
+    // Uniqueness is an invariant of the derivation, not a reviewed size, so it stays here.
+    if (new Set(componentIds).size !== records.length)
+        throw new Error(
+            "Candidate component coverage derived duplicate component ids",
+        );
+    const counts = componentInventoryCounts(records);
+    // The reviewed sizes live in distribution/candidate-component-coverage.seals.json, once.
+    if (assertSeals) assertComponentInventorySeals(counts, root);
     const schemaPath = "distribution/candidate-component-coverage.schema.json";
     return {
         schemaVersion: "1.0.0",
@@ -208,9 +185,9 @@ export function buildCandidateComponentCoverage(
                 sha256(readFileSync(join(root, path))),
             ]),
         ),
-        componentCount: records.length,
-        byKind: countBy(records, (record) => record.kind),
-        byDisposition: countBy(records, (record) => record.disposition),
+        componentCount: counts.componentCount,
+        byKind: counts.byKind,
+        byDisposition: counts.byDisposition,
         records,
         approvalGranted: false,
         installationSupported: false,

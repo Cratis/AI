@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "cratis-studio-mcp",
+  "displayName": "Studio MCP (extension point, not published)",
+  "product": "studio",
+  "status": "extension-point-not-published",
+  "resolvable": false,
+  "authorityState": "NO_ADMITTED_TOOL_EFFECT_EVIDENCE",
+  "defaultDisposition": "evidence-blocked",
+  "owner": {
+    "repository": "Cratis/Studio",
+    "component": "not-declared",
+    "distributedByCratisAi": false
+  },
+  "reference": {
+    "kind": "not-declared",
+    "resolutionAuthority": "no admitted authority",
+    "note": "No Studio MCP implementation source, operation, prompt, resource, schema, or revision is admitted. This file exists so a future Studio MCP server has a defined shape to fill in; it is not a statement that such a server exists, is planned, or is obtainable."
+  },
+  "transport": {
+    "declared": "stdio",
+    "alternatives": [],
+    "evidenceState": "unverified-pending-source-contract"
+  },
+  "authentication": {
+    "type": "delegated",
+    "credentialHandling": "delegated-to-host-and-server",
+    "credentialsEmittedByCratisAi": false,
+    "note": "Delegated by construction. Nothing about Studio authentication is admitted, and no credential of any kind appears in this repository."
+  },
+  "requires": {
+    "profileIds": [],
+    "capabilities": [],
+    "guidanceSkillIds": ["cratis-studio-mcp-safety-guidance"]
+  },
+  "hostConfigurationMapping": [
+    {
+      "host": "agent-plugin",
+      "configurationFile": "mcp-configuration",
+      "serverKey": "cratis-studio",
+      "serverType": "stdio",
+      "specification": "tooling/specifications/agent-plugins/1.0.0/mcp.schema.json",
+      "emissionAllowed": false,
+      "note": "Shape only. This mapping is never projected into any host configuration, because the declaration is not resolvable."
+    }
+  ],
+  "classification": {
+    "declarationContentClass": "passive-configuration",
+    "serverImplementationClass": "executable-code",
+    "assuranceLane": "governed-support",
+    "emission": {
+      "classificationReferencesAllowed": true,
+      "executableAllowed": false,
+      "installationAllowed": false,
+      "invocationAllowed": false,
+      "promptInvocationAllowed": false,
+      "runtimeConfigurationAllowed": false,
+      "serverBytesAllowed": false
+    }
+  },
+  "distributionBoundary": {
+    "passivePackageInclusion": "excluded-pending-release-process-decision",
+    "note": "Studio MCP is an extension point only. It is never included in a resolved manifest, never projected into a host configuration, and never shipped in any generated package. skills/cratis-studio-mcp-safety-guidance and catalog/studio-mcp-tool-classifications.json remain the only Studio MCP surface."
+  }
+}

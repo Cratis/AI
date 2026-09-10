@@ -10,6 +10,11 @@ import { fileURLToPath } from "node:url";
 import { compareOrdinal, sortedOrdinal } from "./catalog-ordering.mjs";
 import { readCatalog } from "./catalog-validation.mjs";
 import { expandInventoryRecord } from "./catalog-v2-validation.mjs";
+import {
+    checkModeRequested,
+    runGeneratorCheck,
+    serializeJson,
+} from "./generator-check.mjs";
 
 const repositoryRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const outputPath = join(repositoryRoot, "catalog/v2/repository-inventory.json");
@@ -81,67 +86,114 @@ function changesSinceBase(baseRevision) {
 }
 
 const excludedRuntimePrefixes = [".pi/delegate/", ".pi/fusion/", ".pi/tasks/"];
-const tracked = gitPaths(["ls-files", "-z"]);
-const admittedUntracked = gitPaths([
-    "ls-files",
-    "--others",
-    "--exclude-standard",
-    "-z",
-])
-    .filter(
+
+// Reading the working tree happens per run, not at import, so importing this
+// module observes nothing and writes nothing.
+function readPathUniverse() {
+    const tracked = gitPaths(["ls-files", "-z"]);
+    const admittedUntracked = gitPaths([
+        "ls-files",
+        "--others",
+        "--exclude-standard",
+        "-z",
+    ])
+        .filter(
+            (path) =>
+                !excludedRuntimePrefixes.some((prefix) =>
+                    path.startsWith(prefix),
+                ),
+        )
+        .sort(compareOrdinal);
+    const unexpectedUntracked = admittedUntracked.filter(
         (path) =>
-            !excludedRuntimePrefixes.some((prefix) => path.startsWith(prefix)),
-    )
-    .sort(compareOrdinal);
-const unexpectedUntracked = admittedUntracked.filter(
-    (path) =>
-        !(
-            /^\.github\/ISSUE_TEMPLATE\//.test(path) ||
-            path ===
-                ".github/workflows/distribution-approved-profile-release.yml" ||
-            path ===
-                ".github/workflows/distribution-fundamentals-preview-assets.yml" ||
-            path === ".github/workflows/distribution-canary-rollback.yml" ||
-            path === ".github/workflows/engineering-distribution-fixture.yml" ||
-            path === ".github/workflows/distribution-generated-update.yml" ||
-            path === ".github/workflows/distribution-npm-stage.yml" ||
-            path === ".github/workflows/package-passive-candidate-assets.yml" ||
-            path === ".github/workflows/release-approved-ai-profiles.yml" ||
-            /^AI-REPOSITORY-REDESIGN-[A-Z0-9-]+\.md$/.test(path) ||
-            path === "Documentation/.markdownlint.json" ||
-            /^Documentation\/(?:adopting-cratis-ai|adopting-cratis-ai-for-maintainers|ai-distribution-and-subscriptions|capability-catalog-v2|phase-0-verification|private-repository-overlays|portable-compliance|profile-reference|public-product-architecture|skill-authoring-contract|skill-classification-audit|project-context-bootstrap|redesign-foundation-validation|releasing-cratis-ai|source-evidence-contract)\.md$/.test(
-                path,
-            ) ||
-            /^Documentation\/examples\/(?:ai-release|ai-subscriptions|private-repository-overlay)\//.test(
-                path,
-            ) ||
-            /^Documentation\/evidence\/redesign-autonomous-execution-2026-08-20\//.test(
-                path,
-            ) ||
-            /^catalog\//.test(path) ||
-            /^distribution\//.test(path) ||
-            /^engineering\//.test(path) ||
-            /^evidence\/source-evidence\//.test(path) ||
-            /^evals\//.test(path) ||
-            /^pilots\//.test(path) ||
-            /^skills\//.test(path) ||
-            /^tooling\//.test(path)
-        ),
-);
-if (unexpectedUntracked.length > 0) {
-    throw new Error(
-        `Refusing to admit unexpected untracked files: ${unexpectedUntracked.join(", ")}`,
+            !(
+                /^\.github\/ISSUE_TEMPLATE\//.test(path) ||
+                path ===
+                    ".github/workflows/distribution-fundamentals-preview-assets.yml" ||
+                path === ".github/workflows/distribution-canary-rollback.yml" ||
+                path === ".github/workflows/engineering-distribution-fixture.yml" ||
+                path === ".github/workflows/distribution-npm-stage.yml" ||
+                path === ".github/workflows/package-passive-candidate-assets.yml" ||
+                /^AI-REPOSITORY-REDESIGN-[A-Z0-9-]+\.md$/.test(path) ||
+                path === "Documentation/.markdownlint.json" ||
+                /^Documentation\/(?:adopting-cratis-ai|adopting-cratis-ai-for-maintainers|ai-distribution-and-subscriptions|capability-catalog-v2|phase-0-verification|private-repository-overlays|portable-compliance|profile-reference|public-product-architecture|skill-authoring-contract|skill-classification-audit|project-context-bootstrap|redesign-foundation-validation|releasing-cratis-ai|source-evidence-contract)\.md$/.test(
+                    path,
+                ) ||
+                /^Documentation\/examples\/(?:ai-release|ai-subscriptions|private-repository-overlay)\//.test(
+                    path,
+                ) ||
+                /^Documentation\/evidence\/redesign-autonomous-execution-2026-08-20\//.test(
+                    path,
+                ) ||
+                /^catalog\//.test(path) ||
+                /^distribution\//.test(path) ||
+                /^engineering\//.test(path) ||
+                /^evidence\/source-evidence\//.test(path) ||
+                /^evals\//.test(path) ||
+                /^mcp\//.test(path) ||
+                /^pilots\//.test(path) ||
+                /^profiles\//.test(path) ||
+                /^skills\//.test(path) ||
+                /^tooling\//.test(path)
+            ),
     );
+    if (unexpectedUntracked.length > 0) {
+        throw new Error(
+            `Refusing to admit unexpected untracked files: ${unexpectedUntracked.join(", ")}`,
+        );
+    }
+    return {
+        admittedUntracked,
+        universe: [...tracked, ...admittedUntracked],
+    };
 }
-const universe = [...tracked, ...admittedUntracked];
-const v2Sources = readCatalog(join(repositoryRoot, "catalog/v2/sources.json"));
-const publicSkillRoots = [
-    ...v2Sources.sources
-        .filter((source) => source.audience === "public")
-        .map((source) => `${source.sourcePath}/**`),
-    ".ai/skills/add-concept/**",
-    "skills/**",
-];
+
+// Read on demand rather than at import, so an unreadable catalog is reported
+// by the run that needs it instead of exploding while the module loads.
+function publicSkillRoots() {
+    const v2Sources = readCatalog(
+        join(repositoryRoot, "catalog/v2/sources.json"),
+    );
+    return [
+        ...v2Sources.sources
+            .filter((source) => source.audience === "public")
+            .map((source) => `${source.sourcePath}/**`),
+        // A source record whose canonical path has moved into `skills/` no
+        // longer contributes its legacy `.ai/skills` root, so each retained
+        // twin is named explicitly until Cratis/AI#256 retires it.
+        ".ai/skills/add-business-rule/**",
+        ".ai/skills/add-concept/**",
+        ".ai/skills/add-ef-migration/**",
+        ".ai/skills/add-projection/**",
+        ".ai/skills/add-reactor/**",
+        ".ai/skills/add-reducer/**",
+        ".ai/skills/auth-and-identity/**",
+        ".ai/skills/call-command-from-code/**",
+        ".ai/skills/cratis-command/**",
+        ".ai/skills/cratis-react-page/**",
+        ".ai/skills/cratis-readmodel/**",
+        ".ai/skills/cratis-specs-csharp/**",
+        ".ai/skills/cratis-specs-typescript/**",
+        ".ai/skills/create-event-model/**",
+        ".ai/skills/discover-implementations/**",
+        ".ai/skills/event-modeling/**",
+        ".ai/skills/event-type-migrations/**",
+        ".ai/skills/inspect-running-chronicle/**",
+        ".ai/skills/multi-tenancy/**",
+        ".ai/skills/observable-query-curl/**",
+        ".ai/skills/query-paging/**",
+        ".ai/skills/review-code/**",
+        ".ai/skills/review-performance/**",
+        ".ai/skills/review-security/**",
+        ".ai/skills/stepper-command-dialog/**",
+        ".ai/skills/toolbar/**",
+        ".ai/skills/write-specs/**",
+        ".ai/skills/write-specs-events/**",
+        ".ai/skills/write-specs-frontend/**",
+        ".ai/skills/write-specs-readmodels/**",
+        "skills/**",
+    ];
+}
 const legacyEngineeringSkillNames = [
     "add-cratis-docs-page",
     "add-traces",
@@ -152,11 +204,11 @@ const legacyEngineeringSkillNames = [
     "skill-creator",
     "write-documentation",
 ];
-const engineeringSkillRoots = legacyEngineeringSkillNames.map(
-    (name) => `.ai/skills/${name}/**`,
-);
+function engineeringSkillRoots() {
+    return legacyEngineeringSkillNames.map((name) => `.ai/skills/${name}/**`);
+}
 
-const definitions = [
+const inventoryDefinitions = () => [
     {
         id: "root-repository-metadata",
         sourcePathPatterns: [
@@ -329,7 +381,7 @@ const definitions = [
     },
     {
         id: "public-skill-sources-and-resources",
-        sourcePathPatterns: publicSkillRoots,
+        sourcePathPatterns: publicSkillRoots(),
         excludePathPatterns: [
             ".ai/skills/*/evals/**",
             "skills/cratis-chronicle-mcp-inspection/references/**",
@@ -342,8 +394,13 @@ const definitions = [
         generatedStatus: "source",
         adapterStatus: "none",
         dependencies: ["catalog/v2/targets.json"],
-        risk: "critical",
-        migrationState: "blocked-by-distribution-decision",
+        // Cratis/AI#266 settled the distribution decision: profiles install
+        // directly from `main`, so nothing about how content ships blocks this
+        // group any more. What remains is sequencing — a legacy `.ai/skills`
+        // twin is retired only once its canonical replacement exists and the
+        // host adapters no longer resolve through it (Cratis/AI#256).
+        risk: "high",
+        migrationState: "retire-after-evidence",
         evidenceIds: [
             "repo-main-b795d53",
             "workflows-68",
@@ -379,8 +436,11 @@ const definitions = [
             "tooling/mcp-guidance-validation.mjs",
             "tooling/support-validation.mjs",
         ],
+        // Cratis/AI#266 settled the distribution decision. These references are
+        // generated in place under skills already owned by the canonical tree
+        // and do not move, so the group is retained rather than migrated.
         risk: "critical",
-        migrationState: "blocked-by-distribution-decision",
+        migrationState: "retain",
         evidenceIds: [
             "chronicle-mcp-inspection-source-5997b28",
             "studio-mcp-safety-guidance-source-f96eab8",
@@ -389,7 +449,7 @@ const definitions = [
     },
     {
         id: "engineering-skill-sources-and-resources",
-        sourcePathPatterns: engineeringSkillRoots,
+        sourcePathPatterns: engineeringSkillRoots(),
         excludePathPatterns: [".ai/skills/*/evals/**"],
         artifactType: "skill-source-and-resources",
         currentOwner: engineeringOwner,
@@ -509,33 +569,15 @@ const definitions = [
         generator: "legacy-manual-adapter-model",
     },
     {
-        id: "obsolete-package-update-workflow",
-        sourcePathPatterns: [".github/workflows/update-packages.yml"],
-        artifactType: "workflow",
-        currentOwner: repositoryOwner,
-        targetOwner: obsoleteOwner,
-        runtimeEligibility: "forbidden",
-        generatedStatus: "source",
-        adapterStatus: "none",
-        dependencies: [],
-        risk: "high",
-        migrationState: "retire-after-evidence",
-        evidenceIds: ["ai-126"],
-    },
-    {
         id: "repository-validation-workflow",
         sourcePathPatterns: [
             ".github/workflows/advanced-assurance-audit.yml",
             ".github/workflows/benchmark-release-generation.yml",
-            ".github/workflows/distribution-approved-profile-release.yml",
             ".github/workflows/distribution-fundamentals-preview-assets.yml",
             ".github/workflows/distribution-canary-rollback.yml",
             ".github/workflows/engineering-distribution-fixture.yml",
-            ".github/workflows/distribution-generated-update.yml",
             ".github/workflows/distribution-npm-stage.yml",
-            ".github/workflows/distribution-public-marketplace.yml",
             ".github/workflows/package-passive-candidate-assets.yml",
-            ".github/workflows/release-approved-ai-profiles.yml",
             ".github/workflows/release-passive-previews.yml",
             ".github/workflows/verify-ai-corpus.yml",
             ".github/workflows/verify-no-work-records.yml",
@@ -580,8 +622,8 @@ const definitions = [
         currentOwner: engineeringOwner,
         targetOwner: ensembleOwner,
         runtimeEligibility: "forbidden",
-        generatedStatus: "derived",
-        adapterStatus: "symlink-adapter",
+        generatedStatus: "generated",
+        adapterStatus: "adapter",
         dependencies: [
             ".ai/agents/repository-investigation-reviewer.md",
             ".ai/agents/repository-investigator.md",
@@ -589,10 +631,11 @@ const definitions = [
         risk: "high",
         migrationState: "move-deferred",
         evidenceIds: ["reevaluation-authority"],
-        generator: "legacy-manual-adapter-model",
+        generator: "tooling/pi-agent-adapters.mjs",
     },
     {
         id: "pi-engineering-agent-adapters",
+        // Includes the provenance manifest once; it is not a runtime agent.
         sourcePathPatterns: [".pi/agents/**"],
         excludePathPatterns: [
             ".pi/agents/repository-investigation-reviewer.md",
@@ -602,13 +645,13 @@ const definitions = [
         currentOwner: engineeringOwner,
         targetOwner: engineeringOwner,
         runtimeEligibility: "forbidden",
-        generatedStatus: "derived",
-        adapterStatus: "symlink-adapter",
+        generatedStatus: "generated",
+        adapterStatus: "adapter",
         dependencies: [".ai/agents/**"],
         risk: "high",
         migrationState: "retire-after-evidence",
         evidenceIds: ["workflows-68"],
-        generator: "legacy-manual-adapter-model",
+        generator: "tooling/pi-agent-adapters.mjs",
     },
     {
         id: "pi-prompt-adapters",
@@ -680,6 +723,26 @@ const definitions = [
         ],
     },
     {
+        id: "adopter-documentation",
+        sourcePathPatterns: [
+            "Documentation/concepts.md",
+            "Documentation/harnesses.md",
+            "Documentation/scenarios/**",
+            "Documentation/evaluation-evidence-protocol.md",
+            "Documentation/corpus-generations.md",
+        ],
+        artifactType: "documentation",
+        currentOwner: repositoryOwner,
+        targetOwner: repositoryOwner,
+        runtimeEligibility: "repository-only",
+        generatedStatus: "source",
+        adapterStatus: "none",
+        dependencies: ["workflows-68", "option-a-plus-authority"],
+        risk: "low",
+        migrationState: "retain",
+        evidenceIds: ["repo-main-b795d53", "reevaluation-authority"],
+    },
+    {
         id: "legacy-documentation",
         sourcePathPatterns: [
             "Documentation/.markdownlint.json",
@@ -741,10 +804,13 @@ const definitions = [
     {
         id: "capability-model-documentation",
         sourcePathPatterns: [
+            "Documentation/adding-a-component.md",
             "Documentation/capability-catalog-v2.md",
             "Documentation/chronicle-mcp-guidance.md",
             "Documentation/ecosystem-support-architecture-review.md",
+            "Documentation/maintainer-marketplace-deployment-runbook.md",
             "Documentation/maintaining-shared-ai-behavior.md",
+            "Documentation/mcp-declarations.md",
             "Documentation/native-non-skill-projections.md",
             "Documentation/real-host-canaries.md",
             "Documentation/s10-release-and-marketplace-gates.md",
@@ -769,6 +835,8 @@ const definitions = [
             "distribution/real-host-canary-matrix.json",
             "distribution/real-host-canary-report.schema.json",
             "tooling/native-non-skill-projections.mjs",
+            "tooling/component-inventory-counts.mjs",
+            "distribution/candidate-component-coverage.seals.json",
             "distribution/s10-release-policy.json",
             "tooling/real-host-canary-contract.mjs",
             "tooling/s10-release-gate-validation.mjs",
@@ -808,6 +876,20 @@ const definitions = [
         risk: "high",
         migrationState: "retain",
         evidenceIds: ["ecosystem-use-cases"],
+    },
+    {
+        id: "decision-record-expectation-cases",
+        sourcePathPatterns: ["evals/cratis-engineering-decision-record/**"],
+        artifactType: "evaluation",
+        currentOwner: engineeringOwner,
+        targetOwner: engineeringOwner,
+        runtimeEligibility: "repository-only",
+        generatedStatus: "source",
+        adapterStatus: "none",
+        dependencies: ["engineering/skills/cratis-engineering-decision-record/**"],
+        risk: "low",
+        migrationState: "retain",
+        evidenceIds: ["repo-main-b795d53", "reevaluation-authority"],
     },
     {
         id: "code-review-pilot-evaluations",
@@ -992,6 +1074,8 @@ const definitions = [
             "catalog/schemas/ecosystem-artifact-coverage.schema.json",
             "catalog/schemas/product-coverage.schema.json",
             "catalog/schemas/public-skills.schema.json",
+            "catalog/schemas/vocabulary.schema.json",
+            "catalog/vocabulary.json",
         ],
         artifactType: "catalog-schema",
         currentOwner: repositoryOwner,
@@ -1160,6 +1244,7 @@ const definitions = [
     {
         id: "distribution-foundation",
         sourcePathPatterns: ["distribution/**"],
+        excludePathPatterns: ["distribution/profile-catalog.json"],
         artifactType: "repository-metadata",
         currentOwner: repositoryOwner,
         targetOwner: "Workflows organization mechanics",
@@ -1173,6 +1258,45 @@ const definitions = [
         risk: "high",
         migrationState: "retain",
         evidenceIds: ["option-a-plus-authority"],
+    },
+    {
+        id: "authored-profile-sources",
+        sourcePathPatterns: ["profiles/**"],
+        artifactType: "catalog-schema",
+        currentOwner: repositoryOwner,
+        targetOwner: repositoryOwner,
+        runtimeEligibility: "repository-only",
+        generatedStatus: "source",
+        adapterStatus: "none",
+        dependencies: [
+            "tooling/generate-profile-catalog.mjs",
+            "tooling/profile-subscription-validation.mjs",
+            "tooling/resolve-profiles.mjs",
+        ],
+        risk: "high",
+        migrationState: "retain",
+        evidenceIds: ["option-a-plus-authority", "reevaluation-authority"],
+    },
+    {
+        id: "generated-profile-catalog",
+        sourcePathPatterns: ["distribution/profile-catalog.json"],
+        artifactType: "catalog-schema",
+        currentOwner: repositoryOwner,
+        targetOwner: repositoryOwner,
+        runtimeEligibility: "repository-only",
+        generatedStatus: "generated",
+        adapterStatus: "none",
+        dependencies: [
+            "profiles/cratis-engineering/**",
+            "profiles/manifest.json",
+            "profiles/public/**",
+            "tooling/catalog-ordering.mjs",
+            "tooling/generate-profile-catalog.mjs",
+        ],
+        risk: "high",
+        migrationState: "retain",
+        evidenceIds: ["option-a-plus-authority"],
+        generator: "tooling/generate-profile-catalog.mjs",
     },
     {
         id: "portable-agent-plugins-specification-lock",
@@ -1225,6 +1349,29 @@ const definitions = [
         adapterStatus: "none",
         dependencies: ["catalog/**"],
         risk: "high",
+        migrationState: "retain",
+        evidenceIds: ["reevaluation-authority"],
+    },
+    {
+        id: "mcp-server-declarations",
+        sourcePathPatterns: ["mcp/**"],
+        artifactType: "catalog-schema",
+        currentOwner: publicOwner,
+        targetOwner: publicOwner,
+        runtimeEligibility: "forbidden",
+        generatedStatus: "source",
+        adapterStatus: "none",
+        dependencies: [
+            "catalog/chronicle-mcp-tool-classifications.json",
+            "catalog/mcp-guidance-products.json",
+            "catalog/studio-mcp-tool-classifications.json",
+            "distribution/assurance-lanes.json",
+            "distribution/profile-catalog.json",
+            "tooling/mcp-declaration-validation.mjs",
+            "tooling/resolve-profiles.mjs",
+            "tooling/specifications/agent-plugins/1.0.0/mcp.schema.json",
+        ],
+        risk: "critical",
         migrationState: "retain",
         evidenceIds: ["reevaluation-authority"],
     },
@@ -1285,31 +1432,107 @@ const definitions = [
         migrationState: "retain",
         evidenceIds: ["reevaluation-authority"],
     },
+    {
+        id: "marketplace-pointer-manifests",
+        sourcePathPatterns: [
+            ".agents/plugins/marketplace.json",
+            ".claude-plugin/marketplace.json",
+            ".cursor-plugin/marketplace.json",
+            ".github/plugin/marketplace.json",
+        ],
+        artifactType: "repository-metadata",
+        currentOwner: repositoryOwner,
+        targetOwner: repositoryOwner,
+        runtimeEligibility: "repository-only",
+        generatedStatus: "source",
+        adapterStatus: "none",
+        dependencies: ["distribution/marketplace-requirements.json"],
+        risk: "medium",
+        migrationState: "retain",
+        evidenceIds: ["repo-main-b795d53", "option-a-plus-authority"],
+    },
+    {
+        id: "engineering-plugin-manifests",
+        sourcePathPatterns: [
+            "engineering/.claude-plugin/plugin.json",
+            "engineering/.codex-plugin/plugin.json",
+            "engineering/.cursor-plugin/plugin.json",
+            "engineering/.github/plugin/plugin.json",
+        ],
+        artifactType: "repository-metadata",
+        currentOwner: repositoryOwner,
+        targetOwner: repositoryOwner,
+        runtimeEligibility: "repository-only",
+        generatedStatus: "source",
+        adapterStatus: "none",
+        dependencies: [".claude-plugin/marketplace.json"],
+        risk: "medium",
+        migrationState: "retain",
+        evidenceIds: ["repo-main-b795d53", "option-a-plus-authority"],
+    },
 ];
 
-const records = definitions.map((definition) => {
-    const record = { excludePathPatterns: [], ...definition };
-    const paths = expandInventoryRecord(record, universe);
-    if (paths.length === 0)
-        throw new Error(`Inventory record ${record.id} matches no paths`);
-    return {
-        ...record,
-        expectedPathCount: paths.length,
-        expectedPathsDigest: pathDigest(paths),
-    };
-});
+export function buildRepositoryInventory() {
+    const { admittedUntracked, universe } = readPathUniverse();
 
-const output = {
-    schemaVersion: 2,
-    baseRevision: revision,
-    indexDigest: indexDigest(indexDigestExcludedPaths),
-    indexDigestExcludedPaths,
-    changesSinceBase: changesSinceBase(revision),
-    admittedUntracked,
-    excludedRuntimePrefixes,
-    records,
-};
-writeFileSync(outputPath, `${JSON.stringify(output, null, 2)}\n`);
-process.stdout.write(
-    `Generated repository inventory: ${records.length} groups account for ${universe.length} tracked and admitted paths.\n`,
-);
+    // Every record must match at least one path, because a record that stops
+    // matching means a path silently lost its owner.
+    const records = inventoryDefinitions().map((definition) => {
+        const record = { excludePathPatterns: [], ...definition };
+        const paths = expandInventoryRecord(record, universe);
+        if (paths.length === 0)
+            throw new Error(`Inventory record ${record.id} matches no paths`);
+        return {
+            ...record,
+            expectedPathCount: paths.length,
+            expectedPathsDigest: pathDigest(paths),
+        };
+    });
+
+    return {
+        inventory: {
+            schemaVersion: 2,
+            baseRevision: revision,
+            indexDigest: indexDigest(indexDigestExcludedPaths),
+            indexDigestExcludedPaths,
+            changesSinceBase: changesSinceBase(revision),
+            admittedUntracked,
+            excludedRuntimePrefixes,
+            records,
+        },
+        pathCount: universe.length,
+    };
+}
+
+export function repositoryInventoryOutputs() {
+    const { inventory } = buildRepositoryInventory();
+    return new Map([[inventoryOutputPath, serializeJson(inventory)]]);
+}
+
+export function writeRepositoryInventory() {
+    const { inventory, pathCount } = buildRepositoryInventory();
+    writeFileSync(outputPath, serializeJson(inventory));
+    return { inventory, pathCount };
+}
+
+function main() {
+    if (checkModeRequested()) {
+        process.exitCode = runGeneratorCheck({
+            name: "generate-repository-inventory",
+            root: repositoryRoot,
+            build: repositoryInventoryOutputs,
+        });
+        return;
+    }
+    const { inventory, pathCount } = writeRepositoryInventory();
+    process.stdout.write(
+        `Generated repository inventory: ${inventory.records.length} groups account for ${pathCount} tracked and admitted paths.\n`,
+    );
+}
+
+if (
+    process.argv[1] &&
+    resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+) {
+    main();
+}

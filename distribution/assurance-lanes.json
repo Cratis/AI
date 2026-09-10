@@ -58,7 +58,7 @@
     }
   ],
   "selectedPreview": {
-    "profileId": "public-fundamentals",
+    "profileId": "cratis/fundamentals",
     "packageName": "@cratis/ai-fundamentals",
     "requiredStatusContext": "release-intent / verify",
     "protectedEnvironment": "npm-stage"

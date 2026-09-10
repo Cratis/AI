@@ -13,10 +13,19 @@ import {
 } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { compareOrdinal } from "./catalog-ordering.mjs";
+import { compareOrdinal, sortedOrdinal } from "./catalog-ordering.mjs";
 import { readCatalog } from "./catalog-validation.mjs";
+import {
+    componentCatalogPaths,
+    expectedGeneratedComponentCatalogs,
+} from "./component-catalog-validation.mjs";
 import { artifactForbiddenPathPatterns } from "./harness-registry.mjs";
 import { generateComponentCatalogs } from "./generate-component-catalogs.mjs";
+import {
+    checkModeRequested,
+    runGeneratorCheck,
+    serializeJson,
+} from "./generator-check.mjs";
 
 const repositoryRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const outputRoot = join(repositoryRoot, "catalog/v2");
@@ -46,8 +55,15 @@ if (targetApprovals.size !== releaseApprovals.targetApprovals.length)
 
 const internalTargets = new Map([
     ["add-cratis-docs-page", "cratis-engineering-docs-add-page"],
-    ["add-traces", "cratis-engineering-chronicle-kernel-tracing"],
     ["cratis-csharp-standards", "cratis-engineering-csharp-conventions"],
+    [
+        "cratis-engineering-decision-record",
+        "cratis-engineering-decision-record",
+    ],
+    [
+        "cratis-engineering-effect-boundaries",
+        "cratis-engineering-effect-boundaries",
+    ],
     ["edit-cratis-docs", "cratis-engineering-docs-edit-page"],
     ["qa-cratis-docs", "cratis-engineering-docs-visual-qa"],
     ["ship-changes", "cratis-engineering-ship-changes"],
@@ -171,6 +187,199 @@ const publicClassifications = new Map([
             ],
         },
     ],
+    [
+        "cratis-specifications-csharp",
+        {
+            capabilityKind: "primitive",
+            invocation: "both",
+            products: ["arc", "chronicle", "specifications"],
+            languages: ["csharp"],
+            architectures: {
+                state: "applicable",
+                ids: ["product-neutral"],
+                reason: "The Establish/Because/should_ pattern and the for_/when_ hierarchy are the same in application, library, and client repositories.",
+            },
+            personas: {
+                state: "applicable",
+                ids: ["contributor", "developer", "maintainer", "qa"],
+                reason: "Contributors, developers, maintainers, and QA all author and review C# specifications.",
+            },
+            surfaces: {
+                state: "applicable",
+                ids: ["backend", "direct-agent-skills", "ide", "pi"],
+                reason: "The passive skill guides C# specification source changes from supported agent and IDE surfaces.",
+            },
+            repositoryProfiles: {
+                state: "applicable",
+                ids: [
+                    "application",
+                    "client",
+                    "consuming-project",
+                    "framework",
+                ],
+                reason: "Every repository that compiles C# against Cratis packages writes specifications this way.",
+            },
+            trust: {
+                class: "passive",
+                assessmentState: "assessed",
+                effects: [
+                    {
+                        id: "create-or-modify-csharp-specification-source",
+                        operation: "modify",
+                        resourceBoundary: "current repository worktree",
+                        scope: "C# specification files and their given/ contexts under the folder the user selected",
+                        dataClassifications: ["internal", "public"],
+                        reversible: true,
+                        rollbackOrCompensation:
+                            "Restore the prior uncommitted files or revert the dedicated specification commit.",
+                        confirmation: {
+                            required: true,
+                            timing: "before-effect",
+                            reason: "The repository owner confirms the specification project and folder before files change.",
+                        },
+                        authorization: {
+                            required: true,
+                            authority: "Repository maintainer or task owner",
+                            evidenceIds: ["ai-126"],
+                        },
+                        evidenceIds: ["repo-main-b795d53"],
+                    },
+                ],
+            },
+            security: {
+                executable: false,
+                destructive: false,
+                risk: "low",
+                disposition: "pending",
+                evidenceIds: [],
+            },
+            dependencyEdges: [
+                {
+                    dependencyId: "dotnet",
+                    category: "tool",
+                    strength: "hard",
+                    reason: "The authored specifications must compile and run before the workflow can claim completion.",
+                    missingBehavior: {
+                        action: "block",
+                        description:
+                            "Stop before claiming completion when the .NET SDK and the specification project gates are unavailable.",
+                    },
+                },
+            ],
+            targetDependencies: [],
+            internalArtifacts: [],
+            sourceContractIds: [
+                "cratis-arc-source",
+                "cratis-chronicle-source",
+                "cratis-specifications-source",
+            ],
+            sourceAuthoritySubjects: [
+                "api",
+                "documentation",
+                "examples",
+                "versions",
+            ],
+            authoringContractIds: ["cratis-skill-clean-room-v1"],
+            runtimeAllowed: [
+                "SKILL.md",
+                "references/**",
+                "assets/**",
+                "LICENSE*",
+            ],
+        },
+    ],
+    [
+        "cratis-specifications-typescript",
+        {
+            capabilityKind: "primitive",
+            invocation: "both",
+            products: ["specifications"],
+            languages: ["typescript"],
+            architectures: {
+                state: "applicable",
+                ids: ["product-neutral"],
+                reason: "The given() helper and the for_/when_ hierarchy do not assume an application architecture.",
+            },
+            personas: {
+                state: "applicable",
+                ids: ["contributor", "developer", "maintainer", "qa"],
+                reason: "Contributors, developers, maintainers, and QA all author and review TypeScript specifications.",
+            },
+            surfaces: {
+                state: "applicable",
+                ids: ["direct-agent-skills", "frontend", "ide", "pi"],
+                reason: "The passive skill guides TypeScript specification source changes from supported agent and IDE surfaces.",
+            },
+            repositoryProfiles: {
+                state: "applicable",
+                ids: ["client", "consuming-project", "framework"],
+                reason: "The given() specification style is used by the Cratis TypeScript packages and the projects that extend them.",
+            },
+            trust: {
+                class: "passive",
+                assessmentState: "assessed",
+                effects: [
+                    {
+                        id: "create-or-modify-typescript-specification-source",
+                        operation: "modify",
+                        resourceBoundary: "current repository worktree",
+                        scope: "TypeScript specification files and their given/ context classes under the folder the user selected",
+                        dataClassifications: ["internal", "public"],
+                        reversible: true,
+                        rollbackOrCompensation:
+                            "Restore the prior uncommitted files or revert the dedicated specification commit.",
+                        confirmation: {
+                            required: true,
+                            timing: "before-effect",
+                            reason: "The repository owner confirms the package and folder before files change.",
+                        },
+                        authorization: {
+                            required: true,
+                            authority: "Repository maintainer or task owner",
+                            evidenceIds: ["ai-126"],
+                        },
+                        evidenceIds: ["repo-main-b795d53"],
+                    },
+                ],
+            },
+            security: {
+                executable: false,
+                destructive: false,
+                risk: "low",
+                disposition: "pending",
+                evidenceIds: [],
+            },
+            dependencyEdges: [
+                {
+                    dependencyId: "node",
+                    category: "tool",
+                    strength: "hard",
+                    reason: "The authored specifications must run under the package test command before the workflow can claim completion.",
+                    missingBehavior: {
+                        action: "block",
+                        description:
+                            "Stop before claiming completion when the Node toolchain and the package test script are unavailable.",
+                    },
+                },
+            ],
+            targetDependencies: [],
+            internalArtifacts: [],
+            sourceContractIds: ["cratis-specifications-source"],
+            sourceAuthoritySubjects: [
+                "api",
+                "documentation",
+                "examples",
+                "versions",
+            ],
+            authoringContractIds: ["cratis-skill-clean-room-v1"],
+            runtimeAllowed: [
+                "SKILL.md",
+                "references/**",
+                "assets/**",
+                "LICENSE*",
+            ],
+        },
+    ],
 ]);
 
 const referenceClosureSourceNames = [
@@ -200,8 +409,11 @@ const causationGuidanceSourceNames = [
     "review-security",
 ];
 const documentationGuidanceSourceNames = [
+    "add-cratis-docs-page",
+    "edit-cratis-docs",
     "new-vertical-slice",
     "qa-cratis-docs",
+    "write-documentation",
 ];
 const normalizedPackagedSourceNames = [
     "call-command-from-code",
@@ -211,15 +423,207 @@ const normalizedPackagedSourceNames = [
     "query-paging",
     "toolbar",
 ];
+// Skills whose canonical source has moved out of the legacy `.ai/skills` tree.
+// The legacy twin is retained until Cratis/AI#256 sequences its retirement, but
+// the catalog source record — and therefore the shipped bytes — binds to the
+// canonical tree at the revision that introduced it.
+const arcBackendCommandRevision = "9f527497f2a262a0389146309c66adbeaffe6877";
+const arcEfCoreAndIdentityRevision =
+    "47263222559843c47065be0f124d66ddb02b7c04";
+const migratedCanonicalSourceNames = [
+    [
+        "cratis-specs-csharp",
+        "skills/cratis-specifications-csharp",
+        "cratis-specifications-csharp-source-ee5c566",
+    ],
+    [
+        "cratis-specs-typescript",
+        "skills/cratis-specifications-typescript",
+        "cratis-specifications-typescript-source-ee5c566",
+    ],
+    [
+        "cratis-csharp-standards",
+        "engineering/skills/cratis-engineering-csharp-conventions",
+        "cratis-engineering-csharp-conventions-source-ee5c566",
+    ],
+    [
+        "cratis-command",
+        "skills/cratis-arc-command",
+        "arc-backend-command-sources-9f52749",
+        arcBackendCommandRevision,
+    ],
+    [
+        "call-command-from-code",
+        "skills/cratis-arc-command-execution",
+        "arc-backend-command-sources-9f52749",
+        arcBackendCommandRevision,
+    ],
+    [
+        "query-paging",
+        "skills/cratis-arc-query-paging",
+        "arc-backend-command-sources-9f52749",
+        arcBackendCommandRevision,
+    ],
+    [
+        "observable-query-curl",
+        "skills/cratis-arc-observable-query-http",
+        "arc-backend-command-sources-9f52749",
+        arcBackendCommandRevision,
+    ],
+    [
+        "add-ef-migration",
+        "skills/cratis-arc-ef-core-migration",
+        "arc-ef-core-and-identity-sources-4726322",
+        arcEfCoreAndIdentityRevision,
+    ],
+    [
+        "auth-and-identity",
+        "skills/cratis-arc-authentication-authorization-and-identity",
+        "arc-ef-core-and-identity-sources-4726322",
+        arcEfCoreAndIdentityRevision,
+    ],
+];
+const migratedCanonicalRevision =
+    "ee5c566e4685b26823ae858545495d13615f7af9";
+const migratedCanonicalNames = new Set(
+    migratedCanonicalSourceNames.map(([name]) => name),
+);
+// The Arc React and Components relocations follow the same rule. They are kept
+// in their own list because several of these names also appear in the packaged
+// and reference-closure lists above, so their entries are applied last.
+const arcReactAndComponentsRevision =
+    "80b1697803ccd2ad641fb6c4d40c905b6706dfde";
+const arcReactAndComponentsSourcePaths = new Map([
+    ["cratis-react-page", "skills/cratis-arc-react-page"],
+    [
+        "stepper-command-dialog",
+        "skills/cratis-components-stepper-command-dialog",
+    ],
+    ["toolbar", "skills/cratis-components-toolbar"],
+    ["write-specs-frontend", "skills/cratis-application-react-specifications"],
+    [
+        "cratis-components-accessibility",
+        "skills/cratis-components-accessibility",
+    ],
+    [
+        "cratis-components-schema-editor",
+        "skills/cratis-components-schema-editor",
+    ],
+    ["cratis-components-styling", "skills/cratis-components-styling"],
+]);
+// Cratis/AI#177: the Chronicle core, tenancy, operations, compliance, and
+// Workbench skills now live in the canonical skill trees. Several of
+// these names also appear in the lists above, so their entries are applied last.
+const chronicleMigrationRevision =
+    "3d857190964d7ae45b4a49b4adda0cad9f569444";
+const chronicleMigrationSourcePaths = new Map([
+    ["add-projection", "skills/cratis-chronicle-projection"],
+    ["add-reactor", "skills/cratis-chronicle-reactor"],
+    ["add-reducer", "skills/cratis-chronicle-reducer"],
+    ["cratis-chronicle-compliance", "skills/cratis-chronicle-compliance"],
+    [
+        "cratis-chronicle-web-workbench",
+        "skills/cratis-chronicle-web-workbench",
+    ],
+    ["cratis-cli-terminal-workbench", "skills/cratis-cli-terminal-workbench"],
+    ["cratis-readmodel", "skills/cratis-chronicle-read-model"],
+    ["create-event-model", "skills/cratis-event-model-diagram"],
+    ["event-modeling", "skills/cratis-chronicle-event-modeling"],
+    ["event-type-migrations", "skills/cratis-chronicle-event-type-migration"],
+    ["inspect-running-chronicle", "skills/cratis-chronicle-cli-operations"],
+    ["multi-tenancy", "skills/cratis-chronicle-multi-tenancy"],
+]);
+// Cratis/AI#174, #175 and #177: the specification, review and discovery skills,
+// and both halves of the `add-business-rule` split, now live in the canonical
+// skill tree. Several of these names also appear in the lists above, so their
+// entries are applied last.
+//
+// `add-business-rule` was the one legacy source two targets read from. A source
+// record names exactly one path and `validateMigrations` requires every target to
+// be produced by exactly one migration, so a shared split source cannot give each
+// half its own bytes — which is why #175 and #177 both deferred it. The reviewed
+// split is now executed rather than pending: `add-business-rule` renames to
+// `cratis-arc-command-validation`, and `cratis-chronicle-event-constraints`
+// becomes its own source. The reviewed intent is unchanged and recorded on the
+// `add-business-rule` entry in `catalog/public-skills.yml`.
+const specificationsAndConstraintsRevision =
+    "7f2597e0e07d01923eef8f6912cdb6864ce5dbd7";
+const specificationsAndConstraintsSourcePaths = new Map([
+    ["add-business-rule", "skills/cratis-arc-command-validation"],
+    // Already canonical, re-pinned here because the same change corrected two
+    // claims in its `application-scenarios.md` reference that the re-verification
+    // disproved: `CommandScenario<T>` does carry a `Given` builder, and
+    // `EventScenario` cannot produce a concurrency violation.
+    ["cratis-specs-csharp", "skills/cratis-specifications-csharp"],
+    ["discover-implementations", "skills/cratis-fundamentals-type-discovery"],
+    ["review-code", "skills/cratis-code-review"],
+    ["review-performance", "skills/cratis-performance-review"],
+    ["review-security", "skills/cratis-security-review"],
+    ["write-specs", "skills/cratis-application-slice-specifications"],
+    [
+        "write-specs-events",
+        "skills/cratis-chronicle-event-specifications",
+    ],
+    [
+        "write-specs-readmodels",
+        "skills/cratis-chronicle-read-model-specifications",
+    ],
+]);
+// Authored directly in the canonical tree in the same change: the Chronicle half
+// of the executed split, and the language-agnostic specification skill that stops
+// `public-specifications` resolving with zero skills of its own.
+const specificationsAndConstraintsAuthoredNames = [
+    "cratis-chronicle-event-constraints",
+    "cratis-specification-by-example",
+];
+// Cratis/AI#179: the Lens, Screenplay, and Stage skills were authored directly in
+// the canonical skill tree. Nothing was migrated, because no corpus content
+// existed for any of the three products.
+const modelingLayerRevision = "7b85abb3c7a1678f42fc4e38bc4c3e27f26b40d9";
+const modelingLayerSourceNames = [
+    "cratis-lens-browser-extension",
+    "cratis-screenplay-model-authoring",
+    "cratis-stage-rendering-and-sandbox",
+];
+// Cratis/AI#178: the language-native Chronicle client journeys are authored
+// directly in the canonical skill tree too. They have no `.ai/skills` ancestor,
+// so unlike the migrations above these names only ever resolve through here.
+const chronicleClientRevision = "f8cdd82289f334b5c35d2ec0de42cc5175ce8d57";
+const chronicleClientSourceNames = [
+    "cratis-chronicle-client-dotnet",
+    "cratis-chronicle-client-elixir",
+    "cratis-chronicle-client-kotlin",
+    "cratis-chronicle-client-typescript",
+];
 const sourceOverrides = new Map([
-    ...referenceClosureSourceNames.map((name) => [
+    ...referenceClosureSourceNames
+        .filter((name) => !migratedCanonicalNames.has(name))
+        .map((name) => [
+            name,
+            {
+                sourcePath: `.ai/skills/${name}`,
+                sourceRevision: "c2f721c2f80321cfba352d8d2e4209a0881ccb63",
+                evidenceId: "public-skill-reference-closure-c2f721c",
+            },
+        ]),
+    ...documentationGuidanceSourceNames.map((name) => [
         name,
         {
             sourcePath: `.ai/skills/${name}`,
-            sourceRevision: "c2f721c2f80321cfba352d8d2e4209a0881ccb63",
-            evidenceId: "public-skill-reference-closure-c2f721c",
+            sourceRevision: "c0a9255bae2a53face9d98de7430a93d3044188d",
+            evidenceId: "shared-documentation-guidance-source-c0a9255",
         },
     ]),
+    ...migratedCanonicalSourceNames.map(
+        ([name, sourcePath, evidenceId, revision]) => [
+            name,
+            {
+                sourcePath,
+                sourceRevision: revision ?? migratedCanonicalRevision,
+                evidenceId,
+            },
+        ],
+    ),
     [
         "cratis-studio-mcp-safety-guidance",
         {
@@ -245,11 +649,44 @@ const sourceOverrides = new Map([
         },
     ],
     [
+        "cratis-governed-release-methodology",
+        {
+            sourcePath: "skills/cratis-governed-release-methodology",
+            sourceRevision: "59f47a614bd2317ca379d99adfd8036b42d2e64e",
+            evidenceId: "governed-release-methodology-source-59f47a6",
+        },
+    ],
+    [
+        "cratis-documentation-writing",
+        {
+            sourcePath: "skills/cratis-documentation-writing",
+            sourceRevision: "171db1709bcd2131e31250de007b014d20ed3345",
+            evidenceId: "documentation-writing-source-171db17",
+        },
+    ],
+    [
         "add-cratis-docs-page",
         {
             sourcePath: "engineering/skills/cratis-engineering-docs-add-page",
             sourceRevision: "684d03755bacd40af95463b81b4a0c8b9f088ec1",
             evidenceId: "engineering-docs-add-page-source-684d037",
+        },
+    ],
+    [
+        "cratis-engineering-decision-record",
+        {
+            sourcePath: "engineering/skills/cratis-engineering-decision-record",
+            sourceRevision: "1e19bb4e7cb2ad9e827a8d4ad6b16b9f8a3c0060",
+            evidenceId: "engineering-decision-record-source-1e19bb4",
+        },
+    ],
+    [
+        "cratis-engineering-effect-boundaries",
+        {
+            sourcePath:
+                "engineering/skills/cratis-engineering-effect-boundaries",
+            sourceRevision: "56e0a3d3b257c61f211eae7300cc08669b90b41d",
+            evidenceId: "engineering-effect-boundaries-source-56e0a3d",
         },
     ],
     [
@@ -260,38 +697,44 @@ const sourceOverrides = new Map([
             evidenceId: "engineering-docs-edit-page-source-684d037",
         },
     ],
-    ...["auth-and-identity", "event-modeling"].map((name) => [
-        name,
+    ...["auth-and-identity", "event-modeling"]
+        .filter((name) => !migratedCanonicalNames.has(name))
+        .map((name) => [
+            name,
+            {
+                sourcePath: `.ai/skills/${name}`,
+                sourceRevision: "6ec724752023b7c1639b01e33d700d84d04fcfc3",
+                evidenceId: "public-effect-guidance-boundary-source-6ec7247",
+            },
+        ]),
+    ...causationGuidanceSourceNames
+        .filter((name) => !migratedCanonicalNames.has(name))
+        .map((name) => [
+            name,
+            {
+                sourcePath: `.ai/skills/${name}`,
+                sourceRevision: "afbe46fc7c87ab110df7f1983a0ca174ef0f6aac",
+                evidenceId: "command-causation-guidance-source-afbe46f",
+            },
+        ]),
+    ...normalizedPackagedSourceNames
+        .filter((name) => !migratedCanonicalNames.has(name))
+        .map((name) => [
+            name,
+            {
+                sourcePath: `.ai/skills/${name}`,
+                sourceRevision: "23efb73a14eb367a2dd0e745caed171f67f3d550",
+                evidenceId: "public-skill-markdown-normalization-source-23efb73",
+            },
+        ]),
+    [
+        "diagnose-slice",
         {
-            sourcePath: `.ai/skills/${name}`,
-            sourceRevision: "6ec724752023b7c1639b01e33d700d84d04fcfc3",
-            evidenceId: "public-effect-guidance-boundary-source-6ec7247",
+            sourcePath: ".ai/skills/diagnose-slice",
+            sourceRevision: "9f527497f2a262a0389146309c66adbeaffe6877",
+            evidenceId: "diagnose-slice-source-9f52749",
         },
-    ]),
-    ...causationGuidanceSourceNames.map((name) => [
-        name,
-        {
-            sourcePath: `.ai/skills/${name}`,
-            sourceRevision: "afbe46fc7c87ab110df7f1983a0ca174ef0f6aac",
-            evidenceId: "command-causation-guidance-source-afbe46f",
-        },
-    ]),
-    ...documentationGuidanceSourceNames.map((name) => [
-        name,
-        {
-            sourcePath: `.ai/skills/${name}`,
-            sourceRevision: "c0a9255bae2a53face9d98de7430a93d3044188d",
-            evidenceId: "shared-documentation-guidance-source-c0a9255",
-        },
-    ]),
-    ...normalizedPackagedSourceNames.map((name) => [
-        name,
-        {
-            sourcePath: `.ai/skills/${name}`,
-            sourceRevision: "23efb73a14eb367a2dd0e745caed171f67f3d550",
-            evidenceId: "public-skill-markdown-normalization-source-23efb73",
-        },
-    ]),
+    ],
     [
         "inspect-running-chronicle",
         {
@@ -312,8 +755,8 @@ const sourceOverrides = new Map([
         "ship-changes",
         {
             sourcePath: ".ai/skills/ship-changes",
-            sourceRevision: "6b5388ddc660e8c9ddae0d7aa3ef3b5581a9f979",
-            evidenceId: "engineering-ship-changes-no-effect-source-6b5388d",
+            sourceRevision: "c29984acd8d55ca61b1bc3e918ef11627db8b06d",
+            evidenceId: "engineering-ship-changes-merged-branch-cleanup-c29984a",
         },
     ],
     [
@@ -324,6 +767,56 @@ const sourceOverrides = new Map([
             evidenceId: "engineering-docs-authoring-source-f58bcf7",
         },
     ],
+    // Keep the Arc React and Components relocations last so they win over the
+    // earlier legacy `.ai/skills` mappings for the same source names.
+    ...[...arcReactAndComponentsSourcePaths].map(([name, sourcePath]) => [
+        name,
+        {
+            sourcePath,
+            sourceRevision: arcReactAndComponentsRevision,
+            evidenceId: "arc-react-and-components-source-80b1697",
+        },
+    ]),
+    ...[...chronicleMigrationSourcePaths].map(([name, sourcePath]) => [
+        name,
+        {
+            sourcePath,
+            sourceRevision: chronicleMigrationRevision,
+            evidenceId: "chronicle-core-source-migration-3d85719",
+        },
+    ]),
+    ...modelingLayerSourceNames.map((name) => [
+        name,
+        {
+            sourcePath: `skills/${name}`,
+            sourceRevision: modelingLayerRevision,
+            evidenceId: "modeling-layer-source-authoring-7b85abb",
+        },
+    ]),
+    ...chronicleClientSourceNames.map((name) => [
+        name,
+        {
+            sourcePath: `skills/${name}`,
+            sourceRevision: chronicleClientRevision,
+            evidenceId: "chronicle-language-clients-source-f8cdd82",
+        },
+    ]),
+    // Kept last so they win over the legacy `.ai/skills` mappings for the same
+    // source names in the lists above.
+    ...[
+        ...specificationsAndConstraintsSourcePaths,
+        ...specificationsAndConstraintsAuthoredNames.map((name) => [
+            name,
+            `skills/${name}`,
+        ]),
+    ].map(([name, sourcePath]) => [
+        name,
+        {
+            sourcePath,
+            sourceRevision: specificationsAndConstraintsRevision,
+            evidenceId: "specifications-and-constraints-source-7f2597e",
+        },
+    ]),
 ]);
 
 function documentationEffect(id, operation, scope, rollback) {
@@ -576,9 +1069,112 @@ const engineeringClassifications = new Map([
             ],
         },
     ],
+    [
+        "cratis-engineering-csharp-conventions",
+        {
+            capabilityKind: "explanation",
+            invocation: "both",
+            architectures: {
+                state: "applicable",
+                ids: ["product-neutral"],
+                reason: "House C# conventions apply to every Cratis repository regardless of the architecture it implements.",
+            },
+            personas: {
+                state: "applicable",
+                ids: ["contributor", "developer", "maintainer"],
+                reason: "Contributors, developers, and maintainers apply and review the house C# conventions.",
+            },
+            surfaces: {
+                state: "applicable",
+                ids: ["backend", "direct-agent-skills", "ide", "pi"],
+                reason: "The passive skill guides C# source changes from supported agent and IDE surfaces.",
+            },
+            repositoryProfiles: {
+                state: "applicable",
+                ids: [
+                    "application",
+                    "client",
+                    "corpus",
+                    "framework",
+                ],
+                reason: "Every Cratis repository that compiles C# follows these conventions; consuming projects own their own style policy.",
+            },
+            trust: {
+                class: "passive",
+                assessmentState: "assessed",
+                effects: [
+                    {
+                        id: "modify-csharp-source-for-conventions",
+                        operation: "modify",
+                        resourceBoundary: "current repository worktree",
+                        scope: "the C# source files the user asked to write or bring in line with the conventions",
+                        dataClassifications: ["internal", "public"],
+                        reversible: true,
+                        rollbackOrCompensation:
+                            "Restore the prior uncommitted files or revert the dedicated source commit.",
+                        confirmation: {
+                            required: true,
+                            timing: "before-effect",
+                            reason: "The repository maintainer confirms which files a convention change may touch before files change.",
+                        },
+                        authorization: {
+                            required: true,
+                            authority: "Repository maintainer or task owner",
+                            evidenceIds: ["ai-126"],
+                        },
+                        evidenceIds: [
+                            "repo-main-b795d53",
+                            "reevaluation-authority",
+                        ],
+                    },
+                ],
+            },
+            security: {
+                executable: false,
+                destructive: false,
+                risk: "low",
+                disposition: "pending",
+                evidenceIds: [],
+            },
+            dependencyEdges: [],
+            targetDependencies: [],
+            internalArtifacts: [],
+            sourceContractIds: ["cratis-ai-composition"],
+            sourceAuthoritySubjects: ["capability-composition"],
+            authoringContractIds: ["cratis-skill-clean-room-v1"],
+            runtimeAllowed: [
+                "SKILL.md",
+                "references/**",
+                "assets/**",
+                "LICENSE*",
+            ],
+        },
+    ],
 ]);
 
 const profiles = {
+    "cratis-documentation-writing": [
+        "Documentation writing",
+        "Use when creating or reworking a documentation page: deciding whether it is a tutorial, how-to guide, reference, or explanation, then drafting it in that style with complete runnable examples.",
+        [
+            "Do not use for code generation, build, or release operations.",
+            "Do not use to invent API facts the code does not show; verify against the product.",
+        ],
+        [],
+        "low",
+        false,
+    ],
+    "cratis-governed-release-methodology": [
+        "Governed release methodology",
+        "Use when choosing the assurance tier a release needs, deciding whether checksums, provenance, or an SBOM are warranted, labeling release intent, or judging whether a support claim is backed by evidence.",
+        [
+            "Do not use to run a publish, tag, or promotion operation.",
+            "Do not use for a registry's publish command syntax or credentials.",
+        ],
+        [],
+        "low",
+        false,
+    ],
     "cratis-studio-mcp-safety-guidance": [
         "Studio MCP classification-only safety guidance",
         "Use when classifying a Studio MCP request or interpreting already-redacted output without discovering or invoking an operation.",
@@ -628,6 +1224,135 @@ const profiles = {
         ],
         "high",
         false,
+    ],
+    "cratis-chronicle-client-dotnet": [
+        "Chronicle .NET client",
+        "Use when a standalone .NET console, worker, or service connects to a Chronicle server and appends or observes events.",
+        [
+            "Do not use for Arc applications, where Chronicle is already wired in.",
+            "Do not use for the Chronicle kernel or for another language's client.",
+        ],
+        [
+            "cratis-chronicle-client-elixir",
+            "cratis-chronicle-client-kotlin",
+            "cratis-chronicle-client-typescript",
+        ],
+        "high",
+        false,
+    ],
+    "cratis-chronicle-client-elixir": [
+        "Chronicle Elixir client",
+        "Use when an Elixir or OTP application connects to a Chronicle server and appends or observes events.",
+        [
+            "Do not use for another language's Chronicle client.",
+            "Do not use for the Chronicle kernel.",
+        ],
+        [
+            "cratis-chronicle-client-dotnet",
+            "cratis-chronicle-client-kotlin",
+            "cratis-chronicle-client-typescript",
+        ],
+        "high",
+        false,
+    ],
+    "cratis-chronicle-client-kotlin": [
+        "Chronicle Kotlin and Java client",
+        "Use when a Kotlin or Java application, with or without Spring Boot, connects to a Chronicle server and appends or observes events.",
+        [
+            "Do not use for another language's Chronicle client.",
+            "Do not use for the Chronicle kernel.",
+        ],
+        [
+            "cratis-chronicle-client-dotnet",
+            "cratis-chronicle-client-elixir",
+            "cratis-chronicle-client-typescript",
+        ],
+        "high",
+        false,
+    ],
+    "cratis-chronicle-client-typescript": [
+        "Chronicle TypeScript client",
+        "Use when a Node.js or TypeScript application connects to a Chronicle server and appends or observes events.",
+        [
+            "Do not use for Arc React frontends or generated Arc proxies.",
+            "Do not use for another language's Chronicle client.",
+        ],
+        [
+            "cratis-chronicle-client-dotnet",
+            "cratis-chronicle-client-elixir",
+            "cratis-chronicle-client-kotlin",
+        ],
+        "high",
+        false,
+    ],
+    "cratis-chronicle-compliance": [
+        "Chronicle compliance and personal data",
+        "Use when an event or read model carries personal data, when a compliance subject must be decided, or when a right-to-erasure request must be executed.",
+        [
+            "Do not use for authentication or authorization.",
+            "Do not use for generic secret handling.",
+        ],
+        ["cratis-chronicle-event-modeling", "cratis-fundamentals-concept"],
+        "critical",
+        false,
+    ],
+    "cratis-chronicle-web-workbench": [
+        "Chronicle browser Workbench",
+        "Use when inspecting or operating a running Chronicle store through the browser Workbench, or deciding whether to expose it.",
+        [
+            "Do not use for the CLI terminal Workbench.",
+            "Do not use for application source changes.",
+        ],
+        ["cratis-chronicle-cli-operations", "cratis-cli-terminal-workbench"],
+        "critical",
+        true,
+    ],
+    "cratis-lens-browser-extension": [
+        "Cratis Lens browser extension",
+        "Use when setting up Lens against a running Arc application, when it does not detect the app, or when a switched user or tenant does not take effect.",
+        [
+            "Do not use for production authentication or authorization design.",
+            "Do not use for Chronicle event-store inspection.",
+        ],
+        [
+            "cratis-arc-authentication-authorization-and-identity",
+            "cratis-arc-command-execution",
+        ],
+        "high",
+        true,
+    ],
+    "cratis-screenplay-model-authoring": [
+        "Screenplay .play model authoring",
+        "Use when writing, reviewing, or compiling a Screenplay .play file, or when deciding whether a construct is safe to model.",
+        [
+            "Do not use to render a model into an application.",
+            "Do not use for hand-written Arc or Chronicle source.",
+        ],
+        ["cratis-event-model-diagram", "cratis-stage-rendering-and-sandbox"],
+        "medium",
+        false,
+    ],
+    "cratis-stage-rendering-and-sandbox": [
+        "Stage rendering and sandbox",
+        "Use when deciding whether Stage can render a Screenplay model, when interpreting a blocked render plan, or when running the sandbox or specification containers.",
+        [
+            "Do not use for authoring the .play model itself.",
+            "Do not use for hand-written Arc or Chronicle source.",
+        ],
+        ["cratis-screenplay-model-authoring"],
+        "high",
+        true,
+    ],
+    "cratis-cli-terminal-workbench": [
+        "Cratis CLI terminal Workbench",
+        "Use when exploring a running Chronicle store interactively in the terminal rather than answering one question with a single command.",
+        [
+            "Do not use for the browser Workbench.",
+            "Do not use for scripted or machine-readable inspection.",
+        ],
+        ["cratis-chronicle-cli-operations", "cratis-chronicle-web-workbench"],
+        "high",
+        true,
     ],
     "cratis-fundamentals-concept": [
         "Strongly typed Cratis concepts",
@@ -744,6 +1469,20 @@ const profiles = {
             "cratis-arc-query-paging",
         ],
         "high",
+        false,
+    ],
+    "cratis-specification-by-example": [
+        "Cratis specification by example",
+        "Use to decide how a specification is structured, named, and scoped, in any language.",
+        [
+            "Do not use for the C# or TypeScript mechanics of writing one.",
+            "Do not use to decide what the behavior under specification should be.",
+        ],
+        [
+            "cratis-specifications-csharp",
+            "cratis-specifications-typescript",
+        ],
+        "low",
         false,
     ],
     "cratis-specifications-csharp": [
@@ -970,6 +1709,39 @@ const profiles = {
         "low",
         false,
     ],
+    "cratis-components-schema-editor": [
+        "Cratis Components schema editors",
+        "Use when a UI edits a JSON schema's shape or edits an object instance against a schema.",
+        [
+            "Do not use for a form bound to a generated Arc command.",
+            "Do not use for Chronicle event type migration.",
+        ],
+        ["cratis-arc-react-page", "cratis-chronicle-event-type-migration"],
+        "low",
+        false,
+    ],
+    "cratis-components-styling": [
+        "Cratis Components styling and theming",
+        "Use when setting up stylesheets, tokens, themes, dark mode, or PrimeReact pass-through for a Cratis frontend.",
+        [
+            "Do not use for component API or page composition questions.",
+            "Do not use for accessible naming.",
+        ],
+        ["cratis-arc-react-page", "cratis-components-accessibility"],
+        "low",
+        false,
+    ],
+    "cratis-components-accessibility": [
+        "Cratis Components accessibility",
+        "Use when setting dialog initial focus, supplying accessible names, or correcting invalid ARIA in a Cratis frontend.",
+        [
+            "Do not use as a general WCAG conformance guide.",
+            "Do not use for visual theming.",
+        ],
+        ["cratis-arc-react-page", "cratis-components-styling"],
+        "low",
+        false,
+    ],
     "cratis-application-slice-specifications": [
         "Application slice specifications",
         "Use to route event-sourced application backend behavior to the correct in-process scenario family.",
@@ -1038,14 +1810,27 @@ const profiles = {
         "medium",
         false,
     ],
-    "cratis-engineering-chronicle-kernel-tracing": [
-        "Chronicle Kernel tracing maintenance",
-        "Use by Chronicle framework maintainers to add generated OpenTelemetry traces.",
+    "cratis-engineering-effect-boundaries": [
+        "Cratis effect-boundary failure discipline",
+        "Use when writing or reviewing code that publishes, persists, generates, propagates, or releases, and a degraded run could still report success.",
         [
-            "Do not use for application telemetry or generic OpenTelemetry setup.",
+            "Do not use for style, naming, or structure questions.",
+            "Do not use to decide whether an operation should exist at all.",
+        ],
+        ["cratis-engineering-csharp-conventions"],
+        "medium",
+        false,
+    ],
+    "cratis-engineering-decision-record": [
+        "Cratis decision record procedure",
+        "Use to consult, author, accept, or supersede a decision record in a repository's decisions/ folder.",
+        [
+            "Do not use to summarize a decision that is already recorded.",
+            "Do not use to write session notes, plans, or handovers; those are work records.",
+            "Do not use to edit product documentation.",
         ],
         [],
-        "high",
+        "low",
         false,
     ],
     "cratis-engineering-csharp-conventions": [
@@ -1135,12 +1920,12 @@ function digestFiles(paths) {
     return hash.digest("hex");
 }
 
+// Collected rather than written, so importing this module produces no bytes on
+// disk and --check can compare the same values it would have written.
+const generatedOutputs = new Map();
+
 function writeJson(name, value) {
-    mkdirSync(outputRoot, { recursive: true });
-    writeFileSync(
-        join(outputRoot, name),
-        `${JSON.stringify(value, null, 2)}\n`,
-    );
+    generatedOutputs.set(`catalog/v2/${name}`, serializeJson(value));
 }
 
 const publicBySource = new Map();
@@ -1185,7 +1970,7 @@ const sources = allSkillNames.map((name) => {
         evidenceIds: [
             "repo-main-b795d53",
             "reevaluation-authority",
-            ...(sourceOverride ? [sourceOverride.evidenceId] : []),
+            ...(sourceOverride?.evidenceId ? [sourceOverride.evidenceId] : []),
         ],
     };
 });
@@ -1438,16 +2223,6 @@ for (const skill of v1Public.skills) {
             evaluationEvidenceIds: [],
             evidenceIds: ["reevaluation-authority"],
         });
-    } else if (skill.currentName === "add-business-rule") {
-        migrations.push({
-            id: "split-add-business-rule",
-            kind: "split",
-            sourceIds: [skill.currentName],
-            targetIds: skill.splitTargets,
-            state: "evaluation-required",
-            evaluationEvidenceIds: [],
-            evidenceIds: ["reevaluation-authority"],
-        });
     } else {
         migrations.push({
             id: `rename-${skill.currentName}`,
@@ -1486,7 +2261,6 @@ const engineeringTargetIds = targets
     .filter((target) => target.audience === "cratis-engineering")
     .map((target) => target.id);
 const candidateTargetExclusions = new Map([
-    ["cratis-arc-observable-query-http", "private-or-local-content"],
     ["cratis-chronicle-mcp-inspection", "mcp-guidance-materialization-blocked"],
     ["cratis-engineering-docs-visual-qa", "private-or-local-content"],
     ["skill-creator", "incomplete-resource-and-license-closure"],
@@ -1766,6 +2540,9 @@ const evidence = normalizedEvidence.observations.map((observation) => {
         expiresOn: observation.validThrough,
         applicableVersion: observation.legacy.applicableVersion,
         confidence: observation.confidence,
+        ...(observation.supersedes.length > 0
+            ? { supersedes: sortedOrdinal(observation.supersedes) }
+            : {}),
         ...(source.immutableRevision
             ? { immutableRevision: source.immutableRevision }
             : {}),
@@ -1844,8 +2621,54 @@ writeJson("product-coverage.json", {
     languages: coverageLanguages,
     products: coverageProducts,
 });
-generateComponentCatalogs(repositoryRoot);
+export function catalogV2Outputs() {
+    const outputs = new Map(generatedOutputs);
+    const componentCatalogs = expectedGeneratedComponentCatalogs(
+        repositoryRoot,
+    );
+    outputs.set(
+        componentCatalogPaths.generatedComponents,
+        serializeJson(componentCatalogs.components),
+    );
+    outputs.set(
+        componentCatalogPaths.generatedProjections,
+        serializeJson(componentCatalogs.projections),
+    );
+    return outputs;
+}
 
-process.stdout.write(
-    `Generated catalog v2: ${sources.length} sources, ${targets.length} targets, ${migrations.length} migrations, ${evidence.length} evidence records, and ${ecosystemFacts.length} ecosystem facts.\n`,
-);
+export function writeCatalogV2() {
+    mkdirSync(outputRoot, { recursive: true });
+    for (const [name, contents] of generatedOutputs)
+        writeFileSync(join(repositoryRoot, name), contents);
+    generateComponentCatalogs(repositoryRoot);
+    return {
+        sourceCount: sources.length,
+        targetCount: targets.length,
+        migrationCount: migrations.length,
+        evidenceCount: evidence.length,
+        ecosystemFactCount: ecosystemFacts.length,
+    };
+}
+
+function main() {
+    if (checkModeRequested()) {
+        process.exitCode = runGeneratorCheck({
+            name: "generate-catalog-v2",
+            root: repositoryRoot,
+            build: catalogV2Outputs,
+        });
+        return;
+    }
+    const summary = writeCatalogV2();
+    process.stdout.write(
+        `Generated catalog v2: ${summary.sourceCount} sources, ${summary.targetCount} targets, ${summary.migrationCount} migrations, ${summary.evidenceCount} evidence records, and ${summary.ecosystemFactCount} ecosystem facts.\n`,
+    );
+}
+
+if (
+    process.argv[1] &&
+    resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+) {
+    main();
+}

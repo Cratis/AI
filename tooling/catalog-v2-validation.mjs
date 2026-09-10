@@ -22,6 +22,7 @@ import {
     regularFiles,
     validateComponentCatalogs,
 } from "./component-catalog-validation.mjs";
+import { supersededEvidenceIds } from "./evidence-supersession.mjs";
 
 export const v2CatalogPaths = {
     sources: "catalog/v2/sources.json",
@@ -222,15 +223,44 @@ export function validateSources(catalogs, root) {
     const v1 = readCatalog(join(root, "catalog/public-skills.yml"));
     const v1Ids = [
         ...v1.skills.map((skill) => skill.currentName),
-        ...v1.audit.internalSkills.map((skill) => skill.currentName),
+        ...v1.audit.internalSkills
+            .filter(
+                (skill) =>
+                    skill.distributionProjection !==
+                    "retired-to-owning-repository",
+            )
+            .map((skill) => skill.currentName),
     ];
     if (!equalStringSets(sourceIds, v1Ids))
         errors.push(
-            "catalog v2 sources must preserve all 45 authored skill sources exactly once",
+            `catalog v2 sources must preserve all ${v1Ids.length} authored skill sources exactly once`,
         );
-    if (sourceIds.length !== 45)
+    // The corpus size is reviewed once, in the `audit` block of
+    // `catalog/public-skills.yml`, rather than restated as a literal here — the
+    // same one-derivation-one-seal shape Cratis/AI#280 gave the component counts.
+    // The audit is only a checkpoint if it is internally consistent, so its two
+    // halves are checked against its own total before anything is compared to it.
+    const { currentInventoryCount, publicCandidateCount, internalSkillCount } =
+        v1.audit;
+    if (publicCandidateCount + internalSkillCount !== currentInventoryCount)
         errors.push(
-            `catalog v2 must contain 45 sources; found ${sourceIds.length}`,
+            `the public skills audit is internally inconsistent: ${publicCandidateCount} public plus ${internalSkillCount} internal is not ${currentInventoryCount}`,
+        );
+    if (v1.skills.length !== publicCandidateCount)
+        errors.push(
+            `the public skills audit reviews ${publicCandidateCount} public candidates; the catalog has ${v1.skills.length}`,
+        );
+    // A legacy skill marked retired-to-owning-repository keeps its place in
+    // the inventory audit but no longer projects into the v2 catalog: its
+    // distribution twin moved to the owning product repository.
+    const retiredInternalSkills = v1.audit.internalSkills.filter(
+        (skill) => skill.distributionProjection === "retired-to-owning-repository",
+    ).length;
+    const expectedSourceCount =
+        currentInventoryCount - retiredInternalSkills;
+    if (sourceIds.length !== expectedSourceCount)
+        errors.push(
+            `catalog v2 must contain ${expectedSourceCount} sources (${currentInventoryCount} inventory minus ${retiredInternalSkills} retired); found ${sourceIds.length}`,
         );
     for (const source of catalogs.sources.sources) {
         if (source.publicationApproval)
@@ -948,8 +978,21 @@ export function validateEvidenceAndCoverage(
         "ecosystem facts",
         catalogs.evidence.ecosystemFacts.map((fact) => fact.id),
     );
+    const supersededIds = supersededEvidenceIds(
+        catalogs.evidence.evidence,
+        catalogs.evidence.asOf,
+    );
     for (const evidence of catalogs.evidence.evidence) {
-        if (evidence.expiresOn < catalogs.evidence.asOf)
+        for (const supersededId of evidence.supersedes ?? []) {
+            if (!evidenceIds.has(supersededId))
+                errors.push(
+                    `${evidence.id}: unknown superseded evidence ${supersededId}`,
+                );
+        }
+        if (
+            evidence.expiresOn < catalogs.evidence.asOf &&
+            !supersededIds.has(evidence.id)
+        )
             errors.push(
                 `${evidence.id}: evidence expired before the catalog as-of date`,
             );

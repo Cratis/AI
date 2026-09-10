@@ -12,6 +12,9 @@ import {
     validateSchemaVocabulary,
 } from "../catalog-validation.mjs";
 import { packageCandidateReviewBatch } from "../package-candidate-review-batch.mjs";
+import { buildCandidateComponentCoverage } from "../candidate-component-coverage.mjs";
+import { readComponentInventorySeals } from "../component-inventory-counts.mjs";
+import { passiveHarnesses } from "../harness-registry.mjs";
 
 function sha256(content) {
     return createHash("sha256").update(content).digest("hex");
@@ -27,6 +30,8 @@ function withTemporaryDirectory(callback) {
 }
 
 test("candidate review batch is deterministic complete and non-releasing", () => {
+    const seals = readComponentInventorySeals();
+    const coverage = buildCandidateComponentCoverage();
     withTemporaryDirectory((root) => {
         const firstRoot = join(root, "first");
         const secondRoot = join(root, "second");
@@ -34,14 +39,31 @@ test("candidate review batch is deterministic complete and non-releasing", () =>
         const second = packageCandidateReviewBatch({ outputRoot: secondRoot });
         assert.deepEqual(second, first);
         assert.equal(first.state, "CANDIDATE_REVIEW_BATCH_ONLY");
-        assert.equal(first.componentCount, 137);
-        assert.equal(first.packagedSkillTargetCount, 40);
-        assert.equal(first.blockedSkillTargetCount, 5);
-        assert.equal(first.repositoryOnlyLegacySkillCount, 4);
-        assert.equal(first.nativeProjectedComponentCount, 35);
-        assert.equal(first.nativeUnprojectedComponentCount, 2);
-        assert.equal(first.skillAssetCount, 68);
-        assert.equal(first.nativeAssetCount, 4);
+        // Every count on the batch manifest is checked against the coverage document it packages
+        // and against the one reviewed seal, never against a literal restated here.
+        assert.equal(first.componentCount, seals.componentCount);
+        assert.equal(
+            first.packagedSkillTargetCount,
+            coverage.byDisposition["skill-packaged-candidate"],
+        );
+        assert.equal(
+            first.blockedSkillTargetCount,
+            coverage.byDisposition["skill-blocked-candidate"],
+        );
+        assert.equal(
+            first.repositoryOnlyLegacySkillCount,
+            seals.byDisposition["skill-legacy-repository-only"],
+        );
+        assert.equal(
+            first.nativeProjectedComponentCount,
+            seals.byDisposition["native-static-review-projected"],
+        );
+        assert.equal(
+            first.nativeUnprojectedComponentCount,
+            seals.byDisposition["native-static-unprojected"],
+        );
+        assert.equal(first.skillAssetCount, 2 * passiveHarnesses.length);
+        assert(first.nativeAssetCount > 0);
         assert.equal(first.roots.length, 3);
         assert.match(first.sourceCommit, /^[0-9a-f]{40}$/);
         assert.match(first.componentCoverageSha256, /^[0-9a-f]{64}$/);

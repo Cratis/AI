@@ -70,6 +70,26 @@
       "reason": "live-external-destructive-effects-not-admitted"
     },
     {
+      "targetId": "cratis-chronicle-client-dotnet",
+      "reason": "effect-assessment-required"
+    },
+    {
+      "targetId": "cratis-chronicle-client-elixir",
+      "reason": "effect-assessment-required"
+    },
+    {
+      "targetId": "cratis-chronicle-client-kotlin",
+      "reason": "effect-assessment-required"
+    },
+    {
+      "targetId": "cratis-chronicle-client-typescript",
+      "reason": "effect-assessment-required"
+    },
+    {
+      "targetId": "cratis-chronicle-compliance",
+      "reason": "effect-assessment-required"
+    },
+    {
       "targetId": "cratis-chronicle-event-type-migration",
       "reason": "effect-assessment-required"
     },
@@ -79,6 +99,50 @@
     },
     {
       "targetId": "cratis-chronicle-reactor",
+      "reason": "effect-assessment-required"
+    },
+    {
+      "targetId": "cratis-chronicle-web-workbench",
+      "reason": "effect-assessment-required"
+    },
+    {
+      "targetId": "cratis-cli-terminal-workbench",
+      "reason": "effect-assessment-required"
+    },
+    {
+      "targetId": "cratis-components-accessibility",
+      "reason": "effect-assessment-required"
+    },
+    {
+      "targetId": "cratis-components-schema-editor",
+      "reason": "effect-assessment-required"
+    },
+    {
+      "targetId": "cratis-components-styling",
+      "reason": "effect-assessment-required"
+    },
+    {
+      "targetId": "cratis-documentation-writing",
+      "reason": "effect-assessment-required"
+    },
+    {
+      "targetId": "cratis-governed-release-methodology",
+      "reason": "effect-assessment-required"
+    },
+    {
+      "targetId": "cratis-lens-browser-extension",
+      "reason": "effect-assessment-required"
+    },
+    {
+      "targetId": "cratis-screenplay-model-authoring",
+      "reason": "effect-assessment-required"
+    },
+    {
+      "targetId": "cratis-specification-by-example",
+      "reason": "effect-assessment-required"
+    },
+    {
+      "targetId": "cratis-stage-rendering-and-sandbox",
       "reason": "effect-assessment-required"
     },
     {

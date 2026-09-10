@@ -28,6 +28,12 @@ paths:
   deterministic offset unique to the repository (minute 1–59, spread across 03:00–07:00 UTC).
 - A scheduled workflow that exists to keep coverage (nightly full matrix, health probe)
   should run the *narrowest* thing that preserves the claim it exists to make.
+- **A scheduled workflow whose subject no longer exists is deleted, not left running.**
+  It still queues into the shared pool every day, and a scheduled no-op is the worst
+  kind: it never fails, so nothing ever draws attention to it. Deleting it is also the
+  only way to stop handing it whatever secrets it was passed — `Cratis/AI` ran a daily
+  package update against a repository with no package manifest of any kind, checking out
+  the full history under an organization-wide write PAT to find nothing to update.
 
 ## Every job, always
 

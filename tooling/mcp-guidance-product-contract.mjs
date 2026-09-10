@@ -4,12 +4,13 @@
 import { createHash } from "node:crypto";
 import { compareOrdinal } from "./catalog-ordering.mjs";
 import {
+    anchorMismatch,
     validateAgainstSchema,
     validateSchemaVocabulary,
 } from "./catalog-validation.mjs";
 
 const expectedProductAnchor =
-    "d86b3c4e39c5e9e8f92b15a83dc502dfe8b9331128d9df3d5bb663206a62ad62";
+    "24f545c106a70371ba6202baaa1c76357f3bbc19ad05e33bff4c3050b350d339";
 const expectedProductIds = Object.freeze(["chronicle-mcp", "studio"]);
 
 function semanticAnchor(records) {
@@ -28,9 +29,15 @@ export function validateMcpGuidanceProductContract(products, schema) {
         ...validateSchemaVocabulary(schema),
         ...validateAgainstSchema(products, schema, schema),
     ];
-    if (semanticAnchor(products.products) !== expectedProductAnchor)
+    const productAnchor = semanticAnchor(products.products);
+    if (productAnchor !== expectedProductAnchor)
         errors.push(
-            "MCP guidance product contract differs from the independently reviewed anchor",
+            anchorMismatch(
+                "MCP guidance product contract",
+                expectedProductAnchor,
+                productAnchor,
+                "expectedProductAnchor in tooling/mcp-guidance-product-contract.mjs",
+            ),
         );
     const productIds = products.products
         .map((product) => product.id)

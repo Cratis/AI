@@ -29,7 +29,12 @@ root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 cd "$root"
 
 warn() { printf 'ai-corpus warn: %s\n' "$1" >&2; }
-report() { [[ "${CRATIS_HOOKS_IMPORT_REPORT:-0}" == "1" ]] && printf 'ai-corpus import: %s\n' "$1" >&2 || true; }
+# `if`, not `A && B || C`: the trailing `|| true` was there to keep a disabled report
+# from failing the caller, but it also swallowed a real printf failure, and shellcheck
+# flags the shape (SC2015) for exactly that reason.
+report() {
+    if [[ "${CRATIS_HOOKS_IMPORT_REPORT:-0}" == "1" ]]; then printf 'ai-corpus import: %s\n' "$1" >&2; fi
+}
 
 command -v jq >/dev/null 2>&1 || exit 0
 [[ -d node_modules/@cratis ]] || exit 0

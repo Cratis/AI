@@ -12,11 +12,23 @@ Three layers:
 | Hard block | `PreToolUse` on a write | `scripts/cratis-guard-writes.sh` | zero | exits **2** — the write does not happen |
 | Quality gate | `Stop` | `scripts/cratis-quality-gate.sh` | one build/test run, only when relevant files changed | exits **2** — the turn does not end |
 
-They are wired for Claude Code in [`.claude/settings.json`](../../.claude/settings.json).
+The Claude Code wiring that fires them is tracked here, in
+[`settings.template.json`](./settings.template.json). Claude reads `.claude/settings.json`, which is
+per-machine and gitignored, so activate the hooks by copying the template once:
+
+```bash
+cp .ai/hooks/settings.template.json .claude/settings.json
+```
+
+If you already have a `.claude/settings.json`, merge the template's `hooks` block into it rather
+than overwriting — the rest of that file is yours. Re-copy after the template changes; the copy is
+not a symlink, so it does not update itself. **Edit the template, never the copy**: `.ai/` is the
+source of truth (see [`../rules/managing-ai-rules.md`](../rules/managing-ai-rules.md)), and
+`scripts/validate-ai-setup.sh` checks the template against the script names this page documents.
+
 The markdown files in this folder (`agent-stop.md`, `pre-commit.md`) remain *lifecycle guidance* —
 they describe what a hook should do for tools that have no wiring yet.
 
-> `.ai/` is the source of truth (see [`../rules/managing-ai-rules.md`](../rules/managing-ai-rules.md)).
 > Hooks are the one surface with no folder adapter: Claude reads `.claude/settings.json`,
 > Copilot would read `.github/hooks/*.json`. Only the Claude wiring exists today.
 
@@ -84,6 +96,12 @@ and the `ai-corpus` CI job checks out the tree and installs nothing — so faili
 permanent no-op in CI while turning repos red locally for their own dependency pin. The warning
 names the file, the line and the installed version, and leaves the judgement to a human.
 
+> **What this repository is.** `Cratis/AI` is a corpus of markdown, JSON and a little
+> JavaScript — it has no `Source/`, no `.slnx`, no `package.json` and no C# or TypeScript
+> project of its own. Every `.cs` / `.ts` / `Source/**` reference below describes what the
+> hooks do in a **consuming** repository. Here they are silent, which is the designed
+> behavior, not a broken setup.
+
 **Silent when it cannot judge.** No `jq`, no `node_modules`, a package this repository does not
 depend on, or a package published without an `exports` map: skipped without a word. "Not installed"
 is not a finding.
@@ -149,12 +167,27 @@ to both. That is exactly how `ReactorSideEffect` survived: never a module specif
 told readers to return it from a reactor, shown with object-initializer syntax — and never a type in
 any Chronicle release. Someone following the corpus wrote code that does not compile.
 
-**The index.** Every `Cratis*` version pinned in `Directory.Packages.props`, plus the Cratis packages
-those pull in (`Cratis` is a metapackage), resolved against the local NuGet cache. Each package's
+**The index.** Every `Cratis*` version pinned in `Directory.Packages.props` — or, in the corpus
+repository itself, in the tracked pin list `scripts/cratis-nuget-pins.txt`, which names the exact
+product versions the skills verify against — plus the Cratis packages those pull in (`Cratis` is a
+metapackage), resolved against the local NuGet cache. A pin moves only together with the skill
+whose verified version moved.
+
+**Exit codes.** `0` ran (warnings, if any, are on stderr); `1` a `--self-test` expectation failed;
+`2` could not run — no pin source, no NuGet cache, or an index that came up empty — with the reason
+on stderr. "Ran and found nothing" and "never looked" are different verdicts
+(`exit-codes-and-wrappers.md`), and this guard spent its first lifetime erasing that difference by
+exiting `0` at the `Directory.Packages.props` gate in a repository that has none (#287).
+
+**Self-test.** `--self-test` seeds the motivating fabrication (`ReactorSideEffect`, in prose, in
+attribute position, beside the real names it must be distinguished from) into a scratch corpus and
+fails unless the guard names it and keeps the real types silent. Run it after any change to the
+extraction rules, the pin list, or the allowlist — a guard that can pass vacuously is worse than no
+guard (`guards-and-fuses.md`). Each package's
 `lib/**/*.xml` carries `<member name="T:Full.Namespace.TypeName">` — a complete machine-readable type
 list — and every other identifier the docs mention is kept as a second, permissive accept list, in
 the same spirit as Tier 2's "a word anywhere in the `.d.ts` closure". Names the corpus itself
-declares, and names declared in this repository's own `Source/**/*.cs`, are accepted too: a worked
+declares, and names declared in the consuming repository's own `Source/**/*.cs`, are accepted too: a worked
 example that writes `public record AuthorRegistered(…)` before using it is not documenting a
 framework API. A curated allowlist covers the rest — see below.
 
@@ -225,24 +258,40 @@ customises both without forking anything:
 |---|---|
 | `scripts/cratis-patterns.json` | shipped pattern set; its header `$comment` documents every field |
 | `scripts/cratis-patterns.local.json` | optional; merged over the above by `id` — add patterns, or set `"enabled": false` to silence one |
-| `scripts/quality-gates.json` | shipped gates; `changed` globs decide when a gate runs, `requires` decides whether it *can* |
+| `scripts/quality-gates.json` | shipped gates; `changed` globs decide when a gate runs, `requires` and `workingDirectoryFrom` decide whether it *can* |
 
-A gate whose `requires.commands` are not on `PATH`, or whose `requires.paths` do not exist, is a
-**no-op with a message on stderr** rather than a failure — that is how a repository with no .NET
-solution or no frontend stays quiet.
+A gate whose `requires.commands` are not on `PATH`, whose `requires.paths` do not exist, or whose
+`workingDirectoryFrom` matches nothing in the repository, is a **no-op with a message on stderr**
+rather than a failure — that is how a repository with no .NET solution or no frontend stays quiet.
 
-**Profile note.** The C# patterns are application-profile and scoped to `Source/**/*.cs` here. A
-framework-profile repository (Arc, Chronicle, Fundamentals, Components — see
-[`../rules/framework.md`](../rules/framework.md)) has no vertical slices and should disable them
-in its `cratis-patterns.local.json`.
+**No shipped gate names a product's file.** A default that did would activate in exactly one
+repository and silently no-op in every other, which is the worst of both: it looks configured and
+checks nothing. So the .NET and frontend gates state *what kind of project* they build and let the
+gate script find it — `workingDirectoryFrom: ["*.slnx", "*.sln", "**/*.slnx", "**/*.sln"]` runs
+`dotnet build` in whichever directory holds the repository's own solution, preferring one at the
+root because the globs are tried in order. The frontend gates discover `package.json` the same way.
+The same shipped file therefore activates in an application repository, activates in a framework
+repository, and stays quiet in a corpus-only repository like this one, which has no project at all.
+
+**Overriding it, in order of increasing force.** Set `workingDirectory` on a gate to pin one of
+several candidate projects; drop a `quality-gates.json` of your own in place of the shipped one; or
+point `CRATIS_HOOKS_GATES` at a file anywhere. None of them requires forking the script.
+
+**Profile note.** The C# patterns are application-profile and scoped to `Source/**/*.cs`, which is
+the application source root [`../rules/general.md`](../rules/general.md) documents — not a path in
+this repository, which has no C# at all. A framework-profile repository (Arc, Chronicle,
+Fundamentals, Components — see [`../rules/framework.md`](../rules/framework.md)) has no vertical
+slices and should disable them in its `cratis-patterns.local.json`; a repository whose application
+source root is not `Source/` re-scopes the `paths` globs there too.
 
 **One property gates the proxy generator.** The generator's MSBuild target is
 `Condition="'$(CratisProxiesOutputPath)' != ''"`, so clearing that property with
 `-p:CratisProxiesOutputPath=` is the *only* way to make it no-op. There is no
 `DisableProxyGenerator` property — MSBuild silently accepts unknown `-p:` names, so passing one
-looks like it works and changes nothing. `.github/workflows/planner-build.yml` matches the shipped
-gates: Release clears the path, Debug does not, because `general.md` makes the Debug build the
-canonical trigger for regenerating the TypeScript proxies the frontend phase depends on.
+looks like it works and changes nothing. A consuming repository's build workflow should split the
+two configurations the way the shipped gates do: Release clears the path, Debug does not, because
+`general.md` makes the Debug build the canonical trigger for regenerating the TypeScript proxies
+the frontend phase depends on.
 
 ## Escape hatches
 
@@ -283,10 +332,15 @@ Each is an explicit, auditable opt-out — none of them is a default.
 
 The scripts read hook JSON on stdin, so they are directly testable:
 
+The pattern pass and the gate both read the repository they are pointed at, so testing them means
+pointing them at a repository that *has* the thing under test. This corpus has no C# and no
+project, so run those two against a consuming checkout (or a scratch tree), and expect silence here.
+
 ```bash
-# Pattern pass — expect exit 0, and JSON on stdout only when something matched
+# Pattern pass — expect exit 0, and JSON on stdout only when something matched.
+# Run from an application checkout; <Module>/<Feature>/<Slice> is the layout general.md documents.
 jq -nc '{session_id:"t", cwd:"'"$PWD"'", tool_name:"Edit",
-         tool_input:{file_path:"'"$PWD"'/Source/Planner/Work/Starting/Starting.cs"}}' \
+         tool_input:{file_path:"'"$PWD"'/Source/<Module>/<Feature>/<Slice>/<Slice>.cs"}}' \
   | .ai/hooks/scripts/cratis-pattern-scan.sh; echo "exit=$?"
 
 # Hard block — expect exit 2
@@ -354,11 +408,27 @@ CRATIS_HOOKS_TYPE_REPORT=1 .ai/hooks/scripts/validate-type-references.sh
 ```
 
 Run `bash -n` on every script and `jq .` on every JSON file before committing. The hook scripts are
-kept at **zero** `shellcheck --external-sources --severity=style` findings by a blocking CI job — run
-it before committing too.
+kept at **zero** `shellcheck --external-sources --severity=style` findings by the **Lint the hook
+scripts** step of the `Verify AI Corpus` workflow (`.github/workflows/verify-ai-corpus.yml`), which
+fails the run on any finding at that severity or above. Run the same command before committing:
+
+```bash
+shellcheck --external-sources --severity=style .ai/hooks/scripts/*.sh
+```
+
+The CI step counts the scripts it checked and refuses to pass on an empty population, so a glob that
+stops matching is a failure rather than a silent green. A finding that is genuinely a false positive
+is silenced with a `# shellcheck disable=SC…` directive carrying a comment that says why — never by
+loosening the severity.
+
+The step uses whatever shellcheck the runner image ships, and prints its version first. Different
+versions genuinely disagree: 0.9.0 flags `A && B || C` (SC2015) where 0.11.0 does not, so a local
+run can be green while CI is red. The scripts are currently clean under **both** 0.9.0 and 0.11.0.
+If a runner image upgrade introduces a new finding, fix the script — the version line at the top of
+the step log says which version changed its mind.
 
 ## Note on `.claude/settings.local.json`
 
-That file currently carries `allow` entries for `Bash(git push *)` and `Bash(gh pr *)`. Local
-settings take precedence over project settings, so they may override the `ask` entries this
-layer adds in `.claude/settings.json`. Remove them there if you want the confirmation prompt back.
+If that file carries `allow` entries for `Bash(git push *)` and `Bash(gh pr *)`, they win: local
+settings take precedence over project settings, so they override the `ask` entries the template
+puts in `.claude/settings.json`. Remove them there if you want the confirmation prompt back.

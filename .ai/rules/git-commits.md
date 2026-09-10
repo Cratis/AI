@@ -49,6 +49,34 @@ owner, not a licence to squash.** Stop and ask.
 
 Verify your own commits are still reachable on the branch **and** that their content is still in the working tree — those are two different things. `git log --oneline -5` plus a `grep` for something the commit introduced. If a commit has gone missing, `git reflog` is the recovery tool: find the SHA, `git tag` it immediately so `gc` cannot take it, then `git cherry-pick` it back.
 
+### Recorded exceptions
+
+A rule with one silent violation in its past is not a rule; it is a rule everyone
+has learned to read as a suggestion. So the exceptions are written down here, with
+the date, the human who authorized them, exactly what was rewritten, and what
+recovery material survived. An exception that is not in this list did not happen —
+which is the point: this list is the only thing that separates "a maintainer
+decided, once, in the open" from "somebody rewrote history and nobody said".
+
+**Nothing here authorizes a new rewrite.** An entry is a record of a past event, not
+a precedent and not a template. The forbidden list above applies in full to the next
+one, whoever asks.
+
+- **2026-08-20 — `Cratis/AI`, one-off purge of the Planner and Ensemble history.**
+  Authorized explicitly by the maintainer as part of the repository separation epic
+  ([`Cratis/.github#24`](https://github.com/Cratis/.github/issues/24)), which carries
+  it as a completion criterion rather than as an incident. The rewrite removed the
+  `Source/Planner`, Factory, Contracts and Factory-documentation paths from `main`,
+  from local refs and reflogs, and from ordinary remote branches, when the delivery
+  applications moved out to `Cratis/Stagehand` and `Cratis/Ensemble` and this
+  repository became corpus-only. It was not complete: GitHub still advertises the
+  historical pull-request refs, so the old commits remain fetchable through them, and
+  a full pre-rewrite bundle plus rescue patches were retained off-repository. The
+  residue, the retention decision and its owner are tracked in
+  [`Cratis/AI#127`](https://github.com/Cratis/AI/issues/127); the authority and
+  evidence snapshots are frozen under
+  `Documentation/evidence/redesign-autonomous-execution-2026-08-20/authority/`.
+
 ## Logical Grouping
 
 Every commit must be a **single logical unit of work**. Group related changes together; separate unrelated changes into distinct commits.

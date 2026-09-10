@@ -13,24 +13,24 @@ Choose the narrowest product/repository profile:
 
 | Repository | Shared profile |
 | --- | --- |
-| Cratis/Fundamentals | `engineering-fundamentals` |
-| Cratis/Arc backend | `engineering-arc` |
-| Arc React packages | `engineering-arc-react` |
-| Cratis/Components | `engineering-components` |
-| Cratis/Chronicle kernel | `engineering-chronicle` |
-| Chronicle client repository | `engineering-chronicle-clients` |
-| Cratis/cli | `engineering-cratis-cli` |
-| Cratis/Lens | `engineering-lens` |
-| Cratis/Screenplay | `engineering-screenplay` |
-| Cratis/Stage | `engineering-stage` |
-| Cratis/Specifications | `engineering-specifications` |
-| Documentation | `engineering-documentation` |
-| Cratis/AI | `engineering-ai` |
-| Cratis/Workflows | `engineering-workflows` |
-| Private Studio repository | `engineering-studio` plus local overlay |
-| Private Stagehand repository | `engineering-stagehand` plus local overlay |
+| Cratis/Fundamentals | `cratis/engineering` |
+| Cratis/Arc backend | `cratis/engineering` |
+| Arc React packages | `cratis/engineering` |
+| Cratis/Components | `cratis/engineering` |
+| Cratis/Chronicle kernel | `cratis/engineering` |
+| Chronicle client repository | `cratis/engineering` |
+| Cratis/cli | `cratis/engineering` |
+| Cratis/Lens | `cratis/engineering` |
+| Cratis/Screenplay | `cratis/engineering` |
+| Cratis/Stage | `cratis/engineering` |
+| Cratis/Specifications | `cratis/engineering` |
+| Documentation | `cratis/engineering` |
+| Cratis/AI | `cratis/engineering` |
+| Cratis/Workflows | `cratis/engineering` |
+| Private Studio repository | `cratis/engineering` plus local overlay |
+| Private Stagehand repository | `cratis/engineering` plus local overlay |
 
-Every engineering profile composes `engineering-base`. A generated profile
+Every engineering profile composes `cratis/engineering`. A generated profile
 artifact contains only approved public-safe skills and references. Browse the
 [package and capability catalog](../catalog/generated/human-catalog/CATALOG.md)
 to see each maintainer package, its included skills, and current availability.
@@ -52,7 +52,7 @@ Example Chronicle framework subscription:
   "schemaVersion": "1.0.0",
   "channel": "cratis-engineering",
   "version": "1.0.0",
-  "profiles": ["engineering-chronicle"],
+  "profiles": ["cratis/engineering"],
   "harnesses": ["claude", "codex", "copilot", "pi"],
   "updatePolicy": "reviewed-pull-request",
   "projectContext": ".cratis/PROJECT.md"

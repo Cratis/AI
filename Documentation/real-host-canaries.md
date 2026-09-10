@@ -1,5 +1,7 @@
 # Real-host canary contracts
 
+> **Audience:** Maintainers of Cratis/AI — canary lifecycle and evidence. Not required for adopting Cratis AI.
+
 **Status:** Deny-by-default local fixture framework; no support promotion
 
 ## Why real-host evidence is separate
@@ -104,3 +106,27 @@ current exact host version, complete phase transcripts, selected skill
 path/digest for behavior, genuine host-managed update and rollback, collision
 proof, and explicit reviewed admission. S10 uses a separate production lifecycle
 schema; the S9 fixture report cannot be promoted by changing its labels.
+
+## Report provenance and the host version pins
+
+Every report declares who produced it (#262):
+
+- `provenance: "runner"` — the runner emitted it, and its `caseId` must be one
+  of the runner's own formats: `s9-<host>-local-fixture-<attemptId>` or
+  `s9-<host>-version-preflight-<attemptId>`.
+- `provenance: "hand"` — a human authored it; the report says so in its
+  limitations, naming why the runner could not produce it. The four
+  `version-preflight-blocked` reports from 2026-08-26 are the marked examples:
+  they predate `--preflight-only`, which now makes that shape runner-produced.
+
+**Pin refresh policy.** The host version pins in the canary matrix
+(`distribution/real-host-canary-matrix.json`, mirrored in
+`tooling/real-host-canary-contract.mjs`) are exact and reviewed; they are the
+registry-latest values of the day they were pinned and drift by design as
+hosts release. A pin change is a reviewed pull request that also re-runs the
+preflight for that host (`node tooling/run-real-host-canary.mjs --host <id>
+--output <path> --attempt-id <id> --preflight-only --allow-real-host`, with
+`CRATIS_S9_REAL_HOST_CANARY=1`). The weekly governed audit reports each host's
+current registry version against the pin as information — drift is a fact to
+read, never a gate; the lane goes red only when a canary run actually observes
+a mismatch, which is exactly what the preflight records.

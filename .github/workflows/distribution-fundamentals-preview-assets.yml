@@ -45,7 +45,7 @@ jobs:
           node tooling/validate-catalogs.mjs --basic
           test "$(node -p "require('./distribution/preview-readiness.json').assuranceMode")" = "basic"
           test "$(node -p "require('./distribution/preview-readiness.json').governedAssurance.requiredForPreview")" = "false"
-          test "$(node -p "require('./distribution/preview-readiness.json').previewRequestEligible")" = "false"
+          test "$(node -p "require('./distribution/preview-readiness.json').state")" = "READY_FOR_PREVIEW_REQUEST"
           node tooling/package-fundamentals-preview-assets.mjs \
             "$RUNNER_TEMP/fundamentals-preview-assets" "$VERSION"
           test "$(node -p "require('$RUNNER_TEMP/fundamentals-preview-assets/preview-assets.json').state")" = "PREVIEW_ASSETS_APPROVAL_PENDING"

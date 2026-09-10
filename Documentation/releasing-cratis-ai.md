@@ -1,5 +1,7 @@
 # Release Cratis AI
 
+> **Audience:** Maintainers of Cratis/AI — release process. Not required for adopting Cratis AI.
+>
 > **Normal support-free `0.x.y` package releases are enabled; governed S10 remains blocked.**
 Candidate review is available now. Passive `0.x.y` packages use the basic lane;
 a `1.0.0` release and stable support use the governed lane and its complete
@@ -14,7 +16,7 @@ tracked in [AI#181](https://github.com/Cratis/AI/issues/181).
 
 ## Passive `0.x.y` release lane
 
-`public-fundamentals` is the first package. Pull requests must carry exactly one
+`cratis/fundamentals` is the first package. Pull requests must carry exactly one
 `major`, `minor`, `patch`, or `no-release` label. The shared Cratis release action
 derives the next version after merge; while this lane is active, publication
 accepts only `0.x.y`. The package is generated from the exact immutable source,
@@ -26,33 +28,23 @@ OIDC canary. Future releases do not use a preview tag or require an append-only
 preview request. Package provenance and lifecycle checks continue to grant no
 support, runtime, stable-promotion, or marketplace claim.
 
-## Public multi-marketplace evaluation
+## Public marketplace installation — nothing to release
 
-The `public-cratis-ai` Distribution root merges one immutable skill tree into
-compatible manifests for generic Agent Skills and Agent Plugins, Claude Code,
-OpenAI Codex, GitHub Copilot, Cursor, Gemini CLI, Kiro, and Pi. The generator
-rejects byte-divergent collisions and preserves blocked targets, repository-only
-legacy skills, and native non-skill components as explicit exclusions. A closed,
-deny-by-default evaluation policy explicitly admits 29 public targets and keeps
-five effectful workflows, including live Chronicle operations, out until their
-effects are separately assessed and approved. Every packaged Markdown reference must resolve inside the
-skill or use an explicit external URL.
+Marketplace installation is not a release lane. `Cratis/AI` is added as a
+marketplace and its plugins resolve the `skills/` and `engineering/` directories
+on this repository's default branch, so a merge to `main` is the whole delivery.
+There is no publish workflow, no release branch, no `dist/vX.Y.Z` tag, no staged
+generated tree, and no checksum or provenance file on that path.
 
-Self-hosted GitHub installation is the publication channel for Claude Code,
-Copilot, Gemini CLI, Kiro, generic Agent Plugin hosts, and Pi Git packages. The
-aggregate `@cratis/ai` package manifest is deliberately private and exists only
-to make Pi's Git installation idiomatic; it is not an npm publication identity.
+The four committed manifests — `.claude-plugin/marketplace.json`,
+`.agents/plugins/marketplace.json`, `.github/plugin/marketplace.json`, and
+`.cursor-plugin/marketplace.json` — are the entire surface. See the
+[maintainer marketplace deployment runbook](./maintainer-marketplace-deployment-runbook.md).
+
 OpenAI's universal directory and Cursor's marketplace remain separately prepared
-portal handoffs because those vendors require an authenticated publisher,
-manual submission, and review. The OpenAI handoff also records the owner-supplied
-identity, logo, privacy/terms URLs, country availability, and policy attestations
-that must not be invented by automation. Marketplace availability remains an unsupported
-`0.x.y` evaluation claim; it does not advance S9/S10 or grant support.
-
-The manual **Stage Public Marketplace Distribution** workflow generates the
-complete `Cratis/AI.Distribution` repository candidate, runs all seven protected
-Distribution checks, and uploads the exact hidden-file-preserving review tree.
-It has read-only permissions and cannot push, publish, or submit vendor portals.
+portal handoffs because those vendors require an authenticated publisher, manual
+submission, and review. Marketplace availability remains an unsupported `0.x.y`
+evaluation claim; it does not advance S9/S10 or grant support.
 
 ## Static candidate review before release authority
 
@@ -101,10 +93,10 @@ Create `distribution/releases/v<version>.json`:
   "artifactDigest": "<64-character-artifact-digest>",
   "prerequisiteEvidenceIds": ["<existing-prerequisite-evidence>"],
   "mergeStrategy": "merge-commit",
-  "profiles": ["public-fundamentals"],
+  "profiles": ["cratis/fundamentals"],
   "canaries": [
     {
-      "profileId": "public-fundamentals",
+      "profileId": "cratis/fundamentals",
       "canaryId": "samples-chronicle-backend"
     }
   ],

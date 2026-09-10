@@ -12,10 +12,16 @@ import {
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { compareOrdinal } from "./catalog-ordering.mjs";
 import {
+    anchorMismatch,
     defaultRepositoryRoot,
     readCatalog,
     validateAgainstSchema,
 } from "./catalog-validation.mjs";
+import { supersededEvidenceIds } from "./evidence-supersession.mjs";
+import {
+    digest as digestPiAgentAdapter,
+    renderAdapter,
+} from "./pi-agent-adapters.mjs";
 
 export const componentCatalogPaths = Object.freeze({
     authoredComponents: "catalog/components.json",
@@ -31,10 +37,24 @@ export const componentCatalogPaths = Object.freeze({
     artifacts: "catalog/v2/artifacts.json",
 });
 
+// The marketplace manifests sit inside a host adapter's output prefix but are
+// distribution artifacts, not component projections: they are hand-authored and
+// owned by the marketplace-pointer-manifests repository inventory record.
+// Keeping them out of the host output closure is what lets a host discover the
+// marketplace without the projection catalog claiming to have generated it.
+// tooling/specs/marketplace-pointer-manifests.spec.mjs asserts this list stays
+// identical to the committed set.
+export const distributionPointerOutputs = new Set([
+    ".agents/plugins/marketplace.json",
+    ".claude-plugin/marketplace.json",
+    ".cursor-plugin/marketplace.json",
+    ".github/plugin/marketplace.json",
+]);
+
 const expectedComponentAnchor =
-    "6871bd399a403ed6aa34f82f1bf4c82ad9c9f4d3ef74dd996b213e24198108be";
+    "1350ae4648de574815a2ee14682e5d16cbe1ed95b5b808b9e469935d2a207c03";
 const expectedProjectionAnchor =
-    "70f3e05988839ba21247eff528709caf4738f2aa7f637e05e28658ff05902027";
+    "b896dcb363e9b52ae5a20985cd2706e730d7569ce93d0ee1755f5c59dadb24b9";
 const expectedProjectionHostAnchor =
     "9735e6fd6a1b15e92086df6fda6cb4a988094c37c26e11bddf0518d5d3fdeba2";
 
@@ -319,6 +339,124 @@ function projectionOutputMatchesHost(host, path) {
     );
 }
 
+const piGeneratedAgentManifestPath = ".pi/agents/.generated.json";
+
+function isPiGeneratedAgentProjection(projection, host) {
+    return (
+        projection.state === "existing" &&
+        projection.adapterType === "generated" &&
+        projection.hostId === "pi" &&
+        host?.contract === "pi" &&
+        host.materialization === "repository-existing" &&
+        projection.projectedKind === "agent" &&
+        projection.hostActivation === "active"
+    );
+}
+
+function piGeneratedAgentFilename(projection) {
+    if (projection.outputPaths.length !== 1) return null;
+    const match = /^\.pi\/agents\/([a-z]+(?:-[a-z]+)*\.md)$/.exec(
+        projection.outputPaths[0],
+    );
+    return match?.[1] ?? null;
+}
+
+function validatePiGeneratedAgentOutputs(
+    root,
+    generatedPiAgentProjections,
+    componentsById,
+) {
+    const errors = [];
+    const expectedManifestOutputs = {};
+    for (const projection of generatedPiAgentProjections) {
+        const component = componentsById.get(projection.componentId);
+        const filename = piGeneratedAgentFilename(projection);
+        if (!filename) {
+            errors.push(
+                `${projection.id}: generated Pi agent requires one .pi/agents/name.md output`,
+            );
+            continue;
+        }
+        const sourcePath = `.ai/agents/${filename}`;
+        if (
+            component?.kind !== "agent" ||
+            component.canonicalSources.length !== 1 ||
+            component.canonicalSources[0].path !== sourcePath
+        ) {
+            errors.push(
+                `${projection.id}: generated Pi agent source must be the component .ai/agents/${filename} canonical file`,
+            );
+            continue;
+        }
+        const outputPath = `.pi/agents/${filename}`;
+        try {
+            const source = join(root, sourcePath);
+            const output = join(root, outputPath);
+            if (!existsSync(source) || lstatSync(source).isSymbolicLink())
+                throw new Error(`canonical source is missing or symlink: ${sourcePath}`);
+            if (!existsSync(output) || lstatSync(output).isSymbolicLink())
+                throw new Error(`generated output is missing or symlink: ${outputPath}`);
+            if (!lstatSync(source).isFile())
+                throw new Error(`canonical source is not a regular file: ${sourcePath}`);
+            if (!lstatSync(output).isFile())
+                throw new Error(`generated output is not a regular file: ${outputPath}`);
+            const rendered = renderAdapter(
+                filename,
+                readFileSync(source, "utf8"),
+            );
+            const actual = readFileSync(output, "utf8");
+            if (actual !== rendered)
+                errors.push(
+                    `${projection.id}: generated Pi agent output is not byte-exact: ${outputPath}`,
+                );
+            expectedManifestOutputs[filename] = digestPiAgentAdapter(rendered);
+        } catch (error) {
+            errors.push(
+                `${projection.id}: generated Pi agent validation failed for ${outputPath}: ${error.message}`,
+            );
+        }
+    }
+    try {
+        const manifestPath = join(root, piGeneratedAgentManifestPath);
+        if (!existsSync(manifestPath))
+            throw new Error(`${piGeneratedAgentManifestPath} is missing`);
+        const stat = lstatSync(manifestPath);
+        if (!stat.isFile() || stat.isSymbolicLink())
+            throw new Error(`${piGeneratedAgentManifestPath} is not a regular file`);
+        const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+        if (
+            manifest.version !== 1 ||
+            Object.keys(manifest).sort(compareOrdinal).join(",") !==
+                "outputs,version" ||
+            !manifest.outputs ||
+            Array.isArray(manifest.outputs) ||
+            typeof manifest.outputs !== "object"
+        )
+            throw new Error("unsupported generated Pi agent manifest shape");
+        if (
+            JSON.stringify(
+                Object.keys(manifest.outputs).sort(compareOrdinal),
+            ) !==
+            JSON.stringify(
+                Object.keys(expectedManifestOutputs).sort(compareOrdinal),
+            )
+        )
+            throw new Error(
+                "generated Pi agent manifest output keys do not match declared projections",
+            );
+        for (const [filename, expectedDigest] of Object.entries(
+            expectedManifestOutputs,
+        ))
+            if (manifest.outputs[filename] !== expectedDigest)
+                throw new Error(
+                    `generated Pi agent manifest digest mismatch for ${filename}`,
+                );
+    } catch (error) {
+        errors.push(`pi: generated Pi agent manifest validation failed: ${error.message}`);
+    }
+    return errors;
+}
+
 function sourceSignature(component) {
     return component.canonicalSources
         .map((source) => `${source.path}:${source.digest}`)
@@ -329,9 +467,15 @@ function sourceSignature(component) {
 export function validateComponents(catalogs, root = defaultRepositoryRoot) {
     const errors = [];
     const { components: catalog, evidence, targets } = catalogs;
-    if (semanticAnchor(catalog.components) !== expectedComponentAnchor)
+    const componentAnchor = semanticAnchor(catalog.components);
+    if (componentAnchor !== expectedComponentAnchor)
         errors.push(
-            "component semantic contract differs from the independently reviewed anchor",
+            anchorMismatch(
+                "component semantic contract",
+                expectedComponentAnchor,
+                componentAnchor,
+                "expectedComponentAnchor in tooling/component-catalog-validation.mjs",
+            ),
         );
     const componentIds = new Set(
         catalog.components.map((component) => component.id),
@@ -739,13 +883,25 @@ export function validateComponentProjections(
         assuranceProfiles,
         hostAdapters,
     } = catalogs;
-    if (semanticAnchor(projections.projections) !== expectedProjectionAnchor)
+    const projectionAnchor = semanticAnchor(projections.projections);
+    if (projectionAnchor !== expectedProjectionAnchor)
         errors.push(
-            "component projection semantic contract differs from the independently reviewed anchor",
+            anchorMismatch(
+                "component projection semantic contract",
+                expectedProjectionAnchor,
+                projectionAnchor,
+                "expectedProjectionAnchor in tooling/component-catalog-validation.mjs",
+            ),
         );
-    if (semanticAnchor(projections.hosts) !== expectedProjectionHostAnchor)
+    const projectionHostAnchor = semanticAnchor(projections.hosts);
+    if (projectionHostAnchor !== expectedProjectionHostAnchor)
         errors.push(
-            "component projection host contract differs from the independently reviewed anchor",
+            anchorMismatch(
+                "component projection host contract",
+                expectedProjectionHostAnchor,
+                projectionHostAnchor,
+                "expectedProjectionHostAnchor in tooling/component-catalog-validation.mjs",
+            ),
         );
     const componentsById = new Map(
         components.components.map((component) => [component.id, component]),
@@ -755,6 +911,17 @@ export function validateComponentProjections(
     const evidenceById = new Map(
         evidence.evidence.map((record) => [record.id, record]),
     );
+    // The evidence catalog is append-only, so a renewed observation stays in it forever with an
+    // `expiresOn` that keeps receding into the past. A citation of such a record is not a stale
+    // citation as long as a live replacement covers it, so expiry is read through the supersession
+    // chain here exactly as `validateEvidenceAndCoverage` in tooling/catalog-v2-validation.mjs does.
+    const supersededIds = supersededEvidenceIds(
+        evidence.evidence,
+        evidence.asOf,
+    );
+    const citesExpiredEvidence = (evidenceId) =>
+        evidenceById.get(evidenceId).expiresOn < evidence.asOf &&
+        !supersededIds.has(evidenceId);
     const hostAdaptersById = new Map(
         hostAdapters.hosts.map((adapter) => [adapter.id, adapter]),
     );
@@ -787,11 +954,31 @@ export function validateComponentProjections(
             uses.push(projection);
             outputUses.set(outputPath, uses);
         }
+    const generatedPiAgentProjections = projections.projections.filter(
+        (projection) =>
+            isPiGeneratedAgentProjection(
+                projection,
+                hostsById.get(projection.hostId),
+            ),
+    );
+    const allowedGeneratedProvenanceOutputs = new Set(
+        generatedPiAgentProjections.length > 0
+            ? [piGeneratedAgentManifestPath]
+            : [],
+    );
+    if (generatedPiAgentProjections.length > 0)
+        errors.push(
+            ...validatePiGeneratedAgentOutputs(
+                root,
+                generatedPiAgentProjections,
+                componentsById,
+            ),
+        );
     for (const host of projections.hosts) {
         for (const evidenceId of host.evidenceIds) {
             if (!evidenceIds.has(evidenceId))
                 errors.push(`${host.id}: unknown host evidence ${evidenceId}`);
-            else if (evidenceById.get(evidenceId).expiresOn < evidence.asOf)
+            else if (citesExpiredEvidence(evidenceId))
                 errors.push(`${host.id}: expired host evidence ${evidenceId}`);
         }
         const adapter = host.hostAdapterId
@@ -846,7 +1033,13 @@ export function validateComponentProjections(
                             adapterLeaves(root, prefix),
                         ),
                     ),
-                ].sort(compareOrdinal);
+                ]
+                    .filter(
+                        (path) =>
+                            !distributionPointerOutputs.has(path) &&
+                            !(host.id === "pi" && allowedGeneratedProvenanceOutputs.has(path)),
+                    )
+                    .sort(compareOrdinal);
                 if (
                     JSON.stringify(actualOutputs) !==
                     JSON.stringify(declaredOutputs)
@@ -919,7 +1112,7 @@ export function validateComponentProjections(
                 errors.push(
                     `${projection.id}: unknown projection evidence ${evidenceId}`,
                 );
-            else if (evidenceById.get(evidenceId).expiresOn < evidence.asOf)
+            else if (citesExpiredEvidence(evidenceId))
                 errors.push(
                     `${projection.id}: expired projection evidence ${evidenceId}`,
                 );
@@ -961,6 +1154,13 @@ export function validateComponentProjections(
                 );
         }
         if (projection.state === "existing") {
+            if (
+                projection.adapterType === "generated" &&
+                !isPiGeneratedAgentProjection(projection, host)
+            )
+                errors.push(
+                    `${projection.id}: generated existing adapter is only supported for repository-existing Pi agent outputs`,
+                );
             const expectedActivation =
                 projection.adapterType === "path-reference"
                     ? "inert"
@@ -1189,10 +1389,15 @@ export function validateComponentProjections(
     );
     if (
         projections.hosts.length !== 9 ||
-        projections.projections.length !== 386 ||
+        // 399 rather than 402 since Cratis/AI#175 and #177: `add-business-rule`
+        // was one directory projected into three host adapters, but both halves
+        // of its pending split modeled the same three, so every adapter was
+        // counted twice. Executing the split leaves the three on the retained
+        // legacy twin exactly once.
+        projections.projections.length !== 399 ||
         projections.projections.filter(
             (projection) => projection.state === "existing",
-        ).length !== 316 ||
+        ).length !== 329 ||
         generatedStatic.length !== 70 ||
         generatedCounts["jetbrains-ai-assistant"] !== 34 ||
         generatedCounts.tabnine !== 34 ||

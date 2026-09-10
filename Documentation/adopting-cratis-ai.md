@@ -1,22 +1,36 @@
 # Adopt Cratis AI in a project
 
-Use this how-to after the selected profile has a published version. Cratis AI
-packages are currently approval-pending; package commands shown here describe
-the released workflow and will fail until publication.
+There are two ways to bring Cratis AI into a repository, and they compose:
+
+- **Marketplace plugin** — the zero-config path. Add `Cratis/AI` as a marketplace
+  in Claude Code, Codex, GitHub Copilot, or Cursor and install the whole public
+  bundle. See the [native marketplace installation
+  section](../README.md#native-marketplace-installation) of the repository
+  README.
+- **Profile subscription** — this how-to. Name exactly the profiles the
+  repository needs (per product, per language, per architecture) in
+  `.cratis/ai.json`, pinned to exact versions, with updates arriving as reviewed
+  pull requests.
+
+Per-profile packages beyond `@cratis/ai-fundamentals` release as each profile
+passes its preview gates; until then, the marketplace plugin delivers the
+skills and the subscription records the intended scope.
 
 ## 1. Choose the repository scenario
 
 | Repository scenario | Start with |
 | --- | --- |
-| Fundamentals library consumer | `public-fundamentals` |
-| Arc backend without Chronicle | `public-application-arc-only` |
-| Chronicle-only .NET application | `public-application-chronicle-dotnet` |
-| Arc + React + Components without Chronicle | `public-application-react` |
-| Full Arc + Chronicle + React application | `public-application` |
-| Chronicle Kotlin client | `public-chronicle-client-kotlin` |
-| Specification library or test project | `public-specifications-dotnet` or `public-specifications-typescript` |
-| Cratis Chronicle framework repository | `engineering-chronicle` |
-| Private Studio repository | `engineering-studio` plus a private local overlay |
+| Fundamentals library consumer | `cratis/fundamentals` |
+| Arc backend without Chronicle | `cratis/arc` (language-scoped: `cratis/arc/csharp`, `cratis/arc/kotlin`) |
+| Chronicle-only .NET application | `cratis/application/chronicle-dotnet` or `cratis/chronicle/csharp` |
+| Chronicle client in Kotlin | `cratis/chronicle/kotlin` |
+| Chronicle client in TypeScript or Elixir | `cratis/chronicle/typescript`, `cratis/chronicle/elixir` |
+| Arc + React + Components without Chronicle | `cratis/application/react` |
+| Full Arc + Chronicle + React application | `cratis/application` or `cratis/application/csharp` |
+| Application in a language Arc does not support yet | `cratis/application/typescript`, `cratis/application/elixir` |
+| Specification library or test project | `cratis/specifications/dotnet` or `cratis/specifications/typescript` |
+| Cratis Chronicle framework repository | `cratis/engineering` |
+| Private Studio repository | `cratis/engineering` plus a private local overlay |
 
 Browse the generated
 [package and capability catalog](../catalog/generated/human-catalog/CATALOG.md)
@@ -33,7 +47,7 @@ floating ranges.
   "schemaVersion": "1.0.0",
   "channel": "public",
   "version": "1.0.0",
-  "profiles": ["public-application-arc-only"],
+  "profiles": ["cratis/application/arc-only"],
   "harnesses": ["claude", "codex", "copilot", "pi"],
   "updatePolicy": "reviewed-pull-request",
   "projectContext": ".cratis/PROJECT.md"
@@ -80,10 +94,10 @@ package skills directly.
 
 ### Pi
 
-Install an exact project package:
+Install the published package at an exact version:
 
 ```bash
-pi install -l npm:@cratis/ai-application-arc@1.0.0
+pi install -l npm:@cratis/ai-fundamentals@0.10.0
 pi list
 ```
 
@@ -109,17 +123,18 @@ filters:
 }
 ```
 
-### Other harnesses
+### Marketplace hosts
 
-Use the root-native artifact generated for the exact profile and version. For
-Copilot, Cursor, Kiro, VS Code, and other compatible hosts, prefer the portable
-Agent Plugins 1.0 artifact; host marketplace wrappers point at the same plugin
-identity and skill layout. Do not point a host at the mixed `Cratis/AI` source
-repository or the multi-profile distribution root.
+The Claude Code, Codex, GitHub Copilot, and Cursor plugins resolve the same
+skills directly from the `Cratis/AI` repository, so a developer machine can run
+the marketplace plugin while this subscription documents the repository's exact
+scope and receives reviewed per-profile packages as they publish. See the
+[README marketplace section](../README.md#native-marketplace-installation) for
+the commands.
 
-The release page supplies exact Agent Plugin, Claude, Codex, Copilot, Cursor,
-Gemini, Grok, Deep Code, preview DeepSeek Harness, Kiro, Junie, and Agent Skills
-commands after each host is actually tested.
+Kiro, Junie, Gemini CLI, and Pi have no working marketplace install until their
+root manifests or packages land; use the published npm packages or the
+repository-local adapters for those hosts.
 
 ## 6. Verify adoption
 
@@ -146,7 +161,7 @@ Updates arrive as normal pull requests. Review changes to:
 For Pi, move to another exact version:
 
 ```bash
-pi install -l npm:@cratis/ai-application-arc@1.1.0
+pi install -l npm:@cratis/ai-fundamentals@<newer-exact-version>
 ```
 
 Rollback restores the previous exact version in `.cratis/ai.json` and
@@ -154,7 +169,7 @@ Rollback restores the previous exact version in `.cratis/ai.json` and
 
 ## 8. Improve shared behavior
 
-Do not edit generated package bytes. If an improvement is public-safe and useful
+Do not edit published package bytes. If an improvement is public-safe and useful
 across repositories, use the **Propose a shared Cratis AI improvement** issue in
 `Cratis/AI` with the originating repository, immutable revision, product
 authority, affected profiles, and compatibility impact.

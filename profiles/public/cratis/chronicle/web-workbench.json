@@ -1,0 +1,19 @@
+{
+    "id": "cratis/chronicle/web-workbench",
+    "packageName": "@cratis/ai-chronicle-web-workbench",
+    "version": "0.0.0",
+    "products": [
+        "chronicle"
+    ],
+    "languages": [
+        "language-agnostic"
+    ],
+    "state": "preview-source-candidate",
+    "availableTargets": [
+        "cratis-chronicle-web-workbench"
+    ],
+    "composes": [
+        "cratis/chronicle/core"
+    ],
+    "gapSummary": "Browser Workbench screens, mutating operations, and exposure decisions are a canonical source candidate. Evidence capture workflows and support escalation remain gaps."
+}

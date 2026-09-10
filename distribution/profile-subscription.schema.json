@@ -4,9 +4,9 @@
   "title": "Cratis AI profile subscription",
   "type": "object",
   "additionalProperties": false,
+  "description": "A project-owned Cratis AI subscription. Every profile id lives in the cratis namespace: the cratis/engineering subtree (umbrella, core, and language cells) derives the cratis-engineering channel and everything else derives the public channel, so channel is optional and never hand-declared twice.",
   "required": [
     "schemaVersion",
-    "channel",
     "version",
     "profiles",
     "harnesses",
@@ -15,6 +15,7 @@
   ],
   "oneOf": [
     {
+      "title": "Derived public channel",
       "properties": {
         "channel": {
           "const": "public"
@@ -22,12 +23,13 @@
         "profiles": {
           "items": {
             "type": "string",
-            "pattern": "^public-[a-z0-9]+(?:-[a-z0-9]+)*$"
+            "pattern": "^(?!cratis/engineering(?:/|$))cratis(?:/[a-z0-9]+(?:-[a-z0-9]+)*){0,3}$"
           }
         }
       }
     },
     {
+      "title": "Derived Cratis engineering channel",
       "properties": {
         "channel": {
           "const": "cratis-engineering"
@@ -35,7 +37,7 @@
         "profiles": {
           "items": {
             "type": "string",
-            "pattern": "^engineering-[a-z0-9]+(?:-[a-z0-9]+)*$"
+            "pattern": "^cratis/engineering(?:/[a-z0-9]+(?:-[a-z0-9]+)*){0,2}$"
           }
         }
       }
@@ -46,6 +48,7 @@
       "const": "1.0.0"
     },
     "channel": {
+      "description": "Optional; derived from the profile namespace. Must agree with the derived channel when present.",
       "enum": ["public", "cratis-engineering"]
     },
     "version": {
@@ -58,7 +61,7 @@
       "uniqueItems": true,
       "items": {
         "type": "string",
-        "pattern": "^(?:public|engineering)-[a-z0-9]+(?:-[a-z0-9]+)*$"
+        "pattern": "^cratis(?:/[a-z0-9]+(?:-[a-z0-9]+)*){0,3}$"
       }
     },
     "harnesses": {

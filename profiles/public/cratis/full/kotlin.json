@@ -1,0 +1,23 @@
+{
+    "id": "cratis/full/kotlin",
+    "packageName": "@cratis/ai-meta-full-kotlin",
+    "version": "0.0.0",
+    "products": [
+        "arc",
+        "chronicle",
+        "screenplay",
+        "stage"
+    ],
+    "languages": [
+        "kotlin",
+        "language-agnostic"
+    ],
+    "state": "planned-composition",
+    "composes": [
+        "cratis/application/kotlin",
+        "cratis/arc/kotlin",
+        "cratis/chronicle/kotlin",
+        "cratis/modeling/screenplay-stage"
+    ],
+    "gapSummary": "Everything the public catalog composes for Kotlin: the Arc.Kotlin and Chronicle.Kotlin cells plus the Screenplay to Stage modeling handoff. The Arc client guidance is a content gap until it is verified against the Arc.Kotlin repository."
+}

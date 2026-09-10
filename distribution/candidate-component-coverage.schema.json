@@ -36,20 +36,21 @@
         "artifacts": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
       }
     },
-    "componentCount": { "const": 137 },
+    "$comment": "No cardinality is pinned here. The reviewed sizes live once in distribution/candidate-component-coverage.seals.json and are enforced by tooling/component-inventory-counts.mjs, which throws before this document can be produced. Restating them here made every content migration edit two files that had to agree, and they stopped agreeing (records.minItems sat at 178 while the builder required exactly 182).",
+    "componentCount": { "type": "integer", "minimum": 1 },
     "byKind": {
       "type": "object",
       "additionalProperties": false,
       "required": ["agent", "command", "executable-host-extension", "hook", "instruction", "prompt", "rule", "skill"],
       "properties": {
-        "agent": { "const": 12 },
-        "command": { "const": 18 },
-        "executable-host-extension": { "const": 2 },
-        "hook": { "const": 1 },
-        "instruction": { "const": 1 },
-        "prompt": { "const": 18 },
-        "rule": { "const": 36 },
-        "skill": { "const": 49 }
+        "agent": { "type": "integer", "minimum": 0 },
+        "command": { "type": "integer", "minimum": 0 },
+        "executable-host-extension": { "type": "integer", "minimum": 0 },
+        "hook": { "type": "integer", "minimum": 0 },
+        "instruction": { "type": "integer", "minimum": 0 },
+        "prompt": { "type": "integer", "minimum": 0 },
+        "rule": { "type": "integer", "minimum": 0 },
+        "skill": { "type": "integer", "minimum": 0 }
       }
     },
     "byDisposition": {
@@ -65,19 +66,18 @@
         "skill-packaged-candidate"
       ],
       "properties": {
-        "executable-blocked": { "const": 3 },
-        "native-static-review-projected": { "const": 35 },
-        "native-static-unprojected": { "const": 2 },
-        "repository-host-adapter-only": { "const": 48 },
-        "skill-blocked-candidate": { "type": "integer", "minimum": 0, "maximum": 49 },
-        "skill-legacy-repository-only": { "const": 4 },
-        "skill-packaged-candidate": { "type": "integer", "minimum": 0, "maximum": 49 }
+        "executable-blocked": { "type": "integer", "minimum": 0 },
+        "native-static-review-projected": { "type": "integer", "minimum": 0 },
+        "native-static-unprojected": { "type": "integer", "minimum": 0 },
+        "repository-host-adapter-only": { "type": "integer", "minimum": 0 },
+        "skill-blocked-candidate": { "type": "integer", "minimum": 0 },
+        "skill-legacy-repository-only": { "type": "integer", "minimum": 0 },
+        "skill-packaged-candidate": { "type": "integer", "minimum": 0 }
       }
     },
     "records": {
       "type": "array",
-      "minItems": 137,
-      "maxItems": 137,
+      "minItems": 1,
       "uniqueItems": true,
       "items": {
         "type": "object",

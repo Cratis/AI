@@ -6,6 +6,7 @@ import { execFileSync } from "node:child_process";
 import {
     mkdtempSync,
     mkdirSync,
+    readFileSync,
     rmSync,
     symlinkSync,
     writeFileSync,
@@ -29,6 +30,11 @@ import {
     validateAgainstSchema,
 } from "../catalog-validation.mjs";
 import { validateArtifacts } from "../catalog-v2-validation.mjs";
+import { readComponentInventorySeals } from "../component-inventory-counts.mjs";
+import {
+    digest as digestPiAgentAdapter,
+    renderAdapter,
+} from "../pi-agent-adapters.mjs";
 
 function clone(value) {
     return structuredClone(value);
@@ -143,6 +149,61 @@ function projectionErrors(catalogs) {
     return validateComponentProjections(catalogs, defaultRepositoryRoot);
 }
 
+function piGeneratedAgentFixture() {
+    const sourceRoot = defaultRepositoryRoot;
+    const root = mkdtempSync(join(tmpdir(), "cratis-pi-generated-agent-"));
+    mkdirSync(join(root, ".ai/agents"), { recursive: true });
+    mkdirSync(join(root, ".pi/agents"), { recursive: true });
+    const catalogs = load();
+    const projection = clone(
+        catalogs.projections.projections.find(
+            (candidate) =>
+                candidate.hostId === "pi" &&
+                candidate.projectedKind === "agent" &&
+                candidate.adapterType === "generated",
+        ),
+    );
+    const component = clone(
+        catalogs.components.components.find(
+            (candidate) => candidate.id === projection.componentId,
+        ),
+    );
+    const host = clone(
+        catalogs.projections.hosts.find((candidate) => candidate.id === "pi"),
+    );
+    catalogs.components.components = [component];
+    catalogs.projections.hosts = [host];
+    catalogs.projections.projections = [projection];
+    const filename = projection.outputPaths[0].split("/").at(-1);
+    const sourcePath = join(root, ".ai/agents", filename);
+    const source = readFileSync(
+        join(sourceRoot, component.canonicalSources[0].path),
+        "utf8",
+    );
+    writeFileSync(sourcePath, source);
+    const rendered = renderAdapter(filename, source);
+    writeFileSync(join(root, ".pi/agents", filename), rendered);
+    writeFileSync(
+        join(root, ".pi/agents/.generated.json"),
+        `${JSON.stringify(
+            { version: 1, outputs: { [filename]: digestPiAgentAdapter(rendered) } },
+            null,
+            2,
+        )}\n`,
+    );
+    return { catalogs, root, filename, projection, rendered };
+}
+
+function piGeneratedErrors(mutator = () => {}) {
+    const fixture = piGeneratedAgentFixture();
+    try {
+        mutator(fixture);
+        return validateComponentProjections(fixture.catalogs, fixture.root);
+    } finally {
+        rmSync(fixture.root, { recursive: true, force: true });
+    }
+}
+
 test("component catalogs are closed, exact, generated, and fail closed", () => {
     assert.deepEqual(validateComponentCatalogs(), []);
     const catalogs = load();
@@ -167,14 +228,12 @@ test("catalog records all kinds and honestly declares MCP and LSP empty", () => 
                 .length,
         ]),
     );
-    assert.equal(counts.skill, 49);
-    assert.equal(counts.agent, 12);
-    assert.equal(counts.command, 18);
-    assert.equal(counts.prompt, 18);
-    assert.equal(counts.rule, 36);
-    assert.equal(counts.instruction, 1);
-    assert.equal(counts.hook, 1);
-    assert.equal(counts["executable-host-extension"], 2);
+    // The authored v1 catalog is checked against the one reviewed seal rather than against a
+    // second copy of the same eight numbers, which is what made this file conflict with every
+    // sibling migration.
+    const seals = readComponentInventorySeals();
+    for (const [kind, expected] of Object.entries(seals.byKind))
+        assert.equal(counts[kind], expected, kind);
     assert.equal(counts.mcp, 0);
     assert.equal(counts.lsp, 0);
     assert(components.declaredEmptyKinds.includes("mcp"));
@@ -240,12 +299,12 @@ test("S8 adds exactly 70 passive generated-static non-skill projections", () => 
         (projection) => projection.state === "generated-static",
     );
     assert.equal(catalogs.projections.hosts.length, 9);
-    assert.equal(catalogs.projections.projections.length, 386);
+    assert.equal(catalogs.projections.projections.length, 399);
     assert.equal(
         catalogs.projections.projections.filter(
             (projection) => projection.state === "existing",
         ).length,
-        316,
+        329,
     );
     assert.equal(generated.length, 70);
     assert.equal(
@@ -321,7 +380,7 @@ test("retained legacy host skills are explicit unbound components", () => {
     const legacy = catalogs.components.components.filter(
         (component) => component.lifecycle === "legacy-retained",
     );
-    assert.equal(legacy.length, 4);
+    assert.equal(legacy.length, 35);
     assert(
         legacy.every(
             (component) =>
@@ -752,6 +811,94 @@ test("host output and shared symlink closure reject unmodeled exposure", () => {
     );
 });
 
+test("Pi generated agent projections are existing active generated adapters", () => {
+    const catalogs = load();
+    const piAgents = catalogs.projections.projections.filter(
+        (projection) =>
+            projection.hostId === "pi" &&
+            projection.projectedKind === "agent" &&
+            projection.outputPaths[0]?.startsWith(".pi/agents/"),
+    );
+    assert.equal(piAgents.length, 12);
+    assert(
+        piAgents.every(
+            (projection) =>
+                projection.state === "existing" &&
+                projection.hostActivation === "active" &&
+                projection.adapterType === "generated" &&
+                projection.approval === "modeled",
+        ),
+    );
+    assert.deepEqual(projectionErrors(catalogs), []);
+});
+
+test("Pi generated agent validation rejects unsafe or stale generated outputs", () => {
+    assert(
+        piGeneratedErrors(({ root, filename }) => {
+            rmSync(join(root, ".pi/agents", filename));
+            symlinkSync(
+                `../../.ai/agents/${filename}`,
+                join(root, ".pi/agents", filename),
+            );
+        }).some((error) => error.includes("output is missing or symlink")),
+    );
+    assert(
+        piGeneratedErrors(({ root, filename, rendered }) => {
+            writeFileSync(
+                join(root, ".pi/agents", filename),
+                rendered.replace("extensions: false", "extensions: true"),
+            );
+        }).some((error) => error.includes("not byte-exact")),
+    );
+    assert(
+        piGeneratedErrors(({ root }) => {
+            rmSync(join(root, ".pi/agents/.generated.json"));
+        }).some((error) => error.includes(".generated.json is missing")),
+    );
+    assert(
+        piGeneratedErrors(({ root, filename }) => {
+            writeFileSync(
+                join(root, ".pi/agents/.generated.json"),
+                `${JSON.stringify({ version: 1, outputs: { [filename]: "0".repeat(64) } })}\n`,
+            );
+        }).some((error) => error.includes("manifest digest mismatch")),
+    );
+    assert(
+        piGeneratedErrors(({ root, filename, rendered }) => {
+            writeFileSync(
+                join(root, ".pi/agents/.generated.json"),
+                `${JSON.stringify({ version: 1, outputs: { [filename]: digestPiAgentAdapter(rendered), "extra.md": digestPiAgentAdapter(rendered) } })}\n`,
+            );
+        }).some((error) => error.includes("manifest output keys")),
+    );
+    assert(
+        piGeneratedErrors(({ root }) => {
+            writeFileSync(
+                join(root, ".pi/agents/.generated.json"),
+                `${JSON.stringify({ version: 1, outputs: {} })}\n`,
+            );
+        }).some((error) => error.includes("manifest output keys")),
+    );
+    assert(
+        piGeneratedErrors(({ catalogs }) => {
+            catalogs.projections.projections[0].hostId = "claude-code";
+        }).some((error) =>
+            error.includes(
+                "generated existing adapter is only supported for repository-existing Pi agent outputs",
+            ),
+        ),
+    );
+    assert(
+        piGeneratedErrors(({ catalogs }) => {
+            catalogs.projections.projections[0].projectedKind = "prompt";
+        }).some((error) =>
+            error.includes(
+                "generated existing adapter is only supported for repository-existing Pi agent outputs",
+            ),
+        ),
+    );
+});
+
 test("Pi prompt and canonical executable exposures are completely modeled", () => {
     const catalogs = load();
     const piPrompts = catalogs.projections.projections.filter(
@@ -1038,6 +1185,91 @@ test("executable and passive components cannot share a package identity", () => 
     assert(
         projectionErrors(catalogs).some((error) =>
             error.includes("cannot share package identity"),
+        ),
+    );
+});
+
+// Evidence is append-only, so renewing an observation appends a replacement naming it in
+// `supersedes` while the replaced record stays in the catalog forever with an `expiresOn` that
+// keeps receding into the past. The citation checks therefore have to read expiry through the
+// supersession chain, exactly as `validateEvidenceAndCoverage` does for the flat expiry gate —
+// otherwise every renewal would break every component and host that cites the renewed record.
+// `jetbrains-ai-assistant-source-1` is one of the seven observations expiring in November 2026
+// and is cited from both sides of the projection catalog: the host record and 34 projections.
+const renewableEvidenceId = "jetbrains-ai-assistant-source-1";
+
+function daysFromAsOf(catalogs, days) {
+    const date = new Date(`${catalogs.evidence.asOf}T00:00:00Z`);
+    date.setUTCDate(date.getUTCDate() + days);
+    return date.toISOString().slice(0, 10);
+}
+
+function evidenceRenewal(record, id, verifiedOn, expiresOn) {
+    return {
+        ...clone(record),
+        id,
+        verifiedOn,
+        expiresOn,
+        supersedes: [record.id],
+    };
+}
+
+test("a cited observation stops gating once a live renewal supersedes it", () => {
+    const catalogs = load();
+    const cited = catalogs.evidence.evidence.find(
+        (record) => record.id === renewableEvidenceId,
+    );
+    assert(cited, `${renewableEvidenceId} is no longer in the evidence catalog`);
+    assert(
+        catalogs.projections.hosts.some((host) =>
+            host.evidenceIds.includes(renewableEvidenceId),
+        ),
+        `${renewableEvidenceId} is no longer cited by a host`,
+    );
+    assert(
+        catalogs.projections.projections.some((projection) =>
+            projection.evidenceIds.includes(renewableEvidenceId),
+        ),
+        `${renewableEvidenceId} is no longer cited by a projection`,
+    );
+    assert.deepEqual(projectionErrors(catalogs), []);
+
+    // The gate still bites: an expired citation with no replacement fails from both sides.
+    cited.expiresOn = daysFromAsOf(catalogs, -1);
+    const expired = projectionErrors(catalogs);
+    assert(
+        expired.some((error) =>
+            error.includes(`expired host evidence ${renewableEvidenceId}`),
+        ),
+    );
+    assert(
+        expired.some((error) =>
+            error.includes(`expired projection evidence ${renewableEvidenceId}`),
+        ),
+    );
+
+    // Recording the renewal — without repointing a single citation — clears both.
+    const renewal = evidenceRenewal(
+        cited,
+        `${renewableEvidenceId}-renewal`,
+        daysFromAsOf(catalogs, -1),
+        daysFromAsOf(catalogs, 90),
+    );
+    catalogs.evidence.evidence.push(renewal);
+    assert.deepEqual(projectionErrors(catalogs), []);
+
+    // And a renewal chain that has itself lapsed gates again, so supersession never becomes a
+    // permanent exemption from expiry.
+    renewal.expiresOn = daysFromAsOf(catalogs, -1);
+    const lapsed = projectionErrors(catalogs);
+    assert(
+        lapsed.some((error) =>
+            error.includes(`expired host evidence ${renewableEvidenceId}`),
+        ),
+    );
+    assert(
+        lapsed.some((error) =>
+            error.includes(`expired projection evidence ${renewableEvidenceId}`),
         ),
     );
 });

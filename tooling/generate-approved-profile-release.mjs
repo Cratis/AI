@@ -20,6 +20,7 @@ import {
 import { presentProfile } from "./profile-presentation.mjs";
 import { buildReleaseAssuranceReceipt } from "./release-assurance-validation.mjs";
 import { createReleaseContext } from "./release-context.mjs";
+import { loadMcpDeclarations, resolveProfiles } from "./resolve-profiles.mjs";
 
 const defaultRepositoryRoot = resolve(
     fileURLToPath(new URL("..", import.meta.url)),
@@ -82,7 +83,7 @@ export function buildReleaseInstructions(plan, harnesses) {
         .filter((harness) => harness !== "pi")
         .map(
             (harness) =>
-                `- ${harness}: \`cratis-ai-${plan.profileId}-${plan.version}-${harness}.tar.gz\``,
+                `- ${harness}: \`cratis-ai-${plan.profileId.replaceAll("/", "-")}-${plan.version}-${harness}.tar.gz\``,
         );
     return [
         `# ${plan.displayName} ${plan.version}`,
@@ -125,6 +126,39 @@ export function buildReleaseInstructions(plan, harnesses) {
     ].join("\n");
 }
 
+/**
+ * Expands the requested profile through the shared resolver so a release
+ * packages the same transitive capability set the catalog advertises. Before
+ * this, the release path read only `availableTargets` and silently dropped
+ * every capability reached through `composes` (Cratis/AI#254).
+ */
+function resolveProfileForRelease({
+    profile,
+    profileId,
+    profileCatalog,
+    mcpDeclarations,
+    blockers,
+}) {
+    if (!profile) return { targetIds: [], mcpServerIds: [] };
+    try {
+        const manifest = resolveProfiles({
+            profileCatalog,
+            requested: [profileId],
+            mcpDeclarations,
+        });
+        for (const rejection of manifest.rejected)
+            if (rejection.kind === "mcp-server")
+                blockers.push("PROFILE_MCP_NOT_RESOLVABLE");
+        return {
+            targetIds: manifest.skills.map((skill) => skill.id),
+            mcpServerIds: manifest.mcpServers.map((server) => server.id),
+        };
+    } catch {
+        blockers.push("PROFILE_COMPOSITION_UNRESOLVABLE");
+        return { targetIds: [], mcpServerIds: [] };
+    }
+}
+
 export function buildApprovedProfileReleasePlan({
     profileId,
     version,
@@ -134,6 +168,7 @@ export function buildApprovedProfileReleasePlan({
     sourceContracts,
     authoringContracts,
     artifacts,
+    mcpDeclarations = [],
 }) {
     const blockers = [];
     if (!exactSemVer(version)) blockers.push("VERSION_NOT_EXACT_SEMVER");
@@ -147,7 +182,14 @@ export function buildApprovedProfileReleasePlan({
     if (!profile) blockers.push("UNKNOWN_PROFILE");
     if (profile && profile.state !== "approved")
         blockers.push("PROFILE_NOT_APPROVED");
-    const targetIds = profile?.availableTargets ?? [];
+    const resolution = resolveProfileForRelease({
+        profile,
+        profileId,
+        profileCatalog,
+        mcpDeclarations,
+        blockers,
+    });
+    const { targetIds, mcpServerIds } = resolution;
     if (targetIds.length === 0) blockers.push("PROFILE_HAS_NO_TARGETS");
     const selectedTargets = targetIds
         .map((id) => targets.find((target) => target.id === id))
@@ -295,6 +337,7 @@ export function buildApprovedProfileReleasePlan({
         version,
         artifactId,
         targetIds,
+        mcpServerIds,
         selectedSources,
         blockers: [...new Set(blockers)].sort(),
         publicationEligible: false,
@@ -312,6 +355,7 @@ function readRepositoryInputs(repositoryRoot) {
         sourceContracts: context.catalogs.sourceContracts.contracts,
         authoringContracts: context.catalogs.authoringContracts.contracts,
         artifacts: context.catalogs.artifacts.artifacts,
+        mcpDeclarations: loadMcpDeclarations(repositoryRoot),
     };
 }
 
@@ -433,6 +477,7 @@ export function generateApprovedProfileRelease(options = {}) {
         }).trim();
         const generatorPaths = [
             "tooling/catalog-ordering.mjs",
+            "tooling/catalog-v2-validation.mjs",
             "tooling/catalog-validation.mjs",
             "tooling/deterministic-release-tree.mjs",
             "tooling/generate-approved-profile-release.mjs",
@@ -443,6 +488,7 @@ export function generateApprovedProfileRelease(options = {}) {
             "tooling/public-artifact-materializer.mjs",
             "tooling/release-assurance-validation.mjs",
             "tooling/release-context.mjs",
+            "tooling/resolve-profiles.mjs",
         ];
         const generatorHash = createHash("sha256");
         for (const path of generatorPaths) {

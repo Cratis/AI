@@ -193,29 +193,29 @@ test("generated human catalog exposes public and engineering packages and capabi
         ),
     );
     const fundamentals = catalog.profiles.find(
-        (profile) => profile.id === "public-fundamentals",
+        (profile) => profile.id === "cratis/fundamentals",
     );
     assert.equal(fundamentals.displayName, "Cratis Fundamentals");
     assert.match(fundamentals.description, /Strongly typed Cratis/);
     assert.equal(fundamentals.materialization, "candidate-package");
     assert(fundamentals.targetIds.includes("cratis-fundamentals-concept"));
-    const engineeringDocumentation = catalog.profiles.find(
-        (profile) => profile.id === "engineering-documentation",
+    const engineering = catalog.profiles.find(
+        (profile) => profile.id === "cratis/engineering",
     );
     assert.match(
-        engineeringDocumentation.description,
-        /documentation authoring/,
+        engineering.description,
+        /engineering conventions/,
     );
     assert(
-        engineeringDocumentation.targetIds.includes(
+        engineering.targetIds.includes(
             "cratis-engineering-docs-authoring",
         ),
     );
     const concept = catalog.capabilities.find(
         (capability) => capability.id === "cratis-fundamentals-concept",
     );
-    assert(concept.profileIds.includes("public-fundamentals"));
-    assert(concept.profileIds.includes("public-application"));
+    assert(concept.profileIds.includes("cratis/fundamentals"));
+    assert(concept.profileIds.includes("cratis/application"));
     assert.match(catalog.disclaimer, /does not grant runtime permission/);
     assert.equal(catalog.hostCoverage.length, 38);
     assert(

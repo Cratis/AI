@@ -13,12 +13,17 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import { buildCandidateComponentCoverage } from "../candidate-component-coverage.mjs";
+import { readComponentInventorySeals } from "../component-inventory-counts.mjs";
 import { passiveHarnesses } from "../harness-registry.mjs";
 import {
     packagePassiveCandidateAssets,
     passiveCandidateConfigurations,
 } from "../package-passive-candidate-assets.mjs";
 import { readTarGzip } from "../package-fundamentals-preview-assets.mjs";
+import {
+    defaultRepositoryRoot,
+    readCatalog,
+} from "../catalog-validation.mjs";
 
 function withTemporaryDirectory(callback) {
     const root = mkdtempSync(join(tmpdir(), "cratis-passive-candidates-"));
@@ -57,7 +62,9 @@ function assertBlocked(manifest) {
 }
 
 test("passive candidate assets package every currently safe target and account for exclusions", () => {
-    assert.equal(passiveHarnesses.length, 34);
+    const seals = readComponentInventorySeals();
+    const { byDisposition } = buildCandidateComponentCoverage();
+    assert(passiveHarnesses.length > 0);
     withTemporaryDirectory((root) => {
         const publicRoot = join(root, "public");
         const engineeringRoot = join(root, "engineering");
@@ -73,29 +80,55 @@ test("passive candidate assets package every currently safe target and account f
         });
         assertBlocked(publicManifest);
         assertBlocked(engineeringManifest);
-        assert.equal(publicManifest.targetIds.length, 34);
-        assert.equal(publicManifest.sourceSkills.length, 34);
-        assert.equal(publicManifest.targetExclusions.length, 3);
-        assert.equal(engineeringManifest.targetIds.length, 6);
-        assert.equal(engineeringManifest.sourceSkills.length, 6);
-        assert.equal(engineeringManifest.targetExclusions.length, 2);
-        assert.equal(
-            publicManifest.targetIds.length +
-                publicManifest.targetExclusions.length,
-            37,
-        );
-        assert.equal(
-            engineeringManifest.targetIds.length +
-                engineeringManifest.targetExclusions.length,
-            8,
+        // Cross-checked against the coverage document rather than against literals: these two
+        // manifests and that document are built from the same catalogs by different code, so
+        // agreeing is evidence. Restated literals only ever agreed with themselves, and had to be
+        // hand-bumped in every migration.
+        // A manifest's sources are exactly the deduped union of its targets'
+        // sources, derived here from the catalogs so the manifest and the
+        // catalogs have to agree rather than the spec agreeing with itself.
+        //
+        // This used to assert the two counts were equal. That was never an
+        // invariant — it held only because the pending `add-business-rule` split
+        // (one source, two targets) exactly cancelled the vertical-slice merge
+        // (two sources, one target). Executing the split in Cratis/AI#175 and
+        // #177 removed the cancelling anomaly and the equality with it.
+        const targets = readCatalog(
+            join(defaultRepositoryRoot, "catalog/v2/targets.json"),
+        ).targets;
+        const sourcesForTargets = (targetIds) =>
+            [
+                ...new Set(
+                    targetIds.flatMap(
+                        (id) =>
+                            targets.find((target) => target.id === id)
+                                .sourceSkillIds,
+                    ),
+                ),
+            ].sort();
+        assert.deepEqual(
+            publicManifest.sourceSkills.map((source) => source.sourceId).sort(),
+            sourcesForTargets(publicManifest.targetIds),
         );
         assert.deepEqual(
+            engineeringManifest.sourceSkills.map((source) => source.sourceId).sort(),
+            sourcesForTargets(engineeringManifest.targetIds),
+        );
+        assert.equal(
+            publicManifest.targetIds.length +
+                engineeringManifest.targetIds.length,
+            byDisposition["skill-packaged-candidate"],
+        );
+        assert.equal(
+            publicManifest.targetExclusions.length +
+                engineeringManifest.targetExclusions.length,
+            byDisposition["skill-blocked-candidate"],
+        );
+        assert(publicManifest.targetIds.length > 0);
+        assert(engineeringManifest.targetIds.length > 0);
+        assert.deepEqual(
             publicManifest.targetExclusions.map((item) => item.targetId),
-            [
-                "cratis-arc-observable-query-http",
-                "cratis-chronicle-mcp-inspection",
-                "cratis-studio-mcp-safety-guidance",
-            ],
+            ["cratis-chronicle-mcp-inspection", "cratis-studio-mcp-safety-guidance"],
         );
         assert.deepEqual(engineeringManifest.targetExclusions, [
             {
@@ -113,10 +146,41 @@ test("passive candidate assets package every currently safe target and account f
                 (item) => item.componentId,
             ),
             [
+                "cratis-legacy-add-business-rule",
                 "cratis-legacy-add-concept",
                 "cratis-legacy-add-cratis-docs-page",
+                "cratis-legacy-add-ef-migration",
+                "cratis-legacy-add-projection",
+                "cratis-legacy-add-reactor",
+                "cratis-legacy-add-reducer",
+                "cratis-legacy-add-traces",
+                "cratis-legacy-auth-and-identity",
+                "cratis-legacy-call-command-from-code",
+                "cratis-legacy-cratis-command",
+                "cratis-legacy-cratis-csharp-standards",
+                "cratis-legacy-cratis-react-page",
+                "cratis-legacy-cratis-readmodel",
+                "cratis-legacy-cratis-specs-csharp",
+                "cratis-legacy-cratis-specs-typescript",
+                "cratis-legacy-create-event-model",
+                "cratis-legacy-discover-implementations",
                 "cratis-legacy-edit-cratis-docs",
+                "cratis-legacy-event-modeling",
+                "cratis-legacy-event-type-migrations",
+                "cratis-legacy-inspect-running-chronicle",
+                "cratis-legacy-multi-tenancy",
+                "cratis-legacy-observable-query-curl",
+                "cratis-legacy-query-paging",
+                "cratis-legacy-review-code",
+                "cratis-legacy-review-performance",
+                "cratis-legacy-review-security",
+                "cratis-legacy-stepper-command-dialog",
+                "cratis-legacy-toolbar",
                 "cratis-legacy-write-documentation",
+                "cratis-legacy-write-specs",
+                "cratis-legacy-write-specs-events",
+                "cratis-legacy-write-specs-frontend",
+                "cratis-legacy-write-specs-readmodels",
             ],
         );
         const skillComponentIds = JSON.parse(
@@ -139,7 +203,7 @@ test("passive candidate assets package every currently safe target and account f
                 (item) => item.componentId,
             ),
         ].sort();
-        assert.equal(skillComponentIds.length, 49);
+        assert.equal(skillComponentIds.length, seals.byKind.skill);
         assert.deepEqual(accountedSkillComponentIds, skillComponentIds);
         for (const manifest of [publicManifest, engineeringManifest]) {
             assert.equal(manifest.assets.length, passiveHarnesses.length);
@@ -157,29 +221,17 @@ test("passive candidate assets package every currently safe target and account f
                     "utf8",
                 ),
             );
-            assert.equal(coverage.componentCount, 137);
+            assert.equal(coverage.componentCount, seals.componentCount);
+            for (const [disposition, expected] of Object.entries(
+                seals.byDisposition,
+            ))
+                assert.equal(coverage.byDisposition[disposition], expected);
             assert.equal(
-                coverage.byDisposition["skill-packaged-candidate"],
-                40,
+                coverage.byDisposition["skill-packaged-candidate"] +
+                    coverage.byDisposition["skill-blocked-candidate"] +
+                    coverage.byDisposition["skill-legacy-repository-only"],
+                seals.skillDispositionCount,
             );
-            assert.equal(coverage.byDisposition["skill-blocked-candidate"], 5);
-            assert.equal(
-                coverage.byDisposition["skill-legacy-repository-only"],
-                4,
-            );
-            assert.equal(
-                coverage.byDisposition["native-static-review-projected"],
-                35,
-            );
-            assert.equal(
-                coverage.byDisposition["native-static-unprojected"],
-                2,
-            );
-            assert.equal(
-                coverage.byDisposition["repository-host-adapter-only"],
-                48,
-            );
-            assert.equal(coverage.byDisposition["executable-blocked"], 3);
             assert.equal(coverage.runtimeEligible, false);
             assert.equal(coverage.publicationEligible, false);
             assert.equal(coverage.supportGranted, false);
@@ -381,22 +433,14 @@ test("passive candidate workflow is manual read-only and short-lived", () => {
 });
 
 test("candidate component coverage closes every modeled component kind", () => {
+    const seals = readComponentInventorySeals();
     const coverage = buildCandidateComponentCoverage();
-    assert.equal(coverage.componentCount, 137);
-    assert.deepEqual(coverage.byKind, {
-        agent: 12,
-        command: 18,
-        "executable-host-extension": 2,
-        hook: 1,
-        instruction: 1,
-        prompt: 18,
-        rule: 36,
-        skill: 49,
-    });
-    assert.equal(coverage.records.length, 137);
+    assert.equal(coverage.componentCount, seals.componentCount);
+    assert.deepEqual(coverage.byKind, seals.byKind);
+    assert.equal(coverage.records.length, seals.componentCount);
     assert.equal(
         new Set(coverage.records.map((record) => record.componentId)).size,
-        137,
+        seals.componentCount,
     );
     assert(
         coverage.records

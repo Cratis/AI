@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import test from "node:test";
 
 function read(path) {
@@ -16,9 +16,6 @@ const pullRequests = read(".ai/rules/pull-requests.md");
 const shipSkill = read(".ai/skills/ship-changes/SKILL.md");
 const shipPrompt = read(".ai/prompts/ship-changes.prompt.md");
 const shipEvals = read(".ai/skills/ship-changes/evals/evals.json");
-const releaseWorkflow = read(
-    ".github/workflows/release-approved-ai-profiles.yml",
-);
 const claudeWorkflow = read(".ai/workflows/claude.yml");
 const localWorkArtifacts = read(".ai/rules/local-work-artifacts.md");
 const gitignore = read(".gitignore");
@@ -81,10 +78,12 @@ test("shared shipping guidance prepares issue dispositions without mutating issu
     );
 });
 
-test("release workflows do not use issue-write permission or issue comments", () => {
-    assert.doesNotMatch(releaseWorkflow, /issues:\s*write/);
-    assert.doesNotMatch(releaseWorkflow, /\bgh\s+issue\s+comment\b/);
-    assert.match(releaseWorkflow, /GITHUB_STEP_SUMMARY/);
+test("no workflow uses issue-write permission or issue comments", () => {
+    for (const filename of readdirSync(".github/workflows")) {
+        const workflow = read(`.github/workflows/${filename}`);
+        assert.doesNotMatch(workflow, /issues:\s*write/, filename);
+        assert.doesNotMatch(workflow, /\bgh\s+issue\s+comment\b/, filename);
+    }
 });
 
 test("the bundled Claude workflow is inert and read-only", () => {

@@ -1,0 +1,24 @@
+{
+    "version": "0.0.0",
+    "repositoryKinds": [
+        "application",
+        "framework",
+        "client",
+        "documentation",
+        "corpus"
+    ],
+    "products": [],
+    "distributionVisibility": "public",
+    "confidentialContentAllowed": false,
+    "privateOverlayExpected": true,
+    "id": "cratis/engineering/elixir",
+    "packageName": "@cratis/ai-engineering-elixir",
+    "languages": [
+        "elixir"
+    ],
+    "state": "content-gap",
+    "composes": [
+        "cratis/engineering/core"
+    ],
+    "gapSummary": "Reserved for the Elixir maintainer conventions, to be verified against the Elixir repositories Cratis maintains. Until they land this cell composes the core only."
+}

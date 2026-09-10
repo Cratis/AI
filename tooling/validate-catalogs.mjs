@@ -12,6 +12,7 @@ import { validateEngineeringDocsAuthoring } from "./engineering-docs-authoring-v
 import { validateEngineeringDistributionConfiguration } from "./generate-engineering-distribution-fixture.mjs";
 import { validateEngineeringDocsCompanions } from "./engineering-docs-companions-validation.mjs";
 import { validateProfileSubscriptions } from "./profile-subscription-validation.mjs";
+import { validateExpectationCases } from "./expectation-cases-validation.mjs";
 import { validatePreviewReadiness } from "./preview-readiness.mjs";
 import { validatePreviewRequests } from "./preview-request-validation.mjs";
 import { validateReleaseRequests } from "./release-request-validation.mjs";
@@ -21,6 +22,7 @@ import { validateSupportCatalogs } from "./support-validation.mjs";
 import { validateReleaseAssurancePolicy } from "./release-assurance-validation.mjs";
 import { validateChronicleMcpGuidance } from "./chronicle-mcp-guidance-validation.mjs";
 import { validateMcpGuidanceProducts } from "./mcp-guidance-validation.mjs";
+import { validateMcpDeclarations } from "./mcp-declaration-validation.mjs";
 import { validateNativeNonSkillProjectionContract } from "./native-non-skill-projections.mjs";
 import {
     loadRealHostCanaryContracts,
@@ -47,6 +49,7 @@ const basicErrors = [
     ...validateEngineeringDistributionConfiguration(),
     ...validateEngineeringDocsCompanions(),
     ...validateProfileSubscriptions(),
+    ...validateExpectationCases(),
     ...validatePreviewReadiness(),
     ...validatePreviewRequests(),
     ...validateReleaseApprovals(),
@@ -56,6 +59,7 @@ const basicErrors = [
     ...validateReleaseAssurancePolicy(),
     ...validateChronicleMcpGuidance(),
     ...validateMcpGuidanceProducts(),
+    ...validateMcpDeclarations(),
     ...validateNativeNonSkillProjectionContract(),
     ...validateSpecificationLock().map((diagnostic) =>
         formatComplianceDiagnostics([diagnostic]),
@@ -80,7 +84,7 @@ if (errors.length > 0) {
 } else {
     process.stdout.write(
         basicMode
-            ? "Basic catalog validation passed: packaging, passive preview lanes, portable standards, MCP deny rules, native projections, and distribution profiles are valid.\n"
+            ? "Basic catalog validation passed: packaging, passive preview lanes, portable standards, MCP deny rules, MCP server declarations, native projections, and distribution profiles are valid.\n"
             : "Governed catalog validation passed: basic packaging plus normalized evidence, computed support, source evidence, real-host canaries, blocked S10 readiness, lifecycle, and marketplace contracts are valid.\n",
     );
 }

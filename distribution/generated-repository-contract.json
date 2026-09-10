@@ -1,5 +1,37 @@
 {
   "schemaVersion": "1.0.0",
+  "supersedingDecision": {
+    "state": "GENERATED_DISTRIBUTION_RETIRED",
+    "issue": "https://github.com/Cratis/AI/issues/264",
+    "amends": "https://github.com/Cratis/AI/issues/173",
+    "decision": "Cratis/AI is installed directly from its default branch. The generated-distribution model — a second repository, then a protected distribution branch with dist/vX.Y.Z tags, a staged generated tree, checksums, provenance, and a mirrored verification control plane — is retired in full. Four committed marketplace manifests resolve the real skills/ and engineering/ directories on main, and they are the entire distribution surface. Cratis/AI.Distribution's published v0.1.0 through v0.3.0 tags are never deleted.",
+    "everyFieldBelowStillDescribesTodaysPipeline": false,
+    "note": "The fields below describe the retired two-repository model and no workflow reads them any more. They are kept as the record of what was built and published, not as a description of how anything is distributed today. Whether they should be removed with the rest of the assurance data model is a separate decision.",
+    "retired": [
+      ".github/workflows/publish.yml",
+      ".github/workflows/verify-distribution-branch.yml",
+      ".github/workflows/distribution-generated-update.yml",
+      ".github/workflows/distribution-approved-profile-release.yml",
+      ".github/workflows/release-approved-ai-profiles.yml",
+      "distribution/repository-control-plane",
+      "tooling/generate-public-marketplace-distribution.mjs",
+      "tooling/stage-public-marketplace-repository.mjs",
+      "tooling/package-public-marketplace-submissions.mjs",
+      "tooling/generate-marketplace-pointer-manifests.mjs"
+    ],
+    "installedFrom": {
+      "repository": "Cratis/AI",
+      "ref": "default branch",
+      "pluginPaths": ["skills", "engineering"],
+      "manifests": [
+        ".agents/plugins/marketplace.json",
+        ".claude-plugin/marketplace.json",
+        ".cursor-plugin/marketplace.json",
+        ".github/plugin/marketplace.json"
+      ]
+    },
+    "maintainerRunbook": "Documentation/maintainer-marketplace-deployment-runbook.md"
+  },
   "repository": {
     "name": "Cratis/AI.Distribution",
     "visibility": "PUBLIC",
@@ -12,17 +44,6 @@
     "deployKeySecret": null,
     "initializationState": "COMPLETE_PROTECTED",
     "writeCredentialState": "ABSENT_PENDING_PR_RELEASE_BOT"
-  },
-  "repositoryControlPlane": {
-    "sourceRepository": "Cratis/AI",
-    "sourceRoot": "distribution/repository-control-plane",
-    "allowedPaths": [
-      ".github/scripts/verify-generated-distribution.mjs",
-      ".github/workflows/verify-generated-distribution.yml"
-    ],
-    "manifestedAsArtifact": false,
-    "preserveDuringPayloadReplacement": true,
-    "manualAuthoringAllowed": false
   },
   "repositoryReviewCandidates": {
     "root": "candidates",
@@ -40,8 +61,6 @@
     "packageName": "@cratis/ai",
     "piDistribution": "git-only-private-manifest",
     "versionPattern": "^0\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)$",
-    "generator": "tooling/generate-public-marketplace-distribution.mjs",
-    "stager": "tooling/stage-public-marketplace-repository.mjs",
     "sourceArtifactId": "candidate-passive-public-package",
     "targetCount": 29,
     "selfHostedChannels": [
@@ -126,7 +145,6 @@
     ]
   },
   "releaseOnMerge": {
-    "workflow": ".github/workflows/release-approved-ai-profiles.yml",
     "requestRoot": "distribution/releases",
     "pullRequestValidationRequired": true,
     "mergeToMainIsReleaseApproval": true,

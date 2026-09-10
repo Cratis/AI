@@ -15,6 +15,9 @@ const defaultRepositoryRoot = resolve(
     fileURLToPath(new URL("..", import.meta.url)),
 );
 
+const exactSemVerPattern =
+    /^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-(?:0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
+
 function readJson(path, errors) {
     try {
         return JSON.parse(readFileSync(path, "utf8"));
@@ -24,6 +27,31 @@ function readJson(path, errors) {
         );
         return null;
     }
+}
+
+/**
+ * The channel a subscription belongs to. Every profile lives under the
+ * `cratis` namespace: the whole `cratis/engineering` subtree (the umbrella,
+ * its core, and every language cell) derives the engineering channel, every
+ * other `cratis` id derives the public channel, and mixing the two resolves
+ * to no channel at all. A declared channel must agree with the derived one.
+ */
+export function deriveSubscriptionChannel(profiles) {
+    if (profiles.length === 0) return null;
+    const engineeringCount = profiles.filter((profile) =>
+        profile === "cratis/engineering" || profile.startsWith("cratis/engineering/"),
+    ).length;
+    if (engineeringCount > 0)
+        return engineeringCount === profiles.length
+            ? "cratis-engineering"
+            : null;
+    if (
+        profiles.every(
+            (profile) => profile === "cratis" || profile.startsWith("cratis/"),
+        )
+    )
+        return "public";
+    return null;
 }
 
 function duplicates(values) {
@@ -145,6 +173,21 @@ export function validateProfileSubscriptions(
             errors.push(`${profile.id}: approved profile has no targets`);
         if (!/^@cratis\/ai-[a-z0-9]+(?:-[a-z0-9]+)*$/.test(profile.packageName))
             errors.push(`${profile.id}: invalid package name`);
+        // `cratis` is the one bare id: the root of the namespace, and the
+        // maximal public bundle. Everything else stays namespaced under
+        // `cratis/`, with the language-scoped meta cells and the client/cli
+        // sub-profiles at depth two or three
+        // (cratis/<product>/<group>/<name>).
+        if (
+            !/^(?:cratis(?:\/[a-z0-9]+(?:-[a-z0-9]+)*){0,3})$/.test(
+                profile.id,
+            )
+        )
+            errors.push(`${profile.id}: invalid profile id namespace`);
+        if (!exactSemVerPattern.test(profile.version ?? ""))
+            errors.push(
+                `${profile.id}: profile version must be an exact SemVer stamp`,
+            );
         for (const product of profile.products ?? [])
             if (!knownProducts.has(product))
                 errors.push(`${profile.id}: unknown product ${product}`);
@@ -208,10 +251,25 @@ export function validateProfileSubscriptions(
         errors.push(
             ...validateAgainstSchema(example, schema, schema, relativePath),
         );
+        const derivedChannel = deriveSubscriptionChannel(
+            example.profiles ?? [],
+        );
+        if (!derivedChannel)
+            errors.push(
+                `${relativePath}: profile selection does not resolve to one channel`,
+            );
+        if (
+            Object.hasOwn(example, "channel") &&
+            derivedChannel &&
+            example.channel !== derivedChannel
+        )
+            errors.push(
+                `${relativePath}: declared channel ${example.channel} contradicts the derived channel ${derivedChannel}`,
+            );
         const allowedProfiles = new Set(
-            (example.channel === "public"
-                ? profileCatalog.publicProfiles
-                : profileCatalog.engineeringProfiles
+            (derivedChannel === "cratis-engineering"
+                ? profileCatalog.engineeringProfiles
+                : profileCatalog.publicProfiles
             ).map((profile) => profile.id),
         );
         for (const profile of example.profiles)
@@ -236,14 +294,14 @@ export function validateProfileSubscriptions(
         "Documentation/examples/ai-subscriptions/pi-settings.json";
     const piSettings = readJson(join(repositoryRoot, piSettingsPath), errors);
     const chronicleSubscription = parsedExamples.get(
-        "Documentation/examples/ai-subscriptions/chronicle-framework.cratis-ai.json",
+        "Documentation/examples/ai-subscriptions/cratis-engineering.cratis-ai.json",
     );
     if (
         !piSettings ||
         !chronicleSubscription ||
         JSON.stringify(piSettings.packages) !==
             JSON.stringify([
-                `npm:@cratis/ai-engineering-chronicle@${chronicleSubscription.version}`,
+                `npm:@cratis/ai-engineering@${chronicleSubscription.version}`,
             ]) ||
         piSettings.enableSkillCommands !== true ||
         Object.hasOwn(piSettings, "extensions")

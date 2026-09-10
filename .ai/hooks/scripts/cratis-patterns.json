@@ -20,8 +20,11 @@
         "  enabled               optional; default true",
         "",
         "The C# patterns are application-profile only (.ai/rules/general.md). They are scoped by the",
-        "\"paths\" globs to this repository's application source root (Source/**). A framework-profile",
-        "repository (Arc, Chronicle, Fundamentals, Components) should disable them in its local file."
+        "\"paths\" globs to Source/**, the application source root general.md documents — not a path",
+        "in Cratis/AI itself, which is a corpus of markdown and JSON with no C# source, so they never",
+        "fire here. A framework-profile repository (Arc, Chronicle, Fundamentals, Components) should",
+        "disable them in its local file; a repository whose application source root is not Source/",
+        "re-scopes the \"paths\" globs there instead."
     ],
     "patterns": [
         {

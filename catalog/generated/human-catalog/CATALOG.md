@@ -6,8 +6,8 @@ This catalog is generated from reviewed catalog metadata. Use it to find
 the right package and understand its skills. It is not source authority
 and does not make a planned package installable.
 
-- Profiles: 52
-- Capabilities: 45
+- Profiles: 66
+- Capabilities: 62
 - Installable profiles: 0
 - Ecosystem bindings with support claims: 0
 
@@ -15,13 +15,13 @@ and does not make a planned package installable.
 
 Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.
 
-- Components: 137
-- Passive: 134
+- Components: 193
+- Passive: 190
 - Executable: 3
-- Legacy-retained: 4
-- Existing adapter records: 316
+- Legacy-retained: 35
+- Existing adapter records: 329
 - Generated static fixture projections: 70
-- Active host projections: 313
+- Active host projections: 326
 - Inert path references: 3
 - Planned projections: 0
 - Non-existing blocked projections: 0
@@ -30,12 +30,12 @@ Modeled or planned components and projections are catalog metadata only; they ar
 
 ### Components by kind
 
-- skill: 49
+- skill: 97
 - agent: 12
 - subagent: 0
 - command: 18
 - prompt: 18
-- rule: 36
+- rule: 44
 - instruction: 1
 - hook: 1
 - mcp: 0
@@ -55,7 +55,7 @@ Modeled or planned components and projections are catalog metadata only; they ar
 
 ## Computed ecosystem support
 
-As of 2026-09-09, technical tiers are computed from active normalized evidence; expired and future evidence cannot satisfy gates. Marketplace listing is orthogonal.
+As of 2026-09-10, technical tiers are computed from active normalized evidence; expired and future evidence cannot satisfy gates. Marketplace listing is orthogonal.
 
 - unsupported: 0
 - documented: 24
@@ -119,40 +119,209 @@ This matrix reports research and serving disposition only. It is not support, pu
 Profiles are the product and maintainer bundles people subscribe to.
 Only profiles marked installable have completed approval.
 
-### Cratis Application Development
+### Cratis Complete Suite
 
-- **Profile ID:** `public-application`
+- **Profile ID:** `cratis`
+- **Audience:** public
+- **Package:** `@cratis/ai-meta-cratis`
+- **State:** planned-composition
+- **Installable:** no
+- **Materialization:** composition
+
+Every public Cratis capability in one selection: every product, every language, and every cross-cutting methodology this repository publishes, with nothing left out.
+
+**Intended for:** Developers and teams who want the whole public Cratis corpus in one subscription, without choosing between products, languages, or methodology.
+
+- Products: arc, arc-react, chronicle, chronicle-mcp, cli, components, entity-framework-core, fundamentals, lens, screenplay, specifications, stage, studio
+- Languages: csharp, elixir, java, kotlin, language-agnostic, python, react, shell, typescript
+- Repository kinds: consumer projects
+
+#### Included capabilities
+
+- cratis-application-react-specifications
+- cratis-application-slice-specifications
+- cratis-arc-authentication-authorization-and-identity
+- cratis-arc-command
+- cratis-arc-command-execution
+- cratis-arc-command-validation
+- cratis-arc-ef-core-migration
+- cratis-arc-observable-query-http
+- cratis-arc-query-paging
+- cratis-arc-react-page
+- cratis-chronicle-cli-operations
+- cratis-chronicle-client-dotnet
+- cratis-chronicle-client-elixir
+- cratis-chronicle-client-kotlin
+- cratis-chronicle-client-typescript
+- cratis-chronicle-compliance
+- cratis-chronicle-event-constraints
+- cratis-chronicle-event-modeling
+- cratis-chronicle-event-specifications
+- cratis-chronicle-event-type-migration
+- cratis-chronicle-mcp-inspection
+- cratis-chronicle-multi-tenancy
+- cratis-chronicle-projection
+- cratis-chronicle-reactor
+- cratis-chronicle-read-model
+- cratis-chronicle-read-model-specifications
+- cratis-chronicle-reducer
+- cratis-chronicle-web-workbench
+- cratis-cli-terminal-workbench
+- cratis-code-review
+- cratis-components-accessibility
+- cratis-components-schema-editor
+- cratis-components-stepper-command-dialog
+- cratis-components-styling
+- cratis-components-toolbar
+- cratis-documentation-writing
+- cratis-event-model-diagram
+- cratis-fundamentals-concept
+- cratis-fundamentals-type-discovery
+- cratis-governed-release-methodology
+- cratis-lens-browser-extension
+- cratis-performance-review
+- cratis-screenplay-model-authoring
+- cratis-security-review
+- cratis-specification-by-example
+- cratis-specifications-csharp
+- cratis-specifications-typescript
+- cratis-stage-rendering-and-sandbox
+- cratis-studio-mcp-safety-guidance
+
+#### Composed profiles
+
+- cratis/application
+- cratis/application/arc-chronicle
+- cratis/application/arc-only
+- cratis/application/chronicle-dotnet
+- cratis/application/csharp
+- cratis/application/elixir
+- cratis/application/kotlin
+- cratis/application/react
+- cratis/application/typescript
+- cratis/arc
+- cratis/arc/client-kotlin
+- cratis/arc/core
+- cratis/arc/csharp
+- cratis/arc/ef-core
+- cratis/arc/identity
+- cratis/arc/kotlin
+- cratis/arc/react
+- cratis/chronicle
+- cratis/chronicle/client-dotnet
+- cratis/chronicle/client-elixir
+- cratis/chronicle/client-java
+- cratis/chronicle/client-kotlin
+- cratis/chronicle/client-python
+- cratis/chronicle/client-typescript
+- cratis/chronicle/compliance
+- cratis/chronicle/core
+- cratis/chronicle/csharp
+- cratis/chronicle/elixir
+- cratis/chronicle/kotlin
+- cratis/chronicle/mcp
+- cratis/chronicle/multi-tenancy
+- cratis/chronicle/typescript
+- cratis/chronicle/web-workbench
+- cratis/cli
+- cratis/cli/terminal-workbench
+- cratis/components
+- cratis/documentation
+- cratis/full
+- cratis/full/csharp
+- cratis/full/elixir
+- cratis/full/kotlin
+- cratis/full/typescript
+- cratis/fundamentals
+- cratis/fundamentals/type-discovery
+- cratis/language/csharp
+- cratis/language/elixir
+- cratis/language/kotlin
+- cratis/language/typescript
+- cratis/lens
+- cratis/methodology/governed-releases
+- cratis/modeling/screenplay-stage
+- cratis/review
+- cratis/screenplay
+- cratis/specifications
+- cratis/specifications/dotnet
+- cratis/specifications/typescript
+- cratis/stage
+- cratis/studio
+
+### Cratis Application Suite
+
+- **Profile ID:** `cratis/application`
 - **Audience:** public
 - **Package:** `@cratis/ai-application`
 - **State:** planned-composition
 - **Installable:** no
 - **Materialization:** composition
 
-End-to-end guidance for building Cratis applications with Arc, Chronicle, React, Components, and Specifications.
+The namespaced suite for building a full Cratis application with Arc, Chronicle, Arc React, Components, and Specifications.
 
-**Intended for:** Developers who use Cratis Fundamentals, Cratis Arc, Cratis Arc React, Cratis Chronicle, and Cratis Components.
+**Intended for:** Developers who use Cratis Arc, Cratis Arc React, Cratis Chronicle, Cratis Components, Cratis Fundamentals, and Cratis Specifications.
 
-- Products: fundamentals, arc, arc-react, chronicle, components
-- Languages: csharp, react, typescript
+- Products: arc, arc-react, chronicle, components, fundamentals, specifications
+- Languages: csharp, elixir, kotlin, react, typescript
 - Repository kinds: consumer projects
 
 #### Included capabilities
 
+- cratis-application-react-specifications
+- cratis-application-slice-specifications
+- cratis-arc-authentication-authorization-and-identity
+- cratis-arc-command
+- cratis-arc-command-execution
+- cratis-arc-command-validation
+- cratis-arc-ef-core-migration
+- cratis-arc-observable-query-http
+- cratis-arc-query-paging
+- cratis-arc-react-page
+- cratis-chronicle-client-dotnet
+- cratis-chronicle-client-elixir
+- cratis-chronicle-client-kotlin
+- cratis-chronicle-client-typescript
+- cratis-chronicle-compliance
+- cratis-chronicle-event-constraints
+- cratis-chronicle-event-modeling
+- cratis-chronicle-event-specifications
+- cratis-chronicle-event-type-migration
+- cratis-chronicle-multi-tenancy
+- cratis-chronicle-projection
+- cratis-chronicle-reactor
+- cratis-chronicle-read-model
+- cratis-chronicle-read-model-specifications
+- cratis-chronicle-reducer
+- cratis-chronicle-web-workbench
+- cratis-components-accessibility
+- cratis-components-schema-editor
+- cratis-components-stepper-command-dialog
+- cratis-components-styling
+- cratis-components-toolbar
+- cratis-event-model-diagram
 - cratis-fundamentals-concept
+- cratis-specification-by-example
+- cratis-specifications-csharp
+- cratis-specifications-typescript
 
 #### Composed profiles
 
-- public-fundamentals
-- public-arc
-- public-arc-react
-- public-chronicle
-- public-components
-- public-specifications-dotnet
-- public-specifications-typescript
+- cratis/application/csharp
+- cratis/application/elixir
+- cratis/application/kotlin
+- cratis/application/typescript
+- cratis/arc/core
+- cratis/arc/react
+- cratis/chronicle/core
+- cratis/components
+- cratis/fundamentals
+- cratis/specifications/dotnet
+- cratis/specifications/typescript
 
 ### Cratis Arc + Chronicle Application
 
-- **Profile ID:** `public-application-arc-chronicle`
+- **Profile ID:** `cratis/application/arc-chronicle`
 - **Audience:** public
 - **Package:** `@cratis/ai-application-arc-chronicle`
 - **State:** planned-composition
@@ -169,18 +338,36 @@ Combined AI guidance for developers using Cratis Fundamentals, Cratis Arc, and C
 
 #### Included capabilities
 
+- cratis-application-slice-specifications
+- cratis-arc-command
+- cratis-arc-command-execution
+- cratis-arc-command-validation
+- cratis-arc-observable-query-http
+- cratis-arc-query-paging
+- cratis-chronicle-event-constraints
+- cratis-chronicle-event-modeling
+- cratis-chronicle-event-specifications
+- cratis-chronicle-event-type-migration
+- cratis-chronicle-projection
+- cratis-chronicle-reactor
+- cratis-chronicle-read-model
+- cratis-chronicle-read-model-specifications
+- cratis-chronicle-reducer
+- cratis-event-model-diagram
 - cratis-fundamentals-concept
+- cratis-specification-by-example
+- cratis-specifications-csharp
 
 #### Composed profiles
 
-- public-fundamentals
-- public-arc
-- public-chronicle
-- public-specifications-dotnet
+- cratis/arc/core
+- cratis/chronicle/core
+- cratis/fundamentals
+- cratis/specifications/dotnet
 
 ### Cratis Arc Application
 
-- **Profile ID:** `public-application-arc-only`
+- **Profile ID:** `cratis/application/arc-only`
 - **Audience:** public
 - **Package:** `@cratis/ai-application-arc`
 - **State:** planned-composition
@@ -197,17 +384,27 @@ Combined AI guidance for developers using Cratis Fundamentals and Cratis Arc in 
 
 #### Included capabilities
 
+- cratis-application-slice-specifications
+- cratis-arc-command
+- cratis-arc-command-execution
+- cratis-arc-command-validation
+- cratis-arc-observable-query-http
+- cratis-arc-query-paging
+- cratis-chronicle-event-specifications
+- cratis-chronicle-read-model-specifications
 - cratis-fundamentals-concept
+- cratis-specification-by-example
+- cratis-specifications-csharp
 
 #### Composed profiles
 
-- public-fundamentals
-- public-arc
-- public-specifications-dotnet
+- cratis/arc/core
+- cratis/fundamentals
+- cratis/specifications/dotnet
 
 ### Cratis Chronicle .NET Application
 
-- **Profile ID:** `public-application-chronicle-dotnet`
+- **Profile ID:** `cratis/application/chronicle-dotnet`
 - **Audience:** public
 - **Package:** `@cratis/ai-application-chronicle-dotnet`
 - **State:** planned-composition
@@ -224,18 +421,152 @@ Combined AI guidance for developers using Cratis Fundamentals and Cratis Chronic
 
 #### Included capabilities
 
+- cratis-application-slice-specifications
+- cratis-chronicle-client-dotnet
+- cratis-chronicle-event-constraints
+- cratis-chronicle-event-modeling
+- cratis-chronicle-event-specifications
+- cratis-chronicle-event-type-migration
+- cratis-chronicle-projection
+- cratis-chronicle-reactor
+- cratis-chronicle-read-model
+- cratis-chronicle-read-model-specifications
+- cratis-chronicle-reducer
+- cratis-event-model-diagram
 - cratis-fundamentals-concept
+- cratis-specification-by-example
+- cratis-specifications-csharp
 
 #### Composed profiles
 
-- public-fundamentals
-- public-chronicle
-- public-chronicle-client-dotnet
-- public-specifications-dotnet
+- cratis/chronicle/client-dotnet
+- cratis/chronicle/core
+- cratis/fundamentals
+- cratis/specifications/dotnet
+
+### Cratis Application/csharp
+
+- **Profile ID:** `cratis/application/csharp`
+- **Audience:** public
+- **Package:** `@cratis/ai-meta-application-csharp`
+- **State:** planned-composition
+- **Installable:** no
+- **Materialization:** composition
+
+Combined AI guidance for developers using Cratis Fundamentals, Cratis Arc, Cratis Arc React, Cratis Chronicle, and Cratis Components in one solution.
+
+**Intended for:** Developers who use Cratis Fundamentals, Cratis Arc, Cratis Arc React, Cratis Chronicle, and Cratis Components.
+
+- Products: fundamentals, arc, arc-react, chronicle, components
+- Languages: csharp, react, typescript
+- Repository kinds: consumer projects
+
+#### Included capabilities
+
+- cratis-application-react-specifications
+- cratis-application-slice-specifications
+- cratis-arc-authentication-authorization-and-identity
+- cratis-arc-command
+- cratis-arc-command-execution
+- cratis-arc-command-validation
+- cratis-arc-ef-core-migration
+- cratis-arc-observable-query-http
+- cratis-arc-query-paging
+- cratis-arc-react-page
+- cratis-chronicle-client-dotnet
+- cratis-chronicle-client-elixir
+- cratis-chronicle-client-kotlin
+- cratis-chronicle-client-typescript
+- cratis-chronicle-compliance
+- cratis-chronicle-event-constraints
+- cratis-chronicle-event-modeling
+- cratis-chronicle-event-specifications
+- cratis-chronicle-event-type-migration
+- cratis-chronicle-multi-tenancy
+- cratis-chronicle-projection
+- cratis-chronicle-reactor
+- cratis-chronicle-read-model
+- cratis-chronicle-read-model-specifications
+- cratis-chronicle-reducer
+- cratis-chronicle-web-workbench
+- cratis-components-accessibility
+- cratis-components-schema-editor
+- cratis-components-stepper-command-dialog
+- cratis-components-styling
+- cratis-components-toolbar
+- cratis-event-model-diagram
+- cratis-fundamentals-concept
+- cratis-specification-by-example
+- cratis-specifications-csharp
+- cratis-specifications-typescript
+
+#### Composed profiles
+
+- cratis/arc
+- cratis/arc/react
+- cratis/chronicle
+- cratis/components
+- cratis/fundamentals
+- cratis/language/csharp
+- cratis/specifications/dotnet
+- cratis/specifications/typescript
+
+### Cratis Application/elixir
+
+- **Profile ID:** `cratis/application/elixir`
+- **Audience:** public
+- **Package:** `@cratis/ai-meta-application-elixir`
+- **State:** planned-composition
+- **Installable:** no
+- **Materialization:** composition
+
+Combined AI guidance for developers using Cratis Chronicle in one solution.
+
+**Intended for:** Developers who use Cratis Chronicle.
+
+- Products: chronicle
+- Languages: elixir
+- Repository kinds: consumer projects
+
+#### Included capabilities
+
+- cratis-chronicle-client-elixir
+
+#### Composed profiles
+
+- cratis/chronicle/client-elixir
+- cratis/language/elixir
+
+### Cratis Application/kotlin
+
+- **Profile ID:** `cratis/application/kotlin`
+- **Audience:** public
+- **Package:** `@cratis/ai-meta-application-kotlin`
+- **State:** planned-composition
+- **Installable:** no
+- **Materialization:** composition
+
+Combined AI guidance for developers using Cratis Arc and Cratis Chronicle in one solution.
+
+**Intended for:** Developers who use Cratis Arc and Cratis Chronicle.
+
+- Products: arc, chronicle
+- Languages: kotlin
+- Repository kinds: consumer projects
+
+#### Included capabilities
+
+- cratis-chronicle-client-kotlin
+
+#### Composed profiles
+
+- cratis/arc/client-kotlin
+- cratis/chronicle/client-kotlin
+- cratis/language/kotlin
 
 ### Cratis React Application
 
-- **Profile ID:** `public-application-react`
+- **Profile ID:** `cratis/application/react`
 - **Audience:** public
 - **Package:** `@cratis/ai-application-react`
 - **State:** planned-composition
@@ -252,23 +583,108 @@ Combined AI guidance for developers using Cratis Fundamentals, Cratis Arc, Crati
 
 #### Included capabilities
 
+- cratis-application-react-specifications
+- cratis-application-slice-specifications
+- cratis-arc-command
+- cratis-arc-command-execution
+- cratis-arc-command-validation
+- cratis-arc-observable-query-http
+- cratis-arc-query-paging
+- cratis-arc-react-page
+- cratis-chronicle-event-specifications
+- cratis-chronicle-read-model-specifications
+- cratis-components-accessibility
+- cratis-components-schema-editor
+- cratis-components-stepper-command-dialog
+- cratis-components-styling
+- cratis-components-toolbar
 - cratis-fundamentals-concept
+- cratis-specification-by-example
+- cratis-specifications-csharp
+- cratis-specifications-typescript
 
 #### Composed profiles
 
-- public-fundamentals
-- public-arc
-- public-arc-react
-- public-components
-- public-specifications-dotnet
-- public-specifications-typescript
+- cratis/arc/core
+- cratis/arc/react
+- cratis/components
+- cratis/fundamentals
+- cratis/specifications/dotnet
+- cratis/specifications/typescript
 
-### Cratis Arc
+### Cratis Application/typescript
 
-- **Profile ID:** `public-arc`
+- **Profile ID:** `cratis/application/typescript`
 - **Audience:** public
-- **Package:** `@cratis/ai-arc`
-- **State:** planned-source-migration
+- **Package:** `@cratis/ai-meta-application-typescript`
+- **State:** planned-composition
+- **Installable:** no
+- **Materialization:** composition
+
+Combined AI guidance for developers using Cratis Chronicle and Cratis Specifications in one solution.
+
+**Intended for:** Developers who use Cratis Chronicle and Cratis Specifications.
+
+- Products: chronicle, specifications
+- Languages: typescript, react
+- Repository kinds: consumer projects
+
+#### Included capabilities
+
+- cratis-chronicle-client-typescript
+- cratis-specification-by-example
+- cratis-specifications-typescript
+
+#### Composed profiles
+
+- cratis/chronicle/client-typescript
+- cratis/language/typescript
+- cratis/specifications/typescript
+
+### Cratis Arc Suite
+
+- **Profile ID:** `cratis/arc`
+- **Audience:** public
+- **Package:** `@cratis/ai-meta-arc`
+- **State:** planned-composition
+- **Installable:** no
+- **Materialization:** composition
+
+The namespaced Arc suite: model-bound commands, queries, EF Core persistence, and identity, with no Chronicle assumptions.
+
+**Intended for:** Developers who use Cratis Fundamentals, Cratis Arc, and Entity Framework Core.
+
+- Products: fundamentals, arc, entity-framework-core
+- Languages: csharp, react, typescript, kotlin
+- Repository kinds: consumer projects
+
+#### Included capabilities
+
+- cratis-application-slice-specifications
+- cratis-arc-authentication-authorization-and-identity
+- cratis-arc-command
+- cratis-arc-command-execution
+- cratis-arc-command-validation
+- cratis-arc-ef-core-migration
+- cratis-arc-observable-query-http
+- cratis-arc-query-paging
+- cratis-chronicle-event-specifications
+- cratis-chronicle-read-model-specifications
+- cratis-fundamentals-concept
+- cratis-specification-by-example
+- cratis-specifications-csharp
+
+#### Composed profiles
+
+- cratis/arc/csharp
+- cratis/arc/kotlin
+
+### Cratis Arc/client-kotlin
+
+- **Profile ID:** `cratis/arc/client-kotlin`
+- **Audience:** public
+- **Package:** `@cratis/ai-arc-client-kotlin`
+- **State:** content-gap
 - **Installable:** no
 - **Materialization:** catalog-only
 
@@ -277,7 +693,7 @@ AI guidance for developers building with Cratis Arc.
 **Intended for:** Developers who use Cratis Arc.
 
 - Products: arc
-- Languages: csharp
+- Languages: kotlin
 - Repository kinds: consumer projects
 
 #### Included capabilities
@@ -288,14 +704,83 @@ AI guidance for developers building with Cratis Arc.
 
 - None
 
+### Cratis Arc/core
+
+- **Profile ID:** `cratis/arc/core`
+- **Audience:** public
+- **Package:** `@cratis/ai-arc`
+- **State:** preview-source-candidate
+- **Installable:** no
+- **Materialization:** candidate-package
+
+AI guidance for developers building with Cratis Arc.
+
+**Intended for:** Developers who use Cratis Arc.
+
+- Products: arc
+- Languages: csharp, typescript, shell
+- Repository kinds: consumer projects
+
+#### Included capabilities
+
+- cratis-arc-command
+- cratis-arc-command-execution
+- cratis-arc-command-validation
+- cratis-arc-observable-query-http
+- cratis-arc-query-paging
+
+#### Composed profiles
+
+- None
+
+### Cratis Arc/csharp
+
+- **Profile ID:** `cratis/arc/csharp`
+- **Audience:** public
+- **Package:** `@cratis/ai-meta-arc-csharp`
+- **State:** planned-composition
+- **Installable:** no
+- **Materialization:** composition
+
+Combined AI guidance for developers using Cratis Fundamentals, Cratis Arc, and Entity Framework Core in one solution.
+
+**Intended for:** Developers who use Cratis Fundamentals, Cratis Arc, and Entity Framework Core.
+
+- Products: fundamentals, arc, entity-framework-core
+- Languages: csharp, react, typescript
+- Repository kinds: consumer projects
+
+#### Included capabilities
+
+- cratis-application-slice-specifications
+- cratis-arc-authentication-authorization-and-identity
+- cratis-arc-command
+- cratis-arc-command-execution
+- cratis-arc-command-validation
+- cratis-arc-ef-core-migration
+- cratis-arc-observable-query-http
+- cratis-arc-query-paging
+- cratis-chronicle-event-specifications
+- cratis-chronicle-read-model-specifications
+- cratis-fundamentals-concept
+- cratis-specification-by-example
+- cratis-specifications-csharp
+
+#### Composed profiles
+
+- cratis/application/arc-only
+- cratis/arc/ef-core
+- cratis/arc/identity
+- cratis/language/csharp
+
 ### Cratis Arc with EF Core
 
-- **Profile ID:** `public-arc-ef-core`
+- **Profile ID:** `cratis/arc/ef-core`
 - **Audience:** public
 - **Package:** `@cratis/ai-arc-ef-core`
-- **State:** planned-source-migration
+- **State:** preview-source-candidate
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** candidate-package
 
 AI guidance for developers building with Cratis Arc and Entity Framework Core.
 
@@ -307,20 +792,25 @@ AI guidance for developers building with Cratis Arc and Entity Framework Core.
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-arc-command
+- cratis-arc-command-execution
+- cratis-arc-command-validation
+- cratis-arc-ef-core-migration
+- cratis-arc-observable-query-http
+- cratis-arc-query-paging
 
 #### Composed profiles
 
-- public-arc
+- cratis/arc/core
 
-### Cratis Arc Identity
+### Cratis Arc/identity
 
-- **Profile ID:** `public-arc-identity`
+- **Profile ID:** `cratis/arc/identity`
 - **Audience:** public
 - **Package:** `@cratis/ai-arc-identity`
-- **State:** planned-source-migration
+- **State:** preview-source-candidate
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** candidate-package
 
 AI guidance for developers building with Cratis Arc.
 
@@ -332,20 +822,51 @@ AI guidance for developers building with Cratis Arc.
 
 #### Included capabilities
 
+- cratis-arc-authentication-authorization-and-identity
+- cratis-arc-command
+- cratis-arc-command-execution
+- cratis-arc-command-validation
+- cratis-arc-observable-query-http
+- cratis-arc-query-paging
+
+#### Composed profiles
+
+- cratis/arc/core
+
+### Cratis Arc/kotlin
+
+- **Profile ID:** `cratis/arc/kotlin`
+- **Audience:** public
+- **Package:** `@cratis/ai-meta-arc-kotlin`
+- **State:** planned-composition
+- **Installable:** no
+- **Materialization:** composition
+
+Combined AI guidance for developers using Cratis Arc in one solution.
+
+**Intended for:** Developers who use Cratis Arc.
+
+- Products: arc
+- Languages: kotlin
+- Repository kinds: consumer projects
+
+#### Included capabilities
+
 - No approved or candidate capabilities yet
 
 #### Composed profiles
 
-- public-arc
+- cratis/arc/client-kotlin
+- cratis/language/kotlin
 
-### Cratis Arc React
+### Cratis Arc/react
 
-- **Profile ID:** `public-arc-react`
+- **Profile ID:** `cratis/arc/react`
 - **Audience:** public
 - **Package:** `@cratis/ai-arc-react`
-- **State:** planned-source-migration
+- **State:** preview-source-candidate
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** candidate-package
 
 AI guidance for developers building with Cratis Arc React.
 
@@ -357,45 +878,77 @@ AI guidance for developers building with Cratis Arc React.
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-application-react-specifications
+- cratis-arc-command
+- cratis-arc-command-execution
+- cratis-arc-command-validation
+- cratis-arc-observable-query-http
+- cratis-arc-query-paging
+- cratis-arc-react-page
 
 #### Composed profiles
 
-- None
+- cratis/arc/core
 
-### Cratis Chronicle
+### Cratis Chronicle Suite
 
-- **Profile ID:** `public-chronicle`
+- **Profile ID:** `cratis/chronicle`
 - **Audience:** public
-- **Package:** `@cratis/ai-chronicle`
-- **State:** planned-source-migration
+- **Package:** `@cratis/ai-meta-chronicle`
+- **State:** planned-composition
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** composition
 
-AI guidance for developers building with Cratis Chronicle.
+The namespaced Chronicle suite: event modeling, compliance, multi-tenancy, and workbench guidance, with no Arc assumptions.
 
-**Intended for:** Developers who use Cratis Chronicle.
+**Intended for:** Developers who use Cratis Fundamentals and Cratis Chronicle.
 
-- Products: chronicle
-- Languages: csharp, language-agnostic
+- Products: fundamentals, chronicle
+- Languages: csharp, kotlin, elixir, typescript, language-agnostic
 - Repository kinds: consumer projects
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-application-slice-specifications
+- cratis-chronicle-client-dotnet
+- cratis-chronicle-client-elixir
+- cratis-chronicle-client-kotlin
+- cratis-chronicle-client-typescript
+- cratis-chronicle-compliance
+- cratis-chronicle-event-constraints
+- cratis-chronicle-event-modeling
+- cratis-chronicle-event-specifications
+- cratis-chronicle-event-type-migration
+- cratis-chronicle-multi-tenancy
+- cratis-chronicle-projection
+- cratis-chronicle-reactor
+- cratis-chronicle-read-model
+- cratis-chronicle-read-model-specifications
+- cratis-chronicle-reducer
+- cratis-chronicle-web-workbench
+- cratis-event-model-diagram
+- cratis-fundamentals-concept
+- cratis-specification-by-example
+- cratis-specifications-csharp
 
 #### Composed profiles
 
-- None
+- cratis/chronicle/compliance
+- cratis/chronicle/csharp
+- cratis/chronicle/elixir
+- cratis/chronicle/kotlin
+- cratis/chronicle/multi-tenancy
+- cratis/chronicle/typescript
+- cratis/chronicle/web-workbench
 
 ### Cratis Chronicle .NET Client
 
-- **Profile ID:** `public-chronicle-client-dotnet`
+- **Profile ID:** `cratis/chronicle/client-dotnet`
 - **Audience:** public
 - **Package:** `@cratis/ai-chronicle-dotnet`
-- **State:** content-gap
+- **State:** preview-source-candidate
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** candidate-package
 
 AI guidance for developers building with Cratis Chronicle.
 
@@ -407,7 +960,7 @@ AI guidance for developers building with Cratis Chronicle.
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-chronicle-client-dotnet
 
 #### Composed profiles
 
@@ -415,12 +968,12 @@ AI guidance for developers building with Cratis Chronicle.
 
 ### Cratis Chronicle Elixir Client
 
-- **Profile ID:** `public-chronicle-client-elixir`
+- **Profile ID:** `cratis/chronicle/client-elixir`
 - **Audience:** public
 - **Package:** `@cratis/ai-chronicle-elixir`
-- **State:** content-gap
+- **State:** preview-source-candidate
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** candidate-package
 
 AI guidance for developers building with Cratis Chronicle.
 
@@ -432,7 +985,7 @@ AI guidance for developers building with Cratis Chronicle.
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-chronicle-client-elixir
 
 #### Composed profiles
 
@@ -440,7 +993,7 @@ AI guidance for developers building with Cratis Chronicle.
 
 ### Cratis Chronicle Java Client
 
-- **Profile ID:** `public-chronicle-client-java`
+- **Profile ID:** `cratis/chronicle/client-java`
 - **Audience:** public
 - **Package:** `@cratis/ai-chronicle-java`
 - **State:** authority-gap
@@ -465,12 +1018,12 @@ AI guidance for developers building with Cratis Chronicle.
 
 ### Cratis Chronicle Kotlin Client
 
-- **Profile ID:** `public-chronicle-client-kotlin`
+- **Profile ID:** `cratis/chronicle/client-kotlin`
 - **Audience:** public
 - **Package:** `@cratis/ai-chronicle-kotlin`
-- **State:** content-gap
+- **State:** preview-source-candidate
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** candidate-package
 
 AI guidance for developers building with Cratis Chronicle.
 
@@ -482,7 +1035,7 @@ AI guidance for developers building with Cratis Chronicle.
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-chronicle-client-kotlin
 
 #### Composed profiles
 
@@ -490,7 +1043,7 @@ AI guidance for developers building with Cratis Chronicle.
 
 ### Cratis Chronicle Python Client
 
-- **Profile ID:** `public-chronicle-client-python`
+- **Profile ID:** `cratis/chronicle/client-python`
 - **Audience:** public
 - **Package:** `@cratis/ai-chronicle-python`
 - **State:** content-gap
@@ -515,12 +1068,12 @@ AI guidance for developers building with Cratis Chronicle.
 
 ### Cratis Chronicle TypeScript Client
 
-- **Profile ID:** `public-chronicle-client-typescript`
+- **Profile ID:** `cratis/chronicle/client-typescript`
 - **Audience:** public
 - **Package:** `@cratis/ai-chronicle-typescript`
-- **State:** content-gap
+- **State:** preview-source-candidate
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** candidate-package
 
 AI guidance for developers building with Cratis Chronicle.
 
@@ -532,20 +1085,20 @@ AI guidance for developers building with Cratis Chronicle.
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-chronicle-client-typescript
 
 #### Composed profiles
 
 - None
 
-### Cratis Chronicle Compliance
+### Cratis Chronicle/compliance
 
-- **Profile ID:** `public-chronicle-compliance`
+- **Profile ID:** `cratis/chronicle/compliance`
 - **Audience:** public
 - **Package:** `@cratis/ai-chronicle-compliance`
-- **State:** content-gap
+- **State:** preview-source-candidate
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** candidate-package
 
 AI guidance for developers building with Cratis Chronicle.
 
@@ -557,15 +1110,151 @@ AI guidance for developers building with Cratis Chronicle.
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-chronicle-compliance
+- cratis-chronicle-event-constraints
+- cratis-chronicle-event-modeling
+- cratis-chronicle-event-type-migration
+- cratis-chronicle-projection
+- cratis-chronicle-reactor
+- cratis-chronicle-read-model
+- cratis-chronicle-reducer
+- cratis-event-model-diagram
 
 #### Composed profiles
 
-- public-chronicle
+- cratis/chronicle/core
 
-### Cratis Chronicle MCP
+### Cratis Chronicle/core
 
-- **Profile ID:** `public-chronicle-mcp`
+- **Profile ID:** `cratis/chronicle/core`
+- **Audience:** public
+- **Package:** `@cratis/ai-chronicle`
+- **State:** preview-source-candidate
+- **Installable:** no
+- **Materialization:** candidate-package
+
+AI guidance for developers building with Cratis Chronicle.
+
+**Intended for:** Developers who use Cratis Chronicle.
+
+- Products: chronicle
+- Languages: csharp, language-agnostic
+- Repository kinds: consumer projects
+
+#### Included capabilities
+
+- cratis-chronicle-event-constraints
+- cratis-chronicle-event-modeling
+- cratis-chronicle-event-type-migration
+- cratis-chronicle-projection
+- cratis-chronicle-reactor
+- cratis-chronicle-read-model
+- cratis-chronicle-reducer
+- cratis-event-model-diagram
+
+#### Composed profiles
+
+- None
+
+### Cratis Chronicle/csharp
+
+- **Profile ID:** `cratis/chronicle/csharp`
+- **Audience:** public
+- **Package:** `@cratis/ai-meta-chronicle-csharp`
+- **State:** planned-composition
+- **Installable:** no
+- **Materialization:** composition
+
+Combined AI guidance for developers using Cratis Fundamentals and Cratis Chronicle in one solution.
+
+**Intended for:** Developers who use Cratis Fundamentals and Cratis Chronicle.
+
+- Products: fundamentals, chronicle
+- Languages: csharp, language-agnostic
+- Repository kinds: consumer projects
+
+#### Included capabilities
+
+- cratis-application-slice-specifications
+- cratis-chronicle-client-dotnet
+- cratis-chronicle-compliance
+- cratis-chronicle-event-constraints
+- cratis-chronicle-event-modeling
+- cratis-chronicle-event-specifications
+- cratis-chronicle-event-type-migration
+- cratis-chronicle-multi-tenancy
+- cratis-chronicle-projection
+- cratis-chronicle-reactor
+- cratis-chronicle-read-model
+- cratis-chronicle-read-model-specifications
+- cratis-chronicle-reducer
+- cratis-event-model-diagram
+- cratis-fundamentals-concept
+- cratis-specification-by-example
+- cratis-specifications-csharp
+
+#### Composed profiles
+
+- cratis/application/chronicle-dotnet
+- cratis/chronicle/compliance
+- cratis/chronicle/multi-tenancy
+- cratis/language/csharp
+
+### Cratis Chronicle/elixir
+
+- **Profile ID:** `cratis/chronicle/elixir`
+- **Audience:** public
+- **Package:** `@cratis/ai-meta-chronicle-elixir`
+- **State:** planned-composition
+- **Installable:** no
+- **Materialization:** composition
+
+Combined AI guidance for developers using Cratis Chronicle in one solution.
+
+**Intended for:** Developers who use Cratis Chronicle.
+
+- Products: chronicle
+- Languages: elixir
+- Repository kinds: consumer projects
+
+#### Included capabilities
+
+- cratis-chronicle-client-elixir
+
+#### Composed profiles
+
+- cratis/chronicle/client-elixir
+- cratis/language/elixir
+
+### Cratis Chronicle/kotlin
+
+- **Profile ID:** `cratis/chronicle/kotlin`
+- **Audience:** public
+- **Package:** `@cratis/ai-meta-chronicle-kotlin`
+- **State:** planned-composition
+- **Installable:** no
+- **Materialization:** composition
+
+Combined AI guidance for developers using Cratis Chronicle in one solution.
+
+**Intended for:** Developers who use Cratis Chronicle.
+
+- Products: chronicle
+- Languages: kotlin
+- Repository kinds: consumer projects
+
+#### Included capabilities
+
+- cratis-chronicle-client-kotlin
+
+#### Composed profiles
+
+- cratis/chronicle/client-kotlin
+- cratis/language/kotlin
+
+### Cratis Chronicle/mcp
+
+- **Profile ID:** `cratis/chronicle/mcp`
 - **Audience:** public
 - **Package:** `@cratis/ai-chronicle-mcp`
 - **State:** preview-source-candidate
@@ -588,14 +1277,14 @@ Classification-only passive guidance for Chronicle MCP inspection requests and a
 
 - None
 
-### Cratis Chronicle Multi Tenancy
+### Cratis Chronicle/multi-tenancy
 
-- **Profile ID:** `public-chronicle-multi-tenancy`
+- **Profile ID:** `cratis/chronicle/multi-tenancy`
 - **Audience:** public
 - **Package:** `@cratis/ai-chronicle-multi-tenancy`
-- **State:** planned-source-migration
+- **State:** preview-source-candidate
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** candidate-package
 
 AI guidance for developers building with Cratis Chronicle.
 
@@ -607,20 +1296,54 @@ AI guidance for developers building with Cratis Chronicle.
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-chronicle-event-constraints
+- cratis-chronicle-event-modeling
+- cratis-chronicle-event-type-migration
+- cratis-chronicle-multi-tenancy
+- cratis-chronicle-projection
+- cratis-chronicle-reactor
+- cratis-chronicle-read-model
+- cratis-chronicle-reducer
+- cratis-event-model-diagram
 
 #### Composed profiles
 
-- public-chronicle
+- cratis/chronicle/core
 
-### Cratis Chronicle Web Workbench
+### Cratis Chronicle/typescript
 
-- **Profile ID:** `public-chronicle-web-workbench`
+- **Profile ID:** `cratis/chronicle/typescript`
+- **Audience:** public
+- **Package:** `@cratis/ai-meta-chronicle-typescript`
+- **State:** planned-composition
+- **Installable:** no
+- **Materialization:** composition
+
+Combined AI guidance for developers using Cratis Chronicle in one solution.
+
+**Intended for:** Developers who use Cratis Chronicle.
+
+- Products: chronicle
+- Languages: typescript
+- Repository kinds: consumer projects
+
+#### Included capabilities
+
+- cratis-chronicle-client-typescript
+
+#### Composed profiles
+
+- cratis/chronicle/client-typescript
+- cratis/language/typescript
+
+### Cratis Chronicle/web-workbench
+
+- **Profile ID:** `cratis/chronicle/web-workbench`
 - **Audience:** public
 - **Package:** `@cratis/ai-chronicle-web-workbench`
-- **State:** content-gap
+- **State:** preview-source-candidate
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** candidate-package
 
 AI guidance for developers building with Cratis Chronicle.
 
@@ -632,20 +1355,79 @@ AI guidance for developers building with Cratis Chronicle.
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-chronicle-event-constraints
+- cratis-chronicle-event-modeling
+- cratis-chronicle-event-type-migration
+- cratis-chronicle-projection
+- cratis-chronicle-reactor
+- cratis-chronicle-read-model
+- cratis-chronicle-reducer
+- cratis-chronicle-web-workbench
+- cratis-event-model-diagram
 
 #### Composed profiles
 
-- public-chronicle
+- cratis/chronicle/core
+
+### Cratis CLI
+
+- **Profile ID:** `cratis/cli`
+- **Audience:** public
+- **Package:** `@cratis/ai-cli`
+- **State:** preview-source-candidate
+- **Installable:** no
+- **Materialization:** candidate-package
+
+AI guidance for developers building with the Cratis CLI.
+
+**Intended for:** Developers who use the Cratis CLI.
+
+- Products: cli
+- Languages: shell
+- Repository kinds: consumer projects
+
+#### Included capabilities
+
+- cratis-chronicle-cli-operations
+
+#### Composed profiles
+
+- None
+
+### Cratis Cli/terminal-workbench
+
+- **Profile ID:** `cratis/cli/terminal-workbench`
+- **Audience:** public
+- **Package:** `@cratis/ai-cli-workbench`
+- **State:** preview-source-candidate
+- **Installable:** no
+- **Materialization:** candidate-package
+
+AI guidance for developers building with the Cratis CLI.
+
+**Intended for:** Developers who use the Cratis CLI.
+
+- Products: cli
+- Languages: shell
+- Repository kinds: consumer projects
+
+#### Included capabilities
+
+- cratis-chronicle-cli-operations
+- cratis-cli-terminal-workbench
+
+#### Composed profiles
+
+- cratis/cli
 
 ### Cratis Components
 
-- **Profile ID:** `public-components`
+- **Profile ID:** `cratis/components`
 - **Audience:** public
 - **Package:** `@cratis/ai-components`
-- **State:** planned-source-migration
+- **State:** preview-source-candidate
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** candidate-package
 
 AI guidance for developers building with Cratis Components.
 
@@ -657,65 +1439,264 @@ AI guidance for developers building with Cratis Components.
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-components-accessibility
+- cratis-components-schema-editor
+- cratis-components-stepper-command-dialog
+- cratis-components-styling
+- cratis-components-toolbar
 
 #### Composed profiles
 
 - None
 
-### Cratis CLI
+### Cratis Documentation
 
-- **Profile ID:** `public-cratis-cli`
+- **Profile ID:** `cratis/documentation`
 - **Audience:** public
-- **Package:** `@cratis/ai-cli`
-- **State:** content-gap
+- **Package:** `@cratis/ai-documentation`
+- **State:** preview-source-candidate
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** candidate-package
 
-AI guidance for developers building with the Cratis CLI.
+AI guidance for developers building with Cratis documentation.
 
-**Intended for:** Developers who use the Cratis CLI.
+**Intended for:** Developers who use Cratis documentation.
 
-- Products: cli
-- Languages: shell
+- Products: documentation
+- Languages: markdown, language-agnostic
 - Repository kinds: consumer projects
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-documentation-writing
 
 #### Composed profiles
 
 - None
 
-### Cratis CLI Terminal Workbench
+### Cratis Full Suite
 
-- **Profile ID:** `public-cratis-cli-terminal-workbench`
+- **Profile ID:** `cratis/full`
 - **Audience:** public
-- **Package:** `@cratis/ai-cli-workbench`
-- **State:** content-gap
+- **Package:** `@cratis/ai-meta-full`
+- **State:** planned-composition
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** composition
 
-AI guidance for developers building with the Cratis CLI.
+Every public Cratis suite in one selection, including the Screenplay to Stage modeling and executable specification handoff.
 
-**Intended for:** Developers who use the Cratis CLI.
+**Intended for:** Developers who use Cratis Fundamentals, Cratis Arc, Cratis Arc React, Cratis Chronicle, Cratis Components, Entity Framework Core, Cratis Specifications, Cratis Screenplay, and Cratis Stage.
 
-- Products: cli
-- Languages: shell
+- Products: fundamentals, arc, arc-react, chronicle, components, entity-framework-core, specifications, screenplay, stage
+- Languages: csharp, kotlin, elixir, typescript, react, language-agnostic
 - Repository kinds: consumer projects
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-application-react-specifications
+- cratis-application-slice-specifications
+- cratis-arc-authentication-authorization-and-identity
+- cratis-arc-command
+- cratis-arc-command-execution
+- cratis-arc-command-validation
+- cratis-arc-ef-core-migration
+- cratis-arc-observable-query-http
+- cratis-arc-query-paging
+- cratis-arc-react-page
+- cratis-chronicle-client-dotnet
+- cratis-chronicle-client-elixir
+- cratis-chronicle-client-kotlin
+- cratis-chronicle-client-typescript
+- cratis-chronicle-compliance
+- cratis-chronicle-event-constraints
+- cratis-chronicle-event-modeling
+- cratis-chronicle-event-specifications
+- cratis-chronicle-event-type-migration
+- cratis-chronicle-multi-tenancy
+- cratis-chronicle-projection
+- cratis-chronicle-reactor
+- cratis-chronicle-read-model
+- cratis-chronicle-read-model-specifications
+- cratis-chronicle-reducer
+- cratis-chronicle-web-workbench
+- cratis-components-accessibility
+- cratis-components-schema-editor
+- cratis-components-stepper-command-dialog
+- cratis-components-styling
+- cratis-components-toolbar
+- cratis-event-model-diagram
+- cratis-fundamentals-concept
+- cratis-screenplay-model-authoring
+- cratis-specification-by-example
+- cratis-specifications-csharp
+- cratis-specifications-typescript
+- cratis-stage-rendering-and-sandbox
 
 #### Composed profiles
 
-- public-cratis-cli
+- cratis/full/csharp
+- cratis/full/elixir
+- cratis/full/kotlin
+- cratis/full/typescript
+
+### Cratis Full/csharp
+
+- **Profile ID:** `cratis/full/csharp`
+- **Audience:** public
+- **Package:** `@cratis/ai-meta-full-csharp`
+- **State:** planned-composition
+- **Installable:** no
+- **Materialization:** composition
+
+Combined AI guidance for developers using Cratis Fundamentals, Cratis Arc, Cratis Arc React, Cratis Chronicle, Cratis Components, Entity Framework Core, Cratis Screenplay, and Cratis Stage in one solution.
+
+**Intended for:** Developers who use Cratis Fundamentals, Cratis Arc, Cratis Arc React, Cratis Chronicle, Cratis Components, Entity Framework Core, Cratis Screenplay, and Cratis Stage.
+
+- Products: fundamentals, arc, arc-react, chronicle, components, entity-framework-core, screenplay, stage
+- Languages: csharp, react, typescript, language-agnostic
+- Repository kinds: consumer projects
+
+#### Included capabilities
+
+- cratis-application-react-specifications
+- cratis-application-slice-specifications
+- cratis-arc-authentication-authorization-and-identity
+- cratis-arc-command
+- cratis-arc-command-execution
+- cratis-arc-command-validation
+- cratis-arc-ef-core-migration
+- cratis-arc-observable-query-http
+- cratis-arc-query-paging
+- cratis-arc-react-page
+- cratis-chronicle-client-dotnet
+- cratis-chronicle-client-elixir
+- cratis-chronicle-client-kotlin
+- cratis-chronicle-client-typescript
+- cratis-chronicle-compliance
+- cratis-chronicle-event-constraints
+- cratis-chronicle-event-modeling
+- cratis-chronicle-event-specifications
+- cratis-chronicle-event-type-migration
+- cratis-chronicle-multi-tenancy
+- cratis-chronicle-projection
+- cratis-chronicle-reactor
+- cratis-chronicle-read-model
+- cratis-chronicle-read-model-specifications
+- cratis-chronicle-reducer
+- cratis-chronicle-web-workbench
+- cratis-components-accessibility
+- cratis-components-schema-editor
+- cratis-components-stepper-command-dialog
+- cratis-components-styling
+- cratis-components-toolbar
+- cratis-event-model-diagram
+- cratis-fundamentals-concept
+- cratis-screenplay-model-authoring
+- cratis-specification-by-example
+- cratis-specifications-csharp
+- cratis-specifications-typescript
+- cratis-stage-rendering-and-sandbox
+
+#### Composed profiles
+
+- cratis/application/csharp
+- cratis/arc/csharp
+- cratis/chronicle/csharp
+- cratis/modeling/screenplay-stage
+
+### Cratis Full/elixir
+
+- **Profile ID:** `cratis/full/elixir`
+- **Audience:** public
+- **Package:** `@cratis/ai-meta-full-elixir`
+- **State:** planned-composition
+- **Installable:** no
+- **Materialization:** composition
+
+Combined AI guidance for developers using Cratis Chronicle, Cratis Screenplay, and Cratis Stage in one solution.
+
+**Intended for:** Developers who use Cratis Chronicle, Cratis Screenplay, and Cratis Stage.
+
+- Products: chronicle, screenplay, stage
+- Languages: elixir, language-agnostic
+- Repository kinds: consumer projects
+
+#### Included capabilities
+
+- cratis-chronicle-client-elixir
+- cratis-screenplay-model-authoring
+- cratis-stage-rendering-and-sandbox
+
+#### Composed profiles
+
+- cratis/application/elixir
+- cratis/chronicle/elixir
+- cratis/modeling/screenplay-stage
+
+### Cratis Full/kotlin
+
+- **Profile ID:** `cratis/full/kotlin`
+- **Audience:** public
+- **Package:** `@cratis/ai-meta-full-kotlin`
+- **State:** planned-composition
+- **Installable:** no
+- **Materialization:** composition
+
+Combined AI guidance for developers using Cratis Arc, Cratis Chronicle, Cratis Screenplay, and Cratis Stage in one solution.
+
+**Intended for:** Developers who use Cratis Arc, Cratis Chronicle, Cratis Screenplay, and Cratis Stage.
+
+- Products: arc, chronicle, screenplay, stage
+- Languages: kotlin, language-agnostic
+- Repository kinds: consumer projects
+
+#### Included capabilities
+
+- cratis-chronicle-client-kotlin
+- cratis-screenplay-model-authoring
+- cratis-stage-rendering-and-sandbox
+
+#### Composed profiles
+
+- cratis/application/kotlin
+- cratis/arc/kotlin
+- cratis/chronicle/kotlin
+- cratis/modeling/screenplay-stage
+
+### Cratis Full/typescript
+
+- **Profile ID:** `cratis/full/typescript`
+- **Audience:** public
+- **Package:** `@cratis/ai-meta-full-typescript`
+- **State:** planned-composition
+- **Installable:** no
+- **Materialization:** composition
+
+Combined AI guidance for developers using Cratis Chronicle, Cratis Specifications, Cratis Screenplay, and Cratis Stage in one solution.
+
+**Intended for:** Developers who use Cratis Chronicle, Cratis Specifications, Cratis Screenplay, and Cratis Stage.
+
+- Products: chronicle, specifications, screenplay, stage
+- Languages: typescript, react, language-agnostic
+- Repository kinds: consumer projects
+
+#### Included capabilities
+
+- cratis-chronicle-client-typescript
+- cratis-screenplay-model-authoring
+- cratis-specification-by-example
+- cratis-specifications-typescript
+- cratis-stage-rendering-and-sandbox
+
+#### Composed profiles
+
+- cratis/application/typescript
+- cratis/chronicle/typescript
+- cratis/modeling/screenplay-stage
 
 ### Cratis Fundamentals
 
-- **Profile ID:** `public-fundamentals`
+- **Profile ID:** `cratis/fundamentals`
 - **Audience:** public
 - **Package:** `@cratis/ai-fundamentals`
 - **State:** preview-source-candidate
@@ -738,14 +1719,140 @@ Strongly typed Cratis Fundamentals concepts and Chronicle event-source identitie
 
 - None
 
-### Cratis Lens
+### Cratis Fundamentals/type-discovery
 
-- **Profile ID:** `public-lens`
+- **Profile ID:** `cratis/fundamentals/type-discovery`
 - **Audience:** public
-- **Package:** `@cratis/ai-lens`
+- **Package:** `@cratis/ai-fundamentals-type-discovery`
+- **State:** preview-source-candidate
+- **Installable:** no
+- **Materialization:** candidate-package
+
+AI guidance for developers building with Cratis Fundamentals.
+
+**Intended for:** Developers who use Cratis Fundamentals.
+
+- Products: fundamentals
+- Languages: csharp
+- Repository kinds: consumer projects
+
+#### Included capabilities
+
+- cratis-fundamentals-concept
+- cratis-fundamentals-type-discovery
+
+#### Composed profiles
+
+- cratis/fundamentals
+
+### Cratis C# Language Conventions
+
+- **Profile ID:** `cratis/language/csharp`
+- **Audience:** public
+- **Package:** `@cratis/ai-language-csharp`
 - **State:** content-gap
 - **Installable:** no
 - **Materialization:** catalog-only
+
+Composable language-level C# conventions shared across Cratis products. Content completeness is tracked in Cratis/AI#178.
+
+**Intended for:** Developers who want C# conventions without selecting a Cratis product profile.
+
+- Products: shared engineering behavior
+- Languages: csharp
+- Repository kinds: consumer projects
+
+#### Included capabilities
+
+- No approved or candidate capabilities yet
+
+#### Composed profiles
+
+- None
+
+### Cratis Elixir Language Conventions
+
+- **Profile ID:** `cratis/language/elixir`
+- **Audience:** public
+- **Package:** `@cratis/ai-language-elixir`
+- **State:** content-gap
+- **Installable:** no
+- **Materialization:** catalog-only
+
+Composable language-level Elixir conventions shared across Cratis products. Content completeness is tracked in Cratis/AI#178.
+
+**Intended for:** Developers who want Elixir conventions without selecting a Cratis product profile.
+
+- Products: shared engineering behavior
+- Languages: elixir
+- Repository kinds: consumer projects
+
+#### Included capabilities
+
+- No approved or candidate capabilities yet
+
+#### Composed profiles
+
+- None
+
+### Cratis Kotlin Language Conventions
+
+- **Profile ID:** `cratis/language/kotlin`
+- **Audience:** public
+- **Package:** `@cratis/ai-language-kotlin`
+- **State:** content-gap
+- **Installable:** no
+- **Materialization:** catalog-only
+
+Composable language-level Kotlin conventions shared across Cratis products. Content completeness is tracked in Cratis/AI#178.
+
+**Intended for:** Developers who want Kotlin conventions without selecting a Cratis product profile.
+
+- Products: shared engineering behavior
+- Languages: kotlin
+- Repository kinds: consumer projects
+
+#### Included capabilities
+
+- No approved or candidate capabilities yet
+
+#### Composed profiles
+
+- None
+
+### Cratis TypeScript Language Conventions
+
+- **Profile ID:** `cratis/language/typescript`
+- **Audience:** public
+- **Package:** `@cratis/ai-language-typescript`
+- **State:** content-gap
+- **Installable:** no
+- **Materialization:** catalog-only
+
+Composable language-level TypeScript conventions shared across Cratis products. Content completeness is tracked in Cratis/AI#178.
+
+**Intended for:** Developers who want TypeScript conventions without selecting a Cratis product profile.
+
+- Products: shared engineering behavior
+- Languages: typescript
+- Repository kinds: consumer projects
+
+#### Included capabilities
+
+- No approved or candidate capabilities yet
+
+#### Composed profiles
+
+- None
+
+### Cratis Lens
+
+- **Profile ID:** `cratis/lens`
+- **Audience:** public
+- **Package:** `@cratis/ai-lens`
+- **State:** preview-source-candidate
+- **Installable:** no
+- **Materialization:** candidate-package
 
 AI guidance for developers building with Cratis Lens.
 
@@ -757,7 +1864,32 @@ AI guidance for developers building with Cratis Lens.
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-lens-browser-extension
+
+#### Composed profiles
+
+- None
+
+### Cratis Governed Release Methodology
+
+- **Profile ID:** `cratis/methodology/governed-releases`
+- **Audience:** public
+- **Package:** `@cratis/ai-methodology-governed-releases`
+- **State:** owner-review-pending
+- **Installable:** no
+- **Materialization:** candidate-package
+
+Product- and language-independent release-engineering methodology: assurance tiers, evidence ladders, lifecycle phases, supply-chain receipts, semantic-version release intent, canaries, and recovery disposition.
+
+**Intended for:** Maintainers planning a release in any repository, for any artifact format, without selecting a Cratis product or language profile.
+
+- Products: shared engineering behavior
+- Languages: language-agnostic
+- Repository kinds: consumer projects
+
+#### Included capabilities
+
+- cratis-governed-release-methodology
 
 #### Composed profiles
 
@@ -765,7 +1897,7 @@ AI guidance for developers building with Cratis Lens.
 
 ### Cratis Screenplay → Stage
 
-- **Profile ID:** `public-modeling-screenplay-stage`
+- **Profile ID:** `cratis/modeling/screenplay-stage`
 - **Audience:** public
 - **Package:** `@cratis/ai-modeling-screenplay-stage`
 - **State:** planned-composition
@@ -782,21 +1914,49 @@ Combined AI guidance for developers using Cratis Screenplay and Cratis Stage in 
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-screenplay-model-authoring
+- cratis-stage-rendering-and-sandbox
 
 #### Composed profiles
 
-- public-screenplay
-- public-stage
+- cratis/screenplay
+- cratis/stage
+
+### Cratis Review
+
+- **Profile ID:** `cratis/review`
+- **Audience:** public
+- **Package:** `@cratis/ai-review`
+- **State:** preview-source-candidate
+- **Installable:** no
+- **Materialization:** candidate-package
+
+AI guidance for developers building with cross-product.
+
+**Intended for:** Developers who use cross-product.
+
+- Products: cross-product
+- Languages: csharp, typescript, react
+- Repository kinds: consumer projects
+
+#### Included capabilities
+
+- cratis-code-review
+- cratis-performance-review
+- cratis-security-review
+
+#### Composed profiles
+
+- None
 
 ### Cratis Screenplay
 
-- **Profile ID:** `public-screenplay`
+- **Profile ID:** `cratis/screenplay`
 - **Audience:** public
 - **Package:** `@cratis/ai-screenplay`
-- **State:** content-gap
+- **State:** preview-source-candidate
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** candidate-package
 
 AI guidance for developers building with Cratis Screenplay.
 
@@ -808,7 +1968,7 @@ AI guidance for developers building with Cratis Screenplay.
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-screenplay-model-authoring
 
 #### Composed profiles
 
@@ -816,12 +1976,12 @@ AI guidance for developers building with Cratis Screenplay.
 
 ### Cratis Specifications
 
-- **Profile ID:** `public-specifications`
+- **Profile ID:** `cratis/specifications`
 - **Audience:** public
 - **Package:** `@cratis/ai-specifications`
-- **State:** planned-source-migration
+- **State:** preview-source-candidate
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** candidate-package
 
 AI guidance for developers building with Cratis Specifications.
 
@@ -833,20 +1993,20 @@ AI guidance for developers building with Cratis Specifications.
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-specification-by-example
 
 #### Composed profiles
 
 - None
 
-### Cratis Specifications .NET
+### Cratis Specifications/dotnet
 
-- **Profile ID:** `public-specifications-dotnet`
+- **Profile ID:** `cratis/specifications/dotnet`
 - **Audience:** public
 - **Package:** `@cratis/ai-specifications-dotnet`
-- **State:** planned-source-migration
+- **State:** preview-source-candidate
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** candidate-package
 
 AI guidance for developers building with Cratis Specifications.
 
@@ -858,20 +2018,24 @@ AI guidance for developers building with Cratis Specifications.
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-application-slice-specifications
+- cratis-chronicle-event-specifications
+- cratis-chronicle-read-model-specifications
+- cratis-specification-by-example
+- cratis-specifications-csharp
 
 #### Composed profiles
 
-- public-specifications
+- cratis/specifications
 
-### Cratis Specifications TypeScript
+### Cratis Specifications/typescript
 
-- **Profile ID:** `public-specifications-typescript`
+- **Profile ID:** `cratis/specifications/typescript`
 - **Audience:** public
 - **Package:** `@cratis/ai-specifications-typescript`
-- **State:** planned-source-migration
+- **State:** preview-source-candidate
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** candidate-package
 
 AI guidance for developers building with Cratis Specifications.
 
@@ -883,20 +2047,21 @@ AI guidance for developers building with Cratis Specifications.
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-specification-by-example
+- cratis-specifications-typescript
 
 #### Composed profiles
 
-- public-specifications
+- cratis/specifications
 
 ### Cratis Stage
 
-- **Profile ID:** `public-stage`
+- **Profile ID:** `cratis/stage`
 - **Audience:** public
 - **Package:** `@cratis/ai-stage`
-- **State:** content-gap
+- **State:** preview-source-candidate
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** candidate-package
 
 AI guidance for developers building with Cratis Stage.
 
@@ -908,7 +2073,7 @@ AI guidance for developers building with Cratis Stage.
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-stage-rendering-and-sandbox
 
 #### Composed profiles
 
@@ -916,7 +2081,7 @@ AI guidance for developers building with Cratis Stage.
 
 ### Cratis Studio
 
-- **Profile ID:** `public-studio`
+- **Profile ID:** `cratis/studio`
 - **Audience:** public
 - **Package:** `@cratis/ai-studio`
 - **State:** preview-source-candidate
@@ -939,142 +2104,49 @@ Classification-only public-safe guidance for Studio MCP requests and already-red
 
 - None
 
-### Cratis AI Maintainer
+### Cratis Maintainer Engineering
 
-- **Profile ID:** `engineering-ai`
+- **Profile ID:** `cratis/engineering`
 - **Audience:** cratis-engineering
-- **Package:** `@cratis/ai-engineering-ai`
-- **State:** planned-source-migration
+- **Package:** `@cratis/ai-engineering`
+- **State:** planned-composition
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** composition
 
-Public-safe contributor guidance for maintainers working on Cratis AI. Private repository details remain local.
+Public-safe shared engineering conventions for contributors across Cratis repositories, split by language so a repository loads only the conventions it writes in.
 
-**Intended for:** Cratis maintainers contributing to Cratis AI in corpus repositories.
+**Intended for:** Cratis maintainers contributing to Cratis in application projects, framework projects, client projects, documentation projects, and corpus repositories.
 
-- Products: ai
-- Languages: language-agnostic
-- Repository kinds: corpus
+- Products: shared engineering behavior
+- Languages: csharp, typescript, kotlin, elixir, react, language-agnostic
+- Repository kinds: application, framework, client, documentation, corpus
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-engineering-csharp-conventions
+- cratis-engineering-decision-record
+- cratis-engineering-docs-authoring
+- cratis-engineering-effect-boundaries
 
 #### Composed profiles
 
-- engineering-base
+- cratis/engineering/core
+- cratis/engineering/csharp
+- cratis/engineering/elixir
+- cratis/engineering/kotlin
+- cratis/engineering/react
+- cratis/engineering/typescript
 
-### Cratis Application Maintainer
+### Cratis Engineering/core Maintainer
 
-- **Profile ID:** `engineering-application`
+- **Profile ID:** `cratis/engineering/core`
 - **Audience:** cratis-engineering
-- **Package:** `@cratis/ai-engineering-application`
-- **State:** planned-source-migration
+- **Package:** `@cratis/ai-engineering-core`
+- **State:** preview-source-candidate
 - **Installable:** no
-- **Materialization:** catalog-only
+- **Materialization:** candidate-package
 
-Public-safe contributor guidance for maintainers working on Cratis Fundamentals, Cratis Arc, Cratis Arc React, Cratis Chronicle, and Cratis Components. Private repository details remain local.
-
-**Intended for:** Cratis maintainers contributing to Cratis Fundamentals, Cratis Arc, Cratis Arc React, Cratis Chronicle, and Cratis Components in application projects.
-
-- Products: fundamentals, arc, arc-react, chronicle, components
-- Languages: language-agnostic
-- Repository kinds: application
-
-#### Included capabilities
-
-- No approved or candidate capabilities yet
-
-#### Composed profiles
-
-- engineering-base
-
-### Cratis Arc Maintainer
-
-- **Profile ID:** `engineering-arc`
-- **Audience:** cratis-engineering
-- **Package:** `@cratis/ai-engineering-arc`
-- **State:** planned-source-migration
-- **Installable:** no
-- **Materialization:** catalog-only
-
-Public-safe contributor guidance for maintainers working on Cratis Arc. Private repository details remain local.
-
-**Intended for:** Cratis maintainers contributing to Cratis Arc in framework projects.
-
-- Products: arc
-- Languages: language-agnostic
-- Repository kinds: framework
-
-#### Included capabilities
-
-- No approved or candidate capabilities yet
-
-#### Composed profiles
-
-- engineering-base
-
-### Cratis Arc EF Core Maintainer
-
-- **Profile ID:** `engineering-arc-ef-core`
-- **Audience:** cratis-engineering
-- **Package:** `@cratis/ai-engineering-arc-ef-core`
-- **State:** planned-source-migration
-- **Installable:** no
-- **Materialization:** catalog-only
-
-Public-safe contributor guidance for maintainers working on Cratis Arc and Entity Framework Core. Private repository details remain local.
-
-**Intended for:** Cratis maintainers contributing to Cratis Arc and Entity Framework Core in application projects and framework projects.
-
-- Products: arc, entity-framework-core
-- Languages: language-agnostic
-- Repository kinds: application, framework
-
-#### Included capabilities
-
-- No approved or candidate capabilities yet
-
-#### Composed profiles
-
-- engineering-base
-- engineering-arc
-
-### Cratis Arc React Maintainer
-
-- **Profile ID:** `engineering-arc-react`
-- **Audience:** cratis-engineering
-- **Package:** `@cratis/ai-engineering-arc-react`
-- **State:** content-gap
-- **Installable:** no
-- **Materialization:** catalog-only
-
-Public-safe contributor guidance for maintainers working on Cratis Arc React. Private repository details remain local.
-
-**Intended for:** Cratis maintainers contributing to Cratis Arc React in framework projects.
-
-- Products: arc-react
-- Languages: language-agnostic
-- Repository kinds: framework
-
-#### Included capabilities
-
-- No approved or candidate capabilities yet
-
-#### Composed profiles
-
-- engineering-base
-
-### Cratis Maintainer Base
-
-- **Profile ID:** `engineering-base`
-- **Audience:** cratis-engineering
-- **Package:** `@cratis/ai-engineering-base`
-- **State:** planned-source-migration
-- **Installable:** no
-- **Materialization:** catalog-only
-
-Public-safe shared engineering conventions for contributors across Cratis repositories.
+Public-safe contributor guidance for maintainers working on Cratis. Private repository details remain local.
 
 **Intended for:** Cratis maintainers contributing to Cratis in application projects, framework projects, client projects, documentation projects, and corpus repositories.
 
@@ -1084,361 +2156,149 @@ Public-safe shared engineering conventions for contributors across Cratis reposi
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-engineering-decision-record
+- cratis-engineering-docs-authoring
+- cratis-engineering-effect-boundaries
 
 #### Composed profiles
 
 - None
 
-### Cratis Chronicle Maintainer
+### Cratis Maintainer Engineering — C#
 
-- **Profile ID:** `engineering-chronicle`
+- **Profile ID:** `cratis/engineering/csharp`
 - **Audience:** cratis-engineering
-- **Package:** `@cratis/ai-engineering-chronicle`
-- **State:** planned-source-migration
-- **Installable:** no
-- **Materialization:** catalog-only
-
-Public-safe contributor guidance for maintainers working on Cratis Chronicle. Private repository details remain local.
-
-**Intended for:** Cratis maintainers contributing to Cratis Chronicle in framework projects.
-
-- Products: chronicle
-- Languages: language-agnostic
-- Repository kinds: framework
-
-#### Included capabilities
-
-- No approved or candidate capabilities yet
-
-#### Composed profiles
-
-- engineering-base
-
-### Cratis Chronicle Clients Maintainer
-
-- **Profile ID:** `engineering-chronicle-clients`
-- **Audience:** cratis-engineering
-- **Package:** `@cratis/ai-engineering-chronicle-clients`
-- **State:** content-gap
-- **Installable:** no
-- **Materialization:** catalog-only
-
-Public-safe contributor guidance for maintainers working on Cratis Chronicle. Private repository details remain local.
-
-**Intended for:** Cratis maintainers contributing to Cratis Chronicle in client projects.
-
-- Products: chronicle
-- Languages: csharp, kotlin, elixir, typescript, python
-- Repository kinds: client
-
-#### Included capabilities
-
-- No approved or candidate capabilities yet
-
-#### Composed profiles
-
-- engineering-base
-
-### Cratis Chronicle MCP Maintainer
-
-- **Profile ID:** `engineering-chronicle-mcp`
-- **Audience:** cratis-engineering
-- **Package:** `@cratis/ai-engineering-chronicle-mcp`
-- **State:** content-gap
-- **Installable:** no
-- **Materialization:** catalog-only
-
-Public-safe contributor guidance for maintainers working on Chronicle MCP. Private repository details remain local.
-
-**Intended for:** Cratis maintainers contributing to Chronicle MCP in framework projects.
-
-- Products: chronicle-mcp
-- Languages: language-agnostic
-- Repository kinds: framework
-
-#### Included capabilities
-
-- No approved or candidate capabilities yet
-
-#### Composed profiles
-
-- engineering-base
-
-### Cratis Components Maintainer
-
-- **Profile ID:** `engineering-components`
-- **Audience:** cratis-engineering
-- **Package:** `@cratis/ai-engineering-components`
-- **State:** planned-source-migration
-- **Installable:** no
-- **Materialization:** catalog-only
-
-Public-safe contributor guidance for maintainers working on Cratis Components. Private repository details remain local.
-
-**Intended for:** Cratis maintainers contributing to Cratis Components in framework projects.
-
-- Products: components
-- Languages: language-agnostic
-- Repository kinds: framework
-
-#### Included capabilities
-
-- No approved or candidate capabilities yet
-
-#### Composed profiles
-
-- engineering-base
-
-### Cratis CLI Maintainer
-
-- **Profile ID:** `engineering-cratis-cli`
-- **Audience:** cratis-engineering
-- **Package:** `@cratis/ai-engineering-cli`
-- **State:** content-gap
-- **Installable:** no
-- **Materialization:** catalog-only
-
-Public-safe contributor guidance for maintainers working on the Cratis CLI. Private repository details remain local.
-
-**Intended for:** Cratis maintainers contributing to the Cratis CLI in framework projects.
-
-- Products: cli
-- Languages: language-agnostic
-- Repository kinds: framework
-
-#### Included capabilities
-
-- No approved or candidate capabilities yet
-
-#### Composed profiles
-
-- engineering-base
-
-### Cratis Documentation Maintainer
-
-- **Profile ID:** `engineering-documentation`
-- **Audience:** cratis-engineering
-- **Package:** `@cratis/ai-engineering-documentation`
-- **State:** owner-review-pending
+- **Package:** `@cratis/ai-engineering-csharp`
+- **State:** preview-source-candidate
 - **Installable:** no
 - **Materialization:** candidate-package
 
-Public-safe documentation authoring guidance for maintainers working across Cratis product repositories.
+The C# maintainer conventions plus the language-agnostic decision-record, effect-boundary, and documentation-authoring procedures.
 
-**Intended for:** Cratis maintainers contributing to Cratis documentation in documentation projects.
+**Intended for:** Cratis maintainers contributing to Cratis in application projects, framework projects, client projects, documentation projects, and corpus repositories.
 
-- Products: documentation
-- Languages: language-agnostic
-- Repository kinds: documentation
+- Products: shared engineering behavior
+- Languages: csharp
+- Repository kinds: application, framework, client, documentation, corpus
 
 #### Included capabilities
 
+- cratis-engineering-csharp-conventions
+- cratis-engineering-decision-record
 - cratis-engineering-docs-authoring
+- cratis-engineering-effect-boundaries
 
 #### Composed profiles
 
-- engineering-base
+- cratis/engineering/core
 
-### Cratis Fundamentals Maintainer
+### Cratis Maintainer Engineering — Elixir
 
-- **Profile ID:** `engineering-fundamentals`
+- **Profile ID:** `cratis/engineering/elixir`
 - **Audience:** cratis-engineering
-- **Package:** `@cratis/ai-engineering-fundamentals`
-- **State:** planned-source-migration
-- **Installable:** no
-- **Materialization:** catalog-only
-
-Public-safe contributor guidance for maintainers working on Cratis Fundamentals. Private repository details remain local.
-
-**Intended for:** Cratis maintainers contributing to Cratis Fundamentals in framework projects.
-
-- Products: fundamentals
-- Languages: language-agnostic
-- Repository kinds: framework
-
-#### Included capabilities
-
-- No approved or candidate capabilities yet
-
-#### Composed profiles
-
-- engineering-base
-
-### Cratis Lens Maintainer
-
-- **Profile ID:** `engineering-lens`
-- **Audience:** cratis-engineering
-- **Package:** `@cratis/ai-engineering-lens`
+- **Package:** `@cratis/ai-engineering-elixir`
 - **State:** content-gap
 - **Installable:** no
 - **Materialization:** catalog-only
 
-Public-safe contributor guidance for maintainers working on Cratis Lens. Private repository details remain local.
+Public-safe contributor guidance for maintainers working on Cratis. Private repository details remain local.
 
-**Intended for:** Cratis maintainers contributing to Cratis Lens in framework projects.
+**Intended for:** Cratis maintainers contributing to Cratis in application projects, framework projects, client projects, documentation projects, and corpus repositories.
 
-- Products: lens
-- Languages: language-agnostic
-- Repository kinds: framework
+- Products: shared engineering behavior
+- Languages: elixir
+- Repository kinds: application, framework, client, documentation, corpus
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-engineering-decision-record
+- cratis-engineering-docs-authoring
+- cratis-engineering-effect-boundaries
 
 #### Composed profiles
 
-- engineering-base
+- cratis/engineering/core
 
-### Cratis Screenplay Maintainer
+### Cratis Maintainer Engineering — Kotlin
 
-- **Profile ID:** `engineering-screenplay`
+- **Profile ID:** `cratis/engineering/kotlin`
 - **Audience:** cratis-engineering
-- **Package:** `@cratis/ai-engineering-screenplay`
+- **Package:** `@cratis/ai-engineering-kotlin`
 - **State:** content-gap
 - **Installable:** no
 - **Materialization:** catalog-only
 
-Public-safe contributor guidance for maintainers working on Cratis Screenplay. Private repository details remain local.
+Public-safe contributor guidance for maintainers working on Cratis. Private repository details remain local.
 
-**Intended for:** Cratis maintainers contributing to Cratis Screenplay in framework projects.
+**Intended for:** Cratis maintainers contributing to Cratis in application projects, framework projects, client projects, documentation projects, and corpus repositories.
 
-- Products: screenplay
-- Languages: language-agnostic
-- Repository kinds: framework
-
-#### Included capabilities
-
-- No approved or candidate capabilities yet
-
-#### Composed profiles
-
-- engineering-base
-
-### Cratis Specifications Maintainer
-
-- **Profile ID:** `engineering-specifications`
-- **Audience:** cratis-engineering
-- **Package:** `@cratis/ai-engineering-specifications`
-- **State:** planned-source-migration
-- **Installable:** no
-- **Materialization:** catalog-only
-
-Public-safe contributor guidance for maintainers working on Cratis Specifications. Private repository details remain local.
-
-**Intended for:** Cratis maintainers contributing to Cratis Specifications in application projects, framework projects, and client projects.
-
-- Products: specifications
-- Languages: language-agnostic
-- Repository kinds: application, framework, client
+- Products: shared engineering behavior
+- Languages: kotlin
+- Repository kinds: application, framework, client, documentation, corpus
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-engineering-decision-record
+- cratis-engineering-docs-authoring
+- cratis-engineering-effect-boundaries
 
 #### Composed profiles
 
-- engineering-base
+- cratis/engineering/core
 
-### Cratis Stage Maintainer
+### Cratis Maintainer Engineering — React
 
-- **Profile ID:** `engineering-stage`
+- **Profile ID:** `cratis/engineering/react`
 - **Audience:** cratis-engineering
-- **Package:** `@cratis/ai-engineering-stage`
+- **Package:** `@cratis/ai-engineering-react`
 - **State:** content-gap
 - **Installable:** no
 - **Materialization:** catalog-only
 
-Public-safe contributor guidance for maintainers working on Cratis Stage. Private repository details remain local.
+Public-safe contributor guidance for maintainers working on Cratis. Private repository details remain local.
 
-**Intended for:** Cratis maintainers contributing to Cratis Stage in framework projects.
+**Intended for:** Cratis maintainers contributing to Cratis in application projects, framework projects, client projects, documentation projects, and corpus repositories.
 
-- Products: stage
-- Languages: language-agnostic
-- Repository kinds: framework
+- Products: shared engineering behavior
+- Languages: react
+- Repository kinds: application, framework, client, documentation, corpus
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-engineering-decision-record
+- cratis-engineering-docs-authoring
+- cratis-engineering-effect-boundaries
 
 #### Composed profiles
 
-- engineering-base
+- cratis/engineering/core
 
-### Cratis Stagehand Maintainer
+### Cratis Maintainer Engineering — TypeScript
 
-- **Profile ID:** `engineering-stagehand`
+- **Profile ID:** `cratis/engineering/typescript`
 - **Audience:** cratis-engineering
-- **Package:** `@cratis/ai-engineering-stagehand`
+- **Package:** `@cratis/ai-engineering-typescript`
 - **State:** content-gap
 - **Installable:** no
 - **Materialization:** catalog-only
 
-Public-safe contributor guidance for maintainers working on Cratis Stagehand. Private repository details remain local.
+Public-safe contributor guidance for maintainers working on Cratis. Private repository details remain local.
 
-**Intended for:** Cratis maintainers contributing to Cratis Stagehand in framework projects and corpus repositories.
+**Intended for:** Cratis maintainers contributing to Cratis in application projects, framework projects, client projects, documentation projects, and corpus repositories.
 
-- Products: stagehand
-- Languages: language-agnostic
-- Repository kinds: framework, corpus
-
-#### Included capabilities
-
-- No approved or candidate capabilities yet
-
-#### Composed profiles
-
-- engineering-base
-
-### Cratis Studio Maintainer
-
-- **Profile ID:** `engineering-studio`
-- **Audience:** cratis-engineering
-- **Package:** `@cratis/ai-engineering-studio`
-- **State:** content-gap
-- **Installable:** no
-- **Materialization:** catalog-only
-
-Public-safe contributor guidance for maintainers working on Cratis Studio. Private repository details remain local.
-
-**Intended for:** Cratis maintainers contributing to Cratis Studio in application projects and framework projects.
-
-- Products: studio
-- Languages: language-agnostic
-- Repository kinds: application, framework
+- Products: shared engineering behavior
+- Languages: typescript
+- Repository kinds: application, framework, client, documentation, corpus
 
 #### Included capabilities
 
-- No approved or candidate capabilities yet
+- cratis-engineering-decision-record
+- cratis-engineering-docs-authoring
+- cratis-engineering-effect-boundaries
 
 #### Composed profiles
 
-- engineering-base
-
-### Cratis Workflows Maintainer
-
-- **Profile ID:** `engineering-workflows`
-- **Audience:** cratis-engineering
-- **Package:** `@cratis/ai-engineering-workflows`
-- **State:** content-gap
-- **Installable:** no
-- **Materialization:** catalog-only
-
-Public-safe contributor guidance for maintainers working on Cratis Workflows. Private repository details remain local.
-
-**Intended for:** Cratis maintainers contributing to Cratis Workflows in corpus repositories.
-
-- Products: workflows
-- Languages: language-agnostic
-- Repository kinds: corpus
-
-#### Included capabilities
-
-- No approved or candidate capabilities yet
-
-#### Composed profiles
-
-- engineering-base
+- cratis/engineering/core
 
 ## Capabilities
 
@@ -1507,7 +2367,13 @@ Use for React or TypeScript behavior in a Cratis application slice.
 
 #### Profile membership — cratis-application-react-specifications
 
-- None
+- cratis
+- cratis/application
+- cratis/application/csharp
+- cratis/application/react
+- cratis/arc/react
+- cratis/full
+- cratis/full/csharp
 
 ### cratis-application-slice-diagnostics
 
@@ -1638,7 +2504,20 @@ Use to route event-sourced application backend behavior to the correct in-proces
 
 #### Profile membership — cratis-application-slice-specifications
 
-- None
+- cratis
+- cratis/application
+- cratis/application/arc-chronicle
+- cratis/application/arc-only
+- cratis/application/chronicle-dotnet
+- cratis/application/csharp
+- cratis/application/react
+- cratis/arc
+- cratis/arc/csharp
+- cratis/chronicle
+- cratis/chronicle/csharp
+- cratis/full
+- cratis/full/csharp
+- cratis/specifications/dotnet
 
 ### cratis-application-vertical-slice
 
@@ -1770,7 +2649,14 @@ Use for Arc identity providers, endpoint protection, roles, or frontend identity
 
 #### Profile membership — cratis-arc-authentication-authorization-and-identity
 
-- None
+- cratis
+- cratis/application
+- cratis/application/csharp
+- cratis/arc
+- cratis/arc/csharp
+- cratis/arc/identity
+- cratis/full
+- cratis/full/csharp
 
 ### cratis-arc-command
 
@@ -1827,7 +2713,6 @@ Use when defining an Arc command and its generated full-stack proxy workflow.
 
 - cratis-arc-command-execution
 - cratis-arc-command-validation
-- cratis-chronicle-event-constraints
 - cratis-fundamentals-concept
 
 #### Bundle membership — cratis-arc-command
@@ -1836,7 +2721,20 @@ Use when defining an Arc command and its generated full-stack proxy workflow.
 
 #### Profile membership — cratis-arc-command
 
-- None
+- cratis
+- cratis/application
+- cratis/application/arc-chronicle
+- cratis/application/arc-only
+- cratis/application/csharp
+- cratis/application/react
+- cratis/arc
+- cratis/arc/core
+- cratis/arc/csharp
+- cratis/arc/ef-core
+- cratis/arc/identity
+- cratis/arc/react
+- cratis/full
+- cratis/full/csharp
 
 ### cratis-arc-command-execution
 
@@ -1900,7 +2798,20 @@ Use when backend code must execute an existing Arc command through ICommandPipel
 
 #### Profile membership — cratis-arc-command-execution
 
-- None
+- cratis
+- cratis/application
+- cratis/application/arc-chronicle
+- cratis/application/arc-only
+- cratis/application/csharp
+- cratis/application/react
+- cratis/arc
+- cratis/arc/core
+- cratis/arc/csharp
+- cratis/arc/ef-core
+- cratis/arc/identity
+- cratis/arc/react
+- cratis/full
+- cratis/full/csharp
 
 ### cratis-arc-command-validation
 
@@ -1965,7 +2876,20 @@ Use when adding validation or state-dependent rejection to an existing Arc comma
 
 #### Profile membership — cratis-arc-command-validation
 
-- None
+- cratis
+- cratis/application
+- cratis/application/arc-chronicle
+- cratis/application/arc-only
+- cratis/application/csharp
+- cratis/application/react
+- cratis/arc
+- cratis/arc/core
+- cratis/arc/csharp
+- cratis/arc/ef-core
+- cratis/arc/identity
+- cratis/arc/react
+- cratis/full
+- cratis/full/csharp
 
 ### cratis-arc-ef-core-migration
 
@@ -2030,7 +2954,14 @@ Use when adding or changing an EF Core schema in a Cratis application.
 
 #### Profile membership — cratis-arc-ef-core-migration
 
-- None
+- cratis
+- cratis/application
+- cratis/application/csharp
+- cratis/arc
+- cratis/arc/csharp
+- cratis/arc/ef-core
+- cratis/full
+- cratis/full/csharp
 
 ### cratis-arc-observable-query-http
 
@@ -2096,7 +3027,20 @@ Use when inspecting Arc observable query SSE or streaming behavior with curl or 
 
 #### Profile membership — cratis-arc-observable-query-http
 
-- None
+- cratis
+- cratis/application
+- cratis/application/arc-chronicle
+- cratis/application/arc-only
+- cratis/application/csharp
+- cratis/application/react
+- cratis/arc
+- cratis/arc/core
+- cratis/arc/csharp
+- cratis/arc/ef-core
+- cratis/arc/identity
+- cratis/arc/react
+- cratis/full
+- cratis/full/csharp
 
 ### cratis-arc-query-paging
 
@@ -2161,7 +3105,20 @@ Use when adding server-side paging and sorting to an Arc read-model query.
 
 #### Profile membership — cratis-arc-query-paging
 
-- None
+- cratis
+- cratis/application
+- cratis/application/arc-chronicle
+- cratis/application/arc-only
+- cratis/application/csharp
+- cratis/application/react
+- cratis/arc
+- cratis/arc/core
+- cratis/arc/csharp
+- cratis/arc/ef-core
+- cratis/arc/identity
+- cratis/arc/react
+- cratis/full
+- cratis/full/csharp
 
 ### cratis-arc-react-feature-scaffolding
 
@@ -2291,7 +3248,13 @@ Use when building a DataPage or MVVM React page backed by generated Arc queries.
 
 #### Profile membership — cratis-arc-react-page
 
-- None
+- cratis
+- cratis/application
+- cratis/application/csharp
+- cratis/application/react
+- cratis/arc/react
+- cratis/full
+- cratis/full/csharp
 
 ### cratis-chronicle-cli-operations
 
@@ -2355,7 +3318,375 @@ Use to inspect a running Chronicle store and, only with explicit confirmation, p
 
 #### Profile membership — cratis-chronicle-cli-operations
 
+- cratis
+- cratis/cli
+- cratis/cli/terminal-workbench
+
+### cratis-chronicle-client-dotnet
+
+- **ID:** `cratis-chronicle-client-dotnet`
+- **Audience:** public
+- **Lifecycle:** candidate
+- **Approval:** candidate
+- **Runtime eligible:** no
+
+#### Purpose — cratis-chronicle-client-dotnet
+
+Chronicle .NET client
+
+#### When to use — cratis-chronicle-client-dotnet
+
+Use when a standalone .NET console, worker, or service connects to a Chronicle server and appends or observes events.
+
+#### When not to use — cratis-chronicle-client-dotnet
+
+- Do not use for Arc applications, where Chronicle is already wired in.
+- Do not use for the Chronicle kernel or for another language's client.
+
+#### Invocation — cratis-chronicle-client-dotnet
+
+- Capability kind: unclassified
+- Invocation: unclassified
+
+#### Applicability — cratis-chronicle-client-dotnet
+
+- Products: chronicle
+- Languages: csharp
+- Architectures: Unclassified — Architecture requires reviewed target classification.
+- Personas: Unclassified — Persona requires reviewed target classification.
+- Surfaces: Unclassified — Surface requires reviewed target classification.
+- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+
+#### Dependencies — cratis-chronicle-client-dotnet
+
+- Unclassified
+
+#### Trust and effects — cratis-chronicle-client-dotnet
+
+- Trust class: passive
+- Assessment: unclassified
+- No assessed effects
+
+#### Evidence and support — cratis-chronicle-client-dotnet
+
+- Authoring contract unclassified
+- Evidence: reevaluation-authority
+- Evidence: repo-main-b795d53
+
+#### Related capabilities — cratis-chronicle-client-dotnet
+
+- cratis-chronicle-client-elixir
+- cratis-chronicle-client-kotlin
+- cratis-chronicle-client-typescript
+
+#### Bundle membership — cratis-chronicle-client-dotnet
+
 - None
+
+#### Profile membership — cratis-chronicle-client-dotnet
+
+- cratis
+- cratis/application
+- cratis/application/chronicle-dotnet
+- cratis/application/csharp
+- cratis/chronicle
+- cratis/chronicle/client-dotnet
+- cratis/chronicle/csharp
+- cratis/full
+- cratis/full/csharp
+
+### cratis-chronicle-client-elixir
+
+- **ID:** `cratis-chronicle-client-elixir`
+- **Audience:** public
+- **Lifecycle:** candidate
+- **Approval:** candidate
+- **Runtime eligible:** no
+
+#### Purpose — cratis-chronicle-client-elixir
+
+Chronicle Elixir client
+
+#### When to use — cratis-chronicle-client-elixir
+
+Use when an Elixir or OTP application connects to a Chronicle server and appends or observes events.
+
+#### When not to use — cratis-chronicle-client-elixir
+
+- Do not use for another language's Chronicle client.
+- Do not use for the Chronicle kernel.
+
+#### Invocation — cratis-chronicle-client-elixir
+
+- Capability kind: unclassified
+- Invocation: unclassified
+
+#### Applicability — cratis-chronicle-client-elixir
+
+- Products: chronicle
+- Languages: elixir
+- Architectures: Unclassified — Architecture requires reviewed target classification.
+- Personas: Unclassified — Persona requires reviewed target classification.
+- Surfaces: Unclassified — Surface requires reviewed target classification.
+- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+
+#### Dependencies — cratis-chronicle-client-elixir
+
+- Unclassified
+
+#### Trust and effects — cratis-chronicle-client-elixir
+
+- Trust class: passive
+- Assessment: unclassified
+- No assessed effects
+
+#### Evidence and support — cratis-chronicle-client-elixir
+
+- Authoring contract unclassified
+- Evidence: reevaluation-authority
+- Evidence: repo-main-b795d53
+
+#### Related capabilities — cratis-chronicle-client-elixir
+
+- cratis-chronicle-client-dotnet
+- cratis-chronicle-client-kotlin
+- cratis-chronicle-client-typescript
+
+#### Bundle membership — cratis-chronicle-client-elixir
+
+- None
+
+#### Profile membership — cratis-chronicle-client-elixir
+
+- cratis
+- cratis/application
+- cratis/application/csharp
+- cratis/application/elixir
+- cratis/chronicle
+- cratis/chronicle/client-elixir
+- cratis/chronicle/elixir
+- cratis/full
+- cratis/full/csharp
+- cratis/full/elixir
+
+### cratis-chronicle-client-kotlin
+
+- **ID:** `cratis-chronicle-client-kotlin`
+- **Audience:** public
+- **Lifecycle:** candidate
+- **Approval:** candidate
+- **Runtime eligible:** no
+
+#### Purpose — cratis-chronicle-client-kotlin
+
+Chronicle Kotlin and Java client
+
+#### When to use — cratis-chronicle-client-kotlin
+
+Use when a Kotlin or Java application, with or without Spring Boot, connects to a Chronicle server and appends or observes events.
+
+#### When not to use — cratis-chronicle-client-kotlin
+
+- Do not use for another language's Chronicle client.
+- Do not use for the Chronicle kernel.
+
+#### Invocation — cratis-chronicle-client-kotlin
+
+- Capability kind: unclassified
+- Invocation: unclassified
+
+#### Applicability — cratis-chronicle-client-kotlin
+
+- Products: chronicle
+- Languages: kotlin
+- Architectures: Unclassified — Architecture requires reviewed target classification.
+- Personas: Unclassified — Persona requires reviewed target classification.
+- Surfaces: Unclassified — Surface requires reviewed target classification.
+- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+
+#### Dependencies — cratis-chronicle-client-kotlin
+
+- Unclassified
+
+#### Trust and effects — cratis-chronicle-client-kotlin
+
+- Trust class: passive
+- Assessment: unclassified
+- No assessed effects
+
+#### Evidence and support — cratis-chronicle-client-kotlin
+
+- Authoring contract unclassified
+- Evidence: reevaluation-authority
+- Evidence: repo-main-b795d53
+
+#### Related capabilities — cratis-chronicle-client-kotlin
+
+- cratis-chronicle-client-dotnet
+- cratis-chronicle-client-elixir
+- cratis-chronicle-client-typescript
+
+#### Bundle membership — cratis-chronicle-client-kotlin
+
+- None
+
+#### Profile membership — cratis-chronicle-client-kotlin
+
+- cratis
+- cratis/application
+- cratis/application/csharp
+- cratis/application/kotlin
+- cratis/chronicle
+- cratis/chronicle/client-kotlin
+- cratis/chronicle/kotlin
+- cratis/full
+- cratis/full/csharp
+- cratis/full/kotlin
+
+### cratis-chronicle-client-typescript
+
+- **ID:** `cratis-chronicle-client-typescript`
+- **Audience:** public
+- **Lifecycle:** candidate
+- **Approval:** candidate
+- **Runtime eligible:** no
+
+#### Purpose — cratis-chronicle-client-typescript
+
+Chronicle TypeScript client
+
+#### When to use — cratis-chronicle-client-typescript
+
+Use when a Node.js or TypeScript application connects to a Chronicle server and appends or observes events.
+
+#### When not to use — cratis-chronicle-client-typescript
+
+- Do not use for Arc React frontends or generated Arc proxies.
+- Do not use for another language's Chronicle client.
+
+#### Invocation — cratis-chronicle-client-typescript
+
+- Capability kind: unclassified
+- Invocation: unclassified
+
+#### Applicability — cratis-chronicle-client-typescript
+
+- Products: chronicle
+- Languages: typescript
+- Architectures: Unclassified — Architecture requires reviewed target classification.
+- Personas: Unclassified — Persona requires reviewed target classification.
+- Surfaces: Unclassified — Surface requires reviewed target classification.
+- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+
+#### Dependencies — cratis-chronicle-client-typescript
+
+- Unclassified
+
+#### Trust and effects — cratis-chronicle-client-typescript
+
+- Trust class: passive
+- Assessment: unclassified
+- No assessed effects
+
+#### Evidence and support — cratis-chronicle-client-typescript
+
+- Authoring contract unclassified
+- Evidence: reevaluation-authority
+- Evidence: repo-main-b795d53
+
+#### Related capabilities — cratis-chronicle-client-typescript
+
+- cratis-chronicle-client-dotnet
+- cratis-chronicle-client-elixir
+- cratis-chronicle-client-kotlin
+
+#### Bundle membership — cratis-chronicle-client-typescript
+
+- None
+
+#### Profile membership — cratis-chronicle-client-typescript
+
+- cratis
+- cratis/application
+- cratis/application/csharp
+- cratis/application/typescript
+- cratis/chronicle
+- cratis/chronicle/client-typescript
+- cratis/chronicle/typescript
+- cratis/full
+- cratis/full/csharp
+- cratis/full/typescript
+
+### cratis-chronicle-compliance
+
+- **ID:** `cratis-chronicle-compliance`
+- **Audience:** public
+- **Lifecycle:** candidate
+- **Approval:** candidate
+- **Runtime eligible:** no
+
+#### Purpose — cratis-chronicle-compliance
+
+Chronicle compliance and personal data
+
+#### When to use — cratis-chronicle-compliance
+
+Use when an event or read model carries personal data, when a compliance subject must be decided, or when a right-to-erasure request must be executed.
+
+#### When not to use — cratis-chronicle-compliance
+
+- Do not use for authentication or authorization.
+- Do not use for generic secret handling.
+
+#### Invocation — cratis-chronicle-compliance
+
+- Capability kind: unclassified
+- Invocation: unclassified
+
+#### Applicability — cratis-chronicle-compliance
+
+- Products: chronicle
+- Languages: csharp
+- Architectures: Unclassified — Architecture requires reviewed target classification.
+- Personas: Unclassified — Persona requires reviewed target classification.
+- Surfaces: Unclassified — Surface requires reviewed target classification.
+- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+
+#### Dependencies — cratis-chronicle-compliance
+
+- Unclassified
+
+#### Trust and effects — cratis-chronicle-compliance
+
+- Trust class: passive
+- Assessment: unclassified
+- No assessed effects
+
+#### Evidence and support — cratis-chronicle-compliance
+
+- Authoring contract unclassified
+- Evidence: reevaluation-authority
+- Evidence: repo-main-b795d53
+
+#### Related capabilities — cratis-chronicle-compliance
+
+- cratis-chronicle-event-modeling
+- cratis-fundamentals-concept
+
+#### Bundle membership — cratis-chronicle-compliance
+
+- None
+
+#### Profile membership — cratis-chronicle-compliance
+
+- cratis
+- cratis/application
+- cratis/application/csharp
+- cratis/chronicle
+- cratis/chronicle/compliance
+- cratis/chronicle/csharp
+- cratis/full
+- cratis/full/csharp
 
 ### cratis-chronicle-event-constraints
 
@@ -2385,7 +3716,7 @@ Use when enforcing append-time uniqueness, concurrency, or event-store constrain
 
 #### Applicability — cratis-chronicle-event-constraints
 
-- Products: application, arc
+- Products: application, chronicle
 - Languages: csharp
 - Architectures: Unclassified — Architecture requires reviewed target classification.
 - Personas: Unclassified — Persona requires reviewed target classification.
@@ -2410,7 +3741,6 @@ Use when enforcing append-time uniqueness, concurrency, or event-store constrain
 
 #### Related capabilities — cratis-chronicle-event-constraints
 
-- cratis-arc-command
 - cratis-arc-command-validation
 - cratis-chronicle-event-specifications
 - cratis-fundamentals-concept
@@ -2421,7 +3751,19 @@ Use when enforcing append-time uniqueness, concurrency, or event-store constrain
 
 #### Profile membership — cratis-chronicle-event-constraints
 
-- None
+- cratis
+- cratis/application
+- cratis/application/arc-chronicle
+- cratis/application/chronicle-dotnet
+- cratis/application/csharp
+- cratis/chronicle
+- cratis/chronicle/compliance
+- cratis/chronicle/core
+- cratis/chronicle/csharp
+- cratis/chronicle/multi-tenancy
+- cratis/chronicle/web-workbench
+- cratis/full
+- cratis/full/csharp
 
 ### cratis-chronicle-event-metadata
 
@@ -2548,7 +3890,19 @@ Use before implementation when commands, events, streams, read models, or reacti
 
 #### Profile membership — cratis-chronicle-event-modeling
 
-- None
+- cratis
+- cratis/application
+- cratis/application/arc-chronicle
+- cratis/application/chronicle-dotnet
+- cratis/application/csharp
+- cratis/chronicle
+- cratis/chronicle/compliance
+- cratis/chronicle/core
+- cratis/chronicle/csharp
+- cratis/chronicle/multi-tenancy
+- cratis/chronicle/web-workbench
+- cratis/full
+- cratis/full/csharp
 
 ### cratis-chronicle-event-specifications
 
@@ -2613,7 +3967,20 @@ Use for EventScenario append, constraint, concurrency, or sequence behavior.
 
 #### Profile membership — cratis-chronicle-event-specifications
 
-- None
+- cratis
+- cratis/application
+- cratis/application/arc-chronicle
+- cratis/application/arc-only
+- cratis/application/chronicle-dotnet
+- cratis/application/csharp
+- cratis/application/react
+- cratis/arc
+- cratis/arc/csharp
+- cratis/chronicle
+- cratis/chronicle/csharp
+- cratis/full
+- cratis/full/csharp
+- cratis/specifications/dotnet
 
 ### cratis-chronicle-event-type-migration
 
@@ -2677,7 +4044,19 @@ Use when a stored event schema needs a new generation and migration.
 
 #### Profile membership — cratis-chronicle-event-type-migration
 
-- None
+- cratis
+- cratis/application
+- cratis/application/arc-chronicle
+- cratis/application/chronicle-dotnet
+- cratis/application/csharp
+- cratis/chronicle
+- cratis/chronicle/compliance
+- cratis/chronicle/core
+- cratis/chronicle/csharp
+- cratis/chronicle/multi-tenancy
+- cratis/chronicle/web-workbench
+- cratis/full
+- cratis/full/csharp
 
 ### cratis-chronicle-mcp-inspection
 
@@ -2741,7 +4120,8 @@ Use when classifying a Chronicle MCP inspection request or interpreting already-
 
 #### Profile membership — cratis-chronicle-mcp-inspection
 
-- public-chronicle-mcp
+- cratis
+- cratis/chronicle/mcp
 
 ### cratis-chronicle-multi-tenancy
 
@@ -2805,7 +4185,14 @@ Use when isolating tenants through Chronicle namespaces and Arc tenant resolutio
 
 #### Profile membership — cratis-chronicle-multi-tenancy
 
-- None
+- cratis
+- cratis/application
+- cratis/application/csharp
+- cratis/chronicle
+- cratis/chronicle/csharp
+- cratis/chronicle/multi-tenancy
+- cratis/full
+- cratis/full/csharp
 
 ### cratis-chronicle-projection
 
@@ -2870,7 +4257,19 @@ Use when adding projection behavior to an existing Chronicle read model.
 
 #### Profile membership — cratis-chronicle-projection
 
-- None
+- cratis
+- cratis/application
+- cratis/application/arc-chronicle
+- cratis/application/chronicle-dotnet
+- cratis/application/csharp
+- cratis/chronicle
+- cratis/chronicle/compliance
+- cratis/chronicle/core
+- cratis/chronicle/csharp
+- cratis/chronicle/multi-tenancy
+- cratis/chronicle/web-workbench
+- cratis/full
+- cratis/full/csharp
 
 ### cratis-chronicle-reactor
 
@@ -2935,7 +4334,19 @@ Use when implementing an automation or translation that reacts to events.
 
 #### Profile membership — cratis-chronicle-reactor
 
-- None
+- cratis
+- cratis/application
+- cratis/application/arc-chronicle
+- cratis/application/chronicle-dotnet
+- cratis/application/csharp
+- cratis/chronicle
+- cratis/chronicle/compliance
+- cratis/chronicle/core
+- cratis/chronicle/csharp
+- cratis/chronicle/multi-tenancy
+- cratis/chronicle/web-workbench
+- cratis/full
+- cratis/full/csharp
 
 ### cratis-chronicle-read-model
 
@@ -3000,7 +4411,19 @@ Use when creating a Chronicle read model and model-bound query surface.
 
 #### Profile membership — cratis-chronicle-read-model
 
-- None
+- cratis
+- cratis/application
+- cratis/application/arc-chronicle
+- cratis/application/chronicle-dotnet
+- cratis/application/csharp
+- cratis/chronicle
+- cratis/chronicle/compliance
+- cratis/chronicle/core
+- cratis/chronicle/csharp
+- cratis/chronicle/multi-tenancy
+- cratis/chronicle/web-workbench
+- cratis/full
+- cratis/full/csharp
 
 ### cratis-chronicle-read-model-specifications
 
@@ -3067,7 +4490,20 @@ Use for ReadModelScenario projection or reducer behavior.
 
 #### Profile membership — cratis-chronicle-read-model-specifications
 
-- None
+- cratis
+- cratis/application
+- cratis/application/arc-chronicle
+- cratis/application/arc-only
+- cratis/application/chronicle-dotnet
+- cratis/application/csharp
+- cratis/application/react
+- cratis/arc
+- cratis/arc/csharp
+- cratis/chronicle
+- cratis/chronicle/csharp
+- cratis/full
+- cratis/full/csharp
+- cratis/specifications/dotnet
 
 ### cratis-chronicle-reducer
 
@@ -3132,7 +4568,154 @@ Use when a current-state-plus-event transition cannot be expressed as a projecti
 
 #### Profile membership — cratis-chronicle-reducer
 
+- cratis
+- cratis/application
+- cratis/application/arc-chronicle
+- cratis/application/chronicle-dotnet
+- cratis/application/csharp
+- cratis/chronicle
+- cratis/chronicle/compliance
+- cratis/chronicle/core
+- cratis/chronicle/csharp
+- cratis/chronicle/multi-tenancy
+- cratis/chronicle/web-workbench
+- cratis/full
+- cratis/full/csharp
+
+### cratis-chronicle-web-workbench
+
+- **ID:** `cratis-chronicle-web-workbench`
+- **Audience:** public
+- **Lifecycle:** candidate
+- **Approval:** candidate
+- **Runtime eligible:** no
+
+#### Purpose — cratis-chronicle-web-workbench
+
+Chronicle browser Workbench
+
+#### When to use — cratis-chronicle-web-workbench
+
+Use when inspecting or operating a running Chronicle store through the browser Workbench, or deciding whether to expose it.
+
+#### When not to use — cratis-chronicle-web-workbench
+
+- Do not use for application source changes.
+- Do not use for the CLI terminal Workbench.
+
+#### Invocation — cratis-chronicle-web-workbench
+
+- Capability kind: unclassified
+- Invocation: unclassified
+
+#### Applicability — cratis-chronicle-web-workbench
+
+- Products: chronicle
+- Languages: language-agnostic
+- Architectures: Unclassified — Architecture requires reviewed target classification.
+- Personas: Unclassified — Persona requires reviewed target classification.
+- Surfaces: Unclassified — Surface requires reviewed target classification.
+- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+
+#### Dependencies — cratis-chronicle-web-workbench
+
+- Unclassified
+
+#### Trust and effects — cratis-chronicle-web-workbench
+
+- Trust class: passive
+- Assessment: unclassified
+- No assessed effects
+
+#### Evidence and support — cratis-chronicle-web-workbench
+
+- Authoring contract unclassified
+- Evidence: reevaluation-authority
+- Evidence: repo-main-b795d53
+
+#### Related capabilities — cratis-chronicle-web-workbench
+
+- cratis-chronicle-cli-operations
+- cratis-cli-terminal-workbench
+
+#### Bundle membership — cratis-chronicle-web-workbench
+
 - None
+
+#### Profile membership — cratis-chronicle-web-workbench
+
+- cratis
+- cratis/application
+- cratis/application/csharp
+- cratis/chronicle
+- cratis/chronicle/web-workbench
+- cratis/full
+- cratis/full/csharp
+
+### cratis-cli-terminal-workbench
+
+- **ID:** `cratis-cli-terminal-workbench`
+- **Audience:** public
+- **Lifecycle:** candidate
+- **Approval:** candidate
+- **Runtime eligible:** no
+
+#### Purpose — cratis-cli-terminal-workbench
+
+Cratis CLI terminal Workbench
+
+#### When to use — cratis-cli-terminal-workbench
+
+Use when exploring a running Chronicle store interactively in the terminal rather than answering one question with a single command.
+
+#### When not to use — cratis-cli-terminal-workbench
+
+- Do not use for scripted or machine-readable inspection.
+- Do not use for the browser Workbench.
+
+#### Invocation — cratis-cli-terminal-workbench
+
+- Capability kind: unclassified
+- Invocation: unclassified
+
+#### Applicability — cratis-cli-terminal-workbench
+
+- Products: chronicle, cli
+- Languages: shell
+- Architectures: Unclassified — Architecture requires reviewed target classification.
+- Personas: Unclassified — Persona requires reviewed target classification.
+- Surfaces: Unclassified — Surface requires reviewed target classification.
+- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+
+#### Dependencies — cratis-cli-terminal-workbench
+
+- Unclassified
+
+#### Trust and effects — cratis-cli-terminal-workbench
+
+- Trust class: passive
+- Assessment: unclassified
+- No assessed effects
+
+#### Evidence and support — cratis-cli-terminal-workbench
+
+- Authoring contract unclassified
+- Evidence: reevaluation-authority
+- Evidence: repo-main-b795d53
+
+#### Related capabilities — cratis-cli-terminal-workbench
+
+- cratis-chronicle-cli-operations
+- cratis-chronicle-web-workbench
+
+#### Bundle membership — cratis-cli-terminal-workbench
+
+- None
+
+#### Profile membership — cratis-cli-terminal-workbench
+
+- cratis
+- cratis/cli/terminal-workbench
 
 ### cratis-code-review
 
@@ -3196,7 +4779,148 @@ Use for a general correctness and maintainability review of Cratis code.
 
 #### Profile membership — cratis-code-review
 
+- cratis
+- cratis/review
+
+### cratis-components-accessibility
+
+- **ID:** `cratis-components-accessibility`
+- **Audience:** public
+- **Lifecycle:** candidate
+- **Approval:** candidate
+- **Runtime eligible:** no
+
+#### Purpose — cratis-components-accessibility
+
+Cratis Components accessibility
+
+#### When to use — cratis-components-accessibility
+
+Use when setting dialog initial focus, supplying accessible names, or correcting invalid ARIA in a Cratis frontend.
+
+#### When not to use — cratis-components-accessibility
+
+- Do not use as a general WCAG conformance guide.
+- Do not use for visual theming.
+
+#### Invocation — cratis-components-accessibility
+
+- Capability kind: unclassified
+- Invocation: unclassified
+
+#### Applicability — cratis-components-accessibility
+
+- Products: components
+- Languages: react, typescript
+- Architectures: Unclassified — Architecture requires reviewed target classification.
+- Personas: Unclassified — Persona requires reviewed target classification.
+- Surfaces: Unclassified — Surface requires reviewed target classification.
+- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+
+#### Dependencies — cratis-components-accessibility
+
+- Unclassified
+
+#### Trust and effects — cratis-components-accessibility
+
+- Trust class: passive
+- Assessment: unclassified
+- No assessed effects
+
+#### Evidence and support — cratis-components-accessibility
+
+- Authoring contract unclassified
+- Evidence: reevaluation-authority
+- Evidence: repo-main-b795d53
+
+#### Related capabilities — cratis-components-accessibility
+
+- cratis-arc-react-page
+- cratis-components-styling
+
+#### Bundle membership — cratis-components-accessibility
+
 - None
+
+#### Profile membership — cratis-components-accessibility
+
+- cratis
+- cratis/application
+- cratis/application/csharp
+- cratis/application/react
+- cratis/components
+- cratis/full
+- cratis/full/csharp
+
+### cratis-components-schema-editor
+
+- **ID:** `cratis-components-schema-editor`
+- **Audience:** public
+- **Lifecycle:** candidate
+- **Approval:** candidate
+- **Runtime eligible:** no
+
+#### Purpose — cratis-components-schema-editor
+
+Cratis Components schema editors
+
+#### When to use — cratis-components-schema-editor
+
+Use when a UI edits a JSON schema's shape or edits an object instance against a schema.
+
+#### When not to use — cratis-components-schema-editor
+
+- Do not use for Chronicle event type migration.
+- Do not use for a form bound to a generated Arc command.
+
+#### Invocation — cratis-components-schema-editor
+
+- Capability kind: unclassified
+- Invocation: unclassified
+
+#### Applicability — cratis-components-schema-editor
+
+- Products: components
+- Languages: react, typescript
+- Architectures: Unclassified — Architecture requires reviewed target classification.
+- Personas: Unclassified — Persona requires reviewed target classification.
+- Surfaces: Unclassified — Surface requires reviewed target classification.
+- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+
+#### Dependencies — cratis-components-schema-editor
+
+- Unclassified
+
+#### Trust and effects — cratis-components-schema-editor
+
+- Trust class: passive
+- Assessment: unclassified
+- No assessed effects
+
+#### Evidence and support — cratis-components-schema-editor
+
+- Authoring contract unclassified
+- Evidence: reevaluation-authority
+- Evidence: repo-main-b795d53
+
+#### Related capabilities — cratis-components-schema-editor
+
+- cratis-arc-react-page
+- cratis-chronicle-event-type-migration
+
+#### Bundle membership — cratis-components-schema-editor
+
+- None
+
+#### Profile membership — cratis-components-schema-editor
+
+- cratis
+- cratis/application
+- cratis/application/csharp
+- cratis/application/react
+- cratis/components
+- cratis/full
+- cratis/full/csharp
 
 ### cratis-components-stepper-command-dialog
 
@@ -3260,7 +4984,83 @@ Use when a command requires a multi-step wizard dialog.
 
 #### Profile membership — cratis-components-stepper-command-dialog
 
+- cratis
+- cratis/application
+- cratis/application/csharp
+- cratis/application/react
+- cratis/components
+- cratis/full
+- cratis/full/csharp
+
+### cratis-components-styling
+
+- **ID:** `cratis-components-styling`
+- **Audience:** public
+- **Lifecycle:** candidate
+- **Approval:** candidate
+- **Runtime eligible:** no
+
+#### Purpose — cratis-components-styling
+
+Cratis Components styling and theming
+
+#### When to use — cratis-components-styling
+
+Use when setting up stylesheets, tokens, themes, dark mode, or PrimeReact pass-through for a Cratis frontend.
+
+#### When not to use — cratis-components-styling
+
+- Do not use for accessible naming.
+- Do not use for component API or page composition questions.
+
+#### Invocation — cratis-components-styling
+
+- Capability kind: unclassified
+- Invocation: unclassified
+
+#### Applicability — cratis-components-styling
+
+- Products: components
+- Languages: react, typescript
+- Architectures: Unclassified — Architecture requires reviewed target classification.
+- Personas: Unclassified — Persona requires reviewed target classification.
+- Surfaces: Unclassified — Surface requires reviewed target classification.
+- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+
+#### Dependencies — cratis-components-styling
+
+- Unclassified
+
+#### Trust and effects — cratis-components-styling
+
+- Trust class: passive
+- Assessment: unclassified
+- No assessed effects
+
+#### Evidence and support — cratis-components-styling
+
+- Authoring contract unclassified
+- Evidence: reevaluation-authority
+- Evidence: repo-main-b795d53
+
+#### Related capabilities — cratis-components-styling
+
+- cratis-arc-react-page
+- cratis-components-accessibility
+
+#### Bundle membership — cratis-components-styling
+
 - None
+
+#### Profile membership — cratis-components-styling
+
+- cratis
+- cratis/application
+- cratis/application/csharp
+- cratis/application/react
+- cratis/components
+- cratis/full
+- cratis/full/csharp
 
 ### cratis-components-toolbar
 
@@ -3322,7 +5122,77 @@ Use when building a canvas-style icon toolbar with active tools or fan-out contr
 
 #### Profile membership — cratis-components-toolbar
 
+- cratis
+- cratis/application
+- cratis/application/csharp
+- cratis/application/react
+- cratis/components
+- cratis/full
+- cratis/full/csharp
+
+### cratis-documentation-writing
+
+- **ID:** `cratis-documentation-writing`
+- **Audience:** public
+- **Lifecycle:** candidate
+- **Approval:** candidate
+- **Runtime eligible:** no
+
+#### Purpose — cratis-documentation-writing
+
+Documentation writing
+
+#### When to use — cratis-documentation-writing
+
+Use when creating or reworking a documentation page: deciding whether it is a tutorial, how-to guide, reference, or explanation, then drafting it in that style with complete runnable examples.
+
+#### When not to use — cratis-documentation-writing
+
+- Do not use for code generation, build, or release operations.
+- Do not use to invent API facts the code does not show; verify against the product.
+
+#### Invocation — cratis-documentation-writing
+
+- Capability kind: unclassified
+- Invocation: unclassified
+
+#### Applicability — cratis-documentation-writing
+
+- Products: documentation
+- Languages: language-agnostic, markdown
+- Architectures: Unclassified — Architecture requires reviewed target classification.
+- Personas: Unclassified — Persona requires reviewed target classification.
+- Surfaces: Unclassified — Surface requires reviewed target classification.
+- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+
+#### Dependencies — cratis-documentation-writing
+
+- Unclassified
+
+#### Trust and effects — cratis-documentation-writing
+
+- Trust class: passive
+- Assessment: unclassified
+- No assessed effects
+
+#### Evidence and support — cratis-documentation-writing
+
+- Authoring contract unclassified
+- Evidence: reevaluation-authority
+- Evidence: repo-main-b795d53
+
+#### Related capabilities — cratis-documentation-writing
+
 - None
+
+#### Bundle membership — cratis-documentation-writing
+
+- None
+
+#### Profile membership — cratis-documentation-writing
+
+- cratis
+- cratis/documentation
 
 ### cratis-event-model-diagram
 
@@ -3386,7 +5256,19 @@ Use when creating or maintaining a Mermaid EventModel.md diagram for settled beh
 
 #### Profile membership — cratis-event-model-diagram
 
-- None
+- cratis
+- cratis/application
+- cratis/application/arc-chronicle
+- cratis/application/chronicle-dotnet
+- cratis/application/csharp
+- cratis/chronicle
+- cratis/chronicle/compliance
+- cratis/chronicle/core
+- cratis/chronicle/csharp
+- cratis/chronicle/multi-tenancy
+- cratis/chronicle/web-workbench
+- cratis/full
+- cratis/full/csharp
 
 ### cratis-fundamentals-concept
 
@@ -3452,12 +5334,21 @@ Use when creating a ConceptAs&lt;T&gt; value or EventSourceId&lt;T&gt; identity.
 
 #### Profile membership — cratis-fundamentals-concept
 
-- public-application
-- public-application-arc-chronicle
-- public-application-arc-only
-- public-application-chronicle-dotnet
-- public-application-react
-- public-fundamentals
+- cratis
+- cratis/application
+- cratis/application/arc-chronicle
+- cratis/application/arc-only
+- cratis/application/chronicle-dotnet
+- cratis/application/csharp
+- cratis/application/react
+- cratis/arc
+- cratis/arc/csharp
+- cratis/chronicle
+- cratis/chronicle/csharp
+- cratis/full
+- cratis/full/csharp
+- cratis/fundamentals
+- cratis/fundamentals/type-discovery
 
 ### cratis-fundamentals-type-discovery
 
@@ -3519,7 +5410,137 @@ Use when a service must enumerate all implementations through IInstancesOf&lt;T&
 
 #### Profile membership — cratis-fundamentals-type-discovery
 
+- cratis
+- cratis/fundamentals/type-discovery
+
+### cratis-governed-release-methodology
+
+- **ID:** `cratis-governed-release-methodology`
+- **Audience:** public
+- **Lifecycle:** candidate
+- **Approval:** candidate
+- **Runtime eligible:** no
+
+#### Purpose — cratis-governed-release-methodology
+
+Governed release methodology
+
+#### When to use — cratis-governed-release-methodology
+
+Use when choosing the assurance tier a release needs, deciding whether checksums, provenance, or an SBOM are warranted, labeling release intent, or judging whether a support claim is backed by evidence.
+
+#### When not to use — cratis-governed-release-methodology
+
+- Do not use for a registry's publish command syntax or credentials.
+- Do not use to run a publish, tag, or promotion operation.
+
+#### Invocation — cratis-governed-release-methodology
+
+- Capability kind: unclassified
+- Invocation: unclassified
+
+#### Applicability — cratis-governed-release-methodology
+
+- Products: cross-product
+- Languages: language-agnostic
+- Architectures: Unclassified — Architecture requires reviewed target classification.
+- Personas: Unclassified — Persona requires reviewed target classification.
+- Surfaces: Unclassified — Surface requires reviewed target classification.
+- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+
+#### Dependencies — cratis-governed-release-methodology
+
+- Unclassified
+
+#### Trust and effects — cratis-governed-release-methodology
+
+- Trust class: passive
+- Assessment: unclassified
+- No assessed effects
+
+#### Evidence and support — cratis-governed-release-methodology
+
+- Authoring contract unclassified
+- Evidence: reevaluation-authority
+- Evidence: repo-main-b795d53
+
+#### Related capabilities — cratis-governed-release-methodology
+
 - None
+
+#### Bundle membership — cratis-governed-release-methodology
+
+- None
+
+#### Profile membership — cratis-governed-release-methodology
+
+- cratis
+- cratis/methodology/governed-releases
+
+### cratis-lens-browser-extension
+
+- **ID:** `cratis-lens-browser-extension`
+- **Audience:** public
+- **Lifecycle:** candidate
+- **Approval:** candidate
+- **Runtime eligible:** no
+
+#### Purpose — cratis-lens-browser-extension
+
+Cratis Lens browser extension
+
+#### When to use — cratis-lens-browser-extension
+
+Use when setting up Lens against a running Arc application, when it does not detect the app, or when a switched user or tenant does not take effect.
+
+#### When not to use — cratis-lens-browser-extension
+
+- Do not use for Chronicle event-store inspection.
+- Do not use for production authentication or authorization design.
+
+#### Invocation — cratis-lens-browser-extension
+
+- Capability kind: unclassified
+- Invocation: unclassified
+
+#### Applicability — cratis-lens-browser-extension
+
+- Products: arc, lens
+- Languages: csharp, typescript
+- Architectures: Unclassified — Architecture requires reviewed target classification.
+- Personas: Unclassified — Persona requires reviewed target classification.
+- Surfaces: Unclassified — Surface requires reviewed target classification.
+- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+
+#### Dependencies — cratis-lens-browser-extension
+
+- Unclassified
+
+#### Trust and effects — cratis-lens-browser-extension
+
+- Trust class: passive
+- Assessment: unclassified
+- No assessed effects
+
+#### Evidence and support — cratis-lens-browser-extension
+
+- Authoring contract unclassified
+- Evidence: reevaluation-authority
+- Evidence: repo-main-b795d53
+
+#### Related capabilities — cratis-lens-browser-extension
+
+- cratis-arc-authentication-authorization-and-identity
+- cratis-arc-command-execution
+
+#### Bundle membership — cratis-lens-browser-extension
+
+- None
+
+#### Profile membership — cratis-lens-browser-extension
+
+- cratis
+- cratis/lens
 
 ### cratis-performance-review
 
@@ -3583,7 +5604,79 @@ Use for focused Chronicle, database, .NET, or React scalability analysis.
 
 #### Profile membership — cratis-performance-review
 
+- cratis
+- cratis/review
+
+### cratis-screenplay-model-authoring
+
+- **ID:** `cratis-screenplay-model-authoring`
+- **Audience:** public
+- **Lifecycle:** candidate
+- **Approval:** candidate
+- **Runtime eligible:** no
+
+#### Purpose — cratis-screenplay-model-authoring
+
+Screenplay .play model authoring
+
+#### When to use — cratis-screenplay-model-authoring
+
+Use when writing, reviewing, or compiling a Screenplay .play file, or when deciding whether a construct is safe to model.
+
+#### When not to use — cratis-screenplay-model-authoring
+
+- Do not use for hand-written Arc or Chronicle source.
+- Do not use to render a model into an application.
+
+#### Invocation — cratis-screenplay-model-authoring
+
+- Capability kind: unclassified
+- Invocation: unclassified
+
+#### Applicability — cratis-screenplay-model-authoring
+
+- Products: screenplay
+- Languages: language-agnostic
+- Architectures: Unclassified — Architecture requires reviewed target classification.
+- Personas: Unclassified — Persona requires reviewed target classification.
+- Surfaces: Unclassified — Surface requires reviewed target classification.
+- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+
+#### Dependencies — cratis-screenplay-model-authoring
+
+- Unclassified
+
+#### Trust and effects — cratis-screenplay-model-authoring
+
+- Trust class: passive
+- Assessment: unclassified
+- No assessed effects
+
+#### Evidence and support — cratis-screenplay-model-authoring
+
+- Authoring contract unclassified
+- Evidence: reevaluation-authority
+- Evidence: repo-main-b795d53
+
+#### Related capabilities — cratis-screenplay-model-authoring
+
+- cratis-event-model-diagram
+- cratis-stage-rendering-and-sandbox
+
+#### Bundle membership — cratis-screenplay-model-authoring
+
 - None
+
+#### Profile membership — cratis-screenplay-model-authoring
+
+- cratis
+- cratis/full
+- cratis/full/csharp
+- cratis/full/elixir
+- cratis/full/kotlin
+- cratis/full/typescript
+- cratis/modeling/screenplay-stage
+- cratis/screenplay
 
 ### cratis-security-review
 
@@ -3647,7 +5740,89 @@ Use for focused authentication, authorization, data exposure, event-sourcing, an
 
 #### Profile membership — cratis-security-review
 
+- cratis
+- cratis/review
+
+### cratis-specification-by-example
+
+- **ID:** `cratis-specification-by-example`
+- **Audience:** public
+- **Lifecycle:** candidate
+- **Approval:** candidate
+- **Runtime eligible:** no
+
+#### Purpose — cratis-specification-by-example
+
+Cratis specification by example
+
+#### When to use — cratis-specification-by-example
+
+Use to decide how a specification is structured, named, and scoped, in any language.
+
+#### When not to use — cratis-specification-by-example
+
+- Do not use for the C# or TypeScript mechanics of writing one.
+- Do not use to decide what the behavior under specification should be.
+
+#### Invocation — cratis-specification-by-example
+
+- Capability kind: unclassified
+- Invocation: unclassified
+
+#### Applicability — cratis-specification-by-example
+
+- Products: specifications
+- Languages: language-agnostic
+- Architectures: Unclassified — Architecture requires reviewed target classification.
+- Personas: Unclassified — Persona requires reviewed target classification.
+- Surfaces: Unclassified — Surface requires reviewed target classification.
+- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+
+#### Dependencies — cratis-specification-by-example
+
+- Unclassified
+
+#### Trust and effects — cratis-specification-by-example
+
+- Trust class: passive
+- Assessment: unclassified
+- No assessed effects
+
+#### Evidence and support — cratis-specification-by-example
+
+- Authoring contract unclassified
+- Evidence: reevaluation-authority
+- Evidence: repo-main-b795d53
+
+#### Related capabilities — cratis-specification-by-example
+
+- cratis-specifications-csharp
+- cratis-specifications-typescript
+
+#### Bundle membership — cratis-specification-by-example
+
 - None
+
+#### Profile membership — cratis-specification-by-example
+
+- cratis
+- cratis/application
+- cratis/application/arc-chronicle
+- cratis/application/arc-only
+- cratis/application/chronicle-dotnet
+- cratis/application/csharp
+- cratis/application/react
+- cratis/application/typescript
+- cratis/arc
+- cratis/arc/csharp
+- cratis/chronicle
+- cratis/chronicle/csharp
+- cratis/full
+- cratis/full/csharp
+- cratis/full/typescript
+- cratis/specifications
+- cratis/specifications/dotnet
+- cratis/specifications/typescript
 
 ### cratis-specifications-csharp
 
@@ -3672,31 +5847,31 @@ Use for framework or library C# Specification by Example tests.
 
 #### Invocation — cratis-specifications-csharp
 
-- Capability kind: unclassified
-- Invocation: unclassified
+- Capability kind: primitive
+- Invocation: both
 
 #### Applicability — cratis-specifications-csharp
 
-- Products: cross-product, specifications
+- Products: arc, chronicle, specifications
 - Languages: csharp
-- Architectures: Unclassified — Architecture requires reviewed target classification.
-- Personas: Unclassified — Persona requires reviewed target classification.
-- Surfaces: Unclassified — Surface requires reviewed target classification.
-- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+- Architectures: product-neutral
+- Personas: contributor, developer, maintainer, qa
+- Surfaces: backend, direct-agent-skills, ide, pi
+- Repository profiles: application, client, consuming-project, framework
 
 #### Dependencies — cratis-specifications-csharp
 
-- Unclassified
+- tool:dotnet (hard; missing → block)
 
 #### Trust and effects — cratis-specifications-csharp
 
 - Trust class: passive
-- Assessment: unclassified
-- No assessed effects
+- Assessment: assessed
+- modify current repository worktree: C# specification files and their given/ contexts under the folder the user selected
 
 #### Evidence and support — cratis-specifications-csharp
 
-- Authoring contract unclassified
+- Authoring contract: cratis-skill-clean-room-v1
 - Evidence: reevaluation-authority
 - Evidence: repo-main-b795d53
 
@@ -3711,7 +5886,20 @@ Use for framework or library C# Specification by Example tests.
 
 #### Profile membership — cratis-specifications-csharp
 
-- None
+- cratis
+- cratis/application
+- cratis/application/arc-chronicle
+- cratis/application/arc-only
+- cratis/application/chronicle-dotnet
+- cratis/application/csharp
+- cratis/application/react
+- cratis/arc
+- cratis/arc/csharp
+- cratis/chronicle
+- cratis/chronicle/csharp
+- cratis/full
+- cratis/full/csharp
+- cratis/specifications/dotnet
 
 ### cratis-specifications-typescript
 
@@ -3736,31 +5924,31 @@ Use for framework or package TypeScript Specification by Example tests.
 
 #### Invocation — cratis-specifications-typescript
 
-- Capability kind: unclassified
-- Invocation: unclassified
+- Capability kind: primitive
+- Invocation: both
 
 #### Applicability — cratis-specifications-typescript
 
-- Products: cross-product, specifications
+- Products: specifications
 - Languages: typescript
-- Architectures: Unclassified — Architecture requires reviewed target classification.
-- Personas: Unclassified — Persona requires reviewed target classification.
-- Surfaces: Unclassified — Surface requires reviewed target classification.
-- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+- Architectures: product-neutral
+- Personas: contributor, developer, maintainer, qa
+- Surfaces: direct-agent-skills, frontend, ide, pi
+- Repository profiles: client, consuming-project, framework
 
 #### Dependencies — cratis-specifications-typescript
 
-- Unclassified
+- tool:node (hard; missing → block)
 
 #### Trust and effects — cratis-specifications-typescript
 
 - Trust class: passive
-- Assessment: unclassified
-- No assessed effects
+- Assessment: assessed
+- modify current repository worktree: TypeScript specification files and their given/ context classes under the folder the user selected
 
 #### Evidence and support — cratis-specifications-typescript
 
-- Authoring contract unclassified
+- Authoring contract: cratis-skill-clean-room-v1
 - Evidence: reevaluation-authority
 - Evidence: repo-main-b795d53
 
@@ -3775,7 +5963,85 @@ Use for framework or package TypeScript Specification by Example tests.
 
 #### Profile membership — cratis-specifications-typescript
 
+- cratis
+- cratis/application
+- cratis/application/csharp
+- cratis/application/react
+- cratis/application/typescript
+- cratis/full
+- cratis/full/csharp
+- cratis/full/typescript
+- cratis/specifications/typescript
+
+### cratis-stage-rendering-and-sandbox
+
+- **ID:** `cratis-stage-rendering-and-sandbox`
+- **Audience:** public
+- **Lifecycle:** candidate
+- **Approval:** candidate
+- **Runtime eligible:** no
+
+#### Purpose — cratis-stage-rendering-and-sandbox
+
+Stage rendering and sandbox
+
+#### When to use — cratis-stage-rendering-and-sandbox
+
+Use when deciding whether Stage can render a Screenplay model, when interpreting a blocked render plan, or when running the sandbox or specification containers.
+
+#### When not to use — cratis-stage-rendering-and-sandbox
+
+- Do not use for authoring the .play model itself.
+- Do not use for hand-written Arc or Chronicle source.
+
+#### Invocation — cratis-stage-rendering-and-sandbox
+
+- Capability kind: unclassified
+- Invocation: unclassified
+
+#### Applicability — cratis-stage-rendering-and-sandbox
+
+- Products: screenplay, stage
+- Languages: csharp, language-agnostic
+- Architectures: Unclassified — Architecture requires reviewed target classification.
+- Personas: Unclassified — Persona requires reviewed target classification.
+- Surfaces: Unclassified — Surface requires reviewed target classification.
+- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+
+#### Dependencies — cratis-stage-rendering-and-sandbox
+
+- Unclassified
+
+#### Trust and effects — cratis-stage-rendering-and-sandbox
+
+- Trust class: passive
+- Assessment: unclassified
+- No assessed effects
+
+#### Evidence and support — cratis-stage-rendering-and-sandbox
+
+- Authoring contract unclassified
+- Evidence: reevaluation-authority
+- Evidence: repo-main-b795d53
+
+#### Related capabilities — cratis-stage-rendering-and-sandbox
+
+- cratis-screenplay-model-authoring
+
+#### Bundle membership — cratis-stage-rendering-and-sandbox
+
 - None
+
+#### Profile membership — cratis-stage-rendering-and-sandbox
+
+- cratis
+- cratis/full
+- cratis/full/csharp
+- cratis/full/elixir
+- cratis/full/kotlin
+- cratis/full/typescript
+- cratis/modeling/screenplay-stage
+- cratis/stage
 
 ### cratis-studio-mcp-safety-guidance
 
@@ -3838,69 +6104,8 @@ Use when classifying a Studio MCP request or interpreting already-redacted outpu
 
 #### Profile membership — cratis-studio-mcp-safety-guidance
 
-- public-studio
-
-### cratis-engineering-chronicle-kernel-tracing
-
-- **ID:** `cratis-engineering-chronicle-kernel-tracing`
-- **Audience:** cratis-engineering
-- **Lifecycle:** candidate
-- **Approval:** candidate
-- **Runtime eligible:** no
-
-#### Purpose — cratis-engineering-chronicle-kernel-tracing
-
-Chronicle Kernel tracing maintenance
-
-#### When to use — cratis-engineering-chronicle-kernel-tracing
-
-Use by Chronicle framework maintainers to add generated OpenTelemetry traces.
-
-#### When not to use — cratis-engineering-chronicle-kernel-tracing
-
-- Do not use for application telemetry or generic OpenTelemetry setup.
-
-#### Invocation — cratis-engineering-chronicle-kernel-tracing
-
-- Capability kind: unclassified
-- Invocation: unclassified
-
-#### Applicability — cratis-engineering-chronicle-kernel-tracing
-
-- Products: cratis-engineering
-- Languages: language-agnostic
-- Architectures: Unclassified — Architecture requires reviewed target classification.
-- Personas: Unclassified — Persona requires reviewed target classification.
-- Surfaces: Unclassified — Surface requires reviewed target classification.
-- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
-
-#### Dependencies — cratis-engineering-chronicle-kernel-tracing
-
-- Unclassified
-
-#### Trust and effects — cratis-engineering-chronicle-kernel-tracing
-
-- Trust class: passive
-- Assessment: unclassified
-- No assessed effects
-
-#### Evidence and support — cratis-engineering-chronicle-kernel-tracing
-
-- Authoring contract unclassified
-- Evidence: reevaluation-authority
-- Evidence: repo-main-b795d53
-
-#### Related capabilities — cratis-engineering-chronicle-kernel-tracing
-
-- None
-
-#### Bundle membership — cratis-engineering-chronicle-kernel-tracing
-
-- cratis-engineering-review
-
-#### Profile membership — cratis-engineering-chronicle-kernel-tracing
-
-- None
+- cratis
+- cratis/studio
 
 ### cratis-engineering-csharp-conventions
 
@@ -3924,17 +6129,17 @@ Use for Cratis-maintainer C# house standards and review policy.
 
 #### Invocation — cratis-engineering-csharp-conventions
 
-- Capability kind: unclassified
-- Invocation: unclassified
+- Capability kind: explanation
+- Invocation: both
 
 #### Applicability — cratis-engineering-csharp-conventions
 
 - Products: cratis-engineering
 - Languages: language-agnostic
-- Architectures: Unclassified — Architecture requires reviewed target classification.
-- Personas: Unclassified — Persona requires reviewed target classification.
-- Surfaces: Unclassified — Surface requires reviewed target classification.
-- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+- Architectures: product-neutral
+- Personas: contributor, developer, maintainer
+- Surfaces: backend, direct-agent-skills, ide, pi
+- Repository profiles: application, client, corpus, framework
 
 #### Dependencies — cratis-engineering-csharp-conventions
 
@@ -3943,12 +6148,12 @@ Use for Cratis-maintainer C# house standards and review policy.
 #### Trust and effects — cratis-engineering-csharp-conventions
 
 - Trust class: passive
-- Assessment: unclassified
-- No assessed effects
+- Assessment: assessed
+- modify current repository worktree: the C# source files the user asked to write or bring in line with the conventions
 
 #### Evidence and support — cratis-engineering-csharp-conventions
 
-- Authoring contract unclassified
+- Authoring contract: cratis-skill-clean-room-v1
 - Evidence: reevaluation-authority
 - Evidence: repo-main-b795d53
 
@@ -3962,7 +6167,78 @@ Use for Cratis-maintainer C# house standards and review policy.
 
 #### Profile membership — cratis-engineering-csharp-conventions
 
+- cratis/engineering
+- cratis/engineering/csharp
+
+### cratis-engineering-decision-record
+
+- **ID:** `cratis-engineering-decision-record`
+- **Audience:** cratis-engineering
+- **Lifecycle:** candidate
+- **Approval:** candidate
+- **Runtime eligible:** no
+
+#### Purpose — cratis-engineering-decision-record
+
+Cratis decision record procedure
+
+#### When to use — cratis-engineering-decision-record
+
+Use to consult, author, accept, or supersede a decision record in a repository's decisions/ folder.
+
+#### When not to use — cratis-engineering-decision-record
+
+- Do not use to edit product documentation.
+- Do not use to summarize a decision that is already recorded.
+- Do not use to write session notes, plans, or handovers; those are work records.
+
+#### Invocation — cratis-engineering-decision-record
+
+- Capability kind: unclassified
+- Invocation: unclassified
+
+#### Applicability — cratis-engineering-decision-record
+
+- Products: cratis-engineering
+- Languages: language-agnostic
+- Architectures: Unclassified — Architecture requires reviewed target classification.
+- Personas: Unclassified — Persona requires reviewed target classification.
+- Surfaces: Unclassified — Surface requires reviewed target classification.
+- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+
+#### Dependencies — cratis-engineering-decision-record
+
+- Unclassified
+
+#### Trust and effects — cratis-engineering-decision-record
+
+- Trust class: passive
+- Assessment: unclassified
+- No assessed effects
+
+#### Evidence and support — cratis-engineering-decision-record
+
+- Authoring contract unclassified
+- Evidence: reevaluation-authority
+- Evidence: repo-main-b795d53
+
+#### Related capabilities — cratis-engineering-decision-record
+
 - None
+
+#### Bundle membership — cratis-engineering-decision-record
+
+- None
+
+#### Profile membership — cratis-engineering-decision-record
+
+- cratis/engineering
+- cratis/engineering/core
+- cratis/engineering/csharp
+- cratis/engineering/elixir
+- cratis/engineering/kotlin
+- cratis/engineering/react
+- cratis/engineering/typescript
 
 ### cratis-engineering-docs-add-page
 
@@ -4092,7 +6368,13 @@ Use by Cratis maintainers to apply Diátaxis and documentation writing guidance.
 
 #### Profile membership — cratis-engineering-docs-authoring
 
-- engineering-documentation
+- cratis/engineering
+- cratis/engineering/core
+- cratis/engineering/csharp
+- cratis/engineering/elixir
+- cratis/engineering/kotlin
+- cratis/engineering/react
+- cratis/engineering/typescript
 
 ### cratis-engineering-docs-edit-page
 
@@ -4220,6 +6502,75 @@ Use by Cratis maintainers to render and inspect documentation in light and dark 
 #### Profile membership — cratis-engineering-docs-visual-qa
 
 - None
+
+### cratis-engineering-effect-boundaries
+
+- **ID:** `cratis-engineering-effect-boundaries`
+- **Audience:** cratis-engineering
+- **Lifecycle:** candidate
+- **Approval:** candidate
+- **Runtime eligible:** no
+
+#### Purpose — cratis-engineering-effect-boundaries
+
+Cratis effect-boundary failure discipline
+
+#### When to use — cratis-engineering-effect-boundaries
+
+Use when writing or reviewing code that publishes, persists, generates, propagates, or releases, and a degraded run could still report success.
+
+#### When not to use — cratis-engineering-effect-boundaries
+
+- Do not use for style, naming, or structure questions.
+- Do not use to decide whether an operation should exist at all.
+
+#### Invocation — cratis-engineering-effect-boundaries
+
+- Capability kind: unclassified
+- Invocation: unclassified
+
+#### Applicability — cratis-engineering-effect-boundaries
+
+- Products: cratis-engineering
+- Languages: language-agnostic
+- Architectures: Unclassified — Architecture requires reviewed target classification.
+- Personas: Unclassified — Persona requires reviewed target classification.
+- Surfaces: Unclassified — Surface requires reviewed target classification.
+- Repository profiles: Unclassified — Repository profile requires reviewed target classification.
+
+#### Dependencies — cratis-engineering-effect-boundaries
+
+- Unclassified
+
+#### Trust and effects — cratis-engineering-effect-boundaries
+
+- Trust class: passive
+- Assessment: unclassified
+- No assessed effects
+
+#### Evidence and support — cratis-engineering-effect-boundaries
+
+- Authoring contract unclassified
+- Evidence: reevaluation-authority
+- Evidence: repo-main-b795d53
+
+#### Related capabilities — cratis-engineering-effect-boundaries
+
+- cratis-engineering-csharp-conventions
+
+#### Bundle membership — cratis-engineering-effect-boundaries
+
+- None
+
+#### Profile membership — cratis-engineering-effect-boundaries
+
+- cratis/engineering
+- cratis/engineering/core
+- cratis/engineering/csharp
+- cratis/engineering/elixir
+- cratis/engineering/kotlin
+- cratis/engineering/react
+- cratis/engineering/typescript
 
 ### cratis-engineering-ship-changes
 
