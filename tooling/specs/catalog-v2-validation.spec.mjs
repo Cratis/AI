@@ -1084,7 +1084,7 @@ test("the accepted Option A+ decision still blocks unapproved live targets", () 
     assert.equal(publicCandidate.materializationAllowed, true);
     assert.equal(publicCandidate.runtimeEligible, false);
     assert.equal(publicCandidate.requiresApprovedTargets, false);
-    assert.equal(publicCandidate.componentInventory.skills.length, 50);
+    assert.equal(publicCandidate.componentInventory.skills.length, 51);
     assert(
         !publicCandidate.componentInventory.skills.includes(
             "cratis-chronicle-mcp-inspection",

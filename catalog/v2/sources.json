@@ -491,12 +491,13 @@
         "skills/cratis-documentation-writing/LICENSE",
         "skills/cratis-documentation-writing/SKILL.md"
       ],
-      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
+      "sourceRevision": "171db1709bcd2131e31250de007b014d20ed3345",
       "contentDigest": "f717f4fc5120cbf67cff9a86a50182cf86292d466cfc7b903bf56fe307e17860",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "documentation-writing-source-171db17"
       ]
     },
     {

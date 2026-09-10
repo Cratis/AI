@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "asOf": "2026-09-09",
+  "asOf": "2026-09-10",
   "generatedBy": "tooling/generate-catalog-v2.mjs",
   "evidence": [
     {
@@ -470,6 +470,16 @@
       "expiresOn": "2026-11-23",
       "applicableVersion": "current-documentation-2026-08-25",
       "confidence": "high"
+    },
+    {
+      "id": "documentation-writing-source-171db17",
+      "officialUrl": "https://github.com/Cratis/AI/tree/171db1709bcd2131e31250de007b014d20ed3345/skills/cratis-documentation-writing",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-09-10",
+      "expiresOn": "2027-09-10",
+      "applicableVersion": "0.0.0-fixture",
+      "confidence": "high",
+      "immutableRevision": "171db1709bcd2131e31250de007b014d20ed3345"
     },
     {
       "id": "ecosystem-use-cases",

@@ -642,11 +642,11 @@ const sourceOverrides = new Map([
         },
     ],
     [
-        // Authored in this repository and not yet rebound to its own merged
-        // revision, so it deliberately carries no extra source evidence id.
         "cratis-documentation-writing",
         {
             sourcePath: "skills/cratis-documentation-writing",
+            sourceRevision: "171db1709bcd2131e31250de007b014d20ed3345",
+            evidenceId: "documentation-writing-source-171db17",
         },
     ],
     [

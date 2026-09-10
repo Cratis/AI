@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "27aa0a3663b609cd9eb21a1adefd9704e47eb88c09fc9c1d7d9dda978a9bb5bd",
+  "indexDigest": "070ba35a2e1544754418de38e9f4b02caafc78d8280e37a6cd62af4bad386298",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -2887,6 +2887,10 @@
       "status": "added"
     },
     {
+      "path": "profiles/public/cratis/documentation.json",
+      "status": "added"
+    },
+    {
       "path": "profiles/public/cratis/full.json",
       "status": "added"
     },
@@ -3324,6 +3328,14 @@
     },
     {
       "path": "skills/cratis-components-toolbar/SKILL.md",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-documentation-writing/LICENSE",
+      "status": "added"
+    },
+    {
+      "path": "skills/cratis-documentation-writing/SKILL.md",
       "status": "added"
     },
     {
@@ -4223,11 +4235,7 @@
       "status": "added"
     }
   ],
-  "admittedUntracked": [
-    "profiles/public/cratis/documentation.json",
-    "skills/cratis-documentation-writing/LICENSE",
-    "skills/cratis-documentation-writing/SKILL.md"
-  ],
+  "admittedUntracked": [],
   "excludedRuntimePrefixes": [
     ".pi/delegate/",
     ".pi/fusion/",
