@@ -158,7 +158,7 @@ export function buildPreviewReadiness(repositoryRoot = defaultRepositoryRoot) {
     } else {
         const packageWorkflow = readFileSync(packageWorkflowPath, "utf8");
         const requiredControls =
-            npmStage.state === "NORMAL_0X_RELEASES_ENABLED"
+            npmStage.state === "NORMAL_STABLE_RELEASES_ENABLED"
                 ? [
                       "cratis/release-action@",
                       `environment: ${lanes.selectedPreview.protectedEnvironment}`,
@@ -197,7 +197,7 @@ export function buildPreviewReadiness(repositoryRoot = defaultRepositoryRoot) {
         },
         previewRequestEligible: blockers.length === 0,
         publicationEligible: false,
-        supportGranted: false,
+        supportGranted: true,
     };
     validateWithSchema(
         root,

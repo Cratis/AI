@@ -54,7 +54,7 @@ function writeJson(path, value) {
     writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`, { flag: "wx" });
 }
 
-function packageReadme(version) {
+function packageReadme(version, supported) {
     return `<!--
 Copyright (c) Cratis. All rights reserved.
 Licensed under the MIT license. See LICENSE in this package for full license information.
@@ -91,8 +91,12 @@ Remove the package with \`pi remove npm:@cratis/ai-fundamentals\`.
 
 ## Status
 
-This \`0.x\` package is an unsupported evaluation release. Packaging, provenance,
-and lifecycle checks do not grant a support claim. Review skill instructions before use.
+${
+          supported
+              ? `This is the supported stable \`${version}\` release. Review skill instructions before use.`
+              : `This \`0.x\` package is an unsupported evaluation release. Packaging, provenance,
+and lifecycle checks do not grant a support claim. Review skill instructions before use.`
+      }
 `;
 }
 
@@ -113,19 +117,19 @@ export function materializeFundamentalsPreviewNpmAsset({
         readiness.profileId !== profileId ||
         readiness.packageName !== packageName ||
         readiness.previewRequestEligible !== true ||
-        readiness.supportGranted !== false
+        readiness.supportGranted !== true
     )
         throw new Error(
             "Basic preview readiness does not authorize npm staging",
         );
     const isPreview = version.includes("-preview.");
-    if (
-        !/^0\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)(?:-preview\.(?:0|[1-9][0-9]*))?$/.test(
-            version,
-        )
-    )
+    // The preview lane stays on 0.x; the release lane ships stable 1.0.0+.
+    const versionPattern = isPreview
+        ? /^0\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)-preview\.(?:0|[1-9][0-9]*)$/
+        : /^[1-9][0-9]*\.[0-9]+\.[0-9]+$/;
+    if (!versionPattern.test(version))
         throw new Error(
-            "npm version must match 0.MINOR.PATCH or 0.MINOR.PATCH-preview.N",
+            "npm version must match MAJOR.MINOR.PATCH for a release or 0.MINOR.PATCH-preview.N for a preview",
         );
     if (
         request.state !==
@@ -134,7 +138,7 @@ export function materializeFundamentalsPreviewNpmAsset({
         request.packageName !== packageName ||
         request.version !== version ||
         request.assuranceMode !== "basic" ||
-        request.supportClaim !== false
+        request.supportClaim !== !isPreview
     )
         throw new Error("Release input does not authorize this npm artifact");
     const root = resolve(outputRoot);
@@ -166,7 +170,10 @@ export function materializeFundamentalsPreviewNpmAsset({
             piPrivate: false,
         });
         const piRoot = join(stageRoot, adapters.roots.pi);
-        writeFileSync(join(piRoot, "README.md"), packageReadme(version), {
+        writeFileSync(
+            join(piRoot, "README.md"),
+            packageReadme(version, request.supportClaim),
+            {
             flag: "wx",
         });
         const paths = walkFiles(piRoot).sort();
@@ -224,7 +231,7 @@ export function materializeFundamentalsPreviewNpmAsset({
             distTag: isPreview ? "preview" : "latest",
             publicationEligible: true,
             previewPublicationEligible: isPreview,
-            supportGranted: false,
+            supportGranted: request.supportClaim,
             stablePromotionEligible: false,
         };
         writeJson(join(root, "preview-npm-manifest.json"), manifest);
@@ -264,7 +271,7 @@ export function packageFundamentalsNpmRelease({
             sourceRevision: authority.source.sourceRevision,
             sourceContentDigest: authority.source.contentDigest,
             assuranceMode: "basic",
-            supportClaim: false,
+            supportClaim: true,
         },
     });
 }
