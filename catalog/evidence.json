@@ -10241,14 +10241,14 @@
         },
         {
             "repositoryPath": "distribution/evidence/s9-pi-attempt-1-blocked-2026-08-25.json",
-            "digest": "b319e69c39c8254fbd2b9809a07623937207cda64e155777469a9acd4778a6dc",
+            "digest": "19e945e512341e8ac977c5309eddcfc05255130a78a2df8b9ce738e1d7b1cc22",
             "role": "inventory-only",
             "observationIds": [],
             "reason": "Preserves the immutable first blocked Pi attempt; Node was absent from the initial allowlisted PATH and no lifecycle phase executed."
         },
         {
             "repositoryPath": "distribution/evidence/s9-pi-attempt-2-superseded-2026-08-26.json",
-            "digest": "2e266eaecf25a06e0b3fcf5ac67be9dc7352ee9f2cc71cd0df2cd4f300257fe9",
+            "digest": "f480eea9e461c1408f7ba1ba99746bf231e7f3c2af537e5b372f26f4600a4d56",
             "role": "inventory-only",
             "observationIds": [],
             "reason": "Preserves the superseded second Pi attempt. It passed the fixture lifecycle, but its sourceRevision predates the allowlisted Node PATH fix used by the worktree run, so it is not admissible evidence."
@@ -10262,28 +10262,28 @@
         },
         {
             "repositoryPath": "distribution/evidence/s9-claude-version-preflight-blocked-2026-08-26.json",
-            "digest": "e33d0b2dc033959bda2eec2fb1a5d6b29421cea2ce2e7798299b73f85ab4934d",
+            "digest": "476bf8885d15e4510a253f6dbb91405f797afa694b2b5f4a5c072937d9fb2199",
             "role": "inventory-only",
             "observationIds": [],
             "reason": "Preserves an exact denied-egress version preflight. Claude Code 2.1.235 is installed; current required version is 2.1.245. Every lifecycle phase remained blocked and the report grants no assurance."
         },
         {
             "repositoryPath": "distribution/evidence/s9-copilot-version-preflight-blocked-2026-08-26.json",
-            "digest": "93b5a41f1a9d1c0d37b1aeae1fcbafe75871b6bceb9ef83e27980f42c0dacb69",
+            "digest": "e031120f74fc3d6e9816119d4f00e2a87c75dd7462d7b2eb6cc04b1e805fc627",
             "role": "inventory-only",
             "observationIds": [],
             "reason": "Preserves an exact denied-egress version preflight. Copilot CLI 1.0.67 is installed; current required version is 1.0.80. Every lifecycle phase remained blocked and the report grants no assurance."
         },
         {
             "repositoryPath": "distribution/evidence/s9-codex-version-preflight-blocked-2026-08-26.json",
-            "digest": "4a7c03b9718911657a6f564126c9f2f8f9a0fc715938822aaaf9e6f877b46700",
+            "digest": "cbac575e92f4e44caf3f2c29f4952beb5e5bc09c20baf92b8c362fe9c1de0cea",
             "role": "inventory-only",
             "observationIds": [],
             "reason": "Preserves an exact denied-egress version preflight. Codex CLI 0.147.0 is installed; current required version is 0.149.1. Every lifecycle phase remained blocked and the report grants no assurance."
         },
         {
             "repositoryPath": "distribution/evidence/s9-gemini-version-preflight-blocked-2026-08-26.json",
-            "digest": "851cf94e875196e7fb9a49fe9661a6c868fbf735161794a24cdea78a07fdcba0",
+            "digest": "2b626835221494d6ea1756c75ecf62611e5b56eec735caed7833ae2a4b7f90f9",
             "role": "inventory-only",
             "observationIds": [],
             "reason": "Preserves an exact denied-egress version preflight. Gemini CLI 0.33.1 is installed; current required version is 0.56.0. Every lifecycle phase remained blocked and the report grants no assurance."

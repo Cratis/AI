@@ -1,6 +1,7 @@
 {
   "schemaVersion": "1.0.0",
   "caseId": "s9-pi-local-fixture-attempt-2",
+  "provenance": "runner",
   "state": "PASS_NON_SUPPORTING_FIXTURE",
   "observedOn": "2026-08-26",
   "sourceRevision": "ec826ed21a67415f1be5410039592d17d50fbdc7",
@@ -275,7 +276,7 @@
     "No positive or negative model behavior case is admitted.",
     "No genuine host-managed update or rollback contract is admitted."
   ],
-  "reportPayloadDigest": "08b05fddd3d569c46d6b8cc13b73ef385c28fddfe995eeaeb9f4f13f1c094413",
+  "reportPayloadDigest": "e1d5c9385cf1ede5a446efea11ba8c834b198abe31e852c66c52161a929b7b8b",
   "installationEligible": false,
   "marketplaceAvailabilityClaim": false,
   "supportGranted": false,
