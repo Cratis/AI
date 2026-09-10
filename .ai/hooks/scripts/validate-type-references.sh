@@ -24,20 +24,25 @@
 # prose — are written up in ../README.md. They are still *read* here; they just have to earn a
 # warning through rule 2 rather than on their syntax alone.
 #
-# WARN, never fail, and silent when it cannot judge — for the reasons spelled out at the top of
-# validate-package-subpaths.sh. Needs no `jq` and no node_modules; it needs a local NuGet cache, and
-# no cache means no output.
+# WARN, never fail, and — when it genuinely cannot judge — LOUD, never silent. A could-not-run
+# condition exits 2 with a reason on stderr: this script spent its first lifetime exiting 0 at the
+# `Directory.Packages.props` gate in the corpus repository, so it never checked anything anywhere
+# (issue #287), and the fabricated APIs it exists to catch survived precisely because of it.
+# Needs no `jq` and no node_modules; it needs a local NuGet cache, and no cache is a could-not-run.
 #
 # Portable: bash 3.2 + grep + sed + awk + find. No jq, no network, nothing written outside a tempdir.
 #
-# Usage: validate-type-references.sh [root ...]      # default roots: .ai/rules .ai/skills .ai/agents .ai/prompts
-#        CRATIS_HOOKS_TYPE_REPORT=1 ...              # also print every distinct name and its status
+# Usage: validate-type-references.sh [--self-test] [root ...]   # default roots: .ai/rules .ai/skills .ai/agents .ai/prompts
+#        --self-test                                            # seed the known fabrication into a scratch corpus and
+#                                                                 # fail unless the guard names it (guards-and-fuses.md)
+#        CRATIS_HOOKS_TYPE_REPORT=1 ...                         # also print every distinct name and its status
 set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 cd "$root"
 
 warn() { printf 'ai-corpus warn: %s\n' "$1" >&2; }
+cannot() { printf 'ai-corpus type-references: could not run: %s\n' "$1" >&2; exit 2; }
 # `if`, not `A && B || C`: the trailing `|| true` was there to keep a disabled report
 # from failing the caller, but it also swallowed a real printf failure, and shellcheck
 # flags the shape (SC2015) for exactly that reason.
@@ -45,11 +50,29 @@ report() {
     if [[ "${CRATIS_HOOKS_TYPE_REPORT:-0}" == "1" ]]; then printf 'ai-corpus type: %s\n' "$1" >&2; fi
 }
 
-# Nothing authoritative to compare against is not a finding: no central package pin, no local NuGet
-# cache, or a cache holding none of the pinned versions all exit without a word.
-[[ -f Directory.Packages.props ]] || exit 0
+# Nothing authoritative to compare against is not a finding, but it is also not a pass. In a .NET
+# solution the pins come from the central package management file; in this corpus repository they
+# come from the tracked pin list of the exact product versions the skills verify against. Neither
+# present, or a NuGet cache that holds none of the pinned versions, is a loud exit 2 — the reader
+# must be able to tell "ran and found nothing" from "never looked" (exit-codes-and-wrappers.md).
+self_test=0
+if [[ "${1:-}" == "--self-test" ]]; then self_test=1; shift; fi
+pins_file="$(dirname "${BASH_SOURCE[0]}")/cratis-nuget-pins.txt"
+if [[ -f Directory.Packages.props ]]; then
+    queue="$(awk 'match($0, /<PackageVersion[^>]*>/) {
+            el = substr($0, RSTART, RLENGTH); id = ""; ver = ""
+            if (match(el, /Include="[^"]*"/)) id  = substr(el, RSTART + 9, RLENGTH - 10)
+            if (match(el, /Version="[^"]*"/)) ver = substr(el, RSTART + 9, RLENGTH - 10)
+            if (id ~ /^Cratis/ && ver != "") print id " " ver
+        }' Directory.Packages.props)"
+elif [[ -f "$pins_file" ]]; then
+    queue="$(sed -E 's/#.*//; s/[[:space:]]+/ /g; s/^ //; s/ $//' "$pins_file" | grep -v '^$' || true)"
+    [[ -n "$queue" ]] || cannot "the corpus pin list $pins_file holds no package pins"
+else
+    cannot "neither Directory.Packages.props nor the corpus pin list $pins_file exists - nothing to verify against"
+fi
 nuget="${NUGET_PACKAGES:-$HOME/.nuget/packages}"
-[[ -d "$nuget" ]] || exit 0
+[[ -d "$nuget" ]] || cannot "no local NuGet cache at $nuget - restore the pinned Cratis packages before judging type references"
 
 # `.ai/hooks` is deliberately not a default root: this file and ../README.md name a deliberately
 # fabricated type as the worked example, and a guard that reports its own documentation is a guard
@@ -59,8 +82,26 @@ scan=()
 for d in "${roots[@]}"; do [[ -d "$d" ]] && scan+=("$d"); done
 [[ "${#scan[@]}" -gt 0 ]] || exit 0
 
-tmp="$(mktemp -d 2>/dev/null)" || exit 0
+tmp="$(mktemp -d 2>/dev/null)" || cannot "cannot create a temporary directory"
 trap 'rm -rf "$tmp"' EXIT
+
+# --self-test (guards-and-fuses.md): seed the motivating fabrication into a scratch corpus and
+# require this guard to name it, while the real names beside it stay silent. A guard that can pass
+# vacuously is worse than no guard, and this one did exactly that for its whole first lifetime.
+if [[ "$self_test" == 1 ]]; then
+    scratch="$tmp/scratch-corpus"
+    mkdir -p "$scratch"
+    # shellcheck disable=SC2016
+    printf 'A reactor may return a `ReactorSideEffect` to control where the event is appended.\n' \
+        > "$scratch/fabrication.md"
+    # shellcheck disable=SC2016
+    printf 'Return `EventForEventSourceId`, or a `ReactorSideEffectFailure` from an `IReactor`.\n' \
+        > "$scratch/discrimination.md"
+    # shellcheck disable=SC2016
+    printf '```csharp\n[ReactorSideEffect]\npublic SomeHandler ...\n```\n' \
+        > "$scratch/attribute.md"
+    scan=("$scratch")
+fi
 
 # Same clearing rule, and the same generosity, as Tiers 1 and 2: a line carrying a version alongside
 # the name has declared the skew on purpose. The second rule is this tier's own — the corpus's job
@@ -71,18 +112,13 @@ version_re='[0-9]+\.[0-9x]+|≥|>='
 absence_re='(do|does|did) not exist|no longer|never (use|write|call|return|inject|reach)|removed|deprecated|obsolete|there (is|are) no|non-existent|not a real|fabricat'
 
 # ---------------------------------------------------------------------------------------------
-# 1. Which packages to believe. Every `Cratis*` version pinned in Directory.Packages.props, plus the
-#    Cratis packages those pull in (`Cratis` is a metapackage: Arc, Arc.Chronicle, Chronicle, …),
-#    resolved against the local NuGet cache. Deliberately a *union* across whatever versions the
-#    closure names rather than NuGet's single-version resolution — over-accepting costs a missed
-#    stale line, under-accepting costs a false warning, and only one of those is unacceptable here.
+# 1. Which packages to believe. Every `Cratis*` version pinned by the central package management
+#    file or by the corpus pin list above, plus the Cratis packages those pull in (`Cratis` is a
+#    metapackage: Arc, Arc.Chronicle, Chronicle, …), resolved against the local NuGet cache.
+#    Deliberately a *union* across whatever versions the closure names rather than NuGet's
+#    single-version resolution — over-accepting costs a missed stale line, under-accepting costs a
+#    false warning, and only one of those is unacceptable here.
 # ---------------------------------------------------------------------------------------------
-queue="$(awk 'match($0, /<PackageVersion[^>]*>/) {
-        el = substr($0, RSTART, RLENGTH); id = ""; ver = ""
-        if (match(el, /Include="[^"]*"/)) id  = substr(el, RSTART + 9, RLENGTH - 10)
-        if (match(el, /Version="[^"]*"/)) ver = substr(el, RSTART + 9, RLENGTH - 10)
-        if (id ~ /^Cratis/ && ver != "") print id " " ver
-    }' Directory.Packages.props)"
 seen=""; libdirs=""; hops=0
 while [[ -n "$queue" && "$hops" -lt 8 ]]; do
     hops=$((hops + 1)); next=""
@@ -103,7 +139,7 @@ done
 printf '%s' "$libdirs" | LC_ALL=C sort -u | while IFS= read -r d; do
     [[ -n "$d" ]] && find "$d" -type f -name '*.xml' 2>/dev/null
 done | LC_ALL=C sort -u > "$tmp/xml.txt"
-[[ -s "$tmp/xml.txt" ]] || exit 0
+[[ -s "$tmp/xml.txt" ]] || cannot "the local NuGet cache holds none of the pinned Cratis packages - no XML documentation to verify against"
 
 # ---------------------------------------------------------------------------------------------
 # 2. The index. `<member name="T:Full.Namespace.TypeName">` is a complete, machine-readable list of
@@ -115,12 +151,12 @@ done | LC_ALL=C sort -u > "$tmp/xml.txt"
 # ---------------------------------------------------------------------------------------------
 { tr '\n' '\0' < "$tmp/xml.txt" | xargs -0 grep -ho 'name="T:[^"]*"' 2>/dev/null \
     | sed -E 's/name="T:([^"]*)"/\1/; s/`[0-9]+$//; s/.*[.+]//' | LC_ALL=C sort -u > "$tmp/types.txt"; } || true
+[[ -s "$tmp/types.txt" ]] || cannot "the pinned Cratis packages expose no documented public types - nothing to verify against"
 { tr '\n' '\0' < "$tmp/xml.txt" | xargs -0 grep -hoE '[A-Za-z_][A-Za-z0-9_]*' 2>/dev/null \
     | LC_ALL=C sort -u > "$tmp/words.txt"; } || true
-[[ -s "$tmp/types.txt" ]] || exit 0
 
 find "${scan[@]}" -type f -name '*.md' 2>/dev/null | LC_ALL=C sort > "$tmp/files.txt"
-[[ -s "$tmp/files.txt" ]] || exit 0
+[[ -s "$tmp/files.txt" ]] || cannot "no markdown files under the scan roots - nothing to scan"
 
 decl_re='(^|[^A-Za-z0-9_])(record|class|interface|struct|enum|delegate)[[:space:]]+(struct[[:space:]]+)?[A-Z][A-Za-z0-9_]*'
 {
@@ -231,6 +267,17 @@ AWK
 { tr '\n' '\0' < "$tmp/files.txt" | LC_ALL=C xargs -0 awk -f "$tmp/extract.awk" \
     -v types="$tmp/types.txt" -v words="$tmp/words.txt" -v declared="$tmp/declared.txt" \
     -v allow="$tmp/allow.txt" > "$tmp/out.txt"; } || true
+
+if [[ "$self_test" == 1 ]]; then
+    flags="$(grep '^FLAG' "$tmp/out.txt" 2>/dev/null || true)"
+    printf '%s\n' "$flags" | grep -q $'\tReactorSideEffect\t' \
+        || { printf 'ai-corpus type-references self-test: FAILED - the seeded ReactorSideEffect fabrication was not flagged\n' >&2; exit 1; }
+    if printf '%s\n' "$flags" | grep -qE $'\t(EventForEventSourceId|IReactor|ReactorSideEffectFailure)\t'; then
+        printf 'ai-corpus type-references self-test: FAILED - a real Cratis type was flagged as unresolved\n' >&2; exit 1
+    fi
+    printf 'ai-corpus type-references self-test: passed - the seeded fabrication is named and the real types stay silent\n' >&2
+    exit 0
+fi
 
 while IFS="$(printf '\t')" read -r _ name status; do
     # `|| true` is load-bearing, not decoration: an empty field would leave a failing `&&` list as

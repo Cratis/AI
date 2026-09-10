@@ -167,8 +167,23 @@ to both. That is exactly how `ReactorSideEffect` survived: never a module specif
 told readers to return it from a reactor, shown with object-initializer syntax — and never a type in
 any Chronicle release. Someone following the corpus wrote code that does not compile.
 
-**The index.** Every `Cratis*` version pinned in `Directory.Packages.props`, plus the Cratis packages
-those pull in (`Cratis` is a metapackage), resolved against the local NuGet cache. Each package's
+**The index.** Every `Cratis*` version pinned in `Directory.Packages.props` — or, in the corpus
+repository itself, in the tracked pin list `scripts/cratis-nuget-pins.txt`, which names the exact
+product versions the skills verify against — plus the Cratis packages those pull in (`Cratis` is a
+metapackage), resolved against the local NuGet cache. A pin moves only together with the skill
+whose verified version moved.
+
+**Exit codes.** `0` ran (warnings, if any, are on stderr); `1` a `--self-test` expectation failed;
+`2` could not run — no pin source, no NuGet cache, or an index that came up empty — with the reason
+on stderr. "Ran and found nothing" and "never looked" are different verdicts
+(`exit-codes-and-wrappers.md`), and this guard spent its first lifetime erasing that difference by
+exiting `0` at the `Directory.Packages.props` gate in a repository that has none (#287).
+
+**Self-test.** `--self-test` seeds the motivating fabrication (`ReactorSideEffect`, in prose, in
+attribute position, beside the real names it must be distinguished from) into a scratch corpus and
+fails unless the guard names it and keeps the real types silent. Run it after any change to the
+extraction rules, the pin list, or the allowlist — a guard that can pass vacuously is worse than no
+guard (`guards-and-fuses.md`). Each package's
 `lib/**/*.xml` carries `<member name="T:Full.Namespace.TypeName">` — a complete machine-readable type
 list — and every other identifier the docs mention is kept as a second, permissive accept list, in
 the same spirit as Tier 2's "a word anywhere in the `.d.ts` closure". Names the corpus itself
