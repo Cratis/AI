@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "56f4cfc8ba4ed7ec1dff0e9eb94d804c436602a61ce153488673de8c9f1ccc76",
+  "indexDigest": "d8e0fa62d5e0404705d2c081b7c4d81edcb1b0709770b7736311604ccbdfe6a3",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -131,6 +131,18 @@
       "status": "modified"
     },
     {
+      "path": ".ai/rules/documentation-structure-and-formatting.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/rules/documentation.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/rules/editing-cratis-docs.md",
+      "status": "modified"
+    },
+    {
       "path": ".ai/rules/engineering-recipe-skeleton.md",
       "status": "added"
     },
@@ -191,11 +203,23 @@
       "status": "added"
     },
     {
+      "path": ".ai/rules/writing-correct-examples.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/rules/writing-cratis-docs.md",
+      "status": "modified"
+    },
+    {
       "path": ".ai/skills/add-business-rule/SKILL.md",
       "status": "modified"
     },
     {
       "path": ".ai/skills/add-concept/SKILL.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/add-cratis-docs-page/SKILL.md",
       "status": "modified"
     },
     {
@@ -251,6 +275,10 @@
       "status": "modified"
     },
     {
+      "path": ".ai/skills/edit-cratis-docs/SKILL.md",
+      "status": "modified"
+    },
+    {
       "path": ".ai/skills/event-modeling/SKILL.md",
       "status": "modified"
     },
@@ -264,6 +292,14 @@
     },
     {
       "path": ".ai/skills/multi-tenancy/SKILL.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/new-vertical-slice/SKILL.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/qa-cratis-docs/SKILL.md",
       "status": "modified"
     },
     {
@@ -284,6 +320,10 @@
     },
     {
       "path": ".ai/skills/toolbar/SKILL.md",
+      "status": "modified"
+    },
+    {
+      "path": ".ai/skills/write-documentation/SKILL.md",
       "status": "modified"
     },
     {

@@ -408,6 +408,13 @@ const causationGuidanceSourceNames = [
     "cross-cutting-properties",
     "review-security",
 ];
+const documentationGuidanceSourceNames = [
+    "add-cratis-docs-page",
+    "edit-cratis-docs",
+    "new-vertical-slice",
+    "qa-cratis-docs",
+    "write-documentation",
+];
 const normalizedPackagedSourceNames = [
     "call-command-from-code",
     "create-event-model",
@@ -599,6 +606,14 @@ const sourceOverrides = new Map([
                 evidenceId: "public-skill-reference-closure-c2f721c",
             },
         ]),
+    ...documentationGuidanceSourceNames.map((name) => [
+        name,
+        {
+            sourcePath: `.ai/skills/${name}`,
+            sourceRevision: "c0a9255bae2a53face9d98de7430a93d3044188d",
+            evidenceId: "shared-documentation-guidance-source-c0a9255",
+        },
+    ]),
     ...migratedCanonicalSourceNames.map(
         ([name, sourcePath, evidenceId, revision]) => [
             name,

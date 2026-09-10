@@ -1636,6 +1636,16 @@
       "digest": "9f56390ab36221d425a5d238d1e5d202d8eb8760537d39256edf014581e8590d"
     },
     {
+      "id": "shared-documentation-guidance-source-c0a9255",
+      "officialUrl": "https://github.com/Cratis/Arc/pull/2679",
+      "sourceKind": "repository-snapshot",
+      "verifiedOn": "2026-09-09",
+      "expiresOn": "2027-09-09",
+      "applicableVersion": "c0a9255bae2a53face9d98de7430a93d3044188d",
+      "confidence": "high",
+      "immutableRevision": "c0a9255bae2a53face9d98de7430a93d3044188d"
+    },
+    {
       "id": "sourcegraph-cody-source-1",
       "officialUrl": "https://sourcegraph.com/docs/cody/capabilities/prompts",
       "sourceKind": "official-documentation",

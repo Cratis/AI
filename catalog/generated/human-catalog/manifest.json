@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "contractVersion": 1,
-  "inputDigest": "8b13d323e1bfa90a0af97bba0aa644ce92d877513d6c778a44ee78868979ff13",
+  "inputDigest": "317b21534de97ee0795fbcb4e801085b86032b1d7de3cdba6210806b8e5a1c96",
   "files": [
     {
       "path": "CATALOG.md",
@@ -11,7 +11,7 @@
     {
       "path": "catalog.json",
       "size": 246278,
-      "sha256": "11d6074b1730f0c243b89e9b41558399c9815e1f54a3f7ca3787828c97d8e72d"
+      "sha256": "1e5bafbf35450cc4f3956f9a2bd99dbd8bae51ac05c0ef35fe91328e6a5e15ad"
     }
   ]
 }

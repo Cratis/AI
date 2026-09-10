@@ -967,12 +967,13 @@
         ".ai/skills/new-vertical-slice/evals/evals.json",
         ".ai/skills/new-vertical-slice/references/PATTERNS.md"
       ],
-      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-      "contentDigest": "b430a0d3df262154bccbfdcbd441b0e82ce524f01b0905b80852420feaa6e30a",
+      "sourceRevision": "c0a9255bae2a53face9d98de7430a93d3044188d",
+      "contentDigest": "a6444d377b5552b5e8c05270aea8c217b13aaade695a7b7e2194197d3add2854",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "shared-documentation-guidance-source-c0a9255"
       ]
     },
     {
@@ -1005,12 +1006,13 @@
       "bundledPaths": [
         ".ai/skills/qa-cratis-docs/SKILL.md"
       ],
-      "sourceRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-      "contentDigest": "9389b20a46871cfa8d4514397a13137b5b86158d54f02ebc919beca97adcccf3",
+      "sourceRevision": "c0a9255bae2a53face9d98de7430a93d3044188d",
+      "contentDigest": "541ec5703b3a29a76d8897175914cf926a048ed99653957f1e235f8f2f6373b5",
       "publicationApproval": false,
       "evidenceIds": [
         "repo-main-b795d53",
-        "reevaluation-authority"
+        "reevaluation-authority",
+        "shared-documentation-guidance-source-c0a9255"
       ]
     },
     {

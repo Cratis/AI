@@ -786,6 +786,12 @@
             "digest": "9f56390ab36221d425a5d238d1e5d202d8eb8760537d39256edf014581e8590d"
         },
         {
+            "id": "source-shared-documentation-guidance-source-c0a9255",
+            "kind": "repository-snapshot",
+            "locator": "https://github.com/Cratis/AI/tree/c0a9255bae2a53face9d98de7430a93d3044188d/.ai",
+            "immutableRevision": "c0a9255bae2a53face9d98de7430a93d3044188d"
+        },
+        {
             "id": "source-sourcegraph-cody-source-1",
             "kind": "official-documentation",
             "locator": "https://sourcegraph.com/docs/cody/capabilities/prompts"
@@ -7798,6 +7804,44 @@
                 "officialUrl": "https://github.com/Cratis/AI/tree/3fe2b12aa7fd068565cbf082ea966cd783cc6aad/distribution/evidence/s8-native-non-skill-static-generation-2026-08-25.json",
                 "sourceKind": "local-evidence-report",
                 "applicableVersion": "3fe2b12aa7fd068565cbf082ea966cd783cc6aad"
+            }
+        },
+        {
+            "id": "shared-documentation-guidance-source-c0a9255",
+            "sourceId": "source-shared-documentation-guidance-source-c0a9255",
+            "evidenceClass": "local",
+            "subject": {
+                "kind": "repository",
+                "id": "cratis-ai",
+                "version": "c0a9255bae2a53face9d98de7430a93d3044188d"
+            },
+            "bindingIds": [],
+            "assertions": [
+                {
+                    "assuranceId": "source-provenance",
+                    "outcome": "pass",
+                    "supporting": true,
+                    "claimIds": []
+                }
+            ],
+            "scope": "Source provenance for the shared documentation guidance committed at c0a9255bae2a53face9d98de7430a93d3044188d after comparing merged Arc PR #2679 (83a15447172e142be43580b852d215b2118b284e) with the current Documentation/web synchronization, component, navigation, Markdown-export, and verification behavior.",
+            "environment": {
+                "operatingSystem": "macOS",
+                "architecture": "arm64",
+                "isolation": "consumer-worktree"
+            },
+            "observedOn": "2026-09-09",
+            "validThrough": "2027-09-09",
+            "confidence": "high",
+            "limitations": [
+                "This observation proves source provenance and reviewed documentation-contract alignment only; it grants no runtime support, release readiness, distribution approval, or publication authority.",
+                "Chronicle client-tab expansion and product-specific Components policy were outside the shared guidance scope."
+            ],
+            "supersedes": [],
+            "legacy": {
+                "officialUrl": "https://github.com/Cratis/Arc/pull/2679",
+                "sourceKind": "repository-snapshot",
+                "applicableVersion": "c0a9255bae2a53face9d98de7430a93d3044188d"
             }
         },
         {
