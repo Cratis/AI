@@ -151,24 +151,30 @@ them, and this page never mixes them.
 ## Repository subscription
 
 A Cratis repository records intent in project-owned `.cratis/ai.json`. The file
-contains no shared rule text; it only selects a channel, exact release, profiles,
-and harnesses.
+contains no shared rule text; it only selects channels, an exact release,
+profiles, and harnesses. A selection from one channel may declare that
+channel; a selection that deliberately mixes the public and engineering
+channels — the standard Cratis-repository shape — leaves `channel` unset
+because it derives no single one.
 
-Chronicle framework example:
+Chronicle repository example (mixed public and engineering):
 
 ```json
 {
   "schemaVersion": "1.0.0",
-  "channel": "cratis-engineering",
   "version": "1.0.0",
-  "profiles": ["cratis/engineering"],
-  "harnesses": ["claude", "codex", "copilot", "pi"],
+  "profiles": [
+    "cratis/documentation",
+    "cratis/engineering/csharp",
+    "cratis/application/csharp"
+  ],
+  "harnesses": ["claude", "codex", "copilot", "cursor", "pi"],
   "updatePolicy": "reviewed-pull-request",
   "projectContext": ".cratis/PROJECT.md"
 }
 ```
 
-Full application example:
+Full public application example:
 
 ```json
 {

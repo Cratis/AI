@@ -122,6 +122,7 @@ test("report digest, phase closure, context, environment, and grant fields fail 
         networkEnforcement: "sandbox-exec-deny-network",
         beforeContextDigest: "5".repeat(64),
         afterContextDigest: "5".repeat(64),
+        provenance: "runner",
         phases: [
             "preflight",
             "artifact-validation",

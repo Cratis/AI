@@ -448,7 +448,11 @@ resolving it alone returns exactly itself and its one capability.
 
 All shared engineering packages are public-safe. Confidential facts remain in
 repository-local overlays. The whole `cratis/engineering` subtree derives the
-engineering channel; it never mixes with public profiles in one subscription.
+engineering channel. A subscription may combine public profiles with
+engineering cells — `cratis/documentation` plus `cratis/engineering/csharp` is
+the standard Cratis-repository selection — and such a mixed selection derives
+no single channel, so `channel` stays unset. A *resolution* still never crosses
+audiences: each channel of a subscription resolves separately.
 
 | Profile | Intended package | Carries |
 | --- | --- | --- |
