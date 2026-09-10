@@ -59,6 +59,8 @@ const supportedSchemaKeywords = new Set([
     "maxItems",
     "uniqueItems",
     "items",
+    "contains",
+    "allOf",
     "minLength",
     "maxLength",
     "pattern",
@@ -88,6 +90,17 @@ export function validateSchemaVocabulary(schema, path = "$") {
             }
         } else if (keyword === "items" && value && typeof value === "object") {
             errors.push(...validateSchemaVocabulary(value, `${path}.items`));
+        } else if (keyword === "contains" && value && typeof value === "object") {
+            errors.push(...validateSchemaVocabulary(value, `${path}.contains`));
+        } else if (keyword === "allOf" && Array.isArray(value)) {
+            value.forEach((child, index) => {
+                errors.push(
+                    ...validateSchemaVocabulary(
+                        child,
+                        `${path}.allOf[${index}]`,
+                    ),
+                );
+            });
         } else if (keyword === "oneOf" && Array.isArray(value)) {
             value.forEach((child, index) => {
                 errors.push(
@@ -283,6 +296,17 @@ export function validateAgainstSchema(
             errors.push(`${path}: expected exactly one matching oneOf branch`);
     }
 
+    for (const [index, subschema] of (schema.allOf ?? []).entries()) {
+        errors.push(
+            ...validateAgainstSchema(
+                value,
+                subschema,
+                rootSchema,
+                `${path}.allOf[${index}]`,
+            ),
+        );
+    }
+
     if (Object.hasOwn(schema, "const") && value !== schema.const) {
         errors.push(
             `${path}: expected constant ${JSON.stringify(schema.const)}`,
@@ -345,6 +369,19 @@ export function validateAgainstSchema(
             errors.push(
                 `${path}: must contain at most ${schema.maxItems} items`,
             );
+        }
+        if (
+            schema.contains &&
+            !value.some((item) =>
+                validateAgainstSchema(
+                    item,
+                    schema.contains,
+                    rootSchema,
+                    path,
+                ).length === 0,
+            )
+        ) {
+            errors.push(`${path}: does not contain a matching item`);
         }
         if (schema.uniqueItems) {
             const serializedItems = value.map((item) => JSON.stringify(item));

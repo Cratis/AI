@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "041f859b5ee8d5eaff1edae3fa19b52ae9abf8fd777e67b2f010297dff438769",
+  "indexDigest": "adcf0cbd7fd7106595c0df2ed94a28ab07f1d80f7dc5993af32b594818b58130",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -383,6 +383,14 @@
       "status": "added"
     },
     {
+      "path": ".cratis/PROJECT.md",
+      "status": "added"
+    },
+    {
+      "path": ".cratis/ai.json",
+      "status": "added"
+    },
+    {
       "path": ".cursor-plugin/marketplace.json",
       "status": "added"
     },
@@ -525,6 +533,14 @@
     {
       "path": ".pi/agents/spec-writer.md",
       "status": "type-changed"
+    },
+    {
+      "path": "AGENTS.md",
+      "status": "type-changed"
+    },
+    {
+      "path": "CLAUDE.md",
+      "status": "added"
     },
     {
       "path": "Documentation/.markdownlint.json",
@@ -679,6 +695,10 @@
       "status": "added"
     },
     {
+      "path": "Documentation/examples/ai-subscriptions/mixed-documentation-and-engineering.cratis-ai.json",
+      "status": "added"
+    },
+    {
       "path": "Documentation/examples/ai-subscriptions/pi-settings.json",
       "status": "added"
     },
@@ -829,6 +849,10 @@
     {
       "path": "Documentation/verify-markdown.sh",
       "status": "modified"
+    },
+    {
+      "path": "GEMINI.md",
+      "status": "added"
     },
     {
       "path": "README.md",
@@ -1444,6 +1468,34 @@
     },
     {
       "path": "engineering/skills/cratis-engineering-effect-boundaries/references/failure-archetypes.md",
+      "status": "added"
+    },
+    {
+      "path": "engineering/sources-staged/README.md",
+      "status": "added"
+    },
+    {
+      "path": "engineering/sources-staged/arc-kotlin/rules/gradle.md",
+      "status": "added"
+    },
+    {
+      "path": "engineering/sources-staged/arc-kotlin/rules/java.md",
+      "status": "added"
+    },
+    {
+      "path": "engineering/sources-staged/arc-kotlin/rules/kotlin-java-interop.md",
+      "status": "added"
+    },
+    {
+      "path": "engineering/sources-staged/arc-kotlin/rules/kotlin.md",
+      "status": "added"
+    },
+    {
+      "path": "engineering/sources-staged/studio-issues/upstream-issues.md",
+      "status": "added"
+    },
+    {
+      "path": "engineering/sources-staged/studio-issues/writing-on-issues.md",
       "status": "added"
     },
     {
@@ -4357,28 +4409,78 @@
     },
     {
       "excludePathPatterns": [],
-      "id": "root-instruction-adapter",
+      "id": "root-context-bootstrap",
       "sourcePathPatterns": [
-        "AGENTS.md"
+        "AGENTS.md",
+        "CLAUDE.md",
+        "GEMINI.md"
       ],
-      "artifactType": "adapter",
+      "artifactType": "instruction",
       "currentOwner": "reusable Cratis engineering behavior",
-      "targetOwner": "obsolete, with deletion deferred until replacement evidence exists",
+      "targetOwner": "reusable Cratis engineering behavior",
       "runtimeEligibility": "forbidden",
-      "generatedStatus": "derived",
-      "adapterStatus": "symlink-adapter",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
       "dependencies": [
-        ".ai/rules/general.md"
+        ".cratis/PROJECT.md"
       ],
-      "risk": "high",
-      "migrationState": "retire-after-evidence",
+      "risk": "low",
+      "migrationState": "retain",
       "evidenceIds": [
         "workflows-68",
-        "reevaluation-authority"
+        "ai-256"
       ],
-      "generator": "legacy-manual-adapter-model",
+      "expectedPathCount": 3,
+      "expectedPathsDigest": "8e63b75fb33c848a8eaeb1b09a5545950d9238076e9808da3937c64363bc0526"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "project-context",
+      "sourcePathPatterns": [
+        ".cratis/PROJECT.md"
+      ],
+      "artifactType": "instruction",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "reusable Cratis engineering behavior",
+      "runtimeEligibility": "forbidden",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "Documentation/project-context-bootstrap.md"
+      ],
+      "risk": "low",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "workflows-68",
+        "ai-256"
+      ],
       "expectedPathCount": 1,
-      "expectedPathsDigest": "954ec5dad7eaf581ad4bfa090369b244ac0120b43722ef2efff5ba89fc52046f"
+      "expectedPathsDigest": "ac70b2f194b9e985b8de0184b5efc020f93826cb72063ab6bd94c7fb3db4e0b4"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "project-context-subscription",
+      "sourcePathPatterns": [
+        ".cratis/ai.json"
+      ],
+      "artifactType": "repository-metadata",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "reusable Cratis engineering behavior",
+      "runtimeEligibility": "forbidden",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "distribution/profile-subscription.schema.json",
+        "Documentation/project-context-bootstrap.md"
+      ],
+      "risk": "low",
+      "migrationState": "retain",
+      "evidenceIds": [
+        "workflows-68",
+        "ai-256"
+      ],
+      "expectedPathCount": 1,
+      "expectedPathsDigest": "1d26db70fb6a634cc529e79dff2139f8b819f6e2453b156679e7b6bd762bc23f"
     },
     {
       "excludePathPatterns": [],
@@ -4806,6 +4908,29 @@
       ],
       "expectedPathCount": 20,
       "expectedPathsDigest": "87680b04a4896de3879dd376482c17e950c709d3841b91ab5e2364c2b0d8d6fc"
+    },
+    {
+      "excludePathPatterns": [],
+      "id": "engineering-staged-migrated-sources",
+      "sourcePathPatterns": [
+        "engineering/sources-staged/**"
+      ],
+      "artifactType": "documentation",
+      "currentOwner": "reusable Cratis engineering behavior",
+      "targetOwner": "reusable Cratis engineering behavior",
+      "runtimeEligibility": "forbidden",
+      "generatedStatus": "source",
+      "adapterStatus": "none",
+      "dependencies": [
+        "Documentation/corpus-generations.md"
+      ],
+      "risk": "medium",
+      "migrationState": "classify-in-place",
+      "evidenceIds": [
+        "ai-256"
+      ],
+      "expectedPathCount": 7,
+      "expectedPathsDigest": "f4459741651d988637badc47c5862ca10b7f11678f142f571e4ee4c7d4dff821"
     },
     {
       "excludePathPatterns": [],
@@ -5250,8 +5375,8 @@
         "workflows-68",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 29,
-      "expectedPathsDigest": "4297439841da17615086d138751286f28a43ad67ced1270512e383e720938618"
+      "expectedPathCount": 30,
+      "expectedPathsDigest": "b52e3885a337d88d6114c05b9c81a2898f48a17a79093e308730696e54372543"
     },
     {
       "excludePathPatterns": [],

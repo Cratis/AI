@@ -815,10 +815,10 @@ test("unknown properties fail the closed catalog v2 schema", () => {
 
 test("unsupported JSON Schema vocabulary fails explicitly", () => {
     const unsupported = clone(schema);
-    unsupported.$defs.target.allOf = [];
+    unsupported.$defs.target.anyOf = [];
     assert(
         validateSchemaVocabulary(unsupported).some((error) =>
-            error.includes("unsupported JSON Schema keyword allOf"),
+            error.includes("unsupported JSON Schema keyword anyOf"),
         ),
     );
 });

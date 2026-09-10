@@ -151,9 +151,12 @@ test("all authored evidence and support policy schemas reject unknown properties
     }
 });
 
-test("all 178 observations, 172 fact IDs, 11 legacy gaps, 108 official sources, and 24 distribution evidence files are accounted exactly", () => {
+// PR #294 brought the baseline to 182; PR #295 added Cratis/AI#256
+// corpus-retirement authority observation ai-256; this PR #296 S9 provenance
+// fix aligns with the current 183 total.
+test("all 183 observations, 172 fact IDs, 11 legacy gaps, 108 official sources, and 24 distribution evidence files are accounted exactly", () => {
     const catalogs = loadSupportCatalogs();
-    assert.equal(catalogs.evidence.observations.length, 178);
+    assert.equal(catalogs.evidence.observations.length, 183);
     assert.equal(catalogs.evidence.legacyFacts.length, 172);
     assert.equal(catalogs.evidence.legacyGaps.length, 11);
     assert.equal(

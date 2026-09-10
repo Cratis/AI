@@ -9,7 +9,7 @@ is just a careful name for something you already know from plugin ecosystems.
 | A skill | **skill** | The same thing: a passive `SKILL.md` (plus references and assets) your assistant loads when a task matches. No hooks, no executable code. |
 | Your dependency manifest | **subscription** (`.cratis/ai.json`) | The committed, project-owned record of which profiles the repository expects, at which exact version, for which harnesses — the `package.json`-style pin the versioned flow updates by reviewed pull request. |
 | Your project README section | **project context** (`.cratis/PROJECT.md`) | Your project facts — what it is, environments, commands, conventions. The shared profiles never own these; your repository does. |
-| A release channel | **channel** | Derived, not declared: `cratis/engineering` is the maintainer channel, every other `cratis/*` id is the public channel. The two never mix in one subscription. |
+| A release channel | **channel** | Derived, not declared: `cratis/engineering` is the maintainer channel, every other `cratis/*` id is the public channel. A subscription may deliberately mix the two (documentation plus an engineering cell); a mixed selection derives no channel. |
 | The plugin marketplace | **marketplace** | The `Cratis/AI` repository itself, added as a marketplace source. Its manifests resolve the real `skills/` and `engineering/` directories on the default branch — there is no separate store. |
 
 One paragraph each, in the order you meet them:

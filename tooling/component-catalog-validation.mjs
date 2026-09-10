@@ -54,9 +54,9 @@ export const distributionPointerOutputs = new Set([
 const expectedComponentAnchor =
     "1350ae4648de574815a2ee14682e5d16cbe1ed95b5b808b9e469935d2a207c03";
 const expectedProjectionAnchor =
-    "b896dcb363e9b52ae5a20985cd2706e730d7569ce93d0ee1755f5c59dadb24b9";
+    "4091d3a75e9acf5490a6b38585c7c870945bd8f58ba006ce9ad1852a7e79b4e9";
 const expectedProjectionHostAnchor =
-    "9735e6fd6a1b15e92086df6fda6cb4a988094c37c26e11bddf0518d5d3fdeba2";
+    "8bb30c43bdcbbd51d4568a8c9aa5828f57555a144833336f46e77b6f4dc56c7f";
 
 export const componentKinds = Object.freeze([
     "skill",
@@ -1389,15 +1389,19 @@ export function validateComponentProjections(
     );
     if (
         projections.hosts.length !== 9 ||
-        // 399 rather than 402 since Cratis/AI#175 and #177: `add-business-rule`
-        // was one directory projected into three host adapters, but both halves
-        // of its pending split modeled the same three, so every adapter was
-        // counted twice. Executing the split leaves the three on the retained
-        // legacy twin exactly once.
-        projections.projections.length !== 399 ||
+        // 398 rather than 399 since Cratis/AI#256: the fleet adoption retired
+        // the root `AGENTS.md` symlink adapter. `AGENTS.md` is now the
+        // project-owned minimal bootstrap pointing at `.cratis/PROJECT.md`
+        // (see Documentation/project-context-bootstrap.md), not a projection
+        // of `cratis-instruction-general`, so its codex projection entry is
+        // gone. The earlier 399-rather-than-402 note was Cratis/AI#175 and
+        // #177: `add-business-rule` was one directory projected into three
+        // host adapters, but both halves of its pending split modeled the same
+        // three, so every adapter was counted twice.
+        projections.projections.length !== 398 ||
         projections.projections.filter(
             (projection) => projection.state === "existing",
-        ).length !== 329 ||
+        ).length !== 328 ||
         generatedStatic.length !== 70 ||
         generatedCounts["jetbrains-ai-assistant"] !== 34 ||
         generatedCounts.tabnine !== 34 ||
