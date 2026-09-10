@@ -20,7 +20,7 @@ import { computeEvidenceIdentityAnchors } from "./support-validation.mjs";
 const expectedPolicyDigest =
     "02982ff7a36eb77025f7eda8e82d41ab671e695f7faa8dafc0d3dbcd665474ed";
 const expectedEvidenceBaselineDigest =
-    "8041cb8c0c9b442d9528a3779a0449b50cedadd4efa056191a993f5d5bc9374b";
+    "bbd0b0148a8155aa3ffb4a73dfc4d2e49b5d767ed190acc5e47607c88b96bf78";
 const sideEffectJobs = [
     "canary",
     "distribute",

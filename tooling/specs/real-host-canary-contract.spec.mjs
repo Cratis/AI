@@ -96,6 +96,7 @@ test("report digest, phase closure, context, environment, and grant fields fail 
     const report = {
         schemaVersion: "1.0.0",
         caseId: "s9-pi-fixture",
+        provenance: "runner",
         attemptId: "fixture-contract",
         supersededBy: null,
         state: "PASS_NON_SUPPORTING_FIXTURE",
