@@ -112,10 +112,12 @@ command again. `ARCCHR0006` warns when a reactor handler invokes
 `ICommandPipeline.Execute` without saying what replay should do. Mark the
 handler `[OnceOnly]` so it is skipped during replay.
 
-⚠️ `[OnceOnly]` fires **once per event source, not once per event**. A handler
-for an event that can recur on the same source then runs only for the first
-occurrence. When that is wrong for the handler, suppress the diagnostic with a
-justification rather than mis-marking it to silence the warning.
+⚠️ `[OnceOnly]` is **replay exclusion, not deduplication**. There is no ledger
+of events a handler has already seen: recovering a failed partition re-delivers
+the event as an ordinary observation, and a `[OnceOnly]` handler runs again.
+Make the executed command idempotent regardless — and when replay exclusion is
+the wrong tool, suppress the diagnostic with a justification rather than
+mis-marking it to silence the warning.
 
 ## Common mistakes
 
