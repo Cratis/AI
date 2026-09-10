@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "3aeb9a407068961a43842bf75a33741eea2c3168d2602ba471d15ac0135dbfba",
+  "indexDigest": "8ffc768b22b335c1728215e4f99e8dbde9a909192b8dcdc9ea929a28a9e78fb8",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -343,6 +343,14 @@
       "status": "added"
     },
     {
+      "path": ".cratis/PROJECT.md",
+      "status": "added"
+    },
+    {
+      "path": ".cratis/ai.json",
+      "status": "added"
+    },
+    {
       "path": ".cursor-plugin/marketplace.json",
       "status": "added"
     },
@@ -485,6 +493,14 @@
     {
       "path": ".pi/agents/spec-writer.md",
       "status": "type-changed"
+    },
+    {
+      "path": "AGENTS.md",
+      "status": "type-changed"
+    },
+    {
+      "path": "CLAUDE.md",
+      "status": "added"
     },
     {
       "path": "Documentation/.markdownlint.json",
@@ -639,6 +655,10 @@
       "status": "added"
     },
     {
+      "path": "Documentation/examples/ai-subscriptions/mixed-documentation-and-engineering.cratis-ai.json",
+      "status": "added"
+    },
+    {
       "path": "Documentation/examples/ai-subscriptions/pi-settings.json",
       "status": "added"
     },
@@ -789,6 +809,10 @@
     {
       "path": "Documentation/verify-markdown.sh",
       "status": "modified"
+    },
+    {
+      "path": "GEMINI.md",
+      "status": "added"
     },
     {
       "path": "README.md",
@@ -1404,6 +1428,34 @@
     },
     {
       "path": "engineering/skills/cratis-engineering-effect-boundaries/references/failure-archetypes.md",
+      "status": "added"
+    },
+    {
+      "path": "engineering/sources-staged/README.md",
+      "status": "added"
+    },
+    {
+      "path": "engineering/sources-staged/arc-kotlin/rules/gradle.md",
+      "status": "added"
+    },
+    {
+      "path": "engineering/sources-staged/arc-kotlin/rules/java.md",
+      "status": "added"
+    },
+    {
+      "path": "engineering/sources-staged/arc-kotlin/rules/kotlin-java-interop.md",
+      "status": "added"
+    },
+    {
+      "path": "engineering/sources-staged/arc-kotlin/rules/kotlin.md",
+      "status": "added"
+    },
+    {
+      "path": "engineering/sources-staged/studio-issues/upstream-issues.md",
+      "status": "added"
+    },
+    {
+      "path": "engineering/sources-staged/studio-issues/writing-on-issues.md",
       "status": "added"
     },
     {
@@ -4283,20 +4335,7 @@
       "status": "added"
     }
   ],
-  "admittedUntracked": [
-    ".cratis/PROJECT.md",
-    ".cratis/ai.json",
-    "CLAUDE.md",
-    "Documentation/examples/ai-subscriptions/mixed-documentation-and-engineering.cratis-ai.json",
-    "GEMINI.md",
-    "engineering/sources-staged/README.md",
-    "engineering/sources-staged/arc-kotlin/rules/gradle.md",
-    "engineering/sources-staged/arc-kotlin/rules/java.md",
-    "engineering/sources-staged/arc-kotlin/rules/kotlin-java-interop.md",
-    "engineering/sources-staged/arc-kotlin/rules/kotlin.md",
-    "engineering/sources-staged/studio-issues/upstream-issues.md",
-    "engineering/sources-staged/studio-issues/writing-on-issues.md"
-  ],
+  "admittedUntracked": [],
   "excludedRuntimePrefixes": [
     ".pi/delegate/",
     ".pi/fusion/",
