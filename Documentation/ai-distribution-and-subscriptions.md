@@ -60,7 +60,9 @@ requests.
 > is **designed and tool-verified but not published**. No versioned profile
 > package exists yet (`profiles/manifest.json` still says
 > `DESIGNED_RELEASES_NOT_YET_PUBLISHED`); the only published package is
-> `@cratis/ai-fundamentals` `1.0.0`. Hosts install straight off the `Cratis/AI`
+> `@cratis/ai-fundamentals`, which ships the whole public skills directory so
+> Pi receives the same content as the marketplace harnesses. Hosts install
+> straight off the `Cratis/AI`
 > default branch through the committed marketplace manifests. The Pi commands
 > below show the designed post-release workflow, not something you can run for
 > every profile today.

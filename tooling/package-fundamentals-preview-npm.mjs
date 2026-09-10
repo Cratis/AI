@@ -2,6 +2,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
     existsSync,
@@ -17,6 +18,7 @@ import { tmpdir } from "node:os";
 import { join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { isDeepStrictEqual } from "node:util";
+import { compareOrdinal } from "./catalog-ordering.mjs";
 import { generatePassiveProfileAdapters } from "./passive-profile-adapters.mjs";
 import {
     createTarGzip,
@@ -30,6 +32,9 @@ const defaultRepositoryRoot = resolve(
 );
 const profileId = "cratis/fundamentals";
 const packageName = "@cratis/ai-fundamentals";
+const bundleDescription =
+    "Cratis AI skills for building event-sourced and CQRS applications";
+const publicSkillsRoot = "skills";
 
 function sha256(content) {
     return createHash("sha256").update(content).digest("hex");
@@ -54,7 +59,85 @@ function writeJson(path, value) {
     writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`, { flag: "wx" });
 }
 
-function packageReadme(version, supported) {
+/**
+ * The npm package is the Pi delivery of the whole public skills directory —
+ * byte-identical content to what the committed marketplace manifests install
+ * for Claude Code, Codex, GitHub Copilot, and Cursor.
+ */
+export function loadPublicBundleSkills(
+    repositoryRoot = defaultRepositoryRoot,
+) {
+    const root = join(resolve(repositoryRoot), publicSkillsRoot);
+    const skills = readdirSync(root, { withFileTypes: true })
+        .filter((entry) => entry.isDirectory())
+        .map((entry) => entry.name)
+        .sort(compareOrdinal)
+        .map((name) => {
+            const files = walkFiles(join(root, name))
+                .sort(compareOrdinal)
+                .map((path) => ({
+                    path,
+                    content: readFileSync(join(root, name, path)),
+                }));
+            if (!files.some((file) => file.path === "SKILL.md"))
+                throw new Error(`Public skill is missing SKILL.md: ${name}`);
+            return { name, files };
+        });
+    if (skills.length === 0)
+        throw new Error(`No public skills found under ${publicSkillsRoot}/`);
+    return skills;
+}
+
+function bundleContentDigest(skills) {
+    const hash = createHash("sha256");
+    for (const skill of skills) {
+        hash.update(skill.name);
+        hash.update("\0");
+        for (const file of skill.files) {
+            hash.update(file.path);
+            hash.update("\0");
+            hash.update(file.content);
+            hash.update("\0");
+        }
+    }
+    return hash.digest("hex");
+}
+
+/**
+ * The pinned preview authority keeps anchoring the release: the bundled
+ * fundamentals concept skill must still be byte-identical to the immutable
+ * source revision recorded in the catalog.
+ */
+function assertAuthorityParity(bundleSkills, authority) {
+    const bundled = bundleSkills.find(
+        (skill) => skill.name === authority.skill.name,
+    );
+    if (!bundled)
+        throw new Error(
+            `Bundled public skills are missing the pinned authority skill: ${authority.skill.name}`,
+        );
+    const authorityPaths = authority.skill.files
+        .map((file) => file.path)
+        .sort(compareOrdinal);
+    const bundledPaths = bundled.files
+        .map((file) => file.path)
+        .sort(compareOrdinal);
+    if (JSON.stringify(authorityPaths) !== JSON.stringify(bundledPaths))
+        throw new Error(
+            "Bundled fundamentals concept skill differs from the pinned authority",
+        );
+    for (const file of authority.skill.files) {
+        const bundledFile = bundled.files.find(
+            (candidate) => candidate.path === file.path,
+        );
+        if (!bundledFile || !bundledFile.content.equals(file.content))
+            throw new Error(
+                "Bundled fundamentals concept skill differs from the pinned authority",
+            );
+    }
+}
+
+function packageReadme(supported) {
     return `<!--
 Copyright (c) Cratis. All rights reserved.
 Licensed under the MIT license. See LICENSE in this package for full license information.
@@ -62,38 +145,41 @@ Licensed under the MIT license. See LICENSE in this package for full license inf
 
 # @cratis/ai-fundamentals
 
-Passive AI guidance for Cratis Fundamentals concepts and Chronicle event-source identities.
+Passive AI skills for the Cratis ecosystem: the same public skill set the
+Cratis marketplace installs deliver, wrapped as a Pi npm package. Fundamentals,
+Chronicle, Arc, Components, specifications, reviews, and more arrive as
+passive markdown skills — no hooks, no executable code, no MCP server.
 
 ## Install
 
-Install this exact version globally:
+Install globally:
 
 \`\`\`bash
-pi install npm:@cratis/ai-fundamentals@${version}
+pi install npm:@cratis/ai-fundamentals
 \`\`\`
 
 Install it for one trusted project:
 
 \`\`\`bash
-pi install -l npm:@cratis/ai-fundamentals@${version}
+pi install -l npm:@cratis/ai-fundamentals
 \`\`\`
 
 Try it for one Pi run without changing settings:
 
 \`\`\`bash
-pi -e npm:@cratis/ai-fundamentals@${version}
+pi -e npm:@cratis/ai-fundamentals
 \`\`\`
 
 ## Update or remove
 
-Move to another exact version with \`pi install npm:@cratis/ai-fundamentals@<version>\`.
+Update to the latest published release with \`pi install npm:@cratis/ai-fundamentals\`.
 Remove the package with \`pi remove npm:@cratis/ai-fundamentals\`.
 
 ## Status
 
 ${
           supported
-              ? `This is the supported stable \`${version}\` release. Review skill instructions before use.`
+              ? `This is a supported stable release. Review skill instructions before use.`
               : `This \`0.x\` package is an unsupported evaluation release. Packaging, provenance,
 and lifecycle checks do not grant a support claim. Review skill instructions before use.`
       }
@@ -155,6 +241,13 @@ export function materializeFundamentalsPreviewNpmAsset({
         throw new Error(
             "Preview request source does not match immutable authority",
         );
+    const bundleSkills = loadPublicBundleSkills(repositoryRoot);
+    assertAuthorityParity(bundleSkills, authority);
+    const digest = bundleContentDigest(bundleSkills);
+    const sourceCommit = execFileSync("git", ["rev-parse", "HEAD"], {
+        cwd: repositoryRoot,
+        encoding: "utf8",
+    }).trim();
     const temporaryRoot = mkdtempSync(join(tmpdir(), "cratis-preview-npm-"));
     const stageRoot = join(temporaryRoot, "stage");
     mkdirSync(root, { recursive: false });
@@ -164,15 +257,15 @@ export function materializeFundamentalsPreviewNpmAsset({
             version,
             profileId,
             packageName,
-            description: "Cratis Fundamentals concept guidance",
-            skills: [authority.skill],
+            description: bundleDescription,
+            skills: bundleSkills,
             codexInstallationPolicy: "NOT_AVAILABLE",
             piPrivate: false,
         });
         const piRoot = join(stageRoot, adapters.roots.pi);
         writeFileSync(
             join(piRoot, "README.md"),
-            packageReadme(version, request.supportClaim),
+            packageReadme(request.supportClaim),
             {
             flag: "wx",
         });
@@ -183,7 +276,7 @@ export function materializeFundamentalsPreviewNpmAsset({
         const expectedPackageJson = {
             name: packageName,
             version,
-            description: "Cratis Fundamentals concept guidance",
+            description: bundleDescription,
             private: false,
             license: "MIT",
             repository: {
@@ -221,6 +314,10 @@ export function materializeFundamentalsPreviewNpmAsset({
             version,
             sourceRevision: authority.source.sourceRevision,
             sourceContentDigest: authority.source.contentDigest,
+            sourceCommit,
+            bundledSkillCount: bundleSkills.length,
+            bundledSkillIds: bundleSkills.map((skill) => skill.name),
+            bundleContentDigest: digest,
             requestId: request.id,
             filename,
             size: content.length,

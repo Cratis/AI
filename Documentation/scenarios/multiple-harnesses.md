@@ -10,11 +10,11 @@ separate multi-harness topic — per-harness getting started lives in the
    [harness guide](../harnesses.md) describes. Claude Code, Codex, Copilot,
    and Cursor each resolve the same canonical skill bytes, so two tools never
    see different guidance.
-2. Pi (and any npm-consuming host) installs the published package with an
-   exact pin recorded in `.pi/settings.json`:
+2. Pi (and any npm-consuming host) installs the published package, with the
+   installed version recorded in `.pi/settings.json`:
 
    ```bash
-   pi install -l npm:@cratis/ai-fundamentals@0.10.0
+   pi install -l npm:@cratis/ai-fundamentals
    ```
 
 3. The repository commits `.cratis/ai.json` as the one neutral record of

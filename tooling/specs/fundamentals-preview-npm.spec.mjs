@@ -2,7 +2,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import {
+    mkdtempSync,
+    readFileSync,
+    readdirSync,
+    rmSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -94,7 +99,8 @@ test("publishable Fundamentals preview npm asset is deterministic and scriptless
         assert.deepEqual(packageJson, {
             name: "@cratis/ai-fundamentals",
             version: "0.1.0-preview.1",
-            description: "Cratis Fundamentals concept guidance",
+            description:
+                "Cratis AI skills for building event-sourced and CQRS applications",
             private: false,
             license: "MIT",
             repository: {
@@ -111,16 +117,26 @@ test("publishable Fundamentals preview npm asset is deterministic and scriptless
         assert(
             files.has("package/skills/cratis-fundamentals-concept/SKILL.md"),
         );
+        // The package bundles the whole public skills directory — the same
+        // content the marketplace manifests install for other harnesses.
+        assert(
+            files.has("package/skills/cratis-chronicle-projection/SKILL.md"),
+        );
+        const publicSkillDirectories = readdirSync("skills", {
+            withFileTypes: true,
+        })
+            .filter((entry) => entry.isDirectory())
+            .map((entry) => entry.name)
+            .sort();
+        assert.deepEqual(first.bundledSkillIds, publicSkillDirectories);
+        assert.equal(first.bundledSkillCount, publicSkillDirectories.length);
+        assert.match(first.bundleContentDigest, /^[0-9a-f]{64}$/);
         const readme = files.get("package/README.md").toString("utf8");
         assert(
-            readme.includes(
-                "pi install npm:@cratis/ai-fundamentals@0.1.0-preview.1",
-            ),
+            readme.includes("pi install npm:@cratis/ai-fundamentals"),
         );
         assert(
-            readme.includes(
-                "pi install -l npm:@cratis/ai-fundamentals@0.1.0-preview.1",
-            ),
+            readme.includes("pi install -l npm:@cratis/ai-fundamentals"),
         );
         assert(readme.includes("unsupported evaluation release"));
         const checksums = readFileSync(join(firstRoot, "SHA256SUMS"), "utf8");
@@ -229,8 +245,9 @@ test("normal release stages a support-free stable package for latest", () => {
             readFileSync(join(root, "release", manifest.filename)),
         );
         const readme = files.get("package/README.md").toString("utf8");
-        assert(readme.includes("pi install npm:@cratis/ai-fundamentals@1.0.0"));
-        assert(readme.includes("pi -e npm:@cratis/ai-fundamentals@1.0.0"));
+        assert(readme.includes("pi install npm:@cratis/ai-fundamentals"));
+        assert(readme.includes("pi -e npm:@cratis/ai-fundamentals"));
+        assert(readme.includes("supported stable release"));
     });
 });
 
