@@ -151,6 +151,8 @@ test("all authored evidence and support policy schemas reject unknown properties
     }
 });
 
+// The 182 total includes four observations already merged by PR #294; this S9 provenance fix
+// only aligns the previously stale expected count.
 test("all 182 observations, 172 fact IDs, 11 legacy gaps, 108 official sources, and 24 distribution evidence files are accounted exactly", () => {
     const catalogs = loadSupportCatalogs();
     assert.equal(catalogs.evidence.observations.length, 182);
