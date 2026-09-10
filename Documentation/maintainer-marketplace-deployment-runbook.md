@@ -271,6 +271,8 @@ and the same with `path: "engineering"`. Hand-authored, no generator.
 
 [`release-passive-previews.yml`](../.github/workflows/release-passive-previews.yml)
 publishes the npm package on merge to `main` under a release-intent label.
+The package bundles the whole `skills/` directory — the same bytes the
+marketplace installs resolve — anchored by the fundamentals concept authority.
 
 - npm trusted publishing (OIDC), no token — bound to this exact workflow
   filename, org `Cratis`, repo `AI`, environment `npm-stage`. **Renaming the

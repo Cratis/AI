@@ -94,10 +94,10 @@ package skills directly.
 
 ### Pi
 
-Install the published package at an exact version:
+Install the published package:
 
 ```bash
-pi install -l npm:@cratis/ai-fundamentals@0.10.0
+pi install -l npm:@cratis/ai-fundamentals
 pi list
 ```
 
@@ -158,10 +158,10 @@ Updates arrive as normal pull requests. Review changes to:
 - generated checksums/provenance references;
 - no shared skill or rule bodies.
 
-For Pi, move to another exact version:
+For Pi, update to the latest published release:
 
 ```bash
-pi install -l npm:@cratis/ai-fundamentals@<newer-exact-version>
+pi install -l npm:@cratis/ai-fundamentals
 ```
 
 Rollback restores the previous exact version in `.cratis/ai.json` and

@@ -7,13 +7,13 @@ How Cratis AI guidance changes under you — and how to get back.
 Until the first governed release, marketplace installs follow the
 `Cratis/AI` default branch ([Cratis/AI#264](https://github.com/Cratis/AI/issues/264)).
 Updating means reinstalling or updating the plugin; rolling back means
-uninstalling. There is no version to pin yet, and the only published package
-is `@cratis/ai-fundamentals` `1.0.0` on npm — for
-that one, Pi's exact pins already work:
+uninstalling. There is no version to pin yet, and the published
+`@cratis/ai-fundamentals` npm package — the whole public bundle — is a
+supported stable release:
 
 ```bash
-pi install -l npm:@cratis/ai-fundamentals@0.10.0   # pin
-# rollback: reinstall the previous exact version
+pi install -l npm:@cratis/ai-fundamentals   # install / update
+# rollback: reinstall the previously recorded version
 ```
 
 ## The published world (designed, not yet live)
