@@ -132,13 +132,12 @@ profiles, but they do not describe a supported installation channel:
 
 - **Install today from `main`.** The versioned-release flow — exact-version
   packages, reviewed update pull requests, rollback by version pin — is
-  designed but not published yet. Until the first governed release, the
-  marketplace installs straight off the default branch, and the only published
-  package is the unsupported `@cratis/ai-fundamentals` `0.x` evaluation on npm.
+  designed but not published yet. Until it ships, the marketplace installs
+  straight off the default branch, and the only published package is
+  `@cratis/ai-fundamentals` `1.0.0` on npm.
 - **Vendor marketplace listing is pending.** Adding `Cratis/AI` as a
   marketplace works now; being *listed* in a vendor's own marketplace UI — so
   strangers can find "cratis" by search — is a separate manual submission per
   host, tracked in
   [Cratis/AI#147](https://github.com/Cratis/AI/issues/147).
-- Everything here is an unsupported `0.x` evaluation until the governed
-  release gates pass.
+- Everything here ships as the supported `1.0.0` release.

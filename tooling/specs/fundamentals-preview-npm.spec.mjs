@@ -48,7 +48,7 @@ const ready = Object.freeze({
     profileId: "cratis/fundamentals",
     packageName: "@cratis/ai-fundamentals",
     previewRequestEligible: true,
-    supportGranted: false,
+    supportGranted: true,
 });
 
 const currentRequest = Object.freeze(
@@ -212,25 +212,25 @@ test("current request stages the exact publishable preview", () => {
     });
 });
 
-test("normal release stages a support-free 0.x package for latest", () => {
+test("normal release stages a support-free stable package for latest", () => {
     withTemporaryDirectory((root) => {
         const manifest = packageFundamentalsNpmRelease({
             outputRoot: join(root, "release"),
-            version: "0.1.0",
+            version: "1.0.0",
         });
         assert.equal(manifest.state, "PASSIVE_NPM_STAGED");
-        assert.equal(manifest.version, "0.1.0");
+        assert.equal(manifest.version, "1.0.0");
         assert.equal(manifest.distTag, "latest");
         assert.equal(manifest.publicationEligible, true);
         assert.equal(manifest.previewPublicationEligible, false);
-        assert.equal(manifest.supportGranted, false);
+        assert.equal(manifest.supportGranted, true);
         assert.equal(manifest.stablePromotionEligible, false);
         const files = readTarGzip(
             readFileSync(join(root, "release", manifest.filename)),
         );
         const readme = files.get("package/README.md").toString("utf8");
-        assert(readme.includes("pi install npm:@cratis/ai-fundamentals@0.1.0"));
-        assert(readme.includes("pi -e npm:@cratis/ai-fundamentals@0.1.0"));
+        assert(readme.includes("pi install npm:@cratis/ai-fundamentals@1.0.0"));
+        assert(readme.includes("pi -e npm:@cratis/ai-fundamentals@1.0.0"));
     });
 });
 
@@ -258,26 +258,51 @@ test("merged Samples registry canary remains exact and non-supporting", () => {
     assert.equal(evidence.promotionEligible, false);
 });
 
-test("npm staging rejects 1.x and malformed versions", () => {
+test("npm staging rejects 0.x stable releases and malformed versions", () => {
     withTemporaryDirectory((root) => {
+        // The release lane takes stable 1.0.0+ only.
         for (const version of [
-            "1.0.0",
+            "0.1.0",
             "latest",
-            "0.1.0-preview",
             "0.1.0-beta.1",
+            "1.0.0-preview.1",
         ]) {
             assert.throws(
                 () =>
                     materializeFundamentalsPreviewNpmAsset({
                         outputRoot: join(
                             root,
-                            version.replaceAll(/[^a-z0-9]/gi, "-"),
+                            `release-${version.replaceAll(/[^a-z0-9]/gi, "-")}`,
                         ),
                         version,
                         readiness: ready,
-                        request: { ...request, version },
+                        request: {
+                            ...request,
+                            state: "release-on-merge",
+                            version,
+                        },
                     }),
-                /must match 0\.MINOR\.PATCH or 0\.MINOR\.PATCH-preview\.N/,
+                /must match MAJOR\.MINOR\.PATCH for a release or 0\.MINOR\.PATCH-preview\.N for a preview/,
+            );
+        }
+        // The preview lane stays on 0.x preview tags.
+        for (const version of ["1.0.0-preview.1", "0.1.0-preview", "2.0"]) {
+            assert.throws(
+                () =>
+                    materializeFundamentalsPreviewNpmAsset({
+                        outputRoot: join(
+                            root,
+                            `preview-${version.replaceAll(/[^a-z0-9]/gi, "-")}`,
+                        ),
+                        version,
+                        readiness: ready,
+                        request: {
+                            ...request,
+                            state: "preview-on-merge",
+                            version,
+                        },
+                    }),
+                /must match MAJOR\.MINOR\.PATCH for a release or 0\.MINOR\.PATCH-preview\.N for a preview/,
             );
         }
     });

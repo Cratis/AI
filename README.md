@@ -2,8 +2,8 @@
 
 Free, MIT-licensed AI skills, rules, and agent guidance for building
 event-sourced and CQRS applications with the [Cratis](https://www.cratis.io)
-ecosystem. Everything here is in preview; the only published package today is
-`@cratis/ai-fundamentals`, released as a `0.x` evaluation package.
+ecosystem. The only published package today is
+`@cratis/ai-fundamentals`, released as a stable `1.0.0` package.
 
 Cratis AI is the controlled source for shared AI skills, engineering guidance,
 product profiles, and generated multi-harness packages for the Cratis ecosystem.
@@ -15,8 +15,9 @@ It serves two separate audiences:
 - **Cratis maintainers** receive separate engineering profiles for application,
   framework, client, documentation, Studio, Stagehand, and corpus repositories.
 
-> **Current status:** distribution remains candidate/preview-only. No supported
-> public or engineering profile package has been published. Deterministic
+> **Current status:** the supported delivery today is the `@cratis/ai-fundamentals`
+> `1.0.0` npm package and the marketplace plugins; versioned per-profile
+> packages remain in review. Deterministic
 > review bundles now package 41 passive targets across 34 harness shapes. Four
 > additional targets remain explicitly blocked by MCP or private/local-content
 > safety boundaries, and four superseded legacy skills remain repository-only;
@@ -27,8 +28,8 @@ It serves two separate audiences:
 > runtime packages.
 >
 > Assurance has two operating levels: lightweight basic checks for passive
-> candidate/preview iteration, and the existing governed S9/S10 system for
-> stable support, executable/MCP behavior, and broad automated rollout. Advanced
+> candidate/preview iteration, and the governed S9/S10 system for
+> executable/MCP behavior and broad automated rollout. Advanced
 > assurance remains available but does not gate ordinary passive preview work.
 
 ## The architecture
@@ -260,14 +261,12 @@ node tooling/generate-repository-inventory.mjs --check
 
 `@cratis/ai-fundamentals` uses the normal Cratis release flow: exactly one
 `major`, `minor`, `patch`, or `no-release` pull-request label, followed by an
-automatic release from protected `main`. Releases stay on `0.x.y` and publish to
-npm `latest` through trusted OIDC while the API is still evolving. Package
-provenance and lifecycle checks do not grant support.
+automatic release from protected `main`. Releases publish supported stable
+versions (`1.0.0` and newer) to npm `latest` through trusted OIDC.
 
-A `1.0.0` release, stable support, and broad rollout still require the governed
+Executable/MCP behavior and broad automated rollout still require the governed
 S9/S10 lane, including real consumer lifecycle canaries, release evidence, and
-explicit support approval. Until those gates pass, the package remains an
-unsupported evaluation endpoint.
+explicit approval.
 
 ## Native marketplace installation
 
@@ -299,9 +298,8 @@ hosts have no working install today — see the
 was the last generated marketplace release. Its tags keep resolving and are
 never deleted, but it receives no further releases.
 
-This remains an unsupported `0.x` evaluation distribution. Marketplace
-availability does not imply behavior support, broad-rollout approval, or a
-stable support claim.
+This is the supported stable `1.0.0` distribution. Marketplace
+availability extends the same support to plugin installs.
 
 ## Evaluation artifacts
 

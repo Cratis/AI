@@ -73,13 +73,13 @@ jobs:
           VERSION: ${{ needs.release.outputs.version }}
         run: |
           set -euo pipefail
-          [[ "$VERSION" =~ ^0\.[0-9]+\.[0-9]+$ ]]
+          [[ "$VERSION" =~ ^[1-9][0-9]*\.[0-9]+\.[0-9]+$ ]]
           node tooling/package-fundamentals-preview-npm.mjs \
             "$RUNNER_TEMP/fundamentals-npm" "$VERSION" release
           (cd "$RUNNER_TEMP/fundamentals-npm" && sha256sum -c SHA256SUMS)
           manifest="$RUNNER_TEMP/fundamentals-npm/preview-npm-manifest.json"
           test "$(node -p "require('$manifest').distTag")" = "latest"
-          test "$(node -p "require('$manifest').supportGranted")" = "false"
+          test "$(node -p "require('$manifest').supportGranted")" = "true"
           node tooling/smoke-fundamentals-preview-npm.mjs \
             "$RUNNER_TEMP/fundamentals-npm/cratis-ai-fundamentals-$VERSION.tgz" \
             "$VERSION"

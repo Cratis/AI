@@ -63,5 +63,4 @@ files can wait until you actually want narrow scope or reviewed updates.
   yet**; today skills arrive via the marketplace plugins that follow the
   `Cratis/AI` default branch, and committing `.cratis/ai.json` records the
   intended scope ahead of the first governed release.
-- Everything is an unsupported `0.x` evaluation until the governed release
-  gates pass.
+- Everything ships as the supported `1.0.0` release.

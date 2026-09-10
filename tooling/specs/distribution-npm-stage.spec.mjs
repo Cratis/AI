@@ -22,8 +22,8 @@ const workflow = readFileSync(
     "utf8",
 );
 
-test("npm stage contract enables normal support-free 0.x releases", () => {
-    assert.equal(contract.state, "NORMAL_0X_RELEASES_ENABLED");
+test("npm stage contract enables normal support-free stable releases", () => {
+    assert.equal(contract.state, "NORMAL_STABLE_RELEASES_ENABLED");
     assert.equal(contract.package.fixtureName, "@cratis/ai");
     assert.equal(contract.package.productionName, "@cratis/ai-fundamentals");
     assert.equal(contract.package.fixturePrivate, true);

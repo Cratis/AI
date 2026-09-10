@@ -44,8 +44,8 @@ enough.
 ## Status
 
 - Per-host package availability differs today: marketplace hosts follow
-  `Cratis/AI` `main`; npm/Pi carries only the unsupported
-  `@cratis/ai-fundamentals` `0.x` evaluation; Kiro, Junie, and Gemini CLI are
+  `Cratis/AI` `main`; npm/Pi carries `@cratis/ai-fundamentals` `1.0.0`;
+  Kiro, Junie, and Gemini CLI are
   pending (see the harness guide).
 - The versioned flow that would pin every harness to one reviewed release is
   designed but not published yet.
