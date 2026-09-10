@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "baseRevision": "b795d5307e20f7f7458a67708b4f26975e223796",
-  "indexDigest": "ebdc8c5f9eeefcce6ce655efdbbb3c6518e4aa94a58df1f2d04963b2783f13c6",
+  "indexDigest": "3aeb9a407068961a43842bf75a33741eea2c3168d2602ba471d15ac0135dbfba",
   "indexDigestExcludedPaths": [
     "catalog/v2/repository-inventory.json"
   ],
@@ -2752,6 +2752,30 @@
     },
     {
       "path": "profiles/cratis-engineering/cratis/engineering.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/cratis-engineering/cratis/engineering/core.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/cratis-engineering/cratis/engineering/csharp.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/cratis-engineering/cratis/engineering/elixir.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/cratis-engineering/cratis/engineering/kotlin.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/cratis-engineering/cratis/engineering/react.json",
+      "status": "added"
+    },
+    {
+      "path": "profiles/cratis-engineering/cratis/engineering/typescript.json",
       "status": "added"
     },
     {
@@ -5838,8 +5862,8 @@
         "option-a-plus-authority",
         "reevaluation-authority"
       ],
-      "expectedPathCount": 61,
-      "expectedPathsDigest": "f8c290536d48e82e80b26178cf6095507e9b34fef7ee5f920eebea38c711c602"
+      "expectedPathCount": 67,
+      "expectedPathsDigest": "8a551a4d50aa49a8219198445eaf20829b242d60d4936133b1e74c7481a183b9"
     },
     {
       "excludePathPatterns": [],

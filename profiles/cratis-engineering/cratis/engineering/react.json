@@ -1,0 +1,24 @@
+{
+    "version": "0.0.0",
+    "repositoryKinds": [
+        "application",
+        "framework",
+        "client",
+        "documentation",
+        "corpus"
+    ],
+    "products": [],
+    "distributionVisibility": "public",
+    "confidentialContentAllowed": false,
+    "privateOverlayExpected": true,
+    "id": "cratis/engineering/react",
+    "packageName": "@cratis/ai-engineering-react",
+    "languages": [
+        "react"
+    ],
+    "state": "content-gap",
+    "composes": [
+        "cratis/engineering/core"
+    ],
+    "gapSummary": "Reserved for the React maintainer conventions (component library and frontend repository work), to be verified against the React repositories Cratis maintains. Until they land this cell composes the core only."
+}

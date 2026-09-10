@@ -6,7 +6,7 @@ This catalog is generated from reviewed catalog metadata. Use it to find
 the right package and understand its skills. It is not source authority
 and does not make a planned package installable.
 
-- Profiles: 60
+- Profiles: 66
 - Capabilities: 62
 - Installable profiles: 0
 - Ecosystem bindings with support claims: 0
@@ -2109,16 +2109,16 @@ Classification-only public-safe guidance for Studio MCP requests and already-red
 - **Profile ID:** `cratis/engineering`
 - **Audience:** cratis-engineering
 - **Package:** `@cratis/ai-engineering`
-- **State:** preview-source-candidate
+- **State:** planned-composition
 - **Installable:** no
-- **Materialization:** candidate-package
+- **Materialization:** composition
 
-Public-safe shared engineering conventions for contributors across Cratis repositories.
+Public-safe shared engineering conventions for contributors across Cratis repositories, split by language so a repository loads only the conventions it writes in.
 
 **Intended for:** Cratis maintainers contributing to Cratis in application projects, framework projects, client projects, documentation projects, and corpus repositories.
 
 - Products: shared engineering behavior
-- Languages: language-agnostic
+- Languages: csharp, typescript, kotlin, elixir, react, language-agnostic
 - Repository kinds: application, framework, client, documentation, corpus
 
 #### Included capabilities
@@ -2130,7 +2130,175 @@ Public-safe shared engineering conventions for contributors across Cratis reposi
 
 #### Composed profiles
 
+- cratis/engineering/core
+- cratis/engineering/csharp
+- cratis/engineering/elixir
+- cratis/engineering/kotlin
+- cratis/engineering/react
+- cratis/engineering/typescript
+
+### Cratis Engineering/core Maintainer
+
+- **Profile ID:** `cratis/engineering/core`
+- **Audience:** cratis-engineering
+- **Package:** `@cratis/ai-engineering-core`
+- **State:** preview-source-candidate
+- **Installable:** no
+- **Materialization:** candidate-package
+
+Public-safe contributor guidance for maintainers working on Cratis. Private repository details remain local.
+
+**Intended for:** Cratis maintainers contributing to Cratis in application projects, framework projects, client projects, documentation projects, and corpus repositories.
+
+- Products: shared engineering behavior
+- Languages: language-agnostic
+- Repository kinds: application, framework, client, documentation, corpus
+
+#### Included capabilities
+
+- cratis-engineering-decision-record
+- cratis-engineering-docs-authoring
+- cratis-engineering-effect-boundaries
+
+#### Composed profiles
+
 - None
+
+### Cratis Maintainer Engineering — C#
+
+- **Profile ID:** `cratis/engineering/csharp`
+- **Audience:** cratis-engineering
+- **Package:** `@cratis/ai-engineering-csharp`
+- **State:** preview-source-candidate
+- **Installable:** no
+- **Materialization:** candidate-package
+
+The C# maintainer conventions plus the language-agnostic decision-record, effect-boundary, and documentation-authoring procedures.
+
+**Intended for:** Cratis maintainers contributing to Cratis in application projects, framework projects, client projects, documentation projects, and corpus repositories.
+
+- Products: shared engineering behavior
+- Languages: csharp
+- Repository kinds: application, framework, client, documentation, corpus
+
+#### Included capabilities
+
+- cratis-engineering-csharp-conventions
+- cratis-engineering-decision-record
+- cratis-engineering-docs-authoring
+- cratis-engineering-effect-boundaries
+
+#### Composed profiles
+
+- cratis/engineering/core
+
+### Cratis Maintainer Engineering — Elixir
+
+- **Profile ID:** `cratis/engineering/elixir`
+- **Audience:** cratis-engineering
+- **Package:** `@cratis/ai-engineering-elixir`
+- **State:** content-gap
+- **Installable:** no
+- **Materialization:** catalog-only
+
+Public-safe contributor guidance for maintainers working on Cratis. Private repository details remain local.
+
+**Intended for:** Cratis maintainers contributing to Cratis in application projects, framework projects, client projects, documentation projects, and corpus repositories.
+
+- Products: shared engineering behavior
+- Languages: elixir
+- Repository kinds: application, framework, client, documentation, corpus
+
+#### Included capabilities
+
+- cratis-engineering-decision-record
+- cratis-engineering-docs-authoring
+- cratis-engineering-effect-boundaries
+
+#### Composed profiles
+
+- cratis/engineering/core
+
+### Cratis Maintainer Engineering — Kotlin
+
+- **Profile ID:** `cratis/engineering/kotlin`
+- **Audience:** cratis-engineering
+- **Package:** `@cratis/ai-engineering-kotlin`
+- **State:** content-gap
+- **Installable:** no
+- **Materialization:** catalog-only
+
+Public-safe contributor guidance for maintainers working on Cratis. Private repository details remain local.
+
+**Intended for:** Cratis maintainers contributing to Cratis in application projects, framework projects, client projects, documentation projects, and corpus repositories.
+
+- Products: shared engineering behavior
+- Languages: kotlin
+- Repository kinds: application, framework, client, documentation, corpus
+
+#### Included capabilities
+
+- cratis-engineering-decision-record
+- cratis-engineering-docs-authoring
+- cratis-engineering-effect-boundaries
+
+#### Composed profiles
+
+- cratis/engineering/core
+
+### Cratis Maintainer Engineering — React
+
+- **Profile ID:** `cratis/engineering/react`
+- **Audience:** cratis-engineering
+- **Package:** `@cratis/ai-engineering-react`
+- **State:** content-gap
+- **Installable:** no
+- **Materialization:** catalog-only
+
+Public-safe contributor guidance for maintainers working on Cratis. Private repository details remain local.
+
+**Intended for:** Cratis maintainers contributing to Cratis in application projects, framework projects, client projects, documentation projects, and corpus repositories.
+
+- Products: shared engineering behavior
+- Languages: react
+- Repository kinds: application, framework, client, documentation, corpus
+
+#### Included capabilities
+
+- cratis-engineering-decision-record
+- cratis-engineering-docs-authoring
+- cratis-engineering-effect-boundaries
+
+#### Composed profiles
+
+- cratis/engineering/core
+
+### Cratis Maintainer Engineering — TypeScript
+
+- **Profile ID:** `cratis/engineering/typescript`
+- **Audience:** cratis-engineering
+- **Package:** `@cratis/ai-engineering-typescript`
+- **State:** content-gap
+- **Installable:** no
+- **Materialization:** catalog-only
+
+Public-safe contributor guidance for maintainers working on Cratis. Private repository details remain local.
+
+**Intended for:** Cratis maintainers contributing to Cratis in application projects, framework projects, client projects, documentation projects, and corpus repositories.
+
+- Products: shared engineering behavior
+- Languages: typescript
+- Repository kinds: application, framework, client, documentation, corpus
+
+#### Included capabilities
+
+- cratis-engineering-decision-record
+- cratis-engineering-docs-authoring
+- cratis-engineering-effect-boundaries
+
+#### Composed profiles
+
+- cratis/engineering/core
 
 ## Capabilities
 
@@ -6000,6 +6168,7 @@ Use for Cratis-maintainer C# house standards and review policy.
 #### Profile membership — cratis-engineering-csharp-conventions
 
 - cratis/engineering
+- cratis/engineering/csharp
 
 ### cratis-engineering-decision-record
 
@@ -6064,6 +6233,12 @@ Use to consult, author, accept, or supersede a decision record in a repository's
 #### Profile membership — cratis-engineering-decision-record
 
 - cratis/engineering
+- cratis/engineering/core
+- cratis/engineering/csharp
+- cratis/engineering/elixir
+- cratis/engineering/kotlin
+- cratis/engineering/react
+- cratis/engineering/typescript
 
 ### cratis-engineering-docs-add-page
 
@@ -6194,6 +6369,12 @@ Use by Cratis maintainers to apply Diátaxis and documentation writing guidance.
 #### Profile membership — cratis-engineering-docs-authoring
 
 - cratis/engineering
+- cratis/engineering/core
+- cratis/engineering/csharp
+- cratis/engineering/elixir
+- cratis/engineering/kotlin
+- cratis/engineering/react
+- cratis/engineering/typescript
 
 ### cratis-engineering-docs-edit-page
 
@@ -6384,6 +6565,12 @@ Use when writing or reviewing code that publishes, persists, generates, propagat
 #### Profile membership — cratis-engineering-effect-boundaries
 
 - cratis/engineering
+- cratis/engineering/core
+- cratis/engineering/csharp
+- cratis/engineering/elixir
+- cratis/engineering/kotlin
+- cratis/engineering/react
+- cratis/engineering/typescript
 
 ### cratis-engineering-ship-changes
 

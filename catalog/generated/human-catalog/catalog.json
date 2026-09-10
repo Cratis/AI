@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "contractVersion": 1,
   "disclaimer": "Catalog inclusion, evaluation evidence, component modeling, planned projection, bundle generation, or publication does not grant runtime permission, emitted bytes, support, or approval.",
-  "inputDigest": "9562eed4df632b281e705f10598ad2bc9d5a59ea1f139f066871204e6b130db2",
+  "inputDigest": "19722304a0e9dcaba71d9ffb73e40afecb0f0a47690cbbfb0b73932eedb1fe9c",
   "componentSummary": {
     "disclaimer": "Modeled or planned components and projections are catalog metadata only; they are not emitted, supported, installable, published, promoted, or runtime eligible.",
     "total": 193,
@@ -2185,15 +2185,59 @@
     {
       "id": "cratis/engineering",
       "displayName": "Cratis Maintainer Engineering",
-      "description": "Public-safe shared engineering conventions for contributors across Cratis repositories.",
+      "description": "Public-safe shared engineering conventions for contributors across Cratis repositories, split by language so a repository loads only the conventions it writes in.",
       "intendedFor": "Cratis maintainers contributing to Cratis in application projects, framework projects, client projects, documentation projects, and corpus repositories.",
       "audience": "cratis-engineering",
       "packageName": "@cratis/ai-engineering",
+      "state": "planned-composition",
+      "installable": false,
+      "materialization": "composition",
+      "products": [],
+      "languages": [
+        "csharp",
+        "typescript",
+        "kotlin",
+        "elixir",
+        "react",
+        "language-agnostic"
+      ],
+      "repositoryKinds": [
+        "application",
+        "framework",
+        "client",
+        "documentation",
+        "corpus"
+      ],
+      "composes": [
+        "cratis/engineering/core",
+        "cratis/engineering/csharp",
+        "cratis/engineering/elixir",
+        "cratis/engineering/kotlin",
+        "cratis/engineering/react",
+        "cratis/engineering/typescript"
+      ],
+      "directTargetIds": [],
+      "targetIds": [
+        "cratis-engineering-csharp-conventions",
+        "cratis-engineering-decision-record",
+        "cratis-engineering-docs-authoring",
+        "cratis-engineering-effect-boundaries"
+      ]
+    },
+    {
+      "id": "cratis/engineering/core",
+      "displayName": "Cratis Engineering/core Maintainer",
+      "description": "Public-safe contributor guidance for maintainers working on Cratis. Private repository details remain local.",
+      "intendedFor": "Cratis maintainers contributing to Cratis in application projects, framework projects, client projects, documentation projects, and corpus repositories.",
+      "audience": "cratis-engineering",
+      "packageName": "@cratis/ai-engineering-core",
       "state": "preview-source-candidate",
       "installable": false,
       "materialization": "candidate-package",
       "products": [],
-      "languages": [],
+      "languages": [
+        "language-agnostic"
+      ],
       "repositoryKinds": [
         "application",
         "framework",
@@ -2203,13 +2247,169 @@
       ],
       "composes": [],
       "directTargetIds": [
-        "cratis-engineering-csharp-conventions",
         "cratis-engineering-decision-record",
         "cratis-engineering-docs-authoring",
         "cratis-engineering-effect-boundaries"
       ],
       "targetIds": [
+        "cratis-engineering-decision-record",
+        "cratis-engineering-docs-authoring",
+        "cratis-engineering-effect-boundaries"
+      ]
+    },
+    {
+      "id": "cratis/engineering/csharp",
+      "displayName": "Cratis Maintainer Engineering — C#",
+      "description": "The C# maintainer conventions plus the language-agnostic decision-record, effect-boundary, and documentation-authoring procedures.",
+      "intendedFor": "Cratis maintainers contributing to Cratis in application projects, framework projects, client projects, documentation projects, and corpus repositories.",
+      "audience": "cratis-engineering",
+      "packageName": "@cratis/ai-engineering-csharp",
+      "state": "preview-source-candidate",
+      "installable": false,
+      "materialization": "candidate-package",
+      "products": [],
+      "languages": [
+        "csharp"
+      ],
+      "repositoryKinds": [
+        "application",
+        "framework",
+        "client",
+        "documentation",
+        "corpus"
+      ],
+      "composes": [
+        "cratis/engineering/core"
+      ],
+      "directTargetIds": [
+        "cratis-engineering-csharp-conventions"
+      ],
+      "targetIds": [
         "cratis-engineering-csharp-conventions",
+        "cratis-engineering-decision-record",
+        "cratis-engineering-docs-authoring",
+        "cratis-engineering-effect-boundaries"
+      ]
+    },
+    {
+      "id": "cratis/engineering/elixir",
+      "displayName": "Cratis Maintainer Engineering — Elixir",
+      "description": "Public-safe contributor guidance for maintainers working on Cratis. Private repository details remain local.",
+      "intendedFor": "Cratis maintainers contributing to Cratis in application projects, framework projects, client projects, documentation projects, and corpus repositories.",
+      "audience": "cratis-engineering",
+      "packageName": "@cratis/ai-engineering-elixir",
+      "state": "content-gap",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [],
+      "languages": [
+        "elixir"
+      ],
+      "repositoryKinds": [
+        "application",
+        "framework",
+        "client",
+        "documentation",
+        "corpus"
+      ],
+      "composes": [
+        "cratis/engineering/core"
+      ],
+      "directTargetIds": [],
+      "targetIds": [
+        "cratis-engineering-decision-record",
+        "cratis-engineering-docs-authoring",
+        "cratis-engineering-effect-boundaries"
+      ]
+    },
+    {
+      "id": "cratis/engineering/kotlin",
+      "displayName": "Cratis Maintainer Engineering — Kotlin",
+      "description": "Public-safe contributor guidance for maintainers working on Cratis. Private repository details remain local.",
+      "intendedFor": "Cratis maintainers contributing to Cratis in application projects, framework projects, client projects, documentation projects, and corpus repositories.",
+      "audience": "cratis-engineering",
+      "packageName": "@cratis/ai-engineering-kotlin",
+      "state": "content-gap",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [],
+      "languages": [
+        "kotlin"
+      ],
+      "repositoryKinds": [
+        "application",
+        "framework",
+        "client",
+        "documentation",
+        "corpus"
+      ],
+      "composes": [
+        "cratis/engineering/core"
+      ],
+      "directTargetIds": [],
+      "targetIds": [
+        "cratis-engineering-decision-record",
+        "cratis-engineering-docs-authoring",
+        "cratis-engineering-effect-boundaries"
+      ]
+    },
+    {
+      "id": "cratis/engineering/react",
+      "displayName": "Cratis Maintainer Engineering — React",
+      "description": "Public-safe contributor guidance for maintainers working on Cratis. Private repository details remain local.",
+      "intendedFor": "Cratis maintainers contributing to Cratis in application projects, framework projects, client projects, documentation projects, and corpus repositories.",
+      "audience": "cratis-engineering",
+      "packageName": "@cratis/ai-engineering-react",
+      "state": "content-gap",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [],
+      "languages": [
+        "react"
+      ],
+      "repositoryKinds": [
+        "application",
+        "framework",
+        "client",
+        "documentation",
+        "corpus"
+      ],
+      "composes": [
+        "cratis/engineering/core"
+      ],
+      "directTargetIds": [],
+      "targetIds": [
+        "cratis-engineering-decision-record",
+        "cratis-engineering-docs-authoring",
+        "cratis-engineering-effect-boundaries"
+      ]
+    },
+    {
+      "id": "cratis/engineering/typescript",
+      "displayName": "Cratis Maintainer Engineering — TypeScript",
+      "description": "Public-safe contributor guidance for maintainers working on Cratis. Private repository details remain local.",
+      "intendedFor": "Cratis maintainers contributing to Cratis in application projects, framework projects, client projects, documentation projects, and corpus repositories.",
+      "audience": "cratis-engineering",
+      "packageName": "@cratis/ai-engineering-typescript",
+      "state": "content-gap",
+      "installable": false,
+      "materialization": "catalog-only",
+      "products": [],
+      "languages": [
+        "typescript"
+      ],
+      "repositoryKinds": [
+        "application",
+        "framework",
+        "client",
+        "documentation",
+        "corpus"
+      ],
+      "composes": [
+        "cratis/engineering/core"
+      ],
+      "directTargetIds": [],
+      "targetIds": [
         "cratis-engineering-decision-record",
         "cratis-engineering-docs-authoring",
         "cratis-engineering-effect-boundaries"
@@ -6245,7 +6445,8 @@
         "cratis-engineering-review"
       ],
       "profileIds": [
-        "cratis/engineering"
+        "cratis/engineering",
+        "cratis/engineering/csharp"
       ]
     },
     {
@@ -6304,7 +6505,13 @@
       "relatedTargetIds": [],
       "bundleIds": [],
       "profileIds": [
-        "cratis/engineering"
+        "cratis/engineering",
+        "cratis/engineering/core",
+        "cratis/engineering/csharp",
+        "cratis/engineering/elixir",
+        "cratis/engineering/kotlin",
+        "cratis/engineering/react",
+        "cratis/engineering/typescript"
       ]
     },
     {
@@ -6592,7 +6799,13 @@
         "cratis-engineering-review"
       ],
       "profileIds": [
-        "cratis/engineering"
+        "cratis/engineering",
+        "cratis/engineering/core",
+        "cratis/engineering/csharp",
+        "cratis/engineering/elixir",
+        "cratis/engineering/kotlin",
+        "cratis/engineering/react",
+        "cratis/engineering/typescript"
       ]
     },
     {
@@ -6837,7 +7050,13 @@
       ],
       "bundleIds": [],
       "profileIds": [
-        "cratis/engineering"
+        "cratis/engineering",
+        "cratis/engineering/core",
+        "cratis/engineering/csharp",
+        "cratis/engineering/elixir",
+        "cratis/engineering/kotlin",
+        "cratis/engineering/react",
+        "cratis/engineering/typescript"
       ]
     },
     {
