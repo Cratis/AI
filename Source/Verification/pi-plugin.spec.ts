@@ -57,6 +57,26 @@ test('the Pi package yields to a managed CLI installation', () => {
     }
 });
 
+test('the Pi package filters rules for framework CSharp documentation repositories', () => {
+    const project = mkdtempSync(join(tmpdir(), 'cratis-pi-'));
+    try {
+        mkdirSync(join(project, '.cratis'));
+        writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify({
+            profiles: ['cratis/engineering/csharp', 'cratis/documentation'],
+            languages: ['csharp'],
+        }));
+        const handlers = pluginHandlers();
+        const result = handlers.get('before_agent_start')?.({ cwd: project, systemPrompt: 'base' }, { cwd: project }) as { systemPrompt: string };
+        assert.match(result.systemPrompt, /# Framework Profile/);
+        assert.match(result.systemPrompt, /# C# Conventions/);
+        assert.match(result.systemPrompt, /# How to write documentation/);
+        assert.doesNotMatch(result.systemPrompt, /# Vertical Slice Architecture/);
+        assert.doesNotMatch(result.systemPrompt, /# TypeScript Conventions/);
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});
+
 test('Pi resolves configured profile composition through selected languages', () => {
     const project = mkdtempSync(join(tmpdir(), 'cratis-pi-'));
     try {
