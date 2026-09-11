@@ -10,6 +10,13 @@
     "postpack": "node prepare-package.mjs --clean"
   },
   "keywords": ["cratis", "pi-package", "ai", "skills"],
+  "homepage": "https://github.com/Cratis/AI",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Cratis/AI",
+    "directory": "Source/Pi.Plugin"
+  },
+  "bugs": "https://github.com/Cratis/AI/issues",
   "license": "MIT",
   "devDependencies": {
     "typescript": "^5.8.0"

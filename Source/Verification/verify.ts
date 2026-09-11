@@ -77,6 +77,7 @@ for (const extension of requiredPiExtensions) {
     if (!await exists(join(corpus, 'harnesses', 'pi', 'extensions', extension, 'index.ts'))) failures.push(`Pi extension '${extension}' is missing.`);
 }
 const piPackage = JSON.parse(await readFile(join(root, 'Source', 'Pi.Plugin', 'package.json'), 'utf8'));
+if (piPackage.repository?.url !== 'https://github.com/Cratis/AI') failures.push('@cratis/pi repository.url must match its GitHub provenance repository.');
 const packagedExtensions: string[] = piPackage.pi?.extensions ?? [];
 for (const extension of [
     './src/index.ts',
