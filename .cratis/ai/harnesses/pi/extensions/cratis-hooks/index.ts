@@ -186,6 +186,7 @@ export default function (pi: ExtensionAPI) {
 
 	// ── Stop → quality gate (re-runs the gates the change touched; keeps the model going on failure) ──
 	pi.on("agent_settled", async (_event, ctx) => {
+		if (ctx.mode === "print" || ctx.mode === "json") return;
 		if (!isInstalled(qualityGate)) return;
 		const payload = JSON.stringify({
 			session_id: ctx.sessionManager.getSessionId?.() ?? "nosession",
