@@ -33,7 +33,7 @@ jobs:
     uses: Cratis/Workflows/.github/workflows/verify-release-intent.yml@1e5319ff574ce61a771ec5199527b917204a13b5
 
   verify:
-    name: Verify corpus and packages
+    name: verify
     runs-on: ubuntu-latest
     steps:
       - name: Check out source
