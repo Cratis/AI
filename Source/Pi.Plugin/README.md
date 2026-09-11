@@ -1,13 +1,19 @@
-# Cratis skills for Pi
+# Cratis AI integration for Pi
 
-This is the **standalone plugin path** for Pi. Install it with:
+This is the **plugin path** for repositories that do not use `cratis ai`.
+Install it into a Pi project:
 
 ```bash
 pi install -l npm:@cratis/pi
 ```
 
-Pi discovers the packaged Cratis skills. It does not install persistent Cratis
-rules, compose profiles or languages for a repository, configure other harnesses,
-or protect a managed local corpus. Use `cratis ai install` for the managed path:
-it places the selected corpus in `.cratis/ai`, configures Pi directly, and keeps
-managed-file hashes for safe update and uninstall.
+The extension reads the repository's `.cratis/ai.json`, resolves its profiles
+through the packaged profile catalog, contributes only the matching skills, and
+adds the packaged Cratis rules and prompts to Pi. It therefore gives Pi the same
+configuration-aware Cratis content without requiring the Cratis CLI.
+
+The managed CLI path remains the choice when one repository must configure and
+synchronize several harnesses. It writes the resolved corpus to `.cratis/ai`,
+creates every harness integration, and records hashes for safe update and
+uninstall. The Pi plugin manages only Pi; it neither configures other harnesses
+nor owns a local managed corpus.

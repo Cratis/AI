@@ -1,9 +1,9 @@
 {
   "name": "@cratis/pi",
   "version": "0.1.0",
-  "description": "Standalone Cratis skill package for Pi",
+  "description": "Configuration-aware Cratis AI integration for Pi",
   "type": "module",
-  "files": ["skills", "README.md", "LICENSE"],
+  "files": ["corpus", "profile-catalog.json", "src", "README.md", "LICENSE"],
   "scripts": {
     "check": "tsc --noEmit"
   },
@@ -12,7 +12,10 @@
   "devDependencies": {
     "typescript": "^5.8.0"
   },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*"
+  },
   "pi": {
-    "skills": ["./skills"]
+    "extensions": ["./src/index.ts"]
   }
 }
