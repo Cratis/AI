@@ -1,0 +1,8 @@
+{
+  "skill": "cratis-fundamentals-concept",
+  "input": "Create a strongly typed value for a domain concept.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "ConceptAs<T>" }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "name": "@cratis/pi",
+  "version": "0.1.0",
+  "description": "Cratis AI skill-path integration for Pi",
+  "type": "module",
+  "exports": "./src/index.js",
+  "files": ["src", "README.md", "LICENSE"],
+  "scripts": { "test": "node --test" },
+  "keywords": ["cratis", "pi", "ai", "skills"],
+  "license": "MIT"
+}

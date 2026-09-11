@@ -3,8 +3,8 @@
 `.ai/` is the **single source of truth inside this repository** for legacy and
 repository-local rules, agents, prompts, skills, and hooks surfaced through
 adapters. It is not a package root and is never propagated wholesale.
-Canonical public and maintainer package sources live under `skills/` and
-`engineering/`; see
+Canonical reusable skills live under `.ai/skills/`; the root `skills/` path is a
+compatibility symlink. Maintainer content remains under `engineering/`; see
 [`Documentation/ai-distribution-and-subscriptions.md`](../Documentation/ai-distribution-and-subscriptions.md).
 
 **Never edit files under `.github/`, `.claude/`, `.agents/`, or root `AGENTS.md`
