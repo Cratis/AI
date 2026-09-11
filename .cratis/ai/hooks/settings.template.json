@@ -1,5 +1,5 @@
 {
-  "$comment": "Canonical Claude Code hook wiring for this repository. Copy to .claude/settings.json (see .ai/hooks/README.md); that copy is per-machine and gitignored. .ai/ is the source of truth, so edit this file and re-copy — never hand-edit the copy.",
+  "$comment": "Canonical Claude Code hook wiring for this repository. Copy to .claude/settings.json (see .cratis/ai/hooks/README.md); that copy is per-machine and gitignored. .cratis/ai/ is the source of truth, so edit this file and re-copy — never hand-edit the copy.",
   "hooks": {
     "PreToolUse": [
       {
@@ -7,7 +7,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.ai/hooks/scripts/cratis-guard-writes.sh"
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.cratis/ai/hooks/scripts/cratis-guard-writes.sh"
           }
         ]
       }
@@ -18,7 +18,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.ai/hooks/scripts/cratis-pattern-scan.sh"
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.cratis/ai/hooks/scripts/cratis-pattern-scan.sh"
           }
         ]
       }
@@ -28,7 +28,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.ai/hooks/scripts/cratis-quality-gate.sh"
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.cratis/ai/hooks/scripts/cratis-quality-gate.sh"
           }
         ]
       }

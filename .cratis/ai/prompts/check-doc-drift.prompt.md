@@ -7,10 +7,10 @@ description: Check for drift between AI assets and documentation inventory.
 
 Check whether AI assets and docs are in sync:
 
-- `.ai/rules/` vs documented instruction inventory
-- `.ai/skills/` vs documented skill inventory
-- `.ai/agents/` vs documented agent roster
-- `.ai/hooks/` vs architecture docs
+- `.cratis/ai/rules/` vs documented instruction inventory
+- `.cratis/ai/skills/` vs documented skill inventory
+- `.cratis/ai/agents/` vs documented agent roster
+- `.cratis/ai/hooks/` vs architecture docs
 
 Report:
 

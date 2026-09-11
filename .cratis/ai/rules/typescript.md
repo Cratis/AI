@@ -52,7 +52,7 @@ Each type gets its own file because it makes the codebase navigable — finding 
 
 ## User-facing strings (localization)
 
-How user-visible text is handled is **product policy, not a Cratis framework rule** (see [general.md](./general.md) — locales belong in a downstream app's own `.ai/`). Cratis itself has no mandatory i18n layer or `Strings` alias.
+How user-visible text is handled is **product policy, not a Cratis framework rule** (see [general.md](./general.md) — locales belong in a downstream app's own `.cratis/ai/`). Cratis itself has no mandatory i18n layer or `Strings` alias.
 
 - If the app has a localization convention (e.g. a translation object behind a `strings`/`Strings` import, or any i18n library), follow it consistently and keep raw string literals to constant, non-user-facing values (CSS class names, `key` props, internal identifiers).
 - If the app ships literal text, literal labels in JSX are fine.

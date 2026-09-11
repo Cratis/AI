@@ -17,7 +17,7 @@ tools:
 
 ## Scope before checklists
 
-Identify the repository profile and changed lane before selecting rules or running a checklist. Read the repository's `AGENTS.md` and applicable universal rules in `.ai/rules/`. For framework contributions, load `.ai/rules/framework.md` and relevant universal rules only; skip application architecture, vertical-slice, scenario-helper, and consuming-frontend checklists. Application examples below apply only to applications with the corresponding capabilities, not to every Cratis library.
+Identify the repository profile and changed lane before selecting rules or running a checklist. Read the repository's `AGENTS.md` and applicable universal rules in `.cratis/ai/rules/`. For framework contributions, load `.cratis/ai/rules/framework.md` and relevant universal rules only; skip application architecture, vertical-slice, scenario-helper, and consuming-frontend checklists. Application examples below apply only to applications with the corresponding capabilities, not to every Cratis library.
 
 Scope verification to affected projects/packages and behavior. Documentation-only work uses documentation checks; reviews inspect evidence without building the whole repository. Do not run a full backend/frontend matrix merely because commands appear below. Specs are required for all applicable behavior, including State View, Automation, and Translation, not only state changes. Report skipped or unavailable checks honestly.
 
@@ -34,7 +34,7 @@ You do NOT write code yourself — return a scoped plan to the parent; delegatio
 After selecting the profile and lane, read the applicable entries only:
 
 - `AGENTS.md`
-- `.ai/rules/vertical-slices.md`
+- `.cratis/ai/rules/vertical-slices.md`
 - the project context selected by the repository's own `AGENTS.md` (never merge canonical and legacy context files)
 
 ---
@@ -96,7 +96,7 @@ For an explicitly requested large application scope, adapt this optional numbere
 When handing off to a specialist:
 
 1. State exactly which files need to be created or modified.
-2. Quote the relevant section of `.ai/rules/vertical-slices.md` that applies.
+2. Quote the relevant section of `.cratis/ai/rules/vertical-slices.md` that applies.
 3. State the acceptance criteria (what "done" looks like for this task).
 4. Tell the specialist which agent to hand back to when finished.
 

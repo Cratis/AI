@@ -1,0 +1,126 @@
+# Copyright (c) Cratis. All rights reserved.
+# Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+name: Quality and release
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to release
+        required: false
+        type: string
+      release-notes:
+        description: Release notes
+        required: false
+        default: No release notes
+        type: string
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  release-intent:
+    if: github.event_name == 'pull_request'
+    uses: Cratis/Workflows/.github/workflows/verify-release-intent.yml@1e5319ff574ce61a771ec5199527b917204a13b5
+
+  verify:
+    name: Verify corpus and packages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      - name: Install project dependencies
+        run: |
+          npm ci --prefix Source/Harness.Setup
+          npm ci --prefix Source/Pi.Plugin
+          npm ci --prefix Source/Verification
+
+      - name: Type check
+        run: |
+          npm run check --prefix Source/Harness.Setup
+          npm run check --prefix Source/Pi.Plugin
+          npm run check --prefix Source/Verification
+
+      - name: Verify corpus and skill behavior
+        run: npm run verify --prefix Source/Verification
+
+      - name: Test Pi package behavior
+        run: npm test --prefix Source/Verification
+
+      - name: Verify Pi package contents
+        run: cd Source/Pi.Plugin && npm pack --dry-run
+
+      - name: Lint runtime shell scripts
+        run: |
+          mapfile -t scripts < <(find .cratis/ai/hooks/scripts -maxdepth 1 -name '*.sh' | sort)
+          test ${#scripts[@]} -gt 0
+          shellcheck --external-sources --severity=style "${scripts[@]}"
+
+      - name: Reject whitespace errors
+        run: git diff --check
+
+  release:
+    name: Determine semantic version
+    if: github.event_name != 'pull_request'
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
+    outputs:
+      publish: ${{ steps.release.outputs.should-publish }}
+      version: ${{ steps.release.outputs.version }}
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Determine release
+        id: release
+        uses: cratis/release-action@v1
+        with:
+          version: ${{ github.event.inputs.version }}
+          release-notes: ${{ github.event.inputs.release-notes }}
+
+  publish-pi:
+    name: Publish Pi package
+    if: needs.release.outputs.publish == 'true'
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      - name: Prepare package
+        working-directory: Source/Pi.Plugin
+        run: |
+          npm ci
+          npm pkg set version=${{ needs.release.outputs.version }}
+
+      - name: Publish package
+        working-directory: Source/Pi.Plugin
+        run: npm publish --provenance --access public

@@ -45,7 +45,7 @@ Where the repository requires release intent, `no-release` is a decision, not an
 
 This covers, whenever the PR touches *only* these:
 
-- **Documentation** — anything under `Documentation/**`, READMEs, the `.ai/` corpus.
+- **Documentation** — anything under `Documentation/**`, READMEs, the `.cratis/ai/` corpus.
 - **CI and repository automation** — `.github/workflows/**`, `.github/scripts/**`, `.github/CODEOWNERS`, issue/PR templates.
 - **Tests and specs** — `*.Specs/**`, `when_*/**`, `for_*/**`, `Integration/**`, and test-only fixtures.
 - **Build and tooling configuration** that produces no shipped artifact difference — lint config, editor config, local scripts.

@@ -12,7 +12,7 @@ tools: [githubRepo, codeSearch, usages, rename, terminalLastCommand]
 
 ## Scope before checklists
 
-Identify the repository profile and changed lane before selecting rules or running a checklist. Read the repository's `AGENTS.md` and applicable universal rules in `.ai/rules/`. For framework contributions, load `.ai/rules/framework.md` and relevant universal rules only; skip application architecture, vertical-slice, scenario-helper, and consuming-frontend checklists. Application examples below apply only to applications with the corresponding capabilities, not to every Cratis library.
+Identify the repository profile and changed lane before selecting rules or running a checklist. Read the repository's `AGENTS.md` and applicable universal rules in `.cratis/ai/rules/`. For framework contributions, load `.cratis/ai/rules/framework.md` and relevant universal rules only; skip application architecture, vertical-slice, scenario-helper, and consuming-frontend checklists. Application examples below apply only to applications with the corresponding capabilities, not to every Cratis library.
 
 Scope verification to affected projects/packages and behavior. Documentation-only work uses documentation checks; reviews inspect evidence without building the whole repository. Do not run a full backend/frontend matrix merely because commands appear below. Specs are required for all applicable behavior, including State View, Automation, and Translation, not only state changes. Report skipped or unavailable checks honestly.
 
@@ -24,11 +24,11 @@ A new vertical slice (State Change, State View, Automation, Translation), or a n
 
 ## Source of truth (select applicable profile/lane entries before starting)
 
-- `.ai/rules/general.md` — universal rules, layout, gates, authority model.
-- `.ai/rules/vertical-slices.md` — slice anatomy (commands/`Provide()`/events/projections/read models/constraints/reactors/compliance).
-- `.ai/rules/csharp.md`, `.ai/rules/specs.md` — C# style, spec patterns.
-- `.ai/rules/typescript.md`, `.ai/rules/react.md`, `.ai/rules/components.md`, `.ai/rules/dialogs.md` — frontend.
-- `.ai/skills/event-modeling/SKILL.md` — pre-code event vocabulary, flow, contracts, scenarios.
+- `.cratis/ai/rules/general.md` — universal rules, layout, gates, authority model.
+- `.cratis/ai/rules/vertical-slices.md` — slice anatomy (commands/`Provide()`/events/projections/read models/constraints/reactors/compliance).
+- `.cratis/ai/rules/csharp.md`, `.cratis/ai/rules/specs.md` — C# style, spec patterns.
+- `.cratis/ai/rules/typescript.md`, `.cratis/ai/rules/react.md`, `.cratis/ai/rules/components.md`, `.cratis/ai/rules/dialogs.md` — frontend.
+- `.cratis/ai/skills/cratis-chronicle-event-modeling/SKILL.md` — pre-code event vocabulary, flow, contracts, scenarios.
 
 ## Workflow — phase gates; don't start the next until the current passes
 

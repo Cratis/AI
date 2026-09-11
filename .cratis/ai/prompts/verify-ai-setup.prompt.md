@@ -8,7 +8,7 @@ description: Validate AI framework setup integrity, canonical source conventions
 Validate the repository AI setup by running:
 
 ```bash
-bash .ai/hooks/scripts/validate-ai-setup.sh
+bash .cratis/ai/hooks/scripts/validate-ai-setup.sh
 ```
 
 If anything fails:

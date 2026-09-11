@@ -15,4 +15,4 @@ Implement a complete **vertical slice** end-to-end. Invoke the **new-vertical-sl
 
 ## How it runs
 
-Backend → build (Debug + Release) → specs (the in-process `*Scenario` family) → frontend → compose/route, with each quality gate green before the next phase. The authoritative rules are `.ai/rules/general.md` and `.ai/rules/vertical-slices.md`; the skill carries the step-by-step detail. Do not duplicate that detail here.
+Backend → build (Debug + Release) → specs (the in-process `*Scenario` family) → frontend → compose/route, with each quality gate green before the next phase. The authoritative rules are `.cratis/ai/rules/general.md` and `.cratis/ai/rules/vertical-slices.md`; the skill carries the step-by-step detail. Do not duplicate that detail here.

@@ -1,313 +1,96 @@
 # Cratis AI
 
-Free, MIT-licensed AI skills, rules, and agent guidance for building
-event-sourced and CQRS applications with the [Cratis](https://www.cratis.io)
-ecosystem. The only published package today is
-`@cratis/pi` — a stable release carrying the whole public
-skills directory.
-
-Cratis AI is the controlled source for shared AI skills, engineering guidance,
-product profiles, and generated multi-harness packages for the Cratis ecosystem.
-
-It serves two separate audiences:
-
-- **Developers building with Cratis** receive passive public product profiles for
-  Fundamentals, Arc, Chronicle, Components, and composed applications.
-- **Cratis maintainers** receive separate engineering profiles for application,
-  framework, client, documentation, Studio, Stagehand, and corpus repositories.
-
-> **Current status:** the supported delivery today is the `@cratis/pi`
-> npm package — the whole public skills directory, giving Pi the same content
-> as the marketplace harnesses — and the marketplace plugins; versioned
-> per-profile packages remain in review. Deterministic
-> review bundles now package 41 passive targets across 34 harness shapes. Four
-> additional targets remain explicitly blocked by MCP or private/local-content
-> safety boundaries, and four superseded legacy skills remain repository-only;
-> together the manifests account for all 49 skill components. A shared coverage
-> record dispositions all 137 component kinds, and four native review snapshots
-> cover 35 statically projected rule/instruction components without package
-> identity. Do not install this mixed source repository or the review bundles as
-> runtime packages.
->
-> Assurance has two operating levels: lightweight basic checks for passive
-> candidate/preview iteration, and the governed S9/S10 system for
-> executable/MCP behavior and broad automated rollout. Advanced
-> assurance remains available but does not gate ordinary passive preview work.
-
-## The architecture
-
-| Concern | Owner | Notes |
-| --- | --- | --- |
-| Shared AI behavior and profile composition | `Cratis/AI` `main` | The only authoring surface |
-| Product APIs, versions, and facts | The owning Cratis product repository | Unchanged |
-| Repository-specific context | The consuming repository | Unchanged |
-| Marketplace installation | `Cratis/AI` `main` | Four committed marketplace manifests resolve `skills/` and `engineering/` directly |
-| Already published `v0.1.0`–`v0.3.0` | `Cratis/AI.Distribution` | Retired; its tags keep resolving and are never deleted |
-
-Canonical skill and rule behavior is reviewed here. Improvements discovered in
-product repositories flow back through issues or pull requests to this
-repository.
-
-**[Cratis/AI#264](https://github.com/Cratis/AI/issues/264) — generated
-distribution is retired.** There is no second repository, no release branch, no
-`dist/vX.Y.Z` tag namespace, no generated tree, and no checksum or provenance
-file to maintain. A host adds `Cratis/AI` as a marketplace and installs a plugin
-whose source is a real directory on this repository's default branch, so what it
-installs is exactly what a reviewer reads here. Adding a skill under `skills/`
-is the whole deployment. See the
-[maintainer marketplace deployment runbook](Documentation/maintainer-marketplace-deployment-runbook.md).
-
-Read [Cratis AI distribution and subscriptions](Documentation/ai-distribution-and-subscriptions.md)
-for the complete source-of-truth, profile, versioning, pinning, Pi, update,
-rollback, and contribution model.
+Cratis AI is the canonical set of rules, agents, prompts, and skills used when
+building with or contributing to Cratis.
 
 ## Repository layout
 
 ```text
-skills/                 Canonical public skill sources
-engineering/            Canonical Cratis-maintainer skill sources
-mcp/                    MCP server declarations and host configuration mapping
-.cratis/ai/                    Legacy corpus being reconciled into profiles
-catalog/                Sources, targets, authority, evidence, and coverage
-distribution/           Profile, artifact, rollout, and publication contracts
-tooling/                Resolver, validation, and deterministic generation
-Documentation/          Architecture, contribution, and usage guidance
-.claude/ .github/ .agents/ .pi/   Repository-local host adapters into .cratis/ai/
+.cratis/ai/          Canonical AI corpus and availability manifest
+Source/
+  Harness.Setup/     TypeScript tool that maintains repository harness adapters
+  Pi.Plugin/         Published @cratis/pi package
+  Verification/      Corpus, profile, package, and skill behavior verification
+.claude/             Claude Code adapters
+.github/             GitHub Copilot adapters and the quality/release workflow
+.agents/             Codex adapters
+.pi/                 Pi adapters
+.cursor/             Cursor adapters
+.opencode/           OpenCode adapters
 ```
 
-There is no application here: no `Source/`, no solution, no `package.json`. This
-repository is markdown, JSON, and the JavaScript under `tooling/` that validates
-and generates from them.
+There is one corpus: `.cratis/ai`. Harness folders point to it and must not carry
+independent copies.
 
-`.cratis/ai/` remains valuable repository-local guidance but is not a publishable
-package tree. Public and engineering artifacts select exact approved files; they
-never package the repository wholesale. The adapter trees are local wiring for
-the hosts a maintainer uses *in* this repository — never a package payload; see
-[`managing-ai-rules.md`](.cratis/ai/rules/managing-ai-rules.md).
+## Managed installation
 
-`mcp/` holds authored, passive MCP server declarations. A declaration records a
-server's identity, reference, transport, authentication type, and host
-configuration mapping; it never carries server bytes or a credential. Chronicle
-MCP is declared; **Studio MCP is an extension point only and is not published or
-shipped**. See [MCP declarations in profiles](Documentation/mcp-declarations.md).
-
-The four marketplace manifests — `.claude-plugin/marketplace.json`,
-`.agents/plugins/marketplace.json`, `.github/plugin/marketplace.json`, and
-`.cursor-plugin/marketplace.json` — are hand-authored files that point hosts at
-`skills/` and `engineering/`. No generated host tree is committed here.
-
-## Profiles
-
-The complete plan covers Fundamentals, Arc, Arc React, Components, Chronicle,
-language-specific Chronicle clients, identity, compliance, multi-tenancy,
-Cratis CLI, Lens, Screenplay, Stage, public Studio/MCP use, Chronicle MCP
-passive guidance, and language-agnostic/.NET/TypeScript Specifications.
-
-Composition profiles preserve Arc-only, Chronicle-only, Arc + Chronicle, React,
-full application, and Screenplay → Stage boundaries. Public-safe engineering
-profiles cover every Cratis product/repository family; private repositories add
-local overlays rather than receiving confidential shared packages.
-
-Profiles compose recursively through one shared resolver,
-`tooling/resolve-profiles.mjs`. It returns a deterministic manifest that names
-which profile pulled in every profile, skill, and MCP server, and why anything
-was excluded. Namespaced `cratis/arc`, `cratis/chronicle`, `cratis/application`,
-and `cratis/full` meta-profiles are the stable names to subscribe to; the Arc and
-Chronicle decoupling is a property of their composition, not an editorial
-promise.
-
-Each meta-profile also carries a **language dimension** — `cratis/arc/csharp`,
-`cratis/arc/kotlin`, `cratis/chronicle/csharp`, `cratis/chronicle/kotlin`,
-`cratis/chronicle/elixir`, `cratis/chronicle/typescript`, and the matching
-`application` and `full` cells — where the language means the language you write
-that side of the stack in. Arc supports C# and Kotlin (Arc.Kotlin); for
-TypeScript and Elixir the Arc side is removed from the application and full
-cells until Arc supports those languages, and Java is served through the Kotlin
-clients' JVM interoperability. See [the profile
-reference](Documentation/profile-reference.md).
-
-Browse the generated [package and capability catalog](catalog/generated/human-catalog/CATALOG.md)
-to compare public and maintainer packages, see their included skills, and check
-whether they are planned, candidates, or installable.
-
-Profiles are authored one file each under `profiles/`;
-[`distribution/profile-catalog.json`](distribution/profile-catalog.json) is the
-generated aggregate every consumer reads.
-
-See [Profile reference](Documentation/profile-reference.md),
-[developer adoption](Documentation/adopting-cratis-ai.md),
-[maintainer adoption](Documentation/adopting-cratis-ai-for-maintainers.md), and
-[private repository overlays](Documentation/private-repository-overlays.md),
-and [release-on-merge](Documentation/releasing-cratis-ai.md).
-
-A consuming repository will pin profiles in project-owned `.cratis/ai.json`:
-
-```json
-{
-  "schemaVersion": "1.0.0",
-  "channel": "cratis-engineering",
-  "version": "1.0.0",
-  "profiles": ["cratis/engineering"],
-  "harnesses": ["claude", "codex", "copilot", "pi"],
-  "updatePolicy": "reviewed-pull-request"
-}
-```
-
-The example is illustrative until the first package is published. Floating
-versions such as `latest` are forbidden.
-
-## Pi
-
-Pi is a first-class distribution target. Released profiles will be ordinary
-versioned Pi packages containing passive skills and references:
+The Cratis CLI provides the complete repository-managed path:
 
 ```bash
-# User-wide maintainer profile
-pi install npm:@cratis/ai-engineering@1.0.0
-
-# Exact project profile pin
-pi install -l npm:@cratis/ai-engineering@1.0.0
+cratis ai install \
+  --harnesses claude,codex,copilot,cursor,opencode,pi \
+  --profiles cratis/application \
+  --languages csharp,typescript
 ```
 
-Project installation writes `.pi/settings.json`; after project trust, Pi
-installs missing exact packages automatically. Pinned packages do not float.
-Update and rollback change the exact version through a reviewed pull request.
+The CLI reads `.cratis/ai/manifest.json`, resolves the matching skills through
+`.cratis/ai/profile-catalog.json`, installs managed content in `.cratis/ai`, and
+creates native harness adapters. It records hashes in
+`.cratis/ai.manifest.json`, refuses to overwrite user-owned paths, and stops
+update or uninstall when managed content was changed unless `--force` is used.
 
-This repository's own `.pi/` tree is **not** that package and is never
-propagated: `.pi/agents/` and `.pi/prompts/` are local symlink adapters into
-`.cratis/ai/`, `.pi/extensions/` is repository-owned host-extension source, and `.pi/**`
-is a forbidden path in every generated artifact. See
-[`managing-ai-rules.md`](.cratis/ai/rules/managing-ai-rules.md#pi--pi).
+## Native plugins
 
-These commands describe the released workflow and are not available until the
-packages exist. See the [Pi package workflow](Documentation/ai-distribution-and-subscriptions.md#pi-package-workflow).
-
-## Supported output formats
-
-The candidate generator emits separate public and engineering review bundles,
-each with a portable Agent Plugins 1.0 package for compatible hosts alongside
-Agent Skills and native adapters for Claude Code, Codex, GitHub
-Copilot, Cursor, Gemini CLI, Grok Build, Deep Code, preview DeepSeek Harness,
-Kiro, Junie, and Pi/npm. Copilot, Cursor, Kiro, and VS Code share the same
-portable plugin identity. Claude, Grok, and Junie share one Claude-compatible
-marketplace package rather than separate skill instructions.
-
-Normalized evidence and computed support distinguish the monotonic technical
-ranks: unsupported, documented, generated, statically-validated,
-install-tested, behavior-tested, lifecycle-tested, release-tested, and
-supported. Marketplace listing is an orthogonal status and is required only
-when a delivery binding claims marketplace availability. Adapter or candidate generation
-alone is not installation evidence, support, or a marketplace-publication claim. See
-[the catalog v2 evidence and support model](Documentation/capability-catalog-v2.md#normalized-evidence)
-and [offline portable compliance](Documentation/portable-compliance.md).
-
-## Contributing an improvement
-
-Use the **Propose a shared Cratis AI improvement** issue form. Include:
-
-- originating repository;
-- immutable source revision;
-- affected profiles and products;
-- first-party product authority;
-- compatibility and migration impact.
-
-Product repositories do not publish Cratis AI packages or push generated bytes.
-After canonical review, a new immutable release is generated and subscriber
-repositories receive reviewed update pull requests.
-
-## Validation
-
-Run the complete local gate after changing release-relevant content:
+Native plugins remain an independent single-harness choice. Claude Code, Codex,
+GitHub Copilot, and Cursor use the marketplace manifests in this repository. Pi
+uses the published package:
 
 ```bash
-node tooling/harness-registry.mjs
-node tooling/generate-catalog-v2.mjs
-node tooling/generate-support.mjs
-node tooling/generate-ecosystem-artifact-coverage.mjs
-node tooling/generate-human-catalog.mjs
-node tooling/generate-repository-inventory.mjs
-node tooling/portable-compliance-validation.mjs --verify-lock
-node tooling/release-assurance-validation.mjs
-node tooling/preview-readiness.mjs
-node tooling/validate-catalogs.mjs --basic
-node tooling/run-spec-suite.mjs --basic
-# Optional full governed audit:
-node tooling/validate-catalogs.mjs
-node tooling/run-spec-suite.mjs --governed
-.cratis/ai/hooks/scripts/validate-ai-setup.sh
-git diff --check
+pi install -l npm:@cratis/pi
 ```
 
-The main workflow runs for canonical skills, engineering content, catalogs,
-distribution contracts, evidence, evaluations, documentation, workflows, and
-tooling.
+`@cratis/pi` reads `.cratis/ai.json` when present and exposes skills matching the
+selected profiles and languages. Without the file, it exposes every packaged
+skill. The plugin also contributes packaged rules and prompts, but it does not
+create the shared corpus, configure other harnesses, or provide managed update
+and uninstall protection.
 
-To ask the same question without writing anything — on a read-only checkout, or
-on a dirty tree where a `git diff` cannot tell your edits from generator drift —
-run the generators in `--check` mode. Each builds its outputs in memory and
-compares them byte for byte with the tracked files: exit `0` current, exit `1`
-drift with the differing paths named, exit `2` could not run.
+OpenCode can consume the standard `.opencode` and `AGENTS.md` adapters directly.
+
+## Maintain harness adapters
+
+After adding or removing an agent, prompt, or harness asset, synchronize the
+repository adapters:
 
 ```bash
-node tooling/harness-registry.mjs --check
-node tooling/generate-catalog-v2.mjs --check
-node tooling/generate-support.mjs --check
-node tooling/preview-readiness.mjs --check
-node tooling/generate-ecosystem-artifact-coverage.mjs --check
-node tooling/generate-human-catalog.mjs --check
-node tooling/generate-repository-inventory.mjs --check
+npm ci --prefix Source/Harness.Setup
+npm run setup --prefix Source/Harness.Setup
+npm run check --prefix Source/Harness.Setup
 ```
 
-## Current release state
+## Verify quality
 
-`@cratis/pi` uses the normal Cratis release flow: exactly one
-`major`, `minor`, `patch`, or `no-release` pull-request label, followed by an
-automatic release from protected `main`. Releases publish supported stable
-versions (`1.0.0` and newer) to npm `latest` through trusted OIDC.
-
-Executable/MCP behavior and broad automated rollout still require the governed
-S9/S10 lane, including real consumer lifecycle canaries, release evidence, and
-explicit approval.
-
-## Native marketplace installation
-
-Add this repository as a marketplace and install the plugin. There is no ref,
-version, or tag to pin — the manifests on the default branch resolve the
-`skills/` and `engineering/` directories you can read right here.
-
-```text
-/plugin marketplace add Cratis/AI
-/plugin install cratis@cratis
-```
+All quality checks live in `Source/Verification` or the package they compile:
 
 ```bash
-codex plugin marketplace add Cratis/AI
-copilot plugin marketplace add Cratis/AI
-copilot plugin install cratis@cratis
+npm ci --prefix Source/Pi.Plugin
+npm ci --prefix Source/Verification
+npm run check --prefix Source/Pi.Plugin
+npm run check --prefix Source/Verification
+npm run verify --prefix Source/Verification
+npm test --prefix Source/Verification
+(cd Source/Pi.Plugin && npm pack --dry-run)
 ```
 
-Cratis maintainers can add the maintainer-audience skills from the same
-marketplace with `/plugin install cratis-engineering@cratis`. The `engineering-`
-content identifies its audience; it is not confidential.
+Skill verification scenarios live beside the skill as `verification.json` and
+state an input plus deterministic assertions. Verification answers whether the
+content works and remains internally consistent. The repository deliberately
+has no provenance ledger, evidence chain, generated inventory, or distribution
+tooling pipeline.
 
-Gemini CLI and Pi look for a manifest at a repository root rather than following
-a marketplace manifest, and this repository's root carries neither, so those two
-hosts have no working install today — see the
-[maintainer marketplace deployment runbook](Documentation/maintainer-marketplace-deployment-runbook.md).
+## Release
 
-[Cratis/AI.Distribution v0.2.1](https://github.com/Cratis/AI.Distribution/releases/tag/v0.2.1)
-was the last generated marketplace release. Its tags keep resolving and are
-never deleted, but it receives no further releases.
-
-This is the supported stable `1.0.0` distribution. Marketplace
-availability extends the same support to plugin installs.
-
-## Evaluation artifacts
-
-[Cratis/AI.Distribution v0.1.0](https://github.com/Cratis/AI.Distribution/releases/tag/v0.1.0)
-contains one checksum-bound download with all currently generated review output:
-41 packaged skill targets across 68 host-specific archives, plus four native
-non-skill rule/instruction archives kept in their own semantic form. The release
-manifests retain every blocked and repository-only exclusion. These downloads
-are public evaluation artifacts, not supported installers or marketplace
-claims.
+`.github/workflows/quality-and-release.yml` is the single workflow. It verifies
+the corpus and packages, checks semantic release intent, uses
+`cratis/release-action` to calculate the version after merge, and publishes
+`@cratis/pi` when a release is requested by the merged pull request label.

@@ -5,7 +5,7 @@ description: Add a Chronicle reactor (automation or translation) that reacts to 
 
 # Add a Reactor
 
-Add a reactor that observes events and produces side effects. Invoke the **add-reactor** skill and follow `.ai/rules/reactors.md`.
+Add a reactor that observes events and produces side effects. Invoke the **add-reactor** skill and follow `.cratis/ai/rules/reactors.md`.
 
 ## Confirm first
 

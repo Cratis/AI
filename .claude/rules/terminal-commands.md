@@ -1,1 +1,0 @@
-../../.cratis/ai/rules/terminal-commands.md

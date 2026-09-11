@@ -87,7 +87,6 @@ paths:
 
 ## In this repository specifically
 
-- Workflow and rule files are tracked by the generated catalogs. Any change under
-  `.github/workflows/**` or `.ai/**` must regenerate and commit
-  `catalog/v2/repository-inventory.json` (and friends) **after staging the change** —
-  the inventory generator reads staged state, not the working tree.
+- Keep one workflow that runs `Source/Verification`, checks harness adapters, and
+  uses `cratis/release-action` for semantic versioning and release decisions.
+- Do not add evidence, provenance, inventory, or generated-catalog gates.

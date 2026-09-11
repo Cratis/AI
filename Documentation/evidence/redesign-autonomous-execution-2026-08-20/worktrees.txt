@@ -1,3 +1,0 @@
-worktree <repository-root>
-HEAD b795d5307e20f7f7458a67708b4f26975e223796
-branch refs/heads/main

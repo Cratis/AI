@@ -1,1 +1,0 @@
-../../.cratis/ai/rules/managing-ai-rules.md

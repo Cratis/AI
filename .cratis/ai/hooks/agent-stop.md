@@ -10,9 +10,9 @@ When the agent finishes a session, verify the work against **fresh signals** bef
 
 ## Pick the path for this repository
 
-- **AI corpus repo** — the changes are only under `.ai/`, `.github/`, or `.claude/` and there is no .NET solution or frontend to build (e.g. this `cratis/AI` repo). Run the AI-setup validator instead of a code build:
+- **AI corpus repo** — the changes are only under `.cratis/ai/`, `.github/`, or `.claude/` and there is no .NET solution or frontend to build (e.g. this `cratis/AI` repo). Run the AI-setup validator instead of a code build:
   ```
-  .ai/hooks/scripts/validate-ai-setup.sh
+  .cratis/ai/hooks/scripts/validate-ai-setup.sh
   ```
   Stop only when it passes (symlinks/adapters healthy, frontmatter present, no broken cross-links). Skip the application gates below.
 

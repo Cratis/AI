@@ -32,7 +32,7 @@
 #
 # Portable: bash 3.2 + grep + sed + awk + find. No jq, no network, nothing written outside a tempdir.
 #
-# Usage: validate-type-references.sh [--self-test] [root ...]   # default roots: .ai/rules .ai/skills .ai/agents .ai/prompts
+# Usage: validate-type-references.sh [--self-test] [root ...]   # default roots: .cratis/ai/rules .cratis/ai/skills .cratis/ai/agents .cratis/ai/prompts
 #        --self-test                                            # seed the known fabrication into a scratch corpus and
 #                                                                 # fail unless the guard names it (guards-and-fuses.md)
 #        CRATIS_HOOKS_TYPE_REPORT=1 ...                         # also print every distinct name and its status
@@ -74,10 +74,10 @@ fi
 nuget="${NUGET_PACKAGES:-$HOME/.nuget/packages}"
 [[ -d "$nuget" ]] || cannot "no local NuGet cache at $nuget - restore the pinned Cratis packages before judging type references"
 
-# `.ai/hooks` is deliberately not a default root: this file and ../README.md name a deliberately
+# `.cratis/ai/hooks` is deliberately not a default root: this file and ../README.md name a deliberately
 # fabricated type as the worked example, and a guard that reports its own documentation is a guard
 # people switch off.
-if [[ $# -gt 0 ]]; then roots=("$@"); else roots=(.ai/rules .ai/skills .ai/agents .ai/prompts); fi
+if [[ $# -gt 0 ]]; then roots=("$@"); else roots=(.cratis/ai/rules .cratis/ai/skills .cratis/ai/agents .cratis/ai/prompts); fi
 scan=()
 for d in "${roots[@]}"; do [[ -d "$d" ]] && scan+=("$d"); done
 [[ "${#scan[@]}" -gt 0 ]] || exit 0
@@ -301,7 +301,7 @@ done < <(grep '^INFO' "$tmp/out.txt" 2>/dev/null || true)
             report "$name — unresolved but named as absent on purpose in $file"; continue
         fi
         if [[ "$kind" == "attr" ]]; then
-            warn "$file:$line: '[$name]' is not an attribute in the pinned Cratis packages — fix the name, add it to .ai/hooks/scripts/type-references-allowlist.txt if it belongs to another framework, or mark the line with the version it needs (e.g. '(≥ 17.0.0)')"
+            warn "$file:$line: '[$name]' is not an attribute in the pinned Cratis packages — fix the name, add it to .cratis/ai/hooks/scripts/type-references-allowlist.txt if it belongs to another framework, or mark the line with the version it needs (e.g. '(≥ 17.0.0)')"
         else
             warn "$file:$line: '$name' is not a type in the pinned Cratis packages, but '$anchor' is — fix the name, or mark the line with the version it needs (e.g. '(≥ 17.0.0)')"
         fi

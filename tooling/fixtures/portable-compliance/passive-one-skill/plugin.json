@@ -1,6 +1,0 @@
-{
-  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
-  "name": "cratis-example",
-  "version": "1.2.3",
-  "description": "Passive one-skill fixture"
-}

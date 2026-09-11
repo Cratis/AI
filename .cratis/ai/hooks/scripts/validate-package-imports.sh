@@ -21,7 +21,7 @@
 # Portable: bash 3.2 + grep + sed + awk, with `jq` as the one accepted dependency (absent -> silent
 # no-op, per the hook design constraints in ../README.md).
 #
-# Usage: validate-package-imports.sh [root ...]      # default roots: .ai/rules .ai/skills .ai/agents .ai/prompts
+# Usage: validate-package-imports.sh [root ...]      # default roots: .cratis/ai/rules .cratis/ai/skills .cratis/ai/agents .cratis/ai/prompts
 #        CRATIS_HOOKS_IMPORT_REPORT=1 ...            # also print every binding and its resolved status
 set -euo pipefail
 
@@ -39,9 +39,9 @@ report() {
 command -v jq >/dev/null 2>&1 || exit 0
 [[ -d node_modules/@cratis ]] || exit 0
 
-# `.ai/hooks` is deliberately not a default root: this file and ../README.md name deliberately-bogus
+# `.cratis/ai/hooks` is deliberately not a default root: this file and ../README.md name deliberately-bogus
 # identifiers as examples, and a guard that reports its own documentation is a guard people switch off.
-if [[ $# -gt 0 ]]; then roots=("$@"); else roots=(.ai/rules .ai/skills .ai/agents .ai/prompts); fi
+if [[ $# -gt 0 ]]; then roots=("$@"); else roots=(.cratis/ai/rules .cratis/ai/skills .cratis/ai/agents .cratis/ai/prompts); fi
 scan=()
 for d in "${roots[@]}"; do [[ -d "$d" ]] && scan+=("$d"); done
 [[ "${#scan[@]}" -gt 0 ]] || exit 0

@@ -1,6 +1,6 @@
 # Hooks — enforcement, not persuasion
 
-Everything else in `.ai/` is text an agent may or may not follow. The files here are the part
+Everything else in `.cratis/ai/` is text an agent may or may not follow. The files here are the part
 that runs. They convert the mechanically-checkable Cratis invariants into deterministic checks
 that fire whether or not the model remembered the rule.
 
@@ -17,12 +17,12 @@ The Claude Code wiring that fires them is tracked here, in
 per-machine and gitignored, so activate the hooks by copying the template once:
 
 ```bash
-cp .ai/hooks/settings.template.json .claude/settings.json
+cp .cratis/ai/hooks/settings.template.json .claude/settings.json
 ```
 
 If you already have a `.claude/settings.json`, merge the template's `hooks` block into it rather
 than overwriting — the rest of that file is yours. Re-copy after the template changes; the copy is
-not a symlink, so it does not update itself. **Edit the template, never the copy**: `.ai/` is the
+not a symlink, so it does not update itself. **Edit the template, never the copy**: `.cratis/ai/` is the
 source of truth (see [`../rules/managing-ai-rules.md`](../rules/managing-ai-rules.md)), and
 `scripts/validate-ai-setup.sh` checks the template against the script names this page documents.
 
@@ -70,7 +70,7 @@ test, and `validate-ai-setup.sh` for corpus changes.
 
 ## The corpus validator
 
-`scripts/validate-ai-setup.sh` sits outside the three layers: it validates `.ai/` itself, and both
+`scripts/validate-ai-setup.sh` sits outside the three layers: it validates `.cratis/ai/` itself, and both
 the `Stop` gate and the `ai-corpus` CI job run it. Structural, adapter and Codex checks are
 **fatal**; the content drift guards **warn**.
 
@@ -78,10 +78,10 @@ the `Stop` gate and the `ai-corpus` CI job run it. Structural, adapter and Codex
 
 Every other drift guard asserts that a string should *not* appear. This one is the other direction,
 and the only guard that knows what a package is. It extracts each `@cratis/<pkg>/<subpath>` the
-corpus names — fenced blocks, inline spans and table cells alike — from `.ai/rules`, `.ai/skills`,
-`.ai/agents` and `.ai/prompts`, then resolves it against the `exports` map of the package installed
+corpus names — fenced blocks, inline spans and table cells alike — from `.cratis/ai/rules`, `.cratis/ai/skills`,
+`.cratis/ai/agents` and `.cratis/ai/prompts`, then resolves it against the `exports` map of the package installed
 in `node_modules`. The exports map is exact and machine-readable, so a miss is a genuine miss.
-`.ai/hooks` is deliberately *not* one of the default roots — this page names bogus subpaths as
+`.cratis/ai/hooks` is deliberately *not* one of the default roots — this page names bogus subpaths as
 examples, and a guard that reports its own documentation is a guard people switch off.
 
 It exists because nothing in the repository could catch documenting
@@ -341,16 +341,16 @@ project, so run those two against a consuming checkout (or a scratch tree), and 
 # Run from an application checkout; <Module>/<Feature>/<Slice> is the layout general.md documents.
 jq -nc '{session_id:"t", cwd:"'"$PWD"'", tool_name:"Edit",
          tool_input:{file_path:"'"$PWD"'/Source/<Module>/<Feature>/<Slice>/<Slice>.cs"}}' \
-  | .ai/hooks/scripts/cratis-pattern-scan.sh; echo "exit=$?"
+  | .cratis/ai/hooks/scripts/cratis-pattern-scan.sh; echo "exit=$?"
 
 # Hard block — expect exit 2
 jq -nc '{session_id:"t", cwd:"'"$PWD"'", tool_name:"Edit",
          tool_input:{file_path:"'"$PWD"'/Directory.Packages.props", new_string:"x"}}' \
-  | .ai/hooks/scripts/cratis-guard-writes.sh; echo "exit=$?"
+  | .cratis/ai/hooks/scripts/cratis-guard-writes.sh; echo "exit=$?"
 
 # Quality gate — show the dispatch plan without running anything
 jq -nc '{session_id:"t", cwd:"'"$PWD"'", stop_hook_active:false}' \
-  | CRATIS_HOOKS_GATE_DRYRUN=1 .ai/hooks/scripts/cratis-quality-gate.sh
+  | CRATIS_HOOKS_GATE_DRYRUN=1 .cratis/ai/hooks/scripts/cratis-quality-gate.sh
 ```
 
 The subpath guard takes corpus roots as arguments, so it is testable in both directions without
@@ -361,10 +361,10 @@ roots. A one-sided test passes vacuously; run both.
 # Negative — expect a warning naming the file and line
 mkdir -p /tmp/scratch-corpus
 echo "import x from '@cratis/components/ThisDoesNotExist';" > /tmp/scratch-corpus/drift.md
-.ai/hooks/scripts/validate-package-subpaths.sh .ai/rules /tmp/scratch-corpus
+.cratis/ai/hooks/scripts/validate-package-subpaths.sh .cratis/ai/rules /tmp/scratch-corpus
 
 # Positive — expect silence, and the report to show every real reference resolving
-CRATIS_HOOKS_SUBPATH_REPORT=1 .ai/hooks/scripts/validate-package-subpaths.sh
+CRATIS_HOOKS_SUBPATH_REPORT=1 .cratis/ai/hooks/scripts/validate-package-subpaths.sh
 ```
 
 Tier 2 is testable the same way, and wants a third run the subpath guard does not: a probe of names
@@ -376,15 +376,15 @@ a correct one, so prove it stays quiet when it should.
 mkdir -p /tmp/scratch-corpus
 echo "import { CommandDialog, ThisNameDoesNotExist } from '@cratis/components/CommandDialog';" \
   > /tmp/scratch-corpus/drift.md
-.ai/hooks/scripts/validate-package-imports.sh /tmp/scratch-corpus
+.cratis/ai/hooks/scripts/validate-package-imports.sh /tmp/scratch-corpus
 
 # Discrimination — every name real, expect silence
 echo "import { DataPage, MenuItem } from '@cratis/components/DataPage';" \
   > /tmp/scratch-corpus/drift.md
-.ai/hooks/scripts/validate-package-imports.sh /tmp/scratch-corpus
+.cratis/ai/hooks/scripts/validate-package-imports.sh /tmp/scratch-corpus
 
 # Positive — the real corpus, with the report showing every binding resolving
-CRATIS_HOOKS_IMPORT_REPORT=1 .ai/hooks/scripts/validate-package-imports.sh
+CRATIS_HOOKS_IMPORT_REPORT=1 .cratis/ai/hooks/scripts/validate-package-imports.sh
 ```
 
 Tier 3 wants the same three runs, and its negative case is the one that motivated it. Put
@@ -396,15 +396,15 @@ own motivating case is the wrong design.
 mkdir -p /tmp/scratch-corpus
 printf 'A reactor may return a `ReactorSideEffect` to control where the event is appended.\n' \
   > /tmp/scratch-corpus/drift.md
-.ai/hooks/scripts/validate-type-references.sh /tmp/scratch-corpus
+.cratis/ai/hooks/scripts/validate-type-references.sh /tmp/scratch-corpus
 
 # Discrimination — every name real, expect silence
 printf 'Return `EventForEventSourceId`, or a `ReactorSideEffectFailure` from an `IReactor`.\n' \
   > /tmp/scratch-corpus/drift.md
-.ai/hooks/scripts/validate-type-references.sh /tmp/scratch-corpus
+.cratis/ai/hooks/scripts/validate-type-references.sh /tmp/scratch-corpus
 
 # Positive — the real corpus, expect silence, with the report showing how each name resolved
-CRATIS_HOOKS_TYPE_REPORT=1 .ai/hooks/scripts/validate-type-references.sh
+CRATIS_HOOKS_TYPE_REPORT=1 .cratis/ai/hooks/scripts/validate-type-references.sh
 ```
 
 Run `bash -n` on every script and `jq .` on every JSON file before committing. The hook scripts are
@@ -413,7 +413,7 @@ scripts** step of the `Verify AI Corpus` workflow (`.github/workflows/verify-ai-
 fails the run on any finding at that severity or above. Run the same command before committing:
 
 ```bash
-shellcheck --external-sources --severity=style .ai/hooks/scripts/*.sh
+shellcheck --external-sources --severity=style .cratis/ai/hooks/scripts/*.sh
 ```
 
 The CI step counts the scripts it checked and refuses to pass on an empty population, so a glob that

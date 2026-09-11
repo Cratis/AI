@@ -5,7 +5,7 @@ description: "Write documentation following the Diátaxis framework."
 
 # Write Documentation
 
-Write documentation for a feature, component, or concept. Invoke the **write-documentation** skill and follow `.ai/rules/documentation.md`.
+Write documentation for a feature, component, or concept. Invoke the **write-documentation** skill and follow `.cratis/ai/rules/documentation.md`.
 
 ## Confirm first
 

@@ -188,7 +188,7 @@ EOF
 
 context="Cratis rule check on the file you just edited (deterministic pattern pass, not a build):
 ${findings}
-These are framework contracts from .ai/rules/general.md. Fix them now rather than at the quality gate."
+These are framework contracts from .cratis/ai/rules/general.md. Fix them now rather than at the quality gate."
 
 jq -n --arg ctx "$context" '{
     systemMessage: "cratis-hooks: rule reminder appended to context",

@@ -14,7 +14,7 @@ Produce a structured review of a pull request against all Cratis standards.
 ## Process
 
 1. **Gather context** — list and read every changed file; identify the slice type(s).
-2. **Architecture & quality** — run the **Code Reviewer** agent (it checks `.ai/rules/` and folds in the performance pass).
+2. **Architecture & quality** — run the **Code Reviewer** agent (it checks `.cratis/ai/rules/` and folds in the performance pass).
 3. **Security** — run the **Security Reviewer** agent.
 4. **Spec coverage** — confirm each slice has specs (happy path + each failure); confirm tests pass if runnable.
 5. **Docs** — confirm public-facing changes updated documentation.

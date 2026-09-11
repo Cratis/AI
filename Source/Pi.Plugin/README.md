@@ -8,7 +8,7 @@ pi install -l npm:@cratis/pi
 ```
 
 The extension reads the repository's `.cratis/ai.json`, resolves its profiles
-through the packaged profile catalog, contributes only the matching skills, and
+and languages through the packaged profile catalog, contributes only the matching skills, and
 adds the packaged Cratis rules and prompts to Pi. When no `.cratis/ai.json`
 exists, it exposes the complete packaged skill set. It therefore gives Pi the
 same configuration-aware Cratis content without requiring the Cratis CLI.

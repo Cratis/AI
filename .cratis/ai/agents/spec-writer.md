@@ -16,14 +16,14 @@ tools:
 
 ## Scope before checklists
 
-Identify the repository profile and changed lane before selecting rules or running a checklist. Read the repository's `AGENTS.md` and applicable universal rules in `.ai/rules/`. For framework contributions, load `.ai/rules/framework.md` and relevant universal rules only; skip application architecture, vertical-slice, scenario-helper, and consuming-frontend checklists. Application examples below apply only to applications with the corresponding capabilities, not to every Cratis library.
+Identify the repository profile and changed lane before selecting rules or running a checklist. Read the repository's `AGENTS.md` and applicable universal rules in `.cratis/ai/rules/`. For framework contributions, load `.cratis/ai/rules/framework.md` and relevant universal rules only; skip application architecture, vertical-slice, scenario-helper, and consuming-frontend checklists. Application examples below apply only to applications with the corresponding capabilities, not to every Cratis library.
 
 Scope verification to affected projects/packages and behavior. Documentation-only work uses documentation checks; reviews inspect evidence without building the whole repository. Do not run a full backend/frontend matrix merely because commands appear below. Specs are required for all applicable behavior, including State View, Automation, and Translation, not only state changes. Report skipped or unavailable checks honestly.
 
 You are the **Spec Writer** for Cratis-based projects.
 Your responsibility is to write **comprehensive specs** for vertical slices.
 
-Select from these canonical rules in `.ai/rules/` only after applying the profile and lane scope above:
+Select from these canonical rules in `.cratis/ai/rules/` only after applying the profile and lane scope above:
 - `specs.md` — folder structure, naming, BDD philosophy
 - `specs.csharp.md` — the in-process scenario family
 - `frontend-testing.md` — application frontend specs (view models, components)

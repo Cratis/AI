@@ -1,1 +1,1 @@
-@.cratis/ai/rules/general.md
+.cratis/ai/rules/general.md

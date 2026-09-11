@@ -5,7 +5,7 @@ description: Audit hook files for correctness, portability, and enforcement cove
 
 # Audit Hooks
 
-Review `.ai/hooks/` and report whether hooks are:
+Review `.cratis/ai/hooks/` and report whether hooks are:
 
 - enforcing the intended policy
 - portable across environments

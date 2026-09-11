@@ -5,7 +5,7 @@ description: Review one skill for clarity, trigger quality, and maintainability.
 
 # Review Skill
 
-Review a specific skill folder under `.ai/skills/` for:
+Review a specific skill folder under `.cratis/ai/skills/` for:
 
 - trigger quality in the description
 - correctness of workflow steps
