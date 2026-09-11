@@ -1,0 +1,29 @@
+{
+  "name": "@cratis/pi",
+  "version": "0.1.0",
+  "description": "Configuration-aware Cratis AI integration for Pi",
+  "type": "module",
+  "files": ["package", "src", "README.md", "LICENSE"],
+  "scripts": {
+    "check": "tsc --noEmit",
+    "prepack": "node prepare-package.mjs",
+    "postpack": "node prepare-package.mjs --clean"
+  },
+  "keywords": ["cratis", "pi-package", "ai", "skills"],
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.8.0"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-ai": "*",
+    "@earendil-works/pi-coding-agent": "*",
+    "typebox": "*"
+  },
+  "pi": {
+    "extensions": [
+      "./src/index.ts",
+      "./package/corpus/harnesses/pi/extensions/cratis-hooks/index.ts",
+      "./package/corpus/harnesses/pi/extensions/subagent/index.ts"
+    ]
+  }
+}

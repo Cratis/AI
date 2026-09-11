@@ -1,0 +1,14 @@
+{
+  "name": "@cratis/harness-setup",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "tsc --noEmit && tsx setup.ts --check",
+    "setup": "tsx setup.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.8.0"
+  }
+}

@@ -10,8 +10,8 @@
     "codex",
     "copilot",
     "cursor",
+    "opencode",
     "pi"
   ],
-  "updatePolicy": "reviewed-pull-request",
-  "projectContext": ".cratis/PROJECT.md"
+  "updatePolicy": "reviewed-pull-request"
 }

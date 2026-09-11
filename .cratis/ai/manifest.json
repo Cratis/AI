@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "1.0",
+  "description": "The supported selection dimensions for Cratis AI installation.",
+  "harnesses": ["claude", "codex", "copilot", "cursor", "opencode", "pi"],
+  "profiles": ["cratis/application", "cratis/arc", "cratis/chronicle"],
+  "languages": ["csharp", "typescript", "kotlin", "elixir"],
+  "profileCatalog": "profile-catalog.json"
+}

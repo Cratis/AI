@@ -71,6 +71,7 @@ node_modules/
 
 # Output of 'npm pack'
 *.tgz
+/Source/Pi.Plugin/package/
 
 # Yarn Integrity file
 .yarn-integrity
@@ -173,6 +174,6 @@ __pycache__/
 .ai-work/
 
 # Per-machine Claude Code settings. The tracked hook wiring is
-# .ai/hooks/settings.template.json; these are the copies of it.
+# .cratis/ai/hooks/settings.template.json; these are the copies of it.
 .claude/settings.json
 .claude/settings.local.json
