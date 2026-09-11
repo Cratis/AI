@@ -10,11 +10,17 @@ type Catalog = { publicProfiles: Profile[]; engineeringProfiles: Profile[] };
 const packageRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 const corpusRoot = join(packageRoot, 'corpus');
 const catalog = JSON.parse(readFileSync(join(packageRoot, 'profile-catalog.json'), 'utf8')) as Catalog;
+const profiles = [...catalog.publicProfiles, ...catalog.engineeringProfiles];
+
+function allSkillPaths(): string[] {
+    return [...new Set(profiles.flatMap(profile => profile.availableTargets ?? []))]
+        .sort()
+        .map(skill => join(corpusRoot, 'skills', skill));
+}
 
 function selectedSkillPaths(cwd: string): string[] {
     try {
         const configuration = JSON.parse(readFileSync(join(cwd, '.cratis', 'ai.json'), 'utf8')) as AiConfiguration;
-        const profiles = [...catalog.publicProfiles, ...catalog.engineeringProfiles];
         const selected = new Set<string>();
         const select = (id: string): void => {
             if (selected.has(id)) return;
@@ -28,7 +34,7 @@ function selectedSkillPaths(cwd: string): string[] {
             .sort()
             .map(skill => join(corpusRoot, 'skills', skill));
     } catch {
-        return [];
+        return allSkillPaths();
     }
 }
 
