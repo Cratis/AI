@@ -8,6 +8,7 @@ import { join, resolve } from 'node:path';
 import test from 'node:test';
 import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
 import registerPiPlugin, { selectedSkillPaths } from '../Pi.Plugin/src/index.ts';
+import registerCratisHooks from '../../.cratis/ai/harnesses/pi/extensions/cratis-hooks/index.ts';
 import { managedRules } from '../../.cratis/ai/harnesses/pi/extensions/cratis-rules/index.ts';
 
 const repositoryRoot = resolve(import.meta.dirname, '..', '..');
@@ -55,6 +56,17 @@ test('the Pi package yields to a managed CLI installation', () => {
     } finally {
         rmSync(project, { recursive: true, force: true });
     }
+});
+
+test('Cratis quality hooks do not continue a completed noninteractive session', async () => {
+    let settled: ((event: unknown, context: { mode: string }) => Promise<void>) | undefined;
+    registerCratisHooks({
+        on(name: string, handler: unknown) {
+            if (name === 'agent_settled') settled = handler as typeof settled;
+        },
+    } as unknown as ExtensionAPI);
+    assert.ok(settled);
+    await assert.doesNotReject(() => settled!({}, { mode: 'print' }));
 });
 
 test('the Pi package filters rules for framework CSharp documentation repositories', () => {
