@@ -79,9 +79,15 @@
   ],
   "languages": [
     "csharp",
-    "typescript",
+    "elixir",
+    "java",
     "kotlin",
-    "elixir"
+    "language-agnostic",
+    "markdown",
+    "python",
+    "react",
+    "shell",
+    "typescript"
   ],
   "profileCatalog": "profile-catalog.json"
 }
