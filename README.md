@@ -84,6 +84,12 @@ npm test --prefix Source/Verification
 (cd Source/Pi.Plugin && npm pack --dry-run)
 ```
 
+The verification suite uses Pi's `DefaultResourceLoader` directly, without a
+model or credentials, to prove that project context, all 53 skills, 18 prompts,
+and the three managed extensions are actually discovered. It also verifies the
+canonical skill and rule paths exposed to Claude, Codex, Copilot, Cursor, and
+OpenCode.
+
 Skill verification scenarios live beside the skill as `verification.json` and
 state an input plus deterministic assertions. Verification answers whether the
 content works and remains internally consistent. The repository deliberately
