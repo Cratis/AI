@@ -90,7 +90,7 @@ tooling pipeline.
 
 ## Release
 
-`.github/workflows/quality-and-release.yml` is the single workflow. It verifies
+`.github/workflows/publish.yml` is the single workflow. It verifies
 the corpus and packages, checks semantic release intent, uses
 `cratis/release-action` to calculate the version after merge, and publishes
 `@cratis/pi` when a release is requested by the merged pull request label.

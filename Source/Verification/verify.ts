@@ -65,7 +65,7 @@ for (const obsolete of ['tooling', 'evidence', 'evals', 'catalog', 'distribution
     if (await exists(join(root, obsolete))) failures.push(`Obsolete root '${obsolete}' must not exist.`);
 }
 const workflows = (await readdir(join(root, '.github', 'workflows'))).filter(name => name.endsWith('.yml') || name.endsWith('.yaml'));
-if (workflows.length !== 1 || workflows[0] !== 'quality-and-release.yml') failures.push('Exactly one quality-and-release workflow is required.');
+if (workflows.length !== 1 || workflows[0] !== 'publish.yml') failures.push('Exactly one publish workflow is required.');
 for (const marketplace of ['.claude-plugin/marketplace.json', '.cursor-plugin/marketplace.json', '.agents/plugins/marketplace.json', '.github/plugin/marketplace.json']) {
     const document = JSON.parse(await readFile(join(root, marketplace), 'utf8'));
     if (document.plugins?.length !== 1 || document.plugins[0]?.source?.path !== '.cratis/ai' || document.plugins[0]?.skills !== './skills') {
