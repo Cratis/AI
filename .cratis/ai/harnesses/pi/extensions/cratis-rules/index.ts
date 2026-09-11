@@ -8,18 +8,18 @@ import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
 
 const corpusRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '..');
 
-/** Loads task-specific rules from the managed corpus. AGENTS.md already supplies general.md. */
+/** Loads every rule from the managed corpus, including general guidance when AGENTS.md is project-owned. */
 export function managedRules(cwd: string): string {
     const managedRoot = join(cwd, '.cratis', 'ai', 'rules');
     const rulesRoot = existsSync(managedRoot) ? managedRoot : join(corpusRoot, 'rules');
     return readdirSync(rulesRoot, { recursive: true, encoding: 'utf8' })
-        .filter((entry): entry is string => entry.endsWith('.md') && entry !== 'general.md')
+        .filter((entry): entry is string => entry.endsWith('.md'))
         .sort()
         .map(entry => readFileSync(join(rulesRoot, entry), 'utf8'))
         .join('\n\n');
 }
 
-/** Adds every task-specific managed Cratis rule to Pi without requiring the @cratis/pi package. */
+/** Adds every managed Cratis rule to Pi without requiring the @cratis/pi package. */
 export default function (pi: ExtensionAPI): void {
     pi.on('before_agent_start', (event, context) => ({
         systemPrompt: `${event.systemPrompt}\n\n${managedRules(context.cwd)}`,
