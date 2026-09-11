@@ -1,1 +1,1 @@
-../../.ai/rules/storybook.md
+../../.cratis/ai/rules/storybook.md

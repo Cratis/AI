@@ -1,1 +1,1 @@
-../../.ai/rules/reactors.md
+../../.cratis/ai/rules/reactors.md

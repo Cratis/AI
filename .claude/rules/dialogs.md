@@ -1,1 +1,1 @@
-../../.ai/rules/dialogs.md
+../../.cratis/ai/rules/dialogs.md

@@ -1,1 +1,1 @@
-../../.ai/rules/orleans.md
+../../.cratis/ai/rules/orleans.md

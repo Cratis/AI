@@ -1,1 +1,1 @@
-../../.ai/rules/pull-requests.md
+../../.cratis/ai/rules/pull-requests.md

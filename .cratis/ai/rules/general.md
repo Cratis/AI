@@ -11,7 +11,7 @@ Profile-specific rules declare a **`profile:`** in their frontmatter (`applicati
 
 > **Arc is a standalone CQRS framework — not bound to event sourcing.** Even within the application profile, Arc provides model-bound commands/queries, validation, authorization, and full-stack proxy generation, and works **without** Chronicle (Arc.Core does not depend on Chronicle). A `[Command]` `Handle()` does not *have* to append events — it can return a response, return `void`, or work through injected services. The event-sourcing behavior (a returned event gets appended; `EventForEventSourceId`; "never inject `IEventLog`") comes from the **Arc + Chronicle** integration. This application is event-sourced, so the slice guidance assumes event-sourced commands — read the event-centric rules as the *house default for this app*, not universal Arc laws.
 
-The framework is convention-over-configuration. **Idiomatic Cratis is the goal — not custom abstractions over it.** When something is unclear, prefer the Cratis convention; do not invent. The rules and skills under `.ai/` are the authoritative answer — if your question is not answered there, ask rather than inferring framework behavior from package internals.
+The framework is convention-over-configuration. **Idiomatic Cratis is the goal — not custom abstractions over it.** When something is unclear, prefer the Cratis convention; do not invent. The rules and skills under `.cratis/ai/` are the authoritative answer — if your question is not answered there, ask rather than inferring framework behavior from package internals.
 
 ## Project Philosophy
 
@@ -34,7 +34,7 @@ Every rule below is one of three kinds — know which, because they carry differ
 
 - **Framework contract** — enforced by Arc/Chronicle source, analyzers, or runtime. Violating it breaks the build or behaves wrongly. (e.g. `[Command]` needs a public instance `Handle()`; model-bound queries are static methods on `[ReadModel]`; nullable event properties raise a Chronicle analyzer warning.)
 - **Cratis Application convention** — the house default for maintainability and consistent generated code. The framework does **not** enforce it, but follow it for consistency. (e.g. the slice folder shape, one backend file per small slice, declaration order.)
-- **Product policy** — belongs in a downstream app's own `.ai/`, not this generic corpus. (e.g. specific roles, locales, design systems.)
+- **Product policy** — belongs in a downstream app's own `.cratis/ai/`, not this generic corpus. (e.g. specific roles, locales, design systems.)
 
 Where a rule is convention rather than contract, this file says so. Do not claim "the framework requires this" for a convention.
 
@@ -45,10 +45,10 @@ repository. Individual projects need extra context that does not belong here,
 such as product composition, approved environment names, directions for
 obtaining credentials, and other local conventions ("Product policy" above).
 
-- Read `.cratis/PROJECT.md` as the canonical project-specific context when it
+- Read repository-owned documentation as the canonical project-specific context when it
   exists.
-- Read `.agents/PROJECT.md` only as the documented legacy fallback when
-  `.cratis/PROJECT.md` does not exist; never merge both contexts.
+- Read repository-owned documentation only as the documented legacy fallback when
+  repository-owned documentation does not exist; never merge both contexts.
 - Project context may explain which approved secret mechanism or local setup to
   use, but it must never contain credential values, tokens, keys, passwords, or
   other secrets.
@@ -126,7 +126,7 @@ explicit next action for the authorized human/owning process.
 
 ## Shared AI Distribution
 
-Do not copy or synchronize shared `.ai`, `.agents`, `.claude`, `.github`, or
+Do not copy or synchronize shared `.cratis/ai`, `.agents`, `.claude`, `.github`, or
 `.pi` trees from one Cratis repository to another. A consuming repository must
 never become an accidental source that republishes its local AI corpus.
 
@@ -142,9 +142,9 @@ Cratis behavior. The `engineering-` prefix identifies the maintainer audience;
 it does not imply confidential package contents or a private registry.
 
 The consuming repository owns its project facts, confidential behavior, local
-skills, and minimal host bootstraps. Use `.cratis/PROJECT.md` as canonical
+skills, and minimal host bootstraps. Use repository-owned documentation as canonical
 project context when that migration is active, `.agents/skills/` for private or
-repository-specific local workflows, and `.agents/PROJECT.md` only as the
+repository-specific local workflows, and repository-owned documentation only as the
 documented legacy context fallback. Never merge, overwrite, or remove these
 local files as a side effect of installing, updating, rolling back, or
 uninstalling shared AI capabilities.
@@ -301,7 +301,7 @@ Documentation-only changes use repository-supported non-release intent, ordinari
 | Writing a scan, allowlist or destructive pass that cannot pass vacuously | `guards-and-fuses.md` |
 | The section skeleton every engineering recipe follows | `engineering-recipe-skeleton.md` |
 | Event modeling / schema migration / calling commands from code / paging / cross-cutting metadata / multi-tenancy | the matching skills |
-| Step-by-step recipes | `.ai/skills/` |
+| Step-by-step recipes | `.cratis/ai/skills/` |
 
 ## Source-of-Truth Discipline
 

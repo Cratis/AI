@@ -1,1 +1,1 @@
-../../.ai/rules/documentation.md
+../../.cratis/ai/rules/documentation.md

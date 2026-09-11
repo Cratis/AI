@@ -1,1 +1,1 @@
-../../.ai/rules/csharp.md
+../../.cratis/ai/rules/csharp.md

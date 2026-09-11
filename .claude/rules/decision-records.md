@@ -1,1 +1,1 @@
-../../.ai/rules/decision-records.md
+../../.cratis/ai/rules/decision-records.md

@@ -2,5 +2,12 @@
   "name": "@cratis/skill-verification",
   "private": true,
   "type": "module",
-  "scripts": { "verify": "node verify.mjs" }
+  "scripts": {
+    "verify": "tsx verify.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.8.0"
+  }
 }

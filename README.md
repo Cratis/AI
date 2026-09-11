@@ -67,23 +67,23 @@ rollback, and contribution model.
 skills/                 Canonical public skill sources
 engineering/            Canonical Cratis-maintainer skill sources
 mcp/                    MCP server declarations and host configuration mapping
-.ai/                    Legacy corpus being reconciled into profiles
+.cratis/ai/                    Legacy corpus being reconciled into profiles
 catalog/                Sources, targets, authority, evidence, and coverage
 distribution/           Profile, artifact, rollout, and publication contracts
 tooling/                Resolver, validation, and deterministic generation
 Documentation/          Architecture, contribution, and usage guidance
-.claude/ .github/ .agents/ .pi/   Repository-local host adapters into .ai/
+.claude/ .github/ .agents/ .pi/   Repository-local host adapters into .cratis/ai/
 ```
 
 There is no application here: no `Source/`, no solution, no `package.json`. This
 repository is markdown, JSON, and the JavaScript under `tooling/` that validates
 and generates from them.
 
-`.ai/` remains valuable repository-local guidance but is not a publishable
+`.cratis/ai/` remains valuable repository-local guidance but is not a publishable
 package tree. Public and engineering artifacts select exact approved files; they
 never package the repository wholesale. The adapter trees are local wiring for
 the hosts a maintainer uses *in* this repository — never a package payload; see
-[`managing-ai-rules.md`](.ai/rules/managing-ai-rules.md).
+[`managing-ai-rules.md`](.cratis/ai/rules/managing-ai-rules.md).
 
 `mcp/` holds authored, passive MCP server declarations. A declaration records a
 server's identity, reference, transport, authentication type, and host
@@ -149,8 +149,7 @@ A consuming repository will pin profiles in project-owned `.cratis/ai.json`:
   "version": "1.0.0",
   "profiles": ["cratis/engineering"],
   "harnesses": ["claude", "codex", "copilot", "pi"],
-  "updatePolicy": "reviewed-pull-request",
-  "projectContext": ".cratis/PROJECT.md"
+  "updatePolicy": "reviewed-pull-request"
 }
 ```
 
@@ -176,9 +175,9 @@ Update and rollback change the exact version through a reviewed pull request.
 
 This repository's own `.pi/` tree is **not** that package and is never
 propagated: `.pi/agents/` and `.pi/prompts/` are local symlink adapters into
-`.ai/`, `.pi/extensions/` is repository-owned host-extension source, and `.pi/**`
+`.cratis/ai/`, `.pi/extensions/` is repository-owned host-extension source, and `.pi/**`
 is a forbidden path in every generated artifact. See
-[`managing-ai-rules.md`](.ai/rules/managing-ai-rules.md#pi--pi).
+[`managing-ai-rules.md`](.cratis/ai/rules/managing-ai-rules.md#pi--pi).
 
 These commands describe the released workflow and are not available until the
 packages exist. See the [Pi package workflow](Documentation/ai-distribution-and-subscriptions.md#pi-package-workflow).
@@ -235,7 +234,7 @@ node tooling/run-spec-suite.mjs --basic
 # Optional full governed audit:
 node tooling/validate-catalogs.mjs
 node tooling/run-spec-suite.mjs --governed
-.ai/hooks/scripts/validate-ai-setup.sh
+.cratis/ai/hooks/scripts/validate-ai-setup.sh
 git diff --check
 ```
 

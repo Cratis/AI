@@ -1,1 +1,1 @@
-../../.ai/rules/components.md
+../../.cratis/ai/rules/components.md

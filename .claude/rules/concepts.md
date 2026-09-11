@@ -1,1 +1,1 @@
-../../.ai/rules/concepts.md
+../../.cratis/ai/rules/concepts.md

@@ -1,1 +1,1 @@
-../../.ai/rules/specs.md
+../../.cratis/ai/rules/specs.md

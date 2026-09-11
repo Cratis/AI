@@ -1,1 +1,1 @@
-../../.ai/rules/engineering-recipe-skeleton.md
+../../.cratis/ai/rules/engineering-recipe-skeleton.md

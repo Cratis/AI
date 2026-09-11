@@ -1,1 +1,1 @@
-../../.ai/rules/efcore.md
+../../.cratis/ai/rules/efcore.md

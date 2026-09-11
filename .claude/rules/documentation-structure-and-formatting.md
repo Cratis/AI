@@ -1,1 +1,1 @@
-../../.ai/rules/documentation-structure-and-formatting.md
+../../.cratis/ai/rules/documentation-structure-and-formatting.md

@@ -1,1 +1,1 @@
-../../.ai/rules/terminal-commands.md
+../../.cratis/ai/rules/terminal-commands.md

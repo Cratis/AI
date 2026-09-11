@@ -1,1 +1,1 @@
-../../.ai/rules/code-quality.md
+../../.cratis/ai/rules/code-quality.md

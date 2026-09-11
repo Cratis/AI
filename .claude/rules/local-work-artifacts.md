@@ -1,1 +1,1 @@
-../../.ai/rules/local-work-artifacts.md
+../../.cratis/ai/rules/local-work-artifacts.md

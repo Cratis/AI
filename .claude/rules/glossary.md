@@ -1,1 +1,1 @@
-../../.ai/rules/glossary.md
+../../.cratis/ai/rules/glossary.md

@@ -1,1 +1,1 @@
-../../.ai/rules/work-records-and-comments.md
+../../.cratis/ai/rules/work-records-and-comments.md

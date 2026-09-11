@@ -1,1 +1,1 @@
-../../.ai/rules/code-quality.csharp.md
+../../.cratis/ai/rules/code-quality.csharp.md

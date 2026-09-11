@@ -1,1 +1,1 @@
-../../.ai/rules/human-verdicts.md
+../../.cratis/ai/rules/human-verdicts.md

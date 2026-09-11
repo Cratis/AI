@@ -1,7 +1,7 @@
 ---
-applyTo: ".ai/**,.github/**,.claude/**,.agents/**,.pi/**,AGENTS.md,README.md"
+applyTo: ".cratis/ai/**,.github/**,.claude/**,.agents/**,.pi/**,AGENTS.md,README.md"
 paths:
-  - ".ai/**"
+  - ".cratis/ai/**"
   - ".github/**"
   - ".claude/**"
   - ".agents/**"
@@ -12,13 +12,13 @@ paths:
 
 # Managing repository-local AI rules and instructions
 
-> **Scope:** `.ai/` is the source for the legacy and repository-local adapters in
+> **Scope:** `.cratis/ai/` is the source for the legacy and repository-local adapters in
 > this repository. It is not a package root and is never propagated wholesale.
 > Canonical public skills live under `skills/`, canonical maintainer skills live
 > under `engineering/`, and profile releases follow
 > [`Documentation/ai-distribution-and-subscriptions.md`](../../Documentation/ai-distribution-and-subscriptions.md).
 
-Within this repository, `.ai/` remains the **single source of truth** for rules,
+Within this repository, `.cratis/ai/` remains the **single source of truth** for rules,
 agents, prompts, legacy skills, and hooks surfaced through local adapters:
 folder symlinks, per-file symlinks, or small **path-reference files** whose body
 is the relative path to the canonical source.
@@ -28,7 +28,7 @@ is the relative path to the canonical source.
 ## Folder structure
 
 ```
-.ai/                             ← canonical source of truth (edit here)
+.cratis/ai/                             ← canonical source of truth (edit here)
 ├── rules/                       ← instruction/rule markdown files
 ├── agents/                      ← agent definition files
 ├── prompts/                     ← reusable prompt templates
@@ -37,36 +37,36 @@ is the relative path to the canonical source.
 └── workflows/                   ← shared CI workflow files
 
 .github/                         ← GitHub Copilot adapters (do NOT edit)
-├── copilot-instructions.md      ← path-reference → ../.ai/rules/general.md
-├── instructions/               ← folder symlink → ../.ai/rules   (rules maintained in one place; see Copilot suffix caveat below)
+├── copilot-instructions.md      ← path-reference → ../.cratis/ai/rules/general.md
+├── instructions/               ← folder symlink → ../.cratis/ai/rules   (rules maintained in one place; see Copilot suffix caveat below)
 ├── agents/
-│   └── <name>.agent.md          ← per-file symlink → ../../.ai/agents/<name>.md   (Copilot needs the .agent.md suffix)
-├── prompts/                     ← folder symlink → ../.ai/prompts                (Copilot reads *.prompt.md)
-└── skills/                      ← folder symlink → ../.ai/skills
+│   └── <name>.agent.md          ← per-file symlink → ../../.cratis/ai/agents/<name>.md   (Copilot needs the .agent.md suffix)
+├── prompts/                     ← folder symlink → ../.cratis/ai/prompts                (Copilot reads *.prompt.md)
+└── skills/                      ← folder symlink → ../.cratis/ai/skills
 
 .claude/                         ← Claude Code adapters (do NOT edit)
-├── CLAUDE.md                    ← symlink → ../.ai/rules/general.md
+├── CLAUDE.md                    ← symlink → ../.cratis/ai/rules/general.md
 ├── rules/
-│   └── <name>.md                ← per-file symlink → ../../.ai/rules/<name>.md
-├── agents/                      ← folder symlink → ../.ai/agents                 (Claude reads <name>.md)
+│   └── <name>.md                ← per-file symlink → ../../.cratis/ai/rules/<name>.md
+├── agents/                      ← folder symlink → ../.cratis/ai/agents                 (Claude reads <name>.md)
 ├── commands/
-│   └── <name>.md                ← per-file symlink → ../../.ai/prompts/<name>.prompt.md   (Claude slash commands)
-└── skills/                      ← folder symlink → ../.ai/skills
+│   └── <name>.md                ← per-file symlink → ../../.cratis/ai/prompts/<name>.prompt.md   (Claude slash commands)
+└── skills/                      ← folder symlink → ../.cratis/ai/skills
                                     (hooks: Claude wires them in .claude/settings.json — no folder adapter)
 
 .agents/                         ← Codex adapters (do NOT edit)
-└── skills/                      ← folder symlink → ../.ai/skills
+└── skills/                      ← folder symlink → ../.cratis/ai/skills
 
 .pi/                             ← Pi surface (adapters + repository-owned extensions)
 ├── agents/
-│   └── <name>.md                ← per-file symlink → ../../.ai/agents/<name>.md   (do NOT edit)
+│   └── <name>.md                ← per-file symlink → ../../.cratis/ai/agents/<name>.md   (do NOT edit)
 ├── prompts/
-│   └── <name>.md                ← per-file symlink → ../../.ai/prompts/<name>.prompt.md   (do NOT edit)
+│   └── <name>.md                ← per-file symlink → ../../.cratis/ai/prompts/<name>.prompt.md   (do NOT edit)
 └── extensions/                  ← canonical source, NOT an adapter — edit here
     ├── cratis-hooks/
     └── subagent/
 
-AGENTS.md                        ← Codex root instructions → .ai/rules/general.md
+AGENTS.md                        ← Codex root instructions → .cratis/ai/rules/general.md
 ```
 
 **Each tool has its own conventions, so adapters differ by surface** (verified against each tool's docs):
@@ -74,7 +74,7 @@ AGENTS.md                        ← Codex root instructions → .ai/rules/gener
 | Surface | Copilot | Claude Code | Codex | Pi |
 | --- | --- | --- | --- | --- |
 | Root instructions | `copilot-instructions.md` → `general.md` | `CLAUDE.md` → `general.md` | `AGENTS.md` → `general.md` | — |
-| Scoped rules | `instructions/` (folder symlink → `.ai/rules`) | `rules/<n>.md` (per-file) | — | — |
+| Scoped rules | `instructions/` (folder symlink → `.cratis/ai/rules`) | `rules/<n>.md` (per-file) | — | — |
 | Agents | `agents/<n>.agent.md` (per-file, `.agent.md` suffix) | `agents/` (folder symlink, `<n>.md`) | — | `.pi/agents/<n>.md` (per-file) |
 | Prompts / commands | `prompts/` (folder symlink, `*.prompt.md`) | `commands/<n>.md` (per-file) | — | `.pi/prompts/<n>.md` (per-file, no `.prompt` infix) |
 | Skills | `skills/` (folder symlink) | `skills/` (folder symlink) | `.agents/skills/` (folder symlink) | — |
@@ -82,15 +82,15 @@ AGENTS.md                        ← Codex root instructions → .ai/rules/gener
 
 Folder symlinks (skills both sides, Copilot prompts and instructions, Claude agents) pick up additions/renames automatically. The remaining per-file adapters (Claude rules, Copilot agents, Claude commands) are needed because the tool requires a different filename suffix/location than the canonical source — so a new agent/prompt needs its matching per-file adapter created (see below). The validator (`hooks/scripts/validate-ai-setup.sh`) checks each adapter resolves to the right canonical file (symlink or path-reference file are both accepted).
 
-**Copilot suffix caveat for `.github/instructions`.** `.github/instructions` is a folder symlink into `.ai/rules` so rules are maintained in exactly one place. The trade-off: GitHub Copilot's `applyTo` discovery expects scoped instruction files to carry the `.instructions.md` suffix, and through a folder symlink the rules are exposed as `<name>.md`. Claude Code (`.claude/rules`) and Codex still consume the rules, and the content is fully available, but Copilot will not auto-attach scoped rules by glob through the folder symlink.
+**Copilot suffix caveat for `.github/instructions`.** `.github/instructions` is a folder symlink into `.cratis/ai/rules` so rules are maintained in exactly one place. The trade-off: GitHub Copilot's `applyTo` discovery expects scoped instruction files to carry the `.instructions.md` suffix, and through a folder symlink the rules are exposed as `<name>.md`. Claude Code (`.claude/rules`) and Codex still consume the rules, and the content is fully available, but Copilot will not auto-attach scoped rules by glob through the folder symlink.
 
-> **Hooks are not folder adapters.** Markdown is not a hook format for either tool — `.ai/hooks/*.md` are *lifecycle guidance*. Enforce them per tool: Claude via `.claude/settings.json` (`Stop`, `PreToolUse`, …); Copilot via `.github/hooks/*.json` (`sessionStart`/`sessionEnd`/`userPromptSubmitted`).
+> **Hooks are not folder adapters.** Markdown is not a hook format for either tool — `.cratis/ai/hooks/*.md` are *lifecycle guidance*. Enforce them per tool: Claude via `.claude/settings.json` (`Stop`, `PreToolUse`, …); Copilot via `.github/hooks/*.json` (`sessionStart`/`sessionEnd`/`userPromptSubmitted`).
 
 ## Pi generated local agent adapters
 
 `.pi/agents/*.md` are generated **real files**, not symlinks or independent
 instructions. Each adapter is rendered from this checkout's own
-`.ai/agents/<name>.md`; never use another repository's canonical agent bodies.
+`.cratis/ai/agents/<name>.md`; never use another repository's canonical agent bodies.
 Edit the local canonical source, then explicitly regenerate with the reviewed
 `Cratis/AI` tool `tooling/pi-agent-adapters.mjs`. Do not edit generated adapters
 or their `.generated.json` manifest by hand.
@@ -117,7 +117,7 @@ local authority and private-effect boundaries still apply.
 
 ## Rule file format
 
-Every rule file in `.ai/rules/` must start with a YAML frontmatter block containing at minimum an `applyTo` field (for GitHub Copilot). Add a `paths` field when the rule should also be scoped for Claude Code.
+Every rule file in `.cratis/ai/rules/` must start with a YAML frontmatter block containing at minimum an `applyTo` field (for GitHub Copilot). Add a `paths` field when the rule should also be scoped for Claude Code.
 
 ```markdown
 ---
@@ -152,62 +152,62 @@ A profile-specific rule declares **`profile: application`** or **`profile: frame
 
 ## Adding a new rule
 
-1. **Create the canonical file** in `.ai/rules/<name>.md` with the appropriate frontmatter and content.
+1. **Create the canonical file** in `.cratis/ai/rules/<name>.md` with the appropriate frontmatter and content.
 
-2. **Copilot needs no per-rule step** — `.github/instructions` is a folder symlink into `.ai/rules`, so the new rule appears automatically (subject to the Copilot suffix caveat above).
+2. **Copilot needs no per-rule step** — `.github/instructions` is a folder symlink into `.cratis/ai/rules`, so the new rule appears automatically (subject to the Copilot suffix caveat above).
 
 3. **Create the Claude symlink** in `.claude/rules/`:
 
    ```bash
    cd .claude/rules
-   ln -s ../../.ai/rules/<name>.md <name>.md
+   ln -s ../../.cratis/ai/rules/<name>.md <name>.md
    ```
 
 4. If the rule applies to all files globally (like `general.md`), update the top-level adapters:
-   - `.github/copilot-instructions.md` → `../.ai/rules/general.md`
-   - `.claude/CLAUDE.md` → `../.ai/rules/general.md`
+   - `.github/copilot-instructions.md` → `../.cratis/ai/rules/general.md`
+   - `.claude/CLAUDE.md` → `../.cratis/ai/rules/general.md`
 
-5. **Codex needs no per-rule step** — it consumes only `AGENTS.md` (→ `general.md`) and `.agents/skills` (→ `.ai/skills`), both already wired. New skills are picked up automatically through the `.agents/skills` folder symlink.
+5. **Codex needs no per-rule step** — it consumes only `AGENTS.md` (→ `general.md`) and `.agents/skills` (→ `.cratis/ai/skills`), both already wired. New skills are picked up automatically through the `.agents/skills` folder symlink.
 
 ## Updating an existing rule
 
-Edit the canonical file in `.ai/rules/<name>.md`. **Do not touch anything in `.github/` or `.claude/`** — the symlinks automatically reflect the change.
+Edit the canonical file in `.cratis/ai/rules/<name>.md`. **Do not touch anything in `.github/` or `.claude/`** — the symlinks automatically reflect the change.
 
 ## Updating agents, prompts, skills, or hooks
 
-Always edit the canonical file in the relevant `.ai/` subfolder — never adapter bodies. For Pi, explicitly regenerate the local real-file adapters using the procedure above; symlink updates alone do not refresh them. Whether you need another adapter depends on the surface:
+Always edit the canonical file in the relevant `.cratis/ai/` subfolder — never adapter bodies. For Pi, explicitly regenerate the local real-file adapters using the procedure above; symlink updates alone do not refresh them. Whether you need another adapter depends on the surface:
 
-- **Skills** (`.ai/skills/<n>/SKILL.md`) — folder symlinks on all three sides pick up new/renamed skills automatically. No adapter step.
-- **Agents** (`.ai/agents/<n>.md`) — Claude's `.claude/agents` folder symlink is automatic, but **Copilot needs a per-file `.agent.md` adapter**:
+- **Skills** (`.cratis/ai/skills/<n>/SKILL.md`) — folder symlinks on all three sides pick up new/renamed skills automatically. No adapter step.
+- **Agents** (`.cratis/ai/agents/<n>.md`) — Claude's `.claude/agents` folder symlink is automatic, but **Copilot needs a per-file `.agent.md` adapter**:
 
   ```bash
-  ln -s ../../.ai/agents/<n>.md .github/agents/<n>.agent.md
+  ln -s ../../.cratis/ai/agents/<n>.md .github/agents/<n>.agent.md
   ```
 
   ```bash
-  ln -s ../../.ai/agents/<n>.md .pi/agents/<n>.md
+  ln -s ../../.cratis/ai/agents/<n>.md .pi/agents/<n>.md
   ```
 
-- **Prompts** (`.ai/prompts/<n>.prompt.md`) — Copilot's `.github/prompts` folder symlink is automatic, but **Claude and Pi each need a per-file adapter** (Pi drops the `.prompt` infix):
+- **Prompts** (`.cratis/ai/prompts/<n>.prompt.md`) — Copilot's `.github/prompts` folder symlink is automatic, but **Claude and Pi each need a per-file adapter** (Pi drops the `.prompt` infix):
 
   ```bash
-  ln -s ../../.ai/prompts/<n>.prompt.md .claude/commands/<n>.md
-  ln -s ../../.ai/prompts/<n>.prompt.md .pi/prompts/<n>.md
+  ln -s ../../.cratis/ai/prompts/<n>.prompt.md .claude/commands/<n>.md
+  ln -s ../../.cratis/ai/prompts/<n>.prompt.md .pi/prompts/<n>.md
   ```
 
-- **Hooks** (`.ai/hooks/*.md`) — these are *guidance*, not wired hooks. To enforce, add the real artifact per tool (Claude `.claude/settings.json`; Copilot `.github/hooks/*.json`; Pi `.pi/extensions/cratis-hooks/`).
+- **Hooks** (`.cratis/ai/hooks/*.md`) — these are *guidance*, not wired hooks. To enforce, add the real artifact per tool (Claude `.claude/settings.json`; Copilot `.github/hooks/*.json`; Pi `.pi/extensions/cratis-hooks/`).
 
 Run `hooks/scripts/validate-ai-setup.sh` after adding an agent or prompt to confirm its adapter resolves.
 
 ## Renaming a rule
 
-1. Rename the file in `.ai/rules/`.
+1. Rename the file in `.cratis/ai/rules/`.
 2. Copilot's `.github/instructions` folder symlink picks up the rename automatically. Update only the Claude per-file symlink:
 
    ```bash
    # In .claude/rules/ (symlink)
    rm <old-name>.md
-   ln -s ../../.ai/rules/<new-name>.md <new-name>.md
+   ln -s ../../.cratis/ai/rules/<new-name>.md <new-name>.md
    ```
 
 3. Update any cross-references within other rule files that link to the renamed file by path.
@@ -218,16 +218,16 @@ An adapter's target (the symlink target, or the path-reference file's body) uses
 
 | Adapter location | Target |
 | --- | --- |
-| `.github/instructions` (folder symlink) | `../.ai/rules` |
-| `.claude/rules/<name>.md` | `../../.ai/rules/<name>.md` |
-| `.github/agents/<name>.agent.md` | `../../.ai/agents/<name>.md` |
-| `.claude/commands/<name>.md` | `../../.ai/prompts/<name>.prompt.md` |
-| `.pi/agents/<name>.md` | `../../.ai/agents/<name>.md` |
-| `.pi/prompts/<name>.md` | `../../.ai/prompts/<name>.prompt.md` |
-| `.github/copilot-instructions.md` | `../.ai/rules/general.md` |
-| `.claude/CLAUDE.md` | `../.ai/rules/general.md` |
-| `AGENTS.md` (repo root, Codex) | `.ai/rules/general.md` |
-| `.agents/skills`, `.github/prompts`, `.github/skills`, `.claude/agents`, `.claude/skills` (folder symlinks) | the matching `.ai/<sub>` folder |
+| `.github/instructions` (folder symlink) | `../.cratis/ai/rules` |
+| `.claude/rules/<name>.md` | `../../.cratis/ai/rules/<name>.md` |
+| `.github/agents/<name>.agent.md` | `../../.cratis/ai/agents/<name>.md` |
+| `.claude/commands/<name>.md` | `../../.cratis/ai/prompts/<name>.prompt.md` |
+| `.pi/agents/<name>.md` | `../../.cratis/ai/agents/<name>.md` |
+| `.pi/prompts/<name>.md` | `../../.cratis/ai/prompts/<name>.prompt.md` |
+| `.github/copilot-instructions.md` | `../.cratis/ai/rules/general.md` |
+| `.claude/CLAUDE.md` | `../.cratis/ai/rules/general.md` |
+| `AGENTS.md` (repo root, Codex) | `.cratis/ai/rules/general.md` |
+| `.agents/skills`, `.github/prompts`, `.github/skills`, `.claude/agents`, `.claude/skills` (folder symlinks) | the matching `.cratis/ai/<sub>` folder |
 
 ## Distribution and adapters
 
@@ -243,7 +243,7 @@ No consuming repository publishes packages, pushes generated bytes, or writes
 changes directly back into this source tree.
 
 Local adapter symlinks and path-reference files remain an implementation detail
-inside this repository. Do not materialize their targets into copied `.ai`
+inside this repository. Do not materialize their targets into copied `.cratis/ai`
 content.
 
 ### Pi — `.pi/`
@@ -253,8 +253,8 @@ is not propagated.** It was the one adapter surface the corpus model had never
 ruled on, which left it ambiguous whether a released package should carry it.
 
 - **`.pi/agents/` and `.pi/prompts/` are ordinary local adapters**, the same
-  class as `.github/` and `.claude/`: per-file symlinks into `.ai/agents` and
-  `.ai/prompts`. Pi reads a prompt as `<name>.md`, without the `.prompt` infix
+  class as `.github/` and `.claude/`: per-file symlinks into `.cratis/ai/agents` and
+  `.cratis/ai/prompts`. Pi reads a prompt as `<name>.md`, without the `.prompt` infix
   the canonical file carries, which is why these are per-file rather than folder
   symlinks. Edit the canonical file; never these.
 - **`.pi/extensions/` is not an adapter.** `cratis-hooks` and `subagent` are
@@ -276,6 +276,6 @@ ruled on, which left it ambiguous whether a released package should carry it.
 ## Shared workflows
 
 Reusable workflow behavior is versioned and reviewed like other shared behavior;
-it is not synchronized from `.ai/workflows/` into consuming repositories.
+it is not synchronized from `.cratis/ai/workflows/` into consuming repositories.
 Product repositories own their workflow invocation and exact immutable workflow
 reference.

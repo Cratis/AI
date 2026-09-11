@@ -1,11 +1,18 @@
 {
   "name": "@cratis/pi",
   "version": "0.1.0",
-  "description": "Cratis AI skill-path integration for Pi",
+  "description": "Standalone Cratis skill package for Pi",
   "type": "module",
-  "exports": "./src/index.js",
-  "files": ["src", "README.md", "LICENSE"],
-  "scripts": { "test": "node --test" },
-  "keywords": ["cratis", "pi", "ai", "skills"],
-  "license": "MIT"
+  "files": ["skills", "README.md", "LICENSE"],
+  "scripts": {
+    "check": "tsc --noEmit"
+  },
+  "keywords": ["cratis", "pi-package", "ai", "skills"],
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.8.0"
+  },
+  "pi": {
+    "skills": ["./skills"]
+  }
 }

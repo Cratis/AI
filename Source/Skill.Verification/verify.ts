@@ -16,7 +16,7 @@ async function verify(path) {
     if (!scenario.skill || !scenario.input || !Array.isArray(scenario.assertions) || scenario.assertions.length === 0) {
         throw new Error(`${relative(root, path)} must define skill, input, and non-empty assertions`);
     }
-    const skill = resolve(root, '.ai', 'skills', scenario.skill, 'SKILL.md');
+    const skill = resolve(root, '.cratis', 'ai', 'skills', scenario.skill, 'SKILL.md');
     const content = await readFile(skill, 'utf8');
     for (const assertion of scenario.assertions) {
         if (assertion.kind !== 'skill-contains' || !content.includes(assertion.value)) {
@@ -25,6 +25,6 @@ async function verify(path) {
     }
     return { scenario: relative(root, path), skill: scenario.skill, digest: createHash('sha256').update(content).digest('hex') };
 }
-await discover(join(root, '.ai', 'skills'));
+await discover(join(root, '.cratis', 'ai', 'skills'));
 const results = await Promise.all(scenarios.map(verify));
 console.log(JSON.stringify({ passed: results.length, results }, null, 2));

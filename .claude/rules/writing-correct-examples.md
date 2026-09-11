@@ -1,1 +1,1 @@
-../../.ai/rules/writing-correct-examples.md
+../../.cratis/ai/rules/writing-correct-examples.md

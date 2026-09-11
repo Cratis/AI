@@ -1,1 +1,1 @@
-../../.ai/rules/rtk.md
+../../.cratis/ai/rules/rtk.md

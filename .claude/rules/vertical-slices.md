@@ -1,1 +1,1 @@
-../../.ai/rules/vertical-slices.md
+../../.cratis/ai/rules/vertical-slices.md

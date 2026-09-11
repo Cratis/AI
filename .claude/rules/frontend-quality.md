@@ -1,1 +1,1 @@
-../../.ai/rules/frontend-quality.md
+../../.cratis/ai/rules/frontend-quality.md

@@ -1,1 +1,1 @@
-../../.ai/rules/guards-and-fuses.md
+../../.cratis/ai/rules/guards-and-fuses.md

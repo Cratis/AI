@@ -1,1 +1,1 @@
-../../.ai/rules/frontend-testing.md
+../../.cratis/ai/rules/frontend-testing.md

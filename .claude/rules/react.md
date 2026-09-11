@@ -1,1 +1,1 @@
-../../.ai/rules/react.md
+../../.cratis/ai/rules/react.md

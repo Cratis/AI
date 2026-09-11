@@ -1,1 +1,1 @@
-../../.ai/rules/writing-cratis-docs.md
+../../.cratis/ai/rules/writing-cratis-docs.md

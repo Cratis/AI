@@ -1,1 +1,1 @@
-../../.ai/rules/web-fetching.md
+../../.cratis/ai/rules/web-fetching.md

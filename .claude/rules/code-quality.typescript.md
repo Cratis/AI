@@ -1,1 +1,1 @@
-../../.ai/rules/code-quality.typescript.md
+../../.cratis/ai/rules/code-quality.typescript.md

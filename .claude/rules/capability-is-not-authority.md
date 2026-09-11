@@ -1,1 +1,1 @@
-../../.ai/rules/capability-is-not-authority.md
+../../.cratis/ai/rules/capability-is-not-authority.md

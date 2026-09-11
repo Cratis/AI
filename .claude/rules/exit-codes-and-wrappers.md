@@ -1,1 +1,1 @@
-../../.ai/rules/exit-codes-and-wrappers.md
+../../.cratis/ai/rules/exit-codes-and-wrappers.md

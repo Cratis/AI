@@ -1,1 +1,1 @@
-../../.ai/rules/git-commits.md
+../../.cratis/ai/rules/git-commits.md

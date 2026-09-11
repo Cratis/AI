@@ -1,1 +1,1 @@
-../../.ai/rules/specs.typescript.md
+../../.cratis/ai/rules/specs.typescript.md

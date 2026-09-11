@@ -1,1 +1,1 @@
-../../.ai/rules/verification-discipline.md
+../../.cratis/ai/rules/verification-discipline.md

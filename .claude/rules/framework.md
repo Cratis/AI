@@ -1,1 +1,1 @@
-../../.ai/rules/framework.md
+../../.cratis/ai/rules/framework.md
