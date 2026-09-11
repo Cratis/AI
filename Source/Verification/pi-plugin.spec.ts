@@ -36,10 +36,10 @@ test('Pi exposes every catalog skill when configuration is absent', () => {
     }
 });
 
-test('managed Pi loads every task-specific rule from the canonical corpus', () => {
+test('managed Pi loads general and task-specific rules from the canonical corpus', () => {
     const rules = managedRules(repositoryRoot);
+    assert.match(rules, /# Cratis — Project Instructions/);
     assert.match(rules, /# C# Conventions/);
-    assert.doesNotMatch(rules, /# Cratis — Project Instructions/);
 });
 
 test('the Pi package yields to a managed CLI installation', () => {
