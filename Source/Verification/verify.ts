@@ -98,6 +98,9 @@ const profileIds = new Set(profiles.map(profile => profile.id));
 const declaredProfiles: string[] = manifest.profiles ?? [];
 const catalogProfiles = [...profileIds].sort();
 if (JSON.stringify(declaredProfiles) !== JSON.stringify(catalogProfiles)) failures.push('Manifest profiles must list every catalog profile in sorted order.');
+const declaredLanguages: string[] = manifest.languages ?? [];
+const catalogLanguages = [...new Set(profiles.flatMap(profile => profile.languages ?? []))].sort();
+if (JSON.stringify(declaredLanguages) !== JSON.stringify(catalogLanguages)) failures.push('Manifest languages must list every catalog language in sorted order.');
 for (const profile of profiles) {
     for (const composed of profile.composes ?? []) {
         if (!profileIds.has(composed)) failures.push(`Profile '${profile.id}' composes missing profile '${composed}'.`);
