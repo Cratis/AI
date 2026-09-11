@@ -89,13 +89,15 @@ for (const extension of [
 
 const manifest = JSON.parse(await readFile(join(corpus, 'manifest.json'), 'utf8'));
 requireValues(manifest.harnesses ?? [], ['claude', 'codex', 'copilot', 'cursor', 'opencode', 'pi'], 'manifest harnesses');
-requireValues(manifest.profiles ?? [], ['cratis/application', 'cratis/arc', 'cratis/chronicle'], 'manifest profiles');
 requireValues(manifest.languages ?? [], ['csharp', 'typescript', 'kotlin', 'elixir'], 'manifest languages');
 if (manifest.profileCatalog !== 'profile-catalog.json') failures.push("manifest profileCatalog must be 'profile-catalog.json'.");
 
 const catalog = JSON.parse(await readFile(join(corpus, manifest.profileCatalog), 'utf8')) as { publicProfiles: Profile[]; engineeringProfiles: Profile[] };
 const profiles = [...catalog.publicProfiles, ...catalog.engineeringProfiles];
 const profileIds = new Set(profiles.map(profile => profile.id));
+const declaredProfiles: string[] = manifest.profiles ?? [];
+const catalogProfiles = [...profileIds].sort();
+if (JSON.stringify(declaredProfiles) !== JSON.stringify(catalogProfiles)) failures.push('Manifest profiles must list every catalog profile in sorted order.');
 for (const profile of profiles) {
     for (const composed of profile.composes ?? []) {
         if (!profileIds.has(composed)) failures.push(`Profile '${profile.id}' composes missing profile '${composed}'.`);
