@@ -15,9 +15,15 @@
     "typescript": "^5.8.0"
   },
   "peerDependencies": {
-    "@earendil-works/pi-coding-agent": "*"
+    "@earendil-works/pi-ai": "*",
+    "@earendil-works/pi-coding-agent": "*",
+    "typebox": "*"
   },
   "pi": {
-    "extensions": ["./src/index.ts"]
+    "extensions": [
+      "./src/index.ts",
+      "./package/corpus/harnesses/pi/extensions/cratis-hooks/index.ts",
+      "./package/corpus/harnesses/pi/extensions/subagent/index.ts"
+    ]
   }
 }

@@ -6,9 +6,22 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import test from 'node:test';
-import { selectedSkillPaths } from '../Pi.Plugin/src/index.ts';
+import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
+import registerPiPlugin, { selectedSkillPaths } from '../Pi.Plugin/src/index.ts';
+import { managedRules } from '../../.cratis/ai/harnesses/pi/extensions/cratis-rules/index.ts';
 
 const repositoryRoot = resolve(import.meta.dirname, '..', '..');
+type Handler = (event: { cwd: string; systemPrompt: string }, context: { cwd: string }) => unknown;
+
+function pluginHandlers(): Map<string, Handler> {
+    const handlers = new Map<string, Handler>();
+    registerPiPlugin({
+        on(name: string, handler: Handler) {
+            handlers.set(name, handler);
+        },
+    } as unknown as ExtensionAPI);
+    return handlers;
+}
 
 test('Pi exposes every catalog skill when configuration is absent', () => {
     const project = mkdtempSync(join(tmpdir(), 'cratis-pi-'));
@@ -18,6 +31,27 @@ test('Pi exposes every catalog skill when configuration is absent', () => {
         const actual = selectedSkillPaths(project);
         assert.equal(actual.length, expected.size);
         assert.ok(actual.every(existsSync));
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});
+
+test('managed Pi loads every task-specific rule from the canonical corpus', () => {
+    const rules = managedRules(repositoryRoot);
+    assert.match(rules, /# C# Conventions/);
+    assert.doesNotMatch(rules, /# Cratis — Project Instructions/);
+});
+
+test('the Pi package yields to a managed CLI installation', () => {
+    const project = mkdtempSync(join(tmpdir(), 'cratis-pi-'));
+    try {
+        mkdirSync(join(project, '.cratis'));
+        writeFileSync(join(project, '.cratis', 'ai.manifest.json'), '{}');
+        const handlers = pluginHandlers();
+        const resources = handlers.get('resources_discover')?.({ cwd: project, systemPrompt: '' }, { cwd: project });
+        const prompt = handlers.get('before_agent_start')?.({ cwd: project, systemPrompt: 'base' }, { cwd: project });
+        assert.equal(resources, undefined);
+        assert.equal(prompt, undefined);
     } finally {
         rmSync(project, { recursive: true, force: true });
     }

@@ -55,6 +55,10 @@ export function selectedSkillPaths(cwd: string): string[] {
         .map(skillPath);
 }
 
+function isManagedInstallation(cwd: string): boolean {
+    return existsSync(join(cwd, '.cratis', 'ai.manifest.json'));
+}
+
 function rules(): string {
     const root = join(corpusRoot, 'rules');
     return readdirSync(root, { recursive: true, encoding: 'utf8' })
@@ -66,9 +70,11 @@ function rules(): string {
 
 /** Resolves a repository's .cratis/ai.json into Pi skills and instructions without the Cratis CLI. */
 export default function (pi: ExtensionAPI): void {
-    pi.on('resources_discover', event => ({
+    pi.on('resources_discover', event => isManagedInstallation(event.cwd) ? undefined : ({
         skillPaths: selectedSkillPaths(event.cwd),
         promptPaths: [join(corpusRoot, 'prompts')],
     }));
-    pi.on('before_agent_start', event => ({ systemPrompt: `${event.systemPrompt}\n\n${rules()}` }));
+    pi.on('before_agent_start', (event, context) => isManagedInstallation(context.cwd)
+        ? undefined
+        : ({ systemPrompt: `${event.systemPrompt}\n\n${rules()}` }));
 }

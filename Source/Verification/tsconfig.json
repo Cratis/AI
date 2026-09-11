@@ -5,6 +5,12 @@
     "target": "ES2022",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
+    "baseUrl": ".",
+    "paths": {
+      "@earendil-works/pi-coding-agent": ["../Pi.Plugin/node_modules/@earendil-works/pi-coding-agent/dist/index.d.ts"],
+      "@earendil-works/pi-ai": ["../Pi.Plugin/node_modules/@earendil-works/pi-ai/dist/index.d.ts"],
+      "typebox": ["../Pi.Plugin/node_modules/typebox/build/index.d.mts"]
+    },
     "allowImportingTsExtensions": true,
     "skipLibCheck": true,
     "types": ["node"]

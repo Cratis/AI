@@ -72,6 +72,19 @@ for (const marketplace of ['.claude-plugin/marketplace.json', '.cursor-plugin/ma
         failures.push(`${marketplace} must expose the canonical .cratis/ai/skills corpus.`);
     }
 }
+const requiredPiExtensions = ['cratis-hooks', 'cratis-rules', 'subagent'];
+for (const extension of requiredPiExtensions) {
+    if (!await exists(join(corpus, 'harnesses', 'pi', 'extensions', extension, 'index.ts'))) failures.push(`Pi extension '${extension}' is missing.`);
+}
+const piPackage = JSON.parse(await readFile(join(root, 'Source', 'Pi.Plugin', 'package.json'), 'utf8'));
+const packagedExtensions: string[] = piPackage.pi?.extensions ?? [];
+for (const extension of [
+    './src/index.ts',
+    './package/corpus/harnesses/pi/extensions/cratis-hooks/index.ts',
+    './package/corpus/harnesses/pi/extensions/subagent/index.ts',
+]) {
+    if (!packagedExtensions.includes(extension)) failures.push(`@cratis/pi does not load '${extension}'.`);
+}
 
 const manifest = JSON.parse(await readFile(join(corpus, 'manifest.json'), 'utf8'));
 requireValues(manifest.harnesses ?? [], ['claude', 'codex', 'copilot', 'cursor', 'opencode', 'pi'], 'manifest harnesses');

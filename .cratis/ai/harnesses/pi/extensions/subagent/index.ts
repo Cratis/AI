@@ -18,18 +18,21 @@ import { spawn } from "node:child_process";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
+import { fileURLToPath } from "node:url";
 import { CONFIG_DIR_NAME, type ExtensionAPI, getAgentDir } from "@earendil-works/pi-coding-agent";
 import { StringEnum } from "@earendil-works/pi-ai";
 import { Type } from "typebox";
 import { type AgentConfig, type AgentScope, discoverAgents } from "./agents.ts";
 
+const extensionPath = fileURLToPath(import.meta.url);
+const isPackagedExtension = extensionPath.includes(`${path.sep}package${path.sep}corpus${path.sep}`);
 const MAX_PARALLEL_TASKS = 8;
 const MAX_CONCURRENCY = 4;
 const PER_TASK_OUTPUT_CAP = 50 * 1024;
 
 interface SingleResult {
 	agent: string;
-	agentSource: "user" | "project" | "unknown";
+	agentSource: "package" | "user" | "project" | "unknown";
 	task: string;
 	exitCode: number;
 	finalText: string;
@@ -229,6 +232,7 @@ const SubagentParams = Type.Object({
 });
 
 export default function (pi: ExtensionAPI) {
+	if (isPackagedExtension && fs.existsSync(path.join(process.cwd(), ".cratis", "ai.manifest.json"))) return;
 	// Discover once at registration so the tool description can name the valid agents — the model
 	// otherwise has to guess an `agent` value. Per-call execution rediscovers, so editing an agent
 	// mid-session still takes effect; only this hint list is fixed until the next /reload.
@@ -245,7 +249,7 @@ export default function (pi: ExtensionAPI) {
 		description: [
 			"Delegate a task to a specialized Cratis agent in an isolated context (separate pi process).",
 			"Modes: single (agent + task), parallel (tasks array, max 8), chain (sequential, {previous} placeholder).",
-			`Agents come from ${path.join(CONFIG_DIR_NAME, "agents")} (project) and ${path.join(getAgentDir(), "agents")} (user).`,
+			`Agents come from the packaged Cratis corpus, ${path.join(CONFIG_DIR_NAME, "agents")} (project), and ${path.join(getAgentDir(), "agents")} (user).`,
 			 knownAgents,
 		].join(" ").trim(),
 		parameters: SubagentParams,

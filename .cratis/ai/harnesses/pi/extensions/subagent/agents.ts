@@ -12,7 +12,10 @@
 
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { fileURLToPath } from "node:url";
 import { CONFIG_DIR_NAME, getAgentDir, parseFrontmatter } from "@earendil-works/pi-coding-agent";
+
+const corpusAgentsDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "..", "agents");
 
 export type AgentScope = "user" | "project" | "both";
 
@@ -22,7 +25,7 @@ export interface AgentConfig {
 	tools?: string[];
 	model?: string;
 	systemPrompt: string;
-	source: "user" | "project";
+	source: "package" | "user" | "project";
 	filePath: string;
 }
 
@@ -85,7 +88,7 @@ export function normalizeTools(value: unknown): string[] | undefined {
 	return deduped.length > 0 ? deduped : undefined;
 }
 
-function loadAgentsFromDir(dir: string, source: "user" | "project"): AgentConfig[] {
+function loadAgentsFromDir(dir: string, source: "package" | "user" | "project"): AgentConfig[] {
 	const agents: AgentConfig[] = [];
 	if (!fs.existsSync(dir)) return agents;
 
@@ -150,11 +153,13 @@ export function discoverAgents(cwd: string, scope: AgentScope): AgentDiscoveryRe
 	const userDir = path.join(getAgentDir(), "agents");
 	const projectAgentsDir = findNearestProjectAgentsDir(cwd);
 
+	const packageAgents = scope === "project" ? [] : loadAgentsFromDir(corpusAgentsDir, "package");
 	const userAgents = scope === "project" ? [] : loadAgentsFromDir(userDir, "user");
 	const projectAgents = scope === "user" || !projectAgentsDir ? [] : loadAgentsFromDir(projectAgentsDir, "project");
 
-	// Project agents override user agents of the same name.
+	// User agents override package agents; project agents override both.
 	const agentMap = new Map<string, AgentConfig>();
+	for (const agent of packageAgents) agentMap.set(agent.name, agent);
 	for (const agent of userAgents) agentMap.set(agent.name, agent);
 	for (const agent of projectAgents) agentMap.set(agent.name, agent);
 

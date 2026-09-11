@@ -19,7 +19,12 @@
 import { spawn } from "node:child_process";
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { fileURLToPath } from "node:url";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
+
+const extensionPath = fileURLToPath(import.meta.url);
+const bundledCorpusRoot = path.resolve(path.dirname(extensionPath), "..", "..", "..", "..");
+const isPackagedExtension = extensionPath.includes(`${path.sep}package${path.sep}corpus${path.sep}`);
 
 interface ScriptRun {
 	code: number;
@@ -100,7 +105,9 @@ function isInstalled(script: string): boolean {
 }
 
 export default function (pi: ExtensionAPI) {
-	const scriptsDir = path.join(process.cwd(), ".ai", "hooks", "scripts");
+	if (isPackagedExtension && fs.existsSync(path.join(process.cwd(), ".cratis", "ai.manifest.json"))) return;
+	const managedScriptsDir = path.join(process.cwd(), ".cratis", "ai", "hooks", "scripts");
+	const scriptsDir = fs.existsSync(managedScriptsDir) ? managedScriptsDir : path.join(bundledCorpusRoot, "hooks", "scripts");
 	const guardWrites = path.join(scriptsDir, "cratis-guard-writes.sh");
 	const patternScan = path.join(scriptsDir, "cratis-pattern-scan.sh");
 	const qualityGate = path.join(scriptsDir, "cratis-quality-gate.sh");

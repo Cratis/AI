@@ -51,9 +51,11 @@ pi install -l npm:@cratis/pi
 
 `@cratis/pi` reads `.cratis/ai.json` when present and exposes skills matching the
 selected profiles and languages. Without the file, it exposes every packaged
-skill. The plugin also contributes packaged rules and prompts, but it does not
-create the shared corpus, configure other harnesses, or provide managed update
-and uninstall protection.
+skill. The package also contributes rules, prompts, agents, the subagent tool,
+and Cratis quality hooks. It yields to an existing managed CLI installation so
+resources and extensions are never registered twice. It does not create the
+shared corpus, configure other harnesses, or provide managed update and
+uninstall protection.
 
 OpenCode can consume the standard `.opencode` and `AGENTS.md` adapters directly.
 
