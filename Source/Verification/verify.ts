@@ -59,6 +59,17 @@ function requireValues(actual: string[], required: string[], subject: string): v
 }
 
 if (!await exists(corpus)) failures.push('Canonical corpus .cratis/ai is missing.');
+const corpusTextPaths = (await files(corpus)).filter(path => ['.json', '.md', '.sh', '.ts'].some(extension => path.endsWith(extension)));
+const repositoryOnlyReferences = ['Source/Harness.Setup', 'Source/Verification', 'In this repository specifically', 'verify-ai-corpus.yml'];
+for (const corpusPath of corpusTextPaths) {
+    const content = await readFile(corpusPath, 'utf8');
+    for (const reference of repositoryOnlyReferences) {
+        if (content.includes(reference)) failures.push(`${relative(root, corpusPath)} leaks repository-only guidance '${reference}'.`);
+    }
+}
+const authorityRule = await readFile(join(corpus, 'rules', 'capability-is-not-authority.md'), 'utf8');
+if (!/The user\s+is sufficient authority/.test(authorityRule)) failures.push('Authority guidance must treat the user as sufficient authority for a direct request.');
+if (!/never require a second approver/.test(authorityRule)) failures.push('Authority guidance must prohibit repeated approval ceremonies.');
 if (await exists(join(root, '.ai'))) failures.push('Legacy .ai directory must not exist.');
 if (await exists(join(root, '.cratis', 'PROJECT.md'))) failures.push('Legacy .cratis/PROJECT.md must not exist.');
 for (const obsolete of ['tooling', 'evidence', 'evals', 'catalog', 'distribution', 'profiles', 'pilots', 'engineering']) {
@@ -76,6 +87,9 @@ const requiredPiExtensions = ['cratis-hooks', 'cratis-rules', 'subagent'];
 for (const extension of requiredPiExtensions) {
     if (!await exists(join(corpus, 'harnesses', 'pi', 'extensions', extension, 'index.ts'))) failures.push(`Pi extension '${extension}' is missing.`);
 }
+const subagentExtension = await readFile(join(corpus, 'harnesses', 'pi', 'extensions', 'subagent', 'index.ts'), 'utf8');
+if (!subagentExtension.includes('params.confirmProjectAgents ?? false')) failures.push('Pi subagents must not prompt for project-agent confirmation by default.');
+if (!subagentExtension.includes('Default false.')) failures.push('Pi subagent tool guidance must document its non-interrupting confirmation default.');
 const piPackage = JSON.parse(await readFile(join(root, 'Source', 'Pi.Plugin', 'package.json'), 'utf8'));
 if (piPackage.repository?.url !== 'https://github.com/Cratis/AI') failures.push('@cratis/pi repository.url must match its GitHub provenance repository.');
 const packagedExtensions: string[] = piPackage.pi?.extensions ?? [];

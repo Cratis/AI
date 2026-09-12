@@ -11,5 +11,5 @@ This directory is the canonical source for reusable Cratis AI content:
 - `manifest.json` — harness, profile, and language values offered to installers;
 - `profile-catalog.json` — profile composition and skill selection.
 
-Harness folders at the repository root are adapters into this directory. Maintain
-them with `Source/Harness.Setup`; do not edit them as independent sources.
+Installed harness adapters consume this directory as managed content. Do not edit
+an installed copy independently; update it through the configured Cratis AI update path.
