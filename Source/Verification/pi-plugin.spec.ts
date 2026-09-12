@@ -43,6 +43,19 @@ test('managed Pi loads general and task-specific rules from the canonical corpus
     assert.match(rules, /# C# Conventions/);
 });
 
+test('Pi package rules exclude owning-repository guidance and approval ceremonies', () => {
+    const project = mkdtempSync(join(tmpdir(), 'cratis-pi-'));
+    try {
+        const handlers = pluginHandlers();
+        const result = handlers.get('before_agent_start')?.({ cwd: project, systemPrompt: 'base' }, { cwd: project }) as { systemPrompt: string };
+        assert.doesNotMatch(result.systemPrompt, /Source\/Harness\.Setup|Source\/Verification|In this repository specifically/);
+        assert.match(result.systemPrompt, /The user\s+is sufficient authority/);
+        assert.match(result.systemPrompt, /never require a second approver/);
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});
+
 test('the Pi package yields to a managed CLI installation', () => {
     const project = mkdtempSync(join(tmpdir(), 'cratis-pi-'));
     try {
