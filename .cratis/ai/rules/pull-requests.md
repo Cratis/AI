@@ -6,6 +6,8 @@ applyTo: "**/*"
 
 PR descriptions serve two purposes: they help reviewers understand the change *now*, and they become the release notes that users read *later*. Write them with both audiences in mind.
 
+**The description is the release note — it is published verbatim.** Write it as the note you want the person upgrading to read, in the repository template's sections. A generic development write-up (`## Summary`, `## Verification`, `## Testing`, a list of the files you touched, a description of how you arrived at the change) is not a release note, and shipping one makes the release history unreadable. The same applies wherever a release is produced by hand: release-notes text typed into a manual workflow run, or written straight into a published release, carries exactly the same shape and the same audience as a PR description. There is no path to a release whose notes are allowed to describe the work instead of the change.
+
 ## Description
 
 - Follow the repository's pull request template (`.github/pull_request_template.md`).
