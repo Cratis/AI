@@ -14,7 +14,7 @@ PR descriptions serve two purposes: they help reviewers understand the change *n
 - Focus on the **Added**, **Changed**, **Fixed**, **Removed**, **Security**, and **Deprecated** sections. Remove sections that are empty — don't leave blank headings.
 - Each bullet should be short, self-contained, and release-note ready.
 - **Write for users of the framework, not for internal developers.** Only include changes that have an impact on anyone using what we build — new APIs, changed behavior, fixed bugs, removed features. Do not list internal implementation details like storage changes, converter updates, gRPC contract internals, or spec additions. If a change is purely internal plumbing, it does not belong in the PR description. For a user-visible fix, a brief root cause and what now prevents a regression, stated as observable behavior rather than a list of specs, are user-facing and may be included: they tell the upgrader whether to trust the fix. Credit an external contributor by name or handle, unless they asked not to be named.
-- Add the associated issue reference at the end of a bullet when there is a real GitHub issue for the change (e.g. `(#351)`). Keep it a bare reference — **no closing keywords** (`Closes #351`, `Fixes #351`) anywhere in the body, because the published release notes are the PR description verbatim. If there is no associated issue, omit the reference entirely. Never use a placeholder like `(#issue)` or leave the example number `(#123)` literally, and never invent a random issue number. **Always verify the issue number read-only using the repository source — never guess or invent a number.** Comment on or close an issue when the user's request includes that effect; otherwise prepare a bounded post-merge disposition without performing it.
+- Add the associated issue reference at the end of a bullet when there is a real GitHub issue for the change (e.g. `(#351)`). Keep it a bare reference — **no closing keywords** (`Closes #351`, `Fixes #351`) anywhere in the body, because the published release notes are the PR description verbatim. If there is no associated issue, omit the reference entirely. Never use a placeholder like `(#issue)` or leave the example number `(#123)` literally, and never invent a random issue number. **Always verify the issue number read-only using the repository source — never guess or invent a number.** Referencing an issue here is what makes it closeable later — see [Close what the release actually shipped](#close-what-the-release-actually-shipped) for the step that resolves it once the release lands.
 - Include a summary only if there is a cohesive theme across the changes. If you find yourself restating individual bullets in slightly different words, the summary adds no value — remove it.
 - Never include Copilot prompt content in the PR description. Remove any "Original prompt" / coding agent transcript blocks before publishing.
 
@@ -86,6 +86,20 @@ Do not open a pull request per task when the tasks belong to the same body of wo
 **Before consolidating open PRs, review each PR’s release intent and workflow effects.** Integration may trigger completion/publication behavior on an absorbed PR. Use supported non-release intent where appropriate. A direct request to consolidate the named pull requests authorizes the necessary relabeling and merge; it does not authorize unrelated notifications.
 
 Split into separate pull requests when the changes are genuinely unrelated, when one is urgent and the others are not, or when one is risky enough to want its own revert.
+
+## Close what the release actually shipped
+
+A reference in the description associates an issue with the change; it does not resolve it. Closing keywords stay out of the body because the description is published as the release notes verbatim — so **shipping a release includes closing the issues that release shipped, as an explicit step**. An issue that is fixed, released and still open is indistinguishable from one nobody has looked at, and the reporter is the last person who should have to find that out.
+
+Shipping a pull request that carries issue references is therefore not complete at merge. Once the release has actually reached its consumers — published, deployed, or merged, whichever is the repository's real delivery point:
+
+- **Close every issue the description referenced**, each with a comment naming the version that carries it and the pull request it came in. "Shipped in 2.60.4 via #942" is the whole comment; a reader should not have to open three tabs to learn where a fix went.
+- **Close it only against evidence the shipped build actually behaves.** A green build is not behavior. Where the repository verifies its own deploy — a smoke suite, a health gate, an exercised endpoint — that evidence is what closing rests on; where it does not, say in the comment what was and was not verified rather than implying more than you know.
+- **Leave an issue open, with a comment, when the release only moved part of it.** A referenced issue that is broader than what shipped stays open and says which part landed. Splitting the remainder into its own issue is better than a closed issue that was only half true.
+- **Never close an issue the release did not reach.** If the release was cut but delivery failed, every issue it named is still unshipped; say that on the issue rather than closing it on the strength of a merge.
+- **Reopen rather than argue** when the reporter says a shipped fix does not work. The issue is the record of the problem, not of the attempt.
+
+This step is part of the direct request to ship. It needs no separate approval, and it is not a bounded post-merge disposition to hand back to somebody else.
 
 ## Quality Gates
 
