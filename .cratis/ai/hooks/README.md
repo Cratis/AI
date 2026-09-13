@@ -62,6 +62,23 @@ The two `within_type_attribute` patterns are not line greps — the scanner trac
 blocks and type scope (positional record, multi-line declaration, or braced body), so a nullable
 property is only reported when it really sits inside an `[EventType]`.
 
+### Project-specific gate configuration
+
+The shipped gates discover the repository's own solution and package, so most repositories need no
+configuration at all. A repository whose project is not where discovery lands — several packages, a
+frontend under `Source/<App>` — states only what differs in its own
+`.cratis/ai/quality-gates.project.json`, which the gate merges over the managed file by gate id:
+
+```json
+{ "gates": [ { "id": "frontend-lint", "workingDirectory": "Source/App" } ] }
+```
+
+That file is project-owned and outside the managed manifest. **Do not put project facts into
+`scripts/quality-gates.json`**: it is Cratis-managed, so the next managed update either reports it as
+drift or replaces it, and the repository silently loses its own configuration. An override naming a
+gate that does not exist is reported on stderr rather than ignored, and an unreadable override leaves
+the managed gates running unchanged.
+
 **Gated** (`Stop`, exit 2): the app-pinned commands from the Quality Gates table in
 `general.md` and the steps in [`agent-stop.md`](./agent-stop.md) — Debug build, specs, Release
 build (with `-p:CratisProxiesOutputPath=` per `general.md`, so the proxy generator does not
@@ -304,7 +321,7 @@ Each is an explicit, auditable opt-out — none of them is a default.
 | `CRATIS_HOOKS_SKIP_GATE=1` | disables the quality gate |
 | `CRATIS_HOOKS_GATE_DRYRUN=1` | prints which gates would run, and why, then exits 0 |
 | `CRATIS_HOOKS_PATTERNS=<path>` | replaces the pattern file |
-| `CRATIS_HOOKS_GATES=<path>` | replaces the gate file |
+| `CRATIS_HOOKS_GATES=<path>` | replaces the gate file (the project override still merges over it) |
 | `CRATIS_HOOKS_SUBPATH_REPORT=1` | prints every `@cratis/*` subpath reference and how it resolved, not only the failures |
 | `CRATIS_HOOKS_IMPORT_REPORT=1` | prints every `@cratis/*` named import binding and how it resolved, not only the failures |
 | `CRATIS_HOOKS_TYPE_REPORT=1` | prints every .NET type/attribute name the corpus mentions and how it resolved, not only the failures |
