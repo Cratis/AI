@@ -24,5 +24,8 @@
              package management actually pins the client version (plan Section 5.3f). -->
         <PackageReference Include="Cratis.Chronicle" />
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+        <!-- Worker/agent scheduling (Docker + Kubernetes runtimes). -->
+        <PackageReference Include="KubernetesClient" />
+        <PackageReference Include="Docker.DotNet.Enhanced" />
     </ItemGroup>
 </Project>
