@@ -1,3 +1,6 @@
 <Solution>
-    <Folder Name="/Source/" />
+    <Folder Name="/Source/">
+        <Project Path="Source/Cratis.AI/Cratis.AI.csproj" />
+        <Project Path="Source/Cratis.AI.Specs/Cratis.AI.Specs.csproj" />
+    </Folder>
 </Solution>
