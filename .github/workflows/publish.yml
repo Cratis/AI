@@ -45,26 +45,26 @@ jobs:
           node-version: 24
           registry-url: https://registry.npmjs.org
 
+      # The three TypeScript projects moved into a yarn workspace in the .NET-scaffolding PR - a
+      # single `yarn install` at the root replaces the old per-project `npm ci --prefix`, which
+      # would now fail outright (their package-lock.json files were deleted in that move).
       - name: Install project dependencies
-        run: |
-          npm ci --prefix Source/Harness.Setup
-          npm ci --prefix Source/Pi.Plugin
-          npm ci --prefix Source/Verification
+        run: corepack enable && yarn install --immutable
 
       - name: Type check
         run: |
-          npm run check --prefix Source/Harness.Setup
-          npm run check --prefix Source/Pi.Plugin
-          npm run check --prefix Source/Verification
+          yarn workspace @cratis/harness-setup run check
+          yarn workspace @cratis/pi run check
+          yarn workspace @cratis/ai-verification run check
 
       - name: Verify corpus and skill behavior
-        run: npm run verify --prefix Source/Verification
+        run: yarn workspace @cratis/ai-verification run verify
 
       - name: Test Pi package behavior
-        run: npm test --prefix Source/Verification
+        run: yarn workspace @cratis/ai-verification run test
 
       - name: Verify Pi package contents
-        run: cd Source/Pi.Plugin && npm pack --dry-run
+        run: cd Source/Pi.Plugin && yarn pack --dry-run
 
       - name: Lint runtime shell scripts
         run: |
@@ -74,6 +74,43 @@ jobs:
 
       - name: Reject whitespace errors
         run: git diff --check
+
+      # Generated-proxies drift gate (plan Section 4 item 3 / Section 6.3), folded into this job
+      # rather than a separate workflow file - the corpus's own Source/Verification check
+      # (workflows.length !== 1) requires exactly one workflow file in this repository, which the
+      # parallel corpus-distribution effort (AIConsolidation.md) owns and this PR must not disturb.
+      # No-ops harmlessly today: Source/Cratis.AI.Proxies does not exist yet.
+      - name: Verify generated proxies are up to date
+        run: |
+          if [ -d Source/Cratis.AI.Proxies ]; then
+            git diff --exit-code Source/Cratis.AI.Proxies
+          else
+            echo "Source/Cratis.AI.Proxies does not exist yet - nothing to verify."
+          fi
+
+  dotnet-verify:
+    name: dotnet verify
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+            10.0.x
+
+      - name: Restore
+        run: dotnet restore Cratis.AI.slnx
+
+      - name: Build
+        run: dotnet build Cratis.AI.slnx --configuration Debug --no-restore
+
+      - name: Run specs
+        run: dotnet test Cratis.AI.slnx --configuration Debug --no-build --logger "console;verbosity=normal"
 
   release:
     name: Determine semantic version
@@ -115,12 +152,64 @@ jobs:
           node-version: 24
           registry-url: https://registry.npmjs.org
 
-      - name: Prepare package
+      # yarn install, not `npm ci` - Source/Pi.Plugin is a yarn workspace member (converted in the
+      # .NET-scaffolding PR) and no longer carries its own package-lock.json for `npm ci` to read.
+      # `npm publish` itself needs no lockfile, only the node_modules yarn already populated.
+      - name: Install workspace dependencies
+        run: corepack enable && yarn install --immutable
+
+      - name: Set package version
         working-directory: Source/Pi.Plugin
-        run: |
-          npm ci
-          npm pkg set version=${{ needs.release.outputs.version }}
+        run: npm pkg set version=${{ needs.release.outputs.version }}
 
       - name: Publish package
         working-directory: Source/Pi.Plugin
         run: npm publish --provenance --access public
+
+  publish-dotnet-packages:
+    name: Publish Cratis.AI (NuGet)
+    if: needs.release.outputs.publish == 'true'
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # Required for NuGet trusted publishing using OIDC tokens.
+      id-token: write
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+            10.0.x
+
+      - name: Build
+        run: dotnet build Source/Cratis.AI/Cratis.AI.csproj --configuration Release
+
+      - name: Create NuGet package
+        run: dotnet pack Source/Cratis.AI/Cratis.AI.csproj --no-build --configuration Release -o ./Artifacts/NuGet -p:PackageVersion=${{ needs.release.outputs.version }}
+
+      - name: NuGet login (OIDC -> temp API key)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      - name: Push NuGet package
+        run: dotnet nuget push --skip-duplicate './Artifacts/NuGet/*.nupkg' --timeout 900 --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
+
+  verify-published:
+    name: Verify a release actually shipped
+    if: always() && needs.release.outputs.publish == 'true'
+    needs: [release, publish-pi, publish-dotnet-packages]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail if nothing published
+        if: needs.publish-pi.result != 'success' && needs.publish-dotnet-packages.result != 'success'
+        run: |
+          echo "Release ${{ needs.release.outputs.version }} was determined but neither publish-pi nor publish-dotnet-packages succeeded." >&2
+          exit 1
