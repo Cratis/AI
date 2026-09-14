@@ -23,5 +23,6 @@
         <!-- Chronicle is referenced directly, not transitively through Cratis.Arc.Chronicle, so central
              package management actually pins the client version (plan Section 5.3f). -->
         <PackageReference Include="Cratis.Chronicle" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
     </ItemGroup>
 </Project>
