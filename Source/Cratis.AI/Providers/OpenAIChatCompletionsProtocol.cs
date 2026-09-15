@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.Json.Nodes;
 using Cratis.AI.Agents;
 using Cratis.AI.LanguageModels;
+using Cratis.AI.Providers.Pools;
 using Microsoft.Extensions.Logging;
 
 namespace Cratis.AI.Providers;
@@ -28,7 +29,9 @@ public static class OpenAIChatCompletionsProtocol
     /// <param name="prompt">The prompt.</param>
     /// <param name="effort">The reasoning effort to run the completion at - translated to <c>reasoning_effort</c>.</param>
     /// <param name="configureHeaders">Sets the vendor's own authentication header(s) on the request.</param>
-    /// <param name="vendor">The vendor the request is sent to - for the log entry when the call fails.</param>
+    /// <param name="vendor">The vendor the request is sent to - for the log entry when the call fails, and to select how <paramref name="quotaTracker"/> reads the response's rate-limit headers.</param>
+    /// <param name="providerId">The configured provider the request was sent as - what <paramref name="quotaTracker"/> keys its reading by.</param>
+    /// <param name="quotaTracker">Records what the response's rate-limit headers, if any, reported about the provider's remaining quota (Cratis/AI#337).</param>
     /// <param name="logger">The logger a failed or empty response is recorded on.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> for the operation.</param>
     /// <returns>The <see cref="LanguageModelResult"/>.</returns>
@@ -40,6 +43,8 @@ public static class OpenAIChatCompletionsProtocol
         Effort effort,
         Action<HttpRequestHeaders> configureHeaders,
         AIProviderType vendor,
+        AIProviderId providerId,
+        IAIProviderQuotaTracker quotaTracker,
         ILogger logger,
         CancellationToken cancellationToken = default)
     {
@@ -71,6 +76,8 @@ public static class OpenAIChatCompletionsProtocol
 
         using (response)
         {
+            quotaTracker.Report(providerId, vendor, response);
+
             if (!response.IsSuccessStatusCode)
             {
                 logger.UnexpectedStatusCode(vendor, (int)response.StatusCode);

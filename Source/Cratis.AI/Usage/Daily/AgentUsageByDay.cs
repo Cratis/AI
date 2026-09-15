@@ -34,6 +34,8 @@ namespace Cratis.AI.Usage.Daily;
 /// <param name="OutputTokens">The output tokens those sessions produced.</param>
 /// <param name="Cost">The reported cost of those sessions, in USD.</param>
 /// <param name="Duration">How long those sessions ran in total.</param>
+/// <param name="CpuSeconds">The CPU time those sessions consumed in total - what answers "how much CPU went to investigation versus planning versus implementation" once bucketed by <see cref="Purpose"/>.</param>
+/// <param name="MemoryBytes">The peak memory those sessions consumed, summed - the same convention <c>AgentUsageByWeek</c>/<c>AgentUsageByMonth</c> already use for a resource figure that is really a per-session peak, not a naturally additive quantity.</param>
 [ReadModel]
 [Passive]
 public record AgentUsageByDay(
@@ -46,7 +48,9 @@ public record AgentUsageByDay(
     long InputTokens,
     long OutputTokens,
     decimal Cost,
-    TimeSpan Duration)
+    TimeSpan Duration,
+    decimal CpuSeconds = 0m,
+    long MemoryBytes = 0L)
 {
     /// <summary>
     /// How far back a usage page's activity view typically reaches - enough for a full year of
@@ -87,7 +91,9 @@ public record AgentUsageByDay(
                 group.Sum(entry => entry.InputTokens),
                 group.Sum(entry => entry.OutputTokens),
                 group.Sum(entry => entry.Cost),
-                TimeSpan.FromMilliseconds(group.Sum(entry => entry.DurationMs))))
+                TimeSpan.FromMilliseconds(group.Sum(entry => entry.DurationMs)),
+                group.Sum(entry => entry.CpuSeconds),
+                group.Sum(entry => entry.MemoryBytes)))
             .OrderBy(row => row.Day);
     }
 }

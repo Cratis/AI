@@ -33,6 +33,7 @@ published a release - nothing was batched or held back to the end.
 | #330 | `feat/pools` | Pool concepts, `PoolMemberSelector`, `ProviderBurn` (rewired onto `IRecordedAgentSessions`) |
 | #331 | `feat/capabilities` | `AgentInvocationMode`, `AIModelCapability`/`AIProviderCapability`, `AIModelCapabilities` |
 | #333 | `feat/ai-proxies` | `@cratis/ai` (Phase 3b) - `Cratis.Arc.ProxyGenerator.Build` wired into `Cratis.AI.csproj`, `Source/Cratis.AI.Proxies`, decision 0004 |
+| #338 | `feat/pool-failover-and-quota` | [Cratis/AI#337](https://github.com/Cratis/AI/issues/337): `AIProviderPoolDispatcher` fails over to the next pool member on a transient failure; `IAIProviderQuotaTracker`/`AIProviderQuotaHeaders` read each vendor's own rate-limit headers so a known-exhausted member is skipped before it is ever called; `AgentUsageByDay` now carries CPU/memory alongside tokens, so resource usage is visible per agent/purpose, not only as an undifferentiated weekly total; decision 0005 |
 
 ### Dependency alignment (plan Section 2.5 / risk #6)
 
@@ -166,6 +167,10 @@ In roughly the order the plan's Section 10 sequence suggests tackling it:
   the `/api/a-i/...` route prefix, the `generated/` subfolder layout `@cratis/ai` needs to survive
   `SkipOutputDeletion=false`, and the `CopyLocalLockFileAssemblies` fix proxy generation needed on a
   plain class library.
+
+- [`decisions/0005-pool-failover-and-provider-quota.md`](./decisions/0005-pool-failover-and-provider-quota.md) -
+  pool-level failover on a transient failure, provider-reported quota read ahead of a call, and why
+  a known-exhausted reading is trusted only when it still leaves the pool a candidate to try.
 
 One decision the plan itself flags as needing to be made without blocking (Section 12.0) remains
 **not yet made**, because nothing has reached the point of needing it: the Docker registry target

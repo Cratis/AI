@@ -3,6 +3,7 @@
 
 using Cratis.AI.Abstractions;
 using Cratis.AI.Agents;
+using Cratis.AI.Providers.Pools;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Cratis.AI.Configuration;
@@ -53,6 +54,13 @@ public static class CratisAIServiceCollectionExtensions
         configure(builder);
 
         services.AddSingleton<IAgentExecution, AgentExecution>();
+
+        // Process-local by design - see AIProviderQuotaTracker's own remarks. Registered here rather
+        // than left for each IAIProviderClient to construct its own: every client and
+        // AIProviderPoolDispatcher need to agree on the same instance for a report from one call to
+        // be visible to the next (Cratis/AI#337).
+        services.AddSingleton<IAIProviderQuotaTracker, AIProviderQuotaTracker>();
+        services.AddSingleton<IAIProviderPoolDispatcher, AIProviderPoolDispatcher>();
 
         AssertLoadedIntoTypeUniverse();
 

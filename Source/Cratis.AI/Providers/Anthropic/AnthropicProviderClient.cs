@@ -6,6 +6,7 @@ using System.Text.Json.Nodes;
 using Cratis.AI.Agents;
 using Cratis.AI.Common;
 using Cratis.AI.LanguageModels;
+using Cratis.AI.Providers.Pools;
 using Microsoft.Extensions.Logging;
 
 namespace Cratis.AI.Providers.Anthropic;
@@ -15,8 +16,9 @@ namespace Cratis.AI.Providers.Anthropic;
 /// <c>AIProviders.Anthropic.AnthropicProviderClient</c> (plan Section 5.2 step 3).
 /// </summary>
 /// <param name="httpClientFactory">Creates the <see cref="HttpClient"/> requests are sent with.</param>
+/// <param name="quotaTracker">Records what the response's rate-limit headers reported about the provider's remaining quota (Cratis/AI#337).</param>
 /// <param name="logger">The logger.</param>
-public class AnthropicProviderClient(IHttpClientFactory httpClientFactory, ILogger<AnthropicProviderClient> logger) : IAIProviderClient
+public class AnthropicProviderClient(IHttpClientFactory httpClientFactory, IAIProviderQuotaTracker quotaTracker, ILogger<AnthropicProviderClient> logger) : IAIProviderClient
 {
     const string BaseUrl = "https://api.anthropic.com";
 
@@ -56,6 +58,8 @@ public class AnthropicProviderClient(IHttpClientFactory httpClientFactory, ILogg
 
         using (response)
         {
+            quotaTracker.Report(provider.Id, Type, response);
+
             if (!response.IsSuccessStatusCode)
             {
                 logger.UnexpectedStatusCode(Type, (int)response.StatusCode);

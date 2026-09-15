@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Net;
+using Cratis.AI.Providers.Pools;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 
@@ -22,7 +23,7 @@ public class a_stub_message_server : Specification
         Handler = new CapturingHandler();
         var factory = Substitute.For<IHttpClientFactory>();
         factory.CreateClient(Arg.Any<string>()).Returns(_ => new HttpClient(Handler));
-        Client = new ZAIProviderClient(factory, Substitute.For<ILogger<ZAIProviderClient>>());
+        Client = new ZAIProviderClient(factory, Substitute.For<IAIProviderQuotaTracker>(), Substitute.For<ILogger<ZAIProviderClient>>());
     }
 
     public sealed class CapturingHandler : HttpMessageHandler

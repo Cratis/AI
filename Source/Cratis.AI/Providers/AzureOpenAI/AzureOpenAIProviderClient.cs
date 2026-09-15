@@ -4,6 +4,7 @@
 using Cratis.AI.Agents;
 using Cratis.AI.Common;
 using Cratis.AI.LanguageModels;
+using Cratis.AI.Providers.Pools;
 using Microsoft.Extensions.Logging;
 
 namespace Cratis.AI.Providers.AzureOpenAI;
@@ -15,8 +16,9 @@ namespace Cratis.AI.Providers.AzureOpenAI;
 /// <c>AIProviders.AzureOpenAI.AzureOpenAIProviderClient</c> (plan Section 5.2 step 3).
 /// </summary>
 /// <param name="httpClientFactory">Creates the <see cref="HttpClient"/> requests are sent with.</param>
+/// <param name="quotaTracker">Records what the response's rate-limit headers reported about the provider's remaining quota (Cratis/AI#337).</param>
 /// <param name="logger">The logger.</param>
-public class AzureOpenAIProviderClient(IHttpClientFactory httpClientFactory, ILogger<AzureOpenAIProviderClient> logger) : IAIProviderClient
+public class AzureOpenAIProviderClient(IHttpClientFactory httpClientFactory, IAIProviderQuotaTracker quotaTracker, ILogger<AzureOpenAIProviderClient> logger) : IAIProviderClient
 {
     const string ApiVersion = "2024-06-01";
 
@@ -38,6 +40,8 @@ public class AzureOpenAIProviderClient(IHttpClientFactory httpClientFactory, ILo
             effort,
             headers => headers.Add("api-key", provider.ApiKey.Value),
             Type,
+            provider.Id,
+            quotaTracker,
             logger,
             cancellationToken);
     }
