@@ -51,6 +51,7 @@ When checking unused code, references, or naming, use semantic navigation if the
 - [ ] No shared state between commands
 - [ ] No service locator (`IServiceProvider` not injected); `IInstancesOf<T>` (not `IEnumerable<T>`) for discovering implementations
 - [ ] No explicit singleton registration when `[Singleton]` attribute suffices
+- [ ] No `[Singleton]` takes a scoped dependency (event store and anything off it, MongoDB collection/database/client, `DbContext`, read model by key) — such a type is transient or scoped instead
 - [ ] Logging is in a separate `*Logging.cs` partial file with `[LoggerMessage]`
 
 ## C# Commands checklist
