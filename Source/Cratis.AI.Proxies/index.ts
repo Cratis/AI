@@ -13,5 +13,6 @@ export * from './generated/Usage';
 export * from './generated/Usage/Trends';
 export * from './generated/Usage/Daily';
 export * from './generated/Providers/Adding';
+export * from './generated/Providers/Reconfiguring';
 export * from './generated/Providers/Renaming';
 export * from './generated/Providers/Removing';

@@ -1,6 +1,6 @@
 # 0006 - Provider CRUD as the first real migration slice
 
-Status: Accepted
+Status: Accepted (Reconfigure added same day, folded into this record rather than a separate one)
 Related: `Providers/Adding/`, `Providers/Renaming/RenameAIProvider.cs`,
 `Providers/Removing/RemoveAIProvider.cs`, `Providers/ConfiguredAIProvider.cs`.
 
@@ -23,19 +23,21 @@ depends on a provider actually existing as real projected state first.
 ## Decision
 
 **Ported this PR:** the five vendor Add commands (Anthropic, OpenAI, AzureOpenAI, OpenAICompatible,
-ZAI), Rename, Remove, and `ConfiguredAIProvider` upgraded from a plain unprojected record to a real
-`[ReadModel][Passive]` projection built from them - all wired onto the package's own
-`ISecretProtector` (Direct's `DirectSecretProtector`/Studio's `StudioSecretProtector` already
-implement it), not a product-specific encryption pipeline.
+ZAI), Rename, Remove, the five matching Reconfigure commands, and `ConfiguredAIProvider` upgraded
+from a plain unprojected record to a real `[ReadModel][Passive]` projection built from all of them -
+all wired onto the package's own `ISecretProtector` (Direct's `DirectSecretProtector`/Studio's
+`StudioSecretProtector` already implement it), not a product-specific encryption pipeline.
+
+**Reconfigure's "blank keeps the existing value" semantics** work by taking the provider's current
+`ConfiguredAIProvider` projection as a `Handle(ConfiguredAIProvider? current, ...)` parameter - Arc
+resolves it automatically, keyed off the command's own `Provider` property, the same convention
+Direct's own donor already proved correct in production. `current is null` (the provider does not
+exist) returns a `Cratis.Monads.Result<TEvent, Cratis.Arc.Validation.ValidationResult>` validation
+failure rather than throwing - an injected read model that legitimately does not exist yet is a
+normal outcome a caller should be able to show, not an exceptional one.
 
 **Deliberately not ported yet, and why:**
 
-- **Reconfigure** (Anthropic/OpenAI/AzureOpenAI/OpenAICompatible/ZAI). Both donors' Reconfigure
-  commands support "leave this field blank to keep the existing value," which means reading the
-  provider's current `ConfiguredAIProvider` projection inside the command handler and substituting
-  the old value before emitting the event. That needs its own careful design pass (how a `[Passive]`
-  read model is resolved from inside a command handler in this package, not yet established anywhere
-  else in it) rather than a rushed copy - tracked as the very next piece of this slice.
 - **OpenAI's subscription-credential-kind classification** (`OpenAICredentialKind.EventFor`, a
   second event `AddOpenAIProvider` raises alongside the Added one in Direct). Belongs with the
   not-yet-ported Codex/harness credential subsystem - `AddOpenAIProvider` here still accepts a
@@ -57,13 +59,20 @@ implement it), not a product-specific encryption pipeline.
   listing/UI concern (Direct's still-unported `Listing.AIProvider`), not something a vendor client
   making a call needs.
 - Direct and Studio do not consume any of this yet - their own provider CRUD stays live and
-  untouched until Reconfigure exists too and a real cutover can replace a whole command surface at
-  once, not half of one.
+  untouched. Provider Add/Reconfigure/Rename/Remove is now a complete command surface in the
+  package; what still blocks an actual cutover is everything listed above (pool CRUD, tier/
+  concurrency settings, usage reporting, credential refresh, model catalog, rate limiting, Codex),
+  plus `Listing.AIProvider` for a UI to actually show someone their configured providers by name.
 
 ## Alternatives rejected
 
-- **Porting Reconfigure in the same PR by requiring every field on every call**, dropping the
-  "blank keeps existing" UX both donors' users are used to. Rejected - silently changing a
-  user-facing contract during a "just moving code" migration is exactly the kind of surprise this
-  package's port-first-cutover-second approach exists to avoid; better to ship Add/Rename/Remove
-  alone and get Reconfigure's real semantics right next.
+- **Requiring every field on every Reconfigure call**, dropping the "blank keeps existing" UX both
+  donors' users are used to. Rejected - silently changing a user-facing contract during a "just
+  moving code" migration is exactly the kind of surprise this package's approach exists to avoid.
+  `Handle(ConfiguredAIProvider? current, ...)` reading the projection directly costs nothing extra
+  and keeps the real contract intact.
+- **Shipping Add/Rename/Remove alone and deferring Reconfigure to its own PR.** The original plan
+  for this PR, reconsidered mid-flight: half a CRUD surface is not a shippable unit on its own terms
+  either, and the "read current state in a command handler" pattern Reconfigure needed was a small,
+  well-proven addition (Direct's own donor already exercises it in production) rather than the open
+  design question it first looked like.
