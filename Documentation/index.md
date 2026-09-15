@@ -1,55 +1,38 @@
-# Cratis AI documentation
+# Cratis.AI
 
-Cratis AI controls shared AI behavior for public Cratis developers and internal
-Cratis maintainers, then generates versioned packages for each supported
-harness. The mixed source repository is not itself an installation package.
+This repository is two things sharing one source of truth:
 
-> **Availability:** no supported profile release is published yet. Architecture,
-> profile subscriptions, and fixture adapters are implemented; the first narrow
-> release still requires approval, production materialization, and a real
-> consumer canary.
+- **`Cratis.AI`** (NuGet) - the backend: AI providers, pools, tiers, concurrency, conversations,
+  agents, worker/harness scheduling, and usage. Consumed today by `Direct` and `Studio`, which each
+  grew an overlapping, diverging AI stack independently before this consolidation.
+- **`@cratis/ai`** (npm) - the generated Arc command/query proxies and TypeScript types for
+  everything `Cratis.AI` exposes over HTTP, published from the same release as the NuGet package.
 
-## Start here
+It also carries a separate, parallel effort - the TypeScript corpus/profile-distribution content
+under `Source/Harness.Setup`, `Source/Pi.Plugin`, `Source/Verification` and `.cratis/ai/` - which
+this documentation does not cover. See that content's own `AGENTS.md`/`CLAUDE.md` and
+`AIConsolidation.md` at the repository root.
 
-| Page | Purpose |
-| --- | --- |
-| [Distribution and subscriptions](./ai-distribution-and-subscriptions.md) | Source authority, product profiles, Pi, versioning, pinning, updates, rollback, and upstream improvements |
-| [Maintaining shared AI behavior](./maintaining-shared-ai-behavior.md) | Maintainer workflow for ownership, local overlays, upstream improvements, releases, and one-way delivery |
-| [Ecosystem-support architecture review](./ecosystem-support-architecture-review.md) | Idea-level review of what was added, changed, retired, preserved, compatible, and still blocked |
-| [Public product architecture](./public-product-architecture.md) | Public/engineering ownership and runtime payload boundaries |
-| [Project context bootstrap](./project-context-bootstrap.md) | Project-owned facts and minimal harness bootstraps |
-| [Skill authoring contract](./skill-authoring-contract.md) | Canonical source, evidence, and clean-room requirements |
-| [Package and capability catalog](../catalog/generated/human-catalog/CATALOG.md) | Browse public and maintainer packages, included skills, and availability |
-| [Capability catalog v2](./capability-catalog-v2.md) | Understand the source, approval, trust, and coverage model behind the generated catalog |
-| [Chronicle MCP passive guidance](./chronicle-mcp-guidance.md) | Understand the classification-only Chronicle skill, evidence boundary, and blocked executable lane |
-| [Studio MCP passive guidance](./studio-mcp-guidance.md) | Understand the public-safe Studio skill, private-fact boundary, and deny-all operation policy |
-| [Native non-skill projections](./native-non-skill-projections.md) | Understand the four repository-only rule/instruction fixture roots and their non-promoting boundary |
-| [Real-host canaries](./real-host-canaries.md) | Understand exact-version isolation, lifecycle phases, blocked outcomes, and non-supporting fixture evidence |
-| [S10 release and marketplace gates](./s10-release-and-marketplace-gates.md) | Understand blocked readiness, external controls, append-only records, and unreachable side effects |
+## Where to start
 
-## Repository-local corpus reference
+- [`architecture.md`](./architecture.md) - the layered design: what each folder under
+  `Source/Cratis.AI/` owns, and the seams between them.
+- [`abstractions.md`](./abstractions.md) - the seams a consumer implements to adopt the package
+  (`ISecretProtector`, `IAIAgents`, `IAgentExecution`, `AddCratisAI()`), including the ordering
+  rule that makes Chronicle's type discovery actually see the package.
+- [`usage.md`](./usage.md) - the usage subsystem: concepts, `AgentSessionUsageRecorded`, the
+  command, the read models, and how event-type changes are handled without migrations.
+- [`migration-status.md`](./migration-status.md) - a living record of what has moved from Direct
+  and Studio into the package, what has not, and what each still-open PR contains. Read this first
+  if you are picking this work up mid-stream.
+- [`decisions/`](./decisions/) - architecture decision records. Each documents the context, the
+  decision, its consequences, and the alternatives that were rejected - read these before
+  revisiting a decision that looks wrong; the reasoning for it is here, not only in the code.
 
-The following pages explain the legacy and repository-local corpus surfaces.
-They remain useful for maintainers while content is reconciled into versioned
-profiles, but they do not describe a supported installation channel:
+## The source document
 
-| Page | What it covers |
-| --- | --- |
-| [Architecture overview](./architecture.md) | Existing instructions, skills, agents, prompts, and hooks |
-| [Instructions](./instructions.md) | Scoped instruction files and their current adapters |
-| [Skills](./skills.md) | Legacy skill inventory and authoring patterns |
-| [Agents](./agents.md) | Specialist agents and coordinator patterns |
-| [Using the orchestrator](./orchestrator.md) | Repository-local multi-agent coordination |
-| [Instructions vs skills](./instructions-vs-skills.md) | Always-on constraints versus on-demand workflows |
-
-## Core rules
-
-- Shared behavior is authored in `Cratis/AI`.
-- Product facts remain authoritative in the owning product repository.
-- Consuming repositories own `.cratis/PROJECT.md`, `.cratis/ai.json`, and their
-  minimal harness bootstraps.
-- `Cratis/AI.Distribution` contains bot-generated immutable artifacts only.
-- Repositories pin exact profile versions and update through reviewed pull
-  requests.
-- Improvements flow upstream through issues or pull requests; generated folders
-  are never synchronized bidirectionally.
+The full consolidation plan, including the investigation findings behind every decision referenced
+throughout this documentation, lives outside this repository at
+`/Volumes/Code/Cratis/ai-consolidation-plan.md` (donor repositories: `Cratis/Direct` and
+`Cratis/Studio`; scaffolding reference: `Cratis/Arc` and `Cratis/Chronicle`). Section numbers cited
+throughout this `Documentation/` folder (e.g. "plan Section 5.3b") refer to that document.

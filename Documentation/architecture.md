@@ -1,114 +1,70 @@
-# Repository-local corpus architecture
+# Architecture
 
-> **Scope:** This page documents the existing repository-local Copilot-oriented
-> corpus and adapters. It is not the distribution or subscription architecture.
-> For current package profiles, Pi, pinning, generated releases, and upstream
-> contributions, see [Cratis AI distribution and subscriptions](./ai-distribution-and-subscriptions.md).
+`Cratis.AI` is a single packable project (`Source/Cratis.AI/`), organized into vertical-slice
+folders in the house style both donor repositories (Direct, Studio) already follow. Specs live
+inline (`for_*/when_*/given/`) in a sibling `Cratis.AI.Specs` project, kept out of the published
+package (`IsPackable=false`).
 
-This page describes how the legacy and repository-local corpus components fit together.
+## Layers, in dependency order
 
-See also: [Instructions](./instructions.md) · [Skills](./skills.md) · [Agents](./agents.md) · [Instructions vs Skills](./instructions-vs-skills.md)
-
----
-
-## Component Map
-
-```
-.github/
-├── copilot-instructions.md        ← Global rules (apply to every file)
-├── instructions/                  ← Scoped rules (apply by file glob)
-│   ├── csharp.instructions.md
-│   ├── typescript.instructions.md
-│   ├── efcore.instructions.md     ← Tech-specific (EF Core projects only)
-│   ├── orleans.instructions.md    ← Tech-specific (Orleans projects only)
-│   └── ...
-├── skills/                        ← How-to guides (invoked on demand)
-│   ├── cratis-command/SKILL.md
-│   ├── cratis-readmodel/SKILL.md
-│   ├── add-ef-migration/SKILL.md
-│   └── ...
-├── agents/                        ← Specialist personas
-│   ├── orchestrator.md            ← Top-level team orchestrator
-│   ├── coordinator.md             ← General-purpose coordinator
-│   ├── planner.md                 ← Vertical slice planner
-│   ├── backend-developer.md
-│   ├── frontend-developer.md
-│   ├── spec-writer.md
-│   ├── code-reviewer.md
-│   ├── security-reviewer.md
-│   └── performance-reviewer.md
-├── prompts/                       ← Slash commands
-│   ├── new-vertical-slice.prompt.md
-│   └── ...
-└── hooks/                         ← Lifecycle callbacks
-    ├── pre-commit.md
-    └── agent-stop.md
+```text
+Abstractions/    the seams a consumer implements - never references Direct.* or Studio.*
+Common/          cross-cutting concepts and helpers (WeekKey, MonthKey, ModelName, command-pipeline helpers)
+Agents/          agent identity, causation, and the IAgentExecution scope
+LanguageModels/  the single-shot completion contract (ILanguageModel, LanguageModelResult, ManagedLanguageModel)
+Providers/       provider vocabulary and (once ported) vendor clients, pools, tiers, resolution
+Usage/           the usage subsystem: concepts, the event, the command, the read models
+Workers/         worker/harness scheduling contract (IWorkerRuntime) and (once ported) implementations
+Conversations/   the conversational/tool-calling API (ported from Studio's ChatClient) - not yet started
+Configuration/   AddCratisAI() and the builder consumers configure seams through
 ```
 
----
+Each layer only depends on the ones above it in this list. `Abstractions/` has no dependency on
+anything else in the package; `Conversations/` (once it exists) will depend on `Providers/` for
+resolution the same way `LanguageModels/` already does.
 
-## How components relate
+## Why Abstractions comes first
 
-### Instructions load automatically
+Plan Section 5.1: "Create `Source/Cratis.AI/Abstractions/` first - nothing else can move cleanly
+until these exist." The package never references a consumer's domain types (`Direct.Agents`,
+`Studio.Settings.AI`, ...) - every place the original donor code reached into Direct's or Studio's
+own domain is instead a seam:
 
-When Copilot opens a file, it loads:
+| Seam | Answers | Consumer supplies |
+|---|---|---|
+| `ISecretProtector` / `ISecretRevealer` | How is a credential protected at rest? | A wrapper over the consumer's own vault (Direct: `Tenants.Encryption`; Studio: `Organizations.Encryption`) |
+| `IAIAgents` | Who is this agent? | A lookup over the consumer's own agent catalog |
+| `IAIAlerts` | Who gets told when something operational goes wrong? | The consumer's alerting system, or the shipped no-op default |
+| `IAIUsageAttribution` | What does this session's usage belong to, in the consumer's own domain? | The consumer's own resolution (Direct: issues a session covered) |
 
-1. `copilot-instructions.md` — always (global rules)
-2. Any `.instructions.md` whose `applyTo` glob matches the current file path
+See [`abstractions.md`](./abstractions.md) for the full contract and how a consumer wires them up.
 
-This means instructions must be focused and small — they are loaded as background context for every interaction on matching files. See [Instructions](./instructions.md).
+## Identity and causation
 
-### Skills are invoked on demand
+Every event an agent-driven code path causes must be attributed to the agent, not to an
+undifferentiated system identity - and the causation chain leading to it should say *why* the agent
+was acting (which purpose, which session), not only *who*. Chronicle already ships two separate
+mechanisms for this (`Cratis.Chronicle.Identities.IIdentityProvider` and
+`Cratis.Chronicle.Auditing.ICausationManager`); `Agents/IAgentExecution` is the one call that opens
+both together, so a call site cannot establish one and forget the other. See decision
+[`0001-agent-identity-and-causation.md`](./decisions/0001-agent-identity-and-causation.md) for the
+full reasoning, including why authorization is deliberately left out of the package's own
+`IAgentExecution` and stays a consumer concern.
 
-Skills are NOT loaded automatically. They are invoked when a user explicitly asks for a specific workflow ("add a command", "write specs", "add an EF migration"). Each skill provides detailed, step-by-step guidance for one specific task. See [Skills](./skills.md).
+## Usage
 
-### Agents are specialist personas
+Every operation the package performs - a single completion, a conversation turn, a harness-run
+worker session - is meant to return a result carrying its usage (tokens, cost, duration, and for
+harness sessions, CPU and memory), and to append one `AgentSessionUsageRecorded` event through the
+Chronicle client. See [`usage.md`](./usage.md).
 
-Agents are invoked by name (`@backend-developer`, `@coordinator`, etc.). Each agent has a defined responsibility, a set of tools, and a completion checklist. The **Coordinator** agent decomposes cross-cutting work and delegates to specialists. See [Agents](./agents.md).
+## Type discovery: why the assembly must be named `Cratis.AI`
 
-### Prompts are quick-invoke commands
-
-Prompts surface as slash commands in the Copilot interface (e.g. `/new-vertical-slice`). They typically invoke a skill or agent with pre-filled context.
-
-### Hooks run automatically at lifecycle events
-
-- `pre-commit.md` — runs before a git commit
-- `agent-stop.md` — runs when an agent session ends
-
----
-
-## Design principles
-
-### Instructions = what and when, Skills = how
-
-This is the most important architectural distinction. Instructions tell Copilot *what* rules apply and *when* they matter. Skills tell it *how* to execute a specific task step-by-step.
-
-- An instruction says: "Commands define `Handle()` directly on the record."
-- A skill says: "Here is the exact sequence to follow when creating a new command from scratch."
-
-See [Instructions vs Skills](./instructions-vs-skills.md) for a full comparison.
-
-### Technology-specific files apply only to their technology
-
-Instruction files for specific frameworks (EF Core, Orleans) carry an explicit guard at the top:
-
-> ⚠️ APPLIES ONLY TO PROJECTS USING [TECHNOLOGY]
-
-This prevents rules for EF Core from polluting pure event-sourced projects that don't use it.
-
-### Context budget awareness
-
-Instructions are loaded into every AI context window on matching files. This has a real cost: too many large instruction files slow responses and consume tokens that could be used for actual code. Instruction files should be focused and concise — **what** to do, not **how** to do it in detail. Move detailed implementation guidance into skills.
-
----
-
-## File naming conventions
-
-| Artifact | Naming pattern | Example |
-| --- | --- | --- |
-| Global instructions | `copilot-instructions.md` | `.github/copilot-instructions.md` |
-| Scoped instructions | `<topic>.instructions.md` | `csharp.instructions.md` |
-| Skills | `SKILL.md` inside a named folder | `skills/cratis-command/SKILL.md` |
-| Agents | `<role>.md` inside `agents/` | `agents/coordinator.md` |
-| Prompts | `<task>.prompt.md` | `prompts/new-vertical-slice.prompt.md` |
-| Hooks | `<lifecycle>.md` inside `hooks/` | `hooks/pre-commit.md` |
+Chronicle's `DefaultClientArtifactsProvider` discovers package-referenced assemblies by reflecting
+over ones whose name starts with `Cratis`. `Cratis.AI.csproj` pins `AssemblyName` explicitly for
+this reason - renaming it silently breaks event-type/read-model/reactor discovery for every consumer.
+Arc's own generated type-discovery path has a second, independent ordering hazard: `AddCratisAI()`
+must be called before `AddCratisArc()`/`AddChronicle()`, or a lazily-loaded `Cratis.AI.dll`
+contributes nothing to the type universe Arc snapshots. `AddCratisAI()` self-checks this at startup
+and throws a `CratisAIOrderingViolation` naming the fix rather than failing silently - see
+[`abstractions.md`](./abstractions.md#registration-and-the-ordering-rule).
