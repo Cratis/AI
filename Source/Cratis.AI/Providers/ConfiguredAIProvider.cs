@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Cratis.AI.Providers.Adding;
+using Cratis.AI.Providers.Reconfiguring;
 using Cratis.AI.Providers.Removing;
 
 namespace Cratis.AI.Providers;
@@ -51,10 +52,18 @@ public record ConfiguredAIProvider(
     [SetFrom<AzureOpenAIProviderAdded>(nameof(AzureOpenAIProviderAdded.ApiKey))]
     [SetFrom<OpenAICompatibleProviderAdded>(nameof(OpenAICompatibleProviderAdded.ApiKey))]
     [SetFrom<ZAIProviderAdded>(nameof(ZAIProviderAdded.ApiKey))]
+    [SetFrom<AnthropicProviderReconfigured>(nameof(AnthropicProviderReconfigured.ApiKey))]
+    [SetFrom<OpenAIProviderReconfigured>(nameof(OpenAIProviderReconfigured.ApiKey))]
+    [SetFrom<AzureOpenAIProviderReconfigured>(nameof(AzureOpenAIProviderReconfigured.ApiKey))]
+    [SetFrom<OpenAICompatibleProviderReconfigured>(nameof(OpenAICompatibleProviderReconfigured.ApiKey))]
+    [SetFrom<ZAIProviderReconfigured>(nameof(ZAIProviderReconfigured.ApiKey))]
     AIProviderApiKey ApiKey,
     [SetFrom<AzureOpenAIProviderAdded>(nameof(AzureOpenAIProviderAdded.Endpoint))]
     [SetFrom<OpenAICompatibleProviderAdded>(nameof(OpenAICompatibleProviderAdded.Endpoint))]
     [SetFrom<ZAIProviderAdded>(nameof(ZAIProviderAdded.Endpoint))]
+    [SetFrom<AzureOpenAIProviderReconfigured>(nameof(AzureOpenAIProviderReconfigured.Endpoint))]
+    [SetFrom<OpenAICompatibleProviderReconfigured>(nameof(OpenAICompatibleProviderReconfigured.Endpoint))]
+    [SetFrom<ZAIProviderReconfigured>(nameof(ZAIProviderReconfigured.Endpoint))]
     AIProviderEndpoint? Endpoint = null,
     [SetFrom<AnthropicProviderAdded>(nameof(AnthropicProviderAdded.MaxConcurrentJobs))]
     [SetFrom<OpenAIProviderAdded>(nameof(OpenAIProviderAdded.MaxConcurrentJobs))]
