@@ -27,6 +27,7 @@ the corpus's own `yarn verify` self-check):
 | #327 | `feat/provider-concurrency-gate` | `ProviderConcurrencyGate` + `AIProviderOptions` |
 | #328 | `feat/tier-models` | `TierModels`, `TierModelDefaults`, `TierModelResolution` |
 | #330 | `feat/pools` | Pool concepts, `PoolMemberSelector`, `ProviderBurn` (rewired onto `IRecordedAgentSessions`) |
+| #331 | `feat/capabilities` | `AgentInvocationMode`, `AIModelCapability`/`AIProviderCapability`, `AIModelCapabilities` |
 
 Merge them in order - each is written against the previous one's tip, not against `main` directly.
 
@@ -57,6 +58,10 @@ Merge them in order - each is written against the previous one's tip, not agains
   function), and `ProviderBurn` - rewired onto the package's own `Usage.Daily.IRecordedAgentSessions`
   in place of Direct's `ILanguageModelJobs`, so pool selection already reads the package's own usage
   facts rather than a donor-specific source that does not exist here.
+- `Agents/AgentInvocationMode` (Chat vs Job) and `Providers/AIModelCapability`/`AIProviderCapability`/
+  `AIModelCapabilities` - capability inference from a model identifier, and whether a model/mode
+  pairing is satisfiable. The last piece `ProviderAwareLanguageModel` needs before only the agent
+  model itself is missing.
 - `AddCratisAI()` registration with the type-discovery ordering self-check.
 - `publish.yml` extended with `.NET` build/test/pack/NuGet-publish, and the yarn-migration
   regression in the existing npm-oriented steps fixed.
@@ -80,8 +85,9 @@ In roughly the order the plan's Section 10 sequence suggests tackling it:
 - **Pool CRUD/projections** (create/rename/remove pool, add/remove provider, `Listing/`) - needed
   before `AIProviderPoolMember` (#330) is populated by anything other than a consumer constructing
   it directly.
-- **Capabilities & rate limiting** (`AIModelCapabilities`, `AIProviderCapabilities`,
-  `RateLimiting/`, `HarnessSupport/`).
+- **Rate limiting & harness support** (`RateLimiting/`, `HarnessSupport/`) - the last provider-layer
+  pieces before `ProviderAwareLanguageModel` itself. Everything else it resolves through
+  (concurrency gate, tier resolution, pool selection, capability checks) now exists.
 - **Available-model discovery**, reconciled from both donors.
 - **Usage reporting** (vendor billing API readers - `ICanReportAIUsage`, OpenAI/Anthropic
   implementations).
