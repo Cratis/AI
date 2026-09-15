@@ -21,6 +21,8 @@ the corpus's own `yarn verify` self-check):
 | #321 | `feat/providers-concepts` | Provider vocabulary: `AIProviderName/Type/ApiKey/Endpoint`, `ModelTier`, `MaxConcurrentJobs`, `Effort` |
 | #322 | `feat/root-documentation` | This `Documentation/` folder |
 | #323 | `feat/provider-client-seam` | `IAIProviderClient` + the first concrete vendor client (`OpenAICompatible`) |
+| #324 | `feat/anthropic-client` | Anthropic vendor client + credential classification |
+| #325 | `feat/openai-client` | OpenAI + Azure OpenAI vendor clients + credential classification |
 
 Merge them in order - each is written against the previous one's tip, not against `main` directly.
 
@@ -49,10 +51,11 @@ Merge them in order - each is written against the previous one's tip, not agains
 
 In roughly the order the plan's Section 10 sequence suggests tackling it:
 
-- **Remaining vendor clients** (`Providers/Anthropic/`, `OpenAI/`, `AzureOpenAI/`, `ZAI/`,
-  `Codex/`) - `OpenAICompatible` (#323) is the first and proves the seam; OpenAI/AzureOpenAI reuse
-  its shared `OpenAIChatCompletionsProtocol`, Anthropic and ZAI need their own protocol handling,
-  Codex is subscription-based rather than API-key (plan Section 5.2 step 3's credential note).
+- **Remaining vendor clients** (`ZAI/`, `Codex/`) - four of six vendors are now ported
+  (`OpenAICompatible` #323, `Anthropic` #324, `OpenAI`+`AzureOpenAI` #325). ZAI needs its own
+  protocol handling (Anthropic-compatible, but a distinct vendor); Codex is subscription-based
+  rather than API-key and is an agent-harness provider only - it does not serve chat completions at
+  all (plan Section 5.2 step 3's credential note).
 - **Provider commands/projections** (`Adding/`, `Reconfiguring/`, `Removing/`, `Renaming/`,
   `SettingConcurrency/`, `SettingTierModels/`, `Listing/`, `Resolving/`).
 - **Pools** (`PoolMemberSelector`, `ProviderBurn`, pool CRUD, `Listing`).
