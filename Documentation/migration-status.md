@@ -38,7 +38,7 @@ published a release - nothing was batched or held back to the end.
 | #342 | `fix/pin-provider-crud-event-ids` | [Cratis/AI#341](https://github.com/Cratis/AI/issues/341): pinned explicit `EventTypeId` on all 12 provider CRUD events - Chronicle's type-name-based default id collided with Direct's own pre-migration same-named types the moment both loaded in one process; decision 0007 |
 | #343 | `fix/match-donor-event-type-ids` | Corrected #342's chosen id *values* - matched to Direct's own pre-existing implicit type-name ids instead of fresh guids, so Direct's real, already-stored provider events stay readable once Direct's own duplicate types are deleted; decision 0008 |
 | #344 | `fix/openai-event-ids-stay-distinct` | Kept `OpenAIProviderAdded`/`OpenAIProviderReconfigured`'s ids distinct from Direct's, since Direct deliberately keeps its own OpenAI commands (credential-kind classification, not yet ported) - matching them would have recreated the exact collision decisions 0007/0008 exist to prevent |
-| #345 | `feat/studio-provider-shape` | `Providers/Configuring/` - Studio's own provider shape (one `XModelConfigured` event covers add+reconfigure, a `Model` field, `AIModelRenamed`/`AIModelRemoved`), carried alongside Direct's rather than forced into it; `ConfiguredAIProvider` gained a `Model` field; decision 0009 |
+| #350 | `feat/studio-provider-shape` | `Providers/Configuring/` - Studio's own provider shape (one `XModelConfigured` event covers add+reconfigure, a `Model` field, `AIModelRenamed`/`AIModelRemoved`), carried alongside Direct's rather than forced into it; `ConfiguredAIProvider` gained a `Model` field; decision 0009 |
 
 ### Dependency alignment (plan Section 2.5 / risk #6)
 
