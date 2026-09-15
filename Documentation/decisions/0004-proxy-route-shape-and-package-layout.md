@@ -51,6 +51,21 @@ package's own `package.json`/`tsconfig.json`/`rollup.config.mjs`/hand-written `i
    the run if the two results diverge (one published, the other did not) - never letting the pair
    drift out of version-sync silently.
 
+## Addendum: multi-targeted Release builds race the generator
+
+Discovered on the very first real release run, not in local testing (every local test up to that
+point had used `dotnet build --configuration Debug`, where `Directory.Build.props` single-targets
+`net10.0`): `Directory.Build.props` multi-targets Release builds (`net8.0;net9.0;net10.0`), and
+`Cratis.Arc.ProxyGenerator.Build`'s own MSBuild target has no per-TFM guard - it fires on every inner
+build's `AfterBuild`, and `dotnet build` runs multi-targeted inner builds in parallel. Three processes
+raced to delete-then-write the same `CratisProxiesOutputPath` directory (`SkipOutputDeletion=false`
+deletes before every write) and crashed with a native I/O error - non-deterministically: the first CI
+run on the PR that added this happened not to race and passed; the release run right after did not.
+Fixed by conditioning `CratisProxiesOutputPath` itself to `'$(TargetFramework)' == 'net10.0'` in
+`Cratis.AI.csproj` - the generator's target guards on that property being non-empty, so it now runs
+exactly once regardless of how many TFMs the configuration builds. Verified with three consecutive
+clean Release builds locally (previously non-deterministic, now consistently clean).
+
 ## Consequences
 
 - Every future command/query the package grows lands under `/api/a-i/...` automatically - no route
