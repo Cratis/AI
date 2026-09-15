@@ -24,6 +24,7 @@ the corpus's own `yarn verify` self-check):
 | #324 | `feat/anthropic-client` | Anthropic vendor client + credential classification |
 | #325 | `feat/openai-client` | OpenAI + Azure OpenAI vendor clients + credential classification |
 | #326 | `feat/zai-client` | ZAI vendor client (Anthropic-compatible protocol) |
+| #327 | `feat/provider-concurrency-gate` | `ProviderConcurrencyGate` + `AIProviderOptions` |
 
 Merge them in order - each is written against the previous one's tip, not against `main` directly.
 
@@ -41,9 +42,12 @@ Merge them in order - each is written against the previous one's tip, not agains
 - `IWorkerRuntime`'s contract (no implementation yet) with Direct's incident-derived doc comments
   preserved verbatim.
 - Provider vocabulary concepts.
-- `IAIProviderClient` + `OpenAICompatible`, the first working vendor client, plus the shared
-  `OpenAIChatCompletionsProtocol`/`TransientProviderFailures` helpers OpenAI and Azure OpenAI's
-  clients will reuse when they are ported.
+- Five of six vendor clients: `OpenAICompatible`, `Anthropic`, `OpenAI`, `AzureOpenAI`, `ZAI` -
+  each a real, working `IAIProviderClient` (plain `HttpClient` + JSON, no vendor SDK dependency),
+  sharing `OpenAIChatCompletionsProtocol`/`TransientProviderFailures` where the vendors' wire shape
+  actually is the same. Codex is deliberately not among them - see "what does not exist yet" below.
+- `ProviderConcurrencyGate` + `AIProviderOptions` - per-provider concurrency bounding, the piece
+  the still-to-come resolution layer will wrap every vendor call in.
 - `AddCratisAI()` registration with the type-discovery ordering self-check.
 - `publish.yml` extended with `.NET` build/test/pack/NuGet-publish, and the yarn-migration
   regression in the existing npm-oriented steps fixed.
@@ -52,19 +56,18 @@ Merge them in order - each is written against the previous one's tip, not agains
 
 In roughly the order the plan's Section 10 sequence suggests tackling it:
 
-- **Remaining vendor clients** (`Codex/`) - five of six vendors are now ported (`OpenAICompatible`
-  #323, `Anthropic` #324, `OpenAI`+`AzureOpenAI` #325, `ZAI` #326). Codex is the one deliberately
-  left out: it is subscription-based rather than API-key and is an agent-harness provider only - it
-  does not serve chat completions at all (plan Section 5.2 step 3's credential note), so there is no
-  `IAIProviderClient.Complete` for it to implement the same way. It needs the worker/harness
-  scheduling layer (plan Section 5.6) rather than another vendor HTTP client.
+- **Codex** - the one vendor deliberately not given an `IAIProviderClient`: it is subscription-based
+  rather than API-key and is an agent-harness provider only, so there is no chat-completion surface
+  for it to implement. It needs the worker/harness scheduling layer (plan Section 5.6) instead.
+- **`ProviderAwareLanguageModel`** (the actual resolution layer `ManagedLanguageModel` is meant to
+  sit in front of) - blocked on pools, tiers, capabilities and the agent model below, all of which
+  it resolves through. Read `AIProviders/ProviderAwareLanguageModel.cs` in Direct before starting
+  this - it is ~215 lines with real production reasoning (issue #103) behind almost every branch.
 - **Provider commands/projections** (`Adding/`, `Reconfiguring/`, `Removing/`, `Renaming/`,
   `SettingConcurrency/`, `SettingTierModels/`, `Listing/`, `Resolving/`).
 - **Pools** (`PoolMemberSelector`, `ProviderBurn`, pool CRUD, `Listing`).
-- **Resolution & governance** (`ProviderAwareLanguageModel`, `ProviderConcurrencyGate`,
-  `TierModelResolution`, `TierModelDefaults`, `RateLimiting/`, `HarnessSupport/`) - this is what
-  `ManagedLanguageModel` is meant to sit in front of in production; today it wraps whatever
-  `ILanguageModel` a consumer supplies directly.
+- **Tier/capability resolution** (`TierModelResolution`, `TierModelDefaults`, `RateLimiting/`,
+  `HarnessSupport/`) - what `ProviderAwareLanguageModel` above resolves a tier through.
 - **Available-model discovery**, reconciled from both donors.
 - **Usage reporting** (vendor billing API readers - `ICanReportAIUsage`, OpenAI/Anthropic
   implementations).
