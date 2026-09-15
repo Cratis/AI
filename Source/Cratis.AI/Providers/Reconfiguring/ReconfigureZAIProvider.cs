@@ -53,5 +53,12 @@ public class ReconfigureZAIProviderValidator : CommandValidator<ReconfigureZAIPr
 /// </summary>
 /// <param name="Endpoint">The new endpoint.</param>
 /// <param name="ApiKey">The new API key, protected at rest.</param>
-[EventType]
-public record ZAIProviderReconfigured(AIProviderEndpoint Endpoint, AIProviderApiKey ApiKey);
+[EventType(EventTypeId)]
+public record ZAIProviderReconfigured(AIProviderEndpoint Endpoint, AIProviderApiKey ApiKey)
+{
+    /// <summary>
+    /// The pinned <see cref="EventTypeAttribute"/> id for this event type. Chosen once, here, and
+    /// never changed - see decision 0002.
+    /// </summary>
+    public const string EventTypeId = "965b0e47-fe1e-43f7-948d-6a8560219468";
+}

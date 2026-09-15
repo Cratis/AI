@@ -42,5 +42,12 @@ public record ReconfigureAnthropicProvider(AIProviderId Provider, AIProviderApiK
 /// Event raised when an Anthropic provider's API key has been changed.
 /// </summary>
 /// <param name="ApiKey">The new API key, protected at rest.</param>
-[EventType]
-public record AnthropicProviderReconfigured(AIProviderApiKey ApiKey);
+[EventType(EventTypeId)]
+public record AnthropicProviderReconfigured(AIProviderApiKey ApiKey)
+{
+    /// <summary>
+    /// The pinned <see cref="EventTypeAttribute"/> id for this event type. Chosen once, here, and
+    /// never changed - see decision 0002.
+    /// </summary>
+    public const string EventTypeId = "b1e76865-133b-4260-8ed0-d556e72533ab";
+}

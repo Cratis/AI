@@ -35,5 +35,12 @@ public class RenameAIProviderValidator : CommandValidator<RenameAIProvider>
 /// Event raised when a configured AI provider has been renamed.
 /// </summary>
 /// <param name="Name">The new display name.</param>
-[EventType]
-public record AIProviderRenamed(AIProviderName Name);
+[EventType(EventTypeId)]
+public record AIProviderRenamed(AIProviderName Name)
+{
+    /// <summary>
+    /// The pinned <see cref="EventTypeAttribute"/> id for this event type. Chosen once, here, and
+    /// never changed - see decision 0002.
+    /// </summary>
+    public const string EventTypeId = "b00a5f7a-61de-43c5-a201-5209c68f02b3";
+}

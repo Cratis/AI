@@ -50,5 +50,12 @@ public class AddZAIProviderValidator : CommandValidator<AddZAIProvider>
 /// <param name="Endpoint">The Z.ai endpoint - the base URL the Anthropic-compatible API sits under.</param>
 /// <param name="ApiKey">The Z.ai API key, protected at rest.</param>
 /// <param name="MaxConcurrentJobs">How many worker sessions may run on the provider at once - zero for no limit.</param>
-[EventType]
-public record ZAIProviderAdded(AIProviderName Name, AIProviderEndpoint Endpoint, AIProviderApiKey ApiKey, MaxConcurrentJobs MaxConcurrentJobs);
+[EventType(EventTypeId)]
+public record ZAIProviderAdded(AIProviderName Name, AIProviderEndpoint Endpoint, AIProviderApiKey ApiKey, MaxConcurrentJobs MaxConcurrentJobs)
+{
+    /// <summary>
+    /// The pinned <see cref="EventTypeAttribute"/> id for this event type. Chosen once, here, and
+    /// never changed - see decision 0002.
+    /// </summary>
+    public const string EventTypeId = "b9c09a25-cc47-4656-a023-04fc02e3ad45";
+}

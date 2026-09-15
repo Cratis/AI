@@ -50,5 +50,12 @@ public class AddOpenAICompatibleProviderValidator : CommandValidator<AddOpenAICo
 /// <param name="Endpoint">The endpoint to send chat-completions requests to.</param>
 /// <param name="ApiKey">The API key, when the endpoint requires one, protected at rest.</param>
 /// <param name="MaxConcurrentJobs">How many worker sessions may run on the provider at once - zero for no limit.</param>
-[EventType]
-public record OpenAICompatibleProviderAdded(AIProviderName Name, AIProviderEndpoint Endpoint, AIProviderApiKey ApiKey, MaxConcurrentJobs MaxConcurrentJobs);
+[EventType(EventTypeId)]
+public record OpenAICompatibleProviderAdded(AIProviderName Name, AIProviderEndpoint Endpoint, AIProviderApiKey ApiKey, MaxConcurrentJobs MaxConcurrentJobs)
+{
+    /// <summary>
+    /// The pinned <see cref="EventTypeAttribute"/> id for this event type. Chosen once, here, and
+    /// never changed - see decision 0002.
+    /// </summary>
+    public const string EventTypeId = "a212aea2-9cc2-45d4-918a-e664834f1325";
+}

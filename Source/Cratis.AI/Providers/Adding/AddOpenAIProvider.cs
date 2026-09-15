@@ -51,5 +51,12 @@ public class AddOpenAIProviderValidator : CommandValidator<AddOpenAIProvider>
 /// <param name="Name">The provider's display name.</param>
 /// <param name="ApiKey">The OpenAI API key, protected at rest.</param>
 /// <param name="MaxConcurrentJobs">How many worker sessions may run on the provider at once - zero for no limit.</param>
-[EventType]
-public record OpenAIProviderAdded(AIProviderName Name, AIProviderApiKey ApiKey, MaxConcurrentJobs MaxConcurrentJobs);
+[EventType(EventTypeId)]
+public record OpenAIProviderAdded(AIProviderName Name, AIProviderApiKey ApiKey, MaxConcurrentJobs MaxConcurrentJobs)
+{
+    /// <summary>
+    /// The pinned <see cref="EventTypeAttribute"/> id for this event type. Chosen once, here, and
+    /// never changed - see decision 0002.
+    /// </summary>
+    public const string EventTypeId = "fad79302-e93b-4b14-87fb-bd786f8ae134";
+}

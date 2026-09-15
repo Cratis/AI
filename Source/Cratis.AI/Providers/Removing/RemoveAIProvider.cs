@@ -23,5 +23,12 @@ public record RemoveAIProvider(AIProviderId Provider)
 /// <summary>
 /// Event raised when a configured AI provider has been removed.
 /// </summary>
-[EventType]
-public record AIProviderRemoved;
+[EventType(EventTypeId)]
+public record AIProviderRemoved
+{
+    /// <summary>
+    /// The pinned <see cref="EventTypeAttribute"/> id for this event type. Chosen once, here, and
+    /// never changed - see decision 0002.
+    /// </summary>
+    public const string EventTypeId = "a7b6b0ee-54b6-4f74-b9d8-4e01984f3113";
+}

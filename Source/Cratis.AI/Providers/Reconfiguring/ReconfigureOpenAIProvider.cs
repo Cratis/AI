@@ -40,5 +40,12 @@ public record ReconfigureOpenAIProvider(AIProviderId Provider, AIProviderApiKey 
 /// Event raised when an OpenAI provider's API key has been changed.
 /// </summary>
 /// <param name="ApiKey">The new API key, protected at rest.</param>
-[EventType]
-public record OpenAIProviderReconfigured(AIProviderApiKey ApiKey);
+[EventType(EventTypeId)]
+public record OpenAIProviderReconfigured(AIProviderApiKey ApiKey)
+{
+    /// <summary>
+    /// The pinned <see cref="EventTypeAttribute"/> id for this event type. Chosen once, here, and
+    /// never changed - see decision 0002.
+    /// </summary>
+    public const string EventTypeId = "8f1e7885-599a-4c47-9d8c-663479830b06";
+}
