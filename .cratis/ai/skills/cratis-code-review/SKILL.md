@@ -66,6 +66,10 @@ there is nothing to review under a red build.
 - No service locator: `IServiceProvider` is not injected. Implementation sets
   come from `IInstancesOf<T>`, never `IEnumerable<T>`.
 - No explicit singleton registration where `[Singleton]` suffices.
+- No `[Singleton]` takes a scoped dependency — the event store and anything off
+  it, a MongoDB collection/database/client, a `DbContext`, a read model by key.
+  Such a type is transient or scoped instead; `IServiceScopeFactory` is only for
+  a service the host itself resolves once.
 - Logging lives in a `*Logging.cs` partial with `[LoggerMessage]`, not inline in
   domain code.
 - No shared mutable state between commands.
