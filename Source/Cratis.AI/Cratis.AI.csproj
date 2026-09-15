@@ -33,7 +33,15 @@
              whatever this path points at before regenerating, which would otherwise take the
              hand-authored package.json/tsconfig.json/rollup.config.mjs/index.ts at the package root
              with it. -->
-        <CratisProxiesOutputPath>$(MSBuildThisFileDirectory)../Cratis.AI.Proxies/generated</CratisProxiesOutputPath>
+        <!-- Directory.Build.props multi-targets Release builds (net8.0;net9.0;net10.0) for NuGet
+             compatibility. The generator's own MSBuild target has no per-TFM guard of its own - it
+             fires on every inner build's AfterBuild, and dotnet build runs multi-targeted inner
+             builds in parallel, so three processes raced to delete-then-write the same output
+             directory and crashed with a native I/O error (observed directly in CI: exit code 134).
+             Scoping these properties to net10.0 only leaves the target's own guard
+             ('$(CratisProxiesOutputPath)' != '') false for the other two TFMs, so generation runs
+             exactly once regardless of configuration. -->
+        <CratisProxiesOutputPath Condition="'$(TargetFramework)' == 'net10.0'">$(MSBuildThisFileDirectory)../Cratis.AI.Proxies/generated</CratisProxiesOutputPath>
         <CratisProxiesSegmentsToSkip>1</CratisProxiesSegmentsToSkip>
         <CratisProxiesSkipOutputDeletion>false</CratisProxiesSkipOutputDeletion>
         <CratisProxiesSkipCommandNameInRoute>true</CratisProxiesSkipCommandNameInRoute>
