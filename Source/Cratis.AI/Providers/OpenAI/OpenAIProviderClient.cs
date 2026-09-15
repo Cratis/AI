@@ -5,6 +5,7 @@ using System.Net.Http.Headers;
 using Cratis.AI.Agents;
 using Cratis.AI.Common;
 using Cratis.AI.LanguageModels;
+using Cratis.AI.Providers.Pools;
 using Microsoft.Extensions.Logging;
 
 namespace Cratis.AI.Providers.OpenAI;
@@ -14,8 +15,9 @@ namespace Cratis.AI.Providers.OpenAI;
 /// Direct's <c>AIProviders.OpenAI.OpenAIProviderClient</c> (plan Section 5.2 step 3).
 /// </summary>
 /// <param name="httpClientFactory">Creates the <see cref="HttpClient"/> requests are sent with.</param>
+/// <param name="quotaTracker">Records what the response's rate-limit headers reported about the provider's remaining quota (Cratis/AI#337).</param>
 /// <param name="logger">The logger.</param>
-public class OpenAIProviderClient(IHttpClientFactory httpClientFactory, ILogger<OpenAIProviderClient> logger) : IAIProviderClient
+public class OpenAIProviderClient(IHttpClientFactory httpClientFactory, IAIProviderQuotaTracker quotaTracker, ILogger<OpenAIProviderClient> logger) : IAIProviderClient
 {
     const string ChatCompletionsUrl = "https://api.openai.com/v1/chat/completions";
 
@@ -47,6 +49,8 @@ public class OpenAIProviderClient(IHttpClientFactory httpClientFactory, ILogger<
             effort,
             headers => headers.Authorization = new AuthenticationHeaderValue("Bearer", provider.ApiKey.Value),
             Type,
+            provider.Id,
+            quotaTracker,
             logger,
             cancellationToken);
     }

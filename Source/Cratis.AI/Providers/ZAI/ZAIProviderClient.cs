@@ -7,6 +7,7 @@ using Cratis.AI.Agents;
 using Cratis.AI.Common;
 using Cratis.AI.LanguageModels;
 using Cratis.AI.Providers.Anthropic;
+using Cratis.AI.Providers.Pools;
 using Microsoft.Extensions.Logging;
 
 namespace Cratis.AI.Providers.ZAI;
@@ -19,6 +20,7 @@ namespace Cratis.AI.Providers.ZAI;
 /// (branch naming, triage, screening, chat).
 /// </summary>
 /// <param name="httpClientFactory">Creates the <see cref="HttpClient"/> requests are sent with.</param>
+/// <param name="quotaTracker">Records what the response's rate-limit headers reported about the provider's remaining quota (Cratis/AI#337) - read with the same Anthropic-shaped headers <see cref="AIProviderQuotaHeaders"/> assumes for this vendor.</param>
 /// <param name="logger">The logger.</param>
 /// <remarks>
 /// <see cref="DefaultEndpoint"/> is duplicated from Direct's <c>HarnessSupport.ProviderHarnessSupport</c>
@@ -27,7 +29,7 @@ namespace Cratis.AI.Providers.ZAI;
 /// two must never drift apart, since the harness container and this in-app client need to agree on
 /// which Z.ai gateway a provider with no explicit endpoint configured actually means.
 /// </remarks>
-public class ZAIProviderClient(IHttpClientFactory httpClientFactory, ILogger<ZAIProviderClient> logger) : IAIProviderClient
+public class ZAIProviderClient(IHttpClientFactory httpClientFactory, IAIProviderQuotaTracker quotaTracker, ILogger<ZAIProviderClient> logger) : IAIProviderClient
 {
     /// <summary>
     /// Z.ai's public Anthropic-compatible gateway - what a provider with no explicit endpoint means.
@@ -76,6 +78,8 @@ public class ZAIProviderClient(IHttpClientFactory httpClientFactory, ILogger<ZAI
 
         using (response)
         {
+            quotaTracker.Report(provider.Id, Type, response);
+
             if (!response.IsSuccessStatusCode)
             {
                 logger.UnexpectedStatusCode(Type, (int)response.StatusCode);

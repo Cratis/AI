@@ -4,6 +4,7 @@
 using Cratis.AI.Agents;
 using Cratis.AI.Common;
 using Cratis.AI.LanguageModels;
+using Cratis.AI.Providers.Pools;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 
@@ -22,7 +23,7 @@ public class and_the_provider_has_a_subscription_credential : Specification
 
     void Establish()
     {
-        _client = new OpenAIProviderClient(Substitute.For<IHttpClientFactory>(), Substitute.For<ILogger<OpenAIProviderClient>>());
+        _client = new OpenAIProviderClient(Substitute.For<IHttpClientFactory>(), Substitute.For<IAIProviderQuotaTracker>(), Substitute.For<ILogger<OpenAIProviderClient>>());
         _provider = new ConfiguredAIProvider(
             AIProviderId.New(),
             AIProviderType.OpenAI,

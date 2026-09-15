@@ -5,6 +5,7 @@ using System.Net.Http.Headers;
 using Cratis.AI.Agents;
 using Cratis.AI.Common;
 using Cratis.AI.LanguageModels;
+using Cratis.AI.Providers.Pools;
 using Microsoft.Extensions.Logging;
 
 namespace Cratis.AI.Providers.OpenAICompatible;
@@ -16,8 +17,9 @@ namespace Cratis.AI.Providers.OpenAICompatible;
 /// first concrete vendor client in the package, proving <see cref="IAIProviderClient"/> end to end.
 /// </summary>
 /// <param name="httpClientFactory">Creates the <see cref="HttpClient"/> requests are sent with.</param>
+/// <param name="quotaTracker">Records what the response's rate-limit headers reported about the provider's remaining quota (Cratis/AI#337) - most gateways of this kind send none, so this is usually a no-op.</param>
 /// <param name="logger">The logger.</param>
-public class OpenAICompatibleProviderClient(IHttpClientFactory httpClientFactory, ILogger<OpenAICompatibleProviderClient> logger) : IAIProviderClient
+public class OpenAICompatibleProviderClient(IHttpClientFactory httpClientFactory, IAIProviderQuotaTracker quotaTracker, ILogger<OpenAICompatibleProviderClient> logger) : IAIProviderClient
 {
     /// <inheritdoc/>
     public AIProviderType Type => AIProviderType.OpenAICompatible;
@@ -46,6 +48,8 @@ public class OpenAICompatibleProviderClient(IHttpClientFactory httpClientFactory
                 }
             },
             Type,
+            provider.Id,
+            quotaTracker,
             logger,
             cancellationToken);
     }
