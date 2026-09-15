@@ -39,8 +39,12 @@ public class RenameAIProviderValidator : CommandValidator<RenameAIProvider>
 public record AIProviderRenamed(AIProviderName Name)
 {
     /// <summary>
-    /// The pinned <see cref="EventTypeAttribute"/> id for this event type. Chosen once, here, and
-    /// never changed - see decision 0002.
+    /// The pinned <see cref="EventTypeAttribute"/> id for this event type - chosen once, here, and
+    /// never changed (decision 0002). Deliberately the bare type name as a string, not a fresh guid:
+    /// this is exactly the id Direct's own pre-migration same-named type already resolves to
+    /// implicitly (Chronicle's own type-name fallback, decision 0007) - matching it keeps Direct's
+    /// real, already-stored provider events readable through this type once Direct's own duplicate
+    /// is deleted, rather than orphaning them under an id nothing produces anymore.
     /// </summary>
-    public const string EventTypeId = "b00a5f7a-61de-43c5-a201-5209c68f02b3";
+    public const string EventTypeId = "AIProviderRenamed";
 }

@@ -35,7 +35,8 @@ published a release - nothing was batched or held back to the end.
 | #333 | `feat/ai-proxies` | `@cratis/ai` (Phase 3b) - `Cratis.Arc.ProxyGenerator.Build` wired into `Cratis.AI.csproj`, `Source/Cratis.AI.Proxies`, decision 0004 |
 | #338 | `feat/pool-failover-and-quota` | [Cratis/AI#337](https://github.com/Cratis/AI/issues/337): `AIProviderPoolDispatcher` fails over to the next pool member on a transient failure; `IAIProviderQuotaTracker`/`AIProviderQuotaHeaders` read each vendor's own rate-limit headers so a known-exhausted member is skipped before it is ever called; `AgentUsageByDay` now carries CPU/memory alongside tokens, so resource usage is visible per agent/purpose, not only as an undifferentiated weekly total; decision 0005 |
 | #339, #340 | `feat/provider-crud`, `feat/provider-reconfigure` | First real migration slice: `Providers/Adding/` and `Reconfiguring/` (all 5 vendors, including "blank keeps existing" semantics), `Renaming/`, `Removing/`, `ConfiguredAIProvider` upgraded from placeholder record to a real `[ReadModel][Passive]` projection - a complete provider CRUD surface; decision 0006 |
-| #341 | `fix/pin-provider-crud-event-ids` | [Cratis/AI#341](https://github.com/Cratis/AI/issues/341): pinned explicit `EventTypeId` on all 12 provider CRUD events - Chronicle's type-name-based default id collided with Direct's own pre-migration same-named types the moment both loaded in one process; decision 0007 |
+| #342 | `fix/pin-provider-crud-event-ids` | [Cratis/AI#341](https://github.com/Cratis/AI/issues/341): pinned explicit `EventTypeId` on all 12 provider CRUD events - Chronicle's type-name-based default id collided with Direct's own pre-migration same-named types the moment both loaded in one process; decision 0007 |
+| #343 | `fix/match-donor-event-type-ids` | Corrected #342's chosen id *values* - matched to Direct's own pre-existing implicit type-name ids instead of fresh guids, so Direct's real, already-stored provider events stay readable once Direct's own duplicate types are deleted; decision 0008 |
 
 ### Dependency alignment (plan Section 2.5 / risk #6)
 
@@ -175,6 +176,10 @@ In roughly the order the plan's Section 10 sequence suggests tackling it:
   `SkipOutputDeletion=false`, and the `CopyLocalLockFileAssemblies` fix proxy generation needed on a
   plain class library.
 
+- [`decisions/0008-provider-crud-event-ids-match-directs-implicit-ones.md`](./decisions/0008-provider-crud-event-ids-match-directs-implicit-ones.md) -
+  corrects decision 0007's choice of id *value* (fresh guids) to match what Direct's own
+  pre-migration same-named types already implicitly resolve to, so cutting Direct over does not
+  orphan its real, already-stored provider events.
 - [`decisions/0007-pin-explicit-event-type-ids-for-provider-crud.md`](./decisions/0007-pin-explicit-event-type-ids-for-provider-crud.md) -
   Chronicle resolves an unpinned event type's id from its bare CLR type name with no namespace
   qualification - a real collision with Direct's own pre-migration same-named types, found the first
