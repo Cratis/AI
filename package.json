@@ -30,8 +30,10 @@
         "postinstall": "node ./link-eslint-typescript.js"
     },
     "devDependencies": {
+        "@cratis/fundamentals": "7.19.2",
         "@eslint/eslintrc": "3.3.5",
         "@eslint/js": "10.0.1",
+        "@swc/core": "^1.15.43",
         "@tony.ganchev/eslint-plugin-header": "^3.4.4",
         "@types/node": "25.9.1",
         "@typescript-eslint/eslint-plugin": "8.59.4",
@@ -43,10 +45,12 @@
         "eslint-plugin-import": "2.32.0",
         "eslint-plugin-no-null": "1.0.2",
         "eslint-plugin-prettier": "5.5.5",
+        "eslint-plugin-react": "7.37.5",
         "glob": "13.0.6",
         "globals": "17.6.0",
         "npm-check-updates": "22.2.0",
         "prettier": "3.8.3",
+        "react": "^19.2.6",
         "rollup": "4.60.4",
         "rollup-plugin-commonjs": "10.1.0",
         "rollup-plugin-peer-deps-external": "2.2.4",

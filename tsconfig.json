@@ -49,16 +49,7 @@
     ],
     "references": [
         {
-            "path": "./Source/JavaScript/Arc",
-        },
-        {
-            "path": "./Source/JavaScript/Arc.React",
-        },
-        {
-            "path": "./Source/JavaScript/Arc.React.MVVM",
-        },
-        {
-            "path": "./Source/JavaScript/Arc.Vite",
+            "path": "./Source/Cratis.AI.Proxies"
         }
     ]
 }
