@@ -39,6 +39,7 @@ published a release - nothing was batched or held back to the end.
 | #343 | `fix/match-donor-event-type-ids` | Corrected #342's chosen id *values* - matched to Direct's own pre-existing implicit type-name ids instead of fresh guids, so Direct's real, already-stored provider events stay readable once Direct's own duplicate types are deleted; decision 0008 |
 | #344 | `fix/openai-event-ids-stay-distinct` | Kept `OpenAIProviderAdded`/`OpenAIProviderReconfigured`'s ids distinct from Direct's, since Direct deliberately keeps its own OpenAI commands (credential-kind classification, not yet ported) - matching them would have recreated the exact collision decisions 0007/0008 exist to prevent |
 | #350 | `feat/studio-provider-shape` | `Providers/Configuring/` - Studio's own provider shape (one `XModelConfigured` event covers add+reconfigure, a `Model` field, `AIModelRenamed`/`AIModelRemoved`), carried alongside Direct's rather than forced into it; `ConfiguredAIProvider` gained a `Model` field; decision 0009 |
+| (pending) | `feat/agent-harnesses` | `Source/AgentHarnesses/` moved from Direct wholesale - Dockerfiles, `entrypoint.sh`, `for_entrypoint/` fixtures, `pi-extensions/`, vendored `skills/`, `progress-mcp-server.mjs`; publishing identity renamed product-neutral (`cratis/ai-agents` and its two derivatives); publishes to Docker Hub instead of the old registry via a new `publish-agent-harnesses` job; the `DIRECT_` env-var contract inside `entrypoint.sh` and `WorkerEnvironment.cs` deliberately left unchanged - decision 0010 |
 
 ### Dependency alignment (plan Section 2.5 / risk #6)
 
@@ -148,8 +149,10 @@ In roughly the order the plan's Section 10 sequence suggests tackling it:
 - **Worker runtime implementations** (`DockerWorkerRuntime`, `KubernetesWorkerRuntime`), the
   callback contract (`WorkerCallbackTokens`, `WorkerResults`), and reconciling Direct's
   `Containers/` with Studio's `Infrastructure/Containers/` (plan risk #3).
-- **Agent harness Docker images** (`Source/AgentHarnesses/` - `Dockerfile.base/claude/pi`,
-  `entrypoint.sh`, `pi-extensions/`, `progress-mcp-server.mjs`, `skills/`) and their CI job.
+- ~~Agent harness Docker images~~ - done (`feat/agent-harnesses`, decision 0010). Still open: the
+  `DIRECT_*` env-var contract rename (`entrypoint.sh` + `WorkerEnvironment.cs`, tracked as follow-up
+  in decision 0010), and `DOCKERHUB_USERNAME`/`DOCKERHUB_TOKEN` secrets need adding to `Cratis/AI`
+  before `publish-agent-harnesses` can actually push - it will fail loudly until then.
 - **More of `@cratis/ai`** - the package exists and publishes for real (see above), but it only has
   what the package itself has: one command, three queries. It grows automatically as the provider/
   agent/conversational work above lands - no more proxy-workspace scaffolding needed, just more

@@ -6,7 +6,9 @@
         "!**/dist/**",
         "!**/bin/**",
         "!**/obj/**",
-        "!Source/Pi.Plugin/corpus/**"
+        "!Source/Pi.Plugin/corpus/**",
+        "!Source/AgentHarnesses",
+        "!Source/AgentHarnesses/**"
     ],
     "engines": {
         "node": ">=23.0.0"

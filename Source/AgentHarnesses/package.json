@@ -1,0 +1,13 @@
+{
+    "name": "cratis-ai-agent-progress-mcp",
+    "private": true,
+    "version": "1.0.0",
+    "description": "The report_progress MCP server a worker container's Claude CLI session calls into to post live progress back to whichever product dispatched it.",
+    "type": "module",
+    "scripts": {
+        "test": "node --test"
+    },
+    "dependencies": {
+        "@modelcontextprotocol/sdk": "1.30.0"
+    }
+}

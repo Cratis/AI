@@ -83,6 +83,41 @@ jobs:
       - name: Reject whitespace errors
         run: git diff --check
 
+      # ubuntu-latest ships shellcheck already. Only entrypoint.sh is linted here, matching Direct's
+      # own build.yml - the for_entrypoint/*.sh fixtures are exercised (not linted) below.
+      - name: Shellcheck entrypoint.sh
+        working-directory: Source/AgentHarnesses
+        run: shellcheck entrypoint.sh
+
+      - name: Install progress MCP server dependencies
+        working-directory: Source/AgentHarnesses
+        run: npm ci
+
+      - name: Run progress MCP server specs
+        working-directory: Source/AgentHarnesses
+        run: npm test
+
+      # Each fixture is a self-contained, hermetic bash script that seeds its own throwaway git
+      # repositories under its own directory and exits non-zero on failure - not a bats/TAP suite,
+      # so they are simply run and their exit codes checked. Every one runs even after a failure, so
+      # a single broken fixture does not hide the others. Ported from Direct's build.yml unchanged.
+      - name: Run entrypoint fixtures
+        working-directory: Source/AgentHarnesses/for_entrypoint
+        run: |
+          set -uo pipefail
+          status=0
+          for spec in *.sh; do
+            echo "::group::${spec}"
+            if bash "$spec"; then
+              echo "PASS: ${spec}"
+            else
+              echo "::error::FAILED: ${spec}"
+              status=1
+            fi
+            echo "::endgroup::"
+          done
+          exit "$status"
+
       # Regenerates Source/Cratis.AI.Proxies/generated in place, so the drift check right after this
       # step is comparing the freshly-built tree against what is actually committed - without this,
       # the check below would just diff the checked-out tree against itself and never catch anything.
@@ -274,10 +309,70 @@ jobs:
         working-directory: Source/Cratis.AI.Proxies
         run: npm publish --provenance --access public
 
+  # Publishes the shared agent-harness images to Docker Hub. Product-neutral names now that Direct
+  # is no longer the only consumer (ai-consolidation-plan.md Section 5.6) - cratis/ai-agents is the
+  # base every harness derives from, never run directly; cratis/ai-agents-claude and
+  # cratis/ai-agents-pi are what a product's dispatcher actually launches, selected by the acting
+  # agent's configured harness.
+  publish-agent-harnesses:
+    name: Publish agent-harness images (Docker Hub)
+    if: needs.release.outputs.publish == 'true'
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@594f3bf4285d9ea8dc53c9a0c9c4092420091003 # v4.4.0
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # The base image publishes first - both derivatives build FROM the tag this run just pushed,
+      # never from a stale one, so a prerelease still produces internally-consistent derivatives.
+      - name: Build and push the base image
+        env:
+          VERSION: ${{ needs.release.outputs.version }}
+          PRERELEASE: ${{ needs.release.outputs.prerelease }}
+        run: |
+          set -euo pipefail
+          base_args="--push --file Source/AgentHarnesses/Dockerfile.base --tag cratis/ai-agents:$VERSION"
+          if [ "$PRERELEASE" != "true" ]; then
+            base_args="$base_args --tag cratis/ai-agents:latest"
+          fi
+          # shellcheck disable=SC2086
+          scripts/docker-build-push-retry.sh $base_args Source/AgentHarnesses
+
+      - name: Build and push the Claude and Pi derivatives
+        env:
+          VERSION: ${{ needs.release.outputs.version }}
+          PRERELEASE: ${{ needs.release.outputs.prerelease }}
+        run: |
+          set -euo pipefail
+          base="cratis/ai-agents:$VERSION"
+          claude_args="--push --file Source/AgentHarnesses/Dockerfile.claude --build-arg BASE_IMAGE=$base"
+          claude_args="$claude_args --tag cratis/ai-agents-claude:$VERSION"
+          pi_args="--push --file Source/AgentHarnesses/Dockerfile.pi --build-arg BASE_IMAGE=$base"
+          pi_args="$pi_args --tag cratis/ai-agents-pi:$VERSION"
+          if [ "$PRERELEASE" != "true" ]; then
+            claude_args="$claude_args --tag cratis/ai-agents-claude:latest"
+            pi_args="$pi_args --tag cratis/ai-agents-pi:latest"
+          fi
+          # shellcheck disable=SC2086
+          scripts/docker-build-push-retry.sh $claude_args Source/AgentHarnesses
+          # shellcheck disable=SC2086
+          scripts/docker-build-push-retry.sh $pi_args Source/AgentHarnesses
+
   verify-published:
     name: Verify a release actually shipped
     if: always() && needs.release.outputs.publish == 'true'
-    needs: [release, publish-pi, publish-dotnet-packages, publish-npm-packages]
+    needs: [release, publish-pi, publish-dotnet-packages, publish-npm-packages, publish-agent-harnesses]
     runs-on: ubuntu-latest
     steps:
       # Cratis.AI (NuGet) and @cratis/ai (npm) are one artifact split across two registries (plan
@@ -290,7 +385,13 @@ jobs:
           exit 1
 
       - name: Fail if nothing published
-        if: needs.publish-pi.result != 'success' && needs.publish-dotnet-packages.result != 'success' && needs.publish-npm-packages.result != 'success'
+        if: needs.publish-pi.result != 'success' && needs.publish-dotnet-packages.result != 'success' && needs.publish-npm-packages.result != 'success' && needs.publish-agent-harnesses.result != 'success'
         run: |
           echo "Release ${{ needs.release.outputs.version }} was determined but nothing succeeded publishing." >&2
+          exit 1
+
+      - name: Fail if the agent-harness images did not publish
+        if: needs.publish-agent-harnesses.result != 'success'
+        run: |
+          echo "Release ${{ needs.release.outputs.version }} did not publish the agent-harness images (cratis/ai-agents*) - a product still pointed at these tags would be left on a stale image." >&2
           exit 1
