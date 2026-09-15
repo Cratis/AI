@@ -23,6 +23,7 @@ the corpus's own `yarn verify` self-check):
 | #323 | `feat/provider-client-seam` | `IAIProviderClient` + the first concrete vendor client (`OpenAICompatible`) |
 | #324 | `feat/anthropic-client` | Anthropic vendor client + credential classification |
 | #325 | `feat/openai-client` | OpenAI + Azure OpenAI vendor clients + credential classification |
+| #326 | `feat/zai-client` | ZAI vendor client (Anthropic-compatible protocol) |
 
 Merge them in order - each is written against the previous one's tip, not against `main` directly.
 
@@ -51,11 +52,12 @@ Merge them in order - each is written against the previous one's tip, not agains
 
 In roughly the order the plan's Section 10 sequence suggests tackling it:
 
-- **Remaining vendor clients** (`ZAI/`, `Codex/`) - four of six vendors are now ported
-  (`OpenAICompatible` #323, `Anthropic` #324, `OpenAI`+`AzureOpenAI` #325). ZAI needs its own
-  protocol handling (Anthropic-compatible, but a distinct vendor); Codex is subscription-based
-  rather than API-key and is an agent-harness provider only - it does not serve chat completions at
-  all (plan Section 5.2 step 3's credential note).
+- **Remaining vendor clients** (`Codex/`) - five of six vendors are now ported (`OpenAICompatible`
+  #323, `Anthropic` #324, `OpenAI`+`AzureOpenAI` #325, `ZAI` #326). Codex is the one deliberately
+  left out: it is subscription-based rather than API-key and is an agent-harness provider only - it
+  does not serve chat completions at all (plan Section 5.2 step 3's credential note), so there is no
+  `IAIProviderClient.Complete` for it to implement the same way. It needs the worker/harness
+  scheduling layer (plan Section 5.6) rather than another vendor HTTP client.
 - **Provider commands/projections** (`Adding/`, `Reconfiguring/`, `Removing/`, `Renaming/`,
   `SettingConcurrency/`, `SettingTierModels/`, `Listing/`, `Resolving/`).
 - **Pools** (`PoolMemberSelector`, `ProviderBurn`, pool CRUD, `Listing`).
