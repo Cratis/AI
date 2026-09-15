@@ -270,8 +270,18 @@ jobs:
       - name: Build package
         run: yarn workspace @cratis/ai run build
 
+      # npm trusted publishing (OIDC, no token needed) works for @cratis/pi because that package
+      # already existed with trust configured. @cratis/ai did not exist until this package's first
+      # publish (bootstrapped manually, outside CI, since OIDC trust cannot be configured for a
+      # package that does not exist yet) - CI's own OIDC identity has no npm-side trust relationship
+      # for it, so publishing from here still needs a classic token until someone with @cratis npm
+      # org access configures trusted publishing for this package too. NPM_TOKEN is a short-lived
+      # bootstrap credential; --provenance still attaches a real Sigstore attestation regardless of
+      # which auth path is used; it only depends on id-token: write above.
       - name: Publish package
         working-directory: Source/Cratis.AI.Proxies
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --provenance --access public
 
   verify-published:
