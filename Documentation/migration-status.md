@@ -26,6 +26,7 @@ the corpus's own `yarn verify` self-check):
 | #326 | `feat/zai-client` | ZAI vendor client (Anthropic-compatible protocol) |
 | #327 | `feat/provider-concurrency-gate` | `ProviderConcurrencyGate` + `AIProviderOptions` |
 | #328 | `feat/tier-models` | `TierModels`, `TierModelDefaults`, `TierModelResolution` |
+| #330 | `feat/pools` | Pool concepts, `PoolMemberSelector`, `ProviderBurn` (rewired onto `IRecordedAgentSessions`) |
 
 Merge them in order - each is written against the previous one's tip, not against `main` directly.
 
@@ -51,6 +52,11 @@ Merge them in order - each is written against the previous one's tip, not agains
   the still-to-come resolution layer will wrap every vendor call in.
 - `TierModels`/`TierModelDefaults`/`TierModelResolution` - the vendor-neutral capability-tier
   ladder (`Fast`/`Balanced`/`Powerful`/`Premier`) and its resolution to a concrete per-vendor model.
+- `Providers/Pools/`: `AIProviderPoolId`/`AIProviderPoolName`/`AIProviderPoolMember` (the last one
+  intentionally minimal, like `ConfiguredAIProvider`), `PoolMemberSelector` (least-burnt pick, pure
+  function), and `ProviderBurn` - rewired onto the package's own `Usage.Daily.IRecordedAgentSessions`
+  in place of Direct's `ILanguageModelJobs`, so pool selection already reads the package's own usage
+  facts rather than a donor-specific source that does not exist here.
 - `AddCratisAI()` registration with the type-discovery ordering self-check.
 - `publish.yml` extended with `.NET` build/test/pack/NuGet-publish, and the yarn-migration
   regression in the existing npm-oriented steps fixed.
@@ -63,13 +69,17 @@ In roughly the order the plan's Section 10 sequence suggests tackling it:
   rather than API-key and is an agent-harness provider only, so there is no chat-completion surface
   for it to implement. It needs the worker/harness scheduling layer (plan Section 5.6) instead.
 - **`ProviderAwareLanguageModel`** (the actual resolution layer `ManagedLanguageModel` is meant to
-  sit in front of) - blocked on pools and the agent model below, both of which it resolves through.
-  Read `AIProviders/ProviderAwareLanguageModel.cs` in Direct before starting this - it is ~215
-  lines with real production reasoning (issue #103) behind almost every branch.
+  sit in front of) - the selection/burn/tier machinery it needs now all exists; what is missing is
+  the agent model it resolves a purpose's provider/pool/tier/effort from (plan Section 5.5) and the
+  real `ConfiguredAIProvider`/`AIProviderPool` projections below. Read
+  `AIProviders/ProviderAwareLanguageModel.cs` in Direct before starting this - it is ~215 lines with
+  real production reasoning (issue #103) behind almost every branch.
 - **Provider commands/projections** (`Adding/`, `Reconfiguring/`, `Removing/`, `Renaming/`,
   `SettingConcurrency/`, `SettingTierModels/`, `Listing/`, `Resolving/`) - needed before
   `ConfiguredAIProvider` (#323) can be a real projection instead of its current placeholder shape.
-- **Pools** (`PoolMemberSelector`, `ProviderBurn`, pool CRUD, `Listing`).
+- **Pool CRUD/projections** (create/rename/remove pool, add/remove provider, `Listing/`) - needed
+  before `AIProviderPoolMember` (#330) is populated by anything other than a consumer constructing
+  it directly.
 - **Capabilities & rate limiting** (`AIModelCapabilities`, `AIProviderCapabilities`,
   `RateLimiting/`, `HarnessSupport/`).
 - **Available-model discovery**, reconciled from both donors.
