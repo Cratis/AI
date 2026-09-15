@@ -20,6 +20,9 @@ internal static partial class AIProviderClientLog
     [LoggerMessage(LogLevel.Warning, "{Vendor} language model API returned no text")]
     internal static partial void NoTextReturned(this ILogger logger, AIProviderType vendor);
 
+    [LoggerMessage(LogLevel.Warning, "{Vendor} provider is configured with a subscription credential, which only a worker session can spend - chat completions need an API key")]
+    internal static partial void SubscriptionCredentialCannotServeChat(this ILogger logger, AIProviderType vendor);
+
     [LoggerMessage(LogLevel.Warning, "{Vendor} language model API could not be reached")]
     internal static partial void NetworkFailure(this ILogger logger, Exception exception, AIProviderType vendor);
 
