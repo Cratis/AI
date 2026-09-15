@@ -1,0 +1,64 @@
+{
+    "compilerOptions": {
+        "outDir": "dist/esm",
+        "declaration": true,
+        "declarationMap": true,
+        "sourceMap": true,
+        "importHelpers": true,
+        "composite": true,
+        "removeComments": true,
+        "strict": true,
+        "allowJs": false,
+        "checkJs": false,
+        "module": "ES2022",
+        "moduleResolution": "Bundler",
+        "target": "ES2022",
+        "noEmit": false,
+        "pretty": true,
+        "noImplicitAny": false,
+        "skipLibCheck": true,
+        "lib": [
+            "ESNext",
+            "ES2022",
+            "DOM",
+            "DOM.Iterable"
+        ],
+        "jsx": "react-jsx",
+        "esModuleInterop": true,
+        "strictNullChecks": true,
+        "resolveJsonModule": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true,
+        "stripInternal": true,
+        "allowSyntheticDefaultImports": true,
+        "forceConsistentCasingInFileNames": true,
+        "assumeChangesOnlyAffectDirectDependencies": true,
+        "alwaysStrict": true,
+        "preserveConstEnums": true,
+        "newLine": "lf"
+    },
+    "include": [
+        "test.d.ts",
+        "global.d.ts"
+    ],
+    "exclude": [
+        "**/dist",
+        "**/vite.config.mts"
+    ],
+    "references": [
+        {
+            "path": "./Source/JavaScript/Arc",
+        },
+        {
+            "path": "./Source/JavaScript/Arc.React",
+        },
+        {
+            "path": "./Source/JavaScript/Arc.React.MVVM",
+        },
+        {
+            "path": "./Source/JavaScript/Arc.Vite",
+        }
+    ]
+}

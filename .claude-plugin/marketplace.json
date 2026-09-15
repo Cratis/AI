@@ -1,0 +1,31 @@
+{
+  "name": "cratis",
+  "owner": {
+    "name": "Cratis",
+    "url": "https://www.cratis.io"
+  },
+  "metadata": {
+    "description": "Cratis AI skills for building event-sourced and CQRS applications"
+  },
+  "plugins": [
+    {
+      "name": "cratis",
+      "description": "Cratis skills for application and framework development",
+      "version": "1.0.0",
+      "author": {
+        "name": "Cratis",
+        "url": "https://www.cratis.io"
+      },
+      "homepage": "https://github.com/Cratis/AI",
+      "repository": "https://github.com/Cratis/AI",
+      "license": "MIT",
+      "source": {
+        "source": "github",
+        "repo": "Cratis/AI",
+        "path": ".cratis/ai"
+      },
+      "strict": false,
+      "skills": "./skills"
+    }
+  ]
+}

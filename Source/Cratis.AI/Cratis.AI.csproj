@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <!-- Chronicle's DefaultClientArtifactsProvider discovers package-referenced assemblies whose
+             name starts with "Cratis" (Cratis.Fundamentals.Types.PackageReferencedAssemblies) - the
+             assembly name is therefore load-bearing, not cosmetic. See
+             AI-consolidation-plan.md risk #11 and Section 12.2. Do not rename without also fixing discovery. -->
+        <AssemblyName>Cratis.AI</AssemblyName>
+        <RootNamespace>Cratis.AI</RootNamespace>
+        <Description>Backend AI concerns for Cratis products - providers, pools, tiers, concurrency, conversations, agents, worker/harness scheduling and usage - one source of truth shared by Direct and Studio.</Description>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="Cratis.AI.Specs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Cratis.Fundamentals" />
+        <!-- Chronicle is referenced directly, not transitively through Cratis.Arc.Chronicle, so central
+             package management actually pins the client version (plan Section 5.3f). -->
+        <PackageReference Include="Cratis.Chronicle" />
+    </ItemGroup>
+</Project>
