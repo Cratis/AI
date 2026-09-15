@@ -5,6 +5,7 @@ global using Cratis.Arc.Commands;
 global using Cratis.Arc.Commands.ModelBound;
 global using Cratis.Arc.Queries;
 global using Cratis.Arc.Queries.ModelBound;
+global using Cratis.Arc.Validation;
 global using Cratis.Chronicle.Events;
 global using Cratis.Chronicle.Keys;
 global using Cratis.Chronicle.Projections;
