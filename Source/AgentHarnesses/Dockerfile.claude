@@ -1,0 +1,71 @@
+# Copyright (c) Cratis. All rights reserved.
+# Licensed under the MIT license. See LICENSE file in the project root for full license information.
+#
+# The Claude harness worker image - the base image plus what only the Claude Code path uses:
+#   - Claude CLI (@anthropic-ai/claude-code), driven by entrypoint.sh's run_claude_code() over its
+#     stream-json protocol
+#   - The report_progress MCP server (progress-mcp-server.mjs) - lets the agent post a live
+#     plan/checklist back to whichever product dispatched it while it works; Claude-only because
+#     Pi 0.84.x has no MCP client of any kind
+#   - A handful of npm-distributed MCP servers wired into every session by entrypoint.sh's
+#     run_claude_code() (--mcp-config), Claude-only for the same reason as report_progress:
+#       - server-sequential-thinking - a step-by-step reasoning scratchpad for multi-step problems
+#       - context7-mcp - up-to-date, version-specific library/framework docs from context7.com
+#       - server-memory - a small persistent knowledge graph for cross-session recall
+#       - playwright-mcp - browser automation, headless Chromium by default, and able to attach to
+#         an already-running browser via --cdp-endpoint for debugging
+#   - Vendored Claude Skills at ~/.claude/skills (Cratis/Stagehand#118) - React/Next.js/testing
+#     skills from the upstream react-agent-skills collection, plus an original Cratis-authored
+#     PrimeReact/Cratis Components UI basics skill. See skills/*/PROVENANCE.md.
+#
+# Published to Docker Hub as cratis/ai-agents-claude.
+ARG BASE_IMAGE=cratis/ai-agents:latest
+FROM ${BASE_IMAGE}
+
+USER root
+
+# Claude CLI — the harness. Pinned to npm's "stable" dist-tag as resolved on 2026-09-05
+# (npm view @anthropic-ai/claude-code dist-tags) rather than "latest", so a fresh publish upstream
+# cannot change what this image installs out from under a build. Bump procedure: re-run that command,
+# update this ARG to the new "stable" value, and rebuild.
+ARG CLAUDE_CLI_VERSION=2.1.236
+RUN npm install -g @anthropic-ai/claude-code@${CLAUDE_CLI_VERSION}
+
+# The report_progress MCP server — installed as its own small package next to the script rather
+# than a global add-on, since it is this image's own tool rather than a CLI the agent invokes
+# directly; entrypoint.sh wires it into the Claude CLI session with --mcp-config.
+COPY progress-mcp-server.mjs package.json package-lock.json /usr/local/lib/direct-progress-mcp/
+RUN cd /usr/local/lib/direct-progress-mcp && npm ci --omit=dev
+
+# The npm-distributed MCP servers above - installed globally as plain tools per the organization's
+# stated preference (tools over ad hoc bridges, and npm over any other MCP distribution channel).
+# PLAYWRIGHT_BROWSERS_PATH moves the downloaded browser out of /root (unreadable by the `agent` user
+# this image ultimately runs as) into a world-readable, fixed location instead; `chmod -R o+rX` grants
+# the `agent` user read on every file and traversal/execute on directories and anything already
+# executable (the Chromium binary itself and its helper executables) without making ordinary data
+# files spuriously executable.
+ARG SEQUENTIAL_THINKING_MCP_VERSION=2026.7.4
+ARG CONTEXT7_MCP_VERSION=4.0.4
+ARG MEMORY_MCP_VERSION=2026.7.4
+ARG PLAYWRIGHT_MCP_VERSION=0.0.79
+ENV PLAYWRIGHT_BROWSERS_PATH=/opt/ms-playwright
+RUN npm install -g \
+        @modelcontextprotocol/server-sequential-thinking@${SEQUENTIAL_THINKING_MCP_VERSION} \
+        @upstash/context7-mcp@${CONTEXT7_MCP_VERSION} \
+        @modelcontextprotocol/server-memory@${MEMORY_MCP_VERSION} \
+        @playwright/mcp@${PLAYWRIGHT_MCP_VERSION} \
+    && "$(npm root -g)/@playwright/mcp/node_modules/.bin/playwright" install --with-deps chromium \
+    && chmod -R o+rX "$PLAYWRIGHT_BROWSERS_PATH"
+
+# Claude Skills (Cratis/Stagehand#118) - vendored into the image at build time, never fetched over
+# the network at container start, the same rule everything else above follows. Placed at Claude
+# Code's user-level skills location (~/.claude/skills) so they are available for any repository a
+# worker is dispatched against - unlike this repository's own .ai/skills (Direct's own
+# contributor corpus), which only reaches a worker when the work happens to be on Direct itself.
+# See skills/*/PROVENANCE.md (or CRATIS-PROVENANCE.md) for what is vendored verbatim under its own
+# license versus authored by Cratis, and why. Not available to the Pi harness - see the --no-skills
+# comment in entrypoint.sh.
+COPY --chown=agent:agent skills/react-agent-skills/skills/ /home/agent/.claude/skills/
+COPY --chown=agent:agent skills/cratis-primereact-ui-basics/ /home/agent/.claude/skills/cratis-primereact-ui-basics/
+
+USER agent
