@@ -32,6 +32,7 @@ published a release - nothing was batched or held back to the end.
 | #329 | `feat/tier-models` | `TierModels`, `TierModelDefaults`, `TierModelResolution` |
 | #330 | `feat/pools` | Pool concepts, `PoolMemberSelector`, `ProviderBurn` (rewired onto `IRecordedAgentSessions`) |
 | #331 | `feat/capabilities` | `AgentInvocationMode`, `AIModelCapability`/`AIProviderCapability`, `AIModelCapabilities` |
+| #333 | `feat/ai-proxies` | `@cratis/ai` (Phase 3b) - `Cratis.Arc.ProxyGenerator.Build` wired into `Cratis.AI.csproj`, `Source/Cratis.AI.Proxies`, decision 0004 |
 
 ### Dependency alignment (plan Section 2.5 / risk #6)
 
@@ -42,6 +43,26 @@ full `dotnet build` (clean proxy regeneration, zero output drift) and all 4,498 
 passing. **Opened for review, not merged** - Direct's own `project/deployment-is-ci-only.md` states a
 merge with a release label is the production deploy decision with no separate approval gate, which is
 a call for whoever owns that deployment, not something to do unattended.
+
+### `@cratis/ai` (Phase 3b, plan Section 6)
+
+**Real, generated, published** - `Cratis.Arc.ProxyGenerator.Build` reflects over the compiled
+`Cratis.AI.dll` with no ASP.NET Core hosting involved (it works off any compiled assembly - Studio's
+Core.csproj already proves this by referencing `Cratis.Arc.Core` + `Cratis.Arc.ProxyGenerator.Build`
+directly rather than the ASP.NET-oriented `Cratis` metapackage, which is what `Cratis.AI.csproj` now
+does too). Generates today: `RecordAgentSessionUsage` (1 command) and `AgentUsageByWeek.RecentWeeks`/
+`AgentUsageByMonth.RecentMonths`/`AgentUsageByDay.LastYear` (3 queries), routed under `/api/a-i/...`
+per decision 0004. `yarn workspace @cratis/ai run ci` (clean, lint, build) passes; the CI drift gate
+rebuilds `Cratis.AI` and diffs `Source/Cratis.AI.Proxies/generated` against what is committed.
+
+Two real bugs surfaced and fixed getting this far, both documented in decision 0004 - worth knowing
+about before anyone else hits them:
+- A plain class library does not copy its NuGet dependencies to its own output directory by default,
+  which crashes the generator's reflection-only assembly resolution. Fixed with
+  `CopyLocalLockFileAssemblies=true` on `Cratis.AI.csproj`.
+- `SkipOutputDeletion=false` wipes its entire output directory on every build, which cannot be the
+  package root without taking `package.json`/`tsconfig.json`/`rollup.config.mjs`/`index.ts` with it.
+  Fixed by pointing `CratisProxiesOutputPath` at a `generated/` subfolder instead.
 
 ## What exists and is tested
 
@@ -116,10 +137,11 @@ In roughly the order the plan's Section 10 sequence suggests tackling it:
   `Containers/` with Studio's `Infrastructure/Containers/` (plan risk #3).
 - **Agent harness Docker images** (`Source/AgentHarnesses/` - `Dockerfile.base/claude/pi`,
   `entrypoint.sh`, `pi-extensions/`, `progress-mcp-server.mjs`, `skills/`) and their CI job.
-- **`@cratis/ai` npm proxy workspace** (`Source/Cratis.AI.Proxies/`) - cannot exist meaningfully
-  until there are commands/queries in the package for the ProxyGenerator to generate from. The
-  drift-gate CI step and the route-shape decision (plan Section 6.4, `/api/a-i/...`) are recorded as
-  TODOs in `publish.yml`'s comments but not yet exercised against real output.
+- **More of `@cratis/ai`** - the package exists and publishes for real (see above), but it only has
+  what the package itself has: one command, three queries. It grows automatically as the provider/
+  agent/conversational work above lands - no more proxy-workspace scaffolding needed, just more
+  commands and read models in `Cratis.AI` itself, plus one `index.ts` export line per new top-level
+  namespace folder (decision 0004).
 - **Direct's migration PR** (delete the moved folders, thin adapters over the seams, swap generated
   `.ts` for `@cratis/ai`) - blocked on everything above existing first.
 - **Studio's migration PR** (same, plus the new AI Usage page) - likewise blocked.
@@ -140,9 +162,12 @@ In roughly the order the plan's Section 10 sequence suggests tackling it:
   no event-type migrations; evolve in place and repair production at rollout, per both donor repos'
   own standing policy. Supersedes an earlier draft of the same record that had proposed keeping old
   event types alive indefinitely.
+- [`decisions/0004-proxy-route-shape-and-package-layout.md`](./decisions/0004-proxy-route-shape-and-package-layout.md) -
+  the `/api/a-i/...` route prefix, the `generated/` subfolder layout `@cratis/ai` needs to survive
+  `SkipOutputDeletion=false`, and the `CopyLocalLockFileAssemblies` fix proxy generation needed on a
+  plain class library.
 
-Two decisions the plan itself flags as needing to be made without blocking (Section 12.0) remain
-**not yet made** because nothing has reached the point of needing them: the Docker registry target
-(plan risk #7 - Docker Hub vs. `ghcr.io`) and the route-shape prefix for package-owned
-commands/queries (plan Section 6.4 - `/api/a-i/...`). Make these, and record them as decisions 0003
-and 0004, before Step 6 (harness images) and Step 12 (the proxy workspace) respectively.
+One decision the plan itself flags as needing to be made without blocking (Section 12.0) remains
+**not yet made**, because nothing has reached the point of needing it: the Docker registry target
+(plan risk #7 - Docker Hub vs. `ghcr.io`). Make it, and record it as decision 0003, before Step 6
+(harness images).

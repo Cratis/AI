@@ -39,6 +39,14 @@ jobs:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      - name: Setup .NET
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+            10.0.x
+
       - name: Use Node.js 24
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
@@ -75,17 +83,25 @@ jobs:
       - name: Reject whitespace errors
         run: git diff --check
 
+      # Regenerates Source/Cratis.AI.Proxies/generated in place, so the drift check right after this
+      # step is comparing the freshly-built tree against what is actually committed - without this,
+      # the check below would just diff the checked-out tree against itself and never catch anything.
+      - name: Build Cratis.AI (regenerates the proxy tree)
+        run: dotnet build Source/Cratis.AI/Cratis.AI.csproj --configuration Debug
+
       # Generated-proxies drift gate (plan Section 4 item 3 / Section 6.3), folded into this job
       # rather than a separate workflow file - the corpus's own Source/Verification check
       # (workflows.length !== 1) requires exactly one workflow file in this repository, which the
       # parallel corpus-distribution effort (AIConsolidation.md) owns and this PR must not disturb.
-      # No-ops harmlessly today: Source/Cratis.AI.Proxies does not exist yet.
+      # Only Source/Cratis.AI.Proxies/generated is checked - the hand-authored package.json/
+      # tsconfig.json/rollup.config.mjs/index.ts at the proxies package root are not generated and
+      # legitimately change on their own.
       - name: Verify generated proxies are up to date
         run: |
-          if [ -d Source/Cratis.AI.Proxies ]; then
-            git diff --exit-code Source/Cratis.AI.Proxies
+          if [ -d Source/Cratis.AI.Proxies/generated ]; then
+            git diff --exit-code Source/Cratis.AI.Proxies/generated
           else
-            echo "Source/Cratis.AI.Proxies does not exist yet - nothing to verify."
+            echo "Source/Cratis.AI.Proxies/generated does not exist yet - nothing to verify."
           fi
 
   dotnet-verify:
@@ -202,14 +218,75 @@ jobs:
       - name: Push NuGet package
         run: dotnet nuget push --skip-duplicate './Artifacts/NuGet/*.nupkg' --timeout 900 --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
 
+  publish-npm-packages:
+    name: Publish @cratis/ai (npm)
+    if: needs.release.outputs.publish == 'true'
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # Required for npm trusted publishing (provenance) using OIDC tokens.
+      id-token: write
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+            10.0.x
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      # Regenerate the proxy tree fresh rather than trust the checked-out one - the version being
+      # published must reflect exactly what Source/Cratis.AI/Cratis.AI.csproj at this commit
+      # produces, and the drift gate in the verify job already proved it matches what is committed,
+      # so this is belt-and-braces rather than load-bearing (plan Section 6.5).
+      - name: Build Cratis.AI (regenerates the proxy tree)
+        run: dotnet build Source/Cratis.AI/Cratis.AI.csproj --configuration Release
+
+      - name: Install workspace dependencies
+        run: corepack enable && yarn install --immutable
+
+      # @cratis/ai and Cratis.AI (NuGet) are published from this one release run, at this one
+      # version - the generated queryName strings baked into the proxy are namespace-qualified and
+      # resolved server-side from the same assembly, so a version skew between the two is a broken
+      # client with no compile-time signal (plan Section 6.5, risk #13).
+      - name: Set package version
+        working-directory: Source/Cratis.AI.Proxies
+        run: npm pkg set version=${{ needs.release.outputs.version }}
+
+      - name: Build package
+        run: yarn workspace @cratis/ai run build
+
+      - name: Publish package
+        working-directory: Source/Cratis.AI.Proxies
+        run: npm publish --provenance --access public
+
   verify-published:
     name: Verify a release actually shipped
     if: always() && needs.release.outputs.publish == 'true'
-    needs: [release, publish-pi, publish-dotnet-packages]
+    needs: [release, publish-pi, publish-dotnet-packages, publish-npm-packages]
     runs-on: ubuntu-latest
     steps:
-      - name: Fail if nothing published
-        if: needs.publish-pi.result != 'success' && needs.publish-dotnet-packages.result != 'success'
+      # Cratis.AI (NuGet) and @cratis/ai (npm) are one artifact split across two registries (plan
+      # Section 6.5) - either both publish or the release is broken, so they are held to a
+      # stricter bar than publish-pi, which is unrelated to either.
+      - name: Fail if Cratis.AI and @cratis/ai did not publish together
+        if: needs.publish-dotnet-packages.result != needs.publish-npm-packages.result
         run: |
-          echo "Release ${{ needs.release.outputs.version }} was determined but neither publish-pi nor publish-dotnet-packages succeeded." >&2
+          echo "Release ${{ needs.release.outputs.version }} published Cratis.AI (${{ needs.publish-dotnet-packages.result }}) and @cratis/ai (${{ needs.publish-npm-packages.result }}) out of step with each other - one shipped and the other did not, which is exactly the version skew Section 6.5 exists to prevent." >&2
+          exit 1
+
+      - name: Fail if nothing published
+        if: needs.publish-pi.result != 'success' && needs.publish-dotnet-packages.result != 'success' && needs.publish-npm-packages.result != 'success'
+        run: |
+          echo "Release ${{ needs.release.outputs.version }} was determined but nothing succeeded publishing." >&2
           exit 1

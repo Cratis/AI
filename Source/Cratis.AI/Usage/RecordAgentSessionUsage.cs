@@ -82,27 +82,14 @@ public record RecordAgentSessionUsage(
             period.Month));
 }
 
-/// <summary>
-/// Represents the validator for the <see cref="RecordAgentSessionUsage"/> command. None of the
-/// reported figures can be negative - a negative measurement is never real and, left unrejected,
-/// would silently skew every usage figure derived from it (the same bug class Direct hit -
-/// Cratis/Stagehand#747 - now caught at the command boundary rather than relying on each concept's
-/// own validator alone, since several of these properties are optional here and a validator only
-/// runs once the concept is constructed).
-/// </summary>
-public class RecordAgentSessionUsageValidator : CommandValidator<RecordAgentSessionUsage>
-{
-    /// <summary>
-    /// Initializes a new instance of the <see cref="RecordAgentSessionUsageValidator"/> class.
-    /// </summary>
-    public RecordAgentSessionUsageValidator()
-    {
-        RuleFor(_ => _.InputTokens!.Value).GreaterThanOrEqualTo(0).When(_ => _.InputTokens is not null).WithMessage("Input tokens cannot be negative");
-        RuleFor(_ => _.OutputTokens!.Value).GreaterThanOrEqualTo(0).When(_ => _.OutputTokens is not null).WithMessage("Output tokens cannot be negative");
-        RuleFor(_ => _.CachedTokens!.Value).GreaterThanOrEqualTo(0).When(_ => _.CachedTokens is not null).WithMessage("Cached tokens cannot be negative");
-        RuleFor(_ => _.CostUsd!.Value).GreaterThanOrEqualTo(0).When(_ => _.CostUsd is not null).WithMessage("A cost cannot be negative");
-        RuleFor(_ => _.CpuSeconds!.Value).GreaterThanOrEqualTo(0).When(_ => _.CpuSeconds is not null).WithMessage("A CPU time cannot be negative");
-        RuleFor(_ => _.MemoryBytes!.Value).GreaterThanOrEqualTo(0).When(_ => _.MemoryBytes is not null).WithMessage("A memory size cannot be negative");
-        RuleFor(_ => _.Duration!.Value).GreaterThanOrEqualTo(0).When(_ => _.Duration is not null).WithMessage("A duration cannot be negative");
-    }
-}
+// No explicit RecordAgentSessionUsageValidator: every optional figure on this command is a
+// ConceptAs<T> (InputTokens, OutputTokens, CachedTokens, CostUsd, CpuSeconds, MemoryBytes,
+// DurationMilliseconds), and Arc's IModelGraphValidator already walks the whole command graph and
+// applies each concept's own ConceptValidator (CpuSecondsValidator, CostUsdValidator, ...)
+// automatically whenever a value is present - the same traversal a query argument gets. A command-
+// level validator re-declaring "cannot be negative" here would be pure duplication of what the
+// concept validators already guarantee, and an earlier version of this file did exactly that
+// (RuleFor(_ => _.CostUsd!.Value)...) - which additionally broke @cratis/ai's generated TypeScript:
+// the ProxyGenerator translates a command validator's property-chain expression literally, and
+// "CostUsd!.Value" became a nonsensical "c.costUsd.Value" access on a TS property already flattened
+// to a plain number. Validate at the concept, not the command, for exactly this class of property.

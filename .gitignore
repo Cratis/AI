@@ -91,7 +91,12 @@ node_modules/
 
 # Nuxt.js build / generate output
 /.nuxt
-/dist
+
+# Real, nested build output (e.g. Source/Cratis.AI.Proxies/dist, the rollup bundle) - unanchored
+# like node_modules/, for the same reason: a nested dist is always real build output, never
+# corpus content, so it must not be repo-root-only the way the anchoring note at the top of this
+# file otherwise defaults to.
+dist/
 
 # Gatsby files
 .cache/

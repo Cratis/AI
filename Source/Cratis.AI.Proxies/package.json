@@ -1,0 +1,59 @@
+{
+    "name": "@cratis/ai",
+    "version": "0.0.0",
+    "description": "Generated Arc command/query proxies and TypeScript types for Cratis.AI - the backend AI concerns (providers, pools, tiers, concurrency, conversations, agents, worker/harness scheduling, usage) shared by Direct and Studio. Generated only - no components, no CSS, no stories.",
+    "keywords": [
+        "cratis",
+        "ai",
+        "arc",
+        "proxy",
+        "typescript"
+    ],
+    "homepage": "https://github.com/Cratis/AI",
+    "author": "Cratis",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Cratis/AI.git",
+        "directory": "Source/Cratis.AI.Proxies"
+    },
+    "bugs": "https://github.com/Cratis/AI/issues",
+    "publishConfig": {
+        "access": "public"
+    },
+    "files": [
+        "dist",
+        "**/*.ts"
+    ],
+    "main": "dist/cjs/index.js",
+    "module": "dist/esm/index.js",
+    "types": "dist/esm/index.d.ts",
+    "exports": {
+        "./package.json": "./package.json",
+        ".": {
+            "types": "./dist/esm/index.d.ts",
+            "require": "./dist/cjs/index.js",
+            "import": "./dist/esm/index.js"
+        }
+    },
+    "scripts": {
+        "prepare": "yarn g:build",
+        "clean": "yarn g:clean",
+        "build": "yarn g:build",
+        "lint": "yarn g:lint",
+        "lint:ci": "yarn g:lint:ci",
+        "ci": "yarn clean && yarn lint:ci && yarn build"
+    },
+    "peerDependencies": {
+        "@cratis/arc": ">=22.14.0",
+        "@cratis/arc.react": ">=22.14.0",
+        "@cratis/fundamentals": ">=7.19.2",
+        "react": ">=18"
+    },
+    "devDependencies": {
+        "@cratis/arc": "22.14.0",
+        "@cratis/arc.react": "22.14.0",
+        "@cratis/fundamentals": "7.19.2",
+        "react": "^19.2.6"
+    }
+}

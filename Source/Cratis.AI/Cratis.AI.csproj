@@ -8,7 +8,54 @@
         <RootNamespace>Cratis.AI</RootNamespace>
         <Description>Backend AI concerns for Cratis products - providers, pools, tiers, concurrency, conversations, agents, worker/harness scheduling and usage - one source of truth shared by Direct and Studio.</Description>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+        <!-- The proxy generator reflects over Cratis.AI.dll's dependency closure (Cratis.Chronicle,
+             Cratis.Fundamentals, Cratis.Arc.Core, ...) through a reflection-only MetadataLoadContext,
+             which needs every referenced assembly sitting next to Cratis.AI.dll in the output
+             directory to resolve base types. A plain class library does not copy its NuGet
+             dependencies locally by default (an app like Direct's/Studio's Web SDK project does, which
+             is why they never needed this) - without it the generator crashes trying to resolve
+             EventSourceId<T>'s base type from a Cratis.Chronicle it cannot find. -->
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+
+        <!-- Generated command/query TypeScript proxies, published as @cratis/ai (plan Section 6.3).
+             Deviates from Direct's/Studio's own CratisProxiesUseSourceFileAsOutputFile=true: that puts
+             the .ts beside the .cs, which is right for an app but would make the npm package root the
+             C# project directory. Written to a sibling Cratis.AI.Proxies project instead, and NOT
+             deleted on every build (SkipOutputDeletion=false, the opposite of both donors) so a
+             deleted command can never leave a stale proxy behind in a published package - the CI
+             drift gate in publish.yml's verify job depends on that. Route decision (plan Section 6.4,
+             decision 0003): SegmentsToSkip=1 skips only the leading "Cratis" namespace segment, giving
+             routes like /api/a-i/usage/record-agent-session-usage - distinct and collision-proof
+             against either product's own routes, and identical in both hosts since both load the same
+             published proxy. -->
+        <!-- A subfolder, not the package root: CratisProxiesSkipOutputDeletion=false below wipes
+             whatever this path points at before regenerating, which would otherwise take the
+             hand-authored package.json/tsconfig.json/rollup.config.mjs/index.ts at the package root
+             with it. -->
+        <CratisProxiesOutputPath>$(MSBuildThisFileDirectory)../Cratis.AI.Proxies/generated</CratisProxiesOutputPath>
+        <CratisProxiesSegmentsToSkip>1</CratisProxiesSegmentsToSkip>
+        <CratisProxiesSkipOutputDeletion>false</CratisProxiesSkipOutputDeletion>
+        <CratisProxiesSkipCommandNameInRoute>true</CratisProxiesSkipCommandNameInRoute>
+        <CratisProxiesUseSourceFileAsOutputFile>false</CratisProxiesUseSourceFileAsOutputFile>
     </PropertyGroup>
+
+    <ItemGroup>
+        <!-- Strips the "Cratis.AI" namespace root down to the proxy tree's own folder root instead
+             of leaving a redundant AI/ folder inside a package already named @cratis/ai - purely a
+             generated-folder-layout concern, independent of the route shape above. -->
+        <NamespaceRoot Include="root">
+            <Namespace>Cratis.AI</Namespace>
+            <Folder>.</Folder>
+        </NamespaceRoot>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Cratis.Arc.ProxyGenerator.Build">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
 
     <ItemGroup>
         <InternalsVisibleTo Include="Cratis.AI.Specs" />
