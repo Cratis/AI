@@ -12,3 +12,6 @@ export * from './generated/Harnesses';
 export * from './generated/Usage';
 export * from './generated/Usage/Trends';
 export * from './generated/Usage/Daily';
+export * from './generated/Providers/Adding';
+export * from './generated/Providers/Renaming';
+export * from './generated/Providers/Removing';

@@ -34,6 +34,7 @@ published a release - nothing was batched or held back to the end.
 | #331 | `feat/capabilities` | `AgentInvocationMode`, `AIModelCapability`/`AIProviderCapability`, `AIModelCapabilities` |
 | #333 | `feat/ai-proxies` | `@cratis/ai` (Phase 3b) - `Cratis.Arc.ProxyGenerator.Build` wired into `Cratis.AI.csproj`, `Source/Cratis.AI.Proxies`, decision 0004 |
 | #338 | `feat/pool-failover-and-quota` | [Cratis/AI#337](https://github.com/Cratis/AI/issues/337): `AIProviderPoolDispatcher` fails over to the next pool member on a transient failure; `IAIProviderQuotaTracker`/`AIProviderQuotaHeaders` read each vendor's own rate-limit headers so a known-exhausted member is skipped before it is ever called; `AgentUsageByDay` now carries CPU/memory alongside tokens, so resource usage is visible per agent/purpose, not only as an undifferentiated weekly total; decision 0005 |
+| #339 | `feat/provider-crud` | First real migration slice: `Providers/Adding/` (all 5 vendors), `Renaming/`, `Removing/`, `ConfiguredAIProvider` upgraded from placeholder record to a real `[ReadModel][Passive]` projection; decision 0006 |
 
 ### Dependency alignment (plan Section 2.5 / risk #6)
 
@@ -113,9 +114,15 @@ In roughly the order the plan's Section 10 sequence suggests tackling it:
   real `ConfiguredAIProvider`/`AIProviderPool` projections below. Read
   `AIProviders/ProviderAwareLanguageModel.cs` in Direct before starting this - it is ~215 lines with
   real production reasoning (issue #103) behind almost every branch.
-- **Provider commands/projections** (`Adding/`, `Reconfiguring/`, `Removing/`, `Renaming/`,
-  `SettingConcurrency/`, `SettingTierModels/`, `Listing/`, `Resolving/`) - needed before
-  `ConfiguredAIProvider` (#323) can be a real projection instead of its current placeholder shape.
+- **Provider commands/projections** - `Adding/` (all 5 vendors), `Renaming/`, `Removing/` are real
+  now (decision 0006); `ConfiguredAIProvider` is a real `[ReadModel][Passive]` projection built from
+  them, not the placeholder shape it used to be. Still missing: **`Reconfiguring/`** (needs
+  "blank keeps the existing value" semantics - reading current state inside a command handler, a
+  pattern not yet established anywhere else in the package), `SettingConcurrency/`,
+  `SettingTierModels/`, `Listing/` (the display-name-bearing model a UI lists providers from -
+  `ConfiguredAIProvider` deliberately has no name, same as Direct's own donor). OpenAI's
+  subscription-credential-kind classification event is also not yet ported (belongs with Codex,
+  below).
 - **Pool CRUD/projections** (create/rename/remove pool, add/remove provider, `Listing/`) - needed
   before `AIProviderPoolMember` (#330) is populated by anything other than a consumer constructing
   it directly.
@@ -168,6 +175,10 @@ In roughly the order the plan's Section 10 sequence suggests tackling it:
   `SkipOutputDeletion=false`, and the `CopyLocalLockFileAssemblies` fix proxy generation needed on a
   plain class library.
 
+- [`decisions/0006-provider-crud-first-migration-slice.md`](./decisions/0006-provider-crud-first-migration-slice.md) -
+  why provider CRUD is the first real migration slice, what it ported (Add/Rename/Remove, the real
+  `ConfiguredAIProvider` projection) and what it deliberately did not (Reconfigure's partial-update
+  semantics, pool CRUD, and everything else still listed under "what does not exist yet").
 - [`decisions/0005-pool-failover-and-provider-quota.md`](./decisions/0005-pool-failover-and-provider-quota.md) -
   pool-level failover on a transient failure, provider-reported quota read ahead of a call, and why
   a known-exhausted reading is trusted only when it still leaves the pool a candidate to try.
