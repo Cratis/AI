@@ -3,13 +3,23 @@
   "version": "0.1.0",
   "description": "Configuration-aware Cratis AI integration for Pi",
   "type": "module",
-  "files": ["package", "src", "README.md", "LICENSE"],
+  "files": [
+    "package",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "check": "tsc --noEmit",
     "prepack": "node prepare-package.mjs",
     "postpack": "node prepare-package.mjs --clean"
   },
-  "keywords": ["cratis", "pi-package", "ai", "skills"],
+  "keywords": [
+    "cratis",
+    "pi-package",
+    "ai",
+    "skills"
+  ],
   "homepage": "https://github.com/Cratis/AI",
   "repository": {
     "type": "git",

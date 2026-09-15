@@ -154,12 +154,14 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# .NET
-/bin/
-/obj/
-/artifacts/
+# .NET — unanchored like node_modules/: nested bin/obj dirs are real build output under
+# every .csproj in Source/, never corpus content, so they must not be repo-root-only.
+bin/
+obj/
+/Artifacts/
 *.user
 .idea/
+*.binlog
 
 # Playwright artifacts
 .playwright-mcp/
